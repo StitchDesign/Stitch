@@ -56,20 +56,18 @@ final class StitchDocumentViewModel: Sendable {
     var cameraFeedManager: LoadingStatus<StitchSingletonMediaObject>?
     
     var lastEncodedDocument: StitchDocument
-    let documentEncoder: DocumentEncoder
     
-    // Keeps reference to store
     weak var storeDelegate: StoreDelegate?
     weak var projectLoader: ProjectLoader?
+    weak var documentEncoder: DocumentEncoder?
     
     @MainActor
     init(from schema: StitchDocument,
          graph: GraphState,
-         documentEncoder: DocumentEncoder,
          isPhoneDevice: Bool,
          projectLoader: ProjectLoader,
          store: StoreDelegate?) {
-        self.documentEncoder = documentEncoder
+        self.documentEncoder = projectLoader.encoder
         self.previewWindowSize = schema.previewWindowSize
         self.previewSizeDevice = schema.previewSizeDevice
         self.previewWindowBackgroundColor = schema.previewWindowBackgroundColor
@@ -87,12 +85,17 @@ final class StitchDocumentViewModel: Sendable {
     
     @MainActor
     func initializeDelegate(store: StoreDelegate) {
-        self.documentEncoder.delegate = self
+        self.documentEncoder?.delegate = self
         self.graphStepManager.delegate = self
         self.storeDelegate = store
         
+        guard let documentEncoder = self.documentEncoder else {
+            fatalErrorIfDebug()
+            return
+        }
+        
         self.graph.initializeDelegate(document: self,
-                                      documentEncoderDelegate: self.documentEncoder)
+                                      documentEncoderDelegate: documentEncoder)
         
         // Start graph
         self.graphStepManager.start()
@@ -109,7 +112,6 @@ final class StitchDocumentViewModel: Sendable {
                                      encoder: documentEncoder)
         await self.init(from: schema,
                         graph: graph,
-                        documentEncoder: documentEncoder,
                         isPhoneDevice: isPhoneDevice,
                         projectLoader: projectLoader,
                         store: store)
@@ -177,9 +179,9 @@ extension StitchDocumentViewModel {
     @MainActor
     func encodeProjectInBackground(temporaryURL: URL? = nil,
                                    willUpdateUndoHistory: Bool = true) {
-        self.documentEncoder.encodeProjectInBackground(from: self.graph,
-                                                       temporaryUrl: temporaryURL,
-                                                       willUpdateUndoHistory: willUpdateUndoHistory)
+        self.documentEncoder?.encodeProjectInBackground(from: self.graph,
+                                                        temporaryUrl: temporaryURL,
+                                                        willUpdateUndoHistory: willUpdateUndoHistory)
     }
     
     /// Determines if camera is in use by looking at main graph + all component graphs to determine if any camera
@@ -291,7 +293,6 @@ extension StitchDocumentViewModel {
     @MainActor static func createEmpty() -> StitchDocumentViewModel {
         .init(from: .init(),
               graph: .init(),
-              documentEncoder: .init(document: .init()),
               isPhoneDevice: false,
               projectLoader: .init(url: URL(fileURLWithPath: "")),
               store: nil)
