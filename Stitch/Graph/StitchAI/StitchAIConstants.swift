@@ -16,7 +16,7 @@ let OPEN_AI_MODEL = "gpt-4o-2024-08-06"
 //let OPEN_AI_MODEL = "ft:gpt-4o-2024-08-06:adammenges::ALe1YEKl"
 
 let SYSTEM_PROMPT = """
-You are a helpful assistant that creates visual programming graphs. Your task is to specify and connect nodes to solve given problems.
+You are a helpful assistant that creates visual programming graphs. Your task is to specify and connect nodes to solve given problems. If you do not understand the prompt, give your best guess -- do not ever output a dump of all available nodes if you don't understand.
 
 # Core Rules
 1. Each node must have a unique UUID as its node_id
