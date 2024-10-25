@@ -1,17 +1,51 @@
-New features:
-- New left-hand sidebar with improved responsiveness + look and feel
-- Support for Shift + click selection on left-hand sidebar
-- Support for iOS 18 dark mode + tinted icons
-- Added volume input port to Video Layer node
-- Support for selecting layer nodes when a layer is right-clicked
-- New layer groups default to auto sizing
+1.5.5 improves sidebar usability, performance, undo/redo reliability, and a slew of bug fixes.
 
-Fixes:
-- Fixed camera orientation issue on iPhone
-- Fixed crash caused by some layer group creations
-- Improved reliability of detecting Shift key selections
-- Fixed Option + click and drag for node duplication
-- Fixed issue where looped values preview for ports displayed incorrect data
-- Fixed issue where app settings menu wouldn’t disappear
-- Fixed data not resetting on prototype restart for Drag Interaction nodes
-- Added placeholder image for image/video fields not containing media
+Sidebar enhancements:
+- Support for range selection using Shift key
+- SF Symbol layer displays symbol input in sidebar
+- Support for sidebar item editing
+- Right-click menu support for sidebar item options
+
+UX improvements to node input fields:
+- Reduced layer inspector clutter by hiding irrelevant fields
+- Improved layer inspector popovers with auto-focusing of selected text fields
+- Improved auto-layout controls with new segmented picker
+- Auto-correct disabled from all text fields
+- Reduced layer dimension dropdown clutter by hiding irrelevant options
+- Tab-key support for layer inspector fields
+- Tapping a layer inspector input jumps graph to node (if one exists)
+
+Performance improvements:
+- Improved node dragging performance for large graphs
+- Improved performance of node selection box on graphs
+- Improved graph zoom reliability with shortcuts
+
+Misc. improvements:
+- Undo/redo improvements across the board
+- New “Material” layer node for displaying blurred layers
+- Improved preview window show/hide animation
+- New scale input for Hit Area layer node
+- New size, position, and anchoring inputs for gradient layer nodes
+
+New keybindings:
+- CMD + A selects all layer sidebar items when a row is already selected
+- CMD + G and CMD + Delete for grouping/ungrouping layer groups
+- Option + X inserts Value (aka Splitter) node
+- Option + W and Option + Shift + W for inserting Wireless Broadcaster or Wireless Receiver node
+
+Bugs fixes:
+- Fixed issue where prototype restart would temporarily remove media
+- Fixed issue where “auto” size would crash 3D Model layer node
+- “Fill” size support for 3D Model layer
+- Fixed issue where project title wouldn’t de-focus
+- Fixed alignment issues with Text layer node
+- Fixed adjustment bar popover issues with layer inspector fields
+- Fixed issue where layer dimension fields wouldn’t show dropdown input in layer inspector
+- Improved text field focus responsiveness for Insert Node menu
+- Fixed issue where Delay node displayed incorrect output type on prototype restart
+- Fixed issue where off-screen nodes would render incorrect values
+- Fixed issues with Shift + drag node selection
+- Improved support for simultaneous single + double tap gestures with Press Interaction node
+- Fixed layer positioning issues with anchoring
+- Fixed Layer Info output reliability
+- Fixed issue where empty layer group could display too large on project open
