@@ -244,9 +244,6 @@ extension GraphState: GraphDelegate {
     func updateGraphData() {        
         if let document = self.documentDelegate,
            let encoderDelegate = self.documentEncoderDelegate {
-            // Helps refresh connections data
-            self.update(from: self.createSchema())
-            
             self.initializeDelegate(document: document,
                                     documentEncoderDelegate: encoderDelegate)
         }
