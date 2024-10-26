@@ -128,7 +128,9 @@ struct GraphBaseView: View {
                     isFingerOnScreenSelection: selectionState.isFingerOnScreenSelection)
             }
 
-            // Pseudo preview window; messes up node-selection box position?
+//            Circle().fill(Stitch.APP_BACKGROUND_COLOR.opacity(0.001))
+//                .overlay(alignment: .topTrailing) {
+                    // Pseudo preview window; messes up node-selection box position?
             Rectangle().fill(.orange).frame(width: 200, height: 200)
                 .position(
                     x: graphUI.frame.size.width
@@ -137,6 +139,8 @@ struct GraphBaseView: View {
                     ,
                     y: 100
                 )
+            
+         
             
             // To cover top safe area that we don't ignore on iPad and that is gesture-inaccessbile
             Stitch.APP_BACKGROUND_COLOR
