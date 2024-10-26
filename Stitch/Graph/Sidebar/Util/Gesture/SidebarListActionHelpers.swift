@@ -16,10 +16,7 @@ extension ProjectSidebarObservable {
                                 // captures max index before dragged elements were removed from list
                                 maxRowIndex: Int) -> SidebarIndex? {
         
-        guard let lastItem = flattenedItems.last else { return nil }
-        
         let halfRowHeight = Double(CUSTOM_LIST_ITEM_VIEW_HEIGHT) / 2
-        let maxRowIndex = flattenedItems.count
         let maxGroupIndex = (flattenedItems.max { $0.sidebarIndex.groupIndex < $1.sidebarIndex.groupIndex }?.sidebarIndex.groupIndex ?? 0) + 1
         let dragX = max(dragPosition.x, 0)
         let rawFloatX = Int(floor(dragX / Double(CUSTOM_LIST_ITEM_INDENTATION_LEVEL)))
