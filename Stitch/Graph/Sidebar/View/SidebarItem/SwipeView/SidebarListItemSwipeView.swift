@@ -42,7 +42,11 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
             sidebarViewModel: sidebarViewModel,
             gestureViewModel: gestureViewModel)
         .transition(.move(edge: .top).combined(with: .opacity))
-        .animation(.stitchAnimation(duration: animationDuration), value: gestureViewModel.location)
+        
+        // MARK: indent padding animation needs to be before y animation
+        .animation(.stitchAnimation(duration: 0.25), value: indentationPadding)
+        .animation(.stitchAnimation(duration: animationDuration), value: gestureViewModel.location.y)
+        
         .zIndex(gestureViewModel.zIndex)
         .height(CGFloat(CUSTOM_LIST_ITEM_VIEW_HEIGHT))
         .padding(.horizontal, 4)
