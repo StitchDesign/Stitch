@@ -112,9 +112,11 @@ extension SidebarItemSwipable {
         
         let afterGroupIndex = afterElement.sidebarIndex.groupIndex
         
-        // If before element is a parent, restrict results to that parent
+        // If before element is a parent, restrict results from:
+        // * min group: the after element group index
+        // * max group: a child of this group
         if beforeElement.isGroup {
-            let result = beforeGroupIndex..<beforeGroupIndex + 1
+            let result = afterGroupIndex..<beforeGroupIndex + 2
             return result
         }
         
@@ -495,6 +497,7 @@ extension Array where Element: SidebarItemSwipable {
             return newList
         
         case .topOfGroup:
+            assertInDebug(element.isGroup)
             guard var children = element.children else {
                 fatalErrorIfDebug()
                 return self
@@ -515,6 +518,8 @@ extension Array where Element: SidebarItemSwipable {
     ///     * Must match the group index
     ///     * Must ponit to group layer if otherwise top of list
     ///     * Recommended element cannot reside "below" the requested row index.
+    /// Note: the enum result type determines if an element is placed either after some other element or into the list of a group.
+    /// The enum is needed because there's no way to insert the element at the top of a list when the default rule is placing an element after.
     @MainActor
     func findClosestElement(draggedElement: Element,
                             to indexOfDraggedLocation: SidebarIndex) -> SidebarDragDestination<Element> {
@@ -550,24 +555,36 @@ extension Array where Element: SidebarItemSwipable {
             return lhsGroupIndexDiff < rhsGroupIndexDiff
         }
         
-        guard let recommendedItem = rankedItems.first else {
-            return .topOfGroup(nil)
-        }
-        
 #if DEV_DEBUG
 //        log("before: \(beforeElement?.id.debugFriendlyId ?? "none")\tafter: \(afterElement?.id.debugFriendlyId ?? "none")")
+//        log("supported group ranges: \(supportedGroupRanges)")
 //        log("recommendation test for \(indexOfDraggedLocation):")
-//        rankedItems.forEach { print("\($0.id.debugFriendlyId), \($0.sidebarIndex), diff: \(abs(indexOfDraggedLocation.groupIndex - $0.sidebarIndex.groupIndex))") }
+//        rankedItems.forEach { print("\($0.id.debugFriendlyId), \($0.sidebarIndex), diff: \(abs(indexOfDraggedLocation.rowIndex - $0.sidebarIndex.rowIndex))") }
 #endif
         
-        // Check for condition where we want to insert a row to the top of a group's children list:
-        // this returns a different result because elements at top of groups need to be inserted into a group's
-        // children property
-        if recommendedItem.isGroup && recommendedItem.rowIndex + 1 == indexOfDraggedLocation.rowIndex,
-            indexOfDraggedLocation.groupIndex > recommendedItem.sidebarIndex.groupIndex {
-            return .topOfGroup(recommendedItem)
+        // Covers top of list and many top of group scenarios
+        guard let recommendedItem = rankedItems.first else {
+            return .topOfGroup(beforeElement)
         }
         
+        // Check if element is dragged more right-ward for placement into group
+        if let beforeElement = beforeElement {
+            // Horizontal drag is east of parent group
+            let isDraggedIntoChildHierarchy = indexOfDraggedLocation.groupIndex > recommendedItem.sidebarIndex.groupIndex
+            
+            // Horizontal drag permits west-ward movement to move to parent context
+            let allowsDraggingToParentHierarchy = supportedGroupRanges.contains(beforeElement.sidebarIndex.groupIndex)
+            
+            // User dragged into child list and that was allowed given below items
+            let wasValidDragIntoChildren = isDraggedIntoChildHierarchy || !allowsDraggingToParentHierarchy
+            
+            let didMoveToTopOfGroup = beforeElement.isGroup && wasValidDragIntoChildren
+            if didMoveToTopOfGroup {
+                return .topOfGroup(beforeElement)
+            }
+        }
+        
+        // Default scenarios result in placing after some other element
         return .afterElement(recommendedItem)
     }
 }
