@@ -169,8 +169,6 @@ extension ProjectSidebarObservable {
         let allDraggedItems = visualList.filter { item in
             allSelections.contains(item.id)
         }
-        
-        // TODO: remove children from items if selected
 
         let implicitlyDraggedItems = visualList.filter { item in
             self.implicitlyDragged.contains(item.id)
@@ -183,21 +181,21 @@ extension ProjectSidebarObservable {
         
         let originalItemIndex = item.sidebarIndex
         
-        // New drag check
+        guard let calculatedIndex = Self.getMovedtoIndex(
+            dragPosition: item.dragPosition ?? item.location,
+            movingDown: translation.height > 0,
+            flattenedItems: filteredVisualList,
+            maxRowIndex: visualList.count - 1) else {
+            log("onSidebarListItemDragged: no index found")
+            return
+        }
+        
+        // Set state for a new drag
         guard let oldDragPosition = item.dragPosition else {
-            // TODO: If new drag, re-arrange groups and delete
-            
             self.currentItemDragged = item.id
             
             // Remove elements from groups if there are selections inside other selected groups
             Self.removeSelectionsFromGroups(selections: allDraggedItems)
-            
-            // Move items to dragged item
-            self.movedDraggedItems(draggedElement: item,
-                                   draggedItems: allDraggedItems,
-                                   visualList: filteredVisualList,
-                                   to: originalItemIndex,
-                                   oldCount: oldCount)
             
             let draggedChildren = allDraggedItems.flatMap { draggedItem in
                 draggedItem.children?.flattenedItems ?? []
@@ -215,21 +213,12 @@ extension ProjectSidebarObservable {
             return
         }
         
-        // Update drag positions
-        (allDraggedItems + implicitlyDraggedItems).forEach { draggedItem in
-            draggedItem.dragPosition = (draggedItem.prevDragPosition ?? .zero) + translation.toCGPoint
-        }
-        
         // Dragging down = indices increase
         let isDraggingDown = (item.dragPosition?.y ?? .zero) > oldDragPosition.y
         
-        guard let calculatedIndex = Self.getMovedtoIndex(
-            dragPosition: item.dragPosition ?? item.location,
-            movingDown: isDraggingDown,
-            flattenedItems: filteredVisualList,
-            maxRowIndex: visualList.count - 1) else {
-            log("No index found")
-            return
+        // Update drag positions
+        (allDraggedItems + implicitlyDraggedItems).forEach { draggedItem in
+            draggedItem.dragPosition = (draggedItem.prevDragPosition ?? .zero) + translation.toCGPoint
         }
         
         if originalItemIndex != calculatedIndex {
