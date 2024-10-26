@@ -156,6 +156,10 @@ extension ProjectSidebarObservable {
     func onSidebarListItemDragged(_ item: Self.ItemViewModel, // assumes we've already
                                   _ translation: CGSize) {
         let visualList = self.getVisualFlattenedList()
+        
+        // Track old count before selections are made below
+        // In-place removals mean we need to save this now
+        let oldCount = visualList.count
 
         let allSelections = self.selectionState
             .inspectorFocusedLayers
@@ -165,6 +169,8 @@ extension ProjectSidebarObservable {
         let allDraggedItems = visualList.filter { item in
             allSelections.contains(item.id)
         }
+        
+        // TODO: remove children from items if selected
 
         let implicitlyDraggedItems = visualList.filter { item in
             self.implicitlyDragged.contains(item.id)
@@ -190,7 +196,8 @@ extension ProjectSidebarObservable {
             self.movedDraggedItems(draggedElement: item,
                                    draggedItems: allDraggedItems,
                                    visualList: filteredVisualList,
-                                   to: originalItemIndex)
+                                   to: originalItemIndex,
+                                   oldCount: oldCount)
             
             let draggedChildren = allDraggedItems.flatMap { draggedItem in
                 draggedItem.children?.flattenedItems ?? []
@@ -229,7 +236,8 @@ extension ProjectSidebarObservable {
             self.movedDraggedItems(draggedElement: item,
                                    draggedItems: allDraggedItems,
                                    visualList: filteredVisualList,
-                                   to: calculatedIndex)
+                                   to: calculatedIndex,
+                                   oldCount: oldCount)
         }
     }
     
@@ -243,13 +251,11 @@ extension ProjectSidebarObservable {
     func movedDraggedItems(draggedElement: Self.ItemViewModel,
                            draggedItems: [Self.ItemViewModel],
                            visualList: [Self.ItemViewModel],
-                           to index: SidebarIndex) {
-        
-        let flattenedList = self.items.flattenedItems
+                           to index: SidebarIndex,
+                           oldCount: Int) {
         
         let visualList = visualList
         let draggedItems = draggedItems
-        let oldCount = flattenedList.count
         let draggedItemIdSet = draggedItems.map(\.id).toSet
         
         let draggedToElementResult = visualList.findClosestElement(draggedElement: draggedElement,
