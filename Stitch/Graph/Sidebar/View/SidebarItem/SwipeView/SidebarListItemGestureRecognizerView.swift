@@ -173,8 +173,6 @@ final class SidebarListGestureRecognizer<SidebarViewModel: ProjectSidebarObserva
             return
         }
         
-        
-        
         self.sidebarViewModel?.sidebarItemTapped(id: self.itemId,
                                                  shiftHeld: self.shiftHeldDown,
                                                  commandHeld: self.commandHeldDown)

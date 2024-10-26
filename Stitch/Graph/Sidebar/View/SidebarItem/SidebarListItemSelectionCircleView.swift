@@ -48,7 +48,10 @@ struct SidebarListItemSelectionCircleView<Item>: View where Item: SidebarItemSwi
                    height: SIDEBAR_ITEM_ICON_LENGTH)
             .padding(4)
             .contentShape(Rectangle())
-            .onTapGesture {
+        
+        // simultaneous needed to fix issues where SidebarListGestureRecognizer's
+        // tap gesturecancels touches
+            .simultaneousGesture(TapGesture().onEnded {
                 log("SidebarListItemSelectionCircleView: tapCallback")
                 // ie What kind of selection did we have?
                 // - if item was already 100% selected, then deselect
@@ -59,6 +62,6 @@ struct SidebarListItemSelectionCircleView<Item>: View where Item: SidebarItemSwi
                 case .secondary, .none:
                     item.didSelectOnEditMode()
                 }
-            }
+            })
     }
 }
