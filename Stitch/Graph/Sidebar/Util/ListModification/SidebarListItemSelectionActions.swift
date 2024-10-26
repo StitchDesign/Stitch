@@ -106,7 +106,7 @@ extension ProjectSidebarObservable {
         
         // items are on same level if they are all top level
         let allTopLevel = selections.allSatisfy { selectionId in
-            self.items.get(selectionId)?.parentDelegate != nil
+            self.items.get(selectionId)?.parentDelegate == nil
         }
         
         // ... or if they all have same parent
