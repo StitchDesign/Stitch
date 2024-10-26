@@ -85,7 +85,7 @@ protocol SidebarItemSwipable: AnyObject, Observable, Identifiable, StitchNestedL
 
 extension SidebarItemSwipable {
     var zIndex: Double {
-        if self.activeGesture.isDrag {
+        if self.isBeingDragged {
             return SIDEBAR_ITEM_MAX_Z_INDEX
         }
         
@@ -163,7 +163,7 @@ extension SidebarItemSwipable {
     }
     
     var isBeingDragged: Bool {
-        self.sidebarDelegate?.currentItemDragged == self.id
+        self.dragPosition != nil
     }
     
     var isCollapsedGroup: Bool {

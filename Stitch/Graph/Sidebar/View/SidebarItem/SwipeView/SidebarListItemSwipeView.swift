@@ -30,6 +30,11 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
         CUSTOM_LIST_ITEM_INDENTATION_LEVEL * gestureViewModel.sidebarIndex.groupIndex
     }
     
+    // Controls animation for non-dragged elements
+    var animationDuration: Double {
+        gestureViewModel.isBeingDragged ? 0 : 0.25
+    }
+    
     var body: some View {
         // TODO: why does drag gesture on Catalyst break if we remove this?
         SidebarListItemGestureRecognizerView(
@@ -37,7 +42,7 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
             sidebarViewModel: sidebarViewModel,
             gestureViewModel: gestureViewModel)
         .transition(.move(edge: .top).combined(with: .opacity))
-        .animation(.stitchAnimation(duration: 0.25), value: gestureViewModel.location)
+        .animation(.stitchAnimation(duration: animationDuration), value: gestureViewModel.location)
         .zIndex(gestureViewModel.zIndex)
         .height(CGFloat(CUSTOM_LIST_ITEM_VIEW_HEIGHT))
         .padding(.horizontal, 4)
