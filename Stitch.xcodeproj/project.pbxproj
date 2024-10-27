@@ -6336,7 +6336,7 @@
 			repositoryURL = "https://github.com/StitchDesign/StitchViewKit.git";
 			requirement = {
 				kind = revision;
-				revision = a4f64ff92e01fae446dbfc3dd20a9bd1a50238a8;
+				revision = f933687a9a77f73852c0e46cb1d4cc8e279baa3b;
 			};
 		};
 		B557805F2CAF5D9500907BA8 /* XCRemoteSwiftPackageReference "StitchEngine" */ = {
@@ -6360,7 +6360,7 @@
 			repositoryURL = "https://github.com/StitchDesign/StitchSchemaKit";
 			requirement = {
 				kind = revision;
-				revision = b0d02a8d9b901633b2c21adf5d9cdcbbd483fcd3;
+				revision = 6e0c9363337ddaba01afbc51fb27d143b18f6cca;
 			};
 		};
 		EC1137362719F9B400ADCA72 /* XCRemoteSwiftPackageReference "swift-collections" */ = {
