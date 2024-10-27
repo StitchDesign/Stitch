@@ -302,7 +302,7 @@ extension ProjectSidebarObservable {
     @MainActor
     func sidebarListItemDragEnded() {
     
-//        log("SidebarListItemDragEnded called: itemId: \(itemId)")
+//        log("sidebarListItemDragEnded called")
 
         let state = self
         

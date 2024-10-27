@@ -198,13 +198,14 @@ extension SidebarItemSwipable {
     var onItemDragEnded: OnDragEndedHandler {
         return {
             // print("SidebarItemGestureViewModel: itemDragEndedGesture called")
+            self.sidebarDelegate?.sidebarListItemDragEnded()
+
             guard self.activeGesture != .none else { return }
                 
             if self.activeGesture != .none {
                 self.activeGesture = .none
             }
             
-            self.sidebarDelegate?.sidebarListItemDragEnded()
         }
     }
 
