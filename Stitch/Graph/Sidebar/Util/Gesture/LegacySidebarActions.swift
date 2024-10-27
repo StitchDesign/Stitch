@@ -148,13 +148,11 @@ extension ProjectSidebarObservable {
         // log("SidebarListItemDragged: otherDragged \(otherSelections) ")
 
         self.onSidebarListItemDragged(
-            draggedItem, // this dragged item
             translation)
     }
     
     @MainActor
-    func onSidebarListItemDragged(_ item: Self.ItemViewModel, // assumes we've already
-                                  _ translation: CGSize) {
+    func onSidebarListItemDragged(_ translation: CGSize) {
         let visualList = self.getVisualFlattenedList()
         
         // Track old count before selections are made below
@@ -169,6 +167,11 @@ extension ProjectSidebarObservable {
         let allDraggedItems = visualList.filter { item in
             allSelections.contains(item.id)
         }
+        
+        guard let firstDraggedItem = allDraggedItems.first else {
+            fatalErrorIfDebug()
+            return
+        }
 
         let implicitlyDraggedItems = visualList.filter { item in
             self.implicitlyDragged.contains(item.id)
@@ -179,20 +182,11 @@ extension ProjectSidebarObservable {
             !(allDraggedItems + implicitlyDraggedItems).contains(where: { $0.id == item.id })
         }
         
-        let originalItemIndex = item.sidebarIndex
-        
-        guard let calculatedIndex = Self.getMovedtoIndex(
-            dragPosition: item.dragPosition ?? item.location,
-            movingDown: translation.height > 0,
-            flattenedItems: filteredVisualList,
-            maxRowIndex: visualList.count - 1) else {
-            log("onSidebarListItemDragged: no index found")
-            return
-        }
+        let originalItemIndex = firstDraggedItem.sidebarIndex
         
         // Set state for a new drag
-        guard let oldDragPosition = item.dragPosition else {
-            self.currentItemDragged = item.id
+        guard let firstDragPosition = firstDraggedItem.dragPosition else {
+            self.currentItemDragged = firstDraggedItem.id
             
             // Remove elements from groups if there are selections inside other selected groups
             Self.removeSelectionsFromGroups(selections: allDraggedItems)
@@ -205,8 +199,12 @@ extension ProjectSidebarObservable {
             self.implicitlyDragged = draggedChildren.map(\.id).toSet
 
             // Set up previous drag position, which we'll increment off of
-            (allDraggedItems + draggedChildren).forEach { item in
-                item.prevDragPosition = item.location
+//            let firstDraggedItemLocation = firstDraggedItem.location
+            (allDraggedItems + draggedChildren).enumerated().forEach { index, item in
+                let initialPosition = CGPoint(x: item.location.x,
+                                              y: firstDraggedItem.location.y + (SIDEBAR_LIST_ITEM_ROW_COLORED_AREA_HEIGHT * CGFloat(index))) +
+                translation.toCGPoint
+                item.prevDragPosition = initialPosition
                 item.dragPosition = item.prevDragPosition
             }
             
@@ -214,15 +212,24 @@ extension ProjectSidebarObservable {
         }
         
         // Dragging down = indices increase
-        let isDraggingDown = (item.dragPosition?.y ?? .zero) > oldDragPosition.y
+//        let isDraggingDown = (item.dragPosition?.y ?? .zero) > oldDragPosition.y
         
         // Update drag positions
         (allDraggedItems + implicitlyDraggedItems).forEach { draggedItem in
             draggedItem.dragPosition = (draggedItem.prevDragPosition ?? .zero) + translation.toCGPoint
         }
         
+        guard let calculatedIndex = Self.getMovedtoIndex(
+            firstItemLocation: firstDragPosition,
+            movingDown: translation.height > 0,
+            flattenedItems: filteredVisualList,
+            maxRowIndex: visualList.count - 1) else {
+            log("onSidebarListItemDragged: no index found")
+            return
+        }
+        
         if originalItemIndex != calculatedIndex {
-            self.movedDraggedItems(draggedElement: item,
+            self.movedDraggedItems(draggedElement: firstDraggedItem,
                                    draggedItems: allDraggedItems,
                                    visualList: filteredVisualList,
                                    to: calculatedIndex,
@@ -248,7 +255,8 @@ extension ProjectSidebarObservable {
         let draggedItemIdSet = draggedItems.map(\.id).toSet
         
         let draggedToElementResult = visualList.findClosestElement(draggedElement: draggedElement,
-                                                                   to: index)
+                                                                   to: index,
+                                                                   numItemsDragged: draggedItems.count)
         
         // We should have removed dragged elements from the visual list
         assertInDebug(!draggedItems.contains(where: { $0.id == draggedToElementResult.id }))

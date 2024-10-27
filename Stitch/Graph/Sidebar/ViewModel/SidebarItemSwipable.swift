@@ -522,7 +522,8 @@ extension Array where Element: SidebarItemSwipable {
     /// The enum is needed because there's no way to insert the element at the top of a list when the default rule is placing an element after.
     @MainActor
     func findClosestElement(draggedElement: Element,
-                            to indexOfDraggedLocation: SidebarIndex) -> SidebarDragDestination<Element> {
+                            to indexOfDraggedLocation: SidebarIndex,
+                            numItemsDragged: Int) -> SidebarDragDestination<Element> {
         let beforeElement = self[safe: indexOfDraggedLocation.rowIndex - 1]
         let afterElement = self[safe: indexOfDraggedLocation.rowIndex]
         
@@ -541,11 +542,19 @@ extension Array where Element: SidebarItemSwipable {
         
         // Prioritize correct group hierarchy--if equal use closest row index
         let rankedItems = flattenedItems.sorted { lhs, rhs in
+            var lhsRowIndex = lhs.sidebarIndex.rowIndex
+            var rhsRowIndex = rhs.sidebarIndex.rowIndex
+            
+            // Adjust the row index so that we can correctly compute distance to bottom elements
+            // based on number of items dragged
+            lhsRowIndex -= lhsRowIndex >= indexOfDraggedLocation.rowIndex ? numItemsDragged - 1 : 0
+            rhsRowIndex -= rhsRowIndex >= indexOfDraggedLocation.rowIndex ? numItemsDragged - 1 : 0
+            
             let lhsGroupIndexDiff = abs(indexOfDraggedLocation.groupIndex - lhs.sidebarIndex.groupIndex)
-            let lhsRowIndexDiff = abs(indexOfDraggedLocation.rowIndex - lhs.sidebarIndex.rowIndex)
+            let lhsRowIndexDiff = abs(indexOfDraggedLocation.rowIndex - lhsRowIndex)
             
             let rhsGroupIndexDiff = abs(indexOfDraggedLocation.groupIndex - rhs.sidebarIndex.groupIndex)
-            let rhsRowIndexDiff = abs(indexOfDraggedLocation.rowIndex - rhs.sidebarIndex.rowIndex)
+            let rhsRowIndexDiff = abs(indexOfDraggedLocation.rowIndex - rhsRowIndex)
             
             // Equal groups
             if lhsGroupIndexDiff == rhsGroupIndexDiff {
