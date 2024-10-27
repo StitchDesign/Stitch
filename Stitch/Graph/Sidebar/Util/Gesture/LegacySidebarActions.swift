@@ -264,7 +264,7 @@ extension ProjectSidebarObservable {
                                                               dragPositionIndex: index)
         
         // Don't use assert test after movedDraggedItems because of references to self list
-        assertInDebug(newItemsList.flattenedItems.count == oldCount)
+        assertInDebug(newItemsList.getVisualFlattenedList().count == oldCount)
         
         self.items = newItemsList
         self.items.updateSidebarIndices()
