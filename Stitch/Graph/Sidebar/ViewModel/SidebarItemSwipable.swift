@@ -578,8 +578,12 @@ extension Array where Element: SidebarItemSwipable {
             // User dragged into child list and that was allowed given below items
             let wasValidDragIntoChildren = isDraggedIntoChildHierarchy || !allowsDraggingToParentHierarchy
             
-            let didMoveToTopOfGroup = beforeElement.isGroup && wasValidDragIntoChildren
+            // Ensures above element is ane epxanded group
+            let isExpandedGroup = beforeElement.isGroup && !beforeElement.isCollapsedGroup
+            
+            let didMoveToTopOfGroup = isExpandedGroup && wasValidDragIntoChildren
             if didMoveToTopOfGroup {
+                log("findClosestElement: dragged to top of group")
                 return .topOfGroup(beforeElement)
             }
         }
