@@ -16,16 +16,16 @@ extension ProjectSidebarObservable {
                                 // captures max index before dragged elements were removed from list
                                 maxRowIndex: Int) -> SidebarIndex? {
         
-        let halfRowHeight = Double(CUSTOM_LIST_ITEM_VIEW_HEIGHT) / 2
+        let dragAdjustment = Double(CUSTOM_LIST_ITEM_VIEW_HEIGHT) / 8
         let maxGroupIndex = (flattenedItems.max { $0.sidebarIndex.groupIndex < $1.sidebarIndex.groupIndex }?.sidebarIndex.groupIndex ?? 0) + 1
         let dragX = max(dragPosition.x, 0)
         let rawFloatX = Int(floor(dragX / Double(CUSTOM_LIST_ITEM_INDENTATION_LEVEL)))
         
         // Note: previous usage of rounding function used inaccurate "movingDown" logic that doesn't apppear any better
-        // than a slight halfRowHeight offset
+        // than a slight dragAdjustment offset
 //        let fnRoundingY = movingDown ? ceil : floor
         let dragY = max(dragPosition.y, 0)
-        let rawFloatY = (dragY + halfRowHeight) / Double(CUSTOM_LIST_ITEM_VIEW_HEIGHT)
+        let rawFloatY = (dragY + dragAdjustment) / Double(CUSTOM_LIST_ITEM_VIEW_HEIGHT)
         
         let groupIndex = min(Int(rawFloatX), maxGroupIndex)
         let rowIndex = min(Int(rawFloatY), maxRowIndex)
