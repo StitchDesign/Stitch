@@ -34,7 +34,7 @@ extension StitchDocumentViewModel {
         let activelySelectedLayers = state.visibleGraph.sidebarSelectionState.inspectorFocusedLayers.activelySelected
         
         if !activelySelectedLayers.isEmpty {
-            state.visibleGraph.sidebarSelectedItemsDuplicatedViaEditMode()
+            state.visibleGraph.sidebarSelectedItemsDuplicated()
         } else {
             let copiedComponentResult = state.visibleGraph.createCopiedComponent(
                 groupNodeFocused: state.graphUI.groupNodeFocused,
@@ -185,11 +185,11 @@ extension GraphState {
                 case .layer(let layerNode):
                     
                     // Actively-select the new layer node
-                    let id = nodeEntity.id.asLayerNodeId
+                    let id = nodeEntity.id
                     self.sidebarSelectionState.inspectorFocusedLayers.focused.insert(id)
                     self.sidebarSelectionState.inspectorFocusedLayers.activelySelected.insert(id)
                                         
-                    self.sidebarItemSelectedViaEditMode(
+                    self.layersSidebarViewModel.sidebarItemSelectedViaEditMode(
                         id,
                         // Can treat as always true?
                         isSidebarItemTapped: true)
@@ -228,7 +228,7 @@ extension GraphState {
         }
         
         // Also wipe sidebar selection state
-        self.sidebarSelectionState = .init()
+        self.sidebarSelectionState.resetEditModeSelections()
     }
     
     // Duplicate ONLY the selected comment boxes

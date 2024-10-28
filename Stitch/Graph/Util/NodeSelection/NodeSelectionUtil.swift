@@ -96,10 +96,10 @@ struct SelectAllShortcutKeyPressed: GraphEvent {
             // Wipe the 'last selected item'
             state.sidebarSelectionState.inspectorFocusedLayers = .init()
             
-            let allLayers: LayerIdSet = state.orderedSidebarLayers.getFlattenedList().map(\.id.asLayerNodeId).toSet
+            let allLayers = state.orderedSidebarLayers.flattenedItems.map(\.id).toSet
             state.sidebarSelectionState.inspectorFocusedLayers = state.sidebarSelectionState.inspectorFocusedLayers.insert(allLayers)
             
-            state.editModeSelectTappedItems(tappedItems: state.sidebarSelectionState.inspectorFocusedLayers.focused)
+            state.layersSidebarViewModel.editModeSelectTappedItems(tappedItems: state.sidebarSelectionState.inspectorFocusedLayers.focused)
             
         } else {
             selectAllNodesAtTraversalLevel(state)

@@ -76,7 +76,7 @@ extension NodeRowObserver {
             // A row for a layer inspector is visible just if layer inspector is open
             case .layerInspector:
                 
-                let layerFocused = graph.sidebarSelectionState.inspectorFocusedLayers.focused.contains(rowViewModel.id.nodeId.asLayerNodeId)
+                let layerFocused = graph.sidebarSelectionState.inspectorFocusedLayers.focused.contains(rowViewModel.id.nodeId)
                 
                 // TODO: why can't we the proper condition here? Why must we always return `true`? For perf, we only want to update inspector UI-fields if that inspector is open and this row observer's layer is actually focused; otherwise it's same as if we're updating an off-screen node
                 // return showsLayerInspector && layerFocused
