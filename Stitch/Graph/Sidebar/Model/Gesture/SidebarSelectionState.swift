@@ -73,9 +73,11 @@ extension ProjectSidebarObservable {
 //    }
     
     var all: Set<Self.ItemID> {
-        self.items.flattenedSelectedItems(from: self.primary)
+        let secondarySelected = self.items.flattenedSelectedItems(from: self.primary)
             .map { $0.id }
             .toSet
+        
+        return self.primary.union(secondarySelected)
     }
     
 //    func isSelected(_ id: ItemID) -> Bool {

@@ -256,6 +256,8 @@ extension ProjectSidebarObservable {
 
         // Remove items from dragged set--these will be added later
         var reducedItemsList = self.items
+        
+        // TODO: perf hit here
         reducedItemsList.remove(draggedItemIdSet)
         
         guard !draggedItems.isEmpty else { return }
