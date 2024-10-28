@@ -149,6 +149,18 @@ extension SidebarItemSwipable {
         self.sidebarDelegate?.isEditing ?? false
     }
     
+    var selectionStatus: SidebarListItemSelectionStatus {
+        if self.isPrimarilySelected {
+            return .primary
+        }
+        
+        if self.isSecondarilySelected {
+            return .secondary
+        }
+        
+        return .none
+    }
+    
     @MainActor
     var location: CGPoint {
         let index = self.sidebarIndex
@@ -160,14 +172,28 @@ extension SidebarItemSwipable {
         CUSTOM_LIST_ITEM_VIEW_HEIGHT * rowIndex
     }
     
-    var isImplicitlyDragged: Bool {
+    var isPrimarilySelected: Bool {
+        guard let sidebar = self.sidebarDelegate else {
+            fatalErrorIfDebug()
+            return false
+        }
+        
+        if sidebar.selectionState.primary.contains(self.id) {
+            return true
+        }
+        
+        return false
+    }
+    
+    var isSecondarilySelected: Bool {
         // Can't be primary selected
-        guard !self.sidebarDelegate?.selectionState.primary.contains(self.id)
+        guard let sidebar = self.sidebarDelegate,
+              !sidebar.selectionState.primary.contains(self.id) else { return false }
         
         var visitedItem: Self? = self
         
         while let parent = visitedItem?.parentDelegate {
-            if parent.isBeingDragged { return true }
+            if sidebar.selectionState.primary.contains(parent.id) { return true }
             visitedItem = parent
         }
         

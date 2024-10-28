@@ -163,19 +163,13 @@ struct SidebarListItemRightLabelView<ItemViewModel>: View where ItemViewModel: S
     @State private var isBeingEditedAnimated = false
 
     let item: ItemViewModel
-    let selectionState: SidebarSelectionObserver<ItemViewModel.ID>
     let isBeingEdited: Bool // is sidebar being edited?
 
     var body: some View {
-
-//        let id = item.id.asLayerNodeId
-
         HStack(spacing: .zero) {
-            
             if isBeingEditedAnimated {
                 HStack(spacing: .zero) {
                     SidebarListItemSelectionCircleView(item: item,
-                                                       selectionState: selectionState,
                                                        fontColor: item.fontColor,
                                                        isBeingEdited: isBeingEdited)
                         .padding(.trailing, 4)

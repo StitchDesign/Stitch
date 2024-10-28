@@ -35,7 +35,6 @@ struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewMo
 #if !targetEnvironment(macCatalyst)
                     SidebarListItemRightLabelView(
                         item: itemViewModel,
-                        selectionState: sidebarViewModel.selectionState,
                         isBeingEdited: sidebarViewModel.isEditing)
                     .frame(height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
 #endif

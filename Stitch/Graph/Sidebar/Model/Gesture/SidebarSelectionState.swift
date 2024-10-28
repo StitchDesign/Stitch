@@ -32,43 +32,50 @@ import StitchSchemaKit
 //    }
 //}
 
-@Observable
-final class SidebarSelectionObserver<ItemID: Hashable> {
-    typealias SidebarSelections = Set<ItemID>
-    
-    var haveDuplicated: Bool = false
-    var optionDragInProgress: Bool = false
-    
-    // non-empty only during active layer drag (multi-drag only?)
-    //    var implicitlyDragged = SidebarListItemIdSet()
-    
-    // Layers focused in the inspector
-//    var inspectorFocusedLayers = InspectorFocusedData<ItemID>() //LayerIdSet()
-    
-    // items selected because directly clicked
-    var primary = SidebarSelections()
-    
-    // items selected because eg their parent was selected
-    var secondary = SidebarSelections()
-    
-    var lastFocused: ItemID?
-}
+//@Observable
+//final class SidebarSelectionObserver<SidebarViewModel: ProjectSidebarObservable> {
+//    typealias ItemID = SidebarViewModel.ItemID
+//    typealias SidebarSelections = Set<ItemID>
+//    
+//    var haveDuplicated: Bool = false
+//    var optionDragInProgress: Bool = false
+//    
+//    // non-empty only during active layer drag (multi-drag only?)
+//    //    var implicitlyDragged = SidebarListItemIdSet()
+//    
+//    // Layers focused in the inspector
+//    //    var inspectorFocusedLayers = InspectorFocusedData<ItemID>() //LayerIdSet()
+//    
+//    // items selected because directly clicked
+//    var primary = SidebarSelections()
+//    
+//    // items selected because eg their parent was selected
+//    //    var secondary = SidebarSelections()
+//    
+//    var lastFocused: ItemID?
+//    
+//    weak var sidebarDelegate: SidebarViewModel?
+//}
 
-extension SidebarSelectionObserver {
-    func getSelectionStatus(_ id: ItemID) -> SidebarListItemSelectionStatus {
+typealias SidebarSelectionObserver = ProjectSidebarObservable
 
-        if self.primary.contains(id) {
-            return .primary
-        } else if self.secondary.contains(id) {
-            return .secondary
-        } else {
-            return .none
-        }
-
-    }
+extension ProjectSidebarObservable {
+//    func getSelectionStatus(_ id: ItemID) -> SidebarListItemSelectionStatus {
+//
+//        if self.primary.contains(id) {
+//            return .primary
+//        } else if self.secondary.contains(id) {
+//            return .secondary
+//        } else {
+//            return .none
+//        }
+//
+//    }
     
-    var all: SidebarSelections {
-        primary.union(secondary)
+    var all: Set<Self.ItemID> {
+        self.items.flattenedSelectedItems(from: self.primary)
+            .map { $0.id }
+            .toSet
     }
     
     func isSelected(_ id: ItemID) -> Bool {
@@ -76,7 +83,20 @@ extension SidebarSelectionObserver {
     }
 
     func resetEditModeSelections() {
-        self.primary = SidebarSelections()
-        self.secondary = SidebarSelections()
+        self.primary = .init()
+//        self.secondary = SidebarSelections()
+    }
+}
+
+extension Array where Element: SidebarItemSwipable {
+    func flattenedSelectedItems(from selectedIds: Set<Element.ID>) -> [Element] {
+        self.flatMap { item -> [Element] in
+            guard selectedIds.contains(item.id) else { return [] }
+            
+            guard item.isExpandedInSidebar ?? false,
+                  let children = item.children else { return [item] }
+            
+            return [item] + children.flattenedSelectedItems(from: selectedIds)
+        }
     }
 }

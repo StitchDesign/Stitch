@@ -34,7 +34,7 @@ extension SidebarItemSwipable {
         }
         
         // add to selection state
-        sidebar.addExclusivelyToSecondary(self.id)
+//        sidebar.addExclusivelyToSecondary(self.id)
         
         // recur on children
         self.children?.forEach { child in
@@ -50,7 +50,7 @@ extension SidebarItemSwipable {
         }
         
         sidebar.selectionState.primary.remove(self.id)
-        sidebar.selectionState.secondary.remove(self.id)
+//        sidebar.selectionState.secondary.remove(self.id)
         
         self.children?.forEach { child in
             child.removeFromSelections()
@@ -73,17 +73,17 @@ extension ProjectSidebarObservable {
         self.selectionState.primary.insert(id)
         
         // ... and remove from secondary (migt not be present?):
-        self.selectionState.secondary.remove(id)
+//        self.selectionState.secondary.remove(id)
     }
     
-    func addExclusivelyToSecondary(_ id: Self.ItemID) {
-        let selection = self.selectionState
-        selection.secondary.insert(id)
-        selection.primary.remove(id)
-    }
+//    func addExclusivelyToSecondary(_ id: Self.ItemID) {
+//        let selection = self.selectionState
+////        selection.secondary.insert(id)
+//        selection.primary.remove(id)
+//    }
     
     
-    func allShareSameParent(_ selections: Self.SidebarSelectionState.SidebarSelections) -> Bool {
+    func allShareSameParent(_ selections: Set<Self.ItemID>) -> Bool {
         
         if let firstSelection = selections.first,
            let firstSelectionItem = self.items.get(firstSelection),

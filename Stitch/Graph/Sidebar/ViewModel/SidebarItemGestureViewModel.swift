@@ -156,7 +156,7 @@ extension SidebarItemGestureViewModel {
     }
     
     var backgroundOpacity: CGFloat {
-        if isImplicitlyDragged {
+        if self.isSecondarilySelected {
             return 0.5
         } else if (isNonEditModeFocused || isBeingDragged) {
             return (isNonEditModeFocused && !isNonEditModeActivelySelected) ? 0.5 : 1
@@ -166,7 +166,7 @@ extension SidebarItemGestureViewModel {
     }
     
     var useHalfOpacityBackground: Bool {
-        isImplicitlyDragged || (isNonEditModeFocused && !isNonEditModeActivelySelected)
+        self.isSecondarilySelected || (isNonEditModeFocused && !isNonEditModeActivelySelected)
     }
     
     @MainActor
@@ -176,7 +176,7 @@ extension SidebarItemGestureViewModel {
     
     @MainActor
     var fontColor: Color {
-        guard let selection = self.sidebarDelegate?.selectionState.getSelectionStatus(self.id) else { return .white }
+        let selection = self.selectionStatus
         
 #if DEV_DEBUG
         if isHidden {

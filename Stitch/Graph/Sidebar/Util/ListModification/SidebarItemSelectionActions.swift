@@ -269,16 +269,17 @@ extension ProjectSidebarObservable {
     @MainActor
     func sidebarItemSelectedViaEditMode(_ id: Self.ItemID,
                                         isSidebarItemTapped: Bool) {
-        // if we actively-selected (non-edit-mode-selected) an item that is already secondarily-selected, we don't need to change the
-        if isSidebarItemTapped,
-           self.selectionState.secondary.contains(id) {
-            log("sidebarItemSelectedViaEditMode: \(id) was already secondarily selected")
-            return
-        }
         
         // we selected a group -- so 100% select the group
         // and 80% all the children further down in the street
         guard let item = self.retrieveItem(id) else {
+            return
+        }
+
+        // if we actively-selected (non-edit-mode-selected) an item that is already secondarily-selected, we don't need to change the
+        if isSidebarItemTapped,
+           item.isSecondarilySelected {
+            log("sidebarItemSelectedViaEditMode: \(id) was already secondarily selected")
             return
         }
            
