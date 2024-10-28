@@ -141,80 +141,79 @@ extension SidebarItemGestureViewModel {
         dispatch(SidebarItemDeselected(id: self.id))
     }
     
-    var isNonEditModeFocused: Bool {
-        guard let sidebar = self.sidebarDelegate else { return false }
-        return sidebar.selectionState.isSelected(self.id)
-    }
+//    var isNonEditModeFocused: Bool {
+//        guard let sidebar = self.sidebarDelegate else { return false }
+//        return sidebar.selectionState.isSelected(self.id)
+//    }
     
-    var isNonEditModeActivelySelected: Bool {
-        guard let sidebar = self.sidebarDelegate else { return false }
-        return sidebar.selectionState.primary.contains(self.id)
-    }
+//    var isNonEditModeActivelySelected: Bool {
+//        guard let sidebar = self.sidebarDelegate else { return false }
+//        return sidebar.selectionState.primary.contains(self.id)
+//    }
     
-    var isNonEditModeSelected: Bool {
-        isNonEditModeFocused || isNonEditModeActivelySelected
-    }
+//    var isNonEditModeSelected: Bool {
+//        isNonEditModeFocused || isNonEditModeActivelySelected
+//    }
     
-    var backgroundOpacity: CGFloat {
-        if self.isSecondarilySelected {
-            return 0.5
-        } else if (isNonEditModeFocused || isBeingDragged) {
-            return (isNonEditModeFocused && !isNonEditModeActivelySelected) ? 0.5 : 1
-        } else {
-            return 0
-        }
-    }
-    
-    var useHalfOpacityBackground: Bool {
-        self.isSecondarilySelected || (isNonEditModeFocused && !isNonEditModeActivelySelected)
-    }
+//    var backgroundOpacity: CGFloat {
+//        guard self.isBeingEdited else { return 0 }
+//        
+//        switch self.selectionStatus {
+//        case .primary:
+//            return 1
+//        case .secondary:
+//            return 0.5
+//        case .none:
+//            return 0
+//        }
+//    }
     
     @MainActor
     var isHidden: Bool {
         self.graphDelegate?.getVisibilityStatus(for: self.id) != .visible
     }
     
-    @MainActor
-    var fontColor: Color {
-        let selection = self.selectionStatus
-        
-#if DEV_DEBUG
-        if isHidden {
-            return .purple
-        }
-#endif
-        
-        // Any 'focused' (doesn't have to be 'actively selected') layer uses white text
-        if isNonEditModeSelected {
-#if DEV_DEBUG
-            return .red
-#else
-            return .white
-#endif
-        }
-        
-#if DEV_DEBUG
-        // Easier to see secondary selections for debug
-        //        return selection.color(isHidden)
-        
-        switch selection {
-        case .primary:
-            return .brown
-        case .secondary:
-            return .green
-        case .none:
-            return .blue
-        }
-        
-#endif
-        
-        if isBeingEdited || isHidden {
-            return selection.color(isHidden)
-        } else {
-            // i.e. if we are not in edit mode, do NOT show secondarily-selected layers (i.e. children of a primarily-selected parent) as gray
-            return SIDE_BAR_OPTIONS_TITLE_FONT_COLOR
-        }
-    }
+//    @MainActor
+//    var fontColor: Color {
+//        let selection = self.selectionStatus
+//        
+//#if DEV_DEBUG
+//        if isHidden {
+//            return .purple
+//        }
+//#endif
+//        
+//        // Any 'focused' (doesn't have to be 'actively selected') layer uses white text
+//        if !self.isBeingEdited && self.isSelected {
+//#if DEV_DEBUG
+//            return .red
+//#else
+//            return .white
+//#endif
+//        }
+//        
+//#if DEV_DEBUG
+//        // Easier to see secondary selections for debug
+//        //        return selection.color(isHidden)
+//        
+//        switch selection {
+//        case .primary:
+//            return .brown
+//        case .secondary:
+//            return .green
+//        case .none:
+//            return .blue
+//        }
+//        
+//#endif
+//        
+//        if isBeingEdited || isHidden {
+//            return selection.color(isHidden)
+//        } else {
+//            // i.e. if we are not in edit mode, do NOT show secondarily-selected layers (i.e. children of a primarily-selected parent) as gray
+//            return SIDE_BAR_OPTIONS_TITLE_FONT_COLOR
+//        }
+//    }
     
     // TODO: should we only show the arrow icon when we have a sidebar layer immediately above?
     @MainActor

@@ -278,7 +278,7 @@ extension ProjectSidebarObservable {
 
         // if we actively-selected (non-edit-mode-selected) an item that is already secondarily-selected, we don't need to change the
         if isSidebarItemTapped,
-           item.isSecondarilySelected {
+           item.isParentSelected {
             log("sidebarItemSelectedViaEditMode: \(id) was already secondarily selected")
             return
         }
@@ -299,7 +299,7 @@ extension ProjectSidebarObservable {
 
             // if the parent is currently selected,
             // then deselect the parent and all other children
-            if self.selectionState.isSelected(parent.id) {
+            if self.selectionState.all.contains(parent.id) {
                 self.selectionState.resetEditModeSelections()
                 self.addExclusivelyToPrimary(id)
             }

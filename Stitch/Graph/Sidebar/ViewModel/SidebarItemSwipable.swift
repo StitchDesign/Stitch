@@ -9,7 +9,7 @@ import SwiftUI
 import StitchViewKit
 
 protocol SidebarItemSwipable: AnyObject, Observable, Identifiable, StitchNestedListElement where Self.ID: Equatable & CustomStringConvertible,
-                                                                        SidebarViewModel.ItemViewModel == Self {
+                                                                                                 SidebarViewModel.ItemViewModel == Self {
     associatedtype SidebarViewModel: ProjectSidebarObservable
     typealias ActiveGesture = SidebarListActiveGesture<Self.ID>
     typealias EncodedItemData = SidebarViewModel.EncodedItemData
@@ -19,26 +19,28 @@ protocol SidebarItemSwipable: AnyObject, Observable, Identifiable, StitchNestedL
     var parentDelegate: Self? { get set }
     
     @MainActor var name: String { get }
-
+    
     var swipeSetting: SidebarSwipeSetting { get set }
-
+    
     var previousSwipeX: CGFloat { get set }
     
     @MainActor var isVisible: Bool { get }
-        
+    
     var sidebarIndex: SidebarIndex { get set }
     
     var dragPosition: CGPoint? { get set }
-
+    
     var prevDragPosition: CGPoint? { get set }
     
     var isExpandedInSidebar: Bool? { get set }
     
     var sidebarDelegate: SidebarViewModel? { get set }
     
-    @MainActor var fontColor: Color { get }
+    var isHidden: Bool { get }
     
-    var backgroundOpacity: CGFloat { get }
+//    @MainActor var fontColor: Color { get }
+    
+//    var backgroundOpacity: CGFloat { get }
     
     @MainActor var sidebarLeftSideIcon: String { get }
     
@@ -84,6 +86,10 @@ protocol SidebarItemSwipable: AnyObject, Observable, Identifiable, StitchNestedL
 }
 
 extension SidebarItemSwipable {
+    var isSelected: Bool {
+        self.isPrimarilySelected || self.isParentSelected
+    }
+    
     var zIndex: Double {
         if self.isBeingDragged {
             return SIDEBAR_ITEM_MAX_Z_INDEX
@@ -154,7 +160,7 @@ extension SidebarItemSwipable {
             return .primary
         }
         
-        if self.isSecondarilySelected {
+        if self.isParentSelected {
             return .secondary
         }
         
@@ -185,10 +191,10 @@ extension SidebarItemSwipable {
         return false
     }
     
-    var isSecondarilySelected: Bool {
+    var isParentSelected: Bool {
         // Can't be primary selected
-        guard let sidebar = self.sidebarDelegate,
-              !sidebar.selectionState.primary.contains(self.id) else { return false }
+        guard let sidebar = self.sidebarDelegate else { return false }
+//              !sidebar.selectionState.primary.contains(self.id) else { return false }
         
         var visitedItem: Self? = self
         

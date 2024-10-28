@@ -78,9 +78,9 @@ extension ProjectSidebarObservable {
             .toSet
     }
     
-    func isSelected(_ id: ItemID) -> Bool {
-        all.contains(id)
-    }
+//    func isSelected(_ id: ItemID) -> Bool {
+//        all.contains(id)
+//    }
 
     func resetEditModeSelections() {
         self.primary = .init()

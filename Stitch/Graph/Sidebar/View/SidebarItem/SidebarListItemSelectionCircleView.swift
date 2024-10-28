@@ -20,14 +20,14 @@ struct SidebarListItemSelectionCircleView<Item>: View where Item: SidebarItemSwi
     let isBeingEdited: Bool
         
     var iconName: String {
-        selection.isSelected
+        item.isSelected
               ? self.SELECTION_CIRCLE_SELECTED
               : self.SELECTION_CIRCLE
     }
     
-    var selection: SidebarListItemSelectionStatus {
-        item.selectionStatus
-    }
+//    var selection: SidebarListItemSelectionStatus {
+//        item.selectionStatus
+//    }
     
     var body: some View {
         // See `SidebarListItemLeftLabelView` for note about animations
@@ -55,7 +55,7 @@ struct SidebarListItemSelectionCircleView<Item>: View where Item: SidebarItemSwi
                 // ie What kind of selection did we have?
                 // - if item was already 100% selected, then deselect
                 // - if was 80% or 0% selected, then 100% select
-                switch selection {
+                switch item.selectionStatus {
                 case .primary:
                     item.didUnselectOnEditMode()
                 case .secondary, .none:
