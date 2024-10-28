@@ -27,7 +27,6 @@ protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID 
 
     var activeGesture: SidebarListActiveGesture<ItemID> { get set }
 
-    var implicitlyDragged: Set<ItemID> { get set }
 
     var currentItemDragged: Self.ItemID? { get set }
     

@@ -161,7 +161,14 @@ extension SidebarItemSwipable {
     }
     
     var isImplicitlyDragged: Bool {
-        self.sidebarDelegate?.implicitlyDragged.contains(id) ?? false
+        var visitedItem: Self? = self
+        
+        while let parent = visitedItem?.parentDelegate {
+            if parent.isBeingDragged { return true }
+            visitedItem = parent
+        }
+        
+        return false
     }
     
     var isBeingDragged: Bool {
@@ -376,6 +383,17 @@ extension SidebarItemSwipable {
 extension Array where Element: SidebarItemSwipable {
     var flattenedItems: [Element] {
         self.flatMap { item in
+            var items = [item]
+            items += item.children?.flattenedItems ?? []
+            return items
+        }
+    }
+    
+    /// Same operation as `flattenedItems` but filters out collapsed groups.
+    var flattenedVisibleItems: [Element] {
+        self.flatMap { item in
+            guard item.isExpandedInSidebar ?? false else { return [item] }
+            
             var items = [item]
             items += item.children?.flattenedItems ?? []
             return items

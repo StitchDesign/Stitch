@@ -168,18 +168,17 @@ extension ProjectSidebarObservable {
             allSelections.contains(item.id)
         }
         
+        // Includes visible children of dragged nodes (aka implicitly dragged)
+        let allDraggedItemsPlusChildren = allDraggedItems.flattenedVisibleItems
+        
         guard let firstDraggedItem = allDraggedItems.first else {
             fatalErrorIfDebug()
             return
         }
 
-        let implicitlyDraggedItems = visualList.filter { item in
-            self.implicitlyDragged.contains(item.id)
-        }
-        
         // Remove dragged items from data structure used for identifying drag location
         let filteredVisualList = visualList.filter { item in
-            !(allDraggedItems + implicitlyDraggedItems).contains(where: { $0.id == item.id })
+            !allDraggedItemsPlusChildren.contains(where: { $0.id == item.id })
         }
         
         let originalItemIndex = firstDraggedItem.sidebarIndex
@@ -190,17 +189,9 @@ extension ProjectSidebarObservable {
             
             // Remove elements from groups if there are selections inside other selected groups
             Self.removeSelectionsFromGroups(selections: allDraggedItems)
-            
-            let draggedChildren = allDraggedItems.flatMap { draggedItem in
-                draggedItem.children?.flattenedItems ?? []
-            }
-            
-            // Update "implicitly dragged" (aka children of dragged parent items)
-            self.implicitlyDragged = draggedChildren.map(\.id).toSet
 
             // Set up previous drag position, which we'll increment off of
-//            let firstDraggedItemLocation = firstDraggedItem.location
-            (allDraggedItems + draggedChildren).enumerated().forEach { index, item in
+            allDraggedItemsPlusChildren.enumerated().forEach { index, item in
                 let initialPosition = CGPoint(x: item.location.x,
                                               y: firstDraggedItem.location.y + (SIDEBAR_LIST_ITEM_ROW_COLORED_AREA_HEIGHT * CGFloat(index))) +
                 translation.toCGPoint
@@ -215,7 +206,7 @@ extension ProjectSidebarObservable {
 //        let isDraggingDown = (item.dragPosition?.y ?? .zero) > oldDragPosition.y
         
         // Update drag positions
-        (allDraggedItems + implicitlyDraggedItems).forEach { draggedItem in
+        allDraggedItemsPlusChildren.forEach { draggedItem in
             draggedItem.dragPosition = (draggedItem.prevDragPosition ?? .zero) + translation.toCGPoint
         }
         
@@ -233,6 +224,7 @@ extension ProjectSidebarObservable {
                                    draggedItems: allDraggedItems,
                                    visualList: filteredVisualList,
                                    to: calculatedIndex,
+                                   draggedItemsPlusChildrenCount: allDraggedItemsPlusChildren.count,
                                    oldCount: oldCount)
         }
     }
@@ -248,15 +240,15 @@ extension ProjectSidebarObservable {
                            draggedItems: [Self.ItemViewModel],
                            visualList: [Self.ItemViewModel],
                            to index: SidebarIndex,
+                           draggedItemsPlusChildrenCount: Int,
                            oldCount: Int) {
         
         let visualList = visualList
-        let draggedItems = draggedItems
         let draggedItemIdSet = draggedItems.map(\.id).toSet
         
         let draggedToElementResult = visualList.findClosestElement(draggedElement: draggedElement,
                                                                    to: index,
-                                                                   numItemsDragged: draggedItems.count)
+                                                                   numItemsDragged: draggedItemsPlusChildrenCount)
         
         // We should have removed dragged elements from the visual list
         assertInDebug(!draggedItems.contains(where: { $0.id == draggedToElementResult.id }))
@@ -318,7 +310,6 @@ extension ProjectSidebarObservable {
 
         state.selectionState.haveDuplicated = false
         state.selectionState.optionDragInProgress = false
-        state.implicitlyDragged = .init()
     
         state.graphDelegate?.encodeProjectInBackground()
     }
