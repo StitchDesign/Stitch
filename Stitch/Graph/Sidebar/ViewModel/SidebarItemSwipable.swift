@@ -425,13 +425,33 @@ extension Array where Element: SidebarItemSwipable {
     }
     
     /// Same operation as `flattenedItems` but filters out collapsed groups.
-    var flattenedVisibleItems: [Element] {
+    func getFlattenedVisibleItems(selectedIds: Set<Element.ID>) -> [Element] {
         self.flatMap { item in
-            guard item.isExpandedInSidebar ?? false else { return [item] }
+            guard item.isExpandedInSidebar ?? false,
+                  let children = item.children else { return [item] }
             
-            var items = [item]
-            items += item.children?.flattenedItems ?? []
-            return items
+            // DFS
+            let flattenedChildren = children.getFlattenedVisibleItems(selectedIds: selectedIds)
+            var primarySelectedChildren = [Element]()
+            
+
+            let filteredFlattenedChildren = flattenedChildren.compactMap { child in
+                if !selectedIds.contains(child.id) {
+                    return child
+                }
+                
+                // Remove child from main item
+                item.children?.remove(child.id)
+                
+                // Change child parent
+//                child.parentDelegate = 
+                
+                primarySelectedChildren.append(child)
+                return nil
+            }
+            
+            let restructuredChildren = filteredFlattenedChildren + primarySelectedChildren
+            return [item] + restructuredChildren
         }
     }
     

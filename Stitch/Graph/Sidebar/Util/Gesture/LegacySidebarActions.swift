@@ -166,13 +166,18 @@ extension ProjectSidebarObservable {
             allSelections.contains(item.id)
         }
         
+        let allDraggedItemIds = allDraggedItems.map(\.id).toSet
+        
         // Includes visible children of dragged nodes (aka implicitly dragged)
-        let allDraggedItemsPlusChildren = allDraggedItems.flattenedVisibleItems
+        let allDraggedItemsPlusChildren = self.items.getSubset(from: allDraggedItemIds)
+            .getFlattenedVisibleItems(selectedIds: allSelections)
         
         guard let firstDraggedItem = allDraggedItems.first else {
             fatalErrorIfDebug()
             return
         }
+        
+        let isNewDrag = firstDraggedItem.dragPosition == nil
 
         // Remove dragged items from data structure used for identifying drag location
         let filteredVisualList = visualList.filter { item in
@@ -182,12 +187,8 @@ extension ProjectSidebarObservable {
         let originalItemIndex = firstDraggedItem.sidebarIndex
         
         // Set state for a new drag
-        guard let firstDragPosition = firstDraggedItem.dragPosition else {
+        if isNewDrag {
             self.currentItemDragged = firstDraggedItem.id
-            
-            // Remove elements from groups if there are selections inside other selected groups
-            Self.removeSelectionsFromGroups(selections: allDraggedItems)
-
             // Set up previous drag position, which we'll increment off of
             allDraggedItemsPlusChildren.enumerated().forEach { index, item in
                 let initialPosition = CGPoint(x: item.location.x,
@@ -196,7 +197,10 @@ extension ProjectSidebarObservable {
                 item.prevDragPosition = initialPosition
                 item.dragPosition = item.prevDragPosition
             }
-            
+        }
+    
+        guard let firstDragPosition = firstDraggedItem.dragPosition else {
+            fatalErrorIfDebug()
             return
         }
         
@@ -217,7 +221,7 @@ extension ProjectSidebarObservable {
             return
         }
         
-        if originalItemIndex != calculatedIndex {
+        if originalItemIndex != calculatedIndex || isNewDrag {
             self.movedDraggedItems(draggedElement: firstDraggedItem,
                                    draggedItems: allDraggedItems,
                                    visualList: filteredVisualList,
@@ -240,7 +244,6 @@ extension ProjectSidebarObservable {
                            to index: SidebarIndex,
                            draggedItemsPlusChildrenCount: Int,
                            oldCount: Int) {
-        
         let visualList = visualList
         let draggedItemIdSet = draggedItems.map(\.id).toSet
         
@@ -272,20 +275,20 @@ extension ProjectSidebarObservable {
     }
     
     /// Removes selected elements from other selected groups.
-    static func removeSelectionsFromGroups(selections: [Self.ItemViewModel]) {
-        var queue = selections
-        
-        // Traverse backwards by exploring parent delegate
-        while let element = queue.popLast() {
-            guard let parent = element.parentDelegate else { continue }
-            
-            if selections.contains(where: { $0.id == parent.id }) {
-                parent.children?.remove(element.id)
-            }
-            
-            queue.append(parent)
-        }
-    }
+//    static func removeSelectionsFromGroups(selections: [Self.ItemViewModel]) {
+//        var queue = selections
+//        
+//        // Traverse backwards by exploring parent delegate
+//        while let element = queue.popLast() {
+//            guard let parent = element.parentDelegate else { continue }
+//            
+//            if selections.contains(where: { $0.id == parent.id }) {
+//                parent.children?.remove(element.id)
+//            }
+//            
+//            queue.append(parent)
+//        }
+//    }
 }
 
 extension ProjectSidebarObservable {
