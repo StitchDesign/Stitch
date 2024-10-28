@@ -38,10 +38,6 @@ protocol SidebarItemSwipable: AnyObject, Observable, Identifiable, StitchNestedL
     
     var isHidden: Bool { get }
     
-//    @MainActor var fontColor: Color { get }
-    
-//    var backgroundOpacity: CGFloat { get }
-    
     @MainActor var sidebarLeftSideIcon: String { get }
     
     @MainActor var isMasking: Bool { get }
@@ -192,9 +188,7 @@ extension SidebarItemSwipable {
     }
     
     var isParentSelected: Bool {
-        // Can't be primary selected
         guard let sidebar = self.sidebarDelegate else { return false }
-//              !sidebar.selectionState.primary.contains(self.id) else { return false }
         
         var visitedItem: Self? = self
         
@@ -424,7 +418,7 @@ extension Array where Element: SidebarItemSwipable {
         }
     }
     
-    /// Same operation as `flattenedItems` but filters out collapsed groups.
+    /// Operation called on drag to return flattened visible list of children, while also removing primary-selected children from groups.
     func getFlattenedVisibleItems(selectedIds: Set<Element.ID>) -> [Element] {
         self.flatMap { item in
             guard item.isExpandedInSidebar ?? false,
@@ -442,9 +436,6 @@ extension Array where Element: SidebarItemSwipable {
                 
                 // Remove child from main item
                 item.children?.remove(child.id)
-                
-                // Change child parent
-//                child.parentDelegate = 
                 
                 primarySelectedChildren.append(child)
                 return nil

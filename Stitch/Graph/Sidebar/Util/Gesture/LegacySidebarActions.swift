@@ -95,8 +95,6 @@ extension ProjectSidebarObservable {
         // Dragging a layer not already selected = dragging just that layer and deselecting all the others
         if !focusedLayers.contains(draggedItem.id) {
             state.selectionState.resetEditModeSelections()
-//            state.selectionState.inspectorFocusedLayers.focused = .init([draggedItem.id])
-//            state.selectionState.inspectorFocusedLayers.activelySelected = .init([draggedItem.id])
             state.sidebarItemSelectedViaEditMode(draggedItem.id)
             state.selectionState.lastFocused = draggedItem.id
         }
@@ -275,22 +273,6 @@ extension ProjectSidebarObservable {
         // TODO: should only be for layers sidebar
         self.graphDelegate?.updateOrderedPreviewLayers()
     }
-    
-    /// Removes selected elements from other selected groups.
-//    static func removeSelectionsFromGroups(selections: [Self.ItemViewModel]) {
-//        var queue = selections
-//        
-//        // Traverse backwards by exploring parent delegate
-//        while let element = queue.popLast() {
-//            guard let parent = element.parentDelegate else { continue }
-//            
-//            if selections.contains(where: { $0.id == parent.id }) {
-//                parent.children?.remove(element.id)
-//            }
-//            
-//            queue.append(parent)
-//        }
-//    }
 }
 
 extension ProjectSidebarObservable {

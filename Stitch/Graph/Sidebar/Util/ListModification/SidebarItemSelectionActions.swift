@@ -44,7 +44,6 @@ extension ProjectSidebarObservable {
                 
                 let selectionsFromTop = flatList[0...indexOfTappedItem].map(\.id)
                 
-//                self.selectionState.inspectorFocusedLayers.focused = selectionsFromTop.toSet
                 self.selectionState.primary = selectionsFromTop.toSet
                 
                 self.selectionState.lastFocused = id
@@ -88,10 +87,7 @@ extension ProjectSidebarObservable {
                 selections: originalSelections) {
                 let idItemsBetween = itemsBetween.map(\.id).toSet
                 
-                // ORIGINAL
-//                self.selectionState.inspectorFocusedLayers.focused =
-//                self.selectionState.inspectorFocusedLayers.focused.union(idItemsBetween)
-                
+                // ORIGINAL                
                 self.selectionState.primary = self.selectionState.all.union(idItemsBetween)
                 
                 // Shift click does NOT change the `lastFocusedLayer`
@@ -106,7 +102,6 @@ extension ProjectSidebarObservable {
                     
                     itemsBetween.forEach { itemBetween in
                         log("sidebarItemTapped: will remove item Between \(itemBetween)")
-//                        self.selectionState.all.remove(itemBetween.id)
                         self.selectionState.primary.remove(itemBetween.id)
                     }
                 }
@@ -122,11 +117,9 @@ extension ProjectSidebarObservable {
                 if clickedItem.id == lastClickedItem.id {
                     log("clicked the same item as the last clicked; will deselect original island and select only last selected")
                     originalIsland.forEach {
-//                        self.selectionState.inspectorFocusedLayers.focused.remove($0.id)
                         self.selectionState.primary.remove($0.id)
                     }
                     
-//                    self.selectionState.inspectorFocusedLayers.focused.insert(clickedItem.id)
                     self.selectionState.primary.insert(clickedItem.id)
                     
                     self.editModeSelectTappedItems(tappedItems: self.selectionState.all)
@@ -147,14 +140,12 @@ extension ProjectSidebarObservable {
             
             // Note: Cmd + Click will select a currently-unselected layer or deselect an already-selected layer
             if alreadySelected {
-//                self.selectionState.inspectorFocusedLayers.focused.remove(id)
                 self.selectionState.primary.remove(id)
                 self.sidebarItemDeselectedViaEditMode(id)
                 
                 // Don't set nil, but rather use `orderedSet.dropLast.last` ?
                 self.selectionState.lastFocused = nil
             } else {
-//                self.selectionState.inspectorFocusedLayers.focused.insert(id)
                 self.selectionState.primary.insert(id)
                 self.sidebarItemSelectedViaEditMode(id)
                 self.selectionState.lastFocused = id
@@ -167,7 +158,6 @@ extension ProjectSidebarObservable {
             self.selectionState.resetEditModeSelections()
             
             // Note: Click will not deselect an already-selected layer
-//            self.selectionState.inspectorFocusedLayers.focused = .init([id])
             self.selectionState.primary = .init([id])
             self.sidebarItemSelectedViaEditMode(id)
             self.selectionState.lastFocused = id
@@ -264,46 +254,8 @@ extension ProjectSidebarObservable {
         guard let item = self.retrieveItem(id) else {
             return
         }
-
-        // if we actively-selected (non-edit-mode-selected) an item that is already secondarily-selected, we don't need to change the
-//        if isSidebarItemTapped,
-//           item.isParentSelected {
-//            log("sidebarItemSelectedViaEditMode: \(id) was already secondarily selected")
-//            return
-//        }
            
-        self.addExclusivelyToPrimary(id)
-//        if item.isGroup {
-//
-//            item.children?.forEach{ child in
-//                child.secondarilySelectAllChildren()
-//            }
-//        }
-
-        // If we selected a child of a group,
-        // then deselect that parent and all other children,
-        // and primarily select the child.
-        // ie deselect everything(?), and only select the child.
-//        else if let parent = item.parentDelegate {
-//
-//            // if the parent is currently selected,
-//            // then deselect the parent and all other children
-//            if self.selectionState.all.contains(parent.id) {
-//                self.selectionState.resetEditModeSelections()
-//                self.addExclusivelyToPrimary(id)
-//            }
-//
-//            // ... otherwise, just primarily select the child
-//            else {
-//                self.addExclusivelyToPrimary(id)
-//            }
-//        }
-
-        // else: simple case?:
-//        else {
-//            self.addExclusivelyToPrimary(id)
-//        }
-                
+        self.addExclusivelyToPrimary(id)  
         self.graphDelegate?.updateInspectorFocusedLayers()
     }
 }

@@ -25,10 +25,6 @@ struct SidebarListItemSelectionCircleView<Item>: View where Item: SidebarItemSwi
               : self.SELECTION_CIRCLE
     }
     
-//    var selection: SidebarListItemSelectionStatus {
-//        item.selectionStatus
-//    }
-    
     var body: some View {
         // See `SidebarListItemLeftLabelView` for note about animations
         if isBeingEdited {

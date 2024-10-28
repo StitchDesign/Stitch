@@ -174,7 +174,6 @@ extension GraphState {
 
         // Reset edit mode selections + inspector focus and actively-selected
         self.sidebarSelectionState.resetEditModeSelections()
-//        self.sidebarSelectionState.inspectorFocusedLayers.focused = .init()
         self.sidebarSelectionState.primary = .init()
         
         // NOTE: we can either duplicate layers OR patch nodes; but NEVER both
@@ -186,7 +185,6 @@ extension GraphState {
                     
                     // Actively-select the new layer node
                     let id = nodeEntity.id
-//                    self.sidebarSelectionState.inspectorFocusedLayers.focused.insert(id)
                     self.sidebarSelectionState.primary.insert(id)
                                         
                     self.layersSidebarViewModel.sidebarItemSelectedViaEditMode(id)
