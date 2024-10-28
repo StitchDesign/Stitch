@@ -14,6 +14,7 @@ struct SidebarListItemLeftLabelView<SidebarViewModel>: View where SidebarViewMod
     @Bindable var graph: GraphState
     @Bindable var sidebarViewModel: SidebarViewModel
     @Bindable var itemViewModel: SidebarViewModel.ItemViewModel
+    let fontColor: Color
     
     var isBeingEdited: Bool {
         self.sidebarViewModel.isEditing
@@ -22,102 +23,6 @@ struct SidebarListItemLeftLabelView<SidebarViewModel>: View where SidebarViewMod
     @MainActor
     var masks: Bool {
         self.itemViewModel.isMasking
-    }
-    
-    var isHidden: Bool {
-        self.itemViewModel.isHidden
-    }
-    
-//    var fontColor: Color {
-//#if DEV_DEBUG
-//        if isHidden {
-//            return .purple
-//        }
-//#endif
-//        
-//        // Any 'focused' (doesn't have to be 'actively selected') layer uses white text
-//        if !self.isBeingEdited && isSelected {
-//#if DEV_DEBUG
-//            return .red
-//#else
-//            return .white
-//#endif
-//        }
-//        
-//#if DEV_DEBUG
-//        // Easier to see secondary selections for debug
-//        //        return selection.color(isHidden)
-//        
-//        if isSelected {
-//            return .brown
-//        }
-//        if isParentSelected {
-//            return .green
-//        }
-//        return .blue
-//#endif
-//        
-//        if isBeingEdited || isHidden {
-//            return self.getColor()
-//        } else {
-//            // i.e. if we are not in edit mode, do NOT show secondarily-selected layers (i.e. children of a primarily-selected parent) as gray
-//            return SIDE_BAR_OPTIONS_TITLE_FONT_COLOR
-//        }
-//    }
-    
-    @MainActor
-    var fontColor: Color {
-        let selection = self.itemViewModel.selectionStatus
-
-#if DEV_DEBUG
-        if itemViewModel.isHidden {
-            return .purple
-        }
-#endif
-
-        // Any 'focused' (doesn't have to be 'actively selected') layer uses white text
-        if !self.isBeingEdited && itemViewModel.isSelected {
-#if DEV_DEBUG
-            return .red
-#else
-            return .white
-#endif
-        }
-
-#if DEV_DEBUG
-        // Easier to see secondary selections for debug
-        //        return selection.color(isHidden)
-
-        switch selection {
-        case .primary:
-            return .brown
-        case .secondary:
-            return .green
-        case .none:
-            return .blue
-        }
-
-#endif
-
-        if isBeingEdited || isHidden {
-            return self.getColor()
-        } else {
-            // i.e. if we are not in edit mode, do NOT show secondarily-selected layers (i.e. children of a primarily-selected parent) as gray
-            return SIDE_BAR_OPTIONS_TITLE_FONT_COLOR
-        }
-    }
-    
-    // a secondarily- or hidden primarily-selected color has half the strength
-    func getColor() -> Color {
-        switch itemViewModel.selectionStatus {
-        // both primary selection and non-selection use white;
-        // the difference whether the circle gets filled or not
-        case .primary, .none:
-            // return .white
-            return SIDE_BAR_OPTIONS_TITLE_FONT_COLOR.opacity(isHidden ? 0.5 : 1)
-        case .secondary:
-            return SIDE_BAR_OPTIONS_TITLE_FONT_COLOR.opacity(0.5)
-        }
     }
     
     var body: some View {
