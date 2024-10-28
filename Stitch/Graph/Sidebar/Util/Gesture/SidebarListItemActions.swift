@@ -8,22 +8,15 @@
 import Foundation
 import StitchSchemaKit
 
-struct SidebarLayerHovered: GraphUIEvent {
-    let layer: LayerNodeId
-    
-    func handle(state: GraphUIState) {
-        state.highlightedSidebarLayers.insert(layer)
+extension GraphUIState {
+    func sidebarLayerHovered(layerId: LayerNodeId) {
+        self.highlightedSidebarLayers.insert(layerId)
+    }
+
+    func sidebarLayerHoverEnded(layerId: LayerNodeId) {
+        self.highlightedSidebarLayers.remove(layerId)
     }
 }
-
-struct SidebarLayerHoverEnded: GraphUIEvent {
-    let layer: LayerNodeId
-    
-    func handle(state: GraphUIState) {
-        state.highlightedSidebarLayers.remove(layer)
-    }
-}
-
 
 /*
  "Sidebar item's hide-icon clicked"
@@ -39,7 +32,7 @@ struct SidebarLayerHoverEnded: GraphUIEvent {
  */
 struct SidebarItemHiddenStatusToggled: GraphEventWithResponse {
 
-    let clickedId: LayerNodeId
+    let clickedId: NodeId
 
     @MainActor
     func handle(state: GraphState) -> GraphResponse {
@@ -50,7 +43,7 @@ struct SidebarItemHiddenStatusToggled: GraphEventWithResponse {
 
 struct SelectedLayersVisiblityUpdated: GraphEventWithResponse {
 
-    let selectedLayers: LayerIdSet
+    let selectedLayers: NodeIdSet
     let newVisibilityStatus: Bool
     
     @MainActor
@@ -65,22 +58,17 @@ struct SelectedLayersVisiblityUpdated: GraphEventWithResponse {
 
 extension GraphState {
     @MainActor
-    func layerHiddenStatusToggled(_ clickedId: LayerNodeId,
+    func layerHiddenStatusToggled(_ clickedId: NodeId,
                                   // If provided, then we are explicitly setting true/false (for multiple layers) as opposed to just toggling an individual layer
                                   newVisibilityStatus: Bool? = nil) {
-        
-        guard let layerNode = self.getLayerNode(id: clickedId.id)?.layerNode else {
+
+        guard let layerNode = self.getLayerNode(id: clickedId)?.layerNode else {
             log("SidebarItemHiddenStatusToggled: could not find layer node for clickedId \(clickedId.id)")
             fatalErrorIfDebug() // Is this bad?
             return
         }
         
-        let sidebarGroups = self.getSidebarGroupsDict()
-        
-        let descendants: LayerIdSet = getDescendantsIds(
-            id: clickedId,
-            groups: sidebarGroups,
-            acc: LayerIdSet())
+        let descendants = self.getDescendants(for: clickedId.asLayerNodeId)
 
         if let newVisibilityStatus = newVisibilityStatus {
             layerNode.hasSidebarVisibility = newVisibilityStatus

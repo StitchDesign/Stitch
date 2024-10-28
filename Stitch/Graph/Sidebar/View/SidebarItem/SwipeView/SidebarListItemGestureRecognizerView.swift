@@ -24,16 +24,19 @@ typealias OnItemDragChangedHandler = (CGSize) -> Void
 // or trackpad click + drag (for immediate item dragging)
 
 // a gesture recognizer for the item in the custom list itself
-struct SidebarListItemGestureRecognizerView<T: View>: UIViewControllerRepresentable {
-    let view: T
-    @ObservedObject var gestureViewModel: SidebarItemGestureViewModel
+struct SidebarListItemGestureRecognizerView<T: View,
+                                            SidebarViewModel: ProjectSidebarObservable>: UIViewControllerRepresentable {
+    @EnvironmentObject private var keyboardObserver: KeyboardObserver
 
-    @EnvironmentObject var keyboardObserver: KeyboardObserver
+    let view: T
+    @Bindable var sidebarViewModel: SidebarViewModel
+    @Bindable var gestureViewModel: SidebarViewModel.ItemViewModel
     
     var instantDrag: Bool = false
     
-    var graph: GraphState
-    var layerNodeId: LayerNodeId
+    var itemId: SidebarViewModel.ItemID {
+        gestureViewModel.id
+    }
 
     func makeUIViewController(context: Context) -> GestureHostingController<T> {
         let vc = GestureHostingController(
@@ -87,22 +90,23 @@ struct SidebarListItemGestureRecognizerView<T: View>: UIViewControllerRepresenta
         uiViewController.rootView = view
 
         delegate.instantDrag = instantDrag
-        
-        delegate.graph = graph
-        delegate.layerNodeId = layerNodeId
+        delegate.gestureViewModel = gestureViewModel
+        delegate.sidebarViewModel = sidebarViewModel
+        delegate.keyboardObserver = keyboardObserver
+        delegate.itemId = itemId
     }
 
-    func makeCoordinator() -> SidebarListGestureRecognizer {
-        SidebarListGestureRecognizer(
+    func makeCoordinator() -> SidebarListGestureRecognizer<SidebarViewModel> {
+        SidebarListGestureRecognizer<SidebarViewModel>(
             gestureViewModel: gestureViewModel,
+            sidebarViewModel: sidebarViewModel,
             keyboardObserver: keyboardObserver,
             instantDrag: instantDrag,
-            graph: graph,
-            layerNodeId: layerNodeId)
+            itemId: itemId)
     }
 }
 
-final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate {
+final class SidebarListGestureRecognizer<SidebarViewModel: ProjectSidebarObservable>: NSObject, UIGestureRecognizerDelegate, UIContextMenuInteractionDelegate {
     // Handles:
     // - one finger on screen item-swiping
     // - two fingers on trackpad item-swiping
@@ -112,29 +116,31 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
     // - one finger long-press-drag item-dragging: see `SwiftUI .simultaneousGesture`
     // - two fingers on trackpad list scrolling
     
-    let gestureViewModel: SidebarItemGestureViewModel
-    var keyboardObserver: KeyboardObserver
-
     var instantDrag: Bool
     
-    var graph: GraphState
-    var layerNodeId: LayerNodeId
+    var itemId: SidebarViewModel.ItemID
     
     var shiftHeldDown = false
     var commandHeldDown = false
 
-    init(gestureViewModel: SidebarItemGestureViewModel,
+    weak var sidebarViewModel: SidebarViewModel?
+    weak var gestureViewModel: SidebarViewModel.ItemViewModel?
+    weak var keyboardObserver: KeyboardObserver?
+
+    init(gestureViewModel: SidebarViewModel.ItemViewModel,
+         sidebarViewModel: SidebarViewModel,
          keyboardObserver: KeyboardObserver,
          instantDrag: Bool,
-         graph: GraphState,
-         layerNodeId: LayerNodeId) {
-        
+         itemId: SidebarViewModel.ItemID) {
+        self.sidebarViewModel = sidebarViewModel
         self.gestureViewModel = gestureViewModel
         self.keyboardObserver = keyboardObserver
         self.instantDrag = instantDrag
-        
-        self.graph = graph
-        self.layerNodeId = layerNodeId
+        self.itemId = itemId
+    }
+    
+    var graph: GraphState? {
+        self.sidebarViewModel?.graphDelegate
     }
     
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, 
@@ -160,14 +166,16 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
     }
       
     @objc func tapInView(_ gestureRecognizer: UITapGestureRecognizer) {
-        if graph.sidebarSelectionState.isEditMode || gestureViewModel.swipeSetting == .open {
+        guard let sidebarViewModel = self.sidebarViewModel,
+              let gestureViewModel = self.gestureViewModel else { return }
+        
+        if sidebarViewModel.isEditing || gestureViewModel.swipeSetting == .open {
             return
         }
         
-        dispatch(SidebarItemTapped(id: layerNodeId,
-                                   shiftHeld: self.shiftHeldDown,
-                                   commandHeld: self.commandHeldDown))
-        
+        self.sidebarViewModel?.sidebarItemTapped(id: self.itemId,
+                                                 shiftHeld: self.shiftHeldDown,
+                                                 commandHeld: self.commandHeldDown)
     }
     
     // finger on screen
@@ -188,10 +196,10 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
             case .changed:
 
                 if instantDrag {
-                    gestureViewModel.onItemDragChanged(translation.toCGSize)
+                    gestureViewModel?.onItemDragChanged(translation.toCGSize)
                 }
                 // let velocity = gestureRecognizer.velocity(in: gestureRecognizer.view)
-                gestureViewModel.onItemSwipeChanged(translation.x)
+                gestureViewModel?.onItemSwipeChanged(translation.x)
             default:
                 break // do nothing
             }
@@ -203,9 +211,9 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
             switch gestureRecognizer.state {
             case .ended, .cancelled:
                 if instantDrag {
-                    gestureViewModel.onItemDragEnded()
+                    gestureViewModel?.onItemDragEnded()
                 }
-                gestureViewModel.onItemSwipeEnded()
+                gestureViewModel?.onItemSwipeEnded()
             default:
                 break
             }
@@ -230,11 +238,11 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
                         
             switch gestureRecognizer.state {
             case .changed:
-                gestureViewModel.onItemSwipeChanged(translation.x)
+                gestureViewModel?.onItemSwipeChanged(translation.x)
                 // let velocity = gestureRecognizer.velocity(in: gestureRecognizer.view)
             case .ended, .cancelled:
-                gestureViewModel.onItemSwipeEnded()
-                gestureViewModel.onItemDragEnded()
+                gestureViewModel?.onItemSwipeEnded()
+                gestureViewModel?.onItemDragEnded()
             default:
 //                log("CustomListItemGestureRecognizerVC: touches 0: trackpadGestureHandler: default")
                 break
@@ -245,74 +253,79 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
         else if gestureRecognizer.numberOfTouches == 1 {
             switch gestureRecognizer.state {
             case .changed:
-                gestureViewModel.onItemDragChanged(translation.toCGSize)
+                gestureViewModel?.onItemDragChanged(translation.toCGSize)
             default:
                 // log("CustomListItemGestureRecognizerVC: trackpadGestureHandler: default")
                 break
             }
         }
     } // trackpadGestureHandler
-}
-
-extension SidebarListGestureRecognizer: UIContextMenuInteractionDelegate {
-        
+    
     // // NOTE: Not needed, since the required `contextMenuInteraction` delegate method is called every time the menu appears?
     //    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, willDisplayMenuFor configuration: UIContextMenuConfiguration, animator: (any UIContextMenuInteractionAnimating)?) {
     //        log("UIContextMenuInteractionDelegate: contextMenuInteraction: WILL DISPLAY MENU")
     //    }
-        
+    
     func contextMenuInteraction(_ interaction: UIContextMenuInteraction,
                                 configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
-        
+        if let keyboardObserver = self.keyboardObserver,
+           let graph = self.graph {
+            return self.gestureViewModel?.contextMenuInteraction(itemId: self.itemId,
+                                                                 graph: graph,
+                                                                 keyboardObserver: keyboardObserver)
+        }
+        return nil
+    }
+}
+
+extension SidebarItemGestureViewModel {
+    @MainActor
+    func contextMenuInteraction(itemId: SidebarListItemId,
+                                graph: GraphState,
+                                keyboardObserver: KeyboardObserver) -> UIContextMenuConfiguration? {
         // log("UIContextMenuInteractionDelegate: contextMenuInteraction")
+        
+        guard let sidebarViewModel = self.sidebarDelegate else { return nil }
+        let selections = sidebarViewModel.selectionState
                 
         // Only select the layer if not already actively-selected; otherwise just open the menu
-        if !self.graph.sidebarSelectionState.inspectorFocusedLayers.activelySelected.contains(self.layerNodeId) {
+        if !selections.inspectorFocusedLayers.activelySelected.contains(itemId) {
             
             let isShiftDown = keyboardObserver.keyboard?.keyboardInput?.isShiftPressed ?? false
             
             // Note: we do the selection logic in here so that
-            self.graph.sidebarItemTapped(
-                id: self.layerNodeId,
+            self.sidebarDelegate?.sidebarItemTapped(
+                id: itemId,
                 shiftHeld: isShiftDown,
-                commandHeld: self.graph.keypressState.isCommandPressed)
+                commandHeld: graph.keypressState.isCommandPressed)
         }
-                
-        let selections = self.graph.sidebarSelectionState
-        let groups = self.graph.getSidebarGroupsDict()
-        let sidebarDeps = SidebarDeps(layerNodes: .fromLayerNodesDict( nodes: self.graph.layerNodes, orderedSidebarItems: self.graph.orderedSidebarLayers),
-                                       groups: groups,
-                                       expandedItems: self.graph.getSidebarExpandedItems())
-        let layerNodes = sidebarDeps.layerNodes
         
-        let primary = selections.primary
-        
-        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
-        
+        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak graph] _ in
+            guard let graph = graph else { return UIMenu(title: "", children: []) }
+            
             var buttons: [UIMenuElement] = []
             
-            if canUngroup(primary, nodes: layerNodes) {
+            if sidebarViewModel.canUngroup() {
                 buttons.append(UIAction(title: "Ungroup", image: nil) { action in
                     // Handle action here
-                    dispatch(SidebarGroupUncreated())
+                    self.sidebarDelegate?.sidebarGroupUncreated()
                 })
             }
             
-            let canGroup = primary.nonEmptyPrimary.map { canBeGrouped($0, groups: groups) } ?? false
-            if canGroup {
+            if sidebarViewModel.canBeGrouped() {
                 buttons.append(UIAction(title: "Group", image: nil) { action in
-                    dispatch(SidebarGroupCreated())
+                    sidebarViewModel.sidebarGroupCreated()
                 })
             }
             
-            if canDuplicate(primary) {
+            if sidebarViewModel.canDuplicate() {
                 let groupButton = UIAction(title: "Duplicate", image: nil) { action in
                     dispatch(SidebarSelectedItemsDuplicated())
                 }
                 buttons.append(groupButton)
             }
             
-            let activeSelections = self.graph.sidebarSelectionState.inspectorFocusedLayers.activelySelected
+            let activeSelections = graph.sidebarSelectionState.inspectorFocusedLayers.activelySelected
             
             let atLeastOneSelected = !activeSelections.isEmpty
             
@@ -326,7 +339,7 @@ extension SidebarListGestureRecognizer: UIContextMenuInteractionDelegate {
             
             if onlyOneSelected,
                let layerNodeId = selections.primary.first,
-               let isVisible = self.graph.getLayerNode(id: layerNodeId.asNodeId)?.layerNode?.hasSidebarVisibility {
+               let isVisible = graph.getLayerNode(id: layerNodeId)?.layerNode?.hasSidebarVisibility {
                 
                 buttons.append(UIAction(title: isVisible ? "Hide Layer" : "Unhide Layer", image: nil) { action in
                     dispatch(SidebarItemHiddenStatusToggled(clickedId: layerNodeId))
@@ -336,7 +349,7 @@ extension SidebarListGestureRecognizer: UIContextMenuInteractionDelegate {
             if activeSelections.count > 1 {
                 buttons.append(UIAction(title: "Hide Layers", image: nil) { action in
                     dispatch(SelectedLayersVisiblityUpdated(selectedLayers: selections.primary,
-                                                           newVisibilityStatus: false))
+                                                            newVisibilityStatus: false))
                 })
                 
                 buttons.append(UIAction(title: "Unhide Layers", image: nil) { action in

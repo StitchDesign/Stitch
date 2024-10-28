@@ -18,17 +18,17 @@ enum LoggingAction: Equatable {
     case none, logToServer, fatal
 }
 
-struct LogToServer: AppEvent {
-    let message: String
-
-    // TODO: write state + message + device info to server (if online)
-    func handle(state: AppState) -> AppResponse {
-        .noChange
-    }
-}
+//struct LogToServer: AppEvent {
+//    let message: String
+//
+//    // TODO: write state + message + device info to server (if online)
+//    func handle(state: AppState) -> AppResponse {
+//        .noChange
+//    }
+//}
 
 // For debug printing from within SwiftUI views
-func log(_ message: String, _ loggingAction: LoggingAction = .none) {
+func log(_ message: Any, _ loggingAction: LoggingAction = .none) {
     #if DEBUG || DEV_DEBUG
     print("** \(message)")
 
@@ -37,14 +37,14 @@ func log(_ message: String, _ loggingAction: LoggingAction = .none) {
         return
     case .fatal:
         #if DEV_DEBUG
-        fatalError("FATAL:" + message)
+        fatalError("FATAL: \(message)")
         #endif
     case .logToServer:
         print("HAD MAJOR ERROR: \(message)")
 
-        DispatchQueue.main.async {
-            dispatch(LogToServer(message: message))
-        }
+//        DispatchQueue.main.async {
+//            dispatch(LogToServer(message: message))
+//        }
     }
     #endif
 }

@@ -11,14 +11,17 @@ import Foundation
 struct SidebarSelectedItemsDuplicated: GraphEventWithResponse {
 
     func handle(state: GraphState) -> GraphResponse {
-        state.sidebarSelectedItemsDuplicatedViaEditMode()
+        state.sidebarSelectedItemsDuplicated()
         return .persistenceResponse
     }
 }
 
 extension GraphState {
     @MainActor
-    func sidebarSelectedItemsDuplicatedViaEditMode() {
-        self.copyAndPasteSelectedNodes(selectedNodeIds: self.sidebarSelectionState.all.map(\.asNodeId).toSet)
+    func sidebarSelectedItemsDuplicated() {
+        let nodeIds = self.layersSidebarViewModel.selectionState.all
+        self.copyAndPasteSelectedNodes(selectedNodeIds: nodeIds)
+        
+        // Move nodes
     }
 }

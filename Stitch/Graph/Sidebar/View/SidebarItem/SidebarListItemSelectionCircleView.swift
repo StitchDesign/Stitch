@@ -8,24 +8,26 @@
 import SwiftUI
 import StitchSchemaKit
 
-struct SidebarListItemSelectionCircleView: View {
+struct SidebarListItemSelectionCircleView<Item>: View where Item: SidebarItemSwipable {
     
-    static let SELECTION_CIRCLE_SELECTED = "circle.inset.filled"
-    static let SELECTION_CIRCLE = "circle"
+    private let SELECTION_CIRCLE_SELECTED = "circle.inset.filled"
+    private let SELECTION_CIRCLE = "circle"
 
-    let id: LayerNodeId
+    @Bindable var item: Item
+    @Bindable var selectionState: SidebarSelectionObserver<Item.ID>
     
     // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status
     let fontColor: Color
-    
-    let selection: SidebarListItemSelectionStatus
-    let isHidden: Bool
     let isBeingEdited: Bool
         
     var iconName: String {
         selection.isSelected
-              ? Self.SELECTION_CIRCLE_SELECTED
-              : Self.SELECTION_CIRCLE
+              ? self.SELECTION_CIRCLE_SELECTED
+              : self.SELECTION_CIRCLE
+    }
+    
+    var selection: SidebarListItemSelectionStatus {
+        selectionState.getSelectionStatus(item.id)
     }
     
     var body: some View {
@@ -46,17 +48,20 @@ struct SidebarListItemSelectionCircleView: View {
                    height: SIDEBAR_ITEM_ICON_LENGTH)
             .padding(4)
             .contentShape(Rectangle())
-            .onTapGesture {
+        
+        // simultaneous needed to fix issues where SidebarListGestureRecognizer's
+        // tap gesturecancels touches
+            .simultaneousGesture(TapGesture().onEnded {
                 log("SidebarListItemSelectionCircleView: tapCallback")
                 // ie What kind of selection did we have?
                 // - if item was already 100% selected, then deselect
                 // - if was 80% or 0% selected, then 100% select
                 switch selection {
                 case .primary:
-                    dispatch(SidebarItemDeselected(id: id))
+                    item.didUnselectOnEditMode()
                 case .secondary, .none:
-                    dispatch(SidebarItemSelected(id: id))
+                    item.didSelectOnEditMode()
                 }
-            }
+            })
     }
 }

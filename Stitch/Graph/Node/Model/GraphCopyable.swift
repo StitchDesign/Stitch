@@ -191,8 +191,7 @@ extension LayerNodeEntity: GraphCopyable {
         var newSchema = LayerNodeEntity(nodeId: newId,
                                         layer: self.layer,
                                         hasSidebarVisibility: self.hasSidebarVisibility,
-                                        layerGroupId: mappableData.get(self.layerGroupId),
-                                        isExpandedInSidebar: self.isExpandedInSidebar)
+                                        layerGroupId: mappableData.get(self.layerGroupId))
         
         // Iterate through layer inputs
         self.layer.layerGraphNode.inputDefinitions.forEach {

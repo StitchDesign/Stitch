@@ -9,153 +9,35 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-struct SidebarListItemSwipeInnerView: View {
-    
-    @Environment(\.appTheme) var theme
+struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewModel: ProjectSidebarObservable {
+    // The actual rendered distance for the swipe distance
+    @State private var swipeX: Double = 0
+    @State private var sidebarWidth: Double = .zero
     
     @Bindable var graph: GraphState
-    
-    var item: SidebarListItem
-    let name: String
-    let layer: Layer
-    var current: SidebarDraggedItem?
-    var proposedGroup: ProposedGroup?
-    var isClosed: Bool
-    let selection: SidebarListItemSelectionStatus
-    let isBeingEdited: Bool
-    let swipeSetting: SidebarSwipeSetting
-    let sidebarWidth: CGFloat
-    let isHovered: Bool
-    
-    // The actual rendered distance for the swipe distance
-    @State var swipeX: CGFloat = 0
-    @ObservedObject var gestureViewModel: SidebarItemGestureViewModel
+    @Bindable var sidebarViewModel: SidebarViewModel
+    @Bindable var itemViewModel: SidebarViewModel.ItemViewModel
     
     var showMainItem: Bool { swipeX < DEFAULT_ACTION_THRESHOLD }
     
-    var itemIndent: CGFloat { item.location.x }
-        
-    @MainActor
-    var isHidden: Bool {
-        graph.getVisibilityStatus(for: item.id.asNodeId) != .visible
-    }
-    
-    var fontColor: Color {
-        
-        #if DEV_DEBUG
-        if isHidden {
-            return .purple
-        }
-        #endif
-        
-        // Any 'focused' (doesn't have to be 'actively selected') layer uses white text
-        if isNonEditModeSelected {
-#if DEV_DEBUG
-            return .red
-#else
-            return .white
-#endif
-        }
-        
-#if DEV_DEBUG
-        // Easier to see secondary selections for debug
-        //        return selection.color(isHidden)
-        
-        switch selection {
-        case .primary:
-            return .brown
-        case .secondary:
-            return .green
-        case .none:
-            return .blue
-        }
-        
-#endif
-        
-        if isBeingEdited || isHidden {
-            return selection.color(isHidden)
-        } else {
-            // i.e. if we are not in edit mode, do NOT show secondarily-selected layers (i.e. children of a primarily-selected parent) as gray
-            return SIDE_BAR_OPTIONS_TITLE_FONT_COLOR
-        }
-        
-    }
-    
-    var layerNodeId: LayerNodeId {
-        item.id.asLayerNodeId
-    }
-    
-    var isBeingDragged: Bool {
-        current.map { $0.current == item.id } ?? false
-    }
-    
-    var isNonEditModeFocused: Bool {
-        graph.sidebarSelectionState.inspectorFocusedLayers.focused.contains(layerNodeId)
-    }
-    
-    var isNonEditModeActivelySelected: Bool {
-        graph.sidebarSelectionState.inspectorFocusedLayers.activelySelected.contains(layerNodeId)
-    }
-    
-    var isNonEditModeSelected: Bool {
-        isNonEditModeFocused || isNonEditModeActivelySelected
-    }
-    
-    var isImplicitlyDragged: Bool {
-        graph.sidebarSelectionState.implicitlyDragged.contains(item.id)
-    }
-    
-    var useHalfOpacityBackground: Bool {
-        isImplicitlyDragged || (isNonEditModeFocused && !isNonEditModeActivelySelected)
-    }
-    
-    var backgroundOpacity: CGFloat {
-        if isImplicitlyDragged {
-            return 0.5
-        } else if (isNonEditModeFocused || isBeingDragged) {
-            return (isNonEditModeFocused && !isNonEditModeActivelySelected) ? 0.5 : 1
-        } else {
-            return 0
-        }
-    }
-    
     var body: some View {
         HStack(spacing: .zero) {
-            
             // Main row hides if swipe menu exceeds threshold
             if showMainItem {
                 SidebarListItemView(graph: graph,
-                                    item: item,
-                                    name: name,
-                                    layer: layer,
-                                    current: current,
-                                    proposedGroup: proposedGroup,
-                                    isClosed: isClosed,
-                                    fontColor: fontColor,
-                                    selection: selection,
-                                    isBeingEdited: isBeingEdited,
-                                    isHidden: isHidden,
+                                    sidebarViewModel: sidebarViewModel,
+                                    item: itemViewModel,
                                     swipeOffset: swipeX)
-                .padding(.leading, itemIndent + 5)
-                .background {
-                    theme.fontColor
-                        .opacity(self.backgroundOpacity)
-                }
                 // right-side label overlay comes AFTER x-placement of item,
                 // so as not to be affected by x-placement.
                 .overlay(alignment: .trailing) {
                     
 #if !targetEnvironment(macCatalyst)
                     SidebarListItemRightLabelView(
-                        item: item,
-                        isGroup: item.isGroup,
-                        isClosed: isClosed,
-                        fontColor: fontColor,
-                        selection: selection,
-                        isBeingEdited: isBeingEdited,
-                        isHidden: isHidden)
+                        item: itemViewModel,
+                        selectionState: sidebarViewModel.selectionState,
+                        isBeingEdited: sidebarViewModel.isEditing)
                     .frame(height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
-                    
 #endif
                     
 //                    // TODO: revisit this; currently still broken on Catalyst and the UIKitTappableWrapper becomes unresponsive as soon as we apply a SwiftUI .frame or .offset; `Spacer()`s also do not seem to work
@@ -176,22 +58,34 @@ struct SidebarListItemSwipeInnerView: View {
                     
                 }
                 .padding(.trailing, 2)
-                
             }
             
 #if !targetEnvironment(macCatalyst)
             SidebarListItemSwipeMenu(
-                item: item,
-                swipeOffset: swipeX,
-                visStatusIconName: graph.getLayerNode(id: item.id.id)?.layerNode?.visibilityStatusIcon ?? SIDEBAR_VISIBILITY_STATUS_VISIBLE_ICON,
-                gestureViewModel: self.gestureViewModel)
+                gestureViewModel: itemViewModel,
+                swipeOffset: swipeX)
 #endif
         }
+#if !targetEnvironment(macCatalyst)
+        .background {
+            GeometryReader { geometry in
+                Color.clear
+                    .onAppear {
+                        self.sidebarWidth = geometry.size.width
+                    }
+                    .onChange(of: geometry.size.width) { _, newWidth in
+                        if newWidth != self.sidebarWidth {
+                            self.sidebarWidth = newWidth
+                        }
+                    }
+            }
+        }
+#endif
         
         // Animates swipe distance if it gets pinned to its open or closed position.
         // Does NOT animate for normal swiping.
 #if !targetEnvironment(macCatalyst)
-        .onChange(of: swipeSetting) { newSwipeSetting in
+        .onChange(of: self.itemViewModel.swipeSetting) { _, newSwipeSetting in
             switch newSwipeSetting {
             case .closed, .open:
                                 
@@ -211,6 +105,5 @@ struct SidebarListItemSwipeInnerView: View {
         }
 #endif
         .animation(.stitchAnimation(duration: 0.25), value: showMainItem)
-        .animation(.stitchAnimation(duration: 0.25), value: itemIndent)
     }
 }

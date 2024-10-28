@@ -22,7 +22,7 @@ struct DeleteShortcutKeyPressed: GraphEventWithResponse {
 
         // Check which we have focused: layers or canvas items
         if state.hasActivelySelectedLayers {
-            state.sidebarSelectedItemsDeletingViaEditMode()
+            state.layersSidebarViewModel.deleteSelectedItems()
             state.updateInspectorFocusedLayers()
         }
         
@@ -137,6 +137,8 @@ extension GraphState {
             return
         }
         
+        let isLayer = node.kind.isLayer
+        
         // Find nodes to recursively delete
         switch node.kind {
         case .layer(let layer) where layer == .group:
@@ -193,6 +195,11 @@ extension GraphState {
         // Delete media from file manager if it's the "source" media and unused elsewhere
         node.inputs.findImportedMediaKeys().forEach { mediaKey in
             self.checkToDeleteMedia(mediaKey, from: node.id)
+        }
+
+        // Update sidebar
+        if isLayer {
+            self.layersSidebarViewModel.deleteItems(from: Set([id]))
         }
     }
     
