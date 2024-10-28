@@ -369,7 +369,8 @@ extension GraphState {
     
     var graphStepManager: GraphStepManager {
         guard let document = self.documentDelegate else {
-            fatalErrorIfDebug()
+//            fatalErrorIfDebug()
+            log("graphStepManager: did not have a document delegate")
             return .init()
         }
         
