@@ -149,25 +149,18 @@ func getFieldValueTypes<FieldType: FieldViewModel>(value: PortValue,
                                                    unpackedPortIndex: Int?,
                                                    importedMediaObject: StitchMediaObject?,
                                                    rowViewModel: FieldType.NodeRowType?) -> [FieldGroupTypeViewModel<FieldType>] {
-    
-    log("getFieldValueTypes: value: \(value)")
-    
+        
     let fieldValuesList: [FieldValues] = value.createFieldValuesList(
         nodeIO: nodeIO,
         importedMediaObject: importedMediaObject)
     
-    log("getFieldValueTypes: fieldValuesList: \(fieldValuesList)")
-
     // All PortValue types except ShapeCommand use a single grouping of fields
     guard let fieldValuesForSingleFieldGroup = fieldValuesList.first else {
         fatalErrorIfDebug()
         return []
     }
-    
-    log("getFieldValueTypes: fieldValuesForSingleFieldGroup: \(fieldValuesForSingleFieldGroup)")
-    
-    let nodeRowType = value.getNodeRowType(nodeIO: nodeIO)
-    switch nodeRowType {
+        
+    switch value.getNodeRowType(nodeIO: nodeIO) {
         
     case .size:
         return [.init(fieldValues: fieldValuesForSingleFieldGroup,
