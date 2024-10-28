@@ -139,11 +139,11 @@ struct GraphBaseView: View {
         .background {
             GeometryReader { geometry in
                 Color.clear
-                    .onChange(of: geometry.frame(in: .local),
-                              initial: true) { _, newValue in
-                        // log("GraphBaseView: onChange: oldValue: \(oldValue)")
-                        // log("GraphBaseView: onChange: newValue: \(newValue)")
+                    .onChange(of: geometry.frame(in: .local), initial: true) { oldValue, newValue in
                         dispatch(SetDeviceScreenSize(frame: newValue))
+                    }
+                    .onChange(of: geometry.frame(in: .global), initial: true) { oldValue, newValue in
+                        dispatch(SetGraphYPosition(graphYPosition: newValue.origin.y))
                     }
             }
         }
