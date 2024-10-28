@@ -18,6 +18,14 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
     @Bindable var sidebarViewModel: SidebarViewModel
     @Bindable var gestureViewModel: ItemViewModel
     
+    var isSelected: Bool {
+        self.sidebarViewModel.primary.contains(gestureViewModel.id)
+    }
+    
+    var isParentSelected: Bool {
+        self.gestureViewModel.isParentSelected
+    }
+    
     var yOffset: CGFloat {
         guard let dragPosition = gestureViewModel.dragPosition else {
             return gestureViewModel.location.y
@@ -33,6 +41,18 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
     // Controls animation for non-dragged elements
     var animationDuration: Double {
         gestureViewModel.isBeingDragged ? 0 : 0.25
+    }
+    
+    var backgroundOpacity: Double {
+        if isSelected {
+            return 1
+        }
+        
+        if isParentSelected {
+            return 0.5
+        }
+        
+        return 0
     }
     
     var body: some View {
@@ -53,7 +73,7 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
         .padding(.leading, CGFloat(indentationPadding))
         .background {
             theme.fontColor
-                .opacity(gestureViewModel.backgroundOpacity)
+                .opacity(backgroundOpacity)
         }
         .onHover { hovering in
             // log("hovering: sidebar item \(gestureViewModel.id)")

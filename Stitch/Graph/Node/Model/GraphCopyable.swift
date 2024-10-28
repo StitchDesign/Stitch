@@ -6,9 +6,10 @@
 //
 
 import Foundation
-import StitchSchemaKit
 import SwiftUI
 import UniformTypeIdentifiers
+import StitchSchemaKit
+import StitchViewKit
 
 // TODO: Move and version this
 typealias NodeEntities = [NodeEntity]
@@ -469,9 +470,9 @@ extension GraphState {
     }
 }
 
-extension SidebarLayerList {
+extension Array where Element: StitchNestedListElement {
     /// Returns a subset of layers in sidebar given some selected set.
-    func getSubset(from ids: NodeIdSet) -> SidebarLayerList {
+    func getSubset(from ids: Set<Element.ID>) -> [Element] {
         self.flatMap { sidebarData in
             guard ids.contains(sidebarData.id) else {
                 // Recursively check children
@@ -482,8 +483,6 @@ extension SidebarLayerList {
         }
     }
 }
-
-
 
 extension GraphState {
     /// Synchronous caller for node copying, used for Option + drag.

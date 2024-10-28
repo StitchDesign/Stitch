@@ -48,7 +48,6 @@ struct SidebarFooterView<SidebarViewModel: ProjectSidebarObservable>: View {
         .padding()
         .animation(.default, value: showEditModeFooter)
         .animation(.default, value: selections.primary)
-        .animation(.default, value: selections.secondary)
         .frame(maxWidth: .infinity)
         .height(self.SIDEBAR_FOOTER_HEIGHT)
         .background(self.SIDEBAR_FOOTER_COLOR.ignoresSafeArea())

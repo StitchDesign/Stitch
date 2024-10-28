@@ -20,6 +20,14 @@ struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewMo
     
     var showMainItem: Bool { swipeX < DEFAULT_ACTION_THRESHOLD }
     
+    var isBeingEdited: Bool {
+        self.sidebarViewModel.isEditing
+    }
+    
+    var isHidden: Bool {
+        self.itemViewModel.isHidden
+    }
+    
     var body: some View {
         HStack(spacing: .zero) {
             // Main row hides if swipe menu exceeds threshold
@@ -27,7 +35,8 @@ struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewMo
                 SidebarListItemView(graph: graph,
                                     sidebarViewModel: sidebarViewModel,
                                     item: itemViewModel,
-                                    swipeOffset: swipeX)
+                                    swipeOffset: swipeX,
+                                    fontColor: fontColor)
                 // right-side label overlay comes AFTER x-placement of item,
                 // so as not to be affected by x-placement.
                 .overlay(alignment: .trailing) {
@@ -35,8 +44,8 @@ struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewMo
 #if !targetEnvironment(macCatalyst)
                     SidebarListItemRightLabelView(
                         item: itemViewModel,
-                        selectionState: sidebarViewModel.selectionState,
-                        isBeingEdited: sidebarViewModel.isEditing)
+                        isBeingEdited: sidebarViewModel.isEditing,
+                        fontColor: fontColor)
                     .frame(height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
 #endif
                     
@@ -105,5 +114,60 @@ struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewMo
         }
 #endif
         .animation(.stitchAnimation(duration: 0.25), value: showMainItem)
+    }
+    
+    @MainActor
+    var fontColor: Color {
+        let selection = self.itemViewModel.selectionStatus
+
+#if DEV_DEBUG
+        if itemViewModel.isHidden {
+            return .purple
+        }
+#endif
+
+        // Any 'focused' (doesn't have to be 'actively selected') layer uses white text
+        if !self.isBeingEdited && itemViewModel.isSelected {
+#if DEV_DEBUG
+            return .red
+#else
+            return .white
+#endif
+        }
+
+#if DEV_DEBUG
+        // Easier to see secondary selections for debug
+        //        return selection.color(isHidden)
+
+        switch selection {
+        case .primary:
+            return .brown
+        case .secondary:
+            return .green
+        case .none:
+            return .blue
+        }
+
+#endif
+
+        if isBeingEdited || isHidden {
+            return self.getColor()
+        } else {
+            // i.e. if we are not in edit mode, do NOT show secondarily-selected layers (i.e. children of a primarily-selected parent) as gray
+            return SIDE_BAR_OPTIONS_TITLE_FONT_COLOR
+        }
+    }
+    
+    // a secondarily- or hidden primarily-selected color has half the strength
+    func getColor() -> Color {
+        switch itemViewModel.selectionStatus {
+        // both primary selection and non-selection use white;
+        // the difference whether the circle gets filled or not
+        case .primary, .none:
+            // return .white
+            return SIDE_BAR_OPTIONS_TITLE_FONT_COLOR.opacity(isHidden ? 0.5 : 1)
+        case .secondary:
+            return SIDE_BAR_OPTIONS_TITLE_FONT_COLOR.opacity(0.5)
+        }
     }
 }

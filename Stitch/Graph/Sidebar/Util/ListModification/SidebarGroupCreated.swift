@@ -28,7 +28,7 @@ extension LayersSidebarViewModel {
             zIndex: graph.highestZIndex + 1,
             graphDelegate: graph)
         
-        let primarilySelectedLayers: Set<SidebarListItemId> = self.selectionState.primary
+        let primarilySelectedLayers: Set<SidebarListItemId> = self.primary
         
         // Are any of these selections already part of a group?
         // If so, the newly created LayerGroup will have that group as its own parent (layerGroupId).

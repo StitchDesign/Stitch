@@ -9,7 +9,7 @@ import SwiftUI
 import StitchViewKit
 
 protocol SidebarItemSwipable: AnyObject, Observable, Identifiable, StitchNestedListElement where Self.ID: Equatable & CustomStringConvertible,
-                                                                        SidebarViewModel.ItemViewModel == Self {
+                                                                                                 SidebarViewModel.ItemViewModel == Self {
     associatedtype SidebarViewModel: ProjectSidebarObservable
     typealias ActiveGesture = SidebarListActiveGesture<Self.ID>
     typealias EncodedItemData = SidebarViewModel.EncodedItemData
@@ -19,26 +19,24 @@ protocol SidebarItemSwipable: AnyObject, Observable, Identifiable, StitchNestedL
     var parentDelegate: Self? { get set }
     
     @MainActor var name: String { get }
-
+    
     var swipeSetting: SidebarSwipeSetting { get set }
-
+    
     var previousSwipeX: CGFloat { get set }
     
     @MainActor var isVisible: Bool { get }
-        
+    
     var sidebarIndex: SidebarIndex { get set }
     
     var dragPosition: CGPoint? { get set }
-
+    
     var prevDragPosition: CGPoint? { get set }
     
     var isExpandedInSidebar: Bool? { get set }
     
     var sidebarDelegate: SidebarViewModel? { get set }
     
-    @MainActor var fontColor: Color { get }
-    
-    var backgroundOpacity: CGFloat { get }
+    var isHidden: Bool { get }
     
     @MainActor var sidebarLeftSideIcon: String { get }
     
@@ -84,6 +82,10 @@ protocol SidebarItemSwipable: AnyObject, Observable, Identifiable, StitchNestedL
 }
 
 extension SidebarItemSwipable {
+    var isSelected: Bool {
+        self.isPrimarilySelected || self.isParentSelected
+    }
+    
     var zIndex: Double {
         if self.isBeingDragged {
             return SIDEBAR_ITEM_MAX_Z_INDEX
@@ -149,6 +151,18 @@ extension SidebarItemSwipable {
         self.sidebarDelegate?.isEditing ?? false
     }
     
+    var selectionStatus: SidebarListItemSelectionStatus {
+        if self.isPrimarilySelected {
+            return .primary
+        }
+        
+        if self.isParentSelected {
+            return .secondary
+        }
+        
+        return .none
+    }
+    
     @MainActor
     var location: CGPoint {
         let index = self.sidebarIndex
@@ -160,11 +174,26 @@ extension SidebarItemSwipable {
         CUSTOM_LIST_ITEM_VIEW_HEIGHT * rowIndex
     }
     
-    var isImplicitlyDragged: Bool {
+    var isPrimarilySelected: Bool {
+        guard let sidebar = self.sidebarDelegate else {
+            fatalErrorIfDebug()
+            return false
+        }
+        
+        if sidebar.selectionState.primary.contains(self.id) {
+            return true
+        }
+        
+        return false
+    }
+    
+    var isParentSelected: Bool {
+        guard let sidebar = self.sidebarDelegate else { return false }
+        
         var visitedItem: Self? = self
         
         while let parent = visitedItem?.parentDelegate {
-            if parent.isBeingDragged { return true }
+            if sidebar.selectionState.primary.contains(parent.id) { return true }
             visitedItem = parent
         }
         
@@ -389,14 +418,31 @@ extension Array where Element: SidebarItemSwipable {
         }
     }
     
-    /// Same operation as `flattenedItems` but filters out collapsed groups.
-    var flattenedVisibleItems: [Element] {
+    /// Operation called on drag to return flattened visible list of children, while also removing primary-selected children from groups.
+    func getFlattenedVisibleItems(selectedIds: Set<Element.ID>) -> [Element] {
         self.flatMap { item in
-            guard item.isExpandedInSidebar ?? false else { return [item] }
+            guard item.isExpandedInSidebar ?? false,
+                  let children = item.children else { return [item] }
             
-            var items = [item]
-            items += item.children?.flattenedItems ?? []
-            return items
+            // DFS
+            let flattenedChildren = children.getFlattenedVisibleItems(selectedIds: selectedIds)
+            var primarySelectedChildren = [Element]()
+            
+
+            let filteredFlattenedChildren = flattenedChildren.compactMap { child in
+                if !selectedIds.contains(child.id) {
+                    return child
+                }
+                
+                // Remove child from main item
+                item.children?.remove(child.id)
+                
+                primarySelectedChildren.append(child)
+                return nil
+            }
+            
+            let restructuredChildren = filteredFlattenedChildren + primarySelectedChildren
+            return [item] + restructuredChildren
         }
     }
     
