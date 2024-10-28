@@ -22,20 +22,16 @@ final class GraphState: Sendable {
     
     let saveLocation: [UUID]
     
-    // TODO: wrap in a new data structure like `SidebarUIState`
-    var sidebarListState: SidebarListState = .init()
-    var sidebarSelectionState = SidebarSelectionState()
-
     var id = UUID()
     var name: String = STITCH_PROJECT_DEFAULT_NAME
     
     var commentBoxesDict = CommentBoxesDict()
-
+    
     let visibleNodesViewModel = VisibleNodesViewModel()
     let edgeDrawingObserver = EdgeDrawingObserver()
-
+    
     var selectedEdges = Set<PortEdgeUI>()
-
+    
     // Hackiness for handling edge case in our UI where somehow
     // UIKit node drag and SwiftUI port drag can happen at sometime.
     var nodeIsMoving = false
@@ -45,9 +41,9 @@ final class GraphState: Sendable {
     var dragInteractionNodes = [LayerNodeId: NodeIdSet]()
     var pressInteractionNodes = [LayerNodeId: NodeIdSet]()
     var scrollInteractionNodes = [LayerNodeId: NodeIdSet]()
-
+    
     // Ordered list of layers in sidebar
-    var orderedSidebarLayers: SidebarLayerList = []
+    let layersSidebarViewModel: LayersSidebarViewModel
     
     // Cache of ordered list of preview layer view models;
     // updated in various scenarious, e.g. sidebar list item dragged
@@ -64,10 +60,10 @@ final class GraphState: Sendable {
     
     // Tracks all created and imported components
     var components: [UUID: StitchMasterComponent] = [:]
-
+    
     // Maps a MediaKey to some URL
     var mediaLibrary: MediaLibrary = [:]
-
+    
     // Tracks nodes with camera enabled
     var enabledCameraNodeIds = NodeIdSet()
     
@@ -78,7 +74,7 @@ final class GraphState: Sendable {
     var lastEncodedDocument: GraphEntity
     weak var documentDelegate: StitchDocumentViewModel?
     weak var documentEncoderDelegate: (any DocumentEncodable)?
-
+    
     init(from schema: GraphEntity,
          nodes: NodesViewModelDict,
          components: MasterComponentsDict,
@@ -88,12 +84,20 @@ final class GraphState: Sendable {
         self.saveLocation = saveLocation
         self.id = schema.id
         self.name = schema.name
+        self.layersSidebarViewModel = .init()
         self.commentBoxesDict.sync(from: schema.commentBoxes)
         self.components = components
-        self.orderedSidebarLayers = schema.orderedSidebarLayers
         self.visibleNodesViewModel.nodes = nodes
         
         self.syncMediaFiles(mediaFiles)
+        self.layersSidebarViewModel.sync(from: schema.orderedSidebarLayers)
+    }
+}
+
+extension GraphState {
+    @MainActor
+    var orderedSidebarLayers: SidebarLayerList {
+        self.layersSidebarViewModel.createdOrderedEncodedData()
     }
     
     convenience init(from schema: GraphEntity,
@@ -128,6 +132,8 @@ final class GraphState: Sendable {
         self.documentDelegate = document
         self.documentEncoderDelegate = documentEncoderDelegate
         
+        self.layersSidebarViewModel.initializeDelegate(graph: self)
+        
         self.nodes.values.forEach { $0.initializeDelegate(graph: self,
                                                           document: document) }
         
@@ -136,16 +142,8 @@ final class GraphState: Sendable {
             $0.initializeDelegate(parentGraph: self)
         }
         
-        self.updateSidebarListStateAfterStateChange()
-        
-        // TODO: why is this necessary?
-        _updateStateAfterListChange(
-            updatedList: self.sidebarListState,
-            expanded: self.getSidebarExpandedItems(),
-            graphState: self)
-        
         self.updateTopologicalData()
-
+        
         self.visibleNodesViewModel
             .updateNodesPagingDict(components: self.components,
                                    parentGraphPath: self.saveLocation)
@@ -251,7 +249,11 @@ extension GraphState: GraphDelegate {
 }
 
 extension GraphState {
-    @MainActor func createSchema() -> GraphEntity {        
+    var sidebarSelectionState: LayersSidebarViewModel.SidebarSelectionState {
+        self.layersSidebarViewModel.selectionState
+    }
+    
+    @MainActor func createSchema() -> GraphEntity {
         let nodes = self.visibleNodesViewModel.nodes.values
             .map { $0.createSchema() }
         let commentBoxes = self.commentBoxesDict.values.map { $0.createSchema() }
@@ -296,10 +298,11 @@ extension GraphState {
         self.visibleNodesViewModel.nodes = newDictionary
     }
     
+    @MainActor
     private func updateSynchronousProperties(from schema: GraphEntity) {
         self.id = schema.id
         self.name = schema.name
-        self.orderedSidebarLayers = schema.orderedSidebarLayers
+        self.layersSidebarViewModel.update(from: schema.orderedSidebarLayers)
     }
     
     @MainActor func update(from schema: GraphEntity) async {

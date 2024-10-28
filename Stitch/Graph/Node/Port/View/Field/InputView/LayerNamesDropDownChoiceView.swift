@@ -91,9 +91,9 @@ extension GraphState {
     }
     
     @MainActor func getDescendants(for layer: LayerNodeId) -> LayerIdSet {
-        getDescendantsIds(id: layer,
-                          groups: self.getSidebarGroupsDict(),
-                          acc: .init())
+        self.layersSidebarViewModel.getDescendantsIds(id: layer.asItemId)
+            .map { $0.asLayerNodeId }
+            .toSet
     }
 }
 

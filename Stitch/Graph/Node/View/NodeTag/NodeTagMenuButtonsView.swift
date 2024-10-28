@@ -208,7 +208,7 @@ struct NodeTagMenuButtonsView: View {
     var hideLayerButton: some View {
         if let layerNode = node.layerNode {
             Button {
-                dispatch(SidebarItemHiddenStatusToggled(clickedId: layerNode.id.asLayerNodeId))
+                dispatch(SidebarItemHiddenStatusToggled(clickedId: layerNode.id))
             } label: {
                 Text(layerNode.hasSidebarVisibility ? "Hide Layer" : "Unhide Layer")
             }

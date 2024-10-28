@@ -12,49 +12,58 @@ import SwiftUI
 // eg we had only groups selected, and pressed 'ungroup'
 
 // note: see `_SidebarGroupUncreated` for new stuff to do e.g. `syncSidebarDataWithNodes`
-struct SidebarGroupUncreated: GraphEventWithResponse {
-    func handle(state: GraphState) -> GraphResponse {
-        state.sidebarGroupUncreatedViaEditMode()
-        return .init(willPersist: true)
-    }
-}
-
-extension GraphState {
-    
+extension ProjectSidebarObservable {
     @MainActor
-    func sidebarGroupUncreatedViaEditMode() {
-        log("_SidebarGroupUncreated called")
-
-        let primarilySelectedGroups = self.sidebarSelectionState.primary
+    func sidebarGroupUncreated() {
+        let primarilySelectedGroups = self.selectionState.primary
+        let encodedData = self.createdOrderedEncodedData()
         
-        guard let group = primarilySelectedGroups.first else {
+        guard let group = primarilySelectedGroups.first,
+              let item = self.items.get(group) else {
             // Expected group here
             fatalErrorIfDebug()
             return
         }
         
-        // let children = self.orderedSidebarLayers.get(group.id)?.children ?? []
-        let children = self.orderedSidebarLayers.getSidebarLayerData(group.id)?.children ?? []
+        let children = item.children ?? []
         
-        let newParentId = self.getNodeViewModel(group.asNodeId)?.layerNode?.layerGroupId
-
         // Update sidebar self
-        self.orderedSidebarLayers = self.orderedSidebarLayers.ungroup(selectedGroupId: group.asNodeId)
+        let newEncodedData = encodedData.ungroup(selectedGroupId: group)
+        
+        // reset selection-state
+        self.selectionState.resetEditModeSelections()
+        
+        self.sidebarGroupUncreatedViaEditMode(groupId: group,
+                                              children: children.map(\.id))
+
+        self.persistSidebarChanges(encodedData: newEncodedData)
+    }
+}
+
+extension LayersSidebarViewModel {
+    
+    @MainActor
+    func sidebarGroupUncreatedViaEditMode(groupId: NodeId, children: [NodeId]) {
+        log("_SidebarGroupUncreated called")
+
+        guard let graph = self.graphDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        let newParentId = graph.getNodeViewModel(groupId)?.layerNode?.layerGroupId
 
         // find each child of the group, set its layer group id to the parent of the selected group
         children.forEach { child in
-            if let layerNode = self.getNodeViewModel(child.id) {
+            if let layerNode = graph.getNodeViewModel(child) {
                 layerNode.layerNode?.layerGroupId = newParentId
             }
         }
 
         // finally, delete layer group node itself (but not its children)
-        self.deleteNode(id: group.id, willDeleteLayerGroupChildren: false)
+        graph.deleteNode(id: groupId, willDeleteLayerGroupChildren: false)
 
         // update legacy sidebar data
-        self.updateGraphData()
-        
-        // reset selection-state
-        self.sidebarSelectionState = .init()
+        graph.updateGraphData()
     }
 }

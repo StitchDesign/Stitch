@@ -315,13 +315,13 @@ extension GraphState {
             return nil
         }
 
-        var selectedLayers = self.sidebarSelectionState.inspectorFocusedLayers.focused
+        var selectedLayers = self.layersSidebarViewModel.inspectorFocusedLayers.focused
         
         #if DEV_DEBUG
         // For debug
         if selectedLayers.isEmpty,
            let layer = self.layerNodes.keys.first {
-            selectedLayers = .init([.init(layer)])
+            selectedLayers = .init([layer])
         }
         #endif
         
@@ -338,7 +338,7 @@ extension GraphState {
             return (header: "Multiselect",
 //                    node: nil,
                     // TODO: is this bad? grabbing
-                    node: firstLayer.asNodeId,
+                    node: firstLayer,
                     inputs: inputs,
                     outputs: []) // TODO: multiselect for outputs
             
@@ -346,7 +346,7 @@ extension GraphState {
         
         // else had 0 or 1 layers selected:
         else {
-            guard let inspectedLayerId = self.sidebarSelectionState.inspectorFocusedLayers.focused.first?.id,
+            guard let inspectedLayerId = self.layersSidebarViewModel.inspectorFocusedLayers.focused.first,
                   let node = self.getNodeViewModel(inspectedLayerId),
                   let layerNode = node.layerNode else {
                 // log("LayerInspectorView: No inspector-focused layers?:  \(self.sidebarSelectionState.inspectorFocusedLayers)")

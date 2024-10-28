@@ -12,15 +12,18 @@ import StitchSchemaKit
 // group closed; rotated 90 degrees to be 'group open'
 let CHEVRON_GROUP_TOGGLE_ICON =  "chevron.right"
 
-struct SidebarListItemChevronView: View {
-
-    let isClosed: Bool
-    let parentId: LayerNodeId
+struct SidebarListItemChevronView<SidebarViewModel>: View where SidebarViewModel: ProjectSidebarObservable {
+    let sidebarViewModel: SidebarViewModel
+    let item: SidebarViewModel.ItemViewModel
     
     // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status
-    let fontColor: Color
+    var fontColor: Color {
+        item.fontColor
+    }
 
-    let isHidden: Bool
+    var isClosed: Bool {
+        item.isCollapsedGroup
+    }
     
     var rotationZ: CGFloat {
         isClosed ? 0 : 90
@@ -48,13 +51,16 @@ struct SidebarListItemChevronView: View {
                               axis: (x: 0, y: 0, z: rotationZ))
                 
             .contentShape(Rectangle())
-            .onTapGesture {
-                if isClosed {
-                    dispatch(SidebarListItemGroupOpened(openedParent: parentId))
-                } else {
-                    dispatch(SidebarListItemGroupClosed(closedParentId: parentId))
-                }
-            }
+            .simultaneousGesture(
+                TapGesture()
+                    .onEnded {
+                        if isClosed {
+                            sidebarViewModel.sidebarListItemGroupOpened(parentItem: item)
+                        } else {
+                            sidebarViewModel.sidebarListItemGroupClosed(closedParent: item)
+                        }
+                    }
+            )
             .animation(.linear, value: rotationZ)
     }
 }

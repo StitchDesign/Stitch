@@ -81,28 +81,6 @@ extension StitchDocumentViewModel {
         }
         self.visibleGraph.visibleNodesViewModel.nodes.updateValue(node, forKey: node.id)
         
-        if node.kind.isLayer {
-            log("had layer")
-            // Note: do not update sidebar-list-state until after the layer node has actually been added to GraphState
-            
-            // If we created a layer group, it will start out expanded
-            if case .layer(.group) = choice {
-                log("had layer group, will add to expanded")
-                node.layerNode?.isExpandedInSidebar = true
-            }
-            
-            self.visibleGraph.sidebarListState = getMasterListFrom(
-                layerNodes: self.visibleGraph.visibleNodesViewModel.layerNodes,
-                expanded: self.visibleGraph.getSidebarExpandedItems(),
-                orderedSidebarItems: self.visibleGraph.orderedSidebarLayers)
-            
-            // TODO: why is this necessary?
-            _updateStateAfterListChange(
-                updatedList: self.visibleGraph.sidebarListState,
-                expanded: self.visibleGraph.getSidebarExpandedItems(),
-                graphState: self.visibleGraph)
-        }
-        
         node.initializeDelegate(graph: self.visibleGraph,
                                 document: self)
         
@@ -151,9 +129,7 @@ extension StitchDocumentViewModel {
 
         case .group:
             log("createNode: unexpectedly had Group node for NodeKind choice; exiting early")
-            #if DEBUG
-            fatalError()
-            #endif
+            fatalErrorIfDebug()
             return nil
 
         // TODO: break this logic up into smaller, separate functions,
@@ -165,14 +141,14 @@ extension StitchDocumentViewModel {
                     position: center.toCGSize,
                     zIndex: highestZIndex + 1,
                     graphDelegate: self.visibleGraph) else {
-                #if DEBUG
-                fatalError()
-                #endif
+                fatalErrorIfDebug()
                 return nil
             }
-
+            
             let sidebarLayerData = SidebarLayerData(id: layerNode.id)
-            self.visibleGraph.orderedSidebarLayers.insert(sidebarLayerData, at: 0)
+            var newSidebarData = self.visibleGraph.layersSidebarViewModel.createdOrderedEncodedData()
+            newSidebarData.insert(sidebarLayerData, at: 0)
+            self.visibleGraph.layersSidebarViewModel.update(from: newSidebarData)
             
             return layerNode
 

@@ -33,7 +33,7 @@ enum FocusedUserEditField: Equatable, Hashable {
          any,    // default option
          llmRecordingModal,
          stitchAIPromptModal,
-         sidebarLayerTitle(LayerNodeId)
+         sidebarLayerTitle(String)
 
     var getTextFieldLayerInputEdit: PreviewCoordinate? {
         switch self {
