@@ -10,9 +10,8 @@ import StitchSchemaKit
 
 // MARK: Add Node
 
-// Used fo
 struct LLMAddNode: Equatable, Codable {
-    let action: String = LLMActionNames.addNode.rawValue
+    var action: String = LLMActionNames.addNode.rawValue
     // `node` for AddNode represents node kind's default node + some portion of its UI id
     let node: String
 }
@@ -30,7 +29,7 @@ struct LLMMoveNodeTranslation: Equatable, Codable {
 }
 
 struct LLMMoveNode: Equatable, Codable {
-    let action: String = LLMActionNames.moveNode.rawValue
+    var action: String = LLMActionNames.moveNode.rawValue
     let node: String
     
     // empty string = we moved a patch node,
@@ -63,7 +62,7 @@ struct LLMSetInputAction: Equatable, Encodable {
 // MARK: Add Edge
 
 struct LLMAddEdge: Equatable, Codable {
-    let action: String = LLMActionNames.addEdge.rawValue
+    var action: String = LLMActionNames.addEdge.rawValue
     let from: LLMPortCoordinate
     let to: LLMPortCoordinate
 }
@@ -72,7 +71,7 @@ struct LLMAddEdge: Equatable, Codable {
 // MARK: Change Node Type
 
 struct LLMAChangeNodeTypeAction: Equatable, Codable {
-    let action = LLMActionNames.changeNodeType.rawValue
+    var action = LLMActionNames.changeNodeType.rawValue
     let node: String
     let nodeType: String
 }
@@ -87,13 +86,13 @@ extension String {
 // MARK: Add Layer Node Input/Output
 
 struct LLMAddLayerInput: Equatable, Codable {
-    let action = LLMActionNames.addLayerInput.rawValue
+    var action = LLMActionNames.addLayerInput.rawValue
     let node: String
     let port: String // layer node input's label (long form)
 }
 
 struct LLMAddLayerOutput: Equatable, Codable {
-    let action = LLMActionNames.addLayerOutput.rawValue
+    var action = LLMActionNames.addLayerOutput.rawValue 
     let node: String
     let port: String // layer node input's label (long form)
 }

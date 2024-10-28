@@ -10,19 +10,19 @@ import SwiftUI
 import SwiftyJSON
 
 extension StitchDocumentViewModel {
-
+    
     @MainActor func openedStitchAIModal() {
         self.stitchAI.promptState.showModal = true
         self.graphUI.reduxFocusedField = .stitchAIPromptModal
     }
-
+    
     // When json-entry modal is closed, we turn the JSON of LLMActions into state changes
     @MainActor func closedStitchAIModal() {
         let prompt = self.stitchAI.promptState.prompt
         
         self.stitchAI.promptState.showModal = false
         self.graphUI.reduxFocusedField = nil
- 
+        
         
         //HACK until we figure out why this is called twice
         if prompt == "" {
@@ -34,7 +34,7 @@ extension StitchDocumentViewModel {
     
     @MainActor func makeAPIRequest(userInput: String) {
         stitchAI.promptState.isGenerating = true
-
+        
         guard let openAIAPIURL = URL(string: OPEN_AI_BASE_URL) else {
             showErrorModal(message: "Invalid URL", userPrompt: userInput, jsonResponse: nil)
             return
@@ -44,7 +44,7 @@ extension StitchDocumentViewModel {
             showErrorModal(message: "No API Key found or API Key is empty", userPrompt: userInput, jsonResponse: nil)
             return
         }
-
+        
         var request = URLRequest(url: openAIAPIURL)
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -74,7 +74,7 @@ extension StitchDocumentViewModel {
                 ]
             ]
         ]
-
+        
         do {
             let jsonData = try JSONSerialization.data(withJSONObject: body, options: [])
             request.httpBody = jsonData
@@ -82,56 +82,62 @@ extension StitchDocumentViewModel {
             showErrorModal(message: "Error encoding JSON: \(error.localizedDescription)", userPrompt: userInput, jsonResponse: nil)
             return
         }
-
+        
         let task = URLSession.shared.dataTask(with: request) { [weak self] data, _, error in
-                DispatchQueue.main.async {
-                    self?.stitchAI.promptState.isGenerating = false
-
-                    if let error = error {
-                        self?.showErrorModal(message: "Request error: \(error.localizedDescription)", userPrompt: userInput, jsonResponse: nil)
-                        return
-                    }
-
-                    guard let data = data else {
-                        self?.showErrorModal(message: "No data received", userPrompt: userInput, jsonResponse: nil)
-                        return
-                    }
-
-                    let jsonResponse = String(data: data, encoding: .utf8) ?? "Invalid JSON format"
-                    
-                    do {
-                        if let transformedResponse = self?.transformOpenAIResponseToLLMActionsString(data: data) {
-                            guard !transformedResponse.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-                                self?.showErrorModal(message: "Empty transformed response", userPrompt: userInput, jsonResponse: jsonResponse)
-                                return
-                            }
-                            
-                            let json = JSON(parseJSON: transformedResponse)
-                            let actions: LLMActions = try JSONDecoder().decode(LLMActions.self, from: json.rawData())
-                            var nodesAdded = 0
-                            
-                            // Process actions
-                            actions.forEach {
-                                nodesAdded = (self?.handleLLMAction($0, nodesAdded: nodesAdded))!
-                            }
-                            
-                            // Trigger additional functionality
-                            self?.visibleGraph.encodeProjectInBackground()
-                            
-                            // Close the modal after successful processing
-                            self?.closeStitchAIModal()
-                        } else {
-                            self?.showErrorModal(message: "Failed to transform response", userPrompt: userInput, jsonResponse: jsonResponse)
+            DispatchQueue.main.async {
+                self?.stitchAI.promptState.isGenerating = false
+                
+                if let error = error {
+                    self?.showErrorModal(message: "Request error: \(error.localizedDescription)", userPrompt: userInput, jsonResponse: nil)
+                    return
+                }
+                
+                guard let data = data else {
+                    self?.showErrorModal(message: "No data received", userPrompt: userInput, jsonResponse: nil)
+                    return
+                }
+                
+                let jsonResponse = String(data: data, encoding: .utf8) ?? "Invalid JSON format"
+                print("RAW JSON \(jsonResponse)")
+                
+                do {
+                    if let transformedResponse = self?.transformOpenAIResponseToLLMActionsString(data: data) {
+                        guard !transformedResponse.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                            self?.showErrorModal(message: "Empty transformed response", userPrompt: userInput, jsonResponse: jsonResponse)
+                            return
                         }
-                    } catch {
-                        self?.showErrorModal(message: "Error processing response: \(error.localizedDescription)", userPrompt: userInput, jsonResponse: jsonResponse)
+                        
+                        let json = JSON(parseJSON: transformedResponse)
+                        if let jsonString = json.rawString() {
+                            print("TRANSFORMED JSON \(jsonString)")
+                        } else {
+                            print("Failed to convert JSON to String")
+                        }
+                        let actions: LLMActions = try JSONDecoder().decode(LLMActions.self, from: json.rawData())
+                        var nodesAdded = 0
+                        
+                        // Process actions
+                        actions.forEach {
+                            nodesAdded = (self?.handleLLMAction($0, nodesAdded: nodesAdded))!
+                        }
+                        
+                        // Trigger additional functionality
+                        self?.visibleGraph.encodeProjectInBackground()
+                        
+                        // Close the modal after successful processing
+                        self?.closeStitchAIModal()
+                    } else {
+                        self?.showErrorModal(message: "Failed to transform response", userPrompt: userInput, jsonResponse: jsonResponse)
                     }
+                } catch {
+                    self?.showErrorModal(message: "Error processing response: \(error.localizedDescription)", userPrompt: userInput, jsonResponse: jsonResponse)
                 }
             }
-            task.resume()
         }
-
-
+        task.resume()
+    }
+    
+    
     @MainActor private func closeStitchAIModal() {
         self.stitchAI.promptState.showModal = false
         self.stitchAI.promptState.prompt = ""
@@ -150,7 +156,7 @@ extension StitchDocumentViewModel {
             }
         }
     }
-
+    
     func transformOpenAIResponseToLLMActionsString(data: Data) -> String? {
         do {
             let response = try JSONDecoder().decode(OpenAIResponse.self, from: data)
@@ -160,8 +166,8 @@ extension StitchDocumentViewModel {
             }
             
             let contentJSON = try firstChoice.message.parseContent()
-            var llmActions: [LLMActionTest] = []
-            var nodeInfoMap: [String: NodeInfoTest] = [:]
+            var llmActions: [LLMActionData] = []
+            var nodeInfoMap: [String: NodeInfoData] = [:]
             var layerInputsAdded: Set<String> = []
             
             for step in contentJSON.steps {
@@ -174,10 +180,10 @@ extension StitchDocumentViewModel {
                 case .addNode:
                     if let nodeId = step.nodeId, let nodeName = step.nodeName {
                         let parsedNodeType = nodeName.components(separatedBy: "||").first?.trimmingCharacters(in: .whitespaces) ?? ""
-                        if let nodeType = VisualProgrammingTypes.validNodeTypes[parsedNodeType.lowercased()] {
-                            let title = "\(nodeType.rawValue) (\(nodeId))"
-                            llmActions.append(LLMActionTest(action: ActionType.addNode.rawValue, node: title, nodeType: nodeType.rawValue, port: nil, from: nil, to: nil, field: nil, value: nil))
-                            nodeInfoMap[nodeId] = NodeInfoTest(type: nodeType.rawValue)
+                        if let nodeKind = VisualProgrammingTypes.validNodeKinds[parsedNodeType.lowercased()] {
+                            let title = "\(nodeKind.rawValue) (\(nodeId))"
+                            llmActions.append(LLMActionData(action: ActionType.addNode.rawValue, node: title, nodeType: nodeKind.rawValue, port: nil, from: nil, to: nil, field: nil, value: nil))
+                            nodeInfoMap[nodeId] = NodeInfoData(type: nodeKind.rawValue)
                         } else {
                             print("Unknown node type: '\(parsedNodeType)' does not match any validNodeTypes.")
                         }
@@ -186,8 +192,10 @@ extension StitchDocumentViewModel {
                 case .addLayerInput:
                     if let nodeId = step.toNodeId, let port = step.port?.value, let nodeInfo = nodeInfoMap[nodeId], !layerInputsAdded.contains("\(nodeId):\(port)") {
                         let nodeTitle = "\(nodeInfo.type.capitalized) (\(nodeId))"
-                        llmActions.append(LLMActionTest(action: ActionType.addLayerInput.rawValue, node: nodeTitle, nodeType: nil, port: port.capitalized, from: nil, to: nil, field: nil, value: nil))
+                        llmActions.append(LLMActionData(action: ActionType.addLayerInput.rawValue, node: nodeTitle, nodeType: nil, port: port.capitalized, from: nil, to: nil, field: nil, value: nil))
                         layerInputsAdded.insert("\(nodeId):\(port)")
+                    } else {
+                        print("failed to add layer input)")
                     }
                 case .connectNodes:
                     if let fromNodeId = step.fromNodeId, let toNodeId = step.toNodeId,
@@ -197,35 +205,55 @@ extension StitchDocumentViewModel {
                         
                         let portType = step.port?.value ?? toNodeInfo.type.capitalized
                         if !layerInputsAdded.contains("\(toNodeId):\(portType)") {
-                            llmActions.append(LLMActionTest(action: ActionType.addLayerInput.rawValue, node: toNodeTitle, nodeType: nil, port: portType.capitalized, from: nil, to: nil, field: nil, value: nil))
+                            llmActions.append(LLMActionData(action: ActionType.addLayerInput.rawValue, node: toNodeTitle, nodeType: nil, port: portType.capitalized, from: nil, to: nil, field: nil, value: nil))
                             layerInputsAdded.insert("\(toNodeId):\(portType)")
                         }
                         
                         let fromEdge = EdgePoint(node: fromNodeTitle, port: "0")
                         let toEdge = EdgePoint(node: toNodeTitle, port: portType.capitalized)
-                        llmActions.append(LLMActionTest(action: ActionType.addEdge.rawValue, node: nil, nodeType: nil, port: nil, from: fromEdge, to: toEdge, field: nil, value: nil))
+                        llmActions.append(LLMActionData(action: ActionType.addEdge.rawValue, node: nil, nodeType: nil, port: nil, from: fromEdge, to: toEdge, field: nil, value: nil))
+                    } else {
+                        print("failed to connect nodes")
                     }
                 case .changeNodeType:
-                    if let nodeId = step.nodeId, let nodeTypeRaw = step.valueType {
+                    if let nodeId = step.nodeId, let nodeTypeRaw = step.nodeType {
                         let parsedNodeType = nodeTypeRaw.components(separatedBy: "||").first?.trimmingCharacters(in: .whitespaces) ?? ""
-                        if let valueType = VisualProgrammingTypes.validValueTypes[parsedNodeType.lowercased()], var nodeInfo = nodeInfoMap[nodeId] {
-                            let nodeTitle = "\(nodeInfo.type.capitalized) (\(nodeId))"
-                            llmActions.append(LLMActionTest(action: ActionType.changeNodeType.rawValue, node: nodeTitle, nodeType: valueType.rawValue, port: nil, from: nil, to: nil, field: nil, value: nil))
-                            nodeInfo.valueType = valueType.rawValue
-                            nodeInfoMap[nodeId] = nodeInfo
+                        if let nodeType = VisualProgrammingTypes.validStitchAINodeTypes[parsedNodeType.capitalized] {
+                            if var nodeInfo = nodeInfoMap[nodeId] {
+                                let nodeTitle = "\(nodeInfo.type.capitalized) (\(nodeId))"
+                                llmActions.append(LLMActionData(action: ActionType.changeNodeType.rawValue, node: nodeTitle, nodeType: nodeType.rawValue, port: nil, from: nil, to: nil, field: nil, value: nil))
+                                nodeInfo.nodeType = nodeType.rawValue
+                                nodeInfoMap[nodeId] = nodeInfo
+                            }
                         } else {
                             print("Unrecognized value type: '\(parsedNodeType)' does not match any validValueTypes.")
                         }
+                    } else {
+                        print("failed to change nodes")
                     }
                     
                 case .setInput:
-                    if let nodeId = step.nodeId, let value = step.value?.value, var nodeInfo = nodeInfoMap[nodeId] {
-                        let nodeTitle = "\(nodeInfo.type.capitalized) (\(nodeId))"
-                        let portNumber = String(nodeInfo.inputPortCount)
-                        let field = EdgePoint(node: nodeTitle, port: portNumber)
-                        llmActions.append(LLMActionTest(action: ActionType.setInput.rawValue, node: nil, nodeType: nodeInfo.valueType?.uppercased(), port: nil, from: nil, to: nil, field: field, value: value))
-                        nodeInfo.inputPortCount += 1
-                        nodeInfoMap[nodeId] = nodeInfo
+                    if let nodeId = step.nodeId, let nodeTypeRaw = step.nodeType {
+                        let parsedNodeType = nodeTypeRaw.components(separatedBy: "||").first?.trimmingCharacters(in: .whitespaces) ?? ""
+                        if let nodeType = VisualProgrammingTypes.validStitchAINodeTypes[parsedNodeType.capitalized] {
+                            
+                            if let value = step.value?.value {
+                                if var nodeInfo = nodeInfoMap[nodeId] {
+                                    let nodeTitle = "\(nodeInfo.type.capitalized) (\(nodeId))"
+                                    let portNumber = String(nodeInfo.inputPortCount)
+                                    let field = EdgePoint(node: nodeTitle, port: portNumber)
+                                    llmActions.append(LLMActionData(action: ActionType.setInput.rawValue, node: nil, nodeType: nodeType.rawValue, port: nil, from: nil, to: nil, field: field, value: value))
+                                    nodeInfo.inputPortCount += 1
+                                    nodeInfoMap[nodeId] = nodeInfo
+                                } else {
+                                    print("failed to get nodeInfo")
+                                }
+                            } else {
+                                print("failed to get value")
+                            }
+                        } else {
+                            print("failed to get nodeId")
+                        }
                     }
                 }
             }
