@@ -156,7 +156,7 @@ extension ProjectSidebarObservable {
             } else {
 //                self.selectionState.inspectorFocusedLayers.focused.insert(id)
                 self.selectionState.primary.insert(id)
-                self.sidebarItemSelectedViaEditMode(id, isSidebarItemTapped: true)
+                self.sidebarItemSelectedViaEditMode(id)
                 self.selectionState.lastFocused = id
                 self.graphDelegate?.deselectAllCanvasItems()
             }
@@ -169,7 +169,7 @@ extension ProjectSidebarObservable {
             // Note: Click will not deselect an already-selected layer
 //            self.selectionState.inspectorFocusedLayers.focused = .init([id])
             self.selectionState.primary = .init([id])
-            self.sidebarItemSelectedViaEditMode(id, isSidebarItemTapped: true)
+            self.sidebarItemSelectedViaEditMode(id)
             self.selectionState.lastFocused = id
             self.graphDelegate?.deselectAllCanvasItems()
         }
@@ -259,16 +259,14 @@ struct SidebarItemSelected: GraphEvent {
     
     func handle(state: GraphState) {
         state.layersSidebarViewModel
-            .sidebarItemSelectedViaEditMode(id.asItemId,
-                                            isSidebarItemTapped: false)
+            .sidebarItemSelectedViaEditMode(id.asItemId)
     }
 }
 
 extension ProjectSidebarObservable {
     
     @MainActor
-    func sidebarItemSelectedViaEditMode(_ id: Self.ItemID,
-                                        isSidebarItemTapped: Bool) {
+    func sidebarItemSelectedViaEditMode(_ id: Self.ItemID) {
         
         // we selected a group -- so 100% select the group
         // and 80% all the children further down in the street
@@ -277,43 +275,43 @@ extension ProjectSidebarObservable {
         }
 
         // if we actively-selected (non-edit-mode-selected) an item that is already secondarily-selected, we don't need to change the
-        if isSidebarItemTapped,
-           item.isParentSelected {
-            log("sidebarItemSelectedViaEditMode: \(id) was already secondarily selected")
-            return
-        }
+//        if isSidebarItemTapped,
+//           item.isParentSelected {
+//            log("sidebarItemSelectedViaEditMode: \(id) was already secondarily selected")
+//            return
+//        }
            
-        if item.isGroup {
-            self.addExclusivelyToPrimary(id)
-
-            item.children?.forEach{ child in
-                child.secondarilySelectAllChildren()
-            }
-        }
+        self.addExclusivelyToPrimary(id)
+//        if item.isGroup {
+//
+//            item.children?.forEach{ child in
+//                child.secondarilySelectAllChildren()
+//            }
+//        }
 
         // If we selected a child of a group,
         // then deselect that parent and all other children,
         // and primarily select the child.
         // ie deselect everything(?), and only select the child.
-        else if let parent = item.parentDelegate {
-
-            // if the parent is currently selected,
-            // then deselect the parent and all other children
-            if self.selectionState.all.contains(parent.id) {
-                self.selectionState.resetEditModeSelections()
-                self.addExclusivelyToPrimary(id)
-            }
-
-            // ... otherwise, just primarily select the child
-            else {
-                self.addExclusivelyToPrimary(id)
-            }
-        }
+//        else if let parent = item.parentDelegate {
+//
+//            // if the parent is currently selected,
+//            // then deselect the parent and all other children
+//            if self.selectionState.all.contains(parent.id) {
+//                self.selectionState.resetEditModeSelections()
+//                self.addExclusivelyToPrimary(id)
+//            }
+//
+//            // ... otherwise, just primarily select the child
+//            else {
+//                self.addExclusivelyToPrimary(id)
+//            }
+//        }
 
         // else: simple case?:
-        else {
-            self.addExclusivelyToPrimary(id)
-        }
+//        else {
+//            self.addExclusivelyToPrimary(id)
+//        }
                 
         self.graphDelegate?.updateInspectorFocusedLayers()
     }

@@ -189,10 +189,7 @@ extension GraphState {
 //                    self.sidebarSelectionState.inspectorFocusedLayers.focused.insert(id)
                     self.sidebarSelectionState.primary.insert(id)
                                         
-                    self.layersSidebarViewModel.sidebarItemSelectedViaEditMode(
-                        id,
-                        // Can treat as always true?
-                        isSidebarItemTapped: true)
+                    self.layersSidebarViewModel.sidebarItemSelectedViaEditMode(id)
                     
                     self.updateInspectorFocusedLayers()
                     

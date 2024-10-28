@@ -26,21 +26,21 @@ extension GraphState {
 }
 
 extension SidebarItemSwipable {
-    /// Recursively "secondarily" selects children.
-    func secondarilySelectAllChildren() {
-        guard let sidebar = self.sidebarDelegate else {
-            fatalErrorIfDebug()
-            return
-        }
-        
-        // add to selection state
-//        sidebar.addExclusivelyToSecondary(self.id)
-        
-        // recur on children
-        self.children?.forEach { child in
-            child.secondarilySelectAllChildren()
-        }
-    }
+//    /// Recursively "secondarily" selects children.
+//    func secondarilySelectAllChildren() {
+//        guard let sidebar = self.sidebarDelegate else {
+//            fatalErrorIfDebug()
+//            return
+//        }
+//        
+//        // add to selection state
+////        sidebar.addExclusivelyToSecondary(self.id)
+//        
+//        // recur on children
+//        self.children?.forEach { child in
+//            child.secondarilySelectAllChildren()
+//        }
+//    }
     
     /// Recursively removes self + children from selection state.
     func removeFromSelections() {

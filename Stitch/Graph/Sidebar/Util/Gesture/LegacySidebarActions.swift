@@ -97,8 +97,7 @@ extension ProjectSidebarObservable {
             state.selectionState.resetEditModeSelections()
 //            state.selectionState.inspectorFocusedLayers.focused = .init([draggedItem.id])
 //            state.selectionState.inspectorFocusedLayers.activelySelected = .init([draggedItem.id])
-            state.sidebarItemSelectedViaEditMode(draggedItem.id,
-                                                 isSidebarItemTapped: true)
+            state.sidebarItemSelectedViaEditMode(draggedItem.id)
             state.selectionState.lastFocused = draggedItem.id
         }
                 

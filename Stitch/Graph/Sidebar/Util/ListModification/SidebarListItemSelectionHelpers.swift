@@ -66,8 +66,7 @@ extension ProjectSidebarObservable {
             if wasTapped {
                 log("editModeSelectTappedItems: sidebarLayer.id \(sidebarLayer.id) was tapped")
                 
-                self.sidebarItemSelectedViaEditMode(itemId,
-                                                    isSidebarItemTapped: true)
+                self.sidebarItemSelectedViaEditMode(itemId)
             } // if wasTapped
             else {
                 log("editModeSelectTappedItems: sidebarLayer.id \(sidebarLayer.id) was NOT tapped")
