@@ -1143,7 +1143,6 @@
 		B5CB68312CC99FD400DFC660 /* ProjectSidebarTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectSidebarTab.swift; sourceTree = "<group>"; };
 		B5CB68332CC9A06100DFC660 /* ProjectSidebarObservable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectSidebarObservable.swift; sourceTree = "<group>"; };
 		B5CB68352CC9A0D300DFC660 /* LayersSidebarViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayersSidebarViewModel.swift; sourceTree = "<group>"; };
-		B5CB68372CC9AC8D00DFC660 /* StitchViewKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = StitchViewKit; path = ../StitchViewKit; sourceTree = SOURCE_ROOT; };
 		B5CB82F3283D987F00FE29A6 /* StitchStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchStore.swift; sourceTree = "<group>"; };
 		B5CEC1A328F8D95700BE083E /* StitchAVCaptureSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAVCaptureSession.swift; sourceTree = "<group>"; };
 		B5CF6447294B8AF700EF83DB /* StitchButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchButton.swift; sourceTree = "<group>"; };
@@ -1910,7 +1909,6 @@
 		200BD859254F66EB00692903 /* Stitch */ = {
 			isa = PBXGroup;
 			children = (
-				B5CB68372CC9AC8D00DFC660 /* StitchViewKit */,
 				EC15E425260271C6006F2E08 /* Stitch.entitlements */,
 				200BD863254F66EE00692903 /* Info.plist */,
 				B5617A7B2C175C3C00B53DAF /* App */,
@@ -6408,7 +6406,7 @@
 			repositoryURL = "https://github.com/weichsel/ZIPFoundation.git";
 			requirement = {
 				kind = exactVersion;
-				version = 0.9.15;
+				version = 0.9.18;
 			};
 		};
 		EC91034829109DF3007C548E /* XCRemoteSwiftPackageReference "SoulverCore" */ = {
