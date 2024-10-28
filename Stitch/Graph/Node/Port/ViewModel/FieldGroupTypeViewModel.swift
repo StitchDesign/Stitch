@@ -44,7 +44,7 @@ final class FieldGroupTypeViewModel<FieldType: FieldViewModel>: Identifiable {
     /// Updates observer objects with latest data.
     func updateFieldValues(fieldValues: FieldValues) {
         guard fieldValues.count == fieldObservers.count else {
-            log("FieldGroupTypeViewModel error: non-equal count of field values to observer objects for \(type).")
+            fatalErrorIfDebug("FieldGroupTypeViewModel: updateFieldValues: non-equal count of field values to observer objects for \(type).")
             return
         }
 
@@ -150,9 +150,13 @@ func getFieldValueTypes<FieldType: FieldViewModel>(value: PortValue,
                                                    importedMediaObject: StitchMediaObject?,
                                                    rowViewModel: FieldType.NodeRowType?) -> [FieldGroupTypeViewModel<FieldType>] {
     
+    log("getFieldValueTypes: value: \(value)")
+    
     let fieldValuesList: [FieldValues] = value.createFieldValuesList(
         nodeIO: nodeIO,
         importedMediaObject: importedMediaObject)
+    
+    log("getFieldValueTypes: fieldValuesList: \(fieldValuesList)")
 
     // All PortValue types except ShapeCommand use a single grouping of fields
     guard let fieldValuesForSingleFieldGroup = fieldValuesList.first else {
@@ -160,7 +164,10 @@ func getFieldValueTypes<FieldType: FieldViewModel>(value: PortValue,
         return []
     }
     
-    switch value.getNodeRowType(nodeIO: nodeIO) {
+    log("getFieldValueTypes: fieldValuesForSingleFieldGroup: \(fieldValuesForSingleFieldGroup)")
+    
+    let nodeRowType = value.getNodeRowType(nodeIO: nodeIO)
+    switch nodeRowType {
         
     case .size:
         return [.init(fieldValues: fieldValuesForSingleFieldGroup,
