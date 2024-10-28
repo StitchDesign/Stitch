@@ -183,24 +183,30 @@ extension SidebarItemSwipable {
                 self.activeGesture = .dragging(self.id)
             }
             
-            self.sidebarDelegate?.sidebarListItemDragged(
-                item: self,
-                translation: translation)
+            // Needs to be dispatched due to simultaneous access issues with view
+            Task { @MainActor [weak self] in
+                guard let item = self else { return }
+                
+                item.sidebarDelegate?.sidebarListItemDragged(
+                    item: item,
+                    translation: translation)
+            }
         }
     }
 
     @MainActor
     var onItemDragEnded: OnDragEndedHandler {
         return {
-            // print("SidebarItemGestureViewModel: itemDragEndedGesture called")
-            self.sidebarDelegate?.sidebarListItemDragEnded()
-
             guard self.activeGesture != .none else { return }
-                
+
             if self.activeGesture != .none {
                 self.activeGesture = .none
             }
-            
+
+            // Task here resolves a race condition with onItemDragChanged which also uses a Task
+            Task { @MainActor [weak self] in
+                self?.sidebarDelegate?.sidebarListItemDragEnded()
+            }
         }
     }
 
