@@ -14,6 +14,7 @@ struct SidebarListItemLeftLabelView<SidebarViewModel>: View where SidebarViewMod
     @Bindable var graph: GraphState
     @Bindable var sidebarViewModel: SidebarViewModel
     @Bindable var itemViewModel: SidebarViewModel.ItemViewModel
+    let fontColor: Color
     
     var isBeingEdited: Bool {
         self.sidebarViewModel.isEditing
@@ -24,15 +25,12 @@ struct SidebarListItemLeftLabelView<SidebarViewModel>: View where SidebarViewMod
         self.itemViewModel.isMasking
     }
     
-    var fontColor: Color {
-        self.itemViewModel.fontColor
-    }
-    
     var body: some View {
         HStack(spacing: 4) {
             
             SidebarListItemChevronView(sidebarViewModel: sidebarViewModel,
-                                       item: itemViewModel)
+                                       item: itemViewModel,
+                                       fontColor: fontColor)
 //                                           isHidden: isHidden)
             .opacity(itemViewModel.isGroup ? 1 : 0)
                 // .border(.green)
@@ -163,20 +161,15 @@ struct SidebarListItemRightLabelView<ItemViewModel>: View where ItemViewModel: S
     @State private var isBeingEditedAnimated = false
 
     let item: ItemViewModel
-    let selectionState: SidebarSelectionObserver<ItemViewModel.ID>
     let isBeingEdited: Bool // is sidebar being edited?
+    let fontColor: Color
 
     var body: some View {
-
-//        let id = item.id.asLayerNodeId
-
         HStack(spacing: .zero) {
-            
             if isBeingEditedAnimated {
                 HStack(spacing: .zero) {
                     SidebarListItemSelectionCircleView(item: item,
-                                                       selectionState: selectionState,
-                                                       fontColor: item.fontColor,
+                                                       fontColor: fontColor,
                                                        isBeingEdited: isBeingEdited)
                         .padding(.trailing, 4)
 

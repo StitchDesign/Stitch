@@ -17,8 +17,7 @@ extension ProjectSidebarObservable {
         let descendants = closedParent.children?.flattenedItems ?? []
         
         for childen in descendants {
-            self.selectionState.inspectorFocusedLayers.focused.remove(childen.id)
-            self.selectionState.inspectorFocusedLayers.activelySelected.remove(childen.id)
+            self.selectionState.primary.remove(childen.id)
         }
     }
     

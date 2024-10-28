@@ -17,9 +17,7 @@ struct SidebarListItemChevronView<SidebarViewModel>: View where SidebarViewModel
     let item: SidebarViewModel.ItemViewModel
     
     // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status
-    var fontColor: Color {
-        item.fontColor
-    }
+    let fontColor: Color
 
     var isClosed: Bool {
         item.isCollapsedGroup

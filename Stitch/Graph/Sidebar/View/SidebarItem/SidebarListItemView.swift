@@ -19,6 +19,7 @@ struct SidebarListItemView<SidebarViewModel>: View where SidebarViewModel: Proje
     @Bindable var sidebarViewModel: SidebarViewModel
     @Bindable var item: SidebarViewModel.ItemViewModel
     let swipeOffset: CGFloat
+    let fontColor: Color
     
     var isBeingEdited: Bool {
         self.sidebarViewModel.isEditing
@@ -33,11 +34,11 @@ struct SidebarListItemView<SidebarViewModel>: View where SidebarViewModel: Proje
     }
     
     var isNonEditModeFocused: Bool {
-        sidebarViewModel.inspectorFocusedLayers.focused.contains(item.id)
+        sidebarViewModel.selectionState.all.contains(item.id)
     }
     
     var isNonEditModeActivelySelected: Bool {
-        sidebarViewModel.inspectorFocusedLayers.activelySelected.contains(item.id)
+        sidebarViewModel.selectionState.primary.contains(item.id)
     }
     
     var isNonEditModeSelected: Bool {
@@ -50,7 +51,8 @@ struct SidebarListItemView<SidebarViewModel>: View where SidebarViewModel: Proje
             SidebarListItemLeftLabelView(
                 graph: graph,
                 sidebarViewModel: sidebarViewModel,
-                itemViewModel: item)
+                itemViewModel: item,
+                fontColor: fontColor)
             
 //            .padding(.leading)
                 .offset(x: -swipeOffset)
