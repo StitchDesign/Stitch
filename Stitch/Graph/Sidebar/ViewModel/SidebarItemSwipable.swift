@@ -183,14 +183,9 @@ extension SidebarItemSwipable {
                 self.activeGesture = .dragging(self.id)
             }
             
-            // Needs to be dispatched due to simultaneous access errors with view
-            Task { @MainActor [weak self] in
-                guard let item = self else { return }
-                
-                item.sidebarDelegate?.sidebarListItemDragged(
-                    item: item,
-                    translation: translation)
-            }
+            self.sidebarDelegate?.sidebarListItemDragged(
+                item: self,
+                translation: translation)
         }
     }
 
@@ -566,10 +561,10 @@ extension Array where Element: SidebarItemSwipable {
         }
         
 #if DEV_DEBUG
-//        log("before: \(beforeElement?.id.debugFriendlyId ?? "none")\tafter: \(afterElement?.id.debugFriendlyId ?? "none")")
-//        log("supported group ranges: \(supportedGroupRanges)")
-//        log("recommendation test for \(indexOfDraggedLocation):")
-//        rankedItems.forEach { print("\($0.id.debugFriendlyId), \($0.sidebarIndex), diff: \(abs(indexOfDraggedLocation.rowIndex - $0.sidebarIndex.rowIndex))") }
+        log("before: \(beforeElement?.id.debugFriendlyId ?? "none")\tafter: \(afterElement?.id.debugFriendlyId ?? "none")")
+        log("supported group ranges: \(supportedGroupRanges)")
+        log("recommendation test for \(indexOfDraggedLocation):")
+        rankedItems.forEach { print("\($0.id.debugFriendlyId), \($0.sidebarIndex), diff: \(abs(indexOfDraggedLocation.rowIndex - $0.sidebarIndex.rowIndex))") }
 #endif
         
         // Covers top of list and many top of group scenarios
