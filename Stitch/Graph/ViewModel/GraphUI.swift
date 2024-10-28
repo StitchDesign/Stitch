@@ -84,6 +84,10 @@ final class GraphUIState {
     // Starts out as default value, but on first render of GraphView
     // we get the exact device screen size via GeometryReader.
     var frame = DEFAULT_LANDSCAPE_GRAPH_FRAME
+    
+    // Note: our device-screen reading logic uses `.local` coordinate space and so does not detect that items in the graph actually sit a little lower on the screen.
+    // TODO: better?: just always look at `.global`
+    var graphYPosition: CGFloat = .zero
 
     var selection = GraphUISelectionState()
 
