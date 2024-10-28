@@ -51,13 +51,16 @@ struct SidebarListItemChevronView<SidebarViewModel>: View where SidebarViewModel
                               axis: (x: 0, y: 0, z: rotationZ))
                 
             .contentShape(Rectangle())
-            .onTapGesture {
-                if isClosed {
-                    sidebarViewModel.sidebarListItemGroupOpened(parentItem: item)
-                } else {
-                    sidebarViewModel.sidebarListItemGroupClosed(closedParent: item)
-                }
-            }
+            .simultaneousGesture(
+                TapGesture()
+                    .onEnded {
+                        if isClosed {
+                            sidebarViewModel.sidebarListItemGroupOpened(parentItem: item)
+                        } else {
+                            sidebarViewModel.sidebarListItemGroupClosed(closedParent: item)
+                        }
+                    }
+            )
             .animation(.linear, value: rotationZ)
     }
 }
