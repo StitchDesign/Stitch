@@ -53,11 +53,15 @@ struct OpenFlyoutView: View, KeyboardReadable {
             
             let keyboardAdjustment = (self.keyboardOpen && needsSafeAreaAdjustment) ? 64.0 : 0.0
             
+            // Note: the graph's frame itself sits at a certain y-position
+            let graphYPositionAdjustment = needsSafeAreaAdjustment ? .zero : graph.graphUI.graphYPosition
+            
             let flyoutPosition = start // move flyout's top edge to top of graph
             + entry.y // move flyout's top edge to row's height
             + topPadding // handle padding added by UIKit wrapper
             - safeAreaAdjustment // move flyout up if its bottom edge would go below graph's bottom edge
             - keyboardAdjustment // move flyout up a bit more if keyboard is open and we're near bottom
+            - graphYPositionAdjustment
             
             let flyoutInput: LayerInputPort = flyoutState.flyoutInput
             
