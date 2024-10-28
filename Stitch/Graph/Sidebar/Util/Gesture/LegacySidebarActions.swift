@@ -190,8 +190,7 @@ extension ProjectSidebarObservable {
             // Set up previous drag position, which we'll increment off of
             allDraggedItemsPlusChildren.enumerated().forEach { index, item in
                 let initialPosition = CGPoint(x: item.location.x,
-                                              y: firstDraggedItem.location.y + (SIDEBAR_LIST_ITEM_ROW_COLORED_AREA_HEIGHT * CGFloat(index))) +
-                translation.toCGPoint
+                                              y: firstDraggedItem.location.y + (SIDEBAR_LIST_ITEM_ROW_COLORED_AREA_HEIGHT * CGFloat(index)))
                 item.prevDragPosition = initialPosition
                 item.dragPosition = item.prevDragPosition
             }
