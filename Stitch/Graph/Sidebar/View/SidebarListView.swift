@@ -89,8 +89,7 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
         let allFlattenedItems = self.sidebarViewModel.getVisualFlattenedList()
         
         return ScrollView(.vertical) {
-            // use .topLeading ?
-            ZStack(alignment: .leading) {
+            ZStack(alignment: .topLeading) {
                 // HACK
                 if allFlattenedItems.isEmpty {
                     Color.clear
