@@ -26,6 +26,14 @@ struct SetDeviceScreenSize: GraphEvent {
     }
 }
 
+struct SetGraphYPosition: GraphUIEvent {
+    let graphYPosition: CGFloat
+    
+    func handle(state: GraphUIState) {
+        state.graphYPosition = graphYPosition
+    }
+}
+
 struct ColorSchemeReceived: GraphUIEvent {
     let colorScheme: ColorScheme
 
