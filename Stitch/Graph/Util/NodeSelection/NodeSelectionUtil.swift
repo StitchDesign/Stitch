@@ -92,14 +92,11 @@ struct SelectAllShortcutKeyPressed: GraphEvent {
         
         // If we have at least one actively selected sidebar layers,
         // then select all layers, not canvas items.
-        if state.hasActivelySelectedLayers {
-            // Wipe the 'last selected item'
-            state.sidebarSelectionState.inspectorFocusedLayers = .init()
-            
+        if state.hasActivelySelectedLayers {            
             let allLayers = state.orderedSidebarLayers.flattenedItems.map(\.id).toSet
-            state.sidebarSelectionState.inspectorFocusedLayers = state.sidebarSelectionState.inspectorFocusedLayers.insert(allLayers)
+            state.sidebarSelectionState.primary = state.sidebarSelectionState.primary.union(allLayers)
             
-            state.layersSidebarViewModel.editModeSelectTappedItems(tappedItems: state.sidebarSelectionState.inspectorFocusedLayers.focused)
+            state.layersSidebarViewModel.editModeSelectTappedItems(tappedItems: state.sidebarSelectionState.all)
             
         } else {
             selectAllNodesAtTraversalLevel(state)

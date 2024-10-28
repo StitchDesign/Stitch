@@ -25,23 +25,7 @@ extension GraphState {
     // ASSUMES NON-EMPTY
 }
 
-extension SidebarItemSwipable {
-    /// Recursively "secondarily" selects children.
-    func secondarilySelectAllChildren() {
-        guard let sidebar = self.sidebarDelegate else {
-            fatalErrorIfDebug()
-            return
-        }
-        
-        // add to selection state
-        sidebar.addExclusivelyToSecondary(self.id)
-        
-        // recur on children
-        self.children?.forEach { child in
-            child.secondarilySelectAllChildren()
-        }
-    }
-    
+extension SidebarItemSwipable {    
     /// Recursively removes self + children from selection state.
     func removeFromSelections() {
         guard let sidebar = self.sidebarDelegate else {
@@ -50,7 +34,6 @@ extension SidebarItemSwipable {
         }
         
         sidebar.selectionState.primary.remove(self.id)
-        sidebar.selectionState.secondary.remove(self.id)
         
         self.children?.forEach { child in
             child.removeFromSelections()
@@ -71,19 +54,10 @@ extension ProjectSidebarObservable {
     func addExclusivelyToPrimary(_ id: Self.ItemID) {
         // add to primary
         self.selectionState.primary.insert(id)
-        
-        // ... and remove from secondary (migt not be present?):
-        self.selectionState.secondary.remove(id)
-    }
-    
-    func addExclusivelyToSecondary(_ id: Self.ItemID) {
-        let selection = self.selectionState
-        selection.secondary.insert(id)
-        selection.primary.remove(id)
     }
     
     
-    func allShareSameParent(_ selections: Self.SidebarSelectionState.SidebarSelections) -> Bool {
+    func allShareSameParent(_ selections: Set<Self.ItemID>) -> Bool {
         
         if let firstSelection = selections.first,
            let firstSelectionItem = self.items.get(firstSelection),

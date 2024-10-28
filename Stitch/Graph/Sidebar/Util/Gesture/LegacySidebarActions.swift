@@ -83,23 +83,20 @@ extension ProjectSidebarObservable {
             log("SidebarListItemDragged: had option drag and have already duplicated the layers")
             
             if let selectedItemIdWithSmallestIndex = self.findSetItemWithSmallestIndex(
-                from: state.inspectorFocusedLayers.focused),
+                from: state.selectionState.primary),
                let selectedItemWithSmallestIndex = self.items.get(selectedItemIdWithSmallestIndex) {
                 log("SidebarListItemDragged: had option drag, will use selectedItemWithSmallestIndex \(selectedItemWithSmallestIndex) as itemId")
                 draggedItem = selectedItemWithSmallestIndex
             }
         }
         
-        let focusedLayers = state.inspectorFocusedLayers.focused
+        let focusedLayers = state.selectionState.primary
         
         // Dragging a layer not already selected = dragging just that layer and deselecting all the others
         if !focusedLayers.contains(draggedItem.id) {
             state.selectionState.resetEditModeSelections()
-            state.selectionState.inspectorFocusedLayers.focused = .init([draggedItem.id])
-            state.selectionState.inspectorFocusedLayers.activelySelected = .init([draggedItem.id])
-            state.sidebarItemSelectedViaEditMode(draggedItem.id,
-                                                 isSidebarItemTapped: true)
-            state.selectionState.inspectorFocusedLayers.lastFocusedLayer = draggedItem.id
+            state.sidebarItemSelectedViaEditMode(draggedItem.id)
+            state.selectionState.lastFocused = draggedItem.id
         }
                 
         
@@ -134,7 +131,7 @@ extension ProjectSidebarObservable {
 //        else if focusedLayers.count > 1 {
         if focusedLayers.count > 1 {
             if let selectedItemIdWithSmallestIndex = self.findSetItemWithSmallestIndex(
-                from: state.selectionState.inspectorFocusedLayers.focused),
+                from: state.selectionState.all),
                let selectedItemWithSmallestIndex = self.items.get(selectedItemIdWithSmallestIndex),
                draggedItem.id != selectedItemIdWithSmallestIndex {
                
@@ -160,21 +157,25 @@ extension ProjectSidebarObservable {
         let oldCount = visualList.count
 
         let allSelections = self.selectionState
-            .inspectorFocusedLayers
-            .focused
+            .primary
         
         // Important to keep items in sorted order
         let allDraggedItems = visualList.filter { item in
             allSelections.contains(item.id)
         }
         
+        let allDraggedItemIds = allDraggedItems.map(\.id).toSet
+        
         // Includes visible children of dragged nodes (aka implicitly dragged)
-        let allDraggedItemsPlusChildren = allDraggedItems.flattenedVisibleItems
+        let allDraggedItemsPlusChildren = self.items.getSubset(from: allDraggedItemIds)
+            .getFlattenedVisibleItems(selectedIds: allSelections)
         
         guard let firstDraggedItem = allDraggedItems.first else {
             fatalErrorIfDebug()
             return
         }
+        
+        let isNewDrag = firstDraggedItem.dragPosition == nil
 
         // Remove dragged items from data structure used for identifying drag location
         let filteredVisualList = visualList.filter { item in
@@ -184,12 +185,8 @@ extension ProjectSidebarObservable {
         let originalItemIndex = firstDraggedItem.sidebarIndex
         
         // Set state for a new drag
-        guard let firstDragPosition = firstDraggedItem.dragPosition else {
+        if isNewDrag {
             self.currentItemDragged = firstDraggedItem.id
-            
-            // Remove elements from groups if there are selections inside other selected groups
-            Self.removeSelectionsFromGroups(selections: allDraggedItems)
-
             // Set up previous drag position, which we'll increment off of
             allDraggedItemsPlusChildren.enumerated().forEach { index, item in
                 let initialPosition = CGPoint(x: item.location.x,
@@ -198,7 +195,10 @@ extension ProjectSidebarObservable {
                 item.prevDragPosition = initialPosition
                 item.dragPosition = item.prevDragPosition
             }
-            
+        }
+    
+        guard let firstDragPosition = firstDraggedItem.dragPosition else {
+            fatalErrorIfDebug()
             return
         }
         
@@ -219,7 +219,7 @@ extension ProjectSidebarObservable {
             return
         }
         
-        if originalItemIndex != calculatedIndex {
+        if originalItemIndex != calculatedIndex || isNewDrag {
             self.movedDraggedItems(draggedElement: firstDraggedItem,
                                    draggedItems: allDraggedItems,
                                    visualList: filteredVisualList,
@@ -242,7 +242,6 @@ extension ProjectSidebarObservable {
                            to index: SidebarIndex,
                            draggedItemsPlusChildrenCount: Int,
                            oldCount: Int) {
-        
         let visualList = visualList
         let draggedItemIdSet = draggedItems.map(\.id).toSet
         
@@ -255,6 +254,8 @@ extension ProjectSidebarObservable {
 
         // Remove items from dragged set--these will be added later
         var reducedItemsList = self.items
+        
+        // TODO: perf hit here
         reducedItemsList.remove(draggedItemIdSet)
         
         guard !draggedItems.isEmpty else { return }
@@ -271,22 +272,6 @@ extension ProjectSidebarObservable {
         
         // TODO: should only be for layers sidebar
         self.graphDelegate?.updateOrderedPreviewLayers()
-    }
-    
-    /// Removes selected elements from other selected groups.
-    static func removeSelectionsFromGroups(selections: [Self.ItemViewModel]) {
-        var queue = selections
-        
-        // Traverse backwards by exploring parent delegate
-        while let element = queue.popLast() {
-            guard let parent = element.parentDelegate else { continue }
-            
-            if selections.contains(where: { $0.id == parent.id }) {
-                parent.children?.remove(element.id)
-            }
-            
-            queue.append(parent)
-        }
     }
 }
 

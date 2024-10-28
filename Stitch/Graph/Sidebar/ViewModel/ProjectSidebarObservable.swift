@@ -14,20 +14,25 @@ protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID 
     associatedtype EncodedItemData: StitchNestedListElement
 
     typealias ItemID = ItemViewModel.ID
-    typealias SidebarSelectionState = SidebarSelectionObserver<ItemID>
+    typealias SidebarSelectionState = Self
     typealias ExcludedGroups = [ItemID: [ItemViewModel]]
     
     var isEditing: Bool { get set }
 
     var items: [ItemViewModel] { get set }
 
-    var selectionState: SidebarSelectionState { get set }
-
     var activeSwipeId: ItemID? { get set }
 
     var activeGesture: SidebarListActiveGesture<ItemID> { get set }
 
-
+    var haveDuplicated: Bool { get set }
+    
+    var optionDragInProgress: Bool { get set }
+    
+    var primary: Set<ItemID> { get set }
+    
+    var lastFocused: ItemID? { get set }
+    
     var currentItemDragged: Self.ItemID? { get set }
     
     var graphDelegate: GraphState? { get set }
@@ -45,18 +50,12 @@ protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID 
 }
 
 extension ProjectSidebarObservable {
+    // TODO: tech debt to remove
+    var selectionState: Self { self }
+    
     var proposedGroup: Self.ItemViewModel? {
         guard let currentItemDragged = self.currentItemDragged else { return nil }
         return self.items.get(currentItemDragged)?.parentDelegate
-    }
-    
-    var inspectorFocusedLayers: InspectorFocusedData<ItemID> {
-        get {
-            self.selectionState.inspectorFocusedLayers
-        }
-        set(newValue) {
-            self.selectionState.inspectorFocusedLayers = newValue
-        }
     }
     
     func initializeDelegate(graph: GraphState) {
