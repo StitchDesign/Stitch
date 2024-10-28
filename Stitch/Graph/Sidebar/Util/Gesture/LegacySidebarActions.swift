@@ -254,7 +254,6 @@ extension ProjectSidebarObservable {
         // Remove items from dragged set--these will be added later
         var reducedItemsList = self.items
         
-        // TODO: perf hit here
         reducedItemsList.remove(draggedItemIdSet)
         
         guard !draggedItems.isEmpty else { return }
@@ -263,8 +262,14 @@ extension ProjectSidebarObservable {
                                                               at: draggedToElementResult,
                                                               dragPositionIndex: index)
         
+#if DEBUG || DEV_DEBUG
+        let newFlattenedList = newItemsList.getVisualFlattenedList()
+        let newFlattenedListIds = newFlattenedList.map(\.id)
+        
         // Don't use assert test after movedDraggedItems because of references to self list
-        assertInDebug(newItemsList.getVisualFlattenedList().count == oldCount)
+        assert(newFlattenedList.count == oldCount)
+        assert(newFlattenedListIds.count == Set(newFlattenedListIds).count)
+#endif
         
         self.items = newItemsList
         self.items.updateSidebarIndices()
