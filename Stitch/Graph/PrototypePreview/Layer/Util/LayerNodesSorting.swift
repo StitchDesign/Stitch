@@ -428,19 +428,20 @@ func getLayerTypesForPinnedViews(pinnedData: LayerPinData, // views pinned to th
     return layerTypesAtThisLevel
 }
 
-extension SidebarLayerList {
+import StitchViewKit
+extension Array where Element: StitchNestedListElement & Equatable {
     
     // TODO: remove after StitchViewModelKit's `StitchNestedList.get` method is fixed
-    func getSidebarLayerData(_ layerId: NodeId) -> SidebarLayerData? {
-        let layer: SidebarLayerData? = nil
+    func getSidebarLayerData(_ itemId: Element.ID) -> Element? {
+        let layer: Element? = nil
         
         for sidebarLayerData in self {
             
-            if sidebarLayerData.id == layerId {
+            if sidebarLayerData.id == itemId {
                 return sidebarLayerData
             }
             
-            else if let layerFoundInChildren = sidebarLayerData.children?.getSidebarLayerData(layerId) {
+            else if let layerFoundInChildren = sidebarLayerData.children?.getSidebarLayerData(itemId) {
                 return layerFoundInChildren
             }
         } // self.forEach
@@ -448,7 +449,7 @@ extension SidebarLayerList {
         return layer
     }
     
-    func getSidebarLayerDataIndex(_ layerId: NodeId) -> Int? {
+    func getSidebarLayerDataIndex(_ layerId: Element.ID) -> Int? {
         let index: Int? = nil
         
         for sidebarLayerData in self {

@@ -8,96 +8,84 @@
 import SwiftUI
 import StitchSchemaKit
 
-struct SidebarListItemSwipeView: View {
+struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: ProjectSidebarObservable {
+    typealias ItemViewModel = SidebarViewModel.ItemViewModel
+    
+    @Environment(\.appTheme) private var theme
+    @State private var isHovered = false
+    
     @Bindable var graph: GraphState
+    @Bindable var sidebarViewModel: SidebarViewModel
+    @Bindable var gestureViewModel: ItemViewModel
     
-    @StateObject var gestureViewModel: SidebarItemGestureViewModel
-
-    var item: SidebarListItem
-    let name: String
-    let layer: Layer
-    var current: SidebarDraggedItem?
-    var proposedGroup: ProposedGroup?
-    var isClosed: Bool
-    let selection: SidebarListItemSelectionStatus
-    let isBeingEdited: Bool
-
-    @Binding var activeGesture: SidebarListActiveGesture
-
-    @Binding var activeSwipeId: SidebarListItemId?
-
-    @State var isHovered = false
-    
-    init(graph: Bindable<GraphState>,
-         item: SidebarListItem,
-         name: String,
-         layer: Layer,
-         current: SidebarDraggedItem? = nil,
-         proposedGroup: ProposedGroup? = nil,
-         isClosed: Bool,
-         selection: SidebarListItemSelectionStatus,
-         isBeingEdited: Bool,
-         activeGesture: Binding<SidebarListActiveGesture>,
-         activeSwipeId: Binding<SidebarListItemId?> = .constant(nil)) {
+    var yOffset: CGFloat {
+        guard let dragPosition = gestureViewModel.dragPosition else {
+            return gestureViewModel.location.y
+        }
         
-        self._graph = graph
-
-        self.item = item
-        self.name = name
-        self.layer = layer
-        self.current = current
-        self.proposedGroup = proposedGroup
-        self.isClosed = isClosed
-        self.selection = selection
-        self.isBeingEdited = isBeingEdited
-        self._activeGesture = activeGesture
-        self._activeSwipeId = activeSwipeId
-
-        self._gestureViewModel = StateObject(wrappedValue: SidebarItemGestureViewModel(item: item,
-                                                                                       activeGesture: activeGesture,
-                                                                                       activeSwipeId: activeSwipeId))
+        return dragPosition.y
+    }
+    
+    var indentationPadding: Int {
+        CUSTOM_LIST_ITEM_INDENTATION_LEVEL * gestureViewModel.sidebarIndex.groupIndex
+    }
+    
+    // Controls animation for non-dragged elements
+    var animationDuration: Double {
+        gestureViewModel.isBeingDragged ? 0 : 0.25
     }
     
     var body: some View {
         // TODO: why does drag gesture on Catalyst break if we remove this?
         SidebarListItemGestureRecognizerView(
             view: customSwipeItem,
-            gestureViewModel: gestureViewModel,
-            graph: graph,
-            layerNodeId: item.id.asLayerNodeId)
+            sidebarViewModel: sidebarViewModel,
+            gestureViewModel: gestureViewModel)
+        .transition(.move(edge: .top).combined(with: .opacity))
+        
+        // MARK: indent padding animation needs to be before y animation
+        .animation(.stitchAnimation(duration: 0.25), value: indentationPadding)
+        .animation(.stitchAnimation(duration: animationDuration), value: gestureViewModel.location.y)
+        
+        .zIndex(gestureViewModel.zIndex)
         .height(CGFloat(CUSTOM_LIST_ITEM_VIEW_HEIGHT))
         .padding(.horizontal, 4)
-        
-        // More accurate: needs to come before the `.offset(y:)` modifier
+        .padding(.leading, CGFloat(indentationPadding))
+        .background {
+            theme.fontColor
+                .opacity(gestureViewModel.backgroundOpacity)
+        }
         .onHover { hovering in
-            // log("hovering: sidebar item \(item.id.id)")
+            // log("hovering: sidebar item \(gestureViewModel.id)")
             // log("hovering: \(hovering)")
             self.isHovered = hovering
             if hovering {
-                dispatch(SidebarLayerHovered(layer: item.id.asLayerNodeId))
+                self.gestureViewModel.sidebarLayerHovered(itemId: gestureViewModel.id)
             } else {
-                dispatch(SidebarLayerHoverEnded(layer: item.id.asLayerNodeId))
+                self.gestureViewModel.sidebarLayerHoverEnded(itemId: gestureViewModel.id)
             }
         }
-        .offset(y: item.location.y)
         
-        #if targetEnvironment(macCatalyst)
+        // MARK: - offset must come after hover and before gestures for dragging to work!
+        .offset(y: yOffset)
+        
+#if targetEnvironment(macCatalyst)
         // SwiftUI gesture handlers must come AFTER `.offset`
         .simultaneousGesture(gestureViewModel.macDragGesture)
-        #else
+#else
         // SwiftUI gesture handlers must come AFTER `.offset`
         .onTapGesture { } // fixes long press + drag on iPad screen-touch
         // could also be a `.simultaneousGesture`?
         .gesture(gestureViewModel.longPressDragGesture)
-        #endif
-        .onChange(of: activeSwipeId) { _ in
+#endif
+        
+        .onChange(of: sidebarViewModel.activeSwipeId) {
             gestureViewModel.resetSwipePosition()
         }
-        .onChange(of: isBeingEdited) { newValue in
-            gestureViewModel.editOn = newValue
+        .onChange(of: sidebarViewModel.isEditing) {
             gestureViewModel.resetSwipePosition()
         }
-        .onChange(of: activeGesture) { newValue in
+        .onChange(of: sidebarViewModel.activeGesture) { _, newValue in
             switch newValue {
                 // scrolling or dragging resets swipe-menu
             case .scrolling, .dragging:
@@ -107,27 +95,15 @@ struct SidebarListItemSwipeView: View {
             }
         }
     }
-
+    
     // TODO: retrieve sidebar-width via a GeometryReader on whole sidebar rather than each individual item
     var customSwipeItem: some View {
-        GeometryReader { geometry in
-            SidebarListItemSwipeInnerView(
-                graph: graph,
-                item: item,
-                name: name,
-                layer: layer,
-                current: current,
-                proposedGroup: proposedGroup,
-                isClosed: isClosed,
-                selection: selection,
-                isBeingEdited: isBeingEdited,
-                swipeSetting: gestureViewModel.swipeSetting,
-                sidebarWidth: geometry.size.width,
-                isHovered: isHovered,
-                gestureViewModel: gestureViewModel)
-            .padding(1) // ensures .clipped doesn't cut off proposed-group border
-            .clipped() // ensures edit buttons don't animate outside sidebar
-        }
+        SidebarListItemSwipeInnerView(
+            graph: graph,
+            sidebarViewModel: sidebarViewModel,
+            itemViewModel: gestureViewModel)
+        .padding(1) // ensures .clipped doesn't cut off proposed-group border
+        .clipped() // ensures edit buttons don't animate outside sidebar
     }
 }
 

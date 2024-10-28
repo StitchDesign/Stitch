@@ -8,7 +8,7 @@
 import SwiftUI
 import StitchSchemaKit
 
-extension UUID {
+extension CustomStringConvertible {
     var debugFriendlyId: String {
         String(self.description.dropLast(30))
     }

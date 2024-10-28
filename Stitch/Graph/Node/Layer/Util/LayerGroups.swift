@@ -9,15 +9,6 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-// Find the parent, if any, for this layer node.
-func findGroupLayerParentForLayerNode(_ nodeId: LayerNodeId,
-                                      _ groups: SidebarGroupsDict) -> LayerNodeId? {
-
-    groups.first { (_: LayerNodeId, value: LayerIdList) in
-        value.contains(nodeId)
-    }?.key
-}
-
 extension GraphState {
     // Assumes:
     // - all selected nodes have either same parent or no parent ('top level')

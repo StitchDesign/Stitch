@@ -14,25 +14,39 @@ import SwiftUI
 struct SidebarSelectedItemsDeleted: GraphEventWithResponse {
 
     func handle(state: GraphState) -> GraphResponse {
-        state.sidebarSelectedItemsDeletingViaEditMode()
+        state.layersSidebarViewModel.deleteSelectedItems()
         return .shouldPersist
     }
 }
 
-extension GraphState {
-    func sidebarSelectedItemsDeletingViaEditMode() {
-        let deletedIds = self.sidebarSelectionState.all.map(\.id)
-        
+extension ProjectSidebarObservable {
+    func deleteSelectedItems() {
+        self.deleteItems(from: self.selectionState.all)
+    }
+    
+    func deleteItems(from deletedIds: Set<Self.ItemID>) {
         deletedIds.forEach {
-            self.visibleNodesViewModel.nodes.removeValue(forKey: $0)
+            self.items.remove($0)
         }
-
-        self.updateSidebarListStateAfterStateChange()
         
-        // TODO: why is this necessary?
-        _updateStateAfterListChange(
-            updatedList: self.sidebarListState,
-            expanded: self.getSidebarExpandedItems(),
-            graphState: self)
+        self.items.updateSidebarIndices()
+        
+        self.didItemsDelete(ids: deletedIds)
+    }
+}
+
+extension LayersSidebarViewModel {
+    @MainActor
+    func didItemsDelete(ids: Set<SidebarListItemId>) {
+        self.graphDelegate?.didItemsDelete(ids: ids)
+    }
+}
+
+extension GraphState {
+    @MainActor
+    func didItemsDelete(ids: Set<SidebarListItemId>) {
+        ids.forEach {
+            self.deleteNode(id: $0)
+        }
     }
 }
