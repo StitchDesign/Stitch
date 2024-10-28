@@ -33,11 +33,11 @@ struct SidebarListItemView<SidebarViewModel>: View where SidebarViewModel: Proje
     }
     
     var isNonEditModeFocused: Bool {
-        sidebarViewModel.inspectorFocusedLayers.focused.contains(item.id)
+        sidebarViewModel.selectionState.all.contains(item.id)
     }
     
     var isNonEditModeActivelySelected: Bool {
-        sidebarViewModel.inspectorFocusedLayers.activelySelected.contains(item.id)
+        sidebarViewModel.selectionState.primary.contains(item.id)
     }
     
     var isNonEditModeSelected: Bool {

@@ -143,12 +143,12 @@ extension SidebarItemGestureViewModel {
     
     var isNonEditModeFocused: Bool {
         guard let sidebar = self.sidebarDelegate else { return false }
-        return sidebar.inspectorFocusedLayers.focused.contains(self.id)
+        return sidebar.selectionState.isSelected(self.id)
     }
     
     var isNonEditModeActivelySelected: Bool {
         guard let sidebar = self.sidebarDelegate else { return false }
-        return sidebar.inspectorFocusedLayers.activelySelected.contains(self.id)
+        return sidebar.selectionState.primary.contains(self.id)
     }
     
     var isNonEditModeSelected: Bool {

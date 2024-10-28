@@ -11,7 +11,7 @@ import StitchSchemaKit
 
 extension GraphState {
     var hasActivelySelectedLayers: Bool {
-        !self.sidebarSelectionState.inspectorFocusedLayers.activelySelected.isEmpty
+        !self.sidebarSelectionState.primary.isEmpty
     }
 }
 

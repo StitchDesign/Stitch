@@ -161,6 +161,9 @@ extension SidebarItemSwipable {
     }
     
     var isImplicitlyDragged: Bool {
+        // Can't be primary selected
+        guard !self.sidebarDelegate?.selectionState.primary.contains(self.id)
+        
         var visitedItem: Self? = self
         
         while let parent = visitedItem?.parentDelegate {

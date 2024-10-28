@@ -31,7 +31,7 @@ extension StitchDocumentViewModel {
         }
         
         // TODO: `graph` vs `visibleGraph` ?
-        let activelySelectedLayers = state.visibleGraph.sidebarSelectionState.inspectorFocusedLayers.activelySelected
+        let activelySelectedLayers = state.visibleGraph.sidebarSelectionState.primary
         
         if !activelySelectedLayers.isEmpty {
             state.visibleGraph.sidebarSelectedItemsDuplicated()
@@ -174,8 +174,8 @@ extension GraphState {
 
         // Reset edit mode selections + inspector focus and actively-selected
         self.sidebarSelectionState.resetEditModeSelections()
-        self.sidebarSelectionState.inspectorFocusedLayers.focused = .init()
-        self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = .init()
+//        self.sidebarSelectionState.inspectorFocusedLayers.focused = .init()
+        self.sidebarSelectionState.primary = .init()
         
         // NOTE: we can either duplicate layers OR patch nodes; but NEVER both
         // Update selected nodes
@@ -186,8 +186,8 @@ extension GraphState {
                     
                     // Actively-select the new layer node
                     let id = nodeEntity.id
-                    self.sidebarSelectionState.inspectorFocusedLayers.focused.insert(id)
-                    self.sidebarSelectionState.inspectorFocusedLayers.activelySelected.insert(id)
+//                    self.sidebarSelectionState.inspectorFocusedLayers.focused.insert(id)
+                    self.sidebarSelectionState.primary.insert(id)
                                         
                     self.layersSidebarViewModel.sidebarItemSelectedViaEditMode(
                         id,

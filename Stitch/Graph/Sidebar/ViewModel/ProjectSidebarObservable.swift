@@ -50,15 +50,15 @@ extension ProjectSidebarObservable {
         return self.items.get(currentItemDragged)?.parentDelegate
     }
     
-    var inspectorFocusedLayers: InspectorFocusedData<ItemID> {
-        get {
-            self.selectionState.inspectorFocusedLayers
-        }
-        set(newValue) {
-            self.selectionState.inspectorFocusedLayers = newValue
-        }
-    }
-    
+//    var inspectorFocusedLayers: InspectorFocusedData<ItemID> {
+//        get {
+//            self.selectionState.inspectorFocusedLayers
+//        }
+//        set(newValue) {
+//            self.selectionState.inspectorFocusedLayers = newValue
+//        }
+//    }
+//    
     func initializeDelegate(graph: GraphState) {
         self.graphDelegate = graph
         

@@ -8,29 +8,29 @@
 import Foundation
 import StitchSchemaKit
 
-struct InspectorFocusedData<ItemID: Hashable> {
-    
-    // Focused = what we see focused in the inspector
-    var focused = Set<ItemID>()
-    
-    // Actively Selected = what we see focused in inspector + what user has recently tapped on
-    var activelySelected = Set<ItemID>()
-
-    // Updated by regular or command click, but not shick click (with some exceptions)
-    var lastFocusedLayer: ItemID? = nil
-    
-    // Inserts into both focused and activelySelected layer id sets
-    func insert(_ layer: ItemID) -> Self {
-        self.insert(.init([layer]))
-    }
-    
-    func insert(_ layers: Set<ItemID>) -> Self {
-        var data = self
-        data.focused = data.focused.union(layers)
-        data.activelySelected = data.activelySelected.union(layers)
-        return data
-    }
-}
+//struct InspectorFocusedData<ItemID: Hashable> {
+//    
+////    // Focused = what we see focused in the inspector
+////    var focused = Set<ItemID>()
+////    
+////    // Actively Selected = what we see focused in inspector + what user has recently tapped on
+////    var activelySelected = Set<ItemID>()
+//
+//    // Updated by regular or command click, but not shick click (with some exceptions)
+//    var lastFocusedLayer: ItemID? = nil
+//    
+//    // Inserts into both focused and activelySelected layer id sets
+////    func insert(_ layer: ItemID) -> Self {
+////        self.insert(.init([layer]))
+////    }
+//    
+//    func insert(_ layers: Set<ItemID>) -> Self {
+//        var data = self
+//        data.focused = data.focused.union(layers)
+//        data.activelySelected = data.activelySelected.union(layers)
+//        return data
+//    }
+//}
 
 @Observable
 final class SidebarSelectionObserver<ItemID: Hashable> {
@@ -43,13 +43,15 @@ final class SidebarSelectionObserver<ItemID: Hashable> {
     //    var implicitlyDragged = SidebarListItemIdSet()
     
     // Layers focused in the inspector
-    var inspectorFocusedLayers = InspectorFocusedData<ItemID>() //LayerIdSet()
+//    var inspectorFocusedLayers = InspectorFocusedData<ItemID>() //LayerIdSet()
     
     // items selected because directly clicked
     var primary = SidebarSelections()
     
     // items selected because eg their parent was selected
     var secondary = SidebarSelections()
+    
+    var lastFocused: ItemID?
 }
 
 extension SidebarSelectionObserver {
