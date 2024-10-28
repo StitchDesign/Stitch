@@ -38,7 +38,7 @@ struct Step: Codable {
     var fromNodeId: String?
     var toNodeId: String?
     var value: StringOrNumber?  // Updated to handle String or Int
-    var valueType: String?
+    var nodeType: String?
     
     enum CodingKeys: String, CodingKey {
         case stepType = "step_type"
@@ -48,7 +48,7 @@ struct Step: Codable {
         case fromNodeId = "from_node_id"
         case toNodeId = "to_node_id"
         case value
-        case valueType = "value_type"
+        case nodeType = "node_type"
     }
 }
 
@@ -70,7 +70,7 @@ struct StringOrNumber: Codable {
 }
 
 
-struct LLMActionTest: Codable {
+struct LLMActionData: Codable {
     let action: String
     let node: String?
     let nodeType: String?
@@ -90,10 +90,10 @@ struct EdgePoint: Codable {
     let port: String
 }
 
-struct NodeInfoTest {
+struct NodeInfoData {
     var type: String
     var inputPortCount: Int = 0
-    var valueType: String?
+    var nodeType: String?
 }
 
 enum ActionType: String {
@@ -114,7 +114,7 @@ enum StepType: String, Codable {
 
 
 // Node Types
-enum NodeTypeTest: String, CaseIterable {
+enum StitchAINodeKinds: String, CaseIterable {
     // Mathematical Operations
     case add = "Add"
     case subtract = "Subtract"
@@ -262,7 +262,7 @@ enum LayerPort: String, CaseIterable {
 }
 
 // Value Types
-enum ValueType: String, CaseIterable {
+enum StitchAINodeType: String, CaseIterable {
     case number = "Number"
     case text = "Text"
     case boolean = "Boolean"
@@ -270,7 +270,7 @@ enum ValueType: String, CaseIterable {
 
 // Helper struct to manage all types
 struct VisualProgrammingTypes {
-    static let validNodeTypes: [String: NodeTypeTest] = Dictionary(uniqueKeysWithValues: NodeTypeTest.allCases.map { ($0.stringValue, $0) })
+    static let validNodeKinds: [String: StitchAINodeKinds] = Dictionary(uniqueKeysWithValues: StitchAINodeKinds.allCases.map { ($0.stringValue, $0) })
     static let validLayerPorts: [String: LayerPort] = Dictionary(uniqueKeysWithValues: LayerPort.allCases.map { ($0.rawValue.lowercased(), $0) })
-    static let validValueTypes: [String: ValueType] = Dictionary(uniqueKeysWithValues: ValueType.allCases.map { ($0.rawValue.lowercased(), $0) })
+    static let validStitchAINodeTypes: [String: StitchAINodeType] = Dictionary(uniqueKeysWithValues: StitchAINodeType.allCases.map { ($0.rawValue, $0) })
 }

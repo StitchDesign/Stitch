@@ -269,6 +269,9 @@ extension StitchDocumentViewModel {
         log("handleNodeMoveEnded: id \(id): ")
 #endif
         
+        print(self.graph.visibleNodesViewModel.nodes.first?.value.nodeType.patchNode?.inputsObservers.first?.allLoopedValues.first)
+        print(self.graph.visibleNodesViewModel.nodes.first?.value.nodeType.patchNode?.inputsObservers.first?.activeValue)
+
         // DUAL DRAG:
         self.graphMovement.stopNodeMovement()
         

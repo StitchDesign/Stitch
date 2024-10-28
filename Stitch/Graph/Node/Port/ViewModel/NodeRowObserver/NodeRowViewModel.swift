@@ -162,11 +162,22 @@ extension NodeRowViewModel {
                                                 unpackedPortIndex: unpackedPortIndex,
                                                 importedMediaObject: nil)
         
-        let didFieldsChange = self.fieldValueTypes.isEmpty || self.fieldValueTypes.first?.type != fields.first?.type
+        /*
+         Note: we seem to call `initializeValues` several times in row for the *same* NodeRowViewModel,
+         e.g. when generating an AI project from a prompt "Add 2 + 3", first with initialValue = 0, then again with e.g. initialValue = 2.
+         
+         The first call creates fields with proper types and values for 0, and the second call creates fields with proper types and values for 2;
+         but since the field count and type did not change, the `didFieldsChange` check below prevents us from setting the fields with the new, proper values (2).
+         
+         It should be fine to set the fields more than once, since presumably `initializeValues` is only called when `NodeRowViewModel` (and parent view models like `CanvasItemViewModel` etc.)
+         
+         TODO: why do we call `initializeValues` so often?
+         */
+        //        let didFieldsChange = self.fieldValueTypes.isEmpty || self.fieldValueTypes.first?.type != fields.first?.type
         
-        if didFieldsChange {
+        //        if didFieldsChange {
             self.fieldValueTypes = fields
-        }
+        //        }
     }
     
     func didPortValuesUpdate(values: PortValues) {
