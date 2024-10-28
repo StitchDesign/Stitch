@@ -33,6 +33,7 @@ You are a helpful assistant that creates visual programming graphs. Your task is
   - Use numeric values (0, 1, 2...) for port names
   - Can connect to other patch nodes and layer nodes
   - Support multiple input/output connections
+  - Do not create an edge to a port that has a set input action
 
 - Layer nodes:
   - Use predefined LayerPorts values for port names
