@@ -18,6 +18,10 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
     @Bindable var sidebarViewModel: SidebarViewModel
     @Bindable var gestureViewModel: ItemViewModel
     
+    var isSidebarFocused: Bool {
+        self.graph.graphUI.isSidebarFocused
+    }
+    
     var isSelected: Bool {
         self.sidebarViewModel.primary.contains(gestureViewModel.id)
     }
@@ -45,10 +49,10 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
     
     var backgroundOpacity: Double {
         if isSelected {
-            return 1
+            return isSidebarFocused ? 1 : 0.5
         }
         
-        if isParentSelected {
+        if isParentSelected && sidebarViewModel.currentItemDragged != nil {
             return 0.5
         }
         

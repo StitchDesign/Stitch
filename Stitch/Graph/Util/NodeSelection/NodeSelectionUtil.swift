@@ -143,6 +143,9 @@ extension GraphState {
     func processCanvasSelectionBoxChange(cursorSelectionBox: CGRect) {
         let graphState = self
         
+        // Unfocus sidebar
+        graphState.graphUI.isSidebarFocused = false
+        
         // TODO: pass shift down via the UIKit gesture handler
         let shiftHeld = graphState.keypressState.shiftHeldDuringGesture
         log("processCanvasSelectionBoxChange: shiftHeld: \(shiftHeld)")
