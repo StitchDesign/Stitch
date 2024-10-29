@@ -30,10 +30,25 @@ struct CatalystNavBarTitleEditField: View {
     
     var body: some View {
         
-        TextField("", text: self.$edit)
-            .padding(6)
-            .border(.red, width: 1)
+//        TextField("", text: self.$edit)
+//            .padding(6)
+//            .border(.red, width: 1)
         
+        Text("Placeholder am I")
+            .border(.green)
+            .onTapGesture {
+                self.show.toggle()
+            }
+            .popover(isPresented: self.$show) {
+                TextField("", text: self.$edit)
+                    .border(.red)
+            }
+            .onChange(of: self.show) { oldValue, newValue in
+                log("show changed: oldValue: \(oldValue)")
+                log("show changed: newValue: \(newValue)")
+            }
+        
+//        
 //        Group {
 //            if show {
 //                logInView("CatalystNavBarTitleEditField: editable")
@@ -44,6 +59,7 @@ struct CatalystNavBarTitleEditField: View {
 //                        log("submit")
 //                        self.show = false
 //                    })
+//                    .id(self.show)
 //                //                .onChange(of: self.focus) { oldValue, newValue in
 //                //                    log("CatalystNavBarTitleEditField: .onChange(of: self.focus): oldValue: \(oldValue)")
 //                //                    log("CatalystNavBarTitleEditField: .onChange(of: self.focus): newValue: \(newValue)")
@@ -72,6 +88,7 @@ struct CatalystNavBarTitleEditField: View {
 //                    }
 //                    .padding(6)
 //                    .border(.blue, width: 1)
+//                    .id(self.show)
 //                
 //            }
 //        }
