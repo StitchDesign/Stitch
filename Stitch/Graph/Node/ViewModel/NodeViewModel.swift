@@ -791,20 +791,22 @@ extension NodeViewModel {
                                                     userVisibleType: self.userVisibleType,
                                                     id: newInputCoordinate,
                                                     upstreamOutputCoordinate: nil)
-        newInputObserver.initializeDelegate(self)
         
         let newInputViewModel = InputNodeRowViewModel(id: .init(graphItemType: .node(patchNode.canvasObserver.id),
                                                                 nodeId: newInputCoordinate.nodeId,
                                                                 portId: allInputsObservers.count),
                                                       rowDelegate: newInputObserver,
                                                       canvasItemDelegate: patchNode.canvasObserver)
+        
+        patchNode.inputsObservers.append(newInputObserver)
+        patchNode.canvasObserver.inputViewModels.append(newInputViewModel)
+        
+        // Assign delegates once view models are assigned to node
+        newInputObserver.initializeDelegate(self)
         newInputViewModel.initializeDelegate(self,
                                              // Only relevant for layer nodes, which cannot have an input added or removed
                                              unpackedPortParentFieldGroupType: nil,
                                              unpackedPortIndex: nil)
-        
-        patchNode.inputsObservers.append(newInputObserver)
-        patchNode.canvasObserver.inputViewModels.append(newInputViewModel)
     }
 
     @MainActor
