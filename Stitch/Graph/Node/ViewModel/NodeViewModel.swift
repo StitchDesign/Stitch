@@ -91,7 +91,25 @@ final class NodeViewModel: Sendable {
     }
 }
 
-extension NodeViewModel: NodeCalculatable {    
+extension NodeViewModel: NodeCalculatable {
+    var inputsObservers: [InputNodeRowObserver] {
+        get {
+            self.getAllInputsObservers()
+        }
+        set(newValue) {
+            self.patchNode?.inputsObservers = newValue
+        }
+    }
+    
+    var outputsObservers: [OutputNodeRowObserver] {
+        get {
+            self.getAllOutputsObservers()
+        }
+        set(newValue) {
+            self.patchNode?.outputsObservers = newValue
+        }
+    }
+    
     var requiresOutputValuesChange: Bool {
         self.kind.getPatch == .pressInteraction
     }
@@ -100,6 +118,7 @@ extension NodeViewModel: NodeCalculatable {
         self.getAllInputsObservers()
     }
     
+    @MainActor
     var inputsValuesList: PortValuesList {
         switch self.nodeType {
         case .patch(let patch):

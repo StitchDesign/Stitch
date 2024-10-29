@@ -263,6 +263,7 @@ extension PatchNodeViewModel {
                                                  unpackedPortIndex: nil)
     }
     
+    // TODO: can we remove
     @MainActor
     func portCountShortened(to length: Int, nodeIO: NodeIO) {
         switch nodeIO {

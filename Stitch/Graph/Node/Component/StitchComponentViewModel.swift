@@ -78,7 +78,7 @@ extension StitchComponentViewModel {
     }
     
     @MainActor func createSchema() -> ComponentEntity {
-        let inputs = self.getAllInputsObservers()
+        let inputs = self.inputsObservers
             .map { $0.createSchema().portData }
         
         return .init(componentId: self.componentId,
@@ -145,17 +145,23 @@ extension StitchComponentViewModel: NodeCalculatable {
         fatalError()
     }
     
-    @MainActor func getAllInputsObservers() -> [InputNodeRowObserver] {
-        self.graph.visibleNodesViewModel.getSplitterInputRowObservers(for: nil)
+    @MainActor var inputsObservers: [InputNodeRowObserver] {
+        get {
+            self.graph.visibleNodesViewModel.getSplitterInputRowObservers(for: nil)
+        }
+        set { }
     }
     
-    @MainActor func getAllOutputsObservers() -> [OutputNodeRowObserver] {
-        self.graph.visibleNodesViewModel.getSplitterOutputRowObservers(for: nil)
+    @MainActor var outputsObservers: [OutputNodeRowObserver] {
+        get {
+            self.graph.visibleNodesViewModel.getSplitterOutputRowObservers(for: nil)
+        }
+        set { }
     }
     
     @MainActor func getInputRowObserver(for id: NodeIOPortType) -> InputNodeRowObserver? {
         guard let portId = id.portId,
-              let input = self.getAllInputsObservers()[safe: portId] else {
+              let input = self.inputsObservers[safe: portId] else {
             fatalErrorIfDebug()
             return nil
         }
@@ -164,6 +170,6 @@ extension StitchComponentViewModel: NodeCalculatable {
     }
     
     @MainActor var inputsValuesList: PortValuesList {
-        self.getAllInputsObservers().map { $0.allLoopedValues }
+        self.inputsObservers.map { $0.allLoopedValues }
     }
 }

@@ -33,7 +33,7 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
     
     var hasEdge: Bool { get }
     
-    @MainActor var containsUpstreamConnection: Bool { get }
+//    @MainActor var containsUpstreamConnection: Bool { get }
     
     init(values: PortValues,
          nodeKind: NodeKind,
@@ -183,9 +183,9 @@ extension InputNodeRowObserver {
         self.upstreamOutputObserver?.containsDownstreamConnection = true
     }
     
-    @MainActor var containsUpstreamConnection: Bool {
-        self.upstreamOutputObserver.isDefined
-    }
+//    @MainActor var containsUpstreamConnection: Bool {
+//        self.upstreamOutputObserver.isDefined
+//    }
     
     /// Values for import dropdowns don't hold media directly, so we need to find it.
     @MainActor var importedMediaObject: StitchMediaObject? {
@@ -528,4 +528,4 @@ extension NodeRowObserver {
     }
 }
 
-extension InputNodeRowObserver: NodeRowCalculatable { }
+//extension InputNodeRowObserver: InputNodeRowCalculatable { }

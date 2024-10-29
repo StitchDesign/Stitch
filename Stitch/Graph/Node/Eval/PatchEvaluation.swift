@@ -32,7 +32,6 @@ struct EvalResult: NodeEvalResult, Sendable {
     
     
     var outputsValues: PortValuesList
-    var effects = SideEffects()
     var runAgain = false
 
     // Determines if media objects changed in a manner which should trigger downstream nodes
