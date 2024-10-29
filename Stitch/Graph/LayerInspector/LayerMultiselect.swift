@@ -26,6 +26,12 @@ extension InputFieldViewModel {
     }
 }
 
+extension FieldGroupTypeViewModel {
+    var layerInput: LayerInputPort? {
+        self.id.rowId.portType.keyPath?.layerInput
+    }
+}
+
 /*
  Suppose:
  

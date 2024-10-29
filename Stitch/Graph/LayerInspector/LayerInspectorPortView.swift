@@ -139,15 +139,27 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
         canvasItemId.isDefined
     }
     
+    var isPaddingPortValueTypeRow: Bool {
+        layerInputObserver?.port == .layerMargin || layerInputObserver?.port == .layerPadding
+    }
+    
+    var hstackAlignment: VerticalAlignment {
+        return isPaddingPortValueTypeRow ? .firstTextBaseline : .center
+    }
+    
     var body: some View {
-        HStack {
+        HStack(alignment: hstackAlignment) {
             LayerInspectorRowButton(layerInputObserver: layerInputObserver,
                                     layerInspectorRowId: layerInspectorRowId,
                                     coordinate: coordinate,
                                     canvasItemId: canvasItemId,
                                     isPortSelected: propertyRowIsSelected,
                                     isHovered: isHovered)
-            
+            // TODO: `.firstTextBaseline` doesn't align symbols and text in quite the way we want;
+            // Really, we want the center of the symbol and the center of the input's label text to align
+            // Alternatively, we want the height of the row-buton to be the same as the height of the input-row's label, e.g. specify a height in `LabelDisplayView`
+            .offset(y: isPaddingPortValueTypeRow ? INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET : 0)
+                        
             rowView(propertyRowIsSelected)
         }
         .listRowBackground(Color.clear)
