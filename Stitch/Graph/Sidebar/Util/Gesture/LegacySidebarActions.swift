@@ -76,6 +76,9 @@ extension ProjectSidebarObservable {
         // The tracked dragged item may change if option + click
         var draggedItem = item
         
+        // Focus sidebar
+        graph.isSidebarFocused = true
+        
 //        if state.keypressState.isOptionPressed && state.sidebarSelectionState.haveDuplicated {
 //        if state.keypressState.isOptionPressed && state.sidebarSelectionState.optionDragInProgress {
         if state.selectionState.optionDragInProgress {
