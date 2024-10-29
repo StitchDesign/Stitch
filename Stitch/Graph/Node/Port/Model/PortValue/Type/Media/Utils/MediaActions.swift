@@ -314,8 +314,7 @@ extension GraphState {
             
             // portValuesList is the full outputs etc.;
             // set new outputs in node
-            node.updateOutputsObservers(newValuesList: portValuesList,
-                                        activeIndex: graph.activeIndex)
+            node.updateOutputsObservers(newValuesList: portValuesList)
             
             effects += portValuesList
                 .getPulseReversionEffects(nodeId: nodeId,

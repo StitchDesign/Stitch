@@ -717,8 +717,7 @@ extension GraphState {
             nodeIdsToRecalculate = nodeIdsToRecalculate.union(changedNodeIds)
         } // (portId, newOutputValue) in portValues.enumerated()
      
-        node.updateOutputsObservers(newOutputsValues: outputsToUpdate,
-                                    activeIndex: self.activeIndex)
+        node.updateOutputsObservers(newValuesList: outputsToUpdate)
         
         // Must also run pulse reversion effects
         node.outputs

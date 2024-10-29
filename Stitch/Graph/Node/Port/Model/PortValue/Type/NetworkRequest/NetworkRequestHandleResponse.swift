@@ -283,8 +283,7 @@ func handleSuccessfulNetworkRequest(index: Int,
         headersLoop
     ]
 
-    node.updateOutputsObservers(newValuesList: newValues,
-                                activeIndex: state.activeIndex)
+    node.updateOutputsObservers(newValuesList: newValues)
 }
 
 @MainActor
@@ -347,8 +346,7 @@ extension GraphState {
         ]
 
         // SEE NOTE IN `handleSuccessfulNetworkRequest` about `node.outputsObservers.updateAllValues` vs `node.outputs`
-        node.updateOutputsObservers(newOutputsValues: newValues,
-                                    activeIndex: self.activeIndex)
+        node.updateOutputsObservers(newValuesList: newValues)
 
         //        node.outputs = [
         //            loadingLoop,

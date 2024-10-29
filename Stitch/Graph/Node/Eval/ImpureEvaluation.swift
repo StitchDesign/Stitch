@@ -68,17 +68,18 @@ struct ImpureEvalResult {
     // Determines if media objects changed in a manner which should trigger downstream nodes
     var didMediaObjectChange = false
 
+    // TODO: remove
     func toEvalResult() -> EvalResult {
         let result = self
 
-        var effects = SideEffects()
-
-        result.effects.forEach { (effect: @escaping Effect) in
-            effects.append(effect)
-        }
+//        var effects = SideEffects()
+//
+//        result.effects.forEach { (effect: @escaping Effect) in
+//            effects.append(effect)
+//        }
 
         return EvalResult(outputsValues: result.outputsValues,
-                          effects: effects,
+//                          effects: effects,
                           runAgain: result.runAgain,
                           didMediaObjectChange: didMediaObjectChange)
     }
