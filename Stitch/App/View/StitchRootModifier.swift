@@ -22,6 +22,8 @@ struct StitchRootModifier: ViewModifier {
             .modifier(AlertsViewModifier(alertState: alertState))
             .onOpenURL { (url: URL) in
                 
+                log("StitchRootModifier: onOpenURL: url: \(url)")
+                
                 if url.isStitchCampsiteURL() {
                     Task { [weak store] in
                         guard let store = store else {
@@ -32,7 +34,7 @@ struct StitchRootModifier: ViewModifier {
                         do {
                             try await onCampsiteURLOpen(url, store: store)
                         } catch {
-                            log("CampiteURL error: \(error)")
+                            fatalErrorIfDebug("CampiteURL error: \(error)")
                         }
                     }
                     }
@@ -42,13 +44,20 @@ struct StitchRootModifier: ViewModifier {
                         guard let importedDoc = try? await StitchDocument
                             .openDocument(from: url,
                                           isImport: true) else {
+                            log("StitchRootModifier: onOpenURL: could not import \(url)")
                             return
                         }
-                        await store?.createNewProject(from: importedDoc)
+                        log("StitchRootModifier: onOpenURL: will try to create new project from \(url)")
+//                        await store?.createNewProject(from: importedDoc)
+                        store?.createNewProject(from: importedDoc)
                     }
                 }
             } // .onOpenURL
-            .dropDestination(for: StitchDocument.self) { docs, _ in
+            .dropDestination(for: StitchDocument.self) { docs, document in
+                
+                
+                log("StitchRootModifier: dropDestination")
+                
                 // Only open document if one is imported
                 if docs.count == 1,
                    let firstDoc = docs.first {

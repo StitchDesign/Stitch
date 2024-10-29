@@ -136,6 +136,8 @@ extension DocumentLoader {
     func createNewProject(from document: StitchDocument = .init(),
                           isPhoneDevice: Bool,
                           store: StitchStore) async throws {
+        log("createNewProject: document: \(document.name) \(document.id)")
+        
         let projectLoader = try self.installDocument(document: document)
         projectLoader.loadingDocument = .loaded(document, nil)
         

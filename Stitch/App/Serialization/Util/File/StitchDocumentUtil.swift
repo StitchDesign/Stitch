@@ -229,7 +229,7 @@ extension StitchDocumentMigratable {
                              isImport: Bool = false,
                              isNonICloudDocumentsFile: Bool = false) async throws -> Self? {
         
-        // log("openDocument importedUrl: \(importedUrl)")
+        log("openDocument importedUrl: \(importedUrl)")
                 
         let _ = importedUrl.startAccessingSecurityScopedResource()
         
@@ -265,16 +265,16 @@ extension StitchDocumentMigratable {
 
             // Move imported project contents to application sandbox
             try FileManager.default.moveItem(at: projectDataUrl, to: codableDoc.rootUrl)
-            // log("openDocument: successfully moved item")
+            log("openDocument: successfully moved item")
             
             // Encode document contents on import to save newest project data
             try Self.encodeDocument(codableDoc)
-            // log("openDocument: successfully encoded item")
+            log("openDocument: successfully encoded item")
         }
         
         graphDataUrl.stopAccessingSecurityScopedResource()
 
-//        log("openDocument: returning codable doc")
+        log("openDocument: returning codable doc")
         return codableDoc
     }
 }
