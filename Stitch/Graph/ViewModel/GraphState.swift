@@ -246,6 +246,15 @@ extension GraphState: GraphDelegate {
                                     documentEncoderDelegate: encoderDelegate)
         }
     }
+    
+    var isSidebarFocused: Bool {
+        get {
+            self.graphUI.isSidebarFocused
+        }
+        set(newValue) {
+            self.graphUI.isSidebarFocused = newValue
+        }
+    }
 }
 
 extension GraphState {

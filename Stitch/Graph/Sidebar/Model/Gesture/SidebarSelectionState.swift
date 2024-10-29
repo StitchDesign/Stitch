@@ -20,6 +20,7 @@ extension ProjectSidebarObservable {
     }
     
     func resetEditModeSelections() {
+        self.graphDelegate?.graphUI.isSidebarFocused = true
         self.primary = .init()
     }
 }

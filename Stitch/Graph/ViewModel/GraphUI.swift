@@ -123,6 +123,9 @@ final class GraphUIState {
     var lastMouseNodeMovement: TimeInterval?
 
     var activeDragInteraction = ActiveDragInteractionNodeVelocityData()
+    
+    // tracks if sidebar is focused
+    var isSidebarFocused: Bool = false
 
     // Explicit `init` is required to use `didSet` on a property
     init(activeSpacebarClickDrag: Bool = false,
@@ -289,6 +292,8 @@ extension GraphState {
         // Wipe any redux-controlled focus field
         // (For now, just used with TextField layers)
         self.graphUI.reduxFocusedField = nil
+        
+        self.graphUI.isSidebarFocused = false
     }
 }
 
@@ -415,6 +420,9 @@ extension CanvasItemViewModel {
         guard !self.isSelected else { return }
         
         self.isSelected = true
+        
+        // Unfocus sidebar
+        self.graphDelegate?.isSidebarFocused = false
     }
     
     @MainActor
