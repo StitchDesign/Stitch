@@ -79,7 +79,7 @@ extension LayerInputPort {
     @MainActor
     func multiselectObservers(_ graph: GraphDelegate) -> [LayerInputObserver] {
                 
-        let selectedLayers = graph.sidebarSelectionState.all
+        let selectedLayers = graph.sidebarSelectionState.primary
         
         let observers: [LayerInputObserver] = selectedLayers.compactMap {
             if let layerNode = graph.getNodeViewModel($0)?.layerNode {
