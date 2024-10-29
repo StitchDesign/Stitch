@@ -63,7 +63,7 @@ struct ImpureEvalResult {
 
     // this might also have to be a list, eg. for delay node?
     // or is there a single
-    var effects = SideEffects()
+//    var effects = SideEffects()
 
     // Determines if media objects changed in a manner which should trigger downstream nodes
     var didMediaObjectChange = false

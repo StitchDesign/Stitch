@@ -224,9 +224,10 @@ func networkRequestEval(node: PatchNode,
         newErrorOutputs,
         newHeaderOutputs
     ]
+    
+    newEffects.processEffects()
 
-    return ImpureEvalResult(outputsValues: allNewOutputs,
-                            effects: newEffects)
+    return ImpureEvalResult(outputsValues: allNewOutputs)
 }
 
 func getNetworkRequestOpSideEffect(nodeId: NodeId,
