@@ -101,16 +101,7 @@ struct SidebarListLabelEditView<ItemViewModel>: View where ItemViewModel: Sideba
     @Bindable var graph: GraphState
         
     @State var edit: String = ""
-    
-    var name: String {
-        let name = self.item.name
-#if DEV_DEBUG
-        return name + " \(self.item.id.debugFriendlyId)"
-#else
-        return name
-#endif
-    }
-    
+        
     @MainActor
     var isFocused: Bool {
         switch graph.graphUI.reduxFocusedField {
@@ -124,6 +115,14 @@ struct SidebarListLabelEditView<ItemViewModel>: View where ItemViewModel: Sideba
         }
     }
     
+    
+    var debugId: String {
+#if DEV_DEBUG
+        " \(self.item.id.debugFriendlyId)"
+#else
+        ""
+#endif
+    }
     
     var body: some View {
         
@@ -140,14 +139,14 @@ struct SidebarListLabelEditView<ItemViewModel>: View where ItemViewModel: Sideba
                 })
             } else {
                 // logInView("SidebarListLabelEditView: read only")
-                StitchTextView(string: edit,
+                StitchTextView(string: edit + debugId,
                                font: SIDEBAR_LIST_ITEM_FONT,
                                fontColor: fontColor)
                 .padding(.top, 1)
             }
         }
-        .onChange(of: self.name, initial: true) {
-            self.edit = name
+        .onChange(of: self.self.item.name, initial: true) {
+            self.edit = self.item.name
         }
         .onTapGesture(count: 2) {
             dispatch(ReduxFieldFocused(focusedField: .sidebarLayerTitle(self.item.id.description)))
