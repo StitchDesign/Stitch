@@ -228,12 +228,15 @@ extension Array where Element: NodeRowObserver {
     }
     
     @MainActor
-    func updateAllValues(_ newValuesList: PortValuesList,
-                         nodeId: NodeId,
-                         nodeKind: NodeKind,
-                         userVisibleType: UserVisibleType?,
-                         nodeDelegate: NodeDelegate,
-                         activeIndex: ActiveIndex) {
+    func updateAllValues(_ newValuesList: PortValuesList) {
+        guard let nodeDelegate = self.first?.nodeDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        let nodeKind = nodeDelegate.kind
+        let userVisibleType = nodeDelegate.userVisibleType
+        let nodeId = nodeDelegate.id
         
         let oldValues = self.values
         let oldLongestPortLength = oldValues.count

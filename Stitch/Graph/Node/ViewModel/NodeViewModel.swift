@@ -179,21 +179,22 @@ extension NodeViewModel: NodeCalculatable {
                                         id: self.id)
     }
     
-    @MainActor func outputsUpdated(evalResult: EvalResult) {
-        self.updateOutputsObservers(newOutputsValues: evalResult.outputsValues,
-                                    activeIndex: graphDelegate?.activeIndex ?? .init(.zero))
-        
-        // `state.flashes` is for pulses' UI-effects
-        var effects = evalResult.effects
-        
-        // Reverse any fired output pulses
-        effects += evalResult
-            .outputsValues
-            .getPulseReversionEffects(nodeId: self.id,
-                                      graphTime: graphDelegate?.graphStepState.graphTime ?? .zero)
-
-        effects.processEffects()
-    }
+//    // TODO: remove
+//    @MainActor func outputsUpdated(evalResult: EvalResult) {
+//        self.updateOutputsObservers(newOutputsValues: evalResult.outputsValues,
+//                                    activeIndex: graphDelegate?.activeIndex ?? .init(.zero))
+//        
+//        // `state.flashes` is for pulses' UI-effects
+//        var effects = evalResult.effects
+//        
+//        // Reverse any fired output pulses
+//        effects += evalResult
+//            .outputsValues
+//            .getPulseReversionEffects(nodeId: self.id,
+//                                      graphTime: graphDelegate?.graphStepState.graphTime ?? .zero)
+//
+//        effects.processEffects()
+//    }
     
     var isGroupNode: Bool {
         self.kind == .group
@@ -731,17 +732,16 @@ extension NodeViewModel {
         self.getAllOutputsObservers()[safe: portId]?.updateValues(values)
     }
 
-    @MainActor
-    func updateOutputsObservers(newOutputsValues: PortValuesList,
-                                activeIndex: ActiveIndex) {
-        self.getAllOutputsObservers()
-            .updateAllValues(newOutputsValues,
-                             nodeId: self.id,
-                             nodeKind: self.kind,
-                             userVisibleType: self.userVisibleType,
-                             nodeDelegate: self,
-                             activeIndex: activeIndex)
-    }
+//    // TODO: remove
+//    @MainActor
+//    func updateOutputsObservers(newOutputsValues: PortValuesList) {
+//        self.getAllOutputsObservers()
+//            .updateAllValues(newOutputsValues,
+//                             nodeId: self.id,
+//                             nodeKind: self.kind,
+//                             userVisibleType: self.userVisibleType,
+//                             nodeDelegate: self)
+//    }
     
     // don't worry about making the input a loop or not --
     // the extension will happen at eval-time

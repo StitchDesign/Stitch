@@ -146,15 +146,21 @@ extension StitchComponentViewModel: NodeCalculatable {
     }
     
     @MainActor func getAllInputsObservers() -> [InputNodeRowObserver] {
-        []
+        self.graph.visibleNodesViewModel.getSplitterInputRowObservers(for: nil)
     }
     
     @MainActor func getAllOutputsObservers() -> [OutputNodeRowObserver] {
-        []
+        self.graph.visibleNodesViewModel.getSplitterOutputRowObservers(for: nil)
     }
     
     @MainActor func getInputRowObserver(for id: NodeIOPortType) -> InputNodeRowObserver? {
-        fatalError()
+        guard let portId = id.portId,
+              let input = self.getAllInputsObservers()[safe: portId] else {
+            fatalErrorIfDebug()
+            return nil
+        }
+        
+        return input
     }
     
     @MainActor var inputsValuesList: PortValuesList {

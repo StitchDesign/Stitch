@@ -214,7 +214,7 @@ extension VisibleNodesViewModel {
 
     /// Obtains input row observers directly from splitter patch nodes given its parent group node.
     @MainActor
-    func getSplitterInputRowObservers(for groupNodeId: NodeId) -> [InputNodeRowObserver] {
+    func getSplitterInputRowObservers(for groupNodeId: NodeId?) -> [InputNodeRowObserver] {
         // find splitters inside this group node
         let allSplitterNodes: [PatchNodeViewModel] = self.nodes.values
             .compactMap { $0.patchNode }
@@ -253,7 +253,7 @@ extension VisibleNodesViewModel {
     
     /// Obtains output row observers directly from splitter patch nodes given its parent group node.
     @MainActor
-    func getSplitterOutputRowObservers(for groupNodeId: NodeId) -> [OutputNodeRowObserver] {
+    func getSplitterOutputRowObservers(for groupNodeId: NodeId?) -> [OutputNodeRowObserver] {
         // find splitters inside this group node
         let allSplitterNodes: [PatchNodeViewModel] = self.nodes.values
             .compactMap { $0.patchNode }
