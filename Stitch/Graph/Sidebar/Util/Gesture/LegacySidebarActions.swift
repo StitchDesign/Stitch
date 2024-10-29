@@ -15,6 +15,7 @@ extension ProjectSidebarObservable {
     @MainActor
     func sidebarListItemLongPressed(itemId: Self.ItemID) {
         self.currentItemDragged = itemId
+        self.graphDelegate?.isSidebarFocused = true
     }
 
     // Function to find the set item whose index in the list is the smallest
