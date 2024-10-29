@@ -45,7 +45,7 @@ extension EvalResult {
     }
 }
 
-enum EvaluationStyle {
-    case pure(PureEvals),
-         impure(ImpureEvals)
-}
+//enum EvaluationStyle {
+//    case pure(PureEvals),
+//         impure(ImpureEvals)
+//}

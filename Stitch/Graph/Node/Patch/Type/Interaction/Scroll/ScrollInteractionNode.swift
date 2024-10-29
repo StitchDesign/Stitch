@@ -141,8 +141,7 @@ struct ScrollInteractionNode: PatchNodeDefinition {
 
 @MainActor
 func scrollInteractionEval(node: NodeViewModel,
-                           graphState: GraphDelegate,
-                           graphStepState: GraphStepState) -> ImpureEvalResult {
+                           graphState: GraphDelegate) -> ImpureEvalResult {
     
     node.loopedEval(ScrollInteractionState.self,
                     graphState: graphState) { values, scrollState, interactiveLayer, _ in
@@ -160,7 +159,7 @@ func scrollInteractionEval(node: NodeViewModel,
             return totalScrollInteractionEvalOp(values: values,
                                                 scrollState: scrollState,
                                                 interactiveLayer: interactiveLayer,
-                                                graphTime: graphStepState.graphTime)
+                                                graphTime: graphState.graphStepState.graphTime)
         }
         // Normal drag--no rubberbanding yet
         else {

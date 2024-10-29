@@ -11,331 +11,331 @@ import StitchSchemaKit
 
 extension Patch {
     @MainActor
-    var evaluate: EvaluationStyle {
+    var evaluate: PureEvals {
         switch self {
         case
             // wireless nodes are just splitter nodes with covered up edges and invisible edges
             .wirelessReceiver, .wirelessBroadcaster:
-            return .pure(.node(outputsOnlyEval(identityEvaluation)))
+            return .node(outputsOnlyEval(identityEvaluation))
         case .splitter:
             // .impure(.impure because of pulse nodeType)
-            return .impure(.graphStep(splitterEval))
+            return .graphStep(splitterEval)
         case .imageImport:
-            return .pure(.node(imageImportEval))
+            return .node(imageImportEval)
         case .add:
-            return .pure(.node(arithmeticNodeTypeEval(addEval)))
+            return .node(arithmeticNodeTypeEval(addEval))
         case .convertPosition:
-            return .pure(.graph(outputsOnlyGraphStateEval(convertPositionEval)))
+            return .graph(outputsOnlyGraphStateEval(convertPositionEval))
         case .multiply:
-            return .pure(.node(mathNodeTypeEval(multiplyEval)))
+            return .node(mathNodeTypeEval(multiplyEval))
         case .divide:
-            return .pure(.node(mathNodeTypeEval(divideEval)))
+            return .node(mathNodeTypeEval(divideEval))
         // Scroll interaction is a little different because scroll does animation stuff
         case .pressInteraction:
             // DOES NOT USE graph step
-            return .impure(.graphAndGraphStep(pressInteractionEval))
+            return .graph(pressInteractionEval)
         case .dragInteraction:
             // DOES use GraphStep
-            return .impure(.graphAndGraphStep(dragInteractionEval))
+            return .graph(dragInteractionEval)
         case .cameraFeed:
-            return .impure(.graph(cameraFeedEval))
+            return .graph(cameraFeedEval)
         case .loop:
-            return .pure(.node(outputsOnlyEval(loopStartEval)))
+            return .node(outputsOnlyEval(loopStartEval))
         case .counter:
-            return .impure(.graphStep(counterEval))
+            return .graphStep(counterEval)
         case .repeatingPulse:
-            return .impure(.graph(repeatingPulseEval))
+            return .graph(repeatingPulseEval)
         //        case .soundKit:
         //            // technically has no outputs and is side-effect only...
-        //            return .impure(.computed(soundKitEval))
+        //            return .computed(soundKitEval)
         case .time:
-            return .pure(.graphStep(timeEvalWrapper))
+            return .graphStep(timeEvalWrapper)
         case .deviceTime:
-            return .pure(.node(deviceTimeEval))
+            return .node(deviceTimeEval)
         case .location:
-            return .impure(.graph(locationEval))
+            return .graph(locationEval)
         case .random:
-            return .impure(.graphStep(randomEval))
+            return .graphStep(randomEval)
         case .hslColor:
-            return .pure(.node(outputsOnlyEval(hslColorEval)))
+            return .node(outputsOnlyEval(hslColorEval))
         case .optionPicker:
-            return .pure(.node(outputsOnlyEval(optionPickerEval)))
+            return .node(outputsOnlyEval(optionPickerEval))
         case .pack:
-            return .pure(.node(outputsOnlyEval(packEval)))
+            return .node(outputsOnlyEval(packEval))
         case .unpack:
-            return .pure(.node(outputsOnlyEval(unpackEval)))
+            return .node(outputsOnlyEval(unpackEval))
         case .or:
-            return .pure(.node(outputsOnlyEval(orEval)))
+            return .node(outputsOnlyEval(orEval))
         case .and:
-            return .pure(.node(outputsOnlyEval(andEval)))
+            return .node(outputsOnlyEval(andEval))
         case .restartPrototype:
-            return .impure(.graphStep(restartPrototypeEval))
+            return .graphStep(restartPrototypeEval)
         case .flipSwitch:
-            return .impure(.graphStep(switchEval))
+            return .graphStep(switchEval)
         case .optionSwitch:
-            return .impure(.graphStep(optionSwitchEval))
+            return .graphStep(optionSwitchEval)
         case .pulseOnChange:
-            return .impure(.graphStep(pulseOnChangeEval))
+            return .graphStep(pulseOnChangeEval)
         case .pulse:
-            return .impure(.graphStep(pulseNodeEval))
+            return .graphStep(pulseNodeEval)
         case .springAnimation:
-            return .impure(.graphStep(springAnimationEval))
+            return .graphStep(springAnimationEval)
         case .popAnimation:
-            return .impure(.graphStep(popAnimationEval))
+            return .graphStep(popAnimationEval)
         case .bouncyConverter:
-            return .pure(.node(outputsOnlyEval(bouncyConverterEval)))
+            return .node(outputsOnlyEval(bouncyConverterEval))
         case .classicAnimation:
-            return .impure(.graphStep(classicAnimationEval))
+            return .graphStep(classicAnimationEval)
         case .curve:
-            return .pure(.node(outputsOnlyEval(curveEval)))
+            return .node(outputsOnlyEval(curveEval))
         case .cubicBezierAnimation:
-            return .impure(.graphStep(cubicBezierAnimationEval))
+            return .graphStep(cubicBezierAnimationEval)
         case .cubicBezierCurve:
-            return .pure(.node(outputsOnlyEval(cubicBezierCurveEval)))
+            return .node(outputsOnlyEval(cubicBezierCurveEval))
         case .repeatingAnimation:
-            return .impure(.graphStep(repeatingAnimationEval))
+            return .graphStep(repeatingAnimationEval)
         case .loopBuilder:
-            return .impure(.graphStep(loopBuilderEval))
+            return .graphStep(loopBuilderEval)
         case .loopInsert:
-            return .impure(.graphStep(loopInsertEval))
+            return .graphStep(loopInsertEval)
         case .delay:
-            return .pure(.node(delayEval))
+            return .node(delayEval)
         case .coreMLClassify:
-            return .pure(.node(coreMLClassifyEval))
+            return .node(coreMLClassifyEval)
         case .coreMLDetection:
-            return .pure(.node(coreMLDetectionEval))
+            return .node(coreMLDetectionEval)
         case .not:
-            return .pure(.node(outputsOnlyEval(notEval)))
+            return .node(outputsOnlyEval(notEval))
         case .transition:
-            return .pure(.node(outputsOnlyEval(transitionEval)))
+            return .node(outputsOnlyEval(transitionEval))
         case .scrollInteraction:
-            return .impure(.graphAndGraphStep(scrollInteractionEval))
+            return .graph(scrollInteractionEval)
         case .sampleAndHold:
-            return .impure(.graphStep(sampleAndHoldEval))
+            return .graphStep(sampleAndHoldEval)
         case .grayscale:
-            return .pure(.node(grayscaleEval))
+            return .node(grayscaleEval)
         case .loopSelect:
-            return .pure(.node(outputsOnlyEval(loopSelectEval)))
+            return .node(outputsOnlyEval(loopSelectEval))
         case .videoImport:
-            return .pure(.node(videoImportEval))
+            return .node(videoImportEval)
         case .sampleRange:
-            return .impure(.graphAndGraphStep(sampleRangeEval))
+            return .graph(sampleRangeEval)
         case .soundImport:
-            return .pure(.node(soundImportEval))
+            return .node(soundImportEval)
         case .speaker:
-            return .pure(.node(speakerEval))
+            return .node(speakerEval)
         case .microphone:
-            return .pure(.node(microphoneEval))
+            return .node(microphoneEval)
         case .networkRequest:
-            return .impure(.graphStep(networkRequestEval))
+            return .graphStep(networkRequestEval)
         case .valueForKey:
-            return .pure(.graphStep(valueForKeyEval))
+            return .graphStep(valueForKeyEval)
         case .valueAtIndex:
-            return .pure(.graphStep((valueAtIndexEval)))
+            return .graphStep((valueAtIndexEval))
         case .loopOverArray:
-            return .pure(.node(outputsOnlyEval(loopOverArrayEval)))
+            return .node(outputsOnlyEval(loopOverArrayEval))
         case .setValueForKey:
-            return .pure(.node(setValueForKeyEval))
+            return .node(setValueForKeyEval)
         case .jsonObject:
-            return .pure(.node(jsonObjectEval))
+            return .node(jsonObjectEval)
         case .jsonArray:
-            return .pure(.node(jsonArrayEval))
+            return .node(jsonArrayEval)
         case .arrayAppend:
-            return .pure(.node(arrayAppendEval))
+            return .node(arrayAppendEval)
         case .arrayCount:
-            return .pure(.node(outputsOnlyEval(arrayCountEval)))
+            return .node(outputsOnlyEval(arrayCountEval))
         case . arrayJoin:
-            return .pure(.node(outputsOnlyEval(arrayJoinEval)))
+            return .node(outputsOnlyEval(arrayJoinEval))
         case .arrayReverse:
-            return .pure(.node(outputsOnlyEval(arrayReverseEval)))
+            return .node(outputsOnlyEval(arrayReverseEval))
         case .arraySort:
-            return .pure(.node(outputsOnlyEval(arraySortEval)))
+            return .node(outputsOnlyEval(arraySortEval))
         case .getKeys:
-            return .pure(.node(outputsOnlyEval(getKeysEval)))
+            return .node(outputsOnlyEval(getKeysEval))
         case .indexOf:
-            return .pure(.node(outputsOnlyEval(indexOfEval)))
+            return .node(outputsOnlyEval(indexOfEval))
         case .subarray:
-            return .pure(.node(outputsOnlyEval(subarrayEval)))
+            return .node(outputsOnlyEval(subarrayEval))
         case . valueAtPath:
-            return .pure(.graphStep(valueAtPathEval))
+            return .graphStep(valueAtPathEval)
         case .deviceMotion:
-            return .pure(.graph(deviceMotionEval))
+            return .graph(deviceMotionEval)
         case .deviceInfo:
-            return .pure(.graph(deviceInfoEval))
+            return .graph(deviceInfoEval)
         case .velocity:
-            return .pure(.node(velocityEval))
+            return .node(velocityEval)
         case .smoothValue:
-            return .impure(.graphStep(smoothValueEval))
+            return .graphStep(smoothValueEval)
         case .clip:
-            return .pure(.node(outputsOnlyEval(clipEval)))
+            return .node(outputsOnlyEval(clipEval))
         case .max:
-            return .pure(.node(outputsOnlyEval(maxEval)))
+            return .node(outputsOnlyEval(maxEval))
         case .mod:
-            return .pure(.node(outputsOnlyEval(modEval)))
+            return .node(outputsOnlyEval(modEval))
         case .round:
-            return .pure(.node(outputsOnlyEval(roundEval)))
+            return .node(outputsOnlyEval(roundEval))
         case .absoluteValue:
-            return .pure(.node(outputsOnlyEval(absoluteValueEval)))
+            return .node(outputsOnlyEval(absoluteValueEval))
         case .progress:
-            return .pure(.node(outputsOnlyEval(progressEval)))
+            return .node(outputsOnlyEval(progressEval))
         case .reverseProgress:
-            return .pure(.node(outputsOnlyEval(reverseProgressEval)))
+            return .node(outputsOnlyEval(reverseProgressEval))
         case .rgba:
-            return .pure(.node(outputsOnlyEval(rgbaEval)))
+            return .node(outputsOnlyEval(rgbaEval))
         case .arcTan2:
-            return .pure(.node(outputsOnlyEval(arcTan2Eval)))
+            return .node(outputsOnlyEval(arcTan2Eval))
         case .sine:
-            return .pure(.node(outputsOnlyEval(sineEval)))
+            return .node(outputsOnlyEval(sineEval))
         case .cosine:
-            return .pure(.node(outputsOnlyEval(cosineEval)))
+            return .node(outputsOnlyEval(cosineEval))
         case .hapticFeedback:
-            return .impure(.graphStep(hapticFeedbackEval))
+            return .graphStep(hapticFeedbackEval)
         case .imageToBase64String:
-            return .pure(.node(imageToBase64StringEval))
+            return .node(imageToBase64StringEval)
         case .base64StringToImage:
-            return .pure(.node(base64StringToImageEval))
+            return .node(base64StringToImageEval)
         case .whenPrototypeStarts:
-            return  .impure(.graphStep(whenPrototypeStartsEval))
+            return .graphStep(whenPrototypeStartsEval)
         case .soulver:
-            return .pure(.node(outputsOnlyEval(soulverEval)))
+            return .node(outputsOnlyEval(soulverEval))
         case .optionEquals:
-            return .pure(.node(outputsOnlyEval(optionEqualsEval)))
+            return .node(outputsOnlyEval(optionEqualsEval))
         case .subtract:
-            return .pure(.node(mathNodeTypeEval(subtractEval)))
+            return .node(mathNodeTypeEval(subtractEval))
         case .squareRoot:
-            return .pure(.node(mathNodeTypeEval(squareRootEval)))
+            return .node(mathNodeTypeEval(squareRootEval))
         case .length:
-            return .pure(.node(arithmeticNodeTypeEval(lengthEval)))
+            return .node(arithmeticNodeTypeEval(lengthEval))
         case .min:
-            return .pure(.node(outputsOnlyEval(minEval)))
+            return .node(outputsOnlyEval(minEval))
         case .power:
-            return .pure(.node(mathNodeTypeEval(powerEval)))
+            return .node(mathNodeTypeEval(powerEval))
         case .equals:
-            return .pure(.node(outputsOnlyEval(equalsEval)))
+            return .node(outputsOnlyEval(equalsEval))
         case .equalsExactly:
-            return .pure(.node(pureNodeEval(equalsExactlyEval)))
+            return .node(pureNodeEval(equalsExactlyEval))
         case .greaterThan:
-            return .pure(.node(pureNodeEval(greaterThanEval)))
+            return .node(pureNodeEval(greaterThanEval))
         case .greaterOrEqual:
-            return.pure(.node(pureNodeEval(greaterOrEqualEval)))
+            return .node(pureNodeEval(greaterOrEqualEval))
         case .lessThan:
-            return .pure(.node(pureNodeEval(lessThanEval)))
+            return .node(pureNodeEval(lessThanEval))
         case .lessThanOrEqual:
-            return .pure(.node(pureNodeEval(lessThanOrEqualEval)))
+            return .node(pureNodeEval(lessThanOrEqualEval))
         case .colorToHSL:
-            return .pure(.node(outputsOnlyEval(colorToHSLEval)))
+            return .node(outputsOnlyEval(colorToHSLEval))
         case .colorToHex:
-            return .pure(.node(outputsOnlyEval(colorToHexEval)))
+            return .node(outputsOnlyEval(colorToHexEval))
         case .colorToRGB:
-            return .pure(.node(outputsOnlyEval(colorToRGBAEval)))
+            return .node(outputsOnlyEval(colorToRGBAEval))
         case .hexColor:
-            return .pure(.node(outputsOnlyEval(hexEval)))
+            return .node(outputsOnlyEval(hexEval))
         case .splitText:
-            return .pure(.node(outputsOnlyEval(splitTextEval)))
+            return .node(outputsOnlyEval(splitTextEval))
         case .textEndsWith:
-            return .pure(.node(outputsOnlyEval(textEndsWithEval)))
+            return .node(outputsOnlyEval(textEndsWithEval))
         case .textLength:
-            return .pure(.node(outputsOnlyEval(textLengthEval)))
+            return .node(outputsOnlyEval(textLengthEval))
         case .textReplace:
-            return .pure(.node(outputsOnlyEval(textReplaceEval)))
+            return .node(outputsOnlyEval(textReplaceEval))
         case .textStartsWith:
-            return .pure(.node(outputsOnlyEval(textStartsWithEval)))
+            return .node(outputsOnlyEval(textStartsWithEval))
         case .trimText:
-            return .pure(.node(outputsOnlyEval(trimTextEval)))
+            return .node(outputsOnlyEval(trimTextEval))
         case .textTransform:
-            return .pure(.node(outputsOnlyEval(textTransformEval)))
+            return .node(outputsOnlyEval(textTransformEval))
         case .dateAndTimeFormatter:
-            return .pure(.node(outputsOnlyEval(dateAndTimeFormatterEval)))
+            return .node(outputsOnlyEval(dateAndTimeFormatterEval))
         case .stopwatch:
-            return .pure(.graphStep(stopwatchEval))
+            return .graphStep(stopwatchEval)
         case .optionSender:
-            return .pure(.node(outputsOnlyEval(optionSenderEval)))
+            return .node(outputsOnlyEval(optionSenderEval))
         case .any:
-            return .pure(.node(outputsOnlyEval(anyEval)))
+            return .node(outputsOnlyEval(anyEval))
         case .loopCount:
-            return .pure(.node(outputsOnlyEval(loopCountEval)))
+            return .node(outputsOnlyEval(loopCountEval))
         case .loopDedupe:
-            return .pure(.node(outputsOnlyEval(loopDedupeEval)))
+            return .node(outputsOnlyEval(loopDedupeEval))
         case .loopOptionSwitch:
-            return .impure(.graphStep(loopOptionSwitchEval))
+            return .graphStep(loopOptionSwitchEval)
         case .loopRemove:
-            return .pure(.graphStep(loopRemoveEval))
+            return .graphStep(loopRemoveEval)
         case .loopReverse:
-            return .pure(.node(outputsOnlyEval(loopReverseEval)))
+            return .node(outputsOnlyEval(loopReverseEval))
         case .loopShuffle:
-            return .pure(.graphStep(loopShuffleEval))
+            return .graphStep(loopShuffleEval)
         case .loopSum:
-            return .pure(.node(outputsOnlyEval(loopSumEval)))
+            return .node(outputsOnlyEval(loopSumEval))
         case .loopToArray:
-            return .pure(.node(loopToArrayEval))
+            return .node(loopToArrayEval)
         case .runningTotal:
-            return .pure(.node(outputsOnlyEval(runningTotalEval)))
+            return .node(outputsOnlyEval(runningTotalEval))
         case .loopFilter:
-            return .pure(.node(outputsOnlyEval(loopFilterEval)))
+            return .node(outputsOnlyEval(loopFilterEval))
         case .layerInfo:
-            return .pure(.graph(layerInfoEval))
+            return .graph(layerInfoEval)
         case .triangleShape:
-            return .pure(.node(outputsOnlyEval(triangleShapeEval)))
+            return .node(outputsOnlyEval(triangleShapeEval))
         case .ovalShape:
-            return .pure(.node(outputsOnlyEval(ovalShapeEval)))
+            return .node(outputsOnlyEval(ovalShapeEval))
         case .circleShape:
-            return .pure(.node(outputsOnlyEval(circleShapeEval)))
+            return .node(outputsOnlyEval(circleShapeEval))
         case .roundedRectangleShape:
-            return .pure(.node(outputsOnlyEval(roundedRectangleShapeEval)))
+            return .node(outputsOnlyEval(roundedRectangleShapeEval))
         case .union:
-            return .pure(.node(outputsOnlyEval(unionEval)))
+            return .node(outputsOnlyEval(unionEval))
         case .model3DImport:
-            return .pure(.node(model3DImportEval))
+            return .node(model3DImportEval)
         case .arRaycasting:
-            return .pure(.node(arRayCastingEval))
+            return .node(arRayCastingEval)
         case .keyboard:
-            return .pure(.graph(keyboardEval))
+            return .graph(keyboardEval)
         case .jsonToShape:
-            return .pure(.node(outputsOnlyEval(jsonToShapeEval)))
+            return .node(outputsOnlyEval(jsonToShapeEval))
         case .arAnchor:
-            return .pure(.node(arAnchorEval))
+            return .node(arAnchorEval)
         case .shapeToCommands:
-            return .pure(.node(outputsOnlyEval(shapeToCommandsEval)))
+            return .node(outputsOnlyEval(shapeToCommandsEval))
         case .commandsToShape:
-            return .pure(.node(outputsOnlyEval(commandsToShapeEval)))
+            return .node(outputsOnlyEval(commandsToShapeEval))
         case .mouse:
-            return .pure(.node(outputsOnlyEval(mouseEval)))
+            return .node(outputsOnlyEval(mouseEval))
         case .sizePack:
-            return .pure(.node(outputsOnlyEval(sizePackEval)))
+            return .node(outputsOnlyEval(sizePackEval))
         case .sizeUnpack:
-            return .pure(.node(outputsOnlyEval(sizeUnpackEval)))
+            return .node(outputsOnlyEval(sizeUnpackEval))
         case .positionPack:
-            return .pure(.node(outputsOnlyEval(positionPackEval)))
+            return .node(outputsOnlyEval(positionPackEval))
         case .positionUnpack:
-            return .pure(.node(outputsOnlyEval(positionUnpackEval)))
+            return .node(outputsOnlyEval(positionUnpackEval))
         case .point3DPack:
-            return .pure(.node(outputsOnlyEval(point3DPackEval)))
+            return .node(outputsOnlyEval(point3DPackEval))
         case .point3DUnpack:
-            return .pure(.node(outputsOnlyEval(point3DUnpackEval)))
+            return .node(outputsOnlyEval(point3DUnpackEval))
         case .point4DPack:
-            return .pure(.node(outputsOnlyEval(point4DPackEval)))
+            return .node(outputsOnlyEval(point4DPackEval))
         case .point4DUnpack:
-            return .pure(.node(outputsOnlyEval(point4DUnpackEval)))
+            return .node(outputsOnlyEval(point4DUnpackEval))
         case .transformPack:
-            return .pure(.node(outputsOnlyEval(transformPackEval)))
+            return .node(outputsOnlyEval(transformPackEval))
         case .transformUnpack:
-            return .pure(.node(outputsOnlyEval(transformUnpackEval)))
+            return .node(outputsOnlyEval(transformUnpackEval))
         case .closePath:
-            return .pure(.node(outputsOnlyEval(identityEvaluation)))
+            return .node(outputsOnlyEval(identityEvaluation))
         case .moveToPack:
-            return .pure(.node(outputsOnlyEval(moveToPackEval)))
+            return .node(outputsOnlyEval(moveToPackEval))
         case .lineToPack:
-            return .pure(.node(outputsOnlyEval(lineToPackEval)))
+            return .node(outputsOnlyEval(lineToPackEval))
         case .curveToPack:
-            return .pure(.node(outputsOnlyEval(curveToPackEval)))
+            return .node(outputsOnlyEval(curveToPackEval))
         case .curveToUnpack:
-            return .pure(.node(outputsOnlyEval(curveToUnpackEval)))
+            return .node(outputsOnlyEval(curveToUnpackEval))
         case .mathExpression:
-            return .pure(.node(mathExpressionEval))
+            return .node(mathExpressionEval)
         case .qrCodeDetection:
-            return .pure(.node(qrCodeDetectionEval))
+            return .node(qrCodeDetectionEval)
         case .delayOne:
-            return .pure(.node(DelayOneNode.eval))
+            return .node(DelayOneNode.eval)
         }
     }
 }
