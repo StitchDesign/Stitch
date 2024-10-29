@@ -32,20 +32,31 @@ struct CanvasItemTitleView: View {
     var name: String {
         node.displayTitle
     }
-        
+    
+    @State private var showMenu = false
+            
     var body: some View {
 //        logInView("NodeTitleView body \(id)")
         
-        // A Wireless Receiver node's title is not directly editable by a
+        // A Wireless Receiver node's title is not directly editable
         if node.patch == .wirelessReceiver {
             // logInView("NodeTitleView body isWirelessReceiver \(id)")
             let _title = node.currentBroadcastChoiceId.flatMap { graph.getNodeViewModel($0)?.displayTitle } ?? name
+                        
+            Menu {
+                let choice = node.currentBroadcastChoice
+                NodeWirelessBroadcastSubmenuView(graph: graph,
+                                                 currentBroadcastChoice: choice ?? nilBroadcastChoice,
+//                                                 assignedBroadcaster: choice,
+                                                 nodeId: nodeId,
+                                                 forNodeTitle: true)
+            } label: {
+                StitchTextView(string: _title)
+            }
+            .buttonStyle(.plain)
+            .foregroundColor(STITCH_TITLE_FONT_COLOR)
+            .menuIndicator(.hidden)
             
-            #if DEV_DEBUG
-            StitchTextView(string: _title + " " + nodeId.debugFriendlyId)
-            #else
-            StitchTextView(string: _title)
-            #endif
         } else {
             editableTitle
                 .font(STITCH_FONT)

@@ -167,10 +167,13 @@ struct NodeTagMenuButtonsView: View {
                                  loopIndices)
             }
 
-            if isWirelessReceiver {
-                NodeWirelessBroadcastSubmenuView(graph: graph,
-                                                 nodeId: node.id)
-            }
+//            if isWirelessReceiver {
+//                let choice = node.currentBroadcastChoice
+//                NodeWirelessBroadcastSubmenuView(graph: graph,
+//                                                 currentBroadcastChoice: choice ?? nilBroadcastChoice,
+//                                                 assignedBroadcaster: choice,
+//                                                 nodeId: node.id)
+//            }
             
             jumpToAssignedBroadcasterButton
             
