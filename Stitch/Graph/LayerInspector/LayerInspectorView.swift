@@ -45,7 +45,12 @@ struct LayerInspectorView: View {
 //    static let LAYER_INSPECTOR_WIDTH = 360.0
 //    static let LAYER_INSPECTOR_WIDTH = 277.0 // Figma
 //    static let LAYER_INSPECTOR_WIDTH = 300.0
+#if targetEnvironment(macCatalyst)
     static let LAYER_INSPECTOR_WIDTH = 324.0
+#else
+//    static let LAYER_INSPECTOR_WIDTH = 300.0
+    static let LAYER_INSPECTOR_WIDTH = 280.0
+#endif
     
     @Bindable var graph: GraphState
 
@@ -110,13 +115,18 @@ struct LayerInspectorView: View {
                     }
                 } // ForEach
                 .padding(.horizontal)
+                #if targetEnvironment(macCatalyst)
                 .padding(.trailing, LAYER_INSPECTOR_ROW_SPACING + LAYER_INSPECTOR_ROW_ICON_LENGTH)
+                #endif
                 
                 LayerInspectorOutputsSectionView(
                     outputs: layerOutputs,
                     graph: graph)
                 .padding(.horizontal)
+                #if targetEnvironment(macCatalyst)
                 .padding(.trailing, LAYER_INSPECTOR_ROW_SPACING + LAYER_INSPECTOR_ROW_ICON_LENGTH)
+                #endif
+                
             } // List
             .listSectionSpacing(.compact) // reduce spacing between sections
             .scrollContentBackground(.hidden)
