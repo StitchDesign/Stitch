@@ -20,8 +20,8 @@ struct ProjectsHomeCommands: Commands {
         store.currentDocument.isDefined
     }
         
-    var layersActivelySelected: Bool {
-        self.graph?.hasActivelySelectedLayers ?? false
+    var isSidebarFocused: Bool {
+        self.graph?.graphUI.isSidebarFocused ?? false
     }
     
     var graph: GraphState? {
@@ -287,7 +287,7 @@ struct ProjectsHomeCommands: Commands {
                 SwiftUIShortcutView(title: "Group Layers",
                                     key: GROUP_LAYERS_SHORTCUT,
                                     // Disabled if no layers are actively selected
-                                    disabled: !layersActivelySelected || !groupButtonEnabled) {
+                                    disabled: !isSidebarFocused || !groupButtonEnabled) {
                     // deletes both selected nodes and selected comments
                     self.graph?.layersSidebarViewModel.sidebarGroupCreated()
                 }
@@ -296,8 +296,8 @@ struct ProjectsHomeCommands: Commands {
                                     key: DELETE_SELECTED_NODES_SHORTCUT,
                                     eventModifiers: [.command],
                                     // Disabled if no layers are actively selected
-                                    disabled: !layersActivelySelected || !ungroupButtonEnabled) {
-//                                    disabled: !layersActivelySelected) {
+                                    disabled: !isSidebarFocused || !ungroupButtonEnabled) {
+//                                    disabled: !isSidebarFocused) {
                     // deletes both selected nodes and selected comments
                     self.graph?.layersSidebarViewModel.sidebarGroupUncreated()
                 }
