@@ -8,48 +8,6 @@
 import Foundation
 import StitchSchemaKit
 
-// produces new outputs,
-// but may also update inputs, create a side effect, cause node to run again, etc.
-
-//typealias ImpureNodeEval = (PatchNode) -> ImpureEvalResult
-//
-//// SAME PATTERN: (PatchNode, T) -> ImpureEvalResult
-//typealias ImpureGraphEval = (PatchNode, GraphDelegate) -> ImpureEvalResult
-//typealias ImpureGraphStepEval = (PatchNode, GraphStepState) -> ImpureEvalResult
-//
-//// (PatchNode, T, K, J) -> ImpureEvalResult
-//typealias ImpureGraphStateAndGraphStep = (PatchNode, GraphDelegate, GraphStepState) -> ImpureEvalResult
-//
-//enum ImpureEvals {
-//    case node(ImpureNodeEval)
-//    case graph(ImpureGraphEval)
-//    case graphStep(ImpureGraphStepEval)
-//    case graphAndGraphStep(ImpureGraphStateAndGraphStep)
-//
-//    @MainActor
-//    func runEvaluation(node: PatchNode) -> ImpureEvalResult {
-//        guard let graphState = node.graphDelegate else {
-//            fatalErrorIfDebug()
-//            return .init(outputsValues: node.defaultOutputsList)
-//        }
-//        
-//        let graphStepState = graphState.graphStepState
-//        
-//        switch self {
-//        case .node(let impureNodeEval):
-//            return impureNodeEval(node)
-//        case .graph(let impureGraphEval):
-//            return impureGraphEval(node, graphState)
-//        case .graphStep(let impureGraphStepEval):
-//            return impureGraphStepEval(node, graphStepState)
-//        case .graphAndGraphStep(let impureMediaAndGraphAndStepAndComputed):
-//            return impureMediaAndGraphAndStepAndComputed(node,
-//                                                         graphState,
-//                                                         graphStepState)
-//        }
-//    }
-//}
-
 // TODO: tech debt to remove ImpureEvalResult
 typealias ImpureEvalResult = EvalResult
 

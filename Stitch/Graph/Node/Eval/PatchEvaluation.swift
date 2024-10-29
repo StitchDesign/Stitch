@@ -44,8 +44,3 @@ extension EvalResult {
         self.outputsValues = []
     }
 }
-
-//enum EvaluationStyle {
-//    case pure(PureEvals),
-//         impure(ImpureEvals)
-//}

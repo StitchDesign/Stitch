@@ -262,17 +262,6 @@ extension PatchNodeViewModel {
                                                  unpackedPortParentFieldGroupType: nil,
                                                  unpackedPortIndex: nil)
     }
-    
-    // TODO: can we remove
-    @MainActor
-    func portCountShortened(to length: Int, nodeIO: NodeIO) {
-        switch nodeIO {
-        case .input:
-            self.inputsObservers = Array(self.inputsObservers[0..<length])
-        case .output:
-            self.outputsObservers = Array(self.outputsObservers[0..<length])
-        }
-    }
 }
 
 extension NodeViewModel {

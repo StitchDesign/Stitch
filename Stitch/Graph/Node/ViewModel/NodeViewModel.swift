@@ -198,23 +198,6 @@ extension NodeViewModel: NodeCalculatable {
                                         id: self.id)
     }
     
-//    // TODO: remove
-//    @MainActor func outputsUpdated(evalResult: EvalResult) {
-//        self.updateOutputsObservers(newOutputsValues: evalResult.outputsValues,
-//                                    activeIndex: graphDelegate?.activeIndex ?? .init(.zero))
-//        
-//        // `state.flashes` is for pulses' UI-effects
-//        var effects = evalResult.effects
-//        
-//        // Reverse any fired output pulses
-//        effects += evalResult
-//            .outputsValues
-//            .getPulseReversionEffects(nodeId: self.id,
-//                                      graphTime: graphDelegate?.graphStepState.graphTime ?? .zero)
-//
-//        effects.processEffects()
-//    }
-    
     var isGroupNode: Bool {
         self.kind == .group
     }
@@ -563,12 +546,7 @@ extension NodeViewModel {
     }
 }
 
-extension NodeViewModel: NodeDelegate {    
-    func portCountShortened(to length: Int, nodeIO: NodeIO) {
-        self.patchNodeViewModel?.portCountShortened(to: length,
-                                                    nodeIO: nodeIO)
-    }
-    
+extension NodeViewModel: NodeDelegate {
     var inputsRowCount: Int {
         self.getAllParentInputsObservers().count
     }
@@ -749,17 +727,6 @@ extension NodeViewModel {
 
         self.getAllOutputsObservers()[safe: portId]?.updateValues(values)
     }
-
-//    // TODO: remove
-//    @MainActor
-//    func updateOutputsObservers(newOutputsValues: PortValuesList) {
-//        self.getAllOutputsObservers()
-//            .updateAllValues(newOutputsValues,
-//                             nodeId: self.id,
-//                             nodeKind: self.kind,
-//                             userVisibleType: self.userVisibleType,
-//                             nodeDelegate: self)
-//    }
     
     // don't worry about making the input a loop or not --
     // the extension will happen at eval-time
