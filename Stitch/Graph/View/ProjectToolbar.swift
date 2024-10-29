@@ -34,10 +34,10 @@ struct ProjectToolbarViewModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .onChange(of: graphUI.isFullScreenMode) { _, newValue in
-                isFullScreen = newValue
-            }
-            .toolbarRole(.editor) // no "Back" text on back button
+//            .onChange(of: graphUI.isFullScreenMode) { _, newValue in
+//                isFullScreen = newValue
+//            }
+//            .toolbarRole(.editor) // no "Back" text on back button
 
             #if !targetEnvironment(macCatalyst)
             .navigationTitle(self.$graph.name)
@@ -96,8 +96,10 @@ struct ProjectToolbarViewModifier: ViewModifier {
 
                 #else
                 // on Mac, show project title name
-                ToolbarItem(placement: .navigationBarLeading) {
-                    CatalystNavBarTitleEditField(graph: graph)
+//                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem {
+//                    CatalystNavBarTitleEditField(graph: graph)
+                    CatalystNavBarTitleEditField()
                 }
 
                 // Catalyst and iPad have same button layout,
@@ -114,20 +116,20 @@ struct ProjectToolbarViewModifier: ViewModifier {
                  Note: .navigationBarTrailing on Catalyst is apparently broken, always placed items on left-side ?
                  */
 
-                // Hack view to get proper placement
-                ToolbarItem(placement: .secondaryAction) {
-                    Text("")
-                }
+//                // Hack view to get proper placement
+//                ToolbarItem(placement: .secondaryAction) {
+//                    Text("")
+//                }
 
-                ToolbarItemGroup(placement: .primaryAction) {
-                    CatalystTopBarGraphButtons(
-                        document: document,
-                        hasActiveGroupFocused: graphUI.groupNodeFocused.isDefined,
-                        isFullscreen: graphUI.isFullScreenMode,
-                        isPreviewWindowShown: graphUI.showPreviewWindow,
-                        llmRecordingModeEnabled: self.llmRecordingMode,
-                        llmRecordingModeActive: document.llmRecording.isRecording)
-                }
+//                ToolbarItemGroup(placement: .primaryAction) {
+//                    CatalystTopBarGraphButtons(
+//                        document: document,
+//                        hasActiveGroupFocused: graphUI.groupNodeFocused.isDefined,
+//                        isFullscreen: graphUI.isFullScreenMode,
+//                        isPreviewWindowShown: graphUI.showPreviewWindow,
+//                        llmRecordingModeEnabled: self.llmRecordingMode,
+//                        llmRecordingModeActive: document.llmRecording.isRecording)
+//                }
                 #endif
 
             }

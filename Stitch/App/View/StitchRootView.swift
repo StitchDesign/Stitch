@@ -102,19 +102,19 @@ struct StitchRootView: View {
     // TODO: why doesn't `mySwiftUIScene.windowStyle(.hidden)` compile even when behind `#if targetEnvironment(macCatalyst)` flag ?
     @MainActor
     func hideTitleAndSetMinimumWindowSize() {
-#if targetEnvironment(macCatalyst)
-        if let windowScene = (UIApplication.shared.connectedScenes.first as? UIWindowScene) {
-            windowScene.titlebar?.titleVisibility = .hidden
-            windowScene.titlebar?.toolbarStyle = .unified
-            windowScene.sizeRestrictions?.minimumSize = .init(
-                width: .STITCH_APP_WINDOW_MINIMUM_WIDTH,
-                height: .STITCH_APP_WINDOW_MINIMUM_HEIGHT)
-        } else {
-#if DEBUG
-            fatalError("StitchRootView: unable to retrieve UIWindowScene")
-#endif
-        }
-#endif
+//#if targetEnvironment(macCatalyst)
+//        if let windowScene = (UIApplication.shared.connectedScenes.first as? UIWindowScene) {
+//            windowScene.titlebar?.titleVisibility = .hidden
+//            windowScene.titlebar?.toolbarStyle = .unified
+//            windowScene.sizeRestrictions?.minimumSize = .init(
+//                width: .STITCH_APP_WINDOW_MINIMUM_WIDTH,
+//                height: .STITCH_APP_WINDOW_MINIMUM_HEIGHT)
+//        } else {
+//#if DEBUG
+//            fatalError("StitchRootView: unable to retrieve UIWindowScene")
+//#endif
+//        }
+//#endif
     }
     
     var iPhoneBody: some View {
