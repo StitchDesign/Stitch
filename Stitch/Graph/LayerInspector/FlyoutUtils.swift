@@ -12,7 +12,7 @@ import SwiftUI
 
 extension LayerInputPort {
     
-    // Note: msot cases are just "is this multifield?", with exception of shadow inputs)
+    // Note: most cases are just "is this multifield?", with exception of shadow inputs)
     var usesFlyout: Bool {
         switch self {
             
@@ -29,49 +29,8 @@ extension LayerInputPort {
             
             return false
         }
-
-        
-//        if self.usesPaddingFlyout {
-//            return true
-//        }
-//        
-//        if self.usesTwoFieldFlyout {
-//            return true
-//        }
-//        
-//        switch self {
-//        case .padding, .layerMargin, .layerPadding,
-//                .shadowColor, .shadowOffset, .shadowRadius, .shadowOpacity:
-//            return true
-//        default:
-//            return false
-//        }
-        
-        
     }
-        
-//    // TODO: COMPARE INPUT'S VALUES, NOT INPUT TYPE
-//    var usesTwoFieldFlyout: Bool {
-//        switch self {
-//        case .size, .position, .offsetInGroup, .maxSize, .minSize:
-//            return true
-//        default:
-//            return false
-//        }
-//    }
-    
-//    // TODO: better?: compare against the actual value in the input, rather than on the input's keyword
-//    // But in some contexts we don't have access to the input?
-    // TODO: handle padding same as
-//    var usesPaddingFlyout: Bool {
-//        switch self {
-//        case .padding, .layerPadding, .layerMargin:
-//            return true
-//        default:
-//            return false
-//        }
-//    }
-        
+                
     func usesTextFields(_ layer: Layer) -> Bool {
         self.getDefaultValue(for: layer)
             .getNodeRowType(nodeIO: .input)
