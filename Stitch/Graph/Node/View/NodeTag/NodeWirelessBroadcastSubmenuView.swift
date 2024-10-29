@@ -18,23 +18,27 @@ let nilBroadcastChoice = BroadcastChoice(
     title: "None",
     id: .fakeNodeId)
 
-// TODO: why does moving the node (or something else?) reset the Picker's selection to None even when there's still an assigned broadcaster? Keeping around the commented out code to help debug that in the future
 struct NodeWirelessBroadcastSubmenuView: View {
 
     @Bindable var graph: GraphState
     
-    @State var currentBroadcastChoice: BroadcastChoice = nilBroadcastChoice
-    
+    @State var currentBroadcastChoice: BroadcastChoice
+        
     let nodeId: NodeId // wireless receiver node id
-    // let currentAssignedBroadcaster: NodeId?
     
-    //    var currentAssignedBroadcasterTitle: String {
-    //        if let currentAssignedBroadcaster = currentAssignedBroadcaster {
-    //            return choices.first { $0.id == currentAssignedBroadcaster }?.title ?? "No"
-    //
-    //        }
-    //        return nilBroadcastChoice.title
-    //    }
+    var forNodeTitle: Bool = false
+
+    // TODO: Picker's selection state (the checkmark) is incorrect; and .onChange for a manually passed in input value completely breaks Picker's selection state; and this explicit `init` does not help either
+    init(graph: GraphState,
+         currentBroadcastChoice: BroadcastChoice,
+         nodeId: NodeId,
+         forNodeTitle: Bool = false) {
+        self.graph = graph
+        self.currentBroadcastChoice = currentBroadcastChoice
+        self.nodeId = nodeId
+        self.forNodeTitle = forNodeTitle
+    }
+    
     
     // nilChoice id is created afresh everytime
     @MainActor
@@ -66,7 +70,9 @@ struct NodeWirelessBroadcastSubmenuView: View {
                 }
             }
         }
-        .pickerStyle(.menu)
+        .pickerStyle(.inline)
+//        .modifier(PickerStyleModifierView(forNodeTitle: forNodeTitle))
+        
         //        .onChange(of: self.currentAssignedBroadcaster, initial: true) { oldValue, newValue in
         //            log("NodeBroadcastSubmenuView: onChange self.currentAssignedBroadcaster: oldValue: \(oldValue)")
         //            log("NodeBroadcastSubmenuView: onChange self.currentAssignedBroadcaster: newValue: \(newValue)")
@@ -83,3 +89,19 @@ struct NodeWirelessBroadcastSubmenuView: View {
         }
     }
 }
+
+// TODO: support in the node tag menu again?
+//struct PickerStyleModifierView: ViewModifier {
+//    
+//    let forNodeTitle: Bool
+//    
+//    func body(content: Content) -> some View {
+//        if forNodeTitle {
+//            // .inline = create this Picker at the same hierarchy level as the current view, don't nest etc.
+//            content.pickerStyle(.inline)
+//        } else {
+//            // Default to .menu, which manifests as 'submenu' when used with another menu
+//            content.pickerStyle(.menu)
+//        }
+//    }
+//}
