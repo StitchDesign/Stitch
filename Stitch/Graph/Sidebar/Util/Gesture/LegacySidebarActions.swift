@@ -15,6 +15,7 @@ extension ProjectSidebarObservable {
     @MainActor
     func sidebarListItemLongPressed(itemId: Self.ItemID) {
         self.currentItemDragged = itemId
+        self.graphDelegate?.isSidebarFocused = true
     }
 
     // Function to find the set item whose index in the list is the smallest
@@ -75,6 +76,9 @@ extension ProjectSidebarObservable {
         
         // The tracked dragged item may change if option + click
         var draggedItem = item
+        
+        // Focus sidebar
+        graph.isSidebarFocused = true
         
 //        if state.keypressState.isOptionPressed && state.sidebarSelectionState.haveDuplicated {
 //        if state.keypressState.isOptionPressed && state.sidebarSelectionState.optionDragInProgress {
