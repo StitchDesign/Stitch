@@ -11,6 +11,14 @@ import StitchSchemaKit
 import StitchEngine
 
 struct EvalResult: NodeEvalResult, Sendable {
+    var outputsValues: PortValuesList
+    var runAgain = false
+
+    // Determines if media objects changed in a manner which should trigger downstream nodes
+    var didMediaObjectChange = false
+}
+
+extension EvalResult {
     // TODO: clean up properties below?
     var willEvalAgain: Bool {
         get {
@@ -30,15 +38,6 @@ struct EvalResult: NodeEvalResult, Sendable {
         }
     }
     
-    
-    var outputsValues: PortValuesList
-    var runAgain = false
-
-    // Determines if media objects changed in a manner which should trigger downstream nodes
-    var didMediaObjectChange = false
-}
-
-extension EvalResult {
     /// Failure state initializer.
     init() {
         self.outputsValues = []
