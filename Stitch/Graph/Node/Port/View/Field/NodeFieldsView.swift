@@ -21,11 +21,25 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
     let nodeId: NodeId
     let isMultiField: Bool
     let forPropertySidebar: Bool
+    let forFlyout: Bool
     
     let blockedFields: Set<LayerInputKeyPathType>?
     
     @ViewBuilder var valueEntryView: (FieldType, Bool) -> ValueEntryView
+    
+    var layerInput: LayerInputPort? {
+        fieldGroupViewModel.layerInput
+    }
         
+    var allFieldsBlockedOut: Bool {
+        if let blockedFields = blockedFields {
+            return fieldGroupViewModel.fieldObservers.allSatisfy {
+                $0.isBlocked(blockedFields)
+            }
+        }
+        return false
+    }
+    
     var body: some View {
         if allFieldsBlockedOut {
             EmptyView()
@@ -37,30 +51,48 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
             }
             
             // TODO: how to handle the multifield "shadow offset" input in the Shadow Flyout? For now, we stack those fields vertically
-            if isMultiField,
-               forPropertySidebar,
-               fieldGroupViewModel.id.rowId.portType.keyPath?.layerInput == .shadowOffset {
+            if forPropertySidebar,
+               forFlyout,
+               isMultiField,
+               layerInput == .shadowOffset {
                 VStack {
                     fields
                 }
-            } else {
+            }
+            
+            // TODO: need to pass down `forFlyout` here, so that we do not
+            else if forPropertySidebar,
+                    !forFlyout,
+                    isMultiField,
+                    (layerInput == .layerPadding || layerInput == .layerMargin),
+                    let p1 = fieldGroupViewModel.fieldObservers[safe: 0],
+                    let p2 = fieldGroupViewModel.fieldObservers[safe: 1],
+                    let p3 = fieldGroupViewModel.fieldObservers[safe: 2],
+                    let p4 = fieldGroupViewModel.fieldObservers[safe: 3] {
+                VStack {
+                    HStack {
+                        // Individual fields for PortValue.padding can never be blocked; only the input as a whole can be blocked
+                        self.valueEntryView(p1, isMultiField)
+                        self.valueEntryView(p2, isMultiField)
+                    }
+                    HStack {
+                        self.valueEntryView(p3, isMultiField)
+                        self.valueEntryView(p4, isMultiField)
+                    }
+                }
+                // TODO: `LayerInspectorPortView`'s `.listRowInsets` should maintain consistent padding between input-rows in the layer inspector, so why is additional padding needed?
+                .padding(.vertical, INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET * 2)
+            }
+            else {
                 fields
             }
         }
     }
     
-    var allFieldsBlockedOut: Bool {
-        if let blockedFields = blockedFields {
-            return fieldGroupViewModel.fieldObservers.allSatisfy {
-                $0.isBlocked(blockedFields)
-            }
-        }
-        
-        return false
-    }
-        
     // fieldObservers / field view models remain our bread-and-butter
     var fields: some View {
+        
+        // By default, this ForEach bubbles up to an HStack that contains it; how
         ForEach(fieldGroupViewModel.fieldObservers) { (fieldViewModel: FieldType) in
 //            self.valueEntryView(fieldViewModel)
 //                .overlay {
@@ -72,9 +104,8 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
 //                        Color.clear
 //                    }
 //                }
-                                                
-            let isBlocked = self.blockedFields?.blocks(.unpacked(fieldViewModel.fieldLabelIndex.asUnpackedPortType)) ?? false
-                        
+
+            let isBlocked = self.blockedFields.map { fieldViewModel.isBlocked($0) } ?? false
             if !isBlocked {
                 self.valueEntryView(fieldViewModel, isMultiField)
             }
