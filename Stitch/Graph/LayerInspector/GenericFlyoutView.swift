@@ -73,6 +73,7 @@ struct GenericFlyoutView: View {
             fieldValueTypes: fieldValueTypes,
             nodeId: nodeId,
             forPropertySidebar: true,
+            forFlyout: true,
             blockedFields: layerInputObserver.blockedFields) { inputFieldViewModel, isMultifield in
                 GenericFlyoutRowView(
                     graph: graph,

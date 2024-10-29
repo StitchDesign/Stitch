@@ -217,6 +217,7 @@ struct NodeInputView: View {
                     fieldValueTypes: fieldValueTypes,
                     nodeId: nodeId,
                     forPropertySidebar: forPropertySidebar,
+                    forFlyout: forFlyout,
                     blockedFields: layerInputObserver?.blockedFields,
                     valueEntryView: valueEntryView)
             }
@@ -325,6 +326,7 @@ struct NodeOutputView: View {
                     fieldValueTypes: rowViewModel.fieldValueTypes,
                     nodeId: nodeId,
                     forPropertySidebar: forPropertySidebar,
+                    forFlyout: false, // Outputs do not use flyouts
                     blockedFields: nil, // Always nil for output fields
                     valueEntryView: valueEntryView)
             }
@@ -360,6 +362,7 @@ struct FieldsListView<PortType, ValueEntryView>: View where PortType: NodeRowVie
     var fieldValueTypes: [FieldGroupTypeViewModel<PortType.FieldType>]
     let nodeId: NodeId
     let forPropertySidebar: Bool
+    let forFlyout: Bool
     let blockedFields: LayerPortTypeSet?
 
     @ViewBuilder var valueEntryView: (PortType.FieldType, Bool) -> ValueEntryView
@@ -380,6 +383,7 @@ struct FieldsListView<PortType, ValueEntryView>: View where PortType: NodeRowVie
                            nodeId: nodeId,
                            isMultiField: isMultiField,
                            forPropertySidebar: forPropertySidebar,
+                           forFlyout: forFlyout,
                            blockedFields: blockedFields,
                            valueEntryView: valueEntryView)
         }
