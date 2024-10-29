@@ -76,7 +76,6 @@ struct NodeTypeView: View {
     
     @ViewBuilder @MainActor
     func inputsViews() -> some View {
-        
         VStack(alignment: .leading,
                spacing: SPACING_BETWEEN_NODE_ROWS) {
             if self.node.patch == .wirelessReceiver {
