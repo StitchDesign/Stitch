@@ -415,11 +415,6 @@ extension CanvasItemViewModel {
         guard !self.isSelected else { return }
         
         self.isSelected = true
-        
-        // Anytime we select a canvas item,
-        // we "de-actively-select" any sidebar layers,
-        // but do not touch the "focused" layers.
-        self.graphDelegate?.layersSidebarViewModel.selectionState.primary = .init()
     }
     
     @MainActor
