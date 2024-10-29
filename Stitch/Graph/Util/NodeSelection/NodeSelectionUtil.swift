@@ -92,7 +92,7 @@ struct SelectAllShortcutKeyPressed: GraphEvent {
         
         // If we have at least one actively selected sidebar layers,
         // then select all layers, not canvas items.
-        if state.hasActivelySelectedLayers {            
+        if state.graphUI.isSidebarFocused {            
             let allLayers = state.orderedSidebarLayers.flattenedItems.map(\.id).toSet
             state.sidebarSelectionState.primary = state.sidebarSelectionState.primary.union(allLayers)
             
