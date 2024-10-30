@@ -56,8 +56,12 @@ struct NodesView: View {
                         canvasItem.inputViewModels
                     }
                 
-                let connectedInputs = allInputs
-                    .filter { $0.rowDelegate?.containsUpstreamConnection ?? false }
+                let connectedInputs = allInputs.filter { input in
+                    guard input.nodeDelegate?.patchNodeViewModel?.patch != .wirelessReceiver else {
+                        return false
+                    }
+                    return input.rowDelegate?.containsUpstreamConnection ?? false
+                }
                 
                 // Including "possible" inputs enables edge animation
                 let candidateInputs: [InputNodeRowViewModel] = graphUI.edgeEditingState?.possibleEdges.compactMap {
