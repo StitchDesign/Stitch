@@ -101,8 +101,7 @@ actor PressInteractionActor {
 // Need to update to be more like scroll animation eval
 @MainActor
 func pressInteractionEval(node: NodeViewModel,
-                          graph: GraphDelegate,
-                          graphStep: GraphStepState) -> ImpureEvalResult {
+                          graph: GraphDelegate) -> ImpureEvalResult {
     node.loopedEval(PressInteractionNodeObserver.self,
                     graphState: graph) { values, evalObserver, interactiveLayer, loopIndex in
         pressInteractionOp(

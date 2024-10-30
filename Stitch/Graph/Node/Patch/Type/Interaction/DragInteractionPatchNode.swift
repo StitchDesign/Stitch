@@ -104,8 +104,7 @@ extension DragInteractionNodeState {
  */
 @MainActor
 func dragInteractionEval(node: PatchNode,
-                         graphState: GraphDelegate,
-                         graphStepState: GraphStepState) -> ImpureEvalResult {
+                         graphState: GraphDelegate) -> ImpureEvalResult {
 
     return node.loopedEval(DragInteractionNodeState.self,
                            graphState: graphState) { values, dragState, interactiveLayer, loopIndex in
@@ -114,8 +113,8 @@ func dragInteractionEval(node: PatchNode,
             loopIndex: loopIndex,
             interactiveLayer: interactiveLayer,
             state: dragState,
-            graphTime: graphStepState.graphTime,
-            fps: graphStepState.estimatedFPS)
+            graphTime: graphState.graphStepState.graphTime,
+            fps: graphState.graphStepState.estimatedFPS)
     }
                            .toImpureEvalResult()
 }

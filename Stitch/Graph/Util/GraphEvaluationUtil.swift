@@ -44,24 +44,6 @@ extension NodeViewModel {
     }
 }
 
-extension EvaluationStyle {
-    @MainActor
-    func runEvaluation(node: NodeViewModel) -> EvalResult {
-
-        switch self {
-
-        case .pure(let pureEval):
-            return pureEval
-                .runEvaluation(node: node)
-
-        case .impure(let impureEval):
-            return impureEval
-                .runEvaluation(node: node)
-                .toEvalResult()
-        }
-    }
-}
-
 // Recalculates graph from a specific node
 struct RecalculateGraphFromNode: GraphEvent {
     let nodeId: NodeId

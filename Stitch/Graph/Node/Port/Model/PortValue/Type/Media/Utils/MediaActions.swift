@@ -314,8 +314,7 @@ extension GraphState {
             
             // portValuesList is the full outputs etc.;
             // set new outputs in node
-            node.updateOutputsObservers(newValuesList: portValuesList,
-                                        activeIndex: graph.activeIndex)
+            node.updateOutputsObservers(newValuesList: portValuesList)
             
             effects += portValuesList
                 .getPulseReversionEffects(nodeId: nodeId,
@@ -335,8 +334,9 @@ extension GraphState {
             node.outputs.enumerated().forEach { index, values in
                 changedDownstreamNodes = changedDownstreamNodes.union(
                     graph.updateDownstreamInputs(
-                    flowValues: values,
-                    outputCoordinate: .init(portId: index, nodeId: node.id))
+                        sourceNode: node,
+                        flowValues: values,
+                        outputCoordinate: .init(portId: index, nodeId: node.id))
                 )
             }
             

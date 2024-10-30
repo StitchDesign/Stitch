@@ -20,7 +20,7 @@ struct NodeTagMenuButtonsView: View {
 
     let canvasItemId: CanvasItemId // id for Node or LayerInputOnGraph
     
-    var activeGroupId: NodeId?
+    var activeGroupId: GroupNodeType?
     var nodeTypeChoices: [UserVisibleType] = []
     
     // Always false for Layer Nodes;
