@@ -130,9 +130,9 @@ extension Anchoring { // : PortValueEnum {
 
 // Does this need to change for pinning?
 func adjustPosition(size: CGSize, // child's size
-                    position: StitchPosition, // child's position; UNSCALED
+                    position: CGPoint, // child's position; UNSCALED
                     anchor: Anchoring, // child's anchor
-                    parentSize: CGSize) -> StitchPosition {
+                    parentSize: CGSize) -> CGPoint {
 
     let x = position.x
         + (parentSize.width * anchor.x)
@@ -153,7 +153,7 @@ func adjustPosition(size: CGSize, // child's size
         + (parentSize.height * anchor.y)
         - (size.height * (anchor.y - 0.5))
     
-    return StitchPosition(x: x, y: y)
+    return .init(x: x, y: y)
     
 }
 
