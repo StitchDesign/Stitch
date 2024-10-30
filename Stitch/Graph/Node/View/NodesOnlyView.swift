@@ -47,7 +47,7 @@ struct NodesOnlyView: View {
                     canvasNode: canvasNode,
                     atleastOneCommentBoxSelected: selection.selectedCommentBoxes.count >= 1,
                     activeIndex: activeIndex,
-                    groupNodeFocused: graphUI.groupNodeFocused?.groupNodeId,
+                    groupNodeFocused: graphUI.groupNodeFocused,
                     adjustmentBarSessionId: adjustmentBarSessionId,
                     isHiddenDuringAnimation: insertNodeMenuHiddenNode
                         .map { $0 == node.id } ?? false

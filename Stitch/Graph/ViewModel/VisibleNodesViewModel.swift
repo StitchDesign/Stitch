@@ -120,6 +120,14 @@ extension VisibleNodesViewModel {
                 canvasGroup.initializeDelegate(node,
                                                unpackedPortParentFieldGroupType: nil,
                                                unpackedPortIndex: nil)
+                
+            case .component(let componentViewModel):
+                // Similar logic to patch nodes, where we have inputs/outputs observers stored directly in component
+                componentViewModel.canvas.syncRowViewModels(inputRowObservers: componentViewModel.inputsObservers,
+                                                            outputRowObservers: componentViewModel.outputsObservers,
+                                                            unpackedPortParentFieldGroupType: nil,
+                                                            unpackedPortIndex: nil)
+
             default:
                 return
             }
@@ -214,7 +222,7 @@ extension VisibleNodesViewModel {
 
     /// Obtains input row observers directly from splitter patch nodes given its parent group node.
     @MainActor
-    func getSplitterInputRowObservers(for groupNodeId: NodeId) -> [InputNodeRowObserver] {
+    func getSplitterInputRowObservers(for groupNodeId: NodeId?) -> [InputNodeRowObserver] {
         // find splitters inside this group node
         let allSplitterNodes: [PatchNodeViewModel] = self.nodes.values
             .compactMap { $0.patchNode }
@@ -253,7 +261,7 @@ extension VisibleNodesViewModel {
     
     /// Obtains output row observers directly from splitter patch nodes given its parent group node.
     @MainActor
-    func getSplitterOutputRowObservers(for groupNodeId: NodeId) -> [OutputNodeRowObserver] {
+    func getSplitterOutputRowObservers(for groupNodeId: NodeId?) -> [OutputNodeRowObserver] {
         // find splitters inside this group node
         let allSplitterNodes: [PatchNodeViewModel] = self.nodes.values
             .compactMap { $0.patchNode }

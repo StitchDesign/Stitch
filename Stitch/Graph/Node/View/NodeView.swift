@@ -16,7 +16,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
     @Bindable var graph: GraphState
     let isSelected: Bool
     let atleastOneCommentBoxSelected: Bool
-    let activeGroupId: NodeId?
+    let activeGroupId: GroupNodeType?
     let canAddInput: Bool
     let canRemoveInput: Bool
 

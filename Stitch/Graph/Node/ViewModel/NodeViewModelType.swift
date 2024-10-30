@@ -37,16 +37,8 @@ extension NodeViewModelType {
                                 unpackedPortParentFieldGroupType: nil,
                                 unpackedPortIndex: nil))
         case .component(let component):
-            let componentCanvas = CanvasItemViewModel(from: component.canvasEntity,
-                                                      id: .node(nodeId),
-                                                      // Initialize as empty since splitter row observers might not have yet been created
-                                                      inputRowObservers: [],
-                                                      outputRowObservers: [],
-                                                      unpackedPortParentFieldGroupType: nil,
-                                                      unpackedPortIndex: nil)
-            
-            self = .component(.init(componentId: component.componentId,
-                                    canvas: componentCanvas,
+            self = .component(.init(nodeId: nodeId,
+                                    componentEntity: component,
                                     
                                     // TODO: thie gets a new reference later
                                     graph: .createEmpty()))
@@ -69,14 +61,6 @@ extension NodeViewModelType {
                 fatalError()
             }
             
-            let componentCanvas = CanvasItemViewModel(from: componentEntity.canvasEntity,
-                                                      id: .node(nodeId),
-                                                      // Initialize as empty since splitter row observers might not have yet been created
-                                                      inputRowObservers: [],
-                                                      outputRowObservers: [],
-                                                      unpackedPortParentFieldGroupType: nil,
-                                                      unpackedPortIndex: nil)
-            
             guard let masterComponent = components.get(componentEntity.componentId) else {
                 fatalErrorIfDebug()
                 self = .component(.createEmpty())
@@ -84,9 +68,9 @@ extension NodeViewModelType {
             }
             
             let component = await StitchComponentViewModel(
-                componentId: componentEntity.componentId,
-                componentEntity: masterComponent.lastEncodedDocument,
-                canvas: componentCanvas,
+                nodeId: nodeId,
+                componentEntity: componentEntity,
+                encodedComponent: masterComponent.lastEncodedDocument,
                 parentGraphPath: parentGraphPath,
                 componentEncoder: masterComponent.encoder)
             self = .component(component)
