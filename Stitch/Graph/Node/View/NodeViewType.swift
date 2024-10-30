@@ -19,7 +19,7 @@ struct NodeTypeView: View {
     @Bindable var canvasNode: CanvasItemViewModel
     let atleastOneCommentBoxSelected: Bool
     let activeIndex: ActiveIndex
-    let groupNodeFocused: NodeId?
+    let groupNodeFocused: GroupNodeType?
     let adjustmentBarSessionId: AdjustmentBarSessionId
 
     var boundsReaderDisabled: Bool = false
@@ -76,7 +76,6 @@ struct NodeTypeView: View {
     
     @ViewBuilder @MainActor
     func inputsViews() -> some View {
-        
         VStack(alignment: .leading,
                spacing: SPACING_BETWEEN_NODE_ROWS) {
             if self.node.patch == .wirelessReceiver {

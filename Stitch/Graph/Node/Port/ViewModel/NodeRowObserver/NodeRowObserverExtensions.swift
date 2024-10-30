@@ -220,50 +220,6 @@ extension NodeRowObserver {
     }
 }
 
-extension Array where Element: NodeRowObserver {
-    var values: PortValuesList {
-        self.map {
-            $0.allLoopedValues
-        }
-    }
-    
-    @MainActor
-    func updateAllValues(_ newValuesList: PortValuesList,
-                         nodeId: NodeId,
-                         nodeKind: NodeKind,
-                         userVisibleType: UserVisibleType?,
-                         nodeDelegate: NodeDelegate,
-                         activeIndex: ActiveIndex) {
-        
-        let oldValues = self.values
-        let oldLongestPortLength = oldValues.count
-        let newLongestPortLength = newValuesList.count
-        let currentObserverCount = self.count
-
-        // Remove view models if loop count decreased
-        if newLongestPortLength < oldLongestPortLength {
-            // Sub-array can't exceed its current bounds or we get index-out-of-bounds
-            // Helpers below will create any missing observers
-            let arrayBoundary = Swift.min(newLongestPortLength, currentObserverCount)
-
-            nodeDelegate.patchNodeViewModel?.portCountShortened(to: arrayBoundary,
-                                                                nodeIO: .input)
-        }
-
-        newValuesList.enumerated().forEach { portId, values in
-            guard let observer = self[safe: portId] else {
-                fatalErrorIfDebug()
-                return
-            }
-
-            // Only update values if there's no upstream connection
-            if !observer.containsUpstreamConnection {
-                observer.updateValues(values)
-            }
-        }
-    }
-}
-
 extension [InputNodeRowObserver] {
     @MainActor
     init(values: PortValuesList,

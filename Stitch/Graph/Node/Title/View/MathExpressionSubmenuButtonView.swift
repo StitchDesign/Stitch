@@ -19,7 +19,7 @@ struct FatalErrorIfDebugView: View {
 }
 
 func fatalErrorIfDebug(_ message: String = "") {
-#if DEBUG || DEV_DEBUG
+#if DEBUG || DEV_DEBUG || STITCH_AI
     fatalError(message)
 #else
     log(message)
@@ -27,7 +27,7 @@ func fatalErrorIfDebug(_ message: String = "") {
 }
 
 func assertInDebug(_ conditional: Bool) {
-#if DEBUG || DEV_DEBUG
+#if DEBUG || DEV_DEBUG || STITCH_AI
     assert(conditional)
 #endif
 }

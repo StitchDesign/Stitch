@@ -10,16 +10,14 @@ import StitchSchemaKit
 
 extension Layer {
     @MainActor
-    var evaluate: EvaluationStyle? {
+    var evaluate: PureEvals? {
         switch self {
         case .canvasSketch:
-            return .pure(.node(canvasSketchEval))
+            return .node(canvasSketchEval)
         case .textField:
-            return .pure(.node(textFieldLayerEval))
+            return .node(textFieldLayerEval)
         case .switchLayer:
-            return .pure(.graphStep(switchLayerEval))
-        case .oval, .rectangle, .image, .group, .video, .realityView, .shape, .colorFill, .hitArea, .map:
-            return nil
+            return .graphStep(switchLayerEval)
         default:
             return nil
         }

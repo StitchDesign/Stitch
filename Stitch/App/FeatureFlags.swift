@@ -11,5 +11,10 @@ import StitchSchemaKit
 // Currently unused but will keep alive here.
 struct FeatureFlags {
     static let USE_COMMENT_BOX_FLAG: Bool = false
+    
+    #if STITCH_AI
+    static let USE_COMPONENTS = true
+    #else
     static let USE_COMPONENTS = false
+    #endif
 }
