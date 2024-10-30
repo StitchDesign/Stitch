@@ -91,7 +91,30 @@ final class NodeViewModel: Sendable {
     }
 }
 
-extension NodeViewModel: NodeCalculatable {    
+extension NodeViewModel: NodeCalculatable {
+    var inputsObservers: [InputNodeRowObserver] {
+        get {
+            self.getAllInputsObservers()
+        }
+        set(newValue) {
+            self.patchNode?.inputsObservers = newValue
+        }
+    }
+    
+    var outputsObservers: [OutputNodeRowObserver] {
+        get {
+            self.getAllOutputsObservers()
+        }
+        set(newValue) {
+            self.patchNode?.outputsObservers = newValue
+        }
+    }
+    
+    var isComponentOutputSplitter: Bool {
+        let isNodeInComponent = self.graphDelegate?.saveLocation.isEmpty ?? false
+        return self.splitterType == .output && isNodeInComponent
+    }
+    
     var requiresOutputValuesChange: Bool {
         self.kind.getPatch == .pressInteraction
     }
@@ -100,6 +123,7 @@ extension NodeViewModel: NodeCalculatable {
         self.getAllInputsObservers()
     }
     
+    @MainActor
     var inputsValuesList: PortValuesList {
         switch self.nodeType {
         case .patch(let patch):
@@ -177,22 +201,6 @@ extension NodeViewModel: NodeCalculatable {
         // Must be before runEval check below since most layers don't have eval!
         self.layerNode?.didValuesUpdate(newValuesList: values,
                                         id: self.id)
-    }
-    
-    @MainActor func outputsUpdated(evalResult: EvalResult) {
-        self.updateOutputsObservers(newOutputsValues: evalResult.outputsValues,
-                                    activeIndex: graphDelegate?.activeIndex ?? .init(.zero))
-        
-        // `state.flashes` is for pulses' UI-effects
-        var effects = evalResult.effects
-        
-        // Reverse any fired output pulses
-        effects += evalResult
-            .outputsValues
-            .getPulseReversionEffects(nodeId: self.id,
-                                      graphTime: graphDelegate?.graphStepState.graphTime ?? .zero)
-
-        effects.processEffects()
     }
     
     var isGroupNode: Bool {
@@ -353,8 +361,7 @@ extension NodeViewModel {
     }
     
     @MainActor
-    func updateOutputsObservers(newValuesList: PortValuesList? = nil,
-                                activeIndex: ActiveIndex) {
+    func updateOutputsObservers(newValuesList: PortValuesList? = nil) {
         let outputsObservers = self.getAllOutputsObservers()
         
         if let newValuesList = newValuesList {
@@ -371,8 +378,9 @@ extension NodeViewModel {
     func getInputRowObserver(for portType: NodeIOPortType) -> InputNodeRowObserver? {
         switch portType {
         case .portIndex(let portId):
-            // Assumes patch node for port ID
-            return self.patchNode?.inputsObservers[safe: portId]
+            // Assumes patch node or component for port ID
+            return self.patchNode?.inputsObservers[safe: portId] ??
+            self.nodeType.componentNode?.inputsObservers[safe: portId]
 
         case .keyPath(let keyPath):
             guard let layerNode = self.layerNode else {
@@ -544,12 +552,7 @@ extension NodeViewModel {
     }
 }
 
-extension NodeViewModel: NodeDelegate {    
-    func portCountShortened(to length: Int, nodeIO: NodeIO) {
-        self.patchNodeViewModel?.portCountShortened(to: length,
-                                                    nodeIO: nodeIO)
-    }
-    
+extension NodeViewModel: NodeDelegate {
     var inputsRowCount: Int {
         self.getAllParentInputsObservers().count
     }
@@ -730,18 +733,6 @@ extension NodeViewModel {
 
         self.getAllOutputsObservers()[safe: portId]?.updateValues(values)
     }
-
-    @MainActor
-    func updateOutputsObservers(newOutputsValues: PortValuesList,
-                                activeIndex: ActiveIndex) {
-        self.getAllOutputsObservers()
-            .updateAllValues(newOutputsValues,
-                             nodeId: self.id,
-                             nodeKind: self.kind,
-                             userVisibleType: self.userVisibleType,
-                             nodeDelegate: self,
-                             activeIndex: activeIndex)
-    }
     
     // don't worry about making the input a loop or not --
     // the extension will happen at eval-time
@@ -773,20 +764,22 @@ extension NodeViewModel {
                                                     userVisibleType: self.userVisibleType,
                                                     id: newInputCoordinate,
                                                     upstreamOutputCoordinate: nil)
-        newInputObserver.initializeDelegate(self)
         
         let newInputViewModel = InputNodeRowViewModel(id: .init(graphItemType: .node(patchNode.canvasObserver.id),
                                                                 nodeId: newInputCoordinate.nodeId,
                                                                 portId: allInputsObservers.count),
                                                       rowDelegate: newInputObserver,
                                                       canvasItemDelegate: patchNode.canvasObserver)
+        
+        patchNode.inputsObservers.append(newInputObserver)
+        patchNode.canvasObserver.inputViewModels.append(newInputViewModel)
+        
+        // Assign delegates once view models are assigned to node
+        newInputObserver.initializeDelegate(self)
         newInputViewModel.initializeDelegate(self,
                                              // Only relevant for layer nodes, which cannot have an input added or removed
                                              unpackedPortParentFieldGroupType: nil,
                                              unpackedPortIndex: nil)
-        
-        patchNode.inputsObservers.append(newInputObserver)
-        patchNode.canvasObserver.inputViewModels.append(newInputViewModel)
     }
 
     @MainActor

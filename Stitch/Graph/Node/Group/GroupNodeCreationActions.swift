@@ -105,8 +105,8 @@ extension GraphState {
     
     @MainActor
     func createGroupNode(newGroupNodeId: NodeId,
-                         center: CGPoint,
-                         isComponent: Bool) async -> NodeViewModel {
+                         componentId: UUID?,
+                         center: CGPoint) async -> NodeViewModel {
         guard let document = self.documentDelegate else {
             fatalErrorIfDebug()
             return .createEmpty()
@@ -120,10 +120,15 @@ extension GraphState {
                                             parentGroupNodeId: focusedGroupNodeId)
         
         // Create new canvas entity if specified
-        let nodeType: NodeTypeEntity = isComponent ? .component(.init(componentId: newGroupNodeId,
-                                                                      inputs: [],   // create ports later
-                                                                      canvasEntity: canvasEntity))
-                                                   : .group(canvasEntity)
+        var nodeType: NodeTypeEntity
+        
+        if let componentId = componentId {
+            nodeType = .component(.init(componentId: componentId,
+                                        inputs: [],   // create ports later
+                                        canvasEntity: canvasEntity))
+        } else {
+            nodeType = .group(canvasEntity)
+        }
         
         let schema = NodeEntity(id: newGroupNodeId,
                                 nodeTypeEntity: nodeType,
@@ -154,7 +159,8 @@ extension StitchDocumentViewModel {
             return
         }
         
-        let newGroupNodeId = NodeId()
+        let newGroupNodeId = UUID()
+        let newComponentId = UUID()
         let selectedCanvasItems = self.visibleGraph.selectedCanvasItems
         let edges = self.visibleGraph.createEdges()
         let center = self.graphUI.center(self.localPosition)
@@ -172,14 +178,14 @@ extension StitchDocumentViewModel {
         if isComponent {
             // MARK: must create component before calling createGroupNode below
             await self.createNewMasterComponent(selectedCanvasItems: selectedCanvasItems,
-                                                componentId: newGroupNodeId)
+                                                componentId: newComponentId)
         }
         
         // Create the actual GroupNode itself
         let newGroupNode = await self.visibleGraph
             .createGroupNode(newGroupNodeId: newGroupNodeId,
-                             center: center,
-                             isComponent: isComponent)
+                             componentId: isComponent ? newComponentId : nil,
+                             center: center)
         
         //input splitters need to be west of the `to` node for the `edge`
         self.visibleGraph.createSplitterForNewGroup(splitterType: .input,

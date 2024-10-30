@@ -55,15 +55,10 @@ func restartPrototypeEval(node: PatchNode,
     }
 
     log("restartPrototypeEval: had pulse")
-    let effect: Effect = { PrototypeRestartEffect() }
-    return ImpureEvalResult(
-        outputsValues: [],
-        effects: [effect])
-}
-
-// Hack for effect above
-struct PrototypeRestartEffect: GraphEvent {
-    func handle(state: GraphState) {
+    Task { @MainActor in
         dispatch(PrototypeRestartedAction())
     }
+    
+    return ImpureEvalResult(
+        outputsValues: [])
 }

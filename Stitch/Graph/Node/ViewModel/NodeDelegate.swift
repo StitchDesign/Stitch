@@ -48,8 +48,6 @@ protocol NodeDelegate: AnyObject {
     
     var ephemeralObservers: [any NodeEphemeralObservable]? { get }
     
-    @MainActor func portCountShortened(to length: Int, nodeIO: NodeIO)
-    
     // TODO: why is this a function? is it the id of the node represented by the `NodeObserverDelegate`, or is it actually an accessor on GraphState?
     @MainActor func getNode(_ id: NodeId) -> NodeViewModel?
         
@@ -70,9 +68,6 @@ protocol NodeDelegate: AnyObject {
     @MainActor func updateInputPortViewModels(activeIndex: ActiveIndex)
     
     @MainActor func updateOutputPortViewModels(activeIndex: ActiveIndex)
-    
-    @MainActor func updateOutputsObservers(newOutputsValues: PortValuesList,
-                                           activeIndex: ActiveIndex)
         
     @MainActor func calculate()
 }
