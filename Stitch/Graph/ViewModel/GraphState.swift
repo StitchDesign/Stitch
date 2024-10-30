@@ -239,7 +239,13 @@ extension GraphState: GraphDelegate {
     
     /// Syncs visible nodes and topological data when persistence actions take place.
     @MainActor
-    func updateGraphData() {        
+    func updateGraphData() {
+        // Update parent graphs first if this graph is a component
+        // Order here needed so parent components know if there are input/output changes
+        if let parentGraph = self.parentGraph {
+            parentGraph.updateGraphData()
+        }
+        
         if let document = self.documentDelegate,
            let encoderDelegate = self.documentEncoderDelegate {
             self.initializeDelegate(document: document,

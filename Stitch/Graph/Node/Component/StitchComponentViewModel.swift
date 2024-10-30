@@ -40,16 +40,28 @@ final class StitchComponentViewModel {
         let outputsObservers = Self.refreshOutputs(graph: graph,
                                                    nodeId: nodeId,
                                                    existingOutputsObservers: [])
-        
+
         self.canvas = .init(from: componentEntity.canvasEntity,
                             id: .node(nodeId),
                             inputRowObservers: inputsObservers,
                             outputRowObservers: outputsObservers,
                             unpackedPortParentFieldGroupType: nil,
                             unpackedPortIndex: nil)
-        
+            
         self.inputsObservers = inputsObservers
         self.outputsObservers = outputsObservers
+    }
+    
+    @MainActor
+    func refreshPorts(schemaInputs: [NodeConnectionType]? = nil) {
+        let schemaInputs = schemaInputs ?? self.createSchema().inputs
+        
+        self.inputsObservers = self.refreshInputs(schemaInputs: schemaInputs)
+        self.outputsObservers = self.refreshOutputs()
+        self.canvas.syncRowViewModels(inputRowObservers: inputsObservers,
+                                      outputRowObservers: outputsObservers,
+                                      unpackedPortParentFieldGroupType: nil,
+                                      unpackedPortIndex: nil)
     }
     
     @MainActor
@@ -175,8 +187,12 @@ extension StitchComponentViewModel {
         self.graph.initializeDelegate(document: document,
                                       documentEncoderDelegate: masterComponent.encoder)
         
+        // Updates inputs and outputs
         self.inputsObservers.forEach { $0.initializeDelegate(node) }
         self.outputsObservers.forEach { $0.initializeDelegate(node) }
+        
+        // Refresh port data
+        self.refreshPorts()
     }
     
     @MainActor func createSchema() -> ComponentEntity {
@@ -200,10 +216,19 @@ extension StitchComponentViewModel {
         await self.graph.update(from: masterComponent.lastEncodedDocument.graph)
         
         // Refresh after graph update
-        self.inputsObservers = self.refreshInputs(schemaInputs: schema.inputs)
-        self.outputsObservers = self.refreshOutputs()
-        
         self.canvas.update(from: schema.canvasEntity)
+        self.refreshPorts(schemaInputs: schema.inputs)
+    }
+    
+    @MainActor func syncPorts(schemaInputs: [NodeConnectionType]? = nil) {
+        let schemaInputs = schemaInputs ?? self.createSchema().inputs
+        
+        self.inputsObservers = self.refreshInputs(schemaInputs: schemaInputs)
+        self.outputsObservers = self.refreshOutputs()
+        self.canvas.syncRowViewModels(inputRowObservers: self.inputsObservers,
+                                      outputRowObservers: self.outputsObservers,
+                                      unpackedPortParentFieldGroupType: nil,
+                                      unpackedPortIndex: nil)
     }
     
     @MainActor
@@ -295,12 +320,22 @@ extension StitchComponentViewModel {
 }
 
 extension GraphState {
+    /// Captures parent graph state in event this graph state is used for component.
+    @MainActor
+    var parentGraph: GraphState? {
+        guard let parentComponentDelegate = self.documentEncoderDelegate as? ComponentEncoder,
+              let parentGraph = parentComponentDelegate.delegate?.parentGraph else {
+                  return nil
+        }
+        
+        return parentGraph
+    }
+    
     @MainActor
     func evaluateComponentOutputs() {
         assertInDebug(!self.saveLocation.isEmpty)
         
-        guard let parentComponentDelegate = self.documentEncoderDelegate as? ComponentEncoder,
-              let parentGraph = parentComponentDelegate.delegate?.parentGraph,
+        guard let parentGraph = self.parentGraph,
               let node = parentGraph.nodes.get(self.id),
               let componentNode = node.componentNode else {
             fatalErrorIfDebug()
