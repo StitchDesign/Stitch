@@ -294,7 +294,7 @@ extension StitchComponentViewModel {
         
         // Update outputs here after graph calculation
         zip(splitterOutputs, self.outputsObservers).forEach { splitter, output in
-            splitter.updateValues(output.allLoopedValues)
+            output.updateValues(splitter.allLoopedValues)
         }
         
         return .init(outputsValues: self.outputsObservers.map(\.allLoopedValues))
