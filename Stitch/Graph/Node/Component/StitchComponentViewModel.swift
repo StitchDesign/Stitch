@@ -78,12 +78,17 @@ final class StitchComponentViewModel {
                               nodeId: UUID,
                               existingInputsObservers: [InputNodeRowObserver]) -> [InputNodeRowObserver] {
         let splitterInputs = Self.getInputSplitters(graph: graph)
-        assertInDebug(schemaInputs.count == splitterInputs.count)
         
-        let inputsObservers = zip(schemaInputs, splitterInputs).enumerated().map { index, data in
-            let (schemaInput, splitterInput) = data
+        let newInputs = splitterInputs.enumerated().compactMap { index, splitterInput -> InputNodeRowObserver? in
+            let schemaInput = schemaInputs[safe: index]
             
             if let existingInput = existingInputsObservers[safe: index] {
+                guard let schemaInput = schemaInput else {
+                    // Expected schema input here
+                    fatalErrorIfDebug()
+                    return nil
+                }
+
                 let portSchema = NodePortInputEntity(id: .init(portId: index,
                                                                nodeId: nodeId),
                                                      portData: schemaInput,
@@ -102,7 +107,9 @@ final class StitchComponentViewModel {
                                             id: .init(portId: index,
                                                       nodeId: nodeId),
                                             upstreamOutputCoordinate: upstreamCoordinateId)
-            case .values(let values):
+
+            default:
+                let values = schemaInput?.values ?? splitterInput.allLoopedValues
                 return InputNodeRowObserver(values: values,
                                             nodeKind: .group,
                                             userVisibleType: nil,
@@ -112,7 +119,7 @@ final class StitchComponentViewModel {
             }
         }
         
-        return inputsObservers
+        return newInputs
     }
     
     @MainActor
