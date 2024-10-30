@@ -26,11 +26,9 @@ struct NodeTitleEdited: GraphEventWithResponse {
             // Check for component
             if let componentNode = node.componentNode {
                 componentNode.graph.name = edit
-                
-                if isCommitting {
-                    // Save changes to disk
-                    componentNode.graph.encodeProjectInBackground()
-                }
+
+                // Always save changes to disk (hack for when view disappears before finishing)
+                componentNode.graph.encodeProjectInBackground()
             }
 
         case .layerInspector(let id):
