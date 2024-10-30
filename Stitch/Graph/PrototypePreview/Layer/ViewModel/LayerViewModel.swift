@@ -67,11 +67,18 @@ final class LayerViewModel {
     var pinnedSize: CGSize? = nil // parent-affected size (e.g. parent scaled 2x); read by a "Ghost View" that sits in view's normal, expected place in hierarchy.
     var pinnedCenter: CGPoint? = nil // not affected by parent's scale, position etc.; read by a "Pinned View" that sits in same hierarchy level as the view it is pinned to.
     
-    // Size of the layer as read by layer's background GeometryReader,
+    // Layer's frame as read by layer's background GeometryReader,
     // see `LayerSizeReader`.
-    var readSize: CGSize = .zero
-    var readMidPosition: CGPoint = .zero
-
+    var readFrame: CGRect = .zero
+    
+    var readSize: CGSize {
+        self.readFrame.size
+    }
+    
+    var readMidPosition: CGPoint {
+        self.readFrame.mid
+    }
+    
     // Ports
     var position: PortValue
     var size: PortValue
