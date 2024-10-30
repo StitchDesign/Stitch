@@ -79,6 +79,10 @@ struct ComponentNavBarView: View {
                     }
                     
                     Spacer()
+                    
+                    Text("ID: \(componentId.debugFriendlyId)")
+                        .font(.caption)
+                        .monospaced()
                 }
                 .padding()
                 .background(.ultraThinMaterial)
