@@ -30,7 +30,12 @@ struct CanvasItemTitleView: View {
     
     @MainActor
     var name: String {
-        node.displayTitle
+        // Use component title if component
+        if let component = node.componentNode {
+            return component.graph.name
+        }
+        
+        return node.displayTitle
     }
     
     @State private var showMenu = false
