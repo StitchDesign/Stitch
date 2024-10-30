@@ -101,6 +101,7 @@ final class StitchDocumentViewModel: Sendable {
         self.graphStepManager.start()
     }
     
+    @MainActor
     convenience init?(from schema: StitchDocument,
                       isPhoneDevice: Bool,
                       projectLoader: ProjectLoader,
@@ -110,11 +111,11 @@ final class StitchDocumentViewModel: Sendable {
         let graph = await GraphState(from: schema.graph,
                                      saveLocation: [],
                                      encoder: documentEncoder)
-        await self.init(from: schema,
-                        graph: graph,
-                        isPhoneDevice: isPhoneDevice,
-                        projectLoader: projectLoader,
-                        store: store)
+        self.init(from: schema,
+                  graph: graph,
+                  isPhoneDevice: isPhoneDevice,
+                  projectLoader: projectLoader,
+                  store: store)
     }
 }
 

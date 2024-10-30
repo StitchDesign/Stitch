@@ -22,6 +22,14 @@ struct NodeTitleEdited: GraphEventWithResponse {
                 return .noChange
             }
             node.title = edit
+            
+            // Check for component
+            if let componentNode = node.componentNode {
+                componentNode.graph.name = edit
+
+                // Always save changes to disk (hack for when view disappears before finishing)
+                componentNode.graph.encodeProjectInBackground()
+            }
 
         case .layerInspector(let id):
             guard let node = state.getNodeViewModel(id) else {
