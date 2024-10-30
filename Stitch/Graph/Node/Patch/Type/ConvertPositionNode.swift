@@ -18,11 +18,11 @@ func convertPositionNode(nodeId: NodeId = NodeId(),
     let inputs = toInputs(
         id: nodeId,
         values:
-            ("From Parent", [interactionId]),
-        ("From Anchor", [.anchoring(.defaultAnchoring)]),
-        ("Point", [.position(StitchPosition.zero)]),
-        ("To Parent", [interactionId]),
-        ("To Anchor", [.anchoring(.defaultAnchoring)])
+            ("From Parent", [interactionId]), // 0
+        ("From Anchor", [.anchoring(.defaultAnchoring)]), // 1
+        ("Point", [.position(StitchPosition.zero)]), // 2
+        ("To Parent", [interactionId]), // 3
+        ("To Anchor", [.anchoring(.defaultAnchoring)]) // 4
     )
 
     let outputs = toOutputs(id: nodeId, offset: inputs.count,
@@ -37,110 +37,111 @@ func convertPositionNode(nodeId: NodeId = NodeId(),
         outputs: outputs)
 }
 
+// Does this assume single layer?
+// Preferably, retrieve the layer view model at that loop-index?
 @MainActor
 func convertPositionEval(node: PatchNode,
                          graphState: GraphDelegate) -> PortValuesList {
 
     // log("convertPositionEval: node.sortedInputsValues: \(node.inputs)")
 
-    let positionOp: Operation = { (values: PortValues) -> PortValue in
+    let defaultOpResult = PortValue.position(.zero)
+    
+    let op: OpWithIndex<PortValue> = { (values: PortValues, loopIndex: Int) -> PortValue in
 
-        // log("convertPositionEval: positionOp: values: \(values)")
-
-        var fromLayerSize: LayerSize
-
-        if let fromLayerInputValue = values[safe: 0],
-           let fromLayerId = fromLayerInputValue.getInteractionId,
-           let fromNode = graphState.getNodeViewModel(fromLayerId.id),
-           let layerNode = fromNode.layerNode {
-            fromLayerSize = layerNode.layerSize(graphState.activeIndex) ?? .zero
-        } else {
-            fromLayerSize = graphState.previewWindowSize.toLayerSize
+        log("convertPositionEval: op: values: \(values)")
+        
+        let layerViewModelAtIndex = { (value: PortValue) -> LayerViewModel? in
+            value.getInteractionId.flatMap({
+                graphState.getNodeViewModel($0.asNodeId)?.layerNode?
+                    .previewLayerViewModels[safe: loopIndex]
+            })
         }
 
-        let fromLayerCGSize: CGSize = fromLayerSize.asCGSize ?? .zero
-
-        let fromAnchor = values[safe: 1]?.getAnchoring ?? .defaultAnchoring
-
-        let fromAnchorPosition = getAnchorPoint(
-            size: fromLayerCGSize,
-            anchor: fromAnchor)
-
-        // Point
-        let fromLayerPoint = values[safe: 2]?.getPosition ?? .zero
-
-        // "To" Layer
-        var toLayerSize: LayerSize
-
-        if let toLayerInputValue = values[safe: 3],
-           let toLayerId = toLayerInputValue.getInteractionId,
-           let toLayerNode = graphState.getNodeViewModel(toLayerId.id)?.layerNode {
-            toLayerSize = toLayerNode.layerSize(graphState.activeIndex) ?? .zero
-        } else {
-            toLayerSize = graphState.previewWindowSize.toLayerSize
+        /*
+         Some complications here:
+         
+         The patch eval extends all inputs to be the length of the longest input. So the from-layer and to-layer inputs on the pass could individually have length 3 and 5 respectively, but we'll do 5 ops total (since 5 is longest, assuming other inputs' loops are length 1).
+         
+         But from-layer and to-layer refer to layers (layer nodes) that have their own inputs and loop lengths.
+         The longest loop in a layer node's inputs create as many layer view models.
+         
+         So we could be in a situation where e.g. the from-layer's layer node only has 2 layer view model; so on eval-op loop-indices [2,3,4] (out [0, 1, 2, 3, 4] loop indices), we would not find a layer view model for the from-layer.
+         
+         TODO: if loop-index exceeds the length of a layer node's layer view models, grab the last item / loop around? i.e. extend the layer view model list the same way we extend inputs; but just grab the exact data needed, don't create new LayerViewModels etc.
+         */
+        guard let fromLayerViewModel: LayerViewModel = values[safe: 0].flatMap(layerViewModelAtIndex) else {
+            log("convertPositionEval: no fromLayerViewModel")
+            return defaultOpResult
         }
-
-        let toLayerCGSize: CGSize = toLayerSize.asCGSize ?? .zero
-
-        let toAnchor = values[safeIndex: 4]?.getAnchoring ?? .defaultAnchoring
-
-        let toAnchorPosition = getAnchorPoint(
-            size: toLayerCGSize,
-            anchor: toAnchor)
-
-        let result: StitchPosition = (fromAnchorPosition + fromLayerPoint) - toAnchorPosition
-        return .position(result)
+        
+        // TODO: if there is no assigned ToLayer, then use the preview window size
+        guard let toLayerViewModel: LayerViewModel = values[safe: 3].flatMap(layerViewModelAtIndex) else {
+            log("convertPositionEval: no toLayerViewModel")
+            return defaultOpResult
+        }
+                
+        let fromRect: CGRect = fromLayerViewModel.readFrame
+        let toRect: CGRect = toLayerViewModel.readFrame
+        
+        // Note: these are inputs on the ConvertPosition patch node, not the LayerInputPort.anchoring property on the layer
+        let fromAnchor: Anchoring = values[safe: 1]?.getAnchoring ?? .defaultAnchoring
+        let fromInput: CGPoint = values[safe: 2]?.getPosition ?? .zero
+        let toAnchor: Anchoring = values[safe: 4]?.getAnchoring ?? .defaultAnchoring
+        
+        let convertedPosition = convertPosition(
+            fromRect: fromRect,
+            fromAnchor: fromAnchor,
+            fromInput: fromInput,
+            toRect: toRect,
+            toAnchor: toAnchor)
+        
+        return .position(convertedPosition)
     }
-
-    let k = resultsMaker(node.inputs)(positionOp)
-
-    return k
+        
+    //    let k = resultsMaker(node.inputs)(op)
+    let newOutput = loopedEval(node: node, evalOp: op)
+    return [newOutput]
 }
 
-/*
- The point where the anchor rests on the layer.
+func convertPosition(fromRect: CGRect,
+                     fromAnchor: Anchoring,
+                     fromInput: CGPoint,
+                     toRect: CGRect,
+                     toAnchor: Anchoring) -> CGPoint {
+    
+    // just taking the
+    // print("\nFROM ANCHOR")
+    let from: CGPoint = fromRect.getPointAtAnchor(fromAnchor)
+    
+    // print("\nTO ANCHOR")
+    let to: CGPoint = toRect.getPointAtAnchor(toAnchor)
+    
+    let fromX = from.x
+    let toX = to.x
+    // TODO: figure out how to properly scale the `fromInput` up or down
+    let convertedX = (fromX + fromInput.x) - toX
+    
+    let fromY = from.y
+    let toY = to.y
+    let convertedY = (fromY + fromInput.y) - toY
+    
+    return .init(x: convertedX, y: convertedY)
+}
 
- Examples:
- - size = 200x200 and anchor = top-left, so we return 0,0
- - size = 200x200 and anchor = bottom-right, so we return 200,200
- - size = 200x200 and anchor = bottom-left, so we return 0,200
- - size = 200x200 and anchor = top-right, so we return 200,0
 
- - size = 200x200 and anchor = center, so we return 100,100
- - size = 200x200 and anchor = center-left, so we return 0,100
- - size = 200x200 and anchor = center-right, so we return 200,100
- */
-
-func getAnchorPoint(size: CGSize,
-                    anchor: Anchoring) -> CGPoint {
-
-    switch anchor {
-    case .topLeft:
-        return .init(x: 0, y: 0)
-    case .topCenter:
-        return .init(x: size.width/2,
-                     y: 0)
-    case .topRight:
-        return .init(x: size.width, y: 0)
-    case .bottomRight:
-        return .init(x: size.width,
-                     y: size.height)
-    case .bottomLeft:
-        return .init(x: 0,
-                     y: size.height)
-    case .centerCenter:
-        return .init(x: size.width/2,
-                     y: size.height/2)
-    case .centerLeft:
-        return .init(x: 0,
-                     y: size.height/2)
-    case .centerRight:
-        return .init(x: size.width,
-                     y: size.height/2)
-    case .bottomCenter:
-        return .init(x: size.width/2,
-                     y: 0)
-    default:
-        fatalError()
+extension CGRect {
+    func getPointAtAnchor(_ anchor: Anchoring) -> CGPoint {
+        
+        let x = self.origin.x + (self.size.width * anchor.x)
+        let y = self.origin.y + (self.size.height * anchor.y)
+                
+        // print("getPointAtAnchor: anchor: \(anchor)")
+        // print("getPointAtAnchor: origin: \(origin)")
+        // print("getPointAtAnchor: size: \(size)")
+        // print("getPointAtAnchor: x: \(x)")
+        // print("getPointAtAnchor: y: \(y)")
+        
+        return .init(x: x, y: y)
     }
 }
