@@ -334,8 +334,9 @@ extension GraphState {
             node.outputs.enumerated().forEach { index, values in
                 changedDownstreamNodes = changedDownstreamNodes.union(
                     graph.updateDownstreamInputs(
-                    flowValues: values,
-                    outputCoordinate: .init(portId: index, nodeId: node.id))
+                        sourceNode: node,
+                        flowValues: values,
+                        outputCoordinate: .init(portId: index, nodeId: node.id))
                 )
             }
             

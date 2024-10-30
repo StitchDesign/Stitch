@@ -110,6 +110,11 @@ extension NodeViewModel: NodeCalculatable {
         }
     }
     
+    var isComponentOutputSplitter: Bool {
+        let isNodeInComponent = self.graphDelegate?.saveLocation.isEmpty ?? false
+        return self.splitterType == .output && isNodeInComponent
+    }
+    
     var requiresOutputValuesChange: Bool {
         self.kind.getPatch == .pressInteraction
     }

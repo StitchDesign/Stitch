@@ -717,6 +717,7 @@ extension GraphState {
             
             // Update downstream node's inputs
             let changedNodeIds = self.updateDownstreamInputs(
+                sourceNode: node,
                 flowValues: outputToUpdate,
                 outputCoordinate: outputCoordinate)
             

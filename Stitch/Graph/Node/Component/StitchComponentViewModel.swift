@@ -33,13 +33,54 @@ final class StitchComponentViewModel {
         self.nodeDelegate = nodeDelegate
         self.componentDelegate = componentDelegate
         
+        let inputsObservers = Self.refreshInputs(schemaInputs: componentEntity.inputs,
+                                                 graph: graph,
+                                                 nodeId: nodeId,
+                                                 existingInputsObservers: [])
+        let outputsObservers = Self.refreshOutputs(graph: graph,
+                                                   nodeId: nodeId,
+                                                   existingOutputsObservers: [])
+        
+        self.canvas = .init(from: componentEntity.canvasEntity,
+                            id: .node(nodeId),
+                            inputRowObservers: inputsObservers,
+                            outputRowObservers: outputsObservers,
+                            unpackedPortParentFieldGroupType: nil,
+                            unpackedPortIndex: nil)
+        
+        self.inputsObservers = inputsObservers
+        self.outputsObservers = outputsObservers
+    }
+    
+    @MainActor
+    func refreshInputs(schemaInputs: [NodeConnectionType]) -> [InputNodeRowObserver] {
+        Self.refreshInputs(schemaInputs: schemaInputs,
+                           graph: self.graph,
+                           nodeId: self.id,
+                           existingInputsObservers: self.inputsObservers)
+    }
+    
+    @MainActor
+    static func refreshInputs(schemaInputs: [NodeConnectionType],
+                              graph: GraphState,
+                              nodeId: UUID,
+                              existingInputsObservers: [InputNodeRowObserver]) -> [InputNodeRowObserver] {
         let splitterInputs = Self.getInputSplitters(graph: graph)
-        let splitterOutputs = Self.getOutputSplitters(graph: graph)
+        assertInDebug(schemaInputs.count == splitterInputs.count)
         
-        assertInDebug(componentEntity.inputs.count == splitterInputs.count)
-        
-        let inputsObservers = zip(componentEntity.inputs, splitterInputs).enumerated().map { index, data in
+        let inputsObservers = zip(schemaInputs, splitterInputs).enumerated().map { index, data in
             let (schemaInput, splitterInput) = data
+            
+            if let existingInput = existingInputsObservers[safe: index] {
+                let portSchema = NodePortInputEntity(id: .init(portId: index,
+                                                               nodeId: nodeId),
+                                                     portData: schemaInput,
+                                                     nodeKind: .group,
+                                                     userVisibleType: nil)
+                existingInput.update(from: portSchema)
+                
+                return existingInput
+            }
             
             switch schemaInput {
             case .upstreamConnection(let upstreamCoordinateId):
@@ -59,23 +100,35 @@ final class StitchComponentViewModel {
             }
         }
         
+        return inputsObservers
+    }
+    
+    @MainActor
+    func refreshOutputs() -> [OutputNodeRowObserver] {
+        Self.refreshOutputs(graph: self.graph,
+                            nodeId: self.id,
+                            existingOutputsObservers: self.outputsObservers)
+    }
+    
+    @MainActor
+    static func refreshOutputs(graph: GraphState,
+                               nodeId: NodeId,
+                               existingOutputsObservers: [OutputNodeRowObserver]) -> [OutputNodeRowObserver] {
+        let splitterOutputs = Self.getOutputSplitters(graph: graph)
         let outputsObservers = splitterOutputs.enumerated().map { index, splitterOutput in
-            OutputNodeRowObserver(values: splitterOutput.values,
-                                  nodeKind: .group,
-                                  userVisibleType: nil,
-                                  id: .init(portId: index,
-                                            nodeId: nodeId))
+            if let existingOutput = existingOutputsObservers[safe: index] {
+                existingOutput.updateValues(splitterOutput.values)
+                return existingOutput
+            }
+            
+            return OutputNodeRowObserver(values: splitterOutput.values,
+                                         nodeKind: .group,
+                                         userVisibleType: nil,
+                                         id: .init(portId: index,
+                                                   nodeId: nodeId))
         }
         
-        self.canvas = .init(from: componentEntity.canvasEntity,
-                            id: .node(nodeId),
-                            inputRowObservers: inputsObservers,
-                            outputRowObservers: outputsObservers,
-                            unpackedPortParentFieldGroupType: nil,
-                            unpackedPortIndex: nil)
-        
-        self.inputsObservers = inputsObservers
-        self.outputsObservers = outputsObservers
+        return outputsObservers
     }
     
     @MainActor
@@ -138,9 +191,6 @@ extension StitchComponentViewModel {
     @MainActor func update(from schema: ComponentEntity,
                            components: [UUID : StitchMasterComponent]) async {
         self.componentId = schema.componentId
-        self.canvas.update(from: schema.canvasEntity)
-        
-        // TODO: zip schema inputs with computed input row observers
         
         guard let masterComponent = components.get(self.componentId) else {
             fatalErrorIfDebug()
@@ -148,6 +198,12 @@ extension StitchComponentViewModel {
         }
         
         await self.graph.update(from: masterComponent.lastEncodedDocument.graph)
+        
+        // Refresh after graph update
+        self.inputsObservers = self.refreshInputs(schemaInputs: schema.inputs)
+        self.outputsObservers = self.refreshOutputs()
+        
+        self.canvas.update(from: schema.canvasEntity)
     }
     
     @MainActor
@@ -161,9 +217,9 @@ extension StitchComponentViewModel {
     }
 }
 
-extension StitchComponentViewModel: NodeCalculatable {
-    typealias InputRow = InputNodeRowObserver
-    typealias OutputRow = OutputNodeRowObserver
+extension StitchComponentViewModel {
+//    typealias InputRow = InputNodeRowObserver
+//    typealias OutputRow = OutputNodeRowObserver
     
     var id: NodeId {
         get {
@@ -181,32 +237,35 @@ extension StitchComponentViewModel: NodeCalculatable {
         }
     }
     
-    var isGroupNode: Bool {
-        false
-    }
-    
-    var requiresOutputValuesChange: Bool {
-        false
-    }
-    
-    @MainActor func inputsWillUpdate(values: PortValuesList) {
-        fatalError()
-    }
+//    var isGroupNode: Bool {
+//        false
+//    }
+//    
+//    var requiresOutputValuesChange: Bool {
+//        false
+//    }
     
     @MainActor func evaluate() -> EvalResult? {
         // Update splitters
         let splitterInputs = Self.getInputSplitters(graph: self.graph)
-        let splitterOutputs = Self.getOutputSplitters(graph: self.graph)
         
         assertInDebug(splitterInputs.count == self.inputsObservers.count)
-        assertInDebug(splitterOutputs.count == self.outputsObservers.count)
         
         // Update graph's inputs before calculating full graph
         zip(splitterInputs, self.inputsObservers).forEach { splitter, input in
             splitter.updateValues(input.allLoopedValues)
         }
-
+        
         self.graph.calculate(from: self.graph.allNodesToCalculate)
+        
+        return self.evaluateOutputSplitters()
+    }
+    
+    @MainActor
+    /// Used in capacities where output splitters may have been updated, allowing us to start eval again from this graph.
+    func evaluateOutputSplitters() -> EvalResult {
+        let splitterOutputs = Self.getOutputSplitters(graph: self.graph)
+        assertInDebug(splitterOutputs.count == self.outputsObservers.count)
         
         // Update outputs here after graph calculation
         zip(splitterOutputs, self.outputsObservers).forEach { splitter, output in
@@ -232,5 +291,32 @@ extension StitchComponentViewModel: NodeCalculatable {
     
     @MainActor var inputsValuesList: PortValuesList {
         self.inputsObservers.map { $0.allLoopedValues }
+    }
+}
+
+extension GraphState {
+    @MainActor
+    func evaluateComponentOutputs() {
+        assertInDebug(!self.saveLocation.isEmpty)
+        
+        guard let parentComponentDelegate = self.documentEncoderDelegate as? ComponentEncoder,
+              let parentGraph = parentComponentDelegate.delegate?.parentGraph,
+              let node = parentGraph.nodes.get(self.id),
+              let componentNode = node.componentNode else {
+            fatalErrorIfDebug()
+                  return
+        }
+        
+        let prevOutputs = node.outputs
+        let evalResult = componentNode.evaluateOutputSplitters()
+        
+        let changedDownstreamInputs = parentGraph
+            .getChangedDownstreamNodeIds(evalResult: evalResult,
+                                         sourceNode: node,
+                                         existingOutputsValues: prevOutputs,
+                                         outputCoordinates: node.outputCoordinates)
+        
+        // Calculate connections from component outputs
+        parentGraph.calculate(from: changedDownstreamInputs)
     }
 }
