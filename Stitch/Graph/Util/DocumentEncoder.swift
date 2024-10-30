@@ -14,6 +14,7 @@ final actor DocumentEncoder: DocumentEncodable {
     
     @MainActor weak var delegate: StitchDocumentViewModel?
     
+    @MainActor
     init(document: StitchDocument) {
         self.saveLocation = .document(.document(document.id))
         self.documentId = document.graph.id
