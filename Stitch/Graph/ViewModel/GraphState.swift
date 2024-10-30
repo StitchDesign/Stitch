@@ -648,11 +648,17 @@ extension GraphState {
     @MainActor
     func getInputCoordinate(from viewData: InputPortViewData) -> NodeIOCoordinate? {
         guard let node = self.getCanvasItem(viewData.canvasId),
-              let inputRow = node.inputViewModels[safe: viewData.portId]?.rowDelegate else {
+              let sourceInputRow = node.inputViewModels[safe: viewData.portId]?.rowDelegate else {
             return nil
         }
         
-        return inputRow.id
+//        guard node.nodeDelegate?.nodeType.componentNode == nil else {
+//            // Component case, keep original node ID as we don't want to use a different graph state's node ID
+//            return .init(portId: viewData.portId,
+//                         nodeId: node.id.nodeId)
+//        }
+        
+        return sourceInputRow.id
     }
     
     @MainActor

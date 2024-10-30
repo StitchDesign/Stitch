@@ -373,8 +373,9 @@ extension NodeViewModel {
     func getInputRowObserver(for portType: NodeIOPortType) -> InputNodeRowObserver? {
         switch portType {
         case .portIndex(let portId):
-            // Assumes patch node for port ID
-            return self.patchNode?.inputsObservers[safe: portId]
+            // Assumes patch node or component for port ID
+            return self.patchNode?.inputsObservers[safe: portId] ??
+            self.nodeType.componentNode?.inputsObservers[safe: portId]
 
         case .keyPath(let keyPath):
             guard let layerNode = self.layerNode else {

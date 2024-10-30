@@ -122,27 +122,33 @@ extension VisibleNodesViewModel {
                                                unpackedPortIndex: nil)
                 
             case .component(let componentViewModel):
-                // Create port view models for group nodes once row observers have been established
-                // MARK: similar to group nodes but we use nil group ID given new top-level graph state
-                let inputRowObservers = componentViewModel.graph.visibleNodesViewModel
-                    .getSplitterInputRowObservers(for: nil)
-                let outputRowObservers = componentViewModel.graph.visibleNodesViewModel
-                    .getSplitterOutputRowObservers(for: nil)
-                componentViewModel.canvas.syncRowViewModels(inputRowObservers: inputRowObservers,
-                                                            outputRowObservers: outputRowObservers,
-                                                            // Not relevant
+                // TODO: abstract with patch node logic above
+                componentViewModel.canvas.syncRowViewModels(inputRowObservers: componentViewModel.inputsObservers,
+                                                            outputRowObservers: componentViewModel.outputsObservers,
                                                             unpackedPortParentFieldGroupType: nil,
                                                             unpackedPortIndex: nil)
                 
-                // Initializes view models for canvas
-                guard let node = componentViewModel.nodeDelegate else {
-                    fatalErrorIfDebug()
-                    return
-                }
-                
-                componentViewModel.canvas.initializeDelegate(node,
-                                                             unpackedPortParentFieldGroupType: nil,
-                                                             unpackedPortIndex: nil)
+//                // Create port view models for group nodes once row observers have been established
+//                // MARK: similar to group nodes but we use nil group ID given new top-level graph state
+//                let inputRowObservers = componentViewModel.graph.visibleNodesViewModel
+//                    .getSplitterInputRowObservers(for: nil)
+//                let outputRowObservers = componentViewModel.graph.visibleNodesViewModel
+//                    .getSplitterOutputRowObservers(for: nil)
+//                componentViewModel.canvas.syncRowViewModels(inputRowObservers: inputRowObservers,
+//                                                            outputRowObservers: outputRowObservers,
+//                                                            // Not relevant
+//                                                            unpackedPortParentFieldGroupType: nil,
+//                                                            unpackedPortIndex: nil)
+//                
+//                // Initializes view models for canvas
+//                guard let node = componentViewModel.nodeDelegate else {
+//                    fatalErrorIfDebug()
+//                    return
+//                }
+//                
+//                componentViewModel.canvas.initializeDelegate(node,
+//                                                             unpackedPortParentFieldGroupType: nil,
+//                                                             unpackedPortIndex: nil)
                 
             default:
                 return

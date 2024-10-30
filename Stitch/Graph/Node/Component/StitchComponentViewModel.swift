@@ -12,49 +12,97 @@ import StitchEngine
 /// Unique instance of a component
 final class StitchComponentViewModel {
     var componentId: UUID
+    
+    var inputsObservers: [InputNodeRowObserver] = []
+    var outputsObservers: [OutputNodeRowObserver] = []
+    
     let canvas: CanvasItemViewModel
     let graph: GraphState
     
     weak var nodeDelegate: NodeDelegate?
     weak var componentDelegate: StitchMasterComponent?
     
-    init(componentId: UUID,
-         canvas: CanvasItemViewModel,
+    @MainActor
+    init(nodeId: UUID,
+         componentEntity: ComponentEntity,
          graph: GraphState,
          nodeDelegate: NodeDelegate? = nil,
          componentDelegate: StitchMasterComponent? = nil) {
-        self.componentId = componentId
-        self.canvas = canvas
+        self.componentId = componentEntity.componentId
         self.graph = graph
         self.nodeDelegate = nodeDelegate
         self.componentDelegate = componentDelegate
+        
+        let splitterInputs = graph.visibleNodesViewModel
+            .getSplitterInputRowObservers(for: nil)
+        let splitterOutputs = graph.visibleNodesViewModel
+            .getSplitterOutputRowObservers(for: nil)
+        
+        assertInDebug(componentEntity.inputs.count == splitterInputs.count)
+        
+        let inputsObservers = zip(componentEntity.inputs, splitterInputs).enumerated().map { index, data in
+            let (schemaInput, splitterInput) = data
+            
+            switch schemaInput {
+            case .upstreamConnection(let upstreamCoordinateId):
+                return InputNodeRowObserver(values: splitterInput.values,
+                                            nodeKind: .group,
+                                            userVisibleType: nil,
+                                            id: .init(portId: index,
+                                                      nodeId: nodeId),
+                                            upstreamOutputCoordinate: upstreamCoordinateId)
+            case .values(let values):
+                return InputNodeRowObserver(values: values,
+                                            nodeKind: .group,
+                                            userVisibleType: nil,
+                                            id: .init(portId: index,
+                                                      nodeId: nodeId),
+                                            upstreamOutputCoordinate: nil)
+            }
+        }
+        
+        let outputsObservers = splitterOutputs.enumerated().map { index, splitterOutput in
+            OutputNodeRowObserver(values: splitterOutput.values,
+                                  nodeKind: .group,
+                                  userVisibleType: nil,
+                                  id: .init(portId: index,
+                                            nodeId: nodeId))
+        }
+        
+        self.canvas = .init(from: componentEntity.canvasEntity,
+                            id: .node(nodeId),
+                            inputRowObservers: inputsObservers,
+                            outputRowObservers: outputsObservers,
+                            unpackedPortParentFieldGroupType: nil,
+                            unpackedPortIndex: nil)
+        
+        self.inputsObservers = inputsObservers
+        self.outputsObservers = outputsObservers
     }
     
-    convenience init(componentId: UUID,
-                     componentEntity: StitchComponent,
-                     canvas: CanvasItemViewModel,
+    @MainActor
+    convenience init(nodeId: UUID,
+                     componentEntity: ComponentEntity,
+                     encodedComponent: StitchComponent,
                      parentGraphPath: [UUID],
                      componentEncoder: ComponentEncoder) async {
-        let graph = await GraphState(from: componentEntity.graph,
-                                     saveLocation: parentGraphPath + [componentId],
+        let graph = await GraphState(from: encodedComponent.graph,
+                                     saveLocation: parentGraphPath + [componentEntity.componentId],
                                      encoder: componentEncoder)
-        self.init(componentId: componentId,
-                  canvas: canvas,
+        self.init(nodeId: nodeId,
+                  componentEntity: componentEntity,
                   graph: graph)
     }
 }
 
 extension StitchComponentViewModel {
-    static func createEmpty() -> Self {
-        .init(componentId: .init(),
-              canvas: .init(from: .init(position: .zero,
-                                        zIndex: .zero,
-                                        parentGroupNodeId: nil),
-                            id: .node(.init()),
-                            inputRowObservers: [],
-                            outputRowObservers: [],
-                            unpackedPortParentFieldGroupType: nil,
-                            unpackedPortIndex: nil),
+    @MainActor static func createEmpty() -> Self {
+        .init(nodeId: .init(),
+              componentEntity: ComponentEntity(componentId: .init(),
+                                               inputs: [],
+                                               canvasEntity: .init(position: .zero,
+                                                                   zIndex: .zero,
+                                                                   parentGroupNodeId: nil)),
               graph: .init())
     }
     
@@ -75,6 +123,9 @@ extension StitchComponentViewModel {
                                        unpackedPortIndex: nil)
         self.graph.initializeDelegate(document: document,
                                       documentEncoderDelegate: masterComponent.encoder)
+        
+        self.inputsObservers.forEach { $0.initializeDelegate(node) }
+        self.outputsObservers.forEach { $0.initializeDelegate(node) }
     }
     
     @MainActor func createSchema() -> ComponentEntity {
@@ -143,20 +194,6 @@ extension StitchComponentViewModel: NodeCalculatable {
     
     @MainActor func outputsUpdated(evalResult: EvalResult) {
         fatalError()
-    }
-    
-    @MainActor var inputsObservers: [InputNodeRowObserver] {
-        get {
-            self.graph.visibleNodesViewModel.getSplitterInputRowObservers(for: nil)
-        }
-        set { }
-    }
-    
-    @MainActor var outputsObservers: [OutputNodeRowObserver] {
-        get {
-            self.graph.visibleNodesViewModel.getSplitterOutputRowObservers(for: nil)
-        }
-        set { }
     }
     
     @MainActor func getInputRowObserver(for id: NodeIOPortType) -> InputNodeRowObserver? {
