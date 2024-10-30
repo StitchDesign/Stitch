@@ -250,32 +250,14 @@ extension StitchComponentViewModel {
 }
 
 extension StitchComponentViewModel {
-//    typealias InputRow = InputNodeRowObserver
-//    typealias OutputRow = OutputNodeRowObserver
-    
     var id: NodeId {
-        get {
-            guard let node = self.nodeDelegate else {
-                fatalErrorIfDebug()
-                return .init()
-            }
-            
-            return node.id
-        }
-        set(newValue) {
-            // This used?
+        guard let node = self.nodeDelegate else {
             fatalErrorIfDebug()
-//            self.nodeDelegate?.id = newValue
+            return .init()
         }
+        
+        return node.id
     }
-    
-//    var isGroupNode: Bool {
-//        false
-//    }
-//    
-//    var requiresOutputValuesChange: Bool {
-//        false
-//    }
     
     @MainActor func evaluate() -> EvalResult? {
         // Update splitters
@@ -305,10 +287,6 @@ extension StitchComponentViewModel {
         }
         
         return .init(outputsValues: self.outputsObservers.map(\.allLoopedValues))
-    }
-    
-    @MainActor func outputsUpdated(evalResult: EvalResult) {
-        fatalError()
     }
     
     @MainActor func getInputRowObserver(for id: NodeIOPortType) -> InputNodeRowObserver? {
