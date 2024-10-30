@@ -24,19 +24,18 @@ struct LayerSizeReader: ViewModifier {
         content.background {
             GeometryReader { proxy in
                 let frameData = self.getFrame(geometry: proxy)
-                
                 Color.clear
-                    .onChange(of: frameData.size, initial: !isPinnedViewRendering) { _, newSize in
-                        // log("LayerSizeReader: \(viewModel.layer), new size: \(newSize)")
-                        let newSize = newSize.handleNaN()
+                    .onChange(of: frameData, initial: !isPinnedViewRendering) { _, newFrameData in
+                         log("LayerSizeReader: \(viewModel.layer), newFrameData: \(newFrameData)")
+                        let newSize = newFrameData.size.handleNaN()
                         if viewModel.readSize != newSize {
-                            viewModel.readSize = newSize
+                            viewModel.readFrame.size = newSize
                         }
-                    }
-                    .onChange(of: frameData.mid, initial: !isPinnedViewRendering) { _, newPosition in
-                        // log("LayerSizeReader: \(viewModel.layer), new pos: \(newPosition)")
-                        if viewModel.readMidPosition != newPosition {
-                            viewModel.readMidPosition = newPosition
+                        
+                        // TODO: handle NaN ?
+                        let newOrigin = newFrameData.origin
+                        if viewModel.readFrame.origin != newOrigin {
+                            viewModel.readFrame.origin = newOrigin
                         }
                     }
             }
