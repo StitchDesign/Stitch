@@ -14,6 +14,8 @@ struct CatalystNavBarTitleEditField: View {
 
     @FocusState var focus: Bool
     
+    let nodeMenuOpen: Bool
+    
     var body: some View {
         TextField("", text: $graph.name)
             .focused(self.$focus)
@@ -33,14 +35,34 @@ struct CatalystNavBarTitleEditField: View {
         
             // ... setting an explicit width seems necessary to prevent the text field from covering the back-button during a long title edit
             .width(260)
-        
             .overlay { fieldHighlight }
+        
+        
+            .onChange(of: self.graph.graphUI.insertNodeMenuState.show) { oldValue, newValue in
+//            .onChange(of: self.nodeMenuOpen) { oldValue, newValue in
+                log("CatalystNavBarTitleEditField: .onChange(of: self.graph.graphUI.insertNodeMenuState.show): oldValue: \(oldValue)")
+                log("CatalystNavBarTitleEditField: .onChange(of: self.graph.graphUI.insertNodeMenuState.show): newValue: \(newValue)")
+                
+                log("CatalystNavBarTitleEditField: .onChange(of: self.graph.graphUI.insertNodeMenuState.show): graph.graphUI.reduxFocusedField: \(graph.graphUI.reduxFocusedField)")
+                
+                if newValue {
+                    log("CatalystNavBarTitleEditField: .onChange(of: self.graph.graphUI.insertNodeMenuState.show): will set focus = false")
+                    
+                    self.focus = false
+                    
+                    graph.name = graph.name.validateProjectTitle()
+                    dispatch(ReduxFieldDefocused(focusedField: .projectTitle))
+                    // Commit project name to disk
+                    graph.encodeProjectInBackground()
+                }
+            }
+        
             .onChange(of: self.focus) { oldValue, newValue in
                 log("CatalystNavBarTitleEditField: .onChange(of: self.focus): oldValue: \(oldValue)")
                 log("CatalystNavBarTitleEditField: .onChange(of: self.focus): newValue: \(newValue)")
-                withAnimation(.easeOut(duration: 0.2)) {
+//                withAnimation(.easeOut(duration: 0.2)) {
                     self.focus = newValue
-                }
+//                }
 
                 if newValue {
                     dispatch(ReduxFieldFocused(focusedField: .projectTitle))
