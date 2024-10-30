@@ -59,12 +59,6 @@ extension StitchMasterComponent {
         return component
     }
     
-    static func createObject(from entity: StitchComponent) -> Self {
-        fatalError()
-//        .init(componentData: entity,
-//              parentGraph: nil)
-    }
-    
     func onPrototypeRestart() { }
     
     @MainActor func initializeDelegate(parentGraph: GraphState) {
