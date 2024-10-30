@@ -33,10 +33,8 @@ final class StitchComponentViewModel {
         self.nodeDelegate = nodeDelegate
         self.componentDelegate = componentDelegate
         
-        let splitterInputs = graph.visibleNodesViewModel
-            .getSplitterInputRowObservers(for: nil)
-        let splitterOutputs = graph.visibleNodesViewModel
-            .getSplitterOutputRowObservers(for: nil)
+        let splitterInputs = Self.getInputSplitters(graph: graph)
+        let splitterOutputs = Self.getOutputSplitters(graph: graph)
         
         assertInDebug(componentEntity.inputs.count == splitterInputs.count)
         
@@ -151,6 +149,16 @@ extension StitchComponentViewModel {
         
         await self.graph.update(from: masterComponent.lastEncodedDocument.graph)
     }
+    
+    @MainActor
+    static func getInputSplitters(graph: GraphState) -> [InputNodeRowObserver] {
+        graph.visibleNodesViewModel.getSplitterInputRowObservers(for: nil)
+    }
+    
+    @MainActor
+    static func getOutputSplitters(graph: GraphState) -> [OutputNodeRowObserver] {
+        graph.visibleNodesViewModel.getSplitterOutputRowObservers(for: nil)
+    }
 }
 
 extension StitchComponentViewModel: NodeCalculatable {
@@ -186,10 +194,26 @@ extension StitchComponentViewModel: NodeCalculatable {
     }
     
     @MainActor func evaluate() -> EvalResult? {
+        // Update splitters
+        let splitterInputs = Self.getInputSplitters(graph: self.graph)
+        let splitterOutputs = Self.getOutputSplitters(graph: self.graph)
+        
+        assertInDebug(splitterInputs.count == self.inputsObservers.count)
+        assertInDebug(splitterOutputs.count == self.outputsObservers.count)
+        
+        // Update graph's inputs before calculating full graph
+        zip(splitterInputs, self.inputsObservers).forEach { splitter, input in
+            splitter.updateValues(input.allLoopedValues)
+        }
+
         self.graph.calculate(from: self.graph.allNodesToCalculate)
         
-        // TODO: fix for splitters
-        return nil
+        // Update outputs here after graph calculation
+        zip(splitterOutputs, self.outputsObservers).forEach { splitter, output in
+            splitter.updateValues(output.allLoopedValues)
+        }
+        
+        return .init(outputsValues: self.outputsObservers.map(\.allLoopedValues))
     }
     
     @MainActor func outputsUpdated(evalResult: EvalResult) {
