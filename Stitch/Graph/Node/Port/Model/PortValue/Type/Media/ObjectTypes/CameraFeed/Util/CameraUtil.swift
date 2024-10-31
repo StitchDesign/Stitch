@@ -114,7 +114,9 @@ extension StitchDocumentViewModel {
         }
 
         // Reset camera
-        self.deactivateCamera()
+        if self.cameraFeedManager != nil {
+            self.deactivateCamera()
+        }
 
         let cameraFeed = CameraFeedManager(cameraSettings: self.cameraSettings,
                                            isEnabled: true,
