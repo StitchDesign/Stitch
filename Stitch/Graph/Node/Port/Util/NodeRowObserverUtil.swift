@@ -126,8 +126,6 @@ extension NodeRowObserver {
             // https://github.com/vpl-codesign/stitch/issues/5528
 //            dispatch(AssignedLayerUpdated(changedLayerNode: layerNodeId))
             // NOTE: this MUST BE RETURNED AS A SIDE-EFFECT; otherwise a graph-eval can trigger a node view model input update, which dispatches `AssignedLayerUpdated`, which then evaluates the graph again. (Just an issue for cycles?_
-            
-            // TODO: why does this seem to mess with the Monthly Stays cycle demo?
             effects.append({
                 AssignedLayerUpdated(changedLayerNode: layerId)
             })
