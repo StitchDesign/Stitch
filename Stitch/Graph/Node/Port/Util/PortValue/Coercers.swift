@@ -40,9 +40,7 @@ import CoreML
 // ... since boolParser just says "true" if the display string is non-empty,
 // whereas really, "0" is non-empty but falsey
 func boolCoercer(_ values: PortValues) -> PortValues {
-    return values.map { (value: PortValue) -> PortValue in
-        return .bool(value.coerceToTruthyOrFalsey())
-    }
+    values.map { .bool($0.coerceToTruthyOrFalsey()) }
 }
 
 // ie port is expected to be of type String;
