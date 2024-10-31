@@ -22,6 +22,7 @@ import StitchSchemaKit
 struct AssignedLayerUpdated: GraphEvent {
     let changedLayerNode: LayerNodeId
     
+    @MainActor
     func handle(state: GraphState) {
         for id in state.layerListeningPatchNodes(assignedTo: changedLayerNode) {
             state.calculate(id) // TODO: batch calculate?

@@ -69,12 +69,19 @@ final class LayerViewModel {
     
     // Layer's frame as read by layer's background GeometryReader,
     // see `LayerSizeReader`.
-    var readFrame: CGRect = .zero
+    @MainActor
+    var readFrame: CGRect = .zero {
+        didSet {
+            dispatch(AssignedLayerUpdated(changedLayerNode: self.id.layerNodeId))
+        }
+    }
     
+    @MainActor
     var readSize: CGSize {
         self.readFrame.size
     }
     
+    @MainActor
     var readMidPosition: CGPoint {
         self.readFrame.mid
     }
