@@ -37,8 +37,6 @@ let LAYER_DIMENSION_FIELD_WIDTH: CGFloat = 68
 let SOULVER_NODE_INPUT_OR_OUTPUT_WIDTH: CGFloat = 90
 
 let TEXT_FONT_DROPDOWN_WIDTH: CGFloat = 200
-//let SPACING_FIELD_WIDTH: CGFloat = 72
-//let SPACING_FIELD_WIDTH: CGFloat = 70
 let SPACING_FIELD_WIDTH: CGFloat = 68
 let PADDING_FIELD_WDITH: CGFloat = 36
 
@@ -268,9 +266,22 @@ struct CommonEditingView: View {
         // For perf: we don't want this view rendering at all if not currently focused
         if showEditingView {
             editableTextFieldView
+                .overlay { fieldHighlight }
+            
         } else {
            readOnlyTextView
         }
+    }
+    
+    @Environment(\.appTheme) var theme
+    
+    var fieldHighlight: some View {
+        RoundedRectangle(cornerRadius: 4)
+            .stroke(theme.themeData.edgeColor,
+                    // Color.accentColor,
+                    lineWidth: self.showEditingView ? 2 : 0)
+            // Does nothing because showEditingView is an if/else
+            // .animation(.default, value: self.showEditingView)
     }
     
     @MainActor
