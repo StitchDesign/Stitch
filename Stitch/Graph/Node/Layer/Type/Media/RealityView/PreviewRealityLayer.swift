@@ -67,17 +67,6 @@ struct PreviewRealityLayer: View {
                                  shadowOffset: viewModel.shadowOffset.getPosition ?? .defaultShadowOffset,
                                  parentSize: parentSize,
                                  parentDisablesPosition: parentDisablesPosition)
-//#if !targetEnvironment(macCatalyst)
-//                .onAppear {
-//                    if document.cameraFeedManager?.loadedInstance?.cameraFeedManager == nil {
-//                        document.realityViewCreatedWithoutCamera(graph: graph,
-//                                                                 nodeId: nodeId)
-//                    }
-//                    
-//                    // Update list of node Ids using camera
-//                    graph.enabledCameraNodeIds.insert(nodeId)
-//                }
-//#endif
             } else {
                 EmptyView()
                     .onAppear {
