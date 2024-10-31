@@ -150,13 +150,16 @@ struct RealityLayerView: View {
     
     var body: some View {
         Group {
-            if _isCameraEnabled {
+            // Can't run multiple reality views
+            if !isPinnedViewRendering || document.isGeneratingProjectThumbnail {
+                Color.clear
+            }
+            
+            else if _isCameraEnabled {
                 switch document.cameraFeedManager {
                 case .loaded(let cameraFeedManager):
                     if let cameraFeedManager = cameraFeedManager.cameraFeedManager,
-                       let arView = cameraFeedManager.arView,
-                       isPinnedViewRendering, // Can't run multiple reality views
-                       !document.isGeneratingProjectThumbnail {
+                       let arView = cameraFeedManager.arView {
                         CameraRealityView(arView: arView,
                                           size: layerSize,
                                           scale: scale,
@@ -182,10 +185,6 @@ struct RealityLayerView: View {
                     Color.clear
 #if !targetEnvironment(macCatalyst)
                         .onAppear {
-                            guard document.cameraFeedManager == nil else {
-                                // This somehow happens despite the switch statement!
-                                return
-                            }
                             let nodeId = self.layerViewModel.id.layerNodeId.id
                             document.realityViewCreatedWithoutCamera(graph: graph,
                                                                      nodeId: nodeId)
@@ -193,12 +192,14 @@ struct RealityLayerView: View {
 #endif
                     
                 }
-            } else {
-                NonCameraRealityViewWrapper(size: layerSize,
-                                            scale: scale,
-                                            opacity: opacity,
-                                            isShadowsEnabled: isShadowsEnabled,
-                                            anchors: allAnchors)
+            }
+            
+            else {
+                NonCameraRealityView(size: layerSize,
+                                     scale: scale,
+                                     opacity: opacity,
+                                     isShadowsEnabled: isShadowsEnabled,
+                                     anchors: allAnchors)
             }
         }
         .modifier(PreviewCommonModifier(
