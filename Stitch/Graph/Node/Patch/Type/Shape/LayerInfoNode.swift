@@ -19,6 +19,42 @@
 import Foundation
 import StitchSchemaKit
 
+struct AssignedLayerUpdated: GraphEvent {
+    let changedLayerNode: LayerNodeId
+    
+    func handle(state: GraphState) {
+        for id in state.layerListeningPatchNodes(assignedTo: changedLayerNode) {
+            state.calculate(id) // TODO: batch calculate?
+        }
+    }
+}
+
+extension GraphState {
+    // Some patch nodes (e.g. LayerInfo, ConvertPosition) effectively 'listen' to their assigned layer and must be eval'd whenever certain inputs change.
+    // TODO: cache these?
+    @MainActor
+    func layerListeningPatchNodes(assignedTo id: LayerNodeId) -> IdSet {
+        self.patchNodes.reduce(into: .init(), { partialResult, kv in
+            let node = kv.value
+            if node.patch?.listensToAssignedLayer ?? false,
+               node.getInteractionId() == id {
+                partialResult.insert(node.id)
+            }
+        })
+    }
+}
+
+extension Patch {
+    var listensToAssignedLayer: Bool {
+        switch self {
+        case .layerInfo, .convertPosition:
+            return true
+        default:
+            return false
+        }
+    }
+}
+
 struct LayerInfoPatchNode: PatchNodeDefinition {
     static let patch = Patch.layerInfo
     
@@ -65,31 +101,6 @@ struct LayerInfoPatchNode: PatchNodeDefinition {
                 )
             ]
         )
-    }
-}
-
-
-struct AssignedLayerUpdated: GraphEvent {
-    let changedLayerNode: LayerNodeId
-    
-    func handle(state: GraphState) {
-        for id in state.layerInfoPatchNodes(assignedTo: changedLayerNode) {
-            state.calculate(id)
-        }
-        
-    }
-}
-
-extension GraphState {
-    @MainActor
-    func layerInfoPatchNodes(assignedTo id: LayerNodeId) -> IdSet {
-        self.patchNodes.reduce(into: .init(), { partialResult, kv in
-            let node = kv.value
-            if node.patch == .layerInfo,
-               node.getInteractionId() == id {
-                partialResult.insert(node.id)
-            }
-        })
     }
 }
 
