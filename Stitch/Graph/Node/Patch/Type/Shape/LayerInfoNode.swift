@@ -22,6 +22,7 @@ import StitchSchemaKit
 struct AssignedLayerUpdated: GraphEvent {
     let changedLayerNode: LayerNodeId
     
+    @MainActor
     func handle(state: GraphState) {
         for id in state.layerListeningPatchNodes(assignedTo: changedLayerNode) {
             state.calculate(id) // TODO: batch calculate?
@@ -154,20 +155,26 @@ func layerInfoEval(node: PatchNode,
                     state: GraphDelegate) -> EvalResult {
     
     guard let assignedLayerId: LayerNodeId = node.inputs.first?.first?.getInteractionId,
-          let assignedLayerNode: LayerNodeViewModel = state.getNodeViewModel(assignedLayerId.id)?.layerNode else {
+          let assignedLayerNode = state.getNodeViewModel(assignedLayerId.id),
+          let assignedLayerNodeViewModel: LayerNodeViewModel = assignedLayerNode.layerNode else {
+        log("layerInfoEval: no assignedLayerId, assignedLayerNode and/or assignedLayerNodeViewModel")
         return .init(outputsValues: LayerInfoNodeEvalHelpers.defaultOutputs)
     }
     
-    let layerEnabled = assignedLayerNode.hasSidebarVisibility
-    let layerGroupParent = assignedLayerNode.layerGroupId?.asLayerNodeId
-    let layerViewModels = assignedLayerNode.previewLayerViewModels
+    let layerEnabled = assignedLayerNodeViewModel.hasSidebarVisibility
+    let layerGroupParent = assignedLayerNodeViewModel.layerGroupId?.asLayerNodeId
+    let layerViewModels = assignedLayerNodeViewModel.previewLayerViewModels
         
     // you want to return mm
     let evalOp: Operation8 = { values, loopIndex -> PortValueTuple8 in
         
         guard let layerViewModel = layerViewModels[safeIndex: loopIndex] else {
+            log("layerInfoEval: no layerViewModel at loopIndex \(loopIndex)")
             return LayerInfoNodeEvalHelpers.defaultOutputsAtSingleIndex
         }
+        
+        log("layerInfoEval: layerViewModel.readSize: \(layerViewModel.readSize)")
+        log("layerInfoEval: layerViewModel.anchoring.getAnchoring: \(layerViewModel.anchoring.getAnchoring)")
                         
         return (
             // Enabled (visibility hidden via sidebar or not)

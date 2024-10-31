@@ -69,12 +69,19 @@ final class LayerViewModel {
     
     // Layer's frame as read by layer's background GeometryReader,
     // see `LayerSizeReader`.
-    var readFrame: CGRect = .zero
+    @MainActor
+    var readFrame: CGRect = .zero {
+        didSet {
+            dispatch(AssignedLayerUpdated(changedLayerNode: self.id.layerNodeId))
+        }
+    }
     
+    @MainActor
     var readSize: CGSize {
         self.readFrame.size
     }
     
+    @MainActor
     var readMidPosition: CGPoint {
         self.readFrame.mid
     }
@@ -187,12 +194,7 @@ final class LayerViewModel {
     var pinTo: PortValue
     var pinAnchor: PortValue
     var pinOffset: PortValue
-    
-    // TODO: source these from LayerNodeViewModel after SSK update
-//    var layerPadding: StitchPadding = .zero // .demoPadding // PortValue
-//    var layerMargin: StitchPadding = .zero // .demoPadding // PortValue
-//    var offsetInGroup: CGSize = .zero // .init(width: 50, height: 100)
-    
+        
     var layerPadding: PortValue
     var layerMargin: PortValue
     var offsetInGroup: PortValue
@@ -213,6 +215,7 @@ final class LayerViewModel {
     // Switch Toggle property
     var isUIToggled: Bool = false
     
+    // TODO: Why not initalize with proper values? If we need a 'default false/empty' LayerViewModel, do that view a separate function; and then pass in
     init(id: PreviewCoordinate,
          layer: Layer,
          zIndex: PortValue = defaultNumber,
