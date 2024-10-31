@@ -194,11 +194,11 @@ struct RealityLayerView: View {
                     
                 }
             } else {
-                NonCameraRealityView(size: layerSize,
-                                     scale: scale,
-                                     opacity: opacity,
-                                     isShadowsEnabled: isShadowsEnabled,
-                                     anchors: allAnchors)
+                NonCameraRealityViewWrapper(size: layerSize,
+                                            scale: scale,
+                                            opacity: opacity,
+                                            isShadowsEnabled: isShadowsEnabled,
+                                            anchors: allAnchors)
             }
         }
         .modifier(PreviewCommonModifier(
