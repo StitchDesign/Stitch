@@ -19,7 +19,7 @@ struct PreviewRealityLayer: View {
     let parentDisablesPosition: Bool
     
     var body: some View {
-        let nodeId = self.viewModel.id.layerNodeId.id
+//        let nodeId = self.viewModel.id.layerNodeId.id
         let position = viewModel.position.getPosition ?? .zero
         let rotationX = viewModel.rotationX.asCGFloat
         let rotationY = viewModel.rotationY.asCGFloat
@@ -67,17 +67,17 @@ struct PreviewRealityLayer: View {
                                  shadowOffset: viewModel.shadowOffset.getPosition ?? .defaultShadowOffset,
                                  parentSize: parentSize,
                                  parentDisablesPosition: parentDisablesPosition)
-#if !targetEnvironment(macCatalyst)
-                .onAppear {
-                    if document.cameraFeedManager?.loadedInstance?.cameraFeedManager == nil {
-                        document.realityViewCreatedWithoutCamera(graph: graph,
-                                                                 nodeId: nodeId)
-                    }
-                    
-                    // Update list of node Ids using camera
-                    graph.enabledCameraNodeIds.insert(nodeId)
-                }
-#endif
+//#if !targetEnvironment(macCatalyst)
+//                .onAppear {
+//                    if document.cameraFeedManager?.loadedInstance?.cameraFeedManager == nil {
+//                        document.realityViewCreatedWithoutCamera(graph: graph,
+//                                                                 nodeId: nodeId)
+//                    }
+//                    
+//                    // Update list of node Ids using camera
+//                    graph.enabledCameraNodeIds.insert(nodeId)
+//                }
+//#endif
             } else {
                 EmptyView()
                     .onAppear {
@@ -139,26 +139,66 @@ struct RealityLayerView: View {
     let parentSize: CGSize
     let parentDisablesPosition: Bool
     
+    // Override camera setting on Mac
+    var _isCameraEnabled: Bool {
+#if targetEnvironment(macCatalyst)
+        return false
+#else
+        return isCameraFeedEnabled
+#endif
+    }
+    
     var body: some View {
         Group {
-//            let arView = cameraFeedManager?.arView ?? StitchARView(cameraMode: .nonAR)
-            
-            if isPinnedViewRendering, // Can't run multiple reality views
-               !document.isGeneratingProjectThumbnail {
-                RealityView(size: layerSize,
-                            scale: scale,
-                            opacity: opacity,
-                            isCameraEnabled: isCameraFeedEnabled,
-                            isShadowsEnabled: isShadowsEnabled,
-                            anchors: allAnchors)
-//                .onChange(of: allAnchors, initial: true) { _, newAnchors in
-//                    let mediaList = newAnchors.map { $0.mediaObject }
-//                    
-//                    // Update entities in ar view
-//                    arView.updateAnchors(mediaList: mediaList)
-//                }
+            if _isCameraEnabled {
+                switch document.cameraFeedManager {
+                case .loaded(let cameraFeedManager):
+                    if let cameraFeedManager = cameraFeedManager.cameraFeedManager,
+                       let arView = cameraFeedManager.arView,
+                       isPinnedViewRendering, // Can't run multiple reality views
+                       !document.isGeneratingProjectThumbnail {
+                        CameraRealityView(arView: arView,
+                                          size: layerSize,
+                                          scale: scale,
+                                          opacity: opacity,
+                                          isShadowsEnabled: isShadowsEnabled)
+                        .onAppear {
+                            // Update list of node Ids using camera
+                            graph.enabledCameraNodeIds.insert(node.id)
+                        }
+                        //                                      anchors: allAnchors)
+                        .onChange(of: allAnchors, initial: true) { _, newAnchors in
+                            let mediaList = newAnchors.map { $0.mediaObject }
+                            
+                            // Update entities in ar view
+                            arView.updateAnchors(mediaList: mediaList)
+                        }
+                    }
+
+                case .loading, .failed:
+                    EmptyView()
+
+                case .none:
+                    Color.clear
+#if !targetEnvironment(macCatalyst)
+                        .onAppear {
+                            guard document.cameraFeedManager == nil else {
+                                // This somehow happens despite the switch statement!
+                                return
+                            }
+                            let nodeId = self.layerViewModel.id.layerNodeId.id
+                            document.realityViewCreatedWithoutCamera(graph: graph,
+                                                                     nodeId: nodeId)
+                        }
+#endif
+                    
+                }
             } else {
-                Color.clear
+                NonCameraRealityView(size: layerSize,
+                                     scale: scale,
+                                     opacity: opacity,
+                                     isShadowsEnabled: isShadowsEnabled,
+                                     anchors: allAnchors)
             }
         }
         .modifier(PreviewCommonModifier(
