@@ -69,9 +69,9 @@ let VISUAL_PROGRAMMING_ACTIONS = """
         "step_type": {
           "enum": [
             "add_node",
-            "connect_nodes",
             "change_node_type",
             "set_input",
+            "connect_nodes",
             "add_layer_input"
           ],
           "description": "The type of step performed"
