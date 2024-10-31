@@ -48,16 +48,13 @@ func convertPositionEval(node: PatchNode,
     let defaultOpResult = PortValue.position(.zero)
     
     let op: OpWithIndex<PortValue> = { (values: PortValues, loopIndex: Int) -> PortValue in
-
         log("convertPositionEval: op: values: \(values)")
         
-        let layerViewModelAtIndex = { (value: PortValue) -> LayerViewModel? in
-            value.getInteractionId.flatMap({
-                graphState.getNodeViewModel($0.asNodeId)?.layerNode?
-                    .previewLayerViewModels[safe: loopIndex]
-            })
+        let layerViewModelAtIndex = { (layerNodeId: LayerNodeId) -> LayerViewModel? in
+            let layerNode = graphState.getNodeViewModel(layerNodeId.asNodeId)?.layerNode
+            return layerNode?.previewLayerViewModels[safe: loopIndex] ?? layerNode?.previewLayerViewModels.first
         }
-
+        
         /*
          Some complications here:
          
@@ -70,19 +67,17 @@ func convertPositionEval(node: PatchNode,
          
          TODO: if loop-index exceeds the length of a layer node's layer view models, grab the last item / loop around? i.e. extend the layer view model list the same way we extend inputs; but just grab the exact data needed, don't create new LayerViewModels etc.
          */
-        guard let fromLayerViewModel: LayerViewModel = values[safe: 0].flatMap(layerViewModelAtIndex) else {
-            log("convertPositionEval: no fromLayerViewModel")
-            return defaultOpResult
-        }
+        let fromLayerId: LayerNodeId? = values[safe: 0]?.getInteractionId
+        let toLayerId: LayerNodeId? = values[safe: 3]?.getInteractionId
         
-        // TODO: if there is no assigned ToLayer, then use the preview window size
-        guard let toLayerViewModel: LayerViewModel = values[safe: 3].flatMap(layerViewModelAtIndex) else {
-            log("convertPositionEval: no toLayerViewModel")
-            return defaultOpResult
-        }
-                
-        let fromRect: CGRect = fromLayerViewModel.readFrame
-        let toRect: CGRect = toLayerViewModel.readFrame
+        let previewWindowRect = CGRect(origin: .zero,
+                                       size: graphState.previewWindowSize)
+        
+        var fromLayerViewModel: LayerViewModel? = fromLayerId.flatMap(layerViewModelAtIndex)
+        var fromRect: CGRect = fromLayerViewModel?.readFrame ?? previewWindowRect
+        var toRect: CGRect = toLayerId.flatMap(layerViewModelAtIndex)?.readFrame ?? previewWindowRect
+       
+        let fromScale = fromLayerViewModel?.scale.getNumber ?? .defaultScale
         
         // Note: these are inputs on the ConvertPosition patch node, not the LayerInputPort.anchoring property on the layer
         let fromAnchor: Anchoring = values[safe: 1]?.getAnchoring ?? .defaultAnchoring
@@ -93,6 +88,7 @@ func convertPositionEval(node: PatchNode,
             fromRect: fromRect,
             fromAnchor: fromAnchor,
             fromInput: fromInput,
+            fromScale: fromScale,
             toRect: toRect,
             toAnchor: toAnchor)
         
@@ -107,6 +103,7 @@ func convertPositionEval(node: PatchNode,
 func convertPosition(fromRect: CGRect,
                      fromAnchor: Anchoring,
                      fromInput: CGPoint,
+                     fromScale: CGFloat,
                      toRect: CGRect,
                      toAnchor: Anchoring) -> CGPoint {
     
@@ -119,12 +116,12 @@ func convertPosition(fromRect: CGRect,
     
     let fromX = from.x
     let toX = to.x
-    // TODO: figure out how to properly scale the `fromInput` up or down
-    let convertedX = (fromX + fromInput.x) - toX
+    // TODO: figure out how to properly scale the `fromInput` up or down BASED ON SCALING EFFECTS FROM PARENTS IN THE HIERARCHY
+    let convertedX = (fromX + (fromInput.x * fromScale)) - toX
     
     let fromY = from.y
     let toY = to.y
-    let convertedY = (fromY + fromInput.y) - toY
+    let convertedY = (fromY + (fromInput.y * fromScale)) - toY
     
     return .init(x: convertedX, y: convertedY)
 }
