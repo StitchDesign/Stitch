@@ -8,6 +8,17 @@
 import SwiftUI
 import StitchSchemaKit
 
+extension Color {
+    var isDarkBackground: Bool {
+        let color = self
+        var r, g, b, a: CGFloat
+        (r, g, b, a) = (0, 0, 0, 0)
+        UIColor(color).getRed(&r, green: &g, blue: &b, alpha: &a)
+        let luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b
+        return  luminance < 0.50
+    }
+}
+
 struct ProjectsListItemIconView: View {
 
     let projectThumbnail: UIImage?
@@ -42,7 +53,7 @@ struct ProjectsListItemIconView: View {
                  if projectThumbnail.isDefined,
                     let previewWindowBackgroundColor = previewWindowBackgroundColor {
                      previewWindowBackgroundColor.overlay {
-                         Color.black.opacity(0.2)
+                         (previewWindowBackgroundColor.isDarkBackground ? Color.white : .black).opacity(0.2)
                      }
                 }
             }
