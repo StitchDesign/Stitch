@@ -356,7 +356,6 @@ extension GraphState {
     
     @MainActor func onPrototypeRestart() {
         self.nodes.values.forEach { $0.onPrototypeRestart() }
-        
         self.initializeGraphComputation()
     }
     
