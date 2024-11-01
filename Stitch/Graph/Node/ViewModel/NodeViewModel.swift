@@ -111,7 +111,7 @@ extension NodeViewModel: NodeCalculatable {
     }
     
     var isComponentOutputSplitter: Bool {
-        let isNodeInComponent = self.graphDelegate?.saveLocation.isEmpty ?? false
+        let isNodeInComponent = !(self.graphDelegate?.saveLocation.isEmpty ?? true)
         return self.splitterType == .output && isNodeInComponent
     }
     
