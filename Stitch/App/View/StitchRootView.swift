@@ -54,6 +54,37 @@ struct StitchRootView: View {
                 iPhoneBody
             } else {
                 splitView
+#if targetEnvironment(macCatalyst)
+                    .overlay(alignment: .center) {
+                        if let document = store.currentDocument,
+                           document.graphUI.showCatalystProjectTitleModal {
+                            logInView("will show modal view at top level")
+                            ZStack {
+                                
+                                MODAL_BACKGROUND_COLOR
+                                    .ignoresSafeArea([.all, .keyboard])
+                                    .onTapGesture {
+                                        dispatch(CatalystProjectTitleModalClosed())
+                                    }
+                                
+                                VStack(alignment: .leading) {
+                                    StitchTextView(string: "Edit Project Title")
+                                    CatalystProjectTitleModalView(graph: document.visibleGraph)
+                                }
+                                .padding()
+                                .frame(width: 260, alignment: .leading)
+                                .background(
+                                    Color(uiColor: .systemGray5)
+                                    // NOTE: strangely we need `[.all, .keyboard]` on BOTH the background color AND the StitchHostingControllerView
+                                        .ignoresSafeArea([.all, .keyboard])
+                                        .cornerRadius(4)
+                                )
+                                
+                                
+                            }
+                        }
+                    }
+#endif
             }
         }
 //        .coordinateSpace(name: Self.STITCH_ROOT_VIEW_COORDINATE_SPACE)
