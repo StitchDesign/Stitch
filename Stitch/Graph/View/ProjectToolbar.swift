@@ -97,7 +97,7 @@ struct ProjectToolbarViewModifier: ViewModifier {
                 #else
                 // on Mac, show project title name
                 ToolbarItem(placement: .navigationBarLeading) {
-                    CatalystNavBarTitleEditField(graph: graph)
+                    CatalystNavBarProjectTitleDisplayView(graph: graph)
                 }
 
                 // Catalyst and iPad have same button layout,
