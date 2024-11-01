@@ -15,13 +15,13 @@ import SwiftUI
 // MARK: INT
 
 // TODO: `int` is a legacy PortValue.type to be removed ?
-func intCoercer(_ values: PortValues) -> PortValues {
+func intCoercer(_ values: PortValues, graphTime: TimeInterval) -> PortValues {
     return values.map { (value: PortValue) -> PortValue in
         switch value {
         case .int:
             return value
         default:
-            return value.coerceToTruthyOrFalsey() ? intDefaultTrue : intDefaultFalse
+            return value.coerceToTruthyOrFalsey(graphTime) ? intDefaultTrue : intDefaultFalse
         }
     }
 }
@@ -31,15 +31,15 @@ func intCoercer(_ values: PortValues) -> PortValues {
 // MARK: NUMBER
 
 // e.g. a PortValue.number-type input is receiving a new list of values, which may need to be duck-typed to PortValue.number
-func numberCoercer(_ values: PortValues) -> PortValues {
-    values.map { .number($0.toNumber) }
+func numberCoercer(_ values: PortValues, graphTime: TimeInterval) -> PortValues {
+    values.map { .number($0.toNumber(graphTime)) }
 }
 
 // i.e. some PortValue is flowing into a PortValue.number type input
 extension PortValue {
     
     // Return PortValue, or the more specific type?
-    var toNumber: Double {
+    func toNumber(_ graphTime: TimeInterval) -> Double {
         
         switch self {
             
@@ -78,7 +78,7 @@ extension PortValue {
                 return .numberDefaultTrue
             }
         case .transform, .plane, .networkRequestType, .color, .pulse, .asyncMedia, .json, .anchoring, .cameraDirection, .assignedLayer, .scrollMode, .textAlignment, .textVerticalAlignment, .fitStyle, .animationCurve, .lightType, .layerStroke, .textTransform, .dateAndTimeFormat, .shape, .scrollJumpStyle, .scrollDecelerationRate, .delayStyle, .shapeCoordinates, .shapeCommandType, .shapeCommand, .orientation, .cameraOrientation, .deviceOrientation, .vnImageCropOption, .textDecoration, .textFont, .blendMode, .mapType, .progressIndicatorStyle, .mobileHapticStyle, .strokeLineCap, .strokeLineJoin, .contentMode, .sizingScenario, .pinTo, .deviceAppearance, .materialThickness, .none:
-            return self.coerceToTruthyOrFalsey() ? .numberDefaultTrue : .numberDefaultFalse
+            return self.coerceToTruthyOrFalsey(graphTime) ? .numberDefaultTrue : .numberDefaultFalse
         }
     }
 }
@@ -86,18 +86,18 @@ extension PortValue {
 
 // MARK: LAYER DIMENSION
 
-func layerDimensionCoercer(_ values: PortValues) -> PortValues {
-    values.map { .layerDimension($0.coerceToLayerDimension) }
+func layerDimensionCoercer(_ values: PortValues, graphTime: TimeInterval) -> PortValues {
+    values.map { .layerDimension($0.coerceToLayerDimension(graphTime)) }
 }
 
 extension PortValue {
-    var coerceToLayerDimension: LayerDimension {
+    func coerceToLayerDimension(_ graphTime: TimeInterval) -> LayerDimension {
         
         let value = self
         
         // port-value to use if we cannot coerce the value
         // to a meaningful LayerDimension
-        let defaultValue: LayerDimension = .number(value.coerceToTruthyOrFalsey() ? 1.0 : .zero)
+        let defaultValue: LayerDimension = .number(value.coerceToTruthyOrFalsey(graphTime) ? 1.0 : .zero)
 
         switch value {
 
@@ -152,13 +152,13 @@ extension PortValue {
 // MARK: SIZE
 
 // Takes a PortValue; returns a .size PortValue
-func sizeCoercer(_ values: PortValues) -> PortValues {
-    values.map { .size($0.coerceToSize) }
+func sizeCoercer(_ values: PortValues, graphTime: TimeInterval) -> PortValues {
+    values.map { .size($0.coerceToSize(graphTime)) }
 }
 
 extension PortValue {
-    var coerceToSize: LayerSize {
-        let defaultValue: LayerSize = self.coerceToTruthyOrFalsey() ? .defaultTrue : .defaultFalse
+    func coerceToSize(_ graphTime: TimeInterval) -> LayerSize {
+        let defaultValue: LayerSize = self.coerceToTruthyOrFalsey(graphTime) ? .defaultTrue : .defaultFalse
         
         switch self {
         case .size(let x):
@@ -218,12 +218,12 @@ extension PortValue {
 
 // MARK: POSITION
 
-func positionCoercer(_ values: PortValues) -> PortValues {
-    values.map { .position($0.coerceToPosition) }
+func positionCoercer(_ values: PortValues, graphTime: TimeInterval) -> PortValues {
+    values.map { .position($0.coerceToPosition(graphTime)) }
 }
 
 extension PortValue {
-    var coerceToPosition: StitchPosition {
+    func coerceToPosition(_ graphTime: TimeInterval) -> StitchPosition {
         let value = self
         
         switch value {
@@ -273,7 +273,7 @@ extension PortValue {
             return .defaultFalse
             
         case .transform, .plane, .networkRequestType, .color, .pulse, .asyncMedia, .anchoring, .cameraDirection, .assignedLayer, .scrollMode, .textAlignment, .textVerticalAlignment, .fitStyle, .animationCurve, .lightType, .layerStroke, .textTransform, .dateAndTimeFormat, .shape, .scrollJumpStyle, .scrollDecelerationRate, .delayStyle, .shapeCoordinates, .shapeCommandType, .shapeCommand, .orientation, .cameraOrientation, .deviceOrientation, .vnImageCropOption, .textDecoration, .textFont, .blendMode, .mapType, .progressIndicatorStyle, .mobileHapticStyle, .strokeLineCap, .strokeLineJoin, .contentMode, .sizingScenario, .pinTo, .deviceAppearance, .materialThickness, .none:
-            return value.coerceToTruthyOrFalsey() ? .defaultTrue : .defaultFalse
+            return value.coerceToTruthyOrFalsey(graphTime) ? .defaultTrue : .defaultFalse
         }
     }
 }
@@ -284,12 +284,12 @@ extension PortValue {
 // Better: break down into a function like:
 // `(PortValue) -> Point3D` + `Point3D -> PortValue.point3D`
 // (Note: most useful for an associated data that is unique across port values.)
-func point3DCoercer(_ values: PortValues) -> PortValues {
-    values.map { .point3D($0.coerceToPoint3D) }
+func point3DCoercer(_ values: PortValues, graphTime: TimeInterval) -> PortValues {
+    values.map { .point3D($0.coerceToPoint3D(graphTime)) }
 }
 
 extension PortValue {
-    var coerceToPoint3D: Point3D {
+    func coerceToPoint3D(_ graphTime: TimeInterval) -> Point3D {
         switch self {
         case .point3D(let x):
             return x
@@ -336,19 +336,19 @@ extension PortValue {
             }
             return .defaultFalse
         case .transform, .plane, .networkRequestType, .color, .pulse, .asyncMedia, .anchoring, .cameraDirection, .assignedLayer, .scrollMode, .textAlignment, .textVerticalAlignment, .fitStyle, .animationCurve, .lightType, .layerStroke, .textTransform, .dateAndTimeFormat, .shape, .scrollJumpStyle, .scrollDecelerationRate, .delayStyle, .shapeCoordinates, .shapeCommandType, .shapeCommand, .orientation, .cameraOrientation, .deviceOrientation, .vnImageCropOption, .textDecoration, .textFont, .blendMode, .mapType, .progressIndicatorStyle, .mobileHapticStyle, .strokeLineCap, .strokeLineJoin, .contentMode, .sizingScenario, .pinTo, .deviceAppearance, .materialThickness, .none:
-            return self.coerceToTruthyOrFalsey() ? Point3D.multiplicationIdentity : .zero
+            return self.coerceToTruthyOrFalsey(graphTime) ? Point3D.multiplicationIdentity : .zero
         }
     }
 }
 
 // MARK: POINT4D
 
-func point4DCoercer(_ values: PortValues) -> PortValues {
-    values.map { .point4D($0.coerceToPoint4D) }
+func point4DCoercer(_ values: PortValues, graphTime: TimeInterval) -> PortValues {
+    values.map { .point4D($0.coerceToPoint4D(graphTime)) }
 }
 
 extension PortValue {
-    var coerceToPoint4D: Point4D {
+    func coerceToPoint4D(_ graphTime: TimeInterval) -> Point4D {
         switch self {
         case .point4D(let x):
             return x
@@ -395,21 +395,21 @@ extension PortValue {
             }
             return .defaultFalse
         case .transform, .plane, .networkRequestType, .color, .pulse, .asyncMedia, .anchoring, .cameraDirection, .assignedLayer, .scrollMode, .textAlignment, .textVerticalAlignment, .fitStyle, .animationCurve, .lightType, .layerStroke, .textTransform, .dateAndTimeFormat, .shape, .scrollJumpStyle, .scrollDecelerationRate, .delayStyle, .shapeCoordinates, .shapeCommandType, .shapeCommand, .orientation, .cameraOrientation, .deviceOrientation, .vnImageCropOption, .textDecoration, .textFont, .blendMode, .mapType, .progressIndicatorStyle, .mobileHapticStyle, .strokeLineCap, .strokeLineJoin, .contentMode, .sizingScenario, .pinTo, .deviceAppearance, .materialThickness, .none:
-            return self.coerceToTruthyOrFalsey() ? .multiplicationIdentity : .empty
+            return self.coerceToTruthyOrFalsey(graphTime) ? .multiplicationIdentity : .empty
         }
     }
 }
 
 // MARK: SPACING
 
-func spacingCoercer(_ values: PortValues) -> PortValues {
+func spacingCoercer(_ values: PortValues, graphTime: TimeInterval) -> PortValues {
     values
-        .map { .spacing($0.coerceToStitchSpacing()) }
+        .map { .spacing($0.coerceToStitchSpacing(graphTime)) }
 }
 
 extension PortValue {
     // Takes any PortValue, and returns a MobileHapticStyle
-    func coerceToStitchSpacing() -> StitchSpacing {
+    func coerceToStitchSpacing(_ graphTime: TimeInterval) -> StitchSpacing {
         switch self {
         case .number(let x):
             return .fromSingleNumber(x)
@@ -464,7 +464,7 @@ extension PortValue {
             }
             return .defaultFalse
         case .transform, .plane, .networkRequestType, .color, .pulse, .asyncMedia, .anchoring, .cameraDirection, .assignedLayer, .scrollMode, .textAlignment, .textVerticalAlignment, .fitStyle, .animationCurve, .lightType, .layerStroke, .textTransform, .dateAndTimeFormat, .shape, .scrollJumpStyle, .scrollDecelerationRate, .delayStyle, .shapeCoordinates, .shapeCommandType, .shapeCommand, .orientation, .cameraOrientation, .deviceOrientation, .vnImageCropOption, .textDecoration, .textFont, .blendMode, .mapType, .progressIndicatorStyle, .mobileHapticStyle, .strokeLineCap, .strokeLineJoin, .contentMode, .sizingScenario, .pinTo, .deviceAppearance, .materialThickness, .none, .json:
-            return self.coerceToTruthyOrFalsey() ? .defaultTrue : .defaultFalse
+            return self.coerceToTruthyOrFalsey(graphTime) ? .defaultTrue : .defaultFalse
         }
         
     }
@@ -492,14 +492,14 @@ extension StitchSpacing {
 
 // MARK: PADDING
 
-func paddingCoercer(_ values: PortValues) -> PortValues {
-    values.map { .padding($0.coerceToStitchPadding()) }
+func paddingCoercer(_ values: PortValues, graphTime: TimeInterval) -> PortValues {
+    values.map { .padding($0.coerceToStitchPadding(graphTime)) }
 }
 
 
 extension PortValue {
     // Takes any PortValue, and returns a MobileHapticStyle
-    func coerceToStitchPadding() -> StitchPadding {
+    func coerceToStitchPadding(_ graphTime: TimeInterval) -> StitchPadding {
         switch self {
         case .number(let x):
             return .fromSingleNumber(x)
@@ -554,7 +554,7 @@ extension PortValue {
             }
             return .defaultFalse
         case .transform, .plane, .networkRequestType, .color, .pulse, .asyncMedia, .anchoring, .cameraDirection, .assignedLayer, .scrollMode, .textAlignment, .textVerticalAlignment, .fitStyle, .animationCurve, .lightType, .layerStroke, .textTransform, .dateAndTimeFormat, .shape, .scrollJumpStyle, .scrollDecelerationRate, .delayStyle, .shapeCoordinates, .shapeCommandType, .shapeCommand, .orientation, .cameraOrientation, .deviceOrientation, .vnImageCropOption, .textDecoration, .textFont, .blendMode, .mapType, .progressIndicatorStyle, .mobileHapticStyle, .strokeLineCap, .strokeLineJoin, .contentMode, .sizingScenario, .pinTo, .deviceAppearance, .materialThickness, .none, .json:
-            return self.coerceToTruthyOrFalsey() ? .multiplicationIdentity : .empty
+            return self.coerceToTruthyOrFalsey(graphTime) ? .multiplicationIdentity : .empty
         }
     }
 }

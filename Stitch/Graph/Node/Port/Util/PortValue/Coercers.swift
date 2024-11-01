@@ -39,8 +39,8 @@ import CoreML
 // this is not quite correct?
 // ... since boolParser just says "true" if the display string is non-empty,
 // whereas really, "0" is non-empty but falsey
-func boolCoercer(_ values: PortValues) -> PortValues {
-    values.map { .bool($0.coerceToTruthyOrFalsey()) }
+func boolCoercer(_ values: PortValues, graphTime: TimeInterval) -> PortValues {
+    values.map { .bool($0.coerceToTruthyOrFalsey(graphTime)) }
 }
 
 // ie port is expected to be of type String;
@@ -99,7 +99,7 @@ extension Color {
 }
 
 extension PortValue {
-    var asGrayscaleColor: Color {
+    func asGrayscaleColor(graphTime: TimeInterval) -> Color {
         switch self {
         case .number(let n):
             return .fromGrayscaleNumber(n)
@@ -116,25 +116,25 @@ extension PortValue {
         case .string(let n):
             return .fromGrayscaleNumber(Double(n.string.count))
         default:
-            return self.coerceToTruthyOrFalsey() ? Color.trueColor : Color.falseColor
+            return self.coerceToTruthyOrFalsey(graphTime) ? Color.trueColor : Color.falseColor
         }
     }
 }
 
-func colorCoercer(_ values: PortValues) -> PortValues {
+func colorCoercer(_ values: PortValues, graphTime: TimeInterval) -> PortValues {
     //    log("colorCoercer called")
-    return values.map {
+    values.map {
         switch $0 {
         case .color:
             return $0 // color stays same
         default:
-            return .color($0.asGrayscaleColor) // all others, try to coerce to grayscale color
+            return .color($0.asGrayscaleColor(graphTime: graphTime)) // all others, try to coerce to grayscale color
         }
     }
 }
 
 func transformCoercer(_ values: PortValues) -> PortValues {
-    return values.map { (value: PortValue) -> PortValue in
+    values.map { (value: PortValue) -> PortValue in
         switch value {
         case .transform(let x):
             return .transform(x)
@@ -145,7 +145,7 @@ func transformCoercer(_ values: PortValues) -> PortValues {
 }
 
 func planeCoercer(_ values: PortValues) -> PortValues {
-    return values.map { (value: PortValue) -> PortValue in
+    values.map { (value: PortValue) -> PortValue in
         switch value {
         case .plane(let x):
             return .plane(x)
@@ -159,7 +159,7 @@ func planeCoercer(_ values: PortValues) -> PortValues {
 
 // most non-image values seem to be coerced to the empty/default image etc.
 func asyncMediaCoercer(_ values: PortValues) -> PortValues {
-    return values.map { (value: PortValue) -> PortValue in
+    values.map { (value: PortValue) -> PortValue in
         switch value {
         case .asyncMedia(let x):
             return .asyncMedia(x)
@@ -198,7 +198,7 @@ func shapeCoordinatesCoercer(_ values: PortValues) -> PortValues {
 // TODO?: Other types can be coerced into eg a single-element json array,
 // or some complex port value types like position can be coerced to a json object?
 func jsonCoercer(_ values: PortValues) -> PortValues {
-    return values.map { (value: PortValue) -> PortValue in
+    values.map { (value: PortValue) -> PortValue in
         switch value {
         case .json:
             return value
@@ -221,7 +221,7 @@ func jsonCoercer(_ values: PortValues) -> PortValues {
 }
 
 func networkRequestTypeCoercer(_ values: PortValues) -> PortValues {
-    return values.map { (value: PortValue) -> PortValue in
+    values.map { (value: PortValue) -> PortValue in
         switch value {
         case .networkRequestType:
             return value
@@ -234,8 +234,7 @@ func networkRequestTypeCoercer(_ values: PortValues) -> PortValues {
 }
 
 func interactionIdCoercer(_ values: PortValues) -> PortValues {
-    log("interactionIdCoercer: values: \(values)")
-    return values.map {
+    values.map {
         switch $0 {
         case .assignedLayer:
             log("interactionIdCoercer: interactionId")
@@ -272,7 +271,7 @@ func pinToCoercer(_ values: PortValues) -> PortValues {
 }
 
 func deviceAppearanceCoercer(_ values: PortValues) -> PortValues {
-    return values.map {
+    values.map {
         switch $0 {
         case .deviceAppearance:
             return $0
@@ -285,7 +284,7 @@ func deviceAppearanceCoercer(_ values: PortValues) -> PortValues {
 }
 
 func materialThicknessCoercer(_ values: PortValues) -> PortValues {
-    return values.map {
+    values.map {
         switch $0 {
         case .materialThickness:
             return $0
@@ -298,7 +297,7 @@ func materialThicknessCoercer(_ values: PortValues) -> PortValues {
 }
 
 func scrollModeCoercer(_ values: PortValues) -> PortValues {
-    return values.map {
+    values.map {
         switch $0 {
         case .scrollMode:
             return $0
@@ -311,7 +310,7 @@ func scrollModeCoercer(_ values: PortValues) -> PortValues {
 }
 
 func textAlignmentCoercer(_ values: PortValues) -> PortValues {
-    return values.map {
+    values.map {
         switch $0 {
         case .textAlignment:
             return $0
@@ -324,7 +323,7 @@ func textAlignmentCoercer(_ values: PortValues) -> PortValues {
 }
 
 func textVerticalAlignmentCoercer(_ values: PortValues) -> PortValues {
-    return values.map {
+    values.map {
         switch $0 {
         case .textVerticalAlignment:
             return $0
@@ -337,7 +336,7 @@ func textVerticalAlignmentCoercer(_ values: PortValues) -> PortValues {
 }
 
 func textDecorationCoercer(_ values: PortValues) -> PortValues {
-    return values.map {
+    values.map {
         switch $0 {
         case .textDecoration:
             return $0
@@ -350,7 +349,7 @@ func textDecorationCoercer(_ values: PortValues) -> PortValues {
 }
 
 func textFontCoercer(_ values: PortValues) -> PortValues {
-    return values.map {
+    values.map {
         switch $0 {
         case .textFont:
             return $0
@@ -381,7 +380,7 @@ func blendModeCoercer(_ values: PortValues) -> PortValues {
 }
 
 func fitStyleCoercer(_ values: PortValues) -> PortValues {
-    return values.map {
+    values.map {
         switch $0 {
         case .fitStyle:
             return $0
@@ -394,7 +393,7 @@ func fitStyleCoercer(_ values: PortValues) -> PortValues {
 }
 
 func animationCurveCoercer(_ values: PortValues) -> PortValues {
-    return values.map {
+    values.map {
         switch $0 {
         case .animationCurve:
             return $0
@@ -407,7 +406,7 @@ func animationCurveCoercer(_ values: PortValues) -> PortValues {
 }
 
 func lightTypeCoercer(_ values: PortValues) -> PortValues {
-    return values.map {
+    values.map {
         switch $0 {
         case .lightType:
             return $0
@@ -420,7 +419,7 @@ func lightTypeCoercer(_ values: PortValues) -> PortValues {
 }
 
 func layerStrokeCoercer(_ values: PortValues) -> PortValues {
-    return values.map {
+    values.map {
         switch $0 {
         case .layerStroke:
             return $0
@@ -433,7 +432,7 @@ func layerStrokeCoercer(_ values: PortValues) -> PortValues {
 }
 
 func textTransformCoercer(_ values: PortValues) -> PortValues {
-    return values.map {
+    values.map {
         switch $0 {
         case .textTransform:
             return $0
@@ -446,7 +445,7 @@ func textTransformCoercer(_ values: PortValues) -> PortValues {
 }
 
 func dateAndTimeFormatCoercer(_ values: PortValues) -> PortValues {
-    return values.map {
+    values.map {
         switch $0 {
         case .dateAndTimeFormat:
             return $0
