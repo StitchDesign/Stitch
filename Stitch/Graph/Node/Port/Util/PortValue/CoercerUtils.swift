@@ -42,8 +42,8 @@ func coerceToTruthyOrFalsey(_ value: PortValue,
     case .color(let x):
         return x != falseColor
     case .pulse(let x):
-        // A pulse is true
-        return x == graphTime
+        // A pulse is true if we're 
+        return x == graphTime && graphTime != .zero
     case .json(let x):
         return x.value != ""
     case .point3D(let x):
