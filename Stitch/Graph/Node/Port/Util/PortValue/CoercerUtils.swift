@@ -11,7 +11,7 @@ import SwiftUI
 import CoreML
 
 extension PortValue {
-    func coerceToTruthyOrFalsey(graphTime: TimeInterval = 0.0) -> Bool {
+    func coerceToTruthyOrFalsey(_ graphTime: TimeInterval) -> Bool {
         Stitch.coerceToTruthyOrFalsey(self, graphTime: graphTime)
     }
 }
@@ -42,8 +42,8 @@ func coerceToTruthyOrFalsey(_ value: PortValue,
     case .color(let x):
         return x != falseColor
     case .pulse(let x):
-        // A pulse is true
-        return x == graphTime
+        // A pulse is true if we're 
+        return x == graphTime && graphTime != .zero
     case .json(let x):
         return x.value != ""
     case .point3D(let x):
@@ -74,25 +74,25 @@ extension PortValues {
         case .string:
             return stringCoercer(values)
         case .bool:
-            return boolCoercer(values)
+            return boolCoercer(values, graphTime: currentGraphTime)
         case .int:
-            return intCoercer(values)
+            return intCoercer(values, graphTime: currentGraphTime)
         case .number:
-            return numberCoercer(values)
+            return numberCoercer(values, graphTime: currentGraphTime)
         case .layerDimension:
-            return layerDimensionCoercer(values)
+            return layerDimensionCoercer(values, graphTime: currentGraphTime)
         case .pulse:
             return pulseCoercer(values, graphTime: currentGraphTime)
         case .color:
-            return colorCoercer(values)
+            return colorCoercer(values, graphTime: currentGraphTime)
         case .size:
-            return sizeCoercer(values)
+            return sizeCoercer(values, graphTime: currentGraphTime)
         case .position:
-            return positionCoercer(values)
+            return positionCoercer(values, graphTime: currentGraphTime)
         case .point3D:
-            return point3DCoercer(values)
+            return point3DCoercer(values, graphTime: currentGraphTime)
         case .point4D:
-            return point4DCoercer(values)
+            return point4DCoercer(values, graphTime: currentGraphTime)
         case .transform:
             return transformCoercer(values)
         case .asyncMedia:
@@ -173,9 +173,9 @@ extension PortValues {
         case .contentMode:
             return contentModeCoercer(values)
         case .spacing:
-            return spacingCoercer(values)
+            return spacingCoercer(values, graphTime: currentGraphTime)
         case .padding:
-            return paddingCoercer(values)
+            return paddingCoercer(values, graphTime: currentGraphTime)
         case .sizingScenario:
             return sizingScenarioCoercer(values)
         case .pinTo:
