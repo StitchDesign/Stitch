@@ -169,7 +169,8 @@ let VISUAL_PROGRAMMING_ACTIONS = """
                 "description": "The ID of the node to be added",
                 "type": "string"
               }
-            }
+            },
+            "additionalProperties": false
           }
         },
         {
@@ -202,7 +203,8 @@ let VISUAL_PROGRAMMING_ACTIONS = """
                   }
                 ]
               }
-            }
+            },
+            "additionalProperties": false
           }
         },
         {
@@ -224,7 +226,8 @@ let VISUAL_PROGRAMMING_ACTIONS = """
                 "$ref": "#/$defs/NodeType",
                 "description": "The new type of the node"
               }
-            }
+            },
+            "additionalProperties": false
           }
         },
         {
@@ -271,7 +274,8 @@ let VISUAL_PROGRAMMING_ACTIONS = """
                 "$ref": "#/$defs/NodeType",
                 "description": "The type of node to use."
               }
-            }
+            },
+            "additionalProperties": false
           }
         },
         {
@@ -309,7 +313,8 @@ let VISUAL_PROGRAMMING_ACTIONS = """
                   }
                 ]
               }
-            }
+            },
+            "additionalProperties": false
           }
         }
       ]
