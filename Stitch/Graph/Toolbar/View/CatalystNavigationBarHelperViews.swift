@@ -8,10 +8,29 @@
 import SwiftUI
 import StitchSchemaKit
 
-// Imitates the .navigationTitle($someBinding) edit experience on iPad
-struct CatalystNavBarTitleEditField: View {
-    @Bindable var graph: GraphState
+struct CatalystProjectTitleModalOpened: GraphUIEvent {
+    func handle(state: GraphUIState) {
+        // log("CatalystProjectTitleModalOpened")
+        withAnimation {
+            state.showCatalystProjectTitleModal = true
+        }
+        state.reduxFieldFocused(focusedField: .projectTitle)
+    }
+}
 
+struct CatalystProjectTitleModalClosed: GraphUIEvent {
+    func handle(state: GraphUIState) {
+        // log("CatalystProjectTitleModalClosed")
+        withAnimation {
+            state.showCatalystProjectTitleModal = false
+        }
+        state.reduxFieldDefocused(focusedField: .projectTitle)
+    }
+}
+
+struct CatalystProjectTitleModalView: View {
+    
+    @Bindable var graph: GraphState
     @FocusState var focus: Bool
     
     var body: some View {
@@ -20,46 +39,52 @@ struct CatalystNavBarTitleEditField: View {
             .autocorrectionDisabled()
             .modifier(SelectAllTextViewModifier())
             .modifier(NavigationTitleFontViewModifier())
-            .padding(6)
-        
-            // worked well with Sonoma 14.3 and earlier
-            // .frame(minWidth: self.focus ? 260 : 30, maxWidth: 400)
-            
-            // fix for issue with Sonoma 14.4
-            // .frame(minWidth: 260, maxWidth: 400)
-        
-            // Padding alone does not prevent text field from sliding to the left and covering the back-button etc. ...
-            // .padding(.trailing, 64)
-        
-            // ... setting an explicit width seems necessary to prevent the text field from covering the back-button during a long title edit
-            .width(260)
-        
-            .overlay { fieldHighlight }
-            .onChange(of: self.focus) { oldValue, newValue in
-                log("CatalystNavBarTitleEditField: .onChange(of: self.focus): oldValue: \(oldValue)")
-                log("CatalystNavBarTitleEditField: .onChange(of: self.focus): newValue: \(newValue)")
-                withAnimation(.easeOut(duration: 0.2)) {
-                    self.focus = newValue
+            .onAppear {
+                // log("CatalystProjectTitleModalView: onAppear")
+                self.focus = true
+            }
+            .onChange(of: self.graph.graphUI.reduxFocusedField == .projectTitle, initial: true) { oldValue, newValue in
+                // log("CatalystProjectTitleModalView: .onChange(of: self.graph.graphUI.reduxFocusedField): oldValue: \(oldValue)")
+                // log("CatalystProjectTitleModalView: .onChange(of: self.graph.graphUI.reduxFocusedField): newValue: \(newValue)")
+                if !newValue {
+                    // log("CatalystProjectTitleModalView: .onChange(of: self.graph.graphUI.reduxFocusedField): will set focus false")
+                    self.focus = false
+                } else {
+                    // log("CatalystProjectTitleModalView: .onChange(of: self.graph.graphUI.reduxFocusedField): will set focus true")
+                    self.focus = true
                 }
-
+            }
+        // Do not use `initial: true`
+            .onChange(of: self.focus) { oldValue, newValue in
+                // log("CatalystProjectTitleModalView: .onChange(of: self.focus): oldValue: \(oldValue)")
+                // log("CatalystProjectTitleModalView: .onChange(of: self.focus): newValue: \(newValue)")
                 if newValue {
                     dispatch(ReduxFieldFocused(focusedField: .projectTitle))
                 } else {
                     // log("CatalystNavBarTitleEditField: defocused, so will commit")
                     graph.name = graph.name.validateProjectTitle()
                     dispatch(ReduxFieldDefocused(focusedField: .projectTitle))
+                    dispatch(CatalystProjectTitleModalClosed())
                     // Commit project name to disk
                     graph.encodeProjectInBackground()
-                    
                 }
             }
     }
+}
+
+// Imitates the .navigationTitle($someBinding) edit experience on iPad
+struct CatalystNavBarProjectTitleDisplayView: View {
+    @Bindable var graph: GraphState
     
-    var fieldHighlight: some View {
-        RoundedRectangle(cornerRadius: 8)
-            .stroke(Color.accentColor,
-                    lineWidth: self.focus ? 2 : 0)
-    }
+    var body: some View {
+        Text(graph.name)
+            .modifier(NavigationTitleFontViewModifier())
+            .padding(6)
+            .frame(width: 260, height: 16, alignment: .leading)
+            .onTapGesture {
+                dispatch(CatalystProjectTitleModalOpened())
+            }
+    }    
 }
 
 struct NavigationTitleFontViewModifier: ViewModifier {
