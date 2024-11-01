@@ -31,6 +31,8 @@ struct ActiveDragInteractionNodeVelocityData: Equatable, Hashable {
 @Observable
 final class GraphUIState {
 
+    var showCatalystProjectTitleModal: Bool = false
+    
     // Only for node cursor selection box done when shift held
     var nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag: CanvasItemIdSet? = nil
     
@@ -292,6 +294,10 @@ extension GraphState {
         // Wipe any redux-controlled focus field
         // (For now, just used with TextField layers)
         self.graphUI.reduxFocusedField = nil
+        
+        withAnimation {
+            self.graphUI.showCatalystProjectTitleModal = false
+        }
         
         self.graphUI.isSidebarFocused = false
     }
