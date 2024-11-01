@@ -11,8 +11,11 @@ import StitchSchemaKit
 
 struct PrototypeRestartedAction: GraphEvent {
     func handle(state: GraphState) {
-        
         log("PrototypeRestartedAction called")
-        state.onPrototypeRestart()
+        if let documentDelegate = state.documentDelegate {
+            documentDelegate.onPrototypeRestart()
+        } else {
+            fatalErrorIfDebug()
+        }
     }
 }
