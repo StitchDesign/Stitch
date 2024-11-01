@@ -295,7 +295,9 @@ extension GraphState {
         // (For now, just used with TextField layers)
         self.graphUI.reduxFocusedField = nil
         
-        self.graphUI.showCatalystProjectTitleModal = false
+        withAnimation {
+            self.graphUI.showCatalystProjectTitleModal = false
+        }
         
         self.graphUI.isSidebarFocused = false
     }

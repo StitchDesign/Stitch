@@ -11,7 +11,9 @@ import StitchSchemaKit
 struct CatalystProjectTitleModalOpened: GraphUIEvent {
     func handle(state: GraphUIState) {
         // log("CatalystProjectTitleModalOpened")
-        state.showCatalystProjectTitleModal = true
+        withAnimation {
+            state.showCatalystProjectTitleModal = true
+        }
         state.reduxFieldFocused(focusedField: .projectTitle)
     }
 }
@@ -19,7 +21,9 @@ struct CatalystProjectTitleModalOpened: GraphUIEvent {
 struct CatalystProjectTitleModalClosed: GraphUIEvent {
     func handle(state: GraphUIState) {
         // log("CatalystProjectTitleModalClosed")
-        state.showCatalystProjectTitleModal = false
+        withAnimation {
+            state.showCatalystProjectTitleModal = false
+        }
         state.reduxFieldDefocused(focusedField: .projectTitle)
     }
 }

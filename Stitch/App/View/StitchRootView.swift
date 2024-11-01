@@ -62,11 +62,11 @@ struct StitchRootView: View {
                             ZStack {
                                 
                                 MODAL_BACKGROUND_COLOR
-                                //                                    .ignoresSafeArea()
                                     .ignoresSafeArea([.all, .keyboard])
                                     .onTapGesture {
                                         dispatch(CatalystProjectTitleModalClosed())
                                     }
+                                
                                 VStack(alignment: .leading) {
                                     StitchTextView(string: "Edit Project Title")
                                     CatalystProjectTitleModalView(graph: document.visibleGraph)
