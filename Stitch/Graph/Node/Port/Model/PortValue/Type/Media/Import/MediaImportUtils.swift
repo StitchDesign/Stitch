@@ -34,7 +34,7 @@ extension GraphDelegate {
 
 extension URL {
     /// Creates media object. ID only needed for 3D model object.
-    func createMediaObject(nodeId: NodeId?) async -> MediaObjectResult {
+    @MainActor func createMediaObject(nodeId: NodeId?) async -> MediaObjectResult {
         let pathExtension = self.pathExtension.uppercased()
 
         if isImageFile(pathExtension: pathExtension) {

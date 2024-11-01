@@ -174,7 +174,7 @@ extension StitchARView: StitchCameraSession {
 }
 
 final class StitchARViewCaptureDelegate: NSObject, ARSessionDelegate, Sendable {
-    private let context = CIContext()
+//    private let context = CIContext()
     private var processedImage: UIImage?
     private var isLoading: Bool = false
     @MainActor var convertedImage: UIImage?
@@ -186,17 +186,18 @@ final class StitchARViewCaptureDelegate: NSObject, ARSessionDelegate, Sendable {
         }
         
         self.isLoading = true
+        let context = CIContext()
         
         // UIImage conversion moved to background thread for perf
-        Task(priority: .high) { [weak self] in
-            guard let context = self?.context else {
+        Task(priority: .high) { [weak self, weak context] in
+            guard let context = context else {
                 return
             }
 
             if let uiImage = await frame.convertToUIImage(context: context) {
                 self?.processedImage = uiImage
                 
-                DispatchQueue.main.async { [weak self] in
+                await MainActor.run { [weak self] in
                     guard let newImage = self?.processedImage else {
                         return
                     }
