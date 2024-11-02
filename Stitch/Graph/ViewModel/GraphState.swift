@@ -719,10 +719,11 @@ extension GraphState {
             outputsToUpdate[portId] = outputToUpdate
             
             // Update downstream node's inputs
-            let changedNodeIds = self.updateDownstreamInputs(
+            let changedInputIds = self.updateDownstreamInputs(
                 sourceNode: node,
                 flowValues: outputToUpdate,
                 outputCoordinate: outputCoordinate)
+            let changedNodeIds = Set(changedInputIds.map(\.nodeId)).toSet
             
             nodeIdsToRecalculate = nodeIdsToRecalculate.union(changedNodeIds)
         } // (portId, newOutputValue) in portValues.enumerated()

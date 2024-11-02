@@ -331,12 +331,14 @@ extension GraphState {
         let evalResult = componentNode.evaluateOutputSplitters()
         
         let changedDownstreamInputs = parentGraph
-            .getChangedDownstreamNodeIds(evalResult: evalResult,
-                                         sourceNode: node,
-                                         existingOutputsValues: prevOutputs,
-                                         outputCoordinates: node.outputCoordinates)
+            .getChangedDownstreamInputIds(evalResult: evalResult,
+                                          sourceNode: node,
+                                          existingOutputsValues: prevOutputs,
+                                          outputCoordinates: node.outputCoordinates)
+        
+        let downstreamNodes = changedDownstreamInputs.map(\.nodeId).toSet
         
         // Calculate connections from component outputs
-        parentGraph.calculate(from: changedDownstreamInputs)
+        parentGraph.calculate(from: downstreamNodes)
     }
 }

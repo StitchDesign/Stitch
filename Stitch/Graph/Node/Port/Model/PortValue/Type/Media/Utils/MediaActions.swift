@@ -332,12 +332,13 @@ extension GraphState {
             
             // Flow new outputs to downstream nodes
             node.outputs.enumerated().forEach { index, values in
-                changedDownstreamNodes = changedDownstreamNodes.union(
-                    graph.updateDownstreamInputs(
-                        sourceNode: node,
-                        flowValues: values,
-                        outputCoordinate: .init(portId: index, nodeId: node.id))
-                )
+                let downstreamInputs = graph.updateDownstreamInputs(
+                    sourceNode: node,
+                    flowValues: values,
+                    outputCoordinate: .init(portId: index, nodeId: node.id))
+                let downstreamNodes = Set(downstreamInputs.map(\.nodeId)).toSet
+                
+                changedDownstreamNodes = changedDownstreamNodes.union(downstreamNodes)
             }
             
             // Recalculate downstream patch nodes after values are updated
