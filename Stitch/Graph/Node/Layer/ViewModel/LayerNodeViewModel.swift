@@ -166,6 +166,7 @@ final class LayerNodeViewModel {
         }
     }
 
+    @MainActor
     init(from schema: LayerNodeEntity) {
         
         let graphNode = schema.layer.layerGraphNode
@@ -323,6 +324,7 @@ final class LayerNodeViewModel {
 }
 
 extension LayerNodeViewModel: SchemaObserver {
+    @MainActor
     static func createObject(from entity: LayerNodeEntity,
                              activeIndex: ActiveIndex) -> Self {
         .init(from: entity)
