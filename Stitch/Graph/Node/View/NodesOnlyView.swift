@@ -24,10 +24,6 @@ struct NodesOnlyView: View {
     var activeIndex: ActiveIndex {
         graphUI.activeIndex
     }
-    
-    var adjustmentBarSessionId: AdjustmentBarSessionId {
-        graphUI.adjustmentBarSessionId
-    }
         
     var body: some View {
         // HACK for when no nodes present
@@ -48,7 +44,6 @@ struct NodesOnlyView: View {
                     atleastOneCommentBoxSelected: selection.selectedCommentBoxes.count >= 1,
                     activeIndex: activeIndex,
                     groupNodeFocused: graphUI.groupNodeFocused,
-                    adjustmentBarSessionId: adjustmentBarSessionId,
                     isHiddenDuringAnimation: insertNodeMenuHiddenNode
                         .map { $0 == node.id } ?? false
                 )

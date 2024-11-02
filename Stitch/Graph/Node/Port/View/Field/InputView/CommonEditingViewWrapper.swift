@@ -17,7 +17,6 @@ struct CommonEditingViewWrapper: View {
     let fieldCoordinate: FieldCoordinate
     let isCanvasItemSelected: Bool
     let choices: [String]?
-    let adjustmentBarSessionId: AdjustmentBarSessionId
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
     let isFieldInMultifieldInput: Bool
