@@ -185,6 +185,7 @@ extension LayerNodeViewModel {
     }
     
     /// Second step for layer port initialization after all initial identifier data is set.
+    @MainActor
     func initializePortSchema(layerSchema: LayerNodeEntity,
                               layerInputPort: LayerInputPort) {
         let layerData = self[keyPath: layerInputPort.layerNodeKeyPath]
@@ -249,6 +250,7 @@ extension LayerInputObserver {
         }
     }
     
+    @MainActor
     func update(from schema: LayerInputEntity,
                 layerInputType: LayerInputPort,
                 layerNode: LayerNodeViewModel,
