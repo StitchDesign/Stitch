@@ -26,7 +26,8 @@ extension LayerDimensionField {
         case .hug:
             return .HUG_SIZE_STRING
         case .number(let double):
-            return GlobalFormatter.string(for: double) ?? double.description
+            // return GlobalFormatter.string(for: double) ?? double.description
+            return double.description
         case .percent(let double):
             return "\(double.description)%"
         }
