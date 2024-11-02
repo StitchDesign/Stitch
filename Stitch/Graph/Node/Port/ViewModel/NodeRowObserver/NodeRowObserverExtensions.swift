@@ -57,6 +57,7 @@ extension NodeRowObserver {
     /// Also invoked when nodes enter the viewframe incase they need to be udpated.
     @MainActor
     func updatePortViewModels() {
+        // MARK: perf improvement using % 2 to cut render cycles for fields
         guard let graph = self.nodeDelegate?.graphDelegate,
               graph.graphStepState.graphFrameCount % 2 == 0 else {
             return
