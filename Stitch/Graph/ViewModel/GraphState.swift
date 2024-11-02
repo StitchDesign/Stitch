@@ -96,8 +96,8 @@ final class GraphState: Sendable {
 
 extension GraphState {
     @MainActor
-    var orderedSidebarLayers: SidebarLayerList {
-        self.layersSidebarViewModel.createdOrderedEncodedData()
+    var orderedSidebarLayers: [SidebarItemGestureViewModel] {
+        self.layersSidebarViewModel.items
     }
     
     convenience init(from schema: GraphEntity,
@@ -279,7 +279,7 @@ extension GraphState {
         let graph = GraphEntity(id: self.projectId,
                                 name: self.name,
                                 nodes: nodes,
-                                orderedSidebarLayers: self.orderedSidebarLayers,
+                                orderedSidebarLayers: self.layersSidebarViewModel.createdOrderedEncodedData(),
                                 commentBoxes: commentBoxes)
         return graph
     }

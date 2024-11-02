@@ -75,7 +75,7 @@ protocol GraphDelegate: AnyObject, Sendable {
     
     var layersSidebarViewModel: LayersSidebarViewModel { get }
     
-    var orderedSidebarLayers: OrderedSidebarLayers { get }
+    var orderedSidebarLayers: [SidebarItemGestureViewModel] { get }
 
     @MainActor func updateGraphData()
     
