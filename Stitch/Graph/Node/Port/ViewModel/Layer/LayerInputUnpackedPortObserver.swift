@@ -69,6 +69,7 @@ extension LayerInputUnpackedPortObserver {
     }
     
     /// From packed values, unpacks them for unpack layer input scenario.
+    @MainActor
     func updateValues(from packedValues: PortValues,
                       layerNode: LayerNodeViewModel) {
         let unpackedValues = packedValues.map { self.layerPort.unpackValues(from: $0) }
