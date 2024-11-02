@@ -251,6 +251,9 @@ extension GraphState: GraphDelegate {
             self.initializeDelegate(document: document,
                                     documentEncoderDelegate: encoderDelegate)
         }
+        
+        // Update connected port data
+        self.visibleNodesViewModel.updateAllNodeViewData()
     }
     
     var isSidebarFocused: Bool {
