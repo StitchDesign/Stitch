@@ -176,260 +176,82 @@ These are the descriptions for all the available nodes; reference them when dete
 let VISUAL_PROGRAMMING_ACTIONS = """
 {
   "$defs": {
-    "Actions": {
+    "AddNodeAction": {
+      "type": "object",
       "properties": {
-        "step_type": {
-          "enum": [
-            "add_node",
-            "change_node_type",
-            "set_input",
-            "connect_nodes",
-            "add_layer_input"
-          ],
-          "description": "The type of step performed"
-        },
-        "node_name": {
+        "step_type": { "const": "add_node" },
+        "node_name": { "type": "string", "description": "The name of the node to be added" },
+        "node_id": { "type": "string", "description": "The ID of the node to be added", "format": "uuid" }
+      },
+      "required": ["step_type", "node_name", "node_id"]
+    },
+    "ConnectNodesAction": {
+      "type": "object",
+      "properties": {
+        "step_type": { "const": "connect_nodes" },
+        "from_node_id": { "type": "string", "description": "ID of the node where the connection starts", "format": "uuid" },
+        "to_node_id": { "type": "string", "description": "ID of the node where the connection ends", "format": "uuid" },
+        "port": {
           "anyOf": [
-            {
-              "$ref": "#/$defs/NodeName"
-            }
+            { "type": "integer" },
+            { "$ref": "#/$defs/LayerPorts" }
           ],
-          "default": null,
-          "description": "The name of the node to add"
-        },
-        "node_id": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/NodeID"
-            }
-          ],
-          "default": null,
-          "description": "The id of the node to add"
-        },
-        "from_node_id": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/NodeID"
-            }
-          ],
-          "default": null,
-          "description": "The id of the source node"
-        },
-        "to_node_id": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/NodeID"
-            }
-          ],
-          "default": null,
-          "description": "The id of the target node"
-        },
-        "node_type": {
-          "$ref": "#/$defs/NodeType",
-          "default": null,
-          "description": "The node type of the node"
-        },
+          "description": "The port to use for the connection. Patch nodes use integers; Layer nodes use LayerPorts values."
+        }
+      },
+      "required": ["step_type", "from_node_id", "to_node_id", "port"]
+    },
+    "ChangeNodeTypeAction": {
+      "type": "object",
+      "properties": {
+        "step_type": { "const": "change_node_type" },
+        "node_id": { "type": "string", "description": "ID of the node whose type is being changed", "format": "uuid" },
+        "node_type": { "$ref": "#/$defs/NodeType", "description": "The new type of the node" }
+      },
+      "required": ["step_type", "node_id", "node_type"]
+    },
+    "SetInputAction": {
+      "type": "object",
+      "properties": {
+        "step_type": { "const": "set_input" },
+        "node_id": { "type": "string", "description": "ID of the node receiving the input", "format": "uuid" },
         "value": {
           "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "string"
-            },
-            {
-              "type": "boolean"
-            }
+            { "type": "number" },
+            { "type": "string" },
+            { "type": "boolean" }
           ],
-          "default": null,
-          "description": "The value of the node"
+          "description": "Value to set for the input"
         },
         "port": {
           "anyOf": [
-            {
-              "$ref": "#/$defs/LayerPorts"
-            },
-            {
-              "type": "integer",
-              "minimum": 0
-            }
+            { "type": "integer" },
+            { "$ref": "#/$defs/LayerPorts" }
           ],
-          "default": null,
-          "description": "The port for connections. Use integers for patch nodes, and LayerPorts for layer nodes"
+          "description": "The port to which the value is set. Patch nodes use integers; Layer nodes use LayerPorts."
+        },
+        "node_type": { "$ref": "#/$defs/NodeType", "description": "The type of node to use." }
+      },
+      "required": ["step_type", "node_id", "port", "value", "node_type"]
+    },
+    "AddLayerInputAction": {
+      "type": "object",
+      "properties": {
+        "step_type": { "const": "add_layer_input" },
+        "node_id": { "type": "string", "description": "ID of the node receiving the layer input", "format": "uuid" },
+        "layer_type": {
+          "enum": ["Text", "Image", "Shape", "Color"],
+          "description": "Type of layer input being added"
+        },
+        "port": {
+          "anyOf": [
+            { "type": "integer" },
+            { "$ref": "#/$defs/LayerPorts" }
+          ],
+          "description": "The port to which the layer input is set"
         }
       },
-      "required": [
-        "step_type"
-      ],
-      "allOf": [
-        {
-          "if": {
-            "properties": {
-              "step_type": {
-                "const": "add_node"
-              }
-            }
-          },
-          "then": {
-            "required": ["node_name", "node_id"],
-            "properties": {
-              "node_name": {
-                "description": "The name of the node to be added",
-                "type": "string"
-              },
-              "node_id": {
-                "description": "The ID of the node to be added",
-                "type": "string"
-              }
-            },
-            "additionalProperties": false
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "step_type": {
-                "const": "connect_nodes"
-              }
-            }
-          },
-          "then": {
-            "required": ["from_node_id", "to_node_id", "port"],
-            "properties": {
-              "from_node_id": {
-                "description": "ID of the node where the connection starts",
-                "type": "string"
-              },
-              "to_node_id": {
-                "description": "ID of the node where the connection ends",
-                "type": "string"
-              },
-              "port": {
-                "description": "The port to use for the connection. Patch nodes use integers; Layer nodes use a selection from #/$defs/LayerPorts.",
-                "anyOf": [
-                  {
-                    "type": "integer"
-                  },
-                  {
-                    "$ref": "#/$defs/LayerPorts"
-                  }
-                ]
-              }
-            },
-            "additionalProperties": false
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "step_type": {
-                "const": "change_node_type"
-              }
-            }
-          },
-          "then": {
-            "required": ["node_id", "node_type"],
-            "properties": {
-              "node_id": {
-                "description": "ID of the node whose type is being changed",
-                "type": "string"
-              },
-              "node_type": {
-                "$ref": "#/$defs/NodeType",
-                "description": "The new type of the node"
-              }
-            },
-            "additionalProperties": false
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "step_type": {
-                "const": "set_input"
-              }
-            }
-          },
-          "then": {
-            "required": ["node_id", "port", "value", "node_type"],
-            "properties": {
-              "node_id": {
-                "description": "ID of the node receiving the input",
-                "type": "string"
-              },
-              "value": {
-                "description": "Value to set for the input",
-                "anyOf": [
-                  {
-                    "type": "number"
-                  },
-                  {
-                    "type": "string"
-                  },
-                  {
-                    "type": "boolean"
-                  }
-                ]
-              },
-              "port": {
-                "description": "The port to which the value is set. Patch nodes use integers; Layer nodes use a selection from #/$defs/LayerPorts.",
-                "anyOf": [
-                  {
-                    "type": "integer"
-                  },
-                  {
-                    "$ref": "#/$defs/LayerPorts"
-                  }
-                ]
-              },
-              "node_type": {
-                "$ref": "#/$defs/NodeType",
-                "description": "The type of node to use."
-              }
-            },
-            "additionalProperties": false
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "step_type": {
-                "const": "add_layer_input"
-              }
-            }
-          },
-          "then": {
-            "required": ["node_id", "layer_type", "port"],
-            "properties": {
-              "node_id": {
-                "description": "ID of the node receiving the layer input",
-                "type": "string"
-              },
-              "layer_type": {
-                "description": "Type of layer input being added",
-                "enum": [
-                  "Text",
-                  "Image",
-                  "Shape",
-                  "Color"
-                ]
-              },
-              "port": {
-                "description": "The port to which the layer input is set",
-                "anyOf": [
-                  {
-                    "type": "integer"
-                  },
-                  {
-                    "$ref": "#/$defs/LayerPorts"
-                  }
-                ]
-              }
-            },
-            "additionalProperties": false
-          }
-        }
-      ]
+      "required": ["step_type", "node_id", "layer_type", "port"]
     },
     "NodeID": {
       "type": "string",
@@ -573,24 +395,19 @@ let VISUAL_PROGRAMMING_ACTIONS = """
       ],
       "title": "NodeType",
       "type": "string"
-    },
-    "StepType": {
-      "enum": [
-        "add_node",
-        "connect_nodes",
-        "change_node_type",
-        "set_input",
-        "add_layer_input"
-      ],
-      "title": "StepType",
-      "type": "string"
     }
   },
   "properties": {
     "steps": {
       "description": "The actions taken to create a graph",
       "items": {
-        "$ref": "#/$defs/Actions"
+        "anyOf": [
+          { "$ref": "#/$defs/AddNodeAction" },
+          { "$ref": "#/$defs/ConnectNodesAction" },
+          { "$ref": "#/$defs/ChangeNodeTypeAction" },
+          { "$ref": "#/$defs/SetInputAction" },
+          { "$ref": "#/$defs/AddLayerInputAction" }
+        ]
       },
       "title": "Steps",
       "type": "array"
