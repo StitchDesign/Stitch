@@ -426,7 +426,8 @@ extension GraphState {
                 return node
             }
         
-        let selectedSidebarLayers = self.orderedSidebarLayers
+        let selectedSidebarLayers = self.layersSidebarViewModel
+            .createdOrderedEncodedData()
             .getSubset(from: selectedNodes.map { $0.id }.toSet)
         
         let copiedComponentData: [StitchComponent] = selectedNodes

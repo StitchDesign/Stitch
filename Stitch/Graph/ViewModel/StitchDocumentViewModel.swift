@@ -221,7 +221,7 @@ extension GraphState: GraphCalculatable {
         let flattenedPinMap = self.getFlattenedPinMap()
         let rootPinMap = self.getRootPinMap(pinMap: flattenedPinMap)
         
-        let previewLayers = self.recursivePreviewLayers(sidebarLayersGlobal: self.orderedSidebarLayers,
+        let previewLayers = self.recursivePreviewLayers(sidebarLayersGlobal: self.layersSidebarViewModel.createdOrderedEncodedData(),
                                                         pinMap: rootPinMap)
         
         self.cachedOrderedPreviewLayers = previewLayers

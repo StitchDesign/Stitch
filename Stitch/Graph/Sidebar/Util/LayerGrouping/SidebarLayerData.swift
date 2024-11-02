@@ -15,15 +15,15 @@ typealias SidebarLayerList = [SidebarLayerData]
 
 typealias OrderedSidebarLayers = SidebarLayerList
 
-extension SidebarLayerList {
+extension Array where Element: StitchNestedListElement {
     /// Returns ids just at a single hierarchy without recursively gathering other ids.
-    var idsAtHierarchy: NodeIdSet {
+    var idsAtHierarchy: Set<Element.ID> {
         self.map { $0.id }
             .toSet
     }
 
     /// Gets flattened list of IDs recursively.
-    func getIds() -> NodeIdList {
+    func getIds() -> [Element.ID] {
         self.flatMap {
             [$0.id] + ($0.children?.getIds() ?? [])
         }
