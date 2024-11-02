@@ -53,10 +53,6 @@ final class GraphUIState {
     // nil = no field focused
     var reduxFocusedField: FocusedUserEditField?
 
-    // Hack: to differentiate redux updates that came from undo/redo (and which close the adjustment bar popover),
-    // vs those that came from user manipulation of adjustment bar (which do not close the adjustment bar popover).
-    var adjustmentBarSessionId: AdjustmentBarSessionId = .init(id: .init())
-
     var activelyEditedCommentBoxTitle: CommentBoxId?
 
     var commentBoxBoundsDict = CommentBoxBoundsDict()
