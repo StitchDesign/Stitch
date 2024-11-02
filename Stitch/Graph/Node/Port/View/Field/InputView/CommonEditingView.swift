@@ -61,7 +61,7 @@ struct CommonEditingView: View {
     @Bindable var inputField: InputFieldViewModel
     let layerInputObserver: LayerInputObserver?
     
-    let inputString: String // from redux
+    let inputString: String
     
     @Bindable var graph: GraphState
     
@@ -192,6 +192,11 @@ struct CommonEditingView: View {
                 self.updateCurrentEdit()
             }
         }
+//        .onChange(of: inputString) {
+//            self.updateCurrentEdit()
+////            if showEditingView {
+////            }
+//        }
         // TODO: why is `.onChange(of: showEditingView)` not enough for a field focused in a flyout from an inspector-field click ?
         .onAppear {
             if isForFlyout {

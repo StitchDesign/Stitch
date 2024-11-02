@@ -43,7 +43,7 @@ extension NodeRowObserver {
         }
         
         // Update cached view-specific data: "viewValue" i.e. activeValue
-        self.updatePortViewModels()
+//        self.updatePortViewModels()
         
         self.postProcessing(oldValues: oldValues, newValues: newValues)
     }
@@ -53,19 +53,31 @@ extension NodeRowObserver {
         self.nodeDelegate?.userVisibleType
     }
     
+//    func updatePortViewModels() {
+//        guard let nodeId = self.nodeDelegate?.id else { return }
+//        
+//        self.nodeDelegate?.graphDelegate?.updatePortViewModels(for: nodeId)
+//    }
+    
     /// Updates port view models when the backend port observer has been updated.
     /// Also invoked when nodes enter the viewframe incase they need to be udpated.
     @MainActor
     func updatePortViewModels() {
-        // MARK: perf improvement using % 2 to cut render cycles for fields
-        guard let graph = self.nodeDelegate?.graphDelegate,
-              graph.graphStepState.graphFrameCount % 4 == 0 else {
-            return
-        }
+//        guard let graph = self.nodeDelegate?.graphDelegate else {
+//            return
+//        }
         
         self.getVisibleRowViewModels().forEach { rowViewModel in
             rowViewModel.didPortValuesUpdate(values: self.allLoopedValues)
         }
+        
+//        graph.fieldsDebounce.run { [weak self] in
+//            guard let row = self else { return }
+//            
+//            row.getVisibleRowViewModels().forEach { rowViewModel in
+//                rowViewModel.didPortValuesUpdate(values: row.allLoopedValues)
+//            }
+//        }
     }
     
     func getVisibleRowViewModels() -> [Self.RowViewModelType] {
@@ -107,6 +119,7 @@ extension NodeRowObserver {
         }
     }
     
+    @MainActor
     var activeValue: PortValue {
         guard let graph = self.nodeDelegate?.graphDelegate else {
             return self.allLoopedValues.first ?? .none

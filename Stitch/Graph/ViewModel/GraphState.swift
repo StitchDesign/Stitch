@@ -67,6 +67,9 @@ final class GraphState: Sendable {
     // Tracks nodes with camera enabled
     var enabledCameraNodeIds = NodeIdSet()
     
+    var fieldsDebounce = Debouncer(interval: .init(2000 / 1_000), queue: .main)
+    //Debounce<@MainActor () -> ()>(duration: .milliseconds(500)) { $0() }
+    
     var motionManagers = StitchMotionManagersDict()
     
     var networkRequestCompletedTimes = NetworkRequestLatestCompletedTimeDict()
@@ -153,9 +156,7 @@ extension GraphState {
         // Calculate graph
         self.initializeGraphComputation()
     }
-}
 
-extension GraphState: GraphDelegate {
     var graphUI: GraphUIState {
         guard let graphUI = self.documentDelegate?.graphUI else {
             return GraphUIState(isPhoneDevice: false)
