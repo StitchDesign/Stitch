@@ -59,7 +59,7 @@ extension NodeRowObserver {
     func updatePortViewModels() {
         // MARK: perf improvement using % 2 to cut render cycles for fields
         guard let graph = self.nodeDelegate?.graphDelegate,
-              graph.graphStepState.graphFrameCount % 2 == 0 else {
+              graph.graphStepState.graphFrameCount % 4 == 0 else {
             return
         }
         
