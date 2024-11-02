@@ -100,7 +100,8 @@ extension PortValue {
         case let .string(x):
             return x.string
         case let .number(x):
-            return GlobalFormatter.string(for: x) ?? x.description
+            // return GlobalFormatter.string(for: x) ?? x.description
+            return x.description
         case let .layerDimension(x):
             return x.description
         case let .int(x):
