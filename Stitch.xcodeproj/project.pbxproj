@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 60;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -207,6 +207,7 @@
 		B5B95B9A2CB6D6B400DA64B3 /* StitchSystemEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B95B992CB6D6B300DA64B3 /* StitchSystemEncoder.swift */; };
 		B5B95B9C2CB6D6D200DA64B3 /* StitchSystemUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B95B9B2CB6D6CF00DA64B3 /* StitchSystemUtil.swift */; };
 		B5BAB0412CD6C28D00693EC5 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B5BAB0402CD6C28D00693EC5 /* StitchEngine */; };
+		B5BAB0442CD6F9C500693EC5 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B5BAB0432CD6F9C500693EC5 /* StitchEngine */; };
 		B5BC6F412C718BF2004541CD /* StitchComponentUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5BC6F402C718BF2004541CD /* StitchComponentUtil.swift */; };
 		B5C0E0A72998813A00322A1E /* StitchMediaObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5C0E0A62998813A00322A1E /* StitchMediaObject.swift */; };
 		B5C0E0AB299AD5FE00322A1E /* Camera App.stitch in Resources */ = {isa = PBXBuildFile; fileRef = B5C0E0AA299AD5FE00322A1E /* Camera App.stitch */; };
@@ -1854,6 +1855,7 @@
 				EC91034A29109DF3007C548E /* SoulverCore in Frameworks */,
 				EC17DF0928F626660042BF4F /* MathParser in Frameworks */,
 				B5386FB02C9A929B00AD8065 /* StitchEngine in Frameworks */,
+				B5BAB0442CD6F9C500693EC5 /* StitchEngine in Frameworks */,
 				B56EA8A62C409898003D39E2 /* StitchEngine in Frameworks */,
 				EC39E75C26822ACA00674841 /* AudioKit in Frameworks */,
 				B5BAB0412CD6C28D00693EC5 /* StitchEngine in Frameworks */,
@@ -4471,6 +4473,7 @@
 				B5386FAF2C9A929B00AD8065 /* StitchEngine */,
 				B51D8A012CD13D420016CCDA /* StitchEngine */,
 				B5BAB0402CD6C28D00693EC5 /* StitchEngine */,
+				B5BAB0432CD6F9C500693EC5 /* StitchEngine */,
 			);
 			productName = prototype;
 			productReference = 200BD857254F66EB00692903 /* Stitch.app */;
@@ -4556,7 +4559,7 @@
 				B50F41662C1EB4320082262F /* XCRemoteSwiftPackageReference "StitchViewKit" */,
 				B5FBE3C22C4195B3006DA0A7 /* XCRemoteSwiftPackageReference "DirectoryWatcher" */,
 				E463E7ED2C6FC7090008E318 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */,
-				B5BAB03F2CD6C28D00693EC5 /* XCLocalSwiftPackageReference "../StitchEngineClosedSource" */,
+				B5BAB0422CD6F9C500693EC5 /* XCRemoteSwiftPackageReference "StitchEngineClosedSource" */,
 			);
 			productRefGroup = 200BD858254F66EB00692903 /* Products */;
 			projectDirPath = "";
@@ -6295,13 +6298,6 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCLocalSwiftPackageReference section */
-		B5BAB03F2CD6C28D00693EC5 /* XCLocalSwiftPackageReference "../StitchEngineClosedSource" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../StitchEngineClosedSource;
-		};
-/* End XCLocalSwiftPackageReference section */
-
 /* Begin XCRemoteSwiftPackageReference section */
 		201953D825B25D3300D5296C /* XCRemoteSwiftPackageReference "swift-tagged" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -6341,6 +6337,14 @@
 			requirement = {
 				kind = revision;
 				revision = 199b6a329cfc35c1554e2f46b9ab3daac021f2e3;
+			};
+		};
+		B5BAB0422CD6F9C500693EC5 /* XCRemoteSwiftPackageReference "StitchEngineClosedSource" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/vpl-codesign/StitchEngineClosedSource.git";
+			requirement = {
+				kind = revision;
+				revision = 5a321fd0522225bdab5dbde7171ae44ca733e08b;
 			};
 		};
 		B5FBE3C22C4195B3006DA0A7 /* XCRemoteSwiftPackageReference "DirectoryWatcher" */ = {
@@ -6469,6 +6473,11 @@
 		};
 		B5BAB0402CD6C28D00693EC5 /* StitchEngine */ = {
 			isa = XCSwiftPackageProductDependency;
+			productName = StitchEngine;
+		};
+		B5BAB0432CD6F9C500693EC5 /* StitchEngine */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B5BAB0422CD6F9C500693EC5 /* XCRemoteSwiftPackageReference "StitchEngineClosedSource" */;
 			productName = StitchEngine;
 		};
 		B5DB632D2C61A8C900B78B68 /* StitchEngine */ = {
