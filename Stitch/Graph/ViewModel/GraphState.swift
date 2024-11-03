@@ -18,7 +18,7 @@ import Vision
 @Observable
 final class GraphState: Sendable {
     // Updated when connections, new nodes etc change
-    let topologicalData: GraphTopologicalData<GraphState>
+    let topologicalData: GraphTopologicalData<NodeViewModel>
     
     let saveLocation: [UUID]
     
@@ -73,6 +73,8 @@ final class GraphState: Sendable {
     var motionManagers = StitchMotionManagersDict()
     
     var networkRequestCompletedTimes = NetworkRequestLatestCompletedTimeDict()
+    
+    var portsToUpdate: Set<NodePortType<NodeViewModel>> = .init()
     
     var lastEncodedDocument: GraphEntity
     weak var documentDelegate: StitchDocumentViewModel?
