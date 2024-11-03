@@ -1,5 +1,5 @@
 {
-  "originHash" : "469347d1e4f664d470c50d40cfa895a0a26dcfd89a4444f17efb7b03c481db4a",
+  "originHash" : "d6e20e51e22309b1bfdbcd160b7f323bff123d9d5bf11ed04dcc68ae48290606",
   "pins" : [
     {
       "identity" : "audiokit",
@@ -57,7 +57,7 @@
     {
       "identity" : "stitchengineclosedsource",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/vpl-codesign/StitchEngineClosedSource.git",
+      "location" : "https://github.com/StitchDesign/StitchEngineClosedSource",
       "state" : {
         "revision" : "5a321fd0522225bdab5dbde7171ae44ca733e08b"
       }
