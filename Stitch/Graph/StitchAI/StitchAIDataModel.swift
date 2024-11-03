@@ -17,6 +17,7 @@ struct Choice: Codable {
 
 struct MessageStruct: Codable {
     var content: String
+    var refusal: String?
     
     func parseContent() throws -> ContentJSON {
         guard let contentData = content.data(using: .utf8) else {
