@@ -9,7 +9,7 @@ import SwiftUI
 import StitchSchemaKit
 import StitchEngine
 
-typealias Connections = GraphTopologicalData<NodeViewModel>.Connections
+typealias Connections = GraphTopologicalData<GraphState>.Connections
 
 let LOOP_EDGE_COLOR = Color.blue
 let HIGHLIGHTED_LOOP_EDGE_COLOR: Color = .cyan

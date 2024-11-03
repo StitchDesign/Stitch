@@ -18,7 +18,7 @@ import Vision
 @Observable
 final class GraphState: Sendable {
     // Updated when connections, new nodes etc change
-    var topologicalData = GraphTopologicalData<NodeViewModel>()
+    let topologicalData: GraphTopologicalData<GraphState>
     
     let saveLocation: [UUID]
     
@@ -67,7 +67,7 @@ final class GraphState: Sendable {
     // Tracks nodes with camera enabled
     var enabledCameraNodeIds = NodeIdSet()
     
-    var fieldsDebounce = Debouncer(interval: .init(2000 / 1_000), queue: .main)
+//    var fieldsDebounce = Debouncer(interval: .init(2000 / 1_000), queue: .main)
     //Debounce<@MainActor () -> ()>(duration: .milliseconds(500)) { $0() }
     
     var motionManagers = StitchMotionManagersDict()
@@ -78,6 +78,7 @@ final class GraphState: Sendable {
     weak var documentDelegate: StitchDocumentViewModel?
     weak var documentEncoderDelegate: (any DocumentEncodable)?
     
+    @MainActor
     init(from schema: GraphEntity,
          nodes: NodesViewModelDict,
          components: MasterComponentsDict,
@@ -88,6 +89,7 @@ final class GraphState: Sendable {
         self.id = schema.id
         self.name = schema.name
         self.layersSidebarViewModel = .init()
+        self.topologicalData = .init()
         self.commentBoxesDict.sync(from: schema.commentBoxes)
         self.components = components
         self.visibleNodesViewModel.nodes = nodes
@@ -108,7 +110,7 @@ extension GraphState {
                      encoder: (any DocumentEncodable)) async {
         guard let decodedFiles = await encoder.getDecodedFiles() else {
             fatalErrorIfDebug()
-            self.init()
+            await self.init()
             return
         }
         
@@ -122,11 +124,11 @@ extension GraphState {
             nodes.updateValue(newNode, forKey: newNode.id)
         }
         
-        self.init(from: schema,
-                  nodes: nodes,
-                  components: components,
-                  mediaFiles: decodedFiles.mediaFiles,
-                  saveLocation: saveLocation)
+        await self.init(from: schema,
+                        nodes: nodes,
+                        components: components,
+                        mediaFiles: decodedFiles.mediaFiles,
+                        saveLocation: saveLocation)
     }
     
     @MainActor
@@ -674,16 +676,16 @@ extension GraphState {
         return outputRow.id
     }
     
-    static func createEmpty() -> GraphState {
+    @MainActor static func createEmpty() -> GraphState {
         .init()
     }
      
-    convenience init() {
+    @MainActor convenience init() {
         self.init(from: .init(id: .init(),
-                          name: STITCH_PROJECT_DEFAULT_NAME,
-                          nodes: [],
-                          orderedSidebarLayers: [],
-                          commentBoxes: []),
+                              name: STITCH_PROJECT_DEFAULT_NAME,
+                              nodes: [],
+                              orderedSidebarLayers: [],
+                              commentBoxes: []),
                   nodes: [:],
                   components: [:],
                   mediaFiles: [],
