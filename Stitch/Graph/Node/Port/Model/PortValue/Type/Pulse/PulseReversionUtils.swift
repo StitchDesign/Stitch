@@ -8,18 +8,6 @@
 import Foundation
 import StitchSchemaKit
 
-//extension PortValuesList {
-//    func getPulseReversionEffects(nodeId: NodeId,
-//                                  graphTime: TimeInterval) -> SideEffects {
-//        self.enumerated()
-//            .flatMap { portId, values in
-//                values.getPulseReversionEffects(nodeId: nodeId,
-//                                                portId: portId,
-//                                                graphTime: graphTime)
-//            }
-//    }
-//}
-
 extension PortValues {
     func getPulseReversionEffects(id: NodeIOCoordinate,
                                   graphTime: TimeInterval) -> SideEffects {
