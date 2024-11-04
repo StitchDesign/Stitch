@@ -62,7 +62,6 @@
 		B51C67512C6441A5002F83D1 /* UnpackedValueCoercer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51C67502C6441A5002F83D1 /* UnpackedValueCoercer.swift */; };
 		B51D8809298CA7A000CEBA98 /* AsyncMediaValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51D8808298CA7A000CEBA98 /* AsyncMediaValue.swift */; };
 		B51D8A022CD13D420016CCDA /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B51D8A012CD13D420016CCDA /* StitchEngine */; };
-		B51D8A052CD2A5ED0016CCDA /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B51D8A042CD2A5ED0016CCDA /* StitchEngine */; };
 		B521489A2C837CA6009AD42C /* DelayOneNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B52148992C837CA6009AD42C /* DelayOneNode.swift */; };
 		B523698C29F9E5E800240395 /* NodeRowObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B523698B29F9E5E800240395 /* NodeRowObserver.swift */; };
 		B525BB482C18AFC300A98EB4 /* FileDropHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = B525BB472C18AFC300A98EB4 /* FileDropHandling.swift */; };
@@ -207,6 +206,9 @@
 		B5B95B982CB6D67A00DA64B3 /* StitchSystemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B95B972CB6D67200DA64B3 /* StitchSystemViewModel.swift */; };
 		B5B95B9A2CB6D6B400DA64B3 /* StitchSystemEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B95B992CB6D6B300DA64B3 /* StitchSystemEncoder.swift */; };
 		B5B95B9C2CB6D6D200DA64B3 /* StitchSystemUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B95B9B2CB6D6CF00DA64B3 /* StitchSystemUtil.swift */; };
+		B5BAB0412CD6C28D00693EC5 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B5BAB0402CD6C28D00693EC5 /* StitchEngine */; };
+		B5BAB04A2CD8019400693EC5 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B5BAB0492CD8019400693EC5 /* StitchEngine */; };
+		B5BAB04D2CD86A5400693EC5 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B5BAB04C2CD86A5400693EC5 /* StitchEngine */; };
 		B5BC6F412C718BF2004541CD /* StitchComponentUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5BC6F402C718BF2004541CD /* StitchComponentUtil.swift */; };
 		B5C0E0A72998813A00322A1E /* StitchMediaObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5C0E0A62998813A00322A1E /* StitchMediaObject.swift */; };
 		B5C0E0AB299AD5FE00322A1E /* Camera App.stitch in Resources */ = {isa = PBXBuildFile; fileRef = B5C0E0AA299AD5FE00322A1E /* Camera App.stitch */; };
@@ -1852,11 +1854,13 @@
 				EC1137382719F9B400ADCA72 /* OrderedCollections in Frameworks */,
 				B51D8A022CD13D420016CCDA /* StitchEngine in Frameworks */,
 				EC91034A29109DF3007C548E /* SoulverCore in Frameworks */,
+				B5BAB04D2CD86A5400693EC5 /* StitchEngine in Frameworks */,
 				EC17DF0928F626660042BF4F /* MathParser in Frameworks */,
 				B5386FB02C9A929B00AD8065 /* StitchEngine in Frameworks */,
+				B5BAB04A2CD8019400693EC5 /* StitchEngine in Frameworks */,
 				B56EA8A62C409898003D39E2 /* StitchEngine in Frameworks */,
 				EC39E75C26822ACA00674841 /* AudioKit in Frameworks */,
-				B51D8A052CD2A5ED0016CCDA /* StitchEngine in Frameworks */,
+				B5BAB0412CD6C28D00693EC5 /* StitchEngine in Frameworks */,
 				EC53F3C3287E27250021095B /* Numerics in Frameworks */,
 				EC15E42A2602A08B006F2E08 /* CloudKit.framework in Frameworks */,
 				201953DA25B25D3300D5296C /* Tagged in Frameworks */,
@@ -4470,7 +4474,9 @@
 				E463E7EE2C6FC7090008E318 /* StitchSchemaKit */,
 				B5386FAF2C9A929B00AD8065 /* StitchEngine */,
 				B51D8A012CD13D420016CCDA /* StitchEngine */,
-				B51D8A042CD2A5ED0016CCDA /* StitchEngine */,
+				B5BAB0402CD6C28D00693EC5 /* StitchEngine */,
+				B5BAB0492CD8019400693EC5 /* StitchEngine */,
+				B5BAB04C2CD86A5400693EC5 /* StitchEngine */,
 			);
 			productName = prototype;
 			productReference = 200BD857254F66EB00692903 /* Stitch.app */;
@@ -4556,7 +4562,7 @@
 				B50F41662C1EB4320082262F /* XCRemoteSwiftPackageReference "StitchViewKit" */,
 				B5FBE3C22C4195B3006DA0A7 /* XCRemoteSwiftPackageReference "DirectoryWatcher" */,
 				E463E7ED2C6FC7090008E318 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */,
-				B51D8A032CD2A5ED0016CCDA /* XCRemoteSwiftPackageReference "StitchEngine" */,
+				B5BAB04B2CD86A5400693EC5 /* XCRemoteSwiftPackageReference "StitchEngine" */,
 			);
 			productRefGroup = 200BD858254F66EB00692903 /* Products */;
 			projectDirPath = "";
@@ -6336,12 +6342,12 @@
 				revision = 199b6a329cfc35c1554e2f46b9ab3daac021f2e3;
 			};
 		};
-		B51D8A032CD2A5ED0016CCDA /* XCRemoteSwiftPackageReference "StitchEngine" */ = {
+		B5BAB04B2CD86A5400693EC5 /* XCRemoteSwiftPackageReference "StitchEngine" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/StitchDesign/StitchEngine";
 			requirement = {
 				kind = revision;
-				revision = 5f747788e65190946b05329dba68cc7f3af7a956;
+				revision = 9ccd18b11d349cd8c525ed1cb1f4abfcfdad2b05;
 			};
 		};
 		B5FBE3C22C4195B3006DA0A7 /* XCRemoteSwiftPackageReference "DirectoryWatcher" */ = {
@@ -6456,11 +6462,6 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = StitchEngine;
 		};
-		B51D8A042CD2A5ED0016CCDA /* StitchEngine */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B51D8A032CD2A5ED0016CCDA /* XCRemoteSwiftPackageReference "StitchEngine" */;
-			productName = StitchEngine;
-		};
 		B5386FAF2C9A929B00AD8065 /* StitchEngine */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = StitchEngine;
@@ -6471,6 +6472,19 @@
 		};
 		B58612AE2C68681600C64313 /* StitchEngine */ = {
 			isa = XCSwiftPackageProductDependency;
+			productName = StitchEngine;
+		};
+		B5BAB0402CD6C28D00693EC5 /* StitchEngine */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = StitchEngine;
+		};
+		B5BAB0492CD8019400693EC5 /* StitchEngine */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = StitchEngine;
+		};
+		B5BAB04C2CD86A5400693EC5 /* StitchEngine */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B5BAB04B2CD86A5400693EC5 /* XCRemoteSwiftPackageReference "StitchEngine" */;
 			productName = StitchEngine;
 		};
 		B5DB632D2C61A8C900B78B68 /* StitchEngine */ = {

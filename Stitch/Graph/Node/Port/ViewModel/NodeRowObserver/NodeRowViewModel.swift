@@ -120,6 +120,7 @@ extension NodeRowViewModel {
         self.rowDelegate?.nodeDelegate
     }
      
+    @MainActor
     func initializeDelegate(_ node: NodeDelegate,
                             unpackedPortParentFieldGroupType: FieldGroupType?,
                             unpackedPortIndex: Int?) {
@@ -180,6 +181,7 @@ extension NodeRowViewModel {
         //        }
     }
     
+    @MainActor
     func didPortValuesUpdate(values: PortValues) {
         guard let rowDelegate = self.rowDelegate else {
             return

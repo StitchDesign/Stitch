@@ -7,6 +7,7 @@
 
 import Foundation
 import StitchSchemaKit
+import StitchEngine
 
 // MARK: -- Extension methods that need some love
 
@@ -130,6 +131,9 @@ extension NodeRowObserver {
                 AssignedLayerUpdated(changedLayerNode: layerId)
             })
         }
+        
+        // Update view ports
+        self.nodeDelegate?.graphDelegate?.portsToUpdate.insert(NodePortType.input(self.id))
         
         effects.processEffects()
     }

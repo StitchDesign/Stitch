@@ -430,6 +430,7 @@ extension LayerNodeViewModel: SchemaObserver {
 }
 
 extension LayerNodeViewModel {
+    @MainActor
     func initializeDelegate(_ node: NodeDelegate) {
         self.nodeDelegate = node
         

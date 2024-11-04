@@ -42,9 +42,6 @@ extension NodeRowObserver {
             self.hasLoopedValues = hasLoop
         }
         
-        // Update cached view-specific data: "viewValue" i.e. activeValue
-        self.updatePortViewModels()
-        
         self.postProcessing(oldValues: oldValues, newValues: newValues)
     }
     
@@ -56,13 +53,7 @@ extension NodeRowObserver {
     /// Updates port view models when the backend port observer has been updated.
     /// Also invoked when nodes enter the viewframe incase they need to be udpated.
     @MainActor
-    func updatePortViewModels() {
-        // MARK: perf improvement using % 2 to cut render cycles for fields
-        guard let graph = self.nodeDelegate?.graphDelegate,
-              graph.graphStepState.graphFrameCount % 4 == 0 else {
-            return
-        }
-        
+    func updatePortViewModels() {        
         self.getVisibleRowViewModels().forEach { rowViewModel in
             rowViewModel.didPortValuesUpdate(values: self.allLoopedValues)
         }
@@ -107,6 +98,7 @@ extension NodeRowObserver {
         }
     }
     
+    @MainActor
     var activeValue: PortValue {
         guard let graph = self.nodeDelegate?.graphDelegate else {
             return self.allLoopedValues.first ?? .none
