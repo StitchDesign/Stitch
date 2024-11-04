@@ -31,9 +31,9 @@ extension StitchDocumentViewModel {
         }
         
         // TODO: `graph` vs `visibleGraph` ?
-        let activelySelectedLayers = state.visibleGraph.sidebarSelectionState.primary
+        let activelySelectedLayers = state.visibleGraph.isSidebarFocused
         
-        if !activelySelectedLayers.isEmpty {
+        if activelySelectedLayers {
             state.visibleGraph.sidebarSelectedItemsDuplicated()
         } else {
             let copiedComponentResult = state.visibleGraph.createCopiedComponent(
@@ -181,6 +181,7 @@ extension GraphState {
         newNodes
             .forEach { nodeEntity in
                 switch nodeEntity.nodeTypeEntity {
+                    
                 case .layer(let layerNode):
                     
                     // Actively-select the new layer node
