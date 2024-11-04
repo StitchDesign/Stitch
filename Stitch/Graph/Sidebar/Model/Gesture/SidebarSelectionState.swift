@@ -12,11 +12,7 @@ typealias SidebarSelectionObserver = ProjectSidebarObservable
 
 extension ProjectSidebarObservable {
     var all: Set<Self.ItemID> {
-        let secondarySelected = self.items.flattenedSelectedItems(from: self.primary)
-            .map { $0.id }
-            .toSet
-        
-        return self.primary.union(secondarySelected)
+        self.items.getAllSelectedItems(from: self.selectionState.primary)
     }
     
     func resetEditModeSelections() {
@@ -26,14 +22,16 @@ extension ProjectSidebarObservable {
 }
 
 extension Array where Element: SidebarItemSwipable {
-    func flattenedSelectedItems(from selectedIds: Set<Element.ID>) -> [Element] {
-        self.flatMap { item -> [Element] in
-            guard selectedIds.contains(item.id) else { return [] }
-            
-            guard item.isExpandedInSidebar ?? false,
-                  let children = item.children else { return [item] }
-            
-            return [item] + children.flattenedSelectedItems(from: selectedIds)
+    func getAllSelectedItems(from selections: Set<Element.ID>) -> Set<Element.ID> {
+        self.reduce(into: Set<Element.ID>()) { result, item in
+            if selections.contains(item.id) {
+                let selectionsHere = [item.id] + (item.children?.flattenedItems.map(\.id) ?? [])
+                result = result.union(selectionsHere)
+            } else if let recursiveChildrenSelections = item.children?.getAllSelectedItems(from: selections) {
+                // Recursively check children if they exist
+                result = result.union(recursiveChildrenSelections)
+            }
         }
+        .toSet
     }
 }

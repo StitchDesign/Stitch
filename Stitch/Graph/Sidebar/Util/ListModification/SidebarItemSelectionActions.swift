@@ -33,7 +33,7 @@ extension ProjectSidebarObservable {
         log("sidebarItemTapped: id: \(id)")
         log("sidebarItemTapped: shiftHeld: \(shiftHeld)")
         
-        let originalSelections = self.selectionState.all
+        let originalSelections = self.selectionState.primary
         
         log("sidebarItemTapped: originalSelections: \(originalSelections)")
         
@@ -48,7 +48,7 @@ extension ProjectSidebarObservable {
                 
                 self.selectionState.lastFocused = id
                 
-                self.editModeSelectTappedItems(tappedItems: self.selectionState.all)
+                self.editModeSelectTappedItems(tappedItems: self.selectionState.primary)
             } else {
                 log("sidebarItemTapped: could not retrieve index of tapped item when")
                 fatalErrorIfDebug()
@@ -88,14 +88,14 @@ extension ProjectSidebarObservable {
                 let idItemsBetween = itemsBetween.map(\.id).toSet
                 
                 // ORIGINAL                
-                self.selectionState.primary = self.selectionState.all.union(idItemsBetween)
+                self.selectionState.primary = self.selectionState.primary.union(idItemsBetween)
                 
                 // Shift click does NOT change the `lastFocusedLayer`
                 // self.sidebarSelectionState.inspectorFocusedLayers.lastFocusedLayer = id
                 
                 // If we ended up selecting the exact same as the original,
                 // then we actually DE-SELECTED the range.
-                let newSelections = self.selectionState.all
+                let newSelections = self.selectionState.primary
                 log("sidebarItemTapped: selected range: newSelections: \(newSelections)")
                 if newSelections == originalSelections {
                     log("sidebarItemTapped: selected range; will wipe inspectorFocusedLayers")
@@ -106,7 +106,7 @@ extension ProjectSidebarObservable {
                     }
                 }
                 
-                self.editModeSelectTappedItems(tappedItems: self.selectionState.all)
+                self.editModeSelectTappedItems(tappedItems: self.selectionState.primary)
                 
                 self.graphDelegate?.deselectAllCanvasItems()
                 
@@ -122,7 +122,7 @@ extension ProjectSidebarObservable {
                     
                     self.selectionState.primary.insert(clickedItem.id)
                     
-                    self.editModeSelectTappedItems(tappedItems: self.selectionState.all)
+                    self.editModeSelectTappedItems(tappedItems: self.selectionState.primary)
                     
                     self.graphDelegate?.deselectAllCanvasItems()
                 }
@@ -174,7 +174,7 @@ extension ProjectSidebarObservable {
 extension GraphState {
     @MainActor
     func updateInspectorFocusedLayers() {        
-        if self.sidebarSelectionState.all.count > 1 {
+        if self.sidebarSelectionState.primary.count > 1 {
             self.graphUI.propertySidebar.inputsCommonToSelectedLayers = self.multipleSidebarLayersSelected()
         } else {
             self.graphUI.propertySidebar.inputsCommonToSelectedLayers = nil
@@ -188,17 +188,17 @@ extension GraphState {
     @MainActor
     func multipleSidebarLayersSelected() -> LayerInputTypeSet? {
                 
-        let selectedNodes: [NodeViewModel] = self.sidebarSelectionState.all.compactMap {
+        let selectedNodes: [NodeViewModel] = self.sidebarSelectionState.primary.compactMap {
             self.getNode($0)
         }
         
-        guard selectedNodes.count == self.sidebarSelectionState.all.count else {
+        guard selectedNodes.count == self.sidebarSelectionState.primary.count else {
             // Can happen when we delete a node that is technically still selected
             log("multipleSidebarLayersSelected: could not retrieve nodes for some layers?")
             return nil
         }
         
-        guard let firstSelectedLayer = self.sidebarSelectionState.all.first,
+        guard let firstSelectedLayer = self.sidebarSelectionState.primary.first,
               let firstSelectedNode: NodeViewModel = self.getNode(firstSelectedLayer),
               let firstSelectedLayerNode: LayerNodeViewModel = firstSelectedNode.layerNode else {
             log("multipleSidebarLayersSelected: did not have any selected sidebar layers?")
