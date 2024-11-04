@@ -17,6 +17,7 @@ extension GraphDelegate {
     }
     
     // TODO: cache these for perf
+    @MainActor
     var firstLayerInLayerSidebar: NodeId? {
         self.orderedSidebarLayers.first?.id
     }
@@ -24,6 +25,7 @@ extension GraphDelegate {
     // TODO: support multiple layers being focused in propety sidebar
     // TODO: cache these for perf?
     /// The single layer currently focused in the inspector
+    @MainActor
     var layerFocusedInPropertyInspector: NodeId? {
         self.nonEditModeSelectedLayerInLayerSidebar ?? self.firstLayerInLayerSidebar
     }

@@ -48,6 +48,7 @@ let INSPECTOR_MULTIFIELD_INDIVIDUAL_FIELD_WIDTH: CGFloat = 44
 // and as a single editable field for a multifield portvalues like .size
 // Only used directly by input fields, not NodeTitleView etc.
 struct CommonEditingView: View {
+    @Environment(\.appTheme) var theme
     @Environment(\.isSelectionBoxInUse) private var isSelectionBoxInUse
     
     #if DEV_DEBUG
@@ -58,10 +59,13 @@ struct CommonEditingView: View {
     
     @State private var isBase64 = false
     
+    // Only relevant for fields on canvas
+    @State var isHovering: Bool = false
+    
     @Bindable var inputField: InputFieldViewModel
     let layerInputObserver: LayerInputObserver?
     
-    let inputString: String // from redux
+    let inputString: String
     
     @Bindable var graph: GraphState
     
@@ -92,9 +96,6 @@ struct CommonEditingView: View {
     var nodeId: NodeId {
         self.id.rowId.nodeId
     }
-
-    // Only relevant for fields on canvas
-    @State var isHovering: Bool = false
     
     // Important perf check to prevent instantiations of editing view
     @MainActor
@@ -199,6 +200,9 @@ struct CommonEditingView: View {
             }
         }
         .onHover { isHovering in
+            // Ignore multifield hover
+            guard self.multifieldLayerInput == nil else { return }
+            
             withAnimation {
                 self.isHovering = isHovering
             }
@@ -274,7 +278,16 @@ struct CommonEditingView: View {
         }
     }
     
-    @Environment(\.appTheme) var theme
+    var multifieldLayerInput: LayerInputPort? {
+        if isFieldInMultifieldInput,
+           forPropertySidebar,
+           !isForFlyout,
+           let layerInput = inputField.layerInput {
+            return layerInput
+        }
+        
+        return nil
+    }
     
     var fieldHighlight: some View {
         RoundedRectangle(cornerRadius: 4)

@@ -205,7 +205,7 @@ extension InputNodeRowObserver {
         }
 
         // Set current upstream observer
-        return self.nodeDelegate?.getNode(upstreamCoordinate.nodeId)?
+        return self.nodeDelegate?.graphDelegate?.getNodeViewModel(upstreamCoordinate.nodeId)?
             .getOutputRowObserver(upstreamPortId)
     }
     
