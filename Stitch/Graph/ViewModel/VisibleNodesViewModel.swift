@@ -128,20 +128,13 @@ extension VisibleNodesViewModel {
                                                             unpackedPortParentFieldGroupType: nil,
                                                             unpackedPortIndex: nil)
 
-            default:
-                return
-            }
-        }
-        
-        
-        // Special case: we must re-initialize the group orientation input, since its first initialization happens before we have constructed the layer view models that can tell us all the parent's children
-        // TODO: a better way to handle this?
-        self.nodes.forEach { (key: NodeId, value: NodeViewModel) in
-            if let layerNode = value.layerNode,
-               layerNode.layer == .group {
-                layerNode.blockOrUnblockFields(
-                    newValue: layerNode.orientationPort.activeValue,
-                    layerInput: .orientation)
+            case .layer(let layerNode):
+                // Special case: we must re-initialize the group orientation input, since its first initialization happens before we have constructed the layer view models that can tell us all the parent's children
+                if layerNode.layer == .group {
+                    layerNode.blockOrUnblockFields(
+                        newValue: layerNode.orientationPort.activeValue,
+                        layerInput: .orientation)
+                }
             }
         }
     }
@@ -155,37 +148,12 @@ extension VisibleNodesViewModel {
                 // Loop over ports for each layer input--multiple if in unpacked mode
                 layerNodeViewModel[keyPath: inputType.layerNodeKeyPath].allInputData.forEach { inputData in
                     let inputObserver = inputData.rowObserver
-                    guard let connectedOutputObserver = inputObserver.upstreamOutputObserver else {
-                        return
-                    }
-                    
-                    // Check for connected row observer rather than just setting ID--makes for
-                    // a more robust check in ensuring the connection actually exists
-                    assertInDebug(self.getOutputRowObserver(for: connectedOutputObserver.id) != nil)
-                    
-                    // Report to output observer that there's an edge (for port colors)
-                    // We set this to false on default above
-                    connectedOutputObserver.containsDownstreamConnection = true
+                    inputObserver.buildUpstreamReference()
                 }
             }
         } else {
             nodeViewModel.getAllInputsObservers().enumerated().forEach { portId, inputObserver in
-                guard let connectedOutputObserver = inputObserver.upstreamOutputObserver else {
-                    // Upstream values are cached and need to be refreshed if disconnected
-                    if inputObserver.upstreamOutputCoordinate != nil {
-                        inputObserver.upstreamOutputCoordinate = nil
-                    }
-                    
-                    return
-                }
-
-                // Check for connected row observer rather than just setting ID--makes for
-                // a more robust check in ensuring the connection actually exists
-                assertInDebug(self.getOutputRowObserver(for: connectedOutputObserver.id) != nil)
-                
-                // Report to output observer that there's an edge (for port colors)
-                // We set this to false on default above
-                connectedOutputObserver.containsDownstreamConnection = true
+                inputObserver.buildUpstreamReference()
             }
         }   
     }
