@@ -38,6 +38,9 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
          userVisibleType: UserVisibleType?,
          id: NodeIOCoordinate,
          upstreamOutputCoordinate: NodeIOCoordinate?)
+    
+    @MainActor
+    func didValuesUpdate()
 }
 
 @Observable
@@ -100,6 +103,9 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
         self.userVisibleType = userVisibleType
         self.hasLoopedValues = values.hasLoop
     }
+    
+    @MainActor
+    func didValuesUpdate() { }
 }
 
 @Observable
@@ -149,6 +155,17 @@ final class OutputNodeRowObserver: NodeRowObserver {
         self.allLoopedValues = values
         self.userVisibleType = userVisibleType
         self.hasLoopedValues = values.hasLoop
+    }
+    
+    @MainActor
+    func didValuesUpdate() {
+        let graphTime = self.nodeDelegate?.graphDelegate?.graphStepState.graphTime ?? .zero
+        
+        // Must also run pulse reversion effects
+        self.allLoopedValues
+            .getPulseReversionEffects(id: self.id,
+                                      graphTime: graphTime)
+            .processEffects()
     }
 }
 

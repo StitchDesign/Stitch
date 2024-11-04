@@ -732,12 +732,6 @@ extension GraphState {
      
         node.updateOutputsObservers(newValuesList: outputsToUpdate)
         
-        // Must also run pulse reversion effects
-        node.outputs
-            .getPulseReversionEffects(nodeId: nodeId,
-                                      graphTime: graphTime)
-            .processEffects()
-        
         // Recalculate graph
         self.calculate(nodeIdsToRecalculate)
     }
