@@ -25,6 +25,8 @@ struct FieldButtonImage: View {
     }
 }
 
+typealias AdjustmentBarSessionId = UUID
+
 struct NumberValueButtonView: View {
     
     @Bindable var graph: GraphState
@@ -32,6 +34,7 @@ struct NumberValueButtonView: View {
     let fieldCoordinate: FieldCoordinate
     let rowObserverCoordinate: NodeIOCoordinate
     let fieldValueNumberType: FieldValueNumberType
+    let adjustmentBarSessionId: AdjustmentBarSessionId
     let isFieldInsideLayerInspector: Bool
     let isSelectedInspectorRow: Bool
     
@@ -44,6 +47,10 @@ struct NumberValueButtonView: View {
             .rotationEffect(Angle(degrees: 90))
             .onTapGesture {
                 self.isPressed = true
+            }
+            .onChange(of: self.adjustmentBarSessionId) { _, _ in
+                // `AdjustmentBarSessionId` is changed just when
+                self.isPressed = false
             }
             // TODO: add attachment anchor as well?
             .modifier(AdjustmentBarViewModifier(
