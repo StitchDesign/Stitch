@@ -63,7 +63,7 @@ extension StitchStore {
                                           undoEffectsData: UndoEffectsData? = nil) where EncoderDelegate: DocumentEncodableDelegate {
         
         // Update undo
-        self.undoManager.undoManager.registerUndo(withTarget: encoderDelegate) { delegate in
+        self.undoManager.undoManager.registerUndo(withTarget: encoderDelegate) { [weak self] delegate in
             Task(priority: .high) { @MainActor @Sendable [weak self, weak delegate] in
                 guard let delegate = delegate else { return }
                 
@@ -75,10 +75,13 @@ extension StitchStore {
                 undoEffectsData?.undoCallback?()
             }
             
-            self.saveUndoHistory(from: delegate,
-                                 oldSchema: newSchema,
-                                 newSchema: oldSchema,
-                                 undoEffectsData: undoEffectsData?.createRedoEffects())
+            // Hides adjustment bar, fixing issue where data becomes out of sync
+            self?.currentDocument?.graphUI.adjustmentBarSessionId = .init()
+            
+            self?.saveUndoHistory(from: delegate,
+                                  oldSchema: newSchema,
+                                  newSchema: oldSchema,
+                                  undoEffectsData: undoEffectsData?.createRedoEffects())
         }
     }
     
@@ -97,7 +100,7 @@ extension StitchStore {
                                         redoEvents: [@Sendable @MainActor () -> ()]) {
         let undoManager = self.environment.undoManager.undoManager
         
-        undoManager.registerUndo(withTarget: self) { _ in
+        undoManager.registerUndo(withTarget: self) { [weak self] _ in
             undoEvents.forEach { undoEvent in
                 Task(priority: .high) { @MainActor in
                     undoEvent()
@@ -109,8 +112,8 @@ extension StitchStore {
             let onRedoRedoEvents = undoEvents
             
             // Register the redo action
-            self.saveProjectDeletionUndoHistory(undoEvents: onRedoUndoEvents,
-                                                redoEvents: onRedoRedoEvents)
+            self?.saveProjectDeletionUndoHistory(undoEvents: onRedoUndoEvents,
+                                                 redoEvents: onRedoRedoEvents)
         }
     }
 }
