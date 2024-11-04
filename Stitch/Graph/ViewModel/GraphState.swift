@@ -67,13 +67,11 @@ final class GraphState: Sendable {
     // Tracks nodes with camera enabled
     var enabledCameraNodeIds = NodeIdSet()
     
-//    var fieldsDebounce = Debouncer(interval: .init(2000 / 1_000), queue: .main)
-    //Debounce<@MainActor () -> ()>(duration: .milliseconds(500)) { $0() }
-    
     var motionManagers = StitchMotionManagersDict()
     
     var networkRequestCompletedTimes = NetworkRequestLatestCompletedTimeDict()
     
+    // Tracks IDs for rows that need to be updated for the view. Cached here for perf so we can throttle view updates.
     var portsToUpdate: Set<NodePortType<NodeViewModel>> = .init()
     
     var lastEncodedDocument: GraphEntity

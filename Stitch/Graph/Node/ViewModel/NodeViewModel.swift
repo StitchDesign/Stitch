@@ -346,20 +346,6 @@ extension NodeViewModel {
         return false
     }
     
-//    @MainActor
-//    func updateInputPortViewModels(activeIndex: ActiveIndex) {
-//        self.getAllInputsObservers().forEach { rowObserver in
-//            rowObserver.updatePortViewModels()
-//        }
-//    }
-//
-//    @MainActor
-//    func updateOutputPortViewModels(activeIndex: ActiveIndex) {
-//        self.getAllOutputsObservers().forEach { rowObserver in
-//            rowObserver.updatePortViewModels()
-//        }
-//    }
-    
     @MainActor
     func updateOutputsObservers(newValuesList: PortValuesList? = nil) {
         let outputsObservers = self.getAllOutputsObservers()

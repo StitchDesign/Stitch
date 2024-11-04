@@ -193,11 +193,6 @@ struct CommonEditingView: View {
                 self.updateCurrentEdit()
             }
         }
-//        .onChange(of: inputString) {
-//            self.updateCurrentEdit()
-////            if showEditingView {
-////            }
-//        }
         // TODO: why is `.onChange(of: showEditingView)` not enough for a field focused in a flyout from an inspector-field click ?
         .onAppear {
             if isForFlyout {
