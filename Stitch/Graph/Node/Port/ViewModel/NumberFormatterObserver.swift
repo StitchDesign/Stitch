@@ -12,18 +12,18 @@ import StitchSchemaKit
 // A global number formatter, with fewer settings,
 // seems to be fine perf-wise?
 // (Tested on Mac Release Build.)
-//let GlobalFormatter = NumberFormatterObserver()
-//
-//final class NumberFormatterObserver: NumberFormatter {
-//    override init() {
-//        super.init()
-//        self.maximumFractionDigits = 4
-//        self.minimumFractionDigits = 0
-//        self.minimumIntegerDigits = 1
-//    }
-//
-//    required init?(coder: NSCoder) {
-//        log("NumberFormatterObserver.init(coder:) has not been implemented")
-//        super.init()
-//    }
-//}
+let GlobalFormatter = NumberFormatterObserver()
+
+final class NumberFormatterObserver: NumberFormatter {
+    override init() {
+        super.init()
+        self.maximumFractionDigits = 4
+        self.minimumFractionDigits = 0
+        self.minimumIntegerDigits = 1
+    }
+
+    required init?(coder: NSCoder) {
+        log("NumberFormatterObserver.init(coder:) has not been implemented")
+        super.init()
+    }
+}
