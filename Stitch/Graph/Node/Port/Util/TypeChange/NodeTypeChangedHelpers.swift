@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import StitchSchemaKit
+import StitchEngine
 
 extension NodeKind {
     @MainActor
@@ -69,6 +70,9 @@ extension NodeRowObserver {
         self.coerceUpdate(these: valuesToUse,
                           to: newType.defaultPortValue,
                           currentGraphTime: currentGraphTime)
+        
+        // Update port views
+        self.nodeDelegate?.graphDelegate?.portsToUpdate.insert(NodePortType.input(self.id))
     }
 }
 
