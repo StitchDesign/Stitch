@@ -34,15 +34,4 @@ extension Array where Element: SidebarItemSwipable {
         }
         .toSet
     }
-    
-//    func flattenedSelectedItems(from selectedIds: Set<Element.ID>) -> [Element] {
-//        self.flatMap { item -> [Element] in
-//            guard selectedIds.contains(item.id) else { return [] }
-//            
-//            guard item.isExpandedInSidebar ?? false,
-//                  let children = item.children else { return [item] }
-//            
-//            return [item] + children.flattenedSelectedItems(from: selectedIds)
-//        }
-//    }
 }

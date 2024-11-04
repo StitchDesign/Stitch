@@ -76,30 +76,12 @@ extension ProjectSidebarObservable {
     // ASSUMES NON-EMPTY
     @MainActor
     func canBeGrouped() -> Bool {
-        
-//        let selectionSubset: [Self.ItemViewModel] = self.selectionState.primary
-//            .compactMap { self.items.get($0) }
-        
         switch self.items.containsValidGroup(from: self.selectionState.all) {
         case .valid:
             return true
         case .invalid:
             return false
         }
-//
-//        return self.items.createGroup(newGroupId: .init(),
-//                                      parentLayerGroupId: nil,
-//                                      selections: selections) != nil
-        
-//        // items are on same level if they are all top level
-//        let allTopLevel = selections.allSatisfy { selectionId in
-//            self.items.get(selectionId)?.parentDelegate == nil
-//        }
-//        
-//        // ... or if they all have same parent
-//        let allSameParent = self.allShareSameParent(selections)
-//        
-//        return allTopLevel || allSameParent
     }
     
     // Can ungroup selections just if:

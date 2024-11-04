@@ -1132,7 +1132,6 @@
 		B5B95B972CB6D67200DA64B3 /* StitchSystemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchSystemViewModel.swift; sourceTree = "<group>"; };
 		B5B95B992CB6D6B300DA64B3 /* StitchSystemEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchSystemEncoder.swift; sourceTree = "<group>"; };
 		B5B95B9B2CB6D6CF00DA64B3 /* StitchSystemUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchSystemUtil.swift; sourceTree = "<group>"; };
-		B5BAB04E2CD87A5A00693EC5 /* StitchViewKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = StitchViewKit; path = ../StitchViewKit; sourceTree = SOURCE_ROOT; };
 		B5BC6F402C718BF2004541CD /* StitchComponentUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchComponentUtil.swift; sourceTree = "<group>"; };
 		B5C0E0A62998813A00322A1E /* StitchMediaObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchMediaObject.swift; sourceTree = "<group>"; };
 		B5C0E0AA299AD5FE00322A1E /* Camera App.stitch */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Camera App.stitch"; sourceTree = "<group>"; };
@@ -1914,7 +1913,6 @@
 		200BD859254F66EB00692903 /* Stitch */ = {
 			isa = PBXGroup;
 			children = (
-				B5BAB04E2CD87A5A00693EC5 /* StitchViewKit */,
 				EC15E425260271C6006F2E08 /* Stitch.entitlements */,
 				200BD863254F66EE00692903 /* Info.plist */,
 				B5617A7B2C175C3C00B53DAF /* App */,
@@ -6341,7 +6339,7 @@
 			repositoryURL = "https://github.com/StitchDesign/StitchViewKit.git";
 			requirement = {
 				kind = revision;
-				revision = 199b6a329cfc35c1554e2f46b9ab3daac021f2e3;
+				revision = be978005e68bafcae733333c05985c24f254d9d5;
 			};
 		};
 		B5BAB04B2CD86A5400693EC5 /* XCRemoteSwiftPackageReference "StitchEngine" */ = {
