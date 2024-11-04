@@ -327,11 +327,13 @@ extension GraphState {
 
         var inspectorFocusedLayers = self.layersSidebarViewModel.selectionState.primary
         
+        log("inspectorFocusedLayers: \(inspectorFocusedLayers)")
+        
         #if DEV_DEBUG
         // For debug
-        if selectedLayers.isEmpty,
+        if inspectorFocusedLayers.isEmpty,
            let layer = self.layerNodes.keys.first {
-            selectedLayers = .init([layer])
+            inspectorFocusedLayers = .init([layer])
         }
         #endif
         
