@@ -80,7 +80,12 @@ struct CatalystNavBarProjectTitleDisplayView: View {
         Text(graph.name)
             .modifier(NavigationTitleFontViewModifier())
             .padding(6)
-            .frame(width: 260, height: 16, alignment: .leading)
+//            .frame(width: 260, height: 16, alignment: .leading)
+            .border(.red)
+//            .frame(minWidth: 60, maxWidth: 260, alignment: .leading)
+            .frame(minWidth: 60, maxWidth: 260)
+            .frame(height: 16)
+            .border(.green)
             .onTapGesture {
                 dispatch(CatalystProjectTitleModalOpened())
             }
