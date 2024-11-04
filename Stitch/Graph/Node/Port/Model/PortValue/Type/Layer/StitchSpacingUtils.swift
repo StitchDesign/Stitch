@@ -57,8 +57,7 @@ extension StitchSpacing {
     var display: String {
         switch self {
         case .number(let x):
-            // return GlobalFormatter.string(for: x) ?? x.description
-            return x.description
+            return GlobalFormatter.string(for: x) ?? x.description
         case .between:
             return "Between"
         case .evenly:
