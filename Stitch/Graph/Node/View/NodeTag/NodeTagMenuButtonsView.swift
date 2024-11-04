@@ -95,6 +95,16 @@ struct NodeTagMenuButtonsView: View {
         node.kind == .patch(.wirelessReceiver)
     }
     
+    var selectedComponet: StitchMasterComponent? {
+        if FeatureFlags.USE_COMPONENTS {
+            if let componentId = node.nodeType.componentNode?.componentId,
+               let component = graph.components.get(componentId) {
+                return component
+            }
+        }
+        
+        return nil
+    }
 
     var body: some View {
         if singleGroupNodeSelected {
@@ -104,11 +114,8 @@ struct NodeTagMenuButtonsView: View {
                 visitGroupButton
                 ungroupGroupButton
                 
-                if FeatureFlags.USE_COMPONENTS {
-                    if let componentId = node.nodeType.componentNode?.componentId,
-                       let component = graph.components.get(componentId) {
-                        componentLinkingButton(component: component)
-                    }
+                if let component = self.selectedComponet {
+                    componentLinkingButton(component: component)
                 }
                 
 //                if FeatureFlags.USE_COMMENT_BOX_FLAG {
@@ -388,7 +395,10 @@ struct NodeTagMenuButtonsView: View {
 
     @MainActor
     var visitGroupButton: some View {
-        nodeTagMenuButton(label: "Visit Group") {
+        let isComponent = self.selectedComponet != nil
+        let visitLabel = "Visit \(isComponent ? "Component" : "Group")"
+        
+        return nodeTagMenuButton(label: visitLabel) {
             if let nodeId = canvasItemId.nodeCase {
                 dispatch(GroupNodeDoubleTapped(id: nodeId))
             }
