@@ -43,6 +43,8 @@ extension NodeRowObserver {
         }
         
         self.postProcessing(oldValues: oldValues, newValues: newValues)
+        
+        self.didValuesUpdate()
     }
     
     @MainActor
