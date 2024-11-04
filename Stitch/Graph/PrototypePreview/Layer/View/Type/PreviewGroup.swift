@@ -69,6 +69,11 @@ struct PreviewGroupLayer: View {
     let hueRotation: Double
     let saturation: Double
     
+    let shadowColor: Color
+    let shadowOpacity: CGFloat
+    let shadowRadius: CGFloat
+    let shadowOffset: StitchPosition
+    
     let gridData: PreviewGridData?
     
     let stroke: LayerStrokeData
@@ -136,7 +141,8 @@ struct PreviewGroupLayer: View {
             .background {
                 // TODO: Better way to handle slight gap between outside stroke and background edge when using corner radius? Outside stroke is actually an .overlay'd shape that is slightly larger than the stroked shape.
 //                backgroundColor.cornerRadius(cornerRadius - (stroke.stroke == .outside ? stroke.width/2 : 0))
-                backgroundColor.cornerRadius(strokeAdjustedCornerRadius)
+//                backgroundColor.cornerRadius(strokeAdjustedCornerRadius)
+                RoundedRectangle(cornerRadius: strokeAdjustedCornerRadius).fill(backgroundColor)
             }
         
         //            // DEBUG ONLY
@@ -171,6 +177,42 @@ struct PreviewGroupLayer: View {
                                   // Uses non-stroke adjusted corner radius, since .stitchStroke will handle the adjustment 
                                   cornerRadius: cornerRadius))
 
+            // TODO: are these layer-effects working properly on layer group?
+            .modifier(PreviewLayerEffectsModifier(
+                blurRadius: blurRadius,
+                blendMode: blendMode,
+                brightness: brightness,
+                colorInvert: colorInvert,
+                contrast: contrast,
+                hueRotation: hueRotation,
+                saturation: saturation))
+        
+            .background {
+                /*
+                 Note 1:
+                 
+                 We apply shadow as background to a rectangle; else the Stack + each child receives the shadow (whereas we only want the Stack to have the shadow)
+                 
+                 Alternatively?: use `.compositingGroup -> .shadow` so that shadow is applied to Stack (parnet) but not children.
+                 CAREFUL: not sure what other effects `.compositingGroup` may have on child views
+                 
+                 
+                 Note 2:
+                 
+                 Even with `.compositingGroup`, a clear background will never have a shadow.
+                 
+                 Alternatively?: provide a 'dummy' background color so group can have a shadow even if group has a clear background? Unfortunately, .opacity(0.01) etc. also dims shadow.
+                 */
+                RoundedRectangle(cornerRadius: strokeAdjustedCornerRadius)
+                    .fill(backgroundColor)
+                // Shadow modifier needs to come AFTER .clipped, so shadow is not cut off.
+                    .modifier(PreviewShadowModifier(
+                        shadowColor: shadowColor,
+                        shadowOpacity: shadowOpacity,
+                        shadowRadius: shadowRadius,
+                        shadowOffset: shadowOffset))
+            }
+        
             .opacity(opacity) // opacity on group and all its contents
         
             .scaleEffect(CGFloat(scale),
