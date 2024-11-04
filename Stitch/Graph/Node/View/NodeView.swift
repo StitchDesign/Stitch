@@ -324,9 +324,10 @@ struct CanvasItemTag: View {
             } label: {
                 let iconName = "ellipsis.rectangle"
                 Image(systemName: iconName)
-                
 #if !targetEnvironment(macCatalyst)
                     .padding(16) // increase hit area
+#else
+                    .padding(8)
 #endif
             }
         
