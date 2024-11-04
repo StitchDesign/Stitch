@@ -275,7 +275,7 @@ extension GraphState {
         let graph = self
         let outputValues = outputValues
         var nodeIdsToRecalculate = NodeIdSet()
-        var effects = SideEffects()
+//        var effects = SideEffects()
         
         guard let node = graph.getNodeViewModel(nodeId) else {
             log("recalculateGraph: AsyncMediaImpureEvalOpResult: could not retrieve node \(nodeId)")
@@ -301,13 +301,13 @@ extension GraphState {
                                 node: node,
                                 portValues: portValues)
             
-            effects += portValues.enumerated().flatMap { portId, value in
-                value.getPulseReversionEffects(nodeId: nodeId,
-                                               portId: portId,
-                                               graphTime: graph.graphStepState.graphTime)
-            }
+//            effects += portValues.enumerated().flatMap { portId, value in
+//                value.getPulseReversionEffects(nodeId: nodeId,
+//                                               portId: portId,
+//                                               graphTime: graph.graphStepState.graphTime)
+//            }
             
-            effects.processEffects()
+//            effects.processEffects()
             
         case .all(let portValuesList):
             var changedDownstreamNodes = NodeIdSet()
@@ -316,9 +316,9 @@ extension GraphState {
             // set new outputs in node
             node.updateOutputsObservers(newValuesList: portValuesList)
             
-            effects += portValuesList
-                .getPulseReversionEffects(nodeId: nodeId,
-                                          graphTime: graph.graphStepState.graphTime)
+//            effects += portValuesList
+//                .getPulseReversionEffects(nodeId: nodeId,
+//                                          graphTime: graph.graphStepState.graphTime)
             
             // We just manually set new outputs on the media node.
             // Now we need to flow those new outputs to any downstream nodes,
@@ -344,7 +344,7 @@ extension GraphState {
             // Recalculate downstream patch nodes after values are updated
             self.calculate(changedDownstreamNodes)
             
-            effects.processEffects()
+//            effects.processEffects()
         }
     }
 }
