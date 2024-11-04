@@ -168,6 +168,7 @@ extension LayerInputObserver {
         self._packedData.rowObserver.nodeDelegate?.graphDelegate
     }
     
+    @MainActor
     var activeValue: PortValue {
         let activeIndex = self.graphDelegate?.activeIndex ?? .init(.zero)
         let values = self.values
@@ -190,6 +191,7 @@ extension LayerInputObserver {
         }
     }
      
+    @MainActor
     func initializeDelegate(_ node: NodeDelegate,
                             layer: Layer) {
                 

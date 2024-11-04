@@ -79,48 +79,21 @@ struct CommonEditingViewWrapper: View {
     
     var body: some View {
         let stringValue = fieldValue.stringValue
-        
-        if isFieldInMultifieldInput,
-           forPropertySidebar,
-           !isForFlyout,
-           let layerInput = fieldViewModel.layerInput {
-            
-            CommonEditingViewReadOnly(
-                inputField: fieldViewModel,
-                inputString: stringValue,
-                forPropertySidebar: forPropertySidebar,
-                isHovering: false, // Always false
-                choices: choices, // Always nil?
-                fieldWidth: fieldWidth,
-                fieldHasHeterogenousValues: fieldHasHeterogenousValues,
-                isSelectedInspectorRow: isSelectedInspectorRow,
-                isFieldInMultfieldInspectorInput: isFieldInMultifieldInspectorInputAndNotFlyout,
-                onTap: {
-                    if !isForFlyout {
-                        dispatch(FlyoutToggled(
-                            flyoutInput: layerInput,
-                            flyoutNodeId: fieldCoordinate.rowId.nodeId,
-                            fieldToFocus: .textInput(fieldCoordinate)))
-                    }
-                })
-            
-        } else {
-            CommonEditingView(inputField: fieldViewModel,
-                              layerInputObserver: layerInputObserver,
-                              inputString: stringValue,
-                              graph: graph,
-                              fieldIndex: fieldCoordinate.fieldIndex,
-                              isCanvasItemSelected: isCanvasItemSelected,
-                              choices: choices,
-                              isAdjustmentBarInUse: isButtonPressed,
-                              forPropertySidebar: forPropertySidebar,
-                              propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
-                              isFieldInMultifieldInput: isFieldInMultifieldInput,
-                              isForFlyout: isForFlyout,
-                              isForSpacingField: isForSpacingField,
-                              isSelectedInspectorRow: isSelectedInspectorRow,
-                              isFieldInMultifieldInspectorInputAndNotFlyout: isFieldInMultifieldInspectorInputAndNotFlyout,
-                              fieldWidth: fieldWidth)
-        }
+        CommonEditingView(inputField: fieldViewModel,
+                          layerInputObserver: layerInputObserver,
+                          inputString: stringValue,
+                          graph: graph,
+                          fieldIndex: fieldCoordinate.fieldIndex,
+                          isCanvasItemSelected: isCanvasItemSelected,
+                          choices: choices,
+                          isAdjustmentBarInUse: isButtonPressed,
+                          forPropertySidebar: forPropertySidebar,
+                          propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                          isFieldInMultifieldInput: isFieldInMultifieldInput,
+                          isForFlyout: isForFlyout,
+                          isForSpacingField: isForSpacingField,
+                          isSelectedInspectorRow: isSelectedInspectorRow,
+                          isFieldInMultifieldInspectorInputAndNotFlyout: isFieldInMultifieldInspectorInputAndNotFlyout,
+                          fieldWidth: fieldWidth)
     }
 }
