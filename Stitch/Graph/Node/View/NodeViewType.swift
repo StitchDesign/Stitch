@@ -20,6 +20,7 @@ struct NodeTypeView: View {
     let atleastOneCommentBoxSelected: Bool
     let activeIndex: ActiveIndex
     let groupNodeFocused: GroupNodeType?
+    let adjustmentBarSessionId: AdjustmentBarSessionId
 
     var boundsReaderDisabled: Bool = false
     var usePositionHandler: Bool = true
@@ -84,7 +85,8 @@ struct NodeTypeView: View {
                 DefaultNodeInputView(graph: graph,
                                      node: node,
                                      canvas: canvasNode,
-                                     isNodeSelected: isSelected)
+                                     isNodeSelected: isSelected,
+                                     adjustmentBarSessionId: adjustmentBarSessionId)
             }
         }
     }
@@ -101,7 +103,8 @@ struct NodeTypeView: View {
                 DefaultNodeOutputView(graph: graph,
                                       node: node,
                                       canvas: canvasNode,
-                                      isNodeSelected: isSelected)
+                                      isNodeSelected: isSelected,
+                                      adjustmentBarSessionId: adjustmentBarSessionId)
             }
         }
     }
@@ -112,12 +115,14 @@ struct DefaultNodeInputView: View {
     @Bindable var node: NodeViewModel
     @Bindable var canvas: CanvasItemViewModel
     let isNodeSelected: Bool
+    let adjustmentBarSessionId: AdjustmentBarSessionId
     
     var body: some View {
         DefaultNodeRowView(graph: graph,
                            node: node,
                            rowViewModels: canvas.inputViewModels,
-                           nodeIO: .input) { rowObserver, rowViewModel in
+                           nodeIO: .input,
+                           adjustmentBarSessionId: adjustmentBarSessionId) { rowObserver, rowViewModel in
                         
             let layerInputObserver: LayerInputObserver? = rowObserver.id.layerInput
                 .flatMap { node.layerNode?.getLayerInputObserver($0.layerInput) }
@@ -146,12 +151,14 @@ struct DefaultNodeOutputView: View {
     @Bindable var node: NodeViewModel
     @Bindable var canvas: CanvasItemViewModel
     let isNodeSelected: Bool
+    let adjustmentBarSessionId: AdjustmentBarSessionId
     
     var body: some View {
         DefaultNodeRowView(graph: graph,
                            node: node,
                            rowViewModels: canvas.outputViewModels,
-                           nodeIO: .output) { rowObserver, rowViewModel in
+                           nodeIO: .output,
+                           adjustmentBarSessionId: adjustmentBarSessionId) { rowObserver, rowViewModel in
             NodeOutputView(graph: graph,
                            rowObserver: rowObserver,
                            rowViewModel: rowViewModel,
@@ -171,6 +178,7 @@ struct DefaultNodeRowView<RowViewModel, RowView>: View where RowViewModel: NodeR
     @Bindable var node: NodeViewModel
     let rowViewModels: [RowViewModel]
     let nodeIO: NodeIO
+    let adjustmentBarSessionId: AdjustmentBarSessionId
     @ViewBuilder var rowView: (RowViewModel.RowObserver, RowViewModel) -> RowView
 
     var id: NodeId {

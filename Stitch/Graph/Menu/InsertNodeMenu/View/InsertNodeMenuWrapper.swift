@@ -254,6 +254,7 @@ struct InsertNodeMenuWrapper: View {
                          atleastOneCommentBoxSelected: false,
                          activeIndex: .init(1),
                          groupNodeFocused: nil,
+                         adjustmentBarSessionId: .fakeId,
                          boundsReaderDisabled: boundsDisabled,
                          // fake node does NOT use position handler
                          usePositionHandler: false,
