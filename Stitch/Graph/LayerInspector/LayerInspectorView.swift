@@ -334,7 +334,7 @@ extension GraphState {
 
         var inspectorFocusedLayers = self.layersSidebarViewModel.selectionState.primary
         
-        log("inspectorFocusedLayers: \(inspectorFocusedLayers)")
+        log("getLayerInspectorData: inspectorFocusedLayers: \(inspectorFocusedLayers)")
         
         #if DEV_DEBUG
         // For debug
@@ -348,7 +348,7 @@ extension GraphState {
         if inspectorFocusedLayers.count > 1 {
             guard let firstLayer = inspectorFocusedLayers.first,
                   let multiselectState = self.graphUI.propertySidebar.inputsCommonToSelectedLayers else {
-                fatalErrorIfDebug("Had multiple selected layers but no multiselect state")
+                fatalErrorIfDebug("getLayerInspectorData: Had multiple selected layers but no multiselect state")
                 return nil
             }
             
@@ -368,7 +368,7 @@ extension GraphState {
             guard let inspectedLayerId = self.layersSidebarViewModel.selectionState.primary.first,
                   let node = self.getNodeViewModel(inspectedLayerId),
                   let layerNode = node.layerNode else {
-                // log("LayerInspectorView: No inspector-focused layers?:  \(self.sidebarSelectionState.inspectorFocusedLayers)")
+                // log("getLayerInspectorData: No inspector-focused layers?:  \(inspectorFocusedLayers)")
                 return nil
             }
             
