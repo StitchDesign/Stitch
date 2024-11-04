@@ -347,20 +347,6 @@ extension NodeViewModel {
     }
     
     @MainActor
-    func updateInputPortViewModels(activeIndex: ActiveIndex) {
-        self.getAllInputsObservers().forEach { rowObserver in
-            rowObserver.updatePortViewModels()
-        }
-    }
-
-    @MainActor
-    func updateOutputPortViewModels(activeIndex: ActiveIndex) {
-        self.getAllOutputsObservers().forEach { rowObserver in
-            rowObserver.updatePortViewModels()
-        }
-    }
-    
-    @MainActor
     func updateOutputsObservers(newValuesList: PortValuesList? = nil) {
         let outputsObservers = self.getAllOutputsObservers()
         
@@ -552,22 +538,20 @@ extension NodeViewModel {
     }
 }
 
-extension NodeViewModel: NodeDelegate {
+extension NodeViewModel {
+    @MainActor
     var inputsRowCount: Int {
         self.getAllParentInputsObservers().count
     }
     
+    @MainActor
     var outputsRowCount: Int {
         self.getAllOutputsObservers().count
     }
     
+    @MainActor
     var activeIndex: ActiveIndex {
         graphDelegate?.activeIndex ?? .init(.zero)
-    }
-
-    // TODO: where is this used? Why would an input be retrieving some other node from GraphState? Why not just grab from GraphState directly?
-    func getNode(_ id: NodeId) -> NodeViewModel? {
-        self.graphDelegate?.getNodeViewModel(id)
     }
     
     var getMathExpression: String? {

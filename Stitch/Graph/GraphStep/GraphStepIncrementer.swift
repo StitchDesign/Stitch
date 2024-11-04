@@ -31,12 +31,18 @@ extension StitchDocumentViewModel: GraphStepManagerDelegate {
             }
         }
 
-        self.graph.graphStepIncremented()
+        self.graph.calculateOnGraphStep()
+        
+        // Update fields every 30 frames
+        if !self.graph.portsToUpdate.isEmpty &&
+            frameCount % 4 == 0 {
+            self.graph.updatePortViews()
+        }
     }
 }
 
 extension GraphState {
-    @MainActor func graphStepIncremented() {
+    @MainActor func calculateOnGraphStep() {
         var nodesToRunOnGraphStep = self.nodesToRunOnGraphStep
         
         let graphTime = self.graphStepManager.graphTime

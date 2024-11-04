@@ -18,7 +18,7 @@ import Vision
 @Observable
 final class GraphState: Sendable {
     // Updated when connections, new nodes etc change
-    var topologicalData = GraphTopologicalData<NodeViewModel>()
+    let topologicalData: GraphTopologicalData<NodeViewModel>
     
     let saveLocation: [UUID]
     
@@ -71,10 +71,14 @@ final class GraphState: Sendable {
     
     var networkRequestCompletedTimes = NetworkRequestLatestCompletedTimeDict()
     
+    // Tracks IDs for rows that need to be updated for the view. Cached here for perf so we can throttle view updates.
+    var portsToUpdate: Set<NodePortType<NodeViewModel>> = .init()
+    
     var lastEncodedDocument: GraphEntity
     weak var documentDelegate: StitchDocumentViewModel?
     weak var documentEncoderDelegate: (any DocumentEncodable)?
     
+    @MainActor
     init(from schema: GraphEntity,
          nodes: NodesViewModelDict,
          components: MasterComponentsDict,
@@ -85,6 +89,7 @@ final class GraphState: Sendable {
         self.id = schema.id
         self.name = schema.name
         self.layersSidebarViewModel = .init()
+        self.topologicalData = .init()
         self.commentBoxesDict.sync(from: schema.commentBoxes)
         self.components = components
         self.visibleNodesViewModel.nodes = nodes
@@ -105,7 +110,7 @@ extension GraphState {
                      encoder: (any DocumentEncodable)) async {
         guard let decodedFiles = await encoder.getDecodedFiles() else {
             fatalErrorIfDebug()
-            self.init()
+            await self.init()
             return
         }
         
@@ -119,11 +124,11 @@ extension GraphState {
             nodes.updateValue(newNode, forKey: newNode.id)
         }
         
-        self.init(from: schema,
-                  nodes: nodes,
-                  components: components,
-                  mediaFiles: decodedFiles.mediaFiles,
-                  saveLocation: saveLocation)
+        await self.init(from: schema,
+                        nodes: nodes,
+                        components: components,
+                        mediaFiles: decodedFiles.mediaFiles,
+                        saveLocation: saveLocation)
     }
     
     @MainActor
@@ -153,9 +158,7 @@ extension GraphState {
         // Calculate graph
         self.initializeGraphComputation()
     }
-}
 
-extension GraphState: GraphDelegate {
     var graphUI: GraphUIState {
         guard let graphUI = self.documentDelegate?.graphUI else {
             return GraphUIState(isPhoneDevice: false)
@@ -673,16 +676,16 @@ extension GraphState {
         return outputRow.id
     }
     
-    static func createEmpty() -> GraphState {
+    @MainActor static func createEmpty() -> GraphState {
         .init()
     }
      
-    convenience init() {
+    @MainActor convenience init() {
         self.init(from: .init(id: .init(),
-                          name: STITCH_PROJECT_DEFAULT_NAME,
-                          nodes: [],
-                          orderedSidebarLayers: [],
-                          commentBoxes: []),
+                              name: STITCH_PROJECT_DEFAULT_NAME,
+                              nodes: [],
+                              orderedSidebarLayers: [],
+                              commentBoxes: []),
                   nodes: [:],
                   components: [:],
                   mediaFiles: [],
@@ -718,10 +721,11 @@ extension GraphState {
             outputsToUpdate[portId] = outputToUpdate
             
             // Update downstream node's inputs
-            let changedNodeIds = self.updateDownstreamInputs(
+            let changedInputIds = self.updateDownstreamInputs(
                 sourceNode: node,
                 flowValues: outputToUpdate,
                 outputCoordinate: outputCoordinate)
+            let changedNodeIds = Set(changedInputIds.map(\.nodeId)).toSet
             
             nodeIdsToRecalculate = nodeIdsToRecalculate.union(changedNodeIds)
         } // (portId, newOutputValue) in portValues.enumerated()

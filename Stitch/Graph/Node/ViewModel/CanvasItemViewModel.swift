@@ -188,6 +188,7 @@ extension CanvasItemViewModel {
 }
 
 extension CanvasItemViewModel {
+    @MainActor
     func initializeDelegate(_ node: NodeDelegate,
                             unpackedPortParentFieldGroupType: FieldGroupType?,
                             unpackedPortIndex: Int?) {
@@ -222,8 +223,7 @@ extension CanvasItemViewModel {
 
             // Refresh values if node back in frame
             if newValue {
-                self.nodeDelegate?.updateInputPortViewModels(activeIndex: activeIndex)
-                self.nodeDelegate?.updateOutputPortViewModels(activeIndex: activeIndex)
+                self.nodeDelegate?.updatePortViewModels()
             }
         }
     }
