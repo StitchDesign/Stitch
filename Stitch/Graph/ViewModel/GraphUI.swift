@@ -246,18 +246,24 @@ extension GraphState {
             case .layer(let layer) where layer == .group:
                 // When we duplicate a LayerGroup, we must also duplicate its children.
                 // Note that these children should have already been selected via the sidebar's selecton logic; but we can force that assumption here independently.
-                let children: NodeIdSet = self
-                    .nodes.values
-                    .compactMap { (node: NodeViewModel) -> NodeId? in
-                        guard let layerNode = node.layerNode,
-                              layerNode.layerGroupId == stitchViewModel.id else {
+                guard let sidebarData = self.layersSidebarViewModel.items.get(nodeId),
+                      let sidebarChildrenData = sidebarData.children else {
+                    fatalErrorIfDebug()
+                    return []
+                }
+                
+                let allNestedChildren: [NodeEntity] = sidebarChildrenData.flattenedItems
+                    .map(\.id)
+                    .compactMap { id in
+                        guard let node = self.getNodeViewModel(id) else {
+                            fatalErrorIfDebug()
                             return nil
                         }
-                        return layerNode.id
+                        
+                        return node.createSchema()
                     }
-                    .toSet
 
-                return [nodeSchema] + self.getSelectedNodeEntities(for: children)
+                return [nodeSchema] + allNestedChildren
                 
             default:
                 return [nodeSchema]
