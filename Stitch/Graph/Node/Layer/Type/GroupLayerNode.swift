@@ -127,6 +127,10 @@ struct GroupLayerNode: LayerNodeDefinition {
             contrast: viewModel.contrast.getNumber ?? .defaultContrastForLayerEffect,
             hueRotation: viewModel.hueRotation.getNumber ?? .defaultHueRotationForLayerEffect,
             saturation: viewModel.saturation.getNumber ?? .defaultSaturationForLayerEffect,
+            shadowColor: viewModel.shadowColor.getColor ?? .defaultShadowColor,
+            shadowOpacity: viewModel.shadowOpacity.getNumber ?? .defaultShadowOpacity,
+            shadowRadius: viewModel.shadowRadius.getNumber ?? .defaultShadowOpacity,
+            shadowOffset: viewModel.shadowOffset.getPosition ?? .defaultShadowOffset,
             gridData: viewModel.getGridData,
             stroke: viewModel.getLayerStrokeData())
     }
