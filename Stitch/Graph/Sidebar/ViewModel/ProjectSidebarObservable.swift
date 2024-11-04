@@ -36,10 +36,6 @@ protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID 
     var currentItemDragged: Self.ItemID? { get set }
     
     var graphDelegate: GraphState? { get set }
-    
-    func canBeGrouped() -> Bool
-    
-    func canUngroup() -> Bool
 
     func sidebarGroupCreated()
     

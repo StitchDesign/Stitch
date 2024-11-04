@@ -83,7 +83,7 @@ protocol SidebarItemSwipable: AnyObject, Observable, Identifiable, StitchNestedL
 
 extension SidebarItemSwipable {
     var isSelected: Bool {
-        self.isPrimarilySelected || self.isParentSelected
+        self.isPrimarilySelected
     }
     
     var zIndex: Double {
