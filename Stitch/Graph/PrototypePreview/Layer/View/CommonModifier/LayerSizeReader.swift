@@ -26,7 +26,7 @@ struct LayerSizeReader: ViewModifier {
                 let frameData = self.getFrame(geometry: proxy)
                 Color.clear
                     .onChange(of: frameData, initial: !isPinnedViewRendering) { _, newFrameData in
-                         log("LayerSizeReader: \(viewModel.layer), newFrameData: \(newFrameData)")
+                        // log("LayerSizeReader: \(viewModel.layer), newFrameData: \(newFrameData)")
                         let newSize = newFrameData.size.handleNaN()
                         if viewModel.readSize != newSize {
                             viewModel.readFrame.size = newSize
