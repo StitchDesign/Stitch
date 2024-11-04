@@ -30,18 +30,11 @@ extension LayersSidebarViewModel {
         
         let primarilySelectedLayers: Set<SidebarListItemId> = self.primary
         
-        // Are any of these selections already part of a group?
-        // If so, the newly created LayerGroup will have that group as its own parent (layerGroupId).
+        let candidateGroup = self.items.containsValidGroup(from: primarilySelectedLayers)
         
-        var existingParentForSelections: SidebarListItemId?
-        if let _existingParentForSelections = graph.layerGroupForSelections(primarilySelectedLayers) {
-            existingParentForSelections = .init(_existingParentForSelections)
-        }
-        
-        let encodedData = self.createdOrderedEncodedData()
-        guard let newGroupData = encodedData
+        guard let newGroupData = self.items
             .createGroup(newGroupId: newNode.id,
-                         parentLayerGroupId: existingParentForSelections,
+                         parentLayerGroupId: candidateGroup.parentId,
                          selections: primarilySelectedLayers) else {
             fatalErrorIfDebug()
             return
@@ -54,11 +47,10 @@ extension LayersSidebarViewModel {
         state.nodeCreated(node: newNode)
             
         // Update sidebar state
-        var newEncodableData = encodedData
-        newEncodableData.insertGroup(group: newGroupData,
-                                     selections: primarilySelectedLayers)
+        self.items.insertGroup(group: newGroupData,
+                               selections: primarilySelectedLayers)
         
-        newNode.layerNode?.layerGroupId = existingParentForSelections
+        newNode.layerNode?.layerGroupId = candidateGroup.parentId
         
         // Iterate through primarly selected layers,
         // assigning new LG as their layerGoupId.
@@ -68,7 +60,7 @@ extension LayersSidebarViewModel {
             }
         }
         
-        self.update(from: newEncodableData)
+        self.items.updateSidebarIndices()
         
         // Only reset edit mode selections if we're explicitly in edit mode (i.e. on iPad)
         if self.isEditing {
