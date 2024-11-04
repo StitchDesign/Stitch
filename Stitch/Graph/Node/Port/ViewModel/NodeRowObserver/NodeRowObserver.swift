@@ -293,6 +293,26 @@ extension InputNodeRowObserver {
 
         return inputs
     }
+    
+    @MainActor
+    func buildUpstreamReference() {
+        guard let connectedOutputObserver = self.upstreamOutputObserver else {
+            // Upstream values are cached and need to be refreshed if disconnected
+            if self.upstreamOutputCoordinate != nil {
+                self.upstreamOutputCoordinate = nil
+            }
+            
+            return
+        }
+
+        // Check for connected row observer rather than just setting ID--makes for
+        // a more robust check in ensuring the connection actually exists
+        assertInDebug(self.nodeDelegate?.graphDelegate?.visibleNodesViewModel.getOutputRowObserver(for: connectedOutputObserver.id) != nil)
+        
+        // Report to output observer that there's an edge (for port colors)
+        // We set this to false on default above
+        connectedOutputObserver.containsDownstreamConnection = true
+    }
 }
 
 extension OutputNodeRowObserver {

@@ -153,6 +153,9 @@ extension GraphState {
             .updateNodesPagingDict(components: self.components,
                                    parentGraphPath: self.saveLocation)
         
+        // Update connected port data
+        self.visibleNodesViewModel.updateAllNodeViewData()
+        
         self.updateOrderedPreviewLayers()
         
         // Calculate graph
@@ -254,9 +257,6 @@ extension GraphState {
             self.initializeDelegate(document: document,
                                     documentEncoderDelegate: encoderDelegate)
         }
-        
-        // Update connected port data
-        self.visibleNodesViewModel.updateAllNodeViewData()
     }
     
     var isSidebarFocused: Bool {
