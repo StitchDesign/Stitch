@@ -229,6 +229,7 @@ struct CommonEditingView: View {
                 .resizable()
                 .frame(width: COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH,
                        height: COMMON_EDITING_DROPDOWN_CHEVRON_HEIGHT)
+                .padding(8) // increase hit area
         }
         
         // TODO: why must we hide the native menuIndicator?
