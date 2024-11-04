@@ -56,9 +56,16 @@ struct LayerInspectorView: View {
 
     @State var safeAreaInsets: EdgeInsets = .init()
             
+    var layerInspectorData: (header: String,
+                             node: NodeId,
+                             inputs: LayerInputObserverDict,
+                             outputs: [OutputLayerNodeRowData])? {
+        graph.getLayerInspectorData()
+    }
+    
     var body: some View {
         
-        if let layerInspectorData = graph.getLayerInspectorData() {
+        if let layerInspectorData = layerInspectorData {
             selectedLayerView(
                 layerInspectorHeader: layerInspectorData.header,
                 node: layerInspectorData.node,
@@ -358,7 +365,7 @@ extension GraphState {
         
         // else had 0 or 1 layers selected:
         else {
-            guard let inspectedLayerId = self.layersSidebarViewModel.selectionState.all.first,
+            guard let inspectedLayerId = self.layersSidebarViewModel.selectionState.primary.first,
                   let node = self.getNodeViewModel(inspectedLayerId),
                   let layerNode = node.layerNode else {
                 // log("LayerInspectorView: No inspector-focused layers?:  \(self.sidebarSelectionState.inspectorFocusedLayers)")
