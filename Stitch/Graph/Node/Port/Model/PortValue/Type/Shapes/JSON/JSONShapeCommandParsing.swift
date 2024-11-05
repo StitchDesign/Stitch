@@ -218,11 +218,11 @@ extension JSON {
             return AnyKey(stringValue: String(lowercaseKey))
         }
         
-        #if DEV_DEBUG
+#if DEV_DEBUG
         let decoded: PathCommands = try! decoder.decode(PathCommands.self, from: data)
-        #else
+#else
         let decoded: PathCommands? = try? decoder.decode(PathCommands.self, from: data)
-        #endif
+#endif
         
         // Default decoder fails if ShapeCommand json used "X" instead of "x"; but has better perf?
         // let decoded: PathCommands? = try? JSONDecoder().decode(PathCommands.self, from: data)
