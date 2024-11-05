@@ -10,6 +10,12 @@ import StitchSchemaKit
 import SwiftyJSON
 import SwiftUI
 
+//let JSON_TO_SHAPE_NO_ERROR = ""
+extension JSON {
+    static let JSON_TO_SHAPE_NO_ERROR: JSON = parseJSON("{ \"Error\": \"None\" }")!
+}
+
+
 @MainActor
 func jsonToShapeNode(id: NodeId,
                      position: CGSize = .zero,
@@ -32,7 +38,7 @@ func jsonToShapeNode(id: NodeId,
         id: id, offset: inputs.count,
         values:
             ("Shape", [.shape(nil)]),
-        ("Error", [.string(.init("none"))]),
+        ("Error", [.json(.init(.JSON_TO_SHAPE_NO_ERROR))]),
         // the bounding box of the shape
         ("Size", [.size(.zero)])
     )
@@ -56,43 +62,28 @@ func jsonToShapeEval(inputs: PortValuesList,
            // TODO: reintroduce proper use of coordinate-space
            let coordinateSpace: StitchPosition = values[1].getPosition {
 
-            //            let parseResult = jsonInput
-            //                .parseAsJSONShapeCommands(coordinateSpace.toCGPoint)
-            if let commands = jsonInput
-                .parseAsPathCommands()?.asJSONShapeCommands {
+            if let commands = jsonInput.parseAsPathCommands()?.asJSONShapeCommands {
                 return (
                     .shape(CustomShape(.custom(commands))),
-                    .string(.init("none")),
+                    .json(.init(.JSON_TO_SHAPE_NO_ERROR)),
                     .size(commands.getPoints().boundingBox.toLayerSize)
                 )
             } else {
+                let errorMessage = JSONShapeCommandParseError.instructionsMalformed.rawValue
+                
                 return (
                     .shape(nil),
                     // TODO: reintroduce proper error messaging
-                    .string(.init(JSONShapeCommandParseError.instructionsMalformed.rawValue)),
+                    .json(.init(.init(parseJSON: "{ \"Error\": \"\(errorMessage)\" }"))),
                     .size(.zero)
                 )
             }
 
-            //            switch parseResult {
-            //            case .commands(let commands):
-            //                return (
-            //                    .shape(CustomShape(.custom(commands))),
-            //                    .string("none"),
-            //                    .size(commands.points.boundingBox.toLayerSize)
-            //                )
-            //            case .error(let error):
-            //                return (
-            //                    .shape(nil),
-            //                    .string(error.display),
-            //                    .size(.zero)
-            //                )
-            //            }
         } else {
             log("jsonToShapeEval: failed to retrieve values from inputs")
             return (
                 PortValue.shape(nil),
-                PortValue.string(.init("Inputs error")),
+                PortValue.json(.emptyJSONObject),
                 PortValue.size(.zero)
             )
         }
