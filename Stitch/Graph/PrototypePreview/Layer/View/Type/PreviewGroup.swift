@@ -156,15 +156,7 @@ struct PreviewGroupLayer: View {
                 nodeId: interactiveLayer.id.layerNodeId,
                 highlightedSidebarLayers: document.graphUI.highlightedSidebarLayers,
                 scale: scale))
-                
-            .modifier(PreviewLayerRotationModifier(
-                graph: graph,
-                viewModel: layerViewModel,
-                isPinnedViewRendering: isPinnedViewRendering,
-                rotationX: rotationX,
-                rotationY: rotationY,
-                rotationZ: rotationZ))
-        
+                        
         // .clipped modifier should come before the offset/position modifier,
         // so that it's affected by the offset/position modifier
             .modifier(ClippedModifier(isClipped: isClipped,
@@ -212,6 +204,15 @@ struct PreviewGroupLayer: View {
                         shadowRadius: shadowRadius,
                         shadowOffset: shadowOffset))
             }
+        
+        // moved here, so that .rotation affects .shadow
+            .modifier(PreviewLayerRotationModifier(
+                graph: graph,
+                viewModel: layerViewModel,
+                isPinnedViewRendering: isPinnedViewRendering,
+                rotationX: rotationX,
+                rotationY: rotationY,
+                rotationZ: rotationZ))
         
             .opacity(opacity) // opacity on group and all its contents
         
