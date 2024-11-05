@@ -115,11 +115,14 @@ struct PreviewLayerRotationModifier: ViewModifier {
     }
     
     @MainActor
-    func rotationModifier(degrees: CGFloat) -> LayerRotationModifier {
+    func rotationModifier(degrees: CGFloat,
+                          isForXAxis: Bool = false,
+                          isForYAxis: Bool = false,
+                          isForZAxis: Bool = false) -> LayerRotationModifier {
         LayerRotationModifier(degrees: degrees,
-                              rotationX: finalRotationX,
-                              rotationY: finalRotationY,
-                              rotationZ: finalRotationZ,
+                              isForXAxis: isForXAxis,
+                              isForYAxis: isForYAxis,
+                              isForZAxis: isForZAxis,
                               rotationAnchorX: self.rotationAnchorX,
                               rotationAnchorY: self.rotationAnchorY,
                               shouldBeIgnoredByLayout: shouldBeIgnoredByLayout)
@@ -130,13 +133,16 @@ struct PreviewLayerRotationModifier: ViewModifier {
         content
         
         // x rotation
-            .modifier(rotationModifier(degrees: finalRotationX))
+            .modifier(rotationModifier(degrees: finalRotationX,
+                                       isForXAxis: true))
         
         // y rotation
-            .modifier(rotationModifier(degrees: finalRotationY))
+            .modifier(rotationModifier(degrees: finalRotationY,
+                                       isForYAxis: true))
         
         // z rotation
-            .modifier(rotationModifier(degrees: finalRotationZ))
+            .modifier(rotationModifier(degrees: finalRotationZ,
+                                       isForZAxis: true))
     }
 }
 
@@ -147,9 +153,9 @@ struct LayerRotationModifier: ViewModifier {
     
     let degrees: CGFloat
     
-    let rotationX: CGFloat
-    let rotationY: CGFloat
-    let rotationZ: CGFloat
+    var isForXAxis: Bool = false
+    var isForYAxis: Bool = false
+    var isForZAxis: Bool = false
     
     let rotationAnchorX: CGFloat
     let rotationAnchorY: CGFloat
@@ -160,9 +166,9 @@ struct LayerRotationModifier: ViewModifier {
         if shouldBeIgnoredByLayout {
             content
                 .modifier(_Rotation3DEffect(angle: Angle(degrees: degrees),
-                                            axis: (x: rotationX,
-                                                   y: rotationY,
-                                                   z: rotationZ),
+                                            axis: (x: isForXAxis ? 1 : 0,
+                                                   y: isForYAxis ? 1 : 0,
+                                                   z: isForZAxis ? 1 : 0),
                                             anchor: .init(x: rotationAnchorX,
                                                           y: rotationAnchorY))
                     // TODO: why does `.ignoredByLayout` negatively affect the Monthly Stays demo?
@@ -170,9 +176,9 @@ struct LayerRotationModifier: ViewModifier {
         } else {
             content
                 .modifier(_Rotation3DEffect(angle: Angle(degrees: degrees),
-                                            axis: (x: rotationX,
-                                                   y: rotationY,
-                                                   z: rotationZ),
+                                            axis: (x: isForXAxis ? 1 : 0,
+                                                   y: isForYAxis ? 1 : 0,
+                                                   z: isForZAxis ? 1 : 0),
                                             anchor: .init(x: rotationAnchorX,
                                                           y: rotationAnchorY)))
         }
