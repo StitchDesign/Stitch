@@ -404,7 +404,7 @@ extension Patch {
         //        Patch.allCases
         // TODO: fix SampleRange node and allow it to be added to graph by user
         Patch.allCases.filter { patch in
-            patch != .sampleRange && patch != .jsonToShape
+            patch != .sampleRange // && patch != .jsonToShape
         }
     }
 
