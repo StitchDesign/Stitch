@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftyJSON
 import StitchSchemaKit
+import Foundation
 
 extension JSON {
     var caseInsensitiveX: Double? {
@@ -179,7 +180,6 @@ extension [ShapeCommand] {
             case .curveTo(let curveFrom,
                           let point,
                           let curveTo):
-
                 return JSONShapeCommand.curveTo(
                     JSONCurveTo(point: point.asCGPoint,
                                 controlPoint1: curveFrom.asCGPoint,
@@ -202,14 +202,56 @@ extension JSON {
             return nil
         }
         // TODO: better use do / catch to provide app-user with better understand of how the json was malformed
-        let decoded: PathCommands? = try? JSONDecoder().decode(PathCommands.self, from: data)
+
+        /*
+         Lower-cases the first letter of each key, so that we properly treat "X" as "x"
+         
+         Alternatively, manually implement Decodable for ShapeCommand?
+         
+         Which is better for perf -- custom key-decoding strategy or custom Decodable implementation?
+         
+         https://developer.apple.com/documentation/foundation/jsondecoder/keydecodingstrategy/custom
+         */
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .custom { keys in
+            let lowercaseKey = keys.last?.stringValue.lowercaseFirstLetter() ?? ""
+            return AnyKey(stringValue: String(lowercaseKey))
+        }
+        
+        #if DEV_DEBUG
+        let decoded: PathCommands = try! decoder.decode(PathCommands.self, from: data)
+        #else
+        let decoded: PathCommands? = try? decoder.decode(PathCommands.self, from: data)
+        #endif
+        
+        // Default decoder fails if ShapeCommand json used "X" instead of "x"; but has better perf?
+        // let decoded: PathCommands? = try? JSONDecoder().decode(PathCommands.self, from: data)
         return decoded
     }
 }
 
-//
-// struct JSONShapeParsing_Previews: PreviewProvider {
-//    static var previews: some View {
-//        JSONShapeParsing()
-//    }
-// }
+extension String {
+    func lowercaseFirstLetter() -> String {
+        return prefix(1).lowercased() + self.dropFirst()
+    }
+
+    mutating func lowercaseFirstLetter() {
+      self = self.lowercaseFirstLetter()
+    }
+}
+
+/// An implementation of CodingKey that's useful for combining and transforming keys as strings.
+struct AnyKey: CodingKey {
+    var stringValue: String
+    var intValue: Int?
+    
+    init(stringValue: String) {
+        self.stringValue = stringValue
+        self.intValue = nil
+    }
+    
+    init?(intValue: Int) {
+        self.stringValue = String(intValue)
+        self.intValue = intValue
+    }
+}
