@@ -166,10 +166,15 @@ final class SidebarListGestureRecognizer<SidebarViewModel: ProjectSidebarObserva
     }
       
     @objc func tapInView(_ gestureRecognizer: UITapGestureRecognizer) {
+        log("tapInView called")
         guard let sidebarViewModel = self.sidebarViewModel,
-              let gestureViewModel = self.gestureViewModel else { return }
+              let gestureViewModel = self.gestureViewModel else {
+            log("tapInView: missing view model")
+            return
+        }
         
         if sidebarViewModel.isEditing || gestureViewModel.swipeSetting == .open {
+            log("tapInView: either editing or swipe menu open")
             return
         }
         

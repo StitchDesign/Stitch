@@ -60,12 +60,16 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
     }
     
     var body: some View {
+        
+        logInView("indentationPadding: \(indentationPadding)")
+        
         // TODO: why does drag gesture on Catalyst break if we remove this?
         SidebarListItemGestureRecognizerView(
             view: customSwipeItem,
             sidebarViewModel: sidebarViewModel,
             gestureViewModel: gestureViewModel)
         .transition(.move(edge: .top).combined(with: .opacity))
+        .border(.yellow)
         
         // MARK: indent padding animation needs to be before y animation
         .animation(.stitchAnimation(duration: 0.25), value: indentationPadding)
@@ -74,7 +78,9 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
         .zIndex(gestureViewModel.zIndex)
         .height(CGFloat(CUSTOM_LIST_ITEM_VIEW_HEIGHT))
         .padding(.horizontal, 4)
+        .border(.cyan)
         .padding(.leading, CGFloat(indentationPadding))
+        .border(.red)
         .background {
             theme.fontColor
                 .opacity(backgroundOpacity)
@@ -91,7 +97,9 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
         }
         
         // MARK: - offset must come after hover and before gestures for dragging to work!
+        .border(.purple)
         .offset(y: yOffset)
+        .border(.green)
         
 #if targetEnvironment(macCatalyst)
         // SwiftUI gesture handlers must come AFTER `.offset`

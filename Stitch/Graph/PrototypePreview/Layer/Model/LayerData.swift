@@ -55,6 +55,7 @@ extension LayerType {
         case .mask(masked: let masked, masker: _):
             // TODO: what is the the layer-node-id of a LayerType in a masking situation? Really, it's nil, there's no single LayerNode
             // return masked.id
+            log("LayerType: id called: ids for masked: \(masked.map(\.id))")
             return masked.first!.id
         }
     }

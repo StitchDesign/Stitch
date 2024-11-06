@@ -18,6 +18,12 @@ extension ProjectSidebarObservable {
         log("sidebarItemTapped: id: \(id)")
         log("sidebarItemTapped: shiftHeld: \(shiftHeld)")
         
+        let commandPressed = self.graphDelegate?.keypressState.isCommandPressed ?? false
+        let shiftPressed = self.graphDelegate?.keypressState.isShiftPressed ?? false
+         
+        log("sidebarItemTapped: commandPressed: \(commandPressed)")
+        log("sidebarItemTapped: shiftPressed: \(shiftPressed)")
+        
         let originalSelections = self.selectionState.primary
         
         // Set sidebar to be focused:
