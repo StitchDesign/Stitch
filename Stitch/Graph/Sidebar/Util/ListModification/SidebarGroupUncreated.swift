@@ -50,17 +50,9 @@ extension LayersSidebarViewModel {
             fatalErrorIfDebug()
             return
         }
-        
-        let newParentId = graph.getNodeViewModel(groupId)?.layerNode?.layerGroupId
 
-        // find each child of the group, set its layer group id to the parent of the selected group
-        children.forEach { child in
-            if let layerNode = graph.getNodeViewModel(child) {
-                layerNode.layerNode?.layerGroupId = newParentId
-            }
-        }
-
-        // finally, delete layer group node itself (but not its children)
+        // Delete layer group node itself (but not its children)
+        // Note: the uncreated-group's children's new parent (nil or the next closest ancestor) is handled automatically?
         graph.deleteNode(id: groupId, willDeleteLayerGroupChildren: false)
 
         // update legacy sidebar data

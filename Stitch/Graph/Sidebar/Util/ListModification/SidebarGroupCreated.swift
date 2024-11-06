@@ -49,17 +49,7 @@ extension LayersSidebarViewModel {
         // Update sidebar state
         self.items.insertGroup(group: newGroupData,
                                selections: primarilySelectedLayers)
-        
-        newNode.layerNode?.layerGroupId = candidateGroup.parentId
-        
-        // Iterate through primarly selected layers,
-        // assigning new LG as their layerGoupId.
-        primarilySelectedLayers.forEach { layerId in
-            if let layerNode = graph.getLayerNode(id: layerId)?.layerNode {
-                layerNode.layerGroupId = newNode.id
-            }
-        }
-        
+   
         self.items.updateSidebarIndices()
         
         // Only reset edit mode selections if we're explicitly in edit mode (i.e. on iPad)
