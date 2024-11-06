@@ -14,7 +14,7 @@ struct KeyModifierPressEnded: StitchDocumentEvent {
 
     @MainActor
     func handle(state: StitchDocumentViewModel) {
-        // log("KeyModifierPressEnded: modifiers: \(modifiers)")
+        log("KeyModifierPressEnded: modifiers: \(modifiers)")
         for modifier in modifiers {
             state.keypressState.modifiers.remove(modifier)
         }
@@ -26,7 +26,7 @@ struct KeyModifierPressBegan: StitchDocumentEvent {
 
     @MainActor
     func handle(state: StitchDocumentViewModel) {
-         // log("KeyModifierPressBegan: modifiers: \(modifiers)")
+        log("KeyModifierPressBegan: modifiers: \(modifiers)")
         
         state.keypressState.modifiers = state.keypressState.modifiers.union(modifiers)
         
@@ -34,8 +34,8 @@ struct KeyModifierPressBegan: StitchDocumentEvent {
         let shiftHeld = state.keypressState.isShiftPressed
         let tabPressed = state.keypressState.isTabPressed
         
-        // log("KeyModifierPressBegan: shiftHeld: \(shiftHeld)")
-        // log("KeyModifierPressBegan: tabPressed: \(tabPressed)")
+        log("KeyModifierPressBegan: shiftHeld: \(shiftHeld)")
+        log("KeyModifierPressBegan: tabPressed: \(tabPressed)")
         
         // Ignore shift/tab if no node input field is focused.
         if let focusedField = state.graphUI.reduxFocusedField?.getTextInputEdit,

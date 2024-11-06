@@ -74,6 +74,10 @@ extension UIKey {
         switch self.keyCode {
         case .keyboardTab:
             return .tab
+        case .keyboardLeftShift:
+            return .shift
+        case .keyboardRightShift:
+            return .shift
         default:
             return nil
         }
