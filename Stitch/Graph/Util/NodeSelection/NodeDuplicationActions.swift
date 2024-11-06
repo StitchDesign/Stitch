@@ -222,9 +222,6 @@ extension GraphState {
                     }
                 }
         }
-        
-        // Also wipe sidebar selection state
-        self.sidebarSelectionState.resetEditModeSelections()
     }
     
     // Duplicate ONLY the selected comment boxes
