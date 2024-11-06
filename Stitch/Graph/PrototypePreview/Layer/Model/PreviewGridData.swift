@@ -13,7 +13,6 @@ let HEIGHT_FIELD_INDEX = 1
 
 struct LayerGroupIdChanged: GraphEvent {
     let layerNodeId: LayerNodeId
-    let layerGroupParentId: NodeId?
     
     func handle(state: GraphState) {
         
@@ -23,16 +22,20 @@ struct LayerGroupIdChanged: GraphEvent {
             return
         }
         
-        if layerGroupParentId.isDefined {
+        // Use offset rather than position inputs if parent uses non-ZStack orientation.
+        // NOTE: complication: the parent's layout-orientation could vary by loop-index, but blocking/unblocking fields and the inspector-view are currently unaware of loop-index.
+        if let parentId = layerNode.layerGroupId,
+           let parentLayerNodeViewModel = state.getLayerNode(id: parentId)?.layerNode,
+           let parentLayerViewModel = parentLayerNodeViewModel.previewLayerViewModels[safe: state.activeIndex.adjustedIndex(parentLayerNodeViewModel.previewLayerViewModels.count)] ?? parentLayerNodeViewModel.previewLayerViewModels.first,
+           parentLayerViewModel.orientation.getOrientation != StitchOrientation.none {
+            
             layerNode.blockPositionInput()
             layerNode.unblockOffsetInput()
         } else {
             layerNode.unblockPositionInput()
             layerNode.blockOffsetInput()
         }
-        
     }
-    
 }
 
 // TODO: we also need to block or unblock the inputs of the row on the canvas as well

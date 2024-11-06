@@ -154,18 +154,21 @@ final class LayerNodeViewModel {
     }
 
     var layerGroupId: NodeId? {
-        didSet {
-            DispatchQueue.main.async { [weak self] in
-                if let layerNode = self {
-                    dispatch(AssignedLayerUpdated(changedLayerNode: layerNode.id.asLayerNodeId))
-                    dispatch(LayerGroupIdChanged(
-                        layerNodeId: layerNode.id.asLayerNodeId,
-                        layerGroupParentId: layerNode.layerGroupId))
-                }
-            }
+        guard let graph = self.nodeDelegate?.graphDelegate else {
+            log("LayerNodeViewModel: layerGroupId for layer \(self.id): no node or graph delegate?")
+            return nil
         }
+        
+        guard let sidebarItem: SidebarItemGestureViewModel = graph.layersSidebarViewModel.items.get(self.id) else {
+            log("LayerNodeViewModel: layerGroupId for layer \(self.id): no sidebar item")
+            return nil
+        }
+        
+        // log("LayerNodeViewModel: layerGroupId for layer \(self.id): sidebarItem.parentId: \(sidebarItem.parentId)")
+        
+        return sidebarItem.parentId
     }
-
+    
     @MainActor
     init(from schema: LayerNodeEntity) {
         
@@ -178,7 +181,9 @@ final class LayerNodeViewModel {
         self.id = schema.id
         self.layer = schema.layer
         self.hasSidebarVisibility = schema.hasSidebarVisibility
-        self.layerGroupId = schema.layerGroupId
+                
+        // TODO: remove `layerGroupId` from schema
+        //self.layerGroupId = schema.layerGroupId
         
         self.outputPorts = rowDefinitions
             .createOutputLayerPorts(schema: schema,
@@ -337,9 +342,11 @@ extension LayerNodeViewModel: SchemaObserver {
         if self.hasSidebarVisibility != schema.hasSidebarVisibility {
             self.hasSidebarVisibility = schema.hasSidebarVisibility
         }
-        if self.layerGroupId != schema.layerGroupId {
-            self.layerGroupId = schema.layerGroupId
-        }
+
+        // TODO: remove `layerGroupId` from the `LayerNodeEntity`; now handled via sidebar item state
+//        if self.layerGroupId != schema.layerGroupId {
+//            self.layerGroupId = schema.layerGroupId
+//        }
         
         // Process input data
         self.layer.layerGraphNode.inputDefinitions.forEach {
