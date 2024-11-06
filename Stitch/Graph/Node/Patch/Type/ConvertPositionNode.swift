@@ -73,9 +73,9 @@ func convertPositionEval(node: PatchNode,
         let previewWindowRect = CGRect(origin: .zero,
                                        size: graphState.previewWindowSize)
         
-        var fromLayerViewModel: LayerViewModel? = fromLayerId.flatMap(layerViewModelAtIndex)
-        var fromRect: CGRect = fromLayerViewModel?.readFrame ?? previewWindowRect
-        var toRect: CGRect = toLayerId.flatMap(layerViewModelAtIndex)?.readFrame ?? previewWindowRect
+        let fromLayerViewModel: LayerViewModel? = fromLayerId.flatMap(layerViewModelAtIndex)
+        let fromRect: CGRect = fromLayerViewModel?.readFrame ?? previewWindowRect
+        let toRect: CGRect = toLayerId.flatMap(layerViewModelAtIndex)?.readFrame ?? previewWindowRect
        
         let fromScale = fromLayerViewModel?.scale.getNumber ?? .defaultScale
         

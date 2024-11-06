@@ -154,6 +154,8 @@ struct LayerInfoNodeEvalHelpers {
 func layerInfoEval(node: PatchNode,
                     state: GraphDelegate) -> EvalResult {
     
+    // Like other 'interaction nodes', we ignore loops and look only at the inputs' first values.
+    // This is because the assigned layer's node may hve a loop of its own, and we cannot have a loop of loops.
     guard let assignedLayerId: LayerNodeId = node.inputs.first?.first?.getInteractionId,
           let assignedLayerNode = state.getNodeViewModel(assignedLayerId.id),
           let assignedLayerNodeViewModel: LayerNodeViewModel = assignedLayerNode.layerNode else {
@@ -161,50 +163,55 @@ func layerInfoEval(node: PatchNode,
         return .init(outputsValues: LayerInfoNodeEvalHelpers.defaultOutputs)
     }
     
+    let layerViewModels = assignedLayerNodeViewModel.previewLayerViewModels
+    
     let layerEnabled = assignedLayerNodeViewModel.hasSidebarVisibility
     let layerGroupParent = assignedLayerNodeViewModel.layerGroupId?.asLayerNodeId
-    let layerViewModels = assignedLayerNodeViewModel.previewLayerViewModels
+    
+    var enabledLoop = PortValues()
+    var positionLoop = PortValues()
+    var sizeLoop = PortValues()
+    var scaleLoop = PortValues()
+    var anchorLoop = PortValues()
+    var opacityLoop = PortValues()
+    var zIndexLoop = PortValues()
+    var assignedLayerLoop = PortValues()
+            
+    layerViewModels.forEach { layerViewModel in //(layerViewModel: LayerViewModel) -> PortValues in
         
-    // you want to return mm
-    let evalOp: Operation8 = { values, loopIndex -> PortValueTuple8 in
+        enabledLoop.append( // Enabled (visibility hidden via sidebar or not)
+            .bool(layerEnabled))
         
-        guard let layerViewModel = layerViewModels[safeIndex: loopIndex] else {
-            log("layerInfoEval: no layerViewModel at loopIndex \(loopIndex)")
-            return LayerInfoNodeEvalHelpers.defaultOutputsAtSingleIndex
-        }
+        positionLoop.append( // Position
+            .position(layerViewModel.position.getPosition ?? .zero))
         
-        log("layerInfoEval: layerViewModel.readSize: \(layerViewModel.readSize)")
-        log("layerInfoEval: layerViewModel.anchoring.getAnchoring: \(layerViewModel.anchoring.getAnchoring)")
-                        
-        return (
-            // Enabled (visibility hidden via sidebar or not)
-            .bool(layerEnabled),
-            
-            // Position
-            .position(layerViewModel.position.getPosition ?? .zero),
-            
-            // Size: read from GeometryReader
-            .size(.init(layerViewModel.readSize)),
-            
-            // Scale
-            .number(layerViewModel.scale.getNumber ?? .defaultScale),
-            
-            // Anchor
-            .anchoring(layerViewModel.anchoring.getAnchoring ?? .defaultAnchoring),
-            
-            // Opacity
-            .number(layerViewModel.opacity.getNumber ?? 1),
-            
-            // zIndex
-            .number(layerViewModel.zIndex.getNumber ?? 0),
-            
-            // Assigned parent (layer group)
-            .assignedLayer(layerGroupParent)
-        )
+        sizeLoop.append(  // Size: read from GeometryReader
+            .size(.init(layerViewModel.readSize)))
+        
+        scaleLoop.append( // Scale
+            .number(layerViewModel.scale.getNumber ?? .defaultScale))
+        
+        anchorLoop.append(// Anchor
+            .anchoring(layerViewModel.anchoring.getAnchoring ?? .defaultAnchoring))
+        
+        opacityLoop.append( // Opacity
+            .number(layerViewModel.opacity.getNumber ?? 1))
+        
+        zIndexLoop.append(// zIndex
+            .number(layerViewModel.zIndex.getNumber ?? 0))
+        
+        assignedLayerLoop.append(// Assigned parent (layer group)
+            .assignedLayer(layerGroupParent))
     }
     
-    let newOutputs = outputEvalHelper8(inputs: node.inputs,
-                                       outputs: [],
-                                       operation: evalOp)
-    return .init(outputsValues: newOutputs)
+    return .init(outputsValues: [
+        enabledLoop,
+        positionLoop,
+        sizeLoop,
+        scaleLoop,
+        anchorLoop,
+        opacityLoop,
+        zIndexLoop,
+        assignedLayerLoop
+    ])
 }
