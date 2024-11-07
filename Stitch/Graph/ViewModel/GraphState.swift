@@ -326,7 +326,8 @@ extension GraphState {
         self.layersSidebarViewModel.update(from: schema.orderedSidebarLayers)
     }
     
-    @MainActor func update(from schema: GraphEntity) async {
+    // Another update functioin? used much more often
+    @MainActor func updateAsync(from schema: GraphEntity) async {
         self.updateSynchronousProperties(from: schema)
         
         if let decodedFiles = await self.documentEncoderDelegate?.getDecodedFiles() {
@@ -343,12 +344,13 @@ extension GraphState {
         }
     }
     
-    @MainActor func update(from schema: GraphEntity) {
+    // Only used for copy-paste / duplication scenarios?
+    @MainActor func updateSync(from schema: GraphEntity) {
         self.updateSynchronousProperties(from: schema)
         
         Task { [weak self] in
             // Async update data correctly
-            await self?.update(from: schema)
+            await self?.updateAsync(from: schema)
         }
         
         self.syncNodes(with: schema.nodes)

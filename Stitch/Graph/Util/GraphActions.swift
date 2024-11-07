@@ -35,7 +35,7 @@ struct CloseGraph: StitchStoreEvent {
 extension GraphState: DocumentEncodableDelegate {
     func updateOnUndo(schema: GraphEntity) {
         Task(priority: .high) { [weak self] in
-            await self?.update(from: schema)
+            await self?.updateAsync(from: schema)
         }
     }
     
