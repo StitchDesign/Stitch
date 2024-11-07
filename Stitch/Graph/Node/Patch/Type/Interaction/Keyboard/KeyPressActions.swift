@@ -26,7 +26,7 @@ struct KeyModifierPressBegan: StitchDocumentEvent {
 
     @MainActor
     func handle(state: StitchDocumentViewModel) {
-        log("KeyModifierPressBegan: modifiers: \(modifiers)")
+        // log("KeyModifierPressBegan: modifiers: \(modifiers)")
         
         state.keypressState.modifiers = state.keypressState.modifiers.union(modifiers)
         

@@ -56,7 +56,7 @@ struct PreviewContent: View {
         
         let generatedPreview = GeneratePreview(document: document)
         
-//        UIKitWrapper(ignoresKeyCommands: false, name: "PreviewContent") {
+        UIKitWrapper(ignoresKeyCommands: false, name: "PreviewContent") {
             generatedPreview
                 .frame(finalSize)
                 .coordinateSpace(name: Self.prototypeCoordinateSpace)
@@ -67,7 +67,7 @@ struct PreviewContent: View {
             // Important: render preview window border BEFORE applying scale
                 .previewWindowBorder(showsBorder: !isFullScreen)
                 .scaleEffect(finalScale)
-//        }
+        }
     }
 }
 
