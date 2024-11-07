@@ -37,21 +37,18 @@ struct KeyModifierPressBegan: StitchDocumentEvent {
         let shiftTabPressed = shiftHeld && tabPressed
         
         // log("KeyModifierPressBegan: shiftHeld: \(shiftHeld)")
-//         log("KeyModifierPressBegan: tabPressed: \(tabPressed)")
-        
+        // log("KeyModifierPressBegan: tabPressed: \(tabPressed)")
+        // log("KeyModifierPressBegan: shiftTabPressed: \(shiftTabPressed)")
         
         let focusedField = state.graphUI.reduxFocusedField
-        log("KeyModifierPressBegan: focusedField: \(focusedField)")
         
         // Tabbing between inputs project setting's preview window dimensions fields
-        if focusedField == .previewWindowSettingsWidth {
+        if focusedField == .previewWindowSettingsWidth, tabPressed {
             // Both tab and shift-tab move us to height
-            log("will jump to height")
             state.graphUI.reduxFocusedField = .previewWindowSettingsHeight
             return
-        } else if focusedField == .previewWindowSettingsHeight {
+        } else if focusedField == .previewWindowSettingsHeight, tabPressed {
             // Both tab and shift-tab move us to height
-            log("will jump to width")
             state.graphUI.reduxFocusedField = .previewWindowSettingsWidth
             return
         }

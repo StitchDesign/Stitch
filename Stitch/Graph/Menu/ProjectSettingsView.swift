@@ -47,20 +47,19 @@ struct ProjectSettingsView: View {
     var widthDimensionInput: some View {
         if self.widthReduxFocused {
             TextField("", text: self.$previewWindowWidthEdit)
+                .padding(.bottom, 1) // slight difference between Text vs TextField
                 .focused(self.$focusedPWField, equals: .width)
                 .frame(maxWidth: 140, alignment: .leading)
                 .modifier(StitchSheetInput())
                 .onSubmit {
-                    log("width field submitted")
                     dispatch(ReduxFieldDefocused(focusedField: .previewWindowSettingsWidth))
                 }
-                .offset(y: -0.5)
+                
         } else {
             Text(self.previewWindowWidthEdit)
                 .frame(maxWidth: 140, alignment: .leading)
                 .modifier(StitchSheetInput())
                 .onTapGesture {
-                    log("width field tapped")
                     dispatch(ReduxFieldFocused(focusedField: .previewWindowSettingsWidth))
                 }
         }
@@ -70,20 +69,19 @@ struct ProjectSettingsView: View {
     var heightDimensionInput: some View {
         if self.heightReduxFocused {
             TextField("", text: self.$previewWindowHeightEdit)
+                .padding(.bottom, 1) // slight difference between Text vs TextField
                 .focused(self.$focusedPWField, equals: .height)
                 .frame(maxWidth: 140, alignment: .leading)
                 .modifier(StitchSheetInput())
                 .onSubmit {
-                    log("height field submitted")
                     dispatch(ReduxFieldDefocused(focusedField: .previewWindowSettingsHeight))
                 }
-                .offset(y: -0.5)
+                
         } else {
             Text(self.previewWindowHeightEdit)
                 .frame(maxWidth: 140, alignment: .leading)
                 .modifier(StitchSheetInput())
                 .onTapGesture {
-                    log("height field tapped")
                     dispatch(ReduxFieldFocused(focusedField: .previewWindowSettingsHeight))
                 }
         }
