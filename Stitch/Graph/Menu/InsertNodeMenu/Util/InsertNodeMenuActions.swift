@@ -59,13 +59,13 @@ extension GraphUIState {
         
         // `withAnimation` still seems to cause view to scroll
         
-//        withAnimation {
-//            self.insertNodeMenuState.show = showMenu
-//
-//            // whenever we toggle (open or close) the menu,
-//            // set `menuAnimating = false`
-//            self.insertNodeMenuState.menuAnimatingToNode = false
-//        }
+        withAnimation {
+            self.insertNodeMenuState.show = showMenu
+
+            // whenever we toggle (open or close) the menu,
+            // set `menuAnimating = false`
+            self.insertNodeMenuState.menuAnimatingToNode = false
+        }
     }
 }
 
@@ -75,9 +75,9 @@ struct CloseAndResetInsertNodeMenu: GraphUIEvent {
         // log("CloseAndResetInsertNodeMenu called")
 
         if !state.insertNodeMenuState.menuAnimatingToNode {
-//            withAnimation {
-//                state.insertNodeMenuState = InsertNodeMenuState()
-//            }
+            withAnimation {
+                state.insertNodeMenuState = InsertNodeMenuState()
+            }
         }
     }
 }
@@ -135,20 +135,20 @@ struct ActiveSelectionSizeReadingCompleted: GraphEvent {
         state.persistNewNode(node)
         
         // TODO: use the
-//        withAnimation {
-//            // log("ActiveSelectionSizeReadingCompleted: withAnimation")
-//            state.graphUI.insertNodeMenuState.menuAnimatingToNode = true
-//            
-//            // TODO: get rid of this manual dispatch of the completed-animation action
-//            // TODO: why are the 0.3 extra seconds required?
-//            // TODO: base the 0.9 off of the existing animation's duration
-//            //            DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
-//            //            DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
-//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-//                //            DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
-//                dispatch(InsertNodeAnimationCompleted())
-//            }
-//        }
+        withAnimation {
+            // log("ActiveSelectionSizeReadingCompleted: withAnimation")
+            state.graphUI.insertNodeMenuState.menuAnimatingToNode = true
+            
+            // TODO: get rid of this manual dispatch of the completed-animation action
+            // TODO: why are the 0.3 extra seconds required?
+            // TODO: base the 0.9 off of the existing animation's duration
+            //            DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
+            //            DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                //            DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
+                dispatch(InsertNodeAnimationCompleted())
+            }
+        }
         
         // TODO: `completion` animation callback seems either delayed, or in some cases not to fire at all?
         //        completion: {

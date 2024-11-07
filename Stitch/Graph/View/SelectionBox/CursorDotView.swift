@@ -28,9 +28,9 @@ struct CursorDotView: View {
             .onAppear {
                 let finalSize = isFingerOnScreenSelection ? LARGE_CURSOR_LENGTH : SMALL_CURSOR_LENGTH
                 let animationTime = isFingerOnScreenSelection ? 0.25 : 0.1
-//                withAnimation(.easeIn(duration: animationTime)) {
-//                    length = finalSize
-//                }
+                withAnimation(.easeIn(duration: animationTime)) {
+                    length = finalSize
+                }
             }
     }
 }

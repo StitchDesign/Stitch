@@ -199,14 +199,14 @@ struct CommonEditingView: View {
                 self.updateCurrentEdit()
             }
         }
-//        .onHover { isHovering in
-//            // Ignore multifield hover
-//            guard self.multifieldLayerInput == nil else { return }
-//            
-////            withAnimation {
-//                self.isHovering = isHovering
-////            }
-//        }
+        .onHover { isHovering in
+            // Ignore multifield hover
+            guard self.multifieldLayerInput == nil else { return }
+            
+            withAnimation {
+                self.isHovering = isHovering
+            }
+        }
         .onChange(of: self.fieldHasHeterogenousValues, initial: true) { oldValue, newValue in
             // log("CommonEditingView: on change of: self.hasHeterogenousValues: id: \(id)")
             // log("CommonEditingView: on change of: self.hasHeterogenousValues: oldValue: \(oldValue)")

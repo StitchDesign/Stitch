@@ -45,9 +45,9 @@ struct ProjectWindowSizeReader: View {
                     // Creates full screen animation effect for iPhone experience
                     if isFullScreen {
                         showFullScreenAnimateCompleted = false
-//                        withAnimation(.stitchAnimation) {
+                        withAnimation(.stitchAnimation) {
                             showFullScreenObserver.update(true)
-//                        }
+                        }
                     }
                 }
 
@@ -145,12 +145,12 @@ struct ProjectWindowSizeReader: View {
                 .onChange(of: isFullScreen) { isFullScreenUpdate in
 
                     showFullScreenAnimateCompleted = false
-//                    withAnimation(.stitchAnimation) {
+                    withAnimation(.stitchAnimation) {
                         if isFullScreenUpdate {
                             self.previewWindowSizing.userDeviceSize = geometry.size
                         }
                         showFullScreenObserver.update(isFullScreenUpdate)
-//                    }
+                    }
                 }
         }
     }

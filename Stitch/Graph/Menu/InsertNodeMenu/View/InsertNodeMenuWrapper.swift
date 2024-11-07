@@ -150,24 +150,24 @@ struct InsertNodeMenuWrapper: View {
         
         let largeNodeHeightScale: CGFloat = self.getLargeNodeHeightScale()
 
-//        withAnimation(Self.opacityAnimation) {
-//            nodeOpacity = showMenu ? 0 : 1
-//        }
-//
-//        withAnimation(Self.scaleAnimation) {
-//
-//            // Adjust the corner radius when menu hidden
-//            menuCornerRadius = showMenu ? Self.shownMenuCornerRadius : Self.hiddenMenuCornerRadius
-//
-//            // Menu's opacity does not actually change during animation;
-//            // we merely let the node appear over it (z-index)
-//
-//            nodeScaleX = showMenu ? largeNodeWidthScale : 1
-//            nodeScaleY = showMenu ? largeNodeHeightScale : 1
-//
-//            // Node's hidden position = menu position + graph offset factored OUT
-//            nodePosition = showMenu ? getAdjustedMenuOrigin() : getNodeDestination()
-//        }
+        withAnimation(Self.opacityAnimation) {
+            nodeOpacity = showMenu ? 0 : 1
+        }
+
+        withAnimation(Self.scaleAnimation) {
+
+            // Adjust the corner radius when menu hidden
+            menuCornerRadius = showMenu ? Self.shownMenuCornerRadius : Self.hiddenMenuCornerRadius
+
+            // Menu's opacity does not actually change during animation;
+            // we merely let the node appear over it (z-index)
+
+            nodeScaleX = showMenu ? largeNodeWidthScale : 1
+            nodeScaleY = showMenu ? largeNodeHeightScale : 1
+
+            // Node's hidden position = menu position + graph offset factored OUT
+            nodePosition = showMenu ? getAdjustedMenuOrigin() : getNodeDestination()
+        }
     }
     
     var graphOffset: CGPoint {
@@ -199,38 +199,38 @@ struct InsertNodeMenuWrapper: View {
         //        nodeHeight/Self.menuHeight * graphScale
         let smallMenuHeightScale: CGFloat = nodeHeight/menuHeight * graphScale
 
-//        withAnimation(Self.scaleAnimation) {
-//            menuScaleX = showMenu ? Self.shownMenuScale : smallMenuWidthScale
-//            menuScaleY = showMenu ? Self.shownMenuScale : smallMenuHeightScale
-//
-//            // node destination's diff from center
-//            let diffX = screenWidth/2 - nodeDestination.x
-//
-//            //            let diffY = screenHeight/2 - nodeDestination.height
-//
-//            // Use non-changing height of screen for menu's animation-end position;
-//            // i.e. animate the menu to a position as if the keyboard were not on screen.
-//            let diffY = graphUI.frame.size.height/2 - nodeDestination.y
-//
-//            let finalDiffX = diffX * (1 - graphScale)
-//            let finalDiffY = diffY * (1 - graphScale)
-//
-//            let scaledOffsetWidth = graphOffset.width * graphScale
-//            let scaledOffsetHeight = graphOffset.height * graphScale
-//
-//            let menuHiddenPositionX = nodeDestination.x
-//                + finalDiffX
-//                + scaledOffsetWidth
-//
-//            let menuHiddenPositionY = nodeDestination.y
-//                + finalDiffY
-//                + scaledOffsetHeight
-//
-//            menuPosition = showMenu
-//                ? menuOrigin
-//                : .init(x: menuHiddenPositionX,
-//                        y: menuHiddenPositionY)
-//        } // withAnimation
+        withAnimation(Self.scaleAnimation) {
+            menuScaleX = showMenu ? Self.shownMenuScale : smallMenuWidthScale
+            menuScaleY = showMenu ? Self.shownMenuScale : smallMenuHeightScale
+
+            // node destination's diff from center
+            let diffX = screenWidth/2 - nodeDestination.x
+
+            //            let diffY = screenHeight/2 - nodeDestination.height
+
+            // Use non-changing height of screen for menu's animation-end position;
+            // i.e. animate the menu to a position as if the keyboard were not on screen.
+            let diffY = graphUI.frame.size.height/2 - nodeDestination.y
+
+            let finalDiffX = diffX * (1 - graphScale)
+            let finalDiffY = diffY * (1 - graphScale)
+
+            let scaledOffsetWidth = graphOffset.width * graphScale
+            let scaledOffsetHeight = graphOffset.height * graphScale
+
+            let menuHiddenPositionX = nodeDestination.x
+                + finalDiffX
+                + scaledOffsetWidth
+
+            let menuHiddenPositionY = nodeDestination.y
+                + finalDiffY
+                + scaledOffsetHeight
+
+            menuPosition = showMenu
+                ? menuOrigin
+                : .init(x: menuHiddenPositionX,
+                        y: menuHiddenPositionY)
+        } // withAnimation
 
     }
     

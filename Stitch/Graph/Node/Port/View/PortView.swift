@@ -63,25 +63,11 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
                             self.updatePortViewData(newOrigin: newOrigin)
                         }
                 }
-//                .background {
-//                    GeometryReader { geometry in
-//                        let origin = geometry.frame(in: .named(NodesView.coordinateNameSpace)).origin
-//                        
-//                        Color.clear
-//                            .onChange(of: graph.groupNodeFocused) {
-//                                self.updatePortViewData(newOrigin: origin)
-//                            }
-//                            .onChange(of: origin,
-//                                      initial: true) { _, newOrigin in
-//                                self.updatePortViewData(newOrigin: newOrigin)
-//                            }
-//                    }
-//                }
-        }
+            }
         .overlay(PortEntryExtendedHitBox(rowViewModel: rowViewModel,
                                          graphState: graph))
-//        .animation(.linear(duration: self.animationTime),
-//                   value: portColor)
+        .animation(.linear(duration: self.animationTime),
+                   value: portColor)
         // Update port color on selected edges change
         // Note: Should this ALSO update upstream and downstream ports? If not, why not?
         .onChange(of: graph.selectedEdges) {

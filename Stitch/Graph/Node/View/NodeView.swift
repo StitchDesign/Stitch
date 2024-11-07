@@ -93,10 +93,10 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
          
          (This would not be required if TapGesture were not .simultaneous, but that is required for handling both single- and double-taps.)
          */
-//            .overlay(alignment: .topTrailing) {
-//                CanvasItemTag(isSelected: isSelected,
-//                              nodeTagMenu: nodeTagMenu)
-//            }
+            .overlay(alignment: .topTrailing) {
+                CanvasItemTag(isSelected: isSelected,
+                              nodeTagMenu: nodeTagMenu)
+            }
             .canvasItemPositionHandler(document: document,
                                        node: node,
                                        zIndex: zIndex,
@@ -110,17 +110,17 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
             nodeTitle
             
             CanvasItemBodyDivider()
-//            
-//            nodeBodyKind
-//                .modifier(CanvasItemBodyPadding())
+            
+            nodeBodyKind
+                .modifier(CanvasItemBodyPadding())
         }
-//        .overlay {
-//            let isLayerInvisible = !(stitch.layerNode?.hasSidebarVisibility ?? true)
-//            Color.black.opacity(isLayerInvisible ? 0.3 : 0)
-//                .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
-//                .allowsHitTesting(!isLayerInvisible)
-//        }
-//        .fixedSize()
+        .overlay {
+            let isLayerInvisible = !(stitch.layerNode?.hasSidebarVisibility ?? true)
+            Color.black.opacity(isLayerInvisible ? 0.3 : 0)
+                .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
+                .allowsHitTesting(!isLayerInvisible)
+        }
+        .fixedSize()
         .modifier(CanvasItemBackground(color: nodeUIColor.body))
         .modifier(CanvasItemBoundsReader(
             graph: graph,
@@ -134,16 +134,15 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
 
     var nodeTitle: some View {
         
-        Text("hi")
-//        HStack {
-//            CanvasItemTitleView(graph: graph,
-//                                node: stitch,
-//                                isNodeSelected: isSelected,
-//                                canvasId: node.id)
-//            .modifier(CanvasItemTitlePadding())
-//            
-//            Spacer()
-//        }
+        HStack {
+            CanvasItemTitleView(graph: graph,
+                                node: stitch,
+                                isNodeSelected: isSelected,
+                                canvasId: node.id)
+            .modifier(CanvasItemTitlePadding())
+            
+            Spacer()
+        }
     }
 
     var nodeBodyKind: some View {
@@ -297,11 +296,15 @@ struct CanvasItemBackground: ViewModifier {
     func body(content: Content) -> some View {
         content
             .background {
-                ZStack {
                     VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterial))
-                    color.opacity(0.3)
-                        .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
-                }
+                    .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
+                //                    color.opacity(0.1)
+                //                nodeUIColor.body.opacity(0.5)
+                //                nodeUIColor.body.opacity(0.7)
+            }
+            .overlay {
+                color.opacity(0.3)
+                    .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
             }
     }
 }

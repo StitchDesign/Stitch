@@ -136,12 +136,12 @@ struct DrawnEdge: View {
         // logInView("DrawnEdge: forwardHalfwayPoint: \(forwardHalfwayPoint)")
 
         commonLine
-//            .animation(.linear(duration: animationTime),
-//                       value: halfway)
-//            .animation(.linear(duration: animationTime),
-//                       value: toExtended)
-//            .animation(.linear(duration: animationTime),
-//                       value: fromExtended)
+            .animation(.linear(duration: animationTime),
+                       value: halfway)
+            .animation(.linear(duration: animationTime),
+                       value: toExtended)
+            .animation(.linear(duration: animationTime),
+                       value: fromExtended)
     }
     
     var useLegacy: Bool {

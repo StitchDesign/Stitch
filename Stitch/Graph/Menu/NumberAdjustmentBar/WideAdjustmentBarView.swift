@@ -210,9 +210,9 @@ struct WideAdjustmentBarView: View {
                     }
 
                     isScrollingFromTap = true
-//                    withAnimation {
-//                        proxy.scrollTo(newManuallyClicked.id, anchor: .center)
-//                    }
+                    withAnimation {
+                        proxy.scrollTo(newManuallyClicked.id, anchor: .center)
+                    }
 
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
                         // log("onChange of manuallyClickedNumber: finished scrolling")
@@ -232,7 +232,7 @@ struct WideAdjustmentBarView: View {
         } // ScrollViewReader
 
         // Required for smooth scrolling when `middleNumber` changes
-//        .animation(.default, value: middleNumber)
+        .animation(.default, value: middleNumber)
 
         // The center of the entire ScrollView
         .anchorPreference(

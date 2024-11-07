@@ -80,7 +80,7 @@ struct HSLSliderView: View {
                             self.previousPosition = value.startLocation.y
                         }
 
-//                        withAnimation(.spring().speed(2)) {
+                        withAnimation(.spring().speed(2)) {
                             var newPosition = self.previousPosition + value.translation.height
                             //                            let maxY = Self.sliderGradientHeight - Self.circleWidth
                             let maxY = Self.sliderGradientHeight
@@ -94,7 +94,7 @@ struct HSLSliderView: View {
 
                             // log("HSLSliderView: Drag onChanged: self.position is now: \(self.position)")
 
-//                        } // withAnimation
+                        } // withAnimation
 
                         // Always update color
                         self.chosenColor = self.currentColor
