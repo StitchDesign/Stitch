@@ -71,8 +71,6 @@ class StitchHostingController<T: View>: UIHostingController<T> {
         // log("KEY: StitchHostingController: name: \(name): pressesBegan: presses.first?.key: \(presses.first?.key)")
         presses.first?.key.map(keyPressed)
         //        super.pressesBegan(presses, with: event)
-
-        super.pressesBegan(presses, with: event)
         
         /*
          HACK for Option key on Mac Catalyst:
