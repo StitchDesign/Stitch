@@ -82,11 +82,12 @@ struct NodeTypeView: View {
                 WirelessPortView(isOutput: false, id: node.id)
                     .padding(.trailing, NODE_BODY_SPACING)
             } else {
-                DefaultNodeInputView(graph: graph,
-                                     node: node,
-                                     canvas: canvasNode,
-                                     isNodeSelected: isSelected,
-                                     adjustmentBarSessionId: adjustmentBarSessionId)
+                Color.clear
+//                DefaultNodeInputView(graph: graph,
+//                                     node: node,
+//                                     canvas: canvasNode,
+//                                     isNodeSelected: isSelected,
+//                                     adjustmentBarSessionId: adjustmentBarSessionId)
             }
         }
     }
@@ -100,11 +101,12 @@ struct NodeTypeView: View {
                 WirelessPortView(isOutput: true, id: node.id)
                     .padding(.leading, NODE_BODY_SPACING)
             } else {
-                DefaultNodeOutputView(graph: graph,
-                                      node: node,
-                                      canvas: canvasNode,
-                                      isNodeSelected: isSelected,
-                                      adjustmentBarSessionId: adjustmentBarSessionId)
+                Color.clear
+//                DefaultNodeOutputView(graph: graph,
+//                                      node: node,
+//                                      canvas: canvasNode,
+//                                      isNodeSelected: isSelected,
+//                                      adjustmentBarSessionId: adjustmentBarSessionId)
             }
         }
     }

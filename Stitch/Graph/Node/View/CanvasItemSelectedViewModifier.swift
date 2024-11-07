@@ -52,33 +52,33 @@ struct CanvasItemBoundsReader: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .background {
-                GeometryReader { proxy in
-                    Color.clear
-                        // Track node bounds for visibility in frame
-                        .onChange(of: proxy.frame(in: .named(GraphBaseView.coordinateNamespace)),
-                                  initial: true) { _, newBounds in
-                            if !disabled {
-                                // log("will update GraphBaseView bounds for \(id)")
-                               graph.updateGraphBaseViewBounds(
-                                   for: canvasItem,
-                                   newBounds: newBounds,
-                                   viewFrame: viewframe,
-                                   splitterType: splitterType,
-                                   updateMenuActiveSelectionBounds: updateMenuActiveSelectionBounds)
-                            }
-                        }
-                        .onChange(of: proxy.frame(in: .local),
-                                  initial: true) { _, newBounds in
-                            if !disabled {
-                                // log("will update local bounds for \(id)")
-
-                                // Used only for comment box creation
-                                canvasItem.bounds.localBounds = newBounds
-                            }
-                        }
-                }
-            }
+//            .background {
+//                GeometryReader { proxy in
+//                    Color.clear
+//                        // Track node bounds for visibility in frame
+//                        .onChange(of: proxy.frame(in: .named(GraphBaseView.coordinateNamespace)),
+//                                  initial: true) { _, newBounds in
+//                            if !disabled {
+//                                // log("will update GraphBaseView bounds for \(id)")
+//                               graph.updateGraphBaseViewBounds(
+//                                   for: canvasItem,
+//                                   newBounds: newBounds,
+//                                   viewFrame: viewframe,
+//                                   splitterType: splitterType,
+//                                   updateMenuActiveSelectionBounds: updateMenuActiveSelectionBounds)
+//                            }
+//                        }
+//                        .onChange(of: proxy.frame(in: .local),
+//                                  initial: true) { _, newBounds in
+//                            if !disabled {
+//                                // log("will update local bounds for \(id)")
+//
+//                                // Used only for comment box creation
+//                                canvasItem.bounds.localBounds = newBounds
+//                            }
+//                        }
+//                }
+//            }
     }
 }
 

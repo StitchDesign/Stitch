@@ -131,7 +131,7 @@ struct ProjectToolbarViewModifier: ViewModifier {
                 #endif
 
             }
-            .animation(.spring, value: graphUI.restartPrototypeWindowIconRotationZ) // .animation modifier must be placed here
+//            .animation(.spring, value: graphUI.restartPrototypeWindowIconRotationZ) // .animation modifier must be placed here
             .toolbarBackground(.visible, for: .automatic)
             .toolbar(hideToolbar ? .hidden : .automatic)
     }

@@ -40,64 +40,64 @@ struct EdgeEditModeOutputHoverViewModifier: ViewModifier {
                     .padding([.leading, .top, .bottom], -8)
                     .allowsHitTesting(false)
                     .opacity((hovered && !isDraggingOutput) ? 1 : 0)
-                    .animation(.linear(duration: .EDGE_EDIT_MODE_NODE_UI_ELEMENT_ANIMATION_LENGTH),
-                               value: isDraggingOutput)
-                    .animation(.linear(duration: .EDGE_EDIT_MODE_NODE_UI_ELEMENT_ANIMATION_LENGTH),
-                               value: hovered)
+//                    .animation(.linear(duration: .EDGE_EDIT_MODE_NODE_UI_ELEMENT_ANIMATION_LENGTH),
+//                               value: isDraggingOutput)
+//                    .animation(.linear(duration: .EDGE_EDIT_MODE_NODE_UI_ELEMENT_ANIMATION_LENGTH),
+//                               value: hovered)
 
             }
 
-            .onHover { isHovering in
-                // Make sure the graph isn't in movement
-                guard !graph.graphMovement.graphIsDragged,
-                      !graph.graphMovement.canvasItemIsDragged else {
-                    log("EdgeEditModeOutputHoverViewModifier: graph is in movement; doing nothing")
-                    return
-                }
-
-                guard !isDraggingOutput else {
-                    // if we're dragging the output, turn off hover-overlay, exit edge-edit-mode etc.
-                    self.hovered = false
-                    self.hoverStartTime = nil
-                    dispatch(OutputHoverEnded())
-                    return
-                }
-
-                self.hovered = isHovering // immediately show overlay
-
-                guard isHovering else {
-                    // if we're not hovering, do not check min-hover-duration etc.
-                    self.hoverStartTime = nil
-                    dispatch(OutputHoverEnded())
-                    return
-                }
-
-                // immediately enable edge-edit mode
-                graph.outputHovered(outputCoordinate: outputCoordinate)
-
-                if !self.hoverStartTime.isDefined {
-                    self.hoverStartTime = Date.now.timeIntervalSince1970
-                }
-
-                // if we're still hovering 0.75 seconds after the hover has started,
-                // then we show the labels in front of the nearby node's inputs.
-                DispatchQueue.main.asyncAfter(deadline: .now() + Self.REQUIRED_HOVER_DURATION) {
-
-                    if let hoverStartTime = self.hoverStartTime,
-                       !isDraggingOutput {
-
-                        let now = Date.now.timeIntervalSince1970
-                        let diff = now - hoverStartTime
-
-                        log("hoverStartTime: \(hoverStartTime)")
-                        log("now: \(now)")
-                        log("diff: \(diff)")
-
-                        if diff > Self.REQUIRED_HOVER_DURATION {
-                            dispatch(OutputHoveredLongEnough())
-                        }
-                    }
-                }
-            }
+//            .onHover { isHovering in
+//                // Make sure the graph isn't in movement
+//                guard !graph.graphMovement.graphIsDragged,
+//                      !graph.graphMovement.canvasItemIsDragged else {
+//                    log("EdgeEditModeOutputHoverViewModifier: graph is in movement; doing nothing")
+//                    return
+//                }
+//
+//                guard !isDraggingOutput else {
+//                    // if we're dragging the output, turn off hover-overlay, exit edge-edit-mode etc.
+//                    self.hovered = false
+//                    self.hoverStartTime = nil
+//                    dispatch(OutputHoverEnded())
+//                    return
+//                }
+//
+//                self.hovered = isHovering // immediately show overlay
+//
+//                guard isHovering else {
+//                    // if we're not hovering, do not check min-hover-duration etc.
+//                    self.hoverStartTime = nil
+//                    dispatch(OutputHoverEnded())
+//                    return
+//                }
+//
+//                // immediately enable edge-edit mode
+//                graph.outputHovered(outputCoordinate: outputCoordinate)
+//
+//                if !self.hoverStartTime.isDefined {
+//                    self.hoverStartTime = Date.now.timeIntervalSince1970
+//                }
+//
+//                // if we're still hovering 0.75 seconds after the hover has started,
+//                // then we show the labels in front of the nearby node's inputs.
+//                DispatchQueue.main.asyncAfter(deadline: .now() + Self.REQUIRED_HOVER_DURATION) {
+//
+//                    if let hoverStartTime = self.hoverStartTime,
+//                       !isDraggingOutput {
+//
+//                        let now = Date.now.timeIntervalSince1970
+//                        let diff = now - hoverStartTime
+//
+//                        log("hoverStartTime: \(hoverStartTime)")
+//                        log("now: \(now)")
+//                        log("diff: \(diff)")
+//
+//                        if diff > Self.REQUIRED_HOVER_DURATION {
+//                            dispatch(OutputHoveredLongEnough())
+//                        }
+//                    }
+//                }
+//            }
     }
 }

@@ -36,28 +36,28 @@ struct StitchTitleTextField: View {
     }
 
     var body: some View {
-        Group {
-            if isFocused {
-                StitchTextEditingField(
-                    currentEdit: label, // starts out as `label`
-                    fieldType: .nodeTitle(titleEditType),
-                    shouldFocus: false,
-                    isForNodeTitle: true,
-                    font: font,
-                    fontColor: Color(.nodeTitleFont)) { newEdit, isCommitting in
-                        dispatch(NodeTitleEdited(titleEditType: titleEditType,
-                                                 edit: newEdit,
-                                                 isCommitting: isCommitting))
-                    }
-                    .frame(height: NODE_TITLE_HEIGHT,
-                           alignment: .center)
-                
-#if targetEnvironment(macCatalyst)
-//.offset(y: -1)  // Matches y axis for read-only string--only needed for Catalyst
-                    .offset(y: -0.5)  // Matches y axis for read-only string--only needed for Catalyst
-#endif
-//                    .border(.green)
-            } else {
+//        Group {
+//            if isFocused {
+//                StitchTextEditingField(
+//                    currentEdit: label, // starts out as `label`
+//                    fieldType: .nodeTitle(titleEditType),
+//                    shouldFocus: false,
+//                    isForNodeTitle: true,
+//                    font: font,
+//                    fontColor: Color(.nodeTitleFont)) { newEdit, isCommitting in
+//                        dispatch(NodeTitleEdited(titleEditType: titleEditType,
+//                                                 edit: newEdit,
+//                                                 isCommitting: isCommitting))
+//                    }
+//                    .frame(height: NODE_TITLE_HEIGHT,
+//                           alignment: .center)
+//                
+//#if targetEnvironment(macCatalyst)
+////.offset(y: -1)  // Matches y axis for read-only string--only needed for Catalyst
+//                    .offset(y: -0.5)  // Matches y axis for read-only string--only needed for Catalyst
+//#endif
+////                    .border(.green)
+//            } else {
                 StitchTextView(string: label,
                                font: font)
                     .frame(height: NODE_TITLE_HEIGHT,
@@ -69,8 +69,8 @@ struct StitchTitleTextField: View {
                     // log("NodeTitleTextField tapped")
                     dispatch(ReduxFieldFocused(focusedField: .nodeTitle(titleEditType)))
                 }
-            }
-        }
+//            }
+//        }
         .frame(minWidth: 20)
     }
 }

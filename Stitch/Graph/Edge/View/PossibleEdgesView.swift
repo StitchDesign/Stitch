@@ -87,8 +87,8 @@ extension Shape {
                     style: StrokeStyle(lineWidth: LINE_EDGE_WIDTH,
                                        lineCap: .round,
                                        lineJoin: .round))
-            .animation(.linear(duration: .POSSIBLE_EDGE_ANIMATION_DURATION),
-                       value: isCommitted)
+//            .animation(.linear(duration: .POSSIBLE_EDGE_ANIMATION_DURATION),
+//                       value: isCommitted)
             .opacity(isShown ? 1 : 0)
             .allowsHitTesting(false)
     }

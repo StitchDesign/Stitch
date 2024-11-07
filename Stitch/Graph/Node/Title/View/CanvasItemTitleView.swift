@@ -44,30 +44,30 @@ struct CanvasItemTitleView: View {
 //        logInView("NodeTitleView body \(id)")
         
         // A Wireless Receiver node's title is not directly editable
-        if node.patch == .wirelessReceiver {
-            // logInView("NodeTitleView body isWirelessReceiver \(id)")
-            let _title = node.currentBroadcastChoiceId.flatMap { graph.getNodeViewModel($0)?.displayTitle } ?? name
-                        
-            Menu {
-                let choice = node.currentBroadcastChoice
-                NodeWirelessBroadcastSubmenuView(graph: graph,
-                                                 currentBroadcastChoice: choice ?? nilBroadcastChoice,
-//                                                 assignedBroadcaster: choice,
-                                                 nodeId: nodeId,
-                                                 forNodeTitle: true)
-            } label: {
-                StitchTextView(string: _title)
-            }
-            .buttonStyle(.plain)
+//        if node.patch == .wirelessReceiver {
+//            // logInView("NodeTitleView body isWirelessReceiver \(id)")
+//            let _title = node.currentBroadcastChoiceId.flatMap { graph.getNodeViewModel($0)?.displayTitle } ?? name
+//                        
+//            Menu {
+//                let choice = node.currentBroadcastChoice
+//                NodeWirelessBroadcastSubmenuView(graph: graph,
+//                                                 currentBroadcastChoice: choice ?? nilBroadcastChoice,
+////                                                 assignedBroadcaster: choice,
+//                                                 nodeId: nodeId,
+//                                                 forNodeTitle: true)
+//            } label: {
+//                StitchTextView(string: _title)
+//            }
+//            .buttonStyle(.plain)
+//            .foregroundColor(STITCH_TITLE_FONT_COLOR)
+//            .menuIndicator(.hidden)
+//            
+//        } else {
+//        }
+        editableTitle
+            .font(STITCH_FONT)
             .foregroundColor(STITCH_TITLE_FONT_COLOR)
-            .menuIndicator(.hidden)
-            
-        } else {
-            editableTitle
-                .font(STITCH_FONT)
-                .foregroundColor(STITCH_TITLE_FONT_COLOR)
-                .lineLimit(1)
-        }
+            .lineLimit(1)
     }
     
     // TODO: need to provide some kind of additional width on the sides so that text is not chopped off as we type
@@ -84,58 +84,58 @@ struct CanvasItemTitleView: View {
         let label = name
         #endif
           
-        if node.patch == .mathExpression {
-            
-            let mathExpression = node.patchNode?.mathExpression
-            
-            VStack(alignment: .leading) {
-                // Always shows node title
-                NodeTitleTextField(graph: graph,
-                                   id: canvasId,
-                                   label: label)
-                
-                // Always needs some math expression;
-                // if none yet exists (because math-expr node just created),
-                // use blank string.
-                .modifier(MathExpressionPopoverViewModifier(
-                    id: nodeId,
-                    mathExpression: mathExpression ?? "",
-                    isFocused: graph.graphUI.reduxFocusedField == .mathExpression(nodeId)))
-                
-                // Show formula if not empty
-                if let mathExpression = mathExpression,
-                   !mathExpression.isEmpty {
-                    StitchTextView(string: mathExpression,
-                                   fontColor: Color(.nodeTitleFont),
-                                   lineLimit: 1)
-                }
-            }
-        } else {
-            VStack(alignment: .leading) {
-                
-                HStack {
-                    if node.kind == .group {
-                        Image(systemName: "folder")
-                            .foregroundColor(Color(.nodeTitleFont))
-                    }
-                    NodeTitleTextField(graph: graph,
-                                       id: canvasId,
-                                       label: label)
-                }
-                
-                
-                let defaultTitle = node.kind.getDisplayTitle(customName: nil)
-                let hasCustomTitle = name.trim() != defaultTitle.trim()
-                
-                if node.kind.isEligibleForDefaultTitleDisplay,
-                    hasCustomTitle {
+//        if node.patch == .mathExpression {
+//            
+//            let mathExpression = node.patchNode?.mathExpression
+//            
+//            VStack(alignment: .leading) {
+//                // Always shows node title
+//                NodeTitleTextField(graph: graph,
+//                                   id: canvasId,
+//                                   label: label)
+//                
+//                // Always needs some math expression;
+//                // if none yet exists (because math-expr node just created),
+//                // use blank string.
+//                .modifier(MathExpressionPopoverViewModifier(
+//                    id: nodeId,
+//                    mathExpression: mathExpression ?? "",
+//                    isFocused: graph.graphUI.reduxFocusedField == .mathExpression(nodeId)))
+//                
+//                // Show formula if not empty
+//                if let mathExpression = mathExpression,
+//                   !mathExpression.isEmpty {
+//                    StitchTextView(string: mathExpression,
+//                                   fontColor: Color(.nodeTitleFont),
+//                                   lineLimit: 1)
+//                }
+//            }
+//        } else {
+//            VStack(alignment: .leading) {
+//                
+//                HStack {
+//                    if node.kind == .group {
+//                        Image(systemName: "folder")
+//                            .foregroundColor(Color(.nodeTitleFont))
+//                    }
+//                    NodeTitleTextField(graph: graph,
+//                                       id: canvasId,
+//                                       label: label)
+//                }
+//                
+//                
+//                let defaultTitle = node.kind.getDisplayTitle(customName: nil)
+//                let hasCustomTitle = name.trim() != defaultTitle.trim()
+//                
+//                if node.kind.isEligibleForDefaultTitleDisplay,
+//                    hasCustomTitle {
                     
-                    StitchTextView(string: defaultTitle,
+                    StitchTextView(string: "testing",
                                    fontColor: Color(.nodeTitleFont),
                                    lineLimit: 1)
-                }
-            }
-        }
+//                }
+//            }
+//        }
         
     }
 }

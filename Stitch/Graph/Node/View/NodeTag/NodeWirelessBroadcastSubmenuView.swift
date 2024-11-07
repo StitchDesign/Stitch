@@ -57,17 +57,10 @@ struct NodeWirelessBroadcastSubmenuView: View {
         
         Picker("Change Broadcast", selection: $currentBroadcastChoice) {
             ForEach(choices) { choice in
-                
                 // logInView("NodeBroadcastSubmenuView: choice: \(choice)")
-                
-                if let broadcasterNode = graph.getNodeViewModel(choice.id) {
-                    @Bindable var node = broadcasterNode
-                    StitchTextView(string: node.displayTitle)
-                        .tag(choice)
-                } else {
-                    StitchTextView(string: NodeViewModel.nilChoice.displayTitle)
-                        .tag(choice)
-                }
+                @Bindable var node = graph.getNodeViewModel(choice.id) ?? .init()
+                StitchTextView(string: node.displayTitle)
+                    .tag(choice)
             }
         }
         .pickerStyle(.inline)

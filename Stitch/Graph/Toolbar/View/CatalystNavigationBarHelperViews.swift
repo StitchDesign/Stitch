@@ -11,9 +11,9 @@ import StitchSchemaKit
 struct CatalystProjectTitleModalOpened: GraphUIEvent {
     func handle(state: GraphUIState) {
         // log("CatalystProjectTitleModalOpened")
-        withAnimation {
-            state.showCatalystProjectTitleModal = true
-        }
+//        withAnimation {
+//            state.showCatalystProjectTitleModal = true
+//        }
         state.reduxFieldFocused(focusedField: .projectTitle)
     }
 }
@@ -21,9 +21,9 @@ struct CatalystProjectTitleModalOpened: GraphUIEvent {
 struct CatalystProjectTitleModalClosed: GraphUIEvent {
     func handle(state: GraphUIState) {
         // log("CatalystProjectTitleModalClosed")
-        withAnimation {
-            state.showCatalystProjectTitleModal = false
-        }
+//        withAnimation {
+//            state.showCatalystProjectTitleModal = false
+//        }
         state.reduxFieldDefocused(focusedField: .projectTitle)
     }
 }
@@ -240,9 +240,9 @@ struct CatalystTopBarGraphButtons: View {
 struct LayerInspectorToggled: GraphUIEvent {
     func handle(state: GraphUIState) {
         
-        withAnimation {
-            state.showsLayerInspector.toggle()
-        }
+//        withAnimation {
+//            state.showsLayerInspector.toggle()
+//        }
         
         // reset selected inspector-row when inspector panel toggled
         state.propertySidebar.selectedProperty = nil

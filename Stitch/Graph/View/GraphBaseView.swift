@@ -157,18 +157,18 @@ struct GraphHoverViewModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
 #if targetEnvironment(macCatalyst)
-            .onHover(perform: { hovering in
-                
-                // log("GraphBaseView: onHover: hovering: \(hovering)")
-                // log("GraphBaseView: onHover: graphUI.keypressState.isSpacePressed: \(graphUI.keypressState.isSpacePressed)")
-                // log("GraphBaseView: onHover: self.spaceHeld: \(self.spaceHeld)")
-                
-                if hovering, self.spaceHeld {
-                    NSCursor.openHand.push()
-                } else {
-                    NSCursor.pop()
-                }
-            })
+//            .onHover(perform: { hovering in
+//                
+//                // log("GraphBaseView: onHover: hovering: \(hovering)")
+//                // log("GraphBaseView: onHover: graphUI.keypressState.isSpacePressed: \(graphUI.keypressState.isSpacePressed)")
+//                // log("GraphBaseView: onHover: self.spaceHeld: \(self.spaceHeld)")
+//                
+//                if hovering, self.spaceHeld {
+//                    NSCursor.openHand.push()
+//                } else {
+//                    NSCursor.pop()
+//                }
+//            })
         
             .onChange(of: document.keypressState.isSpacePressed, initial: true) { _, newValue in
                 // log("GraphBaseView: onChange: keypressState.isSpacePressed: oldValue: \(oldValue)")

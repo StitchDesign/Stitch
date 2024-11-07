@@ -150,9 +150,9 @@ struct StitchAnimated: ViewModifier {
                 willAnimateBinding = willAnimateState
             }
             .onChange(of: willAnimateState) { willAnimate in
-                withAnimation(animation) {
+//                withAnimation(animation) {
                     willAnimateBinding = willAnimate
-                }
+//                }
             }
     }
 }

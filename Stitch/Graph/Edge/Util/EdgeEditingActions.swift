@@ -278,25 +278,25 @@ extension StitchDocumentViewModel {
             self.graphUI.edgeEditingState?.animationInProgressIds.insert(thisPossibleEdge.id)
             
             // Animate the withdrawal
-            withAnimation(.linear(duration: .POSSIBLE_EDGE_ANIMATION_DURATION)) {
-                log("removal animation started")
-                
-                // insert a new version that is not committed
-                let filtered = self.graphUI.edgeEditingState?.possibleEdges.filter {
-                    $0.id != thisPossibleEdge.id
-                } ?? .init()
-                //            self.graphUI.edgeEditingState?.possibleEdges.remove(thisPossibleEdge)
-                self.graphUI.edgeEditingState?.possibleEdges = filtered
-                thisPossibleEdge.isCommitted = false
-                self.graphUI.edgeEditingState?.possibleEdges.insert(thisPossibleEdge)
-            } completion: {
-                log("removal animation completed")
-                // On animation completion, hide the edge and remove it from 'currently animating'
-                // NOTE: we also redundantly remove the edge again; helps with key spamming.
-                dispatch(PossibleEdgeDecommitmentCompleted(
-                    possibleEdgeId: thisPossibleEdge.id,
-                    edge: edge))
-            }
+//            withAnimation(.linear(duration: .POSSIBLE_EDGE_ANIMATION_DURATION)) {
+//                log("removal animation started")
+//                
+//                // insert a new version that is not committed
+//                let filtered = self.graphUI.edgeEditingState?.possibleEdges.filter {
+//                    $0.id != thisPossibleEdge.id
+//                } ?? .init()
+//                //            self.graphUI.edgeEditingState?.possibleEdges.remove(thisPossibleEdge)
+//                self.graphUI.edgeEditingState?.possibleEdges = filtered
+//                thisPossibleEdge.isCommitted = false
+//                self.graphUI.edgeEditingState?.possibleEdges.insert(thisPossibleEdge)
+//            } completion: {
+//                log("removal animation completed")
+//                // On animation completion, hide the edge and remove it from 'currently animating'
+//                // NOTE: we also redundantly remove the edge again; helps with key spamming.
+//                dispatch(PossibleEdgeDecommitmentCompleted(
+//                    possibleEdgeId: thisPossibleEdge.id,
+//                    edge: edge))
+//            }
         }
         
         // If edge is not already committed, then commit it.
@@ -307,30 +307,30 @@ extension StitchDocumentViewModel {
             self.graphUI.edgeEditingState?.shownIds.insert(thisPossibleEdge.id)
             self.graphUI.edgeEditingState?.animationInProgressIds.insert(thisPossibleEdge.id)
             
-            withAnimation(.linear(duration: .POSSIBLE_EDGE_ANIMATION_DURATION)) {
-                log("addition animation started")
-                
-                // setting isCommitted=true for this edge; triggers the change of the `to` from the origin to the destination
-                let filtered = self.graphUI.edgeEditingState?.possibleEdges.filter {
-                    $0.id != thisPossibleEdge.id
-                } ?? .init()
-                self.graphUI.edgeEditingState?.possibleEdges = filtered
-                thisPossibleEdge.isCommitted = true
-                self.graphUI.edgeEditingState?.possibleEdges.insert(thisPossibleEdge)
-                
-                // log("keyCharPressedDuringEdgeEditingMode: graphState.graphUI.edgeEditingState?.possibleEdges is now: \(graphState.graphUI.edgeEditingState?.possibleEdges)")
-                
-            } completion: {
-                // log("addition animation completed")
-                // we're done animating
-                //            graphState.graphUI.edgeEditingState?.animationInProgressIds.remove(thisPossibleEdge.id)
-                
-                // add the edge to GraphSchema
-                
-                // this completion handler style conflicts a bit with
-                dispatch(PossibleEdgeCommitmentCompleted(possibleEdgeId: thisPossibleEdge.id,
-                                                         edge: edge))
-            }
+//            withAnimation(.linear(duration: .POSSIBLE_EDGE_ANIMATION_DURATION)) {
+//                log("addition animation started")
+//                
+//                // setting isCommitted=true for this edge; triggers the change of the `to` from the origin to the destination
+//                let filtered = self.graphUI.edgeEditingState?.possibleEdges.filter {
+//                    $0.id != thisPossibleEdge.id
+//                } ?? .init()
+//                self.graphUI.edgeEditingState?.possibleEdges = filtered
+//                thisPossibleEdge.isCommitted = true
+//                self.graphUI.edgeEditingState?.possibleEdges.insert(thisPossibleEdge)
+//                
+//                // log("keyCharPressedDuringEdgeEditingMode: graphState.graphUI.edgeEditingState?.possibleEdges is now: \(graphState.graphUI.edgeEditingState?.possibleEdges)")
+//                
+//            } completion: {
+//                // log("addition animation completed")
+//                // we're done animating
+//                //            graphState.graphUI.edgeEditingState?.animationInProgressIds.remove(thisPossibleEdge.id)
+//                
+//                // add the edge to GraphSchema
+//                
+//                // this completion handler style conflicts a bit with
+//                dispatch(PossibleEdgeCommitmentCompleted(possibleEdgeId: thisPossibleEdge.id,
+//                                                         edge: edge))
+//            }
         } // else
         
         return self.visibleGraph.removeEdgeAt(input: edge.to)

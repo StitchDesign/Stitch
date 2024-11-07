@@ -161,7 +161,7 @@ struct AdjustmentBarPopoverView: View {
             .onTapGesture {
                 self.currentStepScale = scale
             }
-            .animation(.linear, value: self.currentStepScale)
+//            .animation(.linear, value: self.currentStepScale)
     }
 
     var stepScaleButtonWidth: CGFloat {
