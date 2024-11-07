@@ -159,7 +159,7 @@ func layerInfoEval(node: PatchNode,
     guard let assignedLayerId: LayerNodeId = node.inputs.first?.first?.getInteractionId,
           let assignedLayerNode = state.getNodeViewModel(assignedLayerId.id),
           let assignedLayerNodeViewModel: LayerNodeViewModel = assignedLayerNode.layerNode else {
-        log("layerInfoEval: no assignedLayerId, assignedLayerNode and/or assignedLayerNodeViewModel")
+        log("layerInfoEval: no assignedLayerId, assignedLayerNode and/or assignedLayerNodeViewModel for \(node.id)")
         return .init(outputsValues: LayerInfoNodeEvalHelpers.defaultOutputs)
     }
     
@@ -176,9 +176,14 @@ func layerInfoEval(node: PatchNode,
     var opacityLoop = PortValues()
     var zIndexLoop = PortValues()
     var assignedLayerLoop = PortValues()
-            
-    layerViewModels.forEach { layerViewModel in //(layerViewModel: LayerViewModel) -> PortValues in
-        
+    
+    guard !layerViewModels.isEmpty else {
+        log("layerInfoEval: no layerViewModels for \(node.id)")
+        return .init(outputsValues: LayerInfoNodeEvalHelpers.defaultOutputs)
+    }
+    
+    layerViewModels.forEach { layerViewModel in
+
         enabledLoop.append( // Enabled (visibility hidden via sidebar or not)
             .bool(layerEnabled))
         
