@@ -152,10 +152,6 @@ struct ProjectSettingsView: View {
             } else if heightFocused {
                 dispatch(ReduxFieldFocused(focusedField: .previewWindowSettingsHeight))
             }
-//            else {
-//                dispatch(ReduxFieldDefocused(focusedField: .previewWindowSettingsWidth))
-//                dispatch(ReduxFieldDefocused(focusedField: .previewWindowSettingsHeight))
-//            }
         }
         
         // // When redux state changes, update local focus state
@@ -174,9 +170,6 @@ struct ProjectSettingsView: View {
             } else if heightFocused {
                 self.focusedPWField = .height
             }
-//            else {
-//                self.focusedPWField = nil
-//            }
         }
         
         // onChange of edit strings
