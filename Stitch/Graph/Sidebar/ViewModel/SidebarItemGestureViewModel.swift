@@ -46,13 +46,19 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
     weak var sidebarDelegate: LayersSidebarViewModel?
     
     weak var parentDelegate: SidebarItemGestureViewModel? {
-        didSet {
-            DispatchQueue.main.async { [weak self] in
-                if let sidebarItem = self {
-                    dispatch(AssignedLayerUpdated(changedLayerNode: sidebarItem.id.asLayerNodeId))
-                    dispatch(LayerGroupIdChanged(layerNodeId: sidebarItem.id.asLayerNodeId))
+        didSet(oldValue) {
+            log("parentDelegate: didSet: layer \(self.id): called")
+            if oldValue?.id != parentDelegate?.id {
+//            if true {
+                DispatchQueue.main.async { [weak self] in
+                    if let sidebarItem = self {
+                        log("parentDelegate: didSet: layer \(sidebarItem.id): will dispatch actions")
+                        dispatch(AssignedLayerUpdated(changedLayerNode: sidebarItem.id.asLayerNodeId))
+                        dispatch(LayerGroupIdChanged(layerNodeId: sidebarItem.id.asLayerNodeId))
+                    }
                 }
             }
+            
         }
     }
 
