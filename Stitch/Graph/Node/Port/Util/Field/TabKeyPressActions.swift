@@ -18,7 +18,6 @@ extension GraphState {
     func tabPressed(focusedField: FieldCoordinate,
                     node: NodeViewModel) {
             
-        
         let isCanvas = !focusedField.rowId.graphItemType.isLayerInspector
         let layerInputOnCanvas = isCanvas ? focusedField.rowId.portType.keyPath?.layerInput : nil
         
