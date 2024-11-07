@@ -38,7 +38,7 @@ struct CanvasItemPositionHandler: ViewModifier {
     func body(content: Content) -> some View {
         content
             .zIndex(_zIndex)
-//            .position(usePositionHandler ? node.position : .zero)
+            .position(usePositionHandler ? node.position : .zero)
         
         // MARK: we used to support node touch-down gesture with a hack using long press but this had averse effects on pinch
             .gesture(
