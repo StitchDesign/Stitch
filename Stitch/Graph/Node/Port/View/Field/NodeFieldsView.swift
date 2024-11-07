@@ -30,62 +30,48 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
     var layerInput: LayerInputPort? {
         fieldGroupViewModel.layerInput
     }
-        
-    var allFieldsBlockedOut: Bool {
-        if let blockedFields = blockedFields {
-            return fieldGroupViewModel.fieldObservers.allSatisfy {
-                $0.isBlocked(blockedFields)
-            }
-        }
-        return false
-    }
     
     var body: some View {
-        if allFieldsBlockedOut {
-            EmptyView()
-        } else {
-            
-            // Only non-nil for ShapeCommands i.e. `lineTo`, `curveTo` etc. ?
-            if let fieldGroupLabel = fieldGroupViewModel.groupLabel {
-                StitchTextView(string: fieldGroupLabel)
-            }
-            
-            // TODO: how to handle the multifield "shadow offset" input in the Shadow Flyout? For now, we stack those fields vertically
-            if forPropertySidebar,
-               forFlyout,
-               isMultiField,
-               layerInput == .shadowOffset {
-                VStack {
-                    fields
-                }
-            }
-            
-            // TODO: need to pass down `forFlyout` here, so that we do not
-            else if forPropertySidebar,
-                    !forFlyout,
-                    isMultiField,
-                    (layerInput == .layerPadding || layerInput == .layerMargin),
-                    let p1 = fieldGroupViewModel.fieldObservers[safe: 0],
-                    let p2 = fieldGroupViewModel.fieldObservers[safe: 1],
-                    let p3 = fieldGroupViewModel.fieldObservers[safe: 2],
-                    let p4 = fieldGroupViewModel.fieldObservers[safe: 3] {
-                VStack {
-                    HStack {
-                        // Individual fields for PortValue.padding can never be blocked; only the input as a whole can be blocked
-                        self.valueEntryView(p1, isMultiField)
-                        self.valueEntryView(p2, isMultiField)
-                    }
-                    HStack {
-                        self.valueEntryView(p3, isMultiField)
-                        self.valueEntryView(p4, isMultiField)
-                    }
-                }
-                // TODO: `LayerInspectorPortView`'s `.listRowInsets` should maintain consistent padding between input-rows in the layer inspector, so why is additional padding needed?
-                .padding(.vertical, INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET * 2)
-            }
-            else {
+        // Only non-nil for ShapeCommands i.e. `lineTo`, `curveTo` etc. ?
+        if let fieldGroupLabel = fieldGroupViewModel.groupLabel {
+            StitchTextView(string: fieldGroupLabel)
+        }
+        
+        // TODO: how to handle the multifield "shadow offset" input in the Shadow Flyout? For now, we stack those fields vertically
+        if forPropertySidebar,
+           forFlyout,
+           isMultiField,
+           layerInput == .shadowOffset {
+            VStack {
                 fields
             }
+        }
+        
+        // TODO: need to pass down `forFlyout` here, so that we do not
+        else if forPropertySidebar,
+                !forFlyout,
+                isMultiField,
+                (layerInput == .layerPadding || layerInput == .layerMargin),
+                let p1 = fieldGroupViewModel.fieldObservers[safe: 0],
+                let p2 = fieldGroupViewModel.fieldObservers[safe: 1],
+                let p3 = fieldGroupViewModel.fieldObservers[safe: 2],
+                let p4 = fieldGroupViewModel.fieldObservers[safe: 3] {
+            VStack {
+                HStack {
+                    // Individual fields for PortValue.padding can never be blocked; only the input as a whole can be blocked
+                    self.valueEntryView(p1, isMultiField)
+                    self.valueEntryView(p2, isMultiField)
+                }
+                HStack {
+                    self.valueEntryView(p3, isMultiField)
+                    self.valueEntryView(p4, isMultiField)
+                }
+            }
+            // TODO: `LayerInspectorPortView`'s `.listRowInsets` should maintain consistent padding between input-rows in the layer inspector, so why is additional padding needed?
+            .padding(.vertical, INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET * 2)
+        }
+        else {
+            fields
         }
     }
     
