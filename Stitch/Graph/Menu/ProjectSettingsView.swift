@@ -14,6 +14,7 @@ struct ProjectSettingsView: View {
     let previewSizeDevice: PreviewWindowDevice
     let previewWindowBackgroundColor: Color
     let graph: GraphState
+    let reduxFocusedField: FocusedUserEditField?
 
     var body: some View {
 
@@ -43,92 +44,7 @@ struct ProjectSettingsView: View {
         }
     }
     
-    @State var previewWindowWidthEdit = ""
-    @FocusState var previewWindowWidthFocus: Bool
     
-    @State var previewWindowHeightEdit = ""
-    @FocusState var previewWindowHeightFocus: Bool
-    
-    var widthIsFocused: Bool {
-        self.graph.graphUI.reduxFocusedField == .previewWindowSettingsWidth
-    }
-    
-    var heightIsFocused: Bool {
-        self.graph.graphUI.reduxFocusedField == .previewWindowSettingsHeight
-    }
-    
-    var widthDimensionInput: some View {
-        TextField("", text: self.$previewWindowWidthEdit)
-            .focused(self.$previewWindowWidthFocus)
-            .frame(maxWidth: 140)
-            .modifier(StitchSheetInput())
-            .onAppear {
-                self.previewWindowWidthFocus = true
-                self.previewWindowWidthEdit = self.widthString
-//                dispatch(ReduxFieldFocused(focusedField: .previewWindowSettingsWidth))
-            }
-//            .onChange(of: self.previewWindowWidthEdit) { oldValue, newValue in
-//                dispatch(UpdatePreviewCanvasDimension(edit: newValue,
-//                                                      isWidth: true,
-//                                                      isCommitting: false))
-//            }
-//            .onChange(of: self.previewWindowWidthFocus) { oldValue, newValue in
-//                if !newValue {
-//                    dispatch(UpdatePreviewCanvasDimension(edit: previewWindowWidthEdit,
-//                                                          isWidth: true,
-//                                                          isCommitting: true))
-//                    dispatch(ReduxFieldDefocused(focusedField: .previewWindowSettingsWidth))
-//                }
-//            }
-    }
-    
-    var heightDimensionInput: some View {
-        TextField("", text: self.$previewWindowHeightEdit)
-            .focused(self.$previewWindowHeightFocus)
-            .frame(maxWidth: 140)
-            .modifier(StitchSheetInput())
-            .onAppear {
-                // DO NOT focus the height field when it appears
-                self.previewWindowHeightEdit = self.heightString
-            }
-//            .onChange(of: self.previewWindowHeightEdit) { oldValue, newValue in
-//                dispatch(UpdatePreviewCanvasDimension(edit: newValue,
-//                                                      isWidth: false,
-//                                                      isCommitting: false))
-//            }
-//            .onChange(of: self.previewWindowHeightFocus) { oldValue, newValue in
-//                if !newValue {
-//                    dispatch(UpdatePreviewCanvasDimension(edit: previewWindowHeightEdit,
-//                                                          isWidth: false,
-//                                                          isCommitting: true))
-//                    dispatch(ReduxFieldDefocused(focusedField: .previewWindowSettingsWidth))
-//                }
-//            }
-    }
-    
-    
-//    func createDeviceDimensionInput(label: String, isWidth: Bool) -> some View {
-//           
-//        let onDefocus = {
-//            
-//        }
-//        
-//       
-//        
-//        StitchTextEditingField(
-//            currentEdit: label,
-//            fieldType: isWidth ? .previewWindowSettingsWidth : .previewWindowSettingsHeight,
-//            canvasDimensionInput: label,
-//            shouldFocus: false) { (newS: String, isCommitting: Bool) in
-//                dispatch(UpdatePreviewCanvasDimension(edit: newS,
-//                                                      isWidth: isWidth,
-//                                                      isCommitting: isCommitting))
-//            }
-////            .keyboardType(.decimalPad)
-////            .frame(maxWidth: 140)
-////            .modifier(StitchSheetInput())
-//    }
-
     var widthString: String  {
         "\(Int(previewWindowSize.width))"
     }
@@ -137,19 +53,147 @@ struct ProjectSettingsView: View {
         "\(Int(previewWindowSize.height))"
     }
     
+  
+    @ViewBuilder
+    var widthDimensionInput: some View {
+        if self.widthReduxFocused {
+            TextField("", text: self.$previewWindowWidthEdit)
+                .focused(self.$focusedPWField, equals: .width)
+                .frame(maxWidth: 140, alignment: .leading)
+                .modifier(StitchSheetInput())
+                .onSubmit {
+                    log("width field submitted")
+                    dispatch(ReduxFieldDefocused(focusedField: .previewWindowSettingsWidth))
+                }
+        } else {
+            Text(self.previewWindowWidthEdit)
+                .frame(maxWidth: 140, alignment: .leading)
+                .modifier(StitchSheetInput())
+                .onTapGesture {
+                    log("width field tapped")
+                    dispatch(ReduxFieldFocused(focusedField: .previewWindowSettingsWidth))
+                }
+        }
+    }
+    
+    @ViewBuilder
+    var heightDimensionInput: some View {
+        if self.heightReduxFocused {
+            TextField("", text: self.$previewWindowHeightEdit)
+                .focused(self.$focusedPWField, equals: .height)
+                .frame(maxWidth: 140, alignment: .leading)
+                .modifier(StitchSheetInput())
+                .onSubmit {
+                    log("height field submitted")
+                    dispatch(ReduxFieldDefocused(focusedField: .previewWindowSettingsHeight))
+                }
+        } else {
+            Text(self.previewWindowHeightEdit)
+                .frame(maxWidth: 140, alignment: .leading)
+                .modifier(StitchSheetInput())
+                .onTapGesture {
+                    log("height field tapped")
+                    dispatch(ReduxFieldFocused(focusedField: .previewWindowSettingsHeight))
+                }
+        }
+    }
+    
+
+    var widthReduxFocused: Bool {
+        self.graph.graphUI.reduxFocusedField == .previewWindowSettingsWidth
+    }
+    
+    var heightReduxFocused: Bool {
+        self.graph.graphUI.reduxFocusedField == .previewWindowSettingsHeight
+    }
+    
+    enum FocusedPWField {
+        case width, height
+    }
+    
+    @FocusState var focusedPWField: FocusedPWField?
+    
+    @State var previewWindowWidthEdit = ""
+    @State var previewWindowHeightEdit = ""
+    
     var canvasDimensionInputs: some View {
         VStack(alignment: .leading) {
             Text("Canvas Size").fontWeight(.bold)
             HStack {
                 widthDimensionInput
                 heightDimensionInput
-//                createDeviceDimensionInput(label: widthString,
-//                                           isWidth: true)
-//                createDeviceDimensionInput(label: heightString,
-//                                           isWidth: false)
             }
         }
+        .onAppear {
+            // update local edit variables
+            self.previewWindowWidthEdit = self.widthString
+            self.previewWindowHeightEdit = self.heightString
+            
+//            // set local focus state
+            self.focusedPWField = .width
+            
+            // set redux state
+            dispatch(ReduxFieldFocused(focusedField: .previewWindowSettingsWidth))
+        }
+        
+//        // // When local state changes, update redux state
+        .onChange(of: self.focusedPWField, initial: true) { oldValue, newValue in
+            log("self.focusedPWField: changed: oldValue: \(oldValue)")
+            log("self.focusedPWField: changed: newValue: \(newValue)")
+            
+            let widthFocused = newValue == .width
+            let heightFocused = newValue == .height
+            
+            log("self.focusedPWField: changed: widthFocused: \(widthFocused)")
+            log("self.focusedPWField: changed: heightFocused: \(heightFocused)")
+            
+            if widthFocused {
+                dispatch(ReduxFieldFocused(focusedField: .previewWindowSettingsWidth))
+            } else if heightFocused {
+                dispatch(ReduxFieldFocused(focusedField: .previewWindowSettingsHeight))
+            }
+//            else {
+//                dispatch(ReduxFieldDefocused(focusedField: .previewWindowSettingsWidth))
+//                dispatch(ReduxFieldDefocused(focusedField: .previewWindowSettingsHeight))
+//            }
+        }
+        
+        // // When redux state changes, update local focus state
+        .onChange(of: self.reduxFocusedField, initial: true) { oldValue, newValue in
+            log("self.graph.graphUI.reduxFocusedField: changed: oldValue: \(oldValue)")
+            log("self.graph.graphUI.reduxFocusedField: changed: newValue: \(newValue)")
+            
+            let widthFocused = newValue == .previewWindowSettingsWidth
+            let heightFocused = newValue == .previewWindowSettingsHeight
+            
+            log("self.graph.graphUI.reduxFocusedField: changed: widthFocused: \(widthFocused)")
+            log("self.graph.graphUI.reduxFocusedField: changed: heightFocused: \(heightFocused)")
+            
+            if widthFocused {
+                self.focusedPWField = .width
+            } else if heightFocused {
+                self.focusedPWField = .height
+            }
+//            else {
+//                self.focusedPWField = nil
+//            }
+        }
+        
+        // onChange of edit strings
+        .onChange(of: self.previewWindowWidthEdit) { oldValue, newValue in
+            dispatch(UpdatePreviewCanvasDimension(edit: newValue,
+                                                  isWidth: true,
+                                                  isCommitting: false))
+        }
+        .onChange(of: self.previewWindowHeightEdit) { oldValue, newValue in
+            dispatch(UpdatePreviewCanvasDimension(edit: newValue,
+                                                  isWidth: false,
+                                                  isCommitting: false))
+        }
+        
+        // onChange of redux focused field
 //        .onChange(of: self.widthIsFocused) { oldValue, newValue in
+//        .onChange(of: self.graph.graphUI.reduxFocusedField == .previewWindowSettingsWidth) { oldValue, newValue in
 //            log("self.widthIsFocused: changed: oldValue: \(oldValue)")
 //            log("self.widthIsFocused: changed: newValue: \(newValue)")
 //            if newValue {
@@ -160,7 +204,10 @@ struct ProjectSettingsView: View {
 //                dispatch(ReduxFieldDefocused(focusedField: .previewWindowSettingsWidth))
 //            }
 //        }
-//        .onChange(of: self.heightIsFocused) { oldValue, newValue in
+//        
+//        
+////        .onChange(of: self.heightIsFocused) { oldValue, newValue in
+//        .onChange(of: self.graph.graphUI.reduxFocusedField == .previewWindowSettingsHeight) { oldValue, newValue in
 //            log("self.heightIsFocused: changed: oldValue: \(oldValue)")
 //            log("self.heightIsFocused: changed: newValue: \(newValue)")
 //            if newValue {
@@ -171,6 +218,47 @@ struct ProjectSettingsView: View {
 //                dispatch(ReduxFieldDefocused(focusedField: .previewWindowSettingsHeight))
 //            }
 //        }
+//        
+////        .onChange(self.graph.graphUI.reduxFocusedField) { oldValue, newValue in
+////            log("self.graph.graphUI.reduxFocusedField: changed: oldValue: \(oldValue)")
+////            log("self.graph.graphUI.reduxFocusedField: changed: newValue: \(newValue)")
+////            if newValue == .previewWindowHeightEdit {
+////                
+////            } else if newValue == .previewW {
+////                
+////            }
+////        }
+//        
+//        // onChange of local focus variables
+//        .onChange(of: self.previewWindowHeightFocus) { oldValue, newValue in
+//            log("self.previewWindowHeightFocus: changed: oldValue: \(oldValue)")
+//            log("self.previewWindowHeightFocus: changed: newValue: \(newValue)")
+//            if !newValue {
+//                dispatch(UpdatePreviewCanvasDimension(edit: previewWindowHeightEdit,
+//                                                      isWidth: false,
+//                                                      isCommitting: true))
+//                dispatch(ReduxFieldDefocused(focusedField: .previewWindowSettingsHeight))
+//            }
+//            else {
+//                dispatch(ReduxFieldFocused(focusedField: .previewWindowSettingsHeight))
+//            }
+//        }
+//
+//        .onChange(of: self.previewWindowWidthFocus) { oldValue, newValue in
+//            log("self.previewWindowWidthFocus: changed: oldValue: \(oldValue)")
+//            log("self.previewWindowWidthFocus: changed: newValue: \(newValue)")
+//            if !newValue {
+//                dispatch(UpdatePreviewCanvasDimension(edit: previewWindowWidthEdit,
+//                                                      isWidth: true,
+//                                                      isCommitting: true))
+//                dispatch(ReduxFieldDefocused(focusedField: .previewWindowSettingsWidth))
+//            }
+//            else {
+//                dispatch(ReduxFieldFocused(focusedField: .previewWindowSettingsWidth))
+//            }
+//        }
+        
+        
 //        .onAppear {
 //            dispatch(ReduxFieldFocused(focusedField: .previewWindowSettingsWidth))
 //        }
@@ -245,22 +333,23 @@ struct PreviewWindowBackgroundColorSet: StitchDocumentEvent {
     }
 }
 
-// TODO: create an inner view that still receives this data
-struct ProjectSettingsView_Previews: PreviewProvider {
-    @State static var show = true
-    static let graph = GraphState.createEmpty()
 
-    static var previews: some View {
-        ProjectSettingsView(previewWindowSize: PreviewWindowDevice.DEFAULT_PREVIEW_SIZE,
-                            previewSizeDevice: .custom,
-                            previewWindowBackgroundColor: DEFAULT_FLOATING_WINDOW_COLOR, 
-                            graph: graph)
-            .previewDevice(PreviewDevice(rawValue: "iPad Pro (11-inch) (3rd generation)"))
-
-        ProjectSettingsView(previewWindowSize: PreviewWindowDevice.DEFAULT_PREVIEW_SIZE,
-                            previewSizeDevice: .custom,
-                            previewWindowBackgroundColor: DEFAULT_FLOATING_WINDOW_COLOR, 
-                            graph: graph)
-            .previewDevice(PreviewDevice(rawValue: "iPhone 13"))
-    }
-}
+//// TODO: create an inner view that still receives this data
+//struct ProjectSettingsView_Previews: PreviewProvider {
+//    @State static var show = true
+//    static let graph = GraphState.createEmpty()
+//
+//    static var previews: some View {
+//        ProjectSettingsView(previewWindowSize: PreviewWindowDevice.DEFAULT_PREVIEW_SIZE,
+//                            previewSizeDevice: .custom,
+//                            previewWindowBackgroundColor: DEFAULT_FLOATING_WINDOW_COLOR, 
+//                            graph: graph)
+//            .previewDevice(PreviewDevice(rawValue: "iPad Pro (11-inch) (3rd generation)"))
+//
+//        ProjectSettingsView(previewWindowSize: PreviewWindowDevice.DEFAULT_PREVIEW_SIZE,
+//                            previewSizeDevice: .custom,
+//                            previewWindowBackgroundColor: DEFAULT_FLOATING_WINDOW_COLOR, 
+//                            graph: graph)
+//            .previewDevice(PreviewDevice(rawValue: "iPhone 13"))
+//    }
+//}

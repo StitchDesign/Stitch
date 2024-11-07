@@ -374,13 +374,13 @@ class KeyboardObserver: ObservableObject {
     var observer: Any? = nil
     
     init() {
-        observer = NotificationCenter.default.addObserver(
-            forName: .GCKeyboardDidConnect,
-            object: nil,
-            queue: .main
-        ) { [weak self] notification in
-            // TODO: warning about capture of `self` ?
-            self?.keyboard = notification.object as? GCKeyboard
-        }
+//        observer = NotificationCenter.default.addObserver(
+//            forName: .GCKeyboardDidConnect,
+//            object: nil,
+//            queue: .main
+//        ) { [weak self] notification in
+//            // TODO: warning about capture of `self` ?
+//            self?.keyboard = notification.object as? GCKeyboard
+//        }
     }
 }

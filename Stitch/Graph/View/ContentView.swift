@@ -52,9 +52,9 @@ struct ContentView: View, KeyboardReadable {
         ZStack {
             
             // Best place to listen for TAB key for flyout
-//            UIKitWrapper(ignoresKeyCommands: true, name: "nodeAndMenu") {
+            UIKitWrapper(ignoresKeyCommands: true, name: "nodeAndMenu") {
                 contentView // the graph
-//            }
+            }
             
             if showMenu {
                 InsertNodeMenuWrapper(document: document,
@@ -165,7 +165,8 @@ struct ContentView: View, KeyboardReadable {
             ProjectSettingsView(previewWindowSize: document.previewWindowSize,
                                 previewSizeDevice: document.previewSizeDevice,
                                 previewWindowBackgroundColor: document.previewWindowBackgroundColor,
-                                graph: document.graph) }
+                                graph: document.graph,
+                                reduxFocusedField: document.graph.graphUI.reduxFocusedField) }
         .modifier(FileImportView(fileImportState: alertState.fileImportModalState))
         .modifier(AnimateCompletionHandler(percentage: showFullScreen.value) {
             // only set this state to true when we're animating into full screen mode
