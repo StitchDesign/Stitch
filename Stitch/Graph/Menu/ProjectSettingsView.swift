@@ -42,35 +42,141 @@ struct ProjectSettingsView: View {
             }
         }
     }
-
-    func createDeviceDimensionInput(label: String, isWidth: Bool) -> some View {
-        StitchTextEditingField(
-            currentEdit: label,
-            fieldType: .any,
-            canvasDimensionInput: label,
-            shouldFocus: false) { (newS: String, isCommitting: Bool) in
-                dispatch(UpdatePreviewCanvasDimension(edit: newS,
-                                                      isWidth: isWidth,
-                                                      isCommitting: isCommitting))
-            }
-            .keyboardType(.decimalPad)
+    
+    @State var previewWindowWidthEdit = ""
+    @FocusState var previewWindowWidthFocus: Bool
+    
+    @State var previewWindowHeightEdit = ""
+    @FocusState var previewWindowHeightFocus: Bool
+    
+    var widthIsFocused: Bool {
+        self.graph.graphUI.reduxFocusedField == .previewWindowSettingsWidth
+    }
+    
+    var heightIsFocused: Bool {
+        self.graph.graphUI.reduxFocusedField == .previewWindowSettingsHeight
+    }
+    
+    var widthDimensionInput: some View {
+        TextField("", text: self.$previewWindowWidthEdit)
+            .focused(self.$previewWindowWidthFocus)
             .frame(maxWidth: 140)
             .modifier(StitchSheetInput())
+            .onAppear {
+                self.previewWindowWidthFocus = true
+                self.previewWindowWidthEdit = self.widthString
+//                dispatch(ReduxFieldFocused(focusedField: .previewWindowSettingsWidth))
+            }
+//            .onChange(of: self.previewWindowWidthEdit) { oldValue, newValue in
+//                dispatch(UpdatePreviewCanvasDimension(edit: newValue,
+//                                                      isWidth: true,
+//                                                      isCommitting: false))
+//            }
+//            .onChange(of: self.previewWindowWidthFocus) { oldValue, newValue in
+//                if !newValue {
+//                    dispatch(UpdatePreviewCanvasDimension(edit: previewWindowWidthEdit,
+//                                                          isWidth: true,
+//                                                          isCommitting: true))
+//                    dispatch(ReduxFieldDefocused(focusedField: .previewWindowSettingsWidth))
+//                }
+//            }
     }
+    
+    var heightDimensionInput: some View {
+        TextField("", text: self.$previewWindowHeightEdit)
+            .focused(self.$previewWindowHeightFocus)
+            .frame(maxWidth: 140)
+            .modifier(StitchSheetInput())
+            .onAppear {
+                // DO NOT focus the height field when it appears
+                self.previewWindowHeightEdit = self.heightString
+            }
+//            .onChange(of: self.previewWindowHeightEdit) { oldValue, newValue in
+//                dispatch(UpdatePreviewCanvasDimension(edit: newValue,
+//                                                      isWidth: false,
+//                                                      isCommitting: false))
+//            }
+//            .onChange(of: self.previewWindowHeightFocus) { oldValue, newValue in
+//                if !newValue {
+//                    dispatch(UpdatePreviewCanvasDimension(edit: previewWindowHeightEdit,
+//                                                          isWidth: false,
+//                                                          isCommitting: true))
+//                    dispatch(ReduxFieldDefocused(focusedField: .previewWindowSettingsWidth))
+//                }
+//            }
+    }
+    
+    
+//    func createDeviceDimensionInput(label: String, isWidth: Bool) -> some View {
+//           
+//        let onDefocus = {
+//            
+//        }
+//        
+//       
+//        
+//        StitchTextEditingField(
+//            currentEdit: label,
+//            fieldType: isWidth ? .previewWindowSettingsWidth : .previewWindowSettingsHeight,
+//            canvasDimensionInput: label,
+//            shouldFocus: false) { (newS: String, isCommitting: Bool) in
+//                dispatch(UpdatePreviewCanvasDimension(edit: newS,
+//                                                      isWidth: isWidth,
+//                                                      isCommitting: isCommitting))
+//            }
+////            .keyboardType(.decimalPad)
+////            .frame(maxWidth: 140)
+////            .modifier(StitchSheetInput())
+//    }
 
+    var widthString: String  {
+        "\(Int(previewWindowSize.width))"
+    }
+    
+    var heightString: String  {
+        "\(Int(previewWindowSize.height))"
+    }
+    
     var canvasDimensionInputs: some View {
-        let widthString = "\(Int(previewWindowSize.width))"
-        let heightString = "\(Int(previewWindowSize.height))"
-
-        return VStack(alignment: .leading) {
+        VStack(alignment: .leading) {
             Text("Canvas Size").fontWeight(.bold)
             HStack {
-                createDeviceDimensionInput(label: widthString,
-                                           isWidth: true)
-                createDeviceDimensionInput(label: heightString,
-                                           isWidth: false)
+                widthDimensionInput
+                heightDimensionInput
+//                createDeviceDimensionInput(label: widthString,
+//                                           isWidth: true)
+//                createDeviceDimensionInput(label: heightString,
+//                                           isWidth: false)
             }
         }
+//        .onChange(of: self.widthIsFocused) { oldValue, newValue in
+//            log("self.widthIsFocused: changed: oldValue: \(oldValue)")
+//            log("self.widthIsFocused: changed: newValue: \(newValue)")
+//            if newValue {
+//                self.previewWindowWidthFocus = true
+//                dispatch(ReduxFieldFocused(focusedField: .previewWindowSettingsWidth))
+//            } else {
+//                self.previewWindowWidthFocus = false
+//                dispatch(ReduxFieldDefocused(focusedField: .previewWindowSettingsWidth))
+//            }
+//        }
+//        .onChange(of: self.heightIsFocused) { oldValue, newValue in
+//            log("self.heightIsFocused: changed: oldValue: \(oldValue)")
+//            log("self.heightIsFocused: changed: newValue: \(newValue)")
+//            if newValue {
+//                self.previewWindowHeightFocus = true
+//                dispatch(ReduxFieldFocused(focusedField: .previewWindowSettingsHeight))
+//            } else {
+//                self.previewWindowHeightFocus = false
+//                dispatch(ReduxFieldDefocused(focusedField: .previewWindowSettingsHeight))
+//            }
+//        }
+//        .onAppear {
+//            dispatch(ReduxFieldFocused(focusedField: .previewWindowSettingsWidth))
+//        }
+//        .onDisappear {
+//            dispatch(ReduxFieldDefocused(focusedField: .previewWindowSettingsWidth))
+//        }
     }
 
     @MainActor

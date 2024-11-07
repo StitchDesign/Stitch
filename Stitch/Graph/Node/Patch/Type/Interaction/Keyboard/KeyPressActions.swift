@@ -26,7 +26,7 @@ struct KeyModifierPressBegan: StitchDocumentEvent {
 
     @MainActor
     func handle(state: StitchDocumentViewModel) {
-         // log("KeyModifierPressBegan: modifiers: \(modifiers)")
+        log("KeyModifierPressBegan: modifiers: \(modifiers)")
         
         state.keypressState.modifiers = state.keypressState.modifiers.union(modifiers)
         
@@ -34,13 +34,31 @@ struct KeyModifierPressBegan: StitchDocumentEvent {
         let shiftHeld = state.keypressState.isShiftPressed
         let tabPressed = state.keypressState.isTabPressed
         
-        // log("KeyModifierPressBegan: shiftHeld: \(shiftHeld)")
-        // log("KeyModifierPressBegan: tabPressed: \(tabPressed)")
+        let shiftTabPressed = shiftHeld && tabPressed
         
+        // log("KeyModifierPressBegan: shiftHeld: \(shiftHeld)")
+//         log("KeyModifierPressBegan: tabPressed: \(tabPressed)")
+        
+        
+        let focusedField = state.graphUI.reduxFocusedField
+        log("KeyModifierPressBegan: focusedField: \(focusedField)")
+        
+        // Tabbing between inputs project setting's preview window dimensions fields
+        if focusedField == .previewWindowSettingsWidth {
+            // Both tab and shift-tab move us to height
+            log("will jump to height")
+            state.graphUI.reduxFocusedField = .previewWindowSettingsHeight
+            return
+        } else if focusedField == .previewWindowSettingsHeight {
+            // Both tab and shift-tab move us to height
+            log("will jump to width")
+            state.graphUI.reduxFocusedField = .previewWindowSettingsWidth
+            return
+        }
         // Ignore shift/tab if no node input field is focused.
-        if let focusedField = state.graphUI.reduxFocusedField?.getTextInputEdit,
-           let node = state.visibleGraph.getNode(focusedField.rowId.nodeId) {
-            if shiftHeld, tabPressed {
+        else if let focusedField = focusedField?.getTextInputEdit,
+                let node = state.visibleGraph.getNode(focusedField.rowId.nodeId) {
+            if shiftTabPressed {
                 state.visibleGraph.shiftTabPressed(focusedField: focusedField,
                                                    node: node)
             } else if tabPressed {
