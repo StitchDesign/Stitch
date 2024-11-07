@@ -115,12 +115,10 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
                 .modifier(CanvasItemBodyPadding())
         }
         .overlay {
-            if let layerNode = stitch.layerNode,
-               !layerNode.hasSidebarVisibility {
-                Color.black.opacity(0.3)
-                    .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
-                    .allowsHitTesting(false)
-            }
+            let isLayerInvisible = !(stitch.layerNode?.hasSidebarVisibility ?? true)
+            Color.black.opacity(isLayerInvisible ? 0.3 : 0)
+                .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
+                .allowsHitTesting(!isLayerInvisible)
         }
         .fixedSize()
         .modifier(CanvasItemBackground(color: nodeUIColor.body))
