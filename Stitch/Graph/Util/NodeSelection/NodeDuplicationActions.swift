@@ -226,66 +226,23 @@ extension GraphState {
         
         // Add new nodes
         graph.nodes += newNodes
-        
-        // original
-//        graph.orderedSidebarLayers = newComponent.graph.orderedSidebarLayers + graph.orderedSidebarLayers
-
-        // add to back
-//        graph.orderedSidebarLayers = graph.orderedSidebarLayers + newComponent.graph.orderedSidebarLayers
-        
-        // assume the ordered sidebar layers are still in proper order;
-        // in which case the copied-component's ordered sidebar layers are just the exact layers that were copied,
-        // so the first layer is the one that we duplicated?
-        
-        log("addComponentToGraph: newComponent.graph.orderedSidebarLayers \(newComponent.graph.orderedSidebarLayers)")//
-        log("addComponentToGraph: newComponent.graph.orderedSidebarLayers \(newComponent.graph.orderedSidebarLayers)")
-        
-        // just handling a single duplicated layer atm
-        if let firstCopiedLayer = newComponent.graph.orderedSidebarLayers.first {
-            log("addComponentToGraph: firstCopiedLayer \(firstCopiedLayer)")
+                
+        // We assume the ordered sidebar layers are in same order,
+        // in which case the copied-component's ordered sidebar layers are  the exact layers that were copied,
+        if let firstCopiedLayer = newComponent.graph.orderedSidebarLayers.first,
+           let originalLayerId: NodeId = nodeIdMap.first(where: { $0.value == firstCopiedLayer.id })?.key,
+           let originalLayerIndex: Int = graph.orderedSidebarLayers.getSidebarLayerDataIndex(originalLayerId) {
             
-            let originalLayerId: NodeId? = nodeIdMap.first(where: { $0.value == firstCopiedLayer.id })?.key
+            graph.orderedSidebarLayers = insertAfterID(
+                data: graph.orderedSidebarLayers,
+                newDataList: newComponent.graph.orderedSidebarLayers,
+                afterID: originalLayerId)
             
-            log("addComponentToGraph: originalLayer \(originalLayerId)")
-            
-            //
-            if let originalLayerId = originalLayerId,
-               
-//                let originalLayer: SidebarLayerData = graph.orderedSidebarLayers.getSidebarLayerData(originalLayerId),
-//               let originalLayer: SidebarLayerData = graph.orderedSidebarLayers.getSidebarLayerData(originalLayerId),
-                
-                let originalLayerIndex: Int = graph.orderedSidebarLayers.getSidebarLayerDataIndex(originalLayerId) {
-                
-                log("addComponentToGraph: originalLayerIndex \(originalLayerIndex)")
-                
-                
-                
-//                graph.orderedSidebarLayers.insert(firstCopiedLayer, at: originalLayerIndex + 1)
-                
-//                graph.orderedSidebarLayers = insertAfterID(
-//                    data: graph.orderedSidebarLayers,
-//                    newData: firstCopiedLayer,
-//                    afterID: originalLayerId)
-                
-                graph.orderedSidebarLayers = insertAfterID(
-                    data: graph.orderedSidebarLayers,
-                    newDataList: newComponent.graph.orderedSidebarLayers,
-                    afterID: originalLayerId)
-                                
-//                let originalLayers = graph.orderedSidebarLayers as [any StitchNestedListElement]
-                
-                
-                
-                
-                log("addComponentToGraph: graph.orderedSidebarLayers NOW: \(graph.orderedSidebarLayers)")
-            }
         }
-        
-//        log("addComponentToGraph: graph.orderedSidebarLayers FINALLY: \(graph.orderedSidebarLayers)")
         
         return graph
     }
-        
+    
     @MainActor
     func updateGraphAfterPaste(newNodes: [NodeEntity]) {
         // Reset selected nodes
