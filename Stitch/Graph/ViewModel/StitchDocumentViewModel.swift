@@ -253,13 +253,13 @@ extension GraphState: GraphCalculatable {
 
 extension StitchDocumentViewModel {
     @MainActor
-    func update(from schema: StitchDocument) async {
+    func updateAsync(from schema: StitchDocument) async {
         // Sync preview window attributes
         self.previewWindowSize = schema.previewWindowSize
         self.previewSizeDevice = schema.previewSizeDevice
         self.previewWindowBackgroundColor = schema.previewWindowBackgroundColor
 
-        await self.graph.update(from: schema.graph)
+        await self.graph.updateAsync(from: schema.graph)
     }
     
     @MainActor func createSchema() -> StitchDocument {

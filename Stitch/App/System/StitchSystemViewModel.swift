@@ -36,7 +36,7 @@ final class StitchSystemViewModel: Sendable {
                 var data = data
                 data.saveLocation = .systemComponent(self.id,
                                                      data.id)
-                await component.update(from: data)
+                await component.updateAsync(from: data)
             }) { data in
                 var data = data
                 data.saveLocation = .systemComponent(self.id,
@@ -64,7 +64,7 @@ extension StitchSystemViewModel: DocumentEncodableDelegate {
     
     @MainActor func willEncodeProject(schema: StitchSystem) { }
 
-    func update(from schema: StitchSystem) async {
+    func updateAsync(from schema: StitchSystem) async {
         // TODO: come back here
         fatalError()
     }

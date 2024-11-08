@@ -16,7 +16,7 @@ typealias NodeEntities = [NodeEntity]
 
 protocol GraphCopyable {
     func createCopy(newId: NodeId,
-                    mappableData: [NodeId: NodeId],
+                    mappableData: NodeIdMap,
                     copiedNodeIds: NodeIdSet) -> Self
 }
 
@@ -32,7 +32,7 @@ extension Dictionary {
 
 extension NodeEntity: GraphCopyable {
     func createCopy(newId: NodeId,
-                    mappableData: [NodeId: NodeId],
+                    mappableData: NodeIdMap,
                     copiedNodeIds: NodeIdSet) -> NodeEntity {
         .init(id: newId, 
               nodeTypeEntity: self.nodeTypeEntity
@@ -86,8 +86,8 @@ extension CanvasNodeEntity: GraphCopyable {
 
 extension PortValue: GraphCopyable {
     func createCopy(newId: NodeId,
-                    mappableData: [NodeId: NodeId],
-                    copiedNodeIds: NodeIdSet) -> PortValue {        
+                    mappableData: NodeIdMap,
+                    copiedNodeIds: NodeIdSet) -> PortValue {
         if let interactionId = self.getInteractionId,
            let newInteractionId = mappableData.get(interactionId.asNodeId) {
             return PortValue.assignedLayer(newInteractionId.asLayerNodeId)
@@ -101,7 +101,7 @@ extension PortValue: GraphCopyable {
 // TODO: if we copied both an interaction node and its assigned layer, the new interaction node should have the new layer's id in its first input: https://github.com/vpl-codesign/stitch/issues/5288
 extension NodePortInputEntity: GraphCopyable {
     func createCopy(newId: NodeId,
-                    mappableData: [NodeId: NodeId],
+                    mappableData: NodeIdMap,
                     copiedNodeIds: NodeIdSet) -> NodePortInputEntity {
         let newInputId = NodeIOCoordinate(portType: self.id.portType,
                                           nodeId: newId)
@@ -239,7 +239,7 @@ extension NodeConnectionType: GraphCopyable {
 }
 
 extension NodeEntities {
-    func createCopy(mappableData: [NodeId: NodeId],
+    func createCopy(mappableData: NodeIdMap,
                     copiedNodeIds: NodeIdSet) -> NodeEntities {
         self.compactMap { node in
             guard let newId = mappableData.get(node.id) else {
@@ -256,7 +256,7 @@ extension NodeEntities {
 }
 
 extension SidebarLayerList {
-    func createCopy(mappableData: [NodeId: NodeId]) -> SidebarLayerList {
+    func createCopy(mappableData: NodeIdMap) -> SidebarLayerList {
         self.compactMap { layerData in
             guard let newId = mappableData.get(layerData.id) else {
                 fatalErrorIfDebug()
@@ -288,13 +288,16 @@ extension Array where Element == AsyncCallback {
     }
 }
 
+// maps original ids -> copied ids
+typealias NodeIdMap = [NodeId: NodeId]
+
 extension GraphEntity {
-    /// Creates fresh IDs for all data in NodeEntities
-    func changeIds() -> GraphEntity {
+    /// Creates fresh IDs for OrderedSidebarLayers, all data in NodeEntities etc.
+    func changeIds() -> (GraphEntity, NodeIdMap) {
         let copiedNodeIds = self.nodes.map { $0.id }.toSet
 
         // Create mapping dictionary from old NodeID's to new NodeID's
-        let mappableData = self.nodes.reduce(into: [NodeId: NodeId]()) { result, node in
+        let nodeIdMap: NodeIdMap = self.nodes.reduce(into: NodeIdMap()) { result, node in
             // Skip if we already have a node id
             guard !result.get(node.id).isDefined else {
                 return
@@ -303,22 +306,25 @@ extension GraphEntity {
             result.updateValue(.init(), forKey: node.id)
         }
 
+        
         let copiedNodes: NodeEntities = self.nodes
-            .createCopy(mappableData: mappableData,
+            .createCopy(mappableData: nodeIdMap,
                         copiedNodeIds: copiedNodeIds)
 
         let copiedSidebarLayers = self.orderedSidebarLayers
-            .createCopy(mappableData: mappableData)
+            .createCopy(mappableData: nodeIdMap)
         
         if !self.commentBoxes.isEmpty {
             fatalErrorIfDebug("Comment boxes need to have IDs changed here!")
         }
 
-        return .init(id: self.id,
-                     name: self.name,
-                     nodes: copiedNodes,
-                     orderedSidebarLayers: copiedSidebarLayers,
-                     commentBoxes: self.commentBoxes)
+        let graphEntity = GraphEntity(id: self.id,
+                                      name: self.name,
+                                      nodes: copiedNodes,
+                                      orderedSidebarLayers: copiedSidebarLayers,
+                                      commentBoxes: self.commentBoxes)
+        
+        return (graphEntity, nodeIdMap)
     }
 }
 
@@ -488,21 +494,31 @@ extension Array where Element: StitchNestedListElement {
 extension GraphState {
     /// Synchronous caller for node copying, used for Option + drag.
     @MainActor
-    func copyAndPasteSelectedNodes(selectedNodeIds: NodeIdSet) {
+    func copyAndPasteSelectedNodes(selectedNodeIds: NodeIdSet,
+                                   isOptionDragInSidebar: Bool = false) {
+        log("copyAndPasteSelectedNodes: selectedNodeIds: \(selectedNodeIds)")
         // Copy nodes if no drag started yet
         let copiedComponentResult = self
             .createCopiedComponent(groupNodeFocused: self.graphUI.groupNodeFocused,
                                    selectedNodeIds: selectedNodeIds)
         
-        let newComponent = self.updateCopiedNodes(component: copiedComponentResult.component)
+        // creates new ids for nodes and sidebar layers; updates nodes' positions (staggering for duplication)
+        let (newComponent, nodeIdMap) = self.updateCopiedNodes(component: copiedComponentResult.component)
+        
+        log("copyAndPasteSelectedNodes: self.orderedSidebarLayers: \(self.orderedSidebarLayers)")
+        
+        let copiedSidebarLayers = newComponent.orderedSidebarLayers
+        log("copyAndPasteSelectedNodes: copiedSidebarLayers: \(copiedSidebarLayers)")
         
         // Update top-level nodes to match current focused group
         let newNodes: [NodeEntity] = self.createNewNodes(from: newComponent)
-        let graph = self.duplicateCopiedNodes(newComponent: newComponent,
-                                              newNodes: newNodes)
         
+        let graph = self.addComponentToGraph(newComponent: newComponent,
+                                             newNodes: newNodes,
+                                             nodeIdMap: nodeIdMap,
+                                             isOptionDragInSidebar: isOptionDragInSidebar)
 
-        self.update(from: graph)
+        self.updateSync(from: graph)
         
         self.updateGraphAfterPaste(newNodes: newNodes)
     }

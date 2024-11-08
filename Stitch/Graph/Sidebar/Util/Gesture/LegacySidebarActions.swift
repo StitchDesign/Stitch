@@ -103,8 +103,6 @@ extension ProjectSidebarObservable {
             state.selectionState.lastFocused = draggedItem.id
         }
                 
-        
-//        if state.keypressState.isOptionPressed && !state.sidebarSelectionState.haveDuplicated {
         if graph.keypressState.isOptionPressed
             && !state.selectionState.haveDuplicated
             && !state.selectionState.optionDragInProgress {
@@ -115,24 +113,17 @@ extension ProjectSidebarObservable {
             // also, it aready updates the selected and focused sidebar layers etc.
             
             // But will the user's cursor still be on / under the original layer ?
-            state.graphDelegate?.sidebarSelectedItemsDuplicated()
+            state.graphDelegate?.sidebarSelectedItemsDuplicated(isOptionDrag: true)
             state.selectionState.haveDuplicated = true
             state.selectionState.optionDragInProgress = true
             
-            log("")
-            // return ?
-            // but will also need
-            // NOTE: selection of the
-            
             return
         }
-        
         
         // If we have multiple layers already selected and are dragging one of these already-selected layers,
         // we create a "stack" (reorganization of selected layers) and treat the first layer in the stack as the user-dragged layer.
         
         // do we need this `else if` ?
-//        else if focusedLayers.count > 1 {
         if focusedLayers.count > 1 {
             if let selectedItemIdWithSmallestIndex = self.findSetItemWithSmallestIndex(
                 from: state.selectionState.all),
