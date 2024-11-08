@@ -10,6 +10,63 @@ import SwiftUI
 import StitchSchemaKit
 import StitchViewKit
 
+struct CopyPasteGraphDestinationInfo: Equatable {
+    let destinationGraphOffset: CGPoint
+    let destinationGraphFrame: CGRect
+}
+
+
+func adjustPastedNodesPositions(pastedNodes: [NodeEntity],
+                                destinationGraphOffset: CGPoint,
+                                destinationGraphFrame: CGRect) -> [NodeEntity] {
+
+    // Adjust the position of pasted nodes,
+    // so that they are pasted in views
+    let nodesCount = pastedNodes.count
+
+    let averageX = zeroCompatibleDivision(
+        numerator: pastedNodes.reduce(0.0) { partialResult, nodeSchema in
+            partialResult + nodeSchema.canvasEntities.reduce(0.0) { $0 + $1.position.x }
+        },
+        denominator: CGFloat(nodesCount))
+
+    let averageY = zeroCompatibleDivision(
+        numerator: pastedNodes.reduce(0.0) { partialResult, nodeSchema in
+            partialResult + nodeSchema.canvasEntities.reduce(0.0) { $0 + $1.position.y }
+        },
+        denominator: CGFloat(nodesCount))
+    
+    
+    return pastedNodes.reduce(into: [NodeEntity]()) { acc, node in
+        var node = node
+
+        node.canvasEntityMap { canvasEntity in
+            var canvasEntity = canvasEntity
+            
+            // Factour out graph offset of paste-destination projects
+            canvasEntity.position.x -= averageX
+            
+            // Factour out graph offset of paste-destination projects
+            canvasEntity.position.x -= destinationGraphOffset.x
+            
+            // Add 1/2 width and height to account for node position 0,0 = top left vs. graph postion 0,0 = center
+            canvasEntity.position.x += destinationGraphFrame.width/2
+            
+            return canvasEntity
+        }
+        
+        node.canvasEntityMap { canvasEntity in
+            var canvasEntity = canvasEntity
+            canvasEntity.position.y -= averageY
+            canvasEntity.position.y -= destinationGraphOffset.y
+            canvasEntity.position.y += destinationGraphFrame.height/2
+            return canvasEntity
+        }
+
+        acc.append(node)
+    }
+}
+
 struct DuplicateShortcutKeyPressed: StitchDocumentEvent {
     
     // Duplicates BOTH nodes AND comments
@@ -98,6 +155,7 @@ extension StitchDocumentViewModel {
                 selectedNodeIds: state.visibleGraph.selectedNodeIds.compactMap(\.nodeCase).toSet)
             
             await state.visibleGraph.insertNewComponent(copiedComponentResult,
+                                                        isCopyPaste: false,
                                                         encoder: state.visibleGraph.documentEncoderDelegate)
         }
         
@@ -111,17 +169,23 @@ extension GraphState {
     /// Inserts new component in state and processes media effects
     @MainActor
     func insertNewComponent<T>(_ copiedComponentResult: StitchComponentCopiedResult<T>,
+                               isCopyPaste: Bool,
                                encoder: (any DocumentEncodable)?) async where T: StitchComponentable {
         await self.insertNewComponent(component: copiedComponentResult.component,
                                       encoder: encoder,
-                                      copiedFiles: copiedComponentResult.copiedSubdirectoryFiles)
+                                      copiedFiles: copiedComponentResult.copiedSubdirectoryFiles,
+                                      isCopyPaste: isCopyPaste)
     }
 
     @MainActor
     func insertNewComponent<T>(component: T,
                                encoder: (any DocumentEncodable)?,
-                               copiedFiles: StitchDocumentDirectory) async where T: StitchComponentable {
-        let (newComponent, nodeIdMap) = self.updateCopiedNodes(component: component)
+                               copiedFiles: StitchDocumentDirectory,
+                               isCopyPaste: Bool) async where T: StitchComponentable {
+        let (newComponent, nodeIdMap) = Self.updateCopiedNodes(
+            component: component,
+            destinationGraphInfo: isCopyPaste ? .init(destinationGraphOffset: self.localPosition, destinationGraphFrame: self.graphUI.frame) : nil
+        )
         let encoderDelegate = self.documentEncoderDelegate      // keep optional for unit tests
         
         guard let document = self.documentDelegate else {
@@ -168,27 +232,42 @@ extension GraphState {
         self.updateGraphAfterPaste(newNodes: newNodes)
     }
     
-    func updateCopiedNodes<T>(component: T) -> (T, NodeIdMap) where T: StitchComponentable {
+    
+    static func updateCopiedNodes<T>(component: T,
+                                     // nil = this was duplication, not copy-paste
+                                     destinationGraphInfo: CopyPasteGraphDestinationInfo?) -> (T, NodeIdMap) where T: StitchComponentable {
         // Change all IDs
         var newComponent = component
         let (newGraph, nodeIdMap) = newComponent.graph.changeIds()
         newComponent.graph = newGraph
         
-        // Update nodes in the follow ways:
-        // 1. Stagger position
-        // 2. Increment z-index
-        newComponent.graph.nodes = newComponent.nodes.map { node in
-            var node = node
+        // genuine copy-paste (Cmd C + Cmd V; Cmd X + Cmd V) places nodes in center of view-port
+        if let destinationGraphInfo = destinationGraphInfo {
+            newComponent.graph.nodes = adjustPastedNodesPositions(
+                pastedNodes: newComponent.graph.nodes,
+                destinationGraphOffset: destinationGraphInfo.destinationGraphOffset,
+                destinationGraphFrame: destinationGraphInfo.destinationGraphFrame)
+        }
+        
+        // else is duplication, which uses staggering strategy for node re-positioning
+        else {
             
-            // Update positional data            
-            node.canvasEntityMap { node in
+            // Update nodes in the follow ways:
+            // 1. Stagger position
+            // 2. Increment z-index
+            newComponent.graph.nodes = newComponent.nodes.map { node in
                 var node = node
-                node.position.shiftNodePosition()
-                node.zIndex += 1
+                
+                // Update positional data
+                node.canvasEntityMap { node in
+                    var node = node
+                    node.position.shiftNodePosition()
+                    node.zIndex += 1
+                    return node
+                }
+                
                 return node
             }
-            
-            return node
         }
         
         return (newComponent, nodeIdMap)
