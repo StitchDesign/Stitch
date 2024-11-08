@@ -31,41 +31,39 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
     
     var body: some View {
         
-        ZStack {
-            Rectangle().fill(portColor)
-//            Rectangle().fill(portBodyColor)
-//                .overlay {
-//                    if !hasEdge {
-//                        let color = STITCH_TITLE_FONT_COLOR.opacity(0.5)  // Color(.sheetBackground).opacity(0.5)
-//                        Circle().fill(color)
-//                            .frame(width: 4, height: 4)
-//                            .offset(x: coordinate.isInput ? 2 : -2)
-//                    }
-//                }
-                .frame(PORT_ENTRY_NON_EXTENDED_HITBOX_SIZE)
-            // TODO: use `UnevenRoundedRectangle` ?
-                .clipShape(RoundedRectangle(cornerRadius: CANVAS_ITEM_CORNER_RADIUS))
-                .background {
-                    Rectangle()
-                        .fill(portColor)
-                        .frame(width: self.height)
-                        .offset(x: NodeRowViewModelType.nodeIO == .input ? -4 : 4)
+        Rectangle().fill(portColor)
+        //            Rectangle().fill(portBodyColor)
+        //                .overlay {
+        //                    if !hasEdge {
+        //                        let color = STITCH_TITLE_FONT_COLOR.opacity(0.5)  // Color(.sheetBackground).opacity(0.5)
+        //                        Circle().fill(color)
+        //                            .frame(width: 4, height: 4)
+        //                            .offset(x: coordinate.isInput ? 2 : -2)
+        //                    }
+        //                }
+            .frame(PORT_ENTRY_NON_EXTENDED_HITBOX_SIZE)
+        // TODO: use `UnevenRoundedRectangle` ?
+            .clipShape(RoundedRectangle(cornerRadius: CANVAS_ITEM_CORNER_RADIUS))
+            .background {
+                Rectangle()
+                    .fill(portColor)
+                    .frame(width: self.height)
+                    .offset(x: NodeRowViewModelType.nodeIO == .input ? -4 : 4)
+            }
+            .background {
+                GeometryReader { geometry in
+                    let origin = geometry.frame(in: .named(NodesView.coordinateNameSpace)).origin
+                    
+                    Color.clear
+                        .onChange(of: graph.groupNodeFocused) {
+                            self.updatePortViewData(newOrigin: origin)
+                        }
+                        .onChange(of: origin,
+                                  initial: true) { _, newOrigin in
+                            self.updatePortViewData(newOrigin: newOrigin)
+                        }
                 }
-                .background {
-                    GeometryReader { geometry in
-                        let origin = geometry.frame(in: .named(NodesView.coordinateNameSpace)).origin
-                        
-                        Color.clear
-                            .onChange(of: graph.groupNodeFocused) {
-                                self.updatePortViewData(newOrigin: origin)
-                            }
-                            .onChange(of: origin,
-                                      initial: true) { _, newOrigin in
-                                self.updatePortViewData(newOrigin: newOrigin)
-                            }
-                    }
-                }
-        }
+            }
         .overlay(PortEntryExtendedHitBox(rowViewModel: rowViewModel,
                                          graphState: graph))
         .animation(.linear(duration: self.animationTime),

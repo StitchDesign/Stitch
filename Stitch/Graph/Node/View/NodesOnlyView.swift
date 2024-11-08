@@ -30,36 +30,33 @@ struct NodesOnlyView: View {
     }
         
     var body: some View {
+        let filteredCanvasNodes = canvasNodes.filter { $0.parentGroupNodeId == graphUI.groupNodeFocused?.groupNodeId }
+        
         // HACK for when no nodes present
-        if canvasNodes.isEmpty {
+        if filteredCanvasNodes.isEmpty {
             Rectangle().fill(.clear)
         }
 
-        ForEach(canvasNodes) { canvasNode in
+        ForEach(filteredCanvasNodes) { canvasNode in
             // Note: if/else seems better than opacity modifier, which introduces funkiness with edges (port preference values?) when going in and out of groups;
             // (`.opacity(0)` means we still render the view, and thus anchor preferences?)
-            if let node = canvasNode.nodeDelegate as? NodeViewModel,
-               canvasNode.parentGroupNodeId == graphUI.groupNodeFocused?.groupNodeId {
-                NodeTypeView(
-                    document: document,
-                    graph: graph,
-                    node: node,
-                    canvasNode: canvasNode,
-                    atleastOneCommentBoxSelected: selection.selectedCommentBoxes.count >= 1,
-                    activeIndex: activeIndex,
-                    groupNodeFocused: graphUI.groupNodeFocused,
-                    adjustmentBarSessionId: adjustmentBarSessionId,
-                    isHiddenDuringAnimation: insertNodeMenuHiddenNode
-                        .map { $0 == node.id } ?? false
-                )
-                .onChange(of: self.activeIndex) {
-                    // Update values when active index changes
-                    self.canvasNodes.forEach { canvasNode in
-                        node.activeIndexChanged(activeIndex: self.activeIndex)
-                    }
+            NodeTypeView(
+                document: document,
+                graph: graph,
+                node: canvasNode.nodeDelegate ?? .init(),
+                canvasNode: canvasNode,
+                atleastOneCommentBoxSelected: selection.selectedCommentBoxes.count >= 1,
+                activeIndex: activeIndex,
+                groupNodeFocused: graphUI.groupNodeFocused,
+                adjustmentBarSessionId: adjustmentBarSessionId,
+                isHiddenDuringAnimation: insertNodeMenuHiddenNode
+                    .map { $0 == canvasNode.nodeDelegate?.id } ?? false
+            )
+            .onChange(of: self.activeIndex) {
+                // Update values when active index changes
+                self.canvasNodes.forEach { canvasNode in
+                    canvasNode.nodeDelegate?.activeIndexChanged(activeIndex: self.activeIndex)
                 }
-            } else {
-                EmptyView()
             }
         }
     }

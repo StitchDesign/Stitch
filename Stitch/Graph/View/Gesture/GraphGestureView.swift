@@ -96,6 +96,9 @@ final class GraphGestureDelegate: NSObject, UIGestureRecognizerDelegate {
     // Trackpad-based gestures
     @objc func trackpadPanInView(_ gestureRecognizer: UIPanGestureRecognizer) {
         self.trackpadGraphBackgroundPan(gestureRecognizer)
+
+        // Triggers graph calculation in event gestures delay calls from displaylink
+        self.document?.graphStepManager.updateOnFrame()
     }
 
 //    @objc func tapInView(_ gestureRecognizer: UITapGestureRecognizer) {

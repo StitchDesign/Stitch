@@ -35,9 +35,22 @@ extension StitchDocumentViewModel: GraphStepManagerDelegate {
         
         // Update fields every 30 frames
         if !self.graph.portsToUpdate.isEmpty &&
-            frameCount % 4 == 0 {
+            frameCount % Self.fieldsFrequency(from: self.graphMovement.zoomData.zoom) == 0 {
             self.graph.updatePortViews()
         }
+    }
+    
+    static func fieldsFrequency(from zoom: CGFloat) -> Int {
+        if zoom < 0.25 {
+            return 600
+        } else if zoom < 0.4 {
+            return 120
+        } else if zoom < 0.5 {
+            return 30
+        }
+        
+        // Most frequent: 30 frames on 120 FPS devices
+        return 4
     }
 }
 

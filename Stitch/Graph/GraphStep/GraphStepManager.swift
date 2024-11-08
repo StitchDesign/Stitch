@@ -56,8 +56,10 @@ final class GraphStepManager: MiddlewareService {
         self.graphFrameCount = .zero
 
         let displayLink = CADisplayLink(target: self,
-                                        selector: #selector(updateOnFrame))
-        displayLink.add(to: .current, forMode: .common)
+                                        selector: #selector(_updateOnFrame))
+        displayLink.add(to: .main, forMode: .common)
+        displayLink.add(to: .main, forMode: .tracking)
+        displayLink.add(to: .main, forMode: .default)
 
         self.displayLink = displayLink
     }
@@ -84,11 +86,16 @@ final class GraphStepManager: MiddlewareService {
     private var previousTimeInSeconds: Double = 0
 
     @MainActor
-    @objc private func updateOnFrame(displaylink: CADisplayLink) {
+    @objc private func _updateOnFrame(displaylink: CADisplayLink) {
+        self.updateOnFrame()
+    }
+    
+    @MainActor
+    func updateOnFrame() {
         let graphFrameCount = self.graphFrameCount
 
-        let timeStart = self.graphTimeStart ?? displaylink.targetTimestamp
-        let currentTimestamp = displaylink.targetTimestamp
+        let currentTimestamp = Date.now.timeIntervalSince1970
+        let timeStart = self.graphTimeStart ?? currentTimestamp
         let elapsedProjectTime = currentTimestamp - timeStart
 
         // For calculating the ACTUAL run-time FPS

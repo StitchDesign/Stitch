@@ -377,16 +377,27 @@ struct FieldsListView<PortType, ValueEntryView>: View where PortType: NodeRowVie
             
             // Note: "multifield" is more complicated for layer inputs, since `fieldObservers.count` is now inaccurate for an unpacked port
             let isMultiField = forPropertySidebar ?  (multipleFieldGroups || multipleFieldsPerGroup) : fieldGroupViewModel.fieldObservers.count > 1
-                                    
-            NodeFieldsView(graph: graph,
-                           fieldGroupViewModel: fieldGroupViewModel,
-                           nodeId: nodeId,
-                           isMultiField: isMultiField,
-                           forPropertySidebar: forPropertySidebar,
-                           forFlyout: forFlyout,
-                           blockedFields: blockedFields,
-                           valueEntryView: valueEntryView)
+            
+            if !self.isAllFieldsBlockedOut(fieldGroupViewModel: fieldGroupViewModel) {
+                NodeFieldsView(graph: graph,
+                               fieldGroupViewModel: fieldGroupViewModel,
+                               nodeId: nodeId,
+                               isMultiField: isMultiField,
+                               forPropertySidebar: forPropertySidebar,
+                               forFlyout: forFlyout,
+                               blockedFields: blockedFields,
+                               valueEntryView: valueEntryView)
+            }
         }
+    }
+    
+    func isAllFieldsBlockedOut(fieldGroupViewModel: FieldGroupTypeViewModel<PortType.FieldType>) -> Bool {
+        if let blockedFields = blockedFields {
+            return fieldGroupViewModel.fieldObservers.allSatisfy {
+                $0.isBlocked(blockedFields)
+            }
+        }
+        return false
     }
 }
 
