@@ -51,8 +51,22 @@ struct InsertNodeMenuWrapper: View {
     
     // menu and animating-node start in middle
     var menuOrigin: CGPoint {
-        CGPoint(x: screenWidth/2,
-               y: screenHeight/2)
+        // moved animated-node position too way far right?
+        let k = CGPoint(x: screenWidth/2, // - self.sidebarHalfWidth,
+                        y: screenHeight/2)
+        
+        log("InsertNodeMenuWrapper: menuOrigin: k: \(k)")
+        return k
+        
+        // too
+//        CGPoint(x: screenWidth/2 + self.sidebarHalfWidth,
+        
+        // Too far left
+//        CGPoint(x: screenWidth/2 + self.sidebarFullWidth,
+        
+        // Too far left
+//        CGPoint(x: screenWidth/2 - self.sidebarFullWidth,
+//               y: screenHeight/2)
     }
 
     var screenWidth: CGFloat {
@@ -101,11 +115,15 @@ struct InsertNodeMenuWrapper: View {
         let adjustedDoubleTapLocation = document.adjustedDoubleTapLocation(document.visibleGraph.localPosition)
         
         let defaultCenter = document.graphUI.center(document.visibleGraph.localPosition)
-        
+
         if document.llmRecording.isRecording {
             return defaultCenter
         } else {
-            return adjustedDoubleTapLocation ?? defaultCenter
+//            return adjustedDoubleTapLocation ?? defaultCenter
+            let k = adjustedDoubleTapLocation ?? defaultCenter
+            
+            log("InsertNodeMenuWrapper: getNodeDestination: k: \(k)")
+            return k
         }
     }
     
@@ -183,6 +201,9 @@ struct InsertNodeMenuWrapper: View {
         var d = menuOrigin
         d.x -= graphOffset.x
         d.y -= graphOffset.y
+        
+        // should be okay because menuOrigin already takes sidebar into account
+        log("InsertNodeMenuWrapper: getAdjustedMenuOrigin: d: \(d)")
         return d
     }
     
@@ -191,6 +212,8 @@ struct InsertNodeMenuWrapper: View {
         let graphOffset: CGSize = graphMovement.localPosition.toCGSize
         let graphScale: CGFloat = graphMovement.zoomData.zoom
         let nodeDestination = self.getNodeDestination()
+        
+        log("InsertNodeMenuWrapper: animateMenu: nodeDestination: \(nodeDestination)")
         
         // factor in the graphScale,
         // since now the menu needs to look like the node
@@ -225,11 +248,15 @@ struct InsertNodeMenuWrapper: View {
             let menuHiddenPositionY = nodeDestination.y
                 + finalDiffY
                 + scaledOffsetHeight
+            
+            let menuHiddenPosition = CGPoint(x: menuHiddenPositionX,
+                                             y: menuHiddenPositionY)
 
+            log("InsertNodeMenuWrapper: animateMenu: menuHiddenPosition: \(menuHiddenPosition)")
+        
             menuPosition = showMenu
                 ? menuOrigin
-                : .init(x: menuHiddenPositionX,
-                        y: menuHiddenPositionY)
+                : menuHiddenPosition
         } // withAnimation
 
     }
@@ -315,13 +342,18 @@ struct InsertNodeMenuWrapper: View {
 //            .offset(x: -graphUI.frame.origin.x)
         
         // GOOD positioning of node menu, BUT messes up animation
-            .offset(x: -sidebarXAdjustment)
+//            .offset(x: -sidebarHalfWidth)
     }
     
     // should be subtracted
-    var sidebarXAdjustment: CGFloat {
-        graphUI.frame.origin.x/2
+    var sidebarHalfWidth: CGFloat {
+//        graphUI.frame.origin.x/2
+        graphUI.sidebarWidth/2
     }
+    
+//    var sidebarFullWidth: CGFloat {
+//        graphUI.frame.origin.x
+//    }
     
     var body: some View {
         ZStack {
@@ -359,6 +391,7 @@ struct InsertNodeMenuWrapper: View {
                         // to lose tracking for end state
                         dispatch(KeyModifierReset())
                     }
+//                    .offset(x: -sidebarHalfWidth)
             }
         }
         .onAppear {
