@@ -17,6 +17,7 @@ struct SetSidebarWidth: GraphUIEvent {
     let frame: CGRect // .global frame
     
     func handle(state: GraphUIState) {
+        log("SetSidebarWidth: frame.origin.x: \(frame.origin.x)")
         state.sidebarWidth = frame.origin.x
     }
 }

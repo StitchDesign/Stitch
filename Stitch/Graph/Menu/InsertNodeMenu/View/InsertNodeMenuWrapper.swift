@@ -52,6 +52,7 @@ struct InsertNodeMenuWrapper: View {
     // menu and animating-node start in middle
     var menuOrigin: CGPoint {
         // moved animated-node position too way far right?
+//        let k = CGPoint(x: screenWidth/2 - self.sidebarHalfWidth,
         let k = CGPoint(x: screenWidth/2, // - self.sidebarHalfWidth,
                         y: screenHeight/2)
         
@@ -114,8 +115,15 @@ struct InsertNodeMenuWrapper: View {
         
         let adjustedDoubleTapLocation = document.adjustedDoubleTapLocation(document.visibleGraph.localPosition)
         
-        let defaultCenter = document.graphUI.center(document.visibleGraph.localPosition)
+//        let defaultCenter = document.graphUI.center(document.visibleGraph.localPosition)
 
+        var defaultCenter = document.graphUI.center(document.visibleGraph.localPosition)
+        // add back the half sidebar width?
+//        defaultCenter.x += self.sidebarHalfWidth
+        
+        defaultCenter.x += (self.sidebarHalfWidth * 1/ASSUMED_DEBUG_SCALE)
+        
+        
         if document.llmRecording.isRecording {
             return defaultCenter
         } else {

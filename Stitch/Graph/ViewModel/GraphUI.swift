@@ -217,9 +217,42 @@ extension GraphUIState {
     //    var center: CGPoint {
     @MainActor
     func center(_ localPosition: CGPoint) -> CGPoint {
-        self.frame.getGraphCenter(localPosition: localPosition)
+        var graphCenter = self.frame.getGraphCenter(localPosition: localPosition)
+        
+        log("GraphUIState: center: graphCenter was: \(graphCenter)")
+        
+        // move real node further WEST
+//        graphCenter.x -= self.sidebarWidth/2
+        
+        // when scale = 0.5, the real node is too far EAST,
+        // so need to make a bigger westward adjustment
+        
+        
+        let sidebarAdjustment = (self.sidebarWidth/2 * 1/ASSUMED_DEBUG_SCALE)
+        
+        log("GraphUIState: center: sidebarAdjustment: was: \(sidebarAdjustment)")
+        
+        // even with set scale and graph offset = zero, this does not place the new node directly under our scale?
+        
+        graphCenter.x -= sidebarAdjustment
+        
+        
+//        graphCenter.x -= (self.sidebarWidth/2 - (localPosition.x * ASSUMED_DEBUG_SCALE))
+        
+        log("GraphUIState: center: graphCenter is now: \(graphCenter)")
+        
+        
+        return graphCenter
+        
+//        if isForNodeMenuAnimation {
+//            // node menu views already use .offset for sidebar,
+//            // so we do
+//        }
     }
 }
+
+
+let ASSUMED_DEBUG_SCALE: CGFloat = 0.5
 
 extension GraphState {
     
@@ -449,8 +482,10 @@ extension CanvasItemViewModel {
 
 // Model for graph zoom.
 struct GraphZoom: Equatable, Codable, Hashable {
+//    var current: CGFloat = 0
+//    var final: CGFloat = 1
     var current: CGFloat = 0
-    var final: CGFloat = 1
+    var final: CGFloat = ASSUMED_DEBUG_SCALE
 
     var zoom: CGFloat {
         self.current + self.final
