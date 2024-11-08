@@ -9,19 +9,22 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-extension StitchDocumentViewModel {
+extension GraphZoom {
     @MainActor
     func graphPinchToZoom( amount: CGFloat) {
-
+        if !self.isActivelyZooming {
+            self.isActivelyZooming = true
+        }
+        
         // Scale zoom based on current device zoom--makes pinch to zoom feel more natural
-        var newAmount = (amount - 1) * self.graphMovement.zoomData.final
-
+        var newAmount = (amount - 1) * self.final
+        
         newAmount = Self.throttleGraphZoom(zoomAmount: newAmount,
-                                           currentScale: self.graphMovement.zoomData.final)
-
-        self.graphMovement.zoomData.current = newAmount
+                                           currentScale: self.final)
+        
+        self.current = newAmount
     }
-
+    
     // Keep current zoom bound to allowed thresholds
     @MainActor
     static func throttleGraphZoom(zoomAmount: CGFloat, currentScale: CGFloat) -> CGFloat {
@@ -35,14 +38,23 @@ extension StitchDocumentViewModel {
         }
         return zoomAmount
     }
+}
 
+extension StitchDocumentViewModel {
     @MainActor
     func graphZoomEnded() {
         //        log("GraphZoomEnded called")
+        
+        if self.graphMovement.zoomData.isActivelyZooming {
+            self.graphMovement.zoomData.isActivelyZooming = false
+        }
 
         // set new zoom final to current + final of last zoom state
         self.graphMovement.zoomData.final += self.graphMovement.zoomData.current
-        self.graphMovement.zoomData.current = 0
+        
+        if self.graphMovement.zoomData.current != 0 {
+            self.graphMovement.zoomData.current = 0
+        }
 
         // Wipe comment box bounds
         self.wipeCommentBoxBounds()
@@ -53,11 +65,16 @@ extension StitchDocumentViewModel {
         let newScale = self.graphMovement.zoomData.final + rate
         if newScale > MAX_GRAPH_SCALE {
             log("GraphZoomedIn: too zoomed in")
-            self.graphMovement.zoomData.current = 0
+            
+            if self.graphMovement.zoomData.current != 0 {
+                self.graphMovement.zoomData.current = 0
+            }
             self.graphMovement.zoomData.final = MAX_GRAPH_SCALE
         } else {
             log("GraphZoomedIn: zoom in okay")
-            self.graphMovement.zoomData.current = 0
+            if self.graphMovement.zoomData.current != 0 {
+                self.graphMovement.zoomData.current = 0
+            }
             self.graphMovement.zoomData.final = newScale
         }
 
@@ -83,11 +100,15 @@ extension StitchDocumentViewModel {
         let negativeScale = newScale <= 0
         if negativeScale || lessThanMinScale {
             log("GraphZoomedOut: too zoomed out")
-            self.graphMovement.zoomData.current = 0
+            if self.graphMovement.zoomData.current != 0 {
+                self.graphMovement.zoomData.current = 0
+            }
             self.graphMovement.zoomData.final = MIN_GRAPH_SCALE
         } else {
             log("GraphZoomedOut: zoom out okay")
-            self.graphMovement.zoomData.current = 0
+            if self.graphMovement.zoomData.current != 0 {
+                self.graphMovement.zoomData.current = 0
+            }
             self.graphMovement.zoomData.final = newScale
         }
 

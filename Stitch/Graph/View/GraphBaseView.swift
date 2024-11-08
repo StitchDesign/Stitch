@@ -32,7 +32,7 @@ struct GraphBaseView: View {
             .simultaneousGesture(
                 MagnifyGesture()
                     .onChanged { value in
-                        self.document.graphPinchToZoom(amount: value.magnification)
+                        self.document.graphMovement.zoomData.graphPinchToZoom(amount: value.magnification)
                     }
                     .onEnded { _ in
                         self.document.graphZoomEnded()
