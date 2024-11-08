@@ -140,14 +140,12 @@ struct GraphBaseView: View {
             GeometryReader { geometry in
                 Color.clear
                     .onChange(of: geometry.frame(in: .local), initial: true) { oldValue, newValue in
-                        
-                        log("GraphBaseView: local frame: newValue: \(newValue)")
+                        // log("GraphBaseView: local frame: newValue: \(newValue)")
                         dispatch(SetDeviceScreenSize(frame: newValue))
                     }
                     .onChange(of: geometry.frame(in: .global), initial: true) { oldValue, newValue in
-                        log("GraphBaseView: global frame: newValue: \(newValue)")
+                        // log("GraphBaseView: global frame: newValue: \(newValue)")
                         dispatch(SetGraphYPosition(graphYPosition: newValue.origin.y))
-//                        dispatch(SetDeviceScreenSize(frame: newValue))
                         dispatch(SetSidebarWidth(frame: newValue))
                     }
             }

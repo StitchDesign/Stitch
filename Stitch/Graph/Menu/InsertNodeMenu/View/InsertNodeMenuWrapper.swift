@@ -51,23 +51,8 @@ struct InsertNodeMenuWrapper: View {
     
     // menu and animating-node start in middle
     var menuOrigin: CGPoint {
-        // moved animated-node position too way far right?
-//        let k = CGPoint(x: screenWidth/2 - self.sidebarHalfWidth,
-        let k = CGPoint(x: screenWidth/2, // - self.sidebarHalfWidth,
-                        y: screenHeight/2)
-        
-        log("InsertNodeMenuWrapper: menuOrigin: k: \(k)")
-        return k
-        
-        // too
-//        CGPoint(x: screenWidth/2 + self.sidebarHalfWidth,
-        
-        // Too far left
-//        CGPoint(x: screenWidth/2 + self.sidebarFullWidth,
-        
-        // Too far left
-//        CGPoint(x: screenWidth/2 - self.sidebarFullWidth,
-//               y: screenHeight/2)
+        CGPoint(x: screenWidth/2,
+                y: screenHeight/2)
     }
 
     var screenWidth: CGFloat {
@@ -119,21 +104,16 @@ struct InsertNodeMenuWrapper: View {
             document.visibleGraph.localPosition,
             graphScale: self.graphScale)
         
+        let sidebarAdjustment = (self.sidebarHalfWidth * 1/self.graphScale)
+        
         if document.llmRecording.isRecording {
             return defaultCenter
         } else if var adjustedDoubleTapLocation = adjustedDoubleTapLocation {
-//            return adjustedDoubleTapLocation ?? defaultCenter
-            
-//            adjustedDoubleTapLocation.x += (self.sidebarHalfWidth * 1/ASSUMED_DEBUG_SCALE)
-//            adjustedDoubleTapLocation.x += ((self.sidebarHalfWidth * 2) * 1/ASSUMED_DEBUG_SCALE)
-//            adjustedDoubleTapLocation.x += (self.sidebarHalfWidth)
-            
-            adjustedDoubleTapLocation.x += (self.sidebarHalfWidth * 1/self.graphScale)
-            
+            adjustedDoubleTapLocation.x += sidebarAdjustment
             return adjustedDoubleTapLocation
         } else {
             // add back the half sidebar width?
-            defaultCenter.x += (self.sidebarHalfWidth * 1/self.graphScale)
+            defaultCenter.x += sidebarAdjustment
             return defaultCenter
         }
     }
@@ -212,9 +192,6 @@ struct InsertNodeMenuWrapper: View {
         var d = menuOrigin
         d.x -= graphOffset.x
         d.y -= graphOffset.y
-        
-        // should be okay because menuOrigin already takes sidebar into account
-        log("InsertNodeMenuWrapper: getAdjustedMenuOrigin: d: \(d)")
         return d
     }
     
@@ -223,8 +200,6 @@ struct InsertNodeMenuWrapper: View {
         let graphOffset: CGSize = graphMovement.localPosition.toCGSize
         let graphScale: CGFloat = graphMovement.zoomData.zoom
         let nodeDestination = self.getNodeDestination()
-        
-        log("InsertNodeMenuWrapper: animateMenu: nodeDestination: \(nodeDestination)")
         
         // factor in the graphScale,
         // since now the menu needs to look like the node
@@ -263,8 +238,6 @@ struct InsertNodeMenuWrapper: View {
             let menuHiddenPosition = CGPoint(x: menuHiddenPositionX,
                                              y: menuHiddenPositionY)
 
-            log("InsertNodeMenuWrapper: animateMenu: menuHiddenPosition: \(menuHiddenPosition)")
-        
             menuPosition = showMenu
                 ? menuOrigin
                 : menuHiddenPosition
@@ -344,27 +317,13 @@ struct InsertNodeMenuWrapper: View {
             .scaleEffect(x: menuScaleX, y: menuScaleY)
             // use .position modifier to match node's use of .position modifier
             .position(menuPosition)
-        
-        // Good positiongi
-        // Added
-        // did this already change because we now use a .global frame for device screen size?
-        
-        // BAD: places node menu UNDER the sidebar
-//            .offset(x: -graphUI.frame.origin.x)
-        
-        // GOOD positioning of node menu, BUT messes up animation
             .offset(x: -sidebarHalfWidth)
     }
     
     // should be subtracted
     var sidebarHalfWidth: CGFloat {
-//        graphUI.frame.origin.x/2
         graphUI.sidebarWidth/2
     }
-    
-//    var sidebarFullWidth: CGFloat {
-//        graphUI.frame.origin.x
-//    }
     
     var body: some View {
         ZStack {

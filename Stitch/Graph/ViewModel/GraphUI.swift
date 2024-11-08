@@ -221,31 +221,14 @@ extension GraphUIState {
     func center(_ localPosition: CGPoint,
                 graphScale: CGFloat) -> CGPoint {
         var graphCenter = self.frame.getGraphCenter(localPosition: localPosition)
-        
-        log("GraphUIState: center: graphCenter was: \(graphCenter)")
-        
-        // move real node further WEST
-//        graphCenter.x -= self.sidebarWidth/2
-        
-        // when scale = 0.5, the real node is too far EAST,
-        // so need to make a bigger westward adjustment
-        
-        
+
+        // Take left-sidebar into consideration
         let sidebarAdjustment = (self.sidebarWidth/2 * 1/graphScale)
-        
-        log("GraphUIState: center: sidebarAdjustment: was: \(sidebarAdjustment)")
-        
-        // even with set scale and graph offset = zero, this does not place the new node directly under our scale?
-        
         graphCenter.x -= sidebarAdjustment
-        log("GraphUIState: center: graphCenter is now: \(graphCenter)")
-        
         
         return graphCenter
     }
 }
-
-//let ASSUMED_DEBUG_SCALE: CGFloat = 0.5
 
 extension GraphState {
     
