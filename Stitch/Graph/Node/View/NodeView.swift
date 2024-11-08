@@ -60,34 +60,32 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
 
     var body: some View {
         
-        ZStack {
-            nodeBody
+        nodeBody
 #if targetEnvironment(macCatalyst)
-                .contextMenu { nodeTagMenu } // Catalyst right-click to open node tag menu
+            .contextMenu { nodeTagMenu } // Catalyst right-click to open node tag menu
 #endif
-            
-            /*
-             Note: we must order these gestures as `double tap gesture -> single tap simultaneous gesture`.
-             
-             If both gestures are simultaneous, then a "double tap" user gesture ends up doing a single tap then a double tap then ANOTHER single tap.
-             
-             If both gestures non-simultaneous, then there is a delay as SwiftUI waits to see whether we did a single or a double tap.
-             */
-                .gesture(TapGesture(count: 2).onEnded({
-                    if self.stitch.kind.isGroup {
-                        log("NodeView: node \(stitch.id) .gesture(TapGesture(count: 2)")
-                        log("NodeView: node \(stitch.id) .gesture(TapGesture(count: 2): will set active group")
-                        dispatch(GroupNodeDoubleTapped(id: stitch.id))
-                    }
-                }))
-            
-            // See GroupNodeView for group node double tap
-                .simultaneousGesture(TapGesture(count: 1).onEnded({
-                    log("NodeView: node \(stitch.id) .simultaneousGesture(TapGesture(count: 1)")
-                    node.isTapped(document: document)
-                }))
-        } // ZStack
-                
+        
+        /*
+         Note: we must order these gestures as `double tap gesture -> single tap simultaneous gesture`.
+         
+         If both gestures are simultaneous, then a "double tap" user gesture ends up doing a single tap then a double tap then ANOTHER single tap.
+         
+         If both gestures non-simultaneous, then there is a delay as SwiftUI waits to see whether we did a single or a double tap.
+         */
+            .gesture(TapGesture(count: 2).onEnded({
+                if self.stitch.kind.isGroup {
+                    log("NodeView: node \(stitch.id) .gesture(TapGesture(count: 2)")
+                    log("NodeView: node \(stitch.id) .gesture(TapGesture(count: 2): will set active group")
+                    dispatch(GroupNodeDoubleTapped(id: stitch.id))
+                }
+            }))
+        
+        // See GroupNodeView for group node double tap
+            .simultaneousGesture(TapGesture(count: 1).onEnded({
+                log("NodeView: node \(stitch.id) .simultaneousGesture(TapGesture(count: 1)")
+                node.isTapped(document: document)
+            }))
+        
         /*
          Note: every touch on a part of a node is an interaction (e.g. the title, an input field etc.) with a single node --- except for touching the node tag menu.
          
@@ -95,15 +93,15 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
          
          (This would not be required if TapGesture were not .simultaneous, but that is required for handling both single- and double-taps.)
          */
-        .overlay(alignment: .topTrailing) {
-            CanvasItemTag(isSelected: isSelected,
-                          nodeTagMenu: nodeTagMenu)
-        }
-        .canvasItemPositionHandler(document: document,
-                                   node: node,
-                                   zIndex: zIndex,
-                                   usePositionHandler: usePositionHandler)
-        .opacity(isHiddenDuringAnimation ? 0 : 1)
+            .overlay(alignment: .topTrailing) {
+                CanvasItemTag(isSelected: isSelected,
+                              nodeTagMenu: nodeTagMenu)
+            }
+            .canvasItemPositionHandler(document: document,
+                                       node: node,
+                                       zIndex: zIndex,
+                                       usePositionHandler: usePositionHandler)
+            .opacity(isHiddenDuringAnimation ? 0 : 1)
     }
 
     @MainActor
@@ -117,12 +115,10 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
                 .modifier(CanvasItemBodyPadding())
         }
         .overlay {
-            if let layerNode = stitch.layerNode,
-               !layerNode.hasSidebarVisibility {
-                Color.black.opacity(0.3)
-                    .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
-                    .allowsHitTesting(false)
-            }
+            let isLayerInvisible = !(stitch.layerNode?.hasSidebarVisibility ?? true)
+            Color.black.opacity(isLayerInvisible ? 0.3 : 0)
+                .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
+                .allowsHitTesting(!isLayerInvisible)
         }
         .fixedSize()
         .modifier(CanvasItemBackground(color: nodeUIColor.body))
@@ -300,14 +296,15 @@ struct CanvasItemBackground: ViewModifier {
     func body(content: Content) -> some View {
         content
             .background {
-                ZStack {
                     VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterial))
-//                    color.opacity(0.1)
-                    color.opacity(0.3)
-                    //                nodeUIColor.body.opacity(0.5)
-                    //                nodeUIColor.body.opacity(0.7)
-                }
-                .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
+                    .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
+                //                    color.opacity(0.1)
+                //                nodeUIColor.body.opacity(0.5)
+                //                nodeUIColor.body.opacity(0.7)
+            }
+            .overlay {
+                color.opacity(0.3)
+                    .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
             }
     }
 }
