@@ -47,7 +47,7 @@ struct NodesView: View {
     
     var body: some View {
         let nodePageData = visibleNodesViewModel
-            .getViewData(groupNodeFocused: graphUI.groupNodeFocused?.groupNodeId) ?? .init(zoomData: .init())
+            .getViewData(groupNodeFocused: graphUI.groupNodeFocused?.groupNodeId) ?? .init()
         
         let allInputs: [InputNodeRowViewModel] = self.graph
             .getVisibleCanvasItems()

@@ -16,7 +16,7 @@ final class VisibleNodesViewModel {
     var nodes = NodesViewModelDict()
 
     // Saves location and zoom-specific data for groups
-    var nodesByPage: NodesPagingDict = [.root: .init(zoomData: .init())]
+    var nodesByPage: NodesPagingDict = [.root: .init()]
 }
 
 extension VisibleNodesViewModel {
@@ -72,7 +72,7 @@ extension VisibleNodesViewModel {
 
         // Check for groups (traversal levels) to add for position/zoom data
         for incomingGroupId in incomingGroupIds where !existingGroupPages.contains(incomingGroupId) {
-            self.nodesByPage.updateValue(.init(zoomData: .init()),
+            self.nodesByPage.updateValue(.init(),
                                          forKey: .group(incomingGroupId))
         }
 

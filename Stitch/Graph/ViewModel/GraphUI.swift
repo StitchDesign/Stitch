@@ -460,7 +460,8 @@ extension CanvasItemViewModel {
 }
 
 // Model for graph zoom.
-struct GraphZoom: Equatable, Codable, Hashable {
+@Observable
+final class GraphZoom {
     var current: CGFloat = 0
     var final: CGFloat = 1
 
