@@ -19,13 +19,17 @@ struct GraphMovementViewModifier: ViewModifier {
             .onChange(of: graphMovement.localPosition, initial: true) {
                 currentNodePage.localPosition = graphMovement.localPosition
             }
-            .onChange(of: graphMovement.zoomData, initial: true) {
-                currentNodePage.zoomData = graphMovement.zoomData
+            .onChange(of: graphMovement.zoomData.current, initial: true) {
+                currentNodePage.zoomData.current = graphMovement.zoomData.current
+            }
+            .onChange(of: graphMovement.zoomData.final, initial: true) {
+                currentNodePage.zoomData.final = graphMovement.zoomData.final
             }
             .onChange(of: groupNodeFocused, initial: true) {
                 self.graphMovement.localPosition = currentNodePage.localPosition
                 self.graphMovement.localPreviousPosition = currentNodePage.localPosition
-                self.graphMovement.zoomData = currentNodePage.zoomData
+                self.graphMovement.zoomData.current = currentNodePage.zoomData.current
+                self.graphMovement.zoomData.final = currentNodePage.zoomData.final
             }
             // offset and scale are applied to the nodes on the graph,
             // but not eg to the blue box and green cursor;
