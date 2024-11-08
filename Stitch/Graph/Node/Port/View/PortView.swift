@@ -27,6 +27,8 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
     
     @Bindable var rowViewModel: NodeRowViewModelType
     @Bindable var graph: GraphState
+    @Bindable var graphMultigesture: GraphMultigesture
+    @Bindable var graphMovement: GraphMovementObserver
     let coordinate: NodeIOPortType
 
     @MainActor
@@ -35,11 +37,7 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
     }
     
     var ignorePortLocationUpdates: Bool {
-        guard let document = graph.documentDelegate else {
-            return true
-        }
-        
-        return document.graphMovement.graphIsDragged || document.graphMovement.zoomData.current != 0
+        graphMultigesture.graphIsDragged || graphMovement.zoomData.current != 0
     }
     
     var body: some View {
@@ -64,7 +62,7 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
                     .offset(x: NodeRowViewModelType.nodeIO == .input ? -4 : 4)
             }
             .background {
-                GeometryReader { geometry in                    
+                GeometryReader { geometry in
                     Color.clear
                         .onAppear {
                             self.positionObserver.origin = geometry.frame(in: .named(NodesView.coordinateNameSpace)).origin
