@@ -75,7 +75,7 @@ final class GraphMovementObserver {
 
     var localPreviousPosition = CGPoint.zero
 
-    var graphMultigesture = GraphMultigesture()
+    let graphMultigesture = GraphMultigesture()
 
     /*
      Non-nil when graph translation is such that eg eastern-most node would be at or past the western-border.
