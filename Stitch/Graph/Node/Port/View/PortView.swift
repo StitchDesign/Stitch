@@ -15,6 +15,7 @@ let PORT_ENTRY_NON_EXTENDED_HITBOX_SIZE = CGSize(
     width: PORT_VISIBLE_LENGTH,
     height: NODE_ROW_HEIGHT)
 
+/// Tracks position updates in a non-observable class to prevent render cycles.
 final class PositionObserver {
     var origin: CGPoint = .zero
 }
