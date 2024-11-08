@@ -494,7 +494,8 @@ extension Array where Element: StitchNestedListElement {
 extension GraphState {
     /// Synchronous caller for node copying, used for Option + drag.
     @MainActor
-    func copyAndPasteSelectedNodes(selectedNodeIds: NodeIdSet) {
+    func copyAndPasteSelectedNodes(selectedNodeIds: NodeIdSet,
+                                   isOptionDragInSidebar: Bool = false) {
         log("copyAndPasteSelectedNodes: selectedNodeIds: \(selectedNodeIds)")
         // Copy nodes if no drag started yet
         let copiedComponentResult = self
@@ -514,7 +515,8 @@ extension GraphState {
         
         let graph = self.addComponentToGraph(newComponent: newComponent,
                                              newNodes: newNodes,
-                                             nodeIdMap: nodeIdMap)
+                                             nodeIdMap: nodeIdMap,
+                                             isOptionDragInSidebar: isOptionDragInSidebar)
 
         self.updateSync(from: graph)
         

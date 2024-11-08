@@ -221,12 +221,19 @@ extension GraphState {
     @MainActor
     func addComponentToGraph<T>(newComponent: T,
                                 newNodes: [NodeEntity],
-                                nodeIdMap: NodeIdMap) -> GraphEntity where T: StitchComponentable {
+                                nodeIdMap: NodeIdMap,
+                                isOptionDragInSidebar: Bool = false) -> GraphEntity where T: StitchComponentable {
         var graph: GraphEntity = self.createSchema()
         
         // Add new nodes
         graph.nodes += newNodes
                 
+        // TODO: how to proper duplication insertion during an option+drag of a sidebar layer
+        guard !isOptionDragInSidebar else {
+            graph.orderedSidebarLayers = newComponent.orderedSidebarLayers + graph.orderedSidebarLayers
+            return graph
+        }
+        
         // We assume the ordered sidebar layers are in same order,
         // in which case the copied-component's ordered sidebar layers are  the exact layers that were copied,
         if let firstCopiedLayer = newComponent.graph.orderedSidebarLayers.first,
