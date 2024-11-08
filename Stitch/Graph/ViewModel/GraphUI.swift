@@ -168,20 +168,12 @@ extension StitchDocumentViewModel {
     @MainActor
     func adjustedDoubleTapLocation(_ localPosition: CGPoint) -> CGPoint? {
         if let doubleTapLocation = self.graphUI.doubleTapLocation {
-            
-            var loc = adjustPositionToMultipleOf(
+            return adjustPositionToMultipleOf(
                 factorOutGraphOffsetAndScale(
                     location: doubleTapLocation,
                     graphOffset: localPosition,
                     graphScale: self.graphMovement.zoomData.zoom,
                     deviceScreen: self.graphUI.frame))
-         
-//            let sidebarAdjustment = (self.graphUI.sidebarWidth/2 * 1/ASSUMED_DEBUG_SCALE)
-//            let sidebarAdjustment = (self.graphUI.sidebarWidth/2)
-//            let sidebarAdjustment = (self.graphUI.sidebarWidth)
-//            loc.x -= sidebarAdjustment
-            return loc
-            
         }
         
         return nil
@@ -226,7 +218,8 @@ extension GraphUIState {
     // This is more like?: "the center of the NodesView",
     //    var center: CGPoint {
     @MainActor
-    func center(_ localPosition: CGPoint) -> CGPoint {
+    func center(_ localPosition: CGPoint,
+                graphScale: CGFloat) -> CGPoint {
         var graphCenter = self.frame.getGraphCenter(localPosition: localPosition)
         
         log("GraphUIState: center: graphCenter was: \(graphCenter)")
@@ -238,7 +231,7 @@ extension GraphUIState {
         // so need to make a bigger westward adjustment
         
         
-        let sidebarAdjustment = (self.sidebarWidth/2 * 1/ASSUMED_DEBUG_SCALE)
+        let sidebarAdjustment = (self.sidebarWidth/2 * 1/graphScale)
         
         log("GraphUIState: center: sidebarAdjustment: was: \(sidebarAdjustment)")
         
@@ -252,7 +245,7 @@ extension GraphUIState {
     }
 }
 
-let ASSUMED_DEBUG_SCALE: CGFloat = 0.5
+//let ASSUMED_DEBUG_SCALE: CGFloat = 0.5
 
 extension GraphState {
     
@@ -482,10 +475,8 @@ extension CanvasItemViewModel {
 
 // Model for graph zoom.
 struct GraphZoom: Equatable, Codable, Hashable {
-//    var current: CGFloat = 0
-//    var final: CGFloat = 1
     var current: CGFloat = 0
-    var final: CGFloat = ASSUMED_DEBUG_SCALE
+    var final: CGFloat = 1
 
     var zoom: CGFloat {
         self.current + self.final

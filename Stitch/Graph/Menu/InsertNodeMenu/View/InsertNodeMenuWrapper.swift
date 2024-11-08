@@ -115,7 +115,9 @@ struct InsertNodeMenuWrapper: View {
         
         let adjustedDoubleTapLocation = document.adjustedDoubleTapLocation(document.visibleGraph.localPosition)
         
-        var defaultCenter = document.graphUI.center(document.visibleGraph.localPosition)
+        var defaultCenter = document.graphUI.center(
+            document.visibleGraph.localPosition,
+            graphScale: self.graphScale)
         
         if document.llmRecording.isRecording {
             return defaultCenter
@@ -126,12 +128,12 @@ struct InsertNodeMenuWrapper: View {
 //            adjustedDoubleTapLocation.x += ((self.sidebarHalfWidth * 2) * 1/ASSUMED_DEBUG_SCALE)
 //            adjustedDoubleTapLocation.x += (self.sidebarHalfWidth)
             
-            adjustedDoubleTapLocation.x += (self.sidebarHalfWidth * 1/ASSUMED_DEBUG_SCALE)
+            adjustedDoubleTapLocation.x += (self.sidebarHalfWidth * 1/self.graphScale)
             
             return adjustedDoubleTapLocation
         } else {
             // add back the half sidebar width?
-            defaultCenter.x += (self.sidebarHalfWidth * 1/ASSUMED_DEBUG_SCALE)
+            defaultCenter.x += (self.sidebarHalfWidth * 1/self.graphScale)
             return defaultCenter
         }
     }
