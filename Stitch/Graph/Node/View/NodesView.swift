@@ -46,67 +46,59 @@ struct NodesView: View {
     }
     
     var body: some View {
-        Group {
-            if let nodePageData = visibleNodesViewModel
-                .getViewData(groupNodeFocused: graphUI.groupNodeFocused?.groupNodeId) {
-                
-                let allInputs: [InputNodeRowViewModel] = self.graph
-                    .getVisibleCanvasItems()
-                    .flatMap { canvasItem -> [InputNodeRowViewModel] in
-                        canvasItem.inputViewModels
-                    }
-                
-                let connectedInputs = allInputs.filter { input in
-                    guard input.nodeDelegate?.patchNodeViewModel?.patch != .wirelessReceiver else {
-                        return false
-                    }
-                    return input.rowDelegate?.containsUpstreamConnection ?? false
-                }
-                
-                // Including "possible" inputs enables edge animation
-                let candidateInputs: [InputNodeRowViewModel] = graphUI.edgeEditingState?.possibleEdges.compactMap {
-                    let inputData = $0.edge.to
-                    
-                    guard let node = self.graph.getCanvasItem(inputData.canvasId),
-                          let inputRow = node.inputViewModels[safe: inputData.portId] else {
-                        return nil
-                    }
-                    
-                    return inputRow
-                } ?? []
-                
-                // CommentBox needs to be affected by graph offset and zoom
-                // but can live somewhere else?
-                ZStack {
-                    //                        commentBoxes
-                    nodesOnlyView(nodePageData: nodePageData)
-                }
-                .background {
-                    // Using background ensures edges z-index are always behind ndoes
-                    connectedEdgesView(allConnectedInputs: connectedInputs + candidateInputs)
-                }
-                .overlay {
-                    edgeDrawingView(inputs: allInputs,
-                                    graph: self.graph)
-                    
-                    EdgeInputLabelsView(inputs: allInputs,
-                                        document: document,
-                                        graphUI: document.graphUI)
-                }
-                .transition(.groupTraverse(isVisitingChild: groupTraversedToChild,
-                                           nodeLocation: groupNodeLocation,
-                                           graphOffset: .zero))
-                .coordinateSpace(name: Self.coordinateNameSpace)
-                .modifier(GraphMovementViewModifier(graphMovement: graph.graphMovement,
-                                                    currentNodePage: nodePageData,
-                                                    groupNodeFocused: graphUI.groupNodeFocused))
-            } else {
-                Color.clear
-                    .onAppear {
-                        fatalErrorIfDebug()
-                    }
+        let nodePageData = visibleNodesViewModel
+            .getViewData(groupNodeFocused: graphUI.groupNodeFocused?.groupNodeId) ?? .init(zoomData: .init())
+        
+        let allInputs: [InputNodeRowViewModel] = self.graph
+            .getVisibleCanvasItems()
+            .flatMap { canvasItem -> [InputNodeRowViewModel] in
+                canvasItem.inputViewModels
             }
+        
+        let connectedInputs = allInputs.filter { input in
+            guard input.nodeDelegate?.patchNodeViewModel?.patch != .wirelessReceiver else {
+                return false
+            }
+            return input.rowDelegate?.containsUpstreamConnection ?? false
         }
+        
+        // Including "possible" inputs enables edge animation
+        let candidateInputs: [InputNodeRowViewModel] = graphUI.edgeEditingState?.possibleEdges.compactMap {
+            let inputData = $0.edge.to
+            
+            guard let node = self.graph.getCanvasItem(inputData.canvasId),
+                  let inputRow = node.inputViewModels[safe: inputData.portId] else {
+                return nil
+            }
+            
+            return inputRow
+        } ?? []
+        
+        // CommentBox needs to be affected by graph offset and zoom
+        // but can live somewhere else?
+        ZStack {
+            //                        commentBoxes
+            nodesOnlyView(nodePageData: nodePageData)
+        }
+        .background {
+            // Using background ensures edges z-index are always behind ndoes
+            connectedEdgesView(allConnectedInputs: connectedInputs + candidateInputs)
+        }
+        .overlay {
+            edgeDrawingView(inputs: allInputs,
+                            graph: self.graph)
+            
+            EdgeInputLabelsView(inputs: allInputs,
+                                document: document,
+                                graphUI: document.graphUI)
+        }
+        .transition(.groupTraverse(isVisitingChild: groupTraversedToChild,
+                                   nodeLocation: groupNodeLocation,
+                                   graphOffset: .zero))
+        .coordinateSpace(name: Self.coordinateNameSpace)
+        .modifier(GraphMovementViewModifier(graphMovement: graph.graphMovement,
+                                            currentNodePage: nodePageData,
+                                            groupNodeFocused: graphUI.groupNodeFocused))
 //        .onChange(of: groupNodeFocused) {
 //            // Updates cached data inside row observers when group changes
 //            self.visibleNodesViewModel.updateAllNodeViewData()
