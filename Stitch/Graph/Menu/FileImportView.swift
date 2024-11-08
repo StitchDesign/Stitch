@@ -33,7 +33,9 @@ struct FileImportView: ViewModifier {
                     return
                 }
                 
-                let center = graph.graphUI.center(graph.localPosition)
+                let center = graph.graphUI.center(
+                    graph.localPosition,
+                    graphScale: graph.graphMovement.zoomData.zoom)
                 
                 Task.detached { [weak store] in
                         guard let store = store else {
