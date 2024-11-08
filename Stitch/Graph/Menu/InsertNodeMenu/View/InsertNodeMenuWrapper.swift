@@ -342,7 +342,7 @@ struct InsertNodeMenuWrapper: View {
 //            .offset(x: -graphUI.frame.origin.x)
         
         // GOOD positioning of node menu, BUT messes up animation
-//            .offset(x: -sidebarHalfWidth)
+            .offset(x: -sidebarHalfWidth)
     }
     
     // should be subtracted
@@ -391,7 +391,7 @@ struct InsertNodeMenuWrapper: View {
                         // to lose tracking for end state
                         dispatch(KeyModifierReset())
                     }
-//                    .offset(x: -sidebarHalfWidth)
+                    .offset(x: -sidebarHalfWidth)
             }
         }
         .onAppear {
