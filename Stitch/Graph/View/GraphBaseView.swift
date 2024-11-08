@@ -140,9 +140,12 @@ struct GraphBaseView: View {
             GeometryReader { geometry in
                 Color.clear
                     .onChange(of: geometry.frame(in: .local), initial: true) { oldValue, newValue in
+                        log("GraphBaseView: .local: newValue: \(newValue)")
                         dispatch(SetDeviceScreenSize(frame: newValue))
+//                        dispatch(
                     }
                     .onChange(of: geometry.frame(in: .global), initial: true) { oldValue, newValue in
+                        log("GraphBaseView: .global: newValue: \(newValue)")
                         dispatch(SetGraphYPosition(graphYPosition: newValue.origin.y))
                     }
             }
@@ -150,6 +153,19 @@ struct GraphBaseView: View {
     }
 }
 
+struct SetSidebarWidth: GraphUIEvent {
+    
+    let frame: CGRect
+    
+    func handle(state: GraphUIState) {
+        log("SidebarWidth: frame.origin.x \(frame.origin.x)")
+        state.sidebarWidth = frame.origin.x
+    }
+}
+    
+
+                    
+            
 struct GraphHoverViewModifier: ViewModifier {
     @Binding var spaceHeld: Bool
     @Bindable var document: StitchDocumentViewModel

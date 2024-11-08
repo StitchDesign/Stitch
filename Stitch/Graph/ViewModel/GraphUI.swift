@@ -31,6 +31,8 @@ struct ActiveDragInteractionNodeVelocityData: Equatable, Hashable {
 @Observable
 final class GraphUIState {
 
+    var sidebarWidth: CGFloat = .zero
+    
     var showCatalystProjectTitleModal: Bool = false
     
     // Only for node cursor selection box done when shift held
