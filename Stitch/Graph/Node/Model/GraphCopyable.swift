@@ -432,11 +432,9 @@ extension GraphState {
                 return node
             }
         
-        log("createComponent: selectedNodes: \(selectedNodes)")
         let selectedSidebarLayers = self.layersSidebarViewModel
             .createdOrderedEncodedData()
             .getSubset(from: selectedNodes.map { $0.id }.toSet)
-        log("createComponent: selectedSidebarLayers: \(selectedSidebarLayers)")
         
         let copiedComponentData: [StitchComponent] = selectedNodes
             .getComponentData(masterComponentsDict: self.components)
@@ -448,8 +446,6 @@ extension GraphState {
                                    commentBoxes: [])
 
         let copiedComponent = createComponentable(newGraph)
-        
-        log("createComponent: copiedComponent.orderedSidebarLayers: \(copiedComponent.orderedSidebarLayers)")
         
         let portValuesList: [PortValues?] = selectedNodes
             .flatMap { nodeEntity in

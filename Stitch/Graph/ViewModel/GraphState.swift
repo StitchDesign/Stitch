@@ -326,7 +326,6 @@ extension GraphState {
         self.layersSidebarViewModel.update(from: schema.orderedSidebarLayers)
     }
     
-    // Another update functioin? used much more often
     @MainActor func updateAsync(from schema: GraphEntity) async {
         self.updateSynchronousProperties(from: schema)
         
@@ -344,7 +343,7 @@ extension GraphState {
         }
     }
     
-    // Only used for copy-paste / duplication scenarios?
+    // Used with copy-paste / duplication
     @MainActor func updateSync(from schema: GraphEntity) {
         self.updateSynchronousProperties(from: schema)
         
