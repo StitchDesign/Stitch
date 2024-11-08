@@ -541,7 +541,9 @@ extension StitchDocumentViewModel {
 
         // DUAL DRAG:
 
-        self.graphMovement.graphIsDragged = true
+        if !self.graphMovement.graphIsDragged {
+            self.graphMovement.graphIsDragged = true
+        }
 
         // If we don't have an active first gesture,
         // and node isn't already dragging,
@@ -709,7 +711,9 @@ extension StitchDocumentViewModel {
 
         // DUAL DRAG:
 
-        graphMovement.graphIsDragged = false
+        if graphMovement.graphIsDragged {
+            graphMovement.graphIsDragged = false            
+        }
 
         // Only add to `accumulated` if we're indeed dragging at least one node
         if graphMovement.canvasItemIsDragged {

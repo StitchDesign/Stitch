@@ -298,7 +298,10 @@ extension GraphState {
         // if we tap the graph, we're no longer dragging either nodes or graph
         // TODO: should we also reset graphMovement.firstActive etc.? Otherwise we can get in an improper state?
         self.graphMovement.draggedCanvasItem = nil
-        self.graphMovement.graphIsDragged = false
+        
+        if self.graphMovement.graphIsDragged {
+            self.graphMovement.graphIsDragged = false            
+        }
 
         self.graphUI.selection = GraphUISelectionState()
         self.resetSelectedCanvasItems()
