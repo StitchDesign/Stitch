@@ -52,7 +52,7 @@ struct InsertNodeMenuWrapper: View {
     // menu and animating-node start in middle
     var menuOrigin: CGPoint {
         CGPoint(x: screenWidth/2,
-               y: screenHeight/2)
+                y: screenHeight/2)
     }
 
     var screenWidth: CGFloat {
@@ -100,12 +100,21 @@ struct InsertNodeMenuWrapper: View {
         
         let adjustedDoubleTapLocation = document.adjustedDoubleTapLocation(document.visibleGraph.localPosition)
         
-        let defaultCenter = document.graphUI.center(document.visibleGraph.localPosition)
+        var defaultCenter = document.graphUI.center(
+            document.visibleGraph.localPosition,
+            graphScale: self.graphScale)
+        
+        let sidebarAdjustment = (self.sidebarHalfWidth * 1/self.graphScale)
         
         if document.llmRecording.isRecording {
             return defaultCenter
+        } else if var adjustedDoubleTapLocation = adjustedDoubleTapLocation {
+            adjustedDoubleTapLocation.x += sidebarAdjustment
+            return adjustedDoubleTapLocation
         } else {
-            return adjustedDoubleTapLocation ?? defaultCenter
+            // add back the half sidebar width?
+            defaultCenter.x += sidebarAdjustment
+            return defaultCenter
         }
     }
     
@@ -225,11 +234,13 @@ struct InsertNodeMenuWrapper: View {
             let menuHiddenPositionY = nodeDestination.y
                 + finalDiffY
                 + scaledOffsetHeight
+            
+            let menuHiddenPosition = CGPoint(x: menuHiddenPositionX,
+                                             y: menuHiddenPositionY)
 
             menuPosition = showMenu
                 ? menuOrigin
-                : .init(x: menuHiddenPositionX,
-                        y: menuHiddenPositionY)
+                : menuHiddenPosition
         } // withAnimation
 
     }
@@ -306,6 +317,12 @@ struct InsertNodeMenuWrapper: View {
             .scaleEffect(x: menuScaleX, y: menuScaleY)
             // use .position modifier to match node's use of .position modifier
             .position(menuPosition)
+            .offset(x: -sidebarHalfWidth)
+    }
+    
+    // should be subtracted
+    var sidebarHalfWidth: CGFloat {
+        graphUI.sidebarWidth/2
     }
     
     var body: some View {
@@ -344,6 +361,7 @@ struct InsertNodeMenuWrapper: View {
                         // to lose tracking for end state
                         dispatch(KeyModifierReset())
                     }
+                    .offset(x: -sidebarHalfWidth)
             }
         }
         .onAppear {

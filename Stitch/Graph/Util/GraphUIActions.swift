@@ -12,6 +12,16 @@ let MIN_GRAPH_SCALE: CGFloat = 0.1
 
 let MAX_GRAPH_SCALE: CGFloat = 2.8
 
+struct SetSidebarWidth: GraphUIEvent {
+    
+    let frame: CGRect // .global frame
+    
+    func handle(state: GraphUIState) {
+        log("SetSidebarWidth: frame.origin.x: \(frame.origin.x)")
+        state.sidebarWidth = frame.origin.x
+    }
+}
+
 struct SetDeviceScreenSize: GraphEvent {
 
     let frame: CGRect
