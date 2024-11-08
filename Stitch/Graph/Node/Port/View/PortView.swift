@@ -29,6 +29,14 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
         rowViewModel.portColor.color(theme)
     }
     
+    var ignorePortLocationUpdates: Bool {
+        guard let document = graph.documentDelegate else {
+            return true
+        }
+        
+        return document.graphMovement.graphIsDragged || document.graphMovement.zoomData.current != 0
+    }
+    
     var body: some View {
         
         Rectangle().fill(portColor)
@@ -55,11 +63,20 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
                     let origin = geometry.frame(in: .named(NodesView.coordinateNameSpace)).origin
                     
                     Color.clear
+                        .onAppear {
+                            self.updatePortViewData(newOrigin: origin,
+                                                    willForceUpdate: true)
+                        }
+                        .onChange(of: self.rowViewModel.canvasItemDelegate?.isVisibleInFrame ?? false) { _, isVisible in
+                            if isVisible {
+                                self.updatePortViewData(newOrigin: origin,
+                                                        willForceUpdate: true)
+                            }
+                        }
                         .onChange(of: graph.groupNodeFocused) {
                             self.updatePortViewData(newOrigin: origin)
                         }
-                        .onChange(of: origin,
-                                  initial: true) { _, newOrigin in
+                        .onChange(of: origin) { _, newOrigin in
                             self.updatePortViewData(newOrigin: newOrigin)
                         }
                 }
@@ -76,8 +93,11 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
     }
 
     @MainActor
-    func updatePortViewData(newOrigin: CGPoint) {
+    func updatePortViewData(newOrigin: CGPoint,
+                            willForceUpdate: Bool = false) {
         // log("PortEntryView: updatePortViewData for port \(self.coordinate)")
+        guard willForceUpdate || !self.ignorePortLocationUpdates else { return }
+        
         let adjustedOriginPoint = self.createPreferencePoint(from: newOrigin)
         self.rowViewModel.anchorPoint = adjustedOriginPoint
     }
