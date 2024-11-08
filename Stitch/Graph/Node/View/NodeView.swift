@@ -297,15 +297,15 @@ struct CanvasItemBackground: ViewModifier {
         content
             .background {
                     VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterial))
-                    .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
+                    .cornerRadius(CANVAS_ITEM_CORNER_RADIUS).overlay {
+                        color.opacity(0.3)
+                            .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
+                    }
                 //                    color.opacity(0.1)
                 //                nodeUIColor.body.opacity(0.5)
                 //                nodeUIColor.body.opacity(0.7)
             }
-            .overlay {
-                color.opacity(0.3)
-                    .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
-            }
+            
     }
 }
 
