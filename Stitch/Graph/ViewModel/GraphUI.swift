@@ -167,14 +167,22 @@ final class GraphUIState {
 extension StitchDocumentViewModel {
     @MainActor
     func adjustedDoubleTapLocation(_ localPosition: CGPoint) -> CGPoint? {
-        self.graphUI.doubleTapLocation.map {
-            adjustPositionToMultipleOf(
+        if let doubleTapLocation = self.graphUI.doubleTapLocation {
+            
+            var loc = adjustPositionToMultipleOf(
                 factorOutGraphOffsetAndScale(
-                    location: $0,
+                    location: doubleTapLocation,
                     graphOffset: localPosition,
                     graphScale: self.graphMovement.zoomData.zoom,
                     deviceScreen: self.graphUI.frame))
+         
+            let sidebarAdjustment = (self.graphUI.sidebarWidth/2 * 1/ASSUMED_DEBUG_SCALE)
+            loc.x -= sidebarAdjustment
+            return loc
+            
         }
+        
+        return nil
     }
 }
 
@@ -235,22 +243,12 @@ extension GraphUIState {
         // even with set scale and graph offset = zero, this does not place the new node directly under our scale?
         
         graphCenter.x -= sidebarAdjustment
-        
-        
-//        graphCenter.x -= (self.sidebarWidth/2 - (localPosition.x * ASSUMED_DEBUG_SCALE))
-        
         log("GraphUIState: center: graphCenter is now: \(graphCenter)")
         
         
         return graphCenter
-        
-//        if isForNodeMenuAnimation {
-//            // node menu views already use .offset for sidebar,
-//            // so we do
-//        }
     }
 }
-
 
 let ASSUMED_DEBUG_SCALE: CGFloat = 0.5
 
