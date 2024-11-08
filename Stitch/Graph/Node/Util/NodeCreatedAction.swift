@@ -34,15 +34,18 @@ extension StitchDocumentViewModel {
     @MainActor
     var newNodeCenterLocation: CGPoint {
         // `state.graphUI.center` is always proper center
-        self.adjustedDoubleTapLocation(self.localPosition) ?? self.graphUI.center(self.localPosition)
+        self.adjustedDoubleTapLocation(self.localPosition) ?? self.graphUI.center(self.localPosition, graphScale: self.graph.graphMovement.zoomData.zoom)
     }
     
     @MainActor
     var newLayerPropertyLocation: CGPoint {
         // `state.graphUI.center` is always proper center
-        var center = self.adjustedDoubleTapLocation(self.localPosition) ?? self.graphUI.center(self.localPosition)
-        
-        center.x -= LayerInspectorView.LAYER_INSPECTOR_WIDTH
+        var center = self.adjustedDoubleTapLocation(self.localPosition) ?? self.graphUI.center(
+            self.localPosition,
+            graphScale: self.graph.graphMovement.zoomData.zoom)
+                
+        // Slightly move off-center, since preview window can often partially cover up the just added property
+        center.x -= CGFloat(SQUARE_SIDE_LENGTH)
         
         return center
     }
