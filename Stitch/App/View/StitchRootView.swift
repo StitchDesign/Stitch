@@ -48,6 +48,15 @@ struct StitchRootView: View {
     // Handled manually by user; but synced with GraphUIState.leftSide
     @State var columnVisibility: NavigationSplitViewVisibility = .detailOnly
         
+    
+    @State private var menuHeight: CGFloat = INSERT_NODE_MENU_MAX_HEIGHT
+    
+    // Controlled by a GeometryReader that respects keyboard safe-area,
+    // so that menuOrigin respects actual height of screen
+    // (which is smaller when full-screen keyboard is on-screen).
+    @State private var screenSize: CGSize = .zero
+    
+    
     var body: some View {
         Group {
             if isPhoneDevice() {
@@ -82,8 +91,27 @@ struct StitchRootView: View {
                                 
                                 
                             }
-                        }
-                    }
+                        } // if let document
+                        
+                        
+                        // // ENDS UP IN TOP LEFT CORNER OF SCREEN
+//                        if let document = store.currentDocument {
+//                            
+//                            let graphUI = document.graphUI
+//                            let showMenu = graphUI.insertNodeMenuState.menuAnimatingToNode || graphUI.insertNodeMenuState.show
+//                            
+//                            if showMenu {
+//                                InsertNodeMenuWrapper(document: document,
+//                                                      graphUI: graphUI,
+//                                                      menuHeight: $menuHeight,
+//                                                      screenSize: $screenSize) // node menu + other animating views
+//
+//                            }
+//                            
+//                        }
+                        
+                        
+                    } // .overlay
 #endif
             }
         }

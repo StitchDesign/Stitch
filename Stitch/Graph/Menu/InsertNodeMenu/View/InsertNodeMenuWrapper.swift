@@ -306,6 +306,21 @@ struct InsertNodeMenuWrapper: View {
             .scaleEffect(x: menuScaleX, y: menuScaleY)
             // use .position modifier to match node's use of .position modifier
             .position(menuPosition)
+        
+        // Good positiongi
+        // Added
+        // did this already change because we now use a .global frame for device screen size?
+        
+        // BAD: places node menu UNDER the sidebar
+//            .offset(x: -graphUI.frame.origin.x)
+        
+        // GOOD positioning of node menu, BUT messes up animation
+            .offset(x: -sidebarXAdjustment)
+    }
+    
+    // should be subtracted
+    var sidebarXAdjustment: CGFloat {
+        graphUI.frame.origin.x/2
     }
     
     var body: some View {
