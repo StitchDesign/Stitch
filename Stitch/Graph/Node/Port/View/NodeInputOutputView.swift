@@ -422,9 +422,20 @@ struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
         self.rowObserver.nodeDelegate?.kind.isGroup ?? false
     }
     
+    var document: StitchDocumentViewModel {
+        guard let doc = graph.documentDelegate else {
+            fatalErrorIfDebug()
+            return .createEmpty()
+        }
+        
+        return doc
+    }
+    
     var body: some View {
         PortEntryView(rowViewModel: rowViewModel,
                       graph: graph,
+                      graphMultigesture: document.graphMovement.graphMultigesture,
+                      zoomData: document.graphMovement.zoomData,
                       coordinate: coordinate)
         /*
          In practice, seems okay; e.g. Loop node changing from 3 to 1 disables the tap, and changing from 1 to 3 enables the tap.

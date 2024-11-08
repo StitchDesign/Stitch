@@ -12,7 +12,8 @@ enum FirstActiveGesture: Equatable, Hashable {
     case graph, node, none
 }
 
-struct GraphMultigesture: Equatable, Hashable {
+@Observable
+final class GraphMultigesture {
     /*
      The "first active [drag/pan] gesture" on the graph: graph vs node vs none
 

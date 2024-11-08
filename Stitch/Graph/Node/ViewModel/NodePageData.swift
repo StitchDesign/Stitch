@@ -16,12 +16,12 @@ final class NodePageData {
     var localPosition: CGPoint = .init()
 
     // TODO: you probably only need to save the zoomData.final, since that's roughly equivalent during a magnification gesture to localPosition during a graph scroll gesture
-    var zoomData: GraphZoom
+    let zoomData = GraphZoom()
 
     init(localPosition: CGPoint = .init(),
-         zoomData: GraphZoom) {
+         zoomFinal: Double = 1) {
         self.localPosition = localPosition
-        self.zoomData = zoomData
+        self.zoomData.final = zoomFinal
     }
 }
 
