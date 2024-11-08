@@ -18,9 +18,10 @@ struct SidebarSelectedItemsDuplicated: GraphEventWithResponse {
 
 extension GraphState {
     @MainActor
-    func sidebarSelectedItemsDuplicated() {
+    func sidebarSelectedItemsDuplicated(isOptionDrag: Bool = false) {
         let nodeIds = self.layersSidebarViewModel.selectionState.primary
-        self.copyAndPasteSelectedNodes(selectedNodeIds: nodeIds)
+        self.copyAndPasteSelectedNodes(selectedNodeIds: nodeIds,
+                                       isOptionDragInSidebar: isOptionDrag)
         
         // Move nodes
     }
