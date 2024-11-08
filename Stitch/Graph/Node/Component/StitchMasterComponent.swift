@@ -98,12 +98,12 @@ extension StitchMasterComponent: DocumentEncodableDelegate, Identifiable {
         
         graphs.forEach { graph in
             Task(priority: .high) { [weak graph] in
-                await graph?.update(from: schema.graph)
+                await graph?.updateAsync(from: schema.graph)
             }
         }
     }
     
-    func update(from schema: StitchComponent) async {
+    func updateAsync(from schema: StitchComponent) async {
         await MainActor.run { [weak self] in
             self?.lastEncodedDocument = schema
         }
@@ -120,7 +120,7 @@ extension StitchMasterComponent: DocumentEncodableDelegate, Identifiable {
                 continue
             }
             
-            await component.graph.update(from: schema.graph)
+            await component.graph.updateAsync(from: schema.graph)
         }
     }
     

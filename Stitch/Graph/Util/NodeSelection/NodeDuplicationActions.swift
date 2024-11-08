@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import StitchSchemaKit
+import StitchViewKit
 
 struct DuplicateShortcutKeyPressed: StitchDocumentEvent {
     
@@ -18,6 +19,62 @@ struct DuplicateShortcutKeyPressed: StitchDocumentEvent {
             await state?.duplicateShortcutKeyPressed()
         }
     }
+}
+
+func insertLayers(_ newLayer: SidebarLayerData,
+                  after: NodeId, //SidebarLayerData,
+                  in list: SidebarLayerList) -> SidebarLayerList {
+    
+    list.reduce(into: SidebarLayerList()) { partialResult, layer in
+        
+    }
+    
+    
+}
+
+extension SidebarLayerData {
+    
+    // Function to insert a list of new data structures after a specified `afterID`, returning a modified copy
+       func insertingAfterID(_ newDataList: [SidebarLayerData], afterID: UUID) -> SidebarLayerData {
+           // If there are no children, return the current structure as-is
+           guard let children = children else {
+               return self
+           }
+           
+           var modifiedChildren = [SidebarLayerData]()
+           
+           for child in children {
+               // If the current child's id matches afterID, insert all items from newDataList right after it
+               if child.id == afterID {
+                   modifiedChildren.append(child)
+                   modifiedChildren.append(contentsOf: newDataList)
+               } else {
+                   // Otherwise, continue recursively in the child's children
+                   modifiedChildren.append(child.insertingAfterID(newDataList, afterID: afterID))
+               }
+           }
+           
+           // Return a new SidebarLayerData instance with the modified children
+           return SidebarLayerData(id: id, children: modifiedChildren)
+       }
+}
+
+// Wrapper function to handle the insertion at the top level, returning a modified array
+func insertAfterID(data: [SidebarLayerData], newDataList: [SidebarLayerData], afterID: UUID) -> [SidebarLayerData] {
+    var modifiedData = [SidebarLayerData]()
+    
+    for item in data {
+        // If the top-level item's id matches afterID, insert all items from newDataList after it
+        if item.id == afterID {
+            modifiedData.append(item)
+            modifiedData.append(contentsOf: newDataList)
+        } else {
+            // Otherwise, apply insertion in the item's children recursively
+            modifiedData.append(item.insertingAfterID(newDataList, afterID: afterID))
+        }
+    }
+    
+    return modifiedData
 }
 
 extension StitchDocumentViewModel {
@@ -64,7 +121,7 @@ extension GraphState {
     func insertNewComponent<T>(component: T,
                                encoder: (any DocumentEncodable)?,
                                copiedFiles: StitchDocumentDirectory) async where T: StitchComponentable {
-        let newComponent = self.updateCopiedNodes(component: component)
+        let (newComponent, nodeIdMap) = self.updateCopiedNodes(component: component)
         let encoderDelegate = self.documentEncoderDelegate      // keep optional for unit tests
         
         guard let document = self.documentDelegate else {
@@ -78,8 +135,9 @@ extension GraphState {
         
         // Update top-level nodes to match current focused group
         let newNodes: [NodeEntity] = self.createNewNodes(from: newComponent)
-        let graph = self.duplicateCopiedNodes(newComponent: newComponent,
-                                              newNodes: newNodes)
+        let graph = self.addComponentToGraph(newComponent: newComponent,
+                                             newNodes: newNodes,
+                                             nodeIdMap: nodeIdMap)
         
         // Create master component if any imported
         if let decodedFiles = GraphDecodedFiles(importedFilesDir: copiedFiles) {
@@ -105,15 +163,16 @@ extension GraphState {
                                     documentEncoderDelegate: encoderDelegate)
         }
         
-        await self.update(from: graph)
+        await self.updateAsync(from: graph)
         
         self.updateGraphAfterPaste(newNodes: newNodes)
     }
     
-    func updateCopiedNodes<T>(component: T) -> T where T: StitchComponentable {
+    func updateCopiedNodes<T>(component: T) -> (T, NodeIdMap) where T: StitchComponentable {
         // Change all IDs
         var newComponent = component
-        newComponent.graph = newComponent.graph.changeIds()
+        let (newGraph, nodeIdMap) = newComponent.graph.changeIds()
+        newComponent.graph = newGraph
         
         // Update nodes in the follow ways:
         // 1. Stagger position
@@ -132,7 +191,7 @@ extension GraphState {
             return node
         }
         
-        return newComponent
+        return (newComponent, nodeIdMap)
     }
     
     func createNewNodes<T>(from newComponent: T) -> [NodeEntity] where T: StitchComponentable {
@@ -155,18 +214,42 @@ extension GraphState {
             }
     }
     
+    // make this top level?
+    // And call it "add nodes and sidebar layers" to the graph
+    
+    // fka `duplicateCopiedNodes`
     @MainActor
-    func duplicateCopiedNodes<T>(newComponent: T,
-                                 newNodes: [NodeEntity]) -> GraphEntity where T: StitchComponentable {        
-        var graph = self.createSchema()
+    func addComponentToGraph<T>(newComponent: T,
+                                newNodes: [NodeEntity],
+                                nodeIdMap: NodeIdMap,
+                                isOptionDragInSidebar: Bool = false) -> GraphEntity where T: StitchComponentable {
+        var graph: GraphEntity = self.createSchema()
         
         // Add new nodes
         graph.nodes += newNodes
-        graph.orderedSidebarLayers = newComponent.graph.orderedSidebarLayers + graph.orderedSidebarLayers
+                
+        // TODO: how to proper duplication insertion during an option+drag of a sidebar layer
+        guard !isOptionDragInSidebar else {
+            graph.orderedSidebarLayers = newComponent.orderedSidebarLayers + graph.orderedSidebarLayers
+            return graph
+        }
+        
+        // We assume the ordered sidebar layers are in same order,
+        // in which case the copied-component's ordered sidebar layers are  the exact layers that were copied,
+        if let firstCopiedLayer = newComponent.graph.orderedSidebarLayers.first,
+           let originalLayerId: NodeId = nodeIdMap.first(where: { $0.value == firstCopiedLayer.id })?.key,
+           let originalLayerIndex: Int = graph.orderedSidebarLayers.getSidebarLayerDataIndex(originalLayerId) {
+            
+            graph.orderedSidebarLayers = insertAfterID(
+                data: graph.orderedSidebarLayers,
+                newDataList: newComponent.graph.orderedSidebarLayers,
+                afterID: originalLayerId)
+            
+        }
         
         return graph
     }
-        
+    
     @MainActor
     func updateGraphAfterPaste(newNodes: [NodeEntity]) {
         // Reset selected nodes
@@ -174,7 +257,7 @@ extension GraphState {
 
         // Reset edit mode selections + inspector focus and actively-selected
         self.sidebarSelectionState.resetEditModeSelections()
-        self.sidebarSelectionState.primary = .init()
+        // self.sidebarSelectionState.primary = .init()
         
         // NOTE: we can either duplicate layers OR patch nodes; but NEVER both
         // Update selected nodes

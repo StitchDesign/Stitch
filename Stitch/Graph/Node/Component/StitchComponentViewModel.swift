@@ -220,7 +220,7 @@ extension StitchComponentViewModel {
             return
         }
         
-        await self.graph.update(from: masterComponent.lastEncodedDocument.graph)
+        await self.graph.updateAsync(from: masterComponent.lastEncodedDocument.graph)
         
         // Refresh after graph update
         self.canvas.update(from: schema.canvasEntity)
