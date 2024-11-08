@@ -348,7 +348,7 @@ extension GraphState {
         if inspectorFocusedLayers.count > 1 {
             guard let firstLayer = inspectorFocusedLayers.first,
                   let multiselectState = self.graphUI.propertySidebar.inputsCommonToSelectedLayers else {
-                fatalErrorIfDebug("getLayerInspectorData: Had multiple selected layers but no multiselect state")
+                log("getLayerInspectorData: Had multiple selected layers but no multiselect state")
                 return nil
             }
             

@@ -107,15 +107,17 @@ extension GraphState {
                 .createCopiedComponent(groupNodeFocused: self.graphUI.groupNodeFocused,
                                        selectedNodeIds: state.selectedNodeIds.compactMap(\.nodeCase).toSet)
             
-            let newComponent = self.updateCopiedNodes(component: copiedComponentResult.component)
+            let (newComponent, nodeIdMap) = self.updateCopiedNodes(component: copiedComponentResult.component)
             
             // Update top-level nodes to match current focused group
             let newNodes: [NodeEntity] = self.createNewNodes(from: newComponent)
-            let graph = self.duplicateCopiedNodes(newComponent: newComponent,
-                                                  newNodes: newNodes)
             
-
-            self.update(from: graph)
+            // this actually adds the new components' nodes to the state
+            let graph = self.addComponentToGraph(newComponent: newComponent,
+                                                 newNodes: newNodes,
+                                                 nodeIdMap: nodeIdMap)
+            
+            self.updateSync(from: graph)
             
             self.updateGraphAfterPaste(newNodes: newNodes)
             

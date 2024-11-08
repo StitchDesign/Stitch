@@ -67,7 +67,7 @@ extension StitchStore {
             Task(priority: .high) { @MainActor @Sendable [weak self, weak delegate] in
                 guard let delegate = delegate else { return }
                 
-                await delegate.update(from: oldSchema)
+                await delegate.updateAsync(from: oldSchema)
                 
                 // Don't update undo history from this action
                 self?.encodeCurrentProject(willUpdateUndoHistory: false)

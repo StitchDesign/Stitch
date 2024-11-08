@@ -131,7 +131,7 @@ extension StitchDocumentViewModel {
                 return
             }
             
-            await document.update(from: document.createSchema())
+            await document.updateAsync(from: document.createSchema())
             await document.initializeDelegate(store: store)
             await document.encodeProjectInBackground()
         }
@@ -186,7 +186,7 @@ struct ComponentVersionControlButtons: View {
                 let linkedComponent = linkedComponent.lastEncodedDocument
                 
                 Task(priority: .high) { [weak componentGraph] in
-                    await componentGraph?.update(from: linkedComponent.graph)
+                    await componentGraph?.updateAsync(from: linkedComponent.graph)
                     componentGraph?.encodeProjectInBackground()
                 }
             } label: {
