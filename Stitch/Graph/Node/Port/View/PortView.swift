@@ -15,8 +15,13 @@ let PORT_ENTRY_NON_EXTENDED_HITBOX_SIZE = CGSize(
     width: PORT_VISIBLE_LENGTH,
     height: NODE_ROW_HEIGHT)
 
+final class PositionObserver {
+    var origin: CGPoint = .zero
+}
+
 struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
-    @Environment(\.appTheme) var theme
+    @Environment(\.appTheme) private var theme
+    private let positionObserver = PositionObserver()
 
     let height: CGFloat = 8
     
@@ -59,25 +64,19 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
                     .offset(x: NodeRowViewModelType.nodeIO == .input ? -4 : 4)
             }
             .background {
-                GeometryReader { geometry in
-                    let origin = geometry.frame(in: .named(NodesView.coordinateNameSpace)).origin
-                    
+                GeometryReader { geometry in                    
                     Color.clear
                         .onAppear {
-                            self.updatePortViewData(newOrigin: origin,
-                                                    willForceUpdate: true)
+                            self.positionObserver.origin = geometry.frame(in: .named(NodesView.coordinateNameSpace)).origin
+                            self.updatePortViewData(willForceUpdate: true)
                         }
-                        .onChange(of: self.rowViewModel.canvasItemDelegate?.isVisibleInFrame ?? false) { _, isVisible in
-                            if isVisible {
-                                self.updatePortViewData(newOrigin: origin,
-                                                        willForceUpdate: true)
-                            }
-                        }
-                        .onChange(of: graph.groupNodeFocused) {
-                            self.updatePortViewData(newOrigin: origin)
-                        }
-                        .onChange(of: origin) { _, newOrigin in
-                            self.updatePortViewData(newOrigin: newOrigin)
+                        .onChange(of: ignorePortLocationUpdates ? nil : geometry.frame(in: .named(NodesView.coordinateNameSpace)).origin) { _, newOrigin in
+                            guard let newOrigin = newOrigin else { return }
+                            
+                            self.positionObserver.origin = newOrigin
+                            
+                            // Don't force update in case of micro changes caused by graph pannning
+                            self.updatePortViewData()
                         }
                 }
             }
@@ -90,12 +89,20 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
         .onChange(of: graph.selectedEdges) {
             self.rowViewModel.updatePortColor()
         }
+        .onChange(of: self.rowViewModel.canvasItemDelegate?.isVisibleInFrame ?? false) { _, isVisible in
+            if isVisible {
+                self.updatePortViewData(willForceUpdate: true)
+            }
+        }
+        .onChange(of: graph.groupNodeFocused) {
+            self.updatePortViewData(willForceUpdate: true)
+        }
     }
 
     @MainActor
-    func updatePortViewData(newOrigin: CGPoint,
-                            willForceUpdate: Bool = false) {
-        // log("PortEntryView: updatePortViewData for port \(self.coordinate)")
+    func updatePortViewData(willForceUpdate: Bool = false) {
+        let newOrigin = self.positionObserver.origin
+
         guard willForceUpdate || !self.ignorePortLocationUpdates else { return }
         
         let adjustedOriginPoint = self.createPreferencePoint(from: newOrigin)
