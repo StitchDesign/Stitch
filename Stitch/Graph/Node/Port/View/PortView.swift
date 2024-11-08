@@ -28,7 +28,7 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
     @Bindable var rowViewModel: NodeRowViewModelType
     @Bindable var graph: GraphState
     @Bindable var graphMultigesture: GraphMultigesture
-    @Bindable var graphMovement: GraphMovementObserver
+    @Bindable var zoomData: GraphZoom
     let coordinate: NodeIOPortType
 
     @MainActor
@@ -37,7 +37,7 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
     }
     
     var ignorePortLocationUpdates: Bool {
-        graphMultigesture.graphIsDragged || graphMovement.zoomData.current != 0
+        graphMultigesture.graphIsDragged || zoomData.isActivelyZooming
     }
     
     var body: some View {
