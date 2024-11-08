@@ -113,28 +113,26 @@ struct InsertNodeMenuWrapper: View {
     @MainActor
     func getNodeDestination() -> CGPoint {
         
-        var adjustedDoubleTapLocation = document.adjustedDoubleTapLocation(document.visibleGraph.localPosition)
+        let adjustedDoubleTapLocation = document.adjustedDoubleTapLocation(document.visibleGraph.localPosition)
         
-//        adjustedDoubleTapLocation.x += (self.sidebarHalfWidth * 1/ASSUMED_DEBUG_SCALE)
-        
-//        let defaultCenter = document.graphUI.center(document.visibleGraph.localPosition)
-
         var defaultCenter = document.graphUI.center(document.visibleGraph.localPosition)
-        // add back the half sidebar width?
-//        defaultCenter.x += self.sidebarHalfWidth
-        
-//        defaultCenter.x += (self.sidebarHalfWidth * 1/ASSUMED_DEBUG_SCALE)
-        
         
         if document.llmRecording.isRecording {
             return defaultCenter
-        } else {
+        } else if var adjustedDoubleTapLocation = adjustedDoubleTapLocation {
 //            return adjustedDoubleTapLocation ?? defaultCenter
-            var k = adjustedDoubleTapLocation ?? defaultCenter
-            k.x += (self.sidebarHalfWidth * 1/ASSUMED_DEBUG_SCALE)
             
-            log("InsertNodeMenuWrapper: getNodeDestination: k: \(k)")
-            return k
+//            adjustedDoubleTapLocation.x += (self.sidebarHalfWidth * 1/ASSUMED_DEBUG_SCALE)
+//            adjustedDoubleTapLocation.x += ((self.sidebarHalfWidth * 2) * 1/ASSUMED_DEBUG_SCALE)
+//            adjustedDoubleTapLocation.x += (self.sidebarHalfWidth)
+            
+            adjustedDoubleTapLocation.x += (self.sidebarHalfWidth * 1/ASSUMED_DEBUG_SCALE)
+            
+            return adjustedDoubleTapLocation
+        } else {
+            // add back the half sidebar width?
+            defaultCenter.x += (self.sidebarHalfWidth * 1/ASSUMED_DEBUG_SCALE)
+            return defaultCenter
         }
     }
     

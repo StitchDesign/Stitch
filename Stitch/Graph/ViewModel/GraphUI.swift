@@ -176,8 +176,10 @@ extension StitchDocumentViewModel {
                     graphScale: self.graphMovement.zoomData.zoom,
                     deviceScreen: self.graphUI.frame))
          
-            let sidebarAdjustment = (self.graphUI.sidebarWidth/2 * 1/ASSUMED_DEBUG_SCALE)
-            loc.x -= sidebarAdjustment
+//            let sidebarAdjustment = (self.graphUI.sidebarWidth/2 * 1/ASSUMED_DEBUG_SCALE)
+//            let sidebarAdjustment = (self.graphUI.sidebarWidth/2)
+//            let sidebarAdjustment = (self.graphUI.sidebarWidth)
+//            loc.x -= sidebarAdjustment
             return loc
             
         }
