@@ -75,7 +75,8 @@ struct SelectedGraphItemsPasted: GraphEvent {
     
                 await state.insertNewComponent(component: newComponent,
                                                encoder: state.documentEncoderDelegate,
-                                               copiedFiles: importedFiles)
+                                               copiedFiles: importedFiles,
+                                               isCopyPaste: true)
                 state.encodeProjectInBackground()
             }
         } catch {

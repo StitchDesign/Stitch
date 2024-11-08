@@ -503,7 +503,9 @@ extension GraphState {
                                    selectedNodeIds: selectedNodeIds)
         
         // creates new ids for nodes and sidebar layers; updates nodes' positions (staggering for duplication)
-        let (newComponent, nodeIdMap) = self.updateCopiedNodes(component: copiedComponentResult.component)
+        let (newComponent, nodeIdMap) = Self.updateCopiedNodes(
+            component: copiedComponentResult.component,
+            destinationGraphInfo: nil)
         
         log("copyAndPasteSelectedNodes: self.orderedSidebarLayers: \(self.orderedSidebarLayers)")
         
