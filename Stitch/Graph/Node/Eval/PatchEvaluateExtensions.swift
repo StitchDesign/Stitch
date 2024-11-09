@@ -336,6 +336,12 @@ extension Patch {
             return .node(qrCodeDetectionEval)
         case .delayOne:
             return .node(DelayOneNode.eval)
+        case .springFromDurationAndBounce:
+            return .node(outputsOnlyEval(springFromDurationAndBounceEval))
+        case .springFromResponseAndDampingRatio:
+            return .node(outputsOnlyEval(springFromResponseAndDampingRatioEval))
+        case .springFromSettlingDurationAndDampingRatio:
+            return .node(outputsOnlyEval(springFromSettlingDurationAndDampingRatioEval))
         }
     }
 }
