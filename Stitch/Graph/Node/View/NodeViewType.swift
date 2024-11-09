@@ -27,9 +27,6 @@ struct NodeTypeView: View {
 
     // Only true for the fake-node that lives in ContentView
     var updateMenuActiveSelectionBounds: Bool = false
-
-    // Only true for the "real node" while the insert-node animation is in progress
-    var isHiddenDuringAnimation: Bool = false
     
     @MainActor
     var isSelected: Bool {
@@ -63,7 +60,6 @@ struct NodeTypeView: View {
                  boundsReaderDisabled: boundsReaderDisabled,
                  usePositionHandler: usePositionHandler,
                  updateMenuActiveSelectionBounds: updateMenuActiveSelectionBounds,
-                 isHiddenDuringAnimation: isHiddenDuringAnimation,
                  inputsViews: inputsViews,
                  outputsViews: outputsViews)
         .onChange(of: self.node.patch, initial: true) {

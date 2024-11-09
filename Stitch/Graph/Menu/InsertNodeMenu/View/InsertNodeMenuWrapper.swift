@@ -340,7 +340,7 @@ struct InsertNodeMenuWrapper: View {
                     // its size does not change becasue it is not animated.
                     
                     // Only use node-size-reading view when not actively animating
-                    if !graphUI.insertNodeMenuState.hiddenNodeId.isDefined {
+                    if !graphUI.insertNodeMenuState.menuAnimatingToNode {
                         sizeReadingNodeView.opacity(0)
                     }
                 }
@@ -353,7 +353,7 @@ struct InsertNodeMenuWrapper: View {
             // NodeView used only for animation; does not read size,
             // since its size changes during animation.
             // Note: don't render this NodeView until we have committed our choice.
-            if graphUI.insertNodeMenuState.hiddenNodeId.isDefined {
+            if graphUI.insertNodeMenuState.menuAnimatingToNode {
                 animatedNodeView
                     .opacity(graphUI.insertNodeMenuState.show ? 1 : 0)
                     .onChange(of: graphUI.insertNodeMenuState.show) {

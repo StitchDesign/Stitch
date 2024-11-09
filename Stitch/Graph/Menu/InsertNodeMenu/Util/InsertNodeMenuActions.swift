@@ -127,10 +127,7 @@ struct ActiveSelectionSizeReadingCompleted: GraphEvent {
             return
         }
         
-        // Effectively: insertion-animation has started;
-        // We hide the "real node" (the node that lives in GraphState)
-        // until the animation has completed.
-        state.graphUI.insertNodeMenuState.hiddenNodeId = node.id
+        let createdNodeId = node.id
         
         state.persistNewNode(node)
         
@@ -146,7 +143,7 @@ struct ActiveSelectionSizeReadingCompleted: GraphEvent {
             //            DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
                 //            DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
-                dispatch(InsertNodeAnimationCompleted())
+                dispatch(InsertNodeAnimationCompleted(createdNodeId: createdNodeId))
             }
         }
         
@@ -163,15 +160,9 @@ struct ActiveSelectionSizeReadingCompleted: GraphEvent {
 extension GraphState {
     
     @MainActor
-    func nodeCreationCompleted(_ immediatelyCreatedLayerNode: NodeId? = nil) {
+    func nodeCreationCompleted(_ createdNodeId: NodeId) {
         
-        if let newlyCreatedNodeId = immediatelyCreatedLayerNode ?? self.graphUI.insertNodeMenuState.hiddenNodeId {
-            
-            self.documentDelegate?.maybeCreateLLMAddNode(newlyCreatedNodeId)
-        } else {
-            log("nodeCreationCompleted: finished creating node, but had neither id of immediately created layer node nor id of the node during animation")
-            fatalErrorIfDebug()
-        }
+        self.documentDelegate?.maybeCreateLLMAddNode(createdNodeId)
                 
          // log("InsertNodeAnimationCompleted called")
 
@@ -180,9 +171,6 @@ extension GraphState {
 
         // mark the animation as completed
         self.graphUI.insertNodeMenuState.menuAnimatingToNode = false
-
-        // unhide the real node
-        self.graphUI.insertNodeMenuState.hiddenNodeId = nil
 
         // reset active selection
         //        self.graphUI.insertNodeMenuState.activeSelection = nil
@@ -196,9 +184,10 @@ extension GraphState {
 }
 
 struct InsertNodeAnimationCompleted: GraphEvent {
+    let createdNodeId: NodeId
 
     @MainActor
     func handle(state: GraphState) {
-        state.nodeCreationCompleted()
+        state.nodeCreationCompleted(createdNodeId)
     }
 }

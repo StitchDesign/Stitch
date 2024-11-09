@@ -25,10 +25,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
 
     let boundsReaderDisabled: Bool
     let usePositionHandler: Bool
-    let updateMenuActiveSelectionBounds: Bool
-
-    // This node is the "real" node of an active insert-node-animation,
-    let isHiddenDuringAnimation: Bool
+    let updateMenuActiveSelectionBounds: Bool    
 
     @ViewBuilder var inputsViews: () -> InputsViews
     @ViewBuilder var outputsViews: () -> OutputsViews
@@ -49,11 +46,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
     var userVisibleType: UserVisibleType? {
         self.stitch.userVisibleType
     }
-
-    var splitterType: SplitterType? {
-        self.stitch.splitterType
-    }
-
+    
     var isLayerNode: Bool {
         self.stitch.kind.isLayer
     }
@@ -62,7 +55,17 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
         
         nodeBody
 #if targetEnvironment(macCatalyst)
-            .contextMenu { nodeTagMenu } // Catalyst right-click to open node tag menu
+        // Catalyst right-click to open node tag menu
+            .contextMenu {
+                NodeTagMenuButtonsView(graph: graph,
+                                       node: stitch,
+                                       canvasItemId: node.id,
+                                       activeGroupId: activeGroupId,
+                                       nodeTypeChoices: sortedUserTypeChoices,
+                                       canAddInput: canAddInput,
+                                       canRemoveInput: canRemoveInput,
+                                       atleastOneCommentBoxSelected: atleastOneCommentBoxSelected)
+            }
 #endif
             .modifier(NodeViewTapGestureModifier(
                 onSingleTap: {
@@ -87,14 +90,21 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
          (This would not be required if TapGesture were not .simultaneous, but that is required for handling both single- and double-taps.)
          */
             .overlay(alignment: .topTrailing) {
-                CanvasItemTag(isSelected: isSelected,
-                              nodeTagMenu: nodeTagMenu)
+                if isSelected {
+                    CanvasItemTag(node: node,
+                                  graph: graph,
+                                  stitch: stitch,
+                                  activeGroupId: activeGroupId,
+                                  sortedUserTypeChoices: sortedUserTypeChoices,
+                                  canAddInput: canAddInput,
+                                  canRemoveInput: canRemoveInput,
+                                  atleastOneCommentBoxSelected: atleastOneCommentBoxSelected)
+                }
             }
             .canvasItemPositionHandler(document: document,
                                        node: node,
                                        zIndex: zIndex,
                                        usePositionHandler: usePositionHandler)
-            .opacity(isHiddenDuringAnimation ? 0 : 1)
     }
 
     @MainActor
@@ -118,7 +128,6 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
         .modifier(CanvasItemBoundsReader(
             graph: graph,
             canvasItem: node,
-            splitterType: splitterType,
             disabled: boundsReaderDisabled,
             updateMenuActiveSelectionBounds: updateMenuActiveSelectionBounds))
         
@@ -145,62 +154,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
             outputsViews()
         }
     }
-
-    var nodeTagMenu: NodeTagMenuButtonsView {
-        NodeTagMenuButtonsView(graph: graph,
-                               node: stitch,
-                               canvasItemId: node.id,
-                               activeGroupId: activeGroupId,
-                               nodeTypeChoices: sortedUserTypeChoices,
-                               canAddInput: canAddInput,
-                               canRemoveInput: canRemoveInput,
-                               atleastOneCommentBoxSelected: atleastOneCommentBoxSelected)
-    }
 }
-
-//struct NodeView_REPL: View {
-//
-//    let devPosition = StitchPosition(width: 500,
-//                                     height: 500)
-//
-//    var body: some View {
-//        ZStack {
-//            //            Color.orange.opacity(0.2).zIndex(-2)
-//
-//            FakeNodeView(
-//                node: Patch.add.getFakePatchNode(
-//                    //                    customName: "A very long name, much tested and loved and feared and enjoyed"
-//                    customName: "A very long name"
-//                )!
-//            )
-//
-//        }
-//        .scaleEffect(2)
-//        //        .offset(y: -500)
-//    }
-//}
-
-// struct FakeNodeView: View {
-
-//     let node: NodeViewModel
-
-//     var body: some View {
-//         NodeTypeView(graph: .init(id: .init(), store: nil),
-//                      node: node,
-//                      atleastOneCommentBoxSelected: false,
-//                      activeIndex: .init(1),
-//                      groupNodeFocused: nil,
-//                      adjustmentBarSessionId: .init(id: .fakeId),
-//                      boundsReaderDisabled: true,
-//                      usePositionHandler: false,
-//                      updateMenuActiveSelectionBounds: false)
-//     }
-// }
-
-// extension GraphState {
-//     @MainActor
-//     static let fakeEmptyGraphState: GraphState = .init(id: .init(), store: nil)
-// }
 
 @MainActor
 func getFakeNode(choice: NodeKind,
@@ -303,9 +257,25 @@ struct CanvasItemBackground: ViewModifier {
 }
 
 struct CanvasItemTag: View {
+    @Bindable var node: CanvasItemViewModel
+    @Bindable var graph: GraphState
+    @Bindable var stitch: NodeViewModel
+    let activeGroupId: GroupNodeType?
+    var sortedUserTypeChoices: [UserVisibleType] = []
+    let canAddInput: Bool
+    let canRemoveInput: Bool
+    let atleastOneCommentBoxSelected: Bool
     
-    let isSelected: Bool
-    let nodeTagMenu: NodeTagMenuButtonsView
+    @ViewBuilder var nodeTagMenu: NodeTagMenuButtonsView {
+        NodeTagMenuButtonsView(graph: graph,
+                               node: stitch,
+                               canvasItemId: node.id,
+                               activeGroupId: activeGroupId,
+                               nodeTypeChoices: sortedUserTypeChoices,
+                               canAddInput: canAddInput,
+                               canRemoveInput: canRemoveInput,
+                               atleastOneCommentBoxSelected: atleastOneCommentBoxSelected)
+    }
     
     var body: some View {
         
@@ -335,7 +305,6 @@ struct CanvasItemTag: View {
             .foregroundColor(STITCH_TITLE_FONT_COLOR)
             .offset(x: -16, y: 4)
 #endif
-            .opacity(isSelected ? 1 : 0)
     }
 }
 

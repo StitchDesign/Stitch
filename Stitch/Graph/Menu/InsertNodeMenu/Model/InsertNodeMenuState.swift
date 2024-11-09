@@ -14,13 +14,6 @@ struct InsertNodeMenuState: Equatable, Hashable {
     // True = render the size-reading fakeNodeView so that we can animate from the right node size.
     // Turned off as soon as we have read the node size once.
     var readActiveSelectionSize: Bool = false
-    
-    /*
-     The id of the "real node" which is added to GraphState when we commit, but hidden until animation completes.
-     
-     Non-nil also effectively means "We read the size of the active selection, created the real node in GraphState, and have kicked off the animation."
-     */
-    var hiddenNodeId: NodeId?
 
     /// Is the menu view animating down to a node view?
     // True = we are currently animating

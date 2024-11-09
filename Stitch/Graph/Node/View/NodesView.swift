@@ -18,9 +18,7 @@ struct NodesView: View {
     
     // animation state for group node traversals
     let groupTraversedToChild: Bool
-    
-    // State to help animate incoming node
-    let insertNodeMenuHiddenNodeId: NodeId?
+
 
     private var visibleNodesViewModel: VisibleNodesViewModel {
         self.graph.visibleNodesViewModel
@@ -128,9 +126,7 @@ struct NodesView: View {
         NodesOnlyView(document: document,
                       graph: graph,
                       graphUI: graphUI,
-                      nodePageData: nodePageData,
-                      canvasNodes: visibleNodesViewModel.allViewModels,
-                      insertNodeMenuHiddenNode: insertNodeMenuHiddenNodeId)
+                      nodePageData: nodePageData)
     }
     
     @MainActor

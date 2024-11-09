@@ -17,6 +17,8 @@ final class VisibleNodesViewModel {
 
     // Saves location and zoom-specific data for groups
     var nodesByPage: NodesPagingDict = [.root: .init()]
+    
+    var visibleCanvasIds = Set<CanvasItemId>()
 }
 
 extension VisibleNodesViewModel {
