@@ -458,6 +458,7 @@
 		EC46AC0926CEE3820062CB26 /* DeviceMotionHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC46AC0826CEE3820062CB26 /* DeviceMotionHelpers.swift */; };
 		EC46AC0B26CEE3B80062CB26 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC46AC0A26CEE3B80062CB26 /* AppState.swift */; };
 		EC47EB322CDEE2B500995FF5 /* SpringConverterPatches.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC47EB312CDEE2B500995FF5 /* SpringConverterPatches.swift */; };
+		EC47EB342CDF006300995FF5 /* PatchNodeShortcutKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC47EB332CDF006300995FF5 /* PatchNodeShortcutKeys.swift */; };
 		EC47F54228D18AB0009EE90E /* HapticFeedbackNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC47F54128D18AB0009EE90E /* HapticFeedbackNode.swift */; };
 		EC48F0312C65975300DB3ACB /* PinningUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48F0302C65975200DB3ACB /* PinningUtils.swift */; };
 		EC48F0332C668B6C00DB3ACB /* PreviewWindowCoordinateSpaceReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48F0322C668B6C00DB3ACB /* PreviewWindowCoordinateSpaceReader.swift */; };
@@ -1393,6 +1394,7 @@
 		EC46AC0826CEE3820062CB26 /* DeviceMotionHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceMotionHelpers.swift; sourceTree = "<group>"; };
 		EC46AC0A26CEE3B80062CB26 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		EC47EB312CDEE2B500995FF5 /* SpringConverterPatches.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpringConverterPatches.swift; sourceTree = "<group>"; };
+		EC47EB332CDF006300995FF5 /* PatchNodeShortcutKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PatchNodeShortcutKeys.swift; sourceTree = "<group>"; };
 		EC47F54128D18AB0009EE90E /* HapticFeedbackNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticFeedbackNode.swift; sourceTree = "<group>"; };
 		EC48F0302C65975200DB3ACB /* PinningUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinningUtils.swift; sourceTree = "<group>"; };
 		EC48F0322C668B6C00DB3ACB /* PreviewWindowCoordinateSpaceReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewWindowCoordinateSpaceReader.swift; sourceTree = "<group>"; };
@@ -3001,6 +3003,7 @@
 				EC95748629B0231200048382 /* ProjectsHomeCommands.swift */,
 				ECD50AC5285D34790009B564 /* ShortcutViewUtils.swift */,
 				ECD50AC7285D34930009B564 /* ShortcutsUtils.swift */,
+				EC47EB332CDF006300995FF5 /* PatchNodeShortcutKeys.swift */,
 			);
 			path = Shortcut;
 			sourceTree = "<group>";
@@ -5309,6 +5312,7 @@
 				EC844A6C2B5F259C00C79B0B /* StitchFontDropdown.swift in Sources */,
 				EC5734332B75BAD100D93A78 /* LegacyActionConversionUtils.swift in Sources */,
 				EC0957DC27208C1200B4027F /* GeneratePreview.swift in Sources */,
+				EC47EB342CDF006300995FF5 /* PatchNodeShortcutKeys.swift in Sources */,
 				EC4081292C014E310047989F /* VersionedURL.swift in Sources */,
 				EC22972D268D337900E6DC8D /* MicrophoneFeedNode.swift in Sources */,
 				B56FFB3C2C18F3C700623CC7 /* StitchFileError.swift in Sources */,
