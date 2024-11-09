@@ -20,15 +20,6 @@ let GROUP_LAYERS_SHORTCUT: KeyEquivalent = "G"
 let DELETE_SELECTED_NODES_SHORTCUT: KeyEquivalent = .delete
 let DELETE_SELECTED_NODES_SHORTCUT_MODIFIERS: EventModifiers = []
 
-let ADD_PACK_NODE_SHORTCUT: KeyEquivalent = "P"
-let ADD_UNPACK_NODE_SHORTCUT: KeyEquivalent = "U"
-
-let ADD_SPLITTER_NODE_SHORTCUT: KeyEquivalent = "X"
-
-// Option + W = add Broadcaster
-// Option + Shift + W = add Receiver
-let ADD_WIRELESS_NODE_SHORTCUT: KeyEquivalent = "W"
-
 let NEW_PROJECT_SHORTCUT: KeyEquivalent = "n"
 
 /*
