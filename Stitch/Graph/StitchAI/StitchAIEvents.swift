@@ -97,8 +97,39 @@ extension StitchDocumentViewModel {
                     return
                 }
                 
+                
+//                let jsonResponse = String(data: data, encoding: .utf8) ?? "Invalid JSON format"
+                
+//                let s = parseJSON(jsonResponse)
+//                print(s!.rawString(options: [.withoutEscapingSlashes, .prettyPrinted]))
+
+                
+                
+
                 let jsonResponse = String(data: data, encoding: .utf8) ?? "Invalid JSON format"
-                print("RAW JSON \(jsonResponse)")
+
+                if let jsonData = jsonResponse.data(using: .utf8),
+                   let jsonObject = try? JSONSerialization.jsonObject(with: jsonData, options: []),
+                   let jsonDict = jsonObject as? [String: Any],
+                   let choices = jsonDict["choices"] as? [[String: Any]],
+                   let message = choices.first?["message"] as? [String: Any],
+                   let contentString = message["content"] as? String,
+                   let contentData = contentString.data(using: .utf8),
+                   let contentObject = try? JSONSerialization.jsonObject(with: contentData, options: []),
+                   let contentDict = contentObject as? [String: Any],
+                   let stepsArray = contentDict["steps"] {
+
+                    // Wrap `stepsArray` in a dictionary to include the "steps" key
+                    let stepsDict: [String: Any] = ["steps": stepsArray]
+
+                    // Re-encode the `stepsDict` with pretty printing for readability
+                    if let prettyStepsData = try? JSONSerialization.data(withJSONObject: stepsDict, options: [.prettyPrinted]),
+                       let prettyStepsString = String(data: prettyStepsData, encoding: .utf8) {
+                        print(prettyStepsString)
+                    }
+                } else {
+                    print("Could not parse steps")
+                }
                 
                 do {
                     if let transformedResponse = self?.transformOpenAIResponseToLLMActionsString(data: data) {
