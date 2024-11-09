@@ -128,6 +128,18 @@ Creates an animation based off of the physical model of a spring.
 • The current value of the animation
 """
 
+let springFromDurationAndBounceDescription = """
+Convert duration and bounce values to mass, stiffness and damping for a Spring Animation node.
+"""
+
+let springFromResponseAndDampingRatioDescription = """
+Convert response and damping ratio to mass, stiffness and damping for a Spring Animation node.
+"""
+
+let springFromSettlingDurationAndDampingRatioDescription = """
+Convert settling duration and damping ratio to mass, stiffness and damping for a Spring Animation node.
+"""
+
 let repeatingAnimationDescription = """
 Repeatedly animates a number.
 
