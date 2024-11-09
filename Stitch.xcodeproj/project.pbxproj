@@ -177,7 +177,6 @@
 		B590041A28501E6700EDDDFD /* MediaPickerValueEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = B590041928501E6700EDDDFD /* MediaPickerValueEntry.swift */; };
 		B59447212B97FA140039603D /* CommentBoxViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59447202B97FA140039603D /* CommentBoxViewModel.swift */; };
 		B5952EA32BD34597005687C0 /* InsertNodeMenuWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5952EA22BD34597005687C0 /* InsertNodeMenuWrapper.swift */; };
-		B596608B2C1A413200BE75D7 /* NodeBounds.swift in Sources */ = {isa = PBXBuildFile; fileRef = B596608A2C1A413200BE75D7 /* NodeBounds.swift */; };
 		B596608D2C1A430C00BE75D7 /* NodeIO.swift in Sources */ = {isa = PBXBuildFile; fileRef = B596608C2C1A430C00BE75D7 /* NodeIO.swift */; };
 		B59660982C1A498800BE75D7 /* StitchMLModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59660972C1A498800BE75D7 /* StitchMLModel.swift */; };
 		B596609B2C1A4B9900BE75D7 /* StitchShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = B596609A2C1A4B9900BE75D7 /* StitchShape.swift */; };
@@ -1104,7 +1103,6 @@
 		B590041928501E6700EDDDFD /* MediaPickerValueEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPickerValueEntry.swift; sourceTree = "<group>"; };
 		B59447202B97FA140039603D /* CommentBoxViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentBoxViewModel.swift; sourceTree = "<group>"; };
 		B5952EA22BD34597005687C0 /* InsertNodeMenuWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsertNodeMenuWrapper.swift; sourceTree = "<group>"; };
-		B596608A2C1A413200BE75D7 /* NodeBounds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeBounds.swift; sourceTree = "<group>"; };
 		B596608C2C1A430C00BE75D7 /* NodeIO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeIO.swift; sourceTree = "<group>"; };
 		B59660972C1A498800BE75D7 /* StitchMLModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchMLModel.swift; sourceTree = "<group>"; };
 		B596609A2C1A4B9900BE75D7 /* StitchShape.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchShape.swift; sourceTree = "<group>"; };
@@ -3132,7 +3130,6 @@
 				B55780642CAF66D600907BA8 /* StitchComponentable.swift */,
 				EC6DF0A829FA04F60052545E /* StitchJSON.swift */,
 				ECF2ED122A732B5A003EB106 /* MomentumAnimationState.swift */,
-				B596608A2C1A413200BE75D7 /* NodeBounds.swift */,
 				B596608C2C1A430C00BE75D7 /* NodeIO.swift */,
 				ECF387DE280B61860075F0E5 /* NodeUIKind.swift */,
 			);
@@ -5407,7 +5404,6 @@
 				B55500C62C1B9F9D0081C3F1 /* FieldValueMedia.swift in Sources */,
 				B5DDF6FE293AD24C00D72220 /* GraphStepManager.swift in Sources */,
 				EC96B0462B8D097D00B58227 /* MoveToPackNode.swift in Sources */,
-				B596608B2C1A413200BE75D7 /* NodeBounds.swift in Sources */,
 				EC035BF828A56E84005FA607 /* ClassicAnimationFormulae.swift in Sources */,
 				EC46AC0926CEE3820062CB26 /* DeviceMotionHelpers.swift in Sources */,
 				B5B20BB0279925EC008A2B5A /* FullScreenPreviewViewWrapper.swift in Sources */,

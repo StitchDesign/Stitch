@@ -68,7 +68,7 @@ extension NodeRowViewModelId {
                                    portId: -1)
 }
 
-protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
+protocol NodeRowViewModel: StitchLayoutCachable, Observable, Identifiable {
     associatedtype FieldType: FieldViewModel
     associatedtype RowObserver: NodeRowObserver
     associatedtype PortViewType: PortViewData
@@ -121,7 +121,7 @@ extension NodeRowViewModel {
             return
         }
         
-        let size = canvas.bounds.localBounds.size
+        let size = canvas.sizeByLocalBounds
         let ioAdjustment: CGFloat = 10
         let standardHeightAdjustment: CGFloat = 63
         let ioConstraint: CGFloat = Self.nodeIO == .input ? ioAdjustment : -ioAdjustment
@@ -273,6 +273,8 @@ extension PortValue {
 // UI data
 @Observable
 final class InputNodeRowViewModel: NodeRowViewModel {
+    var viewCache: NodeLayoutCache?
+    
     typealias PortViewType = InputPortViewData
     
     static let nodeIO: NodeIO = .input
@@ -341,6 +343,8 @@ extension InputNodeRowViewModel {
 
 @Observable
 final class OutputNodeRowViewModel: NodeRowViewModel {
+    var viewCache: NodeLayoutCache?
+    
     typealias PortViewType = OutputPortViewData
     
     static let nodeIO: NodeIO = .output

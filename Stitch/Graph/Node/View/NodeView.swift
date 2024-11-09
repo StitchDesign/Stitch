@@ -9,6 +9,206 @@ import SwiftUI
 import UIKit
 import StitchSchemaKit
 
+struct CacheData {
+    let maxSize: CGSize
+    let spacing: [CGFloat]
+    let totalSpacing: CGFloat
+}
+
+struct InfiniteCanvas: Layout {
+    let graph: GraphState
+    
+    typealias Cache = [CanvasItemId: CGRect]
+    
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) -> CGSize {
+        .init(width: proposal.width ?? .zero,
+              height: proposal.height ?? .zero)
+    }
+    
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) {
+        // Place subviews
+        for subview in subviews {
+            // TODO: need support for removal
+            let positionData = subview[CanvasPositionKey.self]
+            let id = positionData.id
+            
+            guard let subviewSize = cache.get(id)?.size else {
+                // This is when with empty view for empty nodes
+                continue
+            }
+
+            subview.place(
+                at: bounds.origin,
+                anchor: .topLeading,
+                proposal: ProposedViewSize(subviewSize))
+        }
+    }
+    
+    func makeCache(subviews: Subviews) -> Cache {
+        // Only make cache when specified
+        if let existingCache = graph.visibleNodesViewModel.infiniteCanvasCache {
+            return existingCache
+        }
+        
+        let cache = subviews.reduce(into: Cache()) { result, subview in
+            let positionData = subview[CanvasPositionKey.self]
+            let id = positionData.id
+            let position = positionData.position
+            let size = subview.sizeThatFits(.unspecified)
+            
+            let bounds = CGRect(origin: position,
+                                size: size)
+            result.updateValue(bounds, forKey: id)
+        }
+        
+        graph.visibleNodesViewModel.infiniteCanvasCache = cache
+        return cache
+    }
+    
+    func updateCache(_ cache: inout Cache, subviews: Subviews) {
+        // Recalcualte graph if cache reset
+        if graph.visibleNodesViewModel.infiniteCanvasCache == nil {
+            cache = self.makeCache(subviews: subviews)
+            graph.visibleNodesViewModel.infiniteCanvasCache = cache
+        }
+    }
+    
+    func explicitAlignment(of guide: HorizontalAlignment,
+                           in bounds: CGRect,
+                           proposal: ProposedViewSize,
+                           subviews: Self.Subviews,
+                           cache: inout Cache) -> CGFloat? {
+        return nil
+    }
+    
+    func explicitAlignment(of guide: VerticalAlignment,
+                           in bounds: CGRect,
+                           proposal: ProposedViewSize,
+                           subviews: Self.Subviews,
+                           cache: inout Cache) -> CGFloat? {
+        return nil
+    }
+}
+
+struct CanvasLayoutPosition {
+    let id: CanvasItemId
+    let position: CGPoint
+}
+
+private struct CanvasPositionKey: LayoutValueKey {
+    static let defaultValue: CanvasLayoutPosition = .init(id: .node(.init()),
+                                                          position: .zero)
+}
+
+extension View {
+    func canvasPosition(id: CanvasItemId,
+                        position: CGPoint) -> some View {
+        layoutValue(key: CanvasPositionKey.self, value: .init(id: id,
+                                                              position: position))
+            .position(position)
+    }
+}
+
+protocol StitchLayoutCachable: AnyObject {
+    var viewCache: NodeLayoutCache? { get set }
+}
+
+struct NodeLayoutCache {
+    var sizes: [CGSize] = []
+    var sizeThatFits: CGSize = .zero
+    var spacing: ViewSpacing = .zero
+}
+
+struct NodeLayout<T: StitchLayoutCachable>: Layout {
+    typealias Cache = NodeLayoutCache
+    
+    let observer: T
+    
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) -> CGSize {
+        cache.sizeThatFits
+    }
+    
+    private func calculateSizeThatFits(subviews: Subviews) -> CGSize {
+        var totalWidth: CGFloat = 0
+        var totalHeight: CGFloat = 0
+        
+        for subview in subviews {
+            let subviewSize = subview.sizeThatFits(.unspecified) // Ask subview for its natural size
+            totalWidth = max(totalWidth, subviewSize.width) // Expand the width to fit the widest subview
+            totalHeight += subviewSize.height // Stack the subviews vertically
+        }
+        
+        return CGSize(width: totalWidth, height: totalHeight)
+    }
+    
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) {
+        guard !subviews.isEmpty else { return }
+        
+        for index in subviews.indices {
+            let subview = subviews[index]
+            let size = cache.sizes[index]
+            
+            subview.place(
+                at: bounds.origin,
+                anchor: .topLeading,
+                proposal: ProposedViewSize(size))
+        }
+    }
+    
+    func spacing(subviews: Self.Subviews, cache: inout Cache) -> ViewSpacing {
+        cache.spacing
+    }
+    
+    private func calculateSpacing(subviews: Self.Subviews) -> ViewSpacing {
+        var spacing = ViewSpacing()
+
+        for index in subviews.indices {
+            var edges: Edge.Set = [.leading, .trailing]
+            if index == 0 { edges.formUnion(.top) }
+            if index == subviews.count - 1 { edges.formUnion(.bottom) }
+            spacing.formUnion(subviews[index].spacing, edges: edges)
+        }
+
+        return spacing
+    }
+    
+    func makeCache(subviews: Subviews) -> Cache {
+        guard let cache = observer.viewCache else {
+            let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
+            let sizeThatFits = self.calculateSizeThatFits(subviews: subviews)
+            let spacing = self.calculateSpacing(subviews: subviews)
+            let cache = Cache(sizes: sizes,
+                              sizeThatFits: sizeThatFits,
+                              spacing: spacing)
+            
+            self.observer.viewCache = cache
+            return cache
+        }
+        
+        return cache
+    }
+    
+    // Keep this empty for perf
+    func updateCache(_ cache: inout Cache, subviews: Subviews) { }
+    
+    func explicitAlignment(of guide: HorizontalAlignment,
+                           in bounds: CGRect,
+                           proposal: ProposedViewSize,
+                           subviews: Self.Subviews,
+                           cache: inout Cache) -> CGFloat? {
+        return nil
+    }
+    
+    func explicitAlignment(of guide: VerticalAlignment,
+                           in bounds: CGRect,
+                           proposal: ProposedViewSize,
+                           subviews: Self.Subviews,
+                           cache: inout Cache) -> CGFloat? {
+        return nil
+    }
+}
+
+
 struct NodeView<InputsViews: View, OutputsViews: View>: View {
     @Bindable var node: CanvasItemViewModel
     @Bindable var stitch: NodeViewModel
@@ -25,10 +225,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
 
     let boundsReaderDisabled: Bool
     let usePositionHandler: Bool
-    let updateMenuActiveSelectionBounds: Bool
-
-    // This node is the "real" node of an active insert-node-animation,
-    let isHiddenDuringAnimation: Bool
+    let updateMenuActiveSelectionBounds: Bool    
 
     @ViewBuilder var inputsViews: () -> InputsViews
     @ViewBuilder var outputsViews: () -> OutputsViews
@@ -49,52 +246,75 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
     var userVisibleType: UserVisibleType? {
         self.stitch.userVisibleType
     }
-
-    var splitterType: SplitterType? {
-        self.stitch.splitterType
-    }
-
+    
     var isLayerNode: Bool {
         self.stitch.kind.isLayer
     }
 
     var body: some View {
-        
-        nodeBody
-#if targetEnvironment(macCatalyst)
-            .contextMenu { nodeTagMenu } // Catalyst right-click to open node tag menu
-#endif
-            .modifier(NodeViewTapGestureModifier(
-                onSingleTap: {
-                    // deselect any fields; NOTE: not used on GroupNodes due to .simultaneousGesture
-                    if !self.stitch.kind.isGroup {
-                        graph.graphUI.reduxFocusedField = nil
-                    }
-                    
-                    // and select just the node
-                    node.isTapped(document: document)
-                },
-                onDoubleTap: {
-                    dispatch(GroupNodeDoubleTapped(id: stitch.id))
-                },
-                isGroup: self.stitch.kind.isGroup))
-        
-        /*
-         Note: every touch on a part of a node is an interaction (e.g. the title, an input field etc.) with a single node --- except for touching the node tag menu.
-         
-         So, we must .overlay the node tag menu *after* the tap-gestures, so that tapping the node tag menu does not fire a single-tap.
-         
-         (This would not be required if TapGesture were not .simultaneous, but that is required for handling both single- and double-taps.)
-         */
-            .overlay(alignment: .topTrailing) {
-                CanvasItemTag(isSelected: isSelected,
-                              nodeTagMenu: nodeTagMenu)
+        NodeLayout(observer: node) {
+            nodeBody
+            .onAppear {
+                self.node.updateVisibilityStatus(with: true)
             }
-            .canvasItemPositionHandler(document: document,
-                                       node: node,
-                                       zIndex: zIndex,
-                                       usePositionHandler: usePositionHandler)
-            .opacity(isHiddenDuringAnimation ? 0 : 1)
+            .onDisappear {
+                self.node.updateVisibilityStatus(with: false)
+            }
+            .onChange(of: self.isSelected) {
+                self.stitch.updatePortColorDataUponNodeSelection()
+            }
+#if targetEnvironment(macCatalyst)
+            // Catalyst right-click to open node tag menu
+                .contextMenu {
+                    NodeTagMenuButtonsView(graph: graph,
+                                           node: stitch,
+                                           canvasItemId: node.id,
+                                           activeGroupId: activeGroupId,
+                                           nodeTypeChoices: sortedUserTypeChoices,
+                                           canAddInput: canAddInput,
+                                           canRemoveInput: canRemoveInput,
+                                           atleastOneCommentBoxSelected: atleastOneCommentBoxSelected)
+                }
+#endif
+                .modifier(NodeViewTapGestureModifier(
+                    onSingleTap: {
+                        // deselect any fields; NOTE: not used on GroupNodes due to .simultaneousGesture
+                        if !self.stitch.kind.isGroup {
+                            graph.graphUI.reduxFocusedField = nil
+                        }
+                        
+                        // and select just the node
+                        node.isTapped(document: document)
+                    },
+                    onDoubleTap: {
+                        dispatch(GroupNodeDoubleTapped(id: stitch.id))
+                    },
+                    isGroup: self.stitch.kind.isGroup))
+            
+            /*
+             Note: every touch on a part of a node is an interaction (e.g. the title, an input field etc.) with a single node --- except for touching the node tag menu.
+             
+             So, we must .overlay the node tag menu *after* the tap-gestures, so that tapping the node tag menu does not fire a single-tap.
+             
+             (This would not be required if TapGesture were not .simultaneous, but that is required for handling both single- and double-taps.)
+             */
+                .overlay(alignment: .topTrailing) {
+                    if isSelected {
+                        CanvasItemTag(node: node,
+                                      graph: graph,
+                                      stitch: stitch,
+                                      activeGroupId: activeGroupId,
+                                      sortedUserTypeChoices: sortedUserTypeChoices,
+                                      canAddInput: canAddInput,
+                                      canRemoveInput: canRemoveInput,
+                                      atleastOneCommentBoxSelected: atleastOneCommentBoxSelected)
+                    }
+                }
+        }
+        .canvasItemPositionHandler(document: document,
+                                   node: node,
+                                   zIndex: zIndex,
+                                   usePositionHandler: usePositionHandler)
     }
 
     @MainActor
@@ -113,14 +333,13 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
                 .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
                 .allowsHitTesting(!isLayerInvisible)
         }
-        .fixedSize()
+//        .fixedSize()
         .modifier(CanvasItemBackground(color: nodeUIColor.body))
-        .modifier(CanvasItemBoundsReader(
-            graph: graph,
-            canvasItem: node,
-            splitterType: splitterType,
-            disabled: boundsReaderDisabled,
-            updateMenuActiveSelectionBounds: updateMenuActiveSelectionBounds))
+//        .modifier(CanvasItemBoundsReader(
+//            graph: graph,
+//            canvasItem: node,
+//            disabled: boundsReaderDisabled,
+//            updateMenuActiveSelectionBounds: updateMenuActiveSelectionBounds))
         
         .modifier(CanvasItemSelectedViewModifier(isSelected: isSelected))
     }
@@ -139,68 +358,15 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
     }
 
     var nodeBodyKind: some View {
-        HStack(alignment: .top, spacing: NODE_BODY_SPACING) {
-            inputsViews()
-            Spacer()
-            outputsViews()
-        }
-    }
-
-    var nodeTagMenu: NodeTagMenuButtonsView {
-        NodeTagMenuButtonsView(graph: graph,
-                               node: stitch,
-                               canvasItemId: node.id,
-                               activeGroupId: activeGroupId,
-                               nodeTypeChoices: sortedUserTypeChoices,
-                               canAddInput: canAddInput,
-                               canRemoveInput: canRemoveInput,
-                               atleastOneCommentBoxSelected: atleastOneCommentBoxSelected)
+//        CachedView {
+            HStack(alignment: .top, spacing: NODE_BODY_SPACING) {
+                inputsViews()
+                Spacer()
+                outputsViews()
+            }
+//        }
     }
 }
-
-//struct NodeView_REPL: View {
-//
-//    let devPosition = StitchPosition(width: 500,
-//                                     height: 500)
-//
-//    var body: some View {
-//        ZStack {
-//            //            Color.orange.opacity(0.2).zIndex(-2)
-//
-//            FakeNodeView(
-//                node: Patch.add.getFakePatchNode(
-//                    //                    customName: "A very long name, much tested and loved and feared and enjoyed"
-//                    customName: "A very long name"
-//                )!
-//            )
-//
-//        }
-//        .scaleEffect(2)
-//        //        .offset(y: -500)
-//    }
-//}
-
-// struct FakeNodeView: View {
-
-//     let node: NodeViewModel
-
-//     var body: some View {
-//         NodeTypeView(graph: .init(id: .init(), store: nil),
-//                      node: node,
-//                      atleastOneCommentBoxSelected: false,
-//                      activeIndex: .init(1),
-//                      groupNodeFocused: nil,
-//                      adjustmentBarSessionId: .init(id: .fakeId),
-//                      boundsReaderDisabled: true,
-//                      usePositionHandler: false,
-//                      updateMenuActiveSelectionBounds: false)
-//     }
-// }
-
-// extension GraphState {
-//     @MainActor
-//     static let fakeEmptyGraphState: GraphState = .init(id: .init(), store: nil)
-// }
 
 @MainActor
 func getFakeNode(choice: NodeKind,
@@ -303,9 +469,25 @@ struct CanvasItemBackground: ViewModifier {
 }
 
 struct CanvasItemTag: View {
+    @Bindable var node: CanvasItemViewModel
+    @Bindable var graph: GraphState
+    @Bindable var stitch: NodeViewModel
+    let activeGroupId: GroupNodeType?
+    var sortedUserTypeChoices: [UserVisibleType] = []
+    let canAddInput: Bool
+    let canRemoveInput: Bool
+    let atleastOneCommentBoxSelected: Bool
     
-    let isSelected: Bool
-    let nodeTagMenu: NodeTagMenuButtonsView
+    @ViewBuilder var nodeTagMenu: NodeTagMenuButtonsView {
+        NodeTagMenuButtonsView(graph: graph,
+                               node: stitch,
+                               canvasItemId: node.id,
+                               activeGroupId: activeGroupId,
+                               nodeTypeChoices: sortedUserTypeChoices,
+                               canAddInput: canAddInput,
+                               canRemoveInput: canRemoveInput,
+                               atleastOneCommentBoxSelected: atleastOneCommentBoxSelected)
+    }
     
     var body: some View {
         
@@ -335,7 +517,6 @@ struct CanvasItemTag: View {
             .foregroundColor(STITCH_TITLE_FONT_COLOR)
             .offset(x: -16, y: 4)
 #endif
-            .opacity(isSelected ? 1 : 0)
     }
 }
 

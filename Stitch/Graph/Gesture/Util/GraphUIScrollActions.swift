@@ -477,22 +477,13 @@ extension StitchDocumentViewModel {
             return
 
         }
-        var box = self.graphUI.selection.expansionBox
+        
+        var box = self.graphUI.selection.expansionBox ?? .init(origin: gestureStartLocation, size: .zero)
 
-        if box.size == .zero {
-            box.startPoint = gestureStartLocation
-        }
-
-        // CHANGE THE BOX BUT DO NOT CHANGE THE SELECTED NODES;
-        // instead, node-selection is handled via SwiftUI preference values.
-        let (newSize, newDirection) = trigCalc(
-            start: gestureStartLocation,
-            end: gestureLocation)
-
-        box.size = newSize
-        box.expansionDirection = newDirection
-        box.endPoint = gestureLocation
-
+        let size = CGSize(width: gestureLocation.x - gestureStartLocation.x,
+                          height: gestureLocation.y - gestureStartLocation.y)
+        box.size = size
+        
         self.graphUI.selection.expansionBox = box
     }
 
@@ -573,9 +564,58 @@ extension StitchDocumentViewModel {
 
             //    log("handleGraphScrolled: state.graphMovement.localPosition is now: \(state.graphMovement.localPosition)")
         }
-
+        
         self.graphMovement.wasTrackpadScroll = wasTrackpadScroll
+        
+        self.refreshVisibleNodes()
     }
+    
+    /// Check which nodes are visible.
+    @MainActor func refreshVisibleNodes() {
+//        var visibleNodes = Set<CanvasItemId>()
+//        let visibleGraph = self.visibleGraph
+//        
+//        let viewframeOrigin = CGPoint(x: -visibleGraph.graphMovement.localPosition.x,
+//                                      y: -visibleGraph.graphMovement.localPosition.y)
+//        
+//        let graphView = CGRect(origin: viewframeOrigin,
+//                               size: visibleGraph.graphUI.frame.size)
+//        let viewframe = Self.getScaledViewFrame(scale: 1 / graphMovement.zoomData.zoom,
+//                                                graphView: graphView)
+//        
+////        log("visibility view frame: \(viewframe)")
+//        self.visibleGraph.visibleNodesViewModel.allViewModels.forEach { node in
+//            let nodeRect = CGRect(origin: node.position,
+//                                  size: node.sizeByLocalBounds)
+//            let isVisibleInFrame = viewframe.intersects(nodeRect)
+////            log("visibility: \(node.id.nodeId.debugFriendlyId)\t\(isVisibleInFrame)\t\(nodeRect)")
+//            
+//            node.updateVisibilityStatus(with: isVisibleInFrame)
+//            
+//            if node.isVisibleInFrame && node.parentGroupNodeId == self.graphUI.groupNodeFocused?.groupNodeId {
+//                visibleNodes.insert(node.id)
+//            }
+//        }
+//        
+//        if self.visibleGraph.visibleNodesViewModel.visibleCanvasIds != visibleNodes {
+//            self.visibleGraph.visibleNodesViewModel.visibleCanvasIds = visibleNodes            
+//        }
+    }
+    
+//    /// Uses graph local offset and scale to get a modified `CGRect` of the view frame.
+//    static func getScaledViewFrame(scale: Double,
+//                                   graphView: CGRect) -> CGRect {
+//        let scaledSize = CGSize(
+//            width: graphView.width * scale,
+//            height: graphView.height * scale)
+//
+//        let yDiff = (graphView.height - scaledSize.height) / 2
+//        let xDiff = (graphView.width - scaledSize.width) / 2
+//        
+//        return CGRect(origin: CGPoint(x: graphView.origin.x + xDiff,
+//                                      y: graphView.origin.y + yDiff),
+//                      size: scaledSize)
+//    }
 
     // `handleGraphScrolled` is kept relatively pure and separate;
     // but in many drag cases we need to do border checks (graph min/max),
@@ -670,7 +710,7 @@ extension StitchDocumentViewModel {
         let graphMovement = self.graphMovement
 
         // DO NOT reset selected nodes themselves
-        state.selection.expansionBox = ExpansionBox()
+        state.selection.expansionBox = nil
         state.selection.isSelecting = false
         state.selection.dragStartLocation = nil
         state.selection.dragCurrentLocation = nil
@@ -699,7 +739,7 @@ extension StitchDocumentViewModel {
             graphUIState.selection.dragCurrentLocation = nil
         }
 
-        graphUIState.selection.expansionBox = ExpansionBox()
+        graphUIState.selection.expansionBox = nil
         graphUIState.selection.isSelecting = false
 
         //    log("handleGraphDragEnded: state.graphMovement.localPreviousPosition was \(state.graphMovement.localPreviousPosition)")
@@ -734,13 +774,6 @@ extension StitchDocumentViewModel {
 
         graphMovement.resetGraphOffsetBorderDataAfterDragEnded()
 
-        // TODO: What happens if we zoom in or out *while momentum is running*?
-        let momentumOrigin = self.visibleGraph
-            .graphBounds(graphMovement.zoomData.zoom,
-                         graphView: graphUIState.frame,
-                         graphOffset: graphMovement.localPosition,
-                         groupNodeFocused: graphUIState.groupNodeFocused?.groupNodeId)
-
         //    log("handleGraphDragEnded: momentumOrigin: \(momentumOrigin)")
 
         // start momentum
@@ -753,12 +786,17 @@ extension StitchDocumentViewModel {
                                                velocity)
 
             // also set graphOrigins; JUST FOR GRAPH DRAG AND GRAPH MOMENTUM
-            if let origin = momentumOrigin?.origin {
-                graphMovement
-
-                    .graphBoundOriginAtStart = .init(
-                        origin: origin,
-                        setByMomentum: true)
+            if let nodesPositionalData = self.graphMovement.boundaryNodes {
+                let momentumOrigin = self.visibleGraph
+                    .graphBounds(graphMovement.zoomData.zoom,
+                                 graphView: graphUIState.frame,
+                                 graphOffset: graphMovement.localPosition,
+                                 positionalData: nodesPositionalData)
+                
+                let origin = momentumOrigin.origin
+                graphMovement.graphBoundOriginAtStart = .init(
+                    origin: origin,
+                    setByMomentum: true)
             }
         }
 

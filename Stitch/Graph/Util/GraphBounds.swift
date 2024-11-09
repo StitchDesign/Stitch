@@ -9,6 +9,21 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+//extension CGPoint {
+//    func calculateOrigin(from offset: CGPoint) -> CGPoint {
+//        let boxMidX = (offset.x * scale) - scaledWidth/2
+//
+//        // TODO: why exactly does this formula work, especially the xDiff parts?
+//        let positionX = boxMidX + (xDiff - graphOffset.x) - xDiff/2 + (graphOffset.x * scale)
+//
+//        let boxMidY = (north.position.y * scale) - scaledHeight/2
+//        let positionY = boxMidY + (yDiff - graphOffset.y) - yDiff/2 + (graphOffset.y * scale)
+//        
+//        return .init(x: positionX,
+//                     y: positionY)
+//    }
+//}
+
 /*
  1. We create a specific size/bound for the graph-view, based on eastern, southern, northern and western most nodes
  2. We only look at nodes eastern, western etc. nodes for the given traversal level (eg top-level or some group)
@@ -20,30 +35,11 @@ extension GraphState {
     func graphBounds(_ scale: CGFloat,
                      graphView: CGRect,
                      graphOffset: CGPoint,
-                     groupNodeFocused: NodeId?) -> CGRect? {
-
-        // NOTE: nodes are retrieved per active traversal level,
-        // ie top level vs some specific, focused group.
-        let canvasItemsAtTraversalLevel = self.canvasItemsAtTraversalLevel(groupNodeFocused)
-
-        // If there are no nodes, then there is no graphBounds
-        guard let east = Self.easternMostNode(groupNodeFocused,
-                                              canvasItems: canvasItemsAtTraversalLevel),
-              let west = Self.westernMostNode(groupNodeFocused,
-                                              canvasItems: canvasItemsAtTraversalLevel),
-              let south = Self.southernMostNode(groupNodeFocused,
-                                                canvasItems: canvasItemsAtTraversalLevel),
-              let north = Self.northernMostNode(groupNodeFocused,
-                                                canvasItems: canvasItemsAtTraversalLevel) else {
-            //            log("GraphState: graphBounds: had no nodes")
-            return nil
-        }
-
-        let id = west.id
-        if east.id == id, north.id == id, south.id == id {
-            // If there's only one node, this fornula seems just fine.
-            //            log("GraphState: graphBounds: had single node")
-        }
+                     positionalData: BoundaryNodesPositions) -> CGRect {
+        let east = positionalData.east
+        let west = positionalData.west
+        let south = positionalData.south
+        let north = positionalData.north
 
         let scaledDevice = CGSize(
             width: graphView.width * scale,
@@ -52,8 +48,8 @@ extension GraphState {
         let yDiff = graphView.height - scaledDevice.height
         let xDiff = graphView.width - scaledDevice.width
 
-        let width = west.position.x - east.position.x
-        let height = north.position.y - south.position.y
+        let width = west.x - east.x
+        let height = north.y - south.y
 
         let scaledWidth = width * scale
         let scaledHeight = height * scale
@@ -61,12 +57,12 @@ extension GraphState {
         let size = CGSize(width: scaledWidth, height: scaledHeight)
 
         // the x part of the origin; ie start from western-most node and then go half the width in-land
-        let boxMidX = (west.position.x * scale) - scaledWidth/2
+        let boxMidX = (west.x * scale) - scaledWidth/2
 
         // TODO: why exactly does this formula work, especially the xDiff parts?
         let positionX = boxMidX + (xDiff - graphOffset.x) - xDiff/2 + (graphOffset.x * scale)
 
-        let boxMidY = (north.position.y * scale) - scaledHeight/2
+        let boxMidY = (north.y * scale) - scaledHeight/2
         let positionY = boxMidY + (yDiff - graphOffset.y) - yDiff/2 + (graphOffset.y * scale)
 
         // ORIGINAL

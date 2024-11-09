@@ -127,21 +127,15 @@ func selectAllNodesAtTraversalLevel(_ state: GraphState) {
     }
 }
 
-// fka `DetermineSelectedNodes`
-struct DetermineSelectedCanvasItems: GraphEvent {
-    let selectionBounds: CGRect
-
-    func handle(state: GraphState) {
-        state.processCanvasSelectionBoxChange(cursorSelectionBox: selectionBounds)
-    }
-}
-
 // TODO: needs to potentially select comment boxes as well
 extension GraphState {
     @MainActor
     // fka `processNodeSelectionBoxChange`
-    func processCanvasSelectionBoxChange(cursorSelectionBox: CGRect) {
+    func processCanvasSelectionBoxChange(selectionBox: CGRect) {
         let graphState = self
+        var selectedNodes = Set<CanvasItemId>()
+        let nodesSelectedOnShift = self.graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag
+        let isCurrentlyDragging = selectionBox != .zero
         
         // Unfocus sidebar
         graphState.graphUI.isSidebarFocused = false
@@ -149,8 +143,8 @@ extension GraphState {
         // TODO: pass shift down via the UIKit gesture handler
         let shiftHeld = graphState.keypressState.shiftHeldDuringGesture
         log("processCanvasSelectionBoxChange: shiftHeld: \(shiftHeld)")
-
-        guard cursorSelectionBox.size != .zero else {
+        
+        guard isCurrentlyDragging else {
             // log("processNodeSelectionBoxChange error: expansion box was size zero")
             return
         }
@@ -165,44 +159,76 @@ extension GraphState {
             self.graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag = nil
         }
         
-
-        var smallestDistance: CGFloat?
-
-        let allCanvasItems = self.visibleNodesViewModel.getVisibleCanvasItems(at: self.groupNodeFocused)
+        // Necessary view frame data needed to determining selected nodes
+        let zoom = 1 / self.graphMovement.zoomData.zoom
+        let viewFrameSize = self.graphUI.frame.size
+        let viewframeOrigin = CGPoint(x: -self.graphMovement.localPosition.x,
+                                      y: -self.graphMovement.localPosition.y)
+        let graphView = CGRect(origin: viewframeOrigin,
+                               size: viewFrameSize)
+        let scaledViewFrame = GraphMovementViewModifier.getScaledViewFrame(scale: zoom,
+                                                                           graphView: graphView)
+        let selectionBoxInViewFrame = Self.getScaledSelectionBox(selectionBox: selectionBox,
+                                                                 scale: zoom,
+                                                                 scaledViewFrameOrigin: scaledViewFrame.origin)
         
-        for canvasItem in allCanvasItems {
+        for cachedSubviewData in self.visibleNodesViewModel.infiniteCanvasCache ?? .init() {
+            let id = cachedSubviewData.key
+            let cachedBounds = cachedSubviewData.value
             
-            if self.graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag?.contains(canvasItem.id) ?? false {
-                log("skipping canvasItem \(canvasItem.id) since was held as part of shift etc.")
+            guard self.visibleNodesViewModel.visibleCanvasIds.contains(id) else { continue }
+            
+            if nodesSelectedOnShift?.contains(id) ?? false {
+                log("skipping canvasItem \(id) since was held as part of shift etc.")
                 continue
             }
             
-            
-            let doesSelectionIntersectCanvasItem = cursorSelectionBox.intersects(canvasItem.bounds.graphBaseViewBounds)
-            
-            // Selected
-            if doesSelectionIntersectCanvasItem {
-                
-                // Add to selected canvas items
-                canvasItem.select()
-                
-                let thisDistance = CGPointDistanceSquared(
-                    from: canvasItem.bounds.graphBaseViewBounds.origin,
-                    to: graphState.graphUI.selection.expansionBox.endPoint)
-
-                if !smallestDistance.isDefined {
-                    smallestDistance = thisDistance
-                }
-            } // if intersecrts
-
-            // De-selected
-            else {
-                // Remove from selected canvas items
-                
-                // Only remove from
-                canvasItem.deselect()
+            if selectionBoxInViewFrame.intersects(cachedBounds) {
+                selectedNodes.insert(id)
             }
         }
+        
+        if self.graphUI.selection.selectedNodeIds != selectedNodes {
+            self.graphUI.selection.selectedNodeIds = selectedNodes
+        }
+        
+//        var smallestDistance: CGFloat?
+        
+//        let allCanvasItems = self.visibleNodesViewModel.getVisibleCanvasItems(at: self.groupNodeFocused)
+//        
+//        for canvasItem in allCanvasItems {
+//            
+//            if self.graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag?.contains(canvasItem.id) ?? false {
+//                log("skipping canvasItem \(canvasItem.id) since was held as part of shift etc.")
+//                continue
+//            }
+//            
+//            
+//            let doesSelectionIntersectCanvasItem = cursorSelectionBox.intersects(canvasItem.bounds.graphBaseViewBounds)
+//            
+//            // Selected
+//            if doesSelectionIntersectCanvasItem {
+//                
+//                // Add to selected canvas items
+//                canvasItem.select()
+//                
+//                let thisDistance = CGPointDistanceSquared(
+//                    from: canvasItem.bounds.graphBaseViewBounds.origin,
+//                    to: graphState.graphUI.selection.expansionBox.endPoint)
+//
+//                if !smallestDistance.isDefined {
+//                    smallestDistance = thisDistance
+//                }
+//            } // if intersecrts
+//
+//            // De-selected
+//            else {
+//                // Remove from selected canvas items
+//                
+//                // Only remove from
+//                canvasItem.deselect()
+//            }
+//        }
         
         
         // Determine selected comment boxes
@@ -227,5 +253,27 @@ extension GraphState {
 //            }
 //        }
         
+    }
+    
+    /// Uses graph local offset and scale to get a modified `CGRect` of the selection box view frame.
+    static func getScaledSelectionBox(selectionBox: CGRect,
+                                      scale: Double,
+                                      scaledViewFrameOrigin: CGPoint) -> CGRect {
+        let scaledSelectionBoxSize = CGSize(
+            // must explicitly graph .size to get correct magnitude
+            width: selectionBox.size.width * scale,
+            height: selectionBox.size.height * scale)
+        
+        let scaledOrigin = CGPoint(x: selectionBox.origin.x * scale,
+                                   y: selectionBox.origin.y * scale)
+        
+        let scaledSelectionBox = CGRect(origin: scaledOrigin + scaledViewFrameOrigin,
+                                           size: scaledSelectionBoxSize)
+//                print("infinite selection origin: \(selectionBox.origin)")
+//                print("infinite selection size: \(selectionBox.size)")
+//                print("infinite selection final: \(selectionBoxViewFrame)")
+//                print("infinite node: \(cachedBounds)")
+        
+        return scaledSelectionBox
     }
 }

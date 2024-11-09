@@ -39,8 +39,6 @@ final class GraphUIState {
     var nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag: CanvasItemIdSet? = nil
     
     let propertySidebar = PropertySidebarObserver()
-        
-    var nodesThatWereOnScreenPriorToEnteringFullScreen = CanvasItemIdSet()
     
     var lastMomentumRunTime: TimeInterval = .zero
     
@@ -347,9 +345,9 @@ func adjustPositionToMultipleOf(_ position: CGPoint,
     return newCenter
 }
 
-struct GraphUISelectionState: Equatable, Codable, Hashable {
+struct GraphUISelectionState {
 
-    // Selected comment boxes
+    var selectedNodeIds = CanvasItemIdSet()
     var selectedCommentBoxes = CommentBoxIdSet()
 
     // TODO: turn selectedNodes into a list?
@@ -367,7 +365,7 @@ struct GraphUISelectionState: Equatable, Codable, Hashable {
     var isFingerOnScreenSelection: Bool = false
 
     // Node cursor selection box
-    var expansionBox = ExpansionBox()
+    var expansionBox: CGRect?
 
     // the start and current locations of the drag gesture
     var dragStartLocation: CGPoint?
@@ -443,9 +441,10 @@ extension CanvasItemViewModel {
     @MainActor
     func select() {
         // Prevent render cycles if already selected
-        guard !self.isSelected else { return }
+        guard !self.isSelected,
+              let graph = self.graphDelegate else { return }
         
-        self.isSelected = true
+        graph.graphUI.selection.selectedNodeIds.insert(self.id)
         
         // Unfocus sidebar
         self.graphDelegate?.isSidebarFocused = false
@@ -454,8 +453,9 @@ extension CanvasItemViewModel {
     @MainActor
     func deselect() {
         // Prevent render cycles if already unselected
-        guard self.isSelected else { return }
-        self.isSelected = false
+        guard self.isSelected,
+              let graph = self.graphDelegate else { return }
+        graph.graphUI.selection.selectedNodeIds.remove(self.id)
     }
 }
 

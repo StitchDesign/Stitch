@@ -29,7 +29,10 @@ extension NodeRowViewModel {
     
     @MainActor
     var isCanvasItemSelected: Bool {
-        self.canvasItemDelegate?.isSelected ?? false
+        guard let graph = self.graphDelegate,
+              let canvasId = self.canvasItemDelegate?.id else { return false }
+        
+        return graph.graphUI.selection.selectedNodeIds.contains(canvasId)
     }
     
     /// If this is row is for a splitter node in a group node, and the group node is selected, then consider this splitter selected as well.
@@ -39,7 +42,9 @@ extension NodeRowViewModel {
     var isCanvasItemSelectedDeep: Bool {
         if self.nodeKind == .patch(.splitter),
            let parentId = self.canvasItemDelegate?.parentGroupNodeId,
-           self.graphDelegate?.getNodeViewModel(parentId)?.patchCanvasItem?.isSelected ?? false {
+           let graph = self.graphDelegate,
+           let parentCanvas = graph.getNodeViewModel(parentId)?.patchCanvasItem,
+           graph.graphUI.selection.selectedNodeIds.contains(parentCanvas.id) {
             return true
         } else {
             return self.isCanvasItemSelected
@@ -49,8 +54,8 @@ extension NodeRowViewModel {
     @MainActor
     var isConnectedToASelectedCanvasItem: Bool {
         for connectedCanvasItemId in self.connectedCanvasItems {
-            guard let canvasItem = self.graphDelegate?.getCanvasItem(connectedCanvasItemId),
-                  canvasItem.isSelected else {
+            guard let graph = self.graphDelegate,
+                  graph.graphUI.selection.selectedNodeIds.contains(connectedCanvasItemId) else {
                 continue
             }
             

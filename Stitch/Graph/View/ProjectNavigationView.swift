@@ -11,7 +11,6 @@ import StitchSchemaKit
 /// UI for interacting with a single project; iPad-only.
 struct ProjectNavigationView: View {
     @Bindable var document: StitchDocumentViewModel
-    let insertNodeMenuHiddenNodeId: NodeId?
     let routerNamespace: Namespace.ID
     @Namespace private var topButtonsNamespace
 
@@ -28,8 +27,7 @@ struct ProjectNavigationView: View {
 
     var body: some View {
         GraphBaseView(document: document,
-                      graphUI: document.graphUI,
-                      insertNodeMenuHiddenNodeId: insertNodeMenuHiddenNodeId)
+                      graphUI: document.graphUI)
         .onChange(of: document.visibleGraph.nodes.keys.count) {
             document.visibleGraph.updateGraphData()
         }

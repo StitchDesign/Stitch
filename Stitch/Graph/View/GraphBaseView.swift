@@ -17,7 +17,6 @@ struct GraphBaseView: View {
 
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graphUI: GraphUIState
-    let insertNodeMenuHiddenNodeId: NodeId?
     
     @MainActor
     var graph: GraphState {
@@ -32,7 +31,7 @@ struct GraphBaseView: View {
             .simultaneousGesture(
                 MagnifyGesture()
                     .onChanged { value in
-                        self.document.graphMovement.zoomData.graphPinchToZoom(amount: value.magnification)
+                        self.document.graphPinchToZoom(amount: value.magnification)
                     }
                     .onEnded { _ in
                         self.document.graphZoomEnded()
@@ -74,8 +73,7 @@ struct GraphBaseView: View {
         GraphGestureView(document: document) {
             NodesView(document: document,
                       graph: graph,
-                      groupTraversedToChild: graphUI.groupTraversedToChild,
-                      insertNodeMenuHiddenNodeId: insertNodeMenuHiddenNodeId)
+                      groupTraversedToChild: graphUI.groupTraversedToChild)
 
                 // zoom must come after offset
                 // (rather than before; eg inside the NodesView)
@@ -111,7 +109,10 @@ struct GraphBaseView: View {
             nodesView
 
             // Selection box and cursor
-            ExpansionBoxView(box: selectionState.expansionBox)
+            if let expansionBox = selectionState.expansionBox {
+                ExpansionBoxView(graph: graph,
+                                 box: expansionBox)                
+            }
 
             if selectionState.isSelecting,
                let currentDrag = selectionState.dragCurrentLocation {
