@@ -331,6 +331,12 @@ extension Patch {
             return QRCodeDetectionNode.self
         case .delayOne:
             return DelayOneNode.self
+        case .springFromDurationAndBounce:
+            return SpringFromDurationAndBounceNode.self
+        case .springFromResponseAndDampingRatio:
+            return SpringFromResponseAndDampingRatioNode.self
+        case .springFromSettlingDurationAndDampingRatio:
+            return SpringFromSettlingDurationAndDampingRatioNode.self
         }
     }
 }

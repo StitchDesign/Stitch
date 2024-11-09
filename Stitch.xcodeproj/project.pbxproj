@@ -457,6 +457,7 @@
 		EC4379F32BA4FAF60077493E /* PortValueEnum.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4379F22BA4FAF60077493E /* PortValueEnum.swift */; };
 		EC46AC0926CEE3820062CB26 /* DeviceMotionHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC46AC0826CEE3820062CB26 /* DeviceMotionHelpers.swift */; };
 		EC46AC0B26CEE3B80062CB26 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC46AC0A26CEE3B80062CB26 /* AppState.swift */; };
+		EC47EB322CDEE2B500995FF5 /* SpringConverterPatches.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC47EB312CDEE2B500995FF5 /* SpringConverterPatches.swift */; };
 		EC47F54228D18AB0009EE90E /* HapticFeedbackNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC47F54128D18AB0009EE90E /* HapticFeedbackNode.swift */; };
 		EC48F0312C65975300DB3ACB /* PinningUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48F0302C65975200DB3ACB /* PinningUtils.swift */; };
 		EC48F0332C668B6C00DB3ACB /* PreviewWindowCoordinateSpaceReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48F0322C668B6C00DB3ACB /* PreviewWindowCoordinateSpaceReader.swift */; };
@@ -1391,6 +1392,7 @@
 		EC4379F22BA4FAF60077493E /* PortValueEnum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortValueEnum.swift; sourceTree = "<group>"; };
 		EC46AC0826CEE3820062CB26 /* DeviceMotionHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceMotionHelpers.swift; sourceTree = "<group>"; };
 		EC46AC0A26CEE3B80062CB26 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		EC47EB312CDEE2B500995FF5 /* SpringConverterPatches.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpringConverterPatches.swift; sourceTree = "<group>"; };
 		EC47F54128D18AB0009EE90E /* HapticFeedbackNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticFeedbackNode.swift; sourceTree = "<group>"; };
 		EC48F0302C65975200DB3ACB /* PinningUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinningUtils.swift; sourceTree = "<group>"; };
 		EC48F0322C668B6C00DB3ACB /* PreviewWindowCoordinateSpaceReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewWindowCoordinateSpaceReader.swift; sourceTree = "<group>"; };
@@ -4048,6 +4050,7 @@
 			children = (
 				ECFAB3D72BB75F35007B569A /* spring+and+pop+animations */,
 				ECFC975C29679930000414C4 /* BouncyConverterNode.swift */,
+				EC47EB312CDEE2B500995FF5 /* SpringConverterPatches.swift */,
 				EC8C5C262616709B0099C374 /* ClassicAnimation.swift */,
 				EC1CB6272949190C00FF755D /* CurveNode.swift */,
 				ECD1F6C22965FDCC00DBD9A8 /* CubicBezierCurveNode.swift */,
@@ -4760,6 +4763,7 @@
 				B57F3A84294A85EC00DFC0AE /* GraphBackgroundGestureView.swift in Sources */,
 				EC1DE590260AB0DD009497CF /* SpringAnimationNode.swift in Sources */,
 				EC69451C2ABD3BF6003ED2CF /* EdgeView.swift in Sources */,
+				EC47EB322CDEE2B500995FF5 /* SpringConverterPatches.swift in Sources */,
 				ECCEB26829634CB5007E35D1 /* ShapeAndRectUtils.swift in Sources */,
 				EC8605AC269DEBA2007B8ED3 /* ValueForKeyNode.swift in Sources */,
 				203D56BD25B0DAE000EF7AC2 /* LegacyNodeHelpers.swift in Sources */,
@@ -6363,7 +6367,7 @@
 			repositoryURL = "https://github.com/StitchDesign/StitchSchemaKit";
 			requirement = {
 				kind = revision;
-				revision = 6e0c9363337ddaba01afbc51fb27d143b18f6cca;
+				revision = 6bd050e51bd946326d26bb18b70f31ef825d8c62;
 			};
 		};
 		EC1137362719F9B400ADCA72 /* XCRemoteSwiftPackageReference "swift-collections" */ = {
