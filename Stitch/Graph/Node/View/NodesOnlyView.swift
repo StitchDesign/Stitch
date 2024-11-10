@@ -30,7 +30,9 @@ struct NodesOnlyView: View {
     }
         
     var body: some View {
-        let filteredCanvasNodes = canvasNodes.filter { $0.parentGroupNodeId == graphUI.groupNodeFocused?.groupNodeId }
+        let filteredCanvasNodes = canvasNodes
+            .filter { $0.parentGroupNodeId == graphUI.groupNodeFocused?.groupNodeId &&
+                $0.isVisibleInFrame }
         
         // HACK for when no nodes present
         if filteredCanvasNodes.isEmpty {
@@ -52,6 +54,7 @@ struct NodesOnlyView: View {
                 isHiddenDuringAnimation: insertNodeMenuHiddenNode
                     .map { $0 == canvasNode.nodeDelegate?.id } ?? false
             )
+//            .opacity(canvasNode.isVisibleInFrame ? 1 : 0)
             .onChange(of: self.activeIndex) {
                 // Update values when active index changes
                 self.canvasNodes.forEach { canvasNode in

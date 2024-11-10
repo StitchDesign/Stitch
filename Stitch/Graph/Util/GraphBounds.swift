@@ -9,6 +9,21 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+//extension CGPoint {
+//    func calculateOrigin(from offset: CGPoint) -> CGPoint {
+//        let boxMidX = (offset.x * scale) - scaledWidth/2
+//
+//        // TODO: why exactly does this formula work, especially the xDiff parts?
+//        let positionX = boxMidX + (xDiff - graphOffset.x) - xDiff/2 + (graphOffset.x * scale)
+//
+//        let boxMidY = (north.position.y * scale) - scaledHeight/2
+//        let positionY = boxMidY + (yDiff - graphOffset.y) - yDiff/2 + (graphOffset.y * scale)
+//        
+//        return .init(x: positionX,
+//                     y: positionY)
+//    }
+//}
+
 /*
  1. We create a specific size/bound for the graph-view, based on eastern, southern, northern and western most nodes
  2. We only look at nodes eastern, western etc. nodes for the given traversal level (eg top-level or some group)

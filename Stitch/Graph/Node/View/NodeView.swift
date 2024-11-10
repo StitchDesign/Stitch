@@ -49,11 +49,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
     var userVisibleType: UserVisibleType? {
         self.stitch.userVisibleType
     }
-
-    var splitterType: SplitterType? {
-        self.stitch.splitterType
-    }
-
+    
     var isLayerNode: Bool {
         self.stitch.kind.isLayer
     }
@@ -125,7 +121,6 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
         .modifier(CanvasItemBoundsReader(
             graph: graph,
             canvasItem: node,
-            splitterType: splitterType,
             disabled: boundsReaderDisabled,
             updateMenuActiveSelectionBounds: updateMenuActiveSelectionBounds))
         

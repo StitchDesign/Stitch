@@ -74,8 +74,7 @@ final class CanvasItemViewModel: Identifiable {
     var zIndex: Double = .zero
     var parentGroupNodeId: NodeId?
     
-    // Default to false so initialized graphs don't take on extra perf loss
-    var isVisibleInFrame = false
+    var isVisibleInFrame = true
     
     // View specific port value data
     var inputViewModels: [InputNodeRowViewModel] = []
@@ -215,8 +214,7 @@ extension CanvasItemViewModel {
     }
 
     @MainActor
-    func updateVisibilityStatus(with newValue: Bool,
-                                activeIndex: ActiveIndex) {
+    func updateVisibilityStatus(with newValue: Bool) {
         let oldValue = self.isVisibleInFrame
         if oldValue != newValue {
             self.isVisibleInFrame = newValue
