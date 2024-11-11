@@ -581,13 +581,8 @@ extension StitchDocumentViewModel {
     
     /// Check which nodes are visible.
     @MainActor func refreshVisibleNodes() {
+        var visibleNodes = Set<CanvasItemId>()
         let visibleGraph = self.visibleGraph
-//        guard let viewframe = visibleGraph.graphBounds(graphMovement.zoomData.zoom,
-//                                                       graphView: self.graphUI.frame,
-//                                                       graphOffset: visibleGraph.localPosition,
-//                                                       groupNodeFocused: self.graphUI.groupNodeFocused?.groupNodeId) else {
-//            return
-//        }
         
         let viewframeOrigin = CGPoint(x: -visibleGraph.graphMovement.localPosition.x,
                                       y: -visibleGraph.graphMovement.localPosition.y)
@@ -601,8 +596,13 @@ extension StitchDocumentViewModel {
             let isVisibleInFrame = viewframe.intersects(nodeRect)
             log("visibility: \(node.id.nodeId.debugFriendlyId)\t\(isVisibleInFrame)\t\(nodeRect)")
             node.updateVisibilityStatus(with: isVisibleInFrame)
+            
+            if node.isVisibleInFrame && node.parentGroupNodeId == self.graphUI.groupNodeFocused?.groupNodeId {
+                visibleNodes.insert(node.id)
+            }
         }
-
+        
+        self.visibleGraph.visibleNodesViewModel.visibleCanvasIds = visibleNodes
     }
 
     // `handleGraphScrolled` is kept relatively pure and separate;

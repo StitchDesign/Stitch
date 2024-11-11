@@ -9,14 +9,17 @@ import SwiftUI
 import StitchSchemaKit
 
 struct NodesOnlyView: View {
-
+    
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     @Bindable var graphUI: GraphUIState
     @Bindable var nodePageData: NodePageData
-    let canvasNodes: [CanvasItemViewModel]
     let insertNodeMenuHiddenNode: NodeId?
     
+    var canvasNodeIds: Set<CanvasItemId> {
+        self.graph.visibleNodesViewModel.visibleCanvasIds
+    }
+
     var selection: GraphUISelectionState {
         graphUI.selection
     }
@@ -30,38 +33,32 @@ struct NodesOnlyView: View {
     }
         
     var body: some View {
-        let filteredNodes = canvasNodes.filter {
-            $0.parentGroupNodeId == graphUI.groupNodeFocused?.groupNodeId
-        }
-        
         // HACK for when no nodes present
-        if filteredNodes.isEmpty {
+        if canvasNodeIds.isEmpty {
             Rectangle().fill(.clear)
         }
+        
+        let canvasNodes = canvasNodeIds.compactMap { self.graph.getCanvasItem($0) }
 
-        ForEach(filteredNodes) { canvasNode in
-            if canvasNode.isVisibleInFrame {
-                // Note: if/else seems better than opacity modifier, which introduces funkiness with edges (port preference values?) when going in and out of groups;
-                // (`.opacity(0)` means we still render the view, and thus anchor preferences?)
-                NodeTypeView(
-                    document: document,
-                    graph: graph,
-                    node: canvasNode.nodeDelegate ?? .init(),
-                    canvasNode: canvasNode,
-                    atleastOneCommentBoxSelected: selection.selectedCommentBoxes.count >= 1,
-                    activeIndex: activeIndex,
-                    groupNodeFocused: graphUI.groupNodeFocused,
-                    adjustmentBarSessionId: adjustmentBarSessionId,
-                    isHiddenDuringAnimation: insertNodeMenuHiddenNode
-                        .map { $0 == canvasNode.nodeDelegate?.id } ?? false
-                )
-            } else {
-                EmptyView()
-            }
+        ForEach(canvasNodes) { canvasNode in
+            // Note: if/else seems better than opacity modifier, which introduces funkiness with edges (port preference values?) when going in and out of groups;
+            // (`.opacity(0)` means we still render the view, and thus anchor preferences?)
+            NodeTypeView(
+                document: document,
+                graph: graph,
+                node: canvasNode.nodeDelegate ?? .init(),
+                canvasNode: canvasNode,
+                atleastOneCommentBoxSelected: selection.selectedCommentBoxes.count >= 1,
+                activeIndex: activeIndex,
+                groupNodeFocused: graphUI.groupNodeFocused,
+                adjustmentBarSessionId: adjustmentBarSessionId,
+                isHiddenDuringAnimation: insertNodeMenuHiddenNode
+                    .map { $0 == canvasNode.nodeDelegate?.id } ?? false
+            )
         }
         .onChange(of: self.activeIndex) {
             // Update values when active index changes
-            self.canvasNodes.forEach { canvasNode in
+            canvasNodes.forEach { canvasNode in
                 canvasNode.nodeDelegate?.activeIndexChanged(activeIndex: self.activeIndex)
             }
         }

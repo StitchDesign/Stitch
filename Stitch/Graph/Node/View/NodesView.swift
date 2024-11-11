@@ -129,7 +129,6 @@ struct NodesView: View {
                       graph: graph,
                       graphUI: graphUI,
                       nodePageData: nodePageData,
-                      canvasNodes: visibleNodesViewModel.allViewModels,
                       insertNodeMenuHiddenNode: insertNodeMenuHiddenNodeId)
     }
     
