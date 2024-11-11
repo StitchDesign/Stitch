@@ -59,7 +59,7 @@ struct CanvasItemBoundsReader: ViewModifier {
                         .onChange(of: proxy.frame(in: .named(GraphBaseView.coordinateNamespace)),
                                   initial: true) { _, newBounds in
                             if !disabled {
-                                // log("will update GraphBaseView bounds for \(id)")
+                                 // log("CanvasItemBoundsReader: will update GraphBaseView bounds: \(newBounds)")
                                graph.updateGraphBaseViewBounds(
                                    for: canvasItem,
                                    newBounds: newBounds,
@@ -71,7 +71,7 @@ struct CanvasItemBoundsReader: ViewModifier {
                         .onChange(of: proxy.frame(in: .local),
                                   initial: true) { _, newBounds in
                             if !disabled {
-                                // log("will update local bounds for \(id)")
+                                // log("CanvasItemBoundsReader: will update local bounds: \(newBounds)")
 
                                 // Used only for comment box creation
                                 canvasItem.bounds.localBounds = newBounds
