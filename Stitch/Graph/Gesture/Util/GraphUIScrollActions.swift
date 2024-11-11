@@ -576,11 +576,11 @@ extension StitchDocumentViewModel {
         
         self.graphMovement.wasTrackpadScroll = wasTrackpadScroll
         
-        self.refreshVisibleNdoes()
+        self.refreshVisibleNodes()
     }
     
     /// Check which nodes are visible.
-    @MainActor func refreshVisibleNdoes() {
+    @MainActor func refreshVisibleNodes() {
         let visibleGraph = self.visibleGraph
 //        guard let viewframe = visibleGraph.graphBounds(graphMovement.zoomData.zoom,
 //                                                       graphView: self.graphUI.frame,
