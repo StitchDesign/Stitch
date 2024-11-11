@@ -62,20 +62,20 @@ extension GraphUIState {
     }
 }
 
-struct FlyoutToggled: GraphUIEvent {
+struct FlyoutToggled: GraphEvent {
     
     let flyoutInput: LayerInputPort
     let flyoutNodeId: NodeId
     let fieldToFocus: FocusedUserEditField?
     
-    func handle(state: GraphUIState) {
-        if let flyoutState = state.propertySidebar.flyoutState,
+    func handle(state: GraphState) {
+        if let flyoutState = state.graphUI.propertySidebar.flyoutState,
            flyoutState.flyoutInput == flyoutInput,
            flyoutState.flyoutNode == flyoutNodeId {
-            state.closeFlyout()
+            state.graphUI.closeFlyout()
         } else {
 //            withAnimation {
-                state.propertySidebar.flyoutState = .init(
+            state.graphUI.propertySidebar.flyoutState = .init(
                     // TODO: assuming flyout state is packed here
                     flyoutInput: flyoutInput,
                     flyoutNode: flyoutNodeId)
