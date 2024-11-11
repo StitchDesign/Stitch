@@ -21,9 +21,9 @@ struct CanvasItemTitleView: View {
     
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
-    let isNodeSelected: Bool
+    let isCanvasItemSelected: Bool
     let canvasId: CanvasItemId
-
+    
     var nodeId: NodeId {
         node.id
     }
@@ -88,7 +88,8 @@ struct CanvasItemTitleView: View {
                 // Always shows node title
                 NodeTitleTextField(graph: graph,
                                    id: canvasId,
-                                   label: label)
+                                   label: label,
+                                   isCanvasItemSelected: isCanvasItemSelected)
                 
                 // Always needs some math expression;
                 // if none yet exists (because math-expr node just created),
@@ -116,7 +117,8 @@ struct CanvasItemTitleView: View {
                     }
                     NodeTitleTextField(graph: graph,
                                        id: canvasId,
-                                       label: label)
+                                       label: label,
+                                       isCanvasItemSelected: isCanvasItemSelected)
                 }
                 
                 let defaultTitle = node.kind.getDisplayTitle(customName: nil)
@@ -157,12 +159,3 @@ extension NodeKind {
         }
     }
 }
-
-//struct NodeTitleView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        NodeTitleView(node: SplitterPatchNode.createViewModel(activeIndex: .init(.zero),
-//                                                              graphDelegate: nil),
-//                      isNodeSelected: true)
-//            .scaleEffect(3)
-//    }
-//}

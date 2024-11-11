@@ -113,7 +113,8 @@ struct CommonEditingView: View {
         if forPropertySidebar {
             return thisFieldIsFocused
         } else {
-            return thisFieldIsFocused && isCanvasItemSelected && !isSelectionBoxInUse
+//            return thisFieldIsFocused && isCanvasItemSelected && !isSelectionBoxInUse
+            return thisFieldIsFocused && !isSelectionBoxInUse
         }
     }
     
