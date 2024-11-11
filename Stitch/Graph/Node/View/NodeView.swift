@@ -64,27 +64,20 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
 #if targetEnvironment(macCatalyst)
             .contextMenu { nodeTagMenu } // Catalyst right-click to open node tag menu
 #endif
-        
-        /*
-         Note: we must order these gestures as `double tap gesture -> single tap simultaneous gesture`.
-         
-         If both gestures are simultaneous, then a "double tap" user gesture ends up doing a single tap then a double tap then ANOTHER single tap.
-         
-         If both gestures non-simultaneous, then there is a delay as SwiftUI waits to see whether we did a single or a double tap.
-         */
-            .gesture(TapGesture(count: 2).onEnded({
-                if self.stitch.kind.isGroup {
-                    log("NodeView: node \(stitch.id) .gesture(TapGesture(count: 2)")
-                    log("NodeView: node \(stitch.id) .gesture(TapGesture(count: 2): will set active group")
+            .modifier(NodeViewTapGestureModifier(
+                onSingleTap: {
+                    // deselect any fields; NOTE: not used on GroupNodes due to .simultaneousGesture
+                    if !self.stitch.kind.isGroup {
+                        graph.graphUI.reduxFocusedField = nil
+                    }
+                    
+                    // and select just the node
+                    node.isTapped(document: document)
+                },
+                onDoubleTap: {
                     dispatch(GroupNodeDoubleTapped(id: stitch.id))
-                }
-            }))
-        
-        // See GroupNodeView for group node double tap
-            .simultaneousGesture(TapGesture(count: 1).onEnded({
-                log("NodeView: node \(stitch.id) .simultaneousGesture(TapGesture(count: 1)")
-                node.isTapped(document: document)
-            }))
+                },
+                isGroup: self.stitch.kind.isGroup))
         
         /*
          Note: every touch on a part of a node is an interaction (e.g. the title, an input field etc.) with a single node --- except for touching the node tag menu.
@@ -137,7 +130,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
         HStack {
             CanvasItemTitleView(graph: graph,
                                 node: stitch,
-                                isNodeSelected: isSelected,
+                                isCanvasItemSelected: isSelected,
                                 canvasId: node.id)
             .modifier(CanvasItemTitlePadding())
             
@@ -343,5 +336,38 @@ struct CanvasItemTag: View {
             .offset(x: -16, y: 4)
 #endif
             .opacity(isSelected ? 1 : 0)
+    }
+}
+
+// Note: we prefer not to use .simultaneousGesture for node tap unless absolutely necessary, since
+// TODO: perf implications of this view
+struct NodeViewTapGestureModifier: ViewModifier {
+    
+    let onSingleTap: () -> Void
+    let onDoubleTap: () -> Void
+    let isGroup: Bool
+
+    func body(content: Content) -> some View {
+        /*
+         Note: we must order these gestures as `double tap gesture -> single tap simultaneous gesture`.
+         
+         If both gestures are simultaneous, then a "double tap" user gesture ends up doing a single tap then a double tap then ANOTHER single tap.
+         
+         If both gestures non-simultaneous, then there is a delay as SwiftUI waits to see whether we did a single or a double tap.
+         */
+        if isGroup {
+            content
+                .gesture(TapGesture(count: 2).onEnded({
+                    onDoubleTap()
+                }))
+                .simultaneousGesture(TapGesture(count: 1).onEnded({
+                    onSingleTap()
+                }))
+        } else {
+            content
+                .onTapGesture {
+                    onSingleTap()
+                }
+        }
     }
 }
