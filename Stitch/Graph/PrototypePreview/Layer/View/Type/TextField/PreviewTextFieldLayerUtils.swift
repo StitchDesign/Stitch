@@ -8,19 +8,64 @@
 import Foundation
 import StitchSchemaKit
 
-struct ReduxFieldFocused: GraphUIEvent {
+struct ReduxFieldFocused: GraphEvent {
     let focusedField: FocusedUserEditField
 
-    func handle(state: GraphUIState) {
+    func handle(state: GraphState) {
         state.reduxFieldFocused(focusedField: focusedField)
     }
 }
 
-extension GraphUIState {
+extension FocusedUserEditField {
+    
+    // Find the parent canvas item for this focused-field (whether a patch node, a layer input or layer output), and select that canvas item.
+    var canvasFieldId: CanvasItemId? {
+        switch self {
+        case .textInput(let fieldCoordinate):
+            switch fieldCoordinate.rowId.graphItemType {
+            case .node(let x):
+                // log("canvasFieldId: .textInput: .node: x \(x)")
+                return x
+            // TODO: what is a .textInput with a .layerInspector graphItemType?
+            case .layerInspector(let x):
+                // log("canvasFieldId: .textInput: .layerInspector: x \(x)")
+                return nil
+            }
+        case .nodeTitle(let stitchTitleEdit):
+            switch stitchTitleEdit {
+            case .canvas(let x):
+                // log("canvasFieldId: .textInput: .canvas: x \(x)")
+                return x
+                // TODO: what is a .textInput with a .layerInspector graphItemType?
+            case .layerInspector(let x):
+                // log("canvasFieldId: .textInput: .layerInspector: x \(x)")
+                return nil
+            }
+        case .mathExpression(let nodeId):
+            return CanvasItemId.node(nodeId)
+            
+        // TODO: update comment boxes to use CanvasItemId
+        case .commentBox(let commentBoxId):
+            return nil
+            
+        case .projectTitle, .jsonPopoverOutput, .insertNodeMenu, .textFieldLayer, .any, .llmRecordingModal, .stitchAIPromptModal, .sidebarLayerTitle, .previewWindowSettingsWidth, .previewWindowSettingsHeight:
+            return nil
+        }
+    }
+}
+
+//extension GraphUIState {
+extension GraphState {
+    @MainActor
     func reduxFieldFocused(focusedField: FocusedUserEditField) {
         log("reduxFieldFocused: focusedField: \(focusedField)")
-        log("reduxFieldFocused: self.reduxFocusedField was: \(self.reduxFocusedField)")
-        self.reduxFocusedField = focusedField
+        log("reduxFieldFocused: self.graphUI.reduxFocusedField was: \(self.graphUI.reduxFocusedField)")
+        self.graphUI.reduxFocusedField = focusedField
+        
+        // if we selected a canvas item, we also thereby selected it:
+        if let canvasItemId = focusedField.canvasFieldId {
+            self.getCanvasItem(canvasItemId)?.select()
+        }
     }
 }
 
@@ -33,6 +78,7 @@ struct ReduxFieldDefocused: GraphUIEvent {
 }
 
 extension GraphUIState {
+    @MainActor
     func reduxFieldDefocused(focusedField: FocusedUserEditField) {
         log("reduxFieldDefocused: focusedField: \(focusedField)")
         log("reduxFieldDefocused: self.reduxFocusedField was: \(self.reduxFocusedField)")

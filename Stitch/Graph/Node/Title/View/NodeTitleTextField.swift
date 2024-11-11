@@ -12,13 +12,16 @@ struct NodeTitleTextField: View {
     @Bindable var graph: GraphState
     let id: CanvasItemId
     let label: String
+    let isCanvasItemSelected: Bool
     var font: Font = STITCH_FONT
+    
 
     var body: some View {
         StitchTitleTextField(graph: graph,
                              id: id,
                              titleEditType: .canvas(id),
                              label: label,
+                             isCanvasItemSelected: isCanvasItemSelected,
                              font: font)
     }
 }
@@ -29,11 +32,13 @@ struct StitchTitleTextField: View {
     let id: CanvasItemId
     let titleEditType: StitchTitleEdit
     let label: String
+    let isCanvasItemSelected: Bool
     var font: Font = STITCH_FONT
     
     @MainActor
     var isFocused: Bool {
-        graph.graphUI.reduxFocusedField?.getNodeTitleEdit == titleEditType
+        (graph.graphUI.reduxFocusedField?.getNodeTitleEdit == titleEditType)
+        // && isCanvasItemSelected
     }
 
     @State var editWidth: CGFloat? = nil
