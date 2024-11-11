@@ -99,6 +99,9 @@ final class StitchDocumentViewModel: Sendable {
         
         // Start graph
         self.graphStepManager.start()
+        
+        // Refresh view
+        self.refreshVisibleNodes()
     }
     
     @MainActor
