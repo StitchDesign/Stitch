@@ -82,8 +82,6 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
     // Holds view models for fields
     var fieldValueTypes: [FieldGroupTypeViewModel<FieldType>] { get set }
     
-    var anchorPoint: CGPoint? { get set }
-    
     var connectedCanvasItems: Set<CanvasItemId> { get set }
     
     var portColor: PortColor { get set }
@@ -114,6 +112,26 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
 }
 
 extension NodeRowViewModel {
+    var anchorPoint: CGPoint? {
+        guard let canvas = self.canvasItemDelegate else { return nil }
+        let size = canvas.bounds.localBounds.size
+        let ioAdjustment: CGFloat = 6
+        let ioConstraint: CGFloat = Self.nodeIO == .input ? ioAdjustment : -ioAdjustment
+        
+        // Offsets needed because node position uses its center location
+        let offsetX: CGFloat = canvas.position.x + ioConstraint - size.width / 2
+        let offsetY: CGFloat = canvas.position.y - size.height / 2 + 62
+        
+        let anchorY = offsetY + CGFloat(self.id.portId) * 30
+        
+        switch Self.nodeIO {
+        case .input:
+            return .init(x: offsetX, y: anchorY)
+        case .output:
+            return .init(x: offsetX + size.width, y: anchorY)
+        }
+    }
+    
     /// Ignores group nodes to ensure computation logic still works.
     @MainActor
     var computationNode: NodeDelegate? {
@@ -253,7 +271,6 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     var id: NodeRowViewModelId
     var activeValue: PortValue = .number(.zero)
     var fieldValueTypes = FieldGroupTypeViewModelList<InputFieldViewModel>()
-    var anchorPoint: CGPoint?
     var connectedCanvasItems: Set<CanvasItemId> = .init()
     var portColor: PortColor = .noEdge
     var portViewData: PortViewType?
@@ -321,7 +338,6 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     var id: NodeRowViewModelId
     var activeValue: PortValue = .number(.zero)
     var fieldValueTypes = FieldGroupTypeViewModelList<OutputFieldViewModel>()
-    var anchorPoint: CGPoint?
     var connectedCanvasItems: Set<CanvasItemId> = .init()
     var portColor: PortColor = .noEdge
     var portViewData: PortViewType?
