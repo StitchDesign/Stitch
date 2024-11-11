@@ -606,7 +606,9 @@ extension StitchDocumentViewModel {
             }
         }
         
-        self.visibleGraph.visibleNodesViewModel.visibleCanvasIds = visibleNodes
+        if self.visibleGraph.visibleNodesViewModel.visibleCanvasIds != visibleNodes {
+            self.visibleGraph.visibleNodesViewModel.visibleCanvasIds = visibleNodes            
+        }
     }
     
     /// Uses graph local offset and scale to get a modified `CGRect` of the view frame.
