@@ -30,14 +30,17 @@ struct NodesOnlyView: View {
     }
         
     var body: some View {
+        let filteredNodes = canvasNodes.filter {
+            $0.parentGroupNodeId == graphUI.groupNodeFocused?.groupNodeId
+        }
+        
         // HACK for when no nodes present
-        if canvasNodes.isEmpty {
+        if filteredNodes.isEmpty {
             Rectangle().fill(.clear)
         }
 
-        ForEach(canvasNodes) { canvasNode in
-            if canvasNode.parentGroupNodeId == graphUI.groupNodeFocused?.groupNodeId &&
-                canvasNode.isVisibleInFrame {
+        ForEach(filteredNodes) { canvasNode in
+            if canvasNode.isVisibleInFrame {
                 // Note: if/else seems better than opacity modifier, which introduces funkiness with edges (port preference values?) when going in and out of groups;
                 // (`.opacity(0)` means we still render the view, and thus anchor preferences?)
                 NodeTypeView(
