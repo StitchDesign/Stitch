@@ -18,20 +18,6 @@ struct CustomTextFieldModifier: ViewModifier {
     }
 }
 
-// Helpful when editing longer node titles;
-// but not to be used for inputs
-struct StitchTextEditingFieldFixedSize: ViewModifier {
-    let isForNodeTitle: Bool
-
-    func body(content: Content) -> some View {
-        if isForNodeTitle {
-            content.fixedSize()
-        } else {
-            content
-        }
-    }
-}
-
 /// Abstracts common logic away from `TextField`'s for the purpose of tracking which input
 /// in the app is focused.
 // TODO: remove this? No longer needed?
@@ -82,8 +68,6 @@ struct StitchTextEditingBindingField: View {
     // which can never happen in our node input use case.
     var canvasDimensionInput: String?
 
-    // .leading alignment for inputs,
-    // .center alignment for node titles etc.
     var isForNodeTitle = false
 
     var font: Font = STITCH_FONT
@@ -124,14 +108,13 @@ struct StitchTextEditingBindingField: View {
 
     var body: some View {
         TextField(isBase64 ? "base64" : "", text: $currentEdit)
-            .modifier(StitchTextEditingFieldFixedSize(isForNodeTitle: isForNodeTitle))
             .font(font)
             .foregroundColor(fontColor)
             .truncationMode(.tail)
             .lineLimit(1)
             .autocapitalization(.none)
             .autocorrectionDisabled()
-            .modifier(CustomTextFieldModifier(alignment: isForNodeTitle ? .center : .leading))
+            .modifier(CustomTextFieldModifier(alignment: .leading))
             .focused($isFocused)
             .onSubmit {
                 submitChanges()

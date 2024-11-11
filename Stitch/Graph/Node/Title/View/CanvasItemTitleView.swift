@@ -78,11 +78,7 @@ struct CanvasItemTitleView: View {
     var editableTitle: some View {
         // logInView("NodeTitleView editableTitle \(id)")
         
-        #if DEV_DEBUG
-        let label = name + " " + nodeId.debugFriendlyId
-        #else
         let label = name
-        #endif
           
         if node.patch == .mathExpression {
             
@@ -123,7 +119,6 @@ struct CanvasItemTitleView: View {
                                        label: label)
                 }
                 
-                
                 let defaultTitle = node.kind.getDisplayTitle(customName: nil)
                 let hasCustomTitle = name.trim() != defaultTitle.trim()
                 
@@ -136,7 +131,6 @@ struct CanvasItemTitleView: View {
                 }
             }
         }
-        
     }
 }
 
