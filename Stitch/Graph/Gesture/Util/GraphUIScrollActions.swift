@@ -592,12 +592,12 @@ extension StitchDocumentViewModel {
         let viewframe = Self.getScaledViewFrame(scale: 1 / graphMovement.zoomData.zoom,
                                                 graphView: graphView)
         
-        log("visibility view frame: \(viewframe)")
+//        log("visibility view frame: \(viewframe)")
         self.visibleGraph.visibleNodesViewModel.allViewModels.forEach { node in
             let nodeRect = CGRect(origin: node.position,
                                   size: node.sizeByLocalBounds)
             let isVisibleInFrame = viewframe.intersects(nodeRect)
-            log("visibility: \(node.id.nodeId.debugFriendlyId)\t\(isVisibleInFrame)\t\(nodeRect)")
+//            log("visibility: \(node.id.nodeId.debugFriendlyId)\t\(isVisibleInFrame)\t\(nodeRect)")
             
             node.updateVisibilityStatus(with: isVisibleInFrame)
             
