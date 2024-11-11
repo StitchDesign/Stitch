@@ -586,8 +586,11 @@ extension StitchDocumentViewModel {
         
         let viewframeOrigin = CGPoint(x: -visibleGraph.graphMovement.localPosition.x,
                                       y: -visibleGraph.graphMovement.localPosition.y)
-        let viewframe = CGRect(origin: viewframeOrigin,
-                               size: visibleGraph.graphUI.frame.size * (1 / graphMovement.zoomData.zoom))
+        
+        let graphView = CGRect(origin: viewframeOrigin,
+                               size: visibleGraph.graphUI.frame.size)
+        let viewframe = Self.getScaledViewFrame(scale: 1 / graphMovement.zoomData.zoom,
+                                                graphView: graphView)
         
         log("visibility view frame: \(viewframe)")
         self.visibleGraph.visibleNodesViewModel.allViewModels.forEach { node in
@@ -595,6 +598,7 @@ extension StitchDocumentViewModel {
                                   size: node.sizeByLocalBounds)
             let isVisibleInFrame = viewframe.intersects(nodeRect)
             log("visibility: \(node.id.nodeId.debugFriendlyId)\t\(isVisibleInFrame)\t\(nodeRect)")
+            
             node.updateVisibilityStatus(with: isVisibleInFrame)
             
             if node.isVisibleInFrame && node.parentGroupNodeId == self.graphUI.groupNodeFocused?.groupNodeId {
@@ -603,6 +607,21 @@ extension StitchDocumentViewModel {
         }
         
         self.visibleGraph.visibleNodesViewModel.visibleCanvasIds = visibleNodes
+    }
+    
+    /// Uses graph local offset and scale to get a modified `CGRect` of the view frame.
+    static func getScaledViewFrame(scale: Double,
+                                   graphView: CGRect) -> CGRect {
+        let scaledSize = CGSize(
+            width: graphView.width * scale,
+            height: graphView.height * scale)
+
+        let yDiff = (graphView.height - scaledSize.height) / 2
+        let xDiff = (graphView.width - scaledSize.width) / 2
+        
+        return CGRect(origin: CGPoint(x: graphView.origin.x + xDiff,
+                                      y: graphView.origin.y + yDiff),
+                      size: scaledSize)
     }
 
     // `handleGraphScrolled` is kept relatively pure and separate;
