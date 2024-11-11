@@ -72,7 +72,8 @@ struct StitchRootView: View {
                                     CatalystProjectTitleModalView(graph: document.visibleGraph)
                                 }
                                 .padding()
-                                .frame(width: 260, alignment: .leading)
+//                                .frame(width: 260, alignment: .leading)
+                                .frame(width: 360, alignment: .leading)
                                 .background(
                                     Color(uiColor: .systemGray5)
                                     // NOTE: strangely we need `[.all, .keyboard]` on BOTH the background color AND the StitchHostingControllerView
