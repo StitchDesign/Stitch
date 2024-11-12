@@ -3737,6 +3737,9 @@
 		E40B2F512CB86D55005F5479 /* StitchAI */ = {
 			isa = PBXGroup;
 			children = (
+				ECD83F1A2C1A0C5F00722AD7 /* LLMView.swift */,
+				ECD83F0D2C19ED0800722AD7 /* LLMRecordingState.swift */,
+				EC5C6C392C2DAE690023D0C0 /* LLMActionRecording.swift */,
 				ECD83F0C2C193AB400722AD7 /* LLMRecording */,
 				E40B2F4D2CB86BC3005F5479 /* StitchAIPromptView.swift */,
 				E4E860012CBD5448006763DA /* StitchAIErrorModalView.swift */,
@@ -4345,9 +4348,6 @@
 		ECD83F0C2C193AB400722AD7 /* LLMRecording */ = {
 			isa = PBXGroup;
 			children = (
-				ECD83F1A2C1A0C5F00722AD7 /* LLMView.swift */,
-				ECD83F0D2C19ED0800722AD7 /* LLMRecordingState.swift */,
-				EC5C6C392C2DAE690023D0C0 /* LLMActionRecording.swift */,
 				ECD83F0F2C19ED8700722AD7 /* LLMActions */,
 			);
 			path = LLMRecording;

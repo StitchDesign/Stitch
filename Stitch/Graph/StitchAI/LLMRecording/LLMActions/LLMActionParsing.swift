@@ -39,13 +39,10 @@ extension StitchDocumentViewModel {
         do {
             let json = JSON(parseJSON: jsonEntry) // returns null json if parsing fails
             let data = try json.rawData()
-//            let actions: LLMActions = try JSONDecoder().decode(LLMActions.self,
-//                                                               from: data)
             let actions: LLMStepActions = try JSONDecoder().decode(LLMStepActions.self,
                                                                from: data)
             
-            var nodesAdded = 0
-//            actions.forEach { self.handleLLMAction($0, nodesAdded: nodesAdded) }
+            var nodesAdded = 0 // TODO: add back node-staggering logic
             actions.forEach { self.handleLLMStepAction($0) }
             self.llmRecording.jsonEntryState = .init() // reset
             self.visibleGraph.encodeProjectInBackground()
@@ -214,10 +211,7 @@ extension StitchDocumentViewModel {
     func handleLLMLayerInputOrOutputAdded(llmNode: String,
                                           llmPort: String,
                                           isInput: Bool) {
-        
-        // Layer node must already exist
-//        guard let nodeId = llmNode.getNodeIdFromLLMNode(from: self.llmNodeIdMapping),
-              
+                      
         guard let (nodeId, nodeKind) = llmNode.getNodeIdAndKindFromLLMNode(from: self.llmNodeIdMapping),
               let node = self.graph.getNode(nodeId) else {
             log("handleLLMLayerInputOrOutputAdded: No node id or node")

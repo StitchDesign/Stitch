@@ -54,8 +54,7 @@ extension NodeViewModel {
     func createLLMStepChangeNodeType(_ newNodeType: NodeType) -> LLMStepAction {
         LLMStepAction(stepType: StepType.changeNodeType.rawValue,
                       nodeId: self.id.description,
-                      nodeName: self.kind.asLLMStepNodeName,
-                      // Our OpenAI schema expects e.g. "text", not "Text"
+                      // Nov 12: Our OpenAI schema currently expects e.g. "text", not "Text"
                       nodeType: newNodeType.asLLMStepNodeType)
     }
 }
@@ -65,7 +64,7 @@ extension NodeType {
     // TODO: our OpenAI schema does not define all possible node-types, and those node types that we do define use camelCase
     // TODO: some node types use human-readable strings ("Sizing Scenario"), not camelCase ("sizingScenario") as their raw value; so can't use `NodeType(rawValue:)` constructor
     var asLLMStepNodeType: String {
-        self.rawValue
+        self.display.toCamelCase()
     }
 }
 

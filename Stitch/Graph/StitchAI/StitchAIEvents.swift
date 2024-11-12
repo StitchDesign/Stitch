@@ -98,16 +98,16 @@ extension StitchDocumentViewModel {
                 }
                 
                 
-//                let jsonResponse = String(data: data, encoding: .utf8) ?? "Invalid JSON format"
+                //                let jsonResponse = String(data: data, encoding: .utf8) ?? "Invalid JSON format"
                 
-//                let s = parseJSON(jsonResponse)
-//                print(s!.rawString(options: [.withoutEscapingSlashes, .prettyPrinted]))
-
+                //                let s = parseJSON(jsonResponse)
+                //                print(s!.rawString(options: [.withoutEscapingSlashes, .prettyPrinted]))
                 
                 
-
+                
+                
                 let jsonResponse = String(data: data, encoding: .utf8) ?? "Invalid JSON format"
-
+                
                 log("JSON RESPONSE")
                 log(jsonResponse)
                 
@@ -121,10 +121,10 @@ extension StitchDocumentViewModel {
                    let contentObject = try? JSONSerialization.jsonObject(with: contentData, options: []),
                    let contentDict = contentObject as? [String: Any],
                    let stepsArray = contentDict["steps"] {
-
+                    
                     // Wrap `stepsArray` in a dictionary to include the "steps" key
                     let stepsDict: [String: Any] = ["steps": stepsArray]
-
+                    
                     // I want to see us turn the OpenAI json-response into an array of our `Step` struct;
                     // right now we'er
                     
@@ -140,11 +140,14 @@ extension StitchDocumentViewModel {
                 
                 do {
                     if let transformedResponse = self?.transformOpenAIResponseToLLMActionsString(data: data) {
+                        
                         guard !transformedResponse.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
                             self?.showErrorModal(message: "Empty transformed response", userPrompt: userInput, jsonResponse: jsonResponse)
                             return
                         }
                         
+                    } // if let
+                    
                 } catch {
                     self?.showErrorModal(message: "Error processing response: \(error.localizedDescription)", userPrompt: userInput, jsonResponse: jsonResponse)
                 }
@@ -301,6 +304,7 @@ extension StitchDocumentViewModel {
         }
     }
 }
+
 
 
 struct OpenAIAPIKeyChanged: StitchStoreEvent {
