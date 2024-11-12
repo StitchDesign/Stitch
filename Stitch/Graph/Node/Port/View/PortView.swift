@@ -52,15 +52,15 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
                     .frame(width: 8)
                     .offset(x: NodeRowViewModelType.nodeIO == .input ? -4 : 4)
             }
-        .overlay(PortEntryExtendedHitBox(rowViewModel: rowViewModel,
-                                         graphState: graph))
-        .animation(.linear(duration: self.animationTime),
-                   value: portColor)
+            .overlay(PortEntryExtendedHitBox(rowViewModel: rowViewModel,
+                                             graphState: graph))
+            .animation(.linear(duration: self.animationTime),
+                       value: portColor)
         // Update port color on selected edges change
         // Note: Should this ALSO update upstream and downstream ports? If not, why not?
-        .onChange(of: graph.selectedEdges) {
-            self.rowViewModel.updatePortColor()
-        }
+            .onChange(of: graph.selectedEdges) {
+                self.rowViewModel.updatePortColor()
+            }
     }
     
     @MainActor

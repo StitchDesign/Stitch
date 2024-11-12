@@ -237,8 +237,7 @@ struct DefaultNodeRowView<RowViewModel, RowView>: View where RowViewModel: NodeR
     }
 
     var body: some View {
-        VStack(alignment: self.alignment,
-               spacing: SPACING_BETWEEN_NODE_ROWS) {
+        VStack(alignment: self.alignment) {
             // If no rows, create a dummy view to create some empty space
             if hasEmptyRows {
                 Color.clear
@@ -248,6 +247,8 @@ struct DefaultNodeRowView<RowViewModel, RowView>: View where RowViewModel: NodeR
                 ForEach(self.rowViewModels) { rowViewModel in
                     if let rowObserver = rowViewModel.rowDelegate {
                         self.rowView(rowObserver, rowViewModel)
+                        // fixes issue where ports could have inconsistent height with no label
+                            .height(NODE_ROW_HEIGHT + 8)
                     }
                 }
             }

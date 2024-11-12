@@ -117,14 +117,14 @@ extension NodeRowViewModel {
     func updateAnchorPoint() {
         guard let canvas = self.canvasItemDelegate else { return }
         let size = canvas.bounds.localBounds.size
-        let ioAdjustment: CGFloat = 6
+        let ioAdjustment: CGFloat = 8
         let ioConstraint: CGFloat = Self.nodeIO == .input ? ioAdjustment : -ioAdjustment
         
         // Offsets needed because node position uses its center location
         let offsetX: CGFloat = canvas.position.x + ioConstraint - size.width / 2
-        let offsetY: CGFloat = canvas.position.y - size.height / 2 + 62
+        let offsetY: CGFloat = canvas.position.y - size.height / 2 + 63
         
-        let anchorY = offsetY + CGFloat(self.id.portId) * 30
+        let anchorY = offsetY + CGFloat(self.id.portId) * 28
         
         switch Self.nodeIO {
         case .input:

@@ -302,6 +302,9 @@ extension StitchDocumentViewModel {
             let positionAtStart = canvasItem.previousPosition
             canvasItem.previousPosition = canvasItem.position
             
+            // Refresh ports
+            canvasItem.updatePortLocations()
+            
             let diff = canvasItem.position - positionAtStart
             self.maybeCreateLLMMoveNode(canvasItem: canvasItem,
                                         diff: diff)
