@@ -98,19 +98,23 @@ struct iPadGraphTopBarButtons: View {
         // TODO: why does `Group` but not `HStack` work here? Something to do with `Menu`?
         Group {
             
+            iPadNavBarButton(action: { document.openedStitchAIModal() },
+                             iconName: .sfSymbol(STITCH_AI_SF_SYMBOL))
+            .opacity(llmRecordingModeEnabled ? 1 : 0)
+            
             iPadNavBarButton(action: { document.openedLLMActionsJSONEntryModal() },
                              iconName: .sfSymbol(LLM_OPEN_JSON_ENTRY_MODAL_SF_SYMBOL))
+            .opacity(llmRecordingModeEnabled ? 1 : 0)
             
             iPadNavBarButton(action: { dispatch(LLMRecordingToggled()) },
                              iconName: .sfSymbol(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL))
-            
             .opacity(llmRecordingModeEnabled ? 1 : 0)
             
             // go up a traversal level
-                iPadNavBarButton(action: { dispatch(GoUpOneTraversalLevel()) },
-                                 iconName: .sfSymbol(.GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME))
-                .opacity(hasActiveGroupFocused ? 1 : 0)
-
+            iPadNavBarButton(action: { dispatch(GoUpOneTraversalLevel()) },
+                             iconName: .sfSymbol(.GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME))
+            .opacity(hasActiveGroupFocused ? 1 : 0)
+            
             // add node
             iPadNavBarButton(action: INSERT_NODE_ACTION,
                              iconName: .sfSymbol(.ADD_NODE_SF_SYMBOL_NAME))
