@@ -17,8 +17,9 @@ struct LLMRecordingState: Equatable {
     // Are we actively recording redux-actions which we then turn into LLM-actions?
     var isRecording: Bool = false
     
-    var actions: [LLMAction] = .init()
-
+//    var actions: [LLMAction] = .init()
+    var actions: [LLMStepAction] = .init()
+    
     var promptState = LLMPromptState()
     
     var jsonEntryState = LLMJsonEntryState()

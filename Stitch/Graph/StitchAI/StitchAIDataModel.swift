@@ -31,7 +31,15 @@ struct ContentJSON: Codable {
     var steps: [Step]
 }
 
-struct Step: Codable {
+typealias LLMStepAction = Step
+typealias LLMStepActions = [LLMStepAction]
+
+// TODO: more specfic name e.g. `LLMStepAction` ?
+// TODO: make parameters more specific? e.g. `nodeName` should be an enum?
+
+// should actually be an enum like LLMAction ? So that we can avoid the many `nil` parameters?
+// worst case, keep this data structure for decoding OpenAI json schema, and easily translate between these two ?
+struct Step: Equatable, Codable {
     var stepType: String
     var nodeId: String?
     var nodeName: String?
@@ -53,7 +61,8 @@ struct Step: Codable {
     }
 }
 
-struct StringOrNumber: Codable {
+
+struct StringOrNumber: Equatable, Codable {
     let value: String
     
     init(from decoder: Decoder) throws {
@@ -71,7 +80,7 @@ struct StringOrNumber: Codable {
 }
 
 
-struct LLMActionData: Codable {
+struct LLMActionData: Equatable, Codable {
     let action: String
     let node: String?
     let nodeType: String?
@@ -86,18 +95,18 @@ struct LLMActionData: Codable {
     }
 }
 
-struct EdgePoint: Codable {
+struct EdgePoint: Equatable, Codable {
     let node: String
     let port: String
 }
 
-struct NodeInfoData {
+struct NodeInfoData: Equatable, Codable {
     var type: String
     var inputPortCount: Int = 0
     var nodeType: String?
 }
 
-enum ActionType: String {
+enum ActionType: String, Equatable {
     case addNode = "Add Node"
     case addLayerInput = "Add Layer Input"
     case addEdge = "Add Edge"
@@ -105,7 +114,7 @@ enum ActionType: String {
     case setInput = "Set Input"
 }
 
-enum StepType: String, Codable {
+enum StepType: String, Equatable, Codable {
     case addNode = "add_node"
     case addLayerInput = "add_layer_input"
     case connectNodes = "connect_nodes"
@@ -115,7 +124,7 @@ enum StepType: String, Codable {
 
 
 // Node Types
-enum StitchAINodeKinds: String, CaseIterable {
+enum StitchAINodeKinds: String, Equatable, CaseIterable {
     // Mathematical Operations
     case add = "Add"
     case subtract = "Subtract"

@@ -108,6 +108,9 @@ extension StitchDocumentViewModel {
 
                 let jsonResponse = String(data: data, encoding: .utf8) ?? "Invalid JSON format"
 
+                log("JSON RESPONSE")
+                log(jsonResponse)
+                
                 if let jsonData = jsonResponse.data(using: .utf8),
                    let jsonObject = try? JSONSerialization.jsonObject(with: jsonData, options: []),
                    let jsonDict = jsonObject as? [String: Any],
@@ -122,10 +125,14 @@ extension StitchDocumentViewModel {
                     // Wrap `stepsArray` in a dictionary to include the "steps" key
                     let stepsDict: [String: Any] = ["steps": stepsArray]
 
+                    // I want to see us turn the OpenAI json-response into an array of our `Step` struct;
+                    // right now we'er
+                    
                     // Re-encode the `stepsDict` with pretty printing for readability
                     if let prettyStepsData = try? JSONSerialization.data(withJSONObject: stepsDict, options: [.prettyPrinted]),
                        let prettyStepsString = String(data: prettyStepsData, encoding: .utf8) {
-                        print(prettyStepsString)
+                        log("STEPS PRETTY PRINTED JSON")
+                        log(prettyStepsString)
                     }
                 } else {
                     print("Could not parse steps")
@@ -169,7 +176,8 @@ extension StitchDocumentViewModel {
     }
     
     
-    @MainActor private func closeStitchAIModal() {
+    @MainActor
+    private func closeStitchAIModal() {
         self.stitchAI.promptState.showModal = false
         self.stitchAI.promptState.prompt = ""
         self.graphUI.reduxFocusedField = nil
@@ -197,10 +205,14 @@ extension StitchDocumentViewModel {
             }
             
             let contentJSON = try firstChoice.message.parseContent()
+            
+            log("transformOpenAIResponseToLLMActionsString: contentJSON: \(contentJSON)")
+            
             var llmActions: [LLMActionData] = []
             var nodeInfoMap: [String: NodeInfoData] = [:]
             var layerInputsAdded: Set<String> = []
             
+            // TODO: instead of turning this
             for step in contentJSON.steps {
                 guard let stepType = StepType(rawValue: step.stepType) else {
                     print("Unknown step type: \(step.stepType)")
@@ -210,11 +222,17 @@ extension StitchDocumentViewModel {
                 switch stepType {
                 case .addNode:
                     if let nodeId = step.nodeId, let nodeName = step.nodeName {
+                        
                         let parsedNodeType = nodeName.components(separatedBy: "||").first?.trimmingCharacters(in: .whitespaces) ?? ""
+                        
                         if let nodeKind = VisualProgrammingTypes.validNodeKinds[parsedNodeType.lowercased()] {
+                            
                             let title = "\(nodeKind.rawValue) (\(nodeId))"
+                            
                             llmActions.append(LLMActionData(action: ActionType.addNode.rawValue, node: title, nodeType: nodeKind.rawValue, port: nil, from: nil, to: nil, field: nil, value: nil))
+                            
                             nodeInfoMap[nodeId] = NodeInfoData(type: nodeKind.rawValue)
+                            
                         } else {
                             print("Unknown node type: '\(parsedNodeType)' does not match any validNodeTypes.")
                         }
@@ -222,8 +240,11 @@ extension StitchDocumentViewModel {
                     
                 case .addLayerInput:
                     if let nodeId = step.toNodeId, let port = step.port?.value, let nodeInfo = nodeInfoMap[nodeId], !layerInputsAdded.contains("\(nodeId):\(port)") {
+                        
                         let nodeTitle = "\(nodeInfo.type.capitalized) (\(nodeId))"
+                        
                         llmActions.append(LLMActionData(action: ActionType.addLayerInput.rawValue, node: nodeTitle, nodeType: nil, port: port.capitalized, from: nil, to: nil, field: nil, value: nil))
+                        
                         layerInputsAdded.insert("\(nodeId):\(port)")
                     } else {
                         print("failed to add layer input)")
@@ -291,6 +312,9 @@ extension StitchDocumentViewModel {
             
             let encoder = JSONEncoder()
             encoder.outputFormatting = .prettyPrinted
+            
+            // TODO: NOV 11
+            // Would be better to just return the LLMActions here?
             let jsonData = try encoder.encode(llmActions)
             return String(data: jsonData, encoding: .utf8)
         } catch {

@@ -851,6 +851,7 @@
 		ECEA600E28E611AD002D7F4F /* NodeTypeChangedHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEA600D28E611AD002D7F4F /* NodeTypeChangedHelpers.swift */; };
 		ECEACE8C2A8587C3007ACDE2 /* StitchFPS.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEACE8B2A8587C3007ACDE2 /* StitchFPS.swift */; };
 		ECEAFE61270E1E0D007DF78D /* OperationEvaluationHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEAFE60270E1E0D007DF78D /* OperationEvaluationHelpers.swift */; };
+		ECEC4A442CE2FB900062ACAF /* StepTypeActionsFromStateChanges.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEC4A432CE2FB900062ACAF /* StepTypeActionsFromStateChanges.swift */; };
 		ECEC7E0826CCBEAC008A39C1 /* ClassicAnimationCurve.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEC7E0726CCBEAC008A39C1 /* ClassicAnimationCurve.swift */; };
 		ECECF3DD2C095A8F004A4D10 /* TabKeyPressActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECECF3DC2C095A8F004A4D10 /* TabKeyPressActions.swift */; };
 		ECEDC09F29E4C62C0034BA50 /* TestStateUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEDC09E29E4C62C0034BA50 /* TestStateUtils.swift */; };
@@ -1782,6 +1783,7 @@
 		ECEA600D28E611AD002D7F4F /* NodeTypeChangedHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeTypeChangedHelpers.swift; sourceTree = "<group>"; };
 		ECEACE8B2A8587C3007ACDE2 /* StitchFPS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchFPS.swift; sourceTree = "<group>"; };
 		ECEAFE60270E1E0D007DF78D /* OperationEvaluationHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationEvaluationHelpers.swift; sourceTree = "<group>"; };
+		ECEC4A432CE2FB900062ACAF /* StepTypeActionsFromStateChanges.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepTypeActionsFromStateChanges.swift; sourceTree = "<group>"; };
 		ECEC7E0726CCBEAC008A39C1 /* ClassicAnimationCurve.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassicAnimationCurve.swift; sourceTree = "<group>"; };
 		ECECF3DC2C095A8F004A4D10 /* TabKeyPressActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabKeyPressActions.swift; sourceTree = "<group>"; };
 		ECEDC09E29E4C62C0034BA50 /* TestStateUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestStateUtils.swift; sourceTree = "<group>"; };
@@ -3739,6 +3741,7 @@
 				E40B2F4F2CB86D21005F5479 /* StitchAIEvents.swift */,
 				E40B2F522CB86E48005F5479 /* StitchAIConstants.swift */,
 				E40B2F542CB86F2B005F5479 /* StitchAIDataModel.swift */,
+				ECEC4A432CE2FB900062ACAF /* StepTypeActionsFromStateChanges.swift */,
 			);
 			path = StitchAI;
 			sourceTree = "<group>";
@@ -4655,6 +4658,7 @@
 				EC17ACC426B4BC5900137EA5 /* StitchVideoMetadata.swift in Sources */,
 				EC5F64312C2B451C00A9E52F /* LLMActions.swift in Sources */,
 				ECE7086A2B8D4AF8009F4525 /* CurveToPackNode.swift in Sources */,
+				ECEC4A442CE2FB900062ACAF /* StepTypeActionsFromStateChanges.swift in Sources */,
 				EC1224A32B98F1E20011D687 /* StitchBlendMode.swift in Sources */,
 				ECE35EE027CEE50300CB8F5C /* FieldValueHelpers.swift in Sources */,
 				EC0B8A7F2953C4C500AA01B6 /* RoundedRectanglePatchNode.swift in Sources */,

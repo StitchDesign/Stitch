@@ -7,6 +7,7 @@
 
 import Foundation
 import StitchSchemaKit
+import SwiftyJSON
 
 extension NodeViewModel {
     @MainActor
@@ -28,7 +29,8 @@ extension StitchDocumentViewModel {
                 node: node.llmNodeTitle,
                 port: property.layerInput.label())
             
-            self.llmRecording.actions.append(.addLayerInput(addLayer))
+            // TODO: NOV 11
+//            self.llmRecording.actions.append(.addLayerInput(addLayer))
         }
     }
     
@@ -48,21 +50,34 @@ extension StitchDocumentViewModel {
                 node: node.llmNodeTitle,
                 port: port)
             
-            self.llmRecording.actions.append(.addLayerOutput(addLayer))
+            // TODO: NOV 11
+//            self.llmRecording.actions.append(.addLayerOutput(addLayer))
         }
     }
     
+    // fka `maybeCreateLLMAddNode`
     @MainActor
-        func maybeCreateLLMAddNode(_ newlyCreatedNodeId: NodeId) {
-            // If we're LLM-recording, add an `LLMAddNode` action
-            if self.llmRecording.isRecording,
-               let newlyCreatedNode = self.graph.getNodeViewModel(newlyCreatedNodeId) {
-                
-                let llmAddNode = LLMAddNode(node: newlyCreatedNode.llmNodeTitle)
-                
-                self.llmRecording.actions.append(.addNode(llmAddNode))
-            }
+    func maybeCreateStepTypeAddNode(_ newlyCreatedNodeId: NodeId) {
+        // If we're LLM-recording, add an `LLMAddNode` action
+        if self.llmRecording.isRecording,
+           let newlyCreatedNode = self.graph.getNodeViewModel(newlyCreatedNodeId) {
+            
+            let stepAddNode: LLMStepAction = newlyCreatedNode.createLLMStepAddNode()
+            
+            log("maybeCreateStepTypeAddNode: stepAddNode: \(stepAddNode)")
+            
+            let data: Data = try! JSONEncoder().encode(stepAddNode)
+            let json: JSON = data.toJSON!
+            // DOES NOT INCLUDE 'NIL' FIELDS
+            log("maybeCreateStepTypeAddNode: json: \(json)")
+            
+            self.llmRecording.actions.append(stepAddNode)
+
+            // TODO: NOV 11
+            // let llmAddNode = LLMAddNode(node: newlyCreatedNode.llmNodeTitle)
+            // self.llmRecording.actions.append(.addNode(llmAddNode))
         }
+    }
 
     @MainActor
     func maybeCreateLLMMoveNode(canvasItem: CanvasItemViewModel,
@@ -84,7 +99,8 @@ extension StitchDocumentViewModel {
                 translation: .init(x: diff.x.rounded(),
                                    y: diff.y.rounded()))
             
-            self.llmRecording.actions.append(.moveNode(llmMoveNode))
+            // TODO: NOV 11
+            // self.llmRecording.actions.append(.moveNode(llmMoveNode))
         }
     }
         
@@ -102,14 +118,15 @@ extension StitchDocumentViewModel {
                                             nodeIO: .input,
                                             nodeType: toNode.userVisibleType)
             
-            self.llmRecording.actions.append(
-                .addEdge(LLMAddEdge(
-                    // Need to turn the `NodeIOCoordinate` into a
-                    from: .init(node: fromNode.llmNodeTitle, 
-                                port: fromOutput),
-                    to: .init(node: toNode.llmNodeTitle,
-                              port: toInput)))
-            )
+            // TODO: NOV 11
+//            self.llmRecording.actions.append(
+//                .addEdge(LLMAddEdge(
+//                    // Need to turn the `NodeIOCoordinate` into a
+//                    from: .init(node: fromNode.llmNodeTitle, 
+//                                port: fromOutput),
+//                    to: .init(node: toNode.llmNodeTitle,
+//                              port: toInput)))
+//            )
         }
     }
     
@@ -125,12 +142,13 @@ extension StitchDocumentViewModel {
                                        nodeIO: .input,
                                        nodeType: node.userVisibleType)
             
-            self.llmRecording.actions.append(
-                .setInput(LLMSetInputAction(
-                    field: LLMPortCoordinate(node: node.llmNodeTitle,
-                                             port: port),
-                    value: value.asLLMValue,
-                    nodeType: NodeType(value).display)))
+            // TODO: NOV 11
+//            self.llmRecording.actions.append(
+//                .setInput(LLMSetInputAction(
+//                    field: LLMPortCoordinate(node: node.llmNodeTitle,
+//                                             port: port),
+//                    value: value.asLLMValue,
+//                    nodeType: NodeType(value).display)))
         }
     }
     
@@ -139,11 +157,12 @@ extension StitchDocumentViewModel {
                                        newNodeType: NodeType) {
         
         if self.llmRecording.isRecording {
-            self.llmRecording.actions.append(
-                .changeNodeType(LLMAChangeNodeTypeAction(
-                    node: node.llmNodeTitle,
-                    nodeType: newNodeType.display))
-            )
+            // TODO: NOV 11
+//            self.llmRecording.actions.append(
+//                .changeNodeType(LLMAChangeNodeTypeAction(
+//                    node: node.llmNodeTitle,
+//                    nodeType: newNodeType.display))
+//            )
         }
     }
 }
