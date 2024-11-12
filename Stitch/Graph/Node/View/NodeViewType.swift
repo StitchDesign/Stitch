@@ -111,6 +111,8 @@ struct NodeTypeView: View {
 }
 
 struct DefaultNodeInputView: View {
+    @State private var showPopover: Bool = false
+    
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
     @Bindable var canvas: CanvasItemViewModel
@@ -127,26 +129,36 @@ struct DefaultNodeInputView: View {
             let layerInputObserver: LayerInputObserver? = rowObserver.id.layerInput
                 .flatMap { node.layerNode?.getLayerInputObserver($0.layerInput) }
             
-            NodeInputView(graph: graph,
-                          nodeId: node.id,
-                          nodeKind: node.kind,
-                          hasIncomingEdge: rowObserver.upstreamOutputCoordinate.isDefined,
-                          rowObserverId: rowObserver.id,
-                          rowObserver: rowObserver,
-                          rowViewModel: rowViewModel,
-                          fieldValueTypes: rowViewModel.fieldValueTypes,
-                          // Pass down the layerInputObserver if we have a 'layer input on the canvas'
-                          layerInputObserver: layerInputObserver,
-                          forPropertySidebar: false, // Always false, since not an inspector-row
-                          propertyIsSelected: false,
-                          propertyIsAlreadyOnGraph: true, // Irrelevant?
-                          isCanvasItemSelected: isNodeSelected,
-                          label: rowObserver.label())
+            HStack {
+                NodeRowPortView(graph: graph,
+                                rowObserver: rowObserver,
+                                rowViewModel: rowViewModel,
+                                showPopover: $showPopover)
+                
+                NodeInputView(graph: graph,
+                              nodeId: node.id,
+                              nodeKind: node.kind,
+                              hasIncomingEdge: rowObserver.upstreamOutputCoordinate.isDefined,
+                              rowObserverId: rowObserver.id,
+                              rowObserver: rowObserver,
+                              rowViewModel: rowViewModel,
+                              fieldValueTypes: rowViewModel.fieldValueTypes,
+                              // Pass down the layerInputObserver if we have a 'layer input on the canvas'
+                              layerInputObserver: layerInputObserver,
+                              forPropertySidebar: false, // Always false, since not an inspector-row
+                              propertyIsSelected: false,
+                              propertyIsAlreadyOnGraph: true, // Irrelevant?
+                              isCanvasItemSelected: isNodeSelected,
+                              label: rowObserver.label())
+            }
+            
         }
     }
 }
 
 struct DefaultNodeOutputView: View {
+    @State private var showPopover: Bool = false
+    
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
     @Bindable var canvas: CanvasItemViewModel
@@ -159,14 +171,21 @@ struct DefaultNodeOutputView: View {
                            rowViewModels: canvas.outputViewModels,
                            nodeIO: .output,
                            adjustmentBarSessionId: adjustmentBarSessionId) { rowObserver, rowViewModel in
-            NodeOutputView(graph: graph,
-                           rowObserver: rowObserver,
-                           rowViewModel: rowViewModel,
-                           forPropertySidebar: false,
-                           propertyIsSelected: false,
-                           propertyIsAlreadyOnGraph: true,
-                           isCanvasItemSelected: isNodeSelected, 
-                           label: rowObserver.label())
+            HStack {
+                NodeOutputView(graph: graph,
+                               rowObserver: rowObserver,
+                               rowViewModel: rowViewModel,
+                               forPropertySidebar: false,
+                               propertyIsSelected: false,
+                               propertyIsAlreadyOnGraph: true,
+                               isCanvasItemSelected: isNodeSelected,
+                               label: rowObserver.label())
+                
+                NodeRowPortView(graph: graph,
+                                rowObserver: rowObserver,
+                                rowViewModel: rowViewModel,
+                                showPopover: $showPopover)
+            }
         }
     }
 }

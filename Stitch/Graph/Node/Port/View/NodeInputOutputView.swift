@@ -134,8 +134,6 @@ struct NodeInputView: View {
     
     @Environment(\.appTheme) var theme
     
-    @State private var showPopover: Bool = false
-    
     @Bindable var graph: GraphState
     
     let nodeId: NodeId
@@ -191,17 +189,6 @@ struct NodeInputView: View {
         // For multifields, want the overall label to sit at top of fields' VStack.
         // For single fields, want to the overall label t
         HStack(alignment: hStackAlignment) {
-            
-            // Alternatively, pass `NodeRowPortView` as a closure like we do with ValueEntry view etc.?
-            if !forPropertySidebar,
-               let rowObserver = rowObserver,
-               let rowViewModel = rowViewModel {
-                NodeRowPortView(graph: graph,
-                                rowObserver: rowObserver,
-                                rowViewModel: rowViewModel,
-                                showPopover: $showPopover)
-            }
-            
             if isShadowLayerInputRow, forPropertySidebar, !forFlyout {
                 ShadowInputInspectorRow(nodeId: nodeId,
                                         propertyIsSelected: propertyIsSelected)
@@ -266,8 +253,6 @@ struct ShadowInputInspectorRow: View {
 }
 
 struct NodeOutputView: View {
-    @State private var showPopover: Bool = false
-    
     @Bindable var graph: GraphState
     
     @Bindable var rowObserver: OutputNodeRowObserver
@@ -320,7 +305,6 @@ struct NodeOutputView: View {
             
             // Hide outputs for value node
             if !isSplitter {
-                
                 FieldsListView<OutputNodeRowViewModel, OutputValueEntry>(
                     graph: graph,
                     fieldValueTypes: rowViewModel.fieldValueTypes,
@@ -333,10 +317,6 @@ struct NodeOutputView: View {
             
             if !forPropertySidebar {
                 labelView
-                NodeRowPortView(graph: graph,
-                                rowObserver: rowObserver,
-                                rowViewModel: rowViewModel,
-                                showPopover: $showPopover)
             }
         } // HStack
         .modifier(EdgeEditModeOutputViewModifier(
