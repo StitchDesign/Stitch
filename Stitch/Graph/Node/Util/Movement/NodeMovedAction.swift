@@ -46,6 +46,9 @@ extension CanvasItemViewModel {
 
         self.position = self.previousPosition + translationSize.toCGPoint
         log("updateCanvasItemOnDragged self.position is now: \(self.position)")
+        
+        // updates port locations for edges
+        self.updatePortLocations()
     }
 
     // fka `updateNodeOnGraphDragged`
@@ -249,9 +252,6 @@ extension GraphState {
         self.edgeDrawingObserver.reset()
         self.nodeIsMoving = true
         self.outputDragStartedCount = 0
-        
-        // updates port locations for edges
-        canvasItem.updatePortLocations()
     }
 }
 
