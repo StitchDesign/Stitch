@@ -346,6 +346,16 @@ extension NodeViewModel {
         return false
     }
     
+    @MainActor func getValidCustomTitle() -> String? {
+        guard self.kind.isEligibleForDefaultTitleDisplay else { return nil }
+        
+        let defaultTitle = self.kind.getDisplayTitle(customName: nil)
+        let hasCustomTitle = self.displayTitle.trim() != defaultTitle.trim()
+        
+        guard hasCustomTitle else { return nil }
+        return defaultTitle
+    }
+    
     @MainActor
     func updateOutputsObservers(newValuesList: PortValuesList? = nil) {
         let outputsObservers = self.getAllOutputsObservers()

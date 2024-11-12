@@ -46,6 +46,9 @@ extension CanvasItemViewModel {
 
         self.position = self.previousPosition + translationSize.toCGPoint
         log("updateCanvasItemOnDragged self.position is now: \(self.position)")
+        
+        // updates port locations for edges
+        self.updatePortLocations()
     }
 
     // fka `updateNodeOnGraphDragged`
@@ -298,6 +301,9 @@ extension StitchDocumentViewModel {
             
             let positionAtStart = canvasItem.previousPosition
             canvasItem.previousPosition = canvasItem.position
+            
+            // Refresh ports
+            canvasItem.updatePortLocations()
             
             let diff = canvasItem.position - positionAtStart
             self.maybeCreateLLMMoveNode(canvasItem: canvasItem,
