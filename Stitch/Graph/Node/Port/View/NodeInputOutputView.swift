@@ -310,11 +310,6 @@ struct NodeOutputView: View {
                 labelView
             }
         } // HStack
-        .modifier(EdgeEditModeOutputViewModifier(
-            graphState: graph,
-            portId: rowViewModel.id.portId,
-            canvasItemId: self.rowViewModel.canvasItemDelegate?.id,
-            forPropertySidebar: forPropertySidebar))
     }
     
     @ViewBuilder @MainActor

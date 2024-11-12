@@ -186,6 +186,10 @@ struct DefaultNodeOutputView: View {
                                 rowViewModel: rowViewModel,
                                 showPopover: $showPopover)
             }
+            .modifier(EdgeEditModeOutputHoverViewModifier(
+                graph: graph,
+                outputCoordinate: .init(portId: rowViewModel.id.portId,
+                                        canvasId: canvas.id)))
         }
     }
 }
