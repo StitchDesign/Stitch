@@ -48,7 +48,7 @@ extension StitchDocumentViewModel {
             self.visibleGraph.encodeProjectInBackground()
         } catch {
             log("LLMActionsJSONEntryModalClosed: Error: \(error)")
-            fatalErrorIfDebug("LLMActionsJSONEntryModalClosed: could not retrieve")
+            fatalErrorIfDebug("LLMActionsJSONEntryModalClosed: could not decode LLMStepActions")
         }
     }
 }

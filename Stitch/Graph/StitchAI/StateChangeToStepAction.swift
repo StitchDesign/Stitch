@@ -102,11 +102,11 @@ extension NodeViewModel {
          */
         LLMStepAction(stepType: StepType.setInput.rawValue,
                       nodeId: self.id.description,
-                      port: StringOrNumber(value: input.asLLMStepPort()),
+                      port: .init(value: input.asLLMStepPort()),
                       
                       // Note: `.asLLMValue: JSONFriendlyFormat` is needed for handling more complex values like `LayerDimension`
                       // value: value.asLLMValue,
-                      value: StringOrNumber(value: value.display),
+                      value: .init(value: value.display),
                       
                       // For disambiguating between e.g. a string "2" and the number 2
                       nodeType: value.toNodeType.asLLMStepNodeType)

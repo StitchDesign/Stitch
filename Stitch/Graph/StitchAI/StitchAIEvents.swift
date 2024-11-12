@@ -9,159 +9,6 @@ import Foundation
 import SwiftUI
 import SwiftyJSON
 
-
-// TODO: Use a side-effect to make the request; the side-effect returns then with pure data reporting the success (new data) or error (update the error-modal)
-// Avoids concurrency issues in Swift 6 etc.
-
-struct MakeOpenAIRequest: StitchDocumentEvent {
-    let prompt: String
-    
-    func handle(state: StitchDocumentViewModel) {
-        
-        guard let openAIAPIURL = URL(string: OPEN_AI_BASE_URL) else {
-            
-            state.showErrorModal(message: "Invalid URL",
-                                 userPrompt: prompt,
-                                 jsonResponse: nil)
-            return
-        }
-        
-        guard let apiKey = UserDefaults.standard.string(forKey: OPENAI_API_KEY_NAME),
-                !apiKey.isEmpty else {
-            
-            state.showErrorModal(message: "No API Key found or API Key is empty",
-                                 userPrompt: prompt,
-                                 jsonResponse: nil)
-            return
-        }
-        
-        var request = URLRequest(url: openAIAPIURL)
-        request.httpMethod = "POST"
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
-        
-        guard let responseSchema = try? JSONSerialization.jsonObject(with: Data(VISUAL_PROGRAMMING_ACTIONS.utf8), options: []) as? [String: Any] else {
-            
-            state.showErrorModal(message: "Failed to parse VISUAL_PROGRAMMING_ACTIONS JSON",
-                                 userPrompt: prompt,
-                                 jsonResponse: VISUAL_PROGRAMMING_ACTIONS)
-            return
-        }
-        
-        let body: [String: Any] = [
-            "model": OPEN_AI_MODEL,
-            "messages": [
-                [
-                    "role": "system",
-                    "content": SYSTEM_PROMPT
-                ],
-                [
-                    "role": "user",
-                    "content": prompt
-                ]
-            ],
-            "response_format": [
-                "type": "json_schema",
-                "json_schema": [
-                    "name": "visual_programming_actions_schema",
-                    "schema": responseSchema
-                ]
-            ]
-        ]
-        
-        do {
-            let jsonData = try JSONSerialization.data(withJSONObject: body, options: [])
-            request.httpBody = jsonData
-        } catch {
-            
-            state.showErrorModal(message: "Error encoding JSON: \(error.localizedDescription)",
-                                 userPrompt: prompt,
-                                 jsonResponse: nil)
-            return
-        }
-        
-        state.stitchAI.promptState.isGenerating = true
-        
-        // Note: really, should return a proper `Effect` here
-        URLSession.shared.dataTask(with: request) { data, _, error in
-            // Make the request and dispatch (on the main thread) an action that will handle the request's result
-            DispatchQueue.main.async {
-                dispatch(OpenAIRequestCompleted(originalPrompt: prompt, data: data, error: error))
-            }
-        }.resume()
-    }
-}
-
-struct OpenAIRequestCompleted: StitchDocumentEvent {
-    let originalPrompt: String
-    let data: Data?
-    let error: Error?
-    
-    func handle(state: StitchDocumentViewModel) {
-        
-        // We've finished generating an OpenAI response from the prompt
-        state.stitchAI.promptState.isGenerating = false
-        
-        // Error from HTTP Request
-        if let error: Error = error {
-            state.showErrorModal(message: "Request error: \(error.localizedDescription)",
-                                 userPrompt: originalPrompt,
-                                 jsonResponse: nil)
-            return
-        }
-        
-        guard let data: Data = data else {
-            state.showErrorModal(message: "No data received",
-                                 userPrompt: originalPrompt,
-                                 jsonResponse: nil)
-            return
-        }
-        
-        
-        let jsonResponse = String(data: data, encoding: .utf8) ?? "Invalid JSON format"
-        
-        log("OpenAIRequestCompleted: JSON RESPONSE: \(jsonResponse)")
-        
-        let (stepsFromReponse, error) = data.getOpenAISteps()
-        
-        guard let stepsFromReponse = stepsFromReponse else {
-            state.showErrorModal(message: error?.localizedDescription ?? "",
-                                 userPrompt: originalPrompt,
-                                 jsonResponse: jsonResponse)
-            return
-        }
-        
-        log("OpenAIRequestCompleted: stepsFromReponse: \(stepsFromReponse)")
-        
-        stepsFromReponse.forEach { step in
-            state.handleLLMStepAction(step)
-        }
-    }
-}
-
-extension Data {
-    
-    func getOpenAISteps() -> (LLMStepActions?, Error?) {
-        do {
-            let response = try JSONDecoder().decode(OpenAIResponse.self, from: self)
-            
-            guard let firstChoice = response.choices.first else {
-                print("Invalid JSON structure: no choices available")
-                return (nil, nil)
-            }
-            
-            let contentJSON = try firstChoice.message.parseContent()
-            
-            return (contentJSON.steps, nil)
-        } catch {
-            return (nil, error)
-        }
-        
-    }
-}
-
-
-
 extension StitchDocumentViewModel {
     
     @MainActor
@@ -183,12 +30,14 @@ extension StitchDocumentViewModel {
             return
         }
 
-        dispatch(MakeOpenAIRequest(prompt: prompt))
+        // Only submit API request via 'submit'
+        // dispatch(MakeOpenAIRequest(prompt: prompt))
+
         self.stitchAI.promptState.prompt = ""
     }
     
     @MainActor
-    private func closeStitchAIModal() {
+    func closeStitchAIModal() {
         self.stitchAI.promptState.showModal = false
         self.stitchAI.promptState.prompt = ""
         self.graphUI.reduxFocusedField = nil
@@ -336,8 +185,6 @@ extension StitchDocumentViewModel {
 //    }
     
 }
-
-
 
 struct OpenAIAPIKeyChanged: StitchStoreEvent {
     

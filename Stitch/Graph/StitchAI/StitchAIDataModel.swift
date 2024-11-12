@@ -66,14 +66,26 @@ struct StringOrNumber: Equatable {
     let value: String
 }
 
+// Note: OpenAI may send us a JSON with e.g. a `port` key that either a json-number or a string; so we have slighlty
+// TODO: Better?: force OpenAI to return a string in the json, always?
 extension StringOrNumber: Codable {
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(self.value)
+    }
+    
     init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
+        var container = try decoder.singleValueContainer()
+        
         if let intValue = try? container.decode(Int.self) {
+            log("StringOrNumber: Decoder: tried int")
             self.value = String(intValue)
         } else if let doubleValue = try? container.decode(Double.self) {
+            log("StringOrNumber: Decoder: tried double")
             self.value = String(doubleValue)
         } else if let stringValue = try? container.decode(String.self) {
+            log("StringOrNumber: Decoder: tried string")
             self.value = stringValue
         } else {
             throw DecodingError.typeMismatch(String.self, DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Expected String, Int, or Double"))

@@ -134,6 +134,9 @@ extension LLMStepAction {
         if let portId = Int(port.value) {
             // could be patch input/output OR layer output
             return .portIndex(portId)
+        } else if let portId = Double(port.value) {
+            // could be patch input/output OR layer output
+            return .portIndex(Int(portId))
         } else if let layerInputPort: LayerInputPort = LayerInputPort.allCases.first(where: {$0.asLLMStepPort == port.value }) {
             let layerInputType = LayerInputType(layerInput: layerInputPort,
                                                 // TODO: support unpacked with StitchAI
