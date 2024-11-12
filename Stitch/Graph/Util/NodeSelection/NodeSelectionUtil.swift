@@ -178,7 +178,7 @@ extension GraphState {
             }
             
             
-            let doesSelectionIntersectCanvasItem = cursorSelectionBox.intersects(canvasItem.bounds.graphBaseViewBounds)
+            let doesSelectionIntersectCanvasItem = cursorSelectionBox.intersects(canvasItem.graphBaseViewBounds)
             
             // Selected
             if doesSelectionIntersectCanvasItem {
@@ -187,7 +187,7 @@ extension GraphState {
                 canvasItem.select()
                 
                 let thisDistance = CGPointDistanceSquared(
-                    from: canvasItem.bounds.graphBaseViewBounds.origin,
+                    from: canvasItem.graphBaseViewBounds.origin,
                     to: graphState.graphUI.selection.expansionBox.endPoint)
 
                 if !smallestDistance.isDefined {

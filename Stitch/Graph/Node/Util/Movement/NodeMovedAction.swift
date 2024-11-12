@@ -289,7 +289,7 @@ extension StitchDocumentViewModel {
         
         let _update = { (canvasItem: CanvasItemViewModel) in
             
-            let nodeSize = canvasItem.bounds.graphBaseViewBounds.size
+            let nodeSize = canvasItem.graphBaseViewBounds.size
             
             canvasItem.position = determineSnapPosition(
                 position: canvasItem.position,
@@ -364,7 +364,7 @@ extension GraphState {
                     .filter {
                         // Building a comment box's node-set looks at box's border, not its title
                         //                    let intersects = boxBounds.intersects($0.bounds)
-                        let intersects = boxBounds.borderBounds.intersects($0.bounds.graphBaseViewBounds)
+                        let intersects = boxBounds.borderBounds.intersects($0.graphBaseViewBounds)
 
                         // log("buildCommentBoxes: boxBounds: \(boxBounds)")
                         // log("buildCommentBoxes: node.bounds: \($0.bounds)")

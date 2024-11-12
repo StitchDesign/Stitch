@@ -70,7 +70,6 @@ final class CanvasItemViewModel: Identifiable {
     var id: CanvasItemId
     var position: CGPoint = .zero
     var previousPosition: CGPoint = .zero
-    var bounds = NodeBounds()
     var zIndex: Double = .zero
     var parentGroupNodeId: NodeId?
     
@@ -79,6 +78,15 @@ final class CanvasItemViewModel: Identifiable {
     // View specific port value data
     var inputViewModels: [InputNodeRowViewModel] = []
     var outputViewModels: [OutputNodeRowViewModel] = []
+    
+    // bounds used for creation of comment box + anchor location data
+    var localBounds: CGRect = .zero
+    
+    // tracks minimized size so we can offset empty view in zoomed out mode
+    var zoomedOutMinimizedSize: CGSize = .zero
+
+    // bounds used for node selection cursor
+    var graphBaseViewBounds: CGRect = .zero
     
     // Moved state here for render cycle perf on port view for colors
     @MainActor
@@ -206,7 +214,7 @@ extension CanvasItemViewModel {
     }
         
     var sizeByLocalBounds: CGSize {
-        self.bounds.localBounds.size
+        self.localBounds.size
     }
     
     var isMoving: Bool {

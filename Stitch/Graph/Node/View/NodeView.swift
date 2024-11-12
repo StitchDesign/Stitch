@@ -25,7 +25,8 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
 
     let boundsReaderDisabled: Bool
     let usePositionHandler: Bool
-    let updateMenuActiveSelectionBounds: Bool    
+    let updateMenuActiveSelectionBounds: Bool
+    let isZoomedOut: Bool
 
     @ViewBuilder var inputsViews: () -> InputsViews
     @ViewBuilder var outputsViews: () -> OutputsViews
@@ -107,16 +108,26 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
                                        usePositionHandler: usePositionHandler)
     }
 
-    @MainActor
+    @MainActor @ViewBuilder
     var nodeBody: some View {
-        VStack(alignment: .leading, spacing: .zero) {
-            nodeTitle
-            
-            CanvasItemBodyDivider()
-            
-            nodeBodyKind
-                .modifier(CanvasItemBodyPadding())
+        Group {
+            if self.isZoomedOut {
+                Color.clear
+                    .transition(.opacity)
+                    .frame(self.node.localBounds.size - self.node.zoomedOutMinimizedSize)
+            } else {
+                VStack(alignment: .leading, spacing: .zero) {
+                    nodeTitle
+                    
+                    CanvasItemBodyDivider()
+                    
+                    nodeBodyKind
+                        .modifier(CanvasItemBodyPadding())
+                }
+                .transition(.opacity)
+            }
         }
+        .animation(.stitchAnimation, value: self.isZoomedOut)
         .overlay {
             let isLayerInvisible = !(stitch.layerNode?.hasSidebarVisibility ?? true)
             Color.black.opacity(isLayerInvisible ? 0.3 : 0)
@@ -129,7 +140,8 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
             graph: graph,
             canvasItem: node,
             disabled: boundsReaderDisabled,
-            updateMenuActiveSelectionBounds: updateMenuActiveSelectionBounds))
+            updateMenuActiveSelectionBounds: updateMenuActiveSelectionBounds,
+            isZoomedOut: isZoomedOut))
         
         .modifier(CanvasItemSelectedViewModifier(isSelected: isSelected))
     }

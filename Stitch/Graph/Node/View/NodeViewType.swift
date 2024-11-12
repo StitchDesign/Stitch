@@ -45,6 +45,10 @@ struct NodeTypeView: View {
     var displayTitle: String {
         self.node.displayTitle
     }
+    
+    var isZoomedOut: Bool {
+        self.document.graphMovement.zoomData.zoom < 0.25
+    }
 
     var body: some View {
         NodeView(node: canvasNode,
@@ -60,6 +64,7 @@ struct NodeTypeView: View {
                  boundsReaderDisabled: boundsReaderDisabled,
                  usePositionHandler: usePositionHandler,
                  updateMenuActiveSelectionBounds: updateMenuActiveSelectionBounds,
+                 isZoomedOut: isZoomedOut,
                  inputsViews: inputsViews,
                  outputsViews: outputsViews)
         .onChange(of: self.node.patch, initial: true) {
@@ -82,7 +87,8 @@ struct NodeTypeView: View {
                                      node: node,
                                      canvas: canvasNode,
                                      isNodeSelected: isSelected,
-                                     adjustmentBarSessionId: adjustmentBarSessionId)
+                                     adjustmentBarSessionId: adjustmentBarSessionId,
+                                     isZoomedOut: isZoomedOut)
             }
         }
     }
@@ -100,7 +106,8 @@ struct NodeTypeView: View {
                                       node: node,
                                       canvas: canvasNode,
                                       isNodeSelected: isSelected,
-                                      adjustmentBarSessionId: adjustmentBarSessionId)
+                                      adjustmentBarSessionId: adjustmentBarSessionId,
+                                      isZoomedOut: isZoomedOut)
             }
         }
     }
@@ -114,6 +121,7 @@ struct DefaultNodeInputView: View {
     @Bindable var canvas: CanvasItemViewModel
     let isNodeSelected: Bool
     let adjustmentBarSessionId: AdjustmentBarSessionId
+    let isZoomedOut: Bool
     
     var body: some View {
         DefaultNodeRowView(graph: graph,
@@ -131,21 +139,24 @@ struct DefaultNodeInputView: View {
                                 rowViewModel: rowViewModel,
                                 showPopover: $showPopover)
                 
-                NodeInputView(graph: graph,
-                              nodeId: node.id,
-                              nodeKind: node.kind,
-                              hasIncomingEdge: rowObserver.upstreamOutputCoordinate.isDefined,
-                              rowObserverId: rowObserver.id,
-                              rowObserver: rowObserver,
-                              rowViewModel: rowViewModel,
-                              fieldValueTypes: rowViewModel.fieldValueTypes,
-                              // Pass down the layerInputObserver if we have a 'layer input on the canvas'
-                              layerInputObserver: layerInputObserver,
-                              forPropertySidebar: false, // Always false, since not an inspector-row
-                              propertyIsSelected: false,
-                              propertyIsAlreadyOnGraph: true, // Irrelevant?
-                              isCanvasItemSelected: isNodeSelected,
-                              label: rowObserver.label())
+                if !isZoomedOut {
+                    NodeInputView(graph: graph,
+                                  nodeId: node.id,
+                                  nodeKind: node.kind,
+                                  hasIncomingEdge: rowObserver.upstreamOutputCoordinate.isDefined,
+                                  rowObserverId: rowObserver.id,
+                                  rowObserver: rowObserver,
+                                  rowViewModel: rowViewModel,
+                                  fieldValueTypes: rowViewModel.fieldValueTypes,
+                                  // Pass down the layerInputObserver if we have a 'layer input on the canvas'
+                                  layerInputObserver: layerInputObserver,
+                                  forPropertySidebar: false, // Always false, since not an inspector-row
+                                  propertyIsSelected: false,
+                                  propertyIsAlreadyOnGraph: true, // Irrelevant?
+                                  isCanvasItemSelected: isNodeSelected,
+                                  label: rowObserver.label())
+                    .transition(.opacity)
+                }
             }
             
         }
@@ -160,6 +171,7 @@ struct DefaultNodeOutputView: View {
     @Bindable var canvas: CanvasItemViewModel
     let isNodeSelected: Bool
     let adjustmentBarSessionId: AdjustmentBarSessionId
+    let isZoomedOut: Bool
     
     var body: some View {
         DefaultNodeRowView(graph: graph,
@@ -168,14 +180,17 @@ struct DefaultNodeOutputView: View {
                            nodeIO: .output,
                            adjustmentBarSessionId: adjustmentBarSessionId) { rowObserver, rowViewModel in
             HStack {
-                NodeOutputView(graph: graph,
-                               rowObserver: rowObserver,
-                               rowViewModel: rowViewModel,
-                               forPropertySidebar: false,
-                               propertyIsSelected: false,
-                               propertyIsAlreadyOnGraph: true,
-                               isCanvasItemSelected: isNodeSelected,
-                               label: rowObserver.label())
+                if !isZoomedOut {
+                    NodeOutputView(graph: graph,
+                                   rowObserver: rowObserver,
+                                   rowViewModel: rowViewModel,
+                                   forPropertySidebar: false,
+                                   propertyIsSelected: false,
+                                   propertyIsAlreadyOnGraph: true,
+                                   isCanvasItemSelected: isNodeSelected,
+                                   label: rowObserver.label())
+                    .transition(.opacity)
+                }
                 
                 NodeRowPortView(graph: graph,
                                 rowObserver: rowObserver,

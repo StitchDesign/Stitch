@@ -41,6 +41,7 @@ struct CanvasItemBoundsReader: ViewModifier {
     @Bindable var canvasItem: CanvasItemViewModel
     let disabled: Bool
     let updateMenuActiveSelectionBounds: Bool
+    let isZoomedOut: Bool
 
     @MainActor
     var activeIndex: ActiveIndex {
@@ -67,11 +68,15 @@ struct CanvasItemBoundsReader: ViewModifier {
                                   initial: true) { _, newBounds in
                             if !disabled {
                                 // log("CanvasItemBoundsReader: will update local bounds: \(newBounds)")
-
-                                // Used only for comment box creation
-                                canvasItem.bounds.localBounds = newBounds
-                                
-                                canvasItem.updatePortLocations()
+                                if !isZoomedOut {
+                                    // Used only for comment box creation
+                                    canvasItem.localBounds = newBounds
+                                    canvasItem.updatePortLocations()
+                                } else {
+                                    if newBounds.size.width < canvasItem.localBounds.size.width {
+                                        canvasItem.zoomedOutMinimizedSize = newBounds.size
+                                    }
+                                }
                             }
                         }
                 }
@@ -100,7 +105,7 @@ extension GraphState {
             self.graphUI.insertNodeMenuState.activeSelectionBounds = newBounds
         }
 
-        canvasItem.bounds.graphBaseViewBounds = newBounds
+        canvasItem.graphBaseViewBounds = newBounds
 
         // See if it's in the visible frame
 //        let isVisibleInFrame = viewFrame.intersects(newBounds)

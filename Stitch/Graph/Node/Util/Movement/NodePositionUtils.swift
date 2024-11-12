@@ -23,7 +23,7 @@ extension CGPoint {
 // Note: previously we had a side-effect delay to work around some issues with `.buttonStyle(.plain)`'s auto animation and a GraphSchema-update interrupting double tap. These issues now seem to be resolved.
 extension CanvasItemViewModel {
     func adjustPosition(center: CGPoint) {
-        let nodeSize = self.bounds.graphBaseViewBounds.size
+        let nodeSize = self.graphBaseViewBounds.size
         
         self.position = gridAlignedPosition(center: center,
                                             nodeSize: nodeSize)
