@@ -145,28 +145,6 @@ extension StitchDocumentViewModel {
                             return
                         }
                         
-                        let json = JSON(parseJSON: transformedResponse)
-                        if let jsonString = json.rawString() {
-                            print("TRANSFORMED JSON \(jsonString)")
-                        } else {
-                            print("Failed to convert JSON to String")
-                        }
-                        let actions: LLMActions = try JSONDecoder().decode(LLMActions.self, from: json.rawData())
-                        var nodesAdded = 0
-                        
-                        // Process actions
-                        actions.forEach {
-                            nodesAdded = (self?.handleLLMAction($0, nodesAdded: nodesAdded))!
-                        }
-                        
-                        // Trigger additional functionality
-                        self?.visibleGraph.encodeProjectInBackground()
-                        
-                        // Close the modal after successful processing
-                        self?.closeStitchAIModal()
-                    } else {
-                        self?.showErrorModal(message: "Failed to transform response", userPrompt: userInput, jsonResponse: jsonResponse)
-                    }
                 } catch {
                     self?.showErrorModal(message: "Error processing response: \(error.localizedDescription)", userPrompt: userInput, jsonResponse: jsonResponse)
                 }

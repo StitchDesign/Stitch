@@ -10,13 +10,6 @@ import SwiftUI
 import SwiftyJSON
 import StitchSchemaKit
 
-/// What we write to JSON/JSONL file
-struct LLMRecordingData: Equatable, Encodable {
-//    let actions: LLMActions
-    let actions: LLMStepActions
-    let prompt: String // user-entered
-}
-
 extension LLMActions {
     func asJSON() -> JSON? {
         do {
@@ -30,24 +23,6 @@ extension LLMActions {
         }
     }
         
-    func asJSONDisplay() -> String {
-        self.asJSON()?.description ?? "No LLM-Acceptable Actions Detected"
-    }
-}
-
-extension LLMStepActions {
-    func asJSON() -> JSON? {
-        do {
-            let data = try JSONEncoder().encode(self)
-            let json = try JSON(data: data)
-            log("LLMStepActions: asJSON: encoded json: \(json)")
-            return json
-        } catch {
-            log("LLMStepActions: asJSON: error: \(error)")
-            return nil
-        }
-    }
-    
     func asJSONDisplay() -> String {
         self.asJSON()?.description ?? "No LLM-Acceptable Actions Detected"
     }

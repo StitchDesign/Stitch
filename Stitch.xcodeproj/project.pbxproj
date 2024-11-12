@@ -851,7 +851,8 @@
 		ECEA600E28E611AD002D7F4F /* NodeTypeChangedHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEA600D28E611AD002D7F4F /* NodeTypeChangedHelpers.swift */; };
 		ECEACE8C2A8587C3007ACDE2 /* StitchFPS.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEACE8B2A8587C3007ACDE2 /* StitchFPS.swift */; };
 		ECEAFE61270E1E0D007DF78D /* OperationEvaluationHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEAFE60270E1E0D007DF78D /* OperationEvaluationHelpers.swift */; };
-		ECEC4A442CE2FB900062ACAF /* StepTypeActionsFromStateChanges.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEC4A432CE2FB900062ACAF /* StepTypeActionsFromStateChanges.swift */; };
+		ECEC4A442CE2FB900062ACAF /* StateChangeToStepAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEC4A432CE2FB900062ACAF /* StateChangeToStepAction.swift */; };
+		ECEC4A462CE3BEAF0062ACAF /* StepActionToStateChange.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEC4A452CE3BEAF0062ACAF /* StepActionToStateChange.swift */; };
 		ECEC7E0826CCBEAC008A39C1 /* ClassicAnimationCurve.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEC7E0726CCBEAC008A39C1 /* ClassicAnimationCurve.swift */; };
 		ECECF3DD2C095A8F004A4D10 /* TabKeyPressActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECECF3DC2C095A8F004A4D10 /* TabKeyPressActions.swift */; };
 		ECEDC09F29E4C62C0034BA50 /* TestStateUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEDC09E29E4C62C0034BA50 /* TestStateUtils.swift */; };
@@ -1783,7 +1784,8 @@
 		ECEA600D28E611AD002D7F4F /* NodeTypeChangedHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeTypeChangedHelpers.swift; sourceTree = "<group>"; };
 		ECEACE8B2A8587C3007ACDE2 /* StitchFPS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchFPS.swift; sourceTree = "<group>"; };
 		ECEAFE60270E1E0D007DF78D /* OperationEvaluationHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationEvaluationHelpers.swift; sourceTree = "<group>"; };
-		ECEC4A432CE2FB900062ACAF /* StepTypeActionsFromStateChanges.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepTypeActionsFromStateChanges.swift; sourceTree = "<group>"; };
+		ECEC4A432CE2FB900062ACAF /* StateChangeToStepAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateChangeToStepAction.swift; sourceTree = "<group>"; };
+		ECEC4A452CE3BEAF0062ACAF /* StepActionToStateChange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepActionToStateChange.swift; sourceTree = "<group>"; };
 		ECEC7E0726CCBEAC008A39C1 /* ClassicAnimationCurve.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassicAnimationCurve.swift; sourceTree = "<group>"; };
 		ECECF3DC2C095A8F004A4D10 /* TabKeyPressActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabKeyPressActions.swift; sourceTree = "<group>"; };
 		ECEDC09E29E4C62C0034BA50 /* TestStateUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestStateUtils.swift; sourceTree = "<group>"; };
@@ -3741,7 +3743,8 @@
 				E40B2F4F2CB86D21005F5479 /* StitchAIEvents.swift */,
 				E40B2F522CB86E48005F5479 /* StitchAIConstants.swift */,
 				E40B2F542CB86F2B005F5479 /* StitchAIDataModel.swift */,
-				ECEC4A432CE2FB900062ACAF /* StepTypeActionsFromStateChanges.swift */,
+				ECEC4A432CE2FB900062ACAF /* StateChangeToStepAction.swift */,
+				ECEC4A452CE3BEAF0062ACAF /* StepActionToStateChange.swift */,
 			);
 			path = StitchAI;
 			sourceTree = "<group>";
@@ -4344,6 +4347,7 @@
 			children = (
 				ECD83F1A2C1A0C5F00722AD7 /* LLMView.swift */,
 				ECD83F0D2C19ED0800722AD7 /* LLMRecordingState.swift */,
+				EC5C6C392C2DAE690023D0C0 /* LLMActionRecording.swift */,
 				ECD83F0F2C19ED8700722AD7 /* LLMActions */,
 			);
 			path = LLMRecording;
@@ -4355,7 +4359,6 @@
 				ECD83F082C192BC600722AD7 /* LLMAction.swift */,
 				EC5F64302C2B451C00A9E52F /* LLMActions.swift */,
 				ECD83F182C19EDF100722AD7 /* LLMActionParsing.swift */,
-				EC5C6C392C2DAE690023D0C0 /* LLMActionRecording.swift */,
 				ECD83F1C2C1A176900722AD7 /* LLMActionUtil.swift */,
 			);
 			path = LLMActions;
@@ -4658,7 +4661,7 @@
 				EC17ACC426B4BC5900137EA5 /* StitchVideoMetadata.swift in Sources */,
 				EC5F64312C2B451C00A9E52F /* LLMActions.swift in Sources */,
 				ECE7086A2B8D4AF8009F4525 /* CurveToPackNode.swift in Sources */,
-				ECEC4A442CE2FB900062ACAF /* StepTypeActionsFromStateChanges.swift in Sources */,
+				ECEC4A442CE2FB900062ACAF /* StateChangeToStepAction.swift in Sources */,
 				EC1224A32B98F1E20011D687 /* StitchBlendMode.swift in Sources */,
 				ECE35EE027CEE50300CB8F5C /* FieldValueHelpers.swift in Sources */,
 				EC0B8A7F2953C4C500AA01B6 /* RoundedRectanglePatchNode.swift in Sources */,
@@ -4922,6 +4925,7 @@
 				B57B27392A77522A007D6A4F /* FieldValueNumberView.swift in Sources */,
 				ECD7FA8B29D73C010073ACAC /* InsertNodeMenuOption.swift in Sources */,
 				E4F7AC242974AF5300B7F55A /* RealityNode.swift in Sources */,
+				ECEC4A462CE3BEAF0062ACAF /* StepActionToStateChange.swift in Sources */,
 				ECADA8B428FB5B5D0007748F /* UIImageExtensionUtils.swift in Sources */,
 				EC0CDC322C9E25B400678661 /* SidebarListItemSelectionHelpers.swift in Sources */,
 				B5CB82F4283D987F00FE29A6 /* StitchStore.swift in Sources */,

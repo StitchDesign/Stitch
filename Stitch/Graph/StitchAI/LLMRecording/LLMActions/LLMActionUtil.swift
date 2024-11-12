@@ -55,30 +55,6 @@ extension StitchDocumentViewModel {
         }
     }
     
-    // fka `maybeCreateLLMAddNode`
-    @MainActor
-    func maybeCreateStepTypeAddNode(_ newlyCreatedNodeId: NodeId) {
-        // If we're LLM-recording, add an `LLMAddNode` action
-        if self.llmRecording.isRecording,
-           let newlyCreatedNode = self.graph.getNodeViewModel(newlyCreatedNodeId) {
-            
-            let stepAddNode: LLMStepAction = newlyCreatedNode.createLLMStepAddNode()
-            
-            log("maybeCreateStepTypeAddNode: stepAddNode: \(stepAddNode)")
-            
-            let data: Data = try! JSONEncoder().encode(stepAddNode)
-            let json: JSON = data.toJSON!
-            // DOES NOT INCLUDE 'NIL' FIELDS
-            log("maybeCreateStepTypeAddNode: json: \(json)")
-            
-            self.llmRecording.actions.append(stepAddNode)
-
-            // TODO: NOV 11
-            // let llmAddNode = LLMAddNode(node: newlyCreatedNode.llmNodeTitle)
-            // self.llmRecording.actions.append(.addNode(llmAddNode))
-        }
-    }
-
     @MainActor
     func maybeCreateLLMMoveNode(canvasItem: CanvasItemViewModel,
                                 // (position - previousGesture) i.e. how much we moved
@@ -149,20 +125,6 @@ extension StitchDocumentViewModel {
 //                                             port: port),
 //                    value: value.asLLMValue,
 //                    nodeType: NodeType(value).display)))
-        }
-    }
-    
-    @MainActor
-    func maybeCreateLLMSChangeNodeType(node: NodeViewModel,
-                                       newNodeType: NodeType) {
-        
-        if self.llmRecording.isRecording {
-            // TODO: NOV 11
-//            self.llmRecording.actions.append(
-//                .changeNodeType(LLMAChangeNodeTypeAction(
-//                    node: node.llmNodeTitle,
-//                    nodeType: newNodeType.display))
-//            )
         }
     }
 }

@@ -35,7 +35,8 @@ typealias LLMStepAction = Step
 typealias LLMStepActions = [LLMStepAction]
 
 // TODO: more specfic name e.g. `LLMStepAction` ?
-// TODO: make parameters more specific? e.g. `nodeName` should be an enum?
+// TODO: use several different data structures with more specific parameters, rather than a single data structure with tons of optional parameters
+// TODO: make parameters more specific? e.g. `nodeName` should be `PatchOrLayer?` instead of `String?`
 
 // should actually be an enum like LLMAction ? So that we can avoid the many `nil` parameters?
 // worst case, keep this data structure for decoding OpenAI json schema, and easily translate between these two ?
