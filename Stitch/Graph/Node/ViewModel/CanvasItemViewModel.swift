@@ -237,6 +237,17 @@ extension CanvasItemViewModel {
         
         self.previousPosition = self.position
     }
+    
+    /// Updates location of anchor points.
+    @MainActor
+    func updatePortLocations() {
+        self.inputViewModels.forEach {
+            $0.updateAnchorPoint()
+        }
+        self.outputViewModels.forEach {
+            $0.updateAnchorPoint()
+        }
+    }
 }
 
 extension InputLayerNodeRowData {

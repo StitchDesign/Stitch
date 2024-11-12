@@ -75,6 +75,8 @@ struct CanvasItemBoundsReader: ViewModifier {
 
                                 // Used only for comment box creation
                                 canvasItem.bounds.localBounds = newBounds
+                                
+                                canvasItem.updatePortLocations()
                             }
                         }
                 }

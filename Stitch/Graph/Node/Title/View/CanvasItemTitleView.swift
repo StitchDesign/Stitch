@@ -121,12 +121,7 @@ struct CanvasItemTitleView: View {
                                        isCanvasItemSelected: isCanvasItemSelected)
                 }
                 
-                let defaultTitle = node.kind.getDisplayTitle(customName: nil)
-                let hasCustomTitle = name.trim() != defaultTitle.trim()
-                
-                if node.kind.isEligibleForDefaultTitleDisplay,
-                    hasCustomTitle {
-                    
+                if let defaultTitle = node.getValidCustomTitle() {
                     StitchTextView(string: defaultTitle,
                                    fontColor: Color(.nodeTitleFont),
                                    lineLimit: 1)

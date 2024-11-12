@@ -16,7 +16,10 @@ struct EdgeEditModeOutputHoverViewModifier: ViewModifier {
 
     @Bindable var graph: GraphState
     let outputCoordinate: OutputPortViewData
-    let isDraggingOutput: Bool
+    
+    var isDraggingOutput: Bool {
+        graph.edgeDrawingObserver.drawingGesture.isDefined
+    }
 
     static let REQUIRED_HOVER_DURATION: CGFloat = 0.75
 
