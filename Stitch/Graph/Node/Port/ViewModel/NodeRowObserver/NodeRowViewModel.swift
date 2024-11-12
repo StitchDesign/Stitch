@@ -84,6 +84,8 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
     
     var connectedCanvasItems: Set<CanvasItemId> { get set }
     
+    var anchorPoint: CGPoint? { get set }
+    
     var portColor: PortColor { get set }
     
     var portViewData: PortViewType? { get set }
@@ -112,8 +114,8 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
 }
 
 extension NodeRowViewModel {
-    var anchorPoint: CGPoint? {
-        guard let canvas = self.canvasItemDelegate else { return nil }
+    func updateAnchorPoint() {
+        guard let canvas = self.canvasItemDelegate else { return }
         let size = canvas.bounds.localBounds.size
         let ioAdjustment: CGFloat = 6
         let ioConstraint: CGFloat = Self.nodeIO == .input ? ioAdjustment : -ioAdjustment
@@ -126,9 +128,9 @@ extension NodeRowViewModel {
         
         switch Self.nodeIO {
         case .input:
-            return .init(x: offsetX, y: anchorY)
+            self.anchorPoint = .init(x: offsetX, y: anchorY)
         case .output:
-            return .init(x: offsetX + size.width, y: anchorY)
+            self.anchorPoint = .init(x: offsetX + size.width, y: anchorY)
         }
     }
     
@@ -272,6 +274,7 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     var activeValue: PortValue = .number(.zero)
     var fieldValueTypes = FieldGroupTypeViewModelList<InputFieldViewModel>()
     var connectedCanvasItems: Set<CanvasItemId> = .init()
+    var anchorPoint: CGPoint?
     var portColor: PortColor = .noEdge
     var portViewData: PortViewType?
     weak var nodeDelegate: NodeDelegate?
@@ -339,6 +342,7 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     var activeValue: PortValue = .number(.zero)
     var fieldValueTypes = FieldGroupTypeViewModelList<OutputFieldViewModel>()
     var connectedCanvasItems: Set<CanvasItemId> = .init()
+    var anchorPoint: CGPoint?
     var portColor: PortColor = .noEdge
     var portViewData: PortViewType?
     weak var nodeDelegate: NodeDelegate?

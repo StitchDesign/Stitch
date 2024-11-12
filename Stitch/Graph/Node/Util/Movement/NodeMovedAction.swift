@@ -249,6 +249,9 @@ extension GraphState {
         self.edgeDrawingObserver.reset()
         self.nodeIsMoving = true
         self.outputDragStartedCount = 0
+        
+        // updates port locations for edges
+        canvasItem.updatePortLocations()
     }
 }
 
