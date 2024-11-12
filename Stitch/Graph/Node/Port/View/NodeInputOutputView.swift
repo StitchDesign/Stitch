@@ -159,10 +159,6 @@ struct NodeInputView: View {
     var label: String
     var forFlyout: Bool = false
     
-    var isShadowLayerInputRow: Bool {
-        layerInputObserver?.port == SHADOW_FLYOUT_LAYER_INPUT_PROXY
-    }
-    
     @MainActor
     private var graphUI: GraphUIState {
         self.graph.graphUI
@@ -189,25 +185,20 @@ struct NodeInputView: View {
         // For multifields, want the overall label to sit at top of fields' VStack.
         // For single fields, want to the overall label t
         HStack(alignment: hStackAlignment) {
-            if isShadowLayerInputRow, forPropertySidebar, !forFlyout {
-                ShadowInputInspectorRow(nodeId: nodeId,
-                                        propertyIsSelected: propertyIsSelected)
-            } else {
-                labelView
-                
-                if forPropertySidebar {
-                    Spacer()
-                }
-                
-                FieldsListView<InputNodeRowViewModel, InputValueEntry>(
-                    graph: graph,
-                    fieldValueTypes: fieldValueTypes,
-                    nodeId: nodeId,
-                    forPropertySidebar: forPropertySidebar,
-                    forFlyout: forFlyout,
-                    blockedFields: layerInputObserver?.blockedFields,
-                    valueEntryView: valueEntryView)
+            labelView
+            
+            if forPropertySidebar {
+                Spacer()
             }
+            
+            FieldsListView<InputNodeRowViewModel, InputValueEntry>(
+                graph: graph,
+                fieldValueTypes: fieldValueTypes,
+                nodeId: nodeId,
+                forPropertySidebar: forPropertySidebar,
+                forFlyout: forFlyout,
+                blockedFields: layerInputObserver?.blockedFields,
+                valueEntryView: valueEntryView)
         } // HStack
     }
     
