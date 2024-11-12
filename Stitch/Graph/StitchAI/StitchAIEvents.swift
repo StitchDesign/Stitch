@@ -9,39 +9,26 @@ import Foundation
 import SwiftUI
 import SwiftyJSON
 
-extension StitchDocumentViewModel {
+
+// TODO: Use a side-effect to make the request; the side-effect returns then with pure data reporting the success (new data) or error (update the error-modal)
+// Avoids concurrency issues in Swift 6 etc.
+
+struct MakeOpenAIRequest: StitchDocumentEvent {
+    let prompt: String
     
-    @MainActor func openedStitchAIModal() {
-        self.stitchAI.promptState.showModal = true
-        self.graphUI.reduxFocusedField = .stitchAIPromptModal
-    }
-    
-    // When json-entry modal is closed, we turn the JSON of LLMActions into state changes
-    @MainActor func closedStitchAIModal() {
-        let prompt = self.stitchAI.promptState.prompt
-        
-        self.stitchAI.promptState.showModal = false
-        self.graphUI.reduxFocusedField = nil
-        
-        
-        //HACK until we figure out why this is called twice
-        if prompt == "" {
-            return
-        }
-        makeAPIRequest(userInput: prompt)
-        self.stitchAI.promptState.prompt = ""
-    }
-    
-    @MainActor func makeAPIRequest(userInput: String) {
-        stitchAI.promptState.isGenerating = true
+    func handle(state: StitchDocumentViewModel) {
         
         guard let openAIAPIURL = URL(string: OPEN_AI_BASE_URL) else {
-            showErrorModal(message: "Invalid URL", userPrompt: userInput, jsonResponse: nil)
+            state.showErrorModal(message: "Invalid URL",
+                                 userPrompt: prompt,
+                                 jsonResponse: nil)
             return
         }
         
         guard let apiKey = UserDefaults.standard.string(forKey: OPENAI_API_KEY_NAME), !apiKey.isEmpty else {
-            showErrorModal(message: "No API Key found or API Key is empty", userPrompt: userInput, jsonResponse: nil)
+            state.showErrorModal(message: "No API Key found or API Key is empty",
+                                 userPrompt: prompt,
+                                 jsonResponse: nil)
             return
         }
         
@@ -49,8 +36,11 @@ extension StitchDocumentViewModel {
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+        
         guard let responseSchema = try? JSONSerialization.jsonObject(with: Data(VISUAL_PROGRAMMING_ACTIONS.utf8), options: []) as? [String: Any] else {
-            showErrorModal(message: "Failed to parse VISUAL_PROGRAMMING_ACTIONS JSON", userPrompt: userInput, jsonResponse: VISUAL_PROGRAMMING_ACTIONS)
+            state.showErrorModal(message: "Failed to parse VISUAL_PROGRAMMING_ACTIONS JSON",
+                                 userPrompt: prompt,
+                                 jsonResponse: VISUAL_PROGRAMMING_ACTIONS)
             return
         }
         
@@ -63,7 +53,7 @@ extension StitchDocumentViewModel {
                 ],
                 [
                     "role": "user",
-                    "content": userInput
+                    "content": prompt
                 ]
             ],
             "response_format": [
@@ -79,82 +69,163 @@ extension StitchDocumentViewModel {
             let jsonData = try JSONSerialization.data(withJSONObject: body, options: [])
             request.httpBody = jsonData
         } catch {
-            showErrorModal(message: "Error encoding JSON: \(error.localizedDescription)", userPrompt: userInput, jsonResponse: nil)
+            state.showErrorModal(message: "Error encoding JSON: \(error.localizedDescription)",
+                                 userPrompt: prompt,
+                                 jsonResponse: nil)
             return
         }
         
-        let task = URLSession.shared.dataTask(with: request) { [weak self] data, _, error in
+        state.stitchAI.promptState.isGenerating = true
+        
+        // Note: really, should return a proper `Effect` here
+        URLSession.shared.dataTask(with: request) { data, _, error in
+            // Make the request and dispatch (on the main thread) an action that will handle the request's result
             DispatchQueue.main.async {
-                self?.stitchAI.promptState.isGenerating = false
-                
-                if let error = error {
-                    self?.showErrorModal(message: "Request error: \(error.localizedDescription)", userPrompt: userInput, jsonResponse: nil)
-                    return
-                }
-                
-                guard let data = data else {
-                    self?.showErrorModal(message: "No data received", userPrompt: userInput, jsonResponse: nil)
-                    return
-                }
-                
-                
-                //                let jsonResponse = String(data: data, encoding: .utf8) ?? "Invalid JSON format"
-                
-                //                let s = parseJSON(jsonResponse)
-                //                print(s!.rawString(options: [.withoutEscapingSlashes, .prettyPrinted]))
-                
-                
-                
-                
-                let jsonResponse = String(data: data, encoding: .utf8) ?? "Invalid JSON format"
-                
-                log("JSON RESPONSE")
-                log(jsonResponse)
-                
-                if let jsonData = jsonResponse.data(using: .utf8),
-                   let jsonObject = try? JSONSerialization.jsonObject(with: jsonData, options: []),
-                   let jsonDict = jsonObject as? [String: Any],
-                   let choices = jsonDict["choices"] as? [[String: Any]],
-                   let message = choices.first?["message"] as? [String: Any],
-                   let contentString = message["content"] as? String,
-                   let contentData = contentString.data(using: .utf8),
-                   let contentObject = try? JSONSerialization.jsonObject(with: contentData, options: []),
-                   let contentDict = contentObject as? [String: Any],
-                   let stepsArray = contentDict["steps"] {
-                    
-                    // Wrap `stepsArray` in a dictionary to include the "steps" key
-                    let stepsDict: [String: Any] = ["steps": stepsArray]
-                    
-                    // I want to see us turn the OpenAI json-response into an array of our `Step` struct;
-                    // right now we'er
-                    
-                    // Re-encode the `stepsDict` with pretty printing for readability
-                    if let prettyStepsData = try? JSONSerialization.data(withJSONObject: stepsDict, options: [.prettyPrinted]),
-                       let prettyStepsString = String(data: prettyStepsData, encoding: .utf8) {
-                        log("STEPS PRETTY PRINTED JSON")
-                        log(prettyStepsString)
-                    }
-                } else {
-                    print("Could not parse steps")
-                }
-                
-                do {
-                    if let transformedResponse = self?.transformOpenAIResponseToLLMActionsString(data: data) {
-                        
-                        guard !transformedResponse.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-                            self?.showErrorModal(message: "Empty transformed response", userPrompt: userInput, jsonResponse: jsonResponse)
-                            return
-                        }
-                        
-                    } // if let
-                    
-                } catch {
-                    self?.showErrorModal(message: "Error processing response: \(error.localizedDescription)", userPrompt: userInput, jsonResponse: jsonResponse)
-                }
+                dispatch(OpenAIRequestCompleted(originalPrompt: prompt, data: data, error: error))
             }
-        }
-        task.resume()
+        }.resume()
     }
+}
+
+struct OpenAIRequestCompleted: StitchDocumentEvent {
+    let originalPrompt: String
+    let data: Data?
+    let error: Error?
+    
+    func handle(state: StitchDocumentViewModel) {
+        
+        // We've finished generating an OpenAI response from the prompt
+        state.stitchAI.promptState.isGenerating = false
+        
+        if let error: Error = error {
+            state.showErrorModal(message: "Request error: \(error.localizedDescription)",
+                                 userPrompt: originalPrompt,
+                                 jsonResponse: nil)
+            return
+        }
+        
+        guard let data: Data = data else {
+            state.showErrorModal(message: "No data received",
+                                 userPrompt: originalPrompt,
+                                 jsonResponse: nil)
+            return
+        }
+        
+        
+        let jsonResponse = String(data: data, encoding: .utf8) ?? "Invalid JSON format"
+        
+        log("JSON RESPONSE")
+        log(jsonResponse)
+        
+        if let transformedResponse = state.transformOpenAIResponseToLLMActionsString(data: data) {
+            
+            guard !transformedResponse.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                state.showErrorModal(message: "Empty transformed response",
+                                     userPrompt: originalPrompt,
+                                     jsonResponse: jsonResponse)
+                return
+            }
+            
+        }
+        
+    }
+}
+
+extension StitchDocumentViewModel {
+    
+    @MainActor
+    func openedStitchAIModal() {
+        self.stitchAI.promptState.showModal = true
+        self.graphUI.reduxFocusedField = .stitchAIPromptModal
+    }
+    
+    // When json-entry modal is closed, we turn the JSON of LLMActions into state changes
+    @MainActor
+    func closedStitchAIModal() {
+        let prompt = self.stitchAI.promptState.prompt
+        
+        self.stitchAI.promptState.showModal = false
+        self.graphUI.reduxFocusedField = nil
+        
+        // HACK until we figure out why this is called twice
+        if prompt == "" {
+            return
+        }
+//        makeOpenAIRequest(userInput: prompt)
+        dispatch(MakeOpenAIRequest(prompt: prompt))
+        self.stitchAI.promptState.prompt = ""
+    }
+    
+//    // fka `makeAPIRequest`
+//    @MainActor
+//    func makeOpenAIRequest(userInput: String) {
+//        
+//        stitchAI.promptState.isGenerating = true
+//        
+//        func triggerErrorModal(message: String, jsonResponse: String? = nil) {
+//            self.showErrorModal(message: message,
+//                                userPrompt: userInput,
+//                                jsonResponse: jsonResponse)
+//        }
+//        
+//        guard let openAIAPIURL = URL(string: OPEN_AI_BASE_URL) else {
+//            triggerErrorModal(message: "Invalid URL")
+//            return
+//        }
+//        
+//        guard let apiKey = UserDefaults.standard.string(forKey: OPENAI_API_KEY_NAME), !apiKey.isEmpty else {
+//            triggerErrorModal(message: "No API Key found or API Key is empty")
+//            return
+//        }
+//        
+//        var request = URLRequest(url: openAIAPIURL)
+//        request.httpMethod = "POST"
+//        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+//        request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+//        
+//        guard let responseSchema = try? JSONSerialization.jsonObject(with: Data(VISUAL_PROGRAMMING_ACTIONS.utf8), options: []) as? [String: Any] else {
+//            triggerErrorModal(message: "Failed to parse VISUAL_PROGRAMMING_ACTIONS JSON",
+//                              jsonResponse: VISUAL_PROGRAMMING_ACTIONS)
+//            return
+//        }
+//        
+//        let body: [String: Any] = [
+//            "model": OPEN_AI_MODEL,
+//            "messages": [
+//                [
+//                    "role": "system",
+//                    "content": SYSTEM_PROMPT
+//                ],
+//                [
+//                    "role": "user",
+//                    "content": userInput
+//                ]
+//            ],
+//            "response_format": [
+//                "type": "json_schema",
+//                "json_schema": [
+//                    "name": "visual_programming_actions_schema",
+//                    "schema": responseSchema
+//                ]
+//            ]
+//        ]
+//        
+//        do {
+//            let jsonData = try JSONSerialization.data(withJSONObject: body, options: [])
+//            request.httpBody = jsonData
+//        } catch {
+//            triggerErrorModal(message: "Error encoding JSON: \(error.localizedDescription)")
+//            return
+//        }
+//                
+//        let task = URLSession.shared.dataTask(with: request) { [weak self] data, _, error in
+//            DispatchQueue.main.async {
+//                dispatch(OpenAIRequestCompleted(originalPrompt: userInput, data: data, error: error))
+//            }
+//        }
+//        
+//        task.resume()
+//    }
     
     
     @MainActor
@@ -193,7 +264,6 @@ extension StitchDocumentViewModel {
             var nodeInfoMap: [String: NodeInfoData] = [:]
             var layerInputsAdded: Set<String> = []
             
-            // TODO: instead of turning this
             for step in contentJSON.steps {
                 guard let stepType = StepType(rawValue: step.stepType) else {
                     print("Unknown step type: \(step.stepType)")

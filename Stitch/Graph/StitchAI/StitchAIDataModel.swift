@@ -62,10 +62,11 @@ struct Step: Equatable, Codable {
     }
 }
 
-
-struct StringOrNumber: Equatable, Codable {
+struct StringOrNumber: Equatable {
     let value: String
-    
+}
+
+extension StringOrNumber: Codable {
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         if let intValue = try? container.decode(Int.self) {

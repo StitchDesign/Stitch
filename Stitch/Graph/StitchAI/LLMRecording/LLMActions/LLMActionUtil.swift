@@ -105,27 +105,5 @@ extension StitchDocumentViewModel {
 //            )
         }
     }
-    
-    
-    @MainActor
-    func maybeCreateLLMSetInput(node: NodeViewModel,
-                                input: InputCoordinate,
-                                value: PortValue) {
-        
-        if self.llmRecording.isRecording {
-            
-            let port = input.asLLMPort(nodeKind: node.kind,
-                                       nodeIO: .input,
-                                       nodeType: node.userVisibleType)
-            
-            // TODO: NOV 11
-//            self.llmRecording.actions.append(
-//                .setInput(LLMSetInputAction(
-//                    field: LLMPortCoordinate(node: node.llmNodeTitle,
-//                                             port: port),
-//                    value: value.asLLMValue,
-//                    nodeType: NodeType(value).display)))
-        }
-    }
 }
 

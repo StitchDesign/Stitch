@@ -30,6 +30,7 @@ extension StitchDocumentViewModel {
                   let nodeKind: PatchOrLayer = action.parseNodeKind(),
                   let newNode = self.nodeCreated(choice: nodeKind.asNodeKind,
                                               center: self.newNodeCenterLocation) else {
+                
                 fatalErrorIfDebug("handleLLMStepAction: could not handle addNode")
                 return
             }
@@ -45,23 +46,48 @@ extension StitchDocumentViewModel {
                   // Node must already exist
                   let nodeId = self.llmNodeIdMapping.get(llmNodeId),
                   let existingNode = self.graph.getNode(nodeId) else {
+                
                 fatalErrorIfDebug("handleLLMStepAction: could not handle changeNodeType")
                 return
             }
             
             let _ = self.graph.nodeTypeChanged(nodeId: existingNode.id,
                                                newNodeType: nodeType)
-                          
+               
+            
+        case .setInput:
+            
+            guard let llmNodeId: String = action.nodeId,
+                  let nodeType: NodeType = action.parseNodeType(),
+                  let value: PortValue = action.parseValue(nodeType),
+                  let port: NodeIOPortType = action.parsePort(),
+                  // Node must already exist
+                  let nodeId = self.llmNodeIdMapping.get(llmNodeId),
+                  let existingNode = self.graph.getNode(nodeId) else {
+                
+                fatalErrorIfDebug("handleLLMStepAction: could not handle setInput")
+                return
+            }
+            
+            let inputCoordinate = InputCoordinate(portType: port, nodeId: nodeId)
+            
+            guard let input = self.graph.getInputObserver(coordinate: inputCoordinate) else {
+                log("handleLLMStepAction: .setInput: No input")
+                return
+            }
+            
+            existingNode.removeIncomingEdge(at: inputCoordinate,
+                                            activeIndex: self.activeIndex)
+            
+            input.setValuesInInput([value])
+
+            
         case .addLayerInput:
             fatalErrorIfDebug("handleLLMStepAction: need to handle .addLayerInput")
             return
 
         case .connectNodes:
             fatalErrorIfDebug("handleLLMStepAction: need to handle .connectNodes")
-            return
-
-        case .setInput:
-            fatalErrorIfDebug("handleLLMStepAction: need to handle .setInput")
             return
         }
     }
@@ -82,6 +108,42 @@ enum PatchOrLayer: Equatable, Codable {
 }
 
 extension LLMStepAction {
+    
+    func parseValue(_ nodeType: NodeType) -> PortValue? {
+        guard let value: StringOrNumber = self.value else {
+            log("value was not defined")
+            return nil
+        }
+        
+        // TODO: to support a wider range of values, use `JSONFriendlyFormat` instead of `StringOrNumber` and follow older LLMAction-style parsing of LLMSetInput
+        if let number = Double(value.value) {
+            return .number(number)
+        } else {
+            return .string(.init(value.value))
+        }
+    }
+    
+    // TODO: `LLMStepAction`'s `port` parameter does not yet properly distinguish between input vs output?
+    // Note: the older LLMAction port-string-parsing logic was more complicated?
+    func parsePort() -> NodeIOPortType? {
+        guard let port: StringOrNumber = self.port else {
+            log("port was not defined")
+            return nil
+        }
+  
+        if let portId = Int(port.value) {
+            // could be patch input/output OR layer output
+            return .portIndex(portId)
+        } else if let layerInputPort: LayerInputPort = LayerInputPort.allCases.first(where: {$0.asLLMStepPort == port.value }) {
+            let layerInputType = LayerInputType(layerInput: layerInputPort,
+                                                // TODO: support unpacked with StitchAI
+                                                portType: .packed)
+            return .keyPath(layerInputType)
+        } else {
+            log("could not parse LLMStepAction's port: \(port)")
+            return nil
+        }
+    }
     
     // See note in `NodeType.asLLMStepNodeType`
     func parseNodeType() -> NodeType? {

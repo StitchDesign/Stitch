@@ -21,17 +21,17 @@ extension StitchDocumentViewModel {
         if self.llmRecording.isRecording,
            let newlyCreatedNode = self.graph.getNodeViewModel(newlyCreatedNodeId) {
             
-            let stepAddNode: LLMStepAction = newlyCreatedNode.createLLMStepAddNode()
+            let step: LLMStepAction = newlyCreatedNode.createLLMStepAddNode()
             
-            log("maybeCreateStepTypeAddNode: stepAddNode: \(stepAddNode)")
+            log("maybeCreateStepTypeAddNode: step: \(step)")
             
             // // DEBUG:
-            //            let data: Data = try! JSONEncoder().encode(stepAddNode)
+            //            let data: Data = try! JSONEncoder().encode(step)
             //            let json: JSON = data.toJSON!
             //            // DOES NOT INCLUDE 'NIL' FIELDS
             //            log("maybeCreateStepTypeAddNode: json: \(json)")
             
-            self.llmRecording.actions.append(stepAddNode)
+            self.llmRecording.actions.append(step)
         }
     }
     
@@ -39,9 +39,21 @@ extension StitchDocumentViewModel {
     func maybeCreateLLMStepChangeNodeType(node: NodeViewModel,
                                        newNodeType: NodeType) {
         if self.llmRecording.isRecording {
-            self.llmRecording.actions.append(node.createLLMStepChangeNodeType(newNodeType))
+            let step = node.createLLMStepChangeNodeType(newNodeType)
+            self.llmRecording.actions.append(step)
         }
     }
+    
+    @MainActor
+    func maybeCreateLLMSetInput(node: NodeViewModel,
+                                input: InputCoordinate,
+                                value: PortValue) {
+        if self.llmRecording.isRecording {
+            let step = node.createLLMStepSetInput(input: input, value: value)
+            self.llmRecording.actions.append(step)
+        }
+    }
+    
 }
 
 extension NodeViewModel {
@@ -56,6 +68,68 @@ extension NodeViewModel {
                       nodeId: self.id.description,
                       // Nov 12: Our OpenAI schema currently expects e.g. "text", not "Text"
                       nodeType: newNodeType.asLLMStepNodeType)
+    }
+    
+    func createLLMStepSetInput(input: InputCoordinate,
+                               value: PortValue) -> LLMStepAction {
+        /*
+         RELEVANT SECTION OF OUR OPEN-AI SCHEMA:
+         
+         "SetInputAction": {
+           "type": "object",
+           "properties": {
+             "step_type": { "const": "set_input" },
+             "node_id": { "type": "string", "description": "ID of the node receiving the input", "format": "uuid" },
+             "value": {
+               "anyOf": [
+                 { "type": "number" },
+                 { "type": "string" },
+                 { "type": "boolean" }
+               ],
+               "description": "Value to set for the input"
+             },
+             "port": {
+               "anyOf": [
+                 { "type": "integer" },
+                 { "$ref": "#/$defs/LayerPorts" }
+               ],
+               "description": "The port to which the value is set. Patch nodes use integers; Layer nodes use LayerPorts."
+             },
+             "node_type": { "$ref": "#/$defs/NodeType", "description": "The type of node to use." }
+           },
+           "required": ["step_type", "node_id", "port", "value", "node_type"]
+         },
+         */
+        LLMStepAction(stepType: StepType.setInput.rawValue,
+                      nodeId: self.id.description,
+                      port: StringOrNumber(value: input.asLLMStepPort()),
+                      
+                      // Note: `.asLLMValue: JSONFriendlyFormat` is needed for handling more complex values like `LayerDimension`
+                      // value: value.asLLMValue,
+                      value: StringOrNumber(value: value.display),
+                      
+                      // For disambiguating between e.g. a string "2" and the number 2
+                      nodeType: value.toNodeType.asLLMStepNodeType)
+    }
+}
+
+extension InputCoordinate {
+    func asLLMStepPort() -> String {
+        switch self.portType {
+        case .keyPath(let x):
+            // Note: StitchAI does not yet support unpacked ports
+            // Note 2: see our OpenAI schema for list of possible `LayerPorts`
+            return x.layerInput.asLLMStepPort
+        case .portIndex(let x):
+            // an integer
+            return x.description
+        }
+    }
+}
+
+extension LayerInputPort {
+    var asLLMStepPort: String {
+        self.label(useShortLabel: true)
     }
 }
 
