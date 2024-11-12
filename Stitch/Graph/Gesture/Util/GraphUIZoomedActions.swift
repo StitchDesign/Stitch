@@ -12,10 +12,6 @@ import StitchSchemaKit
 extension GraphZoom {
     @MainActor
     func graphPinchToZoom( amount: CGFloat) {
-        if !self.isActivelyZooming {
-            self.isActivelyZooming = true
-        }
-        
         // Scale zoom based on current device zoom--makes pinch to zoom feel more natural
         var newAmount = (amount - 1) * self.final
         
@@ -43,12 +39,6 @@ extension GraphZoom {
 extension StitchDocumentViewModel {
     @MainActor
     func graphZoomEnded() {
-        //        log("GraphZoomEnded called")
-        
-        if self.graphMovement.zoomData.isActivelyZooming {
-            self.graphMovement.zoomData.isActivelyZooming = false
-        }
-
         // set new zoom final to current + final of last zoom state
         self.graphMovement.zoomData.final += self.graphMovement.zoomData.current
         

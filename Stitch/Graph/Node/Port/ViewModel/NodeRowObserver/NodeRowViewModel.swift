@@ -82,9 +82,9 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
     // Holds view models for fields
     var fieldValueTypes: [FieldGroupTypeViewModel<FieldType>] { get set }
     
-    var anchorPoint: CGPoint? { get set }
-    
     var connectedCanvasItems: Set<CanvasItemId> { get set }
+    
+    var anchorPoint: CGPoint? { get set }
     
     var portColor: PortColor { get set }
     
@@ -114,6 +114,33 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
 }
 
 extension NodeRowViewModel {
+    @MainActor
+    func updateAnchorPoint() {
+        guard let canvas = self.canvasItemDelegate,
+              let node = canvas.nodeDelegate else {
+            return
+        }
+        
+        let size = canvas.bounds.localBounds.size
+        let ioAdjustment: CGFloat = 10
+        let standardHeightAdjustment: CGFloat = 63
+        let ioConstraint: CGFloat = Self.nodeIO == .input ? ioAdjustment : -ioAdjustment
+        let titleHeightOffset: CGFloat = node.getValidCustomTitle().isDefined ? 23 : 0
+        
+        // Offsets needed because node position uses its center location
+        let offsetX: CGFloat = canvas.position.x + ioConstraint - size.width / 2
+        let offsetY: CGFloat = canvas.position.y - size.height / 2 + standardHeightAdjustment + titleHeightOffset
+        
+        let anchorY = offsetY + CGFloat(self.id.portId) * 28
+        
+        switch Self.nodeIO {
+        case .input:
+            self.anchorPoint = .init(x: offsetX, y: anchorY)
+        case .output:
+            self.anchorPoint = .init(x: offsetX + size.width, y: anchorY)
+        }
+    }
+    
     /// Ignores group nodes to ensure computation logic still works.
     @MainActor
     var computationNode: NodeDelegate? {
@@ -253,8 +280,8 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     var id: NodeRowViewModelId
     var activeValue: PortValue = .number(.zero)
     var fieldValueTypes = FieldGroupTypeViewModelList<InputFieldViewModel>()
-    var anchorPoint: CGPoint?
     var connectedCanvasItems: Set<CanvasItemId> = .init()
+    var anchorPoint: CGPoint?
     var portColor: PortColor = .noEdge
     var portViewData: PortViewType?
     weak var nodeDelegate: NodeDelegate?
@@ -321,8 +348,8 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     var id: NodeRowViewModelId
     var activeValue: PortValue = .number(.zero)
     var fieldValueTypes = FieldGroupTypeViewModelList<OutputFieldViewModel>()
-    var anchorPoint: CGPoint?
     var connectedCanvasItems: Set<CanvasItemId> = .init()
+    var anchorPoint: CGPoint?
     var portColor: PortColor = .noEdge
     var portViewData: PortViewType?
     weak var nodeDelegate: NodeDelegate?

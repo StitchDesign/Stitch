@@ -15,16 +15,10 @@ let PORT_ENTRY_NON_EXTENDED_HITBOX_SIZE = CGSize(
     width: PORT_VISIBLE_LENGTH,
     height: NODE_ROW_HEIGHT)
 
-/// Tracks position updates in a non-observable class to prevent render cycles.
-final class PositionObserver {
-    var origin: CGPoint = .zero
-}
+let NODE_PORT_HEIGHT: CGFloat = 8
 
 struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
     @Environment(\.appTheme) private var theme
-    private let positionObserver = PositionObserver()
-
-    let height: CGFloat = 8
     
     @Bindable var rowViewModel: NodeRowViewModelType
     @Bindable var graph: GraphState
@@ -35,10 +29,6 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
     @MainActor
     var portColor: Color {
         rowViewModel.portColor.color(theme)
-    }
-    
-    var ignorePortLocationUpdates: Bool {
-        graphMultigesture.graphIsDragged || zoomData.isActivelyZooming
     }
     
     var body: some View {
@@ -59,73 +49,18 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
             .background {
                 Rectangle()
                     .fill(portColor)
-                    .frame(width: self.height)
+                    .frame(width: 8)
                     .offset(x: NodeRowViewModelType.nodeIO == .input ? -4 : 4)
             }
-            .background {
-                GeometryReader { geometry in
-                    Color.clear
-                        .onAppear {
-                            self.positionObserver.origin = geometry.frame(in: .named(NodesView.coordinateNameSpace)).origin
-                            self.updatePortViewData(willForceUpdate: true)
-                        }
-                        .onChange(of: ignorePortLocationUpdates ? nil : geometry.frame(in: .named(NodesView.coordinateNameSpace)).origin) { _, newOrigin in
-                            guard let newOrigin = newOrigin else { return }
-                            
-                            self.positionObserver.origin = newOrigin
-                            
-                            // Don't force update in case of micro changes caused by graph pannning
-                            self.updatePortViewData()
-                        }
-                }
-            }
-        .overlay(PortEntryExtendedHitBox(rowViewModel: rowViewModel,
-                                         graphState: graph))
-        .animation(.linear(duration: self.animationTime),
-                   value: portColor)
+            .overlay(PortEntryExtendedHitBox(rowViewModel: rowViewModel,
+                                             graphState: graph))
+            .animation(.linear(duration: self.animationTime),
+                       value: portColor)
         // Update port color on selected edges change
         // Note: Should this ALSO update upstream and downstream ports? If not, why not?
-        .onChange(of: graph.selectedEdges) {
-            self.rowViewModel.updatePortColor()
-        }
-        .onChange(of: self.rowViewModel.canvasItemDelegate?.isVisibleInFrame ?? false) { _, isVisible in
-            if isVisible {
-                self.updatePortViewData(willForceUpdate: true)
+            .onChange(of: graph.selectedEdges) {
+                self.rowViewModel.updatePortColor()
             }
-        }
-        .onChange(of: graph.groupNodeFocused) {
-            self.updatePortViewData(willForceUpdate: true)
-        }
-    }
-
-    @MainActor
-    func updatePortViewData(willForceUpdate: Bool = false) {
-        let newOrigin = self.positionObserver.origin
-
-        guard willForceUpdate || !self.ignorePortLocationUpdates else { return }
-        
-        let adjustedOriginPoint = self.createPreferencePoint(from: newOrigin)
-        self.rowViewModel.anchorPoint = adjustedOriginPoint
-    }
-
-    /// Creates the anchor point for preferences data--modifies from some origin point.
-    func createPreferencePoint(from origin: CGPoint) -> CGPoint {
-
-        if NodeRowViewModelType.nodeIO == .input {
-            let offset = (self.height + 4) / 2
-            // + 4 required to fully cover input's port
-            return .init(x: origin.x + offset + 4, // + 6 seems too much
-                         y: origin.y + offset)
-        } else {
-            let offset = (self.height + 4) / 2
-            return .init(x: origin.x + offset,
-                         y: origin.y + offset)
-        }
-
-        // ORIGINAL
-        //        let offset = (Self.height + 4) / 2
-        //        return .init(x: origin.x + offset,
-        //                     y: origin.y + offset)
     }
     
     @MainActor
