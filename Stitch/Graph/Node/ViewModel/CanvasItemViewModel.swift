@@ -239,6 +239,7 @@ extension CanvasItemViewModel {
     }
     
     /// Updates location of anchor points.
+    @MainActor
     func updatePortLocations() {
         self.inputViewModels.forEach {
             $0.updateAnchorPoint()

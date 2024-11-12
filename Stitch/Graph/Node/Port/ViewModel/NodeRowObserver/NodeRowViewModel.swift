@@ -114,15 +114,22 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
 }
 
 extension NodeRowViewModel {
+    @MainActor
     func updateAnchorPoint() {
-        guard let canvas = self.canvasItemDelegate else { return }
+        guard let canvas = self.canvasItemDelegate,
+              let node = canvas.nodeDelegate else {
+            return
+        }
+        
         let size = canvas.bounds.localBounds.size
         let ioAdjustment: CGFloat = 8
+        let standardHeightAdjustment: CGFloat = 63
         let ioConstraint: CGFloat = Self.nodeIO == .input ? ioAdjustment : -ioAdjustment
+        let titleHeightOffset: CGFloat = node.getValidCustomTitle().isDefined ? 23 : 0
         
         // Offsets needed because node position uses its center location
         let offsetX: CGFloat = canvas.position.x + ioConstraint - size.width / 2
-        let offsetY: CGFloat = canvas.position.y - size.height / 2 + 63
+        let offsetY: CGFloat = canvas.position.y - size.height / 2 + standardHeightAdjustment + titleHeightOffset
         
         let anchorY = offsetY + CGFloat(self.id.portId) * 28
         
