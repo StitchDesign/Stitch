@@ -55,10 +55,10 @@ extension StitchDocumentViewModel {
     }
     
     @MainActor
-    func maybeCreateLLMStepEdgeAdded(node: NodeViewModel,
-                                       newNodeType: NodeType) {
+    func maybeCreateLLMStepEdgeAdded(fromNodeId: String,
+                                     toNodeId: String, input: InputCoordinate) {
         if self.llmRecording.isRecording {
-            let step = node.createLLMStepEdgeAdded(newNodeType)
+            let step = createLLMStepEdgeAdded(input: input, fromNodeId, toNodeId: toNodeId)
             self.llmRecording.actions.append(step)
         }
     }
@@ -80,8 +80,7 @@ extension NodeViewModel {
                       nodeType: newNodeType.asLLMStepNodeType)
     }
     
-    func createLLMStepSetInput(input: InputCoordinate,
-                               value: PortValue) -> LLMStepAction {
+    func createLLMStepSetInput(input: InputCoordinate, value: PortValue) -> LLMStepAction {
         /*
          RELEVANT SECTION OF OUR OPEN-AI SCHEMA:
          
@@ -118,15 +117,13 @@ extension NodeViewModel {
                       // value: value.asLLMValue,
                       value: .init(value: value.display),
                       
+                      
+                      
                       // For disambiguating between e.g. a string "2" and the number 2
                       nodeType: value.toNodeType.asLLMStepNodeType)
     }
     
-    func createLLMStepEdgeAdded(_ newNodeType: NodeType) -> LLMStepAction {
-        LLMStepAction(stepType: StepType.changeNodeType.rawValue,
-                      nodeId: self.id.description,
-                      nodeType: newNodeType.asLLMStepNodeType)
-    }
+  
 }
 
 extension InputCoordinate {
@@ -141,7 +138,24 @@ extension InputCoordinate {
             return x.description
         }
     }
+    
 }
+
+//need to feed in port id's as well
+//pass in the input coordinate
+func createLLMStepEdgeAdded(input: InputCoordinate, _ fromNodeId: String, toNodeId: String) -> LLMStepAction {
+    //actually create the action with the input coordiante using
+    //asLLMStepPort()
+    LLMStepAction(stepType: StepType.connectNodes.rawValue,
+                  port: .init(value: input.asLLMStepPort()),
+                  fromNodeId: fromNodeId,
+                  toNodeId: toNodeId)
+}
+
+//LLMStepAction(stepType: StepType.addNode.rawValue,
+//              nodeId: self.id.description, // raw string of UUID
+//              nodeName: self.kind.asLLMStepNodeName)
+
 
 extension LayerInputPort {
     var asLLMStepPort: String {

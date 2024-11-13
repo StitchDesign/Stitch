@@ -94,6 +94,9 @@ extension StitchDocumentViewModel {
                                             nodeIO: .input,
                                             nodeType: toNode.userVisibleType)
             
+           // let llmAddEdge = LLMAddEdge(from: edge.from, to: edge.to)
+            
+            
             // TODO: NOV 11
 //            self.llmRecording.actions.append(
 //                .addEdge(LLMAddEdge(
