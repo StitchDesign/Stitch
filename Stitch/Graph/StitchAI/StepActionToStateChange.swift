@@ -38,7 +38,6 @@ extension StitchDocumentViewModel {
             // TODO: if `action.nodeId` is always a real UUID and is referred to consistently across OpenAI-generated step-actions, then we don't need `llmNodeIdMapping` anymore ?
             self.llmNodeIdMapping.updateValue(newNode.id, forKey: llmNodeId)
                   
-            
         case .changeNodeType:
             
             guard let llmNodeId: String = action.nodeId,
@@ -54,7 +53,6 @@ extension StitchDocumentViewModel {
             let _ = self.graph.nodeTypeChanged(nodeId: existingNode.id,
                                                newNodeType: nodeType)
                
-            
         case .setInput:
             
             guard let llmNodeId: String = action.nodeId,
@@ -82,33 +80,22 @@ extension StitchDocumentViewModel {
             input.setValuesInInput([value])
             
         case .addLayerInput:
+
             
-            
-            guard let nodeId: String = action.nodeId,
-                  let port: NodeIOPortType = action.parsePort() else {
-                fatalErrorIfDebug("handleLLMStepAction: need to handle .addLayerInput")
+            guard let nodeIdString: String = action.nodeId,
+                  let toNodeIdString: String = action.toNodeId,
+                  let port: NodeIOPortType = action.parsePort(),
+                  // Node must already exist
+                  let fromNodeId = self.llmNodeIdMapping.get(nodeIdString) else {
+                fatalErrorIfDebug("handleLLMStepAction: could not handle addLayerInput")
                 return
             }
+            
+            let coordinate = InputCoordinate(portType: port, nodeId: fromNodeId)
+            
+            
+//            let _ = self.graph.layerInputAddedToGraph(node: NodeViewModel, input: InputLayerNodeRowData, coordinate: coordinate)
 
-            let a = action
-            
-            
-//            guard let portType = llmPort.parseLLMPortAsPortType(nodeKind, .output) else {
-//                log("handleLLMLayerInputOrOutputAdded: No output")
-//                return
-//            }
-//            
-//            guard let portId = portType.portId,
-//                  let layerNode = node.layerNode,
-//                  let output = layerNode.outputPorts[safe: portId] else {
-//                log("handleLLMLayerInputOrOutputAdded: No output for \(portType)")
-//                return
-//            }
-//            
-//            self.graph.layerOutputAddedToGraph(node: node,
-//                                         output: output,
-//                                         portId: portId)
-//            
         case .connectNodes:
             guard let fromNodeIdString: String = action.fromNodeId,
                   let toNodeIdString: String = action.toNodeId,
