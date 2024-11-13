@@ -128,9 +128,9 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
         
         log("OpenAIRequestCompleted: JSON RESPONSE: \(jsonResponse)")
         
-        let (stepsFromReponse, error) = data.getOpenAISteps()
+        let (stepsFromResponse, error) = data.getOpenAISteps()
         
-        guard let stepsFromReponse = stepsFromReponse else {
+        guard let stepsFromResponse = stepsFromResponse else {
             state.showErrorModal(message: error?.localizedDescription ?? "",
                                  userPrompt: originalPrompt,
                                  jsonResponse: jsonResponse)
