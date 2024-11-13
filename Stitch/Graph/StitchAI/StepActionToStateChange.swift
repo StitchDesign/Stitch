@@ -82,9 +82,33 @@ extension StitchDocumentViewModel {
             input.setValuesInInput([value])
             
         case .addLayerInput:
-            fatalErrorIfDebug("handleLLMStepAction: need to handle .addLayerInput")
-            return
+            
+            
+            guard let nodeId: String = action.nodeId,
+                  let port: NodeIOPortType = action.parsePort() else {
+                fatalErrorIfDebug("handleLLMStepAction: need to handle .addLayerInput")
+                return
+            }
 
+            let a = action
+            
+            
+//            guard let portType = llmPort.parseLLMPortAsPortType(nodeKind, .output) else {
+//                log("handleLLMLayerInputOrOutputAdded: No output")
+//                return
+//            }
+//            
+//            guard let portId = portType.portId,
+//                  let layerNode = node.layerNode,
+//                  let output = layerNode.outputPorts[safe: portId] else {
+//                log("handleLLMLayerInputOrOutputAdded: No output for \(portType)")
+//                return
+//            }
+//            
+//            self.graph.layerOutputAddedToGraph(node: node,
+//                                         output: output,
+//                                         portId: portId)
+//            
         case .connectNodes:
             guard let fromNodeIdString: String = action.fromNodeId,
                   let toNodeIdString: String = action.toNodeId,
