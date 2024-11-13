@@ -92,6 +92,7 @@ extension StitchDocumentViewModel {
                   // Node must already exist
                   let fromNodeId = self.llmNodeIdMapping.get(fromNodeIdString),
                   let toNodeId = self.llmNodeIdMapping.get(toNodeIdString)else {
+                fatalErrorIfDebug("handleLLMStepAction: could not handle connectNodes")
                 return
             }
             
