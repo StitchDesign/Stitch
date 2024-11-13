@@ -37,7 +37,7 @@ struct CanvasItemSelectedViewModifier: ViewModifier {
 
 // fka `NodeBoundsReader`
 struct CanvasItemBoundsReader: ViewModifier {
-    @Environment(\.viewframe) private var viewframe
+//    @Environment(\.viewframe) private var viewframe
     @Bindable var graph: GraphState
     @Bindable var canvasItem: CanvasItemViewModel
     
@@ -63,7 +63,7 @@ struct CanvasItemBoundsReader: ViewModifier {
                                graph.updateGraphBaseViewBounds(
                                    for: canvasItem,
                                    newBounds: newBounds,
-                                   viewFrame: viewframe,
+//                                   viewFrame: viewframe,
                                    splitterType: splitterType,
                                    updateMenuActiveSelectionBounds: updateMenuActiveSelectionBounds)
                             }
@@ -98,7 +98,7 @@ extension GraphState {
     @MainActor
     func updateGraphBaseViewBounds(for canvasItem: CanvasItemViewModel,
                                    newBounds: CGRect,
-                                   viewFrame: CGRect,
+//                                   viewFrame: CGRect,
                                    splitterType: SplitterType?,
                                    updateMenuActiveSelectionBounds: Bool) {
 
@@ -110,7 +110,8 @@ extension GraphState {
         canvasItem.bounds.graphBaseViewBounds = newBounds
 
         // See if it's in the visible frame
-        let isVisibleInFrame = viewFrame.intersects(newBounds)
+//        let isVisibleInFrame = viewFrame.intersects(newBounds)
+        let isVisibleInFrame = true
         canvasItem.updateVisibilityStatus(with: isVisibleInFrame,
                                           activeIndex: activeIndex)
     }
