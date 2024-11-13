@@ -137,9 +137,13 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
             return
         }
         
-        log("OpenAIRequestCompleted: stepsFromReponse: \(stepsFromReponse)")
+        log("OpenAIRequestCompleted: stepsFromReponse:")
         
-        stepsFromReponse.forEach { step in
+        for step in stepsFromResponse {
+            log(step.description)
+        }
+        
+        stepsFromResponse.forEach { step in
             state.handleLLMStepAction(step)
         }
         
@@ -166,5 +170,23 @@ extension Data {
             return (nil, error)
         }
         
+    }
+}
+
+
+extension Stitch.Step: CustomStringConvertible {
+    public var description: String {
+        return """
+        Step(
+            stepType: "\(stepType)",
+            nodeId: \(nodeId ?? "nil"),
+            nodeName: \(nodeName ?? "nil"),
+            port: \(port?.value ?? "nil"),
+            fromNodeId: \(fromNodeId ?? "nil"),
+            toNodeId: \(toNodeId ?? "nil"),
+            value: \(value?.value ?? "nil"),
+            nodeType: \(nodeType ?? "nil")
+        )
+        """
     }
 }
