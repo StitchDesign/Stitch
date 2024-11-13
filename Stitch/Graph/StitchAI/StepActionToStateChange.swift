@@ -87,6 +87,27 @@ extension StitchDocumentViewModel {
             return
 
         case .connectNodes:
+            
+//            if let fromNodeId = step.fromNodeId, let toNodeId = step.toNodeId,
+//               let fromNodeInfo = nodeInfoMap[fromNodeId], let toNodeInfo = nodeInfoMap[toNodeId] {
+//                let fromNodeTitle = "\(fromNodeInfo.type.capitalized) (\(fromNodeId))"
+//                let toNodeTitle = "\(toNodeInfo.type.capitalized) (\(toNodeId))"
+//                
+//                let portType = step.port?.value ?? toNodeInfo.type.capitalized
+//                if !layerInputsAdded.contains("\(toNodeId):\(portType)") {
+//                    llmActions.append(LLMActionData(action: ActionType.addLayerInput.rawValue, node: toNodeTitle, nodeType: nil, port: portType.capitalized, from: nil, to: nil, field: nil, value: nil))
+//                    layerInputsAdded.insert("\(toNodeId):\(portType)")
+//                }
+//                
+//                let fromEdge = EdgePoint(node: fromNodeTitle, port: "0")
+//                let toEdge = EdgePoint(node: toNodeTitle, port: portType.capitalized)
+//                llmActions.append(LLMActionData(action: ActionType.addEdge.rawValue, node: nil, nodeType: nil, port: nil, from: fromEdge, to: toEdge, field: nil, value: nil))
+//            } else {
+//                print("failed to connect nodes")
+//            }
+//            
+            
+            
             fatalErrorIfDebug("handleLLMStepAction: need to handle .connectNodes")
             return
         }

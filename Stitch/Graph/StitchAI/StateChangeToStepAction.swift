@@ -54,6 +54,16 @@ extension StitchDocumentViewModel {
         }
     }
     
+    @MainActor
+    func maybeCreateLLMStepEdgeAdded(node: NodeViewModel,
+                                       newNodeType: NodeType) {
+        if self.llmRecording.isRecording {
+            let step = node.createLLMStepEdgeAdded(newNodeType)
+            self.llmRecording.actions.append(step)
+        }
+    }
+    
+    
 }
 
 extension NodeViewModel {
@@ -110,6 +120,12 @@ extension NodeViewModel {
                       
                       // For disambiguating between e.g. a string "2" and the number 2
                       nodeType: value.toNodeType.asLLMStepNodeType)
+    }
+    
+    func createLLMStepEdgeAdded(_ newNodeType: NodeType) -> LLMStepAction {
+        LLMStepAction(stepType: StepType.changeNodeType.rawValue,
+                      nodeId: self.id.description,
+                      nodeType: newNodeType.asLLMStepNodeType)
     }
 }
 
