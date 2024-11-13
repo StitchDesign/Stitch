@@ -88,6 +88,28 @@ extension StitchDocumentViewModel {
 
         case .connectNodes:
             
+//            LLMStepAction(stepType: StepType.connectNodes.rawValue,
+//                          port: .init(value: input.asLLMStepPort()),
+//                          fromNodeId: fromNodeId,
+//                          toNodeId: toNodeId)
+            
+            guard let fromNodeId = action.fromNodeId,
+                  let toNodeId: String = action.toNodeId,
+                  let port: NodeIOPortType = action.parsePort() else {
+                return
+            }
+            
+            let fromNodeIdString = NodeEntity.ID(uuidString: fromNodeId)
+            let toNodeIdString = NodeEntity.ID(uuidString: toNodeId)
+
+            let fromCoordinate = NodeIOCoordinate(portId: port.id, nodeId: fromNodeIdString!)
+            let toCoordinate = NodeIOCoordinate(portId: port.id, nodeId: toNodeIdString!)
+
+            let edge: PortEdgeData = PortEdgeData(from: fromCoordinate, to: toCoordinate)
+
+            let _ = graph.edgeAdded(edge: edge)
+            
+            
 //            if let fromNodeId = step.fromNodeId, let toNodeId = step.toNodeId,
 //               let fromNodeInfo = nodeInfoMap[fromNodeId], let toNodeInfo = nodeInfoMap[toNodeId] {
 //                let fromNodeTitle = "\(fromNodeInfo.type.capitalized) (\(fromNodeId))"
@@ -107,9 +129,6 @@ extension StitchDocumentViewModel {
 //            }
 //            
             
-            
-            fatalErrorIfDebug("handleLLMStepAction: need to handle .connectNodes")
-            return
         }
     }
 }

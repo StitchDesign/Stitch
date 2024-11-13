@@ -55,7 +55,7 @@ extension StitchDocumentViewModel {
 
 
 
-// Alternatively you could handle this in
+// OLD
 
 extension StitchDocumentViewModel {
     
