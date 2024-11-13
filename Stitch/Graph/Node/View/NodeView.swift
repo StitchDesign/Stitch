@@ -9,6 +9,58 @@ import SwiftUI
 import UIKit
 import StitchSchemaKit
 
+struct CacheData {
+    let maxSize: CGSize
+    let spacing: [CGFloat]
+    let totalSpacing: CGFloat
+}
+
+struct InfiniteCanvas: Layout {
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        .init(width: proposal.width ?? .zero,
+              height: proposal.height ?? .zero)
+    }
+    
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        guard !subviews.isEmpty else { return }
+        
+//        let originOffset = CGPoint(x: bounds.minX, y: bounds.minY)
+        
+        for index in subviews.indices {
+            let subview = subviews[index]
+            let size = subview.sizeThatFits(proposal)
+            
+            subview.place(
+                at: bounds.origin,
+                anchor: .topLeading,
+                proposal: ProposedViewSize(size))
+//            nextX += maxSize.width + spacing[index]
+        }
+    }
+    
+//    func makeCache(subviews: Subviews) -> CacheData {
+//        let maxSize = maxSize(subviews: subviews)
+//        let spacing = spacing(subviews: subviews)
+//        let totalSpacing = spacing.reduce(0) { $0 + $1 }
+//
+//
+//        return CacheData(
+//            maxSize: maxSize,
+//            spacing: spacing,
+//            totalSpacing: totalSpacing)
+//    }
+}
+
+//private struct NodePositionKey: LayoutValueKey {
+//    static let defaultValue: CGPoint = .zero
+//}
+//
+//extension View {
+//    func nodePosition(_ position: CGPoint) -> some View {
+//        layoutValue(key: NodePositionKey.self, value: position)
+//    }
+//}
+
 struct NodeView<InputsViews: View, OutputsViews: View>: View {
     @Bindable var node: CanvasItemViewModel
     @Bindable var stitch: NodeViewModel

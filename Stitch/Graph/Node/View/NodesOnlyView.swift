@@ -15,9 +15,9 @@ struct NodesOnlyView: View {
     @Bindable var graphUI: GraphUIState
     @Bindable var nodePageData: NodePageData
     
-    var canvasNodeIds: Set<CanvasItemId> {
-        self.graph.visibleNodesViewModel.visibleCanvasIds
-    }
+//    var canvasNodeIds: Set<CanvasItemId> {
+//        self.graph.visibleNodesViewModel.visibleCanvasIds
+//    }
 
     var selection: GraphUISelectionState {
         graphUI.selection
@@ -33,14 +33,14 @@ struct NodesOnlyView: View {
         
     var body: some View {
         // HACK for when no nodes present
-        if canvasNodeIds.isEmpty {
-            Rectangle().fill(.clear)
-        }
-        
-        let canvasNodes: [CanvasItemViewModel] = canvasNodeIds
-            .compactMap { self.graph.getCanvasItem($0) }
+//        if canvasNodeIds.isEmpty {
+//            Rectangle().fill(.clear)
+//        }
+//        
+//        let canvasNodes: [CanvasItemViewModel] = canvasNodeIds
+//            .compactMap { self.graph.getCanvasItem($0) }
 
-        ForEach(canvasNodes) { canvasNode in
+        ForEach(self.graph.visibleNodesViewModel.allViewModels.filter { $0.parentGroupNodeId == self.graphUI.groupNodeFocused?.groupNodeId }) { canvasNode in
             // Note: if/else seems better than opacity modifier, which introduces funkiness with edges (port preference values?) when going in and out of groups;
             // (`.opacity(0)` means we still render the view, and thus anchor preferences?)
             NodeTypeView(
@@ -54,12 +54,12 @@ struct NodesOnlyView: View {
                 adjustmentBarSessionId: adjustmentBarSessionId
             )
         }
-        .onChange(of: self.activeIndex) {
-            // Update values when active index changes
-            canvasNodes.forEach { canvasNode in
-                canvasNode.nodeDelegate?.activeIndexChanged(activeIndex: self.activeIndex)
-            }
-        }
+//        .onChange(of: self.activeIndex) {
+//            // Update values when active index changes
+//            canvasNodes.forEach { canvasNode in
+//                canvasNode.nodeDelegate?.activeIndexChanged(activeIndex: self.activeIndex)
+//            }
+//        }
     }
 }
 

@@ -74,7 +74,7 @@ struct NodesView: View {
         
         // CommentBox needs to be affected by graph offset and zoom
         // but can live somewhere else?
-        ZStack {
+        InfiniteCanvas {
             //                        commentBoxes
             nodesOnlyView(nodePageData: nodePageData)
         }

@@ -581,34 +581,34 @@ extension StitchDocumentViewModel {
     
     /// Check which nodes are visible.
     @MainActor func refreshVisibleNodes() {
-        var visibleNodes = Set<CanvasItemId>()
-        let visibleGraph = self.visibleGraph
-        
-        let viewframeOrigin = CGPoint(x: -visibleGraph.graphMovement.localPosition.x,
-                                      y: -visibleGraph.graphMovement.localPosition.y)
-        
-        let graphView = CGRect(origin: viewframeOrigin,
-                               size: visibleGraph.graphUI.frame.size)
-        let viewframe = Self.getScaledViewFrame(scale: 1 / graphMovement.zoomData.zoom,
-                                                graphView: graphView)
-        
-//        log("visibility view frame: \(viewframe)")
-        self.visibleGraph.visibleNodesViewModel.allViewModels.forEach { node in
-            let nodeRect = CGRect(origin: node.position,
-                                  size: node.sizeByLocalBounds)
-            let isVisibleInFrame = viewframe.intersects(nodeRect)
-//            log("visibility: \(node.id.nodeId.debugFriendlyId)\t\(isVisibleInFrame)\t\(nodeRect)")
-            
-            node.updateVisibilityStatus(with: isVisibleInFrame)
-            
-            if node.isVisibleInFrame && node.parentGroupNodeId == self.graphUI.groupNodeFocused?.groupNodeId {
-                visibleNodes.insert(node.id)
-            }
-        }
-        
-        if self.visibleGraph.visibleNodesViewModel.visibleCanvasIds != visibleNodes {
-            self.visibleGraph.visibleNodesViewModel.visibleCanvasIds = visibleNodes            
-        }
+//        var visibleNodes = Set<CanvasItemId>()
+//        let visibleGraph = self.visibleGraph
+//        
+//        let viewframeOrigin = CGPoint(x: -visibleGraph.graphMovement.localPosition.x,
+//                                      y: -visibleGraph.graphMovement.localPosition.y)
+//        
+//        let graphView = CGRect(origin: viewframeOrigin,
+//                               size: visibleGraph.graphUI.frame.size)
+//        let viewframe = Self.getScaledViewFrame(scale: 1 / graphMovement.zoomData.zoom,
+//                                                graphView: graphView)
+//        
+////        log("visibility view frame: \(viewframe)")
+//        self.visibleGraph.visibleNodesViewModel.allViewModels.forEach { node in
+//            let nodeRect = CGRect(origin: node.position,
+//                                  size: node.sizeByLocalBounds)
+//            let isVisibleInFrame = viewframe.intersects(nodeRect)
+////            log("visibility: \(node.id.nodeId.debugFriendlyId)\t\(isVisibleInFrame)\t\(nodeRect)")
+//            
+//            node.updateVisibilityStatus(with: isVisibleInFrame)
+//            
+//            if node.isVisibleInFrame && node.parentGroupNodeId == self.graphUI.groupNodeFocused?.groupNodeId {
+//                visibleNodes.insert(node.id)
+//            }
+//        }
+//        
+//        if self.visibleGraph.visibleNodesViewModel.visibleCanvasIds != visibleNodes {
+//            self.visibleGraph.visibleNodesViewModel.visibleCanvasIds = visibleNodes            
+//        }
     }
     
     /// Uses graph local offset and scale to get a modified `CGRect` of the view frame.
