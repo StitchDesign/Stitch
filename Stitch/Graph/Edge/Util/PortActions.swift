@@ -129,10 +129,6 @@ extension GraphState {
         // starting at the 'from' node downward:
         self.calculate(edge.from.nodeId)
         
-        //self.documentDelegate?.maybeCreateLLMAddEdge(edge)
-        
-        
-        
         //we need the port here
         self.documentDelegate?.maybeCreateLLMStepEdgeAdded(fromNodeId: edge.from.nodeId.uuidString, toNodeId: edge.to.nodeId.uuidString, input: edge.to)
     }

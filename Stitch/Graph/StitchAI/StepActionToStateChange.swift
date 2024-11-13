@@ -80,55 +80,26 @@ extension StitchDocumentViewModel {
                                             activeIndex: self.activeIndex)
             
             input.setValuesInInput([value])
-
             
         case .addLayerInput:
             fatalErrorIfDebug("handleLLMStepAction: need to handle .addLayerInput")
             return
 
         case .connectNodes:
-            
-//            LLMStepAction(stepType: StepType.connectNodes.rawValue,
-//                          port: .init(value: input.asLLMStepPort()),
-//                          fromNodeId: fromNodeId,
-//                          toNodeId: toNodeId)
-            
-            guard let fromNodeId = action.fromNodeId,
-                  let toNodeId: String = action.toNodeId,
-                  let port: NodeIOPortType = action.parsePort() else {
+            guard let fromNodeIdString: String = action.fromNodeId,
+                  let toNodeIdString: String = action.toNodeId,
+                  let port: NodeIOPortType = action.parsePort(),
+                  // Node must already exist
+                  let fromNodeId = self.llmNodeIdMapping.get(fromNodeIdString),
+                  let toNodeId = self.llmNodeIdMapping.get(toNodeIdString)else {
                 return
             }
             
-            let fromNodeIdString = NodeEntity.ID(uuidString: fromNodeId)
-            let toNodeIdString = NodeEntity.ID(uuidString: toNodeId)
-
-            let fromCoordinate = NodeIOCoordinate(portId: port.id, nodeId: fromNodeIdString!)
-            let toCoordinate = NodeIOCoordinate(portId: port.id, nodeId: toNodeIdString!)
+            let fromCoordinate = InputCoordinate(portType: port, nodeId: fromNodeId)
+            let toCoordinate = InputCoordinate(portType: port, nodeId: toNodeId)
 
             let edge: PortEdgeData = PortEdgeData(from: fromCoordinate, to: toCoordinate)
-
             let _ = graph.edgeAdded(edge: edge)
-            
-            
-//            if let fromNodeId = step.fromNodeId, let toNodeId = step.toNodeId,
-//               let fromNodeInfo = nodeInfoMap[fromNodeId], let toNodeInfo = nodeInfoMap[toNodeId] {
-//                let fromNodeTitle = "\(fromNodeInfo.type.capitalized) (\(fromNodeId))"
-//                let toNodeTitle = "\(toNodeInfo.type.capitalized) (\(toNodeId))"
-//                
-//                let portType = step.port?.value ?? toNodeInfo.type.capitalized
-//                if !layerInputsAdded.contains("\(toNodeId):\(portType)") {
-//                    llmActions.append(LLMActionData(action: ActionType.addLayerInput.rawValue, node: toNodeTitle, nodeType: nil, port: portType.capitalized, from: nil, to: nil, field: nil, value: nil))
-//                    layerInputsAdded.insert("\(toNodeId):\(portType)")
-//                }
-//                
-//                let fromEdge = EdgePoint(node: fromNodeTitle, port: "0")
-//                let toEdge = EdgePoint(node: toNodeTitle, port: portType.capitalized)
-//                llmActions.append(LLMActionData(action: ActionType.addEdge.rawValue, node: nil, nodeType: nil, port: nil, from: fromEdge, to: toEdge, field: nil, value: nil))
-//            } else {
-//                print("failed to connect nodes")
-//            }
-//            
-            
         }
     }
 }
