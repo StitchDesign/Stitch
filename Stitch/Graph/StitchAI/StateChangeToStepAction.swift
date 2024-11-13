@@ -45,7 +45,7 @@ extension StitchDocumentViewModel {
     }
     
     @MainActor
-    func maybeCreateLLMSetInput(node: NodeViewModel,
+    func maybeCreateLLMStepSetInput(node: NodeViewModel,
                                 input: InputCoordinate,
                                 value: PortValue) {
         if self.llmRecording.isRecording {
