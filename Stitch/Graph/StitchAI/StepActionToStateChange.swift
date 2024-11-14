@@ -109,7 +109,7 @@ extension StitchDocumentViewModel {
         case .connectNodes:
             guard let fromNodeIdString: String = action.fromNodeId,
                   let toNodeIdString: String = action.toNodeId,
-                  let port: NodeIOPortType = action.parsePort(),
+                  let toPort: NodeIOPortType = action.parsePort(),
                   // Node must already exist
                   let fromNodeId = self.llmNodeIdMapping.get(fromNodeIdString),
                   let toNodeId = self.llmNodeIdMapping.get(toNodeIdString)else {
@@ -121,7 +121,7 @@ extension StitchDocumentViewModel {
             let fromCoordinate = InputCoordinate(portType: .portIndex(0), nodeId: fromNodeId)
             
             // ... But an edge could be coming into a
-            let toCoordinate = InputCoordinate(portType: port, nodeId: toNodeId)
+            let toCoordinate = InputCoordinate(portType: toPort, nodeId: toNodeId)
 
             let edge: PortEdgeData = PortEdgeData(from: fromCoordinate, to: toCoordinate)
             let _ = graph.edgeAdded(edge: edge)

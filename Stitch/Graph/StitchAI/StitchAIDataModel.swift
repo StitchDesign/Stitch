@@ -44,7 +44,11 @@ struct Step: Equatable, Codable {
     var stepType: String
     var nodeId: String?
     var nodeName: String?
+    
+    // NOTE: this is currently ALWAYS the input port (for edge-connection, for set-input etc.)
+    // We currently assume that an edge goes out from a patch's first output.
     var port: StringOrNumber?  // Updated to handle String or Int
+    
     var fromNodeId: String?
     var toNodeId: String?
     var value: StringOrNumber?  // Updated to handle String or Int
