@@ -44,9 +44,75 @@ struct NodesView: View {
     }
     
     var body: some View {
-        let nodePageData = visibleNodesViewModel
+        let nodePageData = self.graph.visibleNodesViewModel
             .getViewData(groupNodeFocused: graphUI.groupNodeFocused?.groupNodeId) ?? .init()
         
+        // CommentBox needs to be affected by graph offset and zoom
+        // but can live somewhere else?
+        InfiniteCanvas(graph: graph,
+                       viewFrameSize: document.graphUI.frame.size,
+                       origin: document.graphMovement.localPosition,
+                       zoom: document.graphMovement.zoomData.zoom) {
+            //                        commentBoxes
+            nodesOnlyView(nodePageData: nodePageData)
+        }
+           .modifier(CanvasEdgesViewModifier(document: document,
+                                             graph: graph,
+                                             graphUI: graphUI))
+           .transition(.groupTraverse(isVisitingChild: groupTraversedToChild,
+                                      nodeLocation: groupNodeLocation,
+                                      graphOffset: .zero))
+           .coordinateSpace(name: Self.coordinateNameSpace)
+           .modifier(GraphMovementViewModifier(graphMovement: graph.graphMovement,
+                                               currentNodePage: nodePageData,
+                                               groupNodeFocused: graphUI.groupNodeFocused))
+        //        .onChange(of: groupNodeFocused) {
+        //            // Updates cached data inside row observers when group changes
+        //            self.visibleNodesViewModel.updateAllNodeViewData()
+        //        }
+    }
+    
+    // TODO: better location for CommentBoxes?
+//    var commentBoxes: some View {
+//        ForEach(graph.commentBoxesDict.toValuesArray, id: \.id) { box in
+//            CommentBoxView(
+//                graph: graph,
+//                box: box,
+//                isSelected: selection.selectedCommentBoxes.contains(box.id))
+//            .zIndex(box.zIndex)
+//        }
+//    }
+    
+    @MainActor
+    func nodesOnlyView(nodePageData: NodePageData) -> some View {
+        NodesOnlyView(document: document,
+                      graph: graph,
+                      graphUI: graphUI,
+                      nodePageData: nodePageData)
+    }
+}
+
+struct CanvasEdgesViewModifier: ViewModifier {
+    @Bindable var document: StitchDocumentViewModel
+    @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
+    
+    @MainActor
+    func connectedEdgesView(allConnectedInputs: [InputNodeRowViewModel]) -> some View {
+        GraphConnectedEdgesView(graph: graph,
+                                graphUI: graphUI,
+                                allConnectedInputs: allConnectedInputs)
+    }
+    
+    @MainActor
+    func edgeDrawingView(inputs: [InputNodeRowViewModel],
+                         graph: GraphState) -> some View {
+        EdgeDrawingView(graph: graph,
+                        edgeDrawingObserver: graph.edgeDrawingObserver,
+                        inputsAtThisTraversalLevel: inputs)
+    }
+    
+    func body(content: Content) -> some View {
         let allInputs: [InputNodeRowViewModel] = self.graph
             .getVisibleCanvasItems()
             .flatMap { canvasItem -> [InputNodeRowViewModel] in
@@ -72,72 +138,21 @@ struct NodesView: View {
             return inputRow
         } ?? []
         
-        // CommentBox needs to be affected by graph offset and zoom
-        // but can live somewhere else?
-        InfiniteCanvas {
-            //                        commentBoxes
-            nodesOnlyView(nodePageData: nodePageData)
+        return content
+            .background {
+                // Using background ensures edges z-index are always behind ndoes
+                connectedEdgesView(allConnectedInputs: connectedInputs + candidateInputs)
+            }
+            .overlay {
+                edgeDrawingView(inputs: allInputs,
+                                graph: self.graph)
+                
+                EdgeInputLabelsView(inputs: allInputs,
+                                    document: document,
+                                    graphUI: document.graphUI)
         }
-        .background {
-            // Using background ensures edges z-index are always behind ndoes
-            connectedEdgesView(allConnectedInputs: connectedInputs + candidateInputs)
-        }
-        .overlay {
-            edgeDrawingView(inputs: allInputs,
-                            graph: self.graph)
-            
-            EdgeInputLabelsView(inputs: allInputs,
-                                document: document,
-                                graphUI: document.graphUI)
-        }
-        .transition(.groupTraverse(isVisitingChild: groupTraversedToChild,
-                                   nodeLocation: groupNodeLocation,
-                                   graphOffset: .zero))
-        .coordinateSpace(name: Self.coordinateNameSpace)
-        .modifier(GraphMovementViewModifier(graphMovement: graph.graphMovement,
-                                            currentNodePage: nodePageData,
-                                            groupNodeFocused: graphUI.groupNodeFocused))
-//        .onChange(of: groupNodeFocused) {
-//            // Updates cached data inside row observers when group changes
-//            self.visibleNodesViewModel.updateAllNodeViewData()
-//        }
-    }
-    
-    @MainActor
-    func connectedEdgesView(allConnectedInputs: [InputNodeRowViewModel]) -> some View {
-        GraphConnectedEdgesView(graph: graph,
-                                graphUI: graphUI,
-                                allConnectedInputs: allConnectedInputs)
-    }
-    
-    // TODO: better location for CommentBoxes?
-//    var commentBoxes: some View {
-//        ForEach(graph.commentBoxesDict.toValuesArray, id: \.id) { box in
-//            CommentBoxView(
-//                graph: graph,
-//                box: box,
-//                isSelected: selection.selectedCommentBoxes.contains(box.id))
-//            .zIndex(box.zIndex)
-//        }
-//    }
-    
-    @MainActor
-    func nodesOnlyView(nodePageData: NodePageData) -> some View {
-        NodesOnlyView(document: document,
-                      graph: graph,
-                      graphUI: graphUI,
-                      nodePageData: nodePageData)
-    }
-    
-    @MainActor
-    func edgeDrawingView(inputs: [InputNodeRowViewModel],
-                         graph: GraphState) -> some View {
-        EdgeDrawingView(graph: graph,
-                        edgeDrawingObserver: graph.edgeDrawingObserver,
-                        inputsAtThisTraversalLevel: inputs)
     }
 }
-
 
 struct EdgeInputLabelsView: View {
     let inputs: [InputNodeRowViewModel]

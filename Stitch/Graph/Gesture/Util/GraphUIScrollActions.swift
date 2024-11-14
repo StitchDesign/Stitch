@@ -611,20 +611,20 @@ extension StitchDocumentViewModel {
 //        }
     }
     
-    /// Uses graph local offset and scale to get a modified `CGRect` of the view frame.
-    static func getScaledViewFrame(scale: Double,
-                                   graphView: CGRect) -> CGRect {
-        let scaledSize = CGSize(
-            width: graphView.width * scale,
-            height: graphView.height * scale)
-
-        let yDiff = (graphView.height - scaledSize.height) / 2
-        let xDiff = (graphView.width - scaledSize.width) / 2
-        
-        return CGRect(origin: CGPoint(x: graphView.origin.x + xDiff,
-                                      y: graphView.origin.y + yDiff),
-                      size: scaledSize)
-    }
+//    /// Uses graph local offset and scale to get a modified `CGRect` of the view frame.
+//    static func getScaledViewFrame(scale: Double,
+//                                   graphView: CGRect) -> CGRect {
+//        let scaledSize = CGSize(
+//            width: graphView.width * scale,
+//            height: graphView.height * scale)
+//
+//        let yDiff = (graphView.height - scaledSize.height) / 2
+//        let xDiff = (graphView.width - scaledSize.width) / 2
+//        
+//        return CGRect(origin: CGPoint(x: graphView.origin.x + xDiff,
+//                                      y: graphView.origin.y + yDiff),
+//                      size: scaledSize)
+//    }
 
     // `handleGraphScrolled` is kept relatively pure and separate;
     // but in many drag cases we need to do border checks (graph min/max),
