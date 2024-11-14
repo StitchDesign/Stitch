@@ -44,7 +44,7 @@ struct LayerInputAddedToGraph: GraphEvent {
         // log("LayerInputAddedToGraph: coordinate: \(coordinate)")
         
         guard let node = state.getNodeViewModel(nodeId),
-              let layerNode = node.layerNode else {
+              let _ = node.layerNode else {
             log("LayerInputAddedToGraph: could not add Layer Input to graph")
             fatalErrorIfDebug()
             return
@@ -139,7 +139,7 @@ extension GraphState {
         
         document.graphUI.propertySidebar.selectedProperty = nil
         
-        document.maybeCreateLLMAddLayerInput(nodeId, coordinate)
+        document.maybeCreateLLMStepAddLayerInput(nodeId, coordinate)
     }
 }
 
@@ -204,6 +204,7 @@ extension GraphState {
         
         document.graphUI.propertySidebar.selectedProperty = nil
         
-        document.maybeCreateLLMAddLayerOutput(node.id, portId)
+        // TODO: OPEN AI SCHEMA: ADD LAYER OUTPUTS TO CANVAS
+        // document.maybeCreateLLMAddLayerOutput(node.id, portId)
     }
 }

@@ -18,43 +18,30 @@ extension NodeViewModel {
 }
 
 extension StitchDocumentViewModel {
-
-    @MainActor
-    func maybeCreateLLMAddLayerInput(_ nodeId: NodeId, _ property: LayerInputType) {
-        // If we're LLM-recording, add an `LLMAddNode` action
-        if self.llmRecording.isRecording,
-           let node = self.graph.getNodeViewModel(nodeId) {
-
-            let addLayer = LLMAddLayerInput(
-                node: node.llmNodeTitle,
-                port: property.layerInput.label())
-            
-            // TODO: NOV 11
-//            self.llmRecording.actions.append(.addLayerInput(addLayer))
-        }
-    }
     
-    @MainActor
-    func maybeCreateLLMAddLayerOutput(_ nodeId: NodeId, _ portId: Int) {
-                
-        // If we're LLM-recording, add an `LLMAddNode` action
-        if self.llmRecording.isRecording,
-           let node = self.graph.getNodeViewModel(nodeId) {
-            
-            let output = OutputCoordinate(portId: portId, nodeId: nodeId)
-            let port = output.asLLMPort(nodeKind: node.kind,
-                                        nodeIO: .output,
-                                        nodeType: node.userVisibleType)
-            
-            let addLayer = LLMAddLayerOutput(
-                node: node.llmNodeTitle,
-                port: port)
-            
-            // TODO: NOV 11
-//            self.llmRecording.actions.append(.addLayerOutput(addLayer))
-        }
-    }
+    // TODO: OPEN AI SCHEMA: ADD LAYER OUTPUTS TO CANVAS
+    //    @MainActor
+    //    func maybeCreateLLMAddLayerOutput(_ nodeId: NodeId, _ portId: Int) {
+    //
+    //        // If we're LLM-recording, add an `LLMAddNode` action
+    //        if self.llmRecording.isRecording,
+    //           let node = self.graph.getNodeViewModel(nodeId) {
+    //
+    //            let output = OutputCoordinate(portId: portId, nodeId: nodeId)
+    //            let port = output.asLLMPort(nodeKind: node.kind,
+    //                                        nodeIO: .output,
+    //                                        nodeType: node.userVisibleType)
+    //
+    //            let addLayer = LLMAddLayerOutput(
+    //                node: node.llmNodeTitle,
+    //                port: port)
+    //
+    //            // TODO: NOV 11
+    ////            self.llmRecording.actions.append(.addLayerOutput(addLayer))
+    //        }
+    //    }
     
+    // TODO: OPEN AI SCHEMA: MOVE NODE ON CANVAS
     @MainActor
     func maybeCreateLLMMoveNode(canvasItem: CanvasItemViewModel,
                                 // (position - previousGesture) i.e. how much we moved
@@ -79,34 +66,4 @@ extension StitchDocumentViewModel {
             // self.llmRecording.actions.append(.moveNode(llmMoveNode))
         }
     }
-        
-    @MainActor
-    func maybeCreateLLMAddEdge(_ edge: PortEdgeData) {
-        // If we're LLM-recording, add an `LLMAddNode` action
-        if self.llmRecording.isRecording,
-           let fromNode = self.graph.getNodeViewModel(edge.from.nodeId),
-           let toNode = self.graph.getNodeViewModel(edge.to.nodeId) {
-           
-            let fromOutput = edge.from.asLLMPort(nodeKind: fromNode.kind, 
-                                                 nodeIO: .output,
-                                                 nodeType: fromNode.userVisibleType)
-            let toInput = edge.to.asLLMPort(nodeKind: toNode.kind,
-                                            nodeIO: .input,
-                                            nodeType: toNode.userVisibleType)
-            
-           // let llmAddEdge = LLMAddEdge(from: edge.from, to: edge.to)
-            
-            
-            // TODO: NOV 11
-//            self.llmRecording.actions.append(
-//                .addEdge(LLMAddEdge(
-//                    // Need to turn the `NodeIOCoordinate` into a
-//                    from: .init(node: fromNode.llmNodeTitle, 
-//                                port: fromOutput),
-//                    to: .init(node: toNode.llmNodeTitle,
-//                              port: toInput)))
-//            )
-        }
-    }
 }
-

@@ -63,7 +63,19 @@ extension StitchDocumentViewModel {
         }
     }
     
-    
+    @MainActor
+    func maybeCreateLLMStepAddLayerInput(_ nodeId: NodeId, _ property: LayerInputType) {
+        // If we're LLM-recording, add an `LLMAddNode` action
+        if self.llmRecording.isRecording,
+           let node = self.graph.getNodeViewModel(nodeId) {
+
+            let step = createLLMStepAddLayerInput(
+                nodeId: nodeId,
+                input: property.layerInput)
+            
+            self.llmRecording.actions.append(step)
+        }
+    }
 }
 
 extension NodeViewModel {
@@ -80,7 +92,8 @@ extension NodeViewModel {
                       nodeType: newNodeType.asLLMStepNodeType)
     }
     
-    func createLLMStepSetInput(input: InputCoordinate, value: PortValue) -> LLMStepAction {
+    func createLLMStepSetInput(input: InputCoordinate,
+                               value: PortValue) -> LLMStepAction {
         /*
          RELEVANT SECTION OF OUR OPEN-AI SCHEMA:
          
@@ -117,13 +130,9 @@ extension NodeViewModel {
                       // value: value.asLLMValue,
                       value: .init(value: value.display),
                       
-                      
-                      
                       // For disambiguating between e.g. a string "2" and the number 2
                       nodeType: value.toNodeType.asLLMStepNodeType)
     }
-    
-  
 }
 
 extension InputCoordinate {
@@ -138,12 +147,13 @@ extension InputCoordinate {
             return x.description
         }
     }
-    
 }
 
 //need to feed in port id's as well
 //pass in the input coordinate
-func createLLMStepEdgeAdded(input: InputCoordinate, _ fromNodeId: String, toNodeId: String) -> LLMStepAction {
+func createLLMStepEdgeAdded(input: InputCoordinate,
+                            _ fromNodeId: String,
+                            toNodeId: String) -> LLMStepAction {
     //actually create the action with the input coordiante using
     //asLLMStepPort()
     LLMStepAction(stepType: StepType.connectNodes.rawValue,
@@ -152,10 +162,13 @@ func createLLMStepEdgeAdded(input: InputCoordinate, _ fromNodeId: String, toNode
                   toNodeId: toNodeId)
 }
 
-//LLMStepAction(stepType: StepType.addNode.rawValue,
-//              nodeId: self.id.description, // raw string of UUID
-//              nodeName: self.kind.asLLMStepNodeName)
 
+func createLLMStepAddLayerInput(nodeId: NodeId,
+                                input: LayerInputPort) -> LLMStepAction {
+      LLMStepAction(stepType: StepType.addLayerInput.rawValue,
+                    nodeId: nodeId.description, // Don't need to specify node name?
+                    port: .init(value: input.asLLMStepPort))
+  }
 
 extension LayerInputPort {
     var asLLMStepPort: String {

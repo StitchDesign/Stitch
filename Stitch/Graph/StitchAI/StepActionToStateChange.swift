@@ -80,7 +80,6 @@ extension StitchDocumentViewModel {
             input.setValuesInInput([value])
             
         case .addLayerInput:
-
             
             guard let nodeIdString: String = action.nodeId,
                   let port: NodeIOPortType = action.parsePort(),
@@ -89,14 +88,11 @@ extension StitchDocumentViewModel {
                 fatalErrorIfDebug("handleLLMStepAction: could not handle addLayerInput")
                 return
             }
-            
-            
-            
+                        
             guard let node = self.graph.getNode(nodeId) else {
                 fatalErrorIfDebug("handleLLMStepAction: could not handle addLayerInput")
                 return
             }
-            
             
             guard let layerInput = port.keyPath,
                   let layerNode = node.layerNode else {
@@ -105,7 +101,6 @@ extension StitchDocumentViewModel {
             }
             
             let input = layerNode[keyPath: layerInput.layerNodeKeyPath]
-
 
             graph.layerInputAddedToGraph(node: node,
                                         input: input,
