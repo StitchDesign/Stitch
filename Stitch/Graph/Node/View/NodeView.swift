@@ -61,6 +61,54 @@ struct InfiniteCanvas: Layout {
 //    }
 //}
 
+struct NodeLayout: Layout {
+    struct Cache {
+        var sizes: [CGSize] = []
+    }
+    
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) -> CGSize {
+        .init(width: proposal.width ?? .zero,
+              height: proposal.height ?? .zero)
+    }
+    
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) {
+        guard !subviews.isEmpty else { return }
+        
+        for index in subviews.indices {
+            let subview = subviews[index]
+//            let size = subview.sizeThatFits(proposal)
+            let size = cache.sizes[index]
+            
+            subview.place(
+                at: bounds.origin,
+                anchor: .topLeading,
+                proposal: ProposedViewSize(size))
+            //            nextX += maxSize.width + spacing[index]
+        }
+    }
+    
+    private func maxSize(subviews: Subviews) -> CGSize {
+        let subviewSizes = subviews.map { $0.sizeThatFits(.unspecified) }
+        let maxSize: CGSize = subviewSizes.reduce(.zero) { currentMax, subviewSize in
+            CGSize(
+                width: max(currentMax.width, subviewSize.width),
+                height: max(currentMax.height, subviewSize.height))
+        }
+        
+        return maxSize
+    }
+    
+    func makeCache(subviews: Subviews) -> Cache {
+        let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
+        return Cache(sizes: sizes)
+    }
+    
+    func updateCache(_ cache: inout Cache, subviews: Subviews) {
+//        cache.sizes = subviews.map { $0.sizeThatFits(.unspecified) }
+    }
+}
+
+
 struct NodeView<InputsViews: View, OutputsViews: View>: View {
     @Bindable var node: CanvasItemViewModel
     @Bindable var stitch: NodeViewModel
@@ -104,59 +152,60 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
     }
 
     var body: some View {
-        
-        nodeBody
+        NodeLayout {
+            nodeBody
 #if targetEnvironment(macCatalyst)
-        // Catalyst right-click to open node tag menu
-            .contextMenu {
-                NodeTagMenuButtonsView(graph: graph,
-                                       node: stitch,
-                                       canvasItemId: node.id,
-                                       activeGroupId: activeGroupId,
-                                       nodeTypeChoices: sortedUserTypeChoices,
-                                       canAddInput: canAddInput,
-                                       canRemoveInput: canRemoveInput,
-                                       atleastOneCommentBoxSelected: atleastOneCommentBoxSelected)
-            }
-#endif
-            .modifier(NodeViewTapGestureModifier(
-                onSingleTap: {
-                    // deselect any fields; NOTE: not used on GroupNodes due to .simultaneousGesture
-                    if !self.stitch.kind.isGroup {
-                        graph.graphUI.reduxFocusedField = nil
-                    }
-                    
-                    // and select just the node
-                    node.isTapped(document: document)
-                },
-                onDoubleTap: {
-                    dispatch(GroupNodeDoubleTapped(id: stitch.id))
-                },
-                isGroup: self.stitch.kind.isGroup))
-        
-        /*
-         Note: every touch on a part of a node is an interaction (e.g. the title, an input field etc.) with a single node --- except for touching the node tag menu.
-         
-         So, we must .overlay the node tag menu *after* the tap-gestures, so that tapping the node tag menu does not fire a single-tap.
-         
-         (This would not be required if TapGesture were not .simultaneous, but that is required for handling both single- and double-taps.)
-         */
-            .overlay(alignment: .topTrailing) {
-                if isSelected {
-                    CanvasItemTag(node: node,
-                                  graph: graph,
-                                  stitch: stitch,
-                                  activeGroupId: activeGroupId,
-                                  sortedUserTypeChoices: sortedUserTypeChoices,
-                                  canAddInput: canAddInput,
-                                  canRemoveInput: canRemoveInput,
-                                  atleastOneCommentBoxSelected: atleastOneCommentBoxSelected)
+            // Catalyst right-click to open node tag menu
+                .contextMenu {
+                    NodeTagMenuButtonsView(graph: graph,
+                                           node: stitch,
+                                           canvasItemId: node.id,
+                                           activeGroupId: activeGroupId,
+                                           nodeTypeChoices: sortedUserTypeChoices,
+                                           canAddInput: canAddInput,
+                                           canRemoveInput: canRemoveInput,
+                                           atleastOneCommentBoxSelected: atleastOneCommentBoxSelected)
                 }
-            }
-            .canvasItemPositionHandler(document: document,
-                                       node: node,
-                                       zIndex: zIndex,
-                                       usePositionHandler: usePositionHandler)
+#endif
+                .modifier(NodeViewTapGestureModifier(
+                    onSingleTap: {
+                        // deselect any fields; NOTE: not used on GroupNodes due to .simultaneousGesture
+                        if !self.stitch.kind.isGroup {
+                            graph.graphUI.reduxFocusedField = nil
+                        }
+                        
+                        // and select just the node
+                        node.isTapped(document: document)
+                    },
+                    onDoubleTap: {
+                        dispatch(GroupNodeDoubleTapped(id: stitch.id))
+                    },
+                    isGroup: self.stitch.kind.isGroup))
+            
+            /*
+             Note: every touch on a part of a node is an interaction (e.g. the title, an input field etc.) with a single node --- except for touching the node tag menu.
+             
+             So, we must .overlay the node tag menu *after* the tap-gestures, so that tapping the node tag menu does not fire a single-tap.
+             
+             (This would not be required if TapGesture were not .simultaneous, but that is required for handling both single- and double-taps.)
+             */
+                .overlay(alignment: .topTrailing) {
+                    if isSelected {
+                        CanvasItemTag(node: node,
+                                      graph: graph,
+                                      stitch: stitch,
+                                      activeGroupId: activeGroupId,
+                                      sortedUserTypeChoices: sortedUserTypeChoices,
+                                      canAddInput: canAddInput,
+                                      canRemoveInput: canRemoveInput,
+                                      atleastOneCommentBoxSelected: atleastOneCommentBoxSelected)
+                    }
+                }
+                .canvasItemPositionHandler(document: document,
+                                           node: node,
+                                           zIndex: zIndex,
+                                           usePositionHandler: usePositionHandler)
+        }
     }
 
     @MainActor
