@@ -106,7 +106,6 @@ extension StitchDocumentViewModel {
                                         input: input,
                                         coordinate: layerInput)
             
-            
         case .connectNodes:
             guard let fromNodeIdString: String = action.fromNodeId,
                   let toNodeIdString: String = action.toNodeId,
@@ -118,7 +117,10 @@ extension StitchDocumentViewModel {
                 return
             }
             
-            let fromCoordinate = InputCoordinate(portType: port, nodeId: fromNodeId)
+            // Currently all edges are assumed to be extending from the first output of a patch node
+            let fromCoordinate = InputCoordinate(portType: .portIndex(0), nodeId: fromNodeId)
+            
+            // ... But an edge could be coming into a
             let toCoordinate = InputCoordinate(portType: port, nodeId: toNodeId)
 
             let edge: PortEdgeData = PortEdgeData(from: fromCoordinate, to: toCoordinate)
