@@ -3743,8 +3743,7 @@
 				ECD83F0D2C19ED0800722AD7 /* LLMRecordingState.swift */,
 				EC5C6C392C2DAE690023D0C0 /* LLMActionRecording.swift */,
 				ECD83F0C2C193AB400722AD7 /* LLMRecording */,
-				E40B2F4D2CB86BC3005F5479 /* StitchAIPromptView.swift */,
-				E4E860012CBD5448006763DA /* StitchAIErrorModalView.swift */,
+				E4B1FD172CE689F600C00372 /* UI */,
 				E40B2F4F2CB86D21005F5479 /* StitchAIEvents.swift */,
 				EC9348A32CE3F86000772117 /* OpenAIRequest.swift */,
 				E40B2F522CB86E48005F5479 /* StitchAIConstants.swift */,
@@ -3786,6 +3785,15 @@
 				E416860228A3FC9500731889 /* Watering Can.usdz */,
 			);
 			path = "3D Models";
+			sourceTree = "<group>";
+		};
+		E4B1FD172CE689F600C00372 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				E40B2F4D2CB86BC3005F5479 /* StitchAIPromptView.swift */,
+				E4E860012CBD5448006763DA /* StitchAIErrorModalView.swift */,
+			);
+			path = UI;
 			sourceTree = "<group>";
 		};
 		E4CC7D0E28F48EF6008EA1C0 /* StitchQuickLookExtension */ = {

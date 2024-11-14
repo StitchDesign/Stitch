@@ -9,12 +9,6 @@ import Foundation
 
 let OPEN_AI_BASE_URL = "https://api.openai.com/v1/chat/completions"
 let OPEN_AI_MODEL = "gpt-4o-2024-08-06"
-//let OPEN_AI_MODEL =  "ft:gpt-4o-2024-08-06:adammenges::ALJN0utQ"
-//let OPEN_AI_MODEL = "ft:gpt-4o-2024-08-06:adammenges::ALVMS6zv"
-//let OPEN_AI_MODEL = "ft:gpt-4o-2024-08-06:adammenges::ALVbB7aX"
-//let OPEN_AI_MODEL = "ft:gpt-4o-2024-08-06:adammenges::ALZypIgk"
-//let OPEN_AI_MODEL = "ft:gpt-4o-2024-08-06:adammenges::ALe1YEKl"
-//let OPEN_AI_MODEL = "ft:gpt-4o-2024-08-06:adammenges::APXGZ1Xg"
 
 let SYSTEM_PROMPT = """
 You are a helpful assistant that creates visual programming graphs. Your task is to specify and connect nodes to solve given problems.
