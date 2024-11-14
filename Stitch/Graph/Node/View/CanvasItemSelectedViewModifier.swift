@@ -20,15 +20,16 @@ struct CanvasItemSelectedViewModifier: ViewModifier {
     let CANVAS_ITEM_SELECTED_CORNER_RADIUS = CANVAS_ITEM_CORNER_RADIUS + 6
 
     func body(content: Content) -> some View {
-        let color = isSelected ? theme.themeData.highlightedEdgeColor : Color.clear
-        return content
+        content
 //            .padding(3)
 //            .padding(7)
             .padding(6)
             .overlay {
-                // needs to be slightly larger than
-                RoundedRectangle(cornerRadius: CANVAS_ITEM_SELECTED_CORNER_RADIUS)
-                    .strokeBorder(color, lineWidth: 3)
+                if isSelected {
+                    // needs to be slightly larger than
+                    RoundedRectangle(cornerRadius: CANVAS_ITEM_SELECTED_CORNER_RADIUS)
+                        .strokeBorder(theme.themeData.highlightedEdgeColor, lineWidth: 3)
+                }
             }
     }
 }
