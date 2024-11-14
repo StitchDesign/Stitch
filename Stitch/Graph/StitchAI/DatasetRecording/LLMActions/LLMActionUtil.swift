@@ -41,29 +41,31 @@ extension StitchDocumentViewModel {
     //        }
     //    }
     
-    // TODO: OPEN AI SCHEMA: MOVE NODE ON CANVAS
-    @MainActor
-    func maybeCreateLLMMoveNode(canvasItem: CanvasItemViewModel,
-                                // (position - previousGesture) i.e. how much we moved
-                                diff: CGPoint) {
-        
-        if self.llmRecording.isRecording,
-           let nodeId = canvasItem.nodeDelegate?.id,
-           let node = self.graph.getNode(nodeId) {
-            
-            let layerInput = canvasItem.id.layerInputCase?.keyPath.layerInput.label()
-            let layerOutPort = canvasItem.id.layerOutputCase?.portId.description
-                        
-            let llmMoveNode = LLMMoveNode(
-                node: node.llmNodeTitle, 
-                port: layerInput ?? layerOutPort ?? "",
-                // Position is diff'd against a graphOffset of 0,0
-                // Round the position numbers so that
-                translation: .init(x: diff.x.rounded(),
-                                   y: diff.y.rounded()))
-            
-            // TODO: NOV 11
-            // self.llmRecording.actions.append(.moveNode(llmMoveNode))
-        }
-    }
+    
+//    
+//    // TODO: OPEN AI SCHEMA: MOVE NODE ON CANVAS
+//    @MainActor
+//    func maybeCreateLLMMoveNode(canvasItem: CanvasItemViewModel,
+//                                // (position - previousGesture) i.e. how much we moved
+//                                diff: CGPoint) {
+//        
+//        if self.llmRecording.isRecording,
+//           let nodeId = canvasItem.nodeDelegate?.id,
+//           let node = self.graph.getNode(nodeId) {
+//            
+//            let layerInput = canvasItem.id.layerInputCase?.keyPath.layerInput.label()
+//            let layerOutPort = canvasItem.id.layerOutputCase?.portId.description
+//                        
+//            let llmMoveNode = LLMMoveNode(
+//                node: node.llmNodeTitle, 
+//                port: layerInput ?? layerOutPort ?? "",
+//                // Position is diff'd against a graphOffset of 0,0
+//                // Round the position numbers so that
+//                translation: .init(x: diff.x.rounded(),
+//                                   y: diff.y.rounded()))
+//            
+//            // TODO: NOV 11
+//            // self.llmRecording.actions.append(.moveNode(llmMoveNode))
+//        }
+//    }
 }

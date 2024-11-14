@@ -795,7 +795,6 @@
 		ECD60DAC2627805800D534DF /* LoopInsert.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD60DAB2627805800D534DF /* LoopInsert.swift */; };
 		ECD7FA8B29D73C010073ACAC /* InsertNodeMenuOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD7FA8A29D73C010073ACAC /* InsertNodeMenuOption.swift */; };
 		ECD7FA8D29D73E2D0073ACAC /* ComponentActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD7FA8C29D73E2D0073ACAC /* ComponentActions.swift */; };
-		ECD83F092C192BC600722AD7 /* LLMAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD83F082C192BC600722AD7 /* LLMAction.swift */; };
 		ECD83F0E2C19ED0800722AD7 /* LLMRecordingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD83F0D2C19ED0800722AD7 /* LLMRecordingState.swift */; };
 		ECD83F192C19EDF100722AD7 /* LLMActionParsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD83F182C19EDF100722AD7 /* LLMActionParsing.swift */; };
 		ECD83F1B2C1A0C5F00722AD7 /* LLMPromptModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD83F1A2C1A0C5F00722AD7 /* LLMPromptModalView.swift */; };
@@ -1729,7 +1728,6 @@
 		ECD60DAB2627805800D534DF /* LoopInsert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopInsert.swift; sourceTree = "<group>"; };
 		ECD7FA8A29D73C010073ACAC /* InsertNodeMenuOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsertNodeMenuOption.swift; sourceTree = "<group>"; };
 		ECD7FA8C29D73E2D0073ACAC /* ComponentActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentActions.swift; sourceTree = "<group>"; };
-		ECD83F082C192BC600722AD7 /* LLMAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMAction.swift; sourceTree = "<group>"; };
 		ECD83F0D2C19ED0800722AD7 /* LLMRecordingState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMRecordingState.swift; sourceTree = "<group>"; };
 		ECD83F182C19EDF100722AD7 /* LLMActionParsing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMActionParsing.swift; sourceTree = "<group>"; };
 		ECD83F1A2C1A0C5F00722AD7 /* LLMPromptModalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMPromptModalView.swift; sourceTree = "<group>"; };
@@ -4391,7 +4389,6 @@
 		ECD83F0F2C19ED8700722AD7 /* LLMActions */ = {
 			isa = PBXGroup;
 			children = (
-				ECD83F082C192BC600722AD7 /* LLMAction.swift */,
 				EC5F64302C2B451C00A9E52F /* LLMActions.swift */,
 				ECD83F182C19EDF100722AD7 /* LLMActionParsing.swift */,
 				ECD83F1C2C1A176900722AD7 /* LLMActionUtil.swift */,
@@ -5336,7 +5333,6 @@
 				ECB8D58728B851E800D993CF /* DeviceInfoNode.swift in Sources */,
 				ECF0B0F22877E34A001D7CFC /* NumberValueButtonView.swift in Sources */,
 				EC9B93CE28A2D27600BFBB5E /* StitchLogger.swift in Sources */,
-				ECD83F092C192BC600722AD7 /* LLMAction.swift in Sources */,
 				B55501022C1BC48C0081C3F1 /* SidebarIcons.swift in Sources */,
 				B50C897B2864E2750032E95D /* DelayedEffect.swift in Sources */,
 				B58723BD2B28D5FE00EAB0E5 /* NodeEntity.swift in Sources */,
