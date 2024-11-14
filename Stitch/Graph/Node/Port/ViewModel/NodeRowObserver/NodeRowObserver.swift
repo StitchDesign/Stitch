@@ -230,7 +230,8 @@ extension InputNodeRowObserver {
         self.upstreamOutputCoordinate.isDefined
     }
     
-    @MainActor var allRowViewModels: [InputNodeRowViewModel] {
+    @MainActor
+    var allRowViewModels: [InputNodeRowViewModel] {
         guard let node = self.nodeDelegate else {
             return []
         }

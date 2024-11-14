@@ -78,16 +78,16 @@ struct NodeTypeView: View {
     func inputsViews() -> some View {
         VStack(alignment: .leading,
                spacing: SPACING_BETWEEN_NODE_ROWS) {
-            if self.node.patch == .wirelessReceiver {
-                WirelessPortView(isOutput: false, id: node.id)
-                    .padding(.trailing, NODE_BODY_SPACING)
-            } else {
+//            if self.node.patch == .wirelessReceiver {
+//                WirelessPortView(isOutput: false, id: node.id)
+//                    .padding(.trailing, NODE_BODY_SPACING)
+//            } else {
                 DefaultNodeInputView(graph: graph,
                                      node: node,
                                      canvas: canvasNode,
                                      isNodeSelected: isSelected,
                                      adjustmentBarSessionId: adjustmentBarSessionId)
-            }
+//            }
         }
     }
 
@@ -96,16 +96,16 @@ struct NodeTypeView: View {
         VStack(alignment: .trailing,
                spacing: SPACING_BETWEEN_NODE_ROWS) {
 
-            if self.node.patch == .wirelessBroadcaster {
-                WirelessPortView(isOutput: true, id: node.id)
-                    .padding(.leading, NODE_BODY_SPACING)
-            } else {
+//            if self.node.patch == .wirelessBroadcaster {
+//                WirelessPortView(isOutput: true, id: node.id)
+//                    .padding(.leading, NODE_BODY_SPACING)
+//            } else {
                 DefaultNodeOutputView(graph: graph,
                                       node: node,
                                       canvas: canvasNode,
                                       isNodeSelected: isSelected,
                                       adjustmentBarSessionId: adjustmentBarSessionId)
-            }
+//            }
         }
     }
 }
