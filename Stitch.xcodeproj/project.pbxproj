@@ -3739,17 +3739,8 @@
 		E40B2F512CB86D55005F5479 /* StitchAI */ = {
 			isa = PBXGroup;
 			children = (
-				ECD83F1A2C1A0C5F00722AD7 /* LLMPromptModalView.swift */,
-				ECD83F0D2C19ED0800722AD7 /* LLMRecordingState.swift */,
-				EC5C6C392C2DAE690023D0C0 /* LLMActionRecording.swift */,
-				ECD83F0C2C193AB400722AD7 /* LLMRecording */,
-				E4B1FD172CE689F600C00372 /* UI */,
-				E40B2F4F2CB86D21005F5479 /* StitchAIEvents.swift */,
-				EC9348A32CE3F86000772117 /* OpenAIRequest.swift */,
-				E40B2F522CB86E48005F5479 /* StitchAIConstants.swift */,
-				E40B2F542CB86F2B005F5479 /* StitchAIDataModel.swift */,
-				ECEC4A432CE2FB900062ACAF /* StateChangeToStepAction.swift */,
-				ECEC4A452CE3BEAF0062ACAF /* StepActionToStateChange.swift */,
+				E4D0D2D52CE6AE3500E482E4 /* DatasetRecording */,
+				E4D0D2D42CE6ADF400E482E4 /* GraphPrompting */,
 			);
 			path = StitchAI;
 			sourceTree = "<group>";
@@ -3807,6 +3798,47 @@
 				E4CC7D1628F48EF6008EA1C0 /* Info.plist */,
 			);
 			path = StitchQuickLookExtension;
+			sourceTree = "<group>";
+		};
+		E4D0D2D22CE6AD5F00E482E4 /* API */ = {
+			isa = PBXGroup;
+			children = (
+				EC9348A32CE3F86000772117 /* OpenAIRequest.swift */,
+				E40B2F522CB86E48005F5479 /* StitchAIConstants.swift */,
+			);
+			path = API;
+			sourceTree = "<group>";
+		};
+		E4D0D2D32CE6AD6A00E482E4 /* DataModel */ = {
+			isa = PBXGroup;
+			children = (
+				E40B2F542CB86F2B005F5479 /* StitchAIDataModel.swift */,
+				ECEC4A432CE2FB900062ACAF /* StateChangeToStepAction.swift */,
+				ECEC4A452CE3BEAF0062ACAF /* StepActionToStateChange.swift */,
+			);
+			path = DataModel;
+			sourceTree = "<group>";
+		};
+		E4D0D2D42CE6ADF400E482E4 /* GraphPrompting */ = {
+			isa = PBXGroup;
+			children = (
+				E4B1FD172CE689F600C00372 /* UI */,
+				E40B2F4F2CB86D21005F5479 /* StitchAIEvents.swift */,
+				E4D0D2D22CE6AD5F00E482E4 /* API */,
+				E4D0D2D32CE6AD6A00E482E4 /* DataModel */,
+			);
+			path = GraphPrompting;
+			sourceTree = "<group>";
+		};
+		E4D0D2D52CE6AE3500E482E4 /* DatasetRecording */ = {
+			isa = PBXGroup;
+			children = (
+				ECD83F0F2C19ED8700722AD7 /* LLMActions */,
+				ECD83F1A2C1A0C5F00722AD7 /* LLMPromptModalView.swift */,
+				ECD83F0D2C19ED0800722AD7 /* LLMRecordingState.swift */,
+				EC5C6C392C2DAE690023D0C0 /* LLMActionRecording.swift */,
+			);
+			path = DatasetRecording;
 			sourceTree = "<group>";
 		};
 		E4F7AC272974B73F00B7F55A /* RealityView */ = {
@@ -4354,14 +4386,6 @@
 				ECB7C72128A56C4B00252DE7 /* ClassicAnimationNumber.swift */,
 			);
 			path = Eval;
-			sourceTree = "<group>";
-		};
-		ECD83F0C2C193AB400722AD7 /* LLMRecording */ = {
-			isa = PBXGroup;
-			children = (
-				ECD83F0F2C19ED8700722AD7 /* LLMActions */,
-			);
-			path = LLMRecording;
 			sourceTree = "<group>";
 		};
 		ECD83F0F2C19ED8700722AD7 /* LLMActions */ = {
