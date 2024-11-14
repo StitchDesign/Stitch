@@ -1,5 +1,5 @@
 //
-//  LLMView.swift
+//  LLMPromptModalView.swift
 //  Stitch
 //
 //  Created by Christian J Clampitt on 6/12/24.

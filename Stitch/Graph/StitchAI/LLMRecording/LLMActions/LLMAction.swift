@@ -11,21 +11,17 @@ import SwiftyJSON
 import StitchSchemaKit
 
 extension LLMActions {
-    func asJSON() -> JSON? {
-        do {
-            let data = try JSONEncoder().encode(self)
-            let json = try JSON(data: data)
-            log("[LLMAction]: asJSON: encoded json: \(json)")
-            return json
-        } catch {
-            log("[LLMAction]: asJSON: error: \(error)")
-            return nil
-        }
-    }
-        
-    func asJSONDisplay() -> String {
-        self.asJSON()?.description ?? "No LLM-Acceptable Actions Detected"
-    }
+//    func asJSON() -> JSON? {
+//        do {
+//            let data = try JSONEncoder().encode(self)
+//            let json = try JSON(data: data)
+//            log("[LLMAction]: asJSON: encoded json: \(json)")
+//            return json
+//        } catch {
+//            log("[LLMAction]: asJSON: error: \(error)")
+//            return nil
+//        }
+//    }
 }
 
 enum LLMActionNames: String, Equatable {
