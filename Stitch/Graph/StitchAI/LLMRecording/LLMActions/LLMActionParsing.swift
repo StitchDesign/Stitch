@@ -42,8 +42,12 @@ extension StitchDocumentViewModel {
             let actions: LLMStepActions = try JSONDecoder().decode(LLMStepActions.self,
                                                                from: data)
             
-            var nodesAdded = 0 // TODO: add back node-staggering logic
-            actions.forEach { self.handleLLMStepAction($0) }
+            var canvasItemsAdded = 0
+            actions.forEach {
+                canvasItemsAdded = self.handleLLMStepAction(
+                    $0,
+                    canvasItemsAdded: canvasItemsAdded)
+            }
             self.llmRecording.jsonEntryState = .init() // reset
             self.visibleGraph.encodeProjectInBackground()
         } catch {
@@ -55,7 +59,7 @@ extension StitchDocumentViewModel {
 
 
 
-// OLD
+// TODO: OPEN AI SCHEMA: REMOVE ONCE WE HAVE HANDLED THE LAST ACTIONS AS LLM-STEP-ACTIONS
 
 extension StitchDocumentViewModel {
     
@@ -76,7 +80,6 @@ extension StitchDocumentViewModel {
 
             let centerX = self.newNodeCenterLocation.x + CGFloat(nodesAdded * 400)
             let centerY = self.newNodeCenterLocation.y + CGFloat(nodesAdded * 100)
-            
             let newCenter = CGPoint(x: centerX, y: centerY)
             print("CENTER")
             print(newCenter)

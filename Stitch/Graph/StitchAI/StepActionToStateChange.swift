@@ -10,17 +10,26 @@ import Foundation
 
 // MARK: RECEIVING A LIST OF LLM-STEP-ACTIONS (i.e. `Step`) AND TURNING EACH ACTION INTO A STATE CHANGE
 
+let CANVAS_ITEM_ADDED_VIA_LLM_STEP_WDITH_STAGGER = 400.0
+let CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER = 100.0
+
 extension StitchDocumentViewModel {
     
     // We've decoded the OpenAI json-response into an array of `LLMStepAction`;
     // Now we turn each `LLMStepAction` into a state-change.
     // TODO: better?: do more decoding logic on the `LLMStepAction`-side; e.g. `LLMStepAction.nodeName` should be type `PatchOrLayer` rather than `String?`
     @MainActor
-    func handleLLMStepAction(_ action: LLMStepAction) {
+    func handleLLMStepAction(_ action: LLMStepAction,
+                             canvasItemsAdded: Int) -> Int {
+        
         guard let stepType = StepType(rawValue: action.stepType) else {
             fatalErrorIfDebug("handleLLMStepAction: no step type")
-            return
+            return canvasItemsAdded
         }
+        
+        let newCenter = CGPoint(
+            x: self.newNodeCenterLocation.x + (CGFloat(canvasItemsAdded) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_WDITH_STAGGER),
+            y: self.newNodeCenterLocation.y + (CGFloat(canvasItemsAdded) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER))
         
         switch stepType {
             
@@ -29,14 +38,16 @@ extension StitchDocumentViewModel {
             guard let llmNodeId: String = action.nodeId,
                   let nodeKind: PatchOrLayer = action.parseNodeKind(),
                   let newNode = self.nodeCreated(choice: nodeKind.asNodeKind,
-                                              center: self.newNodeCenterLocation) else {
+                                                 center: newCenter) else {
                 
                 fatalErrorIfDebug("handleLLMStepAction: could not handle addNode")
-                return
+                return canvasItemsAdded
             }
             
             // TODO: if `action.nodeId` is always a real UUID and is referred to consistently across OpenAI-generated step-actions, then we don't need `llmNodeIdMapping` anymore ?
             self.llmNodeIdMapping.updateValue(newNode.id, forKey: llmNodeId)
+            
+            return canvasItemsAdded + 1
                   
         case .changeNodeType:
             
@@ -47,11 +58,13 @@ extension StitchDocumentViewModel {
                   let existingNode = self.graph.getNode(nodeId) else {
                 
                 fatalErrorIfDebug("handleLLMStepAction: could not handle changeNodeType")
-                return
+                return canvasItemsAdded
             }
             
             let _ = self.graph.nodeTypeChanged(nodeId: existingNode.id,
                                                newNodeType: nodeType)
+            
+            return canvasItemsAdded
                
         case .setInput:
             
@@ -64,20 +77,22 @@ extension StitchDocumentViewModel {
                   let existingNode = self.graph.getNode(nodeId) else {
                 
                 fatalErrorIfDebug("handleLLMStepAction: could not handle setInput")
-                return
+                return canvasItemsAdded
             }
             
             let inputCoordinate = InputCoordinate(portType: port, nodeId: nodeId)
             
             guard let input = self.graph.getInputObserver(coordinate: inputCoordinate) else {
                 log("handleLLMStepAction: .setInput: No input")
-                return
+                return canvasItemsAdded
             }
             
             existingNode.removeIncomingEdge(at: inputCoordinate,
                                             activeIndex: self.activeIndex)
             
             input.setValuesInInput([value])
+            
+            return canvasItemsAdded
             
         case .addLayerInput:
             
@@ -86,25 +101,28 @@ extension StitchDocumentViewModel {
                   // Node must already exist
                   let nodeId = self.llmNodeIdMapping.get(nodeIdString) else {
                 fatalErrorIfDebug("handleLLMStepAction: could not handle addLayerInput")
-                return
+                return canvasItemsAdded
             }
                         
             guard let node = self.graph.getNode(nodeId) else {
                 fatalErrorIfDebug("handleLLMStepAction: could not handle addLayerInput")
-                return
+                return canvasItemsAdded
             }
             
             guard let layerInput = port.keyPath,
                   let layerNode = node.layerNode else {
                 log("handleLLMLayerInputOrOutputAdded: No input for \(port)")
-                return
+                return canvasItemsAdded
             }
             
             let input = layerNode[keyPath: layerInput.layerNodeKeyPath]
 
             graph.layerInputAddedToGraph(node: node,
-                                        input: input,
-                                        coordinate: layerInput)
+                                         input: input,
+                                         coordinate: layerInput,
+                                         manualLLMStepCenter: newCenter)
+            
+            return canvasItemsAdded + 1
             
         case .connectNodes:
             guard let fromNodeIdString: String = action.fromNodeId,
@@ -114,7 +132,7 @@ extension StitchDocumentViewModel {
                   let fromNodeId = self.llmNodeIdMapping.get(fromNodeIdString),
                   let toNodeId = self.llmNodeIdMapping.get(toNodeIdString)else {
                 fatalErrorIfDebug("handleLLMStepAction: could not handle connectNodes")
-                return
+                return canvasItemsAdded
             }
             
             // Currently all edges are assumed to be extending from the first output of a patch node
@@ -125,6 +143,8 @@ extension StitchDocumentViewModel {
 
             let edge: PortEdgeData = PortEdgeData(from: fromCoordinate, to: toCoordinate)
             let _ = graph.edgeAdded(edge: edge)
+            
+            return canvasItemsAdded
         }
     }
 }

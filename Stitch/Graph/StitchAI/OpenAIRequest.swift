@@ -143,8 +143,11 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
             log(step.description)
         }
         
+        var canvasItemsAdded = 0
         stepsFromResponse.forEach { step in
-            state.handleLLMStepAction(step)
+            canvasItemsAdded = state.handleLLMStepAction(
+                step,
+                canvasItemsAdded: canvasItemsAdded)
         }
         
         state.closeStitchAIModal()

@@ -104,7 +104,8 @@ extension GraphState {
     @MainActor
     func layerInputAddedToGraph(node: NodeViewModel,
                                 input: InputLayerNodeRowData,
-                                coordinate: LayerInputType) {
+                                coordinate: LayerInputType,
+                                manualLLMStepCenter: CGPoint? = nil) {
         
         guard let document = self.documentDelegate else {
             fatalErrorIfDebug()
@@ -121,7 +122,7 @@ extension GraphState {
             id: .layerInput(.init(
                 node: nodeId,
                 keyPath: coordinate)),
-            position: document.newLayerPropertyLocation,
+            position: manualLLMStepCenter ?? document.newLayerPropertyLocation,
             zIndex: document.visibleGraph.highestZIndex + 1,
             // Put newly-created LIG into graph's current traversal level
             parentGroupNodeId: document.graphUI.groupNodeFocused?.asNodeId,
