@@ -241,7 +241,12 @@ extension InputNodeRowObserver {
         case .patch(let patchNode):
             guard let portId = self.id.portId,
                   let patchInput = patchNode.canvasObserver.inputViewModels[safe: portId] else {
-                fatalErrorIfDebug()
+                // MathExpression is allowed to have empty inputs
+                #if DEV_DEBUG || DEBUG
+                if patchNode.patch != .mathExpression {
+                    fatalErrorIfDebug()
+                }
+                #endif
                 return []
             }
             
