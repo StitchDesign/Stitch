@@ -1,21 +1,12 @@
 //
-//  LLMActionUtil.swift
+//  LLM_ACTIONS_TO_ADD_LATER.swift
 //  Stitch
 //
-//  Created by Christian J Clampitt on 6/12/24.
+//  Created by Nicholas Arner on 11/14/24.
 //
 
 import Foundation
-import StitchSchemaKit
-import SwiftyJSON
 
-extension NodeViewModel {
-    @MainActor
-    var llmNodeTitle: String {
-        // Use parens to indicate chopped off uuid
-        self.displayTitle + " (" + self.id.debugFriendlyId + ")"
-    }
-}
 
 extension StitchDocumentViewModel {
     
@@ -42,30 +33,56 @@ extension StitchDocumentViewModel {
     //    }
     
     
-//    
+//
 //    // TODO: OPEN AI SCHEMA: MOVE NODE ON CANVAS
 //    @MainActor
 //    func maybeCreateLLMMoveNode(canvasItem: CanvasItemViewModel,
 //                                // (position - previousGesture) i.e. how much we moved
 //                                diff: CGPoint) {
-//        
+//
 //        if self.llmRecording.isRecording,
 //           let nodeId = canvasItem.nodeDelegate?.id,
 //           let node = self.graph.getNode(nodeId) {
-//            
+//
 //            let layerInput = canvasItem.id.layerInputCase?.keyPath.layerInput.label()
 //            let layerOutPort = canvasItem.id.layerOutputCase?.portId.description
-//                        
+//
 //            let llmMoveNode = LLMMoveNode(
-//                node: node.llmNodeTitle, 
+//                node: node.llmNodeTitle,
 //                port: layerInput ?? layerOutPort ?? "",
 //                // Position is diff'd against a graphOffset of 0,0
 //                // Round the position numbers so that
 //                translation: .init(x: diff.x.rounded(),
 //                                   y: diff.y.rounded()))
-//            
+//
 //            // TODO: NOV 11
 //            // self.llmRecording.actions.append(.moveNode(llmMoveNode))
 //        }
 //    }
 }
+
+
+
+//// MARK: Move Node
+//
+//struct LLMMoveNodeTranslation: Equatable, Codable {
+//    let x: CGFloat
+//    let y: CGFloat
+//
+//    var asCGSize: CGSize {
+//        .init(width: x, height: y)
+//    }
+//}
+//
+//struct LLMMoveNode: Equatable, Codable {
+//    var action: String = LLMActionNames.moveNode.rawValue
+//    let node: String
+//
+//    // empty string = we moved a patch node,
+//    // non-empty string = we moved a layer input/output/field
+//    // Non-empty Strings always represents LABELS
+//    let port: String
+//
+//    // (position at end of movement - position at start of movement)
+//    let translation: LLMMoveNodeTranslation
+//}
