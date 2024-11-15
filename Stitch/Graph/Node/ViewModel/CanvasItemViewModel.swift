@@ -82,8 +82,6 @@ final class CanvasItemViewModel: Identifiable, StitchLayoutCachable {
     
     // Cached subview sizes for performance gains in commit phase
     var subviewSizes: [CGSize]?
-    let cachedInputSizeObserver = CachedViewObserver()
-    let cachedOutputSizeObserver = CachedViewObserver()
     
     // Moved state here for render cycle perf on port view for colors
     @MainActor

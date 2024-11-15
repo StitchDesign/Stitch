@@ -122,39 +122,37 @@ struct DefaultNodeInputView: View {
     let adjustmentBarSessionId: AdjustmentBarSessionId
     
     var body: some View {
-        NodeLayout(observer: canvas.cachedInputSizeObserver) {
-            DefaultNodeRowView(graph: graph,
-                               node: node,
-                               rowViewModels: canvas.inputViewModels,
-                               nodeIO: .input,
-                               adjustmentBarSessionId: adjustmentBarSessionId) { rowObserver, rowViewModel in
-                
-                let layerInputObserver: LayerInputObserver? = rowObserver.id.layerInput
-                    .flatMap { node.layerNode?.getLayerInputObserver($0.layerInput) }
-                
-                NodeLayout(observer: rowViewModel) {
-                    HStack {
-                        NodeRowPortView(graph: graph,
-                                        rowObserver: rowObserver,
-                                        rowViewModel: rowViewModel,
-                                        showPopover: $showPopover)
-                        
-                        NodeInputView(graph: graph,
-                                      nodeId: node.id,
-                                      nodeKind: node.kind,
-                                      hasIncomingEdge: rowObserver.upstreamOutputCoordinate.isDefined,
-                                      rowObserverId: rowObserver.id,
-                                      rowObserver: rowObserver,
-                                      rowViewModel: rowViewModel,
-                                      fieldValueTypes: rowViewModel.fieldValueTypes,
-                                      // Pass down the layerInputObserver if we have a 'layer input on the canvas'
-                                      layerInputObserver: layerInputObserver,
-                                      forPropertySidebar: false, // Always false, since not an inspector-row
-                                      propertyIsSelected: false,
-                                      propertyIsAlreadyOnGraph: true, // Irrelevant?
-                                      isCanvasItemSelected: isNodeSelected,
-                                      label: rowObserver.label())
-                    }
+        DefaultNodeRowView(graph: graph,
+                           node: node,
+                           rowViewModels: canvas.inputViewModels,
+                           nodeIO: .input,
+                           adjustmentBarSessionId: adjustmentBarSessionId) { rowObserver, rowViewModel in
+            
+            let layerInputObserver: LayerInputObserver? = rowObserver.id.layerInput
+                .flatMap { node.layerNode?.getLayerInputObserver($0.layerInput) }
+            
+            NodeLayout(observer: rowViewModel) {
+                HStack {
+                    NodeRowPortView(graph: graph,
+                                    rowObserver: rowObserver,
+                                    rowViewModel: rowViewModel,
+                                    showPopover: $showPopover)
+                    
+                    NodeInputView(graph: graph,
+                                  nodeId: node.id,
+                                  nodeKind: node.kind,
+                                  hasIncomingEdge: rowObserver.upstreamOutputCoordinate.isDefined,
+                                  rowObserverId: rowObserver.id,
+                                  rowObserver: rowObserver,
+                                  rowViewModel: rowViewModel,
+                                  fieldValueTypes: rowViewModel.fieldValueTypes,
+                                  // Pass down the layerInputObserver if we have a 'layer input on the canvas'
+                                  layerInputObserver: layerInputObserver,
+                                  forPropertySidebar: false, // Always false, since not an inspector-row
+                                  propertyIsSelected: false,
+                                  propertyIsAlreadyOnGraph: true, // Irrelevant?
+                                  isCanvasItemSelected: isNodeSelected,
+                                  label: rowObserver.label())
                 }
             }
         }
@@ -171,33 +169,31 @@ struct DefaultNodeOutputView: View {
     let adjustmentBarSessionId: AdjustmentBarSessionId
     
     var body: some View {
-        NodeLayout(observer: canvas.cachedOutputSizeObserver) {
-            DefaultNodeRowView(graph: graph,
-                               node: node,
-                               rowViewModels: canvas.outputViewModels,
-                               nodeIO: .output,
-                               adjustmentBarSessionId: adjustmentBarSessionId) { rowObserver, rowViewModel in
-                NodeLayout(observer: rowViewModel) {
-                    HStack {
-                        NodeOutputView(graph: graph,
-                                       rowObserver: rowObserver,
-                                       rowViewModel: rowViewModel,
-                                       forPropertySidebar: false,
-                                       propertyIsSelected: false,
-                                       propertyIsAlreadyOnGraph: true,
-                                       isCanvasItemSelected: isNodeSelected,
-                                       label: rowObserver.label())
-                        
-                        NodeRowPortView(graph: graph,
-                                        rowObserver: rowObserver,
-                                        rowViewModel: rowViewModel,
-                                        showPopover: $showPopover)
-                    }
-                    .modifier(EdgeEditModeOutputHoverViewModifier(
-                        graph: graph,
-                        outputCoordinate: .init(portId: rowViewModel.id.portId,
-                                                canvasId: canvas.id)))
+        DefaultNodeRowView(graph: graph,
+                           node: node,
+                           rowViewModels: canvas.outputViewModels,
+                           nodeIO: .output,
+                           adjustmentBarSessionId: adjustmentBarSessionId) { rowObserver, rowViewModel in
+            NodeLayout(observer: rowViewModel) {
+                HStack {
+                    NodeOutputView(graph: graph,
+                                   rowObserver: rowObserver,
+                                   rowViewModel: rowViewModel,
+                                   forPropertySidebar: false,
+                                   propertyIsSelected: false,
+                                   propertyIsAlreadyOnGraph: true,
+                                   isCanvasItemSelected: isNodeSelected,
+                                   label: rowObserver.label())
+                    
+                    NodeRowPortView(graph: graph,
+                                    rowObserver: rowObserver,
+                                    rowViewModel: rowViewModel,
+                                    showPopover: $showPopover)
                 }
+                .modifier(EdgeEditModeOutputHoverViewModifier(
+                    graph: graph,
+                    outputCoordinate: .init(portId: rowViewModel.id.portId,
+                                            canvasId: canvas.id)))
             }
         }
     }
