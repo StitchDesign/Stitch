@@ -165,6 +165,7 @@ protocol StitchLayoutCachable: AnyObject {
 
 struct NodeLayoutCache {
     var sizes: [CGSize] = []
+    var sizeThatFits: CGSize = .zero
     var spacing: ViewSpacing = .zero
 }
 
@@ -174,6 +175,10 @@ struct NodeLayout<T: StitchLayoutCachable>: Layout {
     let observer: T
     
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) -> CGSize {
+        cache.sizeThatFits
+    }
+    
+    private func calculateSizeThatFits(subviews: Subviews) -> CGSize {
         var totalWidth: CGFloat = 0
         var totalHeight: CGFloat = 0
         
@@ -224,8 +229,11 @@ struct NodeLayout<T: StitchLayoutCachable>: Layout {
     func makeCache(subviews: Subviews) -> Cache {
         guard let cache = observer.viewCache else {
             let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
+            let sizeThatFits = self.calculateSizeThatFits(subviews: subviews)
             let spacing = self.calculateSpacing(subviews: subviews)
-            let cache = Cache(sizes: sizes, spacing: spacing)
+            let cache = Cache(sizes: sizes,
+                              sizeThatFits: sizeThatFits,
+                              spacing: spacing)
             
             self.observer.viewCache = cache
             return cache
