@@ -131,6 +131,22 @@ struct InfiniteCanvas: Layout {
     func updateCache(_ cache: inout Cache, subviews: Subviews) {
 //        cache.sizes = subviews.map { $0.sizeThatFits(.unspecified) }
     }
+    
+    func explicitAlignment(of guide: HorizontalAlignment,
+                           in bounds: CGRect,
+                           proposal: ProposedViewSize,
+                           subviews: Self.Subviews,
+                           cache: inout Cache) -> CGFloat? {
+        return nil
+    }
+    
+    func explicitAlignment(of guide: VerticalAlignment,
+                           in bounds: CGRect,
+                           proposal: ProposedViewSize,
+                           subviews: Self.Subviews,
+                           cache: inout Cache) -> CGFloat? {
+        return nil
+    }
 }
 
 private struct CanvasIdKey: LayoutValueKey {
