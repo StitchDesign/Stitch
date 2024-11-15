@@ -262,6 +262,17 @@ extension PatchNodeViewModel {
                                                  // Not relevant
                                                  unpackedPortParentFieldGroupType: nil,
                                                  unpackedPortIndex: nil)
+        
+        self.inputsObservers.forEach { inputObserver in
+            inputObserver.allRowViewModels.forEach {
+                $0.fieldValueTypes = $0.createFieldValueTypes(initialValue: $0.activeValue,
+                                                              nodeIO: .input,
+                                                              unpackedPortParentFieldGroupType: nil,
+                                                              unpackedPortIndex: nil,
+                                                              importedMediaObject: nil)
+            }
+            
+        }
     }
 }
 
