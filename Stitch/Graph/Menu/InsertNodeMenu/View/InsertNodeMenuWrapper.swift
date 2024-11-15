@@ -29,10 +29,10 @@ final class InsertNodeMenuWrapperState: NSObject {
     
     var animatedNode: NodeViewModel?
     
-    var menuHeight: CGFloat
-    var screenSize: CGRect
+    var menuHeight: CGFloat = INSERT_NODE_MENU_MAX_HEIGHT
+    var screenSize: CGRect = .zero
     
-    var menuCornerRadius: CGFloat = Self.shownMenuCornerRadius
+    var menuCornerRadius: CGFloat = shownMenuCornerRadius
 }
 
 extension InsertNodeMenuWrapperState {
@@ -55,11 +55,14 @@ extension InsertNodeMenuWrapperState {
             .delay(Self.opacityAnimationDelay)
     }
     
-    static let shownMenuCornerRadius: CGFloat = 16
+//    static let shownMenuCornerRadius: CGFloat = 16
     //    static let hiddenMenuCornerRadius: CGFloat = 98
     static let hiddenMenuCornerRadius: CGFloat = 60
 
 }
+
+let shownMenuCornerRadius: CGFloat = 16
+
 
 extension InsertNodeMenuWrapperState {
     func getLargeNodeWidthScale(_ graphScale: CGFloat) -> CGFloat {
@@ -104,23 +107,25 @@ extension InsertNodeMenuWrapperState {
 
     // i.e. placing the menu in the center of the screen again;
     // done whenever view first appears, or we change menuOrigin (due to screen-resizing from on-screen keyboard)
-    func prepareHiddenMenu(setHeightToMax: Bool = true) {
+    func prepareHiddenMenu(graphOffset: CGPoint,
+                           graphScale: CGFloat,
+                           setHeightToMax: Bool = true) {
         // log("prepareHiddenMenu called: menuOrigin: \(menuOrigin)")
 
-        self.menuCornerRadius = Self.shownMenuCornerRadius
+        self.menuCornerRadius = shownMenuCornerRadius
 
-        self.wrapperState.nodeOpacity = .zero
-        self.wrapperState.menuScaleX = InsertNodeMenuWrapperState.shownMenuScale
-        self.wrapperState.menuScaleY = InsertNodeMenuWrapperState.shownMenuScale
+        self.nodeOpacity = .zero
+        self.menuScaleX = InsertNodeMenuWrapperState.shownMenuScale
+        self.menuScaleY = InsertNodeMenuWrapperState.shownMenuScale
 
-        self.wrapperState.nodeScaleX = self.wrapperState.getLargeNodeWidthScale(graphScale)
-        self.wrapperState.nodeScaleY = self.wrapperState.getLargeNodeHeightScale(graphScale)
+        self.nodeScaleX = self.getLargeNodeWidthScale(graphScale)
+        self.nodeScaleY = self.getLargeNodeHeightScale(graphScale)
 
         // menu and animating-node start out in center of screen
-        self.wrapperState.menuPosition = menuOrigin
+        self.menuPosition = menuOrigin
 
         // Need to factor out graph offset, to get node placed under the menu
-        self.wrapperState.nodePosition = self.getAdjustedMenuOrigin() // menuOrigin
+        self.nodePosition = self.getAdjustedMenuOrigin(graphOffset) // menuOrigin
 
 //        if setHeightToMax {
 //            self.menuHeight = INSERT_NODE_MENU_MAX_HEIGHT
@@ -129,21 +134,25 @@ extension InsertNodeMenuWrapperState {
     
     
     @MainActor
-    func animateNode(showMenu: Bool) {
+    func animateNode(showMenu: Bool,
+                     document: StitchDocumentViewModel,
+                     sidebarFullWidth: CGFloat,
+                     graphOffset: CGPoint,
+                     graphScale: CGFloat) {
         // factor out the graphScale,
         // since now the node needs to look like the menu
-        let largeNodeWidthScale: CGFloat = self.getLargeNodeWidthScale()
+        let largeNodeWidthScale: CGFloat = self.getLargeNodeWidthScale(graphScale)
         
-        let largeNodeHeightScale: CGFloat = self.getLargeNodeHeightScale()
+        let largeNodeHeightScale: CGFloat = self.getLargeNodeHeightScale(graphScale)
 
-        withAnimation(InsertNodeMenuWrapperState.opacityAnimation) {
-            wrapperState.nodeOpacity = showMenu ? 0 : 1
+        withAnimation(Self.opacityAnimation) {
+            self.nodeOpacity = showMenu ? 0 : 1
         }
 
-        withAnimation(InsertNodeMenuWrapperState.scaleAnimation) {
+        withAnimation(Self.scaleAnimation) {
 
             // Adjust the corner radius when menu hidden
-            menuCornerRadius = showMenu ? InsertNodeMenuWrapperState.shownMenuCornerRadius : InsertNodeMenuWrapperState.hiddenMenuCornerRadius
+            menuCornerRadius = showMenu ? shownMenuCornerRadius : Self.hiddenMenuCornerRadius
 
             // Menu's opacity does not actually change during animation;
             // we merely let the node appear over it (z-index)
@@ -152,7 +161,11 @@ extension InsertNodeMenuWrapperState {
             self.nodeScaleY = showMenu ? largeNodeHeightScale : 1
 
             // Node's self.hidden position = menu position + graph offset factored OUT
-            self.nodePosition = showMenu ? getAdjustedMenuOrigin() : getNodeDestination()
+            self.nodePosition = showMenu
+            ? getAdjustedMenuOrigin(graphOffset)
+            : getNodeDestination(document: document,
+                                 sidebarFullWidth: sidebarFullWidth,
+                                 graphScale: graphScale)
         }
     }
     
@@ -163,6 +176,7 @@ extension InsertNodeMenuWrapperState {
                      graphScale: CGFloat,
                      graphUI: GraphUIState,
                      graphMovement: GraphMovementObserver) {
+        
         let graphOffset: CGSize = graphMovement.localPosition.toCGSize
         let graphScale: CGFloat = graphMovement.zoomData.zoom
         let nodeDestination = self.getNodeDestination(
@@ -243,21 +257,17 @@ extension InsertNodeMenuWrapperState {
             return defaultCenter
         }
     }
-    
-    
-    
 }
 
 struct InsertNodeMenuWrapper: View {
-    let wrapperState: InsertNodeMenuWrapperState
-    
+    @Bindable var wrapperState: InsertNodeMenuWrapperState
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graphUI: GraphUIState
     
 //    @Binding var menuHeight: CGFloat
 //    @Binding var screenSize: CGSize
-    var menuHeight: CGFloat
-    var deviceScreen: CGRect
+//    var menuHeight: CGFloat
+//    var deviceScreen: CGRect
         
     var graphScale: CGFloat {
         graphMovement.zoomData.zoom
@@ -304,7 +314,7 @@ struct InsertNodeMenuWrapper: View {
     func fakeNodeView(boundsDisabled: Bool,
                       updateMenuActiveSelectionBounds: Bool) -> some View {
 
-        if let node = self.animatedNode,
+        if let node = self.wrapperState.animatedNode,
            let canvas = node.patchCanvasItem {
             NodeTypeView(document: document,
                          graph: document.visibleGraph,
@@ -332,12 +342,17 @@ struct InsertNodeMenuWrapper: View {
                     //                    log("updating nodeWidth and nodeHeight")
                     //                    log("rect.size.width: \(rect.size.width)")
                     //                    log("rect.size.height: \(rect.size.height)")
-                    nodeWidth = rect.size.width
-                    nodeHeight = rect.size.height
+                    self.wrapperState.nodeWidth = rect.size.width
+                    self.wrapperState.nodeHeight = rect.size.height
                     
                     // we should also reset node scale etc.?
                     //                        prepareHiddenMenu()
-                    prepareHiddenMenu(setHeightToMax: false)
+//                    self.wrapperState.prepareHiddenMenu(setHeightToMax: false)
+                    self.wrapperState.prepareHiddenMenu(
+                        graphOffset: graphOffset,
+                        graphScale: graphScale,
+                        setHeightToMax: false
+                    )
                     
                     // Once we have read the size of the active selection, we
                     // TODO: grab the `activeSelection` from the InsertNodeMenuState instead?
@@ -355,11 +370,11 @@ struct InsertNodeMenuWrapper: View {
         // however, GeometryReader (used for determining preview window size) SHOULD;
         // so, we need to apply the InsertNodeMenu SwiftUI .modifier after we've ignored safe areas.
         InsertNodeMenuView(
-            cornerRadius: $menuCornerRadius,
+            cornerRadius: self.$wrapperState.menuCornerRadius,
             insertNodeMenuState: insertNodeMenuState,
             isPortraitMode: document.previewWindowSize.isPortrait,
             showMenu: insertNodeMenuState.show,
-            menuHeight: menuHeight,
+            menuHeight: self.wrapperState.menuHeight,
             animatingNodeOpacity: self.wrapperState.nodeOpacity)
         
         // scale first, THEN position
@@ -424,21 +439,35 @@ struct InsertNodeMenuWrapper: View {
 
             // default, but also updated when GeometryReader changes
             //            self.screenHeight = graphUI.frame.height
-            wrapperState.prepareHiddenMenu()
+            wrapperState.prepareHiddenMenu(
+                graphOffset: graphOffset,
+                graphScale: graphScale
+            )
         }
         .onChange(of: self.wrapperState.menuOrigin, initial: true) { _, _ in
             //            log("ContentView: onChange of menuOrigin: oldValue: \(oldValue)")
             //            log("ContentView: onChange of menuOrigin: newValue: \(newValue)")
             // don't change during animation
             if !graphUI.insertNodeMenuState.menuAnimatingToNode {
-                wrapperState.prepareHiddenMenu(setHeightToMax: false)
+//                wrapperState.prepareHiddenMenu(setHeightToMax: false)
+                wrapperState.prepareHiddenMenu(
+                    graphOffset: graphOffset,
+                    graphScale: graphScale,
+                    setHeightToMax: false
+                )
             }
         }
         .onChange(of: self.wrapperState.screenSize, initial: true) { _, _ in
             //            log("ContentView: onChange of self.screenSize: oldValue: \(oldValue)")
             //            log("ContentView: onChange of self.screenSize: newValue: \(newValue)")
             if !graphUI.insertNodeMenuState.menuAnimatingToNode {
-                wrapperState.prepareHiddenMenu(setHeightToMax: false)
+//                wrapperState
+//                    .prepareHiddenMenu(setHeightToMax: false)
+                wrapperState.prepareHiddenMenu(
+                    graphOffset: graphOffset,
+                    graphScale: graphScale,
+                    setHeightToMax: false
+                )
             }
         }
         .onChange(of: graphUI.insertNodeMenuState.menuAnimatingToNode, initial: true) { _, newValue in
@@ -447,18 +476,31 @@ struct InsertNodeMenuWrapper: View {
 
             // Only fire these when animating = true and the menu toggle status = open
             if newValue && graphUI.insertNodeMenuState.show {
-                wrapperState.animateMenu(showMenu: graphUI.insertNodeMenuState.show,
-                                         document: document,
-                                         sidebarFullWidth: graphUI.sidebarWidth,
-                                         graphScale: graphScale,
-                                         graphUI: graphUI,
-                                         graphMovement: graphMovement)
                 
-                wrapperState.animateNode(showMenu: graphUI.insertNodeMenuState.show)
+                wrapperState
+                    .animateMenu(showMenu: graphUI.insertNodeMenuState.show,
+                                 document: document,
+                                 sidebarFullWidth: graphUI.sidebarWidth,
+                                 graphScale: graphScale,
+                                 graphUI: graphUI,
+                                 graphMovement: graphMovement)
+                
+                wrapperState
+//                    .animateNode(showMenu: graphUI.insertNodeMenuState.show)
+//                    .animateNode(showMenu: graphUI.insertNodeMenuState.show,
+//                                 graphScale: graphScale)
+                    .animateNode(showMenu: graphUI.insertNodeMenuState.show,
+                                 document: document,
+                                 sidebarFullWidth: graphUI.sidebarWidth,
+                                 graphOffset: graphMovement.localPosition,
+                                 graphScale: graphScale)
             }
             // When animation completes, reset menu state
             if !newValue {
-                wrapperState.prepareHiddenMenu()
+                wrapperState.prepareHiddenMenu(
+                    graphOffset: graphOffset,
+                    graphScale: graphScale
+                )
             }
         }
         // Keeping the local state `animatedNode` up to date with our activeSelection.

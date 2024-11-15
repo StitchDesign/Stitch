@@ -52,7 +52,7 @@ struct InsertNodeMenuView: View {
 
     var body: some View {
         sheetView
-            .frame(width: InsertNodeMenuWrapper.menuWidth,
+            .frame(width: InsertNodeMenuWrapperState.menuWidth,
                    height: menuHeight)
             .cornerRadius(cornerRadius)
     }

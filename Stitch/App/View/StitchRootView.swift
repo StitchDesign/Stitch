@@ -59,7 +59,7 @@ struct StitchRootView: View {
     }
 
     // For now,
-    @State private var menuHeight: CGFloat = INSERT_NODE_MENU_MAX_HEIGHT
+//    @State private var menuHeight: CGFloat = INSERT_NODE_MENU_MAX_HEIGHT
     
     @State private var screenSize: CGSize = .zero
     
@@ -102,11 +102,16 @@ struct StitchRootView: View {
                         if let document = store.currentDocument {
                             
                             if showMenu {
-                                InsertNodeMenuWrapper(
-                                    document: document,
-                                    graphUI: document.graphUI,
-                                    menuHeight: menuHeight,
-                                    deviceScreen: store.deviceScreenFrame)
+//                                InsertNodeMenuWrapper(
+//                                    document: document,
+//                                    graphUI: document.graphUI,
+//                                    menuHeight: menuHeight,
+//                                    deviceScreen: store.deviceScreenFrame)
+                                
+                                InsertNodeMenuWrapper(wrapperState: <#T##InsertNodeMenuWrapperState#>,
+                                                      document: document,
+                                                      graphUI: document.graphUI)
+                                
                                 // node menu + other animating views
                             }
                         } // if let
