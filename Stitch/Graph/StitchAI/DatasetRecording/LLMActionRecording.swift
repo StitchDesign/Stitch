@@ -9,11 +9,10 @@ import Foundation
 import StitchSchemaKit
 
 
-// MARK: recording user's actions in app as a JSON of LLM Actions, assigning a natural language prompt and writing JSON + prompt to file
+// MARK: recording user's actions in app as a JSON of LLM Step Actions, assigning a natural language prompt and writing JSON + prompt to file
 
 let LLM_START_RECORDING_SF_SYMBOL = "play.fill"
 let LLM_STOP_RECORDING_SF_SYMBOL = "stop.fill"
-
 
 struct LLMRecordingToggled: GraphEvent {
     
@@ -29,6 +28,12 @@ struct LLMRecordingToggled: GraphEvent {
             document.llmRecordingStarted()
         }
     }
+}
+
+/// What we write to JSON/JSONL file
+struct LLMRecordingData: Equatable, Encodable {
+    let actions: LLMStepActions
+    let prompt: String // user-entered
 }
 
 extension StitchDocumentViewModel {

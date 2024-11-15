@@ -44,7 +44,7 @@ struct LayerInputAddedToGraph: GraphEvent {
         // log("LayerInputAddedToGraph: coordinate: \(coordinate)")
         
         guard let node = state.getNodeViewModel(nodeId),
-              let layerNode = node.layerNode else {
+              let _ = node.layerNode else {
             log("LayerInputAddedToGraph: could not add Layer Input to graph")
             fatalErrorIfDebug()
             return
@@ -104,7 +104,8 @@ extension GraphState {
     @MainActor
     func layerInputAddedToGraph(node: NodeViewModel,
                                 input: InputLayerNodeRowData,
-                                coordinate: LayerInputType) {
+                                coordinate: LayerInputType,
+                                manualLLMStepCenter: CGPoint? = nil) {
         
         guard let document = self.documentDelegate else {
             fatalErrorIfDebug()
@@ -121,7 +122,7 @@ extension GraphState {
             id: .layerInput(.init(
                 node: nodeId,
                 keyPath: coordinate)),
-            position: document.newLayerPropertyLocation,
+            position: manualLLMStepCenter ?? document.newLayerPropertyLocation,
             zIndex: document.visibleGraph.highestZIndex + 1,
             // Put newly-created LIG into graph's current traversal level
             parentGroupNodeId: document.graphUI.groupNodeFocused?.asNodeId,
@@ -139,7 +140,7 @@ extension GraphState {
         
         document.graphUI.propertySidebar.selectedProperty = nil
         
-        document.maybeCreateLLMAddLayerInput(nodeId, coordinate)
+        document.maybeCreateLLMStepAddLayerInput(nodeId, coordinate)
     }
 }
 
@@ -204,6 +205,7 @@ extension GraphState {
         
         document.graphUI.propertySidebar.selectedProperty = nil
         
-        document.maybeCreateLLMAddLayerOutput(node.id, portId)
+        // TODO: OPEN AI SCHEMA: ADD LAYER OUTPUTS TO CANVAS
+        // document.maybeCreateLLMAddLayerOutput(node.id, portId)
     }
 }

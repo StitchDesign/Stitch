@@ -306,8 +306,8 @@ extension StitchDocumentViewModel {
             canvasItem.updatePortLocations()
             
             let diff = canvasItem.position - positionAtStart
-            self.maybeCreateLLMMoveNode(canvasItem: canvasItem,
-                                        diff: diff)
+//            self.maybeCreateLLMMoveNode(canvasItem: canvasItem,
+//                                        diff: diff)
         }
         
         self.visibleGraph.selectedCanvasItems.forEach { _update($0) }

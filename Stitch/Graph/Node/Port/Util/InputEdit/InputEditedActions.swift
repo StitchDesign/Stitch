@@ -82,7 +82,7 @@ extension InputNodeRowObserver {
         node.calculate()
 
         if isCommitting {
-            graph.documentDelegate?.maybeCreateLLMSetInput(node: node,
+            graph.documentDelegate?.maybeCreateLLMStepSetInput(node: node,
                                                            input: self.id,
                                                            value: newValue)
         }
