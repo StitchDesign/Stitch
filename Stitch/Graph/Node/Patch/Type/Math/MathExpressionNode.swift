@@ -105,7 +105,19 @@ extension String {
         var s = self.getUniqueWords()
         // remove Soulver-supported operations like "cos", "tan" etc.
         s.removeAll { $0.isSoulverSupportedOperation() }
+        
+        // remove numbers, e.g. "1" cannot be a variable name
+        s.removeAll { $0.isNumber }
+        
         return s
+    }
+}
+
+extension String {
+    var isNumber: Bool {
+        return self.range(
+            of: "^[0-9]*$", // 1
+            options: .regularExpression) != nil
     }
 }
 
