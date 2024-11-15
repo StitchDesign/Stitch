@@ -154,7 +154,7 @@ struct InputValueView: View {
     }
 
     var body: some View {
-//        NodeLayout(observer: viewModel) {
+        NodeLayout(observer: viewModel) {
             switch fieldValue {
             case .string:
                 CommonEditingViewWrapper(graph: graph,
@@ -353,6 +353,6 @@ struct InputValueView: View {
                                    fontColor: STITCH_FONT_GRAY_COLOR,
                                    isSelectedInspectorRow: isSelectedInspectorRow)
             }            
-//        }
+        }
     }
 }
