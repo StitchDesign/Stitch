@@ -78,16 +78,11 @@ struct InfiniteCanvas: Layout {
 //            canvasItem.bounds.localBounds = .init(origin: canvasItem.position,
 //                                                  size: subviewSize)
 
-
-            // Only calculate visible nodes
-            if visibleNodes.contains(id) {
-                let subviewSize = cache.get(id)?.size ?? subview.sizeThatFits(proposal)
-                
-                subview.place(
-                    at: bounds.origin,
-                    anchor: .topLeading,
-                    proposal: ProposedViewSize(subviewSize))
-            }
+            let subviewSize = cache.get(id)?.size ?? subview.sizeThatFits(proposal)
+            subview.place(
+                at: bounds.origin,
+                anchor: .topLeading,
+                proposal: ProposedViewSize(subviewSize))
             
             
             // TODO: can we remove isVisibleInFrame
