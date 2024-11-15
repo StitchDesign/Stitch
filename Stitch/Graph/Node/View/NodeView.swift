@@ -151,7 +151,7 @@ struct NodeLayout<T: StitchLayoutCachable>: Layout {
     let observer: T
     
     struct Cache {
-        var sizes: [CGSize] = []
+        var sizes: [CGSize]?
     }
     
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) -> CGSize {
@@ -162,10 +162,26 @@ struct NodeLayout<T: StitchLayoutCachable>: Layout {
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) {
         guard !subviews.isEmpty else { return }
         
+        guard let cachedSizes = cache.sizes else {
+            var newCachedSizes = [CGSize]()
+            
+            for subview in subviews {
+                let size = subview.sizeThatFits(proposal)
+                newCachedSizes.append(size)
+                
+                subview.place(
+                    at: bounds.origin,
+                    anchor: .topLeading,
+                    proposal: ProposedViewSize(size))
+            }
+            
+            cache.sizes = newCachedSizes
+            return
+        }
+        
         for index in subviews.indices {
             let subview = subviews[index]
-//            let size = subview.sizeThatFits(proposal)
-            let size = cache.sizes[index]
+            let size = cachedSizes[index]
             
             subview.place(
                 at: bounds.origin,
@@ -191,13 +207,14 @@ struct NodeLayout<T: StitchLayoutCachable>: Layout {
     }
     
     func makeCache(subviews: Subviews) -> Cache {
-        guard let cachedSizes = observer.subviewSizes else {
-            let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
-            self.observer.subviewSizes = sizes
-            return Cache(sizes: sizes)
-        }
-        
-        return Cache(sizes: cachedSizes)
+        .init()
+//        guard let cachedSizes = observer.subviewSizes else {
+//            let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
+//            self.observer.subviewSizes = sizes
+//            return Cache(sizes: sizes)
+//        }
+//        
+//        return Cache(sizes: cachedSizes)
     }
     
     func updateCache(_ cache: inout Cache, subviews: Subviews) {
