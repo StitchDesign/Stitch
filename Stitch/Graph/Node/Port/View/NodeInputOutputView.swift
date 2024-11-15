@@ -181,24 +181,39 @@ struct NodeInputView: View {
                         isSelectedInspectorRow: propertyIsSelected)
     }
     
+    var isShadowLayerInputRow: Bool {
+        layerInputObserver?.port == SHADOW_FLYOUT_LAYER_INPUT_PROXY
+    }
+    
     var body: some View {
         // For multifields, want the overall label to sit at top of fields' VStack.
         // For single fields, want to the overall label t
         HStack(alignment: hStackAlignment) {
-            labelView
             
-            if forPropertySidebar {
-                Spacer()
+            // TODO: is there a better way to build this UI, to avoid the perf-intensive `if/else` branch?
+            // We want to show just a single text that, when tapped, opens the flyout; we do not want to show any fields
+            if isShadowLayerInputRow, forPropertySidebar, !forFlyout {
+                ShadowInputInspectorRow(nodeId: nodeId,
+                                        propertyIsSelected: propertyIsSelected)
+            }  else {
+                
+                labelView
+                
+                if forPropertySidebar {
+                    Spacer()
+                }
+                
+                FieldsListView<InputNodeRowViewModel, InputValueEntry>(
+                    graph: graph,
+                    fieldValueTypes: fieldValueTypes,
+                    nodeId: nodeId,
+                    forPropertySidebar: forPropertySidebar,
+                    forFlyout: forFlyout,
+                    blockedFields: layerInputObserver?.blockedFields,
+                    valueEntryView: valueEntryView)
             }
             
-            FieldsListView<InputNodeRowViewModel, InputValueEntry>(
-                graph: graph,
-                fieldValueTypes: fieldValueTypes,
-                nodeId: nodeId,
-                forPropertySidebar: forPropertySidebar,
-                forFlyout: forFlyout,
-                blockedFields: layerInputObserver?.blockedFields,
-                valueEntryView: valueEntryView)
+           
         } // HStack
     }
     
