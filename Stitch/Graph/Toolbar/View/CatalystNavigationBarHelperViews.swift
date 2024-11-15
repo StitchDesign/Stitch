@@ -168,7 +168,7 @@ struct CatalystTopBarGraphButtons: View {
         // `HStack` doesn't matter? These are all placed in a `ToolbarItemGroup` ...
         HStack {
             
-#if DEBUG || DEV_DEBUG || STITCH_AI
+// #if DEBUG || DEV_DEBUG || STITCH_AI
             CatalystNavBarButton(STITCH_AI_SF_SYMBOL) {
                 document.openedStitchAIModal()
             }
@@ -183,7 +183,7 @@ struct CatalystTopBarGraphButtons: View {
                 dispatch(LLMRecordingToggled())
             }
             .opacity(llmRecordingModeEnabled ? 1 : 0)
-#endif
+// #endif
             
             CatalystNavBarButton(.GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME) {
                 dispatch(GoUpOneTraversalLevel())
