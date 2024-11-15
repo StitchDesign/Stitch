@@ -7,6 +7,7 @@
 
 import StitchSchemaKit
 import SwiftUI
+import NonEmpty
 
 typealias PossibleEdgeId = InputPortViewData
 
@@ -29,14 +30,27 @@ extension PossibleEdge {
 
 typealias PossibleEdgeSet = Set<PossibleEdge>
 
-struct EdgeEditingState {
+typealias EligibleEasternNodes = NonEmptyArray<CanvasItemId>
 
+struct EdgeEditingState {
+    
+    static let defaultNearbyCanvasItemIndex = 0
+    
     // currently hovered-over output
     var originOutput: OutputPortViewData
-
+    
     // the node that is east of, and the shortest distance from, the origin node
-    var nearbyCanvasItem: CanvasItemId
+    //    var nearbyCanvasItem: CanvasItemId
+    var nearbyCanvasItem: CanvasItemId {
+        self.eastNodesFromClosestToFarthest[safeIndex: self.nearbyCanvasItemIndex] ?? self.eastNodesFromClosestToFarthest.first
+    }
+    
+    // Canvas items east of the hovered output,
+    // with closest closest canvas item at index = 0
+    var eastNodesFromClosestToFarthest: EligibleEasternNodes
 
+    var nearbyCanvasItemIndex: Int // = Self.defaultNearbyCanvasItemIndex
+    
     var possibleEdges: PossibleEdgeSet
 
     /// Are we showing the edge-edit mode labels in front of inputs?
@@ -71,4 +85,5 @@ struct EdgeEditingState {
     func isAnimating(_ possibleEdgeId: PossibleEdgeId) -> Bool {
         animationInProgressIds.contains(possibleEdgeId)
     }
+    
 }

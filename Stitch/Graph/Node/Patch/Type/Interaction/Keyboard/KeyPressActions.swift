@@ -26,7 +26,7 @@ struct KeyModifierPressBegan: StitchDocumentEvent {
 
     @MainActor
     func handle(state: StitchDocumentViewModel) {
-        // log("KeyModifierPressBegan: modifiers: \(modifiers)")
+         log("KeyModifierPressBegan: modifiers: \(modifiers)")
         
         state.keypressState.modifiers = state.keypressState.modifiers.union(modifiers)
         
@@ -37,10 +37,31 @@ struct KeyModifierPressBegan: StitchDocumentEvent {
         let shiftTabPressed = shiftHeld && tabPressed
         
         // log("KeyModifierPressBegan: shiftHeld: \(shiftHeld)")
-        // log("KeyModifierPressBegan: tabPressed: \(tabPressed)")
-        // log("KeyModifierPressBegan: shiftTabPressed: \(shiftTabPressed)")
+         log("KeyModifierPressBegan: tabPressed: \(tabPressed)")
+         log("KeyModifierPressBegan: shiftTabPressed: \(shiftTabPressed)")
         
         let focusedField = state.graphUI.reduxFocusedField
+        
+        // When we tab, we change the edge editing state's nearbyNode, labelsShown, and possible and shown edges
+        // but hovered output and nodest-to-the-east stays the same
+        if let edgeEditingState = state.graphUI.edgeEditingState,
+            tabPressed {
+            log("tabbed with edge editing state: edgeEditingState.possibleEdges was: \(edgeEditingState.possibleEdges)")
+            state.graphUI.edgeEditingState!.nearbyCanvasItemIndex += 1
+            state.graphUI.edgeEditingState!.labelsShown = true // immediately show labels
+            if let newNearbyNode = state.graph.getCanvasItem(state.graphUI.edgeEditingState!.nearbyCanvasItem) {
+                let (alreadyShownEdges, possibleEdges) = state.graph.getShownAndPossibleEdges(
+                    nearbyNode: newNearbyNode,
+                    outputCoordinate: edgeEditingState.originOutput)
+                state.graphUI.edgeEditingState!.shownIds = alreadyShownEdges
+                state.graphUI.edgeEditingState!.possibleEdges = possibleEdges
+                log("tabbed with edge editing state: edgeEditingState.possibleEdges is now: \(edgeEditingState.possibleEdges)")
+            } else {
+                log("tabbed with edge editing state: could not get new nearby node")
+            }
+            
+            return
+        }
         
         // Tabbing between inputs project setting's preview window dimensions fields
         if focusedField == .previewWindowSettingsWidth, tabPressed {
