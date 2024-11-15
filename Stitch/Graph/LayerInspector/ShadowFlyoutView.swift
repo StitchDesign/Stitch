@@ -43,27 +43,21 @@ struct ShadowFlyoutView: View {
                 // Shadow input is *always packed*
                 let layerInputData = layerInputPort._packedData
                 
-                HStack {
-                    ShadowInputInspectorRow(nodeId: node.id,
-                                            propertyIsSelected: false)
-                    
-                    NodeInputView(graph: graph,
-                                  nodeId: node.id,
-                                  nodeKind: node.kind,
-                                  hasIncomingEdge: false,
-                                  rowObserverId: layerInputData.rowObserver.id,
-                                  rowObserver: nil,
-                                  rowViewModel: nil,
-                                  fieldValueTypes: layerInputData.inspectorRowViewModel.fieldValueTypes,
-                                  layerInputObserver: layerInputPort,
-                                  forPropertySidebar: true,
-                                  propertyIsSelected: false, // N/A ?
-                                  propertyIsAlreadyOnGraph: false,
-                                  isCanvasItemSelected: false,
-                                  label: layerInputData.rowObserver.label(true),
-                                  forFlyout: true)
-                }
-                                
+                NodeInputView(graph: graph,
+                              nodeId: node.id,
+                              nodeKind: node.kind,
+                              hasIncomingEdge: false,
+                              rowObserverId: layerInputData.rowObserver.id,
+                              rowObserver: nil,
+                              rowViewModel: nil,
+                              fieldValueTypes: layerInputData.inspectorRowViewModel.fieldValueTypes,
+                              layerInputObserver: layerInputPort,
+                              forPropertySidebar: true,
+                              propertyIsSelected: false, // N/A ?
+                              propertyIsAlreadyOnGraph: false,
+                              isCanvasItemSelected: false,
+                              label: layerInputData.rowObserver.label(true),
+                              forFlyout: true)
                 
                 .padding([.top, .bottom], INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET * 2)
                 
