@@ -182,8 +182,6 @@ struct NodeInputView: View {
     }
     
     var body: some View {
-        // For multifields, want the overall label to sit at top of fields' VStack.
-        // For single fields, want to the overall label t
         HStack(alignment: hStackAlignment) {
             labelView
             

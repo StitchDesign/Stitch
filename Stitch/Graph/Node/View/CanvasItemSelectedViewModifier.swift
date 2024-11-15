@@ -36,7 +36,7 @@ struct CanvasItemSelectedViewModifier: ViewModifier {
 
 // https://stackoverflow.com/questions/60407125/swiftui-how-can-i-detect-if-two-views-are-intersecting-each-other
 
-// fka `NodeBoundsReader`
+// fka `NodeBoundsReader`layerinspect
 struct CanvasItemBoundsReader: ViewModifier {
     @Bindable var graph: GraphState
     @Bindable var canvasItem: CanvasItemViewModel
