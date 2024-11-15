@@ -193,7 +193,7 @@ struct ContentView: View, KeyboardReadable {
                  prompt: $document.stitchAI.promptState.prompt,
                  isGenerating: document.stitchAI.promptState.isGenerating,
                  onSubmit: { prompt in
-                     document.makeAPIRequest(userInput: prompt)
+                     dispatch(MakeOpenAIRequest(prompt: prompt))
                  }
              )
          })
