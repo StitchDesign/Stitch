@@ -79,6 +79,31 @@ struct CanvasItemBoundsReader: ViewModifier {
                                 canvasItem.updatePortLocations()
                             }
                         }
+                                  
+                        .onChange(of: proxy.frame(in: .named(StitchRootView.STITCH_ROOT_VIEW_COORDINATE_SPACE)),
+                                  initial: true) { _, newBounds in
+                            
+                            if let hiddenNode = graph.graphUI.insertNodeMenuState.hiddenNodeId,
+                               canvasItem.nodeDelegate?.id == hiddenNode {
+                                log("hidden node's bounds in STITCH_ROOT_VIEW_COORDINATE_SPACE: newBounds: \(newBounds)")
+                                dispatch(HiddenNodeBoundsUpdated(frame: newBounds))
+                            }
+                            
+                            // but you want this only for the node being added via the node menu
+                            // `disabled` is only true for the animated-node, right?
+//                            if !disabled {
+//                                log("non disabled node's bounds in STITCH_ROOT_VIEW_COORDINATE_SPACE: newBounds: \(newBounds)")
+//                            }
+                            
+//                            if !disabled {
+//                                // log("CanvasItemBoundsReader: will update local bounds: \(newBounds)")
+//                                
+//                                // Used only for comment box creation
+//                                canvasItem.bounds.localBounds = newBounds
+//                                
+//                                canvasItem.updatePortLocations()
+//                            }
+                        }
                 }
             }
     }

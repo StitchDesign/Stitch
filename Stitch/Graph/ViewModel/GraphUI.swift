@@ -28,8 +28,20 @@ struct ActiveDragInteractionNodeVelocityData: Equatable, Hashable {
     var activeDragInteractionNodes = NodeIdSet()
 }
 
+struct HiddenNodeBoundsUpdated: GraphUIEvent {
+    let frame: CGRect
+    
+    func handle(state: GraphUIState) {
+        log("HiddenNodeBoundsUpdated: frame: \(frame)")
+        state.hiddenNodeBoundsRelativeToStitchRoot = frame
+    }
+    
+}
+
 @Observable
 final class GraphUIState {
+    
+    var hiddenNodeBoundsRelativeToStitchRoot: CGRect = .zero
     
     var sidebarWidth: CGFloat = .zero // i.e. origin of graph from .global frame
 
@@ -227,13 +239,19 @@ extension GraphUIState {
                 graphScale: CGFloat) -> CGPoint {
         var graphCenter = self.graphFrame.getGraphCenter(localPosition: localPosition)
 
-        // Take left-sidebar into consideration
-        let sidebarAdjustment = (self.sidebarWidth/2 * 1/graphScale)
-        graphCenter.x -= sidebarAdjustment
+        log("GraphUIState: graphCenter was: \(graphCenter)")
         
+        // Take left-sidebar into consideration
+//        let sidebarAdjustment = (self.sidebarWidth/2 * 1/graphScale)
+//        let sidebarAdjustment = (self.sidebarWidth * 1/graphScale) // real node gets too far west
+//        graphCenter.x -= sidebarAdjustment // original
+//        graphCenter.x += ASSUMED_SCREEN_VS_GRAPH_WIDTH_DIFFERENCE
+        log("GraphUIState: graphCenter is now: \(graphCenter)")
         return graphCenter
     }
 }
+
+let ASSUMED_SCREEN_VS_GRAPH_WIDTH_DIFFERENCE = 160.5
 
 extension GraphState {
     
@@ -468,7 +486,10 @@ extension CanvasItemViewModel {
 @Observable
 final class GraphZoom {
     var current: CGFloat = 0
-    var final: CGFloat = 1
+//    var final: CGFloat = 1
+//    var final: CGFloat = 0.5
+//    var final: CGFloat = 0.75
+    var final: CGFloat = 2
 
     var zoom: CGFloat {
         self.current + self.final

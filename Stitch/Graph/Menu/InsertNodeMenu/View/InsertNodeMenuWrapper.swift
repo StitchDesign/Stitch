@@ -110,22 +110,93 @@ struct InsertNodeMenuWrapper: View {
     @MainActor
     func getNodeDestination() -> CGPoint {
         
+        // Seems way off?
+        // e.g. graph center per GraphUIState is
+//        let k = graphUI.hiddenNodeBoundsRelativeToStitchRoot
+//        log("getNodeDestination: \(k)")
+//        // since NodeView uses .position, should we use midX,midY instead of .origin?
+//        // or .position assumes top left etc.?
+////        return k.origin
+////        return .init(x: 596.7244347240031,
+//        return .init(x: k.origin.x,
+//                     y: -1100.0)
+//                     y: 395.34902007502274)
+        
+        
+        
         let adjustedDoubleTapLocation = document.adjustedDoubleTapLocation(document.visibleGraph.localPosition)
         
         var defaultCenter = document.graphUI.center(
             document.visibleGraph.localPosition,
             graphScale: self.graphScale)
         
-        let sidebarAdjustment = (self.sidebarHalfWidth * 1/self.graphScale)
+//        let sidebarAdjustment = (self.sidebarHalfWidth * 1/self.graphScale)
+        
+        // perfect when e.g. graph scale = 1; off when e.g. zoomed out
+//        let sidebarAdjustment = ((self.sidebarHalfWidth * 2) * 1/self.graphScale)
+//        let sidebarAdjustment = ((self.sidebarHalfWidth * 2) * (1 - self.graphScale))
+//        let sidebarAdjustment = (self.sidebarHalfWidth * (1 - self.graphScale))
+        
+        // 400 is too big when scale = 0.5
+//        let sidebarAdjustment = (self.sidebarHalfWidth * 2) + 400.0
+        
+        // 200 still too big; we animate to the east of the real node
+//        let sidebarAdjustment = (self.sidebarHalfWidth * 2) + 200.0
+        
+        // perfect: exactly perfect when adding an Add mode and sidebar is open and graph scale is 0.5
+        // Also works for e.g. ConvertPosition node (which is wider)
+//        let sidebarAdjustment = (self.sidebarHalfWidth * 2) + 160.5
+        // ... so that's the equivalent of 1.5 sidebar widths
+        
+        // How do I get the 1.5?
+        // 1 + 0.5 ?
+//        let sidebarAdjustment = graphUI.sidebarWidth * (1 + self.graphScale)
+        // ^^ not correct when scale = 0.75
+        
+        // what happens when scale = 2 ?
+//        let sidebarAdjustment = graphUI.sidebarWidth * 0.5
+        // ^^ pretty close?
+        // close but slightly off?
+//        let sidebarAdjustment = (self.sidebarHalfWidth * 2) - 160.5
+//        let sidebarAdjustment = (self.sidebarHalfWidth * 2) - (160.5 / 2)
+        let sidebarAdjustment = (self.sidebarHalfWidth * 2) - ((self.sidebarHalfWidth * 2) / 4 )
+        //^^ perfect
+//        let sidebarAdjustment = (self.sidebarHalfWidth * 2) - (sidebarHalfWidth * (1/self.graphScale))
+        // ^^ accurate when scale = 2
+        // inaccurate in other cases
+        
+        
+        
+        
+        // also wrong when scale != 1
+//        let sidebarAdjustment = (self.sidebarHalfWidth * 2)
+        
+        // also still wrong?
+//        let sidebarAdjustment = (self.sidebarHalfWidth * 2) * self.graphScale
+        
+//        let sidebarAdjustment = 0.0  (self.sidebarHalfWidth * 1/self.graphScale)
+        log("getNodeDestination: self.sidebarHalfWidth: \(self.sidebarHalfWidth)")
+        log("getNodeDestination: sidebarAdjustment: \(sidebarAdjustment)")
         
         if document.llmRecording.isRecording {
             return defaultCenter
         } else if var adjustedDoubleTapLocation = adjustedDoubleTapLocation {
             adjustedDoubleTapLocation.x += sidebarAdjustment
+//            adjustedDoubleTapLocation.x += sidebarAdjustment
             return adjustedDoubleTapLocation
         } else {
             // add back the half sidebar width?
+//            log("getNodeDestination: defaultCenter was: \(defaultCenter)")
+            
+//            defaultCenter.x += sidebarAdjustment
+//            defaultCenter.x -= sidebarAdjustment
             defaultCenter.x += sidebarAdjustment
+            
+            
+            // GOOD IF SCALE = 1
+//            defaultCenter.x += sidebarAdjustment
+//            defaultCenter.x += sidebarAdjustment
+            log("getNodeDestination: defaultCenter is now: \(defaultCenter)")
             return defaultCenter
         }
     }
@@ -329,13 +400,13 @@ struct InsertNodeMenuWrapper: View {
             .scaleEffect(x: menuScaleX, y: menuScaleY)
             // use .position modifier to match node's use of .position modifier
             .position(menuPosition)
-            .offset(x: -sidebarHalfWidth)
+//            .offset(x: -sidebarHalfWidth)
     }
     
     // should be subtracted
     var sidebarHalfWidth: CGFloat {
-//        graphUI.sidebarWidth/2
-        0
+        graphUI.sidebarWidth/2
+//        0
     }
     
     var body: some View {
@@ -374,7 +445,7 @@ struct InsertNodeMenuWrapper: View {
                         // to lose tracking for end state
                         dispatch(KeyModifierReset())
                     }
-                    .offset(x: -sidebarHalfWidth)
+//                    .offset(x: -sidebarHalfWidth)
             }
         }
         .onAppear {
