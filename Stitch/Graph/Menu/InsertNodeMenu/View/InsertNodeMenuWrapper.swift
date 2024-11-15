@@ -159,14 +159,17 @@ struct InsertNodeMenuWrapper: View {
         // close but slightly off?
 //        let sidebarAdjustment = (self.sidebarHalfWidth * 2) - 160.5
 //        let sidebarAdjustment = (self.sidebarHalfWidth * 2) - (160.5 / 2)
-        let sidebarAdjustment = (self.sidebarHalfWidth * 2) - ((self.sidebarHalfWidth * 2) / 4 )
+//        let sidebarAdjustment = (self.sidebarHalfWidth * 2) - ((self.sidebarHalfWidth * 2) / 4 )
         //^^ perfect
 //        let sidebarAdjustment = (self.sidebarHalfWidth * 2) - (sidebarHalfWidth * (1/self.graphScale))
         // ^^ accurate when scale = 2
         // inaccurate in other cases
         
         
+        // From ChatGPT -- this works!
+//        let sidebarAdjustment = (self.sidebarHalfWidth * 2) * ((1 + self.graphScale) / (2 * self.graphScale))
         
+        let sidebarAdjustment = self.sidebarFullWidth * ((1 + self.graphScale) / (2 * self.graphScale))
         
         // also wrong when scale != 1
 //        let sidebarAdjustment = (self.sidebarHalfWidth * 2)
@@ -401,6 +404,10 @@ struct InsertNodeMenuWrapper: View {
             // use .position modifier to match node's use of .position modifier
             .position(menuPosition)
 //            .offset(x: -sidebarHalfWidth)
+    }
+    
+    var sidebarFullWidth: CGFloat {
+        graphUI.sidebarWidth
     }
     
     // should be subtracted
