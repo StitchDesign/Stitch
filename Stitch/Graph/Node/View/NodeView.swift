@@ -28,7 +28,6 @@ struct InfiniteCanvas: Layout {
               height: proposal.height ?? .zero)
     }
     
-    @MainActor
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) {
         var visibleNodes = Set<CanvasItemId>()
         
@@ -40,55 +39,34 @@ struct InfiniteCanvas: Layout {
         let viewframe = Self.getScaledViewFrame(scale: 1 / zoom,
                                                 graphView: graphView)
         
-        for canvasItem in graph.visibleNodesViewModel.allViewModels {
-            guard let size = cache.get(canvasItem.id)?.size else { continue }
+        // Determine nodes to make visible--use cache in case nodes exited viewframe
+        for cachedSubviewData in cache {
+            let id = cachedSubviewData.key
+            let cachedBounds = cachedSubviewData.value
             
-            let isVisibleInFrame = viewframe.intersects(.init(origin: canvasItem.position,
-                                                              size: size))
-            
-            canvasItem.updateVisibilityStatus(with: isVisibleInFrame)
-            
-            if isVisibleInFrame && canvasItem.parentGroupNodeId == graph.graphUI.groupNodeFocused?.groupNodeId {
-//                log("visibile test: in frame")
-                visibleNodes.insert(canvasItem.id)
+            let isVisibleInFrame = viewframe.intersects(cachedBounds)
+            if isVisibleInFrame {
+                visibleNodes.insert(id)
             }
         }
         
-        for index in subviews.indices {
-            let subview = subviews[index]
-            let id = subview[CanvasIdKey.self]
-
-//            let subviewSize = subview.sizeThatFits(proposal)
-//
-////            guard let position = subview[CanvasPositionKey.self] else {
-////                subview.place(
-////                    at: bounds.origin,
-////                    anchor: .topLeading,
-////                    proposal: ProposedViewSize(subviewSize))
-////                continue
-////            }
-//
-//
-//            guard let canvasItem = self.graph.getCanvasItem(id) else {
-//                fatalError()
-//            }
-//
-//            // Update size data
-//            // TODO: definitely not correct position
-//            canvasItem.bounds.localBounds = .init(origin: canvasItem.position,
-//                                                  size: subviewSize)
+        // Place subviews
+        for subview in subviews {
+            // TODO: need support for removal
+            let positionData = subview[CanvasPositionKey.self]
+            let id = positionData.id
+            let position = positionData.position
+            
+            guard let size = cache.get(id)?.size else {
+                fatalErrorIfDebug()
+                continue
+            }
 
             let subviewSize = cache.get(id)?.size ?? subview.sizeThatFits(proposal)
             subview.place(
                 at: bounds.origin,
                 anchor: .topLeading,
                 proposal: ProposedViewSize(subviewSize))
-            
-            
-            // TODO: can we remove isVisibleInFrame
-//            if isVisibleInFrame != canvasItem.isVisibleInFrame {
-//                canvasItem.isVisibleInFrame = isVisibleInFrame
-//            }
         }
         
         if graph.visibleNodesViewModel.visibleCanvasIds != visibleNodes {
@@ -111,18 +89,14 @@ struct InfiniteCanvas: Layout {
                       size: scaledSize)
     }
     
-    @MainActor
     func makeCache(subviews: Subviews) -> Cache {
         subviews.reduce(into: Cache()) { result, subview in
-            let id = subview[CanvasIdKey.self]
+            let positionData = subview[CanvasPositionKey.self]
+            let id = positionData.id
+            let position = positionData.position
             let size = subview.sizeThatFits(.unspecified)
             
-            // TODO: make position key again?
-            guard let canvasItem = self.graph.getCanvasItem(id) else {
-                fatalError()
-            }
-            
-            let bounds = CGRect(origin: canvasItem.position,
+            let bounds = CGRect(origin: position,
                                 size: size)
             result.updateValue(bounds, forKey: id)
         }
@@ -148,13 +122,22 @@ struct InfiniteCanvas: Layout {
     }
 }
 
-private struct CanvasIdKey: LayoutValueKey {
-    static let defaultValue: CanvasItemId = .node(.init())
+struct CanvasLayoutPosition {
+    let id: CanvasItemId
+    let position: CGPoint
+}
+
+private struct CanvasPositionKey: LayoutValueKey {
+    static let defaultValue: CanvasLayoutPosition = .init(id: .node(.init()),
+                                                          position: .zero)
 }
 
 extension View {
-    func canvasId(_ id: CanvasItemId) -> some View {
-        layoutValue(key: CanvasIdKey.self, value: id)
+    func canvasPosition(id: CanvasItemId,
+                        position: CGPoint) -> some View {
+        layoutValue(key: CanvasPositionKey.self, value: .init(id: id,
+                                                              position: position))
+            .position(position)
     }
 }
 
@@ -303,6 +286,12 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
     var body: some View {
 //        NodeLayout(observer: node) {
             nodeBody
+            .onAppear {
+                self.node.updateVisibilityStatus(with: true)
+            }
+            .onDisappear {
+                self.node.updateVisibilityStatus(with: false)
+            }
 #if targetEnvironment(macCatalyst)
             // Catalyst right-click to open node tag menu
                 .contextMenu {

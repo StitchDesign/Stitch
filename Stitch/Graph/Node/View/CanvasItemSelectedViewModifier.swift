@@ -64,17 +64,17 @@ struct CanvasItemBoundsReader: ViewModifier {
                                    updateMenuActiveSelectionBounds: updateMenuActiveSelectionBounds)
                             }
                         }
-                        .onChange(of: proxy.frame(in: .local),
-                                  initial: true) { _, newBounds in
-                            if !disabled {
-                                // log("CanvasItemBoundsReader: will update local bounds: \(newBounds)")
-
-                                // Used only for comment box creation
-                                canvasItem.bounds.localBounds = newBounds
-                                
-                                canvasItem.updatePortLocations()
-                            }
-                        }
+//                        .onChange(of: proxy.frame(in: .local),
+//                                  initial: true) { _, newBounds in
+//                            if !disabled {
+//                                // log("CanvasItemBoundsReader: will update local bounds: \(newBounds)")
+//
+//                                // Used only for comment box creation
+//                                canvasItem.bounds.localBounds = newBounds
+//                                
+//                                canvasItem.updatePortLocations()
+//                            }
+//                        }
                 }
             }
     }

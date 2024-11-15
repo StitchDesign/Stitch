@@ -74,7 +74,10 @@ final class CanvasItemViewModel: Identifiable, StitchLayoutCachable {
     var zIndex: Double = .zero
     var parentGroupNodeId: NodeId?
     
-    var isVisibleInFrame = true
+    var isVisibleInFrame: Bool {
+        guard let graph = self.graphDelegate else { return false }
+        return graph.visibleNodesViewModel.visibleCanvasIds.contains(self.id)
+    }
     
     // View specific port value data
     var inputViewModels: [InputNodeRowViewModel] = []
@@ -209,7 +212,7 @@ extension CanvasItemViewModel {
     }
         
     var sizeByLocalBounds: CGSize {
-        self.bounds.localBounds.size
+        self.viewCache?.sizeThatFits ?? .zero
     }
     
     var isMoving: Bool {
@@ -218,15 +221,17 @@ extension CanvasItemViewModel {
 
     @MainActor
     func updateVisibilityStatus(with newValue: Bool) {
-        let oldValue = self.isVisibleInFrame
-        if oldValue != newValue {
-            self.isVisibleInFrame = newValue
-
-            // Refresh values if node back in frame
-            if newValue {
-                self.nodeDelegate?.updatePortViewModels()
-            }
-        }
+        self.nodeDelegate?.updatePortViewModels()
+        
+//        let oldValue = self.isVisibleInFrame
+//        if oldValue != newValue {
+//            self.isVisibleInFrame = newValue
+//
+//            // Refresh values if node back in frame
+//            if newValue {
+//                self.nodeDelegate?.updatePortViewModels()
+//            }
+//        }
     }
     
     func shiftPosition(by gridLineLength: Int = SQUARE_SIDE_LENGTH) {

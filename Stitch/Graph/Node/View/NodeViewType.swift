@@ -62,7 +62,6 @@ struct NodeTypeView: View {
                  updateMenuActiveSelectionBounds: updateMenuActiveSelectionBounds,
                  inputsViews: inputsViews,
                  outputsViews: outputsViews)
-        .canvasId(canvasNode.id)
         .onChange(of: self.node.patch, initial: true) {
             // Sorting is expensive so we control when this is calculated
             if let patchNode = self.node.patchNode {

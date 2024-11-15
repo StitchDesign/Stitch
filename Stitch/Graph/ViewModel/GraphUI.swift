@@ -39,8 +39,6 @@ final class GraphUIState {
     var nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag: CanvasItemIdSet? = nil
     
     let propertySidebar = PropertySidebarObserver()
-        
-    var nodesThatWereOnScreenPriorToEnteringFullScreen = CanvasItemIdSet()
     
     var lastMomentumRunTime: TimeInterval = .zero
     

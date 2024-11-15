@@ -38,7 +38,14 @@ struct NodesOnlyView: View {
 //        }
 //        
         let canvasNodes: [CanvasItemViewModel] = canvasNodeIds
-            .compactMap { self.graph.getCanvasItem($0) }
+            .compactMap { id in
+                guard let canvas = self.graph.getCanvasItem(id),
+                      canvas.parentGroupNodeId == self.graph.graphUI.groupNodeFocused?.groupNodeId else {
+                    return nil
+                }
+                
+                return canvas
+            }
 
         ForEach(canvasNodes) { canvasNode in
             // Note: if/else seems better than opacity modifier, which introduces funkiness with edges (port preference values?) when going in and out of groups;
