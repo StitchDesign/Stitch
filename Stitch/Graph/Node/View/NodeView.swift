@@ -128,9 +128,8 @@ struct InfiniteCanvas: Layout {
         }
     }
     
-    func updateCache(_ cache: inout Cache, subviews: Subviews) {
-//        cache.sizes = subviews.map { $0.sizeThatFits(.unspecified) }
-    }
+    // Keep empty for perf
+    func updateCache(_ cache: inout Cache, subviews: Subviews) { }
     
     func explicitAlignment(of guide: HorizontalAlignment,
                            in bounds: CGRect,
@@ -194,13 +193,9 @@ struct NodeLayout<T: StitchLayoutCachable>: Layout {
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) {
         guard !subviews.isEmpty else { return }
         
-        var newCachedSizes = [CGSize]()
-        
         for index in subviews.indices {
             let subview = subviews[index]
             let size = cache.sizes[index]
-            
-            newCachedSizes.append(size)
             
             subview.place(
                 at: bounds.origin,
