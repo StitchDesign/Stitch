@@ -354,7 +354,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
                 .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
                 .allowsHitTesting(!isLayerInvisible)
         }
-        .fixedSize()
+//        .fixedSize()
         .modifier(CanvasItemBackground(color: nodeUIColor.body))
 //        .modifier(CanvasItemBoundsReader(
 //            graph: graph,

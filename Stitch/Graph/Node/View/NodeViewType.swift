@@ -131,7 +131,7 @@ struct DefaultNodeInputView: View {
             let layerInputObserver: LayerInputObserver? = rowObserver.id.layerInput
                 .flatMap { node.layerNode?.getLayerInputObserver($0.layerInput) }
             
-            NodeLayout(observer: rowViewModel) {
+//            NodeLayout(observer: rowViewModel) {
                 HStack {
                     NodeRowPortView(graph: graph,
                                     rowObserver: rowObserver,
@@ -154,7 +154,7 @@ struct DefaultNodeInputView: View {
                                   isCanvasItemSelected: isNodeSelected,
                                   label: rowObserver.label())
                 }
-            }
+//            }
         }
     }
 }
@@ -174,7 +174,7 @@ struct DefaultNodeOutputView: View {
                            rowViewModels: canvas.outputViewModels,
                            nodeIO: .output,
                            adjustmentBarSessionId: adjustmentBarSessionId) { rowObserver, rowViewModel in
-            NodeLayout(observer: rowViewModel) {
+//            NodeLayout(observer: rowViewModel) {
                 HStack {
                     NodeOutputView(graph: graph,
                                    rowObserver: rowObserver,
@@ -194,7 +194,7 @@ struct DefaultNodeOutputView: View {
                     graph: graph,
                     outputCoordinate: .init(portId: rowViewModel.id.portId,
                                             canvasId: canvas.id)))
-            }
+//            }
         }
     }
 }
