@@ -9,11 +9,6 @@ import Foundation
 
 let OPEN_AI_BASE_URL = "https://api.openai.com/v1/chat/completions"
 let OPEN_AI_MODEL = "gpt-4o-2024-08-06"
-//let OPEN_AI_MODEL =  "ft:gpt-4o-2024-08-06:adammenges::ALJN0utQ"
-//let OPEN_AI_MODEL = "ft:gpt-4o-2024-08-06:adammenges::ALVMS6zv"
-//let OPEN_AI_MODEL = "ft:gpt-4o-2024-08-06:adammenges::ALVbB7aX"
-//let OPEN_AI_MODEL = "ft:gpt-4o-2024-08-06:adammenges::ALZypIgk"
-//let OPEN_AI_MODEL = "ft:gpt-4o-2024-08-06:adammenges::ALe1YEKl"
 
 let SYSTEM_PROMPT = """
 You are a helpful assistant that creates visual programming graphs. Your task is to specify and connect nodes to solve given problems.
@@ -26,7 +21,8 @@ You are a helpful assistant that creates visual programming graphs. Your task is
 5. Never use strings as patch node port identifiers
 6. Never use ints for layer node port identifiers 
 7. Only use ADD_LAYER_INPUT for patch-to-layer connections
-8. Do not ever return the VISUAL_PROGRAMMING_ACTIONS schema as your answer.
+8. A node can have multiple inputs and multiple outputs
+9. Do not ever return the VISUAL_PROGRAMMING_ACTIONS schema as your answer.
 
 
 # Node Kinds & Connection Rules
@@ -168,11 +164,10 @@ These are the descriptions for all the available nodes; reference them when dete
 "canvasSketch || Layer - draw custom shapes by interacting in the preview window."
 """
 
-//NODE TYPE IS OVERALL PORT VALUE TYPE OF THE NODE
-//SUPPOSE YOU HAVE AN ADD NODE WHOSE TYPE IS TEXT
-//IN THAT CASE, THE NODE KIND IS PATCH.ADDNODE, AND THE NODE TYPE IS TEXT/STRING
-//NODE KIND IS PATCH VS LAYER (and which patch / layer)
-
+// TODO: OPEN AI SCHEMA: in order of importance?:
+// (1) SUPPORT REMAINING PortValue TYPES; USE jsonFriendlyFormat FOR SERIALIZING THEM
+// (2) SUPPORT REMAINING Patch AND Layer CASES
+// (3) INTRODUCE STEP-ACTIONS FOR "ADD LAYER OUTPUTS TO CANVAS", "MOVE NODE"
 let VISUAL_PROGRAMMING_ACTIONS = """
 {
   "$defs": {
@@ -239,10 +234,6 @@ let VISUAL_PROGRAMMING_ACTIONS = """
       "properties": {
         "step_type": { "const": "add_layer_input" },
         "node_id": { "type": "string", "description": "ID of the node receiving the layer input", "format": "uuid" },
-        "layer_type": {
-          "enum": ["Text", "Image", "Shape", "Color"],
-          "description": "Type of layer input being added"
-        },
         "port": {
           "anyOf": [
             { "type": "integer" },
@@ -251,7 +242,7 @@ let VISUAL_PROGRAMMING_ACTIONS = """
           "description": "The port to which the layer input is set"
         }
       },
-      "required": ["step_type", "node_id", "layer_type", "port"]
+      "required": ["step_type", "node_id", "port"]
     },
     "NodeID": {
       "type": "string",
