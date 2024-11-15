@@ -221,6 +221,7 @@ extension CanvasItemViewModel {
 
     @MainActor
     func updateVisibilityStatus(with newValue: Bool) {
+        self.updatePortLocations()
         self.nodeDelegate?.updatePortViewModels()
         
 //        let oldValue = self.isVisibleInFrame
