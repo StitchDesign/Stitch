@@ -56,12 +56,12 @@ struct ContentView: View, KeyboardReadable {
                 contentView // the graph
             }
             
-            if showMenu {
-                InsertNodeMenuWrapper(document: document,
-                                      graphUI: graphUI,
-                                      menuHeight: $menuHeight,
-                                      screenSize: $screenSize) // node menu + other animating views
-            }
+//            if showMenu {
+//                InsertNodeMenuWrapper(document: document,
+//                                      graphUI: graphUI,
+//                                      menuHeight: $menuHeight,
+//                                      screenSize: $screenSize) // node menu + other animating views
+//            }
         }
     }
 
@@ -84,7 +84,7 @@ struct ContentView: View, KeyboardReadable {
                 .ignoresSafeArea([.keyboard])
 #endif
         }
-       .environment(\.viewframe, graphUI.frame)
+       .environment(\.viewframe, graphUI.graphFrame)
        .environment(\.isSelectionBoxInUse, graphUI.selection.isSelecting)
     }
 
@@ -130,7 +130,7 @@ struct ContentView: View, KeyboardReadable {
                             if !showFullScreen.isTrue {
                                 FloatingWindowView(
                                     document: document,
-                                    deviceScreenSize: graphUI.frame.size,
+                                    deviceScreenSize: graphUI.graphFrame.size,
                                     showPreviewWindow: showPreviewWindow,
                                     namespace: graphNamespace)
                             }

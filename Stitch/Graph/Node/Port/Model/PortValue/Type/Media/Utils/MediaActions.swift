@@ -140,7 +140,7 @@ extension GraphState {
             location: originalNodeLocation.toCGPoint,
             graphOffset: localPosition,
             graphScale: graphScale,
-            deviceScreen: self.graphUI.frame)
+            deviceScreen: self.graphUI.graphFrame)
 
         let mediaType = newURL.getMediaType()
 

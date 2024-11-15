@@ -13,8 +13,6 @@ struct StitchApp: App {
     @State var store = StitchStore()
     @StateObject var keyboardObserver = KeyboardObserver()
 
-    
-    
     // MARK: VERY important to pass the store StateObject into each view for perf
     var body: some Scene {
         WindowGroup {
@@ -31,9 +29,19 @@ struct StitchApp: App {
                 .environment(\.appTheme, self.store.appTheme)
                 .environment(\.edgeStyle, self.store.edgeStyle)
                 .environmentObject(self.keyboardObserver)
-
+            
+//            // A genuine reading of the entire device screen; not affected by NavigationStack's top bar nor SplitView's sidebar
+                .background {
+                    GeometryReader { geometry in
+                        Color.clear
+                            .onChange(of: geometry.frame(in: .global), initial: true) { oldValue, newValue in
+                                log("StitchApp: global frame: newValue: \(newValue)")
+                                self.store.deviceScreenFrame = newValue
+                            }
+                    }
+                } // .background
         }
-
+        
         // TODO: why does XCode complain about `.windowStyle not available on iOS` even when using `#if targetEnvironment(macCatalyst)`?
         // TODO: why do `!os(iOS)` or `os(macOS)` statements not seem to run?
         // #if targetEnvironment(macCatalyst)

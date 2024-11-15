@@ -41,7 +41,7 @@ extension GraphState {
         }
 
         // the size of the screen and canvas item's View
-        let frame = self.graphUI.frame
+        let frame = self.graphUI.graphFrame
 
         // location of canvasItem
         let position = canvasItem.position

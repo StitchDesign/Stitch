@@ -41,14 +41,14 @@ struct OpenFlyoutView: View, KeyboardReadable {
             
             // Place top edge of flyout at top of graph;
             // We subtract half the screen height because we use .offset modifier
-            let start = -(graph.graphUI.frame.midY - flyoutSize.height/2)
+            let start = -(graph.graphUI.graphFrame.midY - flyoutSize.height/2)
                         
             // If the bottom edge of the flyout will go past the bottom edge of the screen,
             // move the flyout up a bit.
             let flyoutEndpoint = entry.y + flyoutSize.height // where the flyout's bottom edge would be
-            let needsSafeAreaAdjustment = flyoutEndpoint > graph.graphUI.frame.maxY
+            let needsSafeAreaAdjustment = flyoutEndpoint > graph.graphUI.graphFrame.maxY
             let safeAreaAdjustment = needsSafeAreaAdjustment
-            ? ((flyoutEndpoint - graph.graphUI.frame.maxY) + FLYOUT_SAFE_AREA_BOTTOM_PADDING + topPadding) // +8 for padding from bottom
+            ? ((flyoutEndpoint - graph.graphUI.graphFrame.maxY) + FLYOUT_SAFE_AREA_BOTTOM_PADDING + topPadding) // +8 for padding from bottom
             : 0.0
             
             let keyboardAdjustment = (self.keyboardOpen && needsSafeAreaAdjustment) ? 64.0 : 0.0

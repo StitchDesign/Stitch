@@ -42,8 +42,15 @@ struct InsertNodeMenuWrapper: View {
 
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graphUI: GraphUIState
-    @Binding var menuHeight: CGFloat
-    @Binding var screenSize: CGSize
+//    @Binding var menuHeight: CGFloat
+//    @Binding var screenSize: CGSize
+    var menuHeight: CGFloat
+    
+    var deviceScreen: CGRect
+    
+    var screenSize: CGSize {
+        self.deviceScreen.size
+    }
     
     var graphScale: CGFloat {
         graphMovement.zoomData.zoom
@@ -57,12 +64,17 @@ struct InsertNodeMenuWrapper: View {
 
     var screenWidth: CGFloat {
         // graphUI.frame.width
-        self.screenSize.width
+//        self.screenSize.width
+        let k = self.screenSize.width
+        log("screenWidth: \(k)")
+        return k
     }
 
     var screenHeight: CGFloat {
         // graphUI.frame.height
-        self.screenSize.height
+        let k = self.screenSize.height
+        log("screenHeight: \(k)")
+        return k
     }
     
     private var graphMovement: GraphMovementObserver {
@@ -138,9 +150,9 @@ struct InsertNodeMenuWrapper: View {
         // Need to factor out graph offset, to get node placed under the menu
         self.nodePosition = self.getAdjustedMenuOrigin() // menuOrigin
 
-        if setHeightToMax {
-            self.menuHeight = INSERT_NODE_MENU_MAX_HEIGHT
-        }
+//        if setHeightToMax {
+//            self.menuHeight = INSERT_NODE_MENU_MAX_HEIGHT
+//        }
     }
     
     func getLargeNodeWidthScale() -> CGFloat {
@@ -219,7 +231,7 @@ struct InsertNodeMenuWrapper: View {
 
             // Use non-changing height of screen for menu's animation-end position;
             // i.e. animate the menu to a position as if the keyboard were not on screen.
-            let diffY = graphUI.frame.size.height/2 - nodeDestination.y
+            let diffY = graphUI.graphFrame.size.height/2 - nodeDestination.y
 
             let finalDiffX = diffX * (1 - graphScale)
             let finalDiffY = diffY * (1 - graphScale)
@@ -322,7 +334,8 @@ struct InsertNodeMenuWrapper: View {
     
     // should be subtracted
     var sidebarHalfWidth: CGFloat {
-        graphUI.sidebarWidth/2
+//        graphUI.sidebarWidth/2
+        0
     }
     
     var body: some View {

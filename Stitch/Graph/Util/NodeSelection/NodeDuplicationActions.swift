@@ -184,7 +184,7 @@ extension GraphState {
                                isCopyPaste: Bool) async where T: StitchComponentable {
         let (newComponent, nodeIdMap) = Self.updateCopiedNodes(
             component: component,
-            destinationGraphInfo: isCopyPaste ? .init(destinationGraphOffset: self.localPosition, destinationGraphFrame: self.graphUI.frame) : nil
+            destinationGraphInfo: isCopyPaste ? .init(destinationGraphOffset: self.localPosition, destinationGraphFrame: self.graphUI.graphFrame) : nil
         )
         let encoderDelegate = self.documentEncoderDelegate      // keep optional for unit tests
         

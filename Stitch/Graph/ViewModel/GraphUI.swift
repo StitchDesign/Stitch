@@ -84,10 +84,15 @@ final class GraphUIState {
     // GRAPH: UI GROUPS AND LAYER PANELS
     // layer nodes (group or non-group) that have been selected
     // via the layer panel UI
-
-    // Starts out as default value, but on first render of GraphView
-    // we get the exact device screen size via GeometryReader.
-    var frame = DEFAULT_LANDSCAPE_GRAPH_FRAME
+    
+    /*
+     Size and origin of the graph-base-view.
+     
+     (Affected by SplitView's sidebar being open or not.)
+     
+     Initialized with a default value but update via GeometryReader
+     */
+    var graphFrame: CGRect = DEFAULT_LANDSCAPE_GRAPH_FRAME
     
     // Note: our device-screen reading logic uses `.local` coordinate space and so does not detect that items in the graph actually sit a little lower on the screen.
     // TODO: better?: just always look at `.global`
@@ -153,7 +158,7 @@ final class GraphUIState {
         self.dragDuplication = dragDuplication
         self.doubleTapLocation = doubleTapLocation
         self.activeIndex = activeIndex
-        self.frame = frame
+        self.graphFrame = frame
         self.selection = selection
         self.groupTraversedToChild = groupTraversedToChild
         self.isFullScreenMode = isPhoneDevice
@@ -173,7 +178,7 @@ extension StitchDocumentViewModel {
                     location: doubleTapLocation,
                     graphOffset: localPosition,
                     graphScale: self.graphMovement.zoomData.zoom,
-                    deviceScreen: self.graphUI.frame))
+                    deviceScreen: self.graphUI.graphFrame))
         }
         
         return nil
@@ -201,8 +206,8 @@ extension GraphUIState {
     // and rounded to a multiple of grid square size.
     @MainActor
     var gridImageLength: CGFloat {
-        let length = Int(max(frame.height,
-                             frame.width))
+        let length = Int(max(graphFrame.height,
+                             graphFrame.width))
             .roundedUp(toMultipleOf: SQUARE_SIDE_LENGTH)
         return CGFloat(length)
     }
@@ -220,7 +225,7 @@ extension GraphUIState {
     @MainActor
     func center(_ localPosition: CGPoint,
                 graphScale: CGFloat) -> CGPoint {
-        var graphCenter = self.frame.getGraphCenter(localPosition: localPosition)
+        var graphCenter = self.graphFrame.getGraphCenter(localPosition: localPosition)
 
         // Take left-sidebar into consideration
         let sidebarAdjustment = (self.sidebarWidth/2 * 1/graphScale)

@@ -30,6 +30,16 @@ final class StitchStore: Sendable, StoreDelegate {
 
     var isShowingDrawer = false
 
+    /*
+     Size and origin of device's entire screen.
+     
+     Ignores NavigationStack's topbar and SplitView's sidebar.
+     
+     // Initialized as .zero but updated by GeometryReader in StitchRootView
+     */
+    var deviceScreenFrame: CGRect = .zero
+    
+    
     // TODO: should be properly persisted
     var edgeStyle: EdgeStyle = .defaultEdgeStyle
     var appTheme: StitchTheme = .defaultTheme

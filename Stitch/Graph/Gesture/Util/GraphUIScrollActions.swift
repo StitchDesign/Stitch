@@ -737,7 +737,7 @@ extension StitchDocumentViewModel {
         // TODO: What happens if we zoom in or out *while momentum is running*?
         let momentumOrigin = self.visibleGraph
             .graphBounds(graphMovement.zoomData.zoom,
-                         graphView: graphUIState.frame,
+                         graphView: graphUIState.graphFrame,
                          graphOffset: graphMovement.localPosition,
                          groupNodeFocused: graphUIState.groupNodeFocused?.groupNodeId)
 

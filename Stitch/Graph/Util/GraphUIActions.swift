@@ -17,22 +17,17 @@ struct SetSidebarWidth: GraphUIEvent {
     let frame: CGRect // .global frame
     
     func handle(state: GraphUIState) {
-        // log("SetSidebarWidth: frame.origin.x: \(frame.origin.x)")
+        log("SetSidebarWidth: frame.origin.x: \(frame.origin.x)")
         state.sidebarWidth = frame.origin.x
     }
 }
 
-struct SetDeviceScreenSize: GraphEvent {
-
+struct SetGraphFrame: GraphUIEvent {
     let frame: CGRect
 
-    func handle(state: GraphState) {
-        // Set frame of view
-        //        log("SetDeviceScreenSize: frame: \(frame)")
-        //        log("SetDeviceScreenSize: graphState.graphUI.frame was: \(graphState.graphUI.frame)")
-
-        state.graphUI.frame = frame
-        //        log("SetDeviceScreenSize: graphState.graphUI.frame is now: \(graphState.graphUI.frame)")
+    func handle(state: GraphUIState) {
+        log("SetGraphFrame: frame: \(frame)")
+        state.graphFrame = frame
     }
 }
 

@@ -63,7 +63,7 @@ extension StitchDocumentViewModel {
 
         let graphBounds = self.visibleGraph.graphBounds(
             graphMovement.zoomData.zoom,
-            graphView: self.graphUI.frame,
+            graphView: self.graphUI.graphFrame,
             graphOffset: visibleGraph.localPosition,
             groupNodeFocused: self.graphUI.groupNodeFocused?.groupNodeId)
 
@@ -85,7 +85,7 @@ extension StitchDocumentViewModel {
                 // if we are, then we return this as a final position
                 if let finalXOffset = graphMovement.capMomentumPositionX(
                     graphBounds: graphBounds,
-                    frame: graphUI.frame,
+                    frame: graphUI.graphFrame,
                     zoom: graphMovement.zoomData.zoom,
                     startOrigins: graphBoundsAtStart.origin) {
 
@@ -106,7 +106,7 @@ extension StitchDocumentViewModel {
 
                 if let finalYOffset = graphMovement.capMomentumPositionY(
                     graphBounds: graphBounds,
-                    frame: graphUI.frame,
+                    frame: graphUI.graphFrame,
                     zoom: graphMovement.zoomData.zoom,
                     startOrigins: graphBoundsAtStart.origin) {
 

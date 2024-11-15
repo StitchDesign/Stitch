@@ -48,14 +48,41 @@ struct StitchRootView: View {
     // Handled manually by user; but synced with GraphUIState.leftSide
     @State var columnVisibility: NavigationSplitViewVisibility = .detailOnly
             
+    
+    var showMenu: Bool {
+        guard let document = store.currentDocument else {
+            return false
+        }
+        
+        return document.graphUI.insertNodeMenuState.menuAnimatingToNode ||
+        document.graphUI.insertNodeMenuState.show
+    }
+
+    // For now,
+    @State private var menuHeight: CGFloat = INSERT_NODE_MENU_MAX_HEIGHT
+    
+    @State private var screenSize: CGSize = .zero
+    
     var body: some View {
         Group {
             if isPhoneDevice() {
                 iPhoneBody
             } else {
                 splitView
-#if targetEnvironment(macCatalyst)
+                // A genuine reading of the entire device screen; not affected by NavigationStack's top bar nor SplitView's sidebar
+//                    .background {
+//                        GeometryReader { geometry in
+//                            Color.clear
+////                                .onChange(of: geometry.frame(in: .global), initial: true) { oldValue, newValue in
+//                                .onChange(of: geometry.frame(in: .local), initial: true) { oldValue, newValue in
+//                                    log("StitchRootView: global frame: newValue: \(newValue)")
+//                                    dispatch(SetDeviceScreenFrame(frame: newValue))
+//                                }
+//                        }
+//                    } // .background
+
                     .overlay(alignment: .center) {
+#if targetEnvironment(macCatalyst)
                         if let document = store.currentDocument,
                            document.graphUI.showCatalystProjectTitleModal {
                             logInView("will show modal view at top level")
@@ -80,15 +107,31 @@ struct StitchRootView: View {
                                         .ignoresSafeArea([.all, .keyboard])
                                         .cornerRadius(4)
                                 )
-                                
-                                
                             }
                         } // if let document
-                    } // .overlay
 #endif
+                        
+                        if let document = store.currentDocument {
+                            
+                            if showMenu {
+                                InsertNodeMenuWrapper(
+                                    document: document,
+                                    graphUI: document.graphUI,
+                                    menuHeight: menuHeight,
+//                                    deviceScreen: document.graphUI.deviceScreenFrame)
+                                    deviceScreen: store.deviceScreenFrame)
+                                // node menu + other animating views
+                            }
+                            
+                        } // if let
+                        
+                        
+                    } // .overlay
+                
+              
             }
         }
-//        .coordinateSpace(name: Self.STITCH_ROOT_VIEW_COORDINATE_SPACE)
+        //        .coordinateSpace(name: Self.STITCH_ROOT_VIEW_COORDINATE_SPACE)
         .modifier(StitchRootModifier(alertState: alertState))
         .onAppear {
             // TODO: move this to the start of StitchStore instead?
