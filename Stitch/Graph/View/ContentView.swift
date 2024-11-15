@@ -56,6 +56,7 @@ struct ContentView: View, KeyboardReadable {
                 contentView // the graph
             }
             
+            // TODO: place the animating node HERE
 //            if showMenu {
 //                InsertNodeMenuWrapper(document: document,
 //                                      graphUI: graphUI,

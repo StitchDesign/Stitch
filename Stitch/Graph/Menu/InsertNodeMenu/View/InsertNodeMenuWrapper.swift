@@ -8,6 +8,49 @@
 import Foundation
 import SwiftUI
 
+@Observable
+final class InsertNodeMenuWrapperState: NSObject {
+    
+    // These values set in onAppear and when insertion animation completes
+    var nodeOpacity: CGFloat = .zero
+
+    var menuScaleX: CGFloat = .zero
+    var menuScaleY: CGFloat = .zero
+
+    var nodeScaleX: CGFloat = .zero
+    var nodeScaleY: CGFloat = .zero
+
+    var menuPosition: CGPoint = .zero
+    var nodePosition: CGPoint = .zero
+
+    // doesn't really matter, since overridden by actual node size
+    var nodeWidth: CGFloat = 300.0
+    var nodeHeight: CGFloat = 200.0
+    
+    var animatedNode: NodeViewModel?
+}
+
+extension InsertNodeMenuWrapperState {
+    
+    static let menuWidth: CGFloat = INSERT_NODE_MENU_WIDTH
+    static let opacityAnimationDelay: Double = 0.25
+    static let shownMenuScale: CGFloat = 1
+        
+    static let scaleAnimationDuration: Double = 0.4
+    static let scaleAnimation = Animation.linear(duration: scaleAnimationDuration)
+    
+    // let opacity animation last a tiny bit longer
+    static var opacityAnimationDuration: CGFloat {
+        Self.scaleAnimationDuration - Self.opacityAnimationDelay/2
+    }
+
+    static var opacityAnimation: Animation {
+        Animation
+            .linear(duration: opacityAnimationDuration)
+            .delay(Self.opacityAnimationDelay)
+    }
+}
+
 struct InsertNodeMenuWrapper: View {
     static let menuWidth: CGFloat = INSERT_NODE_MENU_WIDTH
     static let opacityAnimationDelay: Double = 0.25
@@ -130,52 +173,8 @@ struct InsertNodeMenuWrapper: View {
             document.visibleGraph.localPosition,
             graphScale: self.graphScale)
         
-//        let sidebarAdjustment = (self.sidebarHalfWidth * 1/self.graphScale)
-        
-        // perfect when e.g. graph scale = 1; off when e.g. zoomed out
-//        let sidebarAdjustment = ((self.sidebarHalfWidth * 2) * 1/self.graphScale)
-//        let sidebarAdjustment = ((self.sidebarHalfWidth * 2) * (1 - self.graphScale))
-//        let sidebarAdjustment = (self.sidebarHalfWidth * (1 - self.graphScale))
-        
-        // 400 is too big when scale = 0.5
-//        let sidebarAdjustment = (self.sidebarHalfWidth * 2) + 400.0
-        
-        // 200 still too big; we animate to the east of the real node
-//        let sidebarAdjustment = (self.sidebarHalfWidth * 2) + 200.0
-        
-        // perfect: exactly perfect when adding an Add mode and sidebar is open and graph scale is 0.5
-        // Also works for e.g. ConvertPosition node (which is wider)
-//        let sidebarAdjustment = (self.sidebarHalfWidth * 2) + 160.5
-        // ... so that's the equivalent of 1.5 sidebar widths
-        
-        // How do I get the 1.5?
-        // 1 + 0.5 ?
-//        let sidebarAdjustment = graphUI.sidebarWidth * (1 + self.graphScale)
-        // ^^ not correct when scale = 0.75
-        
-        // what happens when scale = 2 ?
-//        let sidebarAdjustment = graphUI.sidebarWidth * 0.5
-        // ^^ pretty close?
-        // close but slightly off?
-//        let sidebarAdjustment = (self.sidebarHalfWidth * 2) - 160.5
-//        let sidebarAdjustment = (self.sidebarHalfWidth * 2) - (160.5 / 2)
-//        let sidebarAdjustment = (self.sidebarHalfWidth * 2) - ((self.sidebarHalfWidth * 2) / 4 )
-        //^^ perfect
-//        let sidebarAdjustment = (self.sidebarHalfWidth * 2) - (sidebarHalfWidth * (1/self.graphScale))
-        // ^^ accurate when scale = 2
-        // inaccurate in other cases
-        
-        
         // From ChatGPT -- this works!
-//        let sidebarAdjustment = (self.sidebarHalfWidth * 2) * ((1 + self.graphScale) / (2 * self.graphScale))
-        
         let sidebarAdjustment = self.sidebarFullWidth * ((1 + self.graphScale) / (2 * self.graphScale))
-        
-        // also wrong when scale != 1
-//        let sidebarAdjustment = (self.sidebarHalfWidth * 2)
-        
-        // also still wrong?
-//        let sidebarAdjustment = (self.sidebarHalfWidth * 2) * self.graphScale
         
 //        let sidebarAdjustment = 0.0  (self.sidebarHalfWidth * 1/self.graphScale)
         log("getNodeDestination: self.sidebarHalfWidth: \(self.sidebarHalfWidth)")
@@ -185,20 +184,10 @@ struct InsertNodeMenuWrapper: View {
             return defaultCenter
         } else if var adjustedDoubleTapLocation = adjustedDoubleTapLocation {
             adjustedDoubleTapLocation.x += sidebarAdjustment
-//            adjustedDoubleTapLocation.x += sidebarAdjustment
             return adjustedDoubleTapLocation
         } else {
-            // add back the half sidebar width?
-//            log("getNodeDestination: defaultCenter was: \(defaultCenter)")
-            
-//            defaultCenter.x += sidebarAdjustment
-//            defaultCenter.x -= sidebarAdjustment
+            log("getNodeDestination: defaultCenter was: \(defaultCenter)")
             defaultCenter.x += sidebarAdjustment
-            
-            
-            // GOOD IF SCALE = 1
-//            defaultCenter.x += sidebarAdjustment
-//            defaultCenter.x += sidebarAdjustment
             log("getNodeDestination: defaultCenter is now: \(defaultCenter)")
             return defaultCenter
         }
@@ -410,10 +399,8 @@ struct InsertNodeMenuWrapper: View {
         graphUI.sidebarWidth
     }
     
-    // should be subtracted
     var sidebarHalfWidth: CGFloat {
         graphUI.sidebarWidth/2
-//        0
     }
     
     var body: some View {
