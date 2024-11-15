@@ -108,19 +108,8 @@ struct NodeTypeView: View {
 }
 
 // TODO: move
-final class NodeIOObserver: StitchLayoutCachable {
+final class CachedViewObserver: StitchLayoutCachable {
     var subviewSizes: [CGSize]?
-}
-
-struct CachedView<Content: View>: View {
-    @State private var cache = NodeIOObserver()
-    @ViewBuilder var content: () -> Content
-    
-    var body: some View {
-        NodeLayout(observer: cache) {
-            content()
-        }
-    }
 }
 
 struct DefaultNodeInputView: View {
@@ -133,7 +122,7 @@ struct DefaultNodeInputView: View {
     let adjustmentBarSessionId: AdjustmentBarSessionId
     
     var body: some View {
-        CachedView {
+        NodeLayout(observer: canvas.cachedInputSizeObserver) {
             DefaultNodeRowView(graph: graph,
                                node: node,
                                rowViewModels: canvas.inputViewModels,
@@ -182,7 +171,7 @@ struct DefaultNodeOutputView: View {
     let adjustmentBarSessionId: AdjustmentBarSessionId
     
     var body: some View {
-        CachedView {
+        NodeLayout(observer: canvas.cachedOutputSizeObserver) {
             DefaultNodeRowView(graph: graph,
                                node: node,
                                rowViewModels: canvas.outputViewModels,

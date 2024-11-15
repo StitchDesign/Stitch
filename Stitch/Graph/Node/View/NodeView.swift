@@ -367,13 +367,13 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
     }
 
     var nodeBodyKind: some View {
-        CachedView {
+//        CachedView {
             HStack(alignment: .top, spacing: NODE_BODY_SPACING) {
                 inputsViews()
                 Spacer()
                 outputsViews()
-            }            
-        }
+            }
+//        }
     }
 }
 
