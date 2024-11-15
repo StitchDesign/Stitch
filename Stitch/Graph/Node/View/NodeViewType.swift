@@ -109,7 +109,7 @@ struct NodeTypeView: View {
 
 // TODO: move
 final class CachedViewObserver: StitchLayoutCachable {
-    var subviewSizes: [CGSize]?
+    var viewCache: NodeLayoutCache?
 }
 
 struct DefaultNodeInputView: View {

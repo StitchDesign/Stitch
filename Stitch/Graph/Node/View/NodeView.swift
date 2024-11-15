@@ -160,15 +160,18 @@ extension View {
 }
 
 protocol StitchLayoutCachable: AnyObject {
-    var subviewSizes: [CGSize]? { get set }
+    var viewCache: NodeLayoutCache? { get set }
+}
+
+struct NodeLayoutCache {
+    var sizes: [CGSize] = []
+    var spacing: ViewSpacing = .zero
 }
 
 struct NodeLayout<T: StitchLayoutCachable>: Layout {
-    let observer: T
+    typealias Cache = NodeLayoutCache
     
-    struct Cache {
-        var sizes: [CGSize]?
-    }
+    let observer: T
     
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) -> CGSize {
         var totalWidth: CGFloat = 0
@@ -186,26 +189,13 @@ struct NodeLayout<T: StitchLayoutCachable>: Layout {
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) {
         guard !subviews.isEmpty else { return }
         
-        guard let cachedSizes = cache.sizes else {
-            var newCachedSizes = [CGSize]()
-            
-            for subview in subviews {
-                let size = subview.sizeThatFits(proposal)
-                newCachedSizes.append(size)
-                
-                subview.place(
-                    at: bounds.origin,
-                    anchor: .topLeading,
-                    proposal: ProposedViewSize(size))
-            }
-            
-            cache.sizes = newCachedSizes
-            return
-        }
+        var newCachedSizes = [CGSize]()
         
         for index in subviews.indices {
             let subview = subviews[index]
-            let size = cachedSizes[index]
+            let size = cache.sizes[index]
+            
+            newCachedSizes.append(size)
             
             subview.place(
                 at: bounds.origin,
@@ -214,24 +204,38 @@ struct NodeLayout<T: StitchLayoutCachable>: Layout {
         }
     }
     
-//    func spacing(subviews: Self.Subviews, cache: inout Cache) -> ViewSpacing {
-//        .zero
-//    }
+    func spacing(subviews: Self.Subviews, cache: inout Cache) -> ViewSpacing {
+        cache.spacing
+    }
+    
+    private func calculateSpacing(subviews: Self.Subviews) -> ViewSpacing {
+        var spacing = ViewSpacing()
+
+        for index in subviews.indices {
+            var edges: Edge.Set = [.leading, .trailing]
+            if index == 0 { edges.formUnion(.top) }
+            if index == subviews.count - 1 { edges.formUnion(.bottom) }
+            spacing.formUnion(subviews[index].spacing, edges: edges)
+        }
+
+        return spacing
+    }
     
     func makeCache(subviews: Subviews) -> Cache {
-//        .init()
-        guard let cachedSizes = observer.subviewSizes else {
+        guard let cache = observer.viewCache else {
             let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
-            self.observer.subviewSizes = sizes
-            return Cache(sizes: sizes)
+            let spacing = self.calculateSpacing(subviews: subviews)
+            let cache = Cache(sizes: sizes, spacing: spacing)
+            
+            self.observer.viewCache = cache
+            return cache
         }
         
-        return Cache(sizes: cachedSizes)
+        return cache
     }
     
-    func updateCache(_ cache: inout Cache, subviews: Subviews) {
-//        cache.sizes = subviews.map { $0.sizeThatFits(.unspecified) }
-    }
+    // Keep this empty for perf
+    func updateCache(_ cache: inout Cache, subviews: Subviews) { }
     
     func explicitAlignment(of guide: HorizontalAlignment,
                            in bounds: CGRect,

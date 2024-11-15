@@ -273,7 +273,7 @@ extension PortValue {
 // UI data
 @Observable
 final class InputNodeRowViewModel: NodeRowViewModel {
-    var subviewSizes: [CGSize]?
+    var viewCache: NodeLayoutCache?
     
     typealias PortViewType = InputPortViewData
     
@@ -343,7 +343,7 @@ extension InputNodeRowViewModel {
 
 @Observable
 final class OutputNodeRowViewModel: NodeRowViewModel {
-    var subviewSizes: [CGSize]?
+    var viewCache: NodeLayoutCache?
     
     typealias PortViewType = OutputPortViewData
     

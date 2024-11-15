@@ -13,7 +13,7 @@ typealias FieldGroupTypeViewModelList<FieldType: FieldViewModel> = [FieldGroupTy
 
 @Observable
 final class FieldGroupTypeViewModel<FieldType: FieldViewModel>: StitchLayoutCachable, Identifiable {
-    var subviewSizes: [CGSize]?
+    var viewCache: NodeLayoutCache?
     
     let type: FieldGroupType
     var fieldObservers: [FieldType]
