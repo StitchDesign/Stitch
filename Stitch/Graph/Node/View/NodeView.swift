@@ -155,8 +155,16 @@ struct NodeLayout<T: StitchLayoutCachable>: Layout {
     }
     
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) -> CGSize {
-        .init(width: proposal.width ?? .zero,
-              height: proposal.height ?? .zero)
+        var totalWidth: CGFloat = 0
+        var totalHeight: CGFloat = 0
+        
+        for subview in subviews {
+            let subviewSize = subview.sizeThatFits(.unspecified) // Ask subview for its natural size
+            totalWidth = max(totalWidth, subviewSize.width) // Expand the width to fit the widest subview
+            totalHeight += subviewSize.height // Stack the subviews vertically
+        }
+        
+        return CGSize(width: totalWidth, height: totalHeight)
     }
     
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) {
@@ -187,34 +195,22 @@ struct NodeLayout<T: StitchLayoutCachable>: Layout {
                 at: bounds.origin,
                 anchor: .topLeading,
                 proposal: ProposedViewSize(size))
-            //            nextX += maxSize.width + spacing[index]
         }
     }
     
-    private func maxSize(subviews: Subviews) -> CGSize {
-        let subviewSizes = subviews.map { $0.sizeThatFits(.unspecified) }
-        let maxSize: CGSize = subviewSizes.reduce(.zero) { currentMax, subviewSize in
-            CGSize(
-                width: max(currentMax.width, subviewSize.width),
-                height: max(currentMax.height, subviewSize.height))
-        }
-        
-        return maxSize
-    }
-    
-    func spacing(subviews: Self.Subviews, cache: inout Cache) -> ViewSpacing {
-        .zero
-    }
+//    func spacing(subviews: Self.Subviews, cache: inout Cache) -> ViewSpacing {
+//        .zero
+//    }
     
     func makeCache(subviews: Subviews) -> Cache {
-        .init()
-//        guard let cachedSizes = observer.subviewSizes else {
-//            let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
-//            self.observer.subviewSizes = sizes
-//            return Cache(sizes: sizes)
-//        }
-//        
-//        return Cache(sizes: cachedSizes)
+//        .init()
+        guard let cachedSizes = observer.subviewSizes else {
+            let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
+            self.observer.subviewSizes = sizes
+            return Cache(sizes: sizes)
+        }
+        
+        return Cache(sizes: cachedSizes)
     }
     
     func updateCache(_ cache: inout Cache, subviews: Subviews) {
@@ -282,7 +278,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
     }
 
     var body: some View {
-        NodeLayout(observer: node) {
+//        NodeLayout(observer: node) {
             nodeBody
 #if targetEnvironment(macCatalyst)
             // Catalyst right-click to open node tag menu
@@ -335,7 +331,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
                                            node: node,
                                            zIndex: zIndex,
                                            usePositionHandler: usePositionHandler)
-        }
+//        }
     }
 
     @MainActor
