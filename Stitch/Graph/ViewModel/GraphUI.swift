@@ -345,7 +345,7 @@ func adjustPositionToMultipleOf(_ position: CGPoint,
     return newCenter
 }
 
-struct GraphUISelectionState: Equatable, Codable, Hashable {
+struct GraphUISelectionState {
 
     // Selected comment boxes
     var selectedCommentBoxes = CommentBoxIdSet()

@@ -20,6 +20,7 @@ struct InfiniteCanvas: Layout {
     let viewFrameSize: CGSize
     let origin: CGPoint
     let zoom: Double
+    let selectionBox: CGRect
     
     typealias Cache = [CanvasItemId: CGRect]
     
@@ -29,14 +30,14 @@ struct InfiniteCanvas: Layout {
     }
     
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) {
+        let zoom = 1 / zoom
         var visibleNodes = Set<CanvasItemId>()
-        
         let viewframeOrigin = CGPoint(x: -origin.x,
                                       y: -origin.y)
         
         let graphView = CGRect(origin: viewframeOrigin,
                                size: viewFrameSize)
-        let viewframe = Self.getScaledViewFrame(scale: 1 / zoom,
+        let viewframe = Self.getScaledViewFrame(scale: zoom,
                                                 graphView: graphView)
         
         // Determine nodes to make visible--use cache in case nodes exited viewframe
@@ -47,6 +48,27 @@ struct InfiniteCanvas: Layout {
             let isVisibleInFrame = viewframe.intersects(cachedBounds)
             if isVisibleInFrame {
                 visibleNodes.insert(id)
+            }
+            
+            if selectionBox != .zero {
+                let scaledSelectionBoxSize = CGSize(
+                    // must explicitly graph .size to get correct magnitude
+                    width: selectionBox.size.width * zoom,
+                    height: selectionBox.size.height * zoom)
+                
+                let scaledOrigin = CGPoint(x: selectionBox.origin.x * zoom,
+                                           y: selectionBox.origin.y * zoom)
+                
+                let selectionBoxViewFrame = CGRect(origin: scaledOrigin + viewframe.origin,
+                                                   size: scaledSelectionBoxSize)
+//                print("infinite selection origin: \(selectionBox.origin)")
+//                print("infinite selection size: \(selectionBox.size)")
+//                print("infinite selection final: \(selectionBoxViewFrame)")
+//                print("infinite node: \(cachedBounds)")
+                
+                if selectionBoxViewFrame.intersects(cachedBounds) {
+                    log("yoyoyoyo")
+                }
             }
         }
         

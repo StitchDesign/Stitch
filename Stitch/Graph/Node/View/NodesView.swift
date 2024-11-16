@@ -52,7 +52,8 @@ struct NodesView: View {
         InfiniteCanvas(graph: graph,
                        viewFrameSize: document.graphUI.frame.size,
                        origin: document.graphMovement.localPosition,
-                       zoom: document.graphMovement.zoomData.zoom) {
+                       zoom: document.graphMovement.zoomData.zoom,
+                       selectionBox: document.graphUI.selection.expansionBox.asCGRect) {
             //                        commentBoxes
             nodesOnlyView(nodePageData: nodePageData)
         }
