@@ -37,36 +37,24 @@ struct InfiniteCanvas: Layout {
         
         let graphView = CGRect(origin: viewframeOrigin,
                                size: viewFrameSize)
-        let viewframe = Self.getScaledViewFrame(scale: zoom,
+        let viewFrame = Self.getScaledViewFrame(scale: zoom,
                                                 graphView: graphView)
+        let selectionBoxInViewFrame = Self.getScaledSelectionBox(selectionBox: selectionBox,
+                                                                 scale: zoom,
+                                                                 scaledViewFrameOrigin: viewFrame.origin)
         
         // Determine nodes to make visible--use cache in case nodes exited viewframe
         for cachedSubviewData in cache {
             let id = cachedSubviewData.key
             let cachedBounds = cachedSubviewData.value
             
-            let isVisibleInFrame = viewframe.intersects(cachedBounds)
+            let isVisibleInFrame = viewFrame.intersects(cachedBounds)
             if isVisibleInFrame {
                 visibleNodes.insert(id)
             }
             
-            if selectionBox != .zero {
-                let scaledSelectionBoxSize = CGSize(
-                    // must explicitly graph .size to get correct magnitude
-                    width: selectionBox.size.width * zoom,
-                    height: selectionBox.size.height * zoom)
-                
-                let scaledOrigin = CGPoint(x: selectionBox.origin.x * zoom,
-                                           y: selectionBox.origin.y * zoom)
-                
-                let selectionBoxViewFrame = CGRect(origin: scaledOrigin + viewframe.origin,
-                                                   size: scaledSelectionBoxSize)
-//                print("infinite selection origin: \(selectionBox.origin)")
-//                print("infinite selection size: \(selectionBox.size)")
-//                print("infinite selection final: \(selectionBoxViewFrame)")
-//                print("infinite node: \(cachedBounds)")
-                
-                if selectionBoxViewFrame.intersects(cachedBounds) {
+            if let selectionBoxInViewFrame = selectionBoxInViewFrame {
+                if selectionBoxInViewFrame.intersects(cachedBounds) {
                     log("yoyoyoyo")
                 }
             }
@@ -107,6 +95,30 @@ struct InfiniteCanvas: Layout {
         return CGRect(origin: CGPoint(x: graphView.origin.x + xDiff,
                                       y: graphView.origin.y + yDiff),
                       size: scaledSize)
+    }
+    
+    /// Uses graph local offset and scale to get a modified `CGRect` of the selection box view frame.
+    static func getScaledSelectionBox(selectionBox: CGRect,
+                                      scale: Double,
+                                      scaledViewFrameOrigin: CGPoint) -> CGRect? {
+        guard selectionBox != .zero else { return nil }
+        
+        let scaledSelectionBoxSize = CGSize(
+            // must explicitly graph .size to get correct magnitude
+            width: selectionBox.size.width * scale,
+            height: selectionBox.size.height * scale)
+        
+        let scaledOrigin = CGPoint(x: selectionBox.origin.x * scale,
+                                   y: selectionBox.origin.y * scale)
+        
+        let scaledSelectionBox = CGRect(origin: scaledOrigin + scaledViewFrameOrigin,
+                                           size: scaledSelectionBoxSize)
+//                print("infinite selection origin: \(selectionBox.origin)")
+//                print("infinite selection size: \(selectionBox.size)")
+//                print("infinite selection final: \(selectionBoxViewFrame)")
+//                print("infinite node: \(cachedBounds)")
+        
+        return scaledSelectionBox
     }
     
     func makeCache(subviews: Subviews) -> Cache {
