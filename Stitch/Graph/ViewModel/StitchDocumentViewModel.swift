@@ -106,8 +106,7 @@ final class StitchDocumentViewModel: Sendable {
         if isInitialization {
             // Need all nodes to render initially
             let visibleGraph = self.visibleGraph
-            visibleGraph.visibleNodesViewModel.visibleCanvasIds = visibleGraph
-                .visibleNodesViewModel.allViewModels.map(\.id).toSet
+            visibleGraph.visibleNodesViewModel.setAllNodesVisible()
         } else {
             self.refreshVisibleNodes()
         }

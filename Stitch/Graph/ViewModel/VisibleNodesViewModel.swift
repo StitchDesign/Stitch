@@ -19,6 +19,8 @@ final class VisibleNodesViewModel {
     var nodesByPage: NodesPagingDict = [.root: .init()]
     
     var visibleCanvasIds = Set<CanvasItemId>()
+    
+    var infiniteCanvasCache: InfiniteCanvas.Cache?
 }
 
 extension VisibleNodesViewModel {
@@ -304,6 +306,11 @@ extension VisibleNodesViewModel {
     func getOutputRowObserver(for coordinate: NodeIOCoordinate) -> OutputNodeRowObserver? {
         self.nodes.get(coordinate.nodeId)?
             .getOutputRowObserver(for: coordinate.portType)
+    }
+    
+    @MainActor
+    func setAllNodesVisible() {
+        self.visibleCanvasIds = self.allViewModels.map(\.id).toSet
     }
 }
 

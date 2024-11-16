@@ -117,8 +117,7 @@ struct ToggleFullScreenEvent: GraphEvent {
             state.visibleNodesViewModel.visibleCanvasIds = .init()
         }  else {
             // Mark all nodes as visible, will correct later
-            state.visibleNodesViewModel.visibleCanvasIds = state
-                .visibleNodesViewModel.allViewModels.map(\.id).toSet
+            state.visibleNodesViewModel.setAllNodesVisible()
         }
     }
 }

@@ -90,7 +90,7 @@ struct InfiniteCanvas: Layout {
     }
     
     func makeCache(subviews: Subviews) -> Cache {
-        subviews.reduce(into: Cache()) { result, subview in
+        let cache = subviews.reduce(into: Cache()) { result, subview in
             let positionData = subview[CanvasPositionKey.self]
             let id = positionData.id
             let position = positionData.position
@@ -100,10 +100,18 @@ struct InfiniteCanvas: Layout {
                                 size: size)
             result.updateValue(bounds, forKey: id)
         }
+        
+        graph.visibleNodesViewModel.infiniteCanvasCache = cache
+        return cache
     }
     
-    // Keep empty for perf
-    func updateCache(_ cache: inout Cache, subviews: Subviews) { }
+    func updateCache(_ cache: inout Cache, subviews: Subviews) {
+        // Recalcualte graph if cache reset
+        if graph.visibleNodesViewModel.infiniteCanvasCache == nil {
+            cache = self.makeCache(subviews: subviews)
+            graph.visibleNodesViewModel.infiniteCanvasCache = cache
+        }
+    }
     
     func explicitAlignment(of guide: HorizontalAlignment,
                            in bounds: CGRect,
@@ -364,11 +372,11 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
         }
 //        .fixedSize()
         .modifier(CanvasItemBackground(color: nodeUIColor.body))
-//        .modifier(CanvasItemBoundsReader(
-//            graph: graph,
-//            canvasItem: node,
-//            disabled: boundsReaderDisabled,
-//            updateMenuActiveSelectionBounds: updateMenuActiveSelectionBounds))
+        .modifier(CanvasItemBoundsReader(
+            graph: graph,
+            canvasItem: node,
+            disabled: boundsReaderDisabled,
+            updateMenuActiveSelectionBounds: updateMenuActiveSelectionBounds))
         
         .modifier(CanvasItemSelectedViewModifier(isSelected: isSelected))
     }
