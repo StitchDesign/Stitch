@@ -33,10 +33,10 @@ struct NodesOnlyView: View {
         
     var body: some View {
         // HACK for when no nodes present
-//        if canvasNodeIds.isEmpty {
-//            Rectangle().fill(.clear)
-//        }
-//        
+        if canvasNodeIds.isEmpty {
+            Rectangle().fill(.clear)
+        }
+
         let canvasNodes: [CanvasItemViewModel] = canvasNodeIds
             .compactMap { id in
                 guard let canvas = self.graph.getCanvasItem(id),

@@ -57,7 +57,7 @@ struct InfiniteCanvas: Layout {
             let id = positionData.id
             
             guard let subviewSize = cache.get(id)?.size else {
-                fatalErrorIfDebug()
+                // This is when with empty view for empty nodes
                 continue
             }
 
@@ -88,6 +88,11 @@ struct InfiniteCanvas: Layout {
     }
     
     func makeCache(subviews: Subviews) -> Cache {
+        // Only make cache when specified
+        if let existingCache = graph.visibleNodesViewModel.infiniteCanvasCache {
+            return existingCache
+        }
+        
         let cache = subviews.reduce(into: Cache()) { result, subview in
             let positionData = subview[CanvasPositionKey.self]
             let id = positionData.id
