@@ -55,14 +55,12 @@ struct InfiniteCanvas: Layout {
             // TODO: need support for removal
             let positionData = subview[CanvasPositionKey.self]
             let id = positionData.id
-            let position = positionData.position
             
-            guard let size = cache.get(id)?.size else {
+            guard let subviewSize = cache.get(id)?.size else {
                 fatalErrorIfDebug()
                 continue
             }
 
-            let subviewSize = cache.get(id)?.size ?? subview.sizeThatFits(proposal)
             subview.place(
                 at: bounds.origin,
                 anchor: .topLeading,
@@ -292,7 +290,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
     }
 
     var body: some View {
-//        NodeLayout(observer: node) {
+        NodeLayout(observer: node) {
             nodeBody
             .onAppear {
                 self.node.updateVisibilityStatus(with: true)
@@ -347,11 +345,11 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
                                       atleastOneCommentBoxSelected: atleastOneCommentBoxSelected)
                     }
                 }
-                .canvasItemPositionHandler(document: document,
-                                           node: node,
-                                           zIndex: zIndex,
-                                           usePositionHandler: usePositionHandler)
-//        }
+        }
+        .canvasItemPositionHandler(document: document,
+                                   node: node,
+                                   zIndex: zIndex,
+                                   usePositionHandler: usePositionHandler)
     }
 
     @MainActor
@@ -372,11 +370,11 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
         }
 //        .fixedSize()
         .modifier(CanvasItemBackground(color: nodeUIColor.body))
-        .modifier(CanvasItemBoundsReader(
-            graph: graph,
-            canvasItem: node,
-            disabled: boundsReaderDisabled,
-            updateMenuActiveSelectionBounds: updateMenuActiveSelectionBounds))
+//        .modifier(CanvasItemBoundsReader(
+//            graph: graph,
+//            canvasItem: node,
+//            disabled: boundsReaderDisabled,
+//            updateMenuActiveSelectionBounds: updateMenuActiveSelectionBounds))
         
         .modifier(CanvasItemSelectedViewModifier(isSelected: isSelected))
     }
