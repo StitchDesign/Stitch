@@ -132,7 +132,7 @@ struct DetermineSelectedCanvasItems: GraphEvent {
     let selectionBounds: CGRect
 
     func handle(state: GraphState) {
-        state.processCanvasSelectionBoxChange(isCurrentlyDragging: selectionBounds != .zero)
+        state.processCanvasSelectionBoxChange(selectionBox: selectionBounds)
     }
 }
 
@@ -140,8 +140,11 @@ struct DetermineSelectedCanvasItems: GraphEvent {
 extension GraphState {
     @MainActor
     // fka `processNodeSelectionBoxChange`
-    func processCanvasSelectionBoxChange(isCurrentlyDragging: Bool) {
+    func processCanvasSelectionBoxChange(selectionBox: CGRect) {
         let graphState = self
+        var selectedNodes = Set<CanvasItemId>()
+        let nodesSelectedOnShift = self.graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag
+        let isCurrentlyDragging = selectionBox != .zero
         
         // Unfocus sidebar
         graphState.graphUI.isSidebarFocused = false
@@ -165,6 +168,38 @@ extension GraphState {
             self.graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag = nil
         }
         
+        // Necessary view frame data needed to determining selected nodes
+        let zoom = 1 / self.graphMovement.zoomData.zoom
+        let viewFrameSize = self.graphUI.frame.size
+        let viewframeOrigin = CGPoint(x: -self.graphMovement.localPosition.x,
+                                      y: -self.graphMovement.localPosition.y)
+        let graphView = CGRect(origin: viewframeOrigin,
+                               size: viewFrameSize)
+        let scaledViewFrame = GraphMovementViewModifier.getScaledViewFrame(scale: zoom,
+                                                                           graphView: graphView)
+        let selectionBoxInViewFrame = Self.getScaledSelectionBox(selectionBox: selectionBox,
+                                                                 scale: zoom,
+                                                                 scaledViewFrameOrigin: scaledViewFrame.origin)
+        
+        for cachedSubviewData in self.visibleNodesViewModel.infiniteCanvasCache ?? .init() {
+            let id = cachedSubviewData.key
+            let cachedBounds = cachedSubviewData.value
+            
+            guard self.visibleNodesViewModel.visibleCanvasIds.contains(id) else { continue }
+            
+            if nodesSelectedOnShift?.contains(id) ?? false {
+                log("skipping canvasItem \(id) since was held as part of shift etc.")
+                continue
+            }
+            
+            if selectionBoxInViewFrame.intersects(cachedBounds) {
+                selectedNodes.insert(id)
+            }
+        }
+        
+        if self.graphUI.selection.selectedNodeIds != selectedNodes {
+            self.graphUI.selection.selectedNodeIds = selectedNodes
+        }
         
 //        var smallestDistance: CGFloat?
         
@@ -227,5 +262,27 @@ extension GraphState {
 //            }
 //        }
         
+    }
+    
+    /// Uses graph local offset and scale to get a modified `CGRect` of the selection box view frame.
+    static func getScaledSelectionBox(selectionBox: CGRect,
+                                      scale: Double,
+                                      scaledViewFrameOrigin: CGPoint) -> CGRect {
+        let scaledSelectionBoxSize = CGSize(
+            // must explicitly graph .size to get correct magnitude
+            width: selectionBox.size.width * scale,
+            height: selectionBox.size.height * scale)
+        
+        let scaledOrigin = CGPoint(x: selectionBox.origin.x * scale,
+                                   y: selectionBox.origin.y * scale)
+        
+        let scaledSelectionBox = CGRect(origin: scaledOrigin + scaledViewFrameOrigin,
+                                           size: scaledSelectionBoxSize)
+//                print("infinite selection origin: \(selectionBox.origin)")
+//                print("infinite selection size: \(selectionBox.size)")
+//                print("infinite selection final: \(selectionBoxViewFrame)")
+//                print("infinite node: \(cachedBounds)")
+        
+        return scaledSelectionBox
     }
 }

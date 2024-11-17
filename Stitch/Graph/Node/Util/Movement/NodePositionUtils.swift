@@ -38,7 +38,8 @@ extension CanvasItemViewModel {
         // TODO: pass this down from the gesture handler or fix key listening
         if document.keypressState.isCommandPressed {
             // toggle selection
-            if self.isSelected {
+            let isSelected = document.graphUI.selection.selectedNodeIds.contains(self.id)
+            if isSelected {
                 self.deselect()
             } else {
                 self.select()

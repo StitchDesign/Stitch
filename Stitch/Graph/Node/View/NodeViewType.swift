@@ -21,17 +21,13 @@ struct NodeTypeView: View {
     let activeIndex: ActiveIndex
     let groupNodeFocused: GroupNodeType?
     let adjustmentBarSessionId: AdjustmentBarSessionId
+    let isSelected: Bool
 
     var boundsReaderDisabled: Bool = false
     var usePositionHandler: Bool = true
 
     // Only true for the fake-node that lives in ContentView
     var updateMenuActiveSelectionBounds: Bool = false
-    
-    @MainActor
-    var isSelected: Bool {
-        canvasNode.isSelected
-    }
     
     var userVisibleType: UserVisibleType? {
         self.node.userVisibleType

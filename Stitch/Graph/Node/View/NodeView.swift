@@ -30,8 +30,6 @@ struct InfiniteCanvas: Layout {
     }
     
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) {
-        let visibleNodes = self.processVisibleNodes(cache: cache)
-        
         // Place subviews
         for subview in subviews {
             // TODO: need support for removal
@@ -48,103 +46,6 @@ struct InfiniteCanvas: Layout {
                 anchor: .topLeading,
                 proposal: ProposedViewSize(subviewSize))
         }
-        
-        if graph.visibleNodesViewModel.visibleCanvasIds != visibleNodes {
-            graph.visibleNodesViewModel.visibleCanvasIds = visibleNodes
-        }
-    }
-    
-    /// Accomplishes the following tasks:
-    /// 1. Determines which nodes are visible.
-    /// 2. Determines which nodes are selected from the selection box, if applicable.
-    private func processVisibleNodes(cache: Cache) -> CanvasItemIdSet {
-        let zoom = 1 / zoom
-        var visibleNodes = Set<CanvasItemId>()
-        var selectedNodes = Set<CanvasItemId>()
-        let nodesSelectedOnShift = self.graph.graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag
-        
-        // Calculate view frame dependencies
-        let viewframeOrigin = CGPoint(x: -origin.x,
-                                      y: -origin.y)
-        let graphView = CGRect(origin: viewframeOrigin,
-                               size: viewFrameSize)
-        let viewFrame = Self.getScaledViewFrame(scale: zoom,
-                                                graphView: graphView)
-        let selectionBoxInViewFrame = Self.getScaledSelectionBox(selectionBox: selectionBox,
-                                                                 scale: zoom,
-                                                                 scaledViewFrameOrigin: viewFrame.origin)
-        let hasActiveSelectionBox = selectionBoxInViewFrame.isDefined
-        
-        // Determine nodes to make visible--use cache in case nodes exited viewframe
-        for cachedSubviewData in cache {
-            let id = cachedSubviewData.key
-            let cachedBounds = cachedSubviewData.value
-            
-            let isVisibleInFrame = viewFrame.intersects(cachedBounds)
-            if isVisibleInFrame {
-                visibleNodes.insert(id)
-            }
-            
-            if nodesSelectedOnShift?.contains(id) ?? false {
-                log("skipping canvasItem \(id) since was held as part of shift etc.")
-                continue
-            }
-            
-            if let selectionBoxInViewFrame = selectionBoxInViewFrame {
-                if selectionBoxInViewFrame.intersects(cachedBounds) {
-                    selectedNodes.insert(id)
-                }
-            }
-        }
-        
-        if hasActiveSelectionBox {
-            let selectedNodes = selectedNodes
-            // Dispatching prevents looping conflicts between commit/render phases
-            DispatchQueue.main.async {
-                self.graph.graphUI.selection.selectedNodeIds = selectedNodes
-            }
-        }
-        
-        return visibleNodes
-    }
-    
-    /// Uses graph local offset and scale to get a modified `CGRect` of the view frame.
-    static func getScaledViewFrame(scale: Double,
-                                   graphView: CGRect) -> CGRect {
-        let scaledSize = CGSize(
-            width: graphView.width * scale,
-            height: graphView.height * scale)
-
-        let yDiff = (graphView.height - scaledSize.height) / 2
-        let xDiff = (graphView.width - scaledSize.width) / 2
-        
-        return CGRect(origin: CGPoint(x: graphView.origin.x + xDiff,
-                                      y: graphView.origin.y + yDiff),
-                      size: scaledSize)
-    }
-    
-    /// Uses graph local offset and scale to get a modified `CGRect` of the selection box view frame.
-    static func getScaledSelectionBox(selectionBox: CGRect,
-                                      scale: Double,
-                                      scaledViewFrameOrigin: CGPoint) -> CGRect? {
-        guard selectionBox != .zero else { return nil }
-        
-        let scaledSelectionBoxSize = CGSize(
-            // must explicitly graph .size to get correct magnitude
-            width: selectionBox.size.width * scale,
-            height: selectionBox.size.height * scale)
-        
-        let scaledOrigin = CGPoint(x: selectionBox.origin.x * scale,
-                                   y: selectionBox.origin.y * scale)
-        
-        let scaledSelectionBox = CGRect(origin: scaledOrigin + scaledViewFrameOrigin,
-                                           size: scaledSelectionBoxSize)
-//                print("infinite selection origin: \(selectionBox.origin)")
-//                print("infinite selection size: \(selectionBox.size)")
-//                print("infinite selection final: \(selectionBoxViewFrame)")
-//                print("infinite node: \(cachedBounds)")
-        
-        return scaledSelectionBox
     }
     
     func makeCache(subviews: Subviews) -> Cache {

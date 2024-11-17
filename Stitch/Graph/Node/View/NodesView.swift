@@ -66,6 +66,7 @@ struct NodesView: View {
            .coordinateSpace(name: Self.coordinateNameSpace)
            .modifier(GraphMovementViewModifier(graphMovement: graph.graphMovement,
                                                currentNodePage: nodePageData,
+                                               graph: graph,
                                                groupNodeFocused: graphUI.groupNodeFocused))
         //        .onChange(of: groupNodeFocused) {
         //            // Updates cached data inside row observers when group changes

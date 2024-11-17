@@ -58,7 +58,8 @@ struct NodesOnlyView: View {
                 atleastOneCommentBoxSelected: selection.selectedCommentBoxes.count >= 1,
                 activeIndex: activeIndex,
                 groupNodeFocused: graphUI.groupNodeFocused,
-                adjustmentBarSessionId: adjustmentBarSessionId
+                adjustmentBarSessionId: adjustmentBarSessionId,
+                isSelected: graphUI.selection.selectedNodeIds.contains(canvasNode.id)
             )
         }
         .onChange(of: self.activeIndex) {
