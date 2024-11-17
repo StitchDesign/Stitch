@@ -49,11 +49,7 @@ struct NodesView: View {
         
         // CommentBox needs to be affected by graph offset and zoom
         // but can live somewhere else?
-        InfiniteCanvas(graph: graph,
-                       viewFrameSize: document.graphUI.frame.size,
-                       origin: document.graphMovement.localPosition,
-                       zoom: document.graphMovement.zoomData.zoom,
-                       selectionBox: document.graphUI.selection.expansionBox.asCGRect) {
+        InfiniteCanvas(graph: graph) {
             //                        commentBoxes
             nodesOnlyView(nodePageData: nodePageData)
         }

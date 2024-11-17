@@ -17,10 +17,6 @@ struct CacheData {
 
 struct InfiniteCanvas: Layout {
     let graph: GraphState
-    let viewFrameSize: CGSize
-    let origin: CGPoint
-    let zoom: Double
-    let selectionBox: CGRect
     
     typealias Cache = [CanvasItemId: CGRect]
     
