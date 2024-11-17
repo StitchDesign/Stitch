@@ -477,22 +477,13 @@ extension StitchDocumentViewModel {
             return
 
         }
-        var box = self.graphUI.selection.expansionBox
+        
+        var box = self.graphUI.selection.expansionBox ?? .init(origin: gestureStartLocation, size: .zero)
 
-        if box.size == .zero {
-            box.startPoint = gestureStartLocation
-        }
-
-        // CHANGE THE BOX BUT DO NOT CHANGE THE SELECTED NODES;
-        // instead, node-selection is handled via SwiftUI preference values.
-        let (newSize, newDirection) = trigCalc(
-            start: gestureStartLocation,
-            end: gestureLocation)
-
-        box.size = newSize
-        box.expansionDirection = newDirection
-        box.endPoint = gestureLocation
-
+        let size = CGSize(width: gestureLocation.x - gestureStartLocation.x,
+                          height: gestureLocation.y - gestureStartLocation.y)
+        box.size = size
+        
         self.graphUI.selection.expansionBox = box
     }
 
@@ -719,7 +710,7 @@ extension StitchDocumentViewModel {
         let graphMovement = self.graphMovement
 
         // DO NOT reset selected nodes themselves
-        state.selection.expansionBox = ExpansionBox()
+        state.selection.expansionBox = nil
         state.selection.isSelecting = false
         state.selection.dragStartLocation = nil
         state.selection.dragCurrentLocation = nil
@@ -748,7 +739,7 @@ extension StitchDocumentViewModel {
             graphUIState.selection.dragCurrentLocation = nil
         }
 
-        graphUIState.selection.expansionBox = ExpansionBox()
+        graphUIState.selection.expansionBox = nil
         graphUIState.selection.isSelecting = false
 
         //    log("handleGraphDragEnded: state.graphMovement.localPreviousPosition was \(state.graphMovement.localPreviousPosition)")

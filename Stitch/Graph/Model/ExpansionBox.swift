@@ -23,20 +23,6 @@ struct ExpansionBox {
     var endPoint: CGPoint = .zero
 
     var asCGRect: CGRect {
-        // origin will be halfway on the line
-        // between the starting point and ending point
-        // https://www.mathsisfun.com/algebra/line-midpoint.html
-//        let y = (endPoint.y + startPoint.y) / 2
-//        let x = (endPoint.x + startPoint.x) / 2
-//        let mid = CGPoint(x: x, y: y)
-//
-//        //        log("asCGRect: expansionDirection: \(expansionDirection)")
-//        //        log("asCGRect: size: \(size)")
-//        //        log("asCGRect: startPoint: \(startPoint)")
-//        //        log("asCGRect: endPoint: \(endPoint)")
-//        //        log("asCGRect: mid: \(mid)")
-//
-//        return CGRect(origin: mid, size: size)
         let size = CGSize(width: endPoint.x - startPoint.x,
                           height: endPoint.y - startPoint.y)
         return .init(origin: startPoint, size: size)

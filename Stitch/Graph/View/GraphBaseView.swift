@@ -109,7 +109,10 @@ struct GraphBaseView: View {
             nodesView
 
             // Selection box and cursor
-            ExpansionBoxView(box: selectionState.expansionBox)
+            if let expansionBox = selectionState.expansionBox {
+                ExpansionBoxView(graph: graph,
+                                 box: expansionBox)                
+            }
 
             if selectionState.isSelecting,
                let currentDrag = selectionState.dragCurrentLocation {

@@ -127,15 +127,6 @@ func selectAllNodesAtTraversalLevel(_ state: GraphState) {
     }
 }
 
-// fka `DetermineSelectedNodes`
-struct DetermineSelectedCanvasItems: GraphEvent {
-    let selectionBounds: CGRect
-
-    func handle(state: GraphState) {
-        state.processCanvasSelectionBoxChange(selectionBox: selectionBounds)
-    }
-}
-
 // TODO: needs to potentially select comment boxes as well
 extension GraphState {
     @MainActor

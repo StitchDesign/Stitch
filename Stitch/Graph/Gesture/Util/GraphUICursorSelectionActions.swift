@@ -19,7 +19,7 @@ extension StitchDocumentViewModel {
         self.graphUI.selection.dragStartLocation = location
         self.graphUI.selection.dragCurrentLocation = location
         self.graphUI.selection.isFingerOnScreenSelection = true
-        self.graphUI.selection.expansionBox.startPoint = location
+        self.graphUI.selection.expansionBox = .init(origin: location, size: .zero)
         self.graphUI.selection.graphDragState = .none
     }
 
@@ -27,7 +27,7 @@ extension StitchDocumentViewModel {
     func screenLongPressEnded() {
         self.graphUI.selection.dragStartLocation = nil
         self.graphUI.selection.dragCurrentLocation = nil
-        self.graphUI.selection.expansionBox = ExpansionBox()
+        self.graphUI.selection.expansionBox = nil
         self.graphUI.selection.isSelecting = false
         self.graphMovement.localPreviousPosition = self.graphMovement.localPosition
     }
@@ -152,7 +152,7 @@ extension StitchDocumentViewModel {
         graphUI.selection.dragStartLocation = location
         graphUI.selection.dragCurrentLocation = location
         graphUI.selection.isFingerOnScreenSelection = false
-        graphUI.selection.expansionBox.startPoint = location
+        graphUI.selection.expansionBox = .init(origin: location, size: .zero)
         graphUI.selection.isSelecting = true
         graphUI.selection.graphDragState = .none
 

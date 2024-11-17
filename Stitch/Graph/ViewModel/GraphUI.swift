@@ -365,7 +365,7 @@ struct GraphUISelectionState {
     var isFingerOnScreenSelection: Bool = false
 
     // Node cursor selection box
-    var expansionBox = ExpansionBox()
+    var expansionBox: CGRect?
 
     // the start and current locations of the drag gesture
     var dragStartLocation: CGPoint?
