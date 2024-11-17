@@ -347,7 +347,7 @@ func adjustPositionToMultipleOf(_ position: CGPoint,
 
 struct GraphUISelectionState {
 
-    // Selected comment boxes
+    var selectedNodeIds = CanvasItemIdSet()
     var selectedCommentBoxes = CommentBoxIdSet()
 
     // TODO: turn selectedNodes into a list?
@@ -441,9 +441,10 @@ extension CanvasItemViewModel {
     @MainActor
     func select() {
         // Prevent render cycles if already selected
-        guard !self.isSelected else { return }
+        guard !self.isSelected,
+              let graph = self.graphDelegate else { return }
         
-        self.isSelected = true
+        graph.graphUI.selection.selectedNodeIds.insert(self.id)
         
         // Unfocus sidebar
         self.graphDelegate?.isSidebarFocused = false
@@ -452,8 +453,9 @@ extension CanvasItemViewModel {
     @MainActor
     func deselect() {
         // Prevent render cycles if already unselected
-        guard self.isSelected else { return }
-        self.isSelected = false
+        guard self.isSelected,
+              let graph = self.graphDelegate else { return }
+        graph.graphUI.selection.selectedNodeIds.remove(self.id)
     }
 }
 

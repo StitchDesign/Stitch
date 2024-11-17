@@ -132,7 +132,7 @@ struct DetermineSelectedCanvasItems: GraphEvent {
     let selectionBounds: CGRect
 
     func handle(state: GraphState) {
-        state.processCanvasSelectionBoxChange(cursorSelectionBox: selectionBounds)
+        state.processCanvasSelectionBoxChange(isCurrentlyDragging: selectionBounds != .zero)
     }
 }
 
@@ -140,7 +140,7 @@ struct DetermineSelectedCanvasItems: GraphEvent {
 extension GraphState {
     @MainActor
     // fka `processNodeSelectionBoxChange`
-    func processCanvasSelectionBoxChange(cursorSelectionBox: CGRect) {
+    func processCanvasSelectionBoxChange(isCurrentlyDragging: Bool) {
         let graphState = self
         
         // Unfocus sidebar
@@ -149,8 +149,8 @@ extension GraphState {
         // TODO: pass shift down via the UIKit gesture handler
         let shiftHeld = graphState.keypressState.shiftHeldDuringGesture
         log("processCanvasSelectionBoxChange: shiftHeld: \(shiftHeld)")
-
-        guard cursorSelectionBox.size != .zero else {
+        
+        guard isCurrentlyDragging else {
             // log("processNodeSelectionBoxChange error: expansion box was size zero")
             return
         }
@@ -165,44 +165,44 @@ extension GraphState {
             self.graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag = nil
         }
         
-
-        var smallestDistance: CGFloat?
-
-        let allCanvasItems = self.visibleNodesViewModel.getVisibleCanvasItems(at: self.groupNodeFocused)
         
-        for canvasItem in allCanvasItems {
-            
-            if self.graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag?.contains(canvasItem.id) ?? false {
-                log("skipping canvasItem \(canvasItem.id) since was held as part of shift etc.")
-                continue
-            }
-            
-            
-            let doesSelectionIntersectCanvasItem = cursorSelectionBox.intersects(canvasItem.bounds.graphBaseViewBounds)
-            
-            // Selected
-            if doesSelectionIntersectCanvasItem {
-                
-                // Add to selected canvas items
-                canvasItem.select()
-                
-                let thisDistance = CGPointDistanceSquared(
-                    from: canvasItem.bounds.graphBaseViewBounds.origin,
-                    to: graphState.graphUI.selection.expansionBox.endPoint)
-
-                if !smallestDistance.isDefined {
-                    smallestDistance = thisDistance
-                }
-            } // if intersecrts
-
-            // De-selected
-            else {
-                // Remove from selected canvas items
-                
-                // Only remove from
-                canvasItem.deselect()
-            }
-        }
+//        var smallestDistance: CGFloat?
+        
+//        let allCanvasItems = self.visibleNodesViewModel.getVisibleCanvasItems(at: self.groupNodeFocused)
+//        
+//        for canvasItem in allCanvasItems {
+//            
+//            if self.graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag?.contains(canvasItem.id) ?? false {
+//                log("skipping canvasItem \(canvasItem.id) since was held as part of shift etc.")
+//                continue
+//            }
+//            
+//            
+//            let doesSelectionIntersectCanvasItem = cursorSelectionBox.intersects(canvasItem.bounds.graphBaseViewBounds)
+//            
+//            // Selected
+//            if doesSelectionIntersectCanvasItem {
+//                
+//                // Add to selected canvas items
+//                canvasItem.select()
+//                
+//                let thisDistance = CGPointDistanceSquared(
+//                    from: canvasItem.bounds.graphBaseViewBounds.origin,
+//                    to: graphState.graphUI.selection.expansionBox.endPoint)
+//
+//                if !smallestDistance.isDefined {
+//                    smallestDistance = thisDistance
+//                }
+//            } // if intersecrts
+//
+//            // De-selected
+//            else {
+//                // Remove from selected canvas items
+//                
+//                // Only remove from
+//                canvasItem.deselect()
+//            }
+//        }
         
         
         // Determine selected comment boxes

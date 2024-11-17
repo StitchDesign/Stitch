@@ -88,16 +88,9 @@ final class CanvasItemViewModel: Identifiable, StitchLayoutCachable {
     
     // Moved state here for render cycle perf on port view for colors
     @MainActor
-    var isSelected: Bool = false {
-        didSet {
-            guard let node = self.nodeDelegate,
-                  let graph = self.graphDelegate else {
-                log("CanvasItemViewModel: isSelected: didSet: could not find node and/or graph delegate; cannot update port view data cache")
-                return
-            }
-            
-            node.updatePortColorDataUponNodeSelection()
-        }
+    var isSelected: Bool {
+        guard let graphDelegate = self.graphDelegate else { return false }
+        return graphDelegate.graphUI.selection.selectedNodeIds.contains(self.id)
     }
     
     // Reference back to the parent node entity
