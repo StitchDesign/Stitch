@@ -43,7 +43,7 @@ struct SidebarListItemGestureRecognizerView<T: View,
             rootView: view,
             ignoresSafeArea: false,
             ignoreKeyCommands: true,
-            name: "SidebarListItemGestureRecognizerView")
+            name: .sidebarListItem)
 
         let delegate = context.coordinator
 

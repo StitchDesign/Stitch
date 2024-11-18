@@ -48,7 +48,7 @@ struct SheetViewModifier<T: View>: ViewModifier {
         content
             .sheet(isPresented: isPresentedBinding) {
                 StitchHostingControllerView(ignoreKeyCommands: false,
-                                            name: "SheetViewModifier") {
+                                            name: .sheetView) {
                     VStack(alignment: .leading) {
                         titleView
                         sheetBody

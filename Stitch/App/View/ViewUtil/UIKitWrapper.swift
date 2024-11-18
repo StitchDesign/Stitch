@@ -13,7 +13,7 @@ import StitchSchemaKit
 // a SwiftUI view that accepts another SwiftUI view T, and which wraps T in a UIKit view
 struct UIKitWrapper<T: View>: UIViewControllerRepresentable {
     let ignoresKeyCommands: Bool
-    let name: String
+    let name: KeyListenerName
     @ViewBuilder var content: () -> T
 
     // called when first made
