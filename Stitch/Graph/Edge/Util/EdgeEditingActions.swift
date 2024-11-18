@@ -16,12 +16,8 @@ struct OutputHoveredLongEnough: GraphUIEvent {
     }
 }
 
-
-
 extension GraphState {
-//    @MainActor
-//    func createEdgeEditingState()
-    
+
     @MainActor
     func outputHovered(outputCoordinate: OutputPortViewData) {
         log("outputHovered fired")
@@ -39,19 +35,16 @@ extension GraphState {
             self.graphUI.edgeEditingState = nil
             return
         }
-        
-//        guard let nearbyNodeId = self.getEligibleNearbyNode(eastOf: outputCoordinate.canvasId) else {
-//            log("OutputHovered: no nearby node")
-//            return
-//        }
-        
+                
         guard let nodesEastOfOutput = self.getNodesToTheEastFromClosestToFarthest(eastOf: outputCoordinate.canvasId) else {
             log("OutputHovered: no nodes to the east of this hovered output")
+            // This is okay; it can happen that there are no nodes east of this node
             return
         }
         
         guard let nearbyNodeId = nodesEastOfOutput[safeIndex: EdgeEditingState.defaultNearbyCanvasItemIndex] else {
             log("OutputHovered: could not retrieve closest nearby-node")
+            fatalErrorIfDebug()
             return
         }
                 
@@ -65,40 +58,8 @@ extension GraphState {
              possibleEdges) = getShownAndPossibleEdges(nearbyNode: nearbyNode,
                                                        outputCoordinate: outputCoordinate)
         
-//        var alreadyShownEdges = Set<PossibleEdgeId>()
-//        
-//        let possibleEdges: PossibleEdgeSet = nearbyNode
-//            .edgeFriendlyInputCoordinates(from: self.visibleNodesViewModel,
-//                                          focusedGroupId: self.groupNodeFocused)
-//            .reduce(into: PossibleEdgeSet()) { partialResult, inputCoordinate in
-//                
-//                let edgeUI = PortEdgeUI(from: outputCoordinate,
-//                                        to: inputCoordinate)
-//                
-//                guard let edgeData = PortEdgeData(viewData: edgeUI, graph: self) else {
-//                    return
-//                }
-//                
-//                /*
-//                 If there's already an edge to this input,
-//                 then start out with the possible-edge committed.
-//                 Note: `graphSchema.connections.hasEdge` checks whether the input has any edges, not this specific edge
-//                 */
-//                let isCommitted = self.edgeExists(edgeData)
-//                
-//                let possibleEdge = PossibleEdge(
-//                    edge: edgeUI,
-//                    isCommitted: isCommitted)
-//                
-//                if isCommitted {
-//                    alreadyShownEdges.insert(possibleEdge.id)
-//                }
-//                
-//                partialResult.insert(possibleEdge)
-//            }
-//        
-        log("OutputHovered: possibleEdges: \(possibleEdges)")
-        log("OutputHovered: alreadyShownEdges: \(alreadyShownEdges)")
+        // log("OutputHovered: possibleEdges: \(possibleEdges)")
+        // log("OutputHovered: alreadyShownEdges: \(alreadyShownEdges)")
         
         self.graphUI.edgeAnimationEnabled = true
                 
@@ -116,7 +77,7 @@ extension GraphState {
                                             possibleEdges: PossibleEdgeSet) {
         var alreadyShownEdges = Set<PossibleEdgeId>()
         
-        log("getShownAndPossibleEdges: nearbyNode.id: \(nearbyNode.id)")
+        // log("getShownAndPossibleEdges: nearbyNode.id: \(nearbyNode.id)")
         
         let possibleEdges: PossibleEdgeSet = nearbyNode
         
@@ -124,10 +85,8 @@ extension GraphState {
                                           focusedGroupId: self.groupNodeFocused)
         
             .reduce(into: PossibleEdgeSet()) { partialResult, inputCoordinate in
-                log("getShownAndPossibleEdges: on inputCoordinate: \(inputCoordinate)")
-                
-                //
-                
+                // log("getShownAndPossibleEdges: on inputCoordinate: \(inputCoordinate)")
+                                
                 let edgeUI = PortEdgeUI(from: outputCoordinate,
                                         to: inputCoordinate)
                 
@@ -153,8 +112,8 @@ extension GraphState {
                 partialResult.insert(possibleEdge)
             }
         
-        log("getShownAndPossibleEdges: alreadyShownEdges: \(alreadyShownEdges)")
-        log("getShownAndPossibleEdges: possibleEdges: \(possibleEdges)")
+        // log("getShownAndPossibleEdges: alreadyShownEdges: \(alreadyShownEdges)")
+        // log("getShownAndPossibleEdges: possibleEdges: \(possibleEdges)")
         
         return (shownEdges: alreadyShownEdges,
                 possibleEdges: possibleEdges)

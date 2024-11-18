@@ -23,10 +23,11 @@ import UIKit
  2. solve certain bugs, e.g. UIKitWrapper around preview window
  
 
- Current challenges / undesired behavior:
+ Current unexpected / undesired behavior:
  
  1. key-released events firing before a key-pressed event and/or fired while key still held down
  2. multiple key listeners responding to certain key modifiers but not others (e.g. `TAB` but not `Option`)
+ 3. PreviewContent key listening is required for keyboard patch nodes
  
 
  Current solutions / workarounds:
@@ -36,7 +37,7 @@ import UIKit
  
  Multiple ways to solve this:
  
- 1. be smarter about when and where we use key listening; e.g. maybe we need a UIHostingController on PreviewContent to solve a gesture bug, but that controlelr doesn't need to listen to gestures
+ 1. be smarter about when and where we use key listening; e.g. maybe we need a UIHostingController for gesture but not for key listening
  2. handle conflicting key-listening logic at the redux level; helpful for more complicated scenarios where we need to look at other state to determine how to handle a key
  
  
@@ -111,7 +112,7 @@ class StitchHostingController<T: View>: UIHostingController<T> {
     @MainActor
     override func pressesBegan(_ presses: Set<UIPress>,
                                with event: UIPressesEvent?) {
-        log("KEY: StitchHostingController: name: \(name): pressesBegan: presses.first?.key: \(presses.first?.key)")
+        // log("KEY: StitchHostingController: name: \(name): pressesBegan: presses.first?.key: \(presses.first?.key)")
         presses.first?.key.map(keyPressed)
         //        super.pressesBegan(presses, with: event)
         
@@ -137,7 +138,7 @@ class StitchHostingController<T: View>: UIHostingController<T> {
     @MainActor
     override func pressesEnded(_ presses: Set<UIPress>,
                                with event: UIPressesEvent?) {
-        log("KEY: StitchHostingController: name: \(name): pressesEnded: presses.first?.key: \(presses.first?.key)")
+        // log("KEY: StitchHostingController: name: \(name): pressesEnded: presses.first?.key: \(presses.first?.key)")
         presses.first?.key.map(keyReleased)
         super.pressesEnded(presses, with: event)
     }
@@ -145,14 +146,14 @@ class StitchHostingController<T: View>: UIHostingController<T> {
     @MainActor
     override func pressesCancelled(_ presses: Set<UIPress>,
                                    with event: UIPressesEvent?) {
-        log("KEY: StitchHostingController: name: \(name): pressesCancelled: presses.first?.key: \(presses.first?.key)")
+        // log("KEY: StitchHostingController: name: \(name): pressesCancelled: presses.first?.key: \(presses.first?.key)")
         presses.first?.key.map(keyReleased)
         super.pressesCancelled(presses, with: event)
     }
 
     @MainActor
     func keyPressed(_ key: UIKey) {
-        log("KEY: StitchHostingController: name: \(name): keyPressed: key: \(key)")
+        // log("KEY: StitchHostingController: name: \(name): keyPressed: key: \(key)")
         
         // TODO: key-modifiers (Tab, Shift etc.) and key-characters are not exclusive
         if let modifiers = key.asStitchKeyModifiers {
@@ -164,7 +165,7 @@ class StitchHostingController<T: View>: UIHostingController<T> {
 
     @MainActor
     func keyReleased(_ key: UIKey) {
-        log("KEY: StitchHostingController: name: \(name): keyReleased: key: \(key)")
+        // log("KEY: StitchHostingController: name: \(name): keyReleased: key: \(key)")
         if let modifiers = key.asStitchKeyModifiers {
             dispatch(KeyModifierPressEnded(modifiers: modifiers))
         } else if let keyPress = key.characters.first {
