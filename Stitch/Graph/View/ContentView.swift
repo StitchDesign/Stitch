@@ -52,7 +52,7 @@ struct ContentView: View, KeyboardReadable {
         ZStack {
             
             // Best place to listen for TAB key for flyout
-            UIKitWrapper(ignoresKeyCommands: true, name: "nodeAndMenu") {
+            UIKitWrapper(ignoresKeyCommands: true, name: .mainGraph) {
                 contentView // the graph
             }
             
