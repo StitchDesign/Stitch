@@ -56,7 +56,12 @@ struct PreviewContent: View {
         
         let generatedPreview = GeneratePreview(document: document)
         
-        UIKitWrapper(ignoresKeyCommands: false, name: "PreviewContent") {
+        // TODO: still needed to contain gestures?
+//        UIKitWrapper(ignoresKeyCommands: false, name: "PreviewContent") {
+        
+        // Even when `ignoresKeyCommands: true` and 
+        UIKitWrapper(ignoresKeyCommands: true, name: .previewWindow) {
+//        NoKeyPressHostingController(name: "PreviewContent") {
             generatedPreview
                 .frame(finalSize)
                 .coordinateSpace(name: Self.prototypeCoordinateSpace)

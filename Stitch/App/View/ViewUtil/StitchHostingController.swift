@@ -9,18 +9,61 @@ import Foundation
 import SwiftUI
 import UIKit
 
+/*
+ We use UIHostingController key-listening when:
+ 
+ 1. listening for any key press, e.g. graph listening for TABs on the graph or in a field (node field, inspector field etc.) or for a keyboard patch node
+ 2. listening only for specific keys, e.g. arrow keys in the insert node menu searchbar).
+ 3. listening only in specific UI situations, e.g. listening to TAB presses when preview window fullscreen (NOTE: No longer relevant?)
+ 
+ 
+ We use UIHostingController more generally to:
+ 
+ 1. apply UIKit gestures
+ 2. solve certain bugs, e.g. UIKitWrapper around preview window
+ 
+
+ Current challenges / undesired behavior:
+ 
+ 1. key-released events firing before a key-pressed event and/or fired while key still held down
+ 2. multiple key listeners responding to certain key modifiers but not others (e.g. `TAB` but not `Option`)
+ 
+
+ Current solutions / workarounds:
+ 
+ 1. rely on UIKit gestures for detecting `Option`, `Shift` during a tap or drag etc. (NOTE: relying on UITapGestureRecognizer for sidebar items has seemed to make tap less reliable?)
+ 
+ 
+ Multiple ways to solve this:
+ 
+ 1. be smarter about when and where we use key listening; e.g. maybe we need a UIHostingController on PreviewContent to solve a gesture bug, but that controlelr doesn't need to listen to gestures
+ 2. handle conflicting key-listening logic at the redux level; helpful for more complicated scenarios where we need to look at other state to determine how to handle a key
+ 
+ 
+ Note: `ignoresKeyCommands = true` does not prevent us from listening to key modifier presses like TAB.
+ */
+enum KeyListenerName: String, Equatable {
+    case previewWindow, // PreviewContent
+         insertNodeMenuSearchbar, // InsertNodeMenuSearchBar
+         mainGraph, // ContentView i.e. "nodeAndMenu"
+         sheetView,
+         fullScreenGestureRecognzer, // full screen preview window
+         uiKitTappableWrapper, // variety of use cases?
+         sidebarListItem // "SidebarListItemGestureRecognizerView"
+}
+
 /// Used by various SwiftUI views to inject a view into a view controller
 class StitchHostingController<T: View>: UIHostingController<T> {
     let ignoresSafeArea: Bool
     let ignoreKeyCommands: Bool
     var usesArrowKeyBindings: Bool = false
-    let name: String
+    let name: KeyListenerName
 
     init(rootView: T,
          ignoresSafeArea: Bool,
          ignoreKeyCommands: Bool,
          usesArrowKeyBindings: Bool = false,
-         name: String) {
+         name: KeyListenerName) {
         self.ignoresSafeArea = ignoresSafeArea
         self.ignoreKeyCommands = ignoreKeyCommands
         self.usesArrowKeyBindings = usesArrowKeyBindings
@@ -68,7 +111,7 @@ class StitchHostingController<T: View>: UIHostingController<T> {
     @MainActor
     override func pressesBegan(_ presses: Set<UIPress>,
                                with event: UIPressesEvent?) {
-        // log("KEY: StitchHostingController: name: \(name): pressesBegan: presses.first?.key: \(presses.first?.key)")
+        log("KEY: StitchHostingController: name: \(name): pressesBegan: presses.first?.key: \(presses.first?.key)")
         presses.first?.key.map(keyPressed)
         //        super.pressesBegan(presses, with: event)
         
@@ -94,7 +137,7 @@ class StitchHostingController<T: View>: UIHostingController<T> {
     @MainActor
     override func pressesEnded(_ presses: Set<UIPress>,
                                with event: UIPressesEvent?) {
-        // log("KEY: StitchHostingController: name: \(name): pressesEnded: presses.first?.key: \(presses.first?.key)")
+        log("KEY: StitchHostingController: name: \(name): pressesEnded: presses.first?.key: \(presses.first?.key)")
         presses.first?.key.map(keyReleased)
         super.pressesEnded(presses, with: event)
     }
@@ -102,18 +145,18 @@ class StitchHostingController<T: View>: UIHostingController<T> {
     @MainActor
     override func pressesCancelled(_ presses: Set<UIPress>,
                                    with event: UIPressesEvent?) {
-        // log("KEY: StitchHostingController: name: \(name): pressesCancelled: presses.first?.key: \(presses.first?.key)")
+        log("KEY: StitchHostingController: name: \(name): pressesCancelled: presses.first?.key: \(presses.first?.key)")
         presses.first?.key.map(keyReleased)
         super.pressesCancelled(presses, with: event)
     }
 
     @MainActor
     func keyPressed(_ key: UIKey) {
-        // log("KEY: StitchHostingController: name: \(name): keyPressed: key: \(key)")
+        log("KEY: StitchHostingController: name: \(name): keyPressed: key: \(key)")
         
         // TODO: key-modifiers (Tab, Shift etc.) and key-characters are not exclusive
         if let modifiers = key.asStitchKeyModifiers {
-            dispatch(KeyModifierPressBegan(modifiers: modifiers))
+            dispatch(KeyModifierPressBegan(name: self.name, modifiers: modifiers))
         } else if let keyPress = key.characters.first {
             dispatch(KeyCharacterPressBegan(char: keyPress))
         }
@@ -121,7 +164,7 @@ class StitchHostingController<T: View>: UIHostingController<T> {
 
     @MainActor
     func keyReleased(_ key: UIKey) {
-        // log("KEY: StitchHostingController: name: \(name): keyReleased: key: \(key)")
+        log("KEY: StitchHostingController: name: \(name): keyReleased: key: \(key)")
         if let modifiers = key.asStitchKeyModifiers {
             dispatch(KeyModifierPressEnded(modifiers: modifiers))
         } else if let keyPress = key.characters.first {
@@ -234,7 +277,7 @@ class StitchHostingController<T: View>: UIHostingController<T> {
 struct StitchHostingControllerView<T: View>: View {
     let ignoreKeyCommands: Bool
     var usesArrowKeyBindings: Bool = false
-    let name: String
+    let name: KeyListenerName
     @ViewBuilder var view: () -> T
 
     var body: some View {
@@ -251,7 +294,7 @@ struct StitchHostingControllerViewRepresentable<T: View>: UIViewControllerRepres
     let view: T
     let ignoreKeyCommands: Bool
     var usesArrowKeyBindings: Bool = false
-    let name: String
+    let name: KeyListenerName
 
     func makeUIViewController(context: Context) -> StitchHostingController<T> {
         StitchHostingController(rootView: view,

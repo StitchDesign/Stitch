@@ -87,7 +87,7 @@ struct UIKitTappableWrapper<T: View>: UIViewControllerRepresentable {
             rootView: view(),
             ignoresSafeArea: false,
             ignoreKeyCommands: true,
-            name: "UIKitTappableWrapper")
+            name: .uiKitTappableWrapper)
         let delegate = context.coordinator
 
         let tapGesture = UITapGestureRecognizer(target: delegate,
