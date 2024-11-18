@@ -289,7 +289,7 @@ extension StitchDocumentViewModel {
         
         let _update = { (canvasItem: CanvasItemViewModel) in
             
-            let nodeSize = canvasItem.bounds.graphBaseViewBounds.size
+            let nodeSize = canvasItem.graphBaseViewSize
             
             canvasItem.position = determineSnapPosition(
                 position: canvasItem.position,
@@ -357,33 +357,35 @@ extension GraphState {
     func buildCommentBoxes(visibleNodes: CanvasItemViewModels,
                            visibleCommentBoxes: [CommentBoxViewModel],
                            commentBoxBoundsDict: CommentBoxBoundsDict) {
+        
+        fatalErrorIfDebug("Must rebuild with bounds logic changing")
 
-        for box in visibleCommentBoxes {
-            if let boxBounds = commentBoxBoundsDict.get(box.id) {
-                let nodesInsideCommentBox = visibleNodes
-                    .filter {
-                        // Building a comment box's node-set looks at box's border, not its title
-                        //                    let intersects = boxBounds.intersects($0.bounds)
-                        let intersects = boxBounds.borderBounds.intersects($0.bounds.graphBaseViewBounds)
-
-                        // log("buildCommentBoxes: boxBounds: \(boxBounds)")
-                        // log("buildCommentBoxes: node.bounds: \($0.bounds)")
-
-                        //                    if intersects {
-                        //                        log("buildCommentBoxes: node \($0.id) intersects comment box \(box.id)")
-                        //                    }
-
-                        return intersects
-                    }
-                    .map(\.id)
-                    .toSet
-
-                box.nodes = nodesInsideCommentBox
-            }
-            //        else {
-            //            log("buildCommentBoxes: could not find bounds for comment box \(box.id)")
-            //        }
-        } // for box in ...
+//        for box in visibleCommentBoxes {
+//            if let boxBounds = commentBoxBoundsDict.get(box.id) {
+//                let nodesInsideCommentBox = visibleNodes
+//                    .filter {
+//                        // Building a comment box's node-set looks at box's border, not its title
+//                        //                    let intersects = boxBounds.intersects($0.bounds)
+//                        let intersects = boxBounds.borderBounds.intersects($0.bounds.graphBaseViewBounds)
+//
+//                        // log("buildCommentBoxes: boxBounds: \(boxBounds)")
+//                        // log("buildCommentBoxes: node.bounds: \($0.bounds)")
+//
+//                        //                    if intersects {
+//                        //                        log("buildCommentBoxes: node \($0.id) intersects comment box \(box.id)")
+//                        //                    }
+//
+//                        return intersects
+//                    }
+//                    .map(\.id)
+//                    .toSet
+//
+//                box.nodes = nodesInsideCommentBox
+//            }
+//            //        else {
+//            //            log("buildCommentBoxes: could not find bounds for comment box \(box.id)")
+//            //        }
+//        } // for box in ...
     }
 
     // Reads but does not mutate GraphState
