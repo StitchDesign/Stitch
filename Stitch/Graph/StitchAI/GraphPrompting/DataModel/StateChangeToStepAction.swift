@@ -55,10 +55,15 @@ extension StitchDocumentViewModel {
     }
     
     @MainActor
-    func maybeCreateLLMStepEdgeAdded(fromNodeId: String,
-                                     toNodeId: String, input: InputCoordinate) {
+    func maybeCreateLLMStepConnectionAdded(input: InputCoordinate,
+                                           output: OutputCoordinate) {
+            
         if self.llmRecording.isRecording {
-            let step = createLLMStepEdgeAdded(input: input, fromNodeId, toNodeId: toNodeId)
+            
+            let step = createLLMStepConnectionAdded(
+                input: input,
+                output: output)
+            
             self.llmRecording.actions.append(step)
         }
     }
@@ -151,15 +156,20 @@ extension InputCoordinate {
 
 //need to feed in port id's as well
 //pass in the input coordinate
-func createLLMStepEdgeAdded(input: InputCoordinate,
-                            _ fromNodeId: String,
-                            toNodeId: String) -> LLMStepAction {
+func createLLMStepConnectionAdded(input: InputCoordinate,
+                                  output: OutputCoordinate) -> LLMStepAction {
     //actually create the action with the input coordiante using
     //asLLMStepPort()
-    LLMStepAction(stepType: StepType.connectNodes.rawValue,
-                  port: .init(value: input.asLLMStepPort()),
-                  fromNodeId: fromNodeId,
-                  toNodeId: toNodeId)
+    
+    var fromPort = output.portId
+    assertInDebug(fromPort.isDefined)
+    
+    return LLMStepAction(
+        stepType: StepType.connectNodes.rawValue,
+        port: .init(value: input.asLLMStepPort()),
+        fromPort: output.asLLMStepPort(),
+        fromNodeId: output.nodeId.uuidString,
+        toNodeId: input.nodeId.uuidString)
 }
 
 
