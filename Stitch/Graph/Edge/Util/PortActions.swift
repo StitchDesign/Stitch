@@ -130,7 +130,9 @@ extension GraphState {
         self.calculate(edge.from.nodeId)
         
         //we need the port here
-        self.documentDelegate?.maybeCreateLLMStepEdgeAdded(fromNodeId: edge.from.nodeId.uuidString, toNodeId: edge.to.nodeId.uuidString, input: edge.to)
+        self.documentDelegate?.maybeCreateLLMStepConnectionAdded(
+            input: edge.to,
+            output: edge.from)
     }
     
     @MainActor

@@ -191,10 +191,10 @@ let VISUAL_PROGRAMMING_ACTIONS = """
             { "type": "integer" },
             { "$ref": "#/$defs/LayerPorts" }
           ],
-          "description": "The port to use for the connection. Patch nodes use integers; Layer nodes use LayerPorts values."
+        "from_port": { "type": "integer", "description": "The port used for an outgoing node. Both Patch nodes and Layer nodes use integer values for their outputs." } ,
         }
       },
-      "required": ["step_type", "from_node_id", "to_node_id", "port"]
+      "required": ["step_type", "from_node_id", "to_node_id", "port", "from_port"]
     },
     "ChangeNodeTypeAction": {
       "type": "object",
