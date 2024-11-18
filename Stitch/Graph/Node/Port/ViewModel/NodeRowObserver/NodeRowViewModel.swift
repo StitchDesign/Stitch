@@ -123,7 +123,7 @@ extension NodeRowViewModel {
         
         let size = canvas.sizeByLocalBounds
         let ioAdjustment: CGFloat = 10
-        let standardHeightAdjustment: CGFloat = 63
+        let standardHeightAdjustment: CGFloat = 69
         let ioConstraint: CGFloat = Self.nodeIO == .input ? ioAdjustment : -ioAdjustment
         let titleHeightOffset: CGFloat = node.getValidCustomTitle().isDefined ? 23 : 0
         
