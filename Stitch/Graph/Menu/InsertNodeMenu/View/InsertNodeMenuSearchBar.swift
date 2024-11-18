@@ -95,7 +95,7 @@ struct InsertNodeMenuSearchBar: View {
         // this is also the main key-press listener for the app, since the insert node menu is always on-screen
         StitchHostingControllerView(ignoreKeyCommands: false,
                                     usesArrowKeyBindings: true,
-                                    name: "InsertNodeMenuSearchBar") {
+                                    name: .insertNodeMenuSearchbar) {
             searchInput
         }
         .height(INSERT_NODE_MENU_SEARCH_BAR_HEIGHT) // need to set height again
