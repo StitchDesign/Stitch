@@ -14,7 +14,7 @@ struct KeyModifierPressEnded: StitchDocumentEvent {
 
     @MainActor
     func handle(state: StitchDocumentViewModel) {
-        log("KeyModifierPressEnded: modifiers: \(modifiers)")
+        // log("KeyModifierPressEnded: modifiers: \(modifiers)")
         for modifier in modifiers {
             state.keypressState.modifiers.remove(modifier)
         }
@@ -27,7 +27,7 @@ struct KeyModifierPressBegan: StitchDocumentEvent {
 
     @MainActor
     func handle(state: StitchDocumentViewModel) {
-         log("KeyModifierPressBegan: listener \(name) had modifiers: \(modifiers)")
+         // log("KeyModifierPressBegan: listener \(name) had modifiers: \(modifiers)")
         
         state.keypressState.modifiers = state.keypressState.modifiers.union(modifiers)
         
@@ -37,9 +37,9 @@ struct KeyModifierPressBegan: StitchDocumentEvent {
         
         let shiftTabPressed = shiftHeld && tabPressed
         
-        // log("KeyModifierPressBegan: shiftHeld: \(shiftHeld)")
-         log("KeyModifierPressBegan: tabPressed: \(tabPressed)")
-         log("KeyModifierPressBegan: shiftTabPressed: \(shiftTabPressed)")
+        // // log("KeyModifierPressBegan: shiftHeld: \(shiftHeld)")
+         // log("KeyModifierPressBegan: tabPressed: \(tabPressed)")
+         // log("KeyModifierPressBegan: shiftTabPressed: \(shiftTabPressed)")
         
         let focusedField = state.graphUI.reduxFocusedField
         
@@ -48,8 +48,6 @@ struct KeyModifierPressBegan: StitchDocumentEvent {
         if let edgeEditingState = state.graphUI.edgeEditingState,
            name == .mainGraph,
            tabPressed {
-            
-            log("tabbed with edge editing state: edgeEditingState.possibleEdges was: \(edgeEditingState.possibleEdges)")
             
             state.graphUI.edgeEditingState = edgeEditingState.canvasItemIndexChanged(
                 edgeEditState: edgeEditingState,

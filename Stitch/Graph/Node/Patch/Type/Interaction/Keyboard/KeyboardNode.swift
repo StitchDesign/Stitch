@@ -35,8 +35,8 @@ func keyboardEval(node: PatchNode,
 
     return node.loopedEval { values, _ in
         let character = values.first?.getString?.string ?? ""
-        //        log("keyboardEval: op: character: \(character)")
-        //        log("keyboardEval: op: keyPress.characters: \(keyPress.characters)")
+        // log("keyboardEval: op: character: \(character)")
+        // log("keyboardEval: op: keypressState.characters: \(keypressState.characters)")
         return [.bool(keypressState.characters.contains(character))]
     }
     .createPureEvalResult()
