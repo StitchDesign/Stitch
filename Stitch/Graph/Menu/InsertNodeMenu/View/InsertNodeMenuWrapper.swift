@@ -258,6 +258,7 @@ struct InsertNodeMenuWrapper: View {
 
         if let node = self.animatedNode,
            let canvas = node.patchCanvasItem {
+            @Bindable var canvas = canvas
             NodeTypeView(document: document,
                          graph: document.visibleGraph,
                          node: node,
@@ -271,31 +272,13 @@ struct InsertNodeMenuWrapper: View {
                          // fake node does NOT use position handler
                          usePositionHandler: false,
                          updateMenuActiveSelectionBounds: updateMenuActiveSelectionBounds)
-            // TODO: why is this necessary
-            
-            .id(node.id)
-            .onChange(of: insertNodeMenuState.activeSelectionBounds) { oldValue, newValue in
+            .onChange(of: canvas.sizeByLocalBounds) { _, newSize in
+                guard newSize.width.isNormal && newSize.height.isNormal else { return }
                 
-                //                log("InsertNodeMenuWrapper: onChange of insertNodeMenuState.activeSelectionBounds:  insertNodeMenuState.activeSelection?.data.displayTitle: \(insertNodeMenuState.activeSelection?.data.displayTitle)")
-                //                log("InsertNodeMenuWrapper: onChange of insertNodeMenuState.activeSelectionBounds: oldValue: \(oldValue)")
-                //                log("InsertNodeMenuWrapper: onChange of insertNodeMenuState.activeSelectionBounds: newValue: \(newValue)")
+                self.nodeWidth = newSize.width
+                self.nodeHeight = newSize.height
                 
-                // update the node size to use these bounds
-                if let rect: CGRect = newValue {
-                    //                    log("updating nodeWidth and nodeHeight")
-                    //                    log("rect.size.width: \(rect.size.width)")
-                    //                    log("rect.size.height: \(rect.size.height)")
-                    nodeWidth = rect.size.width
-                    nodeHeight = rect.size.height
-                    
-                    // we should also reset node scale etc.?
-                    //                        prepareHiddenMenu()
-                    prepareHiddenMenu(setHeightToMax: false)
-                    
-                    // Once we have read the size of the active selection, we
-                    // TODO: grab the `activeSelection` from the InsertNodeMenuState instead?
-                    dispatch(ActiveSelectionSizeReadingCompleted(activeSelection: node.asActiveSelection))
-                }
+                prepareHiddenMenu(setHeightToMax: false)
             }
         } // if let nodeType =
         else {
@@ -411,13 +394,8 @@ struct InsertNodeMenuWrapper: View {
     
     @ViewBuilder @MainActor
     var sizeReadingNodeView: some View {
-        if graphUI.insertNodeMenuState.readActiveSelectionSize {
-            fakeNodeView(boundsDisabled: false,
-                         updateMenuActiveSelectionBounds: true)
-        } else {
-            EmptyView()
-        }
-        
+        fakeNodeView(boundsDisabled: false,
+                     updateMenuActiveSelectionBounds: true)        
     }
     
     @MainActor

@@ -10,18 +10,13 @@ import SwiftUI
 import StitchSchemaKit
 
 struct InsertNodeMenuState: Equatable, Hashable {
-
-    // True = render the size-reading fakeNodeView so that we can animate from the right node size.
-    // Turned off as soon as we have read the node size once.
-    var readActiveSelectionSize: Bool = false
-
     /// Is the menu view animating down to a node view?
     // True = we are currently animating
     // False = we are not animating, or the menu has just first been shown.
     var menuAnimatingToNode: Bool = false
 
     // The bounds of the user-committed node; we need this node size so that we can know the starting size for animation node.
-    var activeSelectionBounds: CGRect?
+//    var activeSelectionBounds: CGRect?
 
     // Whether the menu shows or not; not the same as whether we're animating.
     var show = false
