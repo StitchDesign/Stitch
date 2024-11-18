@@ -138,7 +138,7 @@ extension CanvasItemViewModel {
                 guard let nodeId = self.nodeDelegate?.id,
                       let canvasItemNodeId = canvasItem.nodeDelegate?.id,
                       nodeId == canvasItemNodeId else {
-                    log("edgeFriendlyInputCoordinates: canvas item was not for this node")
+                    // log("edgeFriendlyInputCoordinates: canvas item was not for this node")
                     return .init()
                 }
                 

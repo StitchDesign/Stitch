@@ -125,18 +125,28 @@ extension StitchDocumentViewModel {
             return canvasItemsAdded + 1
             
         case .connectNodes:
+            
+            guard let toPort: NodeIOPortType = action.parsePort(),
+                  let fromPort: Int = action.parseFromPort() else {
+                fatalErrorIfDebug("handleLLMStepAction: could not handle connectNodes: could not parse to-port and from-port")
+                return canvasItemsAdded
+            }
+            
             guard let fromNodeIdString: String = action.fromNodeId,
-                  let toNodeIdString: String = action.toNodeId,
-                  let toPort: NodeIOPortType = action.parsePort(),
-                  // Node must already exist
-                  let fromNodeId = self.llmNodeIdMapping.get(fromNodeIdString),
-                  let toNodeId = self.llmNodeIdMapping.get(toNodeIdString)else {
-                fatalErrorIfDebug("handleLLMStepAction: could not handle connectNodes")
+                  let toNodeIdString: String = action.toNodeId else {
+                fatalErrorIfDebug("handleLLMStepAction: could not handle connectNodes: could not parse from- and to-nodeIds")
+                return canvasItemsAdded
+            }
+            
+            // Node must already exist
+            guard let fromNodeId = self.llmNodeIdMapping.get(fromNodeIdString),
+                  let toNodeId = self.llmNodeIdMapping.get(toNodeIdString) else {
+                fatalErrorIfDebug("handleLLMStepAction: could not handle connectNodes: nodes did not already exist")
                 return canvasItemsAdded
             }
             
             // Currently all edges are assumed to be extending from the first output of a patch node
-            let fromCoordinate = InputCoordinate(portType: .portIndex(0), nodeId: fromNodeId)
+            let fromCoordinate = InputCoordinate(portType: .portIndex(fromPort), nodeId: fromNodeId)
             
             // ... But an edge could be coming into a
             let toCoordinate = InputCoordinate(portType: toPort, nodeId: toNodeId)
@@ -200,6 +210,24 @@ extension LLMStepAction {
             return .keyPath(layerInputType)
         } else {
             log("could not parse LLMStepAction's port: \(port)")
+            return nil
+        }
+    }
+    
+    func parseFromPort() -> Int? {
+        guard let fromPort: String = self.fromPort else {
+            log("fromPort was not defined")
+            // For legacy reasons, assume 0
+//            return nil
+            return 0
+        }
+          
+        if let portId = Int(fromPort) {
+            return portId
+        } else if let portId = Double(fromPort) {
+            return Int(portId)
+        } else {
+            log("could not parse LLMStepAction's fromPort: \(fromPort)")
             return nil
         }
     }

@@ -46,7 +46,9 @@ struct Step: Equatable, Codable {
     
     // NOTE: this is currently ALWAYS the input port (for edge-connection, for set-input etc.)
     // We currently assume that an edge goes out from a patch's first output.
-    var port: StringOrNumber?  // Updated to handle String or Int
+    var port: StringOrNumber?
+    
+    var fromPort: String?
     
     var fromNodeId: String?
     var toNodeId: String?
@@ -58,6 +60,7 @@ struct Step: Equatable, Codable {
         case nodeId = "node_id"
         case nodeName = "node_name"
         case port
+        case fromPort = "from_port"
         case fromNodeId = "from_node_id"
         case toNodeId = "to_node_id"
         case value
