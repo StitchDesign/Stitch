@@ -110,20 +110,25 @@ struct AddNodeButtonPressed: GraphEvent {
             
             state.persistNewNode(node)
             
-            // TODO: use the
+            // MARK: with animation disabled we now call this immediately
+            dispatch(InsertNodeAnimationCompleted(createdNodeId: createdNodeId))
+            
             withAnimation {
-                // log("ActiveSelectionSizeReadingCompleted: withAnimation")
-                state.graphUI.insertNodeMenuState.menuAnimatingToNode = true
-                
-                // TODO: get rid of this manual dispatch of the completed-animation action
-                // TODO: why are the 0.3 extra seconds required?
-                // TODO: base the 0.9 off of the existing animation's duration
-                //            DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
-                //            DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                    //            DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
-                    dispatch(InsertNodeAnimationCompleted(createdNodeId: createdNodeId))
-                }
+                state.graphUI.insertNodeMenuState.show = false
+    
+                // TODO: animation disabled for now
+//                // log("ActiveSelectionSizeReadingCompleted: withAnimation")
+//                state.graphUI.insertNodeMenuState.menuAnimatingToNode = true
+//                
+//                // TODO: get rid of this manual dispatch of the completed-animation action
+//                // TODO: why are the 0.3 extra seconds required?
+//                // TODO: base the 0.9 off of the existing animation's duration
+//                //            DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
+//                //            DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
+//                DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+//                    //            DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
+//                    dispatch(InsertNodeAnimationCompleted(createdNodeId: createdNodeId))
+//                }
             }
             
             // TODO: `completion` animation callback seems either delayed, or in some cases not to fire at all?
