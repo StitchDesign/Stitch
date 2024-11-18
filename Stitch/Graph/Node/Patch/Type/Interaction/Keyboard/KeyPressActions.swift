@@ -14,7 +14,7 @@ struct KeyModifierPressEnded: StitchDocumentEvent {
 
     @MainActor
     func handle(state: StitchDocumentViewModel) {
-        // log("KeyModifierPressEnded: modifiers: \(modifiers)")
+        log("KeyModifierPressEnded: modifiers: \(modifiers)")
         for modifier in modifiers {
             state.keypressState.modifiers.remove(modifier)
         }

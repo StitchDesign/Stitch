@@ -26,7 +26,7 @@ struct FullScreenGestureRecognizerView<Content: View>: UIViewControllerRepresent
             rootView: content(),
             ignoresSafeArea: ignoresSafeArea,
             ignoreKeyCommands: true,
-            name: "FullScreenGestureRecognizerView")
+            name: .fullScreenGestureRecognzer)
         vc.delegate = delegate
 
         // three-finger tap gesture opens action sheet

@@ -101,13 +101,7 @@ extension GraphState {
         log("OutputHovered: alreadyShownEdges: \(alreadyShownEdges)")
         
         self.graphUI.edgeAnimationEnabled = true
-        
-//        self.graphUI.edgeEditingState = .init(
-//            originOutput: outputCoordinate,
-//            nearbyCanvasItem: nearbyNodeId,
-//            possibleEdges: possibleEdges,
-//            shownIds: alreadyShownEdges)
-        
+                
         self.graphUI.edgeEditingState = .init(
             originOutput: outputCoordinate,
             eastNodesFromClosestToFarthest: nodesEastOfOutput,

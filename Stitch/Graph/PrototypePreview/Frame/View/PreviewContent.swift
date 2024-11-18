@@ -60,7 +60,7 @@ struct PreviewContent: View {
 //        UIKitWrapper(ignoresKeyCommands: false, name: "PreviewContent") {
         
         // Even when `ignoresKeyCommands: true` and 
-        UIKitWrapper(ignoresKeyCommands: true, name: "PreviewContent") {
+        UIKitWrapper(ignoresKeyCommands: true, name: .previewWindow) {
 //        NoKeyPressHostingController(name: "PreviewContent") {
             generatedPreview
                 .frame(finalSize)
