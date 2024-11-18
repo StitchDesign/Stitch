@@ -49,8 +49,9 @@ struct EdgeEditingState {
     // with closest closest canvas item at index = 0
     var eastNodesFromClosestToFarthest: EligibleEasternNodes
 
+    // Modified by `canvasItemIndexChanged`
     var nearbyCanvasItemIndex: Int // = Self.defaultNearbyCanvasItemIndex
-    
+        
     var possibleEdges: PossibleEdgeSet
 
     /// Are we showing the edge-edit mode labels in front of inputs?
@@ -86,4 +87,62 @@ struct EdgeEditingState {
         animationInProgressIds.contains(possibleEdgeId)
     }
     
+}
+
+extension EdgeEditingState {
+    
+    // TODO: make EdgeEditingState an @Observable if perf problems encountered; but perf should be fine given that this is done via a user-button press
+    @MainActor
+    func canvasItemIndexChanged(edgeEditState: EdgeEditingState,
+                                graph: GraphState,
+                                wasIncremented: Bool) -> Self {
+        
+        var edgeEditState = edgeEditState._indexChanged(
+            edgeEditState: edgeEditState,
+            wasIncremented: wasIncremented)
+                
+        // Immediately show labels
+        edgeEditState.labelsShown = true
+        
+        // Update possible edges etc.
+        guard let newNearbyNode = graph.getCanvasItem(edgeEditState.nearbyCanvasItem) else {
+            fatalErrorIfDebug()
+            return edgeEditState
+        }
+        
+        let (alreadyShownEdges,
+             possibleEdges) = graph.getShownAndPossibleEdges(
+            nearbyNode: newNearbyNode,
+            outputCoordinate: edgeEditState.originOutput)
+        
+        edgeEditState.shownIds = alreadyShownEdges
+        edgeEditState.possibleEdges = possibleEdges
+        
+        return edgeEditState
+    }
+    
+    private func _indexChanged(edgeEditState: EdgeEditingState,
+                               wasIncremented: Bool) -> Self {
+        
+        var edgeEditState = edgeEditState
+        
+        let eastNodeCount = edgeEditState.eastNodesFromClosestToFarthest.count
+        
+        if wasIncremented {
+            if (edgeEditState.nearbyCanvasItemIndex + 1) >= eastNodeCount {
+                // If we incremented past the end, jump back to the start.
+                edgeEditState.nearbyCanvasItemIndex = 0
+            } else {
+                edgeEditState.nearbyCanvasItemIndex += 1
+            }
+        } else {
+            if (edgeEditState.nearbyCanvasItemIndex - 1) < 0 {
+                edgeEditState.nearbyCanvasItemIndex = eastNodeCount - 1
+            } else {
+                edgeEditState.nearbyCanvasItemIndex -= 1
+            }
+        }
+                
+        return edgeEditState
+    }
 }

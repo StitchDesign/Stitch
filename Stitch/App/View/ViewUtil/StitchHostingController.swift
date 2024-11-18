@@ -156,7 +156,7 @@ class StitchHostingController<T: View>: UIHostingController<T> {
         
         // TODO: key-modifiers (Tab, Shift etc.) and key-characters are not exclusive
         if let modifiers = key.asStitchKeyModifiers {
-            dispatch(KeyModifierPressBegan(modifiers: modifiers))
+            dispatch(KeyModifierPressBegan(name: self.name, modifiers: modifiers))
         } else if let keyPress = key.characters.first {
             dispatch(KeyCharacterPressBegan(char: keyPress))
         }
