@@ -148,10 +148,17 @@ extension StitchDocumentViewModel {
                 return nil
             }
             
+            // Update sidebar data
             let sidebarLayerData = SidebarLayerData(id: layerNode.id)
             var newSidebarData = self.visibleGraph.layersSidebarViewModel.createdOrderedEncodedData()
             newSidebarData.insert(sidebarLayerData, at: 0)
             self.visibleGraph.layersSidebarViewModel.update(from: newSidebarData)
+            
+            // Focus this, and only this, layer node in inspector
+            self.visibleGraph.layersSidebarViewModel.resetEditModeSelections()
+            self.visibleGraph.layersSidebarViewModel.sidebarItemSelectedViaEditMode(sidebarLayerData.id)
+            self.visibleGraph.layersSidebarViewModel.selectionState.lastFocused = sidebarLayerData.id
+            self.visibleGraph.deselectAllCanvasItems()
             
             return layerNode
 
