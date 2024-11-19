@@ -106,9 +106,10 @@ struct InsertNodeMenuWrapper: View {
         
         let sidebarAdjustment = (self.sidebarHalfWidth * 1/self.graphScale)
         
-        if document.llmRecording.isRecording {
-            return defaultCenter
-        } else if var adjustedDoubleTapLocation = adjustedDoubleTapLocation {
+//        if document.llmRecording.isRecording {
+//            return defaultCenter
+//        } else
+        if var adjustedDoubleTapLocation = adjustedDoubleTapLocation {
             adjustedDoubleTapLocation.x += sidebarAdjustment
             return adjustedDoubleTapLocation
         } else {
