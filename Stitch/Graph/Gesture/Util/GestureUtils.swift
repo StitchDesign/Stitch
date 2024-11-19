@@ -26,18 +26,18 @@ extension NodeSelectionGestureRecognizer {
         
         case .began:
             
-            if document?.llmRecording.isRecording ?? false {
-                log("Graph pan disabled during LLM Recording")
-                return
-            }
+//            if document?.llmRecording.isRecording ?? false {
+//                log("Graph pan disabled during LLM Recording")
+//                return
+//            }
             self.document?.graphScrollBegan()
             
         case .changed:
             
-            if document?.llmRecording.isRecording ?? false {
-                log("Graph pan disabled during LLM Recording")
-                return
-            }
+//            if document?.llmRecording.isRecording ?? false {
+//                log("Graph pan disabled during LLM Recording")
+//                return
+//            }
             // Should only have a single touch
             if gestureRecognizer.numberOfTouches == 1 {
                 self.document?.graphDragged(
@@ -48,10 +48,10 @@ extension NodeSelectionGestureRecognizer {
         
         case .ended, .cancelled:
             
-            if document?.llmRecording.isRecording ?? false {
-                log("Graph pan disabled during LLM Recording")
-                return
-            }
+//            if document?.llmRecording.isRecording ?? false {
+//                log("Graph pan disabled during LLM Recording")
+//                return
+//            }
             
             // USEFUL FOR DEBUGGING / DEV
             //        log("handleScreenGraphPanGesture: screenPanInView: translation: \(translation)")
@@ -117,22 +117,22 @@ extension GraphGestureDelegate {
             if gestureRecognizer.numberOfTouches == 0 {
                 switch gestureRecognizer.state {
                 case .began:
-                    if document?.llmRecording.isRecording ?? false {
-                        log("Graph pan disabled during LLM Recording")
-                        return
-                    }
+//                    if document?.llmRecording.isRecording ?? false {
+//                        log("Graph pan disabled during LLM Recording")
+//                        return
+//                    }
                     self.document?.graphScrollBegan()
                 case .changed:
-                    if document?.llmRecording.isRecording ?? false {
-                        log("Graph pan disabled during LLM Recording")
-                        return
-                    }
+//                    if document?.llmRecording.isRecording ?? false {
+//                        log("Graph pan disabled during LLM Recording")
+//                        return
+//                    }
                     self.document?.graphScrolled(translation: translation)
                 case .ended, .cancelled:
-                    if document?.llmRecording.isRecording ?? false {
-                        log("Graph pan disabled during LLM Recording")
-                        return
-                    }
+//                    if document?.llmRecording.isRecording ?? false {
+//                        log("Graph pan disabled during LLM Recording")
+//                        return
+//                    }
                     self.document?.graphDragEnded(
                         location: nil,
                         // `nil` vs `view` doesn't make a difference?
