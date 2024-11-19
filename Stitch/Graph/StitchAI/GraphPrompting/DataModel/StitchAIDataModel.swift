@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftyJSON
 
 struct OpenAIResponse: Codable {
     var choices: [Choice]
@@ -48,11 +49,14 @@ struct Step: Equatable, Codable {
     // We currently assume that an edge goes out from a patch's first output.
     var port: StringOrNumber?
     
-    var fromPort: String?
+    var fromPort: Int?
     
     var fromNodeId: String?
     var toNodeId: String?
-    var value: StringOrNumber?  // Updated to handle String or Int
+    
+//    var value: StringOrNumber?  // Updated to handle String or Int
+    var value: JSONFriendlyFormat?
+    
     var nodeType: String?
     
     enum CodingKeys: String, CodingKey {
@@ -93,7 +97,12 @@ extension StringOrNumber: Codable {
         } else if let stringValue = try? container.decode(String.self) {
             log("StringOrNumber: Decoder: tried string")
             self.value = stringValue
-        } else {
+        } else if let jsonValue = try? container.decode(JSON.self) {
+            log("StringOrNumber: Decoder: had json \(jsonValue)")
+            // escaped string?
+            self.value = jsonValue.description
+        }
+        else {
             throw DecodingError.typeMismatch(String.self, DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Expected String, Int, or Double"))
         }
     }
