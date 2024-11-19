@@ -257,6 +257,9 @@ extension GraphState {
             self.initializeDelegate(document: document,
                                     documentEncoderDelegate: encoderDelegate)
         }
+        
+        // Updates node visibility data
+        self.visibleNodesViewModel.resetCache()
     }
     
     var isSidebarFocused: Bool {

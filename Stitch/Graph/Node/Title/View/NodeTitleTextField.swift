@@ -75,7 +75,7 @@ struct StitchTitleTextField: View {
 //                        let labelWidth = label.widthOfString(usingFont: STITCH_UIFONT)
 //                        log("StitchTitleTextField: onAppear: labelWidth: \(labelWidth)")
 //                        
-                        let canvasItemWidth = graph.getCanvasItem(id)?.bounds.localBounds.width
+                        let canvasItemWidth = graph.getCanvasItem(id)?.sizeByLocalBounds.width
 //                        log("StitchTitleTextField: onAppear: canvasItemWidth: \(canvasItemWidth)")
 
                         self.editWidth = canvasItemWidth

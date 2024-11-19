@@ -30,6 +30,9 @@ final class LayerNodeViewModel {
     // Some layer nodes contain outputs
     var outputPorts: [OutputLayerNodeRowData] = []
     
+    // Cached property to efficiently identify locations of input canvas nodes, if any created
+    var _inputCanvasIds = Set<CanvasItemId>()
+    
     // TODO: temporarily using positionPort as only canvas item location until inspector is done
     
     var positionPort: LayerInputObserver
@@ -441,6 +444,9 @@ extension LayerNodeViewModel {
     func initializeDelegate(_ node: NodeDelegate) {
         self.nodeDelegate = node
         
+        // Reset known input canvas items
+        self._inputCanvasIds = .init()
+        
         // Set up outputs
         self.outputPorts.forEach {
             $0.initializeDelegate(node)
@@ -448,6 +454,12 @@ extension LayerNodeViewModel {
         
         // Set up inputs
         self.forEachInput { layerInput in
+            // Locate input canvas items for perf cache
+            let inputCanvasItems = layerInput.getAllCanvasObservers()
+                .map(\.id)
+                .toSet
+            self._inputCanvasIds = self._inputCanvasIds.union(inputCanvasItems)
+            
             layerInput.initializeDelegate(node,
                                           layer: self.layer)
         }
@@ -462,8 +474,14 @@ extension LayerNodeViewModel {
     
     @MainActor
     func getAllCanvasObservers() -> [CanvasItemViewModel] {
-        let inputs = self.layer.layerGraphNode.inputDefinitions.flatMap {
-            self[keyPath: $0.layerNodeKeyPath].getAllCanvasObservers()
+        // Use cache for inputs for perf
+        let inputs: [CanvasItemViewModel] = self._inputCanvasIds.compactMap { canvasItemId -> CanvasItemViewModel? in
+            guard let keyPath = canvasItemId.layerInputCase?.keyPath.layerNodeKeyPath else {
+                fatalErrorIfDebug()
+                return nil
+            }
+            
+            return self[keyPath: keyPath].canvasObserver
         }
         
         let outputs = self.outputPorts.compactMap {

@@ -149,7 +149,7 @@ final class NodeSelectionGestureRecognizer: NSObject, UIGestureRecognizerDelegat
 
         switch gestureRecognizer.state {
         case .changed:
-            self.document?.graphMovement.zoomData.graphPinchToZoom(amount: gestureRecognizer.scale)
+            self.document?.graphPinchToZoom(amount: gestureRecognizer.scale)
         case .cancelled, .ended:
             self.document?.graphZoomEnded()
         default:

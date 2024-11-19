@@ -104,134 +104,136 @@ struct OutputValueView: View {
     }
 
     var body: some View {
-        switch fieldValue {
-        case .string(let string):
-            // Leading alignment when multifield
-            ReadOnlyValueEntry(value: string.string,
-                               alignment: outputAlignment,
-                               fontColor: STITCH_FONT_GRAY_COLOR, 
-                               isSelectedInspectorRow: isSelectedInspectorRow)
-
-        case .number, .layerDimension, .spacing:
-            ReadOnlyValueEntry(value: fieldValue.stringValue,
-                               alignment: outputAlignment,
-                               fontColor: STITCH_FONT_GRAY_COLOR,
-                               isSelectedInspectorRow: isSelectedInspectorRow)
-
-        case .bool(let bool):
-            BoolCheckboxView(id: nil, 
-                             layerInputObserver: nil,
-                             value: bool,
-                             isFieldInsideLayerInspector: false,
-                             isSelectedInspectorRow: isSelectedInspectorRow)
-
-        case .dropdown(let choiceDisplay, _):
-            // Values that use dropdowns for their inputs use instead a display-only view for their outputs
-            ReadOnlyValueEntry(value: choiceDisplay,
-                               alignment: outputAlignment,
-                               fontColor: STITCH_FONT_GRAY_COLOR,
-                               isSelectedInspectorRow: isSelectedInspectorRow)
-
-        case .textFontDropdown(let stitchFont):
-            StitchFontDropdown(input: coordinate,
-                               stitchFont: stitchFont, 
-                               layerInputObserver: nil,
-                               isFieldInsideLayerInspector: false, 
-                               propertyIsSelected: isSelectedInspectorRow)
+//        NodeLayout(observer: viewModel) {
+            switch fieldValue {
+            case .string(let string):
+                // Leading alignment when multifield
+                ReadOnlyValueEntry(value: string.string,
+                                   alignment: outputAlignment,
+                                   fontColor: STITCH_FONT_GRAY_COLOR,
+                                   isSelectedInspectorRow: isSelectedInspectorRow)
+                
+            case .number, .layerDimension, .spacing:
+                ReadOnlyValueEntry(value: fieldValue.stringValue,
+                                   alignment: outputAlignment,
+                                   fontColor: STITCH_FONT_GRAY_COLOR,
+                                   isSelectedInspectorRow: isSelectedInspectorRow)
+                
+            case .bool(let bool):
+                BoolCheckboxView(id: nil,
+                                 layerInputObserver: nil,
+                                 value: bool,
+                                 isFieldInsideLayerInspector: false,
+                                 isSelectedInspectorRow: isSelectedInspectorRow)
+                
+            case .dropdown(let choiceDisplay, _):
+                // Values that use dropdowns for their inputs use instead a display-only view for their outputs
+                ReadOnlyValueEntry(value: choiceDisplay,
+                                   alignment: outputAlignment,
+                                   fontColor: STITCH_FONT_GRAY_COLOR,
+                                   isSelectedInspectorRow: isSelectedInspectorRow)
+                
+            case .textFontDropdown(let stitchFont):
+                StitchFontDropdown(input: coordinate,
+                                   stitchFont: stitchFont,
+                                   layerInputObserver: nil,
+                                   isFieldInsideLayerInspector: false,
+                                   propertyIsSelected: isSelectedInspectorRow)
                 // need enough width for font design + font weight name
                 .frame(minWidth: 200,
                        alignment: .leading)
                 .disabled(true)
-
-        case .layerDropdown(let layerId):
-            // TODO: use read-only view if this is an output ?
-            LayerNamesDropDownChoiceView(graph: graph,
-                                         id: coordinate,
-                                         value: .assignedLayer(layerId), 
-                                         layerInputObserver: nil,
-                                         isFieldInsideLayerInspector: false,
-                                         isForPinTo: false,
-                                         isSelectedInspectorRow: isSelectedInspectorRow,
-                                         choices: []
-//                                            graph.layerDropdownChoices(
-//                                            isForNode: coordinate.nodeId,
-//                                            isForLayerGroup: false,
-////                                            isFieldInsideLayerInspector: false,
-//                                            isForPinTo: false)
-            )
-            .disabled(true)
-            
-        case .layerGroupOrientationDropdown(let x):
-            LayerGroupOrientationDropDownChoiceView(
-                id: coordinate,
-                value: x,
-                layerInputObserver: nil,
-                isFieldInsideLayerInspector: false)
-            .disabled(true)
-            
-        case .pinTo(let pinToId):
-            LayerNamesDropDownChoiceView(graph: graph,
-                                         id: coordinate,
-                                         value: .pinTo(pinToId),
-                                         layerInputObserver: nil,
-                                         isFieldInsideLayerInspector: false,
-                                         isForPinTo: true,
-                                         isSelectedInspectorRow: isSelectedInspectorRow,
-                                         choices: [] //[pinToId.asLayerDropdownChoice] //
-//                                            graph.layerDropdownChoices(
-//                                            isForNode: coordinate.nodeId,
-//                                            isForLayerGroup: false,
-////                                            isFieldInsideLayerInspector: false,
-//                                            isForPinTo: false)
-            )
-
-                   .disabled(true)
-
-        case .anchorPopover(let anchor):
-            AnchorPopoverView(input: coordinate,
-                              selection: anchor, 
-                              layerInputObserver: nil,
-                              isFieldInsideLayerInspector: false, 
-                              isSelectedInspectorRow: isSelectedInspectorRow)
-            .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH,
-                   height: NODE_ROW_HEIGHT,
-                   // Note: why are these reversed? Because we scaled the view down?
-                   alignment: .leading)
-
-        case .media(let media):
-            MediaFieldValueView(inputCoordinate: coordinate, 
-                                layerInputObserver: nil,
-                                isUpstreamValue: false,     // only valid for inputs
-                                media: media,
-                                nodeKind: nodeKind,
-                                isInput: false,
-                                fieldIndex: fieldIndex,
-                                isNodeSelected: isCanvasItemSelected,
-                                isFieldInsideLayerInspector: false,
-                                isSelectedInspectorRow: isSelectedInspectorRow,
-                                graph: graph)
-
-        case .color(let color):
-            StitchColorPickerOrb(chosenColor: color, 
-                                    isMultiselectInspectorInputWithHeterogenousValues: false)
-
-        case .pulse(let pulseTime):
-            PulseValueButtonView(inputCoordinate: nil,
-                                 nodeId: coordinate.nodeId,
-                                 pulseTime: pulseTime,
-                                 hasIncomingEdge: false)
-
-        case .json(let json):
-            ValueJSONView(coordinate: coordinate,
-                          json: isButtonPressed ? json : nil,
-                          isSelectedInspectorRow: isSelectedInspectorRow,
-                          isPressed: $isButtonPressed)
-
-        case .readOnly(let string):
-            ReadOnlyValueEntry(value: string,
-                               alignment: outputAlignment,
-                               fontColor: STITCH_FONT_GRAY_COLOR,
-                               isSelectedInspectorRow: isSelectedInspectorRow)
-        }
+                
+            case .layerDropdown(let layerId):
+                // TODO: use read-only view if this is an output ?
+                LayerNamesDropDownChoiceView(graph: graph,
+                                             id: coordinate,
+                                             value: .assignedLayer(layerId),
+                                             layerInputObserver: nil,
+                                             isFieldInsideLayerInspector: false,
+                                             isForPinTo: false,
+                                             isSelectedInspectorRow: isSelectedInspectorRow,
+                                             choices: []
+                                             //                                            graph.layerDropdownChoices(
+                                             //                                            isForNode: coordinate.nodeId,
+                                             //                                            isForLayerGroup: false,
+                                             ////                                            isFieldInsideLayerInspector: false,
+                                             //                                            isForPinTo: false)
+                )
+                .disabled(true)
+                
+            case .layerGroupOrientationDropdown(let x):
+                LayerGroupOrientationDropDownChoiceView(
+                    id: coordinate,
+                    value: x,
+                    layerInputObserver: nil,
+                    isFieldInsideLayerInspector: false)
+                .disabled(true)
+                
+            case .pinTo(let pinToId):
+                LayerNamesDropDownChoiceView(graph: graph,
+                                             id: coordinate,
+                                             value: .pinTo(pinToId),
+                                             layerInputObserver: nil,
+                                             isFieldInsideLayerInspector: false,
+                                             isForPinTo: true,
+                                             isSelectedInspectorRow: isSelectedInspectorRow,
+                                             choices: [] //[pinToId.asLayerDropdownChoice] //
+                                             //                                            graph.layerDropdownChoices(
+                                             //                                            isForNode: coordinate.nodeId,
+                                             //                                            isForLayerGroup: false,
+                                             ////                                            isFieldInsideLayerInspector: false,
+                                             //                                            isForPinTo: false)
+                )
+                
+                .disabled(true)
+                
+            case .anchorPopover(let anchor):
+                AnchorPopoverView(input: coordinate,
+                                  selection: anchor,
+                                  layerInputObserver: nil,
+                                  isFieldInsideLayerInspector: false,
+                                  isSelectedInspectorRow: isSelectedInspectorRow)
+                .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH,
+                       height: NODE_ROW_HEIGHT,
+                       // Note: why are these reversed? Because we scaled the view down?
+                       alignment: .leading)
+                
+            case .media(let media):
+                MediaFieldValueView(inputCoordinate: coordinate,
+                                    layerInputObserver: nil,
+                                    isUpstreamValue: false,     // only valid for inputs
+                                    media: media,
+                                    nodeKind: nodeKind,
+                                    isInput: false,
+                                    fieldIndex: fieldIndex,
+                                    isNodeSelected: isCanvasItemSelected,
+                                    isFieldInsideLayerInspector: false,
+                                    isSelectedInspectorRow: isSelectedInspectorRow,
+                                    graph: graph)
+                
+            case .color(let color):
+                StitchColorPickerOrb(chosenColor: color,
+                                     isMultiselectInspectorInputWithHeterogenousValues: false)
+                
+            case .pulse(let pulseTime):
+                PulseValueButtonView(inputCoordinate: nil,
+                                     nodeId: coordinate.nodeId,
+                                     pulseTime: pulseTime,
+                                     hasIncomingEdge: false)
+                
+            case .json(let json):
+                ValueJSONView(coordinate: coordinate,
+                              json: isButtonPressed ? json : nil,
+                              isSelectedInspectorRow: isSelectedInspectorRow,
+                              isPressed: $isButtonPressed)
+                
+            case .readOnly(let string):
+                ReadOnlyValueEntry(value: string,
+                                   alignment: outputAlignment,
+                                   fontColor: STITCH_FONT_GRAY_COLOR,
+                                   isSelectedInspectorRow: isSelectedInspectorRow)
+            }
+//        }
     }
 }

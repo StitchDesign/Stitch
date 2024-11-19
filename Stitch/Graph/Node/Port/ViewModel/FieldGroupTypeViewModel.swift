@@ -12,7 +12,9 @@ import StitchSchemaKit
 typealias FieldGroupTypeViewModelList<FieldType: FieldViewModel> = [FieldGroupTypeViewModel<FieldType>]
 
 @Observable
-final class FieldGroupTypeViewModel<FieldType: FieldViewModel>: Identifiable {
+final class FieldGroupTypeViewModel<FieldType: FieldViewModel>: StitchLayoutCachable, Identifiable {
+    var viewCache: NodeLayoutCache?
+    
     let type: FieldGroupType
     var fieldObservers: [FieldType]
 
