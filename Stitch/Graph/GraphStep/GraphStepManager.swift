@@ -56,7 +56,7 @@ final class GraphStepManager: MiddlewareService {
         self.graphFrameCount = .zero
 
         let displayLink = CADisplayLink(target: self,
-                                        selector: #selector(_updateOnFrame))
+                                        selector: #selector(updateOnFrame))
         displayLink.add(to: .main, forMode: .common)
         displayLink.add(to: .main, forMode: .tracking)
         displayLink.add(to: .main, forMode: .default)
@@ -86,15 +86,10 @@ final class GraphStepManager: MiddlewareService {
     private var previousTimeInSeconds: Double = 0
 
     @MainActor
-    @objc private func _updateOnFrame(displaylink: CADisplayLink) {
-        self.updateOnFrame()
-    }
-    
-    @MainActor
-    func updateOnFrame() {
+    @objc private func updateOnFrame(displaylink: CADisplayLink) {
         let graphFrameCount = self.graphFrameCount
 
-        let currentTimestamp = Date.now.timeIntervalSince1970
+        let currentTimestamp = displaylink.targetTimestamp
         let timeStart = self.graphTimeStart ?? currentTimestamp
         let elapsedProjectTime = currentTimestamp - timeStart
 

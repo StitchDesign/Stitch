@@ -8,60 +8,61 @@
 import SwiftUI
 import StitchSchemaKit
 
-struct SelectionBoxPreferenceKey: PreferenceKey {
-    typealias Value = CGRect
+/// Creates a selection box view.
+struct RoundedRectView: View {
+    @Environment(\.appTheme) private var theme
 
-    static var defaultValue: Value = .init()
-
-    static func reduce(value: inout Value, nextValue: () -> Value) {
-        value = nextValue()
-    }
-}
-
-struct ExpansionBoxView: View {
-
-    @Environment(\.appTheme) var theme
+    let rect: CGRect
 
     var color: Color {
         theme.themeData.edgeColor
     }
 
-    let box: ExpansionBox
-
-    @State var size: CGSize = .zero
-
     var body: some View {
-        RoundedRectangle(cornerRadius: CANVAS_ITEM_CORNER_RADIUS,
-                         style: .continuous)
-            .fill(color.opacity(0.4))
-            .overlay(
-                RoundedRectangle(cornerRadius: CANVAS_ITEM_CORNER_RADIUS)
-                    .stroke(color, lineWidth: 4)
+        Canvas { context, size in
+            // Normalize the rectangle to handle negative size values
+            let normalizedRect = CGRect(
+                x: min(rect.origin.x, rect.origin.x + rect.size.width),
+                y: min(rect.origin.y, rect.origin.y + rect.size.height),
+                width: abs(rect.size.width),
+                height: abs(rect.size.height)
             )
-            .background {
-                GeometryReader { geometry in
-                    Color.clear
-                        .preference(key: SelectionBoxPreferenceKey.self,
-                                    value: geometry.frame(in: .named(NodesView.coordinateNameSpace)))
-                }
-            }
-            .frame(box.size)
-            .position(box.anchorCorner)
-            .onPreferenceChange(SelectionBoxPreferenceKey.self) { newSelectionBounds in
-                dispatch(DetermineSelectedCanvasItems(selectionBounds: newSelectionBounds))
+            
+            // Create a rounded rectangle path
+            let roundedRectPath = Path(roundedRect: normalizedRect,
+                                       cornerRadius: CANVAS_ITEM_CORNER_RADIUS)
+            
+            // Add a border to the rectangle
+            context.stroke(
+                roundedRectPath,
+                with: .color(color),
+                lineWidth: 4
+            )
+        }
+    }
+}
+
+struct ExpansionBoxView: View {
+    let graph: GraphState
+    let box: CGRect
+    
+    var body: some View {
+        RoundedRectView(rect: box)
+            .onChange(of: box) { _, newSelectionBounds in
+                graph.processCanvasSelectionBoxChange(selectionBox: newSelectionBounds)
             }
     }
 }
 
-struct ExpansionBoxView_Previews: PreviewProvider {
-    static var previews: some View {
-
-        let box = ExpansionBox(
-            expansionDirection: .none, // not quite correct?
-            size: CGSize(width: 100, height: 100),
-            startPoint: CGPoint(x: 400, y: 400),
-            endPoint: CGPoint(x: 500, y: 500))
-
-        ExpansionBoxView(box: box)
-    }
-}
+//struct ExpansionBoxView_Previews: PreviewProvider {
+//    static var previews: some View {
+//
+//        let box = ExpansionBox(
+//            expansionDirection: .none, // not quite correct?
+//            size: CGSize(width: 100, height: 100),
+//            startPoint: CGPoint(x: 400, y: 400),
+//            endPoint: CGPoint(x: 500, y: 500))
+//
+//        ExpansionBoxView(box: box)
+//    }
+//}

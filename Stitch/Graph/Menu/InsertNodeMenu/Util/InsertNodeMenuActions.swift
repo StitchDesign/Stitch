@@ -86,84 +86,66 @@ struct CloseAndResetInsertNodeMenu: GraphUIEvent {
 struct AddNodeButtonPressed: GraphEvent {
     func handle(state: GraphState) {
         
+        guard let nodeKind = state.graphUI.insertNodeMenuState.activeSelection?.data.kind else {
+            return
+        }
+        
         // Immediately create a LayerNode; do not animate.
-        if let nodeKind = state.graphUI.insertNodeMenuState.activeSelection?.data.kind,
-           nodeKind.isLayer {
+        if nodeKind.isLayer {
             guard let newNode = state.documentDelegate?.nodeCreated(choice: nodeKind) else {
                 fatalErrorIfDebug() // should not fail to return
                 return
             }
             state.nodeCreationCompleted(newNode.id)
             state.persistNewNode(newNode)
-        } else {
-            // Allows us to render the 'node-sizing-reading' view, which kicks off the animation as soon as its size has been read.
-            state.graphUI.insertNodeMenuState.readActiveSelectionSize = true
-        }
-    }
-}
-
-// fka `AddNodeButtonPressed`
-struct ActiveSelectionSizeReadingCompleted: GraphEvent {
-    
-    let activeSelection: InsertNodeMenuOptionData?
-    
-    func handle(state: GraphState) {
-        
-        // log("ActiveSelectionSizeReadingCompleted called: activeSelection: \(activeSelection)")
-        
-        state.graphUI.insertNodeMenuState.readActiveSelectionSize = false
-        
-        guard let activeSelection = activeSelection,
-              //        guard let activeSelection = state.graphUI.insertNodeMenuState.activeSelection,
-              let nodeKind = activeSelection.data.kind else {
-            log("ActiveSelectionSizeReadingCompleted: no active selection; exiting")
-            return
-        }
-        
-        // Create the real node, but hide it until animation has completed.
-        // (Versus the "animated node" which is really just a NodeView created from activeSelection.)
-        guard let node = state.documentDelegate?.nodeCreated(choice: nodeKind) else {
-            fatalErrorIfDebug()
-            return
-        }
-        
-        // Effectively: insertion-animation has started;
-        // We hide the "real node" (the node that lives in GraphState)
-        // until the animation has completed.
-        state.graphUI.insertNodeMenuState.hiddenNodeId = node.id
-        
-        state.persistNewNode(node)
-        
-        // TODO: use the
-        withAnimation {
-            // log("ActiveSelectionSizeReadingCompleted: withAnimation")
-            state.graphUI.insertNodeMenuState.menuAnimatingToNode = true
-            
-            // TODO: get rid of this manual dispatch of the completed-animation action
-            // TODO: why are the 0.3 extra seconds required?
-            // TODO: base the 0.9 off of the existing animation's duration
-            //            DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
-            //            DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                //            DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
-                dispatch(InsertNodeAnimationCompleted())
+        } else {            
+            // Create the real node, but hide it until animation has completed.
+            // (Versus the "animated node" which is really just a NodeView created from activeSelection.)
+            guard let node = state.documentDelegate?.nodeCreated(choice: nodeKind) else {
+                fatalErrorIfDebug()
+                return
             }
+            
+            let createdNodeId = node.id
+            
+            state.persistNewNode(node)
+            
+            // MARK: with animation disabled we now call this immediately
+            dispatch(InsertNodeAnimationCompleted(createdNodeId: createdNodeId))
+            
+            withAnimation {
+                state.graphUI.insertNodeMenuState.show = false
+    
+                // TODO: animation disabled for now
+//                // log("ActiveSelectionSizeReadingCompleted: withAnimation")
+//                state.graphUI.insertNodeMenuState.menuAnimatingToNode = true
+//                
+//                // TODO: get rid of this manual dispatch of the completed-animation action
+//                // TODO: why are the 0.3 extra seconds required?
+//                // TODO: base the 0.9 off of the existing animation's duration
+//                //            DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
+//                //            DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
+//                DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+//                    //            DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
+//                    dispatch(InsertNodeAnimationCompleted(createdNodeId: createdNodeId))
+//                }
+            }
+            
+            // TODO: `completion` animation callback seems either delayed, or in some cases not to fire at all?
+            //        completion: {
+            //            log("ActiveSelectionSizeReadingCompleted completion")
+            //            // Can we do this, dispatch an action from a completion?
+            //            // else we could move these changes to an onChange listener in the view ?
+            //            dispatch(InsertNodeAnimationCompleted())
+            //        }
         }
-        
-        // TODO: `completion` animation callback seems either delayed, or in some cases not to fire at all?
-        //        completion: {
-        //            log("ActiveSelectionSizeReadingCompleted completion")
-        //            // Can we do this, dispatch an action from a completion?
-        //            // else we could move these changes to an onChange listener in the view ?
-        //            dispatch(InsertNodeAnimationCompleted())
-        //        }
     }
 }
 
 extension GraphState {
     
     @MainActor
-    func nodeCreationCompleted(_ immediatelyCreatedLayerNode: NodeId? = nil) {
+    func nodeCreationCompleted(_ immediatelyCreatedLayerNode: NodeId?) {
         
         if let newlyCreatedNodeId = immediatelyCreatedLayerNode ?? self.graphUI.insertNodeMenuState.hiddenNodeId {
             
@@ -181,14 +163,9 @@ extension GraphState {
         // mark the animation as completed
         self.graphUI.insertNodeMenuState.menuAnimatingToNode = false
 
-        // unhide the real node
-        self.graphUI.insertNodeMenuState.hiddenNodeId = nil
-
         // reset active selection
         //        self.graphUI.insertNodeMenuState.activeSelection = nil
         self.graphUI.insertNodeMenuState.activeSelection = InsertNodeMenuState.startingActiveSelection
-        
-        self.graphUI.insertNodeMenuState.activeSelectionBounds = nil
 
         // reset double tap location, now that animation has completed
         self.graphUI.doubleTapLocation = nil
@@ -196,9 +173,10 @@ extension GraphState {
 }
 
 struct InsertNodeAnimationCompleted: GraphEvent {
+    let createdNodeId: NodeId
 
     @MainActor
     func handle(state: GraphState) {
-        state.nodeCreationCompleted()
+        state.nodeCreationCompleted(createdNodeId)
     }
 }

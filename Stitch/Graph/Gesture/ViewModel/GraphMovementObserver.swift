@@ -68,6 +68,13 @@ let FREE_SCROLL_MOMENTUM_VELOCITY_THRESHOLD: CGFloat = 40
 //let GRAPH_MOMENTUM_VELOCITY_DAMP_FACTOR: CGFloat = 2.6
 let GRAPH_MOMENTUM_VELOCITY_DAMP_FACTOR: CGFloat = 2.8
 
+struct BoundaryNodesPositions {
+    let north: CGPoint
+    let south: CGPoint
+    let west: CGPoint
+    let east: CGPoint
+}
+
 @Observable
 final class GraphMovementObserver {
     var localPosition = CGPoint.zero
@@ -117,6 +124,8 @@ final class GraphMovementObserver {
     var wasTrackpadScroll = false
 
     var momentumState = MomentumAnimationState()
+    
+    var boundaryNodes: BoundaryNodesPositions?
 }
 
 extension GraphMovementObserver {
