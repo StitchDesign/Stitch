@@ -149,13 +149,22 @@ extension GraphState {
             return
         }
         
-        if shiftHeld,
-           self.graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag == nil {
-            self.graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag = self.selectedCanvasItems.map(\.id).toSet
-        }
-        
-        // Note: alternatively?: wipe this collection/set when gesure ends
-        if !shiftHeld {
+        if shiftHeld {
+            let initiallySelectedNodes = self.selectedCanvasItems.map(\.id).toSet
+            let previouslySelectedNodes = self.graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag ?? .init()
+
+            if self.graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag == nil {
+                // Increment previously-selected shift-click nodes to current selected set
+                // on new shift click
+                let allSelectedNodes = initiallySelectedNodes.union(previouslySelectedNodes)
+                self.graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag = initiallySelectedNodes.union(allSelectedNodes)
+                selectedNodes = selectedNodes.union(allSelectedNodes)
+            } else {
+                // Ignore previously selected nodes on pre-existing shift click
+                selectedNodes = selectedNodes.union(previouslySelectedNodes)
+            }
+        } else {
+            // Note: alternatively?: wipe this collection/set when gesure ends
             self.graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag = nil
         }
         

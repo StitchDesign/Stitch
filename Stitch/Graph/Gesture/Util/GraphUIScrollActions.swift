@@ -719,6 +719,9 @@ extension StitchDocumentViewModel {
         graphMovement.wasTrackpadScroll = false
 
         graphMovement.draggedCanvasItem = nil
+        
+        // Reset shift+click drag selections
+        state.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag = nil
     }
 
     // you should pass in GraphMovement
@@ -808,6 +811,9 @@ extension StitchDocumentViewModel {
 
         // Cancel any possible active graph pan gesture
         graphUIState.selection.graphDragState = .none
+        
+        // Reset shift-click selection state
+        graphUIState.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag = nil
     }
 }
 
