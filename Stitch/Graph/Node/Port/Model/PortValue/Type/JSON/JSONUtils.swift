@@ -750,6 +750,13 @@ extension JSONFriendlyFormat {
                 }
                 return nil
                 
+            case .size:
+                // TODO: remove this once we have taught LLM Model t
+                if let size = self.jsonWrapper.first?.1.toSize {
+                    return .size(size)
+                }
+                return nil
+                
             default:
                 fatalErrorIfDebug()
                 return nil

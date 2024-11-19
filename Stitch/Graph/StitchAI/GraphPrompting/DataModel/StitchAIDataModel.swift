@@ -55,7 +55,7 @@ struct Step: Equatable, Codable {
     var toNodeId: String?
     
 //    var value: StringOrNumber?  // Updated to handle String or Int
-    var value: JSONFriendlyFormat
+    var value: JSONFriendlyFormat?
     
     var nodeType: String?
     
