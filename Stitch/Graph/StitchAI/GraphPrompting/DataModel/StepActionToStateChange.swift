@@ -229,21 +229,15 @@ extension LLMStepAction {
     }
     
     func parseFromPort() -> Int? {
-        guard let fromPort: String = self.fromPort else {
+        
+        guard let fromPort: Int = self.fromPort else {
             log("fromPort was not defined")
             // For legacy reasons, assume 0
 //            return nil
             return 0
         }
           
-        if let portId = Int(fromPort) {
-            return portId
-        } else if let portId = Double(fromPort) {
-            return Int(portId)
-        } else {
-            log("could not parse LLMStepAction's fromPort: \(fromPort)")
-            return nil
-        }
+        return fromPort
     }
     
     // See note in `NodeType.asLLMStepNodeType`

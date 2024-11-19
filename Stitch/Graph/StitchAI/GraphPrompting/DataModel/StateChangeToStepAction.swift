@@ -128,6 +128,19 @@ extension InputCoordinate {
     }
 }
 
+extension OutputCoordinate {
+    func asLLMStepFromPort() -> Int {
+        switch self.portType {
+        case .keyPath(let x):
+            fatalErrorIfDebug()
+            return 0
+        case .portIndex(let x):
+            // an integer
+            return x
+        }
+    }
+}
+
 //need to feed in port id's as well
 //pass in the input coordinate
 func createLLMStepConnectionAdded(input: InputCoordinate,
@@ -141,7 +154,7 @@ func createLLMStepConnectionAdded(input: InputCoordinate,
     return LLMStepAction(
         stepType: StepType.connectNodes.rawValue,
         port: .init(value: input.asLLMStepPort()),
-        fromPort: output.asLLMStepPort(),
+        fromPort: output.asLLMStepFromPort(),
         fromNodeId: output.nodeId.uuidString,
         toNodeId: input.nodeId.uuidString)
 }

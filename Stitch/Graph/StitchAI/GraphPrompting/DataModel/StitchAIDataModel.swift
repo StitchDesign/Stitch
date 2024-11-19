@@ -49,7 +49,7 @@ struct Step: Equatable, Codable {
     // We currently assume that an edge goes out from a patch's first output.
     var port: StringOrNumber?
     
-    var fromPort: String?
+    var fromPort: Int?
     
     var fromNodeId: String?
     var toNodeId: String?
