@@ -20,7 +20,6 @@ indirect enum LayerType: Equatable, Hashable {
     
     // TODO: theoretically could just use `[LayerType]` but need to update recursion logic
     // TODO: should be also NonEmpty, i.e. guaranteed to have at least one masked view and one masker view
-    // NOTE: THIS IS AN ORDERED SET
     case mask(masked: LayerTypeSet, masker: LayerTypeSet)
 }
 
@@ -49,32 +48,32 @@ struct LayerGroupData: Equatable, Hashable {
 extension LayerType {
     
     // Only used for pinning?
-//    var id: PreviewCoordinate {
-//        switch self {
-//        case .nongroup(let data, _):
-//            return data.id
-//        case .group(let data, _):
-//            return data.id
-//        case .mask(masked: let masked, masker: _):
-//            // TODO: what is the the layer-node-id of a LayerType in a masking situation? Really, it's nil, there's no single LayerNode
-//            // return masked.id
-//            return masked.first!.id
-//        }
-//    }
+    var id: PreviewCoordinate {
+        switch self {
+        case .nongroup(let data, _):
+            return data.id
+        case .group(let data, _):
+            return data.id
+        case .mask(masked: let masked, masker: _):
+            // TODO: what is the the layer-node-id of a LayerType in a masking situation? Really, it's nil, there's no single LayerNode
+            // return masked.id
+            return masked.first!.id
+        }
+    }
 
-//    // DEBUG ONLY?
-//    var layer: Layer {
-//        switch self {
-//        case .nongroup(let data, _):
-//            return data.layer
-//        case .group(let data, _):
-//            return data.layer
-//        case .mask(masked: let masked, masker: _):
-//            // TODO: what is the the layer-node-id of a LayerType in a masking situation? Really, it's nil, there's no single LayerNode
-//            // return masked.id
-//            return masked.first!.layer
-//        }
-//    }
+    // DEBUG ONLY?
+    var layer: Layer {
+        switch self {
+        case .nongroup(let data, _):
+            return data.layer
+        case .group(let data, _):
+            return data.layer
+        case .mask(masked: let masked, masker: _):
+            // TODO: what is the the layer-node-id of a LayerType in a masking situation? Really, it's nil, there's no single LayerNode
+            // return masked.id
+            return masked.first!.layer
+        }
+    }
     
     var isGroup: Bool {
         switch self {
@@ -86,17 +85,16 @@ extension LayerType {
     }
     
     var isPinnedView: Bool {
-        return false
-//        switch self {
-//        case .nongroup(_, let isPinned):
-//            return isPinned
-//        case .group(_, let isPinned):
-//            // "Is group layer itself pinned?"
-//            return isPinned
-//        case .mask(masked: let x, masker: _):
-//            // "Is first masked view pinned?" (is this correct?)
-//            return x.first?.isPinnedView ?? false
-//        }
+        switch self {
+        case .nongroup(_, let isPinned):
+            return isPinned
+        case .group(_, let isPinned):
+            // "Is group layer itself pinned?"
+            return isPinned
+        case .mask(masked: let x, masker: _):
+            // "Is first masked view pinned?" (is this correct?)
+            return x.first?.isPinnedView ?? false
+        }
     }
     
     var sidebarIndex: Int {
@@ -146,15 +144,14 @@ extension LayerData: Identifiable {
     }
 
     var isPinned: Bool {
-        return false
-//        switch self {
-//        case .nongroup(_, let isPinned):
-//            return isPinned
-//        case .group(_, _, let isPinned):
-//            return isPinned
-//        case .mask:
-//            return false
-//        }
+        switch self {
+        case .nongroup(_, let isPinned):
+            return isPinned
+        case .group(_, _, let isPinned):
+            return isPinned
+        case .mask:
+            return false
+        }
     }
         
     var layer: LayerViewModel {
@@ -165,8 +162,8 @@ extension LayerData: Identifiable {
             return layer
         case .mask(masked: let layerDataList, masker: _):
             // TODO: `layerDataList` should be NonEmpty; there's no way to gracefully fail here
-//            return layerDataList.first!.layer
-            return layerDataList.last!.layer
+            return layerDataList.first!.layer
+//            return layerDataList.last!.layer
         }
     }
     
