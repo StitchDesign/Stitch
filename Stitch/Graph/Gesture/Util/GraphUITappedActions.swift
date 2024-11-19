@@ -27,10 +27,10 @@ struct GraphDoubleTappedAction: StitchDocumentEvent {
         
         state.graphUI.toggleInsertNodeMenu()
         
-        if !state.llmRecording.isRecording {
-            // Do not set double-tap location if we're actively recording
-            state.graphUI.doubleTapLocation = location
-        }
+//        if !state.llmRecording.isRecording {
+//            // Do not set double-tap location if we're actively recording
+//            state.graphUI.doubleTapLocation = location
+//        }
         
         // log("GraphDoubleTappedAction: state.doubleTapLocation is now: \(state.doubleTapLocation)")
     }
