@@ -96,8 +96,7 @@ extension StitchDocumentViewModel {
         self.graphMovement.draggedCanvasItem = nil
         
         // Reset nodes layout cache
-        self.visibleGraph.visibleNodesViewModel.infiniteCanvasCache = nil
-        self.visibleGraph.visibleNodesViewModel.setAllNodesVisible()
+        self.visibleGraph.visibleNodesViewModel.resetCache()
     }
 
     // GOOD EXAMPLE FOR ARKIT NODES

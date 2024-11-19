@@ -312,6 +312,13 @@ extension VisibleNodesViewModel {
     func setAllNodesVisible() {
         self.visibleCanvasIds = self.allViewModels.map(\.id).toSet
     }
+    
+    @MainActor
+    /// Updates node visibility data.
+    func resetCache() {
+        self.infiniteCanvasCache = nil
+        self.setAllNodesVisible()
+    }
 }
 
 extension InsertNodeMenuState {
