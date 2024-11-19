@@ -42,6 +42,7 @@ struct GraphMovementViewModifier: ViewModifier {
     }
     
     
+    // MARK: CURRENTLY UNUSED DUE TO QUESTIONABLE PERF BENEFITS.
     /// Accomplishes the following tasks:
     /// 1. Determines which nodes are visible.
     /// 2. Determines which nodes are selected from the selection box, if applicable.
@@ -59,10 +60,6 @@ struct GraphMovementViewModifier: ViewModifier {
                                size: viewFrameSize)
         let viewFrame = Self.getScaledViewFrame(scale: zoom,
                                                 graphView: graphView)
-//        let selectionBoxInViewFrame = Self.getScaledSelectionBox(selectionBox: selectionBox,
-//                                                                 scale: zoom,
-//                                                                 scaledViewFrameOrigin: viewFrame.origin)
-//        let hasActiveSelectionBox = selectionBoxInViewFrame.isDefined
         
         // Determine nodes to make visible--use cache in case nodes exited viewframe
         for cachedSubviewData in graph.visibleNodesViewModel.infiniteCanvasCache ?? .init() {
@@ -73,22 +70,7 @@ struct GraphMovementViewModifier: ViewModifier {
             if isVisibleInFrame {
                 visibleNodes.insert(id)
             }
-            
-//            if nodesSelectedOnShift?.contains(id) ?? false {
-//                log("skipping canvasItem \(id) since was held as part of shift etc.")
-//                continue
-//            }
-            
-//            if let selectionBoxInViewFrame = selectionBoxInViewFrame {
-//                if selectionBoxInViewFrame.intersects(cachedBounds) {
-//                    selectedNodes.insert(id)
-//                }
-//            }
         }
-        
-//        if hasActiveSelectionBox {
-//            self.graph.graphUI.selection.selectedNodeIds = selectedNodes
-//        }
         
         if graph.visibleNodesViewModel.visibleCanvasIds != visibleNodes {
             graph.visibleNodesViewModel.visibleCanvasIds = visibleNodes
@@ -96,6 +78,7 @@ struct GraphMovementViewModifier: ViewModifier {
         
         return visibleNodes
     }
+        
     
     /// Uses graph local offset and scale to get a modified `CGRect` of the view frame.
     static func getScaledViewFrame(scale: Double,
