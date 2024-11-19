@@ -175,18 +175,73 @@ enum PatchOrLayer: Equatable, Codable {
 
 extension LLMStepAction {
     
+    // TODO: smarter 
     func parseValue(_ nodeType: NodeType) -> PortValue? {
         guard let value: StringOrNumber = self.value else {
             log("value was not defined")
             return nil
         }
         
-        // TODO: to support a wider range of values, use `JSONFriendlyFormat` instead of `StringOrNumber` and follow older LLMAction-style parsing of LLMSetInput
-        if let number = Double(value.value) {
-            return .number(number)
-        } else {
+        log("LLMStepAction: parseValue: had node type \(nodeType) and value \(value)")
+        
+        let valueAsJSON = parseJSON(value.value)
+        
+        log("LLMStepAction: parseValue: valueAsJSON \(valueAsJSON)")
+        
+        // parsing what the model can create; but not the same as what LLM "recording mode" creates
+        
+        switch nodeType {
+                        
+        case .position:
+            if let json = parseJSON(value.value),
+               let x = json["x"].double,
+               let y = json["y"].double {
+                
+                log("LLMStepAction: parseValue: position \(x), \(y)")
+                return .position(.init(x: x, y: y))
+            } else {
+                log("LLMStepAction: parseValue: position: could not create position")
+                return nil
+            }
+        
+        case .size:
+            if let json = parseJSON(value.value),
+               let width = json["width"].double,
+               let height = json["height"].double {
+                
+                log("LLMStepAction: parseValue: size \(width), \(height)")
+                return .size(.init(width: width, height: height))
+            } else {
+                log("LLMStepAction: parseValue: size: could not create size")
+                return nil
+            }
+        
+        case .number:
+            return Double(value.value).map(PortValue.number)
+            
+        case .interactionId:
+            if let uuid = UUID(uuidString: value.value) {
+                log("LLMStepAction: parseValue: interactionId: had assigned layer \(uuid)")
+                return .assignedLayer(.init(uuid))
+            } else if value.value == PortValue.assignedLayer(nil).display {
+                log("LLMStepAction: parseValue: interactionId: had assigned nil layer")
+                return .assignedLayer(nil)
+            } else {
+                log("LLMStepAction: parseValue: interactionId: could not create assigned layer")
+                return nil
+            }
+        
+        default:
+            log("LLMStepAction: parseValue: node type \(nodeType) defaulting for value \(value)")
             return .string(.init(value.value))
         }
+        
+        // TODO: to support a wider range of values, use `JSONFriendlyFormat` instead of `StringOrNumber` and follow older LLMAction-style parsing of LLMSetInput
+//        if let number = Double(value.value) {
+//            return .number(number)
+//        } else {
+//            return .string(.init(value.value))
+//        }
     }
     
     // TODO: `LLMStepAction`'s `port` parameter does not yet properly distinguish between input vs output?

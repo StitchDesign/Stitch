@@ -382,7 +382,12 @@ let VISUAL_PROGRAMMING_ACTIONS = """
       "enum": [
         "number",
         "text",
-        "boolean"
+        "boolean", 
+        "size",
+        "position",
+        "point3D",
+        "padding",
+        "assignedLayer"
       ],
       "title": "NodeType",
       "type": "string"

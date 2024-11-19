@@ -575,6 +575,12 @@ extension JSON {
     }
 }
 
+enum StitchAIValue: Equatable {
+    case number(Double)
+    case string(String)
+    case dictionary
+}
+
 //enum JSONFriendlyFormat: Encodable, Equatable {
 
 // Represents a PortValue in a way that displays "naturally" in a JSON.
@@ -592,7 +598,7 @@ enum JSONFriendlyFormat: Encodable, Decodable, Equatable {
     var jsonWrapper: JSON {
         self.setInJSON(JSON(["a"]), index: 0)
     }
-
+            
     /*
      How would you really decode this?
      You have no keys etc. -- you just get a string or number or dictionary etc. back.
@@ -610,15 +616,24 @@ enum JSONFriendlyFormat: Encodable, Decodable, Equatable {
         if let s = try? container.decode(String.self) {
             self = .string(s)
         }
+        
         else if let n = try? container.decode(Double.self) {
             self = .number(n)
-        } else if let d = try? container.decode([String: Double].self) {
+        }
+        
+        else if let d = try? container.decode([String: Double].self) {
             self = .dictionary(d)
-        } else if let ld = try? container.decode([String: String].self) {
+        }
+        
+        else if let ld = try? container.decode([String: String].self) {
             self = .layerSizeDictionary(ld)
-        } else if let j = try? container.decode(JSON.self) {
+        }
+        
+        else if let j = try? container.decode(JSON.self) {
             self = .json(j)
-        } else {
+        }
+        
+        else {
             fatalErrorIfDebug()
             self = .string("Decoding Failed")
         }
@@ -641,9 +656,6 @@ enum JSONFriendlyFormat: Encodable, Decodable, Equatable {
         }
     }
 }
-
-//extension LayerSize: Codable { }
-
 
 extension JSONFriendlyFormat {
     
