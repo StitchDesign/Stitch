@@ -64,10 +64,6 @@ struct NodesView: View {
                                                currentNodePage: nodePageData,
                                                graph: graph,
                                                groupNodeFocused: graphUI.groupNodeFocused))
-        //        .onChange(of: groupNodeFocused) {
-        //            // Updates cached data inside row observers when group changes
-        //            self.visibleNodesViewModel.updateAllNodeViewData()
-        //        }
     }
     
     // TODO: better location for CommentBoxes?

@@ -70,7 +70,6 @@ final class CanvasItemViewModel: Identifiable, StitchLayoutCachable {
     var id: CanvasItemId
     var position: CGPoint = .zero
     var previousPosition: CGPoint = .zero
-//    var bounds = NodeBounds()
     var zIndex: Double = .zero
     var parentGroupNodeId: NodeId?
     

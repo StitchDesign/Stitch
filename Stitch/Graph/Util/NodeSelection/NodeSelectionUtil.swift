@@ -205,46 +205,7 @@ extension GraphState {
         
         if self.graphUI.selection.selectedNodeIds != selectedNodes {
             self.graphUI.selection.selectedNodeIds = selectedNodes
-        }
-        
-//        var smallestDistance: CGFloat?
-        
-//        let allCanvasItems = self.visibleNodesViewModel.getVisibleCanvasItems(at: self.groupNodeFocused)
-//        
-//        for canvasItem in allCanvasItems {
-//            
-//            if self.graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag?.contains(canvasItem.id) ?? false {
-//                log("skipping canvasItem \(canvasItem.id) since was held as part of shift etc.")
-//                continue
-//            }
-//            
-//            
-//            let doesSelectionIntersectCanvasItem = cursorSelectionBox.intersects(canvasItem.bounds.graphBaseViewBounds)
-//            
-//            // Selected
-//            if doesSelectionIntersectCanvasItem {
-//                
-//                // Add to selected canvas items
-//                canvasItem.select()
-//                
-//                let thisDistance = CGPointDistanceSquared(
-//                    from: canvasItem.bounds.graphBaseViewBounds.origin,
-//                    to: graphState.graphUI.selection.expansionBox.endPoint)
-//
-//                if !smallestDistance.isDefined {
-//                    smallestDistance = thisDistance
-//                }
-//            } // if intersecrts
-//
-//            // De-selected
-//            else {
-//                // Remove from selected canvas items
-//                
-//                // Only remove from
-//                canvasItem.deselect()
-//            }
-//        }
-        
+        }        
         
         // Determine selected comment boxes
 
@@ -284,10 +245,6 @@ extension GraphState {
         
         let scaledSelectionBox = CGRect(origin: scaledOrigin + scaledViewFrameOrigin,
                                            size: scaledSelectionBoxSize)
-//                print("infinite selection origin: \(selectionBox.origin)")
-//                print("infinite selection size: \(selectionBox.size)")
-//                print("infinite selection final: \(selectionBoxViewFrame)")
-//                print("infinite node: \(cachedBounds)")
         
         return scaledSelectionBox
     }

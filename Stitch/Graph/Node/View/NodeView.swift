@@ -137,13 +137,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
                 .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
                 .allowsHitTesting(!isLayerInvisible)
         }
-//        .fixedSize()
         .modifier(CanvasItemBackground(color: nodeUIColor.body))
-//        .modifier(CanvasItemBoundsReader(
-//            graph: graph,
-//            canvasItem: node,
-//            disabled: boundsReaderDisabled,
-//            updateMenuActiveSelectionBounds: updateMenuActiveSelectionBounds))
         
         .modifier(CanvasItemSelectedViewModifier(isSelected: isSelected))
     }
@@ -162,13 +156,11 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
     }
 
     var nodeBodyKind: some View {
-//        CachedView {
-            HStack(alignment: .top, spacing: NODE_BODY_SPACING) {
-                inputsViews()
-                Spacer()
-                outputsViews()
-            }
-//        }
+        HStack(alignment: .top, spacing: NODE_BODY_SPACING) {
+            inputsViews()
+            Spacer()
+            outputsViews()
+        }
     }
 }
 
