@@ -120,12 +120,30 @@ struct NodeLayoutCache {
 }
 
 struct NodeLayout<T: StitchLayoutCachable>: Layout {
-    typealias Cache = NodeLayoutCache
+    typealias Cache = () -> Void //NodeLayoutCache
     
     let observer: T
     
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) -> CGSize {
-        cache.sizeThatFits
+        guard let cache = observer.viewCache else {
+            let newCache = self.createCache(subviews: subviews)
+            self.observer.viewCache = newCache
+            
+            return newCache.sizeThatFits
+        }
+        
+        return cache.sizeThatFits
+    }
+    
+    private func createCache(subviews: Subviews) -> NodeLayoutCache {
+        let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
+        let sizeThatFits = self.calculateSizeThatFits(subviews: subviews)
+        let spacing = self.calculateSpacing(subviews: subviews)
+        let cache = NodeLayoutCache(sizes: sizes,
+                                    sizeThatFits: sizeThatFits,
+                                    spacing: spacing)
+        
+        return cache
     }
     
     private func calculateSizeThatFits(subviews: Subviews) -> CGSize {
@@ -144,9 +162,18 @@ struct NodeLayout<T: StitchLayoutCachable>: Layout {
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) {
         guard !subviews.isEmpty else { return }
         
+        let cache = observer.viewCache ?? self.createCache(subviews: subviews)
+            
+        if self.observer.viewCache == nil {
+            self.observer.viewCache = cache
+        }
+        
         for index in subviews.indices {
             let subview = subviews[index]
+            
             let size = cache.sizes[index]
+            
+//            let actualSize = subview.sizeThatFits(proposal)
             
             subview.place(
                 at: bounds.origin,
@@ -156,7 +183,12 @@ struct NodeLayout<T: StitchLayoutCachable>: Layout {
     }
     
     func spacing(subviews: Self.Subviews, cache: inout Cache) -> ViewSpacing {
-        cache.spacing
+        guard let cache = self.observer.viewCache else {
+            let newCache = self.createCache(subviews: subviews)
+            return newCache.spacing
+        }
+        
+        return cache.spacing
     }
     
     private func calculateSpacing(subviews: Self.Subviews) -> ViewSpacing {
@@ -173,19 +205,20 @@ struct NodeLayout<T: StitchLayoutCachable>: Layout {
     }
     
     func makeCache(subviews: Subviews) -> Cache {
-        guard let cache = observer.viewCache else {
-            let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
-            let sizeThatFits = self.calculateSizeThatFits(subviews: subviews)
-            let spacing = self.calculateSpacing(subviews: subviews)
-            let cache = Cache(sizes: sizes,
-                              sizeThatFits: sizeThatFits,
-                              spacing: spacing)
-            
-            self.observer.viewCache = cache
-            return cache
-        }
-        
-        return cache
+//        guard let cache = observer.viewCache else {
+//            let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
+//            let sizeThatFits = self.calculateSizeThatFits(subviews: subviews)
+//            let spacing = self.calculateSpacing(subviews: subviews)
+//            let cache = Cache(sizes: sizes,
+//                              sizeThatFits: sizeThatFits,
+//                              spacing: spacing)
+//            
+//            self.observer.viewCache = cache
+//            return cache
+//        }
+//        
+//        return cache
+        { }
     }
     
     // Keep this empty for perf
