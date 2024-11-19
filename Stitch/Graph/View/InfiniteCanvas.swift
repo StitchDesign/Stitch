@@ -30,7 +30,6 @@ struct InfiniteCanvas: Layout {
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) {
         // Place subviews
         for subview in subviews {
-            // TODO: need support for removal
             let positionData = subview[CanvasPositionKey.self]
             let id = positionData.id
             

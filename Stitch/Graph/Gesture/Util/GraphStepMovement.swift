@@ -149,9 +149,6 @@ extension StitchDocumentViewModel {
                 }
             }
         }
-        
-        // Update nodes to render in view
-        self.refreshVisibleNodes()
 
         if !graphMovement.shouldRun {
             graphMovement.resetGraphMovement()

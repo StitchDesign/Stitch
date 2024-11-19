@@ -37,8 +37,6 @@ extension StitchDocumentViewModel {
                                                 currentScale: graphZoom.final)
         
         graphZoom.current = newAmount
-        
-        self.refreshVisibleNodes()
     }
     
     @MainActor

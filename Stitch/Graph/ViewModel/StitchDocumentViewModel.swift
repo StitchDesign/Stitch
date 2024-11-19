@@ -103,12 +103,13 @@ final class StitchDocumentViewModel: Sendable {
         self.graphStepManager.start()
         
         // Updates node location data for perf + edge UI
+        // MARK: currently testing perf without visibility check
         if isInitialization {
             // Need all nodes to render initially
             let visibleGraph = self.visibleGraph
             visibleGraph.visibleNodesViewModel.setAllNodesVisible()
         } else {
-            self.refreshVisibleNodes()
+//            self.refreshVisibleNodes()
         }
     }
     
