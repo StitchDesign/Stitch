@@ -177,7 +177,6 @@
 		B590041A28501E6700EDDDFD /* MediaPickerValueEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = B590041928501E6700EDDDFD /* MediaPickerValueEntry.swift */; };
 		B59447212B97FA140039603D /* CommentBoxViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59447202B97FA140039603D /* CommentBoxViewModel.swift */; };
 		B5952EA32BD34597005687C0 /* InsertNodeMenuWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5952EA22BD34597005687C0 /* InsertNodeMenuWrapper.swift */; };
-		B596608B2C1A413200BE75D7 /* NodeBounds.swift in Sources */ = {isa = PBXBuildFile; fileRef = B596608A2C1A413200BE75D7 /* NodeBounds.swift */; };
 		B596608D2C1A430C00BE75D7 /* NodeIO.swift in Sources */ = {isa = PBXBuildFile; fileRef = B596608C2C1A430C00BE75D7 /* NodeIO.swift */; };
 		B59660982C1A498800BE75D7 /* StitchMLModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59660972C1A498800BE75D7 /* StitchMLModel.swift */; };
 		B596609B2C1A4B9900BE75D7 /* StitchShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = B596609A2C1A4B9900BE75D7 /* StitchShape.swift */; };
@@ -215,6 +214,8 @@
 		B5C0E0AD299AD69D00322A1E /* Earth Video.stitch in Resources */ = {isa = PBXBuildFile; fileRef = B5C0E0AC299AD69D00322A1E /* Earth Video.stitch */; };
 		B5C0E0B0299ADC7A00322A1E /* Patch Nodes.stitch in Resources */ = {isa = PBXBuildFile; fileRef = B5C0E0AE299ADC7A00322A1E /* Patch Nodes.stitch */; };
 		B5C0E0B1299ADC7A00322A1E /* Layer Nodes.stitch in Resources */ = {isa = PBXBuildFile; fileRef = B5C0E0AF299ADC7A00322A1E /* Layer Nodes.stitch */; };
+		B5C53FAF2CED1FAC0069612E /* NodeLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5C53FAE2CED1FA70069612E /* NodeLayout.swift */; };
+		B5C53FB12CED20AE0069612E /* InfiniteCanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5C53FB02CED20AB0069612E /* InfiniteCanvas.swift */; };
 		B5C603A5275D9BE200EA2999 /* CameraUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5C603A4275D9BE200EA2999 /* CameraUtil.swift */; };
 		B5C603A7275D9E5C00EA2999 /* CameraOrientation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5C603A6275D9E5C00EA2999 /* CameraOrientation.swift */; };
 		B5CA9D2E2A77503B00B4E431 /* NumberFormatterObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CA9D2D2A77503B00B4E431 /* NumberFormatterObserver.swift */; };
@@ -1104,7 +1105,6 @@
 		B590041928501E6700EDDDFD /* MediaPickerValueEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPickerValueEntry.swift; sourceTree = "<group>"; };
 		B59447202B97FA140039603D /* CommentBoxViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentBoxViewModel.swift; sourceTree = "<group>"; };
 		B5952EA22BD34597005687C0 /* InsertNodeMenuWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsertNodeMenuWrapper.swift; sourceTree = "<group>"; };
-		B596608A2C1A413200BE75D7 /* NodeBounds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeBounds.swift; sourceTree = "<group>"; };
 		B596608C2C1A430C00BE75D7 /* NodeIO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeIO.swift; sourceTree = "<group>"; };
 		B59660972C1A498800BE75D7 /* StitchMLModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchMLModel.swift; sourceTree = "<group>"; };
 		B596609A2C1A4B9900BE75D7 /* StitchShape.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchShape.swift; sourceTree = "<group>"; };
@@ -1139,6 +1139,8 @@
 		B5C0E0AC299AD69D00322A1E /* Earth Video.stitch */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Earth Video.stitch"; sourceTree = "<group>"; };
 		B5C0E0AE299ADC7A00322A1E /* Patch Nodes.stitch */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Patch Nodes.stitch"; sourceTree = "<group>"; };
 		B5C0E0AF299ADC7A00322A1E /* Layer Nodes.stitch */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Layer Nodes.stitch"; sourceTree = "<group>"; };
+		B5C53FAE2CED1FA70069612E /* NodeLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeLayout.swift; sourceTree = "<group>"; };
+		B5C53FB02CED20AB0069612E /* InfiniteCanvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfiniteCanvas.swift; sourceTree = "<group>"; };
 		B5C603A4275D9BE200EA2999 /* CameraUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraUtil.swift; sourceTree = "<group>"; };
 		B5C603A6275D9E5C00EA2999 /* CameraOrientation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraOrientation.swift; sourceTree = "<group>"; };
 		B5CA9D2D2A77503B00B4E431 /* NumberFormatterObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberFormatterObserver.swift; sourceTree = "<group>"; };
@@ -2550,6 +2552,7 @@
 				EC6205C328A1B19A00AEF7BA /* NodeTag */,
 				B555011A2C1BD8360081C3F1 /* Util */,
 				ECDE943328089FCE00005401 /* NodesView.swift */,
+				B5C53FAE2CED1FA70069612E /* NodeLayout.swift */,
 				EC91B56329AE7891006E823D /* NodesOnlyView.swift */,
 				B5EC61F82A5E2174002A639F /* NodeViewType.swift */,
 				ECDE943128089DF500005401 /* NodeView.swift */,
@@ -3132,7 +3135,6 @@
 				B55780642CAF66D600907BA8 /* StitchComponentable.swift */,
 				EC6DF0A829FA04F60052545E /* StitchJSON.swift */,
 				ECF2ED122A732B5A003EB106 /* MomentumAnimationState.swift */,
-				B596608A2C1A413200BE75D7 /* NodeBounds.swift */,
 				B596608C2C1A430C00BE75D7 /* NodeIO.swift */,
 				ECF387DE280B61860075F0E5 /* NodeUIKind.swift */,
 			);
@@ -3317,6 +3319,7 @@
 		B56FFB682C19686C00623CC7 /* View */ = {
 			isa = PBXGroup;
 			children = (
+				B5C53FB02CED20AB0069612E /* InfiniteCanvas.swift */,
 				ECA3915A29A6C3C9005C10A8 /* StitchProjectView.swift */,
 				200BD85C254F66EB00692903 /* ContentView.swift */,
 				EC295CC727B31AA900739F98 /* ProjectNavigationView.swift */,
@@ -4916,6 +4919,7 @@
 				B5FE67F52A73962A00DABD19 /* FieldValueData.swift in Sources */,
 				EC5A2DDF2632020700D8DEE5 /* PreviewImage.swift in Sources */,
 				EC0093DC26D6B8BA000EAE08 /* AbsoluteValueNode.swift in Sources */,
+				B5C53FAF2CED1FAC0069612E /* NodeLayout.swift in Sources */,
 				EC5A2DE3263202FC00D8DEE5 /* VisualMediaLayerNode.swift in Sources */,
 				B55500B62C1B98B00081C3F1 /* SingleDropdownKind.swift in Sources */,
 				ECE35EDE27CEDB7100CB8F5C /* LayerDimensionUtils.swift in Sources */,
@@ -5041,6 +5045,7 @@
 				ECA92A50260A6B8F00281B52 /* Input.swift in Sources */,
 				B506CECA2A26B19300FD9F37 /* NodeFieldsView.swift in Sources */,
 				ECDC622226584F8400F67ED8 /* PHPickerView.swift in Sources */,
+				B5C53FB12CED20AE0069612E /* InfiniteCanvas.swift in Sources */,
 				ECDFF6322A0EA0CF00729D2A /* CommandsToShapeNode.swift in Sources */,
 				B5AC74F9283701E5002A5D01 /* ProjectsListView.swift in Sources */,
 				EC2614472B89607300BEB066 /* Point3DPackNode.swift in Sources */,
@@ -5407,7 +5412,6 @@
 				B55500C62C1B9F9D0081C3F1 /* FieldValueMedia.swift in Sources */,
 				B5DDF6FE293AD24C00D72220 /* GraphStepManager.swift in Sources */,
 				EC96B0462B8D097D00B58227 /* MoveToPackNode.swift in Sources */,
-				B596608B2C1A413200BE75D7 /* NodeBounds.swift in Sources */,
 				EC035BF828A56E84005FA607 /* ClassicAnimationFormulae.swift in Sources */,
 				EC46AC0926CEE3820062CB26 /* DeviceMotionHelpers.swift in Sources */,
 				B5B20BB0279925EC008A2B5A /* FullScreenPreviewViewWrapper.swift in Sources */,

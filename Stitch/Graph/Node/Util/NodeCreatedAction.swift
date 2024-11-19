@@ -73,8 +73,6 @@ extension StitchDocumentViewModel {
     @MainActor
     func nodeCreated(node: NodeViewModel) {
 
-        let choice = node.kind
-
         // Note: DO NOT RESET THE ACTIVE NODE MENU SELECTION UNTIL ANIMATION HAS COMPLETED
         // Reset selection for insert node menu
         // self.graphUI.insertNodeMenuState.activeSelection = InsertNodeMenuState.allSearchOptions.first
@@ -96,6 +94,9 @@ extension StitchDocumentViewModel {
         //    self.graphUI.doubleTapLocation = nil
 
         self.graphMovement.draggedCanvasItem = nil
+        
+        // Reset nodes layout cache
+        self.visibleGraph.visibleNodesViewModel.resetCache()
     }
 
     // GOOD EXAMPLE FOR ARKIT NODES

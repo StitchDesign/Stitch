@@ -71,7 +71,9 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
             .padding(.vertical, INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET * 2)
         }
         else {
-            fields
+//            NodeLayout(observer: fieldGroupViewModel) {
+                fields
+//            }
         }
     }
     

@@ -11,7 +11,7 @@ import StitchSchemaKit
 typealias InputFieldViewModels = [InputFieldViewModel]
 typealias OutputFieldViewModels = [OutputFieldViewModel]
 
-protocol FieldViewModel: AnyObject, Observable, Identifiable {
+protocol FieldViewModel: StitchLayoutCachable, Observable, AnyObject, Identifiable {
     associatedtype NodeRowType: NodeRowViewModel
     
     var fieldValue: FieldValue { get set }
@@ -68,6 +68,7 @@ final class InputFieldViewModel: FieldViewModel {
     var fieldValue: FieldValue
     var fieldIndex: Int
     var fieldLabel: String
+    var viewCache: NodeLayoutCache?
 
     weak var rowViewModelDelegate: InputNodeRowViewModel?
     
@@ -87,6 +88,7 @@ final class OutputFieldViewModel: FieldViewModel {
     var fieldValue: FieldValue
     var fieldIndex: Int
     var fieldLabel: String
+    var viewCache: NodeLayoutCache?
     
     weak var rowViewModelDelegate: OutputNodeRowViewModel?
     

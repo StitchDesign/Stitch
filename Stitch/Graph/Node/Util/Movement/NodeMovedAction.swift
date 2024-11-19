@@ -276,9 +276,6 @@ extension StitchDocumentViewModel {
         log("handleNodeMoveEnded: id \(id): ")
 #endif
         
-        print(self.graph.visibleNodesViewModel.nodes.first?.value.nodeType.patchNode?.inputsObservers.first?.allLoopedValues.first)
-        print(self.graph.visibleNodesViewModel.nodes.first?.value.nodeType.patchNode?.inputsObservers.first?.activeValue)
-
         // DUAL DRAG:
         self.graphMovement.stopNodeMovement()
         
@@ -291,8 +288,8 @@ extension StitchDocumentViewModel {
         }
         
         let _update = { (canvasItem: CanvasItemViewModel) in
-
-            let nodeSize = canvasItem.bounds.graphBaseViewBounds.size
+            
+            let nodeSize = canvasItem.graphBaseViewSize
             
             canvasItem.position = determineSnapPosition(
                 position: canvasItem.position,
@@ -310,6 +307,8 @@ extension StitchDocumentViewModel {
 //                                        diff: diff)
         }
         
+        // Update boundary nodes
+        
         self.visibleGraph.selectedCanvasItems.forEach { _update($0) }
         
         self.visibleGraph.nodeIsMoving = false
@@ -320,6 +319,37 @@ extension StitchDocumentViewModel {
         
         // Rebuild comment boxes
         self.visibleGraph.rebuildCommentBoxes()
+        
+        // Recalculate positional data
+        self.updateBoundaryNodes()
+    }
+    
+    @MainActor
+    func updateBoundaryNodes() {
+        let visibleGraph = self.visibleGraph
+        let groupNodeFocused = visibleGraph.groupNodeFocused
+        
+        // NOTE: nodes are retrieved per active traversal level,
+        // ie top level vs some specific, focused group.
+        let canvasItemsAtTraversalLevel = visibleGraph.canvasItemsAtTraversalLevel(groupNodeFocused)
+        
+        // If there are no nodes, then there is no graphBounds
+        guard let east = GraphState.easternMostNode(groupNodeFocused,
+                                                    canvasItems: canvasItemsAtTraversalLevel),
+              let west = GraphState.westernMostNode(groupNodeFocused,
+                                                    canvasItems: canvasItemsAtTraversalLevel),
+              let south = GraphState.southernMostNode(groupNodeFocused,
+                                                      canvasItems: canvasItemsAtTraversalLevel),
+              let north = GraphState.northernMostNode(groupNodeFocused,
+                                                      canvasItems: canvasItemsAtTraversalLevel) else {
+            //            log("GraphState: graphBounds: had no nodes")
+            return
+        }
+        
+        self.graphMovement.boundaryNodes = .init(north: north.position,
+                                                 south: south.position,
+                                                 west: west.position,
+                                                 east: east.position)
     }
 }
 
@@ -327,34 +357,35 @@ extension GraphState {
     func buildCommentBoxes(visibleNodes: CanvasItemViewModels,
                            visibleCommentBoxes: [CommentBoxViewModel],
                            commentBoxBoundsDict: CommentBoxBoundsDict) {
+        
+        fatalErrorIfDebug("Must rebuild with bounds logic changing")
 
-        for box in visibleCommentBoxes {
-            if let boxBounds = commentBoxBoundsDict.get(box.id) {
-                let nodesInsideCommentBox = visibleNodes
-                    .filter {
-                        // Building a comment box's node-set looks at box's border, not its title
-                        //                    let intersects = boxBounds.intersects($0.bounds)
-                        let intersects = boxBounds.borderBounds.intersects($0.bounds.graphBaseViewBounds)
-
-                        // log("buildCommentBoxes: boxBounds: \(boxBounds)")
-                        // log("buildCommentBoxes: node.bounds: \($0.bounds)")
-
-                        //                    if intersects {
-                        //                        log("buildCommentBoxes: node \($0.id) intersects comment box \(box.id)")
-                        //                    }
-
-                        return intersects
-                    }
-                    .map(\.id)
-                    .toSet
-
-                var box = box
-                box.nodes = nodesInsideCommentBox
-            }
-            //        else {
-            //            log("buildCommentBoxes: could not find bounds for comment box \(box.id)")
-            //        }
-        } // for box in ...
+//        for box in visibleCommentBoxes {
+//            if let boxBounds = commentBoxBoundsDict.get(box.id) {
+//                let nodesInsideCommentBox = visibleNodes
+//                    .filter {
+//                        // Building a comment box's node-set looks at box's border, not its title
+//                        //                    let intersects = boxBounds.intersects($0.bounds)
+//                        let intersects = boxBounds.borderBounds.intersects($0.bounds.graphBaseViewBounds)
+//
+//                        // log("buildCommentBoxes: boxBounds: \(boxBounds)")
+//                        // log("buildCommentBoxes: node.bounds: \($0.bounds)")
+//
+//                        //                    if intersects {
+//                        //                        log("buildCommentBoxes: node \($0.id) intersects comment box \(box.id)")
+//                        //                    }
+//
+//                        return intersects
+//                    }
+//                    .map(\.id)
+//                    .toSet
+//
+//                box.nodes = nodesInsideCommentBox
+//            }
+//            //        else {
+//            //            log("buildCommentBoxes: could not find bounds for comment box \(box.id)")
+//            //        }
+//        } // for box in ...
     }
 
     // Reads but does not mutate GraphState

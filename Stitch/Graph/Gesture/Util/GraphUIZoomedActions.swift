@@ -10,17 +10,6 @@ import SwiftUI
 import StitchSchemaKit
 
 extension GraphZoom {
-    @MainActor
-    func graphPinchToZoom( amount: CGFloat) {
-        // Scale zoom based on current device zoom--makes pinch to zoom feel more natural
-        var newAmount = (amount - 1) * self.final
-        
-        newAmount = Self.throttleGraphZoom(zoomAmount: newAmount,
-                                           currentScale: self.final)
-        
-        self.current = newAmount
-    }
-    
     // Keep current zoom bound to allowed thresholds
     @MainActor
     static func throttleGraphZoom(zoomAmount: CGFloat, currentScale: CGFloat) -> CGFloat {
@@ -37,6 +26,19 @@ extension GraphZoom {
 }
 
 extension StitchDocumentViewModel {
+    @MainActor
+    func graphPinchToZoom( amount: CGFloat) {
+        let graphZoom = self.graphMovement.zoomData
+
+        // Scale zoom based on current device zoom--makes pinch to zoom feel more natural
+        var newAmount = (amount - 1) * graphZoom.final
+        
+        newAmount = GraphZoom.throttleGraphZoom(zoomAmount: newAmount,
+                                                currentScale: graphZoom.final)
+        
+        graphZoom.current = newAmount
+    }
+    
     @MainActor
     func graphZoomEnded() {
         // set new zoom final to current + final of last zoom state

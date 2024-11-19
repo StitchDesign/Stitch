@@ -21,20 +21,13 @@ struct NodeTypeView: View {
     let activeIndex: ActiveIndex
     let groupNodeFocused: GroupNodeType?
     let adjustmentBarSessionId: AdjustmentBarSessionId
+    let isSelected: Bool
 
     var boundsReaderDisabled: Bool = false
     var usePositionHandler: Bool = true
 
     // Only true for the fake-node that lives in ContentView
     var updateMenuActiveSelectionBounds: Bool = false
-
-    // Only true for the "real node" while the insert-node animation is in progress
-    var isHiddenDuringAnimation: Bool = false
-    
-    @MainActor
-    var isSelected: Bool {
-        canvasNode.isSelected
-    }
     
     var userVisibleType: UserVisibleType? {
         self.node.userVisibleType
@@ -63,7 +56,6 @@ struct NodeTypeView: View {
                  boundsReaderDisabled: boundsReaderDisabled,
                  usePositionHandler: usePositionHandler,
                  updateMenuActiveSelectionBounds: updateMenuActiveSelectionBounds,
-                 isHiddenDuringAnimation: isHiddenDuringAnimation,
                  inputsViews: inputsViews,
                  outputsViews: outputsViews)
         .onChange(of: self.node.patch, initial: true) {
@@ -125,33 +117,34 @@ struct DefaultNodeInputView: View {
                            rowViewModels: canvas.inputViewModels,
                            nodeIO: .input,
                            adjustmentBarSessionId: adjustmentBarSessionId) { rowObserver, rowViewModel in
-                        
+            
             let layerInputObserver: LayerInputObserver? = rowObserver.id.layerInput
                 .flatMap { node.layerNode?.getLayerInputObserver($0.layerInput) }
             
-            HStack {
-                NodeRowPortView(graph: graph,
-                                rowObserver: rowObserver,
-                                rowViewModel: rowViewModel,
-                                showPopover: $showPopover)
-                
-                NodeInputView(graph: graph,
-                              nodeId: node.id,
-                              nodeKind: node.kind,
-                              hasIncomingEdge: rowObserver.upstreamOutputCoordinate.isDefined,
-                              rowObserverId: rowObserver.id,
-                              rowObserver: rowObserver,
-                              rowViewModel: rowViewModel,
-                              fieldValueTypes: rowViewModel.fieldValueTypes,
-                              // Pass down the layerInputObserver if we have a 'layer input on the canvas'
-                              layerInputObserver: layerInputObserver,
-                              forPropertySidebar: false, // Always false, since not an inspector-row
-                              propertyIsSelected: false,
-                              propertyIsAlreadyOnGraph: true, // Irrelevant?
-                              isCanvasItemSelected: isNodeSelected,
-                              label: rowObserver.label())
-            }
-            
+//            NodeLayout(observer: rowViewModel) {
+                HStack {
+                    NodeRowPortView(graph: graph,
+                                    rowObserver: rowObserver,
+                                    rowViewModel: rowViewModel,
+                                    showPopover: $showPopover)
+                    
+                    NodeInputView(graph: graph,
+                                  nodeId: node.id,
+                                  nodeKind: node.kind,
+                                  hasIncomingEdge: rowObserver.upstreamOutputCoordinate.isDefined,
+                                  rowObserverId: rowObserver.id,
+                                  rowObserver: rowObserver,
+                                  rowViewModel: rowViewModel,
+                                  fieldValueTypes: rowViewModel.fieldValueTypes,
+                                  // Pass down the layerInputObserver if we have a 'layer input on the canvas'
+                                  layerInputObserver: layerInputObserver,
+                                  forPropertySidebar: false, // Always false, since not an inspector-row
+                                  propertyIsSelected: false,
+                                  propertyIsAlreadyOnGraph: true, // Irrelevant?
+                                  isCanvasItemSelected: isNodeSelected,
+                                  label: rowObserver.label())
+                }
+//            }
         }
     }
 }
@@ -171,25 +164,27 @@ struct DefaultNodeOutputView: View {
                            rowViewModels: canvas.outputViewModels,
                            nodeIO: .output,
                            adjustmentBarSessionId: adjustmentBarSessionId) { rowObserver, rowViewModel in
-            HStack {
-                NodeOutputView(graph: graph,
-                               rowObserver: rowObserver,
-                               rowViewModel: rowViewModel,
-                               forPropertySidebar: false,
-                               propertyIsSelected: false,
-                               propertyIsAlreadyOnGraph: true,
-                               isCanvasItemSelected: isNodeSelected,
-                               label: rowObserver.label())
-                
-                NodeRowPortView(graph: graph,
-                                rowObserver: rowObserver,
-                                rowViewModel: rowViewModel,
-                                showPopover: $showPopover)
-            }
-            .modifier(EdgeEditModeOutputHoverViewModifier(
-                graph: graph,
-                outputCoordinate: .init(portId: rowViewModel.id.portId,
-                                        canvasId: canvas.id)))
+//            NodeLayout(observer: rowViewModel) {
+                HStack {
+                    NodeOutputView(graph: graph,
+                                   rowObserver: rowObserver,
+                                   rowViewModel: rowViewModel,
+                                   forPropertySidebar: false,
+                                   propertyIsSelected: false,
+                                   propertyIsAlreadyOnGraph: true,
+                                   isCanvasItemSelected: isNodeSelected,
+                                   label: rowObserver.label())
+                    
+                    NodeRowPortView(graph: graph,
+                                    rowObserver: rowObserver,
+                                    rowViewModel: rowViewModel,
+                                    showPopover: $showPopover)
+                }
+                .modifier(EdgeEditModeOutputHoverViewModifier(
+                    graph: graph,
+                    outputCoordinate: .init(portId: rowViewModel.id.portId,
+                                            canvasId: canvas.id)))
+//            }
         }
     }
 }
@@ -253,6 +248,11 @@ struct DefaultNodeRowView<RowViewModel, RowView>: View where RowViewModel: NodeR
                         self.rowView(rowObserver, rowViewModel)
                         // fixes issue where ports could have inconsistent height with no label
                             .height(NODE_ROW_HEIGHT + 8)
+                            .onChange(of: rowViewModel.fieldValueTypes.first?.type) {
+                                // Resets node sizing data when either node or portvalue types change
+                                rowViewModel.canvasItemDelegate?.viewCache = nil
+                                graph.visibleNodesViewModel.infiniteCanvasCache = nil
+                            }
                     }
                 }
             }
