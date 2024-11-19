@@ -259,46 +259,117 @@ struct LayerDataView: View {
     
     var body: some View {
         
+        logInView("LayerDataView: called for layerData: \(layerData.layer.layer), \(layerData.id)")
+        
         switch layerData {
             
             // TODO: will this be accurate when e.g. masked's loop count = 3 but masker's loop count = 5? Or vice-versa?
             // For "more masked views than maskers, just repeat the maskers"
             // For "more maskers than masked views, limit ourselves to masked (layer) view count"
-        case .mask(masked: let maskedLayerDataList,
-                   masker: let maskerLayerDataList):
+        case .mask(masked: var maskedLayerDataList,
+                   masker: var maskerLayerDataList):
             
+            /*
+            If the masked count != masker count, extend either to whichever is longer.
+             
+            Note: do we need to give unique loop-indices
+            
+            Does an extended masker/masked-view need to be completely new layer view model?
+            "No" because the extended A3 is just a copy of A1, has some properties etc.
+            "Yes" because A3 can be interacted with separately from A1, e.g. can be dragged...
+             ... Ah, but the dragging would just update a patch node output -- but if the patch node is connected to the input of A1...
+             ... Hmm, I find this hard to think about. For now, will
+             
+            Note: Extending does not change layer input properites such as .position, .scale etc.
+             
+            Note: Does extending masked/masker-views change z-index sort order? By 'extending', we can have multiple layer view models whose sidebar item position is the same AND whose .zIndex property is the same.
+             */
+            
+            logInView("maskedLayerDataList.map(.id.loopIndex): \(maskedLayerDataList.map(\.id.loopIndex))")
+            
+            logInView("maskerLayerDataList.map(.id.loopIndex): \(maskerLayerDataList.map(\.id.loopIndex))")
+//            
+//            let newMaskCount = max(maskedLayerDataList.count, maskerLayerDataList.count)
+//            
+//            maskedLayerDataList.lengthenArray(newMaskCount)
+//            maskerLayerDataList.lengthenArray(newMaskCount)
+//            
+//            logInView("maskedLayerDataList.map(.id.loopIndex) now: \(maskedLayerDataList.map(\.id.loopIndex))")
+//            
+//            logInView("maskerLayerDataList.map(.id.loopIndex) now: \(maskerLayerDataList.map(\.id.loopIndex))")
+            
+            
+            // ideally: masked and masker view counts are same and so we iterate through the zipped collection
+            //
             ForEach(maskedLayerDataList) { (maskedLayerData: LayerData) in
                 
-                if let maskedIndex = maskedLayerDataList.firstIndex(where: { $0.id == maskedLayerData.id }),
-                   maskedIndex < maskerLayerDataList.endIndex {
-                    let maskerLayerData: LayerData = maskerLayerDataList[maskedIndex]
+                let maskedIndex = maskedLayerDataList.firstIndex(where: { $0.id == maskedLayerData.id })!
+                
+//                let maskedItemIsAboveMasker: Bool = maskedIndex.map {
+//                    $0 < maskerLayerDataList.endIndex
+//                } ?? false
+                
+                logInView("LayerDataView: maskedLayerData layer, id: \(maskedLayerData.layer.layer), \(maskedLayerData.id)")
+                
+                logInView("LayerDataView: maskedIndex: \(maskedIndex)")
+//                logInView("LayerDataView: maskerLayerDataList.endIndex: \(maskerLayerDataList.endIndex)")
+//                logInView("LayerDataView: maskedItemIsAboveMasker: \(maskedItemIsAboveMasker)")
+                
+//                if let maskedIndex = maskedLayerDataList.firstIndex(where: { $0.id == maskedLayerData.id }),
+//                   maskedIndex < maskerLayerDataList.endIndex {
+//                if let maskedIndex = maskedIndex,
+//                   maskedItemIsAboveMasker {
                     
-                    // Turn masked LayerData into a single view
-                    let masked: some View = LayerDataView(
-                        document: document,
-                        layerData: maskedLayerData,
-                        parentSize: parentSize,
-                        parentDisablesPosition: parentDisablesPosition,
-                        isGhostView: isGhostView)
+//                    logInView("LayerDataView: WILL MASK")
                     
-                    // Turn masker LayerData into a single view
-                    let masker: some View = LayerDataView(
-                        document: document,
-                        layerData: maskerLayerData,
-                        parentSize: parentSize,
-                        parentDisablesPosition: parentDisablesPosition,
-                        isGhostView: isGhostView)
-                    
-                    // Return
-                    masked.mask(masker)
-                } else {
-                    EmptyView()
-                }
+//                    let maskerLayerData: LayerData = maskerLayerDataList[maskedIndex]
+                
+                /*
+                  TODO: do we need to create new layer view models when we "extend" a masked-view or masker-view?
+                 
+                 "Extending" does not change the value of any inputs on the layer view model; but we may need another loop index in the preview
+                 */
+                let maskerLayerData: LayerData = maskerLayerDataList.first {
+                    $0.id.loopIndex == maskedLayerData.id.loopIndex
+                } ?? maskerLayerDataList.first!
+                
+                
+                
+                logInView("LayerDataView: creating LayerDataView for masked layer \(maskedLayerData.layer.layer), \(maskedLayerData.id)")
+                // Turn masked LayerData into a single view
+                let masked: some View = LayerDataView(
+                    document: document,
+                    layerData: maskedLayerData,
+                    parentSize: parentSize,
+                    parentDisablesPosition: parentDisablesPosition,
+                    isGhostView: isGhostView)
+                
+                logInView("LayerDataView: creating LayerDataView for masker layer \(maskerLayerData.layer.layer), \(maskerLayerData.id)")
+                
+                // Turn masker LayerData into a single view
+                let masker: some View = LayerDataView(
+                    document: document,
+                    layerData: maskerLayerData,
+                    parentSize: parentSize,
+                    parentDisablesPosition: parentDisablesPosition,
+                    isGhostView: isGhostView)
+                
+                // Return
+                masked.mask(masker)
+                //                }
+//            else {
+//                    logInView("LayerDataView: WILL NOT MASK")
+//                    EmptyView()
+//                }
             }
             
         case .nongroup(let layerViewModel, _):
+            
+            logInView("LayerDataView: nongroup layer, id: \(layerViewModel.layer), \(layerViewModel.id)")
+            
             if let node = document.graph.getLayerNode(id: layerViewModel.id.layerNodeId.id),
                let layerNode = node.layerNode {
+                logInView("LayerDataView: nongroup: will create view")
                 NonGroupPreviewLayersView(document: document,
                                           layerNode: layerNode,
                                           layerViewModel: layerViewModel,
@@ -306,6 +377,8 @@ struct LayerDataView: View {
                                           parentSize: parentSize,
                                           parentDisablesPosition: parentDisablesPosition)
             } else {
+                // NEVER hit; i.e. we always create the
+                logInView("LayerDataView: nongroup: will NOT create view")
                 EmptyView()
             }
                         
@@ -338,6 +411,7 @@ struct NonGroupPreviewLayersView: View {
     var body: some View {
         if layerNode.hasSidebarVisibility,
            let graph = layerNode.nodeDelegate?.graphDelegate as? GraphState {
+            logInView("NonGroupPreviewLayersView: non-empty view")
             PreviewLayerView(document: document,
                              graph: graph,
                              layerViewModel: layerViewModel,
@@ -346,6 +420,7 @@ struct NonGroupPreviewLayersView: View {
                              parentSize: parentSize,
                              parentDisablesPosition: parentDisablesPosition)
         } else {
+            logInView("NonGroupPreviewLayersView: empty view")
             EmptyView()
         }
     }

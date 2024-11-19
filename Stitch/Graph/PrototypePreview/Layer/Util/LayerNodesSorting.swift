@@ -49,30 +49,34 @@ extension GraphState {
         }
         
         // If we're at the root level, we need to also add the LayerTypes for views with `isPinned = true` and `pinToId = .root`, since those views' PinnedViews will not be handled by
-        if isRoot,
-           let pinnedData = pinMap.get(nil) {
-            
-            let layerTypesFromRootPinnedViews = getLayerTypesForPinnedViews(
-                pinnedData: pinnedData,
-                sidebarLayers: sidebarLayersGlobal,
-                layerNodes: self.layerNodes,
-                layerTypesAtThisLevel: layerTypesAtThisLevel)
-            
-            layerTypesAtThisLevel = layerTypesAtThisLevel.union(layerTypesFromRootPinnedViews)
-        } // if isRoot
+//        if isRoot,
+//           let pinnedData = pinMap.get(nil) {
+//            
+//            let layerTypesFromRootPinnedViews = getLayerTypesForPinnedViews(
+//                pinnedData: pinnedData,
+//                sidebarLayers: sidebarLayersGlobal,
+//                layerNodes: self.layerNodes,
+//                layerTypesAtThisLevel: layerTypesAtThisLevel)
+//            
+//            layerTypesAtThisLevel = layerTypesAtThisLevel.union(layerTypesFromRootPinnedViews)
+//        } // if isRoot
         
         
         // log("recursivePreviewLayers: DONE GETTING ALL LAYER TYPES: \(layerTypesAtThisLevel)")
         
-        var sortedLayerTypes = layerTypesAtThisLevel.sorted(by: { lhs, rhs in
+        let sortedLayerTypes = layerTypesAtThisLevel.sorted(by: { lhs, rhs in
             Self.layerSortingComparator(lhs: lhs,
                                         rhs: rhs,
                                         pinMap: pinMap)
         })
         
-        if isInGroupOrientation {
-            sortedLayerTypes = sortedLayerTypes.reversed()
-        }
+        log("recursivePreviewLayers: sortedLayerTypes: \(sortedLayerTypes)")
+        
+        // is this flipping
+//        if isInGroupOrientation {
+//            sortedLayerTypes = sortedLayerTypes.reversed()
+//            log("recursivePreviewLayers: sortedLayerTypes after reversal: \(sortedLayerTypes)")
+//        }
         
         let sortedLayerDataList: LayerDataList = sortedLayerTypes.compactMap { (layerType: LayerType) -> LayerData? in
             self.getLayerDataFromLayerType(layerType,
@@ -81,7 +85,22 @@ extension GraphState {
                                            layerNodes: self.layerNodes)
         }
         
-        // log("recursivePreviewLayers: sortedLayerDataList: \(sortedLayerDataList)")
+        log("recursivePreviewLayers: sortedLayerDataList: \(sortedLayerDataList)")
+        
+        for sortedLayerData in sortedLayerDataList {
+            switch sortedLayerData {
+            case .mask(let masked, let masker):
+                let maskedIndices = masked.map(\.id.loopIndex)
+                let maskerIndices = masker.map(\.id.loopIndex)
+                
+                log("recursivePreviewLayers: maskedIndices: \(maskedIndices)")
+                
+                log("recursivePreviewLayers: maskerIndices: \(maskerIndices)")
+                
+            default:
+                continue
+            }
+        }
         
         return sortedLayerDataList
     }
@@ -100,18 +119,18 @@ extension GraphState {
         let lhsSidebarIndex = lhs.sidebarIndex
         let rhsSidebarIndex = rhs.sidebarIndex
         
-        // If both layers are in same pinning linked list, prioritize the lower-level pin over a receiver
-        let isPinningScenario = pinMap.areLayersInSamePinFamily(idSet: .init([lhs.id.layerNodeId, rhs.id.layerNodeId]))
-        
-        // Determines if a view is pinned and if so, how nested that pin is (higher value = more nesting)
-        if isPinningScenario {
-            let lhsPinNestedCount = pinMap.getPinnedNestedLayerCount(id: lhs.id.layerNodeId)
-            let rhsPinNestedCount = pinMap.getPinnedNestedLayerCount(id: rhs.id.layerNodeId)
-            
-            if lhsPinNestedCount != rhsPinNestedCount {
-                return rhsPinNestedCount > lhsPinNestedCount
-            }
-        }
+//        // If both layers are in same pinning linked list, prioritize the lower-level pin over a receiver
+//        let isPinningScenario = pinMap.areLayersInSamePinFamily(idSet: .init([lhs.id.layerNodeId, rhs.id.layerNodeId]))
+//        
+//        // Determines if a view is pinned and if so, how nested that pin is (higher value = more nesting)
+//        if isPinningScenario {
+//            let lhsPinNestedCount = pinMap.getPinnedNestedLayerCount(id: lhs.id.layerNodeId)
+//            let rhsPinNestedCount = pinMap.getPinnedNestedLayerCount(id: rhs.id.layerNodeId)
+//            
+//            if lhsPinNestedCount != rhsPinNestedCount {
+//                return rhsPinNestedCount > lhsPinNestedCount
+//            }
+//        }
         
         if lhsZIndex != rhsZIndex {
             return lhsZIndex < rhsZIndex
@@ -137,14 +156,40 @@ extension GraphState {
         switch layerType {
             
         case .mask(masked: let masked, masker: let masker):
-            let maskedLayerData = masked.compactMap { getLayerDataFromLayerType($0,
-                                                                                pinMap: pinMap, 
-                                                                                sidebarLayersGlobal: sidebarLayersGlobal,
-                                                                                layerNodes: layerNodes) }
-            let maskerLayerData = masker.compactMap { getLayerDataFromLayerType($0,
-                                                                                pinMap: pinMap,
-                                                                                sidebarLayersGlobal: sidebarLayersGlobal,
-                                                                                layerNodes: layerNodes) }
+//            masked.map(\.id.loopIndex)
+            
+            // LayerType has id and loop index etc. but those are just debug or pinning; are not used in
+//            masked.map {
+//                $0.
+//            }
+            
+            log("getLayerDataFromLayerType: masked")
+            var maskedLayerData = masked.compactMap {
+                getLayerDataFromLayerType($0,
+                                          pinMap: pinMap,
+                                          sidebarLayersGlobal: sidebarLayersGlobal,
+                                          layerNodes: layerNodes)
+            }
+            
+            var maskerLayerData = masker.compactMap {
+                getLayerDataFromLayerType($0,
+                                          pinMap: pinMap,
+                                          sidebarLayersGlobal: sidebarLayersGlobal,
+                                          layerNodes: layerNodes)
+            }
+            
+            log("getLayerDataFromLayerType: maskedLayerData.map(.id.loopIndex) was: \(maskedLayerData.map(\.id.loopIndex))")
+            
+            log("getLayerDataFromLayerType: maskerLayerData.map(.id.loopIndex) was: \(maskerLayerData.map(\.id.loopIndex))")
+            
+            let newMaskCount = max(maskedLayerData.count, maskerLayerData.count)
+            
+            maskedLayerData = maskedLayerData.lengthenArray(newMaskCount)
+            maskerLayerData = maskerLayerData.lengthenArray(newMaskCount)
+            
+            log("getLayerDataFromLayerType: maskedLayerData.map(.id.loopIndex) now: \(maskedLayerData.map(\.id.loopIndex))")
+            
+            log("getLayerDataFromLayerType: maskerLayerData.map(.id.loopIndex) now: \(maskerLayerData.map(\.id.loopIndex))")
             
             guard !maskedLayerData.isEmpty,
                   !maskerLayerData.isEmpty else {
@@ -154,14 +199,36 @@ extension GraphState {
             return .mask(masked: maskedLayerData,
                          masker: maskerLayerData)
             
+            // we call `getLayerDataFromLayerType` recursively, and
         case .nongroup(let data, let isPinned): // LayerData
-            guard let previewLayer: LayerViewModel = layerNodes
+            
+            log("getLayerDataFromLayerType: nongroup: data.id: \(data.id)")
+            
+            //
+            let layerViewModels =  layerNodes
                 .get(data.id.layerNodeId.id)?
                 .layerNode?
-                .previewLayerViewModels[safe: data.id.loopIndex] else {
+                .previewLayerViewModels
+            
+//            layerViewModels?.forEach { (lvm: LayerViewModel) in
+//                log("getLayerDataFromLayerType: lvm.interactiveLayer.id: \(lvm.interactiveLayer.id)")
+//                log("getLayerDataFromLayerType: lvm.position.getPosition: \(lvm.position.getPosition)")
+//            }
+            
+//            log("getLayerDataFromLayerType: nongroup: layerViewModels: \(layerViewModels)")
+            
+//            guard let previewLayer: LayerViewModel = layerNodes
+//                .get(data.id.layerNodeId.id)?
+//                .layerNode?
+//                    // these layer view models are ALREADY CREATED on the layer node
+//                .previewLayerViewModels[safe: data.id.loopIndex] else {
+            
+            guard let previewLayer: LayerViewModel = layerViewModels?[safe: data.id.loopIndex] else {
                 
                 return nil
             }
+            
+            log("getLayerDataFromLayerType: nongroup: taking previewLayer: \(previewLayer.id)")
             
             return .nongroup(previewLayer, isPinned)
             
@@ -225,7 +292,9 @@ func getLayerTypesFromSidebarLayerData(_ layerData: SidebarLayerData,
     // Non-group case
     else {
         let layerTypes: LayerTypeSet = layerNode.previewLayerViewModels
-            .reversed() // Reverse loop's layer view models, for default "ZStack" case
+        
+        //    .reversed() // Reverse loop's layer view models, for default "ZStack" case
+        
             .map { layerViewModel in
                     .nongroup(.init(id: layerViewModel.id,
                                     zIndex: layerViewModel.zIndex.getNumber ?? .zero,
@@ -343,15 +412,15 @@ func handleRawSidebarLayer(sidebarIndex: Int,
             
             // "Does this layer have other views pinned to it?"
             // i.e. "Is this layer the B to some A and C?"
-            if let pinnedViews = pinMap.get(layerData.id.asLayerNodeId) {
-                let layerTypesFromPinnedViews = getLayerTypesForPinnedViews(
-                    pinnedData: pinnedViews,
-                    sidebarLayers: sidebarLayersGlobal,
-                    layerNodes: layerNodes,
-                    layerTypesAtThisLevel: layerTypesAtThisLevel)
-                
-                layerTypesAtThisLevel = layerTypesAtThisLevel.union(layerTypesFromPinnedViews)
-            }
+//            if let pinnedViews = pinMap.get(layerData.id.asLayerNodeId) {
+//                let layerTypesFromPinnedViews = getLayerTypesForPinnedViews(
+//                    pinnedData: pinnedViews,
+//                    sidebarLayers: sidebarLayersGlobal,
+//                    layerNodes: layerNodes,
+//                    layerTypesAtThisLevel: layerTypesAtThisLevel)
+//                
+//                layerTypesAtThisLevel = layerTypesAtThisLevel.union(layerTypesFromPinnedViews)
+//            }
         }
     } // else
     
