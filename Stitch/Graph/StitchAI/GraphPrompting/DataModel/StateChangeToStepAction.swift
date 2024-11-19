@@ -97,43 +97,17 @@ extension NodeViewModel {
                       nodeType: newNodeType.asLLMStepNodeType)
     }
     
+    @MainActor
     func createLLMStepSetInput(input: InputCoordinate,
                                value: PortValue) -> LLMStepAction {
-        /*
-         RELEVANT SECTION OF OUR OPEN-AI SCHEMA:
-         
-         "SetInputAction": {
-           "type": "object",
-           "properties": {
-             "step_type": { "const": "set_input" },
-             "node_id": { "type": "string", "description": "ID of the node receiving the input", "format": "uuid" },
-             "value": {
-               "anyOf": [
-                 { "type": "number" },
-                 { "type": "string" },
-                 { "type": "boolean" }
-               ],
-               "description": "Value to set for the input"
-             },
-             "port": {
-               "anyOf": [
-                 { "type": "integer" },
-                 { "$ref": "#/$defs/LayerPorts" }
-               ],
-               "description": "The port to which the value is set. Patch nodes use integers; Layer nodes use LayerPorts."
-             },
-             "node_type": { "$ref": "#/$defs/NodeType", "description": "The type of node to use." }
-           },
-           "required": ["step_type", "node_id", "port", "value", "node_type"]
-         },
-         */
         LLMStepAction(stepType: StepType.setInput.rawValue,
                       nodeId: self.id.description,
                       port: .init(value: input.asLLMStepPort()),
                       
                       // Note: `.asLLMValue: JSONFriendlyFormat` is needed for handling more complex values like `LayerDimension`
                       // value: value.asLLMValue,
-                      value: .init(value: value.display),
+//                      value: .init(value: value.display),
+                      value: JSONFriendlyFormat(value: value),
                       
                       // For disambiguating between e.g. a string "2" and the number 2
                       nodeType: value.toNodeType.asLLMStepNodeType)
@@ -154,6 +128,19 @@ extension InputCoordinate {
     }
 }
 
+extension OutputCoordinate {
+    func asLLMStepFromPort() -> Int {
+        switch self.portType {
+        case .keyPath(let x):
+            fatalErrorIfDebug()
+            return 0
+        case .portIndex(let x):
+            // an integer
+            return x
+        }
+    }
+}
+
 //need to feed in port id's as well
 //pass in the input coordinate
 func createLLMStepConnectionAdded(input: InputCoordinate,
@@ -167,7 +154,7 @@ func createLLMStepConnectionAdded(input: InputCoordinate,
     return LLMStepAction(
         stepType: StepType.connectNodes.rawValue,
         port: .init(value: input.asLLMStepPort()),
-        fromPort: output.asLLMStepPort(),
+        fromPort: output.asLLMStepFromPort(),
         fromNodeId: output.nodeId.uuidString,
         toNodeId: input.nodeId.uuidString)
 }

@@ -136,7 +136,8 @@ extension PortValue {
         case  .cameraDirection(let x):
             return x.display
         case .assignedLayer(let x):
-            return x?.id.description ?? "No Layers" // Doesn't seem correct?
+//            return x?.id.description ?? "No Layers" // Doesn't seem correct?
+            return x?.id.description ?? "None" // Doesn't seem correct?
         case .pinTo(let x):
             return x.display
         case .scrollMode(let x):

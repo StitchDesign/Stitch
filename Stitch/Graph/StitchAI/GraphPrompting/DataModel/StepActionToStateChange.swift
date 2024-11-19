@@ -68,10 +68,18 @@ extension StitchDocumentViewModel {
                
         case .setInput:
             
+            guard let nodeType: NodeType = action.parseNodeType(),
+                  let port: NodeIOPortType = action.parsePort() else {
+                fatalErrorIfDebug()
+                return canvasItemsAdded
+            }
+            
+            guard let value: PortValue = action.parseValue(nodeType, mapping: self.llmNodeIdMapping) else {
+                fatalErrorIfDebug()
+                return canvasItemsAdded
+            }
+            
             guard let llmNodeId: String = action.nodeId,
-                  let nodeType: NodeType = action.parseNodeType(),
-                  let value: PortValue = action.parseValue(nodeType),
-                  let port: NodeIOPortType = action.parsePort(),
                   // Node must already exist
                   let nodeId = self.llmNodeIdMapping.get(llmNodeId),
                   let existingNode = self.graph.getNode(nodeId) else {
@@ -175,18 +183,24 @@ enum PatchOrLayer: Equatable, Codable {
 
 extension LLMStepAction {
     
-    func parseValue(_ nodeType: NodeType) -> PortValue? {
-        guard let value: StringOrNumber = self.value else {
+    @MainActor
+    func parseValue(_ nodeType: NodeType,
+                    mapping: LLMNodeIdMapping) -> PortValue? {
+        
+        guard let value: JSONFriendlyFormat = self.value else {
             log("value was not defined")
             return nil
         }
         
-        // TODO: to support a wider range of values, use `JSONFriendlyFormat` instead of `StringOrNumber` and follow older LLMAction-style parsing of LLMSetInput
-        if let number = Double(value.value) {
-            return .number(number)
-        } else {
-            return .string(.init(value.value))
-        }
+        log("LLMStepAction: parseValue: had node type \(nodeType) and value \(value)")
+        
+        let portValue = value.asPortValueForLLMSetField(
+            nodeType,
+            with: mapping)
+        
+        log("LLMStepAction: parseValue: portValue \(portValue)")
+        
+        return portValue
     }
     
     // TODO: `LLMStepAction`'s `port` parameter does not yet properly distinguish between input vs output?
@@ -215,21 +229,15 @@ extension LLMStepAction {
     }
     
     func parseFromPort() -> Int? {
-        guard let fromPort: String = self.fromPort else {
+        
+        guard let fromPort: Int = self.fromPort else {
             log("fromPort was not defined")
             // For legacy reasons, assume 0
 //            return nil
             return 0
         }
           
-        if let portId = Int(fromPort) {
-            return portId
-        } else if let portId = Double(fromPort) {
-            return Int(portId)
-        } else {
-            log("could not parse LLMStepAction's fromPort: \(fromPort)")
-            return nil
-        }
+        return fromPort
     }
     
     // See note in `NodeType.asLLMStepNodeType`
