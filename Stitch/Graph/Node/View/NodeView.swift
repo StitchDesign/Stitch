@@ -327,6 +327,10 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
             nodeBodyKind
                 .modifier(CanvasItemBodyPadding())
         }
+        .onChange(of: self.node.sizeByLocalBounds) {
+            // also a useful hack for updating node layout after type changes
+            self.node.updatePortLocations()
+        }
         .overlay {
             let isLayerInvisible = !(stitch.layerNode?.hasSidebarVisibility ?? true)
             Color.black.opacity(isLayerInvisible ? 0.3 : 0)
