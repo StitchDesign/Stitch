@@ -66,33 +66,30 @@ extension LayerInputCoordinate {
 typealias CanvasItemViewModels = [CanvasItemViewModel]
 
 @Observable
-final class CanvasItemViewModel: Identifiable {
+final class CanvasItemViewModel: Identifiable, StitchLayoutCachable {
     var id: CanvasItemId
     var position: CGPoint = .zero
     var previousPosition: CGPoint = .zero
-    var bounds = NodeBounds()
     var zIndex: Double = .zero
     var parentGroupNodeId: NodeId?
     
-    // Default to false so initialized graphs don't take on extra perf loss
-    var isVisibleInFrame = false
+    var isVisibleInFrame: Bool {
+        guard let graph = self.graphDelegate else { return false }
+        return graph.visibleNodesViewModel.visibleCanvasIds.contains(self.id)
+    }
     
     // View specific port value data
     var inputViewModels: [InputNodeRowViewModel] = []
     var outputViewModels: [OutputNodeRowViewModel] = []
     
+    // Cached subview sizes for performance gains in commit phase
+    var viewCache: NodeLayoutCache?
+    
     // Moved state here for render cycle perf on port view for colors
     @MainActor
-    var isSelected: Bool = false {
-        didSet {
-            guard let node = self.nodeDelegate,
-                  let graph = self.graphDelegate else {
-                log("CanvasItemViewModel: isSelected: didSet: could not find node and/or graph delegate; cannot update port view data cache")
-                return
-            }
-            
-            node.updatePortColorDataUponNodeSelection()
-        }
+    var isSelected: Bool {
+        guard let graphDelegate = self.graphDelegate else { return false }
+        return graphDelegate.graphUI.selection.selectedNodeIds.contains(self.id)
     }
     
     // Reference back to the parent node entity
@@ -207,7 +204,7 @@ extension CanvasItemViewModel {
     }
         
     var sizeByLocalBounds: CGSize {
-        self.bounds.localBounds.size
+        self.viewCache?.sizeThatFits ?? .zero
     }
     
     var isMoving: Bool {
@@ -215,17 +212,19 @@ extension CanvasItemViewModel {
     }
 
     @MainActor
-    func updateVisibilityStatus(with newValue: Bool,
-                                activeIndex: ActiveIndex) {
-        let oldValue = self.isVisibleInFrame
-        if oldValue != newValue {
-            self.isVisibleInFrame = newValue
-
-            // Refresh values if node back in frame
-            if newValue {
-                self.nodeDelegate?.updatePortViewModels()
-            }
-        }
+    func updateVisibilityStatus(with newValue: Bool) {
+        self.updatePortLocations()
+        self.nodeDelegate?.updatePortViewModels()
+        
+//        let oldValue = self.isVisibleInFrame
+//        if oldValue != newValue {
+//            self.isVisibleInFrame = newValue
+//
+//            // Refresh values if node back in frame
+//            if newValue {
+//                self.nodeDelegate?.updatePortViewModels()
+//            }
+//        }
     }
     
     func shiftPosition(by gridLineLength: Int = SQUARE_SIDE_LENGTH) {

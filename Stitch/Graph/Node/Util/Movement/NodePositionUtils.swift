@@ -22,12 +22,10 @@ extension CGPoint {
 
 // Note: previously we had a side-effect delay to work around some issues with `.buttonStyle(.plain)`'s auto animation and a GraphSchema-update interrupting double tap. These issues now seem to be resolved.
 extension CanvasItemViewModel {
-    func adjustPosition(center: CGPoint) {
-        let nodeSize = self.bounds.graphBaseViewBounds.size
-        
-        self.position = gridAlignedPosition(center: center,
-                                            nodeSize: nodeSize)
-        self.previousPosition = self.position
+    var graphBaseViewSize: CGSize {
+        let denominator = self.graphDelegate?.documentDelegate?.graphMovement.zoomData.zoom ?? .zero
+        return .init(width: self.sizeByLocalBounds.width / denominator,
+                     height: self.sizeByLocalBounds.height / denominator)
     }
     
     @MainActor
@@ -38,7 +36,8 @@ extension CanvasItemViewModel {
         // TODO: pass this down from the gesture handler or fix key listening
         if document.keypressState.isCommandPressed {
             // toggle selection
-            if self.isSelected {
+            let isSelected = document.graphUI.selection.selectedNodeIds.contains(self.id)
+            if isSelected {
                 self.deselect()
             } else {
                 self.select()

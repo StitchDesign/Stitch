@@ -60,23 +60,14 @@ extension StitchDocumentViewModel {
          Only look at bounds if we have nodes;
          otherwise just immediately update graph position.
          */
-
-        let graphBounds = self.visibleGraph.graphBounds(
-            graphMovement.zoomData.zoom,
-            graphView: self.graphUI.frame,
-            graphOffset: visibleGraph.localPosition,
-            groupNodeFocused: self.graphUI.groupNodeFocused?.groupNodeId)
-
-        let graphBoundsAtStart: GraphOriginAtStart? = self.graphMovement.graphBoundOriginAtStart
-
-        // How does this situation arise?
-        // If graphBoundsAtStart is not defined, then
-        if !graphBoundsAtStart.isDefined {
-            log("handleGraphMovementOnGraphStep: did not have graphBoundsAtStart")
-        }
-
-        if let graphBounds = graphBounds,
-           let graphBoundsAtStart = graphBoundsAtStart {
+        
+        if let positionalData = self.graphMovement.boundaryNodes,
+           let graphBoundsAtStart = self.graphMovement.graphBoundOriginAtStart {
+            let graphBounds = self.visibleGraph.graphBounds(
+                graphMovement.zoomData.zoom,
+                graphView: self.graphUI.frame,
+                graphOffset: visibleGraph.localPosition,
+                positionalData: positionalData)
 
             if graphMovement.momentumState.shouldRunX {
 

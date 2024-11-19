@@ -17,6 +17,10 @@ final class VisibleNodesViewModel {
 
     // Saves location and zoom-specific data for groups
     var nodesByPage: NodesPagingDict = [.root: .init()]
+    
+    var visibleCanvasIds = Set<CanvasItemId>()
+    
+    var infiniteCanvasCache: InfiniteCanvas.Cache?
 }
 
 extension VisibleNodesViewModel {
@@ -302,6 +306,18 @@ extension VisibleNodesViewModel {
     func getOutputRowObserver(for coordinate: NodeIOCoordinate) -> OutputNodeRowObserver? {
         self.nodes.get(coordinate.nodeId)?
             .getOutputRowObserver(for: coordinate.portType)
+    }
+    
+    @MainActor
+    func setAllNodesVisible() {
+        self.visibleCanvasIds = self.allViewModels.map(\.id).toSet
+    }
+    
+    @MainActor
+    /// Updates node visibility data.
+    func resetCache() {
+        self.infiniteCanvasCache = nil
+        self.setAllNodesVisible()
     }
 }
 

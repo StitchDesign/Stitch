@@ -25,10 +25,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
 
     let boundsReaderDisabled: Bool
     let usePositionHandler: Bool
-    let updateMenuActiveSelectionBounds: Bool
-
-    // This node is the "real" node of an active insert-node-animation,
-    let isHiddenDuringAnimation: Bool
+    let updateMenuActiveSelectionBounds: Bool    
 
     @ViewBuilder var inputsViews: () -> InputsViews
     @ViewBuilder var outputsViews: () -> OutputsViews
@@ -49,52 +46,75 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
     var userVisibleType: UserVisibleType? {
         self.stitch.userVisibleType
     }
-
-    var splitterType: SplitterType? {
-        self.stitch.splitterType
-    }
-
+    
     var isLayerNode: Bool {
         self.stitch.kind.isLayer
     }
 
     var body: some View {
-        
-        nodeBody
-#if targetEnvironment(macCatalyst)
-            .contextMenu { nodeTagMenu } // Catalyst right-click to open node tag menu
-#endif
-            .modifier(NodeViewTapGestureModifier(
-                onSingleTap: {
-                    // deselect any fields; NOTE: not used on GroupNodes due to .simultaneousGesture
-                    if !self.stitch.kind.isGroup {
-                        graph.graphUI.reduxFocusedField = nil
-                    }
-                    
-                    // and select just the node
-                    node.isTapped(document: document)
-                },
-                onDoubleTap: {
-                    dispatch(GroupNodeDoubleTapped(id: stitch.id))
-                },
-                isGroup: self.stitch.kind.isGroup))
-        
-        /*
-         Note: every touch on a part of a node is an interaction (e.g. the title, an input field etc.) with a single node --- except for touching the node tag menu.
-         
-         So, we must .overlay the node tag menu *after* the tap-gestures, so that tapping the node tag menu does not fire a single-tap.
-         
-         (This would not be required if TapGesture were not .simultaneous, but that is required for handling both single- and double-taps.)
-         */
-            .overlay(alignment: .topTrailing) {
-                CanvasItemTag(isSelected: isSelected,
-                              nodeTagMenu: nodeTagMenu)
+        NodeLayout(observer: node) {
+            nodeBody
+            .onAppear {
+                self.node.updateVisibilityStatus(with: true)
             }
-            .canvasItemPositionHandler(document: document,
-                                       node: node,
-                                       zIndex: zIndex,
-                                       usePositionHandler: usePositionHandler)
-            .opacity(isHiddenDuringAnimation ? 0 : 1)
+            .onDisappear {
+                self.node.updateVisibilityStatus(with: false)
+            }
+            .onChange(of: self.isSelected) {
+                self.stitch.updatePortColorDataUponNodeSelection()
+            }
+#if targetEnvironment(macCatalyst)
+            // Catalyst right-click to open node tag menu
+                .contextMenu {
+                    NodeTagMenuButtonsView(graph: graph,
+                                           node: stitch,
+                                           canvasItemId: node.id,
+                                           activeGroupId: activeGroupId,
+                                           nodeTypeChoices: sortedUserTypeChoices,
+                                           canAddInput: canAddInput,
+                                           canRemoveInput: canRemoveInput,
+                                           atleastOneCommentBoxSelected: atleastOneCommentBoxSelected)
+                }
+#endif
+                .modifier(NodeViewTapGestureModifier(
+                    onSingleTap: {
+                        // deselect any fields; NOTE: not used on GroupNodes due to .simultaneousGesture
+                        if !self.stitch.kind.isGroup {
+                            graph.graphUI.reduxFocusedField = nil
+                        }
+                        
+                        // and select just the node
+                        node.isTapped(document: document)
+                    },
+                    onDoubleTap: {
+                        dispatch(GroupNodeDoubleTapped(id: stitch.id))
+                    },
+                    isGroup: self.stitch.kind.isGroup))
+            
+            /*
+             Note: every touch on a part of a node is an interaction (e.g. the title, an input field etc.) with a single node --- except for touching the node tag menu.
+             
+             So, we must .overlay the node tag menu *after* the tap-gestures, so that tapping the node tag menu does not fire a single-tap.
+             
+             (This would not be required if TapGesture were not .simultaneous, but that is required for handling both single- and double-taps.)
+             */
+                .overlay(alignment: .topTrailing) {
+                    if isSelected {
+                        CanvasItemTag(node: node,
+                                      graph: graph,
+                                      stitch: stitch,
+                                      activeGroupId: activeGroupId,
+                                      sortedUserTypeChoices: sortedUserTypeChoices,
+                                      canAddInput: canAddInput,
+                                      canRemoveInput: canRemoveInput,
+                                      atleastOneCommentBoxSelected: atleastOneCommentBoxSelected)
+                    }
+                }
+        }
+        .canvasItemPositionHandler(document: document,
+                                   node: node,
+                                   zIndex: zIndex,
+                                   usePositionHandler: usePositionHandler)
     }
 
     @MainActor
@@ -107,20 +127,17 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
             nodeBodyKind
                 .modifier(CanvasItemBodyPadding())
         }
+        .onChange(of: self.node.sizeByLocalBounds) {
+            // also a useful hack for updating node layout after type changes
+            self.node.updatePortLocations()
+        }
         .overlay {
             let isLayerInvisible = !(stitch.layerNode?.hasSidebarVisibility ?? true)
             Color.black.opacity(isLayerInvisible ? 0.3 : 0)
                 .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
                 .allowsHitTesting(!isLayerInvisible)
         }
-        .fixedSize()
         .modifier(CanvasItemBackground(color: nodeUIColor.body))
-        .modifier(CanvasItemBoundsReader(
-            graph: graph,
-            canvasItem: node,
-            splitterType: splitterType,
-            disabled: boundsReaderDisabled,
-            updateMenuActiveSelectionBounds: updateMenuActiveSelectionBounds))
         
         .modifier(CanvasItemSelectedViewModifier(isSelected: isSelected))
     }
@@ -145,62 +162,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
             outputsViews()
         }
     }
-
-    var nodeTagMenu: NodeTagMenuButtonsView {
-        NodeTagMenuButtonsView(graph: graph,
-                               node: stitch,
-                               canvasItemId: node.id,
-                               activeGroupId: activeGroupId,
-                               nodeTypeChoices: sortedUserTypeChoices,
-                               canAddInput: canAddInput,
-                               canRemoveInput: canRemoveInput,
-                               atleastOneCommentBoxSelected: atleastOneCommentBoxSelected)
-    }
 }
-
-//struct NodeView_REPL: View {
-//
-//    let devPosition = StitchPosition(width: 500,
-//                                     height: 500)
-//
-//    var body: some View {
-//        ZStack {
-//            //            Color.orange.opacity(0.2).zIndex(-2)
-//
-//            FakeNodeView(
-//                node: Patch.add.getFakePatchNode(
-//                    //                    customName: "A very long name, much tested and loved and feared and enjoyed"
-//                    customName: "A very long name"
-//                )!
-//            )
-//
-//        }
-//        .scaleEffect(2)
-//        //        .offset(y: -500)
-//    }
-//}
-
-// struct FakeNodeView: View {
-
-//     let node: NodeViewModel
-
-//     var body: some View {
-//         NodeTypeView(graph: .init(id: .init(), store: nil),
-//                      node: node,
-//                      atleastOneCommentBoxSelected: false,
-//                      activeIndex: .init(1),
-//                      groupNodeFocused: nil,
-//                      adjustmentBarSessionId: .init(id: .fakeId),
-//                      boundsReaderDisabled: true,
-//                      usePositionHandler: false,
-//                      updateMenuActiveSelectionBounds: false)
-//     }
-// }
-
-// extension GraphState {
-//     @MainActor
-//     static let fakeEmptyGraphState: GraphState = .init(id: .init(), store: nil)
-// }
 
 @MainActor
 func getFakeNode(choice: NodeKind,
@@ -303,9 +265,25 @@ struct CanvasItemBackground: ViewModifier {
 }
 
 struct CanvasItemTag: View {
+    @Bindable var node: CanvasItemViewModel
+    @Bindable var graph: GraphState
+    @Bindable var stitch: NodeViewModel
+    let activeGroupId: GroupNodeType?
+    var sortedUserTypeChoices: [UserVisibleType] = []
+    let canAddInput: Bool
+    let canRemoveInput: Bool
+    let atleastOneCommentBoxSelected: Bool
     
-    let isSelected: Bool
-    let nodeTagMenu: NodeTagMenuButtonsView
+    @ViewBuilder var nodeTagMenu: NodeTagMenuButtonsView {
+        NodeTagMenuButtonsView(graph: graph,
+                               node: stitch,
+                               canvasItemId: node.id,
+                               activeGroupId: activeGroupId,
+                               nodeTypeChoices: sortedUserTypeChoices,
+                               canAddInput: canAddInput,
+                               canRemoveInput: canRemoveInput,
+                               atleastOneCommentBoxSelected: atleastOneCommentBoxSelected)
+    }
     
     var body: some View {
         
@@ -335,7 +313,6 @@ struct CanvasItemTag: View {
             .foregroundColor(STITCH_TITLE_FONT_COLOR)
             .offset(x: -16, y: 4)
 #endif
-            .opacity(isSelected ? 1 : 0)
     }
 }
 

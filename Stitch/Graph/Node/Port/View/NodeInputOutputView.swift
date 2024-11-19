@@ -186,8 +186,6 @@ struct NodeInputView: View {
     }
     
     var body: some View {
-        // For multifields, want the overall label to sit at top of fields' VStack.
-        // For single fields, want to the overall label t
         HStack(alignment: hStackAlignment) {
             
             // TODO: is there a better way to build this UI, to avoid the perf-intensive `if/else` branch?

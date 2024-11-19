@@ -79,12 +79,14 @@ final class StitchDocumentViewModel: Sendable {
         self.lastEncodedDocument = schema
         
         if let store = store {
-            self.initializeDelegate(store: store)
+            self.initializeDelegate(store: store,
+                                    isInitialization: true)
         }
     }
     
     @MainActor
-    func initializeDelegate(store: StoreDelegate) {
+    func initializeDelegate(store: StoreDelegate,
+                            isInitialization: Bool = false) {
         self.documentEncoder?.delegate = self
         self.graphStepManager.delegate = self
         self.storeDelegate = store
@@ -99,6 +101,16 @@ final class StitchDocumentViewModel: Sendable {
         
         // Start graph
         self.graphStepManager.start()
+        
+        // Updates node location data for perf + edge UI
+        // MARK: currently testing perf without visibility check
+        if isInitialization {
+            // Need all nodes to render initially
+            let visibleGraph = self.visibleGraph
+            visibleGraph.visibleNodesViewModel.setAllNodesVisible()
+        } else {
+//            self.refreshVisibleNodes()
+        }
     }
     
     @MainActor

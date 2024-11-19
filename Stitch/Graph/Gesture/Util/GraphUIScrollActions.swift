@@ -477,22 +477,13 @@ extension StitchDocumentViewModel {
             return
 
         }
-        var box = self.graphUI.selection.expansionBox
+        
+        var box = self.graphUI.selection.expansionBox ?? .init(origin: gestureStartLocation, size: .zero)
 
-        if box.size == .zero {
-            box.startPoint = gestureStartLocation
-        }
-
-        // CHANGE THE BOX BUT DO NOT CHANGE THE SELECTED NODES;
-        // instead, node-selection is handled via SwiftUI preference values.
-        let (newSize, newDirection) = trigCalc(
-            start: gestureStartLocation,
-            end: gestureLocation)
-
-        box.size = newSize
-        box.expansionDirection = newDirection
-        box.endPoint = gestureLocation
-
+        let size = CGSize(width: gestureLocation.x - gestureStartLocation.x,
+                          height: gestureLocation.y - gestureStartLocation.y)
+        box.size = size
+        
         self.graphUI.selection.expansionBox = box
     }
 
@@ -573,7 +564,7 @@ extension StitchDocumentViewModel {
 
             //    log("handleGraphScrolled: state.graphMovement.localPosition is now: \(state.graphMovement.localPosition)")
         }
-
+        
         self.graphMovement.wasTrackpadScroll = wasTrackpadScroll
     }
 
@@ -670,7 +661,7 @@ extension StitchDocumentViewModel {
         let graphMovement = self.graphMovement
 
         // DO NOT reset selected nodes themselves
-        state.selection.expansionBox = ExpansionBox()
+        state.selection.expansionBox = nil
         state.selection.isSelecting = false
         state.selection.dragStartLocation = nil
         state.selection.dragCurrentLocation = nil
@@ -679,6 +670,9 @@ extension StitchDocumentViewModel {
         graphMovement.wasTrackpadScroll = false
 
         graphMovement.draggedCanvasItem = nil
+        
+        // Reset shift+click drag selections
+        state.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag = nil
     }
 
     // you should pass in GraphMovement
@@ -699,7 +693,7 @@ extension StitchDocumentViewModel {
             graphUIState.selection.dragCurrentLocation = nil
         }
 
-        graphUIState.selection.expansionBox = ExpansionBox()
+        graphUIState.selection.expansionBox = nil
         graphUIState.selection.isSelecting = false
 
         //    log("handleGraphDragEnded: state.graphMovement.localPreviousPosition was \(state.graphMovement.localPreviousPosition)")
@@ -734,13 +728,6 @@ extension StitchDocumentViewModel {
 
         graphMovement.resetGraphOffsetBorderDataAfterDragEnded()
 
-        // TODO: What happens if we zoom in or out *while momentum is running*?
-        let momentumOrigin = self.visibleGraph
-            .graphBounds(graphMovement.zoomData.zoom,
-                         graphView: graphUIState.frame,
-                         graphOffset: graphMovement.localPosition,
-                         groupNodeFocused: graphUIState.groupNodeFocused?.groupNodeId)
-
         //    log("handleGraphDragEnded: momentumOrigin: \(momentumOrigin)")
 
         // start momentum
@@ -753,12 +740,17 @@ extension StitchDocumentViewModel {
                                                velocity)
 
             // also set graphOrigins; JUST FOR GRAPH DRAG AND GRAPH MOMENTUM
-            if let origin = momentumOrigin?.origin {
-                graphMovement
-
-                    .graphBoundOriginAtStart = .init(
-                        origin: origin,
-                        setByMomentum: true)
+            if let nodesPositionalData = self.graphMovement.boundaryNodes {
+                let momentumOrigin = self.visibleGraph
+                    .graphBounds(graphMovement.zoomData.zoom,
+                                 graphView: graphUIState.frame,
+                                 graphOffset: graphMovement.localPosition,
+                                 positionalData: nodesPositionalData)
+                
+                let origin = momentumOrigin.origin
+                graphMovement.graphBoundOriginAtStart = .init(
+                    origin: origin,
+                    setByMomentum: true)
             }
         }
 
@@ -770,6 +762,9 @@ extension StitchDocumentViewModel {
 
         // Cancel any possible active graph pan gesture
         graphUIState.selection.graphDragState = .none
+        
+        // Reset shift-click selection state
+        graphUIState.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag = nil
     }
 }
 
