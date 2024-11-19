@@ -174,7 +174,7 @@ extension GraphState {
         
         for cachedSubviewData in self.visibleNodesViewModel.infiniteCanvasCache ?? .init() {
             let id = cachedSubviewData.key
-            let cachedBounds = cachedSubviewData.value
+            var cachedBounds = cachedSubviewData.value
             
             guard self.visibleNodesViewModel.visibleCanvasIds.contains(id) else { continue }
             
@@ -182,6 +182,12 @@ extension GraphState {
                 log("skipping canvasItem \(id) since was held as part of shift etc.")
                 continue
             }
+            
+            // Must offset since location is positioned around center
+            let nodeSize = cachedBounds.size
+            let positionOffset = CGPoint(x: nodeSize.width / 2,
+                                         y: nodeSize.height / 2)
+            cachedBounds.origin -= positionOffset
             
             if selectionBoxInViewFrame.intersects(cachedBounds) {
                 selectedNodes.insert(id)
