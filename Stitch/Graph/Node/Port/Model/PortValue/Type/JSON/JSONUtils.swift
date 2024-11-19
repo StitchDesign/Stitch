@@ -547,9 +547,17 @@ extension JSON {
         return nil
     }
 
+    var getWidth: LayerDimension? {
+        self[WIDTH].string?.asLayerDimension ?? self[WIDTH].double.map { LayerDimension.number($0) }
+    }
+    
+    var getHeight: LayerDimension? {
+        self[HEIGHT].string?.asLayerDimension ?? self[HEIGHT].double.map { LayerDimension.number($0) }
+    }
+    
     var toSize: LayerSize? {
-        if let width = self[WIDTH].string?.asLayerDimension,
-           let height = self[HEIGHT].string?.asLayerDimension {
+        if let width = self.getWidth,
+           let height = self.getHeight {
             return .init(width: width, height: height)
         }
         return nil

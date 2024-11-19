@@ -187,7 +187,7 @@ extension Stitch.Step: CustomStringConvertible {
             port: \(port?.value ?? "nil"),
             fromNodeId: \(fromNodeId ?? "nil"),
             toNodeId: \(toNodeId ?? "nil"),
-            value: \(value?.value ?? "nil"),
+            value: \(value),
             nodeType: \(nodeType ?? "nil")
         )
         """
