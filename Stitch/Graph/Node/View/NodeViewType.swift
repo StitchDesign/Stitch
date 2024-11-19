@@ -253,6 +253,10 @@ struct DefaultNodeRowView<RowViewModel, RowView>: View where RowViewModel: NodeR
                         self.rowView(rowObserver, rowViewModel)
                         // fixes issue where ports could have inconsistent height with no label
                             .height(NODE_ROW_HEIGHT + 8)
+                            .onChange(of: rowViewModel.fieldValueTypes.first?.type) {
+                                rowViewModel.canvasItemDelegate?.viewCache = nil
+                                graph.visibleNodesViewModel.infiniteCanvasCache = nil
+                            }
                     }
                 }
             }
