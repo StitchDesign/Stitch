@@ -38,6 +38,8 @@ struct RoundedRectView: View {
                 with: .color(color),
                 lineWidth: 4
             )
+            
+            context.fill(roundedRectPath, with: .color(color.opacity(0.4)))
         }
     }
 }
