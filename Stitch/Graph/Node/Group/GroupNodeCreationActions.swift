@@ -145,6 +145,18 @@ extension GraphState {
     }
 }
 
+struct GroupNodeCreated: StitchDocumentEvent {
+    
+    let isComponent: Bool
+    
+    func handle(state: StitchDocumentViewModel) {
+        // TODO: use a proper side-effect? But that won't avoid the `weak ref`
+        Task { [weak state] in
+            await state?.createGroup(isComponent: isComponent)
+        }
+    }
+}
+
 extension StitchDocumentViewModel {
     /** Event for creating a group node, which does the following:
      * 1. Determines incoming and outgoing edges to group, whose connections

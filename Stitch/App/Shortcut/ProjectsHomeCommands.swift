@@ -420,16 +420,19 @@ struct ProjectsHomeCommands: Commands {
                                     key: SELECT_ALL_NODES_SHORTCUT,
                                     // Disable CMD+A "select all" when an input text field is focused
                                     disabled: textFieldFocused || !activeProject) {
-                    //                    dispatch(ToggleSelectAllNodes())
                     dispatch(SelectAllShortcutKeyPressed())
                 }
                 
                 SwiftUIShortcutView(title: "Group Layers",
-                                    key: GROUP_LAYERS_SHORTCUT,
-                                    // Disabled if no layers are actively selected
-                                    disabled: !isSidebarFocused || !groupButtonEnabled) {
-                    // deletes both selected nodes and selected comments
-                    self.graph?.layersSidebarViewModel.sidebarGroupCreated()
+                                    key: CREATE_GROUP_SHORTCUT) {
+                    let cannotCreateLayerGroup = !isSidebarFocused || !groupButtonEnabled
+                    
+                    if cannotCreateLayerGroup {
+                        dispatch(GroupNodeCreated(isComponent: false))
+                    } else {
+                        // deletes both selected nodes and selected comments
+                        self.graph?.layersSidebarViewModel.sidebarGroupCreated()
+                    }
                 }
                 
                 SwiftUIShortcutView(title: "Ungroup Layers",
