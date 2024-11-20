@@ -263,6 +263,9 @@ struct NodeMoveEndedAction: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
         state.handleNodeMoveEnded(id: id)
         state.visibleGraph.encodeProjectInBackground()
+        
+        // Reset node positions cache
+        state.visibleGraph.visibleNodesViewModel.infiniteCanvasCache = nil
     }
 }
 
