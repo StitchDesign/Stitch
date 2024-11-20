@@ -266,8 +266,8 @@ struct LayerDataView: View {
             // TODO: will this be accurate when e.g. masked's loop count = 3 but masker's loop count = 5? Or vice-versa?
             // For "more masked views than maskers, just repeat the maskers"
             // For "more maskers than masked views, limit ourselves to masked (layer) view count"
-        case .mask(masked: var maskedLayerDataList,
-                   masker: var maskerLayerDataList):
+        case .mask(masked: let maskedLayerDataList,
+                   masker: let maskerLayerDataList):
       
             logInView("maskedLayerDataList.map(.id.loopIndex): \(maskedLayerDataList.map(\.id.loopIndex))")
             logInView("maskerLayerDataList.map(.id.loopIndex): \(maskerLayerDataList.map(\.id.loopIndex))")
@@ -304,18 +304,15 @@ struct LayerDataView: View {
                     // Return
                     masked.mask(masker)
                 } else {
-                    logInView("LayerDataView: WILL NOT MASK")
+                    // logInView("LayerDataView: WILL NOT MASK")
                     EmptyView()
                 }
             }
             
         case .nongroup(let layerViewModel, _):
-            
             logInView("LayerDataView: nongroup layer, id: \(layerViewModel.layer), \(layerViewModel.id)")
-            
             if let node = document.graph.getLayerNode(id: layerViewModel.id.layerNodeId.id),
                let layerNode = node.layerNode {
-                logInView("LayerDataView: nongroup: will create view")
                 NonGroupPreviewLayersView(document: document,
                                           layerNode: layerNode,
                                           layerViewModel: layerViewModel,
@@ -323,8 +320,6 @@ struct LayerDataView: View {
                                           parentSize: parentSize,
                                           parentDisablesPosition: parentDisablesPosition)
             } else {
-                // NEVER hit; i.e. we always create the
-                logInView("LayerDataView: nongroup: will NOT create view")
                 EmptyView()
             }
                         

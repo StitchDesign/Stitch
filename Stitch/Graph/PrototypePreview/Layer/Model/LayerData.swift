@@ -163,7 +163,6 @@ extension LayerData: Identifiable {
         case .mask(masked: let layerDataList, masker: _):
             // TODO: `layerDataList` should be NonEmpty; there's no way to gracefully fail here
             return layerDataList.first!.layer
-//            return layerDataList.last!.layer
         }
     }
     

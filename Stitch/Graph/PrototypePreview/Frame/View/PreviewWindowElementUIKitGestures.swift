@@ -56,7 +56,7 @@ struct PreviewWindowElementSwiftUIGestures: ViewModifier {
     var dragGesture: some Gesture {
         DragGesture(minimumDistance: minimumDragDistance)
             .onChanged {
-                 log("PreviewWindowElementGestures: DragGesture: onChanged: id: \(interactiveLayer.id)")
+                 // log("PreviewWindowElementGestures: DragGesture: onChanged: id: \(interactiveLayer.id)")
                 
                 // TODO: come up with a better, more accurate velocity calculation
                 // (average vs momentaneous velocity?)
