@@ -46,21 +46,16 @@ func adjustPastedNodesPositions(pastedNodes: [NodeEntity],
             
             // Factour out graph offset of paste-destination projects
             canvasEntity.position.x -= averageX
+            canvasEntity.position.y -= averageY
             
             // Factour out graph offset of paste-destination projects
             canvasEntity.position.x -= destinationGraphOffset.x
+            canvasEntity.position.y -= destinationGraphOffset.y
             
             // Add 1/2 width and height to account for node position 0,0 = top left vs. graph postion 0,0 = center
             canvasEntity.position.x += destinationGraphFrame.width/2
-            
-            return canvasEntity
-        }
-        
-        node = node.canvasEntityMap { canvasEntity in
-            var canvasEntity = canvasEntity
-            canvasEntity.position.y -= averageY
-            canvasEntity.position.y -= destinationGraphOffset.y
             canvasEntity.position.y += destinationGraphFrame.height/2
+            
             return canvasEntity
         }
 
