@@ -30,6 +30,10 @@ struct NodesOnlyView: View {
     var adjustmentBarSessionId: AdjustmentBarSessionId {
         graphUI.adjustmentBarSessionId
     }
+    
+    var focusedGroup: GroupNodeType? {
+        self.graph.graphUI.groupNodeFocused
+    }
         
     var body: some View {
         // HACK for when no nodes present
@@ -40,7 +44,7 @@ struct NodesOnlyView: View {
         let canvasNodes: [CanvasItemViewModel] = canvasNodeIds
             .compactMap { id in
                 guard let canvas = self.graph.getCanvasItem(id),
-                      canvas.parentGroupNodeId == self.graph.graphUI.groupNodeFocused?.groupNodeId else {
+                      canvas.parentGroupNodeId == self.focusedGroup?.groupNodeId else {
                     return nil
                 }
                 
@@ -67,6 +71,10 @@ struct NodesOnlyView: View {
             canvasNodes.forEach { canvasNode in
                 canvasNode.nodeDelegate?.activeIndexChanged(activeIndex: self.activeIndex)
             }
+        }
+        .onChange(of: self.focusedGroup) {
+            // Update node locations
+            self.graph.visibleNodesViewModel.infiniteCanvasCache = nil
         }
     }
 }
