@@ -90,6 +90,8 @@ protocol NodeRowViewModel: StitchLayoutCachable, Observable, Identifiable {
     
     var portViewData: PortViewType? { get set }
     
+    var isDragging: Bool { get set }
+    
     var nodeDelegate: NodeDelegate? { get set }
     
     var rowDelegate: RowObserver? { get set }
@@ -285,6 +287,7 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     var connectedCanvasItems: Set<CanvasItemId> = .init()
     var anchorPoint: CGPoint?
     var portColor: PortColor = .noEdge
+    var isDragging = false
     var portViewData: PortViewType?
     weak var nodeDelegate: NodeDelegate?
     weak var rowDelegate: InputNodeRowObserver?
@@ -355,6 +358,7 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     var connectedCanvasItems: Set<CanvasItemId> = .init()
     var anchorPoint: CGPoint?
     var portColor: PortColor = .noEdge
+    var isDragging = false
     var portViewData: PortViewType?
     weak var nodeDelegate: NodeDelegate?
     weak var rowDelegate: OutputNodeRowObserver?

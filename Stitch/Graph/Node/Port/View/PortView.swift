@@ -65,13 +65,8 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
     
     @MainActor
     var isDraggingFromThisOutput: Bool {
-        // Only applies if output drag exists and on this port
-        guard let outputOnDrag = graph.edgeDrawingObserver.drawingGesture?.output,
-              NodeRowViewModelType.nodeIO == .output else {
-            return false
-        }
-        
-        return outputOnDrag.id == self.rowViewModel.id
+        NodeRowViewModelType.nodeIO == .output &&
+        self.rowViewModel.isDragging
     }
     
     // Only animate port colors if we're dragging from this output
@@ -106,11 +101,13 @@ struct PortEntryExtendedHitBox<RowViewModel: NodeRowViewModel>: View {
                                  // .local = relative to this view
                                  coordinateSpace: .named(NodesView.coordinateNameSpace))
                         .onChanged { gesture in
+                            rowViewModel.isDragging = true
                             rowViewModel.portDragged(gesture: gesture,
                                                      graphState: graphState)
                         } // .onChanged
                         .onEnded { _ in
                             //                    log("PortEntry: onEnded")
+                            rowViewModel.isDragging = false
                             rowViewModel.portDragEnded(graphState: graphState)
                         }
             )
