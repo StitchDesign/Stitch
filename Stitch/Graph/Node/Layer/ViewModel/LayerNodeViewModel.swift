@@ -452,6 +452,16 @@ extension LayerNodeViewModel {
             $0.initializeDelegate(node)
         }
         
+        self.resetInputCanvasItemsCache()
+    }
+    
+    @MainActor
+    func resetInputCanvasItemsCache() {
+        guard let node = self.nodeDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        
         // Set up inputs
         self.forEachInput { layerInput in
             // Locate input canvas items for perf cache
