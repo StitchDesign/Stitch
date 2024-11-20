@@ -59,7 +59,7 @@ extension GraphUIState {
         
         // `withAnimation` still seems to cause view to scroll
         
-        withAnimation {
+        withAnimation(.INSERT_NODE_MENU_TOGGLE_ANIMATION) {
             self.insertNodeMenuState.show = showMenu
 
             // whenever we toggle (open or close) the menu,
@@ -69,13 +69,17 @@ extension GraphUIState {
     }
 }
 
+extension Animation {
+    static let INSERT_NODE_MENU_TOGGLE_ANIMATION = Self.spring(duration: 0.2)
+}
+
 /// Resets all state include hiding the menu and the node selection.
 struct CloseAndResetInsertNodeMenu: GraphUIEvent {
     func handle(state: GraphUIState) {
         // log("CloseAndResetInsertNodeMenu called")
 
         if !state.insertNodeMenuState.menuAnimatingToNode {
-            withAnimation {
+            withAnimation(.INSERT_NODE_MENU_TOGGLE_ANIMATION) {
                 state.insertNodeMenuState = InsertNodeMenuState()
             }
         }
