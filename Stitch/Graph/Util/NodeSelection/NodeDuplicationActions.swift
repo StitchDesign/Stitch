@@ -40,26 +40,22 @@ func adjustPastedNodesPositions(pastedNodes: [NodeEntity],
     return pastedNodes.reduce(into: [NodeEntity]()) { acc, node in
         var node = node
 
-        node.canvasEntityMap { canvasEntity in
+        node = node.canvasEntityMap { canvasEntity in
+            log("canvasEntityMap closure from adjustPastedNodesPositions")
             var canvasEntity = canvasEntity
             
             // Factour out graph offset of paste-destination projects
             canvasEntity.position.x -= averageX
+            canvasEntity.position.y -= averageY
             
             // Factour out graph offset of paste-destination projects
             canvasEntity.position.x -= destinationGraphOffset.x
+            canvasEntity.position.y -= destinationGraphOffset.y
             
             // Add 1/2 width and height to account for node position 0,0 = top left vs. graph postion 0,0 = center
             canvasEntity.position.x += destinationGraphFrame.width/2
-            
-            return canvasEntity
-        }
-        
-        node.canvasEntityMap { canvasEntity in
-            var canvasEntity = canvasEntity
-            canvasEntity.position.y -= averageY
-            canvasEntity.position.y -= destinationGraphOffset.y
             canvasEntity.position.y += destinationGraphFrame.height/2
+            
             return canvasEntity
         }
 
@@ -76,17 +72,6 @@ struct DuplicateShortcutKeyPressed: StitchDocumentEvent {
             await state?.duplicateShortcutKeyPressed()
         }
     }
-}
-
-func insertLayers(_ newLayer: SidebarLayerData,
-                  after: NodeId, //SidebarLayerData,
-                  in list: SidebarLayerList) -> SidebarLayerList {
-    
-    list.reduce(into: SidebarLayerList()) { partialResult, layer in
-        
-    }
-    
-    
 }
 
 extension SidebarLayerData {
@@ -198,7 +183,10 @@ extension GraphState {
         }
         
         // Update top-level nodes to match current focused group
-        let newNodes: [NodeEntity] = self.createNewNodes(from: newComponent)
+        let newNodes: [NodeEntity] = Self.createNewNodes(
+            from: newComponent,
+            focusedGroupNode: self.groupNodeFocused
+        )
         let graph = self.addComponentToGraph(newComponent: newComponent,
                                              newNodes: newNodes,
                                              nodeIdMap: nodeIdMap)
@@ -232,7 +220,6 @@ extension GraphState {
         self.updateGraphAfterPaste(newNodes: newNodes)
     }
     
-    
     static func updateCopiedNodes<T>(component: T,
                                      // nil = this was duplication, not copy-paste
                                      destinationGraphInfo: CopyPasteGraphDestinationInfo?) -> (T, NodeIdMap) where T: StitchComponentable {
@@ -255,42 +242,33 @@ extension GraphState {
             // Update nodes in the follow ways:
             // 1. Stagger position
             // 2. Increment z-index
-            newComponent.graph.nodes = newComponent.nodes.map { node in
-                var node = node
-                
+            newComponent.graph.nodes = newComponent.nodes.map {
                 // Update positional data
-                node.canvasEntityMap { node in
+                $0.canvasEntityMap { node in
                     var node = node
                     node.position.shiftNodePosition()
                     node.zIndex += 1
                     return node
                 }
-                
-                return node
             }
         }
         
         return (newComponent, nodeIdMap)
     }
     
-    func createNewNodes<T>(from newComponent: T) -> [NodeEntity] where T: StitchComponentable {
-        newComponent.nodes
-            .map { stitch in
-                var stitch = stitch
-                stitch.canvasEntityMap { node in
-                    var node = node
-                    
-                    let isTopLevel = node.parentGroupNodeId == nil
-                    guard isTopLevel else {
-                        return node
-                    }
-                    
-                    node.parentGroupNodeId = self.graphUI.groupNodeFocused?.asNodeId
-                    return node
+    static func createNewNodes<T>(from newComponent: T,
+                                  focusedGroupNode: NodeId?) -> [NodeEntity] where T: StitchComponentable {
+        newComponent.nodes.map {
+            $0.canvasEntityMap { canvasItem in
+                var canvasItem = canvasItem
+                let isTopLevel = canvasItem.parentGroupNodeId == nil
+                guard isTopLevel else {
+                    return canvasItem
                 }
-                
-                return stitch
+                canvasItem.parentGroupNodeId = focusedGroupNode
+                return canvasItem
             }
+        }
     }
     
     // make this top level?
@@ -323,7 +301,6 @@ extension GraphState {
                 data: graph.orderedSidebarLayers,
                 newDataList: newComponent.graph.orderedSidebarLayers,
                 afterID: originalLayerId)
-            
         }
         
         return graph
