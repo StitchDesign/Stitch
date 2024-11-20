@@ -104,7 +104,7 @@ struct InsertNodeMenuWrapper: View {
             document.visibleGraph.localPosition,
             graphScale: self.graphScale)
         
-        let sidebarAdjustment = (self.sidebarHalfWidth * 1/self.graphScale)
+        let sidebarAdjustment = 0.0 //(self.sidebarHalfWidth * 1/self.graphScale)
         
 //        if document.llmRecording.isRecording {
 //            return defaultCenter
@@ -301,14 +301,14 @@ struct InsertNodeMenuWrapper: View {
             // scale first, THEN position
             .scaleEffect(x: menuScaleX, y: menuScaleY)
             // use .position modifier to match node's use of .position modifier
-            .position(menuPosition)
-            .offset(x: -sidebarHalfWidth)
+//            .position(menuPosition)
+//            .offset(x: -sidebarHalfWidth)
     }
     
     // should be subtracted
-    var sidebarHalfWidth: CGFloat {
-        graphUI.sidebarWidth/2
-    }
+//    var sidebarHalfWidth: CGFloat {
+//        graphUI.sidebarWidth/2
+//    }
     
     var body: some View {
         ZStack {
@@ -335,19 +335,19 @@ struct InsertNodeMenuWrapper: View {
                 menuView
             }
                         
-            // NodeView used only for animation; does not read size,
-            // since its size changes during animation.
-            // Note: don't render this NodeView until we have committed our choice.
-            if graphUI.insertNodeMenuState.menuAnimatingToNode {
-                animatedNodeView
-                    .opacity(graphUI.insertNodeMenuState.show ? 1 : 0)
-                    .onChange(of: graphUI.insertNodeMenuState.show) {
-                        // Surfacing the menu may cause the responder chain to break, causing key modifiers
-                        // to lose tracking for end state
-                        dispatch(KeyModifierReset())
-                    }
-                    .offset(x: -sidebarHalfWidth)
-            }
+//            // NodeView used only for animation; does not read size,
+//            // since its size changes during animation.
+//            // Note: don't render this NodeView until we have committed our choice.
+//            if graphUI.insertNodeMenuState.menuAnimatingToNode {
+//                animatedNodeView
+//                    .opacity(graphUI.insertNodeMenuState.show ? 1 : 0)
+//                    .onChange(of: graphUI.insertNodeMenuState.show) {
+//                        // Surfacing the menu may cause the responder chain to break, causing key modifiers
+//                        // to lose tracking for end state
+//                        dispatch(KeyModifierReset())
+//                    }
+////                    .offset(x: -sidebarHalfWidth)
+//            }
         }
         .onAppear {
             //            log("onAppear")

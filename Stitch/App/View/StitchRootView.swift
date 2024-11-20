@@ -48,44 +48,77 @@ struct StitchRootView: View {
     // Handled manually by user; but synced with GraphUIState.leftSide
     @State var columnVisibility: NavigationSplitViewVisibility = .detailOnly
             
+    var showMenu: Bool {
+         guard let document = store.currentDocument else {
+             return false
+         }
+
+         return document.graphUI.insertNodeMenuState.menuAnimatingToNode ||
+         document.graphUI.insertNodeMenuState.show
+     }
+
+     // For now,
+    @State private var menuHeight: CGFloat = INSERT_NODE_MENU_MAX_HEIGHT
+//    @State private var screenSize: CGSize = .zero
+    
     var body: some View {
         Group {
             if isPhoneDevice() {
                 iPhoneBody
             } else {
                 splitView
-#if targetEnvironment(macCatalyst)
+//#if targetEnvironment(macCatalyst)
                     .overlay(alignment: .center) {
-                        if let document = store.currentDocument,
-                           document.graphUI.showCatalystProjectTitleModal {
-                            logInView("will show modal view at top level")
-                            ZStack {
-                                
-                                MODAL_BACKGROUND_COLOR
-                                    .ignoresSafeArea([.all, .keyboard])
-                                    .onTapGesture {
-                                        dispatch(CatalystProjectTitleModalClosed())
-                                    }
-                                
-                                VStack(alignment: .leading) {
-                                    StitchTextView(string: "Edit Project Title")
-                                    CatalystProjectTitleModalView(graph: document.visibleGraph)
-                                }
-                                .padding()
-//                                .frame(width: 260, alignment: .leading)
-                                .frame(width: 360, alignment: .leading)
-                                .background(
-                                    Color(uiColor: .systemGray5)
-                                    // NOTE: strangely we need `[.all, .keyboard]` on BOTH the background color AND the StitchHostingControllerView
+                        
+
+                        if let document = store.currentDocument {
+
+#if targetEnvironment(macCatalyst)
+                            if document.graphUI.showCatalystProjectTitleModal {
+                                logInView("will show modal view at top level")
+                                ZStack {
+                                    
+                                    MODAL_BACKGROUND_COLOR
                                         .ignoresSafeArea([.all, .keyboard])
-                                        .cornerRadius(4)
-                                )
-                                
-                                
-                            }
-                        } // if let document
-                    } // .overlay
+                                        .onTapGesture {
+                                            dispatch(CatalystProjectTitleModalClosed())
+                                        }
+                                    
+                                    VStack(alignment: .leading) {
+                                        StitchTextView(string: "Edit Project Title")
+                                        CatalystProjectTitleModalView(graph: document.visibleGraph)
+                                    }
+                                    .padding()
+                                    //                                .frame(width: 260, alignment: .leading)
+                                    .frame(width: 360, alignment: .leading)
+                                    .background(
+                                        Color(uiColor: .systemGray5)
+                                        // NOTE: strangely we need `[.all, .keyboard]` on BOTH the background color AND the StitchHostingControllerView
+                                            .ignoresSafeArea([.all, .keyboard])
+                                            .cornerRadius(4)
+                                    )
+                                    
+                                    
+                                }
+                            } // if document.graphUI
 #endif
+                            
+                            
+                            if showMenu {
+                                InsertNodeMenuWrapper(document: document,
+                                                      graphUI: document.graphUI,
+                                                      menuHeight: self.$menuHeight,
+                                                      screenSize: .constant(document.graphUI.frame.size))
+                            }
+                            
+                            
+                        } // if let document
+
+                        
+                        
+                        
+                    } // .overlay
+//#endif
             }
         }
 //        .coordinateSpace(name: Self.STITCH_ROOT_VIEW_COORDINATE_SPACE)

@@ -56,12 +56,12 @@ struct ContentView: View, KeyboardReadable {
                 contentView // the graph
             }
             
-            if showMenu {
-                InsertNodeMenuWrapper(document: document,
-                                      graphUI: graphUI,
-                                      menuHeight: $menuHeight,
-                                      screenSize: $screenSize) // node menu + other animating views
-            }
+//            if showMenu {
+//                InsertNodeMenuWrapper(document: document,
+//                                      graphUI: graphUI,
+//                                      menuHeight: $menuHeight,
+//                                      screenSize: $screenSize) // node menu + other animating views
+//            }
         }
     }
 
