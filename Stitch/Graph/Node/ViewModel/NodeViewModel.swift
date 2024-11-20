@@ -356,6 +356,17 @@ extension NodeViewModel {
         return defaultTitle
     }
     
+    @MainActor var hasLargeCanvasTitleSpace: Bool {
+        let hasMathFormula = !(self.patchNode?.mathExpression?.isEmpty ?? true)
+        
+        // Math Expression nodes only adjust height for math formula, not custom title
+        if self.kind == .patch(.mathExpression) {
+            return hasMathFormula
+        }
+        
+        return self.getValidCustomTitle().isDefined
+    }
+    
     @MainActor
     func updateOutputsObservers(newValuesList: PortValuesList? = nil) {
         let outputsObservers = self.getAllOutputsObservers()
