@@ -15,7 +15,7 @@ let INSERT_NODE_MENU_SHORTCUT: KeyEquivalent = "I"
 
 let DUPLICATE_SELECTED_NODES_SHORTCUT: KeyEquivalent = "D"
 
-let GROUP_LAYERS_SHORTCUT: KeyEquivalent = "G"
+let CREATE_GROUP_SHORTCUT: KeyEquivalent = "G"
 
 let DELETE_SELECTED_NODES_SHORTCUT: KeyEquivalent = .delete
 let DELETE_SELECTED_NODES_SHORTCUT_MODIFIERS: EventModifiers = []
