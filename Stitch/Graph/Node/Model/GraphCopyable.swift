@@ -506,14 +506,16 @@ extension GraphState {
         let (newComponent, nodeIdMap) = Self.updateCopiedNodes(
             component: copiedComponentResult.component,
             destinationGraphInfo: nil)
-        
+                
         log("copyAndPasteSelectedNodes: self.orderedSidebarLayers: \(self.orderedSidebarLayers)")
         
         let copiedSidebarLayers = newComponent.orderedSidebarLayers
         log("copyAndPasteSelectedNodes: copiedSidebarLayers: \(copiedSidebarLayers)")
         
         // Update top-level nodes to match current focused group
-        let newNodes: [NodeEntity] = self.createNewNodes(from: newComponent)
+        let newNodes: [NodeEntity] = Self.createNewNodes(
+            from: newComponent,
+            focusedGroupNode: self.graphUI.groupNodeFocused?.asNodeId)
         
         let graph = self.addComponentToGraph(newComponent: newComponent,
                                              newNodes: newNodes,
