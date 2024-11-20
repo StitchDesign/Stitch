@@ -127,7 +127,7 @@ extension NodeRowViewModel {
         let ioAdjustment: CGFloat = 10
         let standardHeightAdjustment: CGFloat = 69
         let ioConstraint: CGFloat = Self.nodeIO == .input ? ioAdjustment : -ioAdjustment
-        let titleHeightOffset: CGFloat = node.getValidCustomTitle().isDefined ? 23 : 0
+        let titleHeightOffset: CGFloat = node.hasLargeCanvasTitleSpace ? 23 : 0
         
         // Offsets needed because node position uses its center location
         let offsetX: CGFloat = canvas.position.x + ioConstraint - size.width / 2
