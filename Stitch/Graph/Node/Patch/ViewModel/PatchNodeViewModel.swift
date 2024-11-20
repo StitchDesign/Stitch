@@ -241,20 +241,34 @@ extension PatchNodeViewModel {
             ($0.allLoopedValues, $0.upstreamOutputCoordinate)
         }
         
-        self._inputsObservers = variables.enumerated().map {
-            let existingInput = oldInputs[safe: $0.offset]
-            let inputObserver = InputNodeRowObserver(
-                values: existingInput?.0 ?? [.number(.zero)],
-                nodeKind: .patch(self.patch),
-                userVisibleType: self.userVisibleType,
-                id: InputCoordinate(portId: $0.offset,
-                                    nodeId: self.id),
-                upstreamOutputCoordinate: existingInput?.1)
-            
-            inputObserver.initializeDelegate(node)
-            
-            return inputObserver
+        let inputCountDelta = variables.count - self.inputsObservers.count
+        var patchNodeSchema = self.createSchema()
+        var inputSchemas = patchNodeSchema.inputs
+        
+        // Do nothing if input counts don't change
+        guard inputCountDelta != 0 else {
+            return
         }
+        
+        // Removing inputs scenario
+        if inputCountDelta < 0 {
+            inputSchemas = inputSchemas.dropLast(abs(inputCountDelta))
+        }
+        
+        // Adding inputs scenario
+        else if inputCountDelta > 0 {
+            inputSchemas += (0..<inputCountDelta).map { index in
+                let portId = variables.count + index - 1
+                return NodePortInputEntity(id: .init(portId: portId, nodeId: node.id),
+                                           portData: .values([.number(.zero)]),
+                                           nodeKind: .patch(.mathExpression),
+                                           userVisibleType: self.userVisibleType)
+            }
+        }
+        
+        // Use schema to sync view models
+        patchNodeSchema.inputs = inputSchemas
+        self.update(from: patchNodeSchema)
         
         // Update input row view models in canvas
         self.canvasObserver.inputViewModels.sync(with: self._inputsObservers,
@@ -262,17 +276,6 @@ extension PatchNodeViewModel {
                                                  // Not relevant
                                                  unpackedPortParentFieldGroupType: nil,
                                                  unpackedPortIndex: nil)
-        
-        self.inputsObservers.forEach { inputObserver in
-            inputObserver.allRowViewModels.forEach {
-                $0.fieldValueTypes = $0.createFieldValueTypes(initialValue: $0.activeValue,
-                                                              nodeIO: .input,
-                                                              unpackedPortParentFieldGroupType: nil,
-                                                              unpackedPortIndex: nil,
-                                                              importedMediaObject: nil)
-            }
-            
-        }
     }
 }
 
