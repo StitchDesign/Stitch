@@ -250,7 +250,7 @@ struct DefaultNodeRowView<RowViewModel, RowView>: View where RowViewModel: NodeR
                             .height(NODE_ROW_HEIGHT + 8)
                             .onChange(of: rowViewModel.fieldValueTypes.first?.type) {
                                 // Resets node sizing data when either node or portvalue types change
-                                rowViewModel.canvasItemDelegate?.viewCache = nil
+                                rowViewModel.canvasItemDelegate?.resetViewSizingCache()
                                 graph.visibleNodesViewModel.infiniteCanvasCache = nil
                             }
                     }

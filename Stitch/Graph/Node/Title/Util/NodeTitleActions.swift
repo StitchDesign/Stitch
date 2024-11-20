@@ -30,6 +30,9 @@ struct NodeTitleEdited: GraphEventWithResponse {
                 // Always save changes to disk (hack for when view disappears before finishing)
                 componentNode.graph.encodeProjectInBackground()
             }
+            
+            // Resize node
+            node.patchCanvasItem?.resetViewSizingCache()
 
         case .layerInspector(let id):
             guard let node = state.getNodeViewModel(id) else {
