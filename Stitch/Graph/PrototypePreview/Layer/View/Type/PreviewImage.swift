@@ -134,9 +134,11 @@ struct ImageDisplayView: View {
             .opacity(opacity)
 
         if isClipped {
-            return image.clipped().eraseToAnyView()
+            return image.clipped()
+                .eraseToAnyView()
         } else {
-            return image.eraseToAnyView()
+            return image
+                .eraseToAnyView()
         }
     }
 
@@ -185,13 +187,13 @@ struct ImageDisplayView: View {
                 .eraseToAnyView()
 
         case .regular:
-            // if it's stretch fit, don't use an aspect ratio
-            if let fitStyle = fitStyle,
-               fitStyle != .stretch {
+            // only use .aspectRatio for .fit style
+            if let fitStyle = fitStyle, fitStyle == .fit {
                 return view
                     .aspectRatio(contentMode: fitStyle.asContentMode)
-                    .frame(width: imageLayerSize.width.isFill ? nil : imageDisplaySize.size.width,
-                           height: imageLayerSize.height.isFill ? nil : imageDisplaySize.size.height)
+                    .frame(width: imageDisplaySize.size.width,
+                           height: imageDisplaySize.size.height)
+                    .contentShape(Rectangle()) // for when image has shrunk smaller than explicit frame
                     .eraseToAnyView()
             } else {
                 return view
