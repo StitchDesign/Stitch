@@ -221,6 +221,7 @@ final class LayerViewModel {
          zIndex: PortValue = defaultNumber,
          position: PortValue = .position(.zero),
          nodeDelegate: NodeDelegate?) {
+        
         self.id = id
         self.layer = layer
         self.zIndex = zIndex

@@ -25,7 +25,7 @@ final class LayerNodeViewModel {
     var layer: Layer
 
     // View models for layers in prototype window
-    var previewLayerViewModels: [LayerViewModel] = []
+    var previewLayerViewModels: [LayerViewModel] = [] 
  
     // Some layer nodes contain outputs
     var outputPorts: [OutputLayerNodeRowData] = []

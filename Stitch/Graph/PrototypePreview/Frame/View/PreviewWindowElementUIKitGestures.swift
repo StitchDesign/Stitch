@@ -56,7 +56,7 @@ struct PreviewWindowElementSwiftUIGestures: ViewModifier {
     var dragGesture: some Gesture {
         DragGesture(minimumDistance: minimumDragDistance)
             .onChanged {
-                // log("PreviewWindowElementGestures: DragGesture: id: \(interactiveLayer.id) onChanged: \($0)")
+                 // log("PreviewWindowElementGestures: DragGesture: onChanged: id: \(interactiveLayer.id)")
                 
                 // TODO: come up with a better, more accurate velocity calculation
                 // (average vs momentaneous velocity?)
@@ -67,7 +67,8 @@ struct PreviewWindowElementSwiftUIGestures: ViewModifier {
                 // Factor out anchoring (i.e. position + size/2 + anchoring)
                 let location = CGPoint(x: $0.location.x - pos.x,
                                        y: $0.location.y - pos.y)
-                                
+                     
+            
                 graph.layerDragged(interactiveLayer: interactiveLayer,
                                    location: location, // // PRESS NODE ONLY
                                    translation: $0.translation,
