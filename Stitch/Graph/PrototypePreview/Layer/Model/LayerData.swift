@@ -46,6 +46,8 @@ struct LayerGroupData: Equatable, Hashable {
 }
 
 extension LayerType {
+    
+    // Only used for pinning?
     var id: PreviewCoordinate {
         switch self {
         case .nongroup(let data, _):
