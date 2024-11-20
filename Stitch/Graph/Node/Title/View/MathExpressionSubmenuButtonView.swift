@@ -76,6 +76,7 @@ struct MathExpressionDefocused: GraphEventWithResponse {
 struct MathExpressionPopoverViewModifier: ViewModifier {
     
     let id: NodeId
+    let shouldDisplay: Bool
     let mathExpression: String
     let isFocused: Bool // more like?: "is popover open"
     
@@ -83,8 +84,11 @@ struct MathExpressionPopoverViewModifier: ViewModifier {
     @State var expr = "" // Alternatively?: pass down a @Bindable mathExpression
     
     func body(content: Content) -> some View {
+        guard shouldDisplay else {
+            return content.eraseToAnyView()
+        }
         
-        content
+        return content
             .popover(isPresented: self.$show) {
                 TextField("", text: self.$expr) {
                     self.show = false // submit closes the popover
@@ -119,6 +123,7 @@ struct MathExpressionPopoverViewModifier: ViewModifier {
             .onChange(of: self.expr) { oldValue, newValue in
                 dispatch(MathExpressionFormulaEdited(id: id, newExpression: self.expr))
             }
+            .eraseToAnyView()
     }
 }
 
