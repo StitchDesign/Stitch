@@ -63,20 +63,17 @@ struct ProjectsHomeCommands: Commands {
                 
                 Divider()
                 
-                //                SwiftUIShortcutView(title: "Insert Node",
                 SwiftUIShortcutView(title: "Insert",
                                     key: .return) {
                     INSERT_NODE_ACTION()
                 }
                 
-                //                SwiftUIShortcutView(title: "Duplicate Node(s)",
                 SwiftUIShortcutView(title: "Duplicate",
                                     key: DUPLICATE_SELECTED_NODES_SHORTCUT) {
-                    // duplicates both selected nodes and selected comments
                     dispatch(DuplicateShortcutKeyPressed())
                 }
                 
-                //                SwiftUIShortcutView(title: "Delete Node(s)",
+                // TODO: should CMD+Delete ungroup a GroupNode on the canvas, as it ungroups a LayerGroup in the sidebar?
                 SwiftUIShortcutView(title: "Delete",
                                     key: DELETE_SELECTED_NODES_SHORTCUT,
                                     // empty list = do not require CMD
@@ -88,35 +85,26 @@ struct ProjectsHomeCommands: Commands {
                 // Not shown in menu when no active project;
                 // Disabled when we have focused text input
                 //            if activeProject {
-                //                SwiftUIShortcutView(title: "Cut Node(s)",
                 SwiftUIShortcutView(title: "Cut",
                                     key: CUT_SELECTED_NODES_SHORTCUT,
                                     disabled: textFieldFocused) {
                     log("cut shortcut")
-                    //                    dispatch(SelectedGraphNodesCut())
-                    
                     // cuts both nodes and comments
                     dispatch(SelectedGraphItemsCut())
                 }
                 
-                //                SwiftUIShortcutView(title: "Copy Node(s)",
                 SwiftUIShortcutView(title: "Copy",
                                     key: COPY_SELECTED_NODES_SHORTCUT,
                                     disabled: textFieldFocused) {
                     log("copy shortcut")
-                    //                    dispatch(SelectedGraphNodesCopied())
-                    
                     // copies both nodes and comments
                     dispatch(SelectedGraphItemsCopied())
                 }
                 
-                //                SwiftUIShortcutView(title: "Paste Node(s)",
                 SwiftUIShortcutView(title: "Paste",
                                     key: PASTE_SELECTED_NODES_SHORTCUT,
                                     disabled: textFieldFocused) {
                     log("paste shortcut")
-                    //                    dispatch(SelectedGraphNodesPasted())
-                    
                     // pastes both nodes and comments
                     dispatch(SelectedGraphItemsPasted())
                 }
@@ -166,6 +154,7 @@ struct ProjectsHomeCommands: Commands {
                     store.currentDocument?.keypressState.modifiers.remove(.shift)
                 }
                 
+                // TODO: maybe it would be better if these options did not all show up in the Graph menu on Catalyst?
                 SwiftUIShortcutView(title: "Insert Add Node",
                                     key: ADD_NODE_SHORTCUT,
                                     eventModifiers: [.option],
@@ -420,26 +409,31 @@ struct ProjectsHomeCommands: Commands {
                                     key: SELECT_ALL_NODES_SHORTCUT,
                                     // Disable CMD+A "select all" when an input text field is focused
                                     disabled: textFieldFocused || !activeProject) {
-                    //                    dispatch(ToggleSelectAllNodes())
                     dispatch(SelectAllShortcutKeyPressed())
                 }
                 
-                SwiftUIShortcutView(title: "Group Layers",
-                                    key: GROUP_LAYERS_SHORTCUT,
-                                    // Disabled if no layers are actively selected
-                                    disabled: !isSidebarFocused || !groupButtonEnabled) {
-                    // deletes both selected nodes and selected comments
-                    self.graph?.layersSidebarViewModel.sidebarGroupCreated()
+                SwiftUIShortcutView(title: "Group",
+                                    key: CREATE_GROUP_SHORTCUT) {
+                    let cannotCreateLayerGroup = !isSidebarFocused || !groupButtonEnabled
+                    
+                    if cannotCreateLayerGroup {
+                        dispatch(GroupNodeCreated(isComponent: false))
+                    } else {
+                        self.graph?.layersSidebarViewModel.sidebarGroupCreated()
+                    }
                 }
                 
-                SwiftUIShortcutView(title: "Ungroup Layers",
+                SwiftUIShortcutView(title: "Ungroup",
                                     key: DELETE_SELECTED_NODES_SHORTCUT,
-                                    eventModifiers: [.command],
-                                    // Disabled if no layers are actively selected
-                                    disabled: !isSidebarFocused || !ungroupButtonEnabled) {
-//                                    disabled: !isSidebarFocused) {
-                    // deletes both selected nodes and selected comments
-                    self.graph?.layersSidebarViewModel.sidebarGroupUncreated()
+                                    eventModifiers: [.command]) {
+                    
+                    let cannotUngroupLayer = !isSidebarFocused || !ungroupButtonEnabled
+                    
+                    if cannotUngroupLayer {
+                        dispatch(SelectedGroupNodesUncreated())
+                    } else {
+                        self.graph?.layersSidebarViewModel.sidebarGroupUncreated()
+                    }
                 }
                 
             } // replacing: .pasteboard
