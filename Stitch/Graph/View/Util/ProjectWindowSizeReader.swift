@@ -41,7 +41,7 @@ struct ProjectWindowSizeReader: View {
             Color.clear
                 .onAppear {
 
-                     log("SIZE READING: ProjectWindowSizeReader: onAppear: geometry.size: \(geometry.size)")
+                    // log("SIZE READING: ProjectWindowSizeReader: onAppear: geometry.size: \(geometry.size)")
 
 //                    screenSize = geometry.size
 
@@ -65,9 +65,9 @@ struct ProjectWindowSizeReader: View {
                 // Listener here needed for repainting the view after a device orientation change
                 .onChange(of: geometry.size) { oldValue, newValue in
 
-                    // log("ProjectWindowSizeReader: onChange of: geometry.size: \(geometry.size)")
-                     log("SIZE READING: ProjectWindowSizeReader: onChange of: oldValue: \(oldValue)")
-                     log("SIZE READING: ProjectWindowSizeReader: onChange of: newValue: \(newValue)")
+                    //// log("ProjectWindowSizeReader: onChange of: geometry.size: \(geometry.size)")
+                    // log("SIZE READING: ProjectWindowSizeReader: onChange of: oldValue: \(oldValue)")
+                    // log("SIZE READING: ProjectWindowSizeReader: onChange of: newValue: \(newValue)")
 
                     if isFullScreen {
                         // log("ProjectWindowSizeReader: onChange of: geometry.size: we are fullscreen, so will update previewWindowSizing")
@@ -125,7 +125,7 @@ struct ProjectWindowSizeReader: View {
                         let heightDiffMag = heightDiff.magnitude
                         
                         if heightDiff.magnitude > 295 {
-                             log("ProjectWindowSizeReader: onChange of: geometry.size: setting to min height")
+                             // log("ProjectWindowSizeReader: onChange of: geometry.size: setting to min height")
                             //menuHeight = INSERT_NODE_MENU_MIN_HEIGHT
                             dispatch(NodeMenuHeightSet(newHeight: INSERT_NODE_MENU_MIN_HEIGHT))
 
@@ -133,7 +133,7 @@ struct ProjectWindowSizeReader: View {
                             // screenHeight = geometry.size.height
 
                         } else {
-                             log("ProjectWindowSizeReader: onChange of: geometry.size: diff not big enough")
+                             // log("ProjectWindowSizeReader: onChange of: geometry.size: diff not big enough")
                             //menuHeight = INSERT_NODE_MENU_MAX_HEIGHT
                             dispatch(NodeMenuHeightSet(newHeight: INSERT_NODE_MENU_MAX_HEIGHT))
                         }
@@ -142,7 +142,7 @@ struct ProjectWindowSizeReader: View {
                     // Needed when e.g. keyboard dimissed?
                     // or we rotate the device, e.g. into portrait mode?
                     else {
-                         log("ProjectWindowSizeReader: onChange of: geometry.size: setting to max height again")
+                         // log("ProjectWindowSizeReader: onChange of: geometry.size: setting to max height again")
 //                        menuHeight = INSERT_NODE_MENU_MAX_HEIGHT
                         dispatch(NodeMenuHeightSet(newHeight: INSERT_NODE_MENU_MAX_HEIGHT))
                     }
