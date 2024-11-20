@@ -115,7 +115,9 @@ extension GraphState {
                 destinationGraphInfo: nil)
             
             // Update top-level nodes to match current focused group
-            let newNodes: [NodeEntity] = self.createNewNodes(from: newComponent)
+            let newNodes: [NodeEntity] = Self.createNewNodes(
+                from: newComponent,
+                focusedGroupNode: self.groupNodeFocused)
             
             // this actually adds the new components' nodes to the state
             let graph = self.addComponentToGraph(newComponent: newComponent,
