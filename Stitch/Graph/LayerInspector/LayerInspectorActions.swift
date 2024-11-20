@@ -96,6 +96,13 @@ extension GraphState {
         self.layerInputAddedToGraph(node: node,
                                     input: layerInputData,
                                     coordinate: coordinate)
+        
+        // Reset graph cache to get new nodes to appear
+        // Dispatch needed for fix
+        DispatchQueue.main.async { [weak self, weak layerNode] in
+            layerNode?.resetInputCanvasItemsCache()
+            self?.visibleNodesViewModel.resetCache()
+        }
     }
 }
 
