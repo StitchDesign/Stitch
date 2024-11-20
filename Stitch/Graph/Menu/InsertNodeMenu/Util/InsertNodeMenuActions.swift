@@ -90,6 +90,9 @@ struct AddNodeButtonPressed: GraphEvent {
             return
         }
         
+        // Reset focused field
+        state.graphUI.reduxFocusedField = nil
+        
         // Immediately create a LayerNode; do not animate.
         if nodeKind.isLayer {
             guard let newNode = state.documentDelegate?.nodeCreated(choice: nodeKind) else {
