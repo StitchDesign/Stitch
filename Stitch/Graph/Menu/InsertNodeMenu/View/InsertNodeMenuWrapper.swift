@@ -333,7 +333,8 @@ struct InsertNodeMenuWrapper: View {
             // Insert Node Menu view
             if graphUI.insertNodeMenuState.show {
                 menuView
-                    .shadow(radius: 10, x: 10, y: 10)
+                    .shadow(radius: 4)
+                    .shadow(radius: 8, x: 4, y: 2)
             }
                         
 //            // NodeView used only for animation; does not read size,
