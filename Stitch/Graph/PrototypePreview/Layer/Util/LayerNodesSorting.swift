@@ -69,7 +69,7 @@ extension GraphState {
                                         rhs: rhs,
                                         pinMap: pinMap)
         })
-        
+                
         if isInGroupOrientation {
             sortedLayerTypes = sortedLayerTypes.reversed()
         }
@@ -80,8 +80,6 @@ extension GraphState {
                                            sidebarLayersGlobal: sidebarLayersGlobal,
                                            layerNodes: self.layerNodes)
         }
-        
-        // log("recursivePreviewLayers: sortedLayerDataList: \(sortedLayerDataList)")
         
         return sortedLayerDataList
     }
@@ -137,14 +135,25 @@ extension GraphState {
         switch layerType {
             
         case .mask(masked: let masked, masker: let masker):
-            let maskedLayerData = masked.compactMap { getLayerDataFromLayerType($0,
-                                                                                pinMap: pinMap, 
-                                                                                sidebarLayersGlobal: sidebarLayersGlobal,
-                                                                                layerNodes: layerNodes) }
-            let maskerLayerData = masker.compactMap { getLayerDataFromLayerType($0,
-                                                                                pinMap: pinMap,
-                                                                                sidebarLayersGlobal: sidebarLayersGlobal,
-                                                                                layerNodes: layerNodes) }
+ 
+            var maskedLayerData = masked.compactMap {
+                getLayerDataFromLayerType($0,
+                                          pinMap: pinMap,
+                                          sidebarLayersGlobal: sidebarLayersGlobal,
+                                          layerNodes: layerNodes)
+            }
+            
+            var maskerLayerData = masker.compactMap {
+                getLayerDataFromLayerType($0,
+                                          pinMap: pinMap,
+                                          sidebarLayersGlobal: sidebarLayersGlobal,
+                                          layerNodes: layerNodes)
+            }
+            
+            // Extend the masked/masker views:
+            let newMaskCount = max(maskedLayerData.count, maskerLayerData.count)
+            maskedLayerData = maskedLayerData.lengthenArray(newMaskCount)
+            maskerLayerData = maskerLayerData.lengthenArray(newMaskCount)
             
             guard !maskedLayerData.isEmpty,
                   !maskerLayerData.isEmpty else {
@@ -154,15 +163,17 @@ extension GraphState {
             return .mask(masked: maskedLayerData,
                          masker: maskerLayerData)
             
+            // we call `getLayerDataFromLayerType` recursively, and
         case .nongroup(let data, let isPinned): // LayerData
+                        
             guard let previewLayer: LayerViewModel = layerNodes
                 .get(data.id.layerNodeId.id)?
                 .layerNode?
+                    // these layer view models are ALREADY CREATED on the layer node
                 .previewLayerViewModels[safe: data.id.loopIndex] else {
-                
                 return nil
             }
-            
+                        
             return .nongroup(previewLayer, isPinned)
             
         case .group(let layerGroupData, let isPinned): // LayerGroupData

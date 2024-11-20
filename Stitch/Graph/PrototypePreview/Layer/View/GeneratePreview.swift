@@ -266,12 +266,12 @@ struct LayerDataView: View {
             // For "more maskers than masked views, limit ourselves to masked (layer) view count"
         case .mask(masked: let maskedLayerDataList,
                    masker: let maskerLayerDataList):
-            
+      
             ForEach(maskedLayerDataList) { (maskedLayerData: LayerData) in
                 
                 if let maskedIndex = maskedLayerDataList.firstIndex(where: { $0.id == maskedLayerData.id }),
-                   maskedIndex < maskerLayerDataList.endIndex {
-                    let maskerLayerData: LayerData = maskerLayerDataList[maskedIndex]
+                    maskedIndex < maskerLayerDataList.endIndex, // Is this check necessary?
+                    let maskerLayerData: LayerData = maskerLayerDataList.first(where: { $0.id.loopIndex == maskedLayerData.id.loopIndex }) {
                     
                     // Turn masked LayerData into a single view
                     let masked: some View = LayerDataView(
@@ -292,6 +292,7 @@ struct LayerDataView: View {
                     // Return
                     masked.mask(masker)
                 } else {
+                    // logInView("LayerDataView: WILL NOT MASK")
                     EmptyView()
                 }
             }
