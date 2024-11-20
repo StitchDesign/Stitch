@@ -298,6 +298,7 @@ struct InsertNodeMenuWrapper: View {
             showMenu: insertNodeMenuState.show,
             menuHeight: menuHeight,
             animatingNodeOpacity: self.nodeOpacity)
+        
             // scale first, THEN position
             .scaleEffect(x: menuScaleX, y: menuScaleY)
             // use .position modifier to match node's use of .position modifier
@@ -312,29 +313,26 @@ struct InsertNodeMenuWrapper: View {
     
     var body: some View {
         ZStack {
-//            MODAL_BACKGROUND_COLOR
-//                .ignoresSafeArea()
-//                .frame(maxWidth: .infinity, maxHeight: .infinity)
-//                .opacity(showModalBackground ? 1 : 0)
-//                .onTapGesture {
-//                    dispatch(CloseAndResetInsertNodeMenu())
-//                }
-//            // IMPORTANT: keep `nodeSizeReadingView` in an .overlay, so that the changing of the node during insert-node-menu query-typing does not
-//                .overlay {
-//                    // NodeView used only for reading the size of the insert node menu's active selection;
-//                    // its size does not change becasue it is not animated.
-//                    
-//                    // Only use node-size-reading view when not actively animating
-//                    if !graphUI.insertNodeMenuState.menuAnimatingToNode {
-//                        sizeReadingNodeView.opacity(0)
-//                    }
-//                }
+
+            
+#if DEV_DEBUG || DEBUG
+            let pseudoPopoverBackgroundOpacity = 0.1
+#else
+            let pseudoPopoverBackgroundOpacity = 0.001
+#endif
+            
+            ModalBackgroundGestureRecognizer(dismissalCallback: { dispatch(CloseAndResetInsertNodeMenu()) }) {
+//                Color.blue.opacity(pseudoPopoverBackgroundOpacity)
+                Color.clear
+            }
+//            .opacity(showModalBackground ? 1 : 0)
             
             // Insert Node Menu view
             if graphUI.insertNodeMenuState.show {
                 menuView
-                    .shadow(radius: 4)
-                    .shadow(radius: 8, x: 4, y: 2)
+                .shadow(radius: 4)
+                .shadow(radius: 8, x: 4, y: 2)
+                    .animation(.default, value: graphUI.insertNodeMenuState.show)
             }
                         
 //            // NodeView used only for animation; does not read size,

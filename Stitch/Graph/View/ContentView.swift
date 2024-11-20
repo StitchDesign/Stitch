@@ -70,6 +70,7 @@ struct ContentView: View, KeyboardReadable {
             
             // probably the best location for listening to how iPad's on-screen keyboard reduces available height for node menu ?
             
+            
             // Must respect keyboard safe-area
             ProjectWindowSizeReader(previewWindowSizing: previewWindowSizing,
                                     previewWindowSize: document.previewWindowSize,
