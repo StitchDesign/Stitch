@@ -312,27 +312,28 @@ struct InsertNodeMenuWrapper: View {
     
     var body: some View {
         ZStack {
-            MODAL_BACKGROUND_COLOR
-                .ignoresSafeArea()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .opacity(showModalBackground ? 1 : 0)
-                .onTapGesture {
-                    dispatch(CloseAndResetInsertNodeMenu())
-                }
-            // IMPORTANT: keep `nodeSizeReadingView` in an .overlay, so that the changing of the node during insert-node-menu query-typing does not
-                .overlay {
-                    // NodeView used only for reading the size of the insert node menu's active selection;
-                    // its size does not change becasue it is not animated.
-                    
-                    // Only use node-size-reading view when not actively animating
-                    if !graphUI.insertNodeMenuState.menuAnimatingToNode {
-                        sizeReadingNodeView.opacity(0)
-                    }
-                }
+//            MODAL_BACKGROUND_COLOR
+//                .ignoresSafeArea()
+//                .frame(maxWidth: .infinity, maxHeight: .infinity)
+//                .opacity(showModalBackground ? 1 : 0)
+//                .onTapGesture {
+//                    dispatch(CloseAndResetInsertNodeMenu())
+//                }
+//            // IMPORTANT: keep `nodeSizeReadingView` in an .overlay, so that the changing of the node during insert-node-menu query-typing does not
+//                .overlay {
+//                    // NodeView used only for reading the size of the insert node menu's active selection;
+//                    // its size does not change becasue it is not animated.
+//                    
+//                    // Only use node-size-reading view when not actively animating
+//                    if !graphUI.insertNodeMenuState.menuAnimatingToNode {
+//                        sizeReadingNodeView.opacity(0)
+//                    }
+//                }
             
             // Insert Node Menu view
             if graphUI.insertNodeMenuState.show {
                 menuView
+                    .shadow(radius: 10, x: 10, y: 10)
             }
                         
 //            // NodeView used only for animation; does not read size,

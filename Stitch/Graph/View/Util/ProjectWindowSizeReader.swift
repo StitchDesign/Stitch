@@ -31,7 +31,7 @@ struct ProjectWindowSizeReader: View {
             Color.clear
                 .onAppear {
 
-                    // log("ProjectWindowSizeReader: onAppear: geometry.size: \(geometry.size)")
+                     log("SIZE READING: ProjectWindowSizeReader: onAppear: geometry.size: \(geometry.size)")
 
                     screenSize = geometry.size
 
@@ -53,11 +53,11 @@ struct ProjectWindowSizeReader: View {
 
                 // TODO: if we want to resize the prototype window when Mac app window or iOS device orientation changes, decide how to coorindate that with user's manual-drag changes of prototype window size.
                 // Listener here needed for repainting the view after a device orientation change
-                .onChange(of: geometry.size) { _, _ in
+                .onChange(of: geometry.size) { oldValue, newValue in
 
                     // log("ProjectWindowSizeReader: onChange of: geometry.size: \(geometry.size)")
-                    // log("ProjectWindowSizeReader: onChange of: oldValue: \(oldValue)")
-                    // log("ProjectWindowSizeReader: onChange of: newValue: \(newValue)")
+                     log("SIZE READING: ProjectWindowSizeReader: onChange of: oldValue: \(oldValue)")
+                     log("SIZE READING: ProjectWindowSizeReader: onChange of: newValue: \(newValue)")
 
                     if isFullScreen {
                         // log("ProjectWindowSizeReader: onChange of: geometry.size: we are fullscreen, so will update previewWindowSizing")

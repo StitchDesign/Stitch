@@ -67,6 +67,9 @@ struct ContentView: View, KeyboardReadable {
 
     var body: some View {
         ZStack {
+            
+            // probably the best location for listening to how iPad's on-screen keyboard reduces available height for node menu ?
+            
             // Must respect keyboard safe-area
             ProjectWindowSizeReader(previewWindowSizing: previewWindowSizing,
                                     previewWindowSize: document.previewWindowSize,
