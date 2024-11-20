@@ -31,6 +31,8 @@ struct ActiveDragInteractionNodeVelocityData: Equatable, Hashable {
 @Observable
 final class GraphUIState {
     
+    var nodeMenuHeight: CGFloat = INSERT_NODE_MENU_MAX_HEIGHT
+    
     var sidebarWidth: CGFloat = .zero // i.e. origin of graph from .global frame
 
     var showCatalystProjectTitleModal: Bool = false

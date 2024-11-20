@@ -56,10 +56,6 @@ struct StitchRootView: View {
          return document.graphUI.insertNodeMenuState.menuAnimatingToNode ||
          document.graphUI.insertNodeMenuState.show
      }
-
-     // For now,
-    @State private var menuHeight: CGFloat = INSERT_NODE_MENU_MAX_HEIGHT
-    @State private var screenSize: CGSize = .zero
     
     var body: some View {
         Group {
@@ -102,16 +98,10 @@ struct StitchRootView: View {
                                 }
                             } // if document.graphUI
 #endif
-                            
                             if showMenu {
                                 InsertNodeMenuWrapper(document: document,
-                                                      graphUI: document.graphUI,
-                                                      menuHeight: self.$menuHeight,
-                                                      screenSize: .constant(document.graphUI.frame.size)
-//                                                      screenSize: self.$screenSize
-                                )
+                                                      graphUI: document.graphUI)
                             }
-                            
                         } // if let document
                     } // .overlay
             }

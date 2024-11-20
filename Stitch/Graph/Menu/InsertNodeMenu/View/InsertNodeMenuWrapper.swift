@@ -42,8 +42,13 @@ struct InsertNodeMenuWrapper: View {
 
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graphUI: GraphUIState
-    @Binding var menuHeight: CGFloat
-    @Binding var screenSize: CGSize
+    
+    var menuHeight: CGFloat {
+        graphUI.nodeMenuHeight
+    }
+    
+    // TODO: add back or fully remove when we reintroduce
+    //    @Binding var screenSize: CGSize
     
     var graphScale: CGFloat {
         graphMovement.zoomData.zoom
@@ -56,13 +61,13 @@ struct InsertNodeMenuWrapper: View {
     }
 
     var screenWidth: CGFloat {
-        // graphUI.frame.width
-        self.screenSize.width
+         graphUI.frame.width
+//        self.screenSize.width
     }
 
     var screenHeight: CGFloat {
-        // graphUI.frame.height
-        self.screenSize.height
+         graphUI.frame.height
+//        self.screenSize.height
     }
     
     private var graphMovement: GraphMovementObserver {
@@ -140,7 +145,8 @@ struct InsertNodeMenuWrapper: View {
         self.nodePosition = self.getAdjustedMenuOrigin() // menuOrigin
 
         if setHeightToMax {
-            self.menuHeight = INSERT_NODE_MENU_MAX_HEIGHT
+//            self.menuHeight = INSERT_NODE_MENU_MAX_HEIGHT
+            dispatch(NodeMenuHeightSet(newHeight: INSERT_NODE_MENU_MAX_HEIGHT))
         }
     }
     
@@ -300,7 +306,7 @@ struct InsertNodeMenuWrapper: View {
             animatingNodeOpacity: self.nodeOpacity)
         
             // scale first, THEN position
-            .scaleEffect(x: menuScaleX, y: menuScaleY)
+//            .scaleEffect(x: menuScaleX, y: menuScaleY)
             // use .position modifier to match node's use of .position modifier
 //            .position(menuPosition)
 //            .offset(x: -sidebarHalfWidth)
@@ -364,13 +370,13 @@ struct InsertNodeMenuWrapper: View {
                 prepareHiddenMenu(setHeightToMax: false)
             }
         }
-        .onChange(of: self.screenSize, initial: true) { _, _ in
-            //            log("ContentView: onChange of self.screenSize: oldValue: \(oldValue)")
-            //            log("ContentView: onChange of self.screenSize: newValue: \(newValue)")
-            if !graphUI.insertNodeMenuState.menuAnimatingToNode {
-                prepareHiddenMenu(setHeightToMax: false)
-            }
-        }
+//        .onChange(of: self.screenSize, initial: true) { _, _ in
+//            //            log("ContentView: onChange of self.screenSize: oldValue: \(oldValue)")
+//            //            log("ContentView: onChange of self.screenSize: newValue: \(newValue)")
+//            if !graphUI.insertNodeMenuState.menuAnimatingToNode {
+//                prepareHiddenMenu(setHeightToMax: false)
+//            }
+//        }
         .onChange(of: graphUI.insertNodeMenuState.menuAnimatingToNode, initial: true) { _, newValue in
             // log("ContentView: onChange of menuAnimatingToNode: oldValue: \(oldValue)")
             // log("ContentView: onChange of menuAnimatingToNode: newValue: \(newValue)")

@@ -77,8 +77,9 @@ struct ContentView: View, KeyboardReadable {
                                     isFullScreen: graphUI.isFullScreenMode,
                                     showFullScreenAnimateCompleted: $showFullScreenAnimateCompleted,
                                     showFullScreenObserver: showFullScreen,
-                                    menuHeight: $menuHeight,
-                                    screenSize: $screenSize,
+//                                    menuHeight: $menuHeight,
+                                    menuHeight: menuHeight,
+//                                    screenSize: $screenSize,
                                     menuAnimatingToNode: graphUI.insertNodeMenuState.menuAnimatingToNode)
 
             // Must IGNORE keyboard safe-area

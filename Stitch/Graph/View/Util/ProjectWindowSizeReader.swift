@@ -9,6 +9,15 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+
+struct NodeMenuHeightSet: GraphUIEvent {
+    let newHeight: CGFloat
+    
+    func handle(state: GraphUIState) {
+        state.nodeMenuHeight = newHeight
+    }
+}
+
 import GameController
 
 /// Uses `GeometryReader` to process screen size changes for the prototype preview window.
@@ -19,8 +28,9 @@ struct ProjectWindowSizeReader: View {
     @Binding var showFullScreenAnimateCompleted: Bool
     let showFullScreenObserver: AnimatableBool
 
-    @Binding var menuHeight: CGFloat
-    @Binding var screenSize: CGSize
+//    @Binding var menuHeight: CGFloat
+    let menuHeight: CGFloat
+//    @Binding var screenSize: CGSize
 
     let menuAnimatingToNode: Bool
 
@@ -33,7 +43,7 @@ struct ProjectWindowSizeReader: View {
 
                      log("SIZE READING: ProjectWindowSizeReader: onAppear: geometry.size: \(geometry.size)")
 
-                    screenSize = geometry.size
+//                    screenSize = geometry.size
 
                     if geometry.size.isLandscape {
                         self.defaultLandscapeSize = geometry.size
@@ -71,7 +81,7 @@ struct ProjectWindowSizeReader: View {
                     }
 
                     // TODO: ignore geometry changes when magic keyboard attached, so that we don't "slightly move up" the insert node menu?
-                    screenSize = geometry.size
+//                    screenSize = geometry.size
 
                     if !self.defaultLandscapeSize.isDefined,
                        geometry.size.isLandscape {
@@ -111,24 +121,30 @@ struct ProjectWindowSizeReader: View {
                         // TODO: test on iPad Mini etc.
                         // TODO: why were we getting 299 vs 300 vs ... ?
                         //                        if heightDiff.magnitude > 300 {
+                        
+                        let heightDiffMag = heightDiff.magnitude
+                        
                         if heightDiff.magnitude > 295 {
-                            // log("ProjectWindowSizeReader: onChange of: geometry.size: setting to min height")
-                            menuHeight = INSERT_NODE_MENU_MIN_HEIGHT
+                             log("ProjectWindowSizeReader: onChange of: geometry.size: setting to min height")
+                            //menuHeight = INSERT_NODE_MENU_MIN_HEIGHT
+                            dispatch(NodeMenuHeightSet(newHeight: INSERT_NODE_MENU_MIN_HEIGHT))
 
                             // TODO: only adjust screen size if geometry changed enough to change the menu's height? Be careful about e.g. maybe us wanting to move up the menu when in portrait mode.
                             // screenHeight = geometry.size.height
 
                         } else {
-                            // log("ProjectWindowSizeReader: onChange of: geometry.size: diff not big enough")
-                            menuHeight = INSERT_NODE_MENU_MAX_HEIGHT
+                             log("ProjectWindowSizeReader: onChange of: geometry.size: diff not big enough")
+                            //menuHeight = INSERT_NODE_MENU_MAX_HEIGHT
+                            dispatch(NodeMenuHeightSet(newHeight: INSERT_NODE_MENU_MAX_HEIGHT))
                         }
                     }
 
                     // Needed when e.g. keyboard dimissed?
                     // or we rotate the device, e.g. into portrait mode?
                     else {
-                        // log("ProjectWindowSizeReader: onChange of: geometry.size: setting to max height again")
-                        menuHeight = INSERT_NODE_MENU_MAX_HEIGHT
+                         log("ProjectWindowSizeReader: onChange of: geometry.size: setting to max height again")
+//                        menuHeight = INSERT_NODE_MENU_MAX_HEIGHT
+                        dispatch(NodeMenuHeightSet(newHeight: INSERT_NODE_MENU_MAX_HEIGHT))
                     }
                 }
             // TODO: why does this logic live here? we're changing some ephemeral parts of preview-window data (size etc.) in a reader that's mostly about user-device-screen changes (e.g. keyboard, rotation) ?
