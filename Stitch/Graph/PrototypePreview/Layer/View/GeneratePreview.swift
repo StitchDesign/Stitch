@@ -259,8 +259,6 @@ struct LayerDataView: View {
     
     var body: some View {
         
-        logInView("LayerDataView: called for layerData: \(layerData.layer.layer), \(layerData.id)")
-        
         switch layerData {
             
             // TODO: will this be accurate when e.g. masked's loop count = 3 but masker's loop count = 5? Or vice-versa?
@@ -269,19 +267,11 @@ struct LayerDataView: View {
         case .mask(masked: let maskedLayerDataList,
                    masker: let maskerLayerDataList):
       
-            logInView("maskedLayerDataList.map(.id.loopIndex): \(maskedLayerDataList.map(\.id.loopIndex))")
-            logInView("maskerLayerDataList.map(.id.loopIndex): \(maskerLayerDataList.map(\.id.loopIndex))")
-            
             ForEach(maskedLayerDataList) { (maskedLayerData: LayerData) in
                 
                 if let maskedIndex = maskedLayerDataList.firstIndex(where: { $0.id == maskedLayerData.id }),
                     maskedIndex < maskerLayerDataList.endIndex, // Is this check necessary?
                     let maskerLayerData: LayerData = maskerLayerDataList.first(where: { $0.id.loopIndex == maskedLayerData.id.loopIndex }) {
-                    
-                    logInView("LayerDataView: maskedLayerData layer, id: \(maskedLayerData.layer.layer), \(maskedLayerData.id)")
-                    logInView("LayerDataView: maskedIndex: \(maskedIndex)")
-                    
-                    logInView("LayerDataView: creating LayerDataView for masked layer \(maskedLayerData.layer.layer), \(maskedLayerData.id)")
                     
                     // Turn masked LayerData into a single view
                     let masked: some View = LayerDataView(
@@ -290,8 +280,6 @@ struct LayerDataView: View {
                         parentSize: parentSize,
                         parentDisablesPosition: parentDisablesPosition,
                         isGhostView: isGhostView)
-                    
-                    logInView("LayerDataView: creating LayerDataView for masker layer \(maskerLayerData.layer.layer), \(maskerLayerData.id)")
                     
                     // Turn masker LayerData into a single view
                     let masker: some View = LayerDataView(
@@ -310,7 +298,6 @@ struct LayerDataView: View {
             }
             
         case .nongroup(let layerViewModel, _):
-            logInView("LayerDataView: nongroup layer, id: \(layerViewModel.layer), \(layerViewModel.id)")
             if let node = document.graph.getLayerNode(id: layerViewModel.id.layerNodeId.id),
                let layerNode = node.layerNode {
                 NonGroupPreviewLayersView(document: document,

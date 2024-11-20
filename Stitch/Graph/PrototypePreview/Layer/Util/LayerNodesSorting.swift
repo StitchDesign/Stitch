@@ -70,7 +70,6 @@ extension GraphState {
                                         pinMap: pinMap)
         })
                 
-        // is this flipping
         if isInGroupOrientation {
             sortedLayerTypes = sortedLayerTypes.reversed()
         }
@@ -80,16 +79,6 @@ extension GraphState {
                                            pinMap: pinMap,
                                            sidebarLayersGlobal: sidebarLayersGlobal,
                                            layerNodes: self.layerNodes)
-        }
-                
-        for sortedLayerData in sortedLayerDataList {
-            switch sortedLayerData {
-            case .mask(let masked, let masker):
-                let maskedIndices = masked.map(\.id.loopIndex)
-                let maskerIndices = masker.map(\.id.loopIndex)
-            default:
-                continue
-            }
         }
         
         return sortedLayerDataList
@@ -147,7 +136,6 @@ extension GraphState {
             
         case .mask(masked: let masked, masker: let masker):
  
-            log("getLayerDataFromLayerType: masked")
             var maskedLayerData = masked.compactMap {
                 getLayerDataFromLayerType($0,
                                           pinMap: pinMap,
@@ -162,16 +150,10 @@ extension GraphState {
                                           layerNodes: layerNodes)
             }
             
-            log("getLayerDataFromLayerType: maskedLayerData.map(.id.loopIndex) was: \(maskedLayerData.map(\.id.loopIndex))")
-            log("getLayerDataFromLayerType: maskerLayerData.map(.id.loopIndex) was: \(maskerLayerData.map(\.id.loopIndex))")
-            
+            // Extend the masked/masker views:
             let newMaskCount = max(maskedLayerData.count, maskerLayerData.count)
-            
             maskedLayerData = maskedLayerData.lengthenArray(newMaskCount)
             maskerLayerData = maskerLayerData.lengthenArray(newMaskCount)
-            
-            log("getLayerDataFromLayerType: maskedLayerData.map(.id.loopIndex) now: \(maskedLayerData.map(\.id.loopIndex))")
-            log("getLayerDataFromLayerType: maskerLayerData.map(.id.loopIndex) now: \(maskerLayerData.map(\.id.loopIndex))")
             
             guard !maskedLayerData.isEmpty,
                   !maskerLayerData.isEmpty else {
@@ -372,15 +354,15 @@ func handleRawSidebarLayer(sidebarIndex: Int,
             
             // "Does this layer have other views pinned to it?"
             // i.e. "Is this layer the B to some A and C?"
-//            if let pinnedViews = pinMap.get(layerData.id.asLayerNodeId) {
-//                let layerTypesFromPinnedViews = getLayerTypesForPinnedViews(
-//                    pinnedData: pinnedViews,
-//                    sidebarLayers: sidebarLayersGlobal,
-//                    layerNodes: layerNodes,
-//                    layerTypesAtThisLevel: layerTypesAtThisLevel)
-//                
-//                layerTypesAtThisLevel = layerTypesAtThisLevel.union(layerTypesFromPinnedViews)
-//            }
+            if let pinnedViews = pinMap.get(layerData.id.asLayerNodeId) {
+                let layerTypesFromPinnedViews = getLayerTypesForPinnedViews(
+                    pinnedData: pinnedViews,
+                    sidebarLayers: sidebarLayersGlobal,
+                    layerNodes: layerNodes,
+                    layerTypesAtThisLevel: layerTypesAtThisLevel)
+                
+                layerTypesAtThisLevel = layerTypesAtThisLevel.union(layerTypesFromPinnedViews)
+            }
         }
     } // else
     

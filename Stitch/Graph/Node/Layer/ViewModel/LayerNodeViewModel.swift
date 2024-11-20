@@ -25,12 +25,7 @@ final class LayerNodeViewModel {
     var layer: Layer
 
     // View models for layers in prototype window
-    var previewLayerViewModels: [LayerViewModel] = [] {
-        didSet {
-            let ids = previewLayerViewModels.map(\.id.loopIndex)
-            log("LayerNodeViewModel: previewLayerViewModels: didSet: ids: \(ids)")
-        }
-    }
+    var previewLayerViewModels: [LayerViewModel] = [] 
  
     // Some layer nodes contain outputs
     var outputPorts: [OutputLayerNodeRowData] = []
