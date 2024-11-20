@@ -339,7 +339,6 @@ struct NonGroupPreviewLayersView: View {
     var body: some View {
         if layerNode.hasSidebarVisibility,
            let graph = layerNode.nodeDelegate?.graphDelegate as? GraphState {
-            logInView("NonGroupPreviewLayersView: non-empty view")
             PreviewLayerView(document: document,
                              graph: graph,
                              layerViewModel: layerViewModel,
@@ -348,7 +347,6 @@ struct NonGroupPreviewLayersView: View {
                              parentSize: parentSize,
                              parentDisablesPosition: parentDisablesPosition)
         } else {
-            logInView("NonGroupPreviewLayersView: empty view")
             EmptyView()
         }
     }
