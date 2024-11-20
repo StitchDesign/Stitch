@@ -247,6 +247,10 @@ extension CanvasItemViewModel {
             $0.updateAnchorPoint()
         }
     }
+    
+    func resetViewSizingCache() {
+        self.viewCache = nil
+    }
 }
 
 extension InputLayerNodeRowData {
