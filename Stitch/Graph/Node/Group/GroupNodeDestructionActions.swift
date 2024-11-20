@@ -27,15 +27,27 @@ struct GroupNodeDeletedAction: ProjectEnvironmentEvent {
 
 // We uncreated a node-ui-group node via the graph (as opposed to the sidebar).
 // We remove the node-ui-grouping but keep
-struct GroupNodeUncreated: ProjectEnvironmentEvent {
+struct GroupNodeUncreated: GraphEventWithResponse {
 
     let groupId: GroupNodeId // the group that was deleted
 
-    func handle(graphState: GraphState,
-                environment: StitchEnvironment) -> GraphResponse {
+    func handle(state: GraphState) -> GraphResponse {
         log("GroupNodeUncreated called for groupId: \(groupId)")
-        graphState.handleGroupNodeUncreated(groupId.asNodeId)
-        return .noChange
+        state.handleGroupNodeUncreated(groupId.asNodeId)
+        return .persistenceResponse
+    }
+}
+
+struct SelectedGroupNodesUncreated: GraphEventWithResponse {
+    
+    func handle(state: GraphState) -> GraphResponse {
+        state.selectedCanvasItems.forEach { (canvasItem: CanvasItemViewModel) in
+            if (canvasItem.nodeDelegate?.isGroupNode ?? false),
+               case let .node(nodeId) = canvasItem.id {
+                state.handleGroupNodeUncreated(nodeId)
+            }
+        }
+        return .persistenceResponse
     }
 }
 
