@@ -236,11 +236,6 @@ extension PatchNodeViewModel {
         
         // log("updateMathExpressionNodeInputs: variables: \(variables)")
         
-        // Keep value and connection
-        let oldInputs: [(PortValues, OutputCoordinate?)] = self.inputsObservers.map {
-            ($0.allLoopedValues, $0.upstreamOutputCoordinate)
-        }
-        
         let inputCountDelta = variables.count - self.inputsObservers.count
         var patchNodeSchema = self.createSchema()
         var inputSchemas = patchNodeSchema.inputs
