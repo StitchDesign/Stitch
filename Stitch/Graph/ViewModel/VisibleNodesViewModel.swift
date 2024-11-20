@@ -318,6 +318,11 @@ extension VisibleNodesViewModel {
     func resetCache() {
         self.infiniteCanvasCache = nil
         self.setAllNodesVisible()
+        
+        // Fixes issues where new rows don't have port locations
+        for node in self.nodes.values {
+            node.patchCanvasItem?.updatePortLocations()
+        }
     }
 }
 
