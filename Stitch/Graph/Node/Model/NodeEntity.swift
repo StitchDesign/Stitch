@@ -46,38 +46,44 @@ extension NodeEntity {
     }
     
     /// Helper for mutating all canvas entities under some node.
-    mutating func canvasEntityMap(_ callback: @escaping (CanvasNodeEntity) -> CanvasNodeEntity) {
-        switch self.nodeTypeEntity {
+    func canvasEntityMap(_ callback: @escaping (CanvasNodeEntity) -> CanvasNodeEntity) -> NodeEntity {
+    
+        var nodeEntity = self
+        
+        switch nodeEntity.nodeTypeEntity {
         case .patch(var patch):
             patch.canvasEntity = callback(patch.canvasEntity)
-            self.nodeTypeEntity = .patch(patch)
+            nodeEntity.nodeTypeEntity = .patch(patch)
+            return nodeEntity
+            
         case .layer(var layer):
-            // Update packed and unpacked canvas items, if they exist
             layer.layer.layerGraphNode.inputDefinitions.forEach { layerInput in
                 var inputPortSchema = layer[keyPath: layerInput.schemaPortKeyPath]
                 
-                if let packedCanvas = inputPortSchema.packedData.canvasItem {
-                    inputPortSchema.packedData.canvasItem = callback(packedCanvas)
-                }
+                inputPortSchema.packedData.canvasItem =  inputPortSchema.packedData.canvasItem.map(callback)
                 
                 inputPortSchema.unpackedData = inputPortSchema.unpackedData.map { unpackedData in
                     var unpackedData = unpackedData
-                    if let canvas = unpackedData.canvasItem {
-                        unpackedData.canvasItem = callback(canvas)
-                    }
+                    unpackedData.canvasItem = unpackedData.canvasItem.map(callback)
                     return unpackedData
                 }
+                
+                layer[keyPath: layerInput.schemaPortKeyPath] = inputPortSchema
             }
+            nodeEntity.nodeTypeEntity = .layer(layer)
+            return nodeEntity
             
-            self.nodeTypeEntity = .layer(layer)
         case .group(let canvas):
             let newCanvas = callback(canvas)
-            self.nodeTypeEntity = .group(newCanvas)
+            nodeEntity.nodeTypeEntity = .group(newCanvas)
+            return nodeEntity
+        
         case .component(let component):
             var component = component
             let newCanvas = callback(component.canvasEntity)
             component.canvasEntity = newCanvas
-            self.nodeTypeEntity = .component(component)
+            nodeEntity.nodeTypeEntity = .component(component)
+            return nodeEntity
         }
     }
     
