@@ -15,9 +15,10 @@ let INSERT_NODE_MENU_WIDTH: CGFloat = 639
 // TODO: put menu ABOVE navbar, so that we don't have to shrink for iPad's fullscreen keyboard?
 // TODO: if still shrinking, determine the min height dynamically by the diff screen's regular vs height with fullscreen keyboard
 // let INSERT_NODE_MENU_MIN_HEIGHT: CGFloat = 220 // previously
-let INSERT_NODE_MENU_MIN_HEIGHT: CGFloat = 232 // acceptable for iPad Mini
+// let INSERT_NODE_MENU_MIN_HEIGHT: CGFloat = 232 // acceptable for iPad Mini
 // let INSERT_NODE_MENU_MIN_HEIGHT: CGFloat = 240 // too big for iPad Mini
 // let INSERT_NODE_MENU_MIN_HEIGHT: CGFloat = 260
+let INSERT_NODE_MENU_MIN_HEIGHT: CGFloat = 280 // okay now that node menu sits above sidebar
 
 // let INSERT_NODE_MENU_MAX_HEIGHT: CGFloat = 500
 let INSERT_NODE_MENU_MAX_HEIGHT: CGFloat = 366

@@ -31,6 +31,8 @@ struct ActiveDragInteractionNodeVelocityData: Equatable, Hashable {
 @Observable
 final class GraphUIState {
     
+    var nodeMenuHeight: CGFloat = INSERT_NODE_MENU_MAX_HEIGHT
+    
     var sidebarWidth: CGFloat = .zero // i.e. origin of graph from .global frame
 
     var showCatalystProjectTitleModal: Bool = false
@@ -304,7 +306,11 @@ extension GraphState {
         self.graphUI.selection = GraphUISelectionState()
         self.resetSelectedCanvasItems()
         self.graphUI.insertNodeMenuState.searchResults = InsertNodeMenuState.allSearchOptions
-        self.graphUI.insertNodeMenuState.show = false
+        
+        withAnimation(.INSERT_NODE_MENU_TOGGLE_ANIMATION) {
+            self.graphUI.insertNodeMenuState.show = false
+        }
+        
         self.graphUI.isFullScreenMode = false
 
         self.graphUI.activelyEditedCommentBoxTitle = nil

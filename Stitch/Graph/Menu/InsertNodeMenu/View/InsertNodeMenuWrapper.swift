@@ -42,8 +42,13 @@ struct InsertNodeMenuWrapper: View {
 
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graphUI: GraphUIState
-    @Binding var menuHeight: CGFloat
-    @Binding var screenSize: CGSize
+    
+    var menuHeight: CGFloat {
+        graphUI.nodeMenuHeight
+    }
+    
+    // TODO: add back or fully remove when we reintroduce
+    //    @Binding var screenSize: CGSize
     
     var graphScale: CGFloat {
         graphMovement.zoomData.zoom
@@ -56,13 +61,13 @@ struct InsertNodeMenuWrapper: View {
     }
 
     var screenWidth: CGFloat {
-        // graphUI.frame.width
-        self.screenSize.width
+         graphUI.frame.width
+//        self.screenSize.width
     }
 
     var screenHeight: CGFloat {
-        // graphUI.frame.height
-        self.screenSize.height
+         graphUI.frame.height
+//        self.screenSize.height
     }
     
     private var graphMovement: GraphMovementObserver {
@@ -104,7 +109,7 @@ struct InsertNodeMenuWrapper: View {
             document.visibleGraph.localPosition,
             graphScale: self.graphScale)
         
-        let sidebarAdjustment = (self.sidebarHalfWidth * 1/self.graphScale)
+        let sidebarAdjustment = 0.0 //(self.sidebarHalfWidth * 1/self.graphScale)
         
 //        if document.llmRecording.isRecording {
 //            return defaultCenter
@@ -140,7 +145,8 @@ struct InsertNodeMenuWrapper: View {
         self.nodePosition = self.getAdjustedMenuOrigin() // menuOrigin
 
         if setHeightToMax {
-            self.menuHeight = INSERT_NODE_MENU_MAX_HEIGHT
+//            self.menuHeight = INSERT_NODE_MENU_MAX_HEIGHT
+            dispatch(NodeMenuHeightSet(newHeight: INSERT_NODE_MENU_MAX_HEIGHT))
         }
     }
     
@@ -298,56 +304,56 @@ struct InsertNodeMenuWrapper: View {
             showMenu: insertNodeMenuState.show,
             menuHeight: menuHeight,
             animatingNodeOpacity: self.nodeOpacity)
+        
             // scale first, THEN position
-            .scaleEffect(x: menuScaleX, y: menuScaleY)
+//            .scaleEffect(x: menuScaleX, y: menuScaleY)
             // use .position modifier to match node's use of .position modifier
-            .position(menuPosition)
-            .offset(x: -sidebarHalfWidth)
+//            .position(menuPosition)
+//            .offset(x: -sidebarHalfWidth)
     }
     
     // should be subtracted
-    var sidebarHalfWidth: CGFloat {
-        graphUI.sidebarWidth/2
-    }
+//    var sidebarHalfWidth: CGFloat {
+//        graphUI.sidebarWidth/2
+//    }
     
     var body: some View {
         ZStack {
-            MODAL_BACKGROUND_COLOR
-                .ignoresSafeArea()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .opacity(showModalBackground ? 1 : 0)
-                .onTapGesture {
-                    dispatch(CloseAndResetInsertNodeMenu())
-                }
-            // IMPORTANT: keep `nodeSizeReadingView` in an .overlay, so that the changing of the node during insert-node-menu query-typing does not
-                .overlay {
-                    // NodeView used only for reading the size of the insert node menu's active selection;
-                    // its size does not change becasue it is not animated.
-                    
-                    // Only use node-size-reading view when not actively animating
-                    if !graphUI.insertNodeMenuState.menuAnimatingToNode {
-                        sizeReadingNodeView.opacity(0)
-                    }
-                }
+
+            
+#if DEV_DEBUG || DEBUG
+            let pseudoPopoverBackgroundOpacity = 0.1
+#else
+            let pseudoPopoverBackgroundOpacity = 0.001
+#endif
+            
+            ModalBackgroundGestureRecognizer(dismissalCallback: { dispatch(CloseAndResetInsertNodeMenu()) }) {
+//                Color.blue.opacity(pseudoPopoverBackgroundOpacity)
+                Color.clear
+            }
+//            .opacity(showModalBackground ? 1 : 0)
             
             // Insert Node Menu view
             if graphUI.insertNodeMenuState.show {
                 menuView
+                .shadow(radius: 4)
+                .shadow(radius: 8, x: 4, y: 2)
+                    .animation(.default, value: graphUI.insertNodeMenuState.show)
             }
                         
-            // NodeView used only for animation; does not read size,
-            // since its size changes during animation.
-            // Note: don't render this NodeView until we have committed our choice.
-            if graphUI.insertNodeMenuState.menuAnimatingToNode {
-                animatedNodeView
-                    .opacity(graphUI.insertNodeMenuState.show ? 1 : 0)
-                    .onChange(of: graphUI.insertNodeMenuState.show) {
-                        // Surfacing the menu may cause the responder chain to break, causing key modifiers
-                        // to lose tracking for end state
-                        dispatch(KeyModifierReset())
-                    }
-                    .offset(x: -sidebarHalfWidth)
-            }
+//            // NodeView used only for animation; does not read size,
+//            // since its size changes during animation.
+//            // Note: don't render this NodeView until we have committed our choice.
+//            if graphUI.insertNodeMenuState.menuAnimatingToNode {
+//                animatedNodeView
+//                    .opacity(graphUI.insertNodeMenuState.show ? 1 : 0)
+//                    .onChange(of: graphUI.insertNodeMenuState.show) {
+//                        // Surfacing the menu may cause the responder chain to break, causing key modifiers
+//                        // to lose tracking for end state
+//                        dispatch(KeyModifierReset())
+//                    }
+////                    .offset(x: -sidebarHalfWidth)
+//            }
         }
         .onAppear {
             //            log("onAppear")
@@ -364,13 +370,13 @@ struct InsertNodeMenuWrapper: View {
                 prepareHiddenMenu(setHeightToMax: false)
             }
         }
-        .onChange(of: self.screenSize, initial: true) { _, _ in
-            //            log("ContentView: onChange of self.screenSize: oldValue: \(oldValue)")
-            //            log("ContentView: onChange of self.screenSize: newValue: \(newValue)")
-            if !graphUI.insertNodeMenuState.menuAnimatingToNode {
-                prepareHiddenMenu(setHeightToMax: false)
-            }
-        }
+//        .onChange(of: self.screenSize, initial: true) { _, _ in
+//            //            log("ContentView: onChange of self.screenSize: oldValue: \(oldValue)")
+//            //            log("ContentView: onChange of self.screenSize: newValue: \(newValue)")
+//            if !graphUI.insertNodeMenuState.menuAnimatingToNode {
+//                prepareHiddenMenu(setHeightToMax: false)
+//            }
+//        }
         .onChange(of: graphUI.insertNodeMenuState.menuAnimatingToNode, initial: true) { _, newValue in
             // log("ContentView: onChange of menuAnimatingToNode: oldValue: \(oldValue)")
             // log("ContentView: onChange of menuAnimatingToNode: newValue: \(newValue)")

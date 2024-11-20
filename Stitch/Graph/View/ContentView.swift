@@ -56,25 +56,30 @@ struct ContentView: View, KeyboardReadable {
                 contentView // the graph
             }
             
-            if showMenu {
-                InsertNodeMenuWrapper(document: document,
-                                      graphUI: graphUI,
-                                      menuHeight: $menuHeight,
-                                      screenSize: $screenSize) // node menu + other animating views
-            }
+//            if showMenu {
+//                InsertNodeMenuWrapper(document: document,
+//                                      graphUI: graphUI,
+//                                      menuHeight: $menuHeight,
+//                                      screenSize: $screenSize) // node menu + other animating views
+//            }
         }
     }
 
     var body: some View {
         ZStack {
+            
+            // probably the best location for listening to how iPad's on-screen keyboard reduces available height for node menu ?
+            
+            
             // Must respect keyboard safe-area
             ProjectWindowSizeReader(previewWindowSizing: previewWindowSizing,
                                     previewWindowSize: document.previewWindowSize,
                                     isFullScreen: graphUI.isFullScreenMode,
                                     showFullScreenAnimateCompleted: $showFullScreenAnimateCompleted,
                                     showFullScreenObserver: showFullScreen,
-                                    menuHeight: $menuHeight,
-                                    screenSize: $screenSize,
+//                                    menuHeight: $menuHeight,
+                                    menuHeight: menuHeight,
+//                                    screenSize: $screenSize,
                                     menuAnimatingToNode: graphUI.insertNodeMenuState.menuAnimatingToNode)
 
             // Must IGNORE keyboard safe-area
