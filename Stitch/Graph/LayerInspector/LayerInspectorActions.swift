@@ -97,10 +97,16 @@ extension GraphState {
                                     input: layerInputData,
                                     coordinate: coordinate)
         
+        resetLayerInputsCache(layerNode: layerNode)
+    }
+    
+    @MainActor
+    func resetLayerInputsCache(layerNode: LayerNodeViewModel) {
+        layerNode.resetInputCanvasItemsCache()
+
         // Reset graph cache to get new nodes to appear
         // Dispatch needed for fix
-        DispatchQueue.main.async { [weak self, weak layerNode] in
-            layerNode?.resetInputCanvasItemsCache()
+        DispatchQueue.main.async { [weak self] in
             self?.visibleNodesViewModel.resetCache()
         }
     }
