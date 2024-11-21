@@ -19,6 +19,16 @@ typealias LayerDropdownChoices = [LayerDropdownChoice]
 
 extension LayerDropdownChoice {
     
+    func indentationString(_ graph: GraphState) -> String {
+        guard let idAsUUID: UUID = .init(uuidString: self.id),
+              let sidebarItem = graph.layersSidebarViewModel.items.get(idAsUUID) else {
+            return .empty
+        }
+        
+        return Array(repeating: "   ", // 3 spaces
+                     count: sidebarItem.sidebarIndex.groupIndex).joined()
+    }
+    
     var asPinToId: PinToId {
         if self.id == LayerDropdownChoice.RootLayerDropDownChoice.id {
             return .root
@@ -59,7 +69,7 @@ extension GraphState {
                               isFieldInsideLayerInspector: Bool,
                               // specific use case of pinToId dropdown
                               isForPinTo: Bool) -> LayerDropdownChoices {
-        
+                
         let viewsPinnedToThisLayerId = self.pinMap.getLinkedPinnedLayers(from: isForNode.asLayerNodeId)
         
         // includes self?
@@ -111,6 +121,7 @@ struct LayerNamesDropDownChoiceView: View {
     let isFieldInsideLayerInspector: Bool
     let isForPinTo: Bool
     let isSelectedInspectorRow: Bool
+    let choices: LayerDropdownChoices
     
     @MainActor
     func onSet(_ choice: LayerDropdownChoice) {
@@ -129,9 +140,7 @@ struct LayerNamesDropDownChoiceView: View {
                 isFieldInsideLayerInspector: isFieldInsideLayerInspector))
         }
     }
-    
-    var choices: LayerDropdownChoices
-    
+        
     @MainActor
     var selectionTitle: String {
         //        #if DEV_DEBUG
@@ -154,7 +163,6 @@ struct LayerNamesDropDownChoiceView: View {
     }
     
     var body: some View {
-        
         Menu {
             ForEach(self.choices) { choice in
                 StitchButton {
@@ -163,7 +171,9 @@ struct LayerNamesDropDownChoiceView: View {
                     //#if DEV_DEBUG
                     //                    StitchTextView(string: "\(choice.name) \(choice.id.description.dropLast(24))")
                     //#else
-                    StitchTextView(string: choice.name)
+                    
+                    // TODO: perf costs? but we're constantly retrieving `choices` during sidebar drag
+                    StitchTextView(string: choice.indentationString(graph) + choice.name)
                     //#endif
                 }
             }
