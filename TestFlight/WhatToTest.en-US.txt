@@ -1,52 +1,22 @@
-1.5.5 improves sidebar usability, performance, undo/redo reliability, and a slew of bug fixes.
+Highlights
+- Vastly improved canvas navigation performance for graphs with many nodes.
+- Optimized sidebar drag performance, especially for large numbers of items.
 
-Sidebar enhancements:
-- Support for range selection using Shift key
-- SF Symbol layer displays symbol input in sidebar
-- Support for sidebar item editing
-- Right-click menu support for sidebar item options
+Improvements + What's New
+- Introduced Spring Converter patch node.
+- Introduced support for faster navigation between nodes with TAB and SHIFT+TAB.
+- Introduced additional shortcuts for creating specific patch nodes.
+- Added the ability to group and ungroup nodes with CMD+G and CMD+Delete shortcuts.
+- Improved node menu accessibility by allowing menu to display over inspector view.
+- Selecting node body now defocuses any focused inputs.
+- Adjusted padding and margins of layer inspector on iPad.
+- Improved project thumbnails when prototype uses dark background.
 
-UX improvements to node input fields:
-- Reduced layer inspector clutter by hiding irrelevant fields
-- Improved layer inspector popovers with auto-focusing of selected text fields
-- Improved auto-layout controls with new segmented picker
-- Auto-correct disabled from all text fields
-- Reduced layer dimension dropdown clutter by hiding irrelevant options
-- Tab-key support for layer inspector fields
-- Tapping a layer inspector input jumps graph to node (if one exists)
-
-Performance improvements:
-- Improved node dragging performance for large graphs
-- Improved performance of node selection box on graphs
-- Improved graph zoom reliability with shortcuts
-
-Misc. improvements:
-- Undo/redo improvements across the board
-- New “Material” layer node for displaying blurred layers
-- Improved preview window show/hide animation
-- New scale input for Hit Area layer node
-- New size, position, and anchoring inputs for gradient layer nodes
-
-New keybindings:
-- CMD + A selects all layer sidebar items when a row is already selected
-- CMD + G and CMD + Delete for grouping/ungrouping layer groups
-- Option + X inserts Value (aka Splitter) node
-- Option + W and Option + Shift + W for inserting Wireless Broadcaster or Wireless Receiver node
-
-Bugs fixes:
-- Fixed issue where some swipe gestures on iPad would trigger open sidebar
-- Fixed issue where prototype restart would temporarily remove media
-- Fixed issue where “auto” size would crash 3D Model layer node
-- “Fill” size support for 3D Model layer
-- Fixed issue where project title wouldn’t de-focus
-- Fixed alignment issues with Text layer node
-- Fixed adjustment bar popover issues with layer inspector fields
-- Fixed issue where layer dimension fields wouldn’t show dropdown input in layer inspector
-- Improved text field focus responsiveness for Insert Node menu
-- Fixed issue where Delay node displayed incorrect output type on prototype restart
-- Fixed issue where off-screen nodes would render incorrect values
-- Fixed issues with Shift + drag node selection
-- Improved support for simultaneous single + double tap gestures with Press Interaction node
-- Fixed layer positioning issues with anchoring
-- Fixed Layer Info output reliability
-- Fixed issue where empty layer group could display too large on project open
+Bug Fixes
+- Fixed issue where edges wouldn’t appear for new math expression inputs.
+- Resolved issue where newly duplicated nodes were not staggered correctly on the canvas.
+- Corrected issue where nodes in a group couldn’t be selected after being grouped.
+- Fixed issues editing project titles.
+- Improved shadow support for layer groups.
+- Resolved issues related to MathExpression formula parsing numbers
+- Layer Info patch node better supports loop of layers.
