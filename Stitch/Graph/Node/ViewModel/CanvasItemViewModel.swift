@@ -201,6 +201,9 @@ extension CanvasItemViewModel {
                                   unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                                   unpackedPortIndex: unpackedPortIndex)
         }
+        
+        // Reset cache data--fixes scenarios like undo
+        self.viewCache = nil
     }
         
     var sizeByLocalBounds: CGSize {
