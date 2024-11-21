@@ -31,8 +31,7 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
         rowViewModel.portColor.color(theme)
     }
     
-    var body: some View {
-        
+    var body: some View {        
         Rectangle().fill(portColor)
         //            Rectangle().fill(portBodyColor)
         //                .overlay {

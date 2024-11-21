@@ -385,7 +385,7 @@ struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
     @Bindable var rowObserver: NodeRowObserverType
     @Bindable var rowViewModel: NodeRowObserverType.RowViewModelType
     
-    @Binding var showPopover: Bool
+    @State private var showPopover: Bool = false
     
     var coordinate: NodeIOPortType {
         self.rowObserver.id.portType
@@ -430,12 +430,11 @@ struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
             }
         }
         // TODO: get popover to work with all values
-        .popover(isPresented: $showPopover) {
-            // Conditional is a hack that cuts down on perf
-            if showPopover {
-                PortValuesPreviewView(rowObserver: rowObserver,
-                                      nodeIO: nodeIO)
-            }
+        .popover(isPresented: self.$showPopover) {
+            // Note: there is a bug where the first time this view-closure would fire (when `self.showPopover` set `true`), the closure's `self.showPopover` was somehow still `false`, so the popover opened with an `EmptyView`
+            // Perf-wise, we do not need the `if self.showPopover` check because `PortValuesPreviewView` only re-renders when the popover is open.
+            PortValuesPreviewView(rowObserver: rowObserver,
+                                  nodeIO: nodeIO)
         }
     }
 }
