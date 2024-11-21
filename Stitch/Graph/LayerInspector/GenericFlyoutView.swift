@@ -283,6 +283,7 @@ struct LayerInputFieldAddedToGraph: GraphEventWithResponse {
                 unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                 unpackedPortIndex: fieldIndex)
             
+            state.resetLayerInputsCache(layerNode: layerNode)
         } else {
             fatalErrorIfDebug("LayerInputFieldAddedToGraph: no unpacked port for fieldIndex \(fieldIndex)")
         }
