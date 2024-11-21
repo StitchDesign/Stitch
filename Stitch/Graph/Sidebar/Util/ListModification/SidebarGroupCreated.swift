@@ -68,9 +68,9 @@ extension LayersSidebarViewModel {
         
         // TODO: adjust position of children
         // TODO: determine real size of just-created LayerGroup
-        let groupFit: LayerGroupFit = graph.getLayerGroupFit(
-            primarilySelectedLayers,
-            parentSize: graph.getParentSizeForSelectedNodes(selectedNodes: primarilySelectedLayers))
+//        let groupFit: LayerGroupFit = graph.getLayerGroupFit(
+//            primarilySelectedLayers,
+//            parentSize: graph.getParentSizeForSelectedNodes(selectedNodes: primarilySelectedLayers))
 
         // TODO: any reason to not use .auto x .auto for a nearly created group? ... perhaps for .background, which can become too big in a group whose children use .position modifiers?
         // TODO: how important is the LayerGroupFit.adjustment/offset etc. ?
