@@ -103,7 +103,6 @@ struct NodeTypeView: View {
 }
 
 struct DefaultNodeInputView: View {
-    @State private var showPopover: Bool = false
     
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
@@ -125,8 +124,7 @@ struct DefaultNodeInputView: View {
                 HStack {
                     NodeRowPortView(graph: graph,
                                     rowObserver: rowObserver,
-                                    rowViewModel: rowViewModel,
-                                    showPopover: $showPopover)
+                                    rowViewModel: rowViewModel)
                     
                     NodeInputView(graph: graph,
                                   nodeId: node.id,
@@ -150,7 +148,6 @@ struct DefaultNodeInputView: View {
 }
 
 struct DefaultNodeOutputView: View {
-    @State private var showPopover: Bool = false
     
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
@@ -177,8 +174,7 @@ struct DefaultNodeOutputView: View {
                     
                     NodeRowPortView(graph: graph,
                                     rowObserver: rowObserver,
-                                    rowViewModel: rowViewModel,
-                                    showPopover: $showPopover)
+                                    rowViewModel: rowViewModel)
                 }
                 .modifier(EdgeEditModeOutputHoverViewModifier(
                     graph: graph,
