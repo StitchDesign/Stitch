@@ -653,15 +653,18 @@ extension GraphState {
             .toSet
     }
     
+    // The children of a ui group node are better described as 'canvas items',
+    // since a ui group node is really a grouping of canvas items (patch nodes + layer inputs on graph) rather than nodes (patch nodes + full layer nodes)
     @MainActor
-    func getGroupChildren(for groupId: NodeId) -> NodeIdSet {
+    func getGroupNodeChildren(for groupId: NodeId) -> CanvasItemIdSet {
         self.nodes.values
             .flatMap { $0.getAllCanvasObservers() }
             .filter { $0.parentGroupNodeId == groupId }
-            .compactMap { $0.nodeDelegate?.id }
+            .map(\.id)
             .toSet
     }
     
+   
     @MainActor
     func getInputCoordinate(from viewData: InputPortViewData) -> NodeIOCoordinate? {
         guard let node = self.getCanvasItem(viewData.canvasId),

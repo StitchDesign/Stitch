@@ -144,9 +144,10 @@ extension GraphState {
             }
             
         case .group:
-            let groupChildren = self.getGroupChildren(for: id)
+            let groupChildren = self.getGroupNodeChildren(for: id)
             groupChildren.forEach {
-                self.deleteNode(id: $0)
+//                self.deleteNode(id: $0)
+                self.deleteCanvasItem($0)
             }
             
         default:
