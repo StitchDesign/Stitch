@@ -19,7 +19,8 @@ struct GroupNodeDeletedAction: ProjectEnvironmentEvent {
                 environment: StitchEnvironment) -> GraphResponse {
         log("GroupNodeDeletedAction called: groupNodeId: \(groupNodeId)")
 
-        graphState.deleteNode(id: groupNodeId.asNodeId)
+//        graphState.deleteNode(id: groupNodeId.asNodeId)
+        graphState.deleteCanvasItem(.node(groupNodeId.asNodeId))
         graphState.updateGraphData()
         return .persistenceResponse
     }
