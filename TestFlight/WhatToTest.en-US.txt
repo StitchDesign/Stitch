@@ -3,20 +3,21 @@ Highlights
 - Optimized sidebar drag performance, especially for large numbers of items.
 
 Improvements + What's New
-- Introduced Spring Converter patch node.
-- Introduced support for faster navigation between nodes with TAB and SHIFT+TAB.
-- Introduced additional shortcuts for creating specific patch nodes.
+- Introduced spring converter patch nodes for improved spring animation customization.
+- Use TAB and SHIFT+TAB to move between eligible nodes during edge hover edit mode.
+- Introduced additional shortcuts for creating specific patch nodes, e.g. "OPTION +" and "OPTION -" for Add and Subtract nodes.
 - Added the ability to group and ungroup nodes with CMD+G and CMD+Delete shortcuts.
 - Improved node menu accessibility by allowing menu to display over inspector view.
-- Selecting node body now defocuses any focused inputs.
+- Tapping node body now defocuses focused fields.
 - Adjusted padding and margins of layer inspector on iPad.
-- Improved project thumbnails when prototype uses dark background.
+- Use lighter background for thumbnail when prototype uses dark background.
 
 Bug Fixes
-- Fixed issue where edges wouldn’t appear for new math expression inputs.
+- Fixed issue where edges wouldn’t appear for new Math Expression node inputs.
 - Resolved issue where newly duplicated nodes were not staggered correctly on the canvas.
+- Fixed disappearing layers when grouping nested sidebar items.
 - Corrected issue where nodes in a group couldn’t be selected after being grouped.
-- Fixed issues editing project titles.
-- Improved shadow support for layer groups.
-- Resolved issues related to MathExpression formula parsing numbers
-- Layer Info patch node better supports loop of layers.
+- Fixed project title editing on Catalyst.
+- Support shadows on layer groups with non-clear backgrounds.
+- Math Expression node formula no longer treats numbers as variables.
+- Layer Info patch node now properly supports loops.
