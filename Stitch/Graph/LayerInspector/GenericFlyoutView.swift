@@ -107,15 +107,10 @@ extension Int {
 }
 
 extension LayerInputObserver {
-    func layerInputType(_ fieldIndex: Int) -> LayerInputType {
-        switch self.observerMode {
-        case .packed:
-            return .init(layerInput: self.port,
-                         portType: .packed)
-        case .unpacked:
-            return .init(layerInput: self.port,
-                         portType: .unpacked(fieldIndex.asUnpackedPortType))
-        }
+    // Used with a specific flyout-row, to add the field of the canvas
+    func layerInputTypeForFieldIndex(_ fieldIndex: Int) -> LayerInputType {
+        .init(layerInput: self.port,
+                     portType: .unpacked(fieldIndex.asUnpackedPortType))
     }
 }
 
@@ -139,7 +134,7 @@ struct GenericFlyoutRowView: View {
     }
     
     var layerInputType: LayerInputType {
-        layerInputObserver.layerInputType(fieldIndex)
+        layerInputObserver.layerInputTypeForFieldIndex(fieldIndex)
     }
     
     var layerInspectorRowId: LayerInspectorRowId {
@@ -158,6 +153,11 @@ struct GenericFlyoutRowView: View {
         layerInputObserver.getCanvasItem(for: fieldIndex)?.id
     }
     
+    @MainActor
+    var propertyRowIsSelected: Bool {
+        graph.graphUI.propertySidebar.selectedProperty == layerInspectorRowId
+    }
+    
     var body: some View {
         
         //        logInView("GenericFlyoutRowView: layerInputType: \(layerInputType)")
@@ -171,8 +171,7 @@ struct GenericFlyoutRowView: View {
                                     layerInspectorRowId: layerInspectorRowId,
                                     coordinate: coordinate,
                                     canvasItemId: canvasItemId,
-                                    // Always false for a flyout row
-                                    isPortSelected: false,
+                                    isPortSelected: propertyRowIsSelected,
                                     isHovered: isHovered,
                                     fieldIndex: fieldIndex)
             
@@ -188,7 +187,7 @@ struct GenericFlyoutRowView: View {
                             isFieldInMultifieldInput: isMultifield,
                             isForFlyout: true,
                             // Always false for flyout row
-                            isSelectedInspectorRow: false)
+                            isSelectedInspectorRow: propertyRowIsSelected)
         } // HStack
         .contentShape(Rectangle())
         .onHover(perform: { hovering in
