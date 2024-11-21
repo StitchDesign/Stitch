@@ -49,7 +49,7 @@ extension LayerDropdownChoice {
     
     // Only for PinTo
     static let RootLayerDropDownChoice: Self = .init(id: "ROOT_LAYER_DROPDOWN_CHOICE_ID",
-                      g x                               name: "Root")
+                                                     name: "Root")
     static let ParentLayerDropDownChoice: Self = .init(id: "PARENT_LAYER_DROPDOWN_CHOICE_ID",
                                                        name: "Parent")
 }
