@@ -572,8 +572,6 @@
 		EC7451B2294D2C6200C7EB80 /* LocationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7451B1294D2C6200C7EB80 /* LocationData.swift */; };
 		EC7784CF27053D9700B662DD /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = EC7784CE27053D9700B662DD /* ZIPFoundation */; };
 		EC7A4FC0267A89D500487CDA /* VideoDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7A4FBF267A89D500487CDA /* VideoDisplayView.swift */; };
-		EC7ADBFE2683EC9D00A8B318 /* fur_elise.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = EC7ADBFC2683EC9C00A8B318 /* fur_elise.mp3 */; };
-		EC7ADBFF2683EC9D00A8B318 /* fur_elise.m4a in Resources */ = {isa = PBXBuildFile; fileRef = EC7ADBFD2683EC9C00A8B318 /* fur_elise.m4a */; };
 		EC80448E2944303B00DCFCF4 /* ShapeUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC80448D2944303A00DCFCF4 /* ShapeUtils.swift */; };
 		EC804494294431C800DCFCF4 /* LayerEvalHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC804493294431C800DCFCF4 /* LayerEvalHelpers.swift */; };
 		EC8044982944321A00DCFCF4 /* LayerLoopNodeCoordinate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8044972944321A00DCFCF4 /* LayerLoopNodeCoordinate.swift */; };
@@ -696,8 +694,6 @@
 		ECABB561269CE23100AC9931 /* NetworkRequestNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECABB560269CE23100AC9931 /* NetworkRequestNode.swift */; };
 		ECAD8930292EAF9A005A87A2 /* OptionEqualsNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAD892F292EAF9A005A87A2 /* OptionEqualsNode.swift */; };
 		ECADA8B428FB5B5D0007748F /* UIImageExtensionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECADA8B328FB5B5D0007748F /* UIImageExtensionUtils.swift */; };
-		ECB15BA52695F8D100A1E1DA /* gracie_short.mov in Resources */ = {isa = PBXBuildFile; fileRef = ECB15BA42695F8D100A1E1DA /* gracie_short.mov */; };
-		ECB15BA72695FCC700A1E1DA /* pj_eating.mov in Resources */ = {isa = PBXBuildFile; fileRef = ECB15BA62695FCC700A1E1DA /* pj_eating.mov */; };
 		ECB18FCA2681469B00D439BE /* VideoHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB18FC92681469B00D439BE /* VideoHelpers.swift */; };
 		ECB1B7B026FB9D46006D9C95 /* SerializationUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB1B7AF26FB9D46006D9C95 /* SerializationUtils.swift */; };
 		ECB1B7B226FB9D7A006D9C95 /* FileUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB1B7B126FB9D7A006D9C95 /* FileUtils.swift */; };
@@ -1191,7 +1187,6 @@
 		E40B2F522CB86E48005F5479 /* StitchAIConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIConstants.swift; sourceTree = "<group>"; };
 		E40B2F542CB86F2B005F5479 /* StitchAIDataModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIDataModel.swift; sourceTree = "<group>"; };
 		E40EBAD12BB5D8DD00CCA3C3 /* SwitchLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchLayerNode.swift; sourceTree = "<group>"; };
-		E4100F9B29B83E0900656871 /* SqueezeNet.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = SqueezeNet.mlmodel; sourceTree = "<group>"; };
 		E4100F9C29B83E0C00656871 /* Resnet50.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = Resnet50.mlmodel; sourceTree = "<group>"; };
 		E41140F02BB23054000C34E3 /* MapLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapLayerNode.swift; sourceTree = "<group>"; };
 		E4114F6D2BD96BF700934151 /* VideoStreamingLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoStreamingLayerNode.swift; sourceTree = "<group>"; };
@@ -1199,17 +1194,11 @@
 		E41685E028A3FA5800731889 /* PreviewModel3DLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewModel3DLayer.swift; sourceTree = "<group>"; };
 		E41685F528A3FC8C00731889 /* Lemon Meringue Pie.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = "Lemon Meringue Pie.usdz"; sourceTree = "<group>"; };
 		E41685F628A3FC8C00731889 /* Teapot.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = Teapot.usdz; sourceTree = "<group>"; };
-		E41685F728A3FC8D00731889 /* Fender Stratocaster.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = "Fender Stratocaster.usdz"; sourceTree = "<group>"; };
 		E41685F828A3FC8E00731889 /* Flower Tulip.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = "Flower Tulip.usdz"; sourceTree = "<group>"; };
-		E41685F928A3FC8E00731889 /* Chair.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = Chair.usdz; sourceTree = "<group>"; };
 		E41685FA28A3FC8F00731889 /* Retro TV.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = "Retro TV.usdz"; sourceTree = "<group>"; };
-		E41685FB28A3FC8F00731889 /* Toy Biplane.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = "Toy Biplane.usdz"; sourceTree = "<group>"; };
 		E41685FC28A3FC9000731889 /* Pegasus Trail Sneakers.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = "Pegasus Trail Sneakers.usdz"; sourceTree = "<group>"; };
 		E41685FD28A3FC9100731889 /* Gramophone.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = Gramophone.usdz; sourceTree = "<group>"; };
-		E41685FE28A3FC9200731889 /* Toy Drummer.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = "Toy Drummer.usdz"; sourceTree = "<group>"; };
-		E41685FF28A3FC9300731889 /* AirForce Sneakers.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = "AirForce Sneakers.usdz"; sourceTree = "<group>"; };
 		E416860028A3FC9400731889 /* Toy Car.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = "Toy Car.usdz"; sourceTree = "<group>"; };
-		E416860128A3FC9400731889 /* Cup Saucer Set.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = "Cup Saucer Set.usdz"; sourceTree = "<group>"; };
 		E416860228A3FC9500731889 /* Watering Can.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = "Watering Can.usdz"; sourceTree = "<group>"; };
 		E416860328A3FC9600731889 /* Vintage Toy Robot.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = "Vintage Toy Robot.usdz"; sourceTree = "<group>"; };
 		E41A66B22BD2BB8E00385C9F /* LinearGradientNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinearGradientNode.swift; sourceTree = "<group>"; };
@@ -1506,8 +1495,6 @@
 		EC7451AF294D2C4F00C7EB80 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		EC7451B1294D2C6200C7EB80 /* LocationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationData.swift; sourceTree = "<group>"; };
 		EC7A4FBF267A89D500487CDA /* VideoDisplayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoDisplayView.swift; sourceTree = "<group>"; };
-		EC7ADBFC2683EC9C00A8B318 /* fur_elise.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = fur_elise.mp3; sourceTree = "<group>"; };
-		EC7ADBFD2683EC9C00A8B318 /* fur_elise.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = fur_elise.m4a; sourceTree = "<group>"; };
 		EC80448D2944303A00DCFCF4 /* ShapeUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShapeUtils.swift; sourceTree = "<group>"; };
 		EC804493294431C800DCFCF4 /* LayerEvalHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerEvalHelpers.swift; sourceTree = "<group>"; };
 		EC8044972944321A00DCFCF4 /* LayerLoopNodeCoordinate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerLoopNodeCoordinate.swift; sourceTree = "<group>"; };
@@ -1629,8 +1616,6 @@
 		ECABB560269CE23100AC9931 /* NetworkRequestNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkRequestNode.swift; sourceTree = "<group>"; };
 		ECAD892F292EAF9A005A87A2 /* OptionEqualsNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionEqualsNode.swift; sourceTree = "<group>"; };
 		ECADA8B328FB5B5D0007748F /* UIImageExtensionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageExtensionUtils.swift; sourceTree = "<group>"; };
-		ECB15BA42695F8D100A1E1DA /* gracie_short.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = gracie_short.mov; sourceTree = "<group>"; };
-		ECB15BA62695FCC700A1E1DA /* pj_eating.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = pj_eating.mov; sourceTree = "<group>"; };
 		ECB18FC92681469B00D439BE /* VideoHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoHelpers.swift; sourceTree = "<group>"; };
 		ECB1B7AF26FB9D46006D9C95 /* SerializationUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SerializationUtils.swift; sourceTree = "<group>"; };
 		ECB1B7B126FB9D7A006D9C95 /* FileUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileUtils.swift; sourceTree = "<group>"; };
@@ -1836,7 +1821,6 @@
 		ECFD9FAE297B748F00D86359 /* CopyAndPasteNodesActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CopyAndPasteNodesActions.swift; sourceTree = "<group>"; };
 		ECFEFF9926BDD93F00CF042E /* PortValueDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortValueDefaults.swift; sourceTree = "<group>"; };
 		ECFEFF9D26BDE18A00CF042E /* miscTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = miscTests.swift; sourceTree = "<group>"; };
-		ECFF51DA283C335F004860D4 /* MobileNetV2.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = MobileNetV2.mlmodel; sourceTree = "<group>"; };
 		ECFF51DC283C3D41004860D4 /* GraphGestureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphGestureView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -1974,10 +1958,6 @@
 		20A71F8225523CCA00553F7E /* Sounds */ = {
 			isa = PBXGroup;
 			children = (
-				ECB15BA42695F8D100A1E1DA /* gracie_short.mov */,
-				ECB15BA62695FCC700A1E1DA /* pj_eating.mov */,
-				EC7ADBFD2683EC9C00A8B318 /* fur_elise.m4a */,
-				EC7ADBFC2683EC9C00A8B318 /* fur_elise.mp3 */,
 				20A71F8D2552433F00553F7E /* connection_added.mp3 */,
 				20A71F8E2552434000553F7E /* connection_removed.mp3 */,
 				20A71F8C2552433F00553F7E /* positive_ping.mp3 */,
@@ -2889,9 +2869,7 @@
 		B555013A2C1C081D0081C3F1 /* ML */ = {
 			isa = PBXGroup;
 			children = (
-				ECFF51DA283C335F004860D4 /* MobileNetV2.mlmodel */,
 				E4100F9C29B83E0C00656871 /* Resnet50.mlmodel */,
-				E4100F9B29B83E0900656871 /* SqueezeNet.mlmodel */,
 				E4AB307B29B4F42F000A66B0 /* YOLOv3Tiny.mlmodel */,
 			);
 			path = ML;
@@ -3757,18 +3735,12 @@
 			children = (
 				E498B63E28DB5A7500D8344D /* DummyCube.usdz */,
 				E416860328A3FC9600731889 /* Vintage Toy Robot.usdz */,
-				E41685FF28A3FC9300731889 /* AirForce Sneakers.usdz */,
-				E41685F928A3FC8E00731889 /* Chair.usdz */,
-				E416860128A3FC9400731889 /* Cup Saucer Set.usdz */,
-				E41685F728A3FC8D00731889 /* Fender Stratocaster.usdz */,
 				E41685F828A3FC8E00731889 /* Flower Tulip.usdz */,
 				E41685FD28A3FC9100731889 /* Gramophone.usdz */,
 				E41685F528A3FC8C00731889 /* Lemon Meringue Pie.usdz */,
 				E41685FC28A3FC9000731889 /* Pegasus Trail Sneakers.usdz */,
 				E41685F628A3FC8C00731889 /* Teapot.usdz */,
-				E41685FB28A3FC8F00731889 /* Toy Biplane.usdz */,
 				E416860028A3FC9400731889 /* Toy Car.usdz */,
-				E41685FE28A3FC9200731889 /* Toy Drummer.usdz */,
 				E41685FA28A3FC8F00731889 /* Retro TV.usdz */,
 				E416860228A3FC9500731889 /* Watering Can.usdz */,
 			);
@@ -4611,11 +4583,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				200BD85F254F66EE00692903 /* Assets.xcassets in Resources */,
-				ECB15BA72695FCC700A1E1DA /* pj_eating.mov in Resources */,
-				EC7ADBFE2683EC9D00A8B318 /* fur_elise.mp3 in Resources */,
 				E416861228A3FC9600731889 /* Vintage Toy Robot.usdz in Resources */,
-				EC7ADBFF2683EC9D00A8B318 /* fur_elise.m4a in Resources */,
-				ECB15BA52695F8D100A1E1DA /* gracie_short.mov in Resources */,
 				20A71F8F2552434000553F7E /* positive_ping.mp3 in Resources */,
 				20A71F902552434000553F7E /* connection_added.mp3 in Resources */,
 				B58E3FC92901AA2800700656 /* Music Player.stitch in Resources */,
