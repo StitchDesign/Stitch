@@ -44,11 +44,10 @@ func adjustPastedNodesPositions(pastedNodes: [NodeEntity],
             log("canvasEntityMap closure from adjustPastedNodesPositions")
             var canvasEntity = canvasEntity
             
-            // Factour out graph offset of paste-destination projects
             canvasEntity.position.x -= averageX
             canvasEntity.position.y -= averageY
             
-            // Factour out graph offset of paste-destination projects
+            // Factor out graph offset of paste-destination projects
             canvasEntity.position.x -= destinationGraphOffset.x
             canvasEntity.position.y -= destinationGraphOffset.y
             
