@@ -168,12 +168,12 @@ extension StitchDocumentViewModel {
         }
 
         if shiftHeld {
-            log("handleTrackpadGraphDragChanged: had shift")
-//            self.keypressState.modifiers.insert(.shift)
+            // log("handleTrackpadGraphDragChanged: had shift")
+            //            self.keypressState.modifiers.insert(.shift)
             self.keypressState.shiftHeldDuringGesture = true
         } else {
-            log("handleTrackpadGraphDragChanged: did not have shift")
-//            self.keypressState.modifiers.remove(.shift)
+            // log("handleTrackpadGraphDragChanged: did not have shift")
+            //            self.keypressState.modifiers.remove(.shift)
             self.keypressState.shiftHeldDuringGesture = false
         }
         
