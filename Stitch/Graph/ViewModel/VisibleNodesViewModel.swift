@@ -65,6 +65,7 @@ extension VisibleNodesViewModel {
     /// Returns all view data to be used by nodes in groups.
     @MainActor
     func updateNodesPagingDict(components: [UUID: StitchMasterComponent],
+                               graphFrame: CGRect,
                                parentGraphPath: [UUID]) {
 
         // Remove any groups in the node paging dict that no longer exist in GraphSchema:
@@ -76,7 +77,15 @@ extension VisibleNodesViewModel {
 
         // Check for groups (traversal levels) to add for position/zoom data
         for incomingGroupId in incomingGroupIds where !existingGroupPages.contains(incomingGroupId) {
-            self.nodesByPage.updateValue(.init(),
+            
+            let westernMostNode = GraphState.westernMostNode(
+                incomingGroupId,
+                // Canvas items at this new group's traversal level
+                canvasItems: self.getVisibleCanvasItems(at: incomingGroupId))
+            
+            let startOffset: CGPoint = westernMostNode.map { calculateMove(graphFrame, $0.position) } ?? .zero
+                        
+            self.nodesByPage.updateValue(NodePageData(localPosition: startOffset),
                                          forKey: .group(incomingGroupId))
         }
 
