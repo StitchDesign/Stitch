@@ -40,13 +40,14 @@ extension GraphState {
             return
         }
 
-        // the size of the screen and canvas item's View
-        let frame = self.graphUI.frame
-
         // location of canvasItem
         let position = canvasItem.position
+        // ^^ should already exist when new group node created, because the child node already existed
 
-        let newLocation = calculateMove(frame, position)
+        let newLocation = calculateMove(
+            // size of GraphBaseView
+            self.graphUI.frame,
+            position)
 
         // TODO: how to slowly move over to the tapped layer? Using `withAnimation` on just graph offset does not animate the edges. (There's also a canvasItem text issue?)
         //        withAnimation(.easeInOut) {
