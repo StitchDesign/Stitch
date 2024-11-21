@@ -282,7 +282,18 @@ struct CanvasItemTag: View {
                                nodeTypeChoices: sortedUserTypeChoices,
                                canAddInput: canAddInput,
                                canRemoveInput: canRemoveInput,
-                               atleastOneCommentBoxSelected: atleastOneCommentBoxSelected)
+                               atleastOneCommentBoxSelected: atleastOneCommentBoxSelected,
+                               loopIndices: self.loopIndices)
+    }
+    
+    @MainActor
+    var loopIndices: [Int]? {
+        // MARK: very important to process this outside of NodeTagMenuButtonsView: doing so fixes a bug where the node type menu becomes unresponsive if values are constantly changing on iPad.
+#if targetEnvironment(macCatalyst)
+        nil
+#else
+        self.stitch.getLoopIndices()
+#endif
     }
     
     var body: some View {
