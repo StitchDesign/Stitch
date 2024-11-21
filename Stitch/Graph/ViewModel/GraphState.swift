@@ -134,6 +134,7 @@ extension GraphState {
     @MainActor
     func initializeDelegate(document: StitchDocumentViewModel,
                             documentEncoderDelegate: any DocumentEncodable) {
+        
         self.documentDelegate = document
         self.documentEncoderDelegate = documentEncoderDelegate
         
@@ -151,6 +152,7 @@ extension GraphState {
         
         self.visibleNodesViewModel
             .updateNodesPagingDict(components: self.components,
+                                   graphFrame: self.graphUI.frame,
                                    parentGraphPath: self.saveLocation)
         
         // Update connected port data
