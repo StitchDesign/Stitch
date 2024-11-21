@@ -174,18 +174,18 @@ let VISUAL_PROGRAMMING_ACTIONS = """
     "AddNodeAction": {
       "type": "object",
       "properties": {
-        "step_type": { "const": "add_node" },
+        "step_type": { "type": "string", "const": "add_node" },
         "node_name": { "type": "string", "description": "The name of the node to be added" },
-        "node_id": { "type": "string", "description": "The ID of the node to be added", "format": "uuid" }
+        "node_id": { "type": "string", "description": "The ID of the node to be added" }
       },
       "required": ["step_type", "node_name", "node_id"]
     },
     "ConnectNodesAction": {
       "type": "object",
       "properties": {
-        "step_type": { "const": "connect_nodes" },
-        "from_node_id": { "type": "string", "description": "ID of the node where the connection starts", "format": "uuid" },
-        "to_node_id": { "type": "string", "description": "ID of the node where the connection ends", "format": "uuid" },
+        "step_type": { "type": "string", "const": "connect_nodes" },
+        "from_node_id": { "type": "string", "description": "ID of the node where the connection starts" },
+        "to_node_id": { "type": "string", "description": "ID of the node where the connection ends" },
         "port": {
           "anyOf": [
             { "type": "integer" },
@@ -199,8 +199,8 @@ let VISUAL_PROGRAMMING_ACTIONS = """
     "ChangeNodeTypeAction": {
       "type": "object",
       "properties": {
-        "step_type": { "const": "change_node_type" },
-        "node_id": { "type": "string", "description": "ID of the node whose type is being changed", "format": "uuid" },
+        "step_type": { "type": "string", "const": "change_node_type" },
+        "node_id": { "type": "string", "description": "ID of the node whose type is being changed" },
         "node_type": { "$ref": "#/$defs/NodeType", "description": "The new type of the node" }
       },
       "required": ["step_type", "node_id", "node_type"]
@@ -208,8 +208,8 @@ let VISUAL_PROGRAMMING_ACTIONS = """
     "SetInputAction": {
       "type": "object",
       "properties": {
-        "step_type": { "const": "set_input" },
-        "node_id": { "type": "string", "description": "ID of the node receiving the input", "format": "uuid" },
+        "step_type": { "type": "string", "const": "set_input" },
+        "node_id": { "type": "string", "description": "ID of the node receiving the input" },
         "value": {
           "anyOf": [
             { "type": "number" },
@@ -232,8 +232,8 @@ let VISUAL_PROGRAMMING_ACTIONS = """
     "AddLayerInputAction": {
       "type": "object",
       "properties": {
-        "step_type": { "const": "add_layer_input" },
-        "node_id": { "type": "string", "description": "ID of the node receiving the layer input", "format": "uuid" },
+        "step_type": { "type": "string","const": "add_layer_input" },
+        "node_id": { "type": "string", "description": "ID of the node receiving the layer input" },
         "port": {
           "anyOf": [
             { "type": "integer" },
@@ -246,7 +246,6 @@ let VISUAL_PROGRAMMING_ACTIONS = """
     },
     "NodeID": {
       "type": "string",
-      "format": "uuid",
       "description": "The unique identifier for the node (UUID)"
     },
     "NodeName": {
