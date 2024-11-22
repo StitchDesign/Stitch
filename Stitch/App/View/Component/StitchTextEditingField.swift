@@ -130,7 +130,6 @@ struct StitchTextEditingBindingField: View {
             .truncationMode(.tail)
             .lineLimit(1)
             .autocapitalization(.none)
-            .autocorrectionDisabled()
             .modifier(CustomTextFieldModifier(alignment: isForNodeTitle ? .center : .leading))
             .focused($isFocused)
             .onSubmit {

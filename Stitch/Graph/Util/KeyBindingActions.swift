@@ -76,7 +76,7 @@ extension StitchStore {
     @MainActor
     func escKeyPressed() {
         // Reset GraphUI state
-        if let graphState = self.currentDocument?.visibleGraph {
+        if let graphState = self.currentGraph {
             graphState.resetAlertAndSelectionState()
         }
         

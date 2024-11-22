@@ -12,24 +12,6 @@ extension Color {
     static let SWIFTUI_LIST_BACKGROUND_COLOR = Color(uiColor: .secondarySystemBackground)
 }
 
-struct FlyoutHeader: View {
-    
-    let flyoutTitle: String
-    
-    var body: some View {
-        HStack {
-            StitchTextView(string: flyoutTitle).font(.title3)
-            Spacer()
-            Image(systemName: "xmark.circle.fill")
-                .onTapGesture {
-                    withAnimation {
-                        dispatch(FlyoutClosed())
-                    }
-                }
-        }
-    }
-}
-
 struct GenericFlyoutView: View {
     
     static let DEFAULT_FLYOUT_WIDTH: CGFloat = 256.0 // Per Figma
@@ -53,9 +35,20 @@ struct GenericFlyoutView: View {
     let fieldValueTypes: [FieldGroupTypeViewModel<InputNodeRowViewModel.FieldType>]
         
     var body: some View {
+        
         VStack(alignment: .leading) {
+            // TODO: need better padding here; but confounding factor is UIKitWrapper
             FlyoutHeader(flyoutTitle: layerInput.label(useShortLabel: true))
+            
+            // TODO: better keypress listening situation; want to define a keypress press once in the view hierarchy, not multiple places etc.
+            // Note: keypress listener needed for TAB, but UIKitWrapper messes up view's height if specific height not provided
+            
+            // TODO: UIKitWrapper adds a bit of padding at the bottom?
+            //            UIKitWrapper(ignoresKeyCommands: false,
+            //                         name: "PaddingFlyout") {
+            // TODO: finalize this logic once fields are in?
             flyoutRows
+            //            }
         }
         .modifier(FlyoutBackgroundColorModifier(
             width: Self.DEFAULT_FLYOUT_WIDTH,
@@ -78,6 +71,7 @@ struct GenericFlyoutView: View {
                     graph: graph,
                     viewModel: inputFieldViewModel,
                     layerInputObserver: layerInputObserver,
+                    layerInput: layerInput,
                     nodeId: nodeId,
                     fieldIndex: inputFieldViewModel.fieldIndex,
                     isMultifield: isMultifield,
@@ -105,19 +99,6 @@ extension Int {
     }
 }
 
-extension LayerInputObserver {
-    func layerInputType(_ fieldIndex: Int) -> LayerInputType {
-        switch self.observerMode {
-        case .packed:
-            return .init(layerInput: self.port,
-                         portType: .packed)
-        case .unpacked:
-            return .init(layerInput: self.port,
-                         portType: .unpacked(fieldIndex.asUnpackedPortType))
-        }
-    }
-}
-
 struct GenericFlyoutRowView: View {
     
     @Bindable var graph: GraphState
@@ -125,6 +106,7 @@ struct GenericFlyoutRowView: View {
         
     let layerInputObserver: LayerInputObserver
     
+    let layerInput: LayerInputPort
     let nodeId: NodeId
     let fieldIndex: Int
     
@@ -132,25 +114,26 @@ struct GenericFlyoutRowView: View {
     let nodeKind: NodeKind
     
     @State var isHovered: Bool = false
-    
-    var layerInput: LayerInputPort {
-        layerInputObserver.port
-    }
-    
+        
     var layerInputType: LayerInputType {
-        layerInputObserver.layerInputType(fieldIndex)
+        .init(layerInput: layerInput,
+              portType: .unpacked(fieldIndex.asUnpackedPortType))
     }
     
     var layerInspectorRowId: LayerInspectorRowId {
         .layerInput(layerInputType)
     }
     
-    // Coordinate is used for editing, which needs to know the
     var coordinate: NodeIOCoordinate {
         .init(portType: .keyPath(layerInputType),
               nodeId: nodeId)
     }
-        
+    
+    @MainActor
+    var isSelectedRow: Bool {
+        graph.graphUI.propertySidebar.selectedProperty == layerInspectorRowId
+    }
+    
     @MainActor
     var canvasItemId: CanvasItemId? {
         // Is this particular unpacked-port already on the canvas?
@@ -158,22 +141,13 @@ struct GenericFlyoutRowView: View {
     }
     
     var body: some View {
-        
-        //        logInView("GenericFlyoutRowView: layerInputType: \(layerInputType)")
-        //        logInView("GenericFlyoutRowView: coordinate: \(coordinate)")
-        //        logInView("GenericFlyoutRowView: viewModel.rowViewModelDelegate?.activeValue: \(viewModel.rowViewModelDelegate?.activeValue)")
-        //        logInView("GenericFlyoutRowView: viewModel.fieldValue: \(viewModel.fieldValue)")
-        //
-        
         HStack {
             LayerInspectorRowButton(layerInputObserver: layerInputObserver,
                                     layerInspectorRowId: layerInspectorRowId,
                                     coordinate: coordinate,
                                     canvasItemId: canvasItemId,
-                                    // Always false for a flyout row
-                                    isPortSelected: false,
-                                    isHovered: isHovered,
-                                    fieldIndex: fieldIndex)
+                                    isPortSelected: isSelectedRow,
+                                    isHovered: isHovered)
             
             InputValueEntry(graph: graph,
                             viewModel: viewModel,
@@ -186,8 +160,7 @@ struct GenericFlyoutRowView: View {
                             propertyIsAlreadyOnGraph: canvasItemId.isDefined,
                             isFieldInMultifieldInput: isMultifield,
                             isForFlyout: true,
-                            // Always false for flyout row
-                            isSelectedInspectorRow: false)
+                            isSelectedInspectorRow: isSelectedRow)
         } // HStack
         .contentShape(Rectangle())
         .onHover(perform: { hovering in
@@ -204,7 +177,7 @@ struct GenericFlyoutRowView: View {
 
 struct FlyoutBackgroundColorModifier: ViewModifier {
     
-    let width: CGFloat?
+    let width: CGFloat
     @Binding var height: CGFloat?
     
     func body(content: Content) -> some View {
@@ -241,17 +214,11 @@ struct LayerInputFieldAddedToGraph: GraphEventWithResponse {
     let nodeId: NodeId
     let fieldIndex: Int
     
-    @MainActor
     func handle(state: GraphState) -> GraphResponse {
-        
-        //        log("LayerInputFieldAddedToGraph: layerInput: \(layerInput)")
-        //        log("LayerInputFieldAddedToGraph: nodeId: \(nodeId)")
-        //        log("LayerInputFieldAddedToGraph: fieldIndex: \(fieldIndex)")
         
         guard let node = state.getNode(nodeId),
               let layerNode = node.layerNode,
               let document = state.documentDelegate else {
-            log("LayerInputFieldAddedToGraph: no node, layer node and/or document")
             return .noChange
         }
         
@@ -277,16 +244,8 @@ struct LayerInputFieldAddedToGraph: GraphEventWithResponse {
                                 nodeId: nodeId,
                                 unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                                 unpackedPortIndex: fieldIndex)
-            
-            unpackedPort.canvasObserver?.initializeDelegate(
-                node,
-                unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                unpackedPortIndex: fieldIndex)
-            
-        } else {
-            fatalErrorIfDebug("LayerInputFieldAddedToGraph: no unpacked port for fieldIndex \(fieldIndex)")
         }
-                
+        
         return .persistenceResponse
     }
 }

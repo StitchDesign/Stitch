@@ -126,7 +126,8 @@ struct iPadGraphTopBarButtons: View {
             // toggle preview window
             iPadNavBarButton(
                 action: PREVIEW_SHOW_TOGGLE_ACTION,
-                iconName: .sfSymbol(isPreviewWindowShown ? .HIDE_PREVIEW_WINDOW_SF_SYMBOL_NAME : .SHOW_PREVIEW_WINDOW_SF_SYMBOL_NAME))
+                iconName: .sfSymbol(.TOGGLE_PREVIEW_WINDOW_SF_SYMBOL_NAME),
+                rotationZ: isPreviewWindowShown ? 0 : 180)
 
             // refresh prototype
             iPadNavBarButton(action: RESTART_PROTOTYPE_ACTION,

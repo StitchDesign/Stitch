@@ -1,6 +1,6 @@
 //
 //  Text.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 2/26/21.
 //
@@ -19,7 +19,6 @@ let defaultTextVerticalAlignment = PortValue.textVerticalAlignment(DEFAULT_TEXT_
 
 struct PreviewTextLayer: View {
     @Bindable var document: StitchDocumentViewModel
-    @Bindable var graph: GraphState
     let layerViewModel: LayerViewModel
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
@@ -61,16 +60,17 @@ struct PreviewTextLayer: View {
 
         let alignment: Alignment? = getSwiftUIAlignment(textAlignment, verticalAlignment)
         
-        LayerTextView(value: text,
-                      color: color,
-                      alignment: alignment,
-                      fontSize: fontSize,
-                      textDecoration: textDecoration,
-                      textFont: textFont)
-        .opacity(opacity)
-        .modifier(PreviewCommonModifier(
+        let view = LayerTextView(value: text,
+                                 color: color,
+                                 alignment: alignment,
+                                 fontSize: fontSize,
+                                 textDecoration: textDecoration,
+                                 textFont: textFont)
+            .opacity(opacity)
+            .padding()
+
+        return view.modifier(PreviewCommonModifier(
             document: document,
-            graph: graph,
             layerViewModel: layerViewModel,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: interactiveLayer,

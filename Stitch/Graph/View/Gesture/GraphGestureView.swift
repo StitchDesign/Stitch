@@ -10,8 +10,8 @@ import StitchSchemaKit
 
 // MUST LISTEN FOR KEY PRESSES ON GraphGesture as well, otherwise selecting a node stops key presses.
 
-//typealias GraphGestureViewController = StitchHostingController
- typealias GraphGestureViewController = NoKeyPressHostingController
+typealias GraphGestureViewController = StitchHostingController
+// typealias GraphGestureViewController = NoKeyPressHostingController
 
 /// A wrapper view controller representable for the entire graph view. Handles scroll, pinch, and long press gestures.
 struct GraphGestureView<T: View>: UIViewControllerRepresentable {
@@ -42,12 +42,11 @@ struct GraphGestureView<T: View>: UIViewControllerRepresentable {
         trackpadPanGesture.delegate = delegate
         vc.view.addGestureRecognizer(trackpadPanGesture)
 
-        // TODO: intermittently, this tap gesture would be recognized during a double tap instead of the defined `TapGesture(count: 2)` 
-//        let tapGesture = UITapGestureRecognizer(
-//            target: delegate,
-//            action: #selector(delegate.tapInView))
-//        tapGesture.delegate = delegate
-//        vc.view.addGestureRecognizer(tapGesture)
+        let tapGesture = UITapGestureRecognizer(
+            target: delegate,
+            action: #selector(delegate.tapInView))
+        tapGesture.delegate = delegate
+        vc.view.addGestureRecognizer(tapGesture)
 
         /*
          Note: we allow single and double taps on graph to happen simultaneously,
@@ -71,8 +70,6 @@ class GraphGestureDelegate: NSObject, UIGestureRecognizerDelegate {
     
     weak var document: StitchDocumentViewModel?
 
-    var commandHeldDown: Bool = false 
-    
     init(document: StitchDocumentViewModel) {
         super.init()
         self.document = document
@@ -98,9 +95,9 @@ class GraphGestureDelegate: NSObject, UIGestureRecognizerDelegate {
         self.trackpadGraphBackgroundPan(gestureRecognizer)
     }
 
-//    @objc func tapInView(_ gestureRecognizer: UITapGestureRecognizer) {
-//        // graph?.graphTappedDuringMouseScroll()
-//    }
+    @objc func tapInView(_ gestureRecognizer: UITapGestureRecognizer) {
+        // graph?.graphTappedDuringMouseScroll()
+    }
 
     private static func shouldDisableDueToPinchGesture(_ gestureRecognizer: UIGestureRecognizer,
                                                        otherGestureRecognizer: UIGestureRecognizer) -> Bool {

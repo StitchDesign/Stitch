@@ -13,38 +13,40 @@ import StitchSchemaKit
 struct GeneratePreview: View {
     @Bindable var document: StitchDocumentViewModel
     
+    var visibleNodes: VisibleNodesViewModel {
+        document.graph.visibleNodesViewModel
+    }
+    
     @MainActor
     var sortedLayerDataList: LayerDataList {
         // see `GraphState.updateOrderedPreviewLayers()`
-        document.graph.cachedOrderedPreviewLayers
+        document.cachedOrderedPreviewLayers
     }
     
     var body: some View {
         // Regular rendering of views in their proper place in the hierarchy
         PreviewLayersView(document: document,
-                          graph: document.graph,
                           layers: sortedLayerDataList,
                           parentSize: document.previewWindowSize,
                           parentId: nil,
                           parentOrientation: .none,
+                          parentPadding: .zero,
                           parentSpacing: .zero,
                           parentCornerRadius: 0,
                           parentUsesHug: false,
-                          noFixedSizeForLayerGroup: false,
                           parentGridData: nil,
                           isGhostView: false)
         .background {
             // Invisible views used for reporting pinning position data
             PreviewLayersView(document: document,
-                              graph: document.graph,
                               layers: sortedLayerDataList,
                               parentSize: document.previewWindowSize,
                               parentId: nil,
                               parentOrientation: .none,
+                              parentPadding: .zero,
                               parentSpacing: .zero,
                               parentCornerRadius: 0,
                               parentUsesHug: false,
-                              noFixedSizeForLayerGroup: false,
                               parentGridData: nil,
                               isGhostView: true)
             .hidden()
@@ -53,15 +55,13 @@ struct GeneratePreview: View {
         // Top-level coordinate space of preview window; for pinning
         .coordinateSpace(name: PREVIEW_WINDOW_COORDINATE_SPACE)
         
-        .modifier(HoverGestureModifier(document: document,
-                                       previewWindowSize: document.previewWindowSize))
+        .modifier(HoverGestureModifier(previewWindowSize: document.previewWindowSize))
     }
 }
 
 /// Similar to `GeneratePreview` but can be called recursively for group layers.
 struct PreviewLayersView: View {
     @Bindable var document: StitchDocumentViewModel
-    @Bindable var graph: GraphState
     let layers: LayerDataList
         
     /*
@@ -78,13 +78,15 @@ struct PreviewLayersView: View {
     
     // Are we a ZStack, an HStack, a VStack or an Adaptive Grid?
     var parentOrientation: StitchOrientation // = .none
-        
+    
+    // Padding on the children overall
+    var parentPadding: StitchPadding // = .init()
+    
     // Spacing between the children; N/A for ZStack
     var parentSpacing: StitchSpacing // = .defaultStitchSpacing
     
     let parentCornerRadius: CGFloat
     let parentUsesHug: Bool
-    let noFixedSizeForLayerGroup: Bool
     let parentGridData: PreviewGridData?
     let isGhostView: Bool
     
@@ -154,16 +156,19 @@ struct PreviewLayersView: View {
     var body: some View {
         Group {
             
-            // If this group has no children and has set size (i.e. fill or static number or parent percent, but not hug or auto),
-            // then provide a clear rectangle for hit area.
-            if layers.isEmpty, !noFixedSizeForLayerGroup {
+            // If no layers, provide a fake SwiftUI view to allow .onContinuousHover for mouse patch nodes
+            if layers.isEmpty {
                 Rectangle().fill(.clear)
             }
             
             ZStack {
                 // Note: we previously wrapped the HStack / VStack layer group orientations in a scroll-disabled ScrollView so that the children would touch,
                 orientationFromParent
-                
+                    .padding(.top, parentPadding.top)
+                    .padding(.bottom, parentPadding.bottom)
+                    .padding(.leading, parentPadding.left)
+                    .padding(.trailing, parentPadding.right)
+
                 ForEach(pinsInOrientationView) { layerData in
                     LayerDataView(document: document,
                                   layerData: layerData,
@@ -172,8 +177,10 @@ struct PreviewLayersView: View {
                                   isGhostView: isGhostView)
                 }
             }
-        } .modifier(LayerGroupInteractableViewModifier(
-            hasLayerInteraction: graph.hasInteraction(parentId),
+            
+        } // Group
+        .modifier(LayerGroupInteractableViewModifier(
+            hasLayerInteraction: document.hasInteraction(parentId),
             cornerRadius: parentCornerRadius))
     }
     
@@ -336,10 +343,8 @@ struct NonGroupPreviewLayersView: View {
     let parentDisablesPosition: Bool
     
     var body: some View {
-        if layerNode.hasSidebarVisibility,
-           let graph = layerNode.nodeDelegate?.graphDelegate as? GraphState {
+        if layerNode.hasSidebarVisibility {
             PreviewLayerView(document: document,
-                             graph: graph,
                              layerViewModel: layerViewModel,
                              layer: layerNode.layer,
                              isPinnedViewRendering: isPinnedViewRendering,
@@ -361,16 +366,13 @@ struct GroupPreviewLayersView: View {
     let parentDisablesPosition: Bool
     
     var body: some View {
-        if layerNode.hasSidebarVisibility,
-           let graph = layerNode.nodeDelegate?.graphDelegate as? GraphState {
-                GroupLayerNode.content(document: document,
-                                       graph: graph,
-                                       viewModel: layerViewModel,
-                                       parentSize: parentSize,
-                                       layersInGroup: childrenData,
-                                       isPinnedViewRendering: isPinnedViewRendering,
-                                       parentDisablesPosition: parentDisablesPosition)
-            
+        if layerNode.hasSidebarVisibility {
+            GroupLayerNode.content(document: document,
+                                   viewModel: layerViewModel,
+                                   parentSize: parentSize,
+                                   layersInGroup: childrenData,
+                                   isPinnedViewRendering: isPinnedViewRendering,
+                                   parentDisablesPosition: parentDisablesPosition)
         } else {
             EmptyView()
         }

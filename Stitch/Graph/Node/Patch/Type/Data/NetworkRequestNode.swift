@@ -1,6 +1,6 @@
 //
 //  NetworkRequestNode.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 7/12/21.
 //

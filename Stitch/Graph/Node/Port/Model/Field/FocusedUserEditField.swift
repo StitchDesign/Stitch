@@ -31,8 +31,7 @@ enum FocusedUserEditField: Equatable, Hashable {
          insertNodeMenu,
          textFieldLayer(PreviewCoordinate), // specific loop-index
          any,    // default option
-         llmRecordingModal,
-         stitchAIPromptModal,
+         llmModal,
          sidebarLayerTitle(LayerNodeId)
 
     var getTextFieldLayerInputEdit: PreviewCoordinate? {

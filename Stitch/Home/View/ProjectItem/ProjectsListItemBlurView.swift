@@ -1,6 +1,6 @@
 //
 //  ProjectsListItemBlurView.swift
-//  Stitch
+//  prototype
 //
 //  Created by Elliot Boschwitz on 5/15/22.
 //
@@ -9,8 +9,8 @@ import SwiftUI
 import StitchSchemaKit
 
 extension View {
-    func projectItemBlur(willBlur: Bool = true) -> some View {
-        self.blur(radius: willBlur ? 3 : 0)
+    func projectItemBlur() -> some View {
+        self.blur(radius: 3)
     }
 }
 

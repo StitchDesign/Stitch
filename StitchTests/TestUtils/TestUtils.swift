@@ -10,12 +10,20 @@ import StitchSchemaKit
 import SwiftUI
 @testable import Stitch
 
+extension StitchDocumentViewModel {
+    @MainActor convenience init() {
+        self.init(from: .init(nodes: []),
+                  store: nil)
+    }
+}
+
 extension Patch {
     @MainActor
     func createDefaultTestNode(graph: GraphDelegate? = nil) -> NodeViewModel {
         self.defaultNode(id: .init(),
                          position: .zero,
                          zIndex: .zero,
+                         activeIndex: .init(.zero),
                          graphDelegate: graph)!
     }
 }
@@ -26,6 +34,7 @@ extension Layer {
         self.defaultNode(id: .init(),
                          position: .zero,
                          zIndex: .zero,
+                         activeIndex: .init(.zero),
                          graphDelegate: graph)!
     }
 
@@ -68,6 +77,22 @@ extension NodeDefinition {
                              position: .zero,
                              zIndex: .zero,
                              parentGroupNodeId: nil,
+                             activeIndex: .init(.zero),
                              graphDelegate: nil)
     }
 }
+
+extension GraphState {
+    @MainActor convenience init() {
+        self.init(id: .init(),
+                  store: nil)
+    }
+}
+
+/// Helpers only used for tests.
+// extension ProjectState {
+//    init(graph: GraphState = GraphState()) {
+//        self.init(metadata: .init(name: ""),
+//                  graph: graph)
+//    }
+// }

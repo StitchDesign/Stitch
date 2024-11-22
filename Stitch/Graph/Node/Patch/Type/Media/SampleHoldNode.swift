@@ -1,6 +1,6 @@
 //
 //  SampleHoldNode.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 5/20/21.
 //

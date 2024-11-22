@@ -51,7 +51,7 @@ extension NodeViewModel {
     }
 }
 
-extension GraphState {
+extension StitchDocumentViewModel {
     
     @MainActor
     func layerDropdownChoices(isForNode: NodeId,
@@ -68,7 +68,7 @@ extension GraphState {
         
         let initialChoices: LayerDropdownChoices = isForPinTo ? [.RootLayerDropDownChoice, .ParentLayerDropDownChoice] : [.NilLayerDropDownChoice]
         
-        let layers: LayerDropdownChoices = self.orderedSidebarLayers
+        let layers: LayerDropdownChoices = self.visibleGraph.orderedSidebarLayers
             .getIds()
             .compactMap { layerId in
                 // If A is already pinned to B, then B's pinTo dropdown should not include A as an option.
@@ -84,15 +84,15 @@ extension GraphState {
                     return nil
                 }
                 
-                return self.getNodeViewModel(layerId)?.asLayerDropdownChoice
+                return self.visibleGraph.getNodeViewModel(layerId)?.asLayerDropdownChoice
             }
         
         return initialChoices + layers
     }
     
-    @MainActor func getDescendants(for layer: LayerNodeId) -> LayerIdSet {
+    func getDescendants(for layer: LayerNodeId) -> LayerIdSet {
         getDescendantsIds(id: layer,
-                          groups: self.getSidebarGroupsDict(),
+                          groups: self.visibleGraph.getSidebarGroupsDict(),
                           acc: .init())
     }
 }
@@ -182,7 +182,11 @@ struct LayerNamesDropDownChoiceView: View {
                 self.selection = .NilLayerDropDownChoice
             }
         }
-
+        
+        // Not needed?
+        .onChange(of: self.selection.id) {
+            self.onSet(self.selection)
+        }
         .onChange(of: self.choices) { oldValue, newValue in
             if let currentSelection = self.choices.first(where: { choice in
                 choice.id == self.selection.id

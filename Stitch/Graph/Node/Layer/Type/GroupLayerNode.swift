@@ -1,6 +1,6 @@
 //
 //  GroupLayerNode.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 5/4/21.
 //
@@ -85,27 +85,22 @@ struct GroupLayerNode: LayerNodeDefinition {
         .union(.layerEffects)
         .union(.strokeInputs)
         .union(.aspectRatio)
-        .union(.sizing)
-        .union(.pinning)
-        .union(.layerPaddingAndMargin)
-        .union(.offsetInGroup)
+        .union(.sizing).union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
         .union(.paddingAndSpacing)
     
     static func content(document: StitchDocumentViewModel,
-                        graph: GraphState,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool) -> some View {
         PreviewGroupLayer(
             document: document,
-            graph: graph,
             layerViewModel: viewModel,
             layersInGroup: layersInGroup,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,
             position: viewModel.position.getPosition ?? .zero,
-            size: viewModel.size.getSize ?? .defaultLayerGroupSize,
+            size: viewModel.size.getSize ?? defaultTextSize, // CGSize.zero,
             parentSize: parentSize,
             parentDisablesPosition: parentDisablesPosition,
             isClipped: viewModel.isClipped.getBool ?? DEFAULT_GROUP_CLIP_SETTING,
@@ -117,6 +112,7 @@ struct GroupLayerNode: LayerNodeDefinition {
             opacity: viewModel.opacity.getNumber ?? 1,
             pivot: viewModel.pivot.getAnchoring ?? .defaultPivot,
             orientation: viewModel.orientation.getOrientation ?? .defaultOrientation,
+            padding: viewModel.padding.getPadding ?? .defaultPadding,
             spacing: viewModel.spacing.getStitchSpacing ?? .defaultStitchSpacing,
             cornerRadius: viewModel.cornerRadius.getNumber ?? .zero,
             blurRadius: viewModel.blur.getNumber ?? .zero,
@@ -130,10 +126,6 @@ struct GroupLayerNode: LayerNodeDefinition {
             gridData: viewModel.getGridData,
             stroke: viewModel.getLayerStrokeData())
     }
-}
-
-extension LayerSize {
-    static let defaultLayerGroupSize = LayerSize(width: .fill, height: .fill)
 }
 
 extension GraphState {
@@ -175,6 +167,7 @@ extension GraphState {
         let newNode = Layer.group.graphNode.createViewModel(id: groupLayerData.id,
                                                             position: position,
                                                             zIndex: zIndex,
+                                                            activeIndex: self.activeIndex,
                                                             graphDelegate: self)
         newNode.layerNode?.sizePort.updatePortValues([.size(layerGroupFit.size)])
         newNode.layerNode?.positionPort.updatePortValues([.position(layerGroupFit.position)])

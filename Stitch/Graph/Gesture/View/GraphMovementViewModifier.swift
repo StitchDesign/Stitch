@@ -12,7 +12,7 @@ import StitchSchemaKit
 struct GraphMovementViewModifier: ViewModifier {
     @Bindable var graphMovement: GraphMovementObserver
     @Bindable var currentNodePage: NodePageData
-    let groupNodeFocused: GroupNodeType?
+    let groupNodeFocused: GroupNodeId?
 
     func body(content: Content) -> some View {
         content

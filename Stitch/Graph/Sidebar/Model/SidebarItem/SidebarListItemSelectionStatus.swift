@@ -1,6 +1,6 @@
 //
 //  SelectionStatus.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 3/31/22.
 //

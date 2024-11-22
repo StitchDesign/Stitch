@@ -27,18 +27,12 @@ struct CommonEditingViewReadOnly: View {
     let fieldHasHeterogenousValues: Bool
     let isSelectedInspectorRow: Bool
     
-    let isFieldInMultfieldInspectorInput: Bool
-    
     let onTap: () -> Void
     
     var displayString: String {
         self.fieldHasHeterogenousValues ? .HETEROGENOUS_VALUES : self.inputString
     }
-                
-    var hasPicker: Bool {
-        choices.isDefined && !isFieldInMultfieldInspectorInput
-    }
-    
+            
     var body: some View {
         // If can tap to edit, and this is a number field,
         // then bring up the number-adjustment-bar first;
@@ -48,7 +42,7 @@ struct CommonEditingViewReadOnly: View {
                        fontColor: isSelectedInspectorRow ? theme.fontColor : STITCH_FONT_GRAY_COLOR)
         .modifier(InputViewBackground(
             show: self.isHovering || self.forPropertySidebar,
-            hasDropdown: self.hasPicker,
+            hasDropdown: choices.isDefined,
             forPropertySidebar: forPropertySidebar,
             isSelectedInspectorRow: isSelectedInspectorRow,
             width: fieldWidth))

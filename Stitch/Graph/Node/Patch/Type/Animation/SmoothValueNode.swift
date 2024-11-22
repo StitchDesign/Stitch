@@ -1,6 +1,6 @@
 //
 //  SmoothValueNode.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 7/19/21.
 //
@@ -20,7 +20,7 @@ struct SmoothValueNode: PatchNodeDefinition {
                     label: "Value"
                 ),
                 .init(
-                    defaultValues: [.number(0.4)],
+                    defaultValues: [.number(0)],
                     label: "Hysteresis"
                 ),
                 .init(

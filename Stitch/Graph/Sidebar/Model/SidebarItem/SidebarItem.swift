@@ -1,6 +1,6 @@
 //
 //  SidebarItemsData.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 4/7/22.
 //

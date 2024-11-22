@@ -15,7 +15,7 @@ struct PreviewElementTrackpadPanView: UIViewControllerRepresentable {
     let position: CGPoint
     let size: CGSize
     let parentSize: CGSize
-    let graph: GraphState
+    let document: StitchDocumentViewModel
 
     func makeUIViewController(context: Context) -> UIViewController {
         //        log("PreviewElementTrackpadPanView: makeUIViewController")
@@ -61,23 +61,23 @@ struct PreviewElementTrackpadPanView: UIViewControllerRepresentable {
             position: position,
             size: size,
             parentSize: parentSize,
-            graph: graph)
+            document: document)
     }
 }
 
-final class PreviewElementTrackpadDelegate: NSObject, UIGestureRecognizerDelegate {
+class PreviewElementTrackpadDelegate: NSObject, UIGestureRecognizerDelegate {
 
     let interactiveLayer: InteractiveLayer
     var position: CGPoint
     var size: CGSize
     var parentSize: CGSize
-    weak var graph: GraphState?
+    weak var document: StitchDocumentViewModel?
 
     init(interactiveLayer: InteractiveLayer,
          position: CGPoint,
          size: CGSize,
          parentSize: CGSize,
-         graph: GraphState) {
+         document: StitchDocumentViewModel) {
 
         //        log("PreviewElementTrackpadDelegate: init")
 
@@ -85,7 +85,7 @@ final class PreviewElementTrackpadDelegate: NSObject, UIGestureRecognizerDelegat
         self.position = position
         self.size = size
         self.parentSize = parentSize
-        self.graph = graph
+        self.document = document
 
         super.init()
     }
@@ -112,7 +112,7 @@ final class PreviewElementTrackpadDelegate: NSObject, UIGestureRecognizerDelegat
             //            log("PreviewElementTrackpadDelegate: trackpadPanInView: .began, .changed")
 
             // TODO: would be better to retrieve childSize and childPosition for this layer at this index etc. in the event handler itself?
-            graph?.layerDragged(
+            document?.layerDragged(
                 interactiveLayer: interactiveLayer,
                 location: location,
                 translation: translation.toCGSize,
@@ -123,7 +123,7 @@ final class PreviewElementTrackpadDelegate: NSObject, UIGestureRecognizerDelegat
 
         case .ended, .cancelled:
             //            log("PreviewElementTrackpadDelegate: trackpadPanInView: .ended, .cancelled")
-            graph?.layerDragEnded(
+            document?.layerDragEnded(
                 interactiveLayer: interactiveLayer,
                 parentSize: parentSize,
                 childSize: size)

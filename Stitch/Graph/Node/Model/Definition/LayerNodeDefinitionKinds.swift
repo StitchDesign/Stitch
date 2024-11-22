@@ -57,8 +57,6 @@ extension Layer {
             return SFSymbolLayerNode.self
         case .videoStreaming:
             return VideoStreamingLayerNode.self
-        case .material:
-            return MaterialLayerNode.self
         }
     }
 }

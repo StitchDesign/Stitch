@@ -19,7 +19,7 @@ struct NodeTypeView: View {
     @Bindable var canvasNode: CanvasItemViewModel
     let atleastOneCommentBoxSelected: Bool
     let activeIndex: ActiveIndex
-    let groupNodeFocused: NodeId?
+    let groupNodeFocused: GroupNodeId?
     let adjustmentBarSessionId: AdjustmentBarSessionId
 
     var boundsReaderDisabled: Bool = false
@@ -124,11 +124,7 @@ struct DefaultNodeInputView: View {
                            rowViewModels: canvas.inputViewModels,
                            nodeIO: .input,
                            adjustmentBarSessionId: adjustmentBarSessionId) { rowObserver, rowViewModel in
-                        
-            let layerInputObserver: LayerInputObserver? = rowObserver.id.layerInput
-                .flatMap { node.layerNode?.getLayerInputObserver($0.layerInput) }
-            
-            NodeInputView(graph: graph,
+            NodeInputView(graph: graph, 
                           nodeId: node.id,
                           nodeKind: node.kind,
                           hasIncomingEdge: rowObserver.upstreamOutputCoordinate.isDefined,
@@ -136,9 +132,8 @@ struct DefaultNodeInputView: View {
                           rowObserver: rowObserver,
                           rowViewModel: rowViewModel,
                           fieldValueTypes: rowViewModel.fieldValueTypes,
-                          // Pass down the layerInputObserver if we have a 'layer input on the canvas'
-                          layerInputObserver: layerInputObserver,
-                          forPropertySidebar: false, // Always false, since not an inspector-row
+                          layerInputObserver: nil, // Always nil, since this is a canvas item not an inspector-row
+                          forPropertySidebar: false,
                           propertyIsSelected: false,
                           propertyIsAlreadyOnGraph: true, // Irrelevant?
                           isCanvasItemSelected: isNodeSelected,

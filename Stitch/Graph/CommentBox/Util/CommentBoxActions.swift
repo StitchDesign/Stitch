@@ -114,6 +114,7 @@ extension GraphState {
         self.commentBoxesDict.removeValue(forKey: id)
         self.graphUI.commentBoxBoundsDict.removeValue(forKey: id)
         self.graphUI.selection.selectedCommentBoxes.remove(id)
+        self.encodeProjectInBackground()
     }
 }
 

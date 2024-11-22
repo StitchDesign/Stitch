@@ -5,7 +5,7 @@
 //  Created by Elliot Boschwitz on 12/24/22.
 //
 
-import SwiftUI
+import Foundation
 import StitchSchemaKit
 
 enum LoadingState: Equatable {
@@ -18,7 +18,7 @@ enum DocumentLoadingStatus: Sendable {
     case initialized
     case failed
     case loading
-    case loaded(StitchDocument, UIImage?)
+    case loaded(StitchDocument)
 }
 
 extension DocumentLoadingStatus: Hashable {
@@ -30,18 +30,8 @@ extension DocumentLoadingStatus: Hashable {
             hasher.combine("failed")
         case .loading:
             hasher.combine("loading")
-        case .loaded(let document, let image):
-            hasher.combine(document.id)
-            hasher.combine(image.hashValue)
-        }
-    }
-    
-    var document: StitchDocument? {
-        switch self {
-        case .loaded(let document, _):
-            return document
-        default:
-            return nil
+        case .loaded(let stitchDocument):
+            hasher.combine(stitchDocument.id)
         }
     }
 }

@@ -1,6 +1,6 @@
 //
 //  OperationEvaluationHelpers.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 10/6/21.
 //

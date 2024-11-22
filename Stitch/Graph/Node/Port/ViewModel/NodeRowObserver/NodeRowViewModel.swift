@@ -88,8 +88,6 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
     
     var portColor: PortColor { get set }
     
-    var portViewData: PortViewType? { get set }
-    
     var nodeDelegate: NodeDelegate? { get set }
     
     var rowDelegate: RowObserver? { get set }
@@ -98,7 +96,7 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
     
     static var nodeIO: NodeIO { get }
     
-    func calculatePortColor() -> PortColor
+    @MainActor func calculatePortColor() -> PortColor
     
     @MainActor func portDragged(gesture: DragGesture.Value, graphState: GraphState)
     
@@ -108,7 +106,9 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
     
     @MainActor func findConnectedCanvasItems() -> CanvasItemIdSet
     
+    @MainActor
     init(id: NodeRowViewModelId,
+         activeValue: PortValue,
          rowDelegate: RowObserver?,
          canvasItemDelegate: CanvasItemViewModel?)
 }
@@ -119,7 +119,8 @@ extension NodeRowViewModel {
     var computationNode: NodeDelegate? {
         self.rowDelegate?.nodeDelegate
     }
-     
+    
+    @MainActor 
     func initializeDelegate(_ node: NodeDelegate,
                             unpackedPortParentFieldGroupType: FieldGroupType?,
                             unpackedPortIndex: Int?) {
@@ -129,17 +130,12 @@ extension NodeRowViewModel {
         }
         
         self.nodeDelegate = node
-        
         self.initializeValues(rowDelegate: rowDelegate,
                               unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                              unpackedPortIndex: unpackedPortIndex,
-                              initialValue: rowDelegate.activeValue)
-        
-        self.portViewData = self.getPortViewData()
+                              unpackedPortIndex: unpackedPortIndex)
     }
     
-    /// Considerable perf cost from `ConnectedEdgeView`, so now a function.
-    func getPortViewData() -> PortViewType? {
+    var portViewData: PortViewType? {
         guard let canvasId = self.canvasItemDelegate?.id else {
             return nil
         }
@@ -148,27 +144,23 @@ extension NodeRowViewModel {
                      canvasId: canvasId)
     }
     
+    @MainActor
     func initializeValues(rowDelegate: Self.RowObserver,
                           unpackedPortParentFieldGroupType: FieldGroupType?,
-                          unpackedPortIndex: Int?,
-                          initialValue: PortValue) {        
-        if initialValue != self.activeValue {
-            self.activeValue = initialValue
-        }
+                          unpackedPortIndex: Int?) {
+        let activeIndex = rowDelegate.nodeDelegate?.activeIndex ?? .init(.zero)
         
-        let fields = self.createFieldValueTypes(initialValue: initialValue,
-                                                nodeIO: Self.nodeIO,
-                                                unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                                unpackedPortIndex: unpackedPortIndex,
-                                                importedMediaObject: nil)
+        self.activeValue = PortValue.getActiveValue(allLoopedValues: rowDelegate.allLoopedValues,
+                                                    activeIndex: activeIndex)
         
-        let didFieldsChange = self.fieldValueTypes.isEmpty || self.fieldValueTypes.first?.type != fields.first?.type
-        
-        if didFieldsChange {
-            self.fieldValueTypes = fields
-        }
+        self.createFieldValueTypes(initialValue: self.activeValue,
+                                   nodeIO: Self.nodeIO,
+                                   unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                                   unpackedPortIndex: unpackedPortIndex,
+                                   importedMediaObject: nil)
     }
     
+    @MainActor
     func didPortValuesUpdate(values: PortValues) {
         guard let rowDelegate = self.rowDelegate else {
             return
@@ -199,6 +191,7 @@ extension NodeRowViewModel {
         }
     }
     
+    @MainActor
     func updatePortColor() {
         let newColor = self.calculatePortColor()
         self.setPortColorIfChanged(newColor)
@@ -243,17 +236,16 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     var anchorPoint: CGPoint?
     var connectedCanvasItems: Set<CanvasItemId> = .init()
     var portColor: PortColor = .noEdge
-    var portViewData: PortViewType?
     weak var nodeDelegate: NodeDelegate?
     weak var rowDelegate: InputNodeRowObserver?
-    
-    // TODO: input node row view model for an inspector should NEVER have canvasItemDelegate
     weak var canvasItemDelegate: CanvasItemViewModel? // also nil when the layer input is not on the canvas
     
     // TODO: temporary property for old-style layer nodes
     var layerPortId: Int?
     
+    @MainActor
     init(id: NodeRowViewModelId,
+         activeValue: PortValue,
          rowDelegate: InputNodeRowObserver?,
          canvasItemDelegate: CanvasItemViewModel?) {
         self.id = id
@@ -311,18 +303,26 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     var anchorPoint: CGPoint?
     var connectedCanvasItems: Set<CanvasItemId> = .init()
     var portColor: PortColor = .noEdge
-    var portViewData: PortViewType?
     weak var nodeDelegate: NodeDelegate?
     weak var rowDelegate: OutputNodeRowObserver?
     weak var canvasItemDelegate: CanvasItemViewModel?
     
+    @MainActor
     init(id: NodeRowViewModelId,
+         activeValue: PortValue,
          rowDelegate: OutputNodeRowObserver?,
          canvasItemDelegate: CanvasItemViewModel?) {
         self.id = id
         self.nodeDelegate = nodeDelegate
         self.rowDelegate = rowDelegate
         self.canvasItemDelegate = canvasItemDelegate
+        
+        if let rowDelegate = rowDelegate {
+            self.initializeValues(rowDelegate: rowDelegate,
+                                  // Irrelevant for outputs, since an output cannot be unpacked
+                                  unpackedPortParentFieldGroupType: nil,
+                                  unpackedPortIndex: nil)
+        }
     }
 }
 
@@ -375,23 +375,14 @@ extension OutputNodeRowViewModel {
 }
 
 extension Array where Element: NodeRowViewModel {
-    // easier code search
-    mutating func syncRowViewModelsWithCanvasItem(with newEntities: [Element.RowObserver],
-                                                  canvas: CanvasItemViewModel,
-                                                  unpackedPortParentFieldGroupType: FieldGroupType?,
-                                                  unpackedPortIndex: Int?) {
-        self.sync(with: newEntities,
-                  canvas: canvas,
-                  unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                  unpackedPortIndex: unpackedPortIndex)
-    }
-    
-    // TODO: This is impossible to find via a code search; too many methods are called `sync`
+    @MainActor
     /// Syncing logic as influced from `SchemaObserverIdentifiable`.
     mutating func sync(with newEntities: [Element.RowObserver],
                        canvas: CanvasItemViewModel,
                        unpackedPortParentFieldGroupType: FieldGroupType?,
                        unpackedPortIndex: Int?) {
+        // This will be nil for some inits--that's ok, just need to set delegate after
+        let node = canvas.nodeDelegate
         
         let incomingIds = newEntities.map { $0.id }.toSet
         let currentIds = self.compactMap { $0.rowDelegate?.id }.toSet
@@ -422,8 +413,15 @@ extension Array where Element: NodeRowViewModel {
                                                portId: portIndex)
                 
                 let rowViewModel = Element(id: rowId,
+                                           activeValue: newEntity.activeValue,
                                            rowDelegate: newEntity,
                                            canvasItemDelegate: canvas)
+                
+                if let node = node {
+                    rowViewModel.initializeDelegate(node,
+                                                    unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                                                    unpackedPortIndex: unpackedPortIndex)
+                }
                 
                 return rowViewModel
             }

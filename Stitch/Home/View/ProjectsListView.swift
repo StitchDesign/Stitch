@@ -1,6 +1,6 @@
 //
 //  ProjectsListView.swift
-//  Stitch
+//  prototype
 //
 //  Created by Elliot Boschwitz on 5/19/22.
 //
@@ -46,9 +46,7 @@ struct ProjectsListView: View {
         }
         .refreshable {
             log("ProjectsListView .refreshable")
-            Task(priority: .high) { [weak store] in
-                await store?.directoryUpdated()
-            }
+            store.directoryUpdated()
         }
     }
 }

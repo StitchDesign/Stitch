@@ -1,6 +1,6 @@
 //
 //  FileImport.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 5/3/21.
 //
@@ -29,7 +29,7 @@ struct FileImportView: ViewModifier {
             .modifier(FileImportPickerView(fileImportState: fileImportState,
                                      isImporting: isImportingBinding) { (urls: [URL]) in
                                          
-                guard let graph = store.currentDocument?.visibleGraph else {
+                guard let graph = store.currentGraph else {
                     return
                 }
                 

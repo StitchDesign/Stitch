@@ -10,16 +10,8 @@ import StitchSchemaKit
 import SwiftUI
 import CoreML
 
-extension PortValue {
-    func coerceToTruthyOrFalsey(graphTime: TimeInterval = 0.0) -> Bool {
-        Stitch.coerceToTruthyOrFalsey(self, graphTime: graphTime)
-    }
-}
-
-// TODO: update to handle more PortValue cases
 func coerceToTruthyOrFalsey(_ value: PortValue,
-                            // Only for .pulse coercion cases
-                            graphTime: TimeInterval = 0.0) -> Bool {
+                            graphTime: TimeInterval) -> Bool {
 
     //    log("coerceToTruthyOrFalsey: value: \(value)")
     //    log("coerceToTruthyOrFalsey: graphTime: \(graphTime)")
@@ -74,25 +66,25 @@ extension PortValues {
         case .string:
             return stringCoercer(values)
         case .bool:
-            return boolCoercer(values)
+            return boolCoercer(values, graphTime: currentGraphTime)
         case .int:
-            return intCoercer(values)
+            return intCoercer(values, graphTime: currentGraphTime)
         case .number:
-            return numberCoercer(values)
+            return numberCoercer(values, graphTime: currentGraphTime)
         case .layerDimension:
-            return layerDimensionCoercer(values)
+            return layerDimensionCoercer(values, graphTime: currentGraphTime)
         case .pulse:
             return pulseCoercer(values, graphTime: currentGraphTime)
         case .color:
             return colorCoercer(values)
         case .size:
-            return sizeCoercer(values)
+            return sizeCoercer(values, graphTime: currentGraphTime)
         case .position:
-            return positionCoercer(values)
+            return positionCoercer(values, graphTime: currentGraphTime)
         case .point3D:
-            return point3DCoercer(values)
+            return point3DCoercer(values, graphTime: currentGraphTime)
         case .point4D:
-            return point4DCoercer(values)
+            return point4DCoercer(values, graphTime: currentGraphTime)
         case .transform:
             return transformCoercer(values)
         case .asyncMedia:
@@ -180,10 +172,6 @@ extension PortValues {
             return sizingScenarioCoercer(values)
         case .pinTo:
             return pinToCoercer(values)
-        case .deviceAppearance:
-            return deviceAppearanceCoercer(values)
-        case .materialThickness:
-            return materialThicknessCoercer(values)
         }
     }
 }

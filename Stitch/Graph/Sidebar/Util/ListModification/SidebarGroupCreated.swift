@@ -21,6 +21,7 @@ struct SidebarGroupCreated: StitchDocumentEvent {
         let newNode = Layer.group.layerGraphNode.createViewModel(
             position: state.newNodeCenterLocation,
             zIndex: state.visibleGraph.highestZIndex + 1,
+            activeIndex: .defaultActiveIndex,
             graphDelegate: state.visibleGraph)
         
         let primarilySelectedLayers = state.visibleGraph.sidebarSelectionState.primary.map { $0.asNodeId }.toSet
@@ -29,7 +30,7 @@ struct SidebarGroupCreated: StitchDocumentEvent {
         // If so, the newly created LayerGroup will have that group as its own parent (layerGroupId).
         let existingParentForSelections = state.visibleGraph.layerGroupForSelections(primarilySelectedLayers)
         
-        guard let newGroupData = state.visibleGraph.orderedSidebarLayers
+        guard let newGroupData = state.orderedSidebarLayers
             .createGroup(newGroupId: newNode.id,
                          parentLayerGroupId: existingParentForSelections,
                          selections: primarilySelectedLayers) else {
@@ -41,7 +42,7 @@ struct SidebarGroupCreated: StitchDocumentEvent {
         newNode.graphDelegate = state.visibleGraph // redundant?
                 
         // Add to state
-        state.nodeCreated(node: newNode)
+        let _ = state.nodeCreated(node: newNode)
             
         // Update sidebar state
         state.visibleGraph.orderedSidebarLayers.insertGroup(group: newGroupData,
@@ -81,20 +82,17 @@ struct SidebarGroupCreated: StitchDocumentEvent {
         // TODO: any reason to not use .auto x .auto for a nearly created group? ... perhaps for .background, which can become too big in a group whose children use .position modifiers?
         // TODO: how important is the LayerGroupFit.adjustment/offset etc. ?
 //        let assumedLayerGroupSize: LayerSize = groupFit.size
-//        let assumedLayerGroupSize: LayerSize = .init(width: .auto, height: .auto)
-        // Note: layer groups start out with `size = fill` rather than `size = hug` because orientation
-        let assumedLayerGroupSize: LayerSize = .init(width: .fill, height: .fill)
+        let assumedLayerGroupSize: LayerSize = .init(width: .auto, height: .auto)
         
         // Update layer group's size input
         newNode.layerNode?.sizePort.updatePortValues([.size(assumedLayerGroupSize)])
                 
-        state.visibleGraph.persistNewNode(newNode)
+        state.visibleGraph.encodeProjectInBackground()
     }
 }
 
 extension GraphState {
-    @MainActor
-    func layerGroupForSelections(_ selections: NodeIdSet) -> NodeId? {
+     func layerGroupForSelections(_ selections: NodeIdSet) -> NodeId? {
 
          // Assumes `selections` all have single parent;
          // this is guaranteed by the way we select layers in the sidebar

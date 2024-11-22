@@ -42,7 +42,7 @@ struct InsertNodeMenuSearchBar: View {
                 .disableAutocorrection(true)
                 .onSubmit {
                     // log("InsertNodeMenuSearchBar: onSubmit")
-                    if let activeSelection = self.store.currentDocument?.graphUI.insertNodeMenuState.activeSelection {
+                    if let activeSelection = self.store.currentGraph?.graphUI.insertNodeMenuState.activeSelection {
                         dispatch(AddNodeButtonPressed())
                     }
 
@@ -56,8 +56,7 @@ struct InsertNodeMenuSearchBar: View {
 
                     // Hack: additional focus-setting after a slight delay; it seems that StitchHostingController contributes to the field being sometimes defocused after .onAppear
                     //                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-//                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                         // log("InsertNodeMenuSearchBar: onAppear: inner: callback")
                         self.isFocused = true
                     }
@@ -73,7 +72,9 @@ struct InsertNodeMenuSearchBar: View {
             dispatch(InsertNodeQuery(query: queryString))
         }
         // Note: .onDisappear has a noticeable delay, so relying on it to clear the search-query won't work if user rapidly re-opens the menu.
-        .onChange(of: self.store.currentDocument?.graphUI.insertNodeMenuState.show) { _, newValue in
+        // TODO: why does `self.store.currentGraph?.graphUI.insertNodeMenuState.show` work but not a simple passed in parameter `showMenu: Bool`?
+        // .onChange(of: showMenu) { _, newValue in ...
+        .onChange(of: self.store.currentGraph?.graphUI.insertNodeMenuState.show) { _, newValue in
             if let newValue = newValue, newValue {
                 self.queryString = ""
                 

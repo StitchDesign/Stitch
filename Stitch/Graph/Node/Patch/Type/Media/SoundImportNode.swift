@@ -1,6 +1,6 @@
 //
 //  SoundImportNode.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 6/25/21.
 //
@@ -101,7 +101,7 @@ func soundImportEval(node: PatchNode) -> EvalResult {
         let playRate: Double = values[safe: 5]?.getNumber ?? 1
         
         // Get previously saved playback time in case video is paused
-        var currentPlaybackTime = values[safe: 9]?.getNumber ?? .zero
+        var currentPlaybackTime = values[9].getNumber ?? .zero
 
         if playing {
             currentPlaybackTime = delegate.getCurrentPlaybackTime()

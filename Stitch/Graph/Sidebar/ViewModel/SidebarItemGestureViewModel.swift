@@ -124,17 +124,11 @@ final class SidebarItemGestureViewModel: ObservableObject {
     }
 
     var onItemSwipeChanged: OnDragChangedHandler {
-        
         let onSwipeChanged: OnDragChangedHandler = { (translationWidth: CGFloat) in
             if self.editOn {
                 //                print("SidebarItemGestureViewModel: itemSwipeChangedGesture: currently in edit mode, so cannot swipe")
                 return
             }
-            
-#if targetEnvironment(macCatalyst)
-        return
-#endif
-            
             // if we have no active gesture,
             // and we met the swipe threshold,
             // then we can begin swiping
@@ -160,7 +154,6 @@ final class SidebarItemGestureViewModel: ObservableObject {
     // unless we make a function?
     @MainActor
     var onItemSwipeEnded: OnDragEndedHandler {
-        
         let onSwipeEnded: OnDragEndedHandler = {
             //            print("SidebarItemGestureViewModel: itemSwipeEndedGesture called")
 
@@ -168,10 +161,6 @@ final class SidebarItemGestureViewModel: ObservableObject {
                 //                print("SidebarItemGestureViewModel: itemSwipeEndedGesture: currently in edit mode, so cannot swipe")
                 return
             }
-            
-#if targetEnvironment(macCatalyst)
-        return
-#endif
 
             // if we had been swiping, then we reset activeGesture
             if self.activeGesture.isSwipe {

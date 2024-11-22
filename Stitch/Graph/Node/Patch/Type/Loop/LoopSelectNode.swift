@@ -1,6 +1,6 @@
 //
 //  LoopSelectNode.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 5/24/21.
 //

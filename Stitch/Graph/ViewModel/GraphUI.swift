@@ -1,6 +1,6 @@
 //
 //  GraphUI.swift
-//  Stitch
+//  prototype
 //
 //  Created by Elliot Boschwitz on 10/10/21.
 //
@@ -31,9 +31,6 @@ struct ActiveDragInteractionNodeVelocityData: Equatable, Hashable {
 @Observable
 final class GraphUIState {
 
-    // Only for node cursor selection box done when shift held
-    var nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag: CanvasItemIdSet? = nil
-    
     let propertySidebar = PropertySidebarObserver()
         
     var nodesThatWereOnScreenPriorToEnteringFullScreen = CanvasItemIdSet()
@@ -43,7 +40,6 @@ final class GraphUIState {
     // e.g. user is hovering over or has selected a layer in the sidebar, which we then highlight in the preview window itself
     var highlightedSidebarLayers: LayerIdSet = .init()
 
-    @MainActor
     var edgeEditingState: EdgeEditingState?
 
     var restartPrototypeWindowIconRotationZ: CGFloat = .zero
@@ -87,12 +83,16 @@ final class GraphUIState {
 
     var selection = GraphUISelectionState()
 
+    // If there's a group in focus
+    var groupNodeFocused: GroupNodeId?
+
     // Control animation direction when group nodes are traversed
     var groupTraversedToChild = false
 
     // Only applies to non-iPhones so that exiting full-screen mode goes
     // back to graph instead of projects list
-    var isFullScreenMode: Bool = false
+    @MainActor
+    var isFullScreenMode: Bool = GraphUIState.isPhoneDevice
     
     #if DEV_DEBUG
 //    var showsLayerInspector = true   during dev
@@ -104,7 +104,7 @@ final class GraphUIState {
     var leftSidebarOpen = false 
 
     // Tracks group breadcrumbs when group nodes are visited
-    var groupNodeBreadcrumbs: [GroupNodeType] = []
+    var groupNodeBreadcrumbs: NodeIdList = []
 
     var showPreviewWindow = PREVIEW_SHOWN_DEFAULT_STATE
 
@@ -121,6 +121,7 @@ final class GraphUIState {
     var activeDragInteraction = ActiveDragInteractionNodeVelocityData()
 
     // Explicit `init` is required to use `didSet` on a property
+    @MainActor
     init(activeSpacebarClickDrag: Bool = false,
          safeAreaInsets: SafeAreaInsets = SafeAreaInsetsEnvironmentKey.defaultValue,
          colorScheme: ColorScheme = defaultColorScheme,
@@ -129,9 +130,10 @@ final class GraphUIState {
          activeIndex: ActiveIndex = .defaultActiveIndex,
          frame: CGRect = DEFAULT_LANDSCAPE_GRAPH_FRAME,
          selection: GraphUISelectionState = .init(),
+         groupNodeFocused: GroupNodeId? = nil,
          groupTraversedToChild: Bool = false,
-         isPhoneDevice: Bool,
-         groupNodeBreadcrumbs: [GroupNodeType] = .init(),
+         isFullScreenMode: Bool = GraphUIState.isPhoneDevice,
+         groupNodeBreadcrumbs: NodeIdList = .init(),
          showPreviewWindow: Bool = PREVIEW_SHOWN_DEFAULT_STATE,
          insertNodeMenuState: InsertNodeMenuState = .init(),
          activeDragInteraction: ActiveDragInteractionNodeVelocityData = .init()) {
@@ -144,8 +146,9 @@ final class GraphUIState {
         self.activeIndex = activeIndex
         self.frame = frame
         self.selection = selection
+        self.groupNodeFocused = groupNodeFocused
         self.groupTraversedToChild = groupTraversedToChild
-        self.isFullScreenMode = isPhoneDevice
+        self.isFullScreenMode = isFullScreenMode
         self.groupNodeBreadcrumbs = groupNodeBreadcrumbs
         self.showPreviewWindow = showPreviewWindow
         self.insertNodeMenuState = insertNodeMenuState
@@ -168,11 +171,6 @@ extension StitchDocumentViewModel {
 }
 
 extension GraphUIState {
-    // If there's a group in focus
-    var groupNodeFocused: GroupNodeType? {
-        self.groupNodeBreadcrumbs.last
-    }
-    
     @MainActor
     var isPortraitMode: Bool {
         #if targetEnvironment(macCatalyst)
@@ -407,9 +405,6 @@ extension GraphState {
 extension CanvasItemViewModel {
     @MainActor
     func select() {
-        // Prevent render cycles if already selected
-        guard !self.isSelected else { return }
-        
         self.isSelected = true
         
         // Anytime we select a canvas item,
@@ -420,8 +415,6 @@ extension CanvasItemViewModel {
     
     @MainActor
     func deselect() {
-        // Prevent render cycles if already unselected
-        guard self.isSelected else { return }
         self.isSelected = false
     }
 }
@@ -457,12 +450,5 @@ extension GraphState {
     @MainActor
     var selectedCanvasItems: CanvasItemViewModels {
         self.getVisibleCanvasItems().filter(\.isSelected)
-    }
-    
-    @MainActor
-    var selectedCanvasLayerItemIds: [LayerNodeId] {
-        self.selectedCanvasItems
-            .filter(\.id.isForLayer)
-            .map(\.id.associatedNodeId.asLayerNodeId)
     }
 }

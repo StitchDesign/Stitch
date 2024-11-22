@@ -1,6 +1,6 @@
 //
 //  PreviewImage.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 4/22/21.
 //
@@ -217,7 +217,6 @@ struct NilImageView: View {
 
 struct PreviewImageLayer: View {
     @Bindable var document: StitchDocumentViewModel
-    @Bindable var graph: GraphState
     @Bindable var layerViewModel: LayerViewModel
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
@@ -284,10 +283,9 @@ struct PreviewImageLayer: View {
         .modifier(PreviewWindowCoordinateSpaceReader(
             viewModel: layerViewModel,
             isPinnedViewRendering: isPinnedViewRendering,
-            pinMap: graph.pinMap))
+            pinMap: document.pinMap))
         .modifier(PreviewCommonModifierWithoutFrame(
             document: document,
-            graph: graph,
             layerViewModel: layerViewModel,
             isPinnedViewRendering: isPinnedViewRendering,
                 interactiveLayer: interactiveLayer,

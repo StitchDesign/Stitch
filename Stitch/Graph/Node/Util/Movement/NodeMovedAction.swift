@@ -1,6 +1,6 @@
 //
 //  NodeMovedAction.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 8/5/21.
 //
@@ -68,28 +68,21 @@ extension CanvasItemViewModel {
 // TODO: this seems to only duplicate a single node?
 // TODO: we can only dupe-drag nodes and comment boxes, NOT layer-inputs-on-graph
 // What if we have multiple nodes on the graph selected and we hold `Option` + drag?
-struct NodeDuplicateDraggedAction: GraphEvent {
+struct NodeDuplicateDraggedAction: GraphEventWithResponse {
     let id: NodeId
     let translation: CGSize
-    
-    func handle(state: GraphState) {
-        state.nodeDuplicateDragged(id: id,
-                                   translation: translation)
-    }
-}
 
-extension GraphState {
-    @MainActor
-    func nodeDuplicateDragged(id: NodeId,
-                              translation: CGSize) {
-        let state = self
+    func handle(state: GraphState) -> GraphResponse {
+        // log("NodeDuplicateDraggedAction called")
+        
+        // log("NodeDuplicateDraggedAction: state.selectedNodeIds at start: \(state.selectedNodeIds)")
         
         guard state.graphUI.dragDuplication else {
             
             // Might need to adjust the currently selected nodes, if e.g. we're option-dragging a node that wasn't previously selected
             guard let canvasItem = state.getCanvasItem(.node(id)) else {
                 // log("NodeDuplicateDraggedAction: could not find canvas item for id \(id)")
-                return
+                return .noChange
             }
             
             // If we drag a canvas item that is not yet selected, we'll select it and deselect all the others.
@@ -100,26 +93,14 @@ extension GraphState {
                 // add node's edges to highlighted edges; wipe old highlighted edges
                 state.selectedEdges = .init()
             }
-            state.graphUI.dragDuplication = true
             
             // Copy nodes if no drag started yet
-            let copiedComponentResult = self
-                .createCopiedComponent(groupNodeFocused: self.graphUI.groupNodeFocused,
-                                       selectedNodeIds: state.selectedNodeIds.compactMap(\.nodeCase).toSet)
+            state.copyAndPasteSelectedNodes(selectedNodeIds: state.selectedNodeIds.compactMap(\.nodeCase).toSet)
             
-            let newComponent = self.updateCopiedNodes(component: copiedComponentResult.component)
+            state.graphUI.dragDuplication = true
             
-            // Update top-level nodes to match current focused group
-            let newNodes: [NodeEntity] = self.createNewNodes(from: newComponent)
-            let graph = self.duplicateCopiedNodes(newComponent: newComponent,
-                                                  newNodes: newNodes)
-            
-
-            self.update(from: graph)
-            
-            self.updateGraphAfterPaste(newNodes: newNodes)
-            
-            return
+            // log("NodeDuplicateDraggedAction: copied nodes")
+            return .persistenceResponse
         }
             
         
@@ -134,6 +115,8 @@ extension GraphState {
                                       translation: translation,
                                       wasDrag: true)
             }
+        
+        return .persistenceResponse
     }
 }
 
@@ -168,7 +151,6 @@ extension GraphState {
          Normally this is fine, except when we hold command:
          long press would fire and see that the node was not yet selected, so it would select it; then tap would fire and see that the node was already selected, so it would de-select that same node.
          */
-        // TODO: pass isCommandPressed down from the gesture handler
         if !wasDrag && (self.documentDelegate?.keypressState.isCommandPressed ?? false) {
             #if DEV_DEBUG
             log("canvasItemMoved: we long pressed while holding command; doing nothing; this logic will instead be handled by NodeTapped")
@@ -255,7 +237,7 @@ struct NodeMoveEndedAction: StitchDocumentEvent {
 
     func handle(state: StitchDocumentViewModel) {
         state.handleNodeMoveEnded(id: id)
-        state.visibleGraph.encodeProjectInBackground()
+        state.graph.encodeProjectInBackground()
     }
 }
 

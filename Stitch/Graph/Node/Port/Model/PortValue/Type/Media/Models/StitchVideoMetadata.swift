@@ -1,6 +1,6 @@
 //
 //  StitchVideo.swift
-//  Stitch
+//  prototype
 //
 //  Created by Elliot Boschwitz on 7/17/21.
 //

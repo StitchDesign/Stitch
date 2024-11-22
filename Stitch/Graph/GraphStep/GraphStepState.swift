@@ -1,6 +1,6 @@
 //
 //  GraphStep.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 10/8/21.
 //

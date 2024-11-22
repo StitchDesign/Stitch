@@ -1,6 +1,6 @@
 //
 //  NodeView.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 4/14/22.
 //
@@ -16,7 +16,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
     @Bindable var graph: GraphState
     let isSelected: Bool
     let atleastOneCommentBoxSelected: Bool
-    let activeGroupId: NodeId?
+    let activeGroupId: GroupNodeId?
     let canAddInput: Bool
     let canRemoveInput: Bool
 
@@ -58,6 +58,10 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
         self.stitch.kind.isLayer
     }
 
+    var position: CGPoint {
+        self.node.position
+    }
+    
     var body: some View {
         
         ZStack {
@@ -77,7 +81,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
                     if self.stitch.kind.isGroup {
                         log("NodeView: node \(stitch.id) .gesture(TapGesture(count: 2)")
                         log("NodeView: node \(stitch.id) .gesture(TapGesture(count: 2): will set active group")
-                        dispatch(GroupNodeDoubleTapped(id: stitch.id))
+                        dispatch(GroupNodeDoubleTapped(id: GroupNodeId(stitch.id)))
                     }
                 }))
             
@@ -87,7 +91,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
                     node.isTapped(document: document)
                 }))
         } // ZStack
-                
+        
         /*
          Note: every touch on a part of a node is an interaction (e.g. the title, an input field etc.) with a single node --- except for touching the node tag menu.
          
@@ -101,6 +105,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
         }
         .canvasItemPositionHandler(document: document,
                                    node: node,
+                                   position: position,
                                    zIndex: zIndex,
                                    usePositionHandler: usePositionHandler)
         .opacity(isHiddenDuringAnimation ? 0 : 1)
@@ -115,14 +120,6 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
             
             nodeBodyKind
                 .modifier(CanvasItemBodyPadding())
-        }
-        .overlay {
-            if let layerNode = stitch.layerNode,
-               !layerNode.hasSidebarVisibility {
-                Color.black.opacity(0.3)
-                    .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
-                    .allowsHitTesting(false)
-            }
         }
         .fixedSize()
         .modifier(CanvasItemBackground(color: nodeUIColor.body))
@@ -165,7 +162,9 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
                                nodeTypeChoices: sortedUserTypeChoices,
                                canAddInput: canAddInput,
                                canRemoveInput: canRemoveInput,
-                               atleastOneCommentBoxSelected: atleastOneCommentBoxSelected)
+                               atleastOneCommentBoxSelected: atleastOneCommentBoxSelected,
+                               // Always false for PatchNodeView
+                               isHiddenLayer: false)
     }
 }
 
@@ -219,7 +218,7 @@ func getFakeNode(choice: NodeKind,
                  _ zIndex: ZIndex = 1,
                  customName: String? = nil) -> NodeViewModel? {
 
-    let document = StitchDocumentViewModel.createEmpty()
+    let document = StitchDocumentViewModel(id: .fakeId, store: nil)
     
     if let node = document.nodeCreated(choice: choice) {
                 

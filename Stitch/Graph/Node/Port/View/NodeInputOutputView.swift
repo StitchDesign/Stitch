@@ -1,6 +1,6 @@
 //
 //  NodeInputView.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 4/16/22.
 //
@@ -18,9 +18,6 @@ struct LayerInspectorRowButton: View {
     let canvasItemId: CanvasItemId?
     let isPortSelected: Bool
     let isHovered: Bool
-    
-    // non-nil = this inspector row button is for a field, not a
-    var fieldIndex: Int? = nil
     
     @MainActor
     var isWholeInputWithAtleastOneFieldAlreadyOnCanvas: Bool {
@@ -86,17 +83,9 @@ struct LayerInspectorRowButton: View {
             
             // Else we're adding an input (whole or field) or an output to the canvas
             else if let layerInput = coordinate.keyPath {
-                
-                if let fieldIndex = fieldIndex {
-                    dispatch(LayerInputFieldAddedToGraph(layerInput: layerInput.layerInput,
-                                                         nodeId: nodeId,
-                                                         fieldIndex: fieldIndex))
-                } else {
-                    dispatch(LayerInputAddedToGraph(
-                        nodeId: nodeId,
-                        coordinate: layerInput))
-                }
-                
+                dispatch(LayerInputAddedToGraph(
+                    nodeId: nodeId,
+                    coordinate: layerInput))
             } else if let portId = coordinate.portId {
                 dispatch(LayerOutputAddedToGraph(nodeId: nodeId,
                                                  portId: portId))
@@ -256,9 +245,7 @@ struct ShadowInputInspectorRow: View {
                 .onTapGesture {
                     dispatch(FlyoutToggled(
                         flyoutInput: SHADOW_FLYOUT_LAYER_INPUT_PROXY,
-                        flyoutNodeId: nodeId,
-                        // No particular field to focus
-                        fieldToFocus: nil))
+                        flyoutNodeId: nodeId))
                 }
         }
     }

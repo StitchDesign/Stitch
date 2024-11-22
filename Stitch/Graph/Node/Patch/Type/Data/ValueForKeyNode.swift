@@ -1,6 +1,6 @@
 //
 //  ValueForKeyNode.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 7/13/21.
 //

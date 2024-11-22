@@ -1,6 +1,6 @@
 //
 //  SampleAppsSheet.swift
-//  Stitch
+//  prototype
 //
 //  Created by Elliot Boschwitz on 5/22/22.
 //

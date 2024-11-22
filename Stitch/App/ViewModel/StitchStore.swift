@@ -1,6 +1,6 @@
 //
 //  StitchStore.swift
-//  Stitch
+//  prototype
 //
 //  Created by Elliot Boschwitz on 5/24/22.
 //
@@ -16,10 +16,6 @@ final class StitchStore: Sendable, StoreDelegate {
     
     var allProjectUrls = [ProjectLoader]()
     let documentLoader = DocumentLoader()
-    let clipboardEncoder = ClipboardEncoder()
-    let clipboardDelegate = ClipboardEncoderDelegate()
-    
-    var systems: [StitchSystemType: StitchSystemViewModel] = [:]
 
     // Components are unqiue to a user, not to a project,
     // and loaded when app loads.
@@ -42,16 +38,11 @@ final class StitchStore: Sendable, StoreDelegate {
 
     @MainActor
     init() {
-        // Remove cached data from previous session
-        try? FileManager.default.removeItem(at: StitchFileManager.tempDir)
-        
         // Sets up action dispatching
         GlobalDispatch.shared.delegate = self
 
         self.environment.dirObserver.delegate = self
         self.environment.store = self
-        self.clipboardEncoder.delegate = self.clipboardDelegate
-        self.clipboardDelegate.store = self
     }
 
     // Gets the Redux-style state for legacy purposes
@@ -67,28 +58,8 @@ final class StitchStore: Sendable, StoreDelegate {
     }
 }
 
-final class ClipboardEncoderDelegate: DocumentEncodableDelegate {
-    var lastEncodedDocument: StitchClipboardContent
-    weak var store: StitchStore?
-    
-    init() {
-        self.lastEncodedDocument = .init()
-    }
-    
-    func createSchema(from graph: GraphState?) -> StitchClipboardContent {
-        fatalError()
-    }
-    
-    func willEncodeProject(schema: StitchClipboardContent) {}
-    
-    func update(from schema: StitchClipboardContent) async { }
-    
-    var storeDelegate: (any StoreDelegate)? {
-        self.store
-    }
-}
-
 extension StitchStore {
+    
     @MainActor
     func displayError(error: StitchFileError) {
         self.alertState.stitchFileError = error
@@ -96,7 +67,6 @@ extension StitchStore {
 }
 
 extension StitchStore: GlobalDispatchDelegate {
-    @MainActor
     func reswiftDispatch(_ legacyAction: Action) {
         _handleAction(store: self, action: legacyAction)
     }
@@ -108,14 +78,14 @@ extension StitchStore {
     }
 
     var currentProjectId: ProjectId? {
-        currentDocument?.projectId
+        currentGraph?.projectId
     }
 
     var currentDocument: StitchDocumentViewModel? {
         self.navPath.first
     }
     
-    var undoManager: StitchUndoManager {
-        self.environment.undoManager
+    var currentGraph: GraphState? {
+        self.currentDocument?.graph
     }
 }

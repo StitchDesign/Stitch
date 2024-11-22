@@ -1,6 +1,6 @@
 //
 //  GraphFlow.swift
-//  Stitch
+//  prototype
 //
 //  Created by cjc on 1/6/21.
 //
@@ -10,13 +10,12 @@ import SwiftUI
 import StitchSchemaKit
 import StitchEngine
 
-extension GraphState {
+extension StitchDocumentViewModel {
     /// Gets all node IDs except for those in groups.
     var allNodesToCalculate: NodeIdSet {
         self.nodes.values
             .compactMap {
-                // Ignore group nodes
-                guard $0.nodeType.groupNode == nil else {
+                guard $0.kind != .group else {
                     return nil
                 }
                 

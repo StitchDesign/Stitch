@@ -173,11 +173,13 @@ extension NodeKind {
             return patch.defaultNode(id: id,
                                      position: .zero,
                                      zIndex: .zero,
+                                     activeIndex: activeIndex,
                                      graphDelegate: graphDelegate)
         case .layer(let layer):
             return layer.defaultNode(id: id,
                                      position: .zero,
                                      zIndex: .zero,
+                                     activeIndex: activeIndex,
                                      graphDelegate: nil)
         case .group:
             // Not intended here

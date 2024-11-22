@@ -22,6 +22,7 @@ final class NodeViewModel: Sendable {
     static let nilChoice = SplitterPatchNode.createViewModel(
         position: .zero,
         zIndex: .zero,
+        activeIndex: .init(.zero),
         graphDelegate: nil)
 
     var id: NodeEntity.ID
@@ -50,44 +51,43 @@ final class NodeViewModel: Sendable {
     // aka reference to a limited subset of GraphState properties
     weak var graphDelegate: GraphDelegate?
 
+    @MainActor
+    static func createNodeViewModelFromSchema(_ nodeSchema: NodeEntity,
+                                              activeIndex: ActiveIndex,
+                                              graphDelegate: GraphDelegate) -> NodeViewModel {
+        let node = NodeViewModel(from: nodeSchema,
+                                 activeIndex: activeIndex)
+        node.initializeDelegate(graph: graphDelegate)
+        return node
+    }
+
     /// Called on initialization or prototype restart.
-    func syncEphemeralObservers() {
-        if self.ephemeralObservers == nil,
-           let ephemeralObserver = self.createEphemeralObserver() {
+    @MainActor
+    func createEphemeralObservers() {
+        if let ephemeralObserver = self.createEphemeralObserver() {
             self.ephemeralObservers = [ephemeralObserver]
         }
     }
     
+    // i.e. "create node view model from schema
+    @MainActor
     init(from schema: NodeEntity,
-         nodeType: NodeViewModelType) {
+         activeIndex: ActiveIndex) {
         self.id = schema.id
         self.title = schema.title
-        self.nodeType = nodeType
+        self.nodeType = NodeViewModelType(from: schema.nodeTypeEntity,
+                                          nodeId: schema.id)
         
         self._cachedDisplayTitle = self.getDisplayTitle()
     }
     
-    // i.e. "create node view model from schema
-    convenience init(from schema: NodeEntity,
-                     components: [UUID : StitchMasterComponent],
-                     parentGraphPath: [UUID]) async {
-        let nodeType = await NodeViewModelType(from: schema.nodeTypeEntity,
-                                               nodeId: schema.id,
-                                               components: components,
-                                               parentGraphPath: parentGraphPath)
-        self.init(from: schema,
-                  nodeType: nodeType)
-    }
-    
     @MainActor
     convenience init(from schema: NodeEntity,
-                     graphDelegate: GraphDelegate,
-                     document: StitchDocumentViewModel) async {
-        await self.init(from: schema,
-                        components: graphDelegate.components,
-                        parentGraphPath: graphDelegate.saveLocation)
-        self.initializeDelegate(graph: graphDelegate,
-                                document: document)
+                     activeIndex: ActiveIndex,
+                     graphDelegate: GraphDelegate) {
+        self.init(from: schema,
+                  activeIndex: activeIndex)
+        self.initializeDelegate(graph: graphDelegate)
     }
 }
 
@@ -112,10 +112,6 @@ extension NodeViewModel: NodeCalculatable {
             return canvas.inputViewModels.compactMap {
                 $0.rowDelegate?.allLoopedValues
             }
-        case .component(let componentData):
-            return componentData.canvas.inputViewModels.compactMap {
-                $0.rowDelegate?.allLoopedValues
-            }
         }
     }
     
@@ -127,10 +123,6 @@ extension NodeViewModel: NodeCalculatable {
             return layer.outputPorts.map { $0.rowObserver }
         case .group(let canvas):
             return canvas.outputViewModels.compactMap {
-                $0.rowDelegate
-            }
-        case .component(let component):
-            return component.canvas.outputViewModels.compactMap {
                 $0.rowDelegate
             }
         }
@@ -159,11 +151,10 @@ extension NodeViewModel: NodeCalculatable {
                 return nil
             }
             
-        case .component(let component):
-            return component.evaluate()
-            
         case .group:
+#if DEBUG
             fatalErrorIfDebug()
+#endif
             return nil
         }
     }
@@ -223,37 +214,10 @@ extension NodeViewModel: PatchNodeViewModelDelegate {
 }
 
 extension NodeViewModel {
-    @MainActor static func createEmpty() -> Self {
-        .init()
-    }
-    
-    convenience init() {
-        let nodeEntity = NodeEntity(id: .init(),
-                                    nodeTypeEntity: .group(.init(position: .zero,
-                                                                 zIndex: .zero,
-                                                                 parentGroupNodeId: nil)),
-                                    title: "")
-        
-        self.init(from: nodeEntity,
-                  nodeType: .group(.init(id: .node(.init()),
-                                         position: .zero,
-                                         zIndex: .zero,
-                                         parentGroupNodeId: nil,
-                                         inputRowObservers: [],
-                                         outputRowObservers: [],
-                                         unpackedPortParentFieldGroupType: nil,
-                                         unpackedPortIndex: nil))
-                  )
-    }
-    
-    @MainActor
-    func initializeDelegate(graph: GraphDelegate,
-                            document: StitchDocumentViewModel) {
+    @MainActor func initializeDelegate(graph: GraphDelegate) {
         self.graphDelegate = graph
-        self.nodeType.initializeDelegate(self,
-                                         components: graph.components,
-                                         document: document)
-        self.syncEphemeralObservers()
+        self.nodeType.initializeDelegate(self)
+        self.createEphemeralObservers()
     }
     
     var computedStates: [ComputedNodeState]? {
@@ -262,6 +226,7 @@ extension NodeViewModel {
         }
     }
 
+    @MainActor
     func createEphemeralObserver() -> NodeEphemeralObservable? {
         let observer = self.kind.graphNode?.createEphemeralObserver()
         
@@ -283,8 +248,6 @@ extension NodeViewModel {
             return layerNode.getAllCanvasObservers()
         case .group(let canvasObserver):
             return [canvasObserver]
-        case .component(let component):
-            return [component.canvas]
         }
     }
     
@@ -308,8 +271,8 @@ extension NodeViewModel {
                 return nil
             }
         
-        case .group, .component:
-            return self.patchCanvasItem
+        case .group(let canvasObserver):
+            return canvasObserver
         }
     }
     
@@ -321,8 +284,6 @@ extension NodeViewModel {
             return nil
         case .group(let canvasObserver):
             return canvasObserver
-        case .component(let component):
-            return component.canvas
         }
     }
     
@@ -538,7 +499,7 @@ extension NodeViewModel {
                     : getLongestLoopIndices(valuesList: outputValuesList)
             }
 
-        case .group, .component:
+        case .group:
             return []
         }
     }
@@ -579,9 +540,6 @@ extension NodeViewModel: NodeDelegate {
         case .group(let canvas):
             return canvas.inputViewModels
             
-        case .component(let component):
-            return component.canvas.inputViewModels
-            
         case .layer(let layer):
             return layer.layer.layerGraphNode.inputDefinitions.flatMap {
                 let inputPort = layer[keyPath: $0.layerNodeKeyPath]
@@ -605,9 +563,6 @@ extension NodeViewModel: NodeDelegate {
         case .group(let canvas):
             return canvas.outputViewModels
             
-        case .component(let component):
-            return component.canvas.outputViewModels
-            
         case .layer(let layer):
             return layer.outputPorts.flatMap { outputData in
                 if let canvas = outputData.canvasObserver {
@@ -621,51 +576,51 @@ extension NodeViewModel: NodeDelegate {
 }
 
 
-extension NodeViewModel {
+extension NodeViewModel: SchemaObserver {
+    @MainActor
+    static func createObject(from entity: NodeEntity) -> Self {
+        return .init(from: entity,
+                     activeIndex: .init(.zero))
+    }
+
     // MARK: main actor needed to prevent view updates from background thread
     @MainActor
-    func update(from schema: NodeEntity,
-                components: [UUID : StitchMasterComponent]) async {
-        await self.nodeType.update(from: schema.nodeTypeEntity,
-                                   components: components)
-        
-        self.updateTitle(newTitle: schema.title)
-    }
-    
-    func updateTitle(newTitle: String) {
-        if self.title != newTitle {
-            self.title = newTitle
+    func update(from schema: NodeEntity) {
+        self.nodeType.update(from: schema.nodeTypeEntity)
+
+        if self.title != schema.title {
+            self.title = schema.title
         }
         
         if self._cachedDisplayTitle != self.getDisplayTitle() {
             self._cachedDisplayTitle = self.getDisplayTitle()
         }
     }
-    
-    @MainActor
-    func update(from schema: NodeEntity) {
-        self.nodeType.update(from: schema.nodeTypeEntity)
-        self.updateTitle(newTitle: schema.title)
-    }
 
-    @MainActor func createSchema() -> NodeEntity {
+    func createSchema() -> NodeEntity {
         NodeEntity(id: self.id,
                    nodeTypeEntity: self.nodeType.createSchema(),
                    title: self.title)
     }
     
-    @MainActor func onPrototypeRestart() {
+    func onPrototypeRestart() {
         // Reset ephemeral observers
-        self.ephemeralObservers?.forEach {
-            $0.onPrototypeRestart()
-        }
+        self.createEphemeralObservers()
         
         // Reset outputs
         // TODO: should we really be resetting inputs?
         self.getAllInputsObservers().onPrototypeRestart()
         self.getAllOutputsObservers().forEach { $0.onPrototypeRestart() }
         
-        self.nodeType.onPrototypeRestart()
+        // Flatten interaction nodes' outputs when graph reset
+        if patchNode?.patch.isInteractionPatchNode ?? false {
+            self.flattenOutputs()
+        }
+        
+        self.layerNode?.previewLayerViewModels.forEach {
+            // Rest interaction state values
+            $0.interactiveLayer.onPrototypeRestart()
+        }
     }
 }
 
@@ -704,8 +659,6 @@ extension NodeViewModel {
                 .layerGraphNode.inputDefinitions.count
         case .group(let canvas):
             return canvas.inputViewModels.count
-        case .component(let component):
-            return component.canvas.inputViewModels.count
         case .patch(let patchNode):
             return patchNode.inputsObservers.count
         }
@@ -772,12 +725,14 @@ extension NodeViewModel {
                                                     nodeKind: self.kind,
                                                     userVisibleType: self.userVisibleType,
                                                     id: newInputCoordinate,
+                                                    activeIndex: self.activeIndex,
                                                     upstreamOutputCoordinate: nil)
         newInputObserver.initializeDelegate(self)
         
         let newInputViewModel = InputNodeRowViewModel(id: .init(graphItemType: .node(patchNode.canvasObserver.id),
                                                                 nodeId: newInputCoordinate.nodeId,
                                                                 portId: allInputsObservers.count),
+                                                      activeValue: newInputObserver.activeValue,
                                                       rowDelegate: newInputObserver,
                                                       canvasItemDelegate: patchNode.canvasObserver)
         newInputViewModel.initializeDelegate(self,
@@ -807,7 +762,11 @@ extension NodeViewModel {
     }
     
     @MainActor func flattenOutputs() {
-        self.getAllOutputsObservers().flattenOutputs()
+        self.getAllOutputsObservers().forEach { output in
+            if let firstValue = output.allLoopedValues.first {
+                output.allLoopedValues = [firstValue]
+            }
+        }
     }
     
     func appendInputRowObserver(_ rowObserver: InputNodeRowObserver) {
@@ -817,15 +776,5 @@ extension NodeViewModel {
         }
         
         patchNode.inputsObservers.append(rowObserver)
-    }
-}
-
-extension Array where Element: NodeRowObserver {
-    @MainActor func flattenOutputs() {
-        self.forEach { output in
-            if let firstValue = output.allLoopedValues.first {
-                output.allLoopedValues = [firstValue]
-            }
-        }
     }
 }

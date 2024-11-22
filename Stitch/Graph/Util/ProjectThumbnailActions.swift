@@ -12,13 +12,11 @@ import StitchSchemaKit
 extension StitchStore {
     @MainActor
     func createThumbnail(from documentViewModel: StitchDocumentViewModel) {
-        guard documentViewModel.didDocumentChange else { return }
-        
         // Note: we need to modify some views
         documentViewModel.isGeneratingProjectThumbnail = true
         
         // Recalculate the entire graph immediately, so that e.g. camera evals run with their image taking setting "off":
-        documentViewModel.graph.calculateFullGraph()
+        documentViewModel.calculate(from: documentViewModel.allNodesToCalculate)
         
         // Note: we pass in the existing `generatedPreview: GeneratePreview` becaue we want to reuse the exact images etc. already inside PreviewImage view etc.; but that doesn't actually help.
         let generatedPreview = GeneratePreview(document: documentViewModel)
@@ -29,10 +27,8 @@ extension StitchStore {
             .clipped()
         
         let document = documentViewModel.createSchema()
-        let rootUrl = document.rootUrl
+        let rootUrl = documentViewModel.graph.rootUrl
         let filename = rootUrl.appendProjectThumbnailPath()
-        
-        documentViewModel.projectLoader?.resetData()
         
         Task { [weak self] in
             guard let store = self else {
@@ -54,9 +50,14 @@ extension StitchStore {
             do {
                 try data.write(to: filename)
                 
-                // Force reload of home-screen thumbnail by setting local state to initialized
-                // For some projects, `graph.encodeProject` fails because the StoreDelegate is missing / has no documentLoader
-                await store.documentLoader.refreshDocument(url: rootUrl)
+                // log("GenerateProjectThumbnailEvent: wrote thumbnail")
+                
+                // TODO: a better way to trigger an update of the project's icon on the homescreen? Even modifying the modifiedDate directly would cause the project to jump to the front of the homescreen grid
+                
+                // TODO: for some projects, `graph.encodeProject` fails because the StoreDelegate is missing / has no documentLoader
+                //                 graph.encodeProjectInBackground()
+                try await store.documentLoader.encodeVersionedContents(
+                    document: document)
             } catch {
                 log("GenerateProjectThumbnailEvent: error: \(error)")
             }

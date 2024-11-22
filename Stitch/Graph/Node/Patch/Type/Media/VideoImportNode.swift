@@ -1,6 +1,6 @@
 //
 //  VideoImportNode.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 6/17/21.
 //

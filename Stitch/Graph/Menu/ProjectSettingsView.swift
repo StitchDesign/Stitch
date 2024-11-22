@@ -1,6 +1,6 @@
 //
 //  ProjectSettingsView.swift
-//  Stitch
+//  prototype
 //
 //  Created by Elliot Boschwitz on 1/10/22.
 //
@@ -121,7 +121,6 @@ struct ProjectSettingsView: View {
             layerInputObserver: nil,
             fieldCoordinate: .fakeFieldCoordinate,
             isFieldInsideLayerInspector: false,
-            isForFlyout: false,
             isForPreviewWindowBackgroundPicker: true,
             isForIPhone: isPhoneDevice(),
             chosenColor: binding, 
@@ -135,14 +134,14 @@ struct PreviewWindowBackgroundColorSet: StitchDocumentEvent {
 
     func handle(state: StitchDocumentViewModel) {
         state.previewWindowBackgroundColor = color
-        state.visibleGraph.encodeProjectInBackground()
+        state.graph.encodeProjectInBackground()
     }
 }
 
 // TODO: create an inner view that still receives this data
 struct ProjectSettingsView_Previews: PreviewProvider {
     @State static var show = true
-    static let graph = GraphState.createEmpty()
+    static let graph = GraphState(id: .init(), store: nil)
 
     static var previews: some View {
         ProjectSettingsView(previewWindowSize: PreviewWindowDevice.DEFAULT_PREVIEW_SIZE,

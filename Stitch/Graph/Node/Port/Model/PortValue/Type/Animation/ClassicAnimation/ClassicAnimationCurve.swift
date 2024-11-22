@@ -1,6 +1,6 @@
 //
 //  AnimationHelpers.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 8/17/21.
 //

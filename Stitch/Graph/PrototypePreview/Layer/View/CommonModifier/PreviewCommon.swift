@@ -12,7 +12,6 @@ import StitchSchemaKit
 struct PreviewCommonModifier: ViewModifier {
 
     @Bindable var document: StitchDocumentViewModel
-    @Bindable var graph: GraphState
     @Bindable var layerViewModel: LayerViewModel
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
@@ -65,7 +64,7 @@ struct PreviewCommonModifier: ViewModifier {
             .modifier(PreviewCommonSizeModifier(
                 viewModel: layerViewModel, 
                 isPinnedViewRendering: isPinnedViewRendering,
-                pinMap: graph.pinMap,
+                pinMap: document.pinMap,
                 aspectRatio: layerViewModel.getAspectRatioData(),
                 size: size,
                 minWidth: layerViewModel.getMinWidth,
@@ -84,7 +83,6 @@ struct PreviewCommonModifier: ViewModifier {
 
             .modifier(PreviewCommonModifierWithoutFrame(
                 document: document,
-                graph: graph,
                 layerViewModel: layerViewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
                 interactiveLayer: interactiveLayer,

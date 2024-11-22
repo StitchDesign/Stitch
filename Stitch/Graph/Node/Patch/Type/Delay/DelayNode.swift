@@ -1,6 +1,6 @@
 //
 //  DelayNode.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 3/23/21.
 //
@@ -63,13 +63,6 @@ final class NodeTimerEphemeralObserver: NodeEphemeralObservable {
     var prevDelayInputValue: PortValue?
 }
 
-extension NodeTimerEphemeralObserver {
-    @MainActor func onPrototypeRestart() {
-        self.runningTimers = .init()
-        self.prevDelayInputValue = nil
-    }
-}
-
 final class DelayNodeTimer {
     private var timer: Timer?
 
@@ -124,21 +117,12 @@ func delayEval(node: PatchNode) -> EvalResult {
 //        let inputCoordinate = InputCoordinate(portId: 0, nodeId: node.id)
         let prevDelayInputValue = timerObserver.prevDelayInputValue
 
-        guard let inputValue = values.first else {
-            return [node.userVisibleType?.defaultPortValue ?? .number(.zero)]
-        }
-        
-        guard let delayValue = values[safe: 1]?.getNumber,
-              let style = values[safe: 2]?.delayStyle else {
-            return [inputValue.defaultFalseValue]
-        }
-        
-        // If there's no current output (graph just opened or reset),
-        // use the default-false-value for this same input kind.
-        
-        var currentOutput = values[safe: 3] ?? inputValue.defaultFalseValue
-        if currentOutput.toNodeType != inputValue.toNodeType {
-            currentOutput = inputValue.defaultFalseValue
+        guard let inputValue = values.first,
+              let delayValue = values[safe: 1]?.getNumber,
+              let style = values[safe: 2]?.delayStyle,
+              // This MUST be the `PortValueComparable` type
+              let currentOutput = values[safe: 3] else {
+            return node.defaultOutputs
         }
 
         let createTimer = {
@@ -162,11 +146,6 @@ func delayEval(node: PatchNode) -> EvalResult {
             // Condition passes if no previous value set
             if inputValue > (prevDelayInputValue ?? PortValue.number(-1 * .infinity)) {
                 createTimer()
-            } else {
-                // Otherwise, update the output right away
-                // Update prev value
-                timerObserver.prevDelayInputValue = inputValue
-                return [inputValue]
             }
 
         case .decreasing:
@@ -179,11 +158,6 @@ func delayEval(node: PatchNode) -> EvalResult {
                 createTimer()
                 // We create the timer, BUT ALSO IMMEDIATELY SEND
 
-            } else {
-                // Otherwise, update the output right away
-                // Update prev value
-                timerObserver.prevDelayInputValue = inputValue
-                return [inputValue]
             }
         }
 

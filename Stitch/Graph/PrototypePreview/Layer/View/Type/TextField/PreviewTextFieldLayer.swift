@@ -12,7 +12,6 @@ import StitchSchemaKit
 struct PreviewTextFieldLayer: View {
 
     @Bindable var document: StitchDocumentViewModel
-    @Bindable var graph: GraphState
     @Bindable var viewModel: LayerViewModel
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
@@ -137,7 +136,6 @@ struct PreviewTextFieldLayer: View {
 
         previewTextField.modifier(PreviewCommonModifier(
             document: document,
-            graph: graph,
             layerViewModel: viewModel,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: interactiveLayer,

@@ -53,10 +53,6 @@ final class ARAnchorObserver: MediaEvalOpObservable {
     weak var nodeDelegate: NodeDelegate?
 }
 
-extension ARAnchorObserver {
-    func onPrototypeRestart() { }
-}
-
 @MainActor
 func arAnchorEval(node: PatchNode) -> EvalResult {
     node.loopedEval(ARAnchorObserver.self) { values, mediaObserver, loopIndex in

@@ -79,10 +79,9 @@ struct SidebarListItemLeftLabelView: View {
                 // .border(.green)
 //            }
   
-            Image(systemName: graph.sidebarLeftSideIcon(layer: layer,
-                                                        layerId: nodeId.asNodeId,
-                                                        activeIndex: graph.activeIndex))
-                .scaledToFit()
+            Image(systemName: layer.sidebarLeftSideIcon)
+                .resizable()
+                .padding(2)
                 .frame(width: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT,
                        height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
                 .foregroundColor(fontColor)
@@ -186,8 +185,8 @@ struct SidebarListLabelEditView: View {
                                fontColor: fontColor)
                 .padding(.top, 1)
             }
-        }
-        .onChange(of: self.name, initial: true) {
+            
+        }.onAppear {
             self.edit = name
         }
         .onTapGesture(count: 2) {

@@ -10,7 +10,6 @@ import StitchSchemaKit
 
 // The buttons for a node tag menu;
 // what we provide to SwifUI Menu or SwiftUI .contextMenu
-
 struct NodeTagMenuButtonsView: View {
 
     @Environment(StitchStore.self) private var store
@@ -20,7 +19,7 @@ struct NodeTagMenuButtonsView: View {
 
     let canvasItemId: CanvasItemId // id for Node or LayerInputOnGraph
     
-    var activeGroupId: NodeId?
+    var activeGroupId: GroupNodeId?
     var nodeTypeChoices: [UserVisibleType] = []
     
     // Always false for Layer Nodes;
@@ -31,11 +30,14 @@ struct NodeTagMenuButtonsView: View {
     
     var atleastOneCommentBoxSelected: Bool
 
+    var isHiddenLayer: Bool
+    
     @MainActor
     var graphUI: GraphUIState {
         self.graph.graphUI
     }
 
+     
     @MainActor
     var moreThanOneNodeSelected: Bool {
         graph.selectedCanvasItems.count > 1
@@ -90,11 +92,6 @@ struct NodeTagMenuButtonsView: View {
         splitterType.isDefined
             && activeGroupId.isDefined
     }
-    
-    var isWirelessReceiver: Bool {
-        node.kind == .patch(.wirelessReceiver)
-    }
-    
 
     var body: some View {
         if singleGroupNodeSelected {
@@ -103,14 +100,6 @@ struct NodeTagMenuButtonsView: View {
                 duplicateButton
                 visitGroupButton
                 ungroupGroupButton
-                
-                if FeatureFlags.USE_COMPONENTS {
-                    if let componentId = node.nodeType.componentNode?.componentId,
-                       let component = graph.components.get(componentId) {
-                        componentLinkingButton(component: component)
-                    }
-                }
-                
 //                if FeatureFlags.USE_COMMENT_BOX_FLAG {
 //                    createCommentBoxButton
 //                }
@@ -128,9 +117,6 @@ struct NodeTagMenuButtonsView: View {
                 deleteButton
                 duplicateButton
                 createGroupButton
-                if FeatureFlags.USE_COMPONENTS {
-                    createComponentButton
-                }
 //                if FeatureFlags.USE_COMMENT_BOX_FLAG {
 //                    createCommentBoxButton
 //                }
@@ -144,8 +130,14 @@ struct NodeTagMenuButtonsView: View {
             // Always shown
             deleteButton
             duplicateButton
+
+            if canAddInput {
+                addInputButton
+            }
             
-            addOrRemoveInputButons
+            if canRemoveInput {
+                removeInputButton
+            }
 
             if let splitterType = splitterType,
                let nodeId = canvasItemId.nodeCase,
@@ -172,65 +164,31 @@ struct NodeTagMenuButtonsView: View {
                                                  nodeId: node.id)
             }
             
-            jumpToAssignedBroadcasterButton
+            if isWirelessReceiver,
+               let assignedBroadcaster = node.currentBroadcastChoiceId {
+                nodeTagMenuButton(label: "Jump to Assigned Broadcaster") {
+                    dispatch(JumpToCanvasItem(id: .node(assignedBroadcaster)))
+                }
+            }
             
             if node.kind == .patch(.mathExpression) {
                 MathExpressionSubmenuButtonView(id: node.id)
             }
             
-            hideLayerButton
-            
-        }
-    }
-    
-    @ViewBuilder
-    var addOrRemoveInputButons: some View {
-        if canAddInput {
-            addInputButton
-        }
-        
-        if canRemoveInput {
-            removeInputButton
-        }
-    }
-    
-    @ViewBuilder
-    var jumpToAssignedBroadcasterButton: some View {
-        if isWirelessReceiver,
-           let assignedBroadcaster = node.currentBroadcastChoiceId {
-            nodeTagMenuButton(label: "Jump to Assigned Broadcaster") {
-                dispatch(JumpToCanvasItem(id: .node(assignedBroadcaster)))
+            if let layerNode = node.layerNode {
+                Button {
+                    dispatch(SidebarItemHiddenStatusToggled(clickedId: layerNode.id.asLayerNodeId))
+                } label: {
+                    Text(isHiddenLayer ? "Unhide Layer" : "Hide Layer")
+                }
             }
         }
     }
-    
-    @ViewBuilder
-    var hideLayerButton: some View {
-        if let layerNode = node.layerNode {
-            Button {
-                dispatch(SidebarItemHiddenStatusToggled(clickedId: layerNode.id.asLayerNodeId))
-            } label: {
-                Text(layerNode.hasSidebarVisibility ? "Hide Layer" : "Unhide Layer")
-            }
-        }
-    }
-    
-//    var onlyLayerCanvasItemsSelected: Bool {
-//        graph.selectedCanvasItems.allSatisfy(\.id.isForLayer)
-//    }
-//    
-//    @ViewBuilder
-//    var hideLayersButton: some View {
-//        // TODO: see `SelectedLayersHiddenStatusToggled`
-//        if onlyLayerCanvasItemsSelected {
-//            Button {
-//                dispatch(SelectedLayersHiddenStatusToggled(selectedLayers: graph.selectedCanvasLayerItemIds.toSet))
-//            } label: {
-//                Text(isHiddenLayer ? "Unhide Layers" : "Hide Layers")
-//            }
-//        }
-//    }
 
+    var isWirelessReceiver: Bool {
+        node.kind == .patch(.wirelessReceiver)
+    }
+    
     @MainActor
     func splitterTypeSubmenu(nodeId: NodeId,
                              _ currentSplitterType: SplitterType) -> some View {
@@ -338,40 +296,7 @@ struct NodeTagMenuButtonsView: View {
     @MainActor
     var createGroupButton: some View {
         nodeTagMenuButton(label: "Group Nodes") {
-            Task { [weak graph] in
-                await graph?.documentDelegate?.createGroup(isComponent: false)
-            }
-        }
-    }
-    
-    @MainActor
-    var createComponentButton: some View {
-        nodeTagMenuButton(label: "Create Component") {
-            Task { [weak graph] in
-                await graph?.documentDelegate?.createGroup(isComponent: true)
-            }
-        }
-    }
-    
-    @MainActor
-    func componentLinkingButton(component: StitchMasterComponent) -> some View {
-        // Check if button is already linked
-        if let linkedSystem = self.store.systems.findSystem(forComponent: component.id) {
-            return nodeTagMenuButton(label: "Unlink Component") {
-                do {
-                    try self.graph.documentDelegate?.unlinkComponent(localComponent: component)
-                } catch {
-                    log(error.localizedDescription)
-                }
-            }
-        } else {
-            return nodeTagMenuButton(label: "Save Component to Library") {
-                do {
-                    try store.saveComponentToUserLibrary(component.lastEncodedDocument)
-                } catch {
-                    fatalErrorIfDebug(error.localizedDescription)
-                }
-            }
+            dispatch(GroupNodeCreatedEvent())
         }
     }
 
@@ -387,7 +312,7 @@ struct NodeTagMenuButtonsView: View {
     var visitGroupButton: some View {
         nodeTagMenuButton(label: "Visit Group") {
             if let nodeId = canvasItemId.nodeCase {
-                dispatch(GroupNodeDoubleTapped(id: nodeId))
+                dispatch(GroupNodeDoubleTapped(id: GroupNodeId(nodeId)))
             }
         }
     }

@@ -1,6 +1,6 @@
 //
 //  TransitionNode.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 4/29/21.
 //

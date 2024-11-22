@@ -1,6 +1,6 @@
 //
 //  LoopFilter.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 4/14/21.
 //
@@ -58,10 +58,6 @@ struct LoopInsertNode: PatchNodeDefinition {
 
 final class LoopingEphemeralObserver: NodeEphemeralObservable {
     var previousValues: PortValues = []
-}
-
-extension LoopingEphemeralObserver {
-    func onPrototypeRestart() { }
 }
 
 extension PortValues {

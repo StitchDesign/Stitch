@@ -1,6 +1,6 @@
 //
 //  FloatingWindowView.swift
-//  Stitch
+//  prototype
 //
 //  Created by cjc on 12/14/20.
 //
@@ -57,8 +57,7 @@ struct FloatingWindowView: View {
 
     // the size of the device represented by the preview window
     // i.e. `pwDevice`
-    @MainActor
-    var previewWindowSize: CGSize {
+    @MainActor var previewWindowSize: CGSize {
         document.previewWindowSize
     }
 
@@ -67,7 +66,7 @@ struct FloatingWindowView: View {
             if shouldRenderPreview {
                 floatingWindowWithHandle
                     .matchedGeometryEffect(id: projectId, in: namespace)
-                    // .transition(.slideInAndOut)
+                    .transition(.slideInAndOut)
             } else {
                 EmptyView()
             }
@@ -76,14 +75,8 @@ struct FloatingWindowView: View {
             // When state changes to show preview window, change state
             // to trigger animation
             // TODO: debug why "show" animation is so much slower than "hide" animation when both use same duration
-//            withAnimation(.linear(duration: _showPreviewWindow ? 0.3 : 0.8)) {
-//            withAnimation(.linear(duration: _showPreviewWindow ? 0.3 : 0.8)) {
-//            withAnimation(.linear(duration: 0.3)) {
-            
-            // Note: shorter animation times avoids appearance of some preview window elements disappearing before others (e.g. material layer)
-            withAnimation(.linear(duration: 0.05)) {
+            withAnimation(.linear(duration: _showPreviewWindow ? 0.3 : 0.8)) {
                 shouldRenderPreview = _showPreviewWindow
-//            }
             }
         }
     }
@@ -184,6 +177,7 @@ struct FloatingWindowView: View {
                     self.setNormalCursor()
                 }
             }
+        
 #else
         // TODO: on iPad, use UIKit to distinguish between a finger-on-screen touch (which needs extended hitbox) and a cursor touch (which doesn't)
             .frame(.FLOATING_WINDOW_HANDLE_HITBOX_SIZE_IPAD)
@@ -211,33 +205,30 @@ struct FloatingWindowView: View {
             }
             .onEnded({ _ in
                 self.isDragging = false
+                
                 self.previewWindowSizing.accumulatedAdjustedTranslation.width += self.previewWindowSizing.activeAdjustedTranslation.width
+                
                 self.previewWindowSizing.accumulatedAdjustedTranslation.height += self.previewWindowSizing.activeAdjustedTranslation.height
+                
                 self.previewWindowSizing.activeAdjustedTranslation = .zero
             })
     }
     
     var finalXOffset: CGFloat {
-        
-        return document.graphUI.showsLayerInspector ? Self.xOffset - LayerInspectorView.LAYER_INSPECTOR_WIDTH : Self.xOffset
-        
-        //        if showPreviewWindow {
-        //            // Original
-        //            return document.graphUI.showsLayerInspector ? Self.xOffset - LayerInspectorView.LAYER_INSPECTOR_WIDTH : Self.xOffset
-        //        } else {
-        //            log("self.previewWindowSizing.dimensions.width.magnitude: \(self.previewWindowSizing.dimensions.width.magnitude)")
-        //            // TODO: Why divide by 2?
-        ////            return self.previewWindowSizing.dimensions.width.magnitude / 2
-        //            return self.previewWindowSizing.dimensions.width.magnitude / 4
-        //        }
-        
+        document.graphUI.showsLayerInspector ? Self.xOffset - LayerInspectorView.LAYER_INSPECTOR_WIDTH : Self.xOffset
     }
     
     @ViewBuilder
     var floatingWindow: some View {
-        PreviewContent(document: document,
-                       isFullScreen: false)
-        .frame(self.previewWindowSizing.dimensions)
+        VStack {
+            HStack(spacing: .zero) {
+                Spacer()
+                PreviewContent(document: document,
+                               isFullScreen: false)
+                .frame(self.previewWindowSizing.dimensions)
+            }
+            Spacer()
+        }
         .padding(.top, PREVIEW_WINDOW_Y_PADDING)
     }
 }
@@ -247,7 +238,7 @@ struct FloatingWindowView_Previews: PreviewProvider {
     @Namespace static var namespace
 
     static var previews: some View {
-        FloatingWindowView(document: StitchDocumentViewModel.createEmpty(),
+        FloatingWindowView(document: .init(from: .init(), store: nil),
                            deviceScreenSize: DEFAULT_LANDSCAPE_SIZE,
                            showPreviewWindow: true,
                            namespace: namespace)

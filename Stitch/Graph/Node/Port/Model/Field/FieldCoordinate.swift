@@ -1,6 +1,6 @@
 //
 //  FieldCoordinate.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 3/1/22.
 //
