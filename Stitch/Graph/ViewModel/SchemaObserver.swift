@@ -73,8 +73,8 @@ extension Dictionary where Value: Identifiable & AnyObject, Key == Value.ID {
     
     @MainActor
     func sync<DataElement>(with newEntities: [DataElement],
-                           updateCallback: @escaping (Value, DataElement) async -> (),
-                           createCallback: @escaping (DataElement) async -> Value) async -> Self where DataElement: Identifiable, Element: Sendable, DataElement.ID == Value.ID {
+                           updateCallback: @Sendable @escaping (Value, DataElement) async -> (),
+                           createCallback: @Sendable @escaping (DataElement) async -> Value) async -> Self where DataElement: Identifiable, Element: Sendable, DataElement.ID == Value.ID {
         let newValues = await Array(self.values)
             .sync(with: newEntities,
                   updateCallback: updateCallback,

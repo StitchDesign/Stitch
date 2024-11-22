@@ -56,7 +56,7 @@ extension StitchMediaObject: Hashable {
         case .image(let uIImage):
             hasher.combine(uIImage.hashValue)
         case .video(let video):
-            hasher.combine(video.url?.hashValue)
+            hasher.combine(video.url.hashValue)
         case .soundfile(let stitchSoundPlayer):
             hasher.combine(stitchSoundPlayer.delegate.url?.hashValue ?? .zero)
         case .mic(let stitchSoundPlayer):
@@ -165,9 +165,7 @@ extension StitchMediaObject {
             copiedMediaObject = .image(copy)
 
         case .video(let videoPlayer):
-            guard let url = videoPlayer.url else {
-                return nil
-            }
+            let url = videoPlayer.url
             let newPlayer = await StitchVideoImportPlayer(url: url,
                                                           videoData: videoPlayer.stitchVideoDelegate.videoData,
                                                           initialVolume: 0.5)
@@ -244,18 +242,19 @@ extension StitchMediaObject {
 
 /// StitchMediaObject util methods.
 extension StitchMediaObject {
+    @MainActor
     var name: String {
         switch self {
         case .image(let uIImage):
             return uIImage.accessibilityIdentifier ?? "Image"
         case .video(let videoPlayer):
-            return videoPlayer.url?.filename ?? "Video"
+            return videoPlayer.url.filename
         case .soundfile(let soundPlayer):
             return soundPlayer.delegate.url?.filename ?? "Audio"
         case .model3D(let entity):
             return entity.sourceURL.filename
         case .coreMLImageModel(let model):
-            return model.model.accessibilityLabel ?? "Model"
+            return model.originalURL.filename ?? "Model"
         case .mic:
             return "Mic"
         case .arAnchor:

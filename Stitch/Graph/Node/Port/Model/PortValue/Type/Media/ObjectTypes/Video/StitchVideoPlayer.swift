@@ -24,10 +24,12 @@ final class StitchVideoImportPlayer: Sendable {
         CMTimeGetSeconds(video.currentItem?.duration ?? .zero)
     }
 
-    var url: URL? { video.url }
+    let url: URL
 
     @MainActor
     init(url: URL, videoData: VideoMetadata, initialVolume: Double) {
+        self.url = url
+        
         let player = AVPlayer(url: url)
         self.stitchVideoDelegate = StitchVideoDelegate(url: url,
                                                        videoData: videoData,
@@ -57,6 +59,7 @@ final class StitchVideoImportPlayer: Sendable {
         self.video.isMuted = true
     }
 
+    @MainActor
     var volume: Double {
         self.stitchVideoDelegate.audio.delegate.volume
     }
@@ -67,6 +70,7 @@ final class StitchVideoImportPlayer: Sendable {
         self.video.volume = Float(volume)
     }
 
+    @MainActor
     var peakVolume: Double {
         self.stitchVideoDelegate.audio.delegate.peakVolume
     }

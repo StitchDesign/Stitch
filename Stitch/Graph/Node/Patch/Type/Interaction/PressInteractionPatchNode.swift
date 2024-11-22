@@ -64,11 +64,12 @@ struct PressInteractionNode: PatchNodeDefinition {
 }
 
 final class PressInteractionNodeObserver: NodeEphemeralObservable, Sendable {
-    var prevTapTime: TimeInterval?
+    @MainActor var prevTapTime: TimeInterval?
     let actor: PressInteractionActor = .init()
 }
 
 extension PressInteractionNodeObserver {
+    @MainActor
     func onPrototypeRestart() {
         self.prevTapTime = nil
     }
@@ -81,9 +82,10 @@ actor PressInteractionActor {
                   evalObserver: PressInteractionNodeObserver,
                   graph: GraphDelegate,
                   loopIndex: Int,
-                  createNewValues: @escaping (TimeInterval) -> PortValues) async throws {
+                  createNewValues: @escaping @MainActor (TimeInterval) -> PortValues) async throws {
         let delayInNanoseconds = delayValue * Double(nanoSecondsInSecond)
         try await Task.sleep(nanoseconds: UInt64(delayInNanoseconds))
+        
         DispatchQueue.main.async { [weak graph, weak pressNode] in
             guard let graph = graph,
                   let pressNode = pressNode else {
