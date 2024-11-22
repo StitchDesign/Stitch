@@ -104,7 +104,22 @@ extension PatchNodeViewModel: SchemaObserver {
             self.patch = schema.patch
         }
         if self.userVisibleType != schema.userVisibleType {
-            self.userVisibleType = schema.userVisibleType
+            guard let oldType = self.userVisibleType,
+                  let newType = schema.userVisibleType else {
+                fatalErrorIfDebug("PatchNodeViewModel.update: expected node type when none found.")
+                return
+            }
+            
+            self.userVisibleType = newType
+            
+            if let node = self.delegate,
+               let graph = node.graphDelegate {
+                // Ensures fields correctly update on events like undo which wouldn't otherwise
+                // call the changeType helper
+                let _ = graph.changeType(for: node,
+                                         oldType: oldType,
+                                         newType: newType)
+            }
         }
         if self.splitterNode != schema.splitterNode {
             self.splitterNode = schema.splitterNode

@@ -29,8 +29,16 @@ struct NodeTagMenuButtonsView: View {
     // Also false when we only have minimum number of inputs
     let canRemoveInput: Bool
     
-    var atleastOneCommentBoxSelected: Bool
+    let atleastOneCommentBoxSelected: Bool
+    
+    var loopIndices: [Int]?
 
+    // MARK: very important to process this outside of NodeTagMenuButtonsView: doing so fixes a bug where the node type menu becomes unresponsive if values are constantly changing on iPad.
+    @MainActor
+    var _loopIndices: [Int] {
+        loopIndices ?? self.node.getLoopIndices()
+    }
+    
     @MainActor
     var graphUI: GraphUIState {
         self.graph.graphUI
@@ -44,11 +52,6 @@ struct NodeTagMenuButtonsView: View {
     @MainActor
     var activeIndex: ActiveIndex {
         self.graphUI.activeIndex
-    }
-
-    @MainActor
-    var loopIndices: [Int] {
-        self.node.getLoopIndices()
     }
 
     var nodeType: UserVisibleType? {
@@ -82,7 +85,7 @@ struct NodeTagMenuButtonsView: View {
     // only show loop-indices when more than just 1 index
     @MainActor
     var hasLoopIndexCarousel: Bool {
-        loopIndices.count > 1
+        _loopIndices.count > 1
     }
 
     // Only show splitter-type carousel if not at top-level
@@ -171,7 +174,7 @@ struct NodeTagMenuButtonsView: View {
 
             if hasLoopIndexCarousel {
                 loopIndexSubmenu(activeIndex: activeIndex,
-                                 loopIndices)
+                                 _loopIndices)
             }
 
 //            if isWirelessReceiver {
