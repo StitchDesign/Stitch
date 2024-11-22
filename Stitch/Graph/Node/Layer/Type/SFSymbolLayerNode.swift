@@ -42,7 +42,6 @@ struct SFSymbolLayerNode: LayerNodeDefinition {
         .union(.sizing).union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
     
     static func content(document: StitchDocumentViewModel,
-                        graph: GraphState,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList,
@@ -53,7 +52,6 @@ struct SFSymbolLayerNode: LayerNodeDefinition {
         
         return PreviewSFSymbolLayer(
             document: document,
-            graph: graph,
             layerViewModel: viewModel,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,
@@ -88,7 +86,6 @@ struct SFSymbolLayerNode: LayerNodeDefinition {
 
 struct PreviewSFSymbolLayer: View {
     let document: StitchDocumentViewModel
-    @Bindable var graph: GraphState
     let layerViewModel: LayerViewModel
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
@@ -128,7 +125,6 @@ struct PreviewSFSymbolLayer: View {
             .opacity(opacity)
             .modifier(PreviewCommonModifier(
                 document: document,
-                graph: graph,
                 layerViewModel: layerViewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
                 interactiveLayer: interactiveLayer,

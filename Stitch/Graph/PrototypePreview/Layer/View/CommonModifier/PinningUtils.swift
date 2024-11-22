@@ -141,7 +141,7 @@ extension [LayerPinData] {
     }
 }
 
-extension GraphState {
+extension StitchDocumentViewModel {
     // Note: PinMap is only for views with a PinToId that corresponds to some layer node; so e.g. `PinToId.root` needs to be handled separately
     @MainActor
     func getFlattenedPinMap() -> PinMap {
@@ -243,7 +243,7 @@ extension PinMap {
 
 // MARK: POSITIONING
 
-extension GraphState {
+extension StitchDocumentViewModel {
     @MainActor var rootPinReceiverData: PinReceiverData {
         PinReceiverData(
             // anchoring
@@ -275,7 +275,7 @@ extension GraphState {
             // Note: PinTo = Parent is perhaps redundant vs layer's Anchoring, which is always relative to parent
             // Worst case we can just remove this enum case in the next migration; Root still represents a genuinely new scenario
         case .parent:
-            if let layerNode = self.getNode(pinnedLayerViewModel.id.layerNodeId.asNodeId)?.layerNode,
+            if let layerNode = graph.getNode(pinnedLayerViewModel.id.layerNodeId.asNodeId)?.layerNode,
                let parent = layerNode.layerGroupId {
                 return self.getPinReceiverData(pinReceiverId: parent.asLayerNodeId,
                                                for: pinnedLayerViewModel)
@@ -293,7 +293,7 @@ extension GraphState {
                                        for pinnedLayerViewModel: LayerViewModel) -> PinReceiverData? {
         
         guard let rootPinReceiverId = self.pinMap.findRootPinReceiver(from: pinReceiverId),
-              let pinReceiver = self.layerNodes.get(rootPinReceiverId.id) else {
+              let pinReceiver = self.graph.layerNodes.get(rootPinReceiverId.id) else {
             log("getPinReceiverData: no pinReceiver for layer \(pinnedLayerViewModel.layer)")
             return self.rootPinReceiverData
         }
@@ -333,21 +333,20 @@ extension GraphState {
 
 extension PinToId {
     // nil: either pinToId = root or  pinToId could not be found
-    @MainActor
     func asLayerNodeId(_ pinnedViewId: LayerNodeId,
-                       from graph: GraphState) -> LayerNodeId? {
+                       from document: StitchDocumentViewModel) -> LayerNodeId? {
         switch self {
         case .root:
             return nil // root has no associated layer node id
         case .layer(let x):
             // Confirm that the layer exists; else return `nil`
-            guard (graph.getNodeViewModel(x.asNodeId)?.layerNode.isDefined ?? false) else {
+            guard (document.getNodeViewModel(x.asNodeId)?.layerNode.isDefined ?? false) else {
                 log("PinToId.asLayerNodeId: did not have layer node for pinToId.layer \(x)")
                 return nil
             }
             return x
         case .parent:
-            return graph.getNodeViewModel(pinnedViewId.asNodeId)?.layerNode?.layerGroupId?.asLayerNodeId
+            return document.getNodeViewModel(pinnedViewId.asNodeId)?.layerNode?.layerGroupId?.asLayerNodeId
         }
     }
 }

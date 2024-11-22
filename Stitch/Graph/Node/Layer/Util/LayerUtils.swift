@@ -1,6 +1,6 @@
 //
 //  LayerUtils.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 10/13/21.
 //
@@ -32,7 +32,7 @@ extension Layer {
         switch self {
         case .canvasSketch, .textField, .switchLayer:
             return true
-        case .text, .oval, .rectangle, .image, .group, .video, .model3D, .realityView, .shape, .colorFill, .hitArea, .map, .progressIndicator, .linearGradient, .radialGradient, .angularGradient, .sfSymbol, .videoStreaming, .material:
+        case .text, .oval, .rectangle, .image, .group, .video, .model3D, .realityView, .shape, .colorFill, .hitArea, .map, .progressIndicator, .linearGradient, .radialGradient, .angularGradient, .sfSymbol, .videoStreaming:
             return false
         }
     }
@@ -71,7 +71,7 @@ extension Layer {
             return "Color Fill"
         case .hitArea:
             return "Hit Area"
-        case .canvasSketch, .textField, .map, .progressIndicator, .sfSymbol, .material:
+        case .canvasSketch, .textField, .map, .progressIndicator, .sfSymbol:
             return self.rawValue
         case .switchLayer:
             return "Toggle Switch"
@@ -94,12 +94,14 @@ extension Layer {
                      position: CGSize,
                      zIndex: Double,
                      firstCreation: Bool = true,
+                     activeIndex: ActiveIndex,
                      graphDelegate: GraphDelegate?) -> NodeViewModel? {
 
         let node = self.layerGraphNode.createViewModel(
             id: id,
             position: position.toCGPoint,
             zIndex: zIndex,
+            activeIndex: activeIndex,
             graphDelegate: graphDelegate)
 
         /*
@@ -153,8 +155,6 @@ extension Layer {
             return .sfSymbol
         case .videoStreaming:
             return .videoStreaming
-        case .material:
-            return .material
         }
     }
 

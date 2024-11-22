@@ -1,6 +1,6 @@
 //
 //  PatchNode.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 4/28/21.
 //
@@ -50,7 +50,7 @@ final class PatchNodeViewModel: Sendable {
     
     weak var delegate: PatchNodeViewModelDelegate?
     
-    init(from schema: PatchNodeEntity) {
+    @MainActor init(from schema: PatchNodeEntity) {
         let kind = NodeKind.patch(schema.patch)
         
         self.id = schema.id
@@ -95,7 +95,6 @@ extension PatchNodeViewModel: SchemaObserver {
 
     func update(from schema: PatchNodeEntity) {
         self.inputsObservers.sync(with: schema.inputs)
-        self.canvasObserver.update(from: schema.canvasEntity)
         
         if self.id != schema.id {
             self.id = schema.id
@@ -125,7 +124,7 @@ extension PatchNodeViewModel: SchemaObserver {
 }
 
 extension PatchNodeViewModel {
-    func initializeDelegate(_ node: PatchNodeViewModelDelegate) {
+    @MainActor func initializeDelegate(_ node: PatchNodeViewModelDelegate) {
         self.delegate = node
         
         self.inputsObservers.forEach {
@@ -248,6 +247,7 @@ extension PatchNodeViewModel {
                 userVisibleType: self.userVisibleType,
                 id: InputCoordinate(portId: $0.offset,
                                     nodeId: self.id),
+                activeIndex: self.delegate?.activeIndex ?? .init(.zero),
                 upstreamOutputCoordinate: existingInput?.1)
             
             inputObserver.initializeDelegate(node)
@@ -284,6 +284,7 @@ extension NodeViewModel {
                      inputLabels: [String],
                      outputs: PortValuesList,
                      outputLabels: [String],
+                     activeIndex: ActiveIndex,
                      patch: Patch,
                      userVisibleType: UserVisibleType?,
                      splitterNode: SplitterNodeEntity? = nil) {
@@ -312,10 +313,8 @@ extension NodeViewModel {
                                     nodeTypeEntity: .patch(patchNodeEntity),
                                     title: customName ?? NodeKind.patch(patch).getDisplayTitle(customName: nil))
         
-        let patch = PatchNodeViewModel(from: patchNodeEntity)
-        
         self.init(from: nodeEntity,
-                  nodeType: .patch(patch))
+                  activeIndex: activeIndex)
     }
     
     @MainActor
@@ -341,6 +340,7 @@ extension NodeViewModel {
                   inputLabels: inputs.map { $0.label ?? "" },
                   outputs: outputs.map { $0.values },
                   outputLabels: outputs.map { $0.label ?? "" },
+                  activeIndex: .init(.zero),
                   patch: patchName,
                   userVisibleType: userVisibleType)
     }

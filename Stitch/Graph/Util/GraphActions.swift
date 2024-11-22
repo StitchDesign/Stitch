@@ -1,6 +1,6 @@
 //
 //  GraphActions.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 9/21/21.
 //
@@ -14,9 +14,6 @@ struct CloseGraph: StitchStoreEvent {
     @MainActor
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
         log("CloseGraph called")
-        
-        // Clear temporary data
-        try? FileManager.default.removeItem(at: StitchFileManager.tempDocumentResources)
         
         store.alertState = ProjectAlertState()
 
@@ -32,45 +29,54 @@ struct CloseGraph: StitchStoreEvent {
     }
 }
 
-extension GraphState: DocumentEncodableDelegate {
-    func updateOnUndo(schema: GraphEntity) {
-        Task(priority: .high) { [weak self] in
-            await self?.update(from: schema)
-        }
-    }
-    
-    func willEncodeProject(schema: GraphEntity) {
-        // Updates thumbnail
-         if let document = self.documentDelegate {
-             document.encodeProjectInBackground(willUpdateUndoHistory: false)
-         }
-    }
-    
-    func createSchema(from graph: GraphState?) -> GraphEntity {
-        self.createSchema()
-    }
-    
-    func syncMediaFiles(_ mediaFiles: [URL]) {
-        // Add default media and imported URLs
-        let allMediaFiles = MediaLibrary.getDefaultLibraryDeps() + mediaFiles
-        self.mediaLibrary = allMediaFiles.reduce(into: .init()) { result, url in
-            result.updateValue(url, forKey: url.mediaKey)
-        }
-    }
-    
+/// Starts a graph after first loading
+extension GraphState {
     @MainActor
-    func importedFilesDirectoryReceived(mediaFiles: [URL],
-                                        components: [StitchComponent]) {
-        // Update draft and published components from disk
-        self.components.sync(with: components,
-                             parentGraph: self)
+    func importedFilesDirectoryReceived(importedFilesDir: [URL],
+                                        document: StitchDocument) {
 
-        // Add default media and imported URLs
-        let allMediaFiles = MediaLibrary.getDefaultLibraryDeps() + mediaFiles
-        self.mediaLibrary = allMediaFiles.reduce(into: .init()) { result, url in
-            result.updateValue(url, forKey: url.mediaKey)
+        // Set loading status to loaded
+        self.libraryLoadingStatus = .loaded
+
+        // Add urls to library
+        var mediaLibrary = importedFilesDir.reduce(MediaLibrary()) { partialResult, url in
+            var partialResult = partialResult
+            partialResult.updateValue(url, forKey: url.mediaKey)
+            return partialResult
         }
+
+        // Add default URLs
+        MediaLibrary.getDefaultLibraryDeps().forEach { url in
+            mediaLibrary.updateValue(url, forKey: url.mediaKey)
+        }
+
+        self.mediaLibrary = mediaLibrary
+
+        // Must initialize on main thread!
+        self.graphStepManager.start()
+
+        // Update GraphState with latest document data to calculate graph, now that media has been loaded
+        // TODO: need a separate updater for graph
+        self.documentDelegate?.update(from: document)
+        
+        self.updateSidebarListStateAfterStateChange()
+        
+        // TODO: why is this necessary?
+        _updateStateAfterListChange(
+            updatedList: self.sidebarListState,
+//            expanded: self.sidebarExpandedItems,
+            expanded: self.getSidebarExpandedItems(),
+            graphState: self)
+                
+        // Calculate graph
+        self.documentDelegate?.initializeGraphComputation()
+        
+        // Initialize preview layers
+        self.updateOrderedPreviewLayers()
     }
+}
+
+extension GraphState {
    
     func updateSidebarListStateAfterStateChange() {
         self.sidebarListState = getMasterListFrom(
@@ -92,7 +98,7 @@ struct PreviewWindowDimensionsSwapped: StitchDocumentEvent {
 
         log("PreviewWindowDimensionsSwapped: state.previewWindowSize is now: \(state.previewWindowSize)")
 
-        state.visibleGraph.encodeProjectInBackground()
+        state.graph.encodeProjectInBackground()
     }
 }
 
@@ -123,7 +129,7 @@ struct UpdatePreviewCanvasDimension: StitchDocumentEvent {
             state.previewSizeDevice = .custom
         }
 
-        state.visibleGraph.encodeProjectInBackground()
+        state.graph.encodeProjectInBackground()
     }
 }
 

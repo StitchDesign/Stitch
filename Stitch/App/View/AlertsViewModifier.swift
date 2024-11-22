@@ -1,6 +1,6 @@
 //
 //  AlertsViewModifier.swift
-//  Stitch
+//  prototype
 //
 //  Created by Elliot Boschwitz on 5/6/22.
 //

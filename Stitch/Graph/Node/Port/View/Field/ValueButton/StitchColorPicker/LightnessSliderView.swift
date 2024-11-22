@@ -61,7 +61,7 @@ struct LightnessSliderView: View {
 struct LightnessPickerView_Previews: PreviewProvider {
     static var previews: some View {
         LightnessSliderView(chosenColor: Binding.constant(Color.green),
-                            graph: .createEmpty())
+                            graph: .init(id: .init(), store: nil))
 
             .rotation3DEffect(Angle(degrees: -90),
                               axis: (x: 0.0, y: 1.0, z: 90.0))

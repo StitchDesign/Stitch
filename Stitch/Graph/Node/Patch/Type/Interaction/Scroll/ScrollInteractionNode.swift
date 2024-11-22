@@ -1,6 +1,6 @@
 //
 //  ScrollInteractionNode.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 5/10/21.
 //

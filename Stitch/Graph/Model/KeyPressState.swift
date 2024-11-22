@@ -8,10 +8,6 @@
 import UIKit
 
 struct KeyPressState: Equatable, Hashable {
-    
-    // TODO: figure out a better way to listen for key presses, i.e. to not lose shift-key
-    var shiftHeldDuringGesture: Bool = false
-    
     // modifiers and non-character keys like `TAB`
     var modifiers = Set<StitchKeyModifier>()
     

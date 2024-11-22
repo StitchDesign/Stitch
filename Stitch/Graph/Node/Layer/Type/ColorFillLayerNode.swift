@@ -23,10 +23,11 @@ struct ColorFillLayerNode: LayerNodeDefinition {
         .opacity,
         .zIndex
     ])
-        .union(.layerEffects).union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
+        .union(.layerEffects)
+        .union(.aspectRatio)
+        .union(.sizing).union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
     
     static func content(document: StitchDocumentViewModel,
-                        graph: GraphState,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, 
@@ -34,7 +35,6 @@ struct ColorFillLayerNode: LayerNodeDefinition {
                         parentDisablesPosition: Bool) -> some View {
         PreviewColorFillLayer(
             document: document,
-            graph: graph,
             layerViewModel: viewModel,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,

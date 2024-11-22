@@ -1,6 +1,6 @@
 //
 //  StitchTextView.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 4/16/22.
 //

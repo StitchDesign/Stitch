@@ -1,6 +1,6 @@
 //
 //  SpeakerNode.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 6/25/21.
 //

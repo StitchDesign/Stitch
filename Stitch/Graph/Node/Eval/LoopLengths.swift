@@ -1,6 +1,6 @@
 //
 //  Loops.swift
-//  Stitch
+//  prototype
 //
 //  Created by cjc on 1/11/21.
 //
@@ -24,7 +24,7 @@ struct ActiveIndex: Equatable, Codable, Hashable {
 
     static let defaultActiveIndex: Self = .init(0)
 
-    // activeIndex adjusted for loopLength
+    // activeIndex adjsuted for loopLength
     func adjustedIndex(_ loopLength: Int) -> Int {
         getAdjustedActiveIndex(activeIndex: self.value,
                                loopLength: loopLength)

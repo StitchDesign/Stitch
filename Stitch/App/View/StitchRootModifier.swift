@@ -39,12 +39,11 @@ struct StitchRootModifier: ViewModifier {
                 
                 else if url.pathExtension == UTType.stitchDocument.preferredFilenameExtension {
                     Task { [weak store] in
-                        guard let importedDoc = try? await StitchDocument
-                            .openDocument(from: url,
-                                          isImport: true) else {
+                        guard let importedDoc = try? await StitchDocument.openDocument(from: url,
+                                                                                       isImport: true) else {
                             return
                         }
-                        await store?.createNewProject(from: importedDoc)
+                        store?.openProjectAction(from: importedDoc)
                     }
                 }
             } // .onOpenURL
@@ -52,7 +51,7 @@ struct StitchRootModifier: ViewModifier {
                 // Only open document if one is imported
                 if docs.count == 1,
                    let firstDoc = docs.first {
-                    store.createNewProject(from: firstDoc)
+                    store.openProjectAction(from: firstDoc)
                 }
 
                 return true

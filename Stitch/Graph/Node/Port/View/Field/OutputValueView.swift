@@ -161,14 +161,6 @@ struct OutputValueView: View {
             )
             .disabled(true)
             
-        case .layerGroupOrientationDropdown(let x):
-            LayerGroupOrientationDropDownChoiceView(
-                id: coordinate,
-                value: x,
-                layerInputObserver: nil,
-                isFieldInsideLayerInspector: false)
-            .disabled(true)
-            
         case .pinTo(let pinToId):
             LayerNamesDropDownChoiceView(graph: graph,
                                          id: coordinate,

@@ -35,11 +35,11 @@ extension Double {
     }
 
     var toPoint3D: Point3D {
-        .fromSingleNumber(self)
+        .init(x: CGFloat(self), y: CGFloat(self), z: CGFloat(self))
     }
 
     var toPoint4D: Point4D {
-        .fromSingleNumber(self)
+        .init(x: CGFloat(self), y: CGFloat(self), z: CGFloat(self), w: CGFloat(self))
     }
 
     /// Rounds the double to decimal places value

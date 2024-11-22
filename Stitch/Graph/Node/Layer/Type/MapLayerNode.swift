@@ -46,7 +46,6 @@ struct MapLayerNode: LayerNodeDefinition {
         .union(.sizing).union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
     
     static func content(document: StitchDocumentViewModel,
-                        graph: GraphState,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, 
@@ -54,8 +53,7 @@ struct MapLayerNode: LayerNodeDefinition {
                         parentDisablesPosition: Bool) -> some View {
         PreviewMapLayer(
             document: document,
-            graph: graph,
-            layerViewModel: viewModel,
+            layerViewModel: viewModel, 
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,
             mapType: viewModel.mapType.getMapType ?? .standard,
@@ -89,7 +87,6 @@ let DEFAULT_MAP_LAYER_IMAGE_NAME = "defaultMapLayerImage"
 
 struct PreviewMapLayer: View {
     @Bindable var document: StitchDocumentViewModel
-    @Bindable var graph: GraphState
     let layerViewModel: LayerViewModel
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
@@ -144,7 +141,6 @@ struct PreviewMapLayer: View {
     var body: some View {
         mapView.modifier(PreviewCommonModifier(
             document: document,
-            graph: graph,
             layerViewModel: layerViewModel,
             isPinnedViewRendering: isPinnedViewRendering,
                 interactiveLayer: interactiveLayer,

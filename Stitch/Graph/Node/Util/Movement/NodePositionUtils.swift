@@ -35,7 +35,6 @@ extension CanvasItemViewModel {
         log("canvasItemTapped: id: \(self.id)")
         
         // when holding CMD ...
-        // TODO: pass this down from the gesture handler or fix key listening
         if document.keypressState.isCommandPressed {
             // toggle selection
             if self.isSelected {

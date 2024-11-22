@@ -13,7 +13,6 @@ extension StitchDocumentViewModel {
     @MainActor
     func commentBoxTapped(box: CommentBoxViewModel) {
         // If CMD held:
-        // TODO: pass this down from the gesture handler
         if self.keypressState.isCommandPressed {
             if self.graphUI.selection
                 .selectedCommentBoxes.contains(id) {
@@ -32,7 +31,7 @@ extension StitchDocumentViewModel {
 
         box.zIndex = self.visibleGraph.highestZIndex + 1
 
-        self.visibleGraph.encodeProjectInBackground()
+        self.graph.encodeProjectInBackground()
     }
 
     @MainActor
@@ -135,7 +134,7 @@ extension StitchDocumentViewModel {
 
         } // for boxId in ...
 
-        self.visibleGraph.encodeProjectInBackground()
+        self.graph.encodeProjectInBackground()
     }
 
     @MainActor
@@ -220,7 +219,7 @@ extension StitchDocumentViewModel {
         box.position = box.expansionBox.anchorCorner
         box.previousPosition = box.position
 
-        self.visibleGraph.encodeProjectInBackground()
+        self.graph.encodeProjectInBackground()
     }
 
     @MainActor
@@ -239,6 +238,6 @@ extension StitchDocumentViewModel {
         // TODO: only redetermine for this single box, not all boxes?
         self.visibleGraph.rebuildCommentBoxes()
 
-        self.visibleGraph.encodeProjectInBackground()
+        self.graph.encodeProjectInBackground()
     }
 }

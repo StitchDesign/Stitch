@@ -9,46 +9,30 @@ import Foundation
 
 struct DirectoryUpdated: StitchStoreEvent {
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
-        let isHomeScreenOpen = store.currentDocument != nil
-        
-        Task.detached(priority: isHomeScreenOpen ? .high : .low) { [weak store] in
-            await store?.directoryUpdated()
-        }
-        
+        store.directoryUpdated()
         return .noChange
     }
 }
 
-typealias SystemsDict = [StitchSystemType : StitchSystemViewModel]
-
-extension StitchSystemType: Sendable { }
-
 extension StitchStore: DirectoryObserverDelegate {
-    func directoryUpdated() async {
-        guard let response = await self.documentLoader.directoryUpdated() else {
-            log("StitchStore.directoryUpdated error: no response for URLs found.")
-            return
-        }
-        
-        let newSystems = await self.systems.sync(with: response.systems,
-                                               updateCallback: { viewModel, data in
-            await MainActor.run { [weak viewModel] in
-                viewModel?.lastEncodedDocument = data
-            }
-            await viewModel.refreshComponents()
-        }) { data in
-            await StitchSystemViewModel(data: data,
-                                        storeDelegate: self)
-        }
-        
-        await MainActor.run { [weak self] in
+    func directoryUpdated() {
+        Task.detached { [weak self] in
             guard let store = self else {
                 return
             }
 
-            store.systems = newSystems
-            
-            store.allProjectUrls = response.projects
+            guard let newProjectUrls = await store.documentLoader.directoryUpdated() else {
+                log("StitchStore.directoryUpdated error: no response for URLs found.")
+                return
+            }
+
+            DispatchQueue.main.async { [weak self] in
+                guard let store = self else {
+                    return
+                }
+
+                store.allProjectUrls = newProjectUrls
+            }
         }
     }
 }

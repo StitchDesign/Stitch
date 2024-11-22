@@ -1,6 +1,6 @@
 //
 //  Node.swift
-//  Stitch
+//  prototype
 //
 //  Created by cjc on 1/13/21.
 //

@@ -10,7 +10,6 @@ import StitchSchemaKit
 
 struct HoverGestureModifier: ViewModifier {
 
-    @Bindable var document: StitchDocumentViewModel
     let previewWindowSize: CGSize
 
     @State var lastDragPosition: CGPoint?
@@ -74,8 +73,8 @@ struct HoverGestureModifier: ViewModifier {
                         //                        log("Hover: dampenedYVelocity: \(dampenedYVelocity)")
                         //                        log("Hover: active: location: \(location)")
                         //                        #endif
-                        document.layerHovered(location: location,
-                                           velocity: velocity)
+                        dispatch(LayerHovered(location: location,
+                                              velocity: velocity))
                     }
 
                     self.lastDragPosition = location
@@ -88,7 +87,7 @@ struct HoverGestureModifier: ViewModifier {
                     self.lastDragPosition = nil
                     self.timeOfLastDragPosition = nil
 
-                    document.layerHoverEnded()
+                    dispatch(LayerHoverEnded())
                 }
 
             } // .onContinuousHover

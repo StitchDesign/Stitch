@@ -1,6 +1,6 @@
 //
 //  ViewUtils.swift
-//  Stitch
+//  prototype
 //
 //  Created by Elliot Boschwitz on 1/25/22.
 //

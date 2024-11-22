@@ -1,6 +1,6 @@
 //
 //  SidebarListItemSelectionActions.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 4/7/22.
 //
@@ -10,7 +10,6 @@ import StitchSchemaKit
 import SwiftUI
 
 extension GraphState {
-    @MainActor
     func allShareSameParent(selections: Set<NodeId>) -> Bool {
         guard let parentId = selections.first else {
             return false
@@ -180,8 +179,12 @@ struct SidebarItemDeleted: GraphEvent {
 
     func handle(state: GraphState) {
         state.deleteNode(id: itemId.asNodeId)
+        state.updateSidebarListStateAfterStateChange()
                 
-        state.updateGraphData()
-        state.encodeProjectInBackground()
+        // TODO: why is this necessary?
+        _updateStateAfterListChange(
+            updatedList: state.sidebarListState,
+            expanded: state.getSidebarExpandedItems(),
+            graphState: state)
     }
 }

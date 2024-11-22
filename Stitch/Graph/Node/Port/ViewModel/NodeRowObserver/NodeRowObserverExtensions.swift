@@ -11,6 +11,7 @@ import StitchSchemaKit
 // MARK: non-derived data: values, assigned interactions, label, upstream/downstream connection
 
 extension NodeRowObserver {
+    @MainActor
     func updateValues(_ newValues: PortValues) {
         // Check if this port is for a packed layer input but the set mode is unpacked
         // Valid scenarios here--we use input row observer getters for all-up value getting
@@ -52,6 +53,7 @@ extension NodeRowObserver {
         self.nodeDelegate?.userVisibleType
     }
     
+    @MainActor
     /// Updates port view models when the backend port observer has been updated.
     /// Also invoked when nodes enter the viewframe incase they need to be udpated.
     func updatePortViewModels() {
@@ -60,46 +62,36 @@ extension NodeRowObserver {
         }
     }
     
+    @MainActor
     func getVisibleRowViewModels() -> [Self.RowViewModelType] {
+        // Make sure we're not in full screen mode
         guard let graph = self.nodeDelegate?.graphDelegate,
-              // Make sure we're not in full screen mode
-              !graph.isFullScreenMode,
-              // Make sure we have can access whether inspector is open or not
-              let showsLayerInspector = graph.documentDelegate?.graphUI.showsLayerInspector else {
+              !graph.isFullScreenMode else {
             return []
         }
         
-        return self.allRowViewModels.filter { rowViewModel in
-            
-            switch rowViewModel.id.graphItemType {
-                
-            // A row for a layer inspector is visible just if layer inspector is open
-            case .layerInspector:
-                
-                let layerFocused = graph.sidebarSelectionState.inspectorFocusedLayers.focused.contains(rowViewModel.id.nodeId.asLayerNodeId)
-                
-                // TODO: why can't we the proper condition here? Why must we always return `true`? For perf, we only want to update inspector UI-fields if that inspector is open and this row observer's layer is actually focused; otherwise it's same as if we're updating an off-screen node
-                // return showsLayerInspector && layerFocused
-                return true
-                
-            case .node:
-                
-                guard let canvas = rowViewModel.canvasItemDelegate else {
-                    log("Had row view model for canvas item but no canvas item delegate")
-                    return false
-                }
-                
-                let isVisibleInCurrentGroup = canvas.isVisibleInFrame && canvas.parentGroupNodeId == self.nodeDelegate?.graphDelegate?.groupNodeFocused
-             
-                // always update group node, whose row view models don't otherwise update
-                let isGroupNode = canvas.nodeDelegate?.nodeType.groupNode.isDefined ?? false
-                   
-                return isVisibleInCurrentGroup || isGroupNode
+        return self.allRowViewModels.compactMap { rowViewModel in
+            // No canvas means inspector, which for here practically speaking is visible
+            guard let canvas = rowViewModel.canvasItemDelegate else {
+                return rowViewModel
             }
+            
+            // view model is rendering at this group context
+            let isVisibleInCurrentGroup = canvas.isVisibleInFrame &&
+            canvas.parentGroupNodeId == self.nodeDelegate?.graphDelegate?.groupNodeFocused
+            
+            // always update group node, whose row view models don't otherwise update
+            let isGroupNode = canvas.nodeDelegate?.nodeType.groupNode.isDefined ?? false
+               
+            if isVisibleInCurrentGroup || isGroupNode {
+                return rowViewModel
+            }
+            
+            return nil
         }
     }
     
-    var activeValue: PortValue {
+    @MainActor var activeValue: PortValue {
         guard let graph = self.nodeDelegate?.graphDelegate else {
             return self.allLoopedValues.first ?? .none
         }
@@ -107,6 +99,7 @@ extension NodeRowObserver {
         return self.allLoopedValues[safe: graph.activeIndex.adjustedIndex(self.allLoopedValues.count)] ?? .none
     }
     
+    @MainActor
     func postProcessing(oldValues: PortValues,
                         newValues: PortValues) {
         // Update cached interactions data in graph
@@ -120,6 +113,7 @@ extension NodeRowObserver {
     }
     
     /// Updates layer selections for interaction patch nodes for perf.
+    @MainActor
     func updateInteractionNodeData(oldValues: PortValues,
                                    newValues: PortValues) {
         // Interaction nodes ignore loops of assigned layers and only use the first
@@ -271,12 +265,14 @@ extension [InputNodeRowObserver] {
          userVisibleType: UserVisibleType?,
          id: NodeId,
          nodeIO: NodeIO,
+         activeIndex: ActiveIndex,
          nodeDelegate: NodeDelegate) {
         self = values.enumerated().map { portId, values in
             Element(values: values,
                     nodeKind: kind,
                     userVisibleType: userVisibleType,
                     id: NodeIOCoordinate(portId: portId, nodeId: id),
+                    activeIndex: activeIndex,
                     upstreamOutputCoordinate: nil,
                     nodeDelegate: nodeDelegate)
         }

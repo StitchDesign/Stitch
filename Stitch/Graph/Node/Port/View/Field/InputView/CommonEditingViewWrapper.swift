@@ -24,7 +24,6 @@ struct CommonEditingViewWrapper: View {
     let isForFlyout: Bool
     let isSelectedInspectorRow: Bool
     var isForSpacingField: Bool = false
-    var isForLayerDimensionField: Bool = false
     var nodeKind: NodeKind
     
     @State private var isButtonPressed = false
@@ -45,7 +44,7 @@ struct CommonEditingViewWrapper: View {
         }
     }
     
-    var isFieldInMultifieldInspectorInputAndNotFlyout: Bool {
+    var isFieldInMultfieldInspectorInput: Bool {
         isFieldInMultifieldInput && forPropertySidebar && !isForFlyout
     }
         
@@ -54,7 +53,7 @@ struct CommonEditingViewWrapper: View {
     // Maybe don't care whether it's inside the inspector or not?
     @MainActor
     var isPaddingFieldInsideInspector: Bool {
-        isFieldInMultifieldInspectorInputAndNotFlyout
+        isFieldInMultfieldInspectorInput
         && (layerInputObserver?.activeValue.getPadding.isDefined ?? false)
     }
     
@@ -62,18 +61,16 @@ struct CommonEditingViewWrapper: View {
     var fieldWidth: CGFloat {
         if isPaddingFieldInsideInspector {
             return PADDING_FIELD_WDITH
-        } else if isForLayerDimensionField, !isFieldInMultifieldInspectorInputAndNotFlyout {
-            // Only use longer width when not a multifeld on the inspector row itself
-          return LAYER_DIMENSION_FIELD_WIDTH
-        } else if isForSpacingField {
-            return SPACING_FIELD_WIDTH
-        } else if nodeKind.getPatch == .soulver {
-            return SOULVER_NODE_INPUT_OR_OUTPUT_WIDTH
-        } else if isFieldInMultifieldInspectorInputAndNotFlyout {
+        } else if isFieldInMultfieldInspectorInput {
             // is this accurate for a spacing-field in the inspector?
             // ah but spacing is a dropdown
             return INSPECTOR_MULTIFIELD_INDIVIDUAL_FIELD_WIDTH
-        } else {
+        } else if isForSpacingField {
+            return SPACING_FIELD_WIDTH
+        } else if nodeKind.getPatch == .soulver {
+            return SOUVLER_NODE_INPUT_OR_OUTPUT_WIDTH
+        }
+        else {
             return NODE_INPUT_OR_OUTPUT_WIDTH
         }
     }
@@ -95,13 +92,10 @@ struct CommonEditingViewWrapper: View {
                 fieldWidth: fieldWidth,
                 fieldHasHeterogenousValues: fieldHasHeterogenousValues,
                 isSelectedInspectorRow: isSelectedInspectorRow,
-                isFieldInMultfieldInspectorInput: isFieldInMultifieldInspectorInputAndNotFlyout,
                 onTap: {
                     if !isForFlyout {
-                        dispatch(FlyoutToggled(
-                            flyoutInput: layerInput,
-                            flyoutNodeId: fieldCoordinate.rowId.nodeId,
-                            fieldToFocus: .textInput(fieldCoordinate)))
+                        dispatch(FlyoutToggled(flyoutInput: layerInput,
+                                               flyoutNodeId: fieldCoordinate.rowId.nodeId))
                     }
                 })
             
@@ -120,7 +114,7 @@ struct CommonEditingViewWrapper: View {
                               isForFlyout: isForFlyout,
                               isForSpacingField: isForSpacingField,
                               isSelectedInspectorRow: isSelectedInspectorRow,
-                              isFieldInMultifieldInspectorInputAndNotFlyout: isFieldInMultifieldInspectorInputAndNotFlyout,
+                              isFieldInMultfieldInspectorInput: isFieldInMultfieldInspectorInput,
                               fieldWidth: fieldWidth)
         }
     }

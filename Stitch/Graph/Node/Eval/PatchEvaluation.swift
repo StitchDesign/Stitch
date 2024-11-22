@@ -11,6 +11,8 @@ import StitchSchemaKit
 import StitchEngine
 
 struct EvalResult: NodeEvalResult, Sendable {
+    typealias Node = NodeViewModel
+
     // TODO: clean up properties below?
     var willEvalAgain: Bool {
         get {

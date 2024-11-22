@@ -16,9 +16,6 @@ final class InteractiveLayer {
         self.id = id
     }
     
-    var singleTapped: Bool = false
-    var doubleTapped: Bool = false
-    
     var firstPressEnded: TimeInterval?
     var secondPressEnded: TimeInterval?
 

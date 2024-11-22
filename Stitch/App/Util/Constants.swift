@@ -1,6 +1,6 @@
 //
 //  Constants.swift
-//  Stitch
+//  prototype
 //
 //  Created by cjc on 1/18/21.
 //

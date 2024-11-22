@@ -65,7 +65,6 @@ class StitchHostingController<T: View>: UIHostingController<T> {
     //    }
     //    #endif
 
-    @MainActor
     override func pressesBegan(_ presses: Set<UIPress>,
                                with event: UIPressesEvent?) {
         // log("KEY: StitchHostingController: name: \(name): pressesBegan: presses.first?.key: \(presses.first?.key)")
@@ -91,7 +90,6 @@ class StitchHostingController<T: View>: UIHostingController<T> {
         #endif
     }
 
-    @MainActor
     override func pressesEnded(_ presses: Set<UIPress>,
                                with event: UIPressesEvent?) {
         // log("KEY: StitchHostingController: name: \(name): pressesEnded: presses.first?.key: \(presses.first?.key)")
@@ -99,7 +97,6 @@ class StitchHostingController<T: View>: UIHostingController<T> {
         super.pressesEnded(presses, with: event)
     }
 
-    @MainActor
     override func pressesCancelled(_ presses: Set<UIPress>,
                                    with event: UIPressesEvent?) {
         // log("KEY: StitchHostingController: name: \(name): pressesCancelled: presses.first?.key: \(presses.first?.key)")
@@ -107,7 +104,6 @@ class StitchHostingController<T: View>: UIHostingController<T> {
         super.pressesCancelled(presses, with: event)
     }
 
-    @MainActor
     func keyPressed(_ key: UIKey) {
         // log("KEY: StitchHostingController: name: \(name): keyPressed: key: \(key)")
         
@@ -119,7 +115,6 @@ class StitchHostingController<T: View>: UIHostingController<T> {
         }
     }
 
-    @MainActor
     func keyReleased(_ key: UIKey) {
         // log("KEY: StitchHostingController: name: \(name): keyReleased: key: \(key)")
         if let modifiers = key.asStitchKeyModifiers {

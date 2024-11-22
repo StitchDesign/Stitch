@@ -1,6 +1,6 @@
 //
 //  Fields.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 4/26/21.
 //
@@ -20,7 +20,6 @@ enum NodeRowType: Equatable {
          shapeCommand(ShapeCommandFieldType),
          singleDropdown(SingleDropdownKind),
          textFontDropdown, // TODO: special case because nested?
-         layerGroupOrientationDropdown,
          spacing, // uses TextField + Dropdown
          bool,
          asyncMedia,
@@ -43,7 +42,7 @@ extension NodeRowType {
         switch self {
         case .size, .position, .point3D, .point4D, .padding, .layerDimension, .number, .string, .spacing:
             return true
-        case .readOnly, .shapeCommand, .singleDropdown, .textFontDropdown, .bool, .asyncMedia, .pulse, .color, .json, .assignedLayer, .anchoring, .pinTo, .layerGroupOrientationDropdown:
+        case .readOnly, .shapeCommand, .singleDropdown, .textFontDropdown, .bool, .asyncMedia, .pulse, .color, .json, .assignedLayer, .anchoring, .pinTo:
             return false
         }
     }
@@ -92,8 +91,6 @@ extension NodeRowType {
             return .spacing(.defaultStitchSpacing)
         case .pinTo:
             return .pinTo(.defaultPinToId)
-        case .layerGroupOrientationDropdown:
-            return .orientation(.defaultOrientation)
         }
     }
 }

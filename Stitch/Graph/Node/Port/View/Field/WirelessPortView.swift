@@ -1,6 +1,6 @@
 //
 //  WirelessPortView.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 11/22/21.
 //

@@ -59,6 +59,13 @@ struct PropertySidebarFlyoutState: Equatable {
     var flyoutNode: NodeId
     
     var keyboardIsOpen: Bool = false
+    
+    var input: InputCoordinate {
+        // TODO: flyouts only for packed state?
+        InputCoordinate(portType: .keyPath(.init(layerInput: flyoutInput,
+                                                 portType: .packed)),
+                        nodeId: self.flyoutNode)
+    }
 }
 
 struct LayerInspectorSectionData: Equatable, Hashable {
@@ -141,40 +148,15 @@ extension LayerInspectorView {
         
         // Required
         .scale,
+        .opacity,
         .pivot, // pivot point for scaling; put with
         
-        .opacity,
-        
-        // Material
-        .materialThickness,
-        .deviceAppearance,
-        
-        // Canvas
-        .canvasLineColor,
-        .canvasLineWidth,
-        
-        // SFSymbol
-        .sfSymbol,
-        
-        .color, // Text color vs Rectangle color
-        
-        // Shape layer node
-        .shape,
-        .coordinateSystem,
-        
-        // Media
-        .image,
-        .video,
-        .model3D,
-        .fitStyle,
-        
 //        .init(.shadow, layer.supportsShadowInputs ? Self.shadow : []),
-        
         
         .masks,
         .clipped,
         
-        
+        .color, // Text color vs Rectangle color
         
         // Hit Area
         .enabled,
@@ -182,12 +164,24 @@ extension LayerInspectorView {
         
         // Model3D
         .isAnimating,
-                
+        
+        // Shape layer node
+        .shape,
+        .coordinateSystem,
+        
         // rectangle (and group?)
         .cornerRadius,
         
-     
-    
+        // Canvas
+        .canvasLineColor,
+        .canvasLineWidth,
+                
+        // Media
+        .image,
+        .video,
+        .model3D,
+        .fitStyle,
+        
         // Progress Indicator
         .progressIndicatorStyle,
         .progress,
@@ -215,6 +209,9 @@ extension LayerInspectorView {
         .startRadius,
         .endRadius,
         
+        // SFSymbol
+        .sfSymbol,
+        
         // Video
         .videoURL,
         .volume,
@@ -232,10 +229,14 @@ extension LayerInspectorView {
     
     @MainActor
     static let groupLayer: LayerInputTypeSet = [
-        .orientation,
         .backgroundColor, // actually for many layers?
         .isClipped,
-        .spacing,
+        
+        .orientation,
+        
+        .padding,
+        .spacing, // added
+        
         // Grid
         .spacingBetweenGridColumns,
         .spacingBetweenGridRows,

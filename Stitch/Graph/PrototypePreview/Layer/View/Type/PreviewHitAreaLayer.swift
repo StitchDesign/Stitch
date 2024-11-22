@@ -12,13 +12,11 @@ import StitchSchemaKit
 struct PreviewHitAreaLayer: View {
     
     @Bindable var document: StitchDocumentViewModel
-    @Bindable var graph: GraphState
     @Bindable var layerViewModel: LayerViewModel
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
     let position: StitchPosition
     let size: LayerSize
-    let scale: CGFloat
     let enabled: Bool
     let anchoring: Anchoring
     let setupMode: Bool
@@ -37,8 +35,7 @@ struct PreviewHitAreaLayer: View {
         } else {
             color.modifier(PreviewCommonModifier(
                 document: document,
-                graph: graph,
-                layerViewModel: layerViewModel,
+                layerViewModel: layerViewModel, 
                 isPinnedViewRendering: isPinnedViewRendering,
                 interactiveLayer: interactiveLayer,
                 position: position,
@@ -47,7 +44,7 @@ struct PreviewHitAreaLayer: View {
                 rotationZ: .zero,
 //                size: size.asCGSize(parentSize),
                 size: size,
-                scale: scale,
+                scale: 1,
                 anchoring: anchoring,
                 
                 // blur, blend, etc.: Not applicable

@@ -1,6 +1,6 @@
 //
 //  ProjectCreatedActions.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 4/26/22.
 //
@@ -11,36 +11,47 @@ import StitchSchemaKit
 // Creating a brand new project: empty state, no imported files
 extension StitchStore {
     @MainActor
-    func createNewProject(from document: StitchDocument = .init()) {
-        let isPhoneDevice = GraphUIState.isPhoneDevice
-        
-        Task(priority: .high) { [weak self] in
-            guard let store = self else { return }
-            await store.createNewProject(from: document,
-                                         isPhoneDevice: isPhoneDevice)
+    func projectCreatedAction() {
+        Task { [weak self] in
+            guard let documentLoader = self?.documentLoader else {
+                return
+            }
+            
+            let newDoc = try await documentLoader.installNewDocument()
+
+            // Open doc
+            await MainActor.run { [weak self] in
+                self?.openProjectAction(from: newDoc)
+            }
         }
     }
-    
-    func createNewProject(from document: StitchDocument = .init(),
-                          isPhoneDevice: Bool) async {
-        do {
-            try await self.documentLoader.createNewProject(from: document,
-                                                           isPhoneDevice: isPhoneDevice,
-                                                           store: self)
-        } catch {
-            log("StitchStore.createNewProject error: \(error.localizedDescription)")
-            fatalErrorIfDebug(error.localizedDescription)
+
+    @MainActor
+    func openProjectAction(from document: StitchDocument) {
+        // Get latest preview window size
+        let previewDeviceString = UserDefaults.standard.string(forKey: DEFAULT_PREVIEW_WINDOW_DEVICE_KEY_NAME) ??
+            PreviewWindowDevice.defaultPreviewWindowDevice.rawValue
+
+        guard let previewDevice = PreviewWindowDevice(rawValue: previewDeviceString) else {
+            fatalErrorIfDebug()
+            return
         }
+
+        let document = StitchDocumentViewModel(from: document,
+                                               store: self)
+        document.previewSizeDevice = previewDevice
+        document.previewWindowSize = previewDevice.previewWindowDimensions
+        self.navPath = [document]
     }
 
     /// Called in the event where project saved in iCloud is deleted
     /// from another device, but user opts to re-save.
     @MainActor
-    func encodeCurrentProject(willUpdateUndoHistory: Bool = true) {
-        guard let graphState = self.currentDocument?.visibleGraph else {
+    func encodeCurrentProject() {
+        guard let graphState = self.currentGraph else {
             return
         }
 
-        graphState.encodeProjectInBackground(willUpdateUndoHistory: willUpdateUndoHistory)
+        graphState.encodeProjectInBackground()
     }
 }

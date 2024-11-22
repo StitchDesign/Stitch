@@ -1,6 +1,6 @@
 //
 //  TextEditActions.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 3/1/22.
 //
@@ -118,9 +118,8 @@ extension InputNodeRowObserver {
                              isCommitting: isCommitting)
         }
         
-        if isCommitting {
-            graph.encodeProjectInBackground()
-        }
+        // Only persist once, at end of potential batch update
+        graph.encodeProjectInBackground()
     }
 }
 

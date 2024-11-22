@@ -17,19 +17,19 @@ struct ProjectsHomeCommands: Commands {
     let activeReduxFocusedField: FocusedUserEditField?
 
     var activeProject: Bool {
-        store.currentDocument.isDefined
+        store.currentGraph.isDefined
     }
         
     var layersActivelySelected: Bool {
-        self.graph?.hasActivelySelectedLayers ?? false
+        store.currentGraph?.hasActivelySelectedLayers ?? false
     }
 
     var selections: SidebarSelectionState? {
-        self.graph?.sidebarSelectionState
+        store.currentGraph?.sidebarSelectionState
     }
     
     var graph: GraphState? {
-        store.currentDocument?.visibleGraph
+        store.currentGraph
     }
     
     var groups: SidebarGroupsDict? {
@@ -162,35 +162,6 @@ struct ProjectsHomeCommands: Commands {
                                     disabled: textFieldFocused) {
                     dispatch(NodeCreatedEvent(choice: .patch(.sizePack)))
                 }
-                
-                SwiftUIShortcutView(title: "Insert Value Node",
-                                    key: ADD_SPLITTER_NODE_SHORTCUT,
-                                    // empty list = do not require CMD
-                                    eventModifiers: [.option],
-                                    disabled: textFieldFocused) {
-                    dispatch(NodeCreatedEvent(choice: .patch(.splitter)))
-                }
-                
-                // Option + W = add Broadcaster
-                SwiftUIShortcutView(title: "Insert Wireless Broadcaster",
-                                    key: ADD_WIRELESS_NODE_SHORTCUT,
-                                    eventModifiers: [.option],
-                                    disabled: textFieldFocused) {
-                    dispatch(NodeCreatedEvent(choice: .patch(.wirelessBroadcaster)))
-                    // TODO: probably not needed?
-                    store.currentDocument?.keypressState.modifiers.remove(.option)
-                }
-                
-                // Option + Shift + W = add Receiver
-                SwiftUIShortcutView(title: "Insert Wireless Receiver",
-                                    key: ADD_WIRELESS_NODE_SHORTCUT,
-                                    eventModifiers: [.option, .shift],
-                                    disabled: textFieldFocused) {
-                    dispatch(NodeCreatedEvent(choice: .patch(.wirelessReceiver)))
-                    // Note: the Option key seems to get stuck easily when Shift is also pressed?
-                    store.currentDocument?.keypressState.modifiers.remove(.option)
-                    store.currentDocument?.keypressState.modifiers.remove(.shift)
-                }
             } // if activeProject
 
         } // CommandMenu
@@ -201,14 +172,14 @@ struct ProjectsHomeCommands: Commands {
                 if activeProject {
                     INSERT_NODE_ACTION()
                 } else {
-                    store.createNewProject()
+                    store.projectCreatedAction()
                 }
             }
 
             // NOTE: we already get CMD + W in Catalyst
             // TODO: only show with active project
             #if !targetEnvironment(macCatalyst)
-            if store.currentDocument != nil {
+            if let graph = store.currentGraph {
                 SwiftUIShortcutView(title: "Close Graph",
                                     key: CLOSE_GRAPH_SHORTCUT) {
                     dispatch(CloseGraph())
@@ -329,6 +300,9 @@ struct ProjectsHomeCommands: Commands {
                 }
                 
             } // replacing: .pasteboard
+            
+            
+            
             
         } // if activeProject
     }

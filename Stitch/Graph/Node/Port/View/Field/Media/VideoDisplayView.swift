@@ -1,6 +1,6 @@
 //
 //  VideoDisplayView.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 6/16/21.
 //
@@ -16,7 +16,6 @@ struct VideoDisplayView: View {
     let videoPlayer: StitchVideoImportPlayer
     
     @Bindable var document: StitchDocumentViewModel
-    @Bindable var graph: GraphState
     @Bindable var layerViewModel: LayerViewModel
 
     // come from videoLayer node,
@@ -67,7 +66,7 @@ struct VideoDisplayView: View {
         .modifier(PreviewCommonSizeModifier(
             viewModel: layerViewModel,
             isPinnedViewRendering: isPinnedViewRendering,
-            pinMap: graph.pinMap,
+            pinMap: document.pinMap,
             aspectRatio: layerViewModel.getAspectRatioData(),
             size: size,
             minWidth: layerViewModel.getMinWidth,

@@ -1,6 +1,6 @@
 //
 //  FileUtils.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 9/22/21.
 //

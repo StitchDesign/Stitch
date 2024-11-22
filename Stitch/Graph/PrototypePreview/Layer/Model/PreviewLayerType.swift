@@ -1,6 +1,6 @@
 //
 //  Layer.swift
-//  Stitch
+//  prototype
 //
 //  Created by cjc on 2/3/21.
 //
@@ -25,6 +25,5 @@ enum PreviewLayerType {
          radialGradient,
          angularGradient,
          sfSymbol,
-         videoStreaming,
-         material
+         videoStreaming
 }

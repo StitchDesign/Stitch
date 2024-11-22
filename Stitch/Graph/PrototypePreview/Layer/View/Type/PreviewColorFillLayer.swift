@@ -10,7 +10,6 @@ import StitchSchemaKit
 
 struct PreviewColorFillLayer: View {
     @Bindable var document: StitchDocumentViewModel
-    @Bindable var graph: GraphState
     let layerViewModel: LayerViewModel
     let position: CGPoint = .zero
 
@@ -41,7 +40,6 @@ struct PreviewColorFillLayer: View {
             //            .frame(parentSize)
             .modifier(PreviewCommonModifier(
                 document: document,
-                graph: graph,
                 layerViewModel: layerViewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
                 interactiveLayer: interactiveLayer,

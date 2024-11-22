@@ -1,6 +1,6 @@
 //
 //  StitchSheet.swift
-//  Stitch
+//  prototype
 //
 //  Created by Elliot Boschwitz on 5/23/22.
 //

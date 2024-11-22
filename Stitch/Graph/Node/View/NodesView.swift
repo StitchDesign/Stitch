@@ -1,6 +1,6 @@
 //
 //  NodesView.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 4/14/22.
 //
@@ -15,6 +15,7 @@ struct NodesView: View {
     
     // Manages visible nodes array to animate instances when a group node changes
     @Bindable var graph: GraphState
+    let groupNodeFocused: GroupNodeId?
     
     // animation state for group node traversals
     let groupTraversedToChild: Bool
@@ -48,59 +49,44 @@ struct NodesView: View {
     var body: some View {
         Group {
             if let nodePageData = visibleNodesViewModel
-                .getViewData(groupNodeFocused: graphUI.groupNodeFocused?.groupNodeId) {
-                
-                let allInputs: [InputNodeRowViewModel] = self.graph
+                .getViewData(groupNodeFocused: groupNodeFocused) {
+                                
+                let inputs: [InputNodeRowViewModel] = self.graph
                     .getVisibleCanvasItems()
                     .flatMap { canvasItem -> [InputNodeRowViewModel] in
                         canvasItem.inputViewModels
                     }
                 
-                let connectedInputs = allInputs
-                    .filter { $0.rowDelegate?.containsUpstreamConnection ?? false }
                 
-                // Including "possible" inputs enables edge animation
-                let candidateInputs: [InputNodeRowViewModel] = graphUI.edgeEditingState?.possibleEdges.compactMap {
-                    let inputData = $0.edge.to
-                    
-                    guard let node = self.graph.getCanvasItem(inputData.canvasId),
-                          let inputRow = node.inputViewModels[safe: inputData.portId] else {
-                        return nil
-                    }
-                    
-                    return inputRow
-                } ?? []
-                
-                // CommentBox needs to be affected by graph offset and zoom
-                // but can live somewhere else?
                 ZStack {
-                    //                        commentBoxes
-                    nodesOnlyView(nodePageData: nodePageData)
+                    // CommentBox needs to be affected by graph offset and zoom
+                    // but can live somewhere else?
+                    ZStack {
+//                        commentBoxes
+                        nodesOnlyView(nodePageData: nodePageData)
+                    }
+                    .background {
+                        // Using background ensures edges z-index are always behind ndoes
+                        connectedEdgesView(allInputs: inputs)
+                    }
+                    .overlay {
+                        edgeDrawingView(inputs: inputs, 
+                                        graph: self.graph)
+                        
+                        EdgeInputLabelsView(inputs: inputs,
+                                            document: document,
+                                            graphUI: document.graphUI)
+                    }
+                    .transition(.groupTraverse(isVisitingChild: groupTraversedToChild,
+                                               nodeLocation: groupNodeLocation,
+                                               graphOffset: .zero))
                 }
-                .background {
-                    // Using background ensures edges z-index are always behind ndoes
-                    connectedEdgesView(allConnectedInputs: connectedInputs + candidateInputs)
-                }
-                .overlay {
-                    edgeDrawingView(inputs: allInputs,
-                                    graph: self.graph)
-                    
-                    EdgeInputLabelsView(inputs: allInputs,
-                                        document: document,
-                                        graphUI: document.graphUI)
-                }
-                .transition(.groupTraverse(isVisitingChild: groupTraversedToChild,
-                                           nodeLocation: groupNodeLocation,
-                                           graphOffset: .zero))
                 .coordinateSpace(name: Self.coordinateNameSpace)
                 .modifier(GraphMovementViewModifier(graphMovement: graph.graphMovement,
                                                     currentNodePage: nodePageData,
-                                                    groupNodeFocused: graphUI.groupNodeFocused))
+                                                    groupNodeFocused: groupNodeFocused))
             } else {
-                Color.clear
-                    .onAppear {
-                        fatalErrorIfDebug()
-                    }
+                EmptyView()
             }
         }
 //        .onChange(of: groupNodeFocused) {
@@ -110,10 +96,10 @@ struct NodesView: View {
     }
     
     @MainActor
-    func connectedEdgesView(allConnectedInputs: [InputNodeRowViewModel]) -> some View {
+    func connectedEdgesView(allInputs: [InputNodeRowViewModel]) -> some View {
         GraphConnectedEdgesView(graph: graph,
                                 graphUI: graphUI,
-                                allConnectedInputs: allConnectedInputs)
+                                allInputs: allInputs)
     }
     
     // TODO: better location for CommentBoxes?

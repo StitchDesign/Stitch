@@ -127,7 +127,7 @@ struct SidebarListItemDragged: GraphEvent {
         
 //        var list = state.sidebarListState
         
-        log("SidebarListItemDragged: state.keypressState.isOptionPressed: \(state.keypressState.isOptionPressed)")
+        
         
         var itemId = itemId
         
@@ -255,7 +255,7 @@ struct SidebarListItemDragged: GraphEvent {
             graphState: state)
         
         // Recalculate the ordered-preview-layers
-        state.updateOrderedPreviewLayers()
+        state.documentDelegate?.updateOrderedPreviewLayers()
     }
 }
 

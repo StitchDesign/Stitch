@@ -1,6 +1,6 @@
 //
 //  GreaterOrEqualNode.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 3/23/21.
 //

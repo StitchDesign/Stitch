@@ -8,29 +8,20 @@
 import Foundation
 import SwiftUI
 import StitchSchemaKit
-import UniformTypeIdentifiers
-
-struct StitchDirectoryResponse {
-    let projects: [ProjectLoader]
-    let systems: [StitchSystem]
-}
 
 actor DocumentLoader {
     var storage: [URL: ProjectLoader] = [:]
 
-    func directoryUpdated() async -> StitchDirectoryResponse? {
+    func directoryUpdated() -> [ProjectLoader]? {
         switch StitchFileManager
-            .readDirectoryContents(StitchFileManager.documentsURL) {
+            .readDirectoryContents(StitchFileManager.documentsURL.url) {
         case .success(let urls):
             // log("StitchStore.directoryUpdated: urls: \(urls)")
-            let documentUrls = urls
-                .filter { $0.pathExtension == UTType.stitchProjectData.preferredFilenameExtension }
-            
-            let systemUrls = urls
-                .filter { $0.pathExtension == UTType.stitchSystemUnzipped.preferredFilenameExtension }
+            let filtered = urls
+                .filter { [STITCH_EXTENSION_RAW, STITCH_PROJECT_EXTENSION_RAW].contains($0.pathExtension) }
 
             // Update data
-            self.storage = documentUrls.reduce(into: self.storage) { result, url in
+            self.storage = filtered.reduce(into: self.storage) { result, url in
                 guard let existingData = result.get(url) else {
                     let data = ProjectLoader(url: url)
                     result.updateValue(data, forKey: url)
@@ -51,17 +42,6 @@ actor DocumentLoader {
                     }
                 }
             }
-            
-            var systems: [StitchSystem] = []
-            for systemUrl in systemUrls {
-                do {
-                    if let system = try await StitchSystem.openDocument(from: systemUrl) {
-                        systems.append(system)
-                    }
-                } catch {
-                    log("DocumentLoader.directoryUpdated system error: \(error.localizedDescription)")
-                }
-            }
 
             // Remove deleted documents
             let incomingSet = Set(urls)
@@ -70,18 +50,12 @@ actor DocumentLoader {
                 self.storage.removeValue(forKey: $0)
             }
 
-            let sortedProjects = Array(self.storage.values).sortByDate()
-            return .init(projects: sortedProjects,
-                         systems: systems)
+            return Array(self.storage.values).sortByDate()
             
         case .failure(let error):
             log("DocumentLoader error: failed to get URLs with error: \(error.description)")
             return nil
         }
-    }
-    
-    func updateStorage(with projectLoader: ProjectLoader) {
-        self.storage.updateValue(projectLoader, forKey: projectLoader.url)
     }
 
     nonisolated func loadDocument(from url: URL, 
@@ -96,100 +70,56 @@ actor DocumentLoader {
                 
                 return .failed
             }
-            
-            // thumbnail loading not needed for import
-            let thumbnail = isImport ? nil : DocumentEncoder.getProjectThumbnailImage(rootUrl: url)
-            
-            
-            return .loaded(document, thumbnail)
+            return .loaded(document)
         } catch {
             log("DocumentLoader.loadDocument error: \(error)")
             return .failed
         }
     }
 
-    nonisolated func loadDocument(_ projectLoader: ProjectLoader,
-                                  isImport: Bool = false) async {
-        let newLoading = await self.loadDocument(from: projectLoader.url, isImport: isImport)
+    nonisolated func loadDocument(_ datedUrl: ProjectLoader, isImport: Bool = false) async {
+        let newLoading = await self.loadDocument(from: datedUrl.url, isImport: isImport)
 
-        
-        await MainActor.run { [weak projectLoader] in
-            // Create an encoder if not yet created
-            if projectLoader?.encoder == nil,
-                let document = newLoading.document {
-                projectLoader?.encoder = DocumentEncoder(document: document)
-            }
-    
-            projectLoader?.loadingDocument = newLoading
+        await MainActor.run { [weak datedUrl] in
+            datedUrl?.loadingDocument = newLoading
         }
-    }
-    
-    func refreshDocument(url: URL) async {
-        guard let projectLoader = self.storage.get(url) else { return }
-        
-        projectLoader.resetData()
-        await self.loadDocument(projectLoader)
     }
 }
 
 extension DocumentLoader {
-    func createNewProject(from document: StitchDocument = .init(),
-                          isPhoneDevice: Bool,
-                          store: StitchStore) async throws {
-        let projectLoader = try self.installDocument(document: document)
-        projectLoader.loadingDocument = .loaded(document, nil)
-        
-        self.updateStorage(with: projectLoader)
-        
-        let document = await StitchDocumentViewModel(
-            from: document,
-            isPhoneDevice: isPhoneDevice,
-            projectLoader: projectLoader,
-            store: store
-        )
-
-        document?.didDocumentChange = true // creates fresh thumbnail
-        
-        await MainActor.run { [weak document, weak store] in
-            guard let document = document else { return }
-            
-            // Get latest preview window size
-            let previewDeviceString = UserDefaults.standard.string(forKey: DEFAULT_PREVIEW_WINDOW_DEVICE_KEY_NAME) ??
-            PreviewWindowDevice.defaultPreviewWindowDevice.rawValue
-            
-            guard let previewDevice = PreviewWindowDevice(rawValue: previewDeviceString) else {
-                fatalErrorIfDebug()
-                return
-            }
-            
-            document.previewSizeDevice = previewDevice
-            document.previewWindowSize = previewDevice.previewWindowDimensions
-            store?.navPath = [document]
-        }
+    /// Initializer used for new documents.
+    func installNewDocument() async throws -> StitchDocument {
+        let doc = StitchDocument()
+        try await self.installDocument(document: doc)
+        return doc
     }
 
-    func installDocument(document: StitchDocument) throws -> ProjectLoader {
-        let rootUrl = document.rootUrl
-        let projectLoader = ProjectLoader(url: rootUrl)
-        projectLoader.encoder = .init(document: document)
-        
-        try document.installDocument()
-        
-        self.storage.updateValue(projectLoader,
-                                 forKey: rootUrl)
-        
-        projectLoader.loadingDocument = .loaded(document, nil)
-        return projectLoader
-    }
-    
-}
-
-extension StitchDocumentEncodable {
-    func installDocument() throws {        
-        // Create project directories
-        self.createUnzippedFileWrapper()
+    func installDocument(document: StitchDocument) async throws {
+        // Encode projecet directories
+        await document.encodeDocumentContents()
 
         // Create versioned document
-        try Self.encodeDocument(self)
+        try await self.encodeVersionedContents(document: document)
+    }
+
+    // Note: this fails if file does not already exist at path
+    func encodeVersionedContents(document: StitchDocument,
+                                 directoryUrl: URL? = nil) async throws {
+        try Self.encodeDocument(document, to: directoryUrl)
+
+        // Gets home screen to update with latest doc version
+        await dispatch(DirectoryUpdated())
+    }
+    
+    static func encodeDocument(_ document: StitchDocument,
+                               to directoryURL: URL? = nil) throws {
+        // Default directory is known by document, sometimes we use a temp URL
+        let directoryURL = directoryURL ?? document.rootUrl
+        
+        let versionedData = try getStitchEncoder().encode(document)
+        let filePath = directoryURL.appendingVersionedSchemaPath()
+
+        try versionedData.write(to: filePath,
+                                options: .atomic)
     }
 }

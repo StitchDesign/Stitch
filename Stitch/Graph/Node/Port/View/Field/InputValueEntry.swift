@@ -1,6 +1,6 @@
 //
 //  ValueEntry.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 4/14/22.
 //
@@ -198,18 +198,13 @@ struct InputValueView: View {
                                  fieldCoordinate: fieldCoordinate,
                                  rowObserverCoordinate: rowObserverId,
                                  isCanvasItemSelected: isCanvasItemSelected,
-                                 // TODO: perf implications? split into separate view?
-                                 choices: graph.getFilteredLayerDimensionChoices(nodeId: fieldCoordinate.rowId.nodeId,
-                                                                                 nodeKind: nodeKind,
-                                                                                 layerInputObserver: layerInputObserver)
-                                    .map(\.rawValue),
+                                 choices: LayerDimension.choices,
                                  adjustmentBarSessionId: adjustmentBarSessionId,
                                  forPropertySidebar: forPropertySidebar,
                                  propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                                  isFieldInMultifieldInput: isFieldInMultifieldInput,
                                  isForFlyout: isForFlyout,
-                                 isSelectedInspectorRow: isSelectedInspectorRow,
-                                 isForLayerDimensionField: true,
+                                 isSelectedInspectorRow: isSelectedInspectorRow, 
                                  nodeKind: nodeKind)
             
         case .spacing:
@@ -228,7 +223,7 @@ struct InputValueView: View {
                                  isFieldInMultifieldInput: isFieldInMultifieldInput,
                                  isForFlyout: isForFlyout,
                                  isSelectedInspectorRow: isSelectedInspectorRow,
-                                 isForSpacingField: true,
+                                 isForSpacingField: true, 
                                  nodeKind: nodeKind)
 
         case .bool(let bool):
@@ -267,18 +262,11 @@ struct InputValueView: View {
                 isFieldInsideLayerInspector: viewModel.isFieldInsideLayerInspector,
                 isForPinTo: false,
                 isSelectedInspectorRow: isSelectedInspectorRow,
-                choices: graph
+                choices: graph.documentDelegate?
                     .layerDropdownChoices(isForNode: rowObserverId.nodeId,
                                           isForLayerGroup: false,
                                           isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                                          isForPinTo: false))
-            
-        case .layerGroupOrientationDropdown(let x):
-            LayerGroupOrientationDropDownChoiceView(
-                id: rowObserverId,
-                value: x,
-                layerInputObserver: layerInputObserver,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+                                          isForPinTo: false) ?? .init())
             
         case .pinTo(let pinToId):
             LayerNamesDropDownChoiceView(
@@ -289,11 +277,11 @@ struct InputValueView: View {
                            isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                            isForPinTo: true,
                            isSelectedInspectorRow: isSelectedInspectorRow,
-                           choices: graph
+                           choices: graph.documentDelegate?
                             .layerDropdownChoices(isForNode: rowObserverId.nodeId,
                                                   isForLayerGroup: isForLayerGroup,
                                                   isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                                                  isForPinTo: true))
+                                                  isForPinTo: true) ?? [])
 
         case .anchorPopover(let anchor):
             AnchorPopoverView(input: rowObserverId,
@@ -324,7 +312,6 @@ struct InputValueView: View {
         case .color(let color):
             ColorOrbValueButtonView(fieldViewModel: viewModel, 
                                     layerInputObserver: layerInputObserver,
-                                    isForFlyout: isForFlyout,
                                     nodeId: rowObserverId.nodeId,
                                     id: rowObserverId,
                                     currentColor: color,

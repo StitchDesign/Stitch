@@ -37,8 +37,7 @@ extension StitchDocumentViewModel {
                            location: CGPoint,
                            velocity: CGPoint,
                            numberOfTouches: Int,
-                           gestureState: UIGestureRecognizer.State,
-                           shiftHeld: Bool) {
+                           gestureState: UIGestureRecognizer.State) {
         //        log("TrackpadClickDragEvent")
 
         let spaceHeld = self.keypressState.isSpacePressed
@@ -109,8 +108,7 @@ extension StitchDocumentViewModel {
             self.clickDragAsNodeSelection(translation: translation,
                                           location: location,
                                           gestureState: gestureState,
-                                          numberOfTouches: numberOfTouches,
-                                          shiftHeld: shiftHeld)
+                                          numberOfTouches: numberOfTouches)
             return
         }
     }
@@ -119,8 +117,7 @@ extension StitchDocumentViewModel {
     func clickDragAsNodeSelection(translation: CGSize,
                                   location: CGPoint,
                                   gestureState: UIGestureRecognizer.State,
-                                  numberOfTouches: Int,
-                                  shiftHeld: Bool) {
+                                  numberOfTouches: Int) {
         switch gestureState {
         case .began:
             //        return handleTrackpadDragStarted(
@@ -134,8 +131,7 @@ extension StitchDocumentViewModel {
             if numberOfTouches == 1 {
                 self.handleTrackpadGraphDragChanged(
                     gestureTranslation: translation,
-                    gestureLocation: location,
-                    shiftHeld: shiftHeld)
+                    gestureLocation: location)
             }
 
         case .ended, .cancelled:
@@ -161,22 +157,11 @@ extension StitchDocumentViewModel {
 
     @MainActor
     func handleTrackpadGraphDragChanged(gestureTranslation: CGSize,
-                                        gestureLocation: CGPoint,
-                                        shiftHeld: Bool) {
+                                        gestureLocation: CGPoint) {
         if !self.graphUI.selection.isSelecting {
-            log("handleTrackpadGraphDragChanged: TrackpadGraphDragChangedAction called but we weren't selecting...")
+            log("TrackpadGraphDragChangedAction called but we weren't selecting...")
         }
 
-        if shiftHeld {
-            log("handleTrackpadGraphDragChanged: had shift")
-//            self.keypressState.modifiers.insert(.shift)
-            self.keypressState.shiftHeldDuringGesture = true
-        } else {
-            log("handleTrackpadGraphDragChanged: did not have shift")
-//            self.keypressState.modifiers.remove(.shift)
-            self.keypressState.shiftHeldDuringGesture = false
-        }
-        
         self.graphUI.selection.isSelecting = true
         self.graphUI.selection.dragCurrentLocation = gestureLocation
         self.handleGraphDraggedDuringSelection(gestureLocation)

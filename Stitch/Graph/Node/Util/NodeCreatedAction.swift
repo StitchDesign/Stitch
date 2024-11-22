@@ -1,6 +1,6 @@
 //
 //  NodeCreatedAction.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 8/5/21.
 //
@@ -15,11 +15,8 @@ struct NodeCreatedEvent: StitchDocumentEvent {
     let choice: NodeKind
     
     func handle(state: StitchDocumentViewModel) {
-        guard let node = state.nodeCreated(choice: choice) else {
-            fatalErrorIfDebug()
-            return
-        }
-        state.visibleGraph.persistNewNode(node)
+        let _ = state.nodeCreated(choice: choice)
+        state.graph.encodeProjectInBackground()
     }
 }
 
@@ -49,15 +46,15 @@ extension StitchDocumentViewModel {
 
     // Used by InsertNodeMenu
     @MainActor
-    func nodeCreated(choice: NodeKind, center: CGPoint? = nil) -> NodeViewModel? {
-        let nodeCenter = center ?? self.newNodeCenterLocation
+    func nodeCreated(choice: NodeKind) -> NodeViewModel? {
+        let center = self.newNodeCenterLocation
 
         guard let node = self.createNode(
                 graphTime: self.graphStepManager.graphStepState.graphTime,
                 newNodeId: UUID(),
                 highestZIndex: self.visibleGraph.highestZIndex,
                 choice: choice,
-                center: nodeCenter) else {
+                center: center) else {
             log("nodeCreated: could not create node for \(choice)")
             fatalErrorIfDebug()
             return nil
@@ -71,13 +68,15 @@ extension StitchDocumentViewModel {
     func nodeCreated(node: NodeViewModel) {
 
         let choice = node.kind
+        var undoEvents = Actions()
+        let nodeId = node.id
 
         // Note: DO NOT RESET THE ACTIVE NODE MENU SELECTION UNTIL ANIMATION HAS COMPLETED
         // Reset selection for insert node menu
         // self.graphUI.insertNodeMenuState.activeSelection = InsertNodeMenuState.allSearchOptions.first
 
         node.getAllCanvasObservers().forEach {
-            $0.parentGroupNodeId = self.graphUI.groupNodeFocused?.groupNodeId
+            $0.parentGroupNodeId = self.graphUI.groupNodeFocused?.asNodeId            
         }
         self.visibleGraph.visibleNodesViewModel.nodes.updateValue(node, forKey: node.id)
         
@@ -94,7 +93,7 @@ extension StitchDocumentViewModel {
             self.visibleGraph.sidebarListState = getMasterListFrom(
                 layerNodes: self.visibleGraph.visibleNodesViewModel.layerNodes,
                 expanded: self.visibleGraph.getSidebarExpandedItems(),
-                orderedSidebarItems: self.visibleGraph.orderedSidebarLayers)
+                orderedSidebarItems: self.orderedSidebarLayers)
             
             // TODO: why is this necessary?
             _updateStateAfterListChange(
@@ -102,11 +101,15 @@ extension StitchDocumentViewModel {
                 expanded: self.visibleGraph.getSidebarExpandedItems(),
                 graphState: self.visibleGraph)
         }
-        
-        node.initializeDelegate(graph: self.visibleGraph,
-                                document: self)
-        
-        self.visibleGraph.calculateFullGraph()
+
+        // Little hack to update node data so first render works proper
+        self.update(from: self.createSchema())
+
+        // TODO: handle camera undo event
+        // Undo event needed for camera feed to update manager if camera feed addition is undo'd
+        if choice == .patch(.cameraFeed) {
+            undoEvents.append(CameraFeedNodeDeleted(nodeId: nodeId))
+        }
 
         // Reset doubleTapLocation
         // TODO: where else would we need to reset this?
@@ -164,6 +167,7 @@ extension StitchDocumentViewModel {
                     id: newNodeId,
                     position: center.toCGSize,
                     zIndex: highestZIndex + 1,
+                    activeIndex: self.activeIndex,
                     graphDelegate: self.visibleGraph) else {
                 #if DEBUG
                 fatalError()
@@ -190,22 +194,9 @@ extension StitchDocumentViewModel {
                     position: center.toCGSize,
                     zIndex: highestZIndex + 1,
                     graphTime: graphTime,
+                    activeIndex: self.activeIndex,
                     graphDelegate: self.visibleGraph)
             } // choice
         }
-    }
-}
-
-extension GraphState {
-    @MainActor
-    func persistNewNode(_ node: PatchNode) {
-        var undoEvents = [Action]()
-        
-        // Undo event needed for camera feed to update manager if camera feed addition is undo'd
-        if node.kind == .patch(.cameraFeed) {
-            undoEvents.append(CameraFeedNodeDeleted(nodeId: node.id))
-        }
-        
-        self.encodeProjectInBackground(undoEvents: undoEvents)
     }
 }

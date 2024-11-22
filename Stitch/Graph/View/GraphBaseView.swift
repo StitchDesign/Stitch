@@ -19,9 +19,8 @@ struct GraphBaseView: View {
     @Bindable var graphUI: GraphUIState
     let insertNodeMenuHiddenNodeId: NodeId?
     
-    @MainActor
     var graph: GraphState {
-        self.document.visibleGraph
+        self.document.graph
     }
 
     var body: some View {
@@ -74,6 +73,7 @@ struct GraphBaseView: View {
         GraphGestureView(document: document) {
             NodesView(document: document,
                       graph: graph,
+                      groupNodeFocused: graphUI.groupNodeFocused,
                       groupTraversedToChild: graphUI.groupTraversedToChild,
                       insertNodeMenuHiddenNodeId: insertNodeMenuHiddenNodeId)
 

@@ -13,20 +13,22 @@ struct MediaCopiedToNewNode: StitchStoreEvent {
     let location: CGPoint
     
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
-        store.currentDocument?.visibleGraph.mediaCopiedToNewNode(newURL: url,
-                                                                 nodeLocation: location,
-                                                                 store: store)
+        store.currentGraph?.mediaCopiedToNewNode(newURL: url,
+                                                 nodeLocation: location,
+                                                 store: store)
         return .noChange
     }
 }
 
-struct MediaCopiedToExistingNode: GraphEvent {
+struct MediaCopiedToExistingNode: StitchStoreEvent {
     let url: URL
     let nodeMediaImportPayload: NodeMediaImportPayload
     
-    func handle(state: GraphState) {
-        state.mediaCopiedToExistingNode(nodeImportPayload: nodeMediaImportPayload,
-                                        newURL: url)
+    func handle(store: StitchStore) -> ReframeResponse<NoState> {
+        store.currentGraph?.mediaCopiedToExistingNode(nodeImportPayload: nodeMediaImportPayload,
+                                                      newURL: url,
+                                                      store: store)
+        return .noChange
     }
 }
 
@@ -36,9 +38,8 @@ struct ImportFileToNewNode: GraphEventWithResponse {
     
     func handle(state: GraphState) -> GraphResponse {
         Task { [weak state] in
-            await state?.documentEncoderDelegate?
-                .importFileToNewNode(fileURL: url,
-                                     droppedLocation: droppedLocation)
+            await state?.importFileToNewNode(fileURL: url,
+                                             droppedLocation: droppedLocation)
         }
         
         // won't this run *before* the Task has completed?

@@ -1,6 +1,6 @@
 //
 //  StitchSoundFile.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 9/24/21.
 //

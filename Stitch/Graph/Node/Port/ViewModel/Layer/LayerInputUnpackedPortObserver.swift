@@ -38,6 +38,7 @@ final class LayerInputUnpackedPortObserver {
 }
 
 extension LayerInputUnpackedPortObserver {
+    @MainActor
     func getParentPortValuesList() -> PortValues {
         let allRawValues: PortValuesList = allPorts.map { $0.allLoopedValues }
         let lengthenedValues: PortValuesList = allRawValues.lengthenArrays()
@@ -52,6 +53,7 @@ extension LayerInputUnpackedPortObserver {
         return packedValues
     }
     
+    @MainActor
     var allPorts: [InputLayerNodeRowData] {
         guard let portsToUse = layerPort.unpackedPortCount(layer: self.layer) else {
             return []
@@ -68,6 +70,7 @@ extension LayerInputUnpackedPortObserver {
         self.allPorts.map { $0.createSchema() }
     }
     
+    @MainActor
     /// From packed values, unpacks them for unpack layer input scenario.
     func updateValues(from packedValues: PortValues,
                       layerNode: LayerNodeViewModel) {

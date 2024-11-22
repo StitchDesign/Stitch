@@ -31,18 +31,57 @@ func _handleAction(store: StitchStore, action: Action) {
     let response: AppResponse = _getResponse(from: action,
                                              store: store)
 
-    // Run side-effects
+    // 1. Run side-effects
     response.sideEffectCoordinator?.runEffects(dispatch: dispatch)
 
-    // Handle legacy update, if we had one.
+    // 2. Handle legacy update, if we had one.
     // Updates StitchStore/GraphState in-place.
     if let legacyStateUpdate = response.state {
         handleLegacyStateUpdate(store: store,
                                 legacyState: legacyStateUpdate)
     }
 
-    // Write current StitchStore/GraphState to disk.
+    // 3. Write undo history
+    store.currentGraph?.documentEncoder
+        .writeUndoHistory(store: store,
+                          response: response)
+
+    // 4. Write current StitchStore/GraphState to disk.
     if response.shouldPersist {
+        // self.currentGraph?.updateGraphData() // from runStitchDispatchMiddleware
         store.encodeCurrentProject()
+    }
+}
+
+extension DocumentEncoder {
+    @MainActor
+    func writeUndoHistory(store: StitchStore,
+                          response: AppResponse) {
+
+        guard let graphState = store.currentGraph else {
+            // log("writeUndoHistory: did not have graphState")
+            return
+        }
+
+        let lastEncodedDocument = self.lastEncodedDocument
+
+        // TODO: can we ever write undo-history if we had undo-events but shouldPersist=false ?
+        if StitchUndoManager.shouldUpdateUndo(
+            willPersist: response.shouldPersist,
+            containsUndoEvents: !(response.undoEvents ?? []).isEmpty) {
+
+            // log("handleResponse: will update undo history")
+            let nextDocument = graphState.createSchema()
+
+            // Create copy of next state to be saved in the UndoManager stack
+            Task { [weak store] in
+                // If no reframe response but undo, we use StitchDocument
+                store?.environment.undoManager.prepareAndSaveUndoHistory(
+                    prevDocument: lastEncodedDocument,
+                    nextDocument: nextDocument,
+                    undoEvents: response.undoEvents,
+                    redoEvents: response.redoEvents)
+            }
+        }
     }
 }

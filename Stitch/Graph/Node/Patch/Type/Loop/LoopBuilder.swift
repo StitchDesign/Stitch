@@ -1,6 +1,6 @@
 //
 //  LoopBuilder.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 4/13/21.
 //

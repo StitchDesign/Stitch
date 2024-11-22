@@ -24,7 +24,7 @@ struct FindSomeCanvasItemOnGraph: GraphEvent {
     
     func handle(state: GraphState) {
         if let canvasItem = GraphState.westernMostNode(
-            state.groupNodeFocused,
+            state.groupNodeFocused?.asGroupNodeId,
             canvasItems: state.getVisibleCanvasItems()) {
             
             state.panGraphToNodeLocation(id: canvasItem.id)
@@ -59,10 +59,7 @@ extension GraphState {
         canvasItem.select()
         
         // Update focused group
-        if let newGroup = canvasItem.parentGroupNodeId {
-            // TODO: need panning logic for component
-            self.graphUI.groupNodeBreadcrumbs.append(.groupNode(newGroup))
-        }
+        self.graphUI.groupNodeFocused = canvasItem.parentGroupNodeId?.asGroupNodeId
     }
 }
 

@@ -1,6 +1,6 @@
 //
 //  CoreMLClassifyNode.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 4/28/21.
 //

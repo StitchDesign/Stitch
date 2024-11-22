@@ -1,6 +1,6 @@
 //
 //  Redux.swift
-//  Stitch
+//  prototype
 //
 //  Created by cjc on 11/8/20.
 //

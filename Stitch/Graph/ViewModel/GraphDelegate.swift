@@ -10,24 +10,18 @@ import StitchSchemaKit
 import StitchEngine
 
 // Used only by GraphState
-protocol GraphDelegate: AnyObject, Sendable {
+protocol GraphDelegate: AnyObject, Sendable, StitchDocumentIdentifiable {
     var documentDelegate: StitchDocumentViewModel? { get }
     
     var id: UUID { get }
     
-    var saveLocation: [UUID] { get }
+    @MainActor var activeIndex: ActiveIndex { get }
     
-    var activeIndex: ActiveIndex { get }
-    
-    var groupNodeFocused: NodeId? { get }
-    
-    var components: [UUID : StitchMasterComponent] { get }
+    @MainActor var groupNodeFocused: NodeId? { get }
     
     @MainActor var mediaLibrary: MediaLibrary { get set }
     
     var motionManagers: StitchMotionManagersDict { get set }
-    
-    var shouldResortPreviewLayers: Bool { get set }
     
     @MainActor var edgeDrawingObserver: EdgeDrawingObserver { get }
     
@@ -35,17 +29,7 @@ protocol GraphDelegate: AnyObject, Sendable {
     
     @MainActor var selectedEdges: Set<PortEdgeUI> { get }
     
-    var isFullScreenMode: Bool { get }
-    
-    var dragInteractionNodes: [LayerNodeId: NodeIdSet] { get set }
-
-    var pressInteractionNodes: [LayerNodeId: NodeIdSet] { get set }
-
-    var scrollInteractionNodes: [LayerNodeId: NodeIdSet] { get set }
-    
-    var enabledCameraNodeIds: NodeIdSet { get set }
-    
-    @MainActor var connections: GraphState.TopologicalData.Connections { get }
+    @MainActor var isFullScreenMode: Bool { get }
     
     @MainActor func getInputObserver(coordinate: NodeIOCoordinate) -> InputNodeRowObserver?
     
@@ -69,27 +53,11 @@ protocol GraphDelegate: AnyObject, Sendable {
     
     @MainActor var multiselectInputs: LayerInputTypeSet? { get }
     
+    @MainActor
     var sidebarSelectionState: SidebarSelectionState { get set }
     
-    var orderedSidebarLayers: OrderedSidebarLayers { get }
-
-    @MainActor func updateGraphData()
-    
-    // Calc
-    @MainActor func calculateFullGraph()
-    
-    @MainActor func calculate(_ id: NodeId)
-    
-    @MainActor func calculate(_ idSet: NodeIdSet)
-      
-    @MainActor func recalculateGraph(outputValues: AsyncMediaOutputs,
-                                     nodeId: NodeId,
-                                     loopIndex: Int)
-    
     @MainActor
-    func updateOutputs(at loopIndex: Int,
-                       node: NodeViewModel,
-                       portValues: PortValues)
+    var orderedSidebarLayers: OrderedSidebarLayers { get }
     
     @MainActor
     func children(of parent: NodeId) -> NodeViewModels
@@ -107,6 +75,34 @@ extension GraphState {
 extension GraphDelegate {
     var projectId: UUID { self.id }
     
+    
+    @MainActor var dragInteractionNodes: [LayerNodeId: NodeIdSet] {
+        get {
+            self.documentDelegate?.dragInteractionNodes ?? .init()
+        }
+        set(newValue) {
+            self.documentDelegate?.dragInteractionNodes = newValue
+        }
+    }
+
+    @MainActor var pressInteractionNodes: [LayerNodeId: NodeIdSet] {
+        get {
+            self.documentDelegate?.pressInteractionNodes ?? .init()
+        }
+        set(newValue) {
+            self.documentDelegate?.pressInteractionNodes = newValue
+        }
+    }
+
+    @MainActor var scrollInteractionNodes: [LayerNodeId: NodeIdSet] {
+        get {
+            self.documentDelegate?.scrollInteractionNodes ?? .init()
+        }
+        set(newValue) {
+            self.documentDelegate?.scrollInteractionNodes = newValue
+        }
+    }
+    
     @MainActor var graphStepState: GraphStepState {
         self.documentDelegate?.graphStepManager.graphStepState ??
             .init(estimatedFPS: .defaultAssumedFPS)
@@ -116,8 +112,52 @@ extension GraphDelegate {
         self.documentDelegate?.cameraFeedManager
     }
     
+    
+    /// Invoked when nodes change on graph.
+    @MainActor func updateGraphData(document: StitchDocument?) {
+        self.documentDelegate?.updateGraphData(document: document)
+    }
+    
     var locationManager: LoadingStatus<StitchSingletonMediaObject>? {
         self.documentDelegate?.locationManager
+    }
+    
+    // Calc
+    @MainActor func calculateFullGraph() {
+        self.documentDelegate?.calculateFullGraph()
+    }
+    
+    @MainActor func calculate(_ id: NodeId) {
+        self.documentDelegate?.calculate(id)
+    }
+    
+    @MainActor func calculate(_ idSet: NodeIdSet) {
+        self.documentDelegate?.calculate(idSet)
+    }
+      
+    @MainActor func recalculateGraph(outputValues: AsyncMediaOutputs,
+                                     nodeId: NodeId,
+                                     loopIndex: Int) {
+        self.documentDelegate?.recalculateGraph(outputValues: outputValues,
+                                                nodeId: nodeId,
+                                                loopIndex: loopIndex)
+    }
+    
+    @MainActor func updateOutputs(at loopIndex: Int,
+                                  node: NodeViewModel,
+                                  portValues: PortValues) {
+        self.documentDelegate?.updateOutputs(at: loopIndex,
+                                             node: node,
+                                             portValues: portValues)
+    }
+    
+    @MainActor var shouldResortPreviewLayers: Bool {
+        get {
+            self.documentDelegate?.shouldResortPreviewLayers ?? false
+        }
+        set(newValue) {
+            self.documentDelegate?.shouldResortPreviewLayers = newValue
+        }
     }
     
     @MainActor var keypressState: KeyPressState {
@@ -134,6 +174,10 @@ extension GraphDelegate {
     
     @MainActor var isGeneratingProjectThumbnail:  Bool {
         self.documentDelegate?.isGeneratingProjectThumbnail ?? false
+    }
+    
+    @MainActor var connections: StitchDocumentViewModel.TopologicalData.Connections {
+        self.documentDelegate?.connections ?? .init()
     }
     
     var cameraFeed: CameraFeedManager? {

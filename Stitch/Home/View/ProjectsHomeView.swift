@@ -1,6 +1,6 @@
 //
 //  ProjectsHomeView.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 9/20/21.
 //
@@ -23,7 +23,7 @@ struct ProjectsHomeView: View {
             return store.allProjectUrls
         } else {
             return store.allProjectUrls.filter { projectLoader in
-                if case .loaded(let document, _) = projectLoader.loadingDocument {
+                if case .loaded(let document) = projectLoader.loadingDocument {
                     return document.name.localizedCaseInsensitiveContains(searchQuery)
                 }
                 return false

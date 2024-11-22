@@ -7,13 +7,11 @@
 
 import SwiftUI
 import StitchSchemaKit
-import StitchEngine
 
 enum NodeViewModelType {
     case patch(PatchNodeViewModel)
     case layer(LayerNodeViewModel)
     case group(CanvasItemViewModel)
-    case component(StitchComponentViewModel)
 }
 
 extension NodeViewModelType {
@@ -28,7 +26,7 @@ extension NodeViewModelType {
             let viewModel = LayerNodeViewModel(from: layerNode)
             self = .layer(viewModel)
         case .group(let canvasNode):
-            self = .group(.init(from: canvasNode,
+            self = .group(.init(from: canvasNode, 
                                 id: .node(nodeId),
                                 // Initialize as empty since splitter row observers might not have yet been created
                                 inputRowObservers: [],
@@ -36,67 +34,10 @@ extension NodeViewModelType {
                                 // Irrelevant
                                 unpackedPortParentFieldGroupType: nil,
                                 unpackedPortIndex: nil))
-        case .component(let component):
-            let componentCanvas = CanvasItemViewModel(from: component.canvasEntity,
-                                                      id: .node(nodeId),
-                                                      // Initialize as empty since splitter row observers might not have yet been created
-                                                      inputRowObservers: [],
-                                                      outputRowObservers: [],
-                                                      unpackedPortParentFieldGroupType: nil,
-                                                      unpackedPortIndex: nil)
-            
-            self = .component(.init(componentId: component.componentId,
-                                    canvas: componentCanvas,
-                                    
-                                    // TODO: thie gets a new reference later
-                                    graph: .createEmpty()))
         }
     }
     
-    @MainActor
-    init(from nodeType: NodeTypeEntity,
-         nodeId: NodeId,
-         components: [UUID: StitchMasterComponent],
-         parentGraphPath: [UUID]) async {
-        switch nodeType {
-        case .patch, .layer, .group:
-            self = .init(from: nodeType,
-                         nodeId: nodeId)
-        
-        case .component:
-            // TODO: unwrapping component changes the ID. no idea why.
-            guard let componentEntity = nodeType.componentNodeEntity else {
-                fatalError()
-            }
-            
-            let componentCanvas = CanvasItemViewModel(from: componentEntity.canvasEntity,
-                                                      id: .node(nodeId),
-                                                      // Initialize as empty since splitter row observers might not have yet been created
-                                                      inputRowObservers: [],
-                                                      outputRowObservers: [],
-                                                      unpackedPortParentFieldGroupType: nil,
-                                                      unpackedPortIndex: nil)
-            
-            guard let masterComponent = components.get(componentEntity.componentId) else {
-                fatalErrorIfDebug()
-                self = .component(.createEmpty())
-                return
-            }
-            
-            let component = await StitchComponentViewModel(
-                componentId: componentEntity.componentId,
-                componentEntity: masterComponent.lastEncodedDocument,
-                canvas: componentCanvas,
-                parentGraphPath: parentGraphPath,
-                componentEncoder: masterComponent.encoder)
-            self = .component(component)
-        }
-    }
-    
-    @MainActor
-    func initializeDelegate(_ node: NodeDelegate,
-                            components: [UUID: StitchMasterComponent],
-                            document: StitchDocumentViewModel) {
+    @MainActor func initializeDelegate(_ node: NodeDelegate) {
         switch self {
         case .patch(let patchNodeViewModel):
             guard let patchDelegate = node as? PatchNodeViewModelDelegate else {
@@ -112,10 +53,6 @@ extension NodeViewModelType {
                                                    // Not relevant
                                                    unpackedPortParentFieldGroupType: nil,
                                                    unpackedPortIndex: nil)
-        case .component(let componentViewModel):
-            componentViewModel.initializeDelegate(node: node,
-                                                  components: components,
-                                                  document: document)
         }
     }
 
@@ -128,24 +65,9 @@ extension NodeViewModelType {
             layerViewModel.update(from: layerEntity)
         case (.group(let canvasViewModel), .group(let canvasEntity)):
             canvasViewModel.update(from: canvasEntity)
-        case (.component(let componentViewModel), .component(let component)):
-            // Rest of updates done with initializeDelegate fn
-            componentViewModel.componentId = component.componentId
         default:
             log("NodeViewModelType.update error: found unequal view model and schema types for some node type.")
             fatalErrorIfDebug()
-        }
-    }
-    
-    @MainActor
-    func update(from schema: NodeTypeEntity,
-                components: [UUID: StitchMasterComponent]) async {
-        switch (self, schema) {
-        case (.component(let componentViewModel), .component(let component)):
-            await componentViewModel.update(from: component,
-                                            components: components)
-        default:
-            self.update(from: schema)
         }
     }
     
@@ -157,30 +79,6 @@ extension NodeViewModelType {
             return .layer(layerNodeViewModel.createSchema())
         case .group(let canvasNodeViewModel):
             return .group(canvasNodeViewModel.createSchema())
-        case .component(let component):
-            return .component(component.createSchema())
-        }
-    }
-    
-    @MainActor func onPrototypeRestart() {
-        switch self {
-        case .patch(let patchNode):
-            // Flatten interaction nodes' outputs when graph reset
-            if patchNode.patch.isInteractionPatchNode {
-                patchNode.outputsObservers.flattenOutputs()
-            }
-            
-        case .layer(let layerNode):
-            layerNode.previewLayerViewModels.forEach {
-                // Rest interaction state values
-                $0.interactiveLayer.onPrototypeRestart()
-            }
-            
-        case .component(let component):
-            component.graph.onPrototypeRestart()
-            
-        case .group:
-            return
         }
     }
 }
@@ -212,15 +110,6 @@ extension NodeViewModelType {
             return nil
         }
     }
-    
-    var componentNode: StitchComponentViewModel? {
-        switch self {
-        case .component(let component):
-            return component
-        default:
-            return nil
-        }
-    }
 
     var kind: NodeKind {
         switch self {
@@ -228,7 +117,7 @@ extension NodeViewModelType {
             return .patch(patchNode.patch)
         case .layer(let layerNode):
             return .layer(layerNode.layer)
-        case .group, .component:
+        case .group:
             return .group
         }
     }

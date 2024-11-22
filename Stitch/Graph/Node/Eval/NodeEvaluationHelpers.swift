@@ -1,6 +1,6 @@
 //
 //  EvaluationHelpers.swift
-//  Stitch
+//  prototype
 //
 //  Created by cjc on 2/12/21.
 //

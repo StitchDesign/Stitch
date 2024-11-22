@@ -46,17 +46,7 @@ extension CanvasItemId {
         }
     }
     
-    // Is this a canvas item for a layer input or output?
-    var isForLayer: Bool {
-        switch self {
-        case .layerInput, .layerOutput:
-            return true
-        default:
-            return false
-        }
-    }
-    
-    // Every canvas item belongs to some node, whether patch or layer.
+    // Every canvas item belongs to same node.
     var associatedNodeId: NodeId {
         switch self {
         case .node(let x):

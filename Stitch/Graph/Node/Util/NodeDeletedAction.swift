@@ -1,6 +1,6 @@
 //
 //  NodeDeletedAction.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 8/5/21.
 //
@@ -79,9 +79,19 @@ extension GraphState {
         // and so deleting the selected nodes means de-selecting those associated edges)
         self.selectedEdges = .init()
 
+        // BATCH OPERATION: Update sidebar state ONCE, after deleting all nodes
+        // Recreate topological order
+        self.documentDelegate?.updateTopologicalData()
+
         self.graphMovement.draggedCanvasItem = nil
         
-        self.updateGraphData()
+        self.updateSidebarListStateAfterStateChange()
+        
+        // TODO: why is this necessary?
+        _updateStateAfterListChange(
+            updatedList: self.sidebarListState,
+            expanded: self.getSidebarExpandedItems(),
+            graphState: self)
     }
     
     // Varies by node vs LayerInputOnGraph vs comment box
@@ -131,8 +141,7 @@ extension GraphState {
 
         //    log("deleteNode called, will delete node \(id)")
         
-        guard let node = self.getNodeViewModel(id),
-              let graph = node.graphDelegate else {
+        guard let node = self.getNodeViewModel(id) else {
             log("deleteNode: node not found")
             return
         }
@@ -180,7 +189,7 @@ extension GraphState {
 
                 if lastOfNode {
                     // Update CameraFeedManager with latest enabled nodes--conditional tear down handled there
-                    graph.enabledCameraNodeIds.remove(id)
+                    self.documentDelegate?.removeCameraNode(id: id)
                 }
             default:
                 break
@@ -190,32 +199,12 @@ extension GraphState {
         // Update comment box data
         self.deleteCommentBox(id)
         
-        // Delete media from file manager if it's the "source" media and unused elsewhere
+        // Delete media from file manager if it's the "source" media
         node.inputs.findImportedMediaKeys().forEach { mediaKey in
-            self.checkToDeleteMedia(mediaKey, from: node.id)
-        }
-    }
-    
-    /// Checks if some media is used elsewhere before proceeding to delete.
-    @MainActor
-    func checkToDeleteMedia(_ mediaKey: MediaKey,
-                            from nodeId: NodeId) {
-        // Check media in other places
-        let allOtherMedia = self.nodes.values.reduce(into: Set<MediaKey>()) { result, node in
-            guard node.id != nodeId else { return }
-            
-            let allMediaHere = node.inputs.findImportedMediaKeys().toSet
-            result = result.union(allMediaHere)
-        }
-        
-        // Safe to delete if other nodes don't use specified media
-        let isMediaUsedElsewhere = allOtherMedia.contains(mediaKey)
-        if !isMediaUsedElsewhere {
             self.mediaLibrary.removeValue(forKey: mediaKey)
-
+            
             Task { [weak self] in
-                await self?.documentEncoderDelegate?
-                    .deleteMediaFromNode(mediaKey: mediaKey)
+                await self?.documentEncoder.deleteMediaFromNode(mediaKey: mediaKey)
             }
         }
     }

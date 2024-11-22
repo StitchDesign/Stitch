@@ -1,6 +1,6 @@
 //
 //  ReframeEvent.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 9/16/21.
 //

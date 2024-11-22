@@ -1,6 +1,6 @@
 //
 //  MediaActions.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 7/30/21.
 //
@@ -23,7 +23,7 @@ extension StitchStore {
         // Toggle alert state
         self.alertState.fileImportModalState = .notImporting
 
-        guard let graphState = self.currentDocument?.visibleGraph else {
+        guard let graphState = self.currentGraph else {
             self.alertState.stitchFileError = .currentProjectNotFound
             return
         }
@@ -38,8 +38,7 @@ extension StitchStore {
                 self.alertState.stitchFileError = .mediaFileUnsupported(fileURL.pathExtension)
             }
 
-            await graphState.documentEncoderDelegate?
-                .importFileToNewNode(fileURL: fileURL, droppedLocation: droppedLocation)
+            await graphState.importFileToNewNode(fileURL: fileURL, droppedLocation: droppedLocation)
         }
     }
 
@@ -53,7 +52,7 @@ extension StitchStore {
         // Toggle alert state
         self.alertState.fileImportModalState = .notImporting
 
-        guard let graphState = self.currentDocument?.visibleGraph else {
+        guard let graphState = self.currentGraph else {
             self.alertState.stitchFileError = .currentProjectNotFound
             return
         }
@@ -67,19 +66,20 @@ extension StitchStore {
                 return
             }
 
-            await graphState.documentEncoderDelegate?
-                .importFileToExistingNode(fileURL: fileURL, nodeImportPayload: nodeImportPayload)
+            await graphState.importFileToExistingNode(fileURL: fileURL, nodeImportPayload: nodeImportPayload)
         }
     }
 }
 
 /// Called when a media import from the top bar file picker or drag-and-drop event happens.
-extension DocumentEncodable {
+extension GraphState {
+    @MainActor
     func importFileToNewNode(fileURL: URL, droppedLocation: CGPoint) async {
-        let copyResult = self.copyToMediaDirectory(
+        let copyResult = await StitchFileManager.copyToMediaDirectory(
             originalURL: fileURL,
+            in: self.createSchema(),
             forRecentlyDeleted: false)
-        
+
         await MainActor.run {
             switch copyResult {
             case .success(let newURL):
@@ -90,11 +90,13 @@ extension DocumentEncodable {
             }
         }
     }
-    
+
     /// Called when media is imported from a patch node's file picker.
+    @MainActor
     func importFileToExistingNode(fileURL: URL, nodeImportPayload: NodeMediaImportPayload) async {
-        let copyResult = self.copyToMediaDirectory(originalURL: fileURL,
-                                                   forRecentlyDeleted: false)
+        let copyResult = await StitchFileManager.copyToMediaDirectory(originalURL: fileURL,
+                                                                      in: self.createSchema(),
+                                                                      forRecentlyDeleted: false)
         await MainActor.run {
             switch copyResult {
             case .success(let newURL):
@@ -105,22 +107,23 @@ extension DocumentEncodable {
             }
         }
     }
-    
+
     /// Called when recently-deleted media is undo-ed.
-    func undoDeletedMedia(mediaKey: MediaKey) -> URLResult {
+    @MainActor
+    func undoDeletedMedia(mediaKey: MediaKey) async -> URLResult {
+        let document = self.createSchema()
+
         // Look for media in expected "recently deleted" location"
-        let expectedMediaURL = self.getFolderUrl(for: .media,
-                                                 isTemp: true)
+        let expectedMediaURL = document.getImportedFilesURL(forRecentlyDeleted: true)
             .appendingPathComponent(mediaKey.filename)
             .appendingPathExtension(mediaKey.fileExtension)
-        
-        // We import back to the current opened project
-        return self.copyToMediaDirectory(originalURL: expectedMediaURL,
-                                         forRecentlyDeleted: false)
-    }
-}
 
-extension GraphState {
+        // We import back to the current opened project
+        return await StitchFileManager.copyToMediaDirectory(originalURL: expectedMediaURL,
+                                                            in: document,
+                                                            forRecentlyDeleted: false)
+    }
+
     /// Creates a new node for some imported media. This is called either from drag-and-drop or from the top bar file picker.
     @MainActor
     func mediaCopiedToNewNode(newURL: URL,
@@ -177,11 +180,14 @@ extension GraphState {
         self.calculate(newNodeId)
         self.encodeProjectInBackground()
     }
-    
+}
+
+extension GraphState {
     /// Takes some imported media and applies it directly to the input of some node.
     @MainActor
     func mediaCopiedToExistingNode(nodeImportPayload: NodeMediaImportPayload,
-                                   newURL: URL) {
+                                   newURL: URL,
+                                   store: StitchStore) {
         let mediaKey = newURL.mediaKey
         let destinationInputs = nodeImportPayload.destinationInputs
         
@@ -202,13 +208,18 @@ extension GraphState {
             existingNode.inputs.findImportedMediaKeys().forEach { mediaKey in
                 // If existing node already contains imported media, then we need to delete the old media
                 if mediaLibrary.get(mediaKey) != newURL {
-                    self.checkToDeleteMedia(mediaKey, from: existingNode.id)
+                    self.mediaLibrary.removeValue(forKey: mediaKey)
+
+                    Task { [weak self] in
+                        await self?.documentEncoder.deleteMediaFromNode(mediaKey: mediaKey)
+                    }
                 }
             }
             
             // Create async task to load media
-            Task { [weak self] in
+            Task { [weak self, weak store] in
                 guard let graph = self,
+                      let store = store,
                       let newMedia = await MediaEvalOpCoordinator
                     .createMediaValue(from: mediaKey,
                                       isComputedCopy: false,
@@ -218,35 +229,44 @@ extension GraphState {
                     return
                 }
                 
-                graph.inputEditCommitted(input: destinationInput,
+                store.inputEditCommitted(input: destinationInput,
                                          value: newMedia.portValue)
                 
                 // Persist project once media has loaded
-                graph.encodeProjectInBackground()
+                store.encodeCurrentProject()
             }
 
             // Nil value for now while media loads
             let portValue = PortValue.asyncMedia(nil)
 
-            self.inputEditCommitted(input: destinationInput,
-                                    value: portValue)
+            store.inputEditCommitted(input: destinationInput,
+                                     value: portValue)
             
         } // for destinationInput in ...        
     }
 }
 
-extension StitchDocumentViewModel {
+extension NodeRowObserver {
     @MainActor
-    func realityViewCreatedWithoutCamera(graph: GraphState,
-                                         nodeId: NodeId) {
-        if self.cameraFeedManager?.isLoading ?? false {
+    func mediaObjectCreationFailed(loopIndex: Int) {
+        guard self.allLoopedValues.count > loopIndex else {
+            return
+        }
+        
+        self.allLoopedValues[loopIndex] = .asyncMedia(nil)
+    }
+}
+
+struct RealityViewCreatedWithoutCamera: StitchDocumentEvent {
+    let nodeId: NodeId
+
+    func handle(state: StitchDocumentViewModel) {
+        if state.cameraFeedManager?.isLoading ?? false {
             log("RealityViewCreatedWithoutCamera: already loading")
             return
         }
 
-        self.refreshCamera(for: .layer(.realityView),
-                           graph: graph,
-                           newNode: nodeId)
+        state.refreshCamera(for: .layer(.realityView), newNode: nodeId)
     }
 }
 
@@ -264,7 +284,7 @@ extension StitchDocumentViewModel {
     }
 }
 
-extension GraphState {
+extension StitchDocumentViewModel {
     @MainActor
     /// Recalculates the graph when the **outputs** of a node need to be updated.
     /// This updates at a particular loop index rather than all values.
@@ -399,6 +419,7 @@ func createPatchNode(from importedMediaURL: URL,
     guard let node = mediaType.nodeKind?.graphNode?.createViewModel(id: nodeId,
                                                                     position: position.toCGPoint,
                                                                     zIndex: zIndex,
+                                                                    activeIndex: activeIndex,
                                                                     graphDelegate: graphDelegate) else {
         log("createPatchNode: unknown file encountered with extension \(importedMediaURL.pathExtension)")
         return .failure(.mediaFileUnsupported(importedMediaURL.pathExtension))

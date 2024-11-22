@@ -1,6 +1,6 @@
 //
 //  PreviewGroup.swift
-//  Stitch
+//  prototype
 //
 //  Created by Christian J Clampitt on 5/4/21.
 //
@@ -30,7 +30,6 @@ extension LayerViewModel {
 
 struct PreviewGroupLayer: View {
     @Bindable var document: StitchDocumentViewModel
-    @Bindable var graph: GraphState
     @Bindable var layerViewModel: LayerViewModel
     let layersInGroup: LayerDataList // child layers for THIS group
     let isPinnedViewRendering: Bool
@@ -55,6 +54,7 @@ struct PreviewGroupLayer: View {
     let pivot: Anchoring
 
     let orientation: StitchOrientation
+    let padding: StitchPadding
     let spacing: StitchSpacing
     
     let cornerRadius: CGFloat
@@ -90,26 +90,16 @@ struct PreviewGroupLayer: View {
         size.width == .hug || size.height == .hug
     }
     
-    var noFixedSizeForLayerGroup: Bool {
-        size.width.noFixedSizeForLayerGroup || size.height.noFixedSizeForLayerGroup
-    }
-    
     var useParentSizeForAnchoring: Bool {
         usesHug && !parentDisablesPosition
     }
     
     var pos: StitchPosition {
         adjustPosition(
-            //size: layerViewModel.readSize, // size.asCGSize(parentSize),
-            size: size.asCGSizeForLayer(parentSize: parentSize,
-                                        readSize: layerViewModel.readSize),
+            size: layerViewModel.readSize, // size.asCGSize(parentSize),
             position: position,
             anchor: anchoring,
             parentSize: parentSize)
-    }
-    
-    var strokeAdjustedCornerRadius: CGFloat {
-        cornerRadius - (stroke.stroke == .outside ? stroke.width : 0)
     }
     
     var body: some View {
@@ -122,7 +112,7 @@ struct PreviewGroupLayer: View {
             .modifier(PreviewCommonSizeModifier(
                 viewModel: layerViewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
-                pinMap: graph.pinMap,
+                pinMap: document.pinMap,
                 aspectRatio: layerViewModel.getAspectRatioData(),
                 size: size,
                 minWidth: layerViewModel.getMinWidth,
@@ -133,11 +123,7 @@ struct PreviewGroupLayer: View {
                 sizingScenario: layerViewModel.getSizingScenario,
                 frameAlignment: anchoring.toAlignment))
 
-            .background {
-                // TODO: Better way to handle slight gap between outside stroke and background edge when using corner radius? Outside stroke is actually an .overlay'd shape that is slightly larger than the stroked shape.
-//                backgroundColor.cornerRadius(cornerRadius - (stroke.stroke == .outside ? stroke.width/2 : 0))
-                backgroundColor.cornerRadius(strokeAdjustedCornerRadius)
-            }
+            .background(backgroundColor)
         
         //            // DEBUG ONLY
         //        #if DEV_DEBUG
@@ -152,7 +138,7 @@ struct PreviewGroupLayer: View {
                 scale: scale))
                 
             .modifier(PreviewLayerRotationModifier(
-                graph: graph,
+                document: document,
                 viewModel: layerViewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
                 rotationX: rotationX,
@@ -162,14 +148,12 @@ struct PreviewGroupLayer: View {
         // .clipped modifier should come before the offset/position modifier,
         // so that it's affected by the offset/position modifier
             .modifier(ClippedModifier(isClipped: isClipped,
-                                      cornerRadius: strokeAdjustedCornerRadius))
+                                     cornerRadius: cornerRadius))
         
         // Stroke needs to come AFTER the .clipped modifier, so that .outsideStroke is not cut off.
             .modifier(ApplyStroke(viewModel: layerViewModel,
                                   isPinnedViewRendering: isPinnedViewRendering,
-                                  stroke: stroke,
-                                  // Uses non-stroke adjusted corner radius, since .stitchStroke will handle the adjustment 
-                                  cornerRadius: cornerRadius))
+                                  stroke: stroke))
 
             .opacity(opacity) // opacity on group and all its contents
         
@@ -177,7 +161,7 @@ struct PreviewGroupLayer: View {
                          anchor: pivot.toPivot)
                 
             .modifier(PreviewCommonPositionModifier(
-                graph: graph,
+                document: document,
                 viewModel: layerViewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
                 parentDisablesPosition: parentDisablesPosition, 
@@ -187,7 +171,6 @@ struct PreviewGroupLayer: View {
         // SwiftUI gestures must be applied after .position modifier
             .modifier(PreviewWindowElementSwiftUIGestures(
                 document: document,
-                graph: graph,
                 interactiveLayer: interactiveLayer,
                 position: position,
                 pos: pos,
@@ -199,18 +182,17 @@ struct PreviewGroupLayer: View {
     @ViewBuilder
     private var groupLayer: some View {
         PreviewLayersView(document: document,
-                          graph: graph,
                           layers: layersInGroup,
 //                          isPinnedViewRendering: isPinnedViewRendering,
                           // This Group's size will be the `parentSize` for the `layersInGroup`
                           parentSize: _size,
                           parentId: interactiveLayer.id.layerNodeId,
                           parentOrientation: orientation,
+                          parentPadding: padding, 
                           parentSpacing: spacing,
                           parentCornerRadius: cornerRadius,
                           // i.e. if this view (a LayerGroup) uses .hug, then its children will not use their own .position values.
                           parentUsesHug: usesHug,
-                          noFixedSizeForLayerGroup: noFixedSizeForLayerGroup,
                           parentGridData: gridData,
                           isGhostView: !isPinnedViewRendering)
     }

@@ -138,7 +138,6 @@ let DEFAULT_PREVIEW_WINDOW_DEVICE_KEY_NAME = "DefaultPreviewWindowDevice"
 let SAVED_APP_THEME_KEY_NAME = "SavedAppTheme"
 let SAVED_EDGE_STYLE_KEY_NAME = "SavedEdgeStyle"
 let LLM_RECORDING_MODE_KEY_NAME = "LLMRecordingMode"
-let OPENAI_API_KEY_NAME = "OpenAIAPIKey"
 
 struct AppSettingsView: View {
     // Obtains last camera preference setting, if any
@@ -151,7 +150,6 @@ struct AppSettingsView: View {
     @AppStorage(SAVED_EDGE_STYLE_KEY_NAME) private var savedEdgeStyle: String = EdgeStyle.defaultEdgeStyle.rawValue
     
     @AppStorage(LLM_RECORDING_MODE_KEY_NAME) private var llmRecordingMode: Bool = false
-    @AppStorage(OPENAI_API_KEY_NAME) private var openAIAPIKey: String = ""
 
     @Environment(\.appTheme) var theme
     @Environment(\.edgeStyle) var edgeStyle
@@ -164,8 +162,7 @@ struct AppSettingsView: View {
             themePicker
             edgeStylePicker
             defaultPreviewWindowDevicePicker
-#if STITCH_AI
-            openAIAPIKeyField
+#if DEV_DEBUG || DEBUG
             llmRecordingModePicker
 #endif
         }
@@ -265,26 +262,7 @@ struct AppSettingsView: View {
                     isForProject: false)
             }
             StitchCaptionView("Set the default preview window device for new projects")
-        }
-    }
-    
-    var openAIAPIKeyField: some View {
-        VStack(alignment: .leading) {
-            HStack(alignment: .center) {
-                Text("OpenAI API Key").fontWeight(.bold)
-                SecureField("Enter your OpenAI API Key", text: $openAIAPIKey)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .frame(width: 200)
-                    .disableAutocorrection(true)
-                    .autocapitalization(.none)
-                    .textContentType(.none)
-                    .onChange(of: openAIAPIKey) {
-                        dispatch(OpenAIAPIKeyChanged(apiKey: openAIAPIKey))
-                    }
-                
-            }
-            StitchCaptionView("Enter your OpenAI API Key to enable AI features")
-        }
+        } // VStack
     }
     
     @MainActor

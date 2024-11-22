@@ -47,10 +47,8 @@ struct CatalystNavBarTitleEditField: View {
                 } else {
                     // log("CatalystNavBarTitleEditField: defocused, so will commit")
                     graph.name = graph.name.validateProjectTitle()
-                    dispatch(ReduxFieldDefocused(focusedField: .projectTitle))
                     // Commit project name to disk
-                    graph.encodeProjectInBackground()
-                    
+                    self.graph.encodeProjectInBackground()
                 }
             }
     }
@@ -102,12 +100,6 @@ extension String {
     // Show = arrow to the left
     // Hide vs Show use same SFSymbol but just rotated
     static let TOGGLE_PREVIEW_WINDOW_SF_SYMBOL_NAME = "rectangle.portrait.and.arrow.right"
-    
-    // Note: `iphone` is gray and "Can Only Refer to iPhone" per SFSymbol docs?
-//    static let SHOW_PREVIEW_WINDOW_SF_SYMBOL_NAME = "iphone"
-//    static let HIDE_PREVIEW_WINDOW_SF_SYMBOL_NAME = "iphone.slash"
-    static let SHOW_PREVIEW_WINDOW_SF_SYMBOL_NAME = "rectangle.portrait"
-    static let HIDE_PREVIEW_WINDOW_SF_SYMBOL_NAME = "rectangle.portrait.slash"
 
     static let RESTART_PROTOTYPE_SF_SYMBOL_NAME = "arrow.clockwise"
     static let EXPAND_TO_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME = "arrow.up.left.and.arrow.down.right"
@@ -143,17 +135,12 @@ struct CatalystTopBarGraphButtons: View {
         // `HStack` doesn't matter? These are all placed in a `ToolbarItemGroup` ...
         HStack {
             
-            #if STITCH_AI
-            CatalystNavBarButton(STITCH_AI_SF_SYMBOL) {
-                document.openedStitchAIModal()
-            }
-            .opacity(llmRecordingModeEnabled ? 1 : 0)
-            
             CatalystNavBarButton(LLM_OPEN_JSON_ENTRY_MODAL_SF_SYMBOL) {
                 document.openedLLMActionsJSONEntryModal()
             }
             .opacity(llmRecordingModeEnabled ? 1 : 0)
             
+            #if DEV_DEBUG || DEBUG
             CatalystNavBarButton(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL) {
                 dispatch(LLMRecordingToggled())
             }
@@ -181,9 +168,8 @@ struct CatalystTopBarGraphButtons: View {
             //                log("CatalystTopBarGraphButtons: to be implemented")
             //            }
 
-//            CatalystNavBarButton(.TOGGLE_PREVIEW_WINDOW_SF_SYMBOL_NAME,
-//                                 rotationZ: isPreviewWindowShown ? 0 : 180) {
-            CatalystNavBarButton(isPreviewWindowShown ? .HIDE_PREVIEW_WINDOW_SF_SYMBOL_NAME : .SHOW_PREVIEW_WINDOW_SF_SYMBOL_NAME) {
+            CatalystNavBarButton(.TOGGLE_PREVIEW_WINDOW_SF_SYMBOL_NAME,
+                                 rotationZ: isPreviewWindowShown ? 0 : 180) {
                 dispatch(TogglePreviewWindow())
             }
 
@@ -236,8 +222,10 @@ struct GoUpOneTraversalLevel: GraphEvent {
             return
         }
         
-        // Set new active parent
         state.graphUI.groupNodeBreadcrumbs = state.graphUI.groupNodeBreadcrumbs.dropLast()
+
+        // Set new active parent
+        state.graphUI.groupNodeFocused = state.graphUI.groupNodeBreadcrumbs.last?.asGroupNodeId
 
         // Reset any active selections
         state.resetAlertAndSelectionState()
