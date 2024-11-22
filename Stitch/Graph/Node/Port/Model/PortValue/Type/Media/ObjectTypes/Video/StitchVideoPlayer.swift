@@ -7,8 +7,8 @@ final class StitchVideoImportPlayer: Sendable {
     var video: AVPlayer
     var stitchVideoDelegate: StitchVideoDelegate
     var thumbnail: UIImage?
-    var metadata: VideoMetadata {
-        @MainActor
+    
+    @MainActor var metadata: VideoMetadata {
         didSet(newValue) {
             if metadata != newValue {
                 self.stitchVideoDelegate.updateMetadata(for: video, videoData: metadata)

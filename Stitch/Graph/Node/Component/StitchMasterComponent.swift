@@ -11,16 +11,18 @@ import StitchSchemaKit
 /// Tracks drafted and persisted versions of components, used to populate copies in graph.
 @Observable
 final class StitchMasterComponent: Sendable {
-    var lastEncodedDocument: StitchComponent
+    let id: UUID
+    @MainActor var lastEncodedDocument: StitchComponent
     
     // Encoded copy of drafted component
     let encoder: ComponentEncoder
     
-    weak var parentGraph: GraphState?
+    @MainActor weak var parentGraph: GraphState?
     
     @MainActor
     init(componentData: StitchComponent,
          parentGraph: GraphState?) {
+        self.id = componentData.graph.id
         self.lastEncodedDocument = componentData
         self.encoder = .init(component: componentData)
         self.parentGraph = parentGraph
@@ -32,10 +34,6 @@ final class StitchMasterComponent: Sendable {
 }
 
 extension StitchMasterComponent {
-    var id: UUID {
-        self.lastEncodedDocument.graph.id
-    }
-    
     var publishedDocumentEncoder: ComponentEncoder? {
         guard let storeDelegate = self.storeDelegate else { return nil }
         
@@ -108,7 +106,7 @@ extension StitchMasterComponent: DocumentEncodableDelegate, Identifiable {
             self?.lastEncodedDocument = schema
         }
         
-        guard let document = self.parentGraph?.documentDelegate else {
+        guard let document = await self.parentGraph?.documentDelegate else {
             return
         }
         
@@ -124,6 +122,7 @@ extension StitchMasterComponent: DocumentEncodableDelegate, Identifiable {
         }
     }
     
+    @MainActor
     var storeDelegate: StoreDelegate? {
         self.parentGraph?.storeDelegate
     }
