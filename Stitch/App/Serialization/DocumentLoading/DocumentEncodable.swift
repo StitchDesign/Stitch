@@ -30,7 +30,7 @@ protocol DocumentEncodableDelegate: Observable, AnyObject, Sendable {
     
     @MainActor func willEncodeProject(schema: CodableDocument)
     
-    var storeDelegate: StoreDelegate? { get }
+    @MainActor var storeDelegate: StoreDelegate? { get }
 }
 
 extension DocumentEncodable {

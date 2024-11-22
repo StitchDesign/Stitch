@@ -95,6 +95,7 @@ struct ComponentNavBarView: View {
 
 // TODO: move
 extension StitchDocumentViewModel {
+    @MainActor
     func unlinkComponent(localComponent: StitchMasterComponent) throws {
         let localComponentData = localComponent.lastEncodedDocument
         let oldComponentUrl = localComponentData.rootUrl
