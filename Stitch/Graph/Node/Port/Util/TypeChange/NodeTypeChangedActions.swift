@@ -17,7 +17,7 @@ struct NodeTypeChanged: GraphEvent {
     @MainActor
     func handle(state: GraphState) {
         let changedIds = state.nodeTypeChanged(nodeId: nodeId,
-                                                            newNodeType: newNodeType)
+                                               newNodeType: newNodeType)
         
         // if we successfully changed the node's type, create an LLMAction
         if changedIds.isDefined,
@@ -48,19 +48,11 @@ extension GraphState {
             return nil
         }
 
-        // TODO: no longer relevant now that classic animation node eval op can create a default animation state when necessary? ... But this may also fix an issue with Spring node?
-        node.ephemeralObservers?.forEach {
-            $0.nodeTypeChanged(
-                oldType: oldType,
-                newType: newNodeType,
-                kind: node.kind)
-        }
-
         // Change view model
         let changedNodeIds = self.changeType(
             for: node,
-            type: newNodeType,
-            graphTime: self.graphStepManager.graphTime)
+            oldType: oldType,
+            newType: newNodeType)
 
         // Recalculate the graph from each of the changed nodes' incoming edges
         let ids = changedNodeIds
@@ -75,8 +67,9 @@ extension GraphState {
     
     @MainActor
     func changeType(for node: NodeViewModel,
-                    type: UserVisibleType,
-                    graphTime: TimeInterval) -> NodeIdSet {
+                    oldType: UserVisibleType,
+                    newType: UserVisibleType) -> NodeIdSet {
+        let graphTime = self.graphStepManager.graphTime
 
         guard let patchNode = node.patchNode else {
             fatalErrorIfDebug()
@@ -88,17 +81,25 @@ extension GraphState {
             log("GraphState.changeType: type change not supported")
             return Set([node.id])
         }
+        
+        // TODO: no longer relevant now that classic animation node eval op can create a default animation state when necessary? ... But this may also fix an issue with Spring node?
+        node.ephemeralObservers?.forEach {
+            $0.nodeTypeChanged(
+                oldType: oldType,
+                newType: newType,
+                kind: node.kind)
+        }
 
         // Convert all values which support type changing
         // Only network node doesn't change inputs
         if patchNode.patch != .networkRequest {
             node.updateNodeTypeAndInputs(
-                newType: type,
+                newType: newType,
                 currentGraphTime: graphTime,
                 activeIndex: activeIndex)
         } else {
             // For network request node, we just change the user-visible-type manually.
-            patchNode.userVisibleType = type
+            patchNode.userVisibleType = newType
         }
 
         switch patchNode.patch {
@@ -108,7 +109,7 @@ extension GraphState {
                 broadcastNodeId: patchNode.id,
                 patchNodes: patchNodes,
                 connections: self.connections,
-                newNodeType: type,
+                newNodeType: newType,
                 graphTime: graphTime,
                 activeIndex: activeIndex)
             return Set([node.id]).union(updatedReceivers)
