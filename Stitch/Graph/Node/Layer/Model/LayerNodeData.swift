@@ -200,6 +200,7 @@ extension LayerNodeViewModel {
 }
 
 extension InputLayerNodeRowData {
+    @MainActor
     func update(from schema: LayerInputDataEntity,
                 layerInputType: LayerInputType,
                 layerNode: LayerNodeViewModel,

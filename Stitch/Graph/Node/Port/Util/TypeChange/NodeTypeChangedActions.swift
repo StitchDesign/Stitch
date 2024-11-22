@@ -17,7 +17,7 @@ struct NodeTypeChanged: GraphEvent {
     @MainActor
     func handle(state: GraphState) {
         let changedIds = state.nodeTypeChanged(nodeId: nodeId,
-                                                            newNodeType: newNodeType)
+                                               newNodeType: newNodeType)
         
         // if we successfully changed the node's type, create an LLMAction
         if changedIds.isDefined,
