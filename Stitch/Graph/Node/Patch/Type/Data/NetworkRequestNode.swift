@@ -8,7 +8,7 @@
 import Foundation
 import StitchSchemaKit
 import SwiftUI
-import SwiftyJSON
+@preconcurrency import SwiftyJSON
 
 // what is an 'empty' json?
 let emptyJSONObject = JSON()
@@ -115,9 +115,6 @@ func hasHttpOrHttps(urlString: String) -> Bool {
     return urlString.hasPrefix("http://") || urlString.hasPrefix("https://")
 }
 
-// TODO: we should never use a global mutalbe variable; this should be moved to e.g. computed node state
-var previousNodeType: UserVisibleType?
-
 @MainActor
 func networkRequestEval(node: PatchNode,
                         graphStep: GraphStepState) -> ImpureEvalResult {
@@ -158,15 +155,16 @@ func networkRequestEval(node: PatchNode,
         var previousErrorValue = values[safe: 9] ?? defaultFalseJSON
         var previousHeadersValue = values[safe: 10] ?? defaultFalseJSON
 
-        if let previousNodeType = previousNodeType, previousNodeType != nodeType {
-            previousLoadingValue = .bool(false)
-            previousResultValue = defaultFalseJSON
-            previousErroredValue = .bool(false)
-            previousErrorValue = defaultFalseJSON
-            previousHeadersValue = defaultFalseJSON
-        }
-
-        previousNodeType = nodeType
+        // TODO: previous node type logic in network request eval
+//        if let previousNodeType = previousNodeType, previousNodeType != nodeType {
+//            previousLoadingValue = .bool(false)
+//            previousResultValue = defaultFalseJSON
+//            previousErroredValue = .bool(false)
+//            previousErrorValue = defaultFalseJSON
+//            previousHeadersValue = defaultFalseJSON
+//        }
+//
+//        previousNodeType = nodeType
 
         let resultFn: NetworkRequestOp = { (args: NetworkRequestArgs) -> NetworkRequestOpResult in
             (

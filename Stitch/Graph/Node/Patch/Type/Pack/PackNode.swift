@@ -17,7 +17,7 @@ struct PackPatchNode: PatchNodeDefinition {
 
     static let defaultUserVisibleType: UserVisibleType? = .size
 
-    static var inputCountVariesByType: Bool = true
+    static let inputCountVariesByType: Bool = true
 
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
         Self.rowDefinitions(nodeType: type,

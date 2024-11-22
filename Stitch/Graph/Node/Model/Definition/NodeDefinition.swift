@@ -48,7 +48,7 @@ protocol LayerNodeDefinition: NodeDefinition {
     
     static var layer: Layer { get }
     
-    static var inputDefinitions: LayerInputTypeSet { get }
+    @MainActor static var inputDefinitions: LayerInputTypeSet { get }
     
     @MainActor
     static func content(document: StitchDocumentViewModel,
