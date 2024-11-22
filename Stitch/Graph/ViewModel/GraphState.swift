@@ -17,6 +17,9 @@ import Vision
 
 @Observable
 final class GraphState: Sendable {
+    typealias CachedPortUI = NodePortType<NodeViewModel>
+    typealias NodePortCacheSet = Set<CachedPortUI>
+    
     // Updated when connections, new nodes etc change
     let topologicalData: GraphTopologicalData<NodeViewModel>
     
@@ -72,7 +75,7 @@ final class GraphState: Sendable {
     var networkRequestCompletedTimes = NetworkRequestLatestCompletedTimeDict()
     
     // Tracks IDs for rows that need to be updated for the view. Cached here for perf so we can throttle view updates.
-    var portsToUpdate: Set<NodePortType<NodeViewModel>> = .init()
+    var portsToUpdate: NodePortCacheSet = .init()
     
     var lastEncodedDocument: GraphEntity
     weak var documentDelegate: StitchDocumentViewModel?

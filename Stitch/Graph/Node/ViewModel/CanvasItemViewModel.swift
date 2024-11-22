@@ -163,7 +163,8 @@ extension CanvasItemViewModel {
               parentGroupNodeId:self.parentGroupNodeId)
     }
 
-    func update(from schema: CanvasNodeEntity) {        
+    @MainActor
+    func update(from schema: CanvasNodeEntity) {
         if self.position != schema.position {
             self.position = schema.position
         }
@@ -178,6 +179,16 @@ extension CanvasItemViewModel {
         
         if self.parentGroupNodeId != schema.parentGroupNodeId {
             self.parentGroupNodeId = schema.parentGroupNodeId
+        }
+        
+        // Hack to fix issues where undo/redo sometimes doesn't refresh edges.
+        // Not perfect as it leads to a bit of a stutter when it works.
+        self.inputViewModels.forEach {
+            $0.updateAnchorPoint()
+        }
+        
+        self.outputViewModels.forEach {
+            $0.updateAnchorPoint()
         }
     }
     
