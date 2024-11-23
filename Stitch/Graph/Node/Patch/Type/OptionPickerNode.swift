@@ -53,6 +53,7 @@ func optionPickerPatchNode(id: NodeId,
         outputs: outputs)
 }
 
+@MainActor
 func optionPickerEval(inputs: PortValuesList,
                       outputs: PortValuesList) -> PortValuesList {
 

@@ -264,11 +264,11 @@ extension CommentBoxViewModel {
 
 extension CommentBoxViewModel {
 
-    static let defaultBox = CommentBoxViewModel(
-        nodes: .init(),
-        //        position: .zero,
-        position: .init(x: 200, y: 200),
-        expansionBox: .defaultExpansionBox)
+//    static let defaultBox = CommentBoxViewModel(
+//        nodes: .init(),
+//        //        position: .zero,
+//        position: .init(x: 200, y: 200),
+//        expansionBox: .defaultExpansionBox)
 
     //    init(nodes: IdSet = .init(),
     //         position: CGSize,
