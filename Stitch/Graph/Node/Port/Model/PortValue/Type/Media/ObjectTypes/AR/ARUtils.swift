@@ -82,22 +82,22 @@ extension SCNVector3 {
     }
 }
 
-extension ARFrame {
-    func convertToUIImage(context: CIContext) async -> UIImage? {
-        let image = self.capturedImage
-        let ciImage = CIImage(cvImageBuffer: image)
-
-        // Send image to graph if successfully created
-        guard let cgImage = context.createCGImage(ciImage, from: ciImage.extent) else {
-            return nil
-        }
-        // Rotate image on iPhone
-        let uiImage = GraphUIState.isPhoneDevice ? UIImage(cgImage: cgImage, scale: 1.0, orientation: .right)
-            : UIImage(cgImage: cgImage)
-
-        return uiImage
-    }
-}
+//extension ARFrame {
+//    func convertToUIImage(context: CIContext) async -> UIImage? {
+//        let image = self.capturedImage
+//        let ciImage = CIImage(cvImageBuffer: image)
+//
+//        // Send image to graph if successfully created
+//        guard let cgImage = context.createCGImage(ciImage, from: ciImage.extent) else {
+//            return nil
+//        }
+//        // Rotate image on iPhone
+//        let uiImage = GraphUIState.isPhoneDevice ? UIImage(cgImage: cgImage, scale: 1.0, orientation: .right)
+//            : UIImage(cgImage: cgImage)
+//
+//        return uiImage
+//    }
+//}
 
 extension Entity {
     // MARK: eval logic for model 3D patch node
