@@ -154,6 +154,7 @@ extension LayerInputObserver {
         }
     }
     
+    @MainActor
     var values: PortValues {
         switch self.mode {
         case .packed:
