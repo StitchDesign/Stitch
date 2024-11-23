@@ -11,7 +11,7 @@ import StitchSchemaKit
 typealias NodeEntityDict = [NodeId: NodeEntity]
 
 @Observable
-final class VisibleNodesViewModel {
+final class VisibleNodesViewModel: Sendable {
     // Storage for view models
     var nodes = NodesViewModelDict()
 

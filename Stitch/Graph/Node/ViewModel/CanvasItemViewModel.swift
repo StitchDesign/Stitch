@@ -268,6 +268,7 @@ extension CanvasItemViewModel {
 }
 
 extension InputLayerNodeRowData {
+    @MainActor
     static func empty(_ layerInputType: LayerInputType,
                       layer: Layer) -> Self {
         // Take the data from the schema!! 

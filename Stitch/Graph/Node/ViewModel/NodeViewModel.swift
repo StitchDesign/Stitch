@@ -26,6 +26,7 @@ final class NodeViewModel: Sendable {
 
     var id: NodeEntity.ID
     
+    @MainActor
     var title: String {
         didSet(oldValue) {
             if oldValue != title {
@@ -39,7 +40,7 @@ final class NodeViewModel: Sendable {
 
      Previously we used a `lazy var`, but since Swift never recalculates lazy vars we had to switch to a cache.
      */
-    private var _cachedDisplayTitle: String = ""
+    @MainActor private var _cachedDisplayTitle: String = ""
 
     var nodeType: NodeViewModelType
     

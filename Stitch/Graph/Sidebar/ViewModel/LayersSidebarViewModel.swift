@@ -8,7 +8,7 @@
 import SwiftUI
 
 @Observable
-final class LayersSidebarViewModel: ProjectSidebarObservable {
+final class LayersSidebarViewModel: ProjectSidebarObservable, Sendable {
     typealias EncodedItemData = SidebarLayerData
     
     var isEditing = false

@@ -9,13 +9,16 @@ import SwiftUI
 import StitchSchemaKit
 
 @Observable
-final class EdgeDrawingObserver {
-    var nearestEligibleInput: InputNodeRowViewModel?
-    var drawingGesture: OutputDragGesture?
-    var recentlyDrawnEdge: PortEdgeUI?
+final class EdgeDrawingObserver: Sendable {
+    @MainActor var nearestEligibleInput: InputNodeRowViewModel?
+    @MainActor var drawingGesture: OutputDragGesture?
+    @MainActor var recentlyDrawnEdge: PortEdgeUI?
+    
+    @MainActor init() { }
 }
 
 extension EdgeDrawingObserver {
+    @MainActor
     func reset() {
         // MARK: we need equality checks to reduce render cycles
         
