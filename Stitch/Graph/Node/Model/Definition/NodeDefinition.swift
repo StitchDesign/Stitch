@@ -16,6 +16,7 @@ protocol NodeDefinition {
     static var defaultTitle: String { get }
     
     // TODO: `LayerGraphNode.rowDefinitions` can NEVER have a UserVisibleType
+    @MainActor
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions
     static func createEphemeralObserver() -> NodeEphemeralObservable?
 

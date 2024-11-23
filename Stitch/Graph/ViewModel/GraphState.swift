@@ -11,7 +11,9 @@ import CoreML
 import CoreMotion
 import Foundation
 import StitchSchemaKit
-import StitchEngine
+
+// TODO: fix concurrency for topological data
+@preconcurrency import StitchEngine
 import SwiftUI
 import Vision
 

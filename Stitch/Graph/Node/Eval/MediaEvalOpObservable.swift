@@ -10,7 +10,7 @@ import StitchSchemaKit
 import SwiftUI
 
 protocol MediaEvalOpObservable: NodeEphemeralObservable, Sendable {
-    var nodeDelegate: NodeDelegate? { get set }
+    @MainActor var nodeDelegate: NodeDelegate? { get set }
 
     @MainActor var currentMedia: GraphMediaValue? { get set }
     
