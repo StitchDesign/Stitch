@@ -7,6 +7,7 @@
 
 import Foundation
 import StitchSchemaKit
+@preconcurrency import StitchEngine
 
 // MARK: non-derived data: values, assigned interactions, label, upstream/downstream connection
 
