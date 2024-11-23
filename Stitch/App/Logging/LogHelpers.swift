@@ -51,22 +51,22 @@ func getLogEntries(scope: OSLogStore.Scope = .currentProcessIdentifier,
 }
 
 /// Saves user's console logs to a temp file.
-func saveConsoleLogs(in directory: URL, logListener: LogListener) async -> URLResult {
-    let logsString = logListener.contents
-
-    let fileURL = directory
-        .appendingPathComponent("console-logs")
-        .appendingPathExtension("txt")
-
-    do {
-        try logsString.write(to: fileURL, atomically: true, encoding: .utf8)
-    } catch {
-        log("saveConsoleLogs error: \(error)")
-        return .failure(.logsFailed(logError: .consoleLogsSaveFailed))
-    }
-
-    return .success(fileURL)
-}
+//func saveConsoleLogs(in directory: URL, logListener: LogListener) async -> URLResult {
+//    let logsString = logListener.contents
+//
+//    let fileURL = directory
+//        .appendingPathComponent("console-logs")
+//        .appendingPathExtension("txt")
+//
+//    do {
+//        try logsString.write(to: fileURL, atomically: true, encoding: .utf8)
+//    } catch {
+//        log("saveConsoleLogs error: \(error)")
+//        return .failure(.logsFailed(logError: .consoleLogsSaveFailed))
+//    }
+//
+//    return .success(fileURL)
+//}
 
 // TODO: What specifically in the logs do we want to look at?
 // MARK: we aren't using this right now

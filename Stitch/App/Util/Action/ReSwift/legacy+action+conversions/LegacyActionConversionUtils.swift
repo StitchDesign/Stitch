@@ -20,7 +20,7 @@ func _getResponse(from legacyAction: Action,
     let environment: StitchEnvironment = store.environment
     
     let fileManager = environment.fileManager
-    let logListener = environment.logListener
+//    let logListener = environment.logListener
     let undoManager = environment.undoManager
 
     if let stitchStoreAction = (legacyAction as? StitchStoreEvent) {
@@ -110,13 +110,13 @@ func _getResponse(from legacyAction: Action,
     }
 
     // TODO: is such a specific signature worth it for only a couple actions?
-    else if let logAction = (legacyAction as? LogEvent) {
-        let response = logAction
-            .handle(logListener: logListener, fileManager: fileManager)
-            .toAppResponse()
-
-        return response
-    }
+//    else if let logAction = (legacyAction as? LogEvent) {
+//        let response = logAction
+//            .handle(logListener: logListener, fileManager: fileManager)
+//            .toAppResponse()
+//
+//        return response
+//    }
 
     // TODO: is such a specific signature worth it for only a couple actions?
     // Undo/redo events

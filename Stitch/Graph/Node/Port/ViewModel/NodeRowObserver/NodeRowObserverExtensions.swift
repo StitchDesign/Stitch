@@ -109,6 +109,7 @@ extension NodeRowObserver {
         return self.allLoopedValues[safe: graph.activeIndex.adjustedIndex(self.allLoopedValues.count)] ?? .none
     }
     
+    @MainActor
     func postProcessing(oldValues: PortValues,
                         newValues: PortValues) {
         // Update cached interactions data in graph

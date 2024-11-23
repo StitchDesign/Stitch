@@ -100,7 +100,7 @@ protocol NodeRowViewModel: StitchLayoutCachable, Observable, Identifiable {
     
     static var nodeIO: NodeIO { get }
     
-    func calculatePortColor() -> PortColor
+    @MainActor func calculatePortColor() -> PortColor
     
     @MainActor func portDragged(gesture: DragGesture.Value, graphState: GraphState)
     
@@ -241,6 +241,7 @@ extension NodeRowViewModel {
         }
     }
     
+    @MainActor
     func updatePortColor() {
         let newColor = self.calculatePortColor()
         self.setPortColorIfChanged(newColor)

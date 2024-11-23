@@ -69,10 +69,9 @@ let APP_SETTINGS_ICON_NAME: IconName = PROJECT_SETTINGS_ICON_NAME
 let SHOW_APP_SETTINGS_ACTION = { dispatch(ShowAppSettingsSheet()) }
 
 @MainActor
-let EXPORT_LOGS_ACTION = { dispatch(LogsExportStarted()) }
+//let EXPORT_LOGS_ACTION = { dispatch(LogsExportStarted()) }
 
-@MainActor
-let DELETE_ALL_PROJECTS_ALERT_ACTION = { dispatch(ShowDeleteAllProjectsConfirmation()) }
+let DELETE_ALL_PROJECTS_ALERT_ACTION = { @MainActor in dispatch(ShowDeleteAllProjectsConfirmation()) }
 
 /* ----------------------------------------------------------------
  -- MARK: GRAPH VIEW: LEFT SIDE

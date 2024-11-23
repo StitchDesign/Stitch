@@ -51,6 +51,7 @@ final class NodeViewModel: Sendable {
     weak var graphDelegate: GraphDelegate?
 
     /// Called on initialization or prototype restart.
+    @MainActor
     func syncEphemeralObservers() {
         if self.ephemeralObservers == nil,
            let ephemeralObserver = self.createEphemeralObserver() {
@@ -68,6 +69,7 @@ final class NodeViewModel: Sendable {
     }
     
     // i.e. "create node view model from schema
+    @MainActor
     convenience init(from schema: NodeEntity,
                      components: [UUID : StitchMasterComponent],
                      parentGraphPath: [UUID]) async {
@@ -270,6 +272,7 @@ extension NodeViewModel {
         }
     }
 
+    @MainActor
     func createEphemeralObserver() -> NodeEphemeralObservable? {
         let observer = self.kind.graphNode?.createEphemeralObserver()
         
