@@ -248,60 +248,60 @@ struct JsonReplView: View {
 //    }
 //}
 
-struct JSON_REPL_View_3: View {
-
-    var s: String {
-        //        """
-        //        { "api": "love" }
-        //        """
-        """
-                { "api": "/" }
-                """
-    }
-
-    var json: JSON? {
-        parseJSON(s)
-    }
-
-    //    var k: Result<Int, Error> {
-    var k: Result<Int, StitchNetworkRequestError> {
-        //        let r: Result<Int, Error>
-
-        let p = 9.99
-        //        return .init(error: "Bad Result \(p)")
-        return .failure(.init(error: "bad result \(p)..."))
-    }
-
-    var body: some View {
-        HStack(spacing: 30) {
-
-            Text(
-                //                k.error?.localizedDescription ?? "No Error..."
-                k.error?.error ?? "No error"
-                //                Error("Badness \(77.77)").localizedDescription
-            )
-
-            //
-            //            let k = json!.rawString(options: [.withoutEscapingSlashes, .prettyPrinted])!
-            //            Text(k)
-            //
-            //            //            let k2 = try! json!.rawData(options: .withoutEscapingSlashes)
-            //            //            Text(JSON(k2).description)
-            //
-            //            Text(json?.description ?? "Parsing Failure")
-            //            Divider()
-            //            Text("love 2")
-        }
-        .padding(90)
-        .background(.green.opacity(0.5))
-
-    }
-}
-
-struct JsonReplView_Previews: PreviewProvider {
-    static var previews: some View {
-        //        JsonReplView()
-        //        JSON_REPL_View_2()
-        JSON_REPL_View_3()
-    }
-}
+//struct JSON_REPL_View_3: View {
+//
+//    var s: String {
+//        //        """
+//        //        { "api": "love" }
+//        //        """
+//        """
+//                { "api": "/" }
+//                """
+//    }
+//
+//    var json: JSON? {
+//        parseJSON(s)
+//    }
+//
+//    //    var k: Result<Int, Error> {
+//    var k: Result<Int, StitchNetworkRequestError> {
+//        //        let r: Result<Int, Error>
+//
+//        let p = 9.99
+//        //        return .init(error: "Bad Result \(p)")
+//        return .failure(.init(error: "bad result \(p)..."))
+//    }
+//
+//    var body: some View {
+//        HStack(spacing: 30) {
+//
+//            Text(
+//                //                k.error?.localizedDescription ?? "No Error..."
+//                k.error?.error ?? "No error"
+//                //                Error("Badness \(77.77)").localizedDescription
+//            )
+//
+//            //
+//            //            let k = json!.rawString(options: [.withoutEscapingSlashes, .prettyPrinted])!
+//            //            Text(k)
+//            //
+//            //            //            let k2 = try! json!.rawData(options: .withoutEscapingSlashes)
+//            //            //            Text(JSON(k2).description)
+//            //
+//            //            Text(json?.description ?? "Parsing Failure")
+//            //            Divider()
+//            //            Text("love 2")
+//        }
+//        .padding(90)
+//        .background(.green.opacity(0.5))
+//
+//    }
+//}
+//
+//struct JsonReplView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        //        JsonReplView()
+//        //        JSON_REPL_View_2()
+//        JSON_REPL_View_3()
+//    }
+//}
