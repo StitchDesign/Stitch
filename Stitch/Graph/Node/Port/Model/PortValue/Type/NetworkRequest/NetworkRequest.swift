@@ -9,24 +9,6 @@ import Foundation
 import StitchSchemaKit
 import SwiftUI
 import SwiftyJSON
-import BrightFutures
-
-typealias FutureRequestResult = Future<(Data?, URLResponse?), AnyError>
-
-func futureRequest(urlRequest: URLRequest) -> FutureRequestResult {
-    //    log("futureRequest called")
-
-    // https://stackoverflow.com/questions/31937686/how-to-make-http-post-request-with-json-body-in-swift
-
-    let (task, f): URLSession.FutureSessionDataTask = URLSession
-        .shared
-        .dataTask(with: urlRequest)
-
-    // have to kick off the task,
-    // and then return the future
-    task.resume()
-    return f
-}
 
 let HTTP_GET_METHOD = "GET"
 let HTTP_POST_METHOD = "POST"

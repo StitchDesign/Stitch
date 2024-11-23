@@ -1,5 +1,5 @@
 {
-  "originHash" : "87be221b3fbded1c8027b1ce26671216264e4726379ed9409d52282eb1aab675",
+  "originHash" : "c180ad49e1ca6158a0cadf99cf3656d81dacab2d3997ddb71959385a7ec2ac54",
   "pins" : [
     {
       "identity" : "audiokit",
@@ -8,15 +8,6 @@
       "state" : {
         "revision" : "82cab9d4c168b5b03b67e2ff099819f589b530f7",
         "version" : "5.6.2"
-      }
-    },
-    {
-      "identity" : "brightfutures",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/Thomvis/BrightFutures.git",
-      "state" : {
-        "revision" : "939858b811026f85e87847a808f0bea2f187e5c4",
-        "version" : "8.1.0"
       }
     },
     {

@@ -196,12 +196,18 @@ func networkRequestEval(node: PatchNode,
             return resultFn((.bool(false), nil))
         }
 
-        let effect = getNetworkRequestOpSideEffect(nodeId: nodeId,
-                                                   index: index,
-                                                   method: method,
-                                                   url: url,
-                                                   headers: headers,
-                                                   body: body)
+        let effect: Effect = {
+            guard let result = await getNetworkRequestOpSideEffect(nodeId: nodeId,
+                                                                   index: index,
+                                                                   method: method,
+                                                                   url: url,
+                                                                   headers: headers,
+                                                                   body: body) else {
+                return NoOp()
+            }
+            
+            return result
+        }
 
         // log("networkRequestEval: effect: done")
         return resultFn((.bool(true),
@@ -235,52 +241,55 @@ func getNetworkRequestOpSideEffect(nodeId: NodeId,
                                    method: NetworkRequestType,
                                    url: URL,
                                    headers: JSON,
-                                   body: JSON) -> Effect {
-
-    let networkRequestOpSideEffect: Effect = {
-
-        return await withCheckedContinuation { continuation in
-
-            var urlRequest: URLRequest?
-            if method == .post {
-                guard let request = try? jsonPOSTRequest(url: url, body: body, headers: headers) else {
-                    // log("networkRequestEval: Error: Unable to create POST request.")
-                    return
-                }
-                urlRequest = request
-            } else if method == .get {
-                urlRequest = simpleGETRequest(url: url)
-            } else {
-                // log("networkRequestEval: Unknown method: \(method)")
-                return
-            }
-
-            guard let urlRequestUnwrapped = urlRequest else {
-                // log("networkRequestEval: Unable to create URLRequest.")
-                return
-            }
-
-            let thisRequestStartTime: TimeInterval = Date().timeIntervalSince1970
-            //            log("thisRequestStartTime: \(thisRequestStartTime)")
-            let future: FutureRequestResult = futureRequest(urlRequest: urlRequestUnwrapped)
-
-            future.onComplete { (result: Result<(Data?, URLResponse?), AnyError>) in
-
-                let handledResponse = handleRequestResponse(
-                    data: result.result.value?.0,
-                    response: result.result.value?.1,
-                    error: result.error)
-
-                continuation.resume(returning: NetworkRequestCompleted(
-                                        index: index,
-                                        nodeId: nodeId,
-                                        thisRequestStartTime: thisRequestStartTime,
-                                        result: handledResponse))
-            }
+                                   body: JSON) async -> NetworkRequestCompleted? {
+    var urlRequest: URLRequest?
+    
+    if method == .post {
+        guard let request = try? jsonPOSTRequest(url: url, body: body, headers: headers) else {
+            // log("networkRequestEval: Error: Unable to create POST request.")
+            return nil
         }
+        urlRequest = request
+    } else if method == .get {
+        urlRequest = simpleGETRequest(url: url)
+    } else {
+        // log("networkRequestEval: Unknown method: \(method)")
+        return nil
     }
-
-    return networkRequestOpSideEffect
+    
+    guard let urlRequestUnwrapped = urlRequest else {
+        // log("networkRequestEval: Unable to create URLRequest.")
+        return nil
+    }
+    
+    let thisRequestStartTime: TimeInterval = Date().timeIntervalSince1970
+    //            log("thisRequestStartTime: \(thisRequestStartTime)")
+    
+    do {
+        let result = try await URLSession.shared
+            .data(for: urlRequestUnwrapped)
+        let handledResponse = handleRequestResponse(
+            data: result.0,
+            response: result.1,
+            error: nil)
+        
+        return NetworkRequestCompleted(
+            index: index,
+            nodeId: nodeId,
+            thisRequestStartTime: thisRequestStartTime,
+            result: handledResponse)
+    } catch {
+        let handledResponse = handleRequestResponse(
+            data: nil,
+            response: nil,
+            error: error)
+        
+        return NetworkRequestCompleted(
+            index: index,
+            nodeId: nodeId,
+            thisRequestStartTime: thisRequestStartTime,
+            result: handledResponse)
+    }
 }
 
 // basically only for network request...
