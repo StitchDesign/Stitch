@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 /// Provides a handler to inform us when an animation completes.
-struct AnimateCompletionHandler<Content: View>: Animatable {
+struct AnimateCompletionHandler: @preconcurrency Animatable, ViewModifier {
     var percentage: CGFloat
     var onReachedDestination: () -> Void = {}
 

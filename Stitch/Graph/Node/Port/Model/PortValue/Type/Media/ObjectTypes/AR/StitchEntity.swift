@@ -14,12 +14,13 @@ import RealityKit
 final class StitchEntity: NSObject, Sendable {
     let id: MediaObjectId
     let sourceURL: URL
-    let isUsedInLayer: Bool
+    @MainActor var isUsedInLayer: Bool = false
     let nodeId: NodeId
     
     // Used just for anchors
-    weak var anchor: AnchorEntity?
+    @MainActor weak var anchor: AnchorEntity?
     
+    @MainActor
     var isAnimating: Bool {
         @MainActor didSet {
             if isAnimating {

@@ -94,7 +94,7 @@ let FILE_IMPORT_ICON_NAME: IconName = .svgIcon("Doc")
 // let FILE_IMPORT_ICON_NAME: IconName = .sfSymbol("doc")
 
 @MainActor
-let FILE_IMPORT_ACTION = { dispatch(ShowFileImportModal()) }
+let FILE_IMPORT_ACTION = { @MainActor in dispatch(ShowFileImportModal()) }
 
 @MainActor
 let INSERT_NODE_ACTION = { dispatch(ToggleInsertNodeMenu()) }
@@ -108,17 +108,17 @@ let PREVIEW_FULL_SCREEN_ACTION = { dispatch(ToggleFullScreenEvent()) }
 let UNDO_ICON_LABEL = "Undo"
 let UNDO_ICON_NAME: IconName = .svgIcon("Undo")
 @MainActor
-let UNDO_ACTION = { dispatch(UndoEvent()) }
+let UNDO_ACTION = { @MainActor in dispatch(UndoEvent()) }
 
 let REDO_ICON_LABEL = "Redo"
 let REDO_ICON_NAME: IconName = .svgIcon("Redo")
 @MainActor
-let REDO_ACTION = { dispatch(RedoEvent()) }
+let REDO_ACTION = { @MainActor in dispatch(RedoEvent()) }
 
 let PROJECT_SETTINGS_LABEL = "Settings"
 let PROJECT_SETTINGS_ICON_NAME: IconName = .sfSymbol(.SETTINGS_SF_SYMBOL_NAME)
 @MainActor
-let PROJECT_SETTINGS_ACTION = { dispatch(ShowProjectSettingsSheet()) }
+let PROJECT_SETTINGS_ACTION = { @MainActor in dispatch(ShowProjectSettingsSheet()) }
 
 /* ----------------------------------------------------------------
  -- MARK: GESTURES

@@ -364,25 +364,23 @@ extension SidebarItemGestureViewModel {
     }
 }
 
-import GameController
+@preconcurrency import GameController
 
 // Note: a global GameController observer seems to be an accurate way to listen for Shift etc. key presses
 // TODO: use this approach more widely?
 @Observable
 final class KeyboardObserver: Sendable {
-    @MainActor var keyboard: GCKeyboard?
+    var keyboard: GCKeyboard?
     
-    @MainActor var observer: Any? = nil
+    var observer: Any? = nil
     
     init() {
         observer = NotificationCenter.default.addObserver(
             forName: .GCKeyboardDidConnect,
             object: nil,
             queue: .main
-        ) { notification in
-//            DispatchQueue.main.async { [weak self] in
-            self.keyboard = notification.object as? GCKeyboard
-//            }
+        ) { [weak self] notification in
+            self?.keyboard = notification.object as? GCKeyboard
         }
     }
 }

@@ -72,6 +72,7 @@ extension StitchMediaObject: Hashable {
 }
 
 extension StitchMediaObject {
+    @MainActor
     mutating func transferData(from otherMediaObject: StitchMediaObject) async {
         switch self {
         case .image(let uIImage):
@@ -293,6 +294,7 @@ extension StitchMediaObject {
     }
 
     /// Applies to sound and video players
+    @MainActor
     var currentPlaybackTime: Double? {
         switch self {
         case .video(let videoPlayer):
