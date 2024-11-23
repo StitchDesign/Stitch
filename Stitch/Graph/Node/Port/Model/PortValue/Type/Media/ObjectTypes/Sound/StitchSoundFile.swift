@@ -12,6 +12,7 @@ import AVFoundation
 
 final class StitchSoundFilePlayer: NSObject, StitchSoundPlayerDelegate {
     static let permissionsCategory = AVAudioSession.Category.playback
+    let id = UUID()
 
     var engine = AudioEngine()
     let player = AudioPlayer()

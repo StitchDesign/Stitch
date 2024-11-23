@@ -18,11 +18,11 @@ struct StitchDirectoryResponse {
 final actor DocumentLoader {
     var storage: [URL: ProjectLoader] = [:]
 
-    nonisolated func _directoryUpdated() {
-        Task { [weak self] in
-            let _ = await self?.directoryUpdated()
-        }
-    }
+//    nonisolated func _directoryUpdated() {
+//        Task { [weak self] in
+//            let _ = await self?.directoryUpdated()
+//        }
+//    }
     
     func directoryUpdated() async -> StitchDirectoryResponse? {
         switch StitchFileManager
