@@ -17,7 +17,7 @@ final class StitchMic: NSObject, Sendable, StitchSoundPlayerDelegate {
     var engine = AudioEngine()
 
     // Recorder and session are used for the mic patch node
-    private var recorder: AVAudioRecorder?
+    @MainActor private var recorder: AVAudioRecorder?
 
     @MainActor
     init(isEnabled: Bool) {
@@ -65,6 +65,7 @@ final class StitchMic: NSObject, Sendable, StitchSoundPlayerDelegate {
         }
     }
 
+    @MainActor
     var url: URL? { self.recorder?.url }
 
     @MainActor
