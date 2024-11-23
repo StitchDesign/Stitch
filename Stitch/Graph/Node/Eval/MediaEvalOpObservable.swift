@@ -230,6 +230,7 @@ extension PortValues {
     }
     
     /// Gets outputs from  a list of inputs + outputs.
+    @MainActor
     func prevOutputs(nodeKind: NodeKind) -> PortValues? {
         // Just get inputs count, user visible type doesn't matter
         let inputsCount = nodeKind.rowDefinitions(for: nil).inputs.count

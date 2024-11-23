@@ -29,8 +29,8 @@ let CUSTOM_LIST_ITEM_INDENTATION_LEVEL: Int = 24
 
 @Observable
 final class SidebarItemGestureViewModel: SidebarItemSwipable {
+    let id: NodeId
     var sidebarIndex: SidebarIndex = .init(groupIndex: .zero, rowIndex: .zero)
-    var id: NodeId
     var children: [SidebarItemGestureViewModel]?
     
     var isExpandedInSidebar: Bool?
@@ -47,11 +47,9 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
     
     weak var parentDelegate: SidebarItemGestureViewModel? {
         didSet {
-            DispatchQueue.main.async { [weak self] in
-                if let sidebarItem = self {
-                    dispatch(AssignedLayerUpdated(changedLayerNode: sidebarItem.id.asLayerNodeId))
-                    dispatch(LayerGroupIdChanged(layerNodeId: sidebarItem.id.asLayerNodeId))
-                }
+            if let sidebarItem = self {
+                dispatch(AssignedLayerUpdated(changedLayerNode: sidebarItem.id.asLayerNodeId))
+                dispatch(LayerGroupIdChanged(layerNodeId: sidebarItem.id.asLayerNodeId))
             }
         }
     }
@@ -92,7 +90,7 @@ extension SidebarItemGestureViewModel {
     }
     
     func update(from schema: EncodedItemData) {
-        self.id = schema.id
+        assertInDebug(self.id == schema.id)
         self.isExpandedInSidebar = isExpandedInSidebar
     }
     
@@ -123,10 +121,12 @@ extension SidebarItemGestureViewModel {
                                  isCommitting: isCommitting))
     }
     
+    @MainActor
     func sidebarLayerHovered(itemId: SidebarListItemId) {
         self.graphDelegate?.graphUI.sidebarLayerHovered(layerId: itemId.asLayerNodeId)
     }
     
+    @MainActor
     func sidebarLayerHoverEnded(itemId: SidebarListItemId) {
         self.graphDelegate?.graphUI.sidebarLayerHoverEnded(layerId: itemId.asLayerNodeId)
     }

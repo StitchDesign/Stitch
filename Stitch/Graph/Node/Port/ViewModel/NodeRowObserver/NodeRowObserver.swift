@@ -7,7 +7,7 @@
 
 import Foundation
 import StitchSchemaKit
-@preconcurrency import StitchEngine
+import StitchEngine
 
 protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRowCalculatable {
     associatedtype RowViewModelType: NodeRowViewModel
@@ -52,18 +52,21 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
 extension PortValue: Sendable { }
 
 @Observable
-final class InputNodeRowObserver: NodeRowObserver, @preconcurrency InputNodeRowCalculatable {
+final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     static let nodeIOType: NodeIO = .input
 
-    var id: NodeIOCoordinate
+    let id: NodeIOCoordinate
     
     // Data-side for values
+    @MainActor
     var allLoopedValues: PortValues = .init()
     
     // statically defined inputs
+    @MainActor
     var nodeKind: NodeKind
     
     // Connected upstream node, if input
+    @MainActor
     var upstreamOutputCoordinate: NodeIOCoordinate? {
         didSet(oldValue) {
             // TODO: move mainactor to stitchengine
@@ -127,7 +130,7 @@ final class OutputNodeRowObserver: NodeRowObserver {
     let containsUpstreamConnection = false  // always false
 
     // TODO: Outputs can only use portIds, so this should be something more specific than NodeIOCoordinate
-    var id: NodeIOCoordinate
+    let id: NodeIOCoordinate
     
     // Data-side for values
     var allLoopedValues: PortValues = .init()
@@ -240,6 +243,7 @@ extension InputNodeRowObserver {
             .getOutputRowObserver(upstreamPortId)
     }
     
+    @MainActor
     var hasEdge: Bool {
         self.upstreamOutputCoordinate.isDefined
     }

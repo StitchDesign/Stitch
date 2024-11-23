@@ -13,17 +13,20 @@ typealias NodeEntityDict = [NodeId: NodeEntity]
 @Observable
 final class VisibleNodesViewModel: Sendable {
     // Storage for view models
-    var nodes = NodesViewModelDict()
+    @MainActor var nodes = NodesViewModelDict()
 
     // Saves location and zoom-specific data for groups
-    var nodesByPage: NodesPagingDict = [.root: .init()]
+    @MainActor var nodesByPage: NodesPagingDict = [.root: .init()]
     
-    var visibleCanvasIds = Set<CanvasItemId>()
+    @MainActor var visibleCanvasIds = Set<CanvasItemId>()
     
     var infiniteCanvasCache: InfiniteCanvas.Cache?
+    
+    @MainActor init() { }
 }
 
 extension VisibleNodesViewModel {
+    @MainActor
     var allNodeIds: IdSet {
         self.nodes.keys.toSet
     }
@@ -36,6 +39,7 @@ extension VisibleNodesViewModel {
     }
 
     /// Returns list of view models to display given the actively selected group (or lack thereof).
+    @MainActor
     func getViewData(groupNodeFocused: NodeId?) -> NodePageData? {
         self.nodesByPage.get(groupNodeFocused.nodePageType)
     }
@@ -51,6 +55,7 @@ extension VisibleNodesViewModel {
         self.getViewModel(id)
     }
 
+    @MainActor
     func removeOldViewModels(currentIds: NodeIdSet,
                              newIds: NodeIdSet,
                              isRestart: Bool = false) {
@@ -284,18 +289,21 @@ extension VisibleNodesViewModel {
         self.getViewModel(id)?.kind.isGroup ?? false
     }
     
+    @MainActor
     var patchNodes: NodesViewModelDict {
         self.nodes.filter {
             $0.value.patchNode.isDefined
         }
     }
 
+    @MainActor
     var layerNodes: NodesViewModelDict {
         self.nodes.filter {
             $0.value.layerNode.isDefined
         }
     }
 
+    @MainActor
     var groupNodes: NodesViewModelDict {
         self.nodes.filter {
             $0.value.kind == .group

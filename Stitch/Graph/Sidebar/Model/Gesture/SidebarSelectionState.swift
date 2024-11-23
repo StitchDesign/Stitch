@@ -11,10 +11,12 @@ import StitchSchemaKit
 typealias SidebarSelectionObserver = ProjectSidebarObservable
 
 extension ProjectSidebarObservable {
+    @MainActor
     var all: Set<Self.ItemID> {
         self.items.getAllSelectedItems(from: self.selectionState.primary)
     }
     
+    @MainActor
     func resetEditModeSelections() {
         // DO NOT 'focus the sidebar' here; resetting primary selections is NOT the same thing as tapping or dragging a layer
 //        self.graphDelegate?.graphUI.isSidebarFocused = true
@@ -24,6 +26,7 @@ extension ProjectSidebarObservable {
 }
 
 extension Array where Element: SidebarItemSwipable {
+    @MainActor
     func getAllSelectedItems(from selections: Set<Element.ID>) -> Set<Element.ID> {
         self.reduce(into: Set<Element.ID>()) { result, item in
             if selections.contains(item.id) {

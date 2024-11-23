@@ -12,15 +12,15 @@ import StitchEngine
 
 let STITCH_PROJECT_DEFAULT_NAME = StitchDocument.defaultName
 
-extension StitchDocumentViewModel: Hashable {
-    static func == (lhs: StitchDocumentViewModel, rhs: StitchDocumentViewModel) -> Bool {
-        lhs.graph.id == rhs.graph.id
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(self.graph.id)
-    }
-}
+//extension StitchDocumentViewModel: Hashable {
+//    static func == (lhs: StitchDocumentViewModel, rhs: StitchDocumentViewModel) -> Bool {
+//        lhs.graph.id == rhs.graph.id
+//    }
+//
+//    func hash(into hasher: inout Hasher) {
+//        hasher.combine(self.graph.id)
+//    }
+//}
 
 @Observable
 final class StitchDocumentViewModel: Sendable {
@@ -139,14 +139,17 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
 }
 
 extension StitchDocumentViewModel {
+    @MainActor
     var id: UUID {
         self.graph.id
     }
     
+    @MainActor
     var projectId: UUID {
         self.id
     }
     
+    @MainActor
     var projectName: String {
         self.graph.name
     }
@@ -199,6 +202,7 @@ extension StitchDocumentViewModel {
     
     /// Determines if camera is in use by looking at main graph + all component graphs to determine if any camera
     /// node is enabled. Complexity handled here as there can only be one running camera session.
+    @MainActor
     var isCameraEnabled: Bool {
         self.allGraphs.contains {
             !$0.enabledCameraNodeIds.isEmpty
@@ -206,11 +210,13 @@ extension StitchDocumentViewModel {
     }
     
     /// Returns self and all graphs inside component instances.
+    @MainActor
     var allGraphs: [GraphState] {
         [self.graph] + self.graph.allComponentGraphs
     }
     
     /// Returns all components inside graph instances.
+    @MainActor
     var allComponents: [StitchComponentViewModel] {
         self.graph.allComponents
     }
@@ -242,6 +248,7 @@ extension GraphState: GraphCalculatable {
         self.pinMap = rootPinMap
     }
     
+    @MainActor
     func getNodesToAlwaysRun() -> Set<UUID> {
         Array(self.nodes
                 .values
@@ -250,6 +257,7 @@ extension GraphState: GraphCalculatable {
             .toSet
     }
     
+    @MainActor
     func getAnimationNodes() -> Set<UUID> {
         Array(self.nodes
                 .values

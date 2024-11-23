@@ -100,7 +100,7 @@ final class NodeViewModel: Sendable {
     }
 }
 
-extension NodeViewModel: @preconcurrency NodeCalculatable {
+extension NodeViewModel: NodeCalculatable {
     var inputsObservers: [InputNodeRowObserver] {
         get {
             self.getAllInputsObservers()
