@@ -75,6 +75,7 @@ extension NodeDelegate {
         }
     }
     
+    @MainActor
     var layerNodeViewModel: LayerNodeViewModel? {
         switch self.nodeType {
         case .layer(let layerNode):

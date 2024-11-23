@@ -250,6 +250,7 @@ extension StitchComponentViewModel {
 }
 
 extension StitchComponentViewModel {
+    @MainActor
     var id: NodeId {
         guard let node = self.nodeDelegate else {
             fatalErrorIfDebug()

@@ -146,6 +146,7 @@ extension LayerInputObserver {
         }
     }
     
+    @MainActor
     var observerMode: LayerInputObserverMode {
         switch self.mode {
         case .packed:
@@ -165,6 +166,7 @@ extension LayerInputObserver {
         }
     }
     
+    @MainActor
     var graphDelegate: GraphDelegate? {
         // Hacky solution, just get row observer delegate from packed data
         self._packedData.rowObserver.nodeDelegate?.graphDelegate
