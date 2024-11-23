@@ -80,8 +80,9 @@ final class CanvasItemViewModel: Identifiable, StitchLayoutCachable, Sendable {
     }
     
     // View specific port value data
-    var inputViewModels: [InputNodeRowViewModel] = []
-    var outputViewModels: [OutputNodeRowViewModel] = []
+    @MainActor var inputViewModels: [InputNodeRowViewModel] = []
+    
+    @MainActor var outputViewModels: [OutputNodeRowViewModel] = []
     
     // Cached subview sizes for performance gains in commit phase
     var viewCache: NodeLayoutCache?

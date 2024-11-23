@@ -12,18 +12,19 @@ import StitchEngine
 
 let STITCH_PROJECT_DEFAULT_NAME = StitchDocument.defaultName
 
-//extension StitchDocumentViewModel: Hashable {
-//    static func == (lhs: StitchDocumentViewModel, rhs: StitchDocumentViewModel) -> Bool {
-//        lhs.graph.id == rhs.graph.id
-//    }
-//
-//    func hash(into hasher: inout Hasher) {
-//        hasher.combine(self.graph.id)
-//    }
-//}
+extension StitchDocumentViewModel: Hashable {
+    static func == (lhs: StitchDocumentViewModel, rhs: StitchDocumentViewModel) -> Bool {
+        lhs.rootId == rhs.rootId
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(self.rootId)
+    }
+}
 
 @Observable
 final class StitchDocumentViewModel: Sendable {
+    let rootId: UUID
     let graph: GraphState
     var graphUI: GraphUIState
     let graphStepManager = GraphStepManager()
@@ -67,6 +68,7 @@ final class StitchDocumentViewModel: Sendable {
          isPhoneDevice: Bool,
          projectLoader: ProjectLoader,
          store: StoreDelegate?) {
+        self.id = schema.id
         self.documentEncoder = projectLoader.encoder
         self.previewWindowSize = schema.previewWindowSize
         self.previewSizeDevice = schema.previewSizeDevice
