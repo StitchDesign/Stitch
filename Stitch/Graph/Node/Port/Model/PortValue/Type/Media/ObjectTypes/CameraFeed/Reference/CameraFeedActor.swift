@@ -10,6 +10,7 @@ import Foundation
 import SwiftUI
 import UIKit
 import StitchSchemaKit
+import ARView
 
 actor CameraFeedActor {
     private let context = CIContext()
@@ -95,6 +96,16 @@ actor CameraFeedActor {
         }
         
 //        self.currentProcessedImage = newImage
+        
+        await MainActor.run { [weak self] in
+            self?.imageConverterDelegate?.imageConverted(image: newImage)
+        }
+    }
+    
+    func createUIImage(from frame: ARFrame) {
+        guard let uiImage = await frame.convertToUIImage(context: context) else {
+            return
+        }
         
         await MainActor.run { [weak self] in
             self?.imageConverterDelegate?.imageConverted(image: newImage)
