@@ -20,7 +20,7 @@ final class VisibleNodesViewModel: Sendable {
     
     @MainActor var visibleCanvasIds = Set<CanvasItemId>()
     
-    var infiniteCanvasCache: InfiniteCanvas.Cache?
+    @MainActor var infiniteCanvasCache: InfiniteCanvas.Cache?
     
     @MainActor init() { }
 }

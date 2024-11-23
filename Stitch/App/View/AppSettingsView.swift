@@ -185,8 +185,7 @@ struct AppSettingsView: View {
                         let label = device.localizedName
                         Button(label) {
                             dispatch(CameraPreferenceChanged(
-                                        cameraId: device.uniqueID,
-                                        userDefaults: UserDefaults.standard))
+                                        cameraId: device.uniqueID))
                         }
                     }
                 } label: {
