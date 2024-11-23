@@ -7,7 +7,7 @@
 
 import Foundation
 import StitchSchemaKit
-import StitchEngine
+@preconcurrency import StitchEngine
 
 protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRowCalculatable {
     associatedtype RowViewModelType: NodeRowViewModel
@@ -56,8 +56,8 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     var nodeKind: NodeKind
     
     // Connected upstream node, if input
+    // TODO: move mainactor to stitchengine
     var upstreamOutputCoordinate: NodeIOCoordinate? {
-        @MainActor
         didSet(oldValue) {
             self.didUpstreamOutputCoordinateUpdate(oldValue: oldValue)
         }

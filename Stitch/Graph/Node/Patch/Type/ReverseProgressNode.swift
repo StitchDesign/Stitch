@@ -43,6 +43,7 @@ func reverseProgressNode(id: NodeId,
         outputs: outputs)
 }
 
+@MainActor
 func reverseProgressEval(inputs: PortValuesList, outputs: PortValuesList) -> PortValuesList {
     //    log("reverseProgressEval called")
 
