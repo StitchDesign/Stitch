@@ -11,7 +11,7 @@ import StitchSchemaKit
 // legacy; used for potentially-labeled buttons,
 // including those that appear in the top bar's dropdown menu
 struct iPadTopBarButton: View {
-    let action: () -> Void
+    let action: @MainActor () -> Void
     let iconName: IconName
     var label: String? // non-nil show label
 

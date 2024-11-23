@@ -204,6 +204,7 @@ extension MediaEvalOpObservable {
 
 extension PortValues {
     /// Gets outputs from  a list of inputs + outputs, defaulting to default outputs if no outputs passed in list.
+    @MainActor
     func prevOutputs(node: NodeDelegate) -> PortValues {
         self.prevOutputs(nodeKind: node.kind) ?? node.defaultOutputs
     }
