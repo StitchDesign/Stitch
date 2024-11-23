@@ -242,6 +242,7 @@ extension GraphState {
     }
     
     /// Finds graph states for a component at this hierarchy.
+    @MainActor
     func findComponentGraphStates(componentId: UUID) -> [GraphState] {
         self.nodes.values
             .compactMap { node in

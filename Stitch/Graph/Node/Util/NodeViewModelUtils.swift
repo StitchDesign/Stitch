@@ -100,6 +100,7 @@ extension NodeViewModel {
         }
     }
 
+    @MainActor
     var splitterType: SplitterType? {
         get {
             self.nodeType.patchNode?.splitterType
@@ -190,6 +191,7 @@ extension NodeViewModel {
         self.kind.getDisplayTitle(customName: self.title)
     }
     
+    @MainActor
     var layerNodeId: LayerNodeId {
         LayerNodeId(self.id)
     }
@@ -220,14 +222,17 @@ extension NodeViewModel {
         (self as NodeViewModel).getLoopIndices()
     }
 
+    @MainActor
     var patchNode: PatchNodeViewModel? {
         nodeType.patchNode
     }
 
+    @MainActor
     var layerNode: LayerNodeViewModel? {
         nodeType.layerNode
     }
     
+    @MainActor
     var componentNode: StitchComponentViewModel? {
         nodeType.componentNode
     }

@@ -31,6 +31,7 @@ extension Array where Element: StitchNestedListElement {
 }
 
 extension GraphState {
+    @MainActor
     func createSidebarLayerType(layerNode: LayerNodeViewModel) -> SidebarLayerData {
         if layerNode.layer == .group {
             // Find all nodes with this group
