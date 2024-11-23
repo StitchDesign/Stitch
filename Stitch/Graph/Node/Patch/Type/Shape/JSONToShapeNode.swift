@@ -7,7 +7,7 @@
 
 import Foundation
 import StitchSchemaKit
-import SwiftyJSON
+@preconcurrency import SwiftyJSON
 import SwiftUI
 
 //let JSON_TO_SHAPE_NO_ERROR = ""

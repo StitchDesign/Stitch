@@ -44,6 +44,7 @@ func equalsPatchNode(id: NodeId,
                      outputs: outputs)
 }
 
+@MainActor
 func equalsEval(inputs: PortValuesList,
                 outputs: PortValuesList) -> PortValuesList {
 
