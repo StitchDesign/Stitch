@@ -137,6 +137,7 @@ extension TimeInterval {
     }
 }
 
+@MainActor
 func dragInteractionEvalOp(values: PortValues,
                            loopIndex: Int,
                            interactiveLayer: InteractiveLayer,

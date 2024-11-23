@@ -102,6 +102,7 @@ extension CGSize {
 }
 
 extension InteractiveLayer {
+    @MainActor
     func getDraggedPosition(startingPoint: CGPoint) -> CGPoint {
         .init(
             x: self.dragTranslation.width + startingPoint.x,

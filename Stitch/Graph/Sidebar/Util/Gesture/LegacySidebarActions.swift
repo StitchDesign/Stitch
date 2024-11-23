@@ -39,7 +39,7 @@ extension ProjectSidebarObservable {
         return smallestItem
     }
     
-    
+    @MainActor
     func getDraggedAlong(_ draggedItem: Self.ItemViewModel,
                          selections: Set<Self.ItemID>) -> Set<Self.ItemID> {
         let children = draggedItem.children?.map { $0.id } ?? []

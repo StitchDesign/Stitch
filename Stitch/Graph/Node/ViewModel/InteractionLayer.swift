@@ -8,13 +8,8 @@
 import Foundation
 import StitchSchemaKit
 
-final class InteractiveLayer {
+final class InteractiveLayer: Sendable {
     let id: PreviewCoordinate
-    weak var delegate: InteractiveLayerDelegate?
-    
-    init(id: PreviewCoordinate) {
-        self.id = id
-    }
     
     @MainActor var singleTapped: Bool = false
     @MainActor var doubleTapped: Bool = false
@@ -37,6 +32,12 @@ final class InteractiveLayer {
     
     @MainActor var childSize: CGSize = .zero
     @MainActor var parentSize: CGSize = .zero
+    
+    @MainActor weak var delegate: InteractiveLayerDelegate?
+    
+    init(id: PreviewCoordinate) {
+        self.id = id
+    }
 }
 
 extension InteractiveLayer {
