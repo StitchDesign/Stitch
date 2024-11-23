@@ -13,6 +13,7 @@ import StitchSchemaKit
 final class StitchMic: NSObject, Sendable, StitchSoundPlayerDelegate {
     internal static let permissionsCategory = AVAudioSession.Category.playAndRecord
     private let session: AVAudioSession
+    let id = UUID()
     
     var engine = AudioEngine()
 

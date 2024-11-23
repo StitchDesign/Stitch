@@ -60,7 +60,7 @@ extension StitchMediaObject: Hashable {
         case .soundfile(let stitchSoundPlayer):
             hasher.combine(stitchSoundPlayer.delegate.url?.hashValue ?? .zero)
         case .mic(let stitchSoundPlayer):
-            hasher.combine(stitchSoundPlayer.delegate.url?.hashValue ?? .zero)
+            hasher.combine(stitchSoundPlayer.delegate.id)
         case .model3D(let stitchEntity):
             hasher.combine(stitchEntity.sourceURL)
         case .arAnchor(let anchorEntity):
