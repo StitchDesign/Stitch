@@ -48,24 +48,24 @@ struct PinReceiverData: Equatable {
 }
 
 @Observable
-final class LayerViewModel {
-    var id: PreviewCoordinate
+final class LayerViewModel: Sendable {
+    let id: PreviewCoordinate
     let layer: Layer
     let interactiveLayer: InteractiveLayer
-    weak var nodeDelegate: NodeDelegate?
+    @MainActor weak var nodeDelegate: NodeDelegate?
     
     // PINNING: "View A is pinned to View B"
 
     // TODO: wrap these up into pinned- vs pinReceiving-data structures as seen above?
 
     // data for pin-receiving view, i.e. View B
-    var pinReceiverSize: CGSize? = nil // anchor
-    var pinReceiverOrigin: CGPoint? = nil // anchor
-    var pinReceiverCenter: CGPoint? = nil // rotation
+    @MainActor var pinReceiverSize: CGSize? = nil // anchor
+    @MainActor var pinReceiverOrigin: CGPoint? = nil // anchor
+    @MainActor var pinReceiverCenter: CGPoint? = nil // rotation
 
     // data for pinned view, i.e. View A
-    var pinnedSize: CGSize? = nil // parent-affected size (e.g. parent scaled 2x); read by a "Ghost View" that sits in view's normal, expected place in hierarchy.
-    var pinnedCenter: CGPoint? = nil // not affected by parent's scale, position etc.; read by a "Pinned View" that sits in same hierarchy level as the view it is pinned to.
+    @MainActor var pinnedSize: CGSize? = nil // parent-affected size (e.g. parent scaled 2x); read by a "Ghost View" that sits in view's normal, expected place in hierarchy.
+    @MainActor var pinnedCenter: CGPoint? = nil // not affected by parent's scale, position etc.; read by a "Pinned View" that sits in same hierarchy level as the view it is pinned to.
     
     // Layer's frame as read by layer's background GeometryReader,
     // see `LayerSizeReader`.
@@ -87,135 +87,136 @@ final class LayerViewModel {
     }
     
     // Ports
-    var position: PortValue
-    var size: PortValue
-    var scale: PortValue
-    var anchoring: PortValue
-    var startAnchor: PortValue
-    var endAnchor: PortValue
-    var opacity: PortValue
-    var zIndex: PortValue
-    var masks: PortValue
-    var color: PortValue
-    var startColor: PortValue
-    var endColor: PortValue
-    var centerAnchor: PortValue
-    var startAngle: PortValue
-    var endAngle: PortValue
-    var startRadius: PortValue
-    var endRadius: PortValue
-    var rotationX: PortValue
-    var rotationY: PortValue
-    var rotationZ: PortValue
-    var lineColor: PortValue
-    var lineWidth: PortValue
-    var blur: PortValue
-    var blendMode: PortValue
-    var brightness: PortValue
-    var colorInvert: PortValue
-    var contrast: PortValue
-    var hueRotation: PortValue
-    var saturation: PortValue
-    var pivot: PortValue
-    var enabled: PortValue
-    var blurRadius: PortValue
-    var backgroundColor: PortValue
-    var isClipped: PortValue
-    var orientation: PortValue
-    var padding: PortValue
-    var setupMode: PortValue
-    var allAnchors: PortValues
-    var cameraDirection: PortValue
-    var isCameraEnabled: PortValue
-    var isShadowsEnabled: PortValue
+    @MainActor var position: PortValue
+    @MainActor var size: PortValue
+    @MainActor var scale: PortValue
+    @MainActor var anchoring: PortValue
+    @MainActor var startAnchor: PortValue
+    @MainActor var endAnchor: PortValue
+    @MainActor var opacity: PortValue
+    @MainActor var zIndex: PortValue
+    @MainActor var masks: PortValue
+    @MainActor var color: PortValue
+    @MainActor var startColor: PortValue
+    @MainActor var endColor: PortValue
+    @MainActor var centerAnchor: PortValue
+    @MainActor var startAngle: PortValue
+    @MainActor var endAngle: PortValue
+    @MainActor var startRadius: PortValue
+    @MainActor var endRadius: PortValue
+    @MainActor var rotationX: PortValue
+    @MainActor var rotationY: PortValue
+    @MainActor var rotationZ: PortValue
+    @MainActor var lineColor: PortValue
+    @MainActor var lineWidth: PortValue
+    @MainActor var blur: PortValue
+    @MainActor var blendMode: PortValue
+    @MainActor var brightness: PortValue
+    @MainActor var colorInvert: PortValue
+    @MainActor var contrast: PortValue
+    @MainActor var hueRotation: PortValue
+    @MainActor var saturation: PortValue
+    @MainActor var pivot: PortValue
+    @MainActor var enabled: PortValue
+    @MainActor var blurRadius: PortValue
+    @MainActor var backgroundColor: PortValue
+    @MainActor var isClipped: PortValue
+    @MainActor var orientation: PortValue
+    @MainActor var padding: PortValue
+    @MainActor var setupMode: PortValue
+    @MainActor var allAnchors: PortValues
+    @MainActor var cameraDirection: PortValue
+    @MainActor var isCameraEnabled: PortValue
+    @MainActor var isShadowsEnabled: PortValue
     
-    var shape: PortValue
-    var strokePosition: PortValue
-    var strokeWidth: PortValue
-    var strokeColor: PortValue
-    var strokeStart: PortValue
-    var strokeEnd: PortValue
-    var strokeLineCap: PortValue
-    var strokeLineJoin: PortValue
-    var coordinateSystem: PortValue
+    @MainActor var shape: PortValue
+    @MainActor var strokePosition: PortValue
+    @MainActor var strokeWidth: PortValue
+    @MainActor var strokeColor: PortValue
+    @MainActor var strokeStart: PortValue
+    @MainActor var strokeEnd: PortValue
+    @MainActor var strokeLineCap: PortValue
+    @MainActor var strokeLineJoin: PortValue
+    @MainActor var coordinateSystem: PortValue
     
-    var cornerRadius: PortValue
-    var canvasLineColor: PortValue
-    var canvasLineWidth: PortValue
-    var text: PortValue
-    var fontSize: PortValue
-    var textAlignment: PortValue
-    var verticalAlignment: PortValue
-    var textDecoration: PortValue
-    var textFont: PortValue
-    var image: PortValue
-    var video: PortValue
-    var fitStyle: PortValue
-    var clipped: PortValue
-    var isAnimating: PortValue
-    var progressIndicatorStyle: PortValue
-    var progress: PortValue
-    var model3D: PortValue
-    var mapType: PortValue
-    var mapLatLong: PortValue
-    var mapSpan: PortValue
-    var isSwitchToggled: PortValue
-    var placeholderText: PortValue
+    @MainActor var cornerRadius: PortValue
+    @MainActor var canvasLineColor: PortValue
+    @MainActor var canvasLineWidth: PortValue
+    @MainActor var text: PortValue
+    @MainActor var fontSize: PortValue
+    @MainActor var textAlignment: PortValue
+    @MainActor var verticalAlignment: PortValue
+    @MainActor var textDecoration: PortValue
+    @MainActor var textFont: PortValue
+    @MainActor var image: PortValue
+    @MainActor var video: PortValue
+    @MainActor var fitStyle: PortValue
+    @MainActor var clipped: PortValue
+    @MainActor var isAnimating: PortValue
+    @MainActor var progressIndicatorStyle: PortValue
+    @MainActor var progress: PortValue
+    @MainActor var model3D: PortValue
+    @MainActor var mapType: PortValue
+    @MainActor var mapLatLong: PortValue
+    @MainActor var mapSpan: PortValue
+    @MainActor var isSwitchToggled: PortValue
+    @MainActor var placeholderText: PortValue
     
-    var shadowColor: PortValue
-    var shadowOpacity: PortValue
-    var shadowRadius: PortValue
-    var shadowOffset: PortValue
+    @MainActor var shadowColor: PortValue
+    @MainActor var shadowOpacity: PortValue
+    @MainActor var shadowRadius: PortValue
+    @MainActor var shadowOffset: PortValue
 
-    var sfSymbol: PortValue
+    @MainActor var sfSymbol: PortValue
     
-    var videoURL: PortValue
-    var volume: PortValue
+    @MainActor var videoURL: PortValue
+    @MainActor var volume: PortValue
     
-    var spacingBetweenGridColumns: PortValue
-    var spacingBetweenGridRows: PortValue
-    var itemAlignmentWithinGridCell: PortValue
+    @MainActor var spacingBetweenGridColumns: PortValue
+    @MainActor var spacingBetweenGridRows: PortValue
+    @MainActor var itemAlignmentWithinGridCell: PortValue
 
-    var sizingScenario: PortValue
+    @MainActor var sizingScenario: PortValue
     
-    var widthAxis: PortValue
-    var heightAxis: PortValue
-    var contentMode: PortValue
+    @MainActor var widthAxis: PortValue
+    @MainActor var heightAxis: PortValue
+    @MainActor var contentMode: PortValue
     
     // Min/max size
-    var minSize: PortValue
-    var maxSize: PortValue
+    @MainActor var minSize: PortValue
+    @MainActor var maxSize: PortValue
     
     // Spacing
-    var spacing: PortValue
+    @MainActor var spacing: PortValue
 
     // Pinning
-    var isPinned: PortValue
-    var pinTo: PortValue
-    var pinAnchor: PortValue
-    var pinOffset: PortValue
+    @MainActor var isPinned: PortValue
+    @MainActor var pinTo: PortValue
+    @MainActor var pinAnchor: PortValue
+    @MainActor var pinOffset: PortValue
         
-    var layerPadding: PortValue
-    var layerMargin: PortValue
-    var offsetInGroup: PortValue
+    @MainActor var layerPadding: PortValue
+    @MainActor var layerMargin: PortValue
+    @MainActor var offsetInGroup: PortValue
 
     // Material Layer
-    var materialThickness: PortValue
-    var deviceAppearance: PortValue
+    @MainActor var materialThickness: PortValue
+    @MainActor var deviceAppearance: PortValue
     
     // Ephemeral state on the layer view model
     
     // Canvas Sketch properties
-    var lines: DrawingViewLines = .init()
-    var parentSizeFromDrag: CGSize = .zero
+    @MainActor var lines: DrawingViewLines = .init()
+    @MainActor var parentSizeFromDrag: CGSize = .zero
     
     // Text Field property
-    var textFieldInput: String = ""
+    @MainActor var textFieldInput: String = ""
     
     // Switch Toggle property
-    var isUIToggled: Bool = false
+    @MainActor var isUIToggled: Bool = false
     
     // TODO: Why not initalize with proper values? If we need a 'default false/empty' LayerViewModel, do that view a separate function; and then pass in
+    @MainActor
     init(id: PreviewCoordinate,
          layer: Layer,
          zIndex: PortValue = defaultNumber,
@@ -341,6 +342,7 @@ final class LayerViewModel {
         self.interactiveLayer.delegate = self
     }
 
+    @MainActor
     convenience init(layerId: LayerNodeId,
                      loopIndex: Int,
                      layer: Layer,
@@ -359,7 +361,7 @@ extension LayerViewModel: InteractiveLayerDelegate {
 }
 
 extension LayerViewModel {
-    var isPinnedView: Bool {
+    @MainActor var isPinnedView: Bool {
         isPinned.getBool ?? false
     }
     

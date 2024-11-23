@@ -16,34 +16,36 @@ final class InteractiveLayer {
         self.id = id
     }
     
-    var singleTapped: Bool = false
-    var doubleTapped: Bool = false
+    @MainActor var singleTapped: Bool = false
+    @MainActor var doubleTapped: Bool = false
     
-    var firstPressEnded: TimeInterval?
-    var secondPressEnded: TimeInterval?
+    @MainActor var firstPressEnded: TimeInterval?
+    @MainActor var secondPressEnded: TimeInterval?
 
-    var isDown: Bool = false
+    @MainActor var isDown: Bool = false
 
-    var dragStartingPoint: CGPoint?
+    @MainActor var dragStartingPoint: CGPoint?
     
     // Used by Press Interaction Node for Position output
-    var lastTappedLocation: CGPoint?
+    @MainActor var lastTappedLocation: CGPoint?
 
     // Currently still used for Scroll Interaction Node's rubberbanding etc.
-    var scrollAnimationState: ScrollAnimationState = .init()
+    @MainActor var scrollAnimationState: ScrollAnimationState = .init()
     
-    var dragVelocity: CGSize = .zero
-    var dragTranslation: CGSize = .zero
+    @MainActor var dragVelocity: CGSize = .zero
+    @MainActor var dragTranslation: CGSize = .zero
     
-    var childSize: CGSize = .zero
-    var parentSize: CGSize = .zero
+    @MainActor var childSize: CGSize = .zero
+    @MainActor var parentSize: CGSize = .zero
 }
 
 extension InteractiveLayer {
+    @MainActor
     var layerPosition: CGPoint {
         self.delegate?.getPosition() ?? .zero
     }
     
+    @MainActor
     func onPrototypeRestart() {
         self.firstPressEnded = nil
         self.secondPressEnded = nil
@@ -52,5 +54,5 @@ extension InteractiveLayer {
 }
 
 protocol InteractiveLayerDelegate: AnyObject {
-    func getPosition() -> CGPoint
+    @MainActor func getPosition() -> CGPoint
 }

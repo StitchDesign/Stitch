@@ -31,15 +31,15 @@ let CUSTOM_LIST_ITEM_INDENTATION_LEVEL: Int = 24
 final class SidebarItemGestureViewModel: SidebarItemSwipable {
     let id: NodeId
     var sidebarIndex: SidebarIndex = .init(groupIndex: .zero, rowIndex: .zero)
-    var children: [SidebarItemGestureViewModel]?
+    @MainActor var children: [SidebarItemGestureViewModel]?
     
-    var isExpandedInSidebar: Bool?
+    @MainActor var isExpandedInSidebar: Bool?
     
-    var dragPosition: CGPoint?
-    var prevDragPosition: CGPoint?
+    @MainActor var dragPosition: CGPoint?
+    @MainActor var prevDragPosition: CGPoint?
     
     // published property to be read in view
-    var swipeSetting: SidebarSwipeSetting = .closed
+    @MainActor var swipeSetting: SidebarSwipeSetting = .closed
 
     internal var previousSwipeX: CGFloat = 0
     
@@ -52,6 +52,7 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
         }
     }
 
+    @MainActor
     init(data: SidebarLayerData,
          parentDelegate: SidebarItemGestureViewModel?,
          sidebarViewModel: LayersSidebarViewModel) {
@@ -67,6 +68,7 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
         }
     }
     
+    @MainActor
     init(id: NodeViewModel.ID,
          children: [SidebarItemGestureViewModel]?,
          isExpandedInSidebar: Bool?) {
@@ -81,12 +83,14 @@ extension SidebarItemGestureViewModel {
         .init()
     }
     
+    @MainActor
     func createSchema() -> SidebarLayerData {
         .init(id: self.id,
               children: self.children?.map { $0.createSchema() },
               isExpandedInSidebar: self.isExpandedInSidebar)
     }
     
+    @MainActor
     func update(from schema: EncodedItemData) {
         assertInDebug(self.id == schema.id)
         self.isExpandedInSidebar = isExpandedInSidebar
