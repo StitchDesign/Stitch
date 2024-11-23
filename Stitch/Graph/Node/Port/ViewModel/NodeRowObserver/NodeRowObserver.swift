@@ -50,7 +50,7 @@ extension PortValue: Sendable { }
 final class InputNodeRowObserver: NodeRowObserver, @preconcurrency InputNodeRowCalculatable {
     static let nodeIOType: NodeIO = .input
 
-    let id: NodeIOCoordinate
+    var id: NodeIOCoordinate
     
     // Data-side for values
     var allLoopedValues: PortValues = .init()
@@ -122,7 +122,7 @@ final class OutputNodeRowObserver: NodeRowObserver {
     let containsUpstreamConnection = false  // always false
 
     // TODO: Outputs can only use portIds, so this should be something more specific than NodeIOCoordinate
-    let id: NodeIOCoordinate
+    var id: NodeIOCoordinate
     
     // Data-side for values
     var allLoopedValues: PortValues = .init()

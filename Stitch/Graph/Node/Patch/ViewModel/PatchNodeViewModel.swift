@@ -384,6 +384,7 @@ extension NodeViewModel {
         self.computedStates?.compactMap { $0.smoothValueAnimationState }
     }
     
+    @MainActor
     var isWireless: Bool {
         patch == .wirelessBroadcaster || patch == .wirelessReceiver
     }

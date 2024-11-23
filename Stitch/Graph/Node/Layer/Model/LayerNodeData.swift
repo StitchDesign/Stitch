@@ -46,7 +46,7 @@ protocol LayerNodeRowData: AnyObject {
  */
 @Observable
 final class InputLayerNodeRowData: LayerNodeRowData, Identifiable {
-    let id: LayerInputType
+    var id: LayerInputType
     var rowObserver: InputNodeRowObserver
     var inspectorRowViewModel: InputNodeRowViewModel
     var canvasObserver: CanvasItemViewModel?
@@ -156,6 +156,7 @@ extension LayerNodeRowData {
                                                       unpackedPortIndex: unpackedPortIndex)
     }
     
+    @MainActor
     var allLoopedValues: PortValues {
         get {
             self.rowObserver.allLoopedValues
@@ -168,6 +169,7 @@ extension LayerNodeRowData {
 
 extension LayerNodeViewModel {
     /// First step for layer port initialization before schema settings are set.
+    @MainActor
     func preinitializeSupportedPort(layerInputPort: LayerInputPort,
                                     portType: LayerInputKeyPathType) {
         let layerId = LayerInputType(layerInput: layerInputPort,
