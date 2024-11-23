@@ -45,6 +45,7 @@ func roundNode(id: NodeId,
         outputs: outputs)
 }
 
+@MainActor
 func roundEval(inputs: PortValuesList, outputs: PortValuesList) -> PortValuesList {
     //    log("roundEval called")
 

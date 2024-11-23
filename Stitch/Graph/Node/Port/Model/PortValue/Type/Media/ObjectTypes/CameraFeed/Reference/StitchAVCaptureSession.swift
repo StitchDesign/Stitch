@@ -13,7 +13,7 @@ import UIKit
 extension AVCaptureSession: @unchecked Sendable { }
 
 /// Camera library used when AR is not available.
-final class StitchAVCaptureSession: AVCaptureSession, StitchCameraSession {
+final class StitchAVCaptureSession: AVCaptureSession, @preconcurrency StitchCameraSession {
     weak var actor: CameraFeedActor?
     
     @MainActor var currentImage: UIImage? {
@@ -38,8 +38,8 @@ final class StitchAVCaptureSession: AVCaptureSession, StitchCameraSession {
 
     // https://developer.apple.com/documentation/avfoundation/avcapturesession
     @MainActor func configureSession(device: StitchCameraDevice,
-                          position: AVCaptureDevice.Position,
-                          cameraOrientation: StitchCameraOrientation) {
+                                     position: AVCaptureDevice.Position,
+                                     cameraOrientation: StitchCameraOrientation) {
         self.beginConfiguration()
 
         // NOTE: perf-wise, we seem to be fine to not limit the image-size and -quality.
@@ -111,43 +111,49 @@ final class StitchAVCaptureSession: AVCaptureSession, StitchCameraSession {
 }
 
 /// Delegate class for managing image buffer from `AVCaptureSession`.
-final class CaptureSessionBufferDelegate: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, Sendable {
-    private let context = CIContext()
-    private var processedImage: UIImage?
-    private var isLoading: Bool = false
-    
+final class CaptureSessionBufferDelegate: NSObject, @preconcurrency AVCaptureVideoDataOutputSampleBufferDelegate, Sendable {
+//    private let context = CIContext()
     @MainActor var convertedImage: UIImage?
+    @MainActor private var isLoading: Bool = false
+    private let actor = CameraFeedActor()
+    
+//    @MainActor var convertedImage: UIImage?
+    
+    @MainActor
+    override init() {
+        super.init()
+        
+        self.actor.imageConverterDelegate = self
+    }
     
     // updated signature per this comment: https://medium.com/@b99705008/great-tutorial-it-really-help-me-to-understand-the-process-to-implement-a-camera-capture-feature-4baeadfe0d96
+    @MainActor
     func captureOutput(_ captureOutput: AVCaptureOutput,
                        didOutput sampleBuffer: CMSampleBuffer,
                        from connection: AVCaptureConnection) {
         
-        // Prevents image loading if we haven't yet updated main thread
-        guard !self.isLoading else {
-            return
-        }
-
-        guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
-
-        let ciImage = CIImage(cvPixelBuffer: imageBuffer)
-        
-        // Save processed image somewhere so that the UIImage can be retained when main thread dispatch
-        // is called. Otherwise the resource might release from memory.
-        self.processedImage = CameraFeedActor.createUIImage(from: ciImage,
-                                                     context: context)
+        guard !self.isLoading else { return }
         self.isLoading = true
         
-        DispatchQueue.main.async { [weak self] in
-            guard let newImage = self?.processedImage else {
-                return
-            }
-            
-            self?.convertedImage = newImage
-            self?.isLoading = false
-            
-            dispatch(RecalculateCameraNodes())
+        Task(priority: .high) { [weak self] in
+            await self?.actor.createUIImage(from: sampleBuffer)
         }
+    }
+}
+
+protocol ImageConverterDelegate: AnyObject {
+    @MainActor
+    func imageConverted(image: UIImage)
+}
+
+extension CaptureSessionBufferDelegate: ImageConverterDelegate {
+    func imageConverted(image: UIImage) {
+        image.accessibilityIdentifier = CAMERA_DESCRIPTION
+        
+        self.convertedImage = image
+        self.isLoading = false
+        
+        dispatch(RecalculateCameraNodes())
     }
 }
 
