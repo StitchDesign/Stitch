@@ -39,6 +39,7 @@ func circleShapeNode(id: NodeId,
         outputs: outputs)
 }
 
+@MainActor
 func circleShapeEval(inputs: PortValuesList,
                      outputs: PortValuesList) -> PortValuesList {
 

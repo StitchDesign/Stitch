@@ -61,6 +61,7 @@ extension NodeRowObserver {
         }
     }
     
+    @MainActor
     func getVisibleRowViewModels() -> [Self.RowViewModelType] {
         guard let graph = self.nodeDelegate?.graphDelegate,
               // Make sure we're not in full screen mode

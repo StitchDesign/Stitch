@@ -65,6 +65,7 @@ func addPatchNode(nodeId: NodeId = NodeId(),
 //    }
 //}
 
+@MainActor
 func addEval(inputs: PortValuesList,
              evalKind: ArithmeticNodeType) -> PortValuesList {
     

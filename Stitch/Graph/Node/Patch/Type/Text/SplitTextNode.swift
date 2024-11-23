@@ -32,6 +32,7 @@ func splitTextNode(id: NodeId,
         outputs: outputs)
 }
 
+@MainActor
 func splitTextEval(inputs: PortValuesList,
                    outputs: PortValuesList) -> PortValuesList {
 

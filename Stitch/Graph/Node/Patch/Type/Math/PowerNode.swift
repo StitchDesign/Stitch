@@ -39,6 +39,7 @@ func powerNode(id: NodeId,
         outputs: outputs)
 }
 
+@MainActor
 func powerEval(inputs: PortValuesList,
                evalKind: MathNodeType) -> PortValuesList {
 

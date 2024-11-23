@@ -37,7 +37,7 @@ protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID 
     
     var graphDelegate: GraphState? { get set }
 
-    func sidebarGroupCreated()
+    @MainActor func sidebarGroupCreated()
     
     @MainActor
     func sidebarGroupUncreatedViaEditMode(groupId: Self.ItemID, children: [Self.ItemID])

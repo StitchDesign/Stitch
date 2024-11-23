@@ -37,6 +37,7 @@ func lengthNode(id: NodeId,
         outputs: outputs)
 }
 
+@MainActor
 func lengthEval(inputs: PortValuesList,
                 evalKind: ArithmeticNodeType) -> PortValuesList {
     // log("lengthEval called")

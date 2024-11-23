@@ -24,6 +24,7 @@ struct MoveToPackPatchNode: PatchNodeDefinition {
     }
 }
 
+@MainActor
 func moveToPackEval(inputs: PortValuesList,
                     outputs: PortValuesList) -> PortValuesList {
 
