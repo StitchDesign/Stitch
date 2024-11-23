@@ -10,7 +10,8 @@ import StitchSchemaKit
 
 typealias NodeDelegate = NodeViewModel
 
-extension NodeDelegate {    
+extension NodeDelegate {
+    @MainActor
     var defaultOutputs: PortValues {
         guard let values = self.kind.graphNode?.rowDefinitions(for: self.userVisibleType).outputs
             .map({ $0.value }),

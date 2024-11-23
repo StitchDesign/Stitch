@@ -370,18 +370,19 @@ import GameController
 // TODO: use this approach more widely?
 @Observable
 final class KeyboardObserver: Sendable {
-    var keyboard: GCKeyboard?
+    @MainActor var keyboard: GCKeyboard?
     
-    var observer: Any? = nil
+    @MainActor var observer: Any? = nil
     
     init() {
         observer = NotificationCenter.default.addObserver(
             forName: .GCKeyboardDidConnect,
             object: nil,
             queue: .main
-        ) { [weak self] notification in
-            // TODO: warning about capture of `self` ?
-            self?.keyboard = notification.object as? GCKeyboard
+        ) { notification in
+//            DispatchQueue.main.async { [weak self] in
+            self.keyboard = notification.object as? GCKeyboard
+//            }
         }
     }
 }

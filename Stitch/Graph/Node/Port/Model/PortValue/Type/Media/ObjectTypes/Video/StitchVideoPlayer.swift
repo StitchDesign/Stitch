@@ -4,9 +4,9 @@ import AVKit
 final class StitchVideoImportPlayer: Sendable {
     static let DEFAULT_VIDEO_PLAYER_VOLUME: Double = 1
 
-    var video: AVPlayer
-    var stitchVideoDelegate: StitchVideoDelegate
-    var thumbnail: UIImage?
+    @MainActor var video: AVPlayer
+    @MainActor var stitchVideoDelegate: StitchVideoDelegate
+    @MainActor var thumbnail: UIImage?
     
     @MainActor var metadata: VideoMetadata {
         didSet(newValue) {
@@ -16,11 +16,11 @@ final class StitchVideoImportPlayer: Sendable {
         }
     }
 
-    var currentTime: Double {
+    @MainActor var currentTime: Double {
         video.currentTime().seconds
     }
 
-    var duration: Double {
+    @MainActor var duration: Double {
         CMTimeGetSeconds(video.currentItem?.duration ?? .zero)
     }
 
@@ -51,11 +51,11 @@ final class StitchVideoImportPlayer: Sendable {
                                       isScrubbing: false)
     }
 
-    func enableSound() {
+    @MainActor func enableSound() {
         self.video.isMuted = false
     }
 
-    func muteSound() {
+    @MainActor func muteSound() {
         self.video.isMuted = true
     }
 

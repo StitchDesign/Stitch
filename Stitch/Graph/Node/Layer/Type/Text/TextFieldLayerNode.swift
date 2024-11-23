@@ -19,7 +19,7 @@ struct TextFieldLayerNode: LayerNodeDefinition {
     
     static let layer = Layer.textField
         
-    @MainActor static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
         .init(layerInputs: Self.inputDefinitions,
               outputs: [.init(label: "Field",
                               type: .string)],
