@@ -52,7 +52,7 @@ struct CoreMLDetectionNode: PatchNodeDefinition {
     }
 
     static func createEphemeralObserver() -> NodeEphemeralObservable? {
-        MediaEvalOpObserver()
+        CoreMLEvalOpObserver()
     }
 }
 
@@ -75,7 +75,7 @@ func coreMLDetectionDefaultOutputs(nodeId: NodeId, inputsCount: Int) -> Outputs 
  */
 @MainActor
 func coreMLDetectionEval(node: PatchNode) -> EvalResult {
-    return node.loopedEvalList(MediaEvalOpObserver.self) { values, mediaObserver in
+    return node.loopedEvalList(CoreMLEvalOpObserver.self) { values, mediaObserver in
         let defaultOutputs = node.defaultOutputsList
 
         guard let modelMediaObject = mediaObserver.getUniqueMedia(from: values.first,
@@ -94,9 +94,10 @@ func coreMLDetectionEval(node: PatchNode) -> EvalResult {
                 return defaultOutputs
             }
             
-            let results: [VNRecognizedObjectObservation] = await visionDetectionRequest(for: model,
-                                                                                        with: image,
-                                                                                        vnImageCropOption: cropAndScaleOption)
+            let results: [VNRecognizedObjectObservation] = await mediaObserver.coreMlActor
+                .visionDetectionRequest(for: model,
+                                        with: image,
+                                        vnImageCropOption: cropAndScaleOption)
             
             if results.isEmpty {
                 //                log("coreMLDetectionEval: results were empty; returning existing outputs")
@@ -155,73 +156,60 @@ func coreMLDetectionEval(node: PatchNode) -> EvalResult {
     }
 }
 
-func visionDetectionRequest(for model: VNCoreMLModel,
-                            with uiImage: UIImage,
-                            vnImageCropOption: VNImageCropAndScaleOption) async -> [VNRecognizedObjectObservation] {
-    return await withCheckedContinuation { continuation in
-        visionObjectDetectionRequest(for: model,
-                                     with: uiImage,
-                                     vnImageCropOption: vnImageCropOption) { result in
-            continuation.resume(returning: result)
-        }
-    }
-}
 
-func visionObjectDetectionRequest(for model: VNCoreMLModel,
-                                  with uiImage: UIImage,
-                                  vnImageCropOption: VNImageCropAndScaleOption,
-                                  complete: @escaping ([VNRecognizedObjectObservation]) -> Void) {
-    // Processes vision request on background thread for perf.
-    // Various operations here like creating a CIImage and completing the vision request
-    // are computationally expensive.
-    Task.detached(priority: .userInitiated) { [weak model] in
-        guard let model = model else {
+final actor VisionOpActor {
+    private var results: [VNRecognizedObjectObservation] = []
+    
+    private func visionRequestHandler(request: VNRequest, error: (any Error)?) {
+        if let error = error {
+            print("mlModelSideEffect error: couldn't create ML model request handler with error: ", error)
+            fatalErrorIfDebug()
+            self.results = []
+        }
+        
+        //            log("mlModelSideEffect: request: \(request)")
+        
+        guard let results = request.results as? [VNRecognizedObjectObservation],
+              results.first.isDefined else {
+            //                log("mlModelSideEffect error: failed to perform object detection.")
+            self.results = []
             return
         }
-
-        //    Task(priority: .high) {
-
-        // .background /// causes crashes due to memory issues on iPad ?
-
+        
+        self.results = []
+    }
+    
+    func visionDetectionRequest(for model: VNCoreMLModel,
+                                with uiImage: UIImage,
+                                vnImageCropOption: VNImageCropAndScaleOption) -> [VNRecognizedObjectObservation] {
         //    Task(priority: .background) {
         // Request handler object for object detection tasks
-        let request = VNCoreMLRequest(model: model) { request, error in
-            if let error = error {
-                print("mlModelSideEffect error: couldn't create ML model request handler with error: ", error)
-                fatalError()
-            }
-
-            //            log("mlModelSideEffect: request: \(request)")
-
-            guard let results = request.results as? [VNRecognizedObjectObservation],
-                  results.first.isDefined else {
-                //                log("mlModelSideEffect error: failed to perform object detection.")
-                return complete([])
-            }
-
-            complete(results)
-        }
-
+        let request = VNCoreMLRequest(model: model,
+                                      completionHandler: self.visionRequestHandler)
+        
         /*
          We preferably don't modify the image unless for camera orientation reasons.
-
+         
          Best results seem to be from no cropping or scaling at all.
-
+         
          Good guide to `imageCropAndScaleOption`:
          https://machinethink.net/blog/bounding-boxes/
          */
         // request.imageCropAndScaleOption = .centerCrop
         // request.imageCropAndScaleOption = .scaleFill
         request.imageCropAndScaleOption = vnImageCropOption
-
+        
         let ciImage = CIImage(image: uiImage)!
         let handler = VNImageRequestHandler(ciImage: ciImage)
-
+        
         do {
+            // Request will update actor's variable
             try handler.perform([request])
         } catch {
             log("mlModelSideEffect error: failed to perform object detection.\n\(error.localizedDescription)")
         }
+
+        return self.results
     }
 }
 
