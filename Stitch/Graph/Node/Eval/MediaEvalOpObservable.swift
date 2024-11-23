@@ -26,12 +26,22 @@ final class MediaEvalOpObserver: MediaEvalOpObservable {
     internal let mediaActor = MediaEvalOpCoordinator()
 }
 
-final class CoreMLEvalOpObserver: MediaEvalOpObservable {
+final class VisionOpObserver: MediaEvalOpObservable {
     var currentMedia: GraphMediaValue?
     var currentLoadingMediaId: UUID?
     weak var nodeDelegate: NodeDelegate?
     internal let mediaActor = MediaEvalOpCoordinator()
     let coreMlActor = VisionOpActor()
+    
+    func onPrototypeRestart() { }
+}
+
+final class ImageClassifierOpObserver: MediaEvalOpObservable {
+    var currentMedia: GraphMediaValue?
+    var currentLoadingMediaId: UUID?
+    weak var nodeDelegate: NodeDelegate?
+    internal let mediaActor = MediaEvalOpCoordinator()
+    let coreMlActor = ImageClassifierActor()
     
     func onPrototypeRestart() { }
 }
