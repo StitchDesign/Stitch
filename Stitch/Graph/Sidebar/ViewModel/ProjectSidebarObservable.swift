@@ -97,6 +97,7 @@ extension ProjectSidebarObservable {
         self.items.updateSidebarIndices()
     }
     
+    @MainActor
     func recursiveSync(elements: [Self.EncodedItemData],
                        existingViewModels: [Self.ItemID : Self.ItemViewModel],
                        parent: Self.ItemViewModel? = nil) -> [Self.ItemViewModel] {
