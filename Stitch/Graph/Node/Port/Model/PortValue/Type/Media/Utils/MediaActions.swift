@@ -250,14 +250,6 @@ extension StitchDocumentViewModel {
     }
 }
 
-struct SingletonMediaTeardown: StitchDocumentEvent {
-    let keyPath: MediaManagerSingletonKeyPath
-
-    func handle(state: StitchDocumentViewModel) {
-        state.teardownSingleton(keyPath: keyPath)
-    }
-}
-
 extension StitchDocumentViewModel {
     func teardownSingleton(keyPath: MediaManagerSingletonKeyPath) {
         self[keyPath: keyPath] = nil
