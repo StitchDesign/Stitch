@@ -133,8 +133,8 @@ extension StitchDocumentViewModel {
             }
             
             await document.updateAsync(from: document.createSchema())
-            await document.initializeDelegate(store: store)
-            await document.encodeProjectInBackground()
+            document.initializeDelegate(store: store)
+            document.encodeProjectInBackground()
         }
     }
 }

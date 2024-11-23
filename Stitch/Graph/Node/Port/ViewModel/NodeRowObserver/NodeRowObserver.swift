@@ -84,7 +84,7 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     }
     
     // NodeRowObserver holds a reference to its parent, the Node
-    weak var nodeDelegate: NodeDelegate?
+    @MainActor weak var nodeDelegate: NodeDelegate?
     
     var userVisibleType: UserVisibleType?
     
@@ -133,26 +133,26 @@ final class OutputNodeRowObserver: NodeRowObserver {
     let id: NodeIOCoordinate
     
     // Data-side for values
-    var allLoopedValues: PortValues = .init()
+    @MainActor var allLoopedValues: PortValues = .init()
     
     // statically defined inputs
-    var nodeKind: NodeKind
+    @MainActor var nodeKind: NodeKind
     
     // NodeRowObserver holds a reference to its parent, the Node
-    weak var nodeDelegate: NodeDelegate?
+    @MainActor weak var nodeDelegate: NodeDelegate?
     
-    var userVisibleType: UserVisibleType?
+    @MainActor var userVisibleType: UserVisibleType?
     
     // MARK: "derived data", cached for UI perf
     
     // Tracks upstream/downstream nodes--cached for perf
-    var connectedNodes: NodeIdSet = .init()
+    @MainActor var connectedNodes: NodeIdSet = .init()
     
     // Only for outputs, designed for port edge color usage
-    var containsDownstreamConnection = false
+    @MainActor var containsDownstreamConnection = false
     
     // Can't be computed for rendering purposes
-    var hasLoopedValues: Bool = false
+    @MainActor var hasLoopedValues: Bool = false
     
     // Always nil for outputs
     let importedMediaObject: StitchMediaObject? = nil
@@ -339,6 +339,7 @@ extension InputNodeRowObserver {
 }
 
 extension OutputNodeRowObserver {
+    @MainActor
     var hasEdge: Bool {
         self.containsDownstreamConnection
     }

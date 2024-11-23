@@ -102,12 +102,11 @@ extension StitchMasterComponent: DocumentEncodableDelegate, Identifiable {
         }
     }
     
+    @MainActor
     func updateAsync(from schema: StitchComponent) async {
-        await MainActor.run { [weak self] in
-            self?.lastEncodedDocument = schema
-        }
+        self.lastEncodedDocument = schema
         
-        guard let document = await self.parentGraph?.documentDelegate else {
+        guard let document = self.parentGraph?.documentDelegate else {
             return
         }
         
