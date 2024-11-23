@@ -19,6 +19,7 @@ struct CanvasPositionKey: LayoutValueKey {
 
 struct InfiniteCanvas: Layout {
     let graph: GraphState
+    let existingCache: Self.Cache?
     
     typealias Cache = [CanvasItemId: CGRect]
     
@@ -47,7 +48,8 @@ struct InfiniteCanvas: Layout {
     
     func makeCache(subviews: Subviews) -> Cache {
         // Only make cache when specified
-        if let existingCache = graph.visibleNodesViewModel.infiniteCanvasCache {
+//        if let existingCache = graph.visibleNodesViewModel.infiniteCanvasCache {
+        if let existingCache = self.existingCache {
             return existingCache
         }
         
@@ -62,16 +64,19 @@ struct InfiniteCanvas: Layout {
             result.updateValue(bounds, forKey: id)
         }
         
-        graph.visibleNodesViewModel.infiniteCanvasCache = cache
+        DispatchQueue.main.async { [weak graph] in
+            graph?.visibleNodesViewModel.infiniteCanvasCache = cache
+        }
         return cache
     }
     
     func updateCache(_ cache: inout Cache, subviews: Subviews) {
         // Recalcualte graph if cache reset
-        if graph.visibleNodesViewModel.infiniteCanvasCache == nil {
-            cache = self.makeCache(subviews: subviews)
-            graph.visibleNodesViewModel.infiniteCanvasCache = cache
-        }
+        // TODO: check infinte canvas update cache
+//        if graph.visibleNodesViewModel.infiniteCanvasCache == nil {
+//            cache = self.makeCache(subviews: subviews)
+//            graph.visibleNodesViewModel.infiniteCanvasCache = cache
+//        }
     }
     
     func explicitAlignment(of guide: HorizontalAlignment,

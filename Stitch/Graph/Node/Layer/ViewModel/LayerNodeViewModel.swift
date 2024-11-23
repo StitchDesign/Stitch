@@ -148,11 +148,7 @@ final class LayerNodeViewModel {
     // Sidebar visibility setting
     var hasSidebarVisibility = true {
         didSet {
-            DispatchQueue.main.async { [weak self] in
-                if let layerNode = self {
-                    dispatch(AssignedLayerUpdated(changedLayerNode: layerNode.id.asLayerNodeId))
-                }
-            }
+            dispatch(AssignedLayerUpdated(changedLayerNode: layerNode.id.asLayerNodeId))
         }
     }
 

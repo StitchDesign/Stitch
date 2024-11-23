@@ -49,7 +49,8 @@ struct NodesView: View {
         
         // CommentBox needs to be affected by graph offset and zoom
         // but can live somewhere else?
-        InfiniteCanvas(graph: graph) {
+        InfiniteCanvas(graph: graph,
+                       existingCache: graph.visibleNodesViewModel.infiniteCanvasCache) {
             //                        commentBoxes
             nodesOnlyView(nodePageData: nodePageData)
         }
