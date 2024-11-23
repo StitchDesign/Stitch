@@ -32,6 +32,12 @@ extension GraphDelegate {
     }
 }
 
+extension UIImage {
+    @MainActor func setAccessibilityIdentifier(_ identifier: String) {
+        self.accessibilityIdentifier = identifier
+    }
+}
+
 extension URL {
     /// Creates media object. ID only needed for 3D model object.
     func createMediaObject(nodeId: NodeId?) async -> MediaObjectResult {
@@ -44,7 +50,7 @@ extension URL {
             }
 
             // Provides the ability to assign some name
-            uiImage.accessibilityIdentifier = self.filename
+            await uiImage.setAccessibilityIdentifier(self.filename)
 
             return .success(.image(uiImage))
         }

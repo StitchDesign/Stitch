@@ -56,10 +56,12 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     var nodeKind: NodeKind
     
     // Connected upstream node, if input
-    // TODO: move mainactor to stitchengine
     var upstreamOutputCoordinate: NodeIOCoordinate? {
         didSet(oldValue) {
-            self.didUpstreamOutputCoordinateUpdate(oldValue: oldValue)
+            // TODO: move mainactor to stitchengine
+            DispatchQueue.main.async { [weak self] in
+                self?.didUpstreamOutputCoordinateUpdate(oldValue: oldValue)
+            }
         }
     }
     
@@ -107,6 +109,8 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     @MainActor
     func didValuesUpdate() { }
 }
+
+extension NodeIOCoordinate: Sendable { }
 
 @Observable
 final class OutputNodeRowObserver: NodeRowObserver {

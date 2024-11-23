@@ -85,22 +85,22 @@ struct StitchPickerView: View {
     var pickerChoices: [String] {
         choices.map(\.display)
     }
-
-    var body: some View {
-
-        let onSet = { (selection: String) in
-
-            // TODO: make these logic cleaner? pass PortValue instead of String to Picker ?
-            let _selection = choices.first(where: { $0.display == selection })
-
-            if let _selection = _selection {
-                pickerOptionSelected(input: input, 
-                                     choice: _selection,
-                                     isFieldInsideLayerInspector: isFieldInsideLayerInspector)
-            } else {
-                log("StitchPickerView: could not create PortValue from string: \(selection) ... in choices: \(choices)")
-            }
+    
+    @MainActor func onSet(selection: String) {
+        
+        // TODO: make these logic cleaner? pass PortValue instead of String to Picker ?
+        let _selection = choices.first(where: { $0.display == selection })
+        
+        if let _selection = _selection {
+            pickerOptionSelected(input: input,
+                                 choice: _selection,
+                                 isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+        } else {
+            log("StitchPickerView: could not create PortValue from string: \(selection) ... in choices: \(choices)")
         }
+    }
+    
+    var body: some View {
 
         let binding: Binding<String> = createBinding(choiceDisplay, onSet)
 

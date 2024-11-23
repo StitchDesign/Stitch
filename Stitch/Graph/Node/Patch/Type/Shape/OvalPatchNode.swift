@@ -38,6 +38,7 @@ func ovalShapeNode(id: NodeId,
         outputs: outputs)
 }
 
+@MainActor
 func ovalShapeEval(inputs: PortValuesList,
                    outputs: PortValuesList) -> PortValuesList {
 

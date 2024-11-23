@@ -7,7 +7,7 @@
 
 import Foundation
 import StitchSchemaKit
-import SwiftyJSON
+@preconcurrency import SwiftyJSON
 import SwiftUI
 
 func responseHeadersAsJSON(_ hr: HTTPURLResponse) -> JSON {
@@ -47,6 +47,7 @@ enum RequestedResource: Equatable {
          text(String)
 }
 
+@MainActor
 func handleRequestResponse(data: Data?,
                            response: URLResponse?,
                            error: Error?) -> StitchNetworkRequestResult {

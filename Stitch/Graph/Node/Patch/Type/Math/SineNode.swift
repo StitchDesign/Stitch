@@ -41,6 +41,7 @@ func sineNode(id: NodeId,
 
 // Swift `sin(n)` expects RADIANS
 // but Origami `angle` is in DEGREES.
+@MainActor
 func sineEval(inputs: PortValuesList,
               outputs: PortValuesList) -> PortValuesList {
 

@@ -21,6 +21,8 @@ protocol PatchNodeViewModelDelegate: NodeDelegate {
                                 newType: UserVisibleType)
 }
 
+extension UUID: Sendable { }
+
 @Observable
 final class PatchNodeViewModel: Sendable {
     var id: NodeId
