@@ -22,7 +22,6 @@
 		203D56BA25B0DA7C00EF7AC2 /* PortEdgeData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 203D56B925B0DA7C00EF7AC2 /* PortEdgeData.swift */; };
 		203D56BD25B0DAE000EF7AC2 /* LegacyNodeHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 203D56BC25B0DAE000EF7AC2 /* LegacyNodeHelpers.swift */; };
 		204B24FF25B68C790041424F /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 204B24FE25B68C790041424F /* Constants.swift */; };
-		20578DA7259EAF6400DACCA8 /* BrightFutures in Frameworks */ = {isa = PBXBuildFile; productRef = 20578DA6259EAF6400DACCA8 /* BrightFutures */; };
 		205BB3B125BA203D00F144A7 /* PortView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 205BB3B025BA203D00F144A7 /* PortView.swift */; };
 		205BB3B425BA210500F144A7 /* InsertNodeMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 205BB3B325BA210500F144A7 /* InsertNodeMenu.swift */; };
 		205E6DDA25AFCB16001C5C27 /* NodeTesting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 205E6DD925AFCB16001C5C27 /* NodeTesting.swift */; };
@@ -1868,7 +1867,6 @@
 				EC53F3C3287E27250021095B /* Numerics in Frameworks */,
 				EC15E42A2602A08B006F2E08 /* CloudKit.framework in Frameworks */,
 				201953DA25B25D3300D5296C /* Tagged in Frameworks */,
-				20578DA7259EAF6400DACCA8 /* BrightFutures in Frameworks */,
 				EC211A4B2698A8B70068A0F0 /* SwiftyJSON in Frameworks */,
 				E463E7EF2C6FC7090008E318 /* StitchSchemaKit in Frameworks */,
 			);
@@ -4488,7 +4486,6 @@
 			);
 			name = Stitch;
 			packageProductDependencies = (
-				20578DA6259EAF6400DACCA8 /* BrightFutures */,
 				20D1601825A802FF005AEB72 /* NonEmpty */,
 				201953D925B25D3300D5296C /* Tagged */,
 				EC39E75B26822ACA00674841 /* AudioKit */,
@@ -4579,7 +4576,6 @@
 			);
 			mainGroup = 200BD84E254F66EB00692903;
 			packageReferences = (
-				20578DA5259EAF6400DACCA8 /* XCRemoteSwiftPackageReference "BrightFutures" */,
 				20D1601725A802FF005AEB72 /* XCRemoteSwiftPackageReference "swift-nonempty" */,
 				201953D825B25D3300D5296C /* XCRemoteSwiftPackageReference "swift-tagged" */,
 				EC39E75A26822ACA00674841 /* XCRemoteSwiftPackageReference "AudioKit" */,
@@ -6343,14 +6339,6 @@
 				version = 0.7.0;
 			};
 		};
-		20578DA5259EAF6400DACCA8 /* XCRemoteSwiftPackageReference "BrightFutures" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Thomvis/BrightFutures.git";
-			requirement = {
-				kind = exactVersion;
-				version = 8.1.0;
-			};
-		};
 		20D1601725A802FF005AEB72 /* XCRemoteSwiftPackageReference "swift-nonempty" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/pointfreeco/swift-nonempty.git";
@@ -6470,11 +6458,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 201953D825B25D3300D5296C /* XCRemoteSwiftPackageReference "swift-tagged" */;
 			productName = Tagged;
-		};
-		20578DA6259EAF6400DACCA8 /* BrightFutures */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 20578DA5259EAF6400DACCA8 /* XCRemoteSwiftPackageReference "BrightFutures" */;
-			productName = BrightFutures;
 		};
 		20D1601825A802FF005AEB72 /* NonEmpty */ = {
 			isa = XCSwiftPackageProductDependency;
