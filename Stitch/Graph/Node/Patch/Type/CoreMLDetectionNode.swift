@@ -52,7 +52,7 @@ struct CoreMLDetectionNode: PatchNodeDefinition {
     }
 
     static func createEphemeralObserver() -> NodeEphemeralObservable? {
-        CoreMLEvalOpObserver()
+        VisionOpObserver()
     }
 }
 
@@ -75,7 +75,7 @@ func coreMLDetectionDefaultOutputs(nodeId: NodeId, inputsCount: Int) -> Outputs 
  */
 @MainActor
 func coreMLDetectionEval(node: PatchNode) -> EvalResult {
-    return node.loopedEvalList(CoreMLEvalOpObserver.self) { values, mediaObserver in
+    return node.loopedEvalList(VisionOpObserver.self) { values, mediaObserver in
         let defaultOutputs = node.defaultOutputsList
 
         guard let modelMediaObject = mediaObserver.getUniqueMedia(from: values.first,
