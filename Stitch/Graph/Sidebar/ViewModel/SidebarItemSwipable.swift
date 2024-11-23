@@ -36,7 +36,7 @@ protocol SidebarItemSwipable: AnyObject, Observable, Identifiable, StitchNestedL
     
     var sidebarDelegate: SidebarViewModel? { get set }
     
-    var isHidden: Bool { get }
+    @MainActor var isHidden: Bool { get }
     
     @MainActor var sidebarLeftSideIcon: String { get }
     
