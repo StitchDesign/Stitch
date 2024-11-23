@@ -86,6 +86,7 @@ extension NodeViewModel {
         }
     }
 
+    @MainActor
     var userVisibleType: UserVisibleType? {
         get {
             self.nodeType.patchNode?.userVisibleType
