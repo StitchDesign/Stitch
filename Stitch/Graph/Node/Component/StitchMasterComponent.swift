@@ -34,6 +34,7 @@ final class StitchMasterComponent: Sendable {
 }
 
 extension StitchMasterComponent {
+    @MainActor
     var publishedDocumentEncoder: ComponentEncoder? {
         guard let storeDelegate = self.storeDelegate else { return nil }
         

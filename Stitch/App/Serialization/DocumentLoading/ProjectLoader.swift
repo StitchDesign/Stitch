@@ -12,7 +12,7 @@ import SwiftUI
 @Observable
 final class ProjectLoader: Sendable, Identifiable {
     let id: Int
-    var encoder: DocumentEncoder?
+    @MainActor var encoder: DocumentEncoder?
     
     @MainActor var modifiedDate: Date
     @MainActor var url: URL
@@ -39,9 +39,9 @@ extension ProjectLoader {
     }
 }
 
-extension [ProjectLoader] {
-    @MainActor
-    func sortByDate() -> Self {
-        self.sorted { $0.modifiedDate > $1.modifiedDate }
-    }
-}
+//extension [ProjectLoader] {
+//    @MainActor
+//    func sortByDate() -> Self {
+//        self.sorted { $0.modifiedDate > $1.modifiedDate }
+//    }
+//}
