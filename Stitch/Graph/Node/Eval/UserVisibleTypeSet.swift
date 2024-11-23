@@ -31,22 +31,27 @@ extension UVTSet {
 }
 
 extension PatchNodeViewModel {
+    @MainActor
     var asNumberEval: NumberNodeType? {
         return self.userVisibleType.flatMap(patch.availableNodeTypes.asNumber)
     }
 
+    @MainActor
     var asArithmeticEval: ArithmeticNodeType? {
         return self.userVisibleType.flatMap(patch.availableNodeTypes.asArithmetic)
     }
     
+    @MainActor
     var asArithmeticMinusTextEval: ArithmeticNodeType? {
         return self.userVisibleType.flatMap(patch.availableNodeTypes.asArithmetic)
     }
 
+    @MainActor
     var asMathEval: MathNodeType? {
         return self.userVisibleType.flatMap(patch.availableNodeTypes.asMath)
     }
 
+    @MainActor
     var asPackEval: PackNodeType? {
         return self.userVisibleType.flatMap(patch.availableNodeTypes.asPack)
     }

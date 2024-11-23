@@ -40,7 +40,7 @@ func arrayCountNode(id: NodeId,
 
 // if first input is a json object rather than an array,
 // this append will fail / should fail, per Origami
-
+@MainActor
 func arrayCountEval(inputs: PortValuesList,
                     outputs: PortValuesList) -> PortValuesList {
 

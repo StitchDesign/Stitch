@@ -206,6 +206,7 @@ extension NodeViewModelType {
         }
     }
 
+    @MainActor
     var kind: NodeKind {
         switch self {
         case .patch(let patchNode):

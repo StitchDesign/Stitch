@@ -140,6 +140,7 @@ extension StitchDocumentViewModel {
 }
 
 extension StitchDocumentViewModel {
+    @MainActor
     func changeComponentId(from: UUID, to: UUID) {
         // Change node data
         self.allComponents.forEach { componentNode in

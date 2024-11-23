@@ -18,6 +18,7 @@ extension NodeRowViewModel {
         self.nodeDelegate?.graphDelegate
     }
     
+    @MainActor
     var nodeKind: NodeKind {
         guard let node = self.nodeDelegate else {
             fatalErrorIfDebug()

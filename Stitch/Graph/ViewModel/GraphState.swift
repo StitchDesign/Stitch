@@ -27,8 +27,8 @@ final class GraphState: Sendable {
     
     let saveLocation: [UUID]
     
-    var id = UUID()
-    var name: String = STITCH_PROJECT_DEFAULT_NAME
+    @MainActor var id = UUID()
+    @MainActor var name: String = STITCH_PROJECT_DEFAULT_NAME
     
     var commentBoxesDict = CommentBoxesDict()
     
