@@ -45,7 +45,8 @@ extension MediaObjectId: Identifiable {
     }
 }
 
-extension UIImage: NSCopying {
+extension UIImage: @preconcurrency NSCopying {
+    @MainActor
     public func copy(with zone: NSZone? = nil) -> Any {
         guard let clone = self.clone() else {
             log("UIImage: failed to clone image, return self")

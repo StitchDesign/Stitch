@@ -50,6 +50,7 @@ struct TransformPackPatchNode: PatchNodeDefinition {
     }
 }
 
+@MainActor
 func transformPackEval(inputs: PortValuesList,
                              outputs: PortValuesList) -> PortValuesList {
     resultsMaker(inputs)(transformPackOp)

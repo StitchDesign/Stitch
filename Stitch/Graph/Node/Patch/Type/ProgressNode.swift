@@ -41,6 +41,7 @@ func progressNode(id: NodeId,
         outputs: outputs)
 }
 
+@MainActor
 func progressEval(inputs: PortValuesList, outputs: PortValuesList) -> PortValuesList {
     //    log("progressEval called")
 

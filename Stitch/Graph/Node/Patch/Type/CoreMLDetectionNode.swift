@@ -9,7 +9,7 @@ import Foundation
 import StitchSchemaKit
 import SwiftUI
 import CoreML
-import Vision
+@preconcurrency import Vision
 
 struct CoreMLDetectionNode: PatchNodeDefinition {
     static let patch = Patch.coreMLDetection
@@ -267,6 +267,9 @@ extension VNImageCropAndScaleOption: PortValueEnum {
             return "Scale to Fit 90°"
         case .scaleFillRotate90CCW:
             return "Scale to Fill 90°"
+        @unknown default:
+            fatalErrorIfDebug()
+            return Self.centerCrop.label
         }
     }
 }

@@ -69,7 +69,7 @@ final class StitchStore: Sendable, StoreDelegate {
 
 final class ClipboardEncoderDelegate: DocumentEncodableDelegate {
     var lastEncodedDocument: StitchClipboardContent
-    weak var store: StitchStore?
+    @MainActor weak var store: StitchStore?
     
     init() {
         self.lastEncodedDocument = .init()

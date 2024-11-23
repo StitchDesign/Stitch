@@ -32,6 +32,7 @@ func multiplyPatchNode(id: NodeId,
         outputs: outputs)
 }
 
+@MainActor
 func multiplyEval(inputs: PortValuesList,
                   evalKind: MathNodeType) -> PortValuesList {
 

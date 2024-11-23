@@ -35,6 +35,7 @@ func subtractNode(id: NodeId,
         outputs: outputs)
 }
 
+@MainActor
 func subtractEval(inputs: PortValuesList,
                   evalKind: MathNodeType) -> PortValuesList {
 
