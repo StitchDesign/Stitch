@@ -53,6 +53,8 @@ func coreMLClassifyEval(node: PatchNode) -> EvalResult {
             return node.defaultOutputs
         }
         
+        let defaultOutputs = node.defaultOutputs
+        
         return mediaObserver.asyncMediaEvalOp(loopIndex: loopIndex,
                                               values: values,
                                               node: node) { [weak model] in
@@ -61,7 +63,7 @@ func coreMLClassifyEval(node: PatchNode) -> EvalResult {
                   let result = await mediaObserver.coreMlActor
                 .visionClassificationRequest(for: model,
                                              with: image) else {
-                return await node.defaultOutputs
+                return defaultOutputs
             }
             
             return [.string(.init(result.identifier)),

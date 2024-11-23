@@ -41,11 +41,11 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
     // published property to be read in view
     @MainActor var swipeSetting: SidebarSwipeSetting = .closed
 
-    internal var previousSwipeX: CGFloat = 0
+    @MainActor internal var previousSwipeX: CGFloat = 0
     
-    weak var sidebarDelegate: LayersSidebarViewModel?
+    @MainActor weak var sidebarDelegate: LayersSidebarViewModel?
     
-    weak var parentDelegate: SidebarItemGestureViewModel? {
+    @MainActor weak var parentDelegate: SidebarItemGestureViewModel? {
         didSet {
             dispatch(AssignedLayerUpdated(changedLayerNode: self.id.asLayerNodeId))
             dispatch(LayerGroupIdChanged(layerNodeId: self.id.asLayerNodeId))

@@ -23,6 +23,7 @@ extension GraphState {
     }
 
     // eastern-most node is node with greatest x-position
+    @MainActor
     static func easternMostNode(_ focusedGroupNodeId: NodeId?,
                                 canvasItems: CanvasItemViewModels) -> CanvasItemViewModel? {
         canvasItems
@@ -32,6 +33,7 @@ extension GraphState {
     }
 
     // western-most node is node with least x-position
+    @MainActor
     static func westernMostNode(_ focusedGroupNodeId: NodeId?,
                                 canvasItems: CanvasItemViewModels) -> CanvasItemViewModel? {
         canvasItems
@@ -41,6 +43,7 @@ extension GraphState {
     }
 
     // southern-most node is node with greatest y-position
+    @MainActor
     static func southernMostNode(_ focusedGroupNodeId: NodeId?,
                                  canvasItems: CanvasItemViewModels) -> CanvasItemViewModel? {
         canvasItems
@@ -50,6 +53,7 @@ extension GraphState {
     }
 
     // northern-most node is node with least y-position
+    @MainActor
     static func northernMostNode(_ focusedGroupNodeId: NodeId?,
                                  canvasItems: CanvasItemViewModels) -> CanvasItemViewModel? {
         canvasItems
