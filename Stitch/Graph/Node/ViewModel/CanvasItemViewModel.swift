@@ -67,11 +67,11 @@ typealias CanvasItemViewModels = [CanvasItemViewModel]
 
 @Observable
 final class CanvasItemViewModel: Identifiable, StitchLayoutCachable, Sendable {
-    var id: CanvasItemId
-    var position: CGPoint = .zero
-    var previousPosition: CGPoint = .zero
-    var zIndex: Double = .zero
-    var parentGroupNodeId: NodeId?
+    let id: CanvasItemId
+    @MainActor var position: CGPoint = .zero
+    @MainActor var previousPosition: CGPoint = .zero
+    @MainActor var zIndex: Double = .zero
+    @MainActor var parentGroupNodeId: NodeId?
     
     @MainActor
     var isVisibleInFrame: Bool {
@@ -162,7 +162,8 @@ extension CanvasItemViewModel {
                   unpackedPortIndex: unpackedPortIndex)
     }
     
-    func createSchema() -> CanvasNodeEntity {        
+    @MainActor
+    func createSchema() -> CanvasNodeEntity {
         .init(position: self.position,
               zIndex: self.zIndex,
               parentGroupNodeId:self.parentGroupNodeId)
@@ -221,11 +222,12 @@ extension CanvasItemViewModel {
         // Reset cache data--fixes scenarios like undo
         self.viewCache = nil
     }
-        
+
     var sizeByLocalBounds: CGSize {
         self.viewCache?.sizeThatFits ?? .zero
     }
     
+    @MainActor
     var isMoving: Bool {
         self.position != self.previousPosition
     }
@@ -246,6 +248,7 @@ extension CanvasItemViewModel {
 //        }
     }
     
+    @MainActor
     func shiftPosition(by gridLineLength: Int = SQUARE_SIDE_LENGTH) {
         let gridLineLength = CGFloat(gridLineLength)
         

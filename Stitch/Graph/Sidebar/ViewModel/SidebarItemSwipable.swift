@@ -14,27 +14,27 @@ protocol SidebarItemSwipable: AnyObject, Observable, Identifiable, StitchNestedL
     typealias ActiveGesture = SidebarListActiveGesture<Self.ID>
     typealias EncodedItemData = SidebarViewModel.EncodedItemData
     
-    var children: [Self]? { get set }
+    @MainActor var children: [Self]? { get set }
     
-    var parentDelegate: Self? { get set }
+    @MainActor var parentDelegate: Self? { get set }
     
     @MainActor var name: String { get }
     
-    var swipeSetting: SidebarSwipeSetting { get set }
+    @MainActor var swipeSetting: SidebarSwipeSetting { get set }
     
-    var previousSwipeX: CGFloat { get set }
+    @MainActor var previousSwipeX: CGFloat { get set }
     
     @MainActor var isVisible: Bool { get }
     
-    var sidebarIndex: SidebarIndex { get set }
+    @MainActor var sidebarIndex: SidebarIndex { get set }
     
-    var dragPosition: CGPoint? { get set }
+    @MainActor var dragPosition: CGPoint? { get set }
     
-    var prevDragPosition: CGPoint? { get set }
+    @MainActor var prevDragPosition: CGPoint? { get set }
     
-    var isExpandedInSidebar: Bool? { get set }
+    @MainActor var isExpandedInSidebar: Bool? { get set }
     
-    var sidebarDelegate: SidebarViewModel? { get set }
+    @MainActor var sidebarDelegate: SidebarViewModel? { get set }
     
     @MainActor var isHidden: Bool { get }
     
@@ -42,6 +42,7 @@ protocol SidebarItemSwipable: AnyObject, Observable, Identifiable, StitchNestedL
     
     @MainActor var isMasking: Bool { get }
     
+    @MainActor
     init(data: Self.EncodedItemData,
          parentDelegate: Self?,
          sidebarViewModel: Self.SidebarViewModel)
@@ -78,6 +79,7 @@ protocol SidebarItemSwipable: AnyObject, Observable, Identifiable, StitchNestedL
     @MainActor
     func createSchema() -> SidebarViewModel.EncodedItemData
     
+    @MainActor
     func update(from schema: Self.EncodedItemData)
 }
 
@@ -465,12 +467,14 @@ extension Array where Element: SidebarItemSwipable {
         }
     }
     
+    @MainActor
     func updateSidebarIndices() {
         var currentRowIndex = 0
         return self.updateSidebarIndices(currentGroupIndex: 0,
                                          currentRowIndex: &currentRowIndex)
     }
     
+    @MainActor
     private func updateSidebarIndices(currentGroupIndex: Int,
                                       currentRowIndex: inout Int,
                                       parent: Element? = nil) {
@@ -500,6 +504,7 @@ extension Array where Element: SidebarItemSwipable {
     }
     
     /// Helper that recursively travels nested data structure.
+    @MainActor
     func recursiveForEach(_ callback: @escaping (Element) -> ()) {
         self.forEach { item in
             callback(item)
@@ -509,6 +514,7 @@ extension Array where Element: SidebarItemSwipable {
     }
     
     /// Helper that recursively travels nested data structure in DFS traversal (aka children first).
+    @MainActor
     func recursiveCompactMap(_ callback: @escaping (Element) -> Element?) -> [Element] {
         self.compactMap { item in
             item.children = item.children?.recursiveCompactMap(callback)
@@ -519,6 +525,7 @@ extension Array where Element: SidebarItemSwipable {
     
     /// Filters out collapsed groups.
     /// List mut be flattened for drag gestures.
+    @MainActor
     func getVisualFlattenedList() -> [Element] {
         self.flatMap { item in
             if let children = item.children,
