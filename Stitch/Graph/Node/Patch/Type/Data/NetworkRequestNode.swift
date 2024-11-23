@@ -234,6 +234,7 @@ func networkRequestEval(node: PatchNode,
     return ImpureEvalResult(outputsValues: allNewOutputs)
 }
 
+@MainActor
 func getNetworkRequestOpSideEffect(nodeId: NodeId,
                                    index: Int,
                                    method: NetworkRequestType,
