@@ -12,7 +12,7 @@ import StitchSchemaKit
 protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRowCalculatable {
     associatedtype RowViewModelType: NodeRowViewModel
     
-    var id: NodeIOCoordinate { get set }
+    var id: NodeIOCoordinate { get }
     
     // Data-side for values
     var allLoopedValues: PortValues { get set }
@@ -43,11 +43,13 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
     func didValuesUpdate()
 }
 
+extension PortValue: Sendable { }
+
 @Observable
 final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     static let nodeIOType: NodeIO = .input
 
-    var id: NodeIOCoordinate = .init(portId: .zero, nodeId: .init())
+    let id: NodeIOCoordinate
     
     // Data-side for values
     var allLoopedValues: PortValues = .init()
@@ -118,7 +120,7 @@ final class OutputNodeRowObserver: NodeRowObserver {
     let containsUpstreamConnection = false  // always false
 
     // TODO: Outputs can only use portIds, so this should be something more specific than NodeIOCoordinate
-    var id: NodeIOCoordinate = .init(portId: .zero, nodeId: .init())
+    let id: NodeIOCoordinate
     
     // Data-side for values
     var allLoopedValues: PortValues = .init()

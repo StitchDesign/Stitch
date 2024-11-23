@@ -85,11 +85,13 @@ func outputsOnlyEval(_ eval: @escaping OutputsOnlyArithmeticPureEval,
 }
 
 // don't need to be defining this everytime in each eval method...
+@MainActor
 func singeOutputEvalResult(_ op: Operation,
                            _ inputs: PortValuesList) -> PortValuesList {
     resultsMaker(inputs)(op)
 }
 
+@MainActor
 func singeOutputEvalResult(_ op: Operation,
                            input: PortValues,
                            extensibleInputs: PortValuesList) -> PortValuesList {

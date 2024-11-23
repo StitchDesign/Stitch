@@ -25,7 +25,7 @@ extension UUID: Sendable { }
 
 @Observable
 final class PatchNodeViewModel: Sendable {
-    var id: NodeId
+    let id: NodeId
     var patch: Patch
     var userVisibleType: UserVisibleType? {
         didSet(oldValue) {
@@ -99,9 +99,8 @@ extension PatchNodeViewModel: SchemaObserver {
         self.inputsObservers.sync(with: schema.inputs)
         self.canvasObserver.update(from: schema.canvasEntity)
         
-        if self.id != schema.id {
-            self.id = schema.id
-        }
+        assertInDebug(self.id == schema.id)
+        
         if self.patch != schema.patch {
             self.patch = schema.patch
         }
