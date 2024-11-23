@@ -27,7 +27,7 @@ final class StitchStore: Sendable, StoreDelegate {
     //    var defaultComponents = ComponentsDict()
 
     // Navigation path for viewing documents
-    @MainActor var navPath: [StitchDocumentViewModel] = []
+    var navPath: [StitchDocumentViewModel] = []
 
     @MainActor var isShowingDrawer = false
 

@@ -66,7 +66,7 @@ extension LayerInputCoordinate {
 typealias CanvasItemViewModels = [CanvasItemViewModel]
 
 @Observable
-final class CanvasItemViewModel: Identifiable, StitchLayoutCachable {
+final class CanvasItemViewModel: Identifiable, StitchLayoutCachable, Sendable {
     var id: CanvasItemId
     var position: CGPoint = .zero
     var previousPosition: CGPoint = .zero

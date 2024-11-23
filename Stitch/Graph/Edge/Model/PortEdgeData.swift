@@ -62,6 +62,7 @@ extension NodeIOCoordinate {
 }
 
 extension GraphState {
+    @MainActor
     func createEdges() -> Edges {
         self.connections.reduce(into: []) { partialResult, connection in
             partialResult += connection.value.map { PortEdgeData(from: connection.key,

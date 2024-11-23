@@ -10,17 +10,17 @@ import StitchSchemaKit
 import StitchEngine
 
 /// Unique instance of a component
-final class StitchComponentViewModel {
-    var componentId: UUID
+final class StitchComponentViewModel: Sendable {
+    @MainActor var componentId: UUID
     
-    var inputsObservers: [InputNodeRowObserver] = []
-    var outputsObservers: [OutputNodeRowObserver] = []
+    @MainActor var inputsObservers: [InputNodeRowObserver] = []
+    @MainActor var outputsObservers: [OutputNodeRowObserver] = []
     
     let canvas: CanvasItemViewModel
     let graph: GraphState
     
-    weak var nodeDelegate: NodeDelegate?
-    weak var componentDelegate: StitchMasterComponent?
+    @MainActor weak var nodeDelegate: NodeDelegate?
+    @MainActor weak var componentDelegate: StitchMasterComponent?
     
     @MainActor
     init(nodeId: UUID,
