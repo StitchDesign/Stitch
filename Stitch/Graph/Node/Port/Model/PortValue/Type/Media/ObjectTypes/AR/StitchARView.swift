@@ -174,10 +174,15 @@ extension StitchARView: StitchCameraSession {
 }
 
 final class StitchARViewCaptureDelegate: NSObject, ARSessionDelegate, Sendable {
-    private let context = CIContext()
-    private var processedImage: UIImage?
     private var isLoading: Bool = false
     @MainActor var convertedImage: UIImage?
+    let cameraActor = CameraFeedActor()
+    
+    @MainActor init() {
+        super.init()
+        
+        self.cameraActor.imageConverterDelegate = self
+    }
 
     func session(_ session: ARSession, didUpdate frame: ARFrame) {
         guard !isLoading else {
@@ -189,25 +194,17 @@ final class StitchARViewCaptureDelegate: NSObject, ARSessionDelegate, Sendable {
         
         // UIImage conversion moved to background thread for perf
         Task(priority: .high) { [weak self] in
-            guard let context = self?.context else {
-                return
-            }
-
-            if let uiImage = await frame.convertToUIImage(context: context) {
-                self?.processedImage = uiImage
-                
-                DispatchQueue.main.async { [weak self] in
-                    guard let newImage = self?.processedImage else {
-                        return
-                    }
-                    
-                    newImage.accessibilityIdentifier = CAMERA_DESCRIPTION
-                    self?.convertedImage = newImage
-                    self?.isLoading = false
-                    
-                    dispatch(RecalculateCameraNodes())
-                }
-            }
+            self?.cameraActor.createUIImage(from: frame)
         }
+    }
+}
+
+extension StitchARViewCaptureDelegate: ImageConverterDelegate {
+    func imageConverted(image: UIImage) {
+        newImage.accessibilityIdentifier = CAMERA_DESCRIPTION
+        self?.convertedImage = newImage
+        self?.isLoading = false
+        
+        dispatch(RecalculateCameraNodes())
     }
 }
