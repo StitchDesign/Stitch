@@ -14,18 +14,19 @@ extension AVCaptureSession: @unchecked Sendable { }
 
 /// Camera library used when AR is not available.
 final class StitchAVCaptureSession: AVCaptureSession, @preconcurrency StitchCameraSession {
-    weak var actor: CameraFeedActor?
     
     @MainActor var currentImage: UIImage? {
         self.bufferDelegate.convertedImage
     }
     
-    var bufferDelegate = CaptureSessionBufferDelegate()
+    let bufferDelegate: CaptureSessionBufferDelegate
 
+    @MainActor
     init(actor: CameraFeedActor) {
+        self.bufferDelegate = CaptureSessionBufferDelegate()
+
         super.init()
 
-        self.actor = actor
 
         // .high: causes app to crash on device 'due to memory issues',
         // even though app's memory footprint is quite low;
