@@ -18,11 +18,13 @@ struct UndoFileEffects {
 
 /// The class used for managing undo operations.
 /// Note that `registerUndo` requires the parent object to be a class here.
-final class StitchUndoManager: MiddlewareService {
+final class StitchUndoManager: MiddlewareService, Sendable {
     let undoManager = UndoManager()
 }
 
-extension StitchStore {    
+extension UndoManager: @unchecked @retroactive Sendable { }
+
+extension StitchStore {
     /// Saves undo history of some graph using copies of StitchDocument.
     @MainActor
     func saveUndoHistory<EncoderDelegate>(from encoderDelegate: EncoderDelegate,
@@ -73,10 +75,11 @@ extension StitchStore {
                 self?.encodeCurrentProject(willUpdateUndoHistory: false)
     
                 undoEffectsData?.undoCallback?()
+    
+                // Hides adjustment bar, fixing issue where data becomes out of sync
+                self?.currentDocument?.graphUI.adjustmentBarSessionId = .init()
             }
             
-            // Hides adjustment bar, fixing issue where data becomes out of sync
-            self?.currentDocument?.graphUI.adjustmentBarSessionId = .init()
             
             self?.saveUndoHistory(from: delegate,
                                   oldSchema: newSchema,

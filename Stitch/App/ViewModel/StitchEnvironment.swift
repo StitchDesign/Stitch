@@ -9,7 +9,7 @@ import Foundation
 import StitchSchemaKit
 
 @Observable
-final class StitchEnvironment {
+final class StitchEnvironment: Sendable {
     let fileManager: StitchFileManager
 //    let logListener: LogListener
     let undoManager: StitchUndoManager

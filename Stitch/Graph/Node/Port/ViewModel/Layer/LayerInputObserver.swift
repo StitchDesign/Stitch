@@ -35,6 +35,7 @@ final class LayerInputObserver {
      */
     var blockedFields: Set<LayerInputKeyPathType> // = .init()
     
+    @MainActor
     init(from schema: LayerNodeEntity, port: LayerInputPort) {
         
         self.layer = schema.layer

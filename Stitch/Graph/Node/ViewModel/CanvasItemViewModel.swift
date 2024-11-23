@@ -73,6 +73,7 @@ final class CanvasItemViewModel: Identifiable, StitchLayoutCachable {
     var zIndex: Double = .zero
     var parentGroupNodeId: NodeId?
     
+    @MainActor
     var isVisibleInFrame: Bool {
         guard let graph = self.graphDelegate else { return false }
         return graph.visibleNodesViewModel.visibleCanvasIds.contains(self.id)
@@ -93,12 +94,15 @@ final class CanvasItemViewModel: Identifiable, StitchLayoutCachable {
     }
     
     // Reference back to the parent node entity
+    @MainActor
     weak var nodeDelegate: NodeDelegate?
     
+    @MainActor
     var graphDelegate: GraphDelegate? {
         self.nodeDelegate?.graphDelegate
     }
     
+    @MainActor
     init(id: CanvasItemId,
          position: CGPoint,
          zIndex: Double,
@@ -124,6 +128,7 @@ final class CanvasItemViewModel: Identifiable, StitchLayoutCachable {
 }
 
 extension CanvasItemViewModel {
+    @MainActor
     func syncRowViewModels(inputRowObservers: [InputNodeRowObserver],
                            outputRowObservers: [OutputNodeRowObserver],
                            unpackedPortParentFieldGroupType: FieldGroupType?,
@@ -140,7 +145,7 @@ extension CanvasItemViewModel {
                                    unpackedPortIndex: nil)
     }
     
-    // Only called at project open?
+    @MainActor
     convenience init(from canvasEntity: CanvasNodeEntity,
                      id: CanvasItemId,
                      inputRowObservers: [InputNodeRowObserver],

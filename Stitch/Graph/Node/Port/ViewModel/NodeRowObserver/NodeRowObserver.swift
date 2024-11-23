@@ -19,18 +19,23 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
     
     static var nodeIOType: NodeIO { get }
     
+    @MainActor
     var nodeKind: NodeKind { get set }
     
     @MainActor var allRowViewModels: [RowViewModelType] { get }
     
+    @MainActor
     var nodeDelegate: NodeDelegate? { get set }
     
+    @MainActor
     var connectedNodes: NodeIdSet { get set }
     
+    @MainActor
     var hasLoopedValues: Bool { get set }
     
     @MainActor var importedMediaObject: StitchMediaObject? { get }
     
+    @MainActor
     var hasEdge: Bool { get }
     
     @MainActor

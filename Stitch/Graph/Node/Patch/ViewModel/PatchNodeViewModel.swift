@@ -41,19 +41,19 @@ final class PatchNodeViewModel: Sendable {
         }
     }
     
-    var canvasObserver: CanvasItemViewModel
+    @MainActor var canvasObserver: CanvasItemViewModel
     
     // Used for data-intensive purposes (eval)
-    var inputsObservers: [InputNodeRowObserver] = []
-    var outputsObservers: [OutputNodeRowObserver] = []
+    @MainActor var inputsObservers: [InputNodeRowObserver] = []
+    @MainActor var outputsObservers: [OutputNodeRowObserver] = []
     
     // Only for Math Expression nodes
-    var mathExpression: String?
+    @MainActor var mathExpression: String?
     
     // Splitter types are for group input, output, or inline nodes
-    var splitterNode: SplitterNodeEntity?
+    @MainActor var splitterNode: SplitterNodeEntity?
     
-    weak var delegate: PatchNodeViewModelDelegate?
+    @MainActor weak var delegate: PatchNodeViewModelDelegate?
     
     @MainActor
     init(from schema: PatchNodeEntity) {
@@ -220,6 +220,7 @@ extension PatchNodeViewModel {
         self.patch.supportsOneToManyIO
     }
 
+    @MainActor
     var splitterType: SplitterType? {
         get {
             self.splitterNode?.type
@@ -236,6 +237,7 @@ extension PatchNodeViewModel {
         }
     }
     
+    @MainActor
     var parentGroupNodeId: NodeId? {
         get {
             self.canvasObserver.parentGroupNodeId
@@ -376,10 +378,12 @@ extension NodeViewModel {
     // INTERNAL STATE, SPECIFIC TO A GIVEN PATCH NODE TYPE:
     
     // BETTER?: use an "internal state" struct
+    @MainActor
     var queue: [PortValues] {
         self.computedStates?.compactMap { $0.queue } ?? []
     }
     
+    @MainActor
     var smoothValueAnimationStates: [SmoothValueAnimationState]? {
         self.computedStates?.compactMap { $0.smoothValueAnimationState }
     }
