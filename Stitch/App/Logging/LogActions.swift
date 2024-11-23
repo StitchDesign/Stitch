@@ -13,55 +13,55 @@ import OSLog
 typealias LogEntry = OSLogEntryLog
 typealias LogEntries = [LogEntry]
 
-struct LogsExportStarted: AppEvent {
+//struct LogsExportStarted: AppEvent {
+//
+//    func handle(state: AppState) -> AppResponse {
+//
+//        var state = state
+//        state.alertState.logExport.preparingLogs = true
+//
+//        let effect = { @Sendable in
+//            CreateLogEntries()
+//        }
+//
+//        return .init(effects: [effect], state: state)
+//    }
+//}
 
-    func handle(state: AppState) -> AppResponse {
-
-        var state = state
-        state.alertState.logExport.preparingLogs = true
-
-        let effect = { @Sendable in
-            CreateLogEntries()
-        }
-
-        return .init(effects: [effect], state: state)
-    }
-}
-
-struct CreateLogEntries: LogEvent, Sendable {
-    func handle(logListener: LogListener, fileManager: StitchFileManager) -> MiddlewareManagerResponse {
-        // Directory to host both logging files
-        let logLocationName = createLogLocationName()
-        let directory = StitchFileManager.tempDir.appendingPathComponent(logLocationName)
-        try? fileManager.createDirectory(at: directory, withIntermediateDirectories: true)
-
-        let effect: Effect = {
-            // Save console logs to temp file
-            switch await saveConsoleLogs(in: directory, logListener: logListener) {
-            case .success:
-                let osLogURL = createOSLogFile(in: directory)
-
-                // Retrieve OS logs and then present sharing options to user
-                switch await writeDeviceInfo(to: osLogURL) {
-                case .success:
-                    // Create zip of both logs
-                    switch fileManager.createLogsZip(directory: directory) {
-                    case .success(let logsZip):
-                        return LogsEntriesRetrieved(logsZip: logsZip)
-                    case .failure(let error):
-                        return ReceivedStitchFileError(error: error)
-                    }
-                case .failure(let error):
-                    return ReceivedStitchFileError(error: error)
-                }
-            case .failure(let error):
-                return ReceivedStitchFileError(error: error)
-            }
-        }
-
-        return .effectOnly(effect)
-    }
-}
+//struct CreateLogEntries: LogEvent, Sendable {
+//    func handle(logListener: LogListener, fileManager: StitchFileManager) -> MiddlewareManagerResponse {
+//        // Directory to host both logging files
+//        let logLocationName = createLogLocationName()
+//        let directory = StitchFileManager.tempDir.appendingPathComponent(logLocationName)
+//        try? fileManager.createDirectory(at: directory, withIntermediateDirectories: true)
+//
+//        let effect: Effect = {
+//            // Save console logs to temp file
+//            switch await saveConsoleLogs(in: directory, logListener: logListener) {
+//            case .success:
+//                let osLogURL = createOSLogFile(in: directory)
+//
+//                // Retrieve OS logs and then present sharing options to user
+//                switch await writeDeviceInfo(to: osLogURL) {
+//                case .success:
+//                    // Create zip of both logs
+//                    switch fileManager.createLogsZip(directory: directory) {
+//                    case .success(let logsZip):
+//                        return LogsEntriesRetrieved(logsZip: logsZip)
+//                    case .failure(let error):
+//                        return ReceivedStitchFileError(error: error)
+//                    }
+//                case .failure(let error):
+//                    return ReceivedStitchFileError(error: error)
+//                }
+//            case .failure(let error):
+//                return ReceivedStitchFileError(error: error)
+//            }
+//        }
+//
+//        return .effectOnly(effect)
+//    }
+//}
 
 /// Action to ready created logs zip in share sheet.
 struct LogsEntriesRetrieved: AppEvent {
