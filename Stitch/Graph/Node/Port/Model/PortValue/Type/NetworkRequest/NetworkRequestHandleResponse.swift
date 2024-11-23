@@ -106,13 +106,13 @@ func handleRequestResponse(data: Data?,
     if let image = UIImage(data: data) {
         // log("handleRequestResponse: had image")
         image.accessibilityIdentifier = "Network Request Image"
-        return Result(value: (.image(image), headersAsJSON))
+        return .success((.image(image), headersAsJSON))
     }
 
     // json
     else if let json = try? JSON(data: data) {
         // log("handleRequestResponse: had json: \(json)")
-        return Result(value: (.json(json), headersAsJSON))
+        return .success((.json(json), headersAsJSON))
     }
 
     // text
@@ -122,14 +122,12 @@ func handleRequestResponse(data: Data?,
     else if let text = String(data: data, encoding: .utf8) {
         // log("handleRequestResponse: had text: \(text)")
         // log("handleRequestResponse: had utf8 encoded text")
-        return Result(value: (.text(text),
-                              headersAsJSON))
+        return .success((.text(text), headersAsJSON))
 
     } else if let text = String(data: data, encoding: .windowsCP1250) {
         // log("handleRequestResponse: had text, .windowsCP1250 encoding: \(text)")
         // log("handleRequestResponse: had windowsCP1250 encoded text")
-        return Result(value: (.text(text),
-                              headersAsJSON))
+        return .success((.text(text), headersAsJSON))
     }
 
     // failure
