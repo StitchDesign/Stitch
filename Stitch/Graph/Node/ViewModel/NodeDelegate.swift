@@ -22,6 +22,7 @@ extension NodeDelegate {
         return values
     }
     
+    @MainActor
     var defaultOutputsList: PortValuesList {
         self.defaultOutputs.map { [$0] }
     }
