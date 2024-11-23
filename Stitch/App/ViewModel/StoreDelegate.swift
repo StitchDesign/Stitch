@@ -10,7 +10,7 @@ import Foundation
 protocol StoreDelegate: AnyObject, Sendable {
     var documentLoader: DocumentLoader { get }
     
-    var systems: [StitchSystemType: StitchSystemViewModel] { get }
+    @MainActor var systems: [StitchSystemType: StitchSystemViewModel] { get }
     
     var clipboardEncoder: ClipboardEncoder { get }
 

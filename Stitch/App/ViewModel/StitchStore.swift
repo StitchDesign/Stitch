@@ -19,6 +19,7 @@ final class StitchStore: Sendable, StoreDelegate {
     let clipboardEncoder = ClipboardEncoder()
     let clipboardDelegate = ClipboardEncoderDelegate()
     
+    @MainActor
     var systems: [StitchSystemType: StitchSystemViewModel] = [:]
 
     // Components are unqiue to a user, not to a project,

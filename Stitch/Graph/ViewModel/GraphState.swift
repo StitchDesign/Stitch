@@ -110,16 +110,17 @@ extension GraphState {
         self.layersSidebarViewModel.items
     }
     
+    @MainActor
     convenience init(from schema: GraphEntity,
                      saveLocation: [UUID],
                      encoder: (any DocumentEncodable)) async {
         guard let decodedFiles = await encoder.getDecodedFiles() else {
             fatalErrorIfDebug()
-            await self.init()
+            self.init()
             return
         }
         
-        let components = await decodedFiles.components.createComponentsDict(parentGraph: nil)
+        let components =  decodedFiles.components.createComponentsDict(parentGraph: nil)
         
         var nodes = NodesViewModelDict()
         for nodeEntity in schema.nodes {
@@ -129,11 +130,11 @@ extension GraphState {
             nodes.updateValue(newNode, forKey: newNode.id)
         }
         
-        await self.init(from: schema,
-                        nodes: nodes,
-                        components: components,
-                        mediaFiles: decodedFiles.mediaFiles,
-                        saveLocation: saveLocation)
+        self.init(from: schema,
+                  nodes: nodes,
+                  components: components,
+                  mediaFiles: decodedFiles.mediaFiles,
+                  saveLocation: saveLocation)
     }
     
     @MainActor
@@ -224,6 +225,7 @@ extension GraphState {
         await self.documentEncoderDelegate?.undoDeletedMedia(mediaKey: mediaKey) ?? .failure(.copyFileFailed)
     }
     
+    @MainActor
     var allComponents: [StitchComponentViewModel] {
         self.nodes.values.flatMap { node -> [StitchComponentViewModel] in
             guard let nodeComponent = node.nodeType.componentNode else {
@@ -234,6 +236,7 @@ extension GraphState {
         }
     }
     
+    @MainActor
     var allComponentGraphs: [GraphState] {
         self.allComponents.map { $0.graph }
     }
@@ -482,11 +485,13 @@ extension GraphState {
      Secondarily used in some helpers for creating a GraphState that we then feed into GraphSchema
      - second use-case ideally removed in the future
      */
+    @MainActor
     func updateNode(_ node: NodeViewModel) {
         self.visibleNodesViewModel.nodes
             .updateValue(node, forKey: node.id)
     }
     
+    @MainActor
     func updatePatchNode(_ patchNode: PatchNode) {
         self.updateNode(patchNode)
     }
@@ -664,6 +669,7 @@ extension GraphState {
         .toSet
     }
     
+    @MainActor
     func getLayerChildren(for groupId: NodeId) -> NodeIdSet {
         self.nodes.values
             .filter { $0.layerNode?.layerGroupId == groupId }
@@ -727,7 +733,6 @@ extension GraphState {
         let nodeId = node.id
         var outputsToUpdate = node.outputs
         var nodeIdsToRecalculate = NodeIdSet()
-        let graphTime = self.graphStepManager.graphTime
         
         for (portId, newOutputValue) in portValues.enumerated() {
             let outputCoordinate = OutputCoordinate(portId: portId, nodeId: nodeId)

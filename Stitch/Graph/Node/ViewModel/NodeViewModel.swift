@@ -24,7 +24,7 @@ final class NodeViewModel: Sendable {
         zIndex: .zero,
         graphDelegate: nil)
 
-    var id: NodeEntity.ID
+    @MainActor var id: NodeEntity.ID
     
     @MainActor
     var title: String {
@@ -42,13 +42,18 @@ final class NodeViewModel: Sendable {
      */
     @MainActor private var _cachedDisplayTitle: String = ""
 
+    @MainActor
     var nodeType: NodeViewModelType
     
     // Cached for perf
+    @MainActor
     var longestLoopLength: Int = 1
+    
+    @MainActor
     var ephemeralObservers: [any NodeEphemeralObservable]?
 
     // aka reference to a limited subset of GraphState properties
+    @MainActor
     weak var graphDelegate: GraphDelegate?
 
     /// Called on initialization or prototype restart.
@@ -114,6 +119,7 @@ extension NodeViewModel: @preconcurrency NodeCalculatable {
         }
     }
     
+    @MainActor
     var isComponentOutputSplitter: Bool {
         let isNodeInComponent = !(self.graphDelegate?.saveLocation.isEmpty ?? true)
         return self.splitterType == .output && isNodeInComponent
@@ -271,6 +277,7 @@ extension NodeViewModel {
         self.syncEphemeralObservers()
     }
     
+    @MainActor
     var computedStates: [ComputedNodeState]? {
         self.ephemeralObservers?.compactMap {
             $0 as? ComputedNodeState
@@ -329,6 +336,7 @@ extension NodeViewModel {
         }
     }
     
+    @MainActor
     var patchCanvasItem: CanvasItemViewModel? {
         switch nodeType {
         case .patch(let patchNode):
@@ -584,6 +592,7 @@ extension NodeViewModel {
         graphDelegate?.activeIndex ?? .init(.zero)
     }
     
+    @MainActor
     var getMathExpression: String? {
         self.patchNode?.mathExpression
     }
@@ -687,7 +696,7 @@ extension NodeViewModel {
     }
 }
 
-extension NodeViewModel: Identifiable { }
+extension NodeViewModel: @preconcurrency Identifiable { }
 
 extension NodeViewModel {
     @MainActor
@@ -818,6 +827,7 @@ extension NodeViewModel {
         self.getAllOutputsObservers().flattenOutputs()
     }
     
+    @MainActor
     func appendInputRowObserver(_ rowObserver: InputNodeRowObserver) {
         guard let patchNode = self.patchNode else {
             fatalErrorIfDebug()

@@ -125,6 +125,7 @@ extension NodeRowObserver {
     }
     
     /// Updates layer selections for interaction patch nodes for perf.
+    @MainActor
     func updateInteractionNodeData(oldValues: PortValues,
                                    newValues: PortValues) {
         // Interaction nodes ignore loops of assigned layers and only use the first
@@ -246,6 +247,7 @@ extension [InputNodeRowObserver] {
 }
 
 extension InputNodeRowObserver {
+    @MainActor
     var currentBroadcastChoiceId: NodeId? {
         guard self.nodeKind == .patch(.wirelessReceiver),
               self.id.portId == 0,

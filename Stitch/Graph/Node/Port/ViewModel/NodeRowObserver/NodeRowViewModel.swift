@@ -247,10 +247,12 @@ extension NodeRowViewModel {
         self.setPortColorIfChanged(newColor)
     }
     
+    @MainActor
     var hasEdge: Bool {
         rowDelegate?.hasEdge ?? false
     }
     
+    @MainActor
     var hasLoop: Bool {
         rowDelegate?.hasLoopedValues ?? false
     }
@@ -426,6 +428,7 @@ extension OutputNodeRowViewModel {
 
 extension Array where Element: NodeRowViewModel {
     // easier code search
+    @MainActor
     mutating func syncRowViewModelsWithCanvasItem(with newEntities: [Element.RowObserver],
                                                   canvas: CanvasItemViewModel,
                                                   unpackedPortParentFieldGroupType: FieldGroupType?,
@@ -438,6 +441,7 @@ extension Array where Element: NodeRowViewModel {
     
     // TODO: This is impossible to find via a code search; too many methods are called `sync`
     /// Syncing logic as influced from `SchemaObserverIdentifiable`.
+    @MainActor
     mutating func sync(with newEntities: [Element.RowObserver],
                        canvas: CanvasItemViewModel,
                        unpackedPortParentFieldGroupType: FieldGroupType?,
