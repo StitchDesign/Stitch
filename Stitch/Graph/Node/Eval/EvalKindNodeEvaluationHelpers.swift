@@ -60,7 +60,7 @@ let pureNodeEval = { (_ eval: @escaping PureEval) in { (node: PatchNode) in
 let stringOp: Operation = { (_: PortValues) -> PortValue in .string(.init("")) }
 
 func resultsMaker(_ inputs: PortValuesList,
-                  outputs: PortValuesList = []) -> (Operation) -> PortValuesList {
+                  outputs: PortValuesList = []) -> @MainActor (Operation) -> PortValuesList {
     return { (op: Operation) in
         [outputEvalHelper(inputs: inputs,
                           outputs: outputs,

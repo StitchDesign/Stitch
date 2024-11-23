@@ -39,6 +39,7 @@ func maxNode(id: NodeId,
         outputs: outputs)
 }
 
+@MainActor
 func maxEval(inputs: PortValuesList, outputs: PortValuesList) -> PortValuesList {
     //    log("maxEval called")
 

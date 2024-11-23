@@ -99,7 +99,7 @@ func addEval(inputs: PortValuesList,
 // For re-use with RunningTotal loop-node
 struct AddEvalOps {
     
-    static let numberOperation: Operation = { (values: PortValues) -> PortValue in
+    @MainActor static let numberOperation: Operation = { (values: PortValues) -> PortValue in
             .number(values.reduce(.additionIdentity) { (acc: Double, value: PortValue) -> Double in
                 acc + (value.getNumber ?? .additionIdentity)
             })

@@ -370,17 +370,18 @@ extension SidebarItemGestureViewModel {
 // TODO: use this approach more widely?
 @Observable
 final class KeyboardObserver: Sendable {
-    var keyboard: GCKeyboard?
+    @MainActor var keyboard: GCKeyboard?
     
-    var observer: Any? = nil
+//    var observer: Any? = nil
     
     init() {
-        observer = NotificationCenter.default.addObserver(
-            forName: .GCKeyboardDidConnect,
-            object: nil,
-            queue: .main
-        ) { [weak self] notification in
-            self?.keyboard = notification.object as? GCKeyboard
-        }
+        // TODO: come back to keyboard
+//        NotificationCenter.default.addObserver(
+//            forName: .GCKeyboardDidConnect,
+//            object: nil,
+//            queue: .main
+//        ) { [weak self] notification in
+//            self?.keyboard = notification.object as? GCKeyboard
+//        }
     }
 }

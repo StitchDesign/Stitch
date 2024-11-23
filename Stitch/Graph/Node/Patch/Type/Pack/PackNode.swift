@@ -233,6 +233,7 @@ func transformPackOp(values: PortValues) -> PortValue {
     }
 }
 
+@MainActor
 func packEval(inputs: PortValuesList,
               outputs: PortValuesList) -> PortValuesList {
 

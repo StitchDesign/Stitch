@@ -52,7 +52,7 @@ final class CameraFeedManager: Sendable, MiddlewareService {
 //        }
 //    }
 
-    weak var documentDelegate: StitchDocumentViewModel?
+    @MainActor weak var documentDelegate: StitchDocumentViewModel?
 
     @MainActor
     var currentCameraImage: UIImage? {
