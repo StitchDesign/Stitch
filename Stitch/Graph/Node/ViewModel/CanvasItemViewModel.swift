@@ -85,7 +85,7 @@ final class CanvasItemViewModel: Identifiable, StitchLayoutCachable, Sendable {
     @MainActor var outputViewModels: [OutputNodeRowViewModel] = []
     
     // Cached subview sizes for performance gains in commit phase
-    var viewCache: NodeLayoutCache?
+    @MainActor var viewCache: NodeLayoutCache?
     
     // Moved state here for render cycle perf on port view for colors
     @MainActor
@@ -224,6 +224,7 @@ extension CanvasItemViewModel {
         self.viewCache = nil
     }
 
+    @MainActor
     var sizeByLocalBounds: CGSize {
         self.viewCache?.sizeThatFits ?? .zero
     }
@@ -271,6 +272,7 @@ extension CanvasItemViewModel {
         }
     }
     
+    @MainActor
     func resetViewSizingCache() {
         self.viewCache = nil
     }
