@@ -15,7 +15,7 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
     var id: NodeIOCoordinate { get }
     
     // Data-side for values
-    var allLoopedValues: PortValues { get set }
+    @MainActor var allLoopedValues: PortValues { get set }
     
     static var nodeIOType: NodeIO { get }
     
@@ -33,6 +33,7 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
     
     var hasEdge: Bool { get }
     
+    @MainActor
     init(values: PortValues,
          nodeKind: NodeKind,
          userVisibleType: UserVisibleType?,
@@ -46,7 +47,7 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
 extension PortValue: Sendable { }
 
 @Observable
-final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
+final class InputNodeRowObserver: NodeRowObserver, @preconcurrency InputNodeRowCalculatable {
     static let nodeIOType: NodeIO = .input
 
     let id: NodeIOCoordinate
@@ -87,6 +88,7 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     // Can't be computed for rendering purposes
     var hasLoopedValues: Bool = false
     
+    @MainActor
     convenience init(from schema: NodePortInputEntity) {
         self.init(values: schema.portData.values ?? [],
                   nodeKind: schema.nodeKind,
@@ -147,6 +149,7 @@ final class OutputNodeRowObserver: NodeRowObserver {
     // Always nil for outputs
     let importedMediaObject: StitchMediaObject? = nil
     
+    @MainActor
     init(values: PortValues,
          nodeKind: NodeKind,
          userVisibleType: UserVisibleType?,
@@ -550,6 +553,7 @@ extension NodeRowObserver {
         self.postProcessing(oldValues: [], newValues: values)
     }
     
+    @MainActor
     var values: PortValues {
         get {
             self.allLoopedValues

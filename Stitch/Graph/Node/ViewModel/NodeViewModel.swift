@@ -59,6 +59,7 @@ final class NodeViewModel: Sendable {
         }
     }
     
+    @MainActor
     init(from schema: NodeEntity,
          nodeType: NodeViewModelType) {
         self.id = schema.id
@@ -93,7 +94,7 @@ final class NodeViewModel: Sendable {
     }
 }
 
-extension NodeViewModel: NodeCalculatable {
+extension NodeViewModel: @preconcurrency NodeCalculatable {
     var inputsObservers: [InputNodeRowObserver] {
         get {
             self.getAllInputsObservers()
@@ -117,6 +118,7 @@ extension NodeViewModel: NodeCalculatable {
         return self.splitterType == .output && isNodeInComponent
     }
     
+    @MainActor
     var requiresOutputValuesChange: Bool {
         self.kind.getPatch == .pressInteraction
     }
@@ -205,6 +207,7 @@ extension NodeViewModel: NodeCalculatable {
                                         id: self.id)
     }
     
+    @MainActor
     var isGroupNode: Bool {
         self.kind == .group
     }
@@ -237,6 +240,7 @@ extension NodeViewModel {
         .init()
     }
     
+    @MainActor
     convenience init() {
         let nodeEntity = NodeEntity(id: .init(),
                                     nodeTypeEntity: .group(.init(position: .zero,
@@ -520,6 +524,7 @@ extension NodeViewModel {
         }
     }
     
+    @MainActor
     var color: NodeUIColor {
         switch self.kind {
         case .patch(let patch):
@@ -643,6 +648,7 @@ extension NodeViewModel {
         self.updateTitle(newTitle: schema.title)
     }
     
+    @MainActor
     func updateTitle(newTitle: String) {
         if self.title != newTitle {
             self.title = newTitle

@@ -12,7 +12,7 @@ import StitchSchemaKit
 // MARK: non-derived data: values, assigned interactions, label, upstream/downstream connection
 
 extension NodeRowObserver {
-    @MainActor
+    @MainActor @preconcurrency
     func updateValues(_ newValues: PortValues) {
         // Check if this port is for a packed layer input but the set mode is unpacked
         // Valid scenarios here--we use input row observer getters for all-up value getting
@@ -178,6 +178,7 @@ extension NodeRowObserver {
         }
     }
     
+    @MainActor
     func getMediaObjects() -> [StitchMediaObject] {
         self.allLoopedValues
             .compactMap { $0.asyncMedia?.mediaObject }

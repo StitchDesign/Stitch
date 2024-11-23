@@ -17,6 +17,7 @@ typealias PatchNode = NodeViewModel
 typealias NodeViewModels = [NodeViewModel]
 
 protocol PatchNodeViewModelDelegate: NodeDelegate {
+    @MainActor
     func userVisibleTypeChanged(oldType: UserVisibleType,
                                 newType: UserVisibleType)
 }
@@ -26,7 +27,9 @@ extension UUID: Sendable { }
 @Observable
 final class PatchNodeViewModel: Sendable {
     let id: NodeId
-    var patch: Patch
+    @MainActor var patch: Patch
+    
+    @MainActor
     var userVisibleType: UserVisibleType? {
         didSet(oldValue) {
             if let oldValue = oldValue,
@@ -52,6 +55,7 @@ final class PatchNodeViewModel: Sendable {
     
     weak var delegate: PatchNodeViewModelDelegate?
     
+    @MainActor
     init(from schema: PatchNodeEntity) {
         let kind = NodeKind.patch(schema.patch)
         
@@ -198,17 +202,20 @@ extension PatchNodeViewModel {
     
     /// Returns type choices in sorted order.
     /// **Note: this has potential perf cost if called too frequently in the view.**
+    @MainActor
     func getSortedUserTypeChoices() -> [UserVisibleType] {
         Array(self.patch.availableNodeTypes).sorted { n1, n2 in
             n1.display < n2.display
         }
     }
 
+    @MainActor
     var userTypeChoices: Set<UserVisibleType> {
         self.patch.availableNodeTypes
     }
 
     // Nodes like Core ML detection can have looped outputs without looped inputs.
+    @MainActor
     var supportsOneToManyIO: Bool {
         self.patch.supportsOneToManyIO
     }
@@ -361,6 +368,7 @@ extension NodeViewModel {
                   userVisibleType: userVisibleType)
     }
     
+    @MainActor
     var patch: Patch? {
         self.kind.getPatch
     }

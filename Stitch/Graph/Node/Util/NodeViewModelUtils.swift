@@ -111,7 +111,8 @@ extension NodeViewModel {
             patchNode.splitterType = newValue
         }
     }
-
+    
+    @MainActor
     var kind: NodeKind {
         self.nodeType.kind
     }
@@ -182,6 +183,7 @@ extension NodeViewModel {
     }
     
     // MARK: heavy perf cost due to human readable strings.**
+    @MainActor
     func getDisplayTitle() -> String {
         // always prefer a custom name
         self.kind.getDisplayTitle(customName: self.title)
@@ -191,11 +193,12 @@ extension NodeViewModel {
         LayerNodeId(self.id)
     }
 
+    @MainActor
     var isGroupLayer: Bool {
         self.kind.getLayer == .group
     }
 
-    static let nodeUIKind: NodeUIKind = NodeUIKind.inputsOnly
+//    static let nodeUIKind: NodeUIKind = NodeUIKind.inputsOnly
     
     @MainActor
     func inputCoordinate(at portId: Int) -> InputCoordinate? {

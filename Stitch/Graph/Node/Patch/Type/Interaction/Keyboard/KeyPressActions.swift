@@ -103,6 +103,7 @@ extension NodesViewModelDict {
         self.nodes(for: .location)
     }
 
+    @MainActor
     func nodes(for patch: Patch) -> NodeViewModels {
         Array(self.values)
             .compactFilter { $0.kind.getPatch == patch }
