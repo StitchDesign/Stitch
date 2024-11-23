@@ -8,8 +8,8 @@
 import SwiftUI
 
 /// Used by view models to cache local data.
-protocol StitchLayoutCachable: AnyObject {
-    var viewCache: NodeLayoutCache? { get set }
+protocol StitchLayoutCachable: AnyObject, Sendable {
+    @MainActor var viewCache: NodeLayoutCache? { get set }
 }
 
 struct NodeLayoutCache {
@@ -27,15 +27,19 @@ extension View {
     }
 }
 
-struct NodeLayout<T: StitchLayoutCachable>: Layout {
+struct NodeLayout<T: StitchLayoutCachable>: Layout, Sendable {
     typealias Cache = ()
     
     let observer: T
+    let existingCache: NodeLayoutCache?
     
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) -> CGSize {
-        guard let cache = observer.viewCache else {
+        guard let cache = existingCache else {
             let newCache = self.createCache(subviews: subviews)
-            self.observer.viewCache = newCache
+            
+            DispatchQueue.main.async {
+                self.observer.viewCache = newCache
+            }
             
             return newCache.sizeThatFits
         }
@@ -70,10 +74,12 @@ struct NodeLayout<T: StitchLayoutCachable>: Layout {
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) {
         guard !subviews.isEmpty else { return }
         
-        let cache = observer.viewCache ?? self.createCache(subviews: subviews)
+        let cache = self.existingCache ?? self.createCache(subviews: subviews)
             
-        if self.observer.viewCache == nil {
-            self.observer.viewCache = cache
+        if self.existingCache == nil {
+            DispatchQueue.main.async {
+                self.observer.viewCache = cache
+            }
         }
         
         for index in subviews.indices {
@@ -88,7 +94,7 @@ struct NodeLayout<T: StitchLayoutCachable>: Layout {
     }
     
     func spacing(subviews: Self.Subviews, cache: inout Cache) -> ViewSpacing {
-        guard let cache = self.observer.viewCache else {
+        guard let cache = self.existingCache else {
             let newCache = self.createCache(subviews: subviews)
             return newCache.spacing
         }
