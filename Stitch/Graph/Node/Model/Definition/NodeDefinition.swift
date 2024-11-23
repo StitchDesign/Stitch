@@ -37,6 +37,7 @@ extension PatchNodeDefinition {
 }
 
 extension Layer {
+    @MainActor
     var inputDefinitions: LayerInputTypeSet {
         self.layerGraphNode.inputDefinitions
     }
@@ -63,6 +64,7 @@ protocol LayerNodeDefinition: NodeDefinition {
 extension LayerNodeDefinition {
     static var graphKind: NodeDefinitionKind { .layer(Self.self) }
     
+    @MainActor
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
         .init(layerInputs: Self.inputDefinitions,
               layer: self.layer)

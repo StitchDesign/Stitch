@@ -26,7 +26,7 @@ typealias OnItemDragChangedHandler = (CGSize) -> Void
 // a gesture recognizer for the item in the custom list itself
 struct SidebarListItemGestureRecognizerView<T: View,
                                             SidebarViewModel: ProjectSidebarObservable>: UIViewControllerRepresentable {
-    @EnvironmentObject private var keyboardObserver: KeyboardObserver
+    @Environment private var keyboardObserver: KeyboardObserver
 
     let view: T
     @Bindable var sidebarViewModel: SidebarViewModel
@@ -368,8 +368,9 @@ import GameController
 
 // Note: a global GameController observer seems to be an accurate way to listen for Shift etc. key presses
 // TODO: use this approach more widely?
-class KeyboardObserver: ObservableObject {
-    @Published var keyboard: GCKeyboard?
+@Observable
+final class KeyboardObserver: Sendable {
+    var keyboard: GCKeyboard?
     
     var observer: Any? = nil
     
