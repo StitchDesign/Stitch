@@ -302,7 +302,7 @@ extension CGPoint {
 }
 
 extension VisibleNodesViewModel {
-
+    @MainActor
     func nodePageDataAtCurrentTraversalLevel(_ focusedGroup: NodeId?) -> NodePageData? {
         self.nodesByPage.get(focusedGroup.map(NodePageType.group) ?? NodePageType.root)
     }

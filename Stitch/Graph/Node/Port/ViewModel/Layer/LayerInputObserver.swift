@@ -285,6 +285,7 @@ extension LayerInputObserver {
 
 extension InputLayerNodeRowData {
     /// Resets canvas data and connections when toggled between pack/unpack state.
+    @MainActor
     func resetOnPackModeToggle() {
         self.rowObserver.upstreamOutputCoordinate = nil
         self.canvasObserver = nil

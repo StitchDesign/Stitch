@@ -16,8 +16,9 @@ final class StitchEnvironment: Sendable {
     let dirObserver: DirectoryObserver
 
     // weak reference to avoid retain cycle
-    weak var store: StitchStore?
+    @MainActor weak var store: StitchStore?
 
+    @MainActor
     init(fileManager: StitchFileManager = StitchFileManager()) {
 
 //        self.logListener = LogListener()

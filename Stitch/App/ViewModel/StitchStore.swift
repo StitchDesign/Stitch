@@ -39,10 +39,12 @@ final class StitchStore: Sendable, StoreDelegate {
     // Tracks ID of project which has a title that's currently getting modified
     @MainActor var projectIdForTitleEdit: ProjectId?
 
-    let environment = StitchEnvironment()
-
+    let environment: StitchEnvironment
+    
     @MainActor
     init() {
+        self.environment = StitchEnvironment()
+        
         // Remove cached data from previous session
         try? FileManager.default.removeItem(at: StitchFileManager.tempDir)
         

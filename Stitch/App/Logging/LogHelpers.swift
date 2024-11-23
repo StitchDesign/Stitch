@@ -160,7 +160,7 @@ extension StitchFileManager {
         switch self.zip(from: directory, to: zipLocation) {
         case .success:
             // Remove old directory
-            try? self.removeItem(at: directory)
+            try? FileManager.default.removeItem(at: directory)
 
             return .success(zipLocation)
         case .failure(let error):

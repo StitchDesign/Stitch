@@ -82,10 +82,12 @@ protocol SidebarItemSwipable: AnyObject, Observable, Identifiable, StitchNestedL
 }
 
 extension SidebarItemSwipable {
+    @MainActor
     var isSelected: Bool {
         self.isPrimarilySelected
     }
     
+    @MainActor
     var zIndex: Double {
         if self.isBeingDragged {
             return SIDEBAR_ITEM_MAX_Z_INDEX
@@ -129,6 +131,7 @@ extension SidebarItemSwipable {
         return result
     }
     
+    @MainActor
     var activeGesture: SidebarListActiveGesture<Self.ID> {
         get {
             self.sidebarDelegate?.activeGesture ?? .none
@@ -138,6 +141,7 @@ extension SidebarItemSwipable {
         }
     }
     
+    @MainActor
     var activeSwipeId: Self.ID? {
         get {
             self.sidebarDelegate?.activeSwipeId ?? nil
@@ -147,10 +151,12 @@ extension SidebarItemSwipable {
         }
     }
     
+    @MainActor
     var isBeingEdited: Bool {
         self.sidebarDelegate?.isEditing ?? false
     }
     
+    @MainActor
     var selectionStatus: SidebarListItemSelectionStatus {
         if self.isPrimarilySelected {
             return .primary
@@ -174,6 +180,7 @@ extension SidebarItemSwipable {
         CUSTOM_LIST_ITEM_VIEW_HEIGHT * rowIndex
     }
     
+    @MainActor
     var isPrimarilySelected: Bool {
         guard let sidebar = self.sidebarDelegate else {
             fatalErrorIfDebug()
@@ -187,6 +194,7 @@ extension SidebarItemSwipable {
         return false
     }
     
+    @MainActor
     var isParentSelected: Bool {
         guard let sidebar = self.sidebarDelegate else { return false }
         
@@ -200,10 +208,12 @@ extension SidebarItemSwipable {
         return false
     }
     
+    @MainActor
     var isBeingDragged: Bool {
         self.dragPosition != nil
     }
     
+    @MainActor
     var isCollapsedGroup: Bool {
         !(self.isExpandedInSidebar ?? true)
     }
@@ -292,6 +302,7 @@ extension SidebarItemSwipable {
         return longPress.sequenced(before: itemDrag)
     }
 
+    @MainActor
     var onItemSwipeChanged: OnDragChangedHandler {
         let onSwipeChanged: OnDragChangedHandler = { (translationWidth: CGFloat) in
             if self.isBeingEdited {
@@ -372,27 +383,33 @@ extension SidebarItemSwipable {
 
     // MARK: SWIPE LOGIC
 
+    @MainActor
     func resetSwipePosition() {
         swipeSetting = .closed
         previousSwipeX = 0
     }
 
+    @MainActor
     var atDefaultActionThreshold: Bool {
         swipeSetting.distance >= DEFAULT_ACTION_THRESHOLD
     }
 
+    @MainActor
     var hasCrossedRestingThreshold: Bool {
         swipeSetting.distance >= RESTING_THRESHOLD
     }
     
+    @MainActor
     var graphDelegate: GraphState? {
         self.sidebarDelegate?.graphDelegate
     }
     
+    @MainActor
     var parentId: Self.ID? {
         self.parentDelegate?.id
     }
     
+    @MainActor
     var rowIndex: Int {
         guard let sidebar = self.sidebarDelegate else {
             fatalErrorIfDebug()
@@ -410,6 +427,7 @@ extension SidebarItemSwipable {
 }
 
 extension Array where Element: SidebarItemSwipable {
+    @MainActor
     var flattenedItems: [Element] {
         self.flatMap { item in
             var items = [item]
@@ -419,6 +437,7 @@ extension Array where Element: SidebarItemSwipable {
     }
     
     /// Operation called on drag to return flattened visible list of children, while also removing primary-selected children from groups.
+    @MainActor
     func getFlattenedVisibleItems(selectedIds: Set<Element.ID>) -> [Element] {
         self.flatMap { item in
             guard item.isExpandedInSidebar ?? false,

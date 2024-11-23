@@ -185,7 +185,9 @@ extension LayerNodeViewModel {
         
         // Update packed row observer
         layerData.rowObserver.nodeKind = .layer(self.layer)
-        layerData.rowObserver.id = coordinateId
+        
+        // Checking to see if we can keep id constant
+        assertInDebug(layerData.rowObserver.id == coordinateId)
     }
     
     /// Second step for layer port initialization after all initial identifier data is set.
@@ -209,7 +211,7 @@ extension InputLayerNodeRowData {
                 nodeId: NodeId,
                 unpackedPortParentFieldGroupType: FieldGroupType?,
                 unpackedPortIndex: Int?) {
-        self.rowObserver.id.nodeId = nodeId
+        assertInDebug(self.rowObserver.id.nodeId == nodeId)
                     
         if let canvas = schema.canvasItem {
             if let canvasObserver = self.canvasObserver {

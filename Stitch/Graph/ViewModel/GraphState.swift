@@ -32,7 +32,7 @@ final class GraphState: Sendable {
     
     @MainActor var commentBoxesDict = CommentBoxesDict()
     
-    let visibleNodesViewModel = VisibleNodesViewModel()
+    let visibleNodesViewModel: VisibleNodesViewModel
     @MainActor let edgeDrawingObserver = EdgeDrawingObserver()
     
     @MainActor var selectedEdges = Set<PortEdgeUI>()
@@ -89,6 +89,7 @@ final class GraphState: Sendable {
          components: MasterComponentsDict,
          mediaFiles: [URL],
          saveLocation: [UUID]) {
+        self.visibleNodesViewModel = VisibleNodesViewModel()
         self.lastEncodedDocument = schema
         self.saveLocation = saveLocation
         self.id = schema.id
@@ -184,6 +185,7 @@ extension GraphState {
         self.documentDelegate?.storeDelegate
     }
     
+    @MainActor
     var nodes: [UUID : NodeViewModel] {
         get {
             self.visibleNodesViewModel.nodes
@@ -198,6 +200,7 @@ extension GraphState {
         self.graphUI.groupNodeFocused?.groupNodeId
     }
     
+    @MainActor
     var nodesDict: NodesViewModelDict {
         self.nodes
     }
@@ -464,18 +467,22 @@ extension GraphState {
                                                                 willUpdateUndoHistory: willUpdateUndoHistory)
     }
     
+    @MainActor
     func getPatchNode(id nodeId: NodeId) -> PatchNode? {
         self.visibleNodesViewModel.patchNodes.get(nodeId)
     }
     
+    @MainActor
     var patchNodes: NodesViewModelDict {
         self.visibleNodesViewModel.patchNodes
     }
     
+    @MainActor
     var layerNodes: NodesViewModelDict {
         self.visibleNodesViewModel.layerNodes
     }
     
+    @MainActor
     var groupNodes: NodesViewModelDict {
         self.visibleNodesViewModel.groupNodes
     }
