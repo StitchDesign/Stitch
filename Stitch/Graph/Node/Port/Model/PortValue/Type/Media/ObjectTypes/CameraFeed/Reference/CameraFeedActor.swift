@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 import UIKit
 import StitchSchemaKit
-import ARView
+import ARKit
 
 actor CameraFeedActor {
     private let context = CIContext()
@@ -102,13 +102,21 @@ actor CameraFeedActor {
         }
     }
     
-    func createUIImage(from frame: ARFrame) {
-        guard let uiImage = await frame.convertToUIImage(context: context) else {
+    func createUIImage(from frame: ARFrame,
+                       iPhone: Bool) async {
+        let image = frame.capturedImage
+        let ciImage = CIImage(cvImageBuffer: image)
+
+        // Send image to graph if successfully created
+        guard let cgImage = context.createCGImage(ciImage, from: ciImage.extent) else {
             return
         }
+        // Rotate image on iPhone
+        let uiImage = iPhone ? UIImage(cgImage: cgImage, scale: 1.0, orientation: .right)
+            : UIImage(cgImage: cgImage)
         
         await MainActor.run { [weak self] in
-            self?.imageConverterDelegate?.imageConverted(image: newImage)
+            self?.imageConverterDelegate?.imageConverted(image: uiImage)
         }
     }
     

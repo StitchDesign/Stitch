@@ -121,7 +121,7 @@ final class StitchARView: ARView {
     }
 }
 
-extension StitchARView: StitchCameraSession {
+extension StitchARView: @preconcurrency StitchCameraSession {
     nonisolated func startRunning() {}
 
     nonisolated func stopRunning() {
@@ -145,6 +145,7 @@ extension StitchARView: StitchCameraSession {
      https://medium.com/@ios_guru/arkit-and-arcamera-for-accessing-the-camera-information-in-an-ar-session-90d43ad9e2bd
      */
 
+    @MainActor
     func configureSession(device: StitchCameraDevice,
                           position: AVCaptureDevice.Position,
                           cameraOrientation: StitchCameraOrientation) {
@@ -173,17 +174,20 @@ extension StitchARView: StitchCameraSession {
     }
 }
 
-final class StitchARViewCaptureDelegate: NSObject, ARSessionDelegate, Sendable {
-    private var isLoading: Bool = false
+final class StitchARViewCaptureDelegate: NSObject, @preconcurrency ARSessionDelegate, Sendable {
+    @MainActor private var isLoading: Bool = false
     @MainActor var convertedImage: UIImage?
     let cameraActor = CameraFeedActor()
+    let iPhone: Bool
     
-    @MainActor init() {
+    @MainActor override init() {
+        self.iPhone = GraphUIState.isPhoneDevice
         super.init()
         
         self.cameraActor.imageConverterDelegate = self
     }
 
+    @MainActor
     func session(_ session: ARSession, didUpdate frame: ARFrame) {
         guard !isLoading else {
             // Wait until done loading
@@ -191,19 +195,21 @@ final class StitchARViewCaptureDelegate: NSObject, ARSessionDelegate, Sendable {
         }
         
         self.isLoading = true
+        let iPhone = self.iPhone
         
         // UIImage conversion moved to background thread for perf
         Task(priority: .high) { [weak self] in
-            self?.cameraActor.createUIImage(from: frame)
+            await self?.cameraActor.createUIImage(from: frame,
+                                                  iPhone: iPhone)
         }
     }
 }
 
 extension StitchARViewCaptureDelegate: ImageConverterDelegate {
     func imageConverted(image: UIImage) {
-        newImage.accessibilityIdentifier = CAMERA_DESCRIPTION
-        self?.convertedImage = newImage
-        self?.isLoading = false
+        image.accessibilityIdentifier = CAMERA_DESCRIPTION
+        self.convertedImage = image
+        self.isLoading = false
         
         dispatch(RecalculateCameraNodes())
     }
