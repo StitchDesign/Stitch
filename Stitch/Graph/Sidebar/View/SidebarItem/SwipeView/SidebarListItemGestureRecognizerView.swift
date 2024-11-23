@@ -26,7 +26,7 @@ typealias OnItemDragChangedHandler = (CGSize) -> Void
 // a gesture recognizer for the item in the custom list itself
 struct SidebarListItemGestureRecognizerView<T: View,
                                             SidebarViewModel: ProjectSidebarObservable>: UIViewControllerRepresentable {
-    @Environment private var keyboardObserver: KeyboardObserver
+    @Environment(KeyboardObserver.self) private var keyboardObserver
 
     let view: T
     @Bindable var sidebarViewModel: SidebarViewModel
