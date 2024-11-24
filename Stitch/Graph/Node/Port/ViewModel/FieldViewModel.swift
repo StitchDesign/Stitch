@@ -11,7 +11,7 @@ import StitchSchemaKit
 typealias InputFieldViewModels = [InputFieldViewModel]
 typealias OutputFieldViewModels = [OutputFieldViewModel]
 
-protocol FieldViewModel: StitchLayoutCachable, Observable, AnyObject, Identifiable {
+protocol FieldViewModel: StitchLayoutCachable, Observable, AnyObject, Identifiable where Self.ID == FieldCoordinate {
     associatedtype NodeRowType: NodeRowViewModel
     
     @MainActor var fieldValue: FieldValue { get set }

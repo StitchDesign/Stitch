@@ -495,6 +495,20 @@ extension Array where Element: StitchNestedListElement {
     }
 }
 
+extension Array where Element: StitchNestedListElementObservable {
+    /// Returns a subset of layers in sidebar given some selected set.
+    @MainActor func getSubset(from ids: Set<Element.ID>) -> [Element] {
+        self.flatMap { sidebarData in
+            guard ids.contains(sidebarData.id) else {
+                // Recursively check children
+                return sidebarData.children?.getSubset(from: ids) ?? []
+            }
+
+            return [sidebarData]
+        }
+    }
+}
+
 extension GraphState {
     /// Synchronous caller for node copying, used for Option + drag.
     @MainActor
