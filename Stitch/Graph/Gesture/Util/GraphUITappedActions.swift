@@ -37,7 +37,7 @@ struct GraphDoubleTappedAction: StitchDocumentEvent {
 }
 
 extension GraphMovementObserver {
-    func centerViewOnNode(frame: CGRect,
+    @MainActor func centerViewOnNode(frame: CGRect,
                           position: CGPoint) {
 
         // the size of the screen and nodeView

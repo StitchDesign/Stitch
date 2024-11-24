@@ -68,7 +68,7 @@ final class StitchDocumentViewModel: Sendable {
          isPhoneDevice: Bool,
          projectLoader: ProjectLoader,
          store: StoreDelegate?) {
-        self.id = schema.id
+        self.rootId = schema.id
         self.documentEncoder = projectLoader.encoder
         self.previewWindowSize = schema.previewWindowSize
         self.previewSizeDevice = schema.previewSizeDevice
@@ -190,6 +190,7 @@ extension StitchDocumentViewModel {
         self.graphStepManager.graphStepState
     }
     
+    @MainActor
     var cameraFeed: CameraFeedManager? {
         self.cameraFeedManager?.loadedInstance?.cameraFeedManager
     }

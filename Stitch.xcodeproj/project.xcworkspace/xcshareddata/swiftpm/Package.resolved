@@ -1,5 +1,4 @@
 {
-  "originHash" : "b1d7ea56398f028afc8bfb238923ce23a1e9fdbb296c2a3d62390ec6e9090149",
   "pins" : [
     {
       "identity" : "audiokit",
@@ -54,14 +53,6 @@
       }
     },
     {
-      "identity" : "stitchviewkit",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/StitchDesign/StitchViewKit.git",
-      "state" : {
-        "revision" : "b376ce99b5a98a17334a1fc329c32e8545381c7f"
-      }
-    },
-    {
       "identity" : "swift-collections",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-collections.git",
@@ -107,15 +98,6 @@
       }
     },
     {
-      "identity" : "swipeactions",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/StitchDesign/SwipeActions.git",
-      "state" : {
-        "revision" : "63cc57f9709e0cde213358e604ddb81d1648f210",
-        "version" : "1.0.1"
-      }
-    },
-    {
       "identity" : "zipfoundation",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/weichsel/ZIPFoundation.git",
@@ -125,5 +107,5 @@
       }
     }
   ],
-  "version" : 3
+  "version" : 2
 }

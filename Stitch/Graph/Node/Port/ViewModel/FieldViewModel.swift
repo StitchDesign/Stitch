@@ -80,8 +80,8 @@ final class InputFieldViewModel: FieldViewModel {
          fieldIndex: Int,
          fieldLabel: String,
          rowViewModelDelegate: InputNodeRowViewModel?) {
-        self.id = .init(rowId: self.rowViewModelDelegate?.id ?? .empty,
-                        fieldIndex: self.fieldIndex)
+        self.id = .init(rowId: rowViewModelDelegate?.id ?? .empty,
+                        fieldIndex: fieldIndex)
         self.fieldValue = fieldValue
         self.fieldIndex = fieldIndex
         self.fieldLabel = fieldLabel
@@ -104,8 +104,8 @@ final class OutputFieldViewModel: FieldViewModel {
          fieldIndex: Int,
          fieldLabel: String,
          rowViewModelDelegate: OutputNodeRowViewModel?) {
-        self.id = .init(rowId: self.rowViewModelDelegate?.id ?? .empty,
-                        fieldIndex: self.fieldIndex)
+        self.id = .init(rowId: rowViewModelDelegate?.id ?? .empty,
+                        fieldIndex: fieldIndex)
         self.fieldValue = fieldValue
         self.fieldIndex = fieldIndex
         self.fieldLabel = fieldLabel
