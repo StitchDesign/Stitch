@@ -179,6 +179,7 @@ extension StitchDocumentViewModel {
         }
     }
     
+    @MainActor
     func deactivateCamera() {
         self.cameraFeedManager?.loadedInstance?.cameraFeedManager?.stopCamera()
         self.cameraFeedManager = nil

@@ -52,6 +52,7 @@ extension CanvasItemViewModel {
     }
 
     // fka `updateNodeOnGraphDragged`
+    @MainActor
     func updateNodeOnGraphDragged(_ translation: CGSize,
                                   _ highestZIndex: ZIndex,
                                   zoom: CGFloat,

@@ -26,41 +26,41 @@ extension StitchDocumentViewModel: Hashable {
 final class StitchDocumentViewModel: Sendable {
     let rootId: UUID
     let graph: GraphState
-    var graphUI: GraphUIState
+    let graphUI: GraphUIState
     let graphStepManager = GraphStepManager()
     let graphMovement = GraphMovementObserver()
     
     let previewWindowSizingObserver = PreviewWindowSizing()
     
-    var isGeneratingProjectThumbnail = false
+    @MainActor var isGeneratingProjectThumbnail = false
     
     // The raw size we pass to GeneratePreview
-    var previewWindowSize: CGSize = PreviewWindowDevice.DEFAULT_PREVIEW_SIZE
+    @MainActor var previewWindowSize: CGSize = PreviewWindowDevice.DEFAULT_PREVIEW_SIZE
     
     // Changed by e.g. project-settings modal, e.g. UpdatePreviewCanvasDevice;
     // Not changed by user's manual drag on the preview window handle.
-    var previewSizeDevice: PreviewWindowDevice = PreviewWindowDevice.DEFAULT_PREVIEW_OPTION
+    @MainActor var previewSizeDevice: PreviewWindowDevice = PreviewWindowDevice.DEFAULT_PREVIEW_OPTION
     
-    var previewWindowBackgroundColor: Color = DEFAULT_FLOATING_WINDOW_COLOR
+    @MainActor var previewWindowBackgroundColor: Color = DEFAULT_FLOATING_WINDOW_COLOR
     
-    var cameraSettings = CameraSettings()
+    @MainActor var cameraSettings = CameraSettings()
     
-    var keypressState = KeyPressState()
-    var llmRecording = LLMRecordingState()
-    var stitchAI = StitchAIState()
+    @MainActor var keypressState = KeyPressState()
+    @MainActor var llmRecording = LLMRecordingState()
+    @MainActor var stitchAI = StitchAIState()
 
     // Remains false if an encoding action never happened (used for thumbnail creation)
-    var didDocumentChange: Bool = false
+    @MainActor var didDocumentChange: Bool = false
     
     // Singleton instances
-    var locationManager: LoadingStatus<StitchSingletonMediaObject>?
-    var cameraFeedManager: LoadingStatus<StitchSingletonMediaObject>?
+    @MainActor var locationManager: LoadingStatus<StitchSingletonMediaObject>?
+    @MainActor var cameraFeedManager: LoadingStatus<StitchSingletonMediaObject>?
     
-    var lastEncodedDocument: StitchDocument
+    @MainActor var lastEncodedDocument: StitchDocument
     
-    weak var storeDelegate: StoreDelegate?
-    weak var projectLoader: ProjectLoader?
-    weak var documentEncoder: DocumentEncoder?
+    @MainActor weak var storeDelegate: StoreDelegate?
+    @MainActor weak var projectLoader: ProjectLoader?
+    @MainActor weak var documentEncoder: DocumentEncoder?
     
     @MainActor
     init(from schema: StitchDocument,

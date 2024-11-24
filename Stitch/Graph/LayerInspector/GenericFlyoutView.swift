@@ -108,6 +108,7 @@ extension Int {
 
 extension LayerInputObserver {
     // Used with a specific flyout-row, to add the field of the canvas
+    @MainActor
     func layerInputTypeForFieldIndex(_ fieldIndex: Int) -> LayerInputType {
         .init(layerInput: self.port,
                      portType: .unpacked(fieldIndex.asUnpackedPortType))

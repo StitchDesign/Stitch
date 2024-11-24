@@ -16,11 +16,13 @@ extension String {
 extension InputFieldViewModel {
     
     // Get rid of this -- it's used
+    @MainActor
     var isFieldInsideLayerInspector: Bool {
         self.rowViewModelDelegate?.id.graphItemType.isLayerInspector ?? false
     }
     
     // Is this input-field for a layer input, and if so, which one?
+    @MainActor
     var layerInput: LayerInputPort? {
         self.rowViewModelDelegate?.id.portType.keyPath?.layerInput
     }

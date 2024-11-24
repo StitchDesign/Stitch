@@ -18,16 +18,16 @@ protocol GraphStepManagerDelegate: AnyObject {
 /// Tracks frames in a Project for animation and rendering perf purposes.
 /// **Instantiate this in a view (instead of the top App level) for better perf.**
 @Observable
-final class GraphStepManager: MiddlewareService {
-    private weak var displayLink: CADisplayLink?
+final class GraphStepManager: MiddlewareService, Sendable {
+    @MainActor private weak var displayLink: CADisplayLink?
 
     @MainActor var graphFrameCount: Int = 0
     @MainActor var graphTimeStart: TimeInterval?
     @MainActor var graphTimeCurrent: TimeInterval?
-    var estimatedFPS: StitchFPS = .defaultAssumedFPS
+    @MainActor var estimatedFPS: StitchFPS = .defaultAssumedFPS
 
     /// Assigned to `StitchStore` and processes graph step changes.
-    weak var delegate: GraphStepManagerDelegate?
+    @MainActor weak var delegate: GraphStepManagerDelegate?
     
     init() { }
 

@@ -34,9 +34,9 @@ extension LayerInputObserver {
 protocol LayerNodeRowData: AnyObject {
     associatedtype RowObserverable: NodeRowObserver
     
-    var rowObserver: RowObserverable { get set }
-    var canvasObserver: CanvasItemViewModel? { get set }
-    var inspectorRowViewModel: RowObserverable.RowViewModelType { get set }
+    @MainActor var rowObserver: RowObserverable { get set }
+    @MainActor var canvasObserver: CanvasItemViewModel? { get set }
+    @MainActor var inspectorRowViewModel: RowObserverable.RowViewModelType { get set }
 }
 
 /*
@@ -46,7 +46,7 @@ protocol LayerNodeRowData: AnyObject {
  */
 @Observable
 final class InputLayerNodeRowData: LayerNodeRowData, Identifiable {
-    var id: LayerInputType
+    let id: LayerInputType
     var rowObserver: InputNodeRowObserver
     var inspectorRowViewModel: InputNodeRowViewModel
     var canvasObserver: CanvasItemViewModel?
@@ -72,6 +72,7 @@ final class InputLayerNodeRowData: LayerNodeRowData, Identifiable {
             .contains(fieldIndex)
     }
     
+    @MainActor
     init(rowObserver: InputNodeRowObserver,
          canvasObserver: CanvasItemViewModel? = nil,
          nodeDelegate: NodeDelegate? = nil) {
@@ -102,13 +103,16 @@ final class InputLayerNodeRowData: LayerNodeRowData, Identifiable {
 }
 
 @Observable
-final class OutputLayerNodeRowData: LayerNodeRowData {
-    var rowObserver: OutputNodeRowObserver
-    var inspectorRowViewModel: OutputNodeRowViewModel
-    var canvasObserver: CanvasItemViewModel?
+final class OutputLayerNodeRowData: LayerNodeRowData, Identifiable {
+    let id: NodeIOCoordinate
+    @MainActor var rowObserver: OutputNodeRowObserver
+    @MainActor var inspectorRowViewModel: OutputNodeRowViewModel
+    @MainActor var canvasObserver: CanvasItemViewModel?
     
+    @MainActor
     init(rowObserver: OutputNodeRowObserver,
          canvasObserver: CanvasItemViewModel? = nil) {
+        self.id = rowObserver.id
         self.rowObserver = rowObserver
         self.canvasObserver = canvasObserver
         var itemType: GraphItemType
@@ -179,9 +183,10 @@ extension LayerNodeViewModel {
         let layerData: InputLayerNodeRowData = self[keyPath: layerId.layerNodeKeyPath]
         
         // Update row view model ID
-        layerData.inspectorRowViewModel.id = .init(graphItemType: .layerInspector(.keyPath(layerId)),
-                                                   nodeId: self.id,
-                                                   portId: 0)
+        // TODO: check inspector row view model ids
+//        layerData.inspectorRowViewModel.id = .init(graphItemType: .layerInspector(.keyPath(layerId)),
+//                                                   nodeId: self.id,
+//                                                   portId: 0)
         
         // Update packed row observer
         layerData.rowObserver.nodeKind = .layer(self.layer)
@@ -239,6 +244,7 @@ extension InputLayerNodeRowData {
 }
 
 extension LayerInputObserver {
+    @MainActor
     var packedObserver: InputLayerNodeRowData? {
         switch self.mode {
         case .packed:
@@ -248,6 +254,7 @@ extension LayerInputObserver {
         }
     }
     
+    @MainActor
     var unpackedObserver: LayerInputUnpackedPortObserver? {
         switch self.mode {
         case .unpacked:
@@ -339,11 +346,5 @@ extension InputLayerNodeRowData {
     func createSchema() -> LayerInputDataEntity {
         .init(inputPort: self.rowObserver.createSchema().portData,
               canvasItem: self.canvasObserver?.createSchema())
-    }
-}
-
-extension OutputLayerNodeRowData: Identifiable {
-    var id: NodeIOCoordinate {
-        self.rowObserver.id
     }
 }

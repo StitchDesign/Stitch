@@ -76,11 +76,11 @@ struct BoundaryNodesPositions {
 }
 
 @Observable
-final class GraphMovementObserver {
-    var localPosition = CGPoint.zero
-    var zoomData: GraphZoom = .init()
+final class GraphMovementObserver: Sendable {
+    @MainActor var localPosition = CGPoint.zero
+    @MainActor var zoomData: GraphZoom = .init()
 
-    var localPreviousPosition = CGPoint.zero
+    @MainActor var localPreviousPosition = CGPoint.zero
 
     let graphMultigesture = GraphMultigesture()
 
@@ -92,16 +92,16 @@ final class GraphMovementObserver {
 
     // Max translation in a given direction;
     // eg. `graphOffset.localPreviousPosition.height + maxTranslationY` = new position for graph
-    var maxTranslationX: CGFloat?
-    var maxTranslationY: CGFloat?
+    @MainActor var maxTranslationX: CGFloat?
+    @MainActor var maxTranslationY: CGFloat?
 
     // Used to determine, during a gesture that would extend past the border,
     // whether we've started to move away from the border or not.
     //    var lastInvalidTranslation: CGSize?
-    var lastInvalidTranslationX: CGFloat?
-    var lastInvalidTranslationY: CGFloat?
+    @MainActor var lastInvalidTranslationX: CGFloat?
+    @MainActor var lastInvalidTranslationY: CGFloat?
 
-    var graphBoundOriginAtStart: GraphOriginAtStart?
+    @MainActor var graphBoundOriginAtStart: GraphOriginAtStart?
 
     /*
      Left ie west side.
@@ -109,59 +109,63 @@ final class GraphMovementObserver {
      If true we don't apply the special border-checking logic.
      Set false as soon as eastern node crosses over to the right of the western border again
      */
-    var currentlyOffsidesWest: Bool?
+    @MainActor var currentlyOffsidesWest: Bool?
 
     // Did the western-most node on the graph start to the east of the eastern border?
-    var currentlyOffsidesEast: Bool?
+    @MainActor var currentlyOffsidesEast: Bool?
 
     // Did the northern-most node on the graph start to the south of the southern border?
-    var currentlyOffsidesSouth: Bool?
+    @MainActor var currentlyOffsidesSouth: Bool?
 
     // Did the southern-most node on the graph start to the north of the north border?
-    var currentlyOffsidesNorth: Bool?
+    @MainActor var currentlyOffsidesNorth: Bool?
 
     // Set true just when scrolling via trackpad.
-    var wasTrackpadScroll = false
+    @MainActor var wasTrackpadScroll = false
 
-    var momentumState = MomentumAnimationState()
+    @MainActor var momentumState = MomentumAnimationState()
     
-    var boundaryNodes: BoundaryNodesPositions?
+    @MainActor var boundaryNodes: BoundaryNodesPositions?
+    
+    init() { }
 }
 
 extension GraphMovementObserver {
-    var shouldRunY: Bool {
+    @MainActor var shouldRunY: Bool {
         momentumState.shouldRunY
     }
-    var shouldRunX: Bool {
+    @MainActor var shouldRunX: Bool {
         momentumState.shouldRunX
     }
 
     // Do we need to run this momentum?
-    var shouldRun: Bool {
+    @MainActor var shouldRun: Bool {
         shouldRunY || shouldRunX
     }
 
-    var stepY: CGFloat {
+    @MainActor var stepY: CGFloat {
         momentumState.stepY
     }
 
-    var stepX: CGFloat {
+    @MainActor var stepX: CGFloat {
         momentumState.stepX
     }
 
-    var amplitude: CGPoint {
+    @MainActor var amplitude: CGPoint {
         momentumState.amplitude
     }
 
-    var delta: CGPoint {
+    @MainActor var delta: CGPoint {
         momentumState.delta
     }
 
+    @MainActor
     func resetGraphMovement() {
         self.localPreviousPosition = self.localPosition
         self.momentumState = resetMomentum(self.momentumState)
     }
     
+    @MainActor
     func stopNodeMovement() {
         self.draggedCanvasItem = nil
         self.lastCanvasItemTranslation = .zero

@@ -13,13 +13,14 @@ import StitchSchemaKit
 final class LayerInputObserver {
     // Not intended to be used as an API given both data payloads always exist
     // Variables here necessary to ensure keypaths logic works
+
+    let layer: Layer
     
     // TODO: use `private` to prevent access?
     var _packedData: InputLayerNodeRowData
     var _unpackedData: LayerInputUnpackedPortObserver
     
-    let layer: Layer
-    var port: LayerInputPort
+    @MainActor var port: LayerInputPort
 
     /*
      Only fields on a layer input (not a patch input or layer output) can be blocked,
@@ -33,7 +34,7 @@ final class LayerInputObserver {
      // just the width field on the minSize input blocked:
      self.blockedFields.contains(.unpacked(.port0))
      */
-    var blockedFields: Set<LayerInputKeyPathType> // = .init()
+    @MainActor var blockedFields: Set<LayerInputKeyPathType> // = .init()
     
     @MainActor
     init(from schema: LayerNodeEntity, port: LayerInputPort) {
@@ -118,6 +119,7 @@ extension LayerInputObserver {
         }
     }
     
+    @MainActor
     var mode: LayerInputMode {
         if self._unpackedData.allPorts.contains(where: { $0.canvasObserver.isDefined }) {
             return .unpacked
