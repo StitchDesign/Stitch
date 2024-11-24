@@ -37,13 +37,15 @@ final class LayerInputObserver {
     @MainActor var blockedFields: Set<LayerInputKeyPathType> // = .init()
     
     @MainActor
-    init(from schema: LayerNodeEntity, port: LayerInputPort) {
-        
+    init(from schema: LayerNodeEntity,
+         port: LayerInputPort) {
+        let nodeId = schema.id
         self.layer = schema.layer
         self.port = port
                     
         self._packedData = .empty(.init(layerInput: port,
                                         portType: .packed),
+                                  nodeId: nodeId,
                                   layer: schema.layer)
         
         // initial these with field indices that reflect port0 vs port1 vs port2 ..
@@ -51,15 +53,19 @@ final class LayerInputObserver {
                                    layer: schema.layer,
                                    port0: .empty(.init(layerInput: port,
                                                        portType: .unpacked(.port0)),
+                                                 nodeId: nodeId,
                                                  layer: schema.layer),
                                    port1: .empty(.init(layerInput: port,
                                                        portType: .unpacked(.port1)),
+                                                 nodeId: nodeId,
                                                  layer: schema.layer),
                                    port2: .empty(.init(layerInput: port,
                                                        portType: .unpacked(.port2)),
+                                                 nodeId: nodeId,
                                                  layer: schema.layer),
                                    port3: .empty(.init(layerInput: port,
                                                        portType: .unpacked(.port3)),
+                                                 nodeId: nodeId,
                                                  layer: schema.layer))
         
         // When initialized fom schema, blockedFields is empty.

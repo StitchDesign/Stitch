@@ -238,8 +238,8 @@ final class LayerNodeViewModel {
         self.strokeColorPort = .init(from: schema, port: .strokeColor)
         self.strokeStartPort = .init(from: schema, port: .strokeStart)
         self.strokeEndPort = .init(from: schema, port: .strokeEnd)
-        self.strokeLineCapPort = .init(from: schema, port: .strokeEnd)
-        self.strokeLineJoinPort = .init(from: schema, port: .strokeEnd)
+        self.strokeLineCapPort = .init(from: schema, port: .strokeLineCap)
+        self.strokeLineJoinPort = .init(from: schema, port: .strokeLineJoin)
         self.coordinateSystemPort = .init(from: schema, port: .coordinateSystem)
         
         self.cornerRadiusPort = .init(from: schema, port: .cornerRadius)
