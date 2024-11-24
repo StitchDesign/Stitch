@@ -52,7 +52,8 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
     }
 
     var body: some View {
-        NodeLayout(observer: node) {
+        NodeLayout(observer: node,
+                   existingCache: node.viewCache) {
             nodeBody
             .onAppear {
                 self.node.updateVisibilityStatus(with: true)
