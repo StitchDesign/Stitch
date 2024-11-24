@@ -11,11 +11,11 @@ import StitchSchemaKit
 let superLongString = "Some SwiftUI views have a default background color that overrides whatever you try to apply yourself, but if you use the scrollContentBackground() modifier you can hide that default background and replace it with something else. At the time of writing, this works for List, TextEditor, and Form, so you can remove or change their background colors."
 
 extension GraphUIState {
-    func commentBoxTitleEditStarted(id: CommentBoxId) {
+    @MainActor func commentBoxTitleEditStarted(id: CommentBoxId) {
         self.activelyEditedCommentBoxTitle = id
     }
 
-    func commentBoxTitleEditEnded() {
+    @MainActor func commentBoxTitleEditEnded() {
         self.activelyEditedCommentBoxTitle = nil
     }
 }

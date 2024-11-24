@@ -45,13 +45,13 @@ final class GraphStepManager: MiddlewareService, Sendable {
     }
 
     // TIME-BASED GRAPH AND PREVIEW WINDOW UPDATES
-    var lastGraphTime: TimeInterval = .zero
+    @MainActor var lastGraphTime: TimeInterval = .zero
 
     // TIME-BASED GRAPH UI UPDATES
-    var lastUIGraphTime: TimeInterval = .zero
+    @MainActor var lastUIGraphTime: TimeInterval = .zero
 
     // TIME-BASED GRAPH-STEP-DRIVEN ANIMATIONS
-    var lastGraphAnimationTime: TimeInterval = .zero
+    @MainActor var lastGraphAnimationTime: TimeInterval = .zero
 
     @MainActor
     func start() {
@@ -85,7 +85,7 @@ final class GraphStepManager: MiddlewareService, Sendable {
     }
 
     // Only for estimating actual device run-time FPS
-    private var previousTimeInSeconds: Double = 0
+    @MainActor private var previousTimeInSeconds: Double = 0
 
     @MainActor
     @objc private func updateOnFrame(displaylink: CADisplayLink) {

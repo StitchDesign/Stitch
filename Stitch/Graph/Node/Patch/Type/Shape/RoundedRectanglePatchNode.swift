@@ -39,6 +39,7 @@ func roundedRectangleShapeNode(id: NodeId,
         outputs: outputs)
 }
 
+@MainActor
 func roundedRectangleShapeEval(inputs: PortValuesList,
                                outputs: PortValuesList) -> PortValuesList {
 
