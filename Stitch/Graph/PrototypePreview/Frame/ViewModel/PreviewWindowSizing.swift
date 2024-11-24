@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 @Observable
-final class PreviewWindowSizing {
+final class PreviewWindowSizing: Sendable {
     // Size of the device the preview window is emulating
     // i.e. the size of the device our prototype is for: e.g. iPhone 11 etc.
     var previewWindowDeviceSize: CGSize = PreviewWindowDevice.DEFAULT_PREVIEW_SIZE

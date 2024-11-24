@@ -21,6 +21,7 @@ struct GraphOriginAtStart: Equatable, Hashable {
 extension GraphMovementObserver {
     // Returns "final X position, such
     // note: the position itself, not the
+    @MainActor
     func capMomentumPositionX(graphBounds: CGRect,
                               frame: CGRect,
                               zoom: CGFloat,
@@ -84,6 +85,7 @@ extension GraphMovementObserver {
         return nil
     }
 
+    @MainActor
     func capMomentumPositionY(graphBounds: CGRect,
                               frame: CGRect,
                               zoom: CGFloat,

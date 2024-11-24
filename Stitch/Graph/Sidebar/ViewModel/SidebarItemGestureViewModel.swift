@@ -30,7 +30,7 @@ let CUSTOM_LIST_ITEM_INDENTATION_LEVEL: Int = 24
 @Observable
 final class SidebarItemGestureViewModel: SidebarItemSwipable {
     let id: NodeId
-    var sidebarIndex: SidebarIndex = .init(groupIndex: .zero, rowIndex: .zero)
+    @MainActor var sidebarIndex: SidebarIndex = .init(groupIndex: .zero, rowIndex: .zero)
     @MainActor var children: [SidebarItemGestureViewModel]?
     
     @MainActor var isExpandedInSidebar: Bool?

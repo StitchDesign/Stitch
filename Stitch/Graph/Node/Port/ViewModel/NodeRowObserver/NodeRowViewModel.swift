@@ -352,23 +352,21 @@ extension InputNodeRowViewModel {
 
 @Observable
 final class OutputNodeRowViewModel: NodeRowViewModel {
-    var viewCache: NodeLayoutCache?
-    
     typealias PortViewType = OutputPortViewData
-    
     static let nodeIO: NodeIO = .output
     
-    var id: NodeRowViewModelId
-    var activeValue: PortValue = .number(.zero)
-    var fieldValueTypes = FieldGroupTypeViewModelList<OutputFieldViewModel>()
-    var connectedCanvasItems: Set<CanvasItemId> = .init()
-    var anchorPoint: CGPoint?
-    var portColor: PortColor = .noEdge
-    var isDragging = false
-    var portViewData: PortViewType?
-    weak var nodeDelegate: NodeDelegate?
-    weak var rowDelegate: OutputNodeRowObserver?
-    weak var canvasItemDelegate: CanvasItemViewModel?
+    let id: NodeRowViewModelId
+    @MainActor var viewCache: NodeLayoutCache?
+    @MainActor var activeValue: PortValue = .number(.zero)
+    @MainActor var fieldValueTypes = FieldGroupTypeViewModelList<OutputFieldViewModel>()
+    @MainActor var connectedCanvasItems: Set<CanvasItemId> = .init()
+    @MainActor var anchorPoint: CGPoint?
+    @MainActor var portColor: PortColor = .noEdge
+    @MainActor var isDragging = false
+    @MainActor var portViewData: PortViewType?
+    @MainActor weak var nodeDelegate: NodeDelegate?
+    @MainActor weak var rowDelegate: OutputNodeRowObserver?
+    @MainActor weak var canvasItemDelegate: CanvasItemViewModel?
     
     init(id: NodeRowViewModelId,
          rowDelegate: OutputNodeRowObserver?,

@@ -42,7 +42,7 @@ final class FieldGroupTypeViewModel<FieldType: FieldViewModel>: StitchLayoutCach
         
         assertInDebug(!fieldObservers.isEmpty)
         
-        self.id = fieldObservers.first?.id ?? .fakeFieldCoordinate
+        self.id = fieldObservers.first?.id ?? FieldCoordinate.fakeFieldCoordinate
         self.type = type
         self.groupLabel = groupLabel
         self.startingFieldIndex = startingFieldIndex

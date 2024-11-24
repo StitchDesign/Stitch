@@ -38,6 +38,7 @@ struct ArrowKeyPressed: GraphEvent {
         return
     }
 
+    @MainActor
     private static func willNavigateActiveNodeSelection(_ graphUI: GraphUIState) -> InsertNodeMenuOptionData? {
         let insertNodeMenuState = graphUI.insertNodeMenuState
 

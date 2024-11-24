@@ -91,17 +91,21 @@ final class InputFieldViewModel: FieldViewModel {
 
 @Observable
 final class OutputFieldViewModel: FieldViewModel {
-    var fieldValue: FieldValue
-    var fieldIndex: Int
-    var fieldLabel: String
-    var viewCache: NodeLayoutCache?
+    let id: FieldCoordinate
+    @MainActor var fieldValue: FieldValue
+    @MainActor var fieldIndex: Int
+    @MainActor var fieldLabel: String
+    @MainActor var viewCache: NodeLayoutCache?
     
-    weak var rowViewModelDelegate: OutputNodeRowViewModel?
+    @MainActor weak var rowViewModelDelegate: OutputNodeRowViewModel?
     
+    @MainActor
     init(fieldValue: FieldValue,
          fieldIndex: Int,
          fieldLabel: String,
          rowViewModelDelegate: OutputNodeRowViewModel?) {
+        self.id = .init(rowId: self.rowViewModelDelegate?.id ?? .empty,
+                        fieldIndex: self.fieldIndex)
         self.fieldValue = fieldValue
         self.fieldIndex = fieldIndex
         self.fieldLabel = fieldLabel

@@ -8,7 +8,7 @@
 import SwiftUI
 import StitchViewKit
 
-protocol SidebarItemSwipable: AnyObject, Observable, Identifiable, StitchNestedListElement where Self.ID: Equatable & CustomStringConvertible,
+protocol SidebarItemSwipable: AnyObject, Observable, Sendable, Identifiable, StitchNestedListElement where Self.ID: Equatable & CustomStringConvertible,
                                                                                                  SidebarViewModel.ItemViewModel == Self {
     associatedtype SidebarViewModel: ProjectSidebarObservable
     typealias ActiveGesture = SidebarListActiveGesture<Self.ID>

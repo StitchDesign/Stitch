@@ -20,128 +20,128 @@ typealias LayerNodes = [LayerNode]
 
 @Observable
 final class LayerNodeViewModel {
-    var id: NodeId
+    let id: NodeId
 
     let layer: Layer
 
     // View models for layers in prototype window
-    var previewLayerViewModels: [LayerViewModel] = [] 
+    @MainActor var previewLayerViewModels: [LayerViewModel] = []
  
     // Some layer nodes contain outputs
-    var outputPorts: [OutputLayerNodeRowData] = []
+    @MainActor var outputPorts: [OutputLayerNodeRowData] = []
     
     // Cached property to efficiently identify locations of input canvas nodes, if any created
-    var _inputCanvasIds = Set<CanvasItemId>()
+    @MainActor var _inputCanvasIds = Set<CanvasItemId>()
     
     // TODO: temporarily using positionPort as only canvas item location until inspector is done
     
-    let positionPort: LayerInputObserver
-    let sizePort: LayerInputObserver
-    let scalePort: LayerInputObserver
-    let anchoringPort: LayerInputObserver
-    let opacityPort: LayerInputObserver
-    let zIndexPort: LayerInputObserver
-    let masksPort: LayerInputObserver
-    let colorPort: LayerInputObserver
-    let startColorPort: LayerInputObserver
-    let endColorPort: LayerInputObserver
-    let startAnchorPort: LayerInputObserver
-    let endAnchorPort: LayerInputObserver
-    let centerAnchorPort: LayerInputObserver
-    let startAnglePort: LayerInputObserver
-    let endAnglePort: LayerInputObserver
-    let startRadiusPort: LayerInputObserver
-    let endRadiusPort: LayerInputObserver
-    let rotationXPort: LayerInputObserver
-    let rotationYPort: LayerInputObserver
-    let rotationZPort: LayerInputObserver
-    let lineColorPort: LayerInputObserver
-    let lineWidthPort: LayerInputObserver
-    let blurPort: LayerInputObserver
-    let blendModePort: LayerInputObserver
-    let brightnessPort: LayerInputObserver
-    let colorInvertPort: LayerInputObserver
-    let contrastPort: LayerInputObserver
-    let hueRotationPort: LayerInputObserver
-    let saturationPort: LayerInputObserver
-    let pivotPort: LayerInputObserver
-    let enabledPort: LayerInputObserver
-    let blurRadiusPort: LayerInputObserver
-    let backgroundColorPort: LayerInputObserver
-    let isClippedPort: LayerInputObserver
-    let orientationPort: LayerInputObserver
-    let paddingPort: LayerInputObserver
-    let setupModePort: LayerInputObserver
-    let allAnchorsPort: LayerInputObserver
-    let cameraDirectionPort: LayerInputObserver
-    let isCameraEnabledPort: LayerInputObserver
-    let isShadowsEnabledPort: LayerInputObserver
+    var positionPort: LayerInputObserver
+    var sizePort: LayerInputObserver
+    var scalePort: LayerInputObserver
+    var anchoringPort: LayerInputObserver
+    var opacityPort: LayerInputObserver
+    var zIndexPort: LayerInputObserver
+    var masksPort: LayerInputObserver
+    var colorPort: LayerInputObserver
+    var startColorPort: LayerInputObserver
+    var endColorPort: LayerInputObserver
+    var startAnchorPort: LayerInputObserver
+    var endAnchorPort: LayerInputObserver
+    var centerAnchorPort: LayerInputObserver
+    var startAnglePort: LayerInputObserver
+    var endAnglePort: LayerInputObserver
+    var startRadiusPort: LayerInputObserver
+    var endRadiusPort: LayerInputObserver
+    var rotationXPort: LayerInputObserver
+    var rotationYPort: LayerInputObserver
+    var rotationZPort: LayerInputObserver
+    var lineColorPort: LayerInputObserver
+    var lineWidthPort: LayerInputObserver
+    var blurPort: LayerInputObserver
+    var blendModePort: LayerInputObserver
+    var brightnessPort: LayerInputObserver
+    var colorInvertPort: LayerInputObserver
+    var contrastPort: LayerInputObserver
+    var hueRotationPort: LayerInputObserver
+    var saturationPort: LayerInputObserver
+    var pivotPort: LayerInputObserver
+    var enabledPort: LayerInputObserver
+    var blurRadiusPort: LayerInputObserver
+    var backgroundColorPort: LayerInputObserver
+    var isClippedPort: LayerInputObserver
+    var orientationPort: LayerInputObserver
+    var paddingPort: LayerInputObserver
+    var setupModePort: LayerInputObserver
+    var allAnchorsPort: LayerInputObserver
+    var cameraDirectionPort: LayerInputObserver
+    var isCameraEnabledPort: LayerInputObserver
+    var isShadowsEnabledPort: LayerInputObserver
     
-    let shapePort: LayerInputObserver
-    let strokePositionPort: LayerInputObserver
-    let strokeWidthPort: LayerInputObserver
-    let strokeColorPort: LayerInputObserver
-    let strokeStartPort: LayerInputObserver
-    let strokeEndPort: LayerInputObserver
-    let strokeLineCapPort: LayerInputObserver
-    let strokeLineJoinPort: LayerInputObserver
-    let coordinateSystemPort: LayerInputObserver
+    var shapePort: LayerInputObserver
+    var strokePositionPort: LayerInputObserver
+    var strokeWidthPort: LayerInputObserver
+    var strokeColorPort: LayerInputObserver
+    var strokeStartPort: LayerInputObserver
+    var strokeEndPort: LayerInputObserver
+    var strokeLineCapPort: LayerInputObserver
+    var strokeLineJoinPort: LayerInputObserver
+    var coordinateSystemPort: LayerInputObserver
     
-    let cornerRadiusPort: LayerInputObserver
-    let canvasLineColorPort: LayerInputObserver
-    let canvasLineWidthPort: LayerInputObserver
-    let textPort: LayerInputObserver
-    let fontSizePort: LayerInputObserver
-    let textAlignmentPort: LayerInputObserver
-    let verticalAlignmentPort: LayerInputObserver
-    let textDecorationPort: LayerInputObserver
-    let textFontPort: LayerInputObserver
-    let imagePort: LayerInputObserver
-    let videoPort: LayerInputObserver
-    let fitStylePort: LayerInputObserver
-    let clippedPort: LayerInputObserver
-    let isAnimatingPort: LayerInputObserver
-    let progressIndicatorStylePort: LayerInputObserver
-    let progressPort: LayerInputObserver
-    let model3DPort: LayerInputObserver
-    let mapTypePort: LayerInputObserver
-    let mapLatLongPort: LayerInputObserver
-    let mapSpanPort: LayerInputObserver
-    let isSwitchToggledPort: LayerInputObserver
-    let placeholderTextPort: LayerInputObserver
+    var cornerRadiusPort: LayerInputObserver
+    var canvasLineColorPort: LayerInputObserver
+    var canvasLineWidthPort: LayerInputObserver
+    var textPort: LayerInputObserver
+    var fontSizePort: LayerInputObserver
+    var textAlignmentPort: LayerInputObserver
+    var verticalAlignmentPort: LayerInputObserver
+    var textDecorationPort: LayerInputObserver
+    var textFontPort: LayerInputObserver
+    var imagePort: LayerInputObserver
+    var videoPort: LayerInputObserver
+    var fitStylePort: LayerInputObserver
+    var clippedPort: LayerInputObserver
+    var isAnimatingPort: LayerInputObserver
+    var progressIndicatorStylePort: LayerInputObserver
+    var progressPort: LayerInputObserver
+    var model3DPort: LayerInputObserver
+    var mapTypePort: LayerInputObserver
+    var mapLatLongPort: LayerInputObserver
+    var mapSpanPort: LayerInputObserver
+    var isSwitchToggledPort: LayerInputObserver
+    var placeholderTextPort: LayerInputObserver
     
-    let shadowColorPort: LayerInputObserver
-    let shadowOpacityPort: LayerInputObserver
-    let shadowRadiusPort: LayerInputObserver
-    let shadowOffsetPort: LayerInputObserver
-    let sfSymbolPort: LayerInputObserver
+    var shadowColorPort: LayerInputObserver
+    var shadowOpacityPort: LayerInputObserver
+    var shadowRadiusPort: LayerInputObserver
+    var shadowOffsetPort: LayerInputObserver
+    var sfSymbolPort: LayerInputObserver
     
-    let videoURLPort: LayerInputObserver
-    let volumePort: LayerInputObserver
+    var videoURLPort: LayerInputObserver
+    var volumePort: LayerInputObserver
     
-    let spacingBetweenGridColumnsPort: LayerInputObserver
-    let spacingBetweenGridRowsPort: LayerInputObserver
-    let itemAlignmentWithinGridCellPort: LayerInputObserver
+    var spacingBetweenGridColumnsPort: LayerInputObserver
+    var spacingBetweenGridRowsPort: LayerInputObserver
+    var itemAlignmentWithinGridCellPort: LayerInputObserver
     
-    let widthAxisPort: LayerInputObserver
-    let heightAxisPort: LayerInputObserver
-    let contentModePort: LayerInputObserver
-    let minSizePort: LayerInputObserver
-    let maxSizePort: LayerInputObserver
-    let spacingPort: LayerInputObserver
-    let sizingScenarioPort: LayerInputObserver
+    var widthAxisPort: LayerInputObserver
+    var heightAxisPort: LayerInputObserver
+    var contentModePort: LayerInputObserver
+    var minSizePort: LayerInputObserver
+    var maxSizePort: LayerInputObserver
+    var spacingPort: LayerInputObserver
+    var sizingScenarioPort: LayerInputObserver
 
-    let isPinnedPort: LayerInputObserver
-    let pinToPort: LayerInputObserver
-    let pinAnchorPort: LayerInputObserver
-    let pinOffsetPort: LayerInputObserver
+    var isPinnedPort: LayerInputObserver
+    var pinToPort: LayerInputObserver
+    var pinAnchorPort: LayerInputObserver
+    var pinOffsetPort: LayerInputObserver
     
-    let layerMarginPort: LayerInputObserver
-    let layerPaddingPort: LayerInputObserver
-    let offsetInGroupPort: LayerInputObserver
+    var layerMarginPort: LayerInputObserver
+    var layerPaddingPort: LayerInputObserver
+    var offsetInGroupPort: LayerInputObserver
     
-    let materialThicknessPort: LayerInputObserver
-    let deviceAppearancePort: LayerInputObserver
+    var materialThicknessPort: LayerInputObserver
+    var deviceAppearancePort: LayerInputObserver
     
     @MainActor weak var nodeDelegate: NodeDelegate?
 
