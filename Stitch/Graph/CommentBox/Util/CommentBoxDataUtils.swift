@@ -86,6 +86,7 @@ extension String {
 
 extension CommentBoxViewModel {
     // MARK: initializing comment box from a set of existing nodes
+    @MainActor
     convenience init(zIndex: ZIndex,
                      scale: CGFloat, // graph zoom
                      nodes: [CanvasItemViewModel]) {

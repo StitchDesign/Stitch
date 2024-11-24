@@ -73,30 +73,30 @@ protocol NodeRowViewModel: StitchLayoutCachable, Observable, Identifiable {
     associatedtype RowObserver: NodeRowObserver
     associatedtype PortViewType: PortViewData
     
-    var id: NodeRowViewModelId { get set }
+    var id: NodeRowViewModelId { get }
     
     // View-specific value that only updates when visible
     // separate propety for perf reasons:
-    var activeValue: PortValue { get set }
+    @MainActor var activeValue: PortValue { get set }
     
     // Holds view models for fields
-    var fieldValueTypes: [FieldGroupTypeViewModel<FieldType>] { get set }
+    @MainActor var fieldValueTypes: [FieldGroupTypeViewModel<FieldType>] { get set }
     
-    var connectedCanvasItems: Set<CanvasItemId> { get set }
+    @MainActor var connectedCanvasItems: Set<CanvasItemId> { get set }
     
-    var anchorPoint: CGPoint? { get set }
+    @MainActor var anchorPoint: CGPoint? { get set }
     
-    var portColor: PortColor { get set }
+    @MainActor var portColor: PortColor { get set }
     
-    var portViewData: PortViewType? { get set }
+    @MainActor var portViewData: PortViewType? { get set }
     
-    var isDragging: Bool { get set }
+    @MainActor var isDragging: Bool { get set }
     
-    var nodeDelegate: NodeDelegate? { get set }
+    @MainActor var nodeDelegate: NodeDelegate? { get set }
     
-    var rowDelegate: RowObserver? { get set }
+    @MainActor var rowDelegate: RowObserver? { get set }
     
-    var canvasItemDelegate: CanvasItemViewModel? { get set }
+    @MainActor var canvasItemDelegate: CanvasItemViewModel? { get set }
     
     static var nodeIO: NodeIO { get }
     
@@ -110,6 +110,7 @@ protocol NodeRowViewModel: StitchLayoutCachable, Observable, Identifiable {
     
     @MainActor func findConnectedCanvasItems() -> CanvasItemIdSet
     
+    @MainActor
     init(id: NodeRowViewModelId,
          rowDelegate: RowObserver?,
          canvasItemDelegate: CanvasItemViewModel?)
@@ -169,6 +170,7 @@ extension NodeRowViewModel {
     }
     
     /// Considerable perf cost from `ConnectedEdgeView`, so now a function.
+    @MainActor
     func getPortViewData() -> PortViewType? {
         guard let canvasId = self.canvasItemDelegate?.id else {
             return nil
@@ -178,6 +180,7 @@ extension NodeRowViewModel {
                      canvasId: canvasId)
     }
     
+    @MainActor
     func initializeValues(rowDelegate: Self.RowObserver,
                           unpackedPortParentFieldGroupType: FieldGroupType?,
                           unpackedPortIndex: Int?,
@@ -278,29 +281,29 @@ extension PortValue {
 // UI data
 @Observable
 final class InputNodeRowViewModel: NodeRowViewModel {
-    var viewCache: NodeLayoutCache?
-    
     typealias PortViewType = InputPortViewData
     
     static let nodeIO: NodeIO = .input
     
-    var id: NodeRowViewModelId
-    var activeValue: PortValue = .number(.zero)
-    var fieldValueTypes = FieldGroupTypeViewModelList<InputFieldViewModel>()
-    var connectedCanvasItems: Set<CanvasItemId> = .init()
-    var anchorPoint: CGPoint?
-    var portColor: PortColor = .noEdge
-    var isDragging = false
-    var portViewData: PortViewType?
-    weak var nodeDelegate: NodeDelegate?
-    weak var rowDelegate: InputNodeRowObserver?
+    let id: NodeRowViewModelId
+    @MainActor var viewCache: NodeLayoutCache?
+    @MainActor var activeValue: PortValue = .number(.zero)
+    @MainActor var fieldValueTypes = FieldGroupTypeViewModelList<InputFieldViewModel>()
+    @MainActor var connectedCanvasItems: Set<CanvasItemId> = .init()
+    @MainActor var anchorPoint: CGPoint?
+    @MainActor var portColor: PortColor = .noEdge
+    @MainActor var isDragging = false
+    @MainActor var portViewData: PortViewType?
+    @MainActor weak var nodeDelegate: NodeDelegate?
+    @MainActor weak var rowDelegate: InputNodeRowObserver?
     
     // TODO: input node row view model for an inspector should NEVER have canvasItemDelegate
-    weak var canvasItemDelegate: CanvasItemViewModel? // also nil when the layer input is not on the canvas
+    @MainActor weak var canvasItemDelegate: CanvasItemViewModel? // also nil when the layer input is not on the canvas
     
     // TODO: temporary property for old-style layer nodes
-    var layerPortId: Int?
+    @MainActor var layerPortId: Int?
     
+    @MainActor
     init(id: NodeRowViewModelId,
          rowDelegate: InputNodeRowObserver?,
          canvasItemDelegate: CanvasItemViewModel?) {
@@ -464,9 +467,10 @@ extension Array where Element: NodeRowViewModel {
         self = newEntities.enumerated().map { portIndex, newEntity in
             if let entity = currentEntitiesMap.get(newEntity.id) {
                 // Update index if ports for node were removed
-                entity.id = .init(graphItemType: entity.id.graphItemType,
-                                  nodeId: entity.id.nodeId,
-                                  portId: portIndex)
+                // TODO: test node row removal
+//                entity.id = .init(graphItemType: entity.id.graphItemType,
+//                                  nodeId: entity.id.nodeId,
+//                                  portId: portIndex)
                 
                 return entity
             } else {
