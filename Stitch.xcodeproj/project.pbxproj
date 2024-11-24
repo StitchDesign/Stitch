@@ -1070,7 +1070,7 @@
 		B55979232A215A3400363149 /* EdgeEditModeLabelsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeEditModeLabelsView.swift; sourceTree = "<group>"; };
 		B55C958328CBAB4000ED59B2 /* StitchUndoManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchUndoManager.swift; sourceTree = "<group>"; };
 		B55E4F0927F7F0E100BFD60A /* NodeUIColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeUIColor.swift; sourceTree = "<group>"; };
-		B560CE822CF3C82400F31905 /* StitchViewKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = StitchViewKit; path = ../StitchViewKit; sourceTree = SOURCE_ROOT; };
+		B560CE842CF3CF3800F31905 /* StitchViewKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = StitchViewKit; path = ../StitchViewKit; sourceTree = SOURCE_ROOT; };
 		B561B44A2923465D00DE4A0D /* iPadProjectSidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iPadProjectSidebarView.swift; sourceTree = "<group>"; };
 		B5657D352C0983E300287362 /* MediaEvalOpObservable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaEvalOpObservable.swift; sourceTree = "<group>"; };
 		B5657D382C0B94A300287362 /* GraphMediaValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphMediaValue.swift; sourceTree = "<group>"; };
@@ -1894,7 +1894,6 @@
 		200BD84E254F66EB00692903 = {
 			isa = PBXGroup;
 			children = (
-				B560CE822CF3C82400F31905 /* StitchViewKit */,
 				200BD859254F66EB00692903 /* Stitch */,
 				B5F5FD412B3755C200BBD9A2 /* TestFlight */,
 				208AFA8D25D45B440035B250 /* StitchTests */,
@@ -1917,6 +1916,7 @@
 		200BD859254F66EB00692903 /* Stitch */ = {
 			isa = PBXGroup;
 			children = (
+				B560CE842CF3CF3800F31905 /* StitchViewKit */,
 				EC15E425260271C6006F2E08 /* Stitch.entitlements */,
 				200BD863254F66EE00692903 /* Info.plist */,
 				B5617A7B2C175C3C00B53DAF /* App */,

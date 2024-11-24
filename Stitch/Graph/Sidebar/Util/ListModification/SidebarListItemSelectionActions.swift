@@ -47,7 +47,7 @@ extension ProjectSidebarObservable {
     // children to deselect
     @MainActor
     func getDescendantsIds(id: Self.ItemID) -> Set<ItemID> {
-        guard let children = self.createdOrderedEncodedData().get(id)?.children else { return .init() }
+        guard let children = self.items.get(id)?.children else { return .init() }
         return children.flatMap { $0.allElementIds }
             .toSet
     }
