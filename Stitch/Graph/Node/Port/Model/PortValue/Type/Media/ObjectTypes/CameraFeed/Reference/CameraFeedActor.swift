@@ -152,16 +152,12 @@ final actor CameraFeedActor {
     }
     
     // https://developer.apple.com/documentation/avfoundation/avcapturesession
-    @MainActor
-    func configureSession(session: AVCaptureSession,
-                          device: StitchCameraDevice,
-                          position: AVCaptureDevice.Position,
-                          cameraOrientation: StitchCameraOrientation,
-                          deviceType: UIUserInterfaceIdiom) {
-        guard let bufferDelegate = self.bufferDelegate else {
-            fatalErrorIfDebug()
-            return
-        }
+    static func configureSession(session: AVCaptureSession,
+                                 device: StitchCameraDevice,
+                                 position: AVCaptureDevice.Position,
+                                 cameraOrientation: StitchCameraOrientation,
+                                 deviceType: UIUserInterfaceIdiom,
+                                 bufferDelegate: CaptureSessionBufferDelegate) {
         
         session.beginConfiguration()
 
@@ -203,7 +199,7 @@ final actor CameraFeedActor {
         //TODO: Support rotation during session
         else if isIPad {
             connection.videoRotationAngle = 180
-        } else if let rotationAngle = self.getCameraRotationAngle(
+        } else if let rotationAngle = Self.getCameraRotationAngle(
             device: device,
             cameraOrientation: cameraOrientation) {
             connection.videoRotationAngle = rotationAngle
@@ -214,9 +210,8 @@ final actor CameraFeedActor {
         session.commitConfiguration()
     }
     
-    @MainActor
-    private func getCameraRotationAngle(device: StitchCameraDevice,
-                                        cameraOrientation: StitchCameraOrientation) -> Double? {
+    private static func getCameraRotationAngle(device: StitchCameraDevice,
+                                               cameraOrientation: StitchCameraOrientation) -> Double? {
             // Convert StitchCameraOrientation to rotation angle
             switch cameraOrientation.convertOrientation {
             case .portrait:

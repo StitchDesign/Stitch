@@ -49,17 +49,18 @@ final class StitchAVCaptureSession: StitchCameraSession {
                                      position: AVCaptureDevice.Position,
                                      cameraOrientation: StitchCameraOrientation) {
         let deviceType = UIDevice.current.userInterfaceIdiom
+//        let bufferDelegate = self.actor.bufferDelegate
         
-        Task { [weak self] in
-            guard let avCapture = self else { return }
-            
-            await avCapture.actor
-                .configureSession(session: avCapture.cameraSession,
-                                  device: device,
-                                  position: position,
-                                  cameraOrientation: cameraOrientation,
-                                  deviceType: deviceType)
-        }
+//            guard let avCapture = self,
+//                  let bufferDelegate = bufferDelegate else { return }
+//            
+        CameraFeedActor
+            .configureSession(session: self.cameraSession,
+                              device: device,
+                              position: position,
+                              cameraOrientation: cameraOrientation,
+                              deviceType: deviceType,
+                              bufferDelegate: self.bufferDelegate)
     }
 }
 
@@ -88,9 +89,9 @@ final class CaptureSessionBufferDelegate: NSObject, Sendable, @preconcurrency AV
 //        guard !self.isLoading else { return }
 //        self.isLoading = true
         
-//        guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
-//            return
-//        }
+        guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
+            return
+        }
         
         Task(priority: .high) { [weak self] in
 //            guard let sampleBuffer = sampleBuffer else { return }
