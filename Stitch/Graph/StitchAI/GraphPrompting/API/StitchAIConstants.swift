@@ -232,6 +232,34 @@ let VISUAL_PROGRAMMING_ACTIONS = """
       "required": ["step_type", "node_id", "port", "value", "node_type"],
       "additionalProperties": false
     },
+   "AddLayerInputAction": {
+      "type": "object",
+      "properties": {
+        "step_type": { "type": "string", "const": "add_layer_input" },
+        "node_id": { "type": "string" },
+        "value": {
+          "anyOf": [
+            { "type": "number" },
+            { "type": "string" },
+            { "type": "boolean" }
+          ]
+        },
+        "port": {
+          "anyOf": [
+            { "type": "integer" },
+            { "$ref": "#/$defs/LayerPorts" }
+          ],
+          "description": "The port to which the layer input is set"
+        }
+      },
+      "required": ["step_type", "node_id", "port", "value"],
+      "additionalProperties": false
+    },
+    "NodeID": {
+      "type": "string",
+      "description": "The unique identifier for the node (UUID)",
+      "additionalProperties": false
+    },
     "NodeName": {
       "enum": [
         "add || Patch",
@@ -382,7 +410,8 @@ let VISUAL_PROGRAMMING_ACTIONS = """
           { "$ref": "#/$defs/AddNodeAction" },
           { "$ref": "#/$defs/ConnectNodesAction" },
           { "$ref": "#/$defs/ChangeNodeTypeAction" },
-          { "$ref": "#/$defs/SetInputAction" }
+          { "$ref": "#/$defs/SetInputAction" },
+          { "$ref": "#/$defs/AddLayerInputAction" }
         ]
       }
     }
