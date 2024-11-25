@@ -42,7 +42,11 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
                                  jsonResponse: VISUAL_PROGRAMMING_ACTIONS)
             return
         }
-    
+        if let prettyPrintedJSONData = try? JSONSerialization.data(withJSONObject: responseSchema, options: .prettyPrinted),
+           let prettyPrintedJSONString = String(data: prettyPrintedJSONData, encoding: .utf8) {
+            print("Response Schema (Pretty Printed JSON):\n\(prettyPrintedJSONString)")
+        }
+
        
         let body = getOpenAIRequestBody(prompt: prompt,
                                         responseSchema: responseSchema)
@@ -105,50 +109,51 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
     let error: Error?
     
     func handle(state: StitchDocumentViewModel) {
-        
         // We've finished generating an OpenAI response from the prompt
         state.stitchAI.promptState.isGenerating = false
         
-        // Error from HTTP Request
-        if let error: Error = error {
+        // Handle HTTP Request error
+        if let error = error {
             state.showErrorModal(message: "Request error: \(error.localizedDescription)",
                                  userPrompt: originalPrompt,
                                  jsonResponse: nil)
             return
         }
         
-        guard let data: Data = data else {
-            state.showErrorModal(message: "No data received",
+        guard let data = data else {
+            state.showErrorModal(message: "No data received from OpenAI",
                                  userPrompt: originalPrompt,
                                  jsonResponse: nil)
             return
         }
         
+        if let jsonString = String(data: data, encoding: .utf8) {
+            log("OpenAIRequestCompleted: Full JSON Response:\n\(jsonString)")
+        } else {
+            log("OpenAIRequestCompleted: Received data but failed to decode as UTF-8 string")
+        }
         
-        let jsonResponse = String(data: data, encoding: .utf8) ?? "Invalid JSON format"
+        // Parse steps from response
+        let (stepsFromResponse, parseError) = data.getOpenAISteps()
         
-        log("OpenAIRequestCompleted: JSON RESPONSE: \(jsonResponse)")
-        
-        let (stepsFromResponse, error) = data.getOpenAISteps()
-        
-        guard let stepsFromResponse = stepsFromResponse else {
-            state.showErrorModal(message: error?.localizedDescription ?? "",
+        guard let steps = stepsFromResponse else {
+            let errorDescription = parseError?.localizedDescription ?? "Unknown error while parsing steps"
+            state.showErrorModal(message: errorDescription,
                                  userPrompt: originalPrompt,
-                                 jsonResponse: jsonResponse)
+                                 jsonResponse: String(data: data, encoding: .utf8))
             return
         }
         
-        log("OpenAIRequestCompleted: stepsFromReponse:")
-        
-        for step in stepsFromResponse {
+        // Log steps received
+        log("OpenAIRequestCompleted: Parsed Steps:")
+        for step in steps {
             log(step.description)
         }
         
+        // Process steps
         var canvasItemsAdded = 0
-        stepsFromResponse.forEach { step in
-            canvasItemsAdded = state.handleLLMStepAction(
-                step,
-                canvasItemsAdded: canvasItemsAdded)
+        steps.forEach { step in
+            canvasItemsAdded = state.handleLLMStepAction(step, canvasItemsAdded: canvasItemsAdded)
         }
         
         state.closeStitchAIModal()
