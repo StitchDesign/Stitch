@@ -295,7 +295,9 @@ extension StitchDocumentViewModel {
         
         let _update = { (canvasItem: CanvasItemViewModel) in
             
-            let nodeSize = canvasItem.graphBaseViewSize
+            guard let nodeSize = canvasItem.graphBaseViewSize else {
+                return
+            }
             
             canvasItem.position = determineSnapPosition(
                 position: canvasItem.position,

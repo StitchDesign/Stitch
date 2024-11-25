@@ -120,11 +120,11 @@ extension NodeRowViewModel {
     @MainActor
     func updateAnchorPoint() {
         guard let canvas = self.canvasItemDelegate,
-              let node = canvas.nodeDelegate else {
+              let node = canvas.nodeDelegate,
+              let size = canvas.sizeByLocalBounds else {
             return
         }
         
-        let size = canvas.sizeByLocalBounds
         let ioAdjustment: CGFloat = 10
         let standardHeightAdjustment: CGFloat = 69
         let ioConstraint: CGFloat = Self.nodeIO == .input ? ioAdjustment : -ioAdjustment

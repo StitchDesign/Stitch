@@ -280,7 +280,8 @@ struct InsertNodeMenuWrapper: View {
                          usePositionHandler: false,
                          updateMenuActiveSelectionBounds: updateMenuActiveSelectionBounds)
             .onChange(of: canvas.sizeByLocalBounds) { _, newSize in
-                guard newSize.width.isNormal && newSize.height.isNormal else { return }
+                guard let newSize = newSize,
+                      newSize.width.isNormal && newSize.height.isNormal else { return }
                 
                 self.nodeWidth = newSize.width
                 self.nodeHeight = newSize.height

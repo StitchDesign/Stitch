@@ -225,8 +225,8 @@ extension CanvasItemViewModel {
     }
 
     @MainActor
-    var sizeByLocalBounds: CGSize {
-        self.viewCache?.sizeThatFits ?? .zero
+    var sizeByLocalBounds: CGSize? {
+        self.viewCache?.sizeThatFits
     }
     
     @MainActor
@@ -236,8 +236,10 @@ extension CanvasItemViewModel {
 
     @MainActor
     func updateVisibilityStatus(with newValue: Bool) {
-        self.updatePortLocations()
-        self.nodeDelegate?.updatePortViewModels()
+        if newValue {
+            self.updatePortLocations()
+            self.nodeDelegate?.updatePortViewModels()
+        }
         
 //        let oldValue = self.isVisibleInFrame
 //        if oldValue != newValue {
