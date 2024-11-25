@@ -81,7 +81,7 @@ final class CaptureSessionBufferDelegate: NSObject, Sendable, @preconcurrency AV
     }
     
     // updated signature per this comment: https://medium.com/@b99705008/great-tutorial-it-really-help-me-to-understand-the-process-to-implement-a-camera-capture-feature-4baeadfe0d96
-    @MainActor
+    // MARK: cannot be assigned to an actor (even MainActor) or will crash
     func captureOutput(_ captureOutput: AVCaptureOutput,
                        didOutput sampleBuffer: CMSampleBuffer,
                        from connection: AVCaptureConnection) {
@@ -89,14 +89,12 @@ final class CaptureSessionBufferDelegate: NSObject, Sendable, @preconcurrency AV
 //        guard !self.isLoading else { return }
 //        self.isLoading = true
         
-        guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
-            return
-        }
+        let actor = self.actor
         
-        Task(priority: .high) { [weak self] in
+        Task(priority: .high) { @Sendable [weak actor] in
 //            guard let sampleBuffer = sampleBuffer else { return }
             
-            await self?.actor.createUIImage(from: sampleBuffer)
+            await actor?.createUIImage(from: sampleBuffer)
         }
     }
 }

@@ -160,10 +160,13 @@ extension StitchMediaObject {
 
         switch self {
         case .image(let uIImage):
-            guard let copy = uIImage.copy() as? UIImage else {
-                return nil
+            // MARK: must copy on main thread or will crash
+            copiedMediaObject = await MainActor.run { [weak uIImage] in
+                guard let copy = uIImage?.copy() as? UIImage else {
+                    return nil
+                }
+                return .image(copy)
             }
-            copiedMediaObject = .image(copy)
 
         case .video(let videoPlayer):
             let url = videoPlayer.url
