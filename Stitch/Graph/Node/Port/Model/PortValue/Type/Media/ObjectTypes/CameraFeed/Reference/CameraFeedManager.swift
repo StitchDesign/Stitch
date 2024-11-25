@@ -14,9 +14,10 @@ import StitchSchemaKit
 // TODO: Revisit this with iPhone device orientation, which seems incorrect.
 // TODO: Move this onto graph state rather than a node view; handle a camera as media state just like eg an audio player etc.
 protocol StitchCameraSession: AnyObject, Sendable {
-    func startRunning()
-    func stopRunning()
+//    func startRunning()
+    @MainActor func stopRunning()
 
+    @MainActor
     func configureSession(device: StitchCameraDevice,
                           position: AVCaptureDevice.Position,
                           cameraOrientation: StitchCameraOrientation)
@@ -112,20 +113,29 @@ final class CameraFeedManager: Sendable, MiddlewareService {
         // Must get called on main thread
         let session: StitchCameraSession = useAR ? StitchARView() : StitchAVCaptureSession(actor: actor)
 
-        Task { [weak actor, weak session] in
-            guard let _session = session else {
-                return
+        actor.startCamera(session: session,
+                          device: device,
+                          position: position,
+                          cameraOrientation: cameraOrientation) {
+            if !useAR {
+                guard let session = session as? StitchAVCaptureSession else {
+                    fatalErrorIfDebug()
+                    return
+                }
+                
+                // AV capture session must run on background thread;
+                // nothing to do here for ARView
+                Task.detached(priority: .high) { [weak session] in
+                    log(session?.cameraSession.isRunning)
+                    session?.cameraSession.startRunning()
+                }
             }
-
-            await actor?.startCamera(session: _session,
-                                     device: device,
-                                     position: position,
-                                     cameraOrientation: cameraOrientation)
         }
 
         return session
     }
 
+    @MainActor
     func stopCamera() {
         self.session?.stopRunning()
     }

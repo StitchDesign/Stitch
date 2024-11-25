@@ -121,15 +121,12 @@ final class StitchARView: ARView {
     }
 }
 
-extension StitchARView: @preconcurrency StitchCameraSession {
-    nonisolated func startRunning() {}
+extension StitchARView: StitchCameraSession {
+//    func startRunning() {}
 
-    nonisolated func stopRunning() {
-        Task {
-            await MainActor.run { [weak self] in
-                self?.session.pause()
-            }
-        }
+    @MainActor
+    func stopRunning() {
+        self.session.pause()
     }
 
     /*

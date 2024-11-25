@@ -5,15 +5,18 @@
 //  Created by Elliot Boschwitz on 10/13/22.
 //
 
-import AVFoundation
+@preconcurrency import AVFoundation
 import Foundation
 import StitchSchemaKit
 import UIKit
 
-extension AVCaptureSession: @unchecked Sendable { }
-
 /// Camera library used when AR is not available.
-final class StitchAVCaptureSession: AVCaptureSession, @preconcurrency StitchCameraSession {
+final class StitchAVCaptureSession: StitchCameraSession {
+    let cameraSession: AVCaptureSession = .init()
+    
+    func stopRunning() {
+        self.cameraSession.stopRunning()
+    }
     
     @MainActor var currentImage: UIImage? {
         self.bufferDelegate.convertedImage
@@ -24,8 +27,6 @@ final class StitchAVCaptureSession: AVCaptureSession, @preconcurrency StitchCame
     @MainActor
     init(actor: CameraFeedActor) {
         self.bufferDelegate = CaptureSessionBufferDelegate()
-
-        super.init()
 
 
         // .high: causes app to crash on device 'due to memory issues',
@@ -38,10 +39,10 @@ final class StitchAVCaptureSession: AVCaptureSession, @preconcurrency StitchCame
     }
 
     // https://developer.apple.com/documentation/avfoundation/avcapturesession
-    @MainActor func configureSession(device: StitchCameraDevice,
+    func configureSession(device: StitchCameraDevice,
                                      position: AVCaptureDevice.Position,
                                      cameraOrientation: StitchCameraOrientation) {
-        self.beginConfiguration()
+        self.cameraSession.beginConfiguration()
 
         // NOTE: perf-wise, we seem to be fine to not limit the image-size and -quality.
         //            self.sessionPreset = .vga640x480
@@ -51,21 +52,21 @@ final class StitchAVCaptureSession: AVCaptureSession, @preconcurrency StitchCame
 
         guard let cameraDevice = device.device,
               let captureDeviceInput = try? AVCaptureDeviceInput(device: cameraDevice),
-              self.canAddInput(captureDeviceInput),
-              self.canAddOutput(videoOutput) else {
+              self.cameraSession.canAddInput(captureDeviceInput),
+              self.cameraSession.canAddOutput(videoOutput) else {
             log("FrameExtractor error: could not setup input or output.")
-            self.commitConfiguration() // commit configuration if we must exit
+            self.cameraSession.commitConfiguration() // commit configuration if we must exit
             return
         }
 
-        self.addInput(captureDeviceInput)
+        self.cameraSession.addInput(captureDeviceInput)
         videoOutput.setSampleBufferDelegate(self.bufferDelegate, queue: DispatchQueue(label: "sample buffer"))
 
-        self.addOutput(videoOutput)
+        self.cameraSession.addOutput(videoOutput)
 
         guard let connection: AVCaptureConnection = videoOutput.connection(with: CAMERA_FEED_MEDIA_TYPE) else {
             log("FrameExtractor: configureSession: Cannot establish connection")
-            self.commitConfiguration()
+            self.cameraSession.commitConfiguration()
             return
         }
 
@@ -89,7 +90,7 @@ final class StitchAVCaptureSession: AVCaptureSession, @preconcurrency StitchCame
 
         connection.isVideoMirrored = position == .front
 
-        self.commitConfiguration()
+        self.cameraSession.commitConfiguration()
     }
 
     @MainActor

@@ -17,14 +17,16 @@ actor CameraFeedActor {
 //    var currentProcessedImage: UIImage?
     @MainActor weak var imageConverterDelegate: ImageConverterDelegate?
     
-    var authStatus: AVAuthorizationStatus {
+    @MainActor var authStatus: AVAuthorizationStatus {
         AVCaptureDevice.authorizationStatus(for: CAMERA_FEED_MEDIA_TYPE)
     }
 
+    @MainActor
     func configureSession(session: StitchCameraSession,
                           device: StitchCameraDevice,
                           position: AVCaptureDevice.Position,
-                          cameraOrientation: StitchCameraOrientation) {
+                          cameraOrientation: StitchCameraOrientation,
+                          startCameraCallback: @escaping () -> ()) {
         guard authStatus == .authorized else {
             return
         }
@@ -34,14 +36,23 @@ actor CameraFeedActor {
             device: device,
             position: position,
             cameraOrientation: cameraOrientation)
-
-        session.startRunning()
+        
+        // Per compiler: should be called from background thread for AVCapture
+        
+        // TODO: explore this more
+        
+        startCameraCallback()
+        
+//        Task { [weak session] in
+//            session?.startRunning()
+//        }
     }
 
-    func startCamera(session: StitchCameraSession,
+    @MainActor func startCamera(session: StitchCameraSession,
                      device: StitchCameraDevice,
                      position: AVCaptureDevice.Position,
-                     cameraOrientation: StitchCameraOrientation) {
+                     cameraOrientation: StitchCameraOrientation,
+                     startCameraCallback: @escaping () -> ()) {
         let authStatus = self.authStatus
         switch authStatus {
         case .authorized:
@@ -49,13 +60,15 @@ actor CameraFeedActor {
                 session: session,
                 device: device,
                 position: position,
-                cameraOrientation: cameraOrientation)
+                cameraOrientation: cameraOrientation,
+                startCameraCallback: startCameraCallback)
 
         case .notDetermined:
             self.requestPermission(session: session,
                                    device: device,
                                    position: position,
-                                   cameraOrientation: cameraOrientation)
+                                   cameraOrientation: cameraOrientation,
+                                   startCameraCallback: startCameraCallback)
         default:
             DispatchQueue.main.async {
                 dispatch(CameraPermissionDeclined())
@@ -63,20 +76,23 @@ actor CameraFeedActor {
         }
     }
 
+    @MainActor
     private func requestPermission(session: StitchCameraSession,
                                    device: StitchCameraDevice,
                                    position: AVCaptureDevice.Position,
-                                   cameraOrientation: StitchCameraOrientation) {
+                                   cameraOrientation: StitchCameraOrientation,
+                                   startCameraCallback: @escaping () -> ()) {
         AVCaptureDevice.requestAccess(for: CAMERA_FEED_MEDIA_TYPE) { isGranted in
-            Task { [weak self, weak session] in
-                if let _session = session,
-                   isGranted {
-                    await self?.startCamera(
-                        session: _session,
+//            Task { [weak self, weak session] in
+//                if let _session = session,
+                   if isGranted {
+                    self.startCamera(
+                        session: session,
                         device: device,
                         position: position,
-                        cameraOrientation: cameraOrientation)
-                }
+                        cameraOrientation: cameraOrientation,
+                        startCameraCallback: startCameraCallback)
+//                }
             }
         }
     }
