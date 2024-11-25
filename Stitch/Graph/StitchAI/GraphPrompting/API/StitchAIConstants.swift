@@ -174,66 +174,76 @@ let VISUAL_PROGRAMMING_ACTIONS = """
     "AddNodeAction": {
       "type": "object",
       "properties": {
-        "step_type": { "const": "add_node" },
-        "node_name": { "type": "string", "description": "The name of the node to be added" },
-        "node_id": { "type": "string", "description": "The ID of the node to be added", "format": "uuid" }
+        "step_type": { "type": "string", "const": "add_node" },
+        "node_name": { "$ref": "#/$defs/NodeName" },
+        "node_id": { "type": "string" },
+        "node_type": { "$ref": "#/$defs/NodeType" }
       },
-      "required": ["step_type", "node_name", "node_id"]
+      "required": ["step_type", "node_name", "node_id", "node_type"],
+      "additionalProperties": false
     },
     "ConnectNodesAction": {
       "type": "object",
       "properties": {
-        "step_type": { "const": "connect_nodes" },
-        "from_node_id": { "type": "string", "description": "ID of the node where the connection starts", "format": "uuid" },
-        "to_node_id": { "type": "string", "description": "ID of the node where the connection ends", "format": "uuid" },
+        "step_type": { "type": "string", "const": "connect_nodes" },
+        "from_node_id": { "type": "string" },
+        "to_node_id": { "type": "string" },
         "port": {
           "anyOf": [
             { "type": "integer" },
             { "$ref": "#/$defs/LayerPorts" }
-          ],
-        "from_port": { "type": "integer", "description": "The port used for an outgoing node. Both Patch nodes and Layer nodes use integer values for their outputs." } ,
-        }
+          ]
+        },
+        "from_port": { "type": "integer" }
       },
-      "required": ["step_type", "from_node_id", "to_node_id", "port", "from_port"]
+      "required": ["step_type", "from_node_id", "to_node_id", "port", "from_port"],
+      "additionalProperties": false
     },
     "ChangeNodeTypeAction": {
       "type": "object",
       "properties": {
-        "step_type": { "const": "change_node_type" },
-        "node_id": { "type": "string", "description": "ID of the node whose type is being changed", "format": "uuid" },
-        "node_type": { "$ref": "#/$defs/NodeType", "description": "The new type of the node" }
+        "step_type": { "type": "string", "const": "change_node_type" },
+        "node_id": { "type": "string" },
+        "node_type": { "$ref": "#/$defs/NodeType" }
       },
-      "required": ["step_type", "node_id", "node_type"]
+      "required": ["step_type", "node_id", "node_type"],
+      "additionalProperties": false
     },
     "SetInputAction": {
       "type": "object",
       "properties": {
-        "step_type": { "const": "set_input" },
-        "node_id": { "type": "string", "description": "ID of the node receiving the input", "format": "uuid" },
+        "step_type": { "type": "string", "const": "set_input" },
+        "node_id": { "type": "string" },
         "value": {
           "anyOf": [
             { "type": "number" },
             { "type": "string" },
             { "type": "boolean" }
-          ],
-          "description": "Value to set for the input"
+          ]
         },
         "port": {
           "anyOf": [
             { "type": "integer" },
             { "$ref": "#/$defs/LayerPorts" }
-          ],
-          "description": "The port to which the value is set. Patch nodes use integers; Layer nodes use LayerPorts."
+          ]
         },
-        "node_type": { "$ref": "#/$defs/NodeType", "description": "The type of node to use." }
+        "node_type": { "$ref": "#/$defs/NodeType" }
       },
-      "required": ["step_type", "node_id", "port", "value", "node_type"]
+      "required": ["step_type", "node_id", "port", "value", "node_type"],
+      "additionalProperties": false
     },
-    "AddLayerInputAction": {
+   "AddLayerInputAction": {
       "type": "object",
       "properties": {
-        "step_type": { "const": "add_layer_input" },
-        "node_id": { "type": "string", "description": "ID of the node receiving the layer input", "format": "uuid" },
+        "step_type": { "type": "string", "const": "add_layer_input" },
+        "node_id": { "type": "string" },
+        "value": {
+          "anyOf": [
+            { "type": "number" },
+            { "type": "string" },
+            { "type": "boolean" }
+          ]
+        },
         "port": {
           "anyOf": [
             { "type": "integer" },
@@ -242,12 +252,13 @@ let VISUAL_PROGRAMMING_ACTIONS = """
           "description": "The port to which the layer input is set"
         }
       },
-      "required": ["step_type", "node_id", "port"]
+      "required": ["step_type", "node_id", "port", "value"],
+      "additionalProperties": false
     },
     "NodeID": {
       "type": "string",
-      "format": "uuid",
-      "description": "The unique identifier for the node (UUID)"
+      "description": "The unique identifier for the node (UUID)",
+      "additionalProperties": false
     },
     "NodeName": {
       "enum": [
@@ -362,7 +373,19 @@ let VISUAL_PROGRAMMING_ACTIONS = """
         "realityView || Layer",
         "canvasSketch || Layer"
       ],
-      "title": "NodeName",
+      "type": "string"
+    },
+    "NodeType": {
+      "enum": [
+        "number",
+        "text",
+        "boolean",
+        "size",
+        "position",
+        "point3D",
+        "padding",
+        "assignedLayer"
+      ],
       "type": "string"
     },
     "LayerPorts": {
@@ -375,27 +398,13 @@ let VISUAL_PROGRAMMING_ACTIONS = """
         "Color",
         "Opacity"
       ],
-      "title": "LayerPorts",
-      "type": "string"
-    },
-    "NodeType": {
-      "enum": [
-        "number",
-        "text",
-        "boolean", 
-        "size",
-        "position",
-        "point3D",
-        "padding",
-        "assignedLayer"
-      ],
-      "title": "NodeType",
       "type": "string"
     }
   },
   "properties": {
     "steps": {
       "description": "The actions taken to create a graph",
+      "type": "array",
       "items": {
         "anyOf": [
           { "$ref": "#/$defs/AddNodeAction" },
@@ -404,16 +413,12 @@ let VISUAL_PROGRAMMING_ACTIONS = """
           { "$ref": "#/$defs/SetInputAction" },
           { "$ref": "#/$defs/AddLayerInputAction" }
         ]
-      },
-      "title": "Steps",
-      "type": "array"
+      }
     }
   },
-  "required": [
-    "steps"
-  ],
+  "required": ["steps"],
   "title": "VisualProgrammingActions",
-  "type": "object"
+  "type": "object",
+  "additionalProperties": false
 }
-
 """

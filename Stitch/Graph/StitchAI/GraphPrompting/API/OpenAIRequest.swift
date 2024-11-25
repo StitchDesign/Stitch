@@ -90,7 +90,8 @@ func getOpenAIRequestBody(prompt: String,
             "type": "json_schema",
             "json_schema": [
                 "name": "visual_programming_actions_schema",
-                "schema": responseSchema
+                "schema": responseSchema,
+                "strict": true
             ]
         ]
     ]
