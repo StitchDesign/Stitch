@@ -15,6 +15,7 @@ import StitchSchemaKit
 /// Wrapper class for ARView.
 // TODO: should make this an actor, right now inheritence prevents this
 final class StitchARView: ARView {
+    let actor = CameraFeedActor()
     var anchorMap: [UInt64: AnchorEntity] = [:]
 
     // For camera session delegate

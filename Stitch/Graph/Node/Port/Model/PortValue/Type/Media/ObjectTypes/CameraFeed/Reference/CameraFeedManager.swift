@@ -14,6 +14,8 @@ import StitchSchemaKit
 // TODO: Revisit this with iPhone device orientation, which seems incorrect.
 // TODO: Move this onto graph state rather than a node view; handle a camera as media state just like eg an audio player etc.
 protocol StitchCameraSession: AnyObject, Sendable {
+    var actor: CameraFeedActor { get }
+    
 //    func startRunning()
     @MainActor func stopRunning()
 
@@ -27,9 +29,6 @@ protocol StitchCameraSession: AnyObject, Sendable {
 }
 
 final class CameraFeedManager: Sendable, MiddlewareService {
-    // we need to do some work asynchronously
-    //    private let sessionQueue = DispatchQueue(label: "session queue")
-    let actor = CameraFeedActor()
 
     // Keep this constant. Good way to ensure we don't create multiple instances
     let session: StitchCameraSession?
@@ -69,8 +68,7 @@ final class CameraFeedManager: Sendable, MiddlewareService {
 
         if isEnabled {
             self.session = Self.createSession(cameraSettings: cameraSettings,
-                                              isCameraFeedNode: isCameraFeedNode,
-                                              actor: self.actor)
+                                              isCameraFeedNode: isCameraFeedNode)
         } else {
             self.session = nil
         }
@@ -88,15 +86,13 @@ final class CameraFeedManager: Sendable, MiddlewareService {
 
     @MainActor
     static func createSession(cameraSettings: CameraSettings,
-                              isCameraFeedNode: Bool,
-                              actor: CameraFeedActor) -> StitchCameraSession {
+                              isCameraFeedNode: Bool) -> StitchCameraSession {
         let cameraPosition = cameraSettings.direction.avCapturePosition
         let cameraPref = UserDefaults.standard.getCameraPref(position: cameraPosition)
         return Self.createSession(device: cameraPref,
                                   position: cameraPosition,
                                   cameraOrientation: cameraSettings.orientation,
-                                  isCameraFeedNode: isCameraFeedNode,
-                                  actor: actor)
+                                  isCameraFeedNode: isCameraFeedNode)
     }
 
     // This needs to be called before changing direction of camera
@@ -104,16 +100,15 @@ final class CameraFeedManager: Sendable, MiddlewareService {
     static func createSession(device: StitchCameraDevice,
                               position: AVCaptureDevice.Position,
                               cameraOrientation: StitchCameraOrientation,
-                              isCameraFeedNode: Bool,
-                              actor: CameraFeedActor) -> StitchCameraSession {
+                              isCameraFeedNode: Bool) -> StitchCameraSession {
 
         // Only use AR if supported by device and the camera is from a RealityView layer node (not a CameraFeed patch node)
         let useAR = device.isARSupported && !isCameraFeedNode
 
         // Must get called on main thread
-        let session: StitchCameraSession = useAR ? StitchARView() : StitchAVCaptureSession(actor: actor)
+        let session: StitchCameraSession = useAR ? StitchARView() : StitchAVCaptureSession()
 
-        actor.startCamera(session: session,
+        session.actor.startCamera(session: session,
                           device: device,
                           position: position,
                           cameraOrientation: cameraOrientation) {

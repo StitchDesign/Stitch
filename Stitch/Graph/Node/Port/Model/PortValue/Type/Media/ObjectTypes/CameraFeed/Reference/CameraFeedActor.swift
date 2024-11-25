@@ -12,9 +12,12 @@ import UIKit
 import StitchSchemaKit
 import ARKit
 
-actor CameraFeedActor {
+final actor CameraFeedActor {
+    @MainActor weak var bufferDelegate: CaptureSessionBufferDelegate?
     private let context = CIContext()
 //    var currentProcessedImage: UIImage?
+    
+//    var isLoading = false
     @MainActor weak var imageConverterDelegate: ImageConverterDelegate?
     
     @MainActor var authStatus: AVAuthorizationStatus {
@@ -113,6 +116,8 @@ actor CameraFeedActor {
         
 //        self.currentProcessedImage = newImage
         
+//        self.isLoading = false
+        
         await MainActor.run { [weak self] in
             self?.imageConverterDelegate?.imageConverted(image: newImage)
         }
@@ -145,4 +150,85 @@ actor CameraFeedActor {
         let uiImage = UIImage(cgImage: cgImage)
         return  uiImage
     }
+    
+    // https://developer.apple.com/documentation/avfoundation/avcapturesession
+    @MainActor
+    func configureSession(session: AVCaptureSession,
+                          device: StitchCameraDevice,
+                          position: AVCaptureDevice.Position,
+                          cameraOrientation: StitchCameraOrientation,
+                          deviceType: UIUserInterfaceIdiom) {
+        guard let bufferDelegate = self.bufferDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        session.beginConfiguration()
+
+        // NOTE: perf-wise, we seem to be fine to not limit the image-size and -quality.
+        //            self.sessionPreset = .vga640x480
+        //            self.sessionPreset = .medium
+
+        let videoOutput = AVCaptureVideoDataOutput()
+
+        guard let cameraDevice = device.device,
+              let captureDeviceInput = try? AVCaptureDeviceInput(device: cameraDevice),
+              session.canAddInput(captureDeviceInput),
+              session.canAddOutput(videoOutput) else {
+            log("FrameExtractor error: could not setup input or output.")
+            session.commitConfiguration() // commit configuration if we must exit
+            return
+        }
+
+        session.addInput(captureDeviceInput)
+        videoOutput.setSampleBufferDelegate(bufferDelegate, queue: DispatchQueue(label: "sample buffer"))
+
+        session.addOutput(videoOutput)
+
+        guard let connection: AVCaptureConnection = videoOutput.connection(with: CAMERA_FEED_MEDIA_TYPE) else {
+            log("FrameExtractor: configureSession: Cannot establish connection")
+            session.commitConfiguration()
+            return
+        }
+
+        // `StitchAVCaptureSession` is only used for devices / camera directions that DO NOT support Augmented Reality
+        // e.g. Mac device, or iPad with front camera direction
+        let isIPhone = deviceType == .phone
+        let isIPad = deviceType == .pad
+
+        if isIPhone {
+            connection.videoRotationAngle = 90
+        }
+        //Matches default behavior on Main
+        //TODO: Support rotation during session
+        else if isIPad {
+            connection.videoRotationAngle = 180
+        } else if let rotationAngle = self.getCameraRotationAngle(
+            device: device,
+            cameraOrientation: cameraOrientation) {
+            connection.videoRotationAngle = rotationAngle
+        }
+
+        connection.isVideoMirrored = position == .front
+
+        session.commitConfiguration()
+    }
+    
+    @MainActor
+    private func getCameraRotationAngle(device: StitchCameraDevice,
+                                        cameraOrientation: StitchCameraOrientation) -> Double? {
+            // Convert StitchCameraOrientation to rotation angle
+            switch cameraOrientation.convertOrientation {
+            case .portrait:
+                return 0
+            case .portraitUpsideDown:
+                return 180
+            case .landscapeRight:
+                return 90
+            case .landscapeLeft:
+                return 270
+            @unknown default:
+                return nil
+            }
+        }
 }
