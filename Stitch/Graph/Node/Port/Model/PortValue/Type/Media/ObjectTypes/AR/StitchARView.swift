@@ -172,8 +172,7 @@ extension StitchARView: StitchCameraSession {
     }
 }
 
-final class StitchARViewCaptureDelegate: NSObject, @preconcurrency ARSessionDelegate, Sendable {
-    @MainActor private var isLoading: Bool = false
+final class StitchARViewCaptureDelegate: NSObject, ARSessionDelegate, Sendable {
     @MainActor var convertedImage: UIImage?
     let cameraActor = CameraFeedActor()
     let iPhone: Bool
@@ -185,18 +184,13 @@ final class StitchARViewCaptureDelegate: NSObject, @preconcurrency ARSessionDele
         self.cameraActor.imageConverterDelegate = self
     }
 
-    @MainActor
     func session(_ session: ARSession, didUpdate frame: ARFrame) {
-        guard !isLoading else {
-            // Wait until done loading
-            return
-        }
-        
-        self.isLoading = true
         let iPhone = self.iPhone
         
         // UIImage conversion moved to background thread for perf
-        Task(priority: .high) { [weak self] in
+        Task(priority: .high) { [weak self, weak frame] in
+            guard let frame = frame else { return }
+            
             await self?.cameraActor.createUIImage(from: frame,
                                                   iPhone: iPhone)
         }
@@ -207,7 +201,6 @@ extension StitchARViewCaptureDelegate: ImageConverterDelegate {
     func imageConverted(image: UIImage) {
         image.accessibilityIdentifier = CAMERA_DESCRIPTION
         self.convertedImage = image
-        self.isLoading = false
         
         dispatch(RecalculateCameraNodes())
     }

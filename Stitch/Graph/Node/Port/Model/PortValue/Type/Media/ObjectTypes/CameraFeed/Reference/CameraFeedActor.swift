@@ -118,7 +118,9 @@ final actor CameraFeedActor {
         
 //        self.isLoading = false
         
-        await MainActor.run { [weak self] in
+        await MainActor.run { [weak self, weak newImage] in
+            guard let newImage = newImage else { return }
+            
             self?.imageConverterDelegate?.imageConverted(image: newImage)
         }
     }

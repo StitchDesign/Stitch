@@ -72,7 +72,9 @@ extension UIImage {
             return nil
         }
 
-        let imageClone = UIImage(cgImage: newCgImage, scale: self.scale, orientation: self.imageOrientation)
+        let imageClone = UIImage(cgImage: newCgImage,
+                                 scale: self.scale,
+                                 orientation: self.imageOrientation)
 
         // Copies over some name if one was set in self
         imageClone.accessibilityIdentifier = self.accessibilityIdentifier
