@@ -337,9 +337,9 @@ func totalScrollInteractionEvalOp(values: PortValues,
     case .free(let free):
         //        log("\n y scroll... free")
         let scrollModeResult = handleScrollFree(currentOutput: currentPosition.y,
-                                             free: free,
-                                             childSize: interactiveLayer.childSize.height,
-                                             parentSize: interactiveLayer.parentSize.height)
+                                                free: free,
+                                                childSize: interactiveLayer.childSize.height,
+                                                parentSize: interactiveLayer.parentSize.height)
         currentPosition.y = scrollModeResult.position
         scrollState.yScroll = scrollModeResult.scrollMode
         shouldRunYAgain = scrollModeResult.shouldRunAgain
@@ -356,9 +356,9 @@ func totalScrollInteractionEvalOp(values: PortValues,
     case .free(let free):
         //        log("x scroll... .free")
         let scrollModeResult = handleScrollFree(currentOutput: currentPosition.x,
-                                             free: free,
-                                             childSize: interactiveLayer.childSize.width,
-                                             parentSize: interactiveLayer.parentSize.width)
+                                                free: free,
+                                                childSize: interactiveLayer.childSize.width,
+                                                parentSize: interactiveLayer.parentSize.width)
         
         currentPosition.x = scrollModeResult.position
         scrollState.xScroll = scrollModeResult.scrollMode
