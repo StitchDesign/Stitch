@@ -181,7 +181,7 @@ extension GraphState {
                                                                  scale: zoom,
                                                                  scaledViewFrameOrigin: scaledViewFrame.origin)
         
-        for cachedSubviewData in self.visibleNodesViewModel.infiniteCanvasCache ?? .init() {
+        for cachedSubviewData in self.visibleNodesViewModel.infiniteCanvasCache {
             let id = cachedSubviewData.key
             var cachedBounds = cachedSubviewData.value
             

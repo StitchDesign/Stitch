@@ -19,7 +19,7 @@ struct CanvasPositionKey: LayoutValueKey {
 
 struct InfiniteCanvas: Layout {
     // Prevents possible loop of cache recreation
-    @State private var willUpdateCache = true
+    @State private var isUpdatingCache = false
     
     let graph: GraphState
     let existingCache: Self.Cache
@@ -27,12 +27,22 @@ struct InfiniteCanvas: Layout {
     
     typealias Cache = [CanvasItemId: CGRect]
     
+    var willUpdateCache: Bool {
+        !self.needsInfiniteCanvasCacheReset || self.isUpdatingCache
+    }
+    
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) -> CGSize {
         .init(width: proposal.width ?? .zero,
               height: proposal.height ?? .zero)
     }
     
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) {
+        // Check if cache needs resetting
+        if willUpdateCache {
+            let newCache = self.recreateCache(subviews: subviews)
+            cache = newCache
+        }
+        
         // Place subviews
         for subview in subviews {
             let positionData = subview[CanvasPositionKey.self]
@@ -52,11 +62,15 @@ struct InfiniteCanvas: Layout {
     
     func makeCache(subviews: Subviews) -> Cache {
         // Only make cache when specified
-        if !self.needsInfiniteCanvasCacheReset || self.willUpdateCache {
+        if willUpdateCache {
             return self.existingCache
         }
         
-        self.willUpdateCache = true
+        return self.recreateCache(subviews: subviews)
+    }
+    
+    func recreateCache(subviews: Subviews) -> Cache {
+        self.isUpdatingCache = true
         
         // Rebuilding cache scenario
         let cache = subviews.reduce(into: Cache()) { result, subview in
@@ -71,7 +85,7 @@ struct InfiniteCanvas: Layout {
         }
         
         DispatchQueue.main.async { [weak graph] in
-            self.willUpdateCache = false
+            self.isUpdatingCache = false
             graph?.visibleNodesViewModel.needsInfiniteCanvasCacheReset = false
             graph?.visibleNodesViewModel.infiniteCanvasCache = cache
         }

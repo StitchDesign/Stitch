@@ -13,7 +13,7 @@ protocol StitchLayoutCachable: AnyObject, Sendable {
 }
 
 struct NodeLayoutCache {
-    var needsUpdating = true
+    var needsUpdating = false
     var sizes: [CGSize] = []
     var sizeThatFits: CGSize = .zero
     var spacing: ViewSpacing = .zero
