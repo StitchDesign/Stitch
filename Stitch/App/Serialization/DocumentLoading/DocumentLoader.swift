@@ -48,7 +48,8 @@ final actor DocumentLoader {
                 let updatedDate = url.getLastModifiedDate(fileManager: FileManager.default)
                 let existingModifiedDate = await existingData.modifiedDate
                 let wasDocumentUpdated = updatedDate != existingModifiedDate
-
+                newStorage.updateValue(existingData, forKey: url)
+                
                 if wasDocumentUpdated {
                     Task { @MainActor [weak existingData] in
                         existingData?.modifiedDate = updatedDate
