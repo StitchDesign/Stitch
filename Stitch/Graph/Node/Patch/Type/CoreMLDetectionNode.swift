@@ -176,7 +176,7 @@ final actor VisionOpActor {
             return
         }
         
-        self.results = []
+        self.results = results
     }
     
     func visionDetectionRequest(for model: VNCoreMLModel,
