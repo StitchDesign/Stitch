@@ -20,7 +20,11 @@ final class VisibleNodesViewModel: Sendable {
     
     @MainActor var visibleCanvasIds = Set<CanvasItemId>()
     
-    @MainActor var infiniteCanvasCache: InfiniteCanvas.Cache?
+    // Signals to SwiftUI layout when new sizing data is needed;
+    // tracked here to fix stutter that exists if we reset cache before
+    // a dispatch updates it on subsequent call.
+    @MainActor var needsInfiniteCanvasCacheReset = true
+    @MainActor var infiniteCanvasCache: InfiniteCanvas.Cache = .init()
     
     @MainActor init() { }
 }
@@ -333,7 +337,7 @@ extension VisibleNodesViewModel {
     @MainActor
     /// Updates node visibility data.
     func resetCache() {
-        self.infiniteCanvasCache = nil
+        self.needsInfiniteCanvasCacheReset = true
         self.setAllNodesVisible()
         
         // Fixes issues where new rows don't have port locations

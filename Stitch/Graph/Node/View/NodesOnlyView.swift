@@ -74,7 +74,7 @@ struct NodesOnlyView: View {
         }
         .onChange(of: self.focusedGroup) {
             // Update node locations
-            self.graph.visibleNodesViewModel.infiniteCanvasCache = nil
+            self.graph.visibleNodesViewModel.needsInfiniteCanvasCacheReset = true
         }
     }
 }

@@ -13,6 +13,7 @@ protocol StitchLayoutCachable: AnyObject, Sendable {
 }
 
 struct NodeLayoutCache {
+    var needsUpdating = true
     var sizes: [CGSize] = []
     var sizeThatFits: CGSize = .zero
     var spacing: ViewSpacing = .zero
@@ -30,28 +31,41 @@ extension View {
 struct NodeLayout<T: StitchLayoutCachable>: Layout, Sendable {
     typealias Cache = ()
     
+    // Check that prevents loop of cache updates given dispatch
+    // updating cache on next cycle
+    @State private var willUpdateCache = true
+    
     let observer: T
     let existingCache: NodeLayoutCache?
     
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) -> CGSize {
-        guard let cache = existingCache else {
-            let newCache = self.createCache(subviews: subviews)
-            
-            DispatchQueue.main.async {
-                self.observer.viewCache = newCache
-            }
-            
-            return newCache.sizeThatFits
+        
+        let isMarkedForUpdate = existingCache?.needsUpdating ?? true
+        let isAlreadyUpdating = self.willUpdateCache
+        
+        if !isMarkedForUpdate || isAlreadyUpdating,
+           let existingCache = self.existingCache {
+            return existingCache.sizeThatFits
         }
         
-        return cache.sizeThatFits
+        // Cache needs recreating
+        let newCache = self.createCache(subviews: subviews)
+        self.willUpdateCache = true
+        
+        DispatchQueue.main.async {
+            self.willUpdateCache = false
+            self.observer.viewCache = newCache
+        }
+        
+        return newCache.sizeThatFits
     }
     
     private func createCache(subviews: Subviews) -> NodeLayoutCache {
         let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
         let sizeThatFits = self.calculateSizeThatFits(subviews: subviews)
         let spacing = self.calculateSpacing(subviews: subviews)
-        let cache = NodeLayoutCache(sizes: sizes,
+        let cache = NodeLayoutCache(needsUpdating: false,
+                                    sizes: sizes,
                                     sizeThatFits: sizeThatFits,
                                     spacing: spacing)
         

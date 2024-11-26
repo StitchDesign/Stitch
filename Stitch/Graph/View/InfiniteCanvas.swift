@@ -18,8 +18,12 @@ struct CanvasPositionKey: LayoutValueKey {
 }
 
 struct InfiniteCanvas: Layout {
+    // Prevents possible loop of cache recreation
+    @State private var willUpdateCache = true
+    
     let graph: GraphState
-    let existingCache: Self.Cache?
+    let existingCache: Self.Cache
+    let needsInfiniteCanvasCacheReset: Bool
     
     typealias Cache = [CanvasItemId: CGRect]
     
@@ -48,11 +52,13 @@ struct InfiniteCanvas: Layout {
     
     func makeCache(subviews: Subviews) -> Cache {
         // Only make cache when specified
-//        if let existingCache = graph.visibleNodesViewModel.infiniteCanvasCache {
-        if let existingCache = self.existingCache {
-            return existingCache
+        if !self.needsInfiniteCanvasCacheReset || self.willUpdateCache {
+            return self.existingCache
         }
         
+        self.willUpdateCache = true
+        
+        // Rebuilding cache scenario
         let cache = subviews.reduce(into: Cache()) { result, subview in
             let positionData = subview[CanvasPositionKey.self]
             let id = positionData.id
@@ -65,8 +71,11 @@ struct InfiniteCanvas: Layout {
         }
         
         DispatchQueue.main.async { [weak graph] in
+            self.willUpdateCache = false
+            graph?.visibleNodesViewModel.needsInfiniteCanvasCacheReset = false
             graph?.visibleNodesViewModel.infiniteCanvasCache = cache
         }
+        
         return cache
     }
     

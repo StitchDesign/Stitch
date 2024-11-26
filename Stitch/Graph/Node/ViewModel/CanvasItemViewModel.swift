@@ -221,7 +221,7 @@ extension CanvasItemViewModel {
         }
         
         // Reset cache data--fixes scenarios like undo
-        self.viewCache = nil
+        self.viewCache?.needsUpdating = true
     }
 
     @MainActor
@@ -276,7 +276,7 @@ extension CanvasItemViewModel {
     
     @MainActor
     func resetViewSizingCache() {
-        self.viewCache = nil
+        self.viewCache?.needsUpdating = true
     }
 }
 
