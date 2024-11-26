@@ -14,7 +14,7 @@ final class StitchSoundFilePlayer: NSObject, StitchSoundPlayerDelegate {
     static let permissionsCategory = AVAudioSession.Category.playback
     let id = UUID()
 
-    var engine = AudioEngine()
+    @MainActor var engine = AudioEngine()
     let player = AudioPlayer()
 
     // mixers don't need to be long lived, just the taps?
