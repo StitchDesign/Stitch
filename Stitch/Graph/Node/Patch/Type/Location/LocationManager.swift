@@ -11,7 +11,7 @@ import StitchSchemaKit
 
 final class LocationManager: NSObject, Sendable {
 
-    static let locationManager: CLLocationManager = LocationManager.setupLocationManager()
+    static let locationManager: CLLocationManager = CLLocationManager()
     
     //    // nil when:
     //    // 1. manager first created, or
@@ -34,21 +34,21 @@ final class LocationManager: NSObject, Sendable {
     override init() {
         super.init()
         Self.locationManager.delegate = self
+        Self.setupLocationManager()
     }
 
     // Called when:
     // 1. we open a graph that has at least one Location node
     // 2. we create a
-    static func setupLocationManager() -> CLLocationManager {
+    static func setupLocationManager() {
         log("locationManager: setupLocationManager")
-        let locationManager = CLLocationManager()
-
+        let locationManager = Self.locationManager
+        
         locationManager.requestWhenInUseAuthorization()
         locationManager.requestLocation()
 
         // Required, else `requestLocation` takes 5+ seconds
         locationManager.startUpdatingLocation()
-        return locationManager
     }
 }
 
