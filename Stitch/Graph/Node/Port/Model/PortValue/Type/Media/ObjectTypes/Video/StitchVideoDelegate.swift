@@ -161,8 +161,8 @@ final class StitchVideoDelegate: NSObject, Sendable {
     }
 
     deinit {
-        DispatchQueue.main.async { [weak self] in
-            self?.removeAllObservers()
+        if let loopObserver = loopObserver {
+            NotificationCenter.default.removeObserver(loopObserver)
         }
     }
 
