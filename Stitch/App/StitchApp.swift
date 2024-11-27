@@ -11,7 +11,6 @@ import StitchSchemaKit
 @main @MainActor
 struct StitchApp: App {
     @State private var store = StitchStore()
-    @State private var keyboardObserver = KeyboardObserver()
     
     // MARK: VERY important to pass the store StateObject into each view for perf
     var body: some Scene {
@@ -28,8 +27,6 @@ struct StitchApp: App {
             // Inject theme as environment variable
                 .environment(\.appTheme, self.store.appTheme)
                 .environment(\.edgeStyle, self.store.edgeStyle)
-                .environment(self.keyboardObserver)
-
         }
 
         // TODO: why does XCode complain about `.windowStyle not available on iOS` even when using `#if targetEnvironment(macCatalyst)`?

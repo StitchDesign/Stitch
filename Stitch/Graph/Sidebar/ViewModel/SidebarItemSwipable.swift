@@ -52,8 +52,7 @@ protocol SidebarItemSwipable: StitchNestedListElementObservable, Sendable, Ident
     
     @MainActor
     func contextMenuInteraction(itemId: Self.ID,
-                                graph: GraphState,
-                                keyboardObserver: KeyboardObserver) -> UIContextMenuConfiguration?
+                                graph: GraphState) -> UIContextMenuConfiguration?
     
     @MainActor
     func sidebarLayerHovered(itemId: Self.ID)
