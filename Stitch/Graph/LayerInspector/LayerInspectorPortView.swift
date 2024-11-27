@@ -143,12 +143,18 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
         layerInputObserver?.port == .layerMargin || layerInputObserver?.port == .layerPadding
     }
     
+    var isShadowProxyRow: Bool {
+        layerInputObserver?.port == SHADOW_FLYOUT_LAYER_INPUT_PROXY
+    }
+    
     var hstackAlignment: VerticalAlignment {
         return isPaddingPortValueTypeRow ? .firstTextBaseline : .center
     }
     
     var body: some View {
         HStack(alignment: hstackAlignment) {
+            
+            
             LayerInspectorRowButton(layerInputObserver: layerInputObserver,
                                     layerInspectorRowId: layerInspectorRowId,
                                     coordinate: coordinate,
@@ -159,6 +165,9 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
             // Really, we want the center of the symbol and the center of the input's label text to align
             // Alternatively, we want the height of the row-buton to be the same as the height of the input-row's label, e.g. specify a height in `LabelDisplayView`
             .offset(y: isPaddingPortValueTypeRow ? INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET : 0)
+            
+            // Do not show this button if this is the row for the shadow proxy
+            .opacity(isShadowProxyRow ? 0 : 1)
                         
             rowView(propertyRowIsSelected)
         }
