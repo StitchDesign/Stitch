@@ -24,7 +24,7 @@ final class NodeViewModel: Sendable {
         zIndex: .zero,
         graphDelegate: nil)
 
-    @MainActor var id: NodeEntity.ID
+    let id: NodeEntity.ID
     
     @MainActor
     var title: String {
@@ -696,7 +696,7 @@ extension NodeViewModel {
     }
 }
 
-extension NodeViewModel: @preconcurrency Identifiable { }
+extension NodeViewModel: Identifiable { }
 
 extension NodeViewModel {
     @MainActor
