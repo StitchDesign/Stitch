@@ -14,7 +14,7 @@ import StitchSchemaKit
 /// class itself owning the video. This is especially useful for StitchVideoViewController which owns
 /// its own video object.
 final class StitchVideoDelegate: NSObject, Sendable {
-    @MainActor var loopObserver: NSObjectProtocol?
+    @MainActor weak var loopObserver: NSObjectProtocol?
     @MainActor var videoData: VideoMetadata
 
     // used to measure volume but this stays muted

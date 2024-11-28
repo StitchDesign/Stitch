@@ -78,4 +78,8 @@ final class StitchVideoImportPlayer: Sendable {
     @MainActor func play() {
         self.stitchVideoDelegate.play(with: self.video)
     }
+    
+    @MainActor func pause() {
+        self.stitchVideoDelegate.pause(with: self.video)
+    }
 }
