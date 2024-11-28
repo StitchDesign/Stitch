@@ -38,10 +38,3 @@ extension ProjectLoader {
         self.thumbnail = nil
     }
 }
-
-//extension [ProjectLoader] {
-//    @MainActor
-//    func sortByDate() -> Self {
-//        self.sorted { $0.modifiedDate > $1.modifiedDate }
-//    }
-//}
