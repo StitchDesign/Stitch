@@ -130,9 +130,7 @@ struct PackPatchNode: PatchNodeDefinition {
             switch rowType {
             case .shapeCommand(let shapeCommandFieldType):
                 // Not supporting right now
-                #if DEBUG
-                fatalError()
-                #endif
+                fatalErrorIfDebug()
                 return []
             //                switch shapeCommandFieldType {
             //                case .closePath:
@@ -194,9 +192,7 @@ func point3DPackOp(values: PortValues) -> PortValue {
        let z = values[PackNodeLocations.z].getNumber {
         return .point3D(Point3D(x: x, y: y, z: z))
     } else {
-        #if DEV || DEV_DEBUG
-        fatalError()
-        #endif
+        fatalErrorIfDebug()
         return .point3D(.zero)
     }
 }
@@ -209,9 +205,7 @@ func point4DPackOp(values: PortValues) -> PortValue {
        let w = values[PackNodeLocations.w].getNumber {
         return .point4D(Point4D(x: x, y: y, z: z, w: w))
     } else {
-        #if DEV || DEV_DEBUG
-        fatalError()
-        #endif
+        fatalErrorIfDebug()
         return .point4D(.zero)
     }
 }
@@ -296,9 +290,7 @@ func packEval(inputs: PortValuesList,
     case (.shapeCommandType, _):
         return result(shapeCommandOp)
     default:
-        #if DEV_DEBUG
-        fatalError("Pack eval: wrong type or input count")
-        #endif
+        fatalErrorIfDebug("Pack eval: wrong type or input count")
         return outputs
     }
 }

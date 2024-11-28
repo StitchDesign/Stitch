@@ -65,7 +65,8 @@ extension LayerSize {
     static func fromSizeNodeInputs(_ values: PortValues) -> LayerSize {
 
         guard values.count == 2 else {
-            fatalError("LayerSize.fromSizeNodeInputs: sizeOp: Incorrect number of inputs")
+            fatalErrorIfDebug("LayerSize.fromSizeNodeInputs: sizeOp: Incorrect number of inputs")
+            return .zero
         }
 
         if let x = values.first!.getNumber,
