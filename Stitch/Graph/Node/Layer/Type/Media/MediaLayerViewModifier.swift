@@ -67,6 +67,11 @@ struct MediaLayerViewModifier: ViewModifier {
                 guard let mediaValue = mediaValue,
                       let mediaKey = mediaValue.mediaKey,
                       isRendering else {
+                    // Covers media scenarios, ensuring we set to nil while task makes copy
+                    await MainActor.run {
+                        Self.resetMedia(self.mediaObject)
+                        self.mediaObject = nil                        
+                    }
                     return
                 }
                 
@@ -90,10 +95,6 @@ struct MediaLayerViewModifier: ViewModifier {
                 if let _mediaObject = mediaValue._mediaObject as? StitchMediaObject {
                     self.mediaObject = _mediaObject
                 }
-                
-                // Covers media scenarios, ensuring we set to nil while task makes copy
-                Self.resetMedia(self.mediaObject)
-                self.mediaObject = nil
             }
     }
     
