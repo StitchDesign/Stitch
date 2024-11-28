@@ -396,7 +396,8 @@ extension OutputNodeRowViewModel {
            drawnEdge.output.id == self.id {
             return PortColor(
                 isSelected: drawingObserver.nearestEligibleInput.isDefined,
-                hasEdge: hasEdge,
+//                hasEdge: hasEdge,
+                hasEdge: drawingObserver.nearestEligibleInput.isDefined,
                 hasLoop: hasLoop)
         }
         
@@ -405,10 +406,10 @@ extension OutputNodeRowViewModel {
         else {
             let isSelected = self.isCanvasItemSelected ||
                 self.isConnectedToASelectedCanvasItem ||
-                self.hasSelectedEdge()
+            self.hasSelectedEdge()
             return PortColor(isSelected: isSelected,
-                         hasEdge: hasEdge,
-                         hasLoop: hasLoop)
+                             hasEdge: hasEdge,
+                             hasLoop: hasLoop)
         }
     }
     
