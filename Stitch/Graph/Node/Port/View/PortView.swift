@@ -55,11 +55,21 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
                                              graphState: graph))
             .animation(.linear(duration: self.animationTime),
                        value: portColor)
+        
+        // TODO: perf implications updating every port's color when selectedEdges or edgeDrawingObserver changes?
+        
         // Update port color on selected edges change
         // Note: Should this ALSO update upstream and downstream ports? If not, why not?
             .onChange(of: graph.selectedEdges) {
                 self.rowViewModel.updatePortColor()
             }
+            .onChange(of: self.graph.edgeDrawingObserver.drawingGesture.isDefined) { oldValue, newValue in
+                self.rowViewModel.updatePortColor()
+            }
+            .onChange(of: self.graph.edgeDrawingObserver.nearestEligibleInput.isDefined) { oldValue, newValue in
+                self.rowViewModel.updatePortColor()
+            }
+        // ^^ should also update port color eligible
     }
     
     @MainActor
