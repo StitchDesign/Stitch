@@ -244,7 +244,7 @@ func transformUnpackOp(values: PortValues) -> (PortValue, PortValue, PortValue, 
             
         )
     } else {
-        fatalError("unpack matrix")
+        fatalErrorIfDebug("unpack matrix")
         return (
             .number(.zero),
             .number(.zero),
@@ -305,7 +305,8 @@ func unpackEval(inputs: PortValuesList,
     case .shapeCommand:
         return resultsMaker4(inputs)(shapeCommandOp)
     default:
-        fatalError("unpackEval: wrong type")
+        fatalErrorIfDebug("unpackEval: wrong type")
+        return outputs
     }
 }
 
