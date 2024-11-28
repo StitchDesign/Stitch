@@ -11,7 +11,6 @@ import StitchSchemaKit
 @Observable
 final class StitchEnvironment: Sendable {
     let fileManager: StitchFileManager
-//    let logListener: LogListener
     let undoManager: StitchUndoManager
     let dirObserver: DirectoryObserver
 
@@ -21,7 +20,6 @@ final class StitchEnvironment: Sendable {
     @MainActor
     init(fileManager: StitchFileManager = StitchFileManager()) {
 
-//        self.logListener = LogListener()
         self.undoManager = StitchUndoManager()
 
         let fileManager = fileManager
