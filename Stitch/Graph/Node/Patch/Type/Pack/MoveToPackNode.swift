@@ -31,9 +31,7 @@ func moveToPackEval(inputs: PortValuesList,
         if let value = values.first?.getPosition {
             return PortValue.shapeCommand(.moveTo(point: value.toPathPoint))
         } else {
-            #if DEUBG || DEV_DEBUG
-            fatalError()
-            #endif
+            fatalErrorIfDebug()
             return .shapeCommand(.moveTo(point: .zero))
         }
     }
