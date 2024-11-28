@@ -257,13 +257,37 @@ func getTabEligibleFields(layerNode: LayerNodeViewModel,
     // or through fields on a layer-input-on-the-canvas,
     // our logic is a little simpler:
     if let singleInputToTabThrough = flyoutInput ?? layerInputOnCanvas,
-       // Shadow Flyout uses multiple inputs
+       
+        // Shadow Flyout uses multiple inputs
        flyoutInput != SHADOW_FLYOUT_LAYER_INPUT_PROXY {
+        
         let fields = layerNode.getLayerInspectorInputFields(singleInputToTabThrough).map({ field in
             LayerInputEligibleField(input: singleInputToTabThrough, fieldIndex: field.fieldIndex)
         })
         return LayerInputEligibleFields(fields)
     }
+    
+    // If we are in the shadow flyout,
+    // then we only tab through shadow inputs and input-fields
+    if flyoutInput == SHADOW_FLYOUT_LAYER_INPUT_PROXY {
+        let eligibleShadowFields = LayerInspectorView.shadow.flatMap { (shadowInput: LayerInputPort) -> [LayerInputEligibleField] in
+            
+            guard shadowInput.usesTextFields(layerNode.layer) else {
+                return []
+            }
+            
+            if shadowInput == .shadowOffset {
+                return layerNode.getLayerInspectorInputFields(shadowInput).map({ field in
+                    LayerInputEligibleField(input: shadowInput, fieldIndex: field.fieldIndex)
+                })
+            } else {
+                return [LayerInputEligibleField(input: shadowInput, fieldIndex: 0)]
+            }
+        }
+        
+        return LayerInputEligibleFields(eligibleShadowFields)
+    }
+    
     
     let layer = layerNode.layer
     let inputsForThisLayer = layer.layerGraphNode.inputDefinitions
@@ -284,7 +308,7 @@ func getTabEligibleFields(layerNode: LayerNodeViewModel,
     // Handle just layer inputs now
         .flatMap(\.inputs)
     
-    // We're only interested in layer inputs that (1) are for this layer, (2) use textfield and (3) do not use a  flyout
+    // We're only interested in layer inputs that (1) are for this layer, (2) use textfield and (3) do not use a flyout
         .filter { layerInput in
             inputsForThisLayer.contains(layerInput)
             && layerInput.usesTextFields(layer)
