@@ -93,14 +93,7 @@ struct InfiniteCanvas: Layout {
         return cache
     }
     
-    func updateCache(_ cache: inout Cache, subviews: Subviews) {
-        // Recalcualte graph if cache reset
-        // TODO: check infinte canvas update cache
-//        if graph.visibleNodesViewModel.infiniteCanvasCache == nil {
-//            cache = self.makeCache(subviews: subviews)
-//            graph.visibleNodesViewModel.infiniteCanvasCache = cache
-//        }
-    }
+    func updateCache(_ cache: inout Cache, subviews: Subviews) { }
     
     func explicitAlignment(of guide: HorizontalAlignment,
                            in bounds: CGRect,

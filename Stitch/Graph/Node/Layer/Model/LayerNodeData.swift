@@ -182,12 +182,6 @@ extension LayerNodeViewModel {
         
         let layerData: InputLayerNodeRowData = self[keyPath: layerId.layerNodeKeyPath]
         
-        // Update row view model ID
-        // TODO: check inspector row view model ids
-//        layerData.inspectorRowViewModel.id = .init(graphItemType: .layerInspector(.keyPath(layerId)),
-//                                                   nodeId: self.id,
-//                                                   portId: 0)
-        
         // Update packed row observer
         layerData.rowObserver.nodeKind = .layer(self.layer)
         
