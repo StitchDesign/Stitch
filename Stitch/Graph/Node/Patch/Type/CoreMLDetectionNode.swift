@@ -182,7 +182,6 @@ final actor VisionOpActor {
     func visionDetectionRequest(for model: VNCoreMLModel,
                                 with uiImage: UIImage,
                                 vnImageCropOption: VNImageCropAndScaleOption) -> [VNRecognizedObjectObservation] {
-        //    Task(priority: .background) {
         // Request handler object for object detection tasks
         let request = VNCoreMLRequest(model: model,
                                       completionHandler: self.visionRequestHandler)
