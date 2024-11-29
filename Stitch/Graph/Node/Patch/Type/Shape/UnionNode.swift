@@ -36,6 +36,7 @@ func unionNode(id: NodeId,
         outputs: outputs)
 }
 
+@MainActor
 func unionEval(inputs: PortValuesList,
                outputs: PortValuesList) -> PortValuesList {
 

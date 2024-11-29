@@ -32,6 +32,7 @@ func textStartsWithNode(id: NodeId,
         outputs: outputs)
 }
 
+@MainActor
 func textStartsWithEval(inputs: PortValuesList,
                         outputs: PortValuesList) -> PortValuesList {
 

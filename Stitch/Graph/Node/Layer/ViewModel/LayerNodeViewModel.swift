@@ -20,18 +20,18 @@ typealias LayerNodes = [LayerNode]
 
 @Observable
 final class LayerNodeViewModel {
-    var id: NodeId
+    let id: NodeId
 
-    var layer: Layer
+    let layer: Layer
 
     // View models for layers in prototype window
-    var previewLayerViewModels: [LayerViewModel] = [] 
+    @MainActor var previewLayerViewModels: [LayerViewModel] = []
  
     // Some layer nodes contain outputs
-    var outputPorts: [OutputLayerNodeRowData] = []
+    @MainActor var outputPorts: [OutputLayerNodeRowData] = []
     
     // Cached property to efficiently identify locations of input canvas nodes, if any created
-    var _inputCanvasIds = Set<CanvasItemId>()
+    @MainActor var _inputCanvasIds = Set<CanvasItemId>()
     
     // TODO: temporarily using positionPort as only canvas item location until inspector is done
     
@@ -143,19 +143,16 @@ final class LayerNodeViewModel {
     var materialThicknessPort: LayerInputObserver
     var deviceAppearancePort: LayerInputObserver
     
-    weak var nodeDelegate: NodeDelegate?
+    @MainActor weak var nodeDelegate: NodeDelegate?
 
     // Sidebar visibility setting
-    var hasSidebarVisibility = true {
+    @MainActor var hasSidebarVisibility = true {
         didSet {
-            DispatchQueue.main.async { [weak self] in
-                if let layerNode = self {
-                    dispatch(AssignedLayerUpdated(changedLayerNode: layerNode.id.asLayerNodeId))
-                }
-            }
+            dispatch(AssignedLayerUpdated(changedLayerNode: self.id.asLayerNodeId))
         }
     }
 
+    @MainActor
     var layerGroupId: NodeId? {
         guard let graph = self.nodeDelegate?.graphDelegate else {
             log("LayerNodeViewModel: layerGroupId for layer \(self.id): no node or graph delegate?")
@@ -241,8 +238,8 @@ final class LayerNodeViewModel {
         self.strokeColorPort = .init(from: schema, port: .strokeColor)
         self.strokeStartPort = .init(from: schema, port: .strokeStart)
         self.strokeEndPort = .init(from: schema, port: .strokeEnd)
-        self.strokeLineCapPort = .init(from: schema, port: .strokeEnd)
-        self.strokeLineJoinPort = .init(from: schema, port: .strokeEnd)
+        self.strokeLineCapPort = .init(from: schema, port: .strokeLineCap)
+        self.strokeLineJoinPort = .init(from: schema, port: .strokeLineJoin)
         self.coordinateSystemPort = .init(from: schema, port: .coordinateSystem)
         
         self.cornerRadiusPort = .init(from: schema, port: .cornerRadius)
@@ -339,9 +336,8 @@ extension LayerNodeViewModel: SchemaObserver {
     }
 
     func update(from schema: LayerNodeEntity) {
-        if self.layer != schema.layer {
-            self.layer = schema.layer
-        }
+        assertInDebug(self.layer == schema.layer)
+        
         if self.hasSidebarVisibility != schema.hasSidebarVisibility {
             self.hasSidebarVisibility = schema.hasSidebarVisibility
         }
@@ -365,6 +361,7 @@ extension LayerNodeViewModel: SchemaObserver {
     }
     
     /// Helper which discovers a layer node's inputs and passes its port into a callback.
+    @MainActor
     func forEachInput(_ callback: @escaping ((LayerInputObserver) -> ())) {
         self.layer.layerGraphNode.inputDefinitions.forEach {
             let port = self[keyPath: $0.layerNodeKeyPath]

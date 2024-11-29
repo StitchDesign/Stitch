@@ -84,12 +84,14 @@ extension StitchDocumentViewModel {
 }
 
 extension NodeViewModel {
+    @MainActor
     func createLLMStepAddNode() -> LLMStepAction {
         LLMStepAction(stepType: StepType.addNode.rawValue,
                       nodeId: self.id.description, // raw string of UUID
                       nodeName: self.kind.asLLMStepNodeName)
     }
     
+    @MainActor
     func createLLMStepChangeNodeType(_ newNodeType: NodeType) -> LLMStepAction {
         LLMStepAction(stepType: StepType.changeNodeType.rawValue,
                       nodeId: self.id.description,

@@ -16,11 +16,9 @@ struct FieldCoordinate: Hashable {
     // 0 for single-field inputs
     var fieldIndex: Int
 
-    static var fakeFieldCoordinate: Self {
-        .init(
+    static let fakeFieldCoordinate: Self = .init(
             rowId: .init(graphItemType: .node(.node(.init())),
                          nodeId: .init(),
                          portId: 0),
             fieldIndex: 0)
-    }
 }

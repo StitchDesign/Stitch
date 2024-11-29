@@ -36,6 +36,7 @@ func runningTotalNode(id: NodeId,
         outputs: outputs)
 }
 
+@MainActor
 func runningTotalEval(inputs: PortValuesList,
                       outputs: PortValuesList) -> PortValuesList {
 

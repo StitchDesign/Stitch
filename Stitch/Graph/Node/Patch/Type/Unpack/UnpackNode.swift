@@ -32,7 +32,7 @@ struct UnpackPatchNode: PatchNodeDefinition {
 
     static let defaultUserVisibleType: UserVisibleType? = .size
 
-    static var outputCountVariesByType: Bool = true
+    static let outputCountVariesByType: Bool = true
 
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
         .init(
@@ -259,7 +259,7 @@ func transformUnpackOp(values: PortValues) -> (PortValue, PortValue, PortValue, 
     }
 }
 
-
+@MainActor
 let shapeCommandOp: Operation4 = { (values: PortValues) -> (PortValue, PortValue, PortValue, PortValue) in
     if let shapeCommand = values.first?.shapeCommand {
         return (
@@ -280,6 +280,7 @@ let shapeCommandOp: Operation4 = { (values: PortValues) -> (PortValue, PortValue
     }
 }
 
+@MainActor
 func unpackEval(inputs: PortValuesList,
                 outputs: PortValuesList) -> PortValuesList {
 

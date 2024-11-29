@@ -24,6 +24,7 @@ struct ModNode: PatchNodeDefinition {
 }
 
 // TODO: update to support position, size etc.?
+@MainActor
 func modEval(inputs: PortValuesList, outputs: PortValuesList) -> PortValuesList {
     let op: Operation = { (values: PortValues) -> PortValue in
         //        log("modEval: values: \(values)")

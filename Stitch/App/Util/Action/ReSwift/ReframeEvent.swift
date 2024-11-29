@@ -20,7 +20,7 @@ typealias AppEnvironmentEvent = Action & AppEnvironmentActionHandler
 typealias GraphUIEvent = Action & GraphUIActionHandler
 typealias ProjectAlertEvent = Action & ProjectAlertActionHandler
 typealias FileManagerEvent = Action & FileManagerEffectHandler
-typealias LogEvent = Action & LogListenerEffectHandler
+//typealias LogEvent = Action & LogListenerEffectHandler
 typealias UndoManagerEvent = Action & UndoManagerEffectHandler
 
 
@@ -71,11 +71,11 @@ protocol ProjectAlertActionHandler {
     func handle(state: ProjectAlertState) -> ProjectAlertResponse
 }
 
-protocol LogListenerEffectHandler {
-    @MainActor
-    func handle(logListener: LogListener,
-                fileManager: StitchFileManager) -> MiddlewareManagerResponse
-}
+//protocol LogListenerEffectHandler {
+//    @MainActor
+//    func handle(logListener: LogListener,
+//                fileManager: StitchFileManager) -> MiddlewareManagerResponse
+//}
 
 protocol FileManagerEffectHandler {
     @MainActor

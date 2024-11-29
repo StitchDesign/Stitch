@@ -109,11 +109,13 @@ func canvasSketchEval(node: PatchNode) -> EvalResult {
         
         let sizeAtIndex = canvasLayerViewModel.size.getSize?.asCGSize(canvasLayerViewModel.parentSizeFromDrag) ?? .LAYER_DEFAULT_SIZE
         
+        let defaultOutputs = node.defaultOutputs
+        
         return asyncObserver.asyncMediaEvalOp(loopIndex: loopIndex,
                                               values: values,
                                               node: node) { [weak canvasLayerViewModel] in
             guard let canvasLayerViewModel = canvasLayerViewModel else {
-                return node.defaultOutputs
+                return defaultOutputs
             }
             
             switch await createUIImageFromCanvasView(canvasLayerViewModel.lines,
@@ -125,10 +127,10 @@ func canvasSketchEval(node: PatchNode) -> EvalResult {
                                                     dataType: .computed,
                                                     mediaObject: .image(image)))]
                 
-            case .failure(let error):
+            case .failure:
                 // log("canvasSketchEval: failure")
                 // TODO: do we always want to show the error?
-                return node.defaultOutputs
+                return defaultOutputs
             }
         }
     }

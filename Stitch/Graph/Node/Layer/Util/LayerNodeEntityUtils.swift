@@ -14,7 +14,7 @@ extension LayerInputDataEntity {
 }
 
 extension LayerNodeEntity {
-    // TODO: can we move this initialzier to StitchSchemaKit ?
+    @MainActor
     init(nodeId: NodeId,
          layer: Layer,
          positionPort: LayerInputEntity = .empty,

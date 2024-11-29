@@ -9,14 +9,13 @@ import Foundation
 import SwiftUI
 
 /// Provides a handler to inform us when an animation completes.
-struct AnimateCompletionHandler: AnimatableModifier {
+struct AnimateCompletionHandler: @preconcurrency Animatable, ViewModifier {
     var percentage: CGFloat
     var onReachedDestination: () -> Void = {}
 
     var animatableData: CGFloat {
         get { percentage }
 
-        @MainActor
         set {
             percentage = newValue
             checkIfFinished()
@@ -27,7 +26,6 @@ struct AnimateCompletionHandler: AnimatableModifier {
         content
     }
 
-    @MainActor
     func checkIfFinished() {
         if percentage == 1 {
             self.onReachedDestination()

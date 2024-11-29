@@ -31,6 +31,7 @@ func colorToHexNode(id: NodeId,
                      outputs: outputs)
 }
 
+@MainActor
 func colorToHexEval(inputs: PortValuesList,
                     outputs: PortValuesList) -> PortValuesList {
 

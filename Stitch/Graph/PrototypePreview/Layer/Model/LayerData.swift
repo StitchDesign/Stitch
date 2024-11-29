@@ -166,6 +166,7 @@ extension LayerData: Identifiable {
         }
     }
     
+    @MainActor
     var zIndex: CGFloat {
         switch self {
         case .nongroup(let layer, _):

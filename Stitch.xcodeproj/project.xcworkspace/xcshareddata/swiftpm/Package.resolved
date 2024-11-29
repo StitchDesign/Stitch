@@ -50,7 +50,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/StitchDesign/StitchEngine",
       "state" : {
-        "revision" : "9ccd18b11d349cd8c525ed1cb1f4abfcfdad2b05"
+        "revision" : "51078b6efdeda43657d40f6996fd6a1f9d5712ef"
       }
     },
     {
@@ -66,7 +66,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/StitchDesign/StitchViewKit.git",
       "state" : {
-        "revision" : "b376ce99b5a98a17334a1fc329c32e8545381c7f"
+        "revision" : "b36ffff23f8a14e3f8fae4f335482b731c5deffb"
       }
     },
     {
@@ -112,15 +112,6 @@
       "state" : {
         "revision" : "b3dcd7dbd0d488e1a7077cb33b00f2083e382f07",
         "version" : "5.0.1"
-      }
-    },
-    {
-      "identity" : "swipeactions",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/StitchDesign/SwipeActions.git",
-      "state" : {
-        "revision" : "63cc57f9709e0cde213358e604ddb81d1648f210",
-        "version" : "1.0.1"
       }
     },
     {

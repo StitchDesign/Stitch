@@ -48,6 +48,7 @@ func rgbaNode(id: NodeId,
                      outputs: outputs)
 }
 
+@MainActor
 func rgbaEval(inputs: PortValuesList,
               outputs: PortValuesList) -> PortValuesList {
     let defaultOutputs: PortValues = [.color(Color(red: redDefault,

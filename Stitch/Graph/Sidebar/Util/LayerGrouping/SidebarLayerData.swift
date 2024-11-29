@@ -15,7 +15,7 @@ typealias SidebarLayerList = [SidebarLayerData]
 
 typealias OrderedSidebarLayers = SidebarLayerList
 
-extension Array where Element: StitchNestedListElement {
+extension Array where Element: StitchNestedListElementObservable {
     /// Returns ids just at a single hierarchy without recursively gathering other ids.
     var idsAtHierarchy: Set<Element.ID> {
         self.map { $0.id }
@@ -23,7 +23,7 @@ extension Array where Element: StitchNestedListElement {
     }
 
     /// Gets flattened list of IDs recursively.
-    func getIds() -> [Element.ID] {
+    @MainActor func getIds() -> [Element.ID] {
         self.flatMap {
             [$0.id] + ($0.children?.getIds() ?? [])
         }
@@ -31,6 +31,7 @@ extension Array where Element: StitchNestedListElement {
 }
 
 extension GraphState {
+    @MainActor
     func createSidebarLayerType(layerNode: LayerNodeViewModel) -> SidebarLayerData {
         if layerNode.layer == .group {
             // Find all nodes with this group

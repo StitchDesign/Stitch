@@ -15,6 +15,7 @@ import StitchViewKit
 typealias NodeEntities = [NodeEntity]
 
 protocol GraphCopyable {
+    @MainActor
     func createCopy(newId: NodeId,
                     mappableData: NodeIdMap,
                     copiedNodeIds: NodeIdSet) -> Self
@@ -239,6 +240,7 @@ extension NodeConnectionType: GraphCopyable {
 }
 
 extension NodeEntities {
+    @MainActor
     func createCopy(mappableData: NodeIdMap,
                     copiedNodeIds: NodeIdSet) -> NodeEntities {
         self.compactMap { node in
@@ -275,7 +277,7 @@ extension SidebarLayerList {
 typealias AsyncCallback = @Sendable () async -> Void
 typealias AsyncCallbackList = [AsyncCallback]
 
-struct StitchComponentCopiedResult<T>: Sendable where T: StitchComponentable {
+struct StitchComponentCopiedResult<T: Sendable>: Sendable where T: StitchComponentable {
     var component: T
     let copiedSubdirectoryFiles: StitchDocumentDirectory
 }
@@ -293,6 +295,7 @@ typealias NodeIdMap = [NodeId: NodeId]
 
 extension GraphEntity {
     /// Creates fresh IDs for OrderedSidebarLayers, all data in NodeEntities etc.
+    @MainActor
     func changeIds() -> (GraphEntity, NodeIdMap) {
         let copiedNodeIds = self.nodes.map { $0.id }.toSet
 
@@ -330,6 +333,7 @@ extension GraphEntity {
 
 extension NodeTypeEntity {
     /// Resets canvases in focused group to nil. Used for node copy/pasting.
+    @MainActor
     mutating func resetGroupId(_ focusedGroupId: GroupNodeType?) {
         switch self {
         case .patch(var patchNode):
@@ -480,6 +484,20 @@ extension GraphState {
 extension Array where Element: StitchNestedListElement {
     /// Returns a subset of layers in sidebar given some selected set.
     func getSubset(from ids: Set<Element.ID>) -> [Element] {
+        self.flatMap { sidebarData in
+            guard ids.contains(sidebarData.id) else {
+                // Recursively check children
+                return sidebarData.children?.getSubset(from: ids) ?? []
+            }
+
+            return [sidebarData]
+        }
+    }
+}
+
+extension Array where Element: StitchNestedListElementObservable {
+    /// Returns a subset of layers in sidebar given some selected set.
+    @MainActor func getSubset(from ids: Set<Element.ID>) -> [Element] {
         self.flatMap { sidebarData in
             guard ids.contains(sidebarData.id) else {
                 // Recursively check children

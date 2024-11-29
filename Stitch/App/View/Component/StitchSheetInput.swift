@@ -8,7 +8,7 @@
 import SwiftUI
 import StitchSchemaKit
 
-var STITCH_SHEET_INPUT_BACKGROUND_COLOR = Color(.sheetBackground)
+let STITCH_SHEET_INPUT_BACKGROUND_COLOR = Color(.sheetBackground)
 
 /// View modifier which applies styling for inputs in sheets.
 struct StitchSheetInput: ViewModifier {

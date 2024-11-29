@@ -636,6 +636,7 @@ extension StitchDocumentViewModel {
         return graphOffset
     }
 
+    @MainActor
     var localPosition: CGPoint {
         get {
             self.graphMovement.localPosition
@@ -644,6 +645,7 @@ extension StitchDocumentViewModel {
         }
     }
 
+    @MainActor
     var localPreviousPosition: CGPoint {
         get {
             self.graphMovement.localPreviousPosition

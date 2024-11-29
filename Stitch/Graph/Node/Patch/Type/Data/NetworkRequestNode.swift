@@ -8,7 +8,7 @@
 import Foundation
 import StitchSchemaKit
 import SwiftUI
-import SwiftyJSON
+@preconcurrency import SwiftyJSON
 
 // what is an 'empty' json?
 let emptyJSONObject = JSON()
@@ -115,9 +115,6 @@ func hasHttpOrHttps(urlString: String) -> Bool {
     return urlString.hasPrefix("http://") || urlString.hasPrefix("https://")
 }
 
-// TODO: we should never use a global mutalbe variable; this should be moved to e.g. computed node state
-var previousNodeType: UserVisibleType?
-
 @MainActor
 func networkRequestEval(node: PatchNode,
                         graphStep: GraphStepState) -> ImpureEvalResult {
@@ -152,21 +149,11 @@ func networkRequestEval(node: PatchNode,
         let method = values[safe: 4]?.getNetworkRequestType ?? .get
         let pulsedAt = values[safe: 5]?.getPulse ?? .zero
 
-        var previousLoadingValue = values[safe: 6] ?? boolDefaultFalse
-        var previousResultValue = values[safe: 7] ?? defaultFalseJSON
-        var previousErroredValue = values[safe: 8] ?? boolDefaultFalse
-        var previousErrorValue = values[safe: 9] ?? defaultFalseJSON
-        var previousHeadersValue = values[safe: 10] ?? defaultFalseJSON
-
-        if let previousNodeType = previousNodeType, previousNodeType != nodeType {
-            previousLoadingValue = .bool(false)
-            previousResultValue = defaultFalseJSON
-            previousErroredValue = .bool(false)
-            previousErrorValue = defaultFalseJSON
-            previousHeadersValue = defaultFalseJSON
-        }
-
-        previousNodeType = nodeType
+        let previousLoadingValue = values[safe: 6] ?? boolDefaultFalse
+        let previousResultValue = values[safe: 7] ?? defaultFalseJSON
+        let previousErroredValue = values[safe: 8] ?? boolDefaultFalse
+        let previousErrorValue = values[safe: 9] ?? defaultFalseJSON
+        let previousHeadersValue = values[safe: 10] ?? defaultFalseJSON
 
         let resultFn: NetworkRequestOp = { (args: NetworkRequestArgs) -> NetworkRequestOpResult in
             (
@@ -236,6 +223,7 @@ func networkRequestEval(node: PatchNode,
     return ImpureEvalResult(outputsValues: allNewOutputs)
 }
 
+@MainActor
 func getNetworkRequestOpSideEffect(nodeId: NodeId,
                                    index: Int,
                                    method: NetworkRequestType,

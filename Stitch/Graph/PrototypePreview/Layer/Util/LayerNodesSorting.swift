@@ -207,6 +207,7 @@ extension GraphState {
 
 // TODO: should SidebarLayerData be an enum on children (can be empty list) vs no-children ?
 // TODO: rename `SidebarLayerData` to `SidebarLayer` ?
+@MainActor
 func getLayerTypesFromSidebarLayerData(_ layerData: SidebarLayerData,
                                        sidebarIndex: Int,
                                        layerNodes: NodesViewModelDict,
@@ -404,6 +405,7 @@ func handleRawSidebarLayer(sidebarIndex: Int,
  
  ... becomes: [Group 1, Blue, Red, Group 2, Yellow]
  */
+@MainActor
 func getLayerTypesForPinnedViews(pinnedData: LayerPinData, // views pinned to this layer
                                  sidebarLayers: SidebarLayerList,
                                  layerNodes: NodesViewModelDict,

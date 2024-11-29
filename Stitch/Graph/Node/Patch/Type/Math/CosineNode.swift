@@ -41,6 +41,7 @@ func cosineNode(id: NodeId,
 
 // Swift `cos(n)` expects RADIANS;
 // but Origami `angle` is in DEGREES
+@MainActor
 func cosineEval(inputs: PortValuesList,
                 outputs: PortValuesList) -> PortValuesList {
 

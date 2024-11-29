@@ -9,10 +9,12 @@ import Foundation
 import StitchSchemaKit
 
 extension GraphUIState {
+    @MainActor
     func sidebarLayerHovered(layerId: LayerNodeId) {
         self.highlightedSidebarLayers.insert(layerId)
     }
 
+    @MainActor
     func sidebarLayerHoverEnded(layerId: LayerNodeId) {
         self.highlightedSidebarLayers.remove(layerId)
     }

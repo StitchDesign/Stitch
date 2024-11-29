@@ -73,10 +73,11 @@ func handleOnDrop(providers: [NSItemProvider],
                 return
             }
 
-            #if targetEnvironment(macCatalyst)
-            // Fixes issue on Catalyst where dropped location is mysteriously too high (visually) on screen
-            droppedLocation.y += 50
-            #endif
+            // TODO: concurrency issues, ignoring for now
+//            #if targetEnvironment(macCatalyst)
+//            // Fixes issue on Catalyst where dropped location is mysteriously too high (visually) on screen
+//            droppedLocation.y += 50
+//            #endif
 
             let _ = tempURL.startAccessingSecurityScopedResource()
 

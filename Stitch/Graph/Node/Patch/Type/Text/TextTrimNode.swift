@@ -35,6 +35,7 @@ func trimTextNode(id: NodeId,
 
 // https://origami.design/documentation/patches/builtin.textsubstring
 // https://stackoverflow.com/questions/39677330/how-does-string-substring-work-in-swift
+@MainActor
 func trimTextEval(inputs: PortValuesList,
                   outputs: PortValuesList) -> PortValuesList {
 

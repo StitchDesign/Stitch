@@ -13,11 +13,12 @@ import StitchSchemaKit
 final class StitchMic: NSObject, Sendable, StitchSoundPlayerDelegate {
     internal static let permissionsCategory = AVAudioSession.Category.playAndRecord
     private let session: AVAudioSession
+    let id = UUID()
     
     var engine = AudioEngine()
 
     // Recorder and session are used for the mic patch node
-    private var recorder: AVAudioRecorder?
+    @MainActor private var recorder: AVAudioRecorder?
 
     @MainActor
     init(isEnabled: Bool) {
@@ -65,6 +66,7 @@ final class StitchMic: NSObject, Sendable, StitchSoundPlayerDelegate {
         }
     }
 
+    @MainActor
     var url: URL? { self.recorder?.url }
 
     @MainActor

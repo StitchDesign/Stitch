@@ -15,6 +15,7 @@ typealias LayerSingleValueKeyPath = ReferenceWritableKeyPath<LayerViewModel, Por
 typealias LayerMultiValueKeyPath = ReferenceWritableKeyPath<LayerViewModel, PortValues>
 
 extension Layer {
+    @MainActor
     func hasMultiKeyPath(at port: Int) -> Bool {
         guard let inputType = self.getPreviewLayerInputType(at: port) else {
             fatalErrorIfDebug()
@@ -24,6 +25,7 @@ extension Layer {
         return inputType.supportsLoopedTypes
     }
 
+    @MainActor
     func getPreviewLayerInputType(at portId: Int) -> LayerInputPort? {
         self.layerGraphNode.inputDefinitions[safe: portId]
     }
@@ -162,6 +164,7 @@ extension Layer {
 
     /// Returns true if some layer node's port flattens incoming values rather than supports looping. i.e.
     /// the Reality node's first input.
+    @MainActor
     func doesPortSupportLooping(portId: Int) -> Bool {
         !self.hasMultiKeyPath(at: portId)
     }

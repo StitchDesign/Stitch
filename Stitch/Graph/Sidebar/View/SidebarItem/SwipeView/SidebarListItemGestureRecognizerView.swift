@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import UIKit
+import GameController
 
 // CGFloat: height if for item-drag; width if for item-swipe
 typealias OnDragChangedHandler = (CGFloat) -> Void
@@ -26,7 +27,7 @@ typealias OnItemDragChangedHandler = (CGSize) -> Void
 // a gesture recognizer for the item in the custom list itself
 struct SidebarListItemGestureRecognizerView<T: View,
                                             SidebarViewModel: ProjectSidebarObservable>: UIViewControllerRepresentable {
-    @EnvironmentObject private var keyboardObserver: KeyboardObserver
+    private let keyboardObserver = GCKeyboard.coalesced
 
     let view: T
     @Bindable var sidebarViewModel: SidebarViewModel
@@ -92,7 +93,6 @@ struct SidebarListItemGestureRecognizerView<T: View,
         delegate.instantDrag = instantDrag
         delegate.gestureViewModel = gestureViewModel
         delegate.sidebarViewModel = sidebarViewModel
-        delegate.keyboardObserver = keyboardObserver
         delegate.itemId = itemId
     }
 
@@ -100,7 +100,6 @@ struct SidebarListItemGestureRecognizerView<T: View,
         SidebarListGestureRecognizer<SidebarViewModel>(
             gestureViewModel: gestureViewModel,
             sidebarViewModel: sidebarViewModel,
-            keyboardObserver: keyboardObserver,
             instantDrag: instantDrag,
             itemId: itemId)
     }
@@ -125,16 +124,13 @@ final class SidebarListGestureRecognizer<SidebarViewModel: ProjectSidebarObserva
 
     weak var sidebarViewModel: SidebarViewModel?
     weak var gestureViewModel: SidebarViewModel.ItemViewModel?
-    weak var keyboardObserver: KeyboardObserver?
 
     init(gestureViewModel: SidebarViewModel.ItemViewModel,
          sidebarViewModel: SidebarViewModel,
-         keyboardObserver: KeyboardObserver,
          instantDrag: Bool,
          itemId: SidebarViewModel.ItemID) {
         self.sidebarViewModel = sidebarViewModel
         self.gestureViewModel = gestureViewModel
-        self.keyboardObserver = keyboardObserver
         self.instantDrag = instantDrag
         self.itemId = itemId
     }
@@ -268,30 +264,28 @@ final class SidebarListGestureRecognizer<SidebarViewModel: ProjectSidebarObserva
     
     func contextMenuInteraction(_ interaction: UIContextMenuInteraction,
                                 configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
-        if let keyboardObserver = self.keyboardObserver,
-           let graph = self.graph {
-            return self.gestureViewModel?.contextMenuInteraction(itemId: self.itemId,
-                                                                 graph: graph,
-                                                                 keyboardObserver: keyboardObserver)
+        guard let graph = self.graph else {
+            return nil
         }
-        return nil
+        return self.gestureViewModel?.contextMenuInteraction(itemId: self.itemId,
+                                                             graph: graph)
     }
 }
 
 extension SidebarItemGestureViewModel {
     @MainActor
     func contextMenuInteraction(itemId: SidebarListItemId,
-                                graph: GraphState,
-                                keyboardObserver: KeyboardObserver) -> UIContextMenuConfiguration? {
+                                graph: GraphState) -> UIContextMenuConfiguration? {
         // log("UIContextMenuInteractionDelegate: contextMenuInteraction")
         
         guard let sidebarViewModel = self.sidebarDelegate else { return nil }
         let selections = sidebarViewModel.selectionState
+        let keyboard = GCKeyboard.coalesced
                 
         // Only select the layer if not already actively-selected; otherwise just open the menu
         if !selections.primary.contains(itemId) {
             
-            let isShiftDown = keyboardObserver.keyboard?.keyboardInput?.isShiftPressed ?? false
+            let isShiftDown = keyboard?.keyboardInput?.isShiftPressed ?? false
             
             // Note: we do the selection logic in here so that
             self.sidebarDelegate?.sidebarItemTapped(
@@ -360,27 +354,6 @@ extension SidebarItemGestureViewModel {
             
             
             return UIMenu(title: "", children: buttons)
-        }
-    }
-}
-
-import GameController
-
-// Note: a global GameController observer seems to be an accurate way to listen for Shift etc. key presses
-// TODO: use this approach more widely?
-class KeyboardObserver: ObservableObject {
-    @Published var keyboard: GCKeyboard?
-    
-    var observer: Any? = nil
-    
-    init() {
-        observer = NotificationCenter.default.addObserver(
-            forName: .GCKeyboardDidConnect,
-            object: nil,
-            queue: .main
-        ) { [weak self] notification in
-            // TODO: warning about capture of `self` ?
-            self?.keyboard = notification.object as? GCKeyboard
         }
     }
 }

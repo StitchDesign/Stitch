@@ -71,8 +71,6 @@ struct ProjectsHomeView: View {
         }
         .modifier(SampleAppsSheet(showSampleAppsSheet: alertState.showSampleAppsSheet,
                                   namespace: namespace))
-        .modifier(LogShareViewModifier(logEntriesURL: alertState.logExport.logsURL))
-        .modifier(LogExportLoadingView(preparingLogs: alertState.logExport.preparingLogs))
         // Shows undo delete toast when GraphUI state has recenetly deleted project ID
         // Should onExpireAction only fire an action if alertState.deletedProjectId still defined ?
         .toast(willShow: alertState.deletedProjectId.isDefined,

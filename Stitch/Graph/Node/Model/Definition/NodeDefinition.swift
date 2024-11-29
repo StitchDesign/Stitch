@@ -16,7 +16,10 @@ protocol NodeDefinition {
     static var defaultTitle: String { get }
     
     // TODO: `LayerGraphNode.rowDefinitions` can NEVER have a UserVisibleType
+    @MainActor
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions
+    
+    @MainActor
     static func createEphemeralObserver() -> NodeEphemeralObservable?
 
     static var inputCountVariesByType: Bool { get }
@@ -37,6 +40,7 @@ extension PatchNodeDefinition {
 }
 
 extension Layer {
+    @MainActor
     var inputDefinitions: LayerInputTypeSet {
         self.layerGraphNode.inputDefinitions
     }
@@ -48,7 +52,7 @@ protocol LayerNodeDefinition: NodeDefinition {
     
     static var layer: Layer { get }
     
-    static var inputDefinitions: LayerInputTypeSet { get }
+    @MainActor static var inputDefinitions: LayerInputTypeSet { get }
     
     @MainActor
     static func content(document: StitchDocumentViewModel,
@@ -63,6 +67,7 @@ protocol LayerNodeDefinition: NodeDefinition {
 extension LayerNodeDefinition {
     static var graphKind: NodeDefinitionKind { .layer(Self.self) }
     
+    @MainActor
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
         .init(layerInputs: Self.inputDefinitions,
               layer: self.layer)

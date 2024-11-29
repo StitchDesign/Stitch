@@ -14,14 +14,15 @@ import RealityKit
 final class StitchEntity: NSObject, Sendable {
     let id: MediaObjectId
     let sourceURL: URL
-    var isUsedInLayer: Bool = false
+    @MainActor var isUsedInLayer: Bool = false
     let nodeId: NodeId
     
     // Used just for anchors
-    weak var anchor: AnchorEntity?
+    @MainActor weak var anchor: AnchorEntity?
     
+    @MainActor
     var isAnimating: Bool {
-        @MainActor didSet {
+        didSet {
             if isAnimating {
                 self.entityStatus.loadedInstance?.startAnimation()
             } else {
@@ -30,10 +31,10 @@ final class StitchEntity: NSObject, Sendable {
         }
     }
     
-    var transform: matrix_float4x4?
-    var entityStatus: LoadingStatus<Entity> = .loading
+    @MainActor var transform: matrix_float4x4?
+    @MainActor var entityStatus: LoadingStatus<Entity> = .loading
     
-    private var cancellables = Set<AnyCancellable>()
+    @MainActor private var cancellables = Set<AnyCancellable>()
     
     @MainActor
     init(id: MediaObjectId,

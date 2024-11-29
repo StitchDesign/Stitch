@@ -18,7 +18,7 @@ struct LayerDropdownChoice: Equatable, Identifiable, Codable, Hashable {
 typealias LayerDropdownChoices = [LayerDropdownChoice]
 
 extension LayerDropdownChoice {
-    
+    @MainActor
     func indentationString(_ graph: GraphState) -> String {
         guard let idAsUUID: UUID = .init(uuidString: self.id),
               let sidebarItem = graph.layersSidebarViewModel.items.get(idAsUUID) else {
@@ -29,6 +29,7 @@ extension LayerDropdownChoice {
                      count: sidebarItem.sidebarIndex.groupIndex).joined()
     }
     
+    @MainActor
     var asPinToId: PinToId {
         if self.id == LayerDropdownChoice.RootLayerDropDownChoice.id {
             return .root
@@ -55,6 +56,7 @@ extension LayerDropdownChoice {
 }
 
 extension NodeViewModel {
+    @MainActor
     var asLayerDropdownChoice: LayerDropdownChoice {
         .init(id: self.id.uuidString,
               name: self.getDisplayTitle())

@@ -61,6 +61,8 @@ final class NodeTimerEphemeralObserver: NodeEphemeralObservable {
     // Tracks previous values for delay node to track increasing/decreasing trend.
     // Maps a loop index to a PortValue
     var prevDelayInputValue: PortValue?
+    
+    @MainActor init () { }
 }
 
 extension NodeTimerEphemeralObserver {

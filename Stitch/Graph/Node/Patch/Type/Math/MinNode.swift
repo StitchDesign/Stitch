@@ -38,6 +38,7 @@ func minNode(id: NodeId,
         outputs: outputs)
 }
 
+@MainActor
 func minEval(inputs: PortValuesList, outputs: PortValuesList) -> PortValuesList {
     // log("minEval called")
 

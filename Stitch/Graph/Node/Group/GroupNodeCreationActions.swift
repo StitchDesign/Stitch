@@ -79,10 +79,11 @@ extension GraphState {
     func getInitialOldEdgeToNodeLocations(inputEdgesToUpdate: Edges) -> [NodeIOCoordinate: CGPoint] {
         var oldEdgeToNodeLocations = [NodeIOCoordinate: CGPoint]()
         inputEdgesToUpdate.forEach { edge in
-            if let node = self.getCanvasItem(inputId: edge.to) {
+            if let node = self.getCanvasItem(inputId: edge.to),
+               let nodeSize = node.sizeByLocalBounds {
                 // Move west
                 var position = node.position
-                position.x -= (200 + node.sizeByLocalBounds.width)
+                position.x -= (200 + nodeSize.width)
                 oldEdgeToNodeLocations[edge.to] = position
             }
         }
@@ -93,10 +94,11 @@ extension GraphState {
     func getInitialOldEdgeFromNodeLocations(outputEdgesToUpdate: Edges) -> [NodeIOCoordinate: CGPoint] {
         var oldEdgeFromNodeLocations = [NodeIOCoordinate: CGPoint]()
         outputEdgesToUpdate.forEach { edge in
-            if let node = self.getCanvasItem(outputId: edge.from) {
+            if let node = self.getCanvasItem(outputId: edge.from),
+               let nodeSize = node.sizeByLocalBounds {
                 // Move east
                 var position = node.position
-                position.x += (200 + node.sizeByLocalBounds.width)
+                position.x += (200 + nodeSize.width)
                 oldEdgeFromNodeLocations[edge.from] = position
             }
         }

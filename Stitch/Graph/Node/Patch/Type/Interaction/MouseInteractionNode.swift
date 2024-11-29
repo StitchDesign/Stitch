@@ -49,6 +49,7 @@ let MOUSE_NODE_DEFAULT_OUTPUTS: PortValuesList = [
 ]
 
 extension GraphState {
+    @MainActor
     var mouseNodes: IdSet {
         self.nodes.values
             .filter { $0.patch == .mouse }

@@ -11,20 +11,21 @@ import StitchSchemaKit
 typealias InputFieldViewModels = [InputFieldViewModel]
 typealias OutputFieldViewModels = [OutputFieldViewModel]
 
-protocol FieldViewModel: StitchLayoutCachable, Observable, AnyObject, Identifiable {
+protocol FieldViewModel: StitchLayoutCachable, Observable, AnyObject, Identifiable where Self.ID == FieldCoordinate {
     associatedtype NodeRowType: NodeRowViewModel
     
-    var fieldValue: FieldValue { get set }
+    @MainActor var fieldValue: FieldValue { get set }
 
     // A port has 1 to many relationship with fields
-    var fieldIndex: Int { get set }
+    @MainActor var fieldIndex: Int { get set }
 
     // eg "X" vs "Y" vs "Z" for .point3D parent-value
     // eg "X" vs "Y" for .position parent-value
-    var fieldLabel: String { get set }
+    @MainActor var fieldLabel: String { get set }
     
-    var rowViewModelDelegate: NodeRowType? { get set }
+    @MainActor var rowViewModelDelegate: NodeRowType? { get set }
     
+    @MainActor
     init(fieldValue: FieldValue,
          fieldIndex: Int,
          fieldLabel: String,
@@ -35,6 +36,7 @@ extension FieldViewModel {
     
     // a field index that ignores packed vs. unpacked mode
     // so e.g. a field view model for a height field of a size input will have a fieldLabelIndex of 1, not 0
+    @MainActor
     var fieldLabelIndex: Int {
         guard let rowViewModelDelegate = rowViewModelDelegate else {
             fatalErrorIfDebug()
@@ -65,17 +67,21 @@ extension FieldViewModel {
 
 @Observable
 final class InputFieldViewModel: FieldViewModel {
-    var fieldValue: FieldValue
-    var fieldIndex: Int
-    var fieldLabel: String
-    var viewCache: NodeLayoutCache?
+    let id: FieldCoordinate
+    @MainActor var fieldValue: FieldValue
+    @MainActor var fieldIndex: Int
+    @MainActor var fieldLabel: String
+    @MainActor var viewCache: NodeLayoutCache?
 
-    weak var rowViewModelDelegate: InputNodeRowViewModel?
+    @MainActor weak var rowViewModelDelegate: InputNodeRowViewModel?
     
+    @MainActor
     init(fieldValue: FieldValue,
          fieldIndex: Int,
          fieldLabel: String,
          rowViewModelDelegate: InputNodeRowViewModel?) {
+        self.id = .init(rowId: rowViewModelDelegate?.id ?? .empty,
+                        fieldIndex: fieldIndex)
         self.fieldValue = fieldValue
         self.fieldIndex = fieldIndex
         self.fieldLabel = fieldLabel
@@ -85,17 +91,21 @@ final class InputFieldViewModel: FieldViewModel {
 
 @Observable
 final class OutputFieldViewModel: FieldViewModel {
-    var fieldValue: FieldValue
-    var fieldIndex: Int
-    var fieldLabel: String
-    var viewCache: NodeLayoutCache?
+    let id: FieldCoordinate
+    @MainActor var fieldValue: FieldValue
+    @MainActor var fieldIndex: Int
+    @MainActor var fieldLabel: String
+    @MainActor var viewCache: NodeLayoutCache?
     
-    weak var rowViewModelDelegate: OutputNodeRowViewModel?
+    @MainActor weak var rowViewModelDelegate: OutputNodeRowViewModel?
     
+    @MainActor
     init(fieldValue: FieldValue,
          fieldIndex: Int,
          fieldLabel: String,
          rowViewModelDelegate: OutputNodeRowViewModel?) {
+        self.id = .init(rowId: rowViewModelDelegate?.id ?? .empty,
+                        fieldIndex: fieldIndex)
         self.fieldValue = fieldValue
         self.fieldIndex = fieldIndex
         self.fieldLabel = fieldLabel
@@ -104,11 +114,7 @@ final class OutputFieldViewModel: FieldViewModel {
 }
 
 extension FieldViewModel {
-    var id: FieldCoordinate {
-        return .init(rowId: self.rowViewModelDelegate?.id ?? .empty,
-                     fieldIndex: self.fieldIndex)
-    }
-    
+    @MainActor
     var rowDelegate: Self.NodeRowType.RowObserver? {
         self.rowViewModelDelegate?.rowDelegate
     }
@@ -119,6 +125,7 @@ extension FieldViewModel {
 extension Array where Element: FieldViewModel {
     
     // Easier to find via XCode search
+    @MainActor
     static func createFieldViewModels(fieldValues: FieldValues,
                                       fieldGroupType: FieldGroupType,
                                       // Unpacked ports need special logic for grabbing their proper label

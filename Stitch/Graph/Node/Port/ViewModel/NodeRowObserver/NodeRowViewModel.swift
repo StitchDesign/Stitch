@@ -73,34 +73,34 @@ protocol NodeRowViewModel: StitchLayoutCachable, Observable, Identifiable {
     associatedtype RowObserver: NodeRowObserver
     associatedtype PortViewType: PortViewData
     
-    var id: NodeRowViewModelId { get set }
+    var id: NodeRowViewModelId { get }
     
     // View-specific value that only updates when visible
     // separate propety for perf reasons:
-    var activeValue: PortValue { get set }
+    @MainActor var activeValue: PortValue { get set }
     
     // Holds view models for fields
-    var fieldValueTypes: [FieldGroupTypeViewModel<FieldType>] { get set }
+    @MainActor var fieldValueTypes: [FieldGroupTypeViewModel<FieldType>] { get set }
     
-    var connectedCanvasItems: Set<CanvasItemId> { get set }
+    @MainActor var connectedCanvasItems: Set<CanvasItemId> { get set }
     
-    var anchorPoint: CGPoint? { get set }
+    @MainActor var anchorPoint: CGPoint? { get set }
     
-    var portColor: PortColor { get set }
+    @MainActor var portColor: PortColor { get set }
     
-    var portViewData: PortViewType? { get set }
+    @MainActor var portViewData: PortViewType? { get set }
     
-    var isDragging: Bool { get set }
+    @MainActor var isDragging: Bool { get set }
     
-    var nodeDelegate: NodeDelegate? { get set }
+    @MainActor var nodeDelegate: NodeDelegate? { get set }
     
-    var rowDelegate: RowObserver? { get set }
+    @MainActor var rowDelegate: RowObserver? { get set }
     
-    var canvasItemDelegate: CanvasItemViewModel? { get set }
+    @MainActor var canvasItemDelegate: CanvasItemViewModel? { get set }
     
     static var nodeIO: NodeIO { get }
     
-    func calculatePortColor() -> PortColor
+    @MainActor func calculatePortColor() -> PortColor
     
     @MainActor func portDragged(gesture: DragGesture.Value, graphState: GraphState)
     
@@ -110,6 +110,7 @@ protocol NodeRowViewModel: StitchLayoutCachable, Observable, Identifiable {
     
     @MainActor func findConnectedCanvasItems() -> CanvasItemIdSet
     
+    @MainActor
     init(id: NodeRowViewModelId,
          rowDelegate: RowObserver?,
          canvasItemDelegate: CanvasItemViewModel?)
@@ -119,11 +120,11 @@ extension NodeRowViewModel {
     @MainActor
     func updateAnchorPoint() {
         guard let canvas = self.canvasItemDelegate,
-              let node = canvas.nodeDelegate else {
+              let node = canvas.nodeDelegate,
+              let size = canvas.sizeByLocalBounds else {
             return
         }
         
-        let size = canvas.sizeByLocalBounds
         let ioAdjustment: CGFloat = 10
         let standardHeightAdjustment: CGFloat = 69
         let ioConstraint: CGFloat = Self.nodeIO == .input ? ioAdjustment : -ioAdjustment
@@ -169,6 +170,7 @@ extension NodeRowViewModel {
     }
     
     /// Considerable perf cost from `ConnectedEdgeView`, so now a function.
+    @MainActor
     func getPortViewData() -> PortViewType? {
         guard let canvasId = self.canvasItemDelegate?.id else {
             return nil
@@ -178,6 +180,7 @@ extension NodeRowViewModel {
                      canvasId: canvasId)
     }
     
+    @MainActor
     func initializeValues(rowDelegate: Self.RowObserver,
                           unpackedPortParentFieldGroupType: FieldGroupType?,
                           unpackedPortIndex: Int?,
@@ -241,15 +244,18 @@ extension NodeRowViewModel {
         }
     }
     
+    @MainActor
     func updatePortColor() {
         let newColor = self.calculatePortColor()
         self.setPortColorIfChanged(newColor)
     }
     
+    @MainActor
     var hasEdge: Bool {
         rowDelegate?.hasEdge ?? false
     }
     
+    @MainActor
     var hasLoop: Bool {
         rowDelegate?.hasLoopedValues ?? false
     }
@@ -275,29 +281,29 @@ extension PortValue {
 // UI data
 @Observable
 final class InputNodeRowViewModel: NodeRowViewModel {
-    var viewCache: NodeLayoutCache?
-    
     typealias PortViewType = InputPortViewData
     
     static let nodeIO: NodeIO = .input
     
-    var id: NodeRowViewModelId
-    var activeValue: PortValue = .number(.zero)
-    var fieldValueTypes = FieldGroupTypeViewModelList<InputFieldViewModel>()
-    var connectedCanvasItems: Set<CanvasItemId> = .init()
-    var anchorPoint: CGPoint?
-    var portColor: PortColor = .noEdge
-    var isDragging = false
-    var portViewData: PortViewType?
-    weak var nodeDelegate: NodeDelegate?
-    weak var rowDelegate: InputNodeRowObserver?
+    let id: NodeRowViewModelId
+    @MainActor var viewCache: NodeLayoutCache?
+    @MainActor var activeValue: PortValue = .number(.zero)
+    @MainActor var fieldValueTypes = FieldGroupTypeViewModelList<InputFieldViewModel>()
+    @MainActor var connectedCanvasItems: Set<CanvasItemId> = .init()
+    @MainActor var anchorPoint: CGPoint?
+    @MainActor var portColor: PortColor = .noEdge
+    @MainActor var isDragging = false
+    @MainActor var portViewData: PortViewType?
+    @MainActor weak var nodeDelegate: NodeDelegate?
+    @MainActor weak var rowDelegate: InputNodeRowObserver?
     
     // TODO: input node row view model for an inspector should NEVER have canvasItemDelegate
-    weak var canvasItemDelegate: CanvasItemViewModel? // also nil when the layer input is not on the canvas
+    @MainActor weak var canvasItemDelegate: CanvasItemViewModel? // also nil when the layer input is not on the canvas
     
     // TODO: temporary property for old-style layer nodes
-    var layerPortId: Int?
+    @MainActor var layerPortId: Int?
     
+    @MainActor
     init(id: NodeRowViewModelId,
          rowDelegate: InputNodeRowObserver?,
          canvasItemDelegate: CanvasItemViewModel?) {
@@ -346,23 +352,21 @@ extension InputNodeRowViewModel {
 
 @Observable
 final class OutputNodeRowViewModel: NodeRowViewModel {
-    var viewCache: NodeLayoutCache?
-    
     typealias PortViewType = OutputPortViewData
-    
     static let nodeIO: NodeIO = .output
     
-    var id: NodeRowViewModelId
-    var activeValue: PortValue = .number(.zero)
-    var fieldValueTypes = FieldGroupTypeViewModelList<OutputFieldViewModel>()
-    var connectedCanvasItems: Set<CanvasItemId> = .init()
-    var anchorPoint: CGPoint?
-    var portColor: PortColor = .noEdge
-    var isDragging = false
-    var portViewData: PortViewType?
-    weak var nodeDelegate: NodeDelegate?
-    weak var rowDelegate: OutputNodeRowObserver?
-    weak var canvasItemDelegate: CanvasItemViewModel?
+    let id: NodeRowViewModelId
+    @MainActor var viewCache: NodeLayoutCache?
+    @MainActor var activeValue: PortValue = .number(.zero)
+    @MainActor var fieldValueTypes = FieldGroupTypeViewModelList<OutputFieldViewModel>()
+    @MainActor var connectedCanvasItems: Set<CanvasItemId> = .init()
+    @MainActor var anchorPoint: CGPoint?
+    @MainActor var portColor: PortColor = .noEdge
+    @MainActor var isDragging = false
+    @MainActor var portViewData: PortViewType?
+    @MainActor weak var nodeDelegate: NodeDelegate?
+    @MainActor weak var rowDelegate: OutputNodeRowObserver?
+    @MainActor weak var canvasItemDelegate: CanvasItemViewModel?
     
     init(id: NodeRowViewModelId,
          rowDelegate: OutputNodeRowObserver?,
@@ -425,6 +429,7 @@ extension OutputNodeRowViewModel {
 
 extension Array where Element: NodeRowViewModel {
     // easier code search
+    @MainActor
     mutating func syncRowViewModelsWithCanvasItem(with newEntities: [Element.RowObserver],
                                                   canvas: CanvasItemViewModel,
                                                   unpackedPortParentFieldGroupType: FieldGroupType?,
@@ -437,6 +442,7 @@ extension Array where Element: NodeRowViewModel {
     
     // TODO: This is impossible to find via a code search; too many methods are called `sync`
     /// Syncing logic as influced from `SchemaObserverIdentifiable`.
+    @MainActor
     mutating func sync(with newEntities: [Element.RowObserver],
                        canvas: CanvasItemViewModel,
                        unpackedPortParentFieldGroupType: FieldGroupType?,
@@ -458,11 +464,6 @@ extension Array where Element: NodeRowViewModel {
         // Create or update entities from new list
         self = newEntities.enumerated().map { portIndex, newEntity in
             if let entity = currentEntitiesMap.get(newEntity.id) {
-                // Update index if ports for node were removed
-                entity.id = .init(graphItemType: entity.id.graphItemType,
-                                  nodeId: entity.id.nodeId,
-                                  portId: portIndex)
-                
                 return entity
             } else {
                 let rowId = NodeRowViewModelId(graphItemType: .node(canvas.id),

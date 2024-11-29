@@ -86,6 +86,7 @@ extension InputNodeRowObserver: SchemaObserverIdentifiable {
 }
 
 extension OutputNodeRowObserver {
+    @MainActor
     func onPrototypeRestart() {
         // Set outputs to be empty
         self.allLoopedValues = []

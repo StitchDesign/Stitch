@@ -19,6 +19,7 @@ extension ProjectSidebarObservable {
     }
 
     // Function to find the set item whose index in the list is the smallest
+    @MainActor
     func findSetItemWithSmallestIndex(from set: Set<Self.ItemID>) -> Self.ItemID? {
         var smallestIndex: Int? = nil
         var smallestItem: Self.ItemID? = nil
@@ -38,7 +39,7 @@ extension ProjectSidebarObservable {
         return smallestItem
     }
     
-    
+    @MainActor
     func getDraggedAlong(_ draggedItem: Self.ItemViewModel,
                          selections: Set<Self.ItemID>) -> Set<Self.ItemID> {
         let children = draggedItem.children?.map { $0.id } ?? []
@@ -49,6 +50,7 @@ extension ProjectSidebarObservable {
     }
 
     // Note: call this AFTER we've dragged and have a big list of all the 'dragged along' items
+    @MainActor
     func getImplicitlyDragged(draggedAlong: Set<ItemID>,
                               selections: Set<ItemID>) -> Set<ItemID> {
         
@@ -225,6 +227,7 @@ extension ProjectSidebarObservable {
     
     /// Filters out collapsed groups.
     /// List mut be flattened for drag gestures.
+    @MainActor
     func getVisualFlattenedList() -> [Self.ItemViewModel] {
         self.items.getVisualFlattenedList()
     }

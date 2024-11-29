@@ -8,7 +8,7 @@
 import Foundation
 import StitchSchemaKit
 import SwiftUI
-import SwiftyJSON
+@preconcurrency import SwiftyJSON
 
 extension JSON {
     func isEqualTo(_ other: JSON) -> Bool {

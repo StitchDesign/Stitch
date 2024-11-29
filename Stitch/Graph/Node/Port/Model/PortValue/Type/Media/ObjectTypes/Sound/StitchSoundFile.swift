@@ -7,23 +7,24 @@
 
 import Foundation
 import StitchSchemaKit
-import AudioKit
+@preconcurrency import AudioKit
 import AVFoundation
 
 final class StitchSoundFilePlayer: NSObject, StitchSoundPlayerDelegate {
     static let permissionsCategory = AVAudioSession.Category.playback
+    let id = UUID()
 
-    var engine = AudioEngine()
+    @MainActor var engine = AudioEngine()
     let player = AudioPlayer()
 
     // mixers don't need to be long lived, just the taps?
-    private var ampTap: AmplitudeTap
-    private var peakAmpTap: AmplitudeTap
-    private var fftTap: FFTTap?
-    private var variSpeed: VariSpeed
-    private var FFT_TAP_SIZE: UInt32 = 4096
+    @MainActor private var ampTap: AmplitudeTap
+    @MainActor private var peakAmpTap: AmplitudeTap
+    @MainActor private var fftTap: FFTTap?
+    @MainActor private var variSpeed: VariSpeed
+    @MainActor private var FFT_TAP_SIZE: UInt32 = 4096
 
-    var frequencyAmplitudes: [Double] = SoundImportNode.defaultFrequencyAmplitudes
+    @MainActor var frequencyAmplitudes: [Double] = SoundImportNode.defaultFrequencyAmplitudes
 
     @MainActor
     init(url: URL,
@@ -69,6 +70,7 @@ final class StitchSoundFilePlayer: NSObject, StitchSoundPlayerDelegate {
         self.setPlayerLoop(time: .zero, enableInfiniteLoop: willLoop)
     }
     
+    @MainActor
     private func setupFFTTap(_ mixer: Mixer) {
         self.fftTap = FFTTap(mixer, bufferSize: FFT_TAP_SIZE, callbackQueue: .main) { [weak self] fftData in
             guard let strongSelf = self else { return }
@@ -76,6 +78,7 @@ final class StitchSoundFilePlayer: NSObject, StitchSoundPlayerDelegate {
         }
     }
 
+    @MainActor
     private func processFFTData(_ fftData: [Float]) {
         let binCount = fftData.count
         let numberOfRanges = 16
@@ -116,18 +119,19 @@ final class StitchSoundFilePlayer: NSObject, StitchSoundPlayerDelegate {
         self.player.isStarted
     }
 
+    @MainActor
     var isLooping: Bool {
         get {
             self.player.isLooping
         }
 
-        @MainActor
         set(newValue) {
             self.player.isLooping = newValue
             self.setPlayerLoop(time: .zero, enableInfiniteLoop: newValue)
         }
     }
 
+    @MainActor
     var rate: AUValue {
         get {
             self.variSpeed.rate
@@ -167,10 +171,12 @@ final class StitchSoundFilePlayer: NSObject, StitchSoundPlayerDelegate {
         self.player.duration
     }
 
+    @MainActor
     var volume: Double {
         Double(self.ampTap.amplitude)
     }
 
+    @MainActor
     var peakVolume: Double {
         Double(self.peakAmpTap.amplitude)
     }

@@ -17,32 +17,39 @@ extension Double {
 // TODO: tech debt: do this for shadow-data, rotation-data, layer-effect-data
 extension LayerViewModel {
     
+    @MainActor
     var getMinWidth: LayerDimension? {
         self.minSize.getSize?.width
     }
     
+    @MainActor
     var getMaxWidth: LayerDimension? {
         self.maxSize.getSize?.width
     }
     
+    @MainActor
     var getMinHeight: LayerDimension? {
         self.minSize.getSize?.height
     }
     
+    @MainActor
     var getMaxHeight: LayerDimension? {
         self.maxSize.getSize?.height
     }
     
+    @MainActor
     var getSizingScenario: SizingScenario {
         self.sizingScenario.getSizingScenario ?? .defaultSizingScenario
     }
     
+    @MainActor
     func getAspectRatioData() -> AspectRatioData {
         .init(widthAxis: self.widthAxis.getNumber ?? .defaultWidthAxisRatio,
               heightAxis: self.heightAxis.getNumber ?? .defaultHeightAxisRatio,
               contentMode: (self.contentMode.getContentMode ?? .defaultContentMode).toSwiftUIContent)
     }
     
+    @MainActor
     func getLayerStrokeData() -> LayerStrokeData {
         .init(stroke: self.strokePosition.getLayerStroke ?? .defaultStroke,
               color: self.strokeColor.getColor ?? .black,

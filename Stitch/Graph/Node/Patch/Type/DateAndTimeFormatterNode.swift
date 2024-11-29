@@ -84,6 +84,7 @@ func dateAndTimeFormatterNode(id: NodeId,
 }
 
 // dateAndTimeFormatter is the only node that needs graphFrameCount from state;
+@MainActor
 func dateAndTimeFormatterEval(inputs: PortValuesList,
                               outputs: PortValuesList) -> PortValuesList {
 

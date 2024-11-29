@@ -7,6 +7,7 @@
 
 import Foundation
 import StitchSchemaKit
+import StitchEngine
 
 // MARK: non-derived data: values, assigned interactions, label, upstream/downstream connection
 
@@ -61,6 +62,7 @@ extension NodeRowObserver {
         }
     }
     
+    @MainActor
     func getVisibleRowViewModels() -> [Self.RowViewModelType] {
         guard let graph = self.nodeDelegate?.graphDelegate,
               // Make sure we're not in full screen mode
@@ -109,6 +111,7 @@ extension NodeRowObserver {
         return self.allLoopedValues[safe: graph.activeIndex.adjustedIndex(self.allLoopedValues.count)] ?? .none
     }
     
+    @MainActor
     func postProcessing(oldValues: PortValues,
                         newValues: PortValues) {
         // Update cached interactions data in graph
@@ -122,6 +125,7 @@ extension NodeRowObserver {
     }
     
     /// Updates layer selections for interaction patch nodes for perf.
+    @MainActor
     func updateInteractionNodeData(oldValues: PortValues,
                                    newValues: PortValues) {
         // Interaction nodes ignore loops of assigned layers and only use the first
@@ -175,6 +179,7 @@ extension NodeRowObserver {
         }
     }
     
+    @MainActor
     func getMediaObjects() -> [StitchMediaObject] {
         self.allLoopedValues
             .compactMap { $0.asyncMedia?.mediaObject }
@@ -242,6 +247,7 @@ extension [InputNodeRowObserver] {
 }
 
 extension InputNodeRowObserver {
+    @MainActor
     var currentBroadcastChoiceId: NodeId? {
         guard self.nodeKind == .patch(.wirelessReceiver),
               self.id.portId == 0,

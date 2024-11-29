@@ -41,6 +41,7 @@ func arcTan2Node(id: NodeId,
         outputs: outputs)
 }
 
+@MainActor
 func arcTan2Eval(inputs: PortValuesList,
                  outputs: PortValuesList) -> PortValuesList {
 

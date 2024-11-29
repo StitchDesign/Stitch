@@ -54,7 +54,7 @@ struct TruncatedTextView: View {
     }
 }
 
-var CAPTION_VIEW_COLOR: Color = Color(.captionView)
+let CAPTION_VIEW_COLOR: Color = Color(.captionView)
 
 struct StitchCaptionView: View {
     let label: String

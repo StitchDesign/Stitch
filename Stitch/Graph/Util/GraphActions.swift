@@ -50,6 +50,7 @@ extension GraphState: DocumentEncodableDelegate {
         self.createSchema()
     }
     
+    @MainActor
     func syncMediaFiles(_ mediaFiles: [URL]) {
         // Add default media and imported URLs
         let allMediaFiles = MediaLibrary.getDefaultLibraryDeps() + mediaFiles

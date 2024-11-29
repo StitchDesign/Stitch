@@ -21,12 +21,15 @@ extension GraphState {
 }
 
 extension GraphDelegate {
+    @MainActor
     var projectId: UUID { self.id }
     
+    @MainActor
     var cameraFeedManager: LoadingStatus<StitchSingletonMediaObject>? {
         self.documentDelegate?.cameraFeedManager
     }
     
+    @MainActor
     var locationManager: LoadingStatus<StitchSingletonMediaObject>? {
         self.documentDelegate?.locationManager
     }
@@ -47,6 +50,7 @@ extension GraphDelegate {
         self.documentDelegate?.isGeneratingProjectThumbnail ?? false
     }
     
+    @MainActor
     var cameraFeed: CameraFeedManager? {
         self.cameraFeedManager?.loadedInstance?.cameraFeedManager
     }

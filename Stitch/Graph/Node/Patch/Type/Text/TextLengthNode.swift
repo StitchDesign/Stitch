@@ -30,6 +30,7 @@ func textLengthNode(id: NodeId,
         outputs: outputs)
 }
 
+@MainActor
 func textLengthEval(inputs: PortValuesList,
                     outputs: PortValuesList) -> PortValuesList {
 

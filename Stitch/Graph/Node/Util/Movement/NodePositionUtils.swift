@@ -22,10 +22,15 @@ extension CGPoint {
 
 // Note: previously we had a side-effect delay to work around some issues with `.buttonStyle(.plain)`'s auto animation and a GraphSchema-update interrupting double tap. These issues now seem to be resolved.
 extension CanvasItemViewModel {
-    var graphBaseViewSize: CGSize {
-        let denominator = self.graphDelegate?.documentDelegate?.graphMovement.zoomData.zoom ?? .zero
-        return .init(width: self.sizeByLocalBounds.width / denominator,
-                     height: self.sizeByLocalBounds.height / denominator)
+    @MainActor
+    var graphBaseViewSize: CGSize? {
+        guard let nodeSize = self.sizeByLocalBounds,
+              let denominator = self.graphDelegate?.documentDelegate?.graphMovement.zoomData.zoom else {
+            return nil
+        }
+        
+        return .init(width: nodeSize.width / denominator,
+                     height: nodeSize.height / denominator)
     }
     
     @MainActor

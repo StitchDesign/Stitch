@@ -66,24 +66,26 @@ extension LayerInputCoordinate {
 typealias CanvasItemViewModels = [CanvasItemViewModel]
 
 @Observable
-final class CanvasItemViewModel: Identifiable, StitchLayoutCachable {
-    var id: CanvasItemId
-    var position: CGPoint = .zero
-    var previousPosition: CGPoint = .zero
-    var zIndex: Double = .zero
-    var parentGroupNodeId: NodeId?
+final class CanvasItemViewModel: Identifiable, StitchLayoutCachable, Sendable {
+    let id: CanvasItemId
+    @MainActor var position: CGPoint = .zero
+    @MainActor var previousPosition: CGPoint = .zero
+    @MainActor var zIndex: Double = .zero
+    @MainActor var parentGroupNodeId: NodeId?
     
+    @MainActor
     var isVisibleInFrame: Bool {
         guard let graph = self.graphDelegate else { return false }
         return graph.visibleNodesViewModel.visibleCanvasIds.contains(self.id)
     }
     
     // View specific port value data
-    var inputViewModels: [InputNodeRowViewModel] = []
-    var outputViewModels: [OutputNodeRowViewModel] = []
+    @MainActor var inputViewModels: [InputNodeRowViewModel] = []
+    
+    @MainActor var outputViewModels: [OutputNodeRowViewModel] = []
     
     // Cached subview sizes for performance gains in commit phase
-    var viewCache: NodeLayoutCache?
+    @MainActor var viewCache: NodeLayoutCache?
     
     // Moved state here for render cycle perf on port view for colors
     @MainActor
@@ -93,12 +95,15 @@ final class CanvasItemViewModel: Identifiable, StitchLayoutCachable {
     }
     
     // Reference back to the parent node entity
+    @MainActor
     weak var nodeDelegate: NodeDelegate?
     
+    @MainActor
     var graphDelegate: GraphDelegate? {
         self.nodeDelegate?.graphDelegate
     }
     
+    @MainActor
     init(id: CanvasItemId,
          position: CGPoint,
          zIndex: Double,
@@ -124,6 +129,7 @@ final class CanvasItemViewModel: Identifiable, StitchLayoutCachable {
 }
 
 extension CanvasItemViewModel {
+    @MainActor
     func syncRowViewModels(inputRowObservers: [InputNodeRowObserver],
                            outputRowObservers: [OutputNodeRowObserver],
                            unpackedPortParentFieldGroupType: FieldGroupType?,
@@ -140,7 +146,7 @@ extension CanvasItemViewModel {
                                    unpackedPortIndex: nil)
     }
     
-    // Only called at project open?
+    @MainActor
     convenience init(from canvasEntity: CanvasNodeEntity,
                      id: CanvasItemId,
                      inputRowObservers: [InputNodeRowObserver],
@@ -157,7 +163,8 @@ extension CanvasItemViewModel {
                   unpackedPortIndex: unpackedPortIndex)
     }
     
-    func createSchema() -> CanvasNodeEntity {        
+    @MainActor
+    func createSchema() -> CanvasNodeEntity {
         .init(position: self.position,
               zIndex: self.zIndex,
               parentGroupNodeId:self.parentGroupNodeId)
@@ -214,21 +221,25 @@ extension CanvasItemViewModel {
         }
         
         // Reset cache data--fixes scenarios like undo
-        self.viewCache = nil
+        self.viewCache?.needsUpdating = true
     }
-        
-    var sizeByLocalBounds: CGSize {
-        self.viewCache?.sizeThatFits ?? .zero
+
+    @MainActor
+    var sizeByLocalBounds: CGSize? {
+        self.viewCache?.sizeThatFits
     }
     
+    @MainActor
     var isMoving: Bool {
         self.position != self.previousPosition
     }
 
     @MainActor
     func updateVisibilityStatus(with newValue: Bool) {
-        self.updatePortLocations()
-        self.nodeDelegate?.updatePortViewModels()
+        if newValue {
+            self.updatePortLocations()
+            self.nodeDelegate?.updatePortViewModels()
+        }
         
 //        let oldValue = self.isVisibleInFrame
 //        if oldValue != newValue {
@@ -241,6 +252,7 @@ extension CanvasItemViewModel {
 //        }
     }
     
+    @MainActor
     func shiftPosition(by gridLineLength: Int = SQUARE_SIDE_LENGTH) {
         let gridLineLength = CGFloat(gridLineLength)
         
@@ -262,20 +274,23 @@ extension CanvasItemViewModel {
         }
     }
     
+    @MainActor
     func resetViewSizingCache() {
-        self.viewCache = nil
+        self.viewCache?.needsUpdating = true
     }
 }
 
 extension InputLayerNodeRowData {
+    @MainActor
     static func empty(_ layerInputType: LayerInputType,
+                      nodeId: UUID,
                       layer: Layer) -> Self {
         // Take the data from the schema!! 
         let rowObserver = InputNodeRowObserver(values: [layerInputType.getDefaultValue(for: layer)],
                                                nodeKind: .layer(layer),
                                                userVisibleType: nil,
                                                id: .init(portType: .keyPath(layerInputType),
-                                                         nodeId: .init()),
+                                                         nodeId: nodeId),
                                                upstreamOutputCoordinate: nil)
         return .init(rowObserver: rowObserver,
                      canvasObserver: nil)

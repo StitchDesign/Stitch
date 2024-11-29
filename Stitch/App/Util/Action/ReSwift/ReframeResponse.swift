@@ -71,9 +71,9 @@ struct ReframeResponse<T> {
 }
 
 extension GraphResponse {
-    static let noChange: Self = .init()
+    @MainActor static let noChange: Self = .init()
 
-    static let persistenceResponse: Self = GraphResponse(
+    @MainActor static let persistenceResponse: Self = GraphResponse(
         effects: nil,
         willPersist: true
     )

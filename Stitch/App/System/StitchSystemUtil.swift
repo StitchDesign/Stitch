@@ -38,6 +38,7 @@ extension StitchSystem: StitchDocumentEncodable, StitchDocumentMigratable {
 }
 
 extension [StitchSystemType: StitchSystemViewModel] {
+    @MainActor
     func findSystem(forComponent id: UUID) -> StitchSystemViewModel? {
         for system in self.values {
             if system.components.get(id) != nil {
