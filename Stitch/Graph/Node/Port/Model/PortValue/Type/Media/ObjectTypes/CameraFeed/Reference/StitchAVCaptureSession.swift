@@ -15,8 +15,6 @@ final class StitchAVCaptureSession: StitchCameraSession {
     let cameraSession: AVCaptureSession = .init()
     @MainActor let bufferDelegate: CaptureSessionBufferDelegate = .init()
     
-    // we need to do some work asynchronously
-    //    private let sessionQueue = DispatchQueue(label: "session queue")
     var actor: CameraFeedActor {
         bufferDelegate.actor
     }
@@ -27,13 +25,9 @@ final class StitchAVCaptureSession: StitchCameraSession {
     
     var currentImage: UIImage?
     
-//    let bufferDelegate: CaptureSessionBufferDelegate
-
     @MainActor
     init() {
         self.actor.imageConverterDelegate = self
-//        self.bufferDelegate = CaptureSessionBufferDelegate()
-
 
         // .high: causes app to crash on device 'due to memory issues',
         // even though app's memory footprint is quite low;
@@ -49,11 +43,7 @@ final class StitchAVCaptureSession: StitchCameraSession {
                                      position: AVCaptureDevice.Position,
                                      cameraOrientation: StitchCameraOrientation) {
         let deviceType = UIDevice.current.userInterfaceIdiom
-//        let bufferDelegate = self.actor.bufferDelegate
-        
-//            guard let avCapture = self,
-//                  let bufferDelegate = bufferDelegate else { return }
-//            
+
         CameraFeedActor
             .configureSession(session: self.cameraSession,
                               device: device,
@@ -66,12 +56,7 @@ final class StitchAVCaptureSession: StitchCameraSession {
 
 /// Delegate class for managing image buffer from `AVCaptureSession`.
 final class CaptureSessionBufferDelegate: NSObject, Sendable, @preconcurrency AVCaptureVideoDataOutputSampleBufferDelegate {
-//    private let context = CIContext()
-//    @MainActor var convertedImage: UIImage?
-//    private var isLoading: Bool = false
     let actor: CameraFeedActor = CameraFeedActor()
-    
-//    @MainActor var convertedImage: UIImage?
     
     @MainActor
     override init() {
@@ -85,15 +70,9 @@ final class CaptureSessionBufferDelegate: NSObject, Sendable, @preconcurrency AV
     func captureOutput(_ captureOutput: AVCaptureOutput,
                        didOutput sampleBuffer: CMSampleBuffer,
                        from connection: AVCaptureConnection) {
-        
-//        guard !self.isLoading else { return }
-//        self.isLoading = true
-        
         let actor = self.actor
         
-        Task(priority: .high) { @Sendable [weak actor] in
-//            guard let sampleBuffer = sampleBuffer else { return }
-            
+        Task(priority: .high) { @Sendable [weak actor] in            
             await actor?.createUIImage(from: sampleBuffer)
         }
     }
@@ -109,7 +88,6 @@ extension StitchAVCaptureSession: ImageConverterDelegate {
         image.accessibilityIdentifier = CAMERA_DESCRIPTION
         
         self.currentImage = image
-//        self.isLoading = false
         
         dispatch(RecalculateCameraNodes())
     }

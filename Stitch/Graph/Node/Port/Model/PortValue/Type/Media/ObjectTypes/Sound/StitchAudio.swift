@@ -122,7 +122,7 @@ final class StitchSoundPlayer<Player: StitchSoundPlayerDelegate>: Sendable {
 }
 
 protocol StitchSoundPlayerDelegate: AnyObject, Sendable {
-    // Used for hasing purposes
+    // Used for hashing purposes
     var id: UUID { get }
     
     @MainActor func play()

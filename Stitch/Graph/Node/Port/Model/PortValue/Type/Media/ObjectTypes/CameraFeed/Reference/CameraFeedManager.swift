@@ -16,7 +16,6 @@ import StitchSchemaKit
 protocol StitchCameraSession: AnyObject, Sendable {
     var actor: CameraFeedActor { get }
     
-//    func startRunning()
     @MainActor func stopRunning()
 
     @MainActor

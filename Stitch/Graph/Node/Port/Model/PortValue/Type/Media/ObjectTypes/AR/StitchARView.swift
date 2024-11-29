@@ -123,8 +123,6 @@ final class StitchARView: ARView {
 }
 
 extension StitchARView: StitchCameraSession {
-//    func startRunning() {}
-
     @MainActor
     func stopRunning() {
         self.session.pause()

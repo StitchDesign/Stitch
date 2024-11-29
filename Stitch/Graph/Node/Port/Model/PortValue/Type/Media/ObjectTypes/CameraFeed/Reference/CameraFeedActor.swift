@@ -15,9 +15,7 @@ import ARKit
 final actor CameraFeedActor {
     @MainActor weak var bufferDelegate: CaptureSessionBufferDelegate?
     private let context = CIContext()
-//    var currentProcessedImage: UIImage?
-    
-//    var isLoading = false
+
     @MainActor weak var imageConverterDelegate: ImageConverterDelegate?
     
     @MainActor var authStatus: AVAuthorizationStatus {
@@ -40,15 +38,7 @@ final actor CameraFeedActor {
             position: position,
             cameraOrientation: cameraOrientation)
         
-        // Per compiler: should be called from background thread for AVCapture
-        
-        // TODO: explore this more
-        
         startCameraCallback()
-        
-//        Task { [weak session] in
-//            session?.startRunning()
-//        }
     }
 
     @MainActor func startCamera(session: StitchCameraSession,
@@ -86,16 +76,13 @@ final actor CameraFeedActor {
                                    cameraOrientation: StitchCameraOrientation,
                                    startCameraCallback: @escaping () -> ()) {
         AVCaptureDevice.requestAccess(for: CAMERA_FEED_MEDIA_TYPE) { isGranted in
-//            Task { [weak self, weak session] in
-//                if let _session = session,
-                   if isGranted {
-                    self.startCamera(
-                        session: session,
-                        device: device,
-                        position: position,
-                        cameraOrientation: cameraOrientation,
-                        startCameraCallback: startCameraCallback)
-//                }
+            if isGranted {
+                self.startCamera(
+                    session: session,
+                    device: device,
+                    position: position,
+                    cameraOrientation: cameraOrientation,
+                    startCameraCallback: startCameraCallback)
             }
         }
     }
@@ -113,10 +100,6 @@ final actor CameraFeedActor {
                                                 context: context) else {
             return
         }
-        
-//        self.currentProcessedImage = newImage
-        
-//        self.isLoading = false
         
         await MainActor.run { [weak self, weak newImage] in
             guard let newImage = newImage else { return }
