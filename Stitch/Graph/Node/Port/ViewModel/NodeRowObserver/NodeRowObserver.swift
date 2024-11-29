@@ -69,10 +69,7 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     @MainActor
     var upstreamOutputCoordinate: NodeIOCoordinate? {
         didSet(oldValue) {
-            // TODO: move mainactor to stitchengine
-            DispatchQueue.main.async { [weak self] in
-                self?.didUpstreamOutputCoordinateUpdate(oldValue: oldValue)
-            }
+            self.didUpstreamOutputCoordinateUpdate(oldValue: oldValue)
         }
     }
     

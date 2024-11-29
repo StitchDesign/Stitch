@@ -200,8 +200,6 @@ extension NodeViewModel {
     var isGroupLayer: Bool {
         self.kind.getLayer == .group
     }
-
-//    static let nodeUIKind: NodeUIKind = NodeUIKind.inputsOnly
     
     @MainActor
     func inputCoordinate(at portId: Int) -> InputCoordinate? {
