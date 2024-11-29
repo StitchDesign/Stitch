@@ -121,7 +121,9 @@ struct ConnectedEdgeView: View {
         
         if let inputPortViewData = inputObserver.portViewData,
            let upstreamObserver = upstreamObserver,
-           let outputPortViewData = upstreamObserver.portViewData {
+           let outputPortViewData = upstreamObserver.portViewData,
+           let pointTo = inputObserver.anchorPoint,
+           let pointFrom = upstreamObserver.anchorPoint {
             let edge = PortEdgeUI(from: outputPortViewData,
                                   to: inputPortViewData)
             let portColor: PortColor = inputObserver.portColor
@@ -134,7 +136,7 @@ struct ConnectedEdgeView: View {
             let zIndex: ZIndex = base + boost
             
             EdgeView(edge: edge,
-                     pointFrom: upstreamObserver.anchorPoint ?? .zero,
+                     pointFrom: pointFrom,
                      pointTo: pointTo,
                      color: portColor.color(theme),
                      isActivelyDragged: false,

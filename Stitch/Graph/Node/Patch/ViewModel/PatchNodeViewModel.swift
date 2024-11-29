@@ -17,14 +17,17 @@ typealias PatchNode = NodeViewModel
 typealias NodeViewModels = [NodeViewModel]
 
 protocol PatchNodeViewModelDelegate: NodeDelegate {
+    @MainActor
     func userVisibleTypeChanged(oldType: UserVisibleType,
                                 newType: UserVisibleType)
 }
 
 @Observable
 final class PatchNodeViewModel: Sendable {
-    var id: NodeId
-    var patch: Patch
+    let id: NodeId
+    @MainActor var patch: Patch
+    
+    @MainActor
     var userVisibleType: UserVisibleType? {
         didSet(oldValue) {
             if let oldValue = oldValue,
@@ -36,20 +39,21 @@ final class PatchNodeViewModel: Sendable {
         }
     }
     
-    var canvasObserver: CanvasItemViewModel
+    @MainActor var canvasObserver: CanvasItemViewModel
     
     // Used for data-intensive purposes (eval)
-    var inputsObservers: [InputNodeRowObserver] = []
-    var outputsObservers: [OutputNodeRowObserver] = []
+    @MainActor var inputsObservers: [InputNodeRowObserver] = []
+    @MainActor var outputsObservers: [OutputNodeRowObserver] = []
     
     // Only for Math Expression nodes
-    var mathExpression: String?
+    @MainActor var mathExpression: String?
     
     // Splitter types are for group input, output, or inline nodes
-    var splitterNode: SplitterNodeEntity?
+    @MainActor var splitterNode: SplitterNodeEntity?
     
-    weak var delegate: PatchNodeViewModelDelegate?
+    @MainActor weak var delegate: PatchNodeViewModelDelegate?
     
+    @MainActor
     init(from schema: PatchNodeEntity) {
         let kind = NodeKind.patch(schema.patch)
         
@@ -97,9 +101,8 @@ extension PatchNodeViewModel: SchemaObserver {
         self.inputsObservers.sync(with: schema.inputs)
         self.canvasObserver.update(from: schema.canvasEntity)
         
-        if self.id != schema.id {
-            self.id = schema.id
-        }
+        assertInDebug(self.id == schema.id)
+        
         if self.patch != schema.patch {
             self.patch = schema.patch
         }
@@ -197,21 +200,25 @@ extension PatchNodeViewModel {
     
     /// Returns type choices in sorted order.
     /// **Note: this has potential perf cost if called too frequently in the view.**
+    @MainActor
     func getSortedUserTypeChoices() -> [UserVisibleType] {
         Array(self.patch.availableNodeTypes).sorted { n1, n2 in
             n1.display < n2.display
         }
     }
 
+    @MainActor
     var userTypeChoices: Set<UserVisibleType> {
         self.patch.availableNodeTypes
     }
 
     // Nodes like Core ML detection can have looped outputs without looped inputs.
+    @MainActor
     var supportsOneToManyIO: Bool {
         self.patch.supportsOneToManyIO
     }
 
+    @MainActor
     var splitterType: SplitterType? {
         get {
             self.splitterNode?.type
@@ -228,6 +235,7 @@ extension PatchNodeViewModel {
         }
     }
     
+    @MainActor
     var parentGroupNodeId: NodeId? {
         get {
             self.canvasObserver.parentGroupNodeId
@@ -360,6 +368,7 @@ extension NodeViewModel {
                   userVisibleType: userVisibleType)
     }
     
+    @MainActor
     var patch: Patch? {
         self.kind.getPatch
     }
@@ -367,14 +376,17 @@ extension NodeViewModel {
     // INTERNAL STATE, SPECIFIC TO A GIVEN PATCH NODE TYPE:
     
     // BETTER?: use an "internal state" struct
+    @MainActor
     var queue: [PortValues] {
         self.computedStates?.compactMap { $0.queue } ?? []
     }
     
+    @MainActor
     var smoothValueAnimationStates: [SmoothValueAnimationState]? {
         self.computedStates?.compactMap { $0.smoothValueAnimationState }
     }
     
+    @MainActor
     var isWireless: Bool {
         patch == .wirelessBroadcaster || patch == .wirelessReceiver
     }

@@ -45,6 +45,7 @@ func hslColorNode(id: NodeId,
         outputs: outputs)
 }
 
+@MainActor
 func hslColorEval(inputs: PortValuesList,
                   outputs: PortValuesList) -> PortValuesList {
     let defaultOutputs: PortValues = [.color(Color(hue: hueDefault,

@@ -34,9 +34,9 @@ extension LayerInputObserver {
 protocol LayerNodeRowData: AnyObject {
     associatedtype RowObserverable: NodeRowObserver
     
-    var rowObserver: RowObserverable { get set }
-    var canvasObserver: CanvasItemViewModel? { get set }
-    var inspectorRowViewModel: RowObserverable.RowViewModelType { get set }
+    @MainActor var rowObserver: RowObserverable { get set }
+    @MainActor var canvasObserver: CanvasItemViewModel? { get set }
+    @MainActor var inspectorRowViewModel: RowObserverable.RowViewModelType { get set }
 }
 
 /*
@@ -72,6 +72,7 @@ final class InputLayerNodeRowData: LayerNodeRowData, Identifiable {
             .contains(fieldIndex)
     }
     
+    @MainActor
     init(rowObserver: InputNodeRowObserver,
          canvasObserver: CanvasItemViewModel? = nil,
          nodeDelegate: NodeDelegate? = nil) {
@@ -102,13 +103,16 @@ final class InputLayerNodeRowData: LayerNodeRowData, Identifiable {
 }
 
 @Observable
-final class OutputLayerNodeRowData: LayerNodeRowData {
-    var rowObserver: OutputNodeRowObserver
-    var inspectorRowViewModel: OutputNodeRowViewModel
-    var canvasObserver: CanvasItemViewModel?
+final class OutputLayerNodeRowData: LayerNodeRowData, Identifiable {
+    let id: NodeIOCoordinate
+    @MainActor var rowObserver: OutputNodeRowObserver
+    @MainActor var inspectorRowViewModel: OutputNodeRowViewModel
+    @MainActor var canvasObserver: CanvasItemViewModel?
     
+    @MainActor
     init(rowObserver: OutputNodeRowObserver,
          canvasObserver: CanvasItemViewModel? = nil) {
+        self.id = rowObserver.id
         self.rowObserver = rowObserver
         self.canvasObserver = canvasObserver
         var itemType: GraphItemType
@@ -156,6 +160,7 @@ extension LayerNodeRowData {
                                                       unpackedPortIndex: unpackedPortIndex)
     }
     
+    @MainActor
     var allLoopedValues: PortValues {
         get {
             self.rowObserver.allLoopedValues
@@ -168,6 +173,7 @@ extension LayerNodeRowData {
 
 extension LayerNodeViewModel {
     /// First step for layer port initialization before schema settings are set.
+    @MainActor
     func preinitializeSupportedPort(layerInputPort: LayerInputPort,
                                     portType: LayerInputKeyPathType) {
         let layerId = LayerInputType(layerInput: layerInputPort,
@@ -176,14 +182,11 @@ extension LayerNodeViewModel {
         
         let layerData: InputLayerNodeRowData = self[keyPath: layerId.layerNodeKeyPath]
         
-        // Update row view model ID
-        layerData.inspectorRowViewModel.id = .init(graphItemType: .layerInspector(.keyPath(layerId)),
-                                                   nodeId: self.id,
-                                                   portId: 0)
-        
         // Update packed row observer
         layerData.rowObserver.nodeKind = .layer(self.layer)
-        layerData.rowObserver.id = coordinateId
+        
+        // Checking to see if we can keep id constant
+        assertInDebug(layerData.rowObserver.id == coordinateId)
     }
     
     /// Second step for layer port initialization after all initial identifier data is set.
@@ -207,7 +210,7 @@ extension InputLayerNodeRowData {
                 nodeId: NodeId,
                 unpackedPortParentFieldGroupType: FieldGroupType?,
                 unpackedPortIndex: Int?) {
-        self.rowObserver.id.nodeId = nodeId
+        assertInDebug(self.rowObserver.id.nodeId == nodeId)
                     
         if let canvas = schema.canvasItem {
             if let canvasObserver = self.canvasObserver {
@@ -235,6 +238,7 @@ extension InputLayerNodeRowData {
 }
 
 extension LayerInputObserver {
+    @MainActor
     var packedObserver: InputLayerNodeRowData? {
         switch self.mode {
         case .packed:
@@ -244,6 +248,7 @@ extension LayerInputObserver {
         }
     }
     
+    @MainActor
     var unpackedObserver: LayerInputUnpackedPortObserver? {
         switch self.mode {
         case .unpacked:
@@ -335,11 +340,5 @@ extension InputLayerNodeRowData {
     func createSchema() -> LayerInputDataEntity {
         .init(inputPort: self.rowObserver.createSchema().portData,
               canvasItem: self.canvasObserver?.createSchema())
-    }
-}
-
-extension OutputLayerNodeRowData: Identifiable {
-    var id: NodeIOCoordinate {
-        self.rowObserver.id
     }
 }

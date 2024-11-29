@@ -32,6 +32,7 @@ func hexNode(id: NodeId,
                      outputs: outputs)
 }
 
+@MainActor
 func hexEval(inputs: PortValuesList,
              outputs: PortValuesList) -> PortValuesList {
 

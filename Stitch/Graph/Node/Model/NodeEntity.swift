@@ -15,6 +15,7 @@ extension NodeEntity {
     }
     
     /// Gets inputs values from disconnected ports.
+    @MainActor
     var encodedInputsValues: [PortValues?] {
         switch self.nodeTypeEntity {
         case .layer(let layerNode):
@@ -30,6 +31,7 @@ extension NodeEntity {
         }
     }
     
+    @MainActor
     var canvasEntities: [CanvasNodeEntity] {
         switch self.nodeTypeEntity {
         case .patch(let patch):
@@ -46,6 +48,7 @@ extension NodeEntity {
     }
     
     /// Helper for mutating all canvas entities under some node.
+    @MainActor
     func canvasEntityMap(_ callback: @escaping (CanvasNodeEntity) -> CanvasNodeEntity) -> NodeEntity {
     
         var nodeEntity = self
@@ -96,6 +99,7 @@ extension NodeEntity {
         }
     }
     
+    @MainActor
     var inputs: [NodeConnectionType] {
         switch self.nodeTypeEntity {
         case .patch(let patch):

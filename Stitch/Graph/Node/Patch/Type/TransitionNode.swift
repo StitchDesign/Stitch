@@ -49,6 +49,7 @@ func transitionNode(id: NodeId,
         outputs: outputs)
 }
 
+@MainActor
 func transitionEval(inputs: PortValuesList,
                     outputs: PortValuesList,
                     nodeType: NodeType?) -> PortValuesList {

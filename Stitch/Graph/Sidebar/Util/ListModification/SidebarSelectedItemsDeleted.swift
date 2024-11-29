@@ -20,10 +20,12 @@ struct SidebarSelectedItemsDeleted: GraphEventWithResponse {
 }
 
 extension ProjectSidebarObservable {
+    @MainActor
     func deleteSelectedItems() {
         self.deleteItems(from: self.selectionState.all)
     }
     
+    @MainActor
     func deleteItems(from deletedIds: Set<Self.ItemID>) {
         deletedIds.forEach {
             self.items.remove($0)

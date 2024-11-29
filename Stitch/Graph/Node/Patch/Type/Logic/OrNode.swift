@@ -33,6 +33,7 @@ func orNode(id: NodeId,
         outputs: outputs)
 }
 
+@MainActor
 func orEval(inputs: PortValuesList,
             outputs: PortValuesList) -> PortValuesList {
 

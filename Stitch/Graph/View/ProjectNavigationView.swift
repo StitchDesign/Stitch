@@ -39,9 +39,7 @@ struct ProjectNavigationView: View {
                 // Tear down if no nodes enabled camera
                 document.deactivateCamera()
                 
-                DispatchQueue.main.async {
-                    dispatch(SingletonMediaTeardown(keyPath: \.cameraFeedManager))
-                }
+                document.teardownSingleton(keyPath: \.cameraFeedManager)
             }
         }
     }

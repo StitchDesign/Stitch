@@ -22,6 +22,7 @@ struct LineToPackPatchNode: PatchNodeDefinition {
     }
 }
 
+@MainActor
 func lineToPackEval(inputs: PortValuesList,
                     outputs: PortValuesList) -> PortValuesList {
 

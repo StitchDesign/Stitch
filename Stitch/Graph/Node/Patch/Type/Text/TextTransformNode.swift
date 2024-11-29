@@ -51,6 +51,7 @@ func textTransformNode(id: NodeId,
         outputs: outputs)
 }
 
+@MainActor
 func textTransformEval(inputs: PortValuesList,
                        outputs: PortValuesList) -> PortValuesList {
 

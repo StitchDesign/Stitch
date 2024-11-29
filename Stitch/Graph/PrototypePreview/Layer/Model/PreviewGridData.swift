@@ -82,6 +82,7 @@ extension LayerNodeViewModel {
     
     // it's more like this should be on the layer node view model itself, not on the layer input observer;
     // but it's the passed in `layer input port` that tells us
+    @MainActor
     func blockOrUnblockFields(newValue: PortValue,
                               layerInput: LayerInputPort) {
         

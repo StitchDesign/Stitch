@@ -105,7 +105,8 @@ struct VisualMediaLayerView: View {
         .modifier(MediaLayerViewModifier(mediaValue: mediaValue,
                                          mediaObject: $mediaObject,
                                          document: document,
-                                         mediaRowObserver: mediaRowObserver))
+                                         mediaRowObserver: mediaRowObserver,
+                                         isRendering: isPinnedViewRendering))
     }
 }
 

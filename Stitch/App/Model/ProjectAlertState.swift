@@ -35,8 +35,6 @@ struct ProjectAlertState: Equatable {
 
     // Alert state to confirm deleting ALL projects
     var showDeleteAllProjectsConfirmation = false
-
-    var logExport = LogExportState()
 }
 
 /// A boolean wrapper which reflects the visibile state of the import file sheet. Provides an optional "destination" input

@@ -16,7 +16,6 @@ extension ProjectSidebarObservable {
     @MainActor
     func sidebarGroupUncreated() {
         let primarilySelectedGroups = self.selectionState.primary
-        let encodedData = self.createdOrderedEncodedData()
         
         guard let group = primarilySelectedGroups.first,
               let item = self.items.get(group) else {
@@ -28,7 +27,8 @@ extension ProjectSidebarObservable {
         let children = item.children ?? []
         
         // Update sidebar self
-        let newEncodedData = encodedData.ungroup(selectedGroupId: group)
+        let newList = self.items.ungroup(selectedGroupId: group)
+        self.items = newList
         
         // reset selection-state
         self.selectionState.resetEditModeSelections()
@@ -36,7 +36,7 @@ extension ProjectSidebarObservable {
         self.sidebarGroupUncreatedViaEditMode(groupId: group,
                                               children: children.map(\.id))
 
-        self.persistSidebarChanges(encodedData: newEncodedData)
+        self.graphDelegate?.encodeProjectInBackground()
     }
 }
 

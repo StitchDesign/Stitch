@@ -18,15 +18,6 @@ enum LoggingAction: Equatable {
     case none, logToServer, fatal
 }
 
-//struct LogToServer: AppEvent {
-//    let message: String
-//
-//    // TODO: write state + message + device info to server (if online)
-//    func handle(state: AppState) -> AppResponse {
-//        .noChange
-//    }
-//}
-
 // For debug printing from within SwiftUI views
 func log(_ message: Any, _ loggingAction: LoggingAction = .none) {
     #if DEBUG || DEV_DEBUG

@@ -13,13 +13,14 @@ import StitchSchemaKit
 final class LayerInputObserver {
     // Not intended to be used as an API given both data payloads always exist
     // Variables here necessary to ensure keypaths logic works
+
+    let layer: Layer
     
     // TODO: use `private` to prevent access?
     var _packedData: InputLayerNodeRowData
     var _unpackedData: LayerInputUnpackedPortObserver
     
-    let layer: Layer
-    var port: LayerInputPort
+    @MainActor var port: LayerInputPort
 
     /*
      Only fields on a layer input (not a patch input or layer output) can be blocked,
@@ -33,15 +34,18 @@ final class LayerInputObserver {
      // just the width field on the minSize input blocked:
      self.blockedFields.contains(.unpacked(.port0))
      */
-    var blockedFields: Set<LayerInputKeyPathType> // = .init()
+    @MainActor var blockedFields: Set<LayerInputKeyPathType> // = .init()
     
-    init(from schema: LayerNodeEntity, port: LayerInputPort) {
-        
+    @MainActor
+    init(from schema: LayerNodeEntity,
+         port: LayerInputPort) {
+        let nodeId = schema.id
         self.layer = schema.layer
         self.port = port
                     
         self._packedData = .empty(.init(layerInput: port,
                                         portType: .packed),
+                                  nodeId: nodeId,
                                   layer: schema.layer)
         
         // initial these with field indices that reflect port0 vs port1 vs port2 ..
@@ -49,15 +53,19 @@ final class LayerInputObserver {
                                    layer: schema.layer,
                                    port0: .empty(.init(layerInput: port,
                                                        portType: .unpacked(.port0)),
+                                                 nodeId: nodeId,
                                                  layer: schema.layer),
                                    port1: .empty(.init(layerInput: port,
                                                        portType: .unpacked(.port1)),
+                                                 nodeId: nodeId,
                                                  layer: schema.layer),
                                    port2: .empty(.init(layerInput: port,
                                                        portType: .unpacked(.port2)),
+                                                 nodeId: nodeId,
                                                  layer: schema.layer),
                                    port3: .empty(.init(layerInput: port,
                                                        portType: .unpacked(.port3)),
+                                                 nodeId: nodeId,
                                                  layer: schema.layer))
         
         // When initialized fom schema, blockedFields is empty.
@@ -117,6 +125,7 @@ extension LayerInputObserver {
         }
     }
     
+    @MainActor
     var mode: LayerInputMode {
         if self._unpackedData.allPorts.contains(where: { $0.canvasObserver.isDefined }) {
             return .unpacked
@@ -145,6 +154,7 @@ extension LayerInputObserver {
         }
     }
     
+    @MainActor
     var observerMode: LayerInputObserverMode {
         switch self.mode {
         case .packed:
@@ -154,6 +164,7 @@ extension LayerInputObserver {
         }
     }
     
+    @MainActor
     var values: PortValues {
         switch self.mode {
         case .packed:
@@ -163,6 +174,7 @@ extension LayerInputObserver {
         }
     }
     
+    @MainActor
     var graphDelegate: GraphDelegate? {
         // Hacky solution, just get row observer delegate from packed data
         self._packedData.rowObserver.nodeDelegate?.graphDelegate
@@ -281,6 +293,7 @@ extension LayerInputObserver {
 
 extension InputLayerNodeRowData {
     /// Resets canvas data and connections when toggled between pack/unpack state.
+    @MainActor
     func resetOnPackModeToggle() {
         self.rowObserver.upstreamOutputCoordinate = nil
         self.canvasObserver = nil

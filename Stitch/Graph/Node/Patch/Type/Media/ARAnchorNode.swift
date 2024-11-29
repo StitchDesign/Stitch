@@ -39,18 +39,18 @@ struct ArAnchorNode: PatchNodeDefinition {
 
 final class ARAnchorObserver: MediaEvalOpObservable {
     // 3D model entity
-    var currentMedia: GraphMediaValue?
+    @MainActor var currentMedia: GraphMediaValue?
     
-    var currentLoadingMediaId: UUID?
+    @MainActor var currentLoadingMediaId: UUID?
     
-    var arAnchor: AnchorEntity?
+    @MainActor var arAnchor: AnchorEntity?
 
     // Created for each anchor instance
-    var anchorMediaId = UUID()
+    @MainActor var anchorMediaId = UUID()
     
     let mediaActor = MediaEvalOpCoordinator()
 
-    weak var nodeDelegate: NodeDelegate?
+    @MainActor weak var nodeDelegate: NodeDelegate?
 }
 
 extension ARAnchorObserver {

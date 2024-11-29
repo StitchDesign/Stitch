@@ -8,21 +8,23 @@
 import SwiftUI
 
 @Observable
-final class LayersSidebarViewModel: ProjectSidebarObservable {
+final class LayersSidebarViewModel: ProjectSidebarObservable, Sendable {
     typealias EncodedItemData = SidebarLayerData
     
-    var isEditing = false
-    var items: [SidebarItemGestureViewModel] = []
-    var activeSwipeId: NodeId?
-    var activeGesture: SidebarListActiveGesture<NodeId> = .none
-    var implicitlyDragged = NodeIdSet()
-    var currentItemDragged: NodeId?
+    @MainActor var isEditing = false
+    @MainActor var items: [SidebarItemGestureViewModel] = []
+    @MainActor var activeSwipeId: NodeId?
+    @MainActor var activeGesture: SidebarListActiveGesture<NodeId> = .none
+    @MainActor var implicitlyDragged = NodeIdSet()
+    @MainActor var currentItemDragged: NodeId?
     
     // Selection state
-    var haveDuplicated: Bool = false
-    var optionDragInProgress: Bool = false
-    var primary = Set<ItemID>()     // items selected because directly clicked
-    var lastFocused: ItemID?
+    @MainActor var haveDuplicated: Bool = false
+    @MainActor var optionDragInProgress: Bool = false
+    @MainActor var primary = Set<ItemID>()     // items selected because directly clicked
+    @MainActor var lastFocused: ItemID?
     
-    weak var graphDelegate: GraphState?
+    @MainActor weak var graphDelegate: GraphState?
+    
+    @MainActor init() { }
 }

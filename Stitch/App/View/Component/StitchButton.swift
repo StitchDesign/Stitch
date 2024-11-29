@@ -15,7 +15,7 @@ struct StitchButton<Label>: View where Label: View {
     var role: ButtonRole?
     @ViewBuilder var label: () -> Label
 
-    init(action: @escaping () -> Void,
+    init(action: @Sendable @MainActor @escaping () -> Void,
          @ViewBuilder label: @escaping () -> Label) {
         self.action = action
         self.label = label
@@ -50,7 +50,8 @@ extension View {
 }
 
 extension StitchButton where Label == Text {
-    init(_ titleKey: String, action: @escaping () -> Void) {
+    init(_ titleKey: String,
+         action: @MainActor @escaping () -> Void) {
         self.action = action
         self.label = {
             Text(titleKey)
@@ -58,7 +59,8 @@ extension StitchButton where Label == Text {
         }
     }
 
-    init(_ titleKey: String, role: ButtonRole?, action: @escaping () -> Void) {
+    init(_ titleKey: String, role: ButtonRole?,
+         action: @MainActor @escaping () -> Void) {
         self.action = action
         self.role = role
         self.label = {
@@ -69,7 +71,9 @@ extension StitchButton where Label == Text {
 }
 
 extension StitchButton {
-    init(role: ButtonRole?, action: @escaping () -> Void, @ViewBuilder label: @escaping () -> Label) {
+    init(role: ButtonRole?,
+         action: @MainActor @escaping () -> Void,
+         @ViewBuilder label: @escaping () -> Label) {
         self.action = action
         self.label = label
         self.role = role

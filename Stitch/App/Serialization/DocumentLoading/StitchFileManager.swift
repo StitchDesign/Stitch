@@ -10,11 +10,13 @@ import SwiftUI
 import StitchSchemaKit
 
 @Observable
-final class StitchFileManager: FileManager, MiddlewareService {
+final class StitchFileManager: Sendable, MiddlewareService {
     static let importedFilesDir = StitchFileManager.tempDir.appendingPathComponent("ImportedData")
     static let exportedFilesDir = StitchFileManager.tempDir.appendingPathComponent("ExportedData")
     
-    var syncStatus: iCloudSyncStatus = .offline
+    @MainActor var syncStatus: iCloudSyncStatus = .offline
+    
+    @MainActor init() { }
     
     static var documentsURL: URL {
         switch getCloudKitRootURL() {
@@ -35,7 +37,7 @@ final class StitchFileManager: FileManager, MiddlewareService {
     /// File removal abstraction which enables possible usage of temporary storage for recently deleted items, enabling undo/redo support on deleted files.
     static func removeItem(at URL: URL) -> StitchFileVoidResult {
         do {
-            try Self.default.removeItem(at: URL)
+            try FileManager.default.removeItem(at: URL)
         } catch {
             log("removeStitchItem error: \(error)")
             return .failure(.deleteFileFailed)
@@ -47,7 +49,7 @@ final class StitchFileManager: FileManager, MiddlewareService {
     /// Zips contents of self to new URL.
     func zip(from fromURL: URL, to: URL) -> StitchFileVoidResult {
         do {
-            try self.zipItem(at: fromURL, to: to)
+            try FileManager.default.zipItem(at: fromURL, to: to)
             return .success
         } catch {
             log("zip: failed with \(error)")
@@ -62,7 +64,7 @@ final class StitchFileManager: FileManager, MiddlewareService {
         return .failure(.cloudDocsContainerNotFound)
         #else
 
-        guard let url = Self.default.url(forUbiquityContainerIdentifier: nil) else {
+        guard let url = FileManager.default.url(forUbiquityContainerIdentifier: nil) else {
             return .failure(.cloudDocsContainerNotFound)
         }
         return .success(url)
@@ -70,7 +72,7 @@ final class StitchFileManager: FileManager, MiddlewareService {
     }
     
     static func getLocalDocumentURL() -> URL {
-        let paths = Self.default.urls(for: .documentDirectory, in: .userDomainMask)
+        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         let documentsDirectory: URL = paths[0]
         return documentsDirectory
     }
@@ -130,7 +132,7 @@ final class StitchFileManager: FileManager, MiddlewareService {
             
             do {
                 // Save to recently deleted
-                try StitchFileManager.default.moveItem(at: url,
+                try FileManager.default.moveItem(at: url,
                                                        to: recentlyDeletedProjectUrl)
             } catch {
                 log("StitchFileManager.removeStitchProject error: \(error)")
@@ -139,7 +141,7 @@ final class StitchFileManager: FileManager, MiddlewareService {
         } else {
             log("StitchFileManager.removeStitchProject: Will permanently delete StitchProject \(projectId)")
             do {
-                try StitchFileManager.default.removeItem(at: url)
+                try FileManager.default.removeItem(at: url)
             } catch {
                 log("StitchFileManager.removeStitchProject error: \(error)")
                 return .failure(.deleteFileFailed)

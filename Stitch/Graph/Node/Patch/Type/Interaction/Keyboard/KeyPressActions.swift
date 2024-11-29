@@ -95,14 +95,17 @@ struct KeyModifierReset: StitchDocumentEvent {
 }
 
 extension NodesViewModelDict {
+    @MainActor
     var keyboardNodes: NodeViewModels {
         self.nodes(for: .keyboard)
     }
 
+    @MainActor
     var locationNodes: NodeViewModels {
         self.nodes(for: .location)
     }
 
+    @MainActor
     func nodes(for patch: Patch) -> NodeViewModels {
         Array(self.values)
             .compactFilter { $0.kind.getPatch == patch }

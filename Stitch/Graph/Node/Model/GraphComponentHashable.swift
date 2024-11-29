@@ -104,14 +104,14 @@ extension LayerNodeEntity: GraphComponentHashable {
                 hasher.combine(-1)
             }
         }
+        // TODO: come back here
+        fatalErrorIfDebug()
         
-        self.layer.layerGraphNode.inputDefinitions.forEach { inputDefinition in
-            let port = self[keyPath: inputDefinition.schemaPortKeyPath]
-            
-            // TODO: come back here
-            fatalErrorIfDebug()
-//            port.componentHash(into: &hasher)
-        }
+//        self.layer.layerGraphNode.inputDefinitions.forEach { inputDefinition in
+//            let port = self[keyPath: inputDefinition.schemaPortKeyPath]
+//            
+////            port.componentHash(into: &hasher)
+//        }
     }
 }
 

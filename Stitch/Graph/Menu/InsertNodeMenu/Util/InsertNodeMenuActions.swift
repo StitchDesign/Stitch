@@ -32,6 +32,7 @@ struct ToggleInsertNodeMenu: GraphUIEvent {
 //}
 
 extension GraphUIState {
+    @MainActor
     func toggleInsertNodeMenu() {
 
         // Do not animate the update of the active-selection etc.

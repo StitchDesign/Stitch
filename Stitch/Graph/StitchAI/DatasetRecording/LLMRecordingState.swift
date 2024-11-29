@@ -44,6 +44,7 @@ struct LLMJsonEntryState: Equatable {
 typealias LLMNodeIdMapping = [String: NodeId]
 
 extension StitchDocumentViewModel {
+    @MainActor
     var llmNodeIdMapping: LLMNodeIdMapping {
         get {
             self.llmRecording.jsonEntryState.llmNodeIdMapping

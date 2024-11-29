@@ -28,6 +28,7 @@ struct Point4DPackPatchNode: PatchNodeDefinition {
     }
 }
 
+@MainActor
 func point4DPackEval(inputs: PortValuesList,
                      outputs: PortValuesList) -> PortValuesList {
     resultsMaker(inputs)(point4DPackOp)

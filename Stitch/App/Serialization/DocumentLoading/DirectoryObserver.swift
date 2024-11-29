@@ -7,31 +7,36 @@
 
 import Foundation
 import StitchSchemaKit
-import DirectoryWatcher
+@preconcurrency import DirectoryWatcher
 
-protocol DirectoryObserverDelegate: AnyObject {
-    func directoryUpdated() async
+protocol DirectoryObserverDelegate: AnyObject, Sendable {
+    @MainActor func directoryUpdated()
 }
 
 /// Class for notifying changes in a directory. Used for tracking updates to the `ProjectsView`.
 /// Source: https://stackoverflow.com/a/43478015
-final class DirectoryObserver {
+final actor DirectoryObserver {
     private let source: DirectoryWatcher?
-    weak var delegate: DirectoryObserverDelegate?
-
+    @MainActor weak var delegate: DirectoryObserverDelegate?
 
     init(url: URL) {
-        self.source = DirectoryWatcher.watch(url)
+        guard let watcher = DirectoryWatcher.watch(url) else {
+            fatalErrorIfDebug()
+            self.source = nil
+            return
+        }
+        
+        self.source = watcher
 
-        self.source?.onNewFiles = { _ in
-            Task { [weak self] in
-                await self?.delegate?.directoryUpdated()
+        watcher.onNewFiles = { [weak self] _ in
+            DispatchQueue.main.async { [weak self] in
+                self?.delegate?.directoryUpdated()
             }
         }
         
-        self.source?.onDeletedFiles = { _ in
-            Task { [weak self] in
-                await self?.delegate?.directoryUpdated()
+        watcher.onDeletedFiles = { _ in
+            DispatchQueue.main.async { [weak self] in
+                self?.delegate?.directoryUpdated()
             }
         }
     }

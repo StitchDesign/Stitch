@@ -65,7 +65,7 @@ func base64StringToImageEval(node: PatchNode) -> EvalResult {
             case .failure(let error):
                 log("base64StringToImageEval error: \(error)")
                 // TODO: do we always want to show the error?
-                return values.prevOutputs(node: node)
+                return await values.prevOutputs(node: node)
             }
         }
     }

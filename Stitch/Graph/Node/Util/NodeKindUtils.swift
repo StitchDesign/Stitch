@@ -229,6 +229,7 @@ extension NodeKind {
     }
     
     // Some inputs don't need to coerce PortValues and can instead copy values directly
+    @MainActor
     func canCopyInputValues(portId: Int?,
                             userVisibleType: UserVisibleType?) -> Bool {
         guard let portId = portId else {

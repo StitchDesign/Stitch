@@ -29,33 +29,30 @@ let CUSTOM_LIST_ITEM_INDENTATION_LEVEL: Int = 24
 
 @Observable
 final class SidebarItemGestureViewModel: SidebarItemSwipable {
-    var sidebarIndex: SidebarIndex = .init(groupIndex: .zero, rowIndex: .zero)
-    var id: NodeId
-    var children: [SidebarItemGestureViewModel]?
+    let id: NodeId
+    @MainActor var sidebarIndex: SidebarIndex = .init(groupIndex: .zero, rowIndex: .zero)
+    @MainActor var children: [SidebarItemGestureViewModel]?
     
-    var isExpandedInSidebar: Bool?
+    @MainActor var isExpandedInSidebar: Bool?
     
-    var dragPosition: CGPoint?
-    var prevDragPosition: CGPoint?
+    @MainActor var dragPosition: CGPoint?
+    @MainActor var prevDragPosition: CGPoint?
     
     // published property to be read in view
-    var swipeSetting: SidebarSwipeSetting = .closed
+    @MainActor var swipeSetting: SidebarSwipeSetting = .closed
 
-    internal var previousSwipeX: CGFloat = 0
+    @MainActor internal var previousSwipeX: CGFloat = 0
     
-    weak var sidebarDelegate: LayersSidebarViewModel?
+    @MainActor weak var sidebarDelegate: LayersSidebarViewModel?
     
-    weak var parentDelegate: SidebarItemGestureViewModel? {
+    @MainActor weak var parentDelegate: SidebarItemGestureViewModel? {
         didSet {
-            DispatchQueue.main.async { [weak self] in
-                if let sidebarItem = self {
-                    dispatch(AssignedLayerUpdated(changedLayerNode: sidebarItem.id.asLayerNodeId))
-                    dispatch(LayerGroupIdChanged(layerNodeId: sidebarItem.id.asLayerNodeId))
-                }
-            }
+            dispatch(AssignedLayerUpdated(changedLayerNode: self.id.asLayerNodeId))
+            dispatch(LayerGroupIdChanged(layerNodeId: self.id.asLayerNodeId))
         }
     }
 
+    @MainActor
     init(data: SidebarLayerData,
          parentDelegate: SidebarItemGestureViewModel?,
          sidebarViewModel: LayersSidebarViewModel) {
@@ -71,6 +68,7 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
         }
     }
     
+    @MainActor
     init(id: NodeViewModel.ID,
          children: [SidebarItemGestureViewModel]?,
          isExpandedInSidebar: Bool?) {
@@ -85,14 +83,16 @@ extension SidebarItemGestureViewModel {
         .init()
     }
     
+    @MainActor
     func createSchema() -> SidebarLayerData {
         .init(id: self.id,
               children: self.children?.map { $0.createSchema() },
               isExpandedInSidebar: self.isExpandedInSidebar)
     }
     
+    @MainActor
     func update(from schema: EncodedItemData) {
-        self.id = schema.id
+        assertInDebug(self.id == schema.id)
         self.isExpandedInSidebar = isExpandedInSidebar
     }
     
@@ -123,10 +123,12 @@ extension SidebarItemGestureViewModel {
                                  isCommitting: isCommitting))
     }
     
+    @MainActor
     func sidebarLayerHovered(itemId: SidebarListItemId) {
         self.graphDelegate?.graphUI.sidebarLayerHovered(layerId: itemId.asLayerNodeId)
     }
     
+    @MainActor
     func sidebarLayerHoverEnded(itemId: SidebarListItemId) {
         self.graphDelegate?.graphUI.sidebarLayerHoverEnded(layerId: itemId.asLayerNodeId)
     }

@@ -30,6 +30,7 @@ func andNode(id: NodeId,
                      outputs: outputs)
 }
 
+@MainActor
 func andEval(inputs: PortValuesList,
              outputs: PortValuesList) -> PortValuesList {
 

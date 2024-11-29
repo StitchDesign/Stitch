@@ -26,6 +26,7 @@ struct CurveToPackPatchNode: PatchNodeDefinition {
     }
 }
 
+@MainActor
 func curveToPackEval(inputs: PortValuesList,
                      outputs: PortValuesList) -> PortValuesList {
 

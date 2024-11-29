@@ -46,19 +46,18 @@ extension GraphState {
 /// are at the home screen.
 struct CameraPreferenceChanged: AppEvent {
     let cameraId: String
-    let userDefaults: UserDefaults
 
     func handle(state: AppState) -> AppResponse {
-        let effect = newCameraSelectedEffect(cameraId: cameraId, userDefaults: userDefaults)
+        let effect = newCameraSelectedEffect(cameraId: cameraId)
         return .effectOnly(effect)
     }
 }
 
 /// Effect that's used to save new camera preference to `UserDefaults`.
-func newCameraSelectedEffect(cameraId: String, userDefaults: UserDefaults) -> Effect {
+func newCameraSelectedEffect(cameraId: String) -> Effect {
     {
         // First save new setting to user defaults before updating CameraFeedManager
-        switch userDefaults.saveCameraPref(cameraID: cameraId) {
+        switch UserDefaults.standard.saveCameraPref(cameraID: cameraId) {
         case .success:
             return NoOp()
         case .failure(let error):
@@ -180,6 +179,7 @@ extension StitchDocumentViewModel {
         }
     }
     
+    @MainActor
     func deactivateCamera() {
         self.cameraFeedManager?.loadedInstance?.cameraFeedManager?.stopCamera()
         self.cameraFeedManager = nil

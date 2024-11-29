@@ -9,18 +9,17 @@ import Foundation
 import StitchSchemaKit
 
 @Observable
-final class StitchEnvironment {
+final class StitchEnvironment: Sendable {
     let fileManager: StitchFileManager
-    let logListener: LogListener
     let undoManager: StitchUndoManager
     let dirObserver: DirectoryObserver
 
     // weak reference to avoid retain cycle
-    weak var store: StitchStore?
+    @MainActor weak var store: StitchStore?
 
+    @MainActor
     init(fileManager: StitchFileManager = StitchFileManager()) {
 
-        self.logListener = LogListener()
         self.undoManager = StitchUndoManager()
 
         let fileManager = fileManager

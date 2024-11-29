@@ -4,11 +4,11 @@ import AVKit
 final class StitchVideoImportPlayer: Sendable {
     static let DEFAULT_VIDEO_PLAYER_VOLUME: Double = 1
 
-    var video: AVPlayer
-    var stitchVideoDelegate: StitchVideoDelegate
-    var thumbnail: UIImage?
-    var metadata: VideoMetadata {
-        @MainActor
+    @MainActor var video: AVPlayer
+    @MainActor var stitchVideoDelegate: StitchVideoDelegate
+    @MainActor var thumbnail: UIImage?
+    
+    @MainActor var metadata: VideoMetadata {
         didSet(newValue) {
             if metadata != newValue {
                 self.stitchVideoDelegate.updateMetadata(for: video, videoData: metadata)
@@ -16,18 +16,20 @@ final class StitchVideoImportPlayer: Sendable {
         }
     }
 
-    var currentTime: Double {
+    @MainActor var currentTime: Double {
         video.currentTime().seconds
     }
 
-    var duration: Double {
+    @MainActor var duration: Double {
         CMTimeGetSeconds(video.currentItem?.duration ?? .zero)
     }
 
-    var url: URL? { video.url }
+    let url: URL
 
     @MainActor
     init(url: URL, videoData: VideoMetadata, initialVolume: Double) {
+        self.url = url
+        
         let player = AVPlayer(url: url)
         self.stitchVideoDelegate = StitchVideoDelegate(url: url,
                                                        videoData: videoData,
@@ -49,14 +51,15 @@ final class StitchVideoImportPlayer: Sendable {
                                       isScrubbing: false)
     }
 
-    func enableSound() {
+    @MainActor func enableSound() {
         self.video.isMuted = false
     }
 
-    func muteSound() {
+    @MainActor func muteSound() {
         self.video.isMuted = true
     }
 
+    @MainActor
     var volume: Double {
         self.stitchVideoDelegate.audio.delegate.volume
     }
@@ -67,11 +70,16 @@ final class StitchVideoImportPlayer: Sendable {
         self.video.volume = Float(volume)
     }
 
+    @MainActor
     var peakVolume: Double {
         self.stitchVideoDelegate.audio.delegate.peakVolume
     }
 
     @MainActor func play() {
         self.stitchVideoDelegate.play(with: self.video)
+    }
+    
+    @MainActor func pause() {
+        self.stitchVideoDelegate.pause(with: self.video)
     }
 }

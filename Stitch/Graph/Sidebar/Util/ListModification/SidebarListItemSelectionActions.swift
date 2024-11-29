@@ -27,6 +27,7 @@ extension GraphState {
 
 extension SidebarItemSwipable {    
     /// Recursively removes self + children from selection state.
+    @MainActor
     func removeFromSelections() {
         guard let sidebar = self.sidebarDelegate else {
             fatalErrorIfDebug()
@@ -46,17 +47,18 @@ extension ProjectSidebarObservable {
     // children to deselect
     @MainActor
     func getDescendantsIds(id: Self.ItemID) -> Set<ItemID> {
-        guard let children = self.createdOrderedEncodedData().get(id)?.children else { return .init() }
+        guard let children = self.items.get(id)?.children else { return .init() }
         return children.flatMap { $0.allElementIds }
             .toSet
     }
     
+    @MainActor
     func addExclusivelyToPrimary(_ id: Self.ItemID) {
         // add to primary
         self.selectionState.primary.insert(id)
     }
     
-    
+    @MainActor
     func allShareSameParent(_ selections: Set<Self.ItemID>) -> Bool {
         
         if let firstSelection = selections.first,
@@ -112,6 +114,7 @@ extension ProjectSidebarObservable {
         }
     }
     
+    @MainActor
     func canDuplicate() -> Bool {
         !self.selectionState.primary.isEmpty
     }

@@ -14,6 +14,7 @@ typealias SingletonMediaCreation = @Sendable (StitchDocumentViewModel, GraphDele
 typealias AsyncSingletonMediaEvalOp = (PortValues, StitchSingletonMediaObject, Int) -> PortValues
 
 actor SingletonMediaNodeCoordinator: NodeEphemeralObservable {
+    @MainActor
     func createSingletonMedia(graph: GraphDelegate,
                               nodeId: NodeId,
                               mediaManagerKeyPath: MediaManagerSingletonKeyPath,
@@ -22,10 +23,8 @@ actor SingletonMediaNodeCoordinator: NodeEphemeralObservable {
         
         let media = await mediaCreation(document, graph, nodeId)
         
-        await MainActor.run { [weak graph] in
-            graph?.documentDelegate?[keyPath: mediaManagerKeyPath] = .loaded(media)
-            graph?.calculate(nodeId)
-        }
+        graph.documentDelegate?[keyPath: mediaManagerKeyPath] = .loaded(media)
+        graph.calculate(nodeId)
     }
 }
 

@@ -29,57 +29,57 @@ struct ActiveDragInteractionNodeVelocityData: Equatable, Hashable {
 }
 
 @Observable
-final class GraphUIState {
+final class GraphUIState: Sendable {
     
-    var nodeMenuHeight: CGFloat = INSERT_NODE_MENU_MAX_HEIGHT
+    @MainActor var nodeMenuHeight: CGFloat = INSERT_NODE_MENU_MAX_HEIGHT
     
-    var sidebarWidth: CGFloat = .zero // i.e. origin of graph from .global frame
+    @MainActor var sidebarWidth: CGFloat = .zero // i.e. origin of graph from .global frame
 
-    var showCatalystProjectTitleModal: Bool = false
+    @MainActor var showCatalystProjectTitleModal: Bool = false
     
     // Only for node cursor selection box done when shift held
-    var nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag: CanvasItemIdSet? = nil
+    @MainActor var nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag: CanvasItemIdSet? = nil
     
     let propertySidebar = PropertySidebarObserver()
     
-    var lastMomentumRunTime: TimeInterval = .zero
+    @MainActor var lastMomentumRunTime: TimeInterval = .zero
     
     // e.g. user is hovering over or has selected a layer in the sidebar, which we then highlight in the preview window itself
-    var highlightedSidebarLayers: LayerIdSet = .init()
+    @MainActor var highlightedSidebarLayers: LayerIdSet = .init()
 
     @MainActor
     var edgeEditingState: EdgeEditingState?
 
-    var restartPrototypeWindowIconRotationZ: CGFloat = .zero
+    @MainActor var restartPrototypeWindowIconRotationZ: CGFloat = .zero
 
     // nil = no field focused
-    var reduxFocusedField: FocusedUserEditField?
+    @MainActor var reduxFocusedField: FocusedUserEditField?
 
     // Hack: to differentiate state updates that came from undo/redo (and which close the adjustment bar popover),
     // vs those that came from user manipulation of adjustment bar (which do not close the adjustment bar popover).
-    var adjustmentBarSessionId: UUID = .init()
+    @MainActor var adjustmentBarSessionId: UUID = .init()
 
-    var activelyEditedCommentBoxTitle: CommentBoxId?
+    @MainActor var activelyEditedCommentBoxTitle: CommentBoxId?
 
-    var commentBoxBoundsDict = CommentBoxBoundsDict()
+    @MainActor var commentBoxBoundsDict = CommentBoxBoundsDict()
 
     @MainActor
     static let isPhoneDevice = Stitch.isPhoneDevice()
 
-    var edgeAnimationEnabled: Bool = false
+    @MainActor var edgeAnimationEnabled: Bool = false
 
-    var activeSpacebarClickDrag = false
+    @MainActor var activeSpacebarClickDrag = false
 
-    var safeAreaInsets = SafeAreaInsetsEnvironmentKey.defaultValue
-    var colorScheme: ColorScheme = defaultColorScheme
+    @MainActor var safeAreaInsets = SafeAreaInsetsEnvironmentKey.defaultValue
+    @MainActor var colorScheme: ColorScheme = defaultColorScheme
 
     // Hackiness for handling option+drag "duplicate node and drag it"
-    var dragDuplication: Bool = false
+    @MainActor var dragDuplication: Bool = false
 
-    var doubleTapLocation: CGPoint?
+    @MainActor var doubleTapLocation: CGPoint?
 
     // which loop index to show
-    var activeIndex: ActiveIndex = ActiveIndex(0)
+    @MainActor var activeIndex: ActiveIndex = ActiveIndex(0)
 
     // GRAPH: UI GROUPS AND LAYER PANELS
     // layer nodes (group or non-group) that have been selected
@@ -87,36 +87,36 @@ final class GraphUIState {
 
     // Starts out as default value, but on first render of GraphView
     // we get the exact device screen size via GeometryReader.
-    var frame = DEFAULT_LANDSCAPE_GRAPH_FRAME
+    @MainActor var frame = DEFAULT_LANDSCAPE_GRAPH_FRAME
     
     // Note: our device-screen reading logic uses `.local` coordinate space and so does not detect that items in the graph actually sit a little lower on the screen.
     // TODO: better?: just always look at `.global`
-    var graphYPosition: CGFloat = .zero
+    @MainActor var graphYPosition: CGFloat = .zero
 
-    var selection = GraphUISelectionState()
+    @MainActor var selection = GraphUISelectionState()
 
     // Control animation direction when group nodes are traversed
-    var groupTraversedToChild = false
+    @MainActor var groupTraversedToChild = false
 
     // Only applies to non-iPhones so that exiting full-screen mode goes
     // back to graph instead of projects list
-    var isFullScreenMode: Bool = false
+    @MainActor var isFullScreenMode: Bool = false
     
     #if DEV_DEBUG
 //    var showsLayerInspector = true   during dev
-    var showsLayerInspector = false // during dev
+    @MainActor var showsLayerInspector = false // during dev
     #else
-    var showsLayerInspector = false
+    @MainActor var showsLayerInspector = false
     #endif
     
-    var leftSidebarOpen = false 
+    @MainActor var leftSidebarOpen = false
 
     // Tracks group breadcrumbs when group nodes are visited
-    var groupNodeBreadcrumbs: [GroupNodeType] = []
+    @MainActor var groupNodeBreadcrumbs: [GroupNodeType] = []
 
-    var showPreviewWindow = PREVIEW_SHOWN_DEFAULT_STATE
+    @MainActor var showPreviewWindow = PREVIEW_SHOWN_DEFAULT_STATE
 
-    var insertNodeMenuState = InsertNodeMenuState()
+    @MainActor var insertNodeMenuState = InsertNodeMenuState()
 
     /*
      Similar to `activeDragInteraction`, but just for mouse nodes.
@@ -124,14 +124,15 @@ final class GraphUIState {
      - non-nil when LayerHovered or LayerDragged
      - when non-nil and it’s been more than `DRAG_NODE_VELOCITY_RESET_STEP` since last movement, reset velocity to `.zero`
      */
-    var lastMouseNodeMovement: TimeInterval?
+    @MainActor var lastMouseNodeMovement: TimeInterval?
 
-    var activeDragInteraction = ActiveDragInteractionNodeVelocityData()
+    @MainActor var activeDragInteraction = ActiveDragInteractionNodeVelocityData()
     
     // tracks if sidebar is focused
-    var isSidebarFocused: Bool = false
+    @MainActor var isSidebarFocused: Bool = false
 
     // Explicit `init` is required to use `didSet` on a property
+    @MainActor
     init(activeSpacebarClickDrag: Bool = false,
          safeAreaInsets: SafeAreaInsets = SafeAreaInsetsEnvironmentKey.defaultValue,
          colorScheme: ColorScheme = defaultColorScheme,
@@ -182,6 +183,7 @@ extension StitchDocumentViewModel {
 
 extension GraphUIState {
     // If there's a group in focus
+    @MainActor
     var groupNodeFocused: GroupNodeType? {
         self.groupNodeBreadcrumbs.last
     }

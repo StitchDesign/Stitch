@@ -24,6 +24,7 @@ struct ClosePathPatchNode: PatchNodeDefinition {
     }
 }
 
+@MainActor
 func closePathEval(inputs: PortValuesList,
                    outputs: PortValuesList) -> PortValuesList {
 

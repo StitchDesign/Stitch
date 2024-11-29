@@ -12,6 +12,7 @@ import StitchEngine
 
 extension GraphState {
     /// Gets all node IDs except for those in groups.
+    @MainActor
     var allNodesToCalculate: NodeIdSet {
         self.nodes.values
             .compactMap {

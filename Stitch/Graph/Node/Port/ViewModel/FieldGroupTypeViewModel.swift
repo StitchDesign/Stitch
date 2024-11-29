@@ -13,17 +13,17 @@ typealias FieldGroupTypeViewModelList<FieldType: FieldViewModel> = [FieldGroupTy
 
 @Observable
 final class FieldGroupTypeViewModel<FieldType: FieldViewModel>: StitchLayoutCachable, Identifiable {
-    var viewCache: NodeLayoutCache?
-    
+    let id: FieldCoordinate
     let type: FieldGroupType
-    var fieldObservers: [FieldType]
-
     // Only used for ShapeCommand cases? e.g. `.curveTo` has "PointTo", "CurveFrom" etc. 'groups of fields'
     let groupLabel: String?
-
     // Since this could be one of many in a node's row
     let startingFieldIndex: Int
     
+    @MainActor var viewCache: NodeLayoutCache?
+    @MainActor var fieldObservers: [FieldType]
+
+    @MainActor
     init(fieldValues: FieldValues,
          type: FieldGroupType,
          groupLabel: String? = nil,
@@ -31,19 +31,26 @@ final class FieldGroupTypeViewModel<FieldType: FieldViewModel>: StitchLayoutCach
          unpackedPortIndex: Int?,
          startingFieldIndex: Int = 0,
          rowViewModel: FieldType.NodeRowType?) {
-                
+        
+        let fieldObservers: [FieldType] = .createFieldViewModels(
+            fieldValues: fieldValues,
+            fieldGroupType: type,
+            unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+            unpackedPortIndex: unpackedPortIndex,
+            startingFieldIndex: startingFieldIndex,
+            rowViewModel: rowViewModel)
+        
+        assertInDebug(!fieldObservers.isEmpty)
+        
+        self.id = fieldObservers.first?.id ?? FieldCoordinate.fakeFieldCoordinate
         self.type = type
         self.groupLabel = groupLabel
         self.startingFieldIndex = startingFieldIndex
-        self.fieldObservers = .createFieldViewModels(fieldValues: fieldValues,
-                                                     fieldGroupType: type,
-                                                     unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                                     unpackedPortIndex: unpackedPortIndex,
-                                                     startingFieldIndex: startingFieldIndex,
-                                                     rowViewModel: rowViewModel)
+        self.fieldObservers = fieldObservers
     }
     
     /// Updates observer objects with latest data.
+    @MainActor
     func updateFieldValues(fieldValues: FieldValues) {
         guard fieldValues.count == fieldObservers.count else {
             fatalErrorIfDebug("FieldGroupTypeViewModel: updateFieldValues: non-equal count of field values to observer objects for \(type).")
@@ -58,10 +65,6 @@ final class FieldGroupTypeViewModel<FieldType: FieldViewModel>: StitchLayoutCach
                 observer.fieldValue = newValue
             }
         }
-    }
-
-    var id: FieldCoordinate {
-        self.fieldObservers.first?.id ?? .fakeFieldCoordinate
     }
 }
 
@@ -145,6 +148,7 @@ extension NodeRowType {
 }
 
 // Creates the FieldViewModels with the correct data (based on PortValue) and correct row view model delegate reference
+@MainActor
 func getFieldValueTypes<FieldType: FieldViewModel>(value: PortValue,
                                                    nodeIO: NodeIO,
                                                    unpackedPortParentFieldGroupType: FieldGroupType?,
@@ -376,6 +380,7 @@ func getFieldValueTypes<FieldType: FieldViewModel>(value: PortValue,
 
 //extension Array where Element: FieldGroupTypeViewModel<InputFieldViewModel> {
 extension NodeRowViewModel {
+    @MainActor
     func createFieldValueTypes(initialValue: PortValue,
                                nodeIO: NodeIO,
                                unpackedPortParentFieldGroupType: FieldGroupType?,

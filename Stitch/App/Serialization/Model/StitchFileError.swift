@@ -80,8 +80,6 @@ enum StitchFileError: Error {
     case cameraPermissionDeclined
     // Error received getting camera info
     case getCameraDeviceInfoFailed
-    // Failed to get logs
-    case logsFailed(logError: LogEntriesRetrievalFailure)
     // Failed to initialize 3D Scene
     case failedToCreate3DScene
     // Failed to copy media to a directory
@@ -181,8 +179,6 @@ extension StitchFileError: CustomStringConvertible {
             return "The camera could not be enabled due to disabled camera permissions. Enable the camera by accessing the Settings app -> Stitch -> Camera."
         case .getCameraDeviceInfoFailed:
             return "Error: no camera found."
-        case .logsFailed(let logError):
-            return "An error occurred getting your logs. Please let the devs know.\n\nCode: \(logError.rawValue)"
         case .unknownError(let message):
             return "Stitch encountered a problem: \(message)"
         case .mediaCopiedFailed:

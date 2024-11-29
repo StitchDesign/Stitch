@@ -13,7 +13,6 @@ struct SidebarListItemView<SidebarViewModel>: View where SidebarViewModel: Proje
     typealias ItemID = SidebarViewModel.ItemID
 
     @Environment(\.appTheme) private var theme
-    @EnvironmentObject private var keyboardObserver: KeyboardObserver
     
     @Bindable var graph: GraphState
     @Bindable var sidebarViewModel: SidebarViewModel

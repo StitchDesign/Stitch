@@ -226,6 +226,7 @@ func scrollInteractionEval(node: NodeViewModel,
 /*
  Each dimension needs to be handled separately.
  */
+@MainActor
 func totalScrollInteractionEvalOp(values: PortValues,
                                   scrollState: ScrollInteractionState,
                                   interactiveLayer: InteractiveLayer,

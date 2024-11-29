@@ -15,6 +15,7 @@ import StitchSchemaKit
 /// Wrapper class for ARView.
 // TODO: should make this an actor, right now inheritence prevents this
 final class StitchARView: ARView {
+    let actor = CameraFeedActor()
     var anchorMap: [UInt64: AnchorEntity] = [:]
 
     // For camera session delegate
@@ -122,14 +123,9 @@ final class StitchARView: ARView {
 }
 
 extension StitchARView: StitchCameraSession {
-    nonisolated func startRunning() {}
-
-    nonisolated func stopRunning() {
-        Task {
-            await MainActor.run { [weak self] in
-                self?.session.pause()
-            }
-        }
+    @MainActor
+    func stopRunning() {
+        self.session.pause()
     }
 
     /*
@@ -145,6 +141,7 @@ extension StitchARView: StitchCameraSession {
      https://medium.com/@ios_guru/arkit-and-arcamera-for-accessing-the-camera-information-in-an-ar-session-90d43ad9e2bd
      */
 
+    @MainActor
     func configureSession(device: StitchCameraDevice,
                           position: AVCaptureDevice.Position,
                           cameraOrientation: StitchCameraOrientation) {
@@ -174,40 +171,35 @@ extension StitchARView: StitchCameraSession {
 }
 
 final class StitchARViewCaptureDelegate: NSObject, ARSessionDelegate, Sendable {
-    private let context = CIContext()
-    private var processedImage: UIImage?
-    private var isLoading: Bool = false
     @MainActor var convertedImage: UIImage?
+    let cameraActor = CameraFeedActor()
+    let iPhone: Bool
+    
+    @MainActor override init() {
+        self.iPhone = GraphUIState.isPhoneDevice
+        super.init()
+        
+        self.cameraActor.imageConverterDelegate = self
+    }
 
     func session(_ session: ARSession, didUpdate frame: ARFrame) {
-        guard !isLoading else {
-            // Wait until done loading
-            return
-        }
-        
-        self.isLoading = true
+        let iPhone = self.iPhone
         
         // UIImage conversion moved to background thread for perf
-        Task(priority: .high) { [weak self] in
-            guard let context = self?.context else {
-                return
-            }
-
-            if let uiImage = await frame.convertToUIImage(context: context) {
-                self?.processedImage = uiImage
-                
-                DispatchQueue.main.async { [weak self] in
-                    guard let newImage = self?.processedImage else {
-                        return
-                    }
-                    
-                    newImage.accessibilityIdentifier = CAMERA_DESCRIPTION
-                    self?.convertedImage = newImage
-                    self?.isLoading = false
-                    
-                    dispatch(RecalculateCameraNodes())
-                }
-            }
+        Task(priority: .high) { [weak self, weak frame] in
+            guard let frame = frame else { return }
+            
+            await self?.cameraActor.createUIImage(from: frame,
+                                                  iPhone: iPhone)
         }
+    }
+}
+
+extension StitchARViewCaptureDelegate: ImageConverterDelegate {
+    func imageConverted(image: UIImage) {
+        image.accessibilityIdentifier = CAMERA_DESCRIPTION
+        self.convertedImage = image
+        
+        dispatch(RecalculateCameraNodes())
     }
 }

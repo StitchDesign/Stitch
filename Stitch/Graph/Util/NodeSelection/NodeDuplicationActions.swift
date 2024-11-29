@@ -16,6 +16,7 @@ struct CopyPasteGraphDestinationInfo: Equatable {
 }
 
 
+@MainActor
 func adjustPastedNodesPositions(pastedNodes: [NodeEntity],
                                 destinationGraphOffset: CGPoint,
                                 destinationGraphFrame: CGRect) -> [NodeEntity] {
@@ -219,6 +220,7 @@ extension GraphState {
         self.updateGraphAfterPaste(newNodes: newNodes)
     }
     
+    @MainActor
     static func updateCopiedNodes<T>(component: T,
                                      // nil = this was duplication, not copy-paste
                                      destinationGraphInfo: CopyPasteGraphDestinationInfo?) -> (T, NodeIdMap) where T: StitchComponentable {
@@ -255,6 +257,7 @@ extension GraphState {
         return (newComponent, nodeIdMap)
     }
     
+    @MainActor
     static func createNewNodes<T>(from newComponent: T,
                                   focusedGroupNode: NodeId?) -> [NodeEntity] where T: StitchComponentable {
         newComponent.nodes.map {

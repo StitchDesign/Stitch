@@ -26,6 +26,7 @@ struct Point3DPackPatchNode: PatchNodeDefinition {
     }
 }
 
+@MainActor
 func point3DPackEval(inputs: PortValuesList,
                      outputs: PortValuesList) -> PortValuesList {
     resultsMaker(inputs)(point3DPackOp)
