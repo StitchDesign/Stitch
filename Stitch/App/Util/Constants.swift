@@ -66,7 +66,7 @@ let SHOW_APP_SETTINGS = { dispatch(ShowAppSettingsSheet()) }
 let APP_SETTINGS_ICON_NAME: IconName = PROJECT_SETTINGS_ICON_NAME
 
 @MainActor
-let SHOW_APP_SETTINGS_ACTION = { dispatch(ShowAppSettingsSheet()) }
+let SHOW_APP_SETTINGS_ACTION = { @MainActor in dispatch(ShowAppSettingsSheet()) }
 
 @MainActor
 //let EXPORT_LOGS_ACTION = { dispatch(LogsExportStarted()) }

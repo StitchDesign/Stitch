@@ -36,7 +36,6 @@ extension ProjectSidebarObservable {
         self.sidebarGroupUncreatedViaEditMode(groupId: group,
                                               children: children.map(\.id))
 
-//        self.persistSidebarChanges(encodedData: newEncodedData)
         self.graphDelegate?.encodeProjectInBackground()
     }
 }

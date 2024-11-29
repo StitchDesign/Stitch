@@ -15,7 +15,7 @@ struct StitchButton<Label>: View where Label: View {
     var role: ButtonRole?
     @ViewBuilder var label: () -> Label
 
-    init(action: @MainActor @escaping () -> Void,
+    init(action: @Sendable @MainActor @escaping () -> Void,
          @ViewBuilder label: @escaping () -> Label) {
         self.action = action
         self.label = label
