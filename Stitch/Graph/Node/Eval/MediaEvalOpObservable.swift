@@ -10,7 +10,7 @@ import StitchSchemaKit
 import SwiftUI
 
 protocol MediaEvalOpObservable: NodeEphemeralObservable, Sendable {
-    var nodeDelegate: NodeDelegate? { get set }
+    @MainActor var nodeDelegate: NodeDelegate? { get set }
 
     @MainActor var currentMedia: GraphMediaValue? { get set }
     
@@ -24,6 +24,26 @@ final class MediaEvalOpObserver: MediaEvalOpObservable {
     var currentLoadingMediaId: UUID?
     weak var nodeDelegate: NodeDelegate?
     internal let mediaActor = MediaEvalOpCoordinator()
+}
+
+final class VisionOpObserver: MediaEvalOpObservable {
+    var currentMedia: GraphMediaValue?
+    var currentLoadingMediaId: UUID?
+    weak var nodeDelegate: NodeDelegate?
+    internal let mediaActor = MediaEvalOpCoordinator()
+    let coreMlActor = VisionOpActor()
+    
+    func onPrototypeRestart() { }
+}
+
+final class ImageClassifierOpObserver: MediaEvalOpObservable {
+    var currentMedia: GraphMediaValue?
+    var currentLoadingMediaId: UUID?
+    weak var nodeDelegate: NodeDelegate?
+    internal let mediaActor = MediaEvalOpCoordinator()
+    let coreMlActor = ImageClassifierActor()
+    
+    func onPrototypeRestart() { }
 }
 
 extension MediaEvalOpObserver {
@@ -204,11 +224,13 @@ extension MediaEvalOpObservable {
 
 extension PortValues {
     /// Gets outputs from  a list of inputs + outputs, defaulting to default outputs if no outputs passed in list.
+    @MainActor
     func prevOutputs(node: NodeDelegate) -> PortValues {
         self.prevOutputs(nodeKind: node.kind) ?? node.defaultOutputs
     }
     
     /// Gets outputs from  a list of inputs + outputs.
+    @MainActor
     func prevOutputs(nodeKind: NodeKind) -> PortValues? {
         // Just get inputs count, user visible type doesn't matter
         let inputsCount = nodeKind.rowDefinitions(for: nil).inputs.count

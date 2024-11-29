@@ -44,10 +44,11 @@ func soulverNode(id: NodeId,
         outputs: outputs)
 }
 
+@MainActor
 func soulverEval(inputs: PortValuesList,
                  outputs: PortValuesList) -> PortValuesList {
 
-    let op = { (values: PortValues) -> PortValue in
+    let op = { @Sendable (values: PortValues) -> PortValue in
         let s = values.first?.getString?.string ?? ""
         let result = soulve(s)
         return .string(.init(result))

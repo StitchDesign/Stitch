@@ -65,6 +65,7 @@ extension StitchStore {
     /// Async attempts to re-load document from URL in case migration is needed.
     /// We only encode and update the project if the user makes an edit, which helps control project sorting order
     /// so that opened projects only re-sort when edited.
+    @MainActor
     func handleProjectTapped(projectLoader: ProjectLoader,
                              isPhoneDevice: Bool,
                              loadedCallback: @MainActor @Sendable @escaping () -> ()) {

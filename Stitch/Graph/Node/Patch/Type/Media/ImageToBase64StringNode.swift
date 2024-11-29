@@ -61,7 +61,7 @@ func imageToBase64StringEval(node: PatchNode) -> EvalResult {
                                               values: values,
                                               node: node) { [weak inputImage] in
             guard let inputImage = inputImage else {
-                return values.prevOutputs(node: node)
+                return await values.prevOutputs(node: node)
             }
             
             switch await convertImageToBase64String(uiImage: inputImage) {
@@ -71,7 +71,7 @@ func imageToBase64StringEval(node: PatchNode) -> EvalResult {
                 return [.string(base64)]
             case .failure(let error):
                 Task { ReceivedStitchFileError(error: error) }
-                return values.prevOutputs(node: node)
+                return await values.prevOutputs(node: node)
             }
         }
     }

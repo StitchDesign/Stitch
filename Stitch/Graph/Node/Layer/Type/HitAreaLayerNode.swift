@@ -13,7 +13,7 @@ let defaultHitAreaSize = LayerSize(width: 50,
                                    height: 50)
 
 struct HitAreaLayerNode: LayerNodeDefinition {
-    static var layer: Layer = .hitArea
+    static let layer: Layer = .hitArea
     
     static let inputDefinitions: LayerInputTypeSet = .init([
         .enabled,

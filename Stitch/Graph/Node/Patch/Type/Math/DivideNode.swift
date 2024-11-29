@@ -46,6 +46,7 @@ func zeroCompatibleDivision(numerator: Double, denominator: Double) -> Double {
     }
 }
 
+@MainActor
 func divideEval(inputs: PortValuesList,
                 evalKind: MathNodeType) -> PortValuesList {
 

@@ -38,6 +38,7 @@ func triangleShapeNode(id: NodeId,
         outputs: outputs)
 }
 
+@MainActor
 func triangleShapeEval(inputs: PortValuesList,
                        outputs: PortValuesList) -> PortValuesList {
 

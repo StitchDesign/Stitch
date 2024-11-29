@@ -25,61 +25,61 @@ final class GraphState: Sendable {
     
     let saveLocation: [UUID]
     
-    var id = UUID()
-    var name: String = STITCH_PROJECT_DEFAULT_NAME
+    @MainActor var id = UUID()
+    @MainActor var name: String = STITCH_PROJECT_DEFAULT_NAME
     
-    var commentBoxesDict = CommentBoxesDict()
+    @MainActor var commentBoxesDict = CommentBoxesDict()
     
-    let visibleNodesViewModel = VisibleNodesViewModel()
-    let edgeDrawingObserver = EdgeDrawingObserver()
+    let visibleNodesViewModel: VisibleNodesViewModel
+    @MainActor let edgeDrawingObserver = EdgeDrawingObserver()
     
-    var selectedEdges = Set<PortEdgeUI>()
+    @MainActor var selectedEdges = Set<PortEdgeUI>()
     
     // Hackiness for handling edge case in our UI where somehow
     // UIKit node drag and SwiftUI port drag can happen at sometime.
-    var nodeIsMoving = false
-    var outputDragStartedCount = 0
+    @MainActor var nodeIsMoving = false
+    @MainActor var outputDragStartedCount = 0
     
     // Keeps track of interaction nodes and their selected layer
-    var dragInteractionNodes = [LayerNodeId: NodeIdSet]()
-    var pressInteractionNodes = [LayerNodeId: NodeIdSet]()
-    var scrollInteractionNodes = [LayerNodeId: NodeIdSet]()
+    @MainActor var dragInteractionNodes = [LayerNodeId: NodeIdSet]()
+    @MainActor var pressInteractionNodes = [LayerNodeId: NodeIdSet]()
+    @MainActor var scrollInteractionNodes = [LayerNodeId: NodeIdSet]()
     
     // Ordered list of layers in sidebar
     let layersSidebarViewModel: LayersSidebarViewModel
     
     // Cache of ordered list of preview layer view models;
     // updated in various scenarious, e.g. sidebar list item dragged
-    var cachedOrderedPreviewLayers: LayerDataList = .init()
+    @MainActor var cachedOrderedPreviewLayers: LayerDataList = .init()
     
     // Updates to true if a layer's input should re-sort preview layers (z-index, masks etc)
     // Checked at the end of graph calc for efficient updating
-    var shouldResortPreviewLayers: Bool = false
+    @MainActor var shouldResortPreviewLayers: Bool = false
     
     // Used in rotation modifier to know whether view receives a pin;
     // updated whenever preview layers cache is updated.
-    var pinMap = RootPinMap()
-    var flattenedPinMap = PinMap()
+    @MainActor var pinMap = RootPinMap()
+    @MainActor var flattenedPinMap = PinMap()
     
     // Tracks all created and imported components
-    var components: [UUID: StitchMasterComponent] = [:]
+    @MainActor var components: [UUID: StitchMasterComponent] = [:]
     
     // Maps a MediaKey to some URL
-    var mediaLibrary: MediaLibrary = [:]
+    @MainActor var mediaLibrary: MediaLibrary = [:]
     
     // Tracks nodes with camera enabled
-    var enabledCameraNodeIds = NodeIdSet()
+    @MainActor var enabledCameraNodeIds = NodeIdSet()
     
-    var motionManagers = StitchMotionManagersDict()
+    @MainActor var motionManagers = StitchMotionManagersDict()
     
-    var networkRequestCompletedTimes = NetworkRequestLatestCompletedTimeDict()
+    @MainActor var networkRequestCompletedTimes = NetworkRequestLatestCompletedTimeDict()
     
     // Tracks IDs for rows that need to be updated for the view. Cached here for perf so we can throttle view updates.
-    var portsToUpdate: NodePortCacheSet = .init()
+    @MainActor var portsToUpdate: NodePortCacheSet = .init()
     
-    var lastEncodedDocument: GraphEntity
-    weak var documentDelegate: StitchDocumentViewModel?
-    weak var documentEncoderDelegate: (any DocumentEncodable)?
+    @MainActor var lastEncodedDocument: GraphEntity
+    @MainActor weak var documentDelegate: StitchDocumentViewModel?
+    @MainActor weak var documentEncoderDelegate: (any DocumentEncodable)?
     
     @MainActor
     init(from schema: GraphEntity,
@@ -87,6 +87,7 @@ final class GraphState: Sendable {
          components: MasterComponentsDict,
          mediaFiles: [URL],
          saveLocation: [UUID]) {
+        self.visibleNodesViewModel = VisibleNodesViewModel()
         self.lastEncodedDocument = schema
         self.saveLocation = saveLocation
         self.id = schema.id
@@ -108,16 +109,17 @@ extension GraphState {
         self.layersSidebarViewModel.items
     }
     
+    @MainActor
     convenience init(from schema: GraphEntity,
                      saveLocation: [UUID],
                      encoder: (any DocumentEncodable)) async {
         guard let decodedFiles = await encoder.getDecodedFiles() else {
             fatalErrorIfDebug()
-            await self.init()
+            self.init()
             return
         }
         
-        let components = await decodedFiles.components.createComponentsDict(parentGraph: nil)
+        let components =  decodedFiles.components.createComponentsDict(parentGraph: nil)
         
         var nodes = NodesViewModelDict()
         for nodeEntity in schema.nodes {
@@ -127,11 +129,11 @@ extension GraphState {
             nodes.updateValue(newNode, forKey: newNode.id)
         }
         
-        await self.init(from: schema,
-                        nodes: nodes,
-                        components: components,
-                        mediaFiles: decodedFiles.mediaFiles,
-                        saveLocation: saveLocation)
+        self.init(from: schema,
+                  nodes: nodes,
+                  components: components,
+                  mediaFiles: decodedFiles.mediaFiles,
+                  saveLocation: saveLocation)
     }
     
     @MainActor
@@ -167,6 +169,7 @@ extension GraphState {
         self.initializeGraphComputation()
     }
 
+    @MainActor
     var graphUI: GraphUIState {
         guard let graphUI = self.documentDelegate?.graphUI else {
             return GraphUIState(isPhoneDevice: false)
@@ -175,10 +178,12 @@ extension GraphState {
         return graphUI
     }
     
+    @MainActor
     var storeDelegate: StoreDelegate? {
         self.documentDelegate?.storeDelegate
     }
     
+    @MainActor
     var nodes: [UUID : NodeViewModel] {
         get {
             self.visibleNodesViewModel.nodes
@@ -188,22 +193,27 @@ extension GraphState {
         }
     }
     
+    @MainActor
     var groupNodeFocused: NodeId? {
         self.graphUI.groupNodeFocused?.groupNodeId
     }
     
+    @MainActor
     var nodesDict: NodesViewModelDict {
         self.nodes
     }
 
+    @MainActor
     var safeAreaInsets: SafeAreaInsets {
         self.graphUI.safeAreaInsets
     }
     
+    @MainActor
     var isFullScreenMode: Bool {
         self.graphUI.isFullScreenMode
     }
     
+    @MainActor
     func getMediaUrl(forKey key: MediaKey) -> URL? {
         self.mediaLibrary.get(key)
     }
@@ -216,6 +226,7 @@ extension GraphState {
         await self.documentEncoderDelegate?.undoDeletedMedia(mediaKey: mediaKey) ?? .failure(.copyFileFailed)
     }
     
+    @MainActor
     var allComponents: [StitchComponentViewModel] {
         self.nodes.values.flatMap { node -> [StitchComponentViewModel] in
             guard let nodeComponent = node.nodeType.componentNode else {
@@ -226,11 +237,13 @@ extension GraphState {
         }
     }
     
+    @MainActor
     var allComponentGraphs: [GraphState] {
         self.allComponents.map { $0.graph }
     }
     
     /// Finds graph states for a component at this hierarchy.
+    @MainActor
     func findComponentGraphStates(componentId: UUID) -> [GraphState] {
         self.nodes.values
             .compactMap { node in
@@ -244,6 +257,7 @@ extension GraphState {
     }
     
     /// Finds graph state given a node ID of some component node.
+    @MainActor
     func findComponentGraphState(_ nodeId: UUID) -> GraphState? {
         self.documentDelegate?.allComponents.first { $0.id == nodeId }?.graph ?? nil
     }
@@ -267,6 +281,7 @@ extension GraphState {
         self.visibleNodesViewModel.resetCache()
     }
     
+    @MainActor
     var isSidebarFocused: Bool {
         get {
             self.graphUI.isSidebarFocused
@@ -329,7 +344,7 @@ extension GraphState {
     
     @MainActor
     private func updateSynchronousProperties(from schema: GraphEntity) {
-        self.id = schema.id
+        assertInDebug(self.id == schema.id)
         self.name = schema.name
         self.layersSidebarViewModel.update(from: schema.orderedSidebarLayers)
     }
@@ -374,10 +389,12 @@ extension GraphState {
         self.initializeGraphComputation()
     }
     
+    @MainActor
     var localPosition: CGPoint {
         self.documentDelegate?.localPosition ?? .init()
     }
     
+    @MainActor
     var previewWindowBackgroundColor: Color {
         self.documentDelegate?.previewWindowBackgroundColor ?? .LAYER_DEFAULT_COLOR
     }
@@ -392,10 +409,12 @@ extension GraphState {
         self.graphUI.activeIndex
     }
     
+    @MainActor
     var llmRecording: LLMRecordingState {
         self.documentDelegate?.llmRecording ?? .init()
     }
     
+    @MainActor
     var graphStepManager: GraphStepManager {
         guard let document = self.documentDelegate else {
 //            fatalErrorIfDebug()
@@ -446,18 +465,22 @@ extension GraphState {
                                                                 willUpdateUndoHistory: willUpdateUndoHistory)
     }
     
+    @MainActor
     func getPatchNode(id nodeId: NodeId) -> PatchNode? {
         self.visibleNodesViewModel.patchNodes.get(nodeId)
     }
     
+    @MainActor
     var patchNodes: NodesViewModelDict {
         self.visibleNodesViewModel.patchNodes
     }
     
+    @MainActor
     var layerNodes: NodesViewModelDict {
         self.visibleNodesViewModel.layerNodes
     }
     
+    @MainActor
     var groupNodes: NodesViewModelDict {
         self.visibleNodesViewModel.groupNodes
     }
@@ -468,11 +491,13 @@ extension GraphState {
      Secondarily used in some helpers for creating a GraphState that we then feed into GraphSchema
      - second use-case ideally removed in the future
      */
+    @MainActor
     func updateNode(_ node: NodeViewModel) {
         self.visibleNodesViewModel.nodes
             .updateValue(node, forKey: node.id)
     }
     
+    @MainActor
     func updatePatchNode(_ patchNode: PatchNode) {
         self.updateNode(patchNode)
     }
@@ -641,6 +666,7 @@ extension GraphState {
         self.visibleNodesViewModel.getCanvasItems()
     }
     
+    @MainActor
     var keyboardNodes: NodeIdSet {
         Array(self.nodes
             .values
@@ -649,6 +675,7 @@ extension GraphState {
         .toSet
     }
     
+    @MainActor
     func getLayerChildren(for groupId: NodeId) -> NodeIdSet {
         self.nodes.values
             .filter { $0.layerNode?.layerGroupId == groupId }
@@ -712,7 +739,6 @@ extension GraphState {
         let nodeId = node.id
         var outputsToUpdate = node.outputs
         var nodeIdsToRecalculate = NodeIdSet()
-        let graphTime = self.graphStepManager.graphTime
         
         for (portId, newOutputValue) in portValues.enumerated() {
             let outputCoordinate = OutputCoordinate(portId: portId, nodeId: nodeId)

@@ -13,7 +13,6 @@ typealias URLResult = StitchFileResult<URL>
 typealias URLRemovedResult = StitchFileResult<URL?>     // Returns URL if moved to temp storage
 typealias DirectoryContentsResult = StitchFileResult<DirectoryContents>
 typealias PatchNodeResult = StitchFileResult<PatchNode>
-typealias LogEntriesResult = StitchFileResult<LogEntries>
 typealias MediaObjectResult = StitchFileResult<StitchMediaObject>
 
 enum StitchFileVoidResult {

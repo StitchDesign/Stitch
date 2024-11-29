@@ -51,14 +51,18 @@ struct FullScreenPreviewViewWrapper: View {
             }
         }
 
-        let showProjectSettingsAction = { dispatch(ShowProjectSettingsSheet()) }
+        let showProjectSettingsAction = { @MainActor in
+            dispatch(ShowProjectSettingsSheet())
+        }
 
-        let closeGraphBtnAction = {
+        let closeGraphBtnAction = { @MainActor in
             // Only close graph if user is on iPhone
             GraphUIState.isPhoneDevice ? dispatch(CloseGraph()) : dispatch(ToggleFullScreenEvent())
         }
 
-        let appResetAction = { dispatch(PrototypeRestartedAction()) }
+        let appResetAction = { @MainActor in
+            dispatch(PrototypeRestartedAction())
+        }
 
         FullScreenGestureRecognizerView(showFullScreenPreviewSheet: showFullScreenPreviewSheet) {
             previewView

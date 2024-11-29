@@ -74,6 +74,7 @@ extension ProjectSidebarObservable {
         } // forEach
     }
     
+    @MainActor
     func retrieveItem(_ id: Self.ItemID) -> Self.ItemViewModel? {
         self.items.get(id)
     }

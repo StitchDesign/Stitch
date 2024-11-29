@@ -53,6 +53,7 @@ extension PortValue {
 
 extension Array where Element: InputNodeRowViewModel {
     // Intended for PatchNodes, i.e. inputs that use portId integers
+    @MainActor
     func portIdEligibleFields() -> PortIdEligibleFields {
         let eligibleFields = self
             .enumerated()
@@ -447,6 +448,7 @@ extension LayerInputType {
 }
 
 extension NodeRowViewModel {
+    @MainActor
     var maxFieldIndex: Int {
         // I would expect an input to have [field];
         // but this is [[field]] ?

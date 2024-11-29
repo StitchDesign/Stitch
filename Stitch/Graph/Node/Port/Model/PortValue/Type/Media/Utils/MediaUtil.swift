@@ -45,15 +45,4 @@ extension MediaObjectId: Identifiable {
     }
 }
 
-extension UIImage: NSCopying {
-    public func copy(with zone: NSZone? = nil) -> Any {
-        guard let clone = self.clone() else {
-            log("UIImage: failed to clone image, return self")
-            return self
-        }
-
-        return clone
-    }
-}
-
 typealias MediaIdSet = Set<MediaObjectId>

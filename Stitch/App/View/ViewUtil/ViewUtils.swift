@@ -8,15 +8,17 @@
 import SwiftUI
 import StitchSchemaKit
 
-typealias BindingOnSet<T> = (T) -> Void
+typealias BindingOnSet<T> = @MainActor (T) -> Void
 
 // should also take 'on edit' and 'on commit' callbacks
-func createBinding<T: Any>(_ value: T,
-                           _ onSet: @escaping  BindingOnSet<T>) -> Binding<T> {
+func createBinding<T: Any & Sendable>(_ value: T,
+                                      _ onSet: @escaping BindingOnSet<T>) -> Binding<T> {
     Binding<T>.init {
         value
     } set: { (newValue: T) in
-        onSet(newValue)
+        DispatchQueue.main.async {
+            onSet(newValue)
+        }
     }
 }
 

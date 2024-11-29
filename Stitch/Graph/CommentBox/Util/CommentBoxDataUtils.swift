@@ -85,7 +85,20 @@ extension String {
 }
 
 extension CommentBoxViewModel {
+    @MainActor
+    convenience init(zIndex: Double? = nil) {
+        let color = Self.colorOptions.randomElement() ?? .blue
+        
+        self.init(color: color,
+                  expansionBox: .init(expansionDirection: nil,
+                                      size: .zero,
+                                      startPoint: .zero,
+                                      endPoint: .zero),
+                  zIndex: zIndex ?? .zero)
+    }
+    
     // MARK: initializing comment box from a set of existing nodes
+    @MainActor
     convenience init(zIndex: ZIndex,
                      scale: CGFloat, // graph zoom
                      nodes: [CanvasItemViewModel]) {
@@ -95,44 +108,54 @@ extension CommentBoxViewModel {
         guard !nodes.isEmpty else {
             log("CommentBoxData: init: nodes were empty")
 
-            self.init(color: color,
-                      expansionBox: .init(expansionDirection: nil,
-                                          size: .zero,
-                                          startPoint: .zero,
-                                          endPoint: .zero),
-                      zIndex: zIndex)
+            self.init(zIndex: zIndex)
+            return
+        }
+        
+        guard let northNode = nodes.max(by: { n1, n2 in
+            n1.position.y > n2.position.y
+        }),
+              let southNode = nodes.max(by: { n1, n2 in
+                  n1.position.y < n2.position.y
+              }),
+              let eastNode = nodes.max(by: { n1, n2 in
+                  n1.position.x < n2.position.x
+              }),
+              let westNode = nodes.max(by: { n1, n2 in
+                  n1.position.x > n2.position.x
+              }) else {
+            fatalErrorIfDebug()
+            
+            self.init(zIndex: zIndex)
+            return
+        }
+
+        guard let northNodeSize = northNode.sizeByLocalBounds,
+              let southNodeSize = southNode.sizeByLocalBounds,
+              let westNodeSize = westNode.sizeByLocalBounds,
+              let eastNodeSize = eastNode.sizeByLocalBounds else {
+            
+            self.init(zIndex: zIndex)
             return
         }
 
         let nodeIds = CanvasItemIdSet(nodes.map(\.id))
 
-        let northNode = nodes.max { n1, n2 in
-            n1.position.y > n2.position.y
-        }!
         let north = northNode.position.y
         // print("init: northNode.color: \(northNode.color)")
         // print("init: northNode.size: \(northNode.size)")
 
-        let southNode = nodes.max { n1, n2 in
-            n1.position.y < n2.position.y
-        }!
         // print("init: southNode.color: \(southNode.color)")
         // print("init: southNode.size: \(southNode.size)")
-        let south = southNode.position.y + southNode.sizeByLocalBounds.height
+        let south = southNode.position.y + southNodeSize.height
 
-        let westNode = nodes.max { n1, n2 in
-            n1.position.x > n2.position.x
-        }!
         // print("init: westNode.color: \(westNode.color)")
         // print("init: westNode.size: \(westNode.size)")
         let west = westNode.position.x
 
-        let eastNode = nodes.max { n1, n2 in
-            n1.position.x < n2.position.x
-        }!
         // print("init: eastNode.color: \(eastNode.color)")
         // print("init: eastNode.size: \(eastNode.size)")
-        let east = eastNode.position.x + eastNode.sizeByLocalBounds.width
+        let east = eastNode.position.x + eastNodeSize.width
 
         // print("init: north: \(north)")
         // print("init: south: \(south)")
@@ -151,8 +174,8 @@ extension CommentBoxViewModel {
         print("init: width: \(width)")
         print("init: height: \(height)")
 
-        let topPadding: CGFloat = northNode.sizeByLocalBounds.height/2
-        let bottomPadding: CGFloat = southNode.sizeByLocalBounds.height/2
+        let topPadding: CGFloat = northNodeSize.height/2
+        let bottomPadding: CGFloat = southNodeSize.height/2
         //        let topPadding: CGFloat = northNode.size.height
         //        let bottomPadding: CGFloat = southNode.size.height
         //        let topPadding: CGFloat = northNode.size.height // * 2
@@ -168,8 +191,8 @@ extension CommentBoxViewModel {
 
         //        let leftPadding: CGFloat = westNode.size.width/2
         //        let rightPadding: CGFloat = eastNode.size.width/2
-        let leftPadding: CGFloat = westNode.sizeByLocalBounds.width/2
-        let rightPadding: CGFloat = eastNode.sizeByLocalBounds.width/2
+        let leftPadding: CGFloat = westNodeSize.width/2
+        let rightPadding: CGFloat = eastNodeSize.width/2
 
         //        let leftPadding: CGFloat = westNode.size.width
         //        let rightPadding: CGFloat = eastNode.size.width
@@ -264,11 +287,11 @@ extension CommentBoxViewModel {
 
 extension CommentBoxViewModel {
 
-    static let defaultBox = CommentBoxViewModel(
-        nodes: .init(),
-        //        position: .zero,
-        position: .init(x: 200, y: 200),
-        expansionBox: .defaultExpansionBox)
+//    static let defaultBox = CommentBoxViewModel(
+//        nodes: .init(),
+//        //        position: .zero,
+//        position: .init(x: 200, y: 200),
+//        expansionBox: .defaultExpansionBox)
 
     //    init(nodes: IdSet = .init(),
     //         position: CGSize,

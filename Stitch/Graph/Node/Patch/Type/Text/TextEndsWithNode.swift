@@ -32,6 +32,7 @@ func textEndsWithNode(id: NodeId,
         outputs: outputs)
 }
 
+@MainActor
 func textEndsWithEval(inputs: PortValuesList,
                       outputs: PortValuesList) -> PortValuesList {
 

@@ -37,6 +37,7 @@ func squareRootNode(id: NodeId,
         outputs: outputs)
 }
 
+@MainActor
 func squareRootEval(inputs: PortValuesList,
                     evalKind: MathNodeType) -> PortValuesList {
 

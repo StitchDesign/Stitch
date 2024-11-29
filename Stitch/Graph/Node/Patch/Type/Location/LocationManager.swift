@@ -7,10 +7,12 @@
 
 import Foundation
 import StitchSchemaKit
-import CoreLocation
+@preconcurrency import CoreLocation
 
-final class LocationManager: CLLocationManager {
+final class LocationManager: NSObject, Sendable {
 
+    static let locationManager: CLLocationManager = CLLocationManager()
+    
     //    // nil when:
     //    // 1. manager first created, or
     //    // 2. when we've never received a location-update
@@ -27,26 +29,26 @@ final class LocationManager: CLLocationManager {
     // TODO: should check existing permissions status and not request permission again if we're already authorized
     // so far, seems to be okay to request again
 
-    var locationAndAddress: LocationAddress?
+    @MainActor var locationAndAddress: LocationAddress?
 
     override init() {
         super.init()
-
-        self.delegate = self
-        self.setupLocationManager()
+        Self.locationManager.delegate = self
+        Self.setupLocationManager()
     }
 
     // Called when:
     // 1. we open a graph that has at least one Location node
     // 2. we create a
-    func setupLocationManager() {
+    static func setupLocationManager() {
         log("locationManager: setupLocationManager")
-
-        self.requestWhenInUseAuthorization()
-        self.requestLocation()
+        let locationManager = Self.locationManager
+        
+        locationManager.requestWhenInUseAuthorization()
+        locationManager.requestLocation()
 
         // Required, else `requestLocation` takes 5+ seconds
-        self.startUpdatingLocation()
+        locationManager.startUpdatingLocation()
     }
 }
 
@@ -91,7 +93,6 @@ extension LocationManager: CLLocationManagerDelegate, MiddlewareService {
     // When we receive the location,
     // we update the locationManager's state
     // and dispatch an action to update location nodes.
-    @MainActor
     func locationManager(_ manager: CLLocationManager,
                          didUpdateLocations locations: [CLLocation]) {
 
@@ -100,17 +101,18 @@ extension LocationManager: CLLocationManagerDelegate, MiddlewareService {
         if let newLocation = locations.first {
 
             CLGeocoder().reverseGeocodeLocation(newLocation, completionHandler: { (placemarks, error) in
-
-                if let error = error {
-                    print("Error when attempting reverse geocode: \(error.localizedDescription)")
-                    self.locationUpdatedCallback(newLocation, nil)
-                } else if let placemark = placemarks?.first,
-                          let addressString = placemark.addressString {
-                    log("Had placemark: addressString: \(addressString)")
-                    self.locationUpdatedCallback(newLocation, addressString)
-                } else {
-                    log("Did not have placemark")
-                    self.locationUpdatedCallback(newLocation, nil)
+                Task { @MainActor [weak self] in
+                    if let error = error {
+                        print("Error when attempting reverse geocode: \(error.localizedDescription)")
+                        self?.locationUpdatedCallback(newLocation, nil)
+                    } else if let placemark = placemarks?.first,
+                              let addressString = placemark.addressString {
+                        log("Had placemark: addressString: \(addressString)")
+                        self?.locationUpdatedCallback(newLocation, addressString)
+                    } else {
+                        log("Did not have placemark")
+                        self?.locationUpdatedCallback(newLocation, nil)
+                    }
                 }
             })
         }

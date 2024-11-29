@@ -56,11 +56,11 @@ extension StitchMediaObject: Hashable {
         case .image(let uIImage):
             hasher.combine(uIImage.hashValue)
         case .video(let video):
-            hasher.combine(video.url?.hashValue)
+            hasher.combine(video.url.hashValue)
         case .soundfile(let stitchSoundPlayer):
             hasher.combine(stitchSoundPlayer.delegate.url?.hashValue ?? .zero)
         case .mic(let stitchSoundPlayer):
-            hasher.combine(stitchSoundPlayer.delegate.url?.hashValue ?? .zero)
+            hasher.combine(stitchSoundPlayer.delegate.id)
         case .model3D(let stitchEntity):
             hasher.combine(stitchEntity.sourceURL)
         case .arAnchor(let anchorEntity):
@@ -72,6 +72,7 @@ extension StitchMediaObject: Hashable {
 }
 
 extension StitchMediaObject {
+    @MainActor
     mutating func transferData(from otherMediaObject: StitchMediaObject) async {
         switch self {
         case .image(let uIImage):
@@ -159,15 +160,16 @@ extension StitchMediaObject {
 
         switch self {
         case .image(let uIImage):
-            guard let copy = uIImage.copy() as? UIImage else {
-                return nil
+            // MARK: must copy on main thread or will crash
+            copiedMediaObject = await MainActor.run { [weak uIImage] in
+                guard let copy = uIImage?.copy() as? UIImage else {
+                    return nil
+                }
+                return .image(copy)
             }
-            copiedMediaObject = .image(copy)
 
         case .video(let videoPlayer):
-            guard let url = videoPlayer.url else {
-                return nil
-            }
+            let url = videoPlayer.url
             let newPlayer = await StitchVideoImportPlayer(url: url,
                                                           videoData: videoPlayer.stitchVideoDelegate.videoData,
                                                           initialVolume: 0.5)
@@ -244,18 +246,19 @@ extension StitchMediaObject {
 
 /// StitchMediaObject util methods.
 extension StitchMediaObject {
+    @MainActor
     var name: String {
         switch self {
         case .image(let uIImage):
             return uIImage.accessibilityIdentifier ?? "Image"
         case .video(let videoPlayer):
-            return videoPlayer.url?.filename ?? "Video"
+            return videoPlayer.url.filename
         case .soundfile(let soundPlayer):
             return soundPlayer.delegate.url?.filename ?? "Audio"
         case .model3D(let entity):
             return entity.sourceURL.filename
         case .coreMLImageModel(let model):
-            return model.model.accessibilityLabel ?? "Model"
+            return model.originalURL.filename ?? "Model"
         case .mic:
             return "Mic"
         case .arAnchor:
@@ -294,6 +297,7 @@ extension StitchMediaObject {
     }
 
     /// Applies to sound and video players
+    @MainActor
     var currentPlaybackTime: Double? {
         switch self {
         case .video(let videoPlayer):

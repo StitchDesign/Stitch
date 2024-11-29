@@ -55,9 +55,9 @@ func grayscaleEval(node: PatchNode) -> EvalResult {
                 return [mediaValue.portValue]
             case .failure(let error):
                 Task { ReceivedStitchFileError(error: error) }
-                return values.prevOutputs(node: node)
+                return await values.prevOutputs(node: node)
             default:
-                return values.prevOutputs(node: node)
+                return await values.prevOutputs(node: node)
             }
         }
     }

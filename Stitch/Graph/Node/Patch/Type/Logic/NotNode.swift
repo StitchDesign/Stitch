@@ -31,6 +31,7 @@ func notNode(id: NodeId,
         outputs: outputs)
 }
 
+@MainActor
 func notEval(inputs: PortValuesList,
              outputs: PortValuesList) -> PortValuesList {
 

@@ -82,6 +82,7 @@ extension InputNodeRowViewModel {
     // While dragging cursor from an output/input,
     // we've detected that we're over an eligible input
     // to which we could create a connection.
+    @MainActor
     func eligibleInputDetected(graphState: GraphState) {
         graphState.edgeDrawingObserver.nearestEligibleInput = self
     }

@@ -24,20 +24,15 @@ final actor DocumentEncoder: DocumentEncodable {
 
 
 final actor ComponentEncoder: DocumentEncodable {
+    let id: UUID
     var documentId: UUID
     let saveLocation: EncoderDirectoryLocation
     
     @MainActor weak var delegate: StitchMasterComponent?
     
     init(component: StitchComponent) {
+        self.id = component.graph.id
         self.documentId = component.id
         self.saveLocation = .document(component.saveLocation)
     }
 }
-
-extension ComponentEncoder: Identifiable {
-    @MainActor var id: UUID {
-        self.lastEncodedDocument.id
-    }
-}
-

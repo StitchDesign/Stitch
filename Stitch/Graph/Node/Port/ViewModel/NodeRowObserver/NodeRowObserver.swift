@@ -12,27 +12,33 @@ import StitchEngine
 protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRowCalculatable {
     associatedtype RowViewModelType: NodeRowViewModel
     
-    var id: NodeIOCoordinate { get set }
+    var id: NodeIOCoordinate { get }
     
     // Data-side for values
-    var allLoopedValues: PortValues { get set }
+    @MainActor var allLoopedValues: PortValues { get set }
     
     static var nodeIOType: NodeIO { get }
     
+    @MainActor
     var nodeKind: NodeKind { get set }
     
-    var allRowViewModels: [RowViewModelType] { get }
+    @MainActor var allRowViewModels: [RowViewModelType] { get }
     
+    @MainActor
     var nodeDelegate: NodeDelegate? { get set }
     
+    @MainActor
     var connectedNodes: NodeIdSet { get set }
     
+    @MainActor
     var hasLoopedValues: Bool { get set }
     
-    var importedMediaObject: StitchMediaObject? { get }
+    @MainActor var importedMediaObject: StitchMediaObject? { get }
     
+    @MainActor
     var hasEdge: Bool { get }
     
+    @MainActor
     init(values: PortValues,
          nodeKind: NodeKind,
          userVisibleType: UserVisibleType?,
@@ -43,21 +49,25 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
     func didValuesUpdate()
 }
 
+extension PortValue: Sendable { }
+
 @Observable
 final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     static let nodeIOType: NodeIO = .input
 
-    var id: NodeIOCoordinate = .init(portId: .zero, nodeId: .init())
+    let id: NodeIOCoordinate
     
     // Data-side for values
+    @MainActor
     var allLoopedValues: PortValues = .init()
     
     // statically defined inputs
+    @MainActor
     var nodeKind: NodeKind
     
     // Connected upstream node, if input
+    @MainActor
     var upstreamOutputCoordinate: NodeIOCoordinate? {
-        @MainActor
         didSet(oldValue) {
             self.didUpstreamOutputCoordinateUpdate(oldValue: oldValue)
         }
@@ -71,18 +81,19 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     }
     
     // NodeRowObserver holds a reference to its parent, the Node
-    weak var nodeDelegate: NodeDelegate?
+    @MainActor weak var nodeDelegate: NodeDelegate?
     
-    var userVisibleType: UserVisibleType?
+    @MainActor var userVisibleType: UserVisibleType?
     
     // MARK: "derived data", cached for UI perf
     
     // Tracks upstream/downstream nodes--cached for perf
-    var connectedNodes: NodeIdSet = .init()
+    @MainActor var connectedNodes: NodeIdSet = .init()
     
     // Can't be computed for rendering purposes
-    var hasLoopedValues: Bool = false
+    @MainActor var hasLoopedValues: Bool = false
     
+    @MainActor
     convenience init(from schema: NodePortInputEntity) {
         self.init(values: schema.portData.values ?? [],
                   nodeKind: schema.nodeKind,
@@ -108,39 +119,42 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     func didValuesUpdate() { }
 }
 
+extension NodeIOCoordinate: Sendable { }
+
 @Observable
 final class OutputNodeRowObserver: NodeRowObserver {
     static let nodeIOType: NodeIO = .output
     let containsUpstreamConnection = false  // always false
 
     // TODO: Outputs can only use portIds, so this should be something more specific than NodeIOCoordinate
-    var id: NodeIOCoordinate = .init(portId: .zero, nodeId: .init())
+    let id: NodeIOCoordinate
     
     // Data-side for values
-    var allLoopedValues: PortValues = .init()
+    @MainActor var allLoopedValues: PortValues = .init()
     
     // statically defined inputs
-    var nodeKind: NodeKind
+    @MainActor var nodeKind: NodeKind
     
     // NodeRowObserver holds a reference to its parent, the Node
-    weak var nodeDelegate: NodeDelegate?
+    @MainActor weak var nodeDelegate: NodeDelegate?
     
-    var userVisibleType: UserVisibleType?
+    @MainActor var userVisibleType: UserVisibleType?
     
     // MARK: "derived data", cached for UI perf
     
     // Tracks upstream/downstream nodes--cached for perf
-    var connectedNodes: NodeIdSet = .init()
+    @MainActor var connectedNodes: NodeIdSet = .init()
     
     // Only for outputs, designed for port edge color usage
-    var containsDownstreamConnection = false
+    @MainActor var containsDownstreamConnection = false
     
     // Can't be computed for rendering purposes
-    var hasLoopedValues: Bool = false
+    @MainActor var hasLoopedValues: Bool = false
     
     // Always nil for outputs
     let importedMediaObject: StitchMediaObject? = nil
     
+    @MainActor
     init(values: PortValues,
          nodeKind: NodeKind,
          userVisibleType: UserVisibleType?,
@@ -226,6 +240,7 @@ extension InputNodeRowObserver {
             .getOutputRowObserver(upstreamPortId)
     }
     
+    @MainActor
     var hasEdge: Bool {
         self.upstreamOutputCoordinate.isDefined
     }
@@ -321,6 +336,7 @@ extension InputNodeRowObserver {
 }
 
 extension OutputNodeRowObserver {
+    @MainActor
     var hasEdge: Bool {
         self.containsDownstreamConnection
     }
@@ -424,6 +440,7 @@ extension OutputNodeRowObserver {
 
 extension NodeRowViewModel {
     /// Called by parent node view model to update fields.
+    @MainActor
     func activeValueChanged(oldValue: PortValue,
                             newValue: PortValue) {
         let nodeIO = Self.RowObserver.nodeIOType
@@ -433,6 +450,7 @@ extension NodeRowViewModel {
     }
     
     /// Called by parent node view model to update fields.
+    @MainActor
     func activeValueChanged(oldRowType: NodeRowType,
                             newValue: PortValue) {
         
@@ -536,11 +554,13 @@ extension NodeRowObserver {
         self.initializeDelegate(nodeDelegate)
     }
     
+    @MainActor
     func initializeDelegate(_ node: NodeDelegate) {
         self.nodeDelegate = node
         self.postProcessing(oldValues: [], newValues: values)
     }
     
+    @MainActor
     var values: PortValues {
         get {
             self.allLoopedValues

@@ -7,7 +7,7 @@
 
 import Foundation
 import StitchSchemaKit
-import SoulverCore
+@preconcurrency import SoulverCore
 import SwiftUI
 import OrderedCollections
 

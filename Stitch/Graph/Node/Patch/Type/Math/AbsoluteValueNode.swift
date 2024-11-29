@@ -37,6 +37,7 @@ func absoluteValueNode(id: NodeId,
         outputs: outputs)
 }
 
+@MainActor
 func absoluteValueEval(inputs: PortValuesList, outputs: PortValuesList) -> PortValuesList {
     log("absoluteValueEval called")
 

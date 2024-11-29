@@ -29,6 +29,7 @@ struct PositionPackPatchNode: PatchNodeDefinition {
     }
 }
 
+@MainActor
 func positionPackEval(inputs: PortValuesList,
                       outputs: PortValuesList) -> PortValuesList {
     resultsMaker(inputs)(positionPackOp)

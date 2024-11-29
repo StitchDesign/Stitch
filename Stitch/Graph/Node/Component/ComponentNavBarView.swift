@@ -95,6 +95,7 @@ struct ComponentNavBarView: View {
 
 // TODO: move
 extension StitchDocumentViewModel {
+    @MainActor
     func unlinkComponent(localComponent: StitchMasterComponent) throws {
         let localComponentData = localComponent.lastEncodedDocument
         let oldComponentUrl = localComponentData.rootUrl
@@ -132,13 +133,14 @@ extension StitchDocumentViewModel {
             }
             
             await document.updateAsync(from: document.createSchema())
-            await document.initializeDelegate(store: store)
-            await document.encodeProjectInBackground()
+            document.initializeDelegate(store: store)
+            document.encodeProjectInBackground()
         }
     }
 }
 
 extension StitchDocumentViewModel {
+    @MainActor
     func changeComponentId(from: UUID, to: UUID) {
         // Change node data
         self.allComponents.forEach { componentNode in

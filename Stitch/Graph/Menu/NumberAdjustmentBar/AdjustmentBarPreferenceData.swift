@@ -22,7 +22,7 @@ struct BarPrefData {
 struct BarPrefKey: PreferenceKey {
     typealias Value = BarPrefDict
 
-    static var defaultValue: BarPrefDict = [:]
+    static let defaultValue: BarPrefDict = [:]
 
     static func reduce(value: inout BarPrefDict, nextValue: () -> BarPrefDict) {
         // append(contentsOf) is like a flat concat
@@ -48,7 +48,7 @@ struct ScrollCenterPrefData: Identifiable {
 struct ScrollCenterPrefKey: PreferenceKey {
     typealias Value = ScrollCenterPrefDict
 
-    static var defaultValue: ScrollCenterPrefDict = [:]
+    static let defaultValue: ScrollCenterPrefDict = [:]
 
     static func reduce(value: inout ScrollCenterPrefDict, nextValue: () -> ScrollCenterPrefDict) {
         let newValue = nextValue()

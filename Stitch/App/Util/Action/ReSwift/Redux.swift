@@ -13,7 +13,7 @@ import StitchSchemaKit
  Adapting ReSwift for SwiftUI
  ---------------------------------------------------------------- */
 
-typealias Dispatch = (Action) -> Void
+typealias Dispatch = @MainActor (Action) -> Void
 
 protocol Action: Sendable { }
 

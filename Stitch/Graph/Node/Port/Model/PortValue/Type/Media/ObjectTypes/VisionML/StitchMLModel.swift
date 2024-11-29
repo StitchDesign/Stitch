@@ -6,10 +6,10 @@
 //
 
 import Foundation
-import Vision
+@preconcurrency import Vision
 
 final class StitchMLModel: NSObject, NSCopying, Sendable {
-    var model: VNCoreMLModel
+    let model: VNCoreMLModel
     let originalURL: URL
 
     required init(originalURL: URL) throws {
@@ -31,9 +31,7 @@ final class StitchMLModel: NSObject, NSCopying, Sendable {
                 mlModel = try MLModel(contentsOf: compiledModelUrl)
                 vnModel = try VNCoreMLModel(for: mlModel)
             }
-
-            // Just use filename, since `mlModel.modelDescription.description` and `mlModel.modelDescription.className` don't seem like good name candidates.
-            vnModel.accessibilityLabel = originalURL.filename
+            
             self.model = vnModel
         }
     }

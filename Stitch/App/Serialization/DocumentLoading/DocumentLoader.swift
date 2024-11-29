@@ -15,7 +15,7 @@ struct StitchDirectoryResponse {
     let systems: [StitchSystem]
 }
 
-actor DocumentLoader {
+final actor DocumentLoader {
     var storage: [URL: ProjectLoader] = [:]
 
     func directoryUpdated() async -> StitchDirectoryResponse? {
@@ -29,25 +29,27 @@ actor DocumentLoader {
             let systemUrls = urls
                 .filter { $0.pathExtension == UTType.stitchSystemUnzipped.preferredFilenameExtension }
 
+            var newStorage = [URL: ProjectLoader]()
+            
             // Update data
-            self.storage = documentUrls.reduce(into: self.storage) { result, url in
-                guard let existingData = result.get(url) else {
-                    let data = ProjectLoader(url: url)
-                    result.updateValue(data, forKey: url)
-                    return
+            for url in documentUrls {
+                guard let existingData = self.storage.get(url) else {
+                    let data = await ProjectLoader(url: url)
+                    newStorage.updateValue(data, forKey: url)
+                    continue
                 }
 
                 let updatedDate = url.getLastModifiedDate(fileManager: FileManager.default)
-                let wasDocumentUpdated = updatedDate != existingData.modifiedDate
-
+                let existingModifiedDate = await existingData.modifiedDate
+                let wasDocumentUpdated = updatedDate != existingModifiedDate
+                newStorage.updateValue(existingData, forKey: url)
+                
                 if wasDocumentUpdated {
-                    existingData.modifiedDate = updatedDate
-
-                    // Forces view to refresh
-                    Task {
-                        await MainActor.run { [weak existingData] in
-                            existingData?.loadingDocument = .initialized
-                        }                        
+                    Task { @MainActor [weak existingData] in
+                        existingData?.modifiedDate = updatedDate
+                        
+                        // Forces view to refresh
+                        existingData?.loadingDocument = .initialized
                     }
                 }
             }
@@ -67,10 +69,18 @@ actor DocumentLoader {
             let incomingSet = Set(urls)
             let deletedUrls = Set(storage.keys).subtracting(incomingSet)
             deletedUrls.forEach {
-                self.storage.removeValue(forKey: $0)
+                newStorage.removeValue(forKey: $0)
             }
 
-            let sortedProjects = Array(self.storage.values).sortByDate()
+            let sortedProjects = newStorage
+                .sorted {
+                    $0.key.getLastModifiedDate(fileManager: FileManager.default) >
+                    $1.key.getLastModifiedDate(fileManager: FileManager.default)
+                }
+                .map { $0.value }
+            
+            self.storage = newStorage
+            
             return .init(projects: sortedProjects,
                          systems: systems)
             
@@ -80,8 +90,9 @@ actor DocumentLoader {
         }
     }
     
-    func updateStorage(with projectLoader: ProjectLoader) {
-        self.storage.updateValue(projectLoader, forKey: projectLoader.url)
+    func updateStorage(with projectLoader: ProjectLoader,
+                       url: URL) {
+        self.storage.updateValue(projectLoader, forKey: url)
     }
 
     nonisolated func loadDocument(from url: URL, 
@@ -127,58 +138,61 @@ actor DocumentLoader {
     func refreshDocument(url: URL) async {
         guard let projectLoader = self.storage.get(url) else { return }
         
-        projectLoader.resetData()
+        await projectLoader.resetData()
         await self.loadDocument(projectLoader)
     }
 }
 
 extension DocumentLoader {
+    @MainActor
     func createNewProject(from document: StitchDocument = .init(),
                           isPhoneDevice: Bool,
                           store: StitchStore) async throws {
         let projectLoader = try await self.installDocument(document: document)
-        projectLoader.loadingDocument = .loaded(document, nil)
         
-        self.updateStorage(with: projectLoader)
+        await self.updateStorage(with: projectLoader,
+                                 url: document.rootUrl)
         
-        let document = await StitchDocumentViewModel(
+        let documentViewModel = await StitchDocumentViewModel(
             from: document,
             isPhoneDevice: isPhoneDevice,
             projectLoader: projectLoader,
             store: store
         )
-
-        document?.didDocumentChange = true // creates fresh thumbnail
         
-        await MainActor.run { [weak document, weak store] in
-            guard let document = document else { return }
-            
-            // Get latest preview window size
-            let previewDeviceString = UserDefaults.standard.string(forKey: DEFAULT_PREVIEW_WINDOW_DEVICE_KEY_NAME) ??
-            PreviewWindowDevice.defaultPreviewWindowDevice.rawValue
-            
-            guard let previewDevice = PreviewWindowDevice(rawValue: previewDeviceString) else {
-                fatalErrorIfDebug()
-                return
-            }
-            
-            document.previewSizeDevice = previewDevice
-            document.previewWindowSize = previewDevice.previewWindowDimensions
-            store?.navPath = [document]
+        documentViewModel?.didDocumentChange = true // creates fresh thumbnail
+        
+        guard let documentViewModel = documentViewModel else { return }
+        
+        projectLoader.loadingDocument = .loaded(document, nil)
+        
+        // Get latest preview window size
+        let previewDeviceString = UserDefaults.standard.string(forKey: DEFAULT_PREVIEW_WINDOW_DEVICE_KEY_NAME) ??
+        PreviewWindowDevice.defaultPreviewWindowDevice.rawValue
+        
+        guard let previewDevice = PreviewWindowDevice(rawValue: previewDeviceString) else {
+            fatalErrorIfDebug()
+            return
         }
+        
+        documentViewModel.previewSizeDevice = previewDevice
+        documentViewModel.previewWindowSize = previewDevice.previewWindowDimensions
+        store.navPath = [documentViewModel]
     }
 
     func installDocument(document: StitchDocument) async throws -> ProjectLoader {
         let rootUrl = document.rootUrl
-        let projectLoader = ProjectLoader(url: rootUrl)
-        projectLoader.encoder = await .init(document: document)
+        let projectLoader = await ProjectLoader(url: rootUrl)
         
         try document.installDocument()
         
+        await MainActor.run { [weak projectLoader] in
+            projectLoader?.encoder = .init(document: document)
+            projectLoader?.loadingDocument = .loaded(document, nil)
+        }
+
         self.storage.updateValue(projectLoader,
                                  forKey: rootUrl)
-        
-        projectLoader.loadingDocument = .loaded(document, nil)
         return projectLoader
     }
     

@@ -104,6 +104,7 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
 extension FieldViewModel {
     
     // TODO: instrument perf here?
+    @MainActor
     func isBlocked(_ blockedFields: Set<LayerInputKeyPathType>) -> Bool {
         blockedFields.blocks(.unpacked(self.fieldLabelIndex.asUnpackedPortType))
     }

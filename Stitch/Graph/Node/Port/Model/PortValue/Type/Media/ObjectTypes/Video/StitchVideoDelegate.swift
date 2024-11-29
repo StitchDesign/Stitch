@@ -14,14 +14,14 @@ import StitchSchemaKit
 /// class itself owning the video. This is especially useful for StitchVideoViewController which owns
 /// its own video object.
 final class StitchVideoDelegate: NSObject, Sendable {
-    var loopObserver: NSObjectProtocol?
-    var videoData: VideoMetadata
+    @MainActor weak var loopObserver: NSObjectProtocol?
+    @MainActor var videoData: VideoMetadata
 
     // used to measure volume but this stays muted
     let audio: StitchSoundPlayer<StitchSoundFilePlayer>
 
-    private var isSeekInProgress = false
-    private var chaseTime = CMTime.zero
+    @MainActor private var isSeekInProgress = false
+    @MainActor private var chaseTime = CMTime.zero
 
     @MainActor
     init(url: URL, videoData: VideoMetadata, currentPlayer: AVPlayer) {
@@ -121,19 +121,20 @@ final class StitchVideoDelegate: NSObject, Sendable {
                     return
                 }
                 
-                if isLooped {
-                    let videoStart = Double.zero.cmTime
-                    self?.seek(on: currentPlayer,
-                               to: videoStart,
-                               // Needs to be false, and assumes looping doesn't happen
-                               // with scrubbing true
-                               isScrubbing: false)
-                    self?.play(with: currentPlayer)
-                } else {
-                    self?.pause(with: currentPlayer)
+                DispatchQueue.main.async {
+                    if isLooped {
+                        let videoStart = Double.zero.cmTime
+                        self?.seek(on: currentPlayer,
+                                   to: videoStart,
+                                   // Needs to be false, and assumes looping doesn't happen
+                                   // with scrubbing true
+                                   isScrubbing: false)
+                        self?.play(with: currentPlayer)
+                    } else {
+                        self?.pause(with: currentPlayer)
+                    }
                 }
             }
-
         }
     }
 
@@ -146,6 +147,7 @@ final class StitchVideoDelegate: NSObject, Sendable {
         }
     }
 
+    @MainActor
     func removeLoopObserver() {
         if let loopObserver = loopObserver {
             NotificationCenter.default.removeObserver(loopObserver)
@@ -153,16 +155,20 @@ final class StitchVideoDelegate: NSObject, Sendable {
         }
     }
 
+    @MainActor
     func removeAllObservers() {
         removeLoopObserver()
     }
 
     deinit {
-        removeAllObservers()
+        if let loopObserver = loopObserver {
+            NotificationCenter.default.removeObserver(loopObserver)
+        }
     }
 
     // Fixes issue where AVPlayer has poor scrubbing performance
     // Source: https://gist.github.com/shaps80/ac16b906938ad256e1f47b52b4809512?permalink_comment_id=3066594#gistcomment-3066594
+    @MainActor
     private func seekSmoothlyToTime(player: AVPlayer,
                                     newChaseTime: CMTime) {
         if CMTimeCompare(newChaseTime, chaseTime) != 0 {
@@ -174,11 +180,13 @@ final class StitchVideoDelegate: NSObject, Sendable {
         }
     }
 
+    @MainActor
     private func trySeekToChaseTime(player: AVPlayer) {
         guard player.status == .readyToPlay else { return }
         actuallySeekToTime(player: player)
     }
 
+    @MainActor
     private func actuallySeekToTime(player: AVPlayer) {
         isSeekInProgress = true
         let seekTimeInProgress = chaseTime
@@ -187,10 +195,14 @@ final class StitchVideoDelegate: NSObject, Sendable {
             guard let player = player else { return }
             guard let videoDelegate = self else { return }
 
-            if CMTimeCompare(seekTimeInProgress, videoDelegate.chaseTime) == 0 {
-                videoDelegate.isSeekInProgress = false
-            } else {
-                videoDelegate.trySeekToChaseTime(player: player)
+            DispatchQueue.main.async { [weak videoDelegate] in
+                guard let videoDelegate = videoDelegate else { return }
+                
+                if CMTimeCompare(seekTimeInProgress, videoDelegate.chaseTime) == 0 {
+                    videoDelegate.isSeekInProgress = false
+                } else {
+                    videoDelegate.trySeekToChaseTime(player: player)
+                }
             }
         }
     }
@@ -198,14 +210,17 @@ final class StitchVideoDelegate: NSObject, Sendable {
 
 /// Private helpers for `StitchVideoAVPlayer`.
 extension StitchVideoDelegate {
+    @MainActor
     private func didToggleToPlay(on currentPlayer: AVPlayer, isPlaySettingOn: Bool) -> Bool {
         return isPlaySettingOn && !currentPlayer.isPlaying
     }
 
+    @MainActor
     private func didToggleToPause(on currentPlayer: AVPlayer, isPlaySettingOn: Bool) -> Bool {
         return !isPlaySettingOn && currentPlayer.isPlaying
     }
 
+    @MainActor
     private func shouldCreateLoopObserver(isLoopedSetting: Bool) -> Bool {
         self.loopObserver == nil && isLoopedSetting
     }

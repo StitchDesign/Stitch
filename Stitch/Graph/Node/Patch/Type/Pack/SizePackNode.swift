@@ -30,6 +30,7 @@ struct SizePackPatchNode: PatchNodeDefinition {
 
 }
 
+@MainActor
 func sizePackEval(inputs: PortValuesList,
                   outputs: PortValuesList) -> PortValuesList {
     resultsMaker(inputs)(sizePackOp)

@@ -19,6 +19,7 @@ struct InsertNodeMenuOptionData: Hashable, Identifiable, Equatable {
 }
 
 extension NodeViewModel {
+    @MainActor
     var asActiveSelection: InsertNodeMenuOptionData {
         switch self.kind {
         case .patch(let x):

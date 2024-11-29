@@ -37,6 +37,7 @@ func curveNode(id: NodeId,
         outputs: outputs)
 }
 
+@MainActor
 func curveEval(inputs: PortValuesList,
                outputs: PortValuesList) -> PortValuesList {
     //    log("curveEval called")

@@ -52,6 +52,7 @@ extension CanvasItemViewModel {
     }
 
     // fka `updateNodeOnGraphDragged`
+    @MainActor
     func updateNodeOnGraphDragged(_ translation: CGSize,
                                   _ highestZIndex: ZIndex,
                                   zoom: CGFloat,
@@ -267,7 +268,7 @@ struct NodeMoveEndedAction: StitchDocumentEvent {
         state.visibleGraph.encodeProjectInBackground()
         
         // Reset node positions cache
-        state.visibleGraph.visibleNodesViewModel.infiniteCanvasCache = nil
+        state.visibleGraph.visibleNodesViewModel.needsInfiniteCanvasCacheReset = true
     }
 }
 
@@ -294,7 +295,9 @@ extension StitchDocumentViewModel {
         
         let _update = { (canvasItem: CanvasItemViewModel) in
             
-            let nodeSize = canvasItem.graphBaseViewSize
+            guard let nodeSize = canvasItem.graphBaseViewSize else {
+                return
+            }
             
             canvasItem.position = determineSnapPosition(
                 position: canvasItem.position,

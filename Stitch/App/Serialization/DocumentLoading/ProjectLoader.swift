@@ -10,18 +10,20 @@ import SwiftUI
 
 /// Passed into view to property sort URLs by modified date and forces a new render cycle when the date changes.
 @Observable
-final class ProjectLoader: Sendable {
-    var encoder: DocumentEncoder?
+final class ProjectLoader: Sendable, Identifiable {
+    let id: Int
+    @MainActor var encoder: DocumentEncoder?
     
-    var modifiedDate: Date
-    var url: URL
-    var loadingDocument: DocumentLoadingStatus = .initialized
-    var thumbnail: UIImage?
+    @MainActor var modifiedDate: Date
+    @MainActor var url: URL
+    @MainActor var loadingDocument: DocumentLoadingStatus = .initialized
+    @MainActor var thumbnail: UIImage?
 
     /// Initialzes object with some URL, not yet loading document until loaded in lazy view.
-    init(url: URL) {
+    @MainActor init(url: URL) {
         // log("ProjectLoader: init: url: \(url)")
         self.url = url
+        self.id = url.hashValue
 
         // Sort URLS by project modification date, excluding metadata changes
         self.modifiedDate = url
@@ -29,17 +31,10 @@ final class ProjectLoader: Sendable {
     }
 }
 
-extension ProjectLoader: Identifiable {
-    var id: Int { self.url.hashValue }
-    
+extension ProjectLoader {
+    @MainActor
     func resetData() {
         self.loadingDocument = .loading
         self.thumbnail = nil
-    }
-}
-
-extension [ProjectLoader] {
-    func sortByDate() -> Self {
-        self.sorted { $0.modifiedDate > $1.modifiedDate }
     }
 }

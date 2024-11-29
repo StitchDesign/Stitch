@@ -12,6 +12,7 @@ import StitchSchemaKit
 
 extension GraphDelegate {
     // TODO: cache these for perf
+    @MainActor
     var nonEditModeSelectedLayerInLayerSidebar: NodeId? {
         self.sidebarSelectionState.all.first
     }

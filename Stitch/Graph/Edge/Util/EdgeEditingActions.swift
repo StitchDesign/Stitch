@@ -210,7 +210,8 @@ extension GraphState {
 //    func getNodesToTheEastFromClosestToFarthest(eastOf originOutputNodeId: CanvasItemId) -> [CanvasItemId]? {
     func getNodesToTheEastFromClosestToFarthest(eastOf originOutputNodeId: CanvasItemId) -> EligibleEasternNodes? {
         
-        guard let originOutputNode = self.getCanvasItem(originOutputNodeId) else {
+        guard let originOutputNode = self.getCanvasItem(originOutputNodeId),
+              let originOutputNodeSize = originOutputNode.sizeByLocalBounds else {
             log("GraphState.closesNodeEast: node not found: \(originOutputNodeId)")
             return nil
         }
@@ -231,8 +232,8 @@ extension GraphState {
              `node.center.x - node.width/2` = east face, where inputs are.
              the `node.center.x + node.width/2` = west face, where outputs are.
              */
-            let adjustedOrigin = originOutputNode.position.x + originOutputNode.sizeByLocalBounds.width/2
-            let adjustedInput = node.position.x - node.sizeByLocalBounds.width/2
+            let adjustedOrigin = originOutputNode.position.x + originOutputNodeSize.width/2
+            let adjustedInput = node.position.x - originOutputNodeSize.width/2
             return adjustedInput > adjustedOrigin
         }
         
@@ -260,7 +261,8 @@ extension GraphState {
     @MainActor
     func getEligibleNearbyNode(eastOf originOutputNodeId: CanvasItemId) -> CanvasItemId? {
         
-        guard let originOutputNode = self.getCanvasItem(originOutputNodeId) else {
+        guard let originOutputNode = self.getCanvasItem(originOutputNodeId),
+              let originOutputNodeSize = originOutputNode.sizeByLocalBounds else {
             log("GraphState.closesNodeEast: node not found: \(originOutputNodeId)")
             return nil
         }
@@ -282,8 +284,12 @@ extension GraphState {
              `node.center.x - node.width/2` = east face, where inputs are.
              the `node.center.x + node.width/2` = west face, where outputs are.
              */
-            let adjustedOrigin = originOutputNode.position.x + originOutputNode.sizeByLocalBounds.width/2
-            let adjustedInput = node.position.x - node.sizeByLocalBounds.width/2
+            guard let nodeSize = node.sizeByLocalBounds else {
+                return false
+            }
+            
+            let adjustedOrigin = originOutputNode.position.x + originOutputNodeSize.width/2
+            let adjustedInput = node.position.x - nodeSize.width/2
             return adjustedInput > adjustedOrigin
         }
 
@@ -302,7 +308,7 @@ extension CGPoint {
 }
 
 extension VisibleNodesViewModel {
-
+    @MainActor
     func nodePageDataAtCurrentTraversalLevel(_ focusedGroup: NodeId?) -> NodePageData? {
         self.nodesByPage.get(focusedGroup.map(NodePageType.group) ?? NodePageType.root)
     }

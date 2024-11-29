@@ -24,28 +24,30 @@ enum LayerInspectorRowId: Equatable, Hashable {
 typealias LayerInspectorRowIdSet = Set<LayerInspectorRowId>
 
 @Observable
-final class PropertySidebarObserver {
+final class PropertySidebarObserver: Sendable {
         
     // Non-nil just if we have multiple layers selected
-    var inputsCommonToSelectedLayers: LayerInputTypeSet?
+    @MainActor var inputsCommonToSelectedLayers: LayerInputTypeSet?
     
-    var selectedProperty: LayerInspectorRowId?
+    @MainActor var selectedProperty: LayerInspectorRowId?
     
     // Used for positioning flyouts; read and populated by every row,
     // even if row does not support a flyout or has no active flyout.
     // TODO: only needs to be the `y` value, since `x` is static (based on layer inspector's static width)
-    var propertyRowOrigins: [LayerInputPort: CGPoint] = .init()
+    @MainActor var propertyRowOrigins: [LayerInputPort: CGPoint] = .init()
     
     // Only layer inputs (not fields or outputs) can have flyouts
-    var flyoutState: PropertySidebarFlyoutState? = nil
+    @MainActor var flyoutState: PropertySidebarFlyoutState? = nil
     
-    var collapsedSections: Set<LayerInspectorSectionName> = .init()
+    @MainActor var collapsedSections: Set<LayerInspectorSectionName> = .init()
     
     // NOTE: Specific to positioning the flyout when flyout's bottom edge could sit below graph's bottom edge
-    var safeAreaTopPadding: CGFloat = 0
+    @MainActor var safeAreaTopPadding: CGFloat = 0
     
     // TODO: why do we not need to worry about bottom padding from UIKitWrapper?
     // var safeAreaBottomPadding: CGFloat = 0
+    
+    init() { }
 }
 
 struct PropertySidebarFlyoutState: Equatable {

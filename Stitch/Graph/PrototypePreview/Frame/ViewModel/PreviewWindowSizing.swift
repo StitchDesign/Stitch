@@ -9,18 +9,20 @@ import Foundation
 import SwiftUI
 
 @Observable
-final class PreviewWindowSizing {
+final class PreviewWindowSizing: Sendable {
     // Size of the device the preview window is emulating
     // i.e. the size of the device our prototype is for: e.g. iPhone 11 etc.
-    var previewWindowDeviceSize: CGSize = PreviewWindowDevice.DEFAULT_PREVIEW_SIZE
+    @MainActor var previewWindowDeviceSize: CGSize = PreviewWindowDevice.DEFAULT_PREVIEW_SIZE
     
     // Size of the device on which Stitch is running, e.g. iPad Pro 11".
     // Changes when e.g. keyboard comes up or user's device rotates.
-    var userDeviceSize: CGSize = DEFAULT_LANDSCAPE_SIZE
+    @MainActor var userDeviceSize: CGSize = DEFAULT_LANDSCAPE_SIZE
     
     /// From user's manual drag of preview window handle. Reset when project clsoed.
-    var activeAdjustedTranslation: CGSize = .zero
-    var accumulatedAdjustedTranslation: CGSize = .zero
+    @MainActor var activeAdjustedTranslation: CGSize = .zero
+    @MainActor var accumulatedAdjustedTranslation: CGSize = .zero
+    
+    init() { }
 }
 
 extension PreviewWindowSizing {
@@ -34,7 +36,7 @@ extension PreviewWindowSizing {
     // Scaling the preview window to the user's device
     // NEVER CHANGES; BASED ON ELLIOT'S FORMULA;
     // fka `calcSmallPreviewWindowScale`
-    var previewWindowContentScale: CGFloat {
+    @MainActor var previewWindowContentScale: CGFloat {
         let previewSize = previewWindowDeviceSize // PW device size, e.g. iPhone 14
         let deviceSize = userDeviceSize  // user's device e.g. the iPad
         
@@ -47,7 +49,7 @@ extension PreviewWindowSizing {
     }
     
     // fka `calcFullPreviewWindowScale`
-    var fullscreenPreviewWindowContentScale: CGFloat {
+    @MainActor var fullscreenPreviewWindowContentScale: CGFloat {
         let previewSize = previewWindowDeviceSize // PW device size, e.g. iPhone 14
         let deviceSize = userDeviceSize  // user's device e.g. the iPad
         
@@ -58,25 +60,25 @@ extension PreviewWindowSizing {
         return _scale
     }
     
-    var previewDeviceWidth: CGFloat {
+    @MainActor var previewDeviceWidth: CGFloat {
         previewWindowDeviceSize.width
     }
             
-    var previewDeviceHeight: CGFloat {
+    @MainActor var previewDeviceHeight: CGFloat {
         previewWindowDeviceSize.height
     }
     
     // faka `grayWidth`
-    var previewBorderWidth: CGFloat {
+    @MainActor var previewBorderWidth: CGFloat {
         dimensions.width + PREVIEW_WINDOW_BORDER_WIDTH * 2
     }
     
     // faka `grayHeight`
-    var previewBorderHeight: CGFloat {
+    @MainActor var previewBorderHeight: CGFloat {
         dimensions.height + PREVIEW_WINDOW_BORDER_WIDTH * 2
     }
     
-    func getDimensions(_ newActiveAdjustedTranslation: CGSize) -> CGSize {
+    @MainActor func getDimensions(_ newActiveAdjustedTranslation: CGSize) -> CGSize {
         let fullWidth: Double = previewWindowDeviceSize.width * previewWindowContentScale
         let fullHeight: Double = previewWindowDeviceSize.height * previewWindowContentScale
    
@@ -91,7 +93,7 @@ extension PreviewWindowSizing {
         )
     }
     
-    var dimensions: CGSize {
+    @MainActor var dimensions: CGSize {
         getDimensions(self.activeAdjustedTranslation)
     }
 }

@@ -36,6 +36,7 @@ func textReplaceNode(id: NodeId,
 
 // What's the proper case-sensitive logic?
 //
+@MainActor
 func textReplaceEval(inputs: PortValuesList,
                      outputs: PortValuesList) -> PortValuesList {
 

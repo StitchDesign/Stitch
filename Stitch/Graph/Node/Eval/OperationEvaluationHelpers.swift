@@ -17,7 +17,7 @@ import StitchSchemaKit
 
 // given call args (port values for that index),
 // produces result (new port value)
-typealias Operation = (PortValues) -> PortValue
+typealias Operation = @MainActor (PortValues) -> PortValue
 typealias ComputedOperation = (PortValues, ComputedNodeState) -> PortValue
 
 // e.g. sizeUnpack returns two values for two separate outputs
@@ -39,6 +39,7 @@ typealias Operation10 = (PortValues) -> (PortValue, PortValue, PortValue, PortVa
 typealias OperationIndexSideEffectAndValue = (PortValues, Int) -> NetworkRequestOpResult
 
 // mostly commonly used; for node evals that produce 1 output
+@MainActor
 func outputEvalHelper(inputs: PortValuesList,
                       outputs: PortValuesList,// these will be extended,
                       operation: Operation) -> PortValues {
@@ -92,6 +93,7 @@ func createOutputCallbackLoop(inputs: PortValuesList,
 // ^^^ DOES THIS MATTER? What's wrong with extending the first port of optionPicker? You'd just be repeating the same number -- shouldn't matter.
 
 // option
+@MainActor
 func outputEvalHelper(input: PortValues,
                       extensibleInputs: PortValuesList,
                       operation: Operation) -> PortValues {

@@ -42,6 +42,7 @@ func clipNode(id: NodeId,
         outputs: outputs)
 }
 
+@MainActor
 func clipEval(inputs: PortValuesList,
               outputs: PortValuesList) -> PortValuesList {
 

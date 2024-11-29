@@ -13,6 +13,7 @@ struct SideEffectCoordinator {
     var backgroundEffects = SideEffects()
 
     /// Coordinates the dispatching of background and user-initiated side effects
+    @MainActor
     func runEffects(dispatch: @escaping Dispatch) {
         self.runSideEffects(sideEffects: self.userInitiatedEffects,
                             dispatch: dispatch,
@@ -22,6 +23,7 @@ struct SideEffectCoordinator {
                             taskPriority: .background)
     }
 
+    @MainActor
     private func runSideEffects(sideEffects: SideEffects,
                                 dispatch: @escaping Dispatch,
                                 taskPriority: TaskPriority) {

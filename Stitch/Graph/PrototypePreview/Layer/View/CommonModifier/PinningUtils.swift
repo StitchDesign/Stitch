@@ -352,6 +352,7 @@ extension PinToId {
     }
 }
 
+@MainActor
 func getPinnedViewPosition(pinnedLayerViewModel: LayerViewModel,
                            pinReceiverData: PinReceiverData) -> CGPoint {
     
@@ -363,6 +364,7 @@ func getPinnedViewPosition(pinnedLayerViewModel: LayerViewModel,
 
 
 // TODO: there must be a more elegant formula here
+@MainActor
 func getRotationAnchor(lengthA: CGFloat,
                        lengthB: CGFloat,
                        pointA: CGFloat,

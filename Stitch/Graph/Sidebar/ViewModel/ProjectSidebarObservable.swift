@@ -17,31 +17,32 @@ protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID 
     typealias SidebarSelectionState = Self
     typealias ExcludedGroups = [ItemID: [ItemViewModel]]
     
-    var isEditing: Bool { get set }
+    @MainActor var isEditing: Bool { get set }
 
-    var items: [ItemViewModel] { get set }
+    @MainActor var items: [ItemViewModel] { get set }
 
-    var activeSwipeId: ItemID? { get set }
+    @MainActor var activeSwipeId: ItemID? { get set }
 
-    var activeGesture: SidebarListActiveGesture<ItemID> { get set }
+    @MainActor var activeGesture: SidebarListActiveGesture<ItemID> { get set }
 
-    var haveDuplicated: Bool { get set }
+    @MainActor var haveDuplicated: Bool { get set }
     
-    var optionDragInProgress: Bool { get set }
+    @MainActor var optionDragInProgress: Bool { get set }
     
-    var primary: Set<ItemID> { get set }
+    @MainActor var primary: Set<ItemID> { get set }
     
-    var lastFocused: ItemID? { get set }
+    @MainActor var lastFocused: ItemID? { get set }
     
-    var currentItemDragged: Self.ItemID? { get set }
+    @MainActor var currentItemDragged: Self.ItemID? { get set }
     
-    var graphDelegate: GraphState? { get set }
+    @MainActor var graphDelegate: GraphState? { get set }
 
-    func sidebarGroupCreated()
+    @MainActor func sidebarGroupCreated()
     
     @MainActor
     func sidebarGroupUncreatedViaEditMode(groupId: Self.ItemID, children: [Self.ItemID])
-    
+ 
+    @MainActor
     func didItemsDelete(ids: Set<ItemID>)
 }
 
@@ -49,11 +50,13 @@ extension ProjectSidebarObservable {
     // TODO: tech debt to remove
     var selectionState: Self { self }
     
+    @MainActor
     var proposedGroup: Self.ItemViewModel? {
         guard let currentItemDragged = self.currentItemDragged else { return nil }
         return self.items.get(currentItemDragged)?.parentDelegate
     }
     
+    @MainActor
     func initializeDelegate(graph: GraphState) {
         self.graphDelegate = graph
         
@@ -78,10 +81,12 @@ extension ProjectSidebarObservable {
         }
     }
     
+    @MainActor
     func update(from encodedData: [Self.EncodedItemData]) {
         self.sync(from: encodedData)
     }
     
+    @MainActor
     func sync(from encodedData: [Self.EncodedItemData]) {
         let existingViewModels = self.items.reduce(into: [Self.ItemID : Self.ItemViewModel]()) { result, viewModel in
             result.updateValue(viewModel, forKey: viewModel.id)
@@ -92,6 +97,7 @@ extension ProjectSidebarObservable {
         self.items.updateSidebarIndices()
     }
     
+    @MainActor
     func recursiveSync(elements: [Self.EncodedItemData],
                        existingViewModels: [Self.ItemID : Self.ItemViewModel],
                        parent: Self.ItemViewModel? = nil) -> [Self.ItemViewModel] {

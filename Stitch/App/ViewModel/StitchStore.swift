@@ -12,13 +12,14 @@ import StitchSchemaKit
 @Observable
 final class StitchStore: Sendable, StoreDelegate {
         
-    var llmRecordingModeEnabled: Bool = false
+    @MainActor var llmRecordingModeEnabled: Bool = false
     
-    var allProjectUrls = [ProjectLoader]()
+    @MainActor var allProjectUrls = [ProjectLoader]()
     let documentLoader = DocumentLoader()
     let clipboardEncoder = ClipboardEncoder()
     let clipboardDelegate = ClipboardEncoderDelegate()
     
+    @MainActor
     var systems: [StitchSystemType: StitchSystemViewModel] = [:]
 
     // Components are unqiue to a user, not to a project,
@@ -26,22 +27,24 @@ final class StitchStore: Sendable, StoreDelegate {
     //    var defaultComponents = ComponentsDict()
 
     // Navigation path for viewing documents
-    var navPath: [StitchDocumentViewModel] = []
+    @MainActor var navPath: [StitchDocumentViewModel] = []
 
-    var isShowingDrawer = false
+    @MainActor var isShowingDrawer = false
 
     // TODO: should be properly persisted
-    var edgeStyle: EdgeStyle = .defaultEdgeStyle
-    var appTheme: StitchTheme = .defaultTheme
+    @MainActor var edgeStyle: EdgeStyle = .defaultEdgeStyle
+    @MainActor var appTheme: StitchTheme = .defaultTheme
     @MainActor var alertState = ProjectAlertState()
 
     // Tracks ID of project which has a title that's currently getting modified
-    var projectIdForTitleEdit: ProjectId?
+    @MainActor var projectIdForTitleEdit: ProjectId?
 
-    let environment = StitchEnvironment()
-
+    let environment: StitchEnvironment
+    
     @MainActor
     init() {
+        self.environment = StitchEnvironment()
+        
         // Remove cached data from previous session
         try? FileManager.default.removeItem(at: StitchFileManager.tempDir)
         
@@ -69,7 +72,7 @@ final class StitchStore: Sendable, StoreDelegate {
 
 final class ClipboardEncoderDelegate: DocumentEncodableDelegate {
     var lastEncodedDocument: StitchClipboardContent
-    weak var store: StitchStore?
+    @MainActor weak var store: StitchStore?
     
     init() {
         self.lastEncodedDocument = .init()
@@ -103,14 +106,17 @@ extension StitchStore: GlobalDispatchDelegate {
 }
 
 extension StitchStore {
+    @MainActor
     var isCurrentProjectSelected: Bool {
         self.currentProjectId.isDefined
     }
 
+    @MainActor
     var currentProjectId: ProjectId? {
         currentDocument?.projectId
     }
 
+    @MainActor
     var currentDocument: StitchDocumentViewModel? {
         self.navPath.first
     }

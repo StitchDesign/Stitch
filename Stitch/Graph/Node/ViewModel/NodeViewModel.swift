@@ -24,8 +24,9 @@ final class NodeViewModel: Sendable {
         zIndex: .zero,
         graphDelegate: nil)
 
-    var id: NodeEntity.ID
+    let id: NodeEntity.ID
     
+    @MainActor
     var title: String {
         didSet(oldValue) {
             if oldValue != title {
@@ -39,18 +40,24 @@ final class NodeViewModel: Sendable {
 
      Previously we used a `lazy var`, but since Swift never recalculates lazy vars we had to switch to a cache.
      */
-    private var _cachedDisplayTitle: String = ""
+    @MainActor private var _cachedDisplayTitle: String = ""
 
+    @MainActor
     var nodeType: NodeViewModelType
     
     // Cached for perf
+    @MainActor
     var longestLoopLength: Int = 1
+    
+    @MainActor
     var ephemeralObservers: [any NodeEphemeralObservable]?
 
     // aka reference to a limited subset of GraphState properties
+    @MainActor
     weak var graphDelegate: GraphDelegate?
 
     /// Called on initialization or prototype restart.
+    @MainActor
     func syncEphemeralObservers() {
         if self.ephemeralObservers == nil,
            let ephemeralObserver = self.createEphemeralObserver() {
@@ -58,6 +65,7 @@ final class NodeViewModel: Sendable {
         }
     }
     
+    @MainActor
     init(from schema: NodeEntity,
          nodeType: NodeViewModelType) {
         self.id = schema.id
@@ -68,6 +76,7 @@ final class NodeViewModel: Sendable {
     }
     
     // i.e. "create node view model from schema
+    @MainActor
     convenience init(from schema: NodeEntity,
                      components: [UUID : StitchMasterComponent],
                      parentGraphPath: [UUID]) async {
@@ -110,11 +119,13 @@ extension NodeViewModel: NodeCalculatable {
         }
     }
     
+    @MainActor
     var isComponentOutputSplitter: Bool {
         let isNodeInComponent = !(self.graphDelegate?.saveLocation.isEmpty ?? true)
         return self.splitterType == .output && isNodeInComponent
     }
     
+    @MainActor
     var requiresOutputValuesChange: Bool {
         self.kind.getPatch == .pressInteraction
     }
@@ -203,6 +214,7 @@ extension NodeViewModel: NodeCalculatable {
                                         id: self.id)
     }
     
+    @MainActor
     var isGroupNode: Bool {
         self.kind == .group
     }
@@ -235,6 +247,7 @@ extension NodeViewModel {
         .init()
     }
     
+    @MainActor
     convenience init() {
         let nodeEntity = NodeEntity(id: .init(),
                                     nodeTypeEntity: .group(.init(position: .zero,
@@ -264,12 +277,14 @@ extension NodeViewModel {
         self.syncEphemeralObservers()
     }
     
+    @MainActor
     var computedStates: [ComputedNodeState]? {
         self.ephemeralObservers?.compactMap {
             $0 as? ComputedNodeState
         }
     }
 
+    @MainActor
     func createEphemeralObserver() -> NodeEphemeralObservable? {
         let observer = self.kind.graphNode?.createEphemeralObserver()
         
@@ -321,6 +336,7 @@ extension NodeViewModel {
         }
     }
     
+    @MainActor
     var patchCanvasItem: CanvasItemViewModel? {
         switch nodeType {
         case .patch(let patchNode):
@@ -517,6 +533,7 @@ extension NodeViewModel {
         }
     }
     
+    @MainActor
     var color: NodeUIColor {
         switch self.kind {
         case .patch(let patch):
@@ -575,6 +592,7 @@ extension NodeViewModel {
         graphDelegate?.activeIndex ?? .init(.zero)
     }
     
+    @MainActor
     var getMathExpression: String? {
         self.patchNode?.mathExpression
     }
@@ -640,6 +658,7 @@ extension NodeViewModel {
         self.updateTitle(newTitle: schema.title)
     }
     
+    @MainActor
     func updateTitle(newTitle: String) {
         if self.title != newTitle {
             self.title = newTitle
@@ -808,6 +827,7 @@ extension NodeViewModel {
         self.getAllOutputsObservers().flattenOutputs()
     }
     
+    @MainActor
     func appendInputRowObserver(_ rowObserver: InputNodeRowObserver) {
         guard let patchNode = self.patchNode else {
             fatalErrorIfDebug()

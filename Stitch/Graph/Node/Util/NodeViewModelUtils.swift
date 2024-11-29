@@ -86,6 +86,7 @@ extension NodeViewModel {
         }
     }
 
+    @MainActor
     var userVisibleType: UserVisibleType? {
         get {
             self.nodeType.patchNode?.userVisibleType
@@ -99,6 +100,7 @@ extension NodeViewModel {
         }
     }
 
+    @MainActor
     var splitterType: SplitterType? {
         get {
             self.nodeType.patchNode?.splitterType
@@ -111,7 +113,8 @@ extension NodeViewModel {
             patchNode.splitterType = newValue
         }
     }
-
+    
+    @MainActor
     var kind: NodeKind {
         self.nodeType.kind
     }
@@ -182,20 +185,21 @@ extension NodeViewModel {
     }
     
     // MARK: heavy perf cost due to human readable strings.**
+    @MainActor
     func getDisplayTitle() -> String {
         // always prefer a custom name
         self.kind.getDisplayTitle(customName: self.title)
     }
     
+    @MainActor
     var layerNodeId: LayerNodeId {
         LayerNodeId(self.id)
     }
 
+    @MainActor
     var isGroupLayer: Bool {
         self.kind.getLayer == .group
     }
-
-    static let nodeUIKind: NodeUIKind = NodeUIKind.inputsOnly
     
     @MainActor
     func inputCoordinate(at portId: Int) -> InputCoordinate? {
@@ -216,14 +220,17 @@ extension NodeViewModel {
         (self as NodeViewModel).getLoopIndices()
     }
 
+    @MainActor
     var patchNode: PatchNodeViewModel? {
         nodeType.patchNode
     }
 
+    @MainActor
     var layerNode: LayerNodeViewModel? {
         nodeType.layerNode
     }
     
+    @MainActor
     var componentNode: StitchComponentViewModel? {
         nodeType.componentNode
     }

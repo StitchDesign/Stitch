@@ -55,19 +55,26 @@ extension UIImage {
         if let output = currentFilter.outputImage,
            let cgImage = context.createCGImage(output, from: output.extent) {
             let uiImage = UIImage(cgImage: cgImage, scale: scale, orientation: imageOrientation)
-            uiImage.accessibilityIdentifier = self.accessibilityIdentifier
+            
+            await MainActor.run { [weak uiImage, weak self] in
+                guard let newIdentifier = self?.accessibilityIdentifier else { return }
+                uiImage?.accessibilityIdentifier = newIdentifier
+            }
             return .success(uiImage)
         }
         return .failure(.imageGrayscaleFailed)
     }
 
     /// Creates a deep copy of a UIImage reference.
+    @MainActor
     func clone() -> UIImage? {
         guard let originalCgImage = self.cgImage, let newCgImage = originalCgImage.copy() else {
             return nil
         }
 
-        let imageClone = UIImage(cgImage: newCgImage, scale: self.scale, orientation: self.imageOrientation)
+        let imageClone = UIImage(cgImage: newCgImage,
+                                 scale: self.scale,
+                                 orientation: self.imageOrientation)
 
         // Copies over some name if one was set in self
         imageClone.accessibilityIdentifier = self.accessibilityIdentifier

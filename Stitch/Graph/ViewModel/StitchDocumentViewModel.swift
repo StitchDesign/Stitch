@@ -14,52 +14,53 @@ let STITCH_PROJECT_DEFAULT_NAME = StitchDocument.defaultName
 
 extension StitchDocumentViewModel: Hashable {
     static func == (lhs: StitchDocumentViewModel, rhs: StitchDocumentViewModel) -> Bool {
-        lhs.graph.id == rhs.graph.id
+        lhs.rootId == rhs.rootId
     }
-
+    
     func hash(into hasher: inout Hasher) {
-        hasher.combine(self.graph.id)
+        hasher.combine(self.rootId)
     }
 }
 
 @Observable
 final class StitchDocumentViewModel: Sendable {
+    let rootId: UUID
     let graph: GraphState
-    var graphUI: GraphUIState
+    let graphUI: GraphUIState
     let graphStepManager = GraphStepManager()
     let graphMovement = GraphMovementObserver()
     
     let previewWindowSizingObserver = PreviewWindowSizing()
     
-    var isGeneratingProjectThumbnail = false
+    @MainActor var isGeneratingProjectThumbnail = false
     
     // The raw size we pass to GeneratePreview
-    var previewWindowSize: CGSize = PreviewWindowDevice.DEFAULT_PREVIEW_SIZE
+    @MainActor var previewWindowSize: CGSize = PreviewWindowDevice.DEFAULT_PREVIEW_SIZE
     
     // Changed by e.g. project-settings modal, e.g. UpdatePreviewCanvasDevice;
     // Not changed by user's manual drag on the preview window handle.
-    var previewSizeDevice: PreviewWindowDevice = PreviewWindowDevice.DEFAULT_PREVIEW_OPTION
+    @MainActor var previewSizeDevice: PreviewWindowDevice = PreviewWindowDevice.DEFAULT_PREVIEW_OPTION
     
-    var previewWindowBackgroundColor: Color = DEFAULT_FLOATING_WINDOW_COLOR
+    @MainActor var previewWindowBackgroundColor: Color = DEFAULT_FLOATING_WINDOW_COLOR
     
-    var cameraSettings = CameraSettings()
+    @MainActor var cameraSettings = CameraSettings()
     
-    var keypressState = KeyPressState()
-    var llmRecording = LLMRecordingState()
-    var stitchAI = StitchAIState()
+    @MainActor var keypressState = KeyPressState()
+    @MainActor var llmRecording = LLMRecordingState()
+    @MainActor var stitchAI = StitchAIState()
 
     // Remains false if an encoding action never happened (used for thumbnail creation)
-    var didDocumentChange: Bool = false
+    @MainActor var didDocumentChange: Bool = false
     
     // Singleton instances
-    var locationManager: LoadingStatus<StitchSingletonMediaObject>?
-    var cameraFeedManager: LoadingStatus<StitchSingletonMediaObject>?
+    @MainActor var locationManager: LoadingStatus<StitchSingletonMediaObject>?
+    @MainActor var cameraFeedManager: LoadingStatus<StitchSingletonMediaObject>?
     
-    var lastEncodedDocument: StitchDocument
+    @MainActor var lastEncodedDocument: StitchDocument
     
-    weak var storeDelegate: StoreDelegate?
-    weak var projectLoader: ProjectLoader?
-    weak var documentEncoder: DocumentEncoder?
+    @MainActor weak var storeDelegate: StoreDelegate?
+    @MainActor weak var projectLoader: ProjectLoader?
+    @MainActor weak var documentEncoder: DocumentEncoder?
     
     @MainActor
     init(from schema: StitchDocument,
@@ -67,6 +68,7 @@ final class StitchDocumentViewModel: Sendable {
          isPhoneDevice: Bool,
          projectLoader: ProjectLoader,
          store: StoreDelegate?) {
+        self.rootId = schema.id
         self.documentEncoder = projectLoader.encoder
         self.previewWindowSize = schema.previewWindowSize
         self.previewSizeDevice = schema.previewSizeDevice
@@ -139,14 +141,17 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
 }
 
 extension StitchDocumentViewModel {
+    @MainActor
     var id: UUID {
         self.graph.id
     }
     
+    @MainActor
     var projectId: UUID {
         self.id
     }
     
+    @MainActor
     var projectName: String {
         self.graph.name
     }
@@ -185,6 +190,7 @@ extension StitchDocumentViewModel {
         self.graphStepManager.graphStepState
     }
     
+    @MainActor
     var cameraFeed: CameraFeedManager? {
         self.cameraFeedManager?.loadedInstance?.cameraFeedManager
     }
@@ -199,6 +205,7 @@ extension StitchDocumentViewModel {
     
     /// Determines if camera is in use by looking at main graph + all component graphs to determine if any camera
     /// node is enabled. Complexity handled here as there can only be one running camera session.
+    @MainActor
     var isCameraEnabled: Bool {
         self.allGraphs.contains {
             !$0.enabledCameraNodeIds.isEmpty
@@ -206,11 +213,13 @@ extension StitchDocumentViewModel {
     }
     
     /// Returns self and all graphs inside component instances.
+    @MainActor
     var allGraphs: [GraphState] {
         [self.graph] + self.graph.allComponentGraphs
     }
     
     /// Returns all components inside graph instances.
+    @MainActor
     var allComponents: [StitchComponentViewModel] {
         self.graph.allComponents
     }
@@ -242,6 +251,7 @@ extension GraphState: GraphCalculatable {
         self.pinMap = rootPinMap
     }
     
+    @MainActor
     func getNodesToAlwaysRun() -> Set<UUID> {
         Array(self.nodes
                 .values
@@ -250,6 +260,7 @@ extension GraphState: GraphCalculatable {
             .toSet
     }
     
+    @MainActor
     func getAnimationNodes() -> Set<UUID> {
         Array(self.nodes
                 .values

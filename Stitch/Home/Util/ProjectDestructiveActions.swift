@@ -67,7 +67,7 @@ struct DeleteAllProjects: FileManagerEvent {
     func handle(fileManager: StitchFileManager) -> MiddlewareManagerResponse {
         if let contents = StitchFileManager.readDirectoryContents(StitchFileManager.documentsURL).value {
             contents.forEach { url in
-                try? fileManager.removeItem(at: url)
+                try? FileManager.default.removeItem(at: url)
             }
         }
         return .noChange

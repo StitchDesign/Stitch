@@ -41,34 +41,27 @@ struct ProjectsHomeViewWrapper: View {
                         iPadTopBarButton(
                             action: SHOW_APP_SETTINGS_ACTION,
                             iconName: APP_SETTINGS_ICON_NAME)
-
-                        iPadTopBarButton(
-                            action: EXPORT_LOGS_ACTION,
-                            iconName: EXPORT_LOGS_ICON_NAME)
                     } else {
-                        #if targetEnvironment(macCatalyst)
-
+#if targetEnvironment(macCatalyst)
+                        
                         CatalystHomescreenNavBarButton(
                             action: {
                                 store.createNewProject()
                             },
                             iconName: NEW_PROJECT_ICON_NAME)
-
-                        CatalystHomescreenNavBarButton(action: EXPORT_LOGS_ACTION,
-                                                       iconName: EXPORT_LOGS_ICON_NAME)
+                        
                         CatalystHomescreenNavBarButton(action: SHOW_APP_SETTINGS_ACTION,
                                                        iconName: PROJECT_SETTINGS_ICON_NAME)
-                        #else
+#else
                         iPadNavBarButton(action: {
                             store.createNewProject()
                         },
-                        iconName: NEW_PROJECT_ICON_NAME)
-                        iPadNavBarButton(action: EXPORT_LOGS_ACTION,
-                                         iconName: EXPORT_LOGS_ICON_NAME)
+                                         iconName: NEW_PROJECT_ICON_NAME)
+                        
                         iPadNavBarButton(action: SHOW_APP_SETTINGS_ACTION,
                                          iconName: PROJECT_SETTINGS_ICON_NAME)
-                        #endif
-
+#endif
+                        
                     }
                 }
             }
