@@ -33,7 +33,7 @@ struct NodeLayout<T: StitchLayoutCachable>: Layout, Sendable {
     
     // Check that prevents loop of cache updates given dispatch
     // updating cache on next cycle
-    @State private var willUpdateCache = true
+    @State private var isUpdatingCache = false
     
     let observer: T
     let existingCache: NodeLayoutCache?
@@ -41,23 +41,26 @@ struct NodeLayout<T: StitchLayoutCachable>: Layout, Sendable {
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) -> CGSize {
         
         let isMarkedForUpdate = existingCache?.needsUpdating ?? true
-        let isAlreadyUpdating = self.willUpdateCache
         
-        if !isMarkedForUpdate || isAlreadyUpdating,
-           let existingCache = self.existingCache {
-            return existingCache.sizeThatFits
+        // Condition for needing new cache
+        if isMarkedForUpdate && !self.isUpdatingCache {
+            let newCache = self.recreateCache(subviews: subviews)
+            return newCache.sizeThatFits
         }
         
-        // Cache needs recreating
+        return existingCache?.sizeThatFits ?? .zero
+    }
+    
+    func recreateCache(subviews: Subviews) -> NodeLayoutCache {
         let newCache = self.createCache(subviews: subviews)
-        self.willUpdateCache = true
+        self.isUpdatingCache = true
         
         DispatchQueue.main.async {
-            self.willUpdateCache = false
+            self.isUpdatingCache = false
             self.observer.viewCache = newCache
         }
         
-        return newCache.sizeThatFits
+        return newCache
     }
     
     private func createCache(subviews: Subviews) -> NodeLayoutCache {
