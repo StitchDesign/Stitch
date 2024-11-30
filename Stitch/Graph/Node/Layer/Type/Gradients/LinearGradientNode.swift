@@ -45,7 +45,8 @@ struct LinearGradientLayerNode: LayerNodeDefinition {
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, 
                         isPinnedViewRendering: Bool,
-                        parentDisablesPosition: Bool) -> some View {
+                        parentDisablesPosition: Bool,
+                        realityContent: Binding<LayerRealityCameraContent?>) -> some View {
         PreviewLinearGradientLayer(
             document: document,
             graph: graph,

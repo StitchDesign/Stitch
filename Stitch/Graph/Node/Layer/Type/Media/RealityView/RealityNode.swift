@@ -40,19 +40,35 @@ struct RealityViewLayerNode: LayerNodeDefinition {
         MediaEvalOpObserver()
     }
     
+    @MainActor
     static func content(document: StitchDocumentViewModel,
                         graph: GraphState,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList,
                         isPinnedViewRendering: Bool,
-                        parentDisablesPosition: Bool) -> some View {
-        PreviewRealityLayer(document: document,
-                            graph: graph,
-                            viewModel: viewModel,
-                            layersInGroup: layersInGroup,
-                            isPinnedViewRendering: isPinnedViewRendering,
-                            parentSize: parentSize,
-                            parentDisablesPosition: parentDisablesPosition)
+                        parentDisablesPosition: Bool,
+                        realityContent: Binding<LayerRealityCameraContent?>) -> some View {
+        // Create reality view if reality layer AND no reality content is created at this hierarchy
+        if realityContent.wrappedValue != nil {
+            GroupLayerNode.content(document: document,
+                                   graph: graph,
+                                   viewModel: viewModel,
+                                   parentSize: parentSize,
+                                   layersInGroup: layersInGroup,
+                                   isPinnedViewRendering: isPinnedViewRendering,
+                                   parentDisablesPosition: parentDisablesPosition,
+                                   realityContent: realityContent)
+            .eraseToAnyView()
+        } else {
+            PreviewRealityLayer(document: document,
+                                graph: graph,
+                                viewModel: viewModel,
+                                layersInGroup: layersInGroup,
+                                isPinnedViewRendering: isPinnedViewRendering,
+                                parentSize: parentSize,
+                                parentDisablesPosition: parentDisablesPosition)
+            .eraseToAnyView()
+        }
     }
 }

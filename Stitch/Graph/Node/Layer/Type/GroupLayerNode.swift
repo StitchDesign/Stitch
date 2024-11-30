@@ -9,7 +9,7 @@ import Combine
 import Foundation
 import StitchSchemaKit
 import SwiftUI
-import Tagged
+import RealityKit
 
 // Used for VStack vs HStack on layer groups
 extension StitchOrientation: PortValueEnum {
@@ -96,11 +96,13 @@ struct GroupLayerNode: LayerNodeDefinition {
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, isPinnedViewRendering: Bool,
-                        parentDisablesPosition: Bool) -> some View {
+                        parentDisablesPosition: Bool,
+                        realityContent: Binding<LayerRealityCameraContent?>) -> some View {
         PreviewGroupLayer(
             document: document,
             graph: graph,
             layerViewModel: viewModel,
+            realityContent: realityContent,
             layersInGroup: layersInGroup,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,

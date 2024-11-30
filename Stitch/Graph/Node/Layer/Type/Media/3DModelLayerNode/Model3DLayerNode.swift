@@ -66,7 +66,8 @@ struct Model3DLayerNode: LayerNodeDefinition {
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, isPinnedViewRendering: Bool,
-                        parentDisablesPosition: Bool) -> some View {
+                        parentDisablesPosition: Bool,
+                        realityContent: Binding<LayerRealityCameraContent?>) -> some View {
         Preview3DModelLayer(
             document: document,
             graph: graph,
