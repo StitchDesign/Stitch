@@ -54,7 +54,7 @@ extension MediaEvalOpObserver {
         case .soundfile(let soundPlayer):
             soundPlayer.delegate.setJumpTime(.zero)
         case .model3D(let stitchEntity):
-            stitchEntity.entityStatus.loadedInstance?.transform = .init()
+            stitchEntity.entity.transform = .init()
         case .arAnchor(let anchorEntity):
             anchorEntity.transform = .init()
         default:
@@ -128,7 +128,7 @@ extension MediaEvalOpObservable {
         if let mediaObject = mediaObject {
             // Create computed copy from another computed media object
             Task(priority: .high) { [weak self] in
-                guard let copy = await mediaObject.createComputedCopy(nodeId: nodeId) else {
+                guard let copy = try await mediaObject.createComputedCopy(nodeId: nodeId) else {
                     fatalErrorIfDebug()
                     
                     await MainActor.run { [weak self] in

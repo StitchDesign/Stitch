@@ -84,11 +84,16 @@ extension URL {
                 return .failure(.idNotFoundFor3DModel)
             }
             
-            let entity = await StitchEntity(id: .init(),
-                                            nodeId: nodeId,
-                                            sourceURL: self,
-                                            isAnimating: false)
-            return .success(.model3D(entity))
+            do {
+                let entity = try await StitchEntity(id: .init(),
+                                                    nodeId: nodeId,
+                                                    sourceURL: self,
+                                                    isAnimating: false)
+                return .success(.model3D(entity))
+            } catch {
+                log("createMediaObject error for entity: \(error)")
+                return .failure(.mediaCreationFromURLFailed)
+            }
         }
 
         return .failure(.mediaFileUnsupported(pathExtension))

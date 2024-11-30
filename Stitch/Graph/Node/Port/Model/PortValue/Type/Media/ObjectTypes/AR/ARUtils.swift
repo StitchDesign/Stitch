@@ -108,18 +108,6 @@ extension Entity {
     }
 }
 
-extension Transform: Codable {
-    public init(from decoder: Decoder) throws {
-        var container = try decoder.unkeyedContainer()
-        try self.init(matrix: container.decode(matrix_float4x4.self))
-    }
-
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.unkeyedContainer()
-        try container.encode(self.matrix)
-    }
-}
-
 typealias EntitySequence = [Entity.ChildCollection.Element]
 
 extension AnchorEntity {
