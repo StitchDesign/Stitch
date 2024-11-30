@@ -17,12 +17,14 @@ typealias LayerMultiValueKeyPath = ReferenceWritableKeyPath<LayerViewModel, Port
 extension Layer {
     @MainActor
     func hasMultiKeyPath(at port: Int) -> Bool {
-        guard let inputType = self.getPreviewLayerInputType(at: port) else {
-            fatalErrorIfDebug()
-            return false
-        }
-        
-        return inputType.supportsLoopedTypes
+        // MARK: no longer used
+        false
+//        guard let inputType = self.getPreviewLayerInputType(at: port) else {
+//            fatalErrorIfDebug()
+//            return false
+//        }
+//        
+//        return inputType.supportsLoopedTypes
     }
 
     @MainActor

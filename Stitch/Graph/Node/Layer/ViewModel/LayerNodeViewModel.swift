@@ -72,7 +72,6 @@ final class LayerNodeViewModel {
     var orientationPort: LayerInputObserver
     var paddingPort: LayerInputObserver
     var setupModePort: LayerInputObserver
-    var allAnchorsPort: LayerInputObserver
     var cameraDirectionPort: LayerInputObserver
     var isCameraEnabledPort: LayerInputObserver
     var isShadowsEnabledPort: LayerInputObserver
@@ -227,7 +226,6 @@ final class LayerNodeViewModel {
         self.orientationPort = .init(from: schema, port: .orientation)
         self.paddingPort = .init(from: schema, port: .padding)
         self.setupModePort = .init(from: schema, port: .setupMode)
-        self.allAnchorsPort = .init(from: schema, port: .allAnchors)
         self.cameraDirectionPort = .init(from: schema, port: .cameraDirection)
         self.isCameraEnabledPort = .init(from: schema, port: .isCameraEnabled)
         self.isShadowsEnabledPort = .init(from: schema, port: .isShadowsEnabled)

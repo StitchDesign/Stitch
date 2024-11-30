@@ -222,7 +222,6 @@ extension LayerInspectorView {
         .volume,
         
         // Reality
-        .allAnchors,
         .cameraDirection,
         .isCameraEnabled,
         .isShadowsEnabled,

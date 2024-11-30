@@ -118,8 +118,6 @@ extension LayerInputPort {
             return .padding(.defaultPadding)
         case .setupMode:
             return .bool(true)
-        case .allAnchors:
-            return .asyncMedia(nil)
         case .cameraDirection:
             return .cameraDirection(.back)
         case .isCameraEnabled:
@@ -322,8 +320,6 @@ extension LayerInputPort {
             return \.paddingPort
         case .setupMode:
             return \.setupModePort
-        case .allAnchors:
-            return \.allAnchorsPort
         case .cameraDirection:
             return \.cameraDirectionPort
         case .isCameraEnabled:
@@ -476,54 +472,48 @@ extension LayerInputPort {
     }
     
     var supportsLoopedTypes: Bool {
-        switch self {
-        case .allAnchors:
-            return true
-            
-        default:
-            return false
-        }
+        // MARK: no longer used
+        false
+//        switch self {
+//        default:
+//            return false
+//        }
     }
 }
 
 extension LayerViewModel {
-    @MainActor
-    func getValues(for inputType: LayerInputPort) -> PortValues {
-        assertInDebug(inputType.supportsLoopedTypes)
-        
-        switch inputType {
-        case .allAnchors:
-            return self.allAnchors
-            
-        default:
-            fatalErrorIfDebug()
-            return [.number(.zero)]
-        }
-    }
+//    @MainActor
+//    func getValues(for inputType: LayerInputPort) -> PortValues {
+//        assertInDebug(inputType.supportsLoopedTypes)
+//        
+//        switch inputType {
+//        case .allAnchors:
+//            return self.allAnchors
+//            
+//        default:
+//            fatalErrorIfDebug()
+//            return [.number(.zero)]
+//        }
+//    }
     
     /// Updates inputs that accept an array of values.
-    @MainActor
-    func updatePreviewLayerInput(_ values: PortValues,
-                                 inputType: LayerInputPort) {
-        assertInDebug(inputType.supportsLoopedTypes)
-        
-        switch inputType {
-        case .allAnchors:
-            self.allAnchors = values
-        default:
-            fatalErrorIfDebug()
-        }
-    }
+//    @MainActor
+//    func updatePreviewLayerInput(_ values: PortValues,
+//                                 inputType: LayerInputPort) {
+//        assertInDebug(inputType.supportsLoopedTypes)
+//        
+//        switch inputType {
+//        case .allAnchors:
+//            self.allAnchors = values
+//        default:
+//            fatalErrorIfDebug()
+//        }
+//    }
     
     /// Key paths for children preview layers.
     @MainActor
     func getValue(for inputType: LayerInputPort) -> PortValue {
         switch inputType {
-            // MARK: not supported here
-        case .allAnchors:
-            fatalErrorIfDebug()
-            return .number(.zero)
-            
             // Required for all layers
         case .position:
             return self.position
@@ -732,11 +722,7 @@ extension LayerViewModel {
     @MainActor
     func updatePreviewLayerInput(_ value: PortValue,
                                  inputType: LayerInputPort) {
-        switch inputType {
-            // MARK: not supported here
-        case .allAnchors:
-            fatalErrorIfDebug()
-            
+        switch inputType {            
             // Required for all layers
         case .position:
             self.position = value
@@ -1001,8 +987,6 @@ extension LayerInputPort {
             return \.paddingPort
         case .setupMode:
             return \.setupModePort
-        case .allAnchors:
-            return \.allAnchorsPort
         case .cameraDirection:
             return \.cameraDirectionPort
         case .isCameraEnabled:
@@ -1338,8 +1322,6 @@ extension LayerInputPort {
             return "Padding"
         case .setupMode:
             return "Setup Mode"
-        case .allAnchors:
-            return "AR Anchors"
         case .cameraDirection:
             return "Camera Direction"
         case .isCameraEnabled:

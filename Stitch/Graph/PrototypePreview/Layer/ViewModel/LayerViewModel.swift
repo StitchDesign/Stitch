@@ -124,7 +124,6 @@ final class LayerViewModel: Sendable {
     @MainActor var orientation: PortValue
     @MainActor var padding: PortValue
     @MainActor var setupMode: PortValue
-    @MainActor var allAnchors: PortValues
     @MainActor var cameraDirection: PortValue
     @MainActor var isCameraEnabled: PortValue
     @MainActor var isShadowsEnabled: PortValue
@@ -266,7 +265,6 @@ final class LayerViewModel: Sendable {
         self.orientation = LayerInputPort.orientation.getDefaultValue(for: layer)
         self.padding = LayerInputPort.padding.getDefaultValue(for: layer)
         self.setupMode = LayerInputPort.setupMode.getDefaultValue(for: layer)
-        self.allAnchors = [LayerInputPort.allAnchors.getDefaultValue(for: layer)]
         self.cameraDirection = LayerInputPort.cameraDirection.getDefaultValue(for: layer)
         self.isCameraEnabled = LayerInputPort.isCameraEnabled.getDefaultValue(for: layer)
         self.isShadowsEnabled = LayerInputPort.isShadowsEnabled.getDefaultValue(for: layer)
@@ -418,19 +416,21 @@ extension LayerViewModel {
         
         // Multi-value key paths (all anchors in reality node)
         else {
-            // No looping index used for multi-value key path
-            if let values = lengthenedValuesList[safe: portId] {
-                let oldValues = self.getValues(for: inputType)
-                
-                // Saves render cycles
-                if oldValues != values {
-                    self.updatePreviewLayerInput(values, inputType: inputType)
-                    
-                    if inputType.shouldResetGraphPreviews {
-                        self.nodeDelegate?.graphDelegate?.shouldResortPreviewLayers = true
-                    }
-                }
-            }
+            // MARK: no longer used
+            fatalErrorIfDebug()
+//            // No looping index used for multi-value key path
+//            if let values = lengthenedValuesList[safe: portId] {
+//                let oldValues = self.getValues(for: inputType)
+//                
+//                // Saves render cycles
+//                if oldValues != values {
+//                    self.updatePreviewLayerInput(values, inputType: inputType)
+//                    
+//                    if inputType.shouldResetGraphPreviews {
+//                        self.nodeDelegate?.graphDelegate?.shouldResortPreviewLayers = true
+//                    }
+//                }
+//            }
         }
     }
     

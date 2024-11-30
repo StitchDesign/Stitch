@@ -14,7 +14,6 @@ struct RealityViewLayerNode: LayerNodeDefinition {
     static let layer = Layer.realityView
     
     static let inputDefinitions: LayerInputTypeSet = .init([
-        .allAnchors,
         .cameraDirection,
         .position,
         .rotationX,
@@ -51,6 +50,7 @@ struct RealityViewLayerNode: LayerNodeDefinition {
         PreviewRealityLayer(document: document,
                             graph: graph,
                             viewModel: viewModel,
+                            layersInGroup: layersInGroup,
                             isPinnedViewRendering: isPinnedViewRendering,
                             parentSize: parentSize,
                             parentDisablesPosition: parentDisablesPosition)

@@ -13,7 +13,7 @@ struct PreviewRealityLayer: View {
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     @Bindable var viewModel: LayerViewModel
-    
+    let layersInGroup: LayerDataList
     let isPinnedViewRendering: Bool
     let parentSize: CGSize
     let parentDisablesPosition: Bool
@@ -35,10 +35,10 @@ struct PreviewRealityLayer: View {
                              graph: graph,
                              node: node,
                              layerViewModel: viewModel,
+                             layersInGroup: self.layersInGroup,
                              cameraFeedManager: document.cameraFeedManager?.loadedInstance?.cameraFeedManager,
                              isPinnedViewRendering: isPinnedViewRendering,
                              interactiveLayer: self.viewModel.interactiveLayer,
-                             allAnchors: viewModel.allAnchors.compactMap { $0.asyncMedia },
                              position: position,
                              rotationX: rotationX,
                              rotationY: rotationY,
@@ -80,11 +80,10 @@ struct RealityLayerView: View {
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
     let layerViewModel: LayerViewModel
-    
+    let layersInGroup: LayerDataList
     let cameraFeedManager: CameraFeedManager?
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
-    let allAnchors: [GraphMediaValue]
     let position: CGPoint
     let rotationX: CGFloat
     let rotationY: CGFloat
@@ -143,12 +142,12 @@ struct RealityLayerView: View {
                             // Update list of node Ids using camera
                             graph.enabledCameraNodeIds.insert(node.id)
                         }
-                        .onChange(of: allAnchors, initial: true) { _, newAnchors in
-                            let mediaList = newAnchors.map { $0.mediaObject }
-                            
-                            // Update entities in ar view
-                            arView.updateAnchors(mediaList: mediaList)
-                        }
+//                        .onChange(of: allAnchors, initial: true) { _, newAnchors in
+//                            let mediaList = newAnchors.map { $0.mediaObject }
+//                            
+//                            // Update entities in ar view
+//                            arView.updateAnchors(mediaList: mediaList)
+//                        }
                     }
 
                 case .loading, .failed:
@@ -171,8 +170,7 @@ struct RealityLayerView: View {
                 NonCameraRealityView(size: layerSize,
                                      scale: scale,
                                      opacity: opacity,
-                                     isShadowsEnabled: isShadowsEnabled,
-                                     anchors: allAnchors)
+                                     isShadowsEnabled: isShadowsEnabled)
             }
         }
         .modifier(PreviewCommonModifier(
