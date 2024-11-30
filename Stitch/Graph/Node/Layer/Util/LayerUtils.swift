@@ -183,4 +183,14 @@ extension Layer {
             return .unknown
         }
     }
+    
+    var supportsSidebarGroup: Bool {
+        switch self {
+        case .group, .realityView:
+            return true
+            
+        default:
+            return false
+        }
+    }
 }

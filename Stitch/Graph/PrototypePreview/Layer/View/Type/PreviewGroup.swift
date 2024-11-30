@@ -11,7 +11,7 @@ import StitchSchemaKit
 extension LayerViewModel {
     @MainActor
     var getGridData: PreviewGridData? {
-        guard self.layer == .group else {
+        guard self.layer.supportsSidebarGroup else {
             fatalErrorIfDebug()
             return nil
         }
