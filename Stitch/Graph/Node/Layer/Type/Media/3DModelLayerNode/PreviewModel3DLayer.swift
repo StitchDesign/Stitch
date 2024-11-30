@@ -34,6 +34,7 @@ struct Preview3DModelLayer: View {
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     @Bindable var layerViewModel: LayerViewModel
+    @Binding var realityContent: LayerRealityCameraContent?
     
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
@@ -79,21 +80,29 @@ struct Preview3DModelLayer: View {
     
     var body: some View {
         Group {
-            if document.isGeneratingProjectThumbnail {
+            if let realityContent = self.realityContent {
                 Color.clear
-            } else if let entity = entity {
-                Model3DView(entity: entity,
-                            sceneSize: sceneSize,
-                            modelOpacity: opacity)
-                .onAppear {
-                    // Mark as layer so we regenerate views when finished loading
-                    // Fixes bug where newly created graphs don't show model
-                    entity.isUsedInLayer = true
-                }
+                    .onChange(of: self.entity) {
+                        if let entity = self.entity?.entity {
+                            realityContent.add(entity)
+                        }
+                    }
             } else {
-                Color.clear
+                if document.isGeneratingProjectThumbnail {
+                    Color.clear
+                } else if let entity = entity {
+                    Model3DView(entity: entity,
+                                sceneSize: sceneSize,
+                                modelOpacity: opacity)
+                    .onAppear {
+                        // Mark as layer so we regenerate views when finished loading
+                        // Fixes bug where newly created graphs don't show model
+                        entity.isUsedInLayer = true
+                    }
+                } else {
+                    Color.clear
+                }
             }
-            
         }
         .modifier(MediaLayerViewModifier(mediaValue: mediaValue,
                                          mediaObject: $mediaObject,

@@ -131,9 +131,19 @@ struct RealityLayerView: View {
             }
             
             else {
-                RealityView { content in
-                    self.localRealityContent = content
-                    
+                ZStack {
+                    RealityView { content in
+                        await MainActor.run {
+                            self.localRealityContent = content
+                        }
+                    } update: { content in
+                        let content = content
+                        
+                        Task { @MainActor in
+                            self.localRealityContent = content
+                        }
+                    }
+
                     GroupLayerNode.content(document: document,
                                            graph: graph,
                                            viewModel: layerViewModel,

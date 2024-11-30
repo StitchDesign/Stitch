@@ -377,6 +377,8 @@ struct GroupPreviewLayersView: View {
     var body: some View {
         if layerNode.hasSidebarVisibility,
            let graph = layerNode.nodeDelegate?.graphDelegate as? GraphState {
+            switch layerNode.layer {
+            case .group:
                 GroupLayerNode.content(document: document,
                                        graph: graph,
                                        viewModel: layerViewModel,
@@ -385,6 +387,23 @@ struct GroupPreviewLayersView: View {
                                        isPinnedViewRendering: isPinnedViewRendering,
                                        parentDisablesPosition: parentDisablesPosition,
                                        realityContent: $realityContent)
+
+            case .realityView:
+                RealityViewLayerNode.content(document: document,
+                                             graph: graph,
+                                             viewModel: layerViewModel,
+                                             parentSize: parentSize,
+                                             layersInGroup: childrenData,
+                                             isPinnedViewRendering: isPinnedViewRendering,
+                                             parentDisablesPosition: parentDisablesPosition,
+                                             realityContent: $realityContent)
+                
+            default:
+                Color.clear
+                    .onAppear {
+                        fatalErrorIfDebug()
+                    }
+            }
             
         } else {
             EmptyView()

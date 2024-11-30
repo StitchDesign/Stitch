@@ -72,6 +72,7 @@ struct Model3DLayerNode: LayerNodeDefinition {
             document: document,
             graph: graph,
             layerViewModel: viewModel,
+            realityContent: realityContent,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,
             position: viewModel.position.getPosition ?? .zero,
