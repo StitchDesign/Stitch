@@ -260,6 +260,10 @@ actor MediaEvalOpCoordinator {
         
         switch mediaResultFromFile {
         case .success(let mediaObjectFromFile):
+            guard let mediaObjectFromFile = mediaObjectFromFile else {
+                return nil
+            }
+            
             if isComputedCopy {
                 return GraphMediaValue(id: mediaId,
                                        dataType: .computed,
