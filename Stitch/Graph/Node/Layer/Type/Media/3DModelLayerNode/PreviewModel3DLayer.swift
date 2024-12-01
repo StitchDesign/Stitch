@@ -89,18 +89,18 @@ struct Preview3DModelLayer: View {
     
     var body: some View {
         Group {
-            if let realityContent = self.realityContent {
+            if let realityContent = self.realityContent,
+               let entity = self.entity?.entity {
                 Color.clear
                     .onChange(of: self.entity, initial: true) {
-                        if let entity = self.entity?.entity {
-                            entity.applyMatrix(newMatrix: transform)
-                            realityContent.add(entity)
-                        }
+                        entity.applyMatrix(newMatrix: transform)
+                        realityContent.add(entity)
                     }
                     .onChange(of: self.transform) { _, newTransform in
-                        if let entity = self.entity?.entity {
-                            entity.applyMatrix(newMatrix: newTransform)
-                        }
+                        entity.applyMatrix(newMatrix: newTransform)
+                    }
+                    .onDisappear {
+                        realityContent.remove(entity)
                     }
             } else {
                 if document.isGeneratingProjectThumbnail {
