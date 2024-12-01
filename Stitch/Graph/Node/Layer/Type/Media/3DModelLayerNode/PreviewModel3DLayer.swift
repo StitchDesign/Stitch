@@ -38,6 +38,9 @@ struct Preview3DModelLayer: View {
     
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
+    let position3D: Point3D
+    let scale3D: Point3D
+    let rotation3D: Point3D
     let position: CGPoint
     let rotationX: Double
     let rotationY: Double
@@ -78,13 +81,25 @@ struct Preview3DModelLayer: View {
         return _sceneSize
     }
     
+    var transform: simd_float4x4 {
+        .init(position: position3D,
+              scale: scale3D,
+              rotation: rotation3D)
+    }
+    
     var body: some View {
         Group {
             if let realityContent = self.realityContent {
                 Color.clear
-                    .onChange(of: self.entity) {
+                    .onChange(of: self.entity, initial: true) {
                         if let entity = self.entity?.entity {
+                            entity.applyMatrix(newMatrix: transform)
                             realityContent.add(entity)
+                        }
+                    }
+                    .onChange(of: self.transform) { _, newTransform in
+                        if let entity = self.entity?.entity {
+                            entity.applyMatrix(newMatrix: newTransform)
                         }
                     }
             } else {
