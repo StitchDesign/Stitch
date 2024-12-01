@@ -142,6 +142,10 @@ final class LayerNodeViewModel {
     var materialThicknessPort: LayerInputObserver
     var deviceAppearancePort: LayerInputObserver
     
+    var position3DPort: LayerInputObserver
+    var scale3DPort: LayerInputObserver
+    var rotation3DPort: LayerInputObserver
+    
     @MainActor weak var nodeDelegate: NodeDelegate?
 
     // Sidebar visibility setting
@@ -296,6 +300,10 @@ final class LayerNodeViewModel {
         
         self.deviceAppearancePort = .init(from: schema, port: .deviceAppearance)
         self.materialThicknessPort = .init(from: schema, port: .materialThickness)
+        
+        self.position3DPort = .init(from: schema, port: .position3D)
+        self.scale3DPort = .init(from: schema, port: .scale3D)
+        self.rotation3DPort = .init(from: schema, port: .rotation3D)
         
         // Initialize each NodeRowObserver for each expected layer input
         for layerInputPort in graphNode.inputDefinitions {

@@ -115,6 +115,9 @@ extension LayerNodeEntity {
          offsetInGroupPort: LayerInputEntity = .empty,
          materialThicknessPort: LayerInputEntity = .empty,
          deviceAppearancePort: LayerInputEntity = .empty,
+         position3DPort: LayerInputEntity = .empty,
+         scale3DPort: LayerInputEntity = .empty,
+         rotation3DPort: LayerInputEntity = .empty,
          hasSidebarVisibility: Bool,
          layerGroupId: NodeId?) {
         
@@ -235,6 +238,10 @@ extension LayerNodeEntity {
             
             deviceAppearancePort: deviceAppearancePort,
             materialThicknessPort: materialThicknessPort,
+            
+            position3DPort: position3DPort,
+            scale3DPort: scale3DPort,
+            rotation3DPort: rotation3DPort,
             
             hasSidebarVisibility: hasSidebarVisibility,
             layerGroupId: layerGroupId)

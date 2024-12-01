@@ -202,6 +202,11 @@ final class LayerViewModel: Sendable {
     @MainActor var materialThickness: PortValue
     @MainActor var deviceAppearance: PortValue
     
+    // 3D
+    @MainActor var position3D: PortValue
+    @MainActor var scale3D: PortValue
+    @MainActor var rotation3D: PortValue
+    
     // Ephemeral state on the layer view model
     
     // Canvas Sketch properties
@@ -335,6 +340,10 @@ final class LayerViewModel: Sendable {
         
         self.materialThickness = LayerInputPort.materialThickness.getDefaultValue(for: layer)
         self.deviceAppearance = LayerInputPort.deviceAppearance.getDefaultValue(for: layer)
+        
+        self.position3D = LayerInputPort.position3D.getDefaultValue(for: layer)
+        self.scale3D = LayerInputPort.scale3D.getDefaultValue(for: layer)
+        self.rotation3D = LayerInputPort.rotation3D.getDefaultValue(for: layer)
         
         self.nodeDelegate = nodeDelegate
         self.interactiveLayer.delegate = self

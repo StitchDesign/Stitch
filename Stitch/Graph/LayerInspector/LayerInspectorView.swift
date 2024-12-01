@@ -192,7 +192,9 @@ enum LayerInspectorSectionName: String, Equatable, Hashable {
          stroke = "Stroke",
          rotation = "Rotation",
 //         shadow = "Shadow",
-         layerEffects = "Layer Effects"
+         layerEffects = "Layer Effects",
+         media = "Media",
+         reality = "Reality Transformation"
 }
 
 // Named Tuple

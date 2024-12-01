@@ -254,6 +254,12 @@ extension LayerInputPort {
             return .materialThickness(.defaultMaterialThickness)
         case .deviceAppearance:
             return .deviceAppearance(.defaultDeviceAppearance)
+        case .position3D:
+            return .point3D(.zero)
+        case .scale3D:
+            return .point3D(.init(x: 1, y: 1, z: 1))
+        case .rotation3D:
+            return .point3D(.zero)
         }
     }
     
@@ -468,6 +474,12 @@ extension LayerInputPort {
             return \.materialThicknessPort
         case .deviceAppearance:
             return \.deviceAppearancePort
+        case .position3D:
+            return \.position3DPort
+        case .scale3D:
+            return \.scale3DPort
+        case .rotation3D:
+            return \.rotation3DPort
         }
     }
     
@@ -714,7 +726,12 @@ extension LayerViewModel {
             return self.deviceAppearance
         case .materialThickness:
             return self.materialThickness
-            
+        case .position3D:
+            return self.position3D
+        case .scale3D:
+            return self.scale3D
+        case .rotation3D:
+            return self.rotation3D
         }
     }
     
@@ -924,6 +941,12 @@ extension LayerViewModel {
             self.deviceAppearance = value
         case .materialThickness:
             self.materialThickness = value
+        case .position3D:
+            self.position3D = value
+        case .scale3D:
+            self.scale3D = value
+        case .rotation3D:
+            self.rotation3D = value
         }
     }
 }
@@ -1127,6 +1150,12 @@ extension LayerInputPort {
             return \.materialThicknessPort
         case .deviceAppearance:
             return \.deviceAppearancePort
+        case .position3D:
+            return \.position3DPort
+        case .scale3D:
+            return \.scale3DPort
+        case .rotation3D:
+            return \.rotation3DPort
         }
     }
     
@@ -1460,6 +1489,12 @@ extension LayerInputPort {
             return "Material"
         case .deviceAppearance:
             return useShortLabel ? "Appearance" : "Device Appearance"
+        case .position3D:
+            return "Position"
+        case .scale3D:
+            return "Scale"
+        case .rotation3D:
+            return "Rotation"
         }
     }
 
