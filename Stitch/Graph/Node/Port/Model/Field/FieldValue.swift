@@ -51,17 +51,22 @@ extension FieldValue {
             return x
         case .bool(let x):
             return x.description
-        case .pulse(let x):
+        case .pulse(let x): // TODO: show port that pulses, rather than the graph time?
             return x.description
-        case .anchorPopover(let x):
-            return x.display
         case .pinTo(let x):
             return x.display
         // case .layerDropdown(let x): // TODO: retrieve layer name?
             // TODO: provide real values here
         case .layerGroupOrientationDropdown(let x):
             return x.display
-        case .color, .layerDropdown, .textFontDropdown, .spacing:
+        case .layerDropdown(let x):
+            return x?.asNodeId.description ?? "None"
+        case .textFontDropdown(let x):
+            return x.display
+        case .spacing(let x):
+            return x.display
+            // Handled by own views
+        case .color, .anchorPopover:
             return ""
         }
     }
