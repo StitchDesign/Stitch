@@ -65,8 +65,9 @@ extension ShapeCommand {
 
 extension PortValue {
     func parseInputEdit(fieldValue: FieldValue, fieldIndex: Int) -> PortValue {
-        //    log("fieldsToVaue: fields: \(fields)")
-        //    log("fieldsToVaue: parentValue: \(parentValue)")
+        //        log("parseInputEdit: self: \(self)")
+        //        log("parseInputEdit: fieldValue: \(fieldValue)")
+        //        log("parseInputEdit: fieldIndex: \(fieldIndex)")
 
         switch self {
         case .size(let layerSize):
