@@ -118,10 +118,10 @@ struct PortValuesPreviewView<NodeRowObserverType: NodeRowObserver>: View {
 
 struct PortValuesPreviewValueView: View {
     
-    let fieldValue: FieldValue // what 
+    let fieldValue: FieldValue
     
     var body: some View {
-
+        
         switch fieldValue {
 
         case .color(let color):
