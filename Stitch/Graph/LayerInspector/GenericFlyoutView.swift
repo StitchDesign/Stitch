@@ -129,11 +129,7 @@ struct GenericFlyoutRowView: View {
     let nodeKind: NodeKind
     
     @State var isHovered: Bool = false
-    
-    var layerInput: LayerInputPort {
-        layerInputObserver.port
-    }
-    
+        
     var layerInputType: LayerInputType {
         layerInputObserver.layerInputTypeForFieldIndex(fieldIndex)
     }
@@ -142,12 +138,6 @@ struct GenericFlyoutRowView: View {
         .layerInput(layerInputType)
     }
     
-    // Coordinate is used for editing, which needs to know the
-    var coordinate: NodeIOCoordinate {
-        .init(portType: .keyPath(layerInputType),
-              nodeId: nodeId)
-    }
-        
     @MainActor
     var canvasItemId: CanvasItemId? {
         // Is this particular unpacked-port already on the canvas?
@@ -162,24 +152,27 @@ struct GenericFlyoutRowView: View {
     var body: some View {
         
         //        logInView("GenericFlyoutRowView: layerInputType: \(layerInputType)")
-        //        logInView("GenericFlyoutRowView: coordinate: \(coordinate)")
         //        logInView("GenericFlyoutRowView: viewModel.rowViewModelDelegate?.activeValue: \(viewModel.rowViewModelDelegate?.activeValue)")
         //        logInView("GenericFlyoutRowView: viewModel.fieldValue: \(viewModel.fieldValue)")
-        //
         
         HStack {
+            // For the layer inspector row button, use a
             LayerInspectorRowButton(layerInputObserver: layerInputObserver,
                                     layerInspectorRowId: layerInspectorRowId,
-                                    coordinate: coordinate,
+                                    // For layer inspector row button, provide a NodeIOCoordinate that assumes unpacked + field index
+                                    coordinate: InputCoordinate(portType: .keyPath(layerInputType),
+                                                                nodeId: nodeId),
                                     canvasItemId: canvasItemId,
                                     isPortSelected: propertyRowIsSelected,
                                     isHovered: isHovered,
                                     fieldIndex: fieldIndex)
-            
+                        
             InputValueEntry(graph: graph,
                             viewModel: viewModel,
                             layerInputObserver: layerInputObserver,
-                            rowObserverId: coordinate,
+                            // For input editing, however, we need the proper packed vs unpacked state
+                            rowObserverId: InputCoordinate(portType: .keyPath(layerInputObserver.layerInputType(fieldIndex: fieldIndex)),
+                                                           nodeId: nodeId),
                             nodeKind: nodeKind,
                             isCanvasItemSelected: false, // Always false
                             hasIncomingEdge: false,
