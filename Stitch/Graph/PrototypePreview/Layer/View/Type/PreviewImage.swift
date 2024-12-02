@@ -195,7 +195,20 @@ struct ImageDisplayView: View {
                            height: imageDisplaySize.size.height)
                     .contentShape(Rectangle()) // for when image has shrunk smaller than explicit frame
                     .eraseToAnyView()
-            } else {
+            }
+            
+            // Note: not much different than what this earlier PR had moved away from: https://github.com/StitchDesign/Stitch/pull/593/files
+            // ... Yet behavior seems good.
+            else if let fitStyle = fitStyle, fitStyle == .fill {
+                return view
+                    .aspectRatio(contentMode: fitStyle.asContentMode)
+                    .frame(width: imageLayerSize.width.isFill ? nil : imageDisplaySize.size.width,
+                           height: imageLayerSize.height.isFill ? nil : imageDisplaySize.size.height)
+                    .contentShape(Rectangle()) // for when image has shrunk smaller than explicit frame
+                    .eraseToAnyView()
+            }
+            
+            else {
                 return view
                     .frame(width: imageLayerSize.width.isFill ? nil : imageDisplaySize.size.width,
                            height: imageLayerSize.height.isFill ? nil : imageDisplaySize.size.height)
