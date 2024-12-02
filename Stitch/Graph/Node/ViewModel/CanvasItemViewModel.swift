@@ -230,6 +230,29 @@ extension CanvasItemViewModel {
     }
     
     @MainActor
+    var locationOfInputs: CGPoint? {
+        if let size = self.sizeByLocalBounds {
+            // `node.center.x - node.width/2` = east face, where inputs are.
+            return .init(x: self.position.x - size.width/2,
+                         y: self.position.y)
+        } else {
+            return nil
+        }
+    }
+    
+    @MainActor
+    var locationOfOutputs: CGPoint? {
+        if let size = self.sizeByLocalBounds {
+            // `node.center.x + node.width/2` = west face, where outputs are.
+            return .init(x: self.position.x + size.width/2,
+                         y: self.position.y)
+        } else {
+            return nil
+        }
+    }
+    
+    
+    @MainActor
     var isMoving: Bool {
         self.position != self.previousPosition
     }
