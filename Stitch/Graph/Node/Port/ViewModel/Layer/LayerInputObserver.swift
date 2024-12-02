@@ -165,6 +165,18 @@ extension LayerInputObserver {
     }
     
     @MainActor
+    func layerInputType(fieldIndex: Int) -> LayerInputType {
+        switch self.mode {
+        case .packed:
+            return .init(layerInput: self.port,
+                         portType: .packed)
+        case .unpacked:
+            return .init(layerInput: self.port,
+                         portType: .unpacked(fieldIndex.asUnpackedPortType))
+        }
+    }
+    
+    @MainActor
     var values: PortValues {
         switch self.mode {
         case .packed:

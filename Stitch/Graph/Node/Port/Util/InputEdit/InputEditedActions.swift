@@ -19,14 +19,14 @@ extension GraphState {
                      isFieldInsideLayerInspector: Bool,
                      isCommitting: Bool = true) {
         
-        //        #if DEV_DEBUG
-        //        log("InputEdited: fieldValue: \(fieldValue)")
-        //        log("InputEdited: fieldIndex: \(fieldIndex)")
-        //        log("InputEdited: coordinate: \(coordinate)")
-        //        #endif
+        //        log("inputEdited: fieldValue: \(fieldValue)")
+        //        log("inputEdited: fieldIndex: \(fieldIndex)")
+        //        log("inputEdited: coordinate: \(coordinate)")
+        //        log("inputEdited: isFieldInsideLayerInspector: \(isFieldInsideLayerInspector)")
+        //        log("inputEdited: isCommitting: \(isCommitting)")
         
         guard let rowObserver = self.getInputRowObserver(coordinate) else {
-            log("InputEdited error: no parent values list found.")
+            log("inputEdited error: no parent values list found.")
             return
         }
 
@@ -52,12 +52,13 @@ extension InputNodeRowObserver {
     
         let parentPortValue = self.activeValue
 
-        //        log("InputEdited: state.graphUI.focusedField: \(state.graphUI.focusedField)")
-
+        //        log("inputEdited: fieldValue: \(fieldValue)")
+        //        log("inputEdited: fieldIndex: \(fieldIndex)")
+        
         let newValue = parentPortValue.parseInputEdit(fieldValue: fieldValue, fieldIndex: fieldIndex)
 
-        //        log("InputEdited: newValue: \(newValue)")
-        //        log("InputEdited: parentPortValue: \(parentPortValue)")
+        //        log("inputEdited: newValue: \(newValue)")
+        //        log("inputEdited: parentPortValue: \(parentPortValue)")
 
         // Only remove edges and recalc graph if value changed,
         // e.g. editing "2" to "2." or even "2.0" should not remove the edge.
