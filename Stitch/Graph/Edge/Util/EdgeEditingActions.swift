@@ -207,20 +207,30 @@ struct PossibleEdgeDecommitmentCompleted: GraphEvent {
 extension GraphState {
     
     @MainActor
-//    func getNodesToTheEastFromClosestToFarthest(eastOf originOutputNodeId: CanvasItemId) -> [CanvasItemId]? {
     func getNodesToTheEastFromClosestToFarthest(eastOf originOutputNodeId: CanvasItemId) -> EligibleEasternNodes? {
         
         guard let originOutputNode = self.getCanvasItem(originOutputNodeId),
               let originOutputNodeSize = originOutputNode.sizeByLocalBounds else {
-            log("GraphState.closesNodeEast: node not found: \(originOutputNodeId)")
+            log("getNodesToTheEastFromClosestToFarthest: node not found: \(originOutputNodeId)")
             return nil
         }
+        
+        guard let hoveredOutputLocation: CGPoint = originOutputNode.locationOfOutputs else {
+            log("getNodesToTheEastFromClosestToFarthest: output hovered node does not have size: \(originOutputNodeId)")
+            return nil
+        }
+        
+        log("getNodesToTheEastFromClosestToFarthest: for originOutputNode \(originOutputNode.id), hoveredOutputLocation: \(hoveredOutputLocation)")
                 
         let nodes = self.visibleNodesViewModel
             .getVisibleCanvasItems(at: self.graphUI.groupNodeFocused?.asNodeId)
-        
-        // "Nearby node" for edge-edit mode can never be a wireless receiver node
-            .filter { $0.nodeDelegate?.kind.getPatch != .wirelessReceiver }
+            .filter { node in
+                // "Nearby node" for edge-edit mode can never be a wireless receiver node
+                node.nodeDelegate?.kind.getPatch != .wirelessReceiver
+                
+                // Exclude the output-hovered node itself
+                && node.id != originOutputNode.id
+            }
         
         // Note: we compare the origin node's output against the other nodes' inputs.
         // The *input* must be east of the output.
@@ -230,74 +240,34 @@ extension GraphState {
              
              So:
              `node.center.x - node.width/2` = east face, where inputs are.
-             the `node.center.x + node.width/2` = west face, where outputs are.
+             `node.center.x + node.width/2` = west face, where outputs are.
              */
-            let adjustedOrigin = originOutputNode.position.x + originOutputNodeSize.width/2
-            let adjustedInput = node.position.x - originOutputNodeSize.width/2
-            return adjustedInput > adjustedOrigin
+            guard let inputLocation = node.locationOfInputs else {
+                return false
+            }
+            
+            return inputLocation.x > hoveredOutputLocation.x
         }
         
         guard !nodesEast.isEmpty else {
-            log("GraphState.closesNodeEast: no nodes to the east of this output")
+            log("getNodesToTheEastFromClosestToFarthest: no nodes to the east of this output")
             return nil
         }
-        
+                
         let sortedNodes = nodesEast.sorted { n1, n2 in
-            let distance1 = originOutputNode.position.distance(to: n1.position)
-            let distance2 = originOutputNode.position.distance(to: n2.position)
+            let distance1 = hoveredOutputLocation.distance(to: n1.locationOfInputs ?? .zero)
+            let distance2 = hoveredOutputLocation.distance(to: n2.locationOfInputs ?? .zero)
             return distance1 < distance2
         }.map(\.id)
         
-        log("sortedNodes: \(sortedNodes)")
+        // log("getNodesToTheEastFromClosestToFarthest: \(sortedNodes)")
         
         guard let result = EligibleEasternNodes(sortedNodes) else {
-            log("GraphState.closesNodeEast: could not create non-empty array")
+            log("getNodesToTheEastFromClosestToFarthest: could not create non-empty array")
             return nil
         }
         
         return result
-    }
-    
-    @MainActor
-    func getEligibleNearbyNode(eastOf originOutputNodeId: CanvasItemId) -> CanvasItemId? {
-        
-        guard let originOutputNode = self.getCanvasItem(originOutputNodeId),
-              let originOutputNodeSize = originOutputNode.sizeByLocalBounds else {
-            log("GraphState.closesNodeEast: node not found: \(originOutputNodeId)")
-            return nil
-        }
-        
-        let groupNodeFocused = self.graphUI.groupNodeFocused?.asNodeId
-        let nodes = self.visibleNodesViewModel
-            .getVisibleCanvasItems(at: groupNodeFocused)
-        
-        // "Nearby node" for edge-edit mode can never be a wireless receiver node
-            .filter { $0.nodeDelegate?.kind.getPatch != .wirelessReceiver }
-        
-        // Note: we compare the origin node's output against the other nodes' inputs.
-        // The *input* must be east of the output.
-        let nodesEast = nodes.filter { node in
-            /*
-             Note: although SwiftUI's .position modifier is from top-left corner, we actually adjust the node's `position: CGPoint`, such that position = center of node.
-             
-             So:
-             `node.center.x - node.width/2` = east face, where inputs are.
-             the `node.center.x + node.width/2` = west face, where outputs are.
-             */
-            guard let nodeSize = node.sizeByLocalBounds else {
-                return false
-            }
-            
-            let adjustedOrigin = originOutputNode.position.x + originOutputNodeSize.width/2
-            let adjustedInput = node.position.x - nodeSize.width/2
-            return adjustedInput > adjustedOrigin
-        }
-
-        return nodesEast.min { n1, n2 in
-            let distance1 = originOutputNode.position.distance(to: n1.position)
-            let distance2 = originOutputNode.position.distance(to: n2.position)
-            return distance1 < distance2
-        }?.id
     }
 }
 
