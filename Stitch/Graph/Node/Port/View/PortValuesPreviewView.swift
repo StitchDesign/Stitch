@@ -21,6 +21,8 @@ struct PortPreviewData: Identifiable {
 
 struct PortValuesPreviewView<NodeRowObserverType: NodeRowObserver>: View {
 
+    @Environment(\.appTheme) var theme
+    
     @Bindable var rowObserver: NodeRowObserverType
         
     let nodeIO: NodeIO
@@ -64,60 +66,62 @@ struct PortValuesPreviewView<NodeRowObserverType: NodeRowObserver>: View {
         ScrollView {
             valueGrid
         }
+        .scrollBounceBehavior(.basedOnSize)
         .padding()
     }
     
+    @State var hoveredIndex: Int? = nil
+    
     var valueGrid: some View {
-        Grid {
-            GridRow {
-                StitchTextView(string: "Loop")
-                    .monospaced()
-                    .frame(minWidth: 40)    // necessary to prevent overflow scenarios
-                    .gridCellAnchor(UnitPoint(x: 0.5, y: 0.5))
-               
-                StitchTextView(string: "Values", lineLimit: 1)
-                    .monospaced()
-                    .gridCellAnchor(UnitPoint(x: 0, y: 0.5))
-                    .gridCellColumns(2)
-            }
-            .padding(.bottom, 2)
-
+        VStack(alignment: .leading) {
+            
             ForEach(tableRows, id: \.id) { (data: PortPreviewData) in
-                GridRow {
-                    StitchTextView(string: "\(data.loopIndex)")
+                
+                HStack(alignment: .center) {
+                    StitchTextView(string: "\(data.loopIndex)", fontColor: STITCH_FONT_GRAY_COLOR)
                         .monospaced()
                         .gridCellAnchor(UnitPoint(x: 0.5, y: 0)) // aligns middle, top
-
+                    
                     ForEach(data.fields, id: \.0) { field in
                         let label = field.fieldLabel
-
-                        Group {
+                        HStack {
                             if !label.isEmpty {
-                                StitchTextView(string: "\(field.fieldLabel):",
+                                StitchTextView(string: "\(field.fieldLabel)",
                                                truncationMode: .tail)
-                                    .monospaced()
+                                .monospaced()
                             }
+                            
+                            PortValuesPreviewValueView(fieldValue: field.fieldValue)
                         }
-                        .gridCellAnchor(UnitPoint(x: 0, y: 0)) // aligns right, top
-
-                        PortValuesPreviewValueView(fieldValue: field.fieldValue)
-                            .fixedSize(horizontal: true, vertical: false) // make sure
-                            .gridCellAnchor(UnitPoint(x: 0, y: 0)) // aligns left, top
+                    } // ForEach(date.fields)
+                    
+                } // HStack
+                .padding(4)
+                .background {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(self.hoveredIndex == data.loopIndex ? theme.fontColor : .clear)
+                }
+                
+                .onHover { hovering in
+                    if hovering {
+                        log("hovered data.loopIndex \(data.loopIndex)")
+                        self.hoveredIndex = data.loopIndex
+                        dispatch(ActiveIndexChangedAction(index: .init(data.loopIndex)))
                     }
                 }
+                
                 .padding(.top, 2)
-            }
+            } // ForEach
         }
     }
 }
 
-// just pass the FieldValue and
 struct PortValuesPreviewValueView: View {
-
+    
     let fieldValue: FieldValue
-
+    
     var body: some View {
-
+        
         switch fieldValue {
 
         case .color(let color):
@@ -125,12 +129,20 @@ struct PortValuesPreviewValueView: View {
                                        height: 18,
                                        alignment: .center)
 
+        case .anchorPopover(let anchoring):
+            AnchoringGridIconView(anchor: anchoring, isSelectedInspectorRow: false)
+                .scaleEffect(0.18)
+                .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH,
+                       height: NODE_ROW_HEIGHT)
+                
+            
         default:
             // Every other value
             StitchTextView(string: "\(fieldValue.portValuePreview)",
+                           lineLimit: 1,
                            truncationMode: .tail)
                 .monospaced()
-                .frame(minWidth: 40) // necessary to prevent overflow scenarios
+                .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH, alignment: .leading) // necessary to prevent overflow scenarios
         }
     }
 }
