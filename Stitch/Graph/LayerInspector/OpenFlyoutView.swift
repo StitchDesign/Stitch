@@ -87,8 +87,7 @@ struct OpenFlyoutView: View, KeyboardReadable {
                                           layer: layerNode.layer,
                                           layerInput: flyoutInput,
                                           nodeId: node.id,
-                                          nodeKind: node.kind,
-                                          fieldValueTypes: portObserver.fieldValueTypes)
+                                          nodeKind: node.kind)
                     }
                 }
                 .offset(

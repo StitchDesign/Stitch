@@ -45,7 +45,6 @@ extension LayerNodeEntity {
          orientationPort: LayerInputEntity = .empty,
          paddingPort: LayerInputEntity = .empty,
          setupModePort: LayerInputEntity = .empty,
-         allAnchorsPort: LayerInputEntity = .empty,
          cameraDirectionPort: LayerInputEntity = .empty,
          isCameraEnabledPort: LayerInputEntity = .empty,
          isShadowsEnabledPort: LayerInputEntity = .empty,
@@ -125,6 +124,8 @@ extension LayerNodeEntity {
          scrollJumpToYStylePort: LayerInputEntity = .empty,
          scrollJumpToYPort: LayerInputEntity = .empty,
          scrollJumpToYLocationPort: LayerInputEntity = .empty,
+         transform3DPort: LayerInputEntity = .empty,
+         anchorEntityPort: LayerInputEntity = .empty,
          hasSidebarVisibility: Bool,
          layerGroupId: NodeId?) {
         
@@ -166,7 +167,6 @@ extension LayerNodeEntity {
             orientationPort: orientationPort,
             paddingPort: paddingPort,
             setupModePort: setupModePort,
-            allAnchorsPort: allAnchorsPort,
             cameraDirectionPort: cameraDirectionPort,
             isCameraEnabledPort: isCameraEnabledPort,
             isShadowsEnabledPort: isShadowsEnabledPort,
@@ -256,6 +256,9 @@ extension LayerNodeEntity {
             scrollJumpToYStylePort: scrollJumpToYStylePort,
             scrollJumpToYPort: scrollJumpToYPort,
             scrollJumpToYLocationPort: scrollJumpToYLocationPort,
+            
+            transform3DPort: transform3DPort,
+            anchorEntityPort: anchorEntityPort,
             
             hasSidebarVisibility: hasSidebarVisibility,
             layerGroupId: layerGroupId)

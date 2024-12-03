@@ -193,7 +193,9 @@ enum LayerInspectorSectionName: String, Equatable, Hashable {
          typography = "Typography",
          stroke = "Stroke",
          rotation = "Rotation",
-         layerEffects = "Layer Effects"
+         layerEffects = "Layer Effects",
+         media = "Media",
+         realityTransformation = "3D Transformation"
 }
 
 @Observable
