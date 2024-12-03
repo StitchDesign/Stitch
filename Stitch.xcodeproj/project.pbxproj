@@ -1125,7 +1125,6 @@
 		B5B20BAF279925EC008A2B5A /* FullScreenPreviewViewWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullScreenPreviewViewWrapper.swift; sourceTree = "<group>"; };
 		B5B20BB1279A171E008A2B5A /* GestureHostingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureHostingController.swift; sourceTree = "<group>"; };
 		B5B43FCB2B4F565300C6A847 /* NodeDefinition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeDefinition.swift; sourceTree = "<group>"; };
-		B5B639812CFA900200EC228C /* StitchSchemaKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = StitchSchemaKit; path = ../StitchSchemaKit; sourceTree = SOURCE_ROOT; };
 		B5B8166A2BBD105C003EA2AD /* NodeIOCoordiante.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeIOCoordiante.swift; sourceTree = "<group>"; };
 		B5B95B972CB6D67200DA64B3 /* StitchSystemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchSystemViewModel.swift; sourceTree = "<group>"; };
 		B5B95B992CB6D6B300DA64B3 /* StitchSystemEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchSystemEncoder.swift; sourceTree = "<group>"; };
@@ -1910,7 +1909,6 @@
 		200BD859254F66EB00692903 /* Stitch */ = {
 			isa = PBXGroup;
 			children = (
-				B5B639812CFA900200EC228C /* StitchSchemaKit */,
 				EC15E425260271C6006F2E08 /* Stitch.entitlements */,
 				200BD863254F66EE00692903 /* Info.plist */,
 				B5617A7B2C175C3C00B53DAF /* App */,
@@ -6372,7 +6370,7 @@
 			repositoryURL = "https://github.com/StitchDesign/StitchSchemaKit";
 			requirement = {
 				kind = revision;
-				revision = 6bd050e51bd946326d26bb18b70f31ef825d8c62;
+				revision = b4a64fe8f7960fe75d42144f936c9c6eef28bc2b;
 			};
 		};
 		EC1137362719F9B400ADCA72 /* XCRemoteSwiftPackageReference "swift-collections" */ = {
