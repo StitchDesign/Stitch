@@ -17,7 +17,6 @@ enum StitchMediaObject: Sendable {
     case soundfile(StitchSoundPlayer<StitchSoundFilePlayer>)
     case mic(StitchSoundPlayer<StitchMic>)
     case model3D(StitchEntity)
-    case arAnchor(AnchorEntity)
     case coreMLImageModel(StitchMLModel)
 }
 
@@ -63,8 +62,6 @@ extension StitchMediaObject: Hashable {
             hasher.combine(stitchSoundPlayer.delegate.id)
         case .model3D(let stitchEntity):
             hasher.combine(stitchEntity.sourceURL)
-        case .arAnchor(let anchorEntity):
-            hasher.combine(anchorEntity.hashValue)
         case .coreMLImageModel(let stitchMLModel):
             hasher.combine(stitchMLModel.hashValue)
         }
@@ -114,39 +111,13 @@ extension StitchMediaObject {
             }
 
             // Apply transform if both instances are loaded
-            if let entityInstance = stitchEntity.entityStatus.loadedInstance,
-               let otherEntityInstance = otherStitchEntity.entityStatus.loadedInstance {
-                DispatchQueue.main.async { [weak entityInstance, weak otherEntityInstance] in
-                    if let otherEntityInstance = otherEntityInstance {
-                        entityInstance?.applyMatrix(newMatrix: otherEntityInstance.transform.matrix)                        
-                    }
-                }
-            }
+            let entityInstance = stitchEntity
+            let otherEntityInstance = otherStitchEntity
+            
+            entityInstance.applyMatrix(newMatrix: otherEntityInstance.containerEntity.transform.matrix)
             stitchEntity.isAnimating = otherStitchEntity.isAnimating
+            
             self = .model3D(stitchEntity)
-
-        case .arAnchor(let anchor):
-            guard let otherAnchor = otherMediaObject.arAnchor else {
-                return
-            }
-
-            DispatchQueue.main.async { [weak anchor, weak otherAnchor] in
-                guard let anchor = anchor,
-                      let otherAnchor = otherAnchor else {
-                    return
-                }
-                
-                anchor.transform = otherAnchor.transform
-
-                let currentEntities = Set(anchor.children)
-                let otherEntities = Set(otherAnchor.children)
-
-                // Reset entities in anchors
-                anchor.removeAllEntities(currentEntities.map { $0 })
-                otherEntities.forEach { anchor.addChild($0) }
-            }
-
-            self = .arAnchor(anchor)
 
         case .coreMLImageModel:
             // Nothing to transfer
@@ -155,7 +126,7 @@ extension StitchMediaObject {
     }
 
     /// Creates a unique refrence copy of some media object.
-    func createComputedCopy(nodeId: NodeId?) async -> StitchMediaObject? {
+    func createComputedCopy(nodeId: NodeId?) async throws -> StitchMediaObject? {
         var copiedMediaObject: StitchMediaObject?
 
         switch self {
@@ -220,16 +191,12 @@ extension StitchMediaObject {
                 return copiedMediaObject
             }
             
-            let newStitchEntity = await StitchEntity(id: .init(),
-                                                     nodeId: nodeId,
-                                                     sourceURL: entity.sourceURL,
-                                                     isAnimating: entity.isAnimating)
+            let newStitchEntity = try await StitchEntity(id: .init(),
+                                                         nodeId: nodeId,
+                                                         sourceURL: entity.sourceURL,
+                                                         isAnimating: entity.isAnimating)
             
             copiedMediaObject = .model3D(newStitchEntity)
-
-        case .arAnchor(let arAnchor):
-            let newAnchor = await arAnchor.clone(recursive: true)
-            copiedMediaObject = .arAnchor(newAnchor)
 
         case .coreMLImageModel(let model):            //
             let modelCopy = model.copy()
@@ -261,8 +228,6 @@ extension StitchMediaObject {
             return model.originalURL.filename ?? "Model"
         case .mic:
             return "Mic"
-        case .arAnchor:
-            return "AR Anchor"
         }
     }
 
@@ -277,7 +242,7 @@ extension StitchMediaObject {
             return entity.sourceURL
 
         // Not needed for these scenarios
-        case .image, .mic, .coreMLImageModel, .arAnchor:
+        case .image, .mic, .coreMLImageModel:
             return nil
         }
     }
@@ -291,7 +256,7 @@ extension StitchMediaObject {
             return .video
         case .model3D:
             return .model3D
-        case .soundfile, .mic, .coreMLImageModel, .arAnchor:
+        case .soundfile, .mic, .coreMLImageModel:
             return nil
         }
     }
@@ -357,15 +322,6 @@ extension StitchMediaObject {
         }
     }
 
-    var arAnchor: AnchorEntity? {
-        switch self {
-        case .arAnchor(let arAnchor):
-            return arAnchor
-        default:
-            return nil
-        }
-    }
-
     var coreMLImageModel: VNCoreMLModel? {
         switch self {
         case .coreMLImageModel(let model):
@@ -388,7 +344,7 @@ extension StitchMediaObject {
             return .model3D
         case .coreMLImageModel:
             return .coreML
-        case .mic, .arAnchor:
+        case .mic:
             return nil
         }
     }

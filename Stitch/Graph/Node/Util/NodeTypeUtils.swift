@@ -103,15 +103,33 @@ extension UserVisibleType {
         case .textFont:
             return "Text Font"
         case .blendMode:
-            return self.rawValue
+            return "Blend Mode"
         case .mapType:
             return "Map Type"
         case .progressIndicatorStyle:
             return "Progress Style"
         case .mobileHapticStyle:
             return "Haptic Style"
-        case .strokeLineCap, .strokeLineJoin, .contentMode, .spacing, .padding, .sizingScenario, .pinToId, .materialThickness, .deviceAppearance:
-            return self.rawValue
+        case .strokeLineCap:
+            return "Stroke Line Cap"
+        case .strokeLineJoin:
+            return "Stroke Line Join"
+        case .contentMode:
+            return "Content Mode"
+        case .spacing:
+            return "Spacing"
+        case .padding:
+            return "Padding"
+        case .sizingScenario:
+            return "Sizing Scenario"
+        case .pinToId:
+            return "Pin To ID"
+        case .materialThickness:
+            return "Materialize Thickness"
+        case .deviceAppearance:
+            return "Device Appearance"
+        case .anchorEntity:
+            return "Anchor Entity"
         }
     }
 }
@@ -252,12 +270,13 @@ func portValueToNodeType(_ value: PortValue) -> UserVisibleType {
         return .materialThickness
     case .deviceAppearance:
         return .deviceAppearance
+    case .anchorEntity:
+        return .anchorEntity
     }
 
 }
 
 extension UserVisibleType {
-
     // When converting a node type (i.e. UVT) to a port value,
     // we don't care about the actual content of the associated value for that port value.
     // TODO: instead of using `defaultPortValue`, just pass in the UVT directly
@@ -382,6 +401,8 @@ extension UserVisibleType {
             return .deviceAppearance(.defaultDeviceAppearance)
         case .materialThickness:
             return .materialThickness(.defaultMaterialThickness)
+        case .anchorEntity:
+            return .anchorEntity(nil)
         }
     }
 

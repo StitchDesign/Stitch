@@ -12,8 +12,10 @@ import StitchSchemaKit
 extension PortValue {
     /// Coercion logic from port value to fields. Contains a 2D list of field values given a 1-many mapping between a field group type and its field values.
     func createFieldValuesList(nodeIO: NodeIO,
-                               importedMediaObject: StitchMediaObject?) -> [FieldValues] {
-        switch self.getNodeRowType(nodeIO: nodeIO) {
+                               importedMediaObject: StitchMediaObject?,
+                               isLayerInspector: Bool) -> [FieldValues] {
+        switch self.getNodeRowType(nodeIO: nodeIO,
+                                   isLayerInspector: isLayerInspector) {
         
         case .size:
             let size = self.getSize ?? .zero
@@ -34,6 +36,10 @@ extension PortValue {
         case .padding:
             let padding = self.getPadding ?? .zero
             return [padding.fieldValues]
+            
+        case .transform3D:
+            let transform = self.getTransform ?? .zero
+            return transform.fieldValues
             
         case .shapeCommand(let shapeCommandType):
             let shapeCommandValue = self.shapeCommand ?? .defaultFalseShapeCommand
@@ -287,14 +293,16 @@ extension PortValue {
         case .readOnly:
             let display = self.display
             return [[.readOnly(display)]]
+        
         case .spacing:
             return [[FieldValue.spacing(self.getStitchSpacing ?? .defaultStitchSpacing)]]
         
         case .layerGroupOrientationDropdown:
             let orientation = self.getOrientation ?? .defaultOrientation
-            let choices = StitchOrientation.choices
             return [[.layerGroupOrientationDropdown(orientation)]]
             
+        case .anchorEntity:
+            return [[.anchorEntity(self.anchorEntity)]]
         }
     }
 }

@@ -206,7 +206,7 @@
 //    // but this is [[field]] ?
 //    // is that because at one point we thought an input could have multiple rows?
 //    // Yeah, seems so.
-////    let fieldsList: FieldGroupTypeViewModelList = input.fieldValueTypes
+////    let fieldsList: FieldGroupTypeDataList = input.fieldValueTypes
 ////    let minimumFieldIndex = 0
 //    
 //    let previousFieldIndex = currentFieldIndex - 1

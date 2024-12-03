@@ -49,3 +49,13 @@ extension StitchPadding {
         ]
     }
 }
+
+extension StitchTransform {
+    var fieldValues: [FieldValues] {
+        [
+            self.position3D.fieldValues,
+            self.scale3D.fieldValues,
+            self.rotation3D.fieldValues
+        ]
+    }
+}

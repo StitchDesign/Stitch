@@ -177,7 +177,8 @@ extension DocumentLoader {
         
         documentViewModel.previewSizeDevice = previewDevice
         documentViewModel.previewWindowSize = previewDevice.previewWindowDimensions
-        store.navPath = [documentViewModel]
+        projectLoader.documentViewModel = documentViewModel
+        store.navPath = [projectLoader]
     }
 
     func installDocument(document: StitchDocument) async throws -> ProjectLoader {

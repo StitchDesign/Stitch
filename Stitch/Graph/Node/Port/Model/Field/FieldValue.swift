@@ -33,6 +33,7 @@ enum FieldValue: Equatable, Sendable {
     case readOnly(String)
     case textFontDropdown(StitchFont)
     case spacing(StitchSpacing)
+    case anchorEntity(UUID?)
 }
 
 extension FieldValue {
@@ -68,10 +69,11 @@ extension FieldValue {
             // Handled by own views
         case .color, .anchorPopover:
             return ""
+        case .anchorEntity(let nodeId):
+            return nodeId?.description ?? "None"
         }
     }
 
-    // Where and how is this used? Perhaps should return `String?`
     var stringValue: String {
         switch self {
         case .string(let string):
@@ -92,7 +94,7 @@ extension FieldValue {
             return x.display
         case .layerGroupOrientationDropdown(let x):
             return x.display
-        case .color, .dropdown, .layerDropdown, .anchorPopover, .media, .pulse, .textFontDropdown:
+        case .color, .dropdown, .layerDropdown, .anchorPopover, .media, .pulse, .textFontDropdown, .anchorEntity:
             return ""
         }
     }
@@ -147,7 +149,7 @@ extension FieldValue {
                 
             }
 
-        case .bool, .color, .dropdown, .layerDropdown, .pinTo, .anchorPopover, .media, .pulse, .json, .readOnly, .textFontDropdown, .spacing, .layerGroupOrientationDropdown:
+        case .bool, .color, .dropdown, .layerDropdown, .pinTo, .anchorPopover, .media, .pulse, .json, .readOnly, .textFontDropdown, .spacing, .layerGroupOrientationDropdown, .anchorEntity:
             return nil
         }
     }

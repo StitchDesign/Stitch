@@ -32,7 +32,11 @@ struct PortValuesPreviewView<NodeRowObserverType: NodeRowObserver>: View {
         let loopedValues: PortValues = rowObserver.allLoopedValues
         
         // TODO: handle ShapeCommand port-preview ?
-        guard let labels = loopedValues.first?.getNodeRowType(nodeIO: nodeIO).fieldGroupTypes.first?.labels else {
+        guard let labels = loopedValues.first?
+            .getNodeRowType(nodeIO: nodeIO,
+                            // doesn't matter here
+                            isLayerInspector: false)
+                .fieldGroupTypes.first?.labels else {
             fatalErrorIfDebug()
             return []
         }
@@ -44,7 +48,9 @@ struct PortValuesPreviewView<NodeRowObserverType: NodeRowObserver>: View {
             guard let fieldValues = value.createFieldValuesList(
                 nodeIO: nodeIO,
                 // Don't display media object?
-                importedMediaObject: nil).first else {
+                importedMediaObject: nil,
+                // doesn't matter here
+                isLayerInspector: false).first else {
                 
                 fatalErrorIfDebug()
                 return nil

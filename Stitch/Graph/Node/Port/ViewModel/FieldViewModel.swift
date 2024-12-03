@@ -139,12 +139,15 @@ extension Array where Element: FieldViewModel {
         
         // If this is a field for an unpacked layer input, we must look at the unpacked's parent label-list
         let labels = (unpackedPortParentFieldGroupType ?? fieldGroupType).labels
+        let layerInput = rowViewModel?.rowDelegate?.id.layerInput?.layerInput
                 
         return fieldValues.enumerated().map { fieldIndex, fieldValue in
             
             let index = unpackedPortIndex ?? fieldIndex
-            
-            let fieldLabel = labels[safe: index]
+            let indexForLabel = self.getIndexForLabel(index: index,
+                                                      layerInput: layerInput)
+                
+            let fieldLabel = labels[safe: indexForLabel]
             
             // Every field should have a label, even if just an empty string.
             assertInDebug(fieldLabel != nil)
@@ -154,5 +157,25 @@ extension Array where Element: FieldViewModel {
                            fieldLabel: fieldLabel ?? "",
                            rowViewModelDelegate: rowViewModel)
         }
+    }
+    
+    private static func getIndexForLabel(index: Int,
+                                         layerInput: LayerInputPort?) -> Int {
+        guard let labelGropuings = layerInput?.labelGroupings else {
+            // Almsot all cases (non 3D transform)
+            return index
+        }
+        
+        // Find label where index is in range
+        for grouping in labelGropuings {
+            if grouping.portRange.contains(index) {
+                let indexInRange = index - grouping.portRange.startIndex
+                return indexInRange
+            }
+        }
+        
+        // Should've found match
+        fatalErrorIfDebug()
+        return 0
     }
 }

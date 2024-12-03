@@ -59,7 +59,20 @@ extension PortValues {
                                   right: self[safe: 1]?.getNumber ?? .zero,
                                   bottom: self[safe: 2]?.getNumber ?? .zero,
                                   left: self[safe: 3]?.getNumber ?? .zero))
-        
+            
+        case .transform:
+            assertInDebug(count == 9)
+            return .transform(.init(positionX: self[safe: 0]?.getNumber ?? .zero,
+                                    positionY: self[safe: 1]?.getNumber ?? .zero,
+                                    positionZ: self[safe: 2]?.getNumber ?? .zero,
+                                    scaleX: self[safe: 3]?.getNumber ?? .zero,
+                                    scaleY: self[safe: 4]?.getNumber ?? .zero,
+                                    scaleZ: self[safe: 5]?.getNumber ?? .zero,
+                                    rotationX: self[safe: 6]?.getNumber ?? .zero,
+                                    rotationY: self[safe: 7]?.getNumber ?? .zero,
+                                    rotationZ: self[safe: 8]?.getNumber ?? .zero))
+            
+            
         default:
             log("LayerInputPort: pack")
             fatalErrorIfDebug("Should not have attempted to `pack` these values \(self) into \(asPortValue)")

@@ -439,12 +439,17 @@ extension OutputNodeRowObserver {
 }
 
 extension NodeRowViewModel {
+    var isLayerInspector: Bool {
+        self.id.graphItemType.isLayerInspector
+    }
+    
     /// Called by parent node view model to update fields.
     @MainActor
     func activeValueChanged(oldValue: PortValue,
                             newValue: PortValue) {
         let nodeIO = Self.RowObserver.nodeIOType
-        let oldRowType = oldValue.getNodeRowType(nodeIO: nodeIO)
+        let oldRowType = oldValue.getNodeRowType(nodeIO: nodeIO,
+                                                 isLayerInspector: self.isLayerInspector)
         self.activeValueChanged(oldRowType: oldRowType,
                                 newValue: newValue)
     }
@@ -460,7 +465,8 @@ extension NodeRowViewModel {
         }
         
         let nodeIO = Self.RowObserver.nodeIOType
-        let newRowType = newValue.getNodeRowType(nodeIO: nodeIO)
+        let newRowType = newValue.getNodeRowType(nodeIO: nodeIO,
+                                                 isLayerInspector: self.isLayerInspector)
         let nodeRowTypeChanged = oldRowType != newRowType
         let importedMediaObject = rowDelegate.importedMediaObject
         
@@ -478,7 +484,8 @@ extension NodeRowViewModel {
         }
         
         let newFieldsByGroup = newValue.createFieldValuesList(nodeIO: nodeIO,
-                                                          importedMediaObject: importedMediaObject)
+                                                              importedMediaObject: importedMediaObject,
+                                                              isLayerInspector: self.isLayerInspector)
         
         // Assert equal array counts
         guard newFieldsByGroup.count == self.fieldValueTypes.count else {

@@ -198,7 +198,8 @@ extension NodeViewModel {
 
     @MainActor
     var isGroupLayer: Bool {
-        self.kind.getLayer == .group
+        guard let layer = self.kind.getLayer else { return false }
+        return layer == .group || layer == .realityView
     }
     
     @MainActor

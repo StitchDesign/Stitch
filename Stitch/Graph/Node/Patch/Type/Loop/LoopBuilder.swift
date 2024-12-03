@@ -130,7 +130,7 @@ extension LoopBuilderNode {
                           node: NodeViewModel) async -> PortValuesList {
         var newOutputs: PortValues = []
         
-        for (loopIndex, value) in values.enumerated() {
+        for value in values {
             guard let inputMedia = value.asyncMedia else {
                   // We use loop as the port ID since the values have been flattened
                   // And the actual loop index is always 0
@@ -138,12 +138,17 @@ extension LoopBuilderNode {
                 continue
             }
             
-            let copiedMedia = await inputMedia.mediaObject.createComputedCopy(nodeId: node.id)
-            
-            if let copiedMedia = copiedMedia {
-                let graphMedia = GraphMediaValue(computedMedia: copiedMedia)
-                newOutputs.append(graphMedia.portValue)
-            } else {
+            do {
+                let copiedMedia = try await inputMedia.mediaObject.createComputedCopy(nodeId: node.id)
+                
+                if let copiedMedia = copiedMedia {
+                    let graphMedia = GraphMediaValue(computedMedia: copiedMedia)
+                    newOutputs.append(graphMedia.portValue)
+                } else {
+                    newOutputs.append(.asyncMedia(nil))
+                }
+            } catch {
+                fatalErrorIfDebug()
                 newOutputs.append(.asyncMedia(nil))
             }
         }

@@ -147,7 +147,7 @@ struct NodeInputView: View {
     let rowObserver: InputNodeRowObserver?
     let rowViewModel: InputNodeRowObserver.RowViewModelType? // i.e. `InputNodeRowViewModel?`
         
-    let fieldValueTypes: [FieldGroupTypeViewModel<InputNodeRowViewModel.FieldType>]
+    let fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>]
     
     let layerInputObserver: LayerInputObserver?
     
@@ -340,7 +340,7 @@ struct FieldsListView<PortType, ValueEntryView>: View where PortType: NodeRowVie
 
     @Bindable var graph: GraphState
 
-    var fieldValueTypes: [FieldGroupTypeViewModel<PortType.FieldType>]
+    var fieldValueTypes: [FieldGroupTypeData<PortType.FieldType>]
     let nodeId: NodeId
     let forPropertySidebar: Bool
     let forFlyout: Bool
@@ -352,27 +352,30 @@ struct FieldsListView<PortType, ValueEntryView>: View where PortType: NodeRowVie
      
         let multipleFieldGroups = fieldValueTypes.count > 1
         
-        ForEach(fieldValueTypes) { (fieldGroupViewModel: FieldGroupTypeViewModel<PortType.FieldType>) in
-            
-            let multipleFieldsPerGroup = fieldGroupViewModel.fieldObservers.count > 1
-            
-            // Note: "multifield" is more complicated for layer inputs, since `fieldObservers.count` is now inaccurate for an unpacked port
-            let isMultiField = forPropertySidebar ?  (multipleFieldGroups || multipleFieldsPerGroup) : fieldGroupViewModel.fieldObservers.count > 1
-            
-            if !self.isAllFieldsBlockedOut(fieldGroupViewModel: fieldGroupViewModel) {
-                NodeFieldsView(graph: graph,
-                               fieldGroupViewModel: fieldGroupViewModel,
-                               nodeId: nodeId,
-                               isMultiField: isMultiField,
-                               forPropertySidebar: forPropertySidebar,
-                               forFlyout: forFlyout,
-                               blockedFields: blockedFields,
-                               valueEntryView: valueEntryView)
+        // Vertically orient multiple rows (transform input in layer case)
+        VStack {
+            ForEach(fieldValueTypes) { (fieldGroupViewModel: FieldGroupTypeData<PortType.FieldType>) in
+                
+                let multipleFieldsPerGroup = fieldGroupViewModel.fieldObservers.count > 1
+                
+                // Note: "multifield" is more complicated for layer inputs, since `fieldObservers.count` is now inaccurate for an unpacked port
+                let isMultiField = forPropertySidebar ?  (multipleFieldGroups || multipleFieldsPerGroup) : fieldGroupViewModel.fieldObservers.count > 1
+                
+                if !self.isAllFieldsBlockedOut(fieldGroupViewModel: fieldGroupViewModel) {
+                    NodeFieldsView(graph: graph,
+                                   fieldGroupViewModel: fieldGroupViewModel,
+                                   nodeId: nodeId,
+                                   isMultiField: isMultiField,
+                                   forPropertySidebar: forPropertySidebar,
+                                   forFlyout: forFlyout,
+                                   blockedFields: blockedFields,
+                                   valueEntryView: valueEntryView)
+                }
             }
         }
     }
     
-    func isAllFieldsBlockedOut(fieldGroupViewModel: FieldGroupTypeViewModel<PortType.FieldType>) -> Bool {
+    func isAllFieldsBlockedOut(fieldGroupViewModel: FieldGroupTypeData<PortType.FieldType>) -> Bool {
         if let blockedFields = blockedFields {
             return fieldGroupViewModel.fieldObservers.allSatisfy {
                 $0.isBlocked(blockedFields)

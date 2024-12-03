@@ -65,17 +65,11 @@ func model3DImportEval(node: PatchNode) -> EvalResult {
         
         // Update transform
         model3DEntity?.applyMatrix(newMatrix: matrix)
+
+        // Update animation
+        model3DEntity?.isAnimating = animating
         
-        switch model3DEntity?.entityStatus {
-        case .loaded(let entity):
-            // Update animation
-            model3DEntity?.isAnimating = animating
-            
-            return [media.portValue]
-        default:
-            // Return nil object if 3D model still loading or none
-            return [.asyncMedia(nil)]
-        }
+        return [media.portValue]
     }
 }
 

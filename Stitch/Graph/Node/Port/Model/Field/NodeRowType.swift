@@ -33,17 +33,19 @@ enum NodeRowType: Equatable {
          json,
          assignedLayer,
          anchoring,
-         pinTo
+         pinTo,
+         anchorEntity,
+         transform3D
 }
 
 extension NodeRowType {
     
     // TODO: smarter / easier to way to do this?
-    var inputUsesTextField: Bool {
+    func inputUsesTextField(isLayerInputInspector: Bool) -> Bool {
         switch self {
-        case .size, .position, .point3D, .point4D, .padding, .layerDimension, .number, .string, .spacing:
+        case .size, .position, .point3D, .point4D, .padding, .layerDimension, .number, .string, .spacing, .transform3D:
             return true
-        case .readOnly, .shapeCommand, .singleDropdown, .textFontDropdown, .bool, .asyncMedia, .pulse, .color, .json, .assignedLayer, .anchoring, .pinTo, .layerGroupOrientationDropdown:
+        case .readOnly, .shapeCommand, .singleDropdown, .textFontDropdown, .bool, .asyncMedia, .pulse, .color, .json, .assignedLayer, .anchoring, .pinTo, .layerGroupOrientationDropdown, .anchorEntity:
             return false
         }
     }
@@ -94,6 +96,10 @@ extension NodeRowType {
             return .pinTo(.defaultPinToId)
         case .layerGroupOrientationDropdown:
             return .orientation(.defaultOrientation)
+        case .anchorEntity:
+            return .anchorEntity(nil)
+        case .transform3D:
+            return .transform(.zero)
         }
     }
 }

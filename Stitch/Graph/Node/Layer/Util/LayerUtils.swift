@@ -17,12 +17,14 @@ typealias LayerMultiValueKeyPath = ReferenceWritableKeyPath<LayerViewModel, Port
 extension Layer {
     @MainActor
     func hasMultiKeyPath(at port: Int) -> Bool {
-        guard let inputType = self.getPreviewLayerInputType(at: port) else {
-            fatalErrorIfDebug()
-            return false
-        }
-        
-        return inputType.supportsLoopedTypes
+        // MARK: no longer used
+        false
+//        guard let inputType = self.getPreviewLayerInputType(at: port) else {
+//            fatalErrorIfDebug()
+//            return false
+//        }
+//        
+//        return inputType.supportsLoopedTypes
     }
 
     @MainActor
@@ -32,9 +34,9 @@ extension Layer {
     
     var supportsOutputs: Bool {
         switch self {
-        case .canvasSketch, .textField, .switchLayer, .group:
+        case .canvasSketch, .textField, .switchLayer:
             return true
-        case .text, .oval, .rectangle, .image, .video, .model3D, .realityView, .shape, .colorFill, .hitArea, .map, .progressIndicator, .linearGradient, .radialGradient, .angularGradient, .sfSymbol, .videoStreaming, .material:
+        case .text, .oval, .rectangle, .image, .group, .video, .model3D, .realityView, .shape, .colorFill, .hitArea, .map, .progressIndicator, .linearGradient, .radialGradient, .angularGradient, .sfSymbol, .videoStreaming, .material:
             return false
         }
     }
@@ -179,6 +181,16 @@ extension Layer {
             return .model3D
         default:
             return .unknown
+        }
+    }
+    
+    var supportsSidebarGroup: Bool {
+        switch self {
+        case .group, .realityView:
+            return true
+            
+        default:
+            return false
         }
     }
 }

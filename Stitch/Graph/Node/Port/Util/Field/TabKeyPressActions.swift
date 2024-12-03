@@ -46,15 +46,17 @@ extension GraphState {
 }
 
 extension PortValue {
-    var inputUsesTextField: Bool {
-        self.getNodeRowType(nodeIO: .input).inputUsesTextField
+    func inputUsesTextField(isLayerInputInspector: Bool) -> Bool {
+        self.getNodeRowType(nodeIO: .input,
+                            isLayerInspector: isLayerInputInspector)
+        .inputUsesTextField(isLayerInputInspector: isLayerInputInspector)
     }
 }
 
 extension Array where Element: InputNodeRowViewModel {
     // Intended for PatchNodes, i.e. inputs that use portId integers
     @MainActor
-    func portIdEligibleFields() -> PortIdEligibleFields {
+    func portIdEligibleFields(isLayerInputInspector: Bool) -> PortIdEligibleFields {
         let eligibleFields = self
             .enumerated()
             .flatMap { (item) -> [PortIdEligibleField] in
@@ -63,7 +65,7 @@ extension Array where Element: InputNodeRowViewModel {
                 let portId = item.offset
                 
                 // We are only interested in inputs that use text-fields
-                guard input.activeValue.inputUsesTextField,
+                guard input.activeValue.inputUsesTextField(isLayerInputInspector: isLayerInputInspector),
                       let fields = input.fieldValueTypes.first?.fieldObservers else {
                     return []
                 }
@@ -107,12 +109,13 @@ extension NodeViewModel {
                    propertySidebarState: PropertySidebarObserver) -> FieldCoordinate {
         
         let currentInputCoordinate: NodeRowViewModelId = currentFocusedField.rowId
+        let isLayerInspector = layerInput != nil
                         
         switch currentInputCoordinate.portType {
             
         case .portIndex(let portId):
                         
-            let eligibleFields: PortIdEligibleFields = self.allInputRowViewModels.portIdEligibleFields()
+            let eligibleFields: PortIdEligibleFields = self.allInputRowViewModels.portIdEligibleFields(isLayerInputInspector: isLayerInspector)
             
             guard let currentEligibleField = eligibleFields.first(where: {
                 $0 == .init(portId: portId,
@@ -339,11 +342,12 @@ extension NodeViewModel {
                        propertySidebarState: PropertySidebarObserver) -> FieldCoordinate {
         
         let currentInputCoordinate = currentFocusedField.rowId
+        let isLayerInputInspector = layerInputOnCanvas != nil
         
         switch currentInputCoordinate.portType {
         
         case .portIndex(let portId):
-            let eligibleFields: PortIdEligibleFields = self.allNodeInputRowViewModels.portIdEligibleFields()
+            let eligibleFields: PortIdEligibleFields = self.allNodeInputRowViewModels.portIdEligibleFields(isLayerInputInspector: isLayerInputInspector)
               
             guard let currentEligibleField = eligibleFields.first(where: {
                 // eligible fields are equatable
@@ -433,17 +437,6 @@ extension NodeViewModel {
     @MainActor
     var maxInputIndex: Int {
         self.getAllInputsObservers().count - 1
-    }
-}
-
-extension LayerInputType {
-    func maxFieldIndex(_ layer: Layer) -> Int {
-        let fieldCount = self.getDefaultValue(for: layer)
-            .createFieldValuesList(nodeIO: .input,
-                               importedMediaObject: nil)
-            .first?.count ?? 1
-        
-        return fieldCount - 1
     }
 }
 

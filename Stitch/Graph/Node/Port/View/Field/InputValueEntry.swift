@@ -275,6 +275,11 @@ struct InputValueView: View {
                                               isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                               isForPinTo: false))
                 
+            case .anchorEntity(let anchorEntityId):
+                AnchorEntitiesDropdownView(graph: graph,
+                                           value: .anchorEntity(anchorEntityId),
+                                           inputCoordinate: rowObserverId,
+                                           isFieldInsideLayerInspector: isFieldInsideLayerInspector)
             case .layerGroupOrientationDropdown(let x):
                 LayerGroupOrientationDropDownChoiceView(
                     id: rowObserverId,

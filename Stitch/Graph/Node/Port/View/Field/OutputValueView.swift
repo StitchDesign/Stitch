@@ -111,20 +111,10 @@ struct OutputValueView: View {
             switch fieldValue {
             case .string(let string):
                 // Leading alignment when multifield
-                ReadOnlyValueEntry(value: string.string,
-                                   alignment: outputAlignment,
-                                   fontColor: STITCH_FONT_GRAY_COLOR,
-                                   isSelectedInspectorRow: isSelectedInspectorRow,
-                                   forPropertySidebar: forPropertySidebar,
-                                   isFieldInMultifieldInput: isFieldInMultifieldInput)
+                readOnlyView(string.string)
                 
             case .number, .layerDimension, .spacing:
-                ReadOnlyValueEntry(value: fieldValue.stringValue,
-                                   alignment: outputAlignment,
-                                   fontColor: STITCH_FONT_GRAY_COLOR,
-                                   isSelectedInspectorRow: isSelectedInspectorRow,
-                                   forPropertySidebar: forPropertySidebar,
-                                   isFieldInMultifieldInput: isFieldInMultifieldInput)
+                readOnlyView(fieldValue.stringValue)
                 
             case .bool(let bool):
                 BoolCheckboxView(id: nil,
@@ -135,12 +125,7 @@ struct OutputValueView: View {
                 
             case .dropdown(let choiceDisplay, _):
                 // Values that use dropdowns for their inputs use instead a display-only view for their outputs
-                ReadOnlyValueEntry(value: choiceDisplay,
-                                   alignment: outputAlignment,
-                                   fontColor: STITCH_FONT_GRAY_COLOR,
-                                   isSelectedInspectorRow: isSelectedInspectorRow,
-                                   forPropertySidebar: forPropertySidebar,
-                                   isFieldInMultifieldInput: isFieldInMultifieldInput)
+                readOnlyView(choiceDisplay)
                 
             case .textFontDropdown(let stitchFont):
                 StitchFontDropdown(input: coordinate,
@@ -170,6 +155,10 @@ struct OutputValueView: View {
                                              //                                            isForPinTo: false)
                 )
                 .disabled(true)
+                
+            case .anchorEntity(let anchorEntityId):
+                let displayName = graph.getNodeViewModel(anchorEntityId ?? .init())?.getDisplayTitle() ?? AnchorDropdownChoice.noneDisplayName
+                readOnlyView(displayName)
                 
             case .layerGroupOrientationDropdown(let x):
                 LayerGroupOrientationDropDownChoiceView(
@@ -238,13 +227,17 @@ struct OutputValueView: View {
                               isPressed: $isButtonPressed)
                 
             case .readOnly(let string):
-                ReadOnlyValueEntry(value: string,
-                                   alignment: outputAlignment,
-                                   fontColor: STITCH_FONT_GRAY_COLOR,
-                                   isSelectedInspectorRow: isSelectedInspectorRow,
-                                   forPropertySidebar: forPropertySidebar,
-                                   isFieldInMultifieldInput: isFieldInMultifieldInput)
+                readOnlyView(string)
             }
 //        }
+    }
+
+    @ViewBuilder func readOnlyView(_ displayName: String) -> some View {
+        ReadOnlyValueEntry(value: displayName,
+                           alignment: outputAlignment,
+                           fontColor: STITCH_FONT_GRAY_COLOR,
+                           isSelectedInspectorRow: isSelectedInspectorRow,
+                           forPropertySidebar: forPropertySidebar,
+                           isFieldInMultifieldInput: isFieldInMultifieldInput)
     }
 }

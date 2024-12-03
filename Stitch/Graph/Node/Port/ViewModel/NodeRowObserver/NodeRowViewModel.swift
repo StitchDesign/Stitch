@@ -80,7 +80,7 @@ protocol NodeRowViewModel: StitchLayoutCachable, Observable, Identifiable {
     @MainActor var activeValue: PortValue { get set }
     
     // Holds view models for fields
-    @MainActor var fieldValueTypes: [FieldGroupTypeViewModel<FieldType>] { get set }
+    @MainActor var fieldValueTypes: [FieldGroupTypeData<FieldType>] { get set }
     
     @MainActor var connectedCanvasItems: Set<CanvasItemId> { get set }
     
@@ -288,7 +288,7 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     let id: NodeRowViewModelId
     @MainActor var viewCache: NodeLayoutCache?
     @MainActor var activeValue: PortValue = .number(.zero)
-    @MainActor var fieldValueTypes = FieldGroupTypeViewModelList<InputFieldViewModel>()
+    @MainActor var fieldValueTypes = FieldGroupTypeDataList<InputFieldViewModel>()
     @MainActor var connectedCanvasItems: Set<CanvasItemId> = .init()
     @MainActor var anchorPoint: CGPoint?
     @MainActor var portColor: PortColor = .noEdge
@@ -358,7 +358,7 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     let id: NodeRowViewModelId
     @MainActor var viewCache: NodeLayoutCache?
     @MainActor var activeValue: PortValue = .number(.zero)
-    @MainActor var fieldValueTypes = FieldGroupTypeViewModelList<OutputFieldViewModel>()
+    @MainActor var fieldValueTypes = FieldGroupTypeDataList<OutputFieldViewModel>()
     @MainActor var connectedCanvasItems: Set<CanvasItemId> = .init()
     @MainActor var anchorPoint: CGPoint?
     @MainActor var portColor: PortColor = .noEdge

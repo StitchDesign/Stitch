@@ -66,6 +66,26 @@ final class LayerInputObserver {
                                    port3: .empty(.init(layerInput: port,
                                                        portType: .unpacked(.port3)),
                                                  nodeId: nodeId,
+                                                 layer: schema.layer),
+                                   port4: .empty(.init(layerInput: port,
+                                                       portType: .unpacked(.port4)),
+                                                 nodeId: nodeId,
+                                                 layer: schema.layer),
+                                   port5: .empty(.init(layerInput: port,
+                                                       portType: .unpacked(.port5)),
+                                                 nodeId: nodeId,
+                                                 layer: schema.layer),
+                                   port6: .empty(.init(layerInput: port,
+                                                       portType: .unpacked(.port6)),
+                                                 nodeId: nodeId,
+                                                 layer: schema.layer),
+                                   port7: .empty(.init(layerInput: port,
+                                                       portType: .unpacked(.port7)),
+                                                 nodeId: nodeId,
+                                                 layer: schema.layer),
+                                   port8: .empty(.init(layerInput: port,
+                                                       portType: .unpacked(.port8)),
+                                                 nodeId: nodeId,
                                                  layer: schema.layer))
         
         // When initialized fom schema, blockedFields is empty.
@@ -98,11 +118,32 @@ extension LayerInputObserver {
     }
         
     @MainActor
-    var fieldValueTypes: [FieldGroupTypeViewModel<InputNodeRowViewModel.FieldType>] {
-        let fields = self.allInputData.flatMap { (portData: InputLayerNodeRowData) in
+    var fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>] {
+        let allFields = self.allInputData.flatMap { (portData: InputLayerNodeRowData) in
             portData.inspectorRowViewModel.fieldValueTypes
         }
-        return fields
+        
+        switch self.mode {
+        case .packed:
+            return allFields
+        case .unpacked:
+            guard let groupings = self.port.labelGroupings else {
+                return allFields
+            }
+            
+            // Groupings are gone in unpacked mode so we just need the fields
+            let flattenedFields = allFields.flatMap { $0.fieldObservers }
+            let fieldGroupsFromPacked = self._packedData.inspectorRowViewModel.fieldValueTypes
+            
+            // Create nested array for label groupings (used for 3D model)
+            return groupings.enumerated().map { fieldGroupIndex, labelData in
+                var fieldGroupFromPacked = fieldGroupsFromPacked[fieldGroupIndex]
+                let fieldsFromUnpacked = Array(flattenedFields[labelData.portRange])
+                
+                fieldGroupFromPacked.fieldObservers = fieldsFromUnpacked
+                return fieldGroupFromPacked
+            }
+        }
     }
     
     @MainActor
@@ -226,10 +267,13 @@ extension LayerInputObserver {
                 
         let layerInput: LayerInputPort = self.port
                 
-        let unpackedPortParentFieldGroupType: FieldGroupType = layerInput
+        // MARK: first group type grabbed since layers don't have differing groups within one input
+        let unpackedPortParentFieldGroupType = layerInput
             .getDefaultValue(for: layer)
-            .getNodeRowType(nodeIO: .input)
-            .getFieldGroupTypeForLayerInput
+            .getNodeRowType(nodeIO: .input,
+                            isLayerInspector: true)
+            .fieldGroupTypes
+            .first
         
         self._unpackedData.allPorts.enumerated().forEach { fieldIndex, port in
             port.initializeDelegate(node,
