@@ -25,8 +25,6 @@ final class StitchEntity: NSObject, Sendable {
     
     // Entity instance with import
     private let importEntity: Entity
-    
-    var entity: Entity { self.importEntity }
 
     @MainActor var isUsedInLayer: Bool = false
     
