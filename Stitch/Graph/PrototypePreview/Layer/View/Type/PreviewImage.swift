@@ -148,13 +148,14 @@ struct ImageDisplayView: View {
 
         switch imageDisplaySize.scenario {
 
-        // If both dimensions `auto`, don't put any limits on size.
-        // We do not put any size limits or fillStyle on the view;
-        // rather, we let the image default to its natural size.
         case .autoDimensions:
             if let fitStyle = fitStyle {
                 return view
                     .aspectRatio(contentMode: fitStyle.asContentMode)
+                // Use the explicit `imageDisplaySize`, since that was used for positioning and already correctly reflects the resource's size
+                // TODO: Why did we have to provide this explicit .frame ?
+                    .frame(width: imageDisplaySize.size.width,
+                           height: imageDisplaySize.size.height)
                     .eraseToAnyView()
             } else {
                 return EmptyView()
@@ -278,12 +279,9 @@ struct PreviewImageLayer: View {
             .offset(y: 300)
     }
 
-    // size used for anchoring etc.
     var sizeForPlacement: LayerSize {
-        // Best to use actual display size if one or more of the dimensions uses `auto`:
-        imageDisplaySize.scenario.atleastOneDimensionUsesAuto
-            ? .init(imageDisplaySize.size)
-            : size
+        // The size for anchoring etc. is actually just the 'image display size'; we treat `auto` as the image resource size, i.e. a hardcoded number
+        .init(imageDisplaySize.size)
     }
     
     var body: some View {
@@ -310,7 +308,7 @@ struct PreviewImageLayer: View {
             rotationX: rotationX,
             rotationY: rotationY,
             rotationZ: rotationZ,
-            size: sizeForPlacement, 
+            size: sizeForPlacement,
             scale: scale,
             anchoring: anchoring,
             blurRadius: blurRadius,
