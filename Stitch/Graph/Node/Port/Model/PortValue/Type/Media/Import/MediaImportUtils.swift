@@ -12,7 +12,7 @@ import SwiftUI
 extension GraphDelegate {
     func createMediaObject(mediaKey: MediaKey,
                            nodeId: NodeId?,
-                           url: URL?) async -> StitchFileResult<StitchMediaObject> {
+                           url: URL?) async -> StitchFileResult<StitchMediaObject?> {
         guard let url = url else {
             // Check temp storage before failing
             switch await self.undoDeletedMedia(mediaKey: mediaKey) {
@@ -84,11 +84,18 @@ extension URL {
                 return .failure(.idNotFoundFor3DModel)
             }
             
-            let entity = await StitchEntity(id: .init(),
-                                            nodeId: nodeId,
-                                            sourceURL: self,
-                                            isAnimating: false)
-            return .success(.model3D(entity))
+            do {
+                let entity = try await StitchEntity(id: .init(),
+                                                    nodeId: nodeId,
+                                                    sourceURL: self,
+                                                    isAnimating: false)
+                return .success(.model3D(entity))
+            } catch {
+                log("createMediaObject error for entity: \(error)")
+                // TODO: fires a lot but seems ok
+                return .success(nil)
+//                return .failure(.mediaCreationFromURLFailed)
+            }
         }
 
         return .failure(.mediaFileUnsupported(pathExtension))

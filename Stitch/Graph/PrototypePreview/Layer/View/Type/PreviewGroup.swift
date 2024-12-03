@@ -11,7 +11,7 @@ import StitchSchemaKit
 extension LayerViewModel {
     @MainActor
     var getGridData: PreviewGridData? {
-        guard self.layer == .group else {
+        guard self.layer.supportsSidebarGroup else {
             fatalErrorIfDebug()
             return nil
         }
@@ -33,6 +33,7 @@ struct PreviewGroupLayer: View {
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     @Bindable var layerViewModel: LayerViewModel
+    @Binding var realityContent: LayerRealityCameraContent?
     let layersInGroup: LayerDataList // child layers for THIS group
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
@@ -256,7 +257,8 @@ struct PreviewGroupLayer: View {
                           parentUsesHug: usesHug,
                           noFixedSizeForLayerGroup: noFixedSizeForLayerGroup,
                           parentGridData: gridData,
-                          isGhostView: !isPinnedViewRendering)
+                          isGhostView: !isPinnedViewRendering,
+                          realityContent: $realityContent)
     }
 }
 

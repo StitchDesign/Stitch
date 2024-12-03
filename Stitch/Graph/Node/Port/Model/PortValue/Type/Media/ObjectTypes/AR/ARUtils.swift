@@ -84,7 +84,7 @@ extension SCNVector3 {
 
 extension Entity {
     // MARK: eval logic for model 3D patch node
-    func applyMatrix(newMatrix: matrix_float4x4) {
+    func _applyMatrix(newMatrix: matrix_float4x4) {
         // Set translation
         let position = newMatrix.position
         let translation = SIMD3([position.x, position.y, position.z])
@@ -105,18 +105,6 @@ extension Entity {
         if tilt > threshold {
             self.orientation = newOrientation
         }
-    }
-}
-
-extension Transform: Codable {
-    public init(from decoder: Decoder) throws {
-        var container = try decoder.unkeyedContainer()
-        try self.init(matrix: container.decode(matrix_float4x4.self))
-    }
-
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.unkeyedContainer()
-        try container.encode(self.matrix)
     }
 }
 

@@ -124,7 +124,6 @@ final class LayerViewModel: Sendable {
     @MainActor var orientation: PortValue
     @MainActor var padding: PortValue
     @MainActor var setupMode: PortValue
-    @MainActor var allAnchors: PortValues
     @MainActor var cameraDirection: PortValue
     @MainActor var isCameraEnabled: PortValue
     @MainActor var isShadowsEnabled: PortValue
@@ -203,6 +202,11 @@ final class LayerViewModel: Sendable {
     @MainActor var materialThickness: PortValue
     @MainActor var deviceAppearance: PortValue
     
+    // 3D
+    @MainActor var position3D: PortValue
+    @MainActor var scale3D: PortValue
+    @MainActor var rotation3D: PortValue
+    
     // Ephemeral state on the layer view model
     
     // Canvas Sketch properties
@@ -266,7 +270,6 @@ final class LayerViewModel: Sendable {
         self.orientation = LayerInputPort.orientation.getDefaultValue(for: layer)
         self.padding = LayerInputPort.padding.getDefaultValue(for: layer)
         self.setupMode = LayerInputPort.setupMode.getDefaultValue(for: layer)
-        self.allAnchors = [LayerInputPort.allAnchors.getDefaultValue(for: layer)]
         self.cameraDirection = LayerInputPort.cameraDirection.getDefaultValue(for: layer)
         self.isCameraEnabled = LayerInputPort.isCameraEnabled.getDefaultValue(for: layer)
         self.isShadowsEnabled = LayerInputPort.isShadowsEnabled.getDefaultValue(for: layer)
@@ -337,6 +340,10 @@ final class LayerViewModel: Sendable {
         
         self.materialThickness = LayerInputPort.materialThickness.getDefaultValue(for: layer)
         self.deviceAppearance = LayerInputPort.deviceAppearance.getDefaultValue(for: layer)
+        
+        self.position3D = LayerInputPort.position3D.getDefaultValue(for: layer)
+        self.scale3D = LayerInputPort.scale3D.getDefaultValue(for: layer)
+        self.rotation3D = LayerInputPort.rotation3D.getDefaultValue(for: layer)
         
         self.nodeDelegate = nodeDelegate
         self.interactiveLayer.delegate = self
@@ -418,19 +425,21 @@ extension LayerViewModel {
         
         // Multi-value key paths (all anchors in reality node)
         else {
-            // No looping index used for multi-value key path
-            if let values = lengthenedValuesList[safe: portId] {
-                let oldValues = self.getValues(for: inputType)
-                
-                // Saves render cycles
-                if oldValues != values {
-                    self.updatePreviewLayerInput(values, inputType: inputType)
-                    
-                    if inputType.shouldResetGraphPreviews {
-                        self.nodeDelegate?.graphDelegate?.shouldResortPreviewLayers = true
-                    }
-                }
-            }
+            // MARK: no longer used
+            fatalErrorIfDebug()
+//            // No looping index used for multi-value key path
+//            if let values = lengthenedValuesList[safe: portId] {
+//                let oldValues = self.getValues(for: inputType)
+//                
+//                // Saves render cycles
+//                if oldValues != values {
+//                    self.updatePreviewLayerInput(values, inputType: inputType)
+//                    
+//                    if inputType.shouldResetGraphPreviews {
+//                        self.nodeDelegate?.graphDelegate?.shouldResortPreviewLayers = true
+//                    }
+//                }
+//            }
         }
     }
     

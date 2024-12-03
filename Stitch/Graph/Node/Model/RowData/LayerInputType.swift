@@ -118,8 +118,6 @@ extension LayerInputPort {
             return .padding(.defaultPadding)
         case .setupMode:
             return .bool(true)
-        case .allAnchors:
-            return .asyncMedia(nil)
         case .cameraDirection:
             return .cameraDirection(.back)
         case .isCameraEnabled:
@@ -256,6 +254,12 @@ extension LayerInputPort {
             return .materialThickness(.defaultMaterialThickness)
         case .deviceAppearance:
             return .deviceAppearance(.defaultDeviceAppearance)
+        case .position3D:
+            return .point3D(.zero)
+        case .scale3D:
+            return .point3D(.init(x: 1, y: 1, z: 1))
+        case .rotation3D:
+            return .point3D(.zero)
         }
     }
     
@@ -322,8 +326,6 @@ extension LayerInputPort {
             return \.paddingPort
         case .setupMode:
             return \.setupModePort
-        case .allAnchors:
-            return \.allAnchorsPort
         case .cameraDirection:
             return \.cameraDirectionPort
         case .isCameraEnabled:
@@ -472,58 +474,58 @@ extension LayerInputPort {
             return \.materialThicknessPort
         case .deviceAppearance:
             return \.deviceAppearancePort
+        case .position3D:
+            return \.position3DPort
+        case .scale3D:
+            return \.scale3DPort
+        case .rotation3D:
+            return \.rotation3DPort
         }
     }
     
     var supportsLoopedTypes: Bool {
-        switch self {
-        case .allAnchors:
-            return true
-            
-        default:
-            return false
-        }
+        // MARK: no longer used
+        false
+//        switch self {
+//        default:
+//            return false
+//        }
     }
 }
 
 extension LayerViewModel {
-    @MainActor
-    func getValues(for inputType: LayerInputPort) -> PortValues {
-        assertInDebug(inputType.supportsLoopedTypes)
-        
-        switch inputType {
-        case .allAnchors:
-            return self.allAnchors
-            
-        default:
-            fatalErrorIfDebug()
-            return [.number(.zero)]
-        }
-    }
+//    @MainActor
+//    func getValues(for inputType: LayerInputPort) -> PortValues {
+//        assertInDebug(inputType.supportsLoopedTypes)
+//        
+//        switch inputType {
+//        case .allAnchors:
+//            return self.allAnchors
+//            
+//        default:
+//            fatalErrorIfDebug()
+//            return [.number(.zero)]
+//        }
+//    }
     
     /// Updates inputs that accept an array of values.
-    @MainActor
-    func updatePreviewLayerInput(_ values: PortValues,
-                                 inputType: LayerInputPort) {
-        assertInDebug(inputType.supportsLoopedTypes)
-        
-        switch inputType {
-        case .allAnchors:
-            self.allAnchors = values
-        default:
-            fatalErrorIfDebug()
-        }
-    }
+//    @MainActor
+//    func updatePreviewLayerInput(_ values: PortValues,
+//                                 inputType: LayerInputPort) {
+//        assertInDebug(inputType.supportsLoopedTypes)
+//        
+//        switch inputType {
+//        case .allAnchors:
+//            self.allAnchors = values
+//        default:
+//            fatalErrorIfDebug()
+//        }
+//    }
     
     /// Key paths for children preview layers.
     @MainActor
     func getValue(for inputType: LayerInputPort) -> PortValue {
         switch inputType {
-            // MARK: not supported here
-        case .allAnchors:
-            fatalErrorIfDebug()
-            return .number(.zero)
-            
             // Required for all layers
         case .position:
             return self.position
@@ -724,7 +726,12 @@ extension LayerViewModel {
             return self.deviceAppearance
         case .materialThickness:
             return self.materialThickness
-            
+        case .position3D:
+            return self.position3D
+        case .scale3D:
+            return self.scale3D
+        case .rotation3D:
+            return self.rotation3D
         }
     }
     
@@ -732,11 +739,7 @@ extension LayerViewModel {
     @MainActor
     func updatePreviewLayerInput(_ value: PortValue,
                                  inputType: LayerInputPort) {
-        switch inputType {
-            // MARK: not supported here
-        case .allAnchors:
-            fatalErrorIfDebug()
-            
+        switch inputType {            
             // Required for all layers
         case .position:
             self.position = value
@@ -938,6 +941,12 @@ extension LayerViewModel {
             self.deviceAppearance = value
         case .materialThickness:
             self.materialThickness = value
+        case .position3D:
+            self.position3D = value
+        case .scale3D:
+            self.scale3D = value
+        case .rotation3D:
+            self.rotation3D = value
         }
     }
 }
@@ -1001,8 +1010,6 @@ extension LayerInputPort {
             return \.paddingPort
         case .setupMode:
             return \.setupModePort
-        case .allAnchors:
-            return \.allAnchorsPort
         case .cameraDirection:
             return \.cameraDirectionPort
         case .isCameraEnabled:
@@ -1143,6 +1150,12 @@ extension LayerInputPort {
             return \.materialThicknessPort
         case .deviceAppearance:
             return \.deviceAppearancePort
+        case .position3D:
+            return \.position3DPort
+        case .scale3D:
+            return \.scale3DPort
+        case .rotation3D:
+            return \.rotation3DPort
         }
     }
     
@@ -1338,8 +1351,6 @@ extension LayerInputPort {
             return "Padding"
         case .setupMode:
             return "Setup Mode"
-        case .allAnchors:
-            return "AR Anchors"
         case .cameraDirection:
             return "Camera Direction"
         case .isCameraEnabled:
@@ -1478,6 +1489,12 @@ extension LayerInputPort {
             return "Material"
         case .deviceAppearance:
             return useShortLabel ? "Appearance" : "Device Appearance"
+        case .position3D:
+            return "Position"
+        case .scale3D:
+            return "Scale"
+        case .rotation3D:
+            return "Rotation"
         }
     }
 

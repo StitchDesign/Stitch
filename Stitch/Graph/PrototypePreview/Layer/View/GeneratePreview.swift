@@ -32,7 +32,8 @@ struct GeneratePreview: View {
                           parentUsesHug: false,
                           noFixedSizeForLayerGroup: false,
                           parentGridData: nil,
-                          isGhostView: false)
+                          isGhostView: false,
+                          realityContent: .constant(nil))
         .background {
             // Invisible views used for reporting pinning position data
             PreviewLayersView(document: document,
@@ -46,7 +47,8 @@ struct GeneratePreview: View {
                               parentUsesHug: false,
                               noFixedSizeForLayerGroup: false,
                               parentGridData: nil,
-                              isGhostView: true)
+                              isGhostView: true,
+                              realityContent: .constant(nil))
             .hidden()
             .disabled(true)
         }
@@ -87,6 +89,7 @@ struct PreviewLayersView: View {
     let noFixedSizeForLayerGroup: Bool
     let parentGridData: PreviewGridData?
     let isGhostView: Bool
+    @Binding var realityContent: LayerRealityCameraContent?
     
      /*
       Note: [.red, .yellow, .black] in a ZStack places black "on top" (i.e. highest z-index), in a VStack places black "last"; i.e. ZStack and VStack/HStack have opposite expectations about ordering.
@@ -139,7 +142,8 @@ struct PreviewLayersView: View {
                           layerData: layerData,
                           parentSize: parentSize,
                           parentDisablesPosition: parentDisablesPosition,
-                          isGhostView: isGhostView)
+                          isGhostView: isGhostView,
+                          realityContent: $realityContent)
             
             if spacing.isEvenly {
                 Spacer()
@@ -169,7 +173,8 @@ struct PreviewLayersView: View {
                                   layerData: layerData,
                                   parentSize: parentSize,
                                   parentDisablesPosition: parentDisablesPosition,
-                                  isGhostView: isGhostView)
+                                  isGhostView: isGhostView,
+                                  realityContent: $realityContent)
                 }
             }
         } .modifier(LayerGroupInteractableViewModifier(
@@ -256,6 +261,7 @@ struct LayerDataView: View {
     let parentSize: CGSize
     let parentDisablesPosition: Bool
     let isGhostView: Bool
+    @Binding var realityContent: LayerRealityCameraContent?
     
     var body: some View {
         
@@ -279,7 +285,8 @@ struct LayerDataView: View {
                         layerData: maskedLayerData,
                         parentSize: parentSize,
                         parentDisablesPosition: parentDisablesPosition,
-                        isGhostView: isGhostView)
+                        isGhostView: isGhostView,
+                        realityContent: $realityContent)
                     
                     // Turn masker LayerData into a single view
                     let masker: some View = LayerDataView(
@@ -287,7 +294,8 @@ struct LayerDataView: View {
                         layerData: maskerLayerData,
                         parentSize: parentSize,
                         parentDisablesPosition: parentDisablesPosition,
-                        isGhostView: isGhostView)
+                        isGhostView: isGhostView,
+                        realityContent: $realityContent)
                     
                     // Return
                     masked.mask(masker)
@@ -305,7 +313,8 @@ struct LayerDataView: View {
                                           layerViewModel: layerViewModel,
                                           isPinnedViewRendering: !isGhostView,
                                           parentSize: parentSize,
-                                          parentDisablesPosition: parentDisablesPosition)
+                                          parentDisablesPosition: parentDisablesPosition,
+                                          realityContent: $realityContent)
             } else {
                 EmptyView()
             }
@@ -319,7 +328,8 @@ struct LayerDataView: View {
                                        childrenData: childrenData,
                                        isPinnedViewRendering: !isGhostView,
                                        parentSize: parentSize,
-                                       parentDisablesPosition: parentDisablesPosition)
+                                       parentDisablesPosition: parentDisablesPosition,
+                                       realityContent: $realityContent)
             } else {
                 EmptyView()
             }
@@ -335,6 +345,7 @@ struct NonGroupPreviewLayersView: View {
     let isPinnedViewRendering: Bool
     let parentSize: CGSize
     let parentDisablesPosition: Bool
+    @Binding var realityContent: LayerRealityCameraContent?
     
     var body: some View {
         if layerNode.hasSidebarVisibility,
@@ -345,7 +356,8 @@ struct NonGroupPreviewLayersView: View {
                              layer: layerNode.layer,
                              isPinnedViewRendering: isPinnedViewRendering,
                              parentSize: parentSize,
-                             parentDisablesPosition: parentDisablesPosition)
+                             parentDisablesPosition: parentDisablesPosition,
+                             realityContent: $realityContent)
         } else {
             EmptyView()
         }
@@ -360,17 +372,38 @@ struct GroupPreviewLayersView: View {
     let isPinnedViewRendering: Bool
     let parentSize: CGSize
     let parentDisablesPosition: Bool
+    @Binding var realityContent: LayerRealityCameraContent?
     
     var body: some View {
         if layerNode.hasSidebarVisibility,
            let graph = layerNode.nodeDelegate?.graphDelegate as? GraphState {
+            switch layerNode.layer {
+            case .group:
                 GroupLayerNode.content(document: document,
                                        graph: graph,
                                        viewModel: layerViewModel,
                                        parentSize: parentSize,
                                        layersInGroup: childrenData,
                                        isPinnedViewRendering: isPinnedViewRendering,
-                                       parentDisablesPosition: parentDisablesPosition)
+                                       parentDisablesPosition: parentDisablesPosition,
+                                       realityContent: $realityContent)
+
+            case .realityView:
+                RealityViewLayerNode.content(document: document,
+                                             graph: graph,
+                                             viewModel: layerViewModel,
+                                             parentSize: parentSize,
+                                             layersInGroup: childrenData,
+                                             isPinnedViewRendering: isPinnedViewRendering,
+                                             parentDisablesPosition: parentDisablesPosition,
+                                             realityContent: $realityContent)
+                
+            default:
+                Color.clear
+                    .onAppear {
+                        fatalErrorIfDebug()
+                    }
+            }
             
         } else {
             EmptyView()

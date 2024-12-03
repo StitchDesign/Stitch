@@ -59,7 +59,8 @@ struct CanvasSketchLayerNode: LayerNodeDefinition {
                         parentSize: CGSize,
                         layersInGroup: LayerDataList,
                         isPinnedViewRendering: Bool,
-                        parentDisablesPosition: Bool) -> some View {
+                        parentDisablesPosition: Bool,
+                        realityContent: Binding<LayerRealityCameraContent?>) -> some View {
         CanvasSketchView(document: document,
                          graph: graph,
                          layerViewModel: viewModel,

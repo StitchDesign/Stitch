@@ -9,6 +9,7 @@ import Foundation
 import StitchSchemaKit
 import SwiftUI
 import OrderedCollections
+import RealityKit
 
 // fka `GraphNode`
 protocol NodeDefinition {
@@ -46,6 +47,8 @@ extension Layer {
     }
 }
 
+typealias LayerRealityCameraContent = RealityViewCameraContent
+
 // fka `LayerGraphNode`
 protocol LayerNodeDefinition: NodeDefinition {
     associatedtype Content: View
@@ -61,7 +64,8 @@ protocol LayerNodeDefinition: NodeDefinition {
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, 
                         isPinnedViewRendering: Bool,
-                        parentDisablesPosition: Bool) -> Content
+                        parentDisablesPosition: Bool,
+                        realityContent: Binding<LayerRealityCameraContent?>) -> Content
 }
 
 extension LayerNodeDefinition {
