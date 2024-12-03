@@ -90,9 +90,11 @@ func arAnchorEval(node: PatchNode) -> EvalResult {
         mediaObserver.anchorMediaId = newId
         
         // Add 3D model to anchor
-        if let model3DEntity = inputModel3d.mediaObject.model3DEntity?.entity {
-            newAnchor.addChild(model3DEntity)
-        }
+        // TODO: come back to anchor, should be child entity?
+        fatalError()
+//        if let model3DEntity = inputModel3d.mediaObject.model3DEntity?.entity {
+//            newAnchor.addChild(model3DEntity)
+//        }
         
         newAnchor.transform.matrix = transformMatrix
         

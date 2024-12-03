@@ -90,17 +90,17 @@ struct Preview3DModelLayer: View {
     var body: some View {
         Group {
             if let realityContent = self.realityContent,
-               let entity = self.entity?.entity {
+               let entity = self.entity {
                 Color.clear
                     .onChange(of: self.entity, initial: true) {
                         entity.applyMatrix(newMatrix: transform)
-                        realityContent.add(entity)
+                        realityContent.add(entity.containerEntity)
                     }
                     .onChange(of: self.transform) { _, newTransform in
                         entity.applyMatrix(newMatrix: newTransform)
                     }
                     .onDisappear {
-                        realityContent.remove(entity)
+                        realityContent.remove(entity.containerEntity)
                     }
             } else {
                 if document.isGeneratingProjectThumbnail {

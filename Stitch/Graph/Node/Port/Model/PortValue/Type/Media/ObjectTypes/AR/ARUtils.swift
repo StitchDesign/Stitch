@@ -84,7 +84,7 @@ extension SCNVector3 {
 
 extension Entity {
     // MARK: eval logic for model 3D patch node
-    func applyMatrix(newMatrix: matrix_float4x4) {
+    func _applyMatrix(newMatrix: matrix_float4x4) {
         // Set translation
         let position = newMatrix.position
         let translation = SIMD3([position.x, position.y, position.z])

@@ -114,10 +114,10 @@ extension StitchMediaObject {
             }
 
             // Apply transform if both instances are loaded
-            let entityInstance = stitchEntity.entity
-            let otherEntityInstance = otherStitchEntity.entity
+            let entityInstance = stitchEntity
+            let otherEntityInstance = otherStitchEntity
             
-            entityInstance.applyMatrix(newMatrix: otherEntityInstance.transform.matrix)
+            entityInstance.applyMatrix(newMatrix: otherEntityInstance.containerEntity.transform.matrix)
             stitchEntity.isAnimating = otherStitchEntity.isAnimating
             
             self = .model3D(stitchEntity)
