@@ -17,12 +17,14 @@ typealias LayerMultiValueKeyPath = ReferenceWritableKeyPath<LayerViewModel, Port
 extension Layer {
     @MainActor
     func hasMultiKeyPath(at port: Int) -> Bool {
-        guard let inputType = self.getPreviewLayerInputType(at: port) else {
-            fatalErrorIfDebug()
-            return false
-        }
-        
-        return inputType.supportsLoopedTypes
+        // MARK: no longer used
+        false
+//        guard let inputType = self.getPreviewLayerInputType(at: port) else {
+//            fatalErrorIfDebug()
+//            return false
+//        }
+//        
+//        return inputType.supportsLoopedTypes
     }
 
     @MainActor
@@ -179,6 +181,16 @@ extension Layer {
             return .model3D
         default:
             return .unknown
+        }
+    }
+    
+    var supportsSidebarGroup: Bool {
+        switch self {
+        case .group, .realityView:
+            return true
+            
+        default:
+            return false
         }
     }
 }

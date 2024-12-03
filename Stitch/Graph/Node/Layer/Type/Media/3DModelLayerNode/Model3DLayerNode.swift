@@ -50,7 +50,10 @@ struct Model3DLayerNode: LayerNodeDefinition {
         .shadowColor,
         .shadowOpacity,
         .shadowRadius,
-        .shadowOffset
+        .shadowOffset,
+        .position3D,
+        .scale3D,
+        .rotation3D
     ])
         .union(.layerEffects)
         .union(.strokeInputs)
@@ -68,13 +71,18 @@ struct Model3DLayerNode: LayerNodeDefinition {
                         layersInGroup: LayerDataList,
                         isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool,
-                        parentIsScrollableGrid: Bool) -> some View {
+                        parentIsScrollableGrid: Bool,
+                        realityContent: Binding<LayerRealityCameraContent?>) -> some View {
         Preview3DModelLayer(
             document: document,
             graph: graph,
             layerViewModel: viewModel,
+            realityContent: realityContent,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,
+            position3D: viewModel.position3D.getPoint3D ?? .zero,
+            scale3D: viewModel.scale3D.getPoint3D ?? .zero,
+            rotation3D: viewModel.rotation3D.getPoint3D ?? .zero,
             position: viewModel.position.getPosition ?? .zero,
             rotationX: viewModel.rotationX.asCGFloat,
             rotationY: viewModel.rotationY.asCGFloat,

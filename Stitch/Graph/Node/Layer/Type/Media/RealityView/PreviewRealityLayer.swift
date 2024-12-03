@@ -13,7 +13,7 @@ struct PreviewRealityLayer: View {
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     @Bindable var viewModel: LayerViewModel
-    
+    let layersInGroup: LayerDataList
     let isPinnedViewRendering: Bool
     let parentSize: CGSize
     let parentDisablesPosition: Bool
@@ -36,10 +36,10 @@ struct PreviewRealityLayer: View {
                              graph: graph,
                              node: node,
                              layerViewModel: viewModel,
+                             layersInGroup: self.layersInGroup,
                              cameraFeedManager: document.cameraFeedManager?.loadedInstance?.cameraFeedManager,
                              isPinnedViewRendering: isPinnedViewRendering,
                              interactiveLayer: self.viewModel.interactiveLayer,
-                             allAnchors: viewModel.allAnchors.compactMap { $0.asyncMedia },
                              position: position,
                              rotationX: rotationX,
                              rotationY: rotationY,
@@ -78,15 +78,16 @@ struct PreviewRealityLayer: View {
 }
 
 struct RealityLayerView: View {
+    @State private var localRealityContent: RealityViewCameraContent?
+    
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
     let layerViewModel: LayerViewModel
-    
+    let layersInGroup: LayerDataList
     let cameraFeedManager: CameraFeedManager?
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
-    let allAnchors: [GraphMediaValue]
     let position: CGPoint
     let rotationX: CGFloat
     let rotationY: CGFloat
@@ -132,51 +133,78 @@ struct RealityLayerView: View {
                 Color.clear
             }
             
-            else if _isCameraEnabled {
-                switch document.cameraFeedManager {
-                case .loaded(let cameraFeedManager):
-                    if let cameraFeedManager = cameraFeedManager.cameraFeedManager,
-                       let arView = cameraFeedManager.arView {
-                        CameraRealityView(arView: arView,
-                                          size: layerSize,
-                                          scale: scale,
-                                          opacity: opacity,
-                                          isShadowsEnabled: isShadowsEnabled)
-                        .onAppear {
-                            // Update list of node Ids using camera
-                            graph.enabledCameraNodeIds.insert(node.id)
+            else {
+                ZStack {
+                    RealityView { content in
+                        await MainActor.run {
+                            self.localRealityContent = content
                         }
-                        .onChange(of: allAnchors, initial: true) { _, newAnchors in
-                            let mediaList = newAnchors.map { $0.mediaObject }
-                            
-                            // Update entities in ar view
-                            arView.updateAnchors(mediaList: mediaList)
+                    } update: { content in
+                        let content = content
+                        
+                        Task { @MainActor in
+                            self.localRealityContent = content
                         }
                     }
 
-                case .loading, .failed:
-                    EmptyView()
-
-                case .none:
-                    Color.clear
-#if !targetEnvironment(macCatalyst)
-                        .onAppear {
-                            let nodeId = self.layerViewModel.id.layerNodeId.id
-                            document.realityViewCreatedWithoutCamera(graph: graph,
-                                                                     nodeId: nodeId)
-                        }
-#endif
-                    
+                    GroupLayerNode.content(document: document,
+                                           graph: graph,
+                                           viewModel: layerViewModel,
+                                           parentSize: parentSize,
+                                           layersInGroup: layersInGroup,
+                                           isPinnedViewRendering: isPinnedViewRendering,
+                                           parentDisablesPosition: parentDisablesPosition,
+                                           realityContent: $localRealityContent)
                 }
             }
             
-            else {
-                NonCameraRealityView(size: layerSize,
-                                     scale: scale,
-                                     opacity: opacity,
-                                     isShadowsEnabled: isShadowsEnabled,
-                                     anchors: allAnchors)
-            }
+            
+            // TODO: old camera logic for anchors
+//
+//            else if _isCameraEnabled {
+//                switch document.cameraFeedManager {
+//                case .loaded(let cameraFeedManager):
+//                    if let cameraFeedManager = cameraFeedManager.cameraFeedManager,
+//                       let arView = cameraFeedManager.arView {
+//                        CameraRealityView(arView: arView,
+//                                          size: layerSize,
+//                                          scale: scale,
+//                                          opacity: opacity,
+//                                          isShadowsEnabled: isShadowsEnabled)
+//                        .onAppear {
+//                            // Update list of node Ids using camera
+//                            graph.enabledCameraNodeIds.insert(node.id)
+//                        }
+////                        .onChange(of: allAnchors, initial: true) { _, newAnchors in
+////                            let mediaList = newAnchors.map { $0.mediaObject }
+////                            
+////                            // Update entities in ar view
+////                            arView.updateAnchors(mediaList: mediaList)
+////                        }
+//                    }
+//
+//                case .loading, .failed:
+//                    EmptyView()
+//
+//                case .none:
+//                    Color.clear
+//#if !targetEnvironment(macCatalyst)
+//                        .onAppear {
+//                            let nodeId = self.layerViewModel.id.layerNodeId.id
+//                            document.realityViewCreatedWithoutCamera(graph: graph,
+//                                                                     nodeId: nodeId)
+//                        }
+//#endif
+//                    
+//                }
+//            }
+//            
+//            else {
+//                NonCameraRealityView(size: layerSize,
+//                                     scale: scale,
+//                                     opacity: opacity,
+//                                     isShadowsEnabled: isShadowsEnabled)
+//            }
         }
         .modifier(PreviewCommonModifier(
             document: document,

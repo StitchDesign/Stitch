@@ -34,9 +34,13 @@ struct Preview3DModelLayer: View {
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     @Bindable var layerViewModel: LayerViewModel
+    @Binding var realityContent: LayerRealityCameraContent?
     
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
+    let position3D: Point3D
+    let scale3D: Point3D
+    let rotation3D: Point3D
     let position: CGPoint
     let rotationX: Double
     let rotationY: Double
@@ -78,23 +82,43 @@ struct Preview3DModelLayer: View {
         return _sceneSize
     }
     
+    var transform: simd_float4x4 {
+        .init(position: position3D,
+              scale: scale3D,
+              rotation: rotation3D)
+    }
+    
     var body: some View {
         Group {
-            if document.isGeneratingProjectThumbnail {
+            if let realityContent = self.realityContent,
+               let entity = self.entity {
                 Color.clear
-            } else if let entity = entity {
-                Model3DView(entity: entity,
-                            sceneSize: sceneSize,
-                            modelOpacity: opacity)
-                .onAppear {
-                    // Mark as layer so we regenerate views when finished loading
-                    // Fixes bug where newly created graphs don't show model
-                    entity.isUsedInLayer = true
-                }
+                    .onChange(of: self.entity, initial: true) {
+                        entity.applyMatrix(newMatrix: transform)
+                        realityContent.add(entity.containerEntity)
+                    }
+                    .onChange(of: self.transform) { _, newTransform in
+                        entity.applyMatrix(newMatrix: newTransform)
+                    }
+                    .onDisappear {
+                        realityContent.remove(entity.containerEntity)
+                    }
             } else {
-                Color.clear
+                if document.isGeneratingProjectThumbnail {
+                    Color.clear
+                } else if let entity = entity {
+                    Model3DView(entity: entity,
+                                sceneSize: sceneSize,
+                                modelOpacity: opacity)
+                    .onAppear {
+                        // Mark as layer so we regenerate views when finished loading
+                        // Fixes bug where newly created graphs don't show model
+                        entity.isUsedInLayer = true
+                    }
+                } else {
+                    Color.clear
+                }
             }
-            
         }
         .modifier(MediaLayerViewModifier(mediaValue: mediaValue,
                                          mediaObject: $mediaObject,

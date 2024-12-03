@@ -114,15 +114,12 @@ extension StitchMediaObject {
             }
 
             // Apply transform if both instances are loaded
-            if let entityInstance = stitchEntity.entityStatus.loadedInstance,
-               let otherEntityInstance = otherStitchEntity.entityStatus.loadedInstance {
-                DispatchQueue.main.async { [weak entityInstance, weak otherEntityInstance] in
-                    if let otherEntityInstance = otherEntityInstance {
-                        entityInstance?.applyMatrix(newMatrix: otherEntityInstance.transform.matrix)                        
-                    }
-                }
-            }
+            let entityInstance = stitchEntity
+            let otherEntityInstance = otherStitchEntity
+            
+            entityInstance.applyMatrix(newMatrix: otherEntityInstance.containerEntity.transform.matrix)
             stitchEntity.isAnimating = otherStitchEntity.isAnimating
+            
             self = .model3D(stitchEntity)
 
         case .arAnchor(let anchor):
@@ -155,7 +152,7 @@ extension StitchMediaObject {
     }
 
     /// Creates a unique refrence copy of some media object.
-    func createComputedCopy(nodeId: NodeId?) async -> StitchMediaObject? {
+    func createComputedCopy(nodeId: NodeId?) async throws -> StitchMediaObject? {
         var copiedMediaObject: StitchMediaObject?
 
         switch self {
@@ -220,10 +217,10 @@ extension StitchMediaObject {
                 return copiedMediaObject
             }
             
-            let newStitchEntity = await StitchEntity(id: .init(),
-                                                     nodeId: nodeId,
-                                                     sourceURL: entity.sourceURL,
-                                                     isAnimating: entity.isAnimating)
+            let newStitchEntity = try await StitchEntity(id: .init(),
+                                                         nodeId: nodeId,
+                                                         sourceURL: entity.sourceURL,
+                                                         isAnimating: entity.isAnimating)
             
             copiedMediaObject = .model3D(newStitchEntity)
 
