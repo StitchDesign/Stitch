@@ -27,6 +27,8 @@ extension Patch {
             return PressInteractionNode.self
         case .scrollInteraction:
             return ScrollInteractionNode.self
+        case .nativeScrollInteraction:
+            return NativeScrollInteractionNode.self
         case .repeatingPulse:
             return RepeatingPulseNode.self
         case .delay:

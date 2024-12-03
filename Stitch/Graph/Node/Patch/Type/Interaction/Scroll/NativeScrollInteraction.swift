@@ -52,6 +52,10 @@ struct NativeScrollInteractionNode: PatchNodeDefinition {
                 .init(
                     defaultValues: [.number(0)],
                     label: "Jump Position Y"
+                ),
+                .init(
+                    defaultValues: [.bool(true)],
+                    label: "Hide Indicators"
                 )
             ],
             outputs: [
@@ -63,11 +67,12 @@ struct NativeScrollInteractionNode: PatchNodeDefinition {
         )
     }
 
-    // NOT NEEDED
+    // NOT NEEDED ?
 //    static func createEphemeralObserver() -> NodeEphemeralObservable? {
 //        ScrollInteractionState()
 //    }
     
+    static let defaultOutputs: PortValuesList =  [[.number(.zero)]]
 }
 
 
@@ -81,9 +86,35 @@ struct NativeScrollInteractionNode: PatchNodeDefinition {
 @MainActor
 func nativeScrollInteractionEval(node: PatchNode,
                                  // should be impure?
-//                                 state: GraphDelegate) -> EvalResult {
-                                 state: GraphDelegate) {
+                                 state: GraphDelegate) -> EvalResult {
+//                                 state: GraphDelegate) {
     
-//    return .init()
+    guard !node.outputs.isEmpty else {
+        log("nativeScrollInteractionEval: initializing outputs")
+        return .init(outputsValues: NativeScrollInteractionNode.defaultOutputs)
+    }
+    
+    guard let assignedLayerId: LayerNodeId = node.inputs.first?.first?.getInteractionId,
+          let assignedLayerNode = state.getNodeViewModel(assignedLayerId.id),
+          let assignedLayerNodeViewModel: LayerNodeViewModel = assignedLayerNode.layerNode else {
+        log("nativeScrollInteractionEval: no assignedLayerId, assignedLayerNode and/or assignedLayerNodeViewModel for \(node.id)")
+        return .init(outputsValues: NativeScrollInteractionNode.defaultOutputs)
+    }
+    
+    // TODO: handle inputs -- extend inputs to be as long as layerViewModels list, and update each layerViewModel accordingly
+    // first extend the inputs,
+    // then index into them for the layer view model's given loop-index
+    
+    let layerViewModels = assignedLayerNodeViewModel.previewLayerViewModels
+    
+    var outputLoop = PortValues()
+    
+    layerViewModels.forEach { layerViewModel in
+        let offsetFromScrollView = layerViewModel.interactiveLayer.nativeScrollState.rawScrollViewOffset
+        
+        outputLoop.append(.position(offsetFromScrollView))
+    }
+    
+    return .init(outputsValues: [outputLoop])
     
 }

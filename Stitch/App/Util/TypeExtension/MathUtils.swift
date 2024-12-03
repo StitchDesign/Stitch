@@ -64,6 +64,12 @@ extension Double {
     }
 }
 
+extension CGFloat {
+    var asPositiveZero: Double {
+        self.isZero ? Swift.abs(self) : self
+    }
+}
+
 func areEquivalent(n: Double,
                    n2: Double,
                    places: Int = 5) -> Bool {

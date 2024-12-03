@@ -872,6 +872,7 @@
 		ECF109192889C4C6002B039B /* SplitterTypeUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF109182889C4C6002B039B /* SplitterTypeUtils.swift */; };
 		ECF11F8B2A3A9A61009ACC78 /* ValueJSONView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF11F8A2A3A9A61009ACC78 /* ValueJSONView.swift */; };
 		ECF236802CC1B00E002BC84A /* LayerGroupOrientationDropDownChoiceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF2367F2CC1B00E002BC84A /* LayerGroupOrientationDropDownChoiceView.swift */; };
+		ECF28ECC2CFFAD41000CB94A /* NativeScrollGestureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF28ECB2CFFAD41000CB94A /* NativeScrollGestureView.swift */; };
 		ECF2ED112A732B09003EB106 /* GraphMultigesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF2ED102A732B09003EB106 /* GraphMultigesture.swift */; };
 		ECF2ED132A732B5A003EB106 /* MomentumAnimationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF2ED122A732B5A003EB106 /* MomentumAnimationState.swift */; };
 		ECF387C9280B5C4C0075F0E5 /* NodeInputOutputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF387C8280B5C4C0075F0E5 /* NodeInputOutputView.swift */; };
@@ -1801,6 +1802,7 @@
 		ECF109182889C4C6002B039B /* SplitterTypeUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitterTypeUtils.swift; sourceTree = "<group>"; };
 		ECF11F8A2A3A9A61009ACC78 /* ValueJSONView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValueJSONView.swift; sourceTree = "<group>"; };
 		ECF2367F2CC1B00E002BC84A /* LayerGroupOrientationDropDownChoiceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerGroupOrientationDropDownChoiceView.swift; sourceTree = "<group>"; };
+		ECF28ECB2CFFAD41000CB94A /* NativeScrollGestureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeScrollGestureView.swift; sourceTree = "<group>"; };
 		ECF2ED102A732B09003EB106 /* GraphMultigesture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphMultigesture.swift; sourceTree = "<group>"; };
 		ECF2ED122A732B5A003EB106 /* MomentumAnimationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MomentumAnimationState.swift; sourceTree = "<group>"; };
 		ECF387C8280B5C4C0075F0E5 /* NodeInputOutputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeInputOutputView.swift; sourceTree = "<group>"; };
@@ -2254,6 +2256,7 @@
 				ECCEDA812B5715B50000333B /* iPadFloatingWindowHandleView.swift */,
 				ECDBD8AA27A1D21C00F8DC91 /* FullScreenGestureRecognizerView.swift */,
 				B5D689BA2758203B0086C297 /* PreviewWindowElementUIKitGestures.swift */,
+				ECF28ECB2CFFAD41000CB94A /* NativeScrollGestureView.swift */,
 				EC0DE03D2973A57D0026A39C /* PreviewElementTrackpadPanView.swift */,
 				B5B20BAF279925EC008A2B5A /* FullScreenPreviewViewWrapper.swift */,
 				B586D16627FE80B300E56106 /* PreviewContent.swift */,
@@ -4952,6 +4955,7 @@
 				EC4A7213274C5A460026B233 /* WirelessReceiver.swift in Sources */,
 				ECFAB3D92BB75F7C007B569A /* SpringAnimationPositionOp.swift in Sources */,
 				EC165EDE29C8BA890024ECDF /* JSONCustomShape.swift in Sources */,
+				ECF28ECC2CFFAD41000CB94A /* NativeScrollGestureView.swift in Sources */,
 				B59660A42C1A526B00BE75D7 /* LayerViewModel.swift in Sources */,
 				ECFCBE5928405ACD0087585C /* SidebarVisibilityActions.swift in Sources */,
 				EC55210127E9A46200EBEBB0 /* SidebarEditButtonView.swift in Sources */,
@@ -6354,7 +6358,7 @@
 			repositoryURL = "https://github.com/StitchDesign/StitchViewKit.git";
 			requirement = {
 				kind = revision;
-				revision = cd3428a055b076cb7427e0a666c80f6e306b9433;
+				revision = b36ffff23f8a14e3f8fae4f335482b731c5deffb;
 			};
 		};
 		B5380E322CF9159500E6D801 /* XCRemoteSwiftPackageReference "StitchEngine" */ = {
@@ -6378,7 +6382,7 @@
 			repositoryURL = "https://github.com/StitchDesign/StitchSchemaKit";
 			requirement = {
 				kind = revision;
-				revision = 6bd050e51bd946326d26bb18b70f31ef825d8c62;
+				revision = 040106cf8478a4bb890c7d760fb6a575f081a488;
 			};
 		};
 		EC1137362719F9B400ADCA72 /* XCRemoteSwiftPackageReference "swift-collections" */ = {

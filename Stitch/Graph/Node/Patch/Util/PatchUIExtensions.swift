@@ -59,7 +59,7 @@ extension Patch {
 
     var isInteractionPatchNode: Bool {
         switch self {
-        case .dragInteraction, .pressInteraction, .scrollInteraction:
+        case .dragInteraction, .pressInteraction, .scrollInteraction, .nativeScrollInteraction:
             return true
         default:
             return false
@@ -86,7 +86,7 @@ extension Patch {
     // TODO: NEED TO DISTINGUISH BETWEEN INPUT AND OUTPUT LABELS
     var multifieldUsesOverallLabel: Bool {
         switch self {
-        case .transition, .classicAnimation, .delay, .dragInteraction, .scrollInteraction, .deviceInfo, .deviceMotion, .optionSender, .layerInfo, .triangleShape, .pressInteraction:
+        case .transition, .classicAnimation, .delay, .dragInteraction, .scrollInteraction, .nativeScrollInteraction, .deviceInfo, .deviceMotion, .optionSender, .layerInfo, .triangleShape, .pressInteraction:
             return true
         default:
             return false
@@ -97,7 +97,9 @@ extension Patch {
     // since every PatchNode uses ComputedNodeState.
     var usesComputedState: Bool {
         switch self {
-        case .dragInteraction, .pressInteraction, .scrollInteraction, .springAnimation, .classicAnimation, .repeatingPulse, .repeatingAnimation:
+        case .dragInteraction, .pressInteraction,
+                .scrollInteraction, // NOT TRUE for .nativeScrollInteraction?
+                .springAnimation, .classicAnimation, .repeatingPulse, .repeatingAnimation:
             return true
         default:
             return false

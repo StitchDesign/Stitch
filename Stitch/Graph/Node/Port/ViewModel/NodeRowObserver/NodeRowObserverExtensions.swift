@@ -152,7 +152,8 @@ extension NodeRowObserver {
                 graphDelegate.dragInteractionNodes.removeValue(forKey: oldLayerId)
             case .pressInteraction:
                 graphDelegate.pressInteractionNodes.removeValue(forKey: oldLayerId)
-            case .scrollInteraction:
+//            case .scrollInteraction:
+            case .scrollInteraction, .nativeScrollInteraction:
                 graphDelegate.scrollInteractionNodes.removeValue(forKey: oldLayerId)
             default:
                 fatalErrorIfDebug()
@@ -169,7 +170,7 @@ extension NodeRowObserver {
                 var currentIds = graphDelegate.pressInteractionNodes.get(newLayerId) ?? NodeIdSet()
                 currentIds.insert(self.id.nodeId)
                 graphDelegate.pressInteractionNodes.updateValue(currentIds, forKey: newLayerId)
-            case .scrollInteraction:
+            case .scrollInteraction, .nativeScrollInteraction:
                 var currentIds = graphDelegate.scrollInteractionNodes.get(newLayerId) ?? NodeIdSet()
                 currentIds.insert(self.id.nodeId)
                 graphDelegate.scrollInteractionNodes.updateValue(currentIds, forKey: newLayerId)

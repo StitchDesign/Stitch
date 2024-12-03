@@ -61,7 +61,8 @@ extension Patch {
             // Needs to subscribe to layer data, likely a more efficient way to do this
             .dragInteraction,
             
-            .scrollInteraction:
+            .scrollInteraction,
+            .nativeScrollInteraction:
 
             return true
 
@@ -79,6 +80,9 @@ extension Patch {
              .popAnimation,
              // scroll is technically an animation too
              .scrollInteraction,
+            
+            // NOT true for .nativeScrollInteraction ?
+            
              // drag interaction's momentum is an animation
              .dragInteraction:
             return true
@@ -393,7 +397,7 @@ extension Patch {
         case .delayOne:
             return "Delay 1"
         // TODO: assume that rawValue for all patches added will have properly capitalized display-value, and so just use `default: return self.rawValue`
-        case .sizePack, .sizeUnpack, .positionPack, .positionUnpack, .point3DPack, .point3DUnpack, .point4DPack, .point4DUnpack, .transformPack, .transformUnpack, .closePath, .moveToPack, .lineToPack, .curveToPack, .curveToUnpack, .mathExpression, .springFromDurationAndBounce, .springFromResponseAndDampingRatio, .springFromSettlingDurationAndDampingRatio:
+        case .sizePack, .sizeUnpack, .positionPack, .positionUnpack, .point3DPack, .point3DUnpack, .point4DPack, .point4DUnpack, .transformPack, .transformUnpack, .closePath, .moveToPack, .lineToPack, .curveToPack, .curveToUnpack, .mathExpression, .springFromDurationAndBounce, .springFromResponseAndDampingRatio, .springFromSettlingDurationAndDampingRatio, .nativeScrollInteraction:
             return self.rawValue
         }
     }
@@ -402,11 +406,17 @@ extension Patch {
     // Previously used to filter some incomplete patches but currently we show all
     static var searchablePatches: [Patch] {
         //        Patch.allCases
-        // TODO: fix SampleRange node and allow it to be added to graph by user
         Patch.allCases.filter { patch in
-            patch != .sampleRange // && patch != .jsonToShape
+            
+            // TODO: Fix `SampleRange` node with media
+            patch != .sampleRange
+            
+            // Prefer type-specific pack and unpack patches
             && patch != .pack
             && patch != .unpack
+            
+            // Prefer .nativeScrollInteraction
+            && patch != .scrollInteraction
         }
     }
 

@@ -250,7 +250,7 @@ struct ProjectsHomeCommands: Commands {
                                     key: SCROLL_NODE_SHORTCUT,
                                     eventModifiers: [.option],
                                     disabled: textFieldFocused) {
-                    dispatch(NodeCreatedEvent(choice: .patch(.scrollInteraction)))
+                    dispatch(NodeCreatedEvent(choice: .patch(.nativeScrollInteraction)))
                 }
                 
                 SwiftUIShortcutView(title: "Insert Equals Node",

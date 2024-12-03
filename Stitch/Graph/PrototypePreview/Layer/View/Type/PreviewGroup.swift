@@ -238,6 +238,10 @@ struct PreviewGroupLayer: View {
                 size: _size,
                 parentSize: parentSize,
                 minimumDragDistance: DEFAULT_MINIMUM_DRAG_DISTANCE))
+        
+            .modifier(NativeScrollGestureView(
+                layerViewModel: layerViewModel,
+                graph: graph))
     }
 
     @ViewBuilder

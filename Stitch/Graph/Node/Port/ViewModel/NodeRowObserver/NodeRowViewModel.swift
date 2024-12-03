@@ -155,7 +155,7 @@ extension NodeRowViewModel {
                             unpackedPortParentFieldGroupType: FieldGroupType?,
                             unpackedPortIndex: Int?) {
         guard let rowDelegate = self.rowDelegate else {
-            fatalErrorIfDebug()
+//            fatalErrorIfDebug()
             return
         }
         

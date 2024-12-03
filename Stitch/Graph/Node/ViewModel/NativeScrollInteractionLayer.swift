@@ -11,33 +11,32 @@ import SwiftUI
 // Created when scroll interaction is assigned to a layer.
 // Destroyed when scroll interaction de-assigned.
 final class NativeScrollInteractionLayer: Sendable {
-    let rawScrollViewOffset: CGPoint
+    @MainActor var rawScrollViewOffset: CGPoint = .zero
     
-
     // TODO: DEC 3: Do you need all the inputs of the scroll interaction node here? ... everything
     
     // determines [.vertical, .horizontal] scroll axes for ScrollView
-    let scrollX: ScrollMode
-    let scrollY: ScrollMode
+    @MainActor var scrollX: ScrollMode = .scrollModeDefault
+    @MainActor var scrollY: ScrollMode = .scrollModeDefault
     
     // custom content size; ignore a dimension if 0
-    let contentSize: CGSize
+    @MainActor var contentSize: CGSize = .zero
     
     // JUMP
     
     // jump style
-    let jumpStyleX: ScrollJumpStyle
-    let jumpStyleY: ScrollJumpStyle
+    @MainActor var jumpStyleX: ScrollJumpStyle = .scrollJumpStyleDefault
+    @MainActor var jumpStyleY: ScrollJumpStyle = .scrollJumpStyleDefault
 
     // pulse
     // jump when `.onChange(of: nativeScrollInteractionLayer.jumpToX == graphTime)` is true
-    let jumpToX: TimeInterval
-    let jumpToY: TimeInterval
+    @MainActor var jumpToX: TimeInterval = .zero
+    @MainActor var jumpToY: TimeInterval = .zero
     
-    let jumpToPositionX: CGFloat
-    let jumpToPositionY: CGFloat
+    @MainActor var jumpToPositionX: CGFloat = .zero
+    @MainActor var jumpToPositionY: CGFloat = .zero
     
     // TODO: DEC 3: how to handle graph resets without a graphUISessionId ?
-    // maybe `graphTime == 0` triggers a reset?
+    // maybe `graphTime == 0` triggers a reset?    
 }
 

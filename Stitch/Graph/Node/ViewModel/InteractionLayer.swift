@@ -11,7 +11,7 @@ import StitchSchemaKit
 final class InteractiveLayer: Sendable {
     let id: PreviewCoordinate
     
-    @MainActor var nativeScrollState: NativeScrollInteractionLayer?
+    @MainActor var nativeScrollState = NativeScrollInteractionLayer()
     
     @MainActor var singleTapped: Bool = false
     @MainActor var doubleTapped: Bool = false
