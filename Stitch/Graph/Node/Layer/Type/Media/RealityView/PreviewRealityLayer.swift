@@ -156,7 +156,7 @@ struct RealityLayerView: View {
             }
             
             
-            // TODO: old camera logic
+            // TODO: old camera logic for anchors
 //
 //            else if _isCameraEnabled {
 //                switch document.cameraFeedManager {

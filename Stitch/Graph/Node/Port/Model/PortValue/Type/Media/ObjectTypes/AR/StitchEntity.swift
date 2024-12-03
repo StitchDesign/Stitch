@@ -67,7 +67,7 @@ final class StitchEntity: NSObject, Sendable {
         
         self.importEntity = importEntity
         
-                
+                // TODO: anchor logic at entity level
 //        if let anchor = anchor {
 //            // Set anchor transform
 //            if let transform = initialTransform {
