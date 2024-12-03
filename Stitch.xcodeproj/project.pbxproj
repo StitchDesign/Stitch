@@ -6353,8 +6353,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/StitchDesign/StitchViewKit.git";
 			requirement = {
-				branch = "native-scroll-interaction";
-				kind = branch;
+				kind = revision;
+				revision = cd3428a055b076cb7427e0a666c80f6e306b9433;
 			};
 		};
 		B5380E322CF9159500E6D801 /* XCRemoteSwiftPackageReference "StitchEngine" */ = {
