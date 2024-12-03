@@ -372,6 +372,8 @@
 		EC1B41B626BCB1380016C2C2 /* NodeDeletedAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1B41B526BCB1380016C2C2 /* NodeDeletedAction.swift */; };
 		EC1B41B826BCB1630016C2C2 /* NodeMovedAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1B41B726BCB1630016C2C2 /* NodeMovedAction.swift */; };
 		EC1CB6282949190C00FF755D /* CurveNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1CB6272949190C00FF755D /* CurveNode.swift */; };
+		EC1D03BD2CFF86FA0094EE9F /* NativeScrollInteraction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1D03BC2CFF86FA0094EE9F /* NativeScrollInteraction.swift */; };
+		EC1D03BF2CFF89E90094EE9F /* NativeScrollInteractionLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1D03BE2CFF89E90094EE9F /* NativeScrollInteractionLayer.swift */; };
 		EC1DE584260A9ACB009497CF /* HSLColorNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1DE583260A9ACB009497CF /* HSLColorNode.swift */; };
 		EC1DE588260AADD7009497CF /* OrNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1DE587260AADD7009497CF /* OrNode.swift */; };
 		EC1DE58C260AB07C009497CF /* AndNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1DE58B260AB07C009497CF /* AndNode.swift */; };
@@ -1305,6 +1307,8 @@
 		EC1B41B526BCB1380016C2C2 /* NodeDeletedAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeDeletedAction.swift; sourceTree = "<group>"; };
 		EC1B41B726BCB1630016C2C2 /* NodeMovedAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeMovedAction.swift; sourceTree = "<group>"; };
 		EC1CB6272949190C00FF755D /* CurveNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurveNode.swift; sourceTree = "<group>"; };
+		EC1D03BC2CFF86FA0094EE9F /* NativeScrollInteraction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeScrollInteraction.swift; sourceTree = "<group>"; };
+		EC1D03BE2CFF89E90094EE9F /* NativeScrollInteractionLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeScrollInteractionLayer.swift; sourceTree = "<group>"; };
 		EC1DE583260A9ACB009497CF /* HSLColorNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HSLColorNode.swift; sourceTree = "<group>"; };
 		EC1DE587260AADD7009497CF /* OrNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrNode.swift; sourceTree = "<group>"; };
 		EC1DE58B260AB07C009497CF /* AndNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AndNode.swift; sourceTree = "<group>"; };
@@ -2025,6 +2029,7 @@
 			children = (
 				ECE08E422649D14D00996EE2 /* ScrollInteractionNode.swift */,
 				EC9AB64428DFE99B002810BC /* ScrollFreeInteractionHelpers.swift */,
+				EC1D03BC2CFF86FA0094EE9F /* NativeScrollInteraction.swift */,
 				EC9AB64628DFEA23002810BC /* ScrollPagingInteractionHelpers.swift */,
 				B5432D1F276A57800052E59F /* ScrollAnimation.swift */,
 				EC9AB64228DFE8FF002810BC /* ScrollData.swift */,
@@ -3142,6 +3147,7 @@
 				ECB7B5D22A72DD9400E2D30B /* NodePageData.swift */,
 				ECB7B5D02A72DD7600E2D30B /* NodeViewModelType.swift */,
 				B5368D122A886C1900FE3489 /* InteractionLayer.swift */,
+				EC1D03BE2CFF89E90094EE9F /* NativeScrollInteractionLayer.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -4804,6 +4810,7 @@
 				ECC6F00928BFBBC600535493 /* LayerNamesDropDownChoiceView.swift in Sources */,
 				B5C603A5275D9BE200EA2999 /* CameraUtil.swift in Sources */,
 				ECDD303B27A882A200E91530 /* GlobalDispatch.swift in Sources */,
+				EC1D03BF2CFF89E90094EE9F /* NativeScrollInteractionLayer.swift in Sources */,
 				EC609DBC293530B700BF60A5 /* CollectionExtensionUtils.swift in Sources */,
 				ECC506E7267BB2CA00A2D015 /* VideoImportNode.swift in Sources */,
 				ECCFB36E2C35E18800E94D60 /* PreviewCommonSizeModifier.swift in Sources */,
@@ -4970,6 +4977,7 @@
 				ECB9A86B2AEB4935006E65EE /* SaturationSliderView.swift in Sources */,
 				EC5C6C3A2C2DAE690023D0C0 /* LLMActionRecording.swift in Sources */,
 				E41685E128A3FA5800731889 /* PreviewModel3DLayer.swift in Sources */,
+				EC1D03BD2CFF86FA0094EE9F /* NativeScrollInteraction.swift in Sources */,
 				ECC2BCEF2B9E3B9200D5F942 /* LayerGroupFit.swift in Sources */,
 				ECB7C72028A56C3700252DE7 /* ClassicAnimationPoint3D.swift in Sources */,
 				EC8BA54526A62D14002E345C /* DeviceMotionNode.swift in Sources */,
@@ -6345,8 +6353,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/StitchDesign/StitchViewKit.git";
 			requirement = {
-				kind = revision;
-				revision = b36ffff23f8a14e3f8fae4f335482b731c5deffb;
+				branch = "native-scroll-interaction";
+				kind = branch;
 			};
 		};
 		B5380E322CF9159500E6D801 /* XCRemoteSwiftPackageReference "StitchEngine" */ = {
