@@ -115,12 +115,26 @@ struct RealityLayerView: View {
     let parentDisablesPosition: Bool
     
     // Override camera setting on Mac
-    var _isCameraEnabled: Bool {
-#if targetEnvironment(macCatalyst)
-        return false
-#else
-        return isCameraFeedEnabled
+//    var _isCameraEnabled: Bool {
+//#if targetEnvironment(macCatalyst)
+//        return false
+//#else
+//        return isCameraFeedEnabled
+//#endif
+//    }
+    
+    @MainActor
+    func updateRealityContent(_ content: inout RealityViewCameraContent) {
+        // .spatialTracking not support on mac
+#if !targetEnvironment(macCatalyst)
+        content.camera = isCameraFeedEnabled ? .spatialTracking : .virtual
 #endif
+        
+        let content = content
+        
+        Task { @MainActor in
+            self.localRealityContent = content
+        }
     }
     
     var body: some View {
@@ -133,15 +147,9 @@ struct RealityLayerView: View {
             else {
                 ZStack {
                     RealityView { content in
-                        await MainActor.run {
-                            self.localRealityContent = content
-                        }
+                        self.updateRealityContent(&content)
                     } update: { content in
-                        let content = content
-                        
-                        Task { @MainActor in
-                            self.localRealityContent = content
-                        }
+                        self.updateRealityContent(&content)
                     }
 
                     GroupLayerNode.content(document: document,
