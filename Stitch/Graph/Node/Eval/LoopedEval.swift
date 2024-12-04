@@ -47,6 +47,31 @@ extension NodeViewModel {
         }
     }
     
+    // TODO: clean up this code, combine some of the logic into common functions
+    @MainActor
+    func loopedEval<EvalOpResult: NodeEvalOpResult>(graphState: GraphDelegate,
+                                                    evalOp: @escaping NodeInteractiveOp<EvalOpResult>) -> [EvalOpResult] {
+        let inputsValues = self.inputs
+        let loopCount = getLongestLoopLength(inputsValues)
+
+        guard let interactionLayerId = inputs.first?.first?.getInteractionId,
+              let layerNode = graphState.getNodeViewModel(interactionLayerId.id)?.layerNode else {
+            return [0..<loopCount].map { _ in
+                return .init(from: self.defaultOutputs)
+            }
+        }
+        
+        let lengthenedPreviewLayers = adjustArrayLength(loop: layerNode.previewLayerViewModels,
+                                                        length: max(loopCount, layerNode.previewLayerViewModels.count))
+        
+        return self.loopedEval(minLoopCount: layerNode.previewLayerViewModels.count) { values, loopIndex in
+            guard let interactiveLayer = lengthenedPreviewLayers[safe: loopIndex]?.interactiveLayer else {
+                return .init(from: self.defaultOutputs)
+            }
+            return evalOp(values, interactiveLayer, loopIndex)
+        }
+    }
+    
     @MainActor
     func loopedEval<EvalOpResult: NodeEvalOpResult, EphemeralObserver>(_ ephemeralObserverType: EphemeralObserver.Type,
                                                                        inputsValuesList: PortValuesList? = nil,

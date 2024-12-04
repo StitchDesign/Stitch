@@ -16,11 +16,12 @@ final class NativeScrollInteractionLayer: Sendable {
     // TODO: DEC 3: Do you need all the inputs of the scroll interaction node here? ... everything
     
     // determines [.vertical, .horizontal] scroll axes for ScrollView
-    @MainActor var scrollX: ScrollMode = .scrollModeDefault
-    @MainActor var scrollY: ScrollMode = .scrollModeDefault
+    @MainActor var xScrollEnabled: Bool = NativeScrollInteractionNode.defaultScrollXEnabled
+    @MainActor var yScrollEnabled: Bool = NativeScrollInteractionNode.defaultScrollYEnabled
     
     // custom content size; ignore a dimension if 0
     @MainActor var contentSize: CGSize = .zero
+    
     
     // JUMP
     
@@ -33,10 +34,27 @@ final class NativeScrollInteractionLayer: Sendable {
     @MainActor var jumpToX: TimeInterval = .zero
     @MainActor var jumpToY: TimeInterval = .zero
     
-    @MainActor var jumpToPositionX: CGFloat = .zero
-    @MainActor var jumpToPositionY: CGFloat = .zero
+    @MainActor var jumpPositionX: CGFloat = .zero
+    @MainActor var jumpPositionY: CGFloat = .zero
+    
+    @MainActor var indicatorsHidden: Bool = NativeScrollInteractionNode.defaultIndicatorsHidden
     
     // TODO: DEC 3: how to handle graph resets without a graphUISessionId ?
     // maybe `graphTime == 0` triggers a reset?    
 }
 
+extension NativeScrollInteractionLayer {
+    // Empty = all scrolling is disabled
+    @MainActor
+    var scrollAxes: Axis.Set {
+        if yScrollEnabled && xScrollEnabled {
+            return [.vertical, .horizontal]
+        } else if xScrollEnabled {
+            return [.horizontal]
+        } else if yScrollEnabled {
+            return [.vertical]
+        } else {
+            return []
+        }
+    }
+}

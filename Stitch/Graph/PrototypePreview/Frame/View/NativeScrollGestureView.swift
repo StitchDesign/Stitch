@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+
 struct NativeScrollGestureView: ViewModifier {
     
     let layerViewModel: LayerViewModel
@@ -32,7 +33,8 @@ struct NativeScrollGestureView: ViewModifier {
     
     var scrollAxes: Axis.Set {
 //        [.horizontal, .vertical]
-        [.vertical]
+//        [.vertical]
+        layerViewModel.interactiveLayer.nativeScrollState.scrollAxes
     }
     
     func body(content: Content) -> some View {
@@ -40,6 +42,8 @@ struct NativeScrollGestureView: ViewModifier {
 //            content
 //        } else {
         if true {
+            // Does view properly re-render if this change?
+            // Or do we need `.onChange(of: layerViewModel.scrollYEnabled) { self.id = .init() }` ?
             ScrollView(scrollAxes) {
                 content
                     // factor out parent-scroll's offset
@@ -68,6 +72,9 @@ struct NativeScrollGestureView: ViewModifier {
                     )
                 
             }
+            // What happens if this is toggled?
+            .scrollIndicators(layerViewModel.interactiveLayer.nativeScrollState.indicatorsHidden ? .hidden : .automatic)
+            
         }
     }
 }

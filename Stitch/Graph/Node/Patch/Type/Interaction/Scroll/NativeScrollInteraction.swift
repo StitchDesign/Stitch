@@ -18,12 +18,12 @@ struct NativeScrollInteractionNode: PatchNodeDefinition {
                     label: "Layer"
                 ),
                 .init(
-                    defaultValues: [scrollModeDefault],
-                    label: "Scroll X"
+                    defaultValues: [.bool(Self.defaultScrollXEnabled)],
+                    label: "Scroll X Enabled"
                 ),
                 .init(
-                    defaultValues: [scrollModeDefault],
-                    label: "Scroll Y"
+                    defaultValues: [.bool(Self.defaultScrollYEnabled)],
+                    label: "Scroll Y Enabled"
                 ),
                 .init(
                     defaultValues: [.size(.zero)],
@@ -54,7 +54,7 @@ struct NativeScrollInteractionNode: PatchNodeDefinition {
                     label: "Jump Position Y"
                 ),
                 .init(
-                    defaultValues: [.bool(true)],
+                    defaultValues: [.bool(Self.defaultIndicatorsHidden)],
                     label: "Hide Indicators"
                 )
             ],
@@ -67,10 +67,10 @@ struct NativeScrollInteractionNode: PatchNodeDefinition {
         )
     }
 
-    // NOT NEEDED ?
-//    static func createEphemeralObserver() -> NodeEphemeralObservable? {
-//        ScrollInteractionState()
-//    }
+    static let defaultScrollXEnabled: Bool = false
+    static let defaultScrollYEnabled: Bool = true
+    
+    static let defaultIndicatorsHidden: Bool = true
     
     static let defaultOutputs: PortValuesList =  [[.number(.zero)]]
 }
@@ -101,20 +101,91 @@ func nativeScrollInteractionEval(node: PatchNode,
         return .init(outputsValues: NativeScrollInteractionNode.defaultOutputs)
     }
     
-    // TODO: handle inputs -- extend inputs to be as long as layerViewModels list, and update each layerViewModel accordingly
-    // first extend the inputs,
-    // then index into them for the layer view model's given loop-index
+//    node.loopedEval(graphState: state)
+
     
-    let layerViewModels = assignedLayerNodeViewModel.previewLayerViewModels
     
-    var outputLoop = PortValues()
-    
-    layerViewModels.forEach { layerViewModel in
-        let offsetFromScrollView = layerViewModel.interactiveLayer.nativeScrollState.rawScrollViewOffset
+    return node.loopedEval(graphState: state) { values, interactiveLayer, loopIndex in
+        nativeScrollInteractionEvalOp(values: values,
+                                      interactiveLayer: interactiveLayer,
+                                      // TODO: DEC 3: grab parentSize from readSize of `assignedLayerNodeViewModel.layerGroupdId` ?
+                                      parentSize: interactiveLayer.parentSize)
+    }.toImpureEvalResult()
         
-        outputLoop.append(.position(offsetFromScrollView))
-    }
+//    
+//    // TODO: handle inputs -- extend inputs to be as long as layerViewModels list, and update each layerViewModel accordingly
+//    // first extend the inputs,
+//    // then index into them for the layer view model's given loop-index
+//    
+//    let layerViewModels = assignedLayerNodeViewModel.previewLayerViewModels
+//    
+//    var outputLoop = PortValues()
+//    
+//    layerViewModels.forEach { layerViewModel in
+//        let offsetFromScrollView = layerViewModel.interactiveLayer.nativeScrollState.rawScrollViewOffset
+//        
+//        outputLoop.append(.position(offsetFromScrollView))
+//    }
+//    
+//    return .init(outputsValues: [outputLoop])
     
-    return .init(outputsValues: [outputLoop])
+}
+
+@MainActor
+func nativeScrollInteractionEvalOp(values: PortValues,
+                                   interactiveLayer: InteractiveLayer,
+                                   parentSize: CGSize) -> ImpureEvalOpResult {
     
+    // Update interactiveLayer according to inputs
+    let xScrollEnabled = values[safe: NativeScrollNodeInputLocations.xScrollEnabled]?.getBool ?? NativeScrollInteractionNode.defaultScrollXEnabled
+    let yScrollEnabled = values[safe: NativeScrollNodeInputLocations.yScrollEnabled]?.getBool ?? NativeScrollInteractionNode.defaultScrollYEnabled
+    interactiveLayer.nativeScrollState.xScrollEnabled = xScrollEnabled
+    interactiveLayer.nativeScrollState.yScrollEnabled = yScrollEnabled
+    
+    let contentSize = values[safe: NativeScrollNodeInputLocations.contentSize]?.getSize ?? .zero
+    interactiveLayer.nativeScrollState.contentSize = contentSize.asCGSize(parentSize)
+    
+    let jumpStyleX = values[safe: NativeScrollNodeInputLocations.jumpStyleX]?.getScrollJumpStyle ?? .scrollJumpStyleDefault
+    let jumpToX = values[safe: NativeScrollNodeInputLocations.jumpToX]?.getPulse ?? .zero
+    let jumpPositionX = values[safe: NativeScrollNodeInputLocations.jumpPositionX]?.getNumber ?? .zero
+    interactiveLayer.nativeScrollState.jumpStyleX = jumpStyleX
+    interactiveLayer.nativeScrollState.jumpToX = jumpToX
+    interactiveLayer.nativeScrollState.jumpPositionX = jumpPositionX
+    
+    let jumpStyleY = values[safe: NativeScrollNodeInputLocations.jumpStyleY]?.getScrollJumpStyle ?? .scrollJumpStyleDefault
+    let jumpToY = values[safe: NativeScrollNodeInputLocations.jumpToY]?.getPulse ?? .zero
+    let jumpPositionY = values[safe: NativeScrollNodeInputLocations.jumpPositionY]?.getNumber ?? .zero
+    interactiveLayer.nativeScrollState.jumpStyleY = jumpStyleY
+    interactiveLayer.nativeScrollState.jumpToY = jumpToY
+    interactiveLayer.nativeScrollState.jumpPositionY = jumpPositionY
+    
+    let indicatorsHidden = values[safe: NativeScrollNodeInputLocations.indicatorsHidden]?.getBool ?? NativeScrollInteractionNode.defaultIndicatorsHidden
+    interactiveLayer.nativeScrollState.indicatorsHidden = indicatorsHidden
+    
+    let offsetFromScrollView = interactiveLayer.nativeScrollState.rawScrollViewOffset
+        
+    return .init(outputs: [
+        .position(offsetFromScrollView)
+    ])
+}
+
+
+struct NativeScrollNodeInputLocations {
+    // The specific assigned layer (LayerNodeId)
+    static let assignedLayer = 0
+
+    static let xScrollEnabled = 1
+    static let yScrollEnabled = 2
+
+    static let contentSize = 3
+
+    static let jumpStyleX = 4
+    static let jumpToX = 5
+    static let jumpPositionX = 6
+
+    static let jumpStyleY = 7
+    static let jumpToY = 8
+    static let jumpPositionY = 9
+    
+    static let indicatorsHidden = 10
 }
