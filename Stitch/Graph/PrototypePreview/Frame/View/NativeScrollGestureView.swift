@@ -64,10 +64,11 @@ struct NativeScrollGestureView: ViewModifier {
 //    @State var initialized: Bool = false
     
     func body(content: Content) -> some View {
-        if !hasScrollInteraction {
-            content
-        } else {
-//        if true {
+//        if !hasScrollInteraction {
+//            content
+//        } else {
+        if true {
+//        if false {
             // Does view properly re-render if this change?
             // Or do we need `.onChange(of: layerViewModel.scrollYEnabled) { self.id = .init() }` ?
             ScrollView(scrollAxes) {

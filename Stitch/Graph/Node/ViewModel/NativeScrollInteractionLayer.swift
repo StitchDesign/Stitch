@@ -30,10 +30,8 @@ final class NativeScrollInteractionLayer: Sendable {
     @MainActor var jumpStyleY: ScrollJumpStyle = .scrollJumpStyleDefault
 
     // pulse
-    // jump when `.onChange(of: nativeScrollInteractionLayer.jumpToX == graphTime)` is true
-//    @MainActor var jumpToX: TimeInterval = .zero
+    // e.g. `nativeScrollInteractionLayer.jumpToX == graphTime`
     @MainActor var jumpToX: Bool = false
-//    @MainActor var jumpToY: TimeInterval = .zero
     @MainActor var jumpToY: Bool = false
     
     @MainActor var jumpPositionX: CGFloat = .zero
@@ -43,18 +41,31 @@ final class NativeScrollInteractionLayer: Sendable {
     // maybe `graphTime == 0` triggers a reset?    
 }
 
+
 extension NativeScrollInteractionLayer {
     // Empty = all scrolling is disabled
     @MainActor
     var scrollAxes: Axis.Set {
-        if yScrollEnabled && xScrollEnabled {
-            return [.vertical, .horizontal]
-        } else if xScrollEnabled {
-            return [.horizontal]
-        } else if yScrollEnabled {
-            return [.vertical]
-        } else {
-            return []
+        var axes: Axis.Set = []
+        
+        if xScrollEnabled {
+            axes.insert(.horizontal)
         }
+        
+        if yScrollEnabled {
+            axes.insert(.vertical)
+        }
+        
+        return axes
+                
+//        if yScrollEnabled && xScrollEnabled {
+//            return [.vertical, .horizontal]
+//        } else if xScrollEnabled {
+//            return [.horizontal]
+//        } else if yScrollEnabled {
+//            return [.vertical]
+//        } else {
+//            return []
+//        }
     }
 }
