@@ -52,10 +52,6 @@ struct NativeScrollInteractionNode: PatchNodeDefinition {
                 .init(
                     defaultValues: [.number(0)],
                     label: "Jump Position Y"
-                ),
-                .init(
-                    defaultValues: [.bool(Self.defaultIndicatorsHidden)],
-                    label: "Hide Indicators"
                 )
             ],
             outputs: [
@@ -72,7 +68,7 @@ struct NativeScrollInteractionNode: PatchNodeDefinition {
     
     static let defaultIndicatorsHidden: Bool = true
     
-    static let defaultOutputs: PortValuesList =  [[.number(.zero)]]
+    static let defaultOutputs: PortValuesList =  [[.position(.zero)]]
 }
 
 
@@ -100,41 +96,22 @@ func nativeScrollInteractionEval(node: PatchNode,
         log("nativeScrollInteractionEval: no assignedLayerId, assignedLayerNode and/or assignedLayerNodeViewModel for \(node.id)")
         return .init(outputsValues: NativeScrollInteractionNode.defaultOutputs)
     }
-    
-//    node.loopedEval(graphState: state)
-
-    
-    
-    return node.loopedEval(graphState: state) { values, interactiveLayer, loopIndex in
-        nativeScrollInteractionEvalOp(values: values,
-                                      interactiveLayer: interactiveLayer,
-                                      // TODO: DEC 3: grab parentSize from readSize of `assignedLayerNodeViewModel.layerGroupdId` ?
-                                      parentSize: interactiveLayer.parentSize)
-    }.toImpureEvalResult()
         
-//    
-//    // TODO: handle inputs -- extend inputs to be as long as layerViewModels list, and update each layerViewModel accordingly
-//    // first extend the inputs,
-//    // then index into them for the layer view model's given loop-index
-//    
-//    let layerViewModels = assignedLayerNodeViewModel.previewLayerViewModels
-//    
-//    var outputLoop = PortValues()
-//    
-//    layerViewModels.forEach { layerViewModel in
-//        let offsetFromScrollView = layerViewModel.interactiveLayer.nativeScrollState.rawScrollViewOffset
-//        
-//        outputLoop.append(.position(offsetFromScrollView))
-//    }
-//    
-//    return .init(outputsValues: [outputLoop])
-    
+    return node.loopedEval(graphState: state) { values, interactiveLayer, loopIndex in
+        nativeScrollInteractionEvalOp(
+            values: values,
+            interactiveLayer: interactiveLayer,
+            // TODO: DEC 3: grab parentSize from readSize of `assignedLayerNodeViewModel.layerGroupdId` ?
+            parentSize: interactiveLayer.parentSize,
+            currentGraphTime: state.graphStepState.graphTime)
+    }.toImpureEvalResult()
 }
 
 @MainActor
 func nativeScrollInteractionEvalOp(values: PortValues,
                                    interactiveLayer: InteractiveLayer,
-                                   parentSize: CGSize) -> ImpureEvalOpResult {
+                                   parentSize: CGSize,
+                                   currentGraphTime: TimeInterval) -> ImpureEvalOpResult {
     
     // Update interactiveLayer according to inputs
     let xScrollEnabled = values[safe: NativeScrollNodeInputLocations.xScrollEnabled]?.getBool ?? NativeScrollInteractionNode.defaultScrollXEnabled
@@ -149,18 +126,15 @@ func nativeScrollInteractionEvalOp(values: PortValues,
     let jumpToX = values[safe: NativeScrollNodeInputLocations.jumpToX]?.getPulse ?? .zero
     let jumpPositionX = values[safe: NativeScrollNodeInputLocations.jumpPositionX]?.getNumber ?? .zero
     interactiveLayer.nativeScrollState.jumpStyleX = jumpStyleX
-    interactiveLayer.nativeScrollState.jumpToX = jumpToX
+    interactiveLayer.nativeScrollState.jumpToX = jumpToX == currentGraphTime
     interactiveLayer.nativeScrollState.jumpPositionX = jumpPositionX
     
     let jumpStyleY = values[safe: NativeScrollNodeInputLocations.jumpStyleY]?.getScrollJumpStyle ?? .scrollJumpStyleDefault
     let jumpToY = values[safe: NativeScrollNodeInputLocations.jumpToY]?.getPulse ?? .zero
     let jumpPositionY = values[safe: NativeScrollNodeInputLocations.jumpPositionY]?.getNumber ?? .zero
     interactiveLayer.nativeScrollState.jumpStyleY = jumpStyleY
-    interactiveLayer.nativeScrollState.jumpToY = jumpToY
+    interactiveLayer.nativeScrollState.jumpToY = jumpToY == currentGraphTime
     interactiveLayer.nativeScrollState.jumpPositionY = jumpPositionY
-    
-    let indicatorsHidden = values[safe: NativeScrollNodeInputLocations.indicatorsHidden]?.getBool ?? NativeScrollInteractionNode.defaultIndicatorsHidden
-    interactiveLayer.nativeScrollState.indicatorsHidden = indicatorsHidden
     
     let offsetFromScrollView = interactiveLayer.nativeScrollState.rawScrollViewOffset
         
@@ -186,6 +160,4 @@ struct NativeScrollNodeInputLocations {
     static let jumpStyleY = 7
     static let jumpToY = 8
     static let jumpPositionY = 9
-    
-    static let indicatorsHidden = 10
 }

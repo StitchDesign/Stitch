@@ -31,14 +31,14 @@ final class NativeScrollInteractionLayer: Sendable {
 
     // pulse
     // jump when `.onChange(of: nativeScrollInteractionLayer.jumpToX == graphTime)` is true
-    @MainActor var jumpToX: TimeInterval = .zero
-    @MainActor var jumpToY: TimeInterval = .zero
+//    @MainActor var jumpToX: TimeInterval = .zero
+    @MainActor var jumpToX: Bool = false
+//    @MainActor var jumpToY: TimeInterval = .zero
+    @MainActor var jumpToY: Bool = false
     
     @MainActor var jumpPositionX: CGFloat = .zero
     @MainActor var jumpPositionY: CGFloat = .zero
-    
-    @MainActor var indicatorsHidden: Bool = NativeScrollInteractionNode.defaultIndicatorsHidden
-    
+        
     // TODO: DEC 3: how to handle graph resets without a graphUISessionId ?
     // maybe `graphTime == 0` triggers a reset?    
 }
