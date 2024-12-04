@@ -157,7 +157,7 @@ extension Patch {
         case .pressInteraction:
             return "Press Interaction"
         case .scrollInteraction:
-            return "Scroll Interaction"
+            return "Legacy Scroll Interaction"
         case .repeatingPulse:
             return "Repeating Pulse"
         case .delay:
@@ -415,8 +415,8 @@ extension Patch {
             && patch != .pack
             && patch != .unpack
             
-            // Prefer .nativeScrollInteraction
-            && patch != .scrollInteraction
+//            // Prefer .nativeScrollInteraction
+//            && patch != .scrollInteraction
         }
     }
 

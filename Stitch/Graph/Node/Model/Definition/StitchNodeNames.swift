@@ -505,6 +505,7 @@ Adds scroll interaction to a specified layer. Scrolling can be either free or pa
 *Inputs*
 • The Layer to add the scroll interaction too
 • Scroll X (Free / Paging / Disabled)
+• Scroll Y (Free / Paging / Disabled)
 • Content Size (Width / Height)
 • Direction Locking (Boolean)
 • Page Size (Width / Height)
@@ -524,6 +525,28 @@ Adds scroll interaction to a specified layer. Scrolling can be either free or pa
 *Outputs*
 • The scroll X/Y position
 """
+
+let nativeScrollInteractionDescription = """
+Adds scroll interaction to a specified layer.
+
+*Inputs*
+• The Layer to add the scroll interaction too
+• Scroll X Enabled
+• Scroll Y Enabled
+• Content Size (Width / Height)
+• Jump Style X
+    • Instant
+    • Animated
+• Jump to X (Pulse)
+• Jump Position X
+• Jump Style Y
+• Jump to Y
+• Jump Position Y
+
+*Outputs*
+• The scroll X/Y position
+"""
+
 
 let mouseInteractionDescription = """
 Makes a given layer responsive to mouse interactions
