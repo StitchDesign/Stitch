@@ -10,7 +10,10 @@ import SwiftUI
 // Lives as optional type on InteractionLayer, which lives on LayerViewModel.
 // Created when scroll interaction is assigned to a layer.
 // Destroyed when scroll interaction de-assigned.
+
+@Observable
 final class NativeScrollInteractionLayer: Sendable {
+    
     @MainActor var rawScrollViewOffset: CGPoint = .zero
     
     // TODO: DEC 3: Do you need all the inputs of the scroll interaction node here? ... everything
@@ -36,9 +39,34 @@ final class NativeScrollInteractionLayer: Sendable {
     
     @MainActor var jumpPositionX: CGFloat = .zero
     @MainActor var jumpPositionY: CGFloat = .zero
-        
-    // TODO: DEC 3: how to handle graph resets without a graphUISessionId ?
-    // maybe `graphTime == 0` triggers a reset?    
+            
+    // Was the graph recently reset?
+    @MainActor var graphReset: Bool = false
+    
+    @MainActor
+    init(rawScrollViewOffset: CGPoint = CGPoint.zero,
+         xScrollEnabled: Bool = NativeScrollInteractionNode.defaultScrollXEnabled,
+         yScrollEnabled: Bool = NativeScrollInteractionNode.defaultScrollYEnabled,
+         contentSize: CGSize = CGSize.zero,
+         jumpStyleX: ScrollJumpStyle = ScrollJumpStyle.scrollJumpStyleDefault,
+         jumpStyleY: ScrollJumpStyle = ScrollJumpStyle.scrollJumpStyleDefault,
+         jumpToX: Bool = false,
+         jumpToY: Bool = false,
+         jumpPositionX: CGFloat = 0,
+         jumpPositionY: CGFloat = 0,
+         graphReset: Bool = false) {
+        self.rawScrollViewOffset = rawScrollViewOffset
+        self.xScrollEnabled = xScrollEnabled
+        self.yScrollEnabled = yScrollEnabled
+        self.contentSize = contentSize
+        self.jumpStyleX = jumpStyleX
+        self.jumpStyleY = jumpStyleY
+        self.jumpToX = jumpToX
+        self.jumpToY = jumpToY
+        self.jumpPositionX = jumpPositionX
+        self.jumpPositionY = jumpPositionY
+        self.graphReset = graphReset
+    }
 }
 
 

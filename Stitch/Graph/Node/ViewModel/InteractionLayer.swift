@@ -8,6 +8,7 @@
 import Foundation
 import StitchSchemaKit
 
+@Observable
 final class InteractiveLayer: Sendable {
     let id: PreviewCoordinate
     
