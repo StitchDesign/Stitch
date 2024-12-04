@@ -138,75 +138,42 @@ extension NodeRowObserver {
               patch.isInteractionPatchNode,
               Self.nodeIOType == .input,
               self.id.portId == 0 else { //, // the "assigned layer" input
-            
-            // TODO: how was `updateInteractionNodeData` being called with the exact same value for `firstValueOld` and `firstValueNew`?
-            // NOTE: Over-updating a dictionary is probably fine, perf-wise; an interaction node's assigned layer is not something that is updated at 120 FPS...
-            
-//              firstValueOld != firstValueNew else {
-            
-//            if self.id.portId == 0
-//                && self.nodeKind.getPatch == .nativeScrollInteraction {
-//                
-//                log("NodeRowObserver: updateInteractionNodeData: should not be existing early?")
-//            }
-            
-            return
-        }
-        
-//        log("NodeRowObserver: updateInteractionNodeData: id: \(self.id), firstValueOld: \(firstValueOld)")
-//        log("NodeRowObserver: updateInteractionNodeData: id: \(self.id), firstValueNew: \(firstValueNew)")
-        
-        // Can be nil, because old values can be empty on start
-        guard let oldLayerId = firstValueOld?.getInteractionId else {
-            log("NodeRowObserver: updateInteractionNodeData: id: \(self.id), no old values?")
-            //            fatalErrorIfDebug()
             return
         }
         
         // Remove old value from graph state
-        //        if let oldLayerId = firstValueOld?.getInteractionId {
-        switch patch {
-        case .dragInteraction:
-            graphDelegate.dragInteractionNodes.removeValue(forKey: oldLayerId)
-        case .pressInteraction:
-            graphDelegate.pressInteractionNodes.removeValue(forKey: oldLayerId)
-            //            case .scrollInteraction:
-        case .scrollInteraction, .nativeScrollInteraction:
-            log("NodeRowObserver: updateInteractionNodeData: removing old layer id")
-            log("NodeRowObserver: updateInteractionNodeData: id: \(self.id), firstValueOld: \(firstValueOld?.display)")
-            log("NodeRowObserver: updateInteractionNodeData: id: \(self.id), firstValueNew: \(firstValueNew?.display)")
-            graphDelegate.scrollInteractionNodes.removeValue(forKey: oldLayerId)
-        default:
-            fatalErrorIfDebug()
+        // Note: can be nil when first initializing the graph
+        if let oldLayerId = firstValueOld?.getInteractionId {
+            switch patch {
+            case .dragInteraction:
+                graphDelegate.dragInteractionNodes.removeValue(forKey: oldLayerId)
+            case .pressInteraction:
+                graphDelegate.pressInteractionNodes.removeValue(forKey: oldLayerId)
+            case .scrollInteraction, .nativeScrollInteraction:
+                graphDelegate.scrollInteractionNodes.removeValue(forKey: oldLayerId)
+            default:
+                fatalErrorIfDebug()
+            }
         }
-        //        }
-        
-        guard let newLayerId = firstValueNew?.getInteractionId else {
-            fatalErrorIfDebug()
-            return
+                
+        if let newLayerId = firstValueNew?.getInteractionId {
+            switch patch {
+            case .dragInteraction:
+                var currentIds = graphDelegate.dragInteractionNodes.get(newLayerId) ?? NodeIdSet()
+                currentIds.insert(self.id.nodeId)
+                graphDelegate.dragInteractionNodes.updateValue(currentIds, forKey: newLayerId)
+            case .pressInteraction:
+                var currentIds = graphDelegate.pressInteractionNodes.get(newLayerId) ?? NodeIdSet()
+                currentIds.insert(self.id.nodeId)
+                graphDelegate.pressInteractionNodes.updateValue(currentIds, forKey: newLayerId)
+            case .scrollInteraction, .nativeScrollInteraction:
+                var currentIds = graphDelegate.scrollInteractionNodes.get(newLayerId) ?? NodeIdSet()
+                currentIds.insert(self.id.nodeId)
+                graphDelegate.scrollInteractionNodes.updateValue(currentIds, forKey: newLayerId)
+            default:
+                fatalErrorIfDebug()
+            }
         }
-        
-        //        if let newLayerId = firstValueNew?.getInteractionId {
-        switch patch {
-        case .dragInteraction:
-            var currentIds = graphDelegate.dragInteractionNodes.get(newLayerId) ?? NodeIdSet()
-            currentIds.insert(self.id.nodeId)
-            graphDelegate.dragInteractionNodes.updateValue(currentIds, forKey: newLayerId)
-        case .pressInteraction:
-            var currentIds = graphDelegate.pressInteractionNodes.get(newLayerId) ?? NodeIdSet()
-            currentIds.insert(self.id.nodeId)
-            graphDelegate.pressInteractionNodes.updateValue(currentIds, forKey: newLayerId)
-        case .scrollInteraction, .nativeScrollInteraction:
-            log("NodeRowObserver: updateInteractionNodeData: inserting new layer id")
-            log("NodeRowObserver: updateInteractionNodeData: id: \(self.id), firstValueOld: \(firstValueOld?.display)")
-            log("NodeRowObserver: updateInteractionNodeData: id: \(self.id), firstValueNew: \(firstValueNew?.display)")
-            var currentIds = graphDelegate.scrollInteractionNodes.get(newLayerId) ?? NodeIdSet()
-            currentIds.insert(self.id.nodeId)
-            graphDelegate.scrollInteractionNodes.updateValue(currentIds, forKey: newLayerId)
-        default:
-            fatalErrorIfDebug()
-        }
-//        }
     }
     
     @MainActor
