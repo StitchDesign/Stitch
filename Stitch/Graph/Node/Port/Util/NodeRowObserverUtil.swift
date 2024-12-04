@@ -109,8 +109,8 @@ extension NodeRowObserver {
                                   to: firstOriginalValues,
                                   currentGraphTime: graphTime)
             } else {
-//                fatalErrorIfDebug()
-                log("no old values for \(self.id)")
+                fatalErrorIfDebug()
+//                log("no old values for \(self.id)")
             }
         }
 

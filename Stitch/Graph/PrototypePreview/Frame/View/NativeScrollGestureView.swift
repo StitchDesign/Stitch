@@ -24,11 +24,27 @@ struct NativeScrollGestureView: ViewModifier {
     
     @MainActor
     func getScrollInteractionIds() -> NodeIdSet? {
-        graph.getScrollInteractionIds(for: layerViewModel.id.layerNodeId)
+//        graph.getScrollInteractionIds(for: layerViewModel.id.layerNodeId)
+        graph.getScrollInteractionIds(for: layerViewModel.interactiveLayer.id.layerNodeId)
     }
     
     var hasScrollInteraction: Bool {
-        self.getScrollInteractionIds()?.contains(layerViewModel.id.layerNodeId.asNodeId) ?? false
+//        let k = self.getScrollInteractionIds()?.contains(layerViewModel.id.layerNodeId.asNodeId) ?? false
+        
+        let scrollPatchesDict: [LayerNodeId: NodeIdSet] = graph.scrollInteractionNodes
+        
+        log("NativeScrollGestureView: hasScrollInteraction: scrollPatchesDict: \(scrollPatchesDict)")
+        
+        let assignedScrollPatches: NodeIdSet = scrollPatchesDict.get(layerViewModel.id.layerNodeId) ?? .init()
+        
+        log("NativeScrollGestureView: hasScrollInteraction: assignedScrollPatches: \(assignedScrollPatches)")
+        
+        let k = !assignedScrollPatches.isEmpty
+        
+//        let k = self.getScrollInteractionIds()?.contains(layerViewModel.interactiveLayer.id.layerNodeId.asNodeId) ?? false
+        
+        log("NativeScrollGestureView: hasScrollInteraction: k: \(k)")
+        return k
     }
     
     var nativeScrollState: NativeScrollInteractionLayer {
@@ -48,10 +64,10 @@ struct NativeScrollGestureView: ViewModifier {
 //    @State var initialized: Bool = false
     
     func body(content: Content) -> some View {
-//        if !hasScrollInteraction {
-//            content
-//        } else {
-        if true {
+        if !hasScrollInteraction {
+            content
+        } else {
+//        if true {
             // Does view properly re-render if this change?
             // Or do we need `.onChange(of: layerViewModel.scrollYEnabled) { self.id = .init() }` ?
             ScrollView(scrollAxes) {
