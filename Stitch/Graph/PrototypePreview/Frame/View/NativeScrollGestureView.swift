@@ -47,8 +47,7 @@ struct NativeScrollGestureViewInner: ViewModifier {
     @State var scrollOffset: CGPoint = .zero
     
     // Programmatic manipulation of the ScrollView's position
-    @State var scrollPosition: ScrollPosition = .init(edge: .top)
-    
+    @State var scrollPosition: ScrollPosition = .init(edge: .top) // .top vs .bottom makes no difference?
     
     var nativeScrollState: NativeScrollInteractionLayer {
         layerViewModel.interactiveLayer.nativeScrollState
@@ -76,8 +75,13 @@ struct NativeScrollGestureViewInner: ViewModifier {
                 .offset(x: self.scrollOffset.x,
                         y: self.scrollOffset.y)
         }
-        // Required for forced re-render when e.g. scrollable-axes change
-        .id(self.viewId)
+
+        /*
+ // Required for forced re-render when e.g. scrollable-axes change
+ // TODO: do not reset scroll-offset when scroll-axes changed
+ // Note: order appears to matter? e.g. here vs after .scrollPosition vs. after
+ */
+        .id(self.viewId) // does order of this .id matter?
         
         // TODO: allow user to control? requires forced re-rendering the view
         .scrollIndicators(.hidden)
@@ -87,12 +91,13 @@ struct NativeScrollGestureViewInner: ViewModifier {
         
         // For programmatically manipulating the scroll view's position
         .scrollPosition(self.$scrollPosition)
-        
+                
         .onScrollGeometryChange(for: CGPoint.self) { geometry in
             // Note: the scroll view's reported value; can be manipulated, but does not affect the scroll view's scrolling, which has already happened
             geometry.contentOffset
         } action: { oldValue, newValue in
-            //                log("NativeScrollGestureViewInner: onScrollGeometryChange: newValue \(newValue) for layerViewModel.id \(layerViewModel.id)")
+            //            log("NativeScrollGestureViewInner: onScrollGeometryChange: newValue \(newValue) for layerViewModel.id \(layerViewModel.id)")
+            log("NativeScrollGestureViewInner: onScrollGeometryChange: newValue \(newValue)")
             
             // Always update the raw, unmodified scrollOfset, so that child is not automatically moved as parent moves
             self.scrollOffset = newValue
@@ -106,13 +111,28 @@ struct NativeScrollGestureViewInner: ViewModifier {
         
         // TODO: how to tackle some of the awkward scrolling that happens after we toggle x/y scroll enabled ?
         .onChange(of: self.scrollAxes, { oldValue, newValue in
-            log("NativeScrollGestureViewInner: scrollAxes changed")
+            // log("NativeScrollGestureViewInner: scrollAxes changed: \(nativeScrollState.rawScrollViewOffset.x)")
+            
             self.viewId = .init()
-            log("NativeScrollGestureViewInner: scrollAxes changed: changed viewId")
+            // log("NativeScrollGestureViewInner: scrollAxes changed: changed viewId: \(nativeScrollState.rawScrollViewOffset.x)")
+            
+            // Even when called with the proper values, this gets ignored?
             self.scrollPosition.scrollTo(
                 x: self.scrollOffset.x,
-                y: self.scrollOffset.y)
+                y: self.scrollOffset.y
+            )
+            // log("NativeScrollGestureViewInner: scrollAxes changed: scrolled: \(nativeScrollState.rawScrollViewOffset.x)")
         })
+        
+        // TODO: seems to be called *twice* when we do `self.viewId = .init()` ?
+        //        .onChange(of: self.viewId, { oldValue, newValue in
+        //            log("NativeScrollGestureViewInner: viewId changed: \(nativeScrollState.rawScrollViewOffset.x)")
+        //            self.scrollPosition.scrollTo(
+        //                x: self.nativeScrollState.rawScrollViewOffset.x,
+        //                y: self.scrollOffset.y
+        //            )
+        //        })
+        
         
         // Responding to changes to JumpStyle input
         
@@ -158,10 +178,14 @@ struct NativeScrollGestureViewInner: ViewModifier {
         } // .onChange
         
         
-        .onChange(of: layerViewModel.interactiveLayer.nativeScrollState.graphReset) { _, newValue in
+        .onChange(of: nativeScrollState.graphReset) { _, newValue in
             if newValue {
                 self.scrollPosition.scrollTo(edge: .top) // top-left corner
             }
         } // .onChange
+        
+//        // Required for forced re-render when e.g. scrollable-axes change
+//        .id(self.viewId) // does order of this .id matter?
+        
     } // var body
 }
