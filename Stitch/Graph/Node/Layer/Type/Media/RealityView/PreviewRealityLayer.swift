@@ -151,6 +151,12 @@ struct RealityLayerView: View {
                     } update: { content in
                         self.updateRealityContent(&content)
                     }
+                    // Supports gestures as assigned in the entity's USDZ file
+                    .gesture(TapGesture().targetedToAnyEntity()
+                        .onEnded { value in
+                            _ = value.entity.applyTapForBehaviors()
+                        }
+                    )
 
                     GroupLayerNode.content(document: document,
                                            graph: graph,
