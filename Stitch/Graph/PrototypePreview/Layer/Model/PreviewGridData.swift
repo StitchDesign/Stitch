@@ -131,7 +131,7 @@ extension LayerNodeViewModel {
         // Changing the orientation of a parent (layer group) updates fields on the children
         let children = self.nodeDelegate?.graphDelegate?.children(of: self.id) ?? []
         
-        log("layerGroupOrientationUpdated: layer group \(self.id) had children: \(children.map(\.id))")
+        // log("layerGroupOrientationUpdated: layer group \(self.id) had children: \(children.map(\.id))")
         
         switch newValue {
         
