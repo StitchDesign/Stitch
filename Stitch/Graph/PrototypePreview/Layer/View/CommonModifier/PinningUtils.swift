@@ -164,24 +164,24 @@ extension GraphState {
                     let pinReceivingLayer = pinToId.asLayerNodeId(viewModel.id.layerNodeId, from: self)
                     
                     if pinReceivingLayer == nil && pinToId != .root {
-                        log("getPinMap: had nil pin-receiving-layer but PinToId was not 'root'; will default to 'root'")
+                        // log("getPinMap: had nil pin-receiving-layer but PinToId was not 'root'; will default to 'root'")
                         // e.g. The layer referred to by `pinReceivingLayer` was deleted
                         pinToId = .root
                     }
                     
                     let pinnedLayer = nodeId.asLayerNodeId
                     
-                    log("getPinMap: pinMap was: \(pinMap)")
-                    log("getPinMap: \(pinnedLayer) layer view model is pinned to layer \(pinnedLayer)")
+                    // log("getPinMap: pinMap was: \(pinMap)")
+                    // log("getPinMap: \(pinnedLayer) layer view model is pinned to layer \(pinnedLayer)")
                     
                     var current = pinMap.get(pinReceivingLayer) ?? .init()
-                    log("getPinMap: current was: \(current)")
+                    // log("getPinMap: current was: \(current)")
                     
                     current.insert(pinnedLayer)
-                    log("getPinMap: current is now: \(current)")
+                    // log("getPinMap: current is now: \(current)")
                     
                     pinMap.updateValue(current, forKey: pinReceivingLayer)
-                    log("getPinMap: pinMap is now: \(pinMap)")
+                    // log("getPinMap: pinMap is now: \(pinMap)")
                     
                 }
             })
@@ -375,13 +375,13 @@ func getRotationAnchor(lengthA: CGFloat,
     
     guard lengthA != lengthB else {
         // Default to center
-        print("getRotationAnchor: length: defaultAnchor")
+        // print("getRotationAnchor: length: defaultAnchor")
         return defaultAnchor
     }
     
     guard pointA != pointB else {
         // Default to center
-        print("getRotationAnchor: point: defaultAnchor")
+        // print("getRotationAnchor: point: defaultAnchor")
         return defaultAnchor
     }
     
