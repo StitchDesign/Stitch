@@ -158,7 +158,7 @@ extension DocumentEncodable {
     func removeStitchMedia(at URL: URL,
                            permanently: Bool = false) -> StitchFileVoidResult {
         if !permanently {
-            // Copy file to recentely deleted URL
+            // Copy file to recently deleted URL
             let _ = self.copyToMediaDirectory(originalURL: URL,
                                               forRecentlyDeleted: true)
         }
