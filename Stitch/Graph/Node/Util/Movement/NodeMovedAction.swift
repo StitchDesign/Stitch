@@ -32,7 +32,7 @@ extension CanvasItemViewModel {
                                    highestZIndex: ZIndex?,
                                    zoom: CGFloat,
                                    state: GraphMovementObserver) {
-        log("updateCanvasItemOnDragged self.position was: \(self.position)")
+        // log("updateCanvasItemOnDragged self.position was: \(self.position)")
         // Set z-index once on node movement
         if !self.isMoving,
            let highestZIndex = highestZIndex {
@@ -45,7 +45,7 @@ extension CanvasItemViewModel {
             - state.accumulatedGraphTranslation
 
         self.position = self.previousPosition + translationSize.toCGPoint
-        log("updateCanvasItemOnDragged self.position is now: \(self.position)")
+        // log("updateCanvasItemOnDragged self.position is now: \(self.position)")
         
         // updates port locations for edges
         self.updatePortLocations()
