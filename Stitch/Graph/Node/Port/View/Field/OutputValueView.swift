@@ -104,7 +104,7 @@ struct OutputValueView: View {
     }
 
     var body: some View {
-//        NodeLayout(observer: viewModel) {
+        NodeLayoutView(observer: viewModel) {
             switch fieldValue {
             case .string(let string):
                 // Leading alignment when multifield
@@ -234,6 +234,6 @@ struct OutputValueView: View {
                                    fontColor: STITCH_FONT_GRAY_COLOR,
                                    isSelectedInspectorRow: isSelectedInspectorRow)
             }
-//        }
+        }
     }
 }
