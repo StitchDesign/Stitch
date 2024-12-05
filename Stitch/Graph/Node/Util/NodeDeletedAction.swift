@@ -135,14 +135,37 @@ extension GraphState {
         
         // Find nodes to recursively delete
         switch node.kind {
-        case .layer(let layer) where layer == .group:
-            if willDeleteLayerGroupChildren {
-                let layerChildren = self.getLayerChildren(for: id)
-                layerChildren.forEach {
-                    self.deleteNode(id: $0)
+        case .layer(let layer):
+            
+            // May need to remove the layer-group's children
+            if layer == .group {
+                if willDeleteLayerGroupChildren {
+                    let layerChildren = self.getLayerChildren(for: id)
+                    layerChildren.forEach {
+                        self.deleteNode(id: $0)
+                    }
                 }
             }
             
+            // If we delete a layer, update any inputs that were using that layer for `PortValue.assignedLayer`.
+            // Note: can't just look at interaction patch node's first input or a layer node's pinTo input, since e.g. a splitter could have nodeType = assignedLayer
+            self.nodes.values.forEach { (_node: NodeViewModel) in
+                _node.inputsObservers.forEach { inputObserver in
+                    inputObserver.values = inputObserver.values.map({ value in
+                        if let layerId = value.getInteractionId,
+                           layerId == id.asLayerNodeId {
+                            return .assignedLayer(nil)
+                        } else if let pinToId = value.getPinToId,
+                                case let .layer(x) = pinToId,
+                                x == id.asLayerNodeId {
+                            return .pinTo(.parent)
+                        } else {
+                            return value
+                        }
+                    })
+                }
+            }
+          
         case .group:
             let groupChildren = self.getGroupNodeChildren(for: id)
             groupChildren.forEach {
