@@ -111,13 +111,13 @@ struct NativeScrollGestureViewInner: ViewModifier {
                 .frame(width: nativeScrollState.contentSize.width > 0 ? nativeScrollState.contentSize.width : nil)
                 .frame(height: nativeScrollState.contentSize.height > 0 ? nativeScrollState.contentSize.height : nil)
                 
-                .border(.teal, width: 16)
+//                .border(.teal, width: 16)
             
             // factor out parent-scroll's offset, so that view does not move unless we explicitly connect scroll interaction node's output to the layer's position input
                 .offset(x: self.scrollOffset.x,
                         y: self.scrollOffset.y)
             
-                .border(.green, width: 12)
+//                .border(.green, width: 12)
             
             // No difference
 //                .frame(width: 800, height: 1200)
