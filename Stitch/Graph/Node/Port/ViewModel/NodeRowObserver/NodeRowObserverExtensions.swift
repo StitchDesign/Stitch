@@ -56,7 +56,11 @@ extension NodeRowObserver {
     /// Updates port view models when the backend port observer has been updated.
     /// Also invoked when nodes enter the viewframe incase they need to be udpated.
     @MainActor
-    func updatePortViewModels() {        
+    func updatePortViewModels() {
+        guard (self.nodeDelegate?.isVisibleInFrame ?? false) else {
+            return
+        }
+        
         self.getVisibleRowViewModels().forEach { rowViewModel in
             rowViewModel.didPortValuesUpdate(values: self.allLoopedValues)
         }
