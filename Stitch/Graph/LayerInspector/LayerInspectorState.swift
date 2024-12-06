@@ -93,7 +93,7 @@ extension LayerInspectorView {
             .init(.stroke, layer.supportsStrokeInputs ? Self.stroke : []),
             .init(.rotation, layer.supportsRotationInputs ? Self.rotation : []),
 //            .init(.shadow, layer.supportsShadowInputs ? Self.shadow : []),
-            .init(.layerEffects, layer.supportsLayerEffectInputs ? Self.effects : []),
+            .init(.layerEffects, layer.supportsLayerEffectInputs ? Self.layerEffects : []),
         ]
     }
     
@@ -109,7 +109,7 @@ extension LayerInspectorView {
             .init(.stroke, Self.stroke),
             .init(.rotation, Self.rotation),
 //            .init(.shadow, Self.shadow),
-            .init(.layerEffects, Self.effects)
+            .init(.layerEffects, Self.layerEffects)
         ]
             
     @MainActor
@@ -285,10 +285,9 @@ extension LayerInspectorView {
     ]
     
     @MainActor
-    static let effects: LayerInputTypeSet = [
+    static let layerEffects: LayerInputTypeSet = [
         SHADOW_FLYOUT_LAYER_INPUT_PROXY,
-        .blur, // blur vs blurRadius ?
-        .blurRadius,
+        .blur, // use .blur; .blurRadius is ignored
         .blendMode,
         .brightness,
         .colorInvert,
@@ -338,6 +337,6 @@ extension Layer {
     @MainActor
     var supportsLayerEffectInputs: Bool {
         let layerInputs = self.layerGraphNode.inputDefinitions
-        return !layerInputs.intersection(LayerInspectorView.effects).isEmpty
+        return !layerInputs.intersection(LayerInspectorView.layerEffects).isEmpty
     }
 }

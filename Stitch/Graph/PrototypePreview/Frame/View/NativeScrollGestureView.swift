@@ -27,7 +27,7 @@ struct NativeScrollGestureView<T: View>: View {
     }
     
     var body: some View {
-        logInView("NativeScrollGestureView: var body")
+        // logInView("NativeScrollGestureView: var body")
         if hasScrollInteraction {
             view()
                 .modifier(NativeScrollGestureViewInner(
@@ -64,7 +64,7 @@ struct NativeScrollGestureViewInner: ViewModifier {
     @State var viewId: UUID = .init()
     
     func body(content: Content) -> some View {
-        logInView("NativeScrollGestureViewInner: var body")
+        // logInView("NativeScrollGestureViewInner: var body")
         
         ScrollView(scrollAxes) {
             
@@ -103,8 +103,8 @@ struct NativeScrollGestureViewInner: ViewModifier {
             // Note: the scroll view's reported value; can be manipulated, but does not affect the scroll view's scrolling, which has already happened
             geometry.contentOffset
         } action: { oldValue, newValue in
-            log("NativeScrollGestureViewInner: onScrollGeometryChange: newValue \(newValue) for layerViewModel.id \(layerViewModel.id)")
-//            log("NativeScrollGestureViewInner: onScrollGeometryChange: newValue \(newValue)")
+            // log("NativeScrollGestureViewInner: onScrollGeometryChange: newValue \(newValue) for layerViewModel.id \(layerViewModel.id)")
+            // log("NativeScrollGestureViewInner: onScrollGeometryChange: newValue \(newValue)")
             
             // Always update the raw, unmodified scrollOffset, so that child is not automatically moved as parent moves
             self.scrollOffset = newValue
