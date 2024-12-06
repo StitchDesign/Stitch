@@ -52,8 +52,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
     }
 
     var body: some View {
-        NodeLayout(observer: node,
-                   existingCache: node.viewCache) {
+        NodeLayoutView(observer: node) {
             nodeBody
                 .opacity(node.viewCache.isDefined ? 1 : 0)
             .onAppear {

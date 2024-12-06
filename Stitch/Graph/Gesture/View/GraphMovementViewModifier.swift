@@ -14,42 +14,49 @@ struct GraphMovementViewModifier: ViewModifier {
     @Bindable var currentNodePage: NodePageData
     @Bindable var graph: GraphState
     let groupNodeFocused: GroupNodeType?
-
+    
     func body(content: Content) -> some View {
         content
-            .onChange(of: graphMovement.localPosition, initial: true) {
-                currentNodePage.localPosition = graphMovement.localPosition
-            }
-            .onChange(of: graphMovement.zoomData.current, initial: true) {
-                currentNodePage.zoomData.current = graphMovement.zoomData.current
-            }
-            .onChange(of: graphMovement.zoomData.final, initial: true) {
-                currentNodePage.zoomData.final = graphMovement.zoomData.final
-            }
             .onChange(of: groupNodeFocused, initial: true) {
                 self.graphMovement.localPosition = currentNodePage.localPosition
                 self.graphMovement.localPreviousPosition = currentNodePage.localPosition
                 self.graphMovement.zoomData.current = currentNodePage.zoomData.current
                 self.graphMovement.zoomData.final = currentNodePage.zoomData.final
+                
+                self.graph.updateVisibleNodes()
             }
-            // offset and scale are applied to the nodes on the graph,
-            // but not eg to the blue box and green cursor;
-            // GRAPH-OFFSET (applied to container for all the nodes)
+            .onChange(of: graphMovement.localPosition) {
+                currentNodePage.localPosition = graphMovement.localPosition
+                
+                self.graph.updateVisibleNodes()
+            }
+            .onChange(of: graphMovement.zoomData.current) {
+                currentNodePage.zoomData.current = graphMovement.zoomData.current
+            }
+            .onChange(of: graphMovement.zoomData.final) {
+                currentNodePage.zoomData.final = graphMovement.zoomData.final
+                
+                self.graph.updateVisibleNodes()
+            }
+        // offset and scale are applied to the nodes on the graph,
+        // but not eg to the blue box and green cursor;
+        // GRAPH-OFFSET (applied to container for all the nodes)
             .offset(x: graphMovement.localPosition.x,
                     y: graphMovement.localPosition.y)
-            // SCALE APPLIED TO GRAPH-OFFSET + ALL THE NODES
+        // SCALE APPLIED TO GRAPH-OFFSET + ALL THE NODES
             .scaleEffect(graphMovement.zoomData.zoom)
     }
+}
     
-    
-    // MARK: CURRENTLY UNUSED DUE TO QUESTIONABLE PERF BENEFITS.
+extension GraphState {
     /// Accomplishes the following tasks:
     /// 1. Determines which nodes are visible.
     /// 2. Determines which nodes are selected from the selection box, if applicable.
-    private func processVisibleNodes() -> CanvasItemIdSet {
+    @MainActor
+    func updateVisibleNodes() {
         let zoom = 1 / self.graphMovement.zoomData.zoom
         let origin = self.graphMovement.localPosition
-        let viewFrameSize = graph.graphUI.frame.size
+        let viewFrameSize = self.graphUI.frame.size
         
         var visibleNodes = Set<CanvasItemId>()
         
@@ -62,7 +69,7 @@ struct GraphMovementViewModifier: ViewModifier {
                                                 graphView: graphView)
         
         // Determine nodes to make visible--use cache in case nodes exited viewframe
-        for cachedSubviewData in graph.visibleNodesViewModel.infiniteCanvasCache ?? .init() {
+        for cachedSubviewData in self.visibleNodesViewModel.infiniteCanvasCache {
             let id = cachedSubviewData.key
             let cachedBounds = cachedSubviewData.value
             
@@ -72,11 +79,11 @@ struct GraphMovementViewModifier: ViewModifier {
             }
         }
         
-        if graph.visibleNodesViewModel.visibleCanvasIds != visibleNodes {
-            graph.visibleNodesViewModel.visibleCanvasIds = visibleNodes
+        if self.visibleNodesViewModel.visibleCanvasIds != visibleNodes {
+            self.visibleNodesViewModel.visibleCanvasIds = visibleNodes
         }
         
-        return visibleNodes
+        self.visibleNodesViewModel.visibleCanvasIds = visibleNodes
     }
         
     

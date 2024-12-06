@@ -15,8 +15,8 @@ struct NodesOnlyView: View {
     @Bindable var graphUI: GraphUIState
     @Bindable var nodePageData: NodePageData
     
-    var canvasNodeIds: Set<CanvasItemId> {
-        self.graph.visibleNodesViewModel.visibleCanvasIds
+    var canvasNodeIds: [CanvasItemId] {
+        self.graph.visibleNodesViewModel.allViewModels.map(\.id)
     }
 
     var selection: GraphUISelectionState {

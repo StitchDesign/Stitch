@@ -175,11 +175,14 @@ extension GraphState {
                                       y: -self.graphMovement.localPosition.y)
         let graphView = CGRect(origin: viewframeOrigin,
                                size: viewFrameSize)
-        let scaledViewFrame = GraphMovementViewModifier.getScaledViewFrame(scale: zoom,
-                                                                           graphView: graphView)
-        let selectionBoxInViewFrame = Self.getScaledSelectionBox(selectionBox: selectionBox,
-                                                                 scale: zoom,
-                                                                 scaledViewFrameOrigin: scaledViewFrame.origin)
+        let scaledViewFrame = GraphState.getScaledViewFrame(scale: zoom,
+                                                            graphView: graphView)
+        guard let selectionBoxInViewFrame = GraphState
+            .getScaledSelectionBox(selectionBox: selectionBox,
+                                   scale: zoom,
+                                   scaledViewFrameOrigin: scaledViewFrame.origin) else {
+            return
+        }
         
         for cachedSubviewData in self.visibleNodesViewModel.infiniteCanvasCache {
             let id = cachedSubviewData.key
@@ -232,20 +235,4 @@ extension GraphState {
     }
     
     /// Uses graph local offset and scale to get a modified `CGRect` of the selection box view frame.
-    static func getScaledSelectionBox(selectionBox: CGRect,
-                                      scale: Double,
-                                      scaledViewFrameOrigin: CGPoint) -> CGRect {
-        let scaledSelectionBoxSize = CGSize(
-            // must explicitly graph .size to get correct magnitude
-            width: selectionBox.size.width * scale,
-            height: selectionBox.size.height * scale)
-        
-        let scaledOrigin = CGPoint(x: selectionBox.origin.x * scale,
-                                   y: selectionBox.origin.y * scale)
-        
-        let scaledSelectionBox = CGRect(origin: scaledOrigin + scaledViewFrameOrigin,
-                                           size: scaledSelectionBoxSize)
-        
-        return scaledSelectionBox
-    }
 }
