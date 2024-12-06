@@ -24,13 +24,18 @@ struct AssignedLayerUpdated: GraphEvent {
     
     @MainActor
     func handle(state: GraphState) {
-        for id in state.layerListeningPatchNodes(assignedTo: changedLayerNode) {
-            state.calculate(id) // TODO: batch calculate?
-        }
+        state.assignedLayerUpdated(changedLayerNode: changedLayerNode)
     }
 }
 
 extension GraphState {
+    @MainActor
+    func assignedLayerUpdated(changedLayerNode: LayerNodeId) {
+        for id in self.layerListeningPatchNodes(assignedTo: changedLayerNode) {
+            self.calculate(id)
+        }
+    }
+    
     // Some patch nodes (e.g. LayerInfo, ConvertPosition) effectively 'listen' to their assigned layer and must be eval'd whenever certain inputs change.
     // TODO: cache these?
     @MainActor

@@ -98,8 +98,6 @@ extension NodeRowObserver {
             return
         }
 
-        var effects = SideEffects()
-
         // Some values for some node inputs (like delay node) can directly be copied into the input and must bypass the type coercion logic
         if canCopyInputValues {
             self.updateValues(newValues)
@@ -128,19 +126,10 @@ extension NodeRowObserver {
         if node.kind.isLayer,
            oldValues != coercedValues {
             let layerId = node.id.asLayerNodeId
-            
-            // TODO: return a proper (but non-DispatchQueue.main.async) side-effect? or just calculate graph directly?
-            // https://github.com/vpl-codesign/stitch/issues/5528
-//            dispatch(AssignedLayerUpdated(changedLayerNode: layerNodeId))
-            // NOTE: this MUST BE RETURNED AS A SIDE-EFFECT; otherwise a graph-eval can trigger a node view model input update, which dispatches `AssignedLayerUpdated`, which then evaluates the graph again. (Just an issue for cycles?_
-            effects.append({
-                AssignedLayerUpdated(changedLayerNode: layerId)
-            })
+            graph.assignedLayerUpdated(changedLayerNode: layerId)
         }
         
         // Update view ports
         self.nodeDelegate?.graphDelegate?.portsToUpdate.insert(NodePortType.input(self.id))
-        
-        effects.processEffects()
     }
 }
