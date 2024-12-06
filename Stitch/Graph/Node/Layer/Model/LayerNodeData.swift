@@ -242,7 +242,9 @@ extension LayerInputObserver {
     var packedObserver: InputLayerNodeRowData? {
         switch self.mode {
         case .packed:
-            return self.packedObserver
+            // TODO: infinite loop? What was this method supposed to be?
+//            return self.packedObserver
+            return self._packedData
         case .unpacked:
             return nil
         }

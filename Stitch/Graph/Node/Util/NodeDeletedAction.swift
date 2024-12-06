@@ -93,7 +93,7 @@ extension GraphState {
                 return
             }
 
-            let inputPort = layerNode[keyPath: x.keyPath.layerInput.layerNodeKeyPath]
+            let inputPort: LayerInputObserver = layerNode[keyPath: x.keyPath.layerInput.layerNodeKeyPath]
             let prevPackMode = inputPort.mode
             
             layerNode[keyPath: x.keyPath.layerNodeKeyPath].canvasObserver = nil
