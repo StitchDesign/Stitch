@@ -61,12 +61,9 @@ struct LayerInspectorInputPortView: View {
                               // Inspector Row always uses the overall input label, never an individual field label
                               label: layerInputObserver.overallPortLabel(usesShortLabel: true))
             }
+        
+        // NOTE: this fires unexpectedly, so we rely on canvas item deletion and `layer input field added to canvas` to handle changes in pack vs unpacked mode.
 //            .onChange(of: layerInputObserver.mode) { oldValue, newValue in
-//                
-//                log("LayerInspectorInputPortView: nodeId: \(nodeId)")
-//                log("LayerInspectorInputPortView: self.layerInputObserver.port: \(self.layerInputObserver.port)")
-//                log("LayerInspectorInputPortView: oldValue: \(oldValue)")
-//                log("LayerInspectorInputPortView: newValue: \(newValue)")
 //                self.layerInputObserver.wasPackModeToggled()
 //            }
     }
