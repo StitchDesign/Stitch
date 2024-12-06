@@ -61,9 +61,14 @@ struct LayerInspectorInputPortView: View {
                               // Inspector Row always uses the overall input label, never an individual field label
                               label: layerInputObserver.overallPortLabel(usesShortLabel: true))
             }
-            .onChange(of: layerInputObserver.mode) {
-                self.layerInputObserver.wasPackModeToggled()
-            }
+//            .onChange(of: layerInputObserver.mode) { oldValue, newValue in
+//                
+//                log("LayerInspectorInputPortView: nodeId: \(nodeId)")
+//                log("LayerInspectorInputPortView: self.layerInputObserver.port: \(self.layerInputObserver.port)")
+//                log("LayerInspectorInputPortView: oldValue: \(oldValue)")
+//                log("LayerInspectorInputPortView: newValue: \(newValue)")
+//                self.layerInputObserver.wasPackModeToggled()
+//            }
     }
 }
 
