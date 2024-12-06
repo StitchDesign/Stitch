@@ -359,6 +359,13 @@ extension NodeViewModel {
             }
         }
         
+        // Check for visible layer inspectors
+        if let layerId = self.layerNode?.id,
+           let graph = self.graphDelegate,
+           graph.layersSidebarViewModel.selectionState.primary.contains(layerId) {
+            return true
+        }
+        
         return false
     }
     
