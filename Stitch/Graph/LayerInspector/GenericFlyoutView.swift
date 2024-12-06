@@ -251,6 +251,8 @@ struct LayerInputFieldAddedToGraph: GraphEventWithResponse {
         
         let portObserver: LayerInputObserver = layerNode[keyPath: layerInput.layerNodeKeyPath]
         
+        let previousPackMode = portObserver.mode
+        
         if let unpackedPort: InputLayerNodeRowData = portObserver._unpackedData.allPorts[safe: fieldIndex] {
             
             let parentGroupNodeId = state.groupNodeFocused
@@ -276,6 +278,11 @@ struct LayerInputFieldAddedToGraph: GraphEventWithResponse {
                 node,
                 unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                 unpackedPortIndex: fieldIndex)
+            
+            let newPackMode = portObserver.mode
+            if previousPackMode != newPackMode {
+                portObserver.wasPackModeToggled()
+            }
             
             state.resetLayerInputsCache(layerNode: layerNode)
         } else {
