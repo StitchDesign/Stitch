@@ -8,16 +8,12 @@
 import SwiftUI
 
 
-struct NativeScrollGestureView: ViewModifier {
+struct NativeScrollGestureView<T: View>: View {
     
     let layerViewModel: LayerViewModel
     @Bindable var graph: GraphState
-    
-//    let layerPosition: StitchPosition
-//    let layerAnchoring: Anchoring
-//    
-//    let parentSize: CGSize
-    
+    @ViewBuilder var view: () -> T
+        
     var hasScrollInteraction: Bool {
         let scrollPatchesDict: [LayerNodeId: NodeIdSet] = graph.scrollInteractionNodes
         // log("NativeScrollGestureView: hasScrollInteraction: scrollPatchesDict: \(scrollPatchesDict)")
@@ -30,20 +26,15 @@ struct NativeScrollGestureView: ViewModifier {
         return _hasScrollInteraction
     }
     
-    func body(content: Content) -> some View {
+    var body: some View {
         logInView("NativeScrollGestureView: var body")
         if hasScrollInteraction {
-            content
+            view()
                 .modifier(NativeScrollGestureViewInner(
                     layerViewModel: layerViewModel,
-                    graph: graph
-//                    ,
-//                    layerPosition: layerPosition,
-//                    layerAnchoring: layerAnchoring,
-//                    parentSize: parentSize
-                ))
+                    graph: graph))
         } else {
-            content
+            view()
         }
     }
 }
@@ -53,19 +44,7 @@ struct NativeScrollGestureViewInner: ViewModifier {
     let layerViewModel: LayerViewModel
     
     @Bindable var graph: GraphState
-    
-//    let layerPosition: StitchPosition
-//    let layerAnchoring: Anchoring
-//    
-//    let parentSize: CGSize
         
-//    // TODO: DEC 3: pass down actual grandparent-size etc.
-//    var grandparentSize: CGSize {
-//        let k = graph.documentDelegate?.previewWindowSize ?? .zero
-//        log("NativeScrollGestureViewInner: grandparentSize: k \(k)")
-//        return k
-//    }
-    
     // Raw, unchanged offset reported by the ScrollView; used to:
     // (1) offset the ScrollView's displacement of the layer and
     // (2) update the scroll interaction node's output
@@ -82,26 +61,10 @@ struct NativeScrollGestureViewInner: ViewModifier {
         self.nativeScrollState.scrollAxes
     }
     
-//    // For anchoring + positioning the ScrollView that
-//    var containerPos: StitchPosition {
-//        
-//        let k = adjustPosition(size: parentSize,
-//                               //
-//                               position: layerPosition,
-//                               
-//                               anchor: layerAnchoring,
-//                               parentSize: self.grandparentSize)
-//
-//        log("NativeScrollGestureViewInner: containerPos: k \(k)")
-//        
-//        return k
-//    }
-    
-    // Needed to force a complete re-render when
-    // IDEALLY: keep offset
     @State var viewId: UUID = .init()
     
     func body(content: Content) -> some View {
+        logInView("NativeScrollGestureViewInner: var body")
         
         ScrollView(scrollAxes) {
             
@@ -118,22 +81,14 @@ struct NativeScrollGestureViewInner: ViewModifier {
                         y: self.scrollOffset.y)
             
 //                .border(.green, width: 12)
-            
-            // No difference
-//                .frame(width: 800, height: 1200)
         }
         
-        
-        // added
-        // properly positioned but then can't scroll because content same size as ScrollView
-//        .frame(width: 800, height: 1200)
-
         /*
- // Required for forced re-render when e.g. scrollable-axes change
- // TODO: do not reset scroll-offset when scroll-axes changed
- // Note: order appears to matter? e.g. here vs after .scrollPosition vs. after
- */
-        .id(self.viewId) // does order of this .id matter?
+         Required for forced re-render when e.g. scrollable-axes change
+         TODO: do not reset scroll-offset when scroll-axes changed
+         Note: order appears to matter? e.g. `.id` here vs after `.scrollPosition`
+         */
+        .id(self.viewId)
         
         // TODO: allow user to control? requires forced re-rendering the view
         .scrollIndicators(.hidden)
@@ -143,21 +98,6 @@ struct NativeScrollGestureViewInner: ViewModifier {
         
         // For programmatically manipulating the scroll view's position
         .scrollPosition(self.$scrollPosition)
-              
-        // parallax... because `containerPos` knows about scroll offset,
-        // so the ScrollView itself, not just its content, gets moved
-//        .position(x: containerPos.x,
-//                  y: containerPos.y)
-        
-        // the container itself needs to be positioned
-        // oh, wait -- actually the parallex might be correct?
-        // but in Origami this ought to only happen if you also change the Group's position
-//        .position(x: containerPos.x - self.scrollOffset.x,
-//                  y: containerPos.y - self.scrollOffset.y)
-        
-        // avoids the parallax effect but jumpy...
-//        .position(x: containerPos.x + self.scrollOffset.x,
-//                  y: containerPos.y + self.scrollOffset.y)
         
         .onScrollGeometryChange(for: CGPoint.self) { geometry in
             // Note: the scroll view's reported value; can be manipulated, but does not affect the scroll view's scrolling, which has already happened
@@ -166,7 +106,7 @@ struct NativeScrollGestureViewInner: ViewModifier {
             log("NativeScrollGestureViewInner: onScrollGeometryChange: newValue \(newValue) for layerViewModel.id \(layerViewModel.id)")
 //            log("NativeScrollGestureViewInner: onScrollGeometryChange: newValue \(newValue)")
             
-            // Always update the raw, unmodified scrollOfset, so that child is not automatically moved as parent moves
+            // Always update the raw, unmodified scrollOffset, so that child is not automatically moved as parent moves
             self.scrollOffset = newValue
             
             self.layerViewModel.interactiveLayer.nativeScrollState.rawScrollViewOffset = .init(
@@ -250,12 +190,6 @@ struct NativeScrollGestureViewInner: ViewModifier {
                 self.scrollPosition.scrollTo(edge: .top) // top-left corner
             }
         } // .onChange
-                
-        // added
-//        .scrollClipDisabled()
-        
-//        .position(x: containerPos.x,
-//                  y: containerPos.y)
         
     } // var body
 }

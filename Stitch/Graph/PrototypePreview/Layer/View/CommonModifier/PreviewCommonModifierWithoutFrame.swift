@@ -142,10 +142,9 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
                 parentSize: parentSize,
                 minimumDragDistance: minimumDragDistance))
         
-        
-            .modifier(NativeScrollGestureView(
-                layerViewModel: layerViewModel,
-                graph: graph))
+//            .modifier(NativeScrollGestureView(
+//                layerViewModel: layerViewModel,
+//                graph: graph))
     }
 }
 

@@ -98,8 +98,8 @@ struct PreviewAbsoluteShapeLayerModifier: ViewModifier {
                 parentSize: parentSize,
                 minimumDragDistance: DEFAULT_MINIMUM_DRAG_DISTANCE))
         
-            .modifier(NativeScrollGestureView(
-                layerViewModel: viewModel,
-                graph: graph))
+//            .modifier(NativeScrollGestureView(
+//                layerViewModel: viewModel,
+//                graph: graph))
     }
 }
