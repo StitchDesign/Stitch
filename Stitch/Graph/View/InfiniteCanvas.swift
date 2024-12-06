@@ -88,6 +88,9 @@ struct InfiniteCanvas: Layout {
             self.isUpdatingCache = false
             graph?.visibleNodesViewModel.needsInfiniteCanvasCacheReset = false
             graph?.visibleNodesViewModel.infiniteCanvasCache = cache
+            
+            // Update visible nodes (fixes init case)
+            graph?.updateVisibleNodes()
         }
         
         return cache

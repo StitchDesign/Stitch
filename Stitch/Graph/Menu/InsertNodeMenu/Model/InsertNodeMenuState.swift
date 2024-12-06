@@ -28,6 +28,9 @@ struct InsertNodeMenuState: Equatable, Hashable {
     // Whether the menu shows or not; not the same as whether we're animating.
     var show = false
 
+    // Moved here from GraphUIState, since only used by 
+    var doubleTapLocation: CGPoint?
+    
     var searchResults: [InsertNodeMenuOptionData] = allSearchOptions
 
     // Ensures an option is selected when the menu appears

@@ -28,9 +28,18 @@ extension View {
     }
 }
 
-// Layout is a protocol for creating parameters where some view should render, how large etc.
-// Every SwiftUI view uses this under the hood.
-// Look up documents
+struct NodeLayoutView<T: StitchLayoutCachable, Content: View>: View {
+    let observer: T
+    @ViewBuilder var content: () -> Content
+    
+    var body: some View {
+        NodeLayout(observer: observer,
+                   existingCache: observer.viewCache) {
+            content()
+        }
+    }
+}
+
 struct NodeLayout<T: StitchLayoutCachable>: Layout, Sendable {
     typealias Cache = ()
     
