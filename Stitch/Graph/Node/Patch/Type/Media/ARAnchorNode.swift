@@ -15,10 +15,6 @@ struct ArAnchorNode: PatchNodeDefinition {
         .init(
             inputs: [
                 .init(
-                    defaultValues: [.asyncMedia(nil)],
-                    label: "3D Model"
-                ),
-                .init(
                     defaultValues: [.transform(DEFAULT_STITCH_TRANSFORM)],
                     label: "Transform"
                 )
@@ -60,9 +56,7 @@ extension ARAnchorObserver {
 @MainActor
 func arAnchorEval(node: PatchNode) -> EvalResult {
     node.loopedEval(ARAnchorObserver.self) { values, mediaObserver, loopIndex in
-        guard let inputModel3d = mediaObserver.getUniqueMedia(from: values.first,
-                                                              loopIndex: loopIndex),
-              let transform = values[safe: 1]?.getTransform else {
+        guard let transform = values.first?.getTransform else {
             mediaObserver.arAnchor = nil
             return values.prevOutputs(node: node)
         }
@@ -88,13 +82,6 @@ func arAnchorEval(node: PatchNode) -> EvalResult {
         let newId = UUID()
         mediaObserver.arAnchor = newAnchor
         mediaObserver.anchorMediaId = newId
-        
-        // Add 3D model to anchor
-        // TODO: come back to anchor, should be child entity?
-        fatalError()
-//        if let model3DEntity = inputModel3d.mediaObject.model3DEntity?.entity {
-//            newAnchor.addChild(model3DEntity)
-//        }
         
         newAnchor.transform.matrix = transformMatrix
         
