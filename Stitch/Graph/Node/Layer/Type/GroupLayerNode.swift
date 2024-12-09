@@ -180,10 +180,10 @@ func nativeScrollInteractionEval(node: LayerNode,
     }
         
     return node.loopedEval(graphState: state,
-                           layerNodeId: node.id) { values, interactiveLayer, loopIndex in
+                           layerNodeId: node.id) { layerViewModel, interactiveLayer, loopIndex in
         
         nativeScrollInteractionEvalOp(
-            values: values,
+            layerViewModel: layerViewModel,
             interactiveLayer: interactiveLayer,
             // TODO: DEC 3: grab parentSize from readSize of `assignedLayerNodeViewModel.layerGroupdId` ?
             parentSize: interactiveLayer.parentSize,
@@ -196,7 +196,7 @@ func nativeScrollInteractionEval(node: LayerNode,
 }
 
 @MainActor
-func nativeScrollInteractionEvalOp(values: PortValues,
+func nativeScrollInteractionEvalOp(layerViewModel: LayerViewModel, // for the grop
                                    interactiveLayer: InteractiveLayer,
                                    parentSize: CGSize,
                                    currentGraphTime: TimeInterval,
@@ -207,34 +207,25 @@ func nativeScrollInteractionEvalOp(values: PortValues,
     // Update interactiveLayer according to inputs
     // Note: only update the properties that changed, else @Observable fires unnecessarily
 
-    
     // Jump X
-
-    let jumpToX = values[safe: NativeScrollNodeInputLocations.jumpToX]?.getPulse ?? .zero
-        
+    let jumpToX = layerViewModel.scrollJumpToX.getPulse ?? .zero
     let newJumpToX = jumpToX == currentGraphTime
     if interactiveLayer.nativeScrollState.jumpToX != newJumpToX {
         interactiveLayer.nativeScrollState.jumpToX = newJumpToX
     }
 
-    
     // Jump Y
-    
-    let jumpToY = values[safe: NativeScrollNodeInputLocations.jumpToY]?.getPulse ?? .zero
+    let jumpToY = layerViewModel.scrollJumpToY.getPulse ?? .zero
     let newJumpToY = jumpToY == currentGraphTime
     if interactiveLayer.nativeScrollState.jumpToY != newJumpToY {
         interactiveLayer.nativeScrollState.jumpToY = newJumpToY
     }
         
-    
     // Graph reset
-    
     let graphReset = Int(currentGraphFrameCount) == Int(2)
     if interactiveLayer.nativeScrollState.graphReset != graphReset {
         interactiveLayer.nativeScrollState.graphReset = graphReset
     }
-    
-    
     
     let offsetFromScrollView = interactiveLayer.nativeScrollState.rawScrollViewOffset
     

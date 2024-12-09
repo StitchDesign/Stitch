@@ -49,19 +49,8 @@ struct NativeScrollGestureView<T: View>: View {
         
     @MainActor
     var hasScrollInteraction: Bool {
-        
-//        
-//        let scrollPatchesDict: [LayerNodeId: NodeIdSet] = graph.scrollInteractionNodes
-//        // log("NativeScrollGestureView: hasScrollInteraction: scrollPatchesDict: \(scrollPatchesDict)")
-//        let assignedScrollPatches: NodeIdSet = scrollPatchesDict.get(layerViewModel.id.layerNodeId) ?? .init()
-//        // log("NativeScrollGestureView: hasScrollInteraction: assignedScrollPatches: \(assignedScrollPatches)")
-         
-        // TODO: look instead at the eval-updated NativeScrollInteractionLayer.xScrollEnabled ?
         let _hasScrollInteraction = layerViewModel.isScrollXEnabled || layerViewModel.isScrollYEnabled
-        //!assignedScrollPatches.isEmpty
-        
         log("NativeScrollGestureView: hasScrollInteraction: _hasScrollInteraction: \(_hasScrollInteraction)")
-        
         return _hasScrollInteraction
     }
     

@@ -13,6 +13,7 @@ typealias NodeEphemeralObservableOp<T, EphemeralObserver> = (PortValues, Ephemer
 typealias NodeEphemeralObservableListOp<EphemeralObserver> = (PortValues, EphemeralObserver) -> PortValuesList where EphemeralObserver: NodeEphemeralObservable
 typealias NodeEphemeralInteractiveOp<T, EphemeralObserver> = (PortValues, EphemeralObserver, InteractiveLayer, Int) -> T where EphemeralObserver: NodeEphemeralObservable
 typealias NodeInteractiveOp<T> = (PortValues, InteractiveLayer, Int) -> T
+typealias NodeLayerViewModelInteractiveOp<T> = (LayerViewModel, InteractiveLayer, Int) -> T
 
 /// Allows for generic results while ensure there's some way to get default output values.
 protocol NodeEvalOpResult {
@@ -53,7 +54,7 @@ extension NodeViewModel {
                                                     // The layer node whose layer view models we will look at;
                                                     // can be assigned-layer (interaction patch node) or layer itself (e.g. group layer scrolling)
                                                     layerNodeId: NodeId,
-                                                    evalOp: @escaping NodeInteractiveOp<EvalOpResult>) -> [EvalOpResult] {
+                                                    evalOp: @escaping NodeLayerViewModelInteractiveOp<EvalOpResult>) -> [EvalOpResult] {
         let inputsValues = self.inputs
         let loopCount = getLongestLoopLength(inputsValues)
 
@@ -67,10 +68,10 @@ extension NodeViewModel {
                                                         length: max(loopCount, layerNode.previewLayerViewModels.count))
         
         return self.loopedEval(minLoopCount: layerNode.previewLayerViewModels.count) { values, loopIndex in
-            guard let interactiveLayer = lengthenedPreviewLayers[safe: loopIndex]?.interactiveLayer else {
+            guard let layerViewModel = lengthenedPreviewLayers[safe: loopIndex] else {
                 return .init(from: self.defaultOutputs)
             }
-            return evalOp(values, interactiveLayer, loopIndex)
+            return evalOp(layerViewModel, layerViewModel.interactiveLayer, loopIndex)
         }
     }
     
