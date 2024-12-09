@@ -38,6 +38,7 @@ struct Model3DLayerNode: LayerNodeDefinition {
 
     static let inputDefinitions: LayerInputTypeSet = .init([
         .model3D,
+        .anchorEntity,
         .position,
         .rotationX,
         .rotationY,

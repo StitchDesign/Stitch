@@ -1059,6 +1059,7 @@
 		B55501062C1BCAD50081C3F1 /* SidebarListItemActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListItemActions.swift; sourceTree = "<group>"; };
 		B555010C2C1BD0E10081C3F1 /* SidebarVisibilityUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarVisibilityUtils.swift; sourceTree = "<group>"; };
 		B55501332C1C00EB0081C3F1 /* GraphStepIncrementer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphStepIncrementer.swift; sourceTree = "<group>"; };
+		B55591A42D06745700871B41 /* StitchSchemaKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = StitchSchemaKit; path = ../StitchSchemaKit; sourceTree = SOURCE_ROOT; };
 		B55780622CAF667700907BA8 /* StitchClipboardContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchClipboardContent.swift; sourceTree = "<group>"; };
 		B55780642CAF66D600907BA8 /* StitchComponentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchComponentable.swift; sourceTree = "<group>"; };
 		B55780682CB043AF00907BA8 /* StitchComponentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchComponentViewModel.swift; sourceTree = "<group>"; };
@@ -1909,6 +1910,7 @@
 		200BD859254F66EB00692903 /* Stitch */ = {
 			isa = PBXGroup;
 			children = (
+				B55591A42D06745700871B41 /* StitchSchemaKit */,
 				EC15E425260271C6006F2E08 /* Stitch.entitlements */,
 				200BD863254F66EE00692903 /* Info.plist */,
 				B5617A7B2C175C3C00B53DAF /* App */,
