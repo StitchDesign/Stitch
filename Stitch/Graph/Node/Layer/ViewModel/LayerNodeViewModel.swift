@@ -143,7 +143,6 @@ final class LayerNodeViewModel {
     var materialThicknessPort: LayerInputObserver
     var deviceAppearancePort: LayerInputObserver
     
-    var scrollContentLayerPort: LayerInputObserver
     var scrollContentSizePort: LayerInputObserver
     var scrollXEnabledPort: LayerInputObserver
     var scrollJumpToXStylePort: LayerInputObserver
@@ -310,7 +309,6 @@ final class LayerNodeViewModel {
         self.deviceAppearancePort = .init(from: schema, port: .deviceAppearance)
         self.materialThicknessPort = .init(from: schema, port: .materialThickness)
         
-        self.scrollContentLayerPort = .init(from: schema, port: .scrollContentLayer)
         self.scrollContentSizePort = .init(from: schema, port: .scrollContentSize)
         self.scrollXEnabledPort = .init(from: schema, port: .scrollXEnabled)
         self.scrollJumpToXStylePort = .init(from: schema, port: .scrollJumpToXStyle)

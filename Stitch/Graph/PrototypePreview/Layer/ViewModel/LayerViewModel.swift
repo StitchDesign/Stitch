@@ -204,7 +204,6 @@ final class LayerViewModel: Sendable {
     @MainActor var deviceAppearance: PortValue
     
     // Scroll inputs
-    @MainActor var scrollContentLayer: PortValue
     @MainActor var scrollContentSize: PortValue
     @MainActor var scrollXEnabled: PortValue
     @MainActor var scrollJumpToXStyle: PortValue
@@ -351,7 +350,6 @@ final class LayerViewModel: Sendable {
         self.materialThickness = LayerInputPort.materialThickness.getDefaultValue(for: layer)
         self.deviceAppearance = LayerInputPort.deviceAppearance.getDefaultValue(for: layer)
         
-        self.scrollContentLayer = LayerInputPort.scrollContentLayer.getDefaultValue(for: layer)
         self.scrollContentSize = LayerInputPort.scrollContentSize.getDefaultValue(for: layer)
         self.scrollXEnabled = LayerInputPort.scrollXEnabled.getDefaultValue(for: layer)
         self.scrollJumpToXStyle = LayerInputPort.scrollJumpToXStyle.getDefaultValue(for: layer)

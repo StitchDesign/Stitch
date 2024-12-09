@@ -257,8 +257,6 @@ extension LayerInputPort {
         case .deviceAppearance:
             return .deviceAppearance(.defaultDeviceAppearance)
         
-        case .scrollContentLayer:
-            return .assignedLayer(nil)
         case .scrollContentSize:
             return .size(.zero)
         case .scrollXEnabled:
@@ -493,8 +491,6 @@ extension LayerInputPort {
             return \.materialThicknessPort
         case .deviceAppearance:
             return \.deviceAppearancePort
-        case .scrollContentLayer:
-            return \.scrollContentLayerPort
         case .scrollContentSize:
             return \.scrollContentSizePort
         case .scrollXEnabled:
@@ -766,8 +762,6 @@ extension LayerViewModel {
         case .materialThickness:
             return self.materialThickness
             
-        case .scrollContentLayer:
-            return self.scrollContentLayer
         case .scrollContentSize:
             return self.scrollContentSize
         case .scrollXEnabled:
@@ -999,8 +993,6 @@ extension LayerViewModel {
             self.deviceAppearance = value
         case .materialThickness:
             self.materialThickness = value
-        case .scrollContentLayer:
-            self.scrollContentLayer = value
         case .scrollContentSize:
             self.scrollContentSize = value
         case .scrollXEnabled:
@@ -1224,8 +1216,6 @@ extension LayerInputPort {
             return \.materialThicknessPort
         case .deviceAppearance:
             return \.deviceAppearancePort
-        case .scrollContentLayer:
-            return \.scrollContentLayerPort
         case .scrollContentSize:
             return \.scrollContentSizePort
         case .scrollXEnabled:
@@ -1579,8 +1569,6 @@ extension LayerInputPort {
             return "Material"
         case .deviceAppearance:
             return useShortLabel ? "Appearance" : "Device Appearance"
-        case .scrollContentLayer:
-            return "Layer"
         case .scrollContentSize:
             return "Content Size"
         case .scrollXEnabled:

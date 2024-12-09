@@ -116,7 +116,6 @@ extension LayerNodeEntity {
          offsetInGroupPort: LayerInputEntity = .empty,
          materialThicknessPort: LayerInputEntity = .empty,
          deviceAppearancePort: LayerInputEntity = .empty,
-         scrollContentLayerPort: LayerInputEntity = .empty,
          scrollContentSizePort: LayerInputEntity = .empty,
          scrollXEnabledPort: LayerInputEntity = .empty,
          scrollJumpToXStylePort: LayerInputEntity = .empty,
@@ -248,7 +247,6 @@ extension LayerNodeEntity {
             deviceAppearancePort: deviceAppearancePort,
             materialThicknessPort: materialThicknessPort,
             
-            scrollContentLayerPort: scrollContentLayerPort,
             scrollContentSizePort: scrollContentSizePort,
             scrollXEnabledPort: scrollXEnabledPort,
             scrollJumpToXStylePort: scrollJumpToXStylePort,
