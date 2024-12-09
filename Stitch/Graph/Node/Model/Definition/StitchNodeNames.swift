@@ -500,6 +500,9 @@ Makes a given layer responsive to press interactions
 """
 
 let scrollInteractionDescription = """
+
+NOTE: Scroll Interactions are better supported through scroll inputs and outputs on a layer group. This is a legacy patch node.
+
 Adds scroll interaction to a specified layer. Scrolling can be either free or paged (carousel).
 
 *Inputs*

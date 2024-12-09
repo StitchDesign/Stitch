@@ -2031,7 +2031,6 @@
 			children = (
 				ECE08E422649D14D00996EE2 /* ScrollInteractionNode.swift */,
 				EC9AB64428DFE99B002810BC /* ScrollFreeInteractionHelpers.swift */,
-				EC1D03BC2CFF86FA0094EE9F /* NativeScrollInteraction.swift */,
 				EC9AB64628DFEA23002810BC /* ScrollPagingInteractionHelpers.swift */,
 				B5432D1F276A57800052E59F /* ScrollAnimation.swift */,
 				EC9AB64228DFE8FF002810BC /* ScrollData.swift */,
@@ -3680,6 +3679,7 @@
 		B5C093CA2C1A590F0011B4E9 /* Type */ = {
 			isa = PBXGroup;
 			children = (
+				EC1D03BC2CFF86FA0094EE9F /* NativeScrollInteraction.swift */,
 				E41140F02BB23054000C34E3 /* MapLayerNode.swift */,
 				E40EBAD12BB5D8DD00CCA3C3 /* SwitchLayerNode.swift */,
 				E4D7EA142BB33F4E0040BB77 /* ProgressIndicatorLayerNode.swift */,
@@ -6382,7 +6382,7 @@
 			repositoryURL = "https://github.com/StitchDesign/StitchSchemaKit";
 			requirement = {
 				kind = revision;
-				revision = 040106cf8478a4bb890c7d760fb6a575f081a488;
+				revision = fa6a962172f3477f7f53ea8d998632feb661815d;
 			};
 		};
 		EC1137362719F9B400ADCA72 /* XCRemoteSwiftPackageReference "swift-collections" */ = {

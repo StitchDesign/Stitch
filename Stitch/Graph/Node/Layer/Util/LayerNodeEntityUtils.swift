@@ -116,6 +116,16 @@ extension LayerNodeEntity {
          offsetInGroupPort: LayerInputEntity = .empty,
          materialThicknessPort: LayerInputEntity = .empty,
          deviceAppearancePort: LayerInputEntity = .empty,
+         scrollContentLayerPort: LayerInputEntity = .empty,
+         scrollContentSizePort: LayerInputEntity = .empty,
+         scrollXEnabledPort: LayerInputEntity = .empty,
+         scrollJumpToXStylePort: LayerInputEntity = .empty,
+         scrollJumpToXPort: LayerInputEntity = .empty,
+         scrollJumpToXLocationPort: LayerInputEntity = .empty,
+         scrollYEnabledPort: LayerInputEntity = .empty,
+         scrollJumpToYStylePort: LayerInputEntity = .empty,
+         scrollJumpToYPort: LayerInputEntity = .empty,
+         scrollJumpToYLocationPort: LayerInputEntity = .empty,
          hasSidebarVisibility: Bool,
          layerGroupId: NodeId?) {
         
@@ -237,6 +247,17 @@ extension LayerNodeEntity {
             
             deviceAppearancePort: deviceAppearancePort,
             materialThicknessPort: materialThicknessPort,
+            
+            scrollContentLayerPort: scrollContentLayerPort,
+            scrollContentSizePort: scrollContentSizePort,
+            scrollXEnabledPort: scrollXEnabledPort,
+            scrollJumpToXStylePort: scrollJumpToXStylePort,
+            scrollJumpToXPort: scrollJumpToXPort,
+            scrollJumpToXLocationPort: scrollJumpToXLocationPort,
+            scrollYEnabledPort: scrollYEnabledPort,
+            scrollJumpToYStylePort: scrollJumpToYStylePort,
+            scrollJumpToYPort: scrollJumpToYPort,
+            scrollJumpToYLocationPort: scrollJumpToYLocationPort,
             
             hasSidebarVisibility: hasSidebarVisibility,
             layerGroupId: layerGroupId)

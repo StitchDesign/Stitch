@@ -29,8 +29,6 @@ extension Patch {
             return pressInteractionDescription
         case .scrollInteraction:
             return scrollInteractionDescription
-        case .nativeScrollInteraction:
-            return nativeScrollInteractionDescription
         case .repeatingPulse:
             return repeatingPulseDescription
         case .delay:

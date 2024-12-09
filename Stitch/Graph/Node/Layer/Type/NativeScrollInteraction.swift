@@ -7,8 +7,10 @@
 
 import SwiftUI
 
-struct NativeScrollInteractionNode: PatchNodeDefinition {
-    static let patch = Patch.nativeScrollInteraction
+// Not needed anymore?
+//struct _NativeScrollInteractionNode: PatchNodeDefinition {
+struct NativeScrollInteractionNode {
+//    static let layer = Patch.nativeScrollInteraction
     
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
         .init(
@@ -83,16 +85,18 @@ struct NativeScrollInteractionNode: PatchNodeDefinition {
 func nativeScrollInteractionEval(node: PatchNode,
                                  state: GraphDelegate) -> EvalResult {
     
+    let defaultOutputs: PortValuesList =  [[.position(.zero)]]
+    
     guard !node.outputs.isEmpty else {
         log("nativeScrollInteractionEval: initializing outputs")
-        return .init(outputsValues: NativeScrollInteractionNode.defaultOutputs)
+        return .init(outputsValues: defaultOutputs)
     }
     
     guard let assignedLayerId: LayerNodeId = node.inputs.first?.first?.getInteractionId,
           let assignedLayerNode = state.getNodeViewModel(assignedLayerId.id),
           let assignedLayerNodeViewModel: LayerNodeViewModel = assignedLayerNode.layerNode else {
         log("nativeScrollInteractionEval: no assignedLayerId, assignedLayerNode and/or assignedLayerNodeViewModel for \(node.id)")
-        return .init(outputsValues: NativeScrollInteractionNode.defaultOutputs)
+        return .init(outputsValues: defaultOutputs)
     }
         
     return node.loopedEval(graphState: state) { values, interactiveLayer, loopIndex in

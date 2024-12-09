@@ -110,8 +110,6 @@ extension Patch {
             return .node(outputsOnlyEval(transitionEval))
         case .scrollInteraction:
             return .graph(scrollInteractionEval)
-        case .nativeScrollInteraction:
-            return .graph(nativeScrollInteractionEval)
         case .sampleAndHold:
             return .graphStep(sampleAndHoldEval)
         case .grayscale:
