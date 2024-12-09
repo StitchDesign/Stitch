@@ -169,24 +169,18 @@ extension LayerSize {
  ?? When ScrollView.onScrollGeometry fires, we update the LayerViewModel's InteractiveLayer, then call the nativeScrollInteractionEval.
  */
 @MainActor
-func nativeScrollInteractionEval(node: PatchNode,
+func nativeScrollInteractionEval(node: LayerNode,
                                  state: GraphDelegate) -> EvalResult {
-    log("nativeScrollInteractionEval called")
+    
     let defaultOutputs: PortValuesList =  [[.position(.zero)]]
     
     guard !node.outputs.isEmpty else {
         log("nativeScrollInteractionEval: initializing outputs")
         return .init(outputsValues: defaultOutputs)
     }
-    
-    guard let assignedLayerId: LayerNodeId = node.inputs.first?.first?.getInteractionId,
-          let assignedLayerNode = state.getNodeViewModel(assignedLayerId.id),
-          let assignedLayerNodeViewModel: LayerNodeViewModel = assignedLayerNode.layerNode else {
-        log("nativeScrollInteractionEval: no assignedLayerId, assignedLayerNode and/or assignedLayerNodeViewModel for \(node.id)")
-        return .init(outputsValues: defaultOutputs)
-    }
         
-    return node.loopedEval(graphState: state) { values, interactiveLayer, loopIndex in
+    return node.loopedEval(graphState: state,
+                           layerNodeId: node.id) { values, interactiveLayer, loopIndex in
         
         nativeScrollInteractionEvalOp(
             values: values,
@@ -208,11 +202,10 @@ func nativeScrollInteractionEvalOp(values: PortValues,
                                    currentGraphTime: TimeInterval,
                                    currentGraphFrameCount: Int) -> ImpureEvalOpResult {
     
-    log("nativeScrollInteractionEvalOp called")
     // Update interactiveLayer according to inputs
-    // Note: only update the properties that changed
-    
+    // Note: only update the properties that changed, else @Observable fires unnecessarily
 
+    
     // Scroll enabled
     
     let xScrollEnabled = values[safe: NativeScrollNodeInputLocations.xScrollEnabled]?.getBool ?? NativeScrollInteractionNode.defaultScrollXEnabled

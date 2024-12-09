@@ -268,7 +268,7 @@ extension LayerInputPort {
         case .scrollJumpToX:
             return .pulse(.zero)
         case .scrollJumpToXLocation:
-            return .position(.zero)
+            return .number(.zero)
         case .scrollYEnabled:
             return .bool(NativeScrollInteractionNode.defaultScrollYEnabled)
         case .scrollJumpToYStyle:
@@ -276,7 +276,7 @@ extension LayerInputPort {
         case .scrollJumpToY:
             return .pulse(.zero)
         case .scrollJumpToYLocation:
-            return .position(.zero)
+            return .number(.zero)
         }
     }
     

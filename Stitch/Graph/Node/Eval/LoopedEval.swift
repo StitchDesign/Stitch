@@ -50,12 +50,14 @@ extension NodeViewModel {
     // TODO: clean up this code, combine some of the logic into common functions
     @MainActor
     func loopedEval<EvalOpResult: NodeEvalOpResult>(graphState: GraphDelegate,
+                                                    // The layer node whose layer view models we will look at;
+                                                    // can be assigned-layer (interaction patch node) or layer itself (e.g. group layer scrolling)
+                                                    layerNodeId: NodeId,
                                                     evalOp: @escaping NodeInteractiveOp<EvalOpResult>) -> [EvalOpResult] {
         let inputsValues = self.inputs
         let loopCount = getLongestLoopLength(inputsValues)
 
-        guard let interactionLayerId = inputs.first?.first?.getInteractionId,
-              let layerNode = graphState.getNodeViewModel(interactionLayerId.id)?.layerNode else {
+        guard let layerNode = graphState.getNodeViewModel(layerNodeId)?.layerNode else {
             return [0..<loopCount].map { _ in
                 return .init(from: self.defaultOutputs)
             }
