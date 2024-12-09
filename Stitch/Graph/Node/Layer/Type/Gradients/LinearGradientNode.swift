@@ -10,7 +10,7 @@ import SwiftUI
 import StitchSchemaKit
 @preconcurrency import OrderedCollections
 
-public typealias LayerInputTypeSet = OrderedSet<LayerInputPort>
+public typealias LayerInputPortSet = OrderedSet<LayerInputPort>
 let DEFAULT_GRADIENT_START_COLOR = Color(.yellow)
 let DEFAULT_GRADIENT_END_COLOR = Color(.blue)
 
@@ -18,7 +18,7 @@ struct LinearGradientLayerNode: LayerNodeDefinition {
     
     static let layer = Layer.linearGradient
     
-    static let inputDefinitions: LayerInputTypeSet = .init([
+    static let inputDefinitions: LayerInputPortSet = .init([
         .enabled,
         .position,
         .size,

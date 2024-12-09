@@ -52,7 +52,7 @@ extension FieldGroupTypeViewModel {
  * size = { 100, 100 }
  * position = { "Multi", 0 }
  */
-extension LayerInputTypeSet {
+extension LayerInputPortSet {
     // Note: this loses information about the heterogenous values etc.
     @MainActor
     func asLayerInputObserverDict(_ graph: GraphState) -> LayerInputObserverDict {
@@ -71,7 +71,7 @@ typealias LayerInputObserverDict = [LayerInputPort: LayerInputObserver]
 extension LayerNodeViewModel {
     
     @MainActor
-    func filteredLayerInputObserverDict(supportedInputs: LayerInputTypeSet) -> LayerInputObserverDict {
+    func filteredLayerInputObserverDict(supportedInputs: LayerInputPortSet) -> LayerInputObserverDict {
         
         LayerInputPort.allCases.reduce(into: LayerInputObserverDict()) { partialResult, layerInput in
             if supportedInputs.contains(layerInput) {

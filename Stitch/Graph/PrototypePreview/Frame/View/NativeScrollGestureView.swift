@@ -7,6 +7,18 @@
 
 import SwiftUI
 
+// Scroll helper extensions
+extension LayerViewModel {
+    @MainActor
+    var isScrollXEnabled: Bool {
+        self.scrollXEnabled.getBool ?? NativeScrollInteractionNode.defaultScrollXEnabled
+    }
+    
+    @MainActor
+    var isScrollYEnabled: Bool {
+        self.scrollYEnabled.getBool ?? NativeScrollInteractionNode.defaultScrollYEnabled
+    }
+}
 
 struct NativeScrollGestureView<T: View>: View {
     
@@ -14,12 +26,18 @@ struct NativeScrollGestureView<T: View>: View {
     @Bindable var graph: GraphState
     @ViewBuilder var view: () -> T
         
+    @MainActor
     var hasScrollInteraction: Bool {
-        let scrollPatchesDict: [LayerNodeId: NodeIdSet] = graph.scrollInteractionNodes
-        // log("NativeScrollGestureView: hasScrollInteraction: scrollPatchesDict: \(scrollPatchesDict)")
-        let assignedScrollPatches: NodeIdSet = scrollPatchesDict.get(layerViewModel.id.layerNodeId) ?? .init()
-        // log("NativeScrollGestureView: hasScrollInteraction: assignedScrollPatches: \(assignedScrollPatches)")
-        let _hasScrollInteraction = !assignedScrollPatches.isEmpty
+        
+//        
+//        let scrollPatchesDict: [LayerNodeId: NodeIdSet] = graph.scrollInteractionNodes
+//        // log("NativeScrollGestureView: hasScrollInteraction: scrollPatchesDict: \(scrollPatchesDict)")
+//        let assignedScrollPatches: NodeIdSet = scrollPatchesDict.get(layerViewModel.id.layerNodeId) ?? .init()
+//        // log("NativeScrollGestureView: hasScrollInteraction: assignedScrollPatches: \(assignedScrollPatches)")
+         
+        // TODO: look instead at the eval-updated NativeScrollInteractionLayer.xScrollEnabled ?
+        let _hasScrollInteraction = layerViewModel.isScrollXEnabled || layerViewModel.isScrollYEnabled
+        //!assignedScrollPatches.isEmpty
         
         log("NativeScrollGestureView: hasScrollInteraction: _hasScrollInteraction: \(_hasScrollInteraction)")
         
@@ -114,6 +132,9 @@ struct NativeScrollGestureViewInner: ViewModifier {
                 x: (-newValue.x).asPositiveZero,
                 y: (-newValue.y).asPositiveZero
             )
+            
+            graph.calculate(layerViewModel.id.layerNodeId.asNodeId)
+            
         } // .onScrollGeometryChange
         
         // TODO: how to tackle some of the awkward scrolling that happens after we toggle x/y scroll enabled ?

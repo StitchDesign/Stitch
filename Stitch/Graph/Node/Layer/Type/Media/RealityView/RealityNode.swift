@@ -13,7 +13,7 @@ struct RealityViewLayerNode: LayerNodeDefinition {
     
     static let layer = Layer.realityView
     
-    static let inputDefinitions: LayerInputTypeSet = .init([
+    static let inputDefinitions: LayerInputPortSet = .init([
         .allAnchors,
         .cameraDirection,
         .position,

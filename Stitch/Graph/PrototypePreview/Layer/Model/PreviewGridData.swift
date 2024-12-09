@@ -479,7 +479,7 @@ extension LayerNodeViewModel {
 
     @MainActor
     func blockPinInputs() {
-        LayerInputTypeSet.pinning.forEach {
+        LayerInputPortSet.pinning.forEach {
             // Do not block the `isPinned` input itself
             if $0 != .isPinned {
                 // packed = block entire input
@@ -501,7 +501,7 @@ extension LayerNodeViewModel {
 
     @MainActor
     func unblockPinInputs() {
-        LayerInputTypeSet.pinning.forEach {
+        LayerInputPortSet.pinning.forEach {
             // Do not block the `isPinned` input itself
             if $0 != .isPinned {
                 // packed = unblock entire input

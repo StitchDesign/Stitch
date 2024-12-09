@@ -36,7 +36,7 @@ struct Model3DLayerNode: LayerNodeDefinition {
     
     static let layer = Layer.model3D
 
-    static let inputDefinitions: LayerInputTypeSet = .init([
+    static let inputDefinitions: LayerInputPortSet = .init([
         .model3D,
         .position,
         .rotationX,

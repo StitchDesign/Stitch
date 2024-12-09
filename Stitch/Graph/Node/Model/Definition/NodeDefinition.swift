@@ -41,7 +41,7 @@ extension PatchNodeDefinition {
 
 extension Layer {
     @MainActor
-    var inputDefinitions: LayerInputTypeSet {
+    var inputDefinitions: LayerInputPortSet {
         self.layerGraphNode.inputDefinitions
     }
 }
@@ -52,7 +52,7 @@ protocol LayerNodeDefinition: NodeDefinition {
     
     static var layer: Layer { get }
     
-    @MainActor static var inputDefinitions: LayerInputTypeSet { get }
+    @MainActor static var inputDefinitions: LayerInputPortSet { get }
     
     @MainActor
     static func content(document: StitchDocumentViewModel,
