@@ -162,8 +162,8 @@ extension LayerInputPort {
             return .textDecoration(.defaultLayerTextDecoration)
         case .textFont:
             return .textFont(.defaultStitchFont)
-        case .image, .video, .model3D:
-            return .asyncMedia(nil)
+        case .image, .video, .model3D, .anchorEntity:
+            return .assignedLayer(nil)
         case .fitStyle:
             return .fitStyle(.fill)
         case .clipped:
@@ -480,6 +480,8 @@ extension LayerInputPort {
             return \.scale3DPort
         case .rotation3D:
             return \.rotation3DPort
+        case .anchorEntity:
+            return \.anchorEntityPort
         }
     }
     
@@ -732,6 +734,8 @@ extension LayerViewModel {
             return self.scale3D
         case .rotation3D:
             return self.rotation3D
+        case .anchorEntity:
+            return self.anchorEntity
         }
     }
     
@@ -947,6 +951,8 @@ extension LayerViewModel {
             self.scale3D = value
         case .rotation3D:
             self.rotation3D = value
+        case .anchorEntity:
+            self.anchorEntity = value
         }
     }
 }
@@ -1156,6 +1162,8 @@ extension LayerInputPort {
             return \.scale3DPort
         case .rotation3D:
             return \.rotation3DPort
+        case .anchorEntity:
+            return \.anchorEntityPort
         }
     }
     
@@ -1495,6 +1503,8 @@ extension LayerInputPort {
             return "Scale"
         case .rotation3D:
             return "Rotation"
+        case .anchorEntity:
+            return "Anchor Entity"
         }
     }
 
