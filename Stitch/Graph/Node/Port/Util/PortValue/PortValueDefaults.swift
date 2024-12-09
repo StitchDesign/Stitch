@@ -236,6 +236,8 @@ extension PortValue {
             return .materialThickness(.defaultMaterialThickness)
         case .deviceAppearance:
             return .deviceAppearance(.defaultDeviceAppearance)
+        case .anchorEntity:
+            return .anchorEntity(nil)
         }
     }
 }

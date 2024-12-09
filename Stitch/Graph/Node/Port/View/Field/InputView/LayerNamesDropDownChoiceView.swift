@@ -10,7 +10,7 @@ import StitchSchemaKit
 import SwiftUI
 import OrderedCollections
 
-struct LayerDropdownChoice: Equatable, Identifiable, Codable, Hashable {
+struct LayerDropdownChoice: Equatable, Identifiable, Hashable {
     let id: String // uuid for layers; but non-uuid string for Root or Parent PinTo's
     let name: String
 }

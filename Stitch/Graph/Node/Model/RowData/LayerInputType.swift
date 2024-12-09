@@ -162,8 +162,10 @@ extension LayerInputPort {
             return .textDecoration(.defaultLayerTextDecoration)
         case .textFont:
             return .textFont(.defaultStitchFont)
-        case .image, .video, .model3D, .anchorEntity:
-            return .assignedLayer(nil)
+        case .image, .video, .model3D:
+            return .asyncMedia(nil)
+        case .anchorEntity:
+            return .anchorEntity(nil)
         case .fitStyle:
             return .fitStyle(.fill)
         case .clipped:
