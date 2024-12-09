@@ -16,7 +16,7 @@ struct AngularGradientLayerNode: LayerNodeDefinition {
     
     static let layer = Layer.angularGradient
     
-    static let inputDefinitions: LayerInputTypeSet = .init([
+    static let inputDefinitions: LayerInputPortSet = .init([
         .enabled,
         .size,
         .position,

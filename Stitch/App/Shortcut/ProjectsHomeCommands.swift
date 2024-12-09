@@ -246,12 +246,13 @@ struct ProjectsHomeCommands: Commands {
                     dispatch(NodeCreatedEvent(choice: .patch(.keyboard)))
                 }
                 
-                SwiftUIShortcutView(title: "Insert Scroll Node",
-                                    key: SCROLL_NODE_SHORTCUT,
-                                    eventModifiers: [.option],
-                                    disabled: textFieldFocused) {
-                    dispatch(NodeCreatedEvent(choice: .patch(.scrollInteraction)))
-                }
+                // NO LONGER SUPPORTED NOW THAT WE PREFER LAYER GROUPS FOR SCROLLING
+//                SwiftUIShortcutView(title: "Insert Scroll Node",
+//                                    key: SCROLL_NODE_SHORTCUT,
+//                                    eventModifiers: [.option],
+//                                    disabled: textFieldFocused) {
+//                    dispatch(NodeCreatedEvent(choice: .patch(.scrollInteraction)))
+//                }
                 
                 SwiftUIShortcutView(title: "Insert Equals Node",
                                     key: EQUALS_NODE_SHORTCUT,

@@ -13,6 +13,7 @@ typealias NodeEphemeralObservableOp<T, EphemeralObserver> = (PortValues, Ephemer
 typealias NodeEphemeralObservableListOp<EphemeralObserver> = (PortValues, EphemeralObserver) -> PortValuesList where EphemeralObserver: NodeEphemeralObservable
 typealias NodeEphemeralInteractiveOp<T, EphemeralObserver> = (PortValues, EphemeralObserver, InteractiveLayer, Int) -> T where EphemeralObserver: NodeEphemeralObservable
 typealias NodeInteractiveOp<T> = (PortValues, InteractiveLayer, Int) -> T
+typealias NodeLayerViewModelInteractiveOp<T> = (LayerViewModel, InteractiveLayer, Int) -> T
 
 /// Allows for generic results while ensure there's some way to get default output values.
 protocol NodeEvalOpResult {
@@ -44,6 +45,33 @@ extension NodeViewModel {
                 return .init(from: self.defaultOutputs)
             }
             return evalOp(values, ephemeralObserver, interactiveLayer, loopIndex)
+        }
+    }
+    
+    // TODO: clean up this code, combine some of the logic into common functions
+    @MainActor
+    func loopedEval<EvalOpResult: NodeEvalOpResult>(graphState: GraphDelegate,
+                                                    // The layer node whose layer view models we will look at;
+                                                    // can be assigned-layer (interaction patch node) or layer itself (e.g. group layer scrolling)
+                                                    layerNodeId: NodeId,
+                                                    evalOp: @escaping NodeLayerViewModelInteractiveOp<EvalOpResult>) -> [EvalOpResult] {
+        let inputsValues = self.inputs
+        let loopCount = getLongestLoopLength(inputsValues)
+
+        guard let layerNode = graphState.getNodeViewModel(layerNodeId)?.layerNode else {
+            return [0..<loopCount].map { _ in
+                return .init(from: self.defaultOutputs)
+            }
+        }
+        
+        let lengthenedPreviewLayers = adjustArrayLength(loop: layerNode.previewLayerViewModels,
+                                                        length: max(loopCount, layerNode.previewLayerViewModels.count))
+        
+        return self.loopedEval(minLoopCount: layerNode.previewLayerViewModels.count) { values, loopIndex in
+            guard let layerViewModel = lengthenedPreviewLayers[safe: loopIndex] else {
+                return .init(from: self.defaultOutputs)
+            }
+            return evalOp(layerViewModel, layerViewModel.interactiveLayer, loopIndex)
         }
     }
     

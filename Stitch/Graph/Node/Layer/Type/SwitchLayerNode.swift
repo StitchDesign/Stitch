@@ -22,7 +22,7 @@ struct SwitchLayerNode: LayerNodeDefinition {
               layer: Self.layer)
     }
     
-    static let inputDefinitions: LayerInputTypeSet = .init([
+    static let inputDefinitions: LayerInputPortSet = .init([
         .isSwitchToggled,
         .position,
         .rotationX,

@@ -43,7 +43,7 @@ extension [NodeOutputDefinition] {
 }
 
 extension NodeRowDefinitions {
-    init(layerInputs: LayerInputTypeSet,
+    init(layerInputs: LayerInputPortSet,
          outputs: [NodeOutputDefinition] = [],
          layer: Layer) {
         let inputs = layerInputs.map { layerInput in

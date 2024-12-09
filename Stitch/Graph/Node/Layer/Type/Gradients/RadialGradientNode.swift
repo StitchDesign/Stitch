@@ -16,7 +16,7 @@ struct RadialGradientLayerNode: LayerNodeDefinition {
     
     static let layer = Layer.radialGradient
     
-    static let inputDefinitions: LayerInputTypeSet = .init([
+    static let inputDefinitions: LayerInputPortSet = .init([
         .enabled,
         .size,
         .position,

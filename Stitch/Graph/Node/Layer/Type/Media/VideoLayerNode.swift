@@ -15,7 +15,7 @@ let defaultMediaFitStyle = VisualMediaFitStyle.fill
 struct VideoLayerNode: LayerNodeDefinition {
     static let layer = Layer.video
     
-    static let inputDefinitions: LayerInputTypeSet = .init([
+    static let inputDefinitions: LayerInputPortSet = .init([
         .video,
         .position,
         .rotationX,

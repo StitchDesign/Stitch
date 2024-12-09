@@ -41,7 +41,7 @@ let defaultTextSize = CGSize(width: 200, height: 75).toLayerSize
 struct TextLayerNode: LayerNodeDefinition {
     static let layer = Layer.text
 
-    static let inputDefinitions: LayerInputTypeSet = .init([
+    static let inputDefinitions: LayerInputPortSet = .init([
         .text,
         .color,
         .position,

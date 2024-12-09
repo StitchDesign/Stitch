@@ -57,7 +57,14 @@ let DEFAULT_GROUP_BACKGROUND_COLOR: Color = .clear
 struct GroupLayerNode: LayerNodeDefinition {
     static let layer = Layer.group
     
-    static let inputDefinitions: LayerInputTypeSet = .init([
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(layerInputs: Self.inputDefinitions,
+              outputs: [.init(label: "Scroll Offset",
+                              type: .position)],
+              layer: Self.layer)
+    }
+    
+    static let inputDefinitions: LayerInputPortSet = .init([
         .position,
         .size,
         .zIndex,
@@ -80,7 +87,20 @@ struct GroupLayerNode: LayerNodeDefinition {
         .shadowOffset,
         .spacingBetweenGridColumns,
         .spacingBetweenGridRows,
-        .itemAlignmentWithinGridCell
+        .itemAlignmentWithinGridCell,
+        
+        // Layer scrolling via group layer
+        .scrollContentSize,
+        
+        .scrollXEnabled,
+        .scrollJumpToXStyle,
+        .scrollJumpToX,
+        .scrollJumpToXLocation,
+        
+        .scrollYEnabled,
+        .scrollJumpToYStyle,
+        .scrollJumpToY,
+        .scrollJumpToYLocation
     ])
         .union(.layerEffects)
         .union(.strokeInputs)
@@ -138,4 +158,97 @@ struct GroupLayerNode: LayerNodeDefinition {
 
 extension LayerSize {
     static let defaultLayerGroupSize = LayerSize(width: .fill, height: .fill)
+}
+
+/*
+ Inputs are extended to be as long as the longest loop on the *assigned layer*
+ 
+ Eval modifies underlying layer view models.
+ 
+ ?? When ScrollView.onScrollGeometry fires, we update the LayerViewModel's InteractiveLayer, then call the nativeScrollInteractionEval.
+ */
+@MainActor
+func nativeScrollInteractionEval(node: LayerNode,
+                                 state: GraphDelegate) -> EvalResult {
+    
+    log("nativeScrollInteractionEval: called")
+    let defaultOutputs: PortValuesList =  [[.position(.zero)]]
+    
+    guard !node.outputs.isEmpty else {
+        log("nativeScrollInteractionEval: initializing outputs")
+        return .init(outputsValues: defaultOutputs)
+    }
+        
+    return node.loopedEval(graphState: state,
+                           layerNodeId: node.id) { layerViewModel, interactiveLayer, loopIndex in
+        
+        nativeScrollInteractionEvalOp(
+            layerViewModel: layerViewModel,
+            interactiveLayer: interactiveLayer,
+            // TODO: DEC 3: grab parentSize from readSize of `assignedLayerNodeViewModel.layerGroupdId` ?
+            parentSize: interactiveLayer.parentSize,
+            currentGraphTime: state.graphStepState.graphTime,
+            currentGraphFrameCount: state.graphStepState.graphFrameCount)
+        
+    }
+    .toImpureEvalResult()
+    
+}
+
+@MainActor
+func nativeScrollInteractionEvalOp(layerViewModel: LayerViewModel, // for the grop
+                                   interactiveLayer: InteractiveLayer,
+                                   parentSize: CGSize,
+                                   currentGraphTime: TimeInterval,
+                                   currentGraphFrameCount: Int) -> ImpureEvalOpResult {
+    
+    log("nativeScrollInteractionEvalOp: called")
+    
+    // Update interactiveLayer according to inputs
+    // Note: only update the properties that changed, else @Observable fires unnecessarily
+
+    // Jump X
+    let jumpToX = layerViewModel.scrollJumpToX.getPulse ?? .zero
+    let newJumpToX = jumpToX == currentGraphTime
+    if interactiveLayer.nativeScrollState.jumpToX != newJumpToX {
+        interactiveLayer.nativeScrollState.jumpToX = newJumpToX
+    }
+
+    // Jump Y
+    let jumpToY = layerViewModel.scrollJumpToY.getPulse ?? .zero
+    let newJumpToY = jumpToY == currentGraphTime
+    if interactiveLayer.nativeScrollState.jumpToY != newJumpToY {
+        interactiveLayer.nativeScrollState.jumpToY = newJumpToY
+    }
+        
+    // Graph reset
+    let graphReset = Int(currentGraphFrameCount) == Int(2)
+    if interactiveLayer.nativeScrollState.graphReset != graphReset {
+        interactiveLayer.nativeScrollState.graphReset = graphReset
+    }
+    
+    let offsetFromScrollView = interactiveLayer.nativeScrollState.rawScrollViewOffset
+    
+    return .init(outputs: [
+        .position(offsetFromScrollView)
+    ])
+}
+
+
+struct NativeScrollNodeInputLocations {
+    // The specific assigned layer (LayerNodeId)
+    static let assignedLayer = 0
+
+    static let xScrollEnabled = 1
+    static let yScrollEnabled = 2
+
+    static let contentSize = 3
+
+    static let jumpStyleX = 4
+    static let jumpToX = 5
+    static let jumpPositionX = 6
+
+    static let jumpStyleY = 7
+    static let jumpToY = 8
+    static let jumpPositionY = 9
 }

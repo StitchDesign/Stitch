@@ -25,7 +25,7 @@ struct CanvasSketchLayerNode: LayerNodeDefinition {
               layer: Self.layer)
     }
     
-    static let inputDefinitions: LayerInputTypeSet = .init([
+    static let inputDefinitions: LayerInputPortSet = .init([
         .canvasLineColor,
         .canvasLineWidth,
         .position,

@@ -12,7 +12,7 @@ import StitchSchemaKit
 struct ImageLayerNode: LayerNodeDefinition {
     static let layer = Layer.image
     
-    static let inputDefinitions: LayerInputTypeSet = .init([
+    static let inputDefinitions: LayerInputPortSet = .init([
         .image,
         .position,
         .rotationX,

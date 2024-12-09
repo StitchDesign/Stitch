@@ -32,9 +32,9 @@ extension Layer {
     
     var supportsOutputs: Bool {
         switch self {
-        case .canvasSketch, .textField, .switchLayer:
+        case .canvasSketch, .textField, .switchLayer, .group:
             return true
-        case .text, .oval, .rectangle, .image, .group, .video, .model3D, .realityView, .shape, .colorFill, .hitArea, .map, .progressIndicator, .linearGradient, .radialGradient, .angularGradient, .sfSymbol, .videoStreaming, .material:
+        case .text, .oval, .rectangle, .image, .video, .model3D, .realityView, .shape, .colorFill, .hitArea, .map, .progressIndicator, .linearGradient, .radialGradient, .angularGradient, .sfSymbol, .videoStreaming, .material:
             return false
         }
     }

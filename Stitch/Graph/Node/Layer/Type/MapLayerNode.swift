@@ -22,7 +22,7 @@ struct MapLayerNode: LayerNodeDefinition {
     
     static let layer = Layer.map
     
-    static let inputDefinitions: LayerInputTypeSet = .init([
+    static let inputDefinitions: LayerInputPortSet = .init([
         .mapType,
         .mapLatLong,
         .mapSpan,
