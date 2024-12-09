@@ -232,6 +232,7 @@
 		B5D689BB2758203B0086C297 /* PreviewWindowElementUIKitGestures.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D689BA2758203B0086C297 /* PreviewWindowElementUIKitGestures.swift */; };
 		B5D689BD275833390086C297 /* ProjectAlertState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D689BC275833390086C297 /* ProjectAlertState.swift */; };
 		B5D689BF275836390086C297 /* ProjectAlertActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D689BE275836390086C297 /* ProjectAlertActions.swift */; };
+		B5D6CBF72D06ADB90024B283 /* AnchorEntitiesDropdownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D6CBF62D06ADAE0024B283 /* AnchorEntitiesDropdownView.swift */; };
 		B5D7EC79298DDEF300549E80 /* StitchEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D7EC78298DDEF300549E80 /* StitchEnvironment.swift */; };
 		B5DB632E2C61A8C900B78B68 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B5DB632D2C61A8C900B78B68 /* StitchEngine */; };
 		B5DDF6FE293AD24C00D72220 /* GraphStepManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5DDF6FD293AD24C00D72220 /* GraphStepManager.swift */; };
@@ -1153,6 +1154,7 @@
 		B5D689BA2758203B0086C297 /* PreviewWindowElementUIKitGestures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewWindowElementUIKitGestures.swift; sourceTree = "<group>"; };
 		B5D689BC275833390086C297 /* ProjectAlertState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectAlertState.swift; sourceTree = "<group>"; };
 		B5D689BE275836390086C297 /* ProjectAlertActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectAlertActions.swift; sourceTree = "<group>"; };
+		B5D6CBF62D06ADAE0024B283 /* AnchorEntitiesDropdownView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnchorEntitiesDropdownView.swift; sourceTree = "<group>"; };
 		B5D7EC78298DDEF300549E80 /* StitchEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchEnvironment.swift; sourceTree = "<group>"; };
 		B5DDF6FD293AD24C00D72220 /* GraphStepManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphStepManager.swift; sourceTree = "<group>"; };
 		B5DDF6FF293BC69B00D72220 /* NetworkRequestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkRequestUtils.swift; sourceTree = "<group>"; };
@@ -3905,6 +3907,7 @@
 		EC343B8D2822EB5900104E82 /* InputView */ = {
 			isa = PBXGroup;
 			children = (
+				B5D6CBF62D06ADAE0024B283 /* AnchorEntitiesDropdownView.swift */,
 				B57B27382A77522A007D6A4F /* FieldValueNumberView.swift */,
 				EC1E7A6E287D228C00144D05 /* BoolCheckboxView.swift */,
 				ECAB9FF72A588E800036EBEA /* AnchorPopoverView.swift */,
@@ -5140,6 +5143,7 @@
 				B53B1D96289E265900489652 /* StitchVideoPlayer.swift in Sources */,
 				B5976C1D2980CBC00082BF14 /* StitchEntity.swift in Sources */,
 				ECB7C71E28A56C2200252DE7 /* ClassicAnimationPosition.swift in Sources */,
+				B5D6CBF72D06ADB90024B283 /* AnchorEntitiesDropdownView.swift in Sources */,
 				B530494727A0CBF500D970BB /* ViewUtils.swift in Sources */,
 				ECCFB3622C35DFCB00E94D60 /* NumericalLayerDimension.swift in Sources */,
 				ECB1B7B426FB9DFF006D9C95 /* MediaLibrary.swift in Sources */,

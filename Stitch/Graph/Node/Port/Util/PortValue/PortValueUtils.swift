@@ -505,6 +505,15 @@ extension PortValue {
             return nil
         }
     }
+    
+    var anchorEntity: UUID? {
+        switch self {
+        case .anchorEntity(let nodeId):
+            return nodeId
+        default:
+            return nil
+        }
+    }
 }
 
 extension SizingScenario {
