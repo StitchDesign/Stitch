@@ -239,7 +239,6 @@ extension LayerInspectorView {
     
     @MainActor
     static let groupScrolling: LayerInputPortSet = [
-        .scrollContentLayer,
         .scrollContentSize,
         
         .scrollXEnabled,

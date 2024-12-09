@@ -265,7 +265,8 @@ struct PreviewGroupLayer: View {
 //                          isGhostView: !isPinnedViewRendering)
         
         NativeScrollGestureView(layerViewModel: layerViewModel,
-                                graph: graph) {
+                                graph: graph,
+                                parentSize: parentSize) {
             
             PreviewLayersView(document: document,
                               graph: graph,

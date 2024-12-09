@@ -66,7 +66,7 @@ struct NativeScrollInteractionNode {
     }
 
     static let defaultScrollXEnabled: Bool = false
-    static let defaultScrollYEnabled: Bool = true
+    static let defaultScrollYEnabled: Bool = false
     
     static let defaultIndicatorsHidden: Bool = true
     

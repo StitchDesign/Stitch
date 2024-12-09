@@ -20,10 +20,31 @@ extension LayerViewModel {
     }
 }
 
+extension LayerViewModel {
+    // Empty = all scrolling is disabled
+    @MainActor
+    var scrollAxes: Axis.Set {
+        var axes: Axis.Set = []
+        
+        if self.isScrollXEnabled {
+            axes.insert(.horizontal)
+        }
+        
+        if self.isScrollYEnabled {
+            axes.insert(.vertical)
+        }
+        
+        return axes
+    }
+}
+
+
 struct NativeScrollGestureView<T: View>: View {
     
     let layerViewModel: LayerViewModel
     @Bindable var graph: GraphState
+    let parentSize: CGSize
+    
     @ViewBuilder var view: () -> T
         
     @MainActor
@@ -50,7 +71,8 @@ struct NativeScrollGestureView<T: View>: View {
             view()
                 .modifier(NativeScrollGestureViewInner(
                     layerViewModel: layerViewModel,
-                    graph: graph))
+                    graph: graph,
+                    parentSize: parentSize))
         } else {
             view()
         }
@@ -62,6 +84,8 @@ struct NativeScrollGestureViewInner: ViewModifier {
     let layerViewModel: LayerViewModel
     
     @Bindable var graph: GraphState
+    
+    let parentSize: CGSize
         
     // Raw, unchanged offset reported by the ScrollView; used to:
     // (1) offset the ScrollView's displacement of the layer and
@@ -76,7 +100,23 @@ struct NativeScrollGestureViewInner: ViewModifier {
     }
     
     var scrollAxes: Axis.Set {
-        self.nativeScrollState.scrollAxes
+        layerViewModel.scrollAxes
+    }
+    
+    var customContentSize: CGSize {
+        if let contentSize = layerViewModel.scrollContentSize.getSize {
+            return contentSize.asCGSize(parentSize)
+        } else {
+            return .zero // .zero = ignore custom content size
+        }
+    }
+    
+    var customContentWidth: CGFloat? {
+        customContentSize.width > 0 ? customContentSize.width : nil
+    }
+    
+    var customContentHeight: CGFloat? {
+        customContentSize.height > 0 ? customContentSize.height : nil
     }
     
     @State var viewId: UUID = .init()
@@ -84,21 +124,17 @@ struct NativeScrollGestureViewInner: ViewModifier {
     func body(content: Content) -> some View {
         // logInView("NativeScrollGestureViewInner: var body")
         
-        ScrollView(scrollAxes) {
+        ScrollView(self.scrollAxes) {
             
             content
             
-//            // apply additional `.frame` for custom content size; but only if that dimension is > 0
-                .frame(width: nativeScrollState.contentSize.width > 0 ? nativeScrollState.contentSize.width : nil)
-                .frame(height: nativeScrollState.contentSize.height > 0 ? nativeScrollState.contentSize.height : nil)
-                
-//                .border(.teal, width: 16)
+            // apply additional `.frame` for custom content size; but only if that dimension is > 0
+                .frame(width: self.customContentWidth)
+                .frame(height: self.customContentHeight)
             
             // factor out parent-scroll's offset, so that view does not move unless we explicitly connect scroll interaction node's output to the layer's position input
                 .offset(x: self.scrollOffset.x,
                         y: self.scrollOffset.y)
-            
-//                .border(.green, width: 12)
         }
         
         /*
@@ -122,7 +158,7 @@ struct NativeScrollGestureViewInner: ViewModifier {
             geometry.contentOffset
         } action: { oldValue, newValue in
             // log("NativeScrollGestureViewInner: onScrollGeometryChange: newValue \(newValue) for layerViewModel.id \(layerViewModel.id)")
-            // log("NativeScrollGestureViewInner: onScrollGeometryChange: newValue \(newValue)")
+             log("NativeScrollGestureViewInner: onScrollGeometryChange: newValue \(newValue)")
             
             // Always update the raw, unmodified scrollOffset, so that child is not automatically moved as parent moves
             self.scrollOffset = newValue
@@ -166,17 +202,18 @@ struct NativeScrollGestureViewInner: ViewModifier {
         
         .onChange(of: nativeScrollState.jumpToX) { _, newValue in
 
-            guard newValue && nativeScrollState.xScrollEnabled else {
+            guard newValue && layerViewModel.isScrollXEnabled else {
                 return
             }
             
             let jump = {
-                self.scrollPosition.scrollTo(x: nativeScrollState.jumpPositionX,
-                                             // Must specify `y:` as well, so that y is not set to 0
-                                             y: self.scrollOffset.y)
+                self.scrollPosition.scrollTo(
+                    x: layerViewModel.scrollJumpToXLocation.getNumber ?? .zero,
+                    // Must specify `y:` as well, so that y is not set to 0
+                    y: self.scrollOffset.y)
             }
             
-            if nativeScrollState.jumpStyleX == .animated {
+            if layerViewModel.scrollJumpToXStyle.getScrollJumpStyle == .animated {
                 withAnimation {
                     jump()
                 }
@@ -187,16 +224,18 @@ struct NativeScrollGestureViewInner: ViewModifier {
         
         .onChange(of: nativeScrollState.jumpToY) { _, newValue in
             
-            guard newValue && nativeScrollState.yScrollEnabled else {
+            guard newValue && layerViewModel.isScrollYEnabled else {
                 return
             }
             
             let jump = {
-                self.scrollPosition.scrollTo(x: self.scrollOffset.x,
-                                             y: nativeScrollState.jumpPositionY)
+                self.scrollPosition.scrollTo(
+                    x: self.scrollOffset.x,
+                    y: layerViewModel.scrollJumpToYLocation.getNumber ?? .zero
+                )
             }
             
-            if nativeScrollState.jumpStyleY == .animated {
+            if layerViewModel.scrollJumpToYStyle.getScrollJumpStyle == .animated {
                 withAnimation {
                     jump()
                 }

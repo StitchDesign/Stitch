@@ -90,7 +90,6 @@ struct GroupLayerNode: LayerNodeDefinition {
         .itemAlignmentWithinGridCell,
         
         // Layer scrolling via group layer
-        .scrollContentLayer,
         .scrollContentSize,
         
         .scrollXEnabled,
@@ -172,6 +171,7 @@ extension LayerSize {
 func nativeScrollInteractionEval(node: LayerNode,
                                  state: GraphDelegate) -> EvalResult {
     
+    log("nativeScrollInteractionEval: called")
     let defaultOutputs: PortValuesList =  [[.position(.zero)]]
     
     guard !node.outputs.isEmpty else {
@@ -202,71 +202,30 @@ func nativeScrollInteractionEvalOp(values: PortValues,
                                    currentGraphTime: TimeInterval,
                                    currentGraphFrameCount: Int) -> ImpureEvalOpResult {
     
+    log("nativeScrollInteractionEvalOp: called")
+    
     // Update interactiveLayer according to inputs
     // Note: only update the properties that changed, else @Observable fires unnecessarily
 
     
-    // Scroll enabled
-    
-    let xScrollEnabled = values[safe: NativeScrollNodeInputLocations.xScrollEnabled]?.getBool ?? NativeScrollInteractionNode.defaultScrollXEnabled
-    let yScrollEnabled = values[safe: NativeScrollNodeInputLocations.yScrollEnabled]?.getBool ?? NativeScrollInteractionNode.defaultScrollYEnabled
-    
-    if interactiveLayer.nativeScrollState.xScrollEnabled != xScrollEnabled {
-        interactiveLayer.nativeScrollState.xScrollEnabled = xScrollEnabled
-    }
-    if interactiveLayer.nativeScrollState.yScrollEnabled != yScrollEnabled {
-        interactiveLayer.nativeScrollState.yScrollEnabled = yScrollEnabled
-    }
-    
-    
-    // Custom content size
-    
-    let contentSize = values[safe: NativeScrollNodeInputLocations.contentSize]?.getSize ?? .zero
-    
-    if interactiveLayer.nativeScrollState.contentSize != contentSize.asCGSize(parentSize) {
-        interactiveLayer.nativeScrollState.contentSize = contentSize.asCGSize(parentSize)
-    }
-    
-    
     // Jump X
-    
-    let jumpStyleX = values[safe: NativeScrollNodeInputLocations.jumpStyleX]?.getScrollJumpStyle ?? .scrollJumpStyleDefault
+
     let jumpToX = values[safe: NativeScrollNodeInputLocations.jumpToX]?.getPulse ?? .zero
-    let jumpPositionX = values[safe: NativeScrollNodeInputLocations.jumpPositionX]?.getNumber ?? .zero
-    
-    if interactiveLayer.nativeScrollState.jumpStyleX != jumpStyleX {
-        interactiveLayer.nativeScrollState.jumpStyleX = jumpStyleX
-    }
-    
+        
     let newJumpToX = jumpToX == currentGraphTime
     if interactiveLayer.nativeScrollState.jumpToX != newJumpToX {
         interactiveLayer.nativeScrollState.jumpToX = newJumpToX
     }
-    
-    if interactiveLayer.nativeScrollState.jumpPositionX != jumpPositionX {
-        interactiveLayer.nativeScrollState.jumpPositionX = jumpPositionX
-    }
-    
+
     
     // Jump Y
     
-    let jumpStyleY = values[safe: NativeScrollNodeInputLocations.jumpStyleY]?.getScrollJumpStyle ?? .scrollJumpStyleDefault
     let jumpToY = values[safe: NativeScrollNodeInputLocations.jumpToY]?.getPulse ?? .zero
-    let jumpPositionY = values[safe: NativeScrollNodeInputLocations.jumpPositionY]?.getNumber ?? .zero
-    
-    if interactiveLayer.nativeScrollState.jumpStyleY != jumpStyleY {
-        interactiveLayer.nativeScrollState.jumpStyleY = jumpStyleY
-    }
-    
     let newJumpToY = jumpToY == currentGraphTime
     if interactiveLayer.nativeScrollState.jumpToY != newJumpToY {
         interactiveLayer.nativeScrollState.jumpToY = newJumpToY
     }
-    
-    if interactiveLayer.nativeScrollState.jumpPositionY != jumpPositionY {
-        interactiveLayer.nativeScrollState.jumpPositionY = jumpPositionY
-    }
-
+        
     
     // Graph reset
     
@@ -274,6 +233,8 @@ func nativeScrollInteractionEvalOp(values: PortValues,
     if interactiveLayer.nativeScrollState.graphReset != graphReset {
         interactiveLayer.nativeScrollState.graphReset = graphReset
     }
+    
+    
     
     let offsetFromScrollView = interactiveLayer.nativeScrollState.rawScrollViewOffset
     
