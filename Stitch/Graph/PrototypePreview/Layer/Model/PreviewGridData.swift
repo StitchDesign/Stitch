@@ -104,11 +104,17 @@ extension LayerNodeViewModel {
         case .isPinned:
             newValue.getBool.map(self.isPinnedUpdated)
                     
+        case .scrollXEnabled:
+            newValue.getBool.map(self.scrollXEnabledUpdated)
+            
+        case .scrollYEnabled:
+            newValue.getBool.map(self.scrollYEnabledUpdated)
+            
         default:
             return
         }
     }
-    
+        
     /*
      // the entire minSize input blocked:
      self.blockedFields.contains(.init(layerInput: .minSize, portType: .packed))
@@ -454,6 +460,9 @@ extension LayerNodeViewModel {
         setBlockStatus(LayerInputPort.maxSize.asSecondField, isBlocked: false)
     }
     
+
+    // MARK: BLOCKING, UNBLOCKING PINNING INPUTS
+    
     @MainActor
     func isPinnedUpdated(newValue: Bool) {
         
@@ -519,6 +528,54 @@ extension LayerNodeViewModel {
                        isBlocked: true)
     }
     
+    
+    // MARK: BLOCKING, UNBLOCKING LAYER GROUP SCROLL INPUTS
+    
+    @MainActor
+    func scrollXEnabledUpdated(_ enabled: Bool) {
+        // if enabled: unblock jump-y ports
+        // if disabled: block jump-y ports
+        
+        if enabled {
+            self.setBlockStatus(LayerInputPort.scrollJumpToX.asFullInput,
+                                isBlocked: false)
+            self.setBlockStatus(LayerInputPort.scrollJumpToXStyle.asFullInput,
+                                isBlocked: false)
+            self.setBlockStatus(LayerInputPort.scrollJumpToXLocation.asFullInput,
+                                isBlocked: false)
+        } else {
+            self.setBlockStatus(LayerInputPort.scrollJumpToX.asFullInput,
+                                isBlocked: true)
+            self.setBlockStatus(LayerInputPort.scrollJumpToXStyle.asFullInput,
+                                isBlocked: true)
+            self.setBlockStatus(LayerInputPort.scrollJumpToXLocation.asFullInput,
+                                isBlocked: true)
+        }
+        
+    }
+    
+    @MainActor
+    func scrollYEnabledUpdated(_ enabled: Bool) {
+        // if enabled: unblock jump-y ports
+        // if disabled: block jump-y ports
+        
+        if enabled {
+            self.setBlockStatus(LayerInputPort.scrollJumpToY.asFullInput,
+                                isBlocked: false)
+            self.setBlockStatus(LayerInputPort.scrollJumpToYStyle.asFullInput,
+                                isBlocked: false)
+            self.setBlockStatus(LayerInputPort.scrollJumpToYLocation.asFullInput,
+                                isBlocked: false)
+        } else {
+            self.setBlockStatus(LayerInputPort.scrollJumpToY.asFullInput,
+                                isBlocked: true)
+            self.setBlockStatus(LayerInputPort.scrollJumpToYStyle.asFullInput,
+                                isBlocked: true)
+            self.setBlockStatus(LayerInputPort.scrollJumpToYLocation.asFullInput,
+                                isBlocked: true)
+        }
+        
+    }
     
 }
 
