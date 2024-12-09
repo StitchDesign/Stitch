@@ -13,7 +13,7 @@ struct MaterialLayerNode: LayerNodeDefinition {
     
     static let layer = Layer.material
 
-    static let inputDefinitions: LayerInputTypeSet = .init([
+    static let inputDefinitions: LayerInputPortSet = .init([
         .shape,
         .color,
         .position,

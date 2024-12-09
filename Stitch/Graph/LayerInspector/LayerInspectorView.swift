@@ -187,6 +187,7 @@ enum LayerInspectorSectionName: String, Equatable, Hashable {
          positioning = "Positioning",
          common = "Common",
          group = "Group",
+         scrolling = "Scrolling", // Better?: "Group Scrolling"
          pinning = "Pinning",
          typography = "Typography",
          stroke = "Stroke",

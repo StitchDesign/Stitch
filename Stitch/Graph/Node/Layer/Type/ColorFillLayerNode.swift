@@ -17,7 +17,7 @@ struct ColorFillLayerNode: LayerNodeDefinition {
 
     static let layer = Layer.colorFill
     
-    static let inputDefinitions: LayerInputTypeSet = .init([
+    static let inputDefinitions: LayerInputPortSet = .init([
         .enabled,
         .color,
         .opacity,

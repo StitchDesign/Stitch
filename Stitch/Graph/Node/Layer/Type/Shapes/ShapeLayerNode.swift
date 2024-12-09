@@ -9,10 +9,10 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-extension LayerInputTypeSet {
+extension LayerInputPortSet {
     
     @MainActor
-    static let strokeInputs: LayerInputTypeSet = [
+    static let strokeInputs: LayerInputPortSet = [
         .strokePosition,
         .strokeWidth,
         .strokeColor,
@@ -23,7 +23,7 @@ extension LayerInputTypeSet {
     ]
     
     @MainActor
-    static let layerEffects: LayerInputTypeSet = [
+    static let layerEffects: LayerInputPortSet = [
         .blurRadius,
         .blendMode,
         .brightness,
@@ -34,7 +34,7 @@ extension LayerInputTypeSet {
     ]
     
     @MainActor
-    static let typography: LayerInputTypeSet = [
+    static let typography: LayerInputPortSet = [
         .fontSize,
         .textAlignment,
         .verticalAlignment,
@@ -43,14 +43,14 @@ extension LayerInputTypeSet {
     ]
     
     @MainActor
-    static let aspectRatio: LayerInputTypeSet = [
+    static let aspectRatio: LayerInputPortSet = [
         .widthAxis,
         .heightAxis,
         .contentMode
     ]
     
     @MainActor
-    static let sizing: LayerInputTypeSet = [
+    static let sizing: LayerInputPortSet = [
         .minSize,
         .maxSize,
         .sizingScenario
@@ -58,13 +58,13 @@ extension LayerInputTypeSet {
     
     // LayerGroup only?
     @MainActor
-    static let paddingAndSpacing: LayerInputTypeSet = [
+    static let paddingAndSpacing: LayerInputPortSet = [
 //        .padding,
         .spacing
     ]
     
     @MainActor
-    static let pinning: LayerInputTypeSet = [
+    static let pinning: LayerInputPortSet = [
         .isPinned,
         .pinTo,
         .pinAnchor,
@@ -72,13 +72,13 @@ extension LayerInputTypeSet {
     ]
     
     @MainActor
-    static let layerPaddingAndMargin: LayerInputTypeSet = [
+    static let layerPaddingAndMargin: LayerInputPortSet = [
         .layerPadding,
         .layerMargin
     ]
     
     @MainActor
-    static let offsetInGroup: LayerInputTypeSet = [
+    static let offsetInGroup: LayerInputPortSet = [
         .offsetInGroup // belongs with "positioning" section
     ]
 }
@@ -171,7 +171,7 @@ extension ShapeCoordinates: PortValueEnum {
 struct ShapeLayerNode: LayerNodeDefinition {
     static let layer = Layer.shape
 
-    static let inputDefinitions: LayerInputTypeSet = .init([
+    static let inputDefinitions: LayerInputPortSet = .init([
         .shape,
         .color,
         .position,

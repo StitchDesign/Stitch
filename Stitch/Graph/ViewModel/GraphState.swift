@@ -218,7 +218,7 @@ extension GraphState {
         self.mediaLibrary.get(key)
     }
     
-    @MainActor var multiselectInputs: LayerInputTypeSet? {
+    @MainActor var multiselectInputs: LayerInputPortSet? {
         self.graphUI.propertySidebar.inputsCommonToSelectedLayers
     }
     

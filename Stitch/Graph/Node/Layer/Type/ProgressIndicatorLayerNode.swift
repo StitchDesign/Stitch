@@ -13,7 +13,7 @@ struct ProgressIndicatorLayerNode: LayerNodeDefinition {
     
     static let layer = Layer.progressIndicator
     
-    static let inputDefinitions: LayerInputTypeSet = .init([
+    static let inputDefinitions: LayerInputPortSet = .init([
         .isAnimating,
         .progressIndicatorStyle,
         .progress,

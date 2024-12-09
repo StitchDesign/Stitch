@@ -27,7 +27,7 @@ typealias LayerInspectorRowIdSet = Set<LayerInspectorRowId>
 final class PropertySidebarObserver: Sendable {
         
     // Non-nil just if we have multiple layers selected
-    @MainActor var inputsCommonToSelectedLayers: LayerInputTypeSet?
+    @MainActor var inputsCommonToSelectedLayers: LayerInputPortSet?
     
     @MainActor var selectedProperty: LayerInspectorRowId?
     
@@ -65,12 +65,12 @@ struct PropertySidebarFlyoutState: Equatable {
 
 struct LayerInspectorSectionData: Equatable, Hashable {
     let name: LayerInspectorSectionName
-    let inputs: LayerInputTypeSet
+    let inputs: LayerInputPortSet
 }
 
 extension LayerInspectorSectionData {
     init(_ name: LayerInspectorSectionName, 
-         _ inputs: LayerInputTypeSet) {
+         _ inputs: LayerInputPortSet) {
         self.name = name
         self.inputs = inputs
     }
@@ -87,13 +87,13 @@ extension LayerInspectorView {
             .init(.sizing, Self.sizing),
             .init(.positioning, Self.positioning),
             .init(.common, Self.common),
-            .init(.group, layer.supportsGroupInputs ? Self.groupLayer : []),
+            .init(.group, layer == .group ? Self.groupLayer : []),
+            .init(.scrolling, layer == .group ? Self.groupScrolling : []),
             .init(.pinning, Self.pinning),
             .init(.typography, layer.supportsTypographyInputs ? Self.text : []),
             .init(.stroke, layer.supportsStrokeInputs ? Self.stroke : []),
             .init(.rotation, layer.supportsRotationInputs ? Self.rotation : []),
-//            .init(.shadow, layer.supportsShadowInputs ? Self.shadow : []),
-            .init(.layerEffects, layer.supportsLayerEffectInputs ? Self.effects : []),
+            .init(.layerEffects, layer.supportsLayerEffectInputs ? Self.layerEffects : []),
         ]
     }
     
@@ -104,16 +104,16 @@ extension LayerInspectorView {
             .init(.positioning, Self.positioning),
             .init(.common, Self.common),
             .init(.group, Self.groupLayer),
+            .init(.scrolling, Self.groupScrolling),
             .init(.pinning, Self.pinning),
             .init(.typography, Self.text),
             .init(.stroke, Self.stroke),
             .init(.rotation, Self.rotation),
-//            .init(.shadow, Self.shadow),
-            .init(.layerEffects, Self.effects)
+            .init(.layerEffects, Self.layerEffects)
         ]
             
     @MainActor
-    static let positioning: LayerInputTypeSet = [
+    static let positioning: LayerInputPortSet = [
         .position,
         .anchoring,
         .zIndex,
@@ -121,7 +121,7 @@ extension LayerInspectorView {
     ]
     
     @MainActor
-    static let sizing: LayerInputTypeSet = [
+    static let sizing: LayerInputPortSet = [
         
         .sizingScenario,
 
@@ -139,7 +139,7 @@ extension LayerInspectorView {
     
     // Includes some
     @MainActor
-    static let common: LayerInputTypeSet = [
+    static let common: LayerInputPortSet = [
         
         // Required
         .scale,
@@ -169,14 +169,9 @@ extension LayerInspectorView {
         .video,
         .model3D,
         .fitStyle,
-        
-//        .init(.shadow, layer.supportsShadowInputs ? Self.shadow : []),
-        
-        
+                        
         .masks,
         .clipped,
-        
-        
         
         // Hit Area
         .enabled,
@@ -187,9 +182,7 @@ extension LayerInspectorView {
                 
         // rectangle (and group?)
         .cornerRadius,
-        
-     
-    
+            
         // Progress Indicator
         .progressIndicatorStyle,
         .progress,
@@ -233,7 +226,7 @@ extension LayerInspectorView {
     ]
     
     @MainActor
-    static let groupLayer: LayerInputTypeSet = [
+    static let groupLayer: LayerInputPortSet = [
         .orientation,
         .backgroundColor, // actually for many layers?
         .isClipped,
@@ -243,12 +236,27 @@ extension LayerInspectorView {
         .spacingBetweenGridRows,
         .itemAlignmentWithinGridCell
     ]
-   
-    @MainActor
-    static let pinning: LayerInputTypeSet = LayerInputTypeSet.pinning
     
     @MainActor
-    static let text: LayerInputTypeSet = [
+    static let groupScrolling: LayerInputPortSet = [
+        .scrollContentSize,
+        
+        .scrollXEnabled,
+        .scrollJumpToXStyle,
+        .scrollJumpToX,
+        .scrollJumpToXLocation,
+        
+        .scrollYEnabled,
+        .scrollJumpToYStyle,
+        .scrollJumpToY,
+        .scrollJumpToYLocation
+    ]
+   
+    @MainActor
+    static let pinning: LayerInputPortSet = LayerInputPortSet.pinning
+    
+    @MainActor
+    static let text: LayerInputPortSet = [
         .text,
         .placeholderText,
         .fontSize,
@@ -259,7 +267,7 @@ extension LayerInspectorView {
     ]
     
     @MainActor
-    static let stroke: LayerInputTypeSet = [
+    static let stroke: LayerInputPortSet = [
         .strokePosition,
         .strokeWidth,
         .strokeColor,
@@ -270,14 +278,14 @@ extension LayerInspectorView {
     ]
     
     @MainActor
-    static let rotation: LayerInputTypeSet = [
+    static let rotation: LayerInputPortSet = [
         .rotationX,
         .rotationY,
         .rotationZ
     ]
     
     @MainActor
-    static let shadow: LayerInputTypeSet = [
+    static let shadow: LayerInputPortSet = [
         .shadowColor,
         .shadowOpacity,
         .shadowRadius,
@@ -285,10 +293,9 @@ extension LayerInspectorView {
     ]
     
     @MainActor
-    static let effects: LayerInputTypeSet = [
+    static let layerEffects: LayerInputPortSet = [
         SHADOW_FLYOUT_LAYER_INPUT_PROXY,
-        .blur, // blur vs blurRadius ?
-        .blurRadius,
+        .blur, // use .blur; .blurRadius is ignored
         .blendMode,
         .brightness,
         .colorInvert,
@@ -338,6 +345,6 @@ extension Layer {
     @MainActor
     var supportsLayerEffectInputs: Bool {
         let layerInputs = self.layerGraphNode.inputDefinitions
-        return !layerInputs.intersection(LayerInspectorView.effects).isEmpty
+        return !layerInputs.intersection(LayerInspectorView.layerEffects).isEmpty
     }
 }

@@ -143,6 +143,16 @@ final class LayerNodeViewModel {
     var materialThicknessPort: LayerInputObserver
     var deviceAppearancePort: LayerInputObserver
     
+    var scrollContentSizePort: LayerInputObserver
+    var scrollXEnabledPort: LayerInputObserver
+    var scrollJumpToXStylePort: LayerInputObserver
+    var scrollJumpToXPort: LayerInputObserver
+    var scrollJumpToXLocationPort: LayerInputObserver
+    var scrollYEnabledPort: LayerInputObserver
+    var scrollJumpToYStylePort: LayerInputObserver
+    var scrollJumpToYPort: LayerInputObserver
+    var scrollJumpToYLocationPort: LayerInputObserver
+    
     @MainActor weak var nodeDelegate: NodeDelegate?
 
     // Sidebar visibility setting
@@ -298,6 +308,16 @@ final class LayerNodeViewModel {
         
         self.deviceAppearancePort = .init(from: schema, port: .deviceAppearance)
         self.materialThicknessPort = .init(from: schema, port: .materialThickness)
+        
+        self.scrollContentSizePort = .init(from: schema, port: .scrollContentSize)
+        self.scrollXEnabledPort = .init(from: schema, port: .scrollXEnabled)
+        self.scrollJumpToXStylePort = .init(from: schema, port: .scrollJumpToXStyle)
+        self.scrollJumpToXPort = .init(from: schema, port: .scrollJumpToX)
+        self.scrollJumpToXLocationPort = .init(from: schema, port: .scrollJumpToXLocation)
+        self.scrollYEnabledPort = .init(from: schema, port: .scrollYEnabled)
+        self.scrollJumpToYStylePort = .init(from: schema, port: .scrollJumpToYStyle)
+        self.scrollJumpToYPort = .init(from: schema, port: .scrollJumpToY)
+        self.scrollJumpToYLocationPort = .init(from: schema, port: .scrollJumpToYLocation)
         
         // Initialize each NodeRowObserver for each expected layer input
         for layerInputPort in graphNode.inputDefinitions {

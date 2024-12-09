@@ -131,7 +131,7 @@ public struct StitchSystemVersion: StitchSchemaVersionType {
     }
 }
 
-public struct StitchComonentVersion: StitchSchemaVersionType {
+public struct StitchComponentVersion: StitchSchemaVersionType {
     public typealias NewestVersionType = StitchComponent
     
     public var version: StitchSchemaVersion
@@ -198,6 +198,8 @@ extension StitchDocumentVersion {
             return StitchDocument_V26.StitchDocument.self
         case ._V27:
             return StitchDocument_V27.StitchDocument.self
+        case ._V28:
+            return StitchDocument_V28.StitchDocument.self
         }
     }
 }
@@ -214,11 +216,13 @@ extension StitchSystemVersion {
             return StitchSystem_V26.StitchSystem.self
         case ._V27:
             return StitchSystem_V27.StitchSystem.self
+        case ._V28:
+            return StitchSystem_V28.StitchSystem.self
         }
     }
 }
 
-extension StitchComonentVersion {
+extension StitchComponentVersion {
     public static func getCodableType(from version: StitchSchemaVersion) -> any StitchVersionedCodable.Type {
         switch version {
         case ._V1, ._V2, ._V3, ._V4, ._V5, ._V6, ._V7, ._V8, ._V9, ._V10, ._V11, ._V12, ._V13, ._V14, ._V15, ._V16, ._V17, ._V18, ._V19, ._V20, ._V21, ._V22, ._V23, ._V24:
@@ -230,6 +234,8 @@ extension StitchComonentVersion {
             return StitchComponent_V26.StitchComponent.self
         case ._V27:
             return StitchComponent_V27.StitchComponent.self
+        case ._V28:
+            return StitchComponent_V28.StitchComponent.self
         }
     }
 }

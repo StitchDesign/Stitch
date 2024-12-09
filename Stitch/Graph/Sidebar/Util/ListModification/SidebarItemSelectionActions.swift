@@ -174,7 +174,7 @@ extension GraphState {
     }
     
     @MainActor
-    func multipleSidebarLayersSelected() -> LayerInputTypeSet? {
+    func multipleSidebarLayersSelected() -> LayerInputPortSet? {
                 
         let selectedNodes: [NodeViewModel] = self.sidebarSelectionState.primary.compactMap {
             self.getNode($0)

@@ -109,34 +109,6 @@ enum ScrollDirectionLocking: String, Codable, Hashable {
     case vertical, horizontal, none
 }
 
-extension PatchNode {
-    @MainActor
-    var isScrollNodeEnabled: Bool {
-        self.patch == .scrollInteraction &&
-            (isScrollNodeXEnabled || isScrollNodeYEnabled)
-    }
-
-    // TODO: won't work for loops, since only checks first index
-    @MainActor
-    var isScrollNodeXEnabled: Bool {
-        guard let xScrollMode = self.inputs[safe: ScrollNodeInputLocations.xScrollMode]?
-                .first?.getScrollMode else {
-            return false
-        }
-        return xScrollMode != .disabled
-    }
-
-    // TODO: won't work for loops, since only checks first index
-    @MainActor
-    var isScrollNodeYEnabled: Bool {
-        guard let yScrollMode = self.inputs[safe: ScrollNodeInputLocations.yScrollMode]?
-                .first?.getScrollMode else {
-            return false
-        }
-        return yScrollMode != .disabled
-    }
-}
-
 let scrollChoices = [
     ScrollMode.free.rawValue,
     ScrollMode.paging.rawValue,
@@ -149,7 +121,6 @@ let scrollModePorts = [
 ]
 
 // Can reuse inside the actual freeScroll op eval ?
-//
 func calcRubberBandingDirection(childSize: Double,
                                 childPosition: Double,
                                 parentSize: Double) -> RubberBandingDirection {

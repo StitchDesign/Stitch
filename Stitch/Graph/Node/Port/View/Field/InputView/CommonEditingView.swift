@@ -140,7 +140,7 @@ struct CommonEditingView: View {
     }
     
     @MainActor
-    var multiselectInputs: LayerInputTypeSet? {
+    var multiselectInputs: LayerInputPortSet? {
         graph.graphUI.propertySidebar.inputsCommonToSelectedLayers
     }
             

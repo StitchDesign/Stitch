@@ -203,6 +203,18 @@ final class LayerViewModel: Sendable {
     @MainActor var materialThickness: PortValue
     @MainActor var deviceAppearance: PortValue
     
+    // Scroll inputs
+    @MainActor var scrollContentSize: PortValue
+    @MainActor var scrollXEnabled: PortValue
+    @MainActor var scrollJumpToXStyle: PortValue
+    @MainActor var scrollJumpToX: PortValue
+    @MainActor var scrollJumpToXLocation: PortValue
+    @MainActor var scrollYEnabled: PortValue
+    @MainActor var scrollJumpToYStyle: PortValue
+    @MainActor var scrollJumpToY: PortValue
+    @MainActor var scrollJumpToYLocation: PortValue
+    
+    
     // Ephemeral state on the layer view model
     
     // Canvas Sketch properties
@@ -337,6 +349,16 @@ final class LayerViewModel: Sendable {
         
         self.materialThickness = LayerInputPort.materialThickness.getDefaultValue(for: layer)
         self.deviceAppearance = LayerInputPort.deviceAppearance.getDefaultValue(for: layer)
+        
+        self.scrollContentSize = LayerInputPort.scrollContentSize.getDefaultValue(for: layer)
+        self.scrollXEnabled = LayerInputPort.scrollXEnabled.getDefaultValue(for: layer)
+        self.scrollJumpToXStyle = LayerInputPort.scrollJumpToXStyle.getDefaultValue(for: layer)
+        self.scrollJumpToX = LayerInputPort.scrollJumpToX.getDefaultValue(for: layer)
+        self.scrollJumpToXLocation = LayerInputPort.scrollJumpToXLocation.getDefaultValue(for: layer)
+        self.scrollYEnabled = LayerInputPort.scrollYEnabled.getDefaultValue(for: layer)
+        self.scrollJumpToYStyle = LayerInputPort.scrollJumpToYStyle.getDefaultValue(for: layer)
+        self.scrollJumpToY = LayerInputPort.scrollJumpToY.getDefaultValue(for: layer)
+        self.scrollJumpToYLocation = LayerInputPort.scrollJumpToYLocation.getDefaultValue(for: layer)
         
         self.nodeDelegate = nodeDelegate
         self.interactiveLayer.delegate = self
