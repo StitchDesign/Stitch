@@ -50,6 +50,7 @@ struct NodeLayout<T: StitchLayoutCachable>: Layout, Sendable {
     let observer: T
     let existingCache: NodeLayoutCache?
     
+    // IMPORTANT
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) -> CGSize {
         
         let isMarkedForUpdate = existingCache?.needsUpdating ?? true
@@ -75,6 +76,7 @@ struct NodeLayout<T: StitchLayoutCachable>: Layout, Sendable {
         return newCache
     }
     
+    // Ignore when not needed for perf
     private func createCache(subviews: Subviews) -> NodeLayoutCache {
         let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
         let sizeThatFits = self.calculateSizeThatFits(subviews: subviews)
@@ -100,7 +102,16 @@ struct NodeLayout<T: StitchLayoutCachable>: Layout, Sendable {
         return CGSize(width: totalWidth, height: totalHeight)
     }
     
-    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) {
+    // What does this mean for e.g. ScrollView { Image } ?
+    // Explore in Playgrounds
+    
+    // Some parent view is calling this view to place its child;
+    // start from parent, work down to children
+    func placeSubviews(in bounds: CGRect,
+                       proposal: ProposedViewSize,
+                       subviews: Subviews,
+                       cache: inout Cache) {
+        
         guard !subviews.isEmpty else { return }
         
         let cache = self.existingCache ?? self.createCache(subviews: subviews)
@@ -115,9 +126,14 @@ struct NodeLayout<T: StitchLayoutCachable>: Layout, Sendable {
             let subview = subviews[index]
             let size = cache.sizes[index]
             
+            // What is ScrollView used the bounds of the layer, instead of container?
+            
+            // Can we place the Scroll
+            // Want to keep the ScrollView's size (vs content's size) so that we can still scroll;
+            // but make the ScrollView start at the same 
             subview.place(
-                at: bounds.origin,
-                anchor: .topLeading,
+                at: bounds.origin, // bounds are received from parent
+                anchor: .topLeading, // typical SwiftUI default top-left anchoring
                 proposal: ProposedViewSize(size))
         }
     }

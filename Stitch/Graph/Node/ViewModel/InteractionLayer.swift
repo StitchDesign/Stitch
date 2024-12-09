@@ -8,8 +8,11 @@
 import Foundation
 import StitchSchemaKit
 
+@Observable
 final class InteractiveLayer: Sendable {
     let id: PreviewCoordinate
+    
+    @MainActor var nativeScrollState = NativeScrollInteractionLayer()
     
     @MainActor var singleTapped: Bool = false
     @MainActor var doubleTapped: Bool = false
@@ -24,6 +27,9 @@ final class InteractiveLayer: Sendable {
     // Used by Press Interaction Node for Position output
     @MainActor var lastTappedLocation: CGPoint?
 
+    
+    // MARK: legacy scroll interaction node
+    
     // Currently still used for Scroll Interaction Node's rubberbanding etc.
     @MainActor var scrollAnimationState: ScrollAnimationState = .init()
     

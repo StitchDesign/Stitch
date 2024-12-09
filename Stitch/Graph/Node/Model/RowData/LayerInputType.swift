@@ -256,6 +256,25 @@ extension LayerInputPort {
             return .materialThickness(.defaultMaterialThickness)
         case .deviceAppearance:
             return .deviceAppearance(.defaultDeviceAppearance)
+        
+        case .scrollContentSize:
+            return .size(.zero)
+        case .scrollXEnabled:
+            return .bool(NativeScrollInteractionNode.defaultScrollXEnabled)
+        case .scrollJumpToXStyle:
+            return .scrollJumpStyle(.scrollJumpStyleDefault)
+        case .scrollJumpToX:
+            return .pulse(.zero)
+        case .scrollJumpToXLocation:
+            return .number(.zero)
+        case .scrollYEnabled:
+            return .bool(NativeScrollInteractionNode.defaultScrollYEnabled)
+        case .scrollJumpToYStyle:
+            return .scrollJumpStyle(.scrollJumpStyleDefault)
+        case .scrollJumpToY:
+            return .pulse(.zero)
+        case .scrollJumpToYLocation:
+            return .number(.zero)
         }
     }
     
@@ -472,6 +491,24 @@ extension LayerInputPort {
             return \.materialThicknessPort
         case .deviceAppearance:
             return \.deviceAppearancePort
+        case .scrollContentSize:
+            return \.scrollContentSizePort
+        case .scrollXEnabled:
+            return \.scrollXEnabledPort
+        case .scrollJumpToXStyle:
+            return \.scrollJumpToXStylePort
+        case .scrollJumpToX:
+            return \.scrollJumpToXPort
+        case .scrollJumpToXLocation:
+            return \.scrollJumpToXLocationPort
+        case .scrollYEnabled:
+            return \.scrollYEnabledPort
+        case .scrollJumpToYStyle:
+            return \.scrollJumpToYStylePort
+        case .scrollJumpToY:
+            return \.scrollJumpToYPort
+        case .scrollJumpToYLocation:
+            return \.scrollJumpToYLocationPort
         }
     }
     
@@ -725,6 +762,24 @@ extension LayerViewModel {
         case .materialThickness:
             return self.materialThickness
             
+        case .scrollContentSize:
+            return self.scrollContentSize
+        case .scrollXEnabled:
+            return self.scrollXEnabled
+        case .scrollJumpToXStyle:
+            return self.scrollJumpToXStyle
+        case .scrollJumpToX:
+            return self.scrollJumpToX
+        case .scrollJumpToXLocation:
+            return self.scrollJumpToXLocation
+        case .scrollYEnabled:
+            return self.scrollYEnabled
+        case .scrollJumpToYStyle:
+            return self.scrollJumpToYStyle
+        case .scrollJumpToY:
+            return self.scrollJumpToY
+        case .scrollJumpToYLocation:
+            return self.scrollJumpToYLocation
         }
     }
     
@@ -938,6 +993,24 @@ extension LayerViewModel {
             self.deviceAppearance = value
         case .materialThickness:
             self.materialThickness = value
+        case .scrollContentSize:
+            self.scrollContentSize = value
+        case .scrollXEnabled:
+            self.scrollXEnabled = value
+        case .scrollJumpToXStyle:
+            self.scrollJumpToXStyle = value
+        case .scrollJumpToX:
+            self.scrollJumpToX = value
+        case .scrollJumpToXLocation:
+            self.scrollJumpToXLocation = value
+        case .scrollYEnabled:
+            self.scrollYEnabled = value
+        case .scrollJumpToYStyle:
+            self.scrollJumpToYStyle = value
+        case .scrollJumpToY:
+            self.scrollJumpToY = value
+        case .scrollJumpToYLocation:
+            self.scrollJumpToYLocation = value
         }
     }
 }
@@ -1143,6 +1216,24 @@ extension LayerInputPort {
             return \.materialThicknessPort
         case .deviceAppearance:
             return \.deviceAppearancePort
+        case .scrollContentSize:
+            return \.scrollContentSizePort
+        case .scrollXEnabled:
+            return \.scrollXEnabledPort
+        case .scrollJumpToXStyle:
+            return \.scrollJumpToXStylePort
+        case .scrollJumpToX:
+            return \.scrollJumpToXPort
+        case .scrollJumpToXLocation:
+            return \.scrollJumpToXLocationPort
+        case .scrollYEnabled:
+            return \.scrollYEnabledPort
+        case .scrollJumpToYStyle:
+            return \.scrollJumpToYStylePort
+        case .scrollJumpToY:
+            return \.scrollJumpToYPort
+        case .scrollJumpToYLocation:
+            return \.scrollJumpToYLocationPort
         }
     }
     
@@ -1478,6 +1569,24 @@ extension LayerInputPort {
             return "Material"
         case .deviceAppearance:
             return useShortLabel ? "Appearance" : "Device Appearance"
+        case .scrollContentSize:
+            return "Content Size"
+        case .scrollXEnabled:
+            return "Scroll X Enabled"
+        case .scrollJumpToXStyle:
+            return "Jump Style X"
+        case .scrollJumpToX:
+            return "Jump to X"
+        case .scrollJumpToXLocation:
+            return "Jump Position X"
+        case .scrollYEnabled:
+            return "Scroll Y Enabled"
+        case .scrollJumpToYStyle:
+            return "Jump Style Y"
+        case .scrollJumpToY:
+            return "Jump to Y"
+        case .scrollJumpToYLocation:
+            return "Jump Position Y"
         }
     }
 

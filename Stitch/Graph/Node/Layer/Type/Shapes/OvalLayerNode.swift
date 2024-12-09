@@ -31,7 +31,7 @@ extension Bool {
 struct OvalLayerNode: LayerNodeDefinition {
     static let layer = Layer.oval
         
-    static let inputDefinitions: LayerInputTypeSet = .init([
+    static let inputDefinitions: LayerInputPortSet = .init([
         .color,
         .position,
         .rotationX,

@@ -132,24 +132,21 @@ extension NodeRowObserver {
     @MainActor
     func updateInteractionNodeData(oldValues: PortValues,
                                    newValues: PortValues) {
+        
         // Interaction nodes ignore loops of assigned layers and only use the first
         let firstValueOld = oldValues.first
         let firstValueNew = newValues.first
-        
+                
         guard let graphDelegate = self.nodeDelegate?.graphDelegate,
               let patch = self.nodeKind.getPatch,
               patch.isInteractionPatchNode,
               Self.nodeIOType == .input,
               self.id.portId == 0 else { //, // the "assigned layer" input
-            
-            // TODO: how was `updateInteractionNodeData` being called with the exact same value for `firstValueOld` and `firstValueNew`?
-            // NOTE: Over-updating a dictionary is probably fine, perf-wise; an interaction node's assigned layer is not something that is updated at 120 FPS...
-            
-//              firstValueOld != firstValueNew else {
             return
         }
         
         // Remove old value from graph state
+        // Note: can be nil when first initializing the graph
         if let oldLayerId = firstValueOld?.getInteractionId {
             switch patch {
             case .dragInteraction:
@@ -162,7 +159,7 @@ extension NodeRowObserver {
                 fatalErrorIfDebug()
             }
         }
-        
+                
         if let newLayerId = firstValueNew?.getInteractionId {
             switch patch {
             case .dragInteraction:

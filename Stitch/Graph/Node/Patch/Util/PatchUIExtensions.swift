@@ -97,7 +97,9 @@ extension Patch {
     // since every PatchNode uses ComputedNodeState.
     var usesComputedState: Bool {
         switch self {
-        case .dragInteraction, .pressInteraction, .scrollInteraction, .springAnimation, .classicAnimation, .repeatingPulse, .repeatingAnimation:
+        case .dragInteraction, .pressInteraction,
+                .scrollInteraction, // NOT TRUE for .nativeScrollInteraction?
+                .springAnimation, .classicAnimation, .repeatingPulse, .repeatingAnimation:
             return true
         default:
             return false

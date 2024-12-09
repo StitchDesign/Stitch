@@ -97,7 +97,7 @@ extension StitchDocumentEncodable {
 }
 
 extension StitchComponent: StitchDocumentMigratable {
-    typealias VersionType = StitchComonentVersion
+    typealias VersionType = StitchComponentVersion
     
     init() {
         self.init(saveLocation: .localComponent(.init(docId: .init(),
@@ -133,7 +133,7 @@ extension StitchComponent {
                 return nil
             }
             
-            return try StitchComonentVersion.migrate(versionedCodableUrl: graphDataUrl)
+            return try StitchComponentVersion.migrate(versionedCodableUrl: graphDataUrl)
         } catch {
             fatalErrorIfDebug("StitchDocumentData.openDocument error on components decoding: \(error)")
             return nil

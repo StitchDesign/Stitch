@@ -15,7 +15,7 @@ struct SFSymbolLayerNode: LayerNodeDefinition {
     
     static let layer = Layer.sfSymbol
     
-    static let inputDefinitions: LayerInputTypeSet = .init([
+    static let inputDefinitions: LayerInputPortSet = .init([
         .sfSymbol,
         .color,
         .position,

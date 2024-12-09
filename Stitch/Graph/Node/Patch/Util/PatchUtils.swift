@@ -79,6 +79,9 @@ extension Patch {
              .popAnimation,
              // scroll is technically an animation too
              .scrollInteraction,
+            
+            // NOT true for .nativeScrollInteraction ?
+            
              // drag interaction's momentum is an animation
              .dragInteraction:
             return true
@@ -153,7 +156,7 @@ extension Patch {
         case .pressInteraction:
             return "Press Interaction"
         case .scrollInteraction:
-            return "Scroll Interaction"
+            return "Legacy Scroll Interaction"
         case .repeatingPulse:
             return "Repeating Pulse"
         case .delay:
@@ -402,11 +405,17 @@ extension Patch {
     // Previously used to filter some incomplete patches but currently we show all
     static var searchablePatches: [Patch] {
         //        Patch.allCases
-        // TODO: fix SampleRange node and allow it to be added to graph by user
         Patch.allCases.filter { patch in
-            patch != .sampleRange // && patch != .jsonToShape
+            
+            // TODO: Fix `SampleRange` node with media
+            patch != .sampleRange
+            
+            // Prefer type-specific pack and unpack patches
             && patch != .pack
             && patch != .unpack
+            
+//            // Prefer .nativeScrollInteraction
+//            && patch != .scrollInteraction
         }
     }
 

@@ -21,7 +21,7 @@ struct VideoStreamingLayerNode: LayerNodeDefinition {
     
     static let layer = Layer.videoStreaming
     
-    static let inputDefinitions: LayerInputTypeSet = .init([
+    static let inputDefinitions: LayerInputPortSet = .init([
         .enabled,
         .videoURL,
         .volume,
