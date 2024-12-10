@@ -1,23 +1,19 @@
-Highlights
-- Vastly improved canvas navigation performance for graphs with many nodes.
-- Optimized sidebar drag performance, especially for large numbers of items.
+What’s New
+- Added support for native iOS scrolling in layer groups
+- Improved FPS performance for large projects with visible canvas
 
-Improvements + What's New
-- Introduced spring converter patch nodes for improved spring animation customization.
-- Use TAB and SHIFT+TAB to move between eligible nodes during edge hover edit mode.
-- Introduced additional shortcuts for creating specific patch nodes, e.g. "OPTION +" and "OPTION -" for Add and Subtract nodes.
-- Added the ability to group and ungroup nodes with CMD+G and CMD+Delete shortcuts.
-- Improved node menu accessibility by allowing menu to display over inspector view.
-- Tapping node body now defocuses focused fields.
-- Adjusted padding and margins of layer inspector on iPad.
-- Use lighter background for thumbnail when prototype uses dark background.
+UI Enhancements
+- Enhanced UI for looped values popover
+- Added support for tab navigation in shadow layer input flyout menu
+- Support for adding graph nodes for shadow layer inputs
 
 Bug Fixes
-- Fixed issue where edges wouldn’t appear for new Math Expression node inputs.
-- Resolved issue where newly duplicated nodes were not staggered correctly on the canvas.
-- Fixed disappearing layers when grouping nested sidebar items.
-- Corrected issue where nodes in a group couldn’t be selected after being grouped.
-- Fixed project title editing on Catalyst.
-- Support shadows on layer groups with non-clear backgrounds.
-- Math Expression node formula no longer treats numbers as variables.
-- Layer Info patch node now properly supports loops.
+- Improved fill styles for Image layer node
+- Improved anchoring logic when layer dimensions are set to auto
+- Fixed unresponsive node type menu on iOS
+- Layer fields on canvas retain values after re-selection in sidebar
+- Improved port colors when drawing new edge
+
+Platform Changes
+- Changed iOS target version to iOS 18
+- Improved codebase to reduce likelihood of memory leaks
