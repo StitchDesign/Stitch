@@ -43,6 +43,7 @@ struct NativeScrollGestureView<T: View>: View {
     
     let layerViewModel: LayerViewModel
     @Bindable var graph: GraphState
+    let isClipped: Bool
     let parentSize: CGSize
     
     @ViewBuilder var view: () -> T
@@ -61,6 +62,7 @@ struct NativeScrollGestureView<T: View>: View {
                 .modifier(NativeScrollGestureViewInner(
                     layerViewModel: layerViewModel,
                     graph: graph,
+                    isClipped: isClipped,
                     parentSize: parentSize))
         } else {
             view()
@@ -73,6 +75,7 @@ struct NativeScrollGestureViewInner: ViewModifier {
     let layerViewModel: LayerViewModel
     
     @Bindable var graph: GraphState
+    let isClipped: Bool
     
     let parentSize: CGSize
         
@@ -142,12 +145,15 @@ struct NativeScrollGestureViewInner: ViewModifier {
         // For programmatically manipulating the scroll view's position
         .scrollPosition(self.$scrollPosition)
         
+        // Scroll clip is disabled if the layer group is not clipped
+        .scrollClipDisabled(!isClipped)
+        
         .onScrollGeometryChange(for: CGPoint.self) { geometry in
             // Note: the scroll view's reported value; can be manipulated, but does not affect the scroll view's scrolling, which has already happened
             geometry.contentOffset
         } action: { oldValue, newValue in
             // log("NativeScrollGestureViewInner: onScrollGeometryChange: newValue \(newValue) for layerViewModel.id \(layerViewModel.id)")
-             log("NativeScrollGestureViewInner: onScrollGeometryChange: newValue \(newValue)")
+            // log("NativeScrollGestureViewInner: onScrollGeometryChange: newValue \(newValue)")
             
             // Always update the raw, unmodified scrollOffset, so that child is not automatically moved as parent moves
             self.scrollOffset = newValue
