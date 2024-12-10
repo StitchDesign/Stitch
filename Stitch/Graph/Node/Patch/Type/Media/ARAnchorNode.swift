@@ -22,7 +22,7 @@ struct ArAnchorNode: PatchNodeDefinition {
             outputs: [
                 .init(
                     label: "AR Anchor",
-                    type: .media
+                    type: .anchorEntity
                 )
             ]
         )
@@ -65,14 +65,12 @@ func arAnchorEval(node: PatchNode) -> EvalResult {
         let scale = SIMD3(x: Float(transform.scaleX), y: Float(transform.scaleY), z: Float(transform.scaleZ))
         let rotationXYZ = SIMD3(x: Float(transform.rotationX), y: Float(transform.rotationY), z: Float(transform.rotationZ))
         let transformMatrix = matrix_float4x4(position: position, scale: scale, rotationZYX: rotationXYZ)
+        let outputValue = PortValue.anchorEntity(node.id)
         
         if let anchorEntity = mediaObserver.arAnchor {
-            let anchorId = mediaObserver.anchorMediaId
+//            let anchorId = mediaObserver.anchorMediaId
             
             anchorEntity.transform.matrix = transformMatrix
-            let outputValue: PortValue = .asyncMedia(.init(id: anchorId,
-                                                           dataType: .computed,
-                                                           mediaObject: .arAnchor(anchorEntity)))
             return [outputValue]
         }
         
@@ -84,10 +82,6 @@ func arAnchorEval(node: PatchNode) -> EvalResult {
         mediaObserver.anchorMediaId = newId
         
         newAnchor.transform.matrix = transformMatrix
-        
-        let outputValue: PortValue = .asyncMedia(.init(id: mediaObserver.anchorMediaId,
-                                                       dataType: .computed,
-                                                       mediaObject: .arAnchor(newAnchor)))
         return [outputValue]
     }
 }

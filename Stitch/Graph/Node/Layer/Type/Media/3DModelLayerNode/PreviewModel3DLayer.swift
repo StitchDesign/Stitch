@@ -8,6 +8,7 @@
 import SwiftUI
 import SceneKit
 import StitchSchemaKit
+import RealityKit
 
 // https://stackoverflow.com/questions/63515452/how-do-i-determine-the-maximum-allowed-size-of-an-mtltexturedescriptor
 
@@ -31,6 +32,9 @@ struct Preview3DModelLayer: View {
     // State for media needed if we need to async load an import
     @State private var mediaObject: StitchMediaObject?
     
+    // Keeps track of anchor object, if used
+    @State private var anchorEntity: AnchorEntity?
+    
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     @Bindable var layerViewModel: LayerViewModel
@@ -41,6 +45,7 @@ struct Preview3DModelLayer: View {
     let position3D: Point3D
     let scale3D: Point3D
     let rotation3D: Point3D
+    let anchorEntityId: UUID?
     let position: CGPoint
     let rotationX: Double
     let rotationY: Double
@@ -98,6 +103,36 @@ struct Preview3DModelLayer: View {
                     }
                     .onChange(of: self.transform) { _, newTransform in
                         entity.applyMatrix(newMatrix: newTransform)
+                    }
+                    .onChange(of: self.anchorEntityId, initial: true) { _, newAnchorEntityId in
+                        // Remove old anchor from reality, if exists
+                        if let oldAnchor = self.anchorEntity {
+                            realityContent.remove(oldAnchor)
+                            
+                            // add back entity to scene (which would have gotten removed by above
+                            realityContent.add(entity.containerEntity)
+                        }
+
+                        guard let newAnchorEntityId = newAnchorEntityId else {
+                            self.anchorEntity = nil
+                            return
+                        }
+                        
+                        // TODO: support looping in reality view
+                        guard let anchorObserver = self.graph.getNodeViewModel(newAnchorEntityId)?.ephemeralObservers?.first as? ARAnchorObserver else {
+                            self.anchorEntity = nil
+                            fatalErrorIfDebug()
+                            return
+                        }
+                        
+                        guard let anchor = anchorObserver.arAnchor else { return }
+                        self.anchorEntity = anchor
+                        
+                        // add entity to anchor
+                        anchor.addChild(entity.containerEntity)
+                        
+                        // add anchor to reality
+                        realityContent.add(anchor)
                     }
                     .onDisappear {
                         realityContent.remove(entity.containerEntity)

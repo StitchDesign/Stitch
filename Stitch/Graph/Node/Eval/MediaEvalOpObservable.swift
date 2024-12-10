@@ -55,8 +55,6 @@ extension MediaEvalOpObserver {
             soundPlayer.delegate.setJumpTime(.zero)
         case .model3D(let stitchEntity):
             stitchEntity.containerEntity.transform = .init()
-        case .arAnchor(let anchorEntity):
-            anchorEntity.transform = .init()
         default:
             return
         }

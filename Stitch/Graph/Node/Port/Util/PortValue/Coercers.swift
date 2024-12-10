@@ -761,7 +761,7 @@ extension PortValues {
             case .anchorEntity:
                 return $0
             default:
-                return .assignedLayer(nil)
+                return .anchorEntity(nil)
             }
         }
     }

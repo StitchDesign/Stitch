@@ -82,6 +82,7 @@ struct Model3DLayerNode: LayerNodeDefinition {
             position3D: viewModel.position3D.getPoint3D ?? .zero,
             scale3D: viewModel.scale3D.getPoint3D ?? .zero,
             rotation3D: viewModel.rotation3D.getPoint3D ?? .zero,
+            anchorEntityId: viewModel.anchorEntity.anchorEntity,
             position: viewModel.position.getPosition ?? .zero,
             rotationX: viewModel.rotationX.asCGFloat,
             rotationY: viewModel.rotationY.asCGFloat,
