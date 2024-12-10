@@ -10,7 +10,7 @@ import XCTest
 import AVFoundation
 
 class CameraTests: XCTestCase {
-    let mockEnvironment = StitchEnvironment()
+//    let mockEnvironment = StitchEnvironment()
 
     #if !targetEnvironment(simulator)
     /// Ensure that a camera can be determined from nil state.

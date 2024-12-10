@@ -97,6 +97,7 @@ class EvalTests2: XCTestCase {
     //        XCTAssertEqual(result, expected)
     //    }
 
+    @MainActor
     func testProgressEvalNegativeZero() throws {
 
         let n1: PortValues = [.number(0)]
@@ -119,6 +120,7 @@ class EvalTests2: XCTestCase {
         XCTAssertEqual(result, [expectedOutput])
     }
 
+    @MainActor
     func testProgressEvalNaN() throws {
 
         let n1: PortValues = [.number(0)]
@@ -136,6 +138,7 @@ class EvalTests2: XCTestCase {
         XCTAssertEqual(result, [expectedOutput])
     }
 
+    @MainActor
     func testProgressEvalInfinity() throws {
 
         let n1: PortValues = [.number(10)]

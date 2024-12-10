@@ -66,6 +66,7 @@ class EvalTests: XCTestCase {
         XCTAssertTrue(true)
     }
 
+    @MainActor
     func testMultiplyEval() throws {
 
         let n1: PortValues = [
@@ -86,6 +87,7 @@ class EvalTests: XCTestCase {
         XCTAssertEqual(result, [expectedOutput])
     }
 
+    @MainActor
     func testDivideEval() throws {
 
         let n1: PortValues = [
@@ -106,6 +108,7 @@ class EvalTests: XCTestCase {
         XCTAssertEqual(result, [expectedOutput])
     }
 
+    @MainActor
     func testDivideEvalZero() throws {
 
         let n1: PortValues = [
@@ -126,6 +129,7 @@ class EvalTests: XCTestCase {
         XCTAssertEqual(result, [expectedOutput])
     }
 
+    @MainActor
     func testDivideEvalPoint3D() throws {
 
         let inputs: PortValuesList = [
@@ -150,6 +154,7 @@ class EvalTests: XCTestCase {
         XCTAssertEqual(result, [expectedOutput])
     }
 
+    @MainActor
     func testMultiplyEvalPoint3D() throws {
 
         let inputs: PortValuesList = [
@@ -174,6 +179,7 @@ class EvalTests: XCTestCase {
         XCTAssertEqual(result, [expectedOutput])
     }
 
+    @MainActor
     func testAddEvalTwoEqualLoops() throws {
 
         let n1: PortValues = [
@@ -226,6 +232,7 @@ class EvalTests: XCTestCase {
     //        XCTAssertEqual(result, [expectedOutput])
     //    }
 
+    @MainActor
     func testAddEvalThreeEqualLoops() throws {
 
         let n1: PortValues = [
@@ -254,6 +261,7 @@ class EvalTests: XCTestCase {
         XCTAssertEqual(result, [expectedOutput])
     }
 
+    @MainActor
     func testAddEvalInequalLoops() throws {
 
         let n1: PortValues = [
@@ -286,6 +294,7 @@ class EvalTests: XCTestCase {
         XCTAssertEqual(result, [expectedOutput])
     }
 
+    @MainActor
     func testPoint3DEval() throws {
 
         let inputs: PortValuesList = [
@@ -315,6 +324,7 @@ class EvalTests: XCTestCase {
         XCTAssertEqual(result, expectedOutputs)
     }
 
+    @MainActor
     func testPoint3DUnpackEval() throws {
 
         let point1 = Point3D(x: 10, y: 100, z: 300)
@@ -380,6 +390,7 @@ class EvalTests: XCTestCase {
     //
     //    }
 
+    @MainActor
     func testSizeEvalArrayWithSizeNodeType() throws {
 
         let inputs: PortValuesList = [
@@ -408,6 +419,7 @@ class EvalTests: XCTestCase {
     }
 
     // (.number(x), .number(y)) -> .position(x, y)
+    @MainActor
     func testSizeEvalArrayWithPositionNodeType() throws {
 
         let inputs: PortValuesList = [
@@ -434,6 +446,7 @@ class EvalTests: XCTestCase {
         XCTAssertEqual(result, expectedOutputs)
     }
 
+    @MainActor
     func testSizeUnpackEvalArrayWithSizeNodeType() throws {
 
         let size1 = LayerSize(width: 10, height: 100)
@@ -463,6 +476,7 @@ class EvalTests: XCTestCase {
         XCTAssertEqual(result, expectedOutputs)
     }
 
+    @MainActor
     func testSizeUnpackEvalArrayWithPositionNodeType() throws {
 
         let n1: PortValues = [
@@ -749,6 +763,7 @@ class EvalTests: XCTestCase {
     //        log("testSpringAnimationEval: result.node.springAnimationStates: \(result.node.springAnimationStates)")
     //    }
 
+    @MainActor
     func testOptionPickerColor() throws {
 
         // set this up as if it has received a loop of numbers (choices)
