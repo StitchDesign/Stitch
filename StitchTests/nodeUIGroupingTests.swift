@@ -23,6 +23,7 @@ extension XCTestCase {
 
 class GroupNodeTests: XCTestCase {
     
+    @MainActor
     let mockEnvironment = StitchEnvironment()
     
     /// Simple GroupNode with two Add nodes inside; no incoming/outgoing edges or splitters.
