@@ -1,5 +1,5 @@
 What’s New
-- Inertial scrolling support for Scroll Interaction patch node
+- Added support for native iOS scrolling in layer groups
 - Improved FPS performance for large projects with visible canvas
 
 UI Enhancements
@@ -12,8 +12,7 @@ Bug Fixes
 - Improved anchoring logic when layer dimensions are set to auto
 - Fixed unresponsive node type menu on iOS
 - Layer fields on canvas retain values after re-selection in sidebar
-- Improved edge locations with edge hover shortcut in use
-- Fixed port colors when drawing new edge
+- Improved port colors when drawing new edge
 
 Platform Changes
 - Changed iOS target version to iOS 18
