@@ -146,8 +146,8 @@ struct ProjectsListItemView: View {
             if self.projectLoader.loadingDocument == .initialized {
                 projectLoader.loadingDocument = .loading
 
-                let isHomeScreenOpen = store.currentDocument == nil
-                Task.detached(priority: isHomeScreenOpen ? .high : .low) { [weak documentLoader, weak projectLoader] in
+                // Note: strangely, on a 2020 MacBook Air M1 with 8 GB RAM, `.high` priority does not properly load projects but `.low` and `.background` do
+                Task.detached(priority: .low) { [weak documentLoader, weak projectLoader] in
                     if let projectLoader = projectLoader {
                         await documentLoader?.loadDocument(projectLoader)                        
                     }
