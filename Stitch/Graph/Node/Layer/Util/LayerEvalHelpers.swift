@@ -73,6 +73,7 @@ struct ShapeLayerView: View {
     let isPinnedViewRendering: Bool
     let parentSize: CGSize
     let parentDisablesPosition: Bool
+    let parentIsScrollableGrid: Bool
 
     var body: some View {
         let stroke = viewModel.getLayerStrokeData()
@@ -113,6 +114,7 @@ struct ShapeLayerView: View {
                                                        shape: viewModel.shape.getShape),
             parentSize: parentSize,
             parentDisablesPosition: parentDisablesPosition,
+            parentIsScrollableGrid: parentIsScrollableGrid,
             usesAbsoluteCoordinates: coordinateSystem == .absolute)
     }
 

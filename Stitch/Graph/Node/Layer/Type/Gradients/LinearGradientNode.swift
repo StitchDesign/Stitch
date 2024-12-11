@@ -45,7 +45,8 @@ struct LinearGradientLayerNode: LayerNodeDefinition {
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, 
                         isPinnedViewRendering: Bool,
-                        parentDisablesPosition: Bool) -> some View {
+                        parentDisablesPosition: Bool,
+                        parentIsScrollableGrid: Bool) -> some View {
         PreviewLinearGradientLayer(
             document: document,
             graph: graph,
@@ -70,7 +71,8 @@ struct LinearGradientLayerNode: LayerNodeDefinition {
             firstColor: viewModel.startColor.getColor ?? .yellow,
             secondColor: viewModel.endColor.getColor ?? .blue,
             parentSize: parentSize,
-            parentDisablesPosition: parentDisablesPosition)
+            parentDisablesPosition: parentDisablesPosition,
+            parentIsScrollableGrid: parentIsScrollableGrid)
     }
 }
 
@@ -100,6 +102,7 @@ struct PreviewLinearGradientLayer: View {
     let secondColor: Color
     let parentSize: CGSize
     let parentDisablesPosition: Bool
+    let parentIsScrollableGrid: Bool
 
     var body: some View {
 
@@ -133,7 +136,8 @@ struct PreviewLinearGradientLayer: View {
             shadowRadius: .defaultShadowRadius,
             shadowOffset: .defaultShadowOffset,
             parentSize: parentSize,
-            parentDisablesPosition: parentDisablesPosition))
+            parentDisablesPosition: parentDisablesPosition,
+            parentIsScrollableGrid: parentIsScrollableGrid))
     }
 }
 

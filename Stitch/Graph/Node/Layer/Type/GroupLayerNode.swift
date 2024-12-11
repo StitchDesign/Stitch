@@ -116,7 +116,8 @@ struct GroupLayerNode: LayerNodeDefinition {
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, isPinnedViewRendering: Bool,
-                        parentDisablesPosition: Bool) -> some View {
+                        parentDisablesPosition: Bool,
+                        parentIsScrollableGrid: Bool) -> some View {
         PreviewGroupLayer(
             document: document,
             graph: graph,
@@ -128,6 +129,7 @@ struct GroupLayerNode: LayerNodeDefinition {
             size: viewModel.size.getSize ?? .defaultLayerGroupSize,
             parentSize: parentSize,
             parentDisablesPosition: parentDisablesPosition,
+            parentIsScrollableGrid: parentIsScrollableGrid,
             isClipped: viewModel.isClipped.getBool ?? DEFAULT_GROUP_CLIP_SETTING,
             scale: viewModel.scale.getNumber ?? defaultScaleNumber,
             anchoring: viewModel.anchoring.getAnchoring ?? .defaultAnchoring,

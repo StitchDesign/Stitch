@@ -43,6 +43,7 @@ struct PreviewGroupLayer: View {
     // Assumes parentSize has already been scaled, etc.
     let parentSize: CGSize
     let parentDisablesPosition: Bool
+    let parentIsScrollableGrid: Bool
 
     let isClipped: Bool
     let scale: CGFloat
@@ -226,7 +227,8 @@ struct PreviewGroupLayer: View {
                 graph: graph,
                 viewModel: layerViewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
-                parentDisablesPosition: parentDisablesPosition, 
+                parentDisablesPosition: parentDisablesPosition,
+                parentIsScrollableGrid: parentIsScrollableGrid,
                 parentSize: parentSize,
                 pos: pos))
         

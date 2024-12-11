@@ -43,7 +43,7 @@ struct AngularGradientLayerNode: LayerNodeDefinition {
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, 
                         isPinnedViewRendering: Bool,
-                        parentDisablesPosition: Bool) -> some View {
+                        parentDisablesPosition: Bool, parentIsScrollableGrid: Bool) -> some View {
         PreviewAngularGradientLayer(
             document: document,
             graph: graph,
@@ -100,6 +100,7 @@ struct PreviewAngularGradientLayer: View {
     let endAngle: Double
     let parentSize: CGSize
     let parentDisablesPosition: Bool
+    let parentIsScrollableGrid: Bool
 
     var body: some View {
 
@@ -135,6 +136,7 @@ struct PreviewAngularGradientLayer: View {
                 shadowRadius: .defaultShadowRadius,
                 shadowOffset: .defaultShadowOffset,
                 parentSize: parentSize,
-                parentDisablesPosition: parentDisablesPosition))
+                parentDisablesPosition: parentDisablesPosition,
+                parentIsScrollableGrid: parentIsScrollableGrid))
     }
 }

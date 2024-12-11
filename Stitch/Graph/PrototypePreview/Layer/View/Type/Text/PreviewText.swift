@@ -56,6 +56,7 @@ struct PreviewTextLayer: View {
     
     let parentSize: CGSize
     let parentDisablesPosition: Bool
+    let parentIsScrollableGrid: Bool
 
     var body: some View {
 
@@ -95,6 +96,7 @@ struct PreviewTextLayer: View {
             shadowOffset: shadowOffset,
             parentSize: parentSize,
             parentDisablesPosition: parentDisablesPosition,
+            parentIsScrollableGrid: parentIsScrollableGrid,
             frameAlignment: alignment ?? .topLeading
         ))
     }

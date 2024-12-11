@@ -46,7 +46,8 @@ struct SwitchLayerNode: LayerNodeDefinition {
                         parentSize: CGSize,
                         layersInGroup: LayerDataList,
                         isPinnedViewRendering: Bool,
-                        parentDisablesPosition: Bool) -> some View {
+                        parentDisablesPosition: Bool,
+                        parentIsScrollableGrid: Bool) -> some View {
         PreviewSwitchLayer(
             document: document,
             graph: graph,
@@ -70,7 +71,8 @@ struct SwitchLayerNode: LayerNodeDefinition {
             hueRotation: viewModel.hueRotation.getNumber ?? .defaultHueRotationForLayerEffect,
             saturation: viewModel.saturation.getNumber ?? .defaultSaturationForLayerEffect,
             parentSize: parentSize,
-            parentDisablesPosition: false)
+            parentDisablesPosition: false,
+            parentIsScrollableGrid: parentIsScrollableGrid)
     }
 }
 
@@ -111,6 +113,7 @@ struct PreviewSwitchLayer: View {
     
     let parentSize: CGSize
     let parentDisablesPosition: Bool
+    let parentIsScrollableGrid: Bool
 
     var body: some View {
         let view = Toggle("", isOn: $viewModel.isUIToggled)
@@ -146,7 +149,8 @@ struct PreviewSwitchLayer: View {
                 shadowRadius: .defaultShadowRadius,
                 shadowOffset: .defaultShadowOffset,
                 parentSize: parentSize,
-                parentDisablesPosition: parentDisablesPosition
+                parentDisablesPosition: parentDisablesPosition,
+                parentIsScrollableGrid: parentIsScrollableGrid
             ))
         .onChange(of: self.viewModel.isUIToggled) {
             dispatch(SwitchLayerToggled(id: id))

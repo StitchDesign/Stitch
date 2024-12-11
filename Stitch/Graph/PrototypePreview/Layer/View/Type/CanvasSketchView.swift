@@ -55,6 +55,7 @@ struct CanvasSketchView: View {
 
     let parentSize: CGSize
     let parentDisablesPosition: Bool
+    let parentIsScrollableGrid: Bool
 
     var body: some View {
 
@@ -95,7 +96,8 @@ struct CanvasSketchView: View {
             shadowRadius: shadowRadius,
             shadowOffset: shadowOffset,
             parentSize: parentSize,
-            parentDisablesPosition: parentDisablesPosition
+            parentDisablesPosition: parentDisablesPosition,
+            parentIsScrollableGrid: parentIsScrollableGrid
         ))
     }
 }
