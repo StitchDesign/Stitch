@@ -14,7 +14,6 @@ struct ProjectThumbnailTextField: View {
     @State private var projectName: String = ""
     @FocusState private var isFocused: Bool
 
-    let projectLoader: ProjectLoader
     let document: StitchDocument
     let namespace: Namespace.ID
 
@@ -33,8 +32,13 @@ struct ProjectThumbnailTextField: View {
             var document = document
             document.graph.name = projectName
     
-            Task(priority: .high) { [weak projectLoader] in
-                await projectLoader?.encoder?.encodeProject(document)
+            Task(priority: .high) {
+                do {
+                    // Must write a version of the project with an updated name
+                    try StitchDocument.encodeDocument(document)
+                } catch {
+                    log("editProjectName: onSubmit: error: \(error)")
+                }
             }
         }
         .onChange(of: document.name, initial: true) {
@@ -76,14 +80,12 @@ extension StitchStore {
                 store: self
             )
             
-            await MainActor.run { [weak self, weak documentViewModel, weak projectLoader] in
-                guard let projectLoader = projectLoader,
-                      let documentViewModel = documentViewModel else {
+            await MainActor.run { [weak self, weak documentViewModel] in
+                guard let documentViewModel = documentViewModel else {
                     return
                 }
                 
-                projectLoader.documentViewModel = documentViewModel
-                self?.navPath = [projectLoader]
+                self?.navPath = [documentViewModel]
                 loadedCallback()
             }
         }
