@@ -14,11 +14,13 @@ struct StitchNavStack: View {
     var body: some View {
         NavigationStack(path: $store.navPath) {
             ProjectsHomeViewWrapper()
-                .navigationDestination(for: StitchDocumentViewModel.self) { document in
-                    StitchProjectView(store: store,
-                                      document: document,
-                                      graphUI: document.graphUI,
-                                      alertState: store.alertState)
+                .navigationDestination(for: ProjectLoader.self) { projectLoader in
+                    if let document = projectLoader.documentViewModel {
+                        StitchProjectView(store: store,
+                                          document: document,
+                                          graphUI: document.graphUI,
+                                          alertState: store.alertState)
+                    }
                 }
                 .onChange(of: store.isCurrentProjectSelected) {
                     // Rest undo if project closed

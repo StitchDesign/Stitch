@@ -1,6 +1,7 @@
 What’s New
 - Added support for native iOS scrolling in layer groups
 - Improved FPS performance for large projects with visible canvas
+- Home screen icons load much faster
 
 UI Enhancements
 - Enhanced UI for looped values popover
