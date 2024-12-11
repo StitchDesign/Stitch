@@ -125,6 +125,7 @@ struct ProjectsListItemView: View {
                         self.isLoadingForPresentation = true
                         
                         store.handleProjectTapped(projectLoader: self.projectLoader,
+                                                  document: document,
                                                   isPhoneDevice: GraphUIState.isPhoneDevice) {
                             self.isLoadingForPresentation = false
                         }
@@ -134,7 +135,8 @@ struct ProjectsListItemView: View {
         } labelView: {
             switch projectLoader.loadingDocument {
             case .loaded(let document, _):
-                ProjectThumbnailTextField(document: document,
+                ProjectThumbnailTextField(projectLoader: projectLoader,
+                                          document: document,
                                           namespace: namespace)
             default:
                 // Blank text view to copy height of loaded view
@@ -144,8 +146,9 @@ struct ProjectsListItemView: View {
         .onChange(of: projectLoader.loadingDocument, initial: true) {
             if self.projectLoader.loadingDocument == .initialized {
                 projectLoader.loadingDocument = .loading
-                
-                Task.detached(priority: .background) { [weak documentLoader, weak projectLoader] in
+
+                let isHomeScreenOpen = store.currentDocument == nil
+                Task.detached(priority: isHomeScreenOpen ? .high : .low) { [weak documentLoader, weak projectLoader] in
                     if let projectLoader = projectLoader {
                         await documentLoader?.loadDocument(projectLoader)                        
                     }
