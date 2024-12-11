@@ -125,6 +125,7 @@ struct ProjectsListItemView: View {
                         self.isLoadingForPresentation = true
                         
                         store.handleProjectTapped(projectLoader: self.projectLoader,
+                                                  document: document,
                                                   isPhoneDevice: GraphUIState.isPhoneDevice) {
                             self.isLoadingForPresentation = false
                         }

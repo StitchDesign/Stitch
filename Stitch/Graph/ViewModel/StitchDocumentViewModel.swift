@@ -135,6 +135,14 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
     func willEncodeProject(schema: StitchDocument) {
         // Signals to project thumbnail logic to create a new one when project closes
         self.didDocumentChange = true
+        
+        // Blocks thumbnail from being selected until encoding completes
+        self.projectLoader?.loadingDocument = .loading
+    }
+    
+    func didEncodeProject(schema: StitchDocument) {
+        self.projectLoader?.loadingDocument = .loaded(schema,
+                                                      self.projectLoader?.thumbnail)
     }
 }
 

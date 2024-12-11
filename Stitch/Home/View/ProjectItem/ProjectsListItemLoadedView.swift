@@ -67,21 +67,11 @@ extension StitchStore {
     /// so that opened projects only re-sort when edited.
     @MainActor
     func handleProjectTapped(projectLoader: ProjectLoader,
+                             document: StitchDocument,
                              isPhoneDevice: Bool,
                              loadedCallback: @MainActor @Sendable @escaping () -> ()) {
-        
-        let documentURL = projectLoader.url
-        
-        Task(priority: .high) { [weak projectLoader] in
+        Task { [weak projectLoader] in
             guard let projectLoader = projectLoader else { return }
-            
-            // Always fetch most recent document
-            guard let document = try await StitchDocument.openDocument(from: documentURL) else {
-                await MainActor.run { [weak self] in
-                    self?.displayError(error: .projectSchemaNotFound)
-                }
-                return
-            }
             
             let documentViewModel = await StitchDocumentViewModel(
                 from: document,
