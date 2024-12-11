@@ -33,6 +33,7 @@ struct PreviewColorFillLayer: View {
     let saturation: Double
     let parentSize: CGSize
     let parentDisablesPosition: Bool
+    let parentIsScrollableGrid: Bool
 
     var body: some View {
 
@@ -65,7 +66,9 @@ struct PreviewColorFillLayer: View {
                 shadowRadius: .defaultShadowRadius,
                 shadowOffset: .defaultShadowOffset,
                 parentSize: parentSize,
-                parentDisablesPosition: parentDisablesPosition))
+                parentDisablesPosition: parentDisablesPosition,
+                parentIsScrollableGrid: parentIsScrollableGrid
+            ))
     }
 }
 

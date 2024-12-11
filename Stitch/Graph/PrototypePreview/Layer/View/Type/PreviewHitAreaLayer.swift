@@ -25,6 +25,7 @@ struct PreviewHitAreaLayer: View {
     
     let parentSize: CGSize
     let parentDisablesPosition: Bool
+    let parentIsScrollableGrid: Bool
     
     var color: Color {
         setupMode ? .red.opacity(0.5) : Color.white.opacity(0.0001)
@@ -66,7 +67,8 @@ struct PreviewHitAreaLayer: View {
                 shadowRadius: .defaultShadowRadius,
                 shadowOffset: .defaultShadowOffset,
                 parentSize: parentSize,
-                parentDisablesPosition: parentDisablesPosition))
+                parentDisablesPosition: parentDisablesPosition,
+                parentIsScrollableGrid: parentIsScrollableGrid))
         }
     }
 }

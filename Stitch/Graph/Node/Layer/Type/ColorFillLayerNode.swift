@@ -50,6 +50,7 @@ struct ColorFillLayerNode: LayerNodeDefinition {
             hueRotation: viewModel.hueRotation.getNumber ?? .defaultHueRotationForLayerEffect,
             saturation: viewModel.saturation.getNumber ?? .defaultSaturationForLayerEffect,
             parentSize: parentSize,
-            parentDisablesPosition: true)
+            parentDisablesPosition: true,
+            parentIsScrollableGrid: parentIsScrollableGrid)
     }
 }

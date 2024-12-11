@@ -51,6 +51,7 @@ struct HitAreaLayerNode: LayerNodeDefinition {
             anchoring: viewModel.anchoring.getAnchoring ?? .defaultAnchoring,
             setupMode: viewModel.setupMode.getBool ?? false,
             parentSize: parentSize,
-            parentDisablesPosition: parentDisablesPosition)
+            parentDisablesPosition: parentDisablesPosition,
+            parentIsScrollableGrid: parentIsScrollableGrid)
     }
 }

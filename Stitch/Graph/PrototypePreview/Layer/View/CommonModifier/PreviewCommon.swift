@@ -112,7 +112,8 @@ struct PreviewCommonModifier: ViewModifier {
                 shadowOffset: shadowOffset,
                 isForShapeLayer: isForShapeLayer,
                 parentSize: parentSize,
-                parentDisablesPosition: parentDisablesPosition))
+                parentDisablesPosition: parentDisablesPosition,
+                parentIsScrollableGrid: parentIsScrollableGrid))
     }
 }
 

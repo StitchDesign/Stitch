@@ -43,7 +43,8 @@ struct AngularGradientLayerNode: LayerNodeDefinition {
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, 
                         isPinnedViewRendering: Bool,
-                        parentDisablesPosition: Bool, parentIsScrollableGrid: Bool) -> some View {
+                        parentDisablesPosition: Bool,
+                        parentIsScrollableGrid: Bool) -> some View {
         PreviewAngularGradientLayer(
             document: document,
             graph: graph,
@@ -69,7 +70,8 @@ struct AngularGradientLayerNode: LayerNodeDefinition {
             startAngle: viewModel.startAngle.getNumber ?? DEFAULT_ANGULAR_GRADIENT_START_ANGLE,
             endAngle: viewModel.endAngle.getNumber ?? DEFAULT_ANGULAR_GRADIENT_END_ANGLE,
             parentSize: parentSize,
-            parentDisablesPosition: parentDisablesPosition)
+            parentDisablesPosition: parentDisablesPosition,
+            parentIsScrollableGrid: parentIsScrollableGrid)
     }
 }
 

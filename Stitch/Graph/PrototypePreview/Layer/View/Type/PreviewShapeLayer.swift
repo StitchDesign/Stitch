@@ -48,6 +48,7 @@ struct PreviewShapeLayer: View {
     
     let parentSize: CGSize
     let parentDisablesPosition: Bool
+    let parentIsScrollableGrid: Bool
     
     let usesAbsoluteCoordinates: Bool
     
@@ -137,7 +138,8 @@ struct PreviewShapeLayer: View {
                     shadowOffset: shadowOffset,
                     isForShapeLayer: true,
                     parentSize: parentSize,
-                    parentDisablesPosition: parentDisablesPosition))
+                    parentDisablesPosition: parentDisablesPosition,
+                    parentIsScrollableGrid: parentIsScrollableGrid))
         }
     }
     
