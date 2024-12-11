@@ -12,6 +12,16 @@ import StitchEngine
 
 let STITCH_PROJECT_DEFAULT_NAME = StitchDocument.defaultName
 
+extension StitchDocumentViewModel: Hashable {
+    static func == (lhs: StitchDocumentViewModel, rhs: StitchDocumentViewModel) -> Bool {
+        lhs.rootId == rhs.rootId
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(self.rootId)
+    }
+}
+
 @Observable
 final class StitchDocumentViewModel: Sendable {
     let rootId: UUID
@@ -45,6 +55,8 @@ final class StitchDocumentViewModel: Sendable {
     // Singleton instances
     @MainActor var locationManager: LoadingStatus<StitchSingletonMediaObject>?
     @MainActor var cameraFeedManager: LoadingStatus<StitchSingletonMediaObject>?
+    
+    @MainActor var lastEncodedDocument: StitchDocument
     
     @MainActor weak var storeDelegate: StoreDelegate?
     @MainActor weak var projectLoader: ProjectLoader?
@@ -121,28 +133,10 @@ final class StitchDocumentViewModel: Sendable {
     }
 }
 
-extension StitchDocumentViewModel: DocumentEncodableDelegate {
-    @MainActor var lastEncodedDocument: StitchDocument {
-        get {
-            self.projectLoader?.loadingDocument.document ?? StitchDocument()
-        }
-        set(newValue) {
-            self.projectLoader?.loadingDocument = .loaded(newValue,
-                                                          self.projectLoader?.thumbnail)
-        }
-    }
-    
+extension StitchDocumentViewModel: DocumentEncodableDelegate {    
     func willEncodeProject(schema: StitchDocument) {
         // Signals to project thumbnail logic to create a new one when project closes
         self.didDocumentChange = true
-        
-        // Blocks thumbnail from being selected until encoding completes
-        self.projectLoader?.loadingDocument = .loading
-    }
-    
-    func didEncodeProject(schema: StitchDocument) {
-        self.projectLoader?.loadingDocument = .loaded(schema,
-                                                      self.projectLoader?.thumbnail)
     }
 }
 
