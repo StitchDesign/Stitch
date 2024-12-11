@@ -110,9 +110,22 @@ extension GraphState {
         case .layerOutput(let x):
             // Set the canvas-ui-data on the layer node's input = nil
             guard let layerNode = self.getNodeViewModel(x.node)?.layerNode,
-                  let outputData = layerNode.outputPorts[safe: x.portId] else {
+                  let outputData: OutputLayerNodeRowData = layerNode.outputPorts[safe: x.portId] else {
                 fatalErrorIfDebug()
                 return
+            }
+            
+            // Find this output's downstream connected nodes,
+            // look at each node's inputs,
+            // and remove the upstreamOutputCoordinate reference if it was for this deleted layer canvas output.
+            outputData.rowObserver.getConnectedDownstreamNodes().forEach { (downstreamCanvasItem: CanvasItemViewModel) in
+                downstreamCanvasItem.inputViewModels.forEach { (inputRow: InputNodeRowViewModel) in
+                    if let upstreamCoordinate = inputRow.rowDelegate?.upstreamOutputCoordinate,
+                       upstreamCoordinate.nodeId == x.node,
+                       upstreamCoordinate.portId == x.portId {
+                        inputRow.rowDelegate?.upstreamOutputCoordinate = nil
+                    }
+                }
             }
             
             outputData.canvasObserver = nil
