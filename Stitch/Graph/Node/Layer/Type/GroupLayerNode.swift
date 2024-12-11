@@ -173,7 +173,7 @@ extension LayerSize {
 func nativeScrollInteractionEval(node: LayerNode,
                                  state: GraphDelegate) -> EvalResult {
     
-    log("nativeScrollInteractionEval: called")
+    // log("nativeScrollInteractionEval: called")
     let defaultOutputs: PortValuesList =  [[.position(.zero)]]
     
     guard !node.outputs.isEmpty else {
@@ -204,7 +204,7 @@ func nativeScrollInteractionEvalOp(layerViewModel: LayerViewModel, // for the gr
                                    currentGraphTime: TimeInterval,
                                    currentGraphFrameCount: Int) -> ImpureEvalOpResult {
     
-    log("nativeScrollInteractionEvalOp: called")
+    // log("nativeScrollInteractionEvalOp: called")
     
     // Update interactiveLayer according to inputs
     // Note: only update the properties that changed, else @Observable fires unnecessarily
