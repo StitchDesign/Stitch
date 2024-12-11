@@ -30,7 +30,14 @@ protocol DocumentEncodableDelegate: Observable, AnyObject, Sendable {
     
     @MainActor func willEncodeProject(schema: CodableDocument)
     
+    @MainActor func didEncodeProject(schema: CodableDocument)
+    
     @MainActor var storeDelegate: StoreDelegate? { get }
+}
+
+extension DocumentEncodableDelegate {
+    // Default function to make it optional to define.
+    @MainActor func didEncodeProject(schema: CodableDocument) { }
 }
 
 extension DocumentEncodable {
@@ -97,7 +104,8 @@ extension DocumentEncodable {
             saveUndoHistory(delegate, oldSchema, newSchema)
         }
         
-        Task(priority: .background) { [weak self] in
+        // medium priority fixes issue where encoding here enters queue with same priority as potentially many projects, thus not updating disk fast enough if user exits project
+        Task(priority: .medium) { [weak self] in
             guard let encoder = self else {
                 return
             }
@@ -132,6 +140,7 @@ extension DocumentEncodable {
             if willUpdateUndoHistory {
                 await MainActor.run { [weak self] in
                     self?.lastEncodedDocument = document
+                    self?.delegate?.didEncodeProject(schema: document)
                 }
             }
             
