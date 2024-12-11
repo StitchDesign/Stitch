@@ -30,14 +30,7 @@ protocol DocumentEncodableDelegate: Observable, AnyObject, Sendable {
     
     @MainActor func willEncodeProject(schema: CodableDocument)
     
-    @MainActor func didEncodeProject(schema: CodableDocument)
-    
     @MainActor var storeDelegate: StoreDelegate? { get }
-}
-
-extension DocumentEncodableDelegate {
-    // Default function to make it optional to define.
-    @MainActor func didEncodeProject(schema: CodableDocument) { }
 }
 
 extension DocumentEncodable {
@@ -140,7 +133,6 @@ extension DocumentEncodable {
             if willUpdateUndoHistory {
                 await MainActor.run { [weak self] in
                     self?.lastEncodedDocument = document
-                    self?.delegate?.didEncodeProject(schema: document)
                 }
             }
             
