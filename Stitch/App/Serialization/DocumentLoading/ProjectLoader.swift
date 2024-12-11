@@ -8,30 +8,16 @@
 import Foundation
 import SwiftUI
 
-// MARK: hashable for navpath
-extension ProjectLoader: Hashable {
-    static func == (lhs: ProjectLoader, rhs: ProjectLoader) -> Bool {
-        lhs.id == rhs.id
-    }
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(self.id)
-    }
-}
-
 /// Passed into view to property sort URLs by modified date and forces a new render cycle when the date changes.
 @Observable
 final class ProjectLoader: Sendable, Identifiable {
     let id: Int
-    let url: URL
+    @MainActor var encoder: DocumentEncoder?
     
     @MainActor var modifiedDate: Date
-    @MainActor var encoder: DocumentEncoder?
+    @MainActor var url: URL
     @MainActor var loadingDocument: DocumentLoadingStatus = .initialized
     @MainActor var thumbnail: UIImage?
-    
-    // assigned if project is opened
-    @MainActor var documentViewModel: StitchDocumentViewModel?
 
     /// Initialzes object with some URL, not yet loading document until loaded in lazy view.
     @MainActor init(url: URL) {
