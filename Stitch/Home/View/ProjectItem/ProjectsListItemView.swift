@@ -147,7 +147,7 @@ struct ProjectsListItemView: View {
                 
                 Task.detached(priority: .background) { [weak documentLoader, weak projectLoader] in
                     if let projectLoader = projectLoader {
-                        await documentLoader?.loadDocument(projectLoader)                        
+                        await documentLoader?.loadDocument(projectLoader)
                     }
                 }
             }

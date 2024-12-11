@@ -71,6 +71,8 @@ struct PreviewShapeLayer: View {
         
         let shape = builtShape(layerNodeSize: layerNodeSize)
         
+        logInView("PreviewShapeLayer: body: layerViewModel.id: \(layerViewModel.id)")
+        
         // After we've applied Shape- and InsettableShape-based SwiftUI modifiers,
         // we apply the common modifiers:
         if usesAbsoluteCoordinates {
