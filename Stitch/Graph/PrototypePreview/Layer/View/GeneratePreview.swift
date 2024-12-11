@@ -205,16 +205,22 @@ struct PreviewLayersView: View {
             // We *must* provide a "minimum cell space" for an .adaptive LazyVGrid.
             // So we use the largest width.
             // TODO: perf implications of iterating through e.g. 900 views?
-            let longestReadWidth = presentedLayers.max { d1, d2 in
-                d1.layer.readSize.width < d2.layer.readSize.width
-            }?.layer.readSize.width ?? .zero
+//            let longestReadWidth = presentedLayers.max { d1, d2 in
+//                d1.layer.readSize.width < d2.layer.readSize.width
+//            }?.layer.readSize.width ?? .zero
+            
+            
+            // ASSUMED WIDTH
+            let longestReadWidth: CGFloat = 100.0
             
             // logInView("gridView: longestReadWidth: \(longestReadWidth)")
             
             // Note: very important: `.adaptive(minimum: .zero)` causes SwiftUI to crash
             // TODO: why `30`? What other number to use instead? `1` ? Does it matter?
-            let gridCellMinimumWidth = max(longestReadWidth, 30.0)
-                            
+            // let gridCellMinimumWidth = max(longestReadWidth, 30.0)
+               
+            let gridCellMinimumWidth = longestReadWidth
+            
             // logInView("gridView: gridCellMinimumWidth: \(gridCellMinimumWidth)")
             
             let adaptiveColumns: [GridItem] = [
