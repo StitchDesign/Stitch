@@ -145,8 +145,9 @@ struct ProjectsListItemView: View {
         .onChange(of: projectLoader.loadingDocument, initial: true) {
             if self.projectLoader.loadingDocument == .initialized {
                 projectLoader.loadingDocument = .loading
-                
-                Task.detached(priority: .background) { [weak documentLoader, weak projectLoader] in
+
+                let isHomeScreenOpen = store.currentDocument == nil
+                Task.detached(priority: isHomeScreenOpen ? .high : .low) { [weak documentLoader, weak projectLoader] in
                     if let projectLoader = projectLoader {
                         await documentLoader?.loadDocument(projectLoader)                        
                     }
