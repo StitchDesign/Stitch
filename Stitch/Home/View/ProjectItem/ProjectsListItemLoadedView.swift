@@ -90,12 +90,14 @@ extension StitchStore {
                 store: self
             )
             
-            await MainActor.run { [weak self, weak documentViewModel] in
-                guard let documentViewModel = documentViewModel else {
+            await MainActor.run { [weak self, weak documentViewModel, weak projectLoader] in
+                guard let projectLoader = projectLoader,
+                      let documentViewModel = documentViewModel else {
                     return
                 }
                 
-                self?.navPath = [documentViewModel]
+                projectLoader.documentViewModel = documentViewModel
+                self?.navPath = [projectLoader]
                 loadedCallback()
             }
         }
