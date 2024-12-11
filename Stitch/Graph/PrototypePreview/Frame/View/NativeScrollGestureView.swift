@@ -116,15 +116,16 @@ struct NativeScrollGestureViewInner: ViewModifier {
     func body(content: Content) -> some View {
         // logInView("NativeScrollGestureViewInner: var body")
         
-        ScrollView(self.scrollAxes) {
+//        ScrollView(self.scrollAxes) {
+        ScrollView {
             
             content
             
-            // apply additional `.frame` for custom content size; but only if that dimension is > 0
-                .frame(width: self.customContentWidth)
-                .frame(height: self.customContentHeight)
-            
-            // factor out parent-scroll's offset, so that view does not move unless we explicitly connect scroll interaction node's output to the layer's position input
+//            // apply additional `.frame` for custom content size; but only if that dimension is > 0
+//                .frame(width: self.customContentWidth)
+//                .frame(height: self.customContentHeight)
+//            
+//            // factor out parent-scroll's offset, so that view does not move unless we explicitly connect scroll interaction node's output to the layer's position input
                 .offset(x: self.scrollOffset.x,
                         y: self.scrollOffset.y)
         }

@@ -214,6 +214,7 @@ struct PreviewLayersView: View {
             // Note: very important: `.adaptive(minimum: .zero)` causes SwiftUI to crash
             // TODO: why `30`? What other number to use instead? `1` ? Does it matter?
             let gridCellMinimumWidth = max(longestReadWidth, 30.0)
+//            let gridCellMinimumWidth: CGFloat = 100.0
                             
             // logInView("gridView: gridCellMinimumWidth: \(gridCellMinimumWidth)")
             
