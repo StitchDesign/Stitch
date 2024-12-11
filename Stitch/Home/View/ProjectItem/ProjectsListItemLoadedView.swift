@@ -10,13 +10,13 @@ import StitchSchemaKit
 
 struct ProjectThumbnailTextField: View {
     @FocusedValue(\.focusedField) private var focusedField
-
-    let document: StitchDocument
-    let namespace: Namespace.ID
-
     @State private var contextMenuOpen: Bool = false
     @State private var projectName: String = ""
     @FocusState private var isFocused: Bool
+
+    let projectLoader: ProjectLoader
+    let document: StitchDocument
+    let namespace: Namespace.ID
 
     var body: some View {
         editProjectName
@@ -30,15 +30,11 @@ struct ProjectThumbnailTextField: View {
         }
         .transition(.opacity)
         .onSubmit {
-            Task(priority: .background) {
-                do {
-                    var document = document
-                    document.graph.name = projectName
-                    // Must write a version of the project with an updated name
-                    try StitchDocument.encodeDocument(document)
-                } catch {
-                    log("editProjectName: onSubmit: error: \(error)")
-                }
+            var document = document
+            document.graph.name = projectName
+    
+            Task(priority: .high) { [weak projectLoader] in
+                await projectLoader?.encoder?.encodeProject(document)
             }
         }
         .onChange(of: document.name, initial: true) {
