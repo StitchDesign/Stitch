@@ -15,15 +15,15 @@ extension ProjectSidebarObservable {
     func sidebarItemTapped(id: Self.ItemID,
                            shiftHeld: Bool,
                            commandHeld: Bool) {
-        log("sidebarItemTapped: id: \(id)")
-        log("sidebarItemTapped: shiftHeld: \(shiftHeld)")
+        // log("sidebarItemTapped: id: \(id)")
+        // log("sidebarItemTapped: shiftHeld: \(shiftHeld)")
         
         let originalSelections = self.selectionState.primary
         
         // Set sidebar to be focused:
         self.graphDelegate?.graphUI.isSidebarFocused = true
         
-        log("sidebarItemTapped: originalSelections: \(originalSelections)")
+        // log("sidebarItemTapped: originalSelections: \(originalSelections)")
         
         if shiftHeld, originalSelections.isEmpty {
             // Special case: if no current selections, shift-click just selects from the top to the clicked item; and the shift-clicked item counts as the 'last selected item'
@@ -49,7 +49,7 @@ extension ProjectSidebarObservable {
                 !originalSelections.isEmpty,
                 let lastClickedItemId = self.selectionState.lastFocused {
             
-            log("sidebarItemTapped: shift select")
+            // log("sidebarItemTapped: shift select")
             
             guard let clickedItem = self.retrieveItem(id),
                   let lastClickedItem = self.retrieveItem(lastClickedItemId) else {
@@ -58,7 +58,7 @@ extension ProjectSidebarObservable {
                 return
             }
             
-            log("sidebarItemTapped: lastClickedItemId: \(lastClickedItemId)")
+            // log("sidebarItemTapped: lastClickedItemId: \(lastClickedItemId)")
             
             let flatList = self.items.flattenedItems
             
@@ -84,12 +84,12 @@ extension ProjectSidebarObservable {
                 // If we ended up selecting the exact same as the original,
                 // then we actually DE-SELECTED the range.
                 let newSelections = self.selectionState.primary
-                log("sidebarItemTapped: selected range: newSelections: \(newSelections)")
+                // log("sidebarItemTapped: selected range: newSelections: \(newSelections)")
                 if newSelections == originalSelections {
-                    log("sidebarItemTapped: selected range; will wipe inspectorFocusedLayers")
+                    // log("sidebarItemTapped: selected range; will wipe inspectorFocusedLayers")
                     
                     itemsBetween.forEach { itemBetween in
-                        log("sidebarItemTapped: will remove item Between \(itemBetween)")
+                        // log("sidebarItemTapped: will remove item Between \(itemBetween)")
                         self.selectionState.primary.remove(itemBetween.id)
                     }
                 }
@@ -99,11 +99,11 @@ extension ProjectSidebarObservable {
                 self.graphDelegate?.deselectAllCanvasItems()
                 
             } else {
-                log("sidebarItemTapped: did not have itemsBetween")
+                // log("sidebarItemTapped: did not have itemsBetween")
                 // TODO: this can happen when just-clicked == last-clicked, but some apps do not any deselection etc.
                 // If we shift click the last-clicked item, then remove everything in the island?
                 if clickedItem.id == lastClickedItem.id {
-                    log("clicked the same item as the last clicked; will deselect original island and select only last selected")
+                    // log("clicked the same item as the last clicked; will deselect original island and select only last selected")
                     originalIsland.forEach {
                         self.selectionState.primary.remove($0.id)
                     }
@@ -122,7 +122,7 @@ extension ProjectSidebarObservable {
         
         else if commandHeld {
             
-            log("sidebarItemTapped: command select")
+            // log("sidebarItemTapped: command select")
             
             let alreadySelected = self.selectionState.primary.contains(id)
             
@@ -141,7 +141,7 @@ extension ProjectSidebarObservable {
             }
             
         } else {
-            log("sidebarItemTapped: normal select")
+            // log("sidebarItemTapped: normal select")
             
             self.selectionState.resetEditModeSelections()
             
