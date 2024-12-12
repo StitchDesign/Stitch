@@ -1570,7 +1570,7 @@ extension LayerInputPort {
         case .deviceAppearance:
             return useShortLabel ? "Appearance" : "Device Appearance"
         case .scrollContentSize:
-            return "Content Size"
+            return useShortLabel ? "Content" : "Content Size"
         case .scrollXEnabled:
             return "Scroll X Enabled"
         case .scrollJumpToXStyle:
