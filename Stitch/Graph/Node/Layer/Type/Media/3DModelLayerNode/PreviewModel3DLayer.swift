@@ -56,6 +56,7 @@ struct Preview3DModelLayer: View {
     
     let parentSize: CGSize
     let parentDisablesPosition: Bool
+    let parentIsScrollableGrid: Bool
     
     var mediaValue: AsyncMediaValue? {
         self.layerViewModel.model3D._asyncMedia
@@ -126,7 +127,8 @@ struct Preview3DModelLayer: View {
             shadowRadius: .defaultShadowRadius,
             shadowOffset: .defaultShadowOffset,
             parentSize: parentSize,
-            parentDisablesPosition: parentDisablesPosition))
+            parentDisablesPosition: parentDisablesPosition,
+            parentIsScrollableGrid: parentIsScrollableGrid))
     }
 }
 

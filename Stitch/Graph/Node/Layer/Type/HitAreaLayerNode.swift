@@ -25,7 +25,10 @@ struct HitAreaLayerNode: LayerNodeDefinition {
         .setupMode
     ])
         .union(.aspectRatio)
-        .union(.sizing).union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
+        .union(.sizing)
+        .union(.pinning)
+        .union(.layerPaddingAndMargin)
+        .union(.offsetInGroup)
     
     static func content(document: StitchDocumentViewModel,
                         graph: GraphState,
@@ -33,7 +36,8 @@ struct HitAreaLayerNode: LayerNodeDefinition {
                         parentSize: CGSize,
                         layersInGroup: LayerDataList,
                         isPinnedViewRendering: Bool,
-                        parentDisablesPosition: Bool) -> some View {
+                        parentDisablesPosition: Bool,
+                        parentIsScrollableGrid: Bool) -> some View {
         PreviewHitAreaLayer(
             document: document,
             graph: graph,
@@ -47,6 +51,7 @@ struct HitAreaLayerNode: LayerNodeDefinition {
             anchoring: viewModel.anchoring.getAnchoring ?? .defaultAnchoring,
             setupMode: viewModel.setupMode.getBool ?? false,
             parentSize: parentSize,
-            parentDisablesPosition: parentDisablesPosition)
+            parentDisablesPosition: parentDisablesPosition,
+            parentIsScrollableGrid: parentIsScrollableGrid)
     }
 }

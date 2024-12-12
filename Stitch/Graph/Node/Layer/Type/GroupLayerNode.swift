@@ -116,7 +116,8 @@ struct GroupLayerNode: LayerNodeDefinition {
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, isPinnedViewRendering: Bool,
-                        parentDisablesPosition: Bool) -> some View {
+                        parentDisablesPosition: Bool,
+                        parentIsScrollableGrid: Bool) -> some View {
         PreviewGroupLayer(
             document: document,
             graph: graph,
@@ -128,6 +129,7 @@ struct GroupLayerNode: LayerNodeDefinition {
             size: viewModel.size.getSize ?? .defaultLayerGroupSize,
             parentSize: parentSize,
             parentDisablesPosition: parentDisablesPosition,
+            parentIsScrollableGrid: parentIsScrollableGrid,
             isClipped: viewModel.isClipped.getBool ?? DEFAULT_GROUP_CLIP_SETTING,
             scale: viewModel.scale.getNumber ?? defaultScaleNumber,
             anchoring: viewModel.anchoring.getAnchoring ?? .defaultAnchoring,
@@ -171,7 +173,7 @@ extension LayerSize {
 func nativeScrollInteractionEval(node: LayerNode,
                                  state: GraphDelegate) -> EvalResult {
     
-    log("nativeScrollInteractionEval: called")
+    // log("nativeScrollInteractionEval: called")
     let defaultOutputs: PortValuesList =  [[.position(.zero)]]
     
     guard !node.outputs.isEmpty else {
@@ -202,7 +204,7 @@ func nativeScrollInteractionEvalOp(layerViewModel: LayerViewModel, // for the gr
                                    currentGraphTime: TimeInterval,
                                    currentGraphFrameCount: Int) -> ImpureEvalOpResult {
     
-    log("nativeScrollInteractionEvalOp: called")
+    // log("nativeScrollInteractionEvalOp: called")
     
     // Update interactiveLayer according to inputs
     // Note: only update the properties that changed, else @Observable fires unnecessarily

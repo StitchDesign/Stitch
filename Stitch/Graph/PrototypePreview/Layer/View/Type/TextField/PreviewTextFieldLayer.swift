@@ -48,6 +48,7 @@ struct PreviewTextFieldLayer: View {
     
     let parentSize: CGSize
     let parentDisablesPosition: Bool
+    let parentIsScrollableGrid: Bool
 
     let focusedTextFieldLayer: PreviewCoordinate?
 
@@ -162,6 +163,7 @@ struct PreviewTextFieldLayer: View {
             shadowOffset: shadowOffset,
             parentSize: parentSize,
             parentDisablesPosition: parentDisablesPosition,
+            parentIsScrollableGrid: parentIsScrollableGrid,
             frameAlignment: verticalAlignment.asVerticalAlignmentForTextField))
     }
 }

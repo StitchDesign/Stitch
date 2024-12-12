@@ -30,6 +30,10 @@ struct PreviewCommonPositionModifier: ViewModifier {
     // TODO: use .offset instead of .position when layer is a child
     let parentDisablesPosition: Bool
     
+    // The lazy children in a ScrollView { LazyVGrid } are not loaded by .offset / .position modifier changes,
+    // so we disable both .offset and .position when this layer is inside a scrollable adaptive grid.
+    let parentIsScrollableGrid: Bool
+    
     let parentSize: CGSize
 
     // Position already adjusted by anchoring
@@ -75,8 +79,9 @@ struct PreviewCommonPositionModifier: ViewModifier {
     
     @ViewBuilder func positioningView(_ content: Content) -> some View {
         // logInView("PreviewCommonPositionModifier: regular: \(viewModel.layer)")
-        
-        if parentDisablesPosition {
+        if parentIsScrollableGrid {
+            content
+        } else if parentDisablesPosition {
            let offset = viewModel.offsetInGroup.getSize?.asCGSize(parentSize) ?? .zero
             content
                .offset(x: offset.width, y: offset.height)

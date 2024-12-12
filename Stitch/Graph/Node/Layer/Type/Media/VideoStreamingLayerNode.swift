@@ -46,7 +46,8 @@ struct VideoStreamingLayerNode: LayerNodeDefinition {
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, 
                         isPinnedViewRendering: Bool,
-                        parentDisablesPosition: Bool) -> some View {
+                        parentDisablesPosition: Bool,
+                        parentIsScrollableGrid: Bool) -> some View {
         PreviewVideoStreamLayer(
             document: document,
             graph: graph,
@@ -74,7 +75,8 @@ struct VideoStreamingLayerNode: LayerNodeDefinition {
             hueRotation: viewModel.hueRotation.getNumber ?? .defaultHueRotationForLayerEffect,
             saturation: viewModel.saturation.getNumber ?? .defaultSaturationForLayerEffect,
             parentSize: parentSize,
-            parentDisablesPosition: parentDisablesPosition)
+            parentDisablesPosition: parentDisablesPosition,
+            parentIsScrollableGrid: parentIsScrollableGrid)
     }
 }
 
@@ -103,6 +105,7 @@ struct PreviewVideoStreamLayer: View {
     let saturation: Double
     let parentSize: CGSize
     let parentDisablesPosition: Bool
+    let parentIsScrollableGrid: Bool
 
     var body: some View {
         VideoStreamPlayerView(urlString: $currentVideoURLString, volume: volume, enabled: enabled)
@@ -133,7 +136,8 @@ struct PreviewVideoStreamLayer: View {
                 shadowRadius: .defaultShadowRadius,
                 shadowOffset: .defaultShadowOffset,
                 parentSize: parentSize,
-                parentDisablesPosition: parentDisablesPosition))
+                parentDisablesPosition: parentDisablesPosition,
+                parentIsScrollableGrid: parentIsScrollableGrid))
     }
 }
 

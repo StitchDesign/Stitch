@@ -17,6 +17,7 @@ struct PreviewRealityLayer: View {
     let isPinnedViewRendering: Bool
     let parentSize: CGSize
     let parentDisablesPosition: Bool
+    let parentIsScrollableGrid: Bool
     
     var body: some View {
         let position = viewModel.position.getPosition ?? .zero
@@ -63,7 +64,8 @@ struct PreviewRealityLayer: View {
                              shadowRadius: viewModel.shadowRadius.getNumber ?? .defaultShadowOpacity,
                              shadowOffset: viewModel.shadowOffset.getPosition ?? .defaultShadowOffset,
                              parentSize: parentSize,
-                             parentDisablesPosition: parentDisablesPosition)
+                             parentDisablesPosition: parentDisablesPosition,
+                             parentIsScrollableGrid: parentIsScrollableGrid)
         } else {
             EmptyView()
                 .onAppear {
@@ -112,6 +114,7 @@ struct RealityLayerView: View {
     
     let parentSize: CGSize
     let parentDisablesPosition: Bool
+    let parentIsScrollableGrid: Bool
     
     // Override camera setting on Mac
     var _isCameraEnabled: Bool {
@@ -201,6 +204,7 @@ struct RealityLayerView: View {
             shadowRadius: shadowRadius,
             shadowOffset: shadowOffset,
             parentSize: parentSize,
-            parentDisablesPosition: parentDisablesPosition))
+            parentDisablesPosition: parentDisablesPosition,
+            parentIsScrollableGrid: parentIsScrollableGrid))
     }
 }

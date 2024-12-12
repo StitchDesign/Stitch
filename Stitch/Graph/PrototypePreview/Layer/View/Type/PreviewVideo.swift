@@ -42,7 +42,8 @@ struct PreviewVideoLayer: View {
     
     let parentSize: CGSize
     let parentDisablesPosition: Bool
-        
+    let parentIsScrollableGrid: Bool
+    
     let isClipped: Bool
     let volume: Double
 
@@ -94,6 +95,7 @@ struct PreviewVideoLayer: View {
             shadowRadius: shadowRadius,
             shadowOffset: shadowOffset,
             parentSize: parentSize,
-            parentDisablesPosition: parentDisablesPosition))
+            parentDisablesPosition: parentDisablesPosition,
+            parentIsScrollableGrid: parentIsScrollableGrid))
     }
 }
