@@ -53,6 +53,7 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
     // Assumes parentSize has already been scaled etc.
     let parentSize: CGSize
     let parentDisablesPosition: Bool
+    let parentIsScrollableGrid: Bool
 
     var stroke: LayerStrokeData {
         // shape layers will already have had their strokes applied
@@ -127,7 +128,8 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
                 graph: graph,
                 viewModel: layerViewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
-                parentDisablesPosition: parentDisablesPosition, 
+                parentDisablesPosition: parentDisablesPosition,
+                parentIsScrollableGrid: parentIsScrollableGrid,
                 parentSize: parentSize,
                 pos: pos))
                 

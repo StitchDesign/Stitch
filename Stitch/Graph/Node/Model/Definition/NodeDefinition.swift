@@ -61,7 +61,8 @@ protocol LayerNodeDefinition: NodeDefinition {
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, 
                         isPinnedViewRendering: Bool,
-                        parentDisablesPosition: Bool) -> Content
+                        parentDisablesPosition: Bool,
+                        parentIsScrollableGrid: Bool) -> Content
 }
 
 extension LayerNodeDefinition {

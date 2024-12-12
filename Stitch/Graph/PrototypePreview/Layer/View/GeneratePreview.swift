@@ -28,6 +28,7 @@ struct GeneratePreview: View {
                           parentId: nil,
                           parentOrientation: .none,
                           parentSpacing: .zero,
+                          parentUsesScroll: false,
                           parentCornerRadius: 0,
                           parentUsesHug: false,
                           noFixedSizeForLayerGroup: false,
@@ -42,6 +43,7 @@ struct GeneratePreview: View {
                               parentId: nil,
                               parentOrientation: .none,
                               parentSpacing: .zero,
+                              parentUsesScroll: false,
                               parentCornerRadius: 0,
                               parentUsesHug: false,
                               noFixedSizeForLayerGroup: false,
@@ -82,6 +84,8 @@ struct PreviewLayersView: View {
     // Spacing between the children; N/A for ZStack
     var parentSpacing: StitchSpacing // = .defaultStitchSpacing
     
+    var parentUsesScroll: Bool
+    
     let parentCornerRadius: CGFloat
     let parentUsesHug: Bool
     let noFixedSizeForLayerGroup: Bool
@@ -121,7 +125,11 @@ struct PreviewLayersView: View {
     var parentDisablesPosition: Bool {
         parentOrientation != .none
     }
-
+    
+    var parentIsScrollableGrid: Bool {
+        parentUsesScroll && parentOrientation == .grid
+    }
+    
     @ViewBuilder
     func layersAsViews(_ spacing: StitchSpacing) -> some View {
         
@@ -139,6 +147,7 @@ struct PreviewLayersView: View {
                           layerData: layerData,
                           parentSize: parentSize,
                           parentDisablesPosition: parentDisablesPosition,
+                          parentIsScrollableGrid: parentIsScrollableGrid,
                           isGhostView: isGhostView)
             
             if spacing.isEvenly {
@@ -169,6 +178,7 @@ struct PreviewLayersView: View {
                                   layerData: layerData,
                                   parentSize: parentSize,
                                   parentDisablesPosition: parentDisablesPosition,
+                                  parentIsScrollableGrid: parentIsScrollableGrid,
                                   isGhostView: isGhostView)
                 }
             }
@@ -255,6 +265,7 @@ struct LayerDataView: View {
     let layerData: LayerData
     let parentSize: CGSize
     let parentDisablesPosition: Bool
+    let parentIsScrollableGrid: Bool
     let isGhostView: Bool
     
     var body: some View {
@@ -279,6 +290,7 @@ struct LayerDataView: View {
                         layerData: maskedLayerData,
                         parentSize: parentSize,
                         parentDisablesPosition: parentDisablesPosition,
+                        parentIsScrollableGrid: parentIsScrollableGrid,
                         isGhostView: isGhostView)
                     
                     // Turn masker LayerData into a single view
@@ -287,6 +299,7 @@ struct LayerDataView: View {
                         layerData: maskerLayerData,
                         parentSize: parentSize,
                         parentDisablesPosition: parentDisablesPosition,
+                        parentIsScrollableGrid: parentIsScrollableGrid,
                         isGhostView: isGhostView)
                     
                     // Return
@@ -305,7 +318,8 @@ struct LayerDataView: View {
                                           layerViewModel: layerViewModel,
                                           isPinnedViewRendering: !isGhostView,
                                           parentSize: parentSize,
-                                          parentDisablesPosition: parentDisablesPosition)
+                                          parentDisablesPosition: parentDisablesPosition,
+                                          parentIsScrollableGrid: parentIsScrollableGrid)
             } else {
                 EmptyView()
             }
@@ -319,7 +333,8 @@ struct LayerDataView: View {
                                        childrenData: childrenData,
                                        isPinnedViewRendering: !isGhostView,
                                        parentSize: parentSize,
-                                       parentDisablesPosition: parentDisablesPosition)
+                                       parentDisablesPosition: parentDisablesPosition,
+                                       parentIsScrollableGrid: parentIsScrollableGrid)
             } else {
                 EmptyView()
             }
@@ -335,6 +350,7 @@ struct NonGroupPreviewLayersView: View {
     let isPinnedViewRendering: Bool
     let parentSize: CGSize
     let parentDisablesPosition: Bool
+    let parentIsScrollableGrid: Bool
     
     var body: some View {
         if layerNode.hasSidebarVisibility,
@@ -345,7 +361,8 @@ struct NonGroupPreviewLayersView: View {
                              layer: layerNode.layer,
                              isPinnedViewRendering: isPinnedViewRendering,
                              parentSize: parentSize,
-                             parentDisablesPosition: parentDisablesPosition)
+                             parentDisablesPosition: parentDisablesPosition,
+                             parentIsScrollableGrid: parentIsScrollableGrid)
         } else {
             EmptyView()
         }
@@ -360,6 +377,7 @@ struct GroupPreviewLayersView: View {
     let isPinnedViewRendering: Bool
     let parentSize: CGSize
     let parentDisablesPosition: Bool
+    let parentIsScrollableGrid: Bool
     
     var body: some View {
         if layerNode.hasSidebarVisibility,
@@ -370,7 +388,8 @@ struct GroupPreviewLayersView: View {
                                        parentSize: parentSize,
                                        layersInGroup: childrenData,
                                        isPinnedViewRendering: isPinnedViewRendering,
-                                       parentDisablesPosition: parentDisablesPosition)
+                                       parentDisablesPosition: parentDisablesPosition,
+                                       parentIsScrollableGrid: parentIsScrollableGrid)
             
         } else {
             EmptyView()

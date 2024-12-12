@@ -47,7 +47,10 @@ struct CanvasSketchLayerNode: LayerNodeDefinition {
         .union(.strokeInputs)
         .union(.layerEffects)
         .union(.aspectRatio)
-        .union(.sizing).union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
+        .union(.sizing)
+        .union(.pinning)
+        .union(.layerPaddingAndMargin)
+        .union(.offsetInGroup)
 
         static func createEphemeralObserver() -> NodeEphemeralObservable? {
         MediaEvalOpObserver()
@@ -59,7 +62,9 @@ struct CanvasSketchLayerNode: LayerNodeDefinition {
                         parentSize: CGSize,
                         layersInGroup: LayerDataList,
                         isPinnedViewRendering: Bool,
-                        parentDisablesPosition: Bool) -> some View {
+                        parentDisablesPosition: Bool,
+                        parentIsScrollableGrid: Bool) -> some View {
+        
         CanvasSketchView(document: document,
                          graph: graph,
                          layerViewModel: viewModel,
@@ -90,7 +95,8 @@ struct CanvasSketchLayerNode: LayerNodeDefinition {
                          shadowOffset: viewModel.shadowOffset.getPosition ?? .defaultShadowOffset,
                          lines: viewModel.lines,
                          parentSize: parentSize,
-                         parentDisablesPosition: parentDisablesPosition)
+                         parentDisablesPosition: parentDisablesPosition,
+                         parentIsScrollableGrid: parentIsScrollableGrid)
     }
 }
 

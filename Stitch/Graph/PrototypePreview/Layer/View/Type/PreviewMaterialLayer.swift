@@ -98,6 +98,7 @@ struct PreviewMaterialLayer: View {
     let parentSize: CGSize
     let isPinnedViewRendering: Bool
     let parentDisablesPosition: Bool
+    let parentIsScrollableGrid: Bool
          
     var materialThickness: MaterialThickness {
         viewModel.materialThickness.getMaterialThickness ?? .defaultMaterialThickness
@@ -166,6 +167,7 @@ struct PreviewMaterialLayer: View {
                 shadowRadius: .defaultShadowRadius,
                 shadowOffset: .defaultShadowOffset,
                 parentSize: parentSize,
-                parentDisablesPosition: parentDisablesPosition))
+                parentDisablesPosition: parentDisablesPosition,
+                parentIsScrollableGrid: parentIsScrollableGrid))
     }
 }

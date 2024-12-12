@@ -111,6 +111,19 @@ struct NativeScrollGestureViewInner: ViewModifier {
         customContentSize.height > 0 ? customContentSize.height : nil
     }
     
+    var groupOrientation: StitchOrientation {
+        layerViewModel.orientation.getOrientation ?? .defaultOrientation
+    }
+    
+    var finalScrollOffset: CGPoint {
+        if groupOrientation != .grid {
+            return self.scrollOffset
+        } else {
+            return .zero
+        }
+        
+    }
+    
     @State var viewId: UUID = .init()
     
     func body(content: Content) -> some View {
@@ -125,8 +138,10 @@ struct NativeScrollGestureViewInner: ViewModifier {
                 .frame(height: self.customContentHeight)
             
             // factor out parent-scroll's offset, so that view does not move unless we explicitly connect scroll interaction node's output to the layer's position input
-                .offset(x: self.scrollOffset.x,
-                        y: self.scrollOffset.y)
+//                .offset(x: self.scrollOffset.x,
+//                        y: self.scrollOffset.y)
+                .offset(x: self.finalScrollOffset.x,
+                        y: self.finalScrollOffset.y)
         }
         
         /*

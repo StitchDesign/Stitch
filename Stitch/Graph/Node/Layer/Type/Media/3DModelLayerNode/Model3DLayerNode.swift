@@ -65,8 +65,10 @@ struct Model3DLayerNode: LayerNodeDefinition {
                         graph: GraphState,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
-                        layersInGroup: LayerDataList, isPinnedViewRendering: Bool,
-                        parentDisablesPosition: Bool) -> some View {
+                        layersInGroup: LayerDataList,
+                        isPinnedViewRendering: Bool,
+                        parentDisablesPosition: Bool,
+                        parentIsScrollableGrid: Bool) -> some View {
         Preview3DModelLayer(
             document: document,
             graph: graph,
@@ -90,6 +92,7 @@ struct Model3DLayerNode: LayerNodeDefinition {
             saturation: viewModel.saturation.getNumber ?? .defaultSaturationForLayerEffect,
             pivot: viewModel.pivot.getAnchoring ?? .defaultPivot,
             parentSize: parentSize,
-            parentDisablesPosition: parentDisablesPosition)
+            parentDisablesPosition: parentDisablesPosition,
+            parentIsScrollableGrid: parentIsScrollableGrid)
     }
 }

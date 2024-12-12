@@ -39,7 +39,10 @@ struct SFSymbolLayerNode: LayerNodeDefinition {
         .union(.layerEffects)
         .union(.strokeInputs)
         .union(.aspectRatio)
-        .union(.sizing).union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
+        .union(.sizing)
+        .union(.pinning)
+        .union(.layerPaddingAndMargin)
+        .union(.offsetInGroup)
     
     static func content(document: StitchDocumentViewModel,
                         graph: GraphState,
@@ -47,7 +50,8 @@ struct SFSymbolLayerNode: LayerNodeDefinition {
                         parentSize: CGSize,
                         layersInGroup: LayerDataList,
                         isPinnedViewRendering: Bool,
-                        parentDisablesPosition: Bool) -> some View {
+                        parentDisablesPosition: Bool,
+                        parentIsScrollableGrid: Bool) -> some View {
         
         let stroke = viewModel.getLayerStrokeData()
         
@@ -81,7 +85,8 @@ struct SFSymbolLayerNode: LayerNodeDefinition {
             shadowRadius: viewModel.shadowRadius.getNumber ?? .defaultShadowOpacity,
             shadowOffset: viewModel.shadowOffset.getPosition ?? .defaultShadowOffset,
             parentSize: parentSize,
-            parentDisablesPosition: parentDisablesPosition)
+            parentDisablesPosition: parentDisablesPosition,
+            parentIsScrollableGrid: parentIsScrollableGrid)
     }
 }
 
@@ -119,6 +124,7 @@ struct PreviewSFSymbolLayer: View {
     
     let parentSize: CGSize
     let parentDisablesPosition: Bool
+    let parentIsScrollableGrid: Bool
 
     var body: some View {
 
@@ -152,6 +158,7 @@ struct PreviewSFSymbolLayer: View {
                 shadowRadius: shadowRadius,
                 shadowOffset: shadowOffset,
                 parentSize: parentSize,
-                parentDisablesPosition: parentDisablesPosition))
+                parentDisablesPosition: parentDisablesPosition,
+                parentIsScrollableGrid: parentIsScrollableGrid))
     }
 }

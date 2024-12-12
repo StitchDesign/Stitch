@@ -38,7 +38,10 @@ struct MaterialLayerNode: LayerNodeDefinition {
         .union(.layerEffects)
         .union(.strokeInputs)
         .union(.aspectRatio)
-        .union(.sizing).union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
+        .union(.sizing)
+        .union(.pinning)
+        .union(.layerPaddingAndMargin)
+        .union(.offsetInGroup)
     
     static func content(document: StitchDocumentViewModel,
                         graph: GraphState,
@@ -46,14 +49,15 @@ struct MaterialLayerNode: LayerNodeDefinition {
                         parentSize: CGSize,
                         layersInGroup: LayerDataList,
                         isPinnedViewRendering: Bool,
-                        parentDisablesPosition: Bool) -> some View {
+                        parentDisablesPosition: Bool,
+                        parentIsScrollableGrid: Bool) -> some View {
         
-        //
         PreviewMaterialLayer(document: document,
                              graph: graph,
                              viewModel: viewModel,
                              parentSize: parentSize,
                              isPinnedViewRendering: isPinnedViewRendering,
-                             parentDisablesPosition: parentDisablesPosition)
+                             parentDisablesPosition: parentDisablesPosition,
+                             parentIsScrollableGrid: parentIsScrollableGrid)
     }
 }
