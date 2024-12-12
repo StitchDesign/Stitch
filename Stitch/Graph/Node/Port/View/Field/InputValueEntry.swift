@@ -347,13 +347,16 @@ struct InputValueView: View {
                               isSelectedInspectorRow: isSelectedInspectorRow,
                               isPressed: $isButtonPressed)
                 
-                // TODO: is this relevant for multiselect?
+            // TODO: is this relevant for multiselect?
+            // Note: can an input EVER really have a 'read-only' value? Isn't this fieldValue case just for outputs?
             case .readOnly(let string):
                 ReadOnlyValueEntry(value: string,
                                    alignment: .leading,
                                    fontColor: STITCH_FONT_GRAY_COLOR,
-                                   isSelectedInspectorRow: isSelectedInspectorRow)
-            }            
+                                   isSelectedInspectorRow: isSelectedInspectorRow,
+                                   forPropertySidebar: forPropertySidebar,
+                                   isFieldInMultifieldInput: isFieldInMultifieldInput)
+            }
         // }
     }
 }
