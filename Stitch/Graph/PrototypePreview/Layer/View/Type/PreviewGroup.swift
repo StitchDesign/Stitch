@@ -121,8 +121,6 @@ struct PreviewGroupLayer: View {
     
     var body: some View {
 
-        logInView("PreviewGroupLayer: var body")
-        
         groupLayer
         
         // TODO: add "child alignment" input on Group Layer node? or find some other solution for how a group with an orientation can position children that have static sizes
@@ -242,30 +240,11 @@ struct PreviewGroupLayer: View {
                 size: _size,
                 parentSize: parentSize,
                 minimumDragDistance: DEFAULT_MINIMUM_DRAG_DISTANCE))
-        
-//            .modifier(NativeScrollGestureView(
-//                layerViewModel: layerViewModel,
-//                graph: graph))
     }
 
     @ViewBuilder
     private var groupLayer: some View {
-        logInView("PreviewGroupLayer: groupLayer")
-//        PreviewLayersView(document: document,
-//                          graph: graph,
-//                          layers: layersInGroup,
-//                          // This Group's size will be the `parentSize` for the `layersInGroup`
-//                          parentSize: _size,
-//                          parentId: interactiveLayer.id.layerNodeId,
-//                          parentOrientation: orientation,
-//                          parentSpacing: spacing,
-//                          parentCornerRadius: cornerRadius,
-//                          // i.e. if this view (a LayerGroup) uses .hug, then its children will not use their own .position values.
-//                          parentUsesHug: usesHug,
-//                          noFixedSizeForLayerGroup: noFixedSizeForLayerGroup,
-//                          parentGridData: gridData,
-//                          isGhostView: !isPinnedViewRendering)
-        
+
         NativeScrollGestureView(layerViewModel: layerViewModel,
                                 graph: graph,
                                 isClipped: isClipped,

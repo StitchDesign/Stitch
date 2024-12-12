@@ -51,12 +51,11 @@ struct NativeScrollGestureView<T: View>: View {
     @MainActor
     var hasScrollInteraction: Bool {
         let _hasScrollInteraction = layerViewModel.isScrollXEnabled || layerViewModel.isScrollYEnabled
-        log("NativeScrollGestureView: hasScrollInteraction: _hasScrollInteraction: \(_hasScrollInteraction)")
+        // log("NativeScrollGestureView: hasScrollInteraction: _hasScrollInteraction: \(_hasScrollInteraction)")
         return _hasScrollInteraction
     }
     
     var body: some View {
-        // logInView("NativeScrollGestureView: var body")
         if hasScrollInteraction {
             view()
                 .modifier(NativeScrollGestureViewInner(
@@ -127,7 +126,6 @@ struct NativeScrollGestureViewInner: ViewModifier {
     @State var viewId: UUID = .init()
     
     func body(content: Content) -> some View {
-        // logInView("NativeScrollGestureViewInner: var body")
         
         ScrollView(self.scrollAxes) {
             
@@ -138,8 +136,6 @@ struct NativeScrollGestureViewInner: ViewModifier {
                 .frame(height: self.customContentHeight)
             
             // factor out parent-scroll's offset, so that view does not move unless we explicitly connect scroll interaction node's output to the layer's position input
-//                .offset(x: self.scrollOffset.x,
-//                        y: self.scrollOffset.y)
                 .offset(x: self.finalScrollOffset.x,
                         y: self.finalScrollOffset.y)
         }
