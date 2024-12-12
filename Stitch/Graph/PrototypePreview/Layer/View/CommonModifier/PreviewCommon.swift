@@ -51,6 +51,7 @@ struct PreviewCommonModifier: ViewModifier {
     // Assumes parentSize has already been scaled etc.
     let parentSize: CGSize
     let parentDisablesPosition: Bool
+    let parentIsScrollableGrid: Bool
 
     // Only Text layers have their own alignment,
     // based on text alignment and vertical alignment.
@@ -111,7 +112,8 @@ struct PreviewCommonModifier: ViewModifier {
                 shadowOffset: shadowOffset,
                 isForShapeLayer: isForShapeLayer,
                 parentSize: parentSize,
-                parentDisablesPosition: parentDisablesPosition))
+                parentDisablesPosition: parentDisablesPosition,
+                parentIsScrollableGrid: parentIsScrollableGrid))
     }
 }
 

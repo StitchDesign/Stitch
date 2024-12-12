@@ -29,7 +29,9 @@ struct ProgressIndicatorLayerNode: LayerNodeDefinition {
     ])
         .union(.layerEffects)
         .union(.strokeInputs)
-        .union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
+        .union(.pinning)
+        .union(.layerPaddingAndMargin)
+        .union(.offsetInGroup)
     
     static func content(document: StitchDocumentViewModel,
                         graph: GraphState,
@@ -37,7 +39,8 @@ struct ProgressIndicatorLayerNode: LayerNodeDefinition {
                         parentSize: CGSize,
                         layersInGroup: LayerDataList,
                         isPinnedViewRendering: Bool,
-                        parentDisablesPosition: Bool) -> some View {
+                        parentDisablesPosition: Bool,
+                        parentIsScrollableGrid: Bool) -> some View {
         PreviewProgressIndicatorLayer(
             document: document,
             graph: graph,
@@ -68,7 +71,8 @@ struct ProgressIndicatorLayerNode: LayerNodeDefinition {
             shadowRadius: .defaultShadowRadius,
             shadowOffset: .defaultShadowOffset,
             parentSize: parentSize,
-            parentDisablesPosition: parentDisablesPosition)
+            parentDisablesPosition: parentDisablesPosition,
+            parentIsScrollableGrid: parentIsScrollableGrid)
     }
 }
 
@@ -102,6 +106,7 @@ struct PreviewProgressIndicatorLayer: View {
     
     let parentSize: CGSize
     let parentDisablesPosition: Bool
+    let parentIsScrollableGrid: Bool
     
     var body: some View {
         Group {
@@ -143,7 +148,8 @@ struct PreviewProgressIndicatorLayer: View {
             shadowRadius: shadowRadius,
             shadowOffset: shadowOffset,
             parentSize: parentSize,
-            parentDisablesPosition: parentDisablesPosition
+            parentDisablesPosition: parentDisablesPosition,
+            parentIsScrollableGrid: parentIsScrollableGrid
         ))
     }
 }

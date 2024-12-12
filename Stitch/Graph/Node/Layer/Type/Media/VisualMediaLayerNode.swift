@@ -20,6 +20,7 @@ struct VisualMediaLayerView: View {
     let isPinnedViewRendering: Bool
     let parentSize: CGSize
     let parentDisablesPosition: Bool
+    let parentIsScrollableGrid: Bool
     
     var mediaValue: AsyncMediaValue? {
         self.mediaPortValue._asyncMedia
@@ -88,7 +89,8 @@ struct VisualMediaLayerView: View {
                                image: image, 
                                isPinnedViewRendering: isPinnedViewRendering,
                                parentSize: parentSize,
-                               parentDisablesPosition: parentDisablesPosition)
+                               parentDisablesPosition: parentDisablesPosition,
+                               parentIsScrollableGrid: parentIsScrollableGrid)
             case .video(let video):
                 VideoLayerView(document: document,
                                graph: graph,
@@ -96,7 +98,8 @@ struct VisualMediaLayerView: View {
                                video: video,
                                isPinnedViewRendering: isPinnedViewRendering,
                                parentSize: parentSize,
-                               parentDisablesPosition: parentDisablesPosition)
+                               parentDisablesPosition: parentDisablesPosition,
+                               parentIsScrollableGrid: parentIsScrollableGrid)
             default:
                 // MARK: can't be EmptyView for the onChange below doesn't get called!
                 Color.clear
@@ -119,6 +122,7 @@ struct ImageLayerView: View {
     let isPinnedViewRendering: Bool
     let parentSize: CGSize
     let parentDisablesPosition: Bool
+    let parentIsScrollableGrid: Bool
 
     var body: some View {
         PreviewImageLayer(
@@ -151,6 +155,7 @@ struct ImageLayerView: View {
             shadowOffset: viewModel.shadowOffset.getPosition ?? .defaultShadowOffset,
             parentSize: parentSize,
             parentDisablesPosition: parentDisablesPosition,
+            parentIsScrollableGrid: parentIsScrollableGrid,
             isClipped: viewModel.isClipped.getBool ?? false)
     }
 }
@@ -164,6 +169,7 @@ struct VideoLayerView: View {
     let isPinnedViewRendering: Bool
     let parentSize: CGSize
     let parentDisablesPosition: Bool
+    let parentIsScrollableGrid: Bool
 
     var body: some View {
         PreviewVideoLayer(
@@ -196,6 +202,7 @@ struct VideoLayerView: View {
             shadowOffset: viewModel.shadowOffset.getPosition ?? .defaultShadowOffset,
             parentSize: parentSize,
             parentDisablesPosition: parentDisablesPosition,
+            parentIsScrollableGrid: parentIsScrollableGrid,
             isClipped: viewModel.isClipped.getBool ?? false,
             volume: viewModel.volume.getNumber ?? StitchVideoImportPlayer.DEFAULT_VIDEO_PLAYER_VOLUME
         )

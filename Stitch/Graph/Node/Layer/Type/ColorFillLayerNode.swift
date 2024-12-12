@@ -31,7 +31,8 @@ struct ColorFillLayerNode: LayerNodeDefinition {
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, 
                         isPinnedViewRendering: Bool,
-                        parentDisablesPosition: Bool) -> some View {
+                        parentDisablesPosition: Bool,
+                        parentIsScrollableGrid: Bool) -> some View {
         PreviewColorFillLayer(
             document: document,
             graph: graph,
@@ -49,6 +50,7 @@ struct ColorFillLayerNode: LayerNodeDefinition {
             hueRotation: viewModel.hueRotation.getNumber ?? .defaultHueRotationForLayerEffect,
             saturation: viewModel.saturation.getNumber ?? .defaultSaturationForLayerEffect,
             parentSize: parentSize,
-            parentDisablesPosition: true)
+            parentDisablesPosition: true,
+            parentIsScrollableGrid: parentIsScrollableGrid)
     }
 }

@@ -77,7 +77,9 @@ struct TextLayerNode: LayerNodeDefinition {
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, 
                         isPinnedViewRendering: Bool,
-                        parentDisablesPosition: Bool) -> some View {
+                        parentDisablesPosition: Bool,
+                        parentIsScrollableGrid: Bool) -> some View {
+        
         PreviewTextLayer(
             document: document,
             graph: graph,
@@ -112,6 +114,7 @@ struct TextLayerNode: LayerNodeDefinition {
             shadowRadius: viewModel.shadowRadius.getNumber ?? .defaultShadowOpacity,
             shadowOffset: viewModel.shadowOffset.getPosition ?? .defaultShadowOffset,
             parentSize: parentSize,
-            parentDisablesPosition: parentDisablesPosition)
+            parentDisablesPosition: parentDisablesPosition,
+            parentIsScrollableGrid: parentIsScrollableGrid)
     }
 }

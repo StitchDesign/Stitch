@@ -43,7 +43,8 @@ struct RadialGradientLayerNode: LayerNodeDefinition {
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, 
                         isPinnedViewRendering: Bool,
-                        parentDisablesPosition: Bool) -> some View {
+                        parentDisablesPosition: Bool,
+                        parentIsScrollableGrid: Bool) -> some View {
         PreviewRadialGradientLayer(
             document: document,
             graph: graph,
@@ -69,7 +70,8 @@ struct RadialGradientLayerNode: LayerNodeDefinition {
             startRadius: viewModel.startRadius.getNumber ?? DEFAULT_RADIAL_GRADIENT_START_RADIUS,
             endRadius: viewModel.endRadius.getNumber ?? DEFAULT_RADIAL_GRADIENT_END_RADIUS,
             parentSize: parentSize,
-            parentDisablesPosition: parentDisablesPosition)
+            parentDisablesPosition: parentDisablesPosition,
+            parentIsScrollableGrid: parentIsScrollableGrid)
     }
 }
 
@@ -100,6 +102,7 @@ struct PreviewRadialGradientLayer: View {
     let endRadius: Double
     let parentSize: CGSize
     let parentDisablesPosition: Bool
+    let parentIsScrollableGrid: Bool
 
     var body: some View {
 
@@ -134,6 +137,7 @@ struct PreviewRadialGradientLayer: View {
             shadowRadius: .defaultShadowRadius,
             shadowOffset: .defaultShadowOffset,
             parentSize: parentSize,
-            parentDisablesPosition: parentDisablesPosition))
+            parentDisablesPosition: parentDisablesPosition,
+            parentIsScrollableGrid: parentIsScrollableGrid))
     }
 }

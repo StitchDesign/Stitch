@@ -263,6 +263,7 @@ struct PreviewImageLayer: View {
     
     let parentSize: CGSize
     let parentDisablesPosition: Bool
+    let parentIsScrollableGrid: Bool
     
     let isClipped: Bool
 
@@ -324,6 +325,7 @@ struct PreviewImageLayer: View {
             shadowRadius: shadowRadius,
             shadowOffset: shadowOffset,
             parentSize: parentSize,
-            parentDisablesPosition: parentDisablesPosition))
+            parentDisablesPosition: parentDisablesPosition,
+            parentIsScrollableGrid: parentIsScrollableGrid))
     }
 }

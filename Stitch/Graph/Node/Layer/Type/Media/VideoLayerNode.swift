@@ -42,13 +42,15 @@ struct VideoLayerNode: LayerNodeDefinition {
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, 
                         isPinnedViewRendering: Bool,
-                        parentDisablesPosition: Bool) -> some View {
+                        parentDisablesPosition: Bool,
+                        parentIsScrollableGrid: Bool) -> some View {
         VisualMediaLayerView(document: document,
                              graph: graph,
                              viewModel: viewModel,
                              isPinnedViewRendering: isPinnedViewRendering,
                              parentSize: parentSize,
-                             parentDisablesPosition: parentDisablesPosition)
+                             parentDisablesPosition: parentDisablesPosition,
+                             parentIsScrollableGrid: parentIsScrollableGrid)
     }
     
         static func createEphemeralObserver() -> NodeEphemeralObservable? {

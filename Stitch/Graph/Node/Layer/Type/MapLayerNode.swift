@@ -43,7 +43,10 @@ struct MapLayerNode: LayerNodeDefinition {
         .union(.layerEffects)
         .union(.strokeInputs)
         .union(.aspectRatio)
-        .union(.sizing).union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
+        .union(.sizing)
+        .union(.pinning)
+        .union(.layerPaddingAndMargin)
+        .union(.offsetInGroup)
     
     static func content(document: StitchDocumentViewModel,
                         graph: GraphState,
@@ -51,7 +54,8 @@ struct MapLayerNode: LayerNodeDefinition {
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, 
                         isPinnedViewRendering: Bool,
-                        parentDisablesPosition: Bool) -> some View {
+                        parentDisablesPosition: Bool,
+                        parentIsScrollableGrid: Bool) -> some View {
         PreviewMapLayer(
             document: document,
             graph: graph,
@@ -81,7 +85,8 @@ struct MapLayerNode: LayerNodeDefinition {
             shadowRadius: viewModel.shadowRadius.getNumber ?? .defaultShadowOpacity,
             shadowOffset: viewModel.shadowOffset.getPosition ?? .defaultShadowOffset,
             parentSize: parentSize,
-            parentDisablesPosition: parentDisablesPosition)
+            parentDisablesPosition: parentDisablesPosition,
+            parentIsScrollableGrid: parentIsScrollableGrid)
     }
 }
 
@@ -121,6 +126,7 @@ struct PreviewMapLayer: View {
     
     let parentSize: CGSize
     let parentDisablesPosition: Bool
+    let parentIsScrollableGrid: Bool
 
     @ViewBuilder
     var mapView: some View {
@@ -169,6 +175,7 @@ struct PreviewMapLayer: View {
             shadowOffset: shadowOffset,
             parentSize: parentSize,
             parentDisablesPosition: parentDisablesPosition,
+            parentIsScrollableGrid: parentIsScrollableGrid,
             frameAlignment: .topLeading,
             clipForMapLayerProjetThumbnailCreation: document.isGeneratingProjectThumbnail))
     }

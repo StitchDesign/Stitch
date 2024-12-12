@@ -75,13 +75,32 @@ extension LayerInputPort {
     }
 }
 
+
 extension LayerNodeViewModel {
     
-    // When a PortValue changes, we may need to block or unblock certain
-    // this should be on L
+    @MainActor
+    func scrollEnabled() -> Bool {
+        guard self.layer == .group else {
+            return false
+        }
+        
+        return (self.scrollXEnabledPort.allLoopedValues + self.scrollYEnabledPort.allLoopedValues).contains { $0.getBool == true }
+    }
     
-    // it's more like this should be on the layer node view model itself, not on the layer input observer;
-    // but it's the passed in `layer input port` that tells us
+    @MainActor
+    func usesGrid() -> Bool {
+        guard self.layer == .group else {
+            return false
+        }
+        
+        return self.orientationPort.allLoopedValues.contains { $0.getOrientation == .grid }
+    }
+}
+
+// TODO: Need a smarter way of handling this. Blocked and unblocked fields should be by loop-index, but inputs on inspector and canvas items are not displayed by loop-index
+// e.g. suppose a layer node's SizingScenario has a loop of `[.constrainHeight, .constrainWidth]` -- why inputs should be blocked?
+extension LayerNodeViewModel {
+    
     @MainActor
     func blockOrUnblockFields(newValue: PortValue,
                               layerInput: LayerInputPort) {
@@ -173,7 +192,14 @@ extension LayerNodeViewModel {
             self.unblockGridLayoutInputs()
             
             children.forEach {
-                $0.layerNode?.unblockOffsetInput()
+                if self.scrollEnabled() {
+                    // grid + scroll = block the offset input on children
+                    $0.layerNode?.blockOffsetInput()
+                } else {
+                    $0.layerNode?.unblockOffsetInput()
+                }
+                
+                
                 $0.layerNode?.blockPositionInput()
             }
         }
@@ -536,6 +562,9 @@ extension LayerNodeViewModel {
         // if enabled: unblock jump-y ports
         // if disabled: block jump-y ports
         
+        // Changing the scroll-enabled of a parent (layer group) updates fields on the children
+        let children = self.nodeDelegate?.graphDelegate?.children(of: self.id) ?? []
+        
         if enabled {
             self.setBlockStatus(LayerInputPort.scrollJumpToX.asFullInput,
                                 isBlocked: false)
@@ -543,6 +572,16 @@ extension LayerNodeViewModel {
                                 isBlocked: false)
             self.setBlockStatus(LayerInputPort.scrollJumpToXLocation.asFullInput,
                                 isBlocked: false)
+                        
+            children.forEach {
+                if self.usesGrid() {
+                    // grid + scroll = block the offset input on children
+                    $0.layerNode?.blockOffsetInput()
+                } else {
+                    $0.layerNode?.unblockOffsetInput()
+                }
+            }
+            
         } else {
             self.setBlockStatus(LayerInputPort.scrollJumpToX.asFullInput,
                                 isBlocked: true)
@@ -550,6 +589,10 @@ extension LayerNodeViewModel {
                                 isBlocked: true)
             self.setBlockStatus(LayerInputPort.scrollJumpToXLocation.asFullInput,
                                 isBlocked: true)
+            
+            children.forEach {
+                $0.layerNode?.unblockOffsetInput()
+            }
         }
         
     }
@@ -559,6 +602,9 @@ extension LayerNodeViewModel {
         // if enabled: unblock jump-y ports
         // if disabled: block jump-y ports
         
+        // Changing the scroll-enabled of a parent (layer group) updates fields on the children
+        let children = self.nodeDelegate?.graphDelegate?.children(of: self.id) ?? []
+        
         if enabled {
             self.setBlockStatus(LayerInputPort.scrollJumpToY.asFullInput,
                                 isBlocked: false)
@@ -566,6 +612,16 @@ extension LayerNodeViewModel {
                                 isBlocked: false)
             self.setBlockStatus(LayerInputPort.scrollJumpToYLocation.asFullInput,
                                 isBlocked: false)
+            
+            children.forEach {
+                if self.usesGrid() {
+                    // grid + scroll = block the offset input on children
+                    $0.layerNode?.blockOffsetInput()
+                } else {
+                    $0.layerNode?.unblockOffsetInput()
+                }
+            }
+            
         } else {
             self.setBlockStatus(LayerInputPort.scrollJumpToY.asFullInput,
                                 isBlocked: true)
@@ -573,6 +629,10 @@ extension LayerNodeViewModel {
                                 isBlocked: true)
             self.setBlockStatus(LayerInputPort.scrollJumpToYLocation.asFullInput,
                                 isBlocked: true)
+            
+            children.forEach {
+                $0.layerNode?.unblockOffsetInput()
+            }
         }
         
     }
