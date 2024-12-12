@@ -97,8 +97,9 @@ extension LayerNodeViewModel {
     }
 }
 
-// TODO: Need a smarter way of handling this. Blocked and unblocked fields should be by loop-index, but inputs on inspector and canvas items are not displayed by loop-index
-// e.g. suppose a layer node's SizingScenario has a loop of `[.constrainHeight, .constrainWidth]` -- why inputs should be blocked?
+// TODO: Need a smarter way of handling this. Blocked and unblocked fields should be by loop-index, but inputs on inspector and canvas items are not displayed by loop-index;
+// e.g. suppose a layer node's SizingScenario has a loop of `[.constrainHeight, .constrainWidth]` -- which inputs should be blocked?
+// ... Should it be according to activeIndex ?
 extension LayerNodeViewModel {
     
     @MainActor
