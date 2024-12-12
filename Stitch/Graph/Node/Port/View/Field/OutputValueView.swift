@@ -19,6 +19,7 @@ struct OutputValueEntry: View {
     let isCanvasItemSelected: Bool
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
+    let isFieldInMultifieldInput: Bool
     let isSelectedInspectorRow: Bool
 
     // Used by button view to determine if some button has been pressed.
@@ -45,6 +46,7 @@ struct OutputValueEntry: View {
                         isCanvasItemSelected: isCanvasItemSelected,
                         forPropertySidebar: forPropertySidebar,
                         propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                        isFieldInMultifieldInput: isFieldInMultifieldInput,
                         isSelectedInspectorRow: isSelectedInspectorRow,
                         isButtonPressed: $isButtonPressed)
             .font(STITCH_FONT)
@@ -74,6 +76,7 @@ struct OutputValueView: View {
     let isCanvasItemSelected: Bool
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
+    let isFieldInMultifieldInput: Bool
     let isSelectedInspectorRow: Bool
     
     @Binding var isButtonPressed: Bool
@@ -111,13 +114,17 @@ struct OutputValueView: View {
                 ReadOnlyValueEntry(value: string.string,
                                    alignment: outputAlignment,
                                    fontColor: STITCH_FONT_GRAY_COLOR,
-                                   isSelectedInspectorRow: isSelectedInspectorRow)
+                                   isSelectedInspectorRow: isSelectedInspectorRow,
+                                   forPropertySidebar: forPropertySidebar,
+                                   isFieldInMultifieldInput: isFieldInMultifieldInput)
                 
             case .number, .layerDimension, .spacing:
                 ReadOnlyValueEntry(value: fieldValue.stringValue,
                                    alignment: outputAlignment,
                                    fontColor: STITCH_FONT_GRAY_COLOR,
-                                   isSelectedInspectorRow: isSelectedInspectorRow)
+                                   isSelectedInspectorRow: isSelectedInspectorRow,
+                                   forPropertySidebar: forPropertySidebar,
+                                   isFieldInMultifieldInput: isFieldInMultifieldInput)
                 
             case .bool(let bool):
                 BoolCheckboxView(id: nil,
@@ -131,7 +138,9 @@ struct OutputValueView: View {
                 ReadOnlyValueEntry(value: choiceDisplay,
                                    alignment: outputAlignment,
                                    fontColor: STITCH_FONT_GRAY_COLOR,
-                                   isSelectedInspectorRow: isSelectedInspectorRow)
+                                   isSelectedInspectorRow: isSelectedInspectorRow,
+                                   forPropertySidebar: forPropertySidebar,
+                                   isFieldInMultifieldInput: isFieldInMultifieldInput)
                 
             case .textFontDropdown(let stitchFont):
                 StitchFontDropdown(input: coordinate,
@@ -232,7 +241,9 @@ struct OutputValueView: View {
                 ReadOnlyValueEntry(value: string,
                                    alignment: outputAlignment,
                                    fontColor: STITCH_FONT_GRAY_COLOR,
-                                   isSelectedInspectorRow: isSelectedInspectorRow)
+                                   isSelectedInspectorRow: isSelectedInspectorRow,
+                                   forPropertySidebar: forPropertySidebar,
+                                   isFieldInMultifieldInput: isFieldInMultifieldInput)
             }
 //        }
     }

@@ -133,6 +133,7 @@ struct LayerInspectorView: View {
                 #if targetEnvironment(macCatalyst)
                 .padding(.trailing, LAYER_INSPECTOR_ROW_SPACING + LAYER_INSPECTOR_ROW_ICON_LENGTH)
                 #endif
+                .padding(.bottom)
                 
             } // List
             .listSectionSpacing(.compact) // reduce spacing between sections
