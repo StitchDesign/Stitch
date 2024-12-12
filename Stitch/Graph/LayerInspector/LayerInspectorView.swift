@@ -115,7 +115,7 @@ struct LayerInspectorView: View {
                     if !filteredInputs.isEmpty {
                         LayerInspectorInputsSectionView(
                             sectionName: sectionName,
-                            layerInputs: filteredInputs,
+                            layerInputs: .init(layerInputs: filteredInputs),
                             graph: graph,
                             nodeId: node
                         )
@@ -193,13 +193,59 @@ enum LayerInspectorSectionName: String, Equatable, Hashable {
          typography = "Typography",
          stroke = "Stroke",
          rotation = "Rotation",
-//         shadow = "Shadow",
          layerEffects = "Layer Effects"
 }
 
-// Named Tuple
-typealias LayerInputAndObserver = (layerInput: LayerInputPort,
-                                   portObserver: LayerInputObserver)
+@Observable
+final class LayerInputAndObserver {
+    let layerInput: LayerInputPort
+    let portObserver: LayerInputObserver
+    
+    init(layerInput: LayerInputPort,
+         portObserver: LayerInputObserver) {
+        self.layerInput = layerInput
+        self.portObserver = portObserver
+    }
+}
+
+@Observable
+final class LayerInputsAndObservers {
+    let layerInputs: [LayerInputAndObserver]
+    
+    init(layerInputs: [LayerInputAndObserver]) {
+        self.layerInputs = layerInputs
+    }
+}
+
+struct LayerInspectorInputView: View {
+    
+    // `@Bindable var` (vs. `let`) seems to improve a strange issue where toggling scroll-enabled input on iPad would update the LayerInputObserver's blockedFields set but not re-render the view.
+    @Bindable var layerInput: LayerInputAndObserver
+    @Bindable var graph: GraphState
+    let nodeId: NodeId
+    
+    var body: some View {
+        let layerInputObserver: LayerInputObserver = layerInput.portObserver
+        
+        let blockedFields = layerInputObserver.blockedFields
+        
+        let allFieldsBlockedOut = layerInputObserver
+            .fieldValueTypes.first?
+            .fieldObservers.allSatisfy({ $0.isBlocked(blockedFields)})
+        ?? false
+                
+        if !allFieldsBlockedOut {
+            LayerInspectorInputPortView(layerInputObserver: layerInputObserver,
+                                        graph: graph,
+                                        nodeId: nodeId)
+            .modifier(LayerPropertyRowOriginReader(graph: graph,
+                                                   layerInput: layerInput.layerInput))
+        } else {
+            EmptyView()
+        }
+    }
+    
+}
 
 // This view now needs to receive the inputs it will be listing,
 // rather than receiving the entire layer node.
@@ -208,7 +254,7 @@ struct LayerInspectorInputsSectionView: View {
     let sectionName: LayerInspectorSectionName
     
     // This section's layer inputs, filtered to excluded any not supported by this specific layer.
-    let layerInputs: [LayerInputAndObserver]
+    @Bindable var layerInputs: LayerInputsAndObservers
     @Bindable var graph: GraphState
     let nodeId: NodeId
     
@@ -217,23 +263,10 @@ struct LayerInspectorInputsSectionView: View {
       
     var body: some View {
         Section(isExpanded: $expanded) {
-            ForEach(layerInputs, id: \.layerInput) { layerInput in
-                let layerInputObserver: LayerInputObserver = layerInput.portObserver
-                
-                let blockedFields = layerInputObserver.blockedFields
-                
-                let allFieldsBlockedOut = layerInputObserver
-                    .fieldValueTypes.first?
-                    .fieldObservers.allSatisfy({ $0.isBlocked(blockedFields)})
-                ?? false
-                
-                if !allFieldsBlockedOut {
-                    LayerInspectorInputPortView(layerInputObserver: layerInputObserver,
-                                                graph: graph,
-                                                nodeId: nodeId)
-                    .modifier(LayerPropertyRowOriginReader(graph: graph,
-                                                           layerInput: layerInput.layerInput))
-                }
+            ForEach(layerInputs.layerInputs, id: \.layerInput) { (layerInput: LayerInputAndObserver) in
+                LayerInspectorInputView(layerInput: layerInput,
+                                        graph: graph,
+                                        nodeId: nodeId)
             }
             .transition(.slideInAndOut(edge: .top))
         } header: {
@@ -267,7 +300,7 @@ struct LayerInspectorInputsSectionView: View {
                     self.expanded.toggle()
                     dispatch(LayerInspectorSectionToggled(section: sectionName))
                     
-                    layerInputs.forEach { layerInput in
+                    layerInputs.layerInputs.forEach { layerInput in
                         if case let .layerInput(x) = graph.graphUI.propertySidebar.selectedProperty,
                            x.layerInput == layerInput.layerInput {
                             graph.graphUI.propertySidebar.selectedProperty = nil
@@ -328,6 +361,7 @@ extension GraphState {
                                      node: NodeId,
                                      inputs: LayerInputObserverDict,
                                      outputs: [OutputLayerNodeRowData])? {
+        // log("getLayerInspectorData called")
                 
         // Any time orderedSidebarLayers changes, that will retrigger LayerInspector
         guard !self.orderedSidebarLayers.isEmpty else {
@@ -336,7 +370,7 @@ extension GraphState {
 
         var inspectorFocusedLayers = self.layersSidebarViewModel.selectionState.primary
         
-        log("getLayerInspectorData: inspectorFocusedLayers: \(inspectorFocusedLayers)")
+        // log("getLayerInspectorData: inspectorFocusedLayers: \(inspectorFocusedLayers)")
         
         #if DEV_DEBUG
         // For debug
