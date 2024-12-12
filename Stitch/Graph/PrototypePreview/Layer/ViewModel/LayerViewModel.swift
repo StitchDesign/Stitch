@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import RealityKit
 import StitchSchemaKit
 
 extension PinToId {
@@ -52,6 +53,8 @@ final class LayerViewModel: Sendable {
     let id: PreviewCoordinate
     let layer: Layer
     let interactiveLayer: InteractiveLayer
+    
+    @MainActor var realityContent: RealityViewCameraContent?
     @MainActor weak var nodeDelegate: NodeDelegate?
     
     // PINNING: "View A is pinned to View B"
