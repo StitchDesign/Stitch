@@ -297,6 +297,7 @@ struct NodeOutputView: View {
                          isCanvasItemSelected: isCanvasItemSelected,
                          forPropertySidebar: forPropertySidebar,
                          propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                         isFieldInMultifieldInput: isMultiField,
                          isSelectedInspectorRow: propertyIsSelected)
     }
     
@@ -305,6 +306,7 @@ struct NodeOutputView: View {
             // Property sidebar always shows labels on left side, never right
             if forPropertySidebar {
                 labelView
+                Spacer()
             }
             
             // Hide outputs for value node
