@@ -69,8 +69,11 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         let longPressGesture = UILongPressGestureRecognizer(target: context.coordinator, action: #selector(context.coordinator.handleLongPress(_:)))
         scrollView.addGestureRecognizer(longPressGesture)
 
+        // Only use with MacCatalyst
+#if targetEnvironment(macCatalyst)
         let panGesture = UIPanGestureRecognizer(target: context.coordinator, action: #selector(context.coordinator.handlePan(_:)))
         scrollView.addGestureRecognizer(panGesture)
+#endif
 
         // Add SwiftUI content inside the scroll view
         let hostedView = context.coordinator.hostingController.view!
