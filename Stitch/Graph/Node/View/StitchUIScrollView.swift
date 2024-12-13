@@ -1,0 +1,126 @@
+//
+//  StitchUIScrollView.swift
+//  Stitch
+//
+//  Created by Christian J Clampitt on 12/12/24.
+//
+
+import SwiftUI
+
+//let WHOLE_GRAPH_LENGTH: CGFloat = 300000
+
+let WHOLE_GRAPH_LENGTH: CGFloat = 30000
+
+//let WHOLE_GRAPH_LENGTH: CGFloat = 3000
+
+struct StitchUIScrollViewModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        StitchUIScrollView {
+            ZStack {
+                content
+                // places existing nodes in center like you expected before applying the UIScrollView
+                    .offset(x: WHOLE_GRAPH_LENGTH/2,
+                            y: WHOLE_GRAPH_LENGTH/2)
+                
+//                APP_BACKGROUND_COLOR.zIndex(-99999)
+                Color.blue.opacity(0.75).zIndex(-99999)
+                    .frame(width: WHOLE_GRAPH_LENGTH,
+                           height: WHOLE_GRAPH_LENGTH)
+            }
+            
+        }
+        
+//        .frame(width: WHOLE_GRAPH_LENGTH,
+//               height: WHOLE_GRAPH_LENGTH)
+        
+        .background {
+            Color.red.opacity(0.75)
+        }
+        .ignoresSafeArea()
+    }
+}
+
+struct StitchUIScrollView<Content: View>: UIViewRepresentable {
+    var content: Content
+
+    init(@ViewBuilder content: () -> Content) {
+        self.content = content()
+    }
+
+    func makeUIView(context: Context) -> UIScrollView {
+        let scrollView = UIScrollView()
+
+        // Enable zooming
+        scrollView.minimumZoomScale = MIN_GRAPH_SCALE // 0.1
+        scrollView.maximumZoomScale = MAX_GRAPH_SCALE //5.0
+        scrollView.delegate = context.coordinator
+
+        // Enable gestures
+        let longPressGesture = UILongPressGestureRecognizer(target: context.coordinator, action: #selector(context.coordinator.handleLongPress(_:)))
+        scrollView.addGestureRecognizer(longPressGesture)
+
+        let panGesture = UIPanGestureRecognizer(target: context.coordinator, action: #selector(context.coordinator.handlePan(_:)))
+        scrollView.addGestureRecognizer(panGesture)
+
+        // Add SwiftUI content inside the scroll view
+        let hostedView = context.coordinator.hostingController.view!
+        hostedView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.addSubview(hostedView)
+
+        NSLayoutConstraint.activate([
+            hostedView.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor),
+            hostedView.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor),
+            hostedView.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor),
+            hostedView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor)
+        ])
+
+        return scrollView
+    }
+
+    func updateUIView(_ uiView: UIScrollView, context: Context) {
+        // Update content when SwiftUI view changes
+        context.coordinator.hostingController.rootView = content
+    }
+
+    func makeCoordinator() -> Coordinator {
+        return Coordinator(content: content)
+    }
+
+    class Coordinator: NSObject, UIScrollViewDelegate {
+        let hostingController: UIHostingController<Content>
+        private var initialContentOffset: CGPoint = .zero
+
+        init(content: Content) {
+            hostingController = UIHostingController(rootView: content)
+            hostingController.view.backgroundColor = .clear
+        }
+
+        // UIScrollViewDelegate method for zooming
+        func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+            return hostingController.view
+        }
+
+        // Handle long press gesture
+        @objc func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
+            if gesture.state == .began {
+                print("Long press detected")
+            }
+        }
+
+        // Handle pan gesture
+        @objc func handlePan(_ gesture: UIPanGestureRecognizer) {
+            guard let scrollView = gesture.view as? UIScrollView else { return }
+
+            let translation = gesture.translation(in: scrollView)
+            if gesture.state == .began {
+                initialContentOffset = scrollView.contentOffset
+            } else if gesture.state == .changed {
+                let newOffset = CGPoint(
+                    x: max(0, initialContentOffset.x - translation.x),
+                    y: max(0, initialContentOffset.y - translation.y)
+                )
+                scrollView.setContentOffset(newOffset, animated: false)
+            }
+        }
+    }
+}

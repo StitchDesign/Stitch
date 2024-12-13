@@ -719,6 +719,7 @@
 		ECB801DB26405E1100C93449 /* ImageNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB801DA26405E1100C93449 /* ImageNode.swift */; };
 		ECB801E12640892F00C93449 /* FileImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB801E02640892F00C93449 /* FileImportView.swift */; };
 		ECB8778C2C7D56D0004ACF60 /* LayerMultiselect.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB8778B2C7D56D0004ACF60 /* LayerMultiselect.swift */; };
+		ECB88E202D0BAD7E0097CF4A /* StitchUIScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB88E1F2D0BAD7E0097CF4A /* StitchUIScrollView.swift */; };
 		ECB8D58728B851E800D993CF /* DeviceInfoNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB8D58628B851E800D993CF /* DeviceInfoNode.swift */; };
 		ECB90B7629689A8300CF2F45 /* BouncyConverterUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB90B7529689A8300CF2F45 /* BouncyConverterUtils.swift */; };
 		ECB9812626A73BDD002ED9A5 /* ClipNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB9812526A73BDD002ED9A5 /* ClipNode.swift */; };
@@ -1650,6 +1651,7 @@
 		ECB801DA26405E1100C93449 /* ImageNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageNode.swift; sourceTree = "<group>"; };
 		ECB801E02640892F00C93449 /* FileImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileImportView.swift; sourceTree = "<group>"; };
 		ECB8778B2C7D56D0004ACF60 /* LayerMultiselect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerMultiselect.swift; sourceTree = "<group>"; };
+		ECB88E1F2D0BAD7E0097CF4A /* StitchUIScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchUIScrollView.swift; sourceTree = "<group>"; };
 		ECB8D58628B851E800D993CF /* DeviceInfoNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceInfoNode.swift; sourceTree = "<group>"; };
 		ECB90B7529689A8300CF2F45 /* BouncyConverterUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BouncyConverterUtils.swift; sourceTree = "<group>"; };
 		ECB9812526A73BDD002ED9A5 /* ClipNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipNode.swift; sourceTree = "<group>"; };
@@ -2554,6 +2556,7 @@
 				B5C53FAE2CED1FA70069612E /* NodeLayout.swift */,
 				EC91B56329AE7891006E823D /* NodesOnlyView.swift */,
 				B5EC61F82A5E2174002A639F /* NodeViewType.swift */,
+				ECB88E1F2D0BAD7E0097CF4A /* StitchUIScrollView.swift */,
 				ECDE943128089DF500005401 /* NodeView.swift */,
 				ECF387DC280B61680075F0E5 /* CanvasItemSelectedViewModifier.swift */,
 				B5CF644C294BEABD00EF83DB /* CanvasItemPositionHandler.swift */,
@@ -4859,6 +4862,7 @@
 				EC3420E02AF9C2C700EBD896 /* CommentExpansionBoxUtils.swift in Sources */,
 				ECD039252641F28E003926B4 /* GroupLayerNode.swift in Sources */,
 				EC264AF72924709000025C15 /* LayerStroke.swift in Sources */,
+				ECB88E202D0BAD7E0097CF4A /* StitchUIScrollView.swift in Sources */,
 				EC067CEA2BAB710E00F8EB82 /* ClassicAnimationOpSize.swift in Sources */,
 				B55780692CB043B600907BA8 /* StitchComponentViewModel.swift in Sources */,
 				ECF903DF29D5FE6F00A5B01A /* Component.swift in Sources */,
