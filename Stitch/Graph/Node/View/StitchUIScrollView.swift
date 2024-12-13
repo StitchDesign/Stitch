@@ -15,23 +15,35 @@ let WHOLE_GRAPH_SIZE: CGSize = .init(width: WHOLE_GRAPH_LENGTH, height: WHOLE_GR
 //let WHOLE_GRAPH_LENGTH: CGFloat = 3000
 
 struct StitchUIScrollViewModifier: ViewModifier {
+    let document: StitchDocumentViewModel
+    
     func body(content: Content) -> some View {
         StitchUIScrollView(contentSize: WHOLE_GRAPH_SIZE) {
             ZStack {
                 content
                 // places existing nodes in center like you expected before applying the UIScrollView
-//                    .offset(x: WHOLE_GRAPH_LENGTH/2,
-//                            y: WHOLE_GRAPH_LENGTH/2)
+                // TODO: DEC 12: how to place existing nodes such that we imitate the old .offset of graph.localPosition ?
+                    .offset(x: WHOLE_GRAPH_LENGTH/2,
+                            y: WHOLE_GRAPH_LENGTH/2)
 //                    .frame(width: WHOLE_GRAPH_LENGTH/2,
 //                           height: WHOLE_GRAPH_LENGTH/2)
-                    .frame(width: WHOLE_GRAPH_LENGTH,
-                           height: WHOLE_GRAPH_LENGTH)
+//                    .frame(width: WHOLE_GRAPH_LENGTH,
+//                           height: WHOLE_GRAPH_LENGTH)
                     .ignoresSafeArea()
                 
-//                APP_BACKGROUND_COLOR.zIndex(-99999)
-                Color.blue.opacity(0.75).zIndex(-99999)
+                Color.blue.opacity(0.9).zIndex(-99999)
                     .frame(WHOLE_GRAPH_SIZE)
                     .ignoresSafeArea()
+                    .gesture(SpatialTapGesture(count: 2,
+                                               coordinateSpace: .global)
+                        .onEnded({ value in
+                            dispatch(GraphDoubleTappedAction(location: value.location))
+                        })
+                    )
+                    .simultaneousGesture(TapGesture(count: 1)
+                        .onEnded({
+                            dispatch(GraphTappedAction())
+                        }))
             }
             
         }
@@ -41,7 +53,7 @@ struct StitchUIScrollViewModifier: ViewModifier {
 //               height: WHOLE_GRAPH_LENGTH)
         
         .background {
-            Color.red.opacity(0.75)
+            Color.red.opacity(0.9)
         }
         .ignoresSafeArea()
     }
@@ -89,6 +101,14 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         
         scrollView.contentSize = contentSize
 
+        // Center the content
+        DispatchQueue.main.async {
+            scrollView.contentOffset = CGPoint(
+                x: max(0, (contentSize.width - scrollView.bounds.width) / 2),
+                y: max(0, (contentSize.height - scrollView.bounds.height) / 2)
+            )
+        }
+        
         return scrollView
     }
 

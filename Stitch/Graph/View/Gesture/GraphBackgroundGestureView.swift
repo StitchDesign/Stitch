@@ -27,6 +27,9 @@ struct GraphGestureBackgroundView<T: View>: UIViewControllerRepresentable {
 
         let delegate = context.coordinator
 
+        
+        // TODO: DEC 12: moved to StitchUIScrollView?
+        
         // Use a UIKit gesture which is limited to screen,
         // since a SwiftUI drag gesture will fire at the same time as the trackpad gesture and cannot be specfically limited to the screen.
         let screenPanGesture = UIPanGestureRecognizer(
@@ -37,6 +40,9 @@ struct GraphGestureBackgroundView<T: View>: UIViewControllerRepresentable {
         screenPanGesture.delegate = delegate
         vc.view.addGestureRecognizer(screenPanGesture)
 
+            
+        // TODO: DEC 12: moved to StitchUIScrollView?
+        
         let trackpadPanGesture = UIPanGestureRecognizer(
             target: delegate,
             action: #selector(delegate.trackpadPanInView))
@@ -50,6 +56,9 @@ struct GraphGestureBackgroundView<T: View>: UIViewControllerRepresentable {
         trackpadPanGesture.delegate = delegate
         vc.view.addGestureRecognizer(trackpadPanGesture)
 
+        
+        // TODO: DEC 12: moved to StitchUIScrollView?
+        
         // screen only
         let longPressGesture = UILongPressGestureRecognizer(
             target: delegate,
@@ -59,6 +68,10 @@ struct GraphGestureBackgroundView<T: View>: UIViewControllerRepresentable {
         longPressGesture.delegate = delegate
         vc.view.addGestureRecognizer(longPressGesture)
 
+        
+        
+        // TODO: DEC 12: can be removed, since UIScrollView handles zoom?
+        
         // Now pinch only available on graph background
         let pinchGesture = UIPinchGestureRecognizer(
             target: delegate,

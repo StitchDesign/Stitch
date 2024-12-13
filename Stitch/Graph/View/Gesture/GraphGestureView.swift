@@ -31,6 +31,8 @@ struct GraphGestureView<T: View>: UIViewControllerRepresentable {
 
         vc.view.tag = GESTURE_VIEW_TAG
 
+        // TODO: DEC 12: not needed anymore, since UIScrollView is handling trackpad gestures etc.?
+        
         // Tracks scroll events with scroll wheel and trackpad
         let trackpadPanGesture = UIPanGestureRecognizer(
             target: delegate,

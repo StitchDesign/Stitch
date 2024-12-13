@@ -75,7 +75,7 @@ struct NodesView: View {
                                                graph: graph,
                                                groupNodeFocused: graphUI.groupNodeFocused))
         // should come after edges, so that edges are offset, scaled etc.
-           .modifier(StitchUIScrollViewModifier())
+           .modifier(StitchUIScrollViewModifier(document: document))
     }
     
     // TODO: better location for CommentBoxes?

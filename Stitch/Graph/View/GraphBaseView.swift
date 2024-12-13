@@ -70,7 +70,7 @@ struct GraphBaseView: View {
     @ViewBuilder
     @MainActor
     var nodesView: some View {
-        GraphGestureView(document: document) {
+//        GraphGestureView(document: document) {
             NodesView(document: document,
                       graph: graph,
                       groupTraversedToChild: graphUI.groupTraversedToChild)
@@ -78,21 +78,23 @@ struct GraphBaseView: View {
                 // zoom must come after offset
                 // (rather than before; eg inside the NodesView)
 
-                .background {
-                    GraphGestureBackgroundView(document: document) {
-                        Stitch.APP_BACKGROUND_COLOR
-                            .edgesIgnoringSafeArea(.all)
-                            // TODO: Location seems more accurate placed outside the UIKit wrapper,
-                            // but doing so messes up rendering
-                            .onTapGesture(count: 2) { newValue in
-                                dispatch(GraphDoubleTappedAction(location: newValue))
-                            }
-                            .simultaneousGesture(TapGesture().onEnded {
-                                dispatch(GraphTappedAction())
-                            })
-                    } // GraphGestureBackgroundView
-                } // .background
-        } // GraphGestureView
+//                .background {
+//                    GraphGestureBackgroundView(document: document) {
+////                        Stitch.APP_BACKGROUND_COLOR
+//                        Color.brown.opacity(0.9)
+//                            .edgesIgnoringSafeArea(.all)
+//                            // TODO: Location seems more accurate placed outside the UIKit wrapper,
+//                            // but doing so messes up rendering
+//                            .onTapGesture(count: 2) { newValue in
+//                                dispatch(GraphDoubleTappedAction(location: newValue))
+//                            }
+//                            .simultaneousGesture(TapGesture().onEnded {
+//                                dispatch(GraphTappedAction())
+//                            })
+//                    } // GraphGestureBackgroundView
+//                } // .background
+            
+//        }  // GraphGestureView
     }
 
     @ViewBuilder
