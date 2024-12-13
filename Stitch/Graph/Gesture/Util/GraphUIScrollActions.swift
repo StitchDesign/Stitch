@@ -510,13 +510,13 @@ extension StitchDocumentViewModel {
             return
         }
 
-        // Dragging on the graph restarts the momentum.
-        // NOTE: we must do this before updating the position,
-        // in order to make sure that the updatePosition call
-        // has a previousPosition that reflects the momentum movement.
-        if self.graphMovement.shouldRun {
-            self.graphMovement.resetGraphMovement()
-        }
+//        // Dragging on the graph restarts the momentum.
+//        // NOTE: we must do this before updating the position,
+//        // in order to make sure that the updatePosition call
+//        // has a previousPosition that reflects the momentum movement.
+//        if self.graphMovement.shouldRun {
+//            self.graphMovement.resetGraphMovement()
+//        }
 
         //    log("handleGraphScrolled: state.graphUI.graphMovement.localPosition was: \(state.graphUI.graphMovement.localPosition)")
 
@@ -681,8 +681,11 @@ extension StitchDocumentViewModel {
     @MainActor
     func graphDragEnded(location: CGPoint?,
                         velocity: CGPoint,
+//                        predictedEndTranslation: CGSize,
                         wasScreenDrag: Bool) {
 
+        log("graphDragEnded: velocity: \(velocity)")
+        
         let graphMovement = self.graphMovement
         let graphUIState = self.graphUI
 
@@ -702,8 +705,20 @@ extension StitchDocumentViewModel {
         //    log("handleGraphDragEnded: state.graphMovement.localPosition was \(state.graphMovement.localPosition)")
 
         // NORMAL:
-
-        graphMovement.localPreviousPosition = graphMovement.localPosition
+        
+        // added:
+        
+        // could use a different animation other than default spring
+        withAnimation {
+            let predictedEndTranslation = velocity //CGPoint(x: velocity.x/10, y: velocity.y/10)
+//                .applying(.init(damping: 0.8))
+                //.applying(damping: 0.8)
+            
+            graphMovement.localPosition = localPreviousPosition + predictedEndTranslation
+            graphMovement.localPreviousPosition = graphMovement.localPosition
+        }
+        
+//        graphMovement.localPreviousPosition = graphMovement.localPosition
 
         // DUAL DRAG:
 

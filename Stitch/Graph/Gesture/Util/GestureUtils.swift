@@ -115,30 +115,40 @@ extension GraphGestureDelegate {
         } else {
             // Handle regular scroll without zooming
             if gestureRecognizer.numberOfTouches == 0 {
+                
                 switch gestureRecognizer.state {
+                    
                 case .began:
 //                    if document?.llmRecording.isRecording ?? false {
 //                        log("Graph pan disabled during LLM Recording")
 //                        return
 //                    }
                     self.document?.graphScrollBegan()
+                    
                 case .changed:
 //                    if document?.llmRecording.isRecording ?? false {
 //                        log("Graph pan disabled during LLM Recording")
 //                        return
 //                    }
                     self.document?.graphScrolled(translation: translation)
+                
                 case .ended, .cancelled:
 //                    if document?.llmRecording.isRecording ?? false {
 //                        log("Graph pan disabled during LLM Recording")
 //                        return
 //                    }
+                    
+//                    let predictedEndTranslation = gesture.velocity(in: nil).applying(damping: 0.8) // Predicted end translation based on current velocity
+
+                    
                     self.document?.graphDragEnded(
                         location: nil,
                         // `nil` vs `view` doesn't make a difference?
                         // velocity: gestureRecognizer.velocity(in: view),
                         velocity: gestureRecognizer.velocity(in: nil),
+//                        predictedEndTranslation: gestureRecognizer.tran,
                         wasScreenDrag: false)
+                
                 default:
                     break
                 }
