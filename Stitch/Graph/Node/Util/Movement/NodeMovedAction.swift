@@ -156,7 +156,7 @@ extension GraphState {
                          // drag vs long-press
                          wasDrag: Bool) {
         
-        log("canvasItemMoved: original id: \(id)")
+        // log("canvasItemMoved: original id: \(id)")
 
         // Edges should *never* animate when node is being dragged
         self.graphUI.edgeAnimationEnabled = false

@@ -23,7 +23,7 @@ struct GraphDoubleTappedAction: StitchDocumentEvent {
     let location: CGPoint
     
     func handle(state: StitchDocumentViewModel) {
-        log("GraphDoubleTappedAction called")
+        log("GraphDoubleTappedAction: location: \(location)")
         
         state.graphUI.toggleInsertNodeMenu()
         
