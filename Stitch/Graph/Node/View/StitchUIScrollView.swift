@@ -81,11 +81,13 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         let longPressGesture = UILongPressGestureRecognizer(target: context.coordinator, action: #selector(context.coordinator.handleLongPress(_:)))
         scrollView.addGestureRecognizer(longPressGesture)
 
-        // Only use with MacCatalyst
-#if targetEnvironment(macCatalyst)
-        let panGesture = UIPanGestureRecognizer(target: context.coordinator, action: #selector(context.coordinator.handlePan(_:)))
-        scrollView.addGestureRecognizer(panGesture)
-#endif
+        
+        // TODO: DEC 12: only should fire when spacebar held; also, super buggy, seems to reset any
+//        // Only use with MacCatalyst
+//#if targetEnvironment(macCatalyst)
+//        let panGesture = UIPanGestureRecognizer(target: context.coordinator, action: #selector(context.coordinator.handlePan(_:)))
+//        scrollView.addGestureRecognizer(panGesture)
+//#endif
 
         // Add SwiftUI content inside the scroll view
         let hostedView = context.coordinator.hostingController.view!
@@ -101,6 +103,8 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         
         scrollView.contentSize = contentSize
 
+        // TODO: DEC 12: Did this cause any manual UIPanGesture change of contentOffset on a zoomed view to become super buggy?
+        
         // Center the content
         DispatchQueue.main.async {
             scrollView.contentOffset = CGPoint(

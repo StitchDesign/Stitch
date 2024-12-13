@@ -65,9 +65,11 @@ struct NodesView: View {
            .modifier(CanvasEdgesViewModifier(document: document,
                                              graph: graph,
                                              graphUI: graphUI))
+        
            .transition(.groupTraverse(isVisitingChild: groupTraversedToChild,
                                       nodeLocation: groupNodeLocation,
                                       graphOffset: .zero))
+        
            .coordinateSpace(name: Self.coordinateNameSpace)
         
            .modifier(GraphMovementViewModifier(graphMovement: graph.graphMovement,
