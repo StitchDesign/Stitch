@@ -98,6 +98,19 @@ struct GraphZoomUpdated: StitchDocumentEvent {
 }
 
 
+struct GraphScrollDataUpdated: StitchDocumentEvent {
+    let newOffset: CGPoint
+    let newZoom: CGFloat
+    
+    func handle(state: StitchDocumentViewModel) {
+        log("GraphScrolledViaUIScrollView: newOffset: \(newOffset)")
+        log("GraphZoomUpdated: newZoom: \(newZoom)")
+        state.graphMovement.localPosition = newOffset
+        state.graphMovement.zoomData.final = newZoom
+    }
+}
+
+
 struct GraphScrolledViaUIScrollView: StitchDocumentEvent {
     let newOffset: CGPoint
     
@@ -198,7 +211,11 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         func scrollViewDidZoom(_ scrollView: UIScrollView) {
             
             // TODO: DEC 12: dragging a canvas item seems to already take into account the zoom level; except where we somehow come into cases where nodes move slower than cursor
-            dispatch(GraphZoomUpdated(newZoom: scrollView.zoomScale))
+//            dispatch(GraphZoomUpdated(newZoom: scrollView.zoomScale))
+            dispatch(GraphScrollDataUpdated(
+                newOffset: scrollView.contentOffset,
+                newZoom: scrollView.zoomScale
+            ))
             
 //            scrollView
             
@@ -212,12 +229,23 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
             let contentOffset = scrollView.contentOffset
             log("scrollViewWillBeginDragging contentOffset: \(contentOffset)")
+            log("scrollViewWillBeginDragging scrollView.zoomScale: \(scrollView.zoomScale)")
+            dispatch(GraphScrollDataUpdated(
+                newOffset: scrollView.contentOffset,
+                newZoom: scrollView.zoomScale
+            ))
         }
         
-        func scrollWillBeginDecelerating(_ scrollView: UIScrollView) {
+        func scrollViewWillBeginDecelerating(_ scrollView: UIScrollView) {
             let contentOffset = scrollView.contentOffset
-            log("scrollWillBeginDecelerating contentOffset: \(contentOffset)")
+            log("scrollViewWillBeginDecelerating contentOffset: \(contentOffset)")
+            log("scrollViewWillBeginDecelerating scrollView.zoomScale: \(scrollView.zoomScale)")
+            dispatch(GraphScrollDataUpdated(
+                newOffset: scrollView.contentOffset,
+                newZoom: scrollView.zoomScale
+            ))
         }
+                
         
         func scrollViewDidScroll(_ scrollView: UIScrollView) {
             let contentOffset = scrollView.contentOffset
@@ -230,11 +258,13 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             log("scrollViewDidScroll origin: \(origin)")
             log("scrollViewDidScroll scrollView.zoomScale: \(scrollView.zoomScale)")
             // TODO: DEC 12: revisit this after fixing input edits etc.
-            dispatch(GraphScrolledViaUIScrollView(newOffset: contentOffset))
+//            dispatch(GraphScrolledViaUIScrollView(newOffset: contentOffset))
+            dispatch(GraphScrollDataUpdated(
+                newOffset: scrollView.contentOffset,
+                newZoom: scrollView.zoomScale
+            ))
         }
-        
-        
-        
+                        
         // TODO: DEC 12: should start and update active node selection cursor box
         
         // Handle long press gesture
