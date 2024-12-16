@@ -64,9 +64,7 @@ extension StitchDocumentViewModel {
                                      y: WHOLE_GRAPH_LENGTH/2)
         // let nodeCenter = absoluteCenter
         
-        
         log("nodeCreated: self.graphMovement.localPosition: \(self.graphMovement.localPosition)")
-        
                 
         // places way high up in the top left corner,
         // because localPosition is already `14350 , 14500`
@@ -81,8 +79,10 @@ extension StitchDocumentViewModel {
         log("nodeCreated: startingScrollOffset: \(startingScrollOffset)")
         
         let offsetDiff = CGPoint(
-            x: startingScrollOffset.x - self.graphMovement.localPosition.x,
-            y: startingScrollOffset.y - self.graphMovement.localPosition.y
+//            x: startingScrollOffset.x - self.graphMovement.localPosition.x,
+//            y: startingScrollOffset.y - self.graphMovement.localPosition.y
+            x: self.graphMovement.localPosition.x,
+            y: self.graphMovement.localPosition.y
         )
         
         log("nodeCreated: offsetDiff: \(offsetDiff)")
@@ -92,31 +92,42 @@ extension StitchDocumentViewModel {
 
         // ^^ this is always the top left corner
         // so need to put into middle of current view port
-
+        
+//        let _nodeCenter = CGPoint(
+//            
+//            x: WHOLE_GRAPH_LENGTH/2 - offsetDiff.x + self.graphUI.frame.width/2,
+//            
+//            y: WHOLE_GRAPH_LENGTH/2 - offsetDiff.y + self.graphUI.frame.height/2
+//        )
         
         let _nodeCenter = CGPoint(
-            x: WHOLE_GRAPH_LENGTH/2 - offsetDiff.x + self.graphUI.frame.width/2,
-            y: WHOLE_GRAPH_LENGTH/2 - offsetDiff.y + self.graphUI.frame.height/2
+            x: offsetDiff.x, // + self.graphUI.frame.width/2,
+            y: offsetDiff.y // + self.graphUI.frame.height/2
         )
         
         log("nodeCreated: _nodeCenter: \(_nodeCenter)")
         
         let scale = self.graphMovement.zoomData.final
-        let _nodeCenterSCALED = CGPoint(
-            // WAAY TO MUCH
-//            x: (WHOLE_GRAPH_LENGTH/2 * 1/scale)
-            x: (WHOLE_GRAPH_LENGTH/2 * scale)
-            - offsetDiff.x
-            + self.graphUI.frame.width/2,
-            
-            // More like ... the diff between the Non-scaled view and the Scaled view ?
-//            y: (WHOLE_GRAPH_LENGTH/2 * 1/scale)
-            y: (WHOLE_GRAPH_LENGTH/2 * scale)
-            - offsetDiff.y
-            + self.graphUI.frame.height/2
-        )
         
-        log("nodeCreated: _nodeCenterSCALED: \(_nodeCenterSCALED)")
+        log("nodeCreated: scale: \(scale)")
+        
+        
+        
+//        let _nodeCenterSCALED = CGPoint(
+//            // WAAY TO MUCH
+////            x: (WHOLE_GRAPH_LENGTH/2 * 1/scale)
+//            x: (WHOLE_GRAPH_LENGTH/2 * scale)
+//            - offsetDiff.x
+//            + self.graphUI.frame.width/2,
+//            
+//            // More like ... the diff between the Non-scaled view and the Scaled view ?
+////            y: (WHOLE_GRAPH_LENGTH/2 * 1/scale)
+//            y: (WHOLE_GRAPH_LENGTH/2 * scale)
+//            - offsetDiff.y
+//            + self.graphUI.frame.height/2
+//        )
+//        
+//        log("nodeCreated: _nodeCenterSCALED: \(_nodeCenterSCALED)")
         
         // ^^ but super messed up by zoom
         // where or how should zoom be applied?
@@ -139,7 +150,8 @@ extension StitchDocumentViewModel {
         // ^^ when we zoom a little bit, how much do these differ
         
 //        let nodeCenter = graphUI.frameFromNodesOnlyView.mid
-        let nodeCenter = _nodeCenterSCALED
+//        let nodeCenter = _nodeCenterSCALED
+        let nodeCenter = _nodeCenter
         
         guard let node = self.createNode(
                 graphTime: self.graphStepManager.graphStepState.graphTime,

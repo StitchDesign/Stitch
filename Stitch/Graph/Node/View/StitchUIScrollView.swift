@@ -53,23 +53,23 @@ struct StitchUIScrollViewModifier: ViewModifier {
                         .onEnded({
                             dispatch(GraphTappedAction())
                         }))
-                    .background {
-                        GeometryReader { geometry in
-                            Color.clear
-                                .onChange(of: geometry.frame(in: .local), initial: true) { oldValue, newValue in
-                                    log("SIZE READING: StitchUIScrollView: local frame: newValue: \(newValue)") // only fires on graph first open
-                                }
-                                .onChange(of: geometry.frame(in: .global), initial: true) { oldValue, newValue in
-                                    log("SIZE READING: StitchUIScrollView: global frame: newValue: \(newValue)")
-                                }
-                            
-                                .onChange(of: geometry.frame(in: .named(GraphBaseView.coordinateNamespace)), initial: true) { oldValue, newValue in
-                                    log("SIZE READING: StitchUIScrollView: GraphBaseView.coordinateNamespace frame: newValue: \(newValue)")
-                                    document.graphUI.frameFromUIScrollView = newValue
-                                }
-                            
-                        } // GeometryReader
-                    } // .background
+//                    .background {
+//                        GeometryReader { geometry in
+//                            Color.clear
+//                                .onChange(of: geometry.frame(in: .local), initial: true) { oldValue, newValue in
+//                                    log("SIZE READING: StitchUIScrollView: local frame: newValue: \(newValue)") // only fires on graph first open
+//                                }
+//                                .onChange(of: geometry.frame(in: .global), initial: true) { oldValue, newValue in
+//                                    log("SIZE READING: StitchUIScrollView: global frame: newValue: \(newValue)")
+//                                }
+//                            
+//                                .onChange(of: geometry.frame(in: .named(GraphBaseView.coordinateNamespace)), initial: true) { oldValue, newValue in
+//                                    log("SIZE READING: StitchUIScrollView: GraphBaseView.coordinateNamespace frame: newValue: \(newValue)")
+//                                    document.graphUI.frameFromUIScrollView = newValue
+//                                }
+//                            
+//                        } // GeometryReader
+//                    } // .background
                 
                 
             }
@@ -153,7 +153,11 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
 
         // TODO: DEC 12: Did this cause any manual UIPanGesture change of contentOffset on a zoomed view to become super buggy?
         
-//        // Center the content
+        // TODO: DEC 12: initialize with proper persisted localPosition; using WHOLE_GRAPH_LENGTH/2 if it's a brand new project
+        
+        // ALSO: NOTE: CAREFUL: LOCAL POSITION IS STILL PERSISTED
+        
+        // Center the content
 //        DispatchQueue.main.async {
 //            let newOffset =  CGPoint(x: max(0, (contentSize.width - scrollView.bounds.width) / 2),
 //                                     y: max(0, (contentSize.height - scrollView.bounds.height) / 2))
@@ -196,6 +200,7 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             // TODO: DEC 12: dragging a canvas item seems to already take into account the zoom level; except where we somehow come into cases where nodes move slower than cursor
             dispatch(GraphZoomUpdated(newZoom: scrollView.zoomScale))
             
+//            scrollView
             
 //            // causes `updateUIView` to fire
 //            self.parent.zoomScale = scrollView.zoomScale
@@ -218,9 +223,12 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             let contentOffset = scrollView.contentOffset
             let contentSize = scrollView.contentSize
             let bounds = scrollView.bounds.size
+            let origin = scrollView.frame.origin
             log("scrollViewDidScroll contentOffset: \(contentOffset)")
             log("scrollViewDidScroll contentSize: \(contentSize)")
             log("scrollViewDidScroll bounds: \(bounds)")
+            log("scrollViewDidScroll origin: \(origin)")
+            log("scrollViewDidScroll scrollView.zoomScale: \(scrollView.zoomScale)")
             // TODO: DEC 12: revisit this after fixing input edits etc.
             dispatch(GraphScrolledViaUIScrollView(newOffset: contentOffset))
         }
