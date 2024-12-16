@@ -295,13 +295,14 @@ extension StitchDocumentViewModel {
                 previousPosition: canvasItem.previousPosition,
                 nodeSize: nodeSize)
             
-            let positionAtStart = canvasItem.previousPosition
+//            let positionAtStart = canvasItem.previousPosition
             canvasItem.previousPosition = canvasItem.position
+            log("handleNodeMoveEnded: canvasItem id \(canvasItem.id) is now at position \(canvasItem.position)")
             
             // Refresh ports
             canvasItem.updatePortLocations()
             
-            let diff = canvasItem.position - positionAtStart
+//            let diff = canvasItem.position - positionAtStart
 //            self.maybeCreateLLMMoveNode(canvasItem: canvasItem,
 //                                        diff: diff)
         }

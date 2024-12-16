@@ -28,11 +28,14 @@ struct GraphMovementViewModifier: ViewModifier {
 //                
 //                self.graph.updateVisibleNodes()
 //            }
-//            .onChange(of: graphMovement.localPosition) {
-//                currentNodePage.localPosition = graphMovement.localPosition
-//                
-//                self.graph.updateVisibleNodes()
-//            }
+        
+        // TODO: DEC 12:
+            .onChange(of: graphMovement.localPosition) { _, newValue in
+                log("changed: graphMovement.localPosition: newValue: \(newValue)")
+                currentNodePage.localPosition = graphMovement.localPosition
+                
+                self.graph.updateVisibleNodes()
+            }
 //            .onChange(of: graphMovement.zoomData.current) {
 //                currentNodePage.zoomData.current = graphMovement.zoomData.current
 //            }

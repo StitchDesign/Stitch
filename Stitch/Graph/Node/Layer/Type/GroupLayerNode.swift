@@ -111,13 +111,21 @@ struct GroupLayerNode: LayerNodeDefinition {
         .union(.offsetInGroup)
         .union(.paddingAndSpacing)
     
-    static func content(document: StitchDocumentViewModel,
-                        graph: GraphState,
-                        viewModel: LayerViewModel,
-                        parentSize: CGSize,
-                        layersInGroup: LayerDataList, isPinnedViewRendering: Bool,
-                        parentDisablesPosition: Bool,
-                        parentIsScrollableGrid: Bool) -> some View {
+    static func content(
+        document: StitchDocumentViewModel,
+        graph: GraphState,
+        viewModel: LayerViewModel,
+        
+        parentSize: CGSize,
+        
+        layersInGroup: LayerDataList, // recursion
+        isPinnedViewRendering: Bool, // leave alone? revisit with Layout?
+        
+        parentDisablesPosition: Bool,
+        
+        parentIsScrollableGrid: Bool
+    ) -> some View {
+        
         PreviewGroupLayer(
             document: document,
             graph: graph,

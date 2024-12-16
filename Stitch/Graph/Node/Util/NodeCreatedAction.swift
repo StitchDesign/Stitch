@@ -53,8 +53,54 @@ extension StitchDocumentViewModel {
     // Used by InsertNodeMenu
     @MainActor
     func nodeCreated(choice: NodeKind, center: CGPoint? = nil) -> NodeViewModel? {
-        let nodeCenter = center ?? self.newNodeCenterLocation
+//        let nodeCenter = center ?? self.newNodeCenterLocation
+//        let nodeCenter = CGPoint(x: -30, y: -90)
+        
+        // places node at top left i.e. 0,0 when not using an offset on the graph
+//        let nodeCenter = CGPoint.zero
+        
+        // puts in absolute center
+        let absoluteCenter = CGPoint(x: WHOLE_GRAPH_LENGTH/2,
+                                     y: WHOLE_GRAPH_LENGTH/2)
+        // let nodeCenter = absoluteCenter
+        
+        
+        log("nodeCreated: self.graphMovement.localPosition: \(self.graphMovement.localPosition)")
+        
+                
+        // places way high up in the top left corner,
+        // because localPosition is already `14350 , 14500`
+//        let nodeCenter = CGPoint(x: WHOLE_GRAPH_LENGTH/2 - self.graphMovement.localPosition.x,
+//                                 y: WHOLE_GRAPH_LENGTH/2 - self.graphMovement.localPosition.y)
+//        
+        // ^^ the initial localPosition is roughly 30000/2
+        // so the old style graphOffset is only obtained by comparing current localPosition vs starting localPosition
+        
+        let startingScrollOffset = absoluteCenter
+        
+        log("nodeCreated: startingScrollOffset: \(startingScrollOffset)")
+        
+        let offsetDiff = CGPoint(
+            x: startingScrollOffset.x - self.graphMovement.localPosition.x,
+            y: startingScrollOffset.y - self.graphMovement.localPosition.y)
+        
+        log("nodeCreated: offsetDiff: \(offsetDiff)")
+        
+//        let nodeCenter = CGPoint(x: WHOLE_GRAPH_LENGTH/2 - offsetDiff.x,
+//                                 y: WHOLE_GRAPH_LENGTH/2 - offsetDiff.y)
 
+        // ^^ this is always the top left corner
+        // so need to put into middle of current view port
+
+        
+        let nodeCenter = CGPoint(x: WHOLE_GRAPH_LENGTH/2 - offsetDiff.x + self.graphUI.frame.width/2,
+                                 y: WHOLE_GRAPH_LENGTH/2 - offsetDiff.y + self.graphUI.frame.height/2)
+        
+        log("nodeCreated: nodeCenter: \(nodeCenter)")
+        
+        
+        
+        
         guard let node = self.createNode(
                 graphTime: self.graphStepManager.graphStepState.graphTime,
                 newNodeId: UUID(),

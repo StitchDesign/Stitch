@@ -75,6 +75,8 @@ final class CanvasItemViewModel: Identifiable, StitchLayoutCachable, Sendable {
     
     @MainActor
     var isVisibleInFrame: Bool {
+//        return true // CONFIRM THAT
+        
         guard let graph = self.graphDelegate else { return false }
         return graph.visibleNodesViewModel.visibleCanvasIds.contains(self.id)
     }

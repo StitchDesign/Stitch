@@ -12,6 +12,9 @@ import StitchSchemaKit
 @Observable
 final class StitchStore: Sendable, StoreDelegate {
         
+    // TODO: DEC 12
+    @MainActor var deviceScreenSize: CGRect = .zero
+    
     @MainActor var llmRecordingModeEnabled: Bool = false
     
     @MainActor var allProjectUrls = [ProjectLoader]()

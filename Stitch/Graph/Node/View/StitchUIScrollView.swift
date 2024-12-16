@@ -10,7 +10,10 @@ import SwiftUI
 //let WHOLE_GRAPH_LENGTH: CGFloat = 300000
 
 let WHOLE_GRAPH_LENGTH: CGFloat = 30000
-let WHOLE_GRAPH_SIZE: CGSize = .init(width: WHOLE_GRAPH_LENGTH, height: WHOLE_GRAPH_LENGTH)
+
+let WHOLE_GRAPH_SIZE: CGSize = .init(
+    width: WHOLE_GRAPH_LENGTH,
+    height: WHOLE_GRAPH_LENGTH)
 
 //let WHOLE_GRAPH_LENGTH: CGFloat = 3000
 
@@ -23,8 +26,11 @@ struct StitchUIScrollViewModifier: ViewModifier {
                 content
                 // places existing nodes in center like you expected before applying the UIScrollView
                 // TODO: DEC 12: how to place existing nodes such that we imitate the old .offset of graph.localPosition ?
-                    .offset(x: WHOLE_GRAPH_LENGTH/2,
-                            y: WHOLE_GRAPH_LENGTH/2)
+                
+//                    .offset(x: WHOLE_GRAPH_LENGTH/2,
+//                            y: WHOLE_GRAPH_LENGTH/2)
+                
+                
 //                    .frame(width: WHOLE_GRAPH_LENGTH/2,
 //                           height: WHOLE_GRAPH_LENGTH/2)
 //                    .frame(width: WHOLE_GRAPH_LENGTH,
@@ -89,17 +95,17 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
     }
 
     func makeUIView(context: Context) -> UIScrollView {
+        log("StitchUIScrollView: makeUIView")
         let scrollView = UIScrollView()
 
         // Enable zooming
-        scrollView.minimumZoomScale = 0.1 //MIN_GRAPH_SCALE // 0.1
+        scrollView.minimumZoomScale = MIN_GRAPH_SCALE // 0.1
         scrollView.maximumZoomScale = MAX_GRAPH_SCALE //5.0
         scrollView.delegate = context.coordinator
 
         // Enable gestures
         let longPressGesture = UILongPressGestureRecognizer(target: context.coordinator, action: #selector(context.coordinator.handleLongPress(_:)))
         scrollView.addGestureRecognizer(longPressGesture)
-
         
         // TODO: DEC 12: only should fire when spacebar held; also, super buggy, seems to reset any
 //        // Only use with MacCatalyst
@@ -136,6 +142,8 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
     }
 
     func updateUIView(_ uiView: UIScrollView, context: Context) {
+        log("StitchUIScrollView: updateUIView")
+        
         // Update content when SwiftUI view changes
         context.coordinator.hostingController.rootView = content
     }
@@ -172,6 +180,17 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
 //            self.centerContent(scrollView: scrollView)
         }
         
+        // TODO: DEC 12: use graph bounds checking logic here
+        func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+            let contentOffset = scrollView.contentOffset
+            log("scrollViewWillBeginDragging contentOffset: \(contentOffset)")
+        }
+        
+        func scrollWillBeginDecelerating(_ scrollView: UIScrollView) {
+            let contentOffset = scrollView.contentOffset
+            log("scrollWillBeginDecelerating contentOffset: \(contentOffset)")
+        }
+        
         func scrollViewDidScroll(_ scrollView: UIScrollView) {
             let contentOffset = scrollView.contentOffset
             let contentSize = scrollView.contentSize
@@ -182,6 +201,7 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             // TODO: DEC 12: revisit this after fixing input edits etc.
             dispatch(GraphScrolledViaUIScrollView(newOffset: contentOffset))
         }
+        
         
         
         // TODO: DEC 12: should start and update active node selection cursor box
