@@ -26,6 +26,13 @@ let WIDE_ADJUSTMENT_BAR_GRADIENT_COLOR_ONE: Color = Color(.wideAdjustmentBarGrad
 let WIDE_ADJUSTMENT_BAR_GRADIENT_COLOR_TWO: Color = Color(.wideAdjustmentBarGradientColorTwo)
 
 struct WideAdjustmentBarView: View {
+    @State private var scrollCenter: CGPoint?
+    @State private var isScrollingFromTap = false // replace with just `manuallyClickedNumber`?
+    @State private var manuallyClickedNumber: AdjustmentNumber?
+
+    // false in onAppear;
+    @State private var hasBeenScrolled = false
+    
     let graph: GraphState
     // TODO: when field is "auto", pass in the resource's width/height
     let middleNumber: Double
@@ -43,13 +50,6 @@ struct WideAdjustmentBarView: View {
     let fieldCoordinate: FieldCoordinate
     let rowObserverCoordinate: NodeIOCoordinate
     let isFieldInsideLayerInspector: Bool
-
-    @State var scrollCenter: CGPoint?
-    @State var isScrollingFromTap = false // replace with just `manuallyClickedNumber`?
-    @State var manuallyClickedNumber: AdjustmentNumber?
-
-    // false in onAppear;
-    @State var hasBeenScrolled = false
 
     // Starts out same as `middleNumber`,
     // but unlike `middleNumber` is updated whenever we
@@ -163,12 +163,14 @@ struct WideAdjustmentBarView: View {
                 })
                 .onPreferenceChange(ViewOffsetKey.self) { newScrollOffset in
                     // print("offset >> \(newScrollOffset)")
-                    if newScrollOffset != 0,
-                       !isScrollingFromTap {
-                        // print("we've scrolled...")
-                        hasBeenScrolled = true
+                    
+                    Task { @MainActor in
+                        if newScrollOffset != 0,
+                           !isScrollingFromTap {
+                            // print("we've scrolled...")
+                            hasBeenScrolled = true
+                        }
                     }
-
                 }
                 .onChange(of: self.stepSize) { _, _ in
                     self.numberLineMiddle = self.currentlySelectedNumber
