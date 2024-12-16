@@ -76,7 +76,17 @@ func getOpenAIRequestBody(prompt: String,
                           temperature: Double = 1.0,
                           maxTokens: Int = 2000) -> [String: Any] {
     let body: [String: Any] = [
-        "model": OPEN_AI_MODEL,
+        "model": "ft:gpt-4o-2024-08-06:adammenges::AdhLWSuL",
+        "n": 1,
+        "response_format": [
+            "type": "json_schema",
+            "json_schema": [
+                "name": "visual_programming_actions", //"visual_programming_actions_schema",
+                "schema": responseSchema,
+                "strict": true
+            ]
+        ],
+        "temperature": 1,
         "messages": [
             [
                 "role": "system",
@@ -84,19 +94,13 @@ func getOpenAIRequestBody(prompt: String,
             ],
             [
                 "role": "user",
-                "content": prompt
-            ]
-        ],
-        "temperature": temperature,
-        "max_tokens": maxTokens,
-        "response_format": [
-            "type": "json_schema",
-            "json_schema": [
-                "name": "visual_programming_actions_schema",
-                "schema": responseSchema,
-                "strict": true
+                "content": "Add 2 and 4" // prompt
             ]
         ]
+        //,
+//        "temperature": temperature,
+//        "max_tokens": maxTokens,
+        
     ]
     return body
 }
