@@ -168,6 +168,7 @@ struct RealityLayerView: View {
                                            layersInGroup: layersInGroup,
                                            isPinnedViewRendering: isPinnedViewRendering,
                                            parentDisablesPosition: parentDisablesPosition,
+                                           parentIsScrollableGrid: parentIsScrollableGrid,
                                            realityContent: $localRealityContent)
                 }
             }
