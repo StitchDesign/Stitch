@@ -169,7 +169,7 @@ func isMlModelFile(pathExtension: String) -> Bool {
     mlModelFileFormats.contains((pathExtension.uppercased()))
 }
 
-let model3DFileFormats: Set<String> = Set(["USDZ"])
+let model3DFileFormats: Set<String> = Set(["USDZ", "USD", "USDC"])
 
 func isModel3DFile(pathExtension: String) -> Bool {
     model3DFileFormats.contains((pathExtension.uppercased()))

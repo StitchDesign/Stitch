@@ -127,6 +127,7 @@ extension LayerNodeEntity {
          position3DPort: LayerInputEntity = .empty,
          scale3DPort: LayerInputEntity = .empty,
          rotation3DPort: LayerInputEntity = .empty,
+         anchorEntityPort: LayerInputEntity = .empty,
          hasSidebarVisibility: Bool,
          layerGroupId: NodeId?) {
         
@@ -261,6 +262,7 @@ extension LayerNodeEntity {
             position3DPort: position3DPort,
             scale3DPort: scale3DPort,
             rotation3DPort: rotation3DPort,
+            anchorEntityPort: anchorEntityPort,
             
             hasSidebarVisibility: hasSidebarVisibility,
             layerGroupId: layerGroupId)

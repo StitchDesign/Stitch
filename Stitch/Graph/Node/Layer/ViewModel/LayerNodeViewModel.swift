@@ -155,6 +155,7 @@ final class LayerNodeViewModel {
     var position3DPort: LayerInputObserver
     var scale3DPort: LayerInputObserver
     var rotation3DPort: LayerInputObserver
+    var anchorEntityPort: LayerInputObserver
     
     @MainActor weak var nodeDelegate: NodeDelegate?
 
@@ -324,6 +325,7 @@ final class LayerNodeViewModel {
         self.position3DPort = .init(from: schema, port: .position3D)
         self.scale3DPort = .init(from: schema, port: .scale3D)
         self.rotation3DPort = .init(from: schema, port: .rotation3D)
+        self.anchorEntityPort = .init(from: schema, port: .anchorEntity)
         
         // Initialize each NodeRowObserver for each expected layer input
         for layerInputPort in graphNode.inputDefinitions {

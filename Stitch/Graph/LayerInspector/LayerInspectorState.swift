@@ -140,7 +140,7 @@ extension LayerInspectorView {
     ]
     
     @MainActor
-    static let media: LayerInputTypeSet = [
+    static let media: LayerInputPortSet = [
         // Imports
         .image,
         .video,
@@ -149,7 +149,7 @@ extension LayerInspectorView {
     ]
     
     @MainActor
-    static let reality: LayerInputTypeSet = [
+    static let reality: LayerInputPortSet = [
         .position3D,
         .scale3D,
         .rotation3D

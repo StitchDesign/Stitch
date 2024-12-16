@@ -152,6 +152,8 @@ extension PortValue {
             return .singleDropdown(.deviceAppearance)
         case .orientation:
             return .layerGroupOrientationDropdown
+        case .anchorEntity:
+            return .anchorEntity
         }
     }
 

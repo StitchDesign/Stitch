@@ -210,6 +210,8 @@ extension PortValue {
             return x.rawValue
         case .materialThickness(let x):
             return x.rawValue
+        case .anchorEntity(let x):
+            return x?.description ?? "None"
         }
         /*
          See https://github.com/vpl-codesign/stitch/issues/3022

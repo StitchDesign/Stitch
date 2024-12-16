@@ -77,13 +77,11 @@ struct PreviewRealityLayer: View {
     }
 }
 
-struct RealityLayerView: View {
-    @State private var localRealityContent: RealityViewCameraContent?
-    
+struct RealityLayerView: View {    
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
-    let layerViewModel: LayerViewModel
+    @Bindable var layerViewModel: LayerViewModel
     let layersInGroup: LayerDataList
     let cameraFeedManager: CameraFeedManager?
     let isPinnedViewRendering: Bool
@@ -116,6 +114,10 @@ struct RealityLayerView: View {
     let parentSize: CGSize
     let parentDisablesPosition: Bool
     let parentIsScrollableGrid: Bool
+
+    var localRealityContent: RealityViewCameraContent? {
+        self.layerViewModel.realityContent
+    }
     
     // Override camera setting on Mac
 //    var _isCameraEnabled: Bool {
@@ -136,7 +138,7 @@ struct RealityLayerView: View {
         let content = content
         
         Task { @MainActor in
-            self.localRealityContent = content
+            self.layerViewModel.realityContent = content
         }
     }
     
@@ -153,6 +155,8 @@ struct RealityLayerView: View {
                         self.updateRealityContent(&content)
                     } update: { content in
                         self.updateRealityContent(&content)
+                    } placeholder: {
+                        ProgressView()
                     }
                     // Supports gestures as assigned in the entity's USDZ file
                     .gesture(TapGesture().targetedToAnyEntity()
@@ -169,7 +173,7 @@ struct RealityLayerView: View {
                                            isPinnedViewRendering: isPinnedViewRendering,
                                            parentDisablesPosition: parentDisablesPosition,
                                            parentIsScrollableGrid: parentIsScrollableGrid,
-                                           realityContent: $localRealityContent)
+                                           realityContent: self.$layerViewModel.realityContent)
                 }
             }
             

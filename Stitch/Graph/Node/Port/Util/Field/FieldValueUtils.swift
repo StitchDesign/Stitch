@@ -287,14 +287,16 @@ extension PortValue {
         case .readOnly:
             let display = self.display
             return [[.readOnly(display)]]
+        
         case .spacing:
             return [[FieldValue.spacing(self.getStitchSpacing ?? .defaultStitchSpacing)]]
         
         case .layerGroupOrientationDropdown:
             let orientation = self.getOrientation ?? .defaultOrientation
-            let choices = StitchOrientation.choices
             return [[.layerGroupOrientationDropdown(orientation)]]
             
+        case .anchorEntity:
+            return [[.anchorEntity(self.anchorEntity)]]
         }
     }
 }

@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import RealityKit
 import StitchSchemaKit
 
 extension PinToId {
@@ -52,6 +53,8 @@ final class LayerViewModel: Sendable {
     let id: PreviewCoordinate
     let layer: Layer
     let interactiveLayer: InteractiveLayer
+    
+    @MainActor var realityContent: RealityViewCameraContent?
     @MainActor weak var nodeDelegate: NodeDelegate?
     
     // PINNING: "View A is pinned to View B"
@@ -217,6 +220,7 @@ final class LayerViewModel: Sendable {
     @MainActor var position3D: PortValue
     @MainActor var scale3D: PortValue
     @MainActor var rotation3D: PortValue
+    @MainActor var anchorEntity: PortValue
     
     // Ephemeral state on the layer view model
     
@@ -365,6 +369,7 @@ final class LayerViewModel: Sendable {
         self.position3D = LayerInputPort.position3D.getDefaultValue(for: layer)
         self.scale3D = LayerInputPort.scale3D.getDefaultValue(for: layer)
         self.rotation3D = LayerInputPort.rotation3D.getDefaultValue(for: layer)
+        self.anchorEntity = LayerInputPort.anchorEntity.getDefaultValue(for: layer)
         
         self.nodeDelegate = nodeDelegate
         self.interactiveLayer.delegate = self
