@@ -106,17 +106,17 @@ struct StitchRootView: View {
                     } // .overlay
             }
         }
-        .background {
-            GeometryReader { geometry in
-                Color.clear
-                    .onChange(of: geometry.frame(in: .local), initial: true) { oldValue, newValue in
-                        log("SIZE READING: StitchRootView: local frame: newValue: \(newValue)")
-                    }
-                    .onChange(of: geometry.frame(in: .global), initial: true) { oldValue, newValue in
-                        log("SIZE READING: StitchRootView: global frame: newValue: \(newValue)")
-                    }
-            } // GeometryReader
-        } // .background
+//        .background {
+//            GeometryReader { geometry in
+//                Color.clear
+//                    .onChange(of: geometry.frame(in: .local), initial: true) { oldValue, newValue in
+//                        log("SIZE READING: StitchRootView: local frame: newValue: \(newValue)")
+//                    }
+//                    .onChange(of: geometry.frame(in: .global), initial: true) { oldValue, newValue in
+//                        log("SIZE READING: StitchRootView: global frame: newValue: \(newValue)")
+//                    }
+//            } // GeometryReader
+//        } // .background
         
 //        .coordinateSpace(name: Self.STITCH_ROOT_VIEW_COORDINATE_SPACE)
         .modifier(StitchRootModifier(alertState: alertState))

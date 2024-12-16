@@ -82,7 +82,8 @@ extension StitchDocumentViewModel {
         
         let offsetDiff = CGPoint(
             x: startingScrollOffset.x - self.graphMovement.localPosition.x,
-            y: startingScrollOffset.y - self.graphMovement.localPosition.y)
+            y: startingScrollOffset.y - self.graphMovement.localPosition.y
+        )
         
         log("nodeCreated: offsetDiff: \(offsetDiff)")
         
@@ -93,13 +94,52 @@ extension StitchDocumentViewModel {
         // so need to put into middle of current view port
 
         
-        let nodeCenter = CGPoint(x: WHOLE_GRAPH_LENGTH/2 - offsetDiff.x + self.graphUI.frame.width/2,
-                                 y: WHOLE_GRAPH_LENGTH/2 - offsetDiff.y + self.graphUI.frame.height/2)
+        let _nodeCenter = CGPoint(
+            x: WHOLE_GRAPH_LENGTH/2 - offsetDiff.x + self.graphUI.frame.width/2,
+            y: WHOLE_GRAPH_LENGTH/2 - offsetDiff.y + self.graphUI.frame.height/2
+        )
         
-        log("nodeCreated: nodeCenter: \(nodeCenter)")
+        log("nodeCreated: _nodeCenter: \(_nodeCenter)")
+        
+        let scale = self.graphMovement.zoomData.final
+        let _nodeCenterSCALED = CGPoint(
+            // WAAY TO MUCH
+//            x: (WHOLE_GRAPH_LENGTH/2 * 1/scale)
+            x: (WHOLE_GRAPH_LENGTH/2 * scale)
+            - offsetDiff.x
+            + self.graphUI.frame.width/2,
+            
+            // More like ... the diff between the Non-scaled view and the Scaled view ?
+//            y: (WHOLE_GRAPH_LENGTH/2 * 1/scale)
+            y: (WHOLE_GRAPH_LENGTH/2 * scale)
+            - offsetDiff.y
+            + self.graphUI.frame.height/2
+        )
+        
+        log("nodeCreated: _nodeCenterSCALED: \(_nodeCenterSCALED)")
+        
+        // ^^ but super messed up by zoom
+        // where or how should zoom be applied?
+        
+        // need to multiply WHOLE_GRAPH_LENGTH by zoom ?
+        // Because zoomed in graph = larger, according to UIScrollView geometry-readings?
+        
+        // and is offset -x,-y if I move top and left between the top-left corner?
         
         
+        // why didn't we need to worry about zoom before? was SetDeviceScreen changing as we zoomed?
+        // 
         
+        log("nodeCreated: graphUI.frameFromGraphBaseView.mid: \(graphUI.frameFromGraphBaseView.mid)")
+        
+        log("nodeCreated: graphUI.frameFromUIScrollView.mid: \(graphUI.frameFromUIScrollView.mid)")
+        
+        log("nodeCreated: graphUI.frameFromNodesOnlyView.mid: \(graphUI.frameFromNodesOnlyView.mid)")
+        
+        // ^^ when we zoom a little bit, how much do these differ
+        
+//        let nodeCenter = graphUI.frameFromNodesOnlyView.mid
+        let nodeCenter = _nodeCenterSCALED
         
         guard let node = self.createNode(
                 graphTime: self.graphStepManager.graphStepState.graphTime,
@@ -115,6 +155,13 @@ extension StitchDocumentViewModel {
         self.nodeCreated(node: node)
         return node
     }
+    
+    /// Current center of user's view onto the graph
+//
+//    var viewPortCenter: CGPoint {
+//        
+//    }
+    
 
     @MainActor
     func nodeCreated(node: NodeViewModel) {

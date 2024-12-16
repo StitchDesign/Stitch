@@ -17,9 +17,11 @@ let WHOLE_GRAPH_SIZE: CGSize = .init(
 
 //let WHOLE_GRAPH_LENGTH: CGFloat = 3000
 
+let WHOLE_GRAPH_COORDINATE_SPACE = "WHOLE_GRAPH_COORDINATE_SPACE"
+
 struct StitchUIScrollViewModifier: ViewModifier {
     let document: StitchDocumentViewModel
-    
+        
     func body(content: Content) -> some View {
         StitchUIScrollView(contentSize: WHOLE_GRAPH_SIZE) {
             ZStack {
@@ -39,6 +41,7 @@ struct StitchUIScrollViewModifier: ViewModifier {
                 
                 Color.blue.opacity(0.9).zIndex(-99999)
                     .frame(WHOLE_GRAPH_SIZE)
+                    .coordinateSpace(name: WHOLE_GRAPH_COORDINATE_SPACE)
                     .ignoresSafeArea()
                     .gesture(SpatialTapGesture(count: 2,
                                                coordinateSpace: .global)
@@ -50,7 +53,27 @@ struct StitchUIScrollViewModifier: ViewModifier {
                         .onEnded({
                             dispatch(GraphTappedAction())
                         }))
+                    .background {
+                        GeometryReader { geometry in
+                            Color.clear
+                                .onChange(of: geometry.frame(in: .local), initial: true) { oldValue, newValue in
+                                    log("SIZE READING: StitchUIScrollView: local frame: newValue: \(newValue)") // only fires on graph first open
+                                }
+                                .onChange(of: geometry.frame(in: .global), initial: true) { oldValue, newValue in
+                                    log("SIZE READING: StitchUIScrollView: global frame: newValue: \(newValue)")
+                                }
+                            
+                                .onChange(of: geometry.frame(in: .named(GraphBaseView.coordinateNamespace)), initial: true) { oldValue, newValue in
+                                    log("SIZE READING: StitchUIScrollView: GraphBaseView.coordinateNamespace frame: newValue: \(newValue)")
+                                    document.graphUI.frameFromUIScrollView = newValue
+                                }
+                            
+                        } // GeometryReader
+                    } // .background
+                
+                
             }
+            
             
         }
         
@@ -130,13 +153,13 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
 
         // TODO: DEC 12: Did this cause any manual UIPanGesture change of contentOffset on a zoomed view to become super buggy?
         
-        // Center the content
-        DispatchQueue.main.async {
-            let newOffset =  CGPoint(x: max(0, (contentSize.width - scrollView.bounds.width) / 2),
-                                     y: max(0, (contentSize.height - scrollView.bounds.height) / 2))
-            scrollView.contentOffset = newOffset
-            dispatch(GraphScrolledViaUIScrollView(newOffset: newOffset))
-        }
+//        // Center the content
+//        DispatchQueue.main.async {
+//            let newOffset =  CGPoint(x: max(0, (contentSize.width - scrollView.bounds.width) / 2),
+//                                     y: max(0, (contentSize.height - scrollView.bounds.height) / 2))
+//            scrollView.contentOffset = newOffset
+//            dispatch(GraphScrolledViaUIScrollView(newOffset: newOffset))
+//        }
         
         return scrollView
     }
@@ -171,7 +194,7 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         func scrollViewDidZoom(_ scrollView: UIScrollView) {
             
             // TODO: DEC 12: dragging a canvas item seems to already take into account the zoom level; except where we somehow come into cases where nodes move slower than cursor
-//            dispatch(GraphZoomUpdated(newZoom: scrollView.zoomScale))
+            dispatch(GraphZoomUpdated(newZoom: scrollView.zoomScale))
             
             
 //            // causes `updateUIView` to fire

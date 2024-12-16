@@ -66,6 +66,17 @@ struct StitchProjectView: View {
                     graphUI: document.graphUI,
                     alertState: alertState,
                     routerNamespace: routerNamespace)
+//        .background {
+//            GeometryReader { geometry in
+//                Color.clear
+//                    .onChange(of: geometry.frame(in: .local), initial: true) { oldValue, newValue in
+//                        log("SIZE READING: StitchProjectView: local frame: newValue: \(newValue)")
+//                    }
+//                    .onChange(of: geometry.frame(in: .global), initial: true) { oldValue, newValue in
+//                        log("SIZE READING: StitchProjectView: global frame: newValue: \(newValue)")
+//                    }
+//            } // GeometryReader
+//        } // .background
     }
 }
 

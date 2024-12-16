@@ -97,6 +97,18 @@ struct NodesView: View {
                       graph: graph,
                       graphUI: graphUI,
                       nodePageData: nodePageData)
+        .background {
+            GeometryReader { geometry in
+                Color.clear
+                    .onChange(of: geometry.frame(in: .named(WHOLE_GRAPH_COORDINATE_SPACE)),
+                              initial: true) { oldValue, newValue in
+                        log("SIZE READING: nodesOnlyView: WHOLE GRAPH frame: newValue.size: \(newValue.size)") // changes as we zoom?
+                        log("SIZE READING: nodesOnlyView: WHOLE GRAPH frame: newValue.mid: \(newValue.mid)")
+                        log("SIZE READING: nodesOnlyView: WHOLE GRAPH frame: newValue.origin: \(newValue.origin)")
+                        graph.graphUI.frameFromNodesOnlyView = newValue
+                    }
+            }
+        }
     }
 }
 

@@ -151,6 +151,10 @@ struct GraphBaseView: View {
                         dispatch(SetGraphYPosition(graphYPosition: newValue.origin.y))
                         dispatch(SetSidebarWidth(frame: newValue))
                     }
+                    .onChange(of: geometry.frame(in: .named(WHOLE_GRAPH_COORDINATE_SPACE)), initial: true) { oldValue, newValue in
+                        log("SIZE READING: GraphBaseView: WHOLE GRAPH frame: newValue: \(newValue)")
+                        graph.graphUI.frameFromGraphBaseView = newValue
+                    }
             } // GeometryReader
         } // .background
     }

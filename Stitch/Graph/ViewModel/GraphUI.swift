@@ -96,6 +96,12 @@ final class GraphUIState: Sendable {
     // we get the exact device screen size via GeometryReader.
     @MainActor var frame = DEFAULT_LANDSCAPE_GRAPH_FRAME
     
+    @MainActor var frameFromNodesOnlyView = DEFAULT_LANDSCAPE_GRAPH_FRAME
+    
+    @MainActor var frameFromGraphBaseView = DEFAULT_LANDSCAPE_GRAPH_FRAME
+    
+    @MainActor var frameFromUIScrollView = DEFAULT_LANDSCAPE_GRAPH_FRAME
+    
     // Note: our device-screen reading logic uses `.local` coordinate space and so does not detect that items in the graph actually sit a little lower on the screen.
     // TODO: better?: just always look at `.global`
     @MainActor var graphYPosition: CGFloat = .zero
