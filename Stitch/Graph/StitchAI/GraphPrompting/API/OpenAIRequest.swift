@@ -72,8 +72,9 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
 
 
 func getOpenAIRequestBody(prompt: String,
-                          responseSchema: [String: Any]) -> [String: Any] {
-    
+                          responseSchema: [String: Any],
+                          temperature: Double = 1.0,
+                          maxTokens: Int = 2000) -> [String: Any] {
     let body: [String: Any] = [
         "model": OPEN_AI_MODEL,
         "messages": [
@@ -86,6 +87,8 @@ func getOpenAIRequestBody(prompt: String,
                 "content": prompt
             ]
         ],
+        "temperature": temperature,
+        "max_tokens": maxTokens,
         "response_format": [
             "type": "json_schema",
             "json_schema": [
@@ -95,7 +98,6 @@ func getOpenAIRequestBody(prompt: String,
             ]
         ]
     ]
-    
     return body
 }
 
