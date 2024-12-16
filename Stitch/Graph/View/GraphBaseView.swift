@@ -108,6 +108,11 @@ struct GraphBaseView: View {
                 .frame(width: 60, height: 60)
             #endif
 
+//            Circle().fill(.black.opacity(0.5))
+//                .frame(width: 60, height: 60)
+//                .position(self.document.graphMovement.localPosition)
+//                .zIndex(999999999999999)
+            
             nodesView
 
             // Selection box and cursor

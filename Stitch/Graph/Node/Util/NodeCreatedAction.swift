@@ -55,102 +55,28 @@ extension StitchDocumentViewModel {
     func nodeCreated(choice: NodeKind, center: CGPoint? = nil) -> NodeViewModel? {
 //        let nodeCenter = center ?? self.newNodeCenterLocation
 //        let nodeCenter = CGPoint(x: -30, y: -90)
-        
-        // places node at top left i.e. 0,0 when not using an offset on the graph
-//        let nodeCenter = CGPoint.zero
-        
-        // puts in absolute center
-        let absoluteCenter = CGPoint(x: WHOLE_GRAPH_LENGTH/2,
-                                     y: WHOLE_GRAPH_LENGTH/2)
-        // let nodeCenter = absoluteCenter
-        
-        log("nodeCreated: self.graphMovement.localPosition: \(self.graphMovement.localPosition)")
                 
-        // places way high up in the top left corner,
-        // because localPosition is already `14350 , 14500`
-//        let nodeCenter = CGPoint(x: WHOLE_GRAPH_LENGTH/2 - self.graphMovement.localPosition.x,
-//                                 y: WHOLE_GRAPH_LENGTH/2 - self.graphMovement.localPosition.y)
-//        
-        // ^^ the initial localPosition is roughly 30000/2
-        // so the old style graphOffset is only obtained by comparing current localPosition vs starting localPosition
+        log("nodeCreated: self.graphMovement.localPosition: \(self.graphMovement.localPosition)")
+                    
+        let scale = self.graphMovement.zoomData.final
+        log("nodeCreated: scale: \(scale)")
         
-        let startingScrollOffset = absoluteCenter
-        
-        log("nodeCreated: startingScrollOffset: \(startingScrollOffset)")
-        
-        let offsetDiff = CGPoint(
-//            x: startingScrollOffset.x - self.graphMovement.localPosition.x,
-//            y: startingScrollOffset.y - self.graphMovement.localPosition.y
-            x: self.graphMovement.localPosition.x,
-            y: self.graphMovement.localPosition.y
-        )
-        
-        log("nodeCreated: offsetDiff: \(offsetDiff)")
-        
-//        let nodeCenter = CGPoint(x: WHOLE_GRAPH_LENGTH/2 - offsetDiff.x,
-//                                 y: WHOLE_GRAPH_LENGTH/2 - offsetDiff.y)
-
-        // ^^ this is always the top left corner
-        // so need to put into middle of current view port
+        let viewPortFrame = self.graphUI.frame
+        log("nodeCreated: viewPortFrame: \(viewPortFrame)")
         
 //        let _nodeCenter = CGPoint(
-//            
-//            x: WHOLE_GRAPH_LENGTH/2 - offsetDiff.x + self.graphUI.frame.width/2,
-//            
-//            y: WHOLE_GRAPH_LENGTH/2 - offsetDiff.y + self.graphUI.frame.height/2
+//            x: self.graphMovement.localPosition.x, // + self.graphUI.frame.width/2,
+//            y: self.graphMovement.localPosition.y // + self.graphUI.frame.height/2
 //        )
         
         let _nodeCenter = CGPoint(
-            x: offsetDiff.x, // + self.graphUI.frame.width/2,
-            y: offsetDiff.y // + self.graphUI.frame.height/2
+            x: self.graphMovement.localPosition.x / scale, // + self.graphUI.frame.width/2,
+            y: self.graphMovement.localPosition.y / scale // + self.graphUI.frame.height/2
         )
+        
         
         log("nodeCreated: _nodeCenter: \(_nodeCenter)")
         
-        let scale = self.graphMovement.zoomData.final
-        
-        log("nodeCreated: scale: \(scale)")
-        
-        
-        
-//        let _nodeCenterSCALED = CGPoint(
-//            // WAAY TO MUCH
-////            x: (WHOLE_GRAPH_LENGTH/2 * 1/scale)
-//            x: (WHOLE_GRAPH_LENGTH/2 * scale)
-//            - offsetDiff.x
-//            + self.graphUI.frame.width/2,
-//            
-//            // More like ... the diff between the Non-scaled view and the Scaled view ?
-////            y: (WHOLE_GRAPH_LENGTH/2 * 1/scale)
-//            y: (WHOLE_GRAPH_LENGTH/2 * scale)
-//            - offsetDiff.y
-//            + self.graphUI.frame.height/2
-//        )
-//        
-//        log("nodeCreated: _nodeCenterSCALED: \(_nodeCenterSCALED)")
-        
-        // ^^ but super messed up by zoom
-        // where or how should zoom be applied?
-        
-        // need to multiply WHOLE_GRAPH_LENGTH by zoom ?
-        // Because zoomed in graph = larger, according to UIScrollView geometry-readings?
-        
-        // and is offset -x,-y if I move top and left between the top-left corner?
-        
-        
-        // why didn't we need to worry about zoom before? was SetDeviceScreen changing as we zoomed?
-        // 
-        
-        log("nodeCreated: graphUI.frameFromGraphBaseView.mid: \(graphUI.frameFromGraphBaseView.mid)")
-        
-        log("nodeCreated: graphUI.frameFromUIScrollView.mid: \(graphUI.frameFromUIScrollView.mid)")
-        
-        log("nodeCreated: graphUI.frameFromNodesOnlyView.mid: \(graphUI.frameFromNodesOnlyView.mid)")
-        
-        // ^^ when we zoom a little bit, how much do these differ
-        
-//        let nodeCenter = graphUI.frameFromNodesOnlyView.mid
-//        let nodeCenter = _nodeCenterSCALED
         let nodeCenter = _nodeCenter
         
         guard let node = self.createNode(
