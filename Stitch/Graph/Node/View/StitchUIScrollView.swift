@@ -66,22 +66,7 @@ struct StitchUIScrollViewModifier: ViewModifier {
 //                }
 //                .zIndex(-99999)
                 
-                
-                // RENDERING THE NODE CURSOR SELECTION BOX HERE GIVES THE PROPER LOCATION AFTER OFFSET *BUT NOT AFTER ZOOM*
-                
-                // Selection box and cursor
-                if let expansionBox = selectionState.expansionBox {
-                    ExpansionBoxView(graph: document.graph,
-                                     box: expansionBox)
-                }
-
-                if selectionState.isSelecting,
-                   let currentDrag = selectionState.dragCurrentLocation {
-                    CursorDotView(
-                        currentDragLocation: currentDrag,
-                        isFingerOnScreenSelection: selectionState.isFingerOnScreenSelection)
-                }
-                
+          
                 
 //                Color.blue.opacity(0.9)
 //                    .zIndex(-99999)
@@ -101,7 +86,9 @@ struct StitchUIScrollViewModifier: ViewModifier {
                 
                 
 //                    .gesture(StitchLongPressGestureRecognizerRepresentable())
-//                    .gesture(StitchTrackpadPanGestureRecognizerRepresentable())
+                    
+                // THIS IS BETTER: HANDLES BOTH ZOOMING AND SCROLLING PROPERLY 
+                    .gesture(StitchTrackpadPanGestureRecognizerRepresentable())
                 
                 
                 
@@ -141,6 +128,22 @@ struct StitchUIScrollViewModifier: ViewModifier {
 //                            
 //                        } // GeometryReader
 //                    } // .background
+                
+                
+                // RENDERING THE NODE CURSOR SELECTION BOX HERE GIVES THE PROPER LOCATION AFTER OFFSET *BUT NOT AFTER ZOOM*
+                
+                // Selection box and cursor
+                if let expansionBox = selectionState.expansionBox {
+                    ExpansionBoxView(graph: document.graph,
+                                     box: expansionBox)
+                }
+
+                if selectionState.isSelecting,
+                   let currentDrag = selectionState.dragCurrentLocation {
+                    CursorDotView(
+                        currentDragLocation: currentDrag,
+                        isFingerOnScreenSelection: selectionState.isFingerOnScreenSelection)
+                }
                 
                 
             }
@@ -211,6 +214,11 @@ struct StitchTrackpadPanGestureRecognizerRepresentable: UIGestureRecognizerRepre
         let translation = recognizer.translation(in: recognizer.view)
         let location = recognizer.location(in: recognizer.view)
         let velocity = recognizer.velocity(in: recognizer.view)
+        
+        log("StitchTrackpadPanGestureRecognizerRepresentable: handleUIGestureRecognizerAction: recognizer.state.description: \(recognizer.state.description)")
+        
+        log("StitchTrackpadPanGestureRecognizerRepresentable: handleUIGestureRecognizerAction: location: \(location)")
+        
         
         dispatch(GraphBackgroundTrackpadDragged(translation: translation.toCGSize,
                                                 location: location,
@@ -306,29 +314,29 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
 //        scrollView.addGestureRecognizer(panGesture)
 //#endif
         
-        // CATALYST AND IPAD-WITH-TRACKPAD: IMMEDIATELY START THE NODE CURSOR SELECTION BOX
-        let trackpadPanGesture = UIPanGestureRecognizer(
-            target: context.coordinator,
-            action: #selector(context.coordinator.trackpadPanInView))
-        // Only listen to click and drag from mouse
-        trackpadPanGesture.allowedScrollTypesMask = [.discrete]
-        // ignore screen; uses trackpad
-        trackpadPanGesture.allowedTouchTypes = [TRACKPAD_TOUCH_ID]
-        // 1 touch ensures a click and drag event
-        trackpadPanGesture.minimumNumberOfTouches = 1
-        trackpadPanGesture.maximumNumberOfTouches = 1
-        scrollView.addGestureRecognizer(trackpadPanGesture)
-        
-        
-        // THIS IS SCREEN TOUCH ONLY -- SO WE ONLY USE IT E.G. ON IPAD
-        // NODE CURSOR BOX SELECTION ON IPAD = FINGER LONG PRESS FIRST, THEN
-//        // screen only
-        let longPressGesture = UILongPressGestureRecognizer(
-            target: context.coordinator,
-            action: #selector(context.coordinator.longPressInView))
-        longPressGesture.minimumPressDuration = 0.5 // half a second
-        longPressGesture.allowedTouchTypes = [SCREEN_TOUCH_ID]
-        scrollView.addGestureRecognizer(longPressGesture)
+//        // CATALYST AND IPAD-WITH-TRACKPAD: IMMEDIATELY START THE NODE CURSOR SELECTION BOX
+//        let trackpadPanGesture = UIPanGestureRecognizer(
+//            target: context.coordinator,
+//            action: #selector(context.coordinator.trackpadPanInView))
+//        // Only listen to click and drag from mouse
+//        trackpadPanGesture.allowedScrollTypesMask = [.discrete]
+//        // ignore screen; uses trackpad
+//        trackpadPanGesture.allowedTouchTypes = [TRACKPAD_TOUCH_ID]
+//        // 1 touch ensures a click and drag event
+//        trackpadPanGesture.minimumNumberOfTouches = 1
+//        trackpadPanGesture.maximumNumberOfTouches = 1
+//        scrollView.addGestureRecognizer(trackpadPanGesture)
+//        
+//        
+//        // THIS IS SCREEN TOUCH ONLY -- SO WE ONLY USE IT E.G. ON IPAD
+//        // NODE CURSOR BOX SELECTION ON IPAD = FINGER LONG PRESS FIRST, THEN
+////        // screen only
+//        let longPressGesture = UILongPressGestureRecognizer(
+//            target: context.coordinator,
+//            action: #selector(context.coordinator.longPressInView))
+//        longPressGesture.minimumPressDuration = 0.5 // half a second
+//        longPressGesture.allowedTouchTypes = [SCREEN_TOUCH_ID]
+//        scrollView.addGestureRecognizer(longPressGesture)
         
 
         // Add SwiftUI content inside the scroll view
