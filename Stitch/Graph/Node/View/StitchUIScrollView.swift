@@ -44,7 +44,7 @@ struct StitchUIScrollViewModifier: ViewModifier {
                     .coordinateSpace(name: WHOLE_GRAPH_COORDINATE_SPACE)
                     .ignoresSafeArea()
                     .gesture(SpatialTapGesture(count: 2,
-                                               coordinateSpace: .global)
+                                               coordinateSpace: .local)
                         .onEnded({ value in
                             dispatch(GraphDoubleTappedAction(location: value.location))
                         })

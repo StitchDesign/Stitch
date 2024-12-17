@@ -35,6 +35,13 @@ extension StitchDocumentViewModel {
     var newNodeCenterLocation: CGPoint {
         // `state.graphUI.center` is always proper center
         self.adjustedDoubleTapLocation(self.localPosition) ?? self.graphUI.center(self.localPosition, graphScale: self.graph.graphMovement.zoomData.zoom)
+        
+        if let doubleTapLocation = self.graphUI.doubleTapLocation {
+            log("newNodeCenterLocation: had doubleTapLocation: \(doubleTapLocation)")
+            return adjustPositionToMultipleOf(doubleTapLocation)
+        } else {
+            return self.viewPortCenter
+        }
     }
     
     @MainActor
@@ -58,33 +65,33 @@ extension StitchDocumentViewModel {
     func nodeCreated(choice: NodeKind, center: CGPoint? = nil) -> NodeViewModel? {
 //        let nodeCenter = center ?? self.newNodeCenterLocation
 //        let nodeCenter = CGPoint(x: -30, y: -90)
-                
-        let localPosition = self.graphMovement.localPosition
+//                
+//        let localPosition = self.graphMovement.localPosition
+//        
+//        log("nodeCreated: localPosition: \(localPosition)")
+//                    
+//        let scale = self.graphMovement.zoomData.final
+//        log("nodeCreated: scale: \(scale)")
+//        
+//        let viewPortFrame = self.graphUI.frame
+//        log("nodeCreated: viewPortFrame: \(viewPortFrame)")
+//        
+//        // Factor out scale from the viewPort-centering
+//        let viewPortCentering = CGPoint(
+//            x: (self.graphUI.frame.width/2 * 1/scale),
+//            y: (self.graphUI.frame.height/2 * 1/scale)
+//        )
+//        
+//        let _nodeCenter = CGPoint(
+//            x: (localPosition.x / scale) + viewPortCentering.x,
+//            y: (localPosition.y / scale) + viewPortCentering.y
+//        )
+//        
+//        // ^^ when we zoom in, adding (VIEW PORT / 2) is actually TOO BIG of an addition,
+//        
+//        log("nodeCreated: _nodeCenter: \(_nodeCenter)")
         
-        log("nodeCreated: localPosition: \(localPosition)")
-                    
-        let scale = self.graphMovement.zoomData.final
-        log("nodeCreated: scale: \(scale)")
-        
-        let viewPortFrame = self.graphUI.frame
-        log("nodeCreated: viewPortFrame: \(viewPortFrame)")
-        
-        // Factor out scale from the viewPort-centering
-        let viewPortCentering = CGPoint(
-            x: (self.graphUI.frame.width/2 * 1/scale),
-            y: (self.graphUI.frame.height/2 * 1/scale)
-        )
-        
-        let _nodeCenter = CGPoint(
-            x: (localPosition.x / scale) + viewPortCentering.x,
-            y: (localPosition.y / scale) + viewPortCentering.y
-        )
-        
-        // ^^ when we zoom in, adding (VIEW PORT / 2) is actually TOO BIG of an addition,
-        
-        log("nodeCreated: _nodeCenter: \(_nodeCenter)")
-        
-        let nodeCenter = _nodeCenter
+        let nodeCenter = self.newNodeCenterLocation
         
         guard let node = self.createNode(
                 graphTime: self.graphStepManager.graphStepState.graphTime,
@@ -111,8 +118,8 @@ extension StitchDocumentViewModel {
             
         // Apply scale to the viewPort-centering
         let scaledViewPortFrame = CGPoint(
-            x: self.graphUI.frame.width/2 * 1/scale,
-            y: self.graphUI.frame.height/2 * 1/scale
+            x: viewPortFrame.width/2 * 1/scale,
+            y: viewPortFrame.height/2 * 1/scale
         )
         
         // UIScrollView's .contentOffset needs to have its .zoomScale factored out
