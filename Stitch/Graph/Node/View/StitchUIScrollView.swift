@@ -39,7 +39,8 @@ struct StitchUIScrollViewModifier: ViewModifier {
 //                           height: WHOLE_GRAPH_LENGTH)
                     .ignoresSafeArea()
                 
-                Color.blue.opacity(0.9).zIndex(-99999)
+                Color.blue.opacity(0.9)
+                    .zIndex(-99999)
                     .frame(WHOLE_GRAPH_SIZE)
                     .coordinateSpace(name: WHOLE_GRAPH_COORDINATE_SPACE)
                     .ignoresSafeArea()
@@ -53,6 +54,21 @@ struct StitchUIScrollViewModifier: ViewModifier {
                         .onEnded({
                             dispatch(GraphTappedAction())
                         }))
+                    .onLongPressGesture(minimumDuration: 0.5) {
+                        log("onLongPress: action") // started?
+                    } onPressingChanged: { isLongPressing in
+                        // stopped?
+                        log("onLongPress: isLongPressing: \(isLongPressing)")
+                    }
+
+                // ^^ bad -- doesn't have the location?
+                // might be better just to attack the GraphBackgroundGesture view ? the whole thing
+                
+//                    .gesture(
+//                        LongPressGesture(minimumDuration: 0.5)
+//                            .onC
+//                    )
+                
 //                    .background {
 //                        GeometryReader { geometry in
 //                            Color.clear
@@ -139,9 +155,9 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         scrollView.maximumZoomScale = MAX_GRAPH_SCALE //5.0
         scrollView.delegate = context.coordinator
 
-        // Enable gestures
-        let longPressGesture = UILongPressGestureRecognizer(target: context.coordinator, action: #selector(context.coordinator.handleLongPress(_:)))
-        scrollView.addGestureRecognizer(longPressGesture)
+//        // Enable gestures
+//        let longPressGesture = UILongPressGestureRecognizer(target: context.coordinator, action: #selector(context.coordinator.handleLongPress(_:)))
+//        scrollView.addGestureRecognizer(longPressGesture)
         
         // TODO: DEC 12: only should fire when spacebar held; also, super buggy, seems to reset any
 //        // Only use with MacCatalyst
