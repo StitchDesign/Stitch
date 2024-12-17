@@ -114,116 +114,86 @@ struct RealityLayerView: View {
     let parentSize: CGSize
     let parentDisablesPosition: Bool
     let parentIsScrollableGrid: Bool
-
-    var localRealityContent: RealityViewCameraContent? {
-        self.layerViewModel.realityContent
-    }
     
     // Override camera setting on Mac
-//    var _isCameraEnabled: Bool {
-//#if targetEnvironment(macCatalyst)
-//        return false
-//#else
-//        return isCameraFeedEnabled
-//#endif
-//    }
-    
-    @MainActor
-    func updateRealityContent(_ content: inout RealityViewCameraContent) {
-        // .spatialTracking not support on mac
-#if !targetEnvironment(macCatalyst)
-        content.camera = isCameraFeedEnabled ? .spatialTracking : .virtual
+    var _isCameraEnabled: Bool {
+#if targetEnvironment(macCatalyst)
+        return false
+#else
+        return isCameraFeedEnabled
 #endif
-        
-        let content = content
-        
-        Task { @MainActor in
-            self.layerViewModel.realityContent = content
-        }
     }
     
-    var body: some View {
+    var realityView: some View {
         Group {
             // Can't run multiple reality views
             if !isPinnedViewRendering || document.isGeneratingProjectThumbnail {
                 Color.clear
             }
             
-            else {
-                ZStack {
-                    RealityView { content in
-                        self.updateRealityContent(&content)
-                    } update: { content in
-                        self.updateRealityContent(&content)
-                    } placeholder: {
-                        ProgressView()
-                    }
-                    // Supports gestures as assigned in the entity's USDZ file
-                    .gesture(TapGesture().targetedToAnyEntity()
-                        .onEnded { value in
-                            _ = value.entity.applyTapForBehaviors()
+            else if _isCameraEnabled {
+                switch document.cameraFeedManager {
+                case .loaded(let cameraFeedManager):
+                    if let cameraFeedManager = cameraFeedManager.cameraFeedManager,
+                       let arView = cameraFeedManager.arView {
+                        CameraRealityView(arView: arView,
+                                          size: layerSize,
+                                          scale: scale,
+                                          opacity: opacity,
+                                          isShadowsEnabled: isShadowsEnabled)
+                        .onAppear {
+                            // Update list of node Ids using camera
+                            graph.enabledCameraNodeIds.insert(node.id)
+                            
+                            self.layerViewModel.realityContent = arView.scene
                         }
-                    )
+                        .onDisappear {
+                            self.layerViewModel.realityContent = nil
+                        }
+                    }
 
-                    GroupLayerNode.content(document: document,
-                                           graph: graph,
-                                           viewModel: layerViewModel,
-                                           parentSize: parentSize,
-                                           layersInGroup: layersInGroup,
-                                           isPinnedViewRendering: isPinnedViewRendering,
-                                           parentDisablesPosition: parentDisablesPosition,
-                                           parentIsScrollableGrid: parentIsScrollableGrid,
-                                           realityContent: self.$layerViewModel.realityContent)
+                case .loading, .failed:
+                    EmptyView()
+
+                case .none:
+                    Color.clear
+#if !targetEnvironment(macCatalyst)
+                        .onAppear {
+                            let nodeId = self.layerViewModel.id.layerNodeId.id
+                            document.realityViewCreatedWithoutCamera(graph: graph,
+                                                                     nodeId: nodeId)
+                        }
+#endif
+                    
                 }
             }
             
-            
-            // TODO: old camera logic for anchors
-//
-//            else if _isCameraEnabled {
-//                switch document.cameraFeedManager {
-//                case .loaded(let cameraFeedManager):
-//                    if let cameraFeedManager = cameraFeedManager.cameraFeedManager,
-//                       let arView = cameraFeedManager.arView {
-//                        CameraRealityView(arView: arView,
-//                                          size: layerSize,
-//                                          scale: scale,
-//                                          opacity: opacity,
-//                                          isShadowsEnabled: isShadowsEnabled)
-//                        .onAppear {
-//                            // Update list of node Ids using camera
-//                            graph.enabledCameraNodeIds.insert(node.id)
-//                        }
-////                        .onChange(of: allAnchors, initial: true) { _, newAnchors in
-////                            let mediaList = newAnchors.map { $0.mediaObject }
-////                            
-////                            // Update entities in ar view
-////                            arView.updateAnchors(mediaList: mediaList)
-////                        }
-//                    }
-//
-//                case .loading, .failed:
-//                    EmptyView()
-//
-//                case .none:
-//                    Color.clear
-//#if !targetEnvironment(macCatalyst)
-//                        .onAppear {
-//                            let nodeId = self.layerViewModel.id.layerNodeId.id
-//                            document.realityViewCreatedWithoutCamera(graph: graph,
-//                                                                     nodeId: nodeId)
-//                        }
-//#endif
-//                    
-//                }
-//            }
-//            
-//            else {
-//                NonCameraRealityView(size: layerSize,
-//                                     scale: scale,
-//                                     opacity: opacity,
-//                                     isShadowsEnabled: isShadowsEnabled)
-//            }
+            else {
+                NonCameraRealityView(previewLayer: layerViewModel,
+                                     size: layerSize,
+                                     scale: scale,
+                                     opacity: opacity,
+                                     isShadowsEnabled: isShadowsEnabled)
+                .onDisappear {
+                    self.layerViewModel.realityContent = nil
+                }
+            }
+        }
+    }
+    
+    var body: some View {
+        ZStack {
+            realityView
+                
+            GroupLayerNode.content(document: document,
+                                   graph: graph,
+                                   viewModel: layerViewModel,
+                                   parentSize: parentSize,
+                                   layersInGroup: layersInGroup,
+                                   isPinnedViewRendering: isPinnedViewRendering,
+                                   parentDisablesPosition: parentDisablesPosition,
+                                   parentIsScrollableGrid: parentIsScrollableGrid,
+                                   realityContent: self.$layerViewModel.realityContent)
         }
         .modifier(PreviewCommonModifier(
             document: document,

@@ -54,7 +54,7 @@ final class LayerViewModel: Sendable {
     let layer: Layer
     let interactiveLayer: InteractiveLayer
     
-    @MainActor var realityContent: RealityViewCameraContent?
+    @MainActor var realityContent: LayerRealityCameraContent?
     @MainActor weak var nodeDelegate: NodeDelegate?
     
     // PINNING: "View A is pinned to View B"

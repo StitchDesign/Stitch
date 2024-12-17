@@ -100,44 +100,52 @@ struct Preview3DModelLayer: View {
                 Color.clear
                     .onChange(of: self.entity, initial: true) {
                         entity.applyMatrix(newMatrix: transform)
-                        realityContent.add(entity.containerEntity)
+                        
+//                        let anchor = self.anchorEntity ?? AnchorEntity(anchor: .init(name: "test",
+//                                                                                     transform: self.transform))
+                        let anchor = AnchorEntity()
+                        
+                        anchor.addChild(entity.containerEntity)
+                        realityContent.addAnchor(anchor)
                     }
                     .onChange(of: self.transform) { _, newTransform in
                         entity.applyMatrix(newMatrix: newTransform)
                     }
-                    .onChange(of: self.anchorEntityId, initial: true) { _, newAnchorEntityId in
-                        // Remove old anchor from reality, if exists
-                        if let oldAnchor = self.anchorEntity {
-                            realityContent.remove(oldAnchor)
-                            
-                            // add back entity to scene (which would have gotten removed by above
-                            realityContent.add(entity.containerEntity)
-                        }
-
-                        guard let newAnchorEntityId = newAnchorEntityId else {
-                            self.anchorEntity = nil
-                            return
-                        }
-                        
-                        // TODO: support looping in reality view
-                        guard let anchorObserver = self.graph.getNodeViewModel(newAnchorEntityId)?.ephemeralObservers?.first as? ARAnchorObserver else {
-                            self.anchorEntity = nil
-                            fatalErrorIfDebug()
-                            return
-                        }
-                        
-                        guard let anchor = anchorObserver.arAnchor else { return }
-                        self.anchorEntity = anchor
-                        
-                        // add entity to anchor
-                        anchor.addChild(entity.containerEntity)
-                        
-                        // add anchor to reality
-                        realityContent.add(anchor)
-                    }
-                    .onDisappear {
-                        realityContent.remove(entity.containerEntity)
-                    }
+                
+                // TODO: come back
+//                    .onChange(of: self.anchorEntityId, initial: true) { _, newAnchorEntityId in
+//                        // Remove old anchor from reality, if exists
+//                        if let oldAnchor = self.anchorEntity {
+//                            realityContent.remove(oldAnchor)
+//                            
+//                            // add back entity to scene (which would have gotten removed by above
+//                            realityContent.add(entity.containerEntity)
+//                        }
+//
+//                        guard let newAnchorEntityId = newAnchorEntityId else {
+//                            self.anchorEntity = nil
+//                            return
+//                        }
+//                        
+//                        // TODO: support looping in reality view
+//                        guard let anchorObserver = self.graph.getNodeViewModel(newAnchorEntityId)?.ephemeralObservers?.first as? ARAnchorObserver else {
+//                            self.anchorEntity = nil
+//                            fatalErrorIfDebug()
+//                            return
+//                        }
+//                        
+//                        guard let anchor = anchorObserver.arAnchor else { return }
+//                        self.anchorEntity = anchor
+//                        
+//                        // add entity to anchor
+//                        anchor.addChild(entity.containerEntity)
+//                        
+//                        // add anchor to reality
+//                        realityContent.add(anchor)
+//                    }
+//                    .onDisappear {
+//                        realityContent.remove(entity.containerEntity)
+//                    }
             } else {
                 if document.isGeneratingProjectThumbnail {
                     Color.clear

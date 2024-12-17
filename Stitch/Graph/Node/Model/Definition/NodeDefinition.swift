@@ -47,7 +47,7 @@ extension Layer {
     }
 }
 
-typealias LayerRealityCameraContent = RealityViewCameraContent
+typealias LayerRealityCameraContent = RealityKit.Scene
 
 // fka `LayerGraphNode`
 protocol LayerNodeDefinition: NodeDefinition {
