@@ -152,7 +152,8 @@ extension LayerInspectorView {
     static let reality: LayerInputPortSet = [
         .position3D,
         .scale3D,
-        .rotation3D
+        .rotation3D,
+        .anchorEntity
     ]
     
     @MainActor
