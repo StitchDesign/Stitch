@@ -196,7 +196,7 @@ Follow these instructions carefully and produce the simplest possible graph that
 // (1) SUPPORT REMAINING PortValue TYPES; USE jsonFriendlyFormat FOR SERIALIZING THEM
 // (2) SUPPORT REMAINING Patch AND Layer CASES
 // (3) INTRODUCE STEP-ACTIONS FOR "ADD LAYER OUTPUTS TO CANVAS", "MOVE NODE"
-let VISUAL_PROGRAMMING_ACTIONS = """
+let VISUAL_PROGRAMMING_ACTIONS_SCHEMA = """
 {
   "$defs": {
     "AddNodeAction": {
@@ -260,7 +260,7 @@ let VISUAL_PROGRAMMING_ACTIONS = """
       "required": ["step_type", "node_id", "port", "value", "node_type"],
       "additionalProperties": false
     },
-   "AddLayerInputAction": {
+    "AddLayerInputAction": {
       "type": "object",
       "properties": {
         "step_type": { "type": "string", "const": "add_layer_input" },
@@ -276,16 +276,10 @@ let VISUAL_PROGRAMMING_ACTIONS = """
           "anyOf": [
             { "type": "integer" },
             { "$ref": "#/$defs/LayerPorts" }
-          ],
-          "description": "The port to which the layer input is set"
+          ]
         }
       },
       "required": ["step_type", "node_id", "port", "value"],
-      "additionalProperties": false
-    },
-    "NodeID": {
-      "type": "string",
-      "description": "The unique identifier for the node (UUID)",
       "additionalProperties": false
     },
     "NodeName": {
@@ -341,7 +335,7 @@ let VISUAL_PROGRAMMING_ACTIONS = """
         "cameraFeed || Patch",
         "deviceInfo || Patch",
         "deviceMotion || Patch",
-        "hapticFeedback || Patch.",
+        "hapticFeedback || Patch",
         "keyboard || Patch",
         "mouse || Patch",
         "microphone || Patch",
@@ -359,8 +353,8 @@ let VISUAL_PROGRAMMING_ACTIONS = """
         "transformPack || Patch",
         "transformUnpack || Patch",
         "moveToPack || Patch",
-        "lineToPack || Patch.",
-        "closePath || Patch.",
+        "lineToPack || Patch",
+        "closePath || Patch",
         "base64StringToImage || Patch",
         "imageToBase64String || Patch",
         "colorToHSL || Patch",
