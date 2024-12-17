@@ -56,7 +56,9 @@ extension StitchDocumentViewModel {
 //        let nodeCenter = center ?? self.newNodeCenterLocation
 //        let nodeCenter = CGPoint(x: -30, y: -90)
                 
-        log("nodeCreated: self.graphMovement.localPosition: \(self.graphMovement.localPosition)")
+        let localPosition = self.graphMovement.localPosition
+        
+        log("nodeCreated: localPosition: \(localPosition)")
                     
         let scale = self.graphMovement.zoomData.final
         log("nodeCreated: scale: \(scale)")
@@ -69,10 +71,42 @@ extension StitchDocumentViewModel {
 //            y: self.graphMovement.localPosition.y // + self.graphUI.frame.height/2
 //        )
         
-        let _nodeCenter = CGPoint(
-            x: self.graphMovement.localPosition.x / scale, // + self.graphUI.frame.width/2,
-            y: self.graphMovement.localPosition.y / scale // + self.graphUI.frame.height/2
+//        let _nodeCenter = CGPoint(
+//            x: self.graphMovement.localPosition.x / scale, // + self.graphUI.frame.width/2,
+//            y: self.graphMovement.localPosition.y / scale // + self.graphUI.frame.height/2
+//        )
+        
+        // ^^ this can now place in top left corner, consistently
+        
+        let localPositionWithScale = CGPoint(
+            x: localPosition.x / scale,
+            y: localPosition.y / scale
         )
+        
+        let diff = localPositionWithScale - localPosition
+        
+        log("nodeCreated: localPositionWithScale: \(localPositionWithScale)")
+//
+        log("nodeCreated: diff: \(diff)")
+        
+//        let _nodeCenter = CGPoint(
+//            x: (localPosition.x / scale) + self.graphUI.frame.width/2 + diff.x,
+//            
+//            y: (localPosition.y / scale) + self.graphUI.frame.height/2 + diff.y
+//        )
+        
+        // Factor out scale from the viewPort-centering
+        let viewPortCentering = CGPoint(
+            x: (self.graphUI.frame.width/2 * 1/scale),
+            y: (self.graphUI.frame.height/2 * 1/scale)
+        )
+        
+        let _nodeCenter = CGPoint(
+            x: (localPosition.x / scale) + viewPortCentering.x,
+            y: (localPosition.y / scale) + viewPortCentering.y
+        )
+        
+        // ^^ when we zoom in, adding (VIEW PORT / 2) is actually TOO BIG of an addition,
         
         
         log("nodeCreated: _nodeCenter: \(_nodeCenter)")
