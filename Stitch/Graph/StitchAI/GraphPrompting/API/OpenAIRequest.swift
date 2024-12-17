@@ -76,6 +76,11 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
         do {
             let jsonData = try JSONSerialization.data(withJSONObject: requestDict, options: [])
             request.httpBody = jsonData
+            
+            if let jsonString = String(data: jsonData, encoding: .utf8) {
+                    print("Final JSON Request Body:\n\(jsonString)")
+            }
+            
         } catch {
             state.showErrorModal(message: "Error encoding JSON: \(error.localizedDescription)",
                                userPrompt: prompt,
