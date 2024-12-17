@@ -87,50 +87,11 @@ struct StitchUIScrollViewModifier: ViewModifier {
                 
 //                    .gesture(StitchLongPressGestureRecognizerRepresentable())
                     
-                // THIS IS BETTER: HANDLES BOTH ZOOMING AND SCROLLING PROPERLY 
+                // THIS IS BETTER: HANDLES BOTH ZOOMING AND SCROLLING PROPERLY
+                // but how to listen for shift here? ... perhaps shift is actually one of the keys we're better at listening to ?
                     .gesture(StitchTrackpadPanGestureRecognizerRepresentable())
                 
-                
-                
-                
-//                    .onLongPressGesture(minimumDuration: 0.5) {
-//                        
-//                        // fires after we've been pressing long enough ?
-//                        log("onLongPress: action") // started?
-//                        
-//                    } onPressingChanged: { isLongPressing in
-//                        // stopped?
-//                        log("onLongPress: isLongPressing: \(isLongPressing)")
-//                    }
-
-                // ^^ bad -- doesn't have the location?
-                // might be better just to attack the GraphBackgroundGesture view ? the whole thing
-                
-//                    .gesture(
-//                        LongPressGesture(minimumDuration: 0.5)
-//                            .onC
-//                    )
-                
-//                    .background {
-//                        GeometryReader { geometry in
-//                            Color.clear
-//                                .onChange(of: geometry.frame(in: .local), initial: true) { oldValue, newValue in
-//                                    log("SIZE READING: StitchUIScrollView: local frame: newValue: \(newValue)") // only fires on graph first open
-//                                }
-//                                .onChange(of: geometry.frame(in: .global), initial: true) { oldValue, newValue in
-//                                    log("SIZE READING: StitchUIScrollView: global frame: newValue: \(newValue)")
-//                                }
-//                            
-//                                .onChange(of: geometry.frame(in: .named(GraphBaseView.coordinateNamespace)), initial: true) { oldValue, newValue in
-//                                    log("SIZE READING: StitchUIScrollView: GraphBaseView.coordinateNamespace frame: newValue: \(newValue)")
-//                                    document.graphUI.frameFromUIScrollView = newValue
-//                                }
-//                            
-//                        } // GeometryReader
-//                    } // .background
-                
-                
-                // RENDERING THE NODE CURSOR SELECTION BOX HERE GIVES THE PROPER LOCATION AFTER OFFSET *BUT NOT AFTER ZOOM*
+                // RENDERING THE NODE CURSOR SELECTION BOX HERE
                 
                 // Selection box and cursor
                 if let expansionBox = selectionState.expansionBox {
@@ -144,12 +105,12 @@ struct StitchUIScrollViewModifier: ViewModifier {
                         currentDragLocation: currentDrag,
                         isFingerOnScreenSelection: selectionState.isFingerOnScreenSelection)
                 }
-                
-                
             }
-            
-            
         }
+        
+        // what happens if we get node
+        // BAD:
+        // .gesture(StitchTrackpadPanGestureRecognizerRepresentable())
         
         // VERY BAD
 //        .frame(width: WHOLE_GRAPH_LENGTH,
