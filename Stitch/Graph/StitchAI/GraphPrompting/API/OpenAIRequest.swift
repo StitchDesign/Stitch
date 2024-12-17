@@ -33,10 +33,11 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
         request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         
         // Parse the schema once
-        guard let schemaDict = try? JSONSerialization.jsonObject(with: Data(VISUAL_PROGRAMMING_ACTIONS_SCHEMA.utf8), options: []) as? [String: Any] else {
+        guard let jsonData = VISUAL_PROGRAMMING_ACTIONS_SCHEMA.data(using: .utf8),
+              let schemaDict = try? JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any] else {
             state.showErrorModal(message: "Failed to parse schema",
-                               userPrompt: prompt,
-                               jsonResponse: nil)
+                                userPrompt: prompt,
+                                jsonResponse: nil)
             return
         }
         
