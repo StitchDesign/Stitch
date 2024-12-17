@@ -52,7 +52,7 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
         let requestDict: [String: Any] = [
             "model": OPEN_AI_MODEL,
             "n": 1,
-            "temperature": 1,
+            "temperature": 0,
             "response_format": [
                 "type": "json_schema",
                 "json_schema": [
