@@ -282,6 +282,11 @@ let VISUAL_PROGRAMMING_ACTIONS_SCHEMA = """
       "required": ["step_type", "node_id", "port", "value"],
       "additionalProperties": false
     },
+    "NodeID": {
+      "type": "string",
+      "description": "The unique identifier for the node (UUID)",
+      "additionalProperties": false
+    },
     "NodeName": {
       "enum": [
         "add || Patch",
@@ -299,7 +304,6 @@ let VISUAL_PROGRAMMING_ACTIONS_SCHEMA = """
         "arcTan2 || Patch",
         "sine || Patch",
         "cosine || Patch",
-        "mathExpression || Patch",
         "clip || Patch",
         "or || Patch",
         "and || Patch",
