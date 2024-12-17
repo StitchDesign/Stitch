@@ -34,12 +34,20 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
         
         // Parse the schema once
         guard let jsonData = VISUAL_PROGRAMMING_ACTIONS_SCHEMA.data(using: .utf8),
-              let schemaDict = try? JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any] else {
+              let schemaDict = try? JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers) as? [String: Any] else {
             state.showErrorModal(message: "Failed to parse schema",
                                 userPrompt: prompt,
                                 jsonResponse: nil)
             return
         }
+
+        print(schemaDict)
+        if let prettyJsonData = try? JSONSerialization.data(withJSONObject: schemaDict, options: .prettyPrinted),
+           let prettyPrintedStr = String(data: prettyJsonData, encoding: .utf8) {
+            print(prettyPrintedStr)
+        }
+        
+        
         
         let requestDict: [String: Any] = [
             "model": OPEN_AI_MODEL,
