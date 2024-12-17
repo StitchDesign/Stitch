@@ -32,9 +32,6 @@ struct Preview3DModelLayer: View {
     // State for media needed if we need to async load an import
     @State private var mediaObject: StitchMediaObject?
     
-    // Keeps track of anchor object, if used
-    @State private var anchorEntity: AnchorEntity = .init()
-    
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     @Bindable var layerViewModel: LayerViewModel
@@ -42,9 +39,6 @@ struct Preview3DModelLayer: View {
     
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
-    let position3D: Point3D
-    let scale3D: Point3D
-    let rotation3D: Point3D
     let anchorEntityId: UUID?
     let position: CGPoint
     let rotationX: Double
@@ -87,72 +81,17 @@ struct Preview3DModelLayer: View {
         return _sceneSize
     }
     
-    var transform: simd_float4x4 {
-        .init(position: position3D,
-              scale: scale3D,
-              rotation: rotation3D)
-    }
-    
-    func asssignNewAnchor(_ newAnchor: AnchorEntity,
-                          entity: StitchEntity,
-                          to realityContent: LayerRealityCameraContent) {
-        self.anchorEntity = newAnchor
-        newAnchor.addChild(entity.containerEntity)
-        realityContent.addAnchor(newAnchor)
-    }
-    
     var body: some View {
         Group {
             if let realityContent = self.realityContent,
                let entity = self.entity {
                 Color.clear
-                    .onChange(of: self.entity, initial: true) {
-                        entity.applyMatrix(newMatrix: transform)
-                        
-                        let anchor = AnchorEntity()
-                        self.anchorEntity = anchor
-                        
-                        anchor.addChild(entity.containerEntity)
-                        realityContent.addAnchor(anchor)
-                    }
-                    .onChange(of: self.transform) { _, newTransform in
-                        entity.applyMatrix(newMatrix: newTransform)
-                    }
-                    .onChange(of: self.anchorEntityId, initial: true) { _, newAnchorEntityId in
-                        // Remove old anchor from reality
-                        let oldAnchor = self.anchorEntity
-                        realityContent.removeAnchor(oldAnchor)
-                        
-                        // add back entity to scene (which would have gotten removed by above
-                        self.asssignNewAnchor(AnchorEntity(),
-                                              entity: entity,
-                                              to: realityContent)
-                        
-                        guard let newAnchorEntityId = newAnchorEntityId else {
-                            self.asssignNewAnchor(AnchorEntity(),
-                                                  entity: entity,
-                                                  to: realityContent)
-                            return
-                        }
-                        
-                        // TODO: support looping in reality view
-                        guard let anchorObserver = self.graph.getNodeViewModel(newAnchorEntityId)?.ephemeralObservers?.first as? ARAnchorObserver else {
-                            self.asssignNewAnchor(AnchorEntity(),
-                                                  entity: entity,
-                                                  to: realityContent)
-                            fatalErrorIfDebug()
-                            return
-                        }
-                        
-                        guard let anchor = anchorObserver.arAnchor else { return }
-                        
-                        self.asssignNewAnchor(anchor,
-                                              entity: entity,
-                                              to: realityContent)
-                    }
-                    .onDisappear {
-                        realityContent.removeAnchor(self.anchorEntity)
-                    }
+                    .modifier(ModelEntityLayerViewModifier(previewLayer: layerViewModel,
+                                                           entity: entity,
+                                                           realityContent: realityContent,
+                                                           graph: graph,
+                                                           anchorEntityId: anchorEntityId))
+                
             } else {
                 if document.isGeneratingProjectThumbnail {
                     Color.clear
@@ -203,6 +142,81 @@ struct Preview3DModelLayer: View {
             parentSize: parentSize,
             parentDisablesPosition: parentDisablesPosition,
             parentIsScrollableGrid: parentIsScrollableGrid))
+    }
+}
+
+struct ModelEntityLayerViewModifier: ViewModifier {
+    @State private var anchorEntity: AnchorEntity = .init()
+    
+    let previewLayer: LayerViewModel
+    let entity: StitchEntity
+    let realityContent: LayerRealityCameraContent
+    let graph: GraphState
+    let anchorEntityId: UUID?
+    
+    var transform: simd_float4x4 {
+        .init(position: previewLayer.position3D.getPoint3D ?? .zero,
+              scale: previewLayer.scale3D.getPoint3D ?? .zero,
+              rotation: previewLayer.rotation3D.getPoint3D ?? .zero)
+    }
+    
+    func asssignNewAnchor(_ newAnchor: AnchorEntity,
+                          entity: StitchEntity,
+                          to realityContent: LayerRealityCameraContent) {
+        self.anchorEntity = newAnchor
+        newAnchor.addChild(entity.containerEntity)
+        realityContent.addAnchor(newAnchor)
+    }
+    
+    func body(content: Content) -> some View {
+        content
+            .onChange(of: self.entity, initial: true) {
+                entity.applyMatrix(newMatrix: transform)
+                
+                let anchor = AnchorEntity()
+                self.anchorEntity = anchor
+                
+                anchor.addChild(entity.containerEntity)
+                realityContent.addAnchor(anchor)
+            }
+            .onChange(of: self.transform) { _, newTransform in
+                entity.applyMatrix(newMatrix: newTransform)
+            }
+            .onChange(of: self.anchorEntityId, initial: true) { _, newAnchorEntityId in
+                // Remove old anchor from reality
+                let oldAnchor = self.anchorEntity
+                realityContent.removeAnchor(oldAnchor)
+                
+                // add back entity to scene (which would have gotten removed by above
+                self.asssignNewAnchor(AnchorEntity(),
+                                      entity: entity,
+                                      to: realityContent)
+                
+                guard let newAnchorEntityId = newAnchorEntityId else {
+                    self.asssignNewAnchor(AnchorEntity(),
+                                          entity: entity,
+                                          to: realityContent)
+                    return
+                }
+                
+                // TODO: support looping in reality view
+                guard let anchorObserver = self.graph.getNodeViewModel(newAnchorEntityId)?.ephemeralObservers?.first as? ARAnchorObserver else {
+                    self.asssignNewAnchor(AnchorEntity(),
+                                          entity: entity,
+                                          to: realityContent)
+                    fatalErrorIfDebug()
+                    return
+                }
+                
+                guard let anchor = anchorObserver.arAnchor else { return }
+                
+                self.asssignNewAnchor(anchor,
+                                      entity: entity,
+                                      to: realityContent)
+            }
+            .onDisappear {
+                realityContent.removeAnchor(self.anchorEntity)
+            }
     }
 }
 
