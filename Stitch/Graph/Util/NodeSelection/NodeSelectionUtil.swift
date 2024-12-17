@@ -177,13 +177,18 @@ extension GraphState {
                                size: viewFrameSize)
         let scaledViewFrame = GraphState.getScaledViewFrame(scale: zoom,
                                                             graphView: graphView)
-        guard let selectionBoxInViewFrame = GraphState
-            .getScaledSelectionBox(selectionBox: selectionBox,
-                                   scale: zoom,
-                                   scaledViewFrameOrigin: scaledViewFrame.origin) else {
-            return
-        }
         
+        // TODO: DEC 12: apparently no longer needed?
+//        guard let _selectionBoxInViewFrame: CGRect = GraphState
+//            .getScaledSelectionBox(selectionBox: selectionBox,
+//                                   scale: zoom,
+//                                   scaledViewFrameOrigin: scaledViewFrame.origin) else {
+//            return
+//        }
+        
+        let selectionBoxInViewFrame: CGRect = selectionBox
+        
+       
         log("processCanvasSelectionBoxChange: cachedSubviewData: selectionBoxInViewFrame.origin: \(selectionBoxInViewFrame.origin)")
         log("processCanvasSelectionBoxChange: cachedSubviewData: selectionBoxInViewFrame.size: \(selectionBoxInViewFrame.size)")
         
@@ -195,9 +200,9 @@ extension GraphState {
             log("processCanvasSelectionBoxChange: cachedSubviewData: cachedBounds.origin: \(cachedBounds.origin)")
             log("processCanvasSelectionBoxChange: cachedSubviewData: cachedBounds.size: \(cachedBounds.size)")
             
-//            guard self.visibleNodesViewModel.visibleCanvasIds.contains(id) else {
-//                continue
-//            }
+            guard self.visibleNodesViewModel.visibleCanvasIds.contains(id) else {
+                continue
+            }
             
             if nodesSelectedOnShift?.contains(id) ?? false {
                 log("processCanvasSelectionBoxChange: skipping canvasItem \(id) since was held as part of shift etc.")
