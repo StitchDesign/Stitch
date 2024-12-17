@@ -142,7 +142,7 @@ extension GraphState {
         
         // TODO: pass shift down via the UIKit gesture handler
         let shiftHeld = graphState.keypressState.shiftHeldDuringGesture
-        log("processCanvasSelectionBoxChange: shiftHeld: \(shiftHeld)")
+        //        log("processCanvasSelectionBoxChange: shiftHeld: \(shiftHeld)")
         
         guard isCurrentlyDragging else {
             // log("processNodeSelectionBoxChange error: expansion box was size zero")
@@ -184,14 +184,23 @@ extension GraphState {
             return
         }
         
+        log("processCanvasSelectionBoxChange: cachedSubviewData: selectionBoxInViewFrame.origin: \(selectionBoxInViewFrame.origin)")
+        log("processCanvasSelectionBoxChange: cachedSubviewData: selectionBoxInViewFrame.size: \(selectionBoxInViewFrame.size)")
+        
         for cachedSubviewData in self.visibleNodesViewModel.infiniteCanvasCache {
             let id = cachedSubviewData.key
             var cachedBounds = cachedSubviewData.value
             
-            guard self.visibleNodesViewModel.visibleCanvasIds.contains(id) else { continue }
+            log("processCanvasSelectionBoxChange: cachedSubviewData: id: \(id)")
+            log("processCanvasSelectionBoxChange: cachedSubviewData: cachedBounds.origin: \(cachedBounds.origin)")
+            log("processCanvasSelectionBoxChange: cachedSubviewData: cachedBounds.size: \(cachedBounds.size)")
+            
+//            guard self.visibleNodesViewModel.visibleCanvasIds.contains(id) else {
+//                continue
+//            }
             
             if nodesSelectedOnShift?.contains(id) ?? false {
-                log("skipping canvasItem \(id) since was held as part of shift etc.")
+                log("processCanvasSelectionBoxChange: skipping canvasItem \(id) since was held as part of shift etc.")
                 continue
             }
             
@@ -200,7 +209,7 @@ extension GraphState {
             let positionOffset = CGPoint(x: nodeSize.width / 2,
                                          y: nodeSize.height / 2)
             cachedBounds.origin -= positionOffset
-            
+                        
             if selectionBoxInViewFrame.intersects(cachedBounds) {
                 selectedNodes.insert(id)
             }
