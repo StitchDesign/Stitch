@@ -12,25 +12,53 @@ import StitchSchemaKit
 // Actions and helpers related to the nodes-selection box
 // (ie what shows up when we long press on the graph or click+drag graph via trackpad)
 
-extension StitchDocumentViewModel {
-    @MainActor
-    func screenLongPressed(location: CGPoint) {
-        self.graphUI.selection.isSelecting = true
-        self.graphUI.selection.dragStartLocation = location
-        self.graphUI.selection.dragCurrentLocation = location
-        self.graphUI.selection.isFingerOnScreenSelection = true
-        self.graphUI.selection.expansionBox = .init(origin: location, size: .zero)
-        self.graphUI.selection.graphDragState = .none
+struct GraphBackgroundLongPressed: StitchDocumentEvent {
+    let location: CGPoint
+    
+    @MainActor // All actions already happen on main thread?
+    func handle(state: StitchDocumentViewModel) {
+        state.graphUI.selection.isSelecting = true
+        state.graphUI.selection.dragStartLocation = location
+        state.graphUI.selection.dragCurrentLocation = location
+        state.graphUI.selection.isFingerOnScreenSelection = true
+        state.graphUI.selection.expansionBox = .init(origin: location, size: .zero)
+        state.graphUI.selection.graphDragState = .none
     }
+}
 
+struct GraphBackgroundLongPressEnded: StitchDocumentEvent {
+    
     @MainActor
-    func screenLongPressEnded() {
-        self.graphUI.selection.dragStartLocation = nil
-        self.graphUI.selection.dragCurrentLocation = nil
-        self.graphUI.selection.expansionBox = nil
-        self.graphUI.selection.isSelecting = false
-        self.graphMovement.localPreviousPosition = self.graphMovement.localPosition
+    func handle(state: StitchDocumentViewModel) {
+        state.graphUI.selection.dragStartLocation = nil
+        state.graphUI.selection.dragCurrentLocation = nil
+        state.graphUI.selection.expansionBox = nil
+        state.graphUI.selection.isSelecting = false
+        state.graphMovement.localPreviousPosition = state.graphMovement.localPosition
     }
+}
+
+struct GraphBackgroundTrackpadDragged: StitchDocumentEvent {
+    
+    let translation: CGSize
+    let location: CGPoint
+    let velocity: CGPoint
+    let numberOfTouches: Int
+    let gestureState: UIGestureRecognizer.State
+    let shiftHeld: Bool
+    
+    func handle(state: StitchDocumentViewModel) {
+        state.trackpadClickDrag(translation: translation,
+                                location: location,
+                                velocity: velocity,
+                                numberOfTouches: numberOfTouches,
+                                gestureState: gestureState,
+                                shiftHeld: shiftHeld)
+    }
+}
+
+
+extension StitchDocumentViewModel {
 
     @MainActor
     func trackpadClickDrag(translation: CGSize,
@@ -123,6 +151,7 @@ extension StitchDocumentViewModel {
                                   shiftHeld: Bool) {
         switch gestureState {
         case .began:
+            log("clickDragAsNodeSelection: began: location: \(location)")
             //        return handleTrackpadDragStarted(
             if numberOfTouches == 1 {
                 self.handleTrackpadDragStarted(
@@ -130,6 +159,7 @@ extension StitchDocumentViewModel {
             }
 
         case .changed:
+            log("clickDragAsNodeSelection: changed: location: \(location)")
             //        return handleTrackpadGraphDragChanged(
             if numberOfTouches == 1 {
                 self.handleTrackpadGraphDragChanged(

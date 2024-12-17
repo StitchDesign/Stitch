@@ -58,7 +58,6 @@ struct GraphGestureBackgroundView<T: View>: UIViewControllerRepresentable {
 
         
         // TODO: DEC 12: moved to StitchUIScrollView?
-        
         // screen only
         let longPressGesture = UILongPressGestureRecognizer(
             target: delegate,
@@ -123,14 +122,17 @@ final class NodeSelectionGestureRecognizer: NSObject, UIGestureRecognizerDelegat
         
     
     @objc func longPressInView(_ gestureRecognizer: UILongPressGestureRecognizer) {
+        log("longPressInView called")
         switch gestureRecognizer.state {
         case .began:
             if let view = gestureRecognizer.view {
                 let location = gestureRecognizer.location(in: view)
-                self.document?.screenLongPressed(location: location)
+//                self.document?.screenLongPressed(location: location)
+                dispatch(GraphBackgroundLongPressed(location: location))
             }
         case .ended, .cancelled:
-            self.document?.screenLongPressEnded()
+//            self.document?.screenLongPressEnded()
+            dispatch(GraphBackgroundLongPressEnded())
         default:
             break
         }
@@ -143,7 +145,7 @@ final class NodeSelectionGestureRecognizer: NSObject, UIGestureRecognizerDelegat
     // Trackpad-based gestures
     @MainActor
     @objc func trackpadPanInView(_ gestureRecognizer: UIPanGestureRecognizer) {
-
+        log("trackpadPanInView called")
         let translation = gestureRecognizer.translation(in: gestureRecognizer.view)
         let location = gestureRecognizer.location(in: gestureRecognizer.view)
         let velocity = gestureRecognizer.velocity(in: gestureRecognizer.view)

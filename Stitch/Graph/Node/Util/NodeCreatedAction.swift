@@ -34,7 +34,7 @@ extension StitchDocumentViewModel {
     @MainActor
     var newNodeCenterLocation: CGPoint {
         // `state.graphUI.center` is always proper center
-        self.adjustedDoubleTapLocation(self.localPosition) ?? self.graphUI.center(self.localPosition, graphScale: self.graph.graphMovement.zoomData.zoom)
+        // self.adjustedDoubleTapLocation(self.localPosition) ?? self.graphUI.center(self.localPosition, graphScale: self.graph.graphMovement.zoomData.zoom)
         
         if let doubleTapLocation = self.graphUI.doubleTapLocation {
             log("newNodeCenterLocation: had doubleTapLocation: \(doubleTapLocation)")

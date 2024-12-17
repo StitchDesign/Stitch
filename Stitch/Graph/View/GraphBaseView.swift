@@ -115,18 +115,18 @@ struct GraphBaseView: View {
             
             nodesView
 
-            // Selection box and cursor
-            if let expansionBox = selectionState.expansionBox {
-                ExpansionBoxView(graph: graph,
-                                 box: expansionBox)                
-            }
-
-            if selectionState.isSelecting,
-               let currentDrag = selectionState.dragCurrentLocation {
-                CursorDotView(
-                    currentDragLocation: currentDrag,
-                    isFingerOnScreenSelection: selectionState.isFingerOnScreenSelection)
-            }
+//            // Selection box and cursor
+//            if let expansionBox = selectionState.expansionBox {
+//                ExpansionBoxView(graph: graph,
+//                                 box: expansionBox)                
+//            }
+//
+//            if selectionState.isSelecting,
+//               let currentDrag = selectionState.dragCurrentLocation {
+//                CursorDotView(
+//                    currentDragLocation: currentDrag,
+//                    isFingerOnScreenSelection: selectionState.isFingerOnScreenSelection)
+//            }
 
             // To cover top safe area that we don't ignore on iPad and that is gesture-inaccessbile
             Stitch.APP_BACKGROUND_COLOR
