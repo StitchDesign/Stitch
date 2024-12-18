@@ -141,8 +141,8 @@ extension GraphState {
         graphState.graphUI.isSidebarFocused = false
         
         // TODO: pass shift down via the UIKit gesture handler
-//        let shiftHeld = graphState.keypressState.shiftHeldDuringGesture
-        let shiftHeld = graphState.keypressState.isShiftPressed
+        let shiftHeld = graphState.keypressState.shiftHeldDuringGesture
+//        let shiftHeld = graphState.keypressState.isShiftPressed
         log("processCanvasSelectionBoxChange: shiftHeld: \(shiftHeld)")
         
         guard isCurrentlyDragging else {

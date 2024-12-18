@@ -62,10 +62,11 @@ struct StitchUIScrollViewModifier: ViewModifier {
 //                .zIndex(-99999)
 //                        .gesture(StitchLongPressGestureRecognizerRepresentable())
                      
-                        .gesture(StitchLongPressGestureRecognizerRepresentable())
+//                        .gesture(StitchLongPressGestureRecognizerRepresentable())
                 
                 // THIS IS BETTER: HANDLES BOTH ZOOMING AND SCROLLING PROPERLY
-                        .gesture(StitchTrackpadPanGestureRecognizerRepresentable())
+//                        .gesture(StitchTrackpadPanGestureRecognizerRepresentable())
+                        .gesture(CustomGestureRecognizer())
                         
                 
                 // RENDERING THE NODE CURSOR SELECTION BOX HERE
@@ -145,21 +146,90 @@ struct StitchLongPressGestureRecognizerRepresentable: UIGestureRecognizerReprese
     }
 }
 
+final class TrackpadDelegate: NSObject, UIGestureRecognizerDelegate {
+
+    var shiftHeld: Bool = false
+
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        true
+    }
+
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
+                           shouldReceive event: UIEvent) -> Bool {
+         log("TrackpadDelegate: gestureRecognizer: should receive event")
+
+        if event.modifierFlags.contains(.shift) {
+             log("TrackpadDelegate: SHIFT DOWN")
+            self.shiftHeld = true
+        } else {
+             log("TrackpadDelegate: SHIFT NOT DOWN")
+            self.shiftHeld = false
+        }
+        
+        return true
+    }
+        
+    
+    // Trackpad-based gestures
+    @MainActor
+    @objc func trackpadPanInView(_ gestureRecognizer: UIPanGestureRecognizer) {
+        log("TrackpadDelegate: trackpadPanInView called")
+        let translation = gestureRecognizer.translation(in: gestureRecognizer.view)
+        let location = gestureRecognizer.location(in: gestureRecognizer.view)
+        let velocity = gestureRecognizer.velocity(in: gestureRecognizer.view)
+    }
+
+}
+
+
 
 struct StitchTrackpadPanGestureRecognizerRepresentable: UIGestureRecognizerRepresentable {
+    
+    
+    func makeCoordinator() -> TrackpadDelegate {
+        TrackpadDelegate()
+    }
     
     func makeUIGestureRecognizer(context: Context) -> UIPanGestureRecognizer {
         
         log("StitchTrackpadPanGestureRecognizerRepresentable: makeUIGestureRecognizer")
         
-        let recognizer = UIPanGestureRecognizer()
-        recognizer.allowedScrollTypesMask = [.discrete]
+//        let delegate = context.coordinator
+        
+//        let trackpadPanGesture = UIPanGestureRecognizer(
+//            target: delegate,
+//            action: #selector(delegate.trackpadPanInView))
+        
+        let trackpadPanGesture = UIPanGestureRecognizer()
+        
+        // Only listen to click and drag from mouse
+        trackpadPanGesture.allowedScrollTypesMask = [.discrete]
         // ignore screen; uses trackpad
-        recognizer.allowedTouchTypes = [TRACKPAD_TOUCH_ID]
+        trackpadPanGesture.allowedTouchTypes = [TRACKPAD_TOUCH_ID]
         // 1 touch ensures a click and drag event
-        recognizer.minimumNumberOfTouches = 1
-        recognizer.maximumNumberOfTouches = 1
-        return recognizer
+        trackpadPanGesture.minimumNumberOfTouches = 1
+        trackpadPanGesture.maximumNumberOfTouches = 1
+//        trackpadPanGesture.delegate = delegate
+//        trackpadPanGesture.delegate = TrackpadDelegate() // "always nil because de-allocated"
+//        trackpadPanGesture.delegate = context.coordinator // "cannot assign () to ..."
+        
+//        vc.view.addGestureRecognizer(trackpadPanGesture)
+        
+        return trackpadPanGesture
+        
+
+        
+//        let recognizer = UIPanGestureRecognizer()
+//        recognizer.allowedScrollTypesMask = [.discrete]
+//        // ignore screen; uses trackpad
+//        recognizer.allowedTouchTypes = [TRACKPAD_TOUCH_ID]
+//        // 1 touch ensures a click and drag event
+//        recognizer.minimumNumberOfTouches = 1
+//        recognizer.maximumNumberOfTouches = 1
+//        
+//        // can you still attach a gesture recognizer?
+//        
+//        return recognizer
     }
     
     func handleUIGestureRecognizerAction(_ recognizer: UIPanGestureRecognizer,
@@ -205,6 +275,134 @@ struct StitchTrackpadPanGestureRecognizerRepresentable: UIGestureRecognizerRepre
     }
     
 }
+
+
+struct CustomGestureRecognizer: UIGestureRecognizerRepresentable {
+
+    func makeUIGestureRecognizer(context: Context) -> UIPanGestureRecognizer {
+        
+        log("CustomGestureRecognizer: makeUIGestureRecognizer")
+        
+        let delegate = context.coordinator
+        
+        let trackpadPanGesture = UIPanGestureRecognizer(
+            target: delegate,
+            action: #selector(delegate.trackpadPanInView))
+        
+//        let trackpadPanGesture = UIPanGestureRecognizer()
+        
+        // Only listen to click and drag from mouse
+        trackpadPanGesture.allowedScrollTypesMask = [.discrete]
+        // ignore screen; uses trackpad
+        trackpadPanGesture.allowedTouchTypes = [TRACKPAD_TOUCH_ID]
+        // 1 touch ensures a click and drag event
+        trackpadPanGesture.minimumNumberOfTouches = 1
+        trackpadPanGesture.maximumNumberOfTouches = 1
+        trackpadPanGesture.delegate = delegate
+        
+        //        trackpadPanGesture.delegate = TrackpadDelegate() // "always nil because de-allocated"
+        //        trackpadPanGesture.delegate = context.coordinator // "cannot assign () to ..."
+        
+        //        vc.view.addGestureRecognizer(trackpadPanGesture)
+        
+        return trackpadPanGesture
+    }
+    
+    
+    typealias UIGestureRecognizerType = UIPanGestureRecognizer
+    
+//    typealias UIGestureRecognizerType = <#type#>
+    
+    func makeCoordinator(converter: CoordinateSpaceConverter) -> Coordinator {
+        Coordinator(parent: self)
+    }
+    
+    
+    
+    class Coordinator: NSObject, UIGestureRecognizerDelegate {
+        var parent: CustomGestureRecognizer
+        
+        var shiftHeld: Bool = false
+
+        init(parent: CustomGestureRecognizer) {
+            self.parent = parent
+        }
+
+        // Delegate method to control gesture recognition
+//        func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive event: UIEvent) -> Bool {
+//            print("CustomGestureRecognizer: GestureRecognizer should receive event: \(event)")
+//            // Add your custom logic here
+//            return true // Allow the gesture to proceed
+//        }
+        
+        func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
+                               shouldReceive event: UIEvent) -> Bool {
+             log("CustomGestureRecognizer: gestureRecognizer: should receive event")
+
+            if event.modifierFlags.contains(.shift) {
+                log("CustomGestureRecognizer: SHIFT DOWN")
+                self.shiftHeld = true
+            } else {
+                log("CustomGestureRecognizer: SHIFT NOT DOWN")
+                self.shiftHeld = false
+            }
+            
+            return true
+        }
+        
+
+        @objc func handleTap(_ sender: UITapGestureRecognizer) {
+            print("CustomGestureRecognizer: Gesture recognized")
+        }
+        
+        @objc func trackpadPanInView(_ gestureRecognizer: UIPanGestureRecognizer) {
+            log("CustomGestureRecognizer: trackpadPanInView recognized")
+            
+            log("CustomGestureRecognizer: handleUIGestureRecognizerAction")
+            
+            let translation = gestureRecognizer.translation(in: gestureRecognizer.view)
+            let location = gestureRecognizer.location(in: gestureRecognizer.view)
+            let velocity = gestureRecognizer.velocity(in: gestureRecognizer.view)
+            
+            log("CustomGestureRecognizer: handleUIGestureRecognizerAction: gestureRecognizer.state.description: \(gestureRecognizer.state.description)")
+            
+            log("CustomGestureRecognizer: handleUIGestureRecognizerAction: location: \(location)")
+            
+            
+            dispatch(GraphBackgroundTrackpadDragged(
+                translation: translation.toCGSize,
+                location: location,
+                velocity: velocity,
+                numberOfTouches: gestureRecognizer.numberOfTouches,
+                gestureState: gestureRecognizer.state,
+                shiftHeld: self.shiftHeld))
+            
+        }
+    }
+
+//    func makeCoordinator() -> Coordinator {
+//        Coordinator(parent: self)
+//    }
+
+//    func makeUIView(context: Context) -> UIView {
+//        let view = UIView()
+//
+//        // Create a tap gesture recognizer
+//        let tapGestureRecognizer = UITapGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.handleTap))
+//        tapGestureRecognizer.delegate = context.coordinator // Set the delegate
+//
+//        // Add the gesture recognizer to the view
+//        view.addGestureRecognizer(tapGestureRecognizer)
+//
+//        return view
+//    }
+//
+//    func updateUIView(_ uiView: UIView, context: Context) {
+//        // Handle updates here if needed
+//    }
+}
+
+
 
 
 
