@@ -28,10 +28,7 @@ let max1DTextureWidth: CGFloat = {
     return k
 }()
 
-struct Preview3DModelLayer: View {
-    // State for media needed if we need to async load an import
-    @State private var mediaObject: StitchMediaObject?
-    
+struct Preview3DModelLayer: View {    
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     @Bindable var layerViewModel: LayerViewModel
@@ -61,12 +58,8 @@ struct Preview3DModelLayer: View {
     let parentDisablesPosition: Bool
     let parentIsScrollableGrid: Bool
     
-    var mediaValue: AsyncMediaValue? {
-        self.layerViewModel.model3D._asyncMedia
-    }
-    
     var entity: StitchEntity? {
-        mediaObject?.model3DEntity
+        self.layerViewModel.mediaObject?.model3DEntity
     }
     
     @MainActor
@@ -104,11 +97,6 @@ struct Preview3DModelLayer: View {
                 }
             }
         }
-        .modifier(MediaLayerViewModifier(mediaValue: mediaValue,
-                                         mediaObject: $mediaObject,
-                                         document: document,
-                                         mediaRowObserver: layerNode?.model3DPort.rowObserver,
-                                         isRendering: isPinnedViewRendering))
         .modifier(PreviewCommonModifier(
             document: document,
             graph: graph,

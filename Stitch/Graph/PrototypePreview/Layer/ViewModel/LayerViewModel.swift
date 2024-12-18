@@ -50,6 +50,8 @@ struct PinReceiverData: Equatable {
 
 @Observable
 final class LayerViewModel: Sendable {
+    private let mediaImportCoordinator = MediaLayerImportCoordinator()
+    
     let id: PreviewCoordinate
     let layer: Layer
     let interactiveLayer: InteractiveLayer
@@ -79,14 +81,21 @@ final class LayerViewModel: Sendable {
         }
     }
     
-    @MainActor
-    var readSize: CGSize {
-        self.readFrame.size
-    }
+    // State for media needed if we need to async load an import
+    @MainActor var mediaObject: StitchMediaObject?
     
     @MainActor
-    var readMidPosition: CGPoint {
-        self.readFrame.mid
+    var mediaPortValue: AsyncMediaValue? {
+        switch self.layer {
+        case .video:
+            return self.video._asyncMedia
+        case .image:
+            return self.image._asyncMedia
+        case .model3D:
+            return self.model3D._asyncMedia
+        default:
+            return nil
+        }
     }
     
     // Ports
@@ -394,6 +403,68 @@ extension LayerViewModel: InteractiveLayerDelegate {
 }
 
 extension LayerViewModel {
+    @MainActor var mediaRowObserver: InputNodeRowObserver? {
+        guard let layerNode = self.nodeDelegate?.graphDelegate?
+            .getNodeViewModel(self.id.layerNodeId.asNodeId)?.layerNode else {
+            return nil
+        }
+        
+        switch layerNode.layer {
+        case .image:
+            return layerNode.imagePort._packedData.rowObserver
+        case .video:
+            return layerNode.videoPort._packedData.rowObserver
+        case .model3D:
+            return layerNode.model3DPort._packedData.rowObserver
+        default:
+            fatalErrorIfDebug()
+            return nil
+        }
+    }
+    
+    func loadMedia(mediaValue: AsyncMediaValue?,
+                   document: StitchDocumentViewModel,
+                   mediaRowObserver: InputNodeRowObserver?) async {
+        guard let mediaValue = mediaValue,
+              let mediaKey = mediaValue.mediaKey else {
+            // Covers media scenarios, ensuring we set to nil while task makes copy
+            await MainActor.run {
+                Self.resetMedia(self.mediaObject)
+                self.mediaObject = nil
+            }
+            return
+        }
+        
+        let newMediaObject = await mediaImportCoordinator
+            .getUniqueImport(mediaKey: mediaKey,
+                             mediaValue: mediaValue,
+                             document: document,
+                             mediaRowObserver: mediaRowObserver)
+        
+        await MainActor.run {
+            self.mediaObject = newMediaObject
+        }
+    }
+
+    @MainActor
+    static func resetMedia(_ mediaObject: StitchMediaObject?) {
+        // Hack to remove video loop
+        if let videoPlayer = mediaObject?.video {
+            videoPlayer.pause()
+            videoPlayer.stitchVideoDelegate.removeAllObservers()
+        }
+    }
+    
+    @MainActor
+    var readSize: CGSize {
+        self.readFrame.size
+    }
+    
+    @MainActor
+    var readMidPosition: CGPoint {
+        self.readFrame.mid
+    }
+    
     @MainActor var isPinnedView: Bool {
         isPinned.getBool ?? false
     }

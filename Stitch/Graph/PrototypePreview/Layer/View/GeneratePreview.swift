@@ -363,6 +363,10 @@ struct NonGroupPreviewLayersView: View {
     let parentIsScrollableGrid: Bool
     @Binding var realityContent: LayerRealityCameraContent?
     
+    var mediaValue: AsyncMediaValue? {
+        isPinnedViewRendering ? self.layerViewModel.mediaPortValue : nil
+    }
+    
     var body: some View {
         if layerNode.hasSidebarVisibility,
            let graph = layerNode.nodeDelegate?.graphDelegate as? GraphState {
@@ -375,6 +379,25 @@ struct NonGroupPreviewLayersView: View {
                              parentDisablesPosition: parentDisablesPosition,
                              parentIsScrollableGrid: parentIsScrollableGrid,
                              realityContent: $realityContent)
+            .onChange(of: mediaValue, initial: true) {
+                guard isPinnedViewRendering else { return }
+                
+                guard let mediaValue = self.mediaValue else {
+                    LayerViewModel.resetMedia(self.layerViewModel.mediaObject)
+                    self.layerViewModel.mediaObject = nil
+                    return
+                }
+                
+                Task(priority: .high) { [weak layerViewModel] in
+                    await layerViewModel?.loadMedia(mediaValue: mediaValue,
+                                                    document: document,
+                                                    mediaRowObserver: layerViewModel?.mediaRowObserver)
+                }
+                
+                if let _mediaObject = mediaValue._mediaObject as? StitchMediaObject {
+                    self.layerViewModel.mediaObject = _mediaObject
+                }
+            }
         } else {
             EmptyView()
         }
