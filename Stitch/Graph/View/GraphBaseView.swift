@@ -202,36 +202,3 @@ struct GraphHoverViewModifier: ViewModifier {
 #endif
     }
 }
-
-func MOCK_NAMESPACE_ID() -> Namespace.ID {
-    Namespace.init().wrappedValue
-}
-
-// struct GraphBaseView_REPL: View {
-//     var body: some View {
-//         let graphState = GraphState()
-//         let node = splitterPatchNode(nodeId: TestIds._0,
-//                                      position: .zero)
-//         graphState.updatePatchNode(node)
-
-//         let visibleNodes: VisibleNodes = [.patch(TestIds._0)]
-
-//         let computedGraph = ComputedGraphState(visibleNodes: visibleNodes)
-//         let project = devDefaultProject(graph: graphState, computedGraph: computedGraph)
-
-//         return GraphBaseView(broadcastChoices: .init(),
-//                              computedGraph: project.computedGraph,
-//                              projectName: project.metadata.name,
-//                              projectId: project.metadata.projectId,
-//                              namespace: MOCK_NAMESPACE_ID(),
-//                              previewWindowSize: graphState.previewWindowSize, previewingNodeChoice: nil)
-//     }
-// }
-
-// struct GraphBase_Previews: PreviewProvider {
-//     static var previews: some View {
-//         GraphBaseView_REPL()
-//             //            .previewInterfaceOrientation(.landscapeLeft)
-//             .previewInterfaceOrientation(.portrait)
-//     }
-// }

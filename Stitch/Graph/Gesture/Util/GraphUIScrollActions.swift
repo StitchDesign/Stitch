@@ -496,7 +496,6 @@ extension StitchDocumentViewModel {
         guard let gestureStartLocation = self.graphUI.selection.dragStartLocation else {
             log("GraphState.handleGraphDraggedDuringSelection: no start location")
             return
-
         }
         
         var box = self.graphUI.selection.expansionBox ?? .init(origin: gestureStartLocation, size: .zero)
@@ -531,31 +530,31 @@ extension StitchDocumentViewModel {
             return
         }
 
-        // Dragging on the graph restarts the momentum.
-        // NOTE: we must do this before updating the position,
-        // in order to make sure that the updatePosition call
-        // has a previousPosition that reflects the momentum movement.
-        if self.graphMovement.shouldRun {
-            self.graphMovement.resetGraphMovement()
-        }
+//        // Dragging on the graph restarts the momentum.
+//        // NOTE: we must do this before updating the position,
+//        // in order to make sure that the updatePosition call
+//        // has a previousPosition that reflects the momentum movement.
+//        if self.graphMovement.shouldRun {
+//            self.graphMovement.resetGraphMovement()
+//        }
 
         //    log("handleGraphScrolled: state.graphUI.graphMovement.localPosition was: \(state.graphUI.graphMovement.localPosition)")
-
-        //    log("handleGraphScrolled: translation was: \(translation)")
-
-        // Always update the graph offset,
-        // regardless whether there is another active gesture.
-        self.graphMovement.localPosition = self.localPreviousPosition + (translation.toCGPoint / self.graphMovement.zoomData.zoom)
+//
+//        //    log("handleGraphScrolled: translation was: \(translation)")
+//
+//        // Always update the graph offset,
+//        // regardless whether there is another active gesture.
+//        self.graphMovement.localPosition = self.localPreviousPosition + (translation.toCGPoint / self.graphMovement.zoomData.zoom)
 
         //    log("handleGraphScrolled: state.graphUI.graphMovement.localPosition is now: \(state.graphUI.graphMovement.localPosition)")
 
-        self.graphMovement.runningGraphTranslation = translation
+//        self.graphMovement.runningGraphTranslation = translation
 
         // DUAL DRAG:
 
-        if !self.graphMovement.graphIsDragged {
-            self.graphMovement.graphIsDragged = true
-        }
+//        if !self.graphMovement.graphIsDragged {
+//            self.graphMovement.graphIsDragged = true
+//        }
 
         // If we don't have an active first gesture,
         // and node isn't already dragging,

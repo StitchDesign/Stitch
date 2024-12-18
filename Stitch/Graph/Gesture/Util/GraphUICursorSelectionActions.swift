@@ -97,6 +97,7 @@ extension StitchDocumentViewModel {
             self.graphUI.activeSpacebarClickDrag = false
         }
 
+        //
         if spaceHeld {
 
             // Start an active graph gesture
