@@ -96,14 +96,16 @@ struct StitchUIScrollViewModifier: ViewModifier {
                 // Selection box and cursor
                 if let expansionBox = selectionState.expansionBox {
                     ExpansionBoxView(graph: document.graph,
-                                     box: expansionBox)
+                                     box: expansionBox,
+                                     scale: document.graphMovement.zoomData.final)
                 }
 
                 if selectionState.isSelecting,
                    let currentDrag = selectionState.dragCurrentLocation {
                     CursorDotView(
                         currentDragLocation: currentDrag,
-                        isFingerOnScreenSelection: selectionState.isFingerOnScreenSelection)
+                        isFingerOnScreenSelection: selectionState.isFingerOnScreenSelection,
+                        scale: document.graphMovement.zoomData.final)
                 }
             }
         }

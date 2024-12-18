@@ -13,6 +13,7 @@ struct RoundedRectView: View {
     @Environment(\.appTheme) private var theme
 
     let rect: CGRect
+    let scale: CGFloat
 
     var color: Color {
         theme.themeData.edgeColor
@@ -36,7 +37,7 @@ struct RoundedRectView: View {
             context.stroke(
                 roundedRectPath,
                 with: .color(color),
-                lineWidth: 4
+                lineWidth: 4 * 1/scale
             )
             
             context.fill(roundedRectPath, with: .color(color.opacity(0.4)))
@@ -47,9 +48,10 @@ struct RoundedRectView: View {
 struct ExpansionBoxView: View {
     let graph: GraphState
     let box: CGRect
+    let scale: CGFloat
     
     var body: some View {
-        RoundedRectView(rect: box)
+        RoundedRectView(rect: box, scale: scale)
             .onChange(of: box) { _, newSelectionBounds in
                 graph.processCanvasSelectionBoxChange(selectionBox: newSelectionBounds)
             }

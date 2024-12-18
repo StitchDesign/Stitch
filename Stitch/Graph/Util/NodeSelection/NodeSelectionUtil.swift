@@ -188,7 +188,6 @@ extension GraphState {
         
         let selectionBoxInViewFrame: CGRect = selectionBox
         
-       
         log("processCanvasSelectionBoxChange: cachedSubviewData: selectionBoxInViewFrame.origin: \(selectionBoxInViewFrame.origin)")
         log("processCanvasSelectionBoxChange: cachedSubviewData: selectionBoxInViewFrame.size: \(selectionBoxInViewFrame.size)")
         

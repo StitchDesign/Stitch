@@ -17,28 +17,23 @@ struct CursorDotView: View {
 
     let currentDragLocation: CGPoint
     let isFingerOnScreenSelection: Bool
+    let scale: CGFloat
 
     @State var length: CGFloat = 0
 
     var body: some View {
         Circle()
             .fill(theme.themeData.edgeColor)
-            .frame(width: length, height: length)
+            .frame(width: length * 1/scale,
+                   height: length * 1/scale)
             .position(currentDragLocation)
             .onAppear {
                 let finalSize = isFingerOnScreenSelection ? LARGE_CURSOR_LENGTH : SMALL_CURSOR_LENGTH
+                //                let finalSize = SMALL_CURSOR_LENGTH
                 let animationTime = isFingerOnScreenSelection ? 0.25 : 0.1
                 withAnimation(.easeIn(duration: animationTime)) {
                     length = finalSize
                 }
             }
-    }
-}
-
-struct CursorDotView_Previews: PreviewProvider {
-    static var previews: some View {
-        CursorDotView(
-            currentDragLocation: CGPoint(x: 500, y: 500),
-            isFingerOnScreenSelection: true)
     }
 }
