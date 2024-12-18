@@ -99,11 +99,6 @@ struct Preview3DModelLayer: View {
                     Model3DView(entity: entity,
                                 sceneSize: sceneSize,
                                 modelOpacity: opacity)
-                    .onAppear {
-                        // Mark as layer so we regenerate views when finished loading
-                        // Fixes bug where newly created graphs don't show model
-                        entity.isUsedInLayer = true
-                    }
                 } else {
                     Color.clear
                 }

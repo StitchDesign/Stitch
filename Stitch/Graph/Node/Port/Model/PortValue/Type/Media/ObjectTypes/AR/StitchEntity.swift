@@ -25,8 +25,6 @@ final class StitchEntity: NSObject, Sendable {
     
     // Entity instance with import
     private let importEntity: Entity
-
-    @MainActor var isUsedInLayer: Bool = false
     
     @MainActor
     var isAnimating: Bool {
@@ -66,26 +64,6 @@ final class StitchEntity: NSObject, Sendable {
         }
         
         self.importEntity = importEntity
-        
-                // TODO: anchor logic at entity level
-//        if let anchor = anchor {
-//            // Set anchor transform
-//            if let transform = initialTransform {
-//                anchor.transform.matrix = transform
-//            }
-//            
-//            //here we are adding the entity as a child of the anchor
-//            //anchor.addChild.containerEntity
-//            //any transform edits will be directed to the container
-//            //the container will sit between the anchor and the model
-//            anchor.addChild(entity)
-//        }
-                    
-        // Can't recalculate from layer nodes
-//        if !isUsedInLayer {
-//            dispatch(RecalculateGraphFromNode(nodeId: self.nodeId))
-//        }
-            
         super.init()
     }
     
