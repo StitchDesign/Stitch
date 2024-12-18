@@ -383,7 +383,15 @@ struct GraphUISelectionState {
 
     // if using finger-on-screen to create box,
     // then cursor should be larger than normal.
-    var isFingerOnScreenSelection: Bool = false
+    var isFingerOnScreenSelection: Bool = false {
+        didSet {
+            log("isFingerOnScreenSelection didSet: isFingerOnScreenSelection:  \(isFingerOnScreenSelection)")
+            
+            if isFingerOnScreenSelection {
+                log("SHOULD NOT BE TRUE")
+            }
+        }
+    }
 
     // Node cursor selection box
     var expansionBox: CGRect?

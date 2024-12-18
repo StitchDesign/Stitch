@@ -17,6 +17,7 @@ struct GraphBackgroundLongPressed: StitchDocumentEvent {
     
     @MainActor // All actions already happen on main thread?
     func handle(state: StitchDocumentViewModel) {
+        log("GraphBackgroundLongPressed called")
         state.graphUI.selection.isSelecting = true
         state.graphUI.selection.dragStartLocation = location
         state.graphUI.selection.dragCurrentLocation = location
@@ -30,6 +31,7 @@ struct GraphBackgroundLongPressEnded: StitchDocumentEvent {
     
     @MainActor
     func handle(state: StitchDocumentViewModel) {
+        log("GraphBackgroundLongPressEnded called")
         state.graphUI.selection.dragStartLocation = nil
         state.graphUI.selection.dragCurrentLocation = nil
         state.graphUI.selection.expansionBox = nil
@@ -178,15 +180,19 @@ extension StitchDocumentViewModel {
 
     @MainActor
     func handleTrackpadDragStarted(location: CGPoint) {
-        let graphUI = self.graphUI
-        graphUI.selection.dragStartLocation = location
-        graphUI.selection.dragCurrentLocation = location
-        graphUI.selection.isFingerOnScreenSelection = false
-        graphUI.selection.expansionBox = .init(origin: location, size: .zero)
-        graphUI.selection.isSelecting = true
-        graphUI.selection.graphDragState = .none
+        
+        log("handleTrackpadDragStarted: self.graphUI.selection.isFingerOnScreenSelection was: \(self.graphUI.selection.isFingerOnScreenSelection)")
+        
+        self.graphUI.selection.dragStartLocation = location
+        self.graphUI.selection.dragCurrentLocation = location
+        self.graphUI.selection.isFingerOnScreenSelection = false
+        self.graphUI.selection.expansionBox = .init(origin: location, size: .zero)
+        self.graphUI.selection.isSelecting = true
+        self.graphUI.selection.graphDragState = .none
 
         self.visibleGraph.selectedEdges = .init()
+        
+        log("handleTrackpadDragStarted: self.graphUI.selection.isFingerOnScreenSelection is now: \(self.graphUI.selection.isFingerOnScreenSelection)")
     }
 
     @MainActor

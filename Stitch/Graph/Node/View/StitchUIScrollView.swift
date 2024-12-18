@@ -256,17 +256,22 @@ struct StitchTrackpadPanGestureRecognizerRepresentable: UIGestureRecognizerRepre
                                                 gestureState: recognizer.state,
                                                 shiftHeld: self.shiftHeld))
         
-        switch recognizer.state {
-        case .began:
-            if let view = recognizer.view {
-                // Use an action to avoid having to worry about `weak var` vs `let` with StitchDocumentViewModel
-                dispatch(GraphBackgroundLongPressed(location: recognizer.location(in: view)))
-            }
-        case .ended, .cancelled:
-            dispatch(GraphBackgroundLongPressEnded())
-        default:
-            break
-        }
+//        switch recognizer.state {
+//        case .began:
+//            
+//            
+//            if let view = recognizer.view {
+//                // Use an action to avoid having to worry about `weak var` vs `let` with StitchDocumentViewModel
+//                dispatch(GraphBackgroundLongPressed(location: recognizer.location(in: view)))
+//                
+//                // DOH!!!
+//                
+//            }
+//        case .ended, .cancelled:
+//            dispatch(GraphBackgroundLongPressEnded())
+//        default:
+//            break
+//        }
     }
     
     

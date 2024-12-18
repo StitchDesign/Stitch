@@ -22,6 +22,9 @@ struct CursorDotView: View {
     @State var length: CGFloat = 0
 
     var body: some View {
+        
+        logInView("CursorDotView: isFingerOnScreenSelection: \(isFingerOnScreenSelection)")
+        
         Circle()
             .fill(theme.themeData.edgeColor)
             .frame(width: length * 1/scale,
