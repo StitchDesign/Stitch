@@ -29,7 +29,7 @@ struct GraphMovementViewModifier: ViewModifier {
                 self.graph.updateVisibleNodes()
             }
         
-        // NOTE: DEC 12: we DO want all these updates 
+        // NOTE: DEC 12: we DO want all these updates
             .onChange(of: graphMovement.localPosition) { _, newValue in
                 log("changed: graphMovement.localPosition: newValue: \(newValue)")
                 currentNodePage.localPosition = graphMovement.localPosition

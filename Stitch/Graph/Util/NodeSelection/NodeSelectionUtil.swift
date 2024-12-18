@@ -141,8 +141,9 @@ extension GraphState {
         graphState.graphUI.isSidebarFocused = false
         
         // TODO: pass shift down via the UIKit gesture handler
-        let shiftHeld = graphState.keypressState.shiftHeldDuringGesture
-        //        log("processCanvasSelectionBoxChange: shiftHeld: \(shiftHeld)")
+//        let shiftHeld = graphState.keypressState.shiftHeldDuringGesture
+        let shiftHeld = graphState.keypressState.isShiftPressed
+        log("processCanvasSelectionBoxChange: shiftHeld: \(shiftHeld)")
         
         guard isCurrentlyDragging else {
             // log("processNodeSelectionBoxChange error: expansion box was size zero")
@@ -169,14 +170,14 @@ extension GraphState {
         }
         
         // Necessary view frame data needed to determining selected nodes
-        let zoom = 1 / self.graphMovement.zoomData.zoom
-        let viewFrameSize = self.graphUI.frame.size
-        let viewframeOrigin = CGPoint(x: -self.graphMovement.localPosition.x,
-                                      y: -self.graphMovement.localPosition.y)
-        let graphView = CGRect(origin: viewframeOrigin,
-                               size: viewFrameSize)
-        let scaledViewFrame = GraphState.getScaledViewFrame(scale: zoom,
-                                                            graphView: graphView)
+//        let zoom = 1 / self.graphMovement.zoomData.zoom
+//        let viewFrameSize = self.graphUI.frame.size
+//        let viewframeOrigin = CGPoint(x: -self.graphMovement.localPosition.x,
+//                                      y: -self.graphMovement.localPosition.y)
+//        let graphView = CGRect(origin: viewframeOrigin,
+//                               size: viewFrameSize)
+//        let scaledViewFrame = GraphState.getScaledViewFrame(scale: zoom,
+//                                                            graphView: graphView)
         
         // TODO: DEC 12: apparently no longer needed?
 //        guard let _selectionBoxInViewFrame: CGRect = GraphState
@@ -188,16 +189,16 @@ extension GraphState {
         
         let selectionBoxInViewFrame: CGRect = selectionBox
         
-        log("processCanvasSelectionBoxChange: cachedSubviewData: selectionBoxInViewFrame.origin: \(selectionBoxInViewFrame.origin)")
-        log("processCanvasSelectionBoxChange: cachedSubviewData: selectionBoxInViewFrame.size: \(selectionBoxInViewFrame.size)")
+        // log("processCanvasSelectionBoxChange: cachedSubviewData: selectionBoxInViewFrame.origin: \(selectionBoxInViewFrame.origin)")
+        // log("processCanvasSelectionBoxChange: cachedSubviewData: selectionBoxInViewFrame.size: \(selectionBoxInViewFrame.size)")
         
         for cachedSubviewData in self.visibleNodesViewModel.infiniteCanvasCache {
             let id = cachedSubviewData.key
             var cachedBounds = cachedSubviewData.value
             
-            log("processCanvasSelectionBoxChange: cachedSubviewData: id: \(id)")
-            log("processCanvasSelectionBoxChange: cachedSubviewData: cachedBounds.origin: \(cachedBounds.origin)")
-            log("processCanvasSelectionBoxChange: cachedSubviewData: cachedBounds.size: \(cachedBounds.size)")
+            // log("processCanvasSelectionBoxChange: cachedSubviewData: id: \(id)")
+            // log("processCanvasSelectionBoxChange: cachedSubviewData: cachedBounds.origin: \(cachedBounds.origin)")
+            // log("processCanvasSelectionBoxChange: cachedSubviewData: cachedBounds.size: \(cachedBounds.size)")
             
             guard self.visibleNodesViewModel.visibleCanvasIds.contains(id) else {
                 continue

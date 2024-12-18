@@ -61,26 +61,12 @@ struct StitchUIScrollViewModifier: ViewModifier {
 //                }
 //                .zIndex(-99999)
 //                        .gesture(StitchLongPressGestureRecognizerRepresentable())
-          
-                
-                // Cannot use .simultaneous with UIGestureRecognizable ...
-//                        .simultaneousGesture(StitchLongPressGestureRecognizerRepresentable())
+                     
                         .gesture(StitchLongPressGestureRecognizerRepresentable())
-                    
-                
-//                        .gesture(StitchScreenPanGestureRecognizerRepresentable())
                 
                 // THIS IS BETTER: HANDLES BOTH ZOOMING AND SCROLLING PROPERLY
-                // but how to listen for shift here? ... perhaps shift is actually one of the keys we're better at listening to ?
                         .gesture(StitchTrackpadPanGestureRecognizerRepresentable())
                         
-                
-                // does the order matter?
-                // also, can be do ".simultaneously" etc. here?
-//                        .gesture(StitchLongPressGestureRecognizerRepresentable())
-                
-                
-//                        .gesture(StitchScreenPanGestureRecognizerRepresentable())
                 
                 // RENDERING THE NODE CURSOR SELECTION BOX HERE
                 
@@ -116,26 +102,6 @@ struct StitchUIScrollViewModifier: ViewModifier {
     }
 }
 
-// if we haven't long pressed, provide a long press gesture;
-// after that, provide
-// problems?: this will break the current gesture and reset the UIScrollView's state ?
-struct iPadFingerRecognzerViewModifer: ViewModifier {
-    
-    @State var hasLongPressed: Bool = false
-    
-    func body(content: Content) -> some View {
-        
-        if hasLongPressed {
-            content
-                .gesture(StitchScreenPanGestureRecognizerRepresentable())
-        } else {
-            content
-                .gesture(StitchLongPressGestureRecognizerRepresentable())
-        }
-    }
-}
-
-
 struct StitchLongPressGestureRecognizerRepresentable: UIGestureRecognizerRepresentable {
     
     func makeUIGestureRecognizer(context: Context) -> some UIGestureRecognizer {
@@ -151,73 +117,34 @@ struct StitchLongPressGestureRecognizerRepresentable: UIGestureRecognizerReprese
     
     func handleUIGestureRecognizerAction(_ recognizer: UIGestureRecognizerType,
                                          context: Context) {
+        
         log("StitchLongPressGestureRecognizerRepresentable: handleUIGestureRecognizerAction")
+        
         switch recognizer.state {
             
         case .began:
-            
-            
             if let view = recognizer.view {
                 let location = recognizer.location(in: view)
-                
                 log("StitchLongPressGestureRecognizerRepresentable: handleUIGestureRecognizerAction: BEGAN: location: \(location)")
-                
-                // Use an action to avoid having to worry about `weak var` vs `let` with StitchDocumentViewModel
+                // Use an action to avoid having to worry about `weak var` vs `let` with StitchDocumentViewModel ?
                 dispatch(GraphBackgroundLongPressed(location: location))
             }
             
-//            // added
         case .changed:
-//            let translation = recognizer.translation(in: recognizer.view)
             let location = recognizer.location(in: recognizer.view)
-//            let velocity = recognizer.velocity(in: recognizer.view)
-            
             log("StitchLongPressGestureRecognizerRepresentable: handleUIGestureRecognizerAction: CHANGED: location: \(location)")
-            
             dispatch(GraphDraggedDuringSelection(location: location))
-            
-//            ^^ no, we don't have the translation and velocity -- maybe don't need those?
-            // does at least location change ?
-            // YES, LOCATION IS ACCURATE
-            // from this location vs at start of gesture, you could get translation ?
-            
-            
-            
+
         case .ended, .cancelled:
             log("StitchLongPressGestureRecognizerRepresentable: handleUIGestureRecognizerAction: ENDED/CANCELLED")
             dispatch(GraphBackgroundLongPressEnded())
+            
         default:
             break
         }
     }
 }
 
-struct StitchScreenPanGestureRecognizerRepresentable: UIGestureRecognizerRepresentable {
-    
-    func makeUIGestureRecognizer(context: Context) -> UIPanGestureRecognizer {
-        log("PanGestureRecognizerRepresentable: makeUIGestureRecognizer")
-        let recognizer = UIPanGestureRecognizer()
-        recognizer.allowedTouchTypes = [SCREEN_TOUCH_ID] // i.e. iPad-only
-        return recognizer
-    }
-    
-    func handleUIGestureRecognizerAction(_ recognizer: UIPanGestureRecognizer,
-                                         context: Context) {
-                
-        log("PanGestureRecognizerRepresentable: handleUIGestureRecognizerAction")
-        
-        let translation = recognizer.translation(in: recognizer.view)
-        let location = recognizer.location(in: recognizer.view)
-        let velocity = recognizer.velocity(in: recognizer.view)
-        
-        log("PanGestureRecognizerRepresentable: handleUIGestureRecognizerAction: recognizer.state.description: \(recognizer.state.description)")
-        
-        log("PanGestureRecognizerRepresentable: handleUIGestureRecognizerAction: location: \(location)")
-       
-        
-       
-    }
-}
 
 struct StitchTrackpadPanGestureRecognizerRepresentable: UIGestureRecognizerRepresentable {
     
@@ -255,23 +182,6 @@ struct StitchTrackpadPanGestureRecognizerRepresentable: UIGestureRecognizerRepre
                                                 numberOfTouches: recognizer.numberOfTouches,
                                                 gestureState: recognizer.state,
                                                 shiftHeld: self.shiftHeld))
-        
-//        switch recognizer.state {
-//        case .began:
-//            
-//            
-//            if let view = recognizer.view {
-//                // Use an action to avoid having to worry about `weak var` vs `let` with StitchDocumentViewModel
-//                dispatch(GraphBackgroundLongPressed(location: recognizer.location(in: view)))
-//                
-//                // DOH!!!
-//                
-//            }
-//        case .ended, .cancelled:
-//            dispatch(GraphBackgroundLongPressEnded())
-//        default:
-//            break
-//        }
     }
     
     
