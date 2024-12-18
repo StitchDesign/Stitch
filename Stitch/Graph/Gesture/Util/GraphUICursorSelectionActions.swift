@@ -50,18 +50,41 @@ struct GraphBackgroundTrackpadDragged: StitchDocumentEvent {
     let shiftHeld: Bool
     
     func handle(state: StitchDocumentViewModel) {
-        state.trackpadClickDrag(translation: translation,
-                                location: location,
-                                velocity: velocity,
-                                numberOfTouches: numberOfTouches,
-                                gestureState: gestureState,
-                                shiftHeld: shiftHeld)
+        
+        if state.keypressState.isSpacePressed || state.graphUI.activeSpacebarClickDrag {
+            log("GraphBackgroundTrackpadDragged: space held, or have active spacebar drag, so will exit early")
+            return
+        } else {
+            state.trackpadDragWhileSpaceNotHeld(translation: translation,
+                                    location: location,
+                                    velocity: velocity,
+                                    numberOfTouches: numberOfTouches,
+                                    gestureState: gestureState,
+                                    shiftHeld: shiftHeld)
+        }
     }
 }
 
 
 extension StitchDocumentViewModel {
 
+    
+    @MainActor
+    func trackpadDragWhileSpaceNotHeld(translation: CGSize,
+                                       location: CGPoint,
+                                       velocity: CGPoint,
+                                       numberOfTouches: Int,
+                                       gestureState: UIGestureRecognizer.State,
+                                       shiftHeld: Bool) {
+        self.graphUI.activeSpacebarClickDrag = false
+
+        self.clickDragAsNodeSelection(translation: translation,
+                                      location: location,
+                                      gestureState: gestureState,
+                                      numberOfTouches: numberOfTouches,
+                                      shiftHeld: shiftHeld)
+    }
+    
     @MainActor
     func trackpadClickDrag(translation: CGSize,
                            location: CGPoint,

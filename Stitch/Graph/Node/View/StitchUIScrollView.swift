@@ -66,7 +66,7 @@ struct StitchUIScrollViewModifier: ViewModifier {
                 //                        .gesture(StitchLongPressGestureRecognizerRepresentable())
                 
                 // THIS IS BETTER: HANDLES BOTH ZOOMING AND SCROLLING PROPERLY
-                //                        .gesture(StitchTrackpadPanGestureRecognizerRepresentable())
+                
                     .gesture(StitchTrackpadGraphBackgroundPanGesture())
                 
                 
@@ -460,7 +460,10 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             case .began:
                 initialContentOffset = scrollView.contentOffset
                 
+                document?.graphUI.activeSpacebarClickDrag = true
+                
             case .changed:
+                document?.graphUI.activeSpacebarClickDrag = true
                 
                 // something about this not quite right vs simpler PureZoom
                 var newX = initialContentOffset.x - translation.x
@@ -515,7 +518,12 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
                 
             case .ended, .cancelled, .failed:
                 
+                document?.graphUI.activeSpacebarClickDrag = false
+                
                 log("StitchUIScrollView: handlePan: ended/cancelled/failed")
+                
+                scrollView.setContentOffset(scrollView.contentOffset,
+                                            animated: false)
                 
                 // DO WE HAVE NATURAL MOMENTUM WHEN WE LET GO ?
                 dispatch(GraphScrollDataUpdated(

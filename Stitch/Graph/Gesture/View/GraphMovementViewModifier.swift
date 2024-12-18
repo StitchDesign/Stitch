@@ -31,19 +31,22 @@ struct GraphMovementViewModifier: ViewModifier {
         
         // NOTE: DEC 12: we DO want all these updates
             .onChange(of: graphMovement.localPosition) { _, newValue in
-                log("changed: graphMovement.localPosition: newValue: \(newValue)")
+                log("GraphMovementViewModifier: changed: graphMovement.localPosition: newValue: \(newValue)")
                 currentNodePage.localPosition = graphMovement.localPosition
                 
                 self.graph.updateVisibleNodes()
             }
-            .onChange(of: graphMovement.zoomData.current) {
+            .onChange(of: graphMovement.zoomData.current) { _, newValue in
+                log("GraphMovementViewModifier: changed: graphMovement.zoomData.current: newValue: \(newValue)")
                 currentNodePage.zoomData.current = graphMovement.zoomData.current
             }
-            .onChange(of: graphMovement.zoomData.final) {
+            .onChange(of: graphMovement.zoomData.final) { _, newValue in
+                log("GraphMovementViewModifier: changed: graphMovement.zoomData.final: newValue: \(newValue)")
                 currentNodePage.zoomData.final = graphMovement.zoomData.final
                 
                 self.graph.updateVisibleNodes()
             }
+        
         // offset and scale are applied to the nodes on the graph,
         // but not eg to the blue box and green cursor;
         // GRAPH-OFFSET (applied to container for all the nodes)
@@ -51,6 +54,7 @@ struct GraphMovementViewModifier: ViewModifier {
         //                    y: graphMovement.localPosition.y)
         //        // SCALE APPLIED TO GRAPH-OFFSET + ALL THE NODES
         //            .scaleEffect(graphMovement.zoomData.zoom)
+        
     }
 }
     
