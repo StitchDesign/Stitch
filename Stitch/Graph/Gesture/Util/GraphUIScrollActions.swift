@@ -469,6 +469,15 @@ extension GraphMovementObserver {
     }
 }
 
+struct GraphDraggedDuringSelection: StitchDocumentEvent {
+    
+    let location: CGPoint
+    
+    func handle(state: StitchDocumentViewModel) {
+        state.handleGraphDraggedDuringSelection(location)
+    }
+}
+
 extension StitchDocumentViewModel {
     @MainActor
     func handleGraphDraggedDuringSelection(_ gestureLocation: CGPoint) {

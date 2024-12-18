@@ -33,15 +33,8 @@ struct StitchUIScrollViewModifier: ViewModifier {
                 content
                 // places existing nodes in center like you expected before applying the UIScrollView
                 // TODO: DEC 12: how to place existing nodes such that we imitate the old .offset of graph.localPosition ?
-                
 //                    .offset(x: WHOLE_GRAPH_LENGTH/2,
 //                            y: WHOLE_GRAPH_LENGTH/2)
-                
-                
-//                    .frame(width: WHOLE_GRAPH_LENGTH/2,
-//                           height: WHOLE_GRAPH_LENGTH/2)
-//                    .frame(width: WHOLE_GRAPH_LENGTH,
-//                           height: WHOLE_GRAPH_LENGTH)
                     .ignoresSafeArea()
                 
                 
@@ -63,33 +56,31 @@ struct StitchUIScrollViewModifier: ViewModifier {
                             .onEnded({
                                 dispatch(GraphTappedAction())
                             }))
+                
+//                        .modifier(iPadFingerRecognzerViewModifer())
 //                }
 //                .zIndex(-99999)
-                
+//                        .gesture(StitchLongPressGestureRecognizerRepresentable())
           
                 
-//                Color.blue.opacity(0.9)
-//                    .zIndex(-99999)
-//                    .frame(WHOLE_GRAPH_SIZE)
-//                    .coordinateSpace(name: WHOLE_GRAPH_COORDINATE_SPACE)
-//                    .ignoresSafeArea()
-//                    .gesture(SpatialTapGesture(count: 2,
-//                                               coordinateSpace: .local)
-//                        .onEnded({ value in
-//                            dispatch(GraphDoubleTappedAction(location: value.location))
-//                        })
-//                    )
-//                    .simultaneousGesture(TapGesture(count: 1)
-//                        .onEnded({
-//                            dispatch(GraphTappedAction())
-//                        }))
-                
-                
-//                    .gesture(StitchLongPressGestureRecognizerRepresentable())
+                // Cannot use .simultaneous with UIGestureRecognizable ...
+//                        .simultaneousGesture(StitchLongPressGestureRecognizerRepresentable())
+                        .gesture(StitchLongPressGestureRecognizerRepresentable())
                     
+                
+//                        .gesture(StitchScreenPanGestureRecognizerRepresentable())
+                
                 // THIS IS BETTER: HANDLES BOTH ZOOMING AND SCROLLING PROPERLY
                 // but how to listen for shift here? ... perhaps shift is actually one of the keys we're better at listening to ?
-                    .gesture(StitchTrackpadPanGestureRecognizerRepresentable())
+                        .gesture(StitchTrackpadPanGestureRecognizerRepresentable())
+                        
+                
+                // does the order matter?
+                // also, can be do ".simultaneously" etc. here?
+//                        .gesture(StitchLongPressGestureRecognizerRepresentable())
+                
+                
+//                        .gesture(StitchScreenPanGestureRecognizerRepresentable())
                 
                 // RENDERING THE NODE CURSOR SELECTION BOX HERE
                 
@@ -99,7 +90,7 @@ struct StitchUIScrollViewModifier: ViewModifier {
                                      box: expansionBox,
                                      scale: document.graphMovement.zoomData.final)
                 }
-
+                
                 if selectionState.isSelecting,
                    let currentDrag = selectionState.dragCurrentLocation {
                     CursorDotView(
@@ -125,6 +116,25 @@ struct StitchUIScrollViewModifier: ViewModifier {
     }
 }
 
+// if we haven't long pressed, provide a long press gesture;
+// after that, provide
+// problems?: this will break the current gesture and reset the UIScrollView's state ?
+struct iPadFingerRecognzerViewModifer: ViewModifier {
+    
+    @State var hasLongPressed: Bool = false
+    
+    func body(content: Content) -> some View {
+        
+        if hasLongPressed {
+            content
+                .gesture(StitchScreenPanGestureRecognizerRepresentable())
+        } else {
+            content
+                .gesture(StitchLongPressGestureRecognizerRepresentable())
+        }
+    }
+}
+
 
 struct StitchLongPressGestureRecognizerRepresentable: UIGestureRecognizerRepresentable {
     
@@ -132,6 +142,9 @@ struct StitchLongPressGestureRecognizerRepresentable: UIGestureRecognizerReprese
         log("StitchLongPressGestureRecognizerRepresentable: makeUIGestureRecognizer")
         let recognizer = UILongPressGestureRecognizer()
         recognizer.minimumPressDuration = 0.5 // half a second
+        
+        // if not restricted to screen, can be recognized via long-press too
+        // maybe force disable that on Catalyst?
         recognizer.allowedTouchTypes = [SCREEN_TOUCH_ID]
         return recognizer
     }
@@ -140,16 +153,69 @@ struct StitchLongPressGestureRecognizerRepresentable: UIGestureRecognizerReprese
                                          context: Context) {
         log("StitchLongPressGestureRecognizerRepresentable: handleUIGestureRecognizerAction")
         switch recognizer.state {
+            
         case .began:
+            
+            
             if let view = recognizer.view {
+                let location = recognizer.location(in: view)
+                
+                log("StitchLongPressGestureRecognizerRepresentable: handleUIGestureRecognizerAction: BEGAN: location: \(location)")
+                
                 // Use an action to avoid having to worry about `weak var` vs `let` with StitchDocumentViewModel
-                dispatch(GraphBackgroundLongPressed(location: recognizer.location(in: view)))
+                dispatch(GraphBackgroundLongPressed(location: location))
             }
+            
+//            // added
+        case .changed:
+//            let translation = recognizer.translation(in: recognizer.view)
+            let location = recognizer.location(in: recognizer.view)
+//            let velocity = recognizer.velocity(in: recognizer.view)
+            
+            log("StitchLongPressGestureRecognizerRepresentable: handleUIGestureRecognizerAction: CHANGED: location: \(location)")
+            
+            dispatch(GraphDraggedDuringSelection(location: location))
+            
+//            ^^ no, we don't have the translation and velocity -- maybe don't need those?
+            // does at least location change ?
+            // YES, LOCATION IS ACCURATE
+            // from this location vs at start of gesture, you could get translation ?
+            
+            
+            
         case .ended, .cancelled:
+            log("StitchLongPressGestureRecognizerRepresentable: handleUIGestureRecognizerAction: ENDED/CANCELLED")
             dispatch(GraphBackgroundLongPressEnded())
         default:
             break
         }
+    }
+}
+
+struct StitchScreenPanGestureRecognizerRepresentable: UIGestureRecognizerRepresentable {
+    
+    func makeUIGestureRecognizer(context: Context) -> UIPanGestureRecognizer {
+        log("PanGestureRecognizerRepresentable: makeUIGestureRecognizer")
+        let recognizer = UIPanGestureRecognizer()
+        recognizer.allowedTouchTypes = [SCREEN_TOUCH_ID] // i.e. iPad-only
+        return recognizer
+    }
+    
+    func handleUIGestureRecognizerAction(_ recognizer: UIPanGestureRecognizer,
+                                         context: Context) {
+                
+        log("PanGestureRecognizerRepresentable: handleUIGestureRecognizerAction")
+        
+        let translation = recognizer.translation(in: recognizer.view)
+        let location = recognizer.location(in: recognizer.view)
+        let velocity = recognizer.velocity(in: recognizer.view)
+        
+        log("PanGestureRecognizerRepresentable: handleUIGestureRecognizerAction: recognizer.state.description: \(recognizer.state.description)")
+        
+        log("PanGestureRecognizerRepresentable: handleUIGestureRecognizerAction: location: \(location)")
+       
+        
+       
     }
 }
 
