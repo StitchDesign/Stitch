@@ -20,37 +20,37 @@ struct GraphMovementViewModifier: ViewModifier {
             .onAppear {
                 self.graph.updateVisibleNodes()
             }
-//            .onChange(of: groupNodeFocused, initial: true) {
-//                self.graphMovement.localPosition = currentNodePage.localPosition
-//                self.graphMovement.localPreviousPosition = currentNodePage.localPosition
-//                self.graphMovement.zoomData.current = currentNodePage.zoomData.current
-//                self.graphMovement.zoomData.final = currentNodePage.zoomData.final
-//                
-//                self.graph.updateVisibleNodes()
-//            }
+            .onChange(of: groupNodeFocused, initial: true) {
+                self.graphMovement.localPosition = currentNodePage.localPosition
+                self.graphMovement.localPreviousPosition = currentNodePage.localPosition
+                self.graphMovement.zoomData.current = currentNodePage.zoomData.current
+                self.graphMovement.zoomData.final = currentNodePage.zoomData.final
+                
+                self.graph.updateVisibleNodes()
+            }
         
-        // TODO: DEC 12:
+        // NOTE: DEC 12: we DO want all these updates 
             .onChange(of: graphMovement.localPosition) { _, newValue in
                 log("changed: graphMovement.localPosition: newValue: \(newValue)")
                 currentNodePage.localPosition = graphMovement.localPosition
                 
                 self.graph.updateVisibleNodes()
             }
-//            .onChange(of: graphMovement.zoomData.current) {
-//                currentNodePage.zoomData.current = graphMovement.zoomData.current
-//            }
-//            .onChange(of: graphMovement.zoomData.final) {
-//                currentNodePage.zoomData.final = graphMovement.zoomData.final
-//                
-//                self.graph.updateVisibleNodes()
-//            }
+            .onChange(of: graphMovement.zoomData.current) {
+                currentNodePage.zoomData.current = graphMovement.zoomData.current
+            }
+            .onChange(of: graphMovement.zoomData.final) {
+                currentNodePage.zoomData.final = graphMovement.zoomData.final
+                
+                self.graph.updateVisibleNodes()
+            }
         // offset and scale are applied to the nodes on the graph,
         // but not eg to the blue box and green cursor;
         // GRAPH-OFFSET (applied to container for all the nodes)
-//            .offset(x: graphMovement.localPosition.x,
-//                    y: graphMovement.localPosition.y)
-//        // SCALE APPLIED TO GRAPH-OFFSET + ALL THE NODES
-//            .scaleEffect(graphMovement.zoomData.zoom)
+        //            .offset(x: graphMovement.localPosition.x,
+        //                    y: graphMovement.localPosition.y)
+        //        // SCALE APPLIED TO GRAPH-OFFSET + ALL THE NODES
+        //            .scaleEffect(graphMovement.zoomData.zoom)
     }
 }
     
