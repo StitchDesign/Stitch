@@ -48,8 +48,34 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
         }
         
         
+//        
+//        let requestDict: [String: Any] = [
+//            "model": OPEN_AI_MODEL,
+//            "n": 1,
+//            "temperature": 0,
+//            "response_format": [
+//                "type": "json_schema",
+//                "json_schema": [
+//                    "name": "VisualProgrammingActions",
+//                    "strict": true,
+//                    "schema": schemaDict
+//                ]
+//            ],
+//            "messages": [
+//                [
+//                    "role": "system",
+//                    "content": SYSTEM_PROMPT
+//                ],
+//                [
+//                    "role": "user",
+//                    "content": prompt
+//                ]
+//            ]
+//        ]
         
-        let requestDict: [String: Any] = [
+        
+        // Construct the request payload
+        let payload: [String: Any] = [
             "model": OPEN_AI_MODEL,
             "n": 1,
             "temperature": 0,
@@ -57,24 +83,17 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
                 "type": "json_schema",
                 "json_schema": [
                     "name": "VisualProgrammingActions",
-                    "strict": true,
-                    "schema": schemaDict
+                    "schema": schemaDict 
                 ]
             ],
             "messages": [
-                [
-                    "role": "system",
-                    "content": SYSTEM_PROMPT
-                ],
-                [
-                    "role": "user",
-                    "content": prompt
-                ]
+                ["role": "system", "content": SYSTEM_PROMPT],
+                ["role": "user", "content": prompt]
             ]
         ]
         
         do {
-            let jsonData = try JSONSerialization.data(withJSONObject: requestDict, options: [])
+            let jsonData = try JSONSerialization.data(withJSONObject: payload, options: [])
             request.httpBody = jsonData
             
             if let jsonString = String(data: jsonData, encoding: .utf8) {
