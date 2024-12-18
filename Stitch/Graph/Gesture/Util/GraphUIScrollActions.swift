@@ -474,6 +474,18 @@ struct GraphDraggedDuringSelection: StitchDocumentEvent {
     let location: CGPoint
     
     func handle(state: StitchDocumentViewModel) {
+        
+        // added:
+        // Always set current drag location
+        state.graphUI.selection.dragCurrentLocation = location
+        
+        // added: called by `graphScrollBegan
+        state.graphUI.selection.graphDragState = .dragging
+        
+        if state.graphUI.edgeEditingState != nil {
+            state.graphUI.edgeEditingState = nil
+        }
+        
         state.handleGraphDraggedDuringSelection(location)
     }
 }
