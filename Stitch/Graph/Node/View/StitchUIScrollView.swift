@@ -61,9 +61,8 @@ struct StitchUIScrollViewModifier: ViewModifier {
                 //                        .modifier(iPadFingerRecognzerViewModifer())
                 //                }
                 //                .zIndex(-99999)
-                //                        .gesture(StitchLongPressGestureRecognizerRepresentable())
                 
-                //                        .gesture(StitchLongPressGestureRecognizerRepresentable())
+                    .gesture(StitchLongPressGestureRecognizerRepresentable())
                 
                 // THIS IS BETTER: HANDLES BOTH ZOOMING AND SCROLLING PROPERLY
                 

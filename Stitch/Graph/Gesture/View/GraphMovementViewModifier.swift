@@ -64,36 +64,65 @@ extension GraphState {
     /// 2. Determines which nodes are selected from the selection box, if applicable.
     @MainActor
     func updateVisibleNodes() {
-        let zoom = 1 / self.graphMovement.zoomData.zoom
+//        let zoom = 1 / self.graphMovement.zoomData.zoom
         let origin = self.graphMovement.localPosition
         let viewFrameSize = self.graphUI.frame.size
         
-        var visibleNodes = Set<CanvasItemId>()
+        var newVisibleNodes = Set<CanvasItemId>()
         
         // Calculate view frame dependencies
-        let viewframeOrigin = CGPoint(x: -origin.x,
-                                      y: -origin.y)
+//        let viewframeOrigin = CGPoint(x: -origin.x,
+//                                      y: -origin.y)
+        
+        // Now, localPosition is just offset from the top left corner;
+        // can never have negative offset.
+        let viewframeOrigin = CGPoint(x: origin.x, y: origin.y)
+        
+//        log("updateVisibleNodes: self.graphMovement.zoomData.zoom: \(self.graphMovement.zoomData.zoom)")
+//        log("updateVisibleNodes: zoom: \(zoom)")
+        log("updateVisibleNodes: origin: \(origin)")
+        
         let graphView = CGRect(origin: viewframeOrigin,
                                size: viewFrameSize)
-        let viewFrame = Self.getScaledViewFrame(scale: zoom,
+        
+        log("updateVisibleNodes: graphView.origin: \(graphView.origin)")
+        log("updateVisibleNodes: graphView.size: \(graphView.size)")
+        
+//        let viewFrame = Self.getScaledViewFrame(scale: zoom,
+//                                                graphView: graphView)
+        let viewFrame = Self.getScaledViewFrame(scale: 1,
                                                 graphView: graphView)
+        
+        log("updateVisibleNodes: viewFrame.origin: \(viewFrame.origin)")
+        log("updateVisibleNodes: viewFrame.size: \(viewFrame.size)")
         
         // Determine nodes to make visible--use cache in case nodes exited viewframe
         for cachedSubviewData in self.visibleNodesViewModel.infiniteCanvasCache {
             let id = cachedSubviewData.key
             let cachedBounds = cachedSubviewData.value
             
+            log("updateVisibleNodes: id \(id)")
+            log("updateVisibleNodes: cachedBounds.origin \(cachedBounds.origin)")
+            log("updateVisibleNodes: cachedBounds.size \(cachedBounds.size)")
+            
             let isVisibleInFrame = viewFrame.intersects(cachedBounds)
             if isVisibleInFrame {
-                visibleNodes.insert(id)
+                log("updateVisibleNodes: visible")
+                newVisibleNodes.insert(id)
+            } else {
+                log("updateVisibleNodes: NOT visible")
             }
         }
         
-        if self.visibleNodesViewModel.visibleCanvasIds != visibleNodes {
-            self.visibleNodesViewModel.visibleCanvasIds = visibleNodes
+        if self.visibleNodesViewModel.visibleCanvasIds != newVisibleNodes {
+            self.visibleNodesViewModel.visibleCanvasIds = newVisibleNodes
         }
         
-        self.visibleNodesViewModel.visibleCanvasIds = visibleNodes
+        log("updateVisibleNodes: visibleNodesViewModel.visibleCanvasIds is now: \(visibleNodesViewModel.visibleCanvasIds)")
+        
+        // WHAT? WE WERE ALWAYS updating the visible canvas ids, even if they were the same?
+//        self.visibleNodesViewModel.visibleCanvasIds = newVisibleNodes
+        
     }
         
     

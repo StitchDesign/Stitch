@@ -33,6 +33,7 @@ struct FindSomeCanvasItemOnGraph: GraphEvent {
 }
 
 extension GraphState {
+    // TODO: DEC 12: anywhere this isn't being used but should be?
     @MainActor
     func panGraphToNodeLocation(id: CanvasItemId) {
         guard let canvasItem = self.getCanvasItem(id) else {
@@ -64,51 +65,22 @@ extension GraphState {
         //        }
 
 //        self.graphUI.canvasJumpLocation = newLocation
-        
-        
-        let nodePosition = CGPoint(x: 1148, y: 645)
-//        
-//        let jumpPosition = CGPoint(
-////            x: 1148 + self.graphUI.frame.size.width/2,
-////            y: 645 + self.graphUI.frame.size.height/2
-//            
-//            
-//            // TODO: why do we have to SUBTRACT rather than add?
-//            x: 1148 - self.graphUI.frame.size.width/2,
-//            y: 645 - self.graphUI.frame.size.height/2
-//        )
-        // ^^ take view port into account
-        
-        // also ... scale ?
-        
-        
+
         guard let cachedBounds = self.visibleNodesViewModel.infiniteCanvasCache.get(id) else {
             fatalErrorIfDebug("Could not find cached bounds for canvas item \(id)")
             return
         }
         
-        
         let scale: CGFloat = self.documentDelegate?.graphMovement.zoomData.final ?? 1
         
         let jumpPosition = CGPoint(
-//            x: 1148 + self.graphUI.frame.size.width/2,
-//            y: 645 + self.graphUI.frame.size.height/2
-            
-            
             // TODO: why do we have to SUBTRACT rather than add?
-//            x: (1148 * scale) - self.graphUI.frame.size.width/2,
-//            y: (645 * scale) - self.graphUI.frame.size.height/2
-            
             x: (cachedBounds.origin.x * scale) - self.graphUI.frame.size.width/2,
             y: (cachedBounds.origin.y * scale) - self.graphUI.frame.size.height/2
         )
         
-        
-        
         log("panGraphToNodeLocation: scale: \(scale)")
         log("panGraphToNodeLocation: jumpPosition: \(jumpPosition)")
-        
-        
         
         self.graphUI.canvasJumpLocation = jumpPosition
         
