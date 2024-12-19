@@ -129,6 +129,8 @@ extension NodeRowType {
             return [.readOnly]
         case .anchorEntity:
             return [.anchorEntity]
+        case .transform3D:
+            return [.transform3D]
         }
     }
     
@@ -201,6 +203,13 @@ func getFieldValueTypes<FieldType: FieldViewModel>(value: PortValue,
     case .padding:
         return [.init(fieldValues: fieldValuesForSingleFieldGroup,
                       type: .padding,
+                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                      unpackedPortIndex: unpackedPortIndex,
+                      rowViewModel: rowViewModel)]
+        
+    case .transform3D:
+        return [.init(fieldValues: fieldValuesForSingleFieldGroup,
+                      type: .transform3D,
                       unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                       unpackedPortIndex: unpackedPortIndex,
                       rowViewModel: rowViewModel)]

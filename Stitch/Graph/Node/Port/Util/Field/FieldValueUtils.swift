@@ -35,6 +35,10 @@ extension PortValue {
             let padding = self.getPadding ?? .zero
             return [padding.fieldValues]
             
+        case .transform3D:
+            let transform = self.getTransform ?? .zero
+            return [transform.fieldValues]
+            
         case .shapeCommand(let shapeCommandType):
             let shapeCommandValue = self.shapeCommand ?? .defaultFalseShapeCommand
 

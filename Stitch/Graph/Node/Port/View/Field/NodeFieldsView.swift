@@ -31,6 +31,83 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
         fieldGroupViewModel.layerInput
     }
     
+    @ViewBuilder
+    func valueEntry(_ fieldType: FieldType?, _ isMultiField: Bool) -> some View {
+        if let fieldType = fieldType {
+            self.valueEntryView(fieldType, isMultiField)
+        } else {
+            EmptyView()
+                .onAppear { fatalErrorIfDebug() }
+        }
+    }
+    
+    var displaysNarrowMultifields: Bool {
+        switch layerInput {
+        case .layerPadding, .layerMargin:
+            return true
+            
+        case .transform3D:
+            return true
+            
+        default:
+            return false
+        }
+    }
+    
+    @ViewBuilder
+    var constrainedMultifieldsView: some View {
+        let p0 = fieldGroupViewModel.fieldObservers[safe: 0]
+        let p1 = fieldGroupViewModel.fieldObservers[safe: 1]
+        let p2 = fieldGroupViewModel.fieldObservers[safe: 2]
+        let p3 = fieldGroupViewModel.fieldObservers[safe: 3]
+        let p4 = fieldGroupViewModel.fieldObservers[safe: 4]
+        let p5 = fieldGroupViewModel.fieldObservers[safe: 5]
+        let p6 = fieldGroupViewModel.fieldObservers[safe: 6]
+        let p7 = fieldGroupViewModel.fieldObservers[safe: 7]
+        let p8 = fieldGroupViewModel.fieldObservers[safe: 8]
+        
+        if fieldGroupViewModel.fieldObservers.count == 4 {
+            VStack {
+                HStack {
+                    // Individual fields for PortValue.padding can never be blocked; only the input as a whole can be blocked
+                    self.valueEntry(p0, isMultiField)
+                    self.valueEntry(p1, isMultiField)
+                }
+                HStack {
+                    self.valueEntry(p2, isMultiField)
+                    self.valueEntry(p3, isMultiField)
+                }
+            }
+        }
+        
+        else if fieldGroupViewModel.fieldObservers.count == 9 {
+            VStack {
+                HStack {
+                    self.valueEntry(p0, isMultiField)
+                    self.valueEntry(p1, isMultiField)
+                    self.valueEntry(p2, isMultiField)
+                }
+                HStack {
+                    self.valueEntry(p3, isMultiField)
+                    self.valueEntry(p4, isMultiField)
+                    self.valueEntry(p5, isMultiField)
+                }
+                HStack {
+                    self.valueEntry(p6, isMultiField)
+                    self.valueEntry(p7, isMultiField)
+                    self.valueEntry(p8, isMultiField)
+                }
+            }
+        }
+        
+        else {
+            EmptyView()
+                .onAppear {
+                    fatalErrorIfDebug()
+                }
+        }
+    }
+    
     var body: some View {
         // Only non-nil for ShapeCommands i.e. `lineTo`, `curveTo` etc. ?
         if let fieldGroupLabel = fieldGroupViewModel.groupLabel {
@@ -51,22 +128,8 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
         else if forPropertySidebar,
                 !forFlyout,
                 isMultiField,
-                (layerInput == .layerPadding || layerInput == .layerMargin),
-                let p1 = fieldGroupViewModel.fieldObservers[safe: 0],
-                let p2 = fieldGroupViewModel.fieldObservers[safe: 1],
-                let p3 = fieldGroupViewModel.fieldObservers[safe: 2],
-                let p4 = fieldGroupViewModel.fieldObservers[safe: 3] {
-            VStack {
-                HStack {
-                    // Individual fields for PortValue.padding can never be blocked; only the input as a whole can be blocked
-                    self.valueEntryView(p1, isMultiField)
-                    self.valueEntryView(p2, isMultiField)
-                }
-                HStack {
-                    self.valueEntryView(p3, isMultiField)
-                    self.valueEntryView(p4, isMultiField)
-                }
-            }
+                displaysNarrowMultifields {
+            constrainedMultifieldsView
             // TODO: `LayerInspectorPortView`'s `.listRowInsets` should maintain consistent padding between input-rows in the layer inspector, so why is additional padding needed?
             .padding(.vertical, INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET * 2)
         }

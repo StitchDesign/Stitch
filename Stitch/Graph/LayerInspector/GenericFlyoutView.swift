@@ -99,6 +99,16 @@ extension Int {
             return .port2
         case 3:
             return .port3
+        case 4:
+            return .port4
+        case 5:
+            return .port5
+        case 6:
+            return .port6
+        case 7:
+            return .port7
+        case 8:
+            return .port8
         default:
             fatalErrorIfDebug()
             return .port0
