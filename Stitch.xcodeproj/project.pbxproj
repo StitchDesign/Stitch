@@ -565,6 +565,7 @@
 		EC6EDC2D27FF907300843E62 /* SidebarListItemSelectionActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6EDC2C27FF907300843E62 /* SidebarListItemSelectionActions.swift */; };
 		EC6EDC3227FF93CF00843E62 /* SidebarSelectionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6EDC3127FF93CF00843E62 /* SidebarSelectionState.swift */; };
 		EC6EDC3427FF943700843E62 /* SidebarVisibilityState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6EDC3327FF943700843E62 /* SidebarVisibilityState.swift */; };
+		EC71FF1C2D13C469002C0BA3 /* StitchUIScrollHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC71FF1B2D13C469002C0BA3 /* StitchUIScrollHelpers.swift */; };
 		EC731CB92A37F05100241CB2 /* PatchDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC731CB82A37F05000241CB2 /* PatchDescription.swift */; };
 		EC733DC02639CB2100DD4EC1 /* Interactions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC733DBF2639CB2100DD4EC1 /* Interactions.swift */; };
 		EC733DC22639E22E00DD4EC1 /* PatchNodeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC733DC12639E22E00DD4EC1 /* PatchNodeViewModel.swift */; };
@@ -1499,6 +1500,7 @@
 		EC6EDC2C27FF907300843E62 /* SidebarListItemSelectionActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListItemSelectionActions.swift; sourceTree = "<group>"; };
 		EC6EDC3127FF93CF00843E62 /* SidebarSelectionState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarSelectionState.swift; sourceTree = "<group>"; };
 		EC6EDC3327FF943700843E62 /* SidebarVisibilityState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarVisibilityState.swift; sourceTree = "<group>"; };
+		EC71FF1B2D13C469002C0BA3 /* StitchUIScrollHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchUIScrollHelpers.swift; sourceTree = "<group>"; };
 		EC731CB82A37F05000241CB2 /* PatchDescription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PatchDescription.swift; sourceTree = "<group>"; };
 		EC733DBF2639CB2100DD4EC1 /* Interactions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Interactions.swift; sourceTree = "<group>"; };
 		EC733DC12639E22E00DD4EC1 /* PatchNodeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PatchNodeViewModel.swift; sourceTree = "<group>"; };
@@ -2557,6 +2559,7 @@
 				EC91B56329AE7891006E823D /* NodesOnlyView.swift */,
 				B5EC61F82A5E2174002A639F /* NodeViewType.swift */,
 				ECB88E1F2D0BAD7E0097CF4A /* StitchUIScrollView.swift */,
+				EC71FF1B2D13C469002C0BA3 /* StitchUIScrollHelpers.swift */,
 				ECDE943128089DF500005401 /* NodeView.swift */,
 				ECF387DC280B61680075F0E5 /* CanvasItemSelectedViewModifier.swift */,
 				B5CF644C294BEABD00EF83DB /* CanvasItemPositionHandler.swift */,
@@ -4877,6 +4880,7 @@
 				ECE35EDC27CEDB3F00CB8F5C /* LayerSizeUtils.swift in Sources */,
 				E457441D2BC0548300B1642E /* QRCodeDetection.swift in Sources */,
 				B55500E22C1BABA50081C3F1 /* PreviewSidebarHighlightModifier.swift in Sources */,
+				EC71FF1C2D13C469002C0BA3 /* StitchUIScrollHelpers.swift in Sources */,
 				B5B43FCC2B4F565300C6A847 /* NodeDefinition.swift in Sources */,
 				EC9DB346280F1F710061EC3C /* EdgeDrawingObserver.swift in Sources */,
 				ECB9812626A73BDD002ED9A5 /* ClipNode.swift in Sources */,

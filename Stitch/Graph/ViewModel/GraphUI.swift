@@ -31,6 +31,8 @@ struct ActiveDragInteractionNodeVelocityData: Equatable, Hashable {
 @Observable
 final class GraphUIState: Sendable {
     
+    @MainActor var canvasJumpLocation: CGPoint? = nil
+    
     @MainActor var nodeMenuHeight: CGFloat = INSERT_NODE_MENU_MAX_HEIGHT
     
     @MainActor var sidebarWidth: CGFloat = .zero // i.e. origin of graph from .global frame
