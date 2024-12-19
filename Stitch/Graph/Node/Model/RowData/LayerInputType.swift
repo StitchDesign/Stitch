@@ -1254,7 +1254,7 @@ extension LayerInputPort {
         // TODO: what is this about?
         
         // shorten values list to expected count for port
-        let shortenedValues: PortValues = Array(values.prefix(upTo: unpackedPortCount))
+//        let shortenedValues: PortValues = Array(values.prefix(upTo: unpackedPortCount))
         
         // NOTE: Want to switch on PortValue itself, not the LayerInputType;
         // ah, but the incoming `values: PortValues` is e.g. [PortValue.layerDimension(...), PortValue.layerDimension(...)] for PortValue.size
@@ -1319,6 +1319,19 @@ extension PortValue {
                 .number(padding.right),
                 .number(padding.bottom),
                 .number(padding.left)
+            ]
+            
+        case .transform(let transform):
+            return [
+                .number(transform.positionX),
+                .number(transform.positionY),
+                .number(transform.positionZ),
+                .number(transform.scaleX),
+                .number(transform.scaleY),
+                .number(transform.scaleZ),
+                .number(transform.rotationX),
+                .number(transform.rotationY),
+                .number(transform.rotationZ)
             ]
           
         // LayerDimension cannot be unpacked, nor can ShapeCommand
