@@ -160,12 +160,20 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         // ALSO: NOTE: CAREFUL: LOCAL POSITION IS STILL PERSISTED
         
         // Center the content
-        //        DispatchQueue.main.async {
-        //            let newOffset =  CGPoint(x: max(0, (contentSize.width - scrollView.bounds.width) / 2),
-        //                                     y: max(0, (contentSize.height - scrollView.bounds.height) / 2))
-        //            scrollView.contentOffset = newOffset
-        //            dispatch(GraphScrolledViaUIScrollView(newOffset: newOffset))
-        //        }
+                DispatchQueue.main.async {
+//                    let newOffset =  CGPoint(x: max(0, (contentSize.width - scrollView.bounds.width) / 2),
+//                                             y: max(0, (contentSize.height - scrollView.bounds.height) / 2))
+//                    scrollView.contentOffset = newOffset
+
+                    let newOffset =  CGPoint(x: 500, y: 500)
+                    scrollView.setContentOffset(newOffset, animated: false)
+//                    dispatch(GraphScrolledViaUIScrollView(newOffset: newOffset))
+                    
+                    dispatch(GraphScrollDataUpdated(
+                        newOffset: newOffset,
+                        newZoom: scrollView.zoomScale
+                    ))
+                }
         
         return scrollView
     }
@@ -244,6 +252,8 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         }
         
         // TODO: DEC 12: use graph bounds checking logic here
+        
+        // Only called when scroll first begins; not DURING scroll
         func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
             let contentOffset = scrollView.contentOffset
             log("StitchUIScrollView: scrollViewWillBeginDragging contentOffset: \(contentOffset)")
@@ -263,8 +273,8 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
                 newZoom: scrollView.zoomScale
             ))
         }
-        
-        
+                
+        // Can you limit the scrolling here?
         func scrollViewDidScroll(_ scrollView: UIScrollView) {
             let contentOffset = scrollView.contentOffset
             let contentSize = scrollView.contentSize
@@ -276,12 +286,43 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             log("StitchUIScrollView: scrollViewDidScroll origin: \(origin)")
             log("StitchUIScrollView: scrollViewDidScroll scrollView.zoomScale: \(scrollView.zoomScale)")
             
-            // TODO: DEC 12: revisit this after fixing input edits etc.
+            
+            
+            
+            // WORKS
+            if scrollView.contentOffset.x > 700 {
+                log("StitchUIScrollView: scrollViewDidScroll: will limit to x <= 700")
+                scrollView.setContentOffset(
+                    .init(x: 700,
+                          y: scrollView.contentOffset.y),
+                    animated: false)
+            }
+                
+                // Can you actually check the borders here?
+                // Can you STOP the scroll view's contentOffset from changing?
+                // Would you need to
+                
+                // Mostly you
+                
+                // https://stackoverflow.com/questions/3410777/how-can-i-programmatically-force-stop-scrolling-in-a-uiscrollview
+                            
             dispatch(GraphScrollDataUpdated(
                 newOffset: scrollView.contentOffset,
                 newZoom: scrollView.zoomScale
             ))
         }
+        
+        // https://stackoverflow.com/a/30338969
+        
+//        func scrollViewWillEndDragging(_ scrollView: UIScrollView,
+//                                       withVelocity velocity: CGPoint,
+//                                       targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+//            targetContentOffset.pointee = scrollView.contentOffset
+//        }
+        
+       
+        
+        
         
         // TODO: DEC 12: fix the boundary checking logic here; why did it work in simpler ChatGPT app but not here?
         // TODO: DEC 12: ??: when gesture ends, animate toward some predicted-end-point ? Or kick off legacy momentum calculations?
