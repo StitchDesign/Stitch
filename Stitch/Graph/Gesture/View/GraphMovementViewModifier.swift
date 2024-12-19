@@ -64,7 +64,7 @@ extension GraphState {
     /// 2. Determines which nodes are selected from the selection box, if applicable.
     @MainActor
     func updateVisibleNodes() {
-//        let zoom = 1 / self.graphMovement.zoomData.zoom
+        let zoom = 1 / self.graphMovement.zoomData.zoom
         let origin = self.graphMovement.localPosition
         let viewFrameSize = self.graphUI.frame.size
         
@@ -78,8 +78,8 @@ extension GraphState {
         // can never have negative offset.
         let viewframeOrigin = CGPoint(x: origin.x, y: origin.y)
         
-//        log("updateVisibleNodes: self.graphMovement.zoomData.zoom: \(self.graphMovement.zoomData.zoom)")
-//        log("updateVisibleNodes: zoom: \(zoom)")
+        log("updateVisibleNodes: self.graphMovement.zoomData.zoom: \(self.graphMovement.zoomData.zoom)")
+        log("updateVisibleNodes: zoom: \(zoom)")
         log("updateVisibleNodes: origin: \(origin)")
         
         let graphView = CGRect(origin: viewframeOrigin,
@@ -88,10 +88,11 @@ extension GraphState {
         log("updateVisibleNodes: graphView.origin: \(graphView.origin)")
         log("updateVisibleNodes: graphView.size: \(graphView.size)")
         
-//        let viewFrame = Self.getScaledViewFrame(scale: zoom,
-//                                                graphView: graphView)
-        let viewFrame = Self.getScaledViewFrame(scale: 1,
+        let viewFrame = Self.getScaledViewFrame(scale: zoom,
                                                 graphView: graphView)
+        
+//        let viewFrame = Self.getScaledViewFrame(scale: 1,
+//                                                graphView: graphView)
         
         log("updateVisibleNodes: viewFrame.origin: \(viewFrame.origin)")
         log("updateVisibleNodes: viewFrame.size: \(viewFrame.size)")
