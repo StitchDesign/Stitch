@@ -282,18 +282,25 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             let origin = scrollView.frame.origin
             log("StitchUIScrollView: scrollViewDidScroll contentOffset: \(contentOffset)")
             log("StitchUIScrollView: scrollViewDidScroll contentSize: \(contentSize)")
-            log("StitchUIScrollView: scrollViewDidScroll bounds: \(bounds)")
-            log("StitchUIScrollView: scrollViewDidScroll origin: \(origin)")
+//            log("StitchUIScrollView: scrollViewDidScroll bounds: \(bounds)")
+//            log("StitchUIScrollView: scrollViewDidScroll origin: \(origin)")
             log("StitchUIScrollView: scrollViewDidScroll scrollView.zoomScale: \(scrollView.zoomScale)")
             
             
-            
-            
             // WORKS
+            // But note that this changes during zoom;
+            // if scale < 1, we can move farther east than when scale = 1
+            
+            // HMMM, we can become really glitchy and trapped here? happened only for the y axis,
+            // where we kept calling this method and getting moved downward
+            // -- ... have not be able to reproduce it?
+            
+            // 
             if scrollView.contentOffset.x > 700 {
                 log("StitchUIScrollView: scrollViewDidScroll: will limit to x <= 700")
                 scrollView.setContentOffset(
                     .init(x: 700,
+                          // reuse current scroll offset ?
                           y: scrollView.contentOffset.y),
                     animated: false)
             }
@@ -314,9 +321,13 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         
         // https://stackoverflow.com/a/30338969
         
+//        // This STOPS post-gesture acceleration/deceleration ?
 //        func scrollViewWillEndDragging(_ scrollView: UIScrollView,
 //                                       withVelocity velocity: CGPoint,
 //                                       targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+//            log("StitchUIScrollView: scrollViewWillEndDragging scrollView.contentOffset: \(scrollView.contentOffset)")
+//            log("StitchUIScrollView: scrollViewWillEndDragging scrollView.contentSize: \(scrollView.contentSize)")
+//            log("StitchUIScrollView: scrollViewWillEndDragging scrollView.zoomScale: \(scrollView.zoomScale)")
 //            targetContentOffset.pointee = scrollView.contentOffset
 //        }
         
