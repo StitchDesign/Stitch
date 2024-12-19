@@ -83,7 +83,8 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
                 "type": "json_schema",
                 "json_schema": [
                     "name": "VisualProgrammingActions",
-                    "schema": schemaDict 
+                    "strict": true,
+                    "schema": schemaDict
                 ]
             ],
             "messages": [
