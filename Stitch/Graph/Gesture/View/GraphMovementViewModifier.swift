@@ -65,65 +65,35 @@ extension GraphState {
     @MainActor
     func updateVisibleNodes() {
         let zoom = 1 / self.graphMovement.zoomData.zoom
-        let origin = self.graphMovement.localPosition
+        
+        // How much that content is offset from the UIScrollView's top-left corner;
+        // can never be negative.
+        let originOffset = self.graphMovement.localPosition
+
         let viewFrameSize = self.graphUI.frame.size
         
-        var newVisibleNodes = Set<CanvasItemId>()
-        
-        // Calculate view frame dependencies
-//        let viewframeOrigin = CGPoint(x: -origin.x,
-//                                      y: -origin.y)
-        
-        // Now, localPosition is just offset from the top left corner;
-        // can never have negative offset.
-        let viewframeOrigin = CGPoint(x: origin.x, y: origin.y)
-        
-        log("updateVisibleNodes: self.graphMovement.zoomData.zoom: \(self.graphMovement.zoomData.zoom)")
-        log("updateVisibleNodes: zoom: \(zoom)")
-        log("updateVisibleNodes: origin: \(origin)")
-        
-        let graphView = CGRect(origin: viewframeOrigin,
+        let graphView = CGRect(origin: originOffset,
                                size: viewFrameSize)
-        
-        log("updateVisibleNodes: graphView.origin: \(graphView.origin)")
-        log("updateVisibleNodes: graphView.size: \(graphView.size)")
         
         let viewFrame = Self.getScaledViewFrame(scale: zoom,
                                                 graphView: graphView)
         
-//        let viewFrame = Self.getScaledViewFrame(scale: 1,
-//                                                graphView: graphView)
-        
-        log("updateVisibleNodes: viewFrame.origin: \(viewFrame.origin)")
-        log("updateVisibleNodes: viewFrame.size: \(viewFrame.size)")
-        
         // Determine nodes to make visible--use cache in case nodes exited viewframe
+        var newVisibleNodes = Set<CanvasItemId>()
+        
         for cachedSubviewData in self.visibleNodesViewModel.infiniteCanvasCache {
             let id = cachedSubviewData.key
             let cachedBounds = cachedSubviewData.value
             
-            log("updateVisibleNodes: id \(id)")
-            log("updateVisibleNodes: cachedBounds.origin \(cachedBounds.origin)")
-            log("updateVisibleNodes: cachedBounds.size \(cachedBounds.size)")
-            
             let isVisibleInFrame = viewFrame.intersects(cachedBounds)
             if isVisibleInFrame {
-                log("updateVisibleNodes: visible")
                 newVisibleNodes.insert(id)
-            } else {
-                log("updateVisibleNodes: NOT visible")
             }
         }
         
         if self.visibleNodesViewModel.visibleCanvasIds != newVisibleNodes {
             self.visibleNodesViewModel.visibleCanvasIds = newVisibleNodes
         }
-        
-        log("updateVisibleNodes: visibleNodesViewModel.visibleCanvasIds is now: \(visibleNodesViewModel.visibleCanvasIds)")
-        
-        // WHAT? WE WERE ALWAYS updating the visible canvas ids, even if they were the same?
-//        self.visibleNodesViewModel.visibleCanvasIds = newVisibleNodes
-        
     }
         
     
