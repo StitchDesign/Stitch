@@ -226,9 +226,7 @@ final class LayerViewModel: Sendable {
     @MainActor var scrollJumpToYLocation: PortValue
     
     // 3D
-    @MainActor var position3D: PortValue
-    @MainActor var scale3D: PortValue
-    @MainActor var rotation3D: PortValue
+    @MainActor var transform3D: PortValue
     @MainActor var anchorEntity: PortValue
     
     // Ephemeral state on the layer view model
@@ -375,9 +373,7 @@ final class LayerViewModel: Sendable {
         self.scrollJumpToY = LayerInputPort.scrollJumpToY.getDefaultValue(for: layer)
         self.scrollJumpToYLocation = LayerInputPort.scrollJumpToYLocation.getDefaultValue(for: layer)
         
-        self.position3D = LayerInputPort.position3D.getDefaultValue(for: layer)
-        self.scale3D = LayerInputPort.scale3D.getDefaultValue(for: layer)
-        self.rotation3D = LayerInputPort.rotation3D.getDefaultValue(for: layer)
+        self.transform3D = LayerInputPort.transform3D.getDefaultValue(for: layer)
         self.anchorEntity = LayerInputPort.anchorEntity.getDefaultValue(for: layer)
         
         self.nodeDelegate = nodeDelegate

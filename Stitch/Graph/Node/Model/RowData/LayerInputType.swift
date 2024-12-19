@@ -274,12 +274,8 @@ extension LayerInputPort {
             return .pulse(.zero)
         case .scrollJumpToYLocation:
             return .number(.zero)
-        case .position3D:
-            return .point3D(.zero)
-        case .scale3D:
-            return .point3D(.init(x: 1, y: 1, z: 1))
-        case .rotation3D:
-            return .point3D(.zero)
+        case .transform3D:
+            return .transform(.zero)
         }
     }
     
@@ -512,12 +508,8 @@ extension LayerInputPort {
             return \.scrollJumpToYPort
         case .scrollJumpToYLocation:
             return \.scrollJumpToYLocationPort
-        case .position3D:
-            return \.position3DPort
-        case .scale3D:
-            return \.scale3DPort
-        case .rotation3D:
-            return \.rotation3DPort
+        case .transform3D:
+            return \.transform3DPort
         case .anchorEntity:
             return \.anchorEntityPort
         }
@@ -784,12 +776,8 @@ extension LayerViewModel {
             return self.scrollJumpToY
         case .scrollJumpToYLocation:
             return self.scrollJumpToYLocation
-        case .position3D:
-            return self.position3D
-        case .scale3D:
-            return self.scale3D
-        case .rotation3D:
-            return self.rotation3D
+        case .transform3D:
+            return self.transform3D
         case .anchorEntity:
             return self.anchorEntity
         }
@@ -1019,12 +1007,8 @@ extension LayerViewModel {
             self.scrollJumpToY = value
         case .scrollJumpToYLocation:
             self.scrollJumpToYLocation = value
-        case .position3D:
-            self.position3D = value
-        case .scale3D:
-            self.scale3D = value
-        case .rotation3D:
-            self.rotation3D = value
+        case .transform3D:
+            self.transform3D = value
         case .anchorEntity:
             self.anchorEntity = value
         }
@@ -1248,12 +1232,8 @@ extension LayerInputPort {
             return \.scrollJumpToYPort
         case .scrollJumpToYLocation:
             return \.scrollJumpToYLocationPort
-        case .position3D:
-            return \.position3DPort
-        case .scale3D:
-            return \.scale3DPort
-        case .rotation3D:
-            return \.rotation3DPort
+        case .transform3D:
+            return \.transform3DPort
         case .anchorEntity:
             return \.anchorEntityPort
         }
@@ -1367,6 +1347,16 @@ extension LayerInputType {
                 return portKeyPath.appending(path: \._unpackedData.port2)
             case .port3:
                 return portKeyPath.appending(path: \._unpackedData.port3)
+            case .port4:
+                return portKeyPath.appending(path: \._unpackedData.port4)
+            case .port5:
+                return portKeyPath.appending(path: \._unpackedData.port5)
+            case .port6:
+                return portKeyPath.appending(path: \._unpackedData.port6)
+            case .port7:
+                return portKeyPath.appending(path: \._unpackedData.port7)
+            case .port8:
+                return portKeyPath.appending(path: \._unpackedData.port8)
             }
         }
     }
@@ -1607,12 +1597,8 @@ extension LayerInputPort {
             return "Jump to Y"
         case .scrollJumpToYLocation:
             return "Jump Position Y"
-        case .position3D:
-            return "Position"
-        case .scale3D:
-            return "Scale"
-        case .rotation3D:
-            return "Rotation"
+        case .transform3D:
+            return "Transform"
         case .anchorEntity:
             return "Anchor Entity"
         }

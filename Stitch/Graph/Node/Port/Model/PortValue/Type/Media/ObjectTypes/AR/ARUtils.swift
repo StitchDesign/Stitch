@@ -120,3 +120,28 @@ extension AnchorEntity {
         }
     }
 }
+
+extension StitchTransform {
+    static let zero = DEFAULT_STITCH_TRANSFORM
+    
+    var position3D: Point3D {
+        .init(x: self.positionX,
+              y: self.positionY,
+              z: self.positionZ
+        )
+    }
+    
+    var scale3D: Point3D {
+        .init(x: self.scaleX,
+              y: self.scaleY,
+              z: self.scaleZ
+        )
+    }
+    
+    var rotation3D: Point3D {
+        .init(x: self.rotationX,
+              y: self.rotationY,
+              z: self.rotationZ
+        )
+    }
+}

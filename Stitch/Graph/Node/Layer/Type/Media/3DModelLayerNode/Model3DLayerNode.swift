@@ -52,9 +52,7 @@ struct Model3DLayerNode: LayerNodeDefinition {
         .shadowOpacity,
         .shadowRadius,
         .shadowOffset,
-        .position3D,
-        .scale3D,
-        .rotation3D
+        .transform3D
     ])
         .union(.layerEffects)
         .union(.strokeInputs)

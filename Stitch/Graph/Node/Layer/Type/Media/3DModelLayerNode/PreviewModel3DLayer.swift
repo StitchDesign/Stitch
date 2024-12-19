@@ -138,9 +138,11 @@ struct ModelEntityLayerViewModifier: ViewModifier {
     let anchorEntityId: UUID?
     
     var transform: simd_float4x4 {
-        .init(position: previewLayer.position3D.getPoint3D ?? .zero,
-              scale: previewLayer.scale3D.getPoint3D ?? .zero,
-              rotation: previewLayer.rotation3D.getPoint3D ?? .zero)
+        let transform: StitchTransform = previewLayer.transform3D.getTransform ?? .zero
+        
+        return .init(position: transform.position3D,
+                     scale: transform.scale3D,
+                     rotation: transform.rotation3D)
     }
     
     func asssignNewAnchor(_ newAnchor: AnchorEntity,

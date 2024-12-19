@@ -152,9 +152,7 @@ final class LayerNodeViewModel {
     var scrollJumpToYPort: LayerInputObserver
     var scrollJumpToYLocationPort: LayerInputObserver
     
-    var position3DPort: LayerInputObserver
-    var scale3DPort: LayerInputObserver
-    var rotation3DPort: LayerInputObserver
+    var transform3DPort: LayerInputObserver
     var anchorEntityPort: LayerInputObserver
     
     @MainActor weak var nodeDelegate: NodeDelegate?
@@ -322,9 +320,7 @@ final class LayerNodeViewModel {
         self.scrollJumpToYPort = .init(from: schema, port: .scrollJumpToY)
         self.scrollJumpToYLocationPort = .init(from: schema, port: .scrollJumpToYLocation)
         
-        self.position3DPort = .init(from: schema, port: .position3D)
-        self.scale3DPort = .init(from: schema, port: .scale3D)
-        self.rotation3DPort = .init(from: schema, port: .rotation3D)
+        self.transform3DPort = .init(from: schema, port: .transform3D)
         self.anchorEntityPort = .init(from: schema, port: .anchorEntity)
         
         // Initialize each NodeRowObserver for each expected layer input
