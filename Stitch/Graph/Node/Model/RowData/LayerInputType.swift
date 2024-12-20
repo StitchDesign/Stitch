@@ -1251,17 +1251,6 @@ extension LayerInputPort {
         // Incoming values must match or exceed expected unpacked port count
         assertInDebug(unpackedPortCount <= values.count)
         
-        // TODO: what is this about?
-        
-        // shorten values list to expected count for port
-//        let shortenedValues: PortValues = Array(values.prefix(upTo: unpackedPortCount))
-        
-        // NOTE: Want to switch on PortValue itself, not the LayerInputType;
-        // ah, but the incoming `values: PortValues` is e.g. [PortValue.layerDimension(...), PortValue.layerDimension(...)] for PortValue.size
-        
-        // So you would have to map the
-        // Maybe just pass in the packed data anyway?
-        
         let defaultPackedValue: PortValue = self.getDefaultValue(for: layer)
 
         return values.pack(defaultPackedValue)
@@ -1269,22 +1258,15 @@ extension LayerInputPort {
     
     /// Converts port data from unpacked state to packed state.
     /// Optional because not all ports support this.
+    /// See also `PortValue.pack: PortValues -> PortValue?`
     func unpackValues(from value: PortValue) -> PortValues? {
-        value.unpack
-    }
-}
-
-
-// See also `PortValue.pack: PortValues -> PortValue?`
-extension PortValue {
-    var unpack: PortValues? {
         // Unpacking logic should probably be by the passed-in PortValue, rather than the layer-input-type, since most
                 
         // Can we reuse some logic from `PortValue -> FieldViewModels` ?
         // PortValue.createFieldValues is from PortValue to FieldValues; but we need to return
         // Ah, you have field-editing logic that goes from
         
-        switch self {
+        switch value {
             
         case .size(let layerSize):
             return [
