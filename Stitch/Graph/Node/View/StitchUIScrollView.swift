@@ -157,17 +157,27 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         
         // TODO: DEC 12: initialize with proper persisted localPosition; using WHOLE_GRAPH_LENGTH/2 if it's a brand new project
         
+        self.initializeContentOffset(scrollView)
+        
+        
+        return scrollView
+    }
+    
+    private func initializeContentOffset(_ scrollView: UIScrollView) {
         // ALSO: NOTE: CAREFUL: LOCAL POSITION IS STILL PERSISTED
         
                 // Center the content
         DispatchQueue.main.async {
-            //                    let newOffset =  CGPoint(x: max(0, (contentSize.width - scrollView.bounds.width) / 2),
-            //                                             y: max(0, (contentSize.height - scrollView.bounds.height) / 2))
+//            let newOffset =  CGPoint(x: max(0, (contentSize.width - scrollView.bounds.width) / 2),
+//                                     y: max(0, (contentSize.height - scrollView.bounds.height) / 2))
+            let newOffset =  CGPoint(x: WHOLE_GRAPH_LENGTH/2,
+                                     y: WHOLE_GRAPH_LENGTH/2)
+            
             //                    scrollView.contentOffset = newOffset
             
 //            let newOffset =  CGPoint(x: 500, y: 500)
-            let newOffset =  CGPoint(x: 1500, // moves whole graph WEST
-                                     y: 20) // moves whole graph NORTH
+//            let newOffset =  CGPoint(x: 1500, // moves whole graph WEST
+//                                     y: 20) // moves whole graph NORTH
             
             scrollView.setContentOffset(newOffset, animated: false)
             //                    dispatch(GraphScrolledViaUIScrollView(newOffset: newOffset))
@@ -179,8 +189,6 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
                 newZoom: scrollView.zoomScale
             ))
         }
-        
-        return scrollView
     }
     
     func updateUIView(_ uiView: UIScrollView, context: Context) {
@@ -331,10 +339,36 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             let nodeWidth: CGFloat = 256 // same for Add and Subtract nodes
             
             // Note: Add node is at the moment the Western-most node, which should not be able to go past the
-            let westernMostNodeCachedBoundsOriginX: CGFloat = 1772 // Add node
-            let easternMostNodeCachedBoundsOriginX: CGFloat = 3097 // Subtract node
+            
+//            let westernMostNodeCachedBoundsOriginX: CGFloat = 1772 // Add node
+//            let easternMostNodeCachedBoundsOriginX: CGFloat = 3097 // Subtract node
+            
+            // NEED TO USE REAL `western most` and `eastern most` nodes now
+//            let westernMostNodeCachedBoundsOriginX: CGFloat = 1772 // Add node
+//            let easternMostNodeCachedBoundsOriginX: CGFloat = 3097 // Subtract node
+            
+            var westernMostNodeCachedBoundsOriginX: CGFloat = 0
+            var easternMostNodeCachedBoundsOriginX: CGFloat = 0
+            
+            let cache = self.document?.graph.visibleNodesViewModel.infiniteCanvasCache ?? .init()
+            
+            if let westNode = self.document?.graph.westernMostNodeForBorderCheck(),
+               let eastNode = self.document?.graph.easternMostNodeForBorderCheck(),
+               let westBounds = cache.get(westNode.id),
+               let eastBounds = cache.get(eastNode.id) {
+                
+                westernMostNodeCachedBoundsOriginX = westBounds.origin.x
+                easternMostNodeCachedBoundsOriginX = eastBounds.origin.x
+            } else {
+                // Really, here we should skip
+                log("StitchUIScrollView: scrollViewDidScroll: missing west and/or east nodes")
+            }
             
 
+            log("StitchUIScrollView: scrollViewDidScroll: westernMostNodeCachedBoundsOriginX: \(westernMostNodeCachedBoundsOriginX)")
+            
+            log("StitchUIScrollView: scrollViewDidScroll: easternMostNodeCachedBoundsOriginX: \(easternMostNodeCachedBoundsOriginX)")
+            
             
 //            let nodeOriginX: CGFloat = 3097 // Subtract node
             
@@ -354,9 +388,7 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             log("StitchUIScrollView: scrollViewDidScroll: minimumContentOffset: \(minimumContentOffset)")
             log("StitchUIScrollView: scrollViewDidScroll: maximumContentOffset: \(maximumContentOffset)")
 
-            
             let westernMostNodeAtEasternScreenEdge = scrollView.contentOffset.x <= minimumContentOffset
-            
             let easternMostNodeAtWesternScreenEdge = scrollView.contentOffset.x >= maximumContentOffset
             
             log("StitchUIScrollView: scrollViewDidScroll: westernMostNodeAtEasternScreenEdge: \(westernMostNodeAtEasternScreenEdge)")
