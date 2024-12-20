@@ -1613,6 +1613,24 @@ extension LayerInputPort {
         let fakeUnpackedValues = self.unpackValues(from: fakeValue)
         return fakeUnpackedValues?.count
     }
+    
+    /// Creates visual groupings of labels in unpacked mode to match packed mode.
+    var unpackedGroupings: [GroupedLayerInputUnpackedData]? {
+        switch self {
+        case .transform3D:
+            return [
+                .init(label: "Position",
+                      portRange: (0..<3)),
+                .init(label: "Scale",
+                      portRange: (3..<6)),
+                .init(label: "Rotation",
+                      portRange: (6..<9))
+            ]
+            
+        default:
+            return nil
+        }
+    }
 }
 
 extension LayerInputEntity {

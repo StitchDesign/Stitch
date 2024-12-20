@@ -8,6 +8,13 @@
 import Foundation
 import StitchSchemaKit
 
+/// Visually organizes unpacked ports into groups to mimic grouping behavior in packed inputs.
+/// Grouped inputs currently only used for transform 3D.
+struct GroupedLayerInputUnpackedData {
+    let label: String
+    let portRange: Range<Int>
+}
+
 final class LayerInputUnpackedPortObserver {
     let layerPort: LayerInputPort
     let layer: Layer
@@ -33,6 +40,7 @@ final class LayerInputUnpackedPortObserver {
          port6: InputLayerNodeRowData,
          port7: InputLayerNodeRowData,
          port8: InputLayerNodeRowData) {
+        
         self.layerPort = layerPort
         self.layer = layer
         self.port0 = port0
@@ -53,6 +61,10 @@ final class LayerInputUnpackedPortObserver {
 }
 
 extension LayerInputUnpackedPortObserver {
+    var groupings: [GroupedLayerInputUnpackedData]? {
+        self.layerPort.unpackedGroupings
+    }
+    
     @MainActor
     func getParentPortValuesList() -> PortValues {
         let allRawValues: PortValuesList = allPorts.map { $0.allLoopedValues }
