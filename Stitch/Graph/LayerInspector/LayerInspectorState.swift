@@ -101,7 +101,7 @@ extension LayerInspectorView {
     static let unfilteredLayerInspectorRowsInOrder: [LayerInspectorSectionData] =
         [
             .init(.media, Self.media),
-            .init(.reality, Self.reality),
+            .init(.realityTransformation, Self.realityTransformation),
             .init(.sizing, Self.sizing),
             .init(.positioning, Self.positioning),
             .init(.common, Self.common),
@@ -145,13 +145,13 @@ extension LayerInspectorView {
         .image,
         .video,
         .model3D,
+        .anchorEntity,
         .fitStyle
     ]
     
     @MainActor
-    static let reality: LayerInputPortSet = [
-        .transform3D,
-        .anchorEntity
+    static let realityTransformation: LayerInputPortSet = [
+        .transform3D
     ]
     
     @MainActor

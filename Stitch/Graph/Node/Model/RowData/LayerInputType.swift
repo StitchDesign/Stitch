@@ -1593,7 +1593,7 @@ extension LayerInputPort {
         case .scrollJumpToYLocation:
             return "Jump Position Y"
         case .transform3D:
-            return "Transform"
+            return ""  // skip in favor of header section
         case .anchorEntity:
             return "Anchor Entity"
         }
