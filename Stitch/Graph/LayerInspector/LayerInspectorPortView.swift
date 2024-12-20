@@ -13,6 +13,32 @@ struct LayerInspectorInputPortView: View {
     @Bindable var graph: GraphState
     let nodeId: NodeId
     
+    var fieldValueTypes: [FieldGroupTypeViewModel<InputNodeRowViewModel.FieldType>] {
+        let allFields = layerInputObserver.fieldValueTypes
+        
+        switch layerInputObserver.mode {
+        case .packed:
+            return allFields
+        case .unpacked:
+            guard let groupings = layerInputObserver.port.labelGroupings else {
+                return allFields
+            }
+            
+            // Groupings are gone in unpacked mode so we just need the fields
+            let flattenedFields = allFields.flatMap { $0.fieldObservers }
+            let fieldGroupsFromPacked = layerInputObserver._packedData.inspectorRowViewModel.fieldValueTypes
+            
+            // Create nested array for label groupings (used for 3D model)
+            return groupings.enumerated().map { fieldGroupIndex, labelData in
+                var fieldGroupFromPacked = fieldGroupsFromPacked[fieldGroupIndex]
+                let fieldsFromUnpacked = Array(flattenedFields[labelData.portRange])
+                
+                fieldGroupFromPacked.fieldObservers = fieldsFromUnpacked
+                return fieldGroupFromPacked
+            }
+        }
+    }
+    
     var body: some View {
         
         let observerMode = layerInputObserver.observerMode
@@ -52,7 +78,7 @@ struct LayerInspectorInputPortView: View {
                               rowObserver: nil,
                               rowViewModel: nil,
                               // Always use the packed
-                              fieldValueTypes: layerInputObserver.fieldValueTypes,
+                              fieldValueTypes: self.fieldValueTypes,
                               layerInputObserver: layerInputObserver,
                               forPropertySidebar: true,
                               propertyIsSelected: propertyRowIsSelected,

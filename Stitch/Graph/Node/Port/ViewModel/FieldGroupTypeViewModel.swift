@@ -11,8 +11,7 @@ import StitchSchemaKit
 
 typealias FieldGroupTypeViewModelList<FieldType: FieldViewModel> = [FieldGroupTypeViewModel<FieldType>]
 
-@Observable
-final class FieldGroupTypeViewModel<FieldType: FieldViewModel>: StitchLayoutCachable, Identifiable {
+struct FieldGroupTypeViewModel<FieldType: FieldViewModel>: Identifiable {
     let id: FieldCoordinate
     let type: FieldGroupType
     // Only used for ShapeCommand cases? e.g. `.curveTo` has "PointTo", "CurveFrom" etc. 'groups of fields'
@@ -20,8 +19,7 @@ final class FieldGroupTypeViewModel<FieldType: FieldViewModel>: StitchLayoutCach
     // Since this could be one of many in a node's row
     let startingFieldIndex: Int
     
-    @MainActor var viewCache: NodeLayoutCache?
-    @MainActor var fieldObservers: [FieldType]
+    var fieldObservers: [FieldType]
 
     @MainActor
     init(fieldValues: FieldValues,
