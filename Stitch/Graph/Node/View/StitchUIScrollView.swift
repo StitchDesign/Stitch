@@ -159,22 +159,22 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         
         // ALSO: NOTE: CAREFUL: LOCAL POSITION IS STILL PERSISTED
         
-        // Center the content
-                DispatchQueue.main.async {
-//                    let newOffset =  CGPoint(x: max(0, (contentSize.width - scrollView.bounds.width) / 2),
-//                                             y: max(0, (contentSize.height - scrollView.bounds.height) / 2))
-//                    scrollView.contentOffset = newOffset
-
-                    let newOffset =  CGPoint(x: 500, y: 500)
-                    scrollView.setContentOffset(newOffset, animated: false)
-//                    dispatch(GraphScrolledViaUIScrollView(newOffset: newOffset))
-                    
-                    dispatch(GraphScrollDataUpdated(
-                        newOffset: newOffset,
-                        newZoom: scrollView.zoomScale
-                    ))
-                }
-        
+        //        // Center the content
+        //        DispatchQueue.main.async {
+        //            //                    let newOffset =  CGPoint(x: max(0, (contentSize.width - scrollView.bounds.width) / 2),
+        //            //                                             y: max(0, (contentSize.height - scrollView.bounds.height) / 2))
+        //            //                    scrollView.contentOffset = newOffset
+        //
+        //            let newOffset =  CGPoint(x: 500, y: 500)
+        //            scrollView.setContentOffset(newOffset, animated: false)
+        //            //                    dispatch(GraphScrolledViaUIScrollView(newOffset: newOffset))
+        //
+        //            dispatch(GraphScrollDataUpdated(
+        //                newOffset: newOffset,
+        //                newZoom: scrollView.zoomScale
+        //            ))
+        //        }
+        //
         return scrollView
     }
     
@@ -278,10 +278,13 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         func scrollViewDidScroll(_ scrollView: UIScrollView) {
             let contentOffset = scrollView.contentOffset
             let contentSize = scrollView.contentSize
-            let bounds = scrollView.bounds.size
-            let origin = scrollView.frame.origin
-            log("StitchUIScrollView: scrollViewDidScroll contentOffset: \(contentOffset)")
-            log("StitchUIScrollView: scrollViewDidScroll contentSize: \(contentSize)")
+            let scale = scrollView.zoomScale
+//            let bounds = scrollView.bounds.size
+//            let origin = scrollView.frame.origin
+            let windowWidth = self.document?.graphUI.frame.width ?? .zero
+            log("StitchUIScrollView: scrollViewDidScroll windowWidth: \(windowWidth)")
+            log("StitchUIScrollView: scrollViewDidScroll contentOffset.x: \(contentOffset.x)")
+            log("StitchUIScrollView: scrollViewDidScroll contentSize.width: \(contentSize.width)")
 //            log("StitchUIScrollView: scrollViewDidScroll bounds: \(bounds)")
 //            log("StitchUIScrollView: scrollViewDidScroll origin: \(origin)")
             log("StitchUIScrollView: scrollViewDidScroll scrollView.zoomScale: \(scrollView.zoomScale)")
@@ -295,15 +298,44 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             // where we kept calling this method and getting moved downward
             // -- ... have not be able to reproduce it?
             
-            // 
-            if scrollView.contentOffset.x > 700 {
-                log("StitchUIScrollView: scrollViewDidScroll: will limit to x <= 700")
-                scrollView.setContentOffset(
-                    .init(x: 700,
-                          // reuse current scroll offset ?
-                          y: scrollView.contentOffset.y),
-                    animated: false)
-            }
+            
+            
+ //           \boxed{\text{offset} = \text{size} \times (0.005444 \cdot \text{scale} + 0.015556)}
+            
+//            let maxOffset: CGFloat = contentSize.width * (0.005444 * scale + 0.015556)
+//            let maxOffset: CGFloat = 700
+//            let maxOffset: CGFloat = 700 * scale
+            
+            // will this maxOffset align with what we find in practice? ... Unsure about the 10
+//            let maxOffset: CGFloat = ((contentSize.width * scale) - contentSize.width) / 10
+            
+            // max offset is not big enough
+            // But also, this sohuld be based on the subtract node's current position, no?
+//            let maxOffset: CGFloat = ((contentSize.width * scale) - contentSize.width) / 10
+            
+//            let nodeOriginX: CGFloat = 1772 // Add node
+            
+            let nodeOriginX: CGFloat = 3097 // Subtract node
+            
+            let screenWidth: CGFloat = 1000
+            let maxOffset = nodeOriginX - screenWidth
+            
+//            \boxed{\text{offset} \approx -3090 \cdot \text{scale} \;+\; 0.142 \cdot \text{size} \;-\; 1090.}
+//            let maxOffset: CGFloat = -3090 * scale + 0.142 * contentSize.width - 1090
+            //
+            
+            log("StitchUIScrollView: scrollViewDidScroll: maxOffset: \(maxOffset)")
+//            
+//            if scrollView.contentOffset.x > maxOffset {
+//                
+//                log("StitchUIScrollView: scrollViewDidScroll: will limit to x <= maxOffset")
+//                
+//                scrollView.setContentOffset(
+//                    .init(x: maxOffset,
+//                          // reuse current scroll offset ?
+//                          y: scrollView.contentOffset.y),
+//                    animated: false)
+//            }
                 
                 // Can you actually check the borders here?
                 // Can you STOP the scroll view's contentOffset from changing?
