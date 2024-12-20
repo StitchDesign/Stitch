@@ -339,14 +339,20 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
 //            let nodeOriginX: CGFloat = 3097 // Subtract node
             
             // Minimum contentOffset = the farthest we can move the graph before the middle of the Western-most node touches the device screen's Eastern edge
-            let minimumContentOffset = westernMostNodeCachedBoundsOriginX - screenWidth
+//            let minimumContentOffset = westernMostNodeCachedBoundsOriginX - screenWidth
+//            let maximumContentOffset = easternMostNodeCachedBoundsOriginX
             
-            // ??: add screenWidth ?
-            let maximumContentOffset = easternMostNodeCachedBoundsOriginX // + screenWidth
+            // WITH SCALE
+//            let minimumContentOffset = westernMostNodeCachedBoundsOriginX - screenWidth
+            let minimumContentOffset = (westernMostNodeCachedBoundsOriginX * scale) - screenWidth
+            // ^^ what is this? does screenWidth need to be scaled
+            
+            let maximumContentOffset = easternMostNodeCachedBoundsOriginX * scale
             
 //            let minimumContentOffset = nodeOriginX - screenWidth
             
             log("StitchUIScrollView: scrollViewDidScroll: minimumContentOffset: \(minimumContentOffset)")
+            log("StitchUIScrollView: scrollViewDidScroll: maximumContentOffset: \(maximumContentOffset)")
 
             
             let westernMostNodeAtEasternScreenEdge = scrollView.contentOffset.x <= minimumContentOffset
