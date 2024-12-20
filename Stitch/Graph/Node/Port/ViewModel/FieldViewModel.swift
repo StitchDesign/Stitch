@@ -161,7 +161,7 @@ extension Array where Element: FieldViewModel {
     
     private static func getIndexForLabel(index: Int,
                                          layerInput: LayerInputPort?) -> Int {
-        guard let labelGropuings = layerInput?.unpackedGroupings else {
+        guard let labelGropuings = layerInput?.labelGroupings else {
             // Almsot all cases (non 3D transform)
             return index
         }

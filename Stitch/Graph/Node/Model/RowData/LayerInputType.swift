@@ -1614,8 +1614,8 @@ extension LayerInputPort {
         return fakeUnpackedValues?.count
     }
     
-    /// Creates visual groupings of labels in unpacked mode to match packed mode.
-    var unpackedGroupings: [GroupedLayerInputUnpackedData]? {
+    /// Creates visual groupings of labels, used for 3D transform input.
+    var labelGroupings: [GroupedLayerInputData]? {
         switch self {
         case .transform3D:
             return [
