@@ -130,24 +130,8 @@ extension NodeRowType {
         case .anchorEntity:
             return [.anchorEntity]
         case .transform3D:
-            return [.transform3D]
+            return [.xYZ, .xYZ, .xYZ]
         }
-    }
-    
-    // TODO: must be some better way to get this information and/or tie it to `getFieldValueTypes`
-    var getFieldGroupTypeForLayerInput: FieldGroupType {
-        let fieldGroupTypes = self.fieldGroupTypes
-        
-        // LayerInput can never use ShapeCommand,
-        // and so we should only have a single group of fields.
-        assertInDebug(fieldGroupTypes.count == 1)
-        
-        guard let fieldGroupType = fieldGroupTypes.first else {
-            fatalErrorIfDebug()
-            return .number
-        }
-        
-        return fieldGroupType
     }
 }
 
@@ -208,8 +192,24 @@ func getFieldValueTypes<FieldType: FieldViewModel>(value: PortValue,
                       rowViewModel: rowViewModel)]
         
     case .transform3D:
-        return [.init(fieldValues: fieldValuesForSingleFieldGroup,
-                      type: .transform3D,
+        // 3 groups of fields
+        assertInDebug(fieldValuesList.count == 3)
+        
+        return [.init(fieldValues: fieldValuesList[0],
+                      type: .xYZ,
+                      groupLabel: "Position",
+                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                      unpackedPortIndex: unpackedPortIndex,
+                      rowViewModel: rowViewModel),
+                .init(fieldValues: fieldValuesList[1],
+                      type: .xYZ,
+                      groupLabel: "Scale",
+                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                      unpackedPortIndex: unpackedPortIndex,
+                      rowViewModel: rowViewModel),
+                .init(fieldValues: fieldValuesList[2],
+                      type: .xYZ,
+                      groupLabel: "Rotation",
                       unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                       unpackedPortIndex: unpackedPortIndex,
                       rowViewModel: rowViewModel)]

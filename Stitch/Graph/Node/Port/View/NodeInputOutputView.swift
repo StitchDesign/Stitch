@@ -352,22 +352,25 @@ struct FieldsListView<PortType, ValueEntryView>: View where PortType: NodeRowVie
      
         let multipleFieldGroups = fieldValueTypes.count > 1
         
-        ForEach(fieldValueTypes) { (fieldGroupViewModel: FieldGroupTypeViewModel<PortType.FieldType>) in
-            
-            let multipleFieldsPerGroup = fieldGroupViewModel.fieldObservers.count > 1
-            
-            // Note: "multifield" is more complicated for layer inputs, since `fieldObservers.count` is now inaccurate for an unpacked port
-            let isMultiField = forPropertySidebar ?  (multipleFieldGroups || multipleFieldsPerGroup) : fieldGroupViewModel.fieldObservers.count > 1
-            
-            if !self.isAllFieldsBlockedOut(fieldGroupViewModel: fieldGroupViewModel) {
-                NodeFieldsView(graph: graph,
-                               fieldGroupViewModel: fieldGroupViewModel,
-                               nodeId: nodeId,
-                               isMultiField: isMultiField,
-                               forPropertySidebar: forPropertySidebar,
-                               forFlyout: forFlyout,
-                               blockedFields: blockedFields,
-                               valueEntryView: valueEntryView)
+        // Vertically orient multiple rows (transform input in layer case)
+        VStack {
+            ForEach(fieldValueTypes) { (fieldGroupViewModel: FieldGroupTypeViewModel<PortType.FieldType>) in
+                
+                let multipleFieldsPerGroup = fieldGroupViewModel.fieldObservers.count > 1
+                
+                // Note: "multifield" is more complicated for layer inputs, since `fieldObservers.count` is now inaccurate for an unpacked port
+                let isMultiField = forPropertySidebar ?  (multipleFieldGroups || multipleFieldsPerGroup) : fieldGroupViewModel.fieldObservers.count > 1
+                
+                if !self.isAllFieldsBlockedOut(fieldGroupViewModel: fieldGroupViewModel) {
+                    NodeFieldsView(graph: graph,
+                                   fieldGroupViewModel: fieldGroupViewModel,
+                                   nodeId: nodeId,
+                                   isMultiField: isMultiField,
+                                   forPropertySidebar: forPropertySidebar,
+                                   forFlyout: forFlyout,
+                                   blockedFields: blockedFields,
+                                   valueEntryView: valueEntryView)
+                }
             }
         }
     }

@@ -43,10 +43,7 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
     
     var displaysNarrowMultifields: Bool {
         switch layerInput {
-        case .layerPadding, .layerMargin:
-            return true
-            
-        case .transform3D:
+        case .layerPadding, .layerMargin, .transform3D:
             return true
             
         default:
@@ -60,13 +57,17 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
         let p1 = fieldGroupViewModel.fieldObservers[safe: 1]
         let p2 = fieldGroupViewModel.fieldObservers[safe: 2]
         let p3 = fieldGroupViewModel.fieldObservers[safe: 3]
-        let p4 = fieldGroupViewModel.fieldObservers[safe: 4]
-        let p5 = fieldGroupViewModel.fieldObservers[safe: 5]
-        let p6 = fieldGroupViewModel.fieldObservers[safe: 6]
-        let p7 = fieldGroupViewModel.fieldObservers[safe: 7]
-        let p8 = fieldGroupViewModel.fieldObservers[safe: 8]
         
-        if fieldGroupViewModel.fieldObservers.count == 4 {
+        // Always xyz
+        if self.layerInput == .transform3D {
+            HStack {
+                self.valueEntry(p0, isMultiField)
+                self.valueEntry(p1, isMultiField)
+                self.valueEntry(p2, isMultiField)
+            }
+        }
+        
+        else if fieldGroupViewModel.fieldObservers.count == 4 {
             VStack {
                 HStack {
                     // Individual fields for PortValue.padding can never be blocked; only the input as a whole can be blocked
@@ -76,26 +77,6 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
                 HStack {
                     self.valueEntry(p2, isMultiField)
                     self.valueEntry(p3, isMultiField)
-                }
-            }
-        }
-        
-        else if fieldGroupViewModel.fieldObservers.count == 9 {
-            VStack {
-                HStack {
-                    self.valueEntry(p0, isMultiField)
-                    self.valueEntry(p1, isMultiField)
-                    self.valueEntry(p2, isMultiField)
-                }
-                HStack {
-                    self.valueEntry(p3, isMultiField)
-                    self.valueEntry(p4, isMultiField)
-                    self.valueEntry(p5, isMultiField)
-                }
-                HStack {
-                    self.valueEntry(p6, isMultiField)
-                    self.valueEntry(p7, isMultiField)
-                    self.valueEntry(p8, isMultiField)
                 }
             }
         }

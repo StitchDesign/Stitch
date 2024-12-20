@@ -144,7 +144,7 @@ extension Array where Element: FieldViewModel {
             
             let index = unpackedPortIndex ?? fieldIndex
             
-            let fieldLabel = labels[safe: index]
+            let fieldLabel = labels[safe: fieldIndex]
             
             // Every field should have a label, even if just an empty string.
             assertInDebug(fieldLabel != nil)

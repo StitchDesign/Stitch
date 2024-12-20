@@ -246,10 +246,12 @@ extension LayerInputObserver {
                 
         let layerInput: LayerInputPort = self.port
                 
-        let unpackedPortParentFieldGroupType: FieldGroupType = layerInput
+        // MARK: first group type grabbed since layers don't have differing groups within one input
+        let unpackedPortParentFieldGroupType = layerInput
             .getDefaultValue(for: layer)
             .getNodeRowType(nodeIO: .input)
-            .getFieldGroupTypeForLayerInput
+            .fieldGroupTypes
+            .first
         
         self._unpackedData.allPorts.enumerated().forEach { fieldIndex, port in
             port.initializeDelegate(node,

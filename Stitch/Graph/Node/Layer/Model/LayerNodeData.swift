@@ -291,18 +291,20 @@ extension LayerInputObserver {
             let unpackedObserver = data.0
             let unpackedSchema = data.1
                         
-            let unpackedPortParentFieldGroupType: FieldGroupType = layerInputType
+            let unpackedPortParentFieldGroupTypes = layerInputType
                 .getDefaultValue(for: layerNode.layer)
                 .getNodeRowType(nodeIO: .input)
-                .getFieldGroupTypeForLayerInput
+                .fieldGroupTypes
             
-            unpackedObserver.update(from: unpackedSchema,
-                                    layerInputType: .init(layerInput: layerInputType,
-                                                          portType: .unpacked(unpackedPortType)),
-                                    layerNode: layerNode,
-                                    nodeId: nodeId,
-                                    unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                    unpackedPortIndex: portId)
+            unpackedPortParentFieldGroupTypes.forEach { unpackedPortParentFieldGroupType in
+                unpackedObserver.update(from: unpackedSchema,
+                                        layerInputType: .init(layerInput: layerInputType,
+                                                              portType: .unpacked(unpackedPortType)),
+                                        layerNode: layerNode,
+                                        nodeId: nodeId,
+                                        unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                                        unpackedPortIndex: portId)
+            }
         }
         
         // Update values once mode is known (requires updating canvas items first)

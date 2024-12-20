@@ -37,7 +37,7 @@ extension PortValue {
             
         case .transform3D:
             let transform = self.getTransform ?? .zero
-            return [transform.fieldValues]
+            return transform.fieldValues
             
         case .shapeCommand(let shapeCommandType):
             let shapeCommandValue = self.shapeCommand ?? .defaultFalseShapeCommand

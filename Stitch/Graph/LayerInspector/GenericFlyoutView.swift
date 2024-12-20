@@ -272,10 +272,15 @@ struct LayerInputFieldAddedToGraph: GraphEventWithResponse {
                                             zIndex: state.highestZIndex + 1,
                                             parentGroupNodeId: parentGroupNodeId)
 
-            let unpackedPortParentFieldGroupType: FieldGroupType = layerInput
+            // MARK: first group type grabbed since layers don't have differing groups within one input
+            guard let unpackedPortParentFieldGroupType: FieldGroupType = layerInput
                 .getDefaultValue(for: layerNode.layer)
                 .getNodeRowType(nodeIO: .input)
-                .getFieldGroupTypeForLayerInput
+                .fieldGroupTypes
+                .first else {
+                fatalErrorIfDebug()
+                return .noChange
+            }
             
             unpackedPort.update(from: unpackSchema,
                                 layerInputType: unpackedPort.id,
