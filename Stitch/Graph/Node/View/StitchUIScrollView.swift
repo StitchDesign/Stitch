@@ -159,22 +159,27 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         
         // ALSO: NOTE: CAREFUL: LOCAL POSITION IS STILL PERSISTED
         
-        //        // Center the content
-        //        DispatchQueue.main.async {
-        //            //                    let newOffset =  CGPoint(x: max(0, (contentSize.width - scrollView.bounds.width) / 2),
-        //            //                                             y: max(0, (contentSize.height - scrollView.bounds.height) / 2))
-        //            //                    scrollView.contentOffset = newOffset
-        //
-        //            let newOffset =  CGPoint(x: 500, y: 500)
-        //            scrollView.setContentOffset(newOffset, animated: false)
-        //            //                    dispatch(GraphScrolledViaUIScrollView(newOffset: newOffset))
-        //
-        //            dispatch(GraphScrollDataUpdated(
-        //                newOffset: newOffset,
-        //                newZoom: scrollView.zoomScale
-        //            ))
-        //        }
-        //
+                // Center the content
+        DispatchQueue.main.async {
+            //                    let newOffset =  CGPoint(x: max(0, (contentSize.width - scrollView.bounds.width) / 2),
+            //                                             y: max(0, (contentSize.height - scrollView.bounds.height) / 2))
+            //                    scrollView.contentOffset = newOffset
+            
+//            let newOffset =  CGPoint(x: 500, y: 500)
+            let newOffset =  CGPoint(x: 1500, // moves whole graph WEST
+                                     y: 20) // moves whole graph NORTH
+            
+            scrollView.setContentOffset(newOffset, animated: false)
+            //                    dispatch(GraphScrolledViaUIScrollView(newOffset: newOffset))
+            
+            document.graphUI.uiScrollViewHasBeenInitialized = true
+            
+            dispatch(GraphScrollDataUpdated(
+                newOffset: newOffset,
+                newZoom: scrollView.zoomScale
+            ))
+        }
+        
         return scrollView
     }
     
@@ -208,7 +213,11 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         
         let hostingController: UIHostingController<Content>
         
+        // Used during spacebar + trackpad click-&-drag gesture
         private var initialContentOffset: CGPoint = .zero
+        
+        // Used for border checking
+        private var previousContentOffset: CGPoint = .zero
         
         private let contentSize: CGSize
         
@@ -313,42 +322,63 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             // But also, this sohuld be based on the subtract node's current position, no?
 //            let maxOffset: CGFloat = ((contentSize.width * scale) - contentSize.width) / 10
             
-//            let nodeOriginX: CGFloat = 1772 // Add node
+//            self.document?.graph.westernMostNode(<#T##NodeId?#>, canvasItems: <#T##CanvasItemViewModels#>)
             
-            let nodeOriginX: CGFloat = 3097 // Subtract node
+            let nodeWidth: CGFloat = 256 // same for Add and Subtract nodes
             
-            let screenWidth: CGFloat = 1000
+            // Note: Add node is at the moment the Western-most node, which should not be able to go past the
+            let nodeOriginX: CGFloat = 1772 // Add node
+            
+            let screenWidth = self.document?.graphUI.frame.width ?? .zero
+//            let screenWidth: CGFloat = 1000
+            
+//            let nodeOriginX: CGFloat = 3097 // Subtract node
+            
             let maxOffset = nodeOriginX - screenWidth
             
-//            \boxed{\text{offset} \approx -3090 \cdot \text{scale} \;+\; 0.142 \cdot \text{size} \;-\; 1090.}
-//            let maxOffset: CGFloat = -3090 * scale + 0.142 * contentSize.width - 1090
-            //
-            
             log("StitchUIScrollView: scrollViewDidScroll: maxOffset: \(maxOffset)")
-//            
-//            if scrollView.contentOffset.x > maxOffset {
-//                
-//                log("StitchUIScrollView: scrollViewDidScroll: will limit to x <= maxOffset")
-//                
-//                scrollView.setContentOffset(
-//                    .init(x: maxOffset,
-//                          // reuse current scroll offset ?
-//                          y: scrollView.contentOffset.y),
-//                    animated: false)
-//            }
+
+            if document?.graphUI.uiScrollViewHasBeenInitialized ?? false {
+
+                // this is actually more like a "minimum" offset
+                let pastBorder = scrollView.contentOffset.x < maxOffset
+                
+                // nodes moving west = decreasing graph offset = moving graph (all nodes) west
+                // ScrollView's contentOffset decreasing = nodes move east
+                let areNodesMovingEast = scrollView.contentOffset.x < self.previousContentOffset.x
+                
+                log("StitchUIScrollView: scrollViewDidScroll: pastBorder: \(pastBorder)")
+                log("StitchUIScrollView: scrollViewDidScroll: areNodesMovingEast: \(areNodesMovingEast)")
+                
+                // Do you need to factor the existing default content offset into the border-checking?
+//                if pastBorder && areNodesMovingEast {
+                if pastBorder {
+                    log("StitchUIScrollView: scrollViewDidScroll: will limit to x <= maxOffset")
+                    
+                    // NOTE: hit a bug one time here where we kept scrolling downward (contentOffset.y kept increasing) even after we had let go
+                    scrollView.setContentOffset(
+                        .init(x: maxOffset,
+                              // reuse current scroll offset ?
+                              y: scrollView.contentOffset.y),
+                        animated: false)
+                }
+            }
+            
+            
                 
                 // Can you actually check the borders here?
                 // Can you STOP the scroll view's contentOffset from changing?
                 // Would you need to
-                
-                // Mostly you
-                
                 // https://stackoverflow.com/questions/3410777/how-can-i-programmatically-force-stop-scrolling-in-a-uiscrollview
-                            
+                     
+            self.previousContentOffset = scrollView.contentOffset
+            
             dispatch(GraphScrollDataUpdated(
                 newOffset: scrollView.contentOffset,
                 newZoom: scrollView.zoomScale
             ))
+            
+            
         }
         
         // https://stackoverflow.com/a/30338969

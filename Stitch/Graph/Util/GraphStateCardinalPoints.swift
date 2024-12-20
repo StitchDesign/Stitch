@@ -32,6 +32,11 @@ extension GraphState {
             }
     }
 
+//    // Do I want the node's "position" or its cached-bounds origin ?
+//    func _westernMostNodeDEBUG() -> CanvasItemViewModel? {
+//        
+//    }
+//    
     // western-most node is node with least x-position
     @MainActor
     static func westernMostNode(_ focusedGroupNodeId: NodeId?,
