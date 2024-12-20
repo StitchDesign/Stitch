@@ -206,12 +206,14 @@ func getFieldValueTypes<FieldType: FieldViewModel>(value: PortValue,
                       groupLabel: "Scale",
                       unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                       unpackedPortIndex: unpackedPortIndex,
+                      startingFieldIndex: 3,
                       rowViewModel: rowViewModel),
                 .init(fieldValues: fieldValuesList[2],
                       type: .xYZ,
                       groupLabel: "Rotation",
                       unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                       unpackedPortIndex: unpackedPortIndex,
+                      startingFieldIndex: 6,
                       rowViewModel: rowViewModel)]
         
     case .shapeCommand(let shapeCommand):
