@@ -334,34 +334,34 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             
 //            let nodeOriginX: CGFloat = 3097 // Subtract node
             
-            let maxOffset = nodeOriginX - screenWidth
+            // Minimum contentOffset = the farthest we can move the graph before the middle of the Western-most node touches the device screen's Eastern edge
+            let minimumContentOffset = nodeOriginX - screenWidth
             
-            log("StitchUIScrollView: scrollViewDidScroll: maxOffset: \(maxOffset)")
-
-            if document?.graphUI.uiScrollViewHasBeenInitialized ?? false {
+//            let minimumContentOffset = nodeOriginX - screenWidth
+            
+            log("StitchUIScrollView: scrollViewDidScroll: minimumContentOffset: \(minimumContentOffset)")
 
                 // this is actually more like a "minimum" offset
-                let pastBorder = scrollView.contentOffset.x < maxOffset
+            let pastBorder = scrollView.contentOffset.x < minimumContentOffset
+            
+            // nodes moving west = decreasing graph offset = moving graph (all nodes) west
+            // ScrollView's contentOffset decreasing = nodes move east
+            let areNodesMovingEast = scrollView.contentOffset.x < self.previousContentOffset.x
+            
+            log("StitchUIScrollView: scrollViewDidScroll: pastBorder: \(pastBorder)")
+            log("StitchUIScrollView: scrollViewDidScroll: areNodesMovingEast: \(areNodesMovingEast)")
+            
+            // Do you need to factor the existing default content offset into the border-checking?
+            //                if pastBorder && areNodesMovingEast {
+            if pastBorder {
+                log("StitchUIScrollView: scrollViewDidScroll: will limit to x <= maxOffset")
                 
-                // nodes moving west = decreasing graph offset = moving graph (all nodes) west
-                // ScrollView's contentOffset decreasing = nodes move east
-                let areNodesMovingEast = scrollView.contentOffset.x < self.previousContentOffset.x
-                
-                log("StitchUIScrollView: scrollViewDidScroll: pastBorder: \(pastBorder)")
-                log("StitchUIScrollView: scrollViewDidScroll: areNodesMovingEast: \(areNodesMovingEast)")
-                
-                // Do you need to factor the existing default content offset into the border-checking?
-//                if pastBorder && areNodesMovingEast {
-                if pastBorder {
-                    log("StitchUIScrollView: scrollViewDidScroll: will limit to x <= maxOffset")
-                    
-                    // NOTE: hit a bug one time here where we kept scrolling downward (contentOffset.y kept increasing) even after we had let go
-                    scrollView.setContentOffset(
-                        .init(x: maxOffset,
-                              // reuse current scroll offset ?
-                              y: scrollView.contentOffset.y),
-                        animated: false)
-                }
+                // NOTE: hit a bug one time here where we kept scrolling downward (contentOffset.y kept increasing) even after we had let go
+                scrollView.setContentOffset(
+                    .init(x: minimumContentOffset,
+                          // reuse current scroll offset ?
+                          y: scrollView.contentOffset.y),
+                    animated: false)
             }
             
             
