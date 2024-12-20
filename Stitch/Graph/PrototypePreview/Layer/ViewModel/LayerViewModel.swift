@@ -226,7 +226,19 @@ final class LayerViewModel: Sendable {
     @MainActor var scrollJumpToYLocation: PortValue
     
     // 3D
-    @MainActor var transform3D: PortValue
+    @MainActor var transform3D: PortValue {
+        didSet(oldValue) {
+            if self.transform3D != oldValue,
+               let entity = self.mediaObject?.model3DEntity {
+                let transform = self.transform3D.getTransform ?? .zero
+                let matrix = simd_float4x4(position: transform.position3D,
+                                           scale: transform.scale3D,
+                                           rotation: transform.rotation3D)
+                entity.applyMatrix(newMatrix: matrix)
+            }
+        }
+    }
+    
     @MainActor var anchorEntity: PortValue
     
     // Ephemeral state on the layer view model

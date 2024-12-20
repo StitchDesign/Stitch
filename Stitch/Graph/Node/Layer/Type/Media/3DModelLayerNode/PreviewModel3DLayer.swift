@@ -137,14 +137,6 @@ struct ModelEntityLayerViewModifier: ViewModifier {
     let graph: GraphState
     let anchorEntityId: UUID?
     
-    var transform: simd_float4x4 {
-        let transform: StitchTransform = previewLayer.transform3D.getTransform ?? .zero
-        
-        return .init(position: transform.position3D,
-                     scale: transform.scale3D,
-                     rotation: transform.rotation3D)
-    }
-    
     func asssignNewAnchor(_ newAnchor: AnchorEntity,
                           entity: StitchEntity,
                           to realityContent: LayerRealityCameraContent) {
@@ -156,16 +148,11 @@ struct ModelEntityLayerViewModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .onChange(of: self.entity, initial: true) {
-                entity.applyMatrix(newMatrix: transform)
-                
                 let anchor = AnchorEntity()
                 self.anchorEntity = anchor
                 
                 anchor.addChild(entity.containerEntity)
                 realityContent.addAnchor(anchor)
-            }
-            .onChange(of: self.transform) { _, newTransform in
-                entity.applyMatrix(newMatrix: newTransform)
             }
             .onChange(of: self.anchorEntityId, initial: true) { _, newAnchorEntityId in
                 // Remove old anchor from reality
