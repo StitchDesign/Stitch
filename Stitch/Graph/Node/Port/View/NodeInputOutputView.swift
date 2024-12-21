@@ -147,7 +147,7 @@ struct NodeInputView: View {
     let rowObserver: InputNodeRowObserver?
     let rowViewModel: InputNodeRowObserver.RowViewModelType? // i.e. `InputNodeRowViewModel?`
         
-    let fieldValueTypes: [FieldGroupTypeViewModel<InputNodeRowViewModel.FieldType>]
+    let fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>]
     
     let layerInputObserver: LayerInputObserver?
     
@@ -340,7 +340,7 @@ struct FieldsListView<PortType, ValueEntryView>: View where PortType: NodeRowVie
 
     @Bindable var graph: GraphState
 
-    var fieldValueTypes: [FieldGroupTypeViewModel<PortType.FieldType>]
+    var fieldValueTypes: [FieldGroupTypeData<PortType.FieldType>]
     let nodeId: NodeId
     let forPropertySidebar: Bool
     let forFlyout: Bool
@@ -354,7 +354,7 @@ struct FieldsListView<PortType, ValueEntryView>: View where PortType: NodeRowVie
         
         // Vertically orient multiple rows (transform input in layer case)
         VStack {
-            ForEach(fieldValueTypes) { (fieldGroupViewModel: FieldGroupTypeViewModel<PortType.FieldType>) in
+            ForEach(fieldValueTypes) { (fieldGroupViewModel: FieldGroupTypeData<PortType.FieldType>) in
                 
                 let multipleFieldsPerGroup = fieldGroupViewModel.fieldObservers.count > 1
                 
@@ -375,7 +375,7 @@ struct FieldsListView<PortType, ValueEntryView>: View where PortType: NodeRowVie
         }
     }
     
-    func isAllFieldsBlockedOut(fieldGroupViewModel: FieldGroupTypeViewModel<PortType.FieldType>) -> Bool {
+    func isAllFieldsBlockedOut(fieldGroupViewModel: FieldGroupTypeData<PortType.FieldType>) -> Bool {
         if let blockedFields = blockedFields {
             return fieldGroupViewModel.fieldObservers.allSatisfy {
                 $0.isBlocked(blockedFields)

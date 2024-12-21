@@ -1,5 +1,5 @@
 //
-//  FieldGroupTypeViewModel.swift
+//  FieldGroupTypeData.swift
 //  Stitch
 //
 //  Created by Elliot Boschwitz on 6/13/24.
@@ -9,9 +9,9 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-typealias FieldGroupTypeViewModelList<FieldType: FieldViewModel> = [FieldGroupTypeViewModel<FieldType>]
+typealias FieldGroupTypeDataList<FieldType: FieldViewModel> = [FieldGroupTypeData<FieldType>]
 
-struct FieldGroupTypeViewModel<FieldType: FieldViewModel>: Identifiable {
+struct FieldGroupTypeData<FieldType: FieldViewModel>: Identifiable {
     let id: FieldCoordinate
     let type: FieldGroupType
     // Only used for ShapeCommand cases? e.g. `.curveTo` has "PointTo", "CurveFrom" etc. 'groups of fields'
@@ -51,7 +51,7 @@ struct FieldGroupTypeViewModel<FieldType: FieldViewModel>: Identifiable {
     @MainActor
     func updateFieldValues(fieldValues: FieldValues) {
         guard fieldValues.count == fieldObservers.count else {
-            fatalErrorIfDebug("FieldGroupTypeViewModel: updateFieldValues: non-equal count of field values to observer objects for \(type).")
+            fatalErrorIfDebug("FieldGroupTypeData: updateFieldValues: non-equal count of field values to observer objects for \(type).")
             return
         }
 
@@ -140,7 +140,7 @@ func getFieldValueTypes<FieldType: FieldViewModel>(value: PortValue,
                                                    unpackedPortParentFieldGroupType: FieldGroupType?,
                                                    unpackedPortIndex: Int?,
                                                    importedMediaObject: StitchMediaObject?,
-                                                   rowViewModel: FieldType.NodeRowType?) -> [FieldGroupTypeViewModel<FieldType>] {
+                                                   rowViewModel: FieldType.NodeRowType?) -> [FieldGroupTypeData<FieldType>] {
 
     let isLayerInspector = rowViewModel?.id.graphItemType.isLayerInspector ?? false
         
@@ -400,14 +400,14 @@ func getFieldValueTypes<FieldType: FieldViewModel>(value: PortValue,
     }
 }
 
-//extension Array where Element: FieldGroupTypeViewModel<InputFieldViewModel> {
+//extension Array where Element: FieldGroupTypeData<InputFieldViewModel> {
 extension NodeRowViewModel {
     @MainActor
     func createFieldValueTypes(initialValue: PortValue,
                                nodeIO: NodeIO,
                                unpackedPortParentFieldGroupType: FieldGroupType?,
                                unpackedPortIndex: Int?,
-                               importedMediaObject: StitchMediaObject?) -> [FieldGroupTypeViewModel<FieldType>] {
+                               importedMediaObject: StitchMediaObject?) -> [FieldGroupTypeData<FieldType>] {
         getFieldValueTypes(
             value: initialValue,
             nodeIO: nodeIO,

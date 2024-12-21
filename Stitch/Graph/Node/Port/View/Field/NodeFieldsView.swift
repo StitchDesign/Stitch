@@ -16,7 +16,7 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
     @Bindable var graph: GraphState
     
     // just becomes a list of field models
-    let fieldGroupViewModel: FieldGroupTypeViewModel<FieldType>
+    let fieldGroupViewModel: FieldGroupTypeData<FieldType>
         
     let nodeId: NodeId
     let isMultiField: Bool

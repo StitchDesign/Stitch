@@ -50,7 +50,7 @@ struct GenericFlyoutView: View {
     let nodeId: NodeId
     let nodeKind: NodeKind
     
-    var fieldValueTypes: [FieldGroupTypeViewModel<InputNodeRowViewModel.FieldType>] {
+    var fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>] {
         layerInputObserver.fieldValueTypes
     }
         

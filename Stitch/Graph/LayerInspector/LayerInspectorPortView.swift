@@ -13,7 +13,7 @@ struct LayerInspectorInputPortView: View {
     @Bindable var graph: GraphState
     let nodeId: NodeId
     
-    var fieldValueTypes: [FieldGroupTypeViewModel<InputNodeRowViewModel.FieldType>] {
+    var fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>] {
         layerInputObserver.fieldValueTypes
     }
     
