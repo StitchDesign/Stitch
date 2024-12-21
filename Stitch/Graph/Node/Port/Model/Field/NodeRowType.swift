@@ -41,7 +41,7 @@ enum NodeRowType: Equatable {
 extension NodeRowType {
     
     // TODO: smarter / easier to way to do this?
-    var inputUsesTextField: Bool {
+    func inputUsesTextField(isLayerInputInspector: Bool) -> Bool {
         switch self {
         case .size, .position, .point3D, .point4D, .padding, .layerDimension, .number, .string, .spacing, .transform3D:
             return true

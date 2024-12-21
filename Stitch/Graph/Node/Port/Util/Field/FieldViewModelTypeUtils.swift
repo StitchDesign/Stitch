@@ -10,7 +10,8 @@ import SwiftUI
 import StitchSchemaKit
 
 extension PortValue {
-    func getNodeRowType(nodeIO: NodeIO) -> NodeRowType {
+    func getNodeRowType(nodeIO: NodeIO,
+                        isLayerInspector: Bool) -> NodeRowType {
         switch self {
         case .size:
             return .size
@@ -123,7 +124,12 @@ extension PortValue {
         case .anchoring:
             return .anchoring
         case .transform:
-            return .transform3D
+            if isLayerInspector {
+                return .transform3D
+            }
+            
+            // Hide the very large number of ports in patch nodes
+            return .readOnly
         case .none,
             // TODO: should be able to tap a Shape input/output to see the constituent JSON ?
                 .shape:

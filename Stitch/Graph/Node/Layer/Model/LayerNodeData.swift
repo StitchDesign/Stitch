@@ -293,7 +293,8 @@ extension LayerInputObserver {
                         
             let unpackedPortParentFieldGroupTypes = layerInputType
                 .getDefaultValue(for: layerNode.layer)
-                .getNodeRowType(nodeIO: .input)
+                .getNodeRowType(nodeIO: .input,
+                                isLayerInspector: true)
                 .fieldGroupTypes
             
             unpackedPortParentFieldGroupTypes.forEach { unpackedPortParentFieldGroupType in

@@ -12,8 +12,10 @@ import StitchSchemaKit
 extension PortValue {
     /// Coercion logic from port value to fields. Contains a 2D list of field values given a 1-many mapping between a field group type and its field values.
     func createFieldValuesList(nodeIO: NodeIO,
-                               importedMediaObject: StitchMediaObject?) -> [FieldValues] {
-        switch self.getNodeRowType(nodeIO: nodeIO) {
+                               importedMediaObject: StitchMediaObject?,
+                               isLayerInspector: Bool) -> [FieldValues] {
+        switch self.getNodeRowType(nodeIO: nodeIO,
+                                   isLayerInspector: isLayerInspector) {
         
         case .size:
             let size = self.getSize ?? .zero

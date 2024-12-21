@@ -35,8 +35,8 @@ extension LayerInputPort {
                 
     func usesTextFields(_ layer: Layer) -> Bool {
         self.getDefaultValue(for: layer)
-            .getNodeRowType(nodeIO: .input)
-            .inputUsesTextField
+            .getNodeRowType(nodeIO: .input, isLayerInspector: true)
+            .inputUsesTextField(isLayerInputInspector: true)
     }
 }
 
