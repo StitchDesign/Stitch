@@ -155,6 +155,7 @@ extension StitchDocumentViewModel {
             // Creates group node data for reality node
             if layerNode.isGroupLayer {
                 sidebarLayerData.children = []
+                sidebarLayerData.isExpandedInSidebar = true
             }
             
             var newSidebarData = self.visibleGraph.layersSidebarViewModel.createdOrderedEncodedData()
