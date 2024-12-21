@@ -14,29 +14,7 @@ struct LayerInspectorInputPortView: View {
     let nodeId: NodeId
     
     var fieldValueTypes: [FieldGroupTypeViewModel<InputNodeRowViewModel.FieldType>] {
-        let allFields = layerInputObserver.fieldValueTypes
-        
-        switch layerInputObserver.mode {
-        case .packed:
-            return allFields
-        case .unpacked:
-            guard let groupings = layerInputObserver.port.labelGroupings else {
-                return allFields
-            }
-            
-            // Groupings are gone in unpacked mode so we just need the fields
-            let flattenedFields = allFields.flatMap { $0.fieldObservers }
-            let fieldGroupsFromPacked = layerInputObserver._packedData.inspectorRowViewModel.fieldValueTypes
-            
-            // Create nested array for label groupings (used for 3D model)
-            return groupings.enumerated().map { fieldGroupIndex, labelData in
-                var fieldGroupFromPacked = fieldGroupsFromPacked[fieldGroupIndex]
-                let fieldsFromUnpacked = Array(flattenedFields[labelData.portRange])
-                
-                fieldGroupFromPacked.fieldObservers = fieldsFromUnpacked
-                return fieldGroupFromPacked
-            }
-        }
+        layerInputObserver.fieldValueTypes
     }
     
     var body: some View {

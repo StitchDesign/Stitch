@@ -119,10 +119,31 @@ extension LayerInputObserver {
         
     @MainActor
     var fieldValueTypes: [FieldGroupTypeViewModel<InputNodeRowViewModel.FieldType>] {
-        let fields = self.allInputData.flatMap { (portData: InputLayerNodeRowData) in
+        let allFields = self.allInputData.flatMap { (portData: InputLayerNodeRowData) in
             portData.inspectorRowViewModel.fieldValueTypes
         }
-        return fields
+        
+        switch self.mode {
+        case .packed:
+            return allFields
+        case .unpacked:
+            guard let groupings = self.port.labelGroupings else {
+                return allFields
+            }
+            
+            // Groupings are gone in unpacked mode so we just need the fields
+            let flattenedFields = allFields.flatMap { $0.fieldObservers }
+            let fieldGroupsFromPacked = self._packedData.inspectorRowViewModel.fieldValueTypes
+            
+            // Create nested array for label groupings (used for 3D model)
+            return groupings.enumerated().map { fieldGroupIndex, labelData in
+                var fieldGroupFromPacked = fieldGroupsFromPacked[fieldGroupIndex]
+                let fieldsFromUnpacked = Array(flattenedFields[labelData.portRange])
+                
+                fieldGroupFromPacked.fieldObservers = fieldsFromUnpacked
+                return fieldGroupFromPacked
+            }
+        }
     }
     
     @MainActor

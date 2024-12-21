@@ -50,7 +50,9 @@ struct GenericFlyoutView: View {
     let nodeId: NodeId
     let nodeKind: NodeKind
     
-    let fieldValueTypes: [FieldGroupTypeViewModel<InputNodeRowViewModel.FieldType>]
+    var fieldValueTypes: [FieldGroupTypeViewModel<InputNodeRowViewModel.FieldType>] {
+        layerInputObserver.fieldValueTypes
+    }
         
     var body: some View {
         VStack(alignment: .leading) {
