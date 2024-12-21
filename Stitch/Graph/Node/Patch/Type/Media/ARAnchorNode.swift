@@ -67,9 +67,7 @@ func arAnchorEval(node: PatchNode) -> EvalResult {
         let transformMatrix = matrix_float4x4(position: position, scale: scale, rotationZYX: rotationXYZ)
         let outputValue = PortValue.anchorEntity(node.id)
         
-        if let anchorEntity = mediaObserver.arAnchor {
-//            let anchorId = mediaObserver.anchorMediaId
-            
+        if let anchorEntity = mediaObserver.arAnchor {            
             anchorEntity.transform.matrix = transformMatrix
             return [outputValue]
         }

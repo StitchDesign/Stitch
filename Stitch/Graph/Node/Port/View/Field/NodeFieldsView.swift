@@ -90,34 +90,42 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
     }
     
     var body: some View {
-        // Only non-nil for ShapeCommands i.e. `lineTo`, `curveTo` etc. ?
-        if let fieldGroupLabel = fieldGroupViewModel.groupLabel {
-            StitchTextView(string: fieldGroupLabel)
-        }
-        
-        // TODO: how to handle the multifield "shadow offset" input in the Shadow Flyout? For now, we stack those fields vertically
-        if forPropertySidebar,
-           forFlyout,
-           isMultiField,
-           layerInput == .shadowOffset {
-            VStack {
-                fields
+        VStack {
+            // Only non-nil for 3D transform
+            if let fieldGroupLabel = fieldGroupViewModel.groupLabel {
+                HStack {
+                    Spacer()
+                    StitchTextView(string: fieldGroupLabel)
+                }
             }
-        }
-        
-        // TODO: need to pass down `forFlyout` here, so that we do not
-        else if forPropertySidebar,
-                !forFlyout,
-                isMultiField,
-                displaysNarrowMultifields {
-            constrainedMultifieldsView
-            // TODO: `LayerInspectorPortView`'s `.listRowInsets` should maintain consistent padding between input-rows in the layer inspector, so why is additional padding needed?
-            .padding(.vertical, INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET * 2)
-        }
-        else {
-//            NodeLayoutView(observer: fieldGroupViewModel) {
+            
+            // TODO: how to handle the multifield "shadow offset" input in the Shadow Flyout? For now, we stack those fields vertically
+            if forPropertySidebar,
+               forFlyout,
+               isMultiField,
+               layerInput == .shadowOffset {
+                VStack {
+                    fields
+                }
+            }
+            
+            // TODO: need to pass down `forFlyout` here, so that we do not
+            else if forPropertySidebar,
+                    !forFlyout,
+                    isMultiField,
+                    displaysNarrowMultifields {
+                HStack {
+                    Spacer()
+                    constrainedMultifieldsView
+                }
+                // TODO: `LayerInspectorPortView`'s `.listRowInsets` should maintain consistent padding between input-rows in the layer inspector, so why is additional padding needed?
+                    .padding(.vertical, INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET * 2)
+            }
+            else {
+                //            NodeLayoutView(observer: fieldGroupViewModel) {
                 fields
-//            }
+                //            }
+            }
         }
     }
     
