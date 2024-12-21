@@ -67,7 +67,6 @@ struct AnchorEntitiesDropdownView: View {
             
             // Changes if anchor is deleted
             if self.selection != newSelection {
-//                self.selection = newSelection
                 self.onSet(newSelection)
             }
         }

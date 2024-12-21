@@ -70,42 +70,6 @@ final class StitchARView: ARView {
     required init?(coder decoder: NSCoder) {
         super.init(coder: decoder)
     }
-//
-//    /// Updates entity anchors in place with already existing AR view.
-//    func updateAnchors(mediaList: [StitchMediaObject]) {
-//        // Get objects for entities to potentially add to scene
-//        let incomingAnchors = mediaList
-//            .compactMap {
-//                $0.arAnchor
-//            }
-//
-//        // Abstract away loaded from unloaded anchors
-//        let incomingAnchorIDs = incomingAnchors.map { $0.id }
-//
-//        // Remove entity objects which don't exist in incoming list but exist in current scene
-//        let anchorsToRemove = self.anchorMap.keys.filter { !incomingAnchorIDs.contains($0) }
-//        anchorsToRemove.forEach { anchorToRemove in
-//            if let anchor = self.anchorMap.get(anchorToRemove) {
-//                // removeFromParent might not be necessary
-//                anchor.removeFromParent()
-//                self.scene.removeAnchor(anchor)
-//
-//                anchorMap.removeValue(forKey: anchorToRemove)
-//            }
-//        }
-//
-//        let anchorsToAdd = incomingAnchors.filter { !self.anchorMap.keys.contains($0.id) }
-//        self.updateAnchors(anchors: anchorsToAdd)
-//    }
-
-//    func updateAnchors(anchors: [AnchorEntity]) {
-//        anchors.forEach { anchorEntity in
-//            // MARK: - addAnchor API causes a memory leak when called at a high frequency (GitHub issue #2388)
-//            // Crashes sometimes when not called on main thread
-//            self.scene.addAnchor(anchorEntity)
-//            self.anchorMap.updateValue(anchorEntity, forKey: anchorEntity.id)
-//        }
-//    }
 
     func makeRaycast(alignmentType: ARRaycastQuery.TargetAlignment,
                      center: CGPoint,

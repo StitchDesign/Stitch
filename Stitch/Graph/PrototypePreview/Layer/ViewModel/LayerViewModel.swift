@@ -82,7 +82,15 @@ final class LayerViewModel: Sendable {
     }
     
     // State for media needed if we need to async load an import
-    @MainActor var mediaObject: StitchMediaObject?
+    @MainActor var mediaObject: StitchMediaObject? {
+        // Update transform for 3D model once loaded
+        didSet(oldValue) {
+            if oldValue != self.mediaObject,
+               self.mediaObject?.model3DEntity != nil {
+                self.updateTransform()
+            }
+        }
+    }
     
     @MainActor
     var mediaPortValue: AsyncMediaValue? {
@@ -228,13 +236,8 @@ final class LayerViewModel: Sendable {
     // 3D
     @MainActor var transform3D: PortValue {
         didSet(oldValue) {
-            if self.transform3D != oldValue,
-               let entity = self.mediaObject?.model3DEntity {
-                let transform = self.transform3D.getTransform ?? .zero
-                let matrix = simd_float4x4(position: transform.position3D,
-                                           scale: transform.scale3D,
-                                           rotation: transform.rotation3D)
-                entity.applyMatrix(newMatrix: matrix)
+            if self.transform3D != oldValue {
+                self.updateTransform()
             }
         }
     }
@@ -390,6 +393,9 @@ final class LayerViewModel: Sendable {
         
         self.nodeDelegate = nodeDelegate
         self.interactiveLayer.delegate = self
+        
+        // Update 3D transform
+        self.updateTransform()
     }
 
     @MainActor
@@ -460,6 +466,17 @@ extension LayerViewModel {
         if let videoPlayer = mediaObject?.video {
             videoPlayer.pause()
             videoPlayer.stitchVideoDelegate.removeAllObservers()
+        }
+    }
+    
+    @MainActor
+    private func updateTransform() {
+        if let entity = self.mediaObject?.model3DEntity {
+            let transform = self.transform3D.getTransform ?? .zero
+            let matrix = simd_float4x4(position: transform.position3D,
+                                       scale: transform.scale3D,
+                                       rotation: transform.rotation3D)
+            entity.applyMatrix(newMatrix: matrix)
         }
     }
     

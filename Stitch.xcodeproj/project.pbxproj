@@ -999,7 +999,6 @@
 		B525BB472C18AFC300A98EB4 /* FileDropHandling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileDropHandling.swift; sourceTree = "<group>"; };
 		B526AFFD2C764E8D00B5971F /* SchemaVersions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaVersions.swift; sourceTree = "<group>"; };
 		B52A3E622B7F337400B4F1DA /* GraphCopyable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphCopyable.swift; sourceTree = "<group>"; };
-		B52DC1052D138AD6008169BA /* StitchSchemaKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = StitchSchemaKit; path = ../StitchSchemaKit; sourceTree = SOURCE_ROOT; };
 		B530494627A0CBF500D970BB /* ViewUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewUtils.swift; sourceTree = "<group>"; };
 		B5305CE6285150E2008F11F4 /* beach.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = beach.png; sourceTree = "<group>"; };
 		B530D5022C18AB390005C6A9 /* AppThemeActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppThemeActions.swift; sourceTree = "<group>"; };
@@ -1918,7 +1917,6 @@
 		200BD859254F66EB00692903 /* Stitch */ = {
 			isa = PBXGroup;
 			children = (
-				B52DC1052D138AD6008169BA /* StitchSchemaKit */,
 				EC15E425260271C6006F2E08 /* Stitch.entitlements */,
 				200BD863254F66EE00692903 /* Info.plist */,
 				B5617A7B2C175C3C00B53DAF /* App */,
@@ -6388,7 +6386,7 @@
 			repositoryURL = "https://github.com/StitchDesign/StitchSchemaKit";
 			requirement = {
 				kind = revision;
-				revision = 4d5d536b91b3d14a7c92b517865084f99f63f877;
+				revision = 646a854ce3a7d02c1a6d463a02e088f341810a0c;
 			};
 		};
 		EC1137362719F9B400ADCA72 /* XCRemoteSwiftPackageReference "swift-collections" */ = {

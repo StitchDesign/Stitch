@@ -76,11 +76,10 @@ struct Preview3DModelLayer: View {
     
     var body: some View {
         Group {
-            if let realityContent = self.realityContent,
-               let entity = self.entity {
+            if let realityContent = self.realityContent {
                 Color.clear
                     .modifier(ModelEntityLayerViewModifier(previewLayer: layerViewModel,
-                                                           entity: entity,
+                                                           entity: self.entity,
                                                            realityContent: realityContent,
                                                            graph: graph,
                                                            anchorEntityId: anchorEntityId))
@@ -132,59 +131,75 @@ struct ModelEntityLayerViewModifier: ViewModifier {
     @State private var anchorEntity: AnchorEntity = .init()
     
     let previewLayer: LayerViewModel
-    let entity: StitchEntity
+    let entity: StitchEntity?
     let realityContent: LayerRealityCameraContent
     let graph: GraphState
     let anchorEntityId: UUID?
     
     func asssignNewAnchor(_ newAnchor: AnchorEntity,
-                          entity: StitchEntity,
+                          entity: StitchEntity?,
                           to realityContent: LayerRealityCameraContent) {
         self.anchorEntity = newAnchor
-        newAnchor.addChild(entity.containerEntity)
+        
+        if let entity = entity {
+            newAnchor.addChild(entity.containerEntity)
+        }
+        
         realityContent.addAnchor(newAnchor)
+    }
+    
+    func getAnchor(for nodeId: UUID) -> AnchorEntity? {
+        // TODO: support looping in reality view
+        guard let observer = self.graph.getNodeViewModel(nodeId)?.ephemeralObservers?.first as? ARAnchorObserver else {
+            return nil
+        }
+        
+        return observer.arAnchor
     }
     
     func body(content: Content) -> some View {
         content
-            .onChange(of: self.entity, initial: true) {
-                let anchor = AnchorEntity()
-                self.anchorEntity = anchor
+            .onAppear {
+                if let anchorId = self.anchorEntityId,
+                   let assignedAnchor = self.getAnchor(for: anchorId) {
+                    self.anchorEntity = assignedAnchor
+                }
                 
-                anchor.addChild(entity.containerEntity)
-                realityContent.addAnchor(anchor)
+                realityContent.addAnchor(self.anchorEntity)
             }
-            .onChange(of: self.anchorEntityId, initial: true) { _, newAnchorEntityId in
+            .onChange(of: self.anchorEntityId) { _, newAnchorEntityId in
                 // Remove old anchor from reality
                 let oldAnchor = self.anchorEntity
                 realityContent.removeAnchor(oldAnchor)
                 
-                // add back entity to scene (which would have gotten removed by above
-                self.asssignNewAnchor(AnchorEntity(),
-                                      entity: entity,
-                                      to: realityContent)
-                
                 guard let newAnchorEntityId = newAnchorEntityId else {
                     self.asssignNewAnchor(AnchorEntity(),
-                                          entity: entity,
+                                          entity: self.entity,
                                           to: realityContent)
                     return
                 }
                 
-                // TODO: support looping in reality view
-                guard let anchorObserver = self.graph.getNodeViewModel(newAnchorEntityId)?.ephemeralObservers?.first as? ARAnchorObserver else {
+                guard let anchor = self.getAnchor(for: newAnchorEntityId) else {
                     self.asssignNewAnchor(AnchorEntity(),
-                                          entity: entity,
+                                          entity: self.entity,
                                           to: realityContent)
                     fatalErrorIfDebug()
                     return
                 }
                 
-                guard let anchor = anchorObserver.arAnchor else { return }
-                
                 self.asssignNewAnchor(anchor,
-                                      entity: entity,
+                                      entity: self.entity,
                                       to: realityContent)
+            }
+            .onChange(of: self.entity, initial: true) { oldEntity, newEntity in
+                // Remove old entity
+                if let oldEntity = oldEntity {
+                    self.anchorEntity.removeChild(oldEntity.containerEntity)
+                }
+                
+                if let newEntity = newEntity {
+                    self.anchorEntity.addChild(newEntity.containerEntity)
+                }
             }
             .onDisappear {
                 realityContent.removeAnchor(self.anchorEntity)

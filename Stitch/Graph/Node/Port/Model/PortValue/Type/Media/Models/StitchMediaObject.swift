@@ -119,29 +119,6 @@ extension StitchMediaObject {
             
             self = .model3D(stitchEntity)
 
-//        case .arAnchor(let anchor):
-//            guard let otherAnchor = otherMediaObject.arAnchor else {
-//                return
-//            }
-//
-//            DispatchQueue.main.async { [weak anchor, weak otherAnchor] in
-//                guard let anchor = anchor,
-//                      let otherAnchor = otherAnchor else {
-//                    return
-//                }
-//                
-//                anchor.transform = otherAnchor.transform
-//
-//                let currentEntities = Set(anchor.children)
-//                let otherEntities = Set(otherAnchor.children)
-//
-//                // Reset entities in anchors
-//                anchor.removeAllEntities(currentEntities.map { $0 })
-//                otherEntities.forEach { anchor.addChild($0) }
-//            }
-//
-//            self = .arAnchor(anchor)
-
         case .coreMLImageModel:
             // Nothing to transfer
             return
