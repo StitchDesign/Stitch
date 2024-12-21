@@ -12,7 +12,7 @@ protocol DocumentEncodable: Actor where CodableDocument == DocumentDelegate.Coda
     associatedtype DocumentDelegate: DocumentEncodableDelegate
     associatedtype CodableDocument: StitchDocumentEncodable & Sendable
     
-    var documentId: CodableDocument.ID { get set }
+    var documentId: CodableDocument.ID { get }
     
     var saveLocation: EncoderDirectoryLocation { get }
     

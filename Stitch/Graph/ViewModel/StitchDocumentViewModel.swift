@@ -129,11 +129,22 @@ final class StitchDocumentViewModel: Sendable {
 extension StitchDocumentViewModel: DocumentEncodableDelegate {
     @MainActor var lastEncodedDocument: StitchDocument {
         get {
-            self.projectLoader?.loadingDocument.document ?? StitchDocument()
+            guard let document = self.projectLoader?.lastEncodedDocument else {
+                fatalErrorIfDebug()
+                return StitchDocument()
+            }
+            
+            return document
         }
         set(newValue) {
-            self.projectLoader?.loadingDocument = .loaded(newValue,
-                                                          self.projectLoader?.thumbnail)
+            guard let projectLoader = self.projectLoader else {
+                fatalErrorIfDebug()
+                return
+            }
+            
+            projectLoader.lastEncodedDocument = newValue
+            projectLoader.loadingDocument = .loaded(newValue,
+                                                    self.projectLoader?.thumbnail)
         }
     }
     

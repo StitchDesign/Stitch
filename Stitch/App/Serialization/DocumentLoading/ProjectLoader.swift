@@ -27,8 +27,19 @@ final class ProjectLoader: Sendable, Identifiable {
     
     @MainActor var modifiedDate: Date
     @MainActor var encoder: DocumentEncoder?
-    @MainActor var loadingDocument: DocumentLoadingStatus = .initialized
+    
+    @MainActor var loadingDocument: DocumentLoadingStatus = .initialized {
+        didSet {
+            if let loadedDocument = self.loadingDocument.document {
+                self.lastEncodedDocument = loadedDocument
+            }
+        }
+    }
+    
     @MainActor var thumbnail: UIImage?
+
+    // Needs to be separate from loadingDocument so it can always be accessed even when loading
+    @MainActor var lastEncodedDocument: StitchDocument?
     
     // assigned if project is opened
     @MainActor var documentViewModel: StitchDocumentViewModel?
