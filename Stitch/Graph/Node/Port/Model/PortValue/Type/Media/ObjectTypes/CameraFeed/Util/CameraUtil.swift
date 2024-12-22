@@ -117,6 +117,8 @@ extension StitchDocumentViewModel {
             self.deactivateCamera()
         }
 
+        self.cameraFeedManager = .loading
+        
         // Separating creation from destruction fixes ARView issue where camera direction changes
         // cause camera sessions to break
         Task { @MainActor [weak self] in
