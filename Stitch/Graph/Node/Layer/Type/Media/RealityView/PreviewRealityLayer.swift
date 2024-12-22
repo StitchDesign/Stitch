@@ -159,9 +159,12 @@ struct RealityLayerView: View {
                     Color.clear
 #if !targetEnvironment(macCatalyst)
                         .onAppear {
-                            let nodeId = self.layerViewModel.id.layerNodeId.id
-                            document.realityViewCreatedWithoutCamera(graph: graph,
-                                                                     nodeId: nodeId)
+                            // Cannot accidentally call this multiple times!
+                            if isPinnedViewRendering {
+                                let nodeId = self.layerViewModel.id.layerNodeId.id
+                                document.realityViewCreatedWithoutCamera(graph: graph,
+                                                                         nodeId: nodeId)
+                            }
                         }
 #endif
                     

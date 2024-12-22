@@ -98,29 +98,36 @@ extension StitchDocumentViewModel {
                        graph: GraphDelegate,
                        newNode: NodeId? = nil) {
         // Update camera in media manager
-        let cameraFeed = self.createCamera(for: nodeKind,
-                                           graph: graph,
-                                           newNode: newNode)
-        self.cameraFeedManager = .loaded(.cameraFeedManager(cameraFeed))
+        self.createCamera(for: nodeKind,
+                          graph: graph,
+                          newNode: newNode)
     }
 
     @MainActor
     func createCamera(for nodeKind: NodeKind,
                       graph: GraphDelegate,
-                      newNode: NodeId? = nil) -> CameraFeedManager {
+                      newNode: NodeId? = nil) {
         if let newNode = newNode {
             graph.enabledCameraNodeIds.insert(newNode)
         }
 
         // Reset camera
         if self.cameraFeedManager != nil {
+            self.cameraFeed?.arView?.stopRunning()
             self.deactivateCamera()
         }
 
-        let cameraFeed = CameraFeedManager(cameraSettings: self.cameraSettings,
-                                           isEnabled: true,
-                                           documentDelegate: self)
-        return cameraFeed
+        // Separating creation from destruction fixes ARView issue where camera direction changes
+        // cause camera sessions to break
+        Task { @MainActor [weak self] in
+            guard let document = self else { return }
+            
+            let cameraFeed = CameraFeedManager(cameraSettings: document.cameraSettings,
+                                               isEnabled: true,
+                                               documentDelegate: document)
+            
+            document.cameraFeedManager = .loaded(.cameraFeedManager(cameraFeed))
+        }
     }
 
     @MainActor
