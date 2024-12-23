@@ -7,11 +7,38 @@
 
 import Foundation
 import SwiftyJSON
+import SwiftUI
 
 struct MakeOpenAIRequest: StitchDocumentEvent {
     let prompt: String
+    @State private var systemPrompt: String = ""
+
+
+    private func loadFiles() {
+        if let filePath = Bundle.main.path(forResource: "SYSTEM_PROMPT", ofType: "txt") {
+            do {
+                systemPrompt = try String(contentsOfFile: filePath, encoding: .utf8)
+            } catch {
+//                alertMessage = "Failed to load system prompt: \(error.localizedDescription)"
+//                showAlert = true
+            }
+        } else {
+//            alertMessage = "System prompt file not found in the app bundle."
+//            showAlert = true
+        }
+
+//        if let filePath = Bundle.main.path(forResource: "StitchStructuredOutputSchema", ofType: "json"),
+//           let data = try? Data(contentsOf: URL(fileURLWithPath: filePath)) {
+//            schema = JSON(data)
+//        } else {
+//            alertMessage = "Failed to load or parse the schema file."
+//            showAlert = true
+//        }
+    }
+
     
     func handle(state: StitchDocumentViewModel) {
+        loadFiles()
         guard let openAIAPIURL = URL(string: OPEN_AI_BASE_URL) else {
             state.showErrorModal(message: "Invalid URL",
                                userPrompt: prompt,
@@ -46,33 +73,7 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
            let prettyPrintedStr = String(data: prettyJsonData, encoding: .utf8) {
             print(prettyPrintedStr)
         }
-        
-        
-//        
-//        let requestDict: [String: Any] = [
-//            "model": OPEN_AI_MODEL,
-//            "n": 1,
-//            "temperature": 0,
-//            "response_format": [
-//                "type": "json_schema",
-//                "json_schema": [
-//                    "name": "VisualProgrammingActions",
-//                    "strict": true,
-//                    "schema": schemaDict
-//                ]
-//            ],
-//            "messages": [
-//                [
-//                    "role": "system",
-//                    "content": SYSTEM_PROMPT
-//                ],
-//                [
-//                    "role": "user",
-//                    "content": prompt
-//                ]
-//            ]
-//        ]
-        
+ 
         
         // Construct the request payload
         let payload: [String: Any] = [
@@ -88,7 +89,7 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
                 ]
             ],
             "messages": [
-                ["role": "system", "content": SYSTEM_PROMPT],
+                ["role": "system", "content": systemPrompt],
                 ["role": "user", "content": prompt]
             ]
         ]
