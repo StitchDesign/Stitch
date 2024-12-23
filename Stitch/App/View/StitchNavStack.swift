@@ -20,6 +20,11 @@ struct StitchNavStack: View {
                                           document: document,
                                           graphUI: document.graphUI,
                                           alertState: store.alertState)
+                        .onDisappear {
+                            // Remove document from project loader
+                            // MARK: logic needs to be here as its the one place guaranteed to have the project
+                            projectLoader.documentViewModel = nil
+                        }
                     }
                 }
                 .onChange(of: store.isCurrentProjectSelected) {
