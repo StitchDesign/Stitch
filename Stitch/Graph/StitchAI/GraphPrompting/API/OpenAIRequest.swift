@@ -11,7 +11,7 @@ import SwiftUI
 
 struct MakeOpenAIRequest: StitchDocumentEvent {
     let prompt: String
-    let systemPrompt: String  
+    let systemPrompt: String
     let schema: JSON
     
     init(prompt: String) {
@@ -180,6 +180,7 @@ private func sendOpenAIRequest(userMessage: String, systemPrompt: String, schema
 
     return data
 }
+
 extension Data {
     func getOpenAISteps() -> (LLMStepActions?, Error?) {
         do {
@@ -191,16 +192,15 @@ extension Data {
             }
             
             let contentJSON = try firstChoice.message.parseContent()
+
+            return (contentJSON.jsonSchema.actions, nil)
             
-            return (contentJSON.steps, nil)
         } catch {
             print("getOpenAISteps: some error \(error.localizedDescription)")
             return (nil, error)
         }
-        
     }
 }
-
 
 extension Stitch.Step: CustomStringConvertible {
     public var description: String {

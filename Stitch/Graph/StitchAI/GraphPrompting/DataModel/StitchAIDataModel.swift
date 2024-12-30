@@ -9,19 +9,80 @@ import Foundation
 import SwiftyJSON
 
 struct OpenAIResponse: Codable {
+    var id: String
+    var object: String
+    var created: Int
+    var model: String
     var choices: [Choice]
+    var usage: Usage
+    var systemFingerprint: String
+    
+    enum CodingKeys: String, CodingKey {
+        case id, object, created, model, choices, usage
+        case systemFingerprint = "system_fingerprint"
+    }
+}
+
+struct Usage: Codable {
+    var promptTokens: Int
+    var completionTokens: Int
+    var totalTokens: Int
+    var promptTokensDetails: TokenDetails
+    var completionTokensDetails: CompletionTokenDetails
+    
+    enum CodingKeys: String, CodingKey {
+        case promptTokens = "prompt_tokens"
+        case completionTokens = "completion_tokens"
+        case totalTokens = "total_tokens"
+        case promptTokensDetails = "prompt_tokens_details"
+        case completionTokensDetails = "completion_tokens_details"
+    }
+}
+
+struct TokenDetails: Codable {
+    var cachedTokens: Int
+    var audioTokens: Int
+    
+    enum CodingKeys: String, CodingKey {
+        case cachedTokens = "cached_tokens"
+        case audioTokens = "audio_tokens"
+    }
+}
+
+struct CompletionTokenDetails: Codable {
+    var reasoningTokens: Int
+    var audioTokens: Int
+    var acceptedPredictionTokens: Int
+    var rejectedPredictionTokens: Int
+    
+    enum CodingKeys: String, CodingKey {
+        case reasoningTokens = "reasoning_tokens"
+        case audioTokens = "audio_tokens"
+        case acceptedPredictionTokens = "accepted_prediction_tokens"
+        case rejectedPredictionTokens = "rejected_prediction_tokens"
+    }
 }
 
 struct Choice: Codable {
+    var index: Int
     var message: MessageStruct
+    var logprobs: JSON?
+    var finishReason: String
+    
+    enum CodingKeys: String, CodingKey {
+        case index, message, logprobs
+        case finishReason = "finish_reason"
+    }
 }
 
 struct MessageStruct: Codable {
+    var role: String
     var content: String
     var refusal: String?
     
     func parseContent() throws -> ContentJSON {
         guard let contentData = content.data(using: .utf8) else {
+            print("Debug - raw content: \(content)")
             throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: [], debugDescription: "Invalid content data"))
         }
         return try JSONDecoder().decode(ContentJSON.self, from: contentData)
@@ -29,17 +90,18 @@ struct MessageStruct: Codable {
 }
 
 struct ContentJSON: Codable {
-    var steps: [Step]
+    var jsonSchema: JSONSchema
+    
+    enum CodingKeys: String, CodingKey {
+        case jsonSchema = "json_schema"
+    }
 }
 
-typealias LLMStepAction = Step
-typealias LLMStepActions = [LLMStepAction]
+struct JSONSchema: Codable {
+    var name: String
+    var actions: [Step]
+}
 
-// TODO: use several different data structures with more specific parameters, rather than a single data structure with tons of optional parameters
-// TODO: make parameters more specific? e.g. `nodeName` should be `PatchOrLayer?` instead of `String?`
-
-// should actually be an enum like LLMAction ? So that we can avoid the many `nil` parameters?
-// worst case, keep this data structure for decoding OpenAI json schema, and easily translate between these two ?
 struct Step: Equatable, Codable {
     var stepType: String
     var nodeId: String?
@@ -115,3 +177,12 @@ enum StepType: String, Equatable, Codable {
     case changeNodeType = "change_node_type"
     case setInput = "set_input"
 }
+
+typealias LLMStepAction = Step
+typealias LLMStepActions = [LLMStepAction]
+
+// TODO: use several different data structures with more specific parameters, rather than a single data structure with tons of optional parameters
+// TODO: make parameters more specific? e.g. `nodeName` should be `PatchOrLayer?` instead of `String?`
+
+// should actually be an enum like LLMAction ? So that we can avoid the many `nil` parameters?
+// worst case, keep this data structure for decoding OpenAI json schema, and easily translate between these two ?
