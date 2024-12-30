@@ -11,35 +11,30 @@ import SwiftUI
 
 struct MakeOpenAIRequest: StitchDocumentEvent {
     let prompt: String
-    @State private var systemPrompt: String = ""
-    @State private var schema: JSON = JSON()
-
-    private func loadFiles() {
+    let systemPrompt: String  
+    let schema: JSON
+    
+    init(prompt: String) {
+        self.prompt = prompt
+        
+        // Load system prompt
+        var loadedPrompt = ""
         if let filePath = Bundle.main.path(forResource: "SYSTEM_PROMPT", ofType: "txt") {
-            do {
-                systemPrompt = try String(contentsOfFile: filePath, encoding: .utf8)
-            } catch {
-//                alertMessage = "Failed to load system prompt: \(error.localizedDescription)"
-//                showAlert = true
-            }
-        } else {
-//            alertMessage = "System prompt file not found in the app bundle."
-//            showAlert = true
+            loadedPrompt = (try? String(contentsOfFile: filePath, encoding: .utf8)) ?? ""
         }
-
+        self.systemPrompt = loadedPrompt
+        
+        // Load schema
+        var loadedSchema = JSON()
         if let jsonFilePath = Bundle.main.path(forResource: "StitchStructuredOutputSchema", ofType: "json"),
            let data = try? Data(contentsOf: URL(fileURLWithPath: jsonFilePath)) {
-            schema = JSON(data)
-        } else {
-//            alertMessage = "Failed to load or parse the schema file."
-//            showAlert = true
+            loadedSchema = JSON(data)
         }
+        self.schema = loadedSchema
     }
-
     
     func handle(state: StitchDocumentViewModel) {
-        loadFiles()
-        guard let openAIAPIURL = URL(string: OPEN_AI_BASE_URL) else {
+        guard let openAIAPIURL = URL(string: "https://api.openai.com/v1/chat/completions") else {
             state.showErrorModal(message: "Invalid URL",
                                userPrompt: prompt,
                                jsonResponse: nil)
@@ -56,43 +51,8 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
         
         var request = URLRequest(url: openAIAPIURL)
         request.httpMethod = "POST"
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
-        
-        // Parse the schema once
-        guard let jsonData = VISUAL_PROGRAMMING_ACTIONS_SCHEMA.data(using: .utf8),
-              let schemaDict = try? JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers) as? [String: Any] else {
-            state.showErrorModal(message: "Failed to parse schema",
-                                userPrompt: prompt,
-                                jsonResponse: nil)
-            return
-        }
-
-        print(schemaDict)
-        if let prettyJsonData = try? JSONSerialization.data(withJSONObject: schemaDict, options: .prettyPrinted),
-           let prettyPrintedStr = String(data: prettyJsonData, encoding: .utf8) {
-            print(prettyPrintedStr)
-        }
- 
-        
-        // Construct the request payload
-//        let payload: [String: Any] = [
-//            "model": OPEN_AI_MODEL,
-//            "n": 1,
-//            "temperature": 0,
-//            "response_format": [
-//                "type": "json_schema",
-//                "json_schema": [
-//                    "name": "VisualProgrammingActions",
-//                    "strict": true,
-//                    "schema": schemaDict
-//                ]
-//            ],
-//            "messages": [
-//                ["role": "system", "content": systemPrompt],
-//                ["role": "user", "content": prompt]
-//            ]
-//        ]
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         
         let payload = JSON([
             "model": "ft:gpt-4o-2024-08-06:adammenges::AdhLWSuL",
@@ -105,15 +65,10 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
             ]
         ])
 
-        
         do {
             let jsonData = try payload.rawData()
             request.httpBody = jsonData
-            
-            if let jsonString = String(data: jsonData, encoding: .utf8) {
-                    print("Final JSON Request Body:\n\(jsonString)")
-            }
-            
+            print("JSON Request Payload:\n\(payload.description)")
         } catch {
             state.showErrorModal(message: "Error encoding JSON: \(error.localizedDescription)",
                                userPrompt: prompt,
@@ -123,16 +78,13 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
         
         state.stitchAI.promptState.isGenerating = true
         
-        // Note: really, should return a proper `Effect` here
         URLSession.shared.dataTask(with: request) { data, _, error in
-            // Make the request and dispatch (on the main thread) an action that will handle the request's result
             DispatchQueue.main.async {
                 dispatch(OpenAIRequestCompleted(originalPrompt: prompt, data: data, error: error))
             }
         }.resume()
     }
 }
-
 
 struct OpenAIRequestCompleted: StitchDocumentEvent {
     let originalPrompt: String
