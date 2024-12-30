@@ -6,12 +6,13 @@
 //
 
 import Foundation
-import SwiftyJSON
+@preconcurrency import SwiftyJSON
 import SwiftUI
 
 struct MakeOpenAIRequest: StitchDocumentEvent {
     let prompt: String
     @State private var systemPrompt: String = ""
+    @State private var schema: JSON = JSON()
 
 
     private func loadFiles() {
@@ -27,13 +28,13 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
 //            showAlert = true
         }
 
-//        if let filePath = Bundle.main.path(forResource: "StitchStructuredOutputSchema", ofType: "json"),
-//           let data = try? Data(contentsOf: URL(fileURLWithPath: filePath)) {
-//            schema = JSON(data)
-//        } else {
+        if let jsonFilePath = Bundle.main.path(forResource: "StitchStructuredOutputSchema", ofType: "json"),
+           let data = try? Data(contentsOf: URL(fileURLWithPath: jsonFilePath)) {
+            schema = JSON(data)
+        } else {
 //            alertMessage = "Failed to load or parse the schema file."
 //            showAlert = true
-//        }
+        }
     }
 
     
@@ -76,26 +77,38 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
  
         
         // Construct the request payload
-        let payload: [String: Any] = [
-            "model": OPEN_AI_MODEL,
+//        let payload: [String: Any] = [
+//            "model": OPEN_AI_MODEL,
+//            "n": 1,
+//            "temperature": 0,
+//            "response_format": [
+//                "type": "json_schema",
+//                "json_schema": [
+//                    "name": "VisualProgrammingActions",
+//                    "strict": true,
+//                    "schema": schemaDict
+//                ]
+//            ],
+//            "messages": [
+//                ["role": "system", "content": systemPrompt],
+//                ["role": "user", "content": prompt]
+//            ]
+//        ]
+        
+        let payload = JSON([
+            "model": "ft:gpt-4o-2024-08-06:adammenges::AdhLWSuL",
             "n": 1,
-            "temperature": 0,
-            "response_format": [
-                "type": "json_schema",
-                "json_schema": [
-                    "name": "VisualProgrammingActions",
-                    "strict": true,
-                    "schema": schemaDict
-                ]
-            ],
+            "temperature": 1,
+            "response_format": ["type": "json_object"],
             "messages": [
-                ["role": "system", "content": systemPrompt],
+                ["role": "system", "content": "\(systemPrompt)\nResponse must conform to this JSON schema: \(schema.description)"],
                 ["role": "user", "content": prompt]
             ]
-        ]
+        ])
+
         
         do {
-            let jsonData = try JSONSerialization.data(withJSONObject: payload, options: [])
+            let jsonData = try payload.rawData()
             request.httpBody = jsonData
             
             if let jsonString = String(data: jsonData, encoding: .utf8) {
