@@ -14,7 +14,6 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
     @State private var systemPrompt: String = ""
     @State private var schema: JSON = JSON()
 
-
     private func loadFiles() {
         if let filePath = Bundle.main.path(forResource: "SYSTEM_PROMPT", ofType: "txt") {
             do {
@@ -186,8 +185,50 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
     }
 }
 
+private func sendOpenAIRequest(userMessage: String, systemPrompt: String, schema: JSON, apiKey: String) async throws -> Data {
+    guard let url = URL(string: "https://api.openai.com/v1/chat/completions") else {
+        throw URLError(.badURL)
+    }
+
+    let payload = JSON([
+        "model": "ft:gpt-4o-2024-08-06:adammenges::AdhLWSuL",
+        "n": 1,
+        "temperature": 1,
+        "response_format": ["type": "json_object"],
+        "messages": [
+            ["role": "system", "content": "\(systemPrompt)\nResponse must conform to this JSON schema: \(schema.description)"],
+            ["role": "user", "content": userMessage]
+        ]
+    ])
+
+    let jsonData = try payload.rawData()
+    print("JSON Request Payload:\n\(payload.description)")
+
+    var request = URLRequest(url: url)
+    request.httpMethod = "POST"
+    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+    request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+    request.httpBody = jsonData
+
+    let (data, response) = try await URLSession.shared.data(for: request)
+
+    // Check for empty data
+    if data.isEmpty {
+        throw NSError(domain: "MakeOpenAIRequest", code: 3, userInfo: [NSLocalizedDescriptionKey: "The response data is empty."])
+    }
+
+    // Log raw response
+    if let httpResponse = response as? HTTPURLResponse {
+        print("HTTP Response Status Code: \(httpResponse.statusCode)")
+    }
+
+    if let rawResponse = String(data: data, encoding: .utf8) {
+        print("Raw Response: \(rawResponse)")
+    }
+
+    return data
+}
 extension Data {
-    
     func getOpenAISteps() -> (LLMStepActions?, Error?) {
         do {
             let response = try JSONDecoder().decode(OpenAIResponse.self, from: self)
