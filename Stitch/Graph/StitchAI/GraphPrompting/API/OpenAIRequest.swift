@@ -34,7 +34,7 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
     }
     
     func handle(state: StitchDocumentViewModel) {
-        guard let openAIAPIURL = URL(string: "https://api.openai.com/v1/chat/completions") else {
+        guard let openAIAPIURL = URL(string: OPEN_AI_BASE_URL) else {
             state.showErrorModal(message: "Invalid URL",
                                userPrompt: prompt,
                                jsonResponse: nil)
@@ -55,7 +55,7 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
         request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         
         let payload = JSON([
-            "model": "ft:gpt-4o-2024-08-06:adammenges::AdhLWSuL",
+            "model": OPEN_AI_MODEL,
             "n": 1,
             "temperature": 1,
             "response_format": ["type": "json_object"],
