@@ -146,12 +146,9 @@ private func sendOpenAIRequest(userMessage: String, systemPrompt: String, schema
         "model": "ft:gpt-4o-2024-08-06:adammenges::AdhLWSuL",
         "n": 1,
         "temperature": 1,
-        "response_format": [
-            "type": "json_object",
-            "schema": schema
-        ],
+        "response_format": ["type": "json_object"],
         "messages": [
-            ["role": "system", "content": systemPrompt],
+            ["role": "system", "content": "\(systemPrompt)\nResponse must conform to this JSON schema: \(schema.description)"],
             ["role": "user", "content": userMessage]
         ]
     ])
@@ -207,6 +204,8 @@ extension Data {
 }
 
 
+
+// Rest of the file remains the same
 
 extension Stitch.Step: CustomStringConvertible {
     public var description: String {
