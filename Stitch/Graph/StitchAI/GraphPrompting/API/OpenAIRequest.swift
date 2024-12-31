@@ -146,12 +146,13 @@ private func sendOpenAIRequest(userMessage: String, systemPrompt: String, schema
         "model": "ft:gpt-4o-2024-08-06:adammenges::AdhLWSuL",
         "n": 1,
         "temperature": 1,
-        "response_format": ["type": "json_object"],
+        "response_format": schema,
         "messages": [
             ["role": "system", "content": "\(systemPrompt)\nResponse must conform to this JSON schema: \(schema.description)"],
             ["role": "user", "content": userMessage]
         ]
     ])
+
 
     let jsonData = try payload.rawData()
     print("JSON Request Payload:\n\(payload.description)")
