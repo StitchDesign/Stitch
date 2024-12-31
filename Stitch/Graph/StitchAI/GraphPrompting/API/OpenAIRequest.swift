@@ -181,6 +181,7 @@ private func sendOpenAIRequest(userMessage: String, systemPrompt: String, schema
     return data
 }
 
+
 extension Data {
     func getOpenAISteps() -> (LLMStepActions?, Error?) {
         do {
@@ -192,8 +193,8 @@ extension Data {
             }
             
             let contentJSON = try firstChoice.message.parseContent()
-
-            return (contentJSON.jsonSchema.actions, nil)
+            // Update to use steps directly from jsonSchema
+            return (contentJSON.jsonSchema.steps, nil)
             
         } catch {
             print("getOpenAISteps: some error \(error.localizedDescription)")
@@ -201,6 +202,10 @@ extension Data {
         }
     }
 }
+
+
+
+// Rest of the file remains the same
 
 extension Stitch.Step: CustomStringConvertible {
     public var description: String {

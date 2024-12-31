@@ -81,11 +81,37 @@ struct MessageStruct: Codable {
     var refusal: String?
     
     func parseContent() throws -> ContentJSON {
-        guard let contentData = content.data(using: .utf8) else {
+        // First, print the raw content for debugging
+        print("Raw content: \(content)")
+        
+        // Remove any escaped quotes that might be causing issues
+        let cleanedContent = content.replacingOccurrences(of: "\\\"", with: "\"")
+        
+        guard let contentData = cleanedContent.data(using: .utf8) else {
             print("Debug - raw content: \(content)")
             throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: [], debugDescription: "Invalid content data"))
         }
-        return try JSONDecoder().decode(ContentJSON.self, from: contentData)
+        
+        // Create a decoder with custom configuration
+        let decoder = JSONDecoder()
+        
+        // Try to decode directly to JSONSchema first
+        if let simpleSchema = try? decoder.decode([String: [String: [Step]]].self, from: contentData),
+           let steps = simpleSchema["json_schema"]?["steps"] {
+            // If successful, create a JSONSchema with the steps
+            let jsonSchema = JSONSchema(steps: steps, name: "VisualProgrammingActions", type: "json_schema")
+            return ContentJSON(jsonSchema: jsonSchema)
+        }
+        
+        // If that fails, try the full ContentJSON structure
+        do {
+            let result = try decoder.decode(ContentJSON.self, from: contentData)
+            print("Successfully decoded with \(result.jsonSchema.steps.count) actions")
+            return result
+        } catch {
+            print("Detailed decoding error: \(error)")
+            throw error
+        }
     }
 }
 
@@ -98,8 +124,17 @@ struct ContentJSON: Codable {
 }
 
 struct JSONSchema: Codable {
-    var name: String
-    var actions: [Step]
+    var steps: [Step]
+    var name: String?
+    var type: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case steps, name, type
+    }
+}
+
+struct Schema: Codable {
+    var steps: [Step]
 }
 
 struct Step: Equatable, Codable {
