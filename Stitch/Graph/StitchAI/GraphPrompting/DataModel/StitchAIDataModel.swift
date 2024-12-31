@@ -92,14 +92,7 @@ struct MessageStruct: Codable {
         // Create a decoder with custom configuration
         let decoder = JSONDecoder()
         
-        // Try to decode directly as ActionResponse first
-        if let actionResponse = try? decoder.decode(ActionResponse.self, from: contentData) {
-            // If successful, create a JSONSchema with the steps
-            let jsonSchema = JSONSchema(steps: actionResponse.actions)
-            return ContentJSON(from: jsonSchema)
-        }
-        
-        // If that fails, try the full ContentJSON structure
+        // Try to decode the full ContentJSON structure
         do {
             let result = try decoder.decode(ContentJSON.self, from: contentData)
             print("Successfully decoded with \(result.jsonSchema.steps.count) actions")
@@ -111,49 +104,62 @@ struct MessageStruct: Codable {
     }
 }
 
-struct ActionResponse: Codable {
-    let actions: [Step]
-}
-
 struct ContentJSON: Codable {
     var jsonSchema: JSONSchema
-    
-    init(from decoder: Decoder) throws {
-        // Try to decode as ActionResponse first
-        if let container = try? decoder.singleValueContainer(),
-           let actionResponse = try? container.decode(ActionResponse.self) {
-            // Create a JSONSchema with the actions
-            self.jsonSchema = JSONSchema(steps: actionResponse.actions)
-            return
-        }
-        
-        // If that fails, try the standard format
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.jsonSchema = try container.decode(JSONSchema.self, forKey: .jsonSchema)
-    }
     
     enum CodingKeys: String, CodingKey {
         case jsonSchema = "json_schema"
     }
 }
 
-extension ContentJSON {
-    init(from schema: JSONSchema) {
-        self.jsonSchema = schema
+struct JSONSchema: Codable {
+    var name: String?
+    var steps: [Step]
+    var strict: Bool?
+    
+    enum CodingKeys: String, CodingKey {
+        case name, steps, strict, schema
+    }
+    
+    enum SchemaCodingKeys: String, CodingKey {
+        case steps
+    }
+    
+    // Add custom decoder
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        // Try to decode steps directly first
+        if let directSteps = try? container.decode([Step].self, forKey: .steps) {
+            self.steps = directSteps
+            self.name = try? container.decode(String.self, forKey: .name)
+            self.strict = try? container.decode(Bool.self, forKey: .strict)
+            return
+        }
+        
+        // If that fails, try to decode from nested schema
+        if let schema = try? container.nestedContainer(keyedBy: SchemaCodingKeys.self, forKey: .schema) {
+            self.steps = try schema.decode([Step].self, forKey: .steps)
+            self.name = try? container.decode(String.self, forKey: .name)
+            self.strict = try? container.decode(Bool.self, forKey: .strict)
+            return
+        }
+        
+        throw DecodingError.dataCorrupted(DecodingError.Context(
+            codingPath: decoder.codingPath,
+            debugDescription: "Unable to decode steps from either direct or nested format"
+        ))
+    }
+    
+    // Add custom encoder
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(name, forKey: .name)
+        try container.encode(steps, forKey: .steps)
+        try container.encode(strict, forKey: .strict)
     }
 }
 
-struct JSONSchema: Codable {
-    var steps: [Step]
-    var name: String?
-    var type: String?
-    
-    init(steps: [Step], name: String? = "VisualProgrammingActions", type: String? = "json_schema") {
-        self.steps = steps
-        self.name = name
-        self.type = type
-    }
-}
 
 struct Schema: Codable {
     var steps: [Step]
