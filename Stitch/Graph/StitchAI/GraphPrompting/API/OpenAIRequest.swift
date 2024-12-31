@@ -194,7 +194,7 @@ extension Data {
             
             let contentJSON = try firstChoice.message.parseContent()
             // Update to use steps directly from jsonSchema
-            return (contentJSON.jsonSchema.steps, nil)
+            return (contentJSON.actions, nil)
             
         } catch {
             print("getOpenAISteps: some error \(error.localizedDescription)")

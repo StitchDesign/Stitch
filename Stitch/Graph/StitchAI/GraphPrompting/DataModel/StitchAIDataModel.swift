@@ -95,7 +95,7 @@ struct MessageStruct: Codable {
         // Try to decode the full ContentJSON structure
         do {
             let result = try decoder.decode(ContentJSON.self, from: contentData)
-            print("Successfully decoded with \(result.jsonSchema.steps.count) actions")
+            print("Successfully decoded with \(result.actions.count) actions")
             return result
         } catch {
             print("Detailed decoding error: \(error)")
@@ -103,13 +103,8 @@ struct MessageStruct: Codable {
         }
     }
 }
-
 struct ContentJSON: Codable {
-    var jsonSchema: JSONSchema
-    
-    enum CodingKeys: String, CodingKey {
-        case jsonSchema = "json_schema"
-    }
+    var actions: [Step]
 }
 
 struct JSONSchema: Codable {
