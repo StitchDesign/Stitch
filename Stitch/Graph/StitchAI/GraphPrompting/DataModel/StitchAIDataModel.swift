@@ -84,10 +84,7 @@ struct MessageStruct: Codable {
         // First, print the raw content for debugging
         print("Raw content: \(content)")
         
-        // Remove any escaped quotes that might be causing issues
-        let cleanedContent = content.replacingOccurrences(of: "\\\"", with: "\"")
-        
-        guard let contentData = cleanedContent.data(using: .utf8) else {
+        guard let contentData = content.data(using: .utf8) else {
             print("Debug - raw content: \(content)")
             throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: [], debugDescription: "Invalid content data"))
         }
@@ -95,12 +92,11 @@ struct MessageStruct: Codable {
         // Create a decoder with custom configuration
         let decoder = JSONDecoder()
         
-        // Try to decode directly to JSONSchema first
-        if let simpleSchema = try? decoder.decode([String: [String: [Step]]].self, from: contentData),
-           let steps = simpleSchema["json_schema"]?["steps"] {
+        // Try to decode directly as ActionResponse first
+        if let actionResponse = try? decoder.decode(ActionResponse.self, from: contentData) {
             // If successful, create a JSONSchema with the steps
-            let jsonSchema = JSONSchema(steps: steps, name: "VisualProgrammingActions", type: "json_schema")
-            return ContentJSON(jsonSchema: jsonSchema)
+            let jsonSchema = JSONSchema(steps: actionResponse.actions)
+            return ContentJSON(from: jsonSchema)
         }
         
         // If that fails, try the full ContentJSON structure
@@ -115,11 +111,35 @@ struct MessageStruct: Codable {
     }
 }
 
+struct ActionResponse: Codable {
+    let actions: [Step]
+}
+
 struct ContentJSON: Codable {
     var jsonSchema: JSONSchema
     
+    init(from decoder: Decoder) throws {
+        // Try to decode as ActionResponse first
+        if let container = try? decoder.singleValueContainer(),
+           let actionResponse = try? container.decode(ActionResponse.self) {
+            // Create a JSONSchema with the actions
+            self.jsonSchema = JSONSchema(steps: actionResponse.actions)
+            return
+        }
+        
+        // If that fails, try the standard format
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.jsonSchema = try container.decode(JSONSchema.self, forKey: .jsonSchema)
+    }
+    
     enum CodingKeys: String, CodingKey {
         case jsonSchema = "json_schema"
+    }
+}
+
+extension ContentJSON {
+    init(from schema: JSONSchema) {
+        self.jsonSchema = schema
     }
 }
 
@@ -128,8 +148,10 @@ struct JSONSchema: Codable {
     var name: String?
     var type: String?
     
-    enum CodingKeys: String, CodingKey {
-        case steps, name, type
+    init(steps: [Step], name: String? = "VisualProgrammingActions", type: String? = "json_schema") {
+        self.steps = steps
+        self.name = name
+        self.type = type
     }
 }
 
