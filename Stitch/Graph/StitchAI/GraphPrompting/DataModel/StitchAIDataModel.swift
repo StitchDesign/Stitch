@@ -103,8 +103,18 @@ struct MessageStruct: Codable {
         }
     }
 }
+
 struct ContentJSON: Codable {
-    var actions: [Step]
+    var jsonSchema: JSONSchema
+    
+    enum CodingKeys: String, CodingKey {
+        case jsonSchema = "json_schema"
+    }
+    
+    // Add computed property to maintain compatibility with existing code
+    var actions: [Step] {
+        return jsonSchema.steps
+    }
 }
 
 struct JSONSchema: Codable {
@@ -154,7 +164,6 @@ struct JSONSchema: Codable {
         try container.encode(strict, forKey: .strict)
     }
 }
-
 
 struct Schema: Codable {
     var steps: [Step]
