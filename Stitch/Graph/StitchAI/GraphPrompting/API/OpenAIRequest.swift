@@ -148,7 +148,7 @@ private func sendOpenAIRequest(userMessage: String, systemPrompt: String, schema
         "temperature": 1,
         "response_format": [
             "type": "json_object",
-            "schema": schema  
+            "schema": schema
         ],
         "messages": [
             ["role": "system", "content": systemPrompt],
@@ -207,8 +207,6 @@ extension Data {
 }
 
 
-
-// Rest of the file remains the same
 
 extension Stitch.Step: CustomStringConvertible {
     public var description: String {
