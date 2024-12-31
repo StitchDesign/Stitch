@@ -148,7 +148,7 @@ private func sendOpenAIRequest(userMessage: String, systemPrompt: String, schema
         "temperature": 1,
         "response_format": schema,
         "messages": [
-            ["role": "system", "content": "\(systemPrompt)\nResponse must conform to this JSON schema: \(schema.description)"],
+            ["role": "system", "content": "\(systemPrompt)"],
             ["role": "user", "content": userMessage]
         ]
     ])
