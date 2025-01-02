@@ -182,16 +182,11 @@ extension StitchDocumentViewModel {
             
         case .connectNodes:
             
-            guard let toPort: NodeIOPortType = action.parsePort() else {
-                log("❌ handleLLMStepAction: connectNodes failed to parse toPort:")
-                log("   - To Port: \(action.port?.value ?? "nil")")
-                log("   - Attempt: \(attempt) of \(maxAttempts)")
-                return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
-            }
-            
-            guard let fromNodeIdString: String = action.fromNodeId,
+            guard let toPort: NodeIOPortType = action.parsePort(),
+                  let fromNodeIdString: String = action.fromNodeId,
                   let toNodeIdString: String = action.toNodeId else {
-                log("❌ handleLLMStepAction: connectNodes missing node IDs:")
+                log("❌ handleLLMStepAction: connectNodes missing required data:")
+                log("   - To Port: \(action.port?.value ?? "nil")")
                 log("   - From Node ID: \(action.fromNodeId ?? "nil")")
                 log("   - To Node ID: \(action.toNodeId ?? "nil")")
                 log("   - Attempt: \(attempt) of \(maxAttempts)")
@@ -207,13 +202,13 @@ extension StitchDocumentViewModel {
                 return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
             }
             
-            let fromCoordinate = InputCoordinate(portType: .portIndex(0), nodeId: fromNodeId)
+            let fromCoordinate = OutputCoordinate(portType: .portIndex(action.fromPort ?? 0), nodeId: fromNodeId)
             let toCoordinate = InputCoordinate(portType: toPort, nodeId: toNodeId)
             let edge: PortEdgeData = PortEdgeData(from: fromCoordinate, to: toCoordinate)
             let _ = graph.edgeAdded(edge: edge)
             
             log("✅ Successfully connected nodes:")
-            log("   - From Node: \(fromNodeIdString) (Port: 0)")
+            log("   - From Node: \(fromNodeIdString) (Port: \(action.fromPort ?? 0))")
             log("   - To Node: \(toNodeIdString) (Port: \(toPort))")
             
             return canvasItemsAdded
