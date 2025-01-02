@@ -189,13 +189,6 @@ extension StitchDocumentViewModel {
                 return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
             }
             
-            guard let fromPortInt = action.fromPort else {
-                log("❌ handleLLMStepAction: connectNodes failed to get fromPort:")
-                log("   - From Port: \(action.fromPort ?? -1)")
-                log("   - Attempt: \(attempt) of \(maxAttempts)")
-                return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
-            }
-            
             guard let fromNodeIdString: String = action.fromNodeId,
                   let toNodeIdString: String = action.toNodeId else {
                 log("❌ handleLLMStepAction: connectNodes missing node IDs:")
@@ -214,13 +207,13 @@ extension StitchDocumentViewModel {
                 return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
             }
             
-            let fromCoordinate = InputCoordinate(portType: .portIndex(fromPortInt), nodeId: fromNodeId)
+            let fromCoordinate = InputCoordinate(portType: .portIndex(0), nodeId: fromNodeId)
             let toCoordinate = InputCoordinate(portType: toPort, nodeId: toNodeId)
             let edge: PortEdgeData = PortEdgeData(from: fromCoordinate, to: toCoordinate)
             let _ = graph.edgeAdded(edge: edge)
             
             log("✅ Successfully connected nodes:")
-            log("   - From Node: \(fromNodeIdString) (Port: \(fromPortInt))")
+            log("   - From Node: \(fromNodeIdString) (Port: 0)")
             log("   - To Node: \(toNodeIdString) (Port: \(toPort))")
             
             return canvasItemsAdded
