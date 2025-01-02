@@ -234,20 +234,43 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
 }
 
 extension Data {
-    func getOpenAISteps() -> (LLMStepActions?, Error?) {
+    func getOpenAISteps(attempt: Int = 1, maxAttempts: Int = 3, delaySeconds: TimeInterval = 1) -> (LLMStepActions?, Error?) {
+        print("Parsing JSON attempt \(attempt) of \(maxAttempts)")
+        
         do {
             let response = try JSONDecoder().decode(OpenAIResponse.self, from: self)
             
             guard let firstChoice = response.choices.first else {
-                print("getOpenAISteps: Invalid JSON structure: no choices available")
+                print("JSON parsing failed: No choices available")
+                if attempt < maxAttempts {
+                    print("Retrying JSON parse in \(delaySeconds) seconds")
+                    Thread.sleep(forTimeInterval: delaySeconds)
+                    return getOpenAISteps(attempt: attempt + 1, maxAttempts: maxAttempts, delaySeconds: delaySeconds)
+                }
                 return (nil, nil)
             }
             
-            let contentJSON = try firstChoice.message.parseContent()
-            return (contentJSON.actions, nil)
+            do {
+                let contentJSON = try firstChoice.message.parseContent()
+                print("JSON parsing succeeded")
+                return (contentJSON.actions, nil)
+            } catch {
+                print("JSON parsing failed: \(error.localizedDescription)")
+                if attempt < maxAttempts {
+                    print("Retrying JSON parse in \(delaySeconds) seconds")
+                    Thread.sleep(forTimeInterval: delaySeconds)
+                    return getOpenAISteps(attempt: attempt + 1, maxAttempts: maxAttempts, delaySeconds: delaySeconds)
+                }
+                return (nil, error)
+            }
             
         } catch {
-            print("getOpenAISteps: some error \(error.localizedDescription)")
+            print("JSON parsing failed: \(error.localizedDescription)")
+            if attempt < maxAttempts {
+                print("Retrying JSON parse in \(delaySeconds) seconds")
+                Thread.sleep(forTimeInterval: delaySeconds)
+                return getOpenAISteps(attempt: attempt + 1, maxAttempts: maxAttempts, delaySeconds: delaySeconds)
+            }
             return (nil, error)
         }
     }
