@@ -81,21 +81,19 @@ struct MessageStruct: Codable {
     var refusal: String?
     
     func parseContent() throws -> ContentJSON {
-        // First, print the raw content for debugging
-        print("Raw content: \(content)")
-        
         guard let contentData = content.data(using: .utf8) else {
             print("Debug - raw content: \(content)")
-            throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: [], debugDescription: "Invalid content data"))
+            throw DecodingError.dataCorrupted(DecodingError.Context(
+                codingPath: [],
+                debugDescription: "Failed to convert content string to data"
+            ))
         }
         
-        // Create a decoder with custom configuration
         let decoder = JSONDecoder()
         
-        // Try to decode the full ContentJSON structure
         do {
             let result = try decoder.decode(ContentJSON.self, from: contentData)
-            print("Successfully decoded with \(result.actions.count) actions")
+            print("Successfully decoded with \(result.steps.count) steps")
             return result
         } catch {
             print("Detailed decoding error: \(error)")
@@ -105,87 +103,23 @@ struct MessageStruct: Codable {
 }
 
 struct ContentJSON: Codable {
-    var jsonSchema: JSONSchema
+    var steps: [Step]
     
-    enum CodingKeys: String, CodingKey {
-        case jsonSchema = "json_schema"
-    }
-    
-    // Add computed property to maintain compatibility with existing code
+    // Computed property to maintain compatibility with existing code
     var actions: [Step] {
-        return jsonSchema.steps
+        return steps
     }
-}
-
-struct JSONSchema: Codable {
-    var name: String?
-    var steps: [Step]
-    var strict: Bool?
-    
-    enum CodingKeys: String, CodingKey {
-        case name, steps, strict, schema
-    }
-    
-    enum SchemaCodingKeys: String, CodingKey {
-        case steps
-    }
-    
-    // Add custom decoder
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        
-        // Try to decode steps directly first
-        if let directSteps = try? container.decode([Step].self, forKey: .steps) {
-            self.steps = directSteps
-            self.name = try? container.decode(String.self, forKey: .name)
-            self.strict = try? container.decode(Bool.self, forKey: .strict)
-            return
-        }
-        
-        // If that fails, try to decode from nested schema
-        if let schema = try? container.nestedContainer(keyedBy: SchemaCodingKeys.self, forKey: .schema) {
-            self.steps = try schema.decode([Step].self, forKey: .steps)
-            self.name = try? container.decode(String.self, forKey: .name)
-            self.strict = try? container.decode(Bool.self, forKey: .strict)
-            return
-        }
-        
-        throw DecodingError.dataCorrupted(DecodingError.Context(
-            codingPath: decoder.codingPath,
-            debugDescription: "Unable to decode steps from either direct or nested format"
-        ))
-    }
-    
-    // Add custom encoder
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(name, forKey: .name)
-        try container.encode(steps, forKey: .steps)
-        try container.encode(strict, forKey: .strict)
-    }
-}
-
-struct Schema: Codable {
-    var steps: [Step]
 }
 
 struct Step: Equatable, Codable {
     var stepType: String
     var nodeId: String?
     var nodeName: String?
-    
-    // NOTE: this is currently ALWAYS the input port (for edge-connection, for set-input etc.)
-    // We currently assume that an edge goes out from a patch's first output.
     var port: StringOrNumber?
-    
     var fromPort: Int?
-    
     var fromNodeId: String?
     var toNodeId: String?
-    
-//    var value: StringOrNumber?  // Updated to handle String or Int
     var value: JSONFriendlyFormat?
-    
     var nodeType: String?
     
     enum CodingKeys: String, CodingKey {
@@ -205,10 +139,7 @@ struct StringOrNumber: Equatable {
     let value: String
 }
 
-// Note: OpenAI may send us a JSON with e.g. a `port` key that either a json-number or a string; so we have slighlty
-// TODO: Better?: force OpenAI to return a string in the json, always?
 extension StringOrNumber: Codable {
-    
     func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(self.value)
@@ -228,11 +159,15 @@ extension StringOrNumber: Codable {
             self.value = stringValue
         } else if let jsonValue = try? container.decode(JSON.self) {
             log("StringOrNumber: Decoder: had json \(jsonValue)")
-            // escaped string?
             self.value = jsonValue.description
-        }
-        else {
-            throw DecodingError.typeMismatch(String.self, DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Expected String, Int, or Double"))
+        } else {
+            throw DecodingError.typeMismatch(
+                String.self,
+                DecodingError.Context(
+                    codingPath: decoder.codingPath,
+                    debugDescription: "Expected String, Int, or Double"
+                )
+            )
         }
     }
 }
@@ -248,8 +183,7 @@ enum StepType: String, Equatable, Codable {
 typealias LLMStepAction = Step
 typealias LLMStepActions = [LLMStepAction]
 
-// TODO: use several different data structures with more specific parameters, rather than a single data structure with tons of optional parameters
-// TODO: make parameters more specific? e.g. `nodeName` should be `PatchOrLayer?` instead of `String?`
-
-// should actually be an enum like LLMAction ? So that we can avoid the many `nil` parameters?
-// worst case, keep this data structure for decoding OpenAI json schema, and easily translate between these two ?
+// TODO: use several different data structures with more specific parameters,
+// rather than a single data structure with tons of optional parameters
+// TODO: make parameters more specific? e.g. `nodeName` should be `PatchOrLayer?`
+// instead of `String?`
