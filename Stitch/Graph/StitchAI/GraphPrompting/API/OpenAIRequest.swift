@@ -9,13 +9,27 @@ import Foundation
 @preconcurrency import SwiftyJSON
 import SwiftUI
 
+struct OpenAIRequestConfig {
+    let maxRetries: Int
+    let timeoutInterval: TimeInterval
+    let retryDelay: TimeInterval
+    
+    static let `default` = OpenAIRequestConfig(
+        maxRetries: 3,
+        timeoutInterval: 30,
+        retryDelay: 2
+    )
+}
+
 struct MakeOpenAIRequest: StitchDocumentEvent {
     let prompt: String
     let systemPrompt: String
     let schema: JSON
+    let config: OpenAIRequestConfig
     
-    init(prompt: String) {
+    init(prompt: String, config: OpenAIRequestConfig = .default) {
         self.prompt = prompt
+        self.config = config
         
         // Load system prompt
         var loadedPrompt = ""
@@ -33,24 +47,40 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
         self.schema = loadedSchema
     }
     
-    func handle(state: StitchDocumentViewModel) {
+    @MainActor func makeRequest(attempt: Int = 1, state: StitchDocumentViewModel) {
+        guard attempt <= config.maxRetries else {
+            print("All retry attempts exhausted")
+            state.showErrorModal(
+                message: "Request failed after \(config.maxRetries) attempts",
+                userPrompt: prompt,
+                jsonResponse: nil
+            )
+            state.stitchAI.promptState.isGenerating = false
+            return
+        }
+        
         guard let openAIAPIURL = URL(string: OPEN_AI_BASE_URL) else {
-            state.showErrorModal(message: "Invalid URL",
-                               userPrompt: prompt,
-                               jsonResponse: nil)
+            state.showErrorModal(
+                message: "Invalid URL",
+                userPrompt: prompt,
+                jsonResponse: nil
+            )
             return
         }
         
         guard let apiKey = UserDefaults.standard.string(forKey: OPENAI_API_KEY_NAME),
               !apiKey.isEmpty else {
-            state.showErrorModal(message: "No API Key found or API Key is empty",
-                               userPrompt: prompt,
-                               jsonResponse: nil)
+            state.showErrorModal(
+                message: "No API Key found or API Key is empty",
+                userPrompt: prompt,
+                jsonResponse: nil
+            )
             return
         }
         
         var request = URLRequest(url: openAIAPIURL)
         request.httpMethod = "POST"
+        request.timeoutInterval = config.timeoutInterval
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         
@@ -71,25 +101,77 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
             ]
         ]
         
-
         do {
             let jsonData = try JSONSerialization.data(withJSONObject: payload, options: [.withoutEscapingSlashes])
             request.httpBody = jsonData
-            print("JSON Request Payload:\n\(payload.description)")
+            print("Making request attempt \(attempt) of \(config.maxRetries)")
+            print("Request payload: \(payload.description)")
         } catch {
-            state.showErrorModal(message: "Error encoding JSON: \(error.localizedDescription)",
-                               userPrompt: prompt,
-                               jsonResponse: nil)
+            state.showErrorModal(
+                message: "Error encoding JSON: \(error.localizedDescription)",
+                userPrompt: prompt,
+                jsonResponse: nil
+            )
             return
         }
         
-        state.stitchAI.promptState.isGenerating = true
+        if attempt == 1 {
+            state.stitchAI.promptState.isGenerating = true
+        }
         
-        URLSession.shared.dataTask(with: request) { data, _, error in
+        URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
-                dispatch(OpenAIRequestCompleted(originalPrompt: prompt, data: data, error: error))
+                if let error = error as NSError? {
+                    // Check if it's a timeout error
+                    if error.code == NSURLErrorTimedOut ||
+                       error.code == NSURLErrorNetworkConnectionLost {
+                        print("Request failed: \(error.localizedDescription)")
+                        print("Retrying in \(config.retryDelay) seconds")
+                        
+                        DispatchQueue.main.asyncAfter(deadline: .now() + config.retryDelay) {
+                            self.makeRequest(attempt: attempt + 1, state: state)
+                        }
+                        return
+                    }
+                    
+                    // Handle other errors
+                    state.showErrorModal(
+                        message: "Request error: \(error.localizedDescription)",
+                        userPrompt: prompt,
+                        jsonResponse: nil
+                    )
+                    state.stitchAI.promptState.isGenerating = false
+                    return
+                }
+                
+                // Check HTTP status code
+                if let httpResponse = response as? HTTPURLResponse,
+                   !(200...299).contains(httpResponse.statusCode) {
+                    if httpResponse.statusCode == 429 || // Rate limit
+                       httpResponse.statusCode >= 500 {  // Server error
+                        print("Request failed with status code: \(httpResponse.statusCode)")
+                        print("Retrying in \(config.retryDelay) seconds")
+                        
+                        DispatchQueue.main.asyncAfter(deadline: .now() + config.retryDelay) {
+                            self.makeRequest(attempt: attempt + 1, state: state)
+                        }
+                        return
+                    }
+                }
+                
+                print("Request succeeded")
+                // Success case - dispatch completion event
+                dispatch(OpenAIRequestCompleted(
+                    originalPrompt: prompt,
+                    data: data,
+                    error: error
+                ))
             }
         }.resume()
+    }
+    
+    func handle(state: StitchDocumentViewModel) {
+        makeRequest(state: state)
     }
 }
 
@@ -103,16 +185,20 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
         state.stitchAI.promptState.isGenerating = false
         
         if let error = error {
-            state.showErrorModal(message: "Request error: \(error.localizedDescription)",
-                               userPrompt: originalPrompt,
-                               jsonResponse: nil)
+            state.showErrorModal(
+                message: "Request error: \(error.localizedDescription)",
+                userPrompt: originalPrompt,
+                jsonResponse: nil
+            )
             return
         }
         
         guard let data = data else {
-            state.showErrorModal(message: "No data received",
-                               userPrompt: originalPrompt,
-                               jsonResponse: nil)
+            state.showErrorModal(
+                message: "No data received",
+                userPrompt: originalPrompt,
+                jsonResponse: nil
+            )
             return
         }
         
@@ -122,9 +208,11 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
         let (stepsFromResponse, error) = data.getOpenAISteps()
         
         guard let stepsFromResponse = stepsFromResponse else {
-            state.showErrorModal(message: error?.localizedDescription ?? "",
-                               userPrompt: originalPrompt,
-                               jsonResponse: jsonResponse)
+            state.showErrorModal(
+                message: error?.localizedDescription ?? "",
+                userPrompt: originalPrompt,
+                jsonResponse: jsonResponse
+            )
             return
         }
         
@@ -137,13 +225,13 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
         stepsFromResponse.forEach { step in
             canvasItemsAdded = state.handleLLMStepAction(
                 step,
-                canvasItemsAdded: canvasItemsAdded)
+                canvasItemsAdded: canvasItemsAdded
+            )
         }
         
         state.closeStitchAIModal()
     }
 }
-
 
 extension Data {
     func getOpenAISteps() -> (LLMStepActions?, Error?) {
@@ -156,7 +244,6 @@ extension Data {
             }
             
             let contentJSON = try firstChoice.message.parseContent()
-            // Update to use steps directly from jsonSchema
             return (contentJSON.actions, nil)
             
         } catch {
