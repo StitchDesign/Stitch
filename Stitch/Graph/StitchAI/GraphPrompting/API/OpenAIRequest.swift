@@ -179,6 +179,50 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
     let originalPrompt: String
     let data: Data?
     let error: Error?
+    let maxParsingAttempts = 3
+    let parsingRetryDelay: TimeInterval = 1
+    
+    @MainActor func retryParsing(data: Data, attempt: Int, state: StitchDocumentViewModel) {
+        print("Retrying JSON parsing, attempt \(attempt) of \(maxParsingAttempts)")
+        
+        // Sleep briefly before retrying
+        Thread.sleep(forTimeInterval: parsingRetryDelay)
+        
+        // Try parsing again
+        let (stepsFromResponse, error) = data.getOpenAISteps()
+        
+        if let stepsFromResponse = stepsFromResponse {
+            print("JSON parsing succeeded on retry \(attempt)")
+            handleSuccessfulParse(steps: stepsFromResponse, state: state)
+        } else if attempt < maxParsingAttempts {
+            print("JSON parsing failed on retry \(attempt): \(error?.localizedDescription ?? "")")
+            retryParsing(data: data, attempt: attempt + 1, state: state)
+        } else {
+            print("All parsing retries exhausted")
+            state.showErrorModal(
+                message: error?.localizedDescription ?? "Failed to parse response after \(maxParsingAttempts) attempts",
+                userPrompt: originalPrompt,
+                jsonResponse: String(data: data, encoding: .utf8) ?? ""
+            )
+        }
+    }
+    
+    @MainActor func handleSuccessfulParse(steps: LLMStepActions, state: StitchDocumentViewModel) {
+        log("OpenAIRequestCompleted: stepsFromReponse:")
+        for step in steps {
+            log(step.description)
+        }
+        
+        var canvasItemsAdded = 0
+        steps.forEach { step in
+            canvasItemsAdded = state.handleLLMStepAction(
+                step,
+                canvasItemsAdded: canvasItemsAdded
+            )
+        }
+        
+        state.closeStitchAIModal()
+    }
     
     func handle(state: StitchDocumentViewModel) {
         // We've finished generating an OpenAI response from the prompt
@@ -205,31 +249,17 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
         let jsonResponse = String(data: data, encoding: .utf8) ?? "Invalid JSON format"
         log("OpenAIRequestCompleted: JSON RESPONSE: \(jsonResponse)")
         
+        // Initial parsing attempt
         let (stepsFromResponse, error) = data.getOpenAISteps()
         
-        guard let stepsFromResponse = stepsFromResponse else {
-            state.showErrorModal(
-                message: error?.localizedDescription ?? "",
-                userPrompt: originalPrompt,
-                jsonResponse: jsonResponse
-            )
-            return
+        if let stepsFromResponse = stepsFromResponse {
+            print("JSON parsing succeeded on first attempt")
+            handleSuccessfulParse(steps: stepsFromResponse, state: state)
+        } else {
+            print("Initial JSON parsing failed: \(error?.localizedDescription ?? "")")
+            print("Starting parsing retries")
+            retryParsing(data: data, attempt: 1, state: state)
         }
-        
-        log("OpenAIRequestCompleted: stepsFromReponse:")
-        for step in stepsFromResponse {
-            log(step.description)
-        }
-        
-        var canvasItemsAdded = 0
-        stepsFromResponse.forEach { step in
-            canvasItemsAdded = state.handleLLMStepAction(
-                step,
-                canvasItemsAdded: canvasItemsAdded
-            )
-        }
-        
-        state.closeStitchAIModal()
     }
 }
 
