@@ -55,7 +55,7 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
         request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         
         let payload: [String: Any] = [
-            "model": "ft:gpt-4o-2024-08-06:adammenges::AdhLWSuL",
+            "model": OPEN_AI_MODEL,
             "n": 1,
             "temperature": 1,
             "response_format": [
