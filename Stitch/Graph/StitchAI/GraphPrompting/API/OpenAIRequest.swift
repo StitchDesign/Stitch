@@ -54,19 +54,26 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         
-        let payload = JSON([
-            "model": OPEN_AI_MODEL,
+        let payload: [String: Any] = [
+            "model": "ft:gpt-4o-2024-08-06:adammenges::AdhLWSuL",
             "n": 1,
             "temperature": 1,
-            "response_format": schema,
-             "messages": [
-                ["role": "system", "content": "\(systemPrompt)\nResponse must conform to this JSON schema: \(schema.description)"],
+            "response_format": [
+                "type": "json_schema",
+                "json_schema": [
+                    "name": "VisualProgrammingActions",
+                    "schema": schema.object
+                ]
+            ],
+            "messages": [
+                ["role": "system", "content": systemPrompt + "Make sure your response follows this schema: \(String(describing: schema.string))"],
                 ["role": "user", "content": prompt]
             ]
-        ])
+        ]
+        
 
         do {
-            let jsonData = try payload.rawData()
+            let jsonData = try JSONSerialization.data(withJSONObject: payload, options: [.withoutEscapingSlashes])
             request.httpBody = jsonData
             print("JSON Request Payload:\n\(payload.description)")
         } catch {
