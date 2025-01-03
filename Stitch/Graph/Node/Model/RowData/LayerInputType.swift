@@ -1512,7 +1512,6 @@ extension LayerInputPort {
             return "Start Radius"
         case .endRadius:
             return "End Radius"
-            
         case .shadowColor:
             return useShortLabel ? "Color" : "Shadow Color"
         case .shadowOpacity:

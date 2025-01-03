@@ -20,11 +20,26 @@ extension StitchDocumentViewModel {
     // TODO: better?: do more decoding logic on the `LLMStepAction`-side; e.g. `LLMStepAction.nodeName` should be type `PatchOrLayer` rather than `String?`
     @MainActor
     func handleLLMStepAction(_ action: LLMStepAction,
-                             canvasItemsAdded: Int) -> Int {
+                             canvasItemsAdded: Int,
+                             attempt: Int = 1,
+                             maxAttempts: Int = 3) -> Int {
+        
+        // Check retry attempts
+        guard attempt <= maxAttempts else {
+            log("❌ All retry attempts exhausted for step action:")
+            log("   - Action Type: \(action.stepType)")
+            log("   - Node ID: \(action.nodeId ?? "nil")")
+            log("   - Node Name: \(action.nodeName ?? "nil")")
+            log("   - Port: \(action.port?.value ?? "nil")")
+            stitchAI.promptState.isGenerating = false
+            return canvasItemsAdded
+        }
         
         guard let stepType = StepType(rawValue: action.stepType) else {
-            fatalErrorIfDebug("handleLLMStepAction: no step type")
-            return canvasItemsAdded
+            log("⚠️ handleLLMStepAction: invalid step type:")
+            log("   - Raw Step Type: \(action.stepType)")
+            log("   - Attempt: \(attempt) of \(maxAttempts)")
+            return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
         }
         
         let newCenter = CGPoint(
@@ -40,11 +55,18 @@ extension StitchDocumentViewModel {
                   let newNode = self.nodeCreated(choice: nodeKind.asNodeKind,
                                                  center: newCenter) else {
                 
-                fatalErrorIfDebug("handleLLMStepAction: could not handle addNode")
-                return canvasItemsAdded
+                log("❌ handleLLMStepAction: addNode failed:")
+                log("   - Node ID: \(action.nodeId ?? "nil")")
+                log("   - Node Name: \(action.nodeName ?? "nil")")
+                log("   - Node Type: \(action.nodeType ?? "nil")")
+                log("   - Attempt: \(attempt) of \(maxAttempts)")
+                return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
             }
             
-            // TODO: if `action.nodeId` is always a real UUID and is referred to consistently across OpenAI-generated step-actions, then we don't need `llmNodeIdMapping` anymore ?
+            log("✅ Successfully added node:")
+            log("   - Node ID: \(llmNodeId)")
+            log("   - Node Kind: \(nodeKind)")
+            
             self.llmNodeIdMapping.updateValue(newNode.id, forKey: llmNodeId)
             
             return canvasItemsAdded + 1
@@ -57,47 +79,46 @@ extension StitchDocumentViewModel {
                   let nodeId = self.llmNodeIdMapping.get(llmNodeId),
                   let existingNode = self.graph.getNode(nodeId) else {
                 
-                fatalErrorIfDebug("handleLLMStepAction: could not handle changeNodeType")
-                return canvasItemsAdded
+                log("❌ handleLLMStepAction: changeNodeType failed:")
+                log("   - Node ID: \(action.nodeId ?? "nil")")
+                log("   - New Type: \(action.nodeType ?? "nil")")
+                log("   - Attempt: \(attempt) of \(maxAttempts)")
+                return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
             }
             
             let _ = self.graph.nodeTypeChanged(nodeId: existingNode.id,
                                                newNodeType: nodeType)
             
+            log("✅ Successfully changed node type:")
+            log("   - Node ID: \(llmNodeId)")
+            log("   - New Type: \(nodeType)")
+            
             return canvasItemsAdded
-               
+            
         case .setInput:
             
-            guard let nodeType: NodeType = action.parseNodeType(),
-                  let port: NodeIOPortType = action.parsePort() else {
-                fatalErrorIfDebug()
-                return canvasItemsAdded
-            }
-            
-            guard let value: PortValue = action.parseValue(nodeType, mapping: self.llmNodeIdMapping) else {
-                fatalErrorIfDebug()
-                return canvasItemsAdded
-            }
-            
-            guard let llmNodeId: String = action.nodeId,
-                  // Node must already exist
+            guard let port: NodeIOPortType = action.parsePort(),
+                  let value: PortValue = action.parseValueForSetInput(mapping: self.llmNodeIdMapping),
+                  let llmNodeId: String = action.nodeId,
                   let nodeId = self.llmNodeIdMapping.get(llmNodeId),
                   let existingNode = self.graph.getNode(nodeId) else {
-                
-                fatalErrorIfDebug("handleLLMStepAction: could not handle setInput")
-                return canvasItemsAdded
+                log("❌ handleLLMStepAction: setInput failed - missing required parameters")
+                log("   - Port: \(action.port?.value ?? "nil")")
+                log("   - Node ID: \(action.nodeId ?? "nil")")
+                log("   - Attempt: \(attempt) of \(maxAttempts)")
+                return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
             }
             
             let inputCoordinate = InputCoordinate(portType: port, nodeId: nodeId)
             
             guard let input = self.graph.getInputObserver(coordinate: inputCoordinate) else {
-                log("handleLLMStepAction: .setInput: No input")
-                return canvasItemsAdded
+                log("❌ handleLLMStepAction: setInput failed - could not get input observer")
+                log("   - Node ID: \(nodeId)")
+                log("   - Port: \(port)")
+                return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
             }
             
-            existingNode.removeIncomingEdge(at: inputCoordinate,
-                                            activeIndex: self.activeIndex)
-            
+            existingNode.removeIncomingEdge(at: inputCoordinate, activeIndex: self.activeIndex)
             input.setValuesInInput([value])
             
             return canvasItemsAdded
@@ -108,18 +129,24 @@ extension StitchDocumentViewModel {
                   let port: NodeIOPortType = action.parsePort(),
                   // Node must already exist
                   let nodeId = self.llmNodeIdMapping.get(nodeIdString) else {
-                fatalErrorIfDebug("handleLLMStepAction: could not handle addLayerInput")
-                return canvasItemsAdded
+                log("❌ handleLLMStepAction: addLayerInput failed:")
+                log("   - Node ID: \(action.nodeId ?? "nil")")
+                log("   - Port: \(action.port?.value ?? "nil")")
+                log("   - Attempt: \(attempt) of \(maxAttempts)")
+                return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
             }
                         
             guard let node = self.graph.getNode(nodeId) else {
-                fatalErrorIfDebug("handleLLMStepAction: could not handle addLayerInput")
-                return canvasItemsAdded
+                log("❌ handleLLMStepAction: addLayerInput failed:")
+                log("   - Node ID: \(action.nodeId ?? "nil")")
+                log("   - Port: \(action.port?.value ?? "nil")")
+                log("   - Attempt: \(attempt) of \(maxAttempts)")
+                return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
             }
             
             guard let layerInput = port.keyPath,
                   let layerNode = node.layerNode else {
-                log("handleLLMLayerInputOrOutputAdded: No input for \(port)")
+                log("❌ handleLLMLayerInputOrOutputAdded: No input for \(port)")
                 return canvasItemsAdded
             }
             
@@ -135,48 +162,73 @@ extension StitchDocumentViewModel {
         case .connectNodes:
             
             guard let toPort: NodeIOPortType = action.parsePort(),
-                  let fromPort: Int = action.parseFromPort() else {
-                fatalErrorIfDebug("handleLLMStepAction: could not handle connectNodes: could not parse to-port and from-port")
-                return canvasItemsAdded
-            }
-            
-            guard let fromNodeIdString: String = action.fromNodeId,
+                  let fromNodeIdString: String = action.fromNodeId,
                   let toNodeIdString: String = action.toNodeId else {
-                fatalErrorIfDebug("handleLLMStepAction: could not handle connectNodes: could not parse from- and to-nodeIds")
-                return canvasItemsAdded
+                log("❌ handleLLMStepAction: connectNodes missing required data:")
+                log("   - To Port: \(action.port?.value ?? "nil")")
+                log("   - From Node ID: \(action.fromNodeId ?? "nil")")
+                log("   - To Node ID: \(action.toNodeId ?? "nil")")
+                log("   - Attempt: \(attempt) of \(maxAttempts)")
+                return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
             }
             
-            // Node must already exist
             guard let fromNodeId = self.llmNodeIdMapping.get(fromNodeIdString),
                   let toNodeId = self.llmNodeIdMapping.get(toNodeIdString) else {
-                fatalErrorIfDebug("handleLLMStepAction: could not handle connectNodes: nodes did not already exist")
-                return canvasItemsAdded
+                log("❌ handleLLMStepAction: nodes not found for connectNodes:")
+                log("   - From Node ID (mapped): \(String(describing: self.llmNodeIdMapping.get(fromNodeIdString)) )")
+                log("   - To Node ID (mapped): \(String(describing: self.llmNodeIdMapping.get(toNodeIdString)))")
+                log("   - Attempt: \(attempt) of \(maxAttempts)")
+                return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
             }
             
-            // Currently all edges are assumed to be extending from the first output of a patch node
-            let fromCoordinate = InputCoordinate(portType: .portIndex(fromPort), nodeId: fromNodeId)
-            
-            // ... But an edge could be coming into a
+            let fromCoordinate = OutputCoordinate(portType: .portIndex(action.fromPort ?? 0), nodeId: fromNodeId)
             let toCoordinate = InputCoordinate(portType: toPort, nodeId: toNodeId)
-
             let edge: PortEdgeData = PortEdgeData(from: fromCoordinate, to: toCoordinate)
             let _ = graph.edgeAdded(edge: edge)
+            
+            log("✅ Successfully connected nodes:")
+            log("   - From Node: \(fromNodeIdString) (Port: \(action.fromPort ?? 0))")
+            log("   - To Node: \(toNodeIdString) (Port: \(toPort))")
             
             return canvasItemsAdded
         }
     }
-}
-
-// i.e. NodeKind, excluding Group Nodes
-enum PatchOrLayer: Equatable, Codable {
-    case patch(Patch), layer(Layer)
     
-    var asNodeKind: NodeKind {
-        switch self {
-        case .patch(let patch):
-            return .patch(patch)
-        case .layer(let layer):
-            return .layer(layer)
+    @MainActor
+    private func handleRetry(action: LLMStepAction,
+                            canvasItemsAdded: Int,
+                            attempt: Int,
+                            maxAttempts: Int) -> Int {
+        if attempt < maxAttempts {
+            log("🔄 Retrying step action:")
+            log("   - Action Type: \(action.stepType)")
+            log("   - Attempt: \(attempt + 1) of \(maxAttempts)")
+            
+            // Wait briefly before retry
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                _ = self.handleLLMStepAction(action,
+                                            canvasItemsAdded: canvasItemsAdded,
+                                            attempt: attempt + 1,
+                                            maxAttempts: maxAttempts)
+            }
+        } else {
+            log("❌ All retries failed, requesting new response from OpenAI")
+            // If all retries failed, trigger a new OpenAI request
+            retryOpenAIRequest()
+        }
+        return canvasItemsAdded
+    }
+    
+    @MainActor
+    private func retryOpenAIRequest() {
+        // Re-trigger the OpenAI request with the original prompt
+        if let lastPrompt = stitchAI.promptState.lastPrompt,
+           !lastPrompt.isEmpty {
+            log("🔄 Retrying OpenAI request with last prompt")
+            dispatch(MakeOpenAIRequest(prompt: lastPrompt))
+        } else {
+            log("❌ Cannot retry OpenAI request: No last prompt available")
+            stitchAI.promptState.isGenerating = false
         }
     }
 }
@@ -184,23 +236,21 @@ enum PatchOrLayer: Equatable, Codable {
 extension LLMStepAction {
     
     @MainActor
-    func parseValue(_ nodeType: NodeType,
-                    mapping: LLMNodeIdMapping) -> PortValue? {
-        
-        guard let value: JSONFriendlyFormat = self.value else {
+    func parseValueForSetInput(mapping: LLMNodeIdMapping) -> PortValue? {
+        guard let value = self.value else {
             log("value was not defined")
             return nil
         }
         
-        log("LLMStepAction: parseValue: had node type \(nodeType) and value \(value)")
-        
-        let portValue = value.asPortValueForLLMSetField(
-            nodeType,
-            with: mapping)
-        
-        log("LLMStepAction: parseValue: portValue \(portValue)")
-        
-        return portValue
+        switch value {
+        case .number(let num):
+            return .number(num)
+        case .string(let str):
+            return .string(.init(str))
+        default:
+            log("unsupported value type for setInput: \(value)")
+            return nil
+        }
     }
     
     // TODO: `LLMStepAction`'s `port` parameter does not yet properly distinguish between input vs output?
@@ -292,5 +342,19 @@ extension String {
             index == 0 ? word.lowercased() : word.capitalized
         }.joined()
         return camelCaseString
+    }
+}
+
+// i.e. NodeKind, excluding Group Nodes
+enum PatchOrLayer: Equatable, Codable {
+    case patch(Patch), layer(Layer)
+    
+    var asNodeKind: NodeKind {
+        switch self {
+        case .patch(let patch):
+            return .patch(patch)
+        case .layer(let layer):
+            return .layer(layer)
+        }
     }
 }

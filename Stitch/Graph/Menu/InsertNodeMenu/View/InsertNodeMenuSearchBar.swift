@@ -8,7 +8,6 @@
 import SwiftUI
 import Combine
 import UIKit
-
 import GameController
 
 let INSERT_NODE_MENU_SEARCH_BAR_HEIGHT: CGFloat = 68
@@ -25,16 +24,17 @@ struct InsertNodeMenuSearchBar: View {
     
     @State private var queryString = ""
     @FocusState private var isFocused: Bool
-
+    
     var body: some View {
         let searchInput = VStack(spacing: .zero) {
-            TextField("Search...", text: $queryString)
+            TextField("Search or enter AI prompt...", text: $queryString)
                 .focused($isFocused)
                 .frame(height: INSERT_NODE_MENU_SEARCH_BAR_HEIGHT)
                 .padding(.leading, 52)
                 .padding(.trailing, 12)
-                .overlay(HStack { // Add the search icon to the left
-                    Image(systemName: "magnifyingglass")
+                .overlay(HStack {
+                    let isAIMode = store.currentDocument?.graphUI.insertNodeMenuState.isAIMode ?? false
+                    Image(systemName: isAIMode ? "sparkles" : "magnifyingglass")
                         .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
                         .padding(.leading, 15)
                 })
@@ -42,7 +42,11 @@ struct InsertNodeMenuSearchBar: View {
                 .disableAutocorrection(true)
                 .onSubmit {
                     // log("InsertNodeMenuSearchBar: onSubmit")
-                    if let activeSelection = self.store.currentDocument?.graphUI.insertNodeMenuState.activeSelection {
+                    let isAIMode = store.currentDocument?.graphUI.insertNodeMenuState.isAIMode ?? false
+                    print("DEBUG: Submitting in AI Mode: \(isAIMode)")
+                    if isAIMode {
+                        dispatch(GenerateAINode(prompt: queryString))
+                    } else if (self.store.currentDocument?.graphUI.insertNodeMenuState.activeSelection) != nil {
                         dispatch(AddNodeButtonPressed())
                     }
 
@@ -76,7 +80,6 @@ struct InsertNodeMenuSearchBar: View {
         .onChange(of: self.store.currentDocument?.graphUI.insertNodeMenuState.show) { _, newValue in
             if let newValue = newValue, newValue {
                 self.queryString = ""
-                
                 // added
                 self.isFocused = true
             }
@@ -94,8 +97,8 @@ struct InsertNodeMenuSearchBar: View {
         // Hosting controller needed to register arrow key presses in this view;
         // this is also the main key-press listener for the app, since the insert node menu is always on-screen
         StitchHostingControllerView(ignoreKeyCommands: false,
-                                    usesArrowKeyBindings: true,
-                                    name: .insertNodeMenuSearchbar) {
+                                  usesArrowKeyBindings: true,
+                                  name: .insertNodeMenuSearchbar) {
             searchInput
         }
         .height(INSERT_NODE_MENU_SEARCH_BAR_HEIGHT) // need to set height again

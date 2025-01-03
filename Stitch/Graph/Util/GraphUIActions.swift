@@ -156,16 +156,55 @@ struct InsertNodeSelectionChanged: GraphUIEvent {
 }
 
 /// Process search results in the insert node menu sheet
-struct InsertNodeQuery: GraphUIEvent {
+struct GenerateAINode: GraphEvent {
+    let prompt: String
+    
+    func handle(state: GraphState) {
+        print("DEBUG - Handling AI node generation with prompt: \(prompt)")
+        // Set loading state
+        state.graphUI.insertNodeMenuState.isGeneratingAINode = true
+        // Dispatch OpenAI request
+        dispatch(MakeOpenAIRequest(prompt: prompt))
+    }
+}
+
+struct AINodeGenerationComplete: GraphEvent {
+    func handle(state: GraphState) {
+        state.graphUI.insertNodeMenuState.isGeneratingAINode = false
+        state.graphUI.insertNodeMenuState.show = false
+    }
+}
+
+/// Process search results in the insert node menu sheet
+struct InsertNodeQuery: GraphEvent {
     let query: String
-
-    func handle(state: GraphUIState) {
-        let results = searchForNodes(by: query,
-                                     searchOptions: .ALL_NODE_SEARCH_OPTIONS)
-
-        // Update results and the current selection
-        state.insertNodeMenuState.searchResults = results
-        state.insertNodeMenuState.activeSelection = results.first
+    
+    func handle(state: GraphState) {
+        // Update the search query in menu state
+        state.graphUI.insertNodeMenuState.searchQuery = query
+        
+        // Update search results
+        if query.isEmpty {
+            state.graphUI.insertNodeMenuState.searchResults = InsertNodeMenuState.allSearchOptions
+            state.graphUI.insertNodeMenuState.activeSelection = InsertNodeMenuState.startingActiveSelection
+        } else {
+            let filtered = InsertNodeMenuState.allSearchOptions.filter { option in
+                let searchText = query.lowercased()
+                let title = option.data.displayTitle.lowercased()
+                let description = option.data.displayDescription.lowercased()
+                return title.contains(searchText) || description.contains(searchText)
+            }
+            
+            state.graphUI.insertNodeMenuState.searchResults = filtered
+            
+            // Update selection based on search results
+            if !filtered.isEmpty {
+                state.graphUI.insertNodeMenuState.activeSelection = filtered.first
+            } else {
+                // We're in AI mode - clear selection
+                state.graphUI.insertNodeMenuState.activeSelection = nil
+            }
+        }
     }
 }
 
