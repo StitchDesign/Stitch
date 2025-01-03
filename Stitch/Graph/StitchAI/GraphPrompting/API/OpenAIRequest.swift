@@ -222,6 +222,7 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
                 userPrompt: originalPrompt,
                 jsonResponse: String(data: data, encoding: .utf8) ?? ""
             )
+            handleError(error ?? NSError(domain: "OpenAIRequestCompleted", code: 0, userInfo: nil), state: state)
         }
     }
     
@@ -255,6 +256,7 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
                 userPrompt: originalPrompt,
                 jsonResponse: nil
             )
+            handleError(error, state: state)
             return
         }
         
@@ -264,6 +266,7 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
                 userPrompt: originalPrompt,
                 jsonResponse: nil
             )
+            handleError(NSError(domain: "OpenAIRequestCompleted", code: 0, userInfo: nil), state: state)
             return
         }
         
@@ -280,6 +283,13 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
             print("Starting parsing retries")
             retryParsing(data: data, attempt: 1, state: state)
         }
+    }
+    
+    @MainActor func handleError(_ error: Error, state: StitchDocumentViewModel) {
+        print("Error generating graph: \(error)")
+        state.stitchAI.promptState.isGenerating = false
+        state.graphUI.insertNodeMenuState.show = false
+        state.graphUI.insertNodeMenuState.isGeneratingAINode = false
     }
 }
 
