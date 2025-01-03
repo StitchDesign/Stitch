@@ -46,6 +46,7 @@ struct StitchAIPromptState: Equatable {
     var showModal = false
     var prompt: String = ""
     var isGenerating = false
+    var lastPrompt: String? = nil
 }
 
 struct StitchAIPromptEdited: StitchDocumentEvent {

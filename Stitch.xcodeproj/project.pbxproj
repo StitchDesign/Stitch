@@ -285,6 +285,8 @@
 		E4AB307A29B4F316000A66B0 /* CoreMLDetectionNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4AB307929B4F316000A66B0 /* CoreMLDetectionNode.swift */; };
 		E4AB307C29B4F42F000A66B0 /* YOLOv3Tiny.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = E4AB307B29B4F42F000A66B0 /* YOLOv3Tiny.mlmodel */; };
 		E4AE5B7C28AAFE4A001C823D /* LightType.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4AE5B7B28AAFE4A001C823D /* LightType.swift */; };
+		E4C85DE02D19EFF80054228E /* SYSTEM_PROMPT.txt in Resources */ = {isa = PBXBuildFile; fileRef = E4C85DDF2D19EFF80054228E /* SYSTEM_PROMPT.txt */; };
+		E4C85DE12D19EFF80054228E /* StitchStructuredOutputSchema.json in Resources */ = {isa = PBXBuildFile; fileRef = E4C85DDE2D19EFF80054228E /* StitchStructuredOutputSchema.json */; };
 		E4CC7D0D28F48EF6008EA1C0 /* QuickLook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4CC7D0C28F48EF6008EA1C0 /* QuickLook.framework */; };
 		E4CC7D1028F48EF6008EA1C0 /* PreviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4CC7D0F28F48EF6008EA1C0 /* PreviewViewController.swift */; };
 		E4CC7D1228F48EF6008EA1C0 /* PreviewProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4CC7D1128F48EF6008EA1C0 /* PreviewProvider.swift */; };
@@ -1220,6 +1222,8 @@
 		E4AB307929B4F316000A66B0 /* CoreMLDetectionNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreMLDetectionNode.swift; sourceTree = "<group>"; };
 		E4AB307B29B4F42F000A66B0 /* YOLOv3Tiny.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = YOLOv3Tiny.mlmodel; sourceTree = "<group>"; };
 		E4AE5B7B28AAFE4A001C823D /* LightType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LightType.swift; sourceTree = "<group>"; };
+		E4C85DDE2D19EFF80054228E /* StitchStructuredOutputSchema.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = StitchStructuredOutputSchema.json; sourceTree = "<group>"; };
+		E4C85DDF2D19EFF80054228E /* SYSTEM_PROMPT.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = SYSTEM_PROMPT.txt; sourceTree = "<group>"; };
 		E4CC7D0B28F48EF6008EA1C0 /* StitchQuickLookExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = StitchQuickLookExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4CC7D0C28F48EF6008EA1C0 /* QuickLook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickLook.framework; path = System/Library/Frameworks/QuickLook.framework; sourceTree = SDKROOT; };
 		E4CC7D0F28F48EF6008EA1C0 /* PreviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewViewController.swift; sourceTree = "<group>"; };
@@ -3737,6 +3741,8 @@
 		E40B2F512CB86D55005F5479 /* StitchAI */ = {
 			isa = PBXGroup;
 			children = (
+				E4C85DDE2D19EFF80054228E /* StitchStructuredOutputSchema.json */,
+				E4C85DDF2D19EFF80054228E /* SYSTEM_PROMPT.txt */,
 				E4D0D2D52CE6AE3500E482E4 /* DatasetRecording */,
 				E4D0D2D42CE6ADF400E482E4 /* GraphPrompting */,
 			);
@@ -4613,6 +4619,8 @@
 				E416861228A3FC9600731889 /* Vintage Toy Robot.usdz in Resources */,
 				EC7ADBFF2683EC9D00A8B318 /* fur_elise.m4a in Resources */,
 				ECB15BA52695F8D100A1E1DA /* gracie_short.mov in Resources */,
+				E4C85DE02D19EFF80054228E /* SYSTEM_PROMPT.txt in Resources */,
+				E4C85DE12D19EFF80054228E /* StitchStructuredOutputSchema.json in Resources */,
 				20A71F8F2552434000553F7E /* positive_ping.mp3 in Resources */,
 				20A71F902552434000553F7E /* connection_added.mp3 in Resources */,
 				B58E3FC92901AA2800700656 /* Music Player.stitch in Resources */,

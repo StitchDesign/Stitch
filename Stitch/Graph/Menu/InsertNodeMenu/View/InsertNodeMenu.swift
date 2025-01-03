@@ -95,14 +95,31 @@ struct InsertNodeMenuView: View {
         HStack {
             Spacer()
             StitchButton(action: {
-                dispatch(AddNodeButtonPressed())
+                let isAIMode = store.currentDocument?.graphUI.insertNodeMenuState.isAIMode ?? false
+                if isAIMode {
+                    if let query = store.currentDocument?.graphUI.insertNodeMenuState.searchQuery {
+                        dispatch(GenerateAINode(prompt: query))
+                    }
+                } else {
+                    dispatch(AddNodeButtonPressed())
+                }
             }, label: {
-                Text("Add Node")
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .padding(8)
-                    .background(theme.themeData.edgeColor.opacity(1 - animatingNodeOpacity))
-                    .cornerRadius(8)
+                let isAIMode = store.currentDocument?.graphUI.insertNodeMenuState.isAIMode ?? false
+                let isLoading = store.currentDocument?.graphUI.insertNodeMenuState.isGeneratingAINode ?? false
+                
+                HStack(spacing: 8) {
+                    Text(isAIMode ? "Submit Prompt" : "Add Node")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                    
+                    if isLoading {
+                        ProgressView()
+                            .scaleEffect(0.7)
+                    }
+                }
+                .padding(8)
+                .background(theme.themeData.edgeColor.opacity(1 - animatingNodeOpacity))
+                .cornerRadius(8)
             })
         }
         .padding([.leading, .trailing], 12)
