@@ -241,6 +241,8 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
         }
         
         state.closeStitchAIModal()
+        state.graphUI.insertNodeMenuState.show = false
+        state.graphUI.insertNodeMenuState.isGeneratingAINode = false
     }
     
     /// Main handler for completed requests
