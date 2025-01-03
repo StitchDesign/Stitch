@@ -56,7 +56,18 @@ extension StitchDocumentViewModel {
         }
     }
 }
-            
+
+struct StitchAIPromptSubmitted: StitchDocumentEvent {
+    @MainActor func handle(state: StitchDocumentViewModel) {
+        let prompt = state.stitchAI.promptState.prompt
+        // Store the prompt as the lastPrompt before making the request
+        state.stitchAI.promptState.lastPrompt = prompt
+        state.stitchAI.promptState.showModal = false
+        
+        dispatch(MakeOpenAIRequest(prompt: prompt))
+    }
+}
+
 struct OpenAIAPIKeyChanged: StitchStoreEvent {
     
     let apiKey: String
