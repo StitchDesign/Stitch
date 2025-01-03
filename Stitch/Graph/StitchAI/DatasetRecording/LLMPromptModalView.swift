@@ -8,7 +8,6 @@
 import SwiftUI
 import SwiftyJSON
 
-let STITCH_AI_SF_SYMBOL = "lasso.badge.sparkles"
 let LLM_OPEN_JSON_ENTRY_MODAL_SF_SYMBOL = "rectangle.and.pencil.and.ellipsis"
 
 // User has recorded some LLM Steps in the app and now assigns a prompt to them
