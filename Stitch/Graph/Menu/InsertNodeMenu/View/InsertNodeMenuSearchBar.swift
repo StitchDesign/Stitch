@@ -25,9 +25,6 @@ struct InsertNodeMenuSearchBar: View {
     @State private var queryString = ""
     @FocusState private var isFocused: Bool
     
-    // Add debouncer for search
-    @State private var searchTask: DispatchWorkItem?
-
     var body: some View {
         let searchInput = VStack(spacing: .zero) {
             TextField("Search or enter AI prompt...", text: $queryString)
@@ -37,7 +34,6 @@ struct InsertNodeMenuSearchBar: View {
                 .padding(.trailing, 12)
                 .overlay(HStack {
                     let isAIMode = store.currentDocument?.graphUI.insertNodeMenuState.isAIMode ?? false
-//                    print("DEBUG: AI Mode is \(isAIMode)")
                     Image(systemName: isAIMode ? "sparkles" : "magnifyingglass")
                         .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
                         .padding(.leading, 15)
@@ -50,7 +46,7 @@ struct InsertNodeMenuSearchBar: View {
                     print("DEBUG: Submitting in AI Mode: \(isAIMode)")
                     if isAIMode {
                         dispatch(GenerateAINode(prompt: queryString))
-                    } else if let activeSelection = self.store.currentDocument?.graphUI.insertNodeMenuState.activeSelection {
+                    } else if (self.store.currentDocument?.graphUI.insertNodeMenuState.activeSelection) != nil {
                         dispatch(AddNodeButtonPressed())
                     }
 
