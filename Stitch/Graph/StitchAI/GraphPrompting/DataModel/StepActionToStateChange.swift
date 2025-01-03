@@ -97,31 +97,14 @@ extension StitchDocumentViewModel {
             
         case .setInput:
             
-            guard let nodeType: NodeType = action.parseNodeType(),
-                  let port: NodeIOPortType = action.parsePort() else {
-                log("❌ handleLLMStepAction: setInput failed:")
-                log("   - Node Type: \(action.nodeType ?? "nil")")
-                log("   - Port: \(action.port?.value ?? "nil")")
-                log("   - Attempt: \(attempt) of \(maxAttempts)")
-                return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
-            }
-            
-            guard let value: PortValue = action.parseValue(nodeType, mapping: self.llmNodeIdMapping) else {
-                log("❌ handleLLMStepAction: setInput failed:")
-                log("   - Node Type: \(action.nodeType ?? "nil")")
-                log("   - Port: \(action.port?.value ?? "nil")")
-                log("   - Attempt: \(attempt) of \(maxAttempts)")
-                return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
-            }
-            
-            guard let llmNodeId: String = action.nodeId,
-                  // Node must already exist
+            guard let port: NodeIOPortType = action.parsePort(),
+                  let value: PortValue = action.parseValueForSetInput(mapping: self.llmNodeIdMapping),
+                  let llmNodeId: String = action.nodeId,
                   let nodeId = self.llmNodeIdMapping.get(llmNodeId),
                   let existingNode = self.graph.getNode(nodeId) else {
-                
-                log("❌ handleLLMStepAction: setInput failed:")
+                log("❌ handleLLMStepAction: setInput failed - missing required parameters")
+                log("   - Port: \(action.port?.value ?? "nil")")
                 log("   - Node ID: \(action.nodeId ?? "nil")")
-                log("   - Node Name: \(action.nodeName ?? "nil")")
                 log("   - Attempt: \(attempt) of \(maxAttempts)")
                 return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
             }
@@ -129,17 +112,13 @@ extension StitchDocumentViewModel {
             let inputCoordinate = InputCoordinate(portType: port, nodeId: nodeId)
             
             guard let input = self.graph.getInputObserver(coordinate: inputCoordinate) else {
-                log("❌ handleLLMStepAction: setInput failed:")
-                log("   - Node ID: \(action.nodeId ?? "nil")")
-                log("   - Node Name: \(action.nodeName ?? "nil")")
-                log("   - Port: \(action.port?.value ?? "nil")")
-                log("   - Attempt: \(attempt) of \(maxAttempts)")
-                return canvasItemsAdded
+                log("❌ handleLLMStepAction: setInput failed - could not get input observer")
+                log("   - Node ID: \(nodeId)")
+                log("   - Port: \(port)")
+                return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
             }
             
-            existingNode.removeIncomingEdge(at: inputCoordinate,
-                                            activeIndex: self.activeIndex)
-            
+            existingNode.removeIncomingEdge(at: inputCoordinate, activeIndex: self.activeIndex)
             input.setValuesInInput([value])
             
             return canvasItemsAdded
@@ -257,23 +236,21 @@ extension StitchDocumentViewModel {
 extension LLMStepAction {
     
     @MainActor
-    func parseValue(_ nodeType: NodeType,
-                    mapping: LLMNodeIdMapping) -> PortValue? {
-        
-        guard let value: JSONFriendlyFormat = self.value else {
+    func parseValueForSetInput(mapping: LLMNodeIdMapping) -> PortValue? {
+        guard let value = self.value else {
             log("value was not defined")
             return nil
         }
         
-        log("LLMStepAction: parseValue: had node type \(nodeType) and value \(value)")
-        
-        let portValue = value.asPortValueForLLMSetField(
-            nodeType,
-            with: mapping)
-        
-        log("LLMStepAction: parseValue: portValue \(portValue)")
-        
-        return portValue
+        switch value {
+        case .number(let num):
+            return .number(num)
+        case .string(let str):
+            return .string(.init(str))
+        default:
+            log("unsupported value type for setInput: \(value)")
+            return nil
+        }
     }
     
     // TODO: `LLMStepAction`'s `port` parameter does not yet properly distinguish between input vs output?
