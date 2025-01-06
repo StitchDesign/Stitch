@@ -170,12 +170,12 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         DispatchQueue.main.async {
 //            let newOffset =  CGPoint(x: max(0, (contentSize.width - scrollView.bounds.width) / 2),
 //                                     y: max(0, (contentSize.height - scrollView.bounds.height) / 2))
-//            let newOffset =  CGPoint(x: WHOLE_GRAPH_LENGTH/2,
-//                                     y: WHOLE_GRAPH_LENGTH/2)
+            let newOffset =  CGPoint(x: WHOLE_GRAPH_LENGTH/2,
+                                     y: WHOLE_GRAPH_LENGTH/2)
             
             //                    scrollView.contentOffset = newOffset
             
-            let newOffset =  CGPoint(x: 500, y: 500)
+//            let newOffset =  CGPoint(x: 500, y: 500)
 //            let newOffset =  CGPoint(x: 1500, // moves whole graph WEST
 //                                     y: 20) // moves whole graph NORTH
             
@@ -296,8 +296,6 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             let contentOffset = scrollView.contentOffset
             let contentSize = scrollView.contentSize
             let scale = scrollView.zoomScale
-//            let bounds = scrollView.bounds.size
-//            let origin = scrollView.frame.origin
             let windowWidth = self.document?.graphUI.frame.width ?? .zero
             log("StitchUIScrollView: scrollViewDidScroll windowWidth: \(windowWidth)")
             log("StitchUIScrollView: scrollViewDidScroll contentOffset.x: \(contentOffset.x)")
@@ -307,99 +305,51 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             log("StitchUIScrollView: scrollViewDidScroll scrollView.zoomScale: \(scrollView.zoomScale)")
             
             
-            // WORKS
-            // But note that this changes during zoom;
-            // if scale < 1, we can move farther east than when scale = 1
+            let cache = self.document?.graph.visibleNodesViewModel.infiniteCanvasCache ?? .init()
             
-            // HMMM, we can become really glitchy and trapped here? happened only for the y axis,
-            // where we kept calling this method and getting moved downward
-            // -- ... have not be able to reproduce it?
-            
-            
-            
- //           \boxed{\text{offset} = \text{size} \times (0.005444 \cdot \text{scale} + 0.015556)}
-            
-//            let maxOffset: CGFloat = contentSize.width * (0.005444 * scale + 0.015556)
-//            let maxOffset: CGFloat = 700
-//            let maxOffset: CGFloat = 700 * scale
-            
-            // will this maxOffset align with what we find in practice? ... Unsure about the 10
-//            let maxOffset: CGFloat = ((contentSize.width * scale) - contentSize.width) / 10
-            
-            // max offset is not big enough
-            // But also, this sohuld be based on the subtract node's current position, no?
-//            let maxOffset: CGFloat = ((contentSize.width * scale) - contentSize.width) / 10
-            
-//            self.document?.graph.westernMostNode(<#T##NodeId?#>, canvasItems: <#T##CanvasItemViewModels#>)
+            // Only check borders etc. if we have cached size and position data for the nodes
+            guard let westNode = self.document?.graph.westernMostNodeForBorderCheck(),
+                  let eastNode = self.document?.graph.easternMostNodeForBorderCheck(),
+                  let westBounds = cache.get(westNode.id),
+                  let eastBounds = cache.get(eastNode.id),
+                  let northNode = self.document?.graph.northernMostNodeForBorderCheck(),
+                  let southNode = self.document?.graph.southernMostNodeForBorderCheck(),
+                  let northBounds = cache.get(northNode.id),
+                  let southBounds = cache.get(southNode.id) else {
+                
+                self.previousContentOffset = scrollView.contentOffset
+                
+                dispatch(GraphScrollDataUpdated(
+                    newOffset: scrollView.contentOffset,
+                    newZoom: scrollView.zoomScale
+                ))
+                
+                return
+            }
             
             
             let screenWidth = self.document?.graphUI.frame.width ?? .zero
             let screenHeight = self.document?.graphUI.frame.height ?? .zero
-            // let screenWidth: CGFloat = 1000
             
-            let nodeWidth: CGFloat = 256 // same for Add and Subtract nodes
-            
-            // Note: Add node is at the moment the Western-most node, which should not be able to go past the
-            
-//            let westernMostNodeCachedBoundsOriginX: CGFloat = 1772 // Add node
-//            let easternMostNodeCachedBoundsOriginX: CGFloat = 3097 // Subtract node
-            
-            // NEED TO USE REAL `western most` and `eastern most` nodes now
-//            let westernMostNodeCachedBoundsOriginX: CGFloat = 1772 // Add node
-//            let easternMostNodeCachedBoundsOriginX: CGFloat = 3097 // Subtract node
-            
-            var westernMostNodeCachedBoundsOriginX: CGFloat = 0
-            var easternMostNodeCachedBoundsOriginX: CGFloat = 0
+            let westernMostNodeCachedBoundsOriginX: CGFloat = westBounds.origin.x
+            let easternMostNodeCachedBoundsOriginX: CGFloat = eastBounds.origin.x
             
             // ?? North will be the 'minimum contentOffset'
-            var northernMostNodeCachedBoundsOriginY: CGFloat = 0
-            var southernMostNodeCachedBoundsOriginY: CGFloat = 0
+            let northernMostNodeCachedBoundsOriginY: CGFloat = northBounds.origin.y
+            let southernMostNodeCachedBoundsOriginY: CGFloat = southBounds.origin.y
             
-            let cache = self.document?.graph.visibleNodesViewModel.infiniteCanvasCache ?? .init()
-            
-            if let westNode = self.document?.graph.westernMostNodeForBorderCheck(),
-               let eastNode = self.document?.graph.easternMostNodeForBorderCheck(),
-               let westBounds = cache.get(westNode.id),
-               let eastBounds = cache.get(eastNode.id) {
-                
-                westernMostNodeCachedBoundsOriginX = westBounds.origin.x
-                easternMostNodeCachedBoundsOriginX = eastBounds.origin.x
-            } else {
-                // Really, here we should skip
-                log("StitchUIScrollView: scrollViewDidScroll: missing west and/or east nodes")
-            }
-            
-            if let northNode = self.document?.graph.northernMostNodeForBorderCheck(),
-               let southNode = self.document?.graph.southernMostNodeForBorderCheck(),
-               let northBounds = cache.get(northNode.id),
-               let southBounds = cache.get(southNode.id) {
-                
-                northernMostNodeCachedBoundsOriginY = northBounds.origin.y
-                southernMostNodeCachedBoundsOriginY = southBounds.origin.y
-            } else {
-                // Really, here we should skip
-                log("StitchUIScrollView: scrollViewDidScroll: missing north and/or south nodes")
-            }
-
             log("StitchUIScrollView: scrollViewDidScroll: westernMostNodeCachedBoundsOriginX: \(westernMostNodeCachedBoundsOriginX)")
             log("StitchUIScrollView: scrollViewDidScroll: easternMostNodeCachedBoundsOriginX: \(easternMostNodeCachedBoundsOriginX)")
             log("StitchUIScrollView: scrollViewDidScroll: northernMostNodeCachedBoundsOriginY: \(northernMostNodeCachedBoundsOriginY)")
             log("StitchUIScrollView: scrollViewDidScroll: southernMostNodeCachedBoundsOriginY: \(southernMostNodeCachedBoundsOriginY)")
-            
-//            let nodeOriginX: CGFloat = 3097 // Subtract node
-            
-            // Minimum contentOffset = the farthest we can move the graph before the middle of the Western-most node touches the device screen's Eastern edge
-//            let minimumContentOffset = westernMostNodeCachedBoundsOriginX - screenWidth
-//            let maximumContentOffset = easternMostNodeCachedBoundsOriginX
-            
-            // WITH SCALE
-//            let minimumContentOffset = westernMostNodeCachedBoundsOriginX - screenWidth
+
+            // Minimum contentOffset can never be less than 0
+            // But setting to be exactly 0 is awkward? We don't scroll back?
+//            let minimumContentOffsetX = max(0, (westernMostNodeCachedBoundsOriginX * scale) - screenWidth)
             let minimumContentOffsetX = (westernMostNodeCachedBoundsOriginX * scale) - screenWidth
-            // ^^ what is this? does screenWidth need to be scaled
-            
             let maximumContentOffsetX = easternMostNodeCachedBoundsOriginX * scale
             
-            
+//            let minimumContentOffsetY = max(0, (northernMostNodeCachedBoundsOriginY * scale) - screenHeight)
             let minimumContentOffsetY = (northernMostNodeCachedBoundsOriginY * scale) - screenHeight
             let maximumContentOffsetY = southernMostNodeCachedBoundsOriginY * scale
             
