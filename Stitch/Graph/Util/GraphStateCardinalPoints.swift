@@ -45,6 +45,19 @@ extension GraphState {
                                    canvasItems: self.getVisibleCanvasItems())
     }
     
+    // Do we want the node's "position" or its cached-bounds origin ?
+    @MainActor
+    func northernMostNodeForBorderCheck() -> CanvasItemViewModel? {
+        GraphState.northernMostNode(self.groupNodeFocused,
+                                    canvasItems: self.getVisibleCanvasItems())
+    }
+    
+    @MainActor
+    func southernMostNodeForBorderCheck() -> CanvasItemViewModel? {
+        GraphState.southernMostNode(self.groupNodeFocused,
+                                    canvasItems: self.getVisibleCanvasItems())
+    }
+    
     // western-most node is node with least x-position
     @MainActor
     static func westernMostNode(_ focusedGroupNodeId: NodeId?,
