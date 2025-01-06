@@ -14,7 +14,9 @@ struct FeatureFlags {
     
     #if STITCH_AI
     static let USE_COMPONENTS = true
+    static let USE_AI_MODE = true
     #else
     static let USE_COMPONENTS = false
+    static let USE_AI_MODE = false
     #endif
 }
