@@ -126,6 +126,7 @@ extension LayerNodeEntity {
          scrollJumpToYLocationPort: LayerInputEntity = .empty,
          transform3DPort: LayerInputEntity = .empty,
          anchorEntityPort: LayerInputEntity = .empty,
+         isEntityAnimatingPort: LayerInputEntity = .empty,
          hasSidebarVisibility: Bool,
          layerGroupId: NodeId?) {
         
@@ -259,6 +260,7 @@ extension LayerNodeEntity {
             
             transform3DPort: transform3DPort,
             anchorEntityPort: anchorEntityPort,
+            isEntityAnimatingPort: isEntityAnimatingPort,
             
             hasSidebarVisibility: hasSidebarVisibility,
             layerGroupId: layerGroupId)

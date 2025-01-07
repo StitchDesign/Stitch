@@ -151,7 +151,8 @@ extension LayerInspectorView {
     
     @MainActor
     static let realityTransformation: LayerInputPortSet = [
-        .transform3D
+        .transform3D,
+        .isEntityAnimating
     ]
     
     @MainActor

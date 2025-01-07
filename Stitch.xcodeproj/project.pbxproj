@@ -281,7 +281,6 @@
 		E41A66B32BD2BB8E00385C9F /* LinearGradientNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41A66B22BD2BB8E00385C9F /* LinearGradientNode.swift */; };
 		E42BA45D291C69C200EB7356 /* SIMDExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42BA45C291C69C200EB7356 /* SIMDExtensions.swift */; };
 		E43CA3BF29832FEC007BFE1B /* ARRaycastingNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E43CA3BE29832FEC007BFE1B /* ARRaycastingNode.swift */; };
-		E449EA5B28ADA89C0005EC15 /* Model3DImportNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E449EA5A28ADA89C0005EC15 /* Model3DImportNode.swift */; };
 		E457441D2BC0548300B1642E /* QRCodeDetection.swift in Sources */ = {isa = PBXBuildFile; fileRef = E457441C2BC0548300B1642E /* QRCodeDetection.swift */; };
 		E463E7EF2C6FC7090008E318 /* StitchSchemaKit in Frameworks */ = {isa = PBXBuildFile; productRef = E463E7EE2C6FC7090008E318 /* StitchSchemaKit */; };
 		E4AB307A29B4F316000A66B0 /* CoreMLDetectionNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4AB307929B4F316000A66B0 /* CoreMLDetectionNode.swift */; };
@@ -1182,6 +1181,7 @@
 		B5F0FC152B4F2FB5009104A8 /* GraphReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphReducer.swift; sourceTree = "<group>"; };
 		B5F5FD422B37564500BBD9A2 /* WhatToTest.en-US.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "WhatToTest.en-US.txt"; sourceTree = "<group>"; };
 		B5F88D692D2D6D8500B5A45A /* StitchProjectOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchProjectOverlayView.swift; sourceTree = "<group>"; };
+		B5F88D6B2D2D833F00B5A45A /* StitchSchemaKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = StitchSchemaKit; path = ../StitchSchemaKit; sourceTree = SOURCE_ROOT; };
 		B5F8D6A72C224A6600B99E5C /* LayerNodeData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerNodeData.swift; sourceTree = "<group>"; };
 		B5F9EB9A28D3848A00112799 /* FileManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManagerTests.swift; sourceTree = "<group>"; };
 		B5F9EB9D28D3927F00112799 /* MockFileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockFileManager.swift; sourceTree = "<group>"; };
@@ -1220,7 +1220,6 @@
 		E41A66B22BD2BB8E00385C9F /* LinearGradientNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinearGradientNode.swift; sourceTree = "<group>"; };
 		E42BA45C291C69C200EB7356 /* SIMDExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SIMDExtensions.swift; sourceTree = "<group>"; };
 		E43CA3BE29832FEC007BFE1B /* ARRaycastingNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ARRaycastingNode.swift; sourceTree = "<group>"; };
-		E449EA5A28ADA89C0005EC15 /* Model3DImportNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model3DImportNode.swift; sourceTree = "<group>"; };
 		E457441C2BC0548300B1642E /* QRCodeDetection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeDetection.swift; sourceTree = "<group>"; };
 		E498B63E28DB5A7500D8344D /* DummyCube.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = DummyCube.usdz; sourceTree = "<group>"; };
 		E4AB307929B4F316000A66B0 /* CoreMLDetectionNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreMLDetectionNode.swift; sourceTree = "<group>"; };
@@ -1923,6 +1922,7 @@
 		200BD859254F66EB00692903 /* Stitch */ = {
 			isa = PBXGroup;
 			children = (
+				B5F88D6B2D2D833F00B5A45A /* StitchSchemaKit */,
 				EC15E425260271C6006F2E08 /* Stitch.entitlements */,
 				200BD863254F66EE00692903 /* Info.plist */,
 				B5617A7B2C175C3C00B53DAF /* App */,
@@ -4072,7 +4072,6 @@
 				ECD0E1A128D3699800133045 /* ImageToBase64StringNode.swift */,
 				EC9F0C8C26549B38003DFD41 /* CameraFeedNode.swift */,
 				ECC506E6267BB2CA00A2D015 /* VideoImportNode.swift */,
-				E449EA5A28ADA89C0005EC15 /* Model3DImportNode.swift */,
 				ECB5A8152657230600D46D3E /* SampleHoldNode.swift */,
 				EC8114B62680FE4B006AD907 /* SampleRangeNode.swift */,
 				ECDC621F26583B0C00F67ED8 /* GrayscaleNode.swift */,
@@ -5062,7 +5061,6 @@
 				ECDFF6322A0EA0CF00729D2A /* CommandsToShapeNode.swift in Sources */,
 				B5AC74F9283701E5002A5D01 /* ProjectsListView.swift in Sources */,
 				EC2614472B89607300BEB066 /* Point3DPackNode.swift in Sources */,
-				E449EA5B28ADA89C0005EC15 /* Model3DImportNode.swift in Sources */,
 				ECE35EF027CEE99300CB8F5C /* InputEditedActions.swift in Sources */,
 				EC226C672BD881D400411EB7 /* SFSymbolLayerNode.swift in Sources */,
 				ECEEA50B2AFF1A6000C7CE86 /* CommentBoxTitleEditView.swift in Sources */,
