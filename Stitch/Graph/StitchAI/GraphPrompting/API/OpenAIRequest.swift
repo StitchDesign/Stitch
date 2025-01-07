@@ -270,7 +270,12 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
             return
         }
         
+        // Print raw JSON response
         let jsonResponse = String(data: data, encoding: .utf8) ?? "Invalid JSON format"
+        print("OpenAIRequestCompleted: Full JSON Response:")
+        print("----------------------------------------")
+        print(jsonResponse)
+        print("----------------------------------------")
         log("OpenAIRequestCompleted: JSON RESPONSE: \(jsonResponse)")
         
         let (stepsFromResponse, error) = data.getOpenAISteps()
