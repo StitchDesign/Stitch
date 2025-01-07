@@ -69,11 +69,6 @@ struct LLMActionsJSONEntryModalView: View {
         .onChange(of: self.jsonEntry) { oldValue, newValue in
             dispatch(LLMJsonEdited(jsonEntry: jsonEntry))
         }
-        .onAppear {
-            Task {
-                await NodeInfo.printPatchInputsAndOutputs()
-            }
-        }
     }
 }
 
