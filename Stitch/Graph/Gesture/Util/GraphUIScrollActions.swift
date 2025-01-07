@@ -498,11 +498,23 @@ extension StitchDocumentViewModel {
             return
         }
         
-        var box = self.graphUI.selection.expansionBox ?? .init(origin: gestureStartLocation, size: .zero)
+//        var box = self.graphUI.selection.expansionBox ?? .init(origin: gestureStartLocation, size: .zero)
 
-        let size = CGSize(width: gestureLocation.x - gestureStartLocation.x,
-                          height: gestureLocation.y - gestureStartLocation.y)
-        box.size = size
+//        let size = CGSize(width: gestureLocation.x - gestureStartLocation.x,
+//                          height: gestureLocation.y - gestureStartLocation.y)
+//        box.size = size
+        
+        var box = self.graphUI.selection.expansionBox ?? .init()
+        box.startPoint = gestureStartLocation
+        
+        let (newSize, newDirection) = trigCalc(
+            start: gestureStartLocation,
+            end: gestureLocation
+        )
+        
+        box.size = newSize
+        box.expansionDirection = newDirection
+        box.endPoint = gestureLocation
         
         self.graphUI.selection.expansionBox = box
     }

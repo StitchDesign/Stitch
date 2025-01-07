@@ -398,7 +398,8 @@ struct GraphUISelectionState {
     }
 
     // Node cursor selection box
-    var expansionBox: CGRect?
+//    var expansionBox: CGRect?
+    var expansionBox: ExpansionBox?
 
     // the start and current locations of the drag gesture
     var dragStartLocation: CGPoint?

@@ -73,11 +73,11 @@ struct StitchUIScrollViewModifier: ViewModifier {
                 
                 // Selection box and cursor
                 if let expansionBox = selectionState.expansionBox {
+//                    ExpansionBoxView(graph: document.graph,
+//                                     box: expansionBox,
+//                                     scale: document.graphMovement.zoomData.final)
                     ExpansionBoxView(graph: document.graph,
-                                     box: expansionBox,
-                                     scale: document.graphMovement.zoomData.final)
-//                    ExpansionBoxView(box: expansionBox,
-//                                     )
+                                     box: expansionBox)
                 }
                 
                 if selectionState.isSelecting,

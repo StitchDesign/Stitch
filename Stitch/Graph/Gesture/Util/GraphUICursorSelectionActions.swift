@@ -22,7 +22,9 @@ struct GraphBackgroundLongPressed: StitchDocumentEvent {
         state.graphUI.selection.dragStartLocation = location
         state.graphUI.selection.dragCurrentLocation = location
         state.graphUI.selection.isFingerOnScreenSelection = true
-        state.graphUI.selection.expansionBox = .init(origin: location, size: .zero)
+//        state.graphUI.selection.expansionBox = .init(origin: location, size: .zero)
+        state.graphUI.selection.expansionBox = .init()
+        state.graphUI.selection.expansionBox?.startPoint = location
         state.graphUI.selection.graphDragState = .none
     }
 }
@@ -210,7 +212,9 @@ extension StitchDocumentViewModel {
         self.graphUI.selection.dragStartLocation = location
         self.graphUI.selection.dragCurrentLocation = location
         self.graphUI.selection.isFingerOnScreenSelection = false
-        self.graphUI.selection.expansionBox = .init(origin: location, size: .zero)
+//        self.graphUI.selection.expansionBox = .init(origin: location, size: .zero)
+        self.graphUI.selection.expansionBox = .init()
+        self.graphUI.selection.expansionBox?.startPoint = location
         self.graphUI.selection.isSelecting = true
         self.graphUI.selection.graphDragState = .none
 
