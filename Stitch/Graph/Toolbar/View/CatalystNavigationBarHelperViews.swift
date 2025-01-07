@@ -203,17 +203,21 @@ struct CatalystTopBarGraphButtons: View {
 
 //            CatalystNavBarButton(.TOGGLE_PREVIEW_WINDOW_SF_SYMBOL_NAME,
 //                                 rotationZ: isPreviewWindowShown ? 0 : 180) {
-            CatalystNavBarButton(isPreviewWindowShown ? .HIDE_PREVIEW_WINDOW_SF_SYMBOL_NAME : .SHOW_PREVIEW_WINDOW_SF_SYMBOL_NAME) {
-                dispatch(TogglePreviewWindow())
+            
+            if !document.isDebugMode {
+                CatalystNavBarButton(isPreviewWindowShown ? .HIDE_PREVIEW_WINDOW_SF_SYMBOL_NAME : .SHOW_PREVIEW_WINDOW_SF_SYMBOL_NAME) {
+                    dispatch(TogglePreviewWindow())
+                }
+                
+                CatalystNavBarButton(.RESTART_PROTOTYPE_SF_SYMBOL_NAME) {
+                    dispatch(PrototypeRestartedAction())
+                }
+                
+                CatalystNavBarButton(isFullscreen ? .SHRINK_FROM_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME : .EXPAND_TO_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME) {
+                    dispatch(ToggleFullScreenEvent())
+                }
             }
-
-            CatalystNavBarButton(.RESTART_PROTOTYPE_SF_SYMBOL_NAME) {
-                dispatch(PrototypeRestartedAction())
-            }
-
-            CatalystNavBarButton(isFullscreen ? .SHRINK_FROM_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME : .EXPAND_TO_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME) {
-                dispatch(ToggleFullScreenEvent())
-            }
+            
 
             CatalystNavBarButton(.SETTINGS_SF_SYMBOL_NAME) {
                 PROJECT_SETTINGS_ACTION()

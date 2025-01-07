@@ -33,10 +33,6 @@ struct ContentView: View, KeyboardReadable {
 
     let alertState: ProjectAlertState
     let routerNamespace: Namespace.ID
-
-    var showPreviewWindow: Bool {
-        graphUI.showPreviewWindow
-    }
     
     var previewWindowSizing: PreviewWindowSizing {
         self.document.previewWindowSizingObserver
@@ -122,31 +118,10 @@ struct ContentView: View, KeyboardReadable {
                                       routerNamespace: routerNamespace)
                 .zIndex(showFullScreen.isTrue ? -99 : 0)
                 .overlay {
-                    VStack {
-                        if graphUI.groupNodeFocused?.component != nil {
-                            ComponentNavBarView(graph: document.visibleGraph,
-                                                store: store)
-                        }
-                        
-                        HStack(spacing: .zero) {
-                            Spacer()
-                            // Floating preview kept outside NavigationSplitView for animation purposes
-                            if !showFullScreen.isTrue {
-                                FloatingWindowView(
-                                    document: document,
-                                    deviceScreenSize: graphUI.frame.size,
-                                    showPreviewWindow: showPreviewWindow,
-                                    namespace: graphNamespace)
-                            }
-                        }
-                        
-                        Spacer()
-                    }
-                    // Hack to disable the split view sidebar swipe
-                    .gesture(
-                        DragGesture()
-                            .onChanged { _ in }
-                    )
+                    StitchProjectOverlayView(document: document,
+                                             store: store,
+                                             showFullScreen: showFullScreen.isTrue,
+                                             graphNamespace: graphNamespace)
                 }
 //                // Layer Inspector Flyout must sit above preview window
                 .overlay {
