@@ -64,20 +64,24 @@ extension GraphState {
     /// 2. Determines which nodes are selected from the selection box, if applicable.
     @MainActor
     func updateVisibleNodes() {
-        let zoom = 1 / self.graphMovement.zoomData.zoom
+        
+        let zoom = self.graphMovement.zoomData.zoom
         
         // How much that content is offset from the UIScrollView's top-left corner;
         // can never be negative.
         let originOffset = self.graphMovement.localPosition
+        
+        let scaledOffset = CGPoint(x: originOffset.x / zoom,
+                                   y: originOffset.y / zoom)
 
-        let viewFrameSize = self.graphUI.frame.size
+        let viewPortSize = self.graphUI.frame.size
+                
+        let scaledSize = CGSize(width: viewPortSize.width * 1/zoom,
+                                height: viewPortSize.height * 1/zoom)
         
-        let graphView = CGRect(origin: originOffset,
-                               size: viewFrameSize)
-        
-        let viewFrame = Self.getScaledViewFrame(scale: zoom,
-                                                graphView: graphView)
-        
+        let viewFrame = CGRect.init(origin: scaledOffset,
+                                    size: scaledSize)
+                
         // Determine nodes to make visible--use cache in case nodes exited viewframe
         var newVisibleNodes = Set<CanvasItemId>()
         
@@ -86,6 +90,7 @@ extension GraphState {
             let cachedBounds = cachedSubviewData.value
             
             let isVisibleInFrame = viewFrame.intersects(cachedBounds)
+            
             if isVisibleInFrame {
                 newVisibleNodes.insert(id)
             }
