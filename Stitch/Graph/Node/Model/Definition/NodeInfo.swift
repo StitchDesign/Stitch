@@ -61,6 +61,29 @@ extension NodeInfo {
         let jsonData = try! JSONEncoder().encode(patchNodeInfo + layerNodeInfo)
         jsonData.printJson()
     }
+    
+    @MainActor
+    static func printPatchInputsAndOutputs() {
+        for patch in Patch.allCases {
+            let node = patch.defaultNode(id: .init(),
+                                       position: .zero,
+                                       zIndex: .zero,
+                                       graphDelegate: nil)!
+            
+            let rowDefs = NodeKind.patch(patch).rowDefinitions(for: node.userVisibleType)
+            
+            print("\n--- \(patch.rawValue) ---")
+            print("Inputs:")
+            for input in rowDefs.inputs {
+                print("  - \(input.label): \(input.defaultValues)")
+            }
+            
+            print("Outputs:")
+            for output in rowDefs.outputs {
+                print("  - \(output.label): \(output.value)")
+            }
+        }
+    }
 }
 
 // TODO: If only used for defining a node's default ("just-created") inputs, use `value: PortValue` instead of `defaultValues: PortValues`
