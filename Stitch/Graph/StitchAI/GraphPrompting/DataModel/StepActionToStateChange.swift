@@ -181,13 +181,16 @@ extension StitchDocumentViewModel {
                 return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
             }
             
-            let fromCoordinate = OutputCoordinate(portType: .portIndex(action.fromPort ?? 0), nodeId: fromNodeId)
+            let portValue = action.fromPort?.value ?? "0"
+            let fromPortIndex = Int(portValue) ?? 0
+            
+            let fromCoordinate = OutputCoordinate(portType: .portIndex(fromPortIndex), nodeId: fromNodeId)
             let toCoordinate = InputCoordinate(portType: toPort, nodeId: toNodeId)
             let edge: PortEdgeData = PortEdgeData(from: fromCoordinate, to: toCoordinate)
             let _ = graph.edgeAdded(edge: edge)
             
             log("✅ Successfully connected nodes:")
-            log("   - From Node: \(fromNodeIdString) (Port: \(action.fromPort ?? 0))")
+            log("   - From Node: \(fromNodeIdString) (Port: \(fromPortIndex))")
             log("   - To Node: \(toNodeIdString) (Port: \(toPort))")
             
             return canvasItemsAdded
@@ -279,15 +282,14 @@ extension LLMStepAction {
     }
     
     func parseFromPort() -> Int? {
-        
-        guard let fromPort: Int = self.fromPort else {
+        guard let fromPort: StringOrNumber = self.fromPort else {
             log("fromPort was not defined")
             // For legacy reasons, assume 0
-//            return nil
             return 0
         }
-          
-        return fromPort
+        
+        // Try to convert the string value to Int
+        return Int(fromPort.value) ?? 0
     }
     
     // See note in `NodeType.asLLMStepNodeType`
