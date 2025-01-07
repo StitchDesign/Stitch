@@ -156,7 +156,7 @@ func createLLMStepConnectionAdded(input: InputCoordinate,
     return LLMStepAction(
         stepType: StepType.connectNodes.rawValue,
         port: .init(value: input.asLLMStepPort()),
-        fromPort: output.asLLMStepFromPort(),
+        fromPort: .init(value: String(output.asLLMStepFromPort())), 
         fromNodeId: output.nodeId.uuidString,
         toNodeId: input.nodeId.uuidString)
 }
