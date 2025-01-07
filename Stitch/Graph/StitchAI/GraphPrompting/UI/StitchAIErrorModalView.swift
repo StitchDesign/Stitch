@@ -31,11 +31,8 @@ struct StitchAIErrorModalView: View {
             
             HStack {
                 Button("Copy") {
-                    UIPasteboard.general.string = """
-                    Message: \(message)
-                    User Prompt: \(userPrompt)
-                    Response: \(jsonResponse ?? "No JSON Response")
-                    """
+                    let textToCopy = "Message: \(message)\nUser Prompt: \(userPrompt)\nResponse: \(jsonResponse ?? "No JSON Response")"
+                    UIPasteboard.general.setValue(textToCopy, forPasteboardType: "public.utf8-plain-text")
                     presentationMode.wrappedValue.dismiss()
                 }
                 .buttonStyle(DefaultButtonStyle())
