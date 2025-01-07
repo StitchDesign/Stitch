@@ -461,7 +461,7 @@ extension GraphState {
         
         // If debug mode, make sure fields are updated as we aren't using calculate
         // to update them
-        // TODO: move to delegate
+        // MARK: should move to delegate, however this works fine for now
         if self.documentDelegate?.isDebugMode ?? false {
             self.updatePortViews()
         }
