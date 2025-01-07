@@ -39,21 +39,38 @@ struct RoundedRectView: View {
                 with: .color(color),
                 lineWidth: 4 * 1/scale
             )
-        
+
+            let scaledSize = CGSize(width: size.width * scale,
+                                    height: size.height * scale)
+            
             logInView("RoundedRectView: scale: \(scale)")
             logInView("RoundedRectView: size: \(size)")
+            logInView("RoundedRectView: scaledSize: \(scaledSize)")
             logInView("RoundedRectView: rect.size: \(rect.size)")
             logInView("RoundedRectView: rect.origin: \(rect.origin)")
             
-                        
             context.fill(roundedRectPath, with: .color(color.opacity(0.4)))
             
             // what should be the orgiin here?
-            let sizePath = Path(roundedRect: .init(origin: .zero, size: size),
-                                cornerRadius: CANVAS_ITEM_CORNER_RADIUS)
+//            let sizePath = Path(roundedRect: .init(origin: .zero, size: size),
+//                                cornerRadius: CANVAS_ITEM_CORNER_RADIUS)
             
-            context.stroke(sizePath, with: .color(.white), lineWidth: 12)
+//            context.stroke(sizePath, with: .color(.white), lineWidth: 12)
         }
+        
+        // this frame... it thinks we're already max size?
+        .border(.green, width: 8)
+        
+        // seriously messes up everything ?
+//        .frame(width: WHOLE_GRAPH_LENGTH * 1/scale,
+//               height: WHOLE_GRAPH_LENGTH * 1/scale)
+        .offset(x: 500,
+                y: 500)
+        .border(.black, width: 8)
+        
+        // messes everthing up?
+//        .scaleEffect(1/scale)
+        
     }
 }
 
