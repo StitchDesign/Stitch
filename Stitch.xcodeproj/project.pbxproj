@@ -255,6 +255,7 @@
 		B5EFD61A2C1134EC006F5E7F /* MediaLayerViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EFD6192C1134EC006F5E7F /* MediaLayerViewModifier.swift */; };
 		B5F0FC162B4F2FB5009104A8 /* GraphReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F0FC152B4F2FB5009104A8 /* GraphReducer.swift */; };
 		B5F5FD432B37564500BBD9A2 /* WhatToTest.en-US.txt in Resources */ = {isa = PBXBuildFile; fileRef = B5F5FD422B37564500BBD9A2 /* WhatToTest.en-US.txt */; };
+		B5F88D6A2D2D6D8B00B5A45A /* StitchProjectOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F88D692D2D6D8500B5A45A /* StitchProjectOverlayView.swift */; };
 		B5F8D6A82C224A6600B99E5C /* LayerNodeData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F8D6A72C224A6600B99E5C /* LayerNodeData.swift */; };
 		B5F9EB9B28D3848A00112799 /* FileManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F9EB9A28D3848A00112799 /* FileManagerTests.swift */; };
 		B5F9EB9E28D3927F00112799 /* MockFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F9EB9D28D3927F00112799 /* MockFileManager.swift */; };
@@ -1178,6 +1179,7 @@
 		B5EFD6192C1134EC006F5E7F /* MediaLayerViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaLayerViewModifier.swift; sourceTree = "<group>"; };
 		B5F0FC152B4F2FB5009104A8 /* GraphReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphReducer.swift; sourceTree = "<group>"; };
 		B5F5FD422B37564500BBD9A2 /* WhatToTest.en-US.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "WhatToTest.en-US.txt"; sourceTree = "<group>"; };
+		B5F88D692D2D6D8500B5A45A /* StitchProjectOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchProjectOverlayView.swift; sourceTree = "<group>"; };
 		B5F8D6A72C224A6600B99E5C /* LayerNodeData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerNodeData.swift; sourceTree = "<group>"; };
 		B5F9EB9A28D3848A00112799 /* FileManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManagerTests.swift; sourceTree = "<group>"; };
 		B5F9EB9D28D3927F00112799 /* MockFileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockFileManager.swift; sourceTree = "<group>"; };
@@ -3323,6 +3325,7 @@
 		B56FFB682C19686C00623CC7 /* View */ = {
 			isa = PBXGroup;
 			children = (
+				B5F88D692D2D6D8500B5A45A /* StitchProjectOverlayView.swift */,
 				B5C53FB02CED20AB0069612E /* InfiniteCanvas.swift */,
 				ECA3915A29A6C3C9005C10A8 /* StitchProjectView.swift */,
 				200BD85C254F66EB00692903 /* ContentView.swift */,
@@ -4900,6 +4903,7 @@
 				ECC2BCD92B9B73FA00D5F942 /* LegacySidebarActions.swift in Sources */,
 				ECFC975B296794DD000414C4 /* PopAnimationNode.swift in Sources */,
 				EC8A48ED2710EB2F001BB4FC /* GraphStepState.swift in Sources */,
+				B5F88D6A2D2D6D8B00B5A45A /* StitchProjectOverlayView.swift in Sources */,
 				ECEF8D0D2BFD4460004FABCD /* LayerSizeReader.swift in Sources */,
 				EC2614492B8960B800BEB066 /* Point4DPackNode.swift in Sources */,
 				ECF6AEF9263CB7E50011C679 /* PreviewShapeLayer.swift in Sources */,

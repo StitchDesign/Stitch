@@ -135,6 +135,8 @@ extension StitchStore {
 }
 
 struct ProjectContextMenuModifer: ViewModifier {
+    static let debugModeIcon = "wrench.and.screwdriver"
+    
     @Environment(StitchStore.self) private var store
     @State var willPresentShareSheet = false
 
@@ -160,13 +162,15 @@ struct ProjectContextMenuModifer: ViewModifier {
                         Image(systemName: "doc.on.doc")
                     })
                     
-                    StitchButton(action: {
-                        // Opens project in debug mode
-                        projectOpenCallback(document, true)
-                    }, label: {
-                        Text("Open in Debug Mode")
-                        Image(systemName: "wrench.and.screwdriver")
-                    })
+                    if !GraphUIState.isPhoneDevice {
+                        StitchButton(action: {
+                            // Opens project in debug mode
+                            projectOpenCallback(document, true)
+                        }, label: {
+                            Text("Open in Debug Mode")
+                            Image(systemName: Self.debugModeIcon)
+                        })
+                    }
                     
                     // TODO: follow the full logic in `DeleteProject` to allow for undoing a project deletion, showing 'project recently deleted' modal etc.
                     // -- see `DeleteProject` and `removeStitchProject`
