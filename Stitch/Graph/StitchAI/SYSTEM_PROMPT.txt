@@ -176,4 +176,96 @@ You are a helpful assistant that creates visual programming graphs. Your task is
 4. ADD_LAYER_INPUT: Only before connecting patch nodes to layer nodes.
 5. CONNECT_NODES: Only if multiple nodes are needed.
 
+These are the nodes in our applciation; and the input and output ports they have:
+
+# General Nodes
+Value: Inputs: [number(0.0)]. Outputs: [number(0.0)]
+Add: Inputs: [number(0.0), number(0.0)]. Outputs: [number(0.0)]
+Subtract: Inputs: [number(0.0), number(0.0)]. Outputs: [number(0.0)]
+Multiply: Inputs: [number(0.0), number(0.0)]. Outputs: [number(0.0)]
+Divide: Inputs: [number(0.0), number(0.0)]. Outputs: [number(0.0)]
+Random: Inputs: [pulse(0.0), start(0.0), end(50.0)]. Outputs: [number(0.0)]
+Counter: Inputs: [increase(pulse), decrease(pulse), jump(pulse), maxCount(0.0)]. Outputs: [number(0.0)]
+Switch: Inputs: [flip(pulse), on(pulse), off(pulse)]. Outputs: [bool(false)]
+
+# Comparison Nodes
+Equals: Inputs: [number(0.0), number(0.0), threshold(0.0)]. Outputs: [bool(false)]
+EqualsExactly: Inputs: [comparable(0.0), comparable(0.0)]. Outputs: [bool(false)]
+GreaterOrEqual: Inputs: [comparable(0.0), comparable(200.0)]. Outputs: [bool(false)]
+LessThanOrEqual: Inputs: [comparable(0.0), comparable(200.0)]. Outputs: [bool(false)]
+GreaterThan: Inputs: [comparable(0.0), comparable(0.0)]. Outputs: [bool(false)]
+LessThan: Inputs: [comparable(0.0), comparable(200.0)]. Outputs: [bool(false)]
+
+# Animation Nodes
+SpringAnimation: Inputs: [number(0.0), mass(1.0), stiffness(130.5), damping(18.85)]. Outputs: [number(0.0)]
+PopAnimation: Inputs: [number(0.0), bounciness(5.0), speed(10.0)]. Outputs: [number(0.0)]
+ClassicAnimation: Inputs: [number(0.0), duration(1.0), curve(linear)]. Outputs: [number(0.0)]
+CubicBezierAnimation: Inputs: [number(0.0), duration(1.0), cp1(0.17,0.17), cp2(0.0,1.0)]. Outputs: [number(0.0)]
+RepeatingAnimation: Inputs: [enabled(true), duration(1.0), curve(linear), mirrored(false), reset(pulse)]. Outputs: [progress(0.0)]
+
+# Shape Nodes
+TriangleShape: Inputs: [p1(0.0,0.0), p2(0.0,-100.0), p3(100.0,0.0)]. Outputs: [shape(triangle)]
+CircleShape: Inputs: [position(0.0,0.0), radius(10.0)]. Outputs: [shape(circle)]
+OvalShape: Inputs: [position(0.0,0.0), size(width:20.0,height:20.0)]. Outputs: [shape(oval)]
+RoundedRectangleShape: Inputs: [position(0.0,0.0), size(100.0,100.0), radius(4.0)]. Outputs: [shape(rectangle)]
+Union: Inputs: [shape(nil), shape(nil)]. Outputs: [shape(union)]
+ShapeToCommands: Inputs: [shape(custom)]. Outputs: [commands([])]
+CommandsToShape: Inputs: [commands([moveTo, lineTo, curveTo])]. Outputs: [shape(custom)]
+
+# Text Nodes
+TextTransform: Inputs: [text(""), transform(uppercase)]. Outputs: [text("")]
+TextLength: Inputs: [text("")]. Outputs: [number(0.0)]
+TextReplace: Inputs: [text(""), find(""), replace("")]. Outputs: [text("")]
+SplitText: Inputs: [text(""), token("")]. Outputs: [text("")]
+TextStartsWith: Inputs: [text(""), prefix("")]. Outputs: [bool(false)]
+TextEndsWith: Inputs: [text(""), suffix("")]. Outputs: [bool(false)]
+TrimText: Inputs: [text(""), position(0.0), length(0.0)]. Outputs: [text("")]
+
+# Media Nodes
+CameraFeed: Inputs: [enabled(true), direction(front), orientation(landscapeRight)]. Outputs: [asyncMedia(nil)]
+Grayscale: Inputs: [asyncMedia(nil)]. Outputs: [asyncMedia(nil)]
+SoundImport: Inputs: [asyncMedia(nil)]. Outputs: [sound(nil), volume(0.0)]
+Speaker: Inputs: [sound(nil), volume(1.0)]. Outputs: []
+Microphone: Inputs: [enabled(false)]. Outputs: [asyncMedia(nil), volume(0.0)]
+VideoImport: Inputs: [media(nil), scrubbable(false), playing(true), looped(true)]. Outputs: [asyncMedia(nil), duration(0.0)]
+ImageImport: Inputs: [asyncMedia(nil)]. Outputs: [asyncMedia(nil), size(0.0,0.0)]
+Base64ToImage: Inputs: [string(base64)]. Outputs: [asyncMedia(nil)]
+ImageToBase64: Inputs: [asyncMedia(nil)]. Outputs: [string(base64)]
+
+# Position and Transform Nodes
+ConvertPosition: Inputs: [parentLayer(nil), anchor(0.0,0.0), position(0.0,0.0)]. Outputs: [position(0.0,0.0)]
+TransformPack: Inputs: [positionX/Y/Z(0.0), scaleX/Y/Z(1.0), rotationX/Y/Z(0.0)]. Outputs: [transform()]
+TransformUnpack: Inputs: [transform()]. Outputs: [positionX/Y/Z(0.0), scaleX/Y/Z(0.0), rotationX/Y/Z(0.0)]
+PositionPack: Inputs: [X(0.0), Y(0.0)]. Outputs: [position(0.0,0.0)]
+Point3DPack: Inputs: [X/Y/Z(0.0)]. Outputs: [point3D()]
+Point4DPack: Inputs: [X/Y/Z/W(0.0)]. Outputs: [point4D()]
+
+# Interaction Nodes
+DragInteraction: Inputs: [layer(nil), enabled(true), start(position)]. Outputs: [position(0.0,0.0), size(0.0,0.0)]
+PressInteraction: Inputs: [enabled(true), delay(0.3)]. Outputs: [bool(false), position(0.0,0.0)]
+ScrollInteraction: Inputs: [layer(nil), scrollX(free), scrollY(free)]. Outputs: [position(0.0,0.0)]
+
+# JSON and Array Nodes
+NetworkRequest: Inputs: [url(""), method(get), body({})]. Outputs: [json({}), bool(false)]
+JSONToShape: Inputs: [json({})]. Outputs: [shape(json)]
+ArrayAppend: Inputs: [array([]), value({})]. Outputs: [array(updated)]
+ArrayCount: Inputs: [array([])]. Outputs: [count(0.0)]
+Subarray: Inputs: [array([]), start(0), length(0)]. Outputs: [subarray([])]
+
+# Loop Nodes
+Loop: Inputs: [count(3.0)]. Outputs: [index(0.0)]
+LoopInsert: Inputs: [loop([]), value({}), index(0)]. Outputs: [loop(updated)]
+LoopShuffle: Inputs: [loop([]), shuffle(pulse)]. Outputs: [loop(shuffled)]
+RunningTotal: Inputs: [loop([])]. Outputs: [number(total)]
+
+# Utility Nodes
+LayerInfo: Inputs: [layer(nil)]. Outputs: [position(0.0,0.0), size(0.0,0.0)]
+DurationAndBounceConverter: Inputs: [duration(1.0), bounce(0.5)]. Outputs: [stiffness(0.0), damping(0.0)]
+ResponseAndDampingConverter: Inputs: [response(1.0), dampingRatio(0.5)]. Outputs: [stiffness(0.0), damping(0.0)]
+HapticFeedback: Inputs: [play(pulse), style(heavy)]. Outputs: []
+
+# AR Nodes
+ARRaycasting: Inputs: [request(pulse), enabled(false), origin(plane(any)), xOffset(0.0), yOffset(0.0)]. Outputs: [transform(asyncMedia(nil))]
+ARAnchor: Inputs: [3DModel(asyncMedia(nil)), transform(position(0.0,0.0,0.0), scale(1.0,1.0,1.0), rotation(0.0,0.0,0.0))]. Outputs: [ARAnchor(asyncMedia(nil))]
+
 Follow these instructions carefully and produce the simplest possible graph that solves the user’s request.
