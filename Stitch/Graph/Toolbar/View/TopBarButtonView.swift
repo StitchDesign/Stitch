@@ -122,21 +122,23 @@ struct iPadGraphTopBarButtons: View {
             //            iPadNavBarButton(action: NEW_PROJECT_ACTION,
             //                             iconName: .sfSymbol(.NEW_PROJECT_SF_SYMBOL_NAME))
 
-            // toggle preview window
-            iPadNavBarButton(
-                action: PREVIEW_SHOW_TOGGLE_ACTION,
-                iconName: .sfSymbol(isPreviewWindowShown ? .HIDE_PREVIEW_WINDOW_SF_SYMBOL_NAME : .SHOW_PREVIEW_WINDOW_SF_SYMBOL_NAME))
-
-            // refresh prototype
-            iPadNavBarButton(action: RESTART_PROTOTYPE_ACTION,
-                             iconName: .sfSymbol(.RESTART_PROTOTYPE_SF_SYMBOL_NAME),
-                             rotationZ: restartPrototypeWindowIconRotationZ)
-
-            // full screen
-            iPadNavBarButton(
-                action: PREVIEW_FULL_SCREEN_ACTION,
-                //                iconName: .sfSymbol(.EXPAND_TO_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME))
-                iconName: .sfSymbol(isFullscreen ? .SHRINK_FROM_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME : .EXPAND_TO_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME))
+            if !document.isDebugMode {
+                // toggle preview window
+                iPadNavBarButton(
+                    action: PREVIEW_SHOW_TOGGLE_ACTION,
+                    iconName: .sfSymbol(isPreviewWindowShown ? .HIDE_PREVIEW_WINDOW_SF_SYMBOL_NAME : .SHOW_PREVIEW_WINDOW_SF_SYMBOL_NAME))
+                
+                // refresh prototype
+                iPadNavBarButton(action: RESTART_PROTOTYPE_ACTION,
+                                 iconName: .sfSymbol(.RESTART_PROTOTYPE_SF_SYMBOL_NAME),
+                                 rotationZ: restartPrototypeWindowIconRotationZ)
+                
+                // full screen
+                iPadNavBarButton(
+                    action: PREVIEW_FULL_SCREEN_ACTION,
+                    //                iconName: .sfSymbol(.EXPAND_TO_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME))
+                    iconName: .sfSymbol(isFullscreen ? .SHRINK_FROM_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME : .EXPAND_TO_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME))
+            }
 
             // TODO: implement
             //            // share project

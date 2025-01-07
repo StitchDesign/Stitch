@@ -25,6 +25,7 @@ extension StitchDocumentViewModel: Hashable {
 @Observable
 final class StitchDocumentViewModel: Sendable {
     let rootId: UUID
+    let isDebugMode: Bool
     let graph: GraphState
     let graphUI: GraphUIState
     let graphStepManager = GraphStepManager()
@@ -67,7 +68,8 @@ final class StitchDocumentViewModel: Sendable {
          graph: GraphState,
          isPhoneDevice: Bool,
          projectLoader: ProjectLoader,
-         store: StoreDelegate?) {
+         store: StoreDelegate?,
+         isDebugMode: Bool) {
         self.rootId = schema.id
         self.documentEncoder = projectLoader.encoder
         self.previewWindowSize = schema.previewWindowSize
@@ -78,6 +80,7 @@ final class StitchDocumentViewModel: Sendable {
         self.graphUI = GraphUIState(isPhoneDevice: isPhoneDevice)
         self.graph = graph
         self.projectLoader = projectLoader
+        self.isDebugMode = isDebugMode
         self.lastEncodedDocument = schema
         
         if let store = store {
@@ -101,8 +104,10 @@ final class StitchDocumentViewModel: Sendable {
         self.graph.initializeDelegate(document: self,
                                       documentEncoderDelegate: documentEncoder)
         
-        // Start graph
-        self.graphStepManager.start()
+        // Start graph if not in debug mode
+        if !self.isDebugMode {
+            self.graphStepManager.start()            
+        }
         
         // Updates node location data for perf + edge UI
         // MARK: currently testing perf without visibility check
@@ -110,8 +115,6 @@ final class StitchDocumentViewModel: Sendable {
             // Need all nodes to render initially
             let visibleGraph = self.visibleGraph
             visibleGraph.visibleNodesViewModel.setAllNodesVisible()
-        } else {
-//            self.refreshVisibleNodes()
         }
     }
     
@@ -119,7 +122,8 @@ final class StitchDocumentViewModel: Sendable {
     convenience init?(from schema: StitchDocument,
                       isPhoneDevice: Bool,
                       projectLoader: ProjectLoader,
-                      store: StoreDelegate?) async {
+                      store: StoreDelegate?,
+                      isDebugMode: Bool) async {
         let documentEncoder = DocumentEncoder(document: schema)
 
         let graph = await GraphState(from: schema.graph,
@@ -129,7 +133,8 @@ final class StitchDocumentViewModel: Sendable {
                   graph: graph,
                   isPhoneDevice: isPhoneDevice,
                   projectLoader: projectLoader,
-                  store: store)
+                  store: store,
+                  isDebugMode: isDebugMode)
     }
 }
 
@@ -320,6 +325,7 @@ extension StitchDocumentViewModel {
               graph: .init(),
               isPhoneDevice: false,
               projectLoader: .init(url: URL(fileURLWithPath: "")),
-              store: nil)
+              store: nil,
+              isDebugMode: false)
     }
 }

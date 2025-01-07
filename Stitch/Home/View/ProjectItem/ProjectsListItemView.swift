@@ -103,6 +103,18 @@ struct ProjectsListItemView: View {
         }
     }
 
+    func openProject(document: StitchDocument,
+                     inDebug: Bool) {
+        self.isLoadingForPresentation = true
+        
+        store.handleProjectTapped(projectLoader: self.projectLoader,
+                                  document: document,
+                                  isPhoneDevice: GraphUIState.isPhoneDevice,
+                                  isDebugMode: inDebug) {
+            self.isLoadingForPresentation = false
+        }
+    }
+    
     var body: some View {
         ProjectsListItemThumbnailView {
             switch projectLoader.loadingDocument {
@@ -122,13 +134,8 @@ struct ProjectsListItemView: View {
                     modifiedDate: projectLoader.modifiedDate,
                     isLoading: self.isLoadingForPresentation)
                     .onTapGesture {
-                        self.isLoadingForPresentation = true
-                        
-                        store.handleProjectTapped(projectLoader: self.projectLoader,
-                                                  document: document,
-                                                  isPhoneDevice: GraphUIState.isPhoneDevice) {
-                            self.isLoadingForPresentation = false
-                        }
+                        self.openProject(document: document,
+                                         inDebug: false)
                     }
                     .transition(.opacity)
             }
@@ -158,7 +165,8 @@ struct ProjectsListItemView: View {
             self.projectLoader.loadingDocument = .initialized
         }
         .projectContextMenu(document: document,
-                            url: projectLoader.url)
+                            url: projectLoader.url,
+                            projectOpenCallback: openProject)
         .animation(.stitchAnimation, value: projectLoader.loadingDocument)
     }
 }

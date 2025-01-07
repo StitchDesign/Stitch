@@ -135,11 +135,14 @@ extension StitchStore {
 }
 
 struct ProjectContextMenuModifer: ViewModifier {
+    static let debugModeIcon = "wrench.and.screwdriver"
+    
     @Environment(StitchStore.self) private var store
     @State var willPresentShareSheet = false
 
     let document: StitchDocument?
     let url: URL
+    let projectOpenCallback: (StitchDocument, Bool) -> ()
 
     func body(content: Content) -> some View {
         return content
@@ -158,6 +161,16 @@ struct ProjectContextMenuModifer: ViewModifier {
                         Text("Duplicate")
                         Image(systemName: "doc.on.doc")
                     })
+                    
+                    if !GraphUIState.isPhoneDevice {
+                        StitchButton(action: {
+                            // Opens project in debug mode
+                            projectOpenCallback(document, true)
+                        }, label: {
+                            Text("Open in Debug Mode")
+                            Image(systemName: Self.debugModeIcon)
+                        })
+                    }
                     
                     // TODO: follow the full logic in `DeleteProject` to allow for undoing a project deletion, showing 'project recently deleted' modal etc.
                     // -- see `DeleteProject` and `removeStitchProject`
@@ -189,8 +202,10 @@ struct ProjectContextMenuModifer: ViewModifier {
 
 extension View {
     func projectContextMenu(document: StitchDocument?,
-                            url: URL) -> some View {
+                            url: URL,
+                            projectOpenCallback: @escaping (StitchDocument, Bool) -> ()) -> some View {
         self.modifier(ProjectContextMenuModifer(document: document,
-                                                url: url))
+                                                url: url,
+                                                projectOpenCallback: projectOpenCallback))
     }
 }
