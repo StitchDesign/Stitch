@@ -76,6 +76,8 @@ struct StitchUIScrollViewModifier: ViewModifier {
                     ExpansionBoxView(graph: document.graph,
                                      box: expansionBox,
                                      scale: document.graphMovement.zoomData.final)
+//                    ExpansionBoxView(box: expansionBox,
+//                                     )
                 }
                 
                 if selectionState.isSelecting,
@@ -252,6 +254,13 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         }
         
         func scrollViewDidZoom(_ scrollView: UIScrollView) {
+            let contentOffset = scrollView.contentOffset
+            let contentSize = scrollView.contentSize
+            let scale = scrollView.zoomScale
+            log("StitchUIScrollView: scrollViewDidZoom contentOffset: \(contentOffset)")
+            log("StitchUIScrollView: scrollViewDidZoom contentSize: \(contentSize)")
+            log("StitchUIScrollView: scrollViewDidZoom scale: \(scale)")
+
             
             // TODO: DEC 12: dragging a canvas item seems to already take into account the zoom level; except where we somehow come into cases where nodes move slower than cursor
             //            dispatch(GraphZoomUpdated(newZoom: scrollView.zoomScale))

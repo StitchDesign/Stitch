@@ -39,8 +39,20 @@ struct RoundedRectView: View {
                 with: .color(color),
                 lineWidth: 4 * 1/scale
             )
+        
+            logInView("RoundedRectView: scale: \(scale)")
+            logInView("RoundedRectView: size: \(size)")
+            logInView("RoundedRectView: rect.size: \(rect.size)")
+            logInView("RoundedRectView: rect.origin: \(rect.origin)")
             
+                        
             context.fill(roundedRectPath, with: .color(color.opacity(0.4)))
+            
+            // what should be the orgiin here?
+            let sizePath = Path(roundedRect: .init(origin: .zero, size: size),
+                                cornerRadius: CANVAS_ITEM_CORNER_RADIUS)
+            
+            context.stroke(sizePath, with: .color(.white), lineWidth: 12)
         }
     }
 }
@@ -58,6 +70,38 @@ struct ExpansionBoxView: View {
     }
 }
 
+
+// NOTE: LEGACY EXPANSION BOX VIEW
+// TODO: debug why SwiftUI Canvas
+// https://github.com/StitchDesign/Stitch/pull/578/files#diff-62ea000e757e13dc2ac4d4a896ac3aad9e9af6a4e6a63311b25b924dbbbabdde
+//struct ExpansionBoxView: View {
+//    
+//    @Environment(\.appTheme) var theme
+//    
+//    var color: Color {
+//        theme.themeData.edgeColor
+//    }
+//    
+//    let box: ExpansionBox
+//    
+//    @State var size: CGSize = .zero
+//    
+//    
+//    var body: some View {
+//        RoundedRectangle(cornerRadius: CANVAS_ITEM_CORNER_RADIUS,
+//                         style: .continuous)
+//        .fill(color.opacity(0.4))
+//        .overlay(
+//            RoundedRectangle(cornerRadius: CANVAS_ITEM_CORNER_RADIUS)
+//                .stroke(color, lineWidth: 4)
+//        )
+//        .frame(box.size)
+//        .position(box.anchorCorner)
+//    }
+//}
+
+
+
 //struct ExpansionBoxView_Previews: PreviewProvider {
 //    static var previews: some View {
 //
@@ -70,3 +114,4 @@ struct ExpansionBoxView: View {
 //        ExpansionBoxView(box: box)
 //    }
 //}
+
