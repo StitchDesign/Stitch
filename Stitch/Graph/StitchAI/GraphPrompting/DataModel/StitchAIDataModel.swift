@@ -125,7 +125,7 @@ struct Step: Equatable, Codable {
     var nodeId: String?        // Identifier for the node
     var nodeName: String?      // Display name for the node
     var port: StringOrNumber?  // Port identifier (can be string or number)
-    var fromPort: Int?        // Source port for connections
+    var fromPort: StringOrNumber?  // Source port for connections
     var fromNodeId: String?   // Source node for connections
     var toNodeId: String?     // Target node for connections
     var value: JSONFriendlyFormat? // Associated value data
