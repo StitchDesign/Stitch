@@ -463,8 +463,6 @@ extension GraphState {
         // to update them
         // TODO: move to delegate
         if self.documentDelegate?.isDebugMode ?? false {
-            let allPorts = self.visibleNodesViewModel.getCanvasItems()
-            
             self.updatePortViews()
         }
     }
