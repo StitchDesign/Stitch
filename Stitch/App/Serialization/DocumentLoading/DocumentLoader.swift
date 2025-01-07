@@ -157,7 +157,8 @@ extension DocumentLoader {
             from: document,
             isPhoneDevice: isPhoneDevice,
             projectLoader: projectLoader,
-            store: store
+            store: store,
+            isDebugMode: false
         )
         
         documentViewModel?.didDocumentChange = true // creates fresh thumbnail

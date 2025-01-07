@@ -140,6 +140,7 @@ struct ProjectContextMenuModifer: ViewModifier {
 
     let document: StitchDocument?
     let url: URL
+    let projectOpenCallback: (StitchDocument, Bool) -> ()
 
     func body(content: Content) -> some View {
         return content
@@ -157,6 +158,14 @@ struct ProjectContextMenuModifer: ViewModifier {
                     }, label: {
                         Text("Duplicate")
                         Image(systemName: "doc.on.doc")
+                    })
+                    
+                    StitchButton(action: {
+                        // Opens project in debug mode
+                        projectOpenCallback(document, true)
+                    }, label: {
+                        Text("Open in Debug Mode")
+                        Image(systemName: "wrench.and.screwdriver")
                     })
                     
                     // TODO: follow the full logic in `DeleteProject` to allow for undoing a project deletion, showing 'project recently deleted' modal etc.
@@ -189,8 +198,10 @@ struct ProjectContextMenuModifer: ViewModifier {
 
 extension View {
     func projectContextMenu(document: StitchDocument?,
-                            url: URL) -> some View {
+                            url: URL,
+                            projectOpenCallback: @escaping (StitchDocument, Bool) -> ()) -> some View {
         self.modifier(ProjectContextMenuModifer(document: document,
-                                                url: url))
+                                                url: url,
+                                                projectOpenCallback: projectOpenCallback))
     }
 }

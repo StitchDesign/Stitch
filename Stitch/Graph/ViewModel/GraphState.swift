@@ -163,10 +163,15 @@ extension GraphState {
         // Update connected port data
         self.visibleNodesViewModel.updateAllNodeViewData()
         
-        self.updateOrderedPreviewLayers()
-        
-        // Calculate graph
-        self.initializeGraphComputation()
+        if !document.isDebugMode {
+            self.updateOrderedPreviewLayers()
+            
+            // Calculate graph
+            self.initializeGraphComputation()
+        } else {
+            // Update all fields since calculation is skipped
+            self.updatePortViews()
+        }
     }
 
     @MainActor
@@ -453,6 +458,15 @@ extension GraphState {
         self.documentEncoderDelegate?.encodeProjectInBackground(from: self,
                                                                 temporaryUrl: temporaryURL,
                                                                 willUpdateUndoHistory: willUpdateUndoHistory)
+        
+        // If debug mode, make sure fields are updated as we aren't using calculate
+        // to update them
+        // TODO: move to delegate
+        if self.documentDelegate?.isDebugMode ?? false {
+            let allPorts = self.visibleNodesViewModel.getCanvasItems()
+            
+            self.updatePortViews()
+        }
     }
     
     @MainActor
