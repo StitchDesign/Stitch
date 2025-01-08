@@ -27,8 +27,7 @@ struct FileImportView: ViewModifier {
             .modifier(FileImportPickerView(fileImportState: fileImportState,
                                      isImporting: isImportingBinding) { (urls: [URL]) in
                                          
-                guard let graph = store.currentDocument?.visibleGraph,
-                      let center = store.currentDocument?.viewPortCenter else {
+                guard let center = store.currentDocument?.viewPortCenter else {
                     return
                 }
                 
