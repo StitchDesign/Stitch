@@ -59,10 +59,12 @@ struct InsertNodeMenuState: Hashable {
     }
     
     var isAIMode: Bool {
+        #if STITCH_AI
         // We're in AI mode if we have a non-empty query and no matching results
         if let query = searchQuery, !query.isEmpty {
             return searchResults.isEmpty
         }
+        #endif
         return false
     }
 }
