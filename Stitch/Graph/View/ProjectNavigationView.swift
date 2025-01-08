@@ -32,7 +32,11 @@ struct ProjectNavigationView: View {
                       graphUI: document.graphUI)
         .alert(item: $visibleGraph.migrationWarning) { warningMessage in
             Alert(title: Text("Document Migration Warning"),
-                  message: Text(warningMessage.rawValue))
+                  message: Text(warningMessage.rawValue),
+                  dismissButton: .default(.init("OK")) {
+                // Encoding new document ensures this warning won't load again
+                document.encodeProjectInBackground()
+            })
         }
         .onChange(of: document.visibleGraph.nodes.keys.count) {
             document.visibleGraph.updateGraphData()
