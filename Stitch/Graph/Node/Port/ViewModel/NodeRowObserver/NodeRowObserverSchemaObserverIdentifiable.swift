@@ -28,6 +28,7 @@ extension InputNodeRowObserver: SchemaObserverIdentifiable {
     /// Schema updates from layer.
     @MainActor
     func update(from nodeConnection: NodeConnectionType,
+                layer: Layer,
                 inputType: LayerInputType) {
                         
         switch nodeConnection {
@@ -35,11 +36,6 @@ extension InputNodeRowObserver: SchemaObserverIdentifiable {
             self.upstreamOutputCoordinate = upstreamOutputCoordinate
             
         case .values(let values):
-            guard let layer = self.nodeKind.getLayer else {
-                fatalErrorIfDebug()
-                return
-            }
-            
             let values = values.isEmpty ? [inputType.getDefaultValue(for: layer)] : values
             self.updateValues(values)
         }
@@ -48,15 +44,11 @@ extension InputNodeRowObserver: SchemaObserverIdentifiable {
     func createSchema() -> NodePortInputEntity {
         guard let upstreamOutputObserver = self.upstreamOutputObserver else {
             return NodePortInputEntity(id: id, 
-                                       portData: .values(self.allLoopedValues),
-                                       nodeKind: self.nodeKind,
-                                       userVisibleType: self.userVisibleType)
+                                       portData: .values(self.allLoopedValues))
         }
 
         return NodePortInputEntity(id: id,
-                                   portData: .upstreamConnection(upstreamOutputObserver.id),
-                                   nodeKind: self.nodeKind,
-                                   userVisibleType: self.userVisibleType)
+                                   portData: .upstreamConnection(upstreamOutputObserver.id))
     }
     
     // Set inputs to defaultValue
