@@ -15,6 +15,12 @@ import StitchEngine
 import SwiftUI
 import Vision
 
+struct StringIdentifiable: Identifiable {
+    var rawValue: String
+    
+    var id: String { rawValue }
+}
+
 @Observable
 final class GraphState: Sendable {
     typealias CachedPortUI = NodePortType<NodeViewModel>
@@ -27,6 +33,7 @@ final class GraphState: Sendable {
     
     @MainActor var id = UUID()
     @MainActor var name: String = STITCH_PROJECT_DEFAULT_NAME
+    @MainActor var migrationWarning: StringIdentifiable?
     
     @MainActor var commentBoxesDict = CommentBoxesDict()
     
@@ -97,6 +104,10 @@ final class GraphState: Sendable {
         self.commentBoxesDict.sync(from: schema.commentBoxes)
         self.components = components
         self.visibleNodesViewModel.nodes = nodes
+        
+        if let stringWarning = schema.migrationWarning {
+            self.migrationWarning = .init(rawValue: stringWarning)
+        }
         
         self.syncMediaFiles(mediaFiles)
         self.layersSidebarViewModel.sync(from: schema.orderedSidebarLayers)

@@ -65,6 +65,7 @@ extension StitchDocument: StitchDocumentEncodable, StitchDocumentMigratable {
     init(nodes: [NodeEntity] = []) {
         self.init(graph: .init(id: .init(),
                                name: STITCH_PROJECT_DEFAULT_NAME,
+                               migrationWarning: nil,
                                nodes: nodes,
                                orderedSidebarLayers: [],
                                commentBoxes: []),
@@ -145,6 +146,7 @@ extension GraphEntity {
     static func createEmpty() -> Self {
         .init(id: .init(),
               name: "",
+              migrationWarning: nil,
               nodes: [],
               orderedSidebarLayers: [],
               commentBoxes: [])
