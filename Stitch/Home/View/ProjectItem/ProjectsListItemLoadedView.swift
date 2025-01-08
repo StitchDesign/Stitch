@@ -80,6 +80,10 @@ extension StitchStore {
                 store: self
             )
             
+            // TODO: use with actual migration logic
+            // documentViewModel?.migrateCanvasItemsPositionsForNewUIScrollViewGraph()
+            
+            
             await MainActor.run { [weak self, weak documentViewModel] in
                 guard let documentViewModel = documentViewModel else {
                     return
@@ -91,6 +95,30 @@ extension StitchStore {
         }
     }
 }
+
+extension StitchDocumentViewModel {
+    
+    @MainActor
+    func migrateCanvasItemsPositionsForNewUIScrollViewGraph() {
+        
+        self.graph.nodes.values.forEach({ (node: NodeViewModel) in
+            
+            node.getAllCanvasObservers().forEach { (canvasItem: CanvasItemViewModel) in
+                
+                log("handleProjectTapped: node.id: \(node.id)")
+                log("handleProjectTapped: canvasItem.position was: \(canvasItem.position)")
+                
+                // TODO: do this for a layer node's on-canvas inputs as well
+                canvasItem.position.x += WHOLE_GRAPH_LENGTH/2
+                canvasItem.position.y += WHOLE_GRAPH_LENGTH/2
+                canvasItem.previousPosition = canvasItem.position
+                
+                log("handleProjectTapped: canvasItem.position is now: \(canvasItem.position)")
+            }
+        })
+    }
+}
+
 
 extension String {
     func validateProjectTitle() -> String {
