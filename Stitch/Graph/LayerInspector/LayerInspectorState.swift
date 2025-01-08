@@ -146,13 +146,13 @@ extension LayerInspectorView {
         .video,
         .model3D,
         .anchorEntity,
+        .isEntityAnimating,
         .fitStyle
     ]
     
     @MainActor
     static let realityTransformation: LayerInputPortSet = [
-        .transform3D,
-        .isEntityAnimating
+        .transform3D
     ]
     
     @MainActor
