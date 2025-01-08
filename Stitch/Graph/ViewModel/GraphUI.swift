@@ -236,17 +236,17 @@ extension GraphUIState {
     // See `ToggleAllSelectedNodes`
     // This is more like?: "the center of the NodesView",
     //    var center: CGPoint {
-    @MainActor
-    func center(_ localPosition: CGPoint,
-                graphScale: CGFloat) -> CGPoint {
-        var graphCenter = self.frame.getGraphCenter(localPosition: localPosition)
-
-        // Take left-sidebar into consideration
-        let sidebarAdjustment = (self.sidebarWidth/2 * 1/graphScale)
-        graphCenter.x -= sidebarAdjustment
-        
-        return graphCenter
-    }
+//    @MainActor
+//    func center(_ localPosition: CGPoint,
+//                graphScale: CGFloat) -> CGPoint {
+//        var graphCenter = self.frame.getGraphCenter(localPosition: localPosition)
+//
+//        // Take left-sidebar into consideration
+//        let sidebarAdjustment = (self.sidebarWidth/2 * 1/graphScale)
+//        graphCenter.x -= sidebarAdjustment
+//        
+//        return graphCenter
+//    }
 }
 
 extension GraphState {
