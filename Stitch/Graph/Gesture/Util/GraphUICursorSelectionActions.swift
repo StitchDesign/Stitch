@@ -55,14 +55,16 @@ struct GraphBackgroundTrackpadDragged: StitchDocumentEvent {
         
         if state.keypressState.isSpacePressed || state.graphUI.activeSpacebarClickDrag {
             log("GraphBackgroundTrackpadDragged: space held, or have active spacebar drag, so will exit early")
+            
             return
         } else {
-            state.trackpadDragWhileSpaceNotHeld(translation: translation,
-                                    location: location,
-                                    velocity: velocity,
-                                    numberOfTouches: numberOfTouches,
-                                    gestureState: gestureState,
-                                    shiftHeld: shiftHeld)
+            state.trackpadDragWhileSpaceNotHeld(
+                translation: translation,
+                location: location,
+                velocity: velocity,
+                numberOfTouches: numberOfTouches,
+                gestureState: gestureState,
+                shiftHeld: shiftHeld)
         }
     }
 }
