@@ -73,7 +73,7 @@ extension Patch {
 
     var usesCustomValueSpaceWidth: Bool {
         switch self {
-        case .coreMLClassify, .coreMLDetection, .videoImport, .soundImport, .imageImport, .model3DImport, .grayscale:
+        case .coreMLClassify, .coreMLDetection, .videoImport, .soundImport, .imageImport, .grayscale:
             return true
         default:
             return false

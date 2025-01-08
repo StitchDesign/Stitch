@@ -146,6 +146,7 @@ extension LayerInspectorView {
         .video,
         .model3D,
         .anchorEntity,
+        .isEntityAnimating,
         .fitStyle
     ]
     

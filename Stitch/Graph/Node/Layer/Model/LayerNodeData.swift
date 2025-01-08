@@ -182,9 +182,6 @@ extension LayerNodeViewModel {
         
         let layerData: InputLayerNodeRowData = self[keyPath: layerId.layerNodeKeyPath]
         
-        // Update packed row observer
-        layerData.rowObserver.nodeKind = .layer(self.layer)
-        
         // Checking to see if we can keep id constant
         assertInDebug(layerData.rowObserver.id == coordinateId)
     }
@@ -313,6 +310,7 @@ extension LayerInputObserver {
         switch self.observerMode {
         case .packed(let packedObserver):
             packedObserver.rowObserver.update(from: schema.packedData.inputPort,
+                                              layer: self.layer,
                                               inputType: .init(layerInput: layerInputType,
                                                                portType: .packed))
             
@@ -327,6 +325,7 @@ extension LayerInputObserver {
                 let unpackedSchema = data.1
                 
                 unpackedObserver.rowObserver.update(from: unpackedSchema.inputPort,
+                                                    layer: self.layer,
                                                     inputType: .init(layerInput: layerInputType,
                                                                      portType: .unpacked(unpackedPortType)))
             }

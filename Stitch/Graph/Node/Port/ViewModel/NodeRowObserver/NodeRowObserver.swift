@@ -19,9 +19,6 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
     
     static var nodeIOType: NodeIO { get }
     
-    @MainActor
-    var nodeKind: NodeKind { get set }
-    
     @MainActor var allRowViewModels: [RowViewModelType] { get }
     
     @MainActor
@@ -40,8 +37,6 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
     
     @MainActor
     init(values: PortValues,
-         nodeKind: NodeKind,
-         userVisibleType: UserVisibleType?,
          id: NodeIOCoordinate,
          upstreamOutputCoordinate: NodeIOCoordinate?)
     
@@ -50,6 +45,18 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
 }
 
 extension PortValue: Sendable { }
+
+extension NodeRowObserver {
+    @MainActor
+    var nodeKind: NodeKind {
+        guard let nodeKind = self.nodeDelegate?.kind else {
+            fatalErrorIfDebug()
+            return .patch(.splitter)
+        }
+        
+        return nodeKind
+    }
+}
 
 @Observable
 final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
@@ -60,10 +67,6 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     // Data-side for values
     @MainActor
     var allLoopedValues: PortValues = .init()
-    
-    // statically defined inputs
-    @MainActor
-    var nodeKind: NodeKind
     
     // Connected upstream node, if input
     @MainActor
@@ -82,9 +85,7 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     
     // NodeRowObserver holds a reference to its parent, the Node
     @MainActor weak var nodeDelegate: NodeDelegate?
-    
-    @MainActor var userVisibleType: UserVisibleType?
-    
+
     // MARK: "derived data", cached for UI perf
     
     // Tracks upstream/downstream nodes--cached for perf
@@ -96,22 +97,17 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     @MainActor
     convenience init(from schema: NodePortInputEntity) {
         self.init(values: schema.portData.values ?? [],
-                  nodeKind: schema.nodeKind,
-                  userVisibleType: schema.userVisibleType,
                   id: schema.id,
                   upstreamOutputCoordinate: schema.portData.upstreamConnection)
     }
     
+    @MainActor
     init(values: PortValues,
-         nodeKind: NodeKind,
-         userVisibleType: UserVisibleType?,
          id: NodeIOCoordinate,
          upstreamOutputCoordinate: NodeIOCoordinate?) {
         self.id = id
         self.upstreamOutputCoordinate = upstreamOutputCoordinate
         self.allLoopedValues = values
-        self.nodeKind = nodeKind
-        self.userVisibleType = userVisibleType
         self.hasLoopedValues = values.hasLoop
     }
     
@@ -132,13 +128,8 @@ final class OutputNodeRowObserver: NodeRowObserver {
     // Data-side for values
     @MainActor var allLoopedValues: PortValues = .init()
     
-    // statically defined inputs
-    @MainActor var nodeKind: NodeKind
-    
     // NodeRowObserver holds a reference to its parent, the Node
     @MainActor weak var nodeDelegate: NodeDelegate?
-    
-    @MainActor var userVisibleType: UserVisibleType?
     
     // MARK: "derived data", cached for UI perf
     
@@ -156,8 +147,6 @@ final class OutputNodeRowObserver: NodeRowObserver {
     
     @MainActor
     init(values: PortValues,
-         nodeKind: NodeKind,
-         userVisibleType: UserVisibleType?,
          id: NodeIOCoordinate,
          // always nil but needed for protocol
          upstreamOutputCoordinate: NodeIOCoordinate? = nil) {
@@ -165,9 +154,7 @@ final class OutputNodeRowObserver: NodeRowObserver {
         assertInDebug(upstreamOutputCoordinate == nil)
         
         self.id = id
-        self.nodeKind = nodeKind
         self.allLoopedValues = values
-        self.userVisibleType = userVisibleType
         self.hasLoopedValues = values.hasLoop
     }
     
@@ -548,14 +535,10 @@ extension NodeIOCoordinate: NodeRowId {
 extension NodeRowObserver {
     @MainActor
     init(values: PortValues,
-         nodeKind: NodeKind,
-         userVisibleType: UserVisibleType?,
          id: NodeIOCoordinate,
          upstreamOutputCoordinate: NodeIOCoordinate?,
          nodeDelegate: NodeDelegate) {
         self.init(values: values,
-                  nodeKind: nodeKind,
-                  userVisibleType: userVisibleType,
                   id: id,
                   upstreamOutputCoordinate: upstreamOutputCoordinate)
         self.initializeDelegate(nodeDelegate)

@@ -15,7 +15,7 @@ extension [NodePortInputEntity] {
                               userVisibleType: UserVisibleType?) -> [InputNodeRowObserver] {
         
         // Note: can be called for GroupNode as well?
-        guard !kind.isLayer else {
+        guard let patch = kind.getPatch else {
             fatalErrorIfDebug("createInputObservers is not intended only for layer node inputs")
             return .init()
         }
@@ -35,6 +35,7 @@ extension [NodePortInputEntity] {
             }
 
             let values = schemaData.getInitialValuesForPatchNodeInput(
+                patch: patch,
                 schemaValues: schemaData.portData.values,
                 defaultInputs: defaultInputs)
             
@@ -45,8 +46,6 @@ extension [NodePortInputEntity] {
             }
 
             return InputNodeRowObserver(values: values,
-                                        nodeKind: kind,
-                                        userVisibleType: userVisibleType,
                                         id: .init(portId: portId, nodeId: nodeId),
                                         upstreamOutputCoordinate: schemaData.portData.upstreamConnection)
         }
@@ -80,12 +79,11 @@ func getDefaultValueForPatchNodeInput(_ portId: Int,
 // ONLY FOR PATCH NODE INPUTS
 extension NodePortInputEntity {
     
-    func getInitialValuesForPatchNodeInput(schemaValues: PortValues?,
+    func getInitialValuesForPatchNodeInput(patch: Patch,
+                                           schemaValues: PortValues?,
                                            defaultInputs: NodeInputDefinitions) -> PortValues? {
         
-        guard !self.nodeKind.getLayer.isDefined,
-                let portId: Int = self.id.portId,
-                let patch = self.nodeKind.getPatch else {
+        guard let portId: Int = self.id.portId else {
             // e.g. we had a layer node input, which needs to be handled differently
             fatalErrorIfDebug("getInitialValuesForPatchNodeInput: was this called for a layer node input?")
             return nil
@@ -113,13 +111,9 @@ extension NodeRowDefinitions {
     @MainActor
     func createOutputObservers(nodeId: NodeId,
                                // Pass in values directly from eval
-                               values: PortValuesList,
-                               patch: Patch,
-                               userVisibleType: UserVisibleType?) -> [OutputNodeRowObserver] {
+                               values: PortValuesList) -> [OutputNodeRowObserver] {
         self.outputs.enumerated().map { portId, _ in
             OutputNodeRowObserver(values: values[safe: portId] ?? [],
-                                  nodeKind: .patch(patch),
-                                  userVisibleType: userVisibleType,
                                   id: .init(portId: portId, nodeId: nodeId),
                                   upstreamOutputCoordinate: nil)
         }
@@ -128,8 +122,7 @@ extension NodeRowDefinitions {
     @MainActor
     func createOutputLayerPorts(schema: LayerNodeEntity,
                                 // Pass in values directly from eval
-                                valuesList: PortValuesList,
-                                userVisibleType: UserVisibleType?) -> [OutputLayerNodeRowData] {
+                                valuesList: PortValuesList) -> [OutputLayerNodeRowData] {
         let nodeId = schema.id
         let kind = NodeKind.layer(schema.layer)
         
@@ -141,8 +134,6 @@ extension NodeRowDefinitions {
             let values = outputData.1
             
             let observer = OutputNodeRowObserver(values: values,
-                                                 nodeKind: kind,
-                                                 userVisibleType: userVisibleType,
                                                  id: .init(portId: portId, nodeId: nodeId))
 
             if let canvasEntity = canvasEntity {

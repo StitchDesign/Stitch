@@ -32,9 +32,7 @@ extension NodeViewModel {
                 }
                 
                 return NodePortInputEntity(id: coordinate,
-                                           portData: .values(inputData.defaultValues),
-                                           nodeKind: kind,
-                                           userVisibleType: userVisibleType)
+                                           portData: .values(inputData.defaultValues))
             }
         
         let canvasEntity = CanvasNodeEntity(position: position,

@@ -243,6 +243,7 @@ final class LayerViewModel: Sendable {
     }
     
     @MainActor var anchorEntity: PortValue
+    @MainActor var isEntityAnimating: PortValue
     
     // Ephemeral state on the layer view model
     
@@ -390,6 +391,7 @@ final class LayerViewModel: Sendable {
         
         self.transform3D = LayerInputPort.transform3D.getDefaultValue(for: layer)
         self.anchorEntity = LayerInputPort.anchorEntity.getDefaultValue(for: layer)
+        self.isEntityAnimating = LayerInputPort.isEntityAnimating.getDefaultValue(for: layer)
         
         self.nodeDelegate = nodeDelegate
         self.interactiveLayer.delegate = self

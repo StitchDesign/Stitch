@@ -91,10 +91,16 @@ struct Preview3DModelLayer: View {
                     Model3DView(entity: entity,
                                 sceneSize: sceneSize,
                                 modelOpacity: opacity)
+                    .onAppear {
+                        entity.isAnimating = self.layerViewModel.isEntityAnimating.getBool ?? false
+                    }
                 } else {
                     Color.clear
                 }
             }
+        }
+        .onChange(of: self.layerViewModel.isEntityAnimating, initial: true) { _, isAnimating in
+            entity?.isAnimating = isAnimating.getBool ?? false
         }
         .modifier(PreviewCommonModifier(
             document: document,
@@ -198,6 +204,8 @@ struct ModelEntityLayerViewModifier: ViewModifier {
                 }
                 
                 if let newEntity = newEntity {
+                    newEntity.isAnimating = previewLayer.isEntityAnimating.getBool ?? false
+                    
                     self.anchorEntity.addChild(newEntity.containerEntity)
                 }
             }

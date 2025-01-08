@@ -154,6 +154,7 @@ final class LayerNodeViewModel {
     
     var transform3DPort: LayerInputObserver
     var anchorEntityPort: LayerInputObserver
+    var isEntityAnimatingPort: LayerInputObserver
     
     @MainActor weak var nodeDelegate: NodeDelegate?
 
@@ -199,8 +200,7 @@ final class LayerNodeViewModel {
         
         self.outputPorts = rowDefinitions
             .createOutputLayerPorts(schema: schema,
-                                    valuesList: rowDefinitions.outputs.defaultList,
-                                    userVisibleType: nil)
+                                    valuesList: rowDefinitions.outputs.defaultList)
         
         self.positionPort = .init(from: schema, port: .position)
         self.sizePort = .init(from: schema, port: .size)
@@ -322,6 +322,7 @@ final class LayerNodeViewModel {
         
         self.transform3DPort = .init(from: schema, port: .transform3D)
         self.anchorEntityPort = .init(from: schema, port: .anchorEntity)
+        self.isEntityAnimatingPort = .init(from: schema, port: .isEntityAnimating)
         
         // Initialize each NodeRowObserver for each expected layer input
         for layerInputPort in graphNode.inputDefinitions {

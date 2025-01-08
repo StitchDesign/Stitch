@@ -276,6 +276,8 @@ extension LayerInputPort {
             return .number(.zero)
         case .transform3D:
             return .transform(.zero)
+        case .isEntityAnimating:
+            return .bool(true)
         }
     }
     
@@ -512,6 +514,8 @@ extension LayerInputPort {
             return \.transform3DPort
         case .anchorEntity:
             return \.anchorEntityPort
+        case .isEntityAnimating:
+            return \.isEntityAnimatingPort
         }
     }
     
@@ -780,6 +784,8 @@ extension LayerViewModel {
             return self.transform3D
         case .anchorEntity:
             return self.anchorEntity
+        case .isEntityAnimating:
+            return self.isEntityAnimating
         }
     }
     
@@ -1011,6 +1017,8 @@ extension LayerViewModel {
             self.transform3D = value
         case .anchorEntity:
             self.anchorEntity = value
+        case .isEntityAnimating:
+            self.isEntityAnimating = value
         }
     }
 }
@@ -1236,6 +1244,8 @@ extension LayerInputPort {
             return \.transform3DPort
         case .anchorEntity:
             return \.anchorEntityPort
+        case .isEntityAnimating:
+            return \.isEntityAnimatingPort
         }
     }
     
@@ -1595,6 +1605,8 @@ extension LayerInputPort {
             return ""  // skip in favor of header section
         case .anchorEntity:
             return "Anchor Entity"
+        case .isEntityAnimating:
+            return "Animating"
         }
     }
 
