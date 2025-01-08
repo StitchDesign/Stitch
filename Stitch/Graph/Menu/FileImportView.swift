@@ -82,7 +82,7 @@ struct FileImportPickerView: ViewModifier {
                     selectedFilesCallback(urls)
                 case .failure(let error):
                     log("FileImportViewSwiftUI: error importing files: \(error)")
-                    dispatch(ReceivedStitchFileError(error: .mediaFilesImportFailed(error)))
+                    dispatch(ReceivedStitchFileError(error: .mediaFilesImportFailed(error.localizedDescription)))
                 }
             } // .fileImporter
     }

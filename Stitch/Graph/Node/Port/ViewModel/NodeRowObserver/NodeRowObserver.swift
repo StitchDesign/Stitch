@@ -56,10 +56,6 @@ extension NodeRowObserver {
         
         return nodeKind
     }
-    
-//    @MainActor var userVisibleType: UserVisibleType? {
-//        nodeDelegate?.patchNodeViewModel?.userVisibleType
-//    }
 }
 
 @Observable

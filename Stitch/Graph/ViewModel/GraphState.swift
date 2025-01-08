@@ -15,12 +15,6 @@ import StitchEngine
 import SwiftUI
 import Vision
 
-struct StringIdentifiable: Identifiable {
-    var rawValue: String
-    
-    var id: String { rawValue }
-}
-
 @Observable
 final class GraphState: Sendable {
     typealias CachedPortUI = NodePortType<NodeViewModel>
