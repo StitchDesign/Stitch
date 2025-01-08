@@ -188,12 +188,8 @@ struct InsertNodeQuery: GraphEvent {
             state.graphUI.insertNodeMenuState.searchResults = InsertNodeMenuState.allSearchOptions
             state.graphUI.insertNodeMenuState.activeSelection = InsertNodeMenuState.startingActiveSelection
         } else {
-            let filtered = InsertNodeMenuState.allSearchOptions.filter { option in
-                let searchText = query.lowercased()
-                let title = option.data.displayTitle.lowercased()
-                let description = option.data.displayDescription.lowercased()
-                return title.contains(searchText) || description.contains(searchText)
-            }
+            let filtered = searchForNodes(by: query,
+                                           searchOptions: InsertNodeMenuState.allSearchOptions)
             
             state.graphUI.insertNodeMenuState.searchResults = filtered
             
@@ -221,42 +217,37 @@ func searchForNodes(by query: String,
         return searchOptions
     }
 
-    let titleMatches = searchOptions.filter {
+    // First collect exact title matches
+    let exactTitleMatches = searchOptions.filter {
+        $0.data.displayTitle.lowercased() == trimmedQuery.lowercased()
+    }
+
+    // Then collect partial title matches
+    let partialTitleMatches = searchOptions.filter {
+        !exactTitleMatches.contains($0) &&
         $0.data.displayTitle.localizedCaseInsensitiveContains(trimmedQuery)
     }
 
+    // Finally collect description matches
     let descriptionMatches = searchOptions.filter {
-        !$0.data.displayTitle.localizedCaseInsensitiveContains(trimmedQuery) &&
-            $0.data.displayDescription.replacingOccurrences(of: "*", with: "")
-                                         .replacingOccurrences(of: "/", with: "")
-                                         .localizedCaseInsensitiveContains(trimmedQuery)
+        !exactTitleMatches.contains($0) &&
+        !partialTitleMatches.contains($0) &&
+        $0.data.displayDescription.replacingOccurrences(of: "*", with: "")
+                                     .replacingOccurrences(of: "/", with: "")
+                                     .localizedCaseInsensitiveContains(trimmedQuery)
     }
 
-    var filtered = titleMatches + descriptionMatches
+    var filtered = exactTitleMatches + partialTitleMatches + descriptionMatches
 
-    // Also check for:
-    // Sort to prioritize exact matches first
+    // Within each category (exact, partial, description),
+    // sort alphabetically by title
     filtered.sort { first, second in
         let firstTitle = first.data.displayTitle.lowercased()
         let secondTitle = second.data.displayTitle.lowercased()
-
-        // Check if either title starts with the query
-        let firstStartsWithQuery = firstTitle.hasPrefix(trimmedQuery.lowercased())
-        let secondStartsWithQuery = secondTitle.hasPrefix(trimmedQuery.lowercased())
-
-        // Sort by whether they start with the query
-        if firstStartsWithQuery && !secondStartsWithQuery {
-            return true
-        } else if !firstStartsWithQuery && secondStartsWithQuery {
-            return false
-        }
-
-        // If both or neither start with the query, sort alphabetically
         return firstTitle < secondTitle
     }
 
     // math symbols
-    // Also check for math symbols and logical operators
     if trimmedQuery == "+" {
         filtered.append(.init(data: .patch(.add)))
     }
