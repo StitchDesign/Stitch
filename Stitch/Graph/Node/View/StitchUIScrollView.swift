@@ -13,8 +13,8 @@ let ZOOM_COMMAND_RATE: CGFloat = 0.25
 //let ZOOM_COMMAND_RATE: CGFloat = 0.175
     
 //let WHOLE_GRAPH_LENGTH: CGFloat = 300000
-//let WHOLE_GRAPH_LENGTH: CGFloat = 30000 // 30,00
-let WHOLE_GRAPH_LENGTH: CGFloat = 300000 // 300,000
+let WHOLE_GRAPH_LENGTH: CGFloat = 30000 // 30,000
+//let WHOLE_GRAPH_LENGTH: CGFloat = 300000 // 300,000
 
 let WHOLE_GRAPH_SIZE: CGSize = .init(
     width: WHOLE_GRAPH_LENGTH,
@@ -346,7 +346,7 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
 //                newZoom: scrollView.zoomScale
 //            ))
              
-             self.checkBorder(scrollView)
+              self.checkBorder(scrollView)
         }
         
         func checkBorder(_ scrollView: UIScrollView) {
@@ -355,16 +355,19 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             
             let cache = self.document?.graph.visibleNodesViewModel.infiniteCanvasCache ?? .init()
             
+            
+            
             // Only check borders etc. if we have cached size and position data for the nodes
-            guard let westNode = self.document?.graph.westernMostNodeForBorderCheck(),
-                  let eastNode = self.document?.graph.easternMostNodeForBorderCheck(),
+            guard let canvasItemsInFrame = self.document?.graph.getVisibleCanvasItems().filter(\.isVisibleInFrame),
+                  let westNode = self.document?.graph.westernMostNodeForBorderCheck(canvasItemsInFrame),
+                  let eastNode = self.document?.graph.easternMostNodeForBorderCheck(canvasItemsInFrame),
                   let westBounds = cache.get(westNode.id),
                   let eastBounds = cache.get(eastNode.id),
-                  let northNode = self.document?.graph.northernMostNodeForBorderCheck(),
-                  let southNode = self.document?.graph.southernMostNodeForBorderCheck(),
+                  let northNode = self.document?.graph.northernMostNodeForBorderCheck(canvasItemsInFrame),
+                  let southNode = self.document?.graph.southernMostNodeForBorderCheck(canvasItemsInFrame),
                   let northBounds = cache.get(northNode.id),
                   let southBounds = cache.get(southNode.id) else {
-                                
+                
                 dispatch(GraphScrollDataUpdated(
                     newOffset: scrollView.contentOffset,
                     newZoom: scrollView.zoomScale
@@ -423,33 +426,46 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             // log("StitchUIScrollView: scrollViewDidScroll: northernMostNodeAtSouthernScreenEdge: \(northernMostNodeAtSouthernScreenEdge)")
             // log("StitchUIScrollView: scrollViewDidScroll: southernMostNodeAtNorthernScreenEdge: \(southernMostNodeAtNorthernScreenEdge)")
             
+            var hitBorder = false
+            
             var finalContentOffsetX = scrollView.contentOffset.x
             var finalContentOffsetY = scrollView.contentOffset.y
             
             if westernMostNodeAtEasternScreenEdge {
                 log("StitchUIScrollView: scrollViewDidScroll: hit min x offset")
                 finalContentOffsetX = minimumContentOffsetX
+                hitBorder = true
             } else if easternMostNodeAtWesternScreenEdge {
                 log("StitchUIScrollView: scrollViewDidScroll: hit max x offset")
                 finalContentOffsetX = maximumContentOffsetX
+                hitBorder = true
             }
             
             if northernMostNodeAtSouthernScreenEdge {
                 log("StitchUIScrollView: scrollViewDidScroll: hit min y offset")
                 finalContentOffsetY = minimumContentOffsetY
+                hitBorder = true
             } else if southernMostNodeAtNorthernScreenEdge {
                 log("StitchUIScrollView: scrollViewDidScroll: hit max y offset")
                 finalContentOffsetY = maximumContentOffsetY
+                hitBorder = true
             }
             
-            let finalOffset = CGPoint(x: finalContentOffsetX, y: finalContentOffsetY)
-            
-            scrollView.setContentOffset(finalOffset, animated: false)
-                        
-            dispatch(GraphScrollDataUpdated(
-                newOffset: finalOffset,
-                newZoom: scrollView.zoomScale
-            ))
+            // `setContentOffset` interrupts UIScrollView's momentum, so we only do it if we actually hit a border
+            if hitBorder {
+                log("StitchUIScrollView: scrollViewDidScroll: hit border")
+                let finalOffset = CGPoint(x: finalContentOffsetX, y: finalContentOffsetY)
+                scrollView.setContentOffset(finalOffset, animated: false)
+                dispatch(GraphScrollDataUpdated(
+                    newOffset: finalOffset,
+                    newZoom: scrollView.zoomScale
+                ))
+            } else {
+                dispatch(GraphScrollDataUpdated(
+                    newOffset: scrollView.contentOffset,
+                    newZoom: scrollView.zoomScale
+                ))
+            }
         }
                 
         // Handle pan gesture with boundary checks

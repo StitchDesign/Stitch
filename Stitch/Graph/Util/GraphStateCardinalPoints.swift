@@ -32,30 +32,53 @@ extension GraphState {
             }
     }
 
+//    // Do we want the node's "position" or its cached-bounds origin ?
+//    @MainActor
+//    func westernMostNodeForBorderCheck() -> CanvasItemViewModel? {
+//        GraphState.westernMostNode(self.groupNodeFocused,
+//                                   canvasItems: self.getVisibleCanvasItems().filter(\.isVisibleInFrame))
+//    }
+//    
+//    @MainActor
+//    func easternMostNodeForBorderCheck() -> CanvasItemViewModel? {
+//        GraphState.easternMostNode(self.groupNodeFocused,
+//                                   canvasItems: self.getVisibleCanvasItems().filter(\.isVisibleInFrame))
+//    }
+//    
+//    // Do we want the node's "position" or its cached-bounds origin ?
+//    @MainActor
+//    func northernMostNodeForBorderCheck() -> CanvasItemViewModel? {
+//        GraphState.northernMostNode(self.groupNodeFocused,
+//                                    canvasItems: self.getVisibleCanvasItems().filter(\.isVisibleInFrame))
+//    }
+//    
+//    @MainActor
+//    func southernMostNodeForBorderCheck() -> CanvasItemViewModel? {
+//        GraphState.southernMostNode(self.groupNodeFocused,
+//                                    canvasItems: self.getVisibleCanvasItems().filter(\.isVisibleInFrame))
+//    }
+    
+    
     // Do we want the node's "position" or its cached-bounds origin ?
     @MainActor
-    func westernMostNodeForBorderCheck() -> CanvasItemViewModel? {
-        GraphState.westernMostNode(self.groupNodeFocused,
-                                   canvasItems: self.getVisibleCanvasItems().filter(\.isVisibleInFrame))
+    func westernMostNodeForBorderCheck(_ canvasItems: CanvasItemViewModels) -> CanvasItemViewModel? {
+        GraphState.westernMostNode(self.groupNodeFocused, canvasItems: canvasItems)
     }
     
     @MainActor
-    func easternMostNodeForBorderCheck() -> CanvasItemViewModel? {
-        GraphState.easternMostNode(self.groupNodeFocused,
-                                   canvasItems: self.getVisibleCanvasItems().filter(\.isVisibleInFrame))
+    func easternMostNodeForBorderCheck(_ canvasItems: CanvasItemViewModels) -> CanvasItemViewModel? {
+        GraphState.easternMostNode(self.groupNodeFocused, canvasItems: canvasItems)
     }
     
     // Do we want the node's "position" or its cached-bounds origin ?
     @MainActor
-    func northernMostNodeForBorderCheck() -> CanvasItemViewModel? {
-        GraphState.northernMostNode(self.groupNodeFocused,
-                                    canvasItems: self.getVisibleCanvasItems().filter(\.isVisibleInFrame))
+    func northernMostNodeForBorderCheck(_ canvasItems: CanvasItemViewModels) -> CanvasItemViewModel? {
+        GraphState.northernMostNode(self.groupNodeFocused, canvasItems: canvasItems)
     }
     
     @MainActor
-    func southernMostNodeForBorderCheck() -> CanvasItemViewModel? {
-        GraphState.southernMostNode(self.groupNodeFocused,
-                                    canvasItems: self.getVisibleCanvasItems().filter(\.isVisibleInFrame))
+    func southernMostNodeForBorderCheck(_ canvasItems: CanvasItemViewModels) -> CanvasItemViewModel? {
+        GraphState.southernMostNode(self.groupNodeFocused, canvasItems: canvasItems)
     }
     
     // western-most node is node with least x-position
