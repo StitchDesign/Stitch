@@ -181,9 +181,7 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
 //                                     y: 20) // moves whole graph NORTH
             
             scrollView.setContentOffset(newOffset, animated: false)
-            
-            document.graphUI.uiScrollViewHasBeenInitialized = true
-            
+                        
             dispatch(GraphScrollDataUpdated(
                 newOffset: newOffset,
                 newZoom: scrollView.zoomScale

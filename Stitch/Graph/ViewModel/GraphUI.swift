@@ -30,9 +30,7 @@ struct ActiveDragInteractionNodeVelocityData: Equatable, Hashable {
 
 @Observable
 final class GraphUIState: Sendable {
-    
-    @MainActor var uiScrollViewHasBeenInitialized: Bool = false
-    
+        
     @MainActor var canvasZoomedIn: Bool = false
     @MainActor var canvasZoomedOut: Bool = false
     
