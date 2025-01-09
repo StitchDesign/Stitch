@@ -529,35 +529,7 @@ extension LayerInputPort {
     }
 }
 
-extension LayerViewModel {
-//    @MainActor
-//    func getValues(for inputType: LayerInputPort) -> PortValues {
-//        assertInDebug(inputType.supportsLoopedTypes)
-//        
-//        switch inputType {
-//        case .allAnchors:
-//            return self.allAnchors
-//            
-//        default:
-//            fatalErrorIfDebug()
-//            return [.number(.zero)]
-//        }
-//    }
-    
-    /// Updates inputs that accept an array of values.
-//    @MainActor
-//    func updatePreviewLayerInput(_ values: PortValues,
-//                                 inputType: LayerInputPort) {
-//        assertInDebug(inputType.supportsLoopedTypes)
-//        
-//        switch inputType {
-//        case .allAnchors:
-//            self.allAnchors = values
-//        default:
-//            fatalErrorIfDebug()
-//        }
-//    }
-    
+extension LayerViewModel {    
     /// Key paths for children preview layers.
     @MainActor
     func getValue(for inputType: LayerInputPort) -> PortValue {

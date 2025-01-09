@@ -16,7 +16,6 @@ import StitchSchemaKit
 // TODO: should make this an actor, right now inheritence prevents this
 final class StitchARView: ARView {
     let actor = CameraFeedActor()
-//    var anchorMap: [UInt64: AnchorEntity] = [:]
 
     // For camera session delegate
     @MainActor var currentImage: UIImage? {
@@ -31,7 +30,6 @@ final class StitchARView: ARView {
          anchors: [AnchorEntity] = [],
          cameraMode: ARView.CameraMode = .ar) {
         super.init(frame: frame, cameraMode: cameraMode, automaticallyConfigureSession: false)
-//        updateAnchors(anchors: anchors)
 
         self.session.delegate = self.bufferDelegate
 

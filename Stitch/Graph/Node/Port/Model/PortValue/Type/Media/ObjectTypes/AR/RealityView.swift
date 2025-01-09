@@ -40,7 +40,6 @@ struct NonCameraRealityView: UIViewRepresentable {
     let scale: Double
     let opacity: Double
     let isShadowsEnabled: Bool
-    //    let anchors: [GraphMediaValue]
     
     func makeUIView(context: Context) -> StitchARView {
         let arView = StitchARView(cameraMode: .nonAR)
@@ -54,13 +53,7 @@ struct NonCameraRealityView: UIViewRepresentable {
         return arView
     }
     
-    func updateUIView(_ uiView: StitchARView, context: Context) {
-        // MARK: must update anchors in update view
-        //        let mediaList = anchors.map { $0.mediaObject }
-        
-        // Update entities in ar view
-        //        uiView.updateAnchors(mediaList: mediaList)
-        
+    func updateUIView(_ uiView: StitchARView, context: Context) {        
         uiView.frame.size = size.asAlgebraicCGSize
         uiView.alpha = opacity
         uiView.transform = CGAffineTransform(scaleX: scale, y: scale)
