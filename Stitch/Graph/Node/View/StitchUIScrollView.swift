@@ -66,7 +66,7 @@ struct StitchUIScrollViewModifier: ViewModifier {
                 
                 // THIS IS BETTER: HANDLES BOTH ZOOMING AND SCROLLING PROPERLY
                 
-//                    .gesture(StitchTrackpadGraphBackgroundPanGesture())
+                    .gesture(StitchTrackpadGraphBackgroundPanGesture())
                 
                 
                 // RENDERING THE NODE CURSOR SELECTION BOX HERE
@@ -323,7 +323,7 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
 //            ))
             
              
-            // self.checkBorder(scrollView)
+//             self.checkBorder(scrollView)
             
         }
         
@@ -469,36 +469,53 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         // TODO: DEC 12: ??: when gesture ends, animate toward some predicted-end-point ? Or kick off legacy momentum calculations?
         
         
-        // Handle pan gesture with boundary checks
-        @objc func handlePan(_ gesture: UIPanGestureRecognizer) {
-            guard let scrollView = gesture.view as? UIScrollView else {
-                log("StitchUIScrollView: handlePan: returning early")
-                return
-            }
-            
-            let translation = gesture.translation(in: scrollView)
-            if gesture.state == .began {
-                self.initialContentOffset = scrollView.contentOffset
-            } else if gesture.state == .changed {
-                let newOffset = CGPoint(
-                    x: min(max(0, initialContentOffset.x - translation.x), contentSize.width - scrollView.bounds.width),
-                    y: min(max(0, initialContentOffset.y - translation.y), contentSize.height - scrollView.bounds.height)
-                )
-                
-                let screenHeight = self.document?.graphUI.frame.height ?? .zero
-                log("StitchUIScrollView: handlePan: screenHeight: \(screenHeight)")
-                log("StitchUIScrollView: handlePan: scrollView.zoomScale: \(scrollView.zoomScale)")
-                log("StitchUIScrollView: handlePan: scrollView.contentSize: \(scrollView.contentSize)")
-                log("StitchUIScrollView: handlePan: scrollView.contentOffset: \(scrollView.contentOffset)")
-                log("StitchUIScrollView: handlePan: newOffset: \(newOffset)")
-                scrollView.setContentOffset(newOffset, animated: false)
-                dispatch(GraphScrollDataUpdated(newOffset: newOffset,
-                                                newZoom: scrollView.zoomScale))
-            }
-        }
+//        // Handle pan gesture with boundary checks
+//        @objc func _handlePan(_ gesture: UIPanGestureRecognizer) {
+//            guard let scrollView = gesture.view as? UIScrollView else {
+//                log("StitchUIScrollView: handlePan: returning early")
+//                return
+//            }
+//            
+//            let translation = gesture.translation(in: scrollView)
+//            if gesture.state == .began {
+//                self.initialContentOffset = scrollView.contentOffset
+//            } else if gesture.state == .changed {
+////                let newOffset = CGPoint(
+////                    x: min(max(0, initialContentOffset.x - translation.x), contentSize.width - scrollView.bounds.width),
+////                    y: min(max(0, initialContentOffset.y - translation.y), contentSize.height - scrollView.bounds.height)
+////                )
+//                
+//                let screenHeight = self.document?.graphUI.frame.height ?? .zero
+//                let screenWidth = self.document?.graphUI.frame.width ?? .zero
+//                
+//                // UIScrollView's contentOffset can never be negative
+//                let minOffset: CGFloat = 0
+//                
+//                // Note: `scrollView.contentSize.width` is already `WHOLE_GRAPH_LENGTH * scale`
+//                // e.g. if graph length = 30k, and scale = 0.1, scrollViewContentSize length is 3k
+//                let maxOffsetX = scrollView.contentSize.width - screenWidth
+//                let maxOffsetY = scrollView.contentSize.height - screenHeight
+//                
+//                // these are the proper limits but really,
+//                let newOffset = CGPoint(
+//                    x: max(minOffset, maxOffsetX),
+//                    y: max(minOffset, maxOffsetY)
+//                )
+//                
+//                log("StitchUIScrollView: handlePan: screenHeight: \(screenHeight)")
+//                log("StitchUIScrollView: handlePan: screenWidth: \(screenWidth)")
+//                log("StitchUIScrollView: handlePan: scrollView.zoomScale: \(scrollView.zoomScale)")
+//                log("StitchUIScrollView: handlePan: scrollView.contentSize: \(scrollView.contentSize)")
+//                log("StitchUIScrollView: handlePan: scrollView.contentOffset: \(scrollView.contentOffset)")
+//                log("StitchUIScrollView: handlePan: newOffset: \(newOffset)")
+//                scrollView.setContentOffset(newOffset, animated: false)
+//                dispatch(GraphScrollDataUpdated(newOffset: newOffset,
+//                                                newZoom: scrollView.zoomScale))
+//            }
+//        }
         
         // Handle pan gesture with boundary checks
-        @objc func _handlePan(_ gesture: UIPanGestureRecognizer) {
+        @objc func handlePan(_ gesture: UIPanGestureRecognizer) {
             
             let spaceHeld = document?.keypressState.isSpacePressed ?? false
             
@@ -509,6 +526,7 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             }
             
             guard spaceHeld else {
+                
                 return
             }
             
@@ -526,48 +544,64 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             case .changed:
                 document?.graphUI.activeSpacebarClickDrag = true
                 
+                
+                
+                let screenHeight = self.document?.graphUI.frame.height ?? .zero
+                let screenWidth = self.document?.graphUI.frame.width ?? .zero
+                
+                // UIScrollView's contentOffset can never be negative
+                let minOffset: CGFloat = 0
+                
+                // Note: `scrollView.contentSize.width` is already `WHOLE_GRAPH_LENGTH * scale`
+                // e.g. if graph length = 30k, and scale = 0.1, scrollViewContentSize length is 3k
+                let maxOffsetX = scrollView.contentSize.width - screenWidth
+                let maxOffsetY = scrollView.contentSize.height - screenHeight
+                
                 // something about this not quite right vs simpler PureZoom
                 var newX = initialContentOffset.x - translation.x
                 var newY = initialContentOffset.y - translation.y
-                if newX < 0 { newX = 0 }
-                if newY < 0 { newY = 0 }
                 
-                //                let maxX = 12500.0
-                //                let maxY = 13200.0
-                // this depends on zoom level
-                // correct for max zoom out
-                let maxX: CGFloat = 1250
-                let maxY: CGFloat = 2000
-                if newX > maxX {
-                    newX = maxX
+                if newX < minOffset {
+                    newX = minOffset
                 }
-                if newY > maxY {
-                    newY = maxY
+                if newY < minOffset {
+                    newY = minOffset
                 }
                 
+                if newX > maxOffsetX {
+                    newX = maxOffsetX
+                }
+                if newY > maxOffsetY {
+                    newY = maxOffsetY
+                }
+                
+                // these are the proper limits but really,
                 let newOffset = CGPoint(
-                    x: min(max(0, initialContentOffset.x - translation.x),
-                           contentSize.width - scrollView.bounds.width),
-                    y: min(max(0, initialContentOffset.y - translation.y),
-                           contentSize.height - scrollView.bounds.height)
+                    x: newX,
+                    y: newY
                 )
-                //                log("handlePan: newOffset: \(newOffset)")
-                log("StitchUIScrollView: handlePan: newOffset.x: \(newOffset.x)")
-                log("StitchUIScrollView: handlePan: newOffset.y: \(newOffset.y)")
+//
+//                let _newOffset = CGPoint(
+//                    x: min(max(0,
+//                               initialContentOffset.x - translation.x),
+//                           contentSize.width - screenWidth),
+//                    y: min(max(0,
+//                               initialContentOffset.y - translation.y),
+//                           contentSize.height - screenHeight)
+//                )
+//                
+                  
+                log("StitchUIScrollView: handlePan: screenHeight: \(screenHeight)")
+                log("StitchUIScrollView: handlePan: screenWidth: \(screenWidth)")
+                log("StitchUIScrollView: handlePan: scrollView.zoomScale: \(scrollView.zoomScale)")
+                log("StitchUIScrollView: handlePan: scrollView.contentSize: \(scrollView.contentSize)")
+                log("StitchUIScrollView: handlePan: scrollView.contentOffset: \(scrollView.contentOffset)")
+                log("StitchUIScrollView: handlePan: newOffset: \(newOffset)")
                 
-                let _newOffset = CGPoint.init(x: newX, y: newY)
-                log("StitchUIScrollView: handlePan: _newOffset.x: \(_newOffset.x)")
-                log("StitchUIScrollView: handlePan: _newOffset.y: \(_newOffset.y)")
-                
-                // max x seems to be 12547.00390625, `12500`
-                // max y seems 13231.203125 i.e. `13200`
-                
-                //                scrollView.setContentOffset(newOffset,
-                scrollView.setContentOffset(_newOffset,
-                                            animated: false)
+                scrollView.setContentOffset(newOffset, animated: false)
                 
                 dispatch(GraphScrollDataUpdated(
-                    newOffset: _newOffset, //scrollView.contentOffset,
+                    newOffset: newOffset,
                     newZoom: scrollView.zoomScale
                 ))
                 
