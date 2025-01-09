@@ -111,8 +111,6 @@ extension Patch {
             return imageImportDescription
         case .cameraFeed:
             return cameraFeedDescription
-        case .model3DImport:
-            return model3DImportDescription
         case .arRaycasting:
             return arRaycastingDescription
         case .arAnchor:

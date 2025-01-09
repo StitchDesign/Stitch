@@ -107,8 +107,6 @@ extension Patch {
             return ImageImportPatchNode.self
         case .cameraFeed:
             return CameraFeedPatchNode.self
-        case .model3DImport:
-            return Model3DPatchNode.self
         case .arRaycasting:
             return ARRaycastingNode.self
         case .arAnchor:

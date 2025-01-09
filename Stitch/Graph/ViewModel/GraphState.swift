@@ -27,6 +27,7 @@ final class GraphState: Sendable {
     
     @MainActor var id = UUID()
     @MainActor var name: String = STITCH_PROJECT_DEFAULT_NAME
+    @MainActor var migrationWarning: StringIdentifiable?
     
     @MainActor var commentBoxesDict = CommentBoxesDict()
     
@@ -97,6 +98,10 @@ final class GraphState: Sendable {
         self.commentBoxesDict.sync(from: schema.commentBoxes)
         self.components = components
         self.visibleNodesViewModel.nodes = nodes
+        
+        if let stringWarning = schema.migrationWarning {
+            self.migrationWarning = .init(rawValue: stringWarning)
+        }
         
         self.syncMediaFiles(mediaFiles)
         self.layersSidebarViewModel.sync(from: schema.orderedSidebarLayers)

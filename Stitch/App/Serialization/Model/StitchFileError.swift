@@ -35,7 +35,7 @@ enum StitchFileError: Error {
     // Found an incorrect number of URLs after unzipping project
     case incorrectUrlCountInZip(count: Int)
     // File import failed for some media
-    case mediaFilesImportFailed(_ error: Error)
+    case mediaFilesImportFailed(_ error: String)
     // Imported file is an unsupported file type
     case mediaFileUnsupported(_ fileExt: String)
     // Node doesn't support imported media

@@ -13,6 +13,10 @@ struct LayerInspectorInputPortView: View {
     @Bindable var graph: GraphState
     let nodeId: NodeId
     
+    var fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>] {
+        layerInputObserver.fieldValueTypes
+    }
+    
     var body: some View {
         
         let observerMode = layerInputObserver.observerMode
@@ -52,7 +56,7 @@ struct LayerInspectorInputPortView: View {
                               rowObserver: nil,
                               rowViewModel: nil,
                               // Always use the packed
-                              fieldValueTypes: layerInputObserver.fieldValueTypes,
+                              fieldValueTypes: self.fieldValueTypes,
                               layerInputObserver: layerInputObserver,
                               forPropertySidebar: true,
                               propertyIsSelected: propertyRowIsSelected,

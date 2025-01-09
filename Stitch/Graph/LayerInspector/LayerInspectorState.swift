@@ -100,6 +100,8 @@ extension LayerInspectorView {
     @MainActor
     static let unfilteredLayerInspectorRowsInOrder: [LayerInspectorSectionData] =
         [
+            .init(.media, Self.media),
+            .init(.realityTransformation, Self.realityTransformation),
             .init(.sizing, Self.sizing),
             .init(.positioning, Self.positioning),
             .init(.common, Self.common),
@@ -137,7 +139,22 @@ extension LayerInspectorView {
         .maxSize,
     ]
     
-    // Includes some
+    @MainActor
+    static let media: LayerInputPortSet = [
+        // Imports
+        .image,
+        .video,
+        .model3D,
+        .anchorEntity,
+        .isEntityAnimating,
+        .fitStyle
+    ]
+    
+    @MainActor
+    static let realityTransformation: LayerInputPortSet = [
+        .transform3D
+    ]
+    
     @MainActor
     static let common: LayerInputPortSet = [
         
@@ -164,12 +181,9 @@ extension LayerInspectorView {
         .shape,
         .coordinateSystem,
         
-        // Media
-        .image,
-        .video,
-        .model3D,
-        .fitStyle,
-                        
+//        .init(.shadow, layer.supportsShadowInputs ? Self.shadow : []),
+        
+        
         .masks,
         .clipped,
         
@@ -215,7 +229,6 @@ extension LayerInspectorView {
         .volume,
         
         // Reality
-        .allAnchors,
         .cameraDirection,
         .isCameraEnabled,
         .isShadowsEnabled,

@@ -38,6 +38,7 @@ struct Model3DLayerNode: LayerNodeDefinition {
 
     static let inputDefinitions: LayerInputPortSet = .init([
         .model3D,
+        .anchorEntity,
         .position,
         .rotationX,
         .rotationY,
@@ -50,14 +51,16 @@ struct Model3DLayerNode: LayerNodeDefinition {
         .shadowColor,
         .shadowOpacity,
         .shadowRadius,
-        .shadowOffset
+        .shadowOffset,
+        .transform3D,
+        .isEntityAnimating
     ])
         .union(.layerEffects)
         .union(.strokeInputs)
         .union(.aspectRatio)
         .union(.sizing).union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
 
-        static func createEphemeralObserver() -> NodeEphemeralObservable? {
+    static func createEphemeralObserver() -> NodeEphemeralObservable? {
         MediaEvalOpObserver()
     }
     
@@ -68,13 +71,16 @@ struct Model3DLayerNode: LayerNodeDefinition {
                         layersInGroup: LayerDataList,
                         isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool,
-                        parentIsScrollableGrid: Bool) -> some View {
+                        parentIsScrollableGrid: Bool,
+                        realityContent: Binding<LayerRealityCameraContent?>) -> some View {
         Preview3DModelLayer(
             document: document,
             graph: graph,
             layerViewModel: viewModel,
+            realityContent: realityContent,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,
+            anchorEntityId: viewModel.anchorEntity.anchorEntity,
             position: viewModel.position.getPosition ?? .zero,
             rotationX: viewModel.rotationX.asCGFloat,
             rotationY: viewModel.rotationY.asCGFloat,

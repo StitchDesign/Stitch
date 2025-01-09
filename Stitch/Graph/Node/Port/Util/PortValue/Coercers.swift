@@ -754,4 +754,15 @@ func sizingScenarioCoercer(_ values: PortValues) -> PortValues {
     values.map { .sizingScenario($0.coerceToSizingScenario()) }
 }
 
-
+extension PortValues {
+    func anchorEntityCoercer(values: PortValues) -> Self {
+        values.map {
+            switch $0 {
+            case .anchorEntity:
+                return $0
+            default:
+                return .anchorEntity(nil)
+            }
+        }
+    }
+}

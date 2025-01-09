@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import RealityKit
 import StitchSchemaKit
 
 extension PinToId {
@@ -49,9 +50,13 @@ struct PinReceiverData: Equatable {
 
 @Observable
 final class LayerViewModel: Sendable {
+    private let mediaImportCoordinator = MediaLayerImportCoordinator()
+    
     let id: PreviewCoordinate
     let layer: Layer
     let interactiveLayer: InteractiveLayer
+    
+    @MainActor var realityContent: LayerRealityCameraContent?
     @MainActor weak var nodeDelegate: NodeDelegate?
     
     // PINNING: "View A is pinned to View B"
@@ -76,14 +81,29 @@ final class LayerViewModel: Sendable {
         }
     }
     
-    @MainActor
-    var readSize: CGSize {
-        self.readFrame.size
+    // State for media needed if we need to async load an import
+    @MainActor var mediaObject: StitchMediaObject? {
+        // Update transform for 3D model once loaded
+        didSet(oldValue) {
+            if oldValue != self.mediaObject,
+               self.mediaObject?.model3DEntity != nil {
+                self.updateTransform()
+            }
+        }
     }
     
     @MainActor
-    var readMidPosition: CGPoint {
-        self.readFrame.mid
+    var mediaPortValue: AsyncMediaValue? {
+        switch self.layer {
+        case .video:
+            return self.video._asyncMedia
+        case .image:
+            return self.image._asyncMedia
+        case .model3D:
+            return self.model3D._asyncMedia
+        default:
+            return nil
+        }
     }
     
     // Ports
@@ -124,7 +144,6 @@ final class LayerViewModel: Sendable {
     @MainActor var orientation: PortValue
     @MainActor var padding: PortValue
     @MainActor var setupMode: PortValue
-    @MainActor var allAnchors: PortValues
     @MainActor var cameraDirection: PortValue
     @MainActor var isCameraEnabled: PortValue
     @MainActor var isShadowsEnabled: PortValue
@@ -214,6 +233,17 @@ final class LayerViewModel: Sendable {
     @MainActor var scrollJumpToY: PortValue
     @MainActor var scrollJumpToYLocation: PortValue
     
+    // 3D
+    @MainActor var transform3D: PortValue {
+        didSet(oldValue) {
+            if self.transform3D != oldValue {
+                self.updateTransform()
+            }
+        }
+    }
+    
+    @MainActor var anchorEntity: PortValue
+    @MainActor var isEntityAnimating: PortValue
     
     // Ephemeral state on the layer view model
     
@@ -278,7 +308,6 @@ final class LayerViewModel: Sendable {
         self.orientation = LayerInputPort.orientation.getDefaultValue(for: layer)
         self.padding = LayerInputPort.padding.getDefaultValue(for: layer)
         self.setupMode = LayerInputPort.setupMode.getDefaultValue(for: layer)
-        self.allAnchors = [LayerInputPort.allAnchors.getDefaultValue(for: layer)]
         self.cameraDirection = LayerInputPort.cameraDirection.getDefaultValue(for: layer)
         self.isCameraEnabled = LayerInputPort.isCameraEnabled.getDefaultValue(for: layer)
         self.isShadowsEnabled = LayerInputPort.isShadowsEnabled.getDefaultValue(for: layer)
@@ -360,8 +389,15 @@ final class LayerViewModel: Sendable {
         self.scrollJumpToY = LayerInputPort.scrollJumpToY.getDefaultValue(for: layer)
         self.scrollJumpToYLocation = LayerInputPort.scrollJumpToYLocation.getDefaultValue(for: layer)
         
+        self.transform3D = LayerInputPort.transform3D.getDefaultValue(for: layer)
+        self.anchorEntity = LayerInputPort.anchorEntity.getDefaultValue(for: layer)
+        self.isEntityAnimating = LayerInputPort.isEntityAnimating.getDefaultValue(for: layer)
+        
         self.nodeDelegate = nodeDelegate
         self.interactiveLayer.delegate = self
+        
+        // Update 3D transform
+        self.updateTransform()
     }
 
     @MainActor
@@ -383,6 +419,79 @@ extension LayerViewModel: InteractiveLayerDelegate {
 }
 
 extension LayerViewModel {
+    @MainActor var mediaRowObserver: InputNodeRowObserver? {
+        guard let layerNode = self.nodeDelegate?.graphDelegate?
+            .getNodeViewModel(self.id.layerNodeId.asNodeId)?.layerNode else {
+            return nil
+        }
+        
+        switch layerNode.layer {
+        case .image:
+            return layerNode.imagePort._packedData.rowObserver
+        case .video:
+            return layerNode.videoPort._packedData.rowObserver
+        case .model3D:
+            return layerNode.model3DPort._packedData.rowObserver
+        default:
+            fatalErrorIfDebug()
+            return nil
+        }
+    }
+    
+    func loadMedia(mediaValue: AsyncMediaValue?,
+                   document: StitchDocumentViewModel,
+                   mediaRowObserver: InputNodeRowObserver?) async {
+        guard let mediaValue = mediaValue,
+              let mediaKey = mediaValue.mediaKey else {
+            // Covers media scenarios, ensuring we set to nil while task makes copy
+            await MainActor.run {
+                Self.resetMedia(self.mediaObject)
+                self.mediaObject = nil
+            }
+            return
+        }
+        
+        let newMediaObject = await mediaImportCoordinator
+            .getUniqueImport(mediaKey: mediaKey,
+                             mediaValue: mediaValue,
+                             document: document,
+                             mediaRowObserver: mediaRowObserver)
+        
+        await MainActor.run {
+            self.mediaObject = newMediaObject
+        }
+    }
+
+    @MainActor
+    static func resetMedia(_ mediaObject: StitchMediaObject?) {
+        // Hack to remove video loop
+        if let videoPlayer = mediaObject?.video {
+            videoPlayer.pause()
+            videoPlayer.stitchVideoDelegate.removeAllObservers()
+        }
+    }
+    
+    @MainActor
+    private func updateTransform() {
+        if let entity = self.mediaObject?.model3DEntity {
+            let transform = self.transform3D.getTransform ?? .zero
+            let matrix = simd_float4x4(position: transform.position3D,
+                                       scale: transform.scale3D,
+                                       rotation: transform.rotation3D)
+            entity.applyMatrix(newMatrix: matrix)
+        }
+    }
+    
+    @MainActor
+    var readSize: CGSize {
+        self.readFrame.size
+    }
+    
+    @MainActor
+    var readMidPosition: CGPoint {
+        self.readFrame.mid
+    }
+    
     @MainActor var isPinnedView: Bool {
         isPinned.getBool ?? false
     }
@@ -440,19 +549,21 @@ extension LayerViewModel {
         
         // Multi-value key paths (all anchors in reality node)
         else {
-            // No looping index used for multi-value key path
-            if let values = lengthenedValuesList[safe: portId] {
-                let oldValues = self.getValues(for: inputType)
-                
-                // Saves render cycles
-                if oldValues != values {
-                    self.updatePreviewLayerInput(values, inputType: inputType)
-                    
-                    if inputType.shouldResetGraphPreviews {
-                        self.nodeDelegate?.graphDelegate?.shouldResortPreviewLayers = true
-                    }
-                }
-            }
+            // MARK: no longer used
+            fatalErrorIfDebug()
+//            // No looping index used for multi-value key path
+//            if let values = lengthenedValuesList[safe: portId] {
+//                let oldValues = self.getValues(for: inputType)
+//                
+//                // Saves render cycles
+//                if oldValues != values {
+//                    self.updatePreviewLayerInput(values, inputType: inputType)
+//                    
+//                    if inputType.shouldResetGraphPreviews {
+//                        self.nodeDelegate?.graphDelegate?.shouldResortPreviewLayers = true
+//                    }
+//                }
+//            }
         }
     }
     

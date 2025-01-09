@@ -9,10 +9,7 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-struct VisualMediaLayerView: View {
-    // State for media needed if we need to async load an import
-    @State private var mediaObject: StitchMediaObject?
-    
+struct VisualMediaLayerView: View {    
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     @Bindable var viewModel: LayerViewModel
@@ -21,10 +18,6 @@ struct VisualMediaLayerView: View {
     let parentSize: CGSize
     let parentDisablesPosition: Bool
     let parentIsScrollableGrid: Bool
-    
-    var mediaValue: AsyncMediaValue? {
-        self.mediaPortValue._asyncMedia
-    }
     
     var layerInputType: LayerInputPort {
         switch viewModel.layer {
@@ -37,51 +30,10 @@ struct VisualMediaLayerView: View {
             return .image
         }
     }
-    
-    @MainActor var mediaRowObserver: InputNodeRowObserver? {
-        guard let layerNode = graph.getNodeViewModel(viewModel.id.layerNodeId.asNodeId)?.layerNode else {
-            return nil
-        }
-        
-        switch layerNode.layer {
-        case .image:
-            return layerNode.imagePort._packedData.rowObserver
-        case .video:
-            return layerNode.videoPort._packedData.rowObserver
-        default:
-            fatalErrorIfDebug()
-            return nil
-        }
-    }
-    
-    var mediaPortValue: PortValue {
-        get {
-            switch viewModel.layer {
-            case .video:
-                return viewModel.video
-            case .image:
-                return viewModel.image
-            default:
-                fatalErrorIfDebug()
-                return viewModel.image
-            }
-        }
-        
-        set(newValue) {
-            switch viewModel.layer {
-            case .video:
-                viewModel.video = newValue
-            case .image:
-                viewModel.image = newValue
-            default:
-                fatalErrorIfDebug()
-            }
-        }
-    }
 
     var body: some View {
         Group {
-            switch mediaObject {
+            switch self.viewModel.mediaObject {
             case .image(let image):
                 ImageLayerView(document: document,
                                graph: graph,
@@ -105,11 +57,6 @@ struct VisualMediaLayerView: View {
                 Color.clear
             }
         }
-        .modifier(MediaLayerViewModifier(mediaValue: mediaValue,
-                                         mediaObject: $mediaObject,
-                                         document: document,
-                                         mediaRowObserver: mediaRowObserver,
-                                         isRendering: isPinnedViewRendering))
     }
 }
 

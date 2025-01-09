@@ -91,9 +91,7 @@ final class StitchComponentViewModel: Sendable {
 
                 let portSchema = NodePortInputEntity(id: .init(portId: index,
                                                                nodeId: nodeId),
-                                                     portData: schemaInput,
-                                                     nodeKind: .group,
-                                                     userVisibleType: nil)
+                                                     portData: schemaInput)
                 existingInput.update(from: portSchema)
                 
                 return existingInput
@@ -102,8 +100,6 @@ final class StitchComponentViewModel: Sendable {
             switch schemaInput {
             case .upstreamConnection(let upstreamCoordinateId):
                 return InputNodeRowObserver(values: splitterInput.values,
-                                            nodeKind: .group,
-                                            userVisibleType: nil,
                                             id: .init(portId: index,
                                                       nodeId: nodeId),
                                             upstreamOutputCoordinate: upstreamCoordinateId)
@@ -111,8 +107,6 @@ final class StitchComponentViewModel: Sendable {
             default:
                 let values = schemaInput?.values ?? splitterInput.allLoopedValues
                 return InputNodeRowObserver(values: values,
-                                            nodeKind: .group,
-                                            userVisibleType: nil,
                                             id: .init(portId: index,
                                                       nodeId: nodeId),
                                             upstreamOutputCoordinate: nil)
@@ -141,8 +135,6 @@ final class StitchComponentViewModel: Sendable {
             }
             
             return OutputNodeRowObserver(values: splitterOutput.values,
-                                         nodeKind: .group,
-                                         userVisibleType: nil,
                                          id: .init(portId: index,
                                                    nodeId: nodeId))
         }

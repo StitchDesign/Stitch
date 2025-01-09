@@ -1,5 +1,5 @@
 //
-//  FieldGroupTypeViewModel.swift
+//  FieldGroupTypeData.swift
 //  Stitch
 //
 //  Created by Elliot Boschwitz on 6/13/24.
@@ -9,10 +9,9 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-typealias FieldGroupTypeViewModelList<FieldType: FieldViewModel> = [FieldGroupTypeViewModel<FieldType>]
+typealias FieldGroupTypeDataList<FieldType: FieldViewModel> = [FieldGroupTypeData<FieldType>]
 
-@Observable
-final class FieldGroupTypeViewModel<FieldType: FieldViewModel>: StitchLayoutCachable, Identifiable {
+struct FieldGroupTypeData<FieldType: FieldViewModel>: Identifiable {
     let id: FieldCoordinate
     let type: FieldGroupType
     // Only used for ShapeCommand cases? e.g. `.curveTo` has "PointTo", "CurveFrom" etc. 'groups of fields'
@@ -20,8 +19,7 @@ final class FieldGroupTypeViewModel<FieldType: FieldViewModel>: StitchLayoutCach
     // Since this could be one of many in a node's row
     let startingFieldIndex: Int
     
-    @MainActor var viewCache: NodeLayoutCache?
-    @MainActor var fieldObservers: [FieldType]
+    var fieldObservers: [FieldType]
 
     @MainActor
     init(fieldValues: FieldValues,
@@ -53,7 +51,7 @@ final class FieldGroupTypeViewModel<FieldType: FieldViewModel>: StitchLayoutCach
     @MainActor
     func updateFieldValues(fieldValues: FieldValues) {
         guard fieldValues.count == fieldObservers.count else {
-            fatalErrorIfDebug("FieldGroupTypeViewModel: updateFieldValues: non-equal count of field values to observer objects for \(type).")
+            fatalErrorIfDebug("FieldGroupTypeData: updateFieldValues: non-equal count of field values to observer objects for \(type).")
             return
         }
 
@@ -127,23 +125,11 @@ extension NodeRowType {
             return [.dropdown]
         case .readOnly:
             return [.readOnly]
+        case .anchorEntity:
+            return [.anchorEntity]
+        case .transform3D:
+            return [.xYZ, .xYZ, .xYZ]
         }
-    }
-    
-    // TODO: must be some better way to get this information and/or tie it to `getFieldValueTypes`
-    var getFieldGroupTypeForLayerInput: FieldGroupType {
-        let fieldGroupTypes = self.fieldGroupTypes
-        
-        // LayerInput can never use ShapeCommand,
-        // and so we should only have a single group of fields.
-        assertInDebug(fieldGroupTypes.count == 1)
-        
-        guard let fieldGroupType = fieldGroupTypes.first else {
-            fatalErrorIfDebug()
-            return .number
-        }
-        
-        return fieldGroupType
     }
 }
 
@@ -154,11 +140,14 @@ func getFieldValueTypes<FieldType: FieldViewModel>(value: PortValue,
                                                    unpackedPortParentFieldGroupType: FieldGroupType?,
                                                    unpackedPortIndex: Int?,
                                                    importedMediaObject: StitchMediaObject?,
-                                                   rowViewModel: FieldType.NodeRowType?) -> [FieldGroupTypeViewModel<FieldType>] {
+                                                   rowViewModel: FieldType.NodeRowType?) -> [FieldGroupTypeData<FieldType>] {
+
+    let isLayerInspector = rowViewModel?.id.graphItemType.isLayerInspector ?? false
         
     let fieldValuesList: [FieldValues] = value.createFieldValuesList(
         nodeIO: nodeIO,
-        importedMediaObject: importedMediaObject)
+        importedMediaObject: importedMediaObject,
+        isLayerInspector: isLayerInspector)
     
     // All PortValue types except ShapeCommand use a single grouping of fields
     guard let fieldValuesForSingleFieldGroup = fieldValuesList.first else {
@@ -166,7 +155,8 @@ func getFieldValueTypes<FieldType: FieldViewModel>(value: PortValue,
         return []
     }
         
-    switch value.getNodeRowType(nodeIO: nodeIO) {
+    switch value.getNodeRowType(nodeIO: nodeIO,
+                                isLayerInspector: isLayerInspector) {
         
     case .size:
         return [.init(fieldValues: fieldValuesForSingleFieldGroup,
@@ -201,6 +191,31 @@ func getFieldValueTypes<FieldType: FieldViewModel>(value: PortValue,
                       type: .padding,
                       unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                       unpackedPortIndex: unpackedPortIndex,
+                      rowViewModel: rowViewModel)]
+        
+    case .transform3D:
+        // 3 groups of fields
+        assertInDebug(fieldValuesList.count == 3)
+        
+        return [.init(fieldValues: fieldValuesList[0],
+                      type: .xYZ,
+                      groupLabel: "Position",
+                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                      unpackedPortIndex: unpackedPortIndex,
+                      rowViewModel: rowViewModel),
+                .init(fieldValues: fieldValuesList[1],
+                      type: .xYZ,
+                      groupLabel: "Scale",
+                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                      unpackedPortIndex: unpackedPortIndex,
+                      startingFieldIndex: 3,
+                      rowViewModel: rowViewModel),
+                .init(fieldValues: fieldValuesList[2],
+                      type: .xYZ,
+                      groupLabel: "Rotation",
+                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                      unpackedPortIndex: unpackedPortIndex,
+                      startingFieldIndex: 6,
                       rowViewModel: rowViewModel)]
         
     case .shapeCommand(let shapeCommand):
@@ -375,17 +390,24 @@ func getFieldValueTypes<FieldType: FieldViewModel>(value: PortValue,
                       unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                       unpackedPortIndex: unpackedPortIndex,
                       rowViewModel: rowViewModel)]
+    
+    case .anchorEntity:
+        return [.init(fieldValues: fieldValuesForSingleFieldGroup,
+                      type: .anchorEntity,
+                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                      unpackedPortIndex: unpackedPortIndex,
+                      rowViewModel: rowViewModel)]
     }
 }
 
-//extension Array where Element: FieldGroupTypeViewModel<InputFieldViewModel> {
+//extension Array where Element: FieldGroupTypeData<InputFieldViewModel> {
 extension NodeRowViewModel {
     @MainActor
     func createFieldValueTypes(initialValue: PortValue,
                                nodeIO: NodeIO,
                                unpackedPortParentFieldGroupType: FieldGroupType?,
                                unpackedPortIndex: Int?,
-                               importedMediaObject: StitchMediaObject?) -> [FieldGroupTypeViewModel<FieldType>] {
+                               importedMediaObject: StitchMediaObject?) -> [FieldGroupTypeData<FieldType>] {
         getFieldValueTypes(
             value: initialValue,
             nodeIO: nodeIO,
