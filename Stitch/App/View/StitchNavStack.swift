@@ -14,11 +14,18 @@ struct StitchNavStack: View {
     var body: some View {
         NavigationStack(path: $store.navPath) {
             ProjectsHomeViewWrapper()
-                .navigationDestination(for: StitchDocumentViewModel.self) { document in
-                    StitchProjectView(store: store,
-                                      document: document,
-                                      graphUI: document.graphUI,
-                                      alertState: store.alertState)
+                .navigationDestination(for: ProjectLoader.self) { projectLoader in
+                    if let document = projectLoader.documentViewModel {
+                        StitchProjectView(store: store,
+                                          document: document,
+                                          graphUI: document.graphUI,
+                                          alertState: store.alertState)
+                        .onDisappear {
+                            // Remove document from project loader
+                            // MARK: logic needs to be here as its the one place guaranteed to have the project
+                            projectLoader.documentViewModel = nil
+                        }
+                    }
                 }
                 .onChange(of: store.isCurrentProjectSelected) {
                     // Rest undo if project closed

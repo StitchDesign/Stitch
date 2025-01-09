@@ -84,7 +84,7 @@ extension SCNVector3 {
 
 extension Entity {
     // MARK: eval logic for model 3D patch node
-    func applyMatrix(newMatrix: matrix_float4x4) {
+    func _applyMatrix(newMatrix: matrix_float4x4) {
         // Set translation
         let position = newMatrix.position
         let translation = SIMD3([position.x, position.y, position.z])
@@ -108,18 +108,6 @@ extension Entity {
     }
 }
 
-extension Transform: Codable {
-    public init(from decoder: Decoder) throws {
-        var container = try decoder.unkeyedContainer()
-        try self.init(matrix: container.decode(matrix_float4x4.self))
-    }
-
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.unkeyedContainer()
-        try container.encode(self.matrix)
-    }
-}
-
 typealias EntitySequence = [Entity.ChildCollection.Element]
 
 extension AnchorEntity {
@@ -130,5 +118,30 @@ extension AnchorEntity {
                 self.removeChild(entityToRemove)
             }
         }
+    }
+}
+
+extension StitchTransform {
+    static let zero = DEFAULT_STITCH_TRANSFORM
+    
+    var position3D: Point3D {
+        .init(x: self.positionX,
+              y: self.positionY,
+              z: self.positionZ
+        )
+    }
+    
+    var scale3D: Point3D {
+        .init(x: self.scaleX,
+              y: self.scaleY,
+              z: self.scaleZ
+        )
+    }
+    
+    var rotation3D: Point3D {
+        .init(x: self.rotationX,
+              y: self.rotationY,
+              z: self.rotationZ
+        )
     }
 }

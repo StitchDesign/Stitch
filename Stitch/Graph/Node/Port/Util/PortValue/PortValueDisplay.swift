@@ -118,7 +118,7 @@ extension PortValue {
         case let .point4D(x):
             return x.asDictionary.description
         case .transform:
-            return "Transform"
+            return ""
         case .plane(let plane):
             return plane.display
         case .pulse(let time):
@@ -210,6 +210,8 @@ extension PortValue {
             return x.rawValue
         case .materialThickness(let x):
             return x.rawValue
+        case .anchorEntity(let x):
+            return x?.description ?? "None"
         }
         /*
          See https://github.com/vpl-codesign/stitch/issues/3022

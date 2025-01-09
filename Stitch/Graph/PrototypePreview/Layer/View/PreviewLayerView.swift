@@ -18,6 +18,7 @@ struct PreviewLayerView: View {
     let parentSize: CGSize
     let parentDisablesPosition: Bool
     let parentIsScrollableGrid: Bool
+    @Binding var realityContent: LayerRealityCameraContent?
 
     var id: PreviewCoordinate {
         self.layerViewModel.id
@@ -31,7 +32,8 @@ struct PreviewLayerView: View {
                                      layersInGroup: [],
                                      isPinnedViewRendering: isPinnedViewRendering,
                                      parentDisablesPosition: parentDisablesPosition,
-                                     parentIsScrollableGrid: parentIsScrollableGrid)
+                                     parentIsScrollableGrid: parentIsScrollableGrid,
+                                     realityContent: $realityContent)
         .eraseToAnyView()
     }
 }

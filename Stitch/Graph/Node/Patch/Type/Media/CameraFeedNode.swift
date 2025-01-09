@@ -86,7 +86,7 @@ struct CameraFeedPatchNode: PatchNodeDefinition {
 @MainActor
 func createCameraFeedManager(document: StitchDocumentViewModel,
                              graph: GraphDelegate,
-                             nodeId: NodeId) -> StitchSingletonMediaObject {
+                             nodeId: NodeId) {
     let _node = graph.getNodeViewModel(nodeId)
     
     // breaks test
@@ -95,10 +95,9 @@ func createCameraFeedManager(document: StitchDocumentViewModel,
     let node = _node ?? .createEmpty()
     let nodeKind = node.kind
     
-    let camera = document.createCamera(for: nodeKind,
-                                       graph: graph,
-                                       newNode: node.id)
-    return .cameraFeedManager(camera)
+    document.createCamera(for: nodeKind,
+                          graph: graph,
+                          newNode: node.id)
 }
 
 /// Logic that checks if we can run the eval for some camera node or if we should tear down this camera.

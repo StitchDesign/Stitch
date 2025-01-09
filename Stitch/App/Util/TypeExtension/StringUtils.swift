@@ -47,4 +47,8 @@ extension StitchStringValue {
     }
 }
 
-extension String: Error {}
+struct StringIdentifiable: Identifiable {
+    var rawValue: String
+    
+    var id: String { rawValue }
+}

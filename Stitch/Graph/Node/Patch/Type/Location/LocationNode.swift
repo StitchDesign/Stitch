@@ -44,10 +44,11 @@ struct LocationNode: PatchNodeDefinition {
     }
 }
 
-func createLocationManager(_: StitchDocumentViewModel,
+@MainActor
+func createLocationManager(document: StitchDocumentViewModel,
                            _: GraphDelegate,
-                           _: NodeId) async -> StitchSingletonMediaObject {
-    .locationManager(LocationManager())
+                           _: NodeId) async {
+    document.locationManager = .loaded(.locationManager(LocationManager()))
 }
 
 @MainActor

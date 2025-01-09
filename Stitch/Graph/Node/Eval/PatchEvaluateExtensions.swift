@@ -284,8 +284,6 @@ extension Patch {
             return .node(outputsOnlyEval(roundedRectangleShapeEval))
         case .union:
             return .node(outputsOnlyEval(unionEval))
-        case .model3DImport:
-            return .node(model3DImportEval)
         case .arRaycasting:
             return .node(arRayCastingEval)
         case .keyboard:
