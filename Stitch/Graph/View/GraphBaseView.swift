@@ -93,6 +93,18 @@ struct GraphBaseView: View {
                     } // GraphGestureBackgroundView
                 } // .background
         } // GraphGestureView
+        .overlay {
+            // Show debug mode tip view
+            if document.isDebugMode {
+                VStack {
+                    HStack {
+                        DebugModePopover()
+                        Spacer()
+                    }
+                    Spacer()
+                }
+            }
+        }
     }
 
     @ViewBuilder
