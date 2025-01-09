@@ -217,33 +217,29 @@ func searchForNodes(by query: String,
         return searchOptions
     }
 
-    // First collect exact title matches
-    let exactTitleMatches = searchOptions.filter {
-        $0.data.displayTitle.lowercased() == trimmedQuery.lowercased()
-    }
-
-    // Then collect partial title matches
-    let partialTitleMatches = searchOptions.filter {
-        !exactTitleMatches.contains($0) &&
-        $0.data.displayTitle.localizedCaseInsensitiveContains(trimmedQuery)
-    }
-
-    // Finally collect description matches
-    let descriptionMatches = searchOptions.filter {
-        !exactTitleMatches.contains($0) &&
-        !partialTitleMatches.contains($0) &&
+    // First collect all matching nodes
+    var filtered = searchOptions.filter {
+        $0.data.displayTitle.localizedCaseInsensitiveContains(trimmedQuery) ||
         $0.data.displayDescription.replacingOccurrences(of: "*", with: "")
-                                     .replacingOccurrences(of: "/", with: "")
-                                     .localizedCaseInsensitiveContains(trimmedQuery)
+            .replacingOccurrences(of: "/", with: "")
+            .localizedCaseInsensitiveContains(trimmedQuery)
     }
 
-    var filtered = exactTitleMatches + partialTitleMatches + descriptionMatches
-
-    // Within each category (exact, partial, description),
-    // sort alphabetically by title
+    // Sort with priority for exact boolean operation matches
     filtered.sort { first, second in
         let firstTitle = first.data.displayTitle.lowercased()
         let secondTitle = second.data.displayTitle.lowercased()
+        let lowercaseQuery = trimmedQuery.lowercased()
+
+        // Give priority to exact boolean operation matches
+        if firstTitle == lowercaseQuery && ["and", "or", "not"].contains(lowercaseQuery) {
+            return true
+        }
+        if secondTitle == lowercaseQuery && ["and", "or", "not"].contains(lowercaseQuery) {
+            return false
+        }
+
+        // For all other cases, sort alphabetically
         return firstTitle < secondTitle
     }
 
