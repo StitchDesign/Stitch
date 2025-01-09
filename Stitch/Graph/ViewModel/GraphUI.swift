@@ -33,6 +33,9 @@ final class GraphUIState: Sendable {
     
     @MainActor var uiScrollViewHasBeenInitialized: Bool = false
     
+    @MainActor var canvasZoomedIn: Bool = false
+    @MainActor var canvasZoomedOut: Bool = false
+    
     @MainActor var canvasJumpLocation: CGPoint? = nil
     
     @MainActor var nodeMenuHeight: CGFloat = INSERT_NODE_MENU_MAX_HEIGHT

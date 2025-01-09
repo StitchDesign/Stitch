@@ -202,11 +202,11 @@ class StitchHostingController<T: View>: UIHostingController<T> {
 
     // TODO: DEC 12: REVISIT
     @objc func zoomInKey(_ sender: UIKeyCommand) {
-//        dispatch(GraphZoomedIn())
+        dispatch(GraphZoomedIn())
     }
 
     @objc func zoomOutKey(_ sender: UIKeyCommand) {
-//        dispatch(GraphZoomedOut())
+        dispatch(GraphZoomedOut())
     }
 
     @objc func noOp(_ sender: UIKeyCommand) {}

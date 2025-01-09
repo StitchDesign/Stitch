@@ -7,8 +7,12 @@
 
 import SwiftUI
 
+// TODO: every zoom in/out jumps is 0.25, but the second-to-last zoom out jump feels too big?
+let ZOOM_COMMAND_RATE: CGFloat = 0.25
+//let ZOOM_COMMAND_RATE: CGFloat = 0.1
+//let ZOOM_COMMAND_RATE: CGFloat = 0.175
+    
 //let WHOLE_GRAPH_LENGTH: CGFloat = 300000
-
 let WHOLE_GRAPH_LENGTH: CGFloat = 30000
 
 let WHOLE_GRAPH_SIZE: CGSize = .init(
@@ -160,18 +164,13 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         // TODO: DEC 12: initialize with proper persisted localPosition; using WHOLE_GRAPH_LENGTH/2 if it's a brand new project
         
         self.initializeContentOffset(scrollView)
-        
-        
+                
         return scrollView
     }
     
     private func initializeContentOffset(_ scrollView: UIScrollView) {
         // ALSO: NOTE: CAREFUL: LOCAL POSITION IS STILL PERSISTED
-        
-                // Center the content
         DispatchQueue.main.async {
-//            let newOffset =  CGPoint(x: max(0, (contentSize.width - scrollView.bounds.width) / 2),
-//                                     y: max(0, (contentSize.height - scrollView.bounds.height) / 2))
             let newOffset =  CGPoint(x: WHOLE_GRAPH_LENGTH/2,
                                      y: WHOLE_GRAPH_LENGTH/2)
             
@@ -182,7 +181,6 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
 //                                     y: 20) // moves whole graph NORTH
             
             scrollView.setContentOffset(newOffset, animated: false)
-            //                    dispatch(GraphScrolledViaUIScrollView(newOffset: newOffset))
             
             document.graphUI.uiScrollViewHasBeenInitialized = true
             
@@ -193,6 +191,7 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         }
     }
     
+
     func updateUIView(_ uiView: UIScrollView, context: Context) {
         log("StitchUIScrollView: updateUIView")
         
@@ -208,9 +207,43 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             uiView.setContentOffset(canvasJumpLocation,
                                     animated: true)
             
+            dispatch(GraphScrollDataUpdated(
+                newOffset: uiView.contentOffset,
+                newZoom: uiView.zoomScale
+            ))
+            
             // and then set nil
             document.graphUI.canvasJumpLocation = nil
         }
+        
+        if document.graphUI.canvasZoomedIn {
+            log("StitchUIScrollView: updateUIView: will zoom in")
+            log("StitchUIScrollView: updateUIView: uiView.zoomScale was \(uiView.zoomScale)")
+            uiView.zoomScale += ZOOM_COMMAND_RATE
+            log("StitchUIScrollView: updateUIView: uiView.zoomScale is now \(uiView.zoomScale)")
+            
+            dispatch(GraphScrollDataUpdated(
+                newOffset: uiView.contentOffset,
+                newZoom: uiView.zoomScale
+            ))
+            
+            document.graphUI.canvasZoomedIn = false
+        }
+        
+        if document.graphUI.canvasZoomedOut {
+            log("StitchUIScrollView: updateUIView: will zoom out")
+            log("StitchUIScrollView: updateUIView: uiView.zoomScale was \(uiView.zoomScale)")
+            uiView.zoomScale -= ZOOM_COMMAND_RATE
+            log("StitchUIScrollView: updateUIView: uiView.zoomScale is now \(uiView.zoomScale)")
+            
+            dispatch(GraphScrollDataUpdated(
+                newOffset: uiView.contentOffset,
+                newZoom: uiView.zoomScale
+            ))
+            
+            document.graphUI.canvasZoomedOut = false
+        }
+        
     }
     
     func makeCoordinator() -> Coordinator {

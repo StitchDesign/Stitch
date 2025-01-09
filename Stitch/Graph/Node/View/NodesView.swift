@@ -52,9 +52,6 @@ struct NodesView: View {
         InfiniteCanvas(graph: graph,
                        existingCache: graph.visibleNodesViewModel.infiniteCanvasCache,
                        needsInfiniteCanvasCacheReset: graph.visibleNodesViewModel.needsInfiniteCanvasCacheReset) {
-                       
-                       // TODO: DEC 12: TEST THIS FOR NOW
-//                       needsInfiniteCanvasCacheReset: true) {
             
             //                        commentBoxes
             
