@@ -16,12 +16,14 @@ struct OpenAIRequestConfig {
     let maxRetries: Int        // Maximum number of retry attempts for failed requests
     let timeoutInterval: TimeInterval   // Request timeout duration in seconds
     let retryDelay: TimeInterval       // Delay between retry attempts
+    let maxTimeoutErrors: Int  // Maximum number of timeout errors before showing alert
     
     /// Default configuration with standard retry settings
     static let `default` = OpenAIRequestConfig(
         maxRetries: 3,
         timeoutInterval: 30,
-        retryDelay: 2
+        retryDelay: 2,
+        maxTimeoutErrors: 3
     )
 }
 
@@ -31,7 +33,8 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
     let systemPrompt: String       // System-level instructions loaded from file
     let schema: JSON              // JSON schema for response validation
     let config: OpenAIRequestConfig // Request configuration settings
-    
+    @MainActor static var timeoutErrorCount = 0
+
     /// Initialize a new request with prompt and optional configuration
     init(prompt: String, config: OpenAIRequestConfig = .default) {
         self.prompt = prompt
@@ -59,11 +62,12 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
         guard attempt <= config.maxRetries else {
             print("All retry attempts exhausted")
             state.showErrorModal(
-                message: "Request failed after \(config.maxRetries) attempts",
+                message: "Request failed after \(config.maxRetries) attempts. Please check your internet connection and try again.",
                 userPrompt: prompt,
                 jsonResponse: nil
             )
             state.stitchAI.promptState.isGenerating = false
+            state.graphUI.insertNodeMenuState.isGeneratingAINode = false
             return
         }
         
@@ -138,15 +142,43 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
             DispatchQueue.main.async {
                 // Handle network errors
                 if let error = error as NSError? {
-                    // Retry on timeout or connection loss
-                    if error.code == NSURLErrorTimedOut ||
-                       error.code == NSURLErrorNetworkConnectionLost {
-                        print("Request failed: \(error.localizedDescription)")
+                    // Handle timeout errors
+                    if error.code == NSURLErrorTimedOut {
+                        Self.timeoutErrorCount += 1
+                        print("Timeout error count: \(Self.timeoutErrorCount)")
+                        
+                        if Self.timeoutErrorCount >= config.maxTimeoutErrors {
+                            state.showErrorModal(
+                                message: "Multiple timeout errors occurred. Please check your internet connection and try again later.",
+                                userPrompt: prompt,
+                                jsonResponse: nil
+                            )
+                            state.stitchAI.promptState.isGenerating = false
+                            state.graphUI.insertNodeMenuState.isGeneratingAINode = false
+                            Self.timeoutErrorCount = 0  // Reset counter
+                            return
+                        }
+                        
+                        print("Request timed out: \(error.localizedDescription)")
                         print("Retrying in \(config.retryDelay) seconds")
                         
                         DispatchQueue.main.asyncAfter(deadline: .now() + config.retryDelay) {
                             self.makeRequest(attempt: attempt + 1, state: state)
                         }
+                        return
+                    }
+                    
+                    // Handle network connection errors
+                    if error.code == NSURLErrorNotConnectedToInternet ||
+                       error.code == NSURLErrorNetworkConnectionLost {
+                        state.showErrorModal(
+                            message: "No internet connection. Please try again when your connection is restored.",
+                            userPrompt: prompt,
+                            jsonResponse: nil
+                        )
+                        // Reset to Submit Prompt state
+                        state.stitchAI.promptState.isGenerating = false
+                        state.graphUI.insertNodeMenuState.isGeneratingAINode = false
                         return
                     }
                     
@@ -157,6 +189,7 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
                         jsonResponse: nil
                     )
                     state.stitchAI.promptState.isGenerating = false
+                    state.graphUI.insertNodeMenuState.isGeneratingAINode = false
                     return
                 }
                 
@@ -191,6 +224,7 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
         makeRequest(state: state)
     }
+    
 }
 
 /// Event handler for completed OpenAI requests
