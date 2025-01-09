@@ -81,7 +81,7 @@ extension StitchStore {
             )
             
             // TODO: DEC 12: use with actual migration logic
-            // documentViewModel?.migrateCanvasItemsPositionsForNewUIScrollViewGraph()
+//            documentViewModel?.migrateCanvasItemsPositionsForNewUIScrollViewGraph()
             
             await MainActor.run { [weak self, weak documentViewModel] in
                 guard let documentViewModel = documentViewModel else {

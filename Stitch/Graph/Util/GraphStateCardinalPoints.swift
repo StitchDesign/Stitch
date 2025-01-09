@@ -36,26 +36,26 @@ extension GraphState {
     @MainActor
     func westernMostNodeForBorderCheck() -> CanvasItemViewModel? {
         GraphState.westernMostNode(self.groupNodeFocused,
-                                   canvasItems: self.getVisibleCanvasItems())
+                                   canvasItems: self.getVisibleCanvasItems().filter(\.isVisibleInFrame))
     }
     
     @MainActor
     func easternMostNodeForBorderCheck() -> CanvasItemViewModel? {
         GraphState.easternMostNode(self.groupNodeFocused,
-                                   canvasItems: self.getVisibleCanvasItems())
+                                   canvasItems: self.getVisibleCanvasItems().filter(\.isVisibleInFrame))
     }
     
     // Do we want the node's "position" or its cached-bounds origin ?
     @MainActor
     func northernMostNodeForBorderCheck() -> CanvasItemViewModel? {
         GraphState.northernMostNode(self.groupNodeFocused,
-                                    canvasItems: self.getVisibleCanvasItems())
+                                    canvasItems: self.getVisibleCanvasItems().filter(\.isVisibleInFrame))
     }
     
     @MainActor
     func southernMostNodeForBorderCheck() -> CanvasItemViewModel? {
         GraphState.southernMostNode(self.groupNodeFocused,
-                                    canvasItems: self.getVisibleCanvasItems())
+                                    canvasItems: self.getVisibleCanvasItems().filter(\.isVisibleInFrame))
     }
     
     // western-most node is node with least x-position
