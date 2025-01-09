@@ -66,7 +66,7 @@ struct StitchUIScrollViewModifier: ViewModifier {
                 
                 // THIS IS BETTER: HANDLES BOTH ZOOMING AND SCROLLING PROPERLY
                 
-                    .gesture(StitchTrackpadGraphBackgroundPanGesture())
+//                    .gesture(StitchTrackpadGraphBackgroundPanGesture())
                 
                 
                 // RENDERING THE NODE CURSOR SELECTION BOX HERE
@@ -128,18 +128,18 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         scrollView.maximumZoomScale = MAX_GRAPH_SCALE //5.0
         scrollView.delegate = context.coordinator
         
-//        // CATALYST AND IPAD-WITH-TRACKPAD: IMMEDIATELY START THE NODE CURSOR SELECTION BOX
-//        let trackpadPanGesture = UIPanGestureRecognizer(
-//            target: context.coordinator,
-//            action: #selector(context.coordinator.handlePan))
-//        // Only listen to click and drag from mouse
-//        trackpadPanGesture.allowedScrollTypesMask = [.discrete]
-//        // ignore screen; uses trackpad
-//        trackpadPanGesture.allowedTouchTypes = [TRACKPAD_TOUCH_ID]
-//        // 1 touch ensures a click and drag event
-//        trackpadPanGesture.minimumNumberOfTouches = 1
-//        trackpadPanGesture.maximumNumberOfTouches = 1
-//        scrollView.addGestureRecognizer(trackpadPanGesture)
+        // CATALYST AND IPAD-WITH-TRACKPAD: IMMEDIATELY START THE NODE CURSOR SELECTION BOX
+        let trackpadPanGesture = UIPanGestureRecognizer(
+            target: context.coordinator,
+            action: #selector(context.coordinator.handlePan))
+        // Only listen to click and drag from mouse
+        trackpadPanGesture.allowedScrollTypesMask = [.discrete]
+        // ignore screen; uses trackpad
+        trackpadPanGesture.allowedTouchTypes = [TRACKPAD_TOUCH_ID]
+        // 1 touch ensures a click and drag event
+        trackpadPanGesture.minimumNumberOfTouches = 1
+        trackpadPanGesture.maximumNumberOfTouches = 1
+        scrollView.addGestureRecognizer(trackpadPanGesture)
         
         // Add SwiftUI content inside the scroll view
         let hostedView = context.coordinator.hostingController.view!
@@ -322,7 +322,9 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
 //                newZoom: scrollView.zoomScale
 //            ))
             
-             self.checkBorder(scrollView)
+             
+            // self.checkBorder(scrollView)
+            
         }
         
         func checkBorder(_ scrollView: UIScrollView) {
@@ -466,8 +468,37 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         // TODO: DEC 12: fix the boundary checking logic here; why did it work in simpler ChatGPT app but not here?
         // TODO: DEC 12: ??: when gesture ends, animate toward some predicted-end-point ? Or kick off legacy momentum calculations?
         
+        
         // Handle pan gesture with boundary checks
         @objc func handlePan(_ gesture: UIPanGestureRecognizer) {
+            guard let scrollView = gesture.view as? UIScrollView else {
+                log("StitchUIScrollView: handlePan: returning early")
+                return
+            }
+            
+            let translation = gesture.translation(in: scrollView)
+            if gesture.state == .began {
+                self.initialContentOffset = scrollView.contentOffset
+            } else if gesture.state == .changed {
+                let newOffset = CGPoint(
+                    x: min(max(0, initialContentOffset.x - translation.x), contentSize.width - scrollView.bounds.width),
+                    y: min(max(0, initialContentOffset.y - translation.y), contentSize.height - scrollView.bounds.height)
+                )
+                
+                let screenHeight = self.document?.graphUI.frame.height ?? .zero
+                log("StitchUIScrollView: handlePan: screenHeight: \(screenHeight)")
+                log("StitchUIScrollView: handlePan: scrollView.zoomScale: \(scrollView.zoomScale)")
+                log("StitchUIScrollView: handlePan: scrollView.contentSize: \(scrollView.contentSize)")
+                log("StitchUIScrollView: handlePan: scrollView.contentOffset: \(scrollView.contentOffset)")
+                log("StitchUIScrollView: handlePan: newOffset: \(newOffset)")
+                scrollView.setContentOffset(newOffset, animated: false)
+                dispatch(GraphScrollDataUpdated(newOffset: newOffset,
+                                                newZoom: scrollView.zoomScale))
+            }
+        }
+        
+        // Handle pan gesture with boundary checks
+        @objc func _handlePan(_ gesture: UIPanGestureRecognizer) {
             
             let spaceHeld = document?.keypressState.isSpacePressed ?? false
             
