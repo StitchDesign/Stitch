@@ -379,6 +379,8 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
                     newOffset: scrollView.contentOffset,
                     newZoom: scrollView.zoomScale
                 ))
+            
+                log("StitchUIScrollView: scrollViewDidScroll: MISSING WEST, EAST, SOUTH OR NORTH IN-FRAME NODES OR BOUNDS")
                 
                 return
             }
@@ -407,30 +409,48 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             // Minimum contentOffset can never be less than 0
             // But setting to be exactly 0 is awkward? We don't scroll back?
 //            let minimumContentOffsetX = max(0, (westernMostNodeCachedBoundsOriginX * scale) - screenWidth)
-            let minimumContentOffsetX = (westernMostNodeCachedBoundsOriginX * scale) - screenWidth
-            let maximumContentOffsetX = easternMostNodeCachedBoundsOriginX * scale
+            
+            let scaledNodeWidth = (southBounds.width/4 * scale)
+            
+//            let minimumContentOffsetX = (westernMostNodeCachedBoundsOriginX * scale) - screenWidth
+//            let maximumContentOffsetX = easternMostNodeCachedBoundsOriginX * scale
+            let minimumContentOffsetX = (westernMostNodeCachedBoundsOriginX * scale) - screenWidth + scaledNodeWidth
+            let maximumContentOffsetX = (easternMostNodeCachedBoundsOriginX * scale) - scaledNodeWidth
+            
+            
+            log("StitchUIScrollView: scrollViewDidScroll: minimumContentOffsetX: \(minimumContentOffsetX)")
+            log("StitchUIScrollView: scrollViewDidScroll: maximumContentOffsetX: \(maximumContentOffsetX)")
+            
+            let scaledNodeHeight = (southBounds.height/4 * scale)
             
 //            let minimumContentOffsetY = max(0, (northernMostNodeCachedBoundsOriginY * scale) - screenHeight)
-            let minimumContentOffsetY = (northernMostNodeCachedBoundsOriginY * scale) - screenHeight
-            let maximumContentOffsetY = southernMostNodeCachedBoundsOriginY * scale
+//            let minimumContentOffsetY = (northernMostNodeCachedBoundsOriginY * scale) - screenHeight
+//            let minimumContentOffsetY = (northernMostNodeCachedBoundsOriginY * scale) - screenHeight
+            let minimumContentOffsetY = (northernMostNodeCachedBoundsOriginY * scale) - screenHeight + scaledNodeHeight
             
-            // log("StitchUIScrollView: scrollViewDidScroll: minimumContentOffsetX: \(minimumContentOffsetX)")
-            // log("StitchUIScrollView: scrollViewDidScroll: maximumContentOffsetX: \(maximumContentOffsetX)")
+            
+            // for southern-most node at north edge of device screen
+//            let maximumContentOffsetY = southernMostNodeCachedBoundsOriginY * scale
+//            let scaledNodeHeight = (southBounds.height/2 * scale)
+            
+            let maximumContentOffsetY = (southernMostNodeCachedBoundsOriginY * scale) - scaledNodeHeight
+            
+            log("StitchUIScrollView: scrollViewDidScroll: scaledNodeHeight: \(scaledNodeHeight)")
+            log("StitchUIScrollView: scrollViewDidScroll: minimumContentOffsetY: \(minimumContentOffsetY)")
+            log("StitchUIScrollView: scrollViewDidScroll: maximumContentOffsetY: \(maximumContentOffsetY)")
+
+            
             let westernMostNodeAtEasternScreenEdge = scrollView.contentOffset.x <= minimumContentOffsetX
             let easternMostNodeAtWesternScreenEdge = scrollView.contentOffset.x >= maximumContentOffsetX
-             log("StitchUIScrollView: scrollViewDidScroll: westernMostNodeAtEasternScreenEdge: \(westernMostNodeAtEasternScreenEdge)")
-             log("StitchUIScrollView: scrollViewDidScroll: easternMostNodeAtWesternScreenEdge: \(easternMostNodeAtWesternScreenEdge)")
             
-            // Might need to flip these? I forget
+            log("StitchUIScrollView: scrollViewDidScroll: westernMostNodeAtEasternScreenEdge: \(westernMostNodeAtEasternScreenEdge)")
+            log("StitchUIScrollView: scrollViewDidScroll: easternMostNodeAtWesternScreenEdge: \(easternMostNodeAtWesternScreenEdge)")
+            
             let northernMostNodeAtSouthernScreenEdge = scrollView.contentOffset.y <= minimumContentOffsetY
-            
-            // southern most node at screen's top edge should actually be the minimum content offset ?; we
             let southernMostNodeAtNorthernScreenEdge = scrollView.contentOffset.y >= maximumContentOffsetY
-
-            // log("StitchUIScrollView: scrollViewDidScroll: minimumContentOffsetY: \(minimumContentOffsetY)")
-            // log("StitchUIScrollView: scrollViewDidScroll: maximumContentOffsetY: \(maximumContentOffsetY)")
-             log("StitchUIScrollView: scrollViewDidScroll: northernMostNodeAtSouthernScreenEdge: \(northernMostNodeAtSouthernScreenEdge)")
-             log("StitchUIScrollView: scrollViewDidScroll: southernMostNodeAtNorthernScreenEdge: \(southernMostNodeAtNorthernScreenEdge)")
+            
+            log("StitchUIScrollView: scrollViewDidScroll: northernMostNodeAtSouthernScreenEdge: \(northernMostNodeAtSouthernScreenEdge)")
+            log("StitchUIScrollView: scrollViewDidScroll: southernMostNodeAtNorthernScreenEdge: \(southernMostNodeAtNorthernScreenEdge)")
             
             if westernMostNodeAtEasternScreenEdge {
                 log("StitchUIScrollView: scrollViewDidScroll: hit min x offset")
@@ -494,59 +514,6 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
 //            log("StitchUIScrollView: scrollViewWillEndDragging scrollView.contentSize: \(scrollView.contentSize)")
 //            log("StitchUIScrollView: scrollViewWillEndDragging scrollView.zoomScale: \(scrollView.zoomScale)")
 //            targetContentOffset.pointee = scrollView.contentOffset
-//        }
-        
-       
-        
-        
-        
-        // TODO: DEC 12: fix the boundary checking logic here; why did it work in simpler ChatGPT app but not here?
-        // TODO: DEC 12: ??: when gesture ends, animate toward some predicted-end-point ? Or kick off legacy momentum calculations?
-        
-        
-//        // Handle pan gesture with boundary checks
-//        @objc func _handlePan(_ gesture: UIPanGestureRecognizer) {
-//            guard let scrollView = gesture.view as? UIScrollView else {
-//                log("StitchUIScrollView: handlePan: returning early")
-//                return
-//            }
-//            
-//            let translation = gesture.translation(in: scrollView)
-//            if gesture.state == .began {
-//                self.initialContentOffset = scrollView.contentOffset
-//            } else if gesture.state == .changed {
-////                let newOffset = CGPoint(
-////                    x: min(max(0, initialContentOffset.x - translation.x), contentSize.width - scrollView.bounds.width),
-////                    y: min(max(0, initialContentOffset.y - translation.y), contentSize.height - scrollView.bounds.height)
-////                )
-//                
-//                let screenHeight = self.document?.graphUI.frame.height ?? .zero
-//                let screenWidth = self.document?.graphUI.frame.width ?? .zero
-//                
-//                // UIScrollView's contentOffset can never be negative
-//                let minOffset: CGFloat = 0
-//                
-//                // Note: `scrollView.contentSize.width` is already `WHOLE_GRAPH_LENGTH * scale`
-//                // e.g. if graph length = 30k, and scale = 0.1, scrollViewContentSize length is 3k
-//                let maxOffsetX = scrollView.contentSize.width - screenWidth
-//                let maxOffsetY = scrollView.contentSize.height - screenHeight
-//                
-//                // these are the proper limits but really,
-//                let newOffset = CGPoint(
-//                    x: max(minOffset, maxOffsetX),
-//                    y: max(minOffset, maxOffsetY)
-//                )
-//                
-//                log("StitchUIScrollView: handlePan: screenHeight: \(screenHeight)")
-//                log("StitchUIScrollView: handlePan: screenWidth: \(screenWidth)")
-//                log("StitchUIScrollView: handlePan: scrollView.zoomScale: \(scrollView.zoomScale)")
-//                log("StitchUIScrollView: handlePan: scrollView.contentSize: \(scrollView.contentSize)")
-//                log("StitchUIScrollView: handlePan: scrollView.contentOffset: \(scrollView.contentOffset)")
-//                log("StitchUIScrollView: handlePan: newOffset: \(newOffset)")
-//                scrollView.setContentOffset(newOffset, animated: false)
-//                dispatch(GraphScrollDataUpdated(newOffset: newOffset,
-//                                                newZoom: scrollView.zoomScale))
-//            }
 //        }
         
         // Handle pan gesture with boundary checks
