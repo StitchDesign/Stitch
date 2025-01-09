@@ -323,7 +323,7 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
 //            ))
             
              
-//             self.checkBorder(scrollView)
+             self.checkBorder(scrollView)
             
         }
         
