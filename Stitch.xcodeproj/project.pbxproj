@@ -44,6 +44,7 @@
 		B50192062C6D0FB300A048ED /* LayerInputUnpackedPortObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50192052C6D0FB300A048ED /* LayerInputUnpackedPortObserver.swift */; };
 		B50192092C6D100E00A048ED /* LayerInputObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50192082C6D100E00A048ED /* LayerInputObserver.swift */; };
 		B501920C2C6D144D00A048ED /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B501920B2C6D144D00A048ED /* StitchEngine */; };
+		B504CFD12D2F953F00E245DA /* DebugModePopover.swift in Sources */ = {isa = PBXBuildFile; fileRef = B504CFD02D2F953C00E245DA /* DebugModePopover.swift */; };
 		B506CECA2A26B19300FD9F37 /* NodeFieldsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B506CEC92A26B19300FD9F37 /* NodeFieldsView.swift */; };
 		B50AD530292C9DDF003CC61E /* InsertNodeMenuNodeDescriptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50AD52F292C9DDF003CC61E /* InsertNodeMenuNodeDescriptionView.swift */; };
 		B50AD534292C9E3F003CC61E /* InsertNodeMenuSearchResults.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50AD533292C9E3F003CC61E /* InsertNodeMenuSearchResults.swift */; };
@@ -979,6 +980,7 @@
 		8BD59DA426CCB93400F38DFF /* SchemaConversionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaConversionTests.swift; sourceTree = "<group>"; };
 		B50192052C6D0FB300A048ED /* LayerInputUnpackedPortObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInputUnpackedPortObserver.swift; sourceTree = "<group>"; };
 		B50192082C6D100E00A048ED /* LayerInputObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInputObserver.swift; sourceTree = "<group>"; };
+		B504CFD02D2F953C00E245DA /* DebugModePopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugModePopover.swift; sourceTree = "<group>"; };
 		B506CEC92A26B19300FD9F37 /* NodeFieldsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeFieldsView.swift; sourceTree = "<group>"; };
 		B50AD52F292C9DDF003CC61E /* InsertNodeMenuNodeDescriptionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsertNodeMenuNodeDescriptionView.swift; sourceTree = "<group>"; };
 		B50AD533292C9E3F003CC61E /* InsertNodeMenuSearchResults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsertNodeMenuSearchResults.swift; sourceTree = "<group>"; };
@@ -3331,6 +3333,7 @@
 				200BD85C254F66EB00692903 /* ContentView.swift */,
 				EC295CC727B31AA900739F98 /* ProjectNavigationView.swift */,
 				ECDBD8AC27A1D2E200F8DC91 /* GraphBaseView.swift */,
+				B504CFD02D2F953C00E245DA /* DebugModePopover.swift */,
 				B5E28AED2A7AB9180007C0CB /* ProjectToolbar.swift */,
 				EC3420E32AF9C72B00EBD896 /* SelectionBox */,
 				B555011B2C1BF07D0081C3F1 /* Gesture */,
@@ -4764,6 +4767,7 @@
 				B51D8809298CA7A000CEBA98 /* AsyncMediaValue.swift in Sources */,
 				B55500D92C1BA9470081C3F1 /* PreviewShapeLayerKind.swift in Sources */,
 				EC4D959F26B48FCB00AD5AB4 /* NodeSelectionUtil.swift in Sources */,
+				B504CFD12D2F953F00E245DA /* DebugModePopover.swift in Sources */,
 				EC165EDC29C8B9330024ECDF /* JSONShapeCommandParsing.swift in Sources */,
 				EC4D9BC92829EBCD0066DFC8 /* GestureUtils.swift in Sources */,
 				EC68A6FE288B314A00689F92 /* GroupNodeCreationActions.swift in Sources */,
