@@ -22,9 +22,10 @@ struct CameraRealityView: UIViewRepresentable {
         arView.environment.background = .cameraFeed()
         arView.cameraMode = .ar
         arView.renderOptions = isShadowsEnabled ? [] : [.disableGroundingShadows]
+        
         return arView
     }
-
+    
     func updateUIView(_ uiView: StitchARView, context: Context) {
         uiView.frame.size = size.asAlgebraicCGSize
         uiView.alpha = opacity
@@ -34,27 +35,25 @@ struct CameraRealityView: UIViewRepresentable {
 }
 
 struct NonCameraRealityView: UIViewRepresentable {
+    @Bindable var previewLayer: LayerViewModel
     let size: LayerSize
     let scale: Double
     let opacity: Double
     let isShadowsEnabled: Bool
-    let anchors: [GraphMediaValue]
     
     func makeUIView(context: Context) -> StitchARView {
         let arView = StitchARView(cameraMode: .nonAR)
         arView.environment.background = .color(.clear)
         arView.cameraMode = .nonAR
         arView.renderOptions = isShadowsEnabled ? [] : [.disableGroundingShadows]
+        
+        // Update object with scene
+        previewLayer.realityContent = arView.scene
+        
         return arView
     }
-
-    func updateUIView(_ uiView: StitchARView, context: Context) {
-        // MARK: must update anchors in update view
-        let mediaList = anchors.map { $0.mediaObject }
-        
-        // Update entities in ar view
-        uiView.updateAnchors(mediaList: mediaList)
-        
+    
+    func updateUIView(_ uiView: StitchARView, context: Context) {        
         uiView.frame.size = size.asAlgebraicCGSize
         uiView.alpha = opacity
         uiView.transform = CGAffineTransform(scaleX: scale, y: scale)

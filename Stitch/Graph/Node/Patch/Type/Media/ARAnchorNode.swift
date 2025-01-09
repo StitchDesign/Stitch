@@ -15,10 +15,6 @@ struct ArAnchorNode: PatchNodeDefinition {
         .init(
             inputs: [
                 .init(
-                    defaultValues: [.asyncMedia(nil)],
-                    label: "3D Model"
-                ),
-                .init(
                     defaultValues: [.transform(DEFAULT_STITCH_TRANSFORM)],
                     label: "Transform"
                 )
@@ -26,7 +22,7 @@ struct ArAnchorNode: PatchNodeDefinition {
             outputs: [
                 .init(
                     label: "AR Anchor",
-                    type: .media
+                    type: .anchorEntity
                 )
             ]
         )
@@ -60,9 +56,7 @@ extension ARAnchorObserver {
 @MainActor
 func arAnchorEval(node: PatchNode) -> EvalResult {
     node.loopedEval(ARAnchorObserver.self) { values, mediaObserver, loopIndex in
-        guard let inputModel3d = mediaObserver.getUniqueMedia(from: values.first,
-                                                              loopIndex: loopIndex),
-              let transform = values[safe: 1]?.getTransform else {
+        guard let transform = values.first?.getTransform else {
             mediaObserver.arAnchor = nil
             return values.prevOutputs(node: node)
         }
@@ -71,14 +65,10 @@ func arAnchorEval(node: PatchNode) -> EvalResult {
         let scale = SIMD3(x: Float(transform.scaleX), y: Float(transform.scaleY), z: Float(transform.scaleZ))
         let rotationXYZ = SIMD3(x: Float(transform.rotationX), y: Float(transform.rotationY), z: Float(transform.rotationZ))
         let transformMatrix = matrix_float4x4(position: position, scale: scale, rotationZYX: rotationXYZ)
+        let outputValue = PortValue.anchorEntity(node.id)
         
-        if let anchorEntity = mediaObserver.arAnchor {
-            let anchorId = mediaObserver.anchorMediaId
-            
+        if let anchorEntity = mediaObserver.arAnchor {            
             anchorEntity.transform.matrix = transformMatrix
-            let outputValue: PortValue = .asyncMedia(.init(id: anchorId,
-                                                           dataType: .computed,
-                                                           mediaObject: .arAnchor(anchorEntity)))
             return [outputValue]
         }
         
@@ -89,23 +79,7 @@ func arAnchorEval(node: PatchNode) -> EvalResult {
         mediaObserver.arAnchor = newAnchor
         mediaObserver.anchorMediaId = newId
         
-        // Add 3D model to anchor
-        if let model3DEntity = inputModel3d.mediaObject.model3DEntity {
-            switch model3DEntity.entityStatus {
-            case .loading:
-                model3DEntity.anchor = newAnchor
-            case .loaded(let loaded3DEntity):
-                newAnchor.addChild(loaded3DEntity)
-            default:
-                break
-            }
-        }
-        
         newAnchor.transform.matrix = transformMatrix
-        
-        let outputValue: PortValue = .asyncMedia(.init(id: mediaObserver.anchorMediaId,
-                                                       dataType: .computed,
-                                                       mediaObject: .arAnchor(newAnchor)))
         return [outputValue]
     }
 }

@@ -310,8 +310,6 @@ extension InputLayerNodeRowData {
                       layer: Layer) -> Self {
         // Take the data from the schema!! 
         let rowObserver = InputNodeRowObserver(values: [layerInputType.getDefaultValue(for: layer)],
-                                               nodeKind: .layer(layer),
-                                               userVisibleType: nil,
                                                id: .init(portType: .keyPath(layerInputType),
                                                          nodeId: nodeId),
                                                upstreamOutputCoordinate: nil)

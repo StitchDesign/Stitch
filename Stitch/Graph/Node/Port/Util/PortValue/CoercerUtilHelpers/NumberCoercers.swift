@@ -77,7 +77,7 @@ extension PortValue {
             } else {
                 return .numberDefaultTrue
             }
-        case .transform, .plane, .networkRequestType, .color, .pulse, .asyncMedia, .json, .anchoring, .cameraDirection, .assignedLayer, .scrollMode, .textAlignment, .textVerticalAlignment, .fitStyle, .animationCurve, .lightType, .layerStroke, .textTransform, .dateAndTimeFormat, .shape, .scrollJumpStyle, .scrollDecelerationRate, .delayStyle, .shapeCoordinates, .shapeCommandType, .shapeCommand, .orientation, .cameraOrientation, .deviceOrientation, .vnImageCropOption, .textDecoration, .textFont, .blendMode, .mapType, .progressIndicatorStyle, .mobileHapticStyle, .strokeLineCap, .strokeLineJoin, .contentMode, .sizingScenario, .pinTo, .deviceAppearance, .materialThickness, .none:
+        case .transform, .plane, .networkRequestType, .color, .pulse, .asyncMedia, .json, .anchoring, .cameraDirection, .assignedLayer, .scrollMode, .textAlignment, .textVerticalAlignment, .fitStyle, .animationCurve, .lightType, .layerStroke, .textTransform, .dateAndTimeFormat, .shape, .scrollJumpStyle, .scrollDecelerationRate, .delayStyle, .shapeCoordinates, .shapeCommandType, .shapeCommand, .orientation, .cameraOrientation, .deviceOrientation, .vnImageCropOption, .textDecoration, .textFont, .blendMode, .mapType, .progressIndicatorStyle, .mobileHapticStyle, .strokeLineCap, .strokeLineJoin, .contentMode, .sizingScenario, .pinTo, .deviceAppearance, .materialThickness, .anchorEntity, .none:
             return self.coerceToTruthyOrFalsey(graphTime) ? .numberDefaultTrue : .numberDefaultFalse
         }
     }
@@ -142,7 +142,7 @@ extension PortValue {
         case .string(let x):
             return LayerDimension.fromUserEdit(edit: x.string) ?? defaultValue
 
-        case .transform, .plane, .networkRequestType, .color, .pulse, .asyncMedia, .json, .anchoring, .cameraDirection, .assignedLayer, .scrollMode, .textAlignment, .textVerticalAlignment, .fitStyle, .animationCurve, .lightType, .layerStroke, .textTransform, .dateAndTimeFormat, .shape, .scrollJumpStyle, .scrollDecelerationRate, .delayStyle, .shapeCoordinates, .shapeCommandType, .shapeCommand, .orientation, .cameraOrientation, .deviceOrientation, .vnImageCropOption, .textDecoration, .textFont, .blendMode, .mapType, .progressIndicatorStyle, .mobileHapticStyle, .strokeLineCap, .strokeLineJoin, .contentMode, .sizingScenario, .pinTo, .deviceAppearance, .materialThickness, .none:
+        case .transform, .plane, .networkRequestType, .color, .pulse, .asyncMedia, .json, .anchoring, .cameraDirection, .assignedLayer, .scrollMode, .textAlignment, .textVerticalAlignment, .fitStyle, .animationCurve, .lightType, .layerStroke, .textTransform, .dateAndTimeFormat, .shape, .scrollJumpStyle, .scrollDecelerationRate, .delayStyle, .shapeCoordinates, .shapeCommandType, .shapeCommand, .orientation, .cameraOrientation, .deviceOrientation, .vnImageCropOption, .textDecoration, .textFont, .blendMode, .mapType, .progressIndicatorStyle, .mobileHapticStyle, .strokeLineCap, .strokeLineJoin, .contentMode, .sizingScenario, .pinTo, .deviceAppearance, .materialThickness, .anchorEntity, .none:
             return defaultValue
         }
     }
@@ -208,7 +208,7 @@ extension PortValue {
             }
             return defaultValue
             
-        case .transform, .plane, .networkRequestType, .color, .pulse, .asyncMedia, .anchoring, .cameraDirection, .assignedLayer, .scrollMode, .textAlignment, .textVerticalAlignment, .fitStyle, .animationCurve, .lightType, .layerStroke, .textTransform, .dateAndTimeFormat, .shape, .scrollJumpStyle, .scrollDecelerationRate, .delayStyle, .shapeCoordinates, .shapeCommandType, .shapeCommand, .orientation, .cameraOrientation, .deviceOrientation, .vnImageCropOption, .textDecoration, .textFont, .blendMode, .mapType, .progressIndicatorStyle, .mobileHapticStyle, .strokeLineCap, .strokeLineJoin, .contentMode, .sizingScenario, .pinTo, .deviceAppearance, .materialThickness, .none:
+        case .transform, .plane, .networkRequestType, .color, .pulse, .asyncMedia, .anchoring, .cameraDirection, .assignedLayer, .scrollMode, .textAlignment, .textVerticalAlignment, .fitStyle, .animationCurve, .lightType, .layerStroke, .textTransform, .dateAndTimeFormat, .shape, .scrollJumpStyle, .scrollDecelerationRate, .delayStyle, .shapeCoordinates, .shapeCommandType, .shapeCommand, .orientation, .cameraOrientation, .deviceOrientation, .vnImageCropOption, .textDecoration, .textFont, .blendMode, .mapType, .progressIndicatorStyle, .mobileHapticStyle, .strokeLineCap, .strokeLineJoin, .contentMode, .sizingScenario, .pinTo, .deviceAppearance, .materialThickness, .anchorEntity, .none:
             return defaultValue
         }
     }
@@ -272,7 +272,7 @@ extension PortValue {
             }
             return .defaultFalse
             
-        case .transform, .plane, .networkRequestType, .color, .pulse, .asyncMedia, .anchoring, .cameraDirection, .assignedLayer, .scrollMode, .textAlignment, .textVerticalAlignment, .fitStyle, .animationCurve, .lightType, .layerStroke, .textTransform, .dateAndTimeFormat, .shape, .scrollJumpStyle, .scrollDecelerationRate, .delayStyle, .shapeCoordinates, .shapeCommandType, .shapeCommand, .orientation, .cameraOrientation, .deviceOrientation, .vnImageCropOption, .textDecoration, .textFont, .blendMode, .mapType, .progressIndicatorStyle, .mobileHapticStyle, .strokeLineCap, .strokeLineJoin, .contentMode, .sizingScenario, .pinTo, .deviceAppearance, .materialThickness, .none:
+        case .transform, .plane, .networkRequestType, .color, .pulse, .asyncMedia, .anchoring, .cameraDirection, .assignedLayer, .scrollMode, .textAlignment, .textVerticalAlignment, .fitStyle, .animationCurve, .lightType, .layerStroke, .textTransform, .dateAndTimeFormat, .shape, .scrollJumpStyle, .scrollDecelerationRate, .delayStyle, .shapeCoordinates, .shapeCommandType, .shapeCommand, .orientation, .cameraOrientation, .deviceOrientation, .vnImageCropOption, .textDecoration, .textFont, .blendMode, .mapType, .progressIndicatorStyle, .mobileHapticStyle, .strokeLineCap, .strokeLineJoin, .contentMode, .sizingScenario, .pinTo, .deviceAppearance, .materialThickness, .anchorEntity, .none:
             return value.coerceToTruthyOrFalsey(graphTime) ? .defaultTrue : .defaultFalse
         }
     }
@@ -335,7 +335,7 @@ extension PortValue {
                 }
             }
             return .defaultFalse
-        case .transform, .plane, .networkRequestType, .color, .pulse, .asyncMedia, .anchoring, .cameraDirection, .assignedLayer, .scrollMode, .textAlignment, .textVerticalAlignment, .fitStyle, .animationCurve, .lightType, .layerStroke, .textTransform, .dateAndTimeFormat, .shape, .scrollJumpStyle, .scrollDecelerationRate, .delayStyle, .shapeCoordinates, .shapeCommandType, .shapeCommand, .orientation, .cameraOrientation, .deviceOrientation, .vnImageCropOption, .textDecoration, .textFont, .blendMode, .mapType, .progressIndicatorStyle, .mobileHapticStyle, .strokeLineCap, .strokeLineJoin, .contentMode, .sizingScenario, .pinTo, .deviceAppearance, .materialThickness, .none:
+        case .transform, .plane, .networkRequestType, .color, .pulse, .asyncMedia, .anchoring, .cameraDirection, .assignedLayer, .scrollMode, .textAlignment, .textVerticalAlignment, .fitStyle, .animationCurve, .lightType, .layerStroke, .textTransform, .dateAndTimeFormat, .shape, .scrollJumpStyle, .scrollDecelerationRate, .delayStyle, .shapeCoordinates, .shapeCommandType, .shapeCommand, .orientation, .cameraOrientation, .deviceOrientation, .vnImageCropOption, .textDecoration, .textFont, .blendMode, .mapType, .progressIndicatorStyle, .mobileHapticStyle, .strokeLineCap, .strokeLineJoin, .contentMode, .sizingScenario, .pinTo, .deviceAppearance, .materialThickness, .anchorEntity, .none:
             return self.coerceToTruthyOrFalsey(graphTime) ? Point3D.multiplicationIdentity : .zero
         }
     }
@@ -394,7 +394,7 @@ extension PortValue {
                 }
             }
             return .defaultFalse
-        case .transform, .plane, .networkRequestType, .color, .pulse, .asyncMedia, .anchoring, .cameraDirection, .assignedLayer, .scrollMode, .textAlignment, .textVerticalAlignment, .fitStyle, .animationCurve, .lightType, .layerStroke, .textTransform, .dateAndTimeFormat, .shape, .scrollJumpStyle, .scrollDecelerationRate, .delayStyle, .shapeCoordinates, .shapeCommandType, .shapeCommand, .orientation, .cameraOrientation, .deviceOrientation, .vnImageCropOption, .textDecoration, .textFont, .blendMode, .mapType, .progressIndicatorStyle, .mobileHapticStyle, .strokeLineCap, .strokeLineJoin, .contentMode, .sizingScenario, .pinTo, .deviceAppearance, .materialThickness, .none:
+        case .transform, .plane, .networkRequestType, .color, .pulse, .asyncMedia, .anchoring, .cameraDirection, .assignedLayer, .scrollMode, .textAlignment, .textVerticalAlignment, .fitStyle, .animationCurve, .lightType, .layerStroke, .textTransform, .dateAndTimeFormat, .shape, .scrollJumpStyle, .scrollDecelerationRate, .delayStyle, .shapeCoordinates, .shapeCommandType, .shapeCommand, .orientation, .cameraOrientation, .deviceOrientation, .vnImageCropOption, .textDecoration, .textFont, .blendMode, .mapType, .progressIndicatorStyle, .mobileHapticStyle, .strokeLineCap, .strokeLineJoin, .contentMode, .sizingScenario, .pinTo, .deviceAppearance, .materialThickness, .anchorEntity, .none:
             return self.coerceToTruthyOrFalsey(graphTime) ? .multiplicationIdentity : .empty
         }
     }
@@ -463,7 +463,7 @@ extension PortValue {
                 }
             }
             return .defaultFalse
-        case .transform, .plane, .networkRequestType, .color, .pulse, .asyncMedia, .anchoring, .cameraDirection, .assignedLayer, .scrollMode, .textAlignment, .textVerticalAlignment, .fitStyle, .animationCurve, .lightType, .layerStroke, .textTransform, .dateAndTimeFormat, .shape, .scrollJumpStyle, .scrollDecelerationRate, .delayStyle, .shapeCoordinates, .shapeCommandType, .shapeCommand, .orientation, .cameraOrientation, .deviceOrientation, .vnImageCropOption, .textDecoration, .textFont, .blendMode, .mapType, .progressIndicatorStyle, .mobileHapticStyle, .strokeLineCap, .strokeLineJoin, .contentMode, .sizingScenario, .pinTo, .deviceAppearance, .materialThickness, .none, .json:
+        case .transform, .plane, .networkRequestType, .color, .pulse, .asyncMedia, .anchoring, .cameraDirection, .assignedLayer, .scrollMode, .textAlignment, .textVerticalAlignment, .fitStyle, .animationCurve, .lightType, .layerStroke, .textTransform, .dateAndTimeFormat, .shape, .scrollJumpStyle, .scrollDecelerationRate, .delayStyle, .shapeCoordinates, .shapeCommandType, .shapeCommand, .orientation, .cameraOrientation, .deviceOrientation, .vnImageCropOption, .textDecoration, .textFont, .blendMode, .mapType, .progressIndicatorStyle, .mobileHapticStyle, .strokeLineCap, .strokeLineJoin, .contentMode, .sizingScenario, .pinTo, .deviceAppearance, .materialThickness, .anchorEntity, .json, .none:
             return self.coerceToTruthyOrFalsey(graphTime) ? .defaultTrue : .defaultFalse
         }
         
@@ -553,7 +553,7 @@ extension PortValue {
                 }
             }
             return .defaultFalse
-        case .transform, .plane, .networkRequestType, .color, .pulse, .asyncMedia, .anchoring, .cameraDirection, .assignedLayer, .scrollMode, .textAlignment, .textVerticalAlignment, .fitStyle, .animationCurve, .lightType, .layerStroke, .textTransform, .dateAndTimeFormat, .shape, .scrollJumpStyle, .scrollDecelerationRate, .delayStyle, .shapeCoordinates, .shapeCommandType, .shapeCommand, .orientation, .cameraOrientation, .deviceOrientation, .vnImageCropOption, .textDecoration, .textFont, .blendMode, .mapType, .progressIndicatorStyle, .mobileHapticStyle, .strokeLineCap, .strokeLineJoin, .contentMode, .sizingScenario, .pinTo, .deviceAppearance, .materialThickness, .none, .json:
+        case .transform, .plane, .networkRequestType, .color, .pulse, .asyncMedia, .anchoring, .cameraDirection, .assignedLayer, .scrollMode, .textAlignment, .textVerticalAlignment, .fitStyle, .animationCurve, .lightType, .layerStroke, .textTransform, .dateAndTimeFormat, .shape, .scrollJumpStyle, .scrollDecelerationRate, .delayStyle, .shapeCoordinates, .shapeCommandType, .shapeCommand, .orientation, .cameraOrientation, .deviceOrientation, .vnImageCropOption, .textDecoration, .textFont, .blendMode, .mapType, .progressIndicatorStyle, .mobileHapticStyle, .strokeLineCap, .strokeLineJoin, .contentMode, .sizingScenario, .pinTo, .deviceAppearance, .materialThickness, .json, .anchorEntity, .none:
             return self.coerceToTruthyOrFalsey(graphTime) ? .multiplicationIdentity : .empty
         }
     }

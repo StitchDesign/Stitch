@@ -232,6 +232,19 @@ extension simd_float4x4 {
         // Combine transformations: translation * rotation * scale
         self = translationMatrix * rotationMatrix * scaleMatrix
     }
+    
+    init(position: Point3D, scale: Point3D, rotation: Point3D) {
+        self = .init(position: SIMD3<Float>(Float(position.x),
+                                            Float(position.y),
+                                            Float(position.z)),
+                     scale: SIMD3<Float>(Float(scale.x),
+                                         Float(scale.y),
+                                         Float(scale.z)),
+                     rotationZYX: SIMD3<Float>(Float(rotation.x),
+                                               Float(rotation.y),
+                                               Float(rotation.z))
+        )
+    }
 
     // Extract position matrix
     var positionMatrix: simd_float4x4 {

@@ -10,20 +10,18 @@ import StitchSchemaKit
 import StitchEngine
 
 typealias MediaManagerSingletonKeyPath = ReferenceWritableKeyPath<StitchDocumentViewModel, LoadingStatus<StitchSingletonMediaObject>?>
-typealias SingletonMediaCreation = @Sendable (StitchDocumentViewModel, GraphDelegate, NodeId) async -> StitchSingletonMediaObject
+typealias SingletonMediaCreation = @Sendable (StitchDocumentViewModel, GraphDelegate, NodeId) async -> ()
 typealias AsyncSingletonMediaEvalOp = (PortValues, StitchSingletonMediaObject, Int) -> PortValues
 
 actor SingletonMediaNodeCoordinator: NodeEphemeralObservable {
     @MainActor
     func createSingletonMedia(graph: GraphDelegate,
                               nodeId: NodeId,
-                              mediaManagerKeyPath: MediaManagerSingletonKeyPath,
                               mediaCreation: @escaping SingletonMediaCreation) async {
         guard let document = graph.documentDelegate else { return }
         
-        let media = await mediaCreation(document, graph, nodeId)
+        await mediaCreation(document, graph, nodeId)
         
-        graph.documentDelegate?[keyPath: mediaManagerKeyPath] = .loaded(media)
         graph.calculate(nodeId)
     }
 }
@@ -68,7 +66,6 @@ func asyncSingletonMediaEval(node: PatchNode,
             await singletonMediaNodeCoordinator
                 .createSingletonMedia(graph: graph,
                                       nodeId: nodeId,
-                                      mediaManagerKeyPath: mediaManagerKeyPath,
                                       mediaCreation: mediaCreation)
         }
         

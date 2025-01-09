@@ -228,17 +228,6 @@ extension NodeViewModel: PatchNodeViewModelDelegate {
                                newType: newType,
                                kind: self.kind)
         }
-        
-        // TODO: get rid of redundant `userVisibleType` on NodeRowObservers or make them access it via NodeDelegate
-        if let patchNode = self.patchNode {
-            patchNode.inputsObservers.forEach {
-                $0.userVisibleType = newType
-            }
-            
-            patchNode.outputsObservers.forEach {
-                $0.userVisibleType = newType
-            }
-        }
     }
 }
 
@@ -791,8 +780,6 @@ extension NodeViewModel {
         let newInputCoordinate = InputCoordinate(portId: allInputsObservers.count,
                                                  nodeId: self.id)
         let newInputObserver = InputNodeRowObserver(values: lastRowObserver.allLoopedValues,
-                                                    nodeKind: self.kind,
-                                                    userVisibleType: self.userVisibleType,
                                                     id: newInputCoordinate,
                                                     upstreamOutputCoordinate: nil)
         

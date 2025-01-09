@@ -12,7 +12,7 @@ protocol DocumentEncodable: Actor where CodableDocument == DocumentDelegate.Coda
     associatedtype DocumentDelegate: DocumentEncodableDelegate
     associatedtype CodableDocument: StitchDocumentEncodable & Sendable
     
-    var documentId: CodableDocument.ID { get set }
+    var documentId: CodableDocument.ID { get }
     
     var saveLocation: EncoderDirectoryLocation { get }
     
@@ -30,7 +30,14 @@ protocol DocumentEncodableDelegate: Observable, AnyObject, Sendable {
     
     @MainActor func willEncodeProject(schema: CodableDocument)
     
+    @MainActor func didEncodeProject(schema: CodableDocument)
+    
     @MainActor var storeDelegate: StoreDelegate? { get }
+}
+
+extension DocumentEncodableDelegate {
+    // Default function to make it optional to define.
+    @MainActor func didEncodeProject(schema: CodableDocument) { }
 }
 
 extension DocumentEncodable {
@@ -133,6 +140,7 @@ extension DocumentEncodable {
             if willUpdateUndoHistory {
                 await MainActor.run { [weak self] in
                     self?.lastEncodedDocument = document
+                    self?.delegate?.didEncodeProject(schema: document)
                 }
             }
             

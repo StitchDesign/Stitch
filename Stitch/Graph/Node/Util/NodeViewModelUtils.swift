@@ -32,9 +32,7 @@ extension NodeViewModel {
                 }
                 
                 return NodePortInputEntity(id: coordinate,
-                                           portData: .values(inputData.defaultValues),
-                                           nodeKind: kind,
-                                           userVisibleType: userVisibleType)
+                                           portData: .values(inputData.defaultValues))
             }
         
         let canvasEntity = CanvasNodeEntity(position: position,
@@ -198,7 +196,8 @@ extension NodeViewModel {
 
     @MainActor
     var isGroupLayer: Bool {
-        self.kind.getLayer == .group
+        guard let layer = self.kind.getLayer else { return false }
+        return layer == .group || layer == .realityView
     }
     
     @MainActor

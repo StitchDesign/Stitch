@@ -90,15 +90,6 @@ extension Patch {
         }
     }
 
-    var isModel3DNode: Bool {
-        switch self {
-        case .model3DImport:
-            return true
-        default:
-            return false
-        }
-    }
-
     var isARAnchor: Bool {
         switch self {
         case .arAnchor:
@@ -129,8 +120,6 @@ extension Patch {
             return "RGB Color"
         case .colorToRGB:
             return "Color to RGB"
-        case .model3DImport:
-            return "3D Model Import"
         case .arRaycasting:
             return "Raycasting"
         case .base64StringToImage:
@@ -425,8 +414,6 @@ extension Patch {
             return .image
         case .videoImport:
             return .video
-        case .model3DImport:
-            return .model3D
         case .soundImport:
             return .audio
         case .coreMLClassify:
