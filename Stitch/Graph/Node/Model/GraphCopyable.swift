@@ -110,9 +110,7 @@ extension NodePortInputEntity: GraphCopyable {
         return .init(id: newInputId, 
                      portData: self.portData.createCopy(newId: newId,
                                                         mappableData: mappableData,
-                                                        copiedNodeIds: copiedNodeIds),
-                     nodeKind: self.nodeKind,
-                     userVisibleType: self.userVisibleType)
+                                                        copiedNodeIds: copiedNodeIds))
     }
 }
 

@@ -184,6 +184,8 @@ extension PortValues {
             return deviceAppearanceCoercer(values)
         case .materialThickness:
             return materialThicknessCoercer(values)
+        case .anchorEntity:
+            return self.anchorEntityCoercer(values: self)
         }
     }
 }

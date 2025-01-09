@@ -130,7 +130,34 @@ extension PortValue {
                 let newCommand = shapeCommand.updatePositionForField(position, fieldIndex)
                 return .shapeCommand(newCommand)
             }
+            
+        case .transform(var transform):
+            let num = Stitch.toNumber(fieldValue.stringValue) ?? .zero
+            
+            switch fieldIndex {
+            case 0:
+                transform.positionX = num
+            case 1:
+                transform.positionY = num
+            case 2:
+                transform.positionZ = num
+            case 3:
+                transform.scaleX = num
+            case 4:
+                transform.scaleY = num
+            case 5:
+                transform.scaleZ = num
+            case 6:
+                transform.rotationX = num
+            case 7:
+                transform.rotationY = num
+            case 8:
+                transform.rotationZ = num
+            default:
+                fatalErrorIfDebug()
+            }
 
+            return .transform(transform)
         default:
             return parseUpdate(self, fieldValue.stringValue)
         }

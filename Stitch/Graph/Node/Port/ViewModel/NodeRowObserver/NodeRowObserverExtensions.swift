@@ -231,15 +231,11 @@ extension NodeRowObserver {
 extension [InputNodeRowObserver] {
     @MainActor
     init(values: PortValuesList,
-         kind: NodeKind,
-         userVisibleType: UserVisibleType?,
          id: NodeId,
          nodeIO: NodeIO,
          nodeDelegate: NodeDelegate) {
         self = values.enumerated().map { portId, values in
             Element(values: values,
-                    nodeKind: kind,
-                    userVisibleType: userVisibleType,
                     id: NodeIOCoordinate(portId: portId, nodeId: id),
                     upstreamOutputCoordinate: nil,
                     nodeDelegate: nodeDelegate)

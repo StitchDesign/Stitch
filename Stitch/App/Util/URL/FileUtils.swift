@@ -13,7 +13,7 @@ import AVFoundation
 
 typealias DirectoryContents = [URL]
 
-let SUPPORTED_CONTENT_TYPES: [UTType] = [.plainText, .image, .video, .mp3, .movie, .audio, .item, .usdz]
+let SUPPORTED_CONTENT_TYPES: [UTType] = [.plainText, .image, .video, .mp3, .movie, .audio, .item, .usdz, .usd]
 
 typealias MediaImportCallback = ([URL]) -> Void
 

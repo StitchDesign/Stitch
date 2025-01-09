@@ -76,9 +76,7 @@ final class PatchNodeViewModel: Sendable {
 
         let outputsObservers = rowDefinitions
             .createOutputObservers(nodeId: schema.id,
-                                   values: defaultOutputsList,
-                                   patch: schema.patch,
-                                   userVisibleType: schema.userVisibleType)
+                                   values: defaultOutputsList)
         
         self.canvasObserver = .init(from: schema.canvasEntity,
                                     id: .node(schema.id),
@@ -278,9 +276,7 @@ extension PatchNodeViewModel {
             inputSchemas += (0..<inputCountDelta).map { index in
                 let portId = variables.count + index - 1
                 return NodePortInputEntity(id: .init(portId: portId, nodeId: node.id),
-                                           portData: .values([.number(.zero)]),
-                                           nodeKind: .patch(.mathExpression),
-                                           userVisibleType: self.userVisibleType)
+                                           portData: .values([.number(.zero)]))
             }
         }
         
@@ -314,9 +310,7 @@ extension NodeViewModel {
         let inputEntities = inputs.enumerated().map { portId, values in
             NodePortInputEntity(id: NodeIOCoordinate(portId: portId,
                                                      nodeId: id),
-                                portData: .values(values),
-                                nodeKind: .patch(patch),
-                                userVisibleType: userVisibleType)
+                                portData: .values(values))
         }
             
         let canvasEntity = CanvasNodeEntity(position: position.toCGPoint,

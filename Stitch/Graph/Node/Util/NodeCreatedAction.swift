@@ -150,7 +150,14 @@ extension StitchDocumentViewModel {
             }
             
             // Update sidebar data
-            let sidebarLayerData = SidebarLayerData(id: layerNode.id)
+            var sidebarLayerData = SidebarLayerData(id: layerNode.id)
+            
+            // Creates group node data for reality node
+            if layerNode.isGroupLayer {
+                sidebarLayerData.children = []
+                sidebarLayerData.isExpandedInSidebar = true
+            }
+            
             var newSidebarData = self.visibleGraph.layersSidebarViewModel.createdOrderedEncodedData()
             newSidebarData.insert(sidebarLayerData, at: 0)
             self.visibleGraph.layersSidebarViewModel.update(from: newSidebarData)

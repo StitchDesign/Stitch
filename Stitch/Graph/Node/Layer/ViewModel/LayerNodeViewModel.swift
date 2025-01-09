@@ -72,7 +72,6 @@ final class LayerNodeViewModel {
     var orientationPort: LayerInputObserver
     var paddingPort: LayerInputObserver
     var setupModePort: LayerInputObserver
-    var allAnchorsPort: LayerInputObserver
     var cameraDirectionPort: LayerInputObserver
     var isCameraEnabledPort: LayerInputObserver
     var isShadowsEnabledPort: LayerInputObserver
@@ -153,6 +152,10 @@ final class LayerNodeViewModel {
     var scrollJumpToYPort: LayerInputObserver
     var scrollJumpToYLocationPort: LayerInputObserver
     
+    var transform3DPort: LayerInputObserver
+    var anchorEntityPort: LayerInputObserver
+    var isEntityAnimatingPort: LayerInputObserver
+    
     @MainActor weak var nodeDelegate: NodeDelegate?
 
     // Sidebar visibility setting
@@ -197,8 +200,7 @@ final class LayerNodeViewModel {
         
         self.outputPorts = rowDefinitions
             .createOutputLayerPorts(schema: schema,
-                                    valuesList: rowDefinitions.outputs.defaultList,
-                                    userVisibleType: nil)
+                                    valuesList: rowDefinitions.outputs.defaultList)
         
         self.positionPort = .init(from: schema, port: .position)
         self.sizePort = .init(from: schema, port: .size)
@@ -237,7 +239,6 @@ final class LayerNodeViewModel {
         self.orientationPort = .init(from: schema, port: .orientation)
         self.paddingPort = .init(from: schema, port: .padding)
         self.setupModePort = .init(from: schema, port: .setupMode)
-        self.allAnchorsPort = .init(from: schema, port: .allAnchors)
         self.cameraDirectionPort = .init(from: schema, port: .cameraDirection)
         self.isCameraEnabledPort = .init(from: schema, port: .isCameraEnabled)
         self.isShadowsEnabledPort = .init(from: schema, port: .isShadowsEnabled)
@@ -318,6 +319,10 @@ final class LayerNodeViewModel {
         self.scrollJumpToYStylePort = .init(from: schema, port: .scrollJumpToYStyle)
         self.scrollJumpToYPort = .init(from: schema, port: .scrollJumpToY)
         self.scrollJumpToYLocationPort = .init(from: schema, port: .scrollJumpToYLocation)
+        
+        self.transform3DPort = .init(from: schema, port: .transform3D)
+        self.anchorEntityPort = .init(from: schema, port: .anchorEntity)
+        self.isEntityAnimatingPort = .init(from: schema, port: .isEntityAnimating)
         
         // Initialize each NodeRowObserver for each expected layer input
         for layerInputPort in graphNode.inputDefinitions {

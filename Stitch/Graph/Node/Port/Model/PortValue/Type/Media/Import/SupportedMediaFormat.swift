@@ -69,7 +69,7 @@ extension SupportedMediaFormat {
         case .coreML:
             return .patch(.coreMLClassify)
         case .model3D:
-            return .patch(.model3DImport)
+            return .layer(.model3D)
         case .unknown:
             return nil
         }

@@ -50,7 +50,9 @@ struct GenericFlyoutView: View {
     let nodeId: NodeId
     let nodeKind: NodeKind
     
-    let fieldValueTypes: [FieldGroupTypeViewModel<InputNodeRowViewModel.FieldType>]
+    var fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>] {
+        layerInputObserver.fieldValueTypes
+    }
         
     var body: some View {
         VStack(alignment: .leading) {
@@ -99,6 +101,16 @@ extension Int {
             return .port2
         case 3:
             return .port3
+        case 4:
+            return .port4
+        case 5:
+            return .port5
+        case 6:
+            return .port6
+        case 7:
+            return .port7
+        case 8:
+            return .port8
         default:
             fatalErrorIfDebug()
             return .port0
@@ -262,10 +274,16 @@ struct LayerInputFieldAddedToGraph: GraphEventWithResponse {
                                             zIndex: state.highestZIndex + 1,
                                             parentGroupNodeId: parentGroupNodeId)
 
-            let unpackedPortParentFieldGroupType: FieldGroupType = layerInput
+            // MARK: first group type grabbed since layers don't have differing groups within one input
+            guard let unpackedPortParentFieldGroupType: FieldGroupType = layerInput
                 .getDefaultValue(for: layerNode.layer)
-                .getNodeRowType(nodeIO: .input)
-                .getFieldGroupTypeForLayerInput
+                .getNodeRowType(nodeIO: .input,
+                                isLayerInspector: true)
+                .fieldGroupTypes
+                .first else {
+                fatalErrorIfDebug()
+                return .noChange
+            }
             
             unpackedPort.update(from: unpackSchema,
                                 layerInputType: unpackedPort.id,

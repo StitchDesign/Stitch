@@ -118,8 +118,6 @@ extension LayerInputPort {
             return .padding(.defaultPadding)
         case .setupMode:
             return .bool(true)
-        case .allAnchors:
-            return .asyncMedia(nil)
         case .cameraDirection:
             return .cameraDirection(.back)
         case .isCameraEnabled:
@@ -166,6 +164,8 @@ extension LayerInputPort {
             return .textFont(.defaultStitchFont)
         case .image, .video, .model3D:
             return .asyncMedia(nil)
+        case .anchorEntity:
+            return .anchorEntity(nil)
         case .fitStyle:
             return .fitStyle(.fill)
         case .clipped:
@@ -256,7 +256,6 @@ extension LayerInputPort {
             return .materialThickness(.defaultMaterialThickness)
         case .deviceAppearance:
             return .deviceAppearance(.defaultDeviceAppearance)
-        
         case .scrollContentSize:
             return .size(.zero)
         case .scrollXEnabled:
@@ -275,6 +274,10 @@ extension LayerInputPort {
             return .pulse(.zero)
         case .scrollJumpToYLocation:
             return .number(.zero)
+        case .transform3D:
+            return .transform(.zero)
+        case .isEntityAnimating:
+            return .bool(true)
         }
     }
     
@@ -341,8 +344,6 @@ extension LayerInputPort {
             return \.paddingPort
         case .setupMode:
             return \.setupModePort
-        case .allAnchors:
-            return \.allAnchorsPort
         case .cameraDirection:
             return \.cameraDirectionPort
         case .isCameraEnabled:
@@ -509,58 +510,30 @@ extension LayerInputPort {
             return \.scrollJumpToYPort
         case .scrollJumpToYLocation:
             return \.scrollJumpToYLocationPort
+        case .transform3D:
+            return \.transform3DPort
+        case .anchorEntity:
+            return \.anchorEntityPort
+        case .isEntityAnimating:
+            return \.isEntityAnimatingPort
         }
     }
     
     var supportsLoopedTypes: Bool {
-        switch self {
-        case .allAnchors:
-            return true
-            
-        default:
-            return false
-        }
+        // MARK: no longer used
+        false
+//        switch self {
+//        default:
+//            return false
+//        }
     }
 }
 
-extension LayerViewModel {
-    @MainActor
-    func getValues(for inputType: LayerInputPort) -> PortValues {
-        assertInDebug(inputType.supportsLoopedTypes)
-        
-        switch inputType {
-        case .allAnchors:
-            return self.allAnchors
-            
-        default:
-            fatalErrorIfDebug()
-            return [.number(.zero)]
-        }
-    }
-    
-    /// Updates inputs that accept an array of values.
-    @MainActor
-    func updatePreviewLayerInput(_ values: PortValues,
-                                 inputType: LayerInputPort) {
-        assertInDebug(inputType.supportsLoopedTypes)
-        
-        switch inputType {
-        case .allAnchors:
-            self.allAnchors = values
-        default:
-            fatalErrorIfDebug()
-        }
-    }
-    
+extension LayerViewModel {    
     /// Key paths for children preview layers.
     @MainActor
     func getValue(for inputType: LayerInputPort) -> PortValue {
         switch inputType {
-            // MARK: not supported here
-        case .allAnchors:
-            fatalErrorIfDebug()
-            return .number(.zero)
-            
             // Required for all layers
         case .position:
             return self.position
@@ -761,7 +734,6 @@ extension LayerViewModel {
             return self.deviceAppearance
         case .materialThickness:
             return self.materialThickness
-            
         case .scrollContentSize:
             return self.scrollContentSize
         case .scrollXEnabled:
@@ -780,6 +752,12 @@ extension LayerViewModel {
             return self.scrollJumpToY
         case .scrollJumpToYLocation:
             return self.scrollJumpToYLocation
+        case .transform3D:
+            return self.transform3D
+        case .anchorEntity:
+            return self.anchorEntity
+        case .isEntityAnimating:
+            return self.isEntityAnimating
         }
     }
     
@@ -787,11 +765,7 @@ extension LayerViewModel {
     @MainActor
     func updatePreviewLayerInput(_ value: PortValue,
                                  inputType: LayerInputPort) {
-        switch inputType {
-            // MARK: not supported here
-        case .allAnchors:
-            fatalErrorIfDebug()
-            
+        switch inputType {            
             // Required for all layers
         case .position:
             self.position = value
@@ -1011,6 +985,12 @@ extension LayerViewModel {
             self.scrollJumpToY = value
         case .scrollJumpToYLocation:
             self.scrollJumpToYLocation = value
+        case .transform3D:
+            self.transform3D = value
+        case .anchorEntity:
+            self.anchorEntity = value
+        case .isEntityAnimating:
+            self.isEntityAnimating = value
         }
     }
 }
@@ -1074,8 +1054,6 @@ extension LayerInputPort {
             return \.paddingPort
         case .setupMode:
             return \.setupModePort
-        case .allAnchors:
-            return \.allAnchorsPort
         case .cameraDirection:
             return \.cameraDirectionPort
         case .isCameraEnabled:
@@ -1234,6 +1212,12 @@ extension LayerInputPort {
             return \.scrollJumpToYPort
         case .scrollJumpToYLocation:
             return \.scrollJumpToYLocationPort
+        case .transform3D:
+            return \.transform3DPort
+        case .anchorEntity:
+            return \.anchorEntityPort
+        case .isEntityAnimating:
+            return \.isEntityAnimatingPort
         }
     }
     
@@ -1249,17 +1233,6 @@ extension LayerInputPort {
         // Incoming values must match or exceed expected unpacked port count
         assertInDebug(unpackedPortCount <= values.count)
         
-        // TODO: what is this about?
-        
-        // shorten values list to expected count for port
-        let shortenedValues: PortValues = Array(values.prefix(upTo: unpackedPortCount))
-        
-        // NOTE: Want to switch on PortValue itself, not the LayerInputType;
-        // ah, but the incoming `values: PortValues` is e.g. [PortValue.layerDimension(...), PortValue.layerDimension(...)] for PortValue.size
-        
-        // So you would have to map the
-        // Maybe just pass in the packed data anyway?
-        
         let defaultPackedValue: PortValue = self.getDefaultValue(for: layer)
 
         return values.pack(defaultPackedValue)
@@ -1267,22 +1240,15 @@ extension LayerInputPort {
     
     /// Converts port data from unpacked state to packed state.
     /// Optional because not all ports support this.
+    /// See also `PortValue.pack: PortValues -> PortValue?`
     func unpackValues(from value: PortValue) -> PortValues? {
-        value.unpack
-    }
-}
-
-
-// See also `PortValue.pack: PortValues -> PortValue?`
-extension PortValue {
-    var unpack: PortValues? {
         // Unpacking logic should probably be by the passed-in PortValue, rather than the layer-input-type, since most
                 
         // Can we reuse some logic from `PortValue -> FieldViewModels` ?
         // PortValue.createFieldValues is from PortValue to FieldValues; but we need to return
         // Ah, you have field-editing logic that goes from
         
-        switch self {
+        switch value {
             
         case .size(let layerSize):
             return [
@@ -1318,6 +1284,19 @@ extension PortValue {
                 .number(padding.bottom),
                 .number(padding.left)
             ]
+            
+        case .transform(let transform):
+            return [
+                .number(transform.positionX),
+                .number(transform.positionY),
+                .number(transform.positionZ),
+                .number(transform.scaleX),
+                .number(transform.scaleY),
+                .number(transform.scaleZ),
+                .number(transform.rotationX),
+                .number(transform.rotationY),
+                .number(transform.rotationZ)
+            ]
           
         // LayerDimension cannot be unpacked, nor can ShapeCommand
             
@@ -1345,6 +1324,16 @@ extension LayerInputType {
                 return portKeyPath.appending(path: \._unpackedData.port2)
             case .port3:
                 return portKeyPath.appending(path: \._unpackedData.port3)
+            case .port4:
+                return portKeyPath.appending(path: \._unpackedData.port4)
+            case .port5:
+                return portKeyPath.appending(path: \._unpackedData.port5)
+            case .port6:
+                return portKeyPath.appending(path: \._unpackedData.port6)
+            case .port7:
+                return portKeyPath.appending(path: \._unpackedData.port7)
+            case .port8:
+                return portKeyPath.appending(path: \._unpackedData.port8)
             }
         }
     }
@@ -1429,8 +1418,6 @@ extension LayerInputPort {
             return "Padding"
         case .setupMode:
             return "Setup Mode"
-        case .allAnchors:
-            return "AR Anchors"
         case .cameraDirection:
             return "Camera Direction"
         case .isCameraEnabled:
@@ -1586,6 +1573,12 @@ extension LayerInputPort {
             return "Jump to Y"
         case .scrollJumpToYLocation:
             return "Jump Position Y"
+        case .transform3D:
+            return ""  // skip in favor of header section
+        case .anchorEntity:
+            return "Anchor Entity"
+        case .isEntityAnimating:
+            return "Animating"
         }
     }
 
@@ -1602,6 +1595,24 @@ extension LayerInputPort {
         let fakeValue = self.getDefaultValue(for: layer)
         let fakeUnpackedValues = self.unpackValues(from: fakeValue)
         return fakeUnpackedValues?.count
+    }
+    
+    /// Creates visual groupings of labels, used for 3D transform input.
+    var labelGroupings: [GroupedLayerInputData]? {
+        switch self {
+        case .transform3D:
+            return [
+                .init(label: "Position",
+                      portRange: (0..<3)),
+                .init(label: "Scale",
+                      portRange: (3..<6)),
+                .init(label: "Rotation",
+                      portRange: (6..<9))
+            ]
+            
+        default:
+            return nil
+        }
     }
 }
 
