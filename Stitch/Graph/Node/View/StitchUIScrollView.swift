@@ -12,15 +12,11 @@ let ZOOM_COMMAND_RATE: CGFloat = 0.25
 //let ZOOM_COMMAND_RATE: CGFloat = 0.1
 //let ZOOM_COMMAND_RATE: CGFloat = 0.175
     
-//let WHOLE_GRAPH_LENGTH: CGFloat = 300000
 //let WHOLE_GRAPH_LENGTH: CGFloat = 30000 // 30,000
 let WHOLE_GRAPH_LENGTH: CGFloat = 300000 // 300,000
 
-let WHOLE_GRAPH_SIZE: CGSize = .init(
-    width: WHOLE_GRAPH_LENGTH,
-    height: WHOLE_GRAPH_LENGTH)
-
-//let WHOLE_GRAPH_LENGTH: CGFloat = 3000
+let WHOLE_GRAPH_SIZE = CGSize(width: WHOLE_GRAPH_LENGTH,
+                              height: WHOLE_GRAPH_LENGTH)
 
 let WHOLE_GRAPH_COORDINATE_SPACE = "WHOLE_GRAPH_COORDINATE_SPACE"
 
@@ -33,19 +29,10 @@ struct StitchUIScrollViewModifier: ViewModifier {
     }
     
     func body(content: Content) -> some View {
-        StitchUIScrollView(contentSize: WHOLE_GRAPH_SIZE,
-                           document: document) {
+        StitchUIScrollView(contentSize: WHOLE_GRAPH_SIZE, document: document) {
             ZStack {
                 content
-                // places existing nodes in center like you expected before applying the UIScrollView
-                // TODO: DEC 12: how to place existing nodes such that we imitate the old .offset of graph.localPosition ?
-                //                    .offset(x: WHOLE_GRAPH_LENGTH/2,
-                //                            y: WHOLE_GRAPH_LENGTH/2)
                     .ignoresSafeArea()
-                
-                
-                // With `GraphGestureBackgroundView`, we can't even double tap etc. anymore?
-                //                GraphGestureBackgroundView(document: document) {
                 
                 Color.blue.opacity(0.9)
                     .zIndex(-99999)
@@ -63,10 +50,6 @@ struct StitchUIScrollViewModifier: ViewModifier {
                             dispatch(GraphTappedAction())
                         }))
                 
-                //                        .modifier(iPadFingerRecognzerViewModifer())
-                //                }
-                //                .zIndex(-99999)
-                
                     .gesture(StitchLongPressGestureRecognizerRepresentable())
                 
                 // THIS IS BETTER: HANDLES BOTH ZOOMING AND SCROLLING PROPERLY
@@ -78,9 +61,6 @@ struct StitchUIScrollViewModifier: ViewModifier {
                 
                 // Selection box and cursor
                 if let expansionBox = selectionState.expansionBox {
-//                    ExpansionBoxView(graph: document.graph,
-//                                     box: expansionBox,
-//                                     scale: document.graphMovement.zoomData.final)
                     ExpansionBoxView(graph: document.graph,
                                      box: expansionBox)
                 }
@@ -92,21 +72,13 @@ struct StitchUIScrollViewModifier: ViewModifier {
                         isFingerOnScreenSelection: selectionState.isFingerOnScreenSelection,
                         scale: document.graphMovement.zoomData.final)
                 }
-            }
+            } // ZStack
+        } // StitchUIScrollView
+        
+        .background {
+            Color.red.opacity(0.9)
         }
-        
-        // what happens if we get node
-        // BAD:
-        // .gesture(StitchTrackpadPanGestureRecognizerRepresentable())
-        
-        // VERY BAD
-        //        .frame(width: WHOLE_GRAPH_LENGTH,
-        //               height: WHOLE_GRAPH_LENGTH)
-        
-                           .background {
-                               Color.red.opacity(0.9)
-                           }
-                           .ignoresSafeArea()
+        .ignoresSafeArea()
     }
 }
 
