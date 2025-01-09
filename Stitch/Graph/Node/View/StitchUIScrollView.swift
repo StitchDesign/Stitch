@@ -338,23 +338,15 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             let contentSize = scrollView.contentSize
             let scale = scrollView.zoomScale
             let windowWidth = self.document?.graphUI.frame.width ?? .zero
-//            log("StitchUIScrollView: scrollViewDidScroll windowWidth: \(windowWidth)")
             log("StitchUIScrollView: scrollViewDidScroll contentOffset: \(contentOffset)")
-//            log("StitchUIScrollView: scrollViewDidScroll contentSize.width: \(contentSize.width)")
-//            log("StitchUIScrollView: scrollViewDidScroll bounds: \(bounds)")
-//            log("StitchUIScrollView: scrollViewDidScroll origin: \(origin)")
             log("StitchUIScrollView: scrollViewDidScroll scrollView.zoomScale: \(scrollView.zoomScale)")
-            
-            // self.previousContentOffset = scrollView.contentOffset
             
 //            dispatch(GraphScrollDataUpdated(
 //                newOffset: scrollView.contentOffset,
 //                newZoom: scrollView.zoomScale
 //            ))
-            
              
              self.checkBorder(scrollView)
-            
         }
         
         func checkBorder(_ scrollView: UIScrollView) {
@@ -372,19 +364,16 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
                   let southNode = self.document?.graph.southernMostNodeForBorderCheck(),
                   let northBounds = cache.get(northNode.id),
                   let southBounds = cache.get(southNode.id) else {
-                
-                // self.previousContentOffset = scrollView.contentOffset
-                
+                                
                 dispatch(GraphScrollDataUpdated(
                     newOffset: scrollView.contentOffset,
                     newZoom: scrollView.zoomScale
                 ))
             
-                log("StitchUIScrollView: scrollViewDidScroll: MISSING WEST, EAST, SOUTH OR NORTH IN-FRAME NODES OR BOUNDS")
+                // log("StitchUIScrollView: scrollViewDidScroll: MISSING WEST, EAST, SOUTH OR NORTH IN-FRAME NODES OR BOUNDS")
                 
                 return
             }
-            
             
             let screenWidth = self.document?.graphUI.frame.width ?? .zero
             let screenHeight = self.document?.graphUI.frame.height ?? .zero
@@ -396,126 +385,73 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             let northernMostNodeCachedBoundsOriginY: CGFloat = northBounds.origin.y
             let southernMostNodeCachedBoundsOriginY: CGFloat = southBounds.origin.y
             
-            log("StitchUIScrollView: scrollViewDidScroll: westNode.id: \(westNode.id)")
-            log("StitchUIScrollView: scrollViewDidScroll: eastNode.id: \(eastNode.id)")
-            log("StitchUIScrollView: scrollViewDidScroll: northNode.id: \(northNode.id)")
-            log("StitchUIScrollView: scrollViewDidScroll: southNode.id: \(southNode.id)")
+            // log("StitchUIScrollView: scrollViewDidScroll: westNode.id: \(westNode.id)")
+            // log("StitchUIScrollView: scrollViewDidScroll: eastNode.id: \(eastNode.id)")
+            // log("StitchUIScrollView: scrollViewDidScroll: northNode.id: \(northNode.id)")
+            // log("StitchUIScrollView: scrollViewDidScroll: southNode.id: \(southNode.id)")
             
-            log("StitchUIScrollView: scrollViewDidScroll: westernMostNodeCachedBoundsOriginX: \(westernMostNodeCachedBoundsOriginX)")
-            log("StitchUIScrollView: scrollViewDidScroll: easternMostNodeCachedBoundsOriginX: \(easternMostNodeCachedBoundsOriginX)")
-            log("StitchUIScrollView: scrollViewDidScroll: northernMostNodeCachedBoundsOriginY: \(northernMostNodeCachedBoundsOriginY)")
-            log("StitchUIScrollView: scrollViewDidScroll: southernMostNodeCachedBoundsOriginY: \(southernMostNodeCachedBoundsOriginY)")
+            // log("StitchUIScrollView: scrollViewDidScroll: westernMostNodeCachedBoundsOriginX: \(westernMostNodeCachedBoundsOriginX)")
+            // log("StitchUIScrollView: scrollViewDidScroll: easternMostNodeCachedBoundsOriginX: \(easternMostNodeCachedBoundsOriginX)")
+            // log("StitchUIScrollView: scrollViewDidScroll: northernMostNodeCachedBoundsOriginY: \(northernMostNodeCachedBoundsOriginY)")
+            // log("StitchUIScrollView: scrollViewDidScroll: southernMostNodeCachedBoundsOriginY: \(southernMostNodeCachedBoundsOriginY)")
 
             // Minimum contentOffset can never be less than 0
-            // But setting to be exactly 0 is awkward? We don't scroll back?
-//            let minimumContentOffsetX = max(0, (westernMostNodeCachedBoundsOriginX * scale) - screenWidth)
-            
             let scaledNodeWidth = (southBounds.width/4 * scale)
-            
-//            let minimumContentOffsetX = (westernMostNodeCachedBoundsOriginX * scale) - screenWidth
-//            let maximumContentOffsetX = easternMostNodeCachedBoundsOriginX * scale
             let minimumContentOffsetX = (westernMostNodeCachedBoundsOriginX * scale) - screenWidth + scaledNodeWidth
             let maximumContentOffsetX = (easternMostNodeCachedBoundsOriginX * scale) - scaledNodeWidth
             
-            
-            log("StitchUIScrollView: scrollViewDidScroll: minimumContentOffsetX: \(minimumContentOffsetX)")
-            log("StitchUIScrollView: scrollViewDidScroll: maximumContentOffsetX: \(maximumContentOffsetX)")
+            // log("StitchUIScrollView: scrollViewDidScroll: minimumContentOffsetX: \(minimumContentOffsetX)")
+            // log("StitchUIScrollView: scrollViewDidScroll: maximumContentOffsetX: \(maximumContentOffsetX)")
             
             let scaledNodeHeight = (southBounds.height/4 * scale)
-            
-//            let minimumContentOffsetY = max(0, (northernMostNodeCachedBoundsOriginY * scale) - screenHeight)
-//            let minimumContentOffsetY = (northernMostNodeCachedBoundsOriginY * scale) - screenHeight
-//            let minimumContentOffsetY = (northernMostNodeCachedBoundsOriginY * scale) - screenHeight
             let minimumContentOffsetY = (northernMostNodeCachedBoundsOriginY * scale) - screenHeight + scaledNodeHeight
-            
-            
-            // for southern-most node at north edge of device screen
-//            let maximumContentOffsetY = southernMostNodeCachedBoundsOriginY * scale
-//            let scaledNodeHeight = (southBounds.height/2 * scale)
-            
             let maximumContentOffsetY = (southernMostNodeCachedBoundsOriginY * scale) - scaledNodeHeight
             
-            log("StitchUIScrollView: scrollViewDidScroll: scaledNodeHeight: \(scaledNodeHeight)")
-            log("StitchUIScrollView: scrollViewDidScroll: minimumContentOffsetY: \(minimumContentOffsetY)")
-            log("StitchUIScrollView: scrollViewDidScroll: maximumContentOffsetY: \(maximumContentOffsetY)")
+            // log("StitchUIScrollView: scrollViewDidScroll: scaledNodeHeight: \(scaledNodeHeight)")
+            // log("StitchUIScrollView: scrollViewDidScroll: minimumContentOffsetY: \(minimumContentOffsetY)")
+            // log("StitchUIScrollView: scrollViewDidScroll: maximumContentOffsetY: \(maximumContentOffsetY)")
 
-            
             let westernMostNodeAtEasternScreenEdge = scrollView.contentOffset.x <= minimumContentOffsetX
             let easternMostNodeAtWesternScreenEdge = scrollView.contentOffset.x >= maximumContentOffsetX
             
-            log("StitchUIScrollView: scrollViewDidScroll: westernMostNodeAtEasternScreenEdge: \(westernMostNodeAtEasternScreenEdge)")
-            log("StitchUIScrollView: scrollViewDidScroll: easternMostNodeAtWesternScreenEdge: \(easternMostNodeAtWesternScreenEdge)")
+            // log("StitchUIScrollView: scrollViewDidScroll: westernMostNodeAtEasternScreenEdge: \(westernMostNodeAtEasternScreenEdge)")
+            // log("StitchUIScrollView: scrollViewDidScroll: easternMostNodeAtWesternScreenEdge: \(easternMostNodeAtWesternScreenEdge)")
             
             let northernMostNodeAtSouthernScreenEdge = scrollView.contentOffset.y <= minimumContentOffsetY
             let southernMostNodeAtNorthernScreenEdge = scrollView.contentOffset.y >= maximumContentOffsetY
             
-            log("StitchUIScrollView: scrollViewDidScroll: northernMostNodeAtSouthernScreenEdge: \(northernMostNodeAtSouthernScreenEdge)")
-            log("StitchUIScrollView: scrollViewDidScroll: southernMostNodeAtNorthernScreenEdge: \(southernMostNodeAtNorthernScreenEdge)")
+            // log("StitchUIScrollView: scrollViewDidScroll: northernMostNodeAtSouthernScreenEdge: \(northernMostNodeAtSouthernScreenEdge)")
+            // log("StitchUIScrollView: scrollViewDidScroll: southernMostNodeAtNorthernScreenEdge: \(southernMostNodeAtNorthernScreenEdge)")
+            
+            var finalContentOffsetX = scrollView.contentOffset.x
+            var finalContentOffsetY = scrollView.contentOffset.y
             
             if westernMostNodeAtEasternScreenEdge {
                 log("StitchUIScrollView: scrollViewDidScroll: hit min x offset")
-                
-                // NOTE: hit a bug one time here where we kept scrolling downward (contentOffset.y kept increasing) even after we had let go
-                scrollView.setContentOffset(
-                    .init(x: minimumContentOffsetX,
-                          // reuse current scroll offset ?
-                          y: scrollView.contentOffset.y),
-                    animated: false)
-            }
-            
-            else if easternMostNodeAtWesternScreenEdge {
+                finalContentOffsetX = minimumContentOffsetX
+            } else if easternMostNodeAtWesternScreenEdge {
                 log("StitchUIScrollView: scrollViewDidScroll: hit max x offset")
-                scrollView.setContentOffset(
-                    .init(x: maximumContentOffsetX,
-                          y: scrollView.contentOffset.y),
-                    animated: false)
+                finalContentOffsetX = maximumContentOffsetX
             }
             
-            
-            else if northernMostNodeAtSouthernScreenEdge {
+            if northernMostNodeAtSouthernScreenEdge {
                 log("StitchUIScrollView: scrollViewDidScroll: hit min y offset")
-                
-                // NOTE: hit a bug one time here where we kept scrolling downward (contentOffset.y kept increasing) even after we had let go
-                scrollView.setContentOffset(
-                    .init(x: scrollView.contentOffset.x,
-                          y: minimumContentOffsetY),
-                    animated: false)
-            }
-            
-            else if southernMostNodeAtNorthernScreenEdge {
+                finalContentOffsetY = minimumContentOffsetY
+            } else if southernMostNodeAtNorthernScreenEdge {
                 log("StitchUIScrollView: scrollViewDidScroll: hit max y offset")
-                scrollView.setContentOffset(
-                    .init(x: scrollView.contentOffset.x,
-                          // reuse current scroll offset ?
-                          y: maximumContentOffsetY),
-                    animated: false)
+                finalContentOffsetY = maximumContentOffsetY
             }
             
-            // Can you actually check the borders here?
-            // Can you STOP the scroll view's contentOffset from changing?
-            // Would you need to
-            // https://stackoverflow.com/questions/3410777/how-can-i-programmatically-force-stop-scrolling-in-a-uiscrollview
+            let finalOffset = CGPoint(x: finalContentOffsetX, y: finalContentOffsetY)
             
-            // self.previousContentOffset = scrollView.contentOffset
-            
+            scrollView.setContentOffset(finalOffset, animated: false)
+                        
             dispatch(GraphScrollDataUpdated(
-                newOffset: scrollView.contentOffset,
+                newOffset: finalOffset,
                 newZoom: scrollView.zoomScale
             ))
         }
-        
-        // https://stackoverflow.com/a/30338969
-        
-//        // This STOPS post-gesture acceleration/deceleration ?
-//        func scrollViewWillEndDragging(_ scrollView: UIScrollView,
-//                                       withVelocity velocity: CGPoint,
-//                                       targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-//            log("StitchUIScrollView: scrollViewWillEndDragging scrollView.contentOffset: \(scrollView.contentOffset)")
-//            log("StitchUIScrollView: scrollViewWillEndDragging scrollView.contentSize: \(scrollView.contentSize)")
-//            log("StitchUIScrollView: scrollViewWillEndDragging scrollView.zoomScale: \(scrollView.zoomScale)")
-//            targetContentOffset.pointee = scrollView.contentOffset
-//        }
-        
+                
         // Handle pan gesture with boundary checks
         @objc func handlePan(_ gesture: UIPanGestureRecognizer) {
             
