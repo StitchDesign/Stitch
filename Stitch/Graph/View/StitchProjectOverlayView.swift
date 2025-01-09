@@ -9,8 +9,6 @@ import SwiftUI
 import StitchSchemaKit
 
 struct StitchProjectOverlayView: View {
-    @Environment(\.appTheme) private var theme
-    
     let document: StitchDocumentViewModel
     let store: StitchStore
     let showFullScreen: Bool
@@ -29,29 +27,6 @@ struct StitchProjectOverlayView: View {
             if graphUI.groupNodeFocused?.component != nil {
                 ComponentNavBarView(graph: document.visibleGraph,
                                     store: store)
-            }
-            
-            // Show debug mode tip view
-            if document.isDebugMode {
-                HStack {
-                    Image(systemName: ProjectContextMenuModifer.debugModeIcon)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 30)
-                        .foregroundStyle(theme.themeData.edgeColor)
-                    
-                    VStack(alignment: .leading) {
-                        Text("Welcome to Debug Mode")
-                            .font(.headline)
-                        Text("Prototypes are paused to enable inspection of faults in your graph. This is useful for debugging hangs in your prototype. Root causes could include a high loop count in some node's input field.")
-                            .font(.subheadline)
-                    }
-                    .frame(maxWidth: 800)
-                }
-                .padding()
-                .background(.ultraThinMaterial)
-                .cornerRadius(16)
-                .padding()
             }
             
             HStack(spacing: .zero) {
