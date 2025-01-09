@@ -151,7 +151,7 @@ struct ModelEntityLayerViewModifier: ViewModifier {
             newAnchor.addChild(entity.containerEntity)
         }
         
-        realityContent.addAnchor(newAnchor)
+        realityContent.scene.addAnchor(newAnchor)
     }
     
     func getAnchor(for nodeId: UUID) -> AnchorEntity? {
@@ -171,12 +171,12 @@ struct ModelEntityLayerViewModifier: ViewModifier {
                     self.anchorEntity = assignedAnchor
                 }
                 
-                realityContent.addAnchor(self.anchorEntity)
+                realityContent.scene.addAnchor(self.anchorEntity)
             }
             .onChange(of: self.anchorEntityId) { _, newAnchorEntityId in
                 // Remove old anchor from reality
                 let oldAnchor = self.anchorEntity
-                realityContent.removeAnchor(oldAnchor)
+                realityContent.scene.removeAnchor(oldAnchor)
                 
                 guard let newAnchorEntityId = newAnchorEntityId else {
                     self.asssignNewAnchor(AnchorEntity(),
@@ -207,10 +207,14 @@ struct ModelEntityLayerViewModifier: ViewModifier {
                     newEntity.isAnimating = previewLayer.isEntityAnimating.getBool ?? false
                     
                     self.anchorEntity.addChild(newEntity.containerEntity)
+                    
+                    // assign gestures                    
+                    realityContent.installGestures([.all],
+                                                   for: newEntity.containerEntity as Entity & HasCollision)
                 }
             }
             .onDisappear {
-                realityContent.removeAnchor(self.anchorEntity)
+                realityContent.scene.removeAnchor(self.anchorEntity)
             }
     }
 }

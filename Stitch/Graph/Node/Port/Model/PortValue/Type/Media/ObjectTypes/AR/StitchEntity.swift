@@ -21,7 +21,7 @@ final class StitchEntity: NSObject, Sendable {
     // the engine (reality kit or scenekit) has logic that says "hey I don't deal with MM or CM, so I'm going to set the model's transform to be 0.01 so that the model matches my coordinate space"...so the engine will add a root transform to the model so that it can work with the engine's coordinate space
     // so, if we were to apply a transform on just Stitch Entity, we would be applying it to root transform of the model
     // however, if we put the entity that loads the model inside of a container entity, and apply our transform to THAT container entity, it preserves whatever root transform was applied by the modelling package or engine that created the 3D asset
-    let containerEntity: Entity
+    let containerEntity: ModelEntity
     
     // Entity instance with import
     private let importEntity: Entity
@@ -49,13 +49,18 @@ final class StitchEntity: NSObject, Sendable {
         self.nodeId = nodeId
         self.sourceURL = sourceURL
         self.isAnimating = isAnimating
-        self.containerEntity = Entity()
+        self.containerEntity = ModelEntity()
         
         // For usage with anchor node
         self.transform = initialTransform
         
         let importEntity = try await Entity(contentsOf: sourceURL)
         self.containerEntity.addChild(importEntity)
+        
+        // Gesture support
+        self.containerEntity.generateCollisionShapes(recursive: true)
+        
+        let modelEntity = ModelEntity()
         
         if isAnimating {
             importEntity.startAnimation()
@@ -64,6 +69,11 @@ final class StitchEntity: NSObject, Sendable {
         }
         
         self.importEntity = importEntity
+        
+        // Add a collision component to the parentEntity with a rough shape and appropriate offset for the model that it contains
+        let entityBounds = self.importEntity.visualBounds(relativeTo: self.containerEntity)
+        self.containerEntity.collision = CollisionComponent(shapes: [ShapeResource.generateBox(size: entityBounds.extents).offsetBy(translation: entityBounds.center)])
+
         super.init()
     }
     
@@ -75,6 +85,7 @@ final class StitchEntity: NSObject, Sendable {
 }
 
 extension Entity {
+    /// Supports animations definied from Reality Composer Pro.
     func startAnimation() {
         self.availableAnimations.forEach {
             self.playAnimation($0.repeat(duration: .infinity),
