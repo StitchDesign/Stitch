@@ -173,9 +173,7 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         DispatchQueue.main.async {
             let newOffset =  CGPoint(x: WHOLE_GRAPH_LENGTH/2,
                                      y: WHOLE_GRAPH_LENGTH/2)
-            
-            //                    scrollView.contentOffset = newOffset
-            
+                        
 //            let newOffset =  CGPoint(x: 500, y: 500)
 //            let newOffset =  CGPoint(x: 1500, // moves whole graph WEST
 //                                     y: 20) // moves whole graph NORTH

@@ -81,7 +81,6 @@ final class GraphUIState: Sendable {
     // Hackiness for handling option+drag "duplicate node and drag it"
     @MainActor var dragDuplication: Bool = false
 
-//    @MainActor var doubleTapLocation: CGPoint?
     @MainActor var doubleTapLocation: CGPoint? {
         get {
             self.insertNodeMenuState.doubleTapLocation
