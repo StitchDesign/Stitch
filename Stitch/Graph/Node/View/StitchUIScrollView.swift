@@ -12,8 +12,8 @@ let ZOOM_COMMAND_RATE: CGFloat = 0.25
 //let ZOOM_COMMAND_RATE: CGFloat = 0.1
 //let ZOOM_COMMAND_RATE: CGFloat = 0.175
     
-//let WHOLE_GRAPH_LENGTH: CGFloat = 30000 // 30,000
-let WHOLE_GRAPH_LENGTH: CGFloat = 300000 // 300,000
+//let WHOLE_GRAPH_LENGTH: CGFloat = 30000 // 30,000 x 30,000
+let WHOLE_GRAPH_LENGTH: CGFloat = 300000 // 300,000 x 300,000
 
 let WHOLE_GRAPH_SIZE = CGSize(width: WHOLE_GRAPH_LENGTH,
                               height: WHOLE_GRAPH_LENGTH)
@@ -51,11 +51,7 @@ struct StitchUIScrollViewModifier: ViewModifier {
                         }))
                 
                     .gesture(StitchLongPressGestureRecognizerRepresentable())
-                
-                // THIS IS BETTER: HANDLES BOTH ZOOMING AND SCROLLING PROPERLY
-                
                     .gesture(StitchTrackpadGraphBackgroundPanGesture())
-                
                 
                 // RENDERING THE NODE CURSOR SELECTION BOX HERE
                 
