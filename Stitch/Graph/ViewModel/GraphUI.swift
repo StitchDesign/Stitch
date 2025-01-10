@@ -30,6 +30,12 @@ struct ActiveDragInteractionNodeVelocityData: Equatable, Hashable {
 
 @Observable
 final class GraphUIState: Sendable {
+        
+    // Set true / non-nil in redux-actions
+    // Set false in StitchUIScrollView
+    @MainActor var canvasZoomedIn: Bool = false
+    @MainActor var canvasZoomedOut: Bool = false
+    @MainActor var canvasJumpLocation: CGPoint? = nil
     
     @MainActor var nodeMenuHeight: CGFloat = INSERT_NODE_MENU_MAX_HEIGHT
     
@@ -76,7 +82,6 @@ final class GraphUIState: Sendable {
     // Hackiness for handling option+drag "duplicate node and drag it"
     @MainActor var dragDuplication: Bool = false
 
-//    @MainActor var doubleTapLocation: CGPoint?
     @MainActor var doubleTapLocation: CGPoint? {
         get {
             self.insertNodeMenuState.doubleTapLocation
@@ -95,7 +100,7 @@ final class GraphUIState: Sendable {
     // Starts out as default value, but on first render of GraphView
     // we get the exact device screen size via GeometryReader.
     @MainActor var frame = DEFAULT_LANDSCAPE_GRAPH_FRAME
-    
+
     // Note: our device-screen reading logic uses `.local` coordinate space and so does not detect that items in the graph actually sit a little lower on the screen.
     // TODO: better?: just always look at `.global`
     @MainActor var graphYPosition: CGFloat = .zero
@@ -226,17 +231,17 @@ extension GraphUIState {
     // See `ToggleAllSelectedNodes`
     // This is more like?: "the center of the NodesView",
     //    var center: CGPoint {
-    @MainActor
-    func center(_ localPosition: CGPoint,
-                graphScale: CGFloat) -> CGPoint {
-        var graphCenter = self.frame.getGraphCenter(localPosition: localPosition)
-
-        // Take left-sidebar into consideration
-        let sidebarAdjustment = (self.sidebarWidth/2 * 1/graphScale)
-        graphCenter.x -= sidebarAdjustment
-        
-        return graphCenter
-    }
+//    @MainActor
+//    func center(_ localPosition: CGPoint,
+//                graphScale: CGFloat) -> CGPoint {
+//        var graphCenter = self.frame.getGraphCenter(localPosition: localPosition)
+//
+//        // Take left-sidebar into consideration
+//        let sidebarAdjustment = (self.sidebarWidth/2 * 1/graphScale)
+//        graphCenter.x -= sidebarAdjustment
+//        
+//        return graphCenter
+//    }
 }
 
 extension GraphState {
@@ -380,7 +385,8 @@ struct GraphUISelectionState {
     var isFingerOnScreenSelection: Bool = false
 
     // Node cursor selection box
-    var expansionBox: CGRect?
+//    var expansionBox: CGRect?
+    var expansionBox: ExpansionBox?
 
     // the start and current locations of the drag gesture
     var dragStartLocation: CGPoint?

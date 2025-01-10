@@ -16,10 +16,8 @@ struct FileImportView: ViewModifier {
 
     func body(content: Content) -> some View {
 
-        //        logInView("FileImportView: fileImportState: \(fileImportState)")
 
         let isImportingBinding = createBinding(fileImportState.isImporting) {
-            //            logInView("FileImportView: isImportingBinding onSet: value: \($0)")
             if !$0 {
                 dispatch(HideFileImportModal())
             }
@@ -29,13 +27,9 @@ struct FileImportView: ViewModifier {
             .modifier(FileImportPickerView(fileImportState: fileImportState,
                                      isImporting: isImportingBinding) { (urls: [URL]) in
                                          
-                guard let graph = store.currentDocument?.visibleGraph else {
+                guard let center = store.currentDocument?.viewPortCenter else {
                     return
                 }
-                
-                let center = graph.graphUI.center(
-                    graph.localPosition,
-                    graphScale: graph.graphMovement.zoomData.zoom)
                 
                 Task.detached { [weak store] in
                         guard let store = store else {
