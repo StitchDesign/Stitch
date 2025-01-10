@@ -34,7 +34,8 @@ struct StitchUIScrollViewModifier: ViewModifier {
                 content
                     .ignoresSafeArea()
                 
-                Color.blue.opacity(0.9)
+//                Color.blue.opacity(0.9)
+                APP_BACKGROUND_COLOR
                     .zIndex(-99999)
                     .frame(WHOLE_GRAPH_SIZE)
                     .coordinateSpace(name: WHOLE_GRAPH_COORDINATE_SPACE)
@@ -72,7 +73,8 @@ struct StitchUIScrollViewModifier: ViewModifier {
         } // StitchUIScrollView
         
         .background {
-            Color.red.opacity(0.9)
+            //Color.red.opacity(0.9)
+            APP_BACKGROUND_COLOR
         }
         .ignoresSafeArea()
     }
