@@ -21,16 +21,6 @@ extension StitchDocumentViewModel: GraphStepManagerDelegate {
         
         let graphTime = self.graphStepManager.graphTime
         
-        if self.graphMovement.shouldRun {
-            // 60 FPS = 0.0167 seconds elapse between graph steps
-            // 120 FPS = 0.00833 seconds elapse between graph steps
-            // We need to require that at least greater than 1/120th of a second has elapsed, before we can run the graph momentum animation again.
-            if (graphTime - self.graphUI.lastMomentumRunTime) > 0.010 {
-                self.handleGraphMovementOnGraphStep()
-                self.graphUI.lastMomentumRunTime = graphTime
-            }
-        }
-
         self.graph.calculateOnGraphStep()
         
         // Update fields every 30 frames

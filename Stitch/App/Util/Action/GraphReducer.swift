@@ -35,10 +35,12 @@ struct ImportFileToNewNode: GraphEventWithResponse {
     let droppedLocation: CGPoint
     
     func handle(state: GraphState) -> GraphResponse {
+        let center = state.documentDelegate?.viewPortCenter ?? .zero
         Task { [weak state] in
             await state?.documentEncoderDelegate?
                 .importFileToNewNode(fileURL: url,
-                                     droppedLocation: droppedLocation)
+                                     // TODO: use real drop location
+                                     droppedLocation: center)
         }
         
         // won't this run *before* the Task has completed?

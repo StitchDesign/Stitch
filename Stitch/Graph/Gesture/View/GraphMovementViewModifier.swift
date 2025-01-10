@@ -17,6 +17,9 @@ struct GraphMovementViewModifier: ViewModifier {
     
     func body(content: Content) -> some View {
         content
+            .onAppear {
+                self.graph.updateVisibleNodes()
+            }
             .onChange(of: groupNodeFocused, initial: true) {
                 self.graphMovement.localPosition = currentNodePage.localPosition
                 self.graphMovement.localPreviousPosition = currentNodePage.localPosition
@@ -25,26 +28,19 @@ struct GraphMovementViewModifier: ViewModifier {
                 
                 self.graph.updateVisibleNodes()
             }
-            .onChange(of: graphMovement.localPosition) {
+            .onChange(of: graphMovement.localPosition) { _, newValue in
                 currentNodePage.localPosition = graphMovement.localPosition
                 
                 self.graph.updateVisibleNodes()
             }
-            .onChange(of: graphMovement.zoomData.current) {
+            .onChange(of: graphMovement.zoomData.current) { _, newValue in
                 currentNodePage.zoomData.current = graphMovement.zoomData.current
             }
-            .onChange(of: graphMovement.zoomData.final) {
+            .onChange(of: graphMovement.zoomData.final) { _, newValue in
                 currentNodePage.zoomData.final = graphMovement.zoomData.final
                 
                 self.graph.updateVisibleNodes()
             }
-        // offset and scale are applied to the nodes on the graph,
-        // but not eg to the blue box and green cursor;
-        // GRAPH-OFFSET (applied to container for all the nodes)
-            .offset(x: graphMovement.localPosition.x,
-                    y: graphMovement.localPosition.y)
-        // SCALE APPLIED TO GRAPH-OFFSET + ALL THE NODES
-            .scaleEffect(graphMovement.zoomData.zoom)
     }
 }
     
@@ -54,75 +50,40 @@ extension GraphState {
     /// 2. Determines which nodes are selected from the selection box, if applicable.
     @MainActor
     func updateVisibleNodes() {
-        let zoom = 1 / self.graphMovement.zoomData.zoom
-        let origin = self.graphMovement.localPosition
-        let viewFrameSize = self.graphUI.frame.size
         
-        var visibleNodes = Set<CanvasItemId>()
+        let zoom = self.graphMovement.zoomData.zoom
         
-        // Calculate view frame dependencies
-        let viewframeOrigin = CGPoint(x: -origin.x,
-                                      y: -origin.y)
-        let graphView = CGRect(origin: viewframeOrigin,
-                               size: viewFrameSize)
-        let viewFrame = Self.getScaledViewFrame(scale: zoom,
-                                                graphView: graphView)
+        // How much that content is offset from the UIScrollView's top-left corner;
+        // can never be negative.
+        let originOffset = self.graphMovement.localPosition
         
+        let scaledOffset = CGPoint(x: originOffset.x / zoom,
+                                   y: originOffset.y / zoom)
+
+        let viewPortSize = self.graphUI.frame.size
+                
+        let scaledSize = CGSize(width: viewPortSize.width * 1/zoom,
+                                height: viewPortSize.height * 1/zoom)
+        
+        let viewFrame = CGRect.init(origin: scaledOffset,
+                                    size: scaledSize)
+                
         // Determine nodes to make visible--use cache in case nodes exited viewframe
+        var newVisibleNodes = Set<CanvasItemId>()
+        
         for cachedSubviewData in self.visibleNodesViewModel.infiniteCanvasCache {
             let id = cachedSubviewData.key
             let cachedBounds = cachedSubviewData.value
             
             let isVisibleInFrame = viewFrame.intersects(cachedBounds)
+            
             if isVisibleInFrame {
-                visibleNodes.insert(id)
+                newVisibleNodes.insert(id)
             }
         }
         
-        if self.visibleNodesViewModel.visibleCanvasIds != visibleNodes {
-            self.visibleNodesViewModel.visibleCanvasIds = visibleNodes
+        if self.visibleNodesViewModel.visibleCanvasIds != newVisibleNodes {
+            self.visibleNodesViewModel.visibleCanvasIds = newVisibleNodes
         }
-        
-        self.visibleNodesViewModel.visibleCanvasIds = visibleNodes
-    }
-        
-    
-    /// Uses graph local offset and scale to get a modified `CGRect` of the view frame.
-    static func getScaledViewFrame(scale: Double,
-                                   graphView: CGRect) -> CGRect {
-        let scaledSize = CGSize(
-            width: graphView.width * scale,
-            height: graphView.height * scale)
-
-        let yDiff = (graphView.height - scaledSize.height) / 2
-        let xDiff = (graphView.width - scaledSize.width) / 2
-        
-        return CGRect(origin: CGPoint(x: graphView.origin.x + xDiff,
-                                      y: graphView.origin.y + yDiff),
-                      size: scaledSize)
-    }
-    
-    /// Uses graph local offset and scale to get a modified `CGRect` of the selection box view frame.
-    static func getScaledSelectionBox(selectionBox: CGRect,
-                                      scale: Double,
-                                      scaledViewFrameOrigin: CGPoint) -> CGRect? {
-        guard selectionBox != .zero else { return nil }
-        
-        let scaledSelectionBoxSize = CGSize(
-            // must explicitly graph .size to get correct magnitude
-            width: selectionBox.size.width * scale,
-            height: selectionBox.size.height * scale)
-        
-        let scaledOrigin = CGPoint(x: selectionBox.origin.x * scale,
-                                   y: selectionBox.origin.y * scale)
-        
-        let scaledSelectionBox = CGRect(origin: scaledOrigin + scaledViewFrameOrigin,
-                                           size: scaledSelectionBoxSize)
-//                print("infinite selection origin: \(selectionBox.origin)")
-//                print("infinite selection size: \(selectionBox.size)")
-//                print("infinite selection final: \(selectionBoxViewFrame)")
-//                print("infinite node: \(cachedBounds)")
-        
-        return scaledSelectionBox
-    }
+    }    
 }

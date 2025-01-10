@@ -105,7 +105,7 @@ struct StitchRootView: View {
                         } // if let document
                     } // .overlay
             }
-        }
+        }    
 //        .coordinateSpace(name: Self.STITCH_ROOT_VIEW_COORDINATE_SPACE)
         .modifier(StitchRootModifier(alertState: alertState))
         .onAppear {

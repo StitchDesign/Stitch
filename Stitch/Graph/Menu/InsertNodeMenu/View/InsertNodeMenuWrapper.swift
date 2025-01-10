@@ -105,9 +105,7 @@ struct InsertNodeMenuWrapper: View {
         
         let adjustedDoubleTapLocation = document.adjustedDoubleTapLocation(document.visibleGraph.localPosition)
         
-        var defaultCenter = document.graphUI.center(
-            document.visibleGraph.localPosition,
-            graphScale: self.graphScale)
+        var defaultCenter = document.viewPortCenter
         
         let sidebarAdjustment = 0.0 //(self.sidebarHalfWidth * 1/self.graphScale)
         

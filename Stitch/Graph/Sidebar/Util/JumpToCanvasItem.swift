@@ -33,28 +33,31 @@ struct FindSomeCanvasItemOnGraph: GraphEvent {
 }
 
 extension GraphState {
+    // TODO: anywhere this isn't being used but should be?
     @MainActor
     func panGraphToNodeLocation(id: CanvasItemId) {
         guard let canvasItem = self.getCanvasItem(id) else {
-            fatalErrorIfDebug("GraphState.sidebarItemTapped: no canvasItem found")
+            fatalErrorIfDebug("panGraphToNodeLocation: no canvasItem found")
             return
         }
-
-        // location of canvasItem
-        let position = canvasItem.position
-        // ^^ should already exist when new group node created, because the child node already existed
-
-        let newLocation = calculateMove(
-            // size of GraphBaseView
-            self.graphUI.frame,
-            position)
-
-        // TODO: how to slowly move over to the tapped layer? Using `withAnimation` on just graph offset does not animate the edges. (There's also a canvasItem text issue?)
-        //        withAnimation(.easeInOut) {
-        self.graphMovement.localPosition = newLocation
-        self.graphMovement.localPreviousPosition = newLocation
-        //        }
-
+                
+        let newLocation = calculateMove(self.graphUI.frame, canvasItem.position)
+        
+        guard let cachedBounds = self.visibleNodesViewModel.infiniteCanvasCache.get(id) else {
+            fatalErrorIfDebug("Could not find cached bounds for canvas item \(id)")
+            return
+        }
+        
+        let scale: CGFloat = self.documentDelegate?.graphMovement.zoomData.final ?? 1
+        
+        let jumpPosition = CGPoint(
+            // TODO: why do we have to SUBTRACT rather than add?
+            x: (cachedBounds.origin.x * scale) - self.graphUI.frame.size.width/2,
+            y: (cachedBounds.origin.y * scale) - self.graphUI.frame.size.height/2
+        )
+                
+        self.graphUI.canvasJumpLocation = jumpPosition
+        
         self.graphUI.selection = GraphUISelectionState()
         self.resetSelectedCanvasItems()
         canvasItem.select()
@@ -84,9 +87,9 @@ func calculateMove(_ graphViewFrame: CGRect,
     let newOffset = CGPoint(x: distance.x,
                             y: distance.y)
 
-    //    log("calculateMove: childPosition: \(childPosition)")
-    //    log("calculateMove: distance: \(distance)")
-    //    log("calculateMove: newOffset: \(newOffset)")
+    // log("calculateMove: childPosition: \(childPosition)")
+    // log("calculateMove: distance: \(distance)")
+    // log("calculateMove: newOffset: \(newOffset)")
 
     return newOffset
 }

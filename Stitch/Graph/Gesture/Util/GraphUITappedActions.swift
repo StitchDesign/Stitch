@@ -13,7 +13,7 @@ import StitchSchemaKit
 struct GraphTappedAction: ProjectEnvironmentEvent {
     func handle(graphState: GraphState,
                 environment: StitchEnvironment) -> GraphResponse {
-        // log("GraphTappedAction called")
+        log("GraphTappedAction called")
         graphState.resetAlertAndSelectionState()
         return .noChange
     }
@@ -21,9 +21,9 @@ struct GraphTappedAction: ProjectEnvironmentEvent {
 
 struct GraphDoubleTappedAction: StitchDocumentEvent {
     let location: CGPoint
-
+    
     func handle(state: StitchDocumentViewModel) {
-        // log("GraphDoubleTappedAction called")
+        log("GraphDoubleTappedAction: location: \(location)")
         
         state.graphUI.toggleInsertNodeMenu()
         
