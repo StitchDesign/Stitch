@@ -156,16 +156,51 @@ struct InsertNodeSelectionChanged: GraphUIEvent {
 }
 
 /// Process search results in the insert node menu sheet
-struct InsertNodeQuery: GraphUIEvent {
+struct GenerateAINode: GraphEvent {
+    let prompt: String
+    
+    func handle(state: GraphState) {
+        print("DEBUG - Handling AI node generation with prompt: \(prompt)")
+        // Set loading state
+        state.graphUI.insertNodeMenuState.isGeneratingAINode = true
+        // Dispatch OpenAI request
+        dispatch(MakeOpenAIRequest(prompt: prompt))
+    }
+}
+
+struct AINodeGenerationComplete: GraphEvent {
+    func handle(state: GraphState) {
+        state.graphUI.insertNodeMenuState.isGeneratingAINode = false
+        state.graphUI.insertNodeMenuState.show = false
+    }
+}
+
+/// Process search results in the insert node menu sheet
+struct InsertNodeQuery: GraphEvent {
     let query: String
-
-    func handle(state: GraphUIState) {
-        let results = searchForNodes(by: query,
-                                     searchOptions: .ALL_NODE_SEARCH_OPTIONS)
-
-        // Update results and the current selection
-        state.insertNodeMenuState.searchResults = results
-        state.insertNodeMenuState.activeSelection = results.first
+    
+    func handle(state: GraphState) {
+        // Update the search query in menu state
+        state.graphUI.insertNodeMenuState.searchQuery = query
+        
+        // Update search results
+        if query.isEmpty {
+            state.graphUI.insertNodeMenuState.searchResults = InsertNodeMenuState.allSearchOptions
+            state.graphUI.insertNodeMenuState.activeSelection = InsertNodeMenuState.startingActiveSelection
+        } else {
+            let filtered = searchForNodes(by: query,
+                                           searchOptions: InsertNodeMenuState.allSearchOptions)
+            
+            state.graphUI.insertNodeMenuState.searchResults = filtered
+            
+            // Update selection based on search results
+            if !filtered.isEmpty {
+                state.graphUI.insertNodeMenuState.activeSelection = filtered.first
+            } else {
+                // We're in AI mode - clear selection
+                state.graphUI.insertNodeMenuState.activeSelection = nil
+            }
+        }
     }
 }
 
@@ -176,108 +211,66 @@ extension [InsertNodeMenuOptionData] {
 func searchForNodes(by query: String,
                     searchOptions: [InsertNodeMenuOptionData]) -> [InsertNodeMenuOptionData] {
 
-    let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
+    let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
 
     guard !trimmedQuery.isEmpty else {
         return searchOptions
     }
 
-    let titleMatches = searchOptions.filter {
-        $0.data.displayTitle.localizedCaseInsensitiveContains(trimmedQuery)
+    // Handle exact symbol matches first
+    switch trimmedQuery {
+    case "+": return [.init(data: .patch(.add))]
+    case "-": return [.init(data: .patch(.subtract))]
+    case "*": return [.init(data: .patch(.multiply))]
+    case "/": return [.init(data: .patch(.divide))]
+    case "**", "^": return [.init(data: .patch(.power))]
+    default: break
     }
-
-    let descriptionMatches = searchOptions.filter {
-        !$0.data.displayTitle.localizedCaseInsensitiveContains(trimmedQuery) &&
-            $0.data.displayDescription.replacingOccurrences(of: "*", with: "")
-                                         .replacingOccurrences(of: "/", with: "")
-                                         .localizedCaseInsensitiveContains(trimmedQuery)
+    
+    // Single filter that handles all cases
+    let filtered = searchOptions.filter { option in
+        // Check the display title and description
+        let matchesContent = option.data.displayTitle.localizedCaseInsensitiveContains(trimmedQuery) ||
+        option.data.displayDescription.replacingOccurrences(of: "*", with: "")
+            .replacingOccurrences(of: "/", with: "")
+            .localizedCaseInsensitiveContains(trimmedQuery)
+            
+        // If it already matches content, no need to check further
+        if matchesContent { return true }
+        
+        // Check for text-based matches based on the node type
+        if case .patch(let patchData) = option.data {
+            switch patchData {
+            case .add: return "add".hasPrefix(trimmedQuery) || "plus".hasPrefix(trimmedQuery)
+            case .subtract: return "subtract".hasPrefix(trimmedQuery) || "minus".hasPrefix(trimmedQuery)
+            case .multiply: return "multiply".hasPrefix(trimmedQuery) || "times".hasPrefix(trimmedQuery)
+            case .divide: return "divide".hasPrefix(trimmedQuery)
+            case .power: return "power".hasPrefix(trimmedQuery) || "exponent".hasPrefix(trimmedQuery)
+            case .splitter: return "value".hasPrefix(trimmedQuery) || "splitter".hasPrefix(trimmedQuery)
+            default: return false
+            }
+        }
+        
+        return false
     }
-
-    var filtered = titleMatches + descriptionMatches
-
-    // Also check for:
-    // Sort to prioritize exact matches first
-    filtered.sort { first, second in
+    
+    // Sort results
+    return filtered.sorted { first, second in
         let firstTitle = first.data.displayTitle.lowercased()
         let secondTitle = second.data.displayTitle.lowercased()
 
-        // Check if either title starts with the query
-        let firstStartsWithQuery = firstTitle.hasPrefix(trimmedQuery.lowercased())
-        let secondStartsWithQuery = secondTitle.hasPrefix(trimmedQuery.lowercased())
+        // Exact matches first
+        if firstTitle == trimmedQuery { return true }
+        if secondTitle == trimmedQuery { return false }
 
-        // Sort by whether they start with the query
-        if firstStartsWithQuery && !secondStartsWithQuery {
-            return true
-        } else if !firstStartsWithQuery && secondStartsWithQuery {
-            return false
-        }
+        // Then prefix matches
+        let firstStartsWithQuery = firstTitle.hasPrefix(trimmedQuery)
+        let secondStartsWithQuery = secondTitle.hasPrefix(trimmedQuery)
+        if firstStartsWithQuery != secondStartsWithQuery { return firstStartsWithQuery }
 
-        // If both or neither start with the query, sort alphabetically
+        // Finally alphabetical
         return firstTitle < secondTitle
     }
-
-    // math symbols
-    // Also check for math symbols and logical operators
-    if trimmedQuery == "+" {
-        filtered.append(.init(data: .patch(.add)))
-    }
-    if trimmedQuery == "-" {
-        filtered.append(.init(data: .patch(.subtract)))
-    }
-    if trimmedQuery == "/" {
-        filtered.append(.init(data: .patch(.divide)))
-    }
-    if trimmedQuery == "*" {
-        filtered.append(.init(data: .patch(.multiply)))
-    }
-    if trimmedQuery == "**" || trimmedQuery == "^" {
-        filtered.append(.init(data: .patch(.power)))
-    }
-
-    // equality operators
-    if trimmedQuery == "=" {
-        filtered.append(.init(data: .patch(.equals)))
-        filtered.append(.init(data: .patch(.equalsExactly)))
-        filtered.append(.init(data: .patch(.optionEquals)))
-        filtered.append(.init(data: .patch(.greaterOrEqual)))
-        filtered.append(.init(data: .patch(.lessThanOrEqual)))
-    }
-    if trimmedQuery == ">" {
-        filtered.append(.init(data: .patch(.greaterThan)))
-        filtered.append(.init(data: .patch(.greaterOrEqual)))
-    }
-    if trimmedQuery == ">=" {
-        filtered.append(.init(data: .patch(.greaterOrEqual)))
-    }
-    if trimmedQuery == "<" {
-        filtered.append(.init(data: .patch(.lessThan)))
-        filtered.append(.init(data: .patch(.lessThanOrEqual)))
-    }
-    if trimmedQuery == "<=" {
-        filtered.append(.init(data: .patch(.lessThanOrEqual)))
-    }
-
-    // logical operators
-    if trimmedQuery == "!" {
-        filtered.append(.init(data: .patch(.not)))
-    }
-    if trimmedQuery == "%" {
-        filtered.append(.init(data: .patch(.mod)))
-    }
-    if trimmedQuery == "&" || trimmedQuery == "&&" {
-        filtered.append(.init(data: .patch(.and)))
-    }
-    if trimmedQuery == "|" || trimmedQuery == "||" {
-        filtered.append(.init(data: .patch(.or)))
-    }
-
-    // splitter == value node
-    if "splitter".hasPrefix(trimmedQuery.lowercased()) {
-        let splitterOption = InsertNodeMenuOptionData(data: .patch(.splitter))
-        filtered.append(splitterOption)
-    }
-    
-    return filtered
 }
 
 struct ActiveIndexChangedAction: GraphEvent {

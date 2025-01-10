@@ -1723,18 +1723,6 @@ A node for importing an image asset into your prototype.
 • The size of the image
 """
 
-let model3DImportDescription = """
-Enables importing and modifying USDZ 3D assets.
-
-*Inputs*
-• A selector for importing and selecting the 3D model
-• If the model has baked-in animations, a boolean will toggle them on and off
-• An AR Transform for adjusting the transform of the 3D model
-
-*Outputs*
-• The 3D model; can be connected to a 3D Model Layer for displaying in the Preview Window
-"""
-
 let soundImportDescription = """
 A node for importing a sound file.
 

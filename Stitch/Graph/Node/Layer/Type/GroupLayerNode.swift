@@ -9,7 +9,7 @@ import Combine
 import Foundation
 import StitchSchemaKit
 import SwiftUI
-import Tagged
+import RealityKit
 
 // Used for VStack vs HStack on layer groups
 extension StitchOrientation: PortValueEnum {
@@ -111,25 +111,20 @@ struct GroupLayerNode: LayerNodeDefinition {
         .union(.offsetInGroup)
         .union(.paddingAndSpacing)
     
-    static func content(
-        document: StitchDocumentViewModel,
-        graph: GraphState,
-        viewModel: LayerViewModel,
-        
-        parentSize: CGSize,
-        
-        layersInGroup: LayerDataList, // recursion
-        isPinnedViewRendering: Bool, // leave alone? revisit with Layout?
-        
-        parentDisablesPosition: Bool,
-        
-        parentIsScrollableGrid: Bool
-    ) -> some View {
-        
+    static func content(document: StitchDocumentViewModel,
+                        graph: GraphState,
+                        viewModel: LayerViewModel,
+                        parentSize: CGSize,
+                        layersInGroup: LayerDataList,
+                        isPinnedViewRendering: Bool,
+                        parentDisablesPosition: Bool,
+                        parentIsScrollableGrid: Bool,
+                        realityContent: Binding<LayerRealityCameraContent?>) -> some View {
         PreviewGroupLayer(
             document: document,
             graph: graph,
             layerViewModel: viewModel,
+            realityContent: realityContent,
             layersInGroup: layersInGroup,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,

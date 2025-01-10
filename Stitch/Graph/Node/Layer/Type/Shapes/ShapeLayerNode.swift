@@ -206,8 +206,8 @@ struct ShapeLayerNode: LayerNodeDefinition {
                         layersInGroup: LayerDataList, 
                         isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool,
-                        parentIsScrollableGrid: Bool) -> some View {
-        
+                        parentIsScrollableGrid: Bool,
+                        realityContent: Binding<LayerRealityCameraContent?>) -> some View {
         ShapeLayerView(document: document,
                        graph: graph,
                        viewModel: viewModel,

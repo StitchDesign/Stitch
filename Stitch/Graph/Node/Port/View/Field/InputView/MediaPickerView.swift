@@ -69,7 +69,7 @@ struct MediaFieldValueView: View {
             
         case .patch(let patch):
             switch patch {
-            case .model3DImport, .soundImport:
+            case .soundImport:
                 return false
             default:
                 return true

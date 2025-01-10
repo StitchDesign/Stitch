@@ -109,8 +109,7 @@ struct InsertNodeMenuSearchResults: View {
 
         } // ScrollViewReader
         // Hide the list if no search results, so that we don't show headers etc.
-        .opacity(searchResults.isEmpty ? 0 : 1)
-        .onChange(of: self.show) { oldValue, newValue in
+            .onChange(of: self.show) { oldValue, newValue in
             self.localId = .init()
         }
     }

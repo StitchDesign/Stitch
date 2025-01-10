@@ -157,7 +157,8 @@ extension DocumentLoader {
             from: document,
             isPhoneDevice: isPhoneDevice,
             projectLoader: projectLoader,
-            store: store
+            store: store,
+            isDebugMode: false
         )
         
         documentViewModel?.didDocumentChange = true // creates fresh thumbnail
@@ -177,7 +178,8 @@ extension DocumentLoader {
         
         documentViewModel.previewSizeDevice = previewDevice
         documentViewModel.previewWindowSize = previewDevice.previewWindowDimensions
-        store.navPath = [documentViewModel]
+        projectLoader.documentViewModel = documentViewModel
+        store.navPath = [projectLoader]
     }
 
     func installDocument(document: StitchDocument) async throws -> ProjectLoader {

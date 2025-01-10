@@ -13,7 +13,7 @@ struct PreviewRealityLayer: View {
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     @Bindable var viewModel: LayerViewModel
-    
+    let layersInGroup: LayerDataList
     let isPinnedViewRendering: Bool
     let parentSize: CGSize
     let parentDisablesPosition: Bool
@@ -36,10 +36,10 @@ struct PreviewRealityLayer: View {
                              graph: graph,
                              node: node,
                              layerViewModel: viewModel,
+                             layersInGroup: self.layersInGroup,
                              cameraFeedManager: document.cameraFeedManager?.loadedInstance?.cameraFeedManager,
                              isPinnedViewRendering: isPinnedViewRendering,
                              interactiveLayer: self.viewModel.interactiveLayer,
-                             allAnchors: viewModel.allAnchors.compactMap { $0.asyncMedia },
                              position: position,
                              rotationX: rotationX,
                              rotationY: rotationY,
@@ -77,16 +77,15 @@ struct PreviewRealityLayer: View {
     }
 }
 
-struct RealityLayerView: View {
+struct RealityLayerView: View {    
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
-    let layerViewModel: LayerViewModel
-    
+    @Bindable var layerViewModel: LayerViewModel
+    let layersInGroup: LayerDataList
     let cameraFeedManager: CameraFeedManager?
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
-    let allAnchors: [GraphMediaValue]
     let position: CGPoint
     let rotationX: CGFloat
     let rotationY: CGFloat
@@ -125,7 +124,7 @@ struct RealityLayerView: View {
 #endif
     }
     
-    var body: some View {
+    var realityView: some View {
         Group {
             // Can't run multiple reality views
             if !isPinnedViewRendering || document.isGeneratingProjectThumbnail {
@@ -145,12 +144,11 @@ struct RealityLayerView: View {
                         .onAppear {
                             // Update list of node Ids using camera
                             graph.enabledCameraNodeIds.insert(node.id)
-                        }
-                        .onChange(of: allAnchors, initial: true) { _, newAnchors in
-                            let mediaList = newAnchors.map { $0.mediaObject }
                             
-                            // Update entities in ar view
-                            arView.updateAnchors(mediaList: mediaList)
+                            self.layerViewModel.realityContent = arView.scene
+                        }
+                        .onDisappear {
+                            self.layerViewModel.realityContent = nil
                         }
                     }
 
@@ -161,9 +159,12 @@ struct RealityLayerView: View {
                     Color.clear
 #if !targetEnvironment(macCatalyst)
                         .onAppear {
-                            let nodeId = self.layerViewModel.id.layerNodeId.id
-                            document.realityViewCreatedWithoutCamera(graph: graph,
-                                                                     nodeId: nodeId)
+                            // Cannot accidentally call this multiple times!
+                            if isPinnedViewRendering {
+                                let nodeId = self.layerViewModel.id.layerNodeId.id
+                                document.realityViewCreatedWithoutCamera(graph: graph,
+                                                                         nodeId: nodeId)
+                            }
                         }
 #endif
                     
@@ -171,12 +172,31 @@ struct RealityLayerView: View {
             }
             
             else {
-                NonCameraRealityView(size: layerSize,
+                NonCameraRealityView(previewLayer: layerViewModel,
+                                     size: layerSize,
                                      scale: scale,
                                      opacity: opacity,
-                                     isShadowsEnabled: isShadowsEnabled,
-                                     anchors: allAnchors)
+                                     isShadowsEnabled: isShadowsEnabled)
+                .onDisappear {
+                    self.layerViewModel.realityContent = nil
+                }
             }
+        }
+    }
+    
+    var body: some View {
+        ZStack {
+            realityView
+                
+            GroupLayerNode.content(document: document,
+                                   graph: graph,
+                                   viewModel: layerViewModel,
+                                   parentSize: parentSize,
+                                   layersInGroup: layersInGroup,
+                                   isPinnedViewRendering: isPinnedViewRendering,
+                                   parentDisablesPosition: parentDisablesPosition,
+                                   parentIsScrollableGrid: parentIsScrollableGrid,
+                                   realityContent: self.$layerViewModel.realityContent)
         }
         .modifier(PreviewCommonModifier(
             document: document,

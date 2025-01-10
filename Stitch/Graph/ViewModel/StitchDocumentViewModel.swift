@@ -12,19 +12,10 @@ import StitchEngine
 
 let STITCH_PROJECT_DEFAULT_NAME = StitchDocument.defaultName
 
-extension StitchDocumentViewModel: Hashable {
-    static func == (lhs: StitchDocumentViewModel, rhs: StitchDocumentViewModel) -> Bool {
-        lhs.rootId == rhs.rootId
-    }
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(self.rootId)
-    }
-}
-
 @Observable
 final class StitchDocumentViewModel: Sendable {
     let rootId: UUID
+    let isDebugMode: Bool
     let graph: GraphState
     let graphUI: GraphUIState
     let graphStepManager = GraphStepManager()
@@ -56,8 +47,6 @@ final class StitchDocumentViewModel: Sendable {
     @MainActor var locationManager: LoadingStatus<StitchSingletonMediaObject>?
     @MainActor var cameraFeedManager: LoadingStatus<StitchSingletonMediaObject>?
     
-    @MainActor var lastEncodedDocument: StitchDocument
-    
     @MainActor weak var storeDelegate: StoreDelegate?
     @MainActor weak var projectLoader: ProjectLoader?
     @MainActor weak var documentEncoder: DocumentEncoder?
@@ -67,7 +56,8 @@ final class StitchDocumentViewModel: Sendable {
          graph: GraphState,
          isPhoneDevice: Bool,
          projectLoader: ProjectLoader,
-         store: StoreDelegate?) {
+         store: StoreDelegate?,
+         isDebugMode: Bool) {
         self.rootId = schema.id
         self.documentEncoder = projectLoader.encoder
         self.previewWindowSize = schema.previewWindowSize
@@ -78,6 +68,7 @@ final class StitchDocumentViewModel: Sendable {
         self.graphUI = GraphUIState(isPhoneDevice: isPhoneDevice)
         self.graph = graph
         self.projectLoader = projectLoader
+        self.isDebugMode = isDebugMode
         self.lastEncodedDocument = schema
         
         if let store = store {
@@ -101,8 +92,10 @@ final class StitchDocumentViewModel: Sendable {
         self.graph.initializeDelegate(document: self,
                                       documentEncoderDelegate: documentEncoder)
         
-        // Start graph
-        self.graphStepManager.start()
+        // Start graph if not in debug mode
+        if !self.isDebugMode {
+            self.graphStepManager.start()            
+        }
         
         // Updates node location data for perf + edge UI
         // MARK: currently testing perf without visibility check
@@ -110,8 +103,6 @@ final class StitchDocumentViewModel: Sendable {
             // Need all nodes to render initially
             let visibleGraph = self.visibleGraph
             visibleGraph.visibleNodesViewModel.setAllNodesVisible()
-        } else {
-//            self.refreshVisibleNodes()
         }
     }
     
@@ -119,7 +110,8 @@ final class StitchDocumentViewModel: Sendable {
     convenience init?(from schema: StitchDocument,
                       isPhoneDevice: Bool,
                       projectLoader: ProjectLoader,
-                      store: StoreDelegate?) async {
+                      store: StoreDelegate?,
+                      isDebugMode: Bool) async {
         let documentEncoder = DocumentEncoder(document: schema)
 
         let graph = await GraphState(from: schema.graph,
@@ -129,14 +121,44 @@ final class StitchDocumentViewModel: Sendable {
                   graph: graph,
                   isPhoneDevice: isPhoneDevice,
                   projectLoader: projectLoader,
-                  store: store)
+                  store: store,
+                  isDebugMode: isDebugMode)
     }
 }
 
-extension StitchDocumentViewModel: DocumentEncodableDelegate {    
+extension StitchDocumentViewModel: DocumentEncodableDelegate {
+    @MainActor var lastEncodedDocument: StitchDocument {
+        get {
+            guard let document = self.projectLoader?.lastEncodedDocument else {
+                fatalErrorIfDebug()
+                return StitchDocument()
+            }
+            
+            return document
+        }
+        set(newValue) {
+            guard let projectLoader = self.projectLoader else {
+                fatalErrorIfDebug()
+                return
+            }
+            
+            projectLoader.lastEncodedDocument = newValue
+            projectLoader.loadingDocument = .loaded(newValue,
+                                                    self.projectLoader?.thumbnail)
+        }
+    }
+    
     func willEncodeProject(schema: StitchDocument) {
         // Signals to project thumbnail logic to create a new one when project closes
         self.didDocumentChange = true
+        
+        // Blocks thumbnail from being selected until encoding completes
+        self.projectLoader?.loadingDocument = .loading
+    }
+    
+    func didEncodeProject(schema: StitchDocument) {
+        self.projectLoader?.loadingDocument = .loaded(schema,
+                                                      self.projectLoader?.thumbnail)
     }
 }
 
@@ -320,6 +342,7 @@ extension StitchDocumentViewModel {
               graph: .init(),
               isPhoneDevice: false,
               projectLoader: .init(url: URL(fileURLWithPath: "")),
-              store: nil)
+              store: nil,
+              isDebugMode: false)
     }
 }

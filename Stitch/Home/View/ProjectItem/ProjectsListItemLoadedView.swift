@@ -69,6 +69,7 @@ extension StitchStore {
     func handleProjectTapped(projectLoader: ProjectLoader,
                              document: StitchDocument,
                              isPhoneDevice: Bool,
+                             isDebugMode: Bool,
                              loadedCallback: @MainActor @Sendable @escaping () -> ()) {
         Task { [weak projectLoader] in
             guard let projectLoader = projectLoader else { return }
@@ -77,18 +78,21 @@ extension StitchStore {
                 from: document,
                 isPhoneDevice: isPhoneDevice,
                 projectLoader: projectLoader,
-                store: self
+                store: self,
+                isDebugMode: isDebugMode
             )
             
             // TODO: DEC 12: use with actual migration logic
 //            documentViewModel?.migrateCanvasItemsPositionsForNewUIScrollViewGraph()
             
-            await MainActor.run { [weak self, weak documentViewModel] in
-                guard let documentViewModel = documentViewModel else {
+            await MainActor.run { [weak self, weak documentViewModel, weak projectLoader] in
+                guard let projectLoader = projectLoader,
+                      let documentViewModel = documentViewModel else {
                     return
                 }
                 
-                self?.navPath = [documentViewModel]
+                projectLoader.documentViewModel = documentViewModel
+                self?.navPath = [projectLoader]
                 loadedCallback()
             }
         }

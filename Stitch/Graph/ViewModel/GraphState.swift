@@ -27,6 +27,7 @@ final class GraphState: Sendable {
     
     @MainActor var id = UUID()
     @MainActor var name: String = STITCH_PROJECT_DEFAULT_NAME
+    @MainActor var migrationWarning: StringIdentifiable?
     
     @MainActor var commentBoxesDict = CommentBoxesDict()
     
@@ -98,6 +99,10 @@ final class GraphState: Sendable {
         self.components = components
         self.visibleNodesViewModel.nodes = nodes
         
+        if let stringWarning = schema.migrationWarning {
+            self.migrationWarning = .init(rawValue: stringWarning)
+        }
+        
         self.syncMediaFiles(mediaFiles)
         self.layersSidebarViewModel.sync(from: schema.orderedSidebarLayers)
     }
@@ -163,10 +168,15 @@ extension GraphState {
         // Update connected port data
         self.visibleNodesViewModel.updateAllNodeViewData()
         
-        self.updateOrderedPreviewLayers()
-        
-        // Calculate graph
-        self.initializeGraphComputation()
+        if !document.isDebugMode {
+            self.updateOrderedPreviewLayers()
+            
+            // Calculate graph
+            self.initializeGraphComputation()
+        } else {
+            // Update all fields since calculation is skipped
+            self.updatePortViews()
+        }
     }
 
     @MainActor
@@ -453,6 +463,13 @@ extension GraphState {
         self.documentEncoderDelegate?.encodeProjectInBackground(from: self,
                                                                 temporaryUrl: temporaryURL,
                                                                 willUpdateUndoHistory: willUpdateUndoHistory)
+        
+        // If debug mode, make sure fields are updated as we aren't using calculate
+        // to update them
+        // MARK: should move to delegate, however this works fine for now
+        if self.documentDelegate?.isDebugMode ?? false {
+            self.updatePortViews()
+        }
     }
     
     @MainActor

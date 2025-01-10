@@ -182,9 +182,6 @@ extension LayerNodeViewModel {
         
         let layerData: InputLayerNodeRowData = self[keyPath: layerId.layerNodeKeyPath]
         
-        // Update packed row observer
-        layerData.rowObserver.nodeKind = .layer(self.layer)
-        
         // Checking to see if we can keep id constant
         assertInDebug(layerData.rowObserver.id == coordinateId)
     }
@@ -291,18 +288,21 @@ extension LayerInputObserver {
             let unpackedObserver = data.0
             let unpackedSchema = data.1
                         
-            let unpackedPortParentFieldGroupType: FieldGroupType = layerInputType
+            let unpackedPortParentFieldGroupTypes = layerInputType
                 .getDefaultValue(for: layerNode.layer)
-                .getNodeRowType(nodeIO: .input)
-                .getFieldGroupTypeForLayerInput
+                .getNodeRowType(nodeIO: .input,
+                                isLayerInspector: true)
+                .fieldGroupTypes
             
-            unpackedObserver.update(from: unpackedSchema,
-                                    layerInputType: .init(layerInput: layerInputType,
-                                                          portType: .unpacked(unpackedPortType)),
-                                    layerNode: layerNode,
-                                    nodeId: nodeId,
-                                    unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                    unpackedPortIndex: portId)
+            unpackedPortParentFieldGroupTypes.forEach { unpackedPortParentFieldGroupType in
+                unpackedObserver.update(from: unpackedSchema,
+                                        layerInputType: .init(layerInput: layerInputType,
+                                                              portType: .unpacked(unpackedPortType)),
+                                        layerNode: layerNode,
+                                        nodeId: nodeId,
+                                        unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                                        unpackedPortIndex: portId)
+            }
         }
         
         // Update values once mode is known (requires updating canvas items first)
@@ -310,6 +310,7 @@ extension LayerInputObserver {
         switch self.observerMode {
         case .packed(let packedObserver):
             packedObserver.rowObserver.update(from: schema.packedData.inputPort,
+                                              layer: self.layer,
                                               inputType: .init(layerInput: layerInputType,
                                                                portType: .packed))
             
@@ -324,6 +325,7 @@ extension LayerInputObserver {
                 let unpackedSchema = data.1
                 
                 unpackedObserver.rowObserver.update(from: unpackedSchema.inputPort,
+                                                    layer: self.layer,
                                                     inputType: .init(layerInput: layerInputType,
                                                                      portType: .unpacked(unpackedPortType)))
             }

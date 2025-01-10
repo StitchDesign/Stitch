@@ -77,6 +77,18 @@ struct GraphBaseView: View {
         NodesView(document: document,
                   graph: graph,
                   groupTraversedToChild: graphUI.groupTraversedToChild)
+        .overlay {
+            // Show debug mode tip view
+            if document.isDebugMode {
+                VStack {
+                    HStack {
+                        DebugModePopover()
+                        Spacer()
+                    }
+                    Spacer()
+                }
+            }
+        }
     }
 
     @ViewBuilder
