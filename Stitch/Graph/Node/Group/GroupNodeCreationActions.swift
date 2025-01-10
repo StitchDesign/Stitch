@@ -177,7 +177,7 @@ extension StitchDocumentViewModel {
         let newComponentId = UUID()
         let selectedCanvasItems = self.visibleGraph.selectedCanvasItems
         let edges = self.visibleGraph.createEdges()
-        let center = self.graphUI.center(self.localPosition, graphScale: self.graph.graphMovement.zoomData.zoom)
+        let center = self.viewPortCenter
 
         // Every selected node must belong to this traversal level.
         let nodesAtThisLevel = self.visibleGraph.getVisibleCanvasItems().map(\.id).toSet

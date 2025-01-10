@@ -135,12 +135,13 @@ extension GraphState {
         // Add media key to computed node state
         self.mediaLibrary.updateValue(newURL, forKey: newURL.mediaKey)
 
+        // TODO: place media where it was dropped by factoring out zoom and offset etc.
         // Adjust dropped location based on graph view offset and scale
-        droppedLocation = factorOutGraphOffsetAndScale(
-            location: originalNodeLocation.toCGPoint,
-            graphOffset: localPosition,
-            graphScale: graphScale,
-            deviceScreen: self.graphUI.frame)
+//        droppedLocation = factorOutGraphOffsetAndScale(
+//            location: originalNodeLocation.toCGPoint,
+//            graphOffset: localPosition,
+//            graphScale: graphScale,
+//            deviceScreen: self.graphUI.frame)
 
         let mediaType = newURL.getMediaType()
 

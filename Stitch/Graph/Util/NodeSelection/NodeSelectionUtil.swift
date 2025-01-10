@@ -142,7 +142,6 @@ extension GraphState {
         
         // TODO: pass shift down via the UIKit gesture handler
         let shiftHeld = graphState.keypressState.shiftHeldDuringGesture
-        log("processCanvasSelectionBoxChange: shiftHeld: \(shiftHeld)")
         
         guard isCurrentlyDragging else {
             // log("processNodeSelectionBoxChange error: expansion box was size zero")
@@ -167,31 +166,18 @@ extension GraphState {
             // Note: alternatively?: wipe this collection/set when gesure ends
             self.graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag = nil
         }
-        
-        // Necessary view frame data needed to determining selected nodes
-        let zoom = 1 / self.graphMovement.zoomData.zoom
-        let viewFrameSize = self.graphUI.frame.size
-        let viewframeOrigin = CGPoint(x: -self.graphMovement.localPosition.x,
-                                      y: -self.graphMovement.localPosition.y)
-        let graphView = CGRect(origin: viewframeOrigin,
-                               size: viewFrameSize)
-        let scaledViewFrame = GraphState.getScaledViewFrame(scale: zoom,
-                                                            graphView: graphView)
-        guard let selectionBoxInViewFrame = GraphState
-            .getScaledSelectionBox(selectionBox: selectionBox,
-                                   scale: zoom,
-                                   scaledViewFrameOrigin: scaledViewFrame.origin) else {
-            return
-        }
+                
+        let selectionBoxInViewFrame: CGRect = selectionBox
         
         for cachedSubviewData in self.visibleNodesViewModel.infiniteCanvasCache {
             let id = cachedSubviewData.key
             var cachedBounds = cachedSubviewData.value
             
-            guard self.visibleNodesViewModel.visibleCanvasIds.contains(id) else { continue }
+            guard self.visibleNodesViewModel.visibleCanvasIds.contains(id) else {
+                continue
+            }
             
             if nodesSelectedOnShift?.contains(id) ?? false {
-                log("skipping canvasItem \(id) since was held as part of shift etc.")
                 continue
             }
             
@@ -200,7 +186,7 @@ extension GraphState {
             let positionOffset = CGPoint(x: nodeSize.width / 2,
                                          y: nodeSize.height / 2)
             cachedBounds.origin -= positionOffset
-            
+                        
             if selectionBoxInViewFrame.intersects(cachedBounds) {
                 selectedNodes.insert(id)
             }

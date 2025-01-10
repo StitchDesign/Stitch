@@ -28,11 +28,11 @@ struct SetDeviceScreenSize: GraphEvent {
 
     func handle(state: GraphState) {
         // Set frame of view
-        //        log("SetDeviceScreenSize: frame: \(frame)")
-        //        log("SetDeviceScreenSize: graphState.graphUI.frame was: \(graphState.graphUI.frame)")
+        // log("SetDeviceScreenSize: frame: \(frame)")
+        // log("SetDeviceScreenSize: state.graphUI.frame was: \(state.graphUI.frame)")
 
         state.graphUI.frame = frame
-        //        log("SetDeviceScreenSize: graphState.graphUI.frame is now: \(graphState.graphUI.frame)")
+        // log("SetDeviceScreenSize: state.graphUI.frame is now: \(state.graphUI.frame)")
     }
 }
 

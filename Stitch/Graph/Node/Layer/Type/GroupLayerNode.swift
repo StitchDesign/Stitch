@@ -115,7 +115,8 @@ struct GroupLayerNode: LayerNodeDefinition {
                         graph: GraphState,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
-                        layersInGroup: LayerDataList, isPinnedViewRendering: Bool,
+                        layersInGroup: LayerDataList,
+                        isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool,
                         parentIsScrollableGrid: Bool,
                         realityContent: Binding<LayerRealityCameraContent?>) -> some View {
