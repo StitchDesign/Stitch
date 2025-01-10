@@ -142,8 +142,6 @@ extension GraphState {
         
         // TODO: pass shift down via the UIKit gesture handler
         let shiftHeld = graphState.keypressState.shiftHeldDuringGesture
-//        let shiftHeld = graphState.keypressState.isShiftPressed
-        log("processCanvasSelectionBoxChange: shiftHeld: \(shiftHeld)")
         
         guard isCurrentlyDragging else {
             // log("processNodeSelectionBoxChange error: expansion box was size zero")
@@ -171,23 +169,15 @@ extension GraphState {
                 
         let selectionBoxInViewFrame: CGRect = selectionBox
         
-         log("processCanvasSelectionBoxChange: cachedSubviewData: selectionBoxInViewFrame.origin: \(selectionBoxInViewFrame.origin)")
-         log("processCanvasSelectionBoxChange: cachedSubviewData: selectionBoxInViewFrame.size: \(selectionBoxInViewFrame.size)")
-        
         for cachedSubviewData in self.visibleNodesViewModel.infiniteCanvasCache {
             let id = cachedSubviewData.key
             var cachedBounds = cachedSubviewData.value
-            
-             log("processCanvasSelectionBoxChange: cachedSubviewData: id: \(id)")
-             log("processCanvasSelectionBoxChange: cachedSubviewData: cachedBounds.origin: \(cachedBounds.origin)")
-             log("processCanvasSelectionBoxChange: cachedSubviewData: cachedBounds.size: \(cachedBounds.size)")
             
             guard self.visibleNodesViewModel.visibleCanvasIds.contains(id) else {
                 continue
             }
             
             if nodesSelectedOnShift?.contains(id) ?? false {
-                log("processCanvasSelectionBoxChange: skipping canvasItem \(id) since was held as part of shift etc.")
                 continue
             }
             

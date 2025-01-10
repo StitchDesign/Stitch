@@ -10,9 +10,13 @@ import StitchSchemaKit
 
 // Grid lines, cursor, selection box, patch and layer nodes
 struct GraphBaseView: View {
+    
     static let coordinateNamespace = "GRAPHBASEVIEW_NAMESPACE"
+    
     @Environment(\.colorScheme) private var colorScheme: ColorScheme
+    
     @Environment(\.safeAreaInsets) private var safeAreaInsets: SafeAreaInsets
+    
     @State private var spaceHeld = false
 
     @Bindable var document: StitchDocumentViewModel
@@ -70,31 +74,9 @@ struct GraphBaseView: View {
     @ViewBuilder
     @MainActor
     var nodesView: some View {
-//        GraphGestureView(document: document) {
-            NodesView(document: document,
-                      graph: graph,
-                      groupTraversedToChild: graphUI.groupTraversedToChild)
-
-                // zoom must come after offset
-                // (rather than before; eg inside the NodesView)
-
-//                .background {
-//                    GraphGestureBackgroundView(document: document) {
-////                        Stitch.APP_BACKGROUND_COLOR
-//                        Color.brown.opacity(0.9)
-//                            .edgesIgnoringSafeArea(.all)
-//                            // TODO: Location seems more accurate placed outside the UIKit wrapper,
-//                            // but doing so messes up rendering
-//                            .onTapGesture(count: 2) { newValue in
-//                                dispatch(GraphDoubleTappedAction(location: newValue))
-//                            }
-//                            .simultaneousGesture(TapGesture().onEnded {
-//                                dispatch(GraphTappedAction())
-//                            })
-//                    } // GraphGestureBackgroundView
-//                } // .background
-            
-//        }  // GraphGestureView
+        NodesView(document: document,
+                  graph: graph,
+                  groupTraversedToChild: graphUI.groupTraversedToChild)
     }
 
     @ViewBuilder
@@ -108,25 +90,7 @@ struct GraphBaseView: View {
                 .frame(width: 60, height: 60)
             #endif
 
-//            Circle().fill(.black.opacity(0.5))
-//                .frame(width: 60, height: 60)
-//                .position(self.document.graphMovement.localPosition)
-//                .zIndex(999999999999999)
-            
             nodesView
-
-//            // Selection box and cursor
-//            if let expansionBox = selectionState.expansionBox {
-//                ExpansionBoxView(graph: graph,
-//                                 box: expansionBox)                
-//            }
-//
-//            if selectionState.isSelecting,
-//               let currentDrag = selectionState.dragCurrentLocation {
-//                CursorDotView(
-//                    currentDragLocation: currentDrag,
-//                    isFingerOnScreenSelection: selectionState.isFingerOnScreenSelection)
-//            }
 
             // To cover top safe area that we don't ignore on iPad and that is gesture-inaccessbile
             Stitch.APP_BACKGROUND_COLOR
@@ -148,17 +112,13 @@ struct GraphBaseView: View {
             GeometryReader { geometry in
                 Color.clear
                     .onChange(of: geometry.frame(in: .local), initial: true) { oldValue, newValue in
-                        log("SIZE READING: GraphBaseView: local frame: newValue: \(newValue)")
+                        // log("SIZE READING: GraphBaseView: local frame: newValue: \(newValue)")
                         dispatch(SetDeviceScreenSize(frame: newValue))
                     }
                     .onChange(of: geometry.frame(in: .global), initial: true) { oldValue, newValue in
-                        log("SIZE READING: GraphBaseView: global frame: newValue: \(newValue)")
+                        // log("SIZE READING: GraphBaseView: global frame: newValue: \(newValue)")
                         dispatch(SetGraphYPosition(graphYPosition: newValue.origin.y))
                         dispatch(SetSidebarWidth(frame: newValue))
-                    }
-                    .onChange(of: geometry.frame(in: .named(WHOLE_GRAPH_COORDINATE_SPACE)), initial: true) { oldValue, newValue in
-                        log("SIZE READING: GraphBaseView: WHOLE GRAPH frame: newValue: \(newValue)")
-                        graph.graphUI.frameFromGraphBaseView = newValue
                     }
             } // GeometryReader
         } // .background
