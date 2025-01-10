@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-struct ExpansionBox {
+struct ExpansionBox: Equatable {
 
     var expansionDirection: ExpansionDirection = .none
 

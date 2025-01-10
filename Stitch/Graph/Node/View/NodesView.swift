@@ -48,24 +48,31 @@ struct NodesView: View {
             .getViewData(groupNodeFocused: graphUI.groupNodeFocused?.groupNodeId) ?? .init()
         
         // CommentBox needs to be affected by graph offset and zoom
-        // but can live somewhere else?
+//         but can live somewhere else?
         InfiniteCanvas(graph: graph,
                        existingCache: graph.visibleNodesViewModel.infiniteCanvasCache,
                        needsInfiniteCanvasCacheReset: graph.visibleNodesViewModel.needsInfiniteCanvasCacheReset) {
+            
             //                        commentBoxes
+            
             nodesOnlyView(nodePageData: nodePageData)
         }
            .modifier(CanvasEdgesViewModifier(document: document,
                                              graph: graph,
                                              graphUI: graphUI))
+        
            .transition(.groupTraverse(isVisitingChild: groupTraversedToChild,
                                       nodeLocation: groupNodeLocation,
                                       graphOffset: .zero))
+        
            .coordinateSpace(name: Self.coordinateNameSpace)
+        
            .modifier(GraphMovementViewModifier(graphMovement: graph.graphMovement,
                                                currentNodePage: nodePageData,
                                                graph: graph,
                                                groupNodeFocused: graphUI.groupNodeFocused))
+        // should come after edges, so that edges are offset, scaled etc.
+           .modifier(StitchUIScrollViewModifier(document: document))
     }
     
     // TODO: better location for CommentBoxes?

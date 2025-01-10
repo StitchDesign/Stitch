@@ -12,26 +12,83 @@ import StitchSchemaKit
 // Actions and helpers related to the nodes-selection box
 // (ie what shows up when we long press on the graph or click+drag graph via trackpad)
 
+struct GraphBackgroundLongPressed: StitchDocumentEvent {
+    let location: CGPoint
+    
+    @MainActor // All actions already happen on main thread?
+    func handle(state: StitchDocumentViewModel) {
+        log("GraphBackgroundLongPressed called")
+        state.graphUI.selection.isSelecting = true
+        state.graphUI.selection.dragStartLocation = location
+        state.graphUI.selection.dragCurrentLocation = location
+        state.graphUI.selection.isFingerOnScreenSelection = true
+//        state.graphUI.selection.expansionBox = .init(origin: location, size: .zero)
+        state.graphUI.selection.expansionBox = .init()
+        state.graphUI.selection.expansionBox?.startPoint = location
+        state.graphUI.selection.graphDragState = .none
+    }
+}
+
+struct GraphBackgroundLongPressEnded: StitchDocumentEvent {
+    
+    @MainActor
+    func handle(state: StitchDocumentViewModel) {
+        log("GraphBackgroundLongPressEnded called")
+        state.graphUI.selection.dragStartLocation = nil
+        state.graphUI.selection.dragCurrentLocation = nil
+        state.graphUI.selection.expansionBox = nil
+        state.graphUI.selection.isSelecting = false
+        state.graphMovement.localPreviousPosition = state.graphMovement.localPosition
+    }
+}
+
+struct GraphBackgroundTrackpadDragged: StitchDocumentEvent {
+    
+    let translation: CGSize
+    let location: CGPoint
+    let velocity: CGPoint
+    let numberOfTouches: Int
+    let gestureState: UIGestureRecognizer.State
+    let shiftHeld: Bool
+    
+    func handle(state: StitchDocumentViewModel) {
+        
+        if state.keypressState.isSpacePressed || state.graphUI.activeSpacebarClickDrag {
+            log("GraphBackgroundTrackpadDragged: space held, or have active spacebar drag, so will exit early")
+            
+            return
+        } else {
+            state.trackpadDragWhileSpaceNotHeld(
+                translation: translation,
+                location: location,
+                velocity: velocity,
+                numberOfTouches: numberOfTouches,
+                gestureState: gestureState,
+                shiftHeld: shiftHeld)
+        }
+    }
+}
+
+
 extension StitchDocumentViewModel {
-    @MainActor
-    func screenLongPressed(location: CGPoint) {
-        self.graphUI.selection.isSelecting = true
-        self.graphUI.selection.dragStartLocation = location
-        self.graphUI.selection.dragCurrentLocation = location
-        self.graphUI.selection.isFingerOnScreenSelection = true
-        self.graphUI.selection.expansionBox = .init(origin: location, size: .zero)
-        self.graphUI.selection.graphDragState = .none
-    }
 
+    
     @MainActor
-    func screenLongPressEnded() {
-        self.graphUI.selection.dragStartLocation = nil
-        self.graphUI.selection.dragCurrentLocation = nil
-        self.graphUI.selection.expansionBox = nil
-        self.graphUI.selection.isSelecting = false
-        self.graphMovement.localPreviousPosition = self.graphMovement.localPosition
-    }
+    func trackpadDragWhileSpaceNotHeld(translation: CGSize,
+                                       location: CGPoint,
+                                       velocity: CGPoint,
+                                       numberOfTouches: Int,
+                                       gestureState: UIGestureRecognizer.State,
+                                       shiftHeld: Bool) {
+        self.graphUI.activeSpacebarClickDrag = false
 
+        self.clickDragAsNodeSelection(translation: translation,
+                                      location: location,
+                                      gestureState: gestureState,
+                                      numberOfTouches: numberOfTouches,
+                                      shiftHeld: shiftHeld)
+    }
+    
     @MainActor
     func trackpadClickDrag(translation: CGSize,
                            location: CGPoint,
@@ -67,6 +124,7 @@ extension StitchDocumentViewModel {
             self.graphUI.activeSpacebarClickDrag = false
         }
 
+        //
         if spaceHeld {
 
             // Start an active graph gesture
@@ -123,6 +181,7 @@ extension StitchDocumentViewModel {
                                   shiftHeld: Bool) {
         switch gestureState {
         case .began:
+            // log("clickDragAsNodeSelection: began: location: \(location)")
             //        return handleTrackpadDragStarted(
             if numberOfTouches == 1 {
                 self.handleTrackpadDragStarted(
@@ -130,6 +189,7 @@ extension StitchDocumentViewModel {
             }
 
         case .changed:
+            // log("clickDragAsNodeSelection: changed: location: \(location)")
             //        return handleTrackpadGraphDragChanged(
             if numberOfTouches == 1 {
                 self.handleTrackpadGraphDragChanged(
@@ -148,15 +208,21 @@ extension StitchDocumentViewModel {
 
     @MainActor
     func handleTrackpadDragStarted(location: CGPoint) {
-        let graphUI = self.graphUI
-        graphUI.selection.dragStartLocation = location
-        graphUI.selection.dragCurrentLocation = location
-        graphUI.selection.isFingerOnScreenSelection = false
-        graphUI.selection.expansionBox = .init(origin: location, size: .zero)
-        graphUI.selection.isSelecting = true
-        graphUI.selection.graphDragState = .none
+        
+        // log("handleTrackpadDragStarted: self.graphUI.selection.isFingerOnScreenSelection was: \(self.graphUI.selection.isFingerOnScreenSelection)")
+        
+        self.graphUI.selection.dragStartLocation = location
+        self.graphUI.selection.dragCurrentLocation = location
+        self.graphUI.selection.isFingerOnScreenSelection = false
+//        self.graphUI.selection.expansionBox = .init(origin: location, size: .zero)
+        self.graphUI.selection.expansionBox = .init()
+        self.graphUI.selection.expansionBox?.startPoint = location
+        self.graphUI.selection.isSelecting = true
+        self.graphUI.selection.graphDragState = .none
 
         self.visibleGraph.selectedEdges = .init()
+        
+        // log("handleTrackpadDragStarted: self.graphUI.selection.isFingerOnScreenSelection is now: \(self.graphUI.selection.isFingerOnScreenSelection)")
     }
 
     @MainActor

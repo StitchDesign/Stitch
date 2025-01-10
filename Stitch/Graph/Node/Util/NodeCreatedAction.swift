@@ -34,18 +34,22 @@ extension StitchDocumentViewModel {
     @MainActor
     var newNodeCenterLocation: CGPoint {
         // `state.graphUI.center` is always proper center
-        self.adjustedDoubleTapLocation(self.localPosition) ?? self.graphUI.center(self.localPosition, graphScale: self.graph.graphMovement.zoomData.zoom)
+        // self.adjustedDoubleTapLocation(self.localPosition) ?? self.graphUI.center(self.localPosition, graphScale: self.graph.graphMovement.zoomData.zoom)
+        
+        if let doubleTapLocation = self.graphUI.doubleTapLocation {
+            log("newNodeCenterLocation: had doubleTapLocation: \(doubleTapLocation)")
+            return adjustPositionToMultipleOf(doubleTapLocation)
+        } else {
+            return self.viewPortCenter
+        }
     }
     
     @MainActor
     var newLayerPropertyLocation: CGPoint {
-        // `state.graphUI.center` is always proper center
-        var center = self.adjustedDoubleTapLocation(self.localPosition) ?? self.graphUI.center(
-            self.localPosition,
-            graphScale: self.graph.graphMovement.zoomData.zoom)
-                
+        var center = self.viewPortCenter
+
         // Slightly move off-center, since preview window can often partially cover up the just added property
-        center.x -= CGFloat(SQUARE_SIDE_LENGTH)
+        center.x -= CGFloat(SQUARE_SIDE_LENGTH * 6)
         
         return center
     }
@@ -54,7 +58,7 @@ extension StitchDocumentViewModel {
     @MainActor
     func nodeCreated(choice: NodeKind, center: CGPoint? = nil) -> NodeViewModel? {
         let nodeCenter = center ?? self.newNodeCenterLocation
-
+        
         guard let node = self.createNode(
                 graphTime: self.graphStepManager.graphStepState.graphTime,
                 newNodeId: UUID(),
@@ -69,6 +73,39 @@ extension StitchDocumentViewModel {
         self.nodeCreated(node: node)
         return node
     }
+    
+    
+    /// Current center of user's view onto the graph
+    @MainActor
+    var viewPortCenter: CGPoint {
+        let localPosition = self.graphMovement.localPosition
+        let scale = self.graphMovement.zoomData.final
+        let viewPortFrame = self.graphUI.frame
+            
+        // Apply scale to the viewPort-centering
+        let scaledViewPortFrame = CGPoint(
+            x: viewPortFrame.width/2 * 1/scale,
+            y: viewPortFrame.height/2 * 1/scale
+        )
+        
+        // UIScrollView's .contentOffset needs to have its .zoomScale factored out
+        // https://stackoverflow.com/questions/3051361/how-much-contentoffset-changes-in-uiscrollview-for-zooming
+        let descaledLocalPosition = CGPoint(
+            x: localPosition.x / scale,
+            y: localPosition.y / scale
+        )
+                
+        let center = CGPoint(
+            x: descaledLocalPosition.x + scaledViewPortFrame.x,
+            y: descaledLocalPosition.y + scaledViewPortFrame.y
+        )
+
+        // Finally: adjust the position to sit on our grid
+        let centerAdjustedForGrid = adjustPositionToMultipleOf(center)
+        
+        return centerAdjustedForGrid
+    }
+    
 
     @MainActor
     func nodeCreated(node: NodeViewModel) {

@@ -13,13 +13,15 @@ import StitchViewKit
 struct CopyPasteGraphDestinationInfo: Equatable {
     let destinationGraphOffset: CGPoint
     let destinationGraphFrame: CGRect
+    let destinationGraphScale: CGFloat
 }
 
 
 @MainActor
 func adjustPastedNodesPositions(pastedNodes: [NodeEntity],
                                 destinationGraphOffset: CGPoint,
-                                destinationGraphFrame: CGRect) -> [NodeEntity] {
+                                destinationGraphFrame: CGRect,
+                                destinationGraphScale: CGFloat) -> [NodeEntity] {
 
     // Adjust the position of pasted nodes,
     // so that they are pasted in views
@@ -42,19 +44,24 @@ func adjustPastedNodesPositions(pastedNodes: [NodeEntity],
         var node = node
 
         node = node.canvasEntityMap { canvasEntity in
-            log("canvasEntityMap closure from adjustPastedNodesPositions")
+            
             var canvasEntity = canvasEntity
             
             canvasEntity.position.x -= averageX
             canvasEntity.position.y -= averageY
             
             // Factor out graph offset of paste-destination projects
-            canvasEntity.position.x -= destinationGraphOffset.x
-            canvasEntity.position.y -= destinationGraphOffset.y
+            // SEE `StitchDocumentViewModel.viewPortCenter`
+            let descaledLocalPosition = CGPoint(
+                x: destinationGraphOffset.x / destinationGraphScale,
+                y: destinationGraphOffset.y / destinationGraphScale
+            )
+            canvasEntity.position.x += descaledLocalPosition.x
+            canvasEntity.position.y += descaledLocalPosition.y
             
             // Add 1/2 width and height to account for node position 0,0 = top left vs. graph postion 0,0 = center
-            canvasEntity.position.x += destinationGraphFrame.width/2
-            canvasEntity.position.y += destinationGraphFrame.height/2
+            canvasEntity.position.x += destinationGraphFrame.width/2 * 1/destinationGraphScale
+            canvasEntity.position.y += destinationGraphFrame.height/2 * 1/destinationGraphScale
             
             return canvasEntity
         }
@@ -169,7 +176,9 @@ extension GraphState {
                                isCopyPaste: Bool) async where T: StitchComponentable {
         let (newComponent, nodeIdMap) = Self.updateCopiedNodes(
             component: component,
-            destinationGraphInfo: isCopyPaste ? .init(destinationGraphOffset: self.localPosition, destinationGraphFrame: self.graphUI.frame) : nil
+            destinationGraphInfo: isCopyPaste ? .init(destinationGraphOffset: self.localPosition,
+                                                      destinationGraphFrame: self.graphUI.frame,
+                                                      destinationGraphScale: self.graphMovement.zoomData.zoom) : nil
         )
         let encoderDelegate = self.documentEncoderDelegate      // keep optional for unit tests
         
@@ -234,7 +243,8 @@ extension GraphState {
             newComponent.graph.nodes = adjustPastedNodesPositions(
                 pastedNodes: newComponent.graph.nodes,
                 destinationGraphOffset: destinationGraphInfo.destinationGraphOffset,
-                destinationGraphFrame: destinationGraphInfo.destinationGraphFrame)
+                destinationGraphFrame: destinationGraphInfo.destinationGraphFrame,
+                destinationGraphScale: destinationGraphInfo.destinationGraphScale)
         }
         
         // else is duplication, which uses staggering strategy for node re-positioning

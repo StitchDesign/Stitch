@@ -10,9 +10,13 @@ import StitchSchemaKit
 
 // Grid lines, cursor, selection box, patch and layer nodes
 struct GraphBaseView: View {
+    
     static let coordinateNamespace = "GRAPHBASEVIEW_NAMESPACE"
+    
     @Environment(\.colorScheme) private var colorScheme: ColorScheme
+    
     @Environment(\.safeAreaInsets) private var safeAreaInsets: SafeAreaInsets
+    
     @State private var spaceHeld = false
 
     @Bindable var document: StitchDocumentViewModel
@@ -70,29 +74,9 @@ struct GraphBaseView: View {
     @ViewBuilder
     @MainActor
     var nodesView: some View {
-        GraphGestureView(document: document) {
-            NodesView(document: document,
-                      graph: graph,
-                      groupTraversedToChild: graphUI.groupTraversedToChild)
-
-                // zoom must come after offset
-                // (rather than before; eg inside the NodesView)
-
-                .background {
-                    GraphGestureBackgroundView(document: document) {
-                        Stitch.APP_BACKGROUND_COLOR
-                            .edgesIgnoringSafeArea(.all)
-                            // TODO: Location seems more accurate placed outside the UIKit wrapper,
-                            // but doing so messes up rendering
-                            .onTapGesture(count: 2) { newValue in
-                                dispatch(GraphDoubleTappedAction(location: newValue))
-                            }
-                            .simultaneousGesture(TapGesture().onEnded {
-                                dispatch(GraphTappedAction())
-                            })
-                    } // GraphGestureBackgroundView
-                } // .background
-        } // GraphGestureView
+        NodesView(document: document,
+                  graph: graph,
+                  groupTraversedToChild: graphUI.groupTraversedToChild)
         .overlay {
             // Show debug mode tip view
             if document.isDebugMode {
@@ -120,19 +104,6 @@ struct GraphBaseView: View {
 
             nodesView
 
-            // Selection box and cursor
-            if let expansionBox = selectionState.expansionBox {
-                ExpansionBoxView(graph: graph,
-                                 box: expansionBox)                
-            }
-
-            if selectionState.isSelecting,
-               let currentDrag = selectionState.dragCurrentLocation {
-                CursorDotView(
-                    currentDragLocation: currentDrag,
-                    isFingerOnScreenSelection: selectionState.isFingerOnScreenSelection)
-            }
-
             // To cover top safe area that we don't ignore on iPad and that is gesture-inaccessbile
             Stitch.APP_BACKGROUND_COLOR
                 .edgesIgnoringSafeArea(.all).zIndex(-10)
@@ -153,7 +124,7 @@ struct GraphBaseView: View {
             GeometryReader { geometry in
                 Color.clear
                     .onChange(of: geometry.frame(in: .local), initial: true) { oldValue, newValue in
-                       // log("SIZE READING: GraphBaseView: local frame: newValue: \(newValue)")
+                        // log("SIZE READING: GraphBaseView: local frame: newValue: \(newValue)")
                         dispatch(SetDeviceScreenSize(frame: newValue))
                     }
                     .onChange(of: geometry.frame(in: .global), initial: true) { oldValue, newValue in
@@ -161,8 +132,8 @@ struct GraphBaseView: View {
                         dispatch(SetGraphYPosition(graphYPosition: newValue.origin.y))
                         dispatch(SetSidebarWidth(frame: newValue))
                     }
-            }
-        }
+            } // GeometryReader
+        } // .background
     }
 }
 
@@ -203,36 +174,3 @@ struct GraphHoverViewModifier: ViewModifier {
 #endif
     }
 }
-
-func MOCK_NAMESPACE_ID() -> Namespace.ID {
-    Namespace.init().wrappedValue
-}
-
-// struct GraphBaseView_REPL: View {
-//     var body: some View {
-//         let graphState = GraphState()
-//         let node = splitterPatchNode(nodeId: TestIds._0,
-//                                      position: .zero)
-//         graphState.updatePatchNode(node)
-
-//         let visibleNodes: VisibleNodes = [.patch(TestIds._0)]
-
-//         let computedGraph = ComputedGraphState(visibleNodes: visibleNodes)
-//         let project = devDefaultProject(graph: graphState, computedGraph: computedGraph)
-
-//         return GraphBaseView(broadcastChoices: .init(),
-//                              computedGraph: project.computedGraph,
-//                              projectName: project.metadata.name,
-//                              projectId: project.metadata.projectId,
-//                              namespace: MOCK_NAMESPACE_ID(),
-//                              previewWindowSize: graphState.previewWindowSize, previewingNodeChoice: nil)
-//     }
-// }
-
-// struct GraphBase_Previews: PreviewProvider {
-//     static var previews: some View {
-//         GraphBaseView_REPL()
-//             //            .previewInterfaceOrientation(.landscapeLeft)
-//             .previewInterfaceOrientation(.portrait)
-//     }
-// }

@@ -156,10 +156,7 @@ extension GraphState {
                          // drag vs long-press
                          wasDrag: Bool) {
         
-
-        #if DEV_DEBUG
-        log("canvasItemMoved: original id: \(id)")
-        #endif
+        // log("canvasItemMoved: original id: \(id)")
 
         // Edges should *never* animate when node is being dragged
         self.graphUI.edgeAnimationEnabled = false
@@ -180,9 +177,7 @@ extension GraphState {
          */
         // TODO: pass isCommandPressed down from the gesture handler
         if !wasDrag && (self.documentDelegate?.keypressState.isCommandPressed ?? false) {
-            #if DEV_DEBUG
             log("canvasItemMoved: we long pressed while holding command; doing nothing; this logic will instead be handled by NodeTapped")
-            #endif
             return
         }
 
@@ -192,9 +187,7 @@ extension GraphState {
         // Overall, node duplication logic needs to be thought through with multigestures in mind.
         if let draggedCanvasItem = self.graphMovement.draggedCanvasItem,
            draggedCanvasItem != canvasItem.id {
-            #if DEV_DEBUG
             log("canvasItemMoved: some other node is already dragged: \(draggedCanvasItem)")
-            #endif
             return
         }
 
@@ -215,9 +208,7 @@ extension GraphState {
         if self.graphMovement.firstActive == .graph {
 
             if !self.graphMovement.runningGraphTranslationBeforeNodeDragged.isDefined {
-                #if DEV_DEBUG
                 log("canvasItemMoved: setting runningGraphTranslationBeforeNodeDragged to be self.graphMovement.runningGraphTranslation: \(self.graphMovement.runningGraphTranslation)")
-                #endif
                 self.graphMovement
                     .runningGraphTranslationBeforeNodeDragged = (
                         self.graphMovement.runningGraphTranslation ?? .zero) / self.graphMovement.zoomData.zoom
@@ -304,13 +295,14 @@ extension StitchDocumentViewModel {
                 previousPosition: canvasItem.previousPosition,
                 nodeSize: nodeSize)
             
-            let positionAtStart = canvasItem.previousPosition
+//            let positionAtStart = canvasItem.previousPosition
             canvasItem.previousPosition = canvasItem.position
+            log("handleNodeMoveEnded: canvasItem id \(canvasItem.id) is now at position \(canvasItem.position)")
             
             // Refresh ports
             canvasItem.updatePortLocations()
             
-            let diff = canvasItem.position - positionAtStart
+//            let diff = canvasItem.position - positionAtStart
 //            self.maybeCreateLLMMoveNode(canvasItem: canvasItem,
 //                                        diff: diff)
         }
