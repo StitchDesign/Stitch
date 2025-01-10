@@ -13,7 +13,6 @@ import RealityKit
 final class StitchEntity: NSObject, Sendable {
     let id: MediaObjectId
     let sourceURL: URL
-    let nodeId: NodeId
     
     // This is what we want to apply the transform to
     // so that we don't have to keep track of the asset's root transform and a user transform separately
@@ -41,12 +40,10 @@ final class StitchEntity: NSObject, Sendable {
     
     @MainActor
     init(id: MediaObjectId,
-         nodeId: NodeId,
          sourceURL: URL,
          isAnimating: Bool,
          initialTransform: matrix_float4x4? = nil) async throws {
         self.id = id
-        self.nodeId = nodeId
         self.sourceURL = sourceURL
         self.isAnimating = isAnimating
         self.containerEntity = ModelEntity()
@@ -71,8 +68,21 @@ final class StitchEntity: NSObject, Sendable {
         // Add a collision component to the parentEntity with a rough shape and appropriate offset for the model that it contains
         let entityBounds = self.importEntity.visualBounds(relativeTo: self.containerEntity)
         self.containerEntity.collision = CollisionComponent(shapes: [ShapeResource.generateBox(size: entityBounds.extents).offsetBy(translation: entityBounds.center)])
-
+        
         super.init()
+    }
+}
+
+extension StitchEntity {
+    @MainActor
+    func createCopy() async throws -> StitchEntity {
+        let entity = try await StitchEntity(id: .init(),
+                                            sourceURL: self.sourceURL,
+                                            isAnimating: self.isAnimating)
+        
+        entity.importEntity.transform = self.importEntity.transform
+        entity.containerEntity.transform = self.containerEntity.transform
+        return entity
     }
     
     @MainActor func applyMatrix(newMatrix: matrix_float4x4) {

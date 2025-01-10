@@ -141,8 +141,8 @@ struct Preview3DModelLayer: View {
 
 struct ModelEntityLayerViewModifier: ViewModifier {
     @State private var anchorEntity: AnchorEntity = .init()
+    @Bindable var previewLayer: LayerViewModel
     
-    let previewLayer: LayerViewModel
     let entity: StitchEntity?
     let realityContent: LayerRealityCameraContent
     let graph: GraphState
@@ -244,7 +244,22 @@ struct ModelEntityLayerViewModifier: ViewModifier {
             }
             .onChange(of: self.gestures) {
                 if let entity = self.entity {
-                    self.assignGestures(entity: entity)
+                    
+                    // MARK: if gestures change, the only way to remove a previously-assigned gesture is to remove the entity entirely, recreate it, and then re-assign gestures
+                    Task { [weak entity] in
+                        guard let entity = entity,
+                              let entityCopy = try? await entity.createCopy() else {
+                            return
+                        }
+                     
+                        await MainActor.run { [weak entityCopy] in
+                            guard let entityCopy = entityCopy else { return }
+                            previewLayer.mediaObject = .model3D(entityCopy)
+                            self.anchorEntity.addChild(entityCopy.containerEntity)
+                            
+                            self.assignGestures(entity: entityCopy)
+                        }
+                    }
                 }
             }
             .onDisappear {

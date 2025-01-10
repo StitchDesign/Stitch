@@ -24,8 +24,7 @@ final actor MediaLayerImportCoordinator {
             .createMediaValue(from: mediaKey,
                               isComputedCopy: false,
                               mediaId: mediaValue.id,
-                              graphDelegate: document.visibleGraph,
-                              nodeId: mediaRowObserver?.id.nodeId)?.mediaObject
+                              graphDelegate: document.visibleGraph)?.mediaObject
         
         // Update fields to refresh media name in dropdown
         if let newMediaObject = newMediaObject {
