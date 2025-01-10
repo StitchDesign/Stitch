@@ -50,7 +50,8 @@ extension NodeRowObserver {
     @MainActor
     var nodeKind: NodeKind {
         guard let nodeKind = self.nodeDelegate?.kind else {
-            fatalErrorIfDebug()
+            // Gets called on layer deletion, commenting out fatal error
+//            fatalErrorIfDebug()
             return .patch(.splitter)
         }
         
