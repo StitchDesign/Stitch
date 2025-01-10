@@ -87,9 +87,9 @@ func calculateMove(_ graphViewFrame: CGRect,
     let newOffset = CGPoint(x: distance.x,
                             y: distance.y)
 
-    log("calculateMove: childPosition: \(childPosition)")
-    log("calculateMove: distance: \(distance)")
-    log("calculateMove: newOffset: \(newOffset)")
+    // log("calculateMove: childPosition: \(childPosition)")
+    // log("calculateMove: distance: \(distance)")
+    // log("calculateMove: newOffset: \(newOffset)")
 
     return newOffset
 }

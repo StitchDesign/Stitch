@@ -31,33 +31,6 @@ extension GraphState {
                 n.position.x < n2.position.x
             }
     }
-
-//    // Do we want the node's "position" or its cached-bounds origin ?
-//    @MainActor
-//    func westernMostNodeForBorderCheck() -> CanvasItemViewModel? {
-//        GraphState.westernMostNode(self.groupNodeFocused,
-//                                   canvasItems: self.getVisibleCanvasItems().filter(\.isVisibleInFrame))
-//    }
-//    
-//    @MainActor
-//    func easternMostNodeForBorderCheck() -> CanvasItemViewModel? {
-//        GraphState.easternMostNode(self.groupNodeFocused,
-//                                   canvasItems: self.getVisibleCanvasItems().filter(\.isVisibleInFrame))
-//    }
-//    
-//    // Do we want the node's "position" or its cached-bounds origin ?
-//    @MainActor
-//    func northernMostNodeForBorderCheck() -> CanvasItemViewModel? {
-//        GraphState.northernMostNode(self.groupNodeFocused,
-//                                    canvasItems: self.getVisibleCanvasItems().filter(\.isVisibleInFrame))
-//    }
-//    
-//    @MainActor
-//    func southernMostNodeForBorderCheck() -> CanvasItemViewModel? {
-//        GraphState.southernMostNode(self.groupNodeFocused,
-//                                    canvasItems: self.getVisibleCanvasItems().filter(\.isVisibleInFrame))
-//    }
-    
     
     // Do we want the node's "position" or its cached-bounds origin ?
     @MainActor
