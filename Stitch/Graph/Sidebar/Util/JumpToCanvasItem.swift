@@ -33,39 +33,16 @@ struct FindSomeCanvasItemOnGraph: GraphEvent {
 }
 
 extension GraphState {
-    // TODO: DEC 12: anywhere this isn't being used but should be?
+    // TODO: anywhere this isn't being used but should be?
     @MainActor
     func panGraphToNodeLocation(id: CanvasItemId) {
         guard let canvasItem = self.getCanvasItem(id) else {
             fatalErrorIfDebug("panGraphToNodeLocation: no canvasItem found")
             return
         }
+                
+        let newLocation = calculateMove(self.graphUI.frame, canvasItem.position)
         
-        log("panGraphToNodeLocation: canvasItem \(id)")
-
-        // location of canvasItem
-        let position = canvasItem.position
-        // ^^ should already exist when new group node created, because the child node already existed
-        
-        log("panGraphToNodeLocation: position \(position)")
-
-        let newLocation = calculateMove(
-            // size of GraphBaseView
-            self.graphUI.frame,
-            position)
-        
-        log("panGraphToNodeLocation: newLocation \(newLocation)")
-        
-        
-
-        // TODO: how to slowly move over to the tapped layer? Using `withAnimation` on just graph offset does not animate the edges. (There's also a canvasItem text issue?)
-        //        withAnimation(.easeInOut) {
-//        self.graphMovement.localPosition = newLocation
-//        self.graphMovement.localPreviousPosition = newLocation
-        //        }
-
-//        self.graphUI.canvasJumpLocation = newLocation
-
         guard let cachedBounds = self.visibleNodesViewModel.infiniteCanvasCache.get(id) else {
             fatalErrorIfDebug("Could not find cached bounds for canvas item \(id)")
             return
@@ -78,10 +55,7 @@ extension GraphState {
             x: (cachedBounds.origin.x * scale) - self.graphUI.frame.size.width/2,
             y: (cachedBounds.origin.y * scale) - self.graphUI.frame.size.height/2
         )
-        
-        log("panGraphToNodeLocation: scale: \(scale)")
-        log("panGraphToNodeLocation: jumpPosition: \(jumpPosition)")
-        
+                
         self.graphUI.canvasJumpLocation = jumpPosition
         
         self.graphUI.selection = GraphUISelectionState()
