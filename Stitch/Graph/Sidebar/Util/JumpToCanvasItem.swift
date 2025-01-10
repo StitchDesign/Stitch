@@ -20,6 +20,17 @@ struct JumpToCanvasItem: GraphEvent {
     }
 }
 
+struct JumpToAssignedBroadcaster: GraphEvent {
+    
+    let wirelessReceiverNodeId: NodeId
+    
+    func handle(state: GraphState) {
+        if let assignedBroadcaster = state.getNodeViewModel(wirelessReceiverNodeId)?.currentBroadcastChoiceId {
+            state.panGraphToNodeLocation(id: .node(assignedBroadcaster))
+        }
+    }
+}
+
 struct FindSomeCanvasItemOnGraph: GraphEvent {
     
     func handle(state: GraphState) {
