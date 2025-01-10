@@ -181,7 +181,7 @@ extension StitchDocumentViewModel {
                                   shiftHeld: Bool) {
         switch gestureState {
         case .began:
-            log("clickDragAsNodeSelection: began: location: \(location)")
+            // log("clickDragAsNodeSelection: began: location: \(location)")
             //        return handleTrackpadDragStarted(
             if numberOfTouches == 1 {
                 self.handleTrackpadDragStarted(
@@ -189,7 +189,7 @@ extension StitchDocumentViewModel {
             }
 
         case .changed:
-            log("clickDragAsNodeSelection: changed: location: \(location)")
+            // log("clickDragAsNodeSelection: changed: location: \(location)")
             //        return handleTrackpadGraphDragChanged(
             if numberOfTouches == 1 {
                 self.handleTrackpadGraphDragChanged(
@@ -209,7 +209,7 @@ extension StitchDocumentViewModel {
     @MainActor
     func handleTrackpadDragStarted(location: CGPoint) {
         
-        log("handleTrackpadDragStarted: self.graphUI.selection.isFingerOnScreenSelection was: \(self.graphUI.selection.isFingerOnScreenSelection)")
+        // log("handleTrackpadDragStarted: self.graphUI.selection.isFingerOnScreenSelection was: \(self.graphUI.selection.isFingerOnScreenSelection)")
         
         self.graphUI.selection.dragStartLocation = location
         self.graphUI.selection.dragCurrentLocation = location
@@ -222,7 +222,7 @@ extension StitchDocumentViewModel {
 
         self.visibleGraph.selectedEdges = .init()
         
-        log("handleTrackpadDragStarted: self.graphUI.selection.isFingerOnScreenSelection is now: \(self.graphUI.selection.isFingerOnScreenSelection)")
+        // log("handleTrackpadDragStarted: self.graphUI.selection.isFingerOnScreenSelection is now: \(self.graphUI.selection.isFingerOnScreenSelection)")
     }
 
     @MainActor

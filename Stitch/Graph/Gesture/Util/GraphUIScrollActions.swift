@@ -498,6 +498,7 @@ extension StitchDocumentViewModel {
             return
         }
         
+        
 //        var box = self.graphUI.selection.expansionBox ?? .init(origin: gestureStartLocation, size: .zero)
 
 //        let size = CGSize(width: gestureLocation.x - gestureStartLocation.x,
@@ -541,14 +542,6 @@ extension StitchDocumentViewModel {
                                 wasScreenDrag: false)
             return
         }
-
-//        // Dragging on the graph restarts the momentum.
-//        // NOTE: we must do this before updating the position,
-//        // in order to make sure that the updatePosition call
-//        // has a previousPosition that reflects the momentum movement.
-//        if self.graphMovement.shouldRun {
-//            self.graphMovement.resetGraphMovement()
-//        }
 
         //    log("handleGraphScrolled: state.graphUI.graphMovement.localPosition was: \(state.graphUI.graphMovement.localPosition)")
 //

@@ -93,7 +93,6 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
     }
     
     func makeUIView(context: Context) -> UIScrollView {
-        log("StitchUIScrollView: makeUIView")
         let scrollView = UIScrollView()
         
         // Enable zooming
@@ -127,28 +126,17 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         ])
         
         scrollView.contentSize = contentSize
-        
-        // TODO: DEC 12: Did this cause any manual UIPanGesture change of contentOffset on a zoomed view to become super buggy?
-        
-        // TODO: DEC 12: initialize with proper persisted localPosition; using WHOLE_GRAPH_LENGTH/2 if it's a brand new project
-        
+                
         self.initializeContentOffset(scrollView)
                 
         return scrollView
     }
     
     private func initializeContentOffset(_ scrollView: UIScrollView) {
-        // ALSO: NOTE: CAREFUL: LOCAL POSITION IS STILL PERSISTED
         DispatchQueue.main.async {
             let newOffset =  CGPoint(x: WHOLE_GRAPH_LENGTH/2,
                                      y: WHOLE_GRAPH_LENGTH/2)
-                        
-//            let newOffset =  CGPoint(x: 500, y: 500)
-//            let newOffset =  CGPoint(x: 1500, // moves whole graph WEST
-//                                     y: 20) // moves whole graph NORTH
-            
             scrollView.setContentOffset(newOffset, animated: false)
-                        
             dispatch(GraphScrollDataUpdated(
                 newOffset: newOffset,
                 newZoom: scrollView.zoomScale
@@ -158,54 +146,33 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
     
 
     func updateUIView(_ uiView: UIScrollView, context: Context) {
-        log("StitchUIScrollView: updateUIView")
-        
         // Update content when SwiftUI view changes
         context.coordinator.hostingController.rootView = content
         
-        
         if let canvasJumpLocation = document.graphUI.canvasJumpLocation {
-            
-            log("StitchUIScrollView: updateUIView: had canvasJumpLocation: \(canvasJumpLocation)")
-            
-            // Jump
-            uiView.setContentOffset(canvasJumpLocation,
-                                    animated: true)
-            
+            uiView.setContentOffset(canvasJumpLocation, animated: true)
             dispatch(GraphScrollDataUpdated(
                 newOffset: uiView.contentOffset,
                 newZoom: uiView.zoomScale
             ))
-            
-            // and then set nil
             document.graphUI.canvasJumpLocation = nil
         }
         
         if document.graphUI.canvasZoomedIn {
-            log("StitchUIScrollView: updateUIView: will zoom in")
-            log("StitchUIScrollView: updateUIView: uiView.zoomScale was \(uiView.zoomScale)")
             uiView.zoomScale += ZOOM_COMMAND_RATE
-            log("StitchUIScrollView: updateUIView: uiView.zoomScale is now \(uiView.zoomScale)")
-            
             dispatch(GraphScrollDataUpdated(
                 newOffset: uiView.contentOffset,
                 newZoom: uiView.zoomScale
             ))
-            
             document.graphUI.canvasZoomedIn = false
         }
         
         if document.graphUI.canvasZoomedOut {
-            log("StitchUIScrollView: updateUIView: will zoom out")
-            log("StitchUIScrollView: updateUIView: uiView.zoomScale was \(uiView.zoomScale)")
             uiView.zoomScale -= ZOOM_COMMAND_RATE
-            log("StitchUIScrollView: updateUIView: uiView.zoomScale is now \(uiView.zoomScale)")
-            
             dispatch(GraphScrollDataUpdated(
                 newOffset: uiView.contentOffset,
                 newZoom: uiView.zoomScale
             ))
-            
             document.graphUI.canvasZoomedOut = false
         }
         
@@ -252,37 +219,14 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         }
         
         func scrollViewDidZoom(_ scrollView: UIScrollView) {
-            let contentOffset = scrollView.contentOffset
-            let contentSize = scrollView.contentSize
-            let scale = scrollView.zoomScale
-            log("StitchUIScrollView: scrollViewDidZoom contentOffset: \(contentOffset)")
-//            log("StitchUIScrollView: scrollViewDidZoom contentSize: \(contentSize)")
-            log("StitchUIScrollView: scrollViewDidZoom scale: \(scale)")
-
-            
-            // TODO: DEC 12: dragging a canvas item seems to already take into account the zoom level; except where we somehow come into cases where nodes move slower than cursor
-            //            dispatch(GraphZoomUpdated(newZoom: scrollView.zoomScale))
             dispatch(GraphScrollDataUpdated(
                 newOffset: scrollView.contentOffset,
                 newZoom: scrollView.zoomScale
             ))
-            
-            //            scrollView
-            
-            //            // causes `updateUIView` to fire
-            //            self.parent.zoomScale = scrollView.zoomScale
-            //
-            //            self.centerContent(scrollView: scrollView)
         }
-        
-        // TODO: DEC 12: use graph bounds checking logic here
         
         // Only called when scroll first begins; not DURING scroll
         func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-            let contentOffset = scrollView.contentOffset
-            log("StitchUIScrollView: scrollViewWillBeginDragging contentOffset: \(contentOffset)")
-            log("StitchUIScrollView: scrollViewWillBeginDragging scrollView.zoomScale: \(scrollView.zoomScale)")
-            
             dispatch(GraphScrollDataUpdated(
                 newOffset: scrollView.contentOffset,
                 newZoom: scrollView.zoomScale
@@ -290,40 +234,20 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         }
         
         func scrollViewWillBeginDecelerating(_ scrollView: UIScrollView) {
-            let contentOffset = scrollView.contentOffset
-            log("StitchUIScrollView: scrollViewWillBeginDecelerating contentOffset: \(contentOffset)")
-            log("StitchUIScrollView: scrollViewWillBeginDecelerating scrollView.zoomScale: \(scrollView.zoomScale)")
-            
             dispatch(GraphScrollDataUpdated(
                 newOffset: scrollView.contentOffset,
                 newZoom: scrollView.zoomScale
             ))
         }
                 
-        // Can you limit the scrolling here?
         func scrollViewDidScroll(_ scrollView: UIScrollView) {
-            let contentOffset = scrollView.contentOffset
-            let contentSize = scrollView.contentSize
-            let scale = scrollView.zoomScale
-            let windowWidth = self.document?.graphUI.frame.width ?? .zero
-            log("StitchUIScrollView: scrollViewDidScroll contentOffset: \(contentOffset)")
-            log("StitchUIScrollView: scrollViewDidScroll scrollView.zoomScale: \(scrollView.zoomScale)")
-            
-//            dispatch(GraphScrollDataUpdated(
-//                newOffset: scrollView.contentOffset,
-//                newZoom: scrollView.zoomScale
-//            ))
-             
-              self.checkBorder(scrollView)
+            self.checkBorder(scrollView)
         }
         
         func checkBorder(_ scrollView: UIScrollView) {
             
             let scale = scrollView.zoomScale
-            
             let cache = self.document?.graph.visibleNodesViewModel.infiniteCanvasCache ?? .init()
-            
-            
             
             // Only check borders etc. if we have cached size and position data for the nodes
             guard let canvasItemsInFrame = self.document?.graph.getVisibleCanvasItems().filter(\.isVisibleInFrame),
@@ -351,8 +275,6 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             
             let westernMostNodeCachedBoundsOriginX: CGFloat = westBounds.origin.x
             let easternMostNodeCachedBoundsOriginX: CGFloat = eastBounds.origin.x
-            
-            // ?? North will be the 'minimum contentOffset'
             let northernMostNodeCachedBoundsOriginY: CGFloat = northBounds.origin.y
             let southernMostNodeCachedBoundsOriginY: CGFloat = southBounds.origin.y
             
@@ -438,35 +360,26 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
                 
         // Handle pan gesture with boundary checks
         @objc func handlePan(_ gesture: UIPanGestureRecognizer) {
-            
             let spaceHeld = document?.keypressState.isSpacePressed ?? false
-            
-            log("StitchUIScrollView: handlePan: spaceHeld: \(spaceHeld)")
             
             guard let scrollView = gesture.view as? UIScrollView else {
                 return
             }
             
             guard spaceHeld else {
-                
                 return
             }
             
             let translation = gesture.translation(in: scrollView)
-            
-            log("StitchUIScrollView: handlePan: translation: \(translation)")
-            
+                        
             switch gesture.state {
-                
+
             case .began:
                 initialContentOffset = scrollView.contentOffset
-                
                 document?.graphUI.activeSpacebarClickDrag = true
-                
+
             case .changed:
                 document?.graphUI.activeSpacebarClickDrag = true
-                
-                
                 
                 let screenHeight = self.document?.graphUI.frame.height ?? .zero
                 let screenWidth = self.document?.graphUI.frame.width ?? .zero
@@ -486,6 +399,7 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
                 if newX < minOffset {
                     newX = minOffset
                 }
+                
                 if newY < minOffset {
                     newY = minOffset
                 }
@@ -493,33 +407,14 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
                 if newX > maxOffsetX {
                     newX = maxOffsetX
                 }
+                
                 if newY > maxOffsetY {
                     newY = maxOffsetY
                 }
                 
                 // these are the proper limits but really,
-                let newOffset = CGPoint(
-                    x: newX,
-                    y: newY
-                )
-//
-//                let _newOffset = CGPoint(
-//                    x: min(max(0,
-//                               initialContentOffset.x - translation.x),
-//                           contentSize.width - screenWidth),
-//                    y: min(max(0,
-//                               initialContentOffset.y - translation.y),
-//                           contentSize.height - screenHeight)
-//                )
-//                
+                let newOffset = CGPoint(x: newX, y: newY)
                   
-                log("StitchUIScrollView: handlePan: screenHeight: \(screenHeight)")
-                log("StitchUIScrollView: handlePan: screenWidth: \(screenWidth)")
-                log("StitchUIScrollView: handlePan: scrollView.zoomScale: \(scrollView.zoomScale)")
-                log("StitchUIScrollView: handlePan: scrollView.contentSize: \(scrollView.contentSize)")
-                log("StitchUIScrollView: handlePan: scrollView.contentOffset: \(scrollView.contentOffset)")
-                log("StitchUIScrollView: handlePan: newOffset: \(newOffset)")
-                
                 scrollView.setContentOffset(newOffset, animated: false)
                 
                 dispatch(GraphScrollDataUpdated(
@@ -529,31 +424,20 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
                 
                 
             case .possible:
-                
                 log("StitchUIScrollView: handlePan: possible")
                 
-                
             case .ended, .cancelled, .failed:
-                
                 document?.graphUI.activeSpacebarClickDrag = false
-                
-                log("StitchUIScrollView: handlePan: ended/cancelled/failed")
-                
                 scrollView.setContentOffset(scrollView.contentOffset,
                                             animated: false)
-                
-                // DO WE HAVE NATURAL MOMENTUM WHEN WE LET GO ?
                 dispatch(GraphScrollDataUpdated(
                     newOffset: scrollView.contentOffset,
                     newZoom: scrollView.zoomScale
                 ))
                 
             @unknown default:
-                
                 log("StitchUIScrollView: handlePan: default")
             }
-            
-            
         }
     }
 }

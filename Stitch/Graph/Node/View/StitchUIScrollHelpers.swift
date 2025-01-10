@@ -16,8 +16,8 @@ struct GraphScrollDataUpdated: StitchDocumentEvent {
     let newZoom: CGFloat
     
     func handle(state: StitchDocumentViewModel) {
-        log("GraphScrolledViaUIScrollView: newOffset: \(newOffset)")
-        log("GraphZoomUpdated: newZoom: \(newZoom)")
+        // log("GraphScrolledViaUIScrollView: newOffset: \(newOffset)")
+        // log("GraphZoomUpdated: newZoom: \(newZoom)")
         state.graphMovement.localPosition = newOffset
         state.graphMovement.zoomData.final = newZoom
     }
@@ -131,15 +131,15 @@ struct StitchTrackpadGraphBackgroundPanGesture: UIGestureRecognizerRepresentable
         @objc func trackpadPanInView(_ gestureRecognizer: UIPanGestureRecognizer) {
             // log("StitchTrackpadGraphBackgroundPanGesture: trackpadPanInView recognized")
             
-            log("StitchTrackpadGraphBackgroundPanGesture: handleUIGestureRecognizerAction")
+            // log("StitchTrackpadGraphBackgroundPanGesture: handleUIGestureRecognizerAction")
             
             let translation = gestureRecognizer.translation(in: gestureRecognizer.view)
             let location = gestureRecognizer.location(in: gestureRecognizer.view)
             let velocity = gestureRecognizer.velocity(in: gestureRecognizer.view)
             
-            log("StitchTrackpadGraphBackgroundPanGesture: handleUIGestureRecognizerAction: gestureRecognizer.state.description: \(gestureRecognizer.state.description)")
+            // log("StitchTrackpadGraphBackgroundPanGesture: handleUIGestureRecognizerAction: gestureRecognizer.state.description: \(gestureRecognizer.state.description)")
             
-            log("StitchTrackpadGraphBackgroundPanGesture: handleUIGestureRecognizerAction: location: \(location)")
+            // log("StitchTrackpadGraphBackgroundPanGesture: handleUIGestureRecognizerAction: location: \(location)")
             
             dispatch(GraphBackgroundTrackpadDragged(
                 translation: translation.toCGSize,
