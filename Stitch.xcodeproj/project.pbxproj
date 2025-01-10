@@ -909,7 +909,6 @@
 		ECFD9FAF297B748F00D86359 /* CopyAndPasteNodesActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECFD9FAE297B748F00D86359 /* CopyAndPasteNodesActions.swift */; };
 		ECFEFF9A26BDD93F00CF042E /* PortValueDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECFEFF9926BDD93F00CF042E /* PortValueDefaults.swift */; };
 		ECFEFF9E26BDE18A00CF042E /* miscTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECFEFF9D26BDE18A00CF042E /* miscTests.swift */; };
-		ECFF51DD283C3D41004860D4 /* GraphGestureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECFF51DC283C3D41004860D4 /* GraphGestureView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1846,7 +1845,6 @@
 		ECFEFF9926BDD93F00CF042E /* PortValueDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortValueDefaults.swift; sourceTree = "<group>"; };
 		ECFEFF9D26BDE18A00CF042E /* miscTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = miscTests.swift; sourceTree = "<group>"; };
 		ECFF51DA283C335F004860D4 /* MobileNetV2.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = MobileNetV2.mlmodel; sourceTree = "<group>"; };
-		ECFF51DC283C3D41004860D4 /* GraphGestureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphGestureView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2663,7 +2661,6 @@
 		B555011B2C1BF07D0081C3F1 /* Gesture */ = {
 			isa = PBXGroup;
 			children = (
-				ECFF51DC283C3D41004860D4 /* GraphGestureView.swift */,
 				B57F3A83294A85EC00DFC0AE /* GraphBackgroundGestureView.swift */,
 			);
 			path = Gesture;
@@ -5494,7 +5491,6 @@
 				EC60B8652C18044D00984FC8 /* ProjectThumbnailActions.swift in Sources */,
 				EC2BD63426CACD2E00D45154 /* MaxNode.swift in Sources */,
 				8B0A6B15271E7978002D6BD9 /* DirectoryObserver.swift in Sources */,
-				ECFF51DD283C3D41004860D4 /* GraphGestureView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
