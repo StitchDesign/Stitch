@@ -124,6 +124,18 @@ extension AnchorEntity {
 extension StitchTransform {
     static let zero = DEFAULT_STITCH_TRANSFORM
     
+    init(from matrix: simd_float4x4) {
+        self.init(positionX: Double(matrix.position.x),
+                  positionY: Double(matrix.position.y),
+                  positionZ: Double(matrix.position.z),
+                  scaleX: Double(matrix.scale.x),
+                  scaleY: Double(matrix.scale.y),
+                  scaleZ: Double(matrix.scale.z),
+                  rotationX: Double(matrix.rotation.imag.x),
+                  rotationY: Double(matrix.rotation.imag.y),
+                  rotationZ: Double(matrix.rotation.imag.z))
+    }
+    
     var position3D: Point3D {
         .init(x: self.positionX,
               y: self.positionY,

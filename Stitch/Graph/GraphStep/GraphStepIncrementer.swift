@@ -8,6 +8,7 @@
 import Foundation
 import StitchSchemaKit
 import StitchEngine
+import simd
 
 extension StitchDocumentViewModel: GraphStepManagerDelegate {
     func graphStepIncremented(elapsedProjectTime: TimeInterval,
@@ -79,6 +80,43 @@ extension GraphState {
             if !component.graph.nodesToRunOnGraphStep.isEmpty,
                let nodeId = component.nodeDelegate?.id {
                 nodesSet.insert(nodeId)
+            }
+        }
+        
+        // Manually check for model transform changes
+        // TODO: can filter these to gesture-enabled entities
+        self.nodes.values.forEach { node in
+            guard let layerNode = node.nodeType.layerNode,
+                  layerNode.layer == .model3D else {
+                return
+            }
+            
+            let containsModelChange = layerNode.previewLayerViewModels
+                .contains(where: { previewLayer in
+                    guard let model = previewLayer.mediaObject?.model3DEntity?.containerEntity,
+                          let lastSavedTransform = previewLayer.transform3D.getTransform else {
+                        return false
+                    }
+                    
+                    let inferredTransform = model.transform.matrix
+                    
+                    if inferredTransform != simd_float4x4(from: lastSavedTransform) {
+                        // Update port value manually if transform changed
+                        previewLayer.transform3D = .transform(.init(from: inferredTransform))
+                        
+                        // Recalculate layer(?)
+                        
+                        return true
+                    }
+                    
+                    return false
+                })
+            
+            if containsModelChange {
+                let newValues = layerNode.previewLayerViewModels
+                    .map { $0.transform3D }
+                layerNode.transform3DPort.updatePortValues(newValues)
+                layerNode.transform3DPort.rowObserver.updatePortViewModels()
             }
         }
         
