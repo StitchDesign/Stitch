@@ -46,14 +46,8 @@ extension StitchDocumentViewModel {
     
     @MainActor
     var newLayerPropertyLocation: CGPoint {
-
         var center = self.viewPortCenter
-//
-//        // `state.graphUI.center` is always proper center
-//        var center = self.adjustedDoubleTapLocation(self.localPosition) ?? self.graphUI.center(
-//            self.localPosition,
-//            graphScale: self.graph.graphMovement.zoomData.zoom)
-                
+
         // Slightly move off-center, since preview window can often partially cover up the just added property
         center.x -= CGFloat(SQUARE_SIDE_LENGTH * 6)
         
@@ -63,35 +57,7 @@ extension StitchDocumentViewModel {
     // Used by InsertNodeMenu
     @MainActor
     func nodeCreated(choice: NodeKind, center: CGPoint? = nil) -> NodeViewModel? {
-//        let nodeCenter = center ?? self.newNodeCenterLocation
-//        let nodeCenter = CGPoint(x: -30, y: -90)
-//                
-//        let localPosition = self.graphMovement.localPosition
-//        
-//        log("nodeCreated: localPosition: \(localPosition)")
-//                    
-//        let scale = self.graphMovement.zoomData.final
-//        log("nodeCreated: scale: \(scale)")
-//        
-//        let viewPortFrame = self.graphUI.frame
-//        log("nodeCreated: viewPortFrame: \(viewPortFrame)")
-//        
-//        // Factor out scale from the viewPort-centering
-//        let viewPortCentering = CGPoint(
-//            x: (self.graphUI.frame.width/2 * 1/scale),
-//            y: (self.graphUI.frame.height/2 * 1/scale)
-//        )
-//        
-//        let _nodeCenter = CGPoint(
-//            x: (localPosition.x / scale) + viewPortCentering.x,
-//            y: (localPosition.y / scale) + viewPortCentering.y
-//        )
-//        
-//        // ^^ when we zoom in, adding (VIEW PORT / 2) is actually TOO BIG of an addition,
-//        
-//        log("nodeCreated: _nodeCenter: \(_nodeCenter)")
-        
-        let nodeCenter = self.newNodeCenterLocation
+        let nodeCenter = center ?? self.newNodeCenterLocation
         
         guard let node = self.createNode(
                 graphTime: self.graphStepManager.graphStepState.graphTime,

@@ -66,9 +66,9 @@ struct StitchLongPressGestureRecognizerRepresentable: UIGestureRecognizerReprese
     }
 }
 
-
-
 struct StitchTrackpadGraphBackgroundPanGesture: UIGestureRecognizerRepresentable {
+    
+    typealias UIGestureRecognizerType = UIPanGestureRecognizer
     
     func makeUIGestureRecognizer(context: Context) -> UIPanGestureRecognizer {
         
@@ -91,10 +91,7 @@ struct StitchTrackpadGraphBackgroundPanGesture: UIGestureRecognizerRepresentable
         
         return trackpadPanGesture
     }
-    
-    
-    typealias UIGestureRecognizerType = UIPanGestureRecognizer
-    
+        
     func makeCoordinator(converter: CoordinateSpaceConverter) -> Coordinator {
         Coordinator(parent: self)
     }
@@ -124,7 +121,6 @@ struct StitchTrackpadGraphBackgroundPanGesture: UIGestureRecognizerRepresentable
                 // log("StitchTrackpadGraphBackgroundPanGesture: SHIFT NOT DOWN")
                 self.shiftHeld = false
             }
-            
             return true
         }
         
@@ -148,8 +144,6 @@ struct StitchTrackpadGraphBackgroundPanGesture: UIGestureRecognizerRepresentable
                 numberOfTouches: gestureRecognizer.numberOfTouches,
                 gestureState: gestureRecognizer.state,
                 shiftHeld: self.shiftHeld))
-            
         }
     }
-    
 }

@@ -41,6 +41,7 @@ struct NodesOnlyView: View {
             Rectangle().fill(.clear)
         }
         
+        #if DEV_DEBUG
         // scrollView.contentOffset without taking scrollView.zoomScale into account
         Circle().fill(.yellow.opacity(0.95))
             .frame(width: 60, height: 60)
@@ -55,6 +56,7 @@ struct NodesOnlyView: View {
                 y: self.document.graphMovement.localPosition.y / self.document.graphMovement.zoomData.final
             )
             .zIndex(999999999999999)
+        #endif
 
         let canvasNodes: [CanvasItemViewModel] = canvasNodeIds
             .compactMap { id in
@@ -93,9 +95,3 @@ struct NodesOnlyView: View {
         }
     }
 }
-
-// struct NodesOnlyView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        NodesOnlyView()
-//    }
-// }
