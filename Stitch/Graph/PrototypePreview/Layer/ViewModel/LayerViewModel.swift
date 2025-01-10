@@ -244,6 +244,9 @@ final class LayerViewModel: Sendable {
     
     @MainActor var anchorEntity: PortValue
     @MainActor var isEntityAnimating: PortValue
+    @MainActor var translation3DEnabled: PortValue
+    @MainActor var rotation3DEnabled: PortValue
+    @MainActor var scale3DEnabled: PortValue
     
     // Ephemeral state on the layer view model
     
@@ -392,6 +395,9 @@ final class LayerViewModel: Sendable {
         self.transform3D = LayerInputPort.transform3D.getDefaultValue(for: layer)
         self.anchorEntity = LayerInputPort.anchorEntity.getDefaultValue(for: layer)
         self.isEntityAnimating = LayerInputPort.isEntityAnimating.getDefaultValue(for: layer)
+        self.translation3DEnabled = LayerInputPort.translation3DEnabled.getDefaultValue(for: layer)
+        self.rotation3DEnabled = LayerInputPort.rotation3DEnabled.getDefaultValue(for: layer)
+        self.scale3DEnabled = LayerInputPort.scale3DEnabled.getDefaultValue(for: layer)
         
         self.nodeDelegate = nodeDelegate
         self.interactiveLayer.delegate = self

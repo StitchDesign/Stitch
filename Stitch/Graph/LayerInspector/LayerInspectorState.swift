@@ -102,6 +102,7 @@ extension LayerInspectorView {
         [
             .init(.media, Self.media),
             .init(.realityTransformation, Self.realityTransformation),
+            .init(.gestures3D, Self.gestures3D),
             .init(.sizing, Self.sizing),
             .init(.positioning, Self.positioning),
             .init(.common, Self.common),
@@ -153,6 +154,13 @@ extension LayerInspectorView {
     @MainActor
     static let realityTransformation: LayerInputPortSet = [
         .transform3D
+    ]
+    
+    @MainActor
+    static let gestures3D: LayerInputPortSet = [
+        .translation3DEnabled,
+        .scale3DEnabled,
+        .rotation3DEnabled
     ]
     
     @MainActor

@@ -60,8 +60,6 @@ final class StitchEntity: NSObject, Sendable {
         // Gesture support
         self.containerEntity.generateCollisionShapes(recursive: true)
         
-        let modelEntity = ModelEntity()
-        
         if isAnimating {
             importEntity.startAnimation()
         } else {
