@@ -8,10 +8,6 @@
 import SwiftUI
 import StitchSchemaKit
 
-
-// NOTE: LEGACY EXPANSION BOX VIEW
-// TODO: UIScrollView's zoomLevel appears to shrink SwiftUI Canvas' size; ideally we could 
-// https://github.com/StitchDesign/Stitch/pull/578/files#diff-62ea000e757e13dc2ac4d4a896ac3aad9e9af6a4e6a63311b25b924dbbbabdde
 struct ExpansionBoxView: View {
     
     let graph: GraphState
@@ -42,6 +38,9 @@ struct ExpansionBoxView: View {
     }
 }
 
+// NOTE: LEGACY EXPANSION BOX VIEW
+// TODO: UIScrollView's zoomLevel appears to shrink SwiftUI Canvas' size, hence the node selection box gets cut off; revisit this and figure out how to still be able to use a SwiftUI Canvas ?
+// https://github.com/StitchDesign/Stitch/pull/578/files#diff-62ea000e757e13dc2ac4d4a896ac3aad9e9af6a4e6a63311b25b924dbbbabdde
 
 ///// Creates a selection box view.
 //struct RoundedRectView: View {

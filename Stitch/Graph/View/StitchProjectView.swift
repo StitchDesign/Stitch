@@ -66,7 +66,6 @@ struct StitchProjectView: View {
                     graphUI: document.graphUI,
                     alertState: alertState,
                     routerNamespace: routerNamespace)
-
     }
 }
 
