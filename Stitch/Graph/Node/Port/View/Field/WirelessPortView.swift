@@ -21,19 +21,15 @@ struct WirelessPortView: View {
             .frame(PORT_ENTRY_NON_EXTENDED_HITBOX_SIZE)
             //            .offset(x: isOutput ? -4 : 4)
             .offset(x: isOutput ? -12 : 12)
+            .onTapGesture {
+                if !isOutput {
+                    dispatch(JumpToAssignedBroadcaster(wirelessReceiverNodeId: id))
+                }
+            }
         #if targetEnvironment(macCatalyst)
         .scaleEffect(1.2)
         #else
         .scaleEffect(0.85)
         #endif
-    }
-}
-
-struct WirelessPortView_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack(spacing: 50) {
-            WirelessPortView(isOutput: true, id: fakeNodeId)
-            WirelessPortView(isOutput: false, id: fakeNodeId)
-        }
     }
 }
