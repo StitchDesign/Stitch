@@ -18,16 +18,6 @@ extension CGFloat {
 #endif
 }
 
-//extension CGFloat {
-//#if DEV_DEBUG
-//    static let STITCH_APP_WINDOW_MINIMUM_WIDTH: CGFloat = 800
-//    static let STITCH_APP_WINDOW_MINIMUM_HEIGHT: CGFloat = 800
-//#else
-//    static let STITCH_APP_WINDOW_MINIMUM_WIDTH: CGFloat = 800
-//    static let STITCH_APP_WINDOW_MINIMUM_HEIGHT: CGFloat = 600
-//#endif
-//}
-
 struct StitchRootView: View {
     @Environment(StitchFileManager.self) var fileManager
     
@@ -115,7 +105,7 @@ struct StitchRootView: View {
                         } // if let document
                     } // .overlay
             }
-        }        
+        }    
 //        .coordinateSpace(name: Self.STITCH_ROOT_VIEW_COORDINATE_SPACE)
         .modifier(StitchRootModifier(alertState: alertState))
         .onAppear {
