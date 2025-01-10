@@ -41,10 +41,6 @@ extension StitchDocumentViewModel {
     @MainActor
     func llmRecordingStarted() {
         self.llmRecording.isRecording = true
-        
-        // Jump back to center, so the LLMMoveNde.position can be diff'd against 0,0
-        self.graphMovement.localPosition = .zero
-        self.graphMovement.localPreviousPosition = .zero
     }
     
     @MainActor
