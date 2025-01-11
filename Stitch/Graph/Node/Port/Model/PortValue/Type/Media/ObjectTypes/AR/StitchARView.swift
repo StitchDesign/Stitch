@@ -27,7 +27,6 @@ final class StitchARView: ARView {
     // Non-zero rect import for preventing warning that sometimes appears
     @MainActor
     init(frame: CGRect = .init(x: .zero, y: .zero, width: 100, height: 100),
-         anchors: [AnchorEntity] = [],
          cameraMode: ARView.CameraMode = .ar) {
         super.init(frame: frame, cameraMode: cameraMode, automaticallyConfigureSession: false)
 

@@ -103,8 +103,7 @@ func loopBuilderEval(node: PatchNode,
                 return
             }
             
-            let opResult = await LoopBuilderNode.copyMedia(values: values,
-                                                           node: node)
+            let opResult = await LoopBuilderNode.copyMedia(values: values)
             
             await MainActor.run { [weak node] in
                 guard let node = node else {
@@ -126,8 +125,7 @@ func loopBuilderEval(node: PatchNode,
 }
 
 extension LoopBuilderNode {
-    static func copyMedia(values: PortValues,
-                          node: NodeViewModel) async -> PortValuesList {
+    static func copyMedia(values: PortValues) async -> PortValuesList {
         var newOutputs: PortValues = []
         
         for value in values {
@@ -139,7 +137,7 @@ extension LoopBuilderNode {
             }
             
             do {
-                let copiedMedia = try await inputMedia.mediaObject.createComputedCopy(nodeId: node.id)
+                let copiedMedia = try await inputMedia.mediaObject.createComputedCopy()
                 
                 if let copiedMedia = copiedMedia {
                     let graphMedia = GraphMediaValue(computedMedia: copiedMedia)

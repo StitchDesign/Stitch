@@ -58,7 +58,7 @@ extension NodeTimerEphemeralObserver {
         
         // Create computed copy if there's media
         Task(priority: .userInitiated) { [weak node] in
-            guard let mediaCopy = try await media.mediaObject.createComputedCopy(nodeId: nodeId) else {
+            guard let mediaCopy = try await media.mediaObject.createComputedCopy() else {
                 return
             }
             

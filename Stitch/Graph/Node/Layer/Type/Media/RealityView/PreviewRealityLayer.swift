@@ -145,7 +145,7 @@ struct RealityLayerView: View {
                             // Update list of node Ids using camera
                             graph.enabledCameraNodeIds.insert(node.id)
                             
-                            self.layerViewModel.realityContent = arView.scene
+                            self.layerViewModel.realityContent = arView
                         }
                         .onDisappear {
                             self.layerViewModel.realityContent = nil

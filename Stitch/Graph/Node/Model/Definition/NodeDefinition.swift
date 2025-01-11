@@ -47,7 +47,7 @@ extension Layer {
     }
 }
 
-typealias LayerRealityCameraContent = RealityKit.Scene
+typealias LayerRealityCameraContent = ARView
 
 // fka `LayerGraphNode`
 protocol LayerNodeDefinition: NodeDefinition {

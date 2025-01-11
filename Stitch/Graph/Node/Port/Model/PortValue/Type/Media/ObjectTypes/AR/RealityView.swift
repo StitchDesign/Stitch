@@ -48,7 +48,7 @@ struct NonCameraRealityView: UIViewRepresentable {
         arView.renderOptions = isShadowsEnabled ? [] : [.disableGroundingShadows]
         
         // Update object with scene
-        previewLayer.realityContent = arView.scene
+        previewLayer.realityContent = arView
         
         return arView
     }
