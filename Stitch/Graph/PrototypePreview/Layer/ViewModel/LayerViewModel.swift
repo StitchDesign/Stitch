@@ -234,14 +234,7 @@ final class LayerViewModel: Sendable {
     @MainActor var scrollJumpToYLocation: PortValue
     
     // 3D
-    @MainActor var transform3D: PortValue {
-        didSet(oldValue) {
-            if self.transform3D != oldValue {
-                self.updateTransform()
-            }
-        }
-    }
-    
+    @MainActor var transform3D: PortValue
     @MainActor var anchorEntity: PortValue
     @MainActor var isEntityAnimating: PortValue
     @MainActor var translation3DEnabled: PortValue
@@ -467,6 +460,17 @@ extension LayerViewModel {
             self.mediaObject = newMediaObject
         }
     }
+    
+    @MainActor
+    func onPrototypeRestart() {
+        // Rest interaction state values
+        self.interactiveLayer.onPrototypeRestart()
+        
+        if let model3D = self.mediaObject?.model3DEntity,
+           let transform = model3D.transform {
+            model3D.applyMatrix(newMatrix: transform)
+        }
+    }
 
     @MainActor
     static func resetMedia(_ mediaObject: StitchMediaObject?) {
@@ -478,7 +482,7 @@ extension LayerViewModel {
     }
     
     @MainActor
-    private func updateTransform() {
+    func updateTransform() {
         if let entity = self.mediaObject?.model3DEntity {
             let transform = self.transform3D.getTransform ?? .zero
             let matrix = simd_float4x4(position: transform.position3D,

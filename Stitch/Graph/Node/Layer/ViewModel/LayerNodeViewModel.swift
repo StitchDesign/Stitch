@@ -464,7 +464,11 @@ extension LayerNodeViewModel: SchemaObserver {
         return schema
     }
     
-    func onPrototypeRestart() { }
+    func onPrototypeRestart() {
+        self.previewLayerViewModels.forEach {
+            $0.onPrototypeRestart()
+        }
+    }
 }
 
 extension LayerNodeViewModel {

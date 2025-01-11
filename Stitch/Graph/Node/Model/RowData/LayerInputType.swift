@@ -1005,6 +1005,7 @@ extension LayerViewModel {
             self.scrollJumpToYLocation = value
         case .transform3D:
             self.transform3D = value
+            self.updateTransform()
         case .anchorEntity:
             self.anchorEntity = value
         case .isEntityAnimating:

@@ -104,8 +104,8 @@ extension GraphState {
                         // Update port value manually if transform changed
                         previewLayer.transform3D = .transform(.init(from: inferredTransform))
                         
-                        // Recalculate layer(?)
-                        
+                        // MARK:  Apply transform to entity but do NOT update the transform instance property
+                        model._applyMatrix(newMatrix: inferredTransform)
                         return true
                     }
                     
