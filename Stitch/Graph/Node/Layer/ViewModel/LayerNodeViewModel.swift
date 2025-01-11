@@ -155,6 +155,9 @@ final class LayerNodeViewModel {
     var transform3DPort: LayerInputObserver
     var anchorEntityPort: LayerInputObserver
     var isEntityAnimatingPort: LayerInputObserver
+    var translation3DEnabledPort: LayerInputObserver
+    var rotation3DEnabledPort: LayerInputObserver
+    var scale3DEnabledPort: LayerInputObserver
     
     @MainActor weak var nodeDelegate: NodeDelegate?
 
@@ -323,6 +326,9 @@ final class LayerNodeViewModel {
         self.transform3DPort = .init(from: schema, port: .transform3D)
         self.anchorEntityPort = .init(from: schema, port: .anchorEntity)
         self.isEntityAnimatingPort = .init(from: schema, port: .isEntityAnimating)
+        self.translation3DEnabledPort = .init(from: schema, port: .translation3DEnabled)
+        self.rotation3DEnabledPort = .init(from: schema, port: .rotation3DEnabled)
+        self.scale3DEnabledPort = .init(from: schema, port: .scale3DEnabled)
         
         // Initialize each NodeRowObserver for each expected layer input
         for layerInputPort in graphNode.inputDefinitions {
@@ -458,7 +464,11 @@ extension LayerNodeViewModel: SchemaObserver {
         return schema
     }
     
-    func onPrototypeRestart() { }
+    func onPrototypeRestart() {
+        self.previewLayerViewModels.forEach {
+            $0.onPrototypeRestart()
+        }
+    }
 }
 
 extension LayerNodeViewModel {

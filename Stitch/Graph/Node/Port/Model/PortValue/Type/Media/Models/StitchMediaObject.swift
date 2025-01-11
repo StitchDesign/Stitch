@@ -126,7 +126,7 @@ extension StitchMediaObject {
     }
 
     /// Creates a unique refrence copy of some media object.
-    func createComputedCopy(nodeId: NodeId?) async throws -> StitchMediaObject? {
+    func createComputedCopy() async throws -> StitchMediaObject? {
         var copiedMediaObject: StitchMediaObject?
 
         switch self {
@@ -186,16 +186,7 @@ extension StitchMediaObject {
             }
 
         case .model3D(let entity):
-            guard let nodeId = nodeId else {
-                fatalErrorIfDebug()
-                return copiedMediaObject
-            }
-            
-            let newStitchEntity = try await StitchEntity(id: .init(),
-                                                         nodeId: nodeId,
-                                                         sourceURL: entity.sourceURL,
-                                                         isAnimating: entity.isAnimating)
-            
+            let newStitchEntity = try await entity.createCopy()
             copiedMediaObject = .model3D(newStitchEntity)
 
         case .coreMLImageModel(let model):            //

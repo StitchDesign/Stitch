@@ -11,7 +11,6 @@ import SwiftUI
 
 extension GraphDelegate {
     func createMediaObject(mediaKey: MediaKey,
-                           nodeId: NodeId?,
                            url: URL?) async -> StitchFileResult<StitchMediaObject?> {
         guard let url = url else {
             // Check temp storage before failing
@@ -20,7 +19,7 @@ extension GraphDelegate {
                 await MainActor.run { [weak self] in
                     let _ = self?.mediaLibrary.updateValue(url, forKey: mediaKey)
                 }
-                return await url.createMediaObject(nodeId: nodeId)
+                return await url.createMediaObject()
 
             case .failure(let error):
                 log("MediaKey.createMediaObject error: \(error)")
@@ -28,7 +27,7 @@ extension GraphDelegate {
             }
         }
 
-        return await url.createMediaObject(nodeId: nodeId)
+        return await url.createMediaObject()
     }
 }
 
@@ -40,7 +39,7 @@ extension UIImage {
 
 extension URL {
     /// Creates media object. ID only needed for 3D model object.
-    func createMediaObject(nodeId: NodeId?) async -> MediaObjectResult {
+    func createMediaObject() async -> MediaObjectResult {
         let pathExtension = self.pathExtension.uppercased()
 
         if isImageFile(pathExtension: pathExtension) {
@@ -79,14 +78,8 @@ extension URL {
             }
         }
         if isModel3DFile(pathExtension: pathExtension) {
-            guard let nodeId = nodeId else {
-                fatalErrorIfDebug()
-                return .failure(.idNotFoundFor3DModel)
-            }
-            
             do {
                 let entity = try await StitchEntity(id: .init(),
-                                                    nodeId: nodeId,
                                                     sourceURL: self,
                                                     isAnimating: false)
                 return .success(.model3D(entity))

@@ -46,7 +46,9 @@ struct ARRaycastingNode: PatchNodeDefinition {
         return .init(
             inputs: [
                 .init(label: "Request", staticType: .pulse),
-                .init(label: "Enabled", staticType: .bool),
+                .init(defaultValues: [.bool(true)],
+                      label: "Enabled",
+                      isTypeStatic: true),
                 .init(label: "Origin", staticType: .plane),
                 .init(label: "X Offsest", staticType: .number),
                 .init(label: "Y Offset", staticType: .number)

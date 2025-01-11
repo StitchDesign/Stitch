@@ -234,16 +234,12 @@ final class LayerViewModel: Sendable {
     @MainActor var scrollJumpToYLocation: PortValue
     
     // 3D
-    @MainActor var transform3D: PortValue {
-        didSet(oldValue) {
-            if self.transform3D != oldValue {
-                self.updateTransform()
-            }
-        }
-    }
-    
+    @MainActor var transform3D: PortValue
     @MainActor var anchorEntity: PortValue
     @MainActor var isEntityAnimating: PortValue
+    @MainActor var translation3DEnabled: PortValue
+    @MainActor var rotation3DEnabled: PortValue
+    @MainActor var scale3DEnabled: PortValue
     
     // Ephemeral state on the layer view model
     
@@ -392,6 +388,9 @@ final class LayerViewModel: Sendable {
         self.transform3D = LayerInputPort.transform3D.getDefaultValue(for: layer)
         self.anchorEntity = LayerInputPort.anchorEntity.getDefaultValue(for: layer)
         self.isEntityAnimating = LayerInputPort.isEntityAnimating.getDefaultValue(for: layer)
+        self.translation3DEnabled = LayerInputPort.translation3DEnabled.getDefaultValue(for: layer)
+        self.rotation3DEnabled = LayerInputPort.rotation3DEnabled.getDefaultValue(for: layer)
+        self.scale3DEnabled = LayerInputPort.scale3DEnabled.getDefaultValue(for: layer)
         
         self.nodeDelegate = nodeDelegate
         self.interactiveLayer.delegate = self
@@ -461,6 +460,17 @@ extension LayerViewModel {
             self.mediaObject = newMediaObject
         }
     }
+    
+    @MainActor
+    func onPrototypeRestart() {
+        // Rest interaction state values
+        self.interactiveLayer.onPrototypeRestart()
+        
+        if let model3D = self.mediaObject?.model3DEntity,
+           let transform = model3D.transform {
+            model3D.applyMatrix(newMatrix: transform)
+        }
+    }
 
     @MainActor
     static func resetMedia(_ mediaObject: StitchMediaObject?) {
@@ -472,7 +482,7 @@ extension LayerViewModel {
     }
     
     @MainActor
-    private func updateTransform() {
+    func updateTransform() {
         if let entity = self.mediaObject?.model3DEntity {
             let transform = self.transform3D.getTransform ?? .zero
             let matrix = simd_float4x4(position: transform.position3D,
