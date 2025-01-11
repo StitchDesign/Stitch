@@ -82,42 +82,10 @@ extension GraphState {
                 nodesSet.insert(nodeId)
             }
         }
-        
-        // Manually check for model transform changes
-        // TODO: can filter these to gesture-enabled entities
+
         self.nodes.values.forEach { node in
-            guard let layerNode = node.nodeType.layerNode,
-                  layerNode.layer == .model3D else {
-                return
-            }
-            
-            let containsModelChange = layerNode.previewLayerViewModels
-                .contains(where: { previewLayer in
-                    guard let model = previewLayer.mediaObject?.model3DEntity?.containerEntity,
-                          let lastSavedTransform = previewLayer.transform3D.getTransform else {
-                        return false
-                    }
-                    
-                    let inferredTransform = model.transform.matrix
-                    
-                    if inferredTransform != simd_float4x4(from: lastSavedTransform) {
-                        // Update port value manually if transform changed
-                        previewLayer.transform3D = .transform(.init(from: inferredTransform))
-                        
-                        // MARK:  Apply transform to entity but do NOT update the transform instance property
-                        model._applyMatrix(newMatrix: inferredTransform)
-                        return true
-                    }
-                    
-                    return false
-                })
-            
-            if containsModelChange {
-                let newValues = layerNode.previewLayerViewModels
-                    .map { $0.transform3D }
-                layerNode.transform3DPort.updatePortValues(newValues)
-                layerNode.transform3DPort.rowObserver.updatePortViewModels()
-            }
+            // Checks for transform updates each graph step--needed due to lack of transform publishers
+            node.checkARTransformUpdate()
         }
         
         if nodesToRunOnGraphStep.isEmpty {
@@ -138,5 +106,45 @@ extension GraphState {
         // Use this caller directly, since it exposes the API we want
         // without having to pass parameters through a bunch of other `calculateGraph` functions.
         self.calculate(from: nodesToRunOnGraphStep)
+    }
+}
+
+extension NodeViewModel {
+    /// Checks if some 3D model's transform was changed due to external event like gestures.
+    /// Solves problem where gestures won't update fields directly, and without available publishers we have to manually check on graph step.
+    @MainActor
+    func checkARTransformUpdate() {
+        guard let layerNode = self.nodeType.layerNode,
+              layerNode.layer == .model3D else {
+            return
+        }
+        
+        let containsModelChange = layerNode.previewLayerViewModels
+            .contains(where: { previewLayer in
+                guard let model = previewLayer.mediaObject?.model3DEntity?.containerEntity,
+                      let lastSavedTransform = previewLayer.transform3D.getTransform else {
+                    return false
+                }
+                
+                let inferredTransform = model.transform.matrix
+                
+                if inferredTransform != simd_float4x4(from: lastSavedTransform) {
+                    // Update port value manually if transform changed
+                    previewLayer.transform3D = .transform(.init(from: inferredTransform))
+                    
+                    // MARK:  Apply transform to entity but do NOT update the transform instance property
+                    model._applyMatrix(newMatrix: inferredTransform)
+                    return true
+                }
+                
+                return false
+            })
+        
+        if containsModelChange {
+            let newValues = layerNode.previewLayerViewModels
+                .map { $0.transform3D }
+            layerNode.transform3DPort.updatePortValues(newValues)
+            layerNode.transform3DPort.rowObserver.updatePortViewModels()
+        }
     }
 }
