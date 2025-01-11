@@ -284,6 +284,9 @@
 		E43CA3BF29832FEC007BFE1B /* ARRaycastingNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E43CA3BE29832FEC007BFE1B /* ARRaycastingNode.swift */; };
 		E457441D2BC0548300B1642E /* QRCodeDetection.swift in Sources */ = {isa = PBXBuildFile; fileRef = E457441C2BC0548300B1642E /* QRCodeDetection.swift */; };
 		E463E7EF2C6FC7090008E318 /* StitchSchemaKit in Frameworks */ = {isa = PBXBuildFile; productRef = E463E7EE2C6FC7090008E318 /* StitchSchemaKit */; };
+		E4A848A82D32FCD30029AFDE /* SupabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4A848A72D32FCD30029AFDE /* SupabaseManager.swift */; };
+		E4A848AB2D32FCFA0029AFDE /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = E4A848AA2D32FCFA0029AFDE /* PostgREST */; };
+		E4A848AD2D32FCFA0029AFDE /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = E4A848AC2D32FCFA0029AFDE /* Storage */; };
 		E4AB307A29B4F316000A66B0 /* CoreMLDetectionNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4AB307929B4F316000A66B0 /* CoreMLDetectionNode.swift */; };
 		E4AB307C29B4F42F000A66B0 /* YOLOv3Tiny.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = E4AB307B29B4F42F000A66B0 /* YOLOv3Tiny.mlmodel */; };
 		E4AE5B7C28AAFE4A001C823D /* LightType.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4AE5B7B28AAFE4A001C823D /* LightType.swift */; };
@@ -1223,6 +1226,7 @@
 		E43CA3BE29832FEC007BFE1B /* ARRaycastingNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ARRaycastingNode.swift; sourceTree = "<group>"; };
 		E457441C2BC0548300B1642E /* QRCodeDetection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeDetection.swift; sourceTree = "<group>"; };
 		E498B63E28DB5A7500D8344D /* DummyCube.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = DummyCube.usdz; sourceTree = "<group>"; };
+		E4A848A72D32FCD30029AFDE /* SupabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SupabaseManager.swift; path = Stitch/Graph/StitchAI/SupabaseManager.swift; sourceTree = SOURCE_ROOT; };
 		E4AB307929B4F316000A66B0 /* CoreMLDetectionNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreMLDetectionNode.swift; sourceTree = "<group>"; };
 		E4AB307B29B4F42F000A66B0 /* YOLOv3Tiny.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = YOLOv3Tiny.mlmodel; sourceTree = "<group>"; };
 		E4AE5B7B28AAFE4A001C823D /* LightType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LightType.swift; sourceTree = "<group>"; };
@@ -1866,10 +1870,12 @@
 				B5380E312CF8E51600E6D801 /* StitchEngine in Frameworks */,
 				B560CE812CF1C93100F31905 /* StitchEngine in Frameworks */,
 				EC17DF0928F626660042BF4F /* MathParser in Frameworks */,
+				E4A848AB2D32FCFA0029AFDE /* PostgREST in Frameworks */,
 				B5386FB02C9A929B00AD8065 /* StitchEngine in Frameworks */,
 				B5BAB04A2CD8019400693EC5 /* StitchEngine in Frameworks */,
 				B56EA8A62C409898003D39E2 /* StitchEngine in Frameworks */,
 				EC39E75C26822ACA00674841 /* AudioKit in Frameworks */,
+				E4A848AD2D32FCFA0029AFDE /* Storage in Frameworks */,
 				B5380E342CF9159600E6D801 /* StitchEngine in Frameworks */,
 				B5BAB0412CD6C28D00693EC5 /* StitchEngine in Frameworks */,
 				EC53F3C3287E27250021095B /* Numerics in Frameworks */,
@@ -3847,6 +3853,7 @@
 				ECD83F1A2C1A0C5F00722AD7 /* LLMPromptModalView.swift */,
 				ECD83F0D2C19ED0800722AD7 /* LLMRecordingState.swift */,
 				EC5C6C392C2DAE690023D0C0 /* LLMActionRecording.swift */,
+				E4A848A72D32FCD30029AFDE /* SupabaseManager.swift */,
 			);
 			path = DatasetRecording;
 			sourceTree = "<group>";
@@ -4516,6 +4523,8 @@
 				B560CE802CF1C93100F31905 /* StitchEngine */,
 				B5380E302CF8E51600E6D801 /* StitchEngine */,
 				B5380E332CF9159600E6D801 /* StitchEngine */,
+				E4A848AA2D32FCFA0029AFDE /* PostgREST */,
+				E4A848AC2D32FCFA0029AFDE /* Storage */,
 			);
 			productName = prototype;
 			productReference = 200BD857254F66EB00692903 /* Stitch.app */;
@@ -4602,6 +4611,7 @@
 				B5FBE3C22C4195B3006DA0A7 /* XCRemoteSwiftPackageReference "DirectoryWatcher" */,
 				E463E7ED2C6FC7090008E318 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */,
 				B5380E322CF9159500E6D801 /* XCRemoteSwiftPackageReference "StitchEngine" */,
+				E4A848A92D32FCFA0029AFDE /* XCRemoteSwiftPackageReference "supabase-swift" */,
 			);
 			productRefGroup = 200BD858254F66EB00692903 /* Products */;
 			projectDirPath = "";
@@ -5159,6 +5169,7 @@
 				EC08D559289887BF00FEE846 /* LogUtils.swift in Sources */,
 				ECDC622026583B0C00F67ED8 /* GrayscaleNode.swift in Sources */,
 				ECE35EE627CEE80B00CB8F5C /* FieldValue.swift in Sources */,
+				E4A848A82D32FCD30029AFDE /* SupabaseManager.swift in Sources */,
 				B544D3A6283B4EE4000A24E2 /* SampleAppsSheet.swift in Sources */,
 				EC4D95A626B4911700AD5AB4 /* MediaActions.swift in Sources */,
 				EC2DD172289B6BA50089D501 /* NodeDuplicationActions.swift in Sources */,
@@ -6401,6 +6412,14 @@
 				revision = 5f19fe9a5d1de6adc176200e099a7ba376784eb3;
 			};
 		};
+		E4A848A92D32FCFA0029AFDE /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.1;
+			};
+		};
 		EC1137362719F9B400ADCA72 /* XCRemoteSwiftPackageReference "swift-collections" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/apple/swift-collections.git";
@@ -6538,6 +6557,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = E463E7ED2C6FC7090008E318 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */;
 			productName = StitchSchemaKit;
+		};
+		E4A848AA2D32FCFA0029AFDE /* PostgREST */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E4A848A92D32FCFA0029AFDE /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = PostgREST;
+		};
+		E4A848AC2D32FCFA0029AFDE /* Storage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E4A848A92D32FCFA0029AFDE /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Storage;
 		};
 		EC1137372719F9B400ADCA72 /* OrderedCollections */ = {
 			isa = XCSwiftPackageProductDependency;

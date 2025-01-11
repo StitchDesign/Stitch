@@ -82,9 +82,9 @@ extension StitchDocumentViewModel {
         if !recordedData.actions.isEmpty {
             Task {
                 do {
+                    // First save locally
                     let data = try JSONEncoder().encode(recordedData)
                     
-                    // need to create a directory
                     let docsURL = StitchFileManager.documentsURL
                     let dataCollectionURL = docsURL.appendingPathComponent(LLM_COLLECTION_DIRECTORY)
                     
@@ -106,10 +106,10 @@ extension StitchDocumentViewModel {
                     
                     try data.write(to: url, options: [.atomic, .completeFileProtection])
                     
-                    // DEBUG
-                    // let input = try String(contentsOf: url)
-                    // log("LLMRecordingPromptClosed: success: \(input)")
-                    log("LLMRecordingPromptClosed: Data successfully saved to: \(url.path)")
+                    // Then upload to Supabase
+                    try await SupabaseManager.shared.uploadLLMRecording(recordedData)
+                    log("LLMRecordingPromptClosed: Data successfully saved locally and uploaded to Supabase")
+                    
                 } catch let encodingError as EncodingError {
                     log("LLMRecordingPromptClosed: Encoding error: \(encodingError.localizedDescription)")
                 } catch let fileError as NSError {
