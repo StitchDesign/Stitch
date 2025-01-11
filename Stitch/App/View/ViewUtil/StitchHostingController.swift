@@ -112,7 +112,7 @@ class StitchHostingController<T: View>: UIHostingController<T> {
     @MainActor
     override func pressesBegan(_ presses: Set<UIPress>,
                                with event: UIPressesEvent?) {
-        // log("KEY: StitchHostingController: name: \(name): pressesBegan: presses.first?.key: \(presses.first?.key)")
+        log("KEY: StitchHostingController: name: \(name): pressesBegan: presses.first?.key: \(presses.first?.key)")
         presses.first?.key.map(keyPressed)
         //        super.pressesBegan(presses, with: event)
         
@@ -125,20 +125,34 @@ class StitchHostingController<T: View>: UIHostingController<T> {
 
          So, we simply don't pass the Option key's pressesBegan along the chain.
          */
-#if targetEnvironment(macCatalyst)
+        
+        
+        // If an input text field on a node is actively focused,
+        // do not pass the up- or down-arrow keys to the next responder in the chain.
+        // Prevents up- and down-arrow keys from jumping the cursor to the start or end of the text when we merely want to increment or decrement the focused field's value.
         if let key = presses.first?.key,
-           !self.isOptionKey(key) {
+//           state.graphUI.reduxFocusedField.getTextInputEdit,
+           (key.keyCode == .keyboardUpArrow || key.keyCode == .keyboardDownArrow) {
+           
+            log("pressesBegan: will not pass on up-arrow")
+        } else {
             super.pressesBegan(presses, with: event)
         }
-#else
-        super.pressesBegan(presses, with: event)
-#endif
+        
+//#if targetEnvironment(macCatalyst)
+//        if let key = presses.first?.key,
+//           !self.isOptionKey(key) {
+//            super.pressesBegan(presses, with: event)
+//        }
+//#else
+//        super.pressesBegan(presses, with: event)
+//#endif
     }
 
     @MainActor
     override func pressesEnded(_ presses: Set<UIPress>,
                                with event: UIPressesEvent?) {
-        // log("KEY: StitchHostingController: name: \(name): pressesEnded: presses.first?.key: \(presses.first?.key)")
+        log("KEY: StitchHostingController: name: \(name): pressesEnded: presses.first?.key: \(presses.first?.key)")
         presses.first?.key.map(keyReleased)
         super.pressesEnded(presses, with: event)
     }
@@ -146,14 +160,21 @@ class StitchHostingController<T: View>: UIHostingController<T> {
     @MainActor
     override func pressesCancelled(_ presses: Set<UIPress>,
                                    with event: UIPressesEvent?) {
-        // log("KEY: StitchHostingController: name: \(name): pressesCancelled: presses.first?.key: \(presses.first?.key)")
+        log("KEY: StitchHostingController: name: \(name): pressesCancelled: presses.first?.key: \(presses.first?.key)")
         presses.first?.key.map(keyReleased)
         super.pressesCancelled(presses, with: event)
     }
 
     @MainActor
     func keyPressed(_ key: UIKey) {
-        // log("KEY: StitchHostingController: name: \(name): keyPressed: key: \(key)")
+        log("KEY: StitchHostingController: name: \(name): keyPressed: key: \(key)")
+        
+        if key.keyCode == .keyboardUpArrow {
+            log("KEY: StitchHostingController: name: \(name): keyPressed: UP ARROW")
+            dispatch(UpArrowPressed())
+        } else if key.keyCode == .keyboardDownArrow {
+            log("KEY: StitchHostingController: name: \(name): keyPressed: DOWN ARROW")
+        }
         
         // TODO: key-modifiers (Tab, Shift etc.) and key-characters are not exclusive
         if let modifiers = key.asStitchKeyModifiers {
@@ -181,18 +202,22 @@ class StitchHostingController<T: View>: UIHostingController<T> {
     // MARK: arrow key callbacks
 
     @objc func arrowKeyUp(_ sender: UIKeyCommand) {
+        log("KEY: StitchHostingController: name: \(name): arrowKeyUp")
         dispatch(ArrowKeyPressed(arrowKey: .up))
     }
 
     @objc func arrowKeyDown(_ sender: UIKeyCommand) {
+        log("KEY: StitchHostingController: name: \(name): arrowKeyDown")
         dispatch(ArrowKeyPressed(arrowKey: .down))
     }
 
     @objc func arrowKeyLeft(_ sender: UIKeyCommand) {
+        log("KEY: StitchHostingController: name: \(name): arrowKeyLeft")
         dispatch(ArrowKeyPressed(arrowKey: .left))
     }
 
     @objc func arrowKeyRight(_ sender: UIKeyCommand) {
+        log("KEY: StitchHostingController: name: \(name): arrowKeyRight")
         dispatch(ArrowKeyPressed(arrowKey: .right))
     }
 
