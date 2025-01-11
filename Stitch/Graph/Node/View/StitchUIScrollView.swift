@@ -97,6 +97,10 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
     func makeUIView(context: Context) -> UIScrollView {
         let scrollView = UIScrollView()
         
+        // Hides scroll indicators
+        scrollView.showsHorizontalScrollIndicator = false
+        scrollView.showsVerticalScrollIndicator = false
+        
         // Enable zooming
         scrollView.minimumZoomScale = MIN_GRAPH_SCALE // 0.1
         scrollView.maximumZoomScale = MAX_GRAPH_SCALE //5.0
