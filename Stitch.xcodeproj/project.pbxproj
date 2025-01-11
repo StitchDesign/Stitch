@@ -982,7 +982,6 @@
 		B50192052C6D0FB300A048ED /* LayerInputUnpackedPortObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInputUnpackedPortObserver.swift; sourceTree = "<group>"; };
 		B50192082C6D100E00A048ED /* LayerInputObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInputObserver.swift; sourceTree = "<group>"; };
 		B504CFD02D2F953C00E245DA /* DebugModePopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugModePopover.swift; sourceTree = "<group>"; };
-		B504CFD22D31B14B00E245DA /* StitchSchemaKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = StitchSchemaKit; path = ../StitchSchemaKit; sourceTree = SOURCE_ROOT; };
 		B506CEC92A26B19300FD9F37 /* NodeFieldsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeFieldsView.swift; sourceTree = "<group>"; };
 		B50AD52F292C9DDF003CC61E /* InsertNodeMenuNodeDescriptionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsertNodeMenuNodeDescriptionView.swift; sourceTree = "<group>"; };
 		B50AD533292C9E3F003CC61E /* InsertNodeMenuSearchResults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsertNodeMenuSearchResults.swift; sourceTree = "<group>"; };
@@ -1926,7 +1925,6 @@
 		200BD859254F66EB00692903 /* Stitch */ = {
 			isa = PBXGroup;
 			children = (
-				B504CFD22D31B14B00E245DA /* StitchSchemaKit */,
 				EC15E425260271C6006F2E08 /* Stitch.entitlements */,
 				200BD863254F66EE00692903 /* Info.plist */,
 				B5617A7B2C175C3C00B53DAF /* App */,
