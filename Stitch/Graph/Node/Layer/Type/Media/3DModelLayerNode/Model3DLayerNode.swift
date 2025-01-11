@@ -53,7 +53,10 @@ struct Model3DLayerNode: LayerNodeDefinition {
         .shadowRadius,
         .shadowOffset,
         .transform3D,
-        .isEntityAnimating
+        .isEntityAnimating,
+        .translation3DEnabled,
+        .scale3DEnabled,
+        .rotation3DEnabled
     ])
         .union(.layerEffects)
         .union(.strokeInputs)
@@ -81,6 +84,9 @@ struct Model3DLayerNode: LayerNodeDefinition {
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,
             anchorEntityId: viewModel.anchorEntity.anchorEntity,
+            translation3DEnabled: viewModel.translation3DEnabled.getBool ?? false,
+            rotation3DEnabled: viewModel.rotation3DEnabled.getBool ?? false,
+            scale3DEnabled: viewModel.scale3DEnabled.getBool ?? false,
             position: viewModel.position.getPosition ?? .zero,
             rotationX: viewModel.rotationX.asCGFloat,
             rotationY: viewModel.rotationY.asCGFloat,

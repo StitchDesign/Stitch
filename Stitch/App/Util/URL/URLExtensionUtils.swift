@@ -80,7 +80,7 @@ extension URL {
         self.stopAccessingSecurityScopedResource()
 
         // Convert URL into decoded media object
-        return await outUrl.createMediaObject(nodeId: nil)
+        return await outUrl.createMediaObject()
     }
 
     func getLastModifiedDate(fileManager: FileManager) -> Date {

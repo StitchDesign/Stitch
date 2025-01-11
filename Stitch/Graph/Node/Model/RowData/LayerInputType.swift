@@ -278,6 +278,12 @@ extension LayerInputPort {
             return .transform(.zero)
         case .isEntityAnimating:
             return .bool(true)
+        case .translation3DEnabled:
+            return .bool(false)
+        case .rotation3DEnabled:
+            return .bool(false)
+        case .scale3DEnabled:
+            return .bool(false)
         }
     }
     
@@ -516,6 +522,12 @@ extension LayerInputPort {
             return \.anchorEntityPort
         case .isEntityAnimating:
             return \.isEntityAnimatingPort
+        case .translation3DEnabled:
+            return \.translation3DEnabledPort
+        case .rotation3DEnabled:
+            return \.rotation3DEnabledPort
+        case .scale3DEnabled:
+            return \.scale3DEnabledPort
         }
     }
     
@@ -758,6 +770,12 @@ extension LayerViewModel {
             return self.anchorEntity
         case .isEntityAnimating:
             return self.isEntityAnimating
+        case .translation3DEnabled:
+            return self.translation3DEnabled
+        case .rotation3DEnabled:
+            return self.rotation3DEnabled
+        case .scale3DEnabled:
+            return self.scale3DEnabled
         }
     }
     
@@ -987,10 +1005,17 @@ extension LayerViewModel {
             self.scrollJumpToYLocation = value
         case .transform3D:
             self.transform3D = value
+            self.updateTransform()
         case .anchorEntity:
             self.anchorEntity = value
         case .isEntityAnimating:
             self.isEntityAnimating = value
+        case .translation3DEnabled:
+            self.translation3DEnabled = value
+        case .rotation3DEnabled:
+            self.rotation3DEnabled = value
+        case .scale3DEnabled:
+            self.scale3DEnabled = value
         }
     }
 }
@@ -1218,6 +1243,12 @@ extension LayerInputPort {
             return \.anchorEntityPort
         case .isEntityAnimating:
             return \.isEntityAnimatingPort
+        case .translation3DEnabled:
+            return \.translation3DEnabledPort
+        case .rotation3DEnabled:
+            return \.rotation3DEnabledPort
+        case .scale3DEnabled:
+            return \.scale3DEnabledPort
         }
     }
     
@@ -1579,6 +1610,12 @@ extension LayerInputPort {
             return "Anchor Entity"
         case .isEntityAnimating:
             return "Animating"
+        case .translation3DEnabled:
+            return "Translation"
+        case .rotation3DEnabled:
+            return "Rotation"
+        case .scale3DEnabled:
+            return "Scale"
         }
     }
 
