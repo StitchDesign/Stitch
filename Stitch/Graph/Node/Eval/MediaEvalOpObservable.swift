@@ -87,9 +87,6 @@ extension MediaEvalOpObservable {
         let needsNewComputedCopy = inputMedia.id != self.currentMedia?.portValue._asyncMedia?.id &&
         self.currentLoadingMediaId != inputMedia.id
         let mediaObject = GraphMediaValue(from: inputMedia)?.mediaObject
-        let nodeId = self.nodeDelegate?.id
-        
-        assertInDebug(nodeId != nil)
         
         guard needsNewComputedCopy else {
             // Return same object if no expected change
@@ -111,8 +108,7 @@ extension MediaEvalOpObservable {
                     .createMediaValue(from: mediaKey,
                                       isComputedCopy: false,    // always import scenario here
                                       mediaId: inputMedia.id,
-                                      graphDelegate: graphDelegate,
-                                      nodeId: nodeId)
+                                      graphDelegate: graphDelegate)
                 
                 await MainActor.run { [weak self] in
                     self?.updateInputMedia(mediaObject,
@@ -126,7 +122,7 @@ extension MediaEvalOpObservable {
         if let mediaObject = mediaObject {
             // Create computed copy from another computed media object
             Task(priority: .high) { [weak self] in
-                guard let copy = try await mediaObject.createComputedCopy(nodeId: nodeId) else {
+                guard let copy = try await mediaObject.createComputedCopy() else {
                     fatalErrorIfDebug()
                     
                     await MainActor.run { [weak self] in
@@ -245,15 +241,13 @@ actor MediaEvalOpCoordinator {
     static func createMediaValue(from mediaKey: MediaKey,
                                  isComputedCopy: Bool, // true if intended for node's output
                                  mediaId: UUID,
-                                 graphDelegate: GraphDelegate,
-                                 nodeId: NodeId? = nil) async -> GraphMediaValue? {
+                                 graphDelegate: GraphDelegate) async -> GraphMediaValue? {
         guard let url = await graphDelegate.getMediaUrl(forKey: mediaKey) else {
             return nil
         }
         
         let mediaResultFromFile = await graphDelegate
             .createMediaObject(mediaKey: mediaKey,
-                               nodeId: nodeId,
                                url: url)
         
         switch mediaResultFromFile {

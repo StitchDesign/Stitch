@@ -214,8 +214,7 @@ extension GraphState {
                     .createMediaValue(from: mediaKey,
                                       isComputedCopy: false,
                                       mediaId: .init(),
-                                      graphDelegate: graph,
-                                      nodeId: nodeId) else {
+                                      graphDelegate: graph) else {
                     return
                 }
                 

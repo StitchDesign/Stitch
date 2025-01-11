@@ -37,6 +37,9 @@ struct Preview3DModelLayer: View {
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
     let anchorEntityId: UUID?
+    let translation3DEnabled: Bool
+    let rotation3DEnabled: Bool
+    let scale3DEnabled: Bool
     let position: CGPoint
     let rotationX: Double
     let rotationY: Double
@@ -82,7 +85,10 @@ struct Preview3DModelLayer: View {
                                                            entity: self.entity,
                                                            realityContent: realityContent,
                                                            graph: graph,
-                                                           anchorEntityId: anchorEntityId))
+                                                           anchorEntityId: anchorEntityId,
+                                                           translationEnabled: translation3DEnabled,
+                                                           rotationEnabled: rotation3DEnabled,
+                                                           scaleEnabled: scale3DEnabled))
                 
             } else {
                 if document.isGeneratingProjectThumbnail {
@@ -135,12 +141,31 @@ struct Preview3DModelLayer: View {
 
 struct ModelEntityLayerViewModifier: ViewModifier {
     @State private var anchorEntity: AnchorEntity = .init()
+    @Bindable var previewLayer: LayerViewModel
     
-    let previewLayer: LayerViewModel
     let entity: StitchEntity?
     let realityContent: LayerRealityCameraContent
     let graph: GraphState
     let anchorEntityId: UUID?
+    let translationEnabled: Bool
+    let rotationEnabled: Bool
+    let scaleEnabled: Bool
+    
+    var gestures: ARView.EntityGestures {
+        var enabledGestures = ARView.EntityGestures()
+        
+        if translationEnabled {
+            enabledGestures.insert(.translation)
+        }
+        if rotationEnabled {
+            enabledGestures.insert(.rotation)
+        }
+        if scaleEnabled {
+            enabledGestures.insert(.scale)
+        }
+        
+        return enabledGestures
+    }
     
     func asssignNewAnchor(_ newAnchor: AnchorEntity,
                           entity: StitchEntity?,
@@ -151,7 +176,7 @@ struct ModelEntityLayerViewModifier: ViewModifier {
             newAnchor.addChild(entity.containerEntity)
         }
         
-        realityContent.addAnchor(newAnchor)
+        realityContent.scene.addAnchor(newAnchor)
     }
     
     func getAnchor(for nodeId: UUID) -> AnchorEntity? {
@@ -163,6 +188,11 @@ struct ModelEntityLayerViewModifier: ViewModifier {
         return observer.arAnchor
     }
     
+    func assignGestures(entity: StitchEntity) {
+        realityContent.installGestures(gestures,
+                                       for: entity.containerEntity as Entity & HasCollision)
+    }
+    
     func body(content: Content) -> some View {
         content
             .onAppear {
@@ -171,12 +201,12 @@ struct ModelEntityLayerViewModifier: ViewModifier {
                     self.anchorEntity = assignedAnchor
                 }
                 
-                realityContent.addAnchor(self.anchorEntity)
+                realityContent.scene.addAnchor(self.anchorEntity)
             }
             .onChange(of: self.anchorEntityId) { _, newAnchorEntityId in
                 // Remove old anchor from reality
                 let oldAnchor = self.anchorEntity
-                realityContent.removeAnchor(oldAnchor)
+                realityContent.scene.removeAnchor(oldAnchor)
                 
                 guard let newAnchorEntityId = newAnchorEntityId else {
                     self.asssignNewAnchor(AnchorEntity(),
@@ -207,10 +237,33 @@ struct ModelEntityLayerViewModifier: ViewModifier {
                     newEntity.isAnimating = previewLayer.isEntityAnimating.getBool ?? false
                     
                     self.anchorEntity.addChild(newEntity.containerEntity)
+                    
+                    // assign gestures
+                    self.assignGestures(entity: newEntity)
+                }
+            }
+            .onChange(of: self.gestures) {
+                if let entity = self.entity {
+                    
+                    // MARK: if gestures change, the only way to remove a previously-assigned gesture is to remove the entity entirely, recreate it, and then re-assign gestures
+                    Task { [weak entity] in
+                        guard let entity = entity,
+                              let entityCopy = try? await entity.createCopy() else {
+                            return
+                        }
+                     
+                        await MainActor.run { [weak entityCopy] in
+                            guard let entityCopy = entityCopy else { return }
+                            previewLayer.mediaObject = .model3D(entityCopy)
+                            self.anchorEntity.addChild(entityCopy.containerEntity)
+                            
+                            self.assignGestures(entity: entityCopy)
+                        }
+                    }
                 }
             }
             .onDisappear {
-                realityContent.removeAnchor(self.anchorEntity)
+                realityContent.scene.removeAnchor(self.anchorEntity)
             }
     }
 }

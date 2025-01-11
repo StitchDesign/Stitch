@@ -155,10 +155,7 @@ extension NodeViewModelType {
             }
             
         case .layer(let layerNode):
-            layerNode.previewLayerViewModels.forEach {
-                // Rest interaction state values
-                $0.interactiveLayer.onPrototypeRestart()
-            }
+            layerNode.onPrototypeRestart()
             
         case .component(let component):
             component.graph.onPrototypeRestart()
