@@ -107,7 +107,7 @@ struct InsertNodeMenuSearchBar: View {
         // Hosting controller needed to register arrow key presses in this view;
         // this is also the main key-press listener for the app, since the insert node menu is always on-screen
         StitchHostingControllerView(ignoreKeyCommands: false,
-                                    inputTextFieldFocused: self.store.currentDocument?.graphUI.reduxFocusedField?.getTextInputEdit.isDefined ?? false,
+                                    inputTextFieldFocused: false, // N/A
                                     usesArrowKeyBindings: true, // N/A ?
                                     name: .insertNodeMenuSearchbar) {
             searchInput

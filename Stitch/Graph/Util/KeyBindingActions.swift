@@ -15,35 +15,21 @@ extension NodeRowViewModelId {
     }
 }
 
-
-struct UpArrowPressed: GraphEvent {
+struct ArrowPressedWhileInputTextFieldFocused: GraphEvent {
+    let wasUpArrow: Bool // currently only up vs down arrows supported
     
     func handle(state: GraphState) {
         
         guard state.graphUI.reduxFocusedField?.getTextInputEdit.isDefined ?? false else {
-            log("UpArrowPressed: no text field focused")
+            fatalErrorIfDebug("ArrowKeyPressedWhileInputTextFieldFocused: no text field focused")
+            // Should never happen
             return
         }
                 
-        // View will now respond to this
-        state.graphUI.reduxFocusedFieldChangedByArrowKey = .upArrow
+        // View then responds to this
+        state.graphUI.reduxFocusedFieldChangedByArrowKey = wasUpArrow ? .upArrow : .downArrow
     }
 }
-
-struct DownArrowPressed: GraphEvent {
-    
-    func handle(state: GraphState) {
-        
-        guard state.graphUI.reduxFocusedField?.getTextInputEdit.isDefined ?? false else {
-            log("DownArrowPressed: no text field focused")
-            return
-        }
-                
-        // View will now respond to this
-        state.graphUI.reduxFocusedFieldChangedByArrowKey = .downArrow
-    }
-}
-
 
 /// Process arrow key events.
 struct ArrowKeyPressed: GraphEvent {

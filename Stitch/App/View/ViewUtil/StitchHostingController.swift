@@ -57,7 +57,10 @@ enum KeyListenerName: String, Equatable {
 class StitchHostingController<T: View>: UIHostingController<T> {
     let ignoresSafeArea: Bool
     let ignoreKeyCommands: Bool
+    
+    // TODO: better to just pass `weak var graph: GraphState` here? Avoids having to update this variable in the various `updateUIView` functions of views that consume SHC
     var inputTextFieldFocused: Bool
+    
     var usesArrowKeyBindings: Bool = false
     let name: KeyListenerName
 
@@ -175,16 +178,16 @@ class StitchHostingController<T: View>: UIHostingController<T> {
     @MainActor
     func keyPressed(_ key: UIKey) {
         log("KEY: StitchHostingController: name: \(name): keyPressed: key: \(key)")
-        
+                
         if key.keyCode == .keyboardUpArrow && self.inputTextFieldFocused {
             log("KEY: StitchHostingController: name: \(name): keyPressed: UP ARROW")
-            dispatch(UpArrowPressed())
+            dispatch(ArrowPressedWhileInputTextFieldFocused(wasUpArrow: true))
             return
         }
         
         if key.keyCode == .keyboardDownArrow && self.inputTextFieldFocused {
             log("KEY: StitchHostingController: name: \(name): keyPressed: DOWN ARROW")
-            dispatch(DownArrowPressed())
+            dispatch(ArrowPressedWhileInputTextFieldFocused(wasUpArrow: false))
             return
         }
         

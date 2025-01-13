@@ -59,7 +59,7 @@ struct PreviewContent: View {
         // TODO: still needed to contain gestures?
         // TODO: needed with `ignoresKeyCommands: false` to detect key presses for keyboard nodes
         UIKitWrapper(ignoresKeyCommands: false,
-                     inputTextFieldFocused: document.graphUI.reduxFocusedField?.getTextInputEdit.isDefined ?? false,
+                     inputTextFieldFocused: document.graphUI.reduxFocusedField?.inputTextFieldWithNumberIsFocused(document.graph) ?? false,
                      name: .previewWindow) {
             generatedPreview
                 .frame(finalSize)

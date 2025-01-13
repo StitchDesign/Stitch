@@ -49,7 +49,7 @@ struct ContentView: View, KeyboardReadable {
             
             // Best place to listen for TAB key for flyout
             UIKitWrapper(ignoresKeyCommands: true,
-                         inputTextFieldFocused: graphUI.reduxFocusedField?.getTextInputEdit.isDefined ?? false,
+                         inputTextFieldFocused: graphUI.reduxFocusedField?.inputTextFieldWithNumberIsFocused(document.graph) ?? false,
                          name: .mainGraph) {
                 contentView // the graph
             }
