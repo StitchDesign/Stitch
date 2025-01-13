@@ -99,6 +99,23 @@ extension FieldValue {
         }
     }
 
+    var isNumberForArrowKeyIncrementAndDecrement: Bool {
+        switch self {
+        case .number:
+            return true
+        case .layerDimension(let x):
+            switch x {
+            case .number, .percent:
+                return true
+            default:
+                return false
+            }
+        default:
+            return false
+        }
+    }
+    
+    
     var numberValue: Double {
         switch self {
         case .number(let double):

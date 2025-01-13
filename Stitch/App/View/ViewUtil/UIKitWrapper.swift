@@ -13,6 +13,7 @@ import StitchSchemaKit
 // a SwiftUI view that accepts another SwiftUI view T, and which wraps T in a UIKit view
 struct UIKitWrapper<T: View>: UIViewControllerRepresentable {
     let ignoresKeyCommands: Bool
+    let inputTextFieldFocused: Bool
     let name: KeyListenerName
     @ViewBuilder var content: () -> T
 
@@ -25,6 +26,7 @@ struct UIKitWrapper<T: View>: UIViewControllerRepresentable {
             rootView: content(),
             ignoresSafeArea: true,
             ignoreKeyCommands: ignoresKeyCommands,
+            inputTextFieldFocused: inputTextFieldFocused,
             name: name)
     }
 
@@ -32,6 +34,7 @@ struct UIKitWrapper<T: View>: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: StitchHostingController<T>,
                                 context: Context) {
         uiViewController.rootView = content()
+        uiViewController.inputTextFieldFocused = self.inputTextFieldFocused
     }
 }
 
