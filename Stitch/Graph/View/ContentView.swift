@@ -48,7 +48,9 @@ struct ContentView: View, KeyboardReadable {
         ZStack {
             
             // Best place to listen for TAB key for flyout
-            UIKitWrapper(ignoresKeyCommands: true, name: .mainGraph) {
+            UIKitWrapper(ignoresKeyCommands: true,
+                         inputTextFieldFocused: graphUI.reduxFocusedField?.inputTextFieldWithNumberIsFocused(document.graph) ?? false,
+                         name: .mainGraph) {
                 contentView // the graph
             }
             

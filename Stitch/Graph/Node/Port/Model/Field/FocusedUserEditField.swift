@@ -54,6 +54,24 @@ enum FocusedUserEditField: Equatable, Hashable {
             return nil
         }
     }
+    
+    @MainActor
+    func inputTextFieldWithNumberIsFocused(_ graph: GraphState) -> Bool {
+        guard let focusedField = self.getTextInputEdit else {
+            return false
+        }
+        
+        // Determine whether the focused-field has a number (numeric or percentage);
+        // if not, then up and down arrow keys should be passed down like normal.
+        let rowId = focusedField.rowId
+        let nodeId = rowId.nodeId
+        
+        if let rowViewModel = graph.getInputRowViewModel(for: rowId, nodeId: nodeId),
+           let fieldObserver = rowViewModel.fieldValueTypes.first?.fieldObservers[safeIndex: focusedField.fieldIndex] {
+            return fieldObserver.fieldValue.isNumberForArrowKeyIncrementAndDecrement
+        }
+        return false
+    }
 
     var getNodeTitleEdit: StitchTitleEdit? {
         switch self {

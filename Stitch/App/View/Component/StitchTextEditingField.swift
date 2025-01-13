@@ -31,7 +31,7 @@ struct StitchTextEditingField: View {
     var font: Font = STITCH_FONT
     var fontColor: Color = STITCH_TITLE_FONT_COLOR
     let fieldEditCallback: @MainActor (String, Bool) -> ()
-
+    
     var body: some View {
         StitchTextEditingBindingField(currentEdit: $currentEdit,
                                       fieldType: fieldType,
@@ -166,11 +166,56 @@ struct StitchTextEditingBindingField: View {
             .onChange(of: currentEdit) { _, _ in
                 self.textFieldEditAction()
             }
-            .onChange(of: canvasDimensionInput) {
-                if let newLabel = $0 {
+            .onChange(of: canvasDimensionInput) { _, newValue in
+                if let newLabel = newValue {
                     self.currentEdit = newLabel
                 }
             }
+        // When an input's field is focused, we treat an up- or down-arrow as a user "increment" or "decrement" input
+            .onChange(of: self.store.currentDocument?.graphUI.reduxFocusedFieldChangedByArrowKey) { _, _ in
+                if let numberEdit = self.store.currentDocument?.graph.handleArrowKeyInput(self.currentEdit) {
+                    self.currentEdit = numberEdit
+                }
+            }
+    }
+}
+
+extension GraphState {
+    
+    @MainActor
+    func handleArrowKeyInput(_ currentEdit: String) -> String? {
+        
+        guard self.graphUI.reduxFocusedField?.getTextInputEdit.isDefined ?? false, // only for an input's fields, not node title etc.
+              let arrowKey = self.graphUI.reduxFocusedFieldChangedByArrowKey else {
+            
+            log("handleArrowKeyInput: no text field focused or no relevant arrow key")
+            self.graphUI.reduxFocusedFieldChangedByArrowKey = nil
+            
+            return nil
+        }
+        
+        // Always wipe
+        self.graphUI.reduxFocusedFieldChangedByArrowKey = nil
+                
+        // If we had a regular, non-percentage number:
+        if let n: Double = toNumber(currentEdit) {
+            switch arrowKey {
+            case .upArrow:
+                return (n + 1).formattedForFieldDisplay()
+            case .downArrow:
+                return (n - 1).formattedForFieldDisplay()
+            }
+        } else if let n = toNumberFromPercentage(currentEdit) {
+            switch arrowKey {
+            case .upArrow:
+                return (n + 1).asPercentage
+            case .downArrow:
+                return (n - 1).asPercentage
+            }
+        } else {
+            log("handleArrowKeyInput: did not have a number or percent")
+            return nil
+        }
     }
 }
 

@@ -91,6 +91,7 @@ struct UIKitTappableWrapper<T: View>: UIViewControllerRepresentable {
             rootView: view(),
             ignoresSafeArea: false,
             ignoreKeyCommands: true,
+            inputTextFieldFocused: false, // N/A
             name: .uiKitTappableWrapper)
         let delegate = context.coordinator
 
