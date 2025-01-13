@@ -28,6 +28,7 @@ struct PreviewRealityLayer: View {
         let size = layerSize.asCGSize(parentSize)
         let anchoring = viewModel.anchoring.getAnchoring ?? .defaultAnchoring
         let scale = viewModel.scale.asCGFloat
+        let cameraDirection = viewModel.cameraDirection.getCameraDirection ?? .back
         
         if let node = document.visibleGraph.getNodeViewModel(viewModel.id.layerNodeId.asNodeId) {
             @Bindable var node = node
@@ -50,6 +51,7 @@ struct PreviewRealityLayer: View {
                              opacity: viewModel.opacity.asCGFloat,
                              anchoring: anchoring,
                              isCameraFeedEnabled: viewModel.isCameraEnabled.getBool ?? false,
+                             cameraDirection: cameraDirection,
                              isShadowsEnabled: viewModel.isShadowsEnabled.getBool ?? false,
                              blurRadius: viewModel.blurRadius.getNumber ?? .zero,
                              blendMode: viewModel.blendMode.getBlendMode ?? .defaultBlendMode,
@@ -96,6 +98,7 @@ struct RealityLayerView: View {
     let opacity: CGFloat
     let anchoring: Anchoring
     let isCameraFeedEnabled: Bool
+    let cameraDirection: CameraDirection
     let isShadowsEnabled: Bool
     let blurRadius: CGFloat
     let blendMode: StitchBlendMode
@@ -163,7 +166,8 @@ struct RealityLayerView: View {
                             if isPinnedViewRendering {
                                 let nodeId = self.layerViewModel.id.layerNodeId.id
                                 document.realityViewCreatedWithoutCamera(graph: graph,
-                                                                         nodeId: nodeId)
+                                                                         nodeId: nodeId,
+                                                                         realityCameraDirection: self.cameraDirection)
                             }
                         }
 #endif
