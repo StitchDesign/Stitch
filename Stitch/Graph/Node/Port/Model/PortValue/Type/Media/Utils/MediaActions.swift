@@ -238,10 +238,16 @@ extension GraphState {
 extension StitchDocumentViewModel {
     @MainActor
     func realityViewCreatedWithoutCamera(graph: GraphState,
-                                         nodeId: NodeId) {
+                                         nodeId: NodeId,
+                                         realityCameraDirection: CameraDirection) {
         if self.cameraFeedManager?.isLoading ?? false {
             log("RealityViewCreatedWithoutCamera: already loading")
             return
+        }
+        
+        // Change camera settings if reality node uses different direction
+        if self.cameraSettings.direction != realityCameraDirection {
+            self.cameraSettings.direction = realityCameraDirection
         }
 
         self.refreshCamera(for: .layer(.realityView),
