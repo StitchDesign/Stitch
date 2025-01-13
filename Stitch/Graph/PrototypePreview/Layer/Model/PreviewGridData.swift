@@ -50,8 +50,10 @@ extension LayerNodeViewModel {
     func getLayerInspectorInputFields(_ key: LayerInputPort) -> InputFieldViewModels {
         let port = self[keyPath: key.layerNodeKeyPath]
         
-        return port.allInputData.flatMap {
-            $0.inspectorRowViewModel.fieldValueTypes.first?.fieldObservers ?? []
+        return port.allInputData.flatMap { inputData in
+            inputData.inspectorRowViewModel.fieldValueTypes.flatMap {
+                $0.fieldObservers
+            }
         }
     }
 }
