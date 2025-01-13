@@ -20,8 +20,8 @@ actor SupabaseManager {
     
     private init() {
         // TODO: Replace with your Supabase project URL and anon key
-        let supabaseURL = "YOUR_SUPABASE_PROJECT_URL"
-        let supabaseAnonKey = "YOUR_SUPABASE_ANON_KEY"
+        let supabaseURL = SUPABASE_URL
+        let supabaseAnonKey = SUPABASE_ANON_KEY
         
         // Create proper URL instance and append the rest/v1 path
         guard let baseURL = URL(string: supabaseURL),
