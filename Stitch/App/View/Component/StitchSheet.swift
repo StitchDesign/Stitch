@@ -48,6 +48,7 @@ struct SheetViewModifier<T: View>: ViewModifier {
         content
             .sheet(isPresented: isPresentedBinding) {
                 StitchHostingControllerView(ignoreKeyCommands: false,
+                                            inputTextFieldFocused: false, // TODO: should this be provided to the sheet view?
                                             name: .sheetView) {
                     VStack(alignment: .leading) {
                         titleView

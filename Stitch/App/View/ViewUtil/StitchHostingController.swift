@@ -57,16 +57,19 @@ enum KeyListenerName: String, Equatable {
 class StitchHostingController<T: View>: UIHostingController<T> {
     let ignoresSafeArea: Bool
     let ignoreKeyCommands: Bool
+    var inputTextFieldFocused: Bool
     var usesArrowKeyBindings: Bool = false
     let name: KeyListenerName
 
     init(rootView: T,
          ignoresSafeArea: Bool,
          ignoreKeyCommands: Bool,
+         inputTextFieldFocused: Bool,
          usesArrowKeyBindings: Bool = false,
          name: KeyListenerName) {
         self.ignoresSafeArea = ignoresSafeArea
         self.ignoreKeyCommands = ignoreKeyCommands
+        self.inputTextFieldFocused = inputTextFieldFocused
         self.usesArrowKeyBindings = usesArrowKeyBindings
         self.name = name
         super.init(rootView: rootView)
@@ -114,39 +117,43 @@ class StitchHostingController<T: View>: UIHostingController<T> {
                                with event: UIPressesEvent?) {
         log("KEY: StitchHostingController: name: \(name): pressesBegan: presses.first?.key: \(presses.first?.key)")
         presses.first?.key.map(keyPressed)
-        //        super.pressesBegan(presses, with: event)
         
+        // If we don't have a key, we can't check whether we should
+        // prevent this press from being passed down the responder chain.
+        guard let key = presses.first?.key else {
+            log("KEY: StitchHostingController: name: \(name): pressesBegan: no key")
+            super.pressesBegan(presses, with: event)
+            return
+        }
+        
+        // Do not pass on up or down arrows if an input's text-field is currently focused.
+        // Prevents up- and down-arrow keys from jumping the cursor to the start or end of the text when we merely want to increment or decrement the focused field's value.
+        let isUpOrDownArrow = (key.keyCode == .keyboardUpArrow || key.keyCode == .keyboardDownArrow)
+        if isUpOrDownArrow && self.inputTextFieldFocused {
+            log("KEY: StitchHostingController: name: \(name): pressesBegan: will not pass arrow key down responder chain")
+            return
+        }
+        
+#if targetEnvironment(macCatalyst)
         /*
          HACK for Option key on Mac Catalyst:
-
+         
          Some UIResponder along the chain dispatches a `pressesCancelled` event whenever Option is pressed;
          thus we get `pressesCancelled` happening immediately after `pressesBegan`,
          which defeats our ability to listen for Option key press vs release.
-
+         
          So, we simply don't pass the Option key's pressesBegan along the chain.
+         
+         TODO: also never pass on the shift key?
          */
-        
-        
-        // If an input text field on a node is actively focused,
-        // do not pass the up- or down-arrow keys to the next responder in the chain.
-        // Prevents up- and down-arrow keys from jumping the cursor to the start or end of the text when we merely want to increment or decrement the focused field's value.
-        if let key = presses.first?.key,
-//           state.graphUI.reduxFocusedField.getTextInputEdit,
-           (key.keyCode == .keyboardUpArrow || key.keyCode == .keyboardDownArrow) {
-           
-            log("pressesBegan: will not pass on up-arrow")
-        } else {
-            super.pressesBegan(presses, with: event)
+        if self.isOptionKey(key) {
+            log("KEY: StitchHostingController: name: \(name): pressesBegan: option key held")
+            return
         }
+#endif
         
-//#if targetEnvironment(macCatalyst)
-//        if let key = presses.first?.key,
-//           !self.isOptionKey(key) {
-//            super.pressesBegan(presses, with: event)
-//        }
-//#else
-//        super.pressesBegan(presses, with: event)
-//#endif
+        // If we did not exit early,
+        super.pressesBegan(presses, with: event)
     }
 
     @MainActor
@@ -169,11 +176,16 @@ class StitchHostingController<T: View>: UIHostingController<T> {
     func keyPressed(_ key: UIKey) {
         log("KEY: StitchHostingController: name: \(name): keyPressed: key: \(key)")
         
-        if key.keyCode == .keyboardUpArrow {
+        if key.keyCode == .keyboardUpArrow && self.inputTextFieldFocused {
             log("KEY: StitchHostingController: name: \(name): keyPressed: UP ARROW")
             dispatch(UpArrowPressed())
-        } else if key.keyCode == .keyboardDownArrow {
+            return
+        }
+        
+        if key.keyCode == .keyboardDownArrow && self.inputTextFieldFocused {
             log("KEY: StitchHostingController: name: \(name): keyPressed: DOWN ARROW")
+            dispatch(DownArrowPressed())
+            return
         }
         
         // TODO: key-modifiers (Tab, Shift etc.) and key-characters are not exclusive
@@ -302,6 +314,7 @@ class StitchHostingController<T: View>: UIHostingController<T> {
 /// A very simple view implementation of a `StitchHostingController`.
 struct StitchHostingControllerView<T: View>: View {
     let ignoreKeyCommands: Bool
+    let inputTextFieldFocused: Bool
     var usesArrowKeyBindings: Bool = false
     let name: KeyListenerName
     @ViewBuilder var view: () -> T
@@ -310,6 +323,7 @@ struct StitchHostingControllerView<T: View>: View {
         StitchHostingControllerViewRepresentable(
             view: view(),
             ignoreKeyCommands: ignoreKeyCommands,
+            inputTextFieldFocused: inputTextFieldFocused,
             usesArrowKeyBindings: usesArrowKeyBindings,
             name: name)
     }
@@ -319,6 +333,7 @@ struct StitchHostingControllerView<T: View>: View {
 struct StitchHostingControllerViewRepresentable<T: View>: UIViewControllerRepresentable {
     let view: T
     let ignoreKeyCommands: Bool
+    let inputTextFieldFocused: Bool
     var usesArrowKeyBindings: Bool = false
     let name: KeyListenerName
 
@@ -326,11 +341,13 @@ struct StitchHostingControllerViewRepresentable<T: View>: UIViewControllerRepres
         StitchHostingController(rootView: view,
                                 ignoresSafeArea: false,
                                 ignoreKeyCommands: ignoreKeyCommands,
+                                inputTextFieldFocused: inputTextFieldFocused,
                                 usesArrowKeyBindings: usesArrowKeyBindings,
                                 name: name)
     }
 
     func updateUIViewController(_ uiViewController: StitchHostingController<T>, context: Context) {
         uiViewController.rootView = view
+        uiViewController.inputTextFieldFocused = self.inputTextFieldFocused
     }
 }

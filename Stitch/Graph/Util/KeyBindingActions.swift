@@ -15,66 +15,35 @@ extension NodeRowViewModelId {
     }
 }
 
+
 struct UpArrowPressed: GraphEvent {
     
     func handle(state: GraphState) {
-        if let activelyFocusedTextFieldOnCanvas = state.graphUI.reduxFocusedField?.getTextInputEdit {
-            log("UpArrowPressed: activelyFocusedTextFieldOnCanvas: \(activelyFocusedTextFieldOnCanvas)")
-            // increment the value of the field
-            
-            // Treat this is as a user edit; find the string for the active
-            let rowId = activelyFocusedTextFieldOnCanvas.rowId
-            let nodeId = rowId.nodeId
-            log("UpArrowPressed: nodeId: \(nodeId)")
-            log("UpArrowPressed: rowId: \(rowId)")
-            
-            if let node = state.getNodeViewModel(nodeId),
-               let rowViewModel = node.getInputRowViewModel(for: rowId) {
-                
-                
- //                ,
- //               let nodeRowObserver = node.getInputRowObserver(for: rowId.portType)
-                
-                
-                let fieldObservers = rowViewModel.fieldValueTypes.first?.fieldObservers
-                let fieldObserver = fieldObservers?[safeIndex: activelyFocusedTextFieldOnCanvas.fieldIndex]
-                
-                log("UpArrowPressed: fieldObserver?.fieldValue: \(fieldObserver?.fieldValue)")
-                
-                if let fieldObserver = fieldObserver {
-                    switch fieldObserver.fieldValue {
-                    case .number(let n):
-                        log("UpArrowPressed: .number: n: \(n)")
-                        state.inputEdited(fieldValue: FieldValue.number(n + 1),
-                                          fieldIndex: activelyFocusedTextFieldOnCanvas.fieldIndex,
-                                          coordinate: rowId.asNodeIOCoordinate,
-                                          // does this matter? yes, for if we have edited a single field while actually multiple layers in the sidebar are selected
-                                          isFieldInsideLayerInspector: false,
-                                          isCommitting: true)
-                        
-                    case .layerDimension(let n):
-                        log("UpArrowPressed: .layerDimension: n: \(n)")
-                        switch n {
-                        case .percent(let _n):
-                            log("UpArrowPressed: .layerDimension: _n: \(_n)")
-                            state.inputEdited(fieldValue: FieldValue.number(_n + 1),
-                                              fieldIndex: activelyFocusedTextFieldOnCanvas.fieldIndex,
-                                              coordinate: rowId.asNodeIOCoordinate,
-                                              // does this matter? yes, for if we have edited a single field while actually multiple layers in the sidebar are selected
-                                              isFieldInsideLayerInspector: false,
-                                              isCommitting: true)
-                        default:
-                            log("UpArrowPressed: .layerDimension: did not have a number")
-                        }
-                    default:
-                        log("UpArrowPressed: default: \(fieldObserver.fieldValue)")
-                    }
-                }
-                
-            }
+        
+        guard state.graphUI.reduxFocusedField?.getTextInputEdit.isDefined ?? false else {
+            log("UpArrowPressed: no text field focused")
+            return
         }
+                
+        // View will now respond to this
+        state.graphUI.reduxFocusedFieldChangedByArrowKey = .upArrow
     }
 }
+
+struct DownArrowPressed: GraphEvent {
+    
+    func handle(state: GraphState) {
+        
+        guard state.graphUI.reduxFocusedField?.getTextInputEdit.isDefined ?? false else {
+            log("DownArrowPressed: no text field focused")
+            return
+        }
+                
+        // View will now respond to this
+        state.graphUI.reduxFocusedFieldChangedByArrowKey = .downArrow
+    }
+}
+
 
 /// Process arrow key events.
 struct ArrowKeyPressed: GraphEvent {
