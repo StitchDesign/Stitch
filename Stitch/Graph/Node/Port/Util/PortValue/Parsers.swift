@@ -116,6 +116,16 @@ func toNumber(_ userEdit: String) -> Double? {
     return result
 }
 
+func toNumberFromPercentage(_ userEdit: String) -> Double? {
+    toNumber(userEdit.replacing("%", with: ""))
+}
+
+extension Double {
+    func formattedForFieldDisplay() -> String {
+        GlobalFormatter.string(for: self) ?? self.description
+    }
+}
+
 func toBool(_ userEdit: String) -> Bool? {
     Bool(userEdit)
 }

@@ -28,6 +28,11 @@ struct ActiveDragInteractionNodeVelocityData: Equatable, Hashable {
     var activeDragInteractionNodes = NodeIdSet()
 }
 
+enum FocusedFieldChangedByArrowKey: Equatable, Hashable {
+    case upArrow, // increment
+         downArrow // decrement
+}
+
 @Observable
 final class GraphUIState: Sendable {
         
@@ -60,6 +65,10 @@ final class GraphUIState: Sendable {
 
     // nil = no field focused
     @MainActor var reduxFocusedField: FocusedUserEditField?
+    
+    // set non-nil by up- and down-arrow key presses while an input's fields are focused
+    // set nil after key press has been handled by `StitchTextEditingBindingField`
+    @MainActor var reduxFocusedFieldChangedByArrowKey: FocusedFieldChangedByArrowKey?
 
     // Hack: to differentiate state updates that came from undo/redo (and which close the adjustment bar popover),
     // vs those that came from user manipulation of adjustment bar (which do not close the adjustment bar popover).
