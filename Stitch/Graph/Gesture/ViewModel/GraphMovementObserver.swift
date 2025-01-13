@@ -77,10 +77,10 @@ struct BoundaryNodesPositions {
 
 @Observable
 final class GraphMovementObserver: Sendable {
-    @MainActor var localPosition = CGPoint.zero
+    @MainActor var localPosition = ABSOLUTE_GRAPH_CENTER
     @MainActor var zoomData: GraphZoom = .init()
 
-    @MainActor var localPreviousPosition = CGPoint.zero
+    @MainActor var localPreviousPosition = ABSOLUTE_GRAPH_CENTER
 
     let graphMultigesture = GraphMultigesture()
 

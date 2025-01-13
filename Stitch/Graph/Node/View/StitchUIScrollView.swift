@@ -20,6 +20,9 @@ let WHOLE_GRAPH_SIZE = CGSize(width: WHOLE_GRAPH_LENGTH,
 
 let WHOLE_GRAPH_COORDINATE_SPACE = "WHOLE_GRAPH_COORDINATE_SPACE"
 
+let ABSOLUTE_GRAPH_CENTER = CGPoint(x: WHOLE_GRAPH_LENGTH/2,
+                                    y: WHOLE_GRAPH_LENGTH/2)
+
 struct StitchUIScrollViewModifier: ViewModifier {
     let document: StitchDocumentViewModel
     
@@ -34,7 +37,6 @@ struct StitchUIScrollViewModifier: ViewModifier {
                 content
                     .ignoresSafeArea()
                 
-//                Color.blue.opacity(0.9)
                 APP_BACKGROUND_COLOR
                     .zIndex(-99999)
                     .frame(WHOLE_GRAPH_SIZE)
@@ -73,7 +75,6 @@ struct StitchUIScrollViewModifier: ViewModifier {
         } // StitchUIScrollView
         
         .background {
-            //Color.red.opacity(0.9)
             APP_BACKGROUND_COLOR
         }
         .ignoresSafeArea()
@@ -103,7 +104,7 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         
         // Enable zooming
         scrollView.minimumZoomScale = MIN_GRAPH_SCALE // 0.1
-        scrollView.maximumZoomScale = MAX_GRAPH_SCALE //5.0
+        scrollView.maximumZoomScale = MAX_GRAPH_SCALE // 5.0
         scrollView.delegate = context.coordinator
         
         // CATALYST AND IPAD-WITH-TRACKPAD: IMMEDIATELY START THE NODE CURSOR SELECTION BOX
@@ -131,8 +132,9 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             hostedView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor)
         ])
         
+        // TODO: can be hardcoded instead
         scrollView.contentSize = contentSize
-                
+        
         self.initializeContentOffset(scrollView)
                 
         return scrollView
@@ -140,9 +142,15 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
     
     private func initializeContentOffset(_ scrollView: UIScrollView) {
         DispatchQueue.main.async {
-            let newOffset =  CGPoint(x: WHOLE_GRAPH_LENGTH/2,
-                                     y: WHOLE_GRAPH_LENGTH/2)
+            
+//            let newOffset =  CGPoint(x: WHOLE_GRAPH_LENGTH/2,
+//                                     y: WHOLE_GRAPH_LENGTH/2)
+            
+            let newOffset =  self.document.localPosition
+            log("StitchUIScrollView: initializeContentOffset: newOffset: \(newOffset)")
+            
             scrollView.setContentOffset(newOffset, animated: false)
+            
             dispatch(GraphScrollDataUpdated(
                 newOffset: newOffset,
                 newZoom: scrollView.zoomScale

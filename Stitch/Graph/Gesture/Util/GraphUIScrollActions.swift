@@ -647,16 +647,15 @@ extension StitchDocumentViewModel {
             .localPosition
 
         if !_rootLevelGraphOffset.isDefined {
-            #if DEV || DEV_DEBUG
             log("GraphState.localPositionToPersists: no root level graph offset")
-            #endif
         }
-        let rootLevelGraphOffset = _rootLevelGraphOffset ?? .zero
+//        let rootLevelGraphOffset = _rootLevelGraphOffset ?? .zero
+        let rootLevelGraphOffset = _rootLevelGraphOffset ?? ABSOLUTE_GRAPH_CENTER
 
         let graphOffset = self.graphUI.groupNodeFocused.isDefined ? rootLevelGraphOffset : self.localPosition
 
-        // log("GraphState.localPositionToPersists: rootLevelGraphOffset: \(rootLevelGraphOffset)")
-        // log("GraphState.localPositionToPersists: graphOffset: \(graphOffset)")
+        log("GraphState.localPositionToPersists: rootLevelGraphOffset: \(rootLevelGraphOffset)")
+        log("GraphState.localPositionToPersists: graphOffset: \(graphOffset)")
 
         return graphOffset
     }

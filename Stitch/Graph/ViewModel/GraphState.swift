@@ -401,7 +401,7 @@ extension GraphState {
     
     @MainActor
     var localPosition: CGPoint {
-        self.documentDelegate?.localPosition ?? .init()
+        self.documentDelegate?.localPosition ?? ABSOLUTE_GRAPH_CENTER
     }
     
     @MainActor
