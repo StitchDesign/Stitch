@@ -8,6 +8,29 @@
 import SwiftUI
 import StitchSchemaKit
 
+extension NodeRowViewModelId {
+    var asNodeIOCoordinate: NodeIOCoordinate {
+        NodeIOCoordinate(portType: self.portType,
+                         nodeId: self.nodeId)
+    }
+}
+
+struct ArrowPressedWhileInputTextFieldFocused: GraphEvent {
+    let wasUpArrow: Bool // currently only up vs down arrows supported
+    
+    func handle(state: GraphState) {
+        
+        guard state.graphUI.reduxFocusedField?.getTextInputEdit.isDefined ?? false else {
+            fatalErrorIfDebug("ArrowKeyPressedWhileInputTextFieldFocused: no text field focused")
+            // Should never happen
+            return
+        }
+                
+        // View then responds to this
+        state.graphUI.reduxFocusedFieldChangedByArrowKey = wasUpArrow ? .upArrow : .downArrow
+    }
+}
+
 /// Process arrow key events.
 struct ArrowKeyPressed: GraphEvent {
     let arrowKey: ArrowKey
