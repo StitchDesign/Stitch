@@ -82,6 +82,7 @@
 		B539C2EA2B92BF3D00C6CEC3 /* DocumentEncodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B539C2E92B92BF3D00C6CEC3 /* DocumentEncodable.swift */; };
 		B53A92292A7D80CC00192E86 /* GraphMovementViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53A92282A7D80CC00192E86 /* GraphMovementViewModifier.swift */; };
 		B53B1D96289E265900489652 /* StitchVideoPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53B1D95289E265900489652 /* StitchVideoPlayer.swift */; };
+		B53E0BEC2D35B5E00072FD43 /* BoxLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53E0BEB2D35B5DD0072FD43 /* BoxLayerNode.swift */; };
 		B53E47812894918500A3D060 /* Microphone Recorder.stitch in Resources */ = {isa = PBXBuildFile; fileRef = B53E477F2894918500A3D060 /* Microphone Recorder.stitch */; };
 		B541060028694AD7000688CA /* MediaUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B54105FF28694AD7000688CA /* MediaUtil.swift */; };
 		B5410608286D66F3000688CA /* NodeUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5410607286D66F3000688CA /* NodeUtils.swift */; };
@@ -1018,6 +1019,8 @@
 		B539C2E92B92BF3D00C6CEC3 /* DocumentEncodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentEncodable.swift; sourceTree = "<group>"; };
 		B53A92282A7D80CC00192E86 /* GraphMovementViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphMovementViewModifier.swift; sourceTree = "<group>"; };
 		B53B1D95289E265900489652 /* StitchVideoPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchVideoPlayer.swift; sourceTree = "<group>"; };
+		B53E0BEA2D3595020072FD43 /* StitchSchemaKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = StitchSchemaKit; path = ../StitchSchemaKit; sourceTree = SOURCE_ROOT; };
+		B53E0BEB2D35B5DD0072FD43 /* BoxLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoxLayerNode.swift; sourceTree = "<group>"; };
 		B53E477F2894918500A3D060 /* Microphone Recorder.stitch */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Microphone Recorder.stitch"; sourceTree = "<group>"; };
 		B54105FF28694AD7000688CA /* MediaUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaUtil.swift; sourceTree = "<group>"; };
 		B5410607286D66F3000688CA /* NodeUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeUtils.swift; sourceTree = "<group>"; };
@@ -1931,6 +1934,7 @@
 		200BD859254F66EB00692903 /* Stitch */ = {
 			isa = PBXGroup;
 			children = (
+				B53E0BEA2D3595020072FD43 /* StitchSchemaKit */,
 				EC15E425260271C6006F2E08 /* Stitch.entitlements */,
 				200BD863254F66EE00692903 /* Info.plist */,
 				B5617A7B2C175C3C00B53DAF /* App */,
@@ -3766,6 +3770,7 @@
 		E41685E228A3FA9200731889 /* 3DModelLayerNode */ = {
 			isa = PBXGroup;
 			children = (
+				B53E0BEB2D35B5DD0072FD43 /* BoxLayerNode.swift */,
 				E41685DC28A3FA3000731889 /* Model3DLayerNode.swift */,
 				E41685E028A3FA5800731889 /* PreviewModel3DLayer.swift */,
 				E4AE5B7B28AAFE4A001C823D /* LightType.swift */,
@@ -5406,6 +5411,7 @@
 				EC9832692B69C926003F9462 /* EdgeEditModeInputLabelView.swift in Sources */,
 				20747C5925CB0B0500570787 /* PreviewLayerType.swift in Sources */,
 				B51523BA2B8C2F7A000042CF /* ProjectLoader.swift in Sources */,
+				B53E0BEC2D35B5E00072FD43 /* BoxLayerNode.swift in Sources */,
 				ECFEFF9A26BDD93F00CF042E /* PortValueDefaults.swift in Sources */,
 				ECFA5D48287DEE510037CD59 /* PortColor.swift in Sources */,
 				B5E28AEC2A7988420007C0CB /* ProjectWindowSizeReader.swift in Sources */,

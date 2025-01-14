@@ -59,6 +59,17 @@ extension Layer {
             return VideoStreamingLayerNode.self
         case .material:
             return MaterialLayerNode.self
+        case .box:
+            return BoxLayerNode.self
+        case .sphere:
+            fatalError()
+//            return SphereLayerNode.self
+        case .cylinder:
+            fatalError()
+//            return CylinderLayerNode.self
+        case .cone:
+            fatalError()
+//            return ConeLayerNode.self
         }
     }
 }

@@ -1,43 +1,20 @@
 //
-//  Model3DLayerNode.swift
+//  BoxLayerNode.swift
 //  Stitch
 //
-//  Created by Nicholas Arner on 8/3/22.
+//  Created by Elliot Boschwitz on 1/13/25.
 //
 
 import Foundation
 import StitchSchemaKit
 import SwiftUI
-import SceneKit
 import RealityKit
 
-func retrieveBundleResource(forResource: String, withExtension: String = "usdz") -> URL {
-    let urlPath = Bundle.main.url(forResource: forResource, withExtension: "usdz")
-    return urlPath!
-}
-
-let default3DModelToyRobotAsset = retrieveBundleResource(forResource: "Vintage Toy Robot")
-// let airForceSneakersModelAsset = retrieveBundleResource(forResource: "AirForce Sneakers")
-// let chairSwanModelAsset = retrieveBundleResource(forResource: "Chair")
-// let cupSaucerSetModelAsset = retrieveBundleResource(forResource: "Cup Saucer Set")
-// let fenderStratocasterSetModelAsset = retrieveBundleResource(forResource: "Fender Stratocaster")
-// let flowerTulipModelAsset = retrieveBundleResource(forResource: "Flower Tulip")
-// let gramophoneModelAsset = retrieveBundleResource(forResource: "Gramophone")
-// let lemonPieModelAsset = retrieveBundleResource(forResource: "Lemon Meringue Pie")
-// let pegasusTrailSneakersModelAsset = retrieveBundleResource(forResource: "Pegasus Trail Sneakers")
-// let teapotModelAsset = retrieveBundleResource(forResource: "Teapot")
-// let toyBiplaneModelAsset = retrieveBundleResource(forResource: "Toy Biplane")
-// let toyCarModelAsset = retrieveBundleResource(forResource: "Toy Car")
-// let toyDrummerModelAsset = retrieveBundleResource(forResource: "Toy Drummer")
-// let retroTVModelAsset = retrieveBundleResource(forResource: "Retro TV")
-// let wateringcanModelAsset = retrieveBundleResource(forResource: "Watering Can")
-
-struct Model3DLayerNode: LayerNodeDefinition {
+struct BoxLayerNode: LayerNodeDefinition {
     
-    static let layer = Layer.model3D
+    static let layer = Layer.box
 
     static let inputDefinitions: LayerInputPortSet = .init([
-        .model3D,
         .anchorEntity,
         .position,
         .rotationX,
@@ -53,18 +30,38 @@ struct Model3DLayerNode: LayerNodeDefinition {
         .shadowRadius,
         .shadowOffset,
         .transform3D,
-        .isEntityAnimating,
         .translation3DEnabled,
         .scale3DEnabled,
-        .rotation3DEnabled
+        .rotation3DEnabled,
+        .cornerRadius,
+        .isMetallic,
+        .size3D
     ])
         .union(.layerEffects)
         .union(.strokeInputs)
         .union(.aspectRatio)
         .union(.sizing).union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
-
-    static func createEphemeralObserver() -> NodeEphemeralObservable? {
-        MediaEvalOpObserver()
+    
+    @MainActor
+    private static func createEntity(color: Color,
+                                     isMetallic: Bool,
+                                     size3D: Point3D,
+                                     cornerRadius: CGFloat) -> Entity {
+        let material = SimpleMaterial(color: color.toUIColor,
+                                      isMetallic: isMetallic)
+        
+        let entity = Entity()
+        
+        // Create a mesh resource.
+        let boxMesh = MeshResource.generateBox(width: Float(size3D.x),
+                                               height: Float(size3D.y),
+                                               depth: Float(size3D.z),
+                                               cornerRadius: Float(cornerRadius))
+        
+        // Add the mesh resource to a model component, and add it to the entity.
+        entity.components.set(ModelComponent(mesh: boxMesh, materials: [material]))
+        
+        return entity
     }
     
     static func content(document: StitchDocumentViewModel,
@@ -83,7 +80,11 @@ struct Model3DLayerNode: LayerNodeDefinition {
             realityContent: realityContent,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,
-            entity: viewModel.mediaObject?.model3DEntity,
+            entity: nil,
+//            Self.createEntity(color: viewModel.color.getColor ?? .red,
+//                                      isMetallic: viewModel.isMetallic.getBool ?? false,
+//                                      size3D: viewModel.size3D.getPoint3D ?? .zero,
+//                                      cornerRadius: viewModel.cornerRadius.getNumber ?? .zero)
             anchorEntityId: viewModel.anchorEntity.anchorEntity,
             translation3DEnabled: viewModel.translation3DEnabled.getBool ?? false,
             rotation3DEnabled: viewModel.rotation3DEnabled.getBool ?? false,

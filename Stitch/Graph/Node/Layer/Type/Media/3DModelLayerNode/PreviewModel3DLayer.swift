@@ -36,6 +36,7 @@ struct Preview3DModelLayer: View {
     
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
+    let entity: StitchEntity?
     let anchorEntityId: UUID?
     let translation3DEnabled: Bool
     let rotation3DEnabled: Bool
@@ -60,11 +61,7 @@ struct Preview3DModelLayer: View {
     let parentSize: CGSize
     let parentDisablesPosition: Bool
     let parentIsScrollableGrid: Bool
-    
-    var entity: StitchEntity? {
-        self.layerViewModel.mediaObject?.model3DEntity
-    }
-    
+
     @MainActor
     var layerNode: LayerNodeViewModel? {
         self.graph.getNodeViewModel(layerViewModel.id.layerNodeId.asNodeId)?
