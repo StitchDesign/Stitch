@@ -24,9 +24,9 @@ Part of the benifit of being all in on the Apple echosystem is that we get sever
 2. **CoreML Models**. Use any CoreML model, even those that you've trained yourself. We've also given you a few models to use that should help get you started.
 3. **iCloud Syncing**. All your documents in one place, accross all devices. In the future this should also buy us live updating of projects as your change them accross devices. Also collaboration support, much like you're used to in apps like Freefrom, built on exactly the same APIs.
 
-## Helping Test
+## Community
 
-Want to help test it? [Email us](mailto:bricks.muzzle_0t@icloud.com) to get on the TestFlight. We're also just starting to head over to [Campsite](https://app.campsite.co/stitch/posts) to discuss progress and share prototypes. Join us, help us improve with ideas and code. 
+We're just starting our [Campsite](https://app.campsite.co/stitch/posts) to discuss progress and share prototypes. Join us, help us improve with ideas and code. 
 
 ## Who We Are
 
@@ -43,7 +43,7 @@ We’re a group of passionate engineers and designers who share a love for Apple
 * [Adam](https://adammenges.com)
 * [Josh](https://x.com/joshuapekera)
 
-Want to help? Either open up a PR, Issue, or [email us](mailto:bricks.muzzle_0t@icloud.com). We're looking for both engineering and design help.
+Want to help? Either open up a PR, Issue, or Email us (bricksZZZ.ZZZmuzzle_0t@icloud.com (remove the capital Z's)). We're looking for both engineering and design help.
 
 Join in and help us, we’ll be keeping this list up to date.
 
@@ -55,7 +55,7 @@ After you've cloned the repository, you'll need to make sure to update the proje
 
 Make sure that your development team has entitlements for CloudKit and Push Notifications. Then, create a new CloudKit container from Xcode; this [guide](https://developer.apple.com/documentation/cloudkit/enabling_cloudkit_in_your_app#3403299) from Apple shows you how. 
 
-Once you've done that, you should be good to go for running and developing locally! [Email us](mailto:bricks.muzzle_0t@icloud.com) if you have any questions!
+Once you've done that, you should be good to go for running and developing locally!
 
 ## Prototype Gallery
 ![prototype](README_Assets/CleanShot2024-06-25at23.07.52.gif)
