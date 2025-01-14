@@ -20,6 +20,9 @@ let WHOLE_GRAPH_SIZE = CGSize(width: WHOLE_GRAPH_LENGTH,
 
 let WHOLE_GRAPH_COORDINATE_SPACE = "WHOLE_GRAPH_COORDINATE_SPACE"
 
+let ABSOLUTE_GRAPH_CENTER = CGPoint(x: WHOLE_GRAPH_LENGTH/2,
+                                    y: WHOLE_GRAPH_LENGTH/2)
+
 struct StitchUIScrollViewModifier: ViewModifier {
     let document: StitchDocumentViewModel
     
@@ -29,12 +32,11 @@ struct StitchUIScrollViewModifier: ViewModifier {
     }
     
     func body(content: Content) -> some View {
-        StitchUIScrollView(contentSize: WHOLE_GRAPH_SIZE, document: document) {
+        StitchUIScrollView(document: document) {
             ZStack {
                 content
                     .ignoresSafeArea()
                 
-//                Color.blue.opacity(0.9)
                 APP_BACKGROUND_COLOR
                     .zIndex(-99999)
                     .frame(WHOLE_GRAPH_SIZE)
@@ -73,7 +75,6 @@ struct StitchUIScrollViewModifier: ViewModifier {
         } // StitchUIScrollView
         
         .background {
-            //Color.red.opacity(0.9)
             APP_BACKGROUND_COLOR
         }
         .ignoresSafeArea()
@@ -82,15 +83,12 @@ struct StitchUIScrollViewModifier: ViewModifier {
 
 
 struct StitchUIScrollView<Content: View>: UIViewRepresentable {
-    let contentSize: CGSize
     let document: StitchDocumentViewModel
     var content: Content
     
-    init(contentSize: CGSize,
-         document: StitchDocumentViewModel,
+    init(document: StitchDocumentViewModel,
          @ViewBuilder content: () -> Content) {
         self.content = content()
-        self.contentSize = contentSize
         self.document = document
     }
     
@@ -103,7 +101,7 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         
         // Enable zooming
         scrollView.minimumZoomScale = MIN_GRAPH_SCALE // 0.1
-        scrollView.maximumZoomScale = MAX_GRAPH_SCALE //5.0
+        scrollView.maximumZoomScale = MAX_GRAPH_SCALE // 5.0
         scrollView.delegate = context.coordinator
         
         // CATALYST AND IPAD-WITH-TRACKPAD: IMMEDIATELY START THE NODE CURSOR SELECTION BOX
@@ -131,8 +129,8 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             hostedView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor)
         ])
         
-        scrollView.contentSize = contentSize
-                
+        scrollView.contentSize = WHOLE_GRAPH_SIZE
+        
         self.initializeContentOffset(scrollView)
                 
         return scrollView
@@ -140,9 +138,15 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
     
     private func initializeContentOffset(_ scrollView: UIScrollView) {
         DispatchQueue.main.async {
-            let newOffset =  CGPoint(x: WHOLE_GRAPH_LENGTH/2,
-                                     y: WHOLE_GRAPH_LENGTH/2)
+            
+//            let newOffset =  CGPoint(x: WHOLE_GRAPH_LENGTH/2,
+//                                     y: WHOLE_GRAPH_LENGTH/2)
+            
+            let newOffset =  self.document.localPosition
+            log("StitchUIScrollView: initializeContentOffset: newOffset: \(newOffset)")
+            
             scrollView.setContentOffset(newOffset, animated: false)
+            
             dispatch(GraphScrollDataUpdated(
                 newOffset: newOffset,
                 newZoom: scrollView.zoomScale
@@ -186,7 +190,6 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
     
     func makeCoordinator() -> Coordinator {
         return Coordinator(content: content,
-                           contentSize: contentSize,
                            document: document)
     }
     
@@ -196,20 +199,13 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         
         // Used during spacebar + trackpad click-&-drag gesture
         private var initialContentOffset: CGPoint = .zero
-        
-        // Used for border checking
-        //        private var previousContentOffset: CGPoint = .zero
-        
-        private let contentSize: CGSize
-        
+                
         weak var document: StitchDocumentViewModel?
         
         init(content: Content,
-             contentSize: CGSize,
              document: StitchDocumentViewModel) {
             self.hostingController = UIHostingController(rootView: content)
             self.hostingController.view.backgroundColor = .clear
-            self.contentSize = contentSize
             self.document = document
         }
         
@@ -244,6 +240,17 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
                 newOffset: scrollView.contentOffset,
                 newZoom: scrollView.zoomScale
             ))
+        }
+        
+        // Called when scroll-view movement comes to an end
+        func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+            dispatch(GraphScrollDataUpdated(
+                newOffset: scrollView.contentOffset,
+                newZoom: scrollView.zoomScale,
+                // Persist when
+                shouldPersist: true
+            ))
+            
         }
                 
         func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -438,7 +445,8 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
                                             animated: false)
                 dispatch(GraphScrollDataUpdated(
                     newOffset: scrollView.contentOffset,
-                    newZoom: scrollView.zoomScale
+                    newZoom: scrollView.zoomScale,
+                    shouldPersist: true
                 ))
                 
             @unknown default:

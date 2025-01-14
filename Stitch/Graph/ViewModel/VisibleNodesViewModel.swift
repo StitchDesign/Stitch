@@ -16,7 +16,7 @@ final class VisibleNodesViewModel: Sendable {
     @MainActor var nodes = NodesViewModelDict()
 
     // Saves location and zoom-specific data for groups
-    @MainActor var nodesByPage: NodesPagingDict = [.root: .init()]
+    @MainActor var nodesByPage: NodesPagingDict // = [.root: .init()]
     
     @MainActor var visibleCanvasIds = Set<CanvasItemId>()
     
@@ -26,7 +26,9 @@ final class VisibleNodesViewModel: Sendable {
     @MainActor var needsInfiniteCanvasCacheReset = true
     @MainActor var infiniteCanvasCache: InfiniteCanvas.Cache = .init()
     
-    @MainActor init() { }
+    @MainActor init(localPosition: CGPoint) {
+        self.nodesByPage = [.root: .init(localPosition: localPosition)]
+    }
 }
 
 extension VisibleNodesViewModel {

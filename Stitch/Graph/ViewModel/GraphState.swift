@@ -84,11 +84,12 @@ final class GraphState: Sendable {
     
     @MainActor
     init(from schema: GraphEntity,
+         localPosition: CGPoint,
          nodes: NodesViewModelDict,
          components: MasterComponentsDict,
          mediaFiles: [URL],
          saveLocation: [UUID]) {
-        self.visibleNodesViewModel = VisibleNodesViewModel()
+        self.visibleNodesViewModel = VisibleNodesViewModel(localPosition: localPosition)
         self.lastEncodedDocument = schema
         self.saveLocation = saveLocation
         self.id = schema.id
@@ -116,6 +117,7 @@ extension GraphState {
     
     @MainActor
     convenience init(from schema: GraphEntity,
+                     localPosition: CGPoint,
                      saveLocation: [UUID],
                      encoder: (any DocumentEncodable)) async {
         guard let decodedFiles = await encoder.getDecodedFiles() else {
@@ -135,6 +137,7 @@ extension GraphState {
         }
         
         self.init(from: schema,
+                  localPosition: localPosition,
                   nodes: nodes,
                   components: components,
                   mediaFiles: decodedFiles.mediaFiles,
@@ -401,7 +404,7 @@ extension GraphState {
     
     @MainActor
     var localPosition: CGPoint {
-        self.documentDelegate?.localPosition ?? .init()
+        self.documentDelegate?.localPosition ?? ABSOLUTE_GRAPH_CENTER
     }
     
     @MainActor
@@ -736,12 +739,14 @@ extension GraphState {
         .init()
     }
      
+    // aka createEmpty
     @MainActor convenience init() {
         self.init(from: .init(id: .init(),
                               name: STITCH_PROJECT_DEFAULT_NAME,
                               nodes: [],
                               orderedSidebarLayers: [],
                               commentBoxes: []),
+                  localPosition: ABSOLUTE_GRAPH_CENTER,
                   nodes: [:],
                   components: [:],
                   mediaFiles: [],

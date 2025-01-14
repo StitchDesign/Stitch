@@ -613,7 +613,6 @@
 		EC89F7DF27602BE700C4447A /* SelectionHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC89F7DE27602BE700C4447A /* SelectionHelpers.swift */; };
 		EC89F7E127602C0700C4447A /* ExpansionBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC89F7E027602C0700C4447A /* ExpansionBox.swift */; };
 		EC8A48ED2710EB2F001BB4FC /* GraphStepState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8A48EC2710EB2F001BB4FC /* GraphStepState.swift */; };
-		EC8A48F02710EBA3001BB4FC /* GraphStepMovement.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8A48EF2710EBA3001BB4FC /* GraphStepMovement.swift */; };
 		EC8A48F22710EC39001BB4FC /* NodeTypeChangedActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8A48F12710EC39001BB4FC /* NodeTypeChangedActions.swift */; };
 		EC8BA54526A62D14002E345C /* DeviceMotionNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8BA54426A62D14002E345C /* DeviceMotionNode.swift */; };
 		EC8BA54726A6383F002E345C /* SmoothValueNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8BA54626A6383F002E345C /* SmoothValueNode.swift */; };
@@ -1550,7 +1549,6 @@
 		EC89F7DE27602BE700C4447A /* SelectionHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionHelpers.swift; sourceTree = "<group>"; };
 		EC89F7E027602C0700C4447A /* ExpansionBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpansionBox.swift; sourceTree = "<group>"; };
 		EC8A48EC2710EB2F001BB4FC /* GraphStepState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphStepState.swift; sourceTree = "<group>"; };
-		EC8A48EF2710EBA3001BB4FC /* GraphStepMovement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphStepMovement.swift; sourceTree = "<group>"; };
 		EC8A48F12710EC39001BB4FC /* NodeTypeChangedActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeTypeChangedActions.swift; sourceTree = "<group>"; };
 		EC8BA54426A62D14002E345C /* DeviceMotionNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceMotionNode.swift; sourceTree = "<group>"; };
 		EC8BA54626A6383F002E345C /* SmoothValueNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmoothValueNode.swift; sourceTree = "<group>"; };
@@ -2803,7 +2801,6 @@
 			children = (
 				EC4D9BC82829EBCD0066DFC8 /* GestureUtils.swift */,
 				EC4D0D8B2908624400444B04 /* GraphDraggablePosition.swift */,
-				EC8A48EF2710EBA3001BB4FC /* GraphStepMovement.swift */,
 				EC83D8912926E1CB00255311 /* GraphUIScrollActions.swift */,
 				EC83D8952926E2E700255311 /* GraphUITappedActions.swift */,
 				EC83D8992926E42400255311 /* GraphUICursorSelectionActions.swift */,
@@ -4815,7 +4812,6 @@
 				20308F9C25AD1721008CE3BE /* DelayNodeUtil.swift in Sources */,
 				EC5F642F2C29E6A900A9E52F /* LayerInspectorState.swift in Sources */,
 				EC28CCA0287E355E00987792 /* PatchUIExtensions.swift in Sources */,
-				EC8A48F02710EBA3001BB4FC /* GraphStepMovement.swift in Sources */,
 				B5FE64B329641ACD004EB04B /* AsyncMediaImpureEvalResult.swift in Sources */,
 				B56FFB2A2C18B72500623CC7 /* MediaImportUtils.swift in Sources */,
 				ECB373A028136B4E007AC702 /* KeyboardHeightReadable.swift in Sources */,

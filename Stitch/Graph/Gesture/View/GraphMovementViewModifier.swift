@@ -21,8 +21,12 @@ struct GraphMovementViewModifier: ViewModifier {
                 self.graph.updateVisibleNodes()
             }
             .onChange(of: groupNodeFocused, initial: true) {
+                log("currentNodePage.localPosition: \(currentNodePage.localPosition)")
+                
+                // curentNodePage local position is default rather than persisted local position when graph first opened
                 self.graphMovement.localPosition = currentNodePage.localPosition
                 self.graphMovement.localPreviousPosition = currentNodePage.localPosition
+                
                 self.graphMovement.zoomData.current = currentNodePage.zoomData.current
                 self.graphMovement.zoomData.final = currentNodePage.zoomData.final
                 
