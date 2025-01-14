@@ -75,7 +75,12 @@ struct StitchUIScrollViewModifier: ViewModifier {
         } // StitchUIScrollView
         
         .background {
+#if DEV_DEBUG
+            Color.red
+#else
             APP_BACKGROUND_COLOR
+#endif
+            
         }
         .ignoresSafeArea()
     }
@@ -95,9 +100,11 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
     func makeUIView(context: Context) -> UIScrollView {
         let scrollView = UIScrollView()
         
+        #if !DEV_DEBUG
         // Hides scroll indicators
         scrollView.showsHorizontalScrollIndicator = false
         scrollView.showsVerticalScrollIndicator = false
+        #endif
         
         // Enable zooming
         scrollView.minimumZoomScale = MIN_GRAPH_SCALE // 0.1
