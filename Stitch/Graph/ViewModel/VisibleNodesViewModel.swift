@@ -94,7 +94,7 @@ extension VisibleNodesViewModel {
                 // Canvas items at this new group's traversal level
                 canvasItems: self.getVisibleCanvasItems(at: incomingGroupId))
             
-            let startOffset: CGPoint = westernMostNode.map { calculateMove(graphFrame, $0.position) } ?? .zero
+            let startOffset: CGPoint = westernMostNode.map { calculateMove(graphFrame, $0.position) } ?? ABSOLUTE_GRAPH_CENTER
                         
             self.nodesByPage.updateValue(NodePageData(localPosition: startOffset),
                                          forKey: .group(incomingGroupId))
