@@ -149,6 +149,8 @@ final class StitchComponentViewModel: Sendable {
                      parentGraphPath: [UUID],
                      componentEncoder: ComponentEncoder) async {
         let graph = await GraphState(from: encodedComponent.graph,
+                                     // TODO: ComponentEntity or GraphEntity should persist their own localPosition?
+                                     localPosition: ABSOLUTE_GRAPH_CENTER,
                                      saveLocation: parentGraphPath + [componentEntity.componentId],
                                      encoder: componentEncoder)
         self.init(nodeId: nodeId,

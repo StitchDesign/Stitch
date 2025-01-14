@@ -45,7 +45,7 @@ struct NodesView: View {
     
     var body: some View {
         let nodePageData = self.graph.visibleNodesViewModel
-            .getViewData(groupNodeFocused: graphUI.groupNodeFocused?.groupNodeId) ?? .init()
+            .getViewData(groupNodeFocused: graphUI.groupNodeFocused?.groupNodeId) ?? .init(localPosition: graph.localPosition)
         
         // CommentBox needs to be affected by graph offset and zoom
 //         but can live somewhere else?
