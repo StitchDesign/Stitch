@@ -92,6 +92,7 @@ struct Preview3DModelLayer: View {
                     Color.clear
                 } else if let entity = entity {
                     Model3DView(entity: entity,
+                                layerViewModel: self.layerViewModel,
                                 sceneSize: sceneSize,
                                 modelOpacity: opacity)
                     .onAppear {
@@ -268,20 +269,17 @@ struct ModelEntityLayerViewModifier: ViewModifier {
 // SwiftUI View that contains a wrapper around the ViewController responsibile for displaying a 3D model
 struct Model3DView: UIViewRepresentable {
     @Bindable var entity: StitchEntity
+    @Bindable var layerViewModel: LayerViewModel
     let sceneSize: CGSize
     let modelOpacity: CGFloat
     
-    var model3DFilePath: URL {
-        entity.sourceURL
-    }
-
     var isAnimating: Bool {
         entity.isAnimating
     }
     
     func makeUIView(context: Context) -> SCNView {
         do {
-            let newScene = try SCNScene(url: model3DFilePath)
+            let newScene = try entity.createSCNScene(layerViewModel: layerViewModel)
             let sceneView = SCNView()
             sceneView.scene = newScene
             sceneView.frame.size = CGSize(width: sceneSize.width, height: sceneSize.height)
@@ -317,6 +315,9 @@ struct Model3DView: UIViewRepresentable {
             dispatch(ReceivedStitchFileError(error: .failedToCreate3DScene))
             return
         }
+        
+        entity.updateSCNScene(uiView: uiView,
+                              layerViewModel: layerViewModel)
 
         uiView.frame.size = CGSize(width: sceneSize.width, height: sceneSize.height)
         modelNode.opacity = modelOpacity

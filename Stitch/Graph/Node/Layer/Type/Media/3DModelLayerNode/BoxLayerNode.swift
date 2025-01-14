@@ -46,7 +46,7 @@ struct BoxLayerNode: LayerNodeDefinition {
     private static func createEntity(color: Color,
                                      isMetallic: Bool,
                                      size3D: Point3D,
-                                     cornerRadius: CGFloat) -> Entity {
+                                     cornerRadius: CGFloat) -> StitchEntity {
         let material = SimpleMaterial(color: color.toUIColor,
                                       isMetallic: isMetallic)
         
@@ -61,7 +61,7 @@ struct BoxLayerNode: LayerNodeDefinition {
         // Add the mesh resource to a model component, and add it to the entity.
         entity.components.set(ModelComponent(mesh: boxMesh, materials: [material]))
         
-        return entity
+        return StitchEntity(type: .box, entity: entity)
     }
     
     static func content(document: StitchDocumentViewModel,
@@ -80,11 +80,10 @@ struct BoxLayerNode: LayerNodeDefinition {
             realityContent: realityContent,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,
-            entity: nil,
-//            Self.createEntity(color: viewModel.color.getColor ?? .red,
-//                                      isMetallic: viewModel.isMetallic.getBool ?? false,
-//                                      size3D: viewModel.size3D.getPoint3D ?? .zero,
-//                                      cornerRadius: viewModel.cornerRadius.getNumber ?? .zero)
+            entity: Self.createEntity(color: viewModel.color.getColor ?? .red,
+                                      isMetallic: viewModel.isMetallic.getBool ?? false,
+                                      size3D: viewModel.size3D.getPoint3D ?? .zero,
+                                      cornerRadius: viewModel.cornerRadius.getNumber ?? .zero),
             anchorEntityId: viewModel.anchorEntity.anchorEntity,
             translation3DEnabled: viewModel.translation3DEnabled.getBool ?? false,
             rotation3DEnabled: viewModel.rotation3DEnabled.getBool ?? false,

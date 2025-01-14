@@ -83,6 +83,7 @@
 		B53A92292A7D80CC00192E86 /* GraphMovementViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53A92282A7D80CC00192E86 /* GraphMovementViewModifier.swift */; };
 		B53B1D96289E265900489652 /* StitchVideoPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53B1D95289E265900489652 /* StitchVideoPlayer.swift */; };
 		B53E0BEC2D35B5E00072FD43 /* BoxLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53E0BEB2D35B5DD0072FD43 /* BoxLayerNode.swift */; };
+		B53E0BEF2D36E1220072FD43 /* LayerInspectorSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53E0BEE2D36E1120072FD43 /* LayerInspectorSection.swift */; };
 		B53E47812894918500A3D060 /* Microphone Recorder.stitch in Resources */ = {isa = PBXBuildFile; fileRef = B53E477F2894918500A3D060 /* Microphone Recorder.stitch */; };
 		B541060028694AD7000688CA /* MediaUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B54105FF28694AD7000688CA /* MediaUtil.swift */; };
 		B5410608286D66F3000688CA /* NodeUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5410607286D66F3000688CA /* NodeUtils.swift */; };
@@ -1021,6 +1022,7 @@
 		B53B1D95289E265900489652 /* StitchVideoPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchVideoPlayer.swift; sourceTree = "<group>"; };
 		B53E0BEA2D3595020072FD43 /* StitchSchemaKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = StitchSchemaKit; path = ../StitchSchemaKit; sourceTree = SOURCE_ROOT; };
 		B53E0BEB2D35B5DD0072FD43 /* BoxLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoxLayerNode.swift; sourceTree = "<group>"; };
+		B53E0BEE2D36E1120072FD43 /* LayerInspectorSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInspectorSection.swift; sourceTree = "<group>"; };
 		B53E477F2894918500A3D060 /* Microphone Recorder.stitch */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Microphone Recorder.stitch"; sourceTree = "<group>"; };
 		B54105FF28694AD7000688CA /* MediaUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaUtil.swift; sourceTree = "<group>"; };
 		B5410607286D66F3000688CA /* NodeUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeUtils.swift; sourceTree = "<group>"; };
@@ -2015,6 +2017,7 @@
 		B50F416F2C1F52A70082262F /* LayerInspector */ = {
 			isa = PBXGroup;
 			children = (
+				B53E0BED2D36E10A0072FD43 /* Model */,
 				EC1A35792C25CE8100E5A6D8 /* LayerInspectorActions.swift */,
 				B50F41702C1F52C00082262F /* LayerInspectorView.swift */,
 				ECEA12FB2C45B67D0058CD6A /* GenericFlyoutView.swift */,
@@ -2044,6 +2047,14 @@
 				B5305CE6285150E2008F11F4 /* beach.png */,
 			);
 			path = SampleData;
+			sourceTree = "<group>";
+		};
+		B53E0BED2D36E10A0072FD43 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				B53E0BEE2D36E1120072FD43 /* LayerInspectorSection.swift */,
+			);
+			path = Model;
 			sourceTree = "<group>";
 		};
 		B5432D1E276A576E0052E59F /* Scroll */ = {
@@ -5446,6 +5457,7 @@
 				EC035BF828A56E84005FA607 /* ClassicAnimationFormulae.swift in Sources */,
 				EC46AC0926CEE3820062CB26 /* DeviceMotionHelpers.swift in Sources */,
 				B5B20BB0279925EC008A2B5A /* FullScreenPreviewViewWrapper.swift in Sources */,
+				B53E0BEF2D36E1220072FD43 /* LayerInspectorSection.swift in Sources */,
 				B5CAFF922831D07100C2EC38 /* ProjectsListItemBlurView.swift in Sources */,
 				EC4914A229359AC300D74344 /* TextEndsWithNode.swift in Sources */,
 				B59660982C1A498800BE75D7 /* StitchMLModel.swift in Sources */,

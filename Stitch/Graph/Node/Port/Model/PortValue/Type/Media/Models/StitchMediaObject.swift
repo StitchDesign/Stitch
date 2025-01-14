@@ -214,9 +214,9 @@ extension StitchMediaObject {
         case .soundfile(let soundPlayer):
             return soundPlayer.delegate.url?.filename ?? "Audio"
         case .model3D(let entity):
-            return entity.sourceURL.filename
+            return entity.displayName
         case .coreMLImageModel(let model):
-            return model.originalURL.filename ?? "Model"
+            return model.originalURL.filename
         case .mic:
             return "Mic"
         }
