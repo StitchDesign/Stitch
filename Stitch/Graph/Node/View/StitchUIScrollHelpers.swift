@@ -14,13 +14,20 @@ import UIKit
 struct GraphScrollDataUpdated: StitchDocumentEvent {
     let newOffset: CGPoint
     let newZoom: CGFloat
+    var shouldPersist: Bool = false // true just when e.g. we stopped decelerating
     
     func handle(state: StitchDocumentViewModel) {
         // log("GraphScrolledViaUIScrollView: newOffset: \(newOffset)")
         // log("GraphZoomUpdated: newZoom: \(newZoom)")
         state.graphMovement.localPosition = newOffset
         state.graphMovement.zoomData.final = newZoom
+        
+        if shouldPersist {
+            log("GraphScrollDataUpdated: will persist")
+            state.encodeProjectInBackground()
+        }
     }
+    
 }
 
 struct StitchLongPressGestureRecognizerRepresentable: UIGestureRecognizerRepresentable {

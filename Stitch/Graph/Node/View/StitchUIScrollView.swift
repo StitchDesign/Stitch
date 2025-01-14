@@ -241,6 +241,17 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
                 newZoom: scrollView.zoomScale
             ))
         }
+        
+        // Called when scroll-view movement comes to an end
+        func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+            dispatch(GraphScrollDataUpdated(
+                newOffset: scrollView.contentOffset,
+                newZoom: scrollView.zoomScale,
+                // Persist when
+                shouldPersist: true
+            ))
+            
+        }
                 
         func scrollViewDidScroll(_ scrollView: UIScrollView) {
             self.checkBorder(scrollView)
@@ -434,7 +445,8 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
                                             animated: false)
                 dispatch(GraphScrollDataUpdated(
                     newOffset: scrollView.contentOffset,
-                    newZoom: scrollView.zoomScale
+                    newZoom: scrollView.zoomScale,
+                    shouldPersist: true
                 ))
                 
             @unknown default:
