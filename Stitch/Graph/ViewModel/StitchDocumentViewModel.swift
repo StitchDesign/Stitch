@@ -115,8 +115,10 @@ final class StitchDocumentViewModel: Sendable {
         let documentEncoder = DocumentEncoder(document: schema)
 
         let graph = await GraphState(from: schema.graph,
+                                     localPosition: schema.localPosition,
                                      saveLocation: [],
                                      encoder: documentEncoder)
+                
         self.init(from: schema,
                   graph: graph,
                   isPhoneDevice: isPhoneDevice,

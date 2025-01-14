@@ -647,18 +647,30 @@ extension StitchDocumentViewModel {
             .localPosition
 
         if !_rootLevelGraphOffset.isDefined {
-            #if DEV || DEV_DEBUG
             log("GraphState.localPositionToPersists: no root level graph offset")
-            #endif
         }
-        let rootLevelGraphOffset = _rootLevelGraphOffset ?? .zero
+
+        let rootLevelGraphOffset = _rootLevelGraphOffset ?? ABSOLUTE_GRAPH_CENTER
 
         let graphOffset = self.graphUI.groupNodeFocused.isDefined ? rootLevelGraphOffset : self.localPosition
 
         // log("GraphState.localPositionToPersists: rootLevelGraphOffset: \(rootLevelGraphOffset)")
         // log("GraphState.localPositionToPersists: graphOffset: \(graphOffset)")
 
-        return graphOffset
+        // TODO: factor out zoom level
+        
+        let scale = self.graphMovement.zoomData.zoom
+        
+        // UIScrollView's contentOffset is based on contentSize, which is a function zoomScale;
+        // but we do not persist zoom;
+        // so, we factor out the effect of zoom on contentOffset.
+        let scaledGraphOffset = CGPoint(x: graphOffset.x * 1/scale,
+                                        y: graphOffset.y * 1/scale)
+        
+        // log("GraphState.localPositionToPersists: scale: \(scale)")
+        // log("GraphState.localPositionToPersists: scaledGraphOffset: \(scaledGraphOffset)")
+        
+        return scaledGraphOffset
     }
 
     @MainActor
