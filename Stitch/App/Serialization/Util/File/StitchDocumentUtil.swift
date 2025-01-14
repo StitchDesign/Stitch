@@ -72,7 +72,7 @@ extension StitchDocument: StitchDocumentEncodable, StitchDocumentMigratable {
                   previewWindowSize: PreviewWindowDevice.DEFAULT_PREVIEW_SIZE,
                   previewSizeDevice: PreviewWindowDevice.DEFAULT_PREVIEW_OPTION,
                   previewWindowBackgroundColor: DEFAULT_FLOATING_WINDOW_COLOR,
-                  localPosition: .zero,
+                  localPosition: ABSOLUTE_GRAPH_CENTER,
                   zoomData: 1,
                   cameraSettings: .init())
     }
