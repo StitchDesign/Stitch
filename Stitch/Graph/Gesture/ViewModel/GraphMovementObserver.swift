@@ -77,10 +77,16 @@ struct BoundaryNodesPositions {
 
 @Observable
 final class GraphMovementObserver: Sendable {
-    @MainActor var localPosition = ABSOLUTE_GRAPH_CENTER
+    @MainActor var localPosition: CGPoint = ABSOLUTE_GRAPH_CENTER {
+        didSet {
+            log("GraphMovementObserver: localPosition: didSet: oldValue \(oldValue)")
+            log("GraphMovementObserver: localPosition: didSet: self.localPosition \(self.localPosition)")
+        }
+    }
+    
     @MainActor var zoomData: GraphZoom = .init()
 
-    @MainActor var localPreviousPosition = ABSOLUTE_GRAPH_CENTER
+    @MainActor var localPreviousPosition: CGPoint = ABSOLUTE_GRAPH_CENTER
 
     let graphMultigesture = GraphMultigesture()
 
@@ -127,7 +133,14 @@ final class GraphMovementObserver: Sendable {
     
     @MainActor var boundaryNodes: BoundaryNodesPositions?
     
+//    @MainActor
+//    init(_ rootLevelPersistedLocalPosition: CGPoint) {
+//        self.localPosition = rootLevelPersistedLocalPosition
+//        self.localPreviousPosition = rootLevelPersistedLocalPosition
+//    }
+    
     init() { }
+    
 }
 
 extension GraphMovementObserver {

@@ -32,7 +32,7 @@ struct StitchUIScrollViewModifier: ViewModifier {
     }
     
     func body(content: Content) -> some View {
-        StitchUIScrollView(contentSize: WHOLE_GRAPH_SIZE, document: document) {
+        StitchUIScrollView(document: document) {
             ZStack {
                 content
                     .ignoresSafeArea()
@@ -83,15 +83,12 @@ struct StitchUIScrollViewModifier: ViewModifier {
 
 
 struct StitchUIScrollView<Content: View>: UIViewRepresentable {
-    let contentSize: CGSize
     let document: StitchDocumentViewModel
     var content: Content
     
-    init(contentSize: CGSize,
-         document: StitchDocumentViewModel,
+    init(document: StitchDocumentViewModel,
          @ViewBuilder content: () -> Content) {
         self.content = content()
-        self.contentSize = contentSize
         self.document = document
     }
     
@@ -132,8 +129,7 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             hostedView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor)
         ])
         
-        // TODO: can be hardcoded instead
-        scrollView.contentSize = contentSize
+        scrollView.contentSize = WHOLE_GRAPH_SIZE
         
         self.initializeContentOffset(scrollView)
                 
@@ -194,7 +190,6 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
     
     func makeCoordinator() -> Coordinator {
         return Coordinator(content: content,
-                           contentSize: contentSize,
                            document: document)
     }
     
@@ -204,20 +199,13 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         
         // Used during spacebar + trackpad click-&-drag gesture
         private var initialContentOffset: CGPoint = .zero
-        
-        // Used for border checking
-        //        private var previousContentOffset: CGPoint = .zero
-        
-        private let contentSize: CGSize
-        
+                
         weak var document: StitchDocumentViewModel?
         
         init(content: Content,
-             contentSize: CGSize,
              document: StitchDocumentViewModel) {
             self.hostingController = UIHostingController(rootView: content)
             self.hostingController.view.backgroundColor = .clear
-            self.contentSize = contentSize
             self.document = document
         }
         
