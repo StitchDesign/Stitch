@@ -84,7 +84,6 @@ extension StitchDocumentViewModel {
                 do {
                     let data = try JSONEncoder().encode(recordedData)
                     
-                    // need to create a directory
                     let docsURL = StitchFileManager.documentsURL
                     let dataCollectionURL = docsURL.appendingPathComponent(LLM_COLLECTION_DIRECTORY)
                     
@@ -97,7 +96,6 @@ extension StitchDocumentViewModel {
                     // log("LLMRecordingPromptClosed: url: \(url)")
                     let url = dataCollectionURL.appendingPathComponent(filename)
                     
-                    // Ensure the directory exists
                     if !FileManager.default.fileExists(atPath: dataCollectionURL.path) {
                         try FileManager.default.createDirectory(
                             at: dataCollectionURL,
@@ -106,10 +104,9 @@ extension StitchDocumentViewModel {
                     
                     try data.write(to: url, options: [.atomic, .completeFileProtection])
                     
-                    // DEBUG
-                    // let input = try String(contentsOf: url)
-                    // log("LLMRecordingPromptClosed: success: \(input)")
-                    log("LLMRecordingPromptClosed: Data successfully saved to: \(url.path)")
+                    try await SupabaseManager.shared.uploadLLMRecording(recordedData)
+                    log("LLMRecordingPromptClosed: Data successfully saved locally and uploaded to Supabase")
+                    
                 } catch let encodingError as EncodingError {
                     log("LLMRecordingPromptClosed: Encoding error: \(encodingError.localizedDescription)")
                 } catch let fileError as NSError {
@@ -120,7 +117,6 @@ extension StitchDocumentViewModel {
             }
         }
     
-        
         // Reset LLMRecordingState
         self.llmRecording = .init()
     }
