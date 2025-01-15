@@ -9,3 +9,6 @@ StitchSchemaKit/
 
 # Settings for package which discovers unused files
 .periphery.yml
+
+# Ignores env files for api keys / secrets
+.env
