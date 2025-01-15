@@ -9,6 +9,7 @@ import Foundation
 import StitchSchemaKit
 import RealityKit
 import SceneKit
+import SwiftUI
 
 enum StitchEntityType {
     case importedMedia(URL)
@@ -189,6 +190,46 @@ extension StitchEntity {
         default:
             fatalErrorIfDebug()
         }
+    }
+    
+    @MainActor
+    func createMeshResource(size3D: Point3D,
+                            cornerRadius: Double) -> MeshResource? {
+        switch self.type {
+        case .importedMedia:
+            // Do nothing
+            return nil
+            
+        case .box:
+            // Create a mesh resource.
+            let boxMesh = MeshResource.generateBox(width: Float(size3D.x),
+                                                   height: Float(size3D.y),
+                                                   depth: Float(size3D.z),
+                                                   cornerRadius: Float(cornerRadius))
+            return boxMesh
+            
+        default:
+            fatalErrorIfDebug()
+            return nil
+        }
+    }
+    
+    @MainActor
+    func update(size3D: Point3D,
+                cornerRadius: Double,
+                color: Color,
+                isMetallic: Bool) {
+        let material = SimpleMaterial(color: color.toUIColor,
+                                      isMetallic: isMetallic)
+        
+        // Create a mesh resource.
+        guard let mesh = self.createMeshResource(size3D: size3D,
+                                                 cornerRadius: cornerRadius) else {
+            return
+        }
+        
+        // Add the mesh resource to a model component, and add it to the entity.
+        self.importEntity.components.set(ModelComponent(mesh: mesh, materials: [material]))
     }
 }
 

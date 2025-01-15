@@ -43,25 +43,31 @@ struct BoxLayerNode: LayerNodeDefinition {
         .union(.sizing).union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
     
     @MainActor
-    private static func createEntity(color: Color,
-                                     isMetallic: Bool,
-                                     size3D: Point3D,
-                                     cornerRadius: CGFloat) -> StitchEntity {
-        let material = SimpleMaterial(color: color.toUIColor,
-                                      isMetallic: isMetallic)
-        
+    private static func createEntity(viewModel: LayerViewModel) -> StitchEntity {
         let entity = Entity()
+        let stitchEntity = StitchEntity(type: .box, entity: entity)
         
-        // Create a mesh resource.
-        let boxMesh = MeshResource.generateBox(width: Float(size3D.x),
-                                               height: Float(size3D.y),
-                                               depth: Float(size3D.z),
-                                               cornerRadius: Float(cornerRadius))
+        Self.updateEntity(entity: stitchEntity,
+                          viewModel: viewModel)
         
-        // Add the mesh resource to a model component, and add it to the entity.
-        entity.components.set(ModelComponent(mesh: boxMesh, materials: [material]))
-        
-        return StitchEntity(type: .box, entity: entity)
+        return stitchEntity
+    }
+    
+    @MainActor
+    private static func updateEntity(entity: StitchEntity,
+                                     viewModel: LayerViewModel) {
+        entity.update(size3D: viewModel.size3D.getPoint3D ?? .zero,
+                      cornerRadius: viewModel.cornerRadius.getNumber ?? .zero,
+                      color: viewModel.color.getColor ?? .red,
+                      isMetallic: viewModel.isMetallic.getBool ?? false)
+    }
+    
+    @MainActor
+    private static func updateEntity(viewModel: LayerViewModel) {
+        if let entity = viewModel.mediaObject?.model3DEntity {
+            Self.updateEntity(entity: entity,
+                              viewModel: viewModel)
+        }
     }
     
     static func content(document: StitchDocumentViewModel,
@@ -73,39 +79,37 @@ struct BoxLayerNode: LayerNodeDefinition {
                         parentDisablesPosition: Bool,
                         parentIsScrollableGrid: Bool,
                         realityContent: Binding<LayerRealityCameraContent?>) -> some View {
-        Preview3DModelLayer(
-            document: document,
-            graph: graph,
-            layerViewModel: viewModel,
-            realityContent: realityContent,
-            isPinnedViewRendering: isPinnedViewRendering,
-            interactiveLayer: viewModel.interactiveLayer,
-            entity: Self.createEntity(color: viewModel.color.getColor ?? .red,
-                                      isMetallic: viewModel.isMetallic.getBool ?? false,
-                                      size3D: viewModel.size3D.getPoint3D ?? .zero,
-                                      cornerRadius: viewModel.cornerRadius.getNumber ?? .zero),
-            anchorEntityId: viewModel.anchorEntity.anchorEntity,
-            translation3DEnabled: viewModel.translation3DEnabled.getBool ?? false,
-            rotation3DEnabled: viewModel.rotation3DEnabled.getBool ?? false,
-            scale3DEnabled: viewModel.scale3DEnabled.getBool ?? false,
-            position: viewModel.position.getPosition ?? .zero,
-            rotationX: viewModel.rotationX.asCGFloat,
-            rotationY: viewModel.rotationY.asCGFloat,
-            rotationZ: viewModel.rotationZ.asCGFloat,
-            size: viewModel.size.getSize ?? .zero,
-            opacity: viewModel.opacity.asCGFloat,
-            scale: viewModel.scale.asCGFloat,
-            anchoring: viewModel.anchoring.getAnchoring ?? .defaultAnchoring,
-            blurRadius: viewModel.blurRadius.getNumber ?? .zero,
-            blendMode: viewModel.blendMode.getBlendMode ?? .defaultBlendMode,
-            brightness: viewModel.brightness.getNumber ?? .defaultBrightnessForLayerEffect,
-            colorInvert: viewModel.colorInvert.getBool ?? .defaultColorInvertForLayerEffect,
-            contrast: viewModel.contrast.getNumber ?? .defaultContrastForLayerEffect,
-            hueRotation: viewModel.hueRotation.getNumber ?? .defaultHueRotationForLayerEffect,
-            saturation: viewModel.saturation.getNumber ?? .defaultSaturationForLayerEffect,
-            pivot: viewModel.pivot.getAnchoring ?? .defaultPivot,
-            parentSize: parentSize,
-            parentDisablesPosition: parentDisablesPosition,
-            parentIsScrollableGrid: parentIsScrollableGrid)
+        Model3DLayerNode
+            .content(document: document,
+                     graph: graph,
+                     viewModel: viewModel,
+                     parentSize: parentSize,
+                     layersInGroup: layersInGroup,
+                     isPinnedViewRendering: isPinnedViewRendering,
+                     parentDisablesPosition: parentDisablesPosition,
+                     parentIsScrollableGrid: parentIsScrollableGrid,
+                     realityContent: realityContent)
+            .onAppear {
+                guard isPinnedViewRendering,
+                      viewModel.mediaObject == nil else {
+                    return
+                }
+                
+                // Set state for media object
+                let entity = Self.createEntity(viewModel: viewModel)
+                viewModel.mediaObject = .model3D(entity)
+            }
+            .onChange(of: viewModel.size3D) {
+                Self.updateEntity(viewModel: viewModel)
+            }
+            .onChange(of: viewModel.color) {
+                Self.updateEntity(viewModel: viewModel)
+            }
+            .onChange(of: viewModel.isMetallic) {
+                Self.updateEntity(viewModel: viewModel)
+            }
+            .onChange(of: viewModel.cornerRadius) {
+                Self.updateEntity(viewModel: viewModel)
+            }
     }
 }

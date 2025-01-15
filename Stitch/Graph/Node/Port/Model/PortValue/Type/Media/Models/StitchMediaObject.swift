@@ -61,7 +61,7 @@ extension StitchMediaObject: Hashable {
         case .mic(let stitchSoundPlayer):
             hasher.combine(stitchSoundPlayer.delegate.id)
         case .model3D(let stitchEntity):
-            hasher.combine(stitchEntity.sourceURL)
+            hasher.combine(stitchEntity.id)
         case .coreMLImageModel(let stitchMLModel):
             hasher.combine(stitchMLModel.hashValue)
         }
