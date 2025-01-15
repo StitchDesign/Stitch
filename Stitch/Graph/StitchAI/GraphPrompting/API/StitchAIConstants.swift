@@ -10,5 +10,3 @@ import Foundation
 let OPEN_AI_BASE_URL = "https://api.openai.com/v1/chat/completions"
 let OPEN_AI_MODEL = "ft:gpt-4o-2024-08-06:adammenges::AdhLWSuL"
 
-let SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL"
-let SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY"
