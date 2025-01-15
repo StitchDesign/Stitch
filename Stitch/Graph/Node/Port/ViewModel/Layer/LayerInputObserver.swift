@@ -175,6 +175,7 @@ extension LayerInputObserver {
         return .packed
     }
     
+    // TODO: why is this _packed only ?
     /// Updates all-up values, handling scenarios like unpacked if applicable.
     @MainActor
     func updatePortValues(_ values: PortValues) {
