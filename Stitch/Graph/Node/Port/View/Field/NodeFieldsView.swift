@@ -93,8 +93,9 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
         // Only non-nil for 3D transform
         if let fieldGroupLabel = fieldGroupViewModel.groupLabel {
             HStack {
-                Spacer()
+//                Spacer()
                 StitchTextView(string: fieldGroupLabel)
+                Spacer()
             }
         }
         

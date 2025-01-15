@@ -1605,7 +1605,8 @@ extension LayerInputPort {
         case .scrollJumpToYLocation:
             return "Jump Position Y"
         case .transform3D:
-            return ""  // skip in favor of header section
+//            return ""  // skip in favor of header section
+            return "3D Transform" // want some kind of title 
         case .anchorEntity:
             return "Anchor Entity"
         case .isEntityAnimating:
