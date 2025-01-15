@@ -17,12 +17,9 @@ struct GraphMovementViewModifier: ViewModifier {
     
     func body(content: Content) -> some View {
         content
-            .onAppear {
-                self.graph.updateVisibleNodes()
-            }
-            .onChange(of: groupNodeFocused, initial: true) {
-                log("currentNodePage.localPosition: \(currentNodePage.localPosition)")
-                
+
+            // Note: `initial: true` seemed to fire only upon first opening of a given project after app re-opened, and not upon every opening of the project?
+            .onChange(of: groupNodeFocused) { oldValue, newValue in
                 // curentNodePage local position is default rather than persisted local position when graph first opened
                 self.graphMovement.localPosition = currentNodePage.localPosition
                 self.graphMovement.localPreviousPosition = currentNodePage.localPosition
@@ -30,7 +27,22 @@ struct GraphMovementViewModifier: ViewModifier {
                 self.graphMovement.zoomData.current = currentNodePage.zoomData.current
                 self.graphMovement.zoomData.final = currentNodePage.zoomData.final
                 
-                self.graph.updateVisibleNodes()
+                /*
+                 Set all nodes visible for the field updates, since when we enter the new traversal level
+                 our infiniteCanvasCache may not yet have entries for canvas items at this level.
+                 
+                 Then, do the actual determination of onscreen nodes.
+                 
+                 (Similar to how, when first loading a project, we set all nodes visible before we call updateVisibleNodes to actually determine on- vs offscreen nodes.)
+                 
+                 Resolves:
+                 - https://github.com/StitchDesign/Stitch--Old/issues/6787
+                 - https://github.com/StitchDesign/Stitch--Old/issues/6779
+                 */
+                self.graph.visibleNodesViewModel.setAllNodesVisible()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    self.graph.updateVisibleNodes()
+                }
             }
             .onChange(of: graphMovement.localPosition) { _, newValue in
                 currentNodePage.localPosition = graphMovement.localPosition
@@ -53,7 +65,7 @@ extension GraphState {
     /// 1. Determines which nodes are visible.
     /// 2. Determines which nodes are selected from the selection box, if applicable.
     @MainActor
-    func updateVisibleNodes() {
+    func updateVisibleNodes(firstAppearance: Bool = false) {
         
         let zoom = self.graphMovement.zoomData.zoom
         
@@ -76,15 +88,28 @@ extension GraphState {
         var newVisibleNodes = Set<CanvasItemId>()
         
         for cachedSubviewData in self.visibleNodesViewModel.infiniteCanvasCache {
+            
             let id = cachedSubviewData.key
             let cachedBounds = cachedSubviewData.value
+            
+            // HELPFUL, COMMONLY USED DEBUG:
+            //            log("updateVisibleNodes: id: \(id)")
+            //            log("updateVisibleNodes: cachedBounds.size: \(cachedBounds.size)")
+            //            log("updateVisibleNodes: cachedBounds.origin: \(cachedBounds.origin)")
             
             let isVisibleInFrame = viewFrame.intersects(cachedBounds)
             
             if isVisibleInFrame {
+                // log("updateVisibleNodes: VISIBLE")
                 newVisibleNodes.insert(id)
             }
+            //            else {
+            //                log("updateVisibleNodes: NOT VISIBLE")
+            //            }
         }
+                
+        //        log("updateVisibleNodes: newVisibleNodes.count: \(newVisibleNodes.count)")
+        //        log("updateVisibleNodes: self.visibleNodesViewModel.infiniteCanvasCache.count: \(self.visibleNodesViewModel.infiniteCanvasCache.count)")
         
         if self.visibleNodesViewModel.visibleCanvasIds != newVisibleNodes {
             self.visibleNodesViewModel.visibleCanvasIds = newVisibleNodes

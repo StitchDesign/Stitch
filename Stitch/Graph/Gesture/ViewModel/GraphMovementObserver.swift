@@ -77,12 +77,7 @@ struct BoundaryNodesPositions {
 
 @Observable
 final class GraphMovementObserver: Sendable {
-    @MainActor var localPosition: CGPoint = ABSOLUTE_GRAPH_CENTER {
-        didSet {
-            log("GraphMovementObserver: localPosition: didSet: oldValue \(oldValue)")
-            log("GraphMovementObserver: localPosition: didSet: self.localPosition \(self.localPosition)")
-        }
-    }
+    @MainActor var localPosition: CGPoint = ABSOLUTE_GRAPH_CENTER
     
     @MainActor var zoomData: GraphZoom = .init()
 
