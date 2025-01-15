@@ -65,7 +65,7 @@ extension GraphState {
     /// 1. Determines which nodes are visible.
     /// 2. Determines which nodes are selected from the selection box, if applicable.
     @MainActor
-    func updateVisibleNodes(firstAppearance: Bool = false) {
+    func updateVisibleNodes() {
         
         let zoom = self.graphMovement.zoomData.zoom
         
