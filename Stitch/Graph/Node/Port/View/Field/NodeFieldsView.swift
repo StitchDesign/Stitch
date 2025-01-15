@@ -32,9 +32,10 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
     }
     
     @ViewBuilder
-    func valueEntry(_ fieldType: FieldType?, _ isMultiField: Bool) -> some View {
+    func valueEntry(_ fieldType: FieldType?) -> some View {
         if let fieldType = fieldType {
-            self.valueEntryView(fieldType, isMultiField)
+            self.valueEntryView(fieldType,
+                                self.isMultiField)
         } else {
             EmptyView()
                 .onAppear { fatalErrorIfDebug() }
@@ -61,9 +62,9 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
         // Always xyz
         if self.layerInput == .transform3D {
             HStack {
-                self.valueEntry(p0, isMultiField)
-                self.valueEntry(p1, isMultiField)
-                self.valueEntry(p2, isMultiField)
+                self.valueEntry(p0)
+                self.valueEntry(p1)
+                self.valueEntry(p2)
             }
         }
         
@@ -71,12 +72,12 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
             VStack {
                 HStack {
                     // Individual fields for PortValue.padding can never be blocked; only the input as a whole can be blocked
-                    self.valueEntry(p0, isMultiField)
-                    self.valueEntry(p1, isMultiField)
+                    self.valueEntry(p0)
+                    self.valueEntry(p1)
                 }
                 HStack {
-                    self.valueEntry(p2, isMultiField)
-                    self.valueEntry(p3, isMultiField)
+                    self.valueEntry(p2)
+                    self.valueEntry(p3)
                 }
             }
         }
@@ -90,6 +91,7 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
     }
     
     var body: some View {
+        
         // Only non-nil for 3D transform
         if let fieldGroupLabel = fieldGroupViewModel.groupLabel {
             HStack {
