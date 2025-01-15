@@ -41,9 +41,12 @@ struct InputValueEntry: View {
     // but such *unpacked* values are treated as Number fields.
     // So we check information about the parent (i.e. the whole layer input, LayerInputObserver) and compare against child (i.e. the individual field, UnpackedPortType).
     var fieldsRowLabel: String? {
-        if layerInputObserver?.port == .transform3D,
-           layerInputObserver?.mode == .unpacked {
-            return rowObserverId.keyPath?.getUnpackedPortType?.fieldGroupLabelForUnpacked3DTransformInput
+        if let layerInputObserver = layerInputObserver,
+           layerInputObserver.port == .transform3D,
+           layerInputObserver.mode == .unpacked,
+           let fieldGroupLabel = rowObserverId.keyPath?.getUnpackedPortType?.fieldGroupLabelForUnpacked3DTransformInput {
+            
+            return layerInputObserver.port.label() + " " + fieldGroupLabel
         }
         
         return nil
@@ -98,7 +101,6 @@ struct InputValueEntry: View {
             // Monospacing prevents jittery node widths if values change on graphstep
             .monospacedDigit()
             .lineLimit(1)
-            .border(.black)
     }
     
     var body: some View {
@@ -111,11 +113,10 @@ struct InputValueEntry: View {
                                  isLeftAligned: true,
                                  fontColor: STITCH_FONT_GRAY_COLOR,
                                  isSelectedInspectorRow: isSelectedInspectorRow)
-                .border(.yellow)
             }
             
             if self.useIndividualFieldLabel {
-                individualFieldLabelDisplay.border(.purple)
+                individualFieldLabelDisplay
             }
              
             if forPropertySidebar,

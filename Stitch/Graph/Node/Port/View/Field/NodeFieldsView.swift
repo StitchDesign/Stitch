@@ -93,6 +93,8 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
     var body: some View {
         
         // Only non-nil for 3D transform
+        // NOTE: this only shows up for PACKED 3D Transform; unpacked 3D Transform fields are treat as Number fields, which are not created with a `groupLabel`
+        // Alternatively we could create Number fieldGroups with their proper parent label if they are for an unpacked multifeld layer input?
         if let fieldGroupLabel = fieldGroupViewModel.groupLabel {
             HStack {
 //                Spacer()
