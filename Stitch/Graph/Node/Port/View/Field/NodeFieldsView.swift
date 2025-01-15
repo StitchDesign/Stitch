@@ -32,9 +32,10 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
     }
     
     @ViewBuilder
-    func valueEntry(_ fieldType: FieldType?, _ isMultiField: Bool) -> some View {
+    func valueEntry(_ fieldType: FieldType?) -> some View {
         if let fieldType = fieldType {
-            self.valueEntryView(fieldType, isMultiField)
+            self.valueEntryView(fieldType,
+                                self.isMultiField)
         } else {
             EmptyView()
                 .onAppear { fatalErrorIfDebug() }
@@ -61,9 +62,9 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
         // Always xyz
         if self.layerInput == .transform3D {
             HStack {
-                self.valueEntry(p0, isMultiField)
-                self.valueEntry(p1, isMultiField)
-                self.valueEntry(p2, isMultiField)
+                self.valueEntry(p0)
+                self.valueEntry(p1)
+                self.valueEntry(p2)
             }
         }
         
@@ -71,12 +72,12 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
             VStack {
                 HStack {
                     // Individual fields for PortValue.padding can never be blocked; only the input as a whole can be blocked
-                    self.valueEntry(p0, isMultiField)
-                    self.valueEntry(p1, isMultiField)
+                    self.valueEntry(p0)
+                    self.valueEntry(p1)
                 }
                 HStack {
-                    self.valueEntry(p2, isMultiField)
-                    self.valueEntry(p3, isMultiField)
+                    self.valueEntry(p2)
+                    self.valueEntry(p3)
                 }
             }
         }
@@ -90,7 +91,10 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
     }
     
     var body: some View {
+        
         // Only non-nil for 3D transform
+        // NOTE: this only shows up for PACKED 3D Transform; unpacked 3D Transform fields are treat as Number fields, which are not created with a `groupLabel`
+        // Alternatively we could create Number fieldGroups with their proper parent label if they are for an unpacked multifeld layer input?
         if let fieldGroupLabel = fieldGroupViewModel.groupLabel {
             HStack {
 //                Spacer()
