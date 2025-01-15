@@ -115,7 +115,7 @@ extension NodeViewModel {
     @MainActor
     func checkARTransformUpdate() {
         guard let layerNode = self.nodeType.layerNode,
-              layerNode.layer == .model3D else {
+              Layer.layers3D.contains(layerNode.layer) else {
             return
         }
         

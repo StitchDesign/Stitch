@@ -219,4 +219,8 @@ extension Layer {
             return false
         }
     }
+    
+    @MainActor
+    static let layers3D: [Layer] = Layer.allCases
+        .filter { $0.inputDefinitions.contains(.transform3D) }
 }
