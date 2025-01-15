@@ -144,7 +144,21 @@ extension NodeViewModel {
             let newValues = layerNode.previewLayerViewModels
                 .map { $0.transform3D }
             layerNode.transform3DPort.updatePortValues(newValues)
-            layerNode.transform3DPort.rowObserver.updatePortViewModels()
+            layerNode.transform3DPort.updateAllRowObserversPortViewModels()
+        }
+    }
+}
+
+extension LayerInputObserver {
+    @MainActor
+    func updateAllRowObserversPortViewModels() {
+        switch self.mode {
+        case .packed:
+            self._packedData.rowObserver.updatePortViewModels()
+        case .unpacked:
+            self._unpackedData.allPorts.forEach {
+                $0.rowObserver.updatePortViewModels()
+            }
         }
     }
 }
