@@ -7,12 +7,16 @@
 import Foundation
 import PostgREST
 import SwiftDotenv
+import UIKit
 
 struct LLMRecordingPayload: Encodable, Sendable {
     let actions: String
-    let created_at: String
 }
 
+private struct RecordingWrapper: Encodable {
+    let prompt: String
+    let actions: [LLMStepAction]
+}
 actor SupabaseManager {
     static let shared = SupabaseManager()
     private let postgrest: PostgrestClient
@@ -58,29 +62,44 @@ actor SupabaseManager {
     }
 
     func uploadLLMRecording(_ recordingData: LLMRecordingData) async throws {
-        let timestamp = ISO8601DateFormatter().string(from: Date())
-        print("ℹ️ Recording timestamp: \(timestamp)")
+        print("Starting uploadLLMRecording...")
 
-        let actionsData = try JSONEncoder().encode(recordingData.actions)
-        let actionsString = String(data: actionsData, encoding: .utf8) ?? "{}"
-        print("ℹ️ Encoded actions JSON: \(actionsString)")
+        struct Payload: Encodable {
+            let user_id: String
+            let actions: RecordingWrapper
+        }
 
-        let payload = LLMRecordingPayload(
-            actions: actionsString,
-            created_at: timestamp
+        guard let deviceUUID = await UIDevice.current.identifierForVendor?.uuidString else {
+            throw NSError(domain: "DeviceIDError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Unable to retrieve device UUID"])
+        }
+
+        let wrapper = RecordingWrapper(
+            prompt: recordingData.prompt,
+            actions: recordingData.actions
         )
-        print("ℹ️ Payload to be sent: \(payload)")
+
+        let payload = Payload(user_id: deviceUUID, actions: wrapper)
 
         do {
-            print("➡️ Sending data to Supabase table: \(tableName)...")
-            let response = try await postgrest
-                .from(tableName)
-                .insert(payload)
-                .execute()
-            print("✅ Supabase response: \(response)")
+            let jsonData = try JSONEncoder().encode(payload)
+            if let jsonString = String(data: jsonData, encoding: .utf8) {
+                print("Encoded JSON for upload: \(jsonString)")
+            }
         } catch {
-            print("❌ Supabase error: \(error)")
+            print("Error encoding JSON: \(error)")
+            throw error
+        }
+
+        do {
+            try await postgrest
+                .from("llm_recordings_v0.1.13")
+                .insert(payload, returning: .minimal)
+                .execute()
+            print("Data uploaded successfully!")
+        } catch {
+            print("Error uploading data to Supabase: \(error)")
             throw error
         }
     }
+
 }
