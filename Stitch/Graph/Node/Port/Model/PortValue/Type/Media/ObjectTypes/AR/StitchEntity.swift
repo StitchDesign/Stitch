@@ -19,6 +19,17 @@ enum StitchEntityType {
     case cone
 }
 
+extension StitchEntityType {
+    var isImportMedia: Bool {
+        switch self {
+        case .importedMedia:
+            return true
+        default:
+            return false
+        }
+    }
+}
+
 @Observable
 final class StitchEntity: NSObject, Sendable {
     let id: UUID = .init()
@@ -54,6 +65,13 @@ final class StitchEntity: NSObject, Sendable {
         self.importEntity = entity
         
         super.init()
+        
+        // Scale needs to be modified for shapes otherwise it's too zoomed in
+        if !type.isImportMedia {
+            var transform = entity.transform
+            transform.scale = .init(0.005, 0.005, 0.005)
+            entity.transform = transform
+        }
         
         self.containerEntity.addChild(importEntity)
         
