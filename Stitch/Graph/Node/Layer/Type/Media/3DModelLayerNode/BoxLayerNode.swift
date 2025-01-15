@@ -35,7 +35,8 @@ struct BoxLayerNode: LayerNodeDefinition {
         .rotation3DEnabled,
         .cornerRadius,
         .isMetallic,
-        .size3D
+        .size3D,
+        .color
     ])
         .union(.layerEffects)
         .union(.strokeInputs)

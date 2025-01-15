@@ -149,13 +149,14 @@ extension StitchEntity {
     
     @MainActor private func buildSCNScene(from scene: SCNScene,
                                           layerViewModel: LayerViewModel) {
+        let size3D = layerViewModel.size3D.getPoint3D ?? .zero
+        let cornerRadius = layerViewModel.cornerRadius.getNumber ?? .zero
+
         switch self.type {
         case .importedMedia:
             // do nothing
             return
         case .box:
-            let size3D = layerViewModel.size3D.getPoint3D ?? .zero
-            let cornerRadius = layerViewModel.cornerRadius.getNumber ?? .zero
             let box = SCNBox(width: size3D.x,
                              height: size3D.y,
                              length: size3D.z,
@@ -165,34 +166,36 @@ extension StitchEntity {
         default:
             fatalError()
         }
+        
+        self.updateSCNScene(from: scene,
+                            layerViewModel: layerViewModel)
     }
     
-    @MainActor func updateSCNScene(uiView: SCNView,
+    @MainActor func updateSCNScene(from scene: SCNScene,
                                    layerViewModel: LayerViewModel) {
+        let size3D = layerViewModel.size3D.getPoint3D ?? .zero
+        let cornerRadius = layerViewModel.cornerRadius.getNumber ?? .zero
+        
         switch self.type {
         case .importedMedia:
             // do nothing
             return
         
         case .box:
-            let boxNode = uiView.scene?.rootNode.childNodes.compactMap {
-                $0.geometry as? SCNBox
-            }.first
-            guard let boxNode = boxNode else {
+            guard let box = scene.rootNode.childNodes
+                .compactMap({ $0.geometry as? SCNBox }).first else {
                 fatalErrorIfDebug()
                 return
             }
             
-            let size3D = layerViewModel.size3D.getPoint3D ?? .zero
-            let cornerRadius = layerViewModel.cornerRadius.getNumber ?? .zero
-            
-            boxNode.width = size3D.x
-            boxNode.height = size3D.y
-            boxNode.length = size3D.z
-            boxNode.chamferRadius = cornerRadius
+            box.width = size3D.x
+            box.height = size3D.y
+            box.length = size3D.z
+            box.chamferRadius = cornerRadius
+            box.firstMaterial?.diffuse.contents = layerViewModel.color.getColor?.toUIColor ?? .red
             
         default:
-            fatalErrorIfDebug()
+            fatalError()
         }
     }
     
