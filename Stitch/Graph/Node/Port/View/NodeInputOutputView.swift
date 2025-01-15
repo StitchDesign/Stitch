@@ -185,6 +185,10 @@ struct NodeInputView: View {
         layerInputObserver?.port == SHADOW_FLYOUT_LAYER_INPUT_PROXY
     }
     
+    var is3DTransform: Bool {
+        layerInputObserver?.port == .transform3D
+    }
+    
     var body: some View {
         HStack(alignment: hStackAlignment) {
             
@@ -195,7 +199,10 @@ struct NodeInputView: View {
                                         propertyIsSelected: propertyIsSelected)
             }  else {
                 
-                labelView
+                // Skip the label if we have a 3D transform input but are not in the flyout
+                if !(is3DTransform && !forFlyout) {
+                    labelView
+                }
                 
                 if forPropertySidebar {
                     Spacer()
@@ -203,7 +210,7 @@ struct NodeInputView: View {
                 
                 // If the input has multiple rows of fields (e.g. 3D Transform)
                 // then vertically stack those.
-                if layerInputObserver?.port == .transform3D {
+                if is3DTransform {
                     VStack {
                         fieldsListView
                     }
