@@ -91,26 +91,14 @@ extension GraphState {
             
             let id = cachedSubviewData.key
             let cachedBounds = cachedSubviewData.value
-            
-            // HELPFUL, COMMONLY USED DEBUG:
-            //            log("updateVisibleNodes: id: \(id)")
-            //            log("updateVisibleNodes: cachedBounds.size: \(cachedBounds.size)")
-            //            log("updateVisibleNodes: cachedBounds.origin: \(cachedBounds.origin)")
-            
+          
             let isVisibleInFrame = viewFrame.intersects(cachedBounds)
             
             if isVisibleInFrame {
-                // log("updateVisibleNodes: VISIBLE")
                 newVisibleNodes.insert(id)
             }
-            //            else {
-            //                log("updateVisibleNodes: NOT VISIBLE")
-            //            }
         }
-                
-        //        log("updateVisibleNodes: newVisibleNodes.count: \(newVisibleNodes.count)")
-        //        log("updateVisibleNodes: self.visibleNodesViewModel.infiniteCanvasCache.count: \(self.visibleNodesViewModel.infiniteCanvasCache.count)")
-        
+                        
         if self.visibleNodesViewModel.visibleCanvasIds != newVisibleNodes {
             self.visibleNodesViewModel.visibleCanvasIds = newVisibleNodes
         }
