@@ -210,7 +210,7 @@ struct NodeInputView: View {
                 }
                 
                 // Vast majority of inputs, however, have a single row of fields.
-                // TODO: this part of the UI is not clear; we allow the single row of fields to float up into the enclosing HStack, yet 
+                // TODO: this part of the UI is not clear; we allow the single row of fields to float up into the enclosing HStack, yet flyouts always vertically stack their fields
                 else {
                     fieldsListView
                 }
