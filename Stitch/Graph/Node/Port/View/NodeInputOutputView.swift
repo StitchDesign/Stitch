@@ -201,18 +201,32 @@ struct NodeInputView: View {
                     Spacer()
                 }
                 
-                FieldsListView<InputNodeRowViewModel, InputValueEntry>(
-                    graph: graph,
-                    fieldValueTypes: fieldValueTypes,
-                    nodeId: nodeId,
-                    forPropertySidebar: forPropertySidebar,
-                    forFlyout: forFlyout,
-                    blockedFields: layerInputObserver?.blockedFields,
-                    valueEntryView: valueEntryView)
+                // If the input has multiple rows of fields (e.g. 3D Transform)
+                // then vertically stack those.
+                if layerInputObserver?.port == .transform3D {
+                    VStack {
+                        fieldsListView
+                    }
+                }
+                
+                // Vast majority of inputs, however, have a single row of fields.
+                // TODO: this part of the UI is not clear; we allow the single row of fields to float up into the enclosing HStack, yet flyouts always vertically stack their fields
+                else {
+                    fieldsListView
+                }
             }
-            
-           
         } // HStack
+    }
+    
+    var fieldsListView: FieldsListView<InputNodeRowViewModel, InputValueEntry> {
+        FieldsListView<InputNodeRowViewModel, InputValueEntry>(
+            graph: graph,
+            fieldValueTypes: fieldValueTypes,
+            nodeId: nodeId,
+            forPropertySidebar: forPropertySidebar,
+            forFlyout: forFlyout,
+            blockedFields: layerInputObserver?.blockedFields,
+            valueEntryView: valueEntryView)
     }
     
     @ViewBuilder @MainActor
@@ -352,25 +366,22 @@ struct FieldsListView<PortType, ValueEntryView>: View where PortType: NodeRowVie
      
         let multipleFieldGroups = fieldValueTypes.count > 1
         
-        // Vertically orient multiple rows (transform input in layer case)
-        VStack {
-            ForEach(fieldValueTypes) { (fieldGroupViewModel: FieldGroupTypeData<PortType.FieldType>) in
-                
-                let multipleFieldsPerGroup = fieldGroupViewModel.fieldObservers.count > 1
-                
-                // Note: "multifield" is more complicated for layer inputs, since `fieldObservers.count` is now inaccurate for an unpacked port
-                let isMultiField = forPropertySidebar ?  (multipleFieldGroups || multipleFieldsPerGroup) : fieldGroupViewModel.fieldObservers.count > 1
-                
-                if !self.isAllFieldsBlockedOut(fieldGroupViewModel: fieldGroupViewModel) {
-                    NodeFieldsView(graph: graph,
-                                   fieldGroupViewModel: fieldGroupViewModel,
-                                   nodeId: nodeId,
-                                   isMultiField: isMultiField,
-                                   forPropertySidebar: forPropertySidebar,
-                                   forFlyout: forFlyout,
-                                   blockedFields: blockedFields,
-                                   valueEntryView: valueEntryView)
-                }
+        ForEach(fieldValueTypes) { (fieldGroupViewModel: FieldGroupTypeData<PortType.FieldType>) in
+            
+            let multipleFieldsPerGroup = fieldGroupViewModel.fieldObservers.count > 1
+            
+            // Note: "multifield" is more complicated for layer inputs, since `fieldObservers.count` is now inaccurate for an unpacked port
+            let isMultiField = forPropertySidebar ?  (multipleFieldGroups || multipleFieldsPerGroup) : fieldGroupViewModel.fieldObservers.count > 1
+            
+            if !self.isAllFieldsBlockedOut(fieldGroupViewModel: fieldGroupViewModel) {
+                NodeFieldsView(graph: graph,
+                               fieldGroupViewModel: fieldGroupViewModel,
+                               nodeId: nodeId,
+                               isMultiField: isMultiField,
+                               forPropertySidebar: forPropertySidebar,
+                               forFlyout: forFlyout,
+                               blockedFields: blockedFields,
+                               valueEntryView: valueEntryView)
             }
         }
     }
