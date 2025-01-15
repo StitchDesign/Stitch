@@ -37,22 +37,37 @@ struct InputValueEntry: View {
         self.viewModel.fieldLabel
     }
     
+    // TRICKY: currently only used for unpacked 3D Transform fields on the canvas,
+    // but such *unpacked* values are treated as Number fields.
+    // So we check information about the parent (i.e. the whole layer input, LayerInputObserver) and compare against child (i.e. the individual field, UnpackedPortType).
+    var fieldsRowLabel: String? {
+        if let layerInputObserver = layerInputObserver,
+           layerInputObserver.port == .transform3D,
+           layerInputObserver.mode == .unpacked,
+           let fieldGroupLabel = rowObserverId.keyPath?.getUnpackedPortType?.fieldGroupLabelForUnpacked3DTransformInput {
+            
+            return layerInputObserver.port.label() + " " + fieldGroupLabel
+        }
+        
+        return nil
+    }
+    
     // TODO: support derived field-labels
     // TODO: perf-impact? is this running all the time?
     @MainActor
     var useIndividualFieldLabel: Bool {
         if forPropertySidebar,
-            isFieldInMultifieldInput,
-            !isForFlyout,
+           isFieldInMultifieldInput,
+           !isForFlyout,
            // Do not use labels on the fields of a padding-type input
-            (layerInputObserver?.activeValue.getPadding.isDefined ?? false) {
+           (layerInputObserver?.activeValue.getPadding.isDefined ?? false) {
             return false
         }
         
         return true
     }
-    
-    var labelDisplay: some View {
+        
+    var individualFieldLabelDisplay: LabelDisplayView {
         LabelDisplayView(label: individualFieldLabel,
                          isLeftAligned: true,
                          fontColor: STITCH_FONT_GRAY_COLOR,
@@ -90,8 +105,18 @@ struct InputValueEntry: View {
     
     var body: some View {
         HStack(spacing: NODE_COMMON_SPACING) {
+            
+            if !forPropertySidebar,
+               !isForFlyout,
+               let fieldGroupLabel = fieldsRowLabel {
+                LabelDisplayView(label: fieldGroupLabel,
+                                 isLeftAligned: true,
+                                 fontColor: STITCH_FONT_GRAY_COLOR,
+                                 isSelectedInspectorRow: isSelectedInspectorRow)
+            }
+            
             if self.useIndividualFieldLabel {
-                labelDisplay
+                individualFieldLabelDisplay
             }
              
             if forPropertySidebar,
@@ -107,6 +132,21 @@ struct InputValueEntry: View {
         .allowsHitTesting(!(forPropertySidebar && propertyIsAlreadyOnGraph))
     }
 
+}
+
+extension UnpackedPortType {
+    // see the `.transform3D` case in `getFieldValueTypes`:
+    // ASSUMES THIS IS A PORT TYPE FOR
+    var fieldGroupLabelForUnpacked3DTransformInput: String {
+        switch self {
+        case .port0, .port1, .port2:
+            return "Position"
+        case .port3, .port4, .port5:
+            return "Scale"
+        case .port6, .port7, .port8:
+            return "Rotation"
+        }
+    }
 }
 
 struct InputValueView: View {
