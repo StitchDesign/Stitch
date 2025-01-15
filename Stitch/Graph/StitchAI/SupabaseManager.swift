@@ -27,7 +27,6 @@ actor SupabaseManager {
             // Get the path to the .env file in the app bundle
             if let envPath = Bundle.main.path(forResource: ".env", ofType: nil) {
                 try Dotenv.configure(atPath: envPath)
-                print("✅ .env file loaded successfully from path: \(envPath)")
             } else {
                 fatalError("⚠️ .env file not found in bundle.")
             }
@@ -57,8 +56,6 @@ actor SupabaseManager {
             ],
             logger: nil
         )
-        print("✅ PostgrestClient initialized successfully.")
-        print("ℹ️ Target table: \(tableName)")
     }
 
     func uploadLLMRecording(_ recordingData: LLMRecordingData) async throws {
@@ -92,14 +89,19 @@ actor SupabaseManager {
 
         do {
             try await postgrest
-                .from("llm_recordings_v0.1.13")
+                .from(tableName)
                 .insert(payload, returning: .minimal)
                 .execute()
             print("Data uploaded successfully!")
-        } catch {
+        } catch let error as HTTPError {
+            if let errorMessage = String(data: error.data, encoding: .utf8) {
+                print("HTTPError Details: \(errorMessage)")
+            }
             print("Error uploading data to Supabase: \(error)")
+            throw error
+        } catch {
+            print("Unknown error: \(error)")
             throw error
         }
     }
-
 }
