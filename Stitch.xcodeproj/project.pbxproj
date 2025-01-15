@@ -284,6 +284,7 @@
 		E43CA3BF29832FEC007BFE1B /* ARRaycastingNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E43CA3BE29832FEC007BFE1B /* ARRaycastingNode.swift */; };
 		E457441D2BC0548300B1642E /* QRCodeDetection.swift in Sources */ = {isa = PBXBuildFile; fileRef = E457441C2BC0548300B1642E /* QRCodeDetection.swift */; };
 		E463E7EF2C6FC7090008E318 /* StitchSchemaKit in Frameworks */ = {isa = PBXBuildFile; productRef = E463E7EE2C6FC7090008E318 /* StitchSchemaKit */; };
+		E48A07782D382778002E8A98 /* SwiftDotenv in Frameworks */ = {isa = PBXBuildFile; productRef = E48A07772D382778002E8A98 /* SwiftDotenv */; };
 		E4A848A82D32FCD30029AFDE /* SupabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4A848A72D32FCD30029AFDE /* SupabaseManager.swift */; };
 		E4A848AB2D32FCFA0029AFDE /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = E4A848AA2D32FCFA0029AFDE /* PostgREST */; };
 		E4A848AD2D32FCFA0029AFDE /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = E4A848AC2D32FCFA0029AFDE /* Storage */; };
@@ -1864,6 +1865,7 @@
 				B5DB632E2C61A8C900B78B68 /* StitchEngine in Frameworks */,
 				EC7784CF27053D9700B662DD /* ZIPFoundation in Frameworks */,
 				B50F41682C1EB4320082262F /* StitchViewKit in Frameworks */,
+				E48A07782D382778002E8A98 /* SwiftDotenv in Frameworks */,
 				EC1137382719F9B400ADCA72 /* OrderedCollections in Frameworks */,
 				B51D8A022CD13D420016CCDA /* StitchEngine in Frameworks */,
 				EC91034A29109DF3007C548E /* SoulverCore in Frameworks */,
@@ -4525,6 +4527,7 @@
 				B5380E332CF9159600E6D801 /* StitchEngine */,
 				E4A848AA2D32FCFA0029AFDE /* PostgREST */,
 				E4A848AC2D32FCFA0029AFDE /* Storage */,
+				E48A07772D382778002E8A98 /* SwiftDotenv */,
 			);
 			productName = prototype;
 			productReference = 200BD857254F66EB00692903 /* Stitch.app */;
@@ -4612,6 +4615,7 @@
 				E463E7ED2C6FC7090008E318 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */,
 				B5380E322CF9159500E6D801 /* XCRemoteSwiftPackageReference "StitchEngine" */,
 				E4A848A92D32FCFA0029AFDE /* XCRemoteSwiftPackageReference "supabase-swift" */,
+				E48A07762D382778002E8A98 /* XCRemoteSwiftPackageReference "swift-dotenv" */,
 			);
 			productRefGroup = 200BD858254F66EB00692903 /* Products */;
 			projectDirPath = "";
@@ -6412,6 +6416,14 @@
 				revision = 5f19fe9a5d1de6adc176200e099a7ba376784eb3;
 			};
 		};
+		E48A07762D382778002E8A98 /* XCRemoteSwiftPackageReference "swift-dotenv" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/thebarndog/swift-dotenv";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.1.0;
+			};
+		};
 		E4A848A92D32FCFA0029AFDE /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/supabase/supabase-swift.git";
@@ -6557,6 +6569,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = E463E7ED2C6FC7090008E318 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */;
 			productName = StitchSchemaKit;
+		};
+		E48A07772D382778002E8A98 /* SwiftDotenv */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E48A07762D382778002E8A98 /* XCRemoteSwiftPackageReference "swift-dotenv" */;
+			productName = SwiftDotenv;
 		};
 		E4A848AA2D32FCFA0029AFDE /* PostgREST */ = {
 			isa = XCSwiftPackageProductDependency;
