@@ -7,9 +7,8 @@ import Foundation
 import PostgREST
 import SwiftDotenv
 
-// Define the request payload structure that conforms to both Encodable and Sendable
 struct LLMRecordingPayload: Encodable, Sendable {
-    let actions: String // Store actions as JSON string for Sendable conformance
+    let actions: String
     let prompt: String
     let created_at: String
 }
@@ -19,24 +18,32 @@ actor SupabaseManager {
     private let postgrest: PostgrestClient
 
     private init() {
-        // Load environment variables
         do {
-            try Dotenv.configure()
+            // Get the path to the .env file in the app bundle
+            if let envPath = Bundle.main.path(forResource: ".env", ofType: nil) {
+                try Dotenv.configure(atPath: envPath)
+                print("✅ .env file loaded successfully from path: \(envPath)")
+            } else {
+                fatalError("⚠️ .env file not found in bundle.")
+            }
         } catch {
             fatalError("⚠️ Could not load .env file: \(error)")
         }
         
-        // Fetch variables
         guard let supabaseURL = Dotenv["SUPABASE_URL"],
               let supabaseAnonKey = Dotenv["SUPABASE_ANON_KEY"] else {
             fatalError("⚠️ Missing required environment variables in .env file")
         }
 
-        // Initialize Supabase client
+        print("✅ Supabase URL: \(supabaseURL.stringValue)")
+        print("✅ Supabase Anon Key: \(supabaseAnonKey.stringValue)")
+
         guard let baseURL = URL(string: supabaseURL.stringValue),
               let apiURL = URL(string: "/rest/v1", relativeTo: baseURL) else {
             fatalError("⚠️ Invalid Supabase URL")
         }
+
+        print("✅ Supabase API URL: \(apiURL)")
 
         self.postgrest = PostgrestClient(
             url: apiURL,
@@ -45,24 +52,39 @@ actor SupabaseManager {
                 "apikey": supabaseAnonKey.stringValue,
                 "Authorization": "Bearer \(supabaseAnonKey.stringValue)"
             ],
-            logger: nil 
+            logger: nil
         )
+        print("✅ PostgrestClient initialized successfully.")
     }
 
     func uploadLLMRecording(_ recordingData: LLMRecordingData) async throws {
         let timestamp = ISO8601DateFormatter().string(from: Date())
+        print("ℹ️ Recording timestamp: \(timestamp)")
+
+        // Encode actions to JSON
         let actionsData = try JSONEncoder().encode(recordingData.actions)
         let actionsString = String(data: actionsData, encoding: .utf8) ?? "{}"
+        print("ℹ️ Encoded actions JSON: \(actionsString)")
 
+        // Create the payload
         let payload = LLMRecordingPayload(
             actions: actionsString,
             prompt: recordingData.prompt,
             created_at: timestamp
         )
+        print("ℹ️ Payload to be sent: \(payload)")
 
-        try await postgrest
-            .from("llm_recordings")
-            .insert(payload)
-            .execute()
+        do {
+            // Make the Supabase call
+            print("➡️ Sending data to Supabase...")
+            let response = try await postgrest
+                .from("llm_recordings")
+                .insert(payload)
+                .execute()
+            print("✅ Supabase response: \(response)")
+        } catch {
+            print("❌ Error sending data to Supabase: \(error)")
+            throw error
+        }
     }
 }
