@@ -59,10 +59,7 @@ final class StitchEntity: NSObject, Sendable {
         
         // Gesture support
         self.containerEntity.generateCollisionShapes(recursive: true)
-        
-        // Add a collision component to the parentEntity with a rough shape and appropriate offset for the model that it contains
-        let entityBounds = self.importEntity.visualBounds(relativeTo: self.containerEntity)
-        self.containerEntity.collision = CollisionComponent(shapes: [ShapeResource.generateBox(size: entityBounds.extents).offsetBy(translation: entityBounds.center)])
+        self.updateCollisionBounds()
     }
     
     @MainActor
@@ -110,6 +107,13 @@ extension StitchEntity {
         case .cylinder:
             return "Cylinder"
         }
+    }
+    
+    @MainActor
+    func updateCollisionBounds() {
+        // Add a collision component to the parentEntity with a rough shape and appropriate offset for the model that it contains
+        let entityBounds = self.importEntity.visualBounds(relativeTo: self.containerEntity)
+        self.containerEntity.collision = CollisionComponent(shapes: [ShapeResource.generateBox(size: entityBounds.extents).offsetBy(translation: entityBounds.center)])
     }
     
     @MainActor

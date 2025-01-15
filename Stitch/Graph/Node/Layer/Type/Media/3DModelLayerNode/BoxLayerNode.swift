@@ -60,6 +60,9 @@ struct BoxLayerNode: LayerNodeDefinition {
                       cornerRadius: viewModel.cornerRadius.getNumber ?? .zero,
                       color: viewModel.color.getColor ?? .red,
                       isMetallic: viewModel.isMetallic.getBool ?? false)
+    
+        // Needed for gesture support if implicit sizing changed
+        entity.updateCollisionBounds()
     }
     
     @MainActor
