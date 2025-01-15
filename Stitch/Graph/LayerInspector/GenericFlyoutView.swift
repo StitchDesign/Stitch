@@ -19,14 +19,18 @@ struct FlyoutHeader: View {
     var body: some View {
         HStack {
             StitchTextView(string: flyoutTitle).font(.title3)
-            Spacer()
+                .border(.red)
+            Spacer(minLength: 12)
+                .border(.blue)
             Image(systemName: "xmark.circle.fill")
                 .onTapGesture {
                     withAnimation {
                         dispatch(FlyoutClosed())
                     }
                 }
+                .border(.yellow)
         }
+        .border(.green)
     }
 }
 
@@ -57,6 +61,8 @@ struct GenericFlyoutView: View {
     var body: some View {
         VStack(alignment: .leading) {
             FlyoutHeader(flyoutTitle: layerInput.label(useShortLabel: true))
+                .width(Self.DEFAULT_FLYOUT_WIDTH)
+                .border(.brown)
             flyoutRows
         }
         .modifier(FlyoutBackgroundColorModifier(
