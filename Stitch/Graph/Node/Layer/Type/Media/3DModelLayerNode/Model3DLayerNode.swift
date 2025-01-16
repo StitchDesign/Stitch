@@ -17,20 +17,6 @@ func retrieveBundleResource(forResource: String, withExtension: String = "usdz")
 }
 
 let default3DModelToyRobotAsset = retrieveBundleResource(forResource: "Vintage Toy Robot")
-// let airForceSneakersModelAsset = retrieveBundleResource(forResource: "AirForce Sneakers")
-// let chairSwanModelAsset = retrieveBundleResource(forResource: "Chair")
-// let cupSaucerSetModelAsset = retrieveBundleResource(forResource: "Cup Saucer Set")
-// let fenderStratocasterSetModelAsset = retrieveBundleResource(forResource: "Fender Stratocaster")
-// let flowerTulipModelAsset = retrieveBundleResource(forResource: "Flower Tulip")
-// let gramophoneModelAsset = retrieveBundleResource(forResource: "Gramophone")
-// let lemonPieModelAsset = retrieveBundleResource(forResource: "Lemon Meringue Pie")
-// let pegasusTrailSneakersModelAsset = retrieveBundleResource(forResource: "Pegasus Trail Sneakers")
-// let teapotModelAsset = retrieveBundleResource(forResource: "Teapot")
-// let toyBiplaneModelAsset = retrieveBundleResource(forResource: "Toy Biplane")
-// let toyCarModelAsset = retrieveBundleResource(forResource: "Toy Car")
-// let toyDrummerModelAsset = retrieveBundleResource(forResource: "Toy Drummer")
-// let retroTVModelAsset = retrieveBundleResource(forResource: "Retro TV")
-// let wateringcanModelAsset = retrieveBundleResource(forResource: "Watering Can")
 
 struct Model3DLayerNode: LayerNodeDefinition {
     
