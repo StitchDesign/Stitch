@@ -1020,7 +1020,6 @@
 		B539C2E92B92BF3D00C6CEC3 /* DocumentEncodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentEncodable.swift; sourceTree = "<group>"; };
 		B53A92282A7D80CC00192E86 /* GraphMovementViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphMovementViewModifier.swift; sourceTree = "<group>"; };
 		B53B1D95289E265900489652 /* StitchVideoPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchVideoPlayer.swift; sourceTree = "<group>"; };
-		B53E0BEA2D3595020072FD43 /* StitchSchemaKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = StitchSchemaKit; path = ../StitchSchemaKit; sourceTree = SOURCE_ROOT; };
 		B53E0BEB2D35B5DD0072FD43 /* BoxLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoxLayerNode.swift; sourceTree = "<group>"; };
 		B53E0BEE2D36E1120072FD43 /* LayerInspectorSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInspectorSection.swift; sourceTree = "<group>"; };
 		B53E477F2894918500A3D060 /* Microphone Recorder.stitch */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Microphone Recorder.stitch"; sourceTree = "<group>"; };
@@ -1936,7 +1935,6 @@
 		200BD859254F66EB00692903 /* Stitch */ = {
 			isa = PBXGroup;
 			children = (
-				B53E0BEA2D3595020072FD43 /* StitchSchemaKit */,
 				EC15E425260271C6006F2E08 /* Stitch.entitlements */,
 				200BD863254F66EE00692903 /* Info.plist */,
 				B5617A7B2C175C3C00B53DAF /* App */,
@@ -6428,8 +6426,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/StitchDesign/StitchSchemaKit";
 			requirement = {
-				branch = main;
-				kind = branch;
+				kind = revision;
+				revision = 5abf4b55ca255906fbffe8cca0b58642466e9d60;
 			};
 		};
 		E48A07762D382778002E8A98 /* XCRemoteSwiftPackageReference "swift-dotenv" */ = {
