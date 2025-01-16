@@ -239,6 +239,8 @@ extension LayerInspectorSection {
         case .geometry3D:
             return [
                 .size3D,
+                .radius3D,
+                .height3D,
                 .isMetallic
             ]
         }
