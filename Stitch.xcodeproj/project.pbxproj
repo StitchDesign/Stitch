@@ -63,6 +63,11 @@
 		B51D8809298CA7A000CEBA98 /* AsyncMediaValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51D8808298CA7A000CEBA98 /* AsyncMediaValue.swift */; };
 		B51D8A022CD13D420016CCDA /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B51D8A012CD13D420016CCDA /* StitchEngine */; };
 		B521489A2C837CA6009AD42C /* DelayOneNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B52148992C837CA6009AD42C /* DelayOneNode.swift */; };
+		B5221F662D397457009FF89A /* SphereLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5221F652D397455009FF89A /* SphereLayerNode.swift */; };
+		B5221F682D397735009FF89A /* StitchEntityType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5221F672D397731009FF89A /* StitchEntityType.swift */; };
+		B5221F6A2D39788E009FF89A /* Model3DLayerUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5221F692D397889009FF89A /* Model3DLayerUtil.swift */; };
+		B5221F6C2D398947009FF89A /* ConeLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5221F6B2D39893E009FF89A /* ConeLayerNode.swift */; };
+		B5221F6E2D398972009FF89A /* CylinderLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5221F6D2D398969009FF89A /* CylinderLayerNode.swift */; };
 		B523698C29F9E5E800240395 /* NodeRowObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B523698B29F9E5E800240395 /* NodeRowObserver.swift */; };
 		B525BB482C18AFC300A98EB4 /* FileDropHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = B525BB472C18AFC300A98EB4 /* FileDropHandling.swift */; };
 		B526AFFE2C764E8D00B5971F /* SchemaVersions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B526AFFD2C764E8D00B5971F /* SchemaVersions.swift */; };
@@ -1004,6 +1009,11 @@
 		B51C67502C6441A5002F83D1 /* UnpackedValueCoercer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnpackedValueCoercer.swift; sourceTree = "<group>"; };
 		B51D8808298CA7A000CEBA98 /* AsyncMediaValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncMediaValue.swift; sourceTree = "<group>"; };
 		B52148992C837CA6009AD42C /* DelayOneNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelayOneNode.swift; sourceTree = "<group>"; };
+		B5221F652D397455009FF89A /* SphereLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SphereLayerNode.swift; sourceTree = "<group>"; };
+		B5221F672D397731009FF89A /* StitchEntityType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchEntityType.swift; sourceTree = "<group>"; };
+		B5221F692D397889009FF89A /* Model3DLayerUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model3DLayerUtil.swift; sourceTree = "<group>"; };
+		B5221F6B2D39893E009FF89A /* ConeLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConeLayerNode.swift; sourceTree = "<group>"; };
+		B5221F6D2D398969009FF89A /* CylinderLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CylinderLayerNode.swift; sourceTree = "<group>"; };
 		B523698B29F9E5E800240395 /* NodeRowObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeRowObserver.swift; sourceTree = "<group>"; };
 		B525BB472C18AFC300A98EB4 /* FileDropHandling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileDropHandling.swift; sourceTree = "<group>"; };
 		B526AFFD2C764E8D00B5971F /* SchemaVersions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaVersions.swift; sourceTree = "<group>"; };
@@ -2070,6 +2080,7 @@
 		B548533529371E0500C43828 /* AR */ = {
 			isa = PBXGroup;
 			children = (
+				B5221F672D397731009FF89A /* StitchEntityType.swift */,
 				B548533629371E3900C43828 /* RealityView.swift */,
 				B548533829371E7B00C43828 /* ARUtils.swift */,
 				B548533A293721A700C43828 /* StitchARView.swift */,
@@ -3779,7 +3790,11 @@
 		E41685E228A3FA9200731889 /* 3DModelLayerNode */ = {
 			isa = PBXGroup;
 			children = (
+				B5221F692D397889009FF89A /* Model3DLayerUtil.swift */,
 				B53E0BEB2D35B5DD0072FD43 /* BoxLayerNode.swift */,
+				B5221F652D397455009FF89A /* SphereLayerNode.swift */,
+				B5221F6D2D398969009FF89A /* CylinderLayerNode.swift */,
+				B5221F6B2D39893E009FF89A /* ConeLayerNode.swift */,
 				E41685DC28A3FA3000731889 /* Model3DLayerNode.swift */,
 				E41685E028A3FA5800731889 /* PreviewModel3DLayer.swift */,
 				E4AE5B7B28AAFE4A001C823D /* LightType.swift */,
@@ -4741,6 +4756,7 @@
 				EC1B41B826BCB1630016C2C2 /* NodeMovedAction.swift in Sources */,
 				B5E50E1A28B9A3B3000E50B9 /* DeviceInfo.swift in Sources */,
 				ECAA1CD32853F51900DDAAC9 /* ClassicAnimationState.swift in Sources */,
+				B5221F6E2D398972009FF89A /* CylinderLayerNode.swift in Sources */,
 				ECB7C71C28A56C0D00252DE7 /* ClassicAnimationColor.swift in Sources */,
 				ECEEA4FD2AFCA90F00C7CE86 /* CommentBoxGestureActions.swift in Sources */,
 				ECDD4E102CC06FCD003B4F9A /* PreviewMaterialLayer.swift in Sources */,
@@ -4838,6 +4854,7 @@
 				ECFC872F2936CE09004A065A /* StopwatchNode.swift in Sources */,
 				ECB801DB26405E1100C93449 /* ImageNode.swift in Sources */,
 				20308F9C25AD1721008CE3BE /* DelayNodeUtil.swift in Sources */,
+				B5221F6C2D398947009FF89A /* ConeLayerNode.swift in Sources */,
 				EC5F642F2C29E6A900A9E52F /* LayerInspectorState.swift in Sources */,
 				EC28CCA0287E355E00987792 /* PatchUIExtensions.swift in Sources */,
 				B5FE64B329641ACD004EB04B /* AsyncMediaImpureEvalResult.swift in Sources */,
@@ -5044,6 +5061,7 @@
 				ECC30E122C234E8800F0F54C /* CanvasItemViewModel.swift in Sources */,
 				EC004DD12B449D0700C5DB33 /* CanvasSketchView.swift in Sources */,
 				ECA92A18260A69EB00281B52 /* OptionPickerNode.swift in Sources */,
+				B5221F662D397457009FF89A /* SphereLayerNode.swift in Sources */,
 				EC067CEC2BAB7A9300F8EB82 /* MathExpressionNode.swift in Sources */,
 				ECA92A46260A6AD000281B52 /* RectangleLayerNode.swift in Sources */,
 				ECA92A2C260A6A3C00281B52 /* TimeNode.swift in Sources */,
@@ -5119,6 +5137,7 @@
 				B5657D362C0983E300287362 /* MediaEvalOpObservable.swift in Sources */,
 				ECC558A9294A9B3A0025BB42 /* DragInteractionUtils.swift in Sources */,
 				B569E58B2B06A8B100C7435B /* NodeInfo.swift in Sources */,
+				B5221F6A2D39788E009FF89A /* Model3DLayerUtil.swift in Sources */,
 				EC90A7082AF0015E007EE504 /* StitchTheme.swift in Sources */,
 				B59C01372B4625F1001CDF87 /* SchemaNodesUtil.swift in Sources */,
 				20308FA025AD1721008CE3BE /* FloatingWindowView.swift in Sources */,
@@ -5212,6 +5231,7 @@
 				ECD2124B294D089A00672A3E /* LocationNode.swift in Sources */,
 				ECB7B5D32A72DD9400E2D30B /* NodePageData.swift in Sources */,
 				ECF0B0E828774FA7001D7CFC /* LessThanOrEqualNode.swift in Sources */,
+				B5221F682D397735009FF89A /* StitchEntityType.swift in Sources */,
 				EC733DC42639E24C00DD4EC1 /* LayerNodeViewModel.swift in Sources */,
 				ECDCE35C2821EAC700D83EC3 /* PortValueEdit.swift in Sources */,
 				ECCFB36A2C35E14000E94D60 /* PreviewAspectRatioModifier.swift in Sources */,
@@ -6427,7 +6447,7 @@
 			repositoryURL = "https://github.com/StitchDesign/StitchSchemaKit";
 			requirement = {
 				kind = revision;
-				revision = 5abf4b55ca255906fbffe8cca0b58642466e9d60;
+				revision = 8d85de165353cff0a98d9a49ab1b841ab59bf939;
 			};
 		};
 		E48A07762D382778002E8A98 /* XCRemoteSwiftPackageReference "swift-dotenv" */ = {
