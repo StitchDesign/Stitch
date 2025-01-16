@@ -56,7 +56,7 @@ final class NodeViewModel: Sendable {
     @MainActor
     weak var graphDelegate: GraphDelegate?
 
-    /// Called on initialization or prototype restart.
+    /// Called when initializing delegate
     @MainActor
     func syncEphemeralObservers() {
         if self.ephemeralObservers == nil,
@@ -688,6 +688,7 @@ extension NodeViewModel {
         self.getAllInputsObservers().onPrototypeRestart()
         self.getAllOutputsObservers().forEach { $0.onPrototypeRestart() }
         
+        // Reset properties specific to the node's actual type (patch vs layer vs component vs group)
         self.nodeType.onPrototypeRestart()
     }
 }
