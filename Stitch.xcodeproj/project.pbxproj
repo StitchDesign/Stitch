@@ -1219,20 +1219,6 @@
 		E4114F6D2BD96BF700934151 /* VideoStreamingLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoStreamingLayerNode.swift; sourceTree = "<group>"; };
 		E41685DC28A3FA3000731889 /* Model3DLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model3DLayerNode.swift; sourceTree = "<group>"; };
 		E41685E028A3FA5800731889 /* PreviewModel3DLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewModel3DLayer.swift; sourceTree = "<group>"; };
-		E41685F528A3FC8C00731889 /* Lemon Meringue Pie.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = "Lemon Meringue Pie.usdz"; sourceTree = "<group>"; };
-		E41685F628A3FC8C00731889 /* Teapot.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = Teapot.usdz; sourceTree = "<group>"; };
-		E41685F728A3FC8D00731889 /* Fender Stratocaster.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = "Fender Stratocaster.usdz"; sourceTree = "<group>"; };
-		E41685F828A3FC8E00731889 /* Flower Tulip.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = "Flower Tulip.usdz"; sourceTree = "<group>"; };
-		E41685F928A3FC8E00731889 /* Chair.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = Chair.usdz; sourceTree = "<group>"; };
-		E41685FA28A3FC8F00731889 /* Retro TV.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = "Retro TV.usdz"; sourceTree = "<group>"; };
-		E41685FB28A3FC8F00731889 /* Toy Biplane.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = "Toy Biplane.usdz"; sourceTree = "<group>"; };
-		E41685FC28A3FC9000731889 /* Pegasus Trail Sneakers.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = "Pegasus Trail Sneakers.usdz"; sourceTree = "<group>"; };
-		E41685FD28A3FC9100731889 /* Gramophone.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = Gramophone.usdz; sourceTree = "<group>"; };
-		E41685FE28A3FC9200731889 /* Toy Drummer.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = "Toy Drummer.usdz"; sourceTree = "<group>"; };
-		E41685FF28A3FC9300731889 /* AirForce Sneakers.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = "AirForce Sneakers.usdz"; sourceTree = "<group>"; };
-		E416860028A3FC9400731889 /* Toy Car.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = "Toy Car.usdz"; sourceTree = "<group>"; };
-		E416860128A3FC9400731889 /* Cup Saucer Set.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = "Cup Saucer Set.usdz"; sourceTree = "<group>"; };
-		E416860228A3FC9500731889 /* Watering Can.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = "Watering Can.usdz"; sourceTree = "<group>"; };
 		E416860328A3FC9600731889 /* Vintage Toy Robot.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = "Vintage Toy Robot.usdz"; sourceTree = "<group>"; };
 		E41A66B22BD2BB8E00385C9F /* LinearGradientNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinearGradientNode.swift; sourceTree = "<group>"; };
 		E42BA45C291C69C200EB7356 /* SIMDExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SIMDExtensions.swift; sourceTree = "<group>"; };
@@ -1240,7 +1226,6 @@
 		E457441C2BC0548300B1642E /* QRCodeDetection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeDetection.swift; sourceTree = "<group>"; };
 		E48A077D2D383B7D002E8A98 /* .env */ = {isa = PBXFileReference; lastKnownFileType = text; path = .env; sourceTree = "<group>"; };
 		E48A07912D38C528002E8A98 /* SupabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseManager.swift; sourceTree = "<group>"; };
-		E498B63E28DB5A7500D8344D /* DummyCube.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = DummyCube.usdz; sourceTree = "<group>"; };
 		E4AB307929B4F316000A66B0 /* CoreMLDetectionNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreMLDetectionNode.swift; sourceTree = "<group>"; };
 		E4AB307B29B4F42F000A66B0 /* YOLOv3Tiny.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = YOLOv3Tiny.mlmodel; sourceTree = "<group>"; };
 		E4AE5B7B28AAFE4A001C823D /* LightType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LightType.swift; sourceTree = "<group>"; };
@@ -3805,22 +3790,7 @@
 		E41685F428A3FC5100731889 /* 3D Models */ = {
 			isa = PBXGroup;
 			children = (
-				E498B63E28DB5A7500D8344D /* DummyCube.usdz */,
 				E416860328A3FC9600731889 /* Vintage Toy Robot.usdz */,
-				E41685FF28A3FC9300731889 /* AirForce Sneakers.usdz */,
-				E41685F928A3FC8E00731889 /* Chair.usdz */,
-				E416860128A3FC9400731889 /* Cup Saucer Set.usdz */,
-				E41685F728A3FC8D00731889 /* Fender Stratocaster.usdz */,
-				E41685F828A3FC8E00731889 /* Flower Tulip.usdz */,
-				E41685FD28A3FC9100731889 /* Gramophone.usdz */,
-				E41685F528A3FC8C00731889 /* Lemon Meringue Pie.usdz */,
-				E41685FC28A3FC9000731889 /* Pegasus Trail Sneakers.usdz */,
-				E41685F628A3FC8C00731889 /* Teapot.usdz */,
-				E41685FB28A3FC8F00731889 /* Toy Biplane.usdz */,
-				E416860028A3FC9400731889 /* Toy Car.usdz */,
-				E41685FE28A3FC9200731889 /* Toy Drummer.usdz */,
-				E41685FA28A3FC8F00731889 /* Retro TV.usdz */,
-				E416860228A3FC9500731889 /* Watering Can.usdz */,
 			);
 			path = "3D Models";
 			sourceTree = "<group>";
