@@ -220,6 +220,17 @@ struct LayerInspectorInputView: View {
     
 }
 
+struct LayerInspectorSectionHeader: View {
+    let string: String
+
+    var body: some View {
+        StitchTextView(string: string,
+                       font: stitchFont(18))
+            .textCase(nil)
+            .bold()
+    }
+}
+
 // This view now needs to receive the inputs it will be listing,
 // rather than receiving the entire layer node.
 struct LayerInspectorInputsSectionView: View {
@@ -254,10 +265,8 @@ struct LayerInspectorInputsSectionView: View {
                     .animation(.linear(duration: 0.2), value: rotationZ)
                     .opacity(self.isHovered ? 1 : 0)
                 
-                StitchTextView(string: section.rawValue,
-                               font: stitchFont(18))
-                    .textCase(nil)
-                    .bold()
+                LayerInspectorSectionHeader(string: section.rawValue)
+                
             }
             // Note: list row insets appear to be the only way to control padding on a list's section headers
             .listRowInsets(EdgeInsets(top: 0,
@@ -315,7 +324,8 @@ struct LayerInspectorOutputsSectionView: View {
                         .frame(width: LAYER_INSPECTOR_ROW_ICON_LENGTH,
                                height: LAYER_INSPECTOR_ROW_ICON_LENGTH)
                     
-                    StitchTextView(string: "Outputs").textCase(nil)
+                    LayerInspectorSectionHeader(string: "Outputs")
+                    
                 }
                 .listRowInsets(EdgeInsets(top: 0,
                                           leading: 0,
