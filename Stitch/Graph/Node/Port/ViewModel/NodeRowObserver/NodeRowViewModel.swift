@@ -29,6 +29,15 @@ extension GraphItemType {
         }
     }
     
+    var layerInputPort: LayerInputPort? {
+        switch self {
+        case .node(let canvasItemId):
+            return canvasItemId.layerInputCase?.keyPath.layerInput
+        case .layerInspector(let nodeIOPortType):
+            return nodeIOPortType.keyPath?.layerInput
+        }
+    }
+    
     var getLayerInputCoordinateOnGraph: LayerInputCoordinate? {
         switch self {
         case .node(let x):
@@ -66,6 +75,10 @@ extension NodeRowViewModelId {
     static let empty: Self = .init(graphItemType: .node(.node(.init())),
                                    nodeId: .init(),
                                    portId: -1)
+    
+    var layerInputPort: LayerInputPort? {
+        self.graphItemType.layerInputPort
+    }
 }
 
 protocol NodeRowViewModel: StitchLayoutCachable, Observable, Identifiable {

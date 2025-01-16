@@ -12,35 +12,13 @@ import StitchSchemaKit
 extension LayerInputPortSet {
     
     @MainActor
-    static let strokeInputs: LayerInputPortSet = [
-        .strokePosition,
-        .strokeWidth,
-        .strokeColor,
-        .strokeStart,
-        .strokeEnd,
-        .strokeLineCap,
-        .strokeLineJoin
-    ]
+    static let strokeInputs: LayerInputPortSet = LayerInspectorSection.stroke.sectionData.toOrderedSet
     
     @MainActor
-    static let layerEffects: LayerInputPortSet = [
-        .blurRadius,
-        .blendMode,
-        .brightness,
-        .colorInvert,
-        .contrast,
-        .hueRotation,
-        .saturation
-    ]
+    static let layerEffects: LayerInputPortSet = LayerInspectorSection.layerEffects.sectionData.toOrderedSet
     
     @MainActor
-    static let typography: LayerInputPortSet = [
-        .fontSize,
-        .textAlignment,
-        .verticalAlignment,
-        .textDecoration,
-        .textFont,
-    ]
+    static let typography: LayerInputPortSet = LayerInspectorSection.typography.sectionData.toOrderedSet
     
     @MainActor
     static let aspectRatio: LayerInputPortSet = [
@@ -50,11 +28,7 @@ extension LayerInputPortSet {
     ]
     
     @MainActor
-    static let sizing: LayerInputPortSet = [
-        .minSize,
-        .maxSize,
-        .sizingScenario
-    ]
+    static let sizing: LayerInputPortSet = LayerInspectorSection.sizing.sectionData.toOrderedSet
     
     // LayerGroup only?
     @MainActor
@@ -64,12 +38,7 @@ extension LayerInputPortSet {
     ]
     
     @MainActor
-    static let pinning: LayerInputPortSet = [
-        .isPinned,
-        .pinTo,
-        .pinAnchor,
-        .pinOffset
-    ]
+    static let pinning: LayerInputPortSet = LayerInspectorSection.pinning.sectionData.toOrderedSet
     
     @MainActor
     static let layerPaddingAndMargin: LayerInputPortSet = [

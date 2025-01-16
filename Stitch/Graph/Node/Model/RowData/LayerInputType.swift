@@ -284,6 +284,10 @@ extension LayerInputPort {
             return .bool(false)
         case .scale3DEnabled:
             return .bool(false)
+        case .size3D:
+            return .point3D(.init(x: 0, y: 0, z: 0))
+        case .isMetallic:
+            return .bool(false)
         }
     }
     
@@ -528,6 +532,10 @@ extension LayerInputPort {
             return \.rotation3DEnabledPort
         case .scale3DEnabled:
             return \.scale3DEnabledPort
+        case .size3D:
+            return \.size3DPort
+        case .isMetallic:
+            return \.isMetallicPort
         }
     }
     
@@ -776,6 +784,10 @@ extension LayerViewModel {
             return self.rotation3DEnabled
         case .scale3DEnabled:
             return self.scale3DEnabled
+        case .size3D:
+            return self.size3D
+        case .isMetallic:
+            return self.isMetallic
         }
     }
     
@@ -1016,6 +1028,10 @@ extension LayerViewModel {
             self.rotation3DEnabled = value
         case .scale3DEnabled:
             self.scale3DEnabled = value
+        case .size3D:
+            self.size3D = value
+        case .isMetallic:
+            self.isMetallic = value
         }
     }
 }
@@ -1249,6 +1265,10 @@ extension LayerInputPort {
             return \.rotation3DEnabledPort
         case .scale3DEnabled:
             return \.scale3DEnabledPort
+        case .size3D:
+            return \.size3DPort
+        case .isMetallic:
+            return \.isMetallicPort
         }
     }
     
@@ -1604,9 +1624,6 @@ extension LayerInputPort {
             return "Jump to Y"
         case .scrollJumpToYLocation:
             return "Jump Position Y"
-        case .transform3D:
-//            return ""  // skip in favor of header section
-            return "3D Transform" // want some kind of title 
         case .anchorEntity:
             return "Anchor Entity"
         case .isEntityAnimating:
@@ -1617,6 +1634,10 @@ extension LayerInputPort {
             return "Rotation"
         case .scale3DEnabled:
             return "Scale"
+        case .isMetallic:
+            return "Metallic"
+        case .transform3D, .size3D:
+            return ""
         }
     }
 

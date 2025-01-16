@@ -11,6 +11,7 @@ import StitchSchemaKit
 
 extension PortValue {
     func getNodeRowType(nodeIO: NodeIO,
+                        layerInputPort: LayerInputPort?,
                         isLayerInspector: Bool) -> NodeRowType {
         switch self {
         case .size:
@@ -18,6 +19,10 @@ extension PortValue {
         case .position:
             return .position
         case .point3D:
+            if layerInputPort == .size3D {
+                return .size3D
+            }
+            
             return .point3D
         case .point4D:
             return .point4D

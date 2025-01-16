@@ -278,6 +278,7 @@ struct LayerInputFieldAddedToGraph: GraphEventWithResponse {
             guard let unpackedPortParentFieldGroupType: FieldGroupType = layerInput
                 .getDefaultValue(for: layerNode.layer)
                 .getNodeRowType(nodeIO: .input,
+                                layerInputPort: layerInput,
                                 isLayerInspector: true)
                 .fieldGroupTypes
                 .first else {

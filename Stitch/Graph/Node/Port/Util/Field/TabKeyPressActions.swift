@@ -46,8 +46,10 @@ extension GraphState {
 }
 
 extension PortValue {
-    func inputUsesTextField(isLayerInputInspector: Bool) -> Bool {
+    func inputUsesTextField(layerInputPort: LayerInputPort?,
+                            isLayerInputInspector: Bool) -> Bool {
         self.getNodeRowType(nodeIO: .input,
+                            layerInputPort: layerInputPort,
                             isLayerInspector: isLayerInputInspector)
         .inputUsesTextField(isLayerInputInspector: isLayerInputInspector)
     }
@@ -65,7 +67,9 @@ extension Array where Element: InputNodeRowViewModel {
                 let portId = item.offset
                 
                 // We are only interested in inputs that use text-fields
-                guard input.activeValue.inputUsesTextField(isLayerInputInspector: isLayerInputInspector),
+                guard input.activeValue.inputUsesTextField(
+                    layerInputPort: input.id.layerInputPort,
+                    isLayerInputInspector: isLayerInputInspector),
                       let fields = input.fieldValueTypes.first?.fieldObservers else {
                     return []
                 }
@@ -165,8 +169,8 @@ extension NodeViewModel {
                 collapsedSections: propertySidebarState.collapsedSections)
             
             guard let currentEligibleField = eligibleFields.first(where: {
-                $0 == .init(input: currentInputKey.layerInput,
-                            fieldIndex: currentFocusedField.fieldIndex)
+                $0 == LayerInputEligibleField(input: currentInputKey.layerInput,
+                                              fieldIndex: currentFocusedField.fieldIndex)
             }),
                   let currentEligibleFieldIndex = eligibleFields.firstIndex(of: currentEligibleField),
                   let lastEligibleField = eligibleFields.last,
@@ -249,7 +253,7 @@ typealias LayerInputEligibleFields = OrderedSet<LayerInputEligibleField>
 func getTabEligibleFields(layerNode: LayerNodeViewModel,
                           layerInputOnCanvas: LayerInputPort?,
                           flyoutInput: LayerInputPort?,
-                          collapsedSections: Set<LayerInspectorSectionName>) -> LayerInputEligibleFields {
+                          collapsedSections: Set<LayerInspectorSection>) -> LayerInputEligibleFields {
     
 //    if let flyoutInput = flyoutInput,
 //       flyoutInput == SHADOW_FLYOUT_LAYER_INPUT_PROXY {
@@ -274,7 +278,7 @@ func getTabEligibleFields(layerNode: LayerNodeViewModel,
     // If we are in the shadow flyout,
     // then we only tab through shadow inputs and input-fields
     if flyoutInput == SHADOW_FLYOUT_LAYER_INPUT_PROXY {
-        let eligibleShadowFields = LayerInspectorView.shadow.flatMap { (shadowInput: LayerInputPort) -> [LayerInputEligibleField] in
+        let eligibleShadowFields = LayerInspectorSection.shadow.flatMap { (shadowInput: LayerInputPort) -> [LayerInputEligibleField] in
             
             guard shadowInput.usesTextFields(layerNode.layer) else {
                 return []
@@ -296,21 +300,19 @@ func getTabEligibleFields(layerNode: LayerNodeViewModel,
     let layer = layerNode.layer
     let inputsForThisLayer = layer.layerGraphNode.inputDefinitions
   
-    // TODO: more like "eligible inspector fields"
-    let eligibleFields: LayerInputEligibleFields = LayerInspectorView
-    
+    let eligibleFields = LayerInspectorSection
     // Master, ordered list (ordered set)
-        .layerInspectorRowsInOrder(layer)
+        .allCases
     
     // Remove inputs from sections that are (1) collapsed or (2) use a flyout
         .filter {
 //            $0.name != .shadow
 //            && 
-            !collapsedSections.contains($0.name)
+            !collapsedSections.contains($0)
         }
-    
-    // Handle just layer inputs now
-        .flatMap(\.inputs)
+        .flatMap { section in
+            section.displaysOnTabbing(layer: layer) ? section.sectionData : []
+        }
     
     // We're only interested in layer inputs that (1) are for this layer, (2) use textfield and (3) do not use a flyout
         .filter { layerInput in
@@ -397,8 +399,8 @@ extension NodeViewModel {
             guard let currentEligibleField = eligibleFields.first(where: {
                 // eligible fields are equatable
                 // TODO: support prev input tabbing for unpacked
-                $0 == .init(input: currentInputKey.layerInput,
-                            fieldIndex: currentFocusedField.fieldIndex)
+                $0 == LayerInputEligibleField(input: currentInputKey.layerInput,
+                                              fieldIndex: currentFocusedField.fieldIndex)
             }),
                   let currentEligibleFieldIndex = eligibleFields.firstIndex(of: currentEligibleField),
                   let lastEligibleField = eligibleFields.last,

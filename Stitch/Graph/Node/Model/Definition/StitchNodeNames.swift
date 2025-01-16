@@ -821,7 +821,13 @@ let model3DDescription = """
 The 3D Model Layer will display a 3D model asset (of a USDZ file type) in the preview window.
 
 *Inputs*
-• An 3D Model Asset
+• 3D Model Asset
+• 3D Anchor Entity
+• Animation
+• 3D Transform (Translation/Scale/Rotation)
+• Translation Gesture
+• Scale Gesture
+• Rotation Gesture
 • Position (X/Y)
 • Rotation X
 • Rotation Y
@@ -831,6 +837,96 @@ The 3D Model Layer will display a 3D model asset (of a USDZ file type) in the pr
 • Scale
 • Anchoring
 • Z-Index
+"""
+
+let box3DDescription = """
+A box 3D shape, which can be used inside a Reality View.
+
+*Inputs*
+• 3D Anchor Entity
+• 3D Size (Width/Height/Depth)
+• 3D Transform (Translation/Scale/Rotation)
+• Translation Gesture
+• Scale Gesture
+• Rotation Gesture
+• Position (X/Y)
+• Rotation X
+• Rotation Y
+• Rotation Z
+• Size (W/H)
+• Opacity
+• Scale
+• Anchoring
+• Z-Index
+• Corner Radius
+• Color
+• Metallic
+"""
+
+let sphere3DDescription = """
+A sphere 3D shape, which can be used inside a Reality View.
+
+*Inputs*
+• 3D Anchor Entity
+• 3D Transform (Translation/Scale/Rotation)
+• Translation Gesture
+• Scale Gesture
+• Rotation Gesture
+• Position (X/Y)
+• Rotation X
+• Rotation Y
+• Rotation Z
+• Size (W/H)
+• Opacity
+• Scale
+• Anchoring
+• Z-Index
+• Color
+• Metallic
+"""
+
+let cylinder3DDescription = """
+A cylinder 3D shape, which can be used inside a Reality View.
+
+*Inputs*
+• 3D Anchor Entity
+• 3D Transform (Translation/Scale/Rotation)
+• Translation Gesture
+• Scale Gesture
+• Rotation Gesture
+• Position (X/Y)
+• Rotation X
+• Rotation Y
+• Rotation Z
+• Size (W/H)
+• Opacity
+• Scale
+• Anchoring
+• Z-Index
+• Color
+• Metallic
+"""
+
+let cone3DDescription = """
+A cone 3D shape, which can be used inside a Reality View.
+
+*Inputs*
+• 3D Anchor Entity
+• 3D Transform (Translation/Scale/Rotation)
+• Translation Gesture
+• Scale Gesture
+• Rotation Gesture
+• Position (X/Y)
+• Rotation X
+• Rotation Y
+• Rotation Z
+• Size (W/H)
+• Opacity
+• Scale
+• Anchoring
+• Z-Index
+• Color
+• Metallic
 """
 
 let ovalDescription = """
@@ -872,10 +968,9 @@ The Progress Indicator will display a Progress Indicator animation.
 """
 
 let realityViewDescription = """
-The RealityView node will display the output of an Augmented Reality scene. It takes AR anchors (created with 3D models) as input.
+The RealityView node will display the output of an Augmented Reality scene in the form of a layer group. Drag 3D layers inside the Reality View sidebar item to display 3D objects in the scene.
 
 *Inputs*
-• An AR Anchor (see AR Anchor node)
 • Camera Direction (Front / Back)
 • Position (X / Y)
 • Rotation X

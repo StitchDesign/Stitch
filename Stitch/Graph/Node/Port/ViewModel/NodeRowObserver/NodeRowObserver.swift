@@ -437,6 +437,7 @@ extension NodeRowViewModel {
                             newValue: PortValue) {
         let nodeIO = Self.RowObserver.nodeIOType
         let oldRowType = oldValue.getNodeRowType(nodeIO: nodeIO,
+                                                 layerInputPort: self.id.layerInputPort,
                                                  isLayerInspector: self.isLayerInspector)
         self.activeValueChanged(oldRowType: oldRowType,
                                 newValue: newValue)
@@ -454,6 +455,7 @@ extension NodeRowViewModel {
         
         let nodeIO = Self.RowObserver.nodeIOType
         let newRowType = newValue.getNodeRowType(nodeIO: nodeIO,
+                                                 layerInputPort: self.id.layerInputPort,
                                                  isLayerInspector: self.isLayerInspector)
         let nodeRowTypeChanged = oldRowType != newRowType
         let importedMediaObject = rowDelegate.importedMediaObject
@@ -473,6 +475,7 @@ extension NodeRowViewModel {
         
         let newFieldsByGroup = newValue.createFieldValuesList(nodeIO: nodeIO,
                                                               importedMediaObject: importedMediaObject,
+                                                              layerInputPort: self.id.layerInputPort,
                                                               isLayerInspector: self.isLayerInspector)
         
         // Assert equal array counts

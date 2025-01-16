@@ -36,7 +36,7 @@ extension Layer {
         switch self {
         case .canvasSketch, .textField, .switchLayer:
             return true
-        case .text, .oval, .rectangle, .image, .group, .video, .model3D, .realityView, .shape, .colorFill, .hitArea, .map, .progressIndicator, .linearGradient, .radialGradient, .angularGradient, .sfSymbol, .videoStreaming, .material:
+        case .text, .oval, .rectangle, .image, .group, .video, .model3D, .realityView, .shape, .colorFill, .hitArea, .map, .progressIndicator, .linearGradient, .radialGradient, .angularGradient, .sfSymbol, .videoStreaming, .material, .box, .sphere, .cylinder, .cone:
             return false
         }
     }
@@ -75,8 +75,18 @@ extension Layer {
             return "Color Fill"
         case .hitArea:
             return "Hit Area"
-        case .canvasSketch, .textField, .map, .progressIndicator, .sfSymbol, .material:
-            return self.rawValue
+        case .canvasSketch:
+            return "Canvas Sketch"
+        case .textField:
+            return "Text Field"
+        case .map:
+            return "Map"
+        case .progressIndicator:
+            return "Progress Indicator"
+        case .sfSymbol:
+            return "SF Symbol"
+        case .material:
+            return "Material"
         case .switchLayer:
             return "Toggle Switch"
         case .linearGradient:
@@ -87,6 +97,14 @@ extension Layer {
             return "Angular Gradient"
         case .videoStreaming:
             return "Video Streaming"
+        case .box:
+            return "Box"
+        case .sphere:
+            return "Sphere"
+        case .cylinder:
+            return "Cylinder"
+        case .cone:
+            return "Cone"
         }
     }
 
@@ -159,6 +177,14 @@ extension Layer {
             return .videoStreaming
         case .material:
             return .material
+        case .box:
+            return .box
+        case .sphere:
+            return .sphere
+        case .cylinder:
+            return .cylinder
+        case .cone:
+            return .cone
         }
     }
 
@@ -193,4 +219,8 @@ extension Layer {
             return false
         }
     }
+    
+    @MainActor
+    static let layers3D: [Layer] = Layer.allCases
+        .filter { $0.inputDefinitions.contains(.transform3D) }
 }

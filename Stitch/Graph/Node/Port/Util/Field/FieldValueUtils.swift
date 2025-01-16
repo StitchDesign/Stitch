@@ -13,13 +13,19 @@ extension PortValue {
     /// Coercion logic from port value to fields. Contains a 2D list of field values given a 1-many mapping between a field group type and its field values.
     func createFieldValuesList(nodeIO: NodeIO,
                                importedMediaObject: StitchMediaObject?,
+                               layerInputPort: LayerInputPort?,
                                isLayerInspector: Bool) -> [FieldValues] {
         switch self.getNodeRowType(nodeIO: nodeIO,
+                                   layerInputPort: layerInputPort,
                                    isLayerInspector: isLayerInspector) {
         
         case .size:
             let size = self.getSize ?? .zero
             return [size.fieldValues]
+            
+        case .size3D:
+            let size3D = self.getPoint3D ?? .zero
+            return [size3D.fieldValues]
         
         case .position:
             let position = self.getPosition ?? .zero
