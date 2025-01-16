@@ -317,8 +317,8 @@ struct Model3DView: UIViewRepresentable {
             return
         }
         
-        entity.updateSCNScene(from: scene,
-                              layerViewModel: layerViewModel)
+        entity.type.updateSCNScene(from: scene,
+                                   layerViewModel: layerViewModel)
 
         uiView.frame.size = CGSize(width: sceneSize.width, height: sceneSize.height)
         modelNode.opacity = modelOpacity
