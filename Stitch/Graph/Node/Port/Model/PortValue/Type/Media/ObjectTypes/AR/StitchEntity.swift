@@ -11,25 +11,6 @@ import RealityKit
 import SceneKit
 import SwiftUI
 
-enum StitchEntityType {
-    case importedMedia(URL)
-    case box
-    case sphere
-    case cylinder
-    case cone
-}
-
-extension StitchEntityType {
-    var isImportMedia: Bool {
-        switch self {
-        case .importedMedia:
-            return true
-        default:
-            return false
-        }
-    }
-}
-
 @Observable
 final class StitchEntity: NSObject, Sendable {
     let id: UUID = .init()
@@ -167,89 +148,25 @@ extension StitchEntity {
     
     @MainActor private func buildSCNScene(from scene: SCNScene,
                                           layerViewModel: LayerViewModel) {
-        let size3D = layerViewModel.size3D.getPoint3D ?? .zero
-        let cornerRadius = layerViewModel.cornerRadius.getNumber ?? .zero
-
-        switch self.type {
-        case .importedMedia:
-            // do nothing
+        guard let geometry = self.type.createSCNGeometry(layerViewModel: layerViewModel) else {
             return
-        case .box:
-            let box = SCNBox(width: size3D.x,
-                             height: size3D.y,
-                             length: size3D.z,
-                             chamferRadius: cornerRadius)
-            let node = SCNNode(geometry: box)
-            scene.rootNode.addChildNode(node)
-        default:
-            fatalError()
         }
         
-        self.updateSCNScene(from: scene,
-                            layerViewModel: layerViewModel)
-    }
-    
-    @MainActor func updateSCNScene(from scene: SCNScene,
-                                   layerViewModel: LayerViewModel) {
-        let size3D = layerViewModel.size3D.getPoint3D ?? .zero
-        let cornerRadius = layerViewModel.cornerRadius.getNumber ?? .zero
+        let node = SCNNode(geometry: geometry)
+        scene.rootNode.addChildNode(node)
         
-        switch self.type {
-        case .importedMedia:
-            // do nothing
-            return
-        
-        case .box:
-            guard let box = scene.rootNode.childNodes
-                .compactMap({ $0.geometry as? SCNBox }).first else {
-                fatalErrorIfDebug()
-                return
-            }
-            
-            box.width = size3D.x
-            box.height = size3D.y
-            box.length = size3D.z
-            box.chamferRadius = cornerRadius
-            box.firstMaterial?.diffuse.contents = layerViewModel.color.getColor?.toUIColor ?? .red
-            
-        default:
-            fatalError()
-        }
+        self.type.updateSCNScene(from: scene,
+                                 layerViewModel: layerViewModel)
     }
     
     @MainActor
-    func createMeshResource(size3D: Point3D,
-                            cornerRadius: Double) -> MeshResource? {
-        switch self.type {
-        case .importedMedia:
-            // Do nothing
-            return nil
-            
-        case .box:
-            // Create a mesh resource.
-            let boxMesh = MeshResource.generateBox(width: Float(size3D.x),
-                                                   height: Float(size3D.y),
-                                                   depth: Float(size3D.z),
-                                                   cornerRadius: Float(cornerRadius))
-            return boxMesh
-            
-        default:
-            fatalErrorIfDebug()
-            return nil
-        }
-    }
-    
-    @MainActor
-    func update(size3D: Point3D,
-                cornerRadius: Double,
-                color: Color,
-                isMetallic: Bool) {
-        let material = SimpleMaterial(color: color.toUIColor,
-                                      isMetallic: isMetallic)
+    func update(layerViewModel: LayerViewModel) {
+        let data = Model3DInputData(layerViewModel: layerViewModel)
+        let material = SimpleMaterial(color: data.color.toUIColor,
+                                      isMetallic: data.isMetallic)
         
         // Create a mesh resource.
-        guard let mesh = self.createMeshResource(size3D: size3D,
-                                                 cornerRadius: cornerRadius) else {
+        guard let mesh = self.type.createMeshResource(layerViewModel: layerViewModel) else {
             return
         }
         

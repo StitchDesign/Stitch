@@ -159,6 +159,7 @@ final class LayerNodeViewModel {
     var rotation3DEnabledPort: LayerInputObserver
     var scale3DEnabledPort: LayerInputObserver
     var size3DPort: LayerInputObserver
+    var radius3DPort: LayerInputObserver
     var isMetallicPort: LayerInputObserver
     
     @MainActor weak var nodeDelegate: NodeDelegate?
@@ -332,6 +333,7 @@ final class LayerNodeViewModel {
         self.rotation3DEnabledPort = .init(from: schema, port: .rotation3DEnabled)
         self.scale3DEnabledPort = .init(from: schema, port: .scale3DEnabled)
         self.size3DPort = .init(from: schema, port: .size3D)
+        self.radius3DPort = .init(from: schema, port: .radius3D)
         self.isMetallicPort = .init(from: schema, port: .isMetallic)
         
         // Initialize each NodeRowObserver for each expected layer input
