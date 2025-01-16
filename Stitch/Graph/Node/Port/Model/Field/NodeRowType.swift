@@ -13,6 +13,7 @@ import Vision
 // Represents an entire input/output in the UI: how many fields, whether we use a dropdown etc.
 enum NodeRowType: Equatable {
     case size,
+         size3D,
          position,
          point3D,
          point4D,
@@ -43,7 +44,7 @@ extension NodeRowType {
     // TODO: smarter / easier to way to do this?
     func inputUsesTextField(isLayerInputInspector: Bool) -> Bool {
         switch self {
-        case .size, .position, .point3D, .point4D, .padding, .layerDimension, .number, .string, .spacing, .transform3D:
+        case .size, .size3D, .position, .point3D, .point4D, .padding, .layerDimension, .number, .string, .spacing, .transform3D:
             return true
         case .readOnly, .shapeCommand, .singleDropdown, .textFontDropdown, .bool, .asyncMedia, .pulse, .color, .json, .assignedLayer, .anchoring, .pinTo, .layerGroupOrientationDropdown, .anchorEntity:
             return false
@@ -54,6 +55,8 @@ extension NodeRowType {
         switch self {
         case .size:
             return defaultSizeFalse
+        case .size3D:
+            return .point3D(.init(x: 0, y: 0, z: 0))
         case .position:
             return defaultPositionFalse
         case .point3D:

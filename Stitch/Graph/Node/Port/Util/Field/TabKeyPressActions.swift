@@ -46,8 +46,10 @@ extension GraphState {
 }
 
 extension PortValue {
-    func inputUsesTextField(isLayerInputInspector: Bool) -> Bool {
+    func inputUsesTextField(layerInputPort: LayerInputPort?,
+                            isLayerInputInspector: Bool) -> Bool {
         self.getNodeRowType(nodeIO: .input,
+                            layerInputPort: layerInputPort,
                             isLayerInspector: isLayerInputInspector)
         .inputUsesTextField(isLayerInputInspector: isLayerInputInspector)
     }
@@ -65,7 +67,9 @@ extension Array where Element: InputNodeRowViewModel {
                 let portId = item.offset
                 
                 // We are only interested in inputs that use text-fields
-                guard input.activeValue.inputUsesTextField(isLayerInputInspector: isLayerInputInspector),
+                guard input.activeValue.inputUsesTextField(
+                    layerInputPort: input.id.layerInputPort,
+                    isLayerInputInspector: isLayerInputInspector),
                       let fields = input.fieldValueTypes.first?.fieldObservers else {
                     return []
                 }
