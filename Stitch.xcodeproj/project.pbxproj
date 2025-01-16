@@ -291,6 +291,7 @@
 		E457441D2BC0548300B1642E /* QRCodeDetection.swift in Sources */ = {isa = PBXBuildFile; fileRef = E457441C2BC0548300B1642E /* QRCodeDetection.swift */; };
 		E463E7EF2C6FC7090008E318 /* StitchSchemaKit in Frameworks */ = {isa = PBXBuildFile; productRef = E463E7EE2C6FC7090008E318 /* StitchSchemaKit */; };
 		E48A07782D382778002E8A98 /* SwiftDotenv in Frameworks */ = {isa = PBXBuildFile; productRef = E48A07772D382778002E8A98 /* SwiftDotenv */; };
+		E48A077E2D383B7D002E8A98 /* .env in Resources */ = {isa = PBXBuildFile; fileRef = E48A077D2D383B7D002E8A98 /* .env */; };
 		E48A07922D38C528002E8A98 /* SupabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48A07912D38C528002E8A98 /* SupabaseManager.swift */; };
 		E4A848AB2D32FCFA0029AFDE /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = E4A848AA2D32FCFA0029AFDE /* PostgREST */; };
 		E4A848AD2D32FCFA0029AFDE /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = E4A848AC2D32FCFA0029AFDE /* Storage */; };
@@ -4627,6 +4628,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E48A077E2D383B7D002E8A98 /* .env in Resources */,
 				200BD85F254F66EE00692903 /* Assets.xcassets in Resources */,
 				ECB15BA72695FCC700A1E1DA /* pj_eating.mov in Resources */,
 				EC7ADBFE2683EC9D00A8B318 /* fur_elise.mp3 in Resources */,
