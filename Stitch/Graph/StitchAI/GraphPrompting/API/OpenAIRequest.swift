@@ -36,8 +36,8 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
     let systemPrompt: String       // System-level instructions loaded from file
     let schema: JSON              // JSON schema for response validation
     let config: OpenAIRequestConfig // Request configuration settings
-    let OPEN_AI_API_KEY: String
-    let OPEN_AI_MODEL: String
+    var OPEN_AI_API_KEY: String
+    var OPEN_AI_MODEL: String
     @MainActor static var timeoutErrorCount = 0
 
     /// Initialize a new request with prompt and optional configuration
@@ -60,27 +60,36 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
         }
         self.schema = loadedSchema
         
+        self.OPEN_AI_API_KEY = ""
+        self.OPEN_AI_MODEL = ""
+        
         do {
             if let envPath = Bundle.main.path(forResource: ".env", ofType: nil) {
                 try Dotenv.configure(atPath: envPath)
             } else {
-                fatalError("⚠️ .env file not found in bundle.")
+                fatalErrorIfDebug("⚠️ .env file not found in bundle.")
+                return
             }
         } catch {
-            fatalError("⚠️ Could not load .env file: \(error)")
+            fatalErrorIfDebug("⚠️ Could not load .env file: \(error)")
+            return
         }
         
-        guard let apiKey = Dotenv["OPEN_AI_API_KEY"]?.stringValue else {
-            fatalError("⚠️ Could not find OPEN_AI_API_KEY in .env file.")
+        if let apiKey = Dotenv["OPEN_AI_API_KEY"]?.stringValue {
+            self.OPEN_AI_API_KEY = apiKey
+        } else {
+            fatalErrorIfDebug("⚠️ Could not find OPEN_AI_API_KEY in .env file.")
+            return
         }
         
-        OPEN_AI_API_KEY = apiKey
-        
-        guard let model = Dotenv["OPEN_AI_MODEL"]?.stringValue else {
-            fatalError("⚠️ Could not find OPEN_AI_MODEL in .env file.")
+        if let model = Dotenv["OPEN_AI_MODEL"]?.stringValue {
+            self.OPEN_AI_MODEL = model
+        } else {
+            fatalErrorIfDebug("⚠️ Could not find OPEN_AI_API_MODEL in .env file.")
+            return
         }
-        OPEN_AI_MODEL = model
     }
+
     
     /// Execute the API request with retry logic
     @MainActor func makeRequest(attempt: Int = 1, state: StitchDocumentViewModel) {
