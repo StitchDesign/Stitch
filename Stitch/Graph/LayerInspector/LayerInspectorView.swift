@@ -9,18 +9,6 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-extension LayerInputType: Identifiable {
-    public var id: Self {
-        self
-    }
-}
-
-extension LayerInputPort: Identifiable {
-    public var id: Self {
-        self
-    }
-}
-
 #if targetEnvironment(macCatalyst)
 let INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET = 2.0
 #else
@@ -91,10 +79,8 @@ struct LayerInspectorView: View {
         VStack(alignment: .leading, spacing: 0) {
                         
             List {
-                ForEach(Self.unfilteredLayerInspectorRowsInOrder, id: \.name) { sectionNameAndInputs in
-                    
-                    let sectionName = sectionNameAndInputs.name
-                    let sectionInputs = sectionNameAndInputs.inputs
+                ForEach(LayerInspectorSection.allCases) { section in
+                    let sectionInputs = section.sectionData
                     
                     // Move this filtering to an onChange, and store the `filteredInputs` locally
                     // Or should live at
@@ -114,7 +100,7 @@ struct LayerInspectorView: View {
                     
                     if !filteredInputs.isEmpty {
                         LayerInspectorInputsSectionView(
-                            sectionName: sectionName,
+                            section: section,
                             layerInputs: .init(layerInputs: filteredInputs),
                             graph: graph,
                             nodeId: node
@@ -171,7 +157,7 @@ struct LayerPropertyRowOriginReader: ViewModifier {
 }
 
 struct LayerInspectorSectionToggled: GraphUIEvent {
-    let section: LayerInspectorSectionName
+    let section: LayerInspectorSection
     
     func handle(state: GraphUIState) {
         let alreadyClosed = state.propertySidebar.collapsedSections.contains(section)
@@ -181,22 +167,6 @@ struct LayerInspectorSectionToggled: GraphUIEvent {
             state.propertySidebar.collapsedSections.insert(section)
         }
     }
-}
-
-enum LayerInspectorSectionName: String, Equatable, Hashable {
-    case sizing = "Sizing",
-         positioning = "Positioning",
-         common = "Common",
-         group = "Group",
-         scrolling = "Scrolling", // Better?: "Group Scrolling"
-         pinning = "Pinning",
-         typography = "Typography",
-         stroke = "Stroke",
-         rotation = "Rotation",
-         layerEffects = "Layer Effects",
-         media = "Media",
-         realityTransformation = "3D Transformation",
-         gestures3D = "3D Gestures"
 }
 
 @Observable
@@ -254,7 +224,7 @@ struct LayerInspectorInputView: View {
 // rather than receiving the entire layer node.
 struct LayerInspectorInputsSectionView: View {
     
-    let sectionName: LayerInspectorSectionName
+    let section: LayerInspectorSection
     
     // This section's layer inputs, filtered to excluded any not supported by this specific layer.
     @Bindable var layerInputs: LayerInputsAndObservers
@@ -284,7 +254,7 @@ struct LayerInspectorInputsSectionView: View {
                     .animation(.linear(duration: 0.2), value: rotationZ)
                     .opacity(self.isHovered ? 1 : 0)
                 
-                StitchTextView(string: sectionName.rawValue,
+                StitchTextView(string: section.rawValue,
                                font: stitchFont(18))
                     .textCase(nil)
                     .bold()
@@ -301,7 +271,7 @@ struct LayerInspectorInputsSectionView: View {
             .onTapGesture {
                 withAnimation {
                     self.expanded.toggle()
-                    dispatch(LayerInspectorSectionToggled(section: sectionName))
+                    dispatch(LayerInspectorSectionToggled(section: section))
                     
                     layerInputs.layerInputs.forEach { layerInput in
                         if case let .layerInput(x) = graph.graphUI.propertySidebar.selectedProperty,

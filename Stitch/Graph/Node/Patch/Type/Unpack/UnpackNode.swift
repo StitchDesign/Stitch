@@ -313,6 +313,7 @@ func unpackEval(inputs: PortValuesList,
 
 let SIZE_WIDTH_LABEL = "W"
 let SIZE_HEIGHT_LABEL = "H"
+let SIZE_LENGTH_LABEL = "L"
 let SIZE_LABELS = [SIZE_WIDTH_LABEL, SIZE_HEIGHT_LABEL]
 
 let POSITION_X_LABEL = "X"

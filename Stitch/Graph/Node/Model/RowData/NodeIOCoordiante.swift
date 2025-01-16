@@ -76,12 +76,25 @@ extension NodeIOPortType {
 }
 
 extension LayerInputPort {
+    static let mediaImportPorts: Set<Self> = [
+        .image, .video, .model3D
+    ]
+        .toSet
+    
     var isMediaImport: Bool {
-        switch self {
-        case .image, .video, .model3D:
+        if Self.mediaImportPorts.contains(self) {
             return true
-        default:
-            return false
         }
+        
+        return false
+    }
+}
+
+extension Layer {
+    @MainActor
+    var containsMediaImport: Bool {
+        !self.inputDefinitions
+            .intersection(LayerInputPort.mediaImportPorts)
+            .isEmpty
     }
 }

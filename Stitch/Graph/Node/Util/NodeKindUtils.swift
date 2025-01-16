@@ -61,7 +61,7 @@ extension NodeKind {
         case .patch(let patch):
             return patch.rawValue
         case .layer(let layer):
-            return layer.rawValue
+            return layer.defaultDisplayTitle()
         case .group:
             return "group"
         }

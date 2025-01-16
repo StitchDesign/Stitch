@@ -86,7 +86,9 @@ extension NodeRowType {
     var fieldGroupTypes: [FieldGroupType] {
         switch self {
         case .size:
-            return [.hW]
+            return [.wH]
+        case .size3D:
+            return [.wHL]
         case .position:
             return [.xY]
         case .point3D:
@@ -147,6 +149,7 @@ func getFieldValueTypes<FieldType: FieldViewModel>(value: PortValue,
     let fieldValuesList: [FieldValues] = value.createFieldValuesList(
         nodeIO: nodeIO,
         importedMediaObject: importedMediaObject,
+        layerInputPort: rowViewModel?.id.layerInputPort,
         isLayerInspector: isLayerInspector)
     
     // All PortValue types except ShapeCommand use a single grouping of fields
@@ -156,11 +159,19 @@ func getFieldValueTypes<FieldType: FieldViewModel>(value: PortValue,
     }
         
     switch value.getNodeRowType(nodeIO: nodeIO,
+                                layerInputPort: rowViewModel?.id.layerInputPort,
                                 isLayerInspector: isLayerInspector) {
         
     case .size:
         return [.init(fieldValues: fieldValuesForSingleFieldGroup,
-                      type: .hW,
+                      type: .wH,
+                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                      unpackedPortIndex: unpackedPortIndex,
+                      rowViewModel: rowViewModel)]
+        
+    case .size3D:
+        return [.init(fieldValues: fieldValuesForSingleFieldGroup,
+                      type: .wHL,
                       unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                       unpackedPortIndex: unpackedPortIndex,
                       rowViewModel: rowViewModel)]

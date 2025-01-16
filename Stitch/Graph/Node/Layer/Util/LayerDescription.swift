@@ -60,6 +60,14 @@ extension Layer {
             return videoStreamingDescription
         case .material:
             return materialDescription
+        case .box:
+            return box3DDescription
+        case .sphere:
+            return sphere3DDescription
+        case .cylinder:
+            return cylinder3DDescription
+        case .cone:
+            return cone3DDescription
         }
     }
 }
