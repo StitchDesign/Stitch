@@ -688,6 +688,7 @@ extension NodeViewModel {
         self.getAllInputsObservers().onPrototypeRestart()
         self.getAllOutputsObservers().forEach { $0.onPrototypeRestart() }
         
+        // Reset properties specific to the node's actual type (patch vs layer vs component vs group)
         self.nodeType.onPrototypeRestart()
     }
 }
