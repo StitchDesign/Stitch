@@ -68,6 +68,9 @@ struct Model3DViewModifier: ViewModifier {
             .onChange(of: viewModel.radius3D) {
                 self.updateEntity()
             }
+            .onChange(of: viewModel.height3D) {
+                self.updateEntity()
+            }
             .onChange(of: viewModel.color) {
                 self.updateEntity()
             }
