@@ -56,7 +56,7 @@ final class NodeViewModel: Sendable {
     @MainActor
     weak var graphDelegate: GraphDelegate?
 
-    /// Called on initialization or prototype restart.
+    /// Called when initializing delegate
     @MainActor
     func syncEphemeralObservers() {
         if self.ephemeralObservers == nil,
