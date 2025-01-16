@@ -242,6 +242,7 @@ final class LayerViewModel: Sendable {
     @MainActor var scale3DEnabled: PortValue
     @MainActor var size3D: PortValue
     @MainActor var radius3D: PortValue
+    @MainActor var height3D: PortValue
     @MainActor var isMetallic: PortValue
     
     // Ephemeral state on the layer view model
@@ -396,6 +397,7 @@ final class LayerViewModel: Sendable {
         self.scale3DEnabled = LayerInputPort.scale3DEnabled.getDefaultValue(for: layer)
         self.size3D = LayerInputPort.size3D.getDefaultValue(for: layer)
         self.radius3D = LayerInputPort.radius3D.getDefaultValue(for: layer)
+        self.height3D = LayerInputPort.height3D.getDefaultValue(for: layer)
         self.isMetallic = LayerInputPort.isMetallic.getDefaultValue(for: layer)
         
         self.nodeDelegate = nodeDelegate

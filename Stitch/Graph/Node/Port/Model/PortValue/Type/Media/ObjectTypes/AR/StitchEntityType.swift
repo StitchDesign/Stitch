@@ -23,6 +23,7 @@ enum StitchEntityType {
 struct Model3DInputData {
     let size3D: Point3D
     let radius3D: CGFloat
+    let height3D: CGFloat
     let cornerRadius: CGFloat
     let color: Color
     let isMetallic: Bool
@@ -31,6 +32,7 @@ struct Model3DInputData {
     init(layerViewModel: LayerViewModel) {
         self.size3D = layerViewModel.size3D.getPoint3D ?? .zero
         self.radius3D = layerViewModel.radius3D.getNumber ?? .zero
+        self.height3D = layerViewModel.height3D.getNumber ?? .zero
         self.cornerRadius = layerViewModel.cornerRadius.getNumber ?? .zero
         self.color = layerViewModel.color.getColor ?? .red
         self.isMetallic = layerViewModel.isMetallic.getBool ?? false
@@ -65,9 +67,13 @@ extension StitchEntityType {
         case .sphere:
             return MeshResource.generateSphere(radius: Float(data.radius3D))
             
-        default:
-            fatalErrorIfDebug()
-            return nil
+        case .cone:
+            return MeshResource.generateCone(height: Float(data.height3D),
+                                             radius: Float(data.radius3D))
+            
+        case .cylinder:
+            return MeshResource.generateCylinder(height: Float(data.height3D),
+                                                 radius: Float(data.radius3D))
         }
     }
     
@@ -88,8 +94,14 @@ extension StitchEntityType {
         case .sphere:
             return SCNSphere(radius: data.radius3D)
             
-        default:
-            fatalError()
+        case .cone:
+            return SCNCone(topRadius: .zero,
+                           bottomRadius: data.radius3D,
+                           height: data.height3D)
+            
+        case .cylinder:
+            return SCNCylinder(radius: data.radius3D,
+                               height: data.height3D)
         }
     }
     
@@ -126,8 +138,23 @@ extension StitchEntityType {
             
             sphere.radius = data.radius3D
             
-        default:
-            fatalError()
+        case .cone:
+            guard let cone = geometry as? SCNCone else {
+                fatalErrorIfDebug()
+                return
+            }
+            
+            cone.bottomRadius = data.radius3D
+            cone.height = data.height3D
+            
+        case .cylinder:
+            guard let cylinder = geometry as? SCNCylinder else {
+                fatalErrorIfDebug()
+                return
+            }
+            
+            cylinder.radius = data.radius3D
+            cylinder.height = data.height3D
         }
         
         Self.commonSCNSceneUpdates(geometry: geometry,

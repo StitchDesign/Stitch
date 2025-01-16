@@ -240,6 +240,7 @@ extension LayerInspectorSection {
             return [
                 .size3D,
                 .radius3D,
+                .height3D,
                 .isMetallic
             ]
         }

@@ -64,9 +64,9 @@ extension Layer {
         case .sphere:
             return SphereLayerNode.self
         case .cylinder:
-            return BoxLayerNode.self//            return CylinderLayerNode.self
+            return CylinderLayerNode.self
         case .cone:
-            return BoxLayerNode.self//            return ConeLayerNode.self
+            return ConeLayerNode.self
         }
     }
 }

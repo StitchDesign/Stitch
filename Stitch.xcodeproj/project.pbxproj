@@ -66,6 +66,8 @@
 		B5221F662D397457009FF89A /* SphereLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5221F652D397455009FF89A /* SphereLayerNode.swift */; };
 		B5221F682D397735009FF89A /* StitchEntityType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5221F672D397731009FF89A /* StitchEntityType.swift */; };
 		B5221F6A2D39788E009FF89A /* Model3DLayerUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5221F692D397889009FF89A /* Model3DLayerUtil.swift */; };
+		B5221F6C2D398947009FF89A /* ConeLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5221F6B2D39893E009FF89A /* ConeLayerNode.swift */; };
+		B5221F6E2D398972009FF89A /* CylinderLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5221F6D2D398969009FF89A /* CylinderLayerNode.swift */; };
 		B523698C29F9E5E800240395 /* NodeRowObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B523698B29F9E5E800240395 /* NodeRowObserver.swift */; };
 		B525BB482C18AFC300A98EB4 /* FileDropHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = B525BB472C18AFC300A98EB4 /* FileDropHandling.swift */; };
 		B526AFFE2C764E8D00B5971F /* SchemaVersions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B526AFFD2C764E8D00B5971F /* SchemaVersions.swift */; };
@@ -1011,6 +1013,8 @@
 		B5221F652D397455009FF89A /* SphereLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SphereLayerNode.swift; sourceTree = "<group>"; };
 		B5221F672D397731009FF89A /* StitchEntityType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchEntityType.swift; sourceTree = "<group>"; };
 		B5221F692D397889009FF89A /* Model3DLayerUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model3DLayerUtil.swift; sourceTree = "<group>"; };
+		B5221F6B2D39893E009FF89A /* ConeLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConeLayerNode.swift; sourceTree = "<group>"; };
+		B5221F6D2D398969009FF89A /* CylinderLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CylinderLayerNode.swift; sourceTree = "<group>"; };
 		B523698B29F9E5E800240395 /* NodeRowObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeRowObserver.swift; sourceTree = "<group>"; };
 		B525BB472C18AFC300A98EB4 /* FileDropHandling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileDropHandling.swift; sourceTree = "<group>"; };
 		B526AFFD2C764E8D00B5971F /* SchemaVersions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaVersions.swift; sourceTree = "<group>"; };
@@ -3791,6 +3795,8 @@
 				B5221F692D397889009FF89A /* Model3DLayerUtil.swift */,
 				B53E0BEB2D35B5DD0072FD43 /* BoxLayerNode.swift */,
 				B5221F652D397455009FF89A /* SphereLayerNode.swift */,
+				B5221F6D2D398969009FF89A /* CylinderLayerNode.swift */,
+				B5221F6B2D39893E009FF89A /* ConeLayerNode.swift */,
 				E41685DC28A3FA3000731889 /* Model3DLayerNode.swift */,
 				E41685E028A3FA5800731889 /* PreviewModel3DLayer.swift */,
 				E4AE5B7B28AAFE4A001C823D /* LightType.swift */,
@@ -4752,6 +4758,7 @@
 				EC1B41B826BCB1630016C2C2 /* NodeMovedAction.swift in Sources */,
 				B5E50E1A28B9A3B3000E50B9 /* DeviceInfo.swift in Sources */,
 				ECAA1CD32853F51900DDAAC9 /* ClassicAnimationState.swift in Sources */,
+				B5221F6E2D398972009FF89A /* CylinderLayerNode.swift in Sources */,
 				ECB7C71C28A56C0D00252DE7 /* ClassicAnimationColor.swift in Sources */,
 				ECEEA4FD2AFCA90F00C7CE86 /* CommentBoxGestureActions.swift in Sources */,
 				ECDD4E102CC06FCD003B4F9A /* PreviewMaterialLayer.swift in Sources */,
@@ -4849,6 +4856,7 @@
 				ECFC872F2936CE09004A065A /* StopwatchNode.swift in Sources */,
 				ECB801DB26405E1100C93449 /* ImageNode.swift in Sources */,
 				20308F9C25AD1721008CE3BE /* DelayNodeUtil.swift in Sources */,
+				B5221F6C2D398947009FF89A /* ConeLayerNode.swift in Sources */,
 				EC5F642F2C29E6A900A9E52F /* LayerInspectorState.swift in Sources */,
 				EC28CCA0287E355E00987792 /* PatchUIExtensions.swift in Sources */,
 				B5FE64B329641ACD004EB04B /* AsyncMediaImpureEvalResult.swift in Sources */,
