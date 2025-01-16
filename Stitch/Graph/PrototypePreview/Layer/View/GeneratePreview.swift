@@ -380,7 +380,9 @@ struct NonGroupPreviewLayersView: View {
                              parentIsScrollableGrid: parentIsScrollableGrid,
                              realityContent: $realityContent)
             .onChange(of: mediaValue, initial: true) {
-                guard isPinnedViewRendering else { return }
+                guard isPinnedViewRendering,
+                      // Ignore non-import scenarios
+                      layerNode.layer.containsMediaImport else { return }
                 
                 guard let mediaValue = self.mediaValue else {
                     LayerViewModel.resetMedia(self.layerViewModel.mediaObject)

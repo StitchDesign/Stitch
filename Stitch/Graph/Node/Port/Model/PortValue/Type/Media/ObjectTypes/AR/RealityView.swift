@@ -47,6 +47,9 @@ struct NonCameraRealityView: UIViewRepresentable {
         arView.cameraMode = .nonAR
         arView.renderOptions = isShadowsEnabled ? [] : [.disableGroundingShadows]
         
+        // MARK: useful for debugging gestures
+//        arView.debugOptions = .showPhysics
+        
         // Update object with scene
         previewLayer.realityContent = arView
         

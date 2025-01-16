@@ -273,7 +273,6 @@ func portValueToNodeType(_ value: PortValue) -> UserVisibleType {
     case .anchorEntity:
         return .anchorEntity
     }
-
 }
 
 extension UserVisibleType {
@@ -405,5 +404,4 @@ extension UserVisibleType {
             return .anchorEntity(nil)
         }
     }
-
 }

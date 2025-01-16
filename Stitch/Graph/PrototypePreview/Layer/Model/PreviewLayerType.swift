@@ -26,5 +26,9 @@ enum PreviewLayerType {
          angularGradient,
          sfSymbol,
          videoStreaming,
-         material
+         material,
+         box,
+         sphere,
+         cylinder,
+         cone
 }

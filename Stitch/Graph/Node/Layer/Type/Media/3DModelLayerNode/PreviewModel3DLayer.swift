@@ -36,6 +36,7 @@ struct Preview3DModelLayer: View {
     
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
+    let entity: StitchEntity?
     let anchorEntityId: UUID?
     let translation3DEnabled: Bool
     let rotation3DEnabled: Bool
@@ -60,11 +61,7 @@ struct Preview3DModelLayer: View {
     let parentSize: CGSize
     let parentDisablesPosition: Bool
     let parentIsScrollableGrid: Bool
-    
-    var entity: StitchEntity? {
-        self.layerViewModel.mediaObject?.model3DEntity
-    }
-    
+
     @MainActor
     var layerNode: LayerNodeViewModel? {
         self.graph.getNodeViewModel(layerViewModel.id.layerNodeId.asNodeId)?
@@ -95,6 +92,7 @@ struct Preview3DModelLayer: View {
                     Color.clear
                 } else if let entity = entity {
                     Model3DView(entity: entity,
+                                layerViewModel: self.layerViewModel,
                                 sceneSize: sceneSize,
                                 modelOpacity: opacity)
                     .onAppear {
@@ -271,20 +269,17 @@ struct ModelEntityLayerViewModifier: ViewModifier {
 // SwiftUI View that contains a wrapper around the ViewController responsibile for displaying a 3D model
 struct Model3DView: UIViewRepresentable {
     @Bindable var entity: StitchEntity
+    @Bindable var layerViewModel: LayerViewModel
     let sceneSize: CGSize
     let modelOpacity: CGFloat
     
-    var model3DFilePath: URL {
-        entity.sourceURL
-    }
-
     var isAnimating: Bool {
         entity.isAnimating
     }
     
     func makeUIView(context: Context) -> SCNView {
         do {
-            let newScene = try SCNScene(url: model3DFilePath)
+            let newScene = try entity.createSCNScene(layerViewModel: layerViewModel)
             let sceneView = SCNView()
             sceneView.scene = newScene
             sceneView.frame.size = CGSize(width: sceneSize.width, height: sceneSize.height)
@@ -316,10 +311,14 @@ struct Model3DView: UIViewRepresentable {
     }
 
     func updateUIView(_ uiView: SCNView, context: Context) {
-        guard let modelNode = uiView.scene?.rootNode.childNodes.first else {
+        guard let scene = uiView.scene,
+              let modelNode = uiView.scene?.rootNode.childNodes.first else {
             dispatch(ReceivedStitchFileError(error: .failedToCreate3DScene))
             return
         }
+        
+        entity.updateSCNScene(from: scene,
+                              layerViewModel: layerViewModel)
 
         uiView.frame.size = CGSize(width: sceneSize.width, height: sceneSize.height)
         modelNode.opacity = modelOpacity
