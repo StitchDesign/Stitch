@@ -859,6 +859,7 @@ A box 3D shape, which can be used inside a Reality View.
 • Anchoring
 • Z-Index
 • Corner Radius
+• Color
 • Metallic
 """
 
@@ -880,6 +881,7 @@ A sphere 3D shape, which can be used inside a Reality View.
 • Scale
 • Anchoring
 • Z-Index
+• Color
 • Metallic
 """
 
@@ -901,6 +903,7 @@ A cylinder 3D shape, which can be used inside a Reality View.
 • Scale
 • Anchoring
 • Z-Index
+• Color
 • Metallic
 """
 
@@ -922,6 +925,7 @@ A cone 3D shape, which can be used inside a Reality View.
 • Scale
 • Anchoring
 • Z-Index
+• Color
 • Metallic
 """
 
