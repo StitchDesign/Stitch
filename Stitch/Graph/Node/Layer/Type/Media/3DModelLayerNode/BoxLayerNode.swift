@@ -17,18 +17,11 @@ struct BoxLayerNode: LayerNodeDefinition {
     static let inputDefinitions: LayerInputPortSet = .init([
         .anchorEntity,
         .position,
-        .rotationX,
-        .rotationY,
-        .rotationZ,
         .size,
         .opacity,
         .scale,
         .anchoring,
         .zIndex,
-        .shadowColor,
-        .shadowOpacity,
-        .shadowRadius,
-        .shadowOffset,
         .transform3D,
         .translation3DEnabled,
         .scale3DEnabled,
@@ -39,7 +32,6 @@ struct BoxLayerNode: LayerNodeDefinition {
         .color
     ])
         .union(.layerEffects)
-        .union(.strokeInputs)
         .union(.aspectRatio)
         .union(.sizing).union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
     
