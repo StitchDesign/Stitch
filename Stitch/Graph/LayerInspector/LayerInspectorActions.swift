@@ -65,19 +65,18 @@ extension GraphState {
         
         let layerInput: LayerInputPort = coordinate.layerInput
         
-        if let multiselectInputs = self.documentDelegate?.graphUI.propertySidebar.inputsCommonToSelectedLayers,
-           let layerMultiselectInput = multiselectInputs.first(where: { $0 == layerInput}) {
-            
-            
-            layerMultiselectInput.multiselectObservers(self).forEach { observer in
-                self.addLayerInputToGraph(nodeId: observer.rowObserver.id.nodeId,
-                                          coordinate: coordinate)
-            }
-        }
-        
-        else {
+        let addLayerInput = { (nodeId: NodeId) in
             self.addLayerInputToGraph(nodeId: nodeId,
                                       coordinate: coordinate)
+        }
+        
+        if let multiselectInputs = self.documentDelegate?.graphUI.propertySidebar.inputsCommonToSelectedLayers,
+           let layerMultiselectInput = multiselectInputs.first(where: { $0 == layerInput}) {
+            layerMultiselectInput.multiselectObservers(self).forEach { observer in
+                addLayerInput(observer.rowObserver.id.nodeId)
+            }
+        } else {
+            addLayerInput(nodeId)
         }
     }
     
@@ -98,7 +97,7 @@ extension GraphState {
                                     input: layerInputData,
                                     coordinate: coordinate)
         
-        resetLayerInputsCache(layerNode: layerNode)
+        self.resetLayerInputsCache(layerNode: layerNode)
     }
     
     @MainActor
