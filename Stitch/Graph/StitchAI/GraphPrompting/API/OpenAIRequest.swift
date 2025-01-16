@@ -1,7 +1,7 @@
 //
 //  OpenAIRequest.swift
-// Core implementation for making requests to OpenAI's API with retry logic and error handling.
-// This file handles API communication, response parsing, and state management for the Stitch app.
+//  Core implementation for making requests to OpenAI's API with retry logic and error handling.
+//  This file handles API communication, response parsing, and state management for the Stitch app.
 //  Stitch
 //
 //  Created by Christian J Clampitt on 11/12/24.
@@ -11,6 +11,8 @@ import Foundation
 @preconcurrency import SwiftyJSON
 import SwiftUI
 import SwiftDotenv
+
+let OPEN_AI_BASE_URL = "https://api.openai.com/v1/chat/completions"
 
 /// Configuration settings for OpenAI API requests
 struct OpenAIRequestConfig {
@@ -35,6 +37,7 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
     let schema: JSON              // JSON schema for response validation
     let config: OpenAIRequestConfig // Request configuration settings
     let OPEN_AI_API_KEY: String
+    let OPEN_AI_MODEL: String
     @MainActor static var timeoutErrorCount = 0
 
     /// Initialize a new request with prompt and optional configuration
@@ -71,7 +74,12 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
             fatalError("⚠️ Could not find OPEN_AI_API_KEY in .env file.")
         }
         
-         OPEN_AI_API_KEY = apiKey
+        OPEN_AI_API_KEY = apiKey
+        
+        guard let model = Dotenv["OPEN_AI_MODEL"]?.stringValue else {
+            fatalError("⚠️ Could not find OPEN_AI_MODEL in .env file.")
+        }
+        OPEN_AI_MODEL = model
     }
     
     /// Execute the API request with retry logic
