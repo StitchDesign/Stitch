@@ -241,6 +241,68 @@ struct FlyoutBackgroundColorModifier: ViewModifier {
 }
 
 
+extension GraphState {
+    @MainActor
+    func addLayerFieldToGraph(layerInput: LayerInputPort,
+                              nodeId: NodeId,
+                              fieldIndex: Int) {
+        
+        guard let node = self.getNode(nodeId),
+              let layerNode = node.layerNode,
+              let document = self.documentDelegate else {
+            log("LayerInputFieldAddedToGraph: no node, layer node and/or document")
+            fatalErrorIfDebug()
+            return
+        }
+        
+        let portObserver: LayerInputObserver = layerNode[keyPath: layerInput.layerNodeKeyPath]
+        
+        let previousPackMode = portObserver.mode
+        
+        guard let unpackedPort: InputLayerNodeRowData = portObserver._unpackedData.allPorts[safe: fieldIndex] else {
+            fatalErrorIfDebug("LayerInputFieldAddedToGraph: no unpacked port for fieldIndex \(fieldIndex)")
+            return
+        }
+                
+        var unpackSchema = unpackedPort.createSchema()
+        unpackSchema.canvasItem = .init(position: document.newLayerPropertyLocation,
+                                        zIndex: self.highestZIndex + 1,
+                                        parentGroupNodeId: self.groupNodeFocused)
+        
+        // MARK: first group type grabbed since layers don't have differing groups within one input
+        guard let unpackedPortParentFieldGroupType: FieldGroupType = layerInput
+            .getDefaultValue(for: layerNode.layer)
+            .getNodeRowType(nodeIO: .input,
+                            layerInputPort: layerInput,
+                            isLayerInspector: true)
+                .fieldGroupTypes
+            .first else {
+            
+            fatalErrorIfDebug()
+            return
+        }
+        
+        unpackedPort.update(from: unpackSchema,
+                            layerInputType: unpackedPort.id,
+                            layerNode: layerNode,
+                            nodeId: nodeId,
+                            unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                            unpackedPortIndex: fieldIndex)
+        
+        unpackedPort.canvasObserver?.initializeDelegate(
+            node,
+            unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+            unpackedPortIndex: fieldIndex)
+        
+        let newPackMode = portObserver.mode
+        if previousPackMode != newPackMode {
+            portObserver.wasPackModeToggled()
+        }
+        
+        self.resetLayerInputsCache(layerNode: layerNode)
+    }
+}
+
 struct LayerInputFieldAddedToGraph: GraphEventWithResponse {
     
     let layerInput: LayerInputPort
@@ -254,60 +316,22 @@ struct LayerInputFieldAddedToGraph: GraphEventWithResponse {
         //        log("LayerInputFieldAddedToGraph: nodeId: \(nodeId)")
         //        log("LayerInputFieldAddedToGraph: fieldIndex: \(fieldIndex)")
         
-        guard let node = state.getNode(nodeId),
-              let layerNode = node.layerNode,
-              let document = state.documentDelegate else {
-            log("LayerInputFieldAddedToGraph: no node, layer node and/or document")
-            return .noChange
+        let addLayerField = { (nodeId: NodeId) in
+            state.addLayerFieldToGraph(layerInput: layerInput,
+                                       nodeId: nodeId,
+                                       fieldIndex: fieldIndex)
         }
         
-        let portObserver: LayerInputObserver = layerNode[keyPath: layerInput.layerNodeKeyPath]
-        
-        let previousPackMode = portObserver.mode
-        
-        if let unpackedPort: InputLayerNodeRowData = portObserver._unpackedData.allPorts[safe: fieldIndex] {
+        if let multiselectInputs = state.documentDelegate?.graphUI.propertySidebar.inputsCommonToSelectedLayers,
+           let layerMultiselectInput = multiselectInputs.first(where: { $0 == layerInput}) {
             
-            let parentGroupNodeId = state.groupNodeFocused
-            
-            var unpackSchema = unpackedPort.createSchema()
-            unpackSchema.canvasItem = .init(position: document.newLayerPropertyLocation,
-                                            zIndex: state.highestZIndex + 1,
-                                            parentGroupNodeId: parentGroupNodeId)
-
-            // MARK: first group type grabbed since layers don't have differing groups within one input
-            guard let unpackedPortParentFieldGroupType: FieldGroupType = layerInput
-                .getDefaultValue(for: layerNode.layer)
-                .getNodeRowType(nodeIO: .input,
-                                layerInputPort: layerInput,
-                                isLayerInspector: true)
-                .fieldGroupTypes
-                .first else {
-                fatalErrorIfDebug()
-                return .noChange
+            layerMultiselectInput.multiselectObservers(state).forEach { observer in
+                addLayerField(observer.rowObserver.id.nodeId)
             }
-            
-            unpackedPort.update(from: unpackSchema,
-                                layerInputType: unpackedPort.id,
-                                layerNode: layerNode,
-                                nodeId: nodeId,
-                                unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                unpackedPortIndex: fieldIndex)
-            
-            unpackedPort.canvasObserver?.initializeDelegate(
-                node,
-                unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                unpackedPortIndex: fieldIndex)
-            
-            let newPackMode = portObserver.mode
-            if previousPackMode != newPackMode {
-                portObserver.wasPackModeToggled()
-            }
-            
-            state.resetLayerInputsCache(layerNode: layerNode)
         } else {
-            fatalErrorIfDebug("LayerInputFieldAddedToGraph: no unpacked port for fieldIndex \(fieldIndex)")
+            addLayerField(nodeId)
         }
-                
+        
         return .persistenceResponse
     }
 }
