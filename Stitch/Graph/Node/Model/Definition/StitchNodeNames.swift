@@ -829,9 +829,6 @@ The 3D Model Layer will display a 3D model asset (of a USDZ file type) in the pr
 • Scale Gesture
 • Rotation Gesture
 • Position (X/Y)
-• Rotation X
-• Rotation Y
-• Rotation Z
 • Size (W/H)
 • Opacity
 • Scale
@@ -850,9 +847,6 @@ A box 3D shape, which can be used inside a Reality View.
 • Scale Gesture
 • Rotation Gesture
 • Position (X/Y)
-• Rotation X
-• Rotation Y
-• Rotation Z
 • Size (W/H)
 • Opacity
 • Scale
@@ -873,9 +867,6 @@ A sphere 3D shape, which can be used inside a Reality View.
 • Scale Gesture
 • Rotation Gesture
 • Position (X/Y)
-• Rotation X
-• Rotation Y
-• Rotation Z
 • Size (W/H)
 • Opacity
 • Scale
@@ -895,9 +886,6 @@ A cylinder 3D shape, which can be used inside a Reality View.
 • Scale Gesture
 • Rotation Gesture
 • Position (X/Y)
-• Rotation X
-• Rotation Y
-• Rotation Z
 • Size (W/H)
 • Opacity
 • Scale
@@ -917,9 +905,6 @@ A cone 3D shape, which can be used inside a Reality View.
 • Scale Gesture
 • Rotation Gesture
 • Position (X/Y)
-• Rotation X
-• Rotation Y
-• Rotation Z
 • Size (W/H)
 • Opacity
 • Scale

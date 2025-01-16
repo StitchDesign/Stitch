@@ -285,9 +285,13 @@ extension LayerInputPort {
         case .scale3DEnabled:
             return .bool(false)
         case .size3D:
-            return .point3D(.init(x: 0, y: 0, z: 0))
+            return .point3D(.init(x: 100, y: 100, z: 100))
         case .isMetallic:
             return .bool(false)
+        case .radius3D:
+            return .number(100)
+        case .height3D:
+            return .number(100)
         }
     }
     
@@ -536,6 +540,10 @@ extension LayerInputPort {
             return \.size3DPort
         case .isMetallic:
             return \.isMetallicPort
+        case .radius3D:
+            return \.radius3DPort
+        case .height3D:
+            return \.height3DPort
         }
     }
     
@@ -788,6 +796,10 @@ extension LayerViewModel {
             return self.size3D
         case .isMetallic:
             return self.isMetallic
+        case .radius3D:
+            return self.radius3D
+        case .height3D:
+            return self.height3D
         }
     }
     
@@ -1032,6 +1044,10 @@ extension LayerViewModel {
             self.size3D = value
         case .isMetallic:
             self.isMetallic = value
+        case .radius3D:
+            self.radius3D = value
+        case .height3D:
+            self.height3D = value
         }
     }
 }
@@ -1269,6 +1285,10 @@ extension LayerInputPort {
             return \.size3DPort
         case .isMetallic:
             return \.isMetallicPort
+        case .radius3D:
+            return \.radius3DPort
+        case .height3D:
+            return \.height3DPort
         }
     }
     
@@ -1638,6 +1658,10 @@ extension LayerInputPort {
             return "Metallic"
         case .transform3D, .size3D:
             return ""
+        case .radius3D:
+            return "Radius"
+        case .height3D:
+            return "Height"
         }
     }
 

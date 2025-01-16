@@ -1,8 +1,8 @@
 //
-//  BoxLayerNode.swift
+//  CylinderLayerNode.swift
 //  Stitch
 //
-//  Created by Elliot Boschwitz on 1/13/25.
+//  Created by Elliot Boschwitz on 1/16/25.
 //
 
 import Foundation
@@ -10,9 +10,9 @@ import StitchSchemaKit
 import SwiftUI
 import RealityKit
 
-struct BoxLayerNode: LayerNodeDefinition {
+struct CylinderLayerNode: LayerNodeDefinition {
     
-    static let layer = Layer.box
+    static let layer = Layer.cylinder
 
     static let inputDefinitions: LayerInputPortSet = .init([
         .anchorEntity,
@@ -26,9 +26,9 @@ struct BoxLayerNode: LayerNodeDefinition {
         .translation3DEnabled,
         .scale3DEnabled,
         .rotation3DEnabled,
-        .cornerRadius,
         .isMetallic,
-        .size3D,
+        .radius3D,
+        .height3D,
         .color
     ])
         .union(.layerEffects)
@@ -55,7 +55,7 @@ struct BoxLayerNode: LayerNodeDefinition {
                      parentIsScrollableGrid: parentIsScrollableGrid,
                      realityContent: realityContent)
             .model3DModifier(viewModel: viewModel,
-                             entityType: .box,
+                             entityType: .cylinder,
                              isPinnedViewRendering: isPinnedViewRendering)
     }
 }

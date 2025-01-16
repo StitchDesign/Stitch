@@ -40,18 +40,11 @@ struct Model3DLayerNode: LayerNodeDefinition {
         .model3D,
         .anchorEntity,
         .position,
-        .rotationX,
-        .rotationY,
-        .rotationZ,
         .size,
         .opacity,
         .scale,
         .anchoring,
         .zIndex,
-        .shadowColor,
-        .shadowOpacity,
-        .shadowRadius,
-        .shadowOffset,
         .transform3D,
         .isEntityAnimating,
         .translation3DEnabled,
@@ -59,7 +52,6 @@ struct Model3DLayerNode: LayerNodeDefinition {
         .rotation3DEnabled
     ])
         .union(.layerEffects)
-        .union(.strokeInputs)
         .union(.aspectRatio)
         .union(.sizing).union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
 
