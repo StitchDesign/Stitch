@@ -54,10 +54,9 @@ extension SidebarItemGestureViewModel {
         case .oval, .colorFill:
             return "oval"
         case .model3D:
-            return "rotate.3d"
-        // TODO: New Icon from Adam
+            return "move.3d"
         case .realityView:
-            return "rotate.3d"
+            return "globe"
         case .video:
             return "film"
         case .text:
@@ -92,6 +91,14 @@ extension SidebarItemGestureViewModel {
             return "video.bubble.left"
         case .material:
             return "circle.filled.pattern.diagonalline.rectangle"
+        case .box:
+            return "cube"
+        case .sphere:
+            return "rotate.3d"
+        case .cylinder:
+            return "cylinder"
+        case .cone:
+            return "cone"
         }
     }
 }

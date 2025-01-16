@@ -83,6 +83,7 @@ struct Model3DLayerNode: LayerNodeDefinition {
             realityContent: realityContent,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,
+            entity: viewModel.mediaObject?.model3DEntity,
             anchorEntityId: viewModel.anchorEntity.anchorEntity,
             translation3DEnabled: viewModel.translation3DEnabled.getBool ?? false,
             rotation3DEnabled: viewModel.rotation3DEnabled.getBool ?? false,

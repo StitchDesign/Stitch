@@ -36,7 +36,7 @@ struct ShadowFlyoutView: View {
                // TODO: why must we double this *and* use padding?
                spacing: INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET * 2) {
             
-            ForEach(LayerInspectorView.shadow) { (shadowInput: LayerInputPort) in
+            ForEach(LayerInspectorSection.shadow, id: \.self) { shadowInput in
                 ShadowFlyoutRowView(nodeId: node.id,
                                     nodeKind: node.kind,
                                     shadowInput: shadowInput,

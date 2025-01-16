@@ -79,8 +79,7 @@ extension URL {
         }
         if isModel3DFile(pathExtension: pathExtension) {
             do {
-                let entity = try await StitchEntity(id: .init(),
-                                                    sourceURL: self,
+                let entity = try await StitchEntity(sourceURL: self,
                                                     isAnimating: false)
                 return .success(.model3D(entity))
             } catch {

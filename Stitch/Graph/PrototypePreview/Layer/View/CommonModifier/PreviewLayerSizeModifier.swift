@@ -32,7 +32,7 @@ extension Layer {
         switch self {
         case .text, .textField, .progressIndicator, .switchLayer:
             return true
-        case .oval, .rectangle, .image, .group, .video, .model3D, .realityView, .shape, .colorFill, .hitArea, .canvasSketch, .map, .linearGradient, .radialGradient, .angularGradient, .sfSymbol, .videoStreaming, .material:
+        case .oval, .rectangle, .image, .group, .video, .model3D, .realityView, .shape, .colorFill, .hitArea, .canvasSketch, .map, .linearGradient, .radialGradient, .angularGradient, .sfSymbol, .videoStreaming, .material, .box, .sphere, .cylinder, .cone:
             return false
         }
     }
