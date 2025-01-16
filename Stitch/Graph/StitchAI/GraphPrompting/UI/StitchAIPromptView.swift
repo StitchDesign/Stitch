@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct StitchAIPromptEntryModalView: View {
-    @AppStorage(OPENAI_API_KEY_NAME) var OPEN_AI_API_KEY: String = ""
     @Binding var prompt: String
     let isGenerating: Bool
     let onSubmit: (String) -> Void
