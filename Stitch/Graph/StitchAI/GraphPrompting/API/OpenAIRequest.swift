@@ -1,7 +1,7 @@
 //
 //  OpenAIRequest.swift
-// Core implementation for making requests to OpenAI's API with retry logic and error handling.
-// This file handles API communication, response parsing, and state management for the Stitch app.
+//  Core implementation for making requests to OpenAI's API with retry logic and error handling.
+//  This file handles API communication, response parsing, and state management for the Stitch app.
 //  Stitch
 //
 //  Created by Christian J Clampitt on 11/12/24.
@@ -10,6 +10,9 @@
 import Foundation
 @preconcurrency import SwiftyJSON
 import SwiftUI
+import SwiftDotenv
+
+let OPEN_AI_BASE_URL = "https://api.openai.com/v1/chat/completions"
 
 /// Configuration settings for OpenAI API requests
 struct OpenAIRequestConfig {
@@ -33,6 +36,8 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
     let systemPrompt: String       // System-level instructions loaded from file
     let schema: JSON              // JSON schema for response validation
     let config: OpenAIRequestConfig // Request configuration settings
+    let OPEN_AI_API_KEY: String
+    let OPEN_AI_MODEL: String
     @MainActor static var timeoutErrorCount = 0
 
     /// Initialize a new request with prompt and optional configuration
@@ -54,6 +59,27 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
             loadedSchema = JSON(data)
         }
         self.schema = loadedSchema
+        
+        do {
+            if let envPath = Bundle.main.path(forResource: ".env", ofType: nil) {
+                try Dotenv.configure(atPath: envPath)
+            } else {
+                fatalError("⚠️ .env file not found in bundle.")
+            }
+        } catch {
+            fatalError("⚠️ Could not load .env file: \(error)")
+        }
+        
+        guard let apiKey = Dotenv["OPEN_AI_API_KEY"]?.stringValue else {
+            fatalError("⚠️ Could not find OPEN_AI_API_KEY in .env file.")
+        }
+        
+        OPEN_AI_API_KEY = apiKey
+        
+        guard let model = Dotenv["OPEN_AI_MODEL"]?.stringValue else {
+            fatalError("⚠️ Could not find OPEN_AI_MODEL in .env file.")
+        }
+        OPEN_AI_MODEL = model
     }
     
     /// Execute the API request with retry logic
@@ -80,24 +106,13 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
             )
             return
         }
-        
-        // Validate API key
-        guard let apiKey = UserDefaults.standard.string(forKey: OPENAI_API_KEY_NAME),
-              !apiKey.isEmpty else {
-            state.showErrorModal(
-                message: "No API Key found or API Key is empty",
-                userPrompt: prompt,
-                jsonResponse: nil
-            )
-            return
-        }
-        
+
         // Configure request headers and parameters
         var request = URLRequest(url: openAIAPIURL)
         request.httpMethod = "POST"
         request.timeoutInterval = config.timeoutInterval
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+        request.setValue("Bearer \(OPEN_AI_API_KEY)", forHTTPHeaderField: "Authorization")
         
         // Construct request payload
         let payload: [String: Any] = [
