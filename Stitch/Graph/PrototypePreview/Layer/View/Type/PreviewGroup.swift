@@ -259,6 +259,7 @@ struct PreviewGroupLayer: View {
                               parentId: interactiveLayer.id.layerNodeId,
                               parentOrientation: orientation,
                               parentSpacing: spacing,
+                              parentGroupAlignment: layerViewModel.layerGroupAlignment.getAnchoring,
                               parentUsesScroll: layerViewModel.isScrollXEnabled || layerViewModel.isScrollYEnabled,
                               parentCornerRadius: cornerRadius,
                               // i.e. if this view (a LayerGroup) uses .hug, then its children will not use their own .position values.

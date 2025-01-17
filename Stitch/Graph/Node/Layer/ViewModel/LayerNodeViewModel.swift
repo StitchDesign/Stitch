@@ -138,6 +138,7 @@ final class LayerNodeViewModel {
     var layerMarginPort: LayerInputObserver
     var layerPaddingPort: LayerInputObserver
     var offsetInGroupPort: LayerInputObserver
+    var layerGroupAlignmentPort: LayerInputObserver
     
     var materialThicknessPort: LayerInputObserver
     var deviceAppearancePort: LayerInputObserver
@@ -313,6 +314,7 @@ final class LayerNodeViewModel {
         self.layerPaddingPort = .init(from: schema, port: .layerPadding)
         self.layerMarginPort = .init(from: schema, port: .layerMargin)
         self.offsetInGroupPort = .init(from: schema, port: .offsetInGroup)
+        self.layerGroupAlignmentPort = .init(from: schema, port: .layerGroupAlignment)
         
         self.deviceAppearancePort = .init(from: schema, port: .deviceAppearance)
         self.materialThicknessPort = .init(from: schema, port: .materialThickness)

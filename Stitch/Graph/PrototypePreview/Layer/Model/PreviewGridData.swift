@@ -173,6 +173,7 @@ extension LayerNodeViewModel {
              */
             self.blockSpacingInput()
             self.blockGridLayoutInputs()
+            self.blockLayerGroupAlignmentInput()
             
             children.forEach {
                 $0.layerNode?.blockOffsetInput()
@@ -184,6 +185,7 @@ extension LayerNodeViewModel {
             // TODO: unblock `offset`/`margin` input on the LayerGroup's children (all descendants?) as well
             self.unblockSpacingInput()
             self.blockGridLayoutInputs()
+            self.unblockLayerGroupAlignmentInput()
             
             children.forEach {
                 $0.layerNode?.unblockOffsetInput()
@@ -193,6 +195,7 @@ extension LayerNodeViewModel {
         case .grid:
             self.unblockSpacingInput()
             self.unblockGridLayoutInputs()
+            self.blockLayerGroupAlignmentInput()
             
             children.forEach {
                 if self.scrollEnabled() {
@@ -201,7 +204,6 @@ extension LayerNodeViewModel {
                 } else {
                     $0.layerNode?.unblockOffsetInput()
                 }
-                
                 
                 $0.layerNode?.blockPositionInput()
             }
@@ -227,6 +229,11 @@ extension LayerNodeViewModel {
         setBlockStatus(LayerInputPort.itemAlignmentWithinGridCell.asFullInput, isBlocked: true)
     }
     
+    @MainActor
+    func blockLayerGroupAlignmentInput() {
+        setBlockStatus(LayerInputPort.layerGroupAlignment.asFullInput, isBlocked: true)
+    }
+    
     // LayerGroup's StitchOrientation = Vertical, Horizontal
     
     @MainActor
@@ -244,6 +251,11 @@ extension LayerNodeViewModel {
         setBlockStatus(LayerInputPort.spacingBetweenGridColumns.asFullInput, isBlocked: false)
         setBlockStatus(LayerInputPort.spacingBetweenGridRows.asFullInput, isBlocked: false)
         setBlockStatus(LayerInputPort.itemAlignmentWithinGridCell.asFullInput, isBlocked: false)
+    }
+    
+    @MainActor
+    func unblockLayerGroupAlignmentInput() {
+        setBlockStatus(LayerInputPort.layerGroupAlignment.asFullInput, isBlocked: false)
     }
     
     @MainActor
