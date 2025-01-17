@@ -22,9 +22,30 @@ struct LLMRecordingToggled: GraphEvent {
             return
         }
         
+        let wasInAIMode = state.graphUI.insertNodeMenuState.isFromAIGeneration
+        
+        // Check if we're transitioning from AI generation to recording
+        if wasInAIMode {
+            print("🔄 🤖 TRANSITIONING FROM AI MODE TO RECORDING - ENTERING AUGMENTATION MODE 🤖 🔄")
+            // Changed: Store actions before clearing AI generation state
+            let currentActions = document.llmRecording.actions
+            document.llmRecording.mode = .augmentation
+            document.llmRecording.lastAIGeneratedActions = currentActions.asJSONDisplay()
+            print("🤖 💾 Generated Actions: \(document.llmRecording.lastAIGeneratedActions) 💾 🤖")
+            
+            // Clear the AI generation flag since we're now in recording mode
+            state.graphUI.insertNodeMenuState.isFromAIGeneration = false
+            print("🔄 🤖 AI Generation Mode Cleared - Now in Recording Mode 🤖 🔄")
+        }
+        
         if document.llmRecording.isRecording {
+            let modeLabel = document.llmRecording.mode == .augmentation ? "AUGMENTATION" : "NORMAL"
+            print("📼 🛑 STOPPING LLM RECORDING MODE [\(modeLabel)] 🛑 📼")
             document.llmRecordingEnded()
         } else {
+            let modeLabel = document.llmRecording.mode == .augmentation ? "AUGMENTATION" : "NORMAL"
+            let transitionNote = wasInAIMode ? " (Transitioned from AI Generation)" : ""
+            print("📼 ▶\u{fef} STARTING LLM RECORDING MODE [\(modeLabel)]\(transitionNote) ▶\u{fef} 📼")
             document.llmRecordingStarted()
         }
     }
@@ -40,18 +61,28 @@ extension StitchDocumentViewModel {
     
     @MainActor
     func llmRecordingStarted() {
+        print("📼 ⚡️ LLM Recording Started - isRecording set to true ⚡️ 📼")
+        
+        // Added: Debug print current actions before starting recording
+        print("🤖 Current Actions at Recording Start: \(self.llmRecording.actions.asJSONDisplay())")
+        
         self.llmRecording.isRecording = true
     }
     
     @MainActor
     func llmRecordingEnded() {
+        print("📼 ⚡️ LLM Recording Ended - isRecording set to false ⚡️ 📼")
         self.llmRecording.isRecording = false
+        
+        // Added: Debug print actions before caching
+        print("🤖 Current Actions at Recording End: \(self.llmRecording.actions.asJSONDisplay())")
         
         // Cache the json of the actions; else TextField changes cause constant encoding and thus json-order changes
         self.llmRecording.promptState.actionsAsDisplayString = self.llmRecording.actions.asJSONDisplay()
         
         // If we stopped recording and have LLMActions, show the prompt
         if !self.llmRecording.actions.isEmpty {
+            print("📼 📝 Opening LLM Recording Prompt Modal 📝 📼")
             self.llmRecording.promptState.showModal = true
             self.graphUI.reduxFocusedField = .llmRecordingModal
         }
@@ -59,16 +90,15 @@ extension StitchDocumentViewModel {
     
     // When prompt modal is closed, we write the JSON of prompt + actions to file.
     @MainActor func closedLLMRecordingPrompt() {
-        
-        // log("LLMRecordingPromptClosed called")
+        print("📼 💾 Closing LLM Recording Prompt - Saving Data 💾 📼")
         
         self.llmRecording.promptState.showModal = false
         self.graphUI.reduxFocusedField = nil
         
         let actions = self.llmRecording.actions
         
-        // TODO: somehow we're getting this called twice
         guard !actions.isEmpty else {
+            print("📼 ⚠️ No actions to save - Resetting recording state ⚠️ 📼")
             self.llmRecording = .init()
             return
         }
@@ -76,8 +106,6 @@ extension StitchDocumentViewModel {
         // Write the JSONL/YAML to file
         let recordedData = LLMRecordingData(actions: actions,
                                             prompt: self.llmRecording.promptState.prompt)
-        
-        // log("LLMRecordingPromptClosed: recordedData: \(recordedData)")
         
         if !recordedData.actions.isEmpty {
             Task {
@@ -91,9 +119,6 @@ extension StitchDocumentViewModel {
                     dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
                     let formattedDate = dateFormatter.string(from: Date())
                     let filename = "\(self.graph.name)_\(self.graph.id)_\(formattedDate).json"
-                    // log("LLMRecordingPromptClosed: docsURL: \(docsURL)")
-                    // log("LLMRecordingPromptClosed: dataCollectionURL: \(dataCollectionURL)")
-                    // log("LLMRecordingPromptClosed: url: \(url)")
                     let url = dataCollectionURL.appendingPathComponent(filename)
                     
                     if !FileManager.default.fileExists(atPath: dataCollectionURL.path) {
@@ -104,20 +129,21 @@ extension StitchDocumentViewModel {
                     
                     try data.write(to: url, options: [.atomic, .completeFileProtection])
                     
+                    print("📼 ⬆️ Uploading recording data to Supabase ⬆️ 📼")
                     try await SupabaseManager.shared.uploadLLMRecording(recordedData)
-                    log("LLMRecordingPromptClosed: Data successfully saved locally and uploaded to Supabase")
+                    print("📼 ✅ Data successfully saved locally and uploaded to Supabase ✅ 📼")
                     
                 } catch let encodingError as EncodingError {
-                    log("LLMRecordingPromptClosed: Encoding error: \(encodingError.localizedDescription)")
+                    print("📼 ❌ Encoding error: \(encodingError.localizedDescription) ❌ 📼")
                 } catch let fileError as NSError {
-                    log("LLMRecordingPromptClosed: File system error: \(fileError.localizedDescription)")
+                    print("📼 ❌ File system error: \(fileError.localizedDescription) ❌ 📼")
                 } catch {
-                    log("LLMRecordingPromptClosed: error: \(error.localizedDescription)")
+                    print("📼 ❌ Error: \(error.localizedDescription) ❌ 📼")
                 }
             }
         }
     
-        // Reset LLMRecordingState
+        print("📼 🔄 Resetting LLM Recording State 🔄 📼")
         self.llmRecording = .init()
     }
 }

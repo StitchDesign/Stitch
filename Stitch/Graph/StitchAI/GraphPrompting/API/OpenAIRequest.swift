@@ -291,6 +291,10 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
             log(step.description)
         }
         
+        print("🤖 💾 Storing Original AI Generated Actions 💾 🤖")
+        state.llmRecording.lastAIGeneratedActions = steps.asJSONDisplay()
+        print("🤖 Original Actions: \(state.llmRecording.lastAIGeneratedActions)")
+        
         var canvasItemsAdded = 0
         steps.forEach { step in
             canvasItemsAdded = state.handleLLMStepAction(

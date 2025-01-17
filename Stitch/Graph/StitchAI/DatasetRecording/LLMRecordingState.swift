@@ -9,16 +9,26 @@ import Foundation
 
 let LLM_COLLECTION_DIRECTORY = "StitchDataCollection"
 
+enum LLMRecordingMode: Equatable {
+    case normal
+    case augmentation
+}
+
 struct LLMRecordingState: Equatable {
     
     // Are we actively recording redux-actions which we then turn into LLM-actions?
     var isRecording: Bool = false
+    
+    var mode: LLMRecordingMode = .normal
     
     var actions: [LLMStepAction] = .init()
     
     var promptState = LLMPromptState()
     
     var jsonEntryState = LLMJsonEntryState()
+    
+    // Added: Store the last AI generated actions
+    var lastAIGeneratedActions: String = ""
 }
 
 struct LLMPromptState: Equatable {
