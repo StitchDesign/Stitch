@@ -127,64 +127,64 @@ struct RealityLayerView: View {
 #endif
     }
     
+    @ViewBuilder
     var realityView: some View {
-        Group {
-            // Can't run multiple reality views
-            if !isPinnedViewRendering || document.isGeneratingProjectThumbnail {
+        // Can't run multiple reality views
+        if !isPinnedViewRendering || document.isGeneratingProjectThumbnail {
+            Color.clear
+        }
+        
+        else if _isCameraEnabled {
+            switch document.cameraFeedManager {
+            case .loaded(let cameraFeedManager):
+                if let cameraFeedManager = cameraFeedManager.cameraFeedManager,
+                   let arView = cameraFeedManager.arView {
+                    CameraRealityView(arView: arView,
+                                      size: layerSize,
+                                      scale: scale,
+                                      opacity: opacity,
+                                      isShadowsEnabled: isShadowsEnabled)
+                    .onAppear {
+                        // Update list of node Ids using camera
+                        graph.enabledCameraNodeIds.insert(node.id)
+                        
+                        self.layerViewModel.realityContent = arView
+                    }
+                    .onDisappear {
+                        self.layerViewModel.realityContent = nil
+                    }
+                }
+                
+            case .loading, .failed:
+                EmptyView()
+                
+            case .none:
                 Color.clear
-            }
-            
-            else if _isCameraEnabled {
-                switch document.cameraFeedManager {
-                case .loaded(let cameraFeedManager):
-                    if let cameraFeedManager = cameraFeedManager.cameraFeedManager,
-                       let arView = cameraFeedManager.arView {
-                        CameraRealityView(arView: arView,
-                                          size: layerSize,
-                                          scale: scale,
-                                          opacity: opacity,
-                                          isShadowsEnabled: isShadowsEnabled)
-                        .onAppear {
-                            // Update list of node Ids using camera
-                            graph.enabledCameraNodeIds.insert(node.id)
-                            
-                            self.layerViewModel.realityContent = arView
-                        }
-                        .onDisappear {
-                            self.layerViewModel.realityContent = nil
+#if !targetEnvironment(macCatalyst)
+                    .onAppear {
+                        // Cannot accidentally call this multiple times!
+                        if isPinnedViewRendering {
+                            let nodeId = self.layerViewModel.id.layerNodeId.id
+                            document.realityViewCreatedWithoutCamera(graph: graph,
+                                                                     nodeId: nodeId,
+                                                                     realityCameraDirection: self.cameraDirection)
                         }
                     }
-
-                case .loading, .failed:
-                    EmptyView()
-
-                case .none:
-                    Color.clear
-#if !targetEnvironment(macCatalyst)
-                        .onAppear {
-                            // Cannot accidentally call this multiple times!
-                            if isPinnedViewRendering {
-                                let nodeId = self.layerViewModel.id.layerNodeId.id
-                                document.realityViewCreatedWithoutCamera(graph: graph,
-                                                                         nodeId: nodeId,
-                                                                         realityCameraDirection: self.cameraDirection)
-                            }
-                        }
 #endif
-                    
-                }
+                
             }
-            
-            else {
-                NonCameraRealityView(previewLayer: layerViewModel,
-                                     size: layerSize,
-                                     scale: scale,
-                                     opacity: opacity,
-                                     isShadowsEnabled: isShadowsEnabled)
-                .onDisappear {
-                    self.layerViewModel.realityContent = nil
-                }
+        }
+        
+        else {
+            NonCameraRealityView(size: layerSize,
+                                 scale: scale,
+                                 opacity: opacity,
+                                 isShadowsEnabled: isShadowsEnabled) { arView in
+                self.layerViewModel.realityContent = arView
             }
+                                 .onDisappear {
+                                     self.layerViewModel.realityContent = nil
+                                 }
         }
     }
     
