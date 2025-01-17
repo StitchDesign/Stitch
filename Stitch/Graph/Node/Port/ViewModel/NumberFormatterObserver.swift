@@ -14,7 +14,7 @@ import StitchSchemaKit
 // (Tested on Mac Release Build.)
 let GlobalFormatter = NumberFormatterObserver()
 
-final class NumberFormatterObserver: NumberFormatter {
+final class NumberFormatterObserver: NumberFormatter, @unchecked Sendable {
     override init() {
         super.init()
         self.maximumFractionDigits = 4
