@@ -133,31 +133,31 @@ extension StitchEntity {
         self.transform = newMatrix
         self.containerEntity._applyMatrix(newMatrix: newMatrix)
     }
-    
-    @MainActor func createSCNScene(layerViewModel: LayerViewModel) throws -> SCNScene {
-        switch self.type {
-        case .importedMedia(let url):
-            return try SCNScene(url: url)
-        default:
-            let scene = SCNScene()
-            self.buildSCNScene(from: scene,
-                               layerViewModel: layerViewModel)
-            return scene
-        }
-    }
-    
-    @MainActor private func buildSCNScene(from scene: SCNScene,
-                                          layerViewModel: LayerViewModel) {
-        guard let geometry = self.type.createSCNGeometry(layerViewModel: layerViewModel) else {
-            return
-        }
-        
-        let node = SCNNode(geometry: geometry)
-        scene.rootNode.addChildNode(node)
-        
-        self.type.updateSCNScene(from: scene,
-                                 layerViewModel: layerViewModel)
-    }
+//    
+//    @MainActor func createSCNScene(layerViewModel: LayerViewModel) throws -> SCNScene {
+//        switch self.type {
+//        case .importedMedia(let url):
+//            return try SCNScene(url: url)
+//        default:
+//            let scene = SCNScene()
+//            self.buildSCNScene(from: scene,
+//                               layerViewModel: layerViewModel)
+//            return scene
+//        }
+//    }
+//    
+//    @MainActor private func buildSCNScene(from scene: SCNScene,
+//                                          layerViewModel: LayerViewModel) {
+//        guard let geometry = self.type.createSCNGeometry(layerViewModel: layerViewModel) else {
+//            return
+//        }
+//        
+//        let node = SCNNode(geometry: geometry)
+//        scene.rootNode.addChildNode(node)
+//        
+//        self.type.updateSCNScene(from: scene,
+//                                 layerViewModel: layerViewModel)
+//    }
     
     @MainActor
     func update(layerViewModel: LayerViewModel) {

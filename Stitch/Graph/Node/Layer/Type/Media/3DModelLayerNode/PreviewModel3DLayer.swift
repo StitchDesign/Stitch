@@ -74,27 +74,34 @@ struct Preview3DModelLayer: View {
         return _sceneSize
     }
     
+    @ViewBuilder
+    func entityView(realityContent: ARView) -> some View {
+        Color.clear
+            .modifier(ModelEntityLayerViewModifier(previewLayer: layerViewModel,
+                                                   entity: self.entity,
+                                                   realityContent: realityContent,
+                                                   graph: graph,
+                                                   anchorEntityId: anchorEntityId,
+                                                   translationEnabled: translation3DEnabled,
+                                                   rotationEnabled: rotation3DEnabled,
+                                                   scaleEnabled: scale3DEnabled))
+    }
+    
     var body: some View {
         Group {
             if let realityContent = self.realityContent {
-                Color.clear
-                    .modifier(ModelEntityLayerViewModifier(previewLayer: layerViewModel,
-                                                           entity: self.entity,
-                                                           realityContent: realityContent,
-                                                           graph: graph,
-                                                           anchorEntityId: anchorEntityId,
-                                                           translationEnabled: translation3DEnabled,
-                                                           rotationEnabled: rotation3DEnabled,
-                                                           scaleEnabled: scale3DEnabled))
+                entityView(realityContent: realityContent)
                 
             } else {
                 if document.isGeneratingProjectThumbnail {
                     Color.clear
                 } else if let entity = entity {
-                    Model3DView(entity: entity,
-                                layerViewModel: self.layerViewModel,
-                                sceneSize: sceneSize,
-                                modelOpacity: opacity)
+                    Model3DView(layerViewModel: layerViewModel,
+                                graph: graph,
+                                entity: entity,
+                                size: self.size,
+                                scale: self.scale,
+                                opacity: self.opacity)
                     .onAppear {
                         entity.isAnimating = self.layerViewModel.isEntityAnimating.getBool ?? false
                     }
@@ -266,66 +273,128 @@ struct ModelEntityLayerViewModifier: ViewModifier {
     }
 }
 
-// SwiftUI View that contains a wrapper around the ViewController responsibile for displaying a 3D model
-struct Model3DView: UIViewRepresentable {
-    @Bindable var entity: StitchEntity
-    @Bindable var layerViewModel: LayerViewModel
-    let sceneSize: CGSize
-    let modelOpacity: CGFloat
+struct Model3DView: View {
+    @State private var arView: ARView?
+    @State private var anchorEntity: AnchorEntity = .init()
     
-    var isAnimating: Bool {
-        entity.isAnimating
-    }
+    let layerViewModel: LayerViewModel
+    let graph: GraphState
+    let entity: StitchEntity
+    let size: LayerSize
+    let scale: Double
+    let opacity: Double
     
-    func makeUIView(context: Context) -> SCNView {
-        do {
-            let newScene = try entity.createSCNScene(layerViewModel: layerViewModel)
-            let sceneView = SCNView()
-            sceneView.scene = newScene
-            sceneView.frame.size = CGSize(width: sceneSize.width, height: sceneSize.height)
+    var body: some View {
+        ZStack {
+            NonCameraRealityView(size: size,
+                                 scale: scale,
+                                 opacity: opacity,
+                                 isShadowsEnabled: false) { arView in
+                Task { @MainActor [weak arView] in
+                    self.arView = arView
+                }
+//                self.anchorEntity.addChild(entity)
+//                arView.scene.addAnchor(self.anchorEntity)
+            }
 
-            let cameraNode = SCNNode()
-            cameraNode.camera = SCNCamera()
-            sceneView.scene?.rootNode.addChildNode(cameraNode)
-            cameraNode.position = SCNVector3(x: 0, y: 0, z: 35)
-            sceneView.scene?.rootNode.simdWorldPosition = SIMD3<Float>(0, 0, 0)
-
-            let lightNode = SCNNode()
-            lightNode.light = SCNLight()
-            lightNode.light?.type = .ambient
-            lightNode.position = SCNVector3(x: 0, y: 10, z: 10)
-            lightNode.name = "LIGHT"
-            sceneView.scene?.rootNode.addChildNode(lightNode)
-
-            let modelNode = newScene.rootNode.childNodes.first
-            modelNode?.isPaused = !isAnimating
-
-            sceneView.backgroundColor = .clear
-            return sceneView
-        } catch {
-            dispatch(ReceivedStitchFileError(error: .failedToCreate3DScene))
-            // return an empty scene view
-            let sceneView = SCNView()
-            return sceneView
-        }
-    }
-
-    func updateUIView(_ uiView: SCNView, context: Context) {
-        guard let scene = uiView.scene,
-              let modelNode = uiView.scene?.rootNode.childNodes.first else {
-            dispatch(ReceivedStitchFileError(error: .failedToCreate3DScene))
-            return
-        }
-        
-        entity.type.updateSCNScene(from: scene,
-                                   layerViewModel: layerViewModel)
-
-        uiView.frame.size = CGSize(width: sceneSize.width, height: sceneSize.height)
-        modelNode.opacity = modelOpacity
-        modelNode.isPaused = !isAnimating
-        
-        if let transform = entity.transform {
-            modelNode.simdTransform = transform
+            if let arView = self.arView {
+                Color.clear
+                    .modifier(ModelEntityLayerViewModifier(previewLayer: layerViewModel,
+                                                           entity: entity,
+                                                           realityContent: arView,
+                                                           graph: graph,
+                                                           anchorEntityId: nil,
+                                                           translationEnabled: false,
+                                                           rotationEnabled: false,
+                                                           scaleEnabled: false))
+            }
         }
     }
 }
+
+//struct Model3DView: View {
+//    @State private var realityLayerViewModel = LayerViewModel(id: .init(layerNodeId: .init(),
+//                                                                        loopIndex: 0),
+//                                                              layer: .realityView, nodeDelegate: nil)
+//    
+//    @Bindable var document: StitchDocumentViewModel
+//    @Bindable var graph: GraphState
+//    @Bindable var viewModel: LayerViewModel
+//    let entity: StitchEntity
+//    let isPinnedViewRendering: Bool
+//    let parentSize: CGSize
+//    let parentDisablesPosition: Bool
+//    
+//    var body: some View {
+//        PreviewRealityLayer(document: document,
+//                            graph: graph,
+//                            viewModel: <#T##LayerViewModel#>, layersInGroup: <#T##LayerDataList#>, isPinnedViewRendering: <#T##Bool#>, parentSize: <#T##CGSize#>, parentDisablesPosition: <#T##Bool#>, parentIsScrollableGrid: <#T##Bool#>)
+//        .onAppear {
+//            self.realityLayerViewModel.ca
+//        }
+//    }
+//}
+
+// SwiftUI View that contains a wrapper around the ViewController responsibile for displaying a 3D model
+//struct Model3DView: UIViewRepresentable {
+//    @Bindable var entity: StitchEntity
+//    @Bindable var layerViewModel: LayerViewModel
+//    let sceneSize: CGSize
+//    let modelOpacity: CGFloat
+//    
+//    var isAnimating: Bool {
+//        entity.isAnimating
+//    }
+//    
+//    func makeUIView(context: Context) -> SCNView {
+//        do {
+//            let newScene = try entity.createSCNScene(layerViewModel: layerViewModel)
+//            let sceneView = SCNView()
+//            sceneView.scene = newScene
+//            sceneView.frame.size = CGSize(width: sceneSize.width, height: sceneSize.height)
+//
+//            let cameraNode = SCNNode()
+//            cameraNode.camera = SCNCamera()
+//            sceneView.scene?.rootNode.addChildNode(cameraNode)
+//            cameraNode.position = SCNVector3(x: 0, y: 0, z: 35)
+//            sceneView.scene?.rootNode.simdWorldPosition = SIMD3<Float>(0, 0, 0)
+//
+//            let lightNode = SCNNode()
+//            lightNode.light = SCNLight()
+//            lightNode.light?.type = .ambient
+//            lightNode.position = SCNVector3(x: 0, y: 10, z: 10)
+//            lightNode.name = "LIGHT"
+//            sceneView.scene?.rootNode.addChildNode(lightNode)
+//
+//            let modelNode = newScene.rootNode.childNodes.first
+//            modelNode?.isPaused = !isAnimating
+//
+//            sceneView.backgroundColor = .clear
+//            return sceneView
+//        } catch {
+//            dispatch(ReceivedStitchFileError(error: .failedToCreate3DScene))
+//            // return an empty scene view
+//            let sceneView = SCNView()
+//            return sceneView
+//        }
+//    }
+//
+//    func updateUIView(_ uiView: SCNView, context: Context) {
+//        guard let scene = uiView.scene,
+//              let modelNode = uiView.scene?.rootNode.childNodes.first else {
+//            dispatch(ReceivedStitchFileError(error: .failedToCreate3DScene))
+//            return
+//        }
+//        
+//        entity.type.updateSCNScene(from: scene,
+//                                   layerViewModel: layerViewModel)
+//
+//        uiView.frame.size = CGSize(width: sceneSize.width, height: sceneSize.height)
+//        modelNode.opacity = modelOpacity
+//        modelNode.isPaused = !isAnimating
+//        
+//        if let transform = entity.transform {
+//            modelNode.simdTransform = transform
+//        }
+//    }
+//}
