@@ -23,40 +23,56 @@ actor SupabaseManager {
     private let tableName: String
 
     private init() {
-        do {
-            // Get the path to the .env file in the app bundle
-            if let envPath = Bundle.main.path(forResource: ".env", ofType: nil) {
-                try Dotenv.configure(atPath: envPath)
-            } else {
-                fatalError("⚠️ .env file not found in bundle.")
-            }
-        } catch {
-            fatalError("⚠️ Could not load .env file: \(error)")
-        }
+        var supabaseURL = ""
+        var supabaseAnonKey = ""
+        var tableNameValue = ""
         
-        guard let supabaseURL = Dotenv["SUPABASE_URL"]?.stringValue,
-              let supabaseAnonKey = Dotenv["SUPABASE_ANON_KEY"]?.stringValue,
-              let tableName = Dotenv["SUPABASE_TABLE_NAME"]?.stringValue else {
-            fatalError("⚠️ Missing required environment variables in .env file")
+        if let envPath = Bundle.main.path(forResource: ".env", ofType: nil) {
+            do {
+                try Dotenv.configure(atPath: envPath)
+                if let url = Dotenv["SUPABASE_URL"]?.stringValue,
+                   let anonKey = Dotenv["SUPABASE_ANON_KEY"]?.stringValue,
+                   let table = Dotenv["SUPABASE_TABLE_NAME"]?.stringValue {
+                    supabaseURL = url
+                    supabaseAnonKey = anonKey
+                    tableNameValue = table
+                } else {
+                    fatalErrorIfDebug("⚠️ Missing required environment variables in .env file")
+                }
+            } catch {
+                fatalErrorIfDebug("⚠️ Could not load .env file: \(error)")
+            }
+        } else {
+            fatalErrorIfDebug("⚠️ .env file not found in bundle.")
         }
 
-        self.tableName = tableName
+        self.tableName = tableNameValue
 
-        guard let baseURL = URL(string: supabaseURL),
-              let apiURL = URL(string: "/rest/v1", relativeTo: baseURL) else {
-            fatalError("⚠️ Invalid Supabase URL")
-        }
-
-        self.postgrest = PostgrestClient(
-            url: apiURL,
+        var client = PostgrestClient(
+            url: URL(string: "about:blank")!,
             schema: "public",
-            headers: [
-                "apikey": supabaseAnonKey,
-                "Authorization": "Bearer \(supabaseAnonKey)"
-            ],
+            headers: [:],
             logger: nil
         )
+        
+        if let baseURL = URL(string: supabaseURL),
+           let apiURL = URL(string: "/rest/v1", relativeTo: baseURL) {
+            client = PostgrestClient(
+                url: apiURL,
+                schema: "public",
+                headers: [
+                    "apikey": supabaseAnonKey,
+                    "Authorization": "Bearer \(supabaseAnonKey)"
+                ],
+                logger: nil
+            )
+        } else {
+            fatalErrorIfDebug("⚠️ Invalid Supabase URL")
+        }
+        
+        self.postgrest = client
     }
+
 
     func uploadLLMRecording(_ recordingData: LLMRecordingData) async throws {
         print("Starting uploadLLMRecording...")
@@ -76,16 +92,6 @@ actor SupabaseManager {
         )
 
         let payload = Payload(user_id: deviceUUID, actions: wrapper)
-
-        do {
-            let jsonData = try JSONEncoder().encode(payload)
-            if let jsonString = String(data: jsonData, encoding: .utf8) {
-                print("Encoded JSON for upload: \(jsonString)")
-            }
-        } catch {
-            print("Error encoding JSON: \(error)")
-            throw error
-        }
 
         do {
             try await postgrest
