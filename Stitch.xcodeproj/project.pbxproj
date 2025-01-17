@@ -167,6 +167,7 @@
 		B56FFB482C18FF9700623CC7 /* LoopedEval.swift in Sources */ = {isa = PBXBuildFile; fileRef = B56FFB472C18FF9700623CC7 /* LoopedEval.swift */; };
 		B5743AED29CC128100B3230D /* PortValueComparable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5743AEC29CC128100B3230D /* PortValueComparable.swift */; };
 		B57575F92A187E0600CDB0BA /* previewLayerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57575F82A187E0600CDB0BA /* previewLayerTests.swift */; };
+		B5770BA32D3ACF1D0013AD09 /* Model3DView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5770BA22D3ACF1C0013AD09 /* Model3DView.swift */; };
 		B57967522B5F2BF8007F5F24 /* SchemaObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57967512B5F2BF8007F5F24 /* SchemaObserver.swift */; };
 		B57B27392A77522A007D6A4F /* FieldValueNumberView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57B27382A77522A007D6A4F /* FieldValueNumberView.swift */; };
 		B57E997A28FE5EAD00E86891 /* CommonEditingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57E997928FE5EAD00E86891 /* CommonEditingView.swift */; };
@@ -1109,6 +1110,7 @@
 		B56FFB472C18FF9700623CC7 /* LoopedEval.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopedEval.swift; sourceTree = "<group>"; };
 		B5743AEC29CC128100B3230D /* PortValueComparable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortValueComparable.swift; sourceTree = "<group>"; };
 		B57575F82A187E0600CDB0BA /* previewLayerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = previewLayerTests.swift; sourceTree = "<group>"; };
+		B5770BA22D3ACF1C0013AD09 /* Model3DView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model3DView.swift; sourceTree = "<group>"; };
 		B57967512B5F2BF8007F5F24 /* SchemaObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaObserver.swift; sourceTree = "<group>"; };
 		B57B27382A77522A007D6A4F /* FieldValueNumberView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldValueNumberView.swift; sourceTree = "<group>"; };
 		B57E997928FE5EAD00E86891 /* CommonEditingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonEditingView.swift; sourceTree = "<group>"; };
@@ -3367,6 +3369,18 @@
 			path = ViewModel;
 			sourceTree = "<group>";
 		};
+		B5770BA12D3ACEF50013AD09 /* Nodes */ = {
+			isa = PBXGroup;
+			children = (
+				B53E0BEB2D35B5DD0072FD43 /* BoxLayerNode.swift */,
+				B5221F652D397455009FF89A /* SphereLayerNode.swift */,
+				B5221F6D2D398969009FF89A /* CylinderLayerNode.swift */,
+				B5221F6B2D39893E009FF89A /* ConeLayerNode.swift */,
+				E41685DC28A3FA3000731889 /* Model3DLayerNode.swift */,
+			);
+			path = Nodes;
+			sourceTree = "<group>";
+		};
 		B59660812C1A19E600BE75D7 /* Model */ = {
 			isa = PBXGroup;
 			children = (
@@ -3772,13 +3786,10 @@
 		E41685E228A3FA9200731889 /* 3DModelLayerNode */ = {
 			isa = PBXGroup;
 			children = (
+				B5770BA12D3ACEF50013AD09 /* Nodes */,
 				B5221F692D397889009FF89A /* Model3DLayerUtil.swift */,
-				B53E0BEB2D35B5DD0072FD43 /* BoxLayerNode.swift */,
-				B5221F652D397455009FF89A /* SphereLayerNode.swift */,
-				B5221F6D2D398969009FF89A /* CylinderLayerNode.swift */,
-				B5221F6B2D39893E009FF89A /* ConeLayerNode.swift */,
-				E41685DC28A3FA3000731889 /* Model3DLayerNode.swift */,
 				E41685E028A3FA5800731889 /* PreviewModel3DLayer.swift */,
+				B5770BA22D3ACF1C0013AD09 /* Model3DView.swift */,
 				E4AE5B7B28AAFE4A001C823D /* LightType.swift */,
 			);
 			path = 3DModelLayerNode;
@@ -5152,6 +5163,7 @@
 				B59C01342B4552F6001CDF87 /* NodeRowDefinitions.swift in Sources */,
 				EC5043A52874CDDB00590D07 /* RGBA.swift in Sources */,
 				B5657D392C0B94A300287362 /* GraphMediaValue.swift in Sources */,
+				B5770BA32D3ACF1D0013AD09 /* Model3DView.swift in Sources */,
 				B5EC61FB2A5F5713002A639F /* NodeViewModel.swift in Sources */,
 				EC17ACC226B4BC5900137EA5 /* StitchAudio.swift in Sources */,
 				ECFA5D4A287DEE580037CD59 /* PulseColor.swift in Sources */,
