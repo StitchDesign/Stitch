@@ -201,7 +201,9 @@ struct PreviewLayersView: View {
     var orientationFromParent: some View {
         switch parentOrientation {
         case .none:
-            ZStack(alignment: parentGroupAlignment?.toAlignment ?? .defaultAlignmentForLayerGroup) {
+            // TODO: support alignments with ZStack? (Currently seems to do nothing)
+//            ZStack(alignment: parentGroupAlignment?.toAlignment ?? .defaultAlignmentForLayerGroup) {
+            ZStack {
                 layersAsViews(parentSpacing)
             }
         case .horizontal:
@@ -219,6 +221,7 @@ struct PreviewLayersView: View {
         }
     }
     
+    // TODO: support alignments with Grid?
     @MainActor @ViewBuilder
     var gridView: some View {
         
