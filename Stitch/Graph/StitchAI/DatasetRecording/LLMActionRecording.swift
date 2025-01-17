@@ -27,15 +27,20 @@ struct LLMRecordingToggled: GraphEvent {
         // Check if we're transitioning from AI generation to recording
         if wasInAIMode {
             print("🔄 🤖 TRANSITIONING FROM AI MODE TO RECORDING - ENTERING AUGMENTATION MODE 🤖 🔄")
-            // Changed: Store actions before clearing AI generation state
+            // First store the current AI-generated actions
             let currentActions = document.llmRecording.actions
-            document.llmRecording.mode = .augmentation
-            document.llmRecording.lastAIGeneratedActions = currentActions.asJSONDisplay()
-            print("🤖 💾 Generated Actions: \(document.llmRecording.lastAIGeneratedActions) 💾 🤖")
+            print("🤖 💾 Storing AI-Generated Actions: \(currentActions.asJSONDisplay())")
             
-            // Clear the AI generation flag since we're now in recording mode
+            // Set augmentation mode
+            document.llmRecording.mode = .augmentation
+            
+            // We keep the actions as they are - don't clear them
+            print("🤖 💾 Verified Actions Count: \(document.llmRecording.actions.count)")
+            print("🤖 💾 Verified Actions Content: \(document.llmRecording.actions.asJSONDisplay())")
+            
+            // Clear the AI generation flag AFTER we've secured the actions
             state.graphUI.insertNodeMenuState.isFromAIGeneration = false
-            print("🔄 🤖 AI Generation Mode Cleared - Now in Recording Mode 🤖 🔄")
+            print("🔄 🤖 AI Generation Mode Cleared - Actions Preserved for Correction 🤖 🔄")
         }
         
         if document.llmRecording.isRecording {
@@ -45,7 +50,7 @@ struct LLMRecordingToggled: GraphEvent {
         } else {
             let modeLabel = document.llmRecording.mode == .augmentation ? "AUGMENTATION" : "NORMAL"
             let transitionNote = wasInAIMode ? " (Transitioned from AI Generation)" : ""
-            print("📼 ▶️ STARTING LLM RECORDING MODE [\(modeLabel)]\(transitionNote) ▶️ 📼")
+            print("📼 ▶\u{fef} STARTING LLM RECORDING MODE [\(modeLabel)]\(transitionNote) ▶\u{fef} 📼")
             document.llmRecordingStarted()
         }
     }
@@ -54,7 +59,7 @@ struct LLMRecordingToggled: GraphEvent {
 /// What we write to JSON/JSONL file
 struct LLMRecordingData: Equatable, Encodable {
     let actions: LLMStepActions
-    let prompt: String // user-entered
+    let prompt: String
 }
 
 extension StitchDocumentViewModel {
@@ -64,7 +69,7 @@ extension StitchDocumentViewModel {
         print("📼 ⚡️ LLM Recording Started - isRecording set to true ⚡️ 📼")
         print("🎯 Current Recording Mode: \(self.llmRecording.mode)")
         
-        // Added: Debug print current actions before starting recording
+        // Debug print current actions before starting recording
         print("🤖 Current Actions at Recording Start: \(self.llmRecording.actions.asJSONDisplay())")
         
         self.llmRecording.isRecording = true
@@ -73,21 +78,26 @@ extension StitchDocumentViewModel {
     @MainActor
     func llmRecordingEnded() {
         let currentMode = self.llmRecording.mode
-        print("📼 ⚡️ LLM Recording Ended - isRecording set to false ⚡️ 📼")
+        print("📼 ⚡\u{fef} LLM Recording Ended - isRecording set to false ⚡\u{fef} 📼")
         print("🎯 Current Recording Mode: \(currentMode)")
         self.llmRecording.isRecording = false
         
-        // Added: Debug print actions before caching
-        print("🤖 Current Actions at Recording End: \(self.llmRecording.actions.asJSONDisplay())")
+        // Debug print all actions
+        print("🤖 Complete Action Sequence: \(self.llmRecording.actions.asJSONDisplay())")
         
-        // Cache the json of the actions; else TextField changes cause constant encoding and thus json-order changes
+        // Cache the json of all actions
         self.llmRecording.promptState.actionsAsDisplayString = self.llmRecording.actions.asJSONDisplay()
         
-        // If we stopped recording and have LLMActions, show the prompt
+        // If we stopped recording and have LLMActions
         if !self.llmRecording.actions.isEmpty {
-            print("📼 📝 Opening LLM Recording Prompt Modal 📝 📼")
-            self.llmRecording.promptState.showModal = true
-            self.graphUI.reduxFocusedField = .llmRecordingModal
+            if currentMode == .augmentation {
+                print("📼 🤖 Augmentation mode - Skipping prompt modal and proceeding to save 🤖 📼")
+                self.closedLLMRecordingPrompt()
+            } else {
+                print("📼 📝 Opening LLM Recording Prompt Modal 📝 📼")
+                self.llmRecording.promptState.showModal = true
+                self.graphUI.reduxFocusedField = .llmRecordingModal
+            }
         }
     }
     
