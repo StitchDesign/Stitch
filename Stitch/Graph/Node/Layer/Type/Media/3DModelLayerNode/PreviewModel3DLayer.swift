@@ -89,25 +89,28 @@ struct Preview3DModelLayer: View {
     
     var body: some View {
         Group {
-            if let realityContent = self.realityContent {
+            if document.isGeneratingProjectThumbnail || !isPinnedViewRendering {
+                Color.clear
+            }
+            
+            else if let realityContent = self.realityContent {
                 entityView(realityContent: realityContent)
-                
-            } else {
-                if document.isGeneratingProjectThumbnail {
-                    Color.clear
-                } else if let entity = entity {
-                    Model3DView(layerViewModel: layerViewModel,
-                                graph: graph,
-                                entity: entity,
-                                size: self.size,
-                                scale: self.scale,
-                                opacity: self.opacity)
-                    .onAppear {
-                        entity.isAnimating = self.layerViewModel.isEntityAnimating.getBool ?? false
-                    }
-                } else {
-                    Color.clear
+            }
+            
+            else if let entity = entity {
+                Model3DView(layerViewModel: layerViewModel,
+                            graph: graph,
+                            entity: entity,
+                            size: self.size,
+                            scale: self.scale,
+                            opacity: self.opacity)
+                .onAppear {
+                    entity.isAnimating = self.layerViewModel.isEntityAnimating.getBool ?? false
                 }
+            }
+            
+            else {
+                Color.clear
             }
         }
         .onChange(of: self.layerViewModel.isEntityAnimating, initial: true) { _, isAnimating in
