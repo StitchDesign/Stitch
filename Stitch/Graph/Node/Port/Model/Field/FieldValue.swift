@@ -81,7 +81,7 @@ extension FieldValue {
         case .readOnly(let string):
             return string
         case .number(let double):
-            return GlobalFormatter.string(for: double) ?? double.description
+            return double.description
         case .layerDimension(let numberValue):
             return numberValue.stringValue
         case .json(let json):
