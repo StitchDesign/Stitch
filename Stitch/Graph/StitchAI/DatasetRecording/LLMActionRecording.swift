@@ -105,7 +105,7 @@ extension StitchDocumentViewModel {
         
         // Write the JSONL/YAML to file
         let recordedData = LLMRecordingData(actions: actions,
-                                            prompt: self.llmRecording.promptState.prompt)
+                                          prompt: self.llmRecording.promptState.prompt)
         
         if !recordedData.actions.isEmpty {
             Task {
@@ -130,7 +130,11 @@ extension StitchDocumentViewModel {
                     try data.write(to: url, options: [.atomic, .completeFileProtection])
                     
                     print("📼 ⬆️ Uploading recording data to Supabase ⬆️ 📼")
-                    try await SupabaseManager.shared.uploadLLMRecording(recordedData)
+                    // Pass isCorrection based on the mode
+                    try await SupabaseManager.shared.uploadLLMRecording(
+                        recordedData,
+                        isCorrection: self.llmRecording.mode == .augmentation
+                    )
                     print("📼 ✅ Data successfully saved locally and uploaded to Supabase ✅ 📼")
                     
                 } catch let encodingError as EncodingError {

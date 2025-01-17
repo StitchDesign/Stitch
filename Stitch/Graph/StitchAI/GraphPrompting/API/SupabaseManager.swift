@@ -16,7 +16,9 @@ struct LLMRecordingPayload: Encodable, Sendable {
 private struct RecordingWrapper: Encodable {
     let prompt: String
     let actions: [LLMStepAction]
+    let correction: Bool
 }
+
 actor SupabaseManager {
     static let shared = SupabaseManager()
     private let postgrest: PostgrestClient
@@ -74,12 +76,14 @@ actor SupabaseManager {
     }
 
 
-    func uploadLLMRecording(_ recordingData: LLMRecordingData) async throws {
+    func uploadLLMRecording(_ recordingData: LLMRecordingData, isCorrection: Bool = false) async throws {
         print("Starting uploadLLMRecording...")
+        print("📤 Correction Mode: \(isCorrection)")
 
         struct Payload: Encodable {
             let user_id: String
             let actions: RecordingWrapper
+            let correction: Bool
         }
 
         guard let deviceUUID = await UIDevice.current.identifierForVendor?.uuidString else {
@@ -88,18 +92,32 @@ actor SupabaseManager {
 
         let wrapper = RecordingWrapper(
             prompt: recordingData.prompt,
-            actions: recordingData.actions
+            actions: recordingData.actions,
+            correction: isCorrection
         )
 
-        let payload = Payload(user_id: deviceUUID, actions: wrapper)
+        let payload = Payload(user_id: deviceUUID, actions: wrapper, correction: isCorrection)
+
+        // Print payload details
+        print("📤 Uploading payload:")
+        print("  - User ID: \(deviceUUID)")
+        print("  - Prompt: \(recordingData.prompt)")
+        print("  - Number of actions: \(recordingData.actions.count)")
+        print("  - Is correction: \(isCorrection)")
 
         do {
+            let jsonData = try JSONEncoder().encode(payload)
+            if let jsonString = String(data: jsonData, encoding: .utf8) {
+                print("📤 Full JSON payload:\n\(jsonString)")
+            }
+
             try await postgrest
                 .from(tableName)
                 .insert(payload, returning: .minimal)
                 .execute()
-            print("Data uploaded successfully!")
+            print("✅ Data uploaded successfully to Supabase!")
         } catch let error as HTTPError {
+            print("❌ HTTPError uploading to Supabase:")
             if let errorMessage = String(data: error.data, encoding: .utf8) {
                 print("HTTPError Details: \(errorMessage)")
             }
