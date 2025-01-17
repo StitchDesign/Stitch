@@ -45,7 +45,7 @@ struct LLMRecordingToggled: GraphEvent {
         } else {
             let modeLabel = document.llmRecording.mode == .augmentation ? "AUGMENTATION" : "NORMAL"
             let transitionNote = wasInAIMode ? " (Transitioned from AI Generation)" : ""
-            print("📼 ▶\u{fef} STARTING LLM RECORDING MODE [\(modeLabel)]\(transitionNote) ▶\u{fef} 📼")
+            print("📼 ▶️ STARTING LLM RECORDING MODE [\(modeLabel)]\(transitionNote) ▶️ 📼")
             document.llmRecordingStarted()
         }
     }
@@ -62,6 +62,7 @@ extension StitchDocumentViewModel {
     @MainActor
     func llmRecordingStarted() {
         print("📼 ⚡️ LLM Recording Started - isRecording set to true ⚡️ 📼")
+        print("🎯 Current Recording Mode: \(self.llmRecording.mode)")
         
         // Added: Debug print current actions before starting recording
         print("🤖 Current Actions at Recording Start: \(self.llmRecording.actions.asJSONDisplay())")
@@ -71,7 +72,9 @@ extension StitchDocumentViewModel {
     
     @MainActor
     func llmRecordingEnded() {
+        let currentMode = self.llmRecording.mode
         print("📼 ⚡️ LLM Recording Ended - isRecording set to false ⚡️ 📼")
+        print("🎯 Current Recording Mode: \(currentMode)")
         self.llmRecording.isRecording = false
         
         // Added: Debug print actions before caching
@@ -90,7 +93,9 @@ extension StitchDocumentViewModel {
     
     // When prompt modal is closed, we write the JSON of prompt + actions to file.
     @MainActor func closedLLMRecordingPrompt() {
+        let currentMode = self.llmRecording.mode
         print("📼 💾 Closing LLM Recording Prompt - Saving Data 💾 📼")
+        print("🎯 Current Mode for Upload: \(currentMode)")
         
         self.llmRecording.promptState.showModal = false
         self.graphUI.reduxFocusedField = nil
@@ -130,10 +135,13 @@ extension StitchDocumentViewModel {
                     try data.write(to: url, options: [.atomic, .completeFileProtection])
                     
                     print("📼 ⬆️ Uploading recording data to Supabase ⬆️ 📼")
-                    // Pass isCorrection based on the mode
+                    // Store the mode before reset
+                    let isAugmentation = currentMode == .augmentation
+                    
+                    // Upload with current mode
                     try await SupabaseManager.shared.uploadLLMRecording(
                         recordedData,
-                        isCorrection: self.llmRecording.mode == .augmentation
+                        isCorrection: isAugmentation
                     )
                     print("📼 ✅ Data successfully saved locally and uploaded to Supabase ✅ 📼")
                     
@@ -148,6 +156,7 @@ extension StitchDocumentViewModel {
         }
     
         print("📼 🔄 Resetting LLM Recording State 🔄 📼")
+        // Reset the recording state after upload is complete
         self.llmRecording = .init()
     }
 }
