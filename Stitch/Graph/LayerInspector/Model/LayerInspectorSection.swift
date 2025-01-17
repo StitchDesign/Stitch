@@ -140,13 +140,15 @@ extension LayerInspectorSection {
         case .group:
             return [
                 .orientation,
+                .layerGroupAlignment,
                 .backgroundColor, // actually for many layers?
                 .isClipped,
                 .spacing,
                 // Grid
                 .spacingBetweenGridColumns,
                 .spacingBetweenGridRows,
-                .itemAlignmentWithinGridCell
+                .itemAlignmentWithinGridCell,
+                
             ]
         
         case .scrolling:

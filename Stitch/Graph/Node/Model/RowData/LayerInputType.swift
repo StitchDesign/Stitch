@@ -252,6 +252,8 @@ extension LayerInputPort {
             return .padding(.zero)
         case .offsetInGroup:
             return .size(.zero)
+        case .layerGroupAlignment:
+            return .anchoring(.defaultAnchoring)
         case .materialThickness:
             return .materialThickness(.defaultMaterialThickness)
         case .deviceAppearance:
@@ -502,6 +504,8 @@ extension LayerInputPort {
             return \.layerMarginPort
         case .offsetInGroup:
             return \.offsetInGroupPort
+        case .layerGroupAlignment:
+            return \.layerGroupAlignmentPort
         case .materialThickness:
             return \.materialThicknessPort
         case .deviceAppearance:
@@ -758,6 +762,8 @@ extension LayerViewModel {
             return self.layerMargin
         case .offsetInGroup:
             return self.offsetInGroup
+        case .layerGroupAlignment:
+            return self.layerGroupAlignment
         case .deviceAppearance:
             return self.deviceAppearance
         case .materialThickness:
@@ -1005,6 +1011,8 @@ extension LayerViewModel {
             self.layerMargin = value
         case .offsetInGroup:
             self.offsetInGroup = value
+        case .layerGroupAlignment:
+            self.layerGroupAlignment = value
         case .deviceAppearance:
             self.deviceAppearance = value
         case .materialThickness:
@@ -1247,6 +1255,8 @@ extension LayerInputPort {
             return \.layerMarginPort
         case .offsetInGroup:
             return \.offsetInGroupPort
+        case .layerGroupAlignment:
+            return \.layerGroupAlignmentPort
         case .materialThickness:
             return \.materialThicknessPort
         case .deviceAppearance:
@@ -1622,6 +1632,8 @@ extension LayerInputPort {
             return useShortLabel ? "Margin" : "Layer Margin"
         case .offsetInGroup:
             return useShortLabel ? "Offset" : "Offset in Group"
+        case .layerGroupAlignment:
+            return useShortLabel ? "Alignment" : "Children Alignment"
         case .materialThickness:
             return "Material"
         case .deviceAppearance:

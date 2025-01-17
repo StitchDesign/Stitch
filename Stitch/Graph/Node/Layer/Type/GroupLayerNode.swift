@@ -109,6 +109,7 @@ struct GroupLayerNode: LayerNodeDefinition {
         .union(.pinning)
         .union(.layerPaddingAndMargin)
         .union(.offsetInGroup)
+        .union([.layerGroupAlignment])
         .union(.paddingAndSpacing)
     
     static func content(document: StitchDocumentViewModel,
