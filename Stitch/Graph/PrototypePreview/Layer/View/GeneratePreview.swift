@@ -28,6 +28,7 @@ struct GeneratePreview: View {
                           parentId: nil,
                           parentOrientation: .none,
                           parentSpacing: .zero,
+                          parentGroupAlignment: nil,
                           parentUsesScroll: false,
                           parentCornerRadius: 0,
                           parentUsesHug: false,
@@ -44,6 +45,7 @@ struct GeneratePreview: View {
                               parentId: nil,
                               parentOrientation: .none,
                               parentSpacing: .zero,
+                              parentGroupAlignment: nil,
                               parentUsesScroll: false,
                               parentCornerRadius: 0,
                               parentUsesHug: false,
@@ -85,6 +87,9 @@ struct PreviewLayersView: View {
         
     // Spacing between the children; N/A for ZStack
     var parentSpacing: StitchSpacing // = .defaultStitchSpacing
+    
+    // Nil at top level
+    let parentGroupAlignment: Anchoring?
     
     var parentUsesScroll: Bool
     
@@ -196,15 +201,17 @@ struct PreviewLayersView: View {
     var orientationFromParent: some View {
         switch parentOrientation {
         case .none:
-            ZStack {
+            ZStack(alignment: parentGroupAlignment?.toAlignment ?? .defaultAlignmentForLayerGroup) {
                 layersAsViews(parentSpacing)
             }
         case .horizontal:
-            HStack(spacing: parentSpacing.asPointSpacing) {
+            HStack(alignment: parentGroupAlignment?.toVerticalAlignment ?? .defaultVerticalAlignmentForLayerGroup,
+                   spacing: parentSpacing.asPointSpacing) {
                 layersAsViews(parentSpacing)
             }
         case .vertical:
-            VStack(spacing: parentSpacing.asPointSpacing) {
+            VStack(alignment: parentGroupAlignment?.toHorizontalAlignment ?? .defaultHorizontalAlignmentForLayerGroup,
+                   spacing: parentSpacing.asPointSpacing) {
                 layersAsViews(parentSpacing)
             }
         case .grid:
@@ -261,6 +268,84 @@ struct PreviewLayersView: View {
             EmptyView().onAppear {
                 fatalErrorIfDebug()
             }
+        }
+    }
+}
+
+extension Alignment {
+    static let defaultAlignmentForLayerGroup: Self = .center
+}
+
+extension HorizontalAlignment {
+    static let defaultHorizontalAlignmentForLayerGroup: Self = .center
+}
+
+extension VerticalAlignment {
+    static let defaultVerticalAlignmentForLayerGroup: Self = .center
+}
+
+extension Anchoring {
+    var toHorizontalAlignment: HorizontalAlignment? {
+        switch self {
+        case .topLeft:
+            return .leading
+        case .topCenter:
+            return .center
+        case .topRight:
+            return .trailing
+        case .centerLeft:
+            return .leading
+        case .centerCenter:
+            return .center
+        case .centerRight:
+            return .trailing
+        case .bottomLeft:
+            return .leading
+        case .bottomCenter:
+            return .center
+        case .bottomRight:
+            return .trailing
+        
+        /*
+         TODO: turn various numbers into proper alignments? e.g.
+         x < 0.3 is .leading alignment,
+         x > 0.7 is .trailing;
+         everything else is .center
+         */
+        default:
+            return nil
+        }
+    }
+    
+    var toVerticalAlignment: VerticalAlignment? {
+        switch self {
+        case .topLeft:
+            return .top
+        case .topCenter:
+            return .top
+        case .topRight:
+            return .top
+        case .centerLeft:
+            return .center
+        case .centerCenter:
+            return .center
+        case .centerRight:
+            return .center
+        case .bottomLeft:
+            return .bottom
+        case .bottomCenter:
+            return .bottom
+        case .bottomRight:
+            return .bottom
+        
+        /*
+         TODO: turn various numbers into proper alignments? e.g.
+         y < 0.3 is .top alignment,
+         y > 0.7 is .bottom;
+         everything else is .center
+         */
+        default:
+            return nil
         }
     }
 }

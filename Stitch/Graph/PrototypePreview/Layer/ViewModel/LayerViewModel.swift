@@ -217,6 +217,7 @@ final class LayerViewModel: Sendable {
     @MainActor var layerPadding: PortValue
     @MainActor var layerMargin: PortValue
     @MainActor var offsetInGroup: PortValue
+    @MainActor var layerGroupAlignment: PortValue
 
     // Material Layer
     @MainActor var materialThickness: PortValue
@@ -375,6 +376,7 @@ final class LayerViewModel: Sendable {
         self.layerPadding = LayerInputPort.layerPadding.getDefaultValue(for: layer)
         self.layerMargin = LayerInputPort.layerMargin.getDefaultValue(for: layer)
         self.offsetInGroup = LayerInputPort.offsetInGroup.getDefaultValue(for: layer)
+        self.layerGroupAlignment = LayerInputPort.layerGroupAlignment.getDefaultValue(for: layer)
         
         self.materialThickness = LayerInputPort.materialThickness.getDefaultValue(for: layer)
         self.deviceAppearance = LayerInputPort.deviceAppearance.getDefaultValue(for: layer)
