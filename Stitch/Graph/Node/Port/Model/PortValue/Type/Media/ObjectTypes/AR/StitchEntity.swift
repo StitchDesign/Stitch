@@ -133,18 +133,16 @@ extension StitchEntity {
         self.transform = newMatrix
         self.containerEntity._applyMatrix(newMatrix: newMatrix)
     }
-//    
-//    @MainActor func createSCNScene(layerViewModel: LayerViewModel) throws -> SCNScene {
-//        switch self.type {
-//        case .importedMedia(let url):
-//            return try SCNScene(url: url)
-//        default:
-//            let scene = SCNScene()
-//            self.buildSCNScene(from: scene,
-//                               layerViewModel: layerViewModel)
-//            return scene
-//        }
-//    }
+
+//   @MainActor func createSCNScene(layerViewModel: LayerViewModel) throws -> SCNScene {
+//       switch self.type {
+//       case .importedMedia(let url):
+//           return try SCNScene(url: url)
+//       default:
+//           fatalErrorIfDebug()
+//           return scene
+//       }
+//   }
 //    
 //    @MainActor private func buildSCNScene(from scene: SCNScene,
 //                                          layerViewModel: LayerViewModel) {
