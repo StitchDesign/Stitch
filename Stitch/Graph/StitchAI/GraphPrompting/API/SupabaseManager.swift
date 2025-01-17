@@ -83,7 +83,6 @@ actor SupabaseManager {
         struct Payload: Encodable {
             let user_id: String
             let actions: RecordingWrapper
-            let correction: Bool
         }
 
         guard let deviceUUID = await UIDevice.current.identifierForVendor?.uuidString else {
@@ -96,14 +95,15 @@ actor SupabaseManager {
             correction: isCorrection
         )
 
-        let payload = Payload(user_id: deviceUUID, actions: wrapper, correction: isCorrection)
+        let payload = Payload(user_id: deviceUUID, actions: wrapper)
 
         // Print payload details
         print("📤 Uploading payload:")
         print("  - User ID: \(deviceUUID)")
         print("  - Prompt: \(recordingData.prompt)")
-        print("  - Number of actions: \(recordingData.actions.count)")
+        print("  - Total actions: \(recordingData.actions.count)")
         print("  - Is correction: \(isCorrection)")
+        print("  - Full actions sequence: \(recordingData.actions.asJSONDisplay())")
 
         do {
             let jsonData = try JSONEncoder().encode(payload)
@@ -119,12 +119,11 @@ actor SupabaseManager {
         } catch let error as HTTPError {
             print("❌ HTTPError uploading to Supabase:")
             if let errorMessage = String(data: error.data, encoding: .utf8) {
-                print("HTTPError Details: \(errorMessage)")
+                print("  Error details: \(errorMessage)")
             }
-            print("Error uploading data to Supabase: \(error)")
             throw error
         } catch {
-            print("Unknown error: \(error)")
+            print("❌ Unknown error: \(error)")
             throw error
         }
     }
