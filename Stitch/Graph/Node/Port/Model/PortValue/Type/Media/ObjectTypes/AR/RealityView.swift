@@ -51,7 +51,11 @@ struct NonCameraRealityView: UIViewRepresentable {
 //        arView.debugOptions = .showPhysics
         
         // Update object with scene
-        contentCallback(arView)
+        Task { @MainActor [weak arView] in
+            if let arView = arView {
+                contentCallback(arView)
+            }
+        }
         
         return arView
     }

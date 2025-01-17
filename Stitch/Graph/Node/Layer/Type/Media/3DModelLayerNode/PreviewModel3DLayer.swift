@@ -290,9 +290,7 @@ struct Model3DView: View {
                                  scale: scale,
                                  opacity: opacity,
                                  isShadowsEnabled: false) { arView in
-                Task { @MainActor [weak arView] in
-                    self.arView = arView
-                }
+                self.arView = arView
 //                self.anchorEntity.addChild(entity)
 //                arView.scene.addAnchor(self.anchorEntity)
             }
