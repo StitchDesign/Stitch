@@ -28,7 +28,7 @@ struct LLMRecordingState: Equatable {
     var jsonEntryState = LLMJsonEntryState()
     
     // Added: Store the last AI generated actions
-    var lastAIGeneratedActions: String = ""
+    var lastAIGeneratedActions: [LLMStepAction] = []
 }
 
 struct LLMPromptState: Equatable {

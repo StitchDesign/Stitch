@@ -150,7 +150,7 @@ extension StitchDocumentViewModel {
                     
                     // Upload with current mode
                     try await SupabaseManager.shared.uploadLLMRecording(
-                        recordedData,
+                        recordedData, graphState: graph,
                         isCorrection: isAugmentation
                     )
                     print("📼 ✅ Data successfully saved locally and uploaded to Supabase ✅ 📼")
