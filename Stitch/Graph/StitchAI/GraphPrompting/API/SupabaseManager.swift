@@ -75,7 +75,6 @@ actor SupabaseManager {
         self.postgrest = client
     }
 
-
     func uploadLLMRecording(_ recordingData: LLMRecordingData, graphState: GraphState, isCorrection: Bool = false) async throws {
         print("Starting uploadLLMRecording...")
         print("📤 Correction Mode: \(isCorrection)")
@@ -104,15 +103,8 @@ actor SupabaseManager {
 
         let payload = Payload(user_id: deviceUUID, actions: wrapper)
 
-        // Print payload details
         print("📤 Uploading payload:")
         print("  - User ID: \(deviceUUID)")
-        //TODO: WE STILL NEED TO ACCOUNT FOR THE PROMPT THAT WE USED TO GENERATE THE JSON
-        //IN AI MODE AS WELL AS IF ENTERED VIA THE PROMPT MODAL
-        //WE ALSO NEED TO TEST BOTH FLOWS AGAIN
-        //ALSO DELETE OLD EXAMPLES IN THE DATABASE
-        
-        
         print("  - Prompt: \(recordingData.prompt)")
         print("  - Total actions: \(wrapper.actions.count)")
         print("  - Is correction: \(isCorrection)")
@@ -129,11 +121,7 @@ actor SupabaseManager {
                 .insert(payload, returning: .minimal)
                 .execute()
             print("✅ Data uploaded successfully to Supabase!")
-            
-            //reset
-//            graphState.lastAIGeneratedActions = []
-//            graphState.lastAIGeneratedPrompt = ""
-            
+
         } catch let error as HTTPError {
             print("❌ HTTPError uploading to Supabase:")
             if let errorMessage = String(data: error.data, encoding: .utf8) {
