@@ -455,7 +455,12 @@ extension LayerViewModel {
             // Covers media scenarios, ensuring we set to nil while task makes copy
             await MainActor.run {
                 Self.resetMedia(self.mediaObject)
-                self.mediaObject = nil
+                
+                // Only set media to nil if mediaValue is nil as well
+                // Fixes issue where camrea feed would stutter
+                if mediaValue == nil {
+                    self.mediaObject = nil                    
+                }
             }
             return
         }
