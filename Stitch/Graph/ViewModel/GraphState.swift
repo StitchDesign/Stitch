@@ -428,6 +428,12 @@ extension GraphState {
     }
     
     @MainActor
+    var lastAIGeneratedActions: [LLMStepAction] {
+        self.documentDelegate?.lastAIGeneratedActions ?? .init()
+    }
+
+    
+    @MainActor
     var graphStepManager: GraphStepManager {
         guard let document = self.documentDelegate else {
 //            fatalErrorIfDebug()

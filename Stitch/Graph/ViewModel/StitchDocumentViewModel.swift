@@ -38,6 +38,7 @@ final class StitchDocumentViewModel: Sendable {
     
     @MainActor var keypressState = KeyPressState()
     @MainActor var llmRecording = LLMRecordingState()
+    @MainActor var lastAIGeneratedActions: [LLMStepAction] = []
     @MainActor var stitchAI = StitchAIState()
 
     // Remains false if an encoding action never happened (used for thumbnail creation)
