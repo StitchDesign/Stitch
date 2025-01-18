@@ -100,6 +100,10 @@ actor SupabaseManager {
         // Print payload details
         print("📤 Uploading payload:")
         print("  - User ID: \(deviceUUID)")
+        //TODO: WE STILL NEED TO ACCOUNT FOR THE PROMPT THAT WE USED TO GENERATE THE JSON
+        //IN AI MODE AS WELL AS IF ENTERED VIA THE PROMPT MODAL
+        //WE ALSO NEED TO TEST BOTH FLOWS AGAIN
+        //ALSO DELETE OLD EXAMPLES IN THE DATABASE
         print("  - Prompt: \(recordingData.prompt)")
         print("  - Total actions: \(wrapper.actions.count)")
         print("  - Is correction: \(isCorrection)")
