@@ -297,6 +297,8 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
         // Then store them
         state.lastAIGeneratedActions = steps
         
+        state.lastAIGeneratedPrompt = originalPrompt
+        
         var canvasItemsAdded = 0
         steps.forEach { step in
             canvasItemsAdded = state.handleLLMStepAction(

@@ -89,8 +89,15 @@ actor SupabaseManager {
             throw NSError(domain: "DeviceIDError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Unable to retrieve device UUID"])
         }
 
+        var prompt = ""
+        if isCorrection == true {
+            prompt = await graphState.lastAIGeneratedPrompt
+        } else {
+            prompt = recordingData.prompt
+        }
+        
         let wrapper = await RecordingWrapper(
-            prompt: recordingData.prompt,
+            prompt: prompt,
             actions: recordingData.actions + graphState.lastAIGeneratedActions,
             correction: isCorrection
         )
@@ -104,6 +111,8 @@ actor SupabaseManager {
         //IN AI MODE AS WELL AS IF ENTERED VIA THE PROMPT MODAL
         //WE ALSO NEED TO TEST BOTH FLOWS AGAIN
         //ALSO DELETE OLD EXAMPLES IN THE DATABASE
+        
+        
         print("  - Prompt: \(recordingData.prompt)")
         print("  - Total actions: \(wrapper.actions.count)")
         print("  - Is correction: \(isCorrection)")
@@ -120,6 +129,11 @@ actor SupabaseManager {
                 .insert(payload, returning: .minimal)
                 .execute()
             print("✅ Data uploaded successfully to Supabase!")
+            
+            //reset
+//            graphState.lastAIGeneratedActions = []
+//            graphState.lastAIGeneratedPrompt = ""
+            
         } catch let error as HTTPError {
             print("❌ HTTPError uploading to Supabase:")
             if let errorMessage = String(data: error.data, encoding: .utf8) {
