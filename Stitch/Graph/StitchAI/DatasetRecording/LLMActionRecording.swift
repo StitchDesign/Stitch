@@ -28,15 +28,15 @@ struct LLMRecordingToggled: GraphEvent {
         if wasInAIMode {
             print("🔄 🤖 TRANSITIONING FROM AI MODE TO RECORDING - ENTERING AUGMENTATION MODE 🤖 🔄")
             // First store the current AI-generated actions
-            let currentActions = document.llmRecording.actions
-            print("🤖 💾 Storing AI-Generated Actions: \(currentActions.asJSONDisplay())")
+            let currentActions = document.llmRecording.lastAIGeneratedActions
+            print("🤖 💾 Storing AI-Generated Actions: \(currentActions)")
             
             // Set augmentation mode
             document.llmRecording.mode = .augmentation
             
             // We keep the actions as they are - don't clear them
-            print("🤖 💾 Verified Actions Count: \(document.llmRecording.actions.count)")
-            print("🤖 💾 Verified Actions Content: \(document.llmRecording.actions.asJSONDisplay())")
+            print("🤖 💾 Verified Actions Count: \(currentActions.count)")
+            print("🤖 💾 Verified Actions Content: \(currentActions.asJSONDisplay())")
             
             // Clear the AI generation flag AFTER we've secured the actions
             state.graphUI.insertNodeMenuState.isFromAIGeneration = false
@@ -70,7 +70,7 @@ extension StitchDocumentViewModel {
         print("🎯 Current Recording Mode: \(self.llmRecording.mode)")
         
         // Debug print current actions before starting recording
-        print("🤖 Current Actions at Recording Start: \(self.llmRecording.actions.asJSONDisplay())")
+//        print("🤖 Current Actions at Recording Start: \(self.llmRecording.actions.asJSONDisplay())")
         
         self.llmRecording.isRecording = true
     }
