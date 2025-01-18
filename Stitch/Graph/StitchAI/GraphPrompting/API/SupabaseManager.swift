@@ -91,7 +91,7 @@ actor SupabaseManager {
 
         let wrapper = await RecordingWrapper(
             prompt: recordingData.prompt,
-            actions: recordingData.actions + graphState.llmRecording.lastAIGeneratedActions,
+            actions: recordingData.actions + graphState.lastAIGeneratedActions,
             correction: isCorrection
         )
 

@@ -179,8 +179,8 @@ struct AINodeGenerationComplete: GraphEvent {
         // Add capture of generated actions before completion
         if let document = state.documentDelegate {
             print("🤖 💾 Storing AI Generated Actions before completion 💾 🤖")
-            document.llmRecording.lastAIGeneratedActions = document.llmRecording.actions
-            print("🤖 Generated Actions: \(document.llmRecording.lastAIGeneratedActions)")
+            document.lastAIGeneratedActions = document.llmRecording.actions
+            print("🤖 Generated Actions: \(document.lastAIGeneratedActions)")
         }
         
         state.graphUI.insertNodeMenuState.isGeneratingAINode = false

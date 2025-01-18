@@ -295,7 +295,7 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
         // First, log the steps we're about to store
         print("🤖 Original Actions to store: \(steps.asJSONDisplay())")
         // Then store them
-        state.llmRecording.lastAIGeneratedActions = steps
+        state.lastAIGeneratedActions = steps
         
         var canvasItemsAdded = 0
         steps.forEach { step in

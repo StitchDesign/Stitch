@@ -28,7 +28,7 @@ struct LLMRecordingToggled: GraphEvent {
         if wasInAIMode {
             print("🔄 🤖 TRANSITIONING FROM AI MODE TO RECORDING - ENTERING AUGMENTATION MODE 🤖 🔄")
             // First store the current AI-generated actions
-            let currentActions = document.llmRecording.lastAIGeneratedActions
+            let currentActions = document.lastAIGeneratedActions
             print("🤖 💾 Storing AI-Generated Actions: \(currentActions)")
             
             // Set augmentation mode
