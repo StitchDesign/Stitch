@@ -8,8 +8,8 @@
 App Improvements
 - Overhauled graph movement and zoom gesture handling for native iOS behavior
 - Introduced a new “Debug Mode” project open option for editing fields without running the prototype
-- Alignment improvements for HStack and VStack layer groups
-- Support for creating multiple graph nodes when multiple layers are selected via sidebar
+- Specify alignment for HStack and VStack layer groups
+- Support for creating multiple graph nodes for a field when multiple layers are selected via sidebar
 - Major reduction to size of downloadable Stitch app
 - Improved formatting for numeric values with many decimals
 - Up/down arrow keys increment or decrement number fields
@@ -18,3 +18,5 @@ App Improvements
 Bug Fixes
 - Graph reset no longer breaks the Repeating Animation node
 - Fixed camera direction mismatch for newly created reality nodes
+- Fixed UI field updates and node selection when entering group node
+- Fixed issues with out-of-date UI fields after application boot
