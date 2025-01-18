@@ -76,7 +76,7 @@ actor SupabaseManager {
     }
 
 
-    func uploadLLMRecording(_ recordingData: LLMRecordingData, isCorrection: Bool = false) async throws {
+    func uploadLLMRecording(_ recordingData: LLMRecordingData, graphState: GraphState, isCorrection: Bool = false) async throws {
         print("Starting uploadLLMRecording...")
         print("📤 Correction Mode: \(isCorrection)")
 
@@ -89,9 +89,9 @@ actor SupabaseManager {
             throw NSError(domain: "DeviceIDError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Unable to retrieve device UUID"])
         }
 
-        let wrapper = RecordingWrapper(
+        let wrapper = await RecordingWrapper(
             prompt: recordingData.prompt,
-            actions: recordingData.actions,
+            actions: recordingData.actions + graphState.llmRecording.lastAIGeneratedActions,
             correction: isCorrection
         )
 
