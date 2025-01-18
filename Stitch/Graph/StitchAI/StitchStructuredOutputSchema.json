@@ -132,7 +132,6 @@
         "imageImport || Patch",
         "videoImport || Patch",
         "soundImport || Patch",
-        "model3DImport || Patch",
         "qrCodeDetection || Patch",
         "anchor || Patch",
         "arRaycasting || Patch",
