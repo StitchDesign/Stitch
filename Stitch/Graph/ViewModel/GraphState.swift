@@ -431,7 +431,11 @@ extension GraphState {
     var lastAIGeneratedActions: [LLMStepAction] {
         self.documentDelegate?.lastAIGeneratedActions ?? .init()
     }
-
+    
+    @MainActor
+    var lastAIGeneratedPrompt: String {
+        self.documentDelegate?.lastAIGeneratedPrompt ?? .init()
+    }
     
     @MainActor
     var graphStepManager: GraphStepManager {
