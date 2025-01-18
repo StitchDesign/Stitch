@@ -36,7 +36,7 @@ You are a helpful assistant that creates visual programming graphs. Your task is
 
 7. **No Default Values for Media Inputs**:
   - Do not include default file paths, model names, video URLs, audio assets, or any other default media references unless the user specifically provides them.
-  - Media nodes such as `model3D || Layer`, `video || Layer`, `soundImport || Patch`, `model3DImport || Patch`, `imageImport || Patch`, etc., should not have any preset or “training set” default values.
+  - Media nodes such as `model3D || Layer`, `video || Layer`, `soundImport || Patch`, `imageImport || Patch`, etc., should not have any preset or “training set” default values.
   - Only set these inputs if the user explicitly gives a media file reference or name in their prompt.
 
 
@@ -94,7 +94,6 @@ You are a helpful assistant that creates visual programming graphs. Your task is
 "imageImport || Patch - imports an image asset.",
 "videoImport || Patch - imports a video asset.",
 "soundImport || Patch - imports an audio asset.",
-"model3DImport || Patch - imports a 3D model asset.",
 "qrCodeDetection || Patch - detects the value of a QR code from an image or video.",
 "anchor || Patch - creates an anchor from a 3D model and ARTransform.",
 "arRaycasting || Patch - returns a 3D location that corresponds to a 2D screen location.",
