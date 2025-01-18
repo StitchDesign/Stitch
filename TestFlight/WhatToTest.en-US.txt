@@ -1,20 +1,20 @@
-What’s New
-- Added support for native iOS scrolling in layer groups
-- Improved FPS performance for large projects with visible canvas
-- Home screen icons load much faster
+3D & AR Prototyping
+- Reality Layer now acts as a layer group and makes adding 3D layers easier
+- Added Box, Sphere, Cylinder, and Cone layers
+- Translation, scale, and rotation gesture support for 3D layers
+- Easier AR anchor input selection with new dropdown for all 3D model layers
+- New 3D transform matrix input for layers to make matrix changes easier
 
-UI Enhancements
-- Enhanced UI for looped values popover
-- Added support for tab navigation in shadow layer input flyout menu
-- Support for adding graph nodes for shadow layer inputs
+App Improvements
+- Overhauled graph movement and zoom gesture handling for native iOS behavior
+- Introduced a new “Debug Mode” project open option for editing fields without running the prototype
+- Alignment improvements for HStack and VStack layer groups
+- Support for creating multiple graph nodes when multiple layers are selected via sidebar
+- Major reduction to size of downloadable Stitch app
+- Improved formatting for numeric values with many decimals
+- Up/down arrow keys increment or decrement number fields
+- Click a wireless receiver’s icon to jump to its assigned broadcaster
 
 Bug Fixes
-- Improved fill styles for Image layer node
-- Improved anchoring logic when layer dimensions are set to auto
-- Fixed unresponsive node type menu on iOS
-- Layer fields on canvas retain values after re-selection in sidebar
-- Improved port colors when drawing new edge
-
-Platform Changes
-- Changed iOS target version to iOS 18
-- Improved codebase to reduce likelihood of memory leaks
+- Graph reset no longer breaks the Repeating Animation node
+- Fixed camera direction mismatch for newly created reality nodes
