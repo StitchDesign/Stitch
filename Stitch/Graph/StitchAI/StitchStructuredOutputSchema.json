@@ -198,7 +198,11 @@
         "video || Layer",
         "videoStreaming || Layer",
         "realityView || Layer",
-        "canvasSketch || Layer"
+        "canvasSketch || Layer",
+        "box || Layer",
+        "sphere || Layer",
+        "cylinder || Layer",
+        "cone || Layer"
       ],
       "type": "string"
     },
