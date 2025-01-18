@@ -191,6 +191,34 @@ struct RealityLayerView: View {
     var body: some View {
         ZStack {
             realityView
+                .modifier(PreviewCommonModifier(
+                    document: document,
+                    graph: graph,
+                    layerViewModel: layerViewModel,
+                    isPinnedViewRendering: isPinnedViewRendering,
+                    interactiveLayer: interactiveLayer,
+                    position: position,
+                    rotationX: rotationX,
+                    rotationY: rotationY,
+                    rotationZ: rotationZ,
+                    size: layerSize,
+                    scale: scale,
+                    anchoring: anchoring,
+                    blurRadius: blurRadius,
+                    blendMode: blendMode,
+                    brightness: brightness,
+                    colorInvert: colorInvert,
+                    contrast: contrast,
+                    hueRotation: hueRotation,
+                    saturation: saturation,
+                    pivot: pivot,
+                    shadowColor: shadowColor,
+                    shadowOpacity: shadowOpacity,
+                    shadowRadius: shadowRadius,
+                    shadowOffset: shadowOffset,
+                    parentSize: parentSize,
+                    parentDisablesPosition: parentDisablesPosition,
+                    parentIsScrollableGrid: parentIsScrollableGrid))
                 
             GroupLayerNode.content(document: document,
                                    graph: graph,
@@ -202,33 +230,5 @@ struct RealityLayerView: View {
                                    parentIsScrollableGrid: parentIsScrollableGrid,
                                    realityContent: self.$layerViewModel.realityContent)
         }
-        .modifier(PreviewCommonModifier(
-            document: document,
-            graph: graph,
-            layerViewModel: layerViewModel,
-            isPinnedViewRendering: isPinnedViewRendering,
-            interactiveLayer: interactiveLayer,
-            position: position,
-            rotationX: rotationX,
-            rotationY: rotationY,
-            rotationZ: rotationZ,
-            size: layerSize,
-            scale: scale,
-            anchoring: anchoring,
-            blurRadius: blurRadius,
-            blendMode: blendMode,
-            brightness: brightness,
-            colorInvert: colorInvert,
-            contrast: contrast,
-            hueRotation: hueRotation,
-            saturation: saturation,
-            pivot: pivot,
-            shadowColor: shadowColor,
-            shadowOpacity: shadowOpacity,
-            shadowRadius: shadowRadius,
-            shadowOffset: shadowOffset,
-            parentSize: parentSize,
-            parentDisablesPosition: parentDisablesPosition,
-            parentIsScrollableGrid: parentIsScrollableGrid))
     }
 }
