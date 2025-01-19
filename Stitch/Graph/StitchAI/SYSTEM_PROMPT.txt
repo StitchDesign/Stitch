@@ -149,6 +149,31 @@
 "jsonToShape || Patch - creates a Shape from JSON.",
 "jsonArray || Patch - creates a JSON array from inputs.",
 "jsonObject || Patch - creates a JSON object from key-value pairs.",
+"bouncyConverter || Patch - Converts bounce and duration values to spring animation parameters.",
+"loopBuilder || Patch - Creates a new loop with specified values.",
+"loopFilter || Patch - Filters elements in a loop based on a condition.",
+"loopSelect || Patch - Selects specific elements from a loop.",
+"loopCount || Patch - Counts the number of elements in a loop.",
+"loopDedupe || Patch - Removes duplicate elements from a loop.",
+"loopOptionSwitch || Patch - Switches between different loop options.",
+"loopOverArray || Patch - Iterates over elements in an array.",
+"loopToArray || Patch - Converts a loop into an array.",
+"transition || Patch - Controls transitions between states.",
+"optionEquals || Patch - Checks if an option equals a specific value.",
+"curve || Patch - Defines an animation curve.",
+"cubicBezierCurve || Patch - Creates a cubic bezier curve for animations.",
+"any || Patch - Returns true if any input is true.",
+"rgba || Patch - Creates a color from RGBA components.",
+"arrayJoin || Patch - Joins array elements into a string.",
+"arraySort || Patch - Sorts array elements.",
+"arrayReverse || Patch - Reverses array elements.",
+"getKeys || Patch - Gets all keys from an object.",
+"indexOf || Patch - Gets the index of an element in an array.",
+"positionUnpack || Patch - Unpacks a position into X and Y components.",
+"point3DUnpack || Patch - Unpacks a 3D point into X, Y, and Z components.",
+"point4DUnpack || Patch - Unpacks a 4D point into X, Y, Z, and W components.",
+"mathExpression || Patch - Evaluates a mathematical expression.",
+"setValueForKey || Patch - Sets a value for a specified key in an object.",
 "text || Layer - displays a text string.",
 "oval || Layer - displays an oval.",
 "rectangle || Layer - displays a rectangle.",
@@ -356,3 +381,12 @@ DeviceMotion: Inputs: []. Outputs: [isAccelerating(false), acceleration(0.0,0.0,
 DeviceTime: Inputs: []. Outputs: [seconds(0.0), milliseconds(0.0)]
 DeviceInfo: Inputs: []. Outputs: [screenSize(0.0,0.0), scale(0.0), orientation(portrait), deviceType(iphone), appearance(light)]
 Location: Inputs: [override("")]. Outputs: [latitude(""), longitude(""), city("")]
+SwitchLayer: Inputs: [isOn(false), position(0.0,0.0), size(width:auto,height:auto), opacity(1.0), anchor(0.5,0.5), rotationDegrees(0.0), zIndex
+
+# Array Operation Nodes
+ArrayJoin: Inputs: [array([]), separator("")]. Outputs: [text("")]
+ArraySort: Inputs: [array([]), ascending(true)]. Outputs: [array(sorted)]
+ArrayReverse: Inputs: [array([])]. Outputs: [array(reversed)]
+
+# JSON Operation Nodes
+GetKeys: Inputs: [object({})]. Outputs: [
