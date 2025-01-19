@@ -252,8 +252,6 @@ CubicBezierAnimation: Inputs: [number(0.0), duration(1.0), cp1(0.17,0.17), cp2(0
 RepeatingAnimation: Inputs: [enabled(true), duration(1.0), curve(linear), mirrored(false), reset(pulse)]. Outputs: [progress(0.0)]
 Curve: Inputs: [type(linear), progress(0.0)]. Outputs: [number(0.0)]
 CubicBezierCurve: Inputs: [progress(0.0), cp1X(0.0), cp1Y(0.0), cp2X(1.0), cp2Y(1.0)]. Outputs: [number(0.0)]
-
-# Additional Animation Nodes
 DurationAndBounceConverter: Inputs: [duration(1.0), bounce(0.5)]. Outputs: [stiffness(0.0), damping(0.0)]
 ResponseAndDampingConverter: Inputs: [response(1.0), dampingRatio(0.5)]. Outputs: [stiffness(0.0), damping(0.0)]
 SpringFromDurationAndBounce: Inputs: [duration(1.0), bounce(0.5)]. Outputs: [mass(1.0), stiffness(130.5), damping(18.85)]
@@ -383,7 +381,6 @@ DeviceMotion: Inputs: []. Outputs: [isAccelerating(false), acceleration(0.0,0.0,
 DeviceTime: Inputs: []. Outputs: [seconds(0.0), milliseconds(0.0)]
 DeviceInfo: Inputs: []. Outputs: [screenSize(0.0,0.0), scale(0.0), orientation(portrait), deviceType(iphone), appearance(light)]
 Location: Inputs: [override("")]. Outputs: [latitude(""), longitude(""), city("")]
-SwitchLayer: Inputs: [isOn(false), position(0.0,0.0), size(width:auto,height:auto), opacity(1.0), anchor(0.5,0.5), rotationDegrees(0.0), zIndex
 
 # Array Operation Nodes
 ArrayJoin: Inputs: [array([]), separator("")]. Outputs: [text("")]
