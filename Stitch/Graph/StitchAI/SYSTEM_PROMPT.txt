@@ -161,28 +161,6 @@
 "canvasSketch || Layer - draw custom shapes interactively.",
 "model3D || Layer - display a 3D model asset (of a USDZ file type) in the preview window."
 
-# General Machine Learning Nodes
-ImageClassification: Inputs: [model(ResNet50), asyncMedia(nil)]. Outputs: [class(nil), confidence(0.0)]
-ObjectDetection: Inputs: [model(YOLOv3), asyncMedia(nil), cropAndScale(scaleToFit)]. Outputs: [objects([]), confidence(0.0), locations([]), boundingBox(0.0,0.0,0.0,0.0)]
-
-# Gradient Nodes
-LinearGradient: Inputs: [startAnchor(0.0,0.0), endAnchor(1.0,1.0), startColor(#FFFFFF), endColor(#000000)]. Outputs: [gradient(linear)]
-RadialGradient: Inputs: [startAnchor(0.5,0.5), startColor(#FFFFFF), endColor(#000000)]. Outputs: [gradient(radial)]
-AngularGradient: Inputs: [centerAnchor(0.5,0.5), startColor(#FFFFFF), endColor(#000000)]. Outputs: [gradient(angular)]
-
-# Layer Effect Nodes
-Material: Inputs: [material(blur), radius(20.0)]. Outputs: [effect(material)]
-SFSymbol: Inputs: [name(""), color(#000000)]. Outputs: [symbol(asyncMedia)]
-Map: Inputs: [style(standard), latitude(0.0), longitude(0.0), span(0.1), position(0.0,0.0), size(width:auto,height:auto)]. Outputs: [map(asyncMedia)]
-
-# Extension Support Nodes
-WirelessBroadcaster: Inputs: [value(0.0)]. Outputs: []
-WirelessReceiver: Inputs: []. Outputs: [value(0.0)]
-
-# Progress and State Nodes
-OptionPicker: Inputs: [index(0.0), options([])]. Outputs: [selected(nil)]
-OptionSender: Inputs: [index(0.0), value(0.0), defaultValue(0.0)]. Outputs: [options([])]
-OptionSwitch: Inputs: [option0(pulse), option1(pulse), option2(pulse)]. Outputs: [current(0.0)]
 
 # Allowed NodeType enum values:
 # "number", "text", "boolean", "size", "position", "point3D", "padding", "assignedLayer"
@@ -323,3 +301,26 @@ ARAnchor: Inputs: [3DModel(asyncMedia(nil)), transform(position(0.0,0.0,0.0), sc
 Box3D: Inputs: [3DModel(asyncMedia(nil)), transform(position(0.0,0.0,0.0), scale(1.0,1.0,1.0), rotation(0.0,0.0,0.0)), size(width:1.0,height:1.0,depth:1.0), cornerRadius(0.0), color(#FFFFFF), metallic(0.0)]. Outputs: [3DShape(box)]
 Sphere3D: Inputs: [3DModel(asyncMedia(nil)), transform(position(0.0,0.0,0.0), scale(1.0,1.0,1.0), rotation(0.0,0.0,0.0)), color(#FFFFFF), metallic(0.0)]. Outputs: [3DShape(sphere)]
 Cylinder3D: Inputs: [3DModel(asyncMedia(nil
+
+# General Machine Learning Nodes
+ImageClassification: Inputs: [model(ResNet50), asyncMedia(nil)]. Outputs: [class(nil), confidence(0.0)]
+ObjectDetection: Inputs: [model(YOLOv3), asyncMedia(nil), cropAndScale(scaleToFit)]. Outputs: [objects([]), confidence(0.0), locations([]), boundingBox(0.0,0.0,0.0,0.0)]
+
+# Gradient Nodes
+LinearGradient: Inputs: [startAnchor(0.0,0.0), endAnchor(1.0,1.0), startColor(#FFFFFF), endColor(#000000)]. Outputs: [gradient(linear)]
+RadialGradient: Inputs: [startAnchor(0.5,0.5), startColor(#FFFFFF), endColor(#000000)]. Outputs: [gradient(radial)]
+AngularGradient: Inputs: [centerAnchor(0.5,0.5), startColor(#FFFFFF), endColor(#000000)]. Outputs: [gradient(angular)]
+
+# Layer Effect Nodes
+Material: Inputs: [material(blur), radius(20.0)]. Outputs: [effect(material)]
+SFSymbol: Inputs: [name(""), color(#000000)]. Outputs: [symbol(asyncMedia)]
+Map: Inputs: [style(standard), latitude(0.0), longitude(0.0), span(0.1), position(0.0,0.0), size(width:auto,height:auto)]. Outputs: [map(asyncMedia)]
+
+# Extension Support Nodes
+WirelessBroadcaster: Inputs: [value(0.0)]. Outputs: []
+WirelessReceiver: Inputs: []. Outputs: [value(0.0)]
+
+# Progress and State Nodes
+OptionPicker: Inputs: [index(0.0), options([])]. Outputs: [selected(nil)]
+OptionSender: Inputs: [index(0.0), value(0.0), defaultValue(0.0)]. Outputs: [options([])]
+OptionSwitch: Inputs: [option0(pulse), option1(pulse), option2(pulse)]. Outputs: [current(0.0)]
