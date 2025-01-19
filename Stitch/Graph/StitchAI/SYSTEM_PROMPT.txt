@@ -369,6 +369,7 @@ CurveToPack: Inputs: [point(0.0,0.0), curveTo(0.0,0.0), curveFrom(0.0,0.0)]. Out
 CurveToUnpack: Inputs: [command(curveTo)]. Outputs: [point(0.0,0.0), curveTo(0.0,0.0), curveFrom(0.0,0.0)]
 
 # AR and 3D Nodes
+Model3D: Inputs: [model(asyncMedia(nil)), position(0.0,0.0), rotationX(0.0), rotationY(0.0), rotationZ(0.0), scale(1.0), scaleX(1.0), scaleY(1.0), scaleZ(1.0), opacity(1.0), anchor(0.5,0.5), zIndex(0.0), color(#FFFFFF), metallic(0.0)]. Outputs: [3DShape(model)]
 ARRaycasting: Inputs: [request(pulse), enabled(false), origin(plane(any)), xOffset(0.0), yOffset(0.0)]. Outputs: [transform(asyncMedia(nil))]
 ARAnchor: Inputs: [3DModel(asyncMedia(nil)), transform(position(0.0,0.0,0.0), scale(1.0,1.0,1.0), rotation(0.0,0.0,0.0))]. Outputs: [ARAnchor(asyncMedia(nil))]
 Box: Inputs: [3DModel(asyncMedia(nil)), transform(position(0.0,0.0,0.0), scale(1.0,1.0,1.0), rotation(0.0,0.0,0.0)), size(width:1.0,height:1.0,depth:1.0), cornerRadius(0.0), color(#FFFFFF), metallic(0.0)]. Outputs: [3DShape(box)]
