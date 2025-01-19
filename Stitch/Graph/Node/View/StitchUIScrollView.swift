@@ -381,12 +381,14 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         // Handle pan gesture with boundary checks
         @objc func handlePan(_ gesture: UIPanGestureRecognizer) {
             let spaceHeld = document?.keypressState.isSpacePressed ?? false
+            let isScrollWheel = gesture.numberOfTouches == 0
+            let isValidScroll = spaceHeld || isScrollWheel
             
             guard let scrollView = gesture.view as? UIScrollView else {
                 return
             }
             
-            guard spaceHeld else {
+            guard isValidScroll else {
                 return
             }
             
