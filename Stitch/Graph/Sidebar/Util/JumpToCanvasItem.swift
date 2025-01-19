@@ -51,8 +51,6 @@ extension GraphState {
             fatalErrorIfDebug("panGraphToNodeLocation: no canvasItem found")
             return
         }
-                
-        let newLocation = calculateMove(self.graphUI.frame, canvasItem.position)
         
         guard let cachedBounds = self.visibleNodesViewModel.infiniteCanvasCache.get(id) else {
             fatalErrorIfDebug("Could not find cached bounds for canvas item \(id)")
