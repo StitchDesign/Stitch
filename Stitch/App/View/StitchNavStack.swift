@@ -40,6 +40,10 @@ struct StitchNavStack: View {
                     store.allProjectUrls.forEach { projectLoader in
                         if projectLoader.id != currentProjectId &&
                             projectLoader.documentViewModel != nil {
+                            // In case references are stored here (but probably not)
+                            projectLoader.lastEncodedDocument = nil
+                            
+                            // Remove document from memory
                             projectLoader.documentViewModel = nil
                         }
                     }
