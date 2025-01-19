@@ -10,7 +10,6 @@ App Improvements
 - Introduced a new “Debug Mode” project open option for editing fields without running the prototype
 - Specify alignment for HStack and VStack layer groups
 - Support for creating multiple graph nodes for a field when multiple layers are selected via sidebar
-- Major reduction to size of downloadable Stitch app
 - Improved formatting for numeric values with many decimals
 - Up/down arrow keys increment or decrement number fields
 - Click a wireless receiver’s icon to jump to its assigned broadcaster
