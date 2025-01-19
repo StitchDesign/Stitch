@@ -6429,8 +6429,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/StitchDesign/StitchSchemaKit";
 			requirement = {
-				branch = main;
-				kind = branch;
+				kind = revision;
+				revision = 8e2dd92817fe367707788a784839246c748d4e0d;
 			};
 		};
 		E48A07762D382778002E8A98 /* XCRemoteSwiftPackageReference "swift-dotenv" */ = {
