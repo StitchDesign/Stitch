@@ -250,6 +250,8 @@ PopAnimation: Inputs: [number(0.0), bounciness(5.0), speed(10.0)]. Outputs: [num
 ClassicAnimation: Inputs: [number(0.0), duration(1.0), curve(linear)]. Outputs: [number(0.0)]
 CubicBezierAnimation: Inputs: [number(0.0), duration(1.0), cp1(0.17,0.17), cp2(0.0,1.0)]. Outputs: [number(0.0)]
 RepeatingAnimation: Inputs: [enabled(true), duration(1.0), curve(linear), mirrored(false), reset(pulse)]. Outputs: [progress(0.0)]
+Curve: Inputs: [type(linear), progress(0.0)]. Outputs: [number(0.0)]
+CubicBezierCurve: Inputs: [progress(0.0), cp1X(0.0), cp1Y(0.0), cp2X(1.0), cp2Y(1.0)]. Outputs: [number(0.0)]
 
 # Additional Animation Nodes
 DurationAndBounceConverter: Inputs: [duration(1.0), bounce(0.5)]. Outputs: [stiffness(0.0), damping(0.0)]
@@ -387,6 +389,7 @@ SwitchLayer: Inputs: [isOn(false), position(0.0,0.0), size(width:auto,height:aut
 ArrayJoin: Inputs: [array([]), separator("")]. Outputs: [text("")]
 ArraySort: Inputs: [array([]), ascending(true)]. Outputs: [array(sorted)]
 ArrayReverse: Inputs: [array([])]. Outputs: [array(reversed)]
-
-# JSON Operation Nodes
-GetKeys: Inputs: [object({})]. Outputs: [
+GetKeys: Inputs: [object({})]. Outputs: [keys([])]
+IndexOf: Inputs: [array([]), value({})]. Outputs: [index(0)]
+SetValueForKey: Inputs: [object({}), key(""), value({})]. Outputs: [object(updated)]
+ArrayJoin: Inputs: [array([]), separator("")]. Outputs: [text("")]
