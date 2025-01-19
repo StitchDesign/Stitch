@@ -196,6 +196,65 @@
 "switchLayer || Layer - A toggle switch control layer."
 
 
+
+    1.    SpringAnimation Creates an animation based off of the physical model of a spring.
+    2.    PopAnimation Animates a value using a spring effect.
+
+    3.    ClassicAnimation Animates a number using a standard animation curve.
+
+    4.    CubicBezierAnimation Creates custom animation curves by defining two control points
+
+    5.    RepeatingAnimation Repeatedly animates a number.
+
+    6.    Pulse Outputs a pulse event when it's toggled on or off.
+
+    7.    PulseOnChange The Pulse On Change node outputs a pulse if an input value comes in that is different from the specified value.
+
+    8.    RepeatingPulse A node that will fire a pulse at a defined interval.
+ 
+    14.    Union Combines two or more shapes to generate a new shape.
+
+    15.    ArrayAppend This node appends to the end of the provided array.
+
+    16.    ArrayCount This node returns the number of items in an array.
+
+    17.    Subarray Returns a subarray from a given array.
+
+    18.    ArraySort This node sorts the array in ascending order.
+
+    19.    ArrayReverse This node reverses the order of the items in the array.
+
+    20.    ArrayJoin This node join's one or more arrays together into a single array.
+
+    21.    NativeScrollInteraction Adds scroll interaction to a specified layer.
+
+    22.    NetworkRequest The Network Request node allows you to make HTTP GET and POST requests to an endpoint. Results are returned as JSON.
+
+    23.    LinearGradient Creates a linear gradient.
+
+    24.    RadialGradient Creates a radial gradient.
+    25.    AngularGradient Creates an angular gradient
+    26.    Material A Material Effect layer.
+    27.    ARAnchor Creates an AR anchor from a 3D model and an ARTransform. Represents the position and orientation of a 3D item in the physical environment.
+    28.    ARRaycasting Returns a 3D location in physical space that corresponds to a given 2D location on the screen.
+
+    29.    DeviceTime Returns the current time of the device your prototype is running on.
+
+    30.    DeviceMotion Returns the acceleration and rotation values of the device the patch is running on.
+
+    31.    WirelessBroadcaster Sends a value to a selected Wireless Receiver node. Useful for organizing large, complicated projects by replacing cables between patches.
+
+    32.    WirelessReceiver Used with the Wireless Broadcaster node to route values across the graph. Useful for organizing large, complicated projects.
+
+    33.    restartPrototype A node that will restart the state of your prototype. All inputs and outputs of the nodes on your graph will be reset.
+
+    34.    OptionPicker The Option Picker node lets you cycle through and select one of N inputs to use as the output. Multiple inputs can be added and removed from the node, and it can be configured to work with a variety of node types.
+
+    35.    OptionSender Used to pick an output to send a value to. Multiple value types can be used with this node.
+
+    36.    OptionSwitch Used to control two or more states with an index value. N number of inputs can be added to the node.
+
+
 # Allowed NodeType enum values:
 # "number", "text", "boolean", "size", "position", "point3D", "padding", "assignedLayer"
 
