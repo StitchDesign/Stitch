@@ -492,6 +492,8 @@ extension CanvasItemViewModel {
 // Model for graph zoom.
 @Observable
 final class GraphZoom {
+    static let zoomScrollRate = 0.04
+    
     var current: CGFloat = 0
     var final: CGFloat = 1
 
