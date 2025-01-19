@@ -160,6 +160,10 @@
 "realityView || Layer - displays AR scene output.",
 "canvasSketch || Layer - draw custom shapes interactively.",
 "model3D || Layer - display a 3D model asset (of a USDZ file type) in the preview window."
+"box3D || Layer - A box 3D shape, which can be used inside a Reality View."
+"sphere3D || Layer - A sphere 3D shape, which can be used inside a Reality View"
+"cylinder3D || Layer - A cylinder 3D shape, which can be used inside a Reality View."
+"cone3D || Layer - A cylinder 3D shape, which can be used inside a Reality View."
 
 
 # Allowed NodeType enum values:
@@ -186,13 +190,22 @@ These are the nodes in our applciation; and the input and output ports they have
 
 # General Nodes
 Value: Inputs: [number(0.0)]. Outputs: [number(0.0)]
-Add: Inputs: [number(0.0), number(0.0)]. Outputs: [number(0.0)]
-Subtract: Inputs: [number(0.0), number(0.0)]. Outputs: [number(0.0)]
-Multiply: Inputs: [number(0.0), number(0.0)]. Outputs: [number(0.0)]
-Divide: Inputs: [number(0.0), number(0.0)]. Outputs: [number(0.0)]
 Random: Inputs: [pulse(0.0), start(0.0), end(50.0)]. Outputs: [number(0.0)]
 Counter: Inputs: [increase(pulse), decrease(pulse), jump(pulse), maxCount(0.0)]. Outputs: [number(0.0)]
 Switch: Inputs: [flip(pulse), on(pulse), off(pulse)]. Outputs: [bool(false)]
+
+# Math Operation Nodes
+AbsoluteValue: Inputs: [number(0.0)]. Outputs: [number(0.0)]
+Add: Inputs: [number(0.0), number(0.0)]. Outputs: [number(0.0)]
+Max: Inputs: [number(0.0), number(0.0)]. Outputs: [number(0.0)]
+Min: Inputs: [number(0.0), number(0.0)]. Outputs: [number(0.0)]
+Mod: Inputs: [number(0.0), number(0.0)]. Outputs: [number(remainder)]
+Multiply: Inputs: [number(0.0), number(0.0)]. Outputs: [number(0.0)]
+Power: Inputs: [base(0.0), exponent(0.0)]. Outputs: [number(0.0)]
+Round: Inputs: [number(0.0), places(0), roundUp(false)]. Outputs: [number(0.0)]
+SquareRoot: Inputs: [number(0.0)]. Outputs: [number(0.0)]
+Subtract: Inputs: [number(0.0), number(0.0)]. Outputs: [number(0.0)]
+
 
 # Comparison Nodes
 Equals: Inputs: [number(0.0), number(0.0), threshold(0.0)]. Outputs: [bool(false)]
@@ -266,7 +279,7 @@ ScrollInteraction: Inputs: [layer(nil), scrollX(free), scrollY(free)]. Outputs: 
 NativeScrollInteraction: Inputs: [layer(nil), scrollXEnabled(true), scrollYEnabled(true), contentSize(width:0.0,height:0.0), jumpToX(pulse), jumpPositionX(0.0), jumpToY(pulse), jumpPositionY(0.0)]. Outputs: [position(0.0,0.0)]
 
 # JSON and Array Nodes
-NetworkRequest: Inputs: [url(""), method(get), body({})]. Outputs: [json({}), bool(false)]
+NetworkRequest: Inputs: [url(""), params({}), body({}), headers({}), method(get), pulse(pulse)]. Outputs: [loading(false), json({}), error(false), errorJson({}), responseHeaders({})]
 JSONToShape: Inputs: [json({})]. Outputs: [shape(json)]
 ArrayAppend: Inputs: [array([]), value({})]. Outputs: [array(updated)]
 ArrayCount: Inputs: [array([])]. Outputs: [count(0.0)]
@@ -300,7 +313,9 @@ ARRaycasting: Inputs: [request(pulse), enabled(false), origin(plane(any)), xOffs
 ARAnchor: Inputs: [3DModel(asyncMedia(nil)), transform(position(0.0,0.0,0.0), scale(1.0,1.0,1.0), rotation(0.0,0.0,0.0))]. Outputs: [ARAnchor(asyncMedia(nil))]
 Box3D: Inputs: [3DModel(asyncMedia(nil)), transform(position(0.0,0.0,0.0), scale(1.0,1.0,1.0), rotation(0.0,0.0,0.0)), size(width:1.0,height:1.0,depth:1.0), cornerRadius(0.0), color(#FFFFFF), metallic(0.0)]. Outputs: [3DShape(box)]
 Sphere3D: Inputs: [3DModel(asyncMedia(nil)), transform(position(0.0,0.0,0.0), scale(1.0,1.0,1.0), rotation(0.0,0.0,0.0)), color(#FFFFFF), metallic(0.0)]. Outputs: [3DShape(sphere)]
-Cylinder3D: Inputs: [3DModel(asyncMedia(nil
+Cylinder3D: Inputs: [3DModel(asyncMedia(nil)), transform(position(0.0,0.0,0.0), scale(1.0,1.0,1.0), rotation(0.0,0.0,0.0)), color(#FFFFFF), metallic(0.0)]. Outputs: [3DShape(sphere)]
+Cone3D: Inputs: [3DModel(asyncMedia(nil)), transform(position(0.0,0.0,0.0), scale(1.0,1.0,1.0), rotation(0.0,0.0,0.0)), color(#FFFFFF), metallic(0.0)]. Outputs: [3DShape(sphere)]
+
 
 # General Machine Learning Nodes
 ImageClassification: Inputs: [model(ResNet50), asyncMedia(nil)]. Outputs: [class(nil), confidence(0.0)]
@@ -324,3 +339,9 @@ WirelessReceiver: Inputs: []. Outputs: [value(0.0)]
 OptionPicker: Inputs: [index(0.0), options([])]. Outputs: [selected(nil)]
 OptionSender: Inputs: [index(0.0), value(0.0), defaultValue(0.0)]. Outputs: [options([])]
 OptionSwitch: Inputs: [option0(pulse), option1(pulse), option2(pulse)]. Outputs: [current(0.0)]
+
+# Device and System Nodes
+DeviceMotion: Inputs: []. Outputs: [isAccelerating(false), acceleration(0.0,0.0,0.0), isRotating(false), rotation(0.0,0.0,0.0)]
+DeviceTime: Inputs: []. Outputs: [seconds(0.0), milliseconds(0.0)]
+DeviceInfo: Inputs: []. Outputs: [screenSize(0.0,0.0), scale(0.0), orientation(portrait), deviceType(iphone), appearance(light)]
+Location: Inputs: [override("")]. Outputs: [latitude(""), longitude(""), city("")]
