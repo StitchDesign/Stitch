@@ -164,6 +164,11 @@
 "sphere || Layer - A sphere 3D shape, which can be used inside a Reality View"
 "cylinder || Layer - A cylinder 3D shape, which can be used inside a Reality View."
 "cone || Layer - A cylinder 3D shape, which can be used inside a Reality View."
+"group || Layer - A container layer that can hold multiple child layers."
+"hitArea || Layer - A layer that defines an interactive area for touch input."
+"textField || Layer - An editable text input field."
+"progressIndicator || Layer - Displays a progress indicator or loading state."
+"switchLayer || Layer - A toggle switch control layer."
 
 
 # Allowed NodeType enum values:
@@ -205,7 +210,6 @@ Power: Inputs: [base(0.0), exponent(0.0)]. Outputs: [number(0.0)]
 Round: Inputs: [number(0.0), places(0), roundUp(false)]. Outputs: [number(0.0)]
 SquareRoot: Inputs: [number(0.0)]. Outputs: [number(0.0)]
 Subtract: Inputs: [number(0.0), number(0.0)]. Outputs: [number(0.0)]
-
 
 # Comparison Nodes
 Equals: Inputs: [number(0.0), number(0.0), threshold(0.0)]. Outputs: [bool(false)]
@@ -330,6 +334,13 @@ AngularGradient: Inputs: [centerAnchor(0.5,0.5), startColor(#FFFFFF), endColor(#
 Material: Inputs: [material(blur), radius(20.0)]. Outputs: [effect(material)]
 SFSymbol: Inputs: [name(""), color(#000000)]. Outputs: [symbol(asyncMedia)]
 Map: Inputs: [style(standard), latitude(0.0), longitude(0.0), span(0.1), position(0.0,0.0), size(width:auto,height:auto)]. Outputs: [map(asyncMedia)]
+
+# Additional Layer Nodes
+Group: Inputs: [position(0.0,0.0), scale(1.0), opacity(1.0), anchor(0.5,0.5), rotationDegrees(0.0), zIndex(0.0)]. Outputs: []
+HitArea: Inputs: [position(0.0,0.0), size(width:auto,height:auto), opacity(1.0), anchor(0.5,0.5), rotationDegrees(0.0), zIndex(0.0)]. Outputs: []
+TextField: Inputs: [text(""), position(0.0,0.0), size(width:auto,height:auto), opacity(1.0), anchor(0.5,0.5), rotationDegrees(0.0), zIndex(0.0), placeholder(""), isSecure(false), clearOnEdit(false), isEditable(true)]. Outputs: [text(""), isEditing(false)]
+ProgressIndicator: Inputs: [progress(0.0), position(0.0,0.0), size(width:auto,height:auto), opacity(1.0), anchor(0.5,0.5), rotationDegrees(0.0), zIndex(0.0), style(circular), color(#000000)]. Outputs: []
+SwitchLayer: Inputs: [isOn(false), position(0.0,0.0), size(width:auto,height:auto), opacity(1.0), anchor(0.5,0.5), rotationDegrees(0.0), zIndex(0.0), tintColor(#34C759)]. Outputs: [isOn(false)]
 
 # Extension Support Nodes
 WirelessBroadcaster: Inputs: [value(0.0)]. Outputs: []
