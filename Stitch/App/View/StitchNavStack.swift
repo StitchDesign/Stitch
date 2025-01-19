@@ -27,10 +27,25 @@ struct StitchNavStack: View {
                         }
                     }
                 }
-                .onChange(of: store.isCurrentProjectSelected) {
+                .onChange(of: store.navPath.first) { _, currentProject in
+                    let currentProjectId = currentProject?.id
+                    
                     // Rest undo if project closed
                     if !store.isCurrentProjectSelected {
                         store.environment.undoManager.undoManager.removeAllActions()
+                    }
+                    
+                    // Remove references to other StitchDocuments to release them from memory
+                    // Logic here needed for drag-and-drop import with existing document open
+                    store.allProjectUrls.forEach { projectLoader in
+                        if projectLoader.id != currentProjectId &&
+                            projectLoader.documentViewModel != nil {
+                            // In case references are stored here (but probably not)
+                            projectLoader.lastEncodedDocument = nil
+                            
+                            // Remove document from memory
+                            projectLoader.documentViewModel = nil
+                        }
                     }
                 }
             
