@@ -42,11 +42,16 @@ struct InputValueEntry: View {
     // So we check information about the parent (i.e. the whole layer input, LayerInputObserver) and compare against child (i.e. the individual field, UnpackedPortType).
     var fieldsRowLabel: String? {
         if let layerInputObserver = layerInputObserver,
-           layerInputObserver.port == .transform3D,
-           layerInputObserver.mode == .unpacked,
-           let fieldGroupLabel = rowObserverId.keyPath?.getUnpackedPortType?.fieldGroupLabelForUnpacked3DTransformInput {
+           layerInputObserver.port == .transform3D {
             
-            return layerInputObserver.port.label() + " " + fieldGroupLabel
+            if layerInputObserver.mode == .unpacked,
+               let fieldGroupLabel = rowObserverId.keyPath?.getUnpackedPortType?.fieldGroupLabelForUnpacked3DTransformInput {
+                
+                return layerInputObserver.port.label() + " " + fieldGroupLabel
+            } else {
+                // Show '3D Transform' label on packed 3D Transform input-on-canvas
+                return layerInputObserver.port.label()
+            }
         }
         
         return nil
