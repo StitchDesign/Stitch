@@ -70,6 +70,10 @@ func randomOpClosure(graphTime: TimeInterval) -> PulseOperationT {
         // old output was added on as 4th item among 'indexed inputs'
         guard let oldOutput = values[safe: 3],
               !willRegenRandom else {
+            // Fixes crash in event end > start
+            var end = end
+            if start > end { end = start }
+            
             return .init(outputs: [.number(Double.random(in: start...end))])
         }
         

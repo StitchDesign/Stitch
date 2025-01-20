@@ -57,13 +57,12 @@ struct Model3DGeometryView: View {
     
     var body: some View {
         ZStack {
-            NonCameraRealityView(size: size,
+            NonCameraRealityView(layerViewModel: layerViewModel,
+                                 size: size,
                                  scale: scale,
                                  opacity: opacity,
-                                 isShadowsEnabled: false) { arView in
-                self.arView = arView
-            }
-
+                                 isShadowsEnabled: false)
+            
             if let arView = self.arView {
                 Color.clear
                     .modifier(ModelEntityLayerViewModifier(previewLayer: layerViewModel,
