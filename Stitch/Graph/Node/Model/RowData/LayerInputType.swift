@@ -1668,7 +1668,9 @@ extension LayerInputPort {
             return "Scale"
         case .isMetallic:
             return "Metallic"
-        case .transform3D, .size3D:
+        case .transform3D:
+            return "3D Transform"
+        case .size3D:
             return ""
         case .radius3D:
             return "Radius"
