@@ -247,7 +247,7 @@ When generating steps for graph creation:
 
 Ensure each step is a plain object without any wrapping or nesting.
 
-These are the nodes in our applciation; and the input and output ports they have:
+These are the nodes in our application; and the input and output ports they have:
 
 # General Nodes
 Value: Inputs: [number(0.0)]. Outputs: [number(0.0)]
