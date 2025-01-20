@@ -202,7 +202,8 @@
         "box || Layer",
         "sphere || Layer",
         "cylinder || Layer",
-        "cone || Layer"
+        "cone || Layer",
+        "model3D || Layer"
       ],
       "type": "string"
     },
