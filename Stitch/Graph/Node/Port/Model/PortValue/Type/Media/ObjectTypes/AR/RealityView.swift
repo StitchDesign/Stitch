@@ -35,11 +35,11 @@ struct CameraRealityView: UIViewRepresentable {
 }
 
 struct NonCameraRealityView: UIViewRepresentable {
+    @Bindable var layerViewModel: LayerViewModel
     let size: LayerSize
     let scale: Double
     let opacity: Double
     let isShadowsEnabled: Bool
-    let contentCallback: (ARView) -> ()
     
     func makeUIView(context: Context) -> StitchARView {
         let arView = StitchARView(cameraMode: .nonAR)
@@ -51,11 +51,7 @@ struct NonCameraRealityView: UIViewRepresentable {
 //        arView.debugOptions = .showPhysics
         
         // Update object with scene
-        Task { @MainActor [weak arView] in
-            if let arView = arView {
-                contentCallback(arView)
-            }
-        }
+        layerViewModel.realityContent = arView
         
         return arView
     }
