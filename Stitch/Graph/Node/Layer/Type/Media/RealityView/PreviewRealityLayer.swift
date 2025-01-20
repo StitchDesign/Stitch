@@ -176,12 +176,11 @@ struct RealityLayerView: View {
         }
         
         else {
-            NonCameraRealityView(size: layerSize,
+            NonCameraRealityView(layerViewModel: layerViewModel,
+                                 size: layerSize,
                                  scale: scale,
                                  opacity: opacity,
-                                 isShadowsEnabled: isShadowsEnabled) { arView in
-                self.layerViewModel.realityContent = arView
-            }
+                                 isShadowsEnabled: isShadowsEnabled)
                                  .onDisappear {
                                      self.layerViewModel.realityContent = nil
                                  }
