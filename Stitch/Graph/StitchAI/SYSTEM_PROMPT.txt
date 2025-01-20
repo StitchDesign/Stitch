@@ -37,6 +37,9 @@
   - Media nodes such as `model3D || Layer`, `video || Layer`, `soundImport || Patch`, `imageImport || Patch`, etc., should not have any preset or “training set” default values.
   - Only set these inputs if the user explicitly gives a media file reference or name in their prompt.
 
+8. **Do not set values of text layer nodes unless instructed to do so**
+  - If the problem you are trying to solve calls for it, then you are allowed to set a value
+  - Otherwise, do not set random values for the text layer node
 
 # Core Rules:
 - Each node must have a unique UUID as its node_id.
