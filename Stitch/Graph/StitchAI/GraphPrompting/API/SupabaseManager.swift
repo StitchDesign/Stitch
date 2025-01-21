@@ -8,6 +8,7 @@ import Foundation
 import PostgREST
 import SwiftDotenv
 import UIKit
+import SwiftUI
 
 struct LLMRecordingPayload: Encodable, Sendable {
     let actions: String
@@ -34,11 +35,11 @@ actor SupabaseManager {
             if let envPath = Bundle.main.path(forResource: ".env", ofType: nil) {
                 try Dotenv.configure(atPath: envPath)
             } else {
-                fatalErrorIfDebug("⚠️ .env file not found in bundle.")
+                fatalErrorIfDebug(" .env file not found in bundle.")
                 return
             }
         } catch {
-            fatalErrorIfDebug("⚠️ Could not load .env file: \(error)")
+            fatalErrorIfDebug(" Could not load .env file: \(error)")
             return
         }
 
@@ -46,14 +47,14 @@ actor SupabaseManager {
         guard let supabaseURL = Dotenv["SUPABASE_URL"]?.stringValue,
               let supabaseAnonKey = Dotenv["SUPABASE_ANON_KEY"]?.stringValue,
               let tableName = Dotenv["SUPABASE_TABLE_NAME"]?.stringValue else {
-            fatalErrorIfDebug("⚠️ Missing required environment variables in the environment file.")
+            fatalErrorIfDebug(" Missing required environment variables in the environment file.")
             return
         }
 
         // Initialize the PostgREST client
         guard let baseURL = URL(string: supabaseURL),
               let apiURL = URL(string: "/rest/v1", relativeTo: baseURL) else {
-            fatalErrorIfDebug("⚠️ Invalid Supabase URL")
+            fatalErrorIfDebug(" Invalid Supabase URL")
             return
         }
 
@@ -69,9 +70,28 @@ actor SupabaseManager {
         )
     }
 
+    private func showJSONEditor(jsonString: String) async -> String {
+        await withCheckedContinuation { continuation in
+            DispatchQueue.main.async {
+                let hostingController = UIHostingController(
+                    rootView: JSONEditorView(initialJSON: jsonString) { editedJSON in
+                        continuation.resume(returning: editedJSON)
+                    }
+                )
+                
+                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                   let window = windowScene.windows.first,
+                   let rootViewController = window.rootViewController {
+                    hostingController.modalPresentationStyle = .formSheet
+                    rootViewController.present(hostingController, animated: true)
+                }
+            }
+        }
+    }
+    
     func uploadLLMRecording(_ recordingData: LLMRecordingData, graphState: GraphState, isCorrection: Bool = false) async throws {
         print("Starting uploadLLMRecording...")
-        print("📤 Correction Mode: \(isCorrection)")
+        print(" Correction Mode: \(isCorrection)")
 
         struct Payload: Encodable {
             let user_id: String
@@ -92,7 +112,7 @@ actor SupabaseManager {
 
         let wrapper = await RecordingWrapper(
             prompt: prompt,
-            actions: graphState.lastAIGeneratedActions + recordingData.actions 
+            actions: graphState.lastAIGeneratedActions + recordingData.actions
         )
 
         let payload = Payload(
@@ -101,7 +121,7 @@ actor SupabaseManager {
             correction: isCorrection
         )
 
-        print("📤 Uploading payload:")
+        print(" Uploading payload:")
         print("  - User ID: \(deviceUUID)")
         print("  - Prompt: \(wrapper.prompt)")
         print("  - Total actions: \(wrapper.actions.count)")
@@ -111,23 +131,25 @@ actor SupabaseManager {
         do {
             let jsonData = try JSONEncoder().encode(payload)
             if let jsonString = String(data: jsonData, encoding: .utf8) {
-                print("📤 Full JSON payload:\n\(jsonString)")
+                print(" Full JSON payload:\n\(jsonString)")
+                let editedJSON = await showJSONEditor(jsonString: jsonString)
+                print(" Edited JSON payload:\n\(editedJSON)")
             }
 
             try await postgrest
                 .from(tableName)
                 .insert(payload, returning: .minimal)
                 .execute()
-            print("✅ Data uploaded successfully to Supabase!")
+            print(" Data uploaded successfully to Supabase!")
 
         } catch let error as HTTPError {
-            print("❌ HTTPError uploading to Supabase:")
+            print(" HTTPError uploading to Supabase:")
             if let errorMessage = String(data: error.data, encoding: .utf8) {
                 print("  Error details: \(errorMessage)")
             }
             throw error
         } catch {
-            print("❌ Unknown error: \(error)")
+            print(" Unknown error: \(error)")
             throw error
         }
     }
@@ -138,3 +160,79 @@ extension ProcessInfo {
         return environment["CI"] == "true"
     }
 }
+
+
+//
+//  JSONEditorView.swift
+//  Stitch
+//
+
+import SwiftUI
+import SwiftyJSON
+
+struct JSONEditorView: View {
+    @Environment(\.dismiss) var dismiss
+    @State private var jsonString: String
+    @State private var isValidJSON = true
+    private let completion: (String) -> Void
+    
+    init(initialJSON: String, completion: @escaping (String) -> Void) {
+        _jsonString = State(initialValue: initialJSON)
+        self.completion = completion
+    }
+    
+    var body: some View {
+        NavigationView {
+            VStack {
+                TextEditor(text: $jsonString)
+                    .font(.custom("Menlo", size: 14))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding()
+                    .onChange(of: jsonString) { newValue in
+                        validateJSON(newValue)
+                    }
+                
+                if !isValidJSON {
+                    Text("Invalid JSON format")
+                        .foregroundColor(.red)
+                        .padding(.bottom)
+                }
+            }
+            .navigationTitle("Edit JSON")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+                
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        completion(jsonString)
+                        dismiss()
+                    }
+                    .disabled(!isValidJSON)
+                }
+            }
+        }
+        .onAppear {
+            validateJSON(jsonString)
+        }
+    }
+    
+    private func validateJSON(_ jsonString: String) {
+        guard let jsonData = jsonString.data(using: .utf8),
+              let _ = try? JSONSerialization.jsonObject(with: jsonData) else {
+            isValidJSON = false
+            return
+        }
+        isValidJSON = true
+    }
+}
+
+#Preview {
+    JSONEditorView(initialJSON: "{\"test\": \"value\"}") { _ in }
+}
+
+
