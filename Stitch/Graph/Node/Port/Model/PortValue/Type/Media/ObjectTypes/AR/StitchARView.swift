@@ -37,32 +37,32 @@ final class StitchARView: ARView {
 
 //        self.session.delegate = self.bufferDelegate
 
-        switch cameraMode {
-        case .ar:
-            // Add coaching overlay
-            /*
-             let coachingOverlay = ARCoachingOverlayView()
-             coachingOverlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-             coachingOverlay.session = session
-             coachingOverlay.goal = .anyPlane
-             self.addSubview(coachingOverlay)
-             */
-            self.environment.background = .color(.clear)
-        case .nonAR:
-            // Make static view for non AR
-            if let snapshotView = self.snapshotView(afterScreenUpdates: false) {
-                self.addSubview(snapshotView)
-            }
-
-            // Environment can be used for lighting effects for AR stuff
-            self.environment.background = .color(.clear)
-        default:
-            if let snapshotView = self.snapshotView(afterScreenUpdates: false) {
-                self.addSubview(snapshotView)
-            }
-
-            self.environment.background = .color(.clear)
-        }
+//        switch cameraMode {
+//        case .ar:
+//            // Add coaching overlay
+//            /*
+//             let coachingOverlay = ARCoachingOverlayView()
+//             coachingOverlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+//             coachingOverlay.session = session
+//             coachingOverlay.goal = .anyPlane
+//             self.addSubview(coachingOverlay)
+//             */
+//            self.environment.background = .color(.clear)
+//        case .nonAR:
+//            // Make static view for non AR
+//            if let snapshotView = self.snapshotView(afterScreenUpdates: false) {
+//                self.addSubview(snapshotView)
+//            }
+//
+//            // Environment can be used for lighting effects for AR stuff
+//            self.environment.background = .color(.clear)
+//        default:
+//            if let snapshotView = self.snapshotView(afterScreenUpdates: false) {
+//                self.addSubview(snapshotView)
+//            }
+//
+//            self.environment.background = .color(.clear)
+//        }
     }
 
     required init(frame frameRect: CGRect) {
