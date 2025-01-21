@@ -46,6 +46,8 @@ enum StitchCameraDevice: Sendable {
 
     /// AR is supported if the AR configuration is available.
     var isARSupported: Bool {
+        // return false // NO CRASHES WHEN IPAD USING MAC-STYLE CAMERA
+        
         switch self {
         case .builtIn:
             return ARConfiguration.isSupported
