@@ -34,7 +34,7 @@
 
 7. **No Default Values for Media Inputs**:
   - Do not include default file paths, model names, video URLs, audio assets, or any other default media references unless the user specifically provides them.
-  - Media nodes such as `model3D || Layer`, `video || Layer`, `soundImport || Patch`, `imageImport || Patch`, etc., should not have any preset or “training set” default values.
+  - Media nodes such as `3dModel || Layer`, `video || Layer`, `soundImport || Patch`, `imageImport || Patch`, etc., should not have any preset or “training set” default values.
   - Only set these inputs if the user explicitly gives a media file reference or name in their prompt.
 
 8. **Do not set values of text layer nodes unless instructed to do so**
@@ -187,7 +187,7 @@
 "videoStreaming || Layer - displays a streaming video.",
 "realityView || Layer - displays AR scene output.",
 "canvasSketch || Layer - draw custom shapes interactively.",
-"model3D || Layer - display a 3D model asset (of a USDZ file type) in the preview window."
+"3dModel || Layer - display a 3D model asset (of a USDZ file type) in the preview window."
 "box || Layer - A box 3D shape, which can be used inside a Reality View."
 "sphere || Layer - A sphere 3D shape, which can be used inside a Reality View"
 "cylinder || Layer - A cylinder 3D shape, which can be used inside a Reality View."
@@ -372,7 +372,7 @@ CurveToPack: Inputs: [point(0.0,0.0), curveTo(0.0,0.0), curveFrom(0.0,0.0)]. Out
 CurveToUnpack: Inputs: [command(curveTo)]. Outputs: [point(0.0,0.0), curveTo(0.0,0.0), curveFrom(0.0,0.0)]
 
 # AR and 3D Nodes
-Model3D: Inputs: [model(asyncMedia(nil)), position(0.0,0.0), rotationX(0.0), rotationY(0.0), rotationZ(0.0), scale(1.0), scaleX(1.0), scaleY(1.0), scaleZ(1.0), opacity(1.0), anchor(0.5,0.5), zIndex(0.0), color(#FFFFFF), metallic(0.0)]. Outputs: [3DShape(model)]
+3dModel: Inputs: [model(asyncMedia(nil)), position(0.0,0.0), rotationX(0.0), rotationY(0.0), rotationZ(0.0), scale(1.0), scaleX(1.0), scaleY(1.0), scaleZ(1.0), opacity(1.0), anchor(0.5,0.5), zIndex(0.0), color(#FFFFFF), metallic(0.0)]. Outputs: [3DShape(model)]
 ARRaycasting: Inputs: [request(pulse), enabled(false), origin(plane(any)), xOffset(0.0), yOffset(0.0)]. Outputs: [transform(asyncMedia(nil))]
 ARAnchor: Inputs: [3DModel(asyncMedia(nil)), transform(position(0.0,0.0,0.0), scale(1.0,1.0,1.0), rotation(0.0,0.0,0.0))]. Outputs: [ARAnchor(asyncMedia(nil))]
 Box: Inputs: [3DModel(asyncMedia(nil)), transform(position(0.0,0.0,0.0), scale(1.0,1.0,1.0), rotation(0.0,0.0,0.0)), size(width:1.0,height:1.0,depth:1.0), cornerRadius(0.0), color(#FFFFFF), metallic(0.0)]. Outputs: [3DShape(box)]
