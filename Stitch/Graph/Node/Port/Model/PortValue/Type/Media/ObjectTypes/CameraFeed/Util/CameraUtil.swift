@@ -126,7 +126,8 @@ extension StitchDocumentViewModel {
             
             let cameraFeed = CameraFeedManager(cameraSettings: document.cameraSettings,
                                                isEnabled: true,
-                                               documentDelegate: document)
+                                               documentDelegate: document,
+                                               isCameraFeedNode: nodeKind == .patch(.cameraFeed))
             
             document.cameraFeedManager = .loaded(.cameraFeedManager(cameraFeed))
         }
