@@ -15,45 +15,45 @@ private struct RecordingWrapper: Encodable {
 
 actor SupabaseManager {
     static let shared = SupabaseManager()
-    private let postgrest: PostgrestClient
-    private let tableName: String
+    private var postgrest: PostgrestClient
+    private var tableName: String
 
     private init() {
-        var supabaseURL = ""
-        var supabaseAnonKey = ""
-        var tableNameValue = ""
-
-        // Dynamically load the appropriate environment file based on the build environment
+        // Initialize with empty values first
+        self.postgrest = PostgrestClient(url: URL(fileURLWithPath: ""), schema: "", headers: [:])
+        self.tableName = ""
+        
+        // Then try to load environment variables
         do {
-            let envFileName = ProcessInfo.processInfo.isRunningInXcodeCloud ? "Secrets" : ".env"
-            if let envPath = Bundle.main.path(forResource: envFileName, ofType: "env") {
+            // Get the path to the .env file in the app bundle
+            if let envPath = Bundle.main.path(forResource: ".env", ofType: nil) {
                 try Dotenv.configure(atPath: envPath)
             } else {
-                fatalError("⚠️ \(envFileName) file not found in bundle.")
+                fatalErrorIfDebug("⚠️ .env file not found in bundle.")
+                return
             }
         } catch {
-            fatalError("⚠️ Could not load environment file: \(error)")
+            fatalErrorIfDebug("⚠️ Could not load .env file: \(error)")
+            return
         }
 
         // Extract required environment variables
-        if let url = Dotenv["SUPABASE_URL"]?.stringValue,
-           let anonKey = Dotenv["SUPABASE_ANON_KEY"]?.stringValue,
-           let table = Dotenv["SUPABASE_TABLE_NAME"]?.stringValue {
-            supabaseURL = url
-            supabaseAnonKey = anonKey
-            tableNameValue = table
-        } else {
-            fatalError("⚠️ Missing required environment variables in the environment file.")
+        guard let supabaseURL = Dotenv["SUPABASE_URL"]?.stringValue,
+              let supabaseAnonKey = Dotenv["SUPABASE_ANON_KEY"]?.stringValue,
+              let tableName = Dotenv["SUPABASE_TABLE_NAME"]?.stringValue else {
+            fatalErrorIfDebug("⚠️ Missing required environment variables in the environment file.")
+            return
         }
-
-        self.tableName = tableNameValue
 
         // Initialize the PostgREST client
         guard let baseURL = URL(string: supabaseURL),
               let apiURL = URL(string: "/rest/v1", relativeTo: baseURL) else {
-            fatalError("⚠️ Invalid Supabase URL")
+            fatalErrorIfDebug("⚠️ Invalid Supabase URL")
+            return
         }
 
+        // Assign the actual values only if everything succeeds
+        self.tableName = tableName
         self.postgrest = PostgrestClient(
             url: apiURL,
             schema: "public",
