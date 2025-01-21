@@ -95,19 +95,49 @@ struct JSONEditorView: View {
         if let jsonData = jsonString.data(using: .utf8) {
             do {
                 let json = try JSON(data: jsonData)
+                
+                // Print the JSON for debugging purposes
+                print("Parsed JSON: \(json)")
+                
                 // Check if the JSON is valid and has the expected structure
                 if json.type == .dictionary {
-                    let actions = json["actions"]
-                    if actions.type == .dictionary {
-                        isValidJSON = true
-                        errorMessage = nil
-                        return
+                    if let actionsArray = json["actions"].array {
+                        // Convert each action in the array to LLMStepAction
+                        var stepActions: [LLMStepAction] = []
+                        
+                        for actionJson in actionsArray {
+                            if let stepType = actionJson["stepType"].string,
+                               let nodeId = actionJson["nodeId"].string {
+                                
+                                // Create LLMStepAction with required fields
+                                let stepAction = LLMStepAction(
+                                    stepType: stepType,
+                                    nodeId: nodeId,
+                                    nodeName: actionJson["nodeName"].string,
+                                    port: actionJson["port"].string.map { .init(value: $0) }, fromPort: actionJson["fromPort"].string.map { .init(value: $0) }, fromNodeId: actionJson["fromNodeId"].string, toNodeId: actionJson["toNodeId"].string, value: actionJson["value"].exists() ? JSONFriendlyFormat(value: actionJson["value"].rawValue as! PortValue) : nil, nodeType: actionJson["nodeType"].string
+                                )
+                                
+                                stepActions.append(stepAction)
+                            }
+                        }
+                        
+                        if !stepActions.isEmpty {
+                            isValidJSON = true
+                            errorMessage = nil
+                            return
+                        }
                     }
+                    
+                    isValidJSON = false
+                    errorMessage = "JSON must contain an array of valid step actions"
+                } else {
+                    isValidJSON = false
+                    errorMessage = "JSON must be an object with 'actions' array"
                 }
-                isValidJSON = false
-                errorMessage = "JSON must be an object with 'actions' dictionary"
             } catch {
-                print("editing json")
+                print("Error parsing JSON: \(error)")
+                isValidJSON = false
+                errorMessage = "Invalid JSON format: \(error.localizedDescription)"
             }
         } else {
             isValidJSON = false
@@ -116,6 +146,7 @@ struct JSONEditorView: View {
     }
     
     private func sendToSupabase() async {
+            
     }
     
     private static func formatJSON(_ jsonString: String) -> String {
