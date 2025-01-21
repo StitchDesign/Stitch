@@ -125,6 +125,7 @@ final actor CameraFeedActor {
         log("CameraFeedActor: createUIImage from ARFrame")
         
         await MainActor.run { [weak self] in
+            log("CameraFeedActor: createUIImage from ARFrame: MainActor")
 //            let ciImage = CIImage(cvImageBuffer: frame.capturedImage)
 
             // Send image to graph if successfully created
@@ -140,7 +141,7 @@ final actor CameraFeedActor {
             let uiImage = iPhone ? UIImage(cgImage: cgImage, scale: 1.0, orientation: .right)
                 : UIImage(cgImage: cgImage)
             
-            log("CameraFeedActor: createUIImage from ARFrame: MainActor")
+            
             self?.imageConverterDelegate?.imageConverted(image: uiImage)
         }
         
