@@ -17,7 +17,8 @@ let GlobalFormatter = NumberFormatterObserver()
 final class NumberFormatterObserver: NumberFormatter, @unchecked Sendable {
     override init() {
         super.init()
-        self.maximumFractionDigits = 4
+//        self.maximumFractionDigits = 4
+        self.maximumFractionDigits = 7
         self.minimumFractionDigits = 0
         self.minimumIntegerDigits = 1
     }
