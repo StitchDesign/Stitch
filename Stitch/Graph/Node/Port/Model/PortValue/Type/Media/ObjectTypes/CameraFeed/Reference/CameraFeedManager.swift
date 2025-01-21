@@ -102,6 +102,7 @@ final class CameraFeedManager: Sendable, MiddlewareService {
                               isCameraFeedNode: Bool) -> StitchCameraSession {
 
         // Only use AR if supported by device and the camera is from a RealityView layer node (not a CameraFeed patch node)
+        // MARK: isCameraFeedNode is a necessary check to prevent crashes on iPad
         let useAR = device.isARSupported && !isCameraFeedNode
 
         // Must get called on main thread
