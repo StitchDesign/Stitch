@@ -11,7 +11,7 @@ import StitchSchemaKit
 
 // MARK: recording user's actions in app as a JSON of LLM Step Actions, assigning a natural language prompt and writing JSON + prompt to file
 
-let LLM_START_RECORDING_SF_SYMBOL = "play.fill"
+let LLM_START_RECORDING_SF_SYMBOL = "inset.filled.rectangle.badge.record"
 let LLM_STOP_RECORDING_SF_SYMBOL = "stop.fill"
 
 struct LLMRecordingToggled: GraphEvent {
