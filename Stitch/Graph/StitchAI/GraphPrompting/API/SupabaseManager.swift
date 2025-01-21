@@ -86,7 +86,7 @@ actor SupabaseManager {
 
         let wrapper = await RecordingWrapper(
             prompt: prompt,
-            actions: recordingData.actions + graphState.lastAIGeneratedActions
+            actions: graphState.lastAIGeneratedActions + recordingData.actions 
         )
 
         let payload = Payload(
