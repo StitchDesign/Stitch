@@ -9,6 +9,7 @@ import Foundation
 
 struct DirectoryUpdated: StitchStoreEvent {
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
+        log("DirectoryUpdated called")
         let isHomeScreenOpen = store.currentDocument == nil
         
         Task.detached(priority: isHomeScreenOpen ? .high : .low) { [weak store] in

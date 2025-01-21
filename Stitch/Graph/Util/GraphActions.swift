@@ -15,14 +15,14 @@ struct CloseGraph: StitchStoreEvent {
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
         log("CloseGraph called")
         
-        // Clear temporary data
-        try? FileManager.default.removeItem(at: StitchFileManager.tempDocumentResources)
-        
-        store.alertState = ProjectAlertState()
-
-        // reset any project title edit;
-        // the project-write-effect will update metadata for any in-progress title edit
-        store.projectIdForTitleEdit = nil
+//        // Clear temporary data
+//        try? FileManager.default.removeItem(at: StitchFileManager.tempDocumentResources)
+//        
+//        store.alertState = ProjectAlertState()
+//
+//        // reset any project title edit;
+//        // the project-write-effect will update metadata for any in-progress title edit
+//        store.projectIdForTitleEdit = nil
 
         // Note: on iPad or Catalyst, `closeGraph` is usually dispatched when the project view disappears; but on iPhone we use a button to close the project.
         // It should be safe for us to redundantly set the navPath to empty (i.e. exit any project).

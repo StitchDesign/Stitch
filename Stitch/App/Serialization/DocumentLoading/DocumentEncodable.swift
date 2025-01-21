@@ -56,13 +56,13 @@ extension DocumentEncodable {
                                        temporaryUrl: temporaryUrl,
                                        willUpdateUndoHistory: willUpdateUndoHistory) { delegate, oldSchema, newSchema in
             
-            if willUpdateUndoHistory,
-               let graph = graph {
-                graph.storeDelegate?.saveUndoHistory(from: delegate,
-                                                     oldSchema: oldSchema,
-                                                     newSchema: newSchema,
-                                                     undoEffectsData: nil)
-            }
+//            if willUpdateUndoHistory,
+//               let graph = graph {
+//                graph.storeDelegate?.saveUndoHistory(from: delegate,
+//                                                     oldSchema: oldSchema,
+//                                                     newSchema: newSchema,
+//                                                     undoEffectsData: nil)
+//            }
         }
     }
     
@@ -73,14 +73,14 @@ extension DocumentEncodable {
         self.encodeProjectInBackground(from: graph,
                                        temporaryUrl: temporaryUrl,
                                        willUpdateUndoHistory: willUpdateUndoHistory) { delegate, oldSchema, newSchema in
-            if willUpdateUndoHistory,
-                let graph = graph {
-                graph.storeDelegate?.saveUndoHistory(from: delegate,
-                                                     oldSchema: oldSchema,
-                                                     newSchema: newSchema,
-                                                     undoEvents: undoEvents,
-                                                     redoEvents: [])
-            }
+//            if willUpdateUndoHistory,
+//                let graph = graph {
+//                graph.storeDelegate?.saveUndoHistory(from: delegate,
+//                                                     oldSchema: oldSchema,
+//                                                     newSchema: newSchema,
+//                                                     undoEvents: undoEvents,
+//                                                     redoEvents: [])
+//            }
         }
     }
     
@@ -88,8 +88,10 @@ extension DocumentEncodable {
                                               temporaryUrl: URL? = nil,
                                               willUpdateUndoHistory: Bool = true,
                                               saveUndoHistory: @escaping (DocumentDelegate, CodableDocument, CodableDocument) -> ()) {
+        log("DocumentEncodable: encodeProjectInBackground: called")
+        
         guard let delegate = self.delegate else {
-            fatalErrorIfDebug()
+            fatalErrorIfDebug("encodeProjectInBackground: no delegate")
             return
         }
         
@@ -100,13 +102,14 @@ extension DocumentEncodable {
         let oldSchema = self.lastEncodedDocument
         
         // Update undo only if the caller here wasn't undo itself--this breaks redo
-        if willUpdateUndoHistory {
-            saveUndoHistory(delegate, oldSchema, newSchema)
-        }
-        
+//        if willUpdateUndoHistory {
+//            saveUndoHistory(delegate, oldSchema, newSchema)
+//        }
+//        
         // medium priority fixes issue where encoding here enters queue with same priority as potentially many projects, thus not updating disk fast enough if user exits project
         Task(priority: .medium) { [weak self] in
             guard let encoder = self else {
+                log("DocumentEncodable: encodeProjectInBackground: Task: no encoder, exiting early")
                 return
             }
             
@@ -134,7 +137,7 @@ extension DocumentEncodable {
             try Self.CodableDocument.encodeDocument(document,
                                                     to: rootDocUrl)
             
-            log("encodeProject success")
+            log("DocumentEncodable: encodeProject success")
 
             // Save data for last encoded document whenever there was undo history saved
             if willUpdateUndoHistory {
@@ -149,7 +152,7 @@ extension DocumentEncodable {
 
             return .success
         } catch {
-            log("encodeProject failed: \(error)")
+            log("DocumentEncodable: encodeProject failed: \(error)")
             fatalErrorIfDebug()
             return .failure(.versionableContainerEncodingFailed)
         }

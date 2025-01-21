@@ -463,16 +463,17 @@ extension GraphState {
     @MainActor
     func encodeProjectInBackground(temporaryURL: URL? = nil,
                                    willUpdateUndoHistory: Bool = true) {
+        log("GraphState: encodeProjectInBackground called")
         self.documentEncoderDelegate?.encodeProjectInBackground(from: self,
                                                                 temporaryUrl: temporaryURL,
                                                                 willUpdateUndoHistory: willUpdateUndoHistory)
-        
-        // If debug mode, make sure fields are updated as we aren't using calculate
-        // to update them
-        // MARK: should move to delegate, however this works fine for now
-        if self.documentDelegate?.isDebugMode ?? false {
-            self.updatePortViews()
-        }
+//        
+//        // If debug mode, make sure fields are updated as we aren't using calculate
+//        // to update them
+//        // MARK: should move to delegate, however this works fine for now
+//        if self.documentDelegate?.isDebugMode ?? false {
+//            self.updatePortViews()
+//        }
     }
     
     @MainActor
