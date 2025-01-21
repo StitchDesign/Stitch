@@ -90,12 +90,17 @@ struct LayerInspectorOutputPortView: View {
             portType: .portIndex(portId),
             nodeId: rowViewModel.id.nodeId)
 
+        // Does this inspector-row (entire output) have a canvas item?
+        // Note: CANNOT rely on delegate since weak var references do not trigger view updates
+//        let canvasItemId: CanvasItemId? = rowViewModel.canvasItemDelegate?.id
+        let canvasItemId: CanvasItemId? = graph.getCanvasItem(outputId: coordinate)?.id
+        
         LayerInspectorPortView(
             layerInputObserver: nil,
             layerInspectorRowId: .layerOutput(rowViewModel.id.portId),
             coordinate: coordinate,
             graph: graph, 
-            canvasItemId: rowViewModel.canvasItemDelegate?.id) { propertyRowIsSelected in
+            canvasItemId: canvasItemId) { propertyRowIsSelected in
                 NodeOutputView(graph: graph,
                                rowObserver: rowObserver,
                                rowViewModel: rowViewModel,
@@ -159,7 +164,6 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
     
     var body: some View {
         HStack(alignment: hstackAlignment) {
-            
             
             LayerInspectorRowButton(layerInputObserver: layerInputObserver,
                                     layerInspectorRowId: layerInspectorRowId,
