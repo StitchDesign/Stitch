@@ -10,64 +10,145 @@ struct JSONEditorView: View {
     @Environment(\.dismiss) var dismiss
     @State private var jsonString: String
     @State private var isValidJSON = true
+    @State private var isSubmitting = false
+    @State private var errorMessage: String? = nil
     private let completion: (String) -> Void
     
     init(initialJSON: String, completion: @escaping (String) -> Void) {
-        _jsonString = State(initialValue: initialJSON)
+        // Format the JSON string nicely before displaying
+        let formattedJSON = Self.formatJSON(initialJSON)
+        _jsonString = State(initialValue: formattedJSON)
         self.completion = completion
     }
     
     var body: some View {
-        NavigationView {
-            VStack {
-                TextEditor(text: $jsonString)
-                    .font(.custom("Menlo", size: 14))
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .padding()
-                    .onChange(of: jsonString) { newValue in
-                        validateJSON(newValue)
+        VStack {
+            TextEditor(text: $jsonString)
+                .font(.custom("Menlo", size: 13))
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .scrollContentBackground(.hidden)
+                .background {
+                    if !isValidJSON {
+                        StitchTextView(
+                            string: errorMessage ?? "Improperly formatted JSON",
+                            fontColor: .red)
+                        .opacity(0.5)
                     }
-                
-                if !isValidJSON {
-                    Text("Invalid JSON format")
-                        .foregroundColor(.red)
-                        .padding(.bottom)
+                }
+                .onChange(of: jsonString) { newValue in
+                    validateJSON(newValue)
+                }
+            
+            if !isValidJSON {
+                Text(errorMessage ?? "Invalid JSON format")
+                    .foregroundColor(.red)
+                    .padding(.bottom)
+            }
+            
+            Button(action: {
+                Task {
+                    await sendToSupabase()
+                }
+            }) {
+                HStack {
+                    Text("Send to Supabase")
+                    if isSubmitting {
+                        ProgressView()
+                            .controlSize(.small)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(Color.accentColor)
+                .foregroundColor(.white)
+                .cornerRadius(8)
+            }
+            .disabled(!isValidJSON || isSubmitting)
+            .padding(.bottom)
+        }
+        .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button("Cancel") {
+                    dismiss()
                 }
             }
-            .navigationTitle("Edit JSON")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
+            
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Save") {
+                    // Minify JSON before saving
+                    let minifiedJSON = Self.minifyJSON(jsonString)
+                    completion(minifiedJSON)
+                    dismiss()
                 }
-                
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        completion(jsonString)
-                        dismiss()
-                    }
-                    .disabled(!isValidJSON)
-                }
+                .disabled(!isValidJSON)
             }
         }
+        .navigationTitle("Edit JSON")
+        .navigationBarTitleDisplayMode(.inline)
+        .padding()
         .onAppear {
             validateJSON(jsonString)
         }
     }
     
     private func validateJSON(_ jsonString: String) {
-        guard let jsonData = jsonString.data(using: .utf8),
-              let _ = try? JSONSerialization.jsonObject(with: jsonData) else {
+        if let jsonData = jsonString.data(using: .utf8) {
+            do {
+                let json = try JSON(data: jsonData)
+                // Check if the JSON is valid and has the expected structure
+                if json.type == .dictionary {
+                    let actions = json["actions"]
+                    if actions.type == .dictionary {
+                        isValidJSON = true
+                        errorMessage = nil
+                        return
+                    }
+                }
+                isValidJSON = false
+                errorMessage = "JSON must be an object with 'actions' dictionary"
+            } catch {
+                print("editing json")
+            }
+        } else {
             isValidJSON = false
-            return
+            errorMessage = "Invalid UTF-8 encoding"
         }
-        isValidJSON = true
+    }
+    
+    private func sendToSupabase() async {
+        isSubmitting = true
+        defer { isSubmitting = false }
+        
+        // TODO: Implement Supabase submission
+        // This is where you'd add the actual Supabase API call
+        try? await Task.sleep(nanoseconds: 1_000_000_000) // Simulate network delay
+        
+        // After successful submission:
+        completion(Self.minifyJSON(jsonString))
+        dismiss()
+    }
+    
+    private static func formatJSON(_ jsonString: String) -> String {
+        guard let jsonData = jsonString.data(using: .utf8),
+              let json = try? JSONSerialization.jsonObject(with: jsonData),
+              let prettyData = try? JSONSerialization.data(withJSONObject: json, options: [.prettyPrinted]),
+              let prettyString = String(data: prettyData, encoding: .utf8) else {
+            return jsonString
+        }
+        return prettyString
+    }
+    
+    private static func minifyJSON(_ jsonString: String) -> String {
+        guard let jsonData = jsonString.data(using: .utf8),
+              let json = try? JSONSerialization.jsonObject(with: jsonData),
+              let minData = try? JSONSerialization.data(withJSONObject: json),
+              let minString = String(data: minData, encoding: .utf8) else {
+            return jsonString
+        }
+        return minString
     }
 }
 
 #Preview {
     JSONEditorView(initialJSON: "{\"test\": \"value\"}") { _ in }
 }
-
