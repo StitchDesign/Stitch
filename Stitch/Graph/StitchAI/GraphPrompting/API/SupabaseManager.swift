@@ -154,24 +154,5 @@ actor SupabaseManager {
         }
     }
     
-    func uploadEditedJSON(_ jsonString: String) async throws {
-        guard let jsonData = jsonString.data(using: .utf8) else {
-            throw NSError(domain: "InvalidJSON", code: 1, userInfo: [NSLocalizedDescriptionKey: "Invalid JSON string"])
-        }
-
-        do {
-            try await postgrest
-                .from(tableName)
-                .insert(["json": jsonString], returning: .minimal)
-                .execute()
-            print("Edited JSON successfully uploaded to Supabase!")
-        } catch {
-            print("Failed to upload edited JSON: \(error.localizedDescription)")
-            throw error
-        }
-    }
+  
 }
-
-
-
-

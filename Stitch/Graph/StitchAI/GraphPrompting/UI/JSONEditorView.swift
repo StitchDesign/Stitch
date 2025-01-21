@@ -116,30 +116,6 @@ struct JSONEditorView: View {
     }
     
     private func sendToSupabase() async {
-        isSubmitting = true
-        defer { isSubmitting = false }
-
-        do {
-            // Validate and re-encode the JSON string before sending
-            guard let jsonData = jsonString.data(using: .utf8),
-                  let jsonObject = try? JSONSerialization.jsonObject(with: jsonData),
-                  let reencodedJSONData = try? JSONSerialization.data(withJSONObject: jsonObject),
-                  let reencodedJSONString = String(data: reencodedJSONData, encoding: .utf8) else {
-                throw NSError(domain: "InvalidJSON", code: 1, userInfo: [NSLocalizedDescriptionKey: "Re-encoding JSON failed"])
-            }
-
-            // Send the re-encoded JSON to Supabase
-            try await SupabaseManager.shared.uploadEditedJSON(reencodedJSONString)
-
-            // Update completion with the new JSON
-            completion(reencodedJSONString)
-            dismiss()
-
-        } catch {
-            // Handle error in submission
-            errorMessage = "Failed to submit JSON: \(error.localizedDescription)"
-            isValidJSON = false
-        }
     }
     
     private static func formatJSON(_ jsonString: String) -> String {
@@ -161,8 +137,4 @@ struct JSONEditorView: View {
         }
         return minString
     }
-}
-
-#Preview {
-    JSONEditorView(initialJSON: "{\"test\": \"value\"}") { _ in }
 }
