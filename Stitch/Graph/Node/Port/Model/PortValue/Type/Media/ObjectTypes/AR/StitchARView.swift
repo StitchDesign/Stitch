@@ -29,6 +29,7 @@ final class StitchARView: ARView {
     init(frame: CGRect = .init(x: .zero, y: .zero, width: 100, height: 100),
          anchors: [AnchorEntity] = [],
          cameraMode: ARView.CameraMode = .ar) {
+        
         super.init(frame: frame, cameraMode: cameraMode, automaticallyConfigureSession: false)
 
         self.session.delegate = self.bufferDelegate
@@ -87,6 +88,7 @@ final class StitchARView: ARView {
 extension StitchARView: StitchCameraSession {
     @MainActor
     func stopRunning() {
+        log("StitchARView: stopRunning")
         self.session.pause()
     }
 
@@ -144,21 +146,71 @@ final class StitchARViewCaptureDelegate: NSObject, ARSessionDelegate, Sendable {
         self.cameraActor.imageConverterDelegate = self
     }
 
+//    func session(_ session: ARSession, didUpdate frame: ARFrame) {
     func session(_ session: ARSession, didUpdate frame: ARFrame) {
         let iPhone = self.iPhone
         
-        // UIImage conversion moved to background thread for perf
-        Task(priority: .high) { [weak self, weak frame] in
-            guard let frame = frame else { return }
+        // is problem here? Cannot
+        
+        // MainActor.run not supported because not @Sendable ?
+//        await MainActor.run { [weak self, weak frame] in
+        
+        // Cannot do `await` because `session` function body is not async
+//        await MainActor.run { [weak self, weak frame] in
+        // // MainActor.run { [weak self, weak frame] in
+//
+//        // This also crashes
+////        Task.detached { [weak self, weak frame] in
+//            log("StitchARViewCaptureDelegate: session: MainActor")
+//            guard let frame = frame else {
+//                return
+//            }
+//            
+//            await self?.cameraActor.createUIImage(from: frame,
+//                                                  iPhone: iPhone)
+//        }
+        
+        log("StitchARViewCaptureDelegate: session")
+        let actor = self.cameraActor
+        
+        Task(priority: .high) { @Sendable [weak actor, weak frame] in
+            log("StitchARViewCaptureDelegate: session: Task")
+            guard let frame = frame else {
+                return
+            }
             
-            await self?.cameraActor.createUIImage(from: frame,
-                                                  iPhone: iPhone)
+            let ciImage = CIImage(cvImageBuffer: frame.capturedImage)
+//            guard let cgImage = actor?.context.createCGImage(ciImage, from: ciImage.extent) else {
+            guard let cgImage = CIContext().createCGImage(ciImage, from: ciImage.extent) else {
+                log("CameraFeedActor: createUIImage from ARFrame: no cgImage")
+                return
+            }
+            
+//            await self?.cameraActor.createUIImage(from: frame,
+            await actor?.createUIImage(from: frame,
+                                      iPhone: iPhone,
+                                       cgImage: cgImage)
         }
+        
+        
+//        // UIImage conversion moved to background thread for perf
+//        Task(priority: .high) { [weak self, weak frame] in
+//            log("StitchARViewCaptureDelegate: session: Task")
+//            guard let frame = frame else {
+//                return
+//            }
+//            
+//            await self?.cameraActor.createUIImage(from: frame,
+//                                                  iPhone: iPhone)
+//        }
     }
+    
+    
 }
 
 extension StitchARViewCaptureDelegate: ImageConverterDelegate {
     func imageConverted(image: UIImage) {
+        log("StitchARViewCaptureDelegate: imageConverted called")
         image.accessibilityIdentifier = CAMERA_DESCRIPTION
         self.convertedImage = image
         

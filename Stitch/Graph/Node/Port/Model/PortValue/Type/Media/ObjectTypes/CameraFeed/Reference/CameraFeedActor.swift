@@ -14,7 +14,8 @@ import ARKit
 
 final actor CameraFeedActor {
     @MainActor weak var bufferDelegate: CaptureSessionBufferDelegate?
-    private let context = CIContext()
+//    private let context = CIContext()
+    let context = CIContext()
 
     @MainActor weak var imageConverterDelegate: ImageConverterDelegate?
     
@@ -88,7 +89,9 @@ final actor CameraFeedActor {
     }
 
     func createUIImage(from sampleBuffer: CMSampleBuffer) async {
+        log("CameraFeedActor: createUIImage from sampleBuffer")
         guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
+            log("CameraFeedActor: createUIImage from sampleBuffer: no imageBuffer")
             return
         }
 
@@ -98,32 +101,70 @@ final actor CameraFeedActor {
         // is called. Otherwise the resource might release from memory.
         guard let newImage = self.createUIImage(from: ciImage,
                                                 context: context) else {
+            log("CameraFeedActor: createUIImage from sampleBuffer: no newImage")
             return
         }
         
         await MainActor.run { [weak self, weak newImage] in
-            guard let newImage = newImage else { return }
+            log("CameraFeedActor: createUIImage from sampleBuffer: MainActor")
+            guard let newImage = newImage else {
+                log("CameraFeedActor: createUIImage from sampleBuffer: MainActor: no newImage")
+                return
+            }
             
             self?.imageConverterDelegate?.imageConverted(image: newImage)
         }
     }
     
+    // NO CRASH
+//    func createUIImage(from frame: ARFrame,
+//                       iPhone: Bool) async {
     func createUIImage(from frame: ARFrame,
-                       iPhone: Bool) async {
-        let image = frame.capturedImage
-        let ciImage = CIImage(cvImageBuffer: image)
-
-        // Send image to graph if successfully created
-        guard let cgImage = context.createCGImage(ciImage, from: ciImage.extent) else {
-            return
-        }
-        // Rotate image on iPhone
-        let uiImage = iPhone ? UIImage(cgImage: cgImage, scale: 1.0, orientation: .right)
-            : UIImage(cgImage: cgImage)
+                       iPhone: Bool,
+                       cgImage: CGImage) async {
+        log("CameraFeedActor: createUIImage from ARFrame")
         
         await MainActor.run { [weak self] in
+//            let ciImage = CIImage(cvImageBuffer: frame.capturedImage)
+
+            // Send image to graph if successfully created
+//            guard let cgImage = self?.context.createCGImage(ciImage, from: ciImage.extent) else {
+            
+//            let ciImage = CIImage(cvImageBuffer: frame.capturedImage)
+//            guard let cgImage = context.createCGImage(ciImage, from: ciImage.extent) else {
+//                log("CameraFeedActor: createUIImage from ARFrame: no cgImage")
+//                return
+//            }
+            
+            // Rotate image on iPhone
+            let uiImage = iPhone ? UIImage(cgImage: cgImage, scale: 1.0, orientation: .right)
+                : UIImage(cgImage: cgImage)
+            
+            log("CameraFeedActor: createUIImage from ARFrame: MainActor")
             self?.imageConverterDelegate?.imageConverted(image: uiImage)
         }
+        
+        
+        
+//        // NO CRASH IF ALL COMMENTED OUT
+//        
+//        let image = frame.capturedImage
+//        let ciImage = CIImage(cvImageBuffer: image)
+//
+//        // Send image to graph if successfully created
+//        guard let cgImage = context.createCGImage(ciImage, from: ciImage.extent) else {
+//            log("CameraFeedActor: createUIImage from ARFrame: no cgImage")
+//            return
+//        }
+//        
+//        // Rotate image on iPhone
+//        let uiImage = iPhone ? UIImage(cgImage: cgImage, scale: 1.0, orientation: .right)
+//            : UIImage(cgImage: cgImage)
+//        
+//        await MainActor.run { [weak self] in
+//            log("CameraFeedActor: createUIImage from ARFrame: MainActor")
+//            self?.imageConverterDelegate?.imageConverted(image: uiImage)
+//        }
     }
     
     func createUIImage(from ciImage: CIImage,

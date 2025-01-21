@@ -20,6 +20,7 @@ final class StitchAVCaptureSession: StitchCameraSession {
     }
     
     func stopRunning() {
+        log("StitchAVCaptureSession: stopRunning")
         self.cameraSession.stopRunning()
     }
     
@@ -70,9 +71,11 @@ final class CaptureSessionBufferDelegate: NSObject, Sendable, @preconcurrency AV
     func captureOutput(_ captureOutput: AVCaptureOutput,
                        didOutput sampleBuffer: CMSampleBuffer,
                        from connection: AVCaptureConnection) {
+        log("CaptureSessionBufferDelegate: captureOutput")
         let actor = self.actor
         
-        Task(priority: .high) { @Sendable [weak actor] in            
+        Task(priority: .high) { @Sendable [weak actor] in
+            log("CaptureSessionBufferDelegate: captureOutput: Task")
             await actor?.createUIImage(from: sampleBuffer)
         }
     }
@@ -85,6 +88,7 @@ protocol ImageConverterDelegate: AnyObject {
 
 extension StitchAVCaptureSession: ImageConverterDelegate {
     func imageConverted(image: UIImage) {
+        log("StichAVCaptureSession: imageConverted")
         image.accessibilityIdentifier = CAMERA_DESCRIPTION
         
         self.currentImage = image
@@ -95,15 +99,19 @@ extension StitchAVCaptureSession: ImageConverterDelegate {
 
 struct RecalculateCameraNodes: GraphEvent {
     func handle(state: GraphState) {
+        log("RecalculateCameraNodes called")
         let cameraNodeIds = state.visibleNodesViewModel.nodes.values
             .filter { $0.kind == .patch(.cameraFeed) }
             .map { $0.id }
             .toSet
         
         guard !cameraNodeIds.isEmpty else {
+            log("RecalculateCameraNodes: no camera nodes")
             return
         }
         
+        // comment out this line, to control for state updates etc.
+        // also, try dragging in the actual StitchEngineClosedSource code ?
         state.calculate(cameraNodeIds)
     }
 }

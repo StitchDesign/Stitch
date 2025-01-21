@@ -115,6 +115,7 @@ final class CameraFeedManager: Sendable, MiddlewareService {
                 // AV capture session must run on background thread;
                 // nothing to do here for ARView
                 Task.detached(priority: .high) { [weak session] in
+                    log("CameraFeedManager: createSession: Task detached")
                     log(session?.cameraSession.isRunning)
                     session?.cameraSession.startRunning()
                 }
@@ -126,6 +127,7 @@ final class CameraFeedManager: Sendable, MiddlewareService {
 
     @MainActor
     func stopCamera() {
+        log("CameraFeedManager: stopCamera")
         self.session?.stopRunning()
     }
 }
