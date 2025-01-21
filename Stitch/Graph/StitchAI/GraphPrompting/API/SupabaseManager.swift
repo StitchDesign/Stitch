@@ -1,9 +1,3 @@
-//
-//  SupabaseManager.swift
-//  Stitch
-//  Created by Nicholas Arner on 1/10/25.
-//
-
 import Foundation
 import PostgREST
 import SwiftDotenv
@@ -28,51 +22,46 @@ actor SupabaseManager {
         var supabaseURL = ""
         var supabaseAnonKey = ""
         var tableNameValue = ""
-        
-        if let envPath = Bundle.main.path(forResource: ".env", ofType: nil) {
-            do {
+
+        // Dynamically load the appropriate environment file based on the build environment
+        do {
+            let envFileName = ProcessInfo.processInfo.isRunningInXcodeCloud ? "Secrets" : ".env"
+            if let envPath = Bundle.main.path(forResource: envFileName, ofType: "env") {
                 try Dotenv.configure(atPath: envPath)
-                if let url = Dotenv["SUPABASE_URL"]?.stringValue,
-                   let anonKey = Dotenv["SUPABASE_ANON_KEY"]?.stringValue,
-                   let table = Dotenv["SUPABASE_TABLE_NAME"]?.stringValue {
-                    supabaseURL = url
-                    supabaseAnonKey = anonKey
-                    tableNameValue = table
-                } else {
-                    fatalErrorIfDebug("⚠️ Missing required environment variables in .env file")
-                }
-            } catch {
-                fatalErrorIfDebug("⚠️ Could not load .env file: \(error)")
+            } else {
+                fatalError("⚠️ \(envFileName) file not found in bundle.")
             }
+        } catch {
+            fatalError("⚠️ Could not load environment file: \(error)")
+        }
+
+        // Extract required environment variables
+        if let url = Dotenv["SUPABASE_URL"]?.stringValue,
+           let anonKey = Dotenv["SUPABASE_ANON_KEY"]?.stringValue,
+           let table = Dotenv["SUPABASE_TABLE_NAME"]?.stringValue {
+            supabaseURL = url
+            supabaseAnonKey = anonKey
+            tableNameValue = table
         } else {
-            fatalErrorIfDebug("⚠️ .env file not found in bundle.")
+            fatalError("⚠️ Missing required environment variables in the environment file.")
         }
 
         self.tableName = tableNameValue
 
-        var client = PostgrestClient(
-            url: URL(string: "about:blank")!,
-            schema: "public",
-            headers: [:],
-            logger: nil
-        )
-        
-        if let baseURL = URL(string: supabaseURL),
-           let apiURL = URL(string: "/rest/v1", relativeTo: baseURL) {
-            client = PostgrestClient(
-                url: apiURL,
-                schema: "public",
-                headers: [
-                    "apikey": supabaseAnonKey,
-                    "Authorization": "Bearer \(supabaseAnonKey)"
-                ],
-                logger: nil
-            )
-        } else {
-            fatalErrorIfDebug("⚠️ Invalid Supabase URL")
+        // Initialize the PostgREST client
+        guard let baseURL = URL(string: supabaseURL),
+              let apiURL = URL(string: "/rest/v1", relativeTo: baseURL) else {
+            fatalError("⚠️ Invalid Supabase URL")
         }
-        
-        self.postgrest = client
+
+        self.postgrest = PostgrestClient(
+            url: apiURL,
+            schema: "public",
+            headers: [
+                "apikey": supabaseAnonKey,
+                "Authorization": "Bearer \(supabaseAnonKey)"
+            ]
+        )
     }
 
     func uploadLLMRecording(_ recordingData: LLMRecordingData, graphState: GraphState, isCorrection: Bool = false) async throws {
@@ -89,12 +78,12 @@ actor SupabaseManager {
         }
 
         var prompt = ""
-        if isCorrection == true {
+        if isCorrection {
             prompt = await graphState.lastAIGeneratedPrompt
         } else {
             prompt = recordingData.prompt
         }
-        
+
         let wrapper = await RecordingWrapper(
             prompt: prompt,
             actions: recordingData.actions + graphState.lastAIGeneratedActions,
@@ -132,5 +121,12 @@ actor SupabaseManager {
             print("❌ Unknown error: \(error)")
             throw error
         }
+    }
+}
+
+extension ProcessInfo {
+    /// Checks if the app is running in an Xcode Cloud workflow
+    var isRunningInXcodeCloud: Bool {
+        return environment["CI"] == "true"
     }
 }

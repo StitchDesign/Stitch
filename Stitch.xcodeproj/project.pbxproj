@@ -4507,6 +4507,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 200BD866254F66EE00692903 /* Build configuration list for PBXNativeTarget "Stitch" */;
 			buildPhases = (
+				E480A9742D400EB5008AC234 /* ShellScript */,
 				200BD853254F66EB00692903 /* Sources */,
 				200BD854254F66EB00692903 /* Frameworks */,
 				200BD855254F66EB00692903 /* Resources */,
@@ -4689,6 +4690,26 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		E480A9742D400EB5008AC234 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Only inject secrets during Xcode Cloud builds\nif [ \"$CI\" == \"true\" ]; then\n    echo \"Injecting secrets into Secrets.env...\"\n    echo \"SUPABASE_URL=$SUPABASE_URL\" > \"${SRCROOT}/Secrets.env\"\n    echo \"SUPABASE_TABLE_NAME=$SUPABASE_TABLE_NAME\" > \"${SRCROOT}/Secrets.env\"\n    echo \"SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY\" >> \"${SRCROOT}/Secrets.env\"\n    echo \"OPEN_AI_API_KEY=$OPEN_AI_API_KEY\" >> \"${SRCROOT}/Secrets.env\"\n    echo \"OPEN_AI_MODEL=$OPEN_AI_MODEL\" >> \"${SRCROOT}/Secrets.env\"\nelse\n    echo \"Not running in Xcode Cloud. Skipping secret injection.\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		200BD853254F66EB00692903 /* Sources */ = {

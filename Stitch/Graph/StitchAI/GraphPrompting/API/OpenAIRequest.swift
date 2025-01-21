@@ -32,12 +32,13 @@ struct OpenAIRequestConfig {
 
 /// Main event handler for initiating OpenAI API requests
 struct MakeOpenAIRequest: StitchDocumentEvent {
+    private let OPEN_AI_BASE_URL = "https://api.openai.com/v1/chat/completions"
     let prompt: String             // User's input prompt
     let systemPrompt: String       // System-level instructions loaded from file
     let schema: JSON              // JSON schema for response validation
     let config: OpenAIRequestConfig // Request configuration settings
-    var OPEN_AI_API_KEY: String
-    var OPEN_AI_MODEL: String
+    private let apiKey: String
+    private let model: String
     @MainActor static var timeoutErrorCount = 0
 
     /// Initialize a new request with prompt and optional configuration
@@ -60,39 +61,56 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
         }
         self.schema = loadedSchema
         
-        self.OPEN_AI_API_KEY = ""
-        self.OPEN_AI_MODEL = ""
-        
+        // Initialize environment variables
         do {
+            // Get the path to the .env file in the app bundle
             if let envPath = Bundle.main.path(forResource: ".env", ofType: nil) {
                 try Dotenv.configure(atPath: envPath)
             } else {
-                fatalErrorIfDebug("⚠️ .env file not found in bundle.")
+                fatalErrorIfDebug(" .env file not found in bundle.")
+                self.apiKey = ""
+                self.model = ""
                 return
             }
         } catch {
-            fatalErrorIfDebug("⚠️ Could not load .env file: \(error)")
+            fatalErrorIfDebug(" Could not load .env file: \(error)")
+            self.apiKey = ""
+            self.model = ""
             return
         }
         
+        // Load API key from environment
         if let apiKey = Dotenv["OPEN_AI_API_KEY"]?.stringValue {
-            self.OPEN_AI_API_KEY = apiKey
+            self.apiKey = apiKey
         } else {
-            fatalErrorIfDebug("⚠️ Could not find OPEN_AI_API_KEY in .env file.")
-            return
+            fatalErrorIfDebug(" Could not find OPEN_AI_API_KEY in .env file.")
+            self.apiKey = ""
         }
         
+        // Load model from environment
         if let model = Dotenv["OPEN_AI_MODEL"]?.stringValue {
-            self.OPEN_AI_MODEL = model
+            self.model = model
         } else {
-            fatalErrorIfDebug("⚠️ Could not find OPEN_AI_API_MODEL in .env file.")
-            return
+            fatalErrorIfDebug(" Could not find OPEN_AI_MODEL in .env file.")
+            self.model = ""
         }
     }
 
     
     /// Execute the API request with retry logic
     @MainActor func makeRequest(attempt: Int = 1, state: StitchDocumentViewModel) {
+        // Validate API credentials
+        guard !apiKey.isEmpty, !model.isEmpty else {
+            state.showErrorModal(
+                message: "Missing OpenAI credentials. Please check your environment configuration.",
+                userPrompt: prompt,
+                jsonResponse: nil
+            )
+            state.stitchAI.promptState.isGenerating = false
+            state.graphUI.insertNodeMenuState.isGeneratingAINode = false
+            return
+        }
+
         // Check if we've exceeded retry attempts
         guard attempt <= config.maxRetries else {
             print("All retry attempts exhausted")
@@ -121,11 +139,11 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
         request.httpMethod = "POST"
         request.timeoutInterval = config.timeoutInterval
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(OPEN_AI_API_KEY)", forHTTPHeaderField: "Authorization")
+        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         
         // Construct request payload
         let payload: [String: Any] = [
-            "model": OPEN_AI_MODEL,
+            "model": model,
             "n": 1,
             "temperature": 1,
             "response_format": [
@@ -291,8 +309,8 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
             log(step.description)
         }
         
-        print("🤖 💾 Storing Original AI Generated Actions 💾 🤖")
-        print("🤖 Original Actions to store: \(steps.asJSONDisplay())")
+        print(" Storing Original AI Generated Actions ")
+        print(" Original Actions to store: \(steps.asJSONDisplay())")
         state.lastAIGeneratedActions = steps
         
         state.lastAIGeneratedPrompt = originalPrompt
