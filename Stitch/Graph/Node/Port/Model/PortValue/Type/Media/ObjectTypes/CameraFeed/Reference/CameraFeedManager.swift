@@ -61,11 +61,13 @@ final class CameraFeedManager: Sendable, MiddlewareService {
     @MainActor
     init(cameraSettings: CameraSettings,
          isEnabled: Bool,
-         documentDelegate: StitchDocumentViewModel) {
+         documentDelegate: StitchDocumentViewModel,
+         isCameraFeedNode: Bool) {
         self.documentDelegate = documentDelegate
 
         if isEnabled {
-            self.session = Self.createSession(cameraSettings: cameraSettings)
+            self.session = Self.createSession(cameraSettings: cameraSettings,
+                                              isCameraFeedNode: isCameraFeedNode)
         } else {
             self.session = nil
         }
@@ -82,22 +84,26 @@ final class CameraFeedManager: Sendable, MiddlewareService {
     }
 
     @MainActor
-    static func createSession(cameraSettings: CameraSettings) -> StitchCameraSession {
+    static func createSession(cameraSettings: CameraSettings,
+                              isCameraFeedNode: Bool) -> StitchCameraSession {
         let cameraPosition = cameraSettings.direction.avCapturePosition
         let cameraPref = UserDefaults.standard.getCameraPref(position: cameraPosition)
         return Self.createSession(device: cameraPref,
                                   position: cameraPosition,
-                                  cameraOrientation: cameraSettings.orientation)
+                                  cameraOrientation: cameraSettings.orientation,
+                                  isCameraFeedNode: isCameraFeedNode)
     }
 
     // This needs to be called before changing direction of camera
     @MainActor
     static func createSession(device: StitchCameraDevice,
                               position: AVCaptureDevice.Position,
-                              cameraOrientation: StitchCameraOrientation) -> StitchCameraSession {
+                              cameraOrientation: StitchCameraOrientation,
+                              isCameraFeedNode: Bool) -> StitchCameraSession {
 
         // Only use AR if supported by device and the camera is from a RealityView layer node (not a CameraFeed patch node)
-        let useAR = device.isARSupported
+        // MARK: isCameraFeedNode is a necessary check to prevent crashes on iPad
+        let useAR = device.isARSupported && !isCameraFeedNode
 
         // Must get called on main thread
         let session: StitchCameraSession = useAR ? StitchARView() : StitchAVCaptureSession()
