@@ -6,3 +6,9 @@
 //
 
 import Foundation
+
+extension ProcessInfo {
+    var isRunningInXcodeCloud: Bool {
+        return environment["CI"] == "true"
+    }
+}
