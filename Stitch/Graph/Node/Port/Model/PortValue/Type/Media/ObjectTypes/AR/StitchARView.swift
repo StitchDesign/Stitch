@@ -35,7 +35,7 @@ final class StitchARView: ARView {
         
         super.init(frame: frame, cameraMode: cameraMode, automaticallyConfigureSession: false)
 
-        self.session.delegate = self.bufferDelegate
+//        self.session.delegate = self.bufferDelegate
 
         switch cameraMode {
         case .ar:
