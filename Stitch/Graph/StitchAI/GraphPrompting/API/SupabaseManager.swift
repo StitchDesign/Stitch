@@ -10,7 +10,6 @@ struct LLMRecordingPayload: Encodable, Sendable {
 private struct RecordingWrapper: Encodable {
     let prompt: String
     let actions: [LLMStepAction]
-    let correction: Bool
 }
 
 actor SupabaseManager {
@@ -71,6 +70,7 @@ actor SupabaseManager {
         struct Payload: Encodable {
             let user_id: String
             let actions: RecordingWrapper
+            let correction: Bool
         }
 
         guard let deviceUUID = await UIDevice.current.identifierForVendor?.uuidString else {
@@ -86,11 +86,14 @@ actor SupabaseManager {
 
         let wrapper = await RecordingWrapper(
             prompt: prompt,
-            actions: recordingData.actions + graphState.lastAIGeneratedActions,
-            correction: isCorrection
+            actions: recordingData.actions + graphState.lastAIGeneratedActions
         )
 
-        let payload = Payload(user_id: deviceUUID, actions: wrapper)
+        let payload = Payload(
+            user_id: deviceUUID,
+            actions: wrapper,
+            correction: isCorrection
+        )
 
         print("📤 Uploading payload:")
         print("  - User ID: \(deviceUUID)")
@@ -125,7 +128,6 @@ actor SupabaseManager {
 }
 
 extension ProcessInfo {
-    /// Checks if the app is running in an Xcode Cloud workflow
     var isRunningInXcodeCloud: Bool {
         return environment["CI"] == "true"
     }
