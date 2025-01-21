@@ -1,3 +1,9 @@
+//
+//  SupabaseManager.swift
+//  Stitch
+//  Created by Nicholas Arner on 1/10/25.
+//
+
 import Foundation
 import PostgREST
 import SwiftDotenv
