@@ -97,7 +97,7 @@ actor SupabaseManager {
 
         print("📤 Uploading payload:")
         print("  - User ID: \(deviceUUID)")
-        print("  - Prompt: \(recordingData.prompt)")
+        print("  - Prompt: \(wrapper.prompt)")
         print("  - Total actions: \(wrapper.actions.count)")
         print("  - Is correction: \(isCorrection)")
         print("  - Full actions sequence: \(wrapper.actions.asJSONDisplay())")
