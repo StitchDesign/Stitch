@@ -72,7 +72,7 @@ func arRayCastingEval(node: PatchNode) -> EvalResult {
     let arView = node.graphDelegate?.cameraFeed?.arView
         
     // Must be accessed on main thread
-    let centerPoint = arView?.center ?? .zero
+    let centerPoint = arView?.arView.center ?? .zero
 
     return node.loopedEval(MediaEvalOpObserver.self) { values, mediaObserver, loopIndex in
         // Needs to have AR view

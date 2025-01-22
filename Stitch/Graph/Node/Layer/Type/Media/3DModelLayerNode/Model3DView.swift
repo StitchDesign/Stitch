@@ -21,6 +21,7 @@ struct Model3DView: View {
     let sceneSize: CGSize
     let scale: Double
     let opacity: Double
+    let isRendering: Bool
 
     var body: some View {
         switch entity.type {
@@ -39,13 +40,13 @@ struct Model3DView: View {
                                 entity: entity,
                                 size: size,
                                 scale: scale,
-                                opacity: opacity)
+                                opacity: opacity,
+                                isRendering: isRendering)
         }
     }
 }
 
 struct Model3DGeometryView: View {
-    @State private var arView: ARView?
     @State private var anchorEntity: AnchorEntity = .init()
     
     let layerViewModel: LayerViewModel
@@ -54,6 +55,7 @@ struct Model3DGeometryView: View {
     let size: LayerSize
     let scale: Double
     let opacity: Double
+    let isRendering: Bool
     
     var body: some View {
         ZStack {
@@ -63,7 +65,7 @@ struct Model3DGeometryView: View {
                                  opacity: opacity,
                                  isShadowsEnabled: false)
             
-            if let arView = self.arView {
+            if let arView = layerViewModel.realityContent {
                 Color.clear
                     .modifier(ModelEntityLayerViewModifier(previewLayer: layerViewModel,
                                                            entity: entity,
@@ -72,7 +74,8 @@ struct Model3DGeometryView: View {
                                                            anchorEntityId: nil,
                                                            translationEnabled: false,
                                                            rotationEnabled: false,
-                                                           scaleEnabled: false))
+                                                           scaleEnabled: false,
+                                                           isRendering: isRendering))
             }
         }
     }
