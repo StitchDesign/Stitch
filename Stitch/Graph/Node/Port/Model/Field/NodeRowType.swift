@@ -22,6 +22,10 @@ enum NodeRowType: Equatable {
          singleDropdown(SingleDropdownKind),
          textFontDropdown, // TODO: special case because nested?
          layerGroupOrientationDropdown,
+         layerGroupAlignment,
+         textAlignmentPicker,
+         textVerticalAlignmentPicker,
+         textDecoration,
          spacing, // uses TextField + Dropdown
          bool,
          asyncMedia,
@@ -46,7 +50,7 @@ extension NodeRowType {
         switch self {
         case .size, .size3D, .position, .point3D, .point4D, .padding, .layerDimension, .number, .string, .spacing, .transform3D:
             return true
-        case .readOnly, .shapeCommand, .singleDropdown, .textFontDropdown, .bool, .asyncMedia, .pulse, .color, .json, .assignedLayer, .anchoring, .pinTo, .layerGroupOrientationDropdown, .anchorEntity:
+        case .readOnly, .shapeCommand, .singleDropdown, .textFontDropdown, .bool, .asyncMedia, .pulse, .color, .json, .assignedLayer, .anchoring, .pinTo, .layerGroupOrientationDropdown, .anchorEntity, .layerGroupAlignment, .textAlignmentPicker, .textVerticalAlignmentPicker, .textDecoration:
             return false
         }
     }
@@ -103,6 +107,15 @@ extension NodeRowType {
             return .anchorEntity(nil)
         case .transform3D:
             return .transform(.zero)
+        case .layerGroupAlignment:
+            // LayerGroupAlignment node row type and field value case use PortValue.anchoring
+            return .anchoring(.topLeft)
+        case .textAlignmentPicker:
+            return .textAlignment(DEFAULT_TEXT_ALIGNMENT)
+        case .textVerticalAlignmentPicker:
+            return .textVerticalAlignment(DEFAULT_TEXT_VERTICAL_ALIGNMENT)
+        case .textDecoration:
+            return .textDecoration(.defaultLayerTextDecoration)
         }
     }
 }

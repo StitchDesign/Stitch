@@ -1539,7 +1539,7 @@ extension LayerInputPort {
         case .textAlignment:
             return useShortLabel ? "Alignment" : "Text Alignment"
         case .verticalAlignment:
-            return "Vertical Alignment"
+            return useShortLabel ? "Vertical Align." : "Vertical Text Alignment"
         case .textDecoration:
             return useShortLabel ? "Decoration" : "Text Decoration"
         case .textFont:

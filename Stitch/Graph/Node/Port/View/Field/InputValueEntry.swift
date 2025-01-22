@@ -325,10 +325,71 @@ struct InputValueView: View {
                                            value: .anchorEntity(anchorEntityId),
                                            inputCoordinate: rowObserverId,
                                            isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+            
             case .layerGroupOrientationDropdown(let x):
                 LayerGroupOrientationDropDownChoiceView(
                     id: rowObserverId,
                     value: x,
+                    layerInputObserver: layerInputObserver,
+                    isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+                
+            case .layerGroupAlignment(let x):
+
+                // If this field is for a LayerGroup layer node,
+                // and the layer node has a VStack or HStack layerGroupOrientation,
+                // then use this special picker:
+                if nodeKind.getLayer == .group,
+                   let layerNode = graph.getLayerNode(id: rowObserverId.nodeId)?.layerNodeViewModel,
+                   let orientation = layerNode.orientationPort.activeValue.getOrientation {
+                    switch orientation {
+                    case .vertical:
+                        // logInView("InputValueView: vertical")
+                        LayerGroupHorizontalAlignmentPickerFieldValueView(
+                            id: rowObserverId,
+                            value: x,
+                            layerInputObserver: layerInputObserver,
+                            isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+                    case .horizontal:
+                        // logInView("InputValueView: vertical")
+                        LayerGroupVerticalAlignmentPickerFieldValueView(
+                            id: rowObserverId,
+                            value: x,
+                            layerInputObserver: layerInputObserver,
+                            isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+                        
+                    case .grid, .none:
+                        // Should never happen
+                        // logInView("InputValueView: grid or none")
+                        EmptyView()
+                    }
+                } else {
+                    EmptyView()
+                }
+                
+            case .textAlignmentPicker(let x):
+                SpecialPickerFieldValueView(
+                    currentChoice: .textAlignment(x),
+                    id: rowObserverId,
+                    value: .textAlignment(x),
+                    choices: LayerTextAlignment.choices,
+                    layerInputObserver: layerInputObserver,
+                    isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+                
+            case .textVerticalAlignmentPicker(let x):
+                SpecialPickerFieldValueView(
+                    currentChoice: .textVerticalAlignment(x),
+                    id: rowObserverId,
+                    value: .textVerticalAlignment(x),
+                    choices: LayerTextVerticalAlignment.choices,
+                    layerInputObserver: layerInputObserver,
+                    isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+            
+            case .textDecoration(let x):
+                SpecialPickerFieldValueView(
+                    currentChoice: .textDecoration(x),
+                    id: rowObserverId,
+                    value: .textDecoration(x),
+                    choices: LayerTextDecoration.choices,
                     layerInputObserver: layerInputObserver,
                     isFieldInsideLayerInspector: isFieldInsideLayerInspector)
                 
