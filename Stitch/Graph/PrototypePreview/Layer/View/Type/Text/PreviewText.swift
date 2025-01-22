@@ -13,6 +13,10 @@ let DEFAULT_TEXT_ALIGNMENT: LayerTextAlignment = .left
 
 let DEFAULT_TEXT_VERTICAL_ALIGNMENT: LayerTextVerticalAlignment = .top
 
+extension LayerTextVerticalAlignment {
+    static let defaultTextVerticalAlignment = DEFAULT_TEXT_VERTICAL_ALIGNMENT
+}
+
 let defaultTextAlignment = PortValue.textAlignment(DEFAULT_TEXT_ALIGNMENT)
 
 let defaultTextVerticalAlignment = PortValue.textVerticalAlignment(DEFAULT_TEXT_VERTICAL_ALIGNMENT)

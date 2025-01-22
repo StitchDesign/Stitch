@@ -325,10 +325,47 @@ struct InputValueView: View {
                                            value: .anchorEntity(anchorEntityId),
                                            inputCoordinate: rowObserverId,
                                            isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+            
             case .layerGroupOrientationDropdown(let x):
                 LayerGroupOrientationDropDownChoiceView(
                     id: rowObserverId,
                     value: x,
+                    layerInputObserver: layerInputObserver,
+                    isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+                
+            case .layerGroupAlignment(_):
+                Text("TODO: layerGroupHorizontalAlignment")
+            
+            case .textAlignmentPicker(let x):
+//                TextAlignmentFieldValueView(
+//                    id: rowObserverId,
+//                    value: x,
+//                    layerInputObserver: layerInputObserver,
+//                    isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+//                
+                SpecialPickerFieldValueView(
+                    currentChoice: .textAlignment(x),
+                    id: rowObserverId,
+                    value: .textAlignment(x),
+                    choices: LayerTextAlignment.choices,
+                    layerInputObserver: layerInputObserver,
+                    isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+                
+            case .textVerticalAlignmentPicker(let x):
+                SpecialPickerFieldValueView(
+                    currentChoice: .textVerticalAlignment(x),
+                    id: rowObserverId,
+                    value: .textVerticalAlignment(x),
+                    choices: LayerTextVerticalAlignment.choices,
+                    layerInputObserver: layerInputObserver,
+                    isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+            
+            case .textDecoration(let x):
+                SpecialPickerFieldValueView(
+                    currentChoice: .textDecoration(x),
+                    id: rowObserverId,
+                    value: .textDecoration(x),
+                    choices: LayerTextDecoration.choices,
                     layerInputObserver: layerInputObserver,
                     isFieldInsideLayerInspector: isFieldInsideLayerInspector)
                 

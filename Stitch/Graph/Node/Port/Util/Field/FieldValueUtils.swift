@@ -307,6 +307,18 @@ extension PortValue {
             let orientation = self.getOrientation ?? .defaultOrientation
             return [[.layerGroupOrientationDropdown(orientation)]]
             
+        case .layerGroupAlignment:
+            return [[.layerGroupAlignment(self.getAnchoring ?? .defaultAnchoring)]]
+            
+        case .textAlignmentPicker:
+            return [[.textAlignmentPicker(self.getLayerTextAlignment ?? DEFAULT_TEXT_ALIGNMENT)]]
+            
+        case .textVerticalAlignmentPicker:
+            return [[.textVerticalAlignmentPicker(self.getLayerTextVerticalAlignment ?? .defaultTextVerticalAlignment)]]
+            
+        case .textDecoration:
+            return [[.textDecoration(self.getTextDecoration ?? .defaultLayerTextDecoration)]]
+            
         case .anchorEntity:
             return [[.anchorEntity(self.anchorEntity)]]
         }

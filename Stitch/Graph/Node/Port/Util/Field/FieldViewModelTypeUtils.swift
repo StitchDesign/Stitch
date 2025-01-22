@@ -46,11 +46,12 @@ extension PortValue {
 
         // MARK: - single field dropdowns
         case .textAlignment:
-            return .singleDropdown(.textAlignment)
+            // return .singleDropdown(.textAlignment)
+            return .textAlignmentPicker
         case .textVerticalAlignment:
-            return .singleDropdown(.textVerticalAlignment)
+            return .textVerticalAlignmentPicker
         case .textDecoration:
-            return .singleDropdown(.textDecoration)
+            return .textDecoration
         case .textFont:
             return .textFontDropdown
         case .blendMode:
@@ -126,8 +127,13 @@ extension PortValue {
             return .json
         case .assignedLayer:
             return .assignedLayer
+        
         case .anchoring:
+            if layerInputPort == .layerGroupAlignment {
+                return .layerGroupAlignment
+            }
             return .anchoring
+            
         case .transform:
             if isLayerInspector {
                 return .transform3D

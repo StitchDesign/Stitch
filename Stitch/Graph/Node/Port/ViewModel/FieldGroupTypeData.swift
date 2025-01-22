@@ -123,7 +123,7 @@ extension NodeRowType {
             return [.anchoring]
         case .spacing:
             return [.spacing]
-        case .singleDropdown, .textFontDropdown, .layerGroupOrientationDropdown:
+        case .singleDropdown, .textFontDropdown, .layerGroupOrientationDropdown, .layerGroupAlignment, .textAlignmentPicker, .textVerticalAlignmentPicker, .textDecoration:
             return [.dropdown]
         case .readOnly:
             return [.readOnly]
@@ -311,6 +311,34 @@ func getFieldValueTypes<FieldType: FieldViewModel>(value: PortValue,
                       unpackedPortIndex: unpackedPortIndex,
                       rowViewModel: rowViewModel)]
         
+    case .layerGroupAlignment:
+        return [.init(fieldValues: fieldValuesForSingleFieldGroup,
+                      type: .layerGroupAlignment,
+                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                      unpackedPortIndex: unpackedPortIndex,
+                      rowViewModel: rowViewModel)]
+        
+    case .textAlignmentPicker:
+        return [.init(fieldValues: fieldValuesForSingleFieldGroup,
+                      type: .textAlignment,
+                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                      unpackedPortIndex: unpackedPortIndex,
+                      rowViewModel: rowViewModel)]
+        
+    case .textVerticalAlignmentPicker:
+        return [.init(fieldValues: fieldValuesForSingleFieldGroup,
+                      type: .textVerticalAlignment,
+                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                      unpackedPortIndex: unpackedPortIndex,
+                      rowViewModel: rowViewModel)]
+        
+    case .textDecoration:
+        return [.init(fieldValues: fieldValuesForSingleFieldGroup,
+                      type: .textDecoration,
+                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                      unpackedPortIndex: unpackedPortIndex,
+                      rowViewModel: rowViewModel)]
+        
     case .bool:
         return [.init(fieldValues: fieldValuesForSingleFieldGroup,
                       type: .bool,
@@ -401,7 +429,7 @@ func getFieldValueTypes<FieldType: FieldViewModel>(value: PortValue,
                       unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                       unpackedPortIndex: unpackedPortIndex,
                       rowViewModel: rowViewModel)]
-    
+        
     case .anchorEntity:
         return [.init(fieldValues: fieldValuesForSingleFieldGroup,
                       type: .anchorEntity,
