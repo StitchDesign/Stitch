@@ -48,9 +48,6 @@ struct JSONEditorView: View {
             
             Button(action: {
                 completeAndDismiss(jsonString)
-//                Task {
-//                    await sendToSupabase()
-//                }
             }) {
                 HStack {
                     Text("Send to Supabase")

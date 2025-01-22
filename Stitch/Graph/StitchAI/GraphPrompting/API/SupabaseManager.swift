@@ -141,12 +141,13 @@ actor SupabaseManager {
         do {
             let jsonData = try JSONEncoder().encode(payload)
             if let jsonString = String(data: jsonData, encoding: .utf8) {
-                print(" Full JSON payload:\n\(jsonString)")
-                let editedJSON = await showJSONEditor(jsonString: jsonString)
-                print(" Edited JSON payload:\n\(editedJSON)")
+                var editedJSONString = await showJSONEditor(jsonString: jsonString)
+                editedJSONString = editedJSONString.replacingOccurrences(of: "“", with: "\"")
+
+                print(" Edited JSON payload:\n\(editedJSONString)")
                 
                 // Validate JSON structure
-                if let editedData = editedJSON.data(using: .utf8) {
+                if let editedData = editedJSONString.data(using: .utf8) {
                     do {
                         let editedPayload = try JSONDecoder().decode(Payload.self, from: editedData)
                         
@@ -205,11 +206,11 @@ actor SupabaseManager {
 //            guard let jsonData = cleanJson.data(using: .utf8) else {
 //                throw NSError(domain: "JSONError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to convert string to data"])
 //            }
-//            
-//            
+//
+//
 //            let json = JSON(jsonData)
 //
-//            
+//
 //            // Parse into dictionary
 ////            guard let jsonDict = try JSONSerialization.jsonObject(with: jsonData) as? [String: Any] else {
 ////                throw NSError(domain: "JSONError", code: 2, userInfo: [NSLocalizedDescriptionKey: "Failed to parse JSON into dictionary"])
