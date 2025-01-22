@@ -327,22 +327,30 @@ struct InputValueView: View {
                                            isFieldInsideLayerInspector: isFieldInsideLayerInspector)
             
             case .layerGroupOrientationDropdown(let x):
+                
                 LayerGroupOrientationDropDownChoiceView(
                     id: rowObserverId,
                     value: x,
                     layerInputObserver: layerInputObserver,
                     isFieldInsideLayerInspector: isFieldInsideLayerInspector)
                 
-            case .layerGroupAlignment(_):
-                Text("TODO: layerGroupHorizontalAlignment")
-            
+                // need to pass down whether this layer is a group with a Vstack or HStack or something else;
+                // VStack vs HStack = different sf symbol buttons
+            case .layerGroupAlignment(let x):
+//                Text("TODO: layerGroupHorizontalAlignment")
+                LayerGroupVerticalAlignmentPickerFieldValueView(
+                    id: rowObserverId,
+                    value: x,
+                    layerInputObserver: layerInputObserver,
+                    isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+                
             case .textAlignmentPicker(let x):
 //                TextAlignmentFieldValueView(
 //                    id: rowObserverId,
 //                    value: x,
 //                    layerInputObserver: layerInputObserver,
 //                    isFieldInsideLayerInspector: isFieldInsideLayerInspector)
-//                
+                
                 SpecialPickerFieldValueView(
                     currentChoice: .textAlignment(x),
                     id: rowObserverId,
