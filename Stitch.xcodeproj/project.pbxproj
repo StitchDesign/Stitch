@@ -400,6 +400,8 @@
 		EC1E7A6F287D228D00144D05 /* BoolCheckboxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1E7A6E287D228C00144D05 /* BoolCheckboxView.swift */; };
 		EC211A482698A6F10068A0F0 /* JSONUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC211A472698A6F10068A0F0 /* JSONUtils.swift */; };
 		EC211A4B2698A8B70068A0F0 /* SwiftyJSON in Frameworks */ = {isa = PBXBuildFile; productRef = EC211A4A2698A8B70068A0F0 /* SwiftyJSON */; };
+		EC2256292D407E9500BB7292 /* SpecialPickerFieldValueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2256282D407E9500BB7292 /* SpecialPickerFieldValueView.swift */; };
+		EC22562B2D407EC700BB7292 /* LayerGroupAlignmentChoicesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC22562A2D407EC700BB7292 /* LayerGroupAlignmentChoicesView.swift */; };
 		EC226C672BD881D400411EB7 /* SFSymbolLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC226C662BD881D400411EB7 /* SFSymbolLayerNode.swift */; };
 		EC226C692BD8862900411EB7 /* PreviewShadowModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC226C682BD8862900411EB7 /* PreviewShadowModifier.swift */; };
 		EC22972D268D337900E6DC8D /* MicrophoneFeedNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC22972C268D337900E6DC8D /* MicrophoneFeedNode.swift */; };
@@ -1332,6 +1334,8 @@
 		EC1E7A6C287CFA9600144D05 /* StringUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringUtils.swift; sourceTree = "<group>"; };
 		EC1E7A6E287D228C00144D05 /* BoolCheckboxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoolCheckboxView.swift; sourceTree = "<group>"; };
 		EC211A472698A6F10068A0F0 /* JSONUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONUtils.swift; sourceTree = "<group>"; };
+		EC2256282D407E9500BB7292 /* SpecialPickerFieldValueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpecialPickerFieldValueView.swift; sourceTree = "<group>"; };
+		EC22562A2D407EC700BB7292 /* LayerGroupAlignmentChoicesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerGroupAlignmentChoicesView.swift; sourceTree = "<group>"; };
 		EC226C662BD881D400411EB7 /* SFSymbolLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SFSymbolLayerNode.swift; sourceTree = "<group>"; };
 		EC226C682BD8862900411EB7 /* PreviewShadowModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewShadowModifier.swift; sourceTree = "<group>"; };
 		EC22972C268D337900E6DC8D /* MicrophoneFeedNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MicrophoneFeedNode.swift; sourceTree = "<group>"; };
@@ -3951,6 +3955,8 @@
 				EC844A6B2B5F259C00C79B0B /* StitchFontDropdown.swift */,
 				ECC6F00828BFBBC600535493 /* LayerNamesDropDownChoiceView.swift */,
 				ECF2367F2CC1B00E002BC84A /* LayerGroupOrientationDropDownChoiceView.swift */,
+				EC22562A2D407EC700BB7292 /* LayerGroupAlignmentChoicesView.swift */,
+				EC2256282D407E9500BB7292 /* SpecialPickerFieldValueView.swift */,
 				EC252402269F5C71003ABF8F /* EditJSONEntry.swift */,
 				ECF11F8A2A3A9A61009ACC78 /* ValueJSONView.swift */,
 				EC252404269F5CB7003ABF8F /* PickerValueEntry.swift */,
@@ -5114,6 +5120,7 @@
 				20308F9F25AD1721008CE3BE /* CircuitLine.swift in Sources */,
 				EC5F51E42BFFBB3300D3DAD7 /* PreviewGridData.swift in Sources */,
 				B55500C42C1B9E300081C3F1 /* FieldViewModel.swift in Sources */,
+				EC2256292D407E9500BB7292 /* SpecialPickerFieldValueView.swift in Sources */,
 				ECF01AED264F2151003B5AF2 /* PreviewCommon.swift in Sources */,
 				EC17ACD626B4C32200137EA5 /* PortActions.swift in Sources */,
 				B5657D362C0983E300287362 /* MediaEvalOpObservable.swift in Sources */,
@@ -5345,6 +5352,7 @@
 				EC8891A32C82387A002390F8 /* CommonEditingViewWrapper.swift in Sources */,
 				EC26144B2B8960CC00BEB066 /* TransformPackNode.swift in Sources */,
 				ECA92A10260A69B000281B52 /* MultiplyNode.swift in Sources */,
+				EC22562B2D407EC700BB7292 /* LayerGroupAlignmentChoicesView.swift in Sources */,
 				EC53F3BA287E25D60021095B /* SineNode.swift in Sources */,
 				ECA4FCCA28EB41E4006B4F23 /* NetworkRequestHandleResponse.swift in Sources */,
 				EC0A5ECD28E22A9900B00A9F /* WhenPrototypeStartsNode.swift in Sources */,

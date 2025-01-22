@@ -168,6 +168,39 @@ struct OutputValueView: View {
                     isFieldInsideLayerInspector: false)
                 .disabled(true)
                 
+            case .layerGroupAlignment(_):
+                EmptyView() // Can't really happen
+            
+            case .textAlignmentPicker(let x):
+                SpecialPickerFieldValueView(
+                    currentChoice: .textAlignment(x),
+                    id: coordinate,
+                    value: .textAlignment(x),
+                    choices: LayerTextAlignment.choices,
+                    layerInputObserver: nil,
+                    isFieldInsideLayerInspector: false)
+                .disabled(false)
+                
+            case .textVerticalAlignmentPicker(let x):
+                SpecialPickerFieldValueView(
+                    currentChoice: .textVerticalAlignment(x),
+                    id: coordinate,
+                    value: .textVerticalAlignment(x),
+                    choices: LayerTextVerticalAlignment.choices,
+                    layerInputObserver: nil,
+                    isFieldInsideLayerInspector: false)
+                .disabled(false)
+            
+            case .textDecoration(let x):
+                SpecialPickerFieldValueView(
+                    currentChoice: .textDecoration(x),
+                    id: coordinate,
+                    value: .textDecoration(x),
+                    choices: LayerTextDecoration.choices,
+                    layerInputObserver: nil,
+                    isFieldInsideLayerInspector: false)
+                .disabled(false)
+                
             case .pinTo(let pinToId):
                 LayerNamesDropDownChoiceView(graph: graph,
                                              id: coordinate,
