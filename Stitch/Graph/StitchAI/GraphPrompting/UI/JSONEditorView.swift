@@ -92,59 +92,38 @@ struct JSONEditorView: View {
     }
     
     private func validateJSON(_ jsonString: String) {
-        if let jsonData = jsonString.data(using: .utf8) {
-            do {
-                let json = try JSON(data: jsonData)
-                
-                // Print the JSON for debugging purposes
-                print("Parsed JSON: \(json)")
-                
-                // Check if the JSON is valid and has the expected structure
-                if json.type == .dictionary {
-                    if let actionsArray = json["actions"].array {
-                        // Convert each action in the array to LLMStepAction
-                        var stepActions: [LLMStepAction] = []
-                        
-                        for actionJson in actionsArray {
-                            if let stepType = actionJson["stepType"].string,
-                               let nodeId = actionJson["nodeId"].string {
-                                
-                                // Create LLMStepAction with required fields
-                                let stepAction = LLMStepAction(
-                                    stepType: stepType,
-                                    nodeId: nodeId,
-                                    nodeName: actionJson["nodeName"].string,
-                                    port: actionJson["port"].string.map { .init(value: $0) }, fromPort: actionJson["fromPort"].string.map { .init(value: $0) }, fromNodeId: actionJson["fromNodeId"].string, toNodeId: actionJson["toNodeId"].string, value: actionJson["value"].exists() ? JSONFriendlyFormat(value: actionJson["value"].rawValue as! PortValue) : nil, nodeType: actionJson["nodeType"].string
-                                )
-                                
-                                stepActions.append(stepAction)
-                            }
-                        }
-                        
-                        if !stepActions.isEmpty {
-                            isValidJSON = true
-                            errorMessage = nil
-                            return
-                        }
-                    }
-                    
-                    isValidJSON = false
-                    errorMessage = "JSON must contain an array of valid step actions"
-                } else {
-                    isValidJSON = false
-                    errorMessage = "JSON must be an object with 'actions' array"
-                }
-            } catch {
-                print("Error parsing JSON: \(error)")
-                isValidJSON = false
-                errorMessage = "Invalid JSON format: \(error.localizedDescription)"
-            }
-        } else {
+        guard let jsonData = jsonString.data(using: .utf8) else {
             isValidJSON = false
             errorMessage = "Invalid UTF-8 encoding"
+            return
+        }
+
+        do {
+            let decoder = JSONDecoder()
+            _ = try decoder.decode(LLMStepActions.self, from: jsonData)
+            
+            isValidJSON = true
+            errorMessage = nil
+        } catch let decodingError as DecodingError {
+            isValidJSON = false
+            switch decodingError {
+            case .keyNotFound(let key, let context):
+                errorMessage = "Missing key: \(key.stringValue) in \(context.codingPath.map { $0.stringValue }.joined(separator: " > "))"
+            case .typeMismatch(let type, let context):
+                errorMessage = "Type mismatch: Expected \(type) in \(context.codingPath.map { $0.stringValue }.joined(separator: " > "))"
+            case .valueNotFound(let type, let context):
+                errorMessage = "Value not found: Expected \(type) in \(context.codingPath.map { $0.stringValue }.joined(separator: " > "))"
+            case .dataCorrupted(let context):
+                errorMessage = "Data corrupted: \(context.debugDescription)"
+            @unknown default:
+                errorMessage = "Unknown decoding error"
+            }
+        } catch {
+            isValidJSON = false
+            errorMessage = "Invalid JSON format: \(error.localizedDescription)"
         }
     }
-    
+
     private func sendToSupabase() async {
             
     }
