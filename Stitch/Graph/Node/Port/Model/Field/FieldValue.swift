@@ -25,6 +25,10 @@ enum FieldValue: Equatable, Sendable {
     case dropdown(String, PortValues)
     case layerDropdown(LayerNodeId?)
     case layerGroupOrientationDropdown(StitchOrientation)
+    case layerGroupAlignment(Anchoring)
+    case textAlignmentPicker(LayerTextAlignment)
+    case textVerticalAlignmentPicker(LayerTextVerticalAlignment)
+    case textDecoration(LayerTextDecoration)
     case pinTo(PinToId)
     case anchorPopover(Anchoring)
     case media(FieldValueMedia)
@@ -71,6 +75,14 @@ extension FieldValue {
             return ""
         case .anchorEntity(let nodeId):
             return nodeId?.description ?? "None"
+        case .layerGroupAlignment(let x):
+            return x.display
+        case .textAlignmentPicker(let x):
+            return x.display
+        case .textVerticalAlignmentPicker(let x):
+            return x.display
+        case .textDecoration(let x):
+            return x.display
         }
     }
 
@@ -94,7 +106,7 @@ extension FieldValue {
             return x.display
         case .layerGroupOrientationDropdown(let x):
             return x.display
-        case .color, .dropdown, .layerDropdown, .anchorPopover, .media, .pulse, .textFontDropdown, .anchorEntity:
+        case .color, .dropdown, .layerDropdown, .anchorPopover, .media, .pulse, .textFontDropdown, .anchorEntity, .layerGroupAlignment, .textAlignmentPicker, .textVerticalAlignmentPicker, .textDecoration:
             return ""
         }
     }
@@ -166,7 +178,7 @@ extension FieldValue {
                 
             }
 
-        case .bool, .color, .dropdown, .layerDropdown, .pinTo, .anchorPopover, .media, .pulse, .json, .readOnly, .textFontDropdown, .spacing, .layerGroupOrientationDropdown, .anchorEntity:
+        case .bool, .color, .dropdown, .layerDropdown, .pinTo, .anchorPopover, .media, .pulse, .json, .readOnly, .textFontDropdown, .spacing, .layerGroupOrientationDropdown, .anchorEntity, .layerGroupAlignment, .textAlignmentPicker, .textVerticalAlignmentPicker, .textDecoration:
             return nil
         }
     }
