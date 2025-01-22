@@ -2,6 +2,8 @@
 //  JSONEditorView.swift
 //  Stitch
 //
+//  Created by Nicholas Arner on 1/21/25.
+//
 
 import SwiftUI
 import SwiftyJSON
@@ -10,13 +12,11 @@ struct JSONEditorView: View {
     @Environment(\.dismiss) var dismiss
     @State private var jsonString: String
     @State private var isValidJSON = true
-    @State private var isSubmitting = false
     @State private var errorMessage: String? = nil
     @State private var hasCompleted = false
     private let completion: (String) -> Void
     
     init(initialJSON: String, completion: @escaping (String) -> Void) {
-        // Format the JSON string nicely before displaying
         let formattedJSON = Self.formatJSON(initialJSON)
         _jsonString = State(initialValue: formattedJSON)
         self.completion = completion
@@ -30,15 +30,20 @@ struct JSONEditorView: View {
                 .scrollContentBackground(.hidden)
                 .background {
                     if !isValidJSON {
-                        StitchTextView(
-                            string: errorMessage ?? "Improperly formatted JSON",
-                            fontColor: .red)
-                        .opacity(0.5)
+                        Color.red.opacity(0.2)
+                            .cornerRadius(8)
+                    } else {
+                        Color.clear
                     }
                 }
                 .onChange(of: jsonString) { newValue in
-                    //validateJSON(newValue)
+                    // Replace smart quotes with standard quotes
+                    jsonString = newValue
+                        .replacingOccurrences(of: "“", with: "\"")
+                        .replacingOccurrences(of: "”", with: "\"")
+                    validateJSON(jsonString)
                 }
+                .padding()
             
             if !isValidJSON {
                 Text(errorMessage ?? "Invalid JSON format")
@@ -51,18 +56,14 @@ struct JSONEditorView: View {
             }) {
                 HStack {
                     Text("Send to Supabase")
-                    if isSubmitting {
-                        ProgressView()
-                            .controlSize(.small)
-                    }
                 }
                 .frame(maxWidth: .infinity)
                 .padding()
-                .background(Color.accentColor)
+                .background(isValidJSON ? Color.accentColor : Color.gray)
                 .foregroundColor(.white)
                 .cornerRadius(8)
             }
-            .disabled(!isValidJSON || isSubmitting)
+            .disabled(!isValidJSON)
             .padding(.bottom)
         }
         .toolbar {
@@ -81,7 +82,6 @@ struct JSONEditorView: View {
         }
         .navigationTitle("Edit JSON")
         .navigationBarTitleDisplayMode(.inline)
-        .padding()
         .onDisappear {
             if !hasCompleted {
                 completeAndDismiss(jsonString)
@@ -89,46 +89,24 @@ struct JSONEditorView: View {
         }
     }
     
-//    private func validateJSON(_ jsonString: String) {
-//        guard let jsonData = jsonString.data(using: .utf8) else {
-//            isValidJSON = false
-//            errorMessage = "Invalid UTF-8 encoding"
-//            return
-//        }
-//
-//        do {
-//            let decoder = JSONDecoder()
-//            _ = try decoder.decode(LLMStepActions.self, from: jsonData)
-//            
-//            isValidJSON = true
-//            errorMessage = nil
-//        } catch let decodingError as DecodingError {
-//            isValidJSON = false
-//            switch decodingError {
-//            case .keyNotFound(let key, let context):
-//                errorMessage = "Missing key: \(key.stringValue) in \(context.codingPath.map { $0.stringValue }.joined(separator: " > "))"
-//            case .typeMismatch(let type, let context):
-//                errorMessage = "Type mismatch: Expected \(type) in \(context.codingPath.map { $0.stringValue }.joined(separator: " > "))"
-//            case .valueNotFound(let type, let context):
-//                errorMessage = "Value not found: Expected \(type) in \(context.codingPath.map { $0.stringValue }.joined(separator: " > "))"
-//            case .dataCorrupted(let context):
-//                errorMessage = "Data corrupted: \(context.debugDescription)"
-//            @unknown default:
-//                errorMessage = "Unknown decoding error"
-//            }
-//        } catch {
-//            isValidJSON = false
-//            errorMessage = "Invalid JSON format: \(error.localizedDescription)"
-//        }
-//    }
-
-//    private func sendToSupabase() async {
-//        do {
-//            try await SupabaseManager.shared.uploadEditedLLMRecording(jsonString)
-//        } catch {
-//            print("Failed to upload the edited LLM recording: \(error.localizedDescription)")
-//        }
-//    }
+    private func validateJSON(_ jsonString: String) {
+        let trimmedString = jsonString.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        guard let jsonData = trimmedString.data(using: .utf8) else {
+            isValidJSON = false
+            errorMessage = "Invalid UTF-8 encoding"
+            return
+        }
+        
+        do {
+            _ = try JSONSerialization.jsonObject(with: jsonData, options: [])
+            isValidJSON = true
+            errorMessage = nil
+        } catch {
+            isValidJSON = false
+            errorMessage = "Invalid JSON format: \(error.localizedDescription)"
+        }
+    }
     
     private func completeAndDismiss(_ json: String) {
         guard !hasCompleted else { return }
