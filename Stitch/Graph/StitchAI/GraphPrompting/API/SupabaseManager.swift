@@ -154,5 +154,32 @@ actor SupabaseManager {
         }
     }
     
+    func uploadEditedLLMRecording(_ recordingData: String) async throws {
+        do {
+            let jsonData = try JSONEncoder().encode(recordingData)
+            if let jsonString = String(data: jsonData, encoding: .utf8) {
+                print(" Full JSON payload:\n\(jsonString)")
+                let editedJSON = await showJSONEditor(jsonString: jsonString)
+                print(" Edited JSON payload:\n\(editedJSON)")
+            }
+
+            try await postgrest
+                .from(tableName)
+                .insert(recordingData, returning: .minimal)
+                .execute()
+            print(" Data uploaded successfully to Supabase!")
+
+        } catch let error as HTTPError {
+            print(" HTTPError uploading to Supabase:")
+            if let errorMessage = String(data: error.data, encoding: .utf8) {
+                print("  Error details: \(errorMessage)")
+            }
+            throw error
+        } catch {
+            print(" Unknown error: \(error)")
+            throw error
+        }
+    }
+
   
 }

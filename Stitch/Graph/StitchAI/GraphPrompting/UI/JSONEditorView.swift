@@ -87,7 +87,7 @@ struct JSONEditorView: View {
         .navigationBarTitleDisplayMode(.inline)
         .padding()
         .onAppear {
-            validateJSON(jsonString)
+            //validateJSON(jsonString)
         }
     }
     
@@ -125,7 +125,11 @@ struct JSONEditorView: View {
     }
 
     private func sendToSupabase() async {
-            
+        do {
+            try await SupabaseManager.shared.uploadEditedLLMRecording(jsonString)
+        } catch {
+            print("Failed to upload the edited LLM recording: \(error.localizedDescription)")
+        }
     }
     
     private static func formatJSON(_ jsonString: String) -> String {
