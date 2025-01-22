@@ -73,17 +73,26 @@ actor SupabaseManager {
     private func showJSONEditor(jsonString: String) async -> String {
         await withCheckedContinuation { continuation in
             DispatchQueue.main.async {
+                guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                      let window = windowScene.windows.first,
+                      let rootViewController = window.rootViewController else {
+                    // If we can't get the root view controller, return the original string
+                    continuation.resume(returning: jsonString)
+                    return
+                }
+                
                 let hostingController = UIHostingController(
                     rootView: JSONEditorView(initialJSON: jsonString) { editedJSON in
                         continuation.resume(returning: editedJSON)
                     }
                 )
                 
-                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                   let window = windowScene.windows.first,
-                   let rootViewController = window.rootViewController {
-                    hostingController.modalPresentationStyle = .formSheet
-                    rootViewController.present(hostingController, animated: true)
+                hostingController.modalPresentationStyle = .formSheet
+                rootViewController.present(hostingController, animated: true)
+                
+                // Add a completion handler to the presentation to handle unexpected dismissals
+                hostingController.presentationController?.delegate = PresenterDismissalHandler {
+                    continuation.resume(returning: jsonString)
                 }
             }
         }
@@ -159,13 +168,11 @@ actor SupabaseManager {
             let jsonData = try JSONEncoder().encode(recordingData)
             if let jsonString = String(data: jsonData, encoding: .utf8) {
                 print(" Full JSON payload:\n\(jsonString)")
-                let editedJSON = await showJSONEditor(jsonString: jsonString)
-                print(" Edited JSON payload:\n\(editedJSON)")
             }
 
             try await postgrest
                 .from(tableName)
-                .insert(recordingData, returning: .minimal)
+                .insert(jsonData, returning: .minimal)
                 .execute()
             print(" Data uploaded successfully to Supabase!")
 
@@ -182,4 +189,16 @@ actor SupabaseManager {
     }
 
   
+}
+
+class PresenterDismissalHandler: NSObject, UIAdaptivePresentationControllerDelegate {
+    let onDismiss: () -> Void
+    
+    init(onDismiss: @escaping () -> Void) {
+        self.onDismiss = onDismiss
+    }
+    
+    func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+        onDismiss()
+    }
 }

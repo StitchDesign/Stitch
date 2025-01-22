@@ -12,6 +12,7 @@ struct JSONEditorView: View {
     @State private var isValidJSON = true
     @State private var isSubmitting = false
     @State private var errorMessage: String? = nil
+    @State private var hasCompleted = false
     private let completion: (String) -> Void
     
     init(initialJSON: String, completion: @escaping (String) -> Void) {
@@ -36,7 +37,7 @@ struct JSONEditorView: View {
                     }
                 }
                 .onChange(of: jsonString) { newValue in
-                    validateJSON(newValue)
+                    //validateJSON(newValue)
                 }
             
             if !isValidJSON {
@@ -69,16 +70,13 @@ struct JSONEditorView: View {
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button("Cancel") {
-                    dismiss()
+                    completeAndDismiss(jsonString)
                 }
             }
             
             ToolbarItem(placement: .confirmationAction) {
                 Button("Save") {
-                    // Minify JSON before saving
-                    let minifiedJSON = Self.minifyJSON(jsonString)
-                    completion(minifiedJSON)
-                    dismiss()
+                    completeAndDismiss(Self.minifyJSON(jsonString))
                 }
                 .disabled(!isValidJSON)
             }
@@ -86,43 +84,45 @@ struct JSONEditorView: View {
         .navigationTitle("Edit JSON")
         .navigationBarTitleDisplayMode(.inline)
         .padding()
-        .onAppear {
-            //validateJSON(jsonString)
+        .onDisappear {
+            if !hasCompleted {
+                completeAndDismiss(jsonString)
+            }
         }
     }
     
-    private func validateJSON(_ jsonString: String) {
-        guard let jsonData = jsonString.data(using: .utf8) else {
-            isValidJSON = false
-            errorMessage = "Invalid UTF-8 encoding"
-            return
-        }
-
-        do {
-            let decoder = JSONDecoder()
-            _ = try decoder.decode(LLMStepActions.self, from: jsonData)
-            
-            isValidJSON = true
-            errorMessage = nil
-        } catch let decodingError as DecodingError {
-            isValidJSON = false
-            switch decodingError {
-            case .keyNotFound(let key, let context):
-                errorMessage = "Missing key: \(key.stringValue) in \(context.codingPath.map { $0.stringValue }.joined(separator: " > "))"
-            case .typeMismatch(let type, let context):
-                errorMessage = "Type mismatch: Expected \(type) in \(context.codingPath.map { $0.stringValue }.joined(separator: " > "))"
-            case .valueNotFound(let type, let context):
-                errorMessage = "Value not found: Expected \(type) in \(context.codingPath.map { $0.stringValue }.joined(separator: " > "))"
-            case .dataCorrupted(let context):
-                errorMessage = "Data corrupted: \(context.debugDescription)"
-            @unknown default:
-                errorMessage = "Unknown decoding error"
-            }
-        } catch {
-            isValidJSON = false
-            errorMessage = "Invalid JSON format: \(error.localizedDescription)"
-        }
-    }
+//    private func validateJSON(_ jsonString: String) {
+//        guard let jsonData = jsonString.data(using: .utf8) else {
+//            isValidJSON = false
+//            errorMessage = "Invalid UTF-8 encoding"
+//            return
+//        }
+//
+//        do {
+//            let decoder = JSONDecoder()
+//            _ = try decoder.decode(LLMStepActions.self, from: jsonData)
+//            
+//            isValidJSON = true
+//            errorMessage = nil
+//        } catch let decodingError as DecodingError {
+//            isValidJSON = false
+//            switch decodingError {
+//            case .keyNotFound(let key, let context):
+//                errorMessage = "Missing key: \(key.stringValue) in \(context.codingPath.map { $0.stringValue }.joined(separator: " > "))"
+//            case .typeMismatch(let type, let context):
+//                errorMessage = "Type mismatch: Expected \(type) in \(context.codingPath.map { $0.stringValue }.joined(separator: " > "))"
+//            case .valueNotFound(let type, let context):
+//                errorMessage = "Value not found: Expected \(type) in \(context.codingPath.map { $0.stringValue }.joined(separator: " > "))"
+//            case .dataCorrupted(let context):
+//                errorMessage = "Data corrupted: \(context.debugDescription)"
+//            @unknown default:
+//                errorMessage = "Unknown decoding error"
+//            }
+//        } catch {
+//            isValidJSON = false
+//            errorMessage = "Invalid JSON format: \(error.localizedDescription)"
+//        }
+//    }
 
     private func sendToSupabase() async {
         do {
@@ -130,6 +130,13 @@ struct JSONEditorView: View {
         } catch {
             print("Failed to upload the edited LLM recording: \(error.localizedDescription)")
         }
+    }
+    
+    private func completeAndDismiss(_ json: String) {
+        guard !hasCompleted else { return }
+        hasCompleted = true
+        completion(json)
+        dismiss()
     }
     
     private static func formatJSON(_ jsonString: String) -> String {
