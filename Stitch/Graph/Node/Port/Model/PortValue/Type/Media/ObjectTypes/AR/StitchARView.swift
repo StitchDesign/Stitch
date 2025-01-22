@@ -14,7 +14,12 @@ import StitchSchemaKit
 
 /// Wrapper class for ARView.
 // TODO: should make this an actor, right now inheritence prevents this
-final class StitchARView: ARView {
+final class StitchARView: NSObject {
+    // Identifier used to compare AR View instances since many can be created
+    let id = UUID()
+    
+    let arView: ARView
+    
     let actor = CameraFeedActor()
 
     // For camera session delegate
@@ -22,15 +27,18 @@ final class StitchARView: ARView {
         self.bufferDelegate.convertedImage
     }
     
+    @MainActor
     var bufferDelegate = StitchARViewCaptureDelegate()
 
     // Non-zero rect import for preventing warning that sometimes appears
     @MainActor
     init(frame: CGRect = .init(x: .zero, y: .zero, width: 100, height: 100),
          cameraMode: ARView.CameraMode = .ar) {
-        super.init(frame: frame, cameraMode: cameraMode, automaticallyConfigureSession: false)
+        self.arView = .init(frame: frame,
+                            cameraMode: cameraMode,
+                            automaticallyConfigureSession: false)
 
-        self.session.delegate = self.bufferDelegate
+        self.arView.session.delegate = self.bufferDelegate
 
         switch cameraMode {
         case .ar:
@@ -42,42 +50,35 @@ final class StitchARView: ARView {
              coachingOverlay.goal = .anyPlane
              self.addSubview(coachingOverlay)
              */
-            self.environment.background = .color(.clear)
+            self.arView.environment.background = .color(.clear)
         case .nonAR:
             // Make static view for non AR
-            if let snapshotView = self.snapshotView(afterScreenUpdates: false) {
-                self.addSubview(snapshotView)
+            if let snapshotView = self.arView.snapshotView(afterScreenUpdates: false) {
+                self.arView.addSubview(snapshotView)
             }
 
             // Environment can be used for lighting effects for AR stuff
-            self.environment.background = .color(.clear)
+            self.arView.environment.background = .color(.clear)
         default:
-            if let snapshotView = self.snapshotView(afterScreenUpdates: false) {
-                self.addSubview(snapshotView)
+            if let snapshotView = self.arView.snapshotView(afterScreenUpdates: false) {
+                self.arView.addSubview(snapshotView)
             }
 
-            self.environment.background = .color(.clear)
+            self.arView.environment.background = .color(.clear)
         }
     }
 
-    required init(frame frameRect: CGRect) {
-        super.init(frame: frameRect)
-    }
-
-    required init?(coder decoder: NSCoder) {
-        super.init(coder: decoder)
-    }
-
+    @MainActor
     func makeRaycast(alignmentType: ARRaycastQuery.TargetAlignment,
                      center: CGPoint,
                      x: Float,
                      y: Float) -> ARRaycastResult? {
         let newPoint = CGPoint(x: center.x + CGFloat(x), y: center.y + CGFloat(y))
 
-        let results = self.raycast(from: newPoint,
-                                   // Better for pinning to planes
-                                   allowing: .estimatedPlane,
-                                   alignment: alignmentType)
+        let results = self.arView.raycast(from: newPoint,
+                                          // Better for pinning to planes
+                                          allowing: .estimatedPlane,
+                                          alignment: alignmentType)
 
         return results.first
     }
@@ -86,7 +87,7 @@ final class StitchARView: ARView {
 extension StitchARView: StitchCameraSession {
     @MainActor
     func stopRunning() {
-        self.session.pause()
+        self.arView.session.pause()
     }
 
     /*
@@ -120,13 +121,13 @@ extension StitchARView: StitchCameraSession {
             worldConfig.userFaceTrackingEnabled = true
 
             // Must run on main thread
-            self.session.run(worldConfig, options: options)
+            self.arView.session.run(worldConfig, options: options)
         } else if position == .front {
             let faceConfig = ARFaceTrackingConfiguration()
             faceConfig.isWorldTrackingEnabled = true
 
             // Must run on main thread
-            self.session.run(faceConfig, options: options)
+            self.arView.session.run(faceConfig, options: options)
         }
     }
 }
