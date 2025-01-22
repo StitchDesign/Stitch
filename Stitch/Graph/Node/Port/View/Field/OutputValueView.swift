@@ -169,32 +169,37 @@ struct OutputValueView: View {
                 .disabled(true)
                 
             case .layerGroupAlignment(_):
-                Text("TODO: layerGroupHorizontalAlignment")
+                EmptyView() // Can't really happen
             
             case .textAlignmentPicker(let x):
-//                TextAlignmentFieldValueView(
-//                    id: rowObserverId,
-//                    value: x,
-//                    layerInputObserver: layerInputObserver,
-//                    isFieldInsideLayerInspector: isFieldInsideLayerInspector)
-//
-//                SpecialPickerFieldValueView(
-//                    currentChoice: .textAlignment(x),
-//                    id: rowObserverId,
-//                    value: .textAlignment(x),
-//                    choices: LayerTextAlignment.choices,
-//                    layerInputObserver: layerInputObserver,
-//                    isFieldInsideLayerInspector: isFieldInsideLayerInspector)
-//                .disabled(<#T##disabled: Bool##Bool#>)
+                SpecialPickerFieldValueView(
+                    currentChoice: .textAlignment(x),
+                    id: coordinate,
+                    value: .textAlignment(x),
+                    choices: LayerTextAlignment.choices,
+                    layerInputObserver: nil,
+                    isFieldInsideLayerInspector: false)
+                .disabled(false)
                 
-                Text("TODO: textAlignmentPicker")
-                
-            case .textVerticalAlignmentPicker(_):
-                Text("TODO: textVerticalAlignmentPicker")
+            case .textVerticalAlignmentPicker(let x):
+                SpecialPickerFieldValueView(
+                    currentChoice: .textVerticalAlignment(x),
+                    id: coordinate,
+                    value: .textVerticalAlignment(x),
+                    choices: LayerTextVerticalAlignment.choices,
+                    layerInputObserver: nil,
+                    isFieldInsideLayerInspector: false)
+                .disabled(false)
             
-            case .textDecoration(_):
-                Text("TODO: textDecoration")
-                
+            case .textDecoration(let x):
+                SpecialPickerFieldValueView(
+                    currentChoice: .textDecoration(x),
+                    id: coordinate,
+                    value: .textDecoration(x),
+                    choices: LayerTextDecoration.choices,
+                    layerInputObserver: nil,
+                    isFieldInsideLayerInspector: false)
+                .disabled(false)
                 
             case .pinTo(let pinToId):
                 LayerNamesDropDownChoiceView(graph: graph,
