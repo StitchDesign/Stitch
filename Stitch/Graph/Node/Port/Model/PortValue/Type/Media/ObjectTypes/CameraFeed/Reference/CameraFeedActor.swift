@@ -179,20 +179,89 @@ final actor CameraFeedActor {
 
         if isIPhone {
             connection.videoRotationAngle = 90
-        }
-        //Matches default behavior on Main
-        //TODO: Support rotation during session
-        else if isIPad {
-            connection.videoRotationAngle = 180
-        } else if let rotationAngle = Self.getCameraRotationAngle(
-            device: device,
-            cameraOrientation: cameraOrientation) {
+        } else {
+            
+#if targetEnvironment(macCatalyst)
+//            connection.videoRotationAngle = 180
+            
+            // Mac:
+            
+            // head is up; should be portrait
+//            connection.videoRotationAngle = 0
+            
+            // head is down (upside-down); should be portrait upside-down
+//            connection.videoRotationAngle = 180
+            
+            
+            // head is to the left; so should be landscape left
+//            connection.videoRotationAngle = 90
+            
+            // head is to the right; should be landscape right
+            // connection.videoRotationAngle = 270
+            
+            let rotationAngle = Self.getVideoRotationAngleForMac(cameraOrientation)
+            log("configureSession: rotationAngle: \(rotationAngle)")
             connection.videoRotationAngle = rotationAngle
+            
+#else
+            if position == .front {
+                log("configureSession: position: front")
+                connection.videoRotationAngle = 180
+            } else if position == .back {
+                log("configureSession: position: back")
+                connection.videoRotationAngle = 0
+            } else {
+                log("configureSession: position: else")
+                connection.videoRotationAngle = 180
+            }
+#endif
         }
+        
+//        // Matches default behavior on Main
+//        // TODO: Support rotation during session
+//        else if isIPad {
+//            if position == .front {
+//                connection.videoRotationAngle = 180
+//            } else if position == .back {
+        
+//                connection.videoRotationAngle = 0
+//            } else {
+//                connection.videoRotationAngle = 180
+//            }
+//        }
+        // else
+        // else
+//        if let rotationAngle = Self.getCameraRotationAngle(
+//            device: device,
+//            cameraOrientation: cameraOrientation) {
+//            
+//            log("configureSession: rotationAngle: \(rotationAngle)")
+//            
+//            connection.videoRotationAngle = rotationAngle
+//        }
 
+        #if !targetEnvironment(macCatalyst)
         connection.isVideoMirrored = position == .front
+        #endif
 
         session.commitConfiguration()
+    }
+    
+    
+    private static func getVideoRotationAngleForMac(_ cameraOrientation: StitchCameraOrientation) -> Double {
+//        switch cameraOrientation.convertOrientation {
+        switch cameraOrientation {
+        case .portrait:
+            return 0
+        case .portraitUpsideDown:
+            return 180
+        case .landscapeLeft:
+            return 90
+        case .landscapeRight:
+            return 270
+//        @unknown default:
+//            return 0
+        }
     }
     
     private static func getCameraRotationAngle(device: StitchCameraDevice,
