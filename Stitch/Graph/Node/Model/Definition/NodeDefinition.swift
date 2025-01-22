@@ -47,7 +47,7 @@ extension Layer {
     }
 }
 
-typealias LayerRealityCameraContent = ARView
+typealias LayerRealityCameraContent = StitchARView
 
 // fka `LayerGraphNode`
 protocol LayerNodeDefinition: NodeDefinition {

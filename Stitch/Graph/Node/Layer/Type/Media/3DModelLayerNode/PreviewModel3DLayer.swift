@@ -75,7 +75,7 @@ struct Preview3DModelLayer: View {
     }
     
     @ViewBuilder
-    func entityView(realityContent: ARView) -> some View {
+    func entityView(realityContent: StitchARView) -> some View {
         Color.clear
             .modifier(ModelEntityLayerViewModifier(previewLayer: layerViewModel,
                                                    entity: self.entity,
@@ -84,7 +84,8 @@ struct Preview3DModelLayer: View {
                                                    anchorEntityId: anchorEntityId,
                                                    translationEnabled: translation3DEnabled,
                                                    rotationEnabled: rotation3DEnabled,
-                                                   scaleEnabled: scale3DEnabled))
+                                                   scaleEnabled: scale3DEnabled,
+                                                   isRendering: isPinnedViewRendering))
     }
     
     var body: some View {
@@ -104,7 +105,8 @@ struct Preview3DModelLayer: View {
                             size: self.size,
                             sceneSize: self.sceneSize,
                             scale: self.scale,
-                            opacity: self.opacity)
+                            opacity: self.opacity,
+                            isRendering: self.isPinnedViewRendering)
                 .onAppear {
                     entity.isAnimating = self.layerViewModel.isEntityAnimating.getBool ?? false
                 }
@@ -159,6 +161,7 @@ struct ModelEntityLayerViewModifier: ViewModifier {
     let translationEnabled: Bool
     let rotationEnabled: Bool
     let scaleEnabled: Bool
+    let isRendering: Bool
     
     var gestures: ARView.EntityGestures {
         var enabledGestures = ARView.EntityGestures()
@@ -185,7 +188,7 @@ struct ModelEntityLayerViewModifier: ViewModifier {
             newAnchor.addChild(entity.containerEntity)
         }
         
-        realityContent.scene.addAnchor(newAnchor)
+        realityContent.arView.scene.addAnchor(newAnchor)
     }
     
     func getAnchor(for nodeId: UUID) -> AnchorEntity? {
@@ -198,24 +201,32 @@ struct ModelEntityLayerViewModifier: ViewModifier {
     }
     
     func assignGestures(entity: StitchEntity) {
-        realityContent.installGestures(gestures,
+        realityContent.arView.installGestures(gestures,
                                        for: entity.containerEntity as Entity & HasCollision)
     }
     
     func body(content: Content) -> some View {
-        content
-            .onAppear {
+        guard isRendering else {
+            return content
+                .eraseToAnyView()
+        }
+        
+        return content
+            .onDisappear {
+                realityContent.arView.scene.removeAnchor(self.anchorEntity)
+            }
+            .onChange(of: realityContent.id, initial: true) {
                 if let anchorId = self.anchorEntityId,
                    let assignedAnchor = self.getAnchor(for: anchorId) {
                     self.anchorEntity = assignedAnchor
                 }
                 
-                realityContent.scene.addAnchor(self.anchorEntity)
+                realityContent.arView.scene.addAnchor(self.anchorEntity)
             }
             .onChange(of: self.anchorEntityId) { _, newAnchorEntityId in
                 // Remove old anchor from reality
                 let oldAnchor = self.anchorEntity
-                realityContent.scene.removeAnchor(oldAnchor)
+                realityContent.arView.scene.removeAnchor(oldAnchor)
                 
                 guard let newAnchorEntityId = newAnchorEntityId else {
                     self.asssignNewAnchor(AnchorEntity(),
@@ -255,7 +266,7 @@ struct ModelEntityLayerViewModifier: ViewModifier {
                 if let entity = self.entity {
                     
                     // MARK: if gestures change, the only way to remove a previously-assigned gesture is to remove the entity entirely, recreate it, and then re-assign gestures
-                    Task { [weak entity] in
+                    Task(priority: .high) { [weak entity] in
                         guard let entity = entity,
                               let entityCopy = try? await entity.createCopy() else {
                             return
@@ -271,8 +282,6 @@ struct ModelEntityLayerViewModifier: ViewModifier {
                     }
                 }
             }
-            .onDisappear {
-                realityContent.scene.removeAnchor(self.anchorEntity)
-            }
+            .eraseToAnyView()
     }
 }

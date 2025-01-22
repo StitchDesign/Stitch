@@ -12,13 +12,13 @@ import StitchSchemaKit
 
 struct CameraRealityView: UIViewRepresentable {
     // AR view must already be created in media manager
-    let arView: StitchARView
+    let arView: ARView
     let size: LayerSize
     let scale: Double
     let opacity: Double
     let isShadowsEnabled: Bool
     
-    func makeUIView(context: Context) -> StitchARView {
+    func makeUIView(context: Context) -> ARView {
         arView.environment.background = .cameraFeed()
         arView.cameraMode = .ar
         arView.renderOptions = isShadowsEnabled ? [] : [.disableGroundingShadows]
@@ -26,7 +26,7 @@ struct CameraRealityView: UIViewRepresentable {
         return arView
     }
     
-    func updateUIView(_ uiView: StitchARView, context: Context) {
+    func updateUIView(_ uiView: ARView, context: Context) {
         uiView.frame.size = size.asAlgebraicCGSize
         uiView.alpha = opacity
         uiView.transform = CGAffineTransform(scaleX: scale, y: scale)
@@ -41,11 +41,11 @@ struct NonCameraRealityView: UIViewRepresentable {
     let opacity: Double
     let isShadowsEnabled: Bool
     
-    func makeUIView(context: Context) -> StitchARView {
+    func makeUIView(context: Context) -> ARView {
         let arView = StitchARView(cameraMode: .nonAR)
-        arView.environment.background = .color(.clear)
-        arView.cameraMode = .nonAR
-        arView.renderOptions = isShadowsEnabled ? [] : [.disableGroundingShadows]
+        arView.arView.environment.background = .color(.clear)
+        arView.arView.cameraMode = .nonAR
+        arView.arView.renderOptions = isShadowsEnabled ? [] : [.disableGroundingShadows]
         
         // MARK: useful for debugging gestures
 //        arView.debugOptions = .showPhysics
@@ -53,10 +53,10 @@ struct NonCameraRealityView: UIViewRepresentable {
         // Update object with scene
         layerViewModel.realityContent = arView
         
-        return arView
+        return arView.arView
     }
     
-    func updateUIView(_ uiView: StitchARView, context: Context) {        
+    func updateUIView(_ uiView: ARView, context: Context) {
         uiView.frame.size = size.asAlgebraicCGSize
         uiView.alpha = opacity
         uiView.transform = CGAffineTransform(scaleX: scale, y: scale)
