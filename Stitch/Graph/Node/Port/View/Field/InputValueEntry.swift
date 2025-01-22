@@ -327,30 +327,46 @@ struct InputValueView: View {
                                            isFieldInsideLayerInspector: isFieldInsideLayerInspector)
             
             case .layerGroupOrientationDropdown(let x):
-                
                 LayerGroupOrientationDropDownChoiceView(
                     id: rowObserverId,
                     value: x,
                     layerInputObserver: layerInputObserver,
                     isFieldInsideLayerInspector: isFieldInsideLayerInspector)
                 
-                // need to pass down whether this layer is a group with a Vstack or HStack or something else;
-                // VStack vs HStack = different sf symbol buttons
             case .layerGroupAlignment(let x):
-//                Text("TODO: layerGroupHorizontalAlignment")
-                LayerGroupVerticalAlignmentPickerFieldValueView(
-                    id: rowObserverId,
-                    value: x,
-                    layerInputObserver: layerInputObserver,
-                    isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+
+                // If this field is for a LayerGroup layer node,
+                // and the layer node has a VStack or HStack layerGroupOrientation,
+                // then use this special picker:
+                if nodeKind.getLayer == .group,
+                   let layerNode = graph.getLayerNode(id: rowObserverId.nodeId)?.layerNodeViewModel,
+                   let orientation = layerNode.orientationPort.activeValue.getOrientation {
+                    switch orientation {
+                    case .vertical:
+                        // logInView("InputValueView: vertical")
+                        LayerGroupHorizontalAlignmentPickerFieldValueView(
+                            id: rowObserverId,
+                            value: x,
+                            layerInputObserver: layerInputObserver,
+                            isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+                    case .horizontal:
+                        // logInView("InputValueView: vertical")
+                        LayerGroupVerticalAlignmentPickerFieldValueView(
+                            id: rowObserverId,
+                            value: x,
+                            layerInputObserver: layerInputObserver,
+                            isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+                        
+                    case .grid, .none:
+                        // Should never happen
+                        // logInView("InputValueView: grid or none")
+                        EmptyView()
+                    }
+                } else {
+                    EmptyView()
+                }
                 
             case .textAlignmentPicker(let x):
-//                TextAlignmentFieldValueView(
-//                    id: rowObserverId,
-//                    value: x,
-//                    layerInputObserver: layerInputObserver,
-//                    isFieldInsideLayerInspector: isFieldInsideLayerInspector)
-                
                 SpecialPickerFieldValueView(
                     currentChoice: .textAlignment(x),
                     id: rowObserverId,
