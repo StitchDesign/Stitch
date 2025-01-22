@@ -25,13 +25,10 @@ enum FieldValue: Equatable, Sendable {
     case dropdown(String, PortValues)
     case layerDropdown(LayerNodeId?)
     case layerGroupOrientationDropdown(StitchOrientation)
-    
-    // added
     case layerGroupAlignment(Anchoring)
     case textAlignmentPicker(LayerTextAlignment)
     case textVerticalAlignmentPicker(LayerTextVerticalAlignment)
     case textDecoration(LayerTextDecoration)
-    
     case pinTo(PinToId)
     case anchorPopover(Anchoring)
     case media(FieldValueMedia)
