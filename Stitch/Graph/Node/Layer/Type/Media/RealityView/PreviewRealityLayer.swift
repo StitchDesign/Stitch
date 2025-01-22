@@ -139,7 +139,7 @@ struct RealityLayerView: View {
             case .loaded(let cameraFeedManager):
                 if let cameraFeedManager = cameraFeedManager.cameraFeedManager,
                    let arView = cameraFeedManager.arView {
-                    CameraRealityView(arView: arView,
+                    CameraRealityView(arView: arView.arView,
                                       size: layerSize,
                                       scale: scale,
                                       opacity: opacity,
