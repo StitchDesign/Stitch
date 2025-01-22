@@ -9,12 +9,13 @@ import PostgREST
 import SwiftDotenv
 import UIKit
 import SwiftUI
+import SwiftyJSON
 
 struct LLMRecordingPayload: Encodable, Sendable {
     let actions: String
 }
 
-private struct RecordingWrapper: Encodable {
+private struct RecordingWrapper: Codable {
     let prompt: String
     let actions: [LLMStepAction]
 }
@@ -102,7 +103,7 @@ actor SupabaseManager {
         print("Starting uploadLLMRecording...")
         print(" Correction Mode: \(isCorrection)")
 
-        struct Payload: Encodable {
+        struct Payload: Codable {
             let user_id: String
             let actions: RecordingWrapper
             let correction: Bool
@@ -143,8 +144,39 @@ actor SupabaseManager {
                 print(" Full JSON payload:\n\(jsonString)")
                 let editedJSON = await showJSONEditor(jsonString: jsonString)
                 print(" Edited JSON payload:\n\(editedJSON)")
+                
+                // Validate JSON structure
+                if let editedData = editedJSON.data(using: .utf8) {
+                    do {
+                        let editedPayload = try JSONDecoder().decode(Payload.self, from: editedData)
+                        
+                        // Use the edited payload for insertion
+                        try await postgrest
+                            .from(tableName)
+                            .insert(editedPayload, returning: .minimal)
+                            .execute()
+                        
+                        print(" Data uploaded successfully to Supabase!")
+                        return
+                    } catch DecodingError.keyNotFound(let key, let context) {
+                        print(" Error: Missing key '\(key.stringValue)' - \(context.debugDescription)")
+                    } catch DecodingError.typeMismatch(let type, let context) {
+                        print(" Error: Type mismatch for type '\(type)' - \(context.debugDescription)")
+                    } catch DecodingError.valueNotFound(let type, let context) {
+                        print(" Error: Missing value for type '\(type)' - \(context.debugDescription)")
+                    } catch DecodingError.dataCorrupted(let context) {
+                        print(" Error: Data corrupted - \(context.debugDescription)")
+                    } catch {
+                        print(" Error decoding JSON: \(error.localizedDescription)")
+                    }
+                } else {
+                    print(" Error: Unable to convert edited JSON to Data")
+                }
+                
+                print(" Failed to decode edited JSON. Using original payload.")
             }
 
+            // Fallback to original payload if JSON editing/parsing fails
             try await postgrest
                 .from(tableName)
                 .insert(payload, returning: .minimal)
@@ -163,30 +195,46 @@ actor SupabaseManager {
         }
     }
     
-    func uploadEditedLLMRecording(_ recordingData: String) async throws {
-        do {
-            let jsonData = try JSONEncoder().encode(recordingData)
-            if let jsonString = String(data: jsonData, encoding: .utf8) {
-                print(" Full JSON payload:\n\(jsonString)")
-            }
-
-            try await postgrest
-                .from(tableName)
-                .insert(jsonData, returning: .minimal)
-                .execute()
-            print(" Data uploaded successfully to Supabase!")
-
-        } catch let error as HTTPError {
-            print(" HTTPError uploading to Supabase:")
-            if let errorMessage = String(data: error.data, encoding: .utf8) {
-                print("  Error details: \(errorMessage)")
-            }
-            throw error
-        } catch {
-            print(" Unknown error: \(error)")
-            throw error
-        }
-    }
+    
+//    func uploadEditedLLMRecording(_ recordingData: String) async throws {
+//        do {
+//            // First, remove any outer quotes if they exist
+//            let cleanJson = recordingData.trimmingCharacters(in: .init(charactersIn: "\""))
+//            
+//            // Convert to data
+//            guard let jsonData = cleanJson.data(using: .utf8) else {
+//                throw NSError(domain: "JSONError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to convert string to data"])
+//            }
+//            
+//            
+//            let json = JSON(jsonData)
+//
+//            
+//            // Parse into dictionary
+////            guard let jsonDict = try JSONSerialization.jsonObject(with: jsonData) as? [String: Any] else {
+////                throw NSError(domain: "JSONError", code: 2, userInfo: [NSLocalizedDescriptionKey: "Failed to parse JSON into dictionary"])
+////            }
+//
+//            print(" Full JSON payload (parsed):\n\(jsonData)")
+//
+//            try await postgrest
+//                .from(tableName)
+//                .insert(json.arrayObject, returning: .minimal)
+//                .execute()
+//            print(" Data uploaded successfully to Supabase!")
+//
+//        } catch let error as HTTPError {
+//            print(" HTTPError uploading to Supabase:")
+//            if let errorMessage = String(data: error.data, encoding: .utf8) {
+//                print("  Error details: \(errorMessage)")
+//            }
+//            throw error
+//        } catch {
+//            print(" Unknown error: \(error)")
+//            throw error
+//        }
+//    }
+//
 
   
 }

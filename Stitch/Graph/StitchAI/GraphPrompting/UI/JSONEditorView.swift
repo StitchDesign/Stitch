@@ -47,9 +47,10 @@ struct JSONEditorView: View {
             }
             
             Button(action: {
-                Task {
-                    await sendToSupabase()
-                }
+                completeAndDismiss(jsonString)
+//                Task {
+//                    await sendToSupabase()
+//                }
             }) {
                 HStack {
                     Text("Send to Supabase")
@@ -124,13 +125,13 @@ struct JSONEditorView: View {
 //        }
 //    }
 
-    private func sendToSupabase() async {
-        do {
-            try await SupabaseManager.shared.uploadEditedLLMRecording(jsonString)
-        } catch {
-            print("Failed to upload the edited LLM recording: \(error.localizedDescription)")
-        }
-    }
+//    private func sendToSupabase() async {
+//        do {
+//            try await SupabaseManager.shared.uploadEditedLLMRecording(jsonString)
+//        } catch {
+//            print("Failed to upload the edited LLM recording: \(error.localizedDescription)")
+//        }
+//    }
     
     private func completeAndDismiss(_ json: String) {
         guard !hasCompleted else { return }
