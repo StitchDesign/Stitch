@@ -17,6 +17,7 @@ private struct RecordingWrapper: Encodable {
     let prompt: String
     let actions: [LLMStepAction]
 }
+
 actor SupabaseManager {
     static let shared = SupabaseManager()
     private let postgrest: PostgrestClient
@@ -101,6 +102,41 @@ actor SupabaseManager {
             throw error
         } catch {
             print("Unknown error: \(error)")
+            throw error
+        }
+    }
+
+    func uploadEditedLLMRecording(_ recordingData: String) async throws {
+        do {
+            // First, remove any outer quotes if they exist
+            let cleanJson = recordingData.trimmingCharacters(in: .init(charactersIn: "\""))
+            
+            // Convert to data
+            guard let jsonData = cleanJson.data(using: .utf8) else {
+                throw NSError(domain: "JSONError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to convert string to data"])
+            }
+            
+            // Parse into dictionary
+            guard let jsonDict = try JSONSerialization.jsonObject(with: jsonData) as? [String: Any] else {
+                throw NSError(domain: "JSONError", code: 2, userInfo: [NSLocalizedDescriptionKey: "Failed to parse JSON into dictionary"])
+            }
+
+            print(" Full JSON payload (parsed):\n\(jsonDict)")
+
+            try await postgrest
+                .from(tableName)
+                .insert(jsonDict, returning: .minimal)
+                .execute()
+            print(" Data uploaded successfully to Supabase!")
+
+        } catch let error as HTTPError {
+            print(" HTTPError uploading to Supabase:")
+            if let errorMessage = String(data: error.data, encoding: .utf8) {
+                print("  Error details: \(errorMessage)")
+            }
+            throw error
+        } catch {
+            print(" Unknown error: \(error)")
             throw error
         }
     }

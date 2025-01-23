@@ -21,7 +21,7 @@ Draw custom shapes by interacting with the prototype window.
 """
 
 let bouncyConverterDescription = """
-Node for converting Pop Animation values to spring tension and friction
+Node for converting Pop Animation values to spring tension and friction.
 
 *Inputs*
 • Bounciness
@@ -53,7 +53,7 @@ Animates a number using a standard animation curve.
 """
 
 let cubicBezierAnimationDescription = """
-Creates custom animation curves by defining two control points
+Creates custom animation curves by defining two control points.
 
 *Inputs*
 • The number to animate to
@@ -266,7 +266,7 @@ This node sorts the array in ascending order.
 """
 
 let indexOfDescription = """
-Returns the index of a given item in an array if the item is present
+Returns the index of a given item in an array if the item is present.
 
 *Inputs*
 • An array
@@ -279,7 +279,7 @@ Returns the index of a given item in an array if the item is present
 """
 
 let subarrayDescription = """
-Returns a subarray from a given array
+Returns a subarray from a given array.
 
 *Inputs*
 • An array
@@ -293,7 +293,7 @@ Returns a subarray from a given array
 // MARK: Audio
 
 let microphoneDescription = """
-A node for accessing the device microphone
+A node for accessing the device microphone.
 
 *Inputs*
 • A boolean to toggle the microphone on or off
@@ -1898,7 +1898,7 @@ Outputs a pulse event when it's toggled on or off.
 """
 
 let pulseOnChangeDescription = """
-The Pulse On Change node outputs a pulse if an input value comes in that is different from the specified value
+The Pulse On Change node outputs a pulse if an input value comes in that is different from the specified value.
 
 *Inputs*
 • A numerical value.
@@ -1908,7 +1908,7 @@ The Pulse On Change node outputs a pulse if an input value comes in that is diff
 """
 
 let repeatingPulseDescription = """
-A node that will fire a pulse at a defined interval
+A node that will fire a pulse at a defined interval.
 
 *Inputs*
 • The frequency at which the pulse occrs
