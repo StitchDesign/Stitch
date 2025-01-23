@@ -160,12 +160,12 @@ struct ContentView: View, KeyboardReadable {
                      sheetBody: {
             LLMPromptModalView(actionsAsDisplay: document.llmRecording.promptState.actionsAsDisplayString)
         })
-        .stitchSheet(isPresented: document.llmRecording.jsonEntryState.showModal,
-                     titleLabel: "LLM JSON Entry",
-                     hideAction: document.closedLLMActionsJSONEntryModal,
-                     sheetBody: {
-            LLMActionsJSONEntryModalView()
-        })
+//        .stitchSheet(isPresented: document.llmRecording.jsonEntryState.showModal,
+//                     titleLabel: "LLM JSON Entry",
+//                     hideAction: document.closedLLMActionsJSONEntryModal,
+//                     sheetBody: {
+//            LLMActionsJSONEntryModalView()
+//        })
         .stitchSheet(isPresented: document.stitchAI.promptState.showModal,
                       titleLabel: "Stitch AI",
                       hideAction: document.closedStitchAIModal,

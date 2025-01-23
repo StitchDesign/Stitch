@@ -37,6 +37,15 @@ struct InsertNodeMenuState: Hashable {
     var activeSelection: InsertNodeMenuOptionData? = Self.startingActiveSelection
     var searchQuery: String?
     var isGeneratingAINode: Bool = false
+    var isFromAIGeneration: Bool = false {
+        didSet {
+            if isFromAIGeneration {
+                log("🤖 📼 AI Generation Mode ENABLED 📼 🤖")
+            } else {
+                log("🤖 📼 AI Generation Mode DISABLED 📼 🤖")
+            }
+        }
+    }
     
     static let startingActiveSelection = allSearchOptions.first
     // TODO: needs to be dynamic, since we now must load in custom components
