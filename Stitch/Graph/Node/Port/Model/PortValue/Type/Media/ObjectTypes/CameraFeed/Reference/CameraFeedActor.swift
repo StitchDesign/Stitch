@@ -177,11 +177,12 @@ final actor CameraFeedActor {
         let isIPhone = deviceType == .phone
 
         if isIPhone {
-            connection.videoRotationAngle = 90
+            connection.videoRotationAngle = 90 // portrait
         } else {
             let rotationAngle = Self.getVideoRotationAngle(position: position,
-                                                           cameraOrientation)
-            log("configureSession: rotationAngle: \(rotationAngle)")
+                                                           cameraOrientation: cameraOrientation,
+                                                           isIPhone: isIPhone)
+            // log("configureSession: rotationAngle: \(rotationAngle)")
             connection.videoRotationAngle = rotationAngle
         }
         
@@ -194,9 +195,8 @@ final actor CameraFeedActor {
     
     
     private static func getVideoRotationAngle(position: AVCaptureDevice.Position,
-                                              _ cameraOrientation: StitchCameraOrientation) -> Double {
-        
-       
+                                              cameraOrientation: StitchCameraOrientation,
+                                              isIPhone: Bool) -> Double {
         
 #if targetEnvironment(macCatalyst)
         switch cameraOrientation {
@@ -212,34 +212,21 @@ final actor CameraFeedActor {
 #else
         let isFront = position == .front
         
+        var rotationAngle = 0.0
+        
         switch cameraOrientation {
         case .portrait:
-            return isFront ? 180 : 0
+            rotationAngle = isFront ? 180 : 0
         case .portraitUpsideDown:
-            return isFront ? 0 : 180
+            rotationAngle = isFront ? 0 : 180
         case .landscapeLeft:
-            return isFront ? 270 : 90
+            rotationAngle = isFront ? 270 : 90
         case .landscapeRight:
-            return isFront ? 90 : 270
+            rotationAngle = isFront ? 90 : 270
         }
         
+        return rotationAngle // + (isIPhone ? 90 : 0)
 #endif
+        
     }
-    
-//    private static func getCameraRotationAngle(device: StitchCameraDevice,
-//                                               cameraOrientation: StitchCameraOrientation) -> Double? {
-//        // Convert StitchCameraOrientation to rotation angle
-//        switch cameraOrientation.convertOrientation {
-//        case .portrait:
-//            return 0
-//        case .portraitUpsideDown:
-//            return 180
-//        case .landscapeRight:
-//            return 90
-//        case .landscapeLeft:
-//            return 270
-//        @unknown default:
-//            return nil
-//        }
-//    }
 }
