@@ -175,7 +175,6 @@ final actor CameraFeedActor {
         // `StitchAVCaptureSession` is only used for devices / camera directions that DO NOT support Augmented Reality
         // e.g. Mac device, or iPad with front camera direction
         let isIPhone = deviceType == .phone
-        let isIPad = deviceType == .pad
 
         if isIPhone {
             connection.videoRotationAngle = 90
