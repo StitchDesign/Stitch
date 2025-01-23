@@ -175,40 +175,58 @@ final actor CameraFeedActor {
         // `StitchAVCaptureSession` is only used for devices / camera directions that DO NOT support Augmented Reality
         // e.g. Mac device, or iPad with front camera direction
         let isIPhone = deviceType == .phone
-        let isIPad = deviceType == .pad
 
         if isIPhone {
-            connection.videoRotationAngle = 90
-        }
-        //Matches default behavior on Main
-        //TODO: Support rotation during session
-        else if isIPad {
-            connection.videoRotationAngle = 180
-        } else if let rotationAngle = Self.getCameraRotationAngle(
-            device: device,
-            cameraOrientation: cameraOrientation) {
+            connection.videoRotationAngle = 90 // portrait
+        } else {
+            let rotationAngle = Self.getVideoRotationAngle(position: position,
+                                                           cameraOrientation: cameraOrientation,
+                                                           isIPhone: isIPhone)
+            // log("configureSession: rotationAngle: \(rotationAngle)")
             connection.videoRotationAngle = rotationAngle
         }
-
+        
+#if !targetEnvironment(macCatalyst)
         connection.isVideoMirrored = position == .front
-
+#endif
+        
         session.commitConfiguration()
     }
     
-    private static func getCameraRotationAngle(device: StitchCameraDevice,
-                                               cameraOrientation: StitchCameraOrientation) -> Double? {
-            // Convert StitchCameraOrientation to rotation angle
-            switch cameraOrientation.convertOrientation {
-            case .portrait:
-                return 0
-            case .portraitUpsideDown:
-                return 180
-            case .landscapeRight:
-                return 90
-            case .landscapeLeft:
-                return 270
-            @unknown default:
-                return nil
-            }
+    
+    private static func getVideoRotationAngle(position: AVCaptureDevice.Position,
+                                              cameraOrientation: StitchCameraOrientation,
+                                              isIPhone: Bool) -> Double {
+        
+#if targetEnvironment(macCatalyst)
+        switch cameraOrientation {
+        case .portrait:
+            return 0
+        case .portraitUpsideDown:
+            return 180
+        case .landscapeLeft:
+            return 270
+        case .landscapeRight:
+            return 90
         }
+#else
+        let isFront = position == .front
+        
+        var rotationAngle = 0.0
+        
+        switch cameraOrientation {
+        case .portrait:
+            rotationAngle = isFront ? 180 : 0
+        case .portraitUpsideDown:
+            rotationAngle = isFront ? 0 : 180
+        case .landscapeLeft:
+            rotationAngle = isFront ? 270 : 90
+        case .landscapeRight:
+            rotationAngle = isFront ? 90 : 270
+        }
+        
+        return rotationAngle // + (isIPhone ? 90 : 0)
+#endif
+        
+    }
 }
