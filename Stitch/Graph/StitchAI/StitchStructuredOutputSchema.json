@@ -132,7 +132,6 @@
         "imageImport || Patch",
         "videoImport || Patch",
         "soundImport || Patch",
-        "model3DImport || Patch",
         "qrCodeDetection || Patch",
         "anchor || Patch",
         "arRaycasting || Patch",
@@ -199,7 +198,12 @@
         "video || Layer",
         "videoStreaming || Layer",
         "realityView || Layer",
-        "canvasSketch || Layer"
+        "canvasSketch || Layer",
+        "box || Layer",
+        "sphere || Layer",
+        "cylinder || Layer",
+        "cone || Layer",
+        "3dModel || Layer"
       ],
       "type": "string"
     },

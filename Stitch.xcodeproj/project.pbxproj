@@ -287,6 +287,8 @@
 		E41685DD28A3FA3000731889 /* Model3DLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41685DC28A3FA3000731889 /* Model3DLayerNode.swift */; };
 		E41685E128A3FA5800731889 /* PreviewModel3DLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41685E028A3FA5800731889 /* PreviewModel3DLayer.swift */; };
 		E416861228A3FC9600731889 /* Vintage Toy Robot.usdz in Resources */ = {isa = PBXBuildFile; fileRef = E416860328A3FC9600731889 /* Vintage Toy Robot.usdz */; };
+		E419F3F72D40337400C169D4 /* JSONEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E419F3F62D40337400C169D4 /* JSONEditorView.swift */; };
+		E419F3F92D4048A600C169D4 /* ProccessInfo+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E419F3F82D4048A600C169D4 /* ProccessInfo+Extension.swift */; };
 		E41A66B32BD2BB8E00385C9F /* LinearGradientNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41A66B22BD2BB8E00385C9F /* LinearGradientNode.swift */; };
 		E42BA45D291C69C200EB7356 /* SIMDExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42BA45C291C69C200EB7356 /* SIMDExtensions.swift */; };
 		E43CA3BF29832FEC007BFE1B /* ARRaycastingNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E43CA3BE29832FEC007BFE1B /* ARRaycastingNode.swift */; };
@@ -1225,6 +1227,8 @@
 		E41685DC28A3FA3000731889 /* Model3DLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model3DLayerNode.swift; sourceTree = "<group>"; };
 		E41685E028A3FA5800731889 /* PreviewModel3DLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewModel3DLayer.swift; sourceTree = "<group>"; };
 		E416860328A3FC9600731889 /* Vintage Toy Robot.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = "Vintage Toy Robot.usdz"; sourceTree = "<group>"; };
+		E419F3F62D40337400C169D4 /* JSONEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONEditorView.swift; sourceTree = "<group>"; };
+		E419F3F82D4048A600C169D4 /* ProccessInfo+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ProccessInfo+Extension.swift"; sourceTree = "<group>"; };
 		E41A66B22BD2BB8E00385C9F /* LinearGradientNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinearGradientNode.swift; sourceTree = "<group>"; };
 		E42BA45C291C69C200EB7356 /* SIMDExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SIMDExtensions.swift; sourceTree = "<group>"; };
 		E43CA3BE29832FEC007BFE1B /* ARRaycastingNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ARRaycastingNode.swift; sourceTree = "<group>"; };
@@ -3814,6 +3818,7 @@
 			children = (
 				E40B2F4D2CB86BC3005F5479 /* StitchAIPromptView.swift */,
 				E4E860012CBD5448006763DA /* StitchAIErrorModalView.swift */,
+				E419F3F62D40337400C169D4 /* JSONEditorView.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -3836,6 +3841,7 @@
 			children = (
 				EC9348A32CE3F86000772117 /* OpenAIRequest.swift */,
 				E48A07912D38C528002E8A98 /* SupabaseManager.swift */,
+				E419F3F82D4048A600C169D4 /* ProccessInfo+Extension.swift */,
 			);
 			path = API;
 			sourceTree = "<group>";
@@ -4507,6 +4513,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 200BD866254F66EE00692903 /* Build configuration list for PBXNativeTarget "Stitch" */;
 			buildPhases = (
+				E480A9742D400EB5008AC234 /* ShellScript */,
 				200BD853254F66EB00692903 /* Sources */,
 				200BD854254F66EB00692903 /* Frameworks */,
 				200BD855254F66EB00692903 /* Resources */,
@@ -4689,6 +4696,26 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		E480A9742D400EB5008AC234 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Only inject secrets during Xcode Cloud builds\nif [ \"$CI\" == \"true\" ]; then\n    echo \"Injecting secrets into Secrets.env...\"\n    echo \"SUPABASE_URL=$SUPABASE_URL\" > \"${SRCROOT}/Secrets.env\"\n    echo \"SUPABASE_TABLE_NAME=$SUPABASE_TABLE_NAME\" > \"${SRCROOT}/Secrets.env\"\n    echo \"SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY\" >> \"${SRCROOT}/Secrets.env\"\n    echo \"OPEN_AI_API_KEY=$OPEN_AI_API_KEY\" >> \"${SRCROOT}/Secrets.env\"\n    echo \"OPEN_AI_MODEL=$OPEN_AI_MODEL\" >> \"${SRCROOT}/Secrets.env\"\nelse\n    echo \"Not running in Xcode Cloud. Skipping secret injection.\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		200BD853254F66EB00692903 /* Sources */ = {
@@ -5060,6 +5087,7 @@
 				ECA92A20260A6A1400281B52 /* CounterNode.swift in Sources */,
 				EC650BD926864DF200C4CCC9 /* SoundImportNode.swift in Sources */,
 				ECE08E432649D14D00996EE2 /* ScrollInteractionNode.swift in Sources */,
+				E419F3F92D4048A600C169D4 /* ProccessInfo+Extension.swift in Sources */,
 				ECF387D1280B5E560075F0E5 /* StitchTextView.swift in Sources */,
 				EC560E19293A9ACC00350046 /* LoopSumNode.swift in Sources */,
 				B5B95B982CB6D67A00DA64B3 /* StitchSystemViewModel.swift in Sources */,
@@ -5379,6 +5407,7 @@
 				B55780652CAF66D900907BA8 /* StitchComponentable.swift in Sources */,
 				B56FFB3E2C18F52600623CC7 /* StitchFileResult.swift in Sources */,
 				B54D0BAF2957811A00F3B2F9 /* ProjectsListItemLoadedView.swift in Sources */,
+				E419F3F72D40337400C169D4 /* JSONEditorView.swift in Sources */,
 				EC2942452BA13E6100D14CD1 /* SidebarItemSelectionActions.swift in Sources */,
 				EC1213D528873BF10012234C /* AnimationEvaluationHelpers.swift in Sources */,
 				ECC2BCCF2B9B72E900D5F942 /* SidebarListItemSwipeView.swift in Sources */,
