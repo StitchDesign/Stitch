@@ -160,9 +160,15 @@ struct GenerateAINode: GraphEvent {
     let prompt: String
     
     func handle(state: GraphState) {
-        print("DEBUG - Handling AI node generation with prompt: \(prompt)")
+        print("🤖 🔥 GENERATE AI NODE - STARTING AI GENERATION MODE 🔥 🤖")
+        print("🤖 Prompt: \(prompt)")
+        
         // Set loading state
         state.graphUI.insertNodeMenuState.isGeneratingAINode = true
+        // Set flag to indicate this is from AI generation
+        state.graphUI.insertNodeMenuState.isFromAIGeneration = true
+        print("🤖 isFromAIGeneration set to: \(state.graphUI.insertNodeMenuState.isFromAIGeneration)")
+        
         // Dispatch OpenAI request
         dispatch(MakeOpenAIRequest(prompt: prompt))
     }
@@ -170,6 +176,13 @@ struct GenerateAINode: GraphEvent {
 
 struct AINodeGenerationComplete: GraphEvent {
     func handle(state: GraphState) {
+        // Add capture of generated actions before completion
+        if let document = state.documentDelegate {
+            print("🤖 💾 Storing AI Generated Actions before completion 💾 🤖")
+            document.lastAIGeneratedActions = document.llmRecording.actions
+            print("🤖 Generated Actions: \(document.lastAIGeneratedActions)")
+        }
+        
         state.graphUI.insertNodeMenuState.isGeneratingAINode = false
         state.graphUI.insertNodeMenuState.show = false
     }
