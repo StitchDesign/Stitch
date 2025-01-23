@@ -85,26 +85,7 @@ extension SCNVector3 {
 extension Entity {
     // MARK: eval logic for model 3D patch node
     func _applyMatrix(newMatrix: matrix_float4x4) {
-        // Set translation
-        let position = newMatrix.position
-        let translation = SIMD3([position.x, position.y, position.z])
-        self.transform.translation = translation
-
-        // Set orientation
-        self.smoothOrientationChange(newOrientation: newMatrix.orientation)
-
-        // Set scale
-        self.scale = SIMD3(newMatrix.scale)
-    }
-
-    private func smoothOrientationChange(newOrientation: simd_quatf) {
-        // Set orientation from the raycast. Setting too often creates a jarring experience.
-        let tilt = abs(newOrientation.vector.x)
-        let threshold: Float = .pi / 2 * 0.75
-
-        if tilt > threshold {
-            self.orientation = newOrientation
-        }
+        self.transform.matrix = newMatrix
     }
 }
 
