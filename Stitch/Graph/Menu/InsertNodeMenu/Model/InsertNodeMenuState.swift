@@ -40,9 +40,9 @@ struct InsertNodeMenuState: Hashable {
     var isFromAIGeneration: Bool = false {
         didSet {
             if isFromAIGeneration {
-                print("🤖 📼 AI Generation Mode ENABLED 📼 🤖")
+                log("🤖 📼 AI Generation Mode ENABLED 📼 🤖")
             } else {
-                print("🤖 📼 AI Generation Mode DISABLED 📼 🤖")
+                log("🤖 📼 AI Generation Mode DISABLED 📼 🤖")
             }
         }
     }

@@ -100,8 +100,8 @@ actor SupabaseManager {
     }
     
     func uploadLLMRecording(_ recordingData: LLMRecordingData, graphState: GraphState, isCorrection: Bool = false) async throws {
-        print("Starting uploadLLMRecording...")
-        print(" Correction Mode: \(isCorrection)")
+        log("Starting uploadLLMRecording...")
+        log(" Correction Mode: \(isCorrection)")
 
         struct Payload: Codable {
             let user_id: String
@@ -131,12 +131,12 @@ actor SupabaseManager {
             correction: isCorrection
         )
 
-        print(" Uploading payload:")
-        print("  - User ID: \(deviceUUID)")
-        print("  - Prompt: \(wrapper.prompt)")
-        print("  - Total actions: \(wrapper.actions.count)")
-        print("  - Is correction: \(isCorrection)")
-        print("  - Full actions sequence: \(wrapper.actions.asJSONDisplay())")
+        log(" Uploading payload:")
+        log("  - User ID: \(deviceUUID)")
+        log("  - Prompt: \(wrapper.prompt)")
+        log("  - Total actions: \(wrapper.actions.count)")
+        log("  - Is correction: \(isCorrection)")
+        log("  - Full actions sequence: \(wrapper.actions.asJSONDisplay())")
 
         do {
             let jsonData = try JSONEncoder().encode(payload)
@@ -144,7 +144,7 @@ actor SupabaseManager {
                 var editedJSONString = await showJSONEditor(jsonString: jsonString)
                 editedJSONString = editedJSONString.replacingOccurrences(of: "“", with: "\"")
 
-                print(" Edited JSON payload:\n\(editedJSONString)")
+                log(" Edited JSON payload:\n\(editedJSONString)")
                 
                 // Validate JSON structure
                 if let editedData = editedJSONString.data(using: .utf8) {
@@ -157,24 +157,24 @@ actor SupabaseManager {
                             .insert(editedPayload, returning: .minimal)
                             .execute()
                         
-                        print(" Data uploaded successfully to Supabase!")
+                        log(" Data uploaded successfully to Supabase!")
                         return
                     } catch DecodingError.keyNotFound(let key, let context) {
-                        print(" Error: Missing key '\(key.stringValue)' - \(context.debugDescription)")
+                        log(" Error: Missing key '\(key.stringValue)' - \(context.debugDescription)")
                     } catch DecodingError.typeMismatch(let type, let context) {
-                        print(" Error: Type mismatch for type '\(type)' - \(context.debugDescription)")
+                        log(" Error: Type mismatch for type '\(type)' - \(context.debugDescription)")
                     } catch DecodingError.valueNotFound(let type, let context) {
-                        print(" Error: Missing value for type '\(type)' - \(context.debugDescription)")
+                        log(" Error: Missing value for type '\(type)' - \(context.debugDescription)")
                     } catch DecodingError.dataCorrupted(let context) {
-                        print(" Error: Data corrupted - \(context.debugDescription)")
+                        log(" Error: Data corrupted - \(context.debugDescription)")
                     } catch {
-                        print(" Error decoding JSON: \(error.localizedDescription)")
+                        log(" Error decoding JSON: \(error.localizedDescription)")
                     }
                 } else {
-                    print(" Error: Unable to convert edited JSON to Data")
+                    log(" Error: Unable to convert edited JSON to Data")
                 }
                 
-                print(" Failed to decode edited JSON. Using original payload.")
+                log(" Failed to decode edited JSON. Using original payload.")
             }
 
             // Fallback to original payload if JSON editing/parsing fails
@@ -182,16 +182,16 @@ actor SupabaseManager {
                 .from(tableName)
                 .insert(payload, returning: .minimal)
                 .execute()
-            print(" Data uploaded successfully to Supabase!")
+            log(" Data uploaded successfully to Supabase!")
 
         } catch let error as HTTPError {
-            print(" HTTPError uploading to Supabase:")
+            log(" HTTPError uploading to Supabase:")
             if let errorMessage = String(data: error.data, encoding: .utf8) {
-                print("  Error details: \(errorMessage)")
+                log("  Error details: \(errorMessage)")
             }
             throw error
         } catch {
-            print(" Unknown error: \(error)")
+            log(" Unknown error: \(error)")
             throw error
         }
     }
