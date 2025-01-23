@@ -97,8 +97,10 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
         // Alternatively we could create Number fieldGroups with their proper parent label if they are for an unpacked multifeld layer input?
         if let fieldGroupLabel = fieldGroupViewModel.groupLabel {
             HStack {
-//                Spacer()
-                StitchTextView(string: fieldGroupLabel)
+                LabelDisplayView(label: fieldGroupLabel,
+                               isLeftAligned: false,
+                               fontColor: STITCH_FONT_GRAY_COLOR,
+                               isSelectedInspectorRow: false)
                 Spacer()
             }
         }
