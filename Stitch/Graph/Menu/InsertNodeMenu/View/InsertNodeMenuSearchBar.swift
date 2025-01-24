@@ -37,6 +37,7 @@ struct InsertNodeMenuSearchBar: View {
                     Image(systemName: isAIMode ? "sparkles" : "magnifyingglass")
                         .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
                         .padding(.leading, 15)
+                        .animation(.linear(duration: 0.2), value: isAIMode)
                 })
                 .font(.system(size: 24))
                 .disableAutocorrection(true)
