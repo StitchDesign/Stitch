@@ -59,13 +59,8 @@ struct FloatingWindowView: View {
 
     var body: some View {
         ZStack {
-            floatingWindowWithHandle
-                .matchedGeometryEffect(id: projectId, in: namespace)
-        }
-    }
-    
-    var floatingWindowWithHandle: some View {
-        floatingWindow
+            floatingWindow
+            
             // Start the handle-circle at top-right corner ...
             // ... then manually move down and left by the scaled preview window's dimensions
             .background(alignment: .topTrailing) {
@@ -80,6 +75,9 @@ struct FloatingWindowView: View {
 //            .animation(.easeInout, value: self.finalXOffset)
 //            .animation(.spring, value: self.finalXOffset)
             .animation(.default, value: self.finalXOffset)
+            
+            .matchedGeometryEffect(id: projectId, in: namespace)
+        }
     }
 
     
