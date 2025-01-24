@@ -92,14 +92,6 @@ extension Patch {
         case .splitter, .loopSelect, .loopInsert, .setValueForKey, .jsonObject, .jsonArray, .wirelessBroadcaster, .optionPicker, .optionEquals, .pulseOnChange, .loopBuilder, .optionSender, .loopFilter, .loopToArray, .sampleAndHold, .delay, .loopDedupe, .valueAtPath, .valueAtIndex, .valueForKey:
             return AllUVT.value
 
-        // NUMBER
-
-        // max can also have eg position and point3D type
-        // TODO: update these nodes' evals to handle more than just PortValue.number
-        // https://github.com/vpl-codesign/stitch/issues/3241
-        //        case .max, .min, .mod:
-        //            return NumberUVT.value
-
         // ARITHMETIC
         case .add, .length:
             // LATER: color
