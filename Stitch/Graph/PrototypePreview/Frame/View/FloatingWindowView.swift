@@ -38,11 +38,6 @@ struct FloatingWindowView: View {
 
     static let xOffset: Double = PREVIEW_WINDOW_PADDING
 
-    // showPreview:         a boolean which controls animation for view
-    // shouldRenderPreview: will only toggle after animation completes and is used for
-    //                      controlling rendering of preview
-    @State var shouldRenderPreview = true
-    
     var previewWindowSizing: PreviewWindowSizing {
         document.previewWindowSizingObserver
     }
@@ -64,39 +59,8 @@ struct FloatingWindowView: View {
 
     var body: some View {
         ZStack {
-            if shouldRenderPreview {
-                floatingWindowWithHandle
-                    .matchedGeometryEffect(id: projectId, in: namespace)
-                    // .transition(.slideInAndOut)
-            } else {
-                EmptyView()
-            }
-        }
-        .onChange(of: showPreviewWindow) { _showPreviewWindow in
-            // When state changes to show preview window, change state
-            // to trigger animation
-            // TODO: debug why "show" animation is so much slower than "hide" animation when both use same duration
-//            withAnimation(.linear(duration: _showPreviewWindow ? 0.3 : 0.8)) {
-//            withAnimation(.linear(duration: _showPreviewWindow ? 0.3 : 0.8)) {
-//            withAnimation(.linear(duration: 0.3)) {
+            floatingWindow
             
-            // Note: shorter animation times avoids appearance of some preview window elements disappearing before others (e.g. material layer)
-            withAnimation(.linear(duration: 0.05)) {
-                shouldRenderPreview = _showPreviewWindow
-//            }
-            }
-        }
-    }
-
-    /*
-     HACK:
-
-     There is a bug, on iPad only, where `Spacer()` and/or `.overlay(<some alignment>)` with dynamically changing `dimensions` causes a drag gesture's onEnded to not be called. Hence on infinite loop and app-freezing.
-
-     Interestingly, placing the handle (which has the drag gesture) outside of the Spacers() etc. works; we just have to manually position the handle then.
-     */
-    var floatingWindowWithHandle: some View {
-        floatingWindow
             // Start the handle-circle at top-right corner ...
             // ... then manually move down and left by the scaled preview window's dimensions
             .background(alignment: .topTrailing) {
@@ -111,8 +75,58 @@ struct FloatingWindowView: View {
 //            .animation(.easeInout, value: self.finalXOffset)
 //            .animation(.spring, value: self.finalXOffset)
             .animation(.default, value: self.finalXOffset)
+            
+            .matchedGeometryEffect(id: projectId, in: namespace)
+        }
     }
 
+    
+    @ViewBuilder
+    var floatingWindow: some View {
+        PreviewContent(document: document,
+                       isFullScreen: false,
+                       showPreviewWindow: showPreviewWindow)
+        .frame(self.previewWindowSizing.dimensions)
+        .padding(.top, PREVIEW_WINDOW_Y_PADDING)
+    }
+    
+    var floatingWindowHandle: some View {
+        floatingWindowHandleHitbox
+            .offset(x: -dimensions.width,
+                    y: dimensions.height)
+            .gesture(floatingWindowHandleDragGesture)
+    }
+
+    var floatingWindowHandleHitbox: some View {
+        //        Color.HITBOX_COLOR
+        floatingWindowHandlePlatformView
+#if targetEnvironment(macCatalyst)
+        // Mac only has cursor, and so can always use a more precise hitbox;
+        // but we still expand the size a little bit
+            .frame(.FLOATING_WINDOW_HANDLE_HITBOX_SIZE_MAC)
+        
+            .onHover { hovering in
+                // log("onHover: hovering: \(hovering)")
+                if hovering {
+                    self.setSpecialCursor()
+                } else {
+                    self.setNormalCursor()
+                }
+            }
+#else
+        // TODO: on iPad, use UIKit to distinguish between a finger-on-screen touch (which needs extended hitbox) and a cursor touch (which doesn't)
+            .frame(.FLOATING_WINDOW_HANDLE_HITBOX_SIZE_IPAD)
+#endif
+    }
+    
+    /*
+     HACK:
+
+     There is a bug, on iPad only, where `Spacer()` and/or `.overlay(<some alignment>)` with dynamically changing `dimensions` causes a drag gesture's onEnded to not be called. Hence on infinite loop and app-freezing.
+
+     Interestingly, placing the handle (which has the drag gesture) outside of the Spacers() etc. works; we just have to manually position the handle then.
+     */
+    
     @State var isDragging: Bool = false
 
     func setSpecialCursor() {
@@ -161,35 +175,6 @@ struct FloatingWindowView: View {
 #endif
     }
 
-    var floatingWindowHandle: some View {
-        floatingWindowHandleHitbox
-            .offset(x: -dimensions.width,
-                    y: dimensions.height)
-            .gesture(floatingWindowHandleDragGesture)
-    }
-
-    var floatingWindowHandleHitbox: some View {
-        //        Color.HITBOX_COLOR
-        floatingWindowHandlePlatformView
-#if targetEnvironment(macCatalyst)
-        // Mac only has cursor, and so can always use a more precise hitbox;
-        // but we still expand the size a little bit
-            .frame(.FLOATING_WINDOW_HANDLE_HITBOX_SIZE_MAC)
-        
-            .onHover { hovering in
-                // log("onHover: hovering: \(hovering)")
-                if hovering {
-                    self.setSpecialCursor()
-                } else {
-                    self.setNormalCursor()
-                }
-            }
-#else
-        // TODO: on iPad, use UIKit to distinguish between a finger-on-screen touch (which needs extended hitbox) and a cursor touch (which doesn't)
-            .frame(.FLOATING_WINDOW_HANDLE_HITBOX_SIZE_IPAD)
-#endif
-    }
-
     var floatingWindowHandleDragGesture: DragGestureTypeSignature {
         DragGesture()
             .onChanged { value in
@@ -231,14 +216,6 @@ struct FloatingWindowView: View {
         //            return self.previewWindowSizing.dimensions.width.magnitude / 4
         //        }
         
-    }
-    
-    @ViewBuilder
-    var floatingWindow: some View {
-        PreviewContent(document: document,
-                       isFullScreen: false)
-        .frame(self.previewWindowSizing.dimensions)
-        .padding(.top, PREVIEW_WINDOW_Y_PADDING)
     }
 }
 
