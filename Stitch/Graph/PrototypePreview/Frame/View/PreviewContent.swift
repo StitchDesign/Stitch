@@ -18,6 +18,8 @@ struct PreviewContent: View {
     @Bindable var document: StitchDocumentViewModel
     let isFullScreen: Bool
     
+    let showPreviewWindow: Bool
+    
     var previewWindowSizing: PreviewWindowSizing {
         document.previewWindowSizingObserver
     }
@@ -52,25 +54,55 @@ struct PreviewContent: View {
         : previewContentScale
     }
     
+    // showPreview:         a boolean which controls animation for view
+    // shouldRenderPreview: will only toggle after animation completes and is used for
+    //                      controlling rendering of preview
+    @State var shouldRenderPreview = true
+    
+    var inputTextFieldFocused: Bool {
+        document.graphUI.reduxFocusedField?.inputTextFieldWithNumberIsFocused(document.graph) ?? false
+    }
+    
     var body: some View {
-        
-        let generatedPreview = GeneratePreview(document: document)
-        
+    
         // TODO: still needed to contain gestures?
         // TODO: needed with `ignoresKeyCommands: false` to detect key presses for keyboard nodes
-        UIKitWrapper(ignoresKeyCommands: false,
-                     inputTextFieldFocused: document.graphUI.reduxFocusedField?.inputTextFieldWithNumberIsFocused(document.graph) ?? false,
-                     name: .previewWindow) {
-            generatedPreview
-                .frame(finalSize)
-                .coordinateSpace(name: Self.prototypeCoordinateSpace)
-                .background(document.previewWindowBackgroundColor)
-                .contentShape(Rectangle())
-                // Keeps layers rendered within preview window
-                .clipped()
-            // Important: render preview window border BEFORE applying scale
-                .previewWindowBorder(showsBorder: !isFullScreen)
-                .scaleEffect(finalScale)
+        // TODO: why is GeneratePreview wrappe in a UIHostingController? Better?: have some other view on the graph that listens for key presses
+        // NOTE: `if swiftUIAnimatedVar { ... } else { ... }` seems to not work well when inside UIHostingController.
+        Group {
+            if shouldRenderPreview {
+                UIKitWrapper(ignoresKeyCommands: false,
+                             inputTextFieldFocused: inputTextFieldFocused,
+                             name: .previewWindow) {
+                    GeneratePreview(document: document)
+                        .frame(finalSize)
+                        .coordinateSpace(name: Self.prototypeCoordinateSpace)
+                        .background(document.previewWindowBackgroundColor)
+                        .contentShape(Rectangle())
+                    // Keeps layers rendered within preview window
+                        .clipped()
+                    // Important: render preview window border BEFORE applying scale
+                        .previewWindowBorder(showsBorder: !isFullScreen)
+                        .scaleEffect(finalScale)
+                }
+            } else {
+                UIKitWrapper(ignoresKeyCommands: false,
+                             inputTextFieldFocused: inputTextFieldFocused,
+                             name: .previewWindow) {
+                    EmptyView()
+                }
+            }
+        } // Group
+        .onChange(of: showPreviewWindow) { oldValue, newValue in
+            log("FloatingWindowView: .onChange(of: showPreviewWindow): \(newValue)")
+            // When state changes to show preview window, change state
+            // to trigger animation
+            // TODO: debug why "show" animation is so much slower than "hide" animation when both use same duration
+            //            withAnimation(.linear(duration: newValue ? 0.3 : 0.8)) {
+            // Note: shorter animation times avoids appearance of some preview window elements disappearing before others (e.g. material layer)
+            withAnimation(.linear(duration: 0.05)) {
+                shouldRenderPreview = newValue
+            }
         }
     }
 }
