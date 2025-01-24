@@ -33,33 +33,20 @@ struct InsertNodeMenuSearchBar: View {
                 .padding(.leading, 52)
                 .padding(.trailing, 12)
                 .overlay(HStack {
-                    #if STITCH_AI
                     let isAIMode = store.currentDocument?.graphUI.insertNodeMenuState.isAIMode ?? false
                     Image(systemName: isAIMode ? "sparkles" : "magnifyingglass")
                         .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
                         .padding(.leading, 15)
-                    #else
-                    Image(systemName: "magnifyingglass")
-                        .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
-                        .padding(.leading, 15)
-                    #endif
                 })
                 .font(.system(size: 24))
                 .disableAutocorrection(true)
                 .onSubmit {
-                    #if STITCH_AI
                     let isAIMode = store.currentDocument?.graphUI.insertNodeMenuState.isAIMode ?? false
                     if isAIMode && FeatureFlags.USE_AI_MODE {
                         dispatch(GenerateAINode(prompt: queryString))
                     } else if (self.store.currentDocument?.graphUI.insertNodeMenuState.activeSelection) != nil {
                         dispatch(AddNodeButtonPressed())
                     }
-                    #else
-                    if (self.store.currentDocument?.graphUI.insertNodeMenuState.activeSelection) != nil {
-                        dispatch(AddNodeButtonPressed())
-                    }
-                    #endif
-
                     // Helps to defocus the .focusedValue, ensuring our shortcuts like "CMD+A Select All" is enabled again.
                     self.isFocused = false
                 }
