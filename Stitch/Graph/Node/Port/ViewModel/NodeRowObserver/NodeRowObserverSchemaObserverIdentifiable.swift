@@ -15,6 +15,7 @@ extension InputNodeRowObserver: SchemaObserverIdentifiable {
 
     // for easier search: `updateInputNodeRowObserverFromSchema`
     /// Updates values for inputs.
+    @MainActor
     func update(from schema: NodePortInputEntity) {
         self.upstreamOutputCoordinate = schema.portData.upstreamConnection
 
@@ -41,6 +42,7 @@ extension InputNodeRowObserver: SchemaObserverIdentifiable {
         }
     }
 
+    @MainActor
     func createSchema() -> NodePortInputEntity {
         guard let upstreamOutputObserver = self.upstreamOutputObserver else {
             return NodePortInputEntity(id: id, 
@@ -52,6 +54,7 @@ extension InputNodeRowObserver: SchemaObserverIdentifiable {
     }
     
     // Set inputs to defaultValue
+    @MainActor
     func onPrototypeRestart() {
         // test out first on just non-layer-node inputs
         if self.upstreamOutputCoordinate.isDefined,
