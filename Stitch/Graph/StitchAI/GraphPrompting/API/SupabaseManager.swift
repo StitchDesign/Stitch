@@ -141,13 +141,16 @@ actor SupabaseManager {
         do {
             let jsonData = try JSONEncoder().encode(payload)
             if let jsonString = String(data: jsonData, encoding: .utf8) {
-                var editedJSONString = await showJSONEditor(jsonString: jsonString)
-                editedJSONString = editedJSONString.replacingOccurrences(of: "“", with: "\"")
-
-                log(" Edited JSON payload:\n\(editedJSONString)")
+                var submittedString: String = jsonString
+                if isCorrection {
+                    submittedString = await showJSONEditor(jsonString: jsonString)
+                    submittedString = submittedString.replacingOccurrences(of: "“", with: "\"")
+                }
+                
+                log(" Edited JSON payload:\n\(submittedString)")
                 
                 // Validate JSON structure
-                if let editedData = editedJSONString.data(using: .utf8) {
+                if let editedData = submittedString.data(using: .utf8) {
                     do {
                         let editedPayload = try JSONDecoder().decode(Payload.self, from: editedData)
                         
