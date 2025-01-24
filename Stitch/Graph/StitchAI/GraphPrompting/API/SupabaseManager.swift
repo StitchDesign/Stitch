@@ -45,12 +45,9 @@ actor SupabaseManager {
         }
 
         // Extract required environment variables
-        guard let supabaseURL = Dotenv["SUPABASE_URL"]?.stringValue,
-              let supabaseAnonKey = Dotenv["SUPABASE_ANON_KEY"]?.stringValue,
-              let tableName = Dotenv["SUPABASE_TABLE_NAME"]?.stringValue else {
-            fatalErrorIfDebug(" Missing required environment variables in the environment file.")
-            return
-        }
+        let supabaseURL = Secrets.supabaseURL
+        let supabaseAnonKey = Secrets.supabaseAnonKey
+        let tableName = Secrets.tableName
 
         // Initialize the PostgREST client
         guard let baseURL = URL(string: supabaseURL),
