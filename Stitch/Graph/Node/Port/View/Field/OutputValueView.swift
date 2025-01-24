@@ -147,13 +147,7 @@ struct OutputValueView: View {
                                              isFieldInsideLayerInspector: false,
                                              isForPinTo: false,
                                              isSelectedInspectorRow: isSelectedInspectorRow,
-                                             choices: []
-                                             //                                            graph.layerDropdownChoices(
-                                             //                                            isForNode: coordinate.nodeId,
-                                             //                                            isForLayerGroup: false,
-                                             ////                                            isFieldInsideLayerInspector: false,
-                                             //                                            isForPinTo: false)
-                )
+                                             choices: [])
                 .disabled(true)
                 
             case .anchorEntity(let anchorEntityId):
