@@ -112,9 +112,12 @@ extension SpringAnimationState {
         // eg from Number to Position
         case .position:
             return .two(.init())
+            
+        // Currently, only .number and .position are supported
         default:
             // Crash if we don't recognize the nodeType
-            fatalError()
+            fatalErrorIfDebug()
+            return .two(.init())
         }
     }
 }
