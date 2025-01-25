@@ -55,6 +55,59 @@ struct LLMFromPortDisplayView: View {
 }
 
 
+struct LLMActionCorrectionView: View {
+    let action: Step
+    @Binding var nodeIdToNameMapping: [String: String]
+    
+    var body: some View {
+        
+        if let nodeId = action.nodeId {
+            
+            // We effectively MUST have these node kinds
+            if let nodeKind: PatchOrLayer = nodeIdToNameMapping.get(nodeId)?.parseNodeKind() {
+                
+                HStack {
+                    StitchTextView(string: "Node ID: \(nodeId)")
+                    StitchTextView(string: "Node Kind: \(nodeKind.asNodeKind)")
+                }
+                
+                LLMPortDisplayView(action: action, nodeKind: nodeKind)
+                LLMFromPortDisplayView(action: action)
+                    
+                // Step.fromNodeId
+                if let fromNodeId = action.fromNodeId,
+                   let fromNodeKind = nodeIdToNameMapping.get(fromNodeId)?.parseNodeKind() {
+                    HStack {
+                        StitchTextView(string: "From Node Id: \(fromNodeId)")
+                        StitchTextView(string: "From Node Kind: \(fromNodeKind.asNodeKind)")
+                    }
+                    
+                }
+
+                // Step.toNodeId
+                if let toNodeId = action.toNodeId,
+                   let toNodeKind = nodeIdToNameMapping.get(toNodeId)?.parseNodeKind() {
+                    HStack {
+                        StitchTextView(string: "To Node Id: \(toNodeId)")
+                        StitchTextView(string: "To Node Kind: \(toNodeKind.asNodeKind)")
+                    }
+                }
+                
+                if let value = action.value {
+                    StitchTextView(string: "Value: \(value.jsonWrapper.description)")
+                }
+                
+                if let nodeType = action.parseNodeType() {
+                    StitchTextView(string: "NodeType: \(nodeType.display)")
+                }
+                
+                
+            } // if let nodeKind = ..
+            
+        } // if let nodeId
+    }
+}
+
 struct JSONEditorView: View {
     @Environment(\.dismiss) var dismiss
     
@@ -66,83 +119,53 @@ struct JSONEditorView: View {
     
     @State private var hasCompleted = false
     
-    private let completion: (String) -> Void
+    private let completion: (LLMStepActions) -> Void
+        
+    let prompt: String
+    @State var actions: [LLMStepAction]
     
-    @State private var recordingWrapper: RecordingWrapper // prompt + actions
-    
-//    init(initialJSON: String,
-//         completion: @escaping (String) -> Void) {
-//        let formattedJSON = Self.formatJSON(initialJSON)
-//        _jsonString = State(initialValue: formattedJSON)
-//        self.completion = completion
-//    }
-    
+    init(recordingWrapper: RecordingWrapper,
+         completion: @escaping (LLMStepActions) -> Void) {
+        self.prompt = recordingWrapper.prompt
+        self.actions = recordingWrapper.actions
+        self.completion = completion
+        self.nodeIdToNameMapping = .init()
+        
+        recordingWrapper.actions.forEach { (action: LLMStepAction) in
+            if let nodeId = action.nodeId,
+               let nodeName = action.nodeName {
+                self.nodeIdToNameMapping.updateValue(nodeName, forKey: nodeId)
+            }
+        }
+    }
     
     @State private var nodeIdToNameMapping: [String: String]
-
     
     var body: some View {
         VStack {
-            StitchTextView(string: "\(recordingWrapper.prompt)")
-                .onAppear {
-                    recordingWrapper.actions.map { (action: LLMStepAction) in
-                        if let nodeId = action.nodeId,
-                           let nodeName = action.nodeName {
-                            self.nodeIdToNameMapping.updateValue(nodeName, forKey: nodeId)
+            StitchTextView(string: "\(prompt)")
+            
+            // `id:` by hashable ought to be okay?
+            ForEach(actions, id: \.hashValue) { (action: LLMStepAction) in
+                VStack(alignment: .leading) {
+                    
+                    HStack {
+                        StitchTextView(string: "Step Type: \(action.stepType)")
+                        Spacer()
+                        Button {
+                            log("will delete this action")
+                            // Note: fine to do equality check because not editing actions per se here
+                            self.actions = actions.filter { $0 == action }
+                        } label: {
+                            Text("Delete")
                         }
                     }
+                    
+                    LLMActionCorrectionView(action: action,
+                                            nodeIdToNameMapping: self.$nodeIdToNameMapping)
                 }
-            
-            ForEach(recordingWrapper.actions) { (action: LLMStepAction) in
-                
-                
-                // A given `Step` may only have the
-                VStack {
-                    StitchTextView(string: "Step Type: \(action.stepType)")
-                    
-                    if let nodeId = action.nodeId {
-                        
-                        // We effectively MUST have these node kinds
-                        if let nodeKind: PatchOrLayer = self.nodeIdToNameMapping.get(nodeId),.parseNodeKind() {
-                            
-                            HStack {
-                                StitchTextView(string: "Node ID: \(nodeId)")
-                                StitchTextView(string: "Node Kind: \(nodeKind.asNodeKind.display)")
-                            }
-                            
-                            LLMPortDisplayView(action: action, nodeKind: nodeKind)
-                            LLMFromPortDisplayView(action: action)
-                                
-                            // Step.fromNodeId
-                            if let fromNodeId = action.fromNodeId,
-                               let fromNodeKind = self.nodeIdToNameMapping.get(fromNodeId)?.parseNodeKind() {
-                                StitchTextView(string: "From Node Id: \(fromNodeId)")
-                                StitchTextView(string: "From Node Kind: \(fromNodeKind.asNodeKind.display)")
-                            }
-                            
-                            
-                            if let toNodeId = action.toNodeId,
-                               let toNodeKind = self.nodeIdToNameMapping.get(toNodeId)?.parseNodeKind() {
-                                StitchTextView(string: "To Node Id: \(toNodeId)")
-                                StitchTextView(string: "To Node Kind: \(toNodeKind.asNodeKind.display)")
-                            }
-                            
-                            if let value = action.value {
-                                StitchTextView("Value: \(value.jsonWrapper.description)")
-                            }
-                            
-                            if let nodeType = action.nodeType {
-                                StitchTextView("NodeType: \(nodeType.jsonWrapper.description)")
-                            }
-                            
-                            
-                            
-                        } // if let nodeKind = ..
-                        
-                    } // if let nodeId
-                    
-                } // VStack
-            } // ForEach
+                Divider()
+            }
             
             
 //            TextEditor(text: $jsonString)
@@ -226,7 +249,8 @@ struct JSONEditorView: View {
         
         .onDisappear {
             if !hasCompleted {
-                completeAndDismiss(jsonString)
+                log("JSONEditorView: FIX ME")
+//                completeAndDismiss(jsonString)
             }
         }
     }
@@ -250,10 +274,10 @@ struct JSONEditorView: View {
         }
     }
     
-    private func completeAndDismiss(_ json: String) {
+    private func completeAndDismiss(_ actions: LLMStepActions) {
         guard !hasCompleted else { return }
         hasCompleted = true
-        completion(json)
+        completion(actions)
         dismiss()
     }
     
