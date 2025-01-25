@@ -10,7 +10,6 @@
 import Foundation
 @preconcurrency import SwiftyJSON
 import SwiftUI
-import SwiftDotenv
 
 let OPEN_AI_BASE_URL = "https://api.openai.com/v1/chat/completions"
 

@@ -6,7 +6,6 @@
 
 import Foundation
 import PostgREST
-import SwiftDotenv
 import UIKit
 import SwiftUI
 import SwiftyJSON
@@ -29,20 +28,6 @@ actor SupabaseManager {
         // Initialize with empty values first
         self.postgrest = PostgrestClient(url: URL(fileURLWithPath: ""), schema: "", headers: [:])
         self.tableName = ""
-        
-        // Then try to load environment variables
-        do {
-            // Get the path to the .env file in the app bundle
-            if let envPath = Bundle.main.path(forResource: ".env", ofType: nil) {
-                try Dotenv.configure(atPath: envPath)
-            } else {
-                fatalErrorIfDebug(" .env file not found in bundle.")
-                return
-            }
-        } catch {
-            fatalErrorIfDebug(" Could not load .env file: \(error)")
-            return
-        }
 
         // Extract required environment variables
         let supabaseURL = Secrets.supabaseURL

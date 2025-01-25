@@ -1,5 +1,5 @@
 {
-  "originHash" : "fded92eb3d1f20b60b3486e3f65c5441bd155b7bf044308f5054d9d03e1c7c09",
+  "originHash" : "1d6b56733c2e1eb395bc4817a5037075da0ce56c95229923a9db0bbae1ccb37e",
   "pins" : [
     {
       "identity" : "audiokit",
@@ -112,15 +112,6 @@
       "state" : {
         "revision" : "ff0f781cf7c6a22d52957e50b104f5768b50c779",
         "version" : "3.10.0"
-      }
-    },
-    {
-      "identity" : "swift-dotenv",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/thebarndog/swift-dotenv",
-      "state" : {
-        "revision" : "d13062940a3cdb2b13efa22ecc83b07b21c2e8dc",
-        "version" : "2.1.0"
       }
     },
     {
