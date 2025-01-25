@@ -12,3 +12,6 @@ StitchSchemaKit/
 
 # Ignores env files for api keys / secrets
 .env
+
+# Track secrets.json file but ignore its changes
+secrets.json

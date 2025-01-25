@@ -10,7 +10,6 @@
 import Foundation
 @preconcurrency import SwiftyJSON
 import SwiftUI
-import SwiftDotenv
 
 let OPEN_AI_BASE_URL = "https://api.openai.com/v1/chat/completions"
 
@@ -61,39 +60,8 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
         }
         self.schema = loadedSchema
         
-        // Initialize environment variables
-        do {
-            // Get the path to the .env file in the app bundle
-            if let envPath = Bundle.main.path(forResource: ".env", ofType: nil) {
-                try Dotenv.configure(atPath: envPath)
-            } else {
-                fatalErrorIfDebug(" .env file not found in bundle.")
-                self.apiKey = ""
-                self.model = ""
-                return
-            }
-        } catch {
-            fatalErrorIfDebug(" Could not load .env file: \(error)")
-            self.apiKey = ""
-            self.model = ""
-            return
-        }
-        
-        // Load API key from environment
-        if let apiKey = Dotenv["OPEN_AI_API_KEY"]?.stringValue {
-            self.apiKey = apiKey
-        } else {
-            fatalErrorIfDebug(" Could not find OPEN_AI_API_KEY in .env file.")
-            self.apiKey = ""
-        }
-        
-        // Load model from environment
-        if let model = Dotenv["OPEN_AI_MODEL"]?.stringValue {
-            self.model = model
-        } else {
-            fatalErrorIfDebug(" Could not find OPEN_AI_MODEL in .env file.")
-            self.model = ""
-        }
+        self.apiKey = Secrets.openAIAPIKey
+        self.model = Secrets.openAIModel
     }
 
     
