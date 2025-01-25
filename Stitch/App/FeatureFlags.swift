@@ -17,6 +17,7 @@ struct FeatureFlags {
     static let USE_AI_MODE = true
     #else
     static let USE_COMPONENTS = false
-    static let USE_AI_MODE = false
+//    static let USE_AI_MODE = false
+    static let USE_AI_MODE = true
     #endif
 }
