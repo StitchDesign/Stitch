@@ -14,7 +14,7 @@ struct LLMRecordingPayload: Encodable, Sendable {
     let actions: String
 }
 
-private struct RecordingWrapper: Codable {
+struct RecordingWrapper: Codable {
     let prompt: String
     let actions: [LLMStepAction]
 }
@@ -125,6 +125,7 @@ actor SupabaseManager {
             if let jsonString = String(data: jsonData, encoding: .utf8) {
                 var submittedString: String = jsonString
                 if isCorrection {
+                    // Pass the Steps to JSONEditorView and display in user-friendly
                     submittedString = await showJSONEditor(jsonString: jsonString)
                     submittedString = submittedString.replacingOccurrences(of: "“", with: "\"")
                 }

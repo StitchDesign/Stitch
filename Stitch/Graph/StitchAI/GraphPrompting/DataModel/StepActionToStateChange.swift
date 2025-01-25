@@ -323,6 +323,15 @@ extension LLMStepAction {
             return nil
         }
         
+        return nodeName.parseNodeKind()
+    }
+}
+
+extension String {
+    
+    func parseNodeKind() -> PatchOrLayer? {
+        let nodeName = self
+        
         // E.G. from "squareRoot || Patch", grab just the camelCase "squareRoot"
         if let nodeKindName = nodeName.components(separatedBy: "||").first?.trimmingCharacters(in: .whitespaces) {
             
@@ -345,9 +354,7 @@ extension LLMStepAction {
         log("parseLLMStepNodeKind: could not parse \(self) as PatchOrLayer")
         return nil
     }
-}
-
-extension String {
+    
     func toCamelCase() -> String {
         let sentence = self
         let words = sentence.components(separatedBy: " ")
