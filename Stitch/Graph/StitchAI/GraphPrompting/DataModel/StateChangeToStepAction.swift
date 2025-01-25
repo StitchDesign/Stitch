@@ -58,6 +58,8 @@ extension StitchDocumentViewModel {
     func maybeCreateLLMStepConnectionAdded(input: InputCoordinate,
                                            output: OutputCoordinate) {
             
+        log("maybeCreateLLMStepConnectionAdded: input: \(input)")
+        log("maybeCreateLLMStepConnectionAdded: output: \(output)")
         if self.llmRecording.isRecording {
             
             let step = createLLMStepConnectionAdded(
@@ -150,15 +152,19 @@ func createLLMStepConnectionAdded(input: InputCoordinate,
     //actually create the action with the input coordiante using
     //asLLMStepPort()
     
-    var fromPort = output.portId
-    assertInDebug(fromPort.isDefined)
+    assertInDebug(output.portId.isDefined)
+    
+    let fromNodeString = output.nodeId.uuidString
+    let toNodeString = input.nodeId.uuidString
+    log("createLLMStepConnectionAdded: fromNodeString: \(fromNodeString)")
+    log("createLLMStepConnectionAdded: toNodeString: \(toNodeString)")
     
     return LLMStepAction(
         stepType: StepType.connectNodes.rawValue,
         port: .init(value: input.asLLMStepPort()),
         fromPort: .init(value: String(output.asLLMStepFromPort())), 
-        fromNodeId: output.nodeId.uuidString,
-        toNodeId: input.nodeId.uuidString)
+        fromNodeId: fromNodeString,
+        toNodeId: toNodeString)
 }
 
 

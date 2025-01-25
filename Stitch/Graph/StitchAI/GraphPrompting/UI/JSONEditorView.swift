@@ -11,23 +11,26 @@ import SwiftyJSON
 struct LLMPortDisplayView: View {
     let action: Step
     let nodeKind: PatchOrLayer
+    let isForConnectNodeAction: Bool
     
     var body: some View {
         // Can you get the actions more generally?
         // can you get a better data structure than just the giant json-like struct you have to unravel?
         if let parsedPort: NodeIOPortType = action.parsePort() {
             
+            let generalLabel = isForConnectNodeAction ? "To Port: " : "Port: "
+            
             switch parsedPort {
             case .keyPath(let keyPath):
-                StitchTextView(string: "Port: \(keyPath)")
+                StitchTextView(string: "\(generalLabel) \(keyPath.layerInput)")
                 
             case .portIndex(let portIndex):
-                
                 HStack {
-                    StitchTextView(string: "Port: ")
+                    StitchTextView(string: "\(generalLabel) ")
                     
                     if let labelForPortIndex = nodeKind.asNodeKind.getPatch?.graphNode?.rowDefinitions(for: .number).inputs[safeIndex: portIndex] {
-                        StitchTextView(string: "Port: \(portIndex)")
+                        
+                        StitchTextView(string: "\(labelForPortIndex.label), ")
                     }
                     
                     StitchTextView(string: "\(portIndex)")
@@ -36,6 +39,64 @@ struct LLMPortDisplayView: View {
             } // switch parsedPort
         } else {
             EmptyView()
+        }
+    }
+}
+
+
+
+struct LLMActionCorrectionView: View {
+    let action: Step
+    let nodeIdToNameMapping: [String: String]
+    
+    var body: some View {
+                
+        if let nodeId = action.nodeId,
+           let nodeKind: PatchOrLayer = nodeIdToNameMapping.get(nodeId)?.parseNodeKind() {
+            StitchTextView(string: "Node: \(nodeKind.asNodeKind.description) \(nodeId)")
+            
+            
+            LLMPortDisplayView(action: action,
+                               nodeKind: nodeKind,
+                               isForConnectNodeAction: false)
+        }
+                
+        // Step.fromNodeId
+        LLMActionFromNodeView(action: action,
+                              nodeIdToNameMapping: nodeIdToNameMapping)
+        LLMFromPortDisplayView(action: action)
+
+        
+        // Step.toNodeId
+        LLMActionToNodeAndPortView(action: action,
+                                   nodeIdToNameMapping: nodeIdToNameMapping)
+        
+        if let value = action.parseValueForSetInput() {
+            StitchTextView(string: "Value: \(value.display)")
+        }
+        
+        if let nodeType = action.parseNodeType() {
+            StitchTextView(string: "NodeType: \(nodeType.display)")
+        }
+        
+    }
+}
+
+
+struct LLMActionToNodeAndPortView: View {
+    let action: Step
+    let nodeIdToNameMapping: [String: String]
+    
+    var body: some View {
+        // Step.fromNodeId
+        if let toNodeId = action.toNodeId,
+           let toNodeKind = nodeIdToNameMapping.get(toNodeId)?.parseNodeKind() {
+            StitchTextView(string: "To Node: \(toNodeKind.asNodeKind.description), \(toNodeId)")
+            
+            // toNode is only for connect_nodes, so we want to show the port as well
+            LLMPortDisplayView(action: action,
+                               nodeKind: toNodeKind,
+                               isForConnectNodeAction: true)
         }
     }
 }
@@ -54,64 +115,30 @@ struct LLMFromPortDisplayView: View {
     }
 }
 
-
-struct LLMActionCorrectionView: View {
+struct LLMActionFromNodeView: View {
     let action: Step
-    @Binding var nodeIdToNameMapping: [String: String]
+    let nodeIdToNameMapping: [String: String]
     
     var body: some View {
-        
-        if let nodeId = action.nodeId {
-            
-            // We effectively MUST have these node kinds
-            if let nodeKind: PatchOrLayer = nodeIdToNameMapping.get(nodeId)?.parseNodeKind() {
-                
-                HStack {
-                    StitchTextView(string: "Node ID: \(nodeId)")
-                    StitchTextView(string: "Node Kind: \(nodeKind.asNodeKind)")
-                }
-                
-                LLMPortDisplayView(action: action, nodeKind: nodeKind)
-                LLMFromPortDisplayView(action: action)
-                    
-                // Step.fromNodeId
-                if let fromNodeId = action.fromNodeId,
-                   let fromNodeKind = nodeIdToNameMapping.get(fromNodeId)?.parseNodeKind() {
-                    HStack {
-                        StitchTextView(string: "From Node Id: \(fromNodeId)")
-                        StitchTextView(string: "From Node Kind: \(fromNodeKind.asNodeKind)")
-                    }
-                    
-                }
-
-                // Step.toNodeId
-                if let toNodeId = action.toNodeId,
-                   let toNodeKind = nodeIdToNameMapping.get(toNodeId)?.parseNodeKind() {
-                    HStack {
-                        StitchTextView(string: "To Node Id: \(toNodeId)")
-                        StitchTextView(string: "To Node Kind: \(toNodeKind.asNodeKind)")
-                    }
-                }
-                
-                if let value = action.value {
-                    StitchTextView(string: "Value: \(value.jsonWrapper.description)")
-                }
-                
-                if let nodeType = action.parseNodeType() {
-                    StitchTextView(string: "NodeType: \(nodeType.display)")
-                }
-                
-                
-            } // if let nodeKind = ..
-            
-        } // if let nodeId
+        // Step.fromNodeId
+        if let fromNodeId = action.fromNodeId,
+//           let toNodeId = action.toNodeId,
+           let fromNodeKind = nodeIdToNameMapping.get(fromNodeId)?.parseNodeKind() {
+//           let fromNodeKind = nodeIdToNameMapping.get(toNodeId)?.parseNodeKind() {
+            StitchTextView(string: "From Node: \(fromNodeKind.asNodeKind.description), \(fromNodeId)")
+        } else {
+            logInView("LLMActionFromNodeView: action.fromNodeId: \(action.fromNodeId)")
+            logInView("LLMActionFromNodeView: nodeIdToNameMapping: \(nodeIdToNameMapping)")
+            Text("LLMActionFromNodeView is empty")
+        }
     }
 }
+
 
 struct JSONEditorView: View {
     @Environment(\.dismiss) var dismiss
     
-//    @State private var jsonString: String
+    //    @State private var jsonString: String
     
     @State private var isValidJSON = true
     
@@ -120,7 +147,7 @@ struct JSONEditorView: View {
     @State private var hasCompleted = false
     
     private let completion: (LLMStepActions) -> Void
-        
+    
     let prompt: String
     @State var actions: [LLMStepAction]
     
@@ -130,20 +157,43 @@ struct JSONEditorView: View {
         self.actions = recordingWrapper.actions
         self.completion = completion
         self.nodeIdToNameMapping = .init()
-        
-        recordingWrapper.actions.forEach { (action: LLMStepAction) in
-            if let nodeId = action.nodeId,
-               let nodeName = action.nodeName {
-                self.nodeIdToNameMapping.updateValue(nodeName, forKey: nodeId)
-            }
-        }
     }
     
     @State private var nodeIdToNameMapping: [String: String]
     
     var body: some View {
+        ScrollView {
+            actionsView
+                .padding()
+        }
+    }
+    
+    var actionsView: some View {
         VStack {
             StitchTextView(string: "\(prompt)")
+                .onAppear {
+                    // Note: must do this here and not in view's `init`?
+                    // Alternatively, pass in the data/mapping already created
+                    actions.forEach { (action: LLMStepAction) in
+                        // Add Node step uses nodeId; but Connect Nodes step uses toNodeId and fromNodeId
+                        if let nodeId = action.nodeId,
+                           let nodeName = action.nodeName {
+                            self.nodeIdToNameMapping.updateValue(nodeName, forKey: nodeId)
+                        }
+                        
+                        if let nodeId = action.fromNodeId,
+                           let nodeName = action.nodeName {
+                            self.nodeIdToNameMapping.updateValue(nodeName, forKey: nodeId)
+                        }
+                        
+                        if let nodeId = action.toNodeId,
+                           let nodeName = action.nodeName {
+                            self.nodeIdToNameMapping.updateValue(nodeName, forKey: nodeId)
+                        }
+                        
+                        log("self.nodeIdToNameMapping is now: \(self.nodeIdToNameMapping)")
+                    }
+                }
             
             // `id:` by hashable ought to be okay?
             ForEach(actions, id: \.hashValue) { (action: LLMStepAction) in
@@ -155,40 +205,17 @@ struct JSONEditorView: View {
                         Button {
                             log("will delete this action")
                             // Note: fine to do equality check because not editing actions per se here
-                            self.actions = actions.filter { $0 == action }
+                            self.actions = actions.filter { $0 != action }
                         } label: {
                             Text("Delete")
                         }
                     }
                     
                     LLMActionCorrectionView(action: action,
-                                            nodeIdToNameMapping: self.$nodeIdToNameMapping)
+                                            nodeIdToNameMapping: self.nodeIdToNameMapping)
                 }
                 Divider()
             }
-            
-            
-//            TextEditor(text: $jsonString)
-//                .font(.custom("Menlo", size: 13))
-//                .frame(maxWidth: .infinity, maxHeight: .infinity)
-//                .scrollContentBackground(.hidden)
-//                .background {
-//                    if !isValidJSON {
-//                        Color.red.opacity(0.2)
-//                            .cornerRadius(8)
-//                    } else {
-//                        Color.clear
-//                    }
-//                }
-//                .onChange(of: jsonString) { newValue in
-//                    // Replace smart quotes with standard quotes
-//                    jsonString = newValue
-//                        .replacingOccurrences(of: "“", with: "\"")
-//                        .replacingOccurrences(of: "”", with: "\"")
-//                    validateJSON(jsonString)
-//                }
-//                .padding()
-//
             
             if !isValidJSON {
                 Text(errorMessage ?? "Invalid JSON format")
@@ -199,6 +226,7 @@ struct JSONEditorView: View {
             HStack {
                 Button(action: {
                     log("will dismiss without submitting")
+                    // TODO: mark `hasCompleted` true or false ?
                     dismiss()
                 }) {
                     Text("Cancel")
@@ -209,9 +237,8 @@ struct JSONEditorView: View {
                 .padding(.bottom)
                 
                 Button(action: {
-//                    completeAndDismiss(jsonString)
-                    // turn the edited actions etc. into the expected json or actions etc.
                     log("will complete and dismiss")
+                    completeAndDismiss(self.actions)
                 }) {
                     Text("Send to Supabase")
                         .padding()
@@ -223,37 +250,14 @@ struct JSONEditorView: View {
                 .padding(.bottom)
                 
             } // HStack
-            
-          
-            
-            
-           
         }
-//        
-//        .toolbar {
-//            ToolbarItem(placement: .cancellationAction) {
-//                Button("Cancel") {
-//                    completeAndDismiss(jsonString)
-//                }
-//            }
-//            
-//            ToolbarItem(placement: .confirmationAction) {
-//                Button("Save") {
-//                    completeAndDismiss(Self.minifyJSON(jsonString))
-//                }
-//                .disabled(!isValidJSON)
-//            }
-//        }
-        .navigationTitle("Edit JSON")
-        .navigationBarTitleDisplayMode(.inline)
-        
         .onDisappear {
             if !hasCompleted {
-                log("JSONEditorView: FIX ME")
-//                completeAndDismiss(jsonString)
+                completeAndDismiss(self.actions)
             }
         }
     }
+    
     
     private func validateJSON(_ jsonString: String) {
         let trimmedString = jsonString.trimmingCharacters(in: .whitespacesAndNewlines)
