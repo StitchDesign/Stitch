@@ -290,12 +290,13 @@
 		E419F3F72D40337400C169D4 /* JSONEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E419F3F62D40337400C169D4 /* JSONEditorView.swift */; };
 		E419F3F92D4048A600C169D4 /* ProccessInfo+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E419F3F82D4048A600C169D4 /* ProccessInfo+Extension.swift */; };
 		E41A66B32BD2BB8E00385C9F /* LinearGradientNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41A66B22BD2BB8E00385C9F /* LinearGradientNode.swift */; };
+		E41C43742D442EFE003A453E /* supabaseMangerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41C43732D442EFE003A453E /* supabaseMangerTests.swift */; };
 		E42BA45D291C69C200EB7356 /* SIMDExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42BA45C291C69C200EB7356 /* SIMDExtensions.swift */; };
+		E42CFD462D4413F90034CCFF /* secrets.json in Resources */ = {isa = PBXBuildFile; fileRef = E42CFD452D4413F90034CCFF /* secrets.json */; };
+		E42CFD482D4414F10034CCFF /* Secrets.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42CFD472D4414F10034CCFF /* Secrets.swift */; };
 		E43CA3BF29832FEC007BFE1B /* ARRaycastingNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E43CA3BE29832FEC007BFE1B /* ARRaycastingNode.swift */; };
 		E457441D2BC0548300B1642E /* QRCodeDetection.swift in Sources */ = {isa = PBXBuildFile; fileRef = E457441C2BC0548300B1642E /* QRCodeDetection.swift */; };
 		E463E7EF2C6FC7090008E318 /* StitchSchemaKit in Frameworks */ = {isa = PBXBuildFile; productRef = E463E7EE2C6FC7090008E318 /* StitchSchemaKit */; };
-		E48A07782D382778002E8A98 /* SwiftDotenv in Frameworks */ = {isa = PBXBuildFile; productRef = E48A07772D382778002E8A98 /* SwiftDotenv */; };
-		E48A077E2D383B7D002E8A98 /* .env in Resources */ = {isa = PBXBuildFile; fileRef = E48A077D2D383B7D002E8A98 /* .env */; };
 		E48A07922D38C528002E8A98 /* SupabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48A07912D38C528002E8A98 /* SupabaseManager.swift */; };
 		E4A848AB2D32FCFA0029AFDE /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = E4A848AA2D32FCFA0029AFDE /* PostgREST */; };
 		E4A848AD2D32FCFA0029AFDE /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = E4A848AC2D32FCFA0029AFDE /* Storage */; };
@@ -1230,10 +1231,12 @@
 		E419F3F62D40337400C169D4 /* JSONEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONEditorView.swift; sourceTree = "<group>"; };
 		E419F3F82D4048A600C169D4 /* ProccessInfo+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ProccessInfo+Extension.swift"; sourceTree = "<group>"; };
 		E41A66B22BD2BB8E00385C9F /* LinearGradientNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinearGradientNode.swift; sourceTree = "<group>"; };
+		E41C43732D442EFE003A453E /* supabaseMangerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = supabaseMangerTests.swift; sourceTree = "<group>"; };
 		E42BA45C291C69C200EB7356 /* SIMDExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SIMDExtensions.swift; sourceTree = "<group>"; };
+		E42CFD452D4413F90034CCFF /* secrets.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = secrets.json; sourceTree = SOURCE_ROOT; };
+		E42CFD472D4414F10034CCFF /* Secrets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Secrets.swift; sourceTree = "<group>"; };
 		E43CA3BE29832FEC007BFE1B /* ARRaycastingNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ARRaycastingNode.swift; sourceTree = "<group>"; };
 		E457441C2BC0548300B1642E /* QRCodeDetection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeDetection.swift; sourceTree = "<group>"; };
-		E48A077D2D383B7D002E8A98 /* .env */ = {isa = PBXFileReference; lastKnownFileType = text; path = .env; sourceTree = "<group>"; };
 		E48A07912D38C528002E8A98 /* SupabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseManager.swift; sourceTree = "<group>"; };
 		E4AB307929B4F316000A66B0 /* CoreMLDetectionNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreMLDetectionNode.swift; sourceTree = "<group>"; };
 		E4AB307B29B4F42F000A66B0 /* YOLOv3Tiny.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = YOLOv3Tiny.mlmodel; sourceTree = "<group>"; };
@@ -1249,6 +1252,7 @@
 		E4CC7D1A28F48EF6008EA1C0 /* StitchQuickLookExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = StitchQuickLookExtension.entitlements; sourceTree = "<group>"; };
 		E4D0D2D62CE6B4B000E482E4 /* LLM_ACTIONS_TO_ADD_LATER.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLM_ACTIONS_TO_ADD_LATER.swift; sourceTree = "<group>"; };
 		E4D7EA142BB33F4E0040BB77 /* ProgressIndicatorLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressIndicatorLayerNode.swift; sourceTree = "<group>"; };
+		E4D9CC6D2D44179200370C0A /* ci_pre_xcodebuild.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = ci_pre_xcodebuild.sh; sourceTree = "<group>"; };
 		E4E860012CBD5448006763DA /* StitchAIErrorModalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIErrorModalView.swift; sourceTree = "<group>"; };
 		E4F7AC232974AF5300B7F55A /* RealityNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealityNode.swift; sourceTree = "<group>"; };
 		E4F7AC252974B6E700B7F55A /* PreviewRealityLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewRealityLayer.swift; sourceTree = "<group>"; };
@@ -1874,7 +1878,6 @@
 				B5DB632E2C61A8C900B78B68 /* StitchEngine in Frameworks */,
 				EC7784CF27053D9700B662DD /* ZIPFoundation in Frameworks */,
 				B50F41682C1EB4320082262F /* StitchViewKit in Frameworks */,
-				E48A07782D382778002E8A98 /* SwiftDotenv in Frameworks */,
 				EC1137382719F9B400ADCA72 /* OrderedCollections in Frameworks */,
 				B51D8A022CD13D420016CCDA /* StitchEngine in Frameworks */,
 				B56F36282D3C29BA0051C80E /* StitchEngine in Frameworks */,
@@ -1918,7 +1921,7 @@
 		200BD84E254F66EB00692903 = {
 			isa = PBXGroup;
 			children = (
-				E48A077D2D383B7D002E8A98 /* .env */,
+				E4D9CC6C2D44176800370C0A /* ci_scripts */,
 				200BD859254F66EB00692903 /* Stitch */,
 				B5F5FD412B3755C200BBD9A2 /* TestFlight */,
 				208AFA8D25D45B440035B250 /* StitchTests */,
@@ -1983,6 +1986,7 @@
 				EC28CCA5287E3DBA00987792 /* mathTests.swift */,
 				8BD59DA426CCB93400F38DFF /* SchemaConversionTests.swift */,
 				EC981F73273049F800B25F14 /* sidebarTests.swift */,
+				E41C43732D442EFE003A453E /* supabaseMangerTests.swift */,
 				B57575F82A187E0600CDB0BA /* previewLayerTests.swift */,
 				B5E5FFBA274C978800C5FE92 /* nodeUIGroupingTests.swift */,
 				B54C9BEB2762B01000FA2BC0 /* cameraTests.swift */,
@@ -3841,6 +3845,8 @@
 			children = (
 				EC9348A32CE3F86000772117 /* OpenAIRequest.swift */,
 				E48A07912D38C528002E8A98 /* SupabaseManager.swift */,
+				E42CFD472D4414F10034CCFF /* Secrets.swift */,
+				E42CFD452D4413F90034CCFF /* secrets.json */,
 				E419F3F82D4048A600C169D4 /* ProccessInfo+Extension.swift */,
 			);
 			path = API;
@@ -3876,6 +3882,14 @@
 				EC5C6C392C2DAE690023D0C0 /* LLMActionRecording.swift */,
 			);
 			path = DatasetRecording;
+			sourceTree = "<group>";
+		};
+		E4D9CC6C2D44176800370C0A /* ci_scripts */ = {
+			isa = PBXGroup;
+			children = (
+				E4D9CC6D2D44179200370C0A /* ci_pre_xcodebuild.sh */,
+			);
+			path = ci_scripts;
 			sourceTree = "<group>";
 		};
 		E4F7AC272974B73F00B7F55A /* RealityView */ = {
@@ -4513,7 +4527,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 200BD866254F66EE00692903 /* Build configuration list for PBXNativeTarget "Stitch" */;
 			buildPhases = (
-				E480A9742D400EB5008AC234 /* ShellScript */,
 				200BD853254F66EB00692903 /* Sources */,
 				200BD854254F66EB00692903 /* Frameworks */,
 				200BD855254F66EB00692903 /* Resources */,
@@ -4547,7 +4560,6 @@
 				B5380E302CF8E51600E6D801 /* StitchEngine */,
 				E4A848AA2D32FCFA0029AFDE /* PostgREST */,
 				E4A848AC2D32FCFA0029AFDE /* Storage */,
-				E48A07772D382778002E8A98 /* SwiftDotenv */,
 				B56F36242D3C1A2E0051C80E /* StitchEngine */,
 				B56F36272D3C29BA0051C80E /* StitchEngine */,
 			);
@@ -4636,7 +4648,6 @@
 				B5FBE3C22C4195B3006DA0A7 /* XCRemoteSwiftPackageReference "DirectoryWatcher" */,
 				E463E7ED2C6FC7090008E318 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */,
 				E4A848A92D32FCFA0029AFDE /* XCRemoteSwiftPackageReference "supabase-swift" */,
-				E48A07762D382778002E8A98 /* XCRemoteSwiftPackageReference "swift-dotenv" */,
 				B56F36262D3C29BA0051C80E /* XCRemoteSwiftPackageReference "StitchEngine" */,
 			);
 			productRefGroup = 200BD858254F66EB00692903 /* Products */;
@@ -4655,7 +4666,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E48A077E2D383B7D002E8A98 /* .env in Resources */,
 				200BD85F254F66EE00692903 /* Assets.xcassets in Resources */,
 				ECB15BA72695FCC700A1E1DA /* pj_eating.mov in Resources */,
 				EC7ADBFE2683EC9D00A8B318 /* fur_elise.mp3 in Resources */,
@@ -4668,6 +4678,7 @@
 				20A71F902552434000553F7E /* connection_added.mp3 in Resources */,
 				B58E3FC92901AA2800700656 /* Music Player.stitch in Resources */,
 				B5F5FD432B37564500BBD9A2 /* WhatToTest.en-US.txt in Resources */,
+				E42CFD462D4413F90034CCFF /* secrets.json in Resources */,
 				20A71F912552434000553F7E /* connection_removed.mp3 in Resources */,
 				B53E47812894918500A3D060 /* Microphone Recorder.stitch in Resources */,
 			);
@@ -4696,26 +4707,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		E480A9742D400EB5008AC234 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Only inject secrets during Xcode Cloud builds\nif [ \"$CI\" == \"true\" ]; then\n    echo \"Injecting secrets into Secrets.env...\"\n    echo \"SUPABASE_URL=$SUPABASE_URL\" > \"${SRCROOT}/Secrets.env\"\n    echo \"SUPABASE_TABLE_NAME=$SUPABASE_TABLE_NAME\" > \"${SRCROOT}/Secrets.env\"\n    echo \"SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY\" >> \"${SRCROOT}/Secrets.env\"\n    echo \"OPEN_AI_API_KEY=$OPEN_AI_API_KEY\" >> \"${SRCROOT}/Secrets.env\"\n    echo \"OPEN_AI_MODEL=$OPEN_AI_MODEL\" >> \"${SRCROOT}/Secrets.env\"\nelse\n    echo \"Not running in Xcode Cloud. Skipping secret injection.\"\nfi\n";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		200BD853254F66EB00692903 /* Sources */ = {
@@ -5348,6 +5339,7 @@
 				ECF0B0F42877E45A001D7CFC /* ColorOrbValueButtonView.swift in Sources */,
 				EC4CFB6526FE480700D085F3 /* StitchSoundFile.swift in Sources */,
 				ECEEA5022AFD9EC800C7CE86 /* TagMenuHelperViews.swift in Sources */,
+				E42CFD482D4414F10034CCFF /* Secrets.swift in Sources */,
 				ECB33C6226F15A1C0069885B /* ProjectsUtils.swift in Sources */,
 				EC609DB429352FB800BF60A5 /* NumberExtensionUtils.swift in Sources */,
 				ECA92A00260A694C00281B52 /* PressInteractionPatchNode.swift in Sources */,
@@ -5576,6 +5568,7 @@
 				ECFCF1832A395C6900A20C40 /* perfTests.swift in Sources */,
 				EC51AA7926B307E3007919D6 /* groupTests.swift in Sources */,
 				EC3914BF29F35C0C00ED8D90 /* loopTests.swift in Sources */,
+				E41C43742D442EFE003A453E /* supabaseMangerTests.swift in Sources */,
 				EC24E37F28516D7D0078A9B7 /* animationTests.swift in Sources */,
 				ECEDC09F29E4C62C0034BA50 /* TestStateUtils.swift in Sources */,
 				B54C37BF281BB96C00D81E43 /* ProjectMigrationTests.swift in Sources */,
@@ -6470,14 +6463,6 @@
 				revision = 8e2dd92817fe367707788a784839246c748d4e0d;
 			};
 		};
-		E48A07762D382778002E8A98 /* XCRemoteSwiftPackageReference "swift-dotenv" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/thebarndog/swift-dotenv";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.1.0;
-			};
-		};
 		E4A848A92D32FCFA0029AFDE /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/supabase/supabase-swift.git";
@@ -6627,11 +6612,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = E463E7ED2C6FC7090008E318 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */;
 			productName = StitchSchemaKit;
-		};
-		E48A07772D382778002E8A98 /* SwiftDotenv */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E48A07762D382778002E8A98 /* XCRemoteSwiftPackageReference "swift-dotenv" */;
-			productName = SwiftDotenv;
 		};
 		E4A848AA2D32FCFA0029AFDE /* PostgREST */ = {
 			isa = XCSwiftPackageProductDependency;

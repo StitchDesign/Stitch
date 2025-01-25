@@ -85,6 +85,17 @@ extension StitchDocumentViewModel {
                 log("   - Attempt: \(attempt) of \(maxAttempts)")
                 return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
             }
+                          
+            // ALTERNATIVELY?: Use the patch's default node-type if the LLM gave us an invalid node-type for that patch?
+            guard let patch = existingNode.patch,
+                  patch.availableNodeTypes.contains(nodeType) else {
+                log("❌ handleLLMStepAction: changeNodeType failed because nodeType is not allowed for existing node")
+                log("   - Node ID: \(action.nodeId ?? "nil")")
+                log("   - Node Patch: \(existingNode.patch.debugDescription ?? "NO PATCH")")
+                log("   - New Type: \(action.nodeType ?? "nil")")
+                log("   - Attempt: \(attempt) of \(maxAttempts)")
+                return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
+            }
             
             let _ = self.graph.nodeTypeChanged(nodeId: existingNode.id,
                                                newNodeType: nodeType)
