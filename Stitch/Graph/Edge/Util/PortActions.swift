@@ -129,9 +129,6 @@ extension GraphState {
         // starting at the 'from' node downward:
         self.calculate(edge.from.nodeId)
         
-        log("edgeAdded: edge.to: \(edge.to)")
-        log("edgeAdded: edge.from: \(edge.from)")
-        
         //we need the port here
         self.documentDelegate?.maybeCreateLLMStepConnectionAdded(
             input: edge.to,
@@ -140,7 +137,6 @@ extension GraphState {
     
     @MainActor
     func edgeAdded(edge: PortEdgeUI) {
-        log("edgeAdded: edge \(edge)")
         guard let edgeData = PortEdgeData(viewData: edge, graph: self) else {
             return
         }

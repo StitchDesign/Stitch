@@ -83,8 +83,6 @@ struct StitchTextEditingBindingField: View {
 
     @MainActor
     func textFieldEditAction(isCommitting: Bool = false) {
-        log("textFieldEditAction: isCommitting: \(isCommitting)")
-        log("textFieldEditAction: isFocused: \(isFocused)")
         
         // MARK: important to keep isFocused check here else edges may be lost from InputEdit action getting called
         if isFocused {
@@ -143,6 +141,25 @@ struct StitchTextEditingBindingField: View {
                 }
             }
             .onDisappear {
+                    
+                // Best placed here because .onDisappear fires exactly 1x whether we submit or click-away
+                if let document = store.currentDocument,
+                   let coordinate: FieldCoordinate = fieldType.getTextInputEdit,
+                   let nodeViewModel = document.graph.getNode(coordinate.rowId.nodeId),
+                   let input = nodeViewModel.getInputRowObserver(for: coordinate.rowId.portType) {
+                    
+                   let parentPortValue = input.activeValue
+                       
+                   let newValue = parentPortValue.parseInputEdit(
+                    fieldValue: .string(.init(self.currentEdit)),
+                    fieldIndex: coordinate.fieldIndex)
+                                        
+                    document.maybeCreateLLMStepSetInput(
+                        node: nodeViewModel,
+                        input: input.id,
+                        value: newValue)
+                } // if let document = ...
+                
                 // log("StitchTextEditingBindingField: onDisappear")
                 self.isFocused = false // added
                 dispatch(TextFieldDisappeared(focusedField: fieldType))

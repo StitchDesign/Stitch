@@ -73,8 +73,7 @@ extension StitchDocumentViewModel {
     @MainActor
     func maybeCreateLLMStepAddLayerInput(_ nodeId: NodeId, _ property: LayerInputType) {
         // If we're LLM-recording, add an `LLMAddNode` action
-        if self.llmRecording.isRecording,
-           let node = self.graph.getNodeViewModel(nodeId) {
+        if self.llmRecording.isRecording {
 
             let step = createLLMStepAddLayerInput(
                 nodeId: nodeId,
@@ -156,8 +155,6 @@ func createLLMStepConnectionAdded(input: InputCoordinate,
     
     let fromNodeString = output.nodeId.uuidString
     let toNodeString = input.nodeId.uuidString
-    log("createLLMStepConnectionAdded: fromNodeString: \(fromNodeString)")
-    log("createLLMStepConnectionAdded: toNodeString: \(toNodeString)")
     
     return LLMStepAction(
         stepType: StepType.connectNodes.rawValue,
