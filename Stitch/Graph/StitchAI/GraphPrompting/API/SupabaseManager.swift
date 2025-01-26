@@ -16,7 +16,6 @@ struct LLMRecordingPayload: Encodable, Sendable {
 
 struct RecordingWrapper: Codable {
     let prompt: String
-//    let actions: [LLMStepAction]
     var actions: [LLMStepAction]
 }
 
@@ -54,7 +53,6 @@ actor SupabaseManager {
         )
     }
 
-//    private func showJSONEditor(jsonString: String) async -> String {
     private func showJSONEditor(recordingWrapper: RecordingWrapper) async -> LLMStepActions {
         await withCheckedContinuation { continuation in
             DispatchQueue.main.async {
@@ -68,9 +66,6 @@ actor SupabaseManager {
                 }
                 
                 let hostingController = UIHostingController(
-//                    rootView: JSONEditorView(initialJSON: jsonString) { editedJSON in
-//                        continuation.resume(returning: editedJSON)
-//                    }
                     rootView: JSONEditorView(recordingWrapper: recordingWrapper) { newActions in
                         continuation.resume(returning: newActions)
                     }
