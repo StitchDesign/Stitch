@@ -51,8 +51,11 @@ extension StitchDocumentViewModel {
         case .addNode:
             
             guard let llmNodeId: String = action.nodeId,
+                  let nodeId: NodeId = UUID(uuidString: llmNodeId),
                   let nodeKind: PatchOrLayer = action.parseNodeKind(),
+                    // Need to explicitly pass in the nodeId from the action
                   let newNode = self.nodeCreated(choice: nodeKind.asNodeKind,
+                                                 nodeId: nodeId,
                                                  center: newCenter) else {
                 
                 log("❌ handleLLMStepAction: addNode failed:")
