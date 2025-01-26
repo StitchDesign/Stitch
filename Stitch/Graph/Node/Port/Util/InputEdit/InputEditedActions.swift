@@ -81,12 +81,6 @@ extension InputNodeRowObserver {
         }
 
         node.calculate()
-
-        if isCommitting {
-            graph.documentDelegate?.maybeCreateLLMStepSetInput(node: node,
-                                                           input: self.id,
-                                                           value: newValue)
-        }
     }
     
     @MainActor

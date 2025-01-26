@@ -120,7 +120,7 @@ struct ContentJSON: Codable {
 }
 
 /// Represents a single step/action in the visual programming sequence
-struct Step: Equatable, Codable {
+struct Step: Equatable, Codable, Hashable {
     var stepType: String        // Type of step (e.g., "add_node", "connect_nodes")
     var nodeId: String?        // Identifier for the node
     var nodeName: String?      // Display name for the node
@@ -145,7 +145,7 @@ struct Step: Equatable, Codable {
 }
 
 /// Wrapper for handling values that could be either string or number
-struct StringOrNumber: Equatable {
+struct StringOrNumber: Equatable, Hashable {
     let value: String          // Normalized string representation of the value
 }
 

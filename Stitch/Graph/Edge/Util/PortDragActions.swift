@@ -251,7 +251,6 @@ extension GraphState {
     func createEdgeFromEligibleInput(from: OutputPortViewData?,
                                      to: InputPortViewData?,
                                      sourceNodeId: NodeId) {
-        
         // Create visual edge if connecting two nodes
         if let from = from,
            let to = to {
@@ -264,7 +263,6 @@ extension GraphState {
 //            let resetRecentlyDrawnEdgeEffect: Effect = createDelayedEffect(
 //                delayInNanoseconds: TimeHelpers.ThreeTenthsOfASecondInNanoseconds,
 //                action: ResetRecentlyDrawnEdge())
-            
             self.edgeAdded(edge: newEdge)
         }
 
