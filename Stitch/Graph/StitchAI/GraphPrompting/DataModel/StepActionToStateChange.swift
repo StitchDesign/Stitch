@@ -112,7 +112,7 @@ extension StitchDocumentViewModel {
         case .setInput:
             
             guard let port: NodeIOPortType = action.parsePort(),
-                  let value: PortValue = action.parseValueForSetInput(mapping: self.llmNodeIdMapping),
+                  let value: PortValue = action.parseValueForSetInput(),
                   let llmNodeId: String = action.nodeId,
                   let nodeId = self.llmNodeIdMapping.get(llmNodeId),
                   let existingNode = self.graph.getNode(nodeId) else {
@@ -253,8 +253,8 @@ extension StitchDocumentViewModel {
 extension LLMStepAction {
     
     @MainActor
-    func parseValueForSetInput(mapping: LLMNodeIdMapping) -> PortValue? {
-        guard let value = self.value else {
+    func parseValueForSetInput() -> PortValue? {
+        guard let value: JSONFriendlyFormat = self.value else {
             log("value was not defined")
             return nil
         }
@@ -299,7 +299,10 @@ extension LLMStepAction {
         guard let fromPort: StringOrNumber = self.fromPort else {
             log("fromPort was not defined")
             // For legacy reasons, assume 0
-            return 0
+//            return 0
+            
+            // Do not assume 0; all our data should be updated and accurate now
+            return nil
         }
         
         // Try to convert the string value to Int
@@ -326,6 +329,15 @@ extension LLMStepAction {
             return nil
         }
         
+        return nodeName.parseNodeKind()
+    }
+}
+
+extension String {
+    
+    func parseNodeKind() -> PatchOrLayer? {
+        let nodeName = self
+        
         // E.G. from "squareRoot || Patch", grab just the camelCase "squareRoot"
         if let nodeKindName = nodeName.components(separatedBy: "||").first?.trimmingCharacters(in: .whitespaces) {
             
@@ -348,9 +360,7 @@ extension LLMStepAction {
         log("parseLLMStepNodeKind: could not parse \(self) as PatchOrLayer")
         return nil
     }
-}
-
-extension String {
+    
     func toCamelCase() -> String {
         let sentence = self
         let words = sentence.components(separatedBy: " ")

@@ -58,6 +58,8 @@ extension StitchDocumentViewModel {
     func maybeCreateLLMStepConnectionAdded(input: InputCoordinate,
                                            output: OutputCoordinate) {
             
+        log("maybeCreateLLMStepConnectionAdded: input: \(input)")
+        log("maybeCreateLLMStepConnectionAdded: output: \(output)")
         if self.llmRecording.isRecording {
             
             let step = createLLMStepConnectionAdded(
@@ -71,8 +73,7 @@ extension StitchDocumentViewModel {
     @MainActor
     func maybeCreateLLMStepAddLayerInput(_ nodeId: NodeId, _ property: LayerInputType) {
         // If we're LLM-recording, add an `LLMAddNode` action
-        if self.llmRecording.isRecording,
-           let node = self.graph.getNodeViewModel(nodeId) {
+        if self.llmRecording.isRecording {
 
             let step = createLLMStepAddLayerInput(
                 nodeId: nodeId,
@@ -150,15 +151,17 @@ func createLLMStepConnectionAdded(input: InputCoordinate,
     //actually create the action with the input coordiante using
     //asLLMStepPort()
     
-    var fromPort = output.portId
-    assertInDebug(fromPort.isDefined)
+    assertInDebug(output.portId.isDefined)
+    
+    let fromNodeString = output.nodeId.uuidString
+    let toNodeString = input.nodeId.uuidString
     
     return LLMStepAction(
         stepType: StepType.connectNodes.rawValue,
         port: .init(value: input.asLLMStepPort()),
         fromPort: .init(value: String(output.asLLMStepFromPort())), 
-        fromNodeId: output.nodeId.uuidString,
-        toNodeId: input.nodeId.uuidString)
+        fromNodeId: fromNodeString,
+        toNodeId: toNodeString)
 }
 
 
