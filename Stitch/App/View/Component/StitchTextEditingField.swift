@@ -83,7 +83,9 @@ struct StitchTextEditingBindingField: View {
 
     @MainActor
     func textFieldEditAction(isCommitting: Bool = false) {
-
+        log("textFieldEditAction: isCommitting: \(isCommitting)")
+        log("textFieldEditAction: isFocused: \(isFocused)")
+        
         // MARK: important to keep isFocused check here else edges may be lost from InputEdit action getting called
         if isFocused {
             self.fieldEditCallback(self.currentEdit, isCommitting)

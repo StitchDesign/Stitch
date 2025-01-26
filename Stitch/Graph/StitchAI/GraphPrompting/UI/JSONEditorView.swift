@@ -43,8 +43,6 @@ struct LLMPortDisplayView: View {
     }
 }
 
-
-
 struct LLMActionCorrectionView: View {
     let action: Step
     let nodeIdToNameMapping: [String: String]
@@ -122,14 +120,8 @@ struct LLMActionFromNodeView: View {
     var body: some View {
         // Step.fromNodeId
         if let fromNodeId = action.fromNodeId,
-//           let toNodeId = action.toNodeId,
            let fromNodeKind = nodeIdToNameMapping.get(fromNodeId)?.parseNodeKind() {
-//           let fromNodeKind = nodeIdToNameMapping.get(toNodeId)?.parseNodeKind() {
             StitchTextView(string: "From Node: \(fromNodeKind.asNodeKind.description), \(fromNodeId)")
-        } else {
-            logInView("LLMActionFromNodeView: action.fromNodeId: \(action.fromNodeId)")
-            logInView("LLMActionFromNodeView: nodeIdToNameMapping: \(nodeIdToNameMapping)")
-            Text("LLMActionFromNodeView is empty")
         }
     }
 }
