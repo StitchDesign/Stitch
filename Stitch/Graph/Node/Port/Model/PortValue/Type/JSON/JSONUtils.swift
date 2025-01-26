@@ -593,7 +593,7 @@ enum StitchAIValue: Equatable {
 
 // Represents a PortValue in a way that displays "naturally" in a JSON.
 // e.g. avoids the `_0` etc. of `Codable` enums
-enum JSONFriendlyFormat: Encodable, Decodable, Equatable {
+enum JSONFriendlyFormat: Encodable, Decodable, Equatable, Hashable {
     case string(String),
          number(Double),
          dictionary([String: Double]),
