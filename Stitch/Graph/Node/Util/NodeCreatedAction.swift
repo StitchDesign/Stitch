@@ -56,12 +56,14 @@ extension StitchDocumentViewModel {
 
     // Used by InsertNodeMenu
     @MainActor
-    func nodeCreated(choice: NodeKind, center: CGPoint? = nil) -> NodeViewModel? {
+    func nodeCreated(choice: NodeKind,
+                     nodeId: UUID? = nil,
+                     center: CGPoint? = nil) -> NodeViewModel? {
         let nodeCenter = center ?? self.newNodeCenterLocation
         
         guard let node = self.createNode(
                 graphTime: self.graphStepManager.graphStepState.graphTime,
-                newNodeId: UUID(),
+                newNodeId: nodeId ?? UUID(),
                 highestZIndex: self.visibleGraph.highestZIndex,
                 choice: choice,
                 center: nodeCenter) else {
