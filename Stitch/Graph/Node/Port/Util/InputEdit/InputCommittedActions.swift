@@ -131,10 +131,6 @@ extension GraphState {
         // Only change the input if valued actually changed.
         input.setValuesInInput([value])
         
-        self.documentDelegate?.maybeCreateLLMStepSetInput(node: nodeViewModel,
-                                                      input: input.id,
-                                                      value: value)
-        
         self.calculate(nodeId)
     }
 }

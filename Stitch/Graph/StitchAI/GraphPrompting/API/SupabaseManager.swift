@@ -14,9 +14,9 @@ struct LLMRecordingPayload: Encodable, Sendable {
     let actions: String
 }
 
-private struct RecordingWrapper: Codable {
+struct RecordingWrapper: Codable {
     let prompt: String
-    let actions: [LLMStepAction]
+    var actions: [LLMStepAction]
 }
 
 actor SupabaseManager {
@@ -53,20 +53,21 @@ actor SupabaseManager {
         )
     }
 
-    private func showJSONEditor(jsonString: String) async -> String {
+    private func showJSONEditor(recordingWrapper: RecordingWrapper) async -> LLMStepActions {
         await withCheckedContinuation { continuation in
             DispatchQueue.main.async {
                 guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                       let window = windowScene.windows.first,
                       let rootViewController = window.rootViewController else {
                     // If we can't get the root view controller, return the original string
-                    continuation.resume(returning: jsonString)
+                    // FAILURE CONDITON
+                    continuation.resume(returning: .init())
                     return
                 }
                 
                 let hostingController = UIHostingController(
-                    rootView: JSONEditorView(initialJSON: jsonString) { editedJSON in
-                        continuation.resume(returning: editedJSON)
+                    rootView: JSONEditorView(recordingWrapper: recordingWrapper) { newActions in
+                        continuation.resume(returning: newActions)
                     }
                 )
                 
@@ -75,19 +76,23 @@ actor SupabaseManager {
                 
                 // Add a completion handler to the presentation to handle unexpected dismissals
                 hostingController.presentationController?.delegate = PresenterDismissalHandler {
-                    continuation.resume(returning: jsonString)
+                    // Dismissal / nil condition
+                    continuation.resume(returning: .init())
                 }
             }
         }
     }
     
-    func uploadLLMRecording(_ recordingData: LLMRecordingData, graphState: GraphState, isCorrection: Bool = false) async throws {
+    func uploadLLMRecording(_ recordingData: LLMRecordingData,
+                            graphState: GraphState,
+                            isCorrection: Bool = false) async throws {
         log("Starting uploadLLMRecording...")
         log(" Correction Mode: \(isCorrection)")
 
         struct Payload: Codable {
             let user_id: String
-            let actions: RecordingWrapper
+//            let actions: RecordingWrapper
+            var actions: RecordingWrapper
             let correction: Bool
         }
 
@@ -107,7 +112,8 @@ actor SupabaseManager {
             actions: graphState.lastAIGeneratedActions + recordingData.actions
         )
 
-        let payload = Payload(
+        // Not good to have as a var in an async context?
+        var payload = Payload(
             user_id: deviceUUID,
             actions: wrapper,
             correction: isCorrection
@@ -121,13 +127,26 @@ actor SupabaseManager {
         log("  - Full actions sequence: \(wrapper.actions.asJSONDisplay())")
 
         do {
+            
+            // If it's not a correction, just submit the payload right away
+            // If it is, first grab the edited actions, then submit
+            if isCorrection {
+                let editedActions: LLMStepActions = await showJSONEditor(recordingWrapper: wrapper)
+                // Update just the actions of the payload
+                payload.actions.actions = editedActions
+            }
+            
+            
             let jsonData = try JSONEncoder().encode(payload)
             if let jsonString = String(data: jsonData, encoding: .utf8) {
                 var submittedString: String = jsonString
-                if isCorrection {
-                    submittedString = await showJSONEditor(jsonString: jsonString)
-                    submittedString = submittedString.replacingOccurrences(of: "“", with: "\"")
-                }
+//                
+//                // EDITS THE ENTIRE STRING
+//                if isCorrection {
+//                    // Pass the Steps to JSONEditorView and display in user-friendly
+//                    submittedString = await showJSONEditor(jsonString: jsonString)
+//                    submittedString = submittedString.replacingOccurrences(of: "“", with: "\"")
+//                }
                 
                 log(" Edited JSON payload:\n\(submittedString)")
                 
