@@ -50,8 +50,8 @@ extension InputNodeRowObserver {
                 self.id.isMediaSelectorLocation,
                 let node = self.nodeDelegate {
             self.allLoopedValues.enumerated().compactMap { loopIndex, _ in
-                node.getConnectedMedia(portIndex: 0,
-                                       loopIndex: loopIndex)
+                node.getInputMedia(portIndex: 0,
+                                   loopIndex: loopIndex)
             }.forEach { media in
                 // Run effect to mute sound player
                 self.upstreamOutputObserver?.getMediaObjects().forEach { media in

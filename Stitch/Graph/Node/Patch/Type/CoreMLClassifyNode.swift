@@ -50,8 +50,8 @@ func coreMLClassifyEval(node: PatchNode) -> EvalResult {
         guard let modelMediaObject = mediaObserver.getUniqueMedia(from: values.first,
                                                                   loopIndex: loopIndex)?.mediaObject,
               let model = modelMediaObject.coreMLImageModel,
-              let image = node.getConnectedMedia(portIndex: 1,
-                                                 loopIndex: loopIndex)?.image else {
+              let image = node.getInputMedia(portIndex: 1,
+                                             loopIndex: loopIndex)?.image else {
             return node.defaultOutputs
         }
         

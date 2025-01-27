@@ -82,8 +82,8 @@ func coreMLDetectionEval(node: PatchNode) -> EvalResult {
                                                                   loopIndex: 0)?.mediaObject,
               let model = modelMediaObject.coreMLImageModel,
               let cropAndScaleOption = values[safe: 2]?.vnImageCropOption,
-              let media = node.getConnectedMedia(portIndex: 1,
-                                                 loopIndex: loopIndex),
+              let media = node.getInputMedia(portIndex: 1,
+                                             loopIndex: loopIndex),
               let image = media.image else {
             // defaults/failures we still treat as "by index"
             return defaultOutputs.first!

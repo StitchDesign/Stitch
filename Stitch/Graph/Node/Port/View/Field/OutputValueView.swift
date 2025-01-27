@@ -225,10 +225,19 @@ struct OutputValueView: View {
                        alignment: .leading)
                 
             case .media(let media):
+                // No keypaths ever used for output
+                let portIndex = coordinate.portId!
+                
+                let loopIndex = graph.activeIndex.adjustedIndex(viewModel.rowViewModelDelegate?.rowDelegate?.allLoopedValues.count ?? .zero)
+                
+                let mediaObject = viewModel.rowViewModelDelegate?.nodeDelegate?
+                    .getComputedMedia(loopIndex: loopIndex)
+                
                 MediaFieldValueView(inputCoordinate: coordinate,
                                     layerInputObserver: nil,
                                     isUpstreamValue: false,     // only valid for inputs
                                     media: media,
+                                    mediaObject: mediaObject,
                                     nodeKind: nodeKind,
                                     isInput: false,
                                     fieldIndex: fieldIndex,

@@ -34,6 +34,7 @@ struct MediaFieldValueView: View {
     let layerInputObserver: LayerInputObserver?
     let isUpstreamValue: Bool
     let media: FieldValueMedia
+    let mediaObject: StitchMediaObject?
     let nodeKind: NodeKind
     let isInput: Bool
     let fieldIndex: Int
@@ -45,10 +46,6 @@ struct MediaFieldValueView: View {
     @Bindable var graph: GraphState
 
     var alignment: Alignment { isInput ? .leading : .trailing }
-    
-    var mediaObject: StitchMediaObject? {
-        self.media.mediaObject
-    }
     
     var canUseMediaPicker: Bool {
         switch nodeKind {
