@@ -28,7 +28,8 @@ struct LLMRecordingToggled: GraphEvent {
         if wasInAIMode {
             log("🔄 🤖 TRANSITIONING FROM AI MODE TO RECORDING - ENTERING AUGMENTATION MODE 🤖 🔄")
             // First store the current AI-generated actions
-            let currentActions = document.lastAIGeneratedActions
+//            let currentActions = document.lastAIGeneratedActions
+            let currentActions = document.llmRecording.actions
             log("🤖 💾 Storing AI-Generated Actions: \(currentActions)")
             
             // Set augmentation mode
@@ -154,11 +155,12 @@ extension StitchDocumentViewModel {
                 let isAugmentation = currentMode == .augmentation
                 
                 // Upload with current mode
-                try await SupabaseManager.shared.uploadLLMRecording(
-                    recordedData,
-                    graphState: graph,
-                    isCorrection: isAugmentation
-                )
+//                try await SupabaseManager.shared.uploadLLMRecording(
+//                    recordedData,
+//                    graphState: graph,
+//                    isCorrection: isAugmentation
+//                )
+                fatalError()
                 log("📼 ✅ Data successfully saved locally and uploaded to Supabase ✅ 📼")
                 
             } catch let encodingError as EncodingError {

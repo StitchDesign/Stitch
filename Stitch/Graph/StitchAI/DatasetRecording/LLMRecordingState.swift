@@ -56,7 +56,7 @@ struct ShowLLMApprovalModal: StitchDocumentEvent {
         }
         
         // Apply the LLM-actions (model-generated and user-augmented) to the graph
-        let actions = state.graph.lastAIGeneratedActions + state.llmRecording.actions
+        let actions = state.llmRecording.actions
         log("ShowLLMApprovalModal: actions: \(actions)")
         var canvasItemsAdded = 0
         actions.forEach { action in
