@@ -43,6 +43,8 @@ struct LLMPortDisplayView: View {
     }
 }
 
+
+
 struct LLMActionCorrectionView: View {
     let action: Step
     let nodeIdToNameMapping: [String: String]
@@ -167,13 +169,16 @@ struct JSONEditorView: View {
     @State private var nodeIdToNameMapping: [String: String] = .init()
     
     var body: some View {
+        logInView("JSONEditorView body")
         ScrollView {
             actionsView
                 .padding()
         }
     }
     
+    @ViewBuilder
     var actionsView: some View {
+        logInView("JSONEditorView actionsView")
         VStack {
             StitchTextView(string: "\(prompt)")
                 .onAppear {
@@ -262,11 +267,11 @@ struct JSONEditorView: View {
                 
             } // HStack
         }
-        .onDisappear {
-            dismiss()
-//            if !hasCompleted {
-//                completeAndDismiss(self.actions)
-//            }
-        }
+//        .onDisappear {
+//            dismiss()
+////            if !hasCompleted {
+////                completeAndDismiss(self.actions)
+////            }
+//        }
     }
 }

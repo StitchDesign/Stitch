@@ -92,7 +92,7 @@ struct GraphBaseView: View {
             if document.llmRecording.modal == .approveAndSubmit {
                 VStack {
                     HStack {
-                        DebugModePopover()
+                        LLMApprovalModalView()
                         Spacer()
                     }
                     Spacer()

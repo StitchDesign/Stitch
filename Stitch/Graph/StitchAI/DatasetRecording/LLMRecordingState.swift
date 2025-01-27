@@ -43,6 +43,16 @@ struct LLMRecordingState: Equatable {
     var modal: LLMRecordinModal = .none
 }
 
+// WE CANCELLED THE WHOLE THING
+struct LLMAugmentationCancelled: StitchDocumentEvent {
+    
+    func handle(state: StitchDocumentViewModel) {
+        log("LLMAugmentationCancelled called")
+        state.llmRecording = .init()
+    }
+    
+}
+
 struct ShowLLMApprovalModal: StitchDocumentEvent {
     
     func handle(state: StitchDocumentViewModel) {
@@ -80,6 +90,7 @@ struct ShowLLMEditModal: StitchDocumentEvent {
 struct SubmitLLMActionsToSupabase: StitchDocumentEvent {
     
     func handle(state: StitchDocumentViewModel) {
+        log("SubmitLLMActionsToSupabase called")
         
         Task {
             do {
@@ -105,6 +116,7 @@ struct SubmitLLMActionsToSupabase: StitchDocumentEvent {
                 log("📼 ❌ File system error: \(fileError.localizedDescription) ❌ 📼")
             } catch {
                 log("📼 ❌ Error: \(error.localizedDescription) ❌ 📼")
+                state.
             }
             
         } // Task
@@ -125,32 +137,29 @@ struct LLMActionsUpdated: StitchDocumentEvent {
 struct LLMApprovalModalView: View {
     
     var body: some View {
-        HStack {
-            Button {
-                dispatch(ShowLLMEditModal())
-            } label: {
-                Text("Edit")
+        VStack(alignment: .leading) {
+            Text("Does this graph look correct?")
+                .font(.headline)
+            
+            HStack {
+                Button {
+                    dispatch(ShowLLMEditModal())
+                } label: {
+                    Text("Edit")
+                }
+                
+                Button {
+                    // dispatch(ShowLLMEditModal())
+                    // Actually submit to Supabase here
+                    // call the logic in `SupabaseManager.uploadLLMRecording`
+                    dispatch(SubmitLLMActionsToSupabase())
+                } label: {
+                    Text("Submit") // "Send to Supabase"
+                }
             }
             
-            Button {
-                // dispatch(ShowLLMEditModal())
-                // Actually submit to Supabase here
-                // call the logic in `SupabaseManager.uploadLLMRecording`
-                
-                
-                
-            } label: {
-                Text("Submit") // "Send to Supabase"
-            }
-            
-            VStack(alignment: .leading) {
-                Text("Does this ")
-                    .font(.headline)
-                Text("Prototypes are paused to enable inspection of faults in your graph. This is useful for debugging hangs in your prototype. Root causes could include a high loop count in some node's input field.")
-                    .font(.subheadline)
-            }
-            .frame(maxWidth: 520)
         }
+        .frame(maxWidth: 520)
         .padding()
         .background(.ultraThinMaterial)
         .cornerRadius(16)

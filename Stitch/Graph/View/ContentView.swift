@@ -167,6 +167,17 @@ struct ContentView: View, KeyboardReadable {
 //            LLMActionsJSONEntryModalView()
 //        })
         
+        .stitchSheet(isPresented: document.llmRecording.modal == .editBeforeSubmit,
+                     titleLabel: "Edit and Approve Before Submitting to Supabase",
+                     // hide = we canceled the whole augmentation and submission process
+                     hideAction: {
+             // dispatch(LLMAugmentationCancelled())
+        },
+                     sheetBody: {
+            // LLMActionsJSONEntryModalView()
+            JSONEditorView(recordingState: document.llmRecording)
+        })
+        
         // NOTE: THIS IS ACTUALLY ONLY FOR SHOWING AN ERROR MODAL LIKE "THE MODEL COULD NOT CREATE A LIST OF ACTIONS AFTER 3 ATTEMPTS"
         .stitchSheet(isPresented: document.stitchAI.promptState.showModal,
                       titleLabel: "Stitch AI",

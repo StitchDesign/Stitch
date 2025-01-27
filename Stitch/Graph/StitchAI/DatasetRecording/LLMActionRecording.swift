@@ -119,64 +119,68 @@ extension StitchDocumentViewModel {
             return
         }
         
-        // Write the JSONL/YAML to file
-        let recordedData = LLMRecordingData(actions: actions,
-                                            prompt: self.llmRecording.promptState.prompt)
-                
-        Task {
-            do {
-//                let data = try JSONEncoder().encode(recordedData)
+        // if we stop recording the augmentation, show the 'Edit Before Submit' modal
+        dispatch(ShowLLMEditModal())
+        
+        
+//        // Write the JSONL/YAML to file
+//        let recordedData = LLMRecordingData(actions: actions,
+//                                            prompt: self.llmRecording.promptState.prompt)
 //                
-//                let docsURL = StitchFileManager.documentsURL
-//                let dataCollectionURL = docsURL.appendingPathComponent(LLM_COLLECTION_DIRECTORY)
-                
-                // WRITE TO FILE
-                
-//                let dateFormatter = DateFormatter()
-//                dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-//                let formattedDate = dateFormatter.string(from: Date())
-//                let filename = "\(self.graph.name)_\(self.graph.id)_\(formattedDate).json"
-//                let url = dataCollectionURL.appendingPathComponent(filename)
+//        Task {
+//            do {
+////                let data = try JSONEncoder().encode(recordedData)
+////                
+////                let docsURL = StitchFileManager.documentsURL
+////                let dataCollectionURL = docsURL.appendingPathComponent(LLM_COLLECTION_DIRECTORY)
 //                
-//                if !FileManager.default.fileExists(atPath: dataCollectionURL.path) {
-//                    try FileManager.default.createDirectory(
-//                        at: dataCollectionURL,
-//                        withIntermediateDirectories: true)
-//                }
+//                // WRITE TO FILE
 //                
-//                // We write to file ?
-//                try data.write(to: url, options: [.atomic, .completeFileProtection])
-                
-                
-                // UPLOAD TO SUPABASE
-                log("📼 ⬆️ Uploading recording data to Supabase ⬆️ 📼")
-                
-                // Store the mode before reset
-                let isAugmentation = currentMode == .augmentation
-                
-                // Upload with current mode
-//                try await SupabaseManager.shared.uploadLLMRecording(
-//                    recordedData,
-//                    graphState: graph,
-//                    isCorrection: isAugmentation
-//                )
-                fatalError()
-                log("📼 ✅ Data successfully saved locally and uploaded to Supabase ✅ 📼")
-                
-            } catch let encodingError as EncodingError {
-                log("📼 ❌ Encoding error: \(encodingError.localizedDescription) ❌ 📼")
-            } catch let fileError as NSError {
-                log("📼 ❌ File system error: \(fileError.localizedDescription) ❌ 📼")
-            } catch {
-                log("📼 ❌ Error: \(error.localizedDescription) ❌ 📼")
-            }
-        }
+////                let dateFormatter = DateFormatter()
+////                dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+////                let formattedDate = dateFormatter.string(from: Date())
+////                let filename = "\(self.graph.name)_\(self.graph.id)_\(formattedDate).json"
+////                let url = dataCollectionURL.appendingPathComponent(filename)
+////                
+////                if !FileManager.default.fileExists(atPath: dataCollectionURL.path) {
+////                    try FileManager.default.createDirectory(
+////                        at: dataCollectionURL,
+////                        withIntermediateDirectories: true)
+////                }
+////                
+////                // We write to file ?
+////                try data.write(to: url, options: [.atomic, .completeFileProtection])
+//                
+//                
+//                // UPLOAD TO SUPABASE
+//                log("📼 ⬆️ Uploading recording data to Supabase ⬆️ 📼")
+//                
+//                // Store the mode before reset
+//                let isAugmentation = currentMode == .augmentation
+//                
+//                // Upload with current mode
+////                try await SupabaseManager.shared.uploadLLMRecording(
+////                    recordedData,
+////                    graphState: graph,
+////                    isCorrection: isAugmentation
+////                )
+//                fatalError()
+//                log("📼 ✅ Data successfully saved locally and uploaded to Supabase ✅ 📼")
+//                
+//            } catch let encodingError as EncodingError {
+//                log("📼 ❌ Encoding error: \(encodingError.localizedDescription) ❌ 📼")
+//            } catch let fileError as NSError {
+//                log("📼 ❌ File system error: \(fileError.localizedDescription) ❌ 📼")
+//            } catch {
+//                log("📼 ❌ Error: \(error.localizedDescription) ❌ 📼")
+//            }
+//        }
     
         
-        log("📼 🔄 Resetting LLM Recording State 🔄 📼")
+//        log("📼 🔄 Resetting LLM Recording State 🔄 📼")
         
         // Reset the recording state after upload is complete
-        self.llmRecording = .init()
+//        self.llmRecording = .init()
         
         // ^^ in Swift, is this guaranteed to run AFTER the above `Task` has completed ?
     }
