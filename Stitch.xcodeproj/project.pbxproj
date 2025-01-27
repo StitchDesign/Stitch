@@ -292,6 +292,7 @@
 		E41A66B32BD2BB8E00385C9F /* LinearGradientNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41A66B22BD2BB8E00385C9F /* LinearGradientNode.swift */; };
 		E41C43742D442EFE003A453E /* supabaseMangerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41C43732D442EFE003A453E /* supabaseMangerTests.swift */; };
 		E42BA45D291C69C200EB7356 /* SIMDExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42BA45C291C69C200EB7356 /* SIMDExtensions.swift */; };
+		E42C0D052D47F87A00AA2BB1 /* openAIRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42C0D042D47F87A00AA2BB1 /* openAIRequestTests.swift */; };
 		E42CFD462D4413F90034CCFF /* secrets.json in Resources */ = {isa = PBXBuildFile; fileRef = E42CFD452D4413F90034CCFF /* secrets.json */; };
 		E42CFD482D4414F10034CCFF /* Secrets.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42CFD472D4414F10034CCFF /* Secrets.swift */; };
 		E43CA3BF29832FEC007BFE1B /* ARRaycastingNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E43CA3BE29832FEC007BFE1B /* ARRaycastingNode.swift */; };
@@ -1233,6 +1234,7 @@
 		E41A66B22BD2BB8E00385C9F /* LinearGradientNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinearGradientNode.swift; sourceTree = "<group>"; };
 		E41C43732D442EFE003A453E /* supabaseMangerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = supabaseMangerTests.swift; sourceTree = "<group>"; };
 		E42BA45C291C69C200EB7356 /* SIMDExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SIMDExtensions.swift; sourceTree = "<group>"; };
+		E42C0D042D47F87A00AA2BB1 /* openAIRequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = openAIRequestTests.swift; sourceTree = "<group>"; };
 		E42CFD452D4413F90034CCFF /* secrets.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = secrets.json; sourceTree = SOURCE_ROOT; };
 		E42CFD472D4414F10034CCFF /* Secrets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Secrets.swift; sourceTree = "<group>"; };
 		E43CA3BE29832FEC007BFE1B /* ARRaycastingNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ARRaycastingNode.swift; sourceTree = "<group>"; };
@@ -1987,6 +1989,7 @@
 				8BD59DA426CCB93400F38DFF /* SchemaConversionTests.swift */,
 				EC981F73273049F800B25F14 /* sidebarTests.swift */,
 				E41C43732D442EFE003A453E /* supabaseMangerTests.swift */,
+				E42C0D042D47F87A00AA2BB1 /* openAIRequestTests.swift */,
 				B57575F82A187E0600CDB0BA /* previewLayerTests.swift */,
 				B5E5FFBA274C978800C5FE92 /* nodeUIGroupingTests.swift */,
 				B54C9BEB2762B01000FA2BC0 /* cameraTests.swift */,
@@ -5574,6 +5577,7 @@
 				B54C37BF281BB96C00D81E43 /* ProjectMigrationTests.swift in Sources */,
 				EC14B1D129F84CEA002FDA4F /* inputEditTests.swift in Sources */,
 				ECBC95FB27613D9200508966 /* evalTests+2.swift in Sources */,
+				E42C0D052D47F87A00AA2BB1 /* openAIRequestTests.swift in Sources */,
 				EC6DF0AB29FA050F0052545E /* jsonPerfTests.swift in Sources */,
 				B5F9EB9E28D3927F00112799 /* MockFileManager.swift in Sources */,
 				ECF007A926A1D8D0001329B6 /* jsonTests.swift in Sources */,
