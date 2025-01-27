@@ -19,7 +19,7 @@ typealias NodesViewModelDict = [NodeId: NodeViewModel]
 final class NodeViewModel: Sendable {
     // Create some fake patch node as our "nil" choice for dropdowns like layers, broadcast nodes
     @MainActor
-    static let nilChoice = SplitterPatchNode.createViewModel(
+    let nilChoice = SplitterPatchNode.createViewModel(
         position: .zero,
         zIndex: .zero,
         graphDelegate: nil)
