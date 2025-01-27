@@ -65,7 +65,7 @@ struct NodeWirelessBroadcastSubmenuView: View {
                     StitchTextView(string: node.displayTitle)
                         .tag(choice)
                 } else {
-                    StitchTextView(string: NodeViewModel.nilChoice.displayTitle)
+                    StitchTextView(string: NodeViewModel.fakeTitle)
                         .tag(choice)
                 }
             }
