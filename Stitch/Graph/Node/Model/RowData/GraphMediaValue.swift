@@ -16,11 +16,8 @@ struct GraphMediaValue: Hashable {
 }
 
 extension GraphMediaValue {
-    init?(from media: AsyncMediaValue) {
-        guard let mediaObject = media._mediaObject as? StitchMediaObject else {
-            return nil
-        }
-        
+    init?(from media: AsyncMediaValue,
+          mediaObject: StitchMediaObject) {        
         self.id = media.id
         self.dataType = media.dataType
         self.mediaObject = mediaObject

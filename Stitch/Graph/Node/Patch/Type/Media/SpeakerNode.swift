@@ -37,8 +37,11 @@ func speakerNode(id: NodeId,
 @MainActor
 func speakerEval(node: PatchNode) -> EvalResult {
     let _ = loopedEval(node: node) { values, loopIndex in
+        // MARK: media object is obtained by looking at upstream connected node's saved media objects. This system isn't perfect as not all nodes which can hold media use the MediaEvalOpObserver.
         guard let volume = values[safe: 1]?.getNumber,
-              let speakerMedia = values.first?.asyncMedia?.mediaObject.soundFilePlayer else {
+              let mediaObject = node.getConnectedMedia(portIndex: 0,
+                                                       loopIndex: loopIndex),
+              let speakerMedia = mediaObject.soundFilePlayer else {
             log("speakerEval error: no engine or soundinput found.")
             return
         }
@@ -47,5 +50,23 @@ func speakerEval(node: PatchNode) -> EvalResult {
         speakerMedia.updateVolume(volume)
     }
     
-    return .init(outputsValues: [])
+    return EvalResult(outputsValues: [])
+}
+
+// TODO: Move
+extension NodeViewModel {
+    @MainActor
+    /// Gets the media object for some connected input.
+    func getConnectedMedia(portIndex: Int,
+                           loopIndex: Int) -> StitchMediaObject? {
+        // Do nothing if no upstream connection for media
+        guard let connectedUpstreamNode = self.inputsObservers.first?.upstreamOutputObserver?.nodeDelegate,
+              let mediaEvalOps = connectedUpstreamNode.ephemeralObservers,
+              let mediaEvalOp = mediaEvalOps[safe: loopIndex] as? MediaEvalOpObservable else {
+            return nil
+        }
+        
+        // MARK: media object is obtained by looking at upstream connected node's saved media objects. This system isn't perfect as not all nodes which can hold media use the MediaEvalOpObservable.
+        return mediaEvalOp.currentMedia?.mediaObject
+    }
 }

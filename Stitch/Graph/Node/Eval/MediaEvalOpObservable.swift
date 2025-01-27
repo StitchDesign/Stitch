@@ -79,6 +79,7 @@ extension MediaEvalOpObservable {
     @MainActor func getUniqueMedia(from inputMedia: AsyncMediaValue?,
                                    loopIndex: Int) -> GraphMediaValue? {
         guard let inputMedia = inputMedia else {
+//              let _mediaObject = self.currentMedia?.mediaObject else {
             self.currentMedia = nil
             return nil
         }
@@ -86,7 +87,8 @@ extension MediaEvalOpObservable {
         // Input ID's changed and not currently loading same ID
         let needsNewComputedCopy = inputMedia.id != self.currentMedia?.portValue._asyncMedia?.id &&
         self.currentLoadingMediaId != inputMedia.id
-        let mediaObject = GraphMediaValue(from: inputMedia)?.mediaObject
+//        let mediaObject = GraphMediaValue(from: inputMedia,
+//                                          mediaObject: _mediaObject)?.mediaObject
         
         guard needsNewComputedCopy else {
             // Return same object if no expected change
@@ -119,7 +121,8 @@ extension MediaEvalOpObservable {
             return nil
         }
         
-        if let mediaObject = mediaObject {
+        if let mediaObject = self.nodeDelegate?.getConnectedMedia(portIndex: 0,
+                                                                  loopIndex: loopIndex) {
             // Create computed copy from another computed media object
             Task(priority: .high) { [weak self] in
                 guard let copy = try await mediaObject.createComputedCopy() else {

@@ -245,12 +245,14 @@ extension PortValue {
             var fieldValue: FieldValueMedia = .none
             
             // Check for imported media value, which doesn't hold media directly
-            if let importedMedia = importedMediaObject {
-                asyncMedia?._mediaObject = importedMedia
-            }
+//            if let importedMedia = importedMediaObject {
+//                asyncMedia?._mediaObject = importedMedia
+//            }
             
-            if let asyncMedia = asyncMedia {
-                if let media = GraphMediaValue(from: asyncMedia) {
+            if let asyncMedia = asyncMedia,
+               let importedMedia = importedMediaObject {
+                if let media = GraphMediaValue(from: asyncMedia,
+                                               mediaObject: importedMedia) {
                     fieldValue = .media(media)
                 } else if let selectedDefaultOption = DefaultMediaOption.findDefaultOption(from: asyncMedia) {
                     fieldValue = .defaultMedia(selectedDefaultOption)

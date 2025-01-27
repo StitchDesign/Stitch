@@ -49,7 +49,9 @@ func coreMLClassifyEval(node: PatchNode) -> EvalResult {
     node.loopedEval(ImageClassifierOpObserver.self) { values, mediaObserver, loopIndex in
         guard let modelMediaObject = mediaObserver.getUniqueMedia(from: values.first,
                                                                   loopIndex: loopIndex)?.mediaObject,
-              let model = modelMediaObject.coreMLImageModel else {
+              let model = modelMediaObject.coreMLImageModel,
+              let image = node.getConnectedMedia(portIndex: 1,
+                                                 loopIndex: loopIndex)?.image else {
             return node.defaultOutputs
         }
         
@@ -57,9 +59,9 @@ func coreMLClassifyEval(node: PatchNode) -> EvalResult {
         
         return mediaObserver.asyncMediaEvalOp(loopIndex: loopIndex,
                                               values: values,
-                                              node: node) { [weak model] in
+                                              node: node) { [weak model, weak image] in
             guard let model = model,
-                  let image = values[safe: 1]?.asyncMedia?.mediaObject.image,
+                  let image = image,
                   let result = await mediaObserver.coreMlActor
                 .visionClassificationRequest(for: model,
                                              with: image) else {

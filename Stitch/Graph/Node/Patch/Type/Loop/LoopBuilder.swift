@@ -126,31 +126,35 @@ func loopBuilderEval(node: PatchNode,
 
 extension LoopBuilderNode {
     static func copyMedia(values: PortValues) async -> PortValuesList {
-        var newOutputs: PortValues = []
-        
-        for value in values {
-            guard let inputMedia = value.asyncMedia else {
-                  // We use loop as the port ID since the values have been flattened
-                  // And the actual loop index is always 0
-                newOutputs.append(.asyncMedia(nil))
-                continue
-            }
-            
-            do {
-                let copiedMedia = try await inputMedia.mediaObject.createComputedCopy()
-                
-                if let copiedMedia = copiedMedia {
-                    let graphMedia = GraphMediaValue(computedMedia: copiedMedia)
-                    newOutputs.append(graphMedia.portValue)
-                } else {
-                    newOutputs.append(.asyncMedia(nil))
-                }
-            } catch {
-                fatalErrorIfDebug()
-                newOutputs.append(.asyncMedia(nil))
-            }
-        }
-        
-        return [values.asLoopIndices, newOutputs]
+        // TODO: loop builder node, remove static
+        fatalErrorIfDebug()
+        return []
+//
+//        var newOutputs: PortValues = []
+//        
+//        for value in values {
+//            guard let inputMedia = value.asyncMedia else {
+//                  // We use loop as the port ID since the values have been flattened
+//                  // And the actual loop index is always 0
+//                newOutputs.append(.asyncMedia(nil))
+//                continue
+//            }
+//            
+//            do {
+//                let copiedMedia = try await inputMedia.mediaObject.createComputedCopy()
+//                
+//                if let copiedMedia = copiedMedia {
+//                    let graphMedia = GraphMediaValue(computedMedia: copiedMedia)
+//                    newOutputs.append(graphMedia.portValue)
+//                } else {
+//                    newOutputs.append(.asyncMedia(nil))
+//                }
+//            } catch {
+//                fatalErrorIfDebug()
+//                newOutputs.append(.asyncMedia(nil))
+//            }
+//        }
+//        
+//        return [values.asLoopIndices, newOutputs]
     }
 }

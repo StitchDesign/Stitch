@@ -42,44 +42,47 @@ extension NodeTimerEphemeralObserver {
         
         var value = value
         
-        // Change pulse time to now if type is pulse,
-        // otherwise downstream nodes won't fire
-        if originalNodeType == .pulse {
-            value = .pulse(graph.graphStepState.graphTime)
-        }
-        
-        // Normal outputs if no media
-        guard let media = value.asyncMedia else {
-            graph.recalculateGraph(outputValues: .init(from: [value]),
-                                   nodeId: nodeId,
-                                   loopIndex: loopIndex)
-            return
-        }
-        
-        // Create computed copy if there's media
-        Task(priority: .userInitiated) { [weak node] in
-            guard let mediaCopy = try await media.mediaObject.createComputedCopy() else {
-                return
-            }
-            
-            // Mic media needs delayed assigned accordingly
-            if let mic = mediaCopy.mic {
-                await MainActor.run { [weak mic] in
-                    mic?.delegate.assignDelay(delayLength)
-                }
-            }
-            
-            let newGraphMedia = GraphMediaValue(id: media.id,
-                                                dataType: .computed,
-                                                mediaObject: mediaCopy)
-            
-            let newOutputs = [newGraphMedia.portValue]
-            
-            await MainActor.run { [weak node] in
-                return node?.graphDelegate?.recalculateGraph(outputValues: .byIndex(newOutputs),
-                                                             nodeId: nodeId,
-                                                             loopIndex: loopIndex)
-            }
-        }
+        // TODO: timers should use media ephemeral object rather than just set output
+        fatalError()
+//
+//        // Change pulse time to now if type is pulse,
+//        // otherwise downstream nodes won't fire
+//        if originalNodeType == .pulse {
+//            value = .pulse(graph.graphStepState.graphTime)
+//        }
+//        
+//        // Normal outputs if no media
+//        guard let media = value.asyncMedia else {
+//            graph.recalculateGraph(outputValues: .init(from: [value]),
+//                                   nodeId: nodeId,
+//                                   loopIndex: loopIndex)
+//            return
+//        }
+//        
+//        // Create computed copy if there's media
+//        Task(priority: .userInitiated) { [weak node] in
+//            guard let mediaCopy = try await media.mediaObject.createComputedCopy() else {
+//                return
+//            }
+//            
+//            // Mic media needs delayed assigned accordingly
+//            if let mic = mediaCopy.mic {
+//                await MainActor.run { [weak mic] in
+//                    mic?.delegate.assignDelay(delayLength)
+//                }
+//            }
+//            
+//            let newGraphMedia = GraphMediaValue(id: media.id,
+//                                                dataType: .computed,
+//                                                mediaObject: mediaCopy)
+//            
+//            let newOutputs = [newGraphMedia.portValue]
+//            
+//            await MainActor.run { [weak node] in
+//                return node?.graphDelegate?.recalculateGraph(outputValues: .byIndex(newOutputs),
+//                                                             nodeId: nodeId,
+//                                                             loopIndex: loopIndex)
+//            }
+//        }
     }
 }
