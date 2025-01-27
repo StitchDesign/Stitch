@@ -379,8 +379,7 @@ func createPatchNode(from importedMediaURL: URL,
                      graphDelegate: GraphDelegate?) -> PatchNodeResult {
     let asyncMedia = AsyncMediaValue(
         id: UUID(),
-        dataType: .source(importedMediaURL.mediaKey),
-        _mediaObject: nil)
+        dataType: .source(importedMediaURL.mediaKey))
 
     guard let node = mediaType.nodeKind?.graphNode?.createViewModel(id: nodeId,
                                                                     position: position.toCGPoint,

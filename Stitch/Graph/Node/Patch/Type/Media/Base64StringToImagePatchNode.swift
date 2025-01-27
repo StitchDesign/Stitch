@@ -61,7 +61,8 @@ func base64StringToImageEval(node: PatchNode) -> EvalResult {
                                               node: node) {
             switch await convertBase64StringToImage(inputBase64String) {
             case .success(let image):
-                return [.asyncMedia(AsyncMediaValue(dataType: .computed))]
+                return [.asyncMedia(AsyncMediaValue(id: .init(),
+                                                    dataType: .computed))]
             case .failure(let error):
                 log("base64StringToImageEval error: \(error)")
                 // TODO: do we always want to show the error?
