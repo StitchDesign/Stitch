@@ -102,8 +102,7 @@ extension FieldValueMedia {
             
         case .defaultMedia(let defaultMedia):
             let mediaValue = AsyncMediaValue(id: .init(),
-                                             dataType: .source(defaultMedia.mediaKey),
-                                             _mediaObject: defaultMedia)
+                                             dataType: .source(defaultMedia.mediaKey))
             let portValue = PortValue.asyncMedia(mediaValue)
             
             dispatch(MediaPickerChanged(selectedValue: portValue,

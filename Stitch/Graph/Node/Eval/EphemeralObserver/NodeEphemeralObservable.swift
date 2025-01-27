@@ -120,8 +120,7 @@ struct SampleRangeComputedState: Equatable, Hashable {
         var outputMediaValue: AsyncMediaValue?
         if let sampleRangeMediaId = self.mediaId {
             outputMediaValue = AsyncMediaValue(id: sampleRangeMediaId, 
-                                               dataType: .computed,
-                                               mediaObject: mediaObject)
+                                               dataType: .computed)
         }
 
         return [.asyncMedia(outputMediaValue)]

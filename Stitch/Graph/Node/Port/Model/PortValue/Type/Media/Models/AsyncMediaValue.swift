@@ -13,11 +13,10 @@ typealias MediaObjectId = UUID
 extension AsyncMediaValue {
     /// Desired initializer for `AsyncMediaValue`.
     init(id: MediaObjectId = .init(),
-         dataType: DataType<MediaKey>,
-         mediaObject: StitchMediaObject) {
+         dataType: DataType<MediaKey>) {
         self.init(id: id,
                   dataType: dataType,
-                  _mediaObject: mediaObject)
+                  _mediaObject: nil)
     }
     
     /// Optional initializer with NodeId and MediaKey.

@@ -31,8 +31,7 @@ extension GraphMediaValue {
     
     var portValue: PortValue {
         .asyncMedia(.init(id: self.id,
-                          dataType: self.dataType,
-                          _mediaObject: self.mediaObject))
+                          dataType: self.dataType))
     }
     
     var mediaKey: MediaKey? {

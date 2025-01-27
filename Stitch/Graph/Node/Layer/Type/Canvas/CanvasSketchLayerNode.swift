@@ -130,8 +130,7 @@ func canvasSketchEval(node: PatchNode) -> EvalResult {
             case .success(let image):
                 // log("canvasSketchEval: success")
                 return [.asyncMedia(AsyncMediaValue(id: .init(),
-                                                    dataType: .computed,
-                                                    mediaObject: .image(image)))]
+                                                    dataType: .computed))]
                 
             case .failure:
                 // log("canvasSketchEval: failure")

@@ -237,8 +237,7 @@ func handleSuccessfulNetworkRequest(index: Int,
         let mediaObjectLoaded = StitchMediaObject.image(x)
 
         value = .asyncMedia(AsyncMediaValue(id: id, 
-                                            dataType: .computed,
-                                            mediaObject: mediaObjectLoaded))
+                                            dataType: .computed))
 
     case (RequestedResource.json(let x)):
         value = .init(x)

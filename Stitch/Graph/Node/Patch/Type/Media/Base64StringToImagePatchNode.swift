@@ -55,13 +55,13 @@ func base64StringToImageEval(node: PatchNode) -> EvalResult {
     node.loopedEval(MediaEvalOpObserver.self) { values, mediaObserver, loopIndex in
         let inputBase64String: String = values.first?.getString?.string ?? ""
         
+        // TODO: likely fix base64 for adding media to media observer
         return mediaObserver.asyncMediaEvalOp(loopIndex: loopIndex,
                                               values: values,
                                               node: node) {
             switch await convertBase64StringToImage(inputBase64String) {
             case .success(let image):
-                return [.asyncMedia(AsyncMediaValue(dataType: .computed,
-                                                    mediaObject: .image(image)))]
+                return [.asyncMedia(AsyncMediaValue(dataType: .computed))]
             case .failure(let error):
                 log("base64StringToImageEval error: \(error)")
                 // TODO: do we always want to show the error?
