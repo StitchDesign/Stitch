@@ -50,35 +50,70 @@ struct LLMActionCorrectionView: View {
     let nodeIdToNameMapping: [String: String]
     
     var body: some View {
+        
+        VStack(alignment: .leading, spacing: 8) {
+            stepTypeAndDeleteView
+            
+            if let nodeId = action.nodeId,
+               let nodeKind: PatchOrLayer = nodeIdToNameMapping.get(nodeId)?.parseNodeKind() {
+                StitchTextView(string: "Node: \(nodeKind.asNodeKind.description) \(nodeId.debugFriendlyId)")
                 
-        if let nodeId = action.nodeId,
-           let nodeKind: PatchOrLayer = nodeIdToNameMapping.get(nodeId)?.parseNodeKind() {
-            StitchTextView(string: "Node: \(nodeKind.asNodeKind.description) \(nodeId)")
+                LLMPortDisplayView(action: action,
+                                   nodeKind: nodeKind,
+                                   isForConnectNodeAction: false)
+            }
+        
+            setInputView
             
-            
-            LLMPortDisplayView(action: action,
-                               nodeKind: nodeKind,
-                               isForConnectNodeAction: false)
+            // Connect Nodes
+            fromPortView
+            toPortView
         }
-                
+        .padding()
+        .background(.ultraThickMaterial)
+        .cornerRadius(16)
+    }
+    
+    @ViewBuilder
+    var stepTypeAndDeleteView: some View {
+        HStack {
+            if let stepType = StepType.init(rawValue: action.stepType) {
+                StitchTextView(string: "Step Type: \(stepType.display)")
+            }
+            Spacer()
+            Image(systemName: "trash")
+                .onTapGesture {
+                    dispatch(LLMActionDeleted(deletedAction: action))
+                }
+        }
+    }
+    
+    @ViewBuilder
+    var fromPortView: some View {
         // Step.fromNodeId
         LLMActionFromNodeView(action: action,
                               nodeIdToNameMapping: nodeIdToNameMapping)
         LLMFromPortDisplayView(action: action)
 
-        
+    }
+    
+    @ViewBuilder
+    var toPortView: some View {
         // Step.toNodeId
         LLMActionToNodeAndPortView(action: action,
                                    nodeIdToNameMapping: nodeIdToNameMapping)
+    }
+    
+    @ViewBuilder
+    var setInputView: some View {
         
-        if let value = action.parseValueForSetInput() {
-            StitchTextView(string: "Value: \(value.display)")
-        }
-        
-        if let nodeType = action.parseNodeType() {
-            StitchTextView(string: "NodeType: \(nodeType.display)")
-        }
-        
+         if let value = action.parseValueForSetInput() {
+             StitchTextView(string: "Value: \(value.display)")
+         }
+         
+         if let nodeType = action.parseNodeType() {
+             StitchTextView(string: "NodeType: \(nodeType.display)")
+         }
     }
 }
 
@@ -91,7 +126,7 @@ struct LLMActionToNodeAndPortView: View {
         // Step.fromNodeId
         if let toNodeId = action.toNodeId,
            let toNodeKind = nodeIdToNameMapping.get(toNodeId)?.parseNodeKind() {
-            StitchTextView(string: "To Node: \(toNodeKind.asNodeKind.description), \(toNodeId)")
+            StitchTextView(string: "To Node: \(toNodeKind.asNodeKind.description), \(toNodeId.debugFriendlyId)")
             
             // toNode is only for connect_nodes, so we want to show the port as well
             LLMPortDisplayView(action: action,
@@ -123,32 +158,15 @@ struct LLMActionFromNodeView: View {
         // Step.fromNodeId
         if let fromNodeId = action.fromNodeId,
            let fromNodeKind = nodeIdToNameMapping.get(fromNodeId)?.parseNodeKind() {
-            StitchTextView(string: "From Node: \(fromNodeKind.asNodeKind.description), \(fromNodeId)")
+            StitchTextView(string: "From Node: \(fromNodeKind.asNodeKind.description), \(fromNodeId.debugFriendlyId)")
         }
     }
 }
 
-
 // TODO: JAN 25
 // i.e. EditBeforeSubmitModalView
 struct JSONEditorView: View {
-    @Environment(\.dismiss) var dismiss
-        
-    //    @State private var jsonString: String
-    
-//    @State private var isValidJSON = true
-    
-//    @State private var errorMessage: String? = nil
-    
-//    @State private var hasCompleted = false
-    
-//    private let completion: (LLMStepActions) -> Void
-    
-//    let prompt: String
-    
-    // TODO: GRAB THESE from LLMRecordingState
-//    @State var actions: [LLMStepAction]
-    
+ 
     let recordingState: LLMRecordingState
     
     var prompt: String {
@@ -159,28 +177,57 @@ struct JSONEditorView: View {
         recordingState.actions
     }
     
-//    init(recordingWrapper: RecordingWrapper,
-//         completion: @escaping (LLMStepActions) -> Void) {
-////        self.prompt = recordingWrapper.prompt
-////        self.completion = completion
-//        self.nodeIdToNameMapping = .init()
-//    }
-    
     @State private var nodeIdToNameMapping: [String: String] = .init()
     
     var body: some View {
-        logInView("JSONEditorView body")
-        ScrollView {
-            actionsView
+        VStack {
+            ScrollView {
+                actionsView
+                    .padding()
+            }
+            
+            buttons
                 .padding()
         }
+//        .padding()
+        .frame(maxWidth: 420, maxHeight: 600)
+        .background(.ultraThinMaterial)
+        .cornerRadius(16)
+        .padding()
+        
+    }
+    
+    var buttons: some View {
+        HStack {
+            Button(action: {
+                dispatch(LLMAugmentationCancelled())
+            }) {
+                Text("Cancel")
+                    .padding()
+            }
+            
+            Button(action: {
+                dispatch(LLMAugmentationStarted())
+            }) {
+                Text("Add More")
+                    .padding()
+            }
+            
+            Button(action: {
+                log("will complete and dismiss")
+                dispatch(ShowLLMApprovalModal())
+                
+            }) {
+                Text("Submit")
+                    .padding()
+            }
+        } // HStack
     }
     
     @ViewBuilder
     var actionsView: some View {
-        logInView("JSONEditorView actionsView")
         VStack {
-            StitchTextView(string: "\(prompt)")
+            StitchTextView(string: "Prompt: \(prompt)")
                 .onAppear {
                     // Note: must do this here and not in view's `init`?
                     // Alternatively, pass in the data/mapping already created
@@ -207,71 +254,11 @@ struct JSONEditorView: View {
             
             // `id:` by hashable ought to be okay?
             ForEach(actions, id: \.hashValue) { (action: LLMStepAction) in
-                VStack(alignment: .leading) {
-                    
-                    HStack {
-                        StitchTextView(string: "Step Type: \(action.stepType)")
-                        Spacer()
-                        Button {
-                            log("will delete this action")
-                            // Note: fine to do equality check because not editing actions per se here
-                            
-                            dispatch(LLMActionsUpdated(newActions: self.actions.filter { $0 != action }))
-                            
-                        } label: {
-                            Text("Delete")
-                        }
-                    }
-                    
-                    LLMActionCorrectionView(action: action,
-                                            nodeIdToNameMapping: self.nodeIdToNameMapping)
-                }
-                Divider()
+                LLMActionCorrectionView(action: action,
+                                        nodeIdToNameMapping: self.nodeIdToNameMapping)
             }
-            
-//            if !isValidJSON {
-//                Text(errorMessage ?? "Invalid JSON format")
-//                    .foregroundColor(.red)
-//                    .padding(.bottom)
-//            }
-//            
-            HStack {
-                Button(action: {
-                    log("will dismiss without submitting")
-                    // TODO: mark `hasCompleted` true or false ?
-                    dismiss()
-                }) {
-                    Text("Cancel")
-                        .padding()
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
-                }
-                .padding(.bottom)
-                
-                Button(action: {
-                    log("will complete and dismiss")
-//                    completeAndDismiss(self.actions)
-                    dismiss()
-                    dispatch(ShowLLMApprovalModal())
-                    
-                }) {
-//                    Text("Send to Supabase")
-                    Text("Test before Sending to Supabase")
-                        .padding()
-//                        .background(isValidJSON ? Color.accentColor : Color.gray)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
-                }
-//                .disabled(!isValidJSON)
-                .padding(.bottom)
-                
-            } // HStack
         }
-//        .onDisappear {
-//            dismiss()
-////            if !hasCompleted {
-////                completeAndDismiss(self.actions)
-////            }
-//        }
     }
+    
+    
 }

@@ -98,6 +98,17 @@ struct GraphBaseView: View {
                     Spacer()
                 }
             }
+            
+            // Better to show modal here, so user can move around etc.
+            if document.llmRecording.modal == .editBeforeSubmit {
+                VStack {
+                    HStack {
+                        JSONEditorView(recordingState: document.llmRecording)
+                        Spacer()
+                    }
+                    Spacer()
+                }
+            }
         }
     }
 

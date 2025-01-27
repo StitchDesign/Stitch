@@ -59,10 +59,10 @@ struct ShowLLMApprovalModal: StitchDocumentEvent {
         log("ShowLLMApprovalModal called")
         
         // Wipe patches and layers
-        state.graph.nodes.forEach { (key: UUID, value: NodeViewModel) in
-            state.graph.deleteNode(
-                id: key,
-                willDeleteLayerGroupChildren: true)
+        // TODO: keep patches and layers that WERE NOT created by this recent LLM prompt? Folks may use AI to supplement their existing work.
+        state.graph.nodes.keys.forEach {
+            state.graph.deleteNode(id: $0,
+                                   willDeleteLayerGroupChildren: true)
         }
         
         // Apply the LLM-actions (model-generated and user-augmented) to the graph
@@ -74,6 +74,9 @@ struct ShowLLMApprovalModal: StitchDocumentEvent {
                 action,
                 canvasItemsAdded: canvasItemsAdded)
         }
+        
+        // Write to disk
+        state.encodeProjectInBackground()
         
         // Show modal
         state.llmRecording.modal = .approveAndSubmit
@@ -94,7 +97,6 @@ struct SubmitLLMActionsToSupabase: StitchDocumentEvent {
         
         Task {
             do {
-                // UPLOAD TO SUPABASE
                 log("📼 ⬆️ Uploading recording data to Supabase ⬆️ 📼")
               
                 // TODO: JAN 25: these should be from the edited whatever...
@@ -109,14 +111,17 @@ struct SubmitLLMActionsToSupabase: StitchDocumentEvent {
                     finalActions: actions)
                                 
                 log("📼 ✅ Data successfully saved locally and uploaded to Supabase ✅ 📼")
+                state.llmRecording = .init()
                 
             } catch let encodingError as EncodingError {
                 log("📼 ❌ Encoding error: \(encodingError.localizedDescription) ❌ 📼")
+                state.llmRecording = .init()
             } catch let fileError as NSError {
                 log("📼 ❌ File system error: \(fileError.localizedDescription) ❌ 📼")
+                state.llmRecording = .init()
             } catch {
                 log("📼 ❌ Error: \(error.localizedDescription) ❌ 📼")
-                state.
+                state.llmRecording = .init()
             }
             
         } // Task
@@ -124,13 +129,18 @@ struct SubmitLLMActionsToSupabase: StitchDocumentEvent {
     } // handle
 }
 
-struct LLMActionsUpdated: StitchDocumentEvent {
-    let newActions: [Step]
+struct LLMActionDeleted: StitchDocumentEvent {
+    let deletedAction: Step
     
     func handle(state: StitchDocumentViewModel) {
-        log("LLMActionsUpdated: newActions: \(newActions)")
+        log("LLMActionsUpdated: deletedAction: \(deletedAction)")
         log("LLMActionsUpdated: state.llmRecording.actions was: \(state.llmRecording.actions)")
-        state.llmRecording.actions = newActions
+        
+        // Note: fine to do equality check because not editing actions per se here
+        // TODO: what if we change the `value` of
+        let filteredActions = state.llmRecording.actions.filter { $0 != deletedAction }
+        
+        state.llmRecording.actions = filteredActions
     }
 }
 
@@ -145,7 +155,7 @@ struct LLMApprovalModalView: View {
                 Button {
                     dispatch(ShowLLMEditModal())
                 } label: {
-                    Text("Edit")
+                    Text("Add More")
                 }
                 
                 Button {
@@ -159,7 +169,7 @@ struct LLMApprovalModalView: View {
             }
             
         }
-        .frame(maxWidth: 520)
+//        .frame(maxWidth: 520)
         .padding()
         .background(.ultraThinMaterial)
         .cornerRadius(16)

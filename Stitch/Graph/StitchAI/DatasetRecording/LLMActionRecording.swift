@@ -42,6 +42,7 @@ struct LLMRecordingToggled: GraphEvent {
             // Clear the AI generation flag AFTER we've secured the actions
             state.graphUI.insertNodeMenuState.isFromAIGeneration = false
             log("🔄 🤖 AI Generation Mode Cleared - Actions Preserved for Correction 🤖 🔄")
+            
         } // if wasInAIMode
         
         if document.llmRecording.isRecording {
@@ -61,6 +62,14 @@ struct LLMRecordingToggled: GraphEvent {
 struct LLMRecordingData: Equatable, Encodable {
     let actions: LLMStepActions
     let prompt: String
+}
+
+struct LLMAugmentationStarted: StitchDocumentEvent {
+    func handle(state: StitchDocumentViewModel) {
+        state.llmRecording.mode = .augmentation
+        state.llmRecording.isRecording = true
+        state.llmRecording.modal = .none
+    }
 }
 
 extension StitchDocumentViewModel {
