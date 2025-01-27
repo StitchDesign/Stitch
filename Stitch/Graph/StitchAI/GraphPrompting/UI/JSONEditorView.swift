@@ -127,31 +127,44 @@ struct LLMActionFromNodeView: View {
 }
 
 
+// TODO: JAN 25
+// i.e. EditBeforeSubmitModalView
 struct JSONEditorView: View {
     @Environment(\.dismiss) var dismiss
-    
+        
     //    @State private var jsonString: String
     
-    @State private var isValidJSON = true
+//    @State private var isValidJSON = true
     
-    @State private var errorMessage: String? = nil
+//    @State private var errorMessage: String? = nil
     
-    @State private var hasCompleted = false
+//    @State private var hasCompleted = false
     
-    private let completion: (LLMStepActions) -> Void
+//    private let completion: (LLMStepActions) -> Void
     
-    let prompt: String
-    @State var actions: [LLMStepAction]
+//    let prompt: String
     
-    init(recordingWrapper: RecordingWrapper,
-         completion: @escaping (LLMStepActions) -> Void) {
-        self.prompt = recordingWrapper.prompt
-        self.actions = recordingWrapper.actions
-        self.completion = completion
-        self.nodeIdToNameMapping = .init()
+    // TODO: GRAB THESE from LLMRecordingState
+//    @State var actions: [LLMStepAction]
+    
+    let recordingState: LLMRecordingState
+    
+    var prompt: String {
+        recordingState.promptState.prompt
     }
     
-    @State private var nodeIdToNameMapping: [String: String]
+    var actions: [LLMStepAction] {
+        recordingState.actions
+    }
+    
+//    init(recordingWrapper: RecordingWrapper,
+//         completion: @escaping (LLMStepActions) -> Void) {
+////        self.prompt = recordingWrapper.prompt
+////        self.completion = completion
+//        self.nodeIdToNameMapping = .init()
+//    }
+    
+    @State private var nodeIdToNameMapping: [String: String] = .init()
     
     var body: some View {
         ScrollView {
@@ -197,7 +210,9 @@ struct JSONEditorView: View {
                         Button {
                             log("will delete this action")
                             // Note: fine to do equality check because not editing actions per se here
-                            self.actions = actions.filter { $0 != action }
+                            
+                            dispatch(LLMActionsUpdated(newActions: self.actions.filter { $0 != action }))
+                            
                         } label: {
                             Text("Delete")
                         }
@@ -209,12 +224,12 @@ struct JSONEditorView: View {
                 Divider()
             }
             
-            if !isValidJSON {
-                Text(errorMessage ?? "Invalid JSON format")
-                    .foregroundColor(.red)
-                    .padding(.bottom)
-            }
-            
+//            if !isValidJSON {
+//                Text(errorMessage ?? "Invalid JSON format")
+//                    .foregroundColor(.red)
+//                    .padding(.bottom)
+//            }
+//            
             HStack {
                 Button(action: {
                     log("will dismiss without submitting")
@@ -230,70 +245,28 @@ struct JSONEditorView: View {
                 
                 Button(action: {
                     log("will complete and dismiss")
-                    completeAndDismiss(self.actions)
+//                    completeAndDismiss(self.actions)
+                    dismiss()
+                    dispatch(ShowLLMApprovalModal())
+                    
                 }) {
-                    Text("Send to Supabase")
+//                    Text("Send to Supabase")
+                    Text("Test before Sending to Supabase")
                         .padding()
-                        .background(isValidJSON ? Color.accentColor : Color.gray)
+//                        .background(isValidJSON ? Color.accentColor : Color.gray)
                         .foregroundColor(.white)
                         .cornerRadius(8)
                 }
-                .disabled(!isValidJSON)
+//                .disabled(!isValidJSON)
                 .padding(.bottom)
                 
             } // HStack
         }
         .onDisappear {
-            if !hasCompleted {
-                completeAndDismiss(self.actions)
-            }
+            dismiss()
+//            if !hasCompleted {
+//                completeAndDismiss(self.actions)
+//            }
         }
-    }
-    
-    
-    private func validateJSON(_ jsonString: String) {
-        let trimmedString = jsonString.trimmingCharacters(in: .whitespacesAndNewlines)
-        
-        guard let jsonData = trimmedString.data(using: .utf8) else {
-            isValidJSON = false
-            errorMessage = "Invalid UTF-8 encoding"
-            return
-        }
-        
-        do {
-            _ = try JSONSerialization.jsonObject(with: jsonData, options: [])
-            isValidJSON = true
-            errorMessage = nil
-        } catch {
-            isValidJSON = false
-            errorMessage = "Invalid JSON format: \(error.localizedDescription)"
-        }
-    }
-    
-    private func completeAndDismiss(_ actions: LLMStepActions) {
-        guard !hasCompleted else { return }
-        hasCompleted = true
-        completion(actions)
-        dismiss()
-    }
-    
-    private static func formatJSON(_ jsonString: String) -> String {
-        guard let jsonData = jsonString.data(using: .utf8),
-              let json = try? JSONSerialization.jsonObject(with: jsonData),
-              let prettyData = try? JSONSerialization.data(withJSONObject: json, options: [.prettyPrinted]),
-              let prettyString = String(data: prettyData, encoding: .utf8) else {
-            return jsonString
-        }
-        return prettyString
-    }
-    
-    private static func minifyJSON(_ jsonString: String) -> String {
-        guard let jsonData = jsonString.data(using: .utf8),
-              let json = try? JSONSerialization.jsonObject(with: jsonData),
-              let minData = try? JSONSerialization.data(withJSONObject: json),
-              let minString = String(data: minData, encoding: .utf8) else {
-            return jsonString
-        }
-        return minString
     }
 }

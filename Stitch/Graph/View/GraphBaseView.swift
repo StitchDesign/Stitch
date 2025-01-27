@@ -88,6 +88,16 @@ struct GraphBaseView: View {
                     Spacer()
                 }
             }
+            
+            if document.llmRecording.modal == .approveAndSubmit {
+                VStack {
+                    HStack {
+                        DebugModePopover()
+                        Spacer()
+                    }
+                    Spacer()
+                }
+            }
         }
     }
 
