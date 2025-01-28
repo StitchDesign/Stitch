@@ -95,11 +95,12 @@ struct AdjustmentBarPopoverView: View {
                 // Hide popover
                 self.isPopoverOpen = false
 
-                graph.inputEdited(fieldValue: .layerDimension(.auto),
-                                  fieldIndex: fieldCoordinate.fieldIndex,
-                                  coordinate: rowObserverCoordinate,
-                                  isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                                  isCommitting: false)
+                graph.inputEditedFromUI(
+                    fieldValue: .layerDimension(.auto),
+                    fieldIndex: fieldCoordinate.fieldIndex,
+                    coordinate: rowObserverCoordinate,
+                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                    isCommitting: false)
             } label: {
                 Image(systemName: "bolt.badge.a.fill")
                     .resizable()
