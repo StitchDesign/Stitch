@@ -156,18 +156,23 @@ struct InsertNodeSelectionChanged: GraphUIEvent {
 }
 
 /// Process search results in the insert node menu sheet
-struct GenerateAINode: GraphEvent {
+struct GenerateAINode: StitchDocumentEvent {
     let prompt: String
     
-    func handle(state: GraphState) {
+    func handle(state: StitchDocumentViewModel) {
         print("🤖 🔥 GENERATE AI NODE - STARTING AI GENERATION MODE 🔥 🤖")
         print("🤖 Prompt: \(prompt)")
         
         // Set loading state
-        state.graphUI.insertNodeMenuState.isGeneratingAINode = true
+        state.graph.graphUI.insertNodeMenuState.isGeneratingAINode = true
+        
         // Set flag to indicate this is from AI generation
-        state.graphUI.insertNodeMenuState.isFromAIGeneration = true
-        print("🤖 isFromAIGeneration set to: \(state.graphUI.insertNodeMenuState.isFromAIGeneration)")
+        state.graph.graphUI.insertNodeMenuState.isFromAIGeneration = true
+        
+        print("🤖 isFromAIGeneration set to: \(state.graph.graphUI.insertNodeMenuState.isFromAIGeneration)")
+        
+        // Update lastPrompt for retry attempts
+        state.stitchAI.lastPrompt = prompt
         
         // Dispatch OpenAI request
         dispatch(MakeOpenAIRequest(prompt: prompt))

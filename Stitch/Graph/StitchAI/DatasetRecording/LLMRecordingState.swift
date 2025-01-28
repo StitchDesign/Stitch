@@ -19,8 +19,7 @@ enum LLMRecordinModal: Equatable, Hashable {
     // No active modal
     case none
     
-    // Modal from which we can edit the LLM actions (created by model + user)
-    // and then either (1) test and submit or (2) completely cancel.
+    // Modal from which user can edit LLM Actions (remove those created by model or user; add new ones by interacting with the graph)
     case editBeforeSubmit
     
     // Modal from which either (1) re-enter LLM edit mode or (2) finally approve the LLM action list and send to Supabase
