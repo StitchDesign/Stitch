@@ -10,6 +10,7 @@
 import Foundation
 @preconcurrency import SwiftyJSON
 import SwiftUI
+import Sentry
 
 let OPEN_AI_BASE_URL = "https://api.openai.com/v1/chat/completions"
 
@@ -81,7 +82,8 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
 
         // Check if we've exceeded retry attempts
         guard attempt <= config.maxRetries else {
-            log("All retry attempts exhausted")
+            log("All StitchAI retry attempts exhausted")
+            SentrySDK.capture(message: "All StitchAI retry attempts exhausted")
             state.showErrorModal(
                 message: "Request failed after \(config.maxRetries) attempts. Please check your internet connection and try again.",
                 userPrompt: prompt,
@@ -169,7 +171,7 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
                             return
                         }
                         
-                        log("Request timed out: \(error.localizedDescription)")
+                        log("StitchAI Request timed out: \(error.localizedDescription)", .logToServer)
                         log("Retrying in \(config.retryDelay) seconds")
                         
                         DispatchQueue.main.asyncAfter(deadline: .now() + config.retryDelay) {
@@ -209,7 +211,7 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
                     // Retry on rate limit or server errors
                     if httpResponse.statusCode == 429 || // Rate limit
                        httpResponse.statusCode >= 500 {  // Server error
-                        log("Request failed with status code: \(httpResponse.statusCode)")
+                        log("StitchAI Request failed with status code: \(httpResponse.statusCode)", .logToServer)
                         log("Retrying in \(config.retryDelay) seconds")
                         
                         DispatchQueue.main.asyncAfter(deadline: .now() + config.retryDelay) {
@@ -247,7 +249,7 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
     
     /// Retry parsing JSON response with delay
     @MainActor func retryParsing(data: Data, attempt: Int, state: StitchDocumentViewModel) {
-        log("Retrying JSON parsing, attempt \(attempt) of \(maxParsingAttempts)")
+        log("Retrying JSON parsing, attempt \(attempt) of \(maxParsingAttempts)", .logToServer)
         
         Thread.sleep(forTimeInterval: parsingRetryDelay)
         
@@ -257,10 +259,11 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
             log("JSON parsing succeeded on retry \(attempt)")
             handleSuccessfulParse(steps: stepsFromResponse, state: state)
         } else if attempt < maxParsingAttempts {
-            log("JSON parsing failed on retry \(attempt): \(error?.localizedDescription ?? "")")
+            log("Stitch AI JSON parsing failed on retry \(attempt): \(error?.localizedDescription ?? "")", .logToServer)
             retryParsing(data: data, attempt: attempt + 1, state: state)
         } else {
-            log("All parsing retries exhausted")
+            log("Stitch AI All parsing retries exhausted for \(originalPrompt)", .logToServer)
+            
             state.showErrorModal(
                 message: error?.localizedDescription ?? "Failed to parse response after \(maxParsingAttempts) attempts",
                 userPrompt: originalPrompt,
@@ -334,14 +337,14 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
             log("JSON parsing succeeded on first attempt")
             handleSuccessfulParse(steps: stepsFromResponse, state: state)
         } else {
-            log("Initial JSON parsing failed: \(error?.localizedDescription ?? "")")
+            log("Initial StitchAI JSON parsing failed: \(error?.localizedDescription ?? "")", .logToServer)
             log("Starting parsing retries")
             retryParsing(data: data, attempt: 1, state: state)
         }
     }
     
     @MainActor func handleError(_ error: Error, state: StitchDocumentViewModel) {
-        log("Error generating graph: \(error)")
+        log("Error generating graph with StitchAI: \(error)", .logToServer)
         state.stitchAI.promptState.isGenerating = false
         state.graphUI.insertNodeMenuState.show = false
         state.graphUI.insertNodeMenuState.isGeneratingAINode = false
@@ -353,13 +356,13 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
 extension Data {
     /// Parse OpenAI response data into step actions with retry logic
     func getOpenAISteps(attempt: Int = 1, maxAttempts: Int = 3, delaySeconds: TimeInterval = 1) -> (LLMStepActions?, Error?) {
-        log("Parsing JSON attempt \(attempt) of \(maxAttempts)")
+        log("StitchAI Parsing JSON attempt \(attempt) of \(maxAttempts)")
         
         do {
             let response = try JSONDecoder().decode(OpenAIResponse.self, from: self)
             
             guard let firstChoice = response.choices.first else {
-                log("JSON parsing failed: No choices available")
+                log("StitchAI JSON parsing failed: No choices available", .logToServer)
                 if attempt < maxAttempts {
                     log("Retrying JSON parse in \(delaySeconds) seconds")
                     Thread.sleep(forTimeInterval: delaySeconds)
@@ -370,10 +373,10 @@ extension Data {
             
             do {
                 let contentJSON = try firstChoice.message.parseContent()
-                log("JSON parsing succeeded")
+                log("Stitch AI JSON parsing succeeded")
                 return (contentJSON.steps, nil)
             } catch {
-                log("JSON parsing failed: \(error.localizedDescription)")
+                log("Stitch AI JSON parsing failed: \(error.localizedDescription)", .logToServer)
                 if attempt < maxAttempts {
                     log("Retrying JSON parse in \(delaySeconds) seconds")
                     Thread.sleep(forTimeInterval: delaySeconds)
@@ -383,7 +386,7 @@ extension Data {
             }
             
         } catch {
-            log("JSON parsing failed: \(error.localizedDescription)")
+            log("StitchAI JSON parsing failed: \(error.localizedDescription)", .logToServer)
             if attempt < maxAttempts {
                 log("Retrying JSON parse in \(delaySeconds) seconds")
                 Thread.sleep(forTimeInterval: delaySeconds)
