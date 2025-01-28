@@ -264,6 +264,33 @@ extension StitchDocumentViewModel {
 
 extension GraphState {
     @MainActor
+    func recalculateGraph(result: MediaEvalOpResult,
+                          nodeId: NodeId,
+                          loopIndex: Int) {
+        guard let node = self.getNodeViewModel(nodeId) else {
+            log("recalculateGraph: AsyncMediaImpureEvalOpResult: could not retrieve node \(nodeId)")
+            return
+        }
+        
+        guard let mediaObserver = node.ephemeralObservers?[safe: loopIndex] as? MediaEvalOpObservable else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        if let media = result.media {
+            mediaObserver.currentMedia = .init(id: .init(),
+                                               dataType: .computed,
+                                               mediaObject: media)
+        } else {
+            mediaObserver.currentMedia = nil
+        }
+        
+        self.recalculateGraph(outputValues: .byIndex(result.values),
+                              nodeId: nodeId,
+                              loopIndex: loopIndex)
+    }
+    
+    @MainActor
     /// Recalculates the graph when the **outputs** of a node need to be updated.
     /// This updates at a particular loop index rather than all values.
     /// NOTE: we DO NOT want to run the eval of the media node itself again; we just want to evaluate any downstream nodes

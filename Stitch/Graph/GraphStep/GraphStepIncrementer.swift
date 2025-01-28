@@ -20,8 +20,6 @@ extension StitchDocumentViewModel: GraphStepManagerDelegate {
         self.graphStepManager.lastGraphAnimationTime = elapsedProjectTime
         self.graphStepManager.estimatedFPS = currentEstimatedFPS
         
-        let graphTime = self.graphStepManager.graphTime
-        
         self.graph.calculateOnGraphStep()
         
         // Update fields every 30 frames

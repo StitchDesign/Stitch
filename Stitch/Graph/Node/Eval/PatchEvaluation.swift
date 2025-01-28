@@ -16,6 +16,9 @@ struct EvalResult: NodeEvalResult, Sendable {
 
     // Determines if media objects changed in a manner which should trigger downstream nodes
     var didMediaObjectChange = false
+    
+    // Updates ephemeral observer if media changed
+    var changedMedia: [StitchMediaObject?]? = nil
 }
 
 extension EvalResult {

@@ -10,6 +10,9 @@ import StitchSchemaKit
 
 typealias OpWithIndex<T> = (PortValues, Int) -> T
 typealias NodeEphemeralObservableOp<T, EphemeralObserver> = (PortValues, EphemeralObserver, Int) -> T where EphemeralObserver: NodeEphemeralObservable
+
+//typealias NodeMediaObservableOp<T, EphemeralObserver> = (MediaEvalOpResult, EphemeralObserver, Int) -> T where EphemeralObserver: NodeEphemeralObservable
+
 //typealias NodeEphemeralObservableListOp<EphemeralObserver> = (PortValues, EphemeralObserver) -> PortValuesList where EphemeralObserver: NodeEphemeralObservable
 typealias NodeEphemeralInteractiveOp<T, EphemeralObserver> = (PortValues, EphemeralObserver, InteractiveLayer, Int) -> T where EphemeralObserver: NodeEphemeralObservable
 typealias NodeInteractiveOp<T> = (PortValues, InteractiveLayer, Int) -> T
@@ -117,6 +120,16 @@ extension NodeViewModel {
             evalOp(values, ephemeralObserver, loopIndex)
         }
         .createPureEvalResult()
+    }
+    
+    @MainActor
+    /// Looped eval for PortValues returning an EvalFlowResult.
+    func loopedEval<T: NodeEphemeralObservable>(_ ephemeralObserverType: T.Type,
+                                                evalOp: @escaping NodeEphemeralObservableOp<MediaEvalOpResult, T>) -> EvalResult {
+        self.loopedEval(T.self) { values, ephemeralObserver, loopIndex in
+            evalOp(values, ephemeralObserver, loopIndex)
+        }
+        .createPureEvalResult(node: self)
     }
     
 //    @MainActor

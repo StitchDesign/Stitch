@@ -109,3 +109,28 @@ extension PortValuesList {
         return .init(outputsValues: outputs)
     }
 }
+
+extension Array where Element == MediaEvalOpResult {
+    @MainActor
+    func createPureEvalResult(node: NodeViewModel) -> EvalResult {
+        let valuesList = self.map { $0.values }
+        let mediaList = self.map { $0.media }
+        
+        // Values need to be re-mapped by port index since self
+        // is an array of results for each loop index.
+        let outputs = valuesList.remapOutputs()
+        
+        // Update ephemeral observers
+        for (newMedia, ephemeralObserver) in zip(mediaList, node.ephemeralObservers ?? []) {
+            if let mediaObserver = ephemeralObserver as? MediaEvalOpObservable {
+                if let newMedia = newMedia {
+                    mediaObserver.currentMedia = .init(computedMedia: newMedia)
+                } else {
+                    mediaObserver.currentMedia = nil
+                }
+            }
+        }
+        
+        return .init(outputsValues: outputs)
+    }
+}

@@ -79,7 +79,6 @@ extension MediaEvalOpObservable {
     @MainActor func getUniqueMedia(from inputMedia: AsyncMediaValue?,
                                    loopIndex: Int) -> GraphMediaValue? {
         guard let inputMedia = inputMedia else {
-//              let _mediaObject = self.currentMedia?.mediaObject else {
             self.currentMedia = nil
             return nil
         }
@@ -87,8 +86,6 @@ extension MediaEvalOpObservable {
         // Input ID's changed and not currently loading same ID
         let needsNewComputedCopy = inputMedia.id != self.currentMedia?.portValue.asyncMedia?.id &&
         self.currentLoadingMediaId != inputMedia.id
-//        let mediaObject = GraphMediaValue(from: inputMedia,
-//                                          mediaObject: _mediaObject)?.mediaObject
         
         guard needsNewComputedCopy else {
             // Return same object if no expected change
@@ -173,6 +170,30 @@ extension MediaEvalOpObservable {
         }
     }
     
+    /// Async callback to prevent data races for media object changes.
+    @MainActor func asyncMediaEvalOp(loopIndex: Int,
+                                     values: PortValues,
+                                     node: NodeDelegate?,
+                                     callback: @Sendable @escaping () async -> MediaEvalOpResult) -> MediaEvalOpResult {
+        guard let nodeDelegate = node else {
+            fatalErrorIfDebug()
+            return .init(from: [])
+        }
+
+        let outputs = values.prevOutputs(node: nodeDelegate)
+        
+        Task(priority: .high) { [weak self, weak nodeDelegate] in
+            guard let nodeDelegate = nodeDelegate else {
+                return
+            }
+            await self?.mediaActor.asyncMediaEvalOp(loopIndex: loopIndex,
+                                                    node: nodeDelegate,
+                                                    callback: callback)
+        }
+        
+        return .init(from: outputs)
+    }
+
     /// Async callback to prevent data races for media object changes.
     @MainActor func asyncMediaEvalOp(loopIndex: Int,
                                      values: PortValues,
@@ -283,6 +304,16 @@ actor MediaEvalOpCoordinator {
                           callback: @Sendable @escaping () async -> PortValues) async {
         let newOutputs = await callback()
         await node.graphDelegate?.recalculateGraph(outputValues: .byIndex(newOutputs),
+                                                   nodeId: node.id,
+                                                   loopIndex: loopIndex)
+    }
+    
+    /// Async callback to prevent data races for media object changes.
+    func asyncMediaEvalOp(loopIndex: Int,
+                          node: NodeDelegate,
+                          callback: @Sendable @escaping () async -> MediaEvalOpResult) async {
+        let result = await callback()
+        await node.graphDelegate?.recalculateGraph(result: result,
                                                    nodeId: node.id,
                                                    loopIndex: loopIndex)
     }

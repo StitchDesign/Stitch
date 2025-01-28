@@ -37,11 +37,11 @@ struct GrayscaleNode: PatchNodeDefinition {
 // Modifies image's metadata, rather than image itself.
 @MainActor
 func grayscaleEval(node: PatchNode) -> EvalResult {
-    node.loopedEval(MediaEvalOpObserver.self) { values, mediaObservable, loopIndex in
+    node.loopedEval(MediaEvalOpObserver.self) { values, mediaObservable, loopIndex -> MediaEvalOpResult in
         guard let mediaValue = mediaObservable.getUniqueMedia(from: values.first,
                                                               loopIndex: loopIndex),
               let image = mediaValue.mediaObject.image else {
-            return values.prevOutputs(node: node)
+            return MediaEvalOpResult(from: values.prevOutputs(node: node))
         }
 
         return mediaObservable.asyncMediaEvalOp(loopIndex: loopIndex,
@@ -53,17 +53,35 @@ func grayscaleEval(node: PatchNode) -> EvalResult {
             case .success(let grayscaleImage):
                 mediaValue.mediaObject = .image(grayscaleImage)
                 
-                await MainActor.run { [weak mediaObservable] in
-                    mediaObservable?.currentMedia = mediaValue
-                }
+//                await MainActor.run { [weak mediaObservable] in
+//                    mediaObservable?.currentMedia = mediaValue
+//                }
                 
-                return [mediaValue.portValue]
+                return MediaEvalOpResult(values: [mediaValue.portValue],
+                                         media: mediaValue.mediaObject)
             case .failure(let error):
                 Task { ReceivedStitchFileError(error: error) }
-                return await values.prevOutputs(node: node)
+                let values = await values.prevOutputs(node: node)
+                return MediaEvalOpResult(from: values)
             default:
-                return await values.prevOutputs(node: node)
+                let values = await values.prevOutputs(node: node)
+                let currentMedia = await mediaObservable.currentMedia?.mediaObject
+                return MediaEvalOpResult(values: values,
+                                         media: currentMedia)
             }
         }
+    }
+}
+
+// TODO: move
+struct MediaEvalOpResult {
+    let values: PortValues
+    var media: StitchMediaObject?
+}
+
+extension MediaEvalOpResult: NodeEvalOpResult {
+    init(from values: PortValues) {
+        self.values = values
+        self.media = nil
     }
 }
