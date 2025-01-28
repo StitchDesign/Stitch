@@ -1,5 +1,5 @@
 {
-  "originHash" : "1d6b56733c2e1eb395bc4817a5037075da0ce56c95229923a9db0bbae1ccb37e",
+  "originHash" : "c168d892973818f19b16367cfe53562cea0cb0578e7acaa3e0ba8087e06a744d",
   "pins" : [
     {
       "identity" : "audiokit",
@@ -34,6 +34,15 @@
       "state" : {
         "branch" : "master",
         "revision" : "520ed874d5d3f6ee9bbb4e21d8edfe4af9baa19e"
+      }
+    },
+    {
+      "identity" : "sentry-cocoa",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/getsentry/sentry-cocoa",
+      "state" : {
+        "revision" : "f45e9c62d7a4d9258ac3cf35a3acf9dbab4481d1",
+        "version" : "8.43.0"
       }
     },
     {

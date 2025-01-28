@@ -9,28 +9,6 @@ import SwiftUI
 import StitchSchemaKit
 import OrderedCollections
 
-struct FatalErrorIfDebugView: View {
-    var body: some View {
-        Color.clear
-            .onAppear {
-                fatalErrorIfDebug()
-            }
-    }
-}
-
-func fatalErrorIfDebug(_ message: String = "") {
-#if DEBUG || DEV_DEBUG || STITCH_AI
-    fatalError(message)
-#else
-    log(message)
-#endif
-}
-
-func assertInDebug(_ conditional: Bool) {
-#if DEBUG || DEV_DEBUG || STITCH_AI
-    assert(conditional)
-#endif
-}
 
 struct MathExpressionFormulaEdited: GraphEvent {
     let id: NodeId // pass the reference instead?
