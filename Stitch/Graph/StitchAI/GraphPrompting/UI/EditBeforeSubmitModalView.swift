@@ -21,7 +21,10 @@ struct EditBeforeSubmitModalView: View {
         recordingState.actions
     }
     
-    @State private var nodeIdToNameMapping: [String: String] = .init()
+//    @State private var nodeIdToNameMapping: [String: String] = .init()
+    var nodeIdToNameMapping: [NodeId: String] {
+        recordingState.nodeIdToNameMapping
+    }
     
     var body: some View {
         VStack {
@@ -50,13 +53,6 @@ struct EditBeforeSubmitModalView: View {
             }
             
             Button(action: {
-                dispatch(LLMAugmentationStarted())
-            }) {
-                Text("Add More")
-                    .padding()
-            }
-            
-            Button(action: {
                 log("will complete and dismiss")
                 dispatch(ShowLLMApprovalModal())
             }) {
@@ -70,30 +66,7 @@ struct EditBeforeSubmitModalView: View {
     var actionsView: some View {
         VStack {
             StitchTextView(string: "Prompt: \(prompt)")
-                .onAppear {
-                    // Note: must do this here and not in view's `init`?
-                    // Alternatively, pass in the data/mapping already created
-                    actions.forEach { (action: LLMStepAction) in
-                        // Add Node step uses nodeId; but Connect Nodes step uses toNodeId and fromNodeId
-                        if let nodeId = action.nodeId,
-                           let nodeName = action.nodeName {
-                            self.nodeIdToNameMapping.updateValue(nodeName, forKey: nodeId)
-                        }
-                        
-                        if let nodeId = action.fromNodeId,
-                           let nodeName = action.nodeName {
-                            self.nodeIdToNameMapping.updateValue(nodeName, forKey: nodeId)
-                        }
-                        
-                        if let nodeId = action.toNodeId,
-                           let nodeName = action.nodeName {
-                            self.nodeIdToNameMapping.updateValue(nodeName, forKey: nodeId)
-                        }
-                        
-                        log("self.nodeIdToNameMapping is now: \(self.nodeIdToNameMapping)")
-                    }
-                }
-            
+
             // `id:` by hashable ought to be okay?
             ForEach(actions, id: \.hashValue) { (action: LLMStepAction) in
                 LLMActionCorrectionView(action: action,
@@ -106,11 +79,11 @@ struct EditBeforeSubmitModalView: View {
 
 struct LLMActionToNodeAndPortView: View {
     let action: Step
-    let nodeIdToNameMapping: [String: String]
+    let nodeIdToNameMapping: [NodeId: String]
     
     var body: some View {
         // Step.fromNodeId
-        if let toNodeId = action.toNodeId,
+        if let toNodeId = action.toNodeId?.parseNodeId,
            let toNodeKind = nodeIdToNameMapping.get(toNodeId)?.parseNodeKind() {
             StitchTextView(string: "To Node: \(toNodeKind.asNodeKind.description), \(toNodeId.debugFriendlyId)")
             
@@ -138,11 +111,11 @@ struct LLMFromPortDisplayView: View {
 
 struct LLMActionFromNodeView: View {
     let action: Step
-    let nodeIdToNameMapping: [String: String]
+    let nodeIdToNameMapping: [NodeId: String]
     
     var body: some View {
         // Step.fromNodeId
-        if let fromNodeId = action.fromNodeId,
+        if let fromNodeId = action.fromNodeId?.parseNodeId,
            let fromNodeKind = nodeIdToNameMapping.get(fromNodeId)?.parseNodeKind() {
             StitchTextView(string: "From Node: \(fromNodeKind.asNodeKind.description), \(fromNodeId.debugFriendlyId)")
         }
@@ -186,14 +159,14 @@ struct LLMPortDisplayView: View {
 
 struct LLMActionCorrectionView: View {
     let action: Step
-    let nodeIdToNameMapping: [String: String]
+    let nodeIdToNameMapping: [NodeId: String]
     
     var body: some View {
         
         VStack(alignment: .leading, spacing: 8) {
             stepTypeAndDeleteView
             
-            if let nodeId = action.nodeId,
+            if let nodeId = action.parseNodeId,
                let nodeKind: PatchOrLayer = nodeIdToNameMapping.get(nodeId)?.parseNodeKind() {
                 StitchTextView(string: "Node: \(nodeKind.asNodeKind.description) \(nodeId.debugFriendlyId)")
                 
