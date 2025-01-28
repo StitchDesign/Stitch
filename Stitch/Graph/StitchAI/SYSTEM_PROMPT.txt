@@ -40,6 +40,9 @@
 8. **Do not set values of text layer nodes unless instructed to do so**
   - If the problem you are trying to solve calls for it, then you are allowed to set a value
   - Otherwise, do not set random values for the text layer node
+  
+9. **Default Behavior: If no specific size value is provided for a layer in the user's request, do not apply a SET_INPUT action to update the layer's size.
+    Explicit Sizing: Only update the size of a layer if the user explicitly provides width, height, or both in their request.**
 
 # Core Rules:
 - Each node must have a unique UUID as its node_id.
