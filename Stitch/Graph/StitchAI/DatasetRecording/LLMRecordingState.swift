@@ -33,13 +33,70 @@ struct LLMRecordingState: Equatable {
     
     var mode: LLMRecordingMode = .normal
     
-    var actions: [LLMStepAction] = .init()
+    var actions: [LLMStepAction] = .init() {
+        didSet {
+            var acc = [NodeId: String]()
+            self.actions.forEach { (action: LLMStepAction) in
+                // Add Node step uses nodeId; but Connect Nodes step uses toNodeId and fromNodeId
+                if let nodeId = action.parseNodeId,
+                   let nodeName = action.nodeName {
+                    acc.updateValue(nodeName, forKey: nodeId)
+                }
+                
+                if let nodeId = action.fromNodeId?.parseNodeId,
+                   let nodeName = action.nodeName {
+                    acc.updateValue(nodeName, forKey: nodeId)
+                }
+                
+                if let nodeId = action.toNodeId?.parseNodeId,
+                   let nodeName = action.nodeName {
+                    acc.updateValue(nodeName, forKey: nodeId)
+                }
+                
+                log("LLMRecordingState: nodeIdToNameMapping: \(acc)")
+            } // forEach
+            
+            return self.nodeIdToNameMapping = acc
+        }
+    }
     
     var promptState = LLMPromptState()
     
     var jsonEntryState = LLMJsonEntryState()
     
     var modal: LLMRecordinModal = .none
+
+    // Maps nodeIds to Patch/Layer name;
+    // Also serves as source of truth for which nodes (ids) have been created by
+
+    // Alternatively: use a stored var that is updated by `self.actions`'s `didSet`
+    // Note: it's okay for this just to be patch nodes and entire layer nodes; any layer inputs from an AI-created layer node will be 'blue' 
+    var nodeIdToNameMapping: [NodeId: String] = .init()
+//    {
+//        var acc = [NodeId: String]()
+//        self.actions.forEach { (action: LLMStepAction) in
+//            // Add Node step uses nodeId; but Connect Nodes step uses toNodeId and fromNodeId
+//            if let nodeId = action.parseNodeId,
+//               let nodeName = action.nodeName {
+//                acc.updateValue(nodeName, forKey: nodeId)
+//            }
+//            
+//            if let nodeId = action.fromNodeId?.parseNodeId,
+//               let nodeName = action.nodeName {
+//                acc.updateValue(nodeName, forKey: nodeId)
+//            }
+//            
+//            if let nodeId = action.toNodeId?.parseNodeId,
+//               let nodeName = action.nodeName {
+//                acc.updateValue(nodeName, forKey: nodeId)
+//            }
+//            
+//            log("LLMRecordingState: nodeIdToNameMapping: \(acc)")
+//        } // forEach
+//        
+//        return acc
+//    }
+    
 }
 
 extension StitchDocumentViewModel {
