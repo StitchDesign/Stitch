@@ -96,11 +96,11 @@ final class LayerViewModel: Sendable {
     var mediaPortValue: AsyncMediaValue? {
         switch self.layer {
         case .video:
-            return self.video._asyncMedia
+            return self.video.asyncMedia
         case .image:
-            return self.image._asyncMedia
+            return self.image.asyncMedia
         case .model3D:
-            return self.model3D._asyncMedia
+            return self.model3D.asyncMedia
         default:
             return nil
         }

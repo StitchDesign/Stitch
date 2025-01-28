@@ -241,24 +241,20 @@ extension PortValue {
             return [[.bool(bool)]]
 
         case .asyncMedia:
-            var asyncMedia = self._asyncMedia
-            var fieldValue: FieldValueMedia = .none
-            
-            // Check for imported media value, which doesn't hold media directly
-//            if let importedMedia = importedMediaObject {
-//                asyncMedia?._mediaObject = importedMedia
-//            }
-            
-            if let asyncMedia = asyncMedia,
-               let importedMedia = importedMediaObject {
-                if let media = GraphMediaValue(from: asyncMedia,
-                                               mediaObject: importedMedia) {
-                    fieldValue = .media(media)
-                } else if let selectedDefaultOption = DefaultMediaOption.findDefaultOption(from: asyncMedia) {
-                    fieldValue = .defaultMedia(selectedDefaultOption)
-                }
+            guard let asyncMedia = self.asyncMedia,
+                  let importedMedia = importedMediaObject else {
+                return [[.media(.none)]]
             }
-            return [[.media(fieldValue)]]
+                
+            if let media = GraphMediaValue(from: asyncMedia,
+                                           mediaObject: importedMedia) {
+                return [[.media(.media(media))]]
+            } else if let selectedDefaultOption = DefaultMediaOption.findDefaultOption(from: asyncMedia) {
+                return [[.media(.defaultMedia(selectedDefaultOption))]]
+            }
+            
+            fatalErrorIfDebug()
+            return [[.media(.none)]]
 
         case .number:
             // if self is PortValue.comparable, then .getNumber will fail;

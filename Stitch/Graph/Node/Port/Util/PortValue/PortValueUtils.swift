@@ -142,7 +142,7 @@ extension PortValue {
 //    }
     
     /// Tech debt, only used for file import.
-    var _asyncMedia: AsyncMediaValue? {
+    var asyncMedia: AsyncMediaValue? {
         switch self {
         case.asyncMedia(let media):
             return media

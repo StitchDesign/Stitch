@@ -66,7 +66,7 @@ extension MediaEvalOpObservable {
     /// at this loop index.
     @MainActor func getUniqueMedia(from value: PortValue?,
                                    loopIndex: Int) -> GraphMediaValue? {
-        self.getUniqueMedia(from: value?._asyncMedia,
+        self.getUniqueMedia(from: value?.asyncMedia,
                             loopIndex: loopIndex)
     }
     
@@ -85,7 +85,7 @@ extension MediaEvalOpObservable {
         }
         
         // Input ID's changed and not currently loading same ID
-        let needsNewComputedCopy = inputMedia.id != self.currentMedia?.portValue._asyncMedia?.id &&
+        let needsNewComputedCopy = inputMedia.id != self.currentMedia?.portValue.asyncMedia?.id &&
         self.currentLoadingMediaId != inputMedia.id
 //        let mediaObject = GraphMediaValue(from: inputMedia,
 //                                          mediaObject: _mediaObject)?.mediaObject

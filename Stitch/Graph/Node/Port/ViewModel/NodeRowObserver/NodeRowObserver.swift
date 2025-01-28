@@ -30,7 +30,7 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
     @MainActor
     var hasLoopedValues: Bool { get set }
     
-    @MainActor var importedMediaObject: StitchMediaObject? { get }
+//    @MainActor var importedMediaObject: StitchMediaObject? { get }
     
     @MainActor
     var hasEdge: Bool { get }
@@ -201,19 +201,19 @@ extension InputNodeRowObserver {
     }
 
     /// Values for import dropdowns don't hold media directly, so we need to find it.
-    @MainActor var importedMediaObject: StitchMediaObject? {
-        guard self.id.portId == 0,
-              self.upstreamOutputCoordinate == nil else {
-            return nil
-        }
-        
-        if let ephemeralObserver = self.nodeDelegate?.ephemeralObservers?.first,
-           let mediaObserver = ephemeralObserver as? MediaEvalOpObservable {
-            return mediaObserver.currentMedia?.mediaObject
-        }
-        
-        return nil
-    }
+//    @MainActor var importedMediaObject: StitchMediaObject? {
+//        guard self.id.portId == 0,
+//              self.upstreamOutputCoordinate == nil else {
+//            return nil
+//        }
+//        
+//        if let ephemeralObserver = self.nodeDelegate?.ephemeralObservers?.first,
+//           let mediaObserver = ephemeralObserver as? MediaEvalOpObservable {
+//            return mediaObserver.currentMedia?.mediaObject
+//        }
+//        
+//        return nil
+//    }
     
     // Because `private`, needs to be declared in same file(?) as method that uses it
     @MainActor
@@ -454,11 +454,14 @@ extension NodeRowViewModel {
         }
         
         let nodeIO = Self.RowObserver.nodeIOType
+        let loopIndex = self.graphDelegate?.activeIndex.adjustedIndex(rowDelegate.allLoopedValues.count) ?? .zero
         let newRowType = newValue.getNodeRowType(nodeIO: nodeIO,
                                                  layerInputPort: self.id.layerInputPort,
                                                  isLayerInspector: self.isLayerInspector)
         let nodeRowTypeChanged = oldRowType != newRowType
-        let importedMediaObject = rowDelegate.importedMediaObject
+//        let importedMediaObject = rowDelegate.importedMediaObject
+        let importedMediaObject = rowDelegate.nodeDelegate?.getInputMedia(coordinate: rowDelegate.id,
+                                                                          loopIndex: loopIndex)
         
         // Create new field value observers if the row type changed
         // This can happen on various input changes
