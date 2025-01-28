@@ -11,28 +11,21 @@ import SwiftyJSON
 
 
 extension GraphState {
+  
     @MainActor
-    func jsonEditCommitted(input: NodeIOCoordinate,
-                           json: JSON,
-                           isFieldInsideLayerInspector: Bool) {
-        self.handleInputEditCommitted(
-            input: input,
-            value: .json(json.toStitchJSON),
-            isFieldInsideLayerInspector: isFieldInsideLayerInspector)
-    }
-
-    @MainActor
-    func inputEditCommitted(input: NodeIOCoordinate,
-                            value: PortValue?,
-                            wasAdjustmentBarSelection: Bool = false) {
+    func mediaInputEditCommitted(input: NodeIOCoordinate,
+                                 value: PortValue?) {
+        
         guard let node = self.getNodeViewModel(input.nodeId),
               let input = node.getInputRowObserver(for: input.portType) else {
+            log("mediaInputEditCommitted: node or input missing?: input: \(input)")
             return
         }
         
         self.inputEditCommitted(input: input,
                                 value: value,
-                                wasAdjustmentBarSelection: wasAdjustmentBarSelection)
+                                wasDropdown: true, // true?
+                                wasAdjustmentBarSelection: false)
     }
 
     /*
@@ -52,7 +45,9 @@ extension GraphState {
     func handleInputEditCommitted(input: NodeIOCoordinate,
                                   value: PortValue?,
                                   isFieldInsideLayerInspector: Bool,
+                                  wasDropdown: Bool,
                                   wasAdjustmentBarSelection: Bool = false) {
+        
         guard let node = self.getNodeViewModel(input.nodeId),
               let input = node.getInputRowObserver(for: input.portType) else {
             fatalErrorIfDebug()
@@ -68,6 +63,7 @@ extension GraphState {
             layerMultiselectInput.multiselectObservers(self).forEach { observer in
                 self.inputEditCommitted(input: observer.rowObserver,
                                         value: value,
+                                        wasDropdown: wasDropdown,
                                         wasAdjustmentBarSelection: wasAdjustmentBarSelection)
             }
         } 
@@ -76,16 +72,15 @@ extension GraphState {
         else {
             self.inputEditCommitted(input: input,
                                     value: value,
+                                    wasDropdown: wasDropdown,
                                     wasAdjustmentBarSelection: wasAdjustmentBarSelection)
         }
-        
-        
-        
     }
     
     @MainActor
     func inputEditCommitted(input: InputNodeRowObserver,
                             value: PortValue?,
+                            wasDropdown: Bool,
                             wasAdjustmentBarSelection: Bool = false) {
         
         guard let nodeId = input.nodeDelegate?.id,
@@ -130,6 +125,12 @@ extension GraphState {
         
         // Only change the input if valued actually changed.
         input.setValuesInInput([value])
+        
+        if wasDropdown {
+            self.documentDelegate?.maybeCreateLLMStepSetInput(node: nodeViewModel,
+                                                              input: input.id,
+                                                              value: value)
+        }
         
         self.calculate(nodeId)
     }
