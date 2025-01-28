@@ -37,10 +37,12 @@ final class StitchDocumentViewModel: Sendable {
     @MainActor var cameraSettings = CameraSettings()
     
     @MainActor var keypressState = KeyPressState()
+    
     @MainActor var llmRecording = LLMRecordingState()
-    @MainActor var lastAIGeneratedPrompt: String = ""
+        
     @MainActor var stitchAI = StitchAIState()
 
+    
     // Remains false if an encoding action never happened (used for thumbnail creation)
     @MainActor var didDocumentChange: Bool = false
     
