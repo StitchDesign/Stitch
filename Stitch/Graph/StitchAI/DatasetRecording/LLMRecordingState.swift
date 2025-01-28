@@ -80,7 +80,6 @@ extension StitchDocumentViewModel {
         
         // Apply the LLM-actions (model-generated and user-augmented) to the graph
         
-//        log("ShowLLMApprovalModal: actions: \(actions)")
         var canvasItemsAdded = 0
         self.llmRecording.actions.forEach { action in
             canvasItemsAdded = self.handleLLMStepAction(
@@ -90,11 +89,6 @@ extension StitchDocumentViewModel {
         
         // Write to disk
         self.encodeProjectInBackground()
-
-//        // Update visible node data
-//        DispatchQueue.main.async { [weak self] in
-//            self?.graph.visibleNodesViewModel.resetCache()
-//        }
         
         // Select the created nodes
         createdNodes.forEach { nodeId in

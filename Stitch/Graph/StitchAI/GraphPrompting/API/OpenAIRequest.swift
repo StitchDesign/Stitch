@@ -282,9 +282,6 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
         
         log(" Storing Original AI Generated Actions ")
         log(" Original Actions to store: \(steps.asJSONDisplay())")
-//        state.lastAIGeneratedActions = steps
-        
-        // ADDED
         state.llmRecording.actions = steps
         state.llmRecording.promptState.prompt = originalPrompt
         
