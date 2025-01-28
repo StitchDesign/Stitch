@@ -50,7 +50,6 @@ struct LLMAugmentationCancelled: StitchDocumentEvent {
         log("LLMAugmentationCancelled called")
         state.llmRecording = .init()
     }
-    
 }
 
 extension StitchDocumentViewModel {
@@ -91,7 +90,12 @@ extension StitchDocumentViewModel {
         
         // Write to disk
         self.encodeProjectInBackground()
-                
+
+//        // Update visible node data
+//        DispatchQueue.main.async { [weak self] in
+//            self?.graph.visibleNodesViewModel.resetCache()
+//        }
+        
         // Select the created nodes
         createdNodes.forEach { nodeId in
             if let node = self.graph.getNodeViewModel(nodeId) {

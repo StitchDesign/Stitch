@@ -170,6 +170,11 @@ extension StitchDocumentViewModel {
                                          input: input,
                                          coordinate: layerInput,
                                          manualLLMStepCenter: newCenter)
+
+//            // TODO: why do we have to do this?
+//            if let layerNode = node.layerNode {
+//                graph.resetLayerInputsCache(layerNode: layerNode)
+//            }
             
             return canvasItemsAdded + 1
             
