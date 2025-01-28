@@ -43,8 +43,6 @@ struct LLMPortDisplayView: View {
     }
 }
 
-
-
 struct LLMActionCorrectionView: View {
     let action: Step
     let nodeIdToNameMapping: [String: String]
