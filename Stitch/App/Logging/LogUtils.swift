@@ -9,6 +9,30 @@ import Foundation
 import StitchSchemaKit
 import SwiftUI
 import OSLog
+import Sentry
+
+struct FatalErrorIfDebugView: View {
+    var body: some View {
+        Color.clear
+            .onAppear {
+                fatalErrorIfDebug()
+            }
+    }
+}
+
+func fatalErrorIfDebug(_ message: String = "") {
+#if DEBUG || DEV_DEBUG || STITCH_AI
+    fatalError(message)
+#else
+    log(message)
+#endif
+}
+
+func assertInDebug(_ conditional: Bool) {
+#if DEBUG || DEV_DEBUG || STITCH_AI
+    assert(conditional)
+#endif
+}
 
 /* ----------------------------------------------------------------
  Logging
@@ -32,10 +56,7 @@ func log(_ message: Any, _ loggingAction: LoggingAction = .none) {
         #endif
     case .logToServer:
         print("HAD MAJOR ERROR: \(message)")
-
-//        DispatchQueue.main.async {
-//            dispatch(LogToServer(message: message))
-//        }
+        SentrySDK.capture(message: "\(message)")
     }
     #endif
 }
