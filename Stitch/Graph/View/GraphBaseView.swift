@@ -103,7 +103,7 @@ struct GraphBaseView: View {
             if document.llmRecording.modal == .editBeforeSubmit {
                 VStack {
                     HStack {
-                        JSONEditorView(recordingState: document.llmRecording)
+                        EditBeforeSubmitModalView(recordingState: document.llmRecording)
                         Spacer()
                     }
                     Spacer()

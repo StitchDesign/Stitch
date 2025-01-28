@@ -63,14 +63,6 @@ struct LLMRecordingData: Equatable, Encodable {
     let prompt: String
 }
 
-struct LLMAugmentationStarted: StitchDocumentEvent {
-    func handle(state: StitchDocumentViewModel) {
-        state.llmRecording.mode = .augmentation
-        state.llmRecording.isRecording = true
-        state.llmRecording.modal = .none
-    }
-}
-
 extension StitchDocumentViewModel {
     
     @MainActor
