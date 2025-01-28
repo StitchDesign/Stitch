@@ -9,7 +9,6 @@ import SwiftUI
 
 struct StitchAIState: Equatable {
     // Saved prompt from insert-node-menu, used during retries
-    // TODO: don't need this? can just grab from InsertNodeMenuState?
+    // TODO: don't need this? can just grab from InsertNodeMenuState.searchQuery?
     var lastPrompt: String? = nil
 }
-

@@ -31,7 +31,6 @@ extension StitchDocumentViewModel {
             log("   - Node ID: \(action.nodeId ?? "nil")")
             log("   - Node Name: \(action.nodeName ?? "nil")")
             log("   - Port: \(action.port?.value ?? "nil")")
-//            stitchAI.promptState.isGenerating = false
             return canvasItemsAdded
         }
         
@@ -245,7 +244,6 @@ extension StitchDocumentViewModel {
             dispatch(MakeOpenAIRequest(prompt: lastPrompt))
         } else {
             log("❌ Cannot retry OpenAI request: No last prompt available")
-//            stitchAI.promptState.isGenerating = false
         }
     }
 }
