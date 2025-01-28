@@ -7,6 +7,7 @@
 
 import SwiftUI
 import StitchSchemaKit
+import Sentry
 
 @main @MainActor
 struct StitchApp: App {
@@ -20,6 +21,10 @@ struct StitchApp: App {
             StitchRootView(store: self.store)
                 .onAppear {
                     dispatch(DirectoryUpdated())
+                    SentrySDK.start { options in
+                        options.dsn = Secrets.sentryDSN
+                            options.debug = false
+                        }
                 }
                 .environment(self.store)
                 .environment(self.store.environment)
@@ -40,6 +45,8 @@ struct StitchApp: App {
         .commands {
             StitchCommands(store: store,
                            activeReduxFocusedField: store.currentDocument?.graphUI.reduxFocusedField)
+          
+
         }
     }
 }

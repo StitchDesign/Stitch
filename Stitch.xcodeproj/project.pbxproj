@@ -291,6 +291,7 @@
 		E419F3F92D4048A600C169D4 /* ProccessInfo+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E419F3F82D4048A600C169D4 /* ProccessInfo+Extension.swift */; };
 		E41A66B32BD2BB8E00385C9F /* LinearGradientNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41A66B22BD2BB8E00385C9F /* LinearGradientNode.swift */; };
 		E41C43742D442EFE003A453E /* supabaseMangerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41C43732D442EFE003A453E /* supabaseMangerTests.swift */; };
+		E42AAE4C2D4844EE002D187D /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = E42AAE4B2D4844EE002D187D /* Sentry */; };
 		E42BA45D291C69C200EB7356 /* SIMDExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42BA45C291C69C200EB7356 /* SIMDExtensions.swift */; };
 		E42C0D052D47F87A00AA2BB1 /* openAIRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42C0D042D47F87A00AA2BB1 /* openAIRequestTests.swift */; };
 		E42CFD462D4413F90034CCFF /* secrets.json in Resources */ = {isa = PBXBuildFile; fileRef = E42CFD452D4413F90034CCFF /* secrets.json */; };
@@ -1882,6 +1883,7 @@
 				B50F41682C1EB4320082262F /* StitchViewKit in Frameworks */,
 				EC1137382719F9B400ADCA72 /* OrderedCollections in Frameworks */,
 				B51D8A022CD13D420016CCDA /* StitchEngine in Frameworks */,
+				E42AAE4C2D4844EE002D187D /* Sentry in Frameworks */,
 				B56F36282D3C29BA0051C80E /* StitchEngine in Frameworks */,
 				EC91034A29109DF3007C548E /* SoulverCore in Frameworks */,
 				B5380E312CF8E51600E6D801 /* StitchEngine in Frameworks */,
@@ -4534,6 +4536,7 @@
 				200BD854254F66EB00692903 /* Frameworks */,
 				200BD855254F66EB00692903 /* Resources */,
 				E4CC7D1B28F48EF7008EA1C0 /* Embed Foundation Extensions */,
+				8F436EC306D2418BAF8936FA /* Upload Debug Symbols to Sentry */,
 			);
 			buildRules = (
 			);
@@ -4565,6 +4568,7 @@
 				E4A848AC2D32FCFA0029AFDE /* Storage */,
 				B56F36242D3C1A2E0051C80E /* StitchEngine */,
 				B56F36272D3C29BA0051C80E /* StitchEngine */,
+				E42AAE4B2D4844EE002D187D /* Sentry */,
 			);
 			productName = prototype;
 			productReference = 200BD857254F66EB00692903 /* Stitch.app */;
@@ -4652,6 +4656,7 @@
 				E463E7ED2C6FC7090008E318 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */,
 				E4A848A92D32FCFA0029AFDE /* XCRemoteSwiftPackageReference "supabase-swift" */,
 				B56F36262D3C29BA0051C80E /* XCRemoteSwiftPackageReference "StitchEngine" */,
+				E42AAE4A2D4844EE002D187D /* XCRemoteSwiftPackageReference "sentry-cocoa" */,
 			);
 			productRefGroup = 200BD858254F66EB00692903 /* Products */;
 			projectDirPath = "";
@@ -5779,6 +5784,8 @@
 				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2,6";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_USER_SCRIPT_SANDBOXING = "NO";
 			};
 			name = Debug;
 		};
@@ -5811,6 +5818,8 @@
 				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2,6";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_USER_SCRIPT_SANDBOXING = "NO";
 			};
 			name = Release;
 		};
@@ -5948,6 +5957,8 @@
 				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2,6";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_USER_SCRIPT_SANDBOXING = "NO";
 			};
 			name = "Dev Debug";
 		};
@@ -6066,6 +6077,8 @@
 				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2,6";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_USER_SCRIPT_SANDBOXING = "NO";
 			};
 			name = "Local Only";
 		};
@@ -6304,6 +6317,8 @@
 				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2,6";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_USER_SCRIPT_SANDBOXING = "NO";
 			};
 			name = StitchAI;
 		};
@@ -6459,6 +6474,14 @@
 				revision = 0fab4991b68d3850ffe67fded9d248111015a054;
 			};
 		};
+		E42AAE4A2D4844EE002D187D /* XCRemoteSwiftPackageReference "sentry-cocoa" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/getsentry/sentry-cocoa";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.43.0;
+			};
+		};
 		E463E7ED2C6FC7090008E318 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/StitchDesign/StitchSchemaKit";
@@ -6612,6 +6635,11 @@
 			package = B5FBE3C22C4195B3006DA0A7 /* XCRemoteSwiftPackageReference "DirectoryWatcher" */;
 			productName = DirectoryWatcher;
 		};
+		E42AAE4B2D4844EE002D187D /* Sentry */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E42AAE4A2D4844EE002D187D /* XCRemoteSwiftPackageReference "sentry-cocoa" */;
+			productName = Sentry;
+		};
 		E463E7EE2C6FC7090008E318 /* StitchSchemaKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = E463E7ED2C6FC7090008E318 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */;
@@ -6668,6 +6696,24 @@
 			productName = DisplayLink;
 		};
 /* End XCSwiftPackageProductDependency section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		8F436EC306D2418BAF8936FA /* Upload Debug Symbols to Sentry */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			name = "Upload Debug Symbols to Sentry";
+			inputPaths = (
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}",
+			);
+			outputPaths = (
+			);
+			shellPath = /bin/sh;
+			shellScript = "# This script is responsable to upload debug symbols and source context for Sentry.\nif [[ \"$(uname -m)\" == arm64 ]]; then\nexport PATH=\"/opt/homebrew/bin:$PATH\"\nfi\nif which sentry-cli >/dev/null; then\nexport SENTRY_ORG=stitch-design\nexport SENTRY_PROJECT=stitch\nERROR=$(sentry-cli debug-files upload --include-sources \"$DWARF_DSYM_FOLDER_PATH\" 2>&1 >/dev/null)\nif [ ! $? -eq 0 ]; then\necho \"warning: sentry-cli - $ERROR\"\nfi\nelse\necho \"warning: sentry-cli not installed, download from https://github.com/getsentry/sentry-cli/releases\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 	};
 	rootObject = 200BD84F254F66EB00692903 /* Project object */;
 }
