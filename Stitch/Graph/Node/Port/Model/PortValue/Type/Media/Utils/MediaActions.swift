@@ -218,8 +218,8 @@ extension GraphState {
                     return
                 }
                 
-                graph.inputEditCommitted(input: destinationInput,
-                                         value: newMedia.portValue)
+                graph.mediaInputEditCommitted(input: destinationInput,
+                                              value: newMedia.portValue)
                 
                 // Persist project once media has loaded
                 graph.encodeProjectInBackground()
@@ -228,8 +228,8 @@ extension GraphState {
             // Nil value for now while media loads
             let portValue = PortValue.asyncMedia(nil)
 
-            self.inputEditCommitted(input: destinationInput,
-                                    value: portValue)
+            self.mediaInputEditCommitted(input: destinationInput,
+                                         value: portValue)
             
         } // for destinationInput in ...        
     }
@@ -343,7 +343,8 @@ struct MediaPickerChanged: ProjectEnvironmentEvent {
         // Commit the new media to the selector input
         graphState.handleInputEditCommitted(input: input,
                                             value: selectedValue,
-                                            isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+                                            isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                                            wasDropdown: true)
         
         return .persistenceResponse
     }
@@ -358,7 +359,8 @@ struct MediaPickerNoneChanged: ProjectEnvironmentEvent {
         let emptyPortValue = PortValue.asyncMedia(nil)
         graphState.handleInputEditCommitted(input: input,
                                             value: emptyPortValue,
-                                            isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+                                            isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                                            wasDropdown: true)
         
         return .persistenceResponse
     }

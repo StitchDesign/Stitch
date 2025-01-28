@@ -10,14 +10,14 @@ import StitchSchemaKit
 
 // Note: used by number inputs etc. but not by JSON etc.
 extension GraphState {
-    // Called from the UI, e.g. CommonEditingView, AdjustmentBar etc.
+    // Called from CommonEditingView, AdjustmentBar etc.
     @MainActor
-    func inputEdited(fieldValue: FieldValue,
-                     // Single-fields always 0, multi-fields are like size or position inputs
-                     fieldIndex: Int,
-                     coordinate: NodeIOCoordinate,
-                     isFieldInsideLayerInspector: Bool,
-                     isCommitting: Bool = true) {
+    func inputEditedFromUI(fieldValue: FieldValue,
+                           // Single-fields always 0, multi-fields are like size or position inputs
+                           fieldIndex: Int,
+                           coordinate: NodeIOCoordinate,
+                           isFieldInsideLayerInspector: Bool,
+                           isCommitting: Bool = true) {
         
         //        log("inputEdited: fieldValue: \(fieldValue)")
         //        log("inputEdited: fieldIndex: \(fieldIndex)")

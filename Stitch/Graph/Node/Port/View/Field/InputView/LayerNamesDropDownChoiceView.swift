@@ -128,19 +128,14 @@ struct LayerNamesDropDownChoiceView: View {
     @MainActor
     func onSet(_ choice: LayerDropdownChoice) {
         
-        let selectedLayerId: LayerNodeId? = UUID(uuidString: choice.id)?.asLayerNodeId
+        let value: PortValue = isForPinTo
+        ? .pinTo(choice.asPinToId)
+        : .assignedLayer(UUID(uuidString: choice.id)?.asLayerNodeId)
         
-        if isForPinTo {
-            // TODO: add PortValue.pinTo case
-            dispatch(PickerOptionSelected(input: self.id,
-                                          choice: .pinTo(choice.asPinToId),
-                                          isFieldInsideLayerInspector: isFieldInsideLayerInspector))
-        } else {
-            dispatch(InteractionPickerOptionSelected(
-                interactionPatchNodeInput: self.id,
-                layerNodeIdSelection: selectedLayerId,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector))
-        }
+        dispatch(PickerOptionSelected(
+            input: self.id,
+            choice: value,
+            isFieldInsideLayerInspector: isFieldInsideLayerInspector))
     }
         
     @MainActor
