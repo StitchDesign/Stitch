@@ -93,11 +93,10 @@ extension GraphState {
         }
         
         let layerInputData = layerNode[keyPath: coordinate.layerNodeKeyPath]
+        
         self.layerInputAddedToGraph(node: node,
                                     input: layerInputData,
                                     coordinate: coordinate)
-        
-        self.resetLayerInputsCache(layerNode: layerNode)
     }
     
     @MainActor
@@ -150,6 +149,11 @@ extension GraphState {
         
         // Subscribe inspector row ui data to the row data's canvas item
         input.inspectorRowViewModel.canvasItemDelegate = input.canvasObserver
+        
+        // TODO: why do we have to do this?
+        if let layerNode = node.layerNode {
+            self.resetLayerInputsCache(layerNode: layerNode)
+        }
         
         document.graphUI.propertySidebar.selectedProperty = nil
         
