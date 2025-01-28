@@ -102,7 +102,6 @@ extension StitchDocumentViewModel {
         }
     }
     
-    // When prompt modal is closed, we write the JSON of prompt + actions to file.
     @MainActor func closedLLMRecordingPrompt() {
         let currentMode = self.llmRecording.mode
         log("📼 💾 Closing LLM Recording Prompt - Saving Data 💾 📼")
@@ -119,7 +118,10 @@ extension StitchDocumentViewModel {
             return
         }
         
-        dispatch(ShowLLMEditModal())
+        // Only open the Edit Modal if we were in Augment mode
+        if currentMode == .augmentation {
+            dispatch(ShowLLMEditModal())
+        }
     }
 }
 

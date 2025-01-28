@@ -160,20 +160,6 @@ struct ContentView: View, KeyboardReadable {
                      sheetBody: {
             LLMPromptModalView(actionsAsDisplay: document.llmRecording.promptState.actionsAsDisplayString)
         })
-        
-        // NOTE: THIS IS ACTUALLY ONLY FOR SHOWING AN ERROR MODAL LIKE "THE MODEL COULD NOT CREATE A LIST OF ACTIONS AFTER 3 ATTEMPTS"
-        .stitchSheet(isPresented: document.stitchAI.promptState.showModal,
-                      titleLabel: "Stitch AI",
-                      hideAction: document.closedStitchAIModal,
-                      sheetBody: {
-             StitchAIPromptEntryModalView(
-                 prompt: $document.stitchAI.promptState.prompt,
-                 isGenerating: document.stitchAI.promptState.isGenerating,
-                 onSubmit: { prompt in
-                     dispatch(MakeOpenAIRequest(prompt: prompt))
-                 }
-             )
-         })
     }
 
     private var fullScreenPreviewView: some View {
