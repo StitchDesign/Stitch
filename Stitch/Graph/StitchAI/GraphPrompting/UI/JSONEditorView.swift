@@ -215,7 +215,6 @@ struct JSONEditorView: View {
             Button(action: {
                 log("will complete and dismiss")
                 dispatch(ShowLLMApprovalModal())
-                
             }) {
                 Text("Submit")
                     .padding()
