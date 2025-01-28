@@ -194,6 +194,21 @@ enum StepType: String, Equatable, Codable {
     case connectNodes = "connect_nodes"
     case changeNodeType = "change_node_type"
     case setInput = "set_input"
+    
+    var display: String {
+        switch self {
+        case .addNode:
+            return "Add Node"
+        case .addLayerInput:
+            return "Add Layer Input"
+        case .connectNodes:
+            return "Connect Nodes"
+        case .changeNodeType:
+            return "Change Node Type"
+        case .setInput:
+            return "Set Input"
+        }
+    }
 }
 
 // Type aliases for improved code readability

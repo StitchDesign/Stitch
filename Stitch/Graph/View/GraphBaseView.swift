@@ -88,6 +88,27 @@ struct GraphBaseView: View {
                     Spacer()
                 }
             }
+            
+            if document.llmRecording.modal == .approveAndSubmit {
+                VStack {
+                    HStack {
+                        LLMApprovalModalView()
+                        Spacer()
+                    }
+                    Spacer()
+                }
+            }
+            
+            // Better to show modal here, so user can move around etc.
+            if document.llmRecording.modal == .editBeforeSubmit {
+                VStack {
+                    HStack {
+                        EditBeforeSubmitModalView(recordingState: document.llmRecording)
+                        Spacer()
+                    }
+                    Spacer()
+                }
+            }
         }
     }
 

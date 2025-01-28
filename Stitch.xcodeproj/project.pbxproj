@@ -287,7 +287,7 @@
 		E41685DD28A3FA3000731889 /* Model3DLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41685DC28A3FA3000731889 /* Model3DLayerNode.swift */; };
 		E41685E128A3FA5800731889 /* PreviewModel3DLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41685E028A3FA5800731889 /* PreviewModel3DLayer.swift */; };
 		E416861228A3FC9600731889 /* Vintage Toy Robot.usdz in Resources */ = {isa = PBXBuildFile; fileRef = E416860328A3FC9600731889 /* Vintage Toy Robot.usdz */; };
-		E419F3F72D40337400C169D4 /* JSONEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E419F3F62D40337400C169D4 /* JSONEditorView.swift */; };
+		E419F3F72D40337400C169D4 /* EditBeforeSubmitModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E419F3F62D40337400C169D4 /* EditBeforeSubmitModalView.swift */; };
 		E419F3F92D4048A600C169D4 /* ProccessInfo+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E419F3F82D4048A600C169D4 /* ProccessInfo+Extension.swift */; };
 		E41A66B32BD2BB8E00385C9F /* LinearGradientNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41A66B22BD2BB8E00385C9F /* LinearGradientNode.swift */; };
 		E41C43742D442EFE003A453E /* supabaseMangerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41C43732D442EFE003A453E /* supabaseMangerTests.swift */; };
@@ -720,6 +720,8 @@
 		ECABB561269CE23100AC9931 /* NetworkRequestNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECABB560269CE23100AC9931 /* NetworkRequestNode.swift */; };
 		ECAD8930292EAF9A005A87A2 /* OptionEqualsNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAD892F292EAF9A005A87A2 /* OptionEqualsNode.swift */; };
 		ECADA8B428FB5B5D0007748F /* UIImageExtensionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECADA8B328FB5B5D0007748F /* UIImageExtensionUtils.swift */; };
+		ECAFD08E2D4878CC00101226 /* LLMActionHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAFD08D2D4878CC00101226 /* LLMActionHelpers.swift */; };
+		ECAFD0902D48792600101226 /* LLMModalViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAFD08F2D48792600101226 /* LLMModalViews.swift */; };
 		ECB15BA52695F8D100A1E1DA /* gracie_short.mov in Resources */ = {isa = PBXBuildFile; fileRef = ECB15BA42695F8D100A1E1DA /* gracie_short.mov */; };
 		ECB15BA72695FCC700A1E1DA /* pj_eating.mov in Resources */ = {isa = PBXBuildFile; fileRef = ECB15BA62695FCC700A1E1DA /* pj_eating.mov */; };
 		ECB18FCA2681469B00D439BE /* VideoHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB18FC92681469B00D439BE /* VideoHelpers.swift */; };
@@ -1230,7 +1232,7 @@
 		E41685DC28A3FA3000731889 /* Model3DLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model3DLayerNode.swift; sourceTree = "<group>"; };
 		E41685E028A3FA5800731889 /* PreviewModel3DLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewModel3DLayer.swift; sourceTree = "<group>"; };
 		E416860328A3FC9600731889 /* Vintage Toy Robot.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = "Vintage Toy Robot.usdz"; sourceTree = "<group>"; };
-		E419F3F62D40337400C169D4 /* JSONEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONEditorView.swift; sourceTree = "<group>"; };
+		E419F3F62D40337400C169D4 /* EditBeforeSubmitModalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditBeforeSubmitModalView.swift; sourceTree = "<group>"; };
 		E419F3F82D4048A600C169D4 /* ProccessInfo+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ProccessInfo+Extension.swift"; sourceTree = "<group>"; };
 		E41A66B22BD2BB8E00385C9F /* LinearGradientNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinearGradientNode.swift; sourceTree = "<group>"; };
 		E41C43732D442EFE003A453E /* supabaseMangerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = supabaseMangerTests.swift; sourceTree = "<group>"; };
@@ -1656,6 +1658,8 @@
 		ECABB560269CE23100AC9931 /* NetworkRequestNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkRequestNode.swift; sourceTree = "<group>"; };
 		ECAD892F292EAF9A005A87A2 /* OptionEqualsNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionEqualsNode.swift; sourceTree = "<group>"; };
 		ECADA8B328FB5B5D0007748F /* UIImageExtensionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageExtensionUtils.swift; sourceTree = "<group>"; };
+		ECAFD08D2D4878CC00101226 /* LLMActionHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMActionHelpers.swift; sourceTree = "<group>"; };
+		ECAFD08F2D48792600101226 /* LLMModalViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMModalViews.swift; sourceTree = "<group>"; };
 		ECB15BA42695F8D100A1E1DA /* gracie_short.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = gracie_short.mov; sourceTree = "<group>"; };
 		ECB15BA62695FCC700A1E1DA /* pj_eating.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = pj_eating.mov; sourceTree = "<group>"; };
 		ECB18FC92681469B00D439BE /* VideoHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoHelpers.swift; sourceTree = "<group>"; };
@@ -3827,7 +3831,7 @@
 			children = (
 				E40B2F4D2CB86BC3005F5479 /* StitchAIPromptView.swift */,
 				E4E860012CBD5448006763DA /* StitchAIErrorModalView.swift */,
-				E419F3F62D40337400C169D4 /* JSONEditorView.swift */,
+				E419F3F62D40337400C169D4 /* EditBeforeSubmitModalView.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -3885,6 +3889,8 @@
 				ECD83F1A2C1A0C5F00722AD7 /* LLMPromptModalView.swift */,
 				ECD83F0D2C19ED0800722AD7 /* LLMRecordingState.swift */,
 				EC5C6C392C2DAE690023D0C0 /* LLMActionRecording.swift */,
+				ECAFD08D2D4878CC00101226 /* LLMActionHelpers.swift */,
+				ECAFD08F2D48792600101226 /* LLMModalViews.swift */,
 			);
 			path = DatasetRecording;
 			sourceTree = "<group>";
@@ -4716,6 +4722,24 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		8F436EC306D2418BAF8936FA /* Upload Debug Symbols to Sentry */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}",
+			);
+			name = "Upload Debug Symbols to Sentry";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# This script is responsable to upload debug symbols and source context for Sentry.\nif [[ \"$(uname -m)\" == arm64 ]]; then\nexport PATH=\"/opt/homebrew/bin:$PATH\"\nfi\nif which sentry-cli >/dev/null; then\nexport SENTRY_ORG=stitch-design\nexport SENTRY_PROJECT=stitch\nERROR=$(sentry-cli debug-files upload --include-sources \"$DWARF_DSYM_FOLDER_PATH\" 2>&1 >/dev/null)\nif [ ! $? -eq 0 ]; then\necho \"warning: sentry-cli - $ERROR\"\nfi\nelse\necho \"warning: sentry-cli not installed, download from https://github.com/getsentry/sentry-cli/releases\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		200BD853254F66EB00692903 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -4764,6 +4788,7 @@
 				EC47F54228D18AB0009EE90E /* HapticFeedbackNode.swift in Sources */,
 				ECE708642B8D492A009F4525 /* CurveToUnpackNode.swift in Sources */,
 				ECA3915D29A6C3DD005C10A8 /* ProjectsHomeViewWrapper.swift in Sources */,
+				ECAFD08E2D4878CC00101226 /* LLMActionHelpers.swift in Sources */,
 				ECA3915B29A6C3C9005C10A8 /* StitchProjectView.swift in Sources */,
 				EC014FED2BED3A0100E6C51B /* NodeRowObserverUtil.swift in Sources */,
 				ECC2BCDB2B9B747A00D5F942 /* SidebarListLabelView.swift in Sources */,
@@ -4870,6 +4895,7 @@
 				20308F9C25AD1721008CE3BE /* DelayNodeUtil.swift in Sources */,
 				B5221F6C2D398947009FF89A /* ConeLayerNode.swift in Sources */,
 				EC5F642F2C29E6A900A9E52F /* LayerInspectorState.swift in Sources */,
+				ECAFD0902D48792600101226 /* LLMModalViews.swift in Sources */,
 				EC28CCA0287E355E00987792 /* PatchUIExtensions.swift in Sources */,
 				B5FE64B329641ACD004EB04B /* AsyncMediaImpureEvalResult.swift in Sources */,
 				B56FFB2A2C18B72500623CC7 /* MediaImportUtils.swift in Sources */,
@@ -5407,7 +5433,7 @@
 				B55780652CAF66D900907BA8 /* StitchComponentable.swift in Sources */,
 				B56FFB3E2C18F52600623CC7 /* StitchFileResult.swift in Sources */,
 				B54D0BAF2957811A00F3B2F9 /* ProjectsListItemLoadedView.swift in Sources */,
-				E419F3F72D40337400C169D4 /* JSONEditorView.swift in Sources */,
+				E419F3F72D40337400C169D4 /* EditBeforeSubmitModalView.swift in Sources */,
 				EC2942452BA13E6100D14CD1 /* SidebarItemSelectionActions.swift in Sources */,
 				EC1213D528873BF10012234C /* AnimationEvaluationHelpers.swift in Sources */,
 				ECC2BCCF2B9B72E900D5F942 /* SidebarListItemSwipeView.swift in Sources */,
@@ -5764,10 +5790,12 @@
 				CODE_SIGN_ENTITLEMENTS = Stitch/Stitch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 222;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 7KKD7RH9A6;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				INFOPLIST_FILE = Stitch/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
@@ -5784,8 +5812,6 @@
 				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2,6";
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				ENABLE_USER_SCRIPT_SANDBOXING = "NO";
 			};
 			name = Debug;
 		};
@@ -5798,10 +5824,12 @@
 				CODE_SIGN_ENTITLEMENTS = Stitch/Stitch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 222;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 7KKD7RH9A6;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				INFOPLIST_FILE = Stitch/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
@@ -5818,8 +5846,6 @@
 				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2,6";
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				ENABLE_USER_SCRIPT_SANDBOXING = "NO";
 			};
 			name = Release;
 		};
@@ -5937,10 +5963,12 @@
 				CODE_SIGN_ENTITLEMENTS = Stitch/Stitch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 222;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 7KKD7RH9A6;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				INFOPLIST_FILE = Stitch/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
@@ -5957,8 +5985,6 @@
 				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2,6";
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				ENABLE_USER_SCRIPT_SANDBOXING = "NO";
 			};
 			name = "Dev Debug";
 		};
@@ -6056,10 +6082,12 @@
 				CODE_SIGN_ENTITLEMENTS = Stitch/Stitch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 222;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 7KKD7RH9A6;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				INFOPLIST_FILE = Stitch/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
@@ -6077,8 +6105,6 @@
 				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2,6";
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				ENABLE_USER_SCRIPT_SANDBOXING = "NO";
 			};
 			name = "Local Only";
 		};
@@ -6296,10 +6322,12 @@
 				CODE_SIGN_ENTITLEMENTS = Stitch/Stitch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 222;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 7KKD7RH9A6;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				INFOPLIST_FILE = Stitch/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
@@ -6317,8 +6345,6 @@
 				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2,6";
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				ENABLE_USER_SCRIPT_SANDBOXING = "NO";
 			};
 			name = StitchAI;
 		};
@@ -6696,24 +6722,6 @@
 			productName = DisplayLink;
 		};
 /* End XCSwiftPackageProductDependency section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		8F436EC306D2418BAF8936FA /* Upload Debug Symbols to Sentry */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			name = "Upload Debug Symbols to Sentry";
-			inputPaths = (
-				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}",
-			);
-			outputPaths = (
-			);
-			shellPath = /bin/sh;
-			shellScript = "# This script is responsable to upload debug symbols and source context for Sentry.\nif [[ \"$(uname -m)\" == arm64 ]]; then\nexport PATH=\"/opt/homebrew/bin:$PATH\"\nfi\nif which sentry-cli >/dev/null; then\nexport SENTRY_ORG=stitch-design\nexport SENTRY_PROJECT=stitch\nERROR=$(sentry-cli debug-files upload --include-sources \"$DWARF_DSYM_FOLDER_PATH\" 2>&1 >/dev/null)\nif [ ! $? -eq 0 ]; then\necho \"warning: sentry-cli - $ERROR\"\nfi\nelse\necho \"warning: sentry-cli not installed, download from https://github.com/getsentry/sentry-cli/releases\"\nfi\n";
-		};
-/* End PBXShellScriptBuildPhase section */
 	};
 	rootObject = 200BD84F254F66EB00692903 /* Project object */;
 }
