@@ -189,7 +189,6 @@ struct JSONEditorView: View {
             buttons
                 .padding()
         }
-//        .padding()
         .frame(maxWidth: 420, maxHeight: 600)
         .background(.ultraThinMaterial)
         .cornerRadius(16)

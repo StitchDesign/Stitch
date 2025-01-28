@@ -53,30 +53,59 @@ struct LLMAugmentationCancelled: StitchDocumentEvent {
     
 }
 
-struct ShowLLMApprovalModal: StitchDocumentEvent {
+extension StitchDocumentViewModel {
     
-    func handle(state: StitchDocumentViewModel) {
-        log("ShowLLMApprovalModal called")
-        
+    @MainActor
+    func reapplyLLMActions() {
+        log("StitchDocumentViewModel: reapplyLLMActions")
         // Wipe patches and layers
         // TODO: keep patches and layers that WERE NOT created by this recent LLM prompt? Folks may use AI to supplement their existing work.
-        state.graph.nodes.keys.forEach {
-            state.graph.deleteNode(id: $0,
+        // Delete patches and layers that were created from actions;
+        
+        // NOTE: this llmRecording.actions will already reflect any edits the user has made to the list of actions
+        let createdNodes = self.llmRecording.actions.reduce(into: IdSet()) { partialResult, step in
+            if let id = step.nodeId,
+               let uuid = UUID(uuidString: id) {
+                partialResult.insert(uuid)
+            }
+        }
+        
+        createdNodes.forEach {
+            self.graph.deleteNode(id: $0,
                                    willDeleteLayerGroupChildren: true)
         }
         
         // Apply the LLM-actions (model-generated and user-augmented) to the graph
-        let actions = state.llmRecording.actions
+        let actions = self.llmRecording.actions
         log("ShowLLMApprovalModal: actions: \(actions)")
         var canvasItemsAdded = 0
         actions.forEach { action in
-            canvasItemsAdded = state.handleLLMStepAction(
+            canvasItemsAdded = self.handleLLMStepAction(
                 action,
                 canvasItemsAdded: canvasItemsAdded)
         }
         
         // Write to disk
-        state.encodeProjectInBackground()
+        self.encodeProjectInBackground()
+        
+        // Select the created nodes
+        createdNodes.forEach { nodeId in
+            if let node = self.graph.getNodeViewModel(nodeId) {
+                // Will select a patch node or a layer nodes' inputs/outputs on canvas
+                node.getAllCanvasObservers().forEach { (canvasItem: CanvasItemViewModel) in
+                    canvasItem.select()
+                }
+            }
+        }
+    }
+}
+
+struct ShowLLMApprovalModal: StitchDocumentEvent {
+    
+    func handle(state: StitchDocumentViewModel) {
+        log("ShowLLMApprovalModal called")
+        
+        state.reapplyLLMActions()
         
         // Show modal
         state.llmRecording.modal = .approveAndSubmit
@@ -129,6 +158,42 @@ struct SubmitLLMActionsToSupabase: StitchDocumentEvent {
     } // handle
 }
 
+extension LLMStepActions {
+    func removeActionsForDeletedNode(deletedNode: NodeId) -> Self {
+        var actions = self
+        
+        actions.removeAll(where: { action in
+            
+            // SetInput, ChangeNodeType, AddLayerInput
+            (action.parseNodeId == deletedNode)
+            
+            // ConnectNodes
+            || (action.fromNodeId?.parseNodeId == deletedNode)
+            || (action.toNodeId?.parseNodeId == deletedNode)
+        })
+        
+        return actions
+    }
+    
+    func removeActionsForDeletedLayerInput(nodeId: NodeId,
+                                           // Assumes packed; LLModel only works with packed layer inputs
+                                           deletedLayerInput: LayerInputType) -> Self {
+        var actions = self
+
+        let thisLayerInput = NodeIOPortType.keyPath(deletedLayerInput)
+        
+        actions.removeAll(where: { action in
+            // SetInput for this specific layer input
+            (action.parseNodeId == nodeId && action.parsePort() == thisLayerInput)
+            
+            // ConnectNodes to this specific layer input
+            || (action.toNodeId?.parseNodeId == nodeId && action.parsePort() == thisLayerInput)
+        })
+        
+        return actions
+    }
+}
+
 struct LLMActionDeleted: StitchDocumentEvent {
     let deletedAction: Step
     
@@ -141,6 +206,74 @@ struct LLMActionDeleted: StitchDocumentEvent {
         let filteredActions = state.llmRecording.actions.filter { $0 != deletedAction }
         
         state.llmRecording.actions = filteredActions
+                
+        // If we deleted the LLMAction that added a patch to the graph,
+        // then we should also delete any LLMActions that e.g. changed that patch's nodeType or inputs.
+        if let stepType = StepType(rawValue: deletedAction.stepType) {
+            
+            switch stepType {
+                
+            case .addNode:
+                if let nodeId = deletedAction.parseNodeId {
+                    state.graph.deleteNode(id: nodeId, willDeleteLayerGroupChildren: true)
+                    state.llmRecording.actions = state.llmRecording.actions.removeActionsForDeletedNode(deletedNode: nodeId)
+                    // Also: remove any other actions that relied on this AddNode action
+                    // e.g. cannot AddLayerInput if layer node longer exists
+                    
+                }
+                
+            case .addLayerInput:
+                if let nodeId = deletedAction.parseNodeId,
+                   let port = deletedAction.parsePort() {
+                    
+                    switch port {
+                        
+                    case .keyPath(let layerInputType):
+                        // Also remove any incoming
+                        state.llmRecording.actions = state.llmRecording.actions.removeActionsForDeletedLayerInput(
+                            nodeId: nodeId,
+                            deletedLayerInput: layerInputType)
+                        
+                    case .portIndex(let x):
+                        log("Unexpected port type when removing AddLayerInput action \(x)")
+                        fatalErrorIfDebug()
+                    }
+                }
+                
+                
+            case .connectNodes, .changeNodeType, .setInput:
+                // deleting these LLMActions does not require us to delete any other LLMActions;
+                // we just 'wipe and replay LLMActions'
+                log("do not need to delete any other other LLMActions")
+                
+//            case .connectNodes:
+//                // Find the 'to' destination and wipe connection from there
+//                if let nodeId = deletedAction.parseNodeId,
+//                   let parsedPort = deletedAction.parsePort() {
+//                    state.graph.removeEdgeAt(input: .init(portType: parsedPort,
+//                                                          nodeId: nodeId))
+//                }
+//                
+//                // ALTERNATIVELTY
+//                
+//            case .changeNodeType:
+//                // just remove from the list... then rely on "wipe and recreate" to switch the (still-created?) node back to its default node type or some other node type (if there's another, non-deleted ChangeNodeType LLMAction)
+//                
+//            case .setInput:
+//                // just remove from the list; 'wipe and recreate' will handle the rest properly
+//            
+                
+            }
+        }
+        
+        // ^^ can you handle this a little more intelligently?
+        // would be nice to see the edits in live action; but a bit of a pain to decode them here now
+        // and e.g. if you delete an AddNode action, then you need to delete the associated ChangeNodeType etc. actions
+        
+        // If immediately "de-apply" the removed action(s) from graph,
+        // so that user instantly sees what changed.
+        state.reapplyLLMActions()
+        
     }
 }
 
@@ -171,7 +304,7 @@ struct LLMApprovalModalView: View {
         }
 //        .frame(maxWidth: 520)
         .padding()
-        .background(.ultraThinMaterial)
+        .background(.regularMaterial)
         .cornerRadius(16)
         .padding()
     }

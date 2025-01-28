@@ -250,7 +250,17 @@ extension StitchDocumentViewModel {
     }
 }
 
+extension String {
+    var parseNodeId: NodeId? {
+        UUID(uuidString: self)
+    }
+}
+
 extension LLMStepAction {
+    
+    var parseNodeId: NodeId? {
+        self.nodeId?.parseNodeId
+    }
     
     @MainActor
     func parseValueForSetInput() -> PortValue? {
