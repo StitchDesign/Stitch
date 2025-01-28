@@ -138,6 +138,14 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
                 .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
                 .allowsHitTesting(!isLayerInvisible)
         }
+        // TODO: perf cost?
+        .overlay {
+            let isAICreated = graph.llmRecording.nodeIdToNameMapping.get(stitch.id).isDefined
+//            Color.blue.opacity(isAICreated ? 0.3 : 0)
+            Color.blue.opacity(isAICreated ? 0.2 : 0)
+                .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
+                .allowsHitTesting(!isAICreated)
+        }
         .modifier(CanvasItemBackground(color: nodeUIColor.body))
         
         .modifier(CanvasItemSelectedViewModifier(isSelected: isSelected))

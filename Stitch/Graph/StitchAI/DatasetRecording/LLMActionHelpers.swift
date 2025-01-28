@@ -7,13 +7,14 @@
 
 import Foundation
 
-struct LLMAugmentationStarted: StitchDocumentEvent {
-    func handle(state: StitchDocumentViewModel) {
-        state.llmRecording.mode = .augmentation
-        state.llmRecording.isRecording = true
-        state.llmRecording.modal = .none
-    }
-}
+//struct LLMAugmentationStarted: StitchDocumentEvent {
+//    func handle(state: StitchDocumentViewModel) {
+//        state.llmRecording.mode = .augmentation
+//        state.llmRecording.isRecording = true
+////        state.llmRecording.modal = .none
+//        state.llmRecording.modal = .editBeforeSubmit
+//    }
+//}
 
 // WE CANCELLED THE WHOLE THING
 struct LLMAugmentationCancelled: StitchDocumentEvent {
@@ -30,7 +31,11 @@ struct ShowLLMApprovalModal: StitchDocumentEvent {
         log("ShowLLMApprovalModal called")
         
         // Don't need to do this again here, since we've already done it whenever user edits the LLMAction list
-        // state.reapplyLLMActions()
+        // TODO: should not need to do this final application again, not really?
+        state.reapplyLLMActions()
+        
+        // End recording when we open the final submit
+        state.llmRecordingEnded()
         
         // Show modal
         state.llmRecording.modal = .approveAndSubmit
@@ -40,6 +45,14 @@ struct ShowLLMApprovalModal: StitchDocumentEvent {
 struct ShowLLMEditModal: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
         log("ShowLLMEditModal called")
+//        state.llmRecording.modal = .editBeforeSubmit
+        
+//        state.llmRecordingStarted()
+        state.llmRecording.isRecording = true
+        
+        // Always treat edit modal as an augmentation
+        state.llmRecording.mode = .augmentation
+        
         state.llmRecording.modal = .editBeforeSubmit
     }
 }
