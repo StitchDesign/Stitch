@@ -146,11 +146,12 @@ struct WideAdjustmentBarView: View {
                                 self.currentlySelectedNumber = n.number
 
                                 // updates input via redux
-                                graph.inputEdited(fieldValue: fieldValueNumberType.createFieldValueForAdjustmentBar(from: n.number),
-                                                  fieldIndex: self.fieldCoordinate.fieldIndex,
-                                                  coordinate: rowObserverCoordinate,
-                                                  isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                                                  isCommitting: false)
+                                graph.inputEditedFromUI(
+                                    fieldValue: fieldValueNumberType.createFieldValueForAdjustmentBar(from: n.number),
+                                    fieldIndex: self.fieldCoordinate.fieldIndex,
+                                    coordinate: rowObserverCoordinate,
+                                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                                    isCommitting: false)
                             }
                     } // ForEach
                 } // LazyVStack
@@ -369,12 +370,13 @@ struct WideAdjustmentBarView: View {
                     self.currentlySelectedNumber = pref.number
 
                     // log("Auto select center: pref.number: \(pref.number)")
-                    graph?.inputEdited(fieldValue: fieldValue,
-                                       fieldIndex: pref.field.fieldIndex,
-                                       coordinate: rowObserverCoordinate,
-                                       isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                                       // We don't persist changes from auto-selectiong the center value during scroll
-                                       isCommitting: false)
+                    graph?.inputEditedFromUI(
+                        fieldValue: fieldValue,
+                        fieldIndex: pref.field.fieldIndex,
+                        coordinate: rowObserverCoordinate,
+                        isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                        // We don't persist changes from auto-selectiong the center value during scroll
+                        isCommitting: false)
                 }
 
             }

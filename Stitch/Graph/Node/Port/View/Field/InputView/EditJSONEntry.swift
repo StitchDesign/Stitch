@@ -60,11 +60,13 @@ struct EditJSONEntry: View {
                            let edit = getCleanedJSON(internalEditString),
                            !areEqualJsons(edit, json) {
                             
-                            graph.jsonEditCommitted(
+                            graph.handleInputEditCommitted(
                                 input: rowObserverCoordinate,
-                                json: edit,
+                                value: .json(edit.toStitchJSON),
                                 // TODO: currently we never use json input for a layer input; but should pass down proper values here
-                                isFieldInsideLayerInspector: false)
+                                isFieldInsideLayerInspector: false,
+                                // TODO: technically not a dropdown, but not a regular textfield entry either
+                                wasDropdown: true)
                             
                             // TODO: clean up this, use same functions as `inputEdited` etc.?
                             graph.encodeProjectInBackground()
