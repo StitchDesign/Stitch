@@ -36,7 +36,8 @@ extension GraphState {
                 input: coordinate,
                 value: value,
                 // TODO: is this accurate? Can we change camera direction via any of the layers (i.e. via layer inspector)?
-                isFieldInsideLayerInspector: false)
+                isFieldInsideLayerInspector: false,
+                wasDropdown: true)
         }
     }
 }

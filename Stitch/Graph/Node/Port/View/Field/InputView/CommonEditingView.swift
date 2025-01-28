@@ -253,7 +253,7 @@ struct CommonEditingView: View {
             if let _ = self.choices?.first(where: { $0 == newValue }) {
                 // log("on change of choice: valid new choice")
                 self.currentEdit = newValue
-                self.inputEdited(newEdit: newValue,
+                self.inputEditedCallback(newEdit: newValue,
                                  isCommitting: true)
             }
         }
@@ -308,7 +308,7 @@ struct CommonEditingView: View {
                                       fieldType: .textInput(id),
                                       font: STITCH_FONT,
                                       fontColor: STITCH_FONT_GRAY_COLOR,
-                                      fieldEditCallback: inputEdited,
+                                      fieldEditCallback: inputEditedCallback,
                                       isBase64: isBase64)
         .onDisappear {
             // Fixes issue where default false values aren't shown after clearing inputs
@@ -316,7 +316,7 @@ struct CommonEditingView: View {
             
             // Fixes issue where edits sometimes don't save if focus is lost
             if self.currentEdit != self.inputString {
-                self.inputEdited(newEdit: self.currentEdit,
+                self.inputEditedCallback(newEdit: self.currentEdit,
                                  isCommitting: true)
             }
         }
@@ -384,13 +384,13 @@ struct CommonEditingView: View {
     }
 
     // fka `createInputEditAction`
-    @MainActor func inputEdited(newEdit: String,
-                                isCommitting: Bool) {
+    @MainActor func inputEditedCallback(newEdit: String,
+                                        isCommitting: Bool) {
         if let coordinate = self.inputField.rowViewModelDelegate?.rowDelegate?.id {
-            self.graph.inputEdited(
+            self.graph.inputEditedFromUI(
                 fieldValue: .string(.init(newEdit)),
                 fieldIndex: fieldIndex,
-                coordinate: coordinate, 
+                coordinate: coordinate,
                 isFieldInsideLayerInspector: self.isFieldInsideLayerInspector,
                 isCommitting: isCommitting)
         }
