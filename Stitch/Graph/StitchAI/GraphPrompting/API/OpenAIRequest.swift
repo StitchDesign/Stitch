@@ -282,9 +282,7 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
         log(" Original Actions to store: \(steps.asJSONDisplay())")
         state.llmRecording.actions = steps
         state.llmRecording.promptState.prompt = originalPrompt
-        
-        state.lastAIGeneratedPrompt = originalPrompt
-        
+                
         var canvasItemsAdded = 0
         steps.forEach { step in
             canvasItemsAdded = state.handleLLMStepAction(
