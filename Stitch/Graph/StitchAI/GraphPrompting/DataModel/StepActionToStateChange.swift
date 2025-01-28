@@ -31,7 +31,6 @@ extension StitchDocumentViewModel {
             log("   - Node ID: \(action.nodeId ?? "nil")")
             log("   - Node Name: \(action.nodeName ?? "nil")")
             log("   - Port: \(action.port?.value ?? "nil")")
-            stitchAI.promptState.isGenerating = false
             return canvasItemsAdded
         }
         
@@ -170,11 +169,6 @@ extension StitchDocumentViewModel {
                                          input: input,
                                          coordinate: layerInput,
                                          manualLLMStepCenter: newCenter)
-
-//            // TODO: why do we have to do this?
-//            if let layerNode = node.layerNode {
-//                graph.resetLayerInputsCache(layerNode: layerNode)
-//            }
             
             return canvasItemsAdded + 1
             
@@ -244,13 +238,12 @@ extension StitchDocumentViewModel {
     @MainActor
     private func retryOpenAIRequest() {
         // Re-trigger the OpenAI request with the original prompt
-        if let lastPrompt = stitchAI.promptState.lastPrompt,
+        if let lastPrompt = stitchAI.lastPrompt,
            !lastPrompt.isEmpty {
             log("🔄 Retrying OpenAI request with last prompt")
             dispatch(MakeOpenAIRequest(prompt: lastPrompt))
         } else {
             log("❌ Cannot retry OpenAI request: No last prompt available")
-            stitchAI.promptState.isGenerating = false
         }
     }
 }

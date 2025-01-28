@@ -30,6 +30,7 @@ struct OpenAIRequestConfig {
     )
 }
 
+// Note: an event is usually not a long-lived data structure; but this is used for retry attempts.
 /// Main event handler for initiating OpenAI API requests
 struct MakeOpenAIRequest: StitchDocumentEvent {
     private let OPEN_AI_BASE_URL = "https://api.openai.com/v1/chat/completions"
@@ -75,8 +76,6 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
                 userPrompt: prompt,
                 jsonResponse: nil
             )
-            state.stitchAI.promptState.isGenerating = false
-            state.graphUI.insertNodeMenuState.isGeneratingAINode = false
             return
         }
 
@@ -89,8 +88,6 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
                 userPrompt: prompt,
                 jsonResponse: nil
             )
-            state.stitchAI.promptState.isGenerating = false
-            state.graphUI.insertNodeMenuState.isGeneratingAINode = false
             return
         }
         
@@ -143,12 +140,7 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
             )
             return
         }
-        
-        // Update UI state for first attempt
-        if attempt == 1 {
-            state.stitchAI.promptState.isGenerating = true
-        }
-        
+                
         // Execute network request
         URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
@@ -165,7 +157,6 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
                                 userPrompt: prompt,
                                 jsonResponse: nil
                             )
-                            state.stitchAI.promptState.isGenerating = false
                             state.graphUI.insertNodeMenuState.isGeneratingAINode = false
                             Self.timeoutErrorCount = 0  // Reset counter
                             return
@@ -189,7 +180,6 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
                             jsonResponse: nil
                         )
                         // Reset to Submit Prompt state
-                        state.stitchAI.promptState.isGenerating = false
                         state.graphUI.insertNodeMenuState.isGeneratingAINode = false
                         return
                     }
@@ -200,7 +190,7 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
                         userPrompt: prompt,
                         jsonResponse: nil
                     )
-                    state.stitchAI.promptState.isGenerating = false
+
                     state.graphUI.insertNodeMenuState.isGeneratingAINode = false
                     return
                 }
@@ -284,9 +274,7 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
         log(" Original Actions to store: \(steps.asJSONDisplay())")
         state.llmRecording.actions = steps
         state.llmRecording.promptState.prompt = originalPrompt
-        
-        state.lastAIGeneratedPrompt = originalPrompt
-        
+                
         var canvasItemsAdded = 0
         steps.forEach { step in
             canvasItemsAdded = state.handleLLMStepAction(
@@ -295,14 +283,13 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
             )
         }
         
-        state.closeStitchAIModal()
+        state.graphUI.reduxFocusedField = nil
         state.graphUI.insertNodeMenuState.show = false
         state.graphUI.insertNodeMenuState.isGeneratingAINode = false
     }
     
     /// Main handler for completed requests
     func handle(state: StitchDocumentViewModel) {
-        state.stitchAI.promptState.isGenerating = false
         
         if let error = error {
             state.showErrorModal(
@@ -346,7 +333,6 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
     
     @MainActor func handleError(_ error: Error, state: StitchDocumentViewModel) {
         log("Error generating graph with StitchAI: \(error)", .logToServer)
-        state.stitchAI.promptState.isGenerating = false
         state.graphUI.insertNodeMenuState.show = false
         state.graphUI.insertNodeMenuState.isGeneratingAINode = false
     }
