@@ -9,6 +9,7 @@ import PostgREST
 import UIKit
 import SwiftUI
 import SwiftyJSON
+import Sentry
 
 struct LLMRecordingPayload: Encodable, Sendable {
     let actions: String
@@ -96,7 +97,8 @@ actor SupabaseManager {
                              finalActions: [Step]) async throws {
         
         guard let deviceUUID = await UIDevice.current.identifierForVendor?.uuidString else {
-            #if DEV_DEBUG || DEBUG
+            log("Unable to retrieve device UUID", .logToServer)
+#if DEV_DEBUG || DEBUG
             throw NSError(domain: "DeviceIDError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Unable to retrieve device UUID"])
             #endif
             return
@@ -141,20 +143,24 @@ actor SupabaseManager {
                         log(" Data uploaded successfully to Supabase!")
                         return
                     } catch DecodingError.keyNotFound(let key, let context) {
-                        log(" Error: Missing key '\(key.stringValue)' - \(context.debugDescription)")
+                        let errorMessage = " Error: Missing key '\(key.stringValue)' - \(context.debugDescription)"
+                        log(errorMessage, .logToServer)
                     } catch DecodingError.typeMismatch(let type, let context) {
-                        log(" Error: Type mismatch for type '\(type)' - \(context.debugDescription)")
+                        let errorMessage = "SupabaseManager Error: Type mismatch for type '\(type)' - \(context.debugDescription)"
+                        log(errorMessage, .logToServer)
                     } catch DecodingError.valueNotFound(let type, let context) {
-                        log(" Error: Missing value for type '\(type)' - \(context.debugDescription)")
+                        let errorMessage = "SupabaseManager Error: Missing value for type '\(type)' - \(context.debugDescription)"
+                        log(errorMessage, .logToServer)
                     } catch DecodingError.dataCorrupted(let context) {
-                        log(" Error: Data corrupted - \(context.debugDescription)")
+                        let errorMessage = "SupabaseManager Error: Data corrupted - \(context.debugDescription)"
+                        log(errorMessage, .logToServer)
                     } catch {
-                        log(" Error decoding JSON: \(error.localizedDescription)")
+                        log("SupabaseManager Error decoding JSON: \(error.localizedDescription)", .logToServer)
                     }
                 } else {
-                    log(" Error: Unable to convert edited JSON to Data")
+                    log("SupabaseManager Error: Unable to convert edited JSON to Data", .logToServer)
                 }
-                log(" Failed to decode edited JSON. Using original payload.")
+                log("SupabaseManager Error: Failed to decode edited JSON. Using original payload", .logToServer)
             }
             
             // Fallback to original payload if JSON editing/parsing fails
@@ -165,13 +171,12 @@ actor SupabaseManager {
             log(" Data uploaded successfully to Supabase!")
             
         } catch let error as HTTPError {
-            log(" HTTPError uploading to Supabase:")
             if let errorMessage = String(data: error.data, encoding: .utf8) {
-                log("  Error details: \(errorMessage)")
+                log("HTTPError uploading to Supabase Error details: \(errorMessage)", .logToServer)
             }
             throw error
         } catch {
-            log(" Unknown error: \(error)")
+            log("SupabaseManager Unknown error: \(error)", .logToServer)
             throw error
         }
         
