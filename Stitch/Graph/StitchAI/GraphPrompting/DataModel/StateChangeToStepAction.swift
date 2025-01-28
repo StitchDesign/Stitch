@@ -37,7 +37,7 @@ extension StitchDocumentViewModel {
     
     @MainActor
     func maybeCreateLLMStepChangeNodeType(node: NodeViewModel,
-                                       newNodeType: NodeType) {
+                                          newNodeType: NodeType) {
         if self.llmRecording.isRecording {
             let step = node.createLLMStepChangeNodeType(newNodeType)
             self.llmRecording.actions.append(step)
@@ -46,8 +46,8 @@ extension StitchDocumentViewModel {
     
     @MainActor
     func maybeCreateLLMStepSetInput(node: NodeViewModel,
-                                input: InputCoordinate,
-                                value: PortValue) {
+                                    input: InputCoordinate,
+                                    value: PortValue) {
         if self.llmRecording.isRecording {
             let step = node.createLLMStepSetInput(input: input, value: value)
             self.llmRecording.actions.append(step)

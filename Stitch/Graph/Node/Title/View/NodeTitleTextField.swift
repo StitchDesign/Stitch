@@ -14,7 +14,6 @@ struct NodeTitleTextField: View {
     let label: String
     let isCanvasItemSelected: Bool
     var font: Font = STITCH_FONT
-    
 
     var body: some View {
         StitchTitleTextField(graph: graph,
@@ -106,7 +105,13 @@ struct StitchTitleTextField: View {
 #if DEV_DEBUG
         return label + " " + id.nodeId.debugFriendlyId
 #else
-        return label
+        // Show debug-friendly id during debug mode, so user see which nodes are referred to
+        if graph.llmRecording.mode == .augmentation {
+            return label + " " + id.nodeId.debugFriendlyId
+        } else {
+            return label
+        }
+        
 #endif
     }
 }

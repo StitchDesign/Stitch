@@ -38,7 +38,6 @@ final class StitchDocumentViewModel: Sendable {
     
     @MainActor var keypressState = KeyPressState()
     @MainActor var llmRecording = LLMRecordingState()
-    @MainActor var lastAIGeneratedActions: [LLMStepAction] = []
     @MainActor var lastAIGeneratedPrompt: String = ""
     @MainActor var stitchAI = StitchAIState()
 
