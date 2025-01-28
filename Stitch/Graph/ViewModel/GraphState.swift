@@ -426,12 +426,7 @@ extension GraphState {
     var llmRecording: LLMRecordingState {
         self.documentDelegate?.llmRecording ?? .init()
     }
-    
-    @MainActor
-    var lastAIGeneratedActions: [LLMStepAction] {
-        self.documentDelegate?.lastAIGeneratedActions ?? .init()
-    }
-    
+        
     @MainActor
     var lastAIGeneratedPrompt: String {
         self.documentDelegate?.lastAIGeneratedPrompt ?? .init()

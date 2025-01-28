@@ -26,31 +26,32 @@ struct LLMRecordingToggled: GraphEvent {
         
         // Check if we're transitioning from AI generation to recording
         if wasInAIMode {
-            print("🔄 🤖 TRANSITIONING FROM AI MODE TO RECORDING - ENTERING AUGMENTATION MODE 🤖 🔄")
+            log("🔄 🤖 TRANSITIONING FROM AI MODE TO RECORDING - ENTERING AUGMENTATION MODE 🤖 🔄")
             // First store the current AI-generated actions
-            let currentActions = document.lastAIGeneratedActions
-            print("🤖 💾 Storing AI-Generated Actions: \(currentActions)")
+            let currentActions = document.llmRecording.actions
+            log("🤖 💾 Storing AI-Generated Actions: \(currentActions)")
             
             // Set augmentation mode
             document.llmRecording.mode = .augmentation
             
             // We keep the actions as they are - don't clear them
-            print("🤖 💾 Verified Actions Count: \(currentActions.count)")
-            print("🤖 💾 Verified Actions Content: \(currentActions.asJSONDisplay())")
+            log("🤖 💾 Verified Actions Count: \(currentActions.count)")
+            log("🤖 💾 Verified Actions Content: \(currentActions.asJSONDisplay())")
             
             // Clear the AI generation flag AFTER we've secured the actions
             state.graphUI.insertNodeMenuState.isFromAIGeneration = false
-            print("🔄 🤖 AI Generation Mode Cleared - Actions Preserved for Correction 🤖 🔄")
-        }
+            log("🔄 🤖 AI Generation Mode Cleared - Actions Preserved for Correction 🤖 🔄")
+            
+        } // if wasInAIMode
         
         if document.llmRecording.isRecording {
             let modeLabel = document.llmRecording.mode == .augmentation ? "AUGMENTATION" : "NORMAL"
-            print("📼 🛑 STOPPING LLM RECORDING MODE [\(modeLabel)] 🛑 📼")
+            log("📼 🛑 STOPPING LLM RECORDING MODE [\(modeLabel)] 🛑 📼")
             document.llmRecordingEnded()
         } else {
             let modeLabel = document.llmRecording.mode == .augmentation ? "AUGMENTATION" : "NORMAL"
             let transitionNote = wasInAIMode ? " (Transitioned from AI Generation)" : ""
-            print("📼 ▶\u{fef} STARTING LLM RECORDING MODE [\(modeLabel)]\(transitionNote) ▶\u{fef} 📼")
+            log("📼 ▶\u{fef} STARTING LLM RECORDING MODE [\(modeLabel)]\(transitionNote) ▶\u{fef} 📼")
             document.llmRecordingStarted()
         }
     }
@@ -104,8 +105,8 @@ extension StitchDocumentViewModel {
     // When prompt modal is closed, we write the JSON of prompt + actions to file.
     @MainActor func closedLLMRecordingPrompt() {
         let currentMode = self.llmRecording.mode
-        print("📼 💾 Closing LLM Recording Prompt - Saving Data 💾 📼")
-        print("🎯 Current Mode for Upload: \(currentMode)")
+        log("📼 💾 Closing LLM Recording Prompt - Saving Data 💾 📼")
+        log("🎯 Current Mode for Upload: \(currentMode)")
         
         self.llmRecording.promptState.showModal = false
         self.graphUI.reduxFocusedField = nil
@@ -113,61 +114,12 @@ extension StitchDocumentViewModel {
         let actions = self.llmRecording.actions
         
         guard !actions.isEmpty else {
-            print("📼 ⚠️ No actions to save - Resetting recording state ⚠️ 📼")
+            log("📼 ⚠️ No actions to save - Resetting recording state ⚠️ 📼")
             self.llmRecording = .init()
             return
         }
         
-        // Write the JSONL/YAML to file
-        let recordedData = LLMRecordingData(actions: actions,
-                                          prompt: self.llmRecording.promptState.prompt)
-        
-        if !recordedData.actions.isEmpty {
-            Task {
-                do {
-                    let data = try JSONEncoder().encode(recordedData)
-                    
-                    let docsURL = StitchFileManager.documentsURL
-                    let dataCollectionURL = docsURL.appendingPathComponent(LLM_COLLECTION_DIRECTORY)
-                    
-                    let dateFormatter = DateFormatter()
-                    dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-                    let formattedDate = dateFormatter.string(from: Date())
-                    let filename = "\(self.graph.name)_\(self.graph.id)_\(formattedDate).json"
-                    let url = dataCollectionURL.appendingPathComponent(filename)
-                    
-                    if !FileManager.default.fileExists(atPath: dataCollectionURL.path) {
-                        try FileManager.default.createDirectory(
-                            at: dataCollectionURL,
-                            withIntermediateDirectories: true)
-                    }
-                    
-                    try data.write(to: url, options: [.atomic, .completeFileProtection])
-                    
-                    print("📼 ⬆️ Uploading recording data to Supabase ⬆️ 📼")
-                    // Store the mode before reset
-                    let isAugmentation = currentMode == .augmentation
-                    
-                    // Upload with current mode
-                    try await SupabaseManager.shared.uploadLLMRecording(
-                        recordedData, graphState: graph,
-                        isCorrection: isAugmentation
-                    )
-                    print("📼 ✅ Data successfully saved locally and uploaded to Supabase ✅ 📼")
-                    
-                } catch let encodingError as EncodingError {
-                    print("📼 ❌ Encoding error: \(encodingError.localizedDescription) ❌ 📼")
-                } catch let fileError as NSError {
-                    print("📼 ❌ File system error: \(fileError.localizedDescription) ❌ 📼")
-                } catch {
-                    print("📼 ❌ Error: \(error.localizedDescription) ❌ 📼")
-                }
-            }
-        }
-    
-        print("📼 🔄 Resetting LLM Recording State 🔄 📼")
-        // Reset the recording state after upload is complete
-        self.llmRecording = .init()
+        dispatch(ShowLLMEditModal())
     }
 }
 

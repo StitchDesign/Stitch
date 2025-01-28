@@ -160,12 +160,8 @@ struct ContentView: View, KeyboardReadable {
                      sheetBody: {
             LLMPromptModalView(actionsAsDisplay: document.llmRecording.promptState.actionsAsDisplayString)
         })
-//        .stitchSheet(isPresented: document.llmRecording.jsonEntryState.showModal,
-//                     titleLabel: "LLM JSON Entry",
-//                     hideAction: document.closedLLMActionsJSONEntryModal,
-//                     sheetBody: {
-//            LLMActionsJSONEntryModalView()
-//        })
+        
+        // NOTE: THIS IS ACTUALLY ONLY FOR SHOWING AN ERROR MODAL LIKE "THE MODEL COULD NOT CREATE A LIST OF ACTIONS AFTER 3 ATTEMPTS"
         .stitchSheet(isPresented: document.stitchAI.promptState.showModal,
                       titleLabel: "Stitch AI",
                       hideAction: document.closedStitchAIModal,

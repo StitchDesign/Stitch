@@ -174,20 +174,6 @@ struct GenerateAINode: GraphEvent {
     }
 }
 
-struct AINodeGenerationComplete: GraphEvent {
-    func handle(state: GraphState) {
-        // Add capture of generated actions before completion
-        if let document = state.documentDelegate {
-            print("🤖 💾 Storing AI Generated Actions before completion 💾 🤖")
-            document.lastAIGeneratedActions = document.llmRecording.actions
-            print("🤖 Generated Actions: \(document.lastAIGeneratedActions)")
-        }
-        
-        state.graphUI.insertNodeMenuState.isGeneratingAINode = false
-        state.graphUI.insertNodeMenuState.show = false
-    }
-}
-
 /// Process search results in the insert node menu sheet
 struct InsertNodeQuery: GraphEvent {
     let query: String
