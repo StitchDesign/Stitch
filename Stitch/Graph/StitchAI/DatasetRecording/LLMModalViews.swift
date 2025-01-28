@@ -19,7 +19,7 @@ struct LLMApprovalModalView: View {
                 Button {
                     dispatch(ShowLLMEditModal())
                 } label: {
-                    Text("Add More")
+                    Text("Edit")
                 }
                 
                 Button {
@@ -28,7 +28,7 @@ struct LLMApprovalModalView: View {
                     // call the logic in `SupabaseManager.uploadLLMRecording`
                     dispatch(SubmitLLMActionsToSupabase())
                 } label: {
-                    Text("Submit") // "Send to Supabase"
+                    Text("Upload") // "Send to Supabase"
                 }
             }
             

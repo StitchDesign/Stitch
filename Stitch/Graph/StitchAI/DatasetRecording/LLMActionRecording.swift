@@ -34,6 +34,9 @@ struct LLMRecordingToggled: GraphEvent {
             // Set augmentation mode
             document.llmRecording.mode = .augmentation
             
+            // Open the Edit-before-submit modal
+            document.llmRecording.modal = .editBeforeSubmit
+            
             // We keep the actions as they are - don't clear them
             log("🤖 💾 Verified Actions Count: \(currentActions.count)")
             log("🤖 💾 Verified Actions Content: \(currentActions.asJSONDisplay())")
