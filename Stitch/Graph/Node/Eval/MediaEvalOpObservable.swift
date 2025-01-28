@@ -9,10 +9,10 @@ import Foundation
 import StitchSchemaKit
 import SwiftUI
 
-protocol MediaEvalOpObservable: NodeEphemeralObservable, Sendable {
+protocol MediaEvalOpObservable: NodeEphemeralObservable, MediaViewable, Sendable {
     @MainActor var nodeDelegate: NodeDelegate? { get set }
 
-    @MainActor var currentMedia: GraphMediaValue? { get set }
+//    @MainActor var currentMedia: GraphMediaValue? { get set }
     
     @MainActor var currentLoadingMediaId: UUID? { get set }
     

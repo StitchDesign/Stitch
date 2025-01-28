@@ -34,7 +34,7 @@ struct MediaFieldValueView: View {
     let layerInputObserver: LayerInputObserver?
     let isUpstreamValue: Bool
     let media: FieldValueMedia
-    let mediaObject: StitchMediaObject?
+    let mediaObserver: (any MediaViewable)?
     let nodeKind: NodeKind
     let isInput: Bool
     let fieldIndex: Int
@@ -111,13 +111,17 @@ struct MediaFieldValueView: View {
                                       isSelectedInspectorRow: isSelectedInspectorRow)
             }
             
-            if let mediaObject = mediaObject {
-                MediaFieldLabelView(mediaObject: mediaObject,
-                                    inputCoordinate: inputCoordinate,
-                                    isInput: isInput,
-                                    fieldIndex: fieldIndex,
-                                    isNodeSelected: isNodeSelected,
-                                    isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues)
+            // TODO: need to handle casting better
+            if let mediaObserver = mediaObserver as? MediaEvalOpObserver {
+                @Bindable var mediaObserver = mediaObserver
+                if let mediaObject = mediaObserver.currentMedia?.mediaObject {
+                    MediaFieldLabelView(mediaObject: mediaObject,
+                                        inputCoordinate: inputCoordinate,
+                                        isInput: isInput,
+                                        fieldIndex: fieldIndex,
+                                        isNodeSelected: isNodeSelected,
+                                        isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues)
+                }
             } else {
                 if usesVisualMediaPlaceholder {
                     NilImageView()

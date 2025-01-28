@@ -228,16 +228,14 @@ struct OutputValueView: View {
                 // No keypaths ever used for output
                 let portIndex = coordinate.portId!
                 
-                let loopIndex = graph.activeIndex.adjustedIndex(viewModel.rowViewModelDelegate?.rowDelegate?.allLoopedValues.count ?? .zero)
-                
-                let mediaObject = viewModel.rowViewModelDelegate?.nodeDelegate?
-                    .getComputedMedia(loopIndex: loopIndex)
+                let mediaObserver = viewModel.rowViewModelDelegate?.nodeDelegate?
+                    .getVisibleMediaObserver(outputPortId: portIndex)
                 
                 MediaFieldValueView(inputCoordinate: coordinate,
                                     layerInputObserver: nil,
                                     isUpstreamValue: false,     // only valid for inputs
                                     media: media,
-                                    mediaObject: mediaObject,
+                                    mediaObserver: mediaObserver,
                                     nodeKind: nodeKind,
                                     isInput: false,
                                     fieldIndex: fieldIndex,
