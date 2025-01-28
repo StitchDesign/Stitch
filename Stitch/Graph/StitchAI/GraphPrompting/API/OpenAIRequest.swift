@@ -76,7 +76,6 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
                 userPrompt: prompt,
                 jsonResponse: nil
             )
-//            state.graphUI.insertNodeMenuState.isGeneratingAINode = false
             return
         }
 
@@ -141,12 +140,7 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
             )
             return
         }
-        
-//        // Update UI state for first attempt
-//        if attempt == 1 {
-//            state.stitchAI.promptState.isGenerating = true
-//        }
-        
+                
         // Execute network request
         URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
@@ -163,7 +157,6 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
                                 userPrompt: prompt,
                                 jsonResponse: nil
                             )
-//                            state.stitchAI.promptState.isGenerating = false
                             state.graphUI.insertNodeMenuState.isGeneratingAINode = false
                             Self.timeoutErrorCount = 0  // Reset counter
                             return
@@ -187,7 +180,6 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
                             jsonResponse: nil
                         )
                         // Reset to Submit Prompt state
-//                        state.stitchAI.promptState.isGenerating = false
                         state.graphUI.insertNodeMenuState.isGeneratingAINode = false
                         return
                     }
