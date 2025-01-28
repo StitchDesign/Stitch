@@ -7,15 +7,6 @@
 
 import Foundation
 
-//struct LLMAugmentationStarted: StitchDocumentEvent {
-//    func handle(state: StitchDocumentViewModel) {
-//        state.llmRecording.mode = .augmentation
-//        state.llmRecording.isRecording = true
-////        state.llmRecording.modal = .none
-//        state.llmRecording.modal = .editBeforeSubmit
-//    }
-//}
-
 // WE CANCELLED THE WHOLE THING
 struct LLMAugmentationCancelled: StitchDocumentEvent {
     
@@ -45,9 +36,7 @@ struct ShowLLMApprovalModal: StitchDocumentEvent {
 struct ShowLLMEditModal: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
         log("ShowLLMEditModal called")
-//        state.llmRecording.modal = .editBeforeSubmit
-        
-//        state.llmRecordingStarted()
+
         state.llmRecording.isRecording = true
         
         // Always treat edit modal as an augmentation

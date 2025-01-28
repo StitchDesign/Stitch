@@ -66,31 +66,7 @@ struct EditBeforeSubmitModalView: View {
     var actionsView: some View {
         VStack {
             StitchTextView(string: "Prompt: \(prompt)")
-//                .onAppear {
-//                .onChange(of: self.actions, initial: true) { oldValue, newValue in
-//                    // Note: must do this here and not in view's `init`?
-//                    // Alternatively, pass in the data/mapping already created
-//                    newValue.forEach { (action: LLMStepAction) in
-//                        // Add Node step uses nodeId; but Connect Nodes step uses toNodeId and fromNodeId
-//                        if let nodeId = action.nodeId,
-//                           let nodeName = action.nodeName {
-//                            self.nodeIdToNameMapping.updateValue(nodeName, forKey: nodeId)
-//                        }
-//                        
-//                        if let nodeId = action.fromNodeId,
-//                           let nodeName = action.nodeName {
-//                            self.nodeIdToNameMapping.updateValue(nodeName, forKey: nodeId)
-//                        }
-//                        
-//                        if let nodeId = action.toNodeId,
-//                           let nodeName = action.nodeName {
-//                            self.nodeIdToNameMapping.updateValue(nodeName, forKey: nodeId)
-//                        }
-//                        
-//                        log("self.nodeIdToNameMapping is now: \(self.nodeIdToNameMapping)")
-//                    }
-//                }
-            
+
             // `id:` by hashable ought to be okay?
             ForEach(actions, id: \.hashValue) { (action: LLMStepAction) in
                 LLMActionCorrectionView(action: action,
