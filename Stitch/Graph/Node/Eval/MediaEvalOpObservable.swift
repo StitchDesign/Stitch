@@ -9,14 +9,17 @@ import Foundation
 import StitchSchemaKit
 import SwiftUI
 
-protocol MediaEvalOpObservable: NodeEphemeralObservable, Sendable {
+/// Creates observable class with presentable media.
+protocol MediaEvalOpViewable: NodeEphemeralObservable, Sendable {
+    var mediaViewModel: MediaViewModel { get }
+}
+
+protocol MediaEvalOpObservable: NodeEphemeralObservable, MediaEvalOpViewable, Sendable {
     @MainActor var nodeDelegate: NodeDelegate? { get set }
     
     @MainActor var currentLoadingMediaId: UUID? { get set }
     
     var mediaActor: MediaEvalOpCoordinator { get }
-    
-    var mediaViewModel: MediaViewModel { get }
 }
 
 final class MediaEvalOpObserver: MediaEvalOpObservable {
@@ -73,7 +76,7 @@ extension MediaEvalOpObserver {
     }
 }
 
-extension MediaEvalOpObservable {
+extension MediaEvalOpViewable {
     @MainActor
     var currentMedia: GraphMediaValue? {
         get {
@@ -83,7 +86,9 @@ extension MediaEvalOpObservable {
             self.mediaViewModel.currentMedia = newValue
         }
     }
-    
+}
+
+extension MediaEvalOpObservable {
     /// Condtionally gets or creates new media object based on input media and possible existence of current media
     /// at this loop index.
     @MainActor func getUniqueMedia(from value: PortValue?,

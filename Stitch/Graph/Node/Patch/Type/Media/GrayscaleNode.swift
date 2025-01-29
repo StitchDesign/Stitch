@@ -68,16 +68,3 @@ func grayscaleEval(node: PatchNode) -> EvalResult {
         }
     }
 }
-
-// TODO: move
-struct MediaEvalOpResult {
-    let values: PortValues
-    var media: StitchMediaObject?
-}
-
-extension MediaEvalOpResult: NodeEvalOpResult {
-    init(from values: PortValues) {
-        self.values = values
-        self.media = nil
-    }
-}

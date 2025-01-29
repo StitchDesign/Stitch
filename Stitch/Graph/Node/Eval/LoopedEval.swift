@@ -13,7 +13,7 @@ typealias NodeEphemeralObservableOp<T, EphemeralObserver> = (PortValues, Ephemer
 
 //typealias NodeMediaObservableOp<T, EphemeralObserver> = (MediaEvalOpResult, EphemeralObserver, Int) -> T where EphemeralObserver: NodeEphemeralObservable
 
-//typealias NodeEphemeralObservableListOp<EphemeralObserver> = (PortValues, EphemeralObserver) -> PortValuesList where EphemeralObserver: NodeEphemeralObservable
+typealias NodeEphemeralObservableListOp<EphemeralObserver> = (PortValues, EphemeralObserver) -> PortValuesList where EphemeralObserver: NodeEphemeralObservable
 typealias NodeEphemeralInteractiveOp<T, EphemeralObserver> = (PortValues, EphemeralObserver, InteractiveLayer, Int) -> T where EphemeralObserver: NodeEphemeralObservable
 typealias NodeInteractiveOp<T> = (PortValues, InteractiveLayer, Int) -> T
 typealias NodeLayerViewModelInteractiveOp<T> = (LayerViewModel, InteractiveLayer, Int) -> T
@@ -132,22 +132,22 @@ extension NodeViewModel {
         .createPureEvalResult(node: self)
     }
     
-//    @MainActor
-//    /// Looped eval for PortValues returning an EvalFlowResult. Used for nodes like object detection.
-//    func loopedEvalList<T: NodeEphemeralObservable>(_ ephemeralObserverType: T.Type,
-//                                                    evalOp: @escaping NodeEphemeralObservableListOp<T>) -> EvalResult {
-//        // Ignore input loops for nodes like object detection
-//        let inputs = self.inputs.remapValuesByLoop()
-//        
-//        guard let firstInputs = inputs.first,
-//              let ephemeralObserver = self.ephemeralObservers?.first as? T else {
-//            fatalErrorIfDebug()
-//            return .init()
-//        }
-//        
-//        let outputs = evalOp(firstInputs, ephemeralObserver)
-//        return .init(outputsValues: outputs)
-//    }
+   @MainActor
+   /// Looped eval for PortValues returning an EvalFlowResult. Used for nodes like object detection.
+   func loopedEvalList<T: NodeEphemeralObservable>(_ ephemeralObserverType: T.Type,
+                                                   evalOp: @escaping NodeEphemeralObservableListOp<T>) -> EvalResult {
+       // Ignore input loops for nodes like object detection
+       let inputs = self.inputs.remapValuesByLoop()
+       
+       guard let firstInputs = inputs.first,
+             let ephemeralObserver = self.ephemeralObservers?.first as? T else {
+           fatalErrorIfDebug()
+           return .init()
+       }
+       
+       let outputs = evalOp(firstInputs, ephemeralObserver)
+       return .init(outputsValues: outputs)
+   }
 
     @MainActor
     func loopedEval<EvalOpResult: NodeEvalOpResult>(minLoopCount: Int = 0,

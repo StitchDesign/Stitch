@@ -16,6 +16,18 @@ final class MediaViewModel: Sendable {
     @MainActor init() { }
 }
 
+struct MediaEvalOpResult {
+    let values: PortValues
+    var media: StitchMediaObject?
+}
+
+extension MediaEvalOpResult: NodeEvalOpResult {
+    init(from values: PortValues) {
+        self.values = values
+        self.media = nil
+    }
+}
+
 extension NodeViewModel {
     @MainActor
     /// Gets the media object for some connected input.
@@ -95,7 +107,7 @@ extension NodeViewModel {
             return self.getComputedMediaObserver(loopIndex: loopIndex)
         }
         
-        // MARK: media object is obtained by looking at upstream connected node's saved media objects. This system isn't perfect as not all nodes which can hold media use the MediaEvalOpObservable.
+        // MARK: media object is obtained by looking at upstream connected node's saved media objects.
         return connectedUpstreamNode.getComputedMediaObserver(loopIndex: loopIndex)
     }
     
@@ -103,7 +115,7 @@ extension NodeViewModel {
     /// Gets the media object for some connected input.
     func getComputedMediaObserver(loopIndex: Int) -> MediaViewModel? {
         // Check if media eval op exists here if no connection
-        (self.ephemeralObservers?[safe: loopIndex] as? MediaEvalOpObservable)?.mediaViewModel
+        (self.ephemeralObservers?[safe: loopIndex] as? MediaEvalOpViewable)?.mediaViewModel
     }
 }
 

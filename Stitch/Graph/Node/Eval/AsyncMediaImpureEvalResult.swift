@@ -122,12 +122,15 @@ extension Array where Element == MediaEvalOpResult {
         
         // Update ephemeral observers
         for (newMedia, ephemeralObserver) in zip(mediaList, node.ephemeralObservers ?? []) {
-            if let mediaObserver = ephemeralObserver as? MediaEvalOpObservable {
-                if let newMedia = newMedia {
-                    mediaObserver.currentMedia = .init(computedMedia: newMedia)
-                } else {
-                    mediaObserver.currentMedia = nil
-                }
+            guard let mediaObserver = ephemeralObserver as? MediaEvalOpViewable else {
+                fatalErrorIfDebug()
+                break
+            }
+            
+            if let newMedia = newMedia {
+                mediaObserver.currentMedia = .init(computedMedia: newMedia)
+            } else {
+                mediaObserver.currentMedia = nil
             }
         }
         
