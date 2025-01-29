@@ -29,7 +29,9 @@ struct GrayscaleNode: PatchNodeDefinition {
         )
     }
 
-    static let ephemeralObserverType = MediaEvalOpObserver.self
+    static func createEphemeralObserver() -> NodeEphemeralObservable? {
+        MediaEvalOpObserver()
+    }
 }
 
 // Modifies image's metadata, rather than image itself.

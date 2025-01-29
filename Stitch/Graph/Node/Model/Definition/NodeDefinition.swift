@@ -14,22 +14,17 @@ import RealityKit
 // fka `GraphNode`
 protocol NodeDefinition {
     static var graphKind: NodeDefinitionKind { get }
-    
     static var defaultTitle: String { get }
     
     // TODO: `LayerGraphNode.rowDefinitions` can NEVER have a UserVisibleType
     @MainActor
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions
     
-    static var ephemeralObserverType: NodeEphemeralObservable.Type? { get }
-    
-    static var inputCountVariesByType: Bool { get }
-    
-    static var outputCountVariesByType: Bool { get }
-    
-    // TODO: remove
     @MainActor
     static func createEphemeralObserver() -> NodeEphemeralObservable?
+
+    static var inputCountVariesByType: Bool { get }
+    static var outputCountVariesByType: Bool { get }
 }
 
 // fka `PatchGraphNode`
@@ -88,17 +83,8 @@ extension NodeDefinition {
 
     static var inputCountVariesByType: Bool { false }
     static var outputCountVariesByType: Bool { false }
-    static var ephemeralObserverType: NodeEphemeralObservable.Type? { nil }
 
-    @MainActor
-    static func createEphemeralObserver() -> NodeEphemeralObservable? {
-        if let observerType = Self.ephemeralObserverType {
-            return observerType.init()
-        }
-        
-        return nil
-    }
-    
+    static func createEphemeralObserver() -> NodeEphemeralObservable? { nil }
     static var kind: NodeKind { Self.graphKind.kind }
     static var defaultTitle: String { Self.kind.getDisplayTitle(customName: nil) }
 
