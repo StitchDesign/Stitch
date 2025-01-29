@@ -41,9 +41,12 @@ extension StitchDocumentViewModel {
             return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
         }
         
+//        let newCenter = CGPoint(
+//            x: self.newNodeCenterLocation.x + (CGFloat(canvasItemsAdded) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_WDITH_STAGGER),
+//            y: self.newNodeCenterLocation.y + (CGFloat(canvasItemsAdded) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER))
         let newCenter = CGPoint(
             x: self.newNodeCenterLocation.x + (CGFloat(canvasItemsAdded) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_WDITH_STAGGER),
-            y: self.newNodeCenterLocation.y + (CGFloat(canvasItemsAdded) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER))
+            y: self.newNodeCenterLocation.y)
         
         switch stepType {
             
