@@ -9,39 +9,51 @@ import Foundation
 import StitchSchemaKit
 import SwiftUI
 
-protocol MediaEvalOpObservable: NodeEphemeralObservable, MediaViewable, Sendable {
+protocol MediaEvalOpObservable: NodeEphemeralObservable, Sendable {
     @MainActor var nodeDelegate: NodeDelegate? { get set }
-
-//    @MainActor var currentMedia: GraphMediaValue? { get set }
     
     @MainActor var currentLoadingMediaId: UUID? { get set }
     
     var mediaActor: MediaEvalOpCoordinator { get }
+    
+    var mediaViewModel: MediaViewModel { get }
 }
 
 final class MediaEvalOpObserver: MediaEvalOpObservable {
-    var currentMedia: GraphMediaValue?
+    let mediaViewModel: MediaViewModel
     var currentLoadingMediaId: UUID?
     weak var nodeDelegate: NodeDelegate?
     internal let mediaActor = MediaEvalOpCoordinator()
+    
+    @MainActor init() {
+        self.mediaViewModel = .init()
+    }
 }
 
 final class VisionOpObserver: MediaEvalOpObservable {
-    var currentMedia: GraphMediaValue?
+    let mediaViewModel: MediaViewModel
     var currentLoadingMediaId: UUID?
     weak var nodeDelegate: NodeDelegate?
     internal let mediaActor = MediaEvalOpCoordinator()
     let coreMlActor = VisionOpActor()
-    
+        
+    @MainActor init() {
+        self.mediaViewModel = .init()
+    }
+
     func onPrototypeRestart() { }
 }
 
 final class ImageClassifierOpObserver: MediaEvalOpObservable {
-    var currentMedia: GraphMediaValue?
+    let mediaViewModel: MediaViewModel
     var currentLoadingMediaId: UUID?
     weak var nodeDelegate: NodeDelegate?
     internal let mediaActor = MediaEvalOpCoordinator()
     let coreMlActor = ImageClassifierActor()
+    
+    @MainActor init() {
+        self.mediaViewModel = .init()
+    }
     
     func onPrototypeRestart() { }
 }
@@ -62,6 +74,16 @@ extension MediaEvalOpObserver {
 }
 
 extension MediaEvalOpObservable {
+    @MainActor
+    var currentMedia: GraphMediaValue? {
+        get {
+            self.mediaViewModel.currentMedia
+        }
+        set(newValue) {
+            self.mediaViewModel.currentMedia = newValue
+        }
+    }
+    
     /// Condtionally gets or creates new media object based on input media and possible existence of current media
     /// at this loop index.
     @MainActor func getUniqueMedia(from value: PortValue?,

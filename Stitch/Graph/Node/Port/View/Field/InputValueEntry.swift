@@ -428,7 +428,7 @@ struct InputValueView: View {
                     .getInputMediaObserver(inputCoordinate: rowObserverId,
                                            loopIndex: loopIndex)
                 
-                if let mediaObserver = mediaObserver as? MediaEvalOpObserver {
+                if let mediaObserver = mediaObserver {
                     MediaFieldValueView(
                         inputCoordinate: rowObserverId,
                         layerInputObserver: layerInputObserver,

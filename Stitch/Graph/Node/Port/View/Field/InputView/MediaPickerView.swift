@@ -29,12 +29,12 @@ extension GraphState {
 }
 
 /// Picker view for all imported media nodes (Core ML, image, audio, video etc.).
-struct MediaFieldValueView<T: MediaEvalOpObservable>: View {
+struct MediaFieldValueView: View {
     let inputCoordinate: InputCoordinate
     let layerInputObserver: LayerInputObserver?
     let isUpstreamValue: Bool
     let media: FieldValueMedia
-    @Bindable var mediaObserver: T
+    @Bindable var mediaObserver: MediaViewModel
     let nodeKind: NodeKind
     let isInput: Bool
     let fieldIndex: Int

@@ -229,7 +229,7 @@ struct OutputValueView: View {
                 let portIndex = coordinate.portId!
                 
                 if let mediaObserver = viewModel.rowViewModelDelegate?.nodeDelegate?
-                    .getVisibleMediaObserver(outputPortId: portIndex) as? MediaEvalOpObserver {
+                    .getVisibleMediaObserver(outputPortId: portIndex) {
                     MediaFieldValueView(inputCoordinate: coordinate,
                                         layerInputObserver: nil,
                                         isUpstreamValue: false,     // only valid for inputs
