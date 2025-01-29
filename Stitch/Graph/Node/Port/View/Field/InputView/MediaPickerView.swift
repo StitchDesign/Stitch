@@ -103,6 +103,7 @@ struct MediaFieldValueView<T: MediaEvalOpObservable>: View {
                 MediaPickerValueEntry(coordinate: inputCoordinate,
                                       isUpstreamValue: isUpstreamValue,
                                       mediaValue: media,
+                                      importedMedia: mediaObserver.currentMedia?.mediaObject,
                                       nodeKind: nodeKind,
                                       isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                       graph: graph,

@@ -141,14 +141,12 @@ func getFieldValueTypes<FieldType: FieldViewModel>(value: PortValue,
                                                    nodeIO: NodeIO,
                                                    unpackedPortParentFieldGroupType: FieldGroupType?,
                                                    unpackedPortIndex: Int?,
-                                                   importedMediaObject: StitchMediaObject?,
                                                    rowViewModel: FieldType.NodeRowType?) -> [FieldGroupTypeData<FieldType>] {
 
     let isLayerInspector = rowViewModel?.id.graphItemType.isLayerInspector ?? false
         
     let fieldValuesList: [FieldValues] = value.createFieldValuesList(
         nodeIO: nodeIO,
-        importedMediaObject: importedMediaObject,
         layerInputPort: rowViewModel?.id.layerInputPort,
         isLayerInspector: isLayerInspector)
     
@@ -445,14 +443,12 @@ extension NodeRowViewModel {
     func createFieldValueTypes(initialValue: PortValue,
                                nodeIO: NodeIO,
                                unpackedPortParentFieldGroupType: FieldGroupType?,
-                               unpackedPortIndex: Int?,
-                               importedMediaObject: StitchMediaObject?) -> [FieldGroupTypeData<FieldType>] {
+                               unpackedPortIndex: Int?) -> [FieldGroupTypeData<FieldType>] {
         getFieldValueTypes(
             value: initialValue,
             nodeIO: nodeIO,
             unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
             unpackedPortIndex: unpackedPortIndex,
-            importedMediaObject: importedMediaObject,
             rowViewModel: self as? Self.FieldType.NodeRowType)
     }
 }

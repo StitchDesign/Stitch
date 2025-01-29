@@ -205,8 +205,7 @@ extension NodeRowViewModel {
         let fields = self.createFieldValueTypes(initialValue: initialValue,
                                                 nodeIO: Self.nodeIO,
                                                 unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                                unpackedPortIndex: unpackedPortIndex,
-                                                importedMediaObject: nil)
+                                                unpackedPortIndex: unpackedPortIndex)
         
         /*
          Note: we seem to call `initializeValues` several times in row for the *same* NodeRowViewModel,

@@ -356,6 +356,10 @@ extension GraphState {
             // Recalculate downstream patch nodes after values are updated
             self.calculate(changedDownstreamNodes)
         }
+        
+        // Update all output fields
+        // Fixes issue where async race condition may not properly update fields for image nodes
+        self.portsToUpdate.insert(.allOutputs(node.id))
     }
 }
 

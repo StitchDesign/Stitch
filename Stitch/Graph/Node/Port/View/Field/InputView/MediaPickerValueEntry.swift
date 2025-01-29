@@ -15,6 +15,7 @@ struct MediaPickerValueEntry: View {
     let coordinate: InputCoordinate
     let isUpstreamValue: Bool   // is input port connected
     let mediaValue: FieldValueMedia
+    let importedMedia: StitchMediaObject?
     let nodeKind: NodeKind
     let isFieldInsideLayerInspector: Bool
     let graph: GraphState // Doesn't need to be @Bindable, since not directly relied on in the UI for a render-cycle
@@ -30,7 +31,7 @@ struct MediaPickerValueEntry: View {
             .getDefaultOptions(for: nodeKind,
                                isMediaCurrentlySelected: mediaValue.hasMediaSelected)
         
-        let label = mediaValue.getName()
+        let label = mediaValue.getName(importedMedia: importedMedia)
                 
         StitchMenu(id: coordinate.nodeId,
                    selection: label,
@@ -39,6 +40,7 @@ struct MediaPickerValueEntry: View {
             MediaPickerButtons(inputCoordinate: coordinate,
                                mediaType: mediaType,
                                choices: [.importButton],
+                               importedMedia: importedMedia,
                                isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                graph: graph,
                                isSelectedInspectorRow: isSelectedInspectorRow)
@@ -48,6 +50,7 @@ struct MediaPickerValueEntry: View {
                 MediaPickerButtons(inputCoordinate: coordinate,
                                    mediaType: mediaType,
                                    choices: [],
+                                   importedMedia: importedMedia,
                                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                    graph: graph,
                                    isSelectedInspectorRow: isSelectedInspectorRow)
@@ -59,6 +62,7 @@ struct MediaPickerValueEntry: View {
                 MediaPickerButtons(inputCoordinate: coordinate,
                                    mediaType: mediaType,
                                    choices: [mediaValue],
+                                   importedMedia: importedMedia,
                                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                    graph: graph,
                                    isSelectedInspectorRow: isSelectedInspectorRow)
@@ -68,6 +72,7 @@ struct MediaPickerValueEntry: View {
             MediaPickerButtons(inputCoordinate: coordinate,
                                mediaType: mediaType,
                                choices: defaultOptions,
+                               importedMedia: importedMedia,
                                isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                graph: graph,
                                isSelectedInspectorRow: isSelectedInspectorRow)
@@ -79,15 +84,18 @@ struct MediaPickerValueEntry: View {
                                                                                  isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                                                                  graph: graph) })) {
                 // Import button and any default media
-                MediaPickerChoicesView(choices: [.importButton])
+                MediaPickerChoicesView(choices: [.importButton],
+                                       importedMedia: importedMedia)
                 
                 // Only show the incoming value as an option if there's an incoming edge
                 if isUpstreamValue {
-                    MediaPickerChoicesView(choices: [mediaValue])
+                    MediaPickerChoicesView(choices: [mediaValue],
+                                           importedMedia: importedMedia)
                 }
                 
                 Divider()
-                MediaPickerChoicesView(choices: defaultOptions)
+                MediaPickerChoicesView(choices: defaultOptions,
+                                       importedMedia: importedMedia)
             }
             //                    .id(viewModel.pickerId)
         }, label: {

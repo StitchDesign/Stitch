@@ -84,7 +84,7 @@ extension MediaEvalOpObservable {
         }
         
         // Input ID's changed and not currently loading same ID
-        let needsNewComputedCopy = inputMedia.id != self.currentMedia?.portValue.asyncMedia?.id &&
+        let needsNewComputedCopy = inputMedia.id != self.currentMedia?.id &&
         self.currentLoadingMediaId != inputMedia.id
         
         guard needsNewComputedCopy else {
@@ -163,8 +163,8 @@ extension MediaEvalOpObservable {
             }
             
             // Update row values with new struct containing media object
-            let portValue = newMediaValue?.portValue ?? .asyncMedia(nil)
-            mediaPortRow.allLoopedValues[loopIndex] = portValue
+            let asyncMedia: AsyncMediaValue? = newMediaValue?.mediaValue
+            mediaPortRow.allLoopedValues[loopIndex] = .asyncMedia(asyncMedia)
             mediaPortRow
                 .updateValues(mediaPortRow.allLoopedValues)
         }

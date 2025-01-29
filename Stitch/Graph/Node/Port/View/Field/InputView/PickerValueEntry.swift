@@ -9,10 +9,11 @@ import StitchSchemaKit
 
 struct MediaPickerChoicesView: View {
     let choices: [FieldValueMedia]
+    let importedMedia: StitchMediaObject?
 
     var body: some View {
         ForEach(choices) { choice in
-            StitchTextView(string: choice.getName())
+            StitchTextView(string: choice.getName(importedMedia: importedMedia))
                 .tag(choice)    // Appears to fix rendering issue
         }
     }
@@ -22,10 +23,10 @@ struct MediaPickerButtons: View {
     
     @Environment(\.appTheme) var theme
     
-    //    @Binding var selectedValue: FieldValueMedia
     let inputCoordinate: InputCoordinate
     let mediaType: SupportedMediaFormat
     let choices: [FieldValueMedia]
+    let importedMedia: StitchMediaObject?
     let isFieldInsideLayerInspector: Bool
     let graph: GraphState
     let isSelectedInspectorRow: Bool
@@ -41,7 +42,7 @@ struct MediaPickerButtons: View {
             } label: {
                 // We add a value for truncating text here to ensure that the title view in the picker does not stretch too long when importing a file with a long tiel
                 //                StitchTextView(string: choice.getName(mediaDict: mediaManager.mediaDict), truncateAt: 30)
-                StitchTextView(string: choice.getName(),
+                StitchTextView(string: choice.getName(importedMedia: importedMedia),
                                fontColor: isSelectedInspectorRow ? theme.fontColor : STITCH_TITLE_FONT_COLOR)
             }
         }

@@ -12,7 +12,6 @@ import StitchSchemaKit
 extension PortValue {
     /// Coercion logic from port value to fields. Contains a 2D list of field values given a 1-many mapping between a field group type and its field values.
     func createFieldValuesList(nodeIO: NodeIO,
-                               importedMediaObject: StitchMediaObject?,
                                layerInputPort: LayerInputPort?,
                                isLayerInspector: Bool) -> [FieldValues] {
         switch self.getNodeRowType(nodeIO: nodeIO,
@@ -241,20 +240,15 @@ extension PortValue {
             return [[.bool(bool)]]
 
         case .asyncMedia:
-            guard let asyncMedia = self.asyncMedia,
-                  let importedMedia = importedMediaObject else {
+            guard let asyncMedia = self.asyncMedia else {
                 return [[.media(.none)]]
             }
                 
-            if let media = GraphMediaValue(from: asyncMedia,
-                                           mediaObject: importedMedia) {
-                return [[.media(.media(media))]]
-            } else if let selectedDefaultOption = DefaultMediaOption.findDefaultOption(from: asyncMedia) {
+            if let selectedDefaultOption = DefaultMediaOption.findDefaultOption(from: asyncMedia) {
                 return [[.media(.defaultMedia(selectedDefaultOption))]]
             }
             
-            fatalErrorIfDebug()
-            return [[.media(.none)]]
+            return [[.media(.media(asyncMedia))]]
 
         case .number:
             // if self is PortValue.comparable, then .getNumber will fail;

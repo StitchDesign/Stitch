@@ -182,10 +182,9 @@ extension NodeRowObserver {
     
     @MainActor
     func getMediaObjects() -> [StitchMediaObject] {
-        // TODO: get media objects needs to look at connected nodes and self for media ephemeral objects
-        fatalError()
-//        self.allLoopedValues
-//            .compactMap { $0.asyncMedia?.mediaObject }
+        self.nodeDelegate?.ephemeralObservers?.compactMap {
+            ($0 as? MediaEvalOpObservable)?.currentMedia?.mediaObject
+        } ?? []
     }
     
     @MainActor

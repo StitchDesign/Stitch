@@ -49,7 +49,6 @@ struct PortValuesPreviewView<NodeRowObserverType: NodeRowObserver>: View {
             guard let fieldValues = value.createFieldValuesList(
                 nodeIO: nodeIO,
                 // Don't display media object?
-                importedMediaObject: nil,
                 layerInputPort: rowObserver.id.keyPath?.layerInput,
                 // doesn't matter here
                 isLayerInspector: false).first else {

@@ -454,14 +454,11 @@ extension NodeRowViewModel {
         }
         
         let nodeIO = Self.RowObserver.nodeIOType
-        let loopIndex = self.graphDelegate?.activeIndex.adjustedIndex(rowDelegate.allLoopedValues.count) ?? .zero
+
         let newRowType = newValue.getNodeRowType(nodeIO: nodeIO,
                                                  layerInputPort: self.id.layerInputPort,
                                                  isLayerInspector: self.isLayerInspector)
         let nodeRowTypeChanged = oldRowType != newRowType
-//        let importedMediaObject = rowDelegate.importedMediaObject
-        let importedMediaObject = rowDelegate.nodeDelegate?.getInputMedia(coordinate: rowDelegate.id,
-                                                                          loopIndex: loopIndex)
         
         // Create new field value observers if the row type changed
         // This can happen on various input changes
@@ -471,13 +468,11 @@ extension NodeRowViewModel {
                 nodeIO: nodeIO,
                 // Node Row Type change is only when a patch node changes its node type; can't happen for layer nodes
                 unpackedPortParentFieldGroupType: nil,
-                unpackedPortIndex: nil,
-                importedMediaObject: importedMediaObject)
+                unpackedPortIndex: nil)
             return
         }
         
         let newFieldsByGroup = newValue.createFieldValuesList(nodeIO: nodeIO,
-                                                              importedMediaObject: importedMediaObject,
                                                               layerInputPort: self.id.layerInputPort,
                                                               isLayerInspector: self.isLayerInspector)
         
@@ -495,7 +490,8 @@ extension NodeRowViewModel {
             let fieldObserversCount = fieldObserverGroup.fieldObservers.count
             
             // Force update if any media--inefficient but works
-            let willUpdateField = newFields.count != fieldObserversCount || importedMediaObject.isDefined
+//            let isMediaField = fieldObserverGroup.type == .asyncMedia
+            let willUpdateField = newFields.count != fieldObserversCount // || isMediaField
             
             if willUpdateField {
                 self.fieldValueTypes = self.createFieldValueTypes(
@@ -504,8 +500,7 @@ extension NodeRowViewModel {
                     // Note: this is only for a patch node whose node-type has changed (?); does not happen with layer nodes, a layer input being packed or unpacked is irrelevant here etc.
                     // Not relevant?
                     unpackedPortParentFieldGroupType: nil,
-                    unpackedPortIndex:  nil,
-                    importedMediaObject: importedMediaObject)
+                    unpackedPortIndex:  nil)
                 return
             }
             
