@@ -88,6 +88,11 @@ struct InsertNodeMenuView: View {
         .foregroundColor(INSERT_NODE_MENU_SEARCH_TEXT)
         // Important: animates the entire view's appearance at same time; otherwise e.g. the frosted background fades in separately
         .compositingGroup()
+        // Add onDisappear to cancel any in-progress request
+        .onDisappear {
+            OpenAIRequestManager.cancelCurrentRequest()
+            store.currentDocument?.graphUI.insertNodeMenuState.isGeneratingAINode = false
+        }
     }
 
     @MainActor
