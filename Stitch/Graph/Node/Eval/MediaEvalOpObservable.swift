@@ -121,7 +121,9 @@ extension MediaEvalOpObservable {
          
         // Cases below are when media has fundamentally changed
         self.currentLoadingMediaId = inputMedia.id
-        self.currentMedia = nil
+        
+        // TODO: check if removing nil in getuniquemedia is ok
+//        self.currentMedia = nil
         
         // Create new media for input if media key and no media set yet
         if let graphDelegate = nodeDelegate?.graphDelegate,
