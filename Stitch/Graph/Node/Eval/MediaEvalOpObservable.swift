@@ -146,7 +146,9 @@ extension MediaEvalOpObservable {
         }
         
         // No media key scenario
-        if let mediaObject = self.nodeDelegate?.getComputedMedia(loopIndex: loopIndex) {
+        // MARK: always assumes first input row
+        if let mediaObject = self.nodeDelegate?.getInputMedia(portIndex: 0,
+                                                              loopIndex: loopIndex) {
             // Create computed copy from another computed media object
             Task(priority: .high) { [weak self] in
                 guard let copy = try await mediaObject.createComputedCopy() else {
