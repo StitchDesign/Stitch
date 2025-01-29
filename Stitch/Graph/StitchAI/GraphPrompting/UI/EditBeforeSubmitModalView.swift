@@ -219,12 +219,20 @@ struct LLMActionCorrectionView: View {
     @ViewBuilder
     var setInputView: some View {
         
-         if let value = action.parseValueForSetInput() {
-             StitchTextView(string: "Value: \(value.display)")
-         }
+        if let nodeType = action.parseNodeType() {
+            if let value = action.parseValueForSetInput(
+                nodeType: nodeType,
+//                with: nodeIdToNameMapping) {
+                //
+                with: .init()) {
+                
+                StitchTextView(string: "Value: \(value.display)")
+            }
+            StitchTextView(string: "NodeType: \(nodeType.display)")
+        }
+        
          
-         if let nodeType = action.parseNodeType() {
-             StitchTextView(string: "NodeType: \(nodeType.display)")
-         }
+         
+       
     }
 }

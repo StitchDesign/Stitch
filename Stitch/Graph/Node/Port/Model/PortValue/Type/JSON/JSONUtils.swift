@@ -583,12 +583,6 @@ extension JSON {
     }
 }
 
-enum StitchAIValue: Equatable {
-    case number(Double)
-    case string(String)
-    case dictionary
-}
-
 //enum JSONFriendlyFormat: Encodable, Equatable {
 
 // Represents a PortValue in a way that displays "naturally" in a JSON.
@@ -599,7 +593,7 @@ enum JSONFriendlyFormat: Encodable, Decodable, Equatable, Hashable {
          dictionary([String: Double]),
          
          // TODO: a LayerSize field may be .auto, .parentPercent(50%) etc.; so
-          layerSizeDictionary([String: String]),
+         layerSizeDictionary([String: String]),
          
          json(JSON) // already a json
 
@@ -700,6 +694,11 @@ extension JSONFriendlyFormat {
     func asPortValueForLLMSetField(_ nodeType: NodeType,
                                    // for turning a string into a LayerNodeId
                                    with mapping: LLMNodeIdMapping) -> PortValue? {
+        
+        log("asPortValueForLLMSetField: self: \(self)")
+        log("asPortValueForLLMSetField: nodeType: \(nodeType)")
+        log("asPortValueForLLMSetField: mapping: \(mapping)")
+        
         switch self {
             
         case .number(let x):
@@ -776,12 +775,23 @@ extension JSONFriendlyFormat {
             // can actually just return a string,
             // and the logic of `handleInputEdited` handles the rest
             switch nodeType {
+                
             case .interactionId:
-                if let layerNodeId = mapping.get(x) {
+                // TODO: JAN 29: can we just return the string directly? Since the LLM now uses proper LLM
+                log("asPortValueForLLMSetField: JFF string, with interaction id node type: x: \(x)")
+                if let id = UUID(uuidString: x) {
+                    log("asPortValueForLLMSetField: JFF string, with interaction id node type: returning id directly")
+                    return .assignedLayer(.init(id))
+                }
+                    
+                else if let layerNodeId = mapping.get(x) {
                     return .assignedLayer(.init(layerNodeId))
                 }
                 return .assignedLayer(nil)
+            
+            
             default:
+                log("asPortValueForLLMSetField: JFF string: x: \(x)")
                 return .string(.init(x))
             }
         }
