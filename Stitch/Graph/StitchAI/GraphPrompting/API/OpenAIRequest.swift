@@ -69,6 +69,9 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
     
     /// Execute the API request with retry logic
     @MainActor func makeRequest(attempt: Int = 1, state: StitchDocumentViewModel) {
+        // Cancel any existing request before starting a new one
+        OpenAIRequestManager.cancelCurrentRequest()
+        
         // Validate API credentials
         guard !apiKey.isEmpty, !model.isEmpty else {
             state.showErrorModal(
@@ -141,11 +144,17 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
             return
         }
                 
-        // Execute network request
-        URLSession.shared.dataTask(with: request) { data, response, error in
+        // Create data task and store it
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
                 // Handle network errors
                 if let error = error as NSError? {
+                    // Don't show error for cancelled requests
+                    if error.code == NSURLErrorCancelled {
+                        state.graphUI.insertNodeMenuState.isGeneratingAINode = false
+                        return
+                    }
+                    
                     // Handle timeout errors
                     if error.code == NSURLErrorTimedOut {
                         Self.timeoutErrorCount += 1
@@ -219,7 +228,10 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
                     error: error
                 ))
             }
-        }.resume()
+        }
+        
+        OpenAIRequestManager.currentTask = task
+        task.resume()
     }
     
     /// Entry point for handling the request event
@@ -237,7 +249,7 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
     let maxParsingAttempts = 3
     let parsingRetryDelay: TimeInterval = 1
     
-    /// Retry parsing JSON response with del    y using dispatch queue
+    /// Retry parsing JSON response with delay using dispatch queue
     @MainActor private func retryParsing(data: Data, attempt: Int, state: StitchDocumentViewModel) {
         log("Retrying JSON parsing, attempt \(attempt) of \(maxParsingAttempts)", .logToServer)
         
@@ -384,5 +396,14 @@ extension Stitch.Step: CustomStringConvertible {
             nodeType: \(nodeType ?? "nil")
         )
         """
+    }
+}
+
+@MainActor class OpenAIRequestManager {
+    static var currentTask: URLSessionDataTask?
+    
+    static func cancelCurrentRequest() {
+        currentTask?.cancel()
+        currentTask = nil
     }
 }
