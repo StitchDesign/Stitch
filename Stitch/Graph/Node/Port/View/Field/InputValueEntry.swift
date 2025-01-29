@@ -428,18 +428,22 @@ struct InputValueView: View {
                     .getInputMediaObserver(inputCoordinate: rowObserverId,
                                            loopIndex: loopIndex)
                 
-                MediaFieldValueView(inputCoordinate: rowObserverId,
-                                    layerInputObserver: layerInputObserver,
-                                    isUpstreamValue: isUpstreamValue,
-                                    media: media,
-                                    mediaObserver: mediaObserver,
-                                    nodeKind: nodeKind,
-                                    isInput: true,
-                                    fieldIndex: fieldIndex,
-                                    isNodeSelected: isCanvasItemSelected,
-                                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                                    isSelectedInspectorRow: isSelectedInspectorRow,
-                                    graph: graph)
+                if let mediaObserverType = self.nodeKind.graphNode?.ephemeralObserverType,
+                   let mediaObserver = mediaObserver as? MediaEvalOpObserver {
+                    MediaFieldValueView(
+                        inputCoordinate: rowObserverId,
+                        layerInputObserver: layerInputObserver,
+                        isUpstreamValue: isUpstreamValue,
+                        media: media,
+                        mediaObserver: mediaObserver,
+                        nodeKind: nodeKind,
+                        isInput: true,
+                        fieldIndex: fieldIndex,
+                        isNodeSelected: isCanvasItemSelected,
+                        isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                        isSelectedInspectorRow: isSelectedInspectorRow,
+                        graph: graph)
+                }
                 
             case .color(let color):
                 ColorOrbValueButtonView(fieldViewModel: viewModel,

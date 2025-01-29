@@ -29,19 +29,18 @@ extension GraphState {
 }
 
 /// Picker view for all imported media nodes (Core ML, image, audio, video etc.).
-struct MediaFieldValueView: View {
+struct MediaFieldValueView<T: MediaEvalOpObservable>: View {
     let inputCoordinate: InputCoordinate
     let layerInputObserver: LayerInputObserver?
     let isUpstreamValue: Bool
     let media: FieldValueMedia
-    let mediaObserver: (any MediaViewable)?
+    @Bindable var mediaObserver: T
     let nodeKind: NodeKind
     let isInput: Bool
     let fieldIndex: Int
     let isNodeSelected: Bool
     let isFieldInsideLayerInspector: Bool
     let isSelectedInspectorRow: Bool
-
     
     @Bindable var graph: GraphState
 
@@ -111,17 +110,13 @@ struct MediaFieldValueView: View {
                                       isSelectedInspectorRow: isSelectedInspectorRow)
             }
             
-            // TODO: need to handle casting better
-            if let mediaObserver = mediaObserver as? MediaEvalOpObserver {
-                @Bindable var mediaObserver = mediaObserver
-                if let mediaObject = mediaObserver.currentMedia?.mediaObject {
-                    MediaFieldLabelView(mediaObject: mediaObject,
-                                        inputCoordinate: inputCoordinate,
-                                        isInput: isInput,
-                                        fieldIndex: fieldIndex,
-                                        isNodeSelected: isNodeSelected,
-                                        isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues)
-                }
+            if let mediaObject = mediaObserver.currentMedia?.mediaObject {
+                MediaFieldLabelView(mediaObject: mediaObject,
+                                    inputCoordinate: inputCoordinate,
+                                    isInput: isInput,
+                                    fieldIndex: fieldIndex,
+                                    isNodeSelected: isNodeSelected,
+                                    isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues)
             } else {
                 if usesVisualMediaPlaceholder {
                     NilImageView()

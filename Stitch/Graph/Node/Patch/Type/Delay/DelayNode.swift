@@ -62,7 +62,7 @@ final class NodeTimerEphemeralObserver: NodeEphemeralObservable {
     // Maps a loop index to a PortValue
     var prevDelayInputValue: PortValue?
     
-    @MainActor init () { }
+    init () { }
 }
 
 extension NodeTimerEphemeralObserver {

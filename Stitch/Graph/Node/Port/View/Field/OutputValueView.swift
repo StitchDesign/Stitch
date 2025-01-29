@@ -228,21 +228,21 @@ struct OutputValueView: View {
                 // No keypaths ever used for output
                 let portIndex = coordinate.portId!
                 
-                let mediaObserver = viewModel.rowViewModelDelegate?.nodeDelegate?
-                    .getVisibleMediaObserver(outputPortId: portIndex)
-                
-                MediaFieldValueView(inputCoordinate: coordinate,
-                                    layerInputObserver: nil,
-                                    isUpstreamValue: false,     // only valid for inputs
-                                    media: media,
-                                    mediaObserver: mediaObserver,
-                                    nodeKind: nodeKind,
-                                    isInput: false,
-                                    fieldIndex: fieldIndex,
-                                    isNodeSelected: isCanvasItemSelected,
-                                    isFieldInsideLayerInspector: false,
-                                    isSelectedInspectorRow: isSelectedInspectorRow,
-                                    graph: graph)
+                if let mediaObserver = viewModel.rowViewModelDelegate?.nodeDelegate?
+                    .getVisibleMediaObserver(outputPortId: portIndex) as? MediaEvalOpObserver {
+                    MediaFieldValueView(inputCoordinate: coordinate,
+                                        layerInputObserver: nil,
+                                        isUpstreamValue: false,     // only valid for inputs
+                                        media: media,
+                                        mediaObserver: mediaObserver,
+                                        nodeKind: nodeKind,
+                                        isInput: false,
+                                        fieldIndex: fieldIndex,
+                                        isNodeSelected: isCanvasItemSelected,
+                                        isFieldInsideLayerInspector: false,
+                                        isSelectedInspectorRow: isSelectedInspectorRow,
+                                        graph: graph)
+                }
                 
             case .color(let color):
                 StitchColorPickerOrb(chosenColor: color,

@@ -21,6 +21,8 @@ protocol NodeEphemeralObservable: AnyObject {
                          kind: NodeKind)
     
     @MainActor func onPrototypeRestart()
+    
+    init()
 }
 
 extension NodeEphemeralObservable {
