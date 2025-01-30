@@ -131,6 +131,12 @@ extension MediaEvalOpObservable {
         guard !willLoadNewMedia else {
             mediaObserver.currentLoadingMediaId = inputMediaValue?.id
             
+            guard let inputMediaValue = inputMediaValue else {
+                // Set to nil case
+                mediaObserver.currentMedia = nil
+                return MediaEvalOpResult(from: defaultOutputs)
+            }
+            
             // Create new unique copy
             return mediaObserver.asyncMediaEvalOp(loopIndex: loopIndex,
                                                   values: values,

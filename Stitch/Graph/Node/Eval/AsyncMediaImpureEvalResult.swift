@@ -130,8 +130,7 @@ extension Array where Element == MediaEvalOpResult {
             if let newMedia = newMedia {
                 mediaObserver.currentMedia = newMedia
             } else {
-                // TODO: explore nil setting for grayscale
-//                mediaObserver.currentMedia = nil
+                mediaObserver.currentMedia = nil
             }
         }
         
