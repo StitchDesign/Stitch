@@ -120,8 +120,9 @@ extension MediaEvalOpObservable {
         
         let mediaObserver = self
         let inputMediaValue = values.first?.asyncMedia
-        let currentMedia = node.getInputMediaValue(portIndex: inputPortIndex,
-                                                   loopIndex: loopIndex)
+        
+        // This kind of media is saved in ephemeral observers
+        let currentMedia = node.getComputedMediaValue(loopIndex: loopIndex)
                 
         let didMediaChange = inputMediaValue?.id != currentMedia?.id
         let isLoadingNewMedia = mediaObserver.currentLoadingMediaId != nil
@@ -135,17 +136,12 @@ extension MediaEvalOpObservable {
                                                   values: values,
                                                   node: node) { [weak mediaObserver] () -> MediaEvalOpResult in
                 guard let media = await mediaObserver?.getUniqueMedia(inputMediaValue: inputMediaValue,
-                                                                      inputPortIndex: 0,
+                                                                      inputPortIndex: inputPortIndex,
                                                                       loopIndex: loopIndex) else {
                     return MediaEvalOpResult(from: defaultOutputs)
                 }
                 
                 let outputs = await evalOp(media)
-                
-                // Disable loading state
-                await MainActor.run {
-                    mediaObserver?.currentLoadingMediaId = nil
-                }
                 
                 return .init(values: outputs,
                              media: media)
@@ -274,6 +270,7 @@ extension MediaEvalOpObservable {
         }
 
         let outputs = values.prevOutputs(node: nodeDelegate)
+        let currentMedia = self.currentMedia
         
         Task(priority: .high) { [weak self, weak nodeDelegate] in
             guard let nodeDelegate = nodeDelegate else {
@@ -284,7 +281,8 @@ extension MediaEvalOpObservable {
                                                     callback: callback)
         }
         
-        return .init(from: outputs)
+        return .init(values: outputs,
+                     media: currentMedia)
     }
 
     /// Async callback to prevent data races for media object changes.

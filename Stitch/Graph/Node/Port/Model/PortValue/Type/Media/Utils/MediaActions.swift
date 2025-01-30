@@ -261,6 +261,10 @@ extension GraphState {
         
         mediaObserver.currentMedia = result.media
         
+        // Disable loading state
+        // Important to not dispatch main actor task as this creates race conditions
+        mediaObserver.currentLoadingMediaId = nil
+        
         self.recalculateGraph(outputValues: .byIndex(result.values),
                               nodeId: nodeId,
                               loopIndex: loopIndex)
