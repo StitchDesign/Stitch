@@ -92,17 +92,16 @@ extension DocumentEncodable {
     }
     
     /// Called when media is imported from a patch node's file picker.
+    @MainActor
     func importFileToExistingNode(fileURL: URL, nodeImportPayload: NodeMediaImportPayload) async {
-        let copyResult = self.copyToMediaDirectory(originalURL: fileURL,
-                                                   forRecentlyDeleted: false)
-        await MainActor.run {
-            switch copyResult {
-            case .success(let newURL):
-                dispatch(MediaCopiedToExistingNode(url: newURL,
-                                                   nodeMediaImportPayload: nodeImportPayload))
-            case .failure(let error):
-                dispatch(DisplayError(error: error))
-            }
+        let copyResult = await self.copyToMediaDirectory(originalURL: fileURL,
+                                                         forRecentlyDeleted: false)
+        switch copyResult {
+        case .success(let newURL):
+            dispatch(MediaCopiedToExistingNode(url: newURL,
+                                               nodeMediaImportPayload: nodeImportPayload))
+        case .failure(let error):
+            dispatch(DisplayError(error: error))
         }
     }
     
