@@ -156,7 +156,7 @@ func soundImportEval(node: PatchNode) -> EvalResult {
                                                                       defaultOutputs: defaultOutputs,
                                                                       graphTime: graphTime)
                 return .init(values: outputs,
-                             media: media.mediaObject)
+                             media: media)
             }
         }
         
@@ -169,7 +169,7 @@ func soundImportEval(node: PatchNode) -> EvalResult {
                                                         defaultOutputs: defaultOutputs,
                                                         graphTime: graphTime)
         return MediaEvalOpResult(values: outputs,
-                                 media: currentMedia.mediaObject)
+                                 media: currentMedia)
     }
     
     var finalResult = results.createPureEvalResult(node: node)

@@ -105,7 +105,7 @@ extension VideoImportNode {
             .number(previousPeakVolume),
             .number(playTime),
             .number(duration)
-        ], media: .video(videoPlayer)
+        ], media: media
         )
     }
 }

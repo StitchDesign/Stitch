@@ -18,7 +18,7 @@ final class MediaViewModel: Sendable {
 
 struct MediaEvalOpResult {
     let values: PortValues
-    var media: StitchMediaObject?
+    var media: GraphMediaValue?
 }
 
 extension MediaEvalOpResult: NodeEvalOpResult {

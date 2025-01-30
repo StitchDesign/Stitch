@@ -60,7 +60,7 @@ extension CoreMLClassifyNode {
             .string(.init(result.identifier)),
             .number(Double(result.confidence))
         ],
-                     media: media.mediaObject)
+                     media: media)
     }
 }
 

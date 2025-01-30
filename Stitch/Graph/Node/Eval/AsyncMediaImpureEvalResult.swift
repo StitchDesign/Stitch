@@ -128,9 +128,10 @@ extension Array where Element == MediaEvalOpResult {
             }
             
             if let newMedia = newMedia {
-                mediaObserver.currentMedia = .init(computedMedia: newMedia)
+                mediaObserver.currentMedia = newMedia
             } else {
-                mediaObserver.currentMedia = nil
+                // TODO: explore nil setting for grayscale
+//                mediaObserver.currentMedia = nil
             }
         }
         

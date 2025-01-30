@@ -277,13 +277,7 @@ extension GraphState {
             return
         }
         
-        if let media = result.media {
-            mediaObserver.currentMedia = .init(id: .init(),
-                                               dataType: .computed,
-                                               mediaObject: media)
-        } else {
-            mediaObserver.currentMedia = nil
-        }
+        mediaObserver.currentMedia = result.media
         
         self.recalculateGraph(outputValues: .byIndex(result.values),
                               nodeId: nodeId,
