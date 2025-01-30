@@ -48,52 +48,48 @@ extension CoreMLClassifyNode {
     static func coreMLEvalOp(media: GraphMediaValue,
                              mediaObserver: ImageClassifierOpObserver,
                              image: UIImage,
-                             defaultOutputs: PortValues) async -> MediaEvalOpResult {
+                             defaultOutputs: PortValues) async -> PortValues {
         guard let model = media.mediaObject.coreMLImageModel,
               let result = await mediaObserver.coreMlActor
             .visionClassificationRequest(for: model,
                                          with: image) else {
-            return .init(from: defaultOutputs)
+            return defaultOutputs
         }
         
-        return .init(values: [
+        return [
             .string(.init(result.identifier)),
             .number(Double(result.confidence))
-        ],
-                     media: media)
+        ]
     }
 }
 
 @MainActor
 func coreMLClassifyEval(node: PatchNode) -> EvalResult {
-    node.loopedEval(ImageClassifierOpObserver.self) { values, mediaObserver, loopIndex in
-        let currentMedia = node.getComputedMediaValue(loopIndex: loopIndex)
-        let didMediaChange = currentMedia?.id != values.first?.asyncMedia?.id
-        let defaultOutputs = node.defaultOutputs
-        
-        guard let image = node.getInputMedia(portIndex: 1,
-                                             loopIndex: loopIndex)?.image else {
-            return .init(from: defaultOutputs)
-        }
-
-        return mediaObserver.asyncMediaEvalOp(loopIndex: loopIndex,
-                                              values: values,
-                                              node: node) { [weak mediaObserver, weak image] () -> MediaEvalOpResult in
-            // Create unique copy if media changed
-            let media = didMediaChange ? await mediaObserver?.getUniqueMedia(inputMediaValue: values.first?.asyncMedia,
-                                                                             inputPortIndex: 0,
-                                                                             loopIndex: loopIndex)
-                                       : currentMedia
-            guard let media = media,
-                  let image = image,
-                  let mediaObserver = mediaObserver else {
-                return .init(from: defaultOutputs)
+    let defaultOutputs = node.defaultOutputs
+    
+    return node.loopedEval(ImageClassifierOpObserver.self) { values, mediaObserver, loopIndex in
+        mediaObserver.mediaEvalOpCoordinator(inputPortIndex: 0,
+                                             values: values,
+                                             loopIndex: loopIndex,
+                                             defaultOutputs: defaultOutputs) { media in
+            guard let image = node.getInputMedia(portIndex: 1,
+                                                 loopIndex: loopIndex)?.image else {
+                return defaultOutputs
             }
             
-            return await CoreMLClassifyNode.coreMLEvalOp(media: media,
-                                                         mediaObserver: mediaObserver,
-                                                         image: image,
-                                                         defaultOutputs: defaultOutputs)
+            return mediaObserver.asyncMediaEvalOp(loopIndex: loopIndex,
+                                                  values: values,
+                                                  node: node) { [weak mediaObserver, weak image] in
+                guard let image = image,
+                      let mediaObserver = mediaObserver else {
+                    return defaultOutputs
+                }
+                
+                return await CoreMLClassifyNode.coreMLEvalOp(media: media,
+                                                             mediaObserver: mediaObserver,
+                                                             image: image,
+                                                             defaultOutputs: defaultOutputs)
+            }
         }
     }
 }

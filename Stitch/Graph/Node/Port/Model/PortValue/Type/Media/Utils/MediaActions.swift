@@ -209,9 +209,10 @@ extension GraphState {
             let newMedia = AsyncMediaValue(mediaKey: mediaKey)
             let portValue = PortValue.asyncMedia(newMedia)
 
-            self.mediaInputEditCommitted(input: destinationInput,
-                                         value: portValue)
-            
+            self.inputEditCommitted(input: destinationInput,
+                                    value: portValue)
+
+            self.encodeProjectInBackground()       
         } // for destinationInput in ...        
     }
 }
