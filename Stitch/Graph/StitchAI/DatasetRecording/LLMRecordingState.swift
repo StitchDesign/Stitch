@@ -164,12 +164,14 @@ struct LLMPromptState: Equatable {
     var actionsAsDisplayString: String = ""
 }
 
+// TODO: remove?
 struct LLMJsonEntryState: Equatable {
     var showModal = false
     
     var jsonEntry: String = ""
     
     // Mapping of LLM node ids (e.g. "123456") to the id created
+    // TODO: no longer needed, since LLM now provides real UUIDs which we use with the node? 
     var llmNodeIdMapping = LLMNodeIdMapping()
 }
 
