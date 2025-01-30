@@ -7,6 +7,7 @@
 
 import XCTest
 @testable import Stitch
+import SwiftyJSON
 
 final class loopTests: XCTestCase {
 
@@ -31,4 +32,27 @@ final class loopTests: XCTestCase {
                        [1])
 
     }
-}
+    
+    @MainActor
+    func testJSONArray() throws {
+        /*
+         Old bug: JSONArray was adding its output to the list of inputs to turn into an array.
+         Not caught by existing JSONArrayFromValues test because the bug came from `nodeViewModel.loopedEval` helper.
+         */
+        if let node = StitchDocumentViewModel.createEmpty().nodeCreated(choice: .patch(.jsonArray)) {
+            
+            // How many inputs does the JSONArray node have?
+            let inputCount = node.inputs.count
+            let result: EvalResult = jsonArrayEval(node: node)
+            
+            // Result should be a JSON, with as many elements as there are are inputs
+            if let arrayCount = result.outputsValues.first?.first?.getJSON?.array?.count {
+                XCTAssertEqual(inputCount, arrayCount)
+            } else {
+                XCTFail("testJSONArray: No json array")
+            }
+        } else {
+            XCTFail("testJSONArray: Could not create node")
+        }
+    }
+} // loopTests

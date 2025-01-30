@@ -30,11 +30,9 @@ struct JSONArrayNode: PatchNodeDefinition {
 
 @MainActor
 func jsonArrayEval(node: NodeViewModel) -> EvalResult {
-    node.loopedEval { values, index in
+    node.loopedEval(shouldAddOutputs: false) { values, index in
         let j = JSON.jsonArrayFromValues(values)
-        //        #if DEV_DEBUG
-        //        log("jsonArrayEval: j: \(j)")
-        //        #endif
+        // log("jsonArrayEval: j: \(j)")
         return [.json(.init(j))]
     }
     .createPureEvalResult()
