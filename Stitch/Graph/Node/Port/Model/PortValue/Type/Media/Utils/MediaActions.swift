@@ -194,8 +194,7 @@ extension GraphState {
             self.mediaLibrary.updateValue(newURL, forKey: newURL.mediaKey)
 
             // Can now be patch- OR layer-node
-            guard let existingNode = self.getNodeViewModel(nodeId),
-                  let mediaObserver = existingNode.ephemeralObservers?.first as? MediaEvalOpObserver else {
+            guard let existingNode = self.getNodeViewModel(nodeId) else {
                 dispatch(DisplayError(error: .mediaCopiedFailed))
                 return
             }
@@ -206,27 +205,9 @@ extension GraphState {
                     self.checkToDeleteMedia(mediaKey, from: existingNode.id)
                 }
             }
-            
-            // Create async task to load media
-            Task { [weak self] in
-                guard let graph = self,
-                      let newMedia = await MediaEvalOpCoordinator
-                    .createMediaValue(from: mediaKey,
-                                      isComputedCopy: false,
-                                      mediaId: .init(),
-                                      graphDelegate: graph) else {
-                    return
-                }
-                
-                graph.mediaInputEditCommitted(input: destinationInput,
-                                              value: newMedia.portValue)
-                
-                // Persist project once media has loaded
-                graph.encodeProjectInBackground()
-            }
 
-            // Nil value for now while media loads
-            let portValue = PortValue.asyncMedia(nil)
+            let newMedia = AsyncMediaValue(mediaKey: mediaKey)
+            let portValue = PortValue.asyncMedia(newMedia)
 
             self.mediaInputEditCommitted(input: destinationInput,
                                          value: portValue)

@@ -129,7 +129,8 @@ func videoImportEval(node: PatchNode) -> EvalResult {
                                                   node: node) { [weak asyncObserver] () -> MediaEvalOpResult in
                 // Create unique video player copy
                 guard let mediaCopy = await asyncObserver?
-                    .getUniqueMedia(inputPortIndex: 0,
+                    .getUniqueMedia(inputMediaValue: values.first?.asyncMedia,
+                                    inputPortIndex: 0,
                                     loopIndex: loopIndex) else {
                     return .init(from: defaultOutputs)
                 }

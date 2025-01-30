@@ -43,7 +43,8 @@ func grayscaleEval(node: PatchNode) -> EvalResult {
         return mediaObservable.asyncMediaEvalOp(loopIndex: loopIndex,
                                                 values: values,
                                                 node: node) { [weak mediaObservable] in
-            guard var mediaValue = await mediaObservable?.getUniqueMedia(inputPortIndex: 0,
+            guard var mediaValue = await mediaObservable?.getUniqueMedia(inputMediaValue: values.first?.asyncMedia,
+                                                                         inputPortIndex: 0,
                                                                          loopIndex: loopIndex),
                   let image = mediaValue.mediaObject.image else {
                 return MediaEvalOpResult(from: prevOutputs)

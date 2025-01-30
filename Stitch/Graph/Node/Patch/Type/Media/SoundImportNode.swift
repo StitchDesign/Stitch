@@ -138,15 +138,20 @@ func soundImportEval(node: PatchNode) -> EvalResult {
         
         let currentMedia = node.getInputMediaValue(portIndex: 0,
                                                    loopIndex: loopIndex)
-        
+                
         let didMediaChange = asyncMedia?.id != currentMedia?.id
+        let isLoadingNewMedia = mediaObserver.currentLoadingMediaId != nil
+        let willLoadNewMedia = didMediaChange && !isLoadingNewMedia
         
-        guard !didMediaChange else {
+        guard !willLoadNewMedia else {
+            mediaObserver.currentLoadingMediaId = asyncMedia?.id
+            
             // Create new unique copy
             return mediaObserver.asyncMediaEvalOp(loopIndex: loopIndex,
                                                   values: values,
                                                   node: node) { [weak mediaObserver] () -> MediaEvalOpResult in
-                guard let media = await mediaObserver?.getUniqueMedia(inputPortIndex: 0,
+                guard let media = await mediaObserver?.getUniqueMedia(inputMediaValue: asyncMedia,
+                                                                      inputPortIndex: 0,
                                                                       loopIndex: loopIndex) else {
                     return MediaEvalOpResult(from: defaultOutputs)
                 }
@@ -155,15 +160,21 @@ func soundImportEval(node: PatchNode) -> EvalResult {
                                                                       values: values,
                                                                       defaultOutputs: defaultOutputs,
                                                                       graphTime: graphTime)
+                
+                // Disable loading state
+                await MainActor.run {
+                    mediaObserver?.currentLoadingMediaId = nil
+                }
+                
                 return .init(values: outputs,
                              media: media)
             }
         }
         
         guard let currentMedia = currentMedia else {
-            return MediaEvalOpResult(from: defaultOutputs)
+            return .init(from: defaultOutputs)
         }
-        
+
         let outputs = SoundImportNode.soundImportEvalOp(media: currentMedia,
                                                         values: values,
                                                         defaultOutputs: defaultOutputs,

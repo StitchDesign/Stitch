@@ -80,7 +80,8 @@ func coreMLClassifyEval(node: PatchNode) -> EvalResult {
                                               values: values,
                                               node: node) { [weak mediaObserver, weak image] () -> MediaEvalOpResult in
             // Create unique copy if media changed
-            let media = didMediaChange ? await mediaObserver?.getUniqueMedia(inputPortIndex: 0,
+            let media = didMediaChange ? await mediaObserver?.getUniqueMedia(inputMediaValue: values.first?.asyncMedia,
+                                                                             inputPortIndex: 0,
                                                                              loopIndex: loopIndex)
                                        : currentMedia
             guard let media = media,

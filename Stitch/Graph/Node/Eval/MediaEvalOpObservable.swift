@@ -91,10 +91,12 @@ extension MediaEvalOpViewable {
 extension MediaEvalOpObservable {
     /// Condtionally gets or creates new media object based on input media and possible existence of current media
     /// at this loop index.
-    @MainActor func getUniqueMedia(inputPortIndex: Int,
+    @MainActor func getUniqueMedia(inputMediaValue: AsyncMediaValue?,
+                                   inputPortIndex: Int,
                                    loopIndex: Int) async -> GraphMediaValue? {
         if let node = self.nodeDelegate {
             return await Self.getUniqueMedia(node: node,
+                                             inputMediaValue: inputMediaValue,
                                              inputPortIndex: inputPortIndex,
                                              loopIndex: loopIndex)
         }
@@ -109,16 +111,20 @@ extension MediaEvalOpObservable {
     /// Condtionally gets or creates new media object based on input media and possible existence of current media
     /// at this loop index.
     @MainActor static func getUniqueMedia(node: NodeViewModel,
+                                          inputMediaValue: AsyncMediaValue?,
                                           inputPortIndex: Int,
                                           loopIndex: Int) async -> GraphMediaValue? {
         // TODO: consider removing arguments, properties etc
         
-        guard let sourceMediaObserver = node.getInputMediaObserver(portIndex: inputPortIndex,
-                                                                   loopIndex: loopIndex),
-              let inputMedia = sourceMediaObserver.currentMedia else {
+        guard let inputMediaValue = inputMediaValue,
+              let sourceMediaObserver = node.getInputMediaObserver(portIndex: inputPortIndex,
+                                                                   loopIndex: loopIndex) else {
 //            self.currentMedia = nil
             return nil
         }
+        
+        // Nil if none yet created
+//        let currentMedia = sourceMediaObserver.currentMedia
         
         // Input ID's changed and not currently loading same ID
         // TODO: remove properties?
@@ -139,12 +145,12 @@ extension MediaEvalOpObservable {
         
         // Create new media for input if media key and no media set yet
         if let graphDelegate = node.graphDelegate,
-           let mediaKey = inputMedia.dataType.mediaKey {
+           let mediaKey = inputMediaValue.dataType.mediaKey {
             // Async create media object and recalculate full node when complete
             let mediaObject = await MediaEvalOpCoordinator
                 .createMediaValue(from: mediaKey,
                                   isComputedCopy: false,    // always import scenario here
-                                  mediaId: inputMedia.id,
+                                  mediaId: inputMediaValue.id,
                                   graphDelegate: graphDelegate)
             
             return mediaObject
@@ -166,7 +172,7 @@ extension MediaEvalOpObservable {
 //                }
                 return nil
             }
-            let newMediaValue = GraphMediaValue(id: inputMedia.id,
+            let newMediaValue = GraphMediaValue(id: inputMediaValue.id,
                                                 dataType: .computed, // copies are always computed
                                                 mediaObject: copy)
             
