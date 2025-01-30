@@ -102,7 +102,7 @@ extension SoundImportNode {
             currentPlaybackTime = delegate.getCurrentPlaybackTime()
         }
         
-        var values: PortValues = [
+        let values: PortValues = [
             media.portValue,
             .number(delegate.volume),
             .number(delegate.peakVolume),
