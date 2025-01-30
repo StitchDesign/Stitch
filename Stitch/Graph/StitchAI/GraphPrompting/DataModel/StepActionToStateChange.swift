@@ -284,21 +284,6 @@ extension LLMStepAction {
         }
         
         return value.asPortValueForLLMSetField(nodeType, with: mapping)
-        
-//        guard let value: JSONFriendlyFormat = self.value else {
-//            log("value was not defined")
-//            return nil
-//        }
-//                
-//        switch value {
-//        case .number(let num):
-//            return .number(num)
-//        case .string(let str):
-//            return .string(.init(str))
-//        default:
-//            log("unsupported value type for setInput: \(value)")
-//            return nil
-//        }
     }
     
     // TODO: `LLMStepAction`'s `port` parameter does not yet properly distinguish between input vs output?

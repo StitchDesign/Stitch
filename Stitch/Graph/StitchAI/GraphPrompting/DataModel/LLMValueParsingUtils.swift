@@ -1,32 +1,13 @@
 //
-//  ParseREPLView.swift
+//  LLMValueParsingUtils.swift
 //  Stitch
 //
 //  Created by Christian J Clampitt on 1/29/25.
 //
 
+import Foundation
 import SwiftUI
 import SwiftyJSON
-
-struct ParseREPLView: View {
-    
-    let string: String = "{\"x\": 0.5, \"y\": 0.5}"
-    
-    var parsedValue: PortValue? {
-        if let data = string.data(using: .utf8) {
-            let decoder = JSONDecoder()
-            let value: PortValue? = try? decoder.decode(PortValue.self, from: data)
-            return value
-        }
-        
-        return nil
-    }
-    
-    var body: some View {
-        Text("\(parsedValue)")
-            .padding()
-    }
-}
 
 extension String {
     // (String, NodeType) -> PortValue
@@ -68,19 +49,18 @@ extension String {
         case .color:
             // TODO: JAN 29: assume LLM represents colors as hex?
             return nil
-//            return .color
         
         case .size:
-            return .layerSizeDictionary(x.asLayerDictionary)
+            return parseJSON(x)?.toSize.map(PortValue.size)
         
         case .position:
-            return .dictionary(x.asDictionary)
+            return parseJSON(x)?.toStitchPosition.map(PortValue.position)
         
         case .point3D:
-            return .dictionary(x.asDictionary)
+            return parseJSON(x)?.toPoint3D.map(PortValue.point3D)
         
         case .point4D:
-            return .dictionary(x.asDictionary)
+            return parseJSON(x)?.toPoint4D.map(PortValue.point4D)
             
         case .pulse:
             // TODO: JAN 29: how does LLM handle pulses?
@@ -93,14 +73,16 @@ extension String {
             return nil
         
         case .json:
-            return .json(x.value)
+            return parseJSON(x).map { PortValue.json(.init($0)) }
             
         case .none:
             // TODO: JAN 29: not really used?
             return PortValue.none
         
         case .anchoring:
-            return .dictionary(x.asDictionary)
+            return parseJSON(x)?.toStitchPosition.map {
+                .anchoring(Anchoring(x: $0.x, y: $0.y))
+            }
             
         case .cameraDirection:
             return CameraDirection(rawValue: x).map(PortValue.cameraDirection)
@@ -115,7 +97,6 @@ extension String {
             } else {
                 return .assignedLayer(nil)
             }
-            
             
         case .scrollMode:
             return ScrollMode(rawValue: x).map(PortValue.scrollMode)
@@ -209,7 +190,7 @@ extension String {
             return nil
             
         case .padding:
-            return .dictionary(x.asDictionary)
+            return parseJSON(x)?.toStitchPadding.map(PortValue.padding)
             
         case .sizingScenario:
             return SizingScenario(rawValue: x).map(PortValue.sizingScenario)
@@ -431,8 +412,4 @@ extension String {
     var asJFFString: JSONFriendlyFormat {
         .string(self)
     }
-}
-
-#Preview {
-    ParseREPLView()
 }
