@@ -62,20 +62,18 @@ struct VideoImportNode: PatchNodeDefinition {
         )
     }
 
-        static func createEphemeralObserver() -> NodeEphemeralObservable? {
+    static func createEphemeralObserver() -> NodeEphemeralObservable? {
         MediaEvalOpObserver()
     }
 }
 
-// MESSAGE-BASED IMPLEMENTATION OF VIDEO PLAYING
-// Saved for later harmonizing with scrubTime-seeking approach.
-@MainActor
-func videoImportEval(node: PatchNode) -> EvalResult {
-    node.loopedEval(MediaEvalOpObserver.self) { values, asyncObserver, loopIndex in
-        guard let media = asyncObserver.getUniqueMedia(from: values.first,
-                                                       loopIndex: loopIndex),
-                let videoPlayer = media.mediaObject.video else {
-            return node.defaultOutputs
+extension VideoImportNode {
+    @MainActor
+    static func videoImportEvalOp(media: GraphMediaValue,
+                                  values: PortValues,
+                                  defaultOutputs: PortValues) -> MediaEvalOpResult {
+        guard let videoPlayer = media.mediaObject.video else {
+            return .init(from: defaultOutputs)
         }
         
         let scrubbable: Bool = values[safe: 1]?.getBool ?? false
@@ -94,15 +92,61 @@ func videoImportEval(node: PatchNode) -> EvalResult {
                                         playing: playing && !scrubbable,
                                         isLooped: isLooped)
         
-        if videoPlayer.metadata != newMetadata {
+        let willVideoMetadataChange = videoPlayer.metadata != newMetadata
+        
+        if willVideoMetadataChange {
             // Update player in media manager
             videoPlayer.metadata = newMetadata
         }
         
-        return [media.portValue,
-                .number(previousVolume),
-                .number(previousPeakVolume),
-                .number(playTime),
-                .number(duration)]
+        return .init(values: [
+            media.portValue,
+            .number(previousVolume),
+            .number(previousPeakVolume),
+            .number(playTime),
+            .number(duration)
+        ], media: .video(videoPlayer)
+        )
     }
+}
+
+// MESSAGE-BASED IMPLEMENTATION OF VIDEO PLAYING
+// Saved for later harmonizing with scrubTime-seeking approach.
+@MainActor
+func videoImportEval(node: PatchNode) -> EvalResult {
+    let defaultOutputs = node.defaultOutputs
+    
+    return node.loopedEval(MediaEvalOpObserver.self) { values, asyncObserver, loopIndex in
+        let currentMedia = node.getInputMediaValue(portIndex: 0,
+                                                   loopIndex: loopIndex)
+        
+        let didMediaChange = currentMedia?.id != values.first?.asyncMedia?.id
+        
+        guard !didMediaChange else {
+            // Create new media value
+            return asyncObserver.asyncMediaEvalOp(loopIndex: loopIndex,
+                                                  values: values,
+                                                  node: node) { [weak asyncObserver] () -> MediaEvalOpResult in
+                // Create unique video player copy
+                guard let mediaCopy = await asyncObserver?
+                    .getUniqueMedia(inputPortIndex: 0,
+                                    loopIndex: loopIndex) else {
+                    return .init(from: defaultOutputs)
+                }
+                
+                return await VideoImportNode.videoImportEvalOp(media: mediaCopy,
+                                                               values: values,
+                                                               defaultOutputs: defaultOutputs)
+            }
+        }
+        
+        guard let currentMedia = currentMedia else {
+            return .init(from: defaultOutputs)
+        }
+        
+        return VideoImportNode.videoImportEvalOp(media: currentMedia,
+                                                 values: values,
+                                                 defaultOutputs: defaultOutputs)
+    }
+    .createPureEvalResult(node: node)
 }

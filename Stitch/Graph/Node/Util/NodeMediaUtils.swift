@@ -41,14 +41,28 @@ extension NodeViewModel {
     /// Gets the media object for some connected input.
     func getInputMedia(portIndex: Int,
                        loopIndex: Int) -> StitchMediaObject? {
+        self.getInputMediaValue(portIndex: portIndex,
+                                loopIndex: loopIndex)?.mediaObject
+    }
+    
+    @MainActor
+    /// Gets the media object for some connected input.
+    func getInputMediaValue(portIndex: Int,
+                            loopIndex: Int) -> GraphMediaValue? {
         self.getInputMediaObserver(portIndex: portIndex,
-                                   loopIndex: loopIndex)?.currentMedia?.mediaObject
+                                   loopIndex: loopIndex)?.currentMedia
+    }
+
+    @MainActor
+    /// Gets the media object for some connected input.
+    func getComputedMediaValue(loopIndex: Int) -> GraphMediaValue? {
+        self.getComputedMediaObserver(loopIndex: loopIndex)?.currentMedia
     }
     
     @MainActor
     /// Gets the media object for some connected input.
     func getComputedMedia(loopIndex: Int) -> StitchMediaObject? {
-        self.getComputedMediaObserver(loopIndex: loopIndex)?.currentMedia?.mediaObject
+        self.getComputedMediaValue(loopIndex: loopIndex)?.mediaObject
     }
     
     /// Used for fields.

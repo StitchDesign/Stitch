@@ -38,18 +38,18 @@ struct GrayscaleNode: PatchNodeDefinition {
 @MainActor
 func grayscaleEval(node: PatchNode) -> EvalResult {
     node.loopedEval(MediaEvalOpObserver.self) { values, mediaObservable, loopIndex -> MediaEvalOpResult in
-        guard let mediaValue = mediaObservable.getUniqueMedia(from: values.first,
-                                                              loopIndex: loopIndex),
-              let image = mediaValue.mediaObject.image else {
-            return MediaEvalOpResult(from: values.prevOutputs(node: node))
-        }
-
+        let prevOutputs = values.prevOutputs(node: node)
+        
         return mediaObservable.asyncMediaEvalOp(loopIndex: loopIndex,
                                                 values: values,
-                                                node: node) { [weak image] in
-            var mediaValue = mediaValue
+                                                node: node) { [weak mediaObservable] in
+            guard var mediaValue = await mediaObservable?.getUniqueMedia(inputPortIndex: 0,
+                                                                         loopIndex: loopIndex),
+                  let image = mediaValue.mediaObject.image else {
+                return MediaEvalOpResult(from: prevOutputs)
+            }
             
-            switch await image?.setGrayscale() {
+            switch await image.setGrayscale() {
             case .success(let grayscaleImage):
                 mediaValue.mediaObject = .image(grayscaleImage)
                 
@@ -59,11 +59,11 @@ func grayscaleEval(node: PatchNode) -> EvalResult {
                 Task { ReceivedStitchFileError(error: error) }
                 let values = await values.prevOutputs(node: node)
                 return MediaEvalOpResult(from: values)
-            default:
-                let values = await values.prevOutputs(node: node)
-                let currentMedia = await mediaObservable.currentMedia?.mediaObject
-                return MediaEvalOpResult(values: values,
-                                         media: currentMedia)
+//            default:
+//                let values = await values.prevOutputs(node: node)
+//                let currentMedia = await mediaObservable?.currentMedia?.mediaObject
+//                return MediaEvalOpResult(values: values,
+//                                         media: currentMedia)
             }
         }
     }

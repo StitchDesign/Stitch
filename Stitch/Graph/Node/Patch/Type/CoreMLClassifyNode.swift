@@ -44,32 +44,55 @@ struct CoreMLClassifyNode: PatchNodeDefinition {
     }
 }
 
+extension CoreMLClassifyNode {
+    static func coreMLEvalOp(media: GraphMediaValue,
+                             mediaObserver: ImageClassifierOpObserver,
+                             image: UIImage,
+                             defaultOutputs: PortValues) async -> MediaEvalOpResult {
+        guard let model = media.mediaObject.coreMLImageModel,
+              let result = await mediaObserver.coreMlActor
+            .visionClassificationRequest(for: model,
+                                         with: image) else {
+            return .init(from: defaultOutputs)
+        }
+        
+        return .init(values: [
+            .string(.init(result.identifier)),
+            .number(Double(result.confidence))
+        ],
+                     media: media.mediaObject)
+    }
+}
+
 @MainActor
 func coreMLClassifyEval(node: PatchNode) -> EvalResult {
     node.loopedEval(ImageClassifierOpObserver.self) { values, mediaObserver, loopIndex in
-        guard let modelMediaObject = mediaObserver.getUniqueMedia(from: values.first,
-                                                                  loopIndex: loopIndex)?.mediaObject,
-              let model = modelMediaObject.coreMLImageModel,
-              let image = node.getInputMedia(portIndex: 1,
-                                             loopIndex: loopIndex)?.image else {
-            return node.defaultOutputs
-        }
-        
+        let currentMedia = node.getComputedMediaValue(loopIndex: loopIndex)
+        let didMediaChange = currentMedia?.id != values.first?.asyncMedia?.id
         let defaultOutputs = node.defaultOutputs
         
+        guard let image = node.getInputMedia(portIndex: 1,
+                                             loopIndex: loopIndex)?.image else {
+            return .init(from: defaultOutputs)
+        }
+
         return mediaObserver.asyncMediaEvalOp(loopIndex: loopIndex,
                                               values: values,
-                                              node: node) { [weak model, weak image] in
-            guard let model = model,
+                                              node: node) { [weak mediaObserver, weak image] () -> MediaEvalOpResult in
+            // Create unique copy if media changed
+            let media = didMediaChange ? await mediaObserver?.getUniqueMedia(inputPortIndex: 0,
+                                                                             loopIndex: loopIndex)
+                                       : currentMedia
+            guard let media = media,
                   let image = image,
-                  let result = await mediaObserver.coreMlActor
-                .visionClassificationRequest(for: model,
-                                             with: image) else {
-                return defaultOutputs
+                  let mediaObserver = mediaObserver else {
+                return .init(from: defaultOutputs)
             }
             
-            return [.string(.init(result.identifier)),
-                    .number(Double(result.confidence))]
+            return await CoreMLClassifyNode.coreMLEvalOp(media: media,
+                                                         mediaObserver: mediaObserver,
+                                                         image: image,
+                                                         defaultOutputs: defaultOutputs)
         }
     }
 }
