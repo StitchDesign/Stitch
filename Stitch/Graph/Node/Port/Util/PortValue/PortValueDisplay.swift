@@ -84,6 +84,15 @@ extension StitchPadding {
     }
 }
 
+extension Anchoring {
+    var asDictionary: [String: Double] {
+        [
+            X: self.x,
+            Y: self.y
+        ]
+    }
+}
+
 // TODO: do you need to handle .shapeCommand here?
 // ShapeCommand is a more complicated format
 extension PortValue {
