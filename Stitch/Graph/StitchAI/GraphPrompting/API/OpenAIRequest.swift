@@ -69,9 +69,19 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
     
     /// Execute the API request with retry logic
     @MainActor func makeRequest(attempt: Int = 1, state: StitchDocumentViewModel) {
+        // Check if a request is already in progress
+        guard !OpenAIRequestManager.isRequestInProgress else {
+            log("A request is already in progress. Skipping this request.")
+            return
+        }
+
         // Cancel any existing request before starting a new one
         OpenAIRequestManager.cancelCurrentRequest()
         
+        // Set the flag to indicate a request is in progress
+        OpenAIRequestManager.isRequestInProgress = true
+        state.graphUI.insertNodeMenuState.isGeneratingAINode = true
+
         // Validate API credentials
         guard !apiKey.isEmpty, !model.isEmpty else {
             state.showErrorModal(
@@ -147,6 +157,10 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
         // Create data task and store it
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
+                // Reset the flag when the request completes
+                OpenAIRequestManager.isRequestInProgress = false
+                OpenAIRequestManager.currentTask = nil
+
                 // Handle network errors
                 if let error = error as NSError? {
                     // Don't show error for cancelled requests
@@ -401,9 +415,14 @@ extension Stitch.Step: CustomStringConvertible {
 
 @MainActor class OpenAIRequestManager {
     static var currentTask: URLSessionDataTask?
+    static var isRequestInProgress = false
     
     static func cancelCurrentRequest() {
-        currentTask?.cancel()
-        currentTask = nil
+        if currentTask != nil {
+            log("Cancelling current OpenAI request")
+            currentTask?.cancel()
+            currentTask = nil
+            isRequestInProgress = false
+        }
     }
 }
