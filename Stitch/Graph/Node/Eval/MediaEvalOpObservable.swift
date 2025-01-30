@@ -107,6 +107,59 @@ extension MediaEvalOpObservable {
     @MainActor func resetMedia() {
         self.currentMedia = nil
     }
+    
+    /// A specific media eval handler that only creates new media when a particular input's media value has changed.
+    @MainActor func mediaEvalOpCoordinator(inputPortIndex: Int,
+                                           values: PortValues,
+                                           loopIndex: Int,
+                                           defaultOutputs: PortValues,
+                                           evalOp: @escaping @MainActor (GraphMediaValue) -> PortValues) -> MediaEvalOpResult {
+        guard let node = self.nodeDelegate else {
+            return .init(from: defaultOutputs)
+        }
+        
+        let mediaObserver = self
+        let inputMediaValue = values.first?.asyncMedia
+        let currentMedia = node.getInputMediaValue(portIndex: inputPortIndex,
+                                                   loopIndex: loopIndex)
+                
+        let didMediaChange = inputMediaValue?.id != currentMedia?.id
+        let isLoadingNewMedia = mediaObserver.currentLoadingMediaId != nil
+        let willLoadNewMedia = didMediaChange && !isLoadingNewMedia
+        
+        guard !willLoadNewMedia else {
+            mediaObserver.currentLoadingMediaId = inputMediaValue?.id
+            
+            // Create new unique copy
+            return mediaObserver.asyncMediaEvalOp(loopIndex: loopIndex,
+                                                  values: values,
+                                                  node: node) { [weak mediaObserver] () -> MediaEvalOpResult in
+                guard let media = await mediaObserver?.getUniqueMedia(inputMediaValue: inputMediaValue,
+                                                                      inputPortIndex: 0,
+                                                                      loopIndex: loopIndex) else {
+                    return MediaEvalOpResult(from: defaultOutputs)
+                }
+                
+                let outputs = await evalOp(media)
+                
+                // Disable loading state
+                await MainActor.run {
+                    mediaObserver?.currentLoadingMediaId = nil
+                }
+                
+                return .init(values: outputs,
+                             media: media)
+            }
+        }
+        
+        guard let currentMedia = currentMedia else {
+            return .init(from: defaultOutputs)
+        }
+
+        let outputs = evalOp(currentMedia)
+        return MediaEvalOpResult(values: outputs,
+                                 media: currentMedia)
+    }
 
     /// Condtionally gets or creates new media object based on input media and possible existence of current media
     /// at this loop index.
@@ -116,9 +169,7 @@ extension MediaEvalOpObservable {
                                           loopIndex: Int) async -> GraphMediaValue? {
         // TODO: consider removing arguments, properties etc
         
-        guard let inputMediaValue = inputMediaValue,
-              let sourceMediaObserver = node.getInputMediaObserver(portIndex: inputPortIndex,
-                                                                   loopIndex: loopIndex) else {
+        guard let inputMediaValue = inputMediaValue else {
 //            self.currentMedia = nil
             return nil
         }

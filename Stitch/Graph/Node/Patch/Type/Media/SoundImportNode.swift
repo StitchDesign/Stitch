@@ -131,56 +131,18 @@ extension SoundImportNode {
 func soundImportEval(node: PatchNode) -> EvalResult {
     let graphTime = node.graphDelegate?.graphStepState.graphTime ?? .zero
     let defaultOutputs = node.defaultOutputs
-    
-    // MARK: sound player eval called each frame so we want to be selective about creating new sound player objects
-    let results: [MediaEvalOpResult] = node.loopedEval(MediaEvalOpObserver.self) { values, mediaObserver, loopIndex in
-        let asyncMedia = values.first?.asyncMedia
-        
-        let currentMedia = node.getInputMediaValue(portIndex: 0,
-                                                   loopIndex: loopIndex)
-                
-        let didMediaChange = asyncMedia?.id != currentMedia?.id
-        let isLoadingNewMedia = mediaObserver.currentLoadingMediaId != nil
-        let willLoadNewMedia = didMediaChange && !isLoadingNewMedia
-        
-        guard !willLoadNewMedia else {
-            mediaObserver.currentLoadingMediaId = asyncMedia?.id
-            
-            // Create new unique copy
-            return mediaObserver.asyncMediaEvalOp(loopIndex: loopIndex,
-                                                  values: values,
-                                                  node: node) { [weak mediaObserver] () -> MediaEvalOpResult in
-                guard let media = await mediaObserver?.getUniqueMedia(inputMediaValue: asyncMedia,
-                                                                      inputPortIndex: 0,
-                                                                      loopIndex: loopIndex) else {
-                    return MediaEvalOpResult(from: defaultOutputs)
-                }
-                
-                let outputs = await SoundImportNode.soundImportEvalOp(media: media,
-                                                                      values: values,
-                                                                      defaultOutputs: defaultOutputs,
-                                                                      graphTime: graphTime)
-                
-                // Disable loading state
-                await MainActor.run {
-                    mediaObserver?.currentLoadingMediaId = nil
-                }
-                
-                return .init(values: outputs,
-                             media: media)
-            }
-        }
-        
-        guard let currentMedia = currentMedia else {
-            return .init(from: defaultOutputs)
-        }
 
-        let outputs = SoundImportNode.soundImportEvalOp(media: currentMedia,
-                                                        values: values,
-                                                        defaultOutputs: defaultOutputs,
-                                                        graphTime: graphTime)
-        return MediaEvalOpResult(values: outputs,
-                                 media: currentMedia)
+    let results: [MediaEvalOpResult] = node.loopedEval(MediaEvalOpObserver.self) { values, mediaObserver, loopIndex in
+        
+        mediaObserver.mediaEvalOpCoordinator(inputPortIndex: 0,
+                                             values: values,
+                                             loopIndex: loopIndex,
+                                             defaultOutputs: defaultOutputs) { media in
+            SoundImportNode.soundImportEvalOp(media: media,
+                                              values: values,
+                                              defaultOutputs: defaultOutputs,
+                                              graphTime: graphTime)
+        }
     }
     
     var finalResult = results.createPureEvalResult(node: node)

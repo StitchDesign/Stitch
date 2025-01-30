@@ -71,9 +71,9 @@ extension VideoImportNode {
     @MainActor
     static func videoImportEvalOp(media: GraphMediaValue,
                                   values: PortValues,
-                                  defaultOutputs: PortValues) -> MediaEvalOpResult {
+                                  defaultOutputs: PortValues) -> PortValues {
         guard let videoPlayer = media.mediaObject.video else {
-            return .init(from: defaultOutputs)
+            return defaultOutputs
         }
         
         let scrubbable: Bool = values[safe: 1]?.getBool ?? false
@@ -99,14 +99,13 @@ extension VideoImportNode {
             videoPlayer.metadata = newMetadata
         }
         
-        return .init(values: [
+        return [
             media.portValue,
             .number(previousVolume),
             .number(previousPeakVolume),
             .number(playTime),
             .number(duration)
-        ], media: media
-        )
+        ]
     }
 }
 
@@ -117,37 +116,14 @@ func videoImportEval(node: PatchNode) -> EvalResult {
     let defaultOutputs = node.defaultOutputs
     
     return node.loopedEval(MediaEvalOpObserver.self) { values, asyncObserver, loopIndex in
-        let currentMedia = node.getInputMediaValue(portIndex: 0,
-                                                   loopIndex: loopIndex)
-        
-        let didMediaChange = currentMedia?.id != values.first?.asyncMedia?.id
-        
-        guard !didMediaChange else {
-            // Create new media value
-            return asyncObserver.asyncMediaEvalOp(loopIndex: loopIndex,
-                                                  values: values,
-                                                  node: node) { [weak asyncObserver] () -> MediaEvalOpResult in
-                // Create unique video player copy
-                guard let mediaCopy = await asyncObserver?
-                    .getUniqueMedia(inputMediaValue: values.first?.asyncMedia,
-                                    inputPortIndex: 0,
-                                    loopIndex: loopIndex) else {
-                    return .init(from: defaultOutputs)
-                }
-                
-                return await VideoImportNode.videoImportEvalOp(media: mediaCopy,
-                                                               values: values,
-                                                               defaultOutputs: defaultOutputs)
-            }
+        asyncObserver.mediaEvalOpCoordinator(inputPortIndex: 0,
+                                             values: values,
+                                             loopIndex: loopIndex,
+                                             defaultOutputs: defaultOutputs) { media in
+            VideoImportNode.videoImportEvalOp(media: media,
+                                              values: values,
+                                              defaultOutputs: defaultOutputs)
         }
-        
-        guard let currentMedia = currentMedia else {
-            return .init(from: defaultOutputs)
-        }
-        
-        return VideoImportNode.videoImportEvalOp(media: currentMedia,
-                                                 values: values,
-                                                 defaultOutputs: defaultOutputs)
     }
     .createPureEvalResult(node: node)
 }
