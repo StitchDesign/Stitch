@@ -138,6 +138,7 @@ extension NodeViewModel {
 
     @MainActor
     func loopedEval<EvalOpResult: NodeEvalOpResult>(minLoopCount: Int = 0,
+                                                    shouldAddOutputs: Bool = true,
                                                     evalOp: @escaping OpWithIndex<EvalOpResult>) -> [EvalOpResult] {
         let inputsValues = self.inputs
         let outputsValues = self.outputs
@@ -153,9 +154,11 @@ extension NodeViewModel {
         
         let results = remappedLengthenedInputs.enumerated().map { loopIndex, inputValues in
             var callArgs = inputValues
-
-            // Only add outputs if they exist
-            if let outputs = remappedOutputs[safe: loopIndex] {
+            
+            // Note: some evals (e.g. JSON Array) assume we are iterating over only the inputs
+            if shouldAddOutputs,
+               // Only add outputs if they exist
+                let outputs = remappedOutputs[safe: loopIndex] {
                 callArgs += outputs
             }
 
