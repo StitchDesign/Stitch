@@ -41,9 +41,12 @@ extension StitchDocumentViewModel {
             return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
         }
         
+//        let newCenter = CGPoint(
+//            x: self.newNodeCenterLocation.x + (CGFloat(canvasItemsAdded) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_WDITH_STAGGER),
+//            y: self.newNodeCenterLocation.y + (CGFloat(canvasItemsAdded) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER))
         let newCenter = CGPoint(
             x: self.newNodeCenterLocation.x + (CGFloat(canvasItemsAdded) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_WDITH_STAGGER),
-            y: self.newNodeCenterLocation.y + (CGFloat(canvasItemsAdded) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER))
+            y: self.newNodeCenterLocation.y)
         
         switch stepType {
             
@@ -111,7 +114,10 @@ extension StitchDocumentViewModel {
         case .setInput:
             
             guard let port: NodeIOPortType = action.parsePort(),
-                  let value: PortValue = action.parseValueForSetInput(),
+                  let nodeType: NodeType = action.parseNodeType(),
+                  let value: PortValue = action.parseValueForSetInput(
+                    nodeType: nodeType,
+                    with: self.llmNodeIdMapping),
                   let llmNodeId: String = action.nodeId,
                   let nodeId = self.llmNodeIdMapping.get(llmNodeId),
                   let existingNode = self.graph.getNode(nodeId) else {
@@ -131,8 +137,12 @@ extension StitchDocumentViewModel {
                 return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
             }
             
-            existingNode.removeIncomingEdge(at: inputCoordinate, activeIndex: self.activeIndex)
-            input.setValuesInInput([value])
+            log("handleLLMStepAction: setInput: value: \(value)")
+            
+            // Use the common input-edit-committed function, so that we remove edges, block or unblock fields, etc.
+            self.graph.inputEditCommitted(input: input,
+                                          value: value,
+                                          wasDropdown: false)
             
             return canvasItemsAdded
             
@@ -259,23 +269,17 @@ extension LLMStepAction {
     var parseNodeId: NodeId? {
         self.nodeId?.parseNodeId
     }
-    
+        
     @MainActor
-    func parseValueForSetInput() -> PortValue? {
+    func parseValueForSetInput(nodeType: NodeType,
+                               with mapping: LLMNodeIdMapping) -> PortValue? {
+        
         guard let value: JSONFriendlyFormat = self.value else {
-            log("value was not defined")
+            log("parseValueForSetInput: value was not defined")
             return nil
         }
         
-        switch value {
-        case .number(let num):
-            return .number(num)
-        case .string(let str):
-            return .string(.init(str))
-        default:
-            log("unsupported value type for setInput: \(value)")
-            return nil
-        }
+        return value.asPortValueForLLMSetField(nodeType, with: mapping)
     }
     
     // TODO: `LLMStepAction`'s `port` parameter does not yet properly distinguish between input vs output?

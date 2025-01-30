@@ -158,6 +158,7 @@ extension PortValue {
             }
 
             return .transform(transform)
+            
         default:
             return parseUpdate(self, fieldValue.stringValue)
         }

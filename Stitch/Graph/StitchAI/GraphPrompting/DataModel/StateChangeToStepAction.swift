@@ -110,7 +110,7 @@ extension NodeViewModel {
                       // Note: `.asLLMValue: JSONFriendlyFormat` is needed for handling more complex values like `LayerDimension`
                       // value: value.asLLMValue,
 //                      value: .init(value: value.display),
-                      value: JSONFriendlyFormat(value: value),
+                      value: value.llmFriendlyDisplay, // JSONFriendlyFormat(value: value),
                       
                       // For disambiguating between e.g. a string "2" and the number 2
                       nodeType: value.toNodeType.asLLMStepNodeType)
