@@ -349,6 +349,7 @@
 		EC0B8A832953C63A00AA01B6 /* CirclePatchNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0B8A822953C63A00AA01B6 /* CirclePatchNode.swift */; };
 		EC0CDC322C9E25B400678661 /* SidebarListItemSelectionHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0CDC312C9E25B400678661 /* SidebarListItemSelectionHelpers.swift */; };
 		EC0DE03E2973A57D0026A39C /* PreviewElementTrackpadPanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0DE03D2973A57D0026A39C /* PreviewElementTrackpadPanView.swift */; };
+		EC0E1AFE2D4B2288004AAA37 /* LLMValueParsingUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0E1AFD2D4B2288004AAA37 /* LLMValueParsingUtils.swift */; };
 		EC0E392D29F9C6100076FE4B /* JSONSampleData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0E392C29F9C6100076FE4B /* JSONSampleData.swift */; };
 		EC0E656426F3E7D1000E8997 /* ReframeEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0E656326F3E7D1000E8997 /* ReframeEvent.swift */; };
 		EC0E892626265B3200A586C2 /* LoopBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0E892526265B3200A586C2 /* LoopBuilder.swift */; };
@@ -1293,6 +1294,7 @@
 		EC0B8A822953C63A00AA01B6 /* CirclePatchNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CirclePatchNode.swift; sourceTree = "<group>"; };
 		EC0CDC312C9E25B400678661 /* SidebarListItemSelectionHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListItemSelectionHelpers.swift; sourceTree = "<group>"; };
 		EC0DE03D2973A57D0026A39C /* PreviewElementTrackpadPanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewElementTrackpadPanView.swift; sourceTree = "<group>"; };
+		EC0E1AFD2D4B2288004AAA37 /* LLMValueParsingUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMValueParsingUtils.swift; sourceTree = "<group>"; };
 		EC0E392C29F9C6100076FE4B /* JSONSampleData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONSampleData.swift; sourceTree = "<group>"; };
 		EC0E656326F3E7D1000E8997 /* ReframeEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReframeEvent.swift; sourceTree = "<group>"; };
 		EC0E892526265B3200A586C2 /* LoopBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopBuilder.swift; sourceTree = "<group>"; };
@@ -3867,6 +3869,7 @@
 				E40B2F542CB86F2B005F5479 /* StitchAIDataModel.swift */,
 				ECEC4A432CE2FB900062ACAF /* StateChangeToStepAction.swift */,
 				ECEC4A452CE3BEAF0062ACAF /* StepActionToStateChange.swift */,
+				EC0E1AFD2D4B2288004AAA37 /* LLMValueParsingUtils.swift */,
 			);
 			path = DataModel;
 			sourceTree = "<group>";
@@ -5523,6 +5526,7 @@
 				B5B20BB0279925EC008A2B5A /* FullScreenPreviewViewWrapper.swift in Sources */,
 				B53E0BEF2D36E1220072FD43 /* LayerInspectorSection.swift in Sources */,
 				B5CAFF922831D07100C2EC38 /* ProjectsListItemBlurView.swift in Sources */,
+				EC0E1AFE2D4B2288004AAA37 /* LLMValueParsingUtils.swift in Sources */,
 				EC4914A229359AC300D74344 /* TextEndsWithNode.swift in Sources */,
 				B59660982C1A498800BE75D7 /* StitchMLModel.swift in Sources */,
 				ECC2BCD72B9B73C900D5F942 /* SidebarListItemGestureRecognizerView.swift in Sources */,
