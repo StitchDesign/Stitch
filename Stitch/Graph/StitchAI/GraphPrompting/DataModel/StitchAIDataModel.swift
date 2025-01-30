@@ -187,6 +187,17 @@ extension StringOrNumber: Codable {
     }
 }
 
+
+// Type aliases for improved code readability
+typealias LLMStepAction = Step
+typealias LLMStepActions = [LLMStepAction]
+
+// TODO: use several different data structures with more specific parameters,
+// rather than a single data structure with tons of optional parameters
+// TODO: make parameters more specific? e.g. `nodeName` should be `PatchOrLayer?`
+// instead of `String?`
+
+
 /// Enumeration of possible step types in the visual programming system
 enum StepType: String, Equatable, Codable {
     case addNode = "add_node"
@@ -210,12 +221,3 @@ enum StepType: String, Equatable, Codable {
         }
     }
 }
-
-// Type aliases for improved code readability
-typealias LLMStepAction = Step
-typealias LLMStepActions = [LLMStepAction]
-
-// TODO: use several different data structures with more specific parameters,
-// rather than a single data structure with tons of optional parameters
-// TODO: make parameters more specific? e.g. `nodeName` should be `PatchOrLayer?`
-// instead of `String?`

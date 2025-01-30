@@ -581,12 +581,56 @@ extension JSON {
         }
         return nil
     }
+    
+    var toStitchPadding: StitchPadding? {
+        if let top = self[TOP].double,
+           let right = self[RIGHT].double,
+           let bottom = self[BOTTOM].double,
+           let left = self[LEFT].double {
+            return .init(top: top, right: right, bottom: bottom, left: left)
+        }
+        return nil
+    }
 }
 
-enum StitchAIValue: Equatable {
-    case number(Double)
-    case string(String)
-    case dictionary
+extension [String: Double] {
+    
+    var toStitchPosition: StitchPosition? {
+        if let x = self.caseInsensitiveX,
+           let y = self.caseInsensitiveY {
+            return .init(x: x, y: y)
+        }
+        return nil
+    }
+    
+    var toPoint3D: Point3D? {
+        if let x = self.caseInsensitiveX,
+           let y = self.caseInsensitiveY,
+           let z = self.caseInsensitiveZ {
+            return .init(x: x, y: y, z: z)
+        }
+        return nil
+    }
+
+    var toPoint4D: Point4D? {
+        if let x = self.caseInsensitiveX,
+           let y = self.caseInsensitiveY,
+           let z = self.caseInsensitiveZ,
+           let w = self.caseInsensitiveW {
+            return .init(x: x, y: y, z: z, w: w)
+        }
+        return nil
+    }
+    
+    var toStitchPadding: StitchPadding? {
+        if let top = self[TOP],
+           let right = self[RIGHT],
+           let bottom = self[BOTTOM],
+           let left = self[LEFT] {
+            return .init(top: top, right: right, bottom: bottom, left: left)
+        }
+        return nil
+    }
 }
 
 //enum JSONFriendlyFormat: Encodable, Equatable {
@@ -599,7 +643,7 @@ enum JSONFriendlyFormat: Encodable, Decodable, Equatable, Hashable {
          dictionary([String: Double]),
          
          // TODO: a LayerSize field may be .auto, .parentPercent(50%) etc.; so
-          layerSizeDictionary([String: String]),
+         layerSizeDictionary([String: String]),
          
          json(JSON) // already a json
 
@@ -667,6 +711,7 @@ enum JSONFriendlyFormat: Encodable, Decodable, Equatable, Hashable {
 
 extension JSONFriendlyFormat {
     
+    // TODO: JAN 29: replace this initializer with `llmFriendlyDisplay`? Main difference is .display vs .rawValue
     // PortValue -> JSONFriendlyFormat
     @MainActor
     init(value: PortValue) {
@@ -700,6 +745,14 @@ extension JSONFriendlyFormat {
     func asPortValueForLLMSetField(_ nodeType: NodeType,
                                    // for turning a string into a LayerNodeId
                                    with mapping: LLMNodeIdMapping) -> PortValue? {
+        
+        // log("asPortValueForLLMSetField: self: \(self)")
+        // log("asPortValueForLLMSetField: nodeType: \(nodeType)")
+        // log("asPortValueForLLMSetField: mapping: \(mapping)")
+        
+        // Try to match on the specific JFF-case,
+        // if the LLM Model sent something
+        
         switch self {
             
         case .number(let x):
@@ -729,46 +782,39 @@ extension JSONFriendlyFormat {
             
             
         // .dictionary can only be .size, .position, .point3D, .point4D
-        case .dictionary:
-            
-            // TODO: this i
+        // TODO: JAN 29: update for the other possible dictionary cases, e.g. StitchPadding etc.
+        // Note: See `PortValue.llmFriendlyDisplay` for list of PortValues that can be turned into JSONFriendlyFormat.dictionary cases
+        case .dictionary(let x):
             switch nodeType {
             
             case .position:
-                if let position = self
-                    .jsonWrapper.first?.1
-                    .toStitchPosition {
-                    return .position(position)
-                }
-                return nil
+                return x.toStitchPosition.map(PortValue.position)
                                 
             case .point3D:
-                if let point3D = self
-                    .jsonWrapper.first?.1
-                    .toPoint3D {
-                    return .point3D(point3D)
-                }
-                return nil
+                return x.toPoint3D.map(PortValue.point3D)
                 
             case .point4D:
-                if let point4D = self
-                    .jsonWrapper.first?.1
-                    .toPoint4D {
-                    return .point4D(point4D)
-                }
-                return nil
+                return x.toPoint4D.map(PortValue.point4D)
                 
             case .size:
-                // TODO: remove this once we have taught LLM Model t
-                if let size = self.jsonWrapper.first?.1.toSize {
-                    return .size(size)
+                return self.jsonWrapper.first?.1.toSize.map(PortValue.size)
+                
+            case .anchoring:
+                return x.toStitchPosition.map {
+                    .anchoring(.init(x: $0.x, y: $0.y))
                 }
-                return nil
+                
+            case .padding:
+                return x.toStitchPadding.map(PortValue.padding)
                 
             default:
-                fatalErrorIfDebug()
-                return nil
-                
+                // TODO: last
+                if let dictAsJSON = self.jsonWrapper.first?.1 {
+                    log("asPortValueForLLMSetField: dictAsJSON: \(dictAsJSON)")
+                    return dictAsJSON.description.parseAsPortValue(nodeType)
+                } else {
+                    return nil
+                }
             }
             
             // .string is used for PortValue.string but also any other non-multifield value
@@ -776,12 +822,23 @@ extension JSONFriendlyFormat {
             // can actually just return a string,
             // and the logic of `handleInputEdited` handles the rest
             switch nodeType {
+                
             case .interactionId:
-                if let layerNodeId = mapping.get(x) {
+                // TODO: JAN 29: can we just return the string directly? Since the LLM now uses proper LLM
+                log("asPortValueForLLMSetField: JFF string, with interaction id node type: x: \(x)")
+                if let id = UUID(uuidString: x) {
+                    log("asPortValueForLLMSetField: JFF string, with interaction id node type: returning id directly")
+                    return .assignedLayer(.init(id))
+                }
+                    
+                else if let layerNodeId = mapping.get(x) {
                     return .assignedLayer(.init(layerNodeId))
                 }
                 return .assignedLayer(nil)
+            
+            
             default:
+                log("asPortValueForLLMSetField: JFF string: x: \(x)")
                 return .string(.init(x))
             }
         }

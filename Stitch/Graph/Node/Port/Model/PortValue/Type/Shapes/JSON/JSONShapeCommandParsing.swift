@@ -28,6 +28,24 @@ extension JSON {
     }
 }
 
+extension [String: Double] {
+    var caseInsensitiveX: Double? {
+        self["X"] ?? self[X]
+    }
+
+    var caseInsensitiveY: Double? {
+        self["Y"] ?? self[Y]
+    }
+
+    var caseInsensitiveZ: Double? {
+        self["Z"] ?? self[Z]
+    }
+
+    var caseInsensitiveW: Double? {
+        self["W"] ?? self[W]
+    }
+}
+
 struct JSONClosePath: Equatable, Codable {
     var type: String = JSONShapeKeys.CLOSE_PATH
 }
