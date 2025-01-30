@@ -29,23 +29,26 @@ struct ArrayAppendNode: PatchNodeDefinition {
 // this append will fail / should fail, per Origami
 @MainActor
 func arrayAppendEval(node: NodeViewModel) -> EvalResult {
-    node.loopedEval { values, loopIndex in
-        let jsonArray = values.first?.getJSON ?? emptyJSONObject
-        let item = values[safe: 1]?.getStitchJSON ?? emptyStitchJSONObject
+
+    node.loopedEval(shouldAddOutputs: false) { values, loopIndex in
+
+        guard let jsonArray: StitchJSON = values.first?.getStitchJSON,
+              let item = values[safe: 1]?.getStitchJSON else {
+            fatalErrorIfDebug("arrayAppendEval: first two inputs were not jsons")
+            return [.json(.emptyJSONArray)]
+        }
+                
         // DO NOT NEED a check like 'Have we already added this item?',
         // because operation is idempotent
         let shouldAppend = values[safe: 2]?.getBool ?? false
-        
-        let previousValue = values.last ?? defaultFalseJSON
-        
-        log("arrayAppendEval: shouldAppend: \(shouldAppend)")
+        // log("arrayAppendEval: shouldAppend: \(shouldAppend)")
         
         if shouldAppend,
-           let j = jsonArray.appendToJSONArray(.json(item)) {
-            log("arrayAppendEval: arrayAppendEval: j: \(j)")
-            return [.json(j.toStitchJSON)]
+           let updatedJSONArray = jsonArray.value.appendToJSONArray(.json(item)) {
+            // log("arrayAppendEval: arrayAppendEval: updatedJSONArray: \(updatedJSONArray)")
+            return [.json(updatedJSONArray.toStitchJSON)]
         } else {
-            return [previousValue]
+            return [.json(jsonArray)]
         }
     }
     .createPureEvalResult()
