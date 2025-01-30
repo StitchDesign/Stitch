@@ -269,11 +269,7 @@ extension LLMStepAction {
     var parseNodeId: NodeId? {
         self.nodeId?.parseNodeId
     }
-    
-    // TODO:
-    // 1. receive the node type, as a guide to parsing the JSONFriendlyFormat value
-    // ^^ don't we have existing way to parse a JFF ?
-    
+        
     @MainActor
     func parseValueForSetInput(nodeType: NodeType,
                                with mapping: LLMNodeIdMapping) -> PortValue? {
