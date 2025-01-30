@@ -661,6 +661,7 @@ enum JSONFriendlyFormat: Encodable, Decodable, Equatable, Hashable {
 
 extension JSONFriendlyFormat {
     
+    // TODO: JAN 29: replace this initializer with `llmFriendlyDisplay`? Main difference is .display vs .rawValue
     // PortValue -> JSONFriendlyFormat
     @MainActor
     init(value: PortValue) {
@@ -699,6 +700,9 @@ extension JSONFriendlyFormat {
         log("asPortValueForLLMSetField: nodeType: \(nodeType)")
         log("asPortValueForLLMSetField: mapping: \(mapping)")
         
+        // Try to match on the specific JFF-case,
+        // if the LLM Model sent something
+        
         switch self {
             
         case .number(let x):
@@ -728,6 +732,7 @@ extension JSONFriendlyFormat {
             
             
         // .dictionary can only be .size, .position, .point3D, .point4D
+        // TODO: JAN 29: update for the other possible dictionary cases, e.g. StitchPadding etc.
         case .dictionary:
             
             // TODO: this i
