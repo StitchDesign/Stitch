@@ -306,32 +306,46 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
          
         let parsedSteps: [StepTypeAction] = steps.compactMap { StepTypeAction.fromStep($0) }
         
-        // e.g. we weren't able to parse each Step to a more specific StepTypeAction,
-        if (parsedSteps.count != steps.count)
-            // or the LLM told us to create a connection for a node that did not yet exist
-            || !parsedSteps.areLLMStepsValid() {
-            
-            // TODO: JAN 30: retry the whole prompt
+        let couldNotParseAllSteps = (parsedSteps.count != steps.count)
+        if couldNotParseAllSteps {
+            // TODO: JAN 30: retry the whole prompt; OpenAI might have given us bad data; e.g. specified a non-existent nodeType
+            // Note that this can also be from a parsing error on our side, e.g. we incorrectly read the data OpenAI sent
             fatalErrorIfDebug()
         }
         
+        // If we successfully parsed the JSON and LLMStepActions,
+        // we should close the insert-node-menu,
+        // since we're not doing any retries.
+        state.graphUI.reduxFocusedField = nil
+        state.graphUI.insertNodeMenuState.show = false
+        state.graphUI.insertNodeMenuState.isGeneratingAINode = false
+
+        // Are these steps valid?
+        // invalid = e.g. tried to create a connection for a node before we created that node
+        if !parsedSteps.areLLMStepsValid() {
+            // immediately enter correction-mode: one of the actions, or perhaps the ordering, was incorrect
+            // TODO: JAN 31: enter correction-mode for these parsed-step
+            fatalErrorIfDebug()
+        }
+                
         log(" Storing Original AI Generated Actions ")
         log(" Original Actions to store: \(steps.asJSONDisplay())")
         state.llmRecording.actions = parsedSteps
         state.llmRecording.promptState.prompt = originalPrompt
         
-        parsedSteps.forEach { step in
+        for parsedStep in parsedSteps {
             if let _canvasItemsAdded = state.applyAction(
-                step,
+                parsedStep,
                 canvasItemsAdded: canvasItemsAdded) {
                 
                 canvasItemsAdded = _canvasItemsAdded
+            } else {
+                // immediately enter correction-mode: we were not able to apply one of the actions
+                // TODO: JAN 31: enter correction-mode for these parsed-step
+                fatalErrorIfDebug()
+                break
             }
         }
-        
-        state.graphUI.reduxFocusedField = nil
-        state.graphUI.insertNodeMenuState.show = false
-        state.graphUI.insertNodeMenuState.isGeneratingAINode = false
     }
     
     /// Main handler for completed requests

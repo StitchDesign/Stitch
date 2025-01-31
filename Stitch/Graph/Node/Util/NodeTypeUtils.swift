@@ -19,7 +19,7 @@ extension UserVisibleType {
     var display: String {
         switch self {
         case .string:
-            return "Text"
+            return "String"
         case .bool:
             return "Bool"
         case .int:
