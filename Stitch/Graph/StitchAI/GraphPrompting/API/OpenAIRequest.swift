@@ -290,7 +290,13 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
     }
     
     /// Process successfully parsed response data
-    @MainActor func handleSuccessfulParse(steps: LLMStepActions, state: StitchDocumentViewModel) {
+    /// How we do this:
+    /// 1. We receive the `LLMStepActions`, which we decoded from the JSON sent to us by OpenAI
+    /// 2. We parse these `LLMStepActions` into `[StepTypeAction]` which is the more specific data structure we like to work with
+    /// 3. We validate the `[StepTypeAction]`, e.g. make sure model did not try to use a NodeType that is unavailable for a given Patch
+    /// 4. If all this succeeds, ONLY THEN do we apply the `[StepTypeAction]` to the state (fka `handleLLMStepAction`
+    @MainActor func handleSuccessfulParse(steps: LLMStepActions,
+                                          state: StitchDocumentViewModel) {
         log("OpenAIRequestCompleted: stepsFromReponse:")
         for step in steps {
             log(step.description)

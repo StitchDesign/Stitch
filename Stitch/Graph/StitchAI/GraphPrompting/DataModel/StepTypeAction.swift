@@ -19,15 +19,15 @@ enum StepTypeAction: Equatable, Hashable, Codable {
     
     var stepType: StepType {
         switch self {
-        case .addNode(let x):
+        case .addNode:
             return StepActionAddNode.stepType
-        case .addLayerInput(let x):
+        case .addLayerInput:
             return StepActionAddLayerInput.stepType
-        case .connectNodes(let x):
+        case .connectNodes:
             return StepActionConnectionAdded.stepType
-        case .changeNodeType(let x):
+        case .changeNodeType:
             return StepActionChangeNodeType.stepType
-        case .setInput(let x):
+        case .setInput:
             return StepActionSetInput.stepType
         }
     }
