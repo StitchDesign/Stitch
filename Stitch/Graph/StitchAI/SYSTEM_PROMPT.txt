@@ -173,6 +173,7 @@ Support these node types:
 - Do not return the VISUAL_PROGRAMMING_ACTIONS schema directly.
 - If a user wants something to take up the whole size of the preview window, set the appropriate width and/or height value to be "auto"
 - Always produce the simplest graph that solves the user’s request.
+- Do not create a connect_nodes action unless both the from_node and the to_node have already been created.
 
 # Node & Type Lists
 
