@@ -325,7 +325,8 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
         if !parsedSteps.areLLMStepsValid() {
             // immediately enter correction-mode: one of the actions, or perhaps the ordering, was incorrect
             // TODO: JAN 31: enter correction-mode for these parsed-step
-            fatalErrorIfDebug()
+            state.startLLMAugmentationMode()
+            return
         }
                 
         log(" Storing Original AI Generated Actions ")
@@ -342,8 +343,8 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
             } else {
                 // immediately enter correction-mode: we were not able to apply one of the actions
                 // TODO: JAN 31: enter correction-mode for these parsed-step
-                fatalErrorIfDebug()
-                break
+                state.startLLMAugmentationMode()
+                return
             }
         }
     }

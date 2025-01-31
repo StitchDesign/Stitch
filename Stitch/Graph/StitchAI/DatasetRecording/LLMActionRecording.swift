@@ -25,7 +25,8 @@ struct LLMRecordingToggled: StitchDocumentEvent {
         } else {
             // If we're not already recording, and we're in AI Mode,
             // then start augmentation mode
-            if state.graphUI.insertNodeMenuState.isFromAIGeneration {
+            let wasInAIMode = state.graphUI.insertNodeMenuState.isFromAIGeneration
+            if wasInAIMode {
                 state.startLLMAugmentationMode()
             } else {
                 state.llmRecordingStarted()
