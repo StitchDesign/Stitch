@@ -62,6 +62,58 @@ enum StepTypeAction: Equatable, Hashable, Codable {
     }
 }
 
+extension [StepTypeAction] {
+    // Note: just some obvious validations; NOT a full validation; we can still e.g. create a connection from an output that doesn't exist etc.
+    func areLLMStepsValid() -> Bool {
+        
+        // Need to update this *as we go*, so that we can confirm that e.g. connectNodes came after we created at least two different nodes
+        var createdNodes = [NodeId: PatchOrLayer]()
+        
+        for step in self {
+            
+            switch step {
+                
+            case .addNode(let x):
+                createdNodes.updateValue(x.nodeName, forKey: x.nodeId)
+                
+            case .changeNodeType(let x):
+                // Must have a valid node type for the patch, and must be a patch
+                guard let patch = createdNodes.get(x.nodeId)?.asNodeKind.getPatch,
+                      patch.availableNodeTypes.contains(x.nodeType) else {
+                    log("areLLMStepsValid: Invalid .changeNodeType: \(x)")
+                    return false
+                }
+            
+            case .addLayerInput(let x):
+                // the layer node must exist already
+                guard createdNodes.get(x.nodeId)?.asNodeKind.getLayer.isDefined ?? false else {
+                    log("areLLMStepsValid: Invalid .addLayerInput: \(x)")
+                    return false
+                }
+            
+            case .connectNodes(let x):
+                // the to-node and from-node must exist
+                guard createdNodes.get(x.fromNodeId).isDefined,
+                      createdNodes.get(x.toNodeId).isDefined else {
+                    log("areLLMStepsValid: Invalid .connectNodes: \(x)")
+                    return false
+                }
+            
+            case .setInput(let x):
+                // node must exist
+                guard createdNodes.get(x.nodeId).isDefined else {
+                    log("areLLMStepsValid: Invalid .setInput: \(x)")
+                    return false
+                }
+            }
+        } // for step in self
+        
+        // If we didn't hit any guard statements, then the steps passed these validations
+        return true
+    }
+}
+
+
 // "Which properties from `Step` are actually needed by StepType = .addNode ?"
 
 // See `createLLMStepAddNode`

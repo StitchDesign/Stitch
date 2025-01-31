@@ -306,8 +306,12 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
          
         let parsedSteps: [StepTypeAction] = steps.compactMap { StepTypeAction.fromStep($0) }
         
-        if parsedSteps.count != steps.count {
-            // i.e. we weren't able to parse each Step to a more specific StepTypeAction
+        
+        // e.g. we weren't able to parse each Step to a more specific StepTypeAction,
+        if (parsedSteps.count != steps.count)
+            // or the LLM told us to create a connection for a node that did not yet exist
+            || !parsedSteps.areLLMStepsValid() {
+            
             // TODO: JAN 30: retry the whole prompt
             fatalErrorIfDebug()
         }
