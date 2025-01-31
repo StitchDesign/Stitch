@@ -52,6 +52,14 @@ extension NodeViewModel {
         self.getInputMediaObserver(portIndex: portIndex,
                                    loopIndex: loopIndex)?.currentMedia
     }
+    
+    @MainActor
+    /// Gets the media object for some connected input.
+    func getInputMediaValue(coordinate: NodeIOCoordinate,
+                            loopIndex: Int) -> GraphMediaValue? {
+        self.getInputMediaObserver(inputCoordinate: coordinate,
+                                   loopIndex: loopIndex)?.currentMedia
+    }
 
     @MainActor
     /// Gets the media object for some connected input.

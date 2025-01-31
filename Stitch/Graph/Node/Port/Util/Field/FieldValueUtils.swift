@@ -11,9 +11,13 @@ import StitchSchemaKit
 
 extension PortValue {
     /// Coercion logic from port value to fields. Contains a 2D list of field values given a 1-many mapping between a field group type and its field values.
-    func createFieldValuesList(nodeIO: NodeIO,
-                               layerInputPort: LayerInputPort?,
-                               isLayerInspector: Bool) -> [FieldValues] {
+    @MainActor
+    func createFieldValuesList<RowViewModel>(nodeIO: NodeIO,
+                                             rowViewModel: RowViewModel) -> [FieldValues] where RowViewModel: NodeRowViewModel {
+        
+        let layerInputPort = rowViewModel.id.layerInputPort
+        let isLayerInspector = rowViewModel.isLayerInspector
+        
         switch self.getNodeRowType(nodeIO: nodeIO,
                                    layerInputPort: layerInputPort,
                                    isLayerInspector: isLayerInspector) {
@@ -248,7 +252,10 @@ extension PortValue {
                 return [[.media(.defaultMedia(selectedDefaultOption))]]
             }
             
-            return [[.media(.media(asyncMedia))]]
+            let mediaName = rowViewModel.getMediaObject()?.mediaObject.name ?? "None"
+            let mediaViewData = MediaViewData(media: asyncMedia,
+                                              name: mediaName)
+            return [[.media(.media(mediaViewData))]]
 
         case .number:
             // if self is PortValue.comparable, then .getNumber will fail;

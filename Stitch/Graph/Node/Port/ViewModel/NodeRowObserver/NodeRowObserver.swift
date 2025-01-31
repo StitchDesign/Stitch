@@ -473,8 +473,7 @@ extension NodeRowViewModel {
         }
         
         let newFieldsByGroup = newValue.createFieldValuesList(nodeIO: nodeIO,
-                                                              layerInputPort: self.id.layerInputPort,
-                                                              isLayerInspector: self.isLayerInspector)
+                                                              rowViewModel: self)
         
         // Assert equal array counts
         guard newFieldsByGroup.count == self.fieldValueTypes.count else {

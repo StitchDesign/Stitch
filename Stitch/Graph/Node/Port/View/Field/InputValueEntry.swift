@@ -434,6 +434,7 @@ struct InputValueView: View {
                         layerInputObserver: layerInputObserver,
                         isUpstreamValue: isUpstreamValue,
                         media: media,
+                        mediaName: media.name,
                         mediaObserver: mediaObserver,
                         nodeKind: nodeKind,
                         isInput: true,

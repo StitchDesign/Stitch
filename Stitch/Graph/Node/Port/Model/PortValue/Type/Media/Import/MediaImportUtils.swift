@@ -49,14 +49,14 @@ extension URL {
             }
 
             // Provides the ability to assign some name
-            await uiImage.setAccessibilityIdentifier(self.filename)
+            uiImage.setAccessibilityIdentifier(self.filename)
 
             return .success(.image(uiImage))
         }
         if isVideoFile(pathExtension: pathExtension) {
-            let videoPlayer = await StitchVideoImportPlayer(url: self,
-                                                            videoData: VideoMetadata(),
-                                                            initialVolume: 0)
+            let videoPlayer = StitchVideoImportPlayer(url: self,
+                                                      videoData: VideoMetadata(),
+                                                      initialVolume: 0)
             return .success(.video(videoPlayer))
         }
         if isSoundFile(pathExtension: pathExtension) {

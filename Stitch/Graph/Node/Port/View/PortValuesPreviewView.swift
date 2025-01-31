@@ -24,6 +24,7 @@ struct PortValuesPreviewView<NodeRowObserverType: NodeRowObserver>: View {
     @Environment(\.appTheme) var theme
     
     @Bindable var rowObserver: NodeRowObserverType
+    @Bindable var rowViewModel: NodeRowObserverType.RowViewModelType
         
     let nodeIO: NodeIO
 
@@ -48,10 +49,7 @@ struct PortValuesPreviewView<NodeRowObserverType: NodeRowObserver>: View {
             // TODO: handle ShapeCommand port-preview ?
             guard let fieldValues = value.createFieldValuesList(
                 nodeIO: nodeIO,
-                // Don't display media object?
-                layerInputPort: rowObserver.id.keyPath?.layerInput,
-                // doesn't matter here
-                isLayerInspector: false).first else {
+                rowViewModel: rowViewModel).first else {
                 
                 fatalErrorIfDebug()
                 return nil

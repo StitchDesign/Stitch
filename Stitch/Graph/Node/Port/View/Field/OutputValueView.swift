@@ -234,6 +234,7 @@ struct OutputValueView: View {
                                         layerInputObserver: nil,
                                         isUpstreamValue: false,     // only valid for inputs
                                         media: media,
+                                        mediaName: media.name,
                                         mediaObserver: mediaObserver,
                                         nodeKind: nodeKind,
                                         isInput: false,
