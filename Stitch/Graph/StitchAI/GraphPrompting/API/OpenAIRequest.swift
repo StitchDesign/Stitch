@@ -290,42 +290,40 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
     }
     
     /// Process successfully parsed response data
-    @MainActor func handleSuccessfulParse(steps: LLMStepActions, state: StitchDocumentViewModel) {
+    /// How we do this:
+    /// 1. We receive the `LLMStepActions`, which we decoded from the JSON sent to us by OpenAI
+    /// 2. We parse these `LLMStepActions` into `[StepTypeAction]` which is the more specific data structure we like to work with
+    /// 3. We validate the `[StepTypeAction]`, e.g. make sure model did not try to use a NodeType that is unavailable for a given Patch
+    /// 4. If all this succeeds, ONLY THEN do we apply the `[StepTypeAction]` to the state (fka `handleLLMStepAction`
+    @MainActor func handleSuccessfulParse(steps: LLMStepActions,
+                                          state: StitchDocumentViewModel) {
         log("OpenAIRequestCompleted: stepsFromReponse:")
         for step in steps {
             log(step.description)
         }
-                
-        var canvasItemsAdded = 0
-         
+        
         let parsedSteps: [StepTypeAction] = steps.compactMap { StepTypeAction.fromStep($0) }
         
-        // e.g. we weren't able to parse each Step to a more specific StepTypeAction,
-        if (parsedSteps.count != steps.count)
-            // or the LLM told us to create a connection for a node that did not yet exist
-            || !parsedSteps.areLLMStepsValid() {
-            
-            // TODO: JAN 30: retry the whole prompt
-            fatalErrorIfDebug()
+        let couldNotParseAllSteps = (parsedSteps.count != steps.count)
+        if couldNotParseAllSteps {
+            // TODO: JAN 30: retry the whole prompt; OpenAI might have given us bad data; e.g. specified a non-existent nodeType
+            // Note that this can also be from a parsing error on our side, e.g. we incorrectly read the data OpenAI sent
+            state.handleRetry()
         }
         
+        // If we successfully parsed the JSON and LLMStepActions,
+        // we should close the insert-node-menu,
+        // since we're not doing any retries.
+        state.graphUI.reduxFocusedField = nil
+        state.graphUI.insertNodeMenuState.show = false
+        state.graphUI.insertNodeMenuState.isGeneratingAINode = false
+
         log(" Storing Original AI Generated Actions ")
         log(" Original Actions to store: \(steps.asJSONDisplay())")
         state.llmRecording.actions = parsedSteps
         state.llmRecording.promptState.prompt = originalPrompt
         
-        parsedSteps.forEach { step in
-            if let _canvasItemsAdded = state.applyAction(
-                step,
-                canvasItemsAdded: canvasItemsAdded) {
-                
-                canvasItemsAdded = _canvasItemsAdded
-            }
-        }
-        
-        state.graphUI.reduxFocusedField = nil
-        state.graphUI.insertNodeMenuState.show = false
-        state.graphUI.insertNodeMenuState.isGeneratingAINode = false
+        state.validateAndApplyActions(parsedSteps)
     }
     
     /// Main handler for completed requests

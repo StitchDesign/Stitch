@@ -31,6 +31,10 @@ struct LLMRecordingState: Equatable {
     // Are we actively recording redux-actions which we then turn into LLM-actions?
     var isRecording: Bool = false
     
+    var attempts: Int = 0
+    
+    static let maxAttempts: Int = 3
+    
     var mode: LLMRecordingMode = .normal
     
     var actions: [StepTypeAction] = .init() {
@@ -80,6 +84,40 @@ extension StitchDocumentViewModel {
     }
     
     @MainActor
+    func validateAndApplyActions(_ actions: [StepTypeAction]) {
+        
+        var canvasItemsAdded = 0
+        
+        // Are these steps valid?
+        // invalid = e.g. tried to create a connection for a node before we created that node
+        if !actions.areLLMStepsValid() {
+            // immediately enter correction-mode: one of the actions, or perhaps the ordering, was incorrect
+            // TODO: JAN 31: enter correction-mode for these parsed-step
+            log("validateAndApplyActions: will show edit modal: invalid actions: \(actions)")
+            self.startLLMAugmentationMode()
+            return
+        }
+        
+        for action in actions {
+            if let _canvasItemsAdded = self.applyAction(
+                action,
+                canvasItemsAdded: canvasItemsAdded) {
+                
+                canvasItemsAdded = _canvasItemsAdded
+            } else {
+                // immediately enter correction-mode: we were not able to apply one of the actions
+                log("validateAndApplyActions: will show edit modal: could not appply action: \(action)")
+                // TODO: should we also remove the action that could not be parsed?
+                self.startLLMAugmentationMode()
+                return
+            }
+        }
+        
+        // Write to disk ONLY IF WE WERE SUCCESSFUL
+        self.encodeProjectInBackground()
+    }
+    
+    @MainActor
     func reapplyLLMActions() {
         let actions = self.llmRecording.actions
         
@@ -96,16 +134,9 @@ extension StitchDocumentViewModel {
         }
         
         // Apply the LLM-actions (model-generated and user-augmented) to the graph
-        var canvasItemsAdded = 0
-        self.llmRecording.actions.forEach { action in
-            if let _canvasItemsAdded = self.applyAction(action, canvasItemsAdded: canvasItemsAdded) {
-                canvasItemsAdded = _canvasItemsAdded
-            }
-        }
+        self.validateAndApplyActions(actions)
         
-        // Write to disk
-        self.encodeProjectInBackground()
-        
+        // TODO: also select the nodes when we first successfully parse?
         // Select the created nodes
         createdNodes.forEach { nodeId in
             if let node = self.graph.getNodeViewModel(nodeId) {

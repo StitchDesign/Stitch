@@ -132,6 +132,7 @@ struct LLMActionsUpdatedByModal: StitchDocumentEvent {
         log("LLMActionsUpdated: newActions: \(newActions)")
         log("LLMActionsUpdated: state.llmRecording.actions was: \(state.llmRecording.actions)")
         state.llmRecording.actions = newActions
+        state.reapplyLLMActions()
     }
 }
 

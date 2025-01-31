@@ -41,11 +41,9 @@ extension StitchDocumentViewModel {
         
         switch action {
         case .addNode(let x):
-            guard let newNode = self.nodeCreated(choice: x.nodeName.asNodeKind,
-                                                 nodeId: x.nodeId,
-                                                 center: newCenter) else {
-                // TODO: JAN 30: rety?
-                fatalErrorIfDebug()
+            guard let _ = self.nodeCreated(choice: x.nodeName.asNodeKind,
+                                           nodeId: x.nodeId,
+                                           center: newCenter) else {
                 return nil
             }
             
@@ -54,8 +52,6 @@ extension StitchDocumentViewModel {
         case .addLayerInput(let x):
             guard let node = self.graph.getNode(x.nodeId),
                   let layerNode = node.layerNode else {
-                // TODO: JAN 30: retry
-                fatalErrorIfDebug()
                 return nil
             }
             
@@ -87,8 +83,6 @@ extension StitchDocumentViewModel {
             let inputCoordinate = InputCoordinate(portType: x.port,
                                                   nodeId: x.nodeId)
             guard let input = self.graph.getInputObserver(coordinate: inputCoordinate) else {
-                // TODO: JAN 30: retry
-                fatalErrorIfDebug()
                 return nil
             }
             
@@ -103,31 +97,15 @@ extension StitchDocumentViewModel {
         
     }
     
-    
     @MainActor
-    private func handleRetry(action: LLMStepAction,
-                            canvasItemsAdded: Int,
-                            attempt: Int,
-                            maxAttempts: Int) -> Int {
-        if attempt < maxAttempts {
-            log("🔄 Retrying step action:")
-            log("   - Action Type: \(action.stepType)")
-            log("   - Attempt: \(attempt + 1) of \(maxAttempts)")
-            
-            // Wait briefly before retry
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            // TODO: JAN 30: retry
-//                _ = self.handleLLMStepAction(action,
-//                                            canvasItemsAdded: canvasItemsAdded,
-//                                            attempt: attempt + 1,
-//                                            maxAttempts: maxAttempts)
-            }
-        } else {
-            log("❌ All retries failed, requesting new response from OpenAI")
-            // If all retries failed, trigger a new OpenAI request
+    func handleRetry() {
+        if self.llmRecording.attempts < LLMRecordingState.maxAttempts {
+            self.llmRecording.attempts += 1
             retryOpenAIRequest()
+        } else {
+            fatalErrorIfDebug("Ran out of retry attempts")
+            return
         }
-        return canvasItemsAdded
     }
     
     @MainActor
