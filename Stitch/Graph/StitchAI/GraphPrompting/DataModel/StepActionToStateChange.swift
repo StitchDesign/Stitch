@@ -18,214 +18,91 @@ extension StitchDocumentViewModel {
     // We've decoded the OpenAI json-response into an array of `LLMStepAction`;
     // Now we turn each `LLMStepAction` into a state-change.
     // TODO: better?: do more decoding logic on the `LLMStepAction`-side; e.g. `LLMStepAction.nodeName` should be type `PatchOrLayer` rather than `String?`
+    
+        
+    // fka `handleLLMStepAction`
+    // returns nil = failed, and should retry
     @MainActor
-    func handleLLMStepAction(_ action: LLMStepAction,
-                             canvasItemsAdded: Int,
-                             attempt: Int = 1,
-                             maxAttempts: Int = 3) -> Int {
-        
-        // Check retry attempts
-        guard attempt <= maxAttempts else {
-            log("❌ All retry attempts exhausted for step action:")
-            log("   - Action Type: \(action.stepType)")
-            log("   - Node ID: \(action.nodeId ?? "nil")")
-            log("   - Node Name: \(action.nodeName ?? "nil")")
-            log("   - Port: \(action.port?.value ?? "nil")")
-            return canvasItemsAdded
-        }
-        
-        guard let stepType = StepType(rawValue: action.stepType) else {
-            log("⚠️ handleLLMStepAction: invalid step type:")
-            log("   - Raw Step Type: \(action.stepType)")
-            log("   - Attempt: \(attempt) of \(maxAttempts)")
-            return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
-        }
+    func applyAction(_ action: StepTypeAction,
+                     canvasItemsAdded: Int,
+                     attempt: Int = 1,
+                     maxAttempts: Int = 3) -> Int? {
         
         let newCenter = CGPoint(
             x: self.newNodeCenterLocation.x + (CGFloat(canvasItemsAdded) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_WDITH_STAGGER),
             y: self.newNodeCenterLocation.y)
         
-        switch stepType {
-            
-        case .addNode:
-            
-            guard let llmNodeId: String = action.nodeId,
-                  let nodeId: NodeId = UUID(uuidString: llmNodeId),
-                  let nodeKind: PatchOrLayer = action.parseNodeKind(),
-                    // Need to explicitly pass in the nodeId from the action
-                  let newNode = self.nodeCreated(choice: nodeKind.asNodeKind,
-                                                 nodeId: nodeId,
+        // Check retry attempts
+        guard attempt <= maxAttempts else {
+            log("❌ All retry attempts exhausted for step action:")
+            log("   - action: \(action)")
+            return nil
+        }
+        
+        switch action {
+        case .addNode(let x):
+            guard let newNode = self.nodeCreated(choice: x.nodeName.asNodeKind,
+                                                 nodeId: x.nodeId,
                                                  center: newCenter) else {
-                
-                log("❌ handleLLMStepAction: addNode failed:")
-                log("   - Node ID: \(action.nodeId ?? "nil")")
-                log("   - Node Name: \(action.nodeName ?? "nil")")
-                log("   - Node Type: \(action.nodeType ?? "nil")")
-                log("   - Attempt: \(attempt) of \(maxAttempts)")
-                return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
+                // TODO: JAN 30: rety?
+                fatalErrorIfDebug()
+                return nil
             }
-            
-            log("✅ Successfully added node:")
-            log("   - Node ID: \(llmNodeId)")
-            log("   - Node Kind: \(nodeKind)")
-            
-            self.llmNodeIdMapping.updateValue(newNode.id, forKey: llmNodeId)
             
             return canvasItemsAdded + 1
-                  
-        case .changeNodeType:
             
-            guard let llmNodeId: String = action.nodeId,
-                  var nodeType: NodeType = action.parseNodeType(),
-                  // Node must already exist
-                  let nodeId = self.llmNodeIdMapping.get(llmNodeId),
-                  let existingNode = self.graph.getNode(nodeId),
-                  let patch = existingNode.patch else {
-                
-                log("❌ handleLLMStepAction: changeNodeType failed:")
-                log("   - Node ID: \(action.nodeId ?? "nil")")
-                log("   - New Type: \(action.nodeType ?? "nil")")
-                log("   - Attempt: \(attempt) of \(maxAttempts)")
-                return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
-            }
-                         
-            // If LLM provided an invalid node-type for this patch,
-            // we will default to the patch's default node type and issue a correction.
-            if !patch.availableNodeTypes.contains(nodeType) {
-                if let randomNodeType = patch.availableNodeTypes.randomElement() {
-                    log("HAD BAD NODE TYPE \(nodeType) FOR PATCH \(patch); will use random node type instead: \(randomNodeType)")
-                    nodeType = randomNodeType
-                } else {
-                    log("❌ handleLLMStepAction: changeNodeType failed because nodeType is not allowed for existing node")
-                    log("   - Node ID: \(action.nodeId ?? "nil")")
-                    log("   - Node Patch: \(existingNode.patch.debugDescription ?? "NO PATCH")")
-                    log("   - New Type: \(action.nodeType ?? "nil")")
-                    log("   - Attempt: \(attempt) of \(maxAttempts)")
-                    
-                    // Crash on debug mode if LLM suggested something 
-                    fatalErrorIfDebug()
-                    
-                    return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
-                }
+        case .addLayerInput(let x):
+            guard let node = self.graph.getNode(x.nodeId),
+                  let layerNode = node.layerNode else {
+                // TODO: JAN 30: retry
+                fatalErrorIfDebug()
+                return nil
             }
             
-            let _ = self.graph.nodeTypeChanged(nodeId: existingNode.id,
-                                               newNodeType: nodeType)
+            let layerInputType = x.port.asFullInput
+            let input = layerNode[keyPath: layerInputType.layerNodeKeyPath]
+
+            self.graph.layerInputAddedToGraph(node: node,
+                                              input: input,
+                                              coordinate: layerInputType,
+                                              manualLLMStepCenter: newCenter)
+            return canvasItemsAdded + 1
+        
+        case .connectNodes(let x):
+            let edge: PortEdgeData = PortEdgeData(
+                from: .init(portType: x.fromPort, nodeId: x.fromNodeId),
+                to: .init(portType: x.port, nodeId: x.toNodeId))
             
-            log("✅ Successfully changed node type:")
-            log("   - Node ID: \(llmNodeId)")
-            log("   - New Type: \(nodeType)")
+            let _ = graph.edgeAdded(edge: edge)
             
             return canvasItemsAdded
-            
-        case .setInput:
-            
-            guard let port: NodeIOPortType = action.parsePort(),
-                  let nodeType: NodeType = action.parseNodeType(),
-                  let value: PortValue = action.parseValueForSetInput(
-                    nodeType: nodeType),
-                  let llmNodeId: String = action.nodeId,
-                  let nodeId = self.llmNodeIdMapping.get(llmNodeId),
-                  self.graph.getNode(nodeId).isDefined else {
-                log("❌ handleLLMStepAction: setInput failed - missing required parameters")
-                log("   - Port: \(action.port?.value ?? "nil")")
-                log("   - Node ID: \(action.nodeId ?? "nil")")
-                log("   - Attempt: \(attempt) of \(maxAttempts)")
-                return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
-            }
-            
-            let inputCoordinate = InputCoordinate(portType: port, nodeId: nodeId)
-            
+        
+        case .changeNodeType(let x):
+            // NodeType etc. for this patch was already validated in `[StepTypeAction].areValidLLMSteps`
+            let _ = self.graph.nodeTypeChanged(nodeId: x.nodeId,
+                                               newNodeType: x.nodeType)
+            return canvasItemsAdded
+        
+        case .setInput(let x):
+            let inputCoordinate = InputCoordinate(portType: x.port,
+                                                  nodeId: x.nodeId)
             guard let input = self.graph.getInputObserver(coordinate: inputCoordinate) else {
-                log("❌ handleLLMStepAction: setInput failed - could not get input observer")
-                log("   - Node ID: \(nodeId)")
-                log("   - Port: \(port)")
-                return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
+                // TODO: JAN 30: retry
+                fatalErrorIfDebug()
+                return nil
             }
-            
-            log("handleLLMStepAction: setInput: value: \(value)")
             
             // Use the common input-edit-committed function, so that we remove edges, block or unblock fields, etc.
             self.graph.inputEditCommitted(input: input,
-                                          nodeId: nodeId,
-                                          value: value,
+                                          nodeId: x.nodeId,
+                                          value: x.value,
                                           wasDropdown: false)
             
             return canvasItemsAdded
-            
-        case .addLayerInput:
-            
-            guard let nodeIdString: String = action.nodeId,
-                  let port: NodeIOPortType = action.parsePort(),
-                  // Node must already exist
-                  let nodeId = self.llmNodeIdMapping.get(nodeIdString) else {
-                log("❌ handleLLMStepAction: addLayerInput failed:")
-                log("   - Node ID: \(action.nodeId ?? "nil")")
-                log("   - Port: \(action.port?.value ?? "nil")")
-                log("   - Attempt: \(attempt) of \(maxAttempts)")
-                return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
-            }
-                        
-            guard let node = self.graph.getNode(nodeId) else {
-                log("❌ handleLLMStepAction: addLayerInput failed:")
-                log("   - Node ID: \(action.nodeId ?? "nil")")
-                log("   - Port: \(action.port?.value ?? "nil")")
-                log("   - Attempt: \(attempt) of \(maxAttempts)")
-                return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
-            }
-            
-            guard let layerInput = port.keyPath,
-                  let layerNode = node.layerNode else {
-                log("❌ handleLLMLayerInputOrOutputAdded: No input for \(port)")
-                return canvasItemsAdded
-            }
-            
-            let input = layerNode[keyPath: layerInput.layerNodeKeyPath]
-
-            graph.layerInputAddedToGraph(node: node,
-                                         input: input,
-                                         coordinate: layerInput,
-                                         manualLLMStepCenter: newCenter)
-            
-            return canvasItemsAdded + 1
-            
-        case .connectNodes:
-            
-            guard let toPort: NodeIOPortType = action.parsePort(),
-                  let fromNodeIdString: String = action.fromNodeId,
-                  let toNodeIdString: String = action.toNodeId else {
-                log("❌ handleLLMStepAction: connectNodes missing required data:")
-                log("   - To Port: \(action.port?.value ?? "nil")")
-                log("   - From Node ID: \(action.fromNodeId ?? "nil")")
-                log("   - To Node ID: \(action.toNodeId ?? "nil")")
-                log("   - Attempt: \(attempt) of \(maxAttempts)")
-                return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
-            }
-            
-            guard let fromNodeId = self.llmNodeIdMapping.get(fromNodeIdString),
-                  let toNodeId = self.llmNodeIdMapping.get(toNodeIdString) else {
-                log("❌ handleLLMStepAction: nodes not found for connectNodes:")
-                log("   - From Node ID (mapped): \(String(describing: self.llmNodeIdMapping.get(fromNodeIdString)) )")
-                log("   - To Node ID (mapped): \(String(describing: self.llmNodeIdMapping.get(toNodeIdString)))")
-                log("   - Attempt: \(attempt) of \(maxAttempts)")
-                return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
-            }
-            
-            let portValue = action.fromPort?.value ?? "0"
-            let fromPortIndex = Int(portValue) ?? 0
-            
-            let fromCoordinate = OutputCoordinate(portType: .portIndex(fromPortIndex), nodeId: fromNodeId)
-            let toCoordinate = InputCoordinate(portType: toPort, nodeId: toNodeId)
-            let edge: PortEdgeData = PortEdgeData(from: fromCoordinate, to: toCoordinate)
-            let _ = graph.edgeAdded(edge: edge)
-            
-            log("✅ Successfully connected nodes:")
-            log("   - From Node: \(fromNodeIdString) (Port: \(fromPortIndex))")
-            log("   - To Node: \(toNodeIdString) (Port: \(toPort))")
-            
-            return canvasItemsAdded
         }
+        
     }
+    
     
     @MainActor
     private func handleRetry(action: LLMStepAction,
@@ -239,10 +116,11 @@ extension StitchDocumentViewModel {
             
             // Wait briefly before retry
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                _ = self.handleLLMStepAction(action,
-                                            canvasItemsAdded: canvasItemsAdded,
-                                            attempt: attempt + 1,
-                                            maxAttempts: maxAttempts)
+            // TODO: JAN 30: retry
+//                _ = self.handleLLMStepAction(action,
+//                                            canvasItemsAdded: canvasItemsAdded,
+//                                            attempt: attempt + 1,
+//                                            maxAttempts: maxAttempts)
             }
         } else {
             log("❌ All retries failed, requesting new response from OpenAI")
