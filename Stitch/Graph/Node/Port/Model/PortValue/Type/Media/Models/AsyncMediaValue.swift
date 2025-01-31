@@ -15,13 +15,15 @@ extension AsyncMediaValue {
     init(mediaKey: MediaKey) {
         self.init(
             id: .init(),
-            dataType: .source(mediaKey))
+            dataType: .source(mediaKey),
+            label: mediaKey.filename)
     }
-
+    
     /// Optional initializer for default media, where loopIndex is always 0 but we need the static global id.
     init(id: UUID, mediaKey: MediaKey) {
         self.init(id: id,
-                  dataType: .source(mediaKey))
+                  dataType: .source(mediaKey),
+                  label: mediaKey.filename)
     }
     
     var mediaKey: MediaKey? {

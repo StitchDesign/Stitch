@@ -42,15 +42,20 @@ func imageImportEval(node: PatchNode) -> EvalResult {
         asyncObserver.asyncMediaEvalOp(loopIndex: loopIndex,
                                        values: values,
                                        node: node) { [weak asyncObserver] () -> MediaEvalOpResult in
-            guard let media = await asyncObserver?.getUniqueMedia(inputMediaValue: values.first?.asyncMedia,
+            guard let mediaValue = values.first?.asyncMedia,
+                  let media = await asyncObserver?.getUniqueMedia(inputMediaValue: mediaValue,
                                                                   inputPortIndex: 0,
                                                                   loopIndex: loopIndex),
                   let image = media.mediaObject.image else {
                 return .init(from: [.asyncMedia(nil), .size(.zero)])
             }
             
+            let computedMediaValue = AsyncMediaValue(id: .init(),
+                                                     dataType: .computed,
+                                                     label: mediaValue.label)
             return .init(values: [
-                media.portValue, .size(image.layerSize)
+                .asyncMedia(computedMediaValue),
+                .size(image.layerSize)
             ], media: media)
         }
     }

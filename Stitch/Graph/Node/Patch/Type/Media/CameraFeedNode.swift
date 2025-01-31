@@ -176,7 +176,8 @@ func cameraFeedEval(node: PatchNode,
         return .init(
             values: [
                 .asyncMedia(AsyncMediaValue(id: newId,
-                                            dataType: .computed)),
+                                            dataType: .computed,
+                                            label: "Camera")),
                 .size(currentCameraImage.layerSize)
             ],
             media: .init(computedMedia: .image(currentCameraImage))

@@ -251,11 +251,8 @@ extension PortValue {
             if let selectedDefaultOption = DefaultMediaOption.findDefaultOption(from: asyncMedia) {
                 return [[.media(.defaultMedia(selectedDefaultOption))]]
             }
-            
-            let mediaName = rowViewModel.getMediaObject()?.mediaObject.name ?? "None"
-            let mediaViewData = MediaViewData(media: asyncMedia,
-                                              name: mediaName)
-            return [[.media(.media(mediaViewData))]]
+
+            return [[.media(.media(asyncMedia))]]
 
         case .number:
             // if self is PortValue.comparable, then .getNumber will fail;

@@ -53,8 +53,11 @@ func grayscaleEval(node: PatchNode) -> EvalResult {
             switch await image.setGrayscale() {
             case .success(let grayscaleImage):
                 mediaValue.mediaObject = .image(grayscaleImage)
+                let mediaPortValue = AsyncMediaValue(id: .init(),
+                                                     dataType: .computed,
+                                                     label: values.first?.asyncMedia?.label ?? "Grayscale")
                 
-                return MediaEvalOpResult(values: [.asyncMedia(mediaValue.mediaValue)],
+                return MediaEvalOpResult(values: [.asyncMedia(mediaPortValue)],
                                          media: mediaValue)
             case .failure(let error):
                 Task { ReceivedStitchFileError(error: error) }

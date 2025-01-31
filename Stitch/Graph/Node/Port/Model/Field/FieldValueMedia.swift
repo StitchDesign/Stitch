@@ -8,15 +8,10 @@
 import Foundation
 import StitchSchemaKit
 
-struct MediaViewData: Equatable, Hashable {
-    let media: AsyncMediaValue
-    let name: String
-}
-
 enum FieldValueMedia: Equatable, Hashable {
     case none
     case importButton
-    case media(MediaViewData)
+    case media(AsyncMediaValue)
     case defaultMedia(DefaultMediaOption)
 }
 
@@ -45,7 +40,6 @@ extension FieldValueMedia {
         }
     }
     
-    @MainActor
     var name: String {
         switch self {
         case .none:
@@ -53,7 +47,7 @@ extension FieldValueMedia {
         case .importButton:
             return IMPORT_BUTTON_DISPLAY
         case .media(let media):
-            return media.name
+            return media.label
         case .defaultMedia(let defaultMedia):
             return defaultMedia.name
         }
@@ -91,14 +85,15 @@ extension FieldValueMedia {
             dispatch(ShowFileImportModal(nodeImportPayload: payload))
         
         case .media(let mediaValue):
-            dispatch(MediaPickerChanged(selectedValue: .asyncMedia(mediaValue.media),
+            dispatch(MediaPickerChanged(selectedValue: .asyncMedia(mediaValue),
                                         mediaType: mediaType,
                                         input: inputCoordinate,
                                         isFieldInsideLayerInspector: isFieldInsideLayerInspector))
             
         case .defaultMedia(let defaultMedia):
             let mediaValue = AsyncMediaValue(id: .init(),
-                                             dataType: .source(defaultMedia.mediaKey))
+                                             dataType: .source(defaultMedia.mediaKey),
+                                             label: defaultMedia.mediaKey.filename)
             let portValue = PortValue.asyncMedia(mediaValue)
             
             dispatch(MediaPickerChanged(selectedValue: portValue,

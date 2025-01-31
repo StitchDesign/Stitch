@@ -29,13 +29,24 @@ extension GraphMediaValue {
         self.mediaObject = computedMedia
     }
     
+    @MainActor
     var portValue: PortValue {
         .asyncMedia(self.mediaValue)
     }
     
-    var mediaValue: AsyncMediaValue {
+    func mediaValue(label: String) -> AsyncMediaValue {
         .init(id: self.id,
-              dataType: self.dataType)
+              dataType: self.dataType,
+              label: label)
+    }
+    
+    func portValue(label: String) -> PortValue {
+        .asyncMedia(self.mediaValue(label: label))
+    }
+    
+    @MainActor
+    var mediaValue: AsyncMediaValue {
+        self.mediaValue(label: self.mediaObject.name)
     }
     
     var mediaKey: MediaKey? {
