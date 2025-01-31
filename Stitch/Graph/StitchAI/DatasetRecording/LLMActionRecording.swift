@@ -14,49 +14,60 @@ import StitchSchemaKit
 let LLM_START_RECORDING_SF_SYMBOL = "inset.filled.rectangle.badge.record"
 let LLM_STOP_RECORDING_SF_SYMBOL = "stop.fill"
 
-struct LLMRecordingToggled: GraphEvent {
+struct LLMRecordingToggled: StitchDocumentEvent {
     
-    func handle(state: GraphState) {
-        guard let document = state.documentDelegate else {
-            fatalErrorIfDebug()
+    func handle(state: StitchDocumentViewModel) {
+        
+        if state.llmRecording.isRecording {
+            let modeLabel = state.llmRecording.mode == .augmentation ? "AUGMENTATION" : "NORMAL"
+            log("📼 🛑 STOPPING LLM RECORDING MODE [\(modeLabel)] 🛑 📼")
+            state.llmRecordingEnded()
+        } else {
+            // If we're not already recording, and we're in AI Mode,
+            // then start augmentation mode
+            if state.graphUI.insertNodeMenuState.isFromAIGeneration {
+                state.startLLMAugmentationMode()
+            } else {
+                state.llmRecordingStarted()
+            }
+            
+            let modeLabel = state.llmRecording.mode == .augmentation ? "AUGMENTATION" : "NORMAL"
+            let transitionNote = wasInAIMode ? " (Transitioned from AI Generation)" : ""
+            log("📼 ▶\u{fef} STARTING LLM RECORDING MODE [\(modeLabel)]\(transitionNote) ▶\u{fef} 📼")
+        }
+    }
+}
+
+extension StitchDocumentViewModel {
+
+    @MainActor
+    func startLLMAugmentationMode() {
+        guard self.graphUI.insertNodeMenuState.isFromAIGeneration else {
+            fatalErrorIfDebug("Should not have called startLLMAugmentationMode when not in AI Mode")
             return
         }
         
-        let wasInAIMode = state.graphUI.insertNodeMenuState.isFromAIGeneration
+        log("🔄 🤖 TRANSITIONING FROM AI MODE TO RECORDING - ENTERING AUGMENTATION MODE 🤖 🔄")
+        // First store the current AI-generated actions
+        let currentActions = self.llmRecording.actions
+        log("🤖 💾 Storing AI-Generated Actions: \(currentActions)")
         
-        // Check if we're transitioning from AI generation to recording
-        if wasInAIMode {
-            log("🔄 🤖 TRANSITIONING FROM AI MODE TO RECORDING - ENTERING AUGMENTATION MODE 🤖 🔄")
-            // First store the current AI-generated actions
-            let currentActions = document.llmRecording.actions
-            log("🤖 💾 Storing AI-Generated Actions: \(currentActions)")
-            
-            // Set augmentation mode
-            document.llmRecording.mode = .augmentation
-            
-            // Open the Edit-before-submit modal
-            document.llmRecording.modal = .editBeforeSubmit
-            
-            // We keep the actions as they are - don't clear them
-            log("🤖 💾 Verified Actions Count: \(currentActions.count)")
-            log("🤖 💾 Verified Actions Content: \(currentActions.asJSONDisplay())")
-            
-            // Clear the AI generation flag AFTER we've secured the actions
-            state.graphUI.insertNodeMenuState.isFromAIGeneration = false
-            log("🔄 🤖 AI Generation Mode Cleared - Actions Preserved for Correction 🤖 🔄")
-            
-        } // if wasInAIMode
+        // Set augmentation mode
+        self.llmRecording.mode = .augmentation
         
-        if document.llmRecording.isRecording {
-            let modeLabel = document.llmRecording.mode == .augmentation ? "AUGMENTATION" : "NORMAL"
-            log("📼 🛑 STOPPING LLM RECORDING MODE [\(modeLabel)] 🛑 📼")
-            document.llmRecordingEnded()
-        } else {
-            let modeLabel = document.llmRecording.mode == .augmentation ? "AUGMENTATION" : "NORMAL"
-            let transitionNote = wasInAIMode ? " (Transitioned from AI Generation)" : ""
-            log("📼 ▶\u{fef} STARTING LLM RECORDING MODE [\(modeLabel)]\(transitionNote) ▶\u{fef} 📼")
-            document.llmRecordingStarted()
-        }
+        // Open the Edit-before-submit modal
+        self.llmRecording.modal = .editBeforeSubmit
+        
+        // We keep the actions as they are - don't clear them
+        log("🤖 💾 Verified Actions Count: \(currentActions.count)")
+        log("🤖 💾 Verified Actions Content: \(currentActions.asJSONDisplay())")
+        
+        // Clear the AI generation flag AFTER we've secured the actions
+        self.graphUI.insertNodeMenuState.isFromAIGeneration = false
+        log("🔄 🤖 AI Generation Mode Cleared - Actions Preserved for Correction 🤖 🔄")
+        
+        // Start recording
+        self.llmRecordingStarted()
     }
 }
 
