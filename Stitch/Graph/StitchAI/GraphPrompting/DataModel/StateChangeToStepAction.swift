@@ -19,19 +19,10 @@ extension StitchDocumentViewModel {
     func maybeCreateStepTypeAddNode(_ newlyCreatedNodeId: NodeId) {
         // If we're LLM-recording, add an `LLMAddNode` action
         if self.llmRecording.isRecording,
-           let newlyCreatedNode = self.graph.getNodeViewModel(newlyCreatedNodeId) {
-            
-            let step: LLMStepAction = newlyCreatedNode.createLLMStepAddNode()
-            
-            log("maybeCreateStepTypeAddNode: step: \(step)")
-            
-            // // DEBUG:
-            //            let data: Data = try! JSONEncoder().encode(step)
-            //            let json: JSON = data.toJSON!
-            //            // DOES NOT INCLUDE 'NIL' FIELDS
-            //            log("maybeCreateStepTypeAddNode: json: \(json)")
-            
-            self.llmRecording.actions.append(step)
+           let newlyCreatedNode = self.graph.getNodeViewModel(newlyCreatedNodeId),
+           let patchOrLayer: PatchOrLayer = PatchOrLayer.from(nodeKind: newlyCreatedNode.kind) {
+
+            self.llmRecording.actions.append(.addNode(.init(nodeId: newlyCreatedNodeId, nodeName: patchOrLayer)))
         }
     }
     
@@ -39,8 +30,7 @@ extension StitchDocumentViewModel {
     func maybeCreateLLMStepChangeNodeType(node: NodeViewModel,
                                           newNodeType: NodeType) {
         if self.llmRecording.isRecording {
-            let step = node.createLLMStepChangeNodeType(newNodeType)
-            self.llmRecording.actions.append(step)
+            self.llmRecording.actions.append(.changeNodeType(.init(nodeId: node.id, nodeType: newNodeType)))
         }
     }
     
@@ -49,8 +39,11 @@ extension StitchDocumentViewModel {
                                     input: InputCoordinate,
                                     value: PortValue) {
         if self.llmRecording.isRecording {
-            let step = node.createLLMStepSetInput(input: input, value: value)
-            self.llmRecording.actions.append(step)
+            self.llmRecording.actions.append(.setInput(
+                .init(nodeId: node.id,
+                      port: input.portType,
+                      value: value,
+                      nodeType: value.toNodeType)))
         }
     }
     
@@ -61,12 +54,12 @@ extension StitchDocumentViewModel {
         log("maybeCreateLLMStepConnectionAdded: input: \(input)")
         log("maybeCreateLLMStepConnectionAdded: output: \(output)")
         if self.llmRecording.isRecording {
-            
-            let step = createLLMStepConnectionAdded(
-                input: input,
-                output: output)
-            
-            self.llmRecording.actions.append(step)
+                        
+            self.llmRecording.actions.append(.connectNodes(.init(
+                port: input.portType,
+                toNodeId: input.nodeId,
+                fromPort: output.portType,
+                fromNodeId: output.nodeId)))
         }
     }
     
@@ -75,51 +68,16 @@ extension StitchDocumentViewModel {
         // If we're LLM-recording, add an `LLMAddNode` action
         if self.llmRecording.isRecording {
 
-            let step = createLLMStepAddLayerInput(
-                nodeId: nodeId,
-                input: property.layerInput)
-            
+            let step = StepTypeAction.addLayerInput(.init(nodeId: nodeId, port: property.layerInput))
+                        
             self.llmRecording.actions.append(step)
         }
     }
 }
 
-extension NodeViewModel {
-    @MainActor
-    func createLLMStepAddNode() -> LLMStepAction {
-        LLMStepAction(stepType: StepType.addNode.rawValue,
-                      nodeId: self.id.description, // raw string of UUID
-                      nodeName: self.kind.asLLMStepNodeName)
-    }
-    
-    @MainActor
-    func createLLMStepChangeNodeType(_ newNodeType: NodeType) -> LLMStepAction {
-        LLMStepAction(stepType: StepType.changeNodeType.rawValue,
-                      nodeId: self.id.description,
-                      // Nov 12: Our OpenAI schema currently expects e.g. "text", not "Text"
-                      nodeType: newNodeType.asLLMStepNodeType)
-    }
-    
-    @MainActor
-    func createLLMStepSetInput(input: InputCoordinate,
-                               value: PortValue) -> LLMStepAction {
-        LLMStepAction(stepType: StepType.setInput.rawValue,
-                      nodeId: self.id.description,
-                      port: .init(value: input.asLLMStepPort()),
-                      
-                      // Note: `.asLLMValue: JSONFriendlyFormat` is needed for handling more complex values like `LayerDimension`
-                      // value: value.asLLMValue,
-//                      value: .init(value: value.display),
-                      value: value.llmFriendlyDisplay, // JSONFriendlyFormat(value: value),
-                      
-                      // For disambiguating between e.g. a string "2" and the number 2
-                      nodeType: value.toNodeType.asLLMStepNodeType)
-    }
-}
-
-extension InputCoordinate {
+extension NodeIOPortType {
     func asLLMStepPort() -> String {
-        switch self.portType {
+        switch self {
         case .keyPath(let x):
             // Note: StitchAI does not yet support unpacked ports
             // Note 2: see our OpenAI schema for list of possible `LayerPorts`
@@ -128,6 +86,12 @@ extension InputCoordinate {
             // an integer
             return x.description
         }
+    }
+}
+
+extension InputCoordinate {
+    func asLLMStepPort() -> String {
+        self.portType.asLLMStepPort()
     }
 }
 
@@ -211,6 +175,24 @@ extension LLMStepActions {
             return json
         } catch {
             log("LLMStepActions: asJSON: error: \(error)")
+            return nil
+        }
+    }
+    
+    func asJSONDisplay() -> String {
+        self.asJSON()?.description ?? "No LLM-Acceptable Actions Detected"
+    }
+}
+
+extension [StepTypeAction] {
+    func asJSON() -> JSON? {
+        do {
+            let data = try JSONEncoder().encode(self)
+            let json = try JSON(data: data)
+            log("[StepTypeAction]: asJSON: encoded json: \(json)")
+            return json
+        } catch {
+            log("[StepTypeAction]: asJSON: error: \(error)")
             return nil
         }
     }
