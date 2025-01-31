@@ -741,10 +741,10 @@ extension JSONFriendlyFormat {
         }
     }
     
-    @MainActor
-    func asPortValueForLLMSetField(_ nodeType: NodeType,
+    func asPortValueForLLMSetField(_ nodeType: NodeType) -> PortValue? {
                                    // for turning a string into a LayerNodeId
-                                   with mapping: LLMNodeIdMapping) -> PortValue? {
+//                                   with mapping: LLMNodeIdMapping) -> PortValue? {
+                                   
         
         // log("asPortValueForLLMSetField: self: \(self)")
         // log("asPortValueForLLMSetField: nodeType: \(nodeType)")
@@ -830,10 +830,10 @@ extension JSONFriendlyFormat {
                     log("asPortValueForLLMSetField: JFF string, with interaction id node type: returning id directly")
                     return .assignedLayer(.init(id))
                 }
-                    
-                else if let layerNodeId = mapping.get(x) {
-                    return .assignedLayer(.init(layerNodeId))
-                }
+//                    
+//                else if let layerNodeId = mapping.get(x) {
+//                    return .assignedLayer(.init(layerNodeId))
+//                }
                 return .assignedLayer(nil)
             
             
