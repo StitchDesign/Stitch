@@ -8,12 +8,58 @@
 import Foundation
 import SwiftUI
 
-enum StepTypeActions: Equatable, Hashable, Codable {
+// See `StepType`
+enum StepTypeAction: Equatable, Hashable, Codable {
     case addNode(StepActionAddNode)
     case addLayerInput(StepActionAddLayerInput)
     case connectNodes(StepActionConnectionAdded)
     case changeNodeType(StepActionChangeNodeType)
     case setInput(StepActionSetInput)
+    
+    static func fromStep(_ action: Step) -> Self? {
+        guard let stepType = action.parseStepType else {
+            fatalErrorIfDebug()
+            return nil
+        }
+        
+        switch stepType {
+            
+        case .addNode:
+            guard let x = StepActionAddNode.fromStep(action) else {
+                fatalErrorIfDebug()
+                return nil
+            }
+            return .addNode(x)
+            
+        case .addLayerInput:
+            guard let x = StepActionAddLayerInput.fromStep(action) else {
+                fatalErrorIfDebug()
+                return nil
+            }
+            return .addLayerInput(x)
+            
+        case .connectNodes:
+            guard let x = StepActionConnectionAdded.fromStep(action) else {
+                fatalErrorIfDebug()
+                return nil
+            }
+            return .connectNodes(x)
+        
+        case .changeNodeType:
+            guard let x = StepActionChangeNodeType.fromStep(action) else {
+                fatalErrorIfDebug()
+                return nil
+            }
+            return .changeNodeType(x)
+        
+        case .setInput:
+            guard let x = StepActionSetInput.fromStep(action) else {
+                fatalErrorIfDebug()
+                return nil
+            }
+            return .setInput(x)
+        }
+    }
 }
 
 // "Which properties from `Step` are actually needed by StepType = .addNode ?"

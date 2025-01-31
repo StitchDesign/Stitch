@@ -41,9 +41,6 @@ extension StitchDocumentViewModel {
             return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
         }
         
-//        let newCenter = CGPoint(
-//            x: self.newNodeCenterLocation.x + (CGFloat(canvasItemsAdded) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_WDITH_STAGGER),
-//            y: self.newNodeCenterLocation.y + (CGFloat(canvasItemsAdded) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER))
         let newCenter = CGPoint(
             x: self.newNodeCenterLocation.x + (CGFloat(canvasItemsAdded) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_WDITH_STAGGER),
             y: self.newNodeCenterLocation.y)
@@ -95,14 +92,21 @@ extension StitchDocumentViewModel {
             // If LLM provided an invalid node-type for this patch,
             // we will default to the patch's default node type and issue a correction.
             if !patch.availableNodeTypes.contains(nodeType) {
-                log("❌ handleLLMStepAction: changeNodeType failed because nodeType is not allowed for existing node")
-                log("   - Node ID: \(action.nodeId ?? "nil")")
-                log("   - Node Patch: \(existingNode.patch.debugDescription ?? "NO PATCH")")
-                log("   - New Type: \(action.nodeType ?? "nil")")
-                log("   - Attempt: \(attempt) of \(maxAttempts)")
-                
-                
-//                nodeType = patch.de
+                if let randomNodeType = patch.availableNodeTypes.randomElement() {
+                    log("HAD BAD NODE TYPE \(nodeType) FOR PATCH \(patch); will use random node type instead: \(randomNodeType)")
+                    nodeType = randomNodeType
+                } else {
+                    log("❌ handleLLMStepAction: changeNodeType failed because nodeType is not allowed for existing node")
+                    log("   - Node ID: \(action.nodeId ?? "nil")")
+                    log("   - Node Patch: \(existingNode.patch.debugDescription ?? "NO PATCH")")
+                    log("   - New Type: \(action.nodeType ?? "nil")")
+                    log("   - Attempt: \(attempt) of \(maxAttempts)")
+                    
+                    // Crash on debug mode if LLM suggested something 
+                    fatalErrorIfDebug()
+                    
+                    return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
+                }
             }
             
             let _ = self.graph.nodeTypeChanged(nodeId: existingNode.id,
@@ -122,7 +126,7 @@ extension StitchDocumentViewModel {
                     nodeType: nodeType),
                   let llmNodeId: String = action.nodeId,
                   let nodeId = self.llmNodeIdMapping.get(llmNodeId),
-                  let existingNode = self.graph.getNode(nodeId) else {
+                  self.graph.getNode(nodeId).isDefined else {
                 log("❌ handleLLMStepAction: setInput failed - missing required parameters")
                 log("   - Port: \(action.port?.value ?? "nil")")
                 log("   - Node ID: \(action.nodeId ?? "nil")")
@@ -268,6 +272,10 @@ extension String {
 }
 
 extension LLMStepAction {
+    
+    var parseStepType: StepType? {
+        StepType(rawValue: self.stepType)
+    }
     
     var parseNodeId: NodeId? {
         self.nodeId?.parseNodeId

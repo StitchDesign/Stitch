@@ -801,7 +801,7 @@
 		ECCEB26C2963B0FD007E35D1 /* TriangleData.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCEB26B2963B0FD007E35D1 /* TriangleData.swift */; };
 		ECCEB26E2963B10F007E35D1 /* CustomShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCEB26D2963B10F007E35D1 /* CustomShape.swift */; };
 		ECCEDA822B5715B50000333B /* iPadFloatingWindowHandleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCEDA812B5715B50000333B /* iPadFloatingWindowHandleView.swift */; };
-		ECCF23512D4C6C5A00BC2F2F /* StepTypeActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCF23502D4C6C5A00BC2F2F /* StepTypeActions.swift */; };
+		ECCF23512D4C6C5A00BC2F2F /* StepTypeAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCF23502D4C6C5A00BC2F2F /* StepTypeAction.swift */; };
 		ECCF23532D4C6C7B00BC2F2F /* StepType.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCF23522D4C6C7B00BC2F2F /* StepType.swift */; };
 		ECCF23552D4C6C9300BC2F2F /* Step.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCF23542D4C6C9300BC2F2F /* Step.swift */; };
 		ECCF930D2C7908F7002786D5 /* LayerPaddingModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCF930C2C7908F7002786D5 /* LayerPaddingModifier.swift */; };
@@ -1743,7 +1743,7 @@
 		ECCEB26B2963B0FD007E35D1 /* TriangleData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriangleData.swift; sourceTree = "<group>"; };
 		ECCEB26D2963B10F007E35D1 /* CustomShape.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomShape.swift; sourceTree = "<group>"; };
 		ECCEDA812B5715B50000333B /* iPadFloatingWindowHandleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iPadFloatingWindowHandleView.swift; sourceTree = "<group>"; };
-		ECCF23502D4C6C5A00BC2F2F /* StepTypeActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepTypeActions.swift; sourceTree = "<group>"; };
+		ECCF23502D4C6C5A00BC2F2F /* StepTypeAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepTypeAction.swift; sourceTree = "<group>"; };
 		ECCF23522D4C6C7B00BC2F2F /* StepType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepType.swift; sourceTree = "<group>"; };
 		ECCF23542D4C6C9300BC2F2F /* Step.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Step.swift; sourceTree = "<group>"; };
 		ECCF930C2C7908F7002786D5 /* LayerPaddingModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerPaddingModifier.swift; sourceTree = "<group>"; };
@@ -3874,7 +3874,7 @@
 			children = (
 				E40B2F542CB86F2B005F5479 /* OpenAIResponseStructs.swift */,
 				ECCF23542D4C6C9300BC2F2F /* Step.swift */,
-				ECCF23502D4C6C5A00BC2F2F /* StepTypeActions.swift */,
+				ECCF23502D4C6C5A00BC2F2F /* StepTypeAction.swift */,
 				ECCF23522D4C6C7B00BC2F2F /* StepType.swift */,
 				ECEC4A432CE2FB900062ACAF /* StateChangeToStepAction.swift */,
 				ECEC4A452CE3BEAF0062ACAF /* StepActionToStateChange.swift */,
@@ -5336,7 +5336,7 @@
 				EC3420E22AF9C2EC00EBD896 /* CommentBoxHelpers.swift in Sources */,
 				ECDFF6302A0E994700729D2A /* ShapeToCommandsNode.swift in Sources */,
 				ECE2AFEA2C0A43D200F5FE87 /* InsertNodeMenuActions.swift in Sources */,
-				ECCF23512D4C6C5A00BC2F2F /* StepTypeActions.swift in Sources */,
+				ECCF23512D4C6C5A00BC2F2F /* StepTypeAction.swift in Sources */,
 				EC9AB64728DFEA23002810BC /* ScrollPagingInteractionHelpers.swift in Sources */,
 				ECCF930D2C7908F7002786D5 /* LayerPaddingModifier.swift in Sources */,
 				B557806F2CB04CCC00907BA8 /* GroupNodeType.swift in Sources */,

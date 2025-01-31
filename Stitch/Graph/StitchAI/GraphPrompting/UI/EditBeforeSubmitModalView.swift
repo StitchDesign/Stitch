@@ -21,7 +21,6 @@ struct EditBeforeSubmitModalView: View {
         recordingState.actions
     }
     
-//    @State private var nodeIdToNameMapping: [String: String] = .init()
     var nodeIdToNameMapping: [NodeId: String] {
         recordingState.nodeIdToNameMapping
     }
@@ -226,9 +225,5 @@ struct LLMActionCorrectionView: View {
             }
             StitchTextView(string: "NodeType: \(nodeType.display)")
         }
-        
-         
-         
-       
     }
 }

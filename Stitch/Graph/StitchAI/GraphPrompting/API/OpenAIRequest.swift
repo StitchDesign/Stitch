@@ -300,8 +300,18 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
         log(" Original Actions to store: \(steps.asJSONDisplay())")
         state.llmRecording.actions = steps
         state.llmRecording.promptState.prompt = originalPrompt
-                
+        
         var canvasItemsAdded = 0
+        
+         
+        let parsedSteps: [StepTypeAction] = steps.compactMap { StepTypeAction.fromStep($0) }
+        
+        if parsedSteps.count != steps.count {
+            // i.e. we weren't able to parse each Step to a more specific StepTypeAction
+            // TODO: JAN 30: retry the whole prompt
+            fatalErrorIfDebug()
+        }
+        
         steps.forEach { step in
             canvasItemsAdded = state.handleLLMStepAction(
                 step,
