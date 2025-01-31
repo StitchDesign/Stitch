@@ -295,18 +295,32 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
         for step in steps {
             log(step.description)
         }
+                
+        var canvasItemsAdded = 0
+         
+        let parsedSteps: [StepTypeAction] = steps.compactMap { StepTypeAction.fromStep($0) }
+        
+        // e.g. we weren't able to parse each Step to a more specific StepTypeAction,
+        if (parsedSteps.count != steps.count)
+            // or the LLM told us to create a connection for a node that did not yet exist
+            || !parsedSteps.areLLMStepsValid() {
+            
+            // TODO: JAN 30: retry the whole prompt
+            fatalErrorIfDebug()
+        }
         
         log(" Storing Original AI Generated Actions ")
         log(" Original Actions to store: \(steps.asJSONDisplay())")
-        state.llmRecording.actions = steps
+        state.llmRecording.actions = parsedSteps
         state.llmRecording.promptState.prompt = originalPrompt
-                
-        var canvasItemsAdded = 0
-        steps.forEach { step in
-            canvasItemsAdded = state.handleLLMStepAction(
+        
+        parsedSteps.forEach { step in
+            if let _canvasItemsAdded = state.applyAction(
                 step,
-                canvasItemsAdded: canvasItemsAdded
-            )
+                canvasItemsAdded: canvasItemsAdded) {
+                
+                canvasItemsAdded = _canvasItemsAdded
+            }
         }
         
         state.graphUI.reduxFocusedField = nil

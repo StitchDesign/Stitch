@@ -96,11 +96,7 @@ struct iPadGraphTopBarButtons: View {
     var body: some View {
 
         // TODO: why does `Group` but not `HStack` work here? Something to do with `Menu`?
-        Group {            
-//            iPadNavBarButton(action: { document.openedLLMActionsJSONEntryModal() },
-//                             iconName: .sfSymbol(LLM_OPEN_JSON_ENTRY_MODAL_SF_SYMBOL))
-//            .opacity(llmRecordingModeEnabled ? 1 : 0)
-            
+        Group {
             iPadNavBarButton(action: { dispatch(LLMRecordingToggled()) },
                              iconName: .sfSymbol(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL))
             .opacity(llmRecordingModeEnabled ? 1 : 0)

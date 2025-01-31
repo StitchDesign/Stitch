@@ -17,32 +17,52 @@ struct EditBeforeSubmitModalView: View {
         recordingState.promptState.prompt
     }
     
-    var actions: [LLMStepAction] {
+//    var actions: [StepTypeAction] {
+    var recordingStateActions: [StepTypeAction] {
         recordingState.actions
     }
     
-//    @State private var nodeIdToNameMapping: [String: String] = .init()
-    var nodeIdToNameMapping: [NodeId: String] {
+    var nodeIdToNameMapping: [NodeId: PatchOrLayer] {
         recordingState.nodeIdToNameMapping
     }
     
+    @State var actions: [StepTypeAction]
+    
     var body: some View {
         VStack {
-            ScrollView {
-                actionsView
-                    .padding()
+            StitchTextView(string: "Prompt: \(prompt)")
+                .font(.headline)
+                .padding(.top)
+            
+            // https://www.hackingwithswift.com/quick-start/swiftui/how-to-let-users-move-rows-in-a-list
+            List(self.$actions, id: \.hashValue, editActions: .move) { $action in
+                LLMActionCorrectionView(action: action,
+                                        nodeIdToNameMapping: self.nodeIdToNameMapping)
+                .listRowBackground(Color.clear)
+                .listRowSpacing(8)
+                .listRowSeparator(.hidden)
             }
+            .listStyle(.plain)
             
             buttons
-                .padding()
+                .padding(.bottom)
         }
-        .frame(maxWidth: 420, maxHeight: 600)
+        .frame(maxWidth: 360, maxHeight: 600)
         .background(.ultraThinMaterial)
         .cornerRadius(16)
         .padding()
-        
+        .onChange(of: self.recordingStateActions) { oldValue, newValue in
+            log(".onChange(of: self.recordingStateActions): oldValue: \(oldValue)")
+            log(".onChange(of: self.recordingStateActions): newValue: \(newValue)")
+            self.actions = newValue
+        }
+        .onChange(of: self.actions) { oldValue, newValue in
+            log(".onChange(of: self.actions): oldValue: \(oldValue)")
+            log(".onChange(of: self.actions): newValue: \(newValue)")
+            dispatch(LLMActionsUpdatedByModal(newActions: newValue))
+        }
     }
-    
+        
     var buttons: some View {
         HStack {
             Button(action: {
@@ -61,125 +81,90 @@ struct EditBeforeSubmitModalView: View {
             }
         } // HStack
     }
-    
-    @ViewBuilder
-    var actionsView: some View {
-        VStack {
-            StitchTextView(string: "Prompt: \(prompt)")
-
-            // `id:` by hashable ought to be okay?
-            ForEach(actions, id: \.hashValue) { (action: LLMStepAction) in
-                LLMActionCorrectionView(action: action,
-                                        nodeIdToNameMapping: self.nodeIdToNameMapping)
-            }
-        }
-    }
 }
 
-
-struct LLMActionToNodeAndPortView: View {
-    let action: Step
-    let nodeIdToNameMapping: [NodeId: String]
+struct LLMNodeIOPortTypeView: View {
+    let nodeName: PatchOrLayer
+    let port: NodeIOPortType
+    let generalLabel: String
     
     var body: some View {
-        // Step.fromNodeId
-        if let toNodeId = action.toNodeId?.parseNodeId,
-           let toNodeKind = nodeIdToNameMapping.get(toNodeId)?.parseNodeKind() {
-            StitchTextView(string: "To Node: \(toNodeKind.asNodeKind.description), \(toNodeId.debugFriendlyId)")
+        
+        switch port {
             
-            // toNode is only for connect_nodes, so we want to show the port as well
-            LLMPortDisplayView(action: action,
-                               nodeKind: toNodeKind,
-                               isForConnectNodeAction: true)
-        }
-    }
-}
-
-struct LLMFromPortDisplayView: View {
-    let action: Step
-    
-    var body: some View {
-        // Can you get the actions more generally?
-        // can you get a better data structure than just the giant json-like struct you have to unravel?
-        if let parsedFromPort: Int = action.parseFromPort() {
-            StitchTextView(string: "From Port: \(parsedFromPort)")
-        } else {
-            EmptyView()
-        }
-    }
-}
-
-struct LLMActionFromNodeView: View {
-    let action: Step
-    let nodeIdToNameMapping: [NodeId: String]
-    
-    var body: some View {
-        // Step.fromNodeId
-        if let fromNodeId = action.fromNodeId?.parseNodeId,
-           let fromNodeKind = nodeIdToNameMapping.get(fromNodeId)?.parseNodeKind() {
-            StitchTextView(string: "From Node: \(fromNodeKind.asNodeKind.description), \(fromNodeId.debugFriendlyId)")
-        }
-    }
-}
-
-struct LLMPortDisplayView: View {
-    let action: Step
-    let nodeKind: PatchOrLayer
-    let isForConnectNodeAction: Bool
-    
-    var body: some View {
-        // Can you get the actions more generally?
-        // can you get a better data structure than just the giant json-like struct you have to unravel?
-        if let parsedPort: NodeIOPortType = action.parsePort() {
+        case .keyPath(let keyPath):
+            StitchTextView(string: "\(generalLabel): \(keyPath.layerInput)")
             
-            let generalLabel = isForConnectNodeAction ? "To Port: " : "Port: "
-            
-            switch parsedPort {
-            case .keyPath(let keyPath):
-                StitchTextView(string: "\(generalLabel) \(keyPath.layerInput)")
+        case .portIndex(let portIndex):
+            HStack {
+                StitchTextView(string: "\(generalLabel): ")
                 
-            case .portIndex(let portIndex):
-                HStack {
-                    StitchTextView(string: "\(generalLabel) ")
+                if let labelForPortIndex = nodeName.asNodeKind.getPatch?.graphNode?.rowDefinitions(for: .number).inputs[safeIndex: portIndex],
+                   !labelForPortIndex.label.isEmpty {
                     
-                    if let labelForPortIndex = nodeKind.asNodeKind.getPatch?.graphNode?.rowDefinitions(for: .number).inputs[safeIndex: portIndex] {
-                        
-                        StitchTextView(string: "\(labelForPortIndex.label), ")
-                    }
-                    
-                    StitchTextView(string: "\(portIndex)")
+                    StitchTextView(string: "\(labelForPortIndex.label), ")
                 }
                 
-            } // switch parsedPort
-        } else {
-            EmptyView()
-        }
+                StitchTextView(string: "index \(portIndex)")
+            }
+        } // switch port
     }
 }
 
 struct LLMActionCorrectionView: View {
-    let action: Step
-    let nodeIdToNameMapping: [NodeId: String]
-    
+    let action: StepTypeAction
+    let nodeIdToNameMapping: [NodeId: PatchOrLayer]
+        
     var body: some View {
         
         VStack(alignment: .leading, spacing: 8) {
+            
+            // added
             stepTypeAndDeleteView
             
-            if let nodeId = action.parseNodeId,
-               let nodeKind: PatchOrLayer = nodeIdToNameMapping.get(nodeId)?.parseNodeKind() {
-                StitchTextView(string: "Node: \(nodeKind.asNodeKind.description) \(nodeId.debugFriendlyId)")
+            switch action {
+            case .addNode(let x):
+                StitchTextView(string: "Node: \(x.nodeName.asNodeKind.description) \(x.nodeId.debugFriendlyId)")
                 
-                LLMPortDisplayView(action: action,
-                                   nodeKind: nodeKind,
-                                   isForConnectNodeAction: false)
-            }
-        
-            setInputView
+            case .addLayerInput(let x):
+                if let nodeName = nodeIdToNameMapping.get(x.nodeId) {
+                    StitchTextView(string: "Node: \(nodeName.asNodeKind.description) \(x.nodeId.debugFriendlyId)")
+                    
+                    LLMNodeIOPortTypeView(nodeName: nodeName,
+                                          port: .keyPath(x.port.asFullInput),
+                                          generalLabel: "Layer Input")
+                }
             
-            // Connect Nodes
-            fromPortView
-            toPortView
+            case .connectNodes(let x):
+                if let fromNodeName = nodeIdToNameMapping.get(x.fromNodeId) {
+                    StitchTextView(string: "From Node: \(fromNodeName.asNodeKind.description) \(x.fromNodeId.debugFriendlyId)")
+                    LLMNodeIOPortTypeView(nodeName: fromNodeName,
+                                          port: x.fromPort,
+                                          generalLabel: "From Port")
+                }
+                if let toNodeName = nodeIdToNameMapping.get(x.toNodeId) {
+                    StitchTextView(string: "To Node: \(toNodeName.asNodeKind.description) \(x.toNodeId.debugFriendlyId)")
+                    LLMNodeIOPortTypeView(nodeName: toNodeName,
+                                          port: x.port,
+                                          generalLabel: "To Port")
+                }
+                
+            case .changeNodeType(let x):
+                if let nodeName = nodeIdToNameMapping.get(x.nodeId) {
+                    StitchTextView(string: "Node: \(nodeName.asNodeKind.description) \(x.nodeId.debugFriendlyId)")
+                }
+                StitchTextView(string: "NodeType: \(x.nodeType.display)")
+                
+            case .setInput(let x):
+                if let nodeName = nodeIdToNameMapping.get(x.nodeId) {
+                    StitchTextView(string: "Node: \(nodeName.asNodeKind.description) \(x.nodeId.debugFriendlyId)")
+                    LLMNodeIOPortTypeView(nodeName: nodeName,
+                                          port: x.port,
+                                          generalLabel: "Input")
+                }
+                StitchTextView(string: "NodeType: \(x.nodeType.display)")
+                StitchTextView(string: "Value: \(x.value.display)")
+            }
         }
         .padding()
         .background(.ultraThickMaterial)
@@ -189,50 +174,12 @@ struct LLMActionCorrectionView: View {
     @ViewBuilder
     var stepTypeAndDeleteView: some View {
         HStack {
-            if let stepType = StepType.init(rawValue: action.stepType) {
-                StitchTextView(string: "Step Type: \(stepType.display)")
-            }
+            StitchTextView(string: "Step Type: \(action.stepType.display)")
             Spacer()
             Image(systemName: "trash")
                 .onTapGesture {
                     dispatch(LLMActionDeleted(deletedAction: action))
                 }
         }
-    }
-    
-    @ViewBuilder
-    var fromPortView: some View {
-        // Step.fromNodeId
-        LLMActionFromNodeView(action: action,
-                              nodeIdToNameMapping: nodeIdToNameMapping)
-        LLMFromPortDisplayView(action: action)
-
-    }
-    
-    @ViewBuilder
-    var toPortView: some View {
-        // Step.toNodeId
-        LLMActionToNodeAndPortView(action: action,
-                                   nodeIdToNameMapping: nodeIdToNameMapping)
-    }
-    
-    @ViewBuilder
-    var setInputView: some View {
-        
-        if let nodeType = action.parseNodeType() {
-            if let value = action.parseValueForSetInput(
-                nodeType: nodeType,
-//                with: nodeIdToNameMapping) {
-                //
-                with: .init()) {
-                
-                StitchTextView(string: "Value: \(value.display)")
-            }
-            StitchTextView(string: "NodeType: \(nodeType.display)")
-        }
-        
-         
-         
-       
     }
 }
