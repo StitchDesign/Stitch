@@ -117,9 +117,9 @@ extension NodeViewModel {
     }
 }
 
-extension InputCoordinate {
+extension NodeIOPortType {
     func asLLMStepPort() -> String {
-        switch self.portType {
+        switch self {
         case .keyPath(let x):
             // Note: StitchAI does not yet support unpacked ports
             // Note 2: see our OpenAI schema for list of possible `LayerPorts`
@@ -128,6 +128,12 @@ extension InputCoordinate {
             // an integer
             return x.description
         }
+    }
+}
+
+extension InputCoordinate {
+    func asLLMStepPort() -> String {
+        self.portType.asLLMStepPort()
     }
 }
 

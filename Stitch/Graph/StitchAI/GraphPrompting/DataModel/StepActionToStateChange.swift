@@ -119,8 +119,7 @@ extension StitchDocumentViewModel {
             guard let port: NodeIOPortType = action.parsePort(),
                   let nodeType: NodeType = action.parseNodeType(),
                   let value: PortValue = action.parseValueForSetInput(
-                    nodeType: nodeType,
-                    with: self.llmNodeIdMapping),
+                    nodeType: nodeType),
                   let llmNodeId: String = action.nodeId,
                   let nodeId = self.llmNodeIdMapping.get(llmNodeId),
                   let existingNode = self.graph.getNode(nodeId) else {
@@ -274,16 +273,14 @@ extension LLMStepAction {
         self.nodeId?.parseNodeId
     }
         
-    @MainActor
-    func parseValueForSetInput(nodeType: NodeType,
-                               with mapping: LLMNodeIdMapping) -> PortValue? {
+    func parseValueForSetInput(nodeType: NodeType) -> PortValue? {
         
         guard let value: JSONFriendlyFormat = self.value else {
             log("parseValueForSetInput: value was not defined")
             return nil
         }
         
-        return value.asPortValueForLLMSetField(nodeType, with: mapping)
+        return value.asPortValueForLLMSetField(nodeType)
     }
     
     // TODO: `LLMStepAction`'s `port` parameter does not yet properly distinguish between input vs output?
