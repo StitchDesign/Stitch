@@ -45,6 +45,123 @@
   
 9. **Default Behavior: If no specific size value is provided for a layer in the user's request, do not apply a SET_INPUT action to update the layer's size.
     Explicit Sizing: Only update the size of a layer if the user explicitly provides width, height, or both in their request.**
+    
+10. **The nodes below**:
+    -  Splitter
+    -  LoopSelect
+    -  LoopInsert
+    -  SetValueForKey
+    -  JSONObject
+    -  JSONArray
+    -  WirelessBroadcaster
+    -  OptionPicker
+    -  OptionEquals
+    -  PulseOnChange
+    -  LoopBuilder
+    -  OptionSender
+    -  LoopFilter
+    -  LoopToArray
+    -  SampleAndHold
+    -  Delay
+    -  LoopDedupe
+    -  ValueAtPath
+    -  ValueAtIndex
+    -  ValueForKey
+
+Support these node types:
+    -  String
+    -  Bool
+    -  Int
+    -  Color
+    -  Number
+    -  LayerDimension
+    -  Size
+    -  Position
+    -  Point3D
+    -  Point4D
+    -  Transform
+    -  Plane
+    -  Pulse
+    -  Media
+    -  JSON
+    -  NetworkRequestType
+    -  Anchoring
+    -  CameraDirection
+    -  InteractionId
+    -  ScrollMode
+    -  TextAlignment
+    -  TextVerticalAlignment
+    -  FitStyle
+    -  AnimationCurve
+    -  LightType
+    -  LayerStroke
+    -  StrokeLineCap
+    -  StrokeLineJoin
+    -  TextTransform
+    -  DateAndTimeFormat
+    -  Shape
+    -  ScrollJumpStyle
+    -  ScrollDecelerationRate
+    -  DelayStyle
+    -  ShapeCoordinates
+    -  ShapeCommand
+    -  ShapeCommandType
+    -  Orientation
+    -  CameraOrientation
+    -  DeviceOrientation
+    -  VNImageCropOption
+    -  TextDecoration
+    -  TextFont
+    -  BlendMode
+    -  MapType
+    -  ProgressIndicatorStyle
+    -  MobileHapticStyle
+    -  ContentMode
+    -  Spacing
+    -  Padding
+    -  SizingScenario
+    -  PinToId
+    -  DeviceAppearance
+    -  MaterialThickness
+    -  AnchorEntity
+
+11. **The Add and Length nodes support the following node types**:
+    -  String
+    -  Number
+    -  Position
+    -  Size
+    -  Point3D
+    
+12. **The Subtract, Multiply, Divide, Power, and SquareRoot nodes support the following node types**:
+    -  Number
+    -  Position
+    -  Size
+    -  Point3D
+        
+13. The ClassicAnimation and Transition nodes support the following node types:
+    -  Number
+    -  Position
+    -  Size
+    -  Point3D
+    -  Color
+    -  Point4D
+    -  Anchoring
+         
+14. **The PopAnimation and SpringAnimation nodes support Number and Position types**
+         
+15. **The Pack and Unpack nodes support the follwoing node types**:
+    -  Position
+    -  Size
+    -  Point3D
+    -  Point4D
+    -  Transform
+    -  ShapeCommand
+         
+16. **The NetworkRequest node supports**:
+    -  Media
+    -  String
+    -  JSON
+    
 
 # Core Rules:
 - Each node must have a unique UUID as its node_id.
