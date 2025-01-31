@@ -17,7 +17,8 @@ struct EditBeforeSubmitModalView: View {
         recordingState.promptState.prompt
     }
     
-    var actions: [StepTypeAction] {
+//    var actions: [StepTypeAction] {
+    var recordingStateActions: [StepTypeAction] {
         recordingState.actions
     }
     
@@ -25,16 +26,23 @@ struct EditBeforeSubmitModalView: View {
         recordingState.nodeIdToNameMapping
     }
     
+    @State var actions: [StepTypeAction]
+    
     var body: some View {
         VStack {
             StitchTextView(string: "Prompt: \(prompt)")
                 .font(.headline)
                 .padding(.top)
             
-            ScrollView {
-                actionsView
-                    .padding()
+            // https://www.hackingwithswift.com/quick-start/swiftui/how-to-let-users-move-rows-in-a-list
+            List(self.$actions, id: \.hashValue, editActions: .move) { $action in
+                LLMActionCorrectionView(action: action,
+                                        nodeIdToNameMapping: self.nodeIdToNameMapping)
+                .listRowBackground(Color.clear)
+                .listRowSpacing(8)
+                .listRowSeparator(.hidden)
             }
+            .listStyle(.plain)
             
             buttons
                 .padding(.bottom)
@@ -43,8 +51,18 @@ struct EditBeforeSubmitModalView: View {
         .background(.ultraThinMaterial)
         .cornerRadius(16)
         .padding()
+        .onChange(of: self.recordingStateActions) { oldValue, newValue in
+            log(".onChange(of: self.recordingStateActions): oldValue: \(oldValue)")
+            log(".onChange(of: self.recordingStateActions): newValue: \(newValue)")
+            self.actions = newValue
+        }
+        .onChange(of: self.actions) { oldValue, newValue in
+            log(".onChange(of: self.actions): oldValue: \(oldValue)")
+            log(".onChange(of: self.actions): newValue: \(newValue)")
+            dispatch(LLMActionsUpdatedByModal(newActions: newValue))
+        }
     }
-    
+        
     var buttons: some View {
         HStack {
             Button(action: {
@@ -62,17 +80,6 @@ struct EditBeforeSubmitModalView: View {
                     .padding()
             }
         } // HStack
-    }
-    
-    @ViewBuilder
-    var actionsView: some View {
-        VStack {
-            // `id:` by hashable ought to be okay?
-            ForEach(actions, id: \.hashValue) { action in
-                LLMActionCorrectionView(action: action,
-                                        nodeIdToNameMapping: self.nodeIdToNameMapping)
-            }
-        }
     }
 }
 
@@ -175,5 +182,4 @@ struct LLMActionCorrectionView: View {
                 }
         }
     }
-  
 }
