@@ -104,42 +104,6 @@ struct LLMNodeIOPortTypeView: View {
     }
 }
 
-struct LLMPortDisplayView: View {
-    let action: Step
-    let nodeKind: PatchOrLayer
-    let isForConnectNodeAction: Bool
-    
-    var body: some View {
-        // Can you get the actions more generally?
-        // can you get a better data structure than just the giant json-like struct you have to unravel?
-        if let parsedPort: NodeIOPortType = action.parsePort() {
-            
-            let generalLabel = isForConnectNodeAction ? "To Port: " : "Port: "
-            
-            switch parsedPort {
-                
-            case .keyPath(let keyPath):
-                StitchTextView(string: "\(generalLabel) \(keyPath.layerInput)")
-                
-            case .portIndex(let portIndex):
-                HStack {
-                    StitchTextView(string: "\(generalLabel) ")
-                    
-                    if let labelForPortIndex = nodeKind.asNodeKind.getPatch?.graphNode?.rowDefinitions(for: .number).inputs[safeIndex: portIndex] {
-                        
-                        StitchTextView(string: "\(labelForPortIndex.label), ")
-                    }
-                    
-                    StitchTextView(string: "\(portIndex)")
-                }
-                
-            } // switch parsedPort
-        } else {
-            EmptyView()
-        }
-    }
-}
-
 struct LLMActionCorrectionView: View {
     let action: StepTypeAction
     let nodeIdToNameMapping: [NodeId: PatchOrLayer]
