@@ -49,7 +49,8 @@ enum StepTypeAction: Equatable, Hashable, Codable {
     
     static func fromStep(_ action: Step) -> Self? {
         guard let stepType = action.parseStepType else {
-            fatalErrorIfDebug()
+//            fatalErrorIfDebug()
+            log("StepTypeAction.fromStep: could not create parse Step into StepTypeAction, please retry?: action: \(action)")
             return nil
         }
         
@@ -57,35 +58,40 @@ enum StepTypeAction: Equatable, Hashable, Codable {
             
         case .addNode:
             guard let x = StepActionAddNode.fromStep(action) else {
-                fatalErrorIfDebug()
+//                fatalErrorIfDebug()
+                log("StepTypeAction.fromStep: could not create parse Step into StepTypeAction, please retry?: action: \(action)")
                 return nil
             }
             return .addNode(x)
             
         case .addLayerInput:
             guard let x = StepActionAddLayerInput.fromStep(action) else {
-                fatalErrorIfDebug()
+//                fatalErrorIfDebug()
+                log("StepTypeAction.fromStep: could not create parse Step into StepTypeAction, please retry?: action: \(action)")
                 return nil
             }
             return .addLayerInput(x)
             
         case .connectNodes:
             guard let x = StepActionConnectionAdded.fromStep(action) else {
-                fatalErrorIfDebug()
+//                fatalErrorIfDebug()
+                log("StepTypeAction.fromStep: could not create parse Step into StepTypeAction, please retry?: action: \(action)")
                 return nil
             }
             return .connectNodes(x)
         
         case .changeNodeType:
             guard let x = StepActionChangeNodeType.fromStep(action) else {
-                fatalErrorIfDebug()
+//                fatalErrorIfDebug()
+                log("StepTypeAction.fromStep: could not create parse Step into StepTypeAction, please retry?: action: \(action)")
                 return nil
             }
             return .changeNodeType(x)
         
         case .setInput:
             guard let x = StepActionSetInput.fromStep(action) else {
-                fatalErrorIfDebug()
+//                fatalErrorIfDebug()
+                log("StepTypeAction.fromStep: could not create parse Step into StepTypeAction, please retry?: action: \(action)")
                 return nil
             }
             return .setInput(x)
