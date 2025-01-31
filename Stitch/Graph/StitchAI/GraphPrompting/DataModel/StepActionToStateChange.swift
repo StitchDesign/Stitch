@@ -41,11 +41,9 @@ extension StitchDocumentViewModel {
         
         switch action {
         case .addNode(let x):
-            guard let newNode = self.nodeCreated(choice: x.nodeName.asNodeKind,
-                                                 nodeId: x.nodeId,
-                                                 center: newCenter) else {
-                // TODO: JAN 30: rety?
-                fatalErrorIfDebug()
+            guard let _ = self.nodeCreated(choice: x.nodeName.asNodeKind,
+                                           nodeId: x.nodeId,
+                                           center: newCenter) else {
                 return nil
             }
             
@@ -54,8 +52,6 @@ extension StitchDocumentViewModel {
         case .addLayerInput(let x):
             guard let node = self.graph.getNode(x.nodeId),
                   let layerNode = node.layerNode else {
-                // TODO: JAN 30: retry
-                fatalErrorIfDebug()
                 return nil
             }
             
@@ -87,8 +83,6 @@ extension StitchDocumentViewModel {
             let inputCoordinate = InputCoordinate(portType: x.port,
                                                   nodeId: x.nodeId)
             guard let input = self.graph.getInputObserver(coordinate: inputCoordinate) else {
-                // TODO: JAN 30: retry
-                fatalErrorIfDebug()
                 return nil
             }
             
