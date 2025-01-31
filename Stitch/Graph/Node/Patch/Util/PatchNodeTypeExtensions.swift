@@ -122,8 +122,8 @@ extension Patch {
         case .pack, .unpack:
             return PackUVT.value
 
-        case .wirelessReceiver: // wirelessRec type determined by value from broadcaster
-            return EmptyUVT.value
+//        case .wirelessReceiver: // wirelessRec type determined by value from broadcaster
+//            return EmptyUVT.value
 
         case .networkRequest:
             return Set([.media, .string, .json])

@@ -79,10 +79,11 @@ extension StitchDocumentViewModel {
         case .changeNodeType:
             
             guard let llmNodeId: String = action.nodeId,
-                  let nodeType: NodeType = action.parseNodeType(),
+                  var nodeType: NodeType = action.parseNodeType(),
                   // Node must already exist
                   let nodeId = self.llmNodeIdMapping.get(llmNodeId),
-                  let existingNode = self.graph.getNode(nodeId) else {
+                  let existingNode = self.graph.getNode(nodeId),
+                  let patch = existingNode.patch else {
                 
                 log("❌ handleLLMStepAction: changeNodeType failed:")
                 log("   - Node ID: \(action.nodeId ?? "nil")")
@@ -90,16 +91,18 @@ extension StitchDocumentViewModel {
                 log("   - Attempt: \(attempt) of \(maxAttempts)")
                 return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
             }
-                          
-            // ALTERNATIVELY?: Use the patch's default node-type if the LLM gave us an invalid node-type for that patch?
-            guard let patch = existingNode.patch,
-                  patch.availableNodeTypes.contains(nodeType) else {
+                         
+            // If LLM provided an invalid node-type for this patch,
+            // we will default to the patch's default node type and issue a correction.
+            if !patch.availableNodeTypes.contains(nodeType) {
                 log("❌ handleLLMStepAction: changeNodeType failed because nodeType is not allowed for existing node")
                 log("   - Node ID: \(action.nodeId ?? "nil")")
                 log("   - Node Patch: \(existingNode.patch.debugDescription ?? "NO PATCH")")
                 log("   - New Type: \(action.nodeType ?? "nil")")
                 log("   - Attempt: \(attempt) of \(maxAttempts)")
-                return handleRetry(action: action, canvasItemsAdded: canvasItemsAdded, attempt: attempt, maxAttempts: maxAttempts)
+                
+                
+//                nodeType = patch.de
             }
             
             let _ = self.graph.nodeTypeChanged(nodeId: existingNode.id,
@@ -385,7 +388,7 @@ extension String {
 }
 
 // i.e. NodeKind, excluding Group Nodes
-enum PatchOrLayer: Equatable, Codable {
+enum PatchOrLayer: Equatable, Codable, Hashable {
     case patch(Patch), layer(Layer)
     
     var asNodeKind: NodeKind {
