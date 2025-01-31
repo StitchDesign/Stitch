@@ -27,20 +27,22 @@ struct EditBeforeSubmitModalView: View {
     
     var body: some View {
         VStack {
+            StitchTextView(string: "Prompt: \(prompt)")
+                .font(.headline)
+                .padding(.top)
+            
             ScrollView {
                 actionsView
                     .padding()
             }
             
             buttons
-                .padding()
+                .padding(.bottom)
         }
-//        .frame(maxWidth: 420, maxHeight: 600)
         .frame(maxWidth: 360, maxHeight: 600)
         .background(.ultraThinMaterial)
         .cornerRadius(16)
         .padding()
-        
     }
     
     var buttons: some View {
@@ -65,8 +67,6 @@ struct EditBeforeSubmitModalView: View {
     @ViewBuilder
     var actionsView: some View {
         VStack {
-            StitchTextView(string: "Prompt: \(prompt)")
-
             // `id:` by hashable ought to be okay?
             ForEach(actions, id: \.hashValue) { action in
                 LLMActionCorrectionView(action: action,
@@ -76,68 +76,21 @@ struct EditBeforeSubmitModalView: View {
     }
 }
 
-
-struct LLMActionToNodeAndPortView: View {
-    let action: Step
-    let nodeIdToNameMapping: [NodeId: String]
-    
-    var body: some View {
-        // Step.fromNodeId
-        if let toNodeId = action.toNodeId?.parseNodeId,
-           let toNodeKind = nodeIdToNameMapping.get(toNodeId)?.parseNodeKind() {
-            StitchTextView(string: "To Node: \(toNodeKind.asNodeKind.description), \(toNodeId.debugFriendlyId)")
-            
-            // toNode is only for connect_nodes, so we want to show the port as well
-            LLMPortDisplayView(action: action,
-                               nodeKind: toNodeKind,
-                               isForConnectNodeAction: true)
-        }
-    }
-}
-
-struct LLMFromPortDisplayView: View {
-    let action: Step
-    
-    var body: some View {
-        // Can you get the actions more generally?
-        // can you get a better data structure than just the giant json-like struct you have to unravel?
-        if let parsedFromPort: Int = action.parseFromPort() {
-            StitchTextView(string: "From Port: \(parsedFromPort)")
-        } else {
-            EmptyView()
-        }
-    }
-}
-
-struct LLMActionFromNodeView: View {
-    let action: Step
-    let nodeIdToNameMapping: [NodeId: String]
-    
-    var body: some View {
-        // Step.fromNodeId
-        if let fromNodeId = action.fromNodeId?.parseNodeId,
-           let fromNodeKind = nodeIdToNameMapping.get(fromNodeId)?.parseNodeKind() {
-            StitchTextView(string: "From Node: \(fromNodeKind.asNodeKind.description), \(fromNodeId.debugFriendlyId)")
-        }
-    }
-}
-
 struct LLMNodeIOPortTypeView: View {
     let nodeName: PatchOrLayer
     let port: NodeIOPortType
-    let isForToPortOfConnectNodesAction: Bool
+    let generalLabel: String
     
     var body: some View {
-        let generalLabel = isForToPortOfConnectNodesAction ? "To Port: " : "Port: "
         
         switch port {
             
         case .keyPath(let keyPath):
-            StitchTextView(string: "\(generalLabel) \(keyPath.layerInput)")
+            StitchTextView(string: "\(generalLabel): \(keyPath.layerInput)")
             
         case .portIndex(let portIndex):
             HStack {
-                StitchTextView(string: "\(generalLabel) ")
+                StitchTextView(string: "\(generalLabel): ")
                 
                 if let labelForPortIndex = nodeName.asNodeKind.getPatch?.graphNode?.rowDefinitions(for: .number).inputs[safeIndex: portIndex],
                    !labelForPortIndex.label.isEmpty {
@@ -145,7 +98,7 @@ struct LLMNodeIOPortTypeView: View {
                     StitchTextView(string: "\(labelForPortIndex.label), ")
                 }
                 
-                StitchTextView(string: "\(portIndex)")
+                StitchTextView(string: "index \(portIndex)")
             }
         } // switch port
     }
@@ -206,10 +159,9 @@ struct LLMActionCorrectionView: View {
                 if let nodeName = nodeIdToNameMapping.get(x.nodeId) {
                     StitchTextView(string: "Node: \(nodeName.asNodeKind.description) \(x.nodeId.debugFriendlyId)")
                     
-                    // added
                     LLMNodeIOPortTypeView(nodeName: nodeName,
                                           port: .keyPath(x.port.asFullInput),
-                                          isForToPortOfConnectNodesAction: false)
+                                          generalLabel: "Layer Input")
                 }
             
             case .connectNodes(let x):
@@ -217,13 +169,13 @@ struct LLMActionCorrectionView: View {
                     StitchTextView(string: "From Node: \(fromNodeName.asNodeKind.description) \(x.fromNodeId.debugFriendlyId)")
                     LLMNodeIOPortTypeView(nodeName: fromNodeName,
                                           port: x.fromPort,
-                                          isForToPortOfConnectNodesAction: false)
+                                          generalLabel: "From Port")
                 }
                 if let toNodeName = nodeIdToNameMapping.get(x.toNodeId) {
                     StitchTextView(string: "To Node: \(toNodeName.asNodeKind.description) \(x.toNodeId.debugFriendlyId)")
                     LLMNodeIOPortTypeView(nodeName: toNodeName,
-                                          port: x.fromPort,
-                                          isForToPortOfConnectNodesAction: true)
+                                          port: x.port,
+                                          generalLabel: "To Port")
                 }
                 
             case .changeNodeType(let x):
@@ -237,7 +189,7 @@ struct LLMActionCorrectionView: View {
                     StitchTextView(string: "Node: \(nodeName.asNodeKind.description) \(x.nodeId.debugFriendlyId)")
                     LLMNodeIOPortTypeView(nodeName: nodeName,
                                           port: x.port,
-                                          isForToPortOfConnectNodesAction: false)
+                                          generalLabel: "Input")
                 }
                 StitchTextView(string: "NodeType: \(x.nodeType.display)")
                 StitchTextView(string: "Value: \(x.value.display)")
