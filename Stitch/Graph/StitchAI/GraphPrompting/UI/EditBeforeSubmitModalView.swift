@@ -35,7 +35,8 @@ struct EditBeforeSubmitModalView: View {
             buttons
                 .padding()
         }
-        .frame(maxWidth: 420, maxHeight: 600)
+//        .frame(maxWidth: 420, maxHeight: 600)
+        .frame(maxWidth: 360, maxHeight: 600)
         .background(.ultraThinMaterial)
         .cornerRadius(16)
         .padding()
@@ -194,6 +195,9 @@ struct LLMActionCorrectionView: View {
         
         VStack(alignment: .leading, spacing: 8) {
             
+            // added
+            stepTypeAndDeleteView
+            
             switch action {
             case .addNode(let x):
                 StitchTextView(string: "Node: \(x.nodeName.asNodeKind.description) \(x.nodeId.debugFriendlyId)")
@@ -201,15 +205,22 @@ struct LLMActionCorrectionView: View {
             case .addLayerInput(let x):
                 if let nodeName = nodeIdToNameMapping.get(x.nodeId) {
                     StitchTextView(string: "Node: \(nodeName.asNodeKind.description) \(x.nodeId.debugFriendlyId)")
+                    
+                    // added
+                    LLMNodeIOPortTypeView(nodeName: nodeName,
+                                          port: .keyPath(x.port.asFullInput),
+                                          isForToPortOfConnectNodesAction: false)
                 }
             
             case .connectNodes(let x):
                 if let fromNodeName = nodeIdToNameMapping.get(x.fromNodeId) {
+                    StitchTextView(string: "From Node: \(fromNodeName.asNodeKind.description) \(x.fromNodeId.debugFriendlyId)")
                     LLMNodeIOPortTypeView(nodeName: fromNodeName,
                                           port: x.fromPort,
                                           isForToPortOfConnectNodesAction: false)
                 }
                 if let toNodeName = nodeIdToNameMapping.get(x.toNodeId) {
+                    StitchTextView(string: "To Node: \(toNodeName.asNodeKind.description) \(x.toNodeId.debugFriendlyId)")
                     LLMNodeIOPortTypeView(nodeName: toNodeName,
                                           port: x.fromPort,
                                           isForToPortOfConnectNodesAction: true)
