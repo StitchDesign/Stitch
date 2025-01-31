@@ -301,9 +301,7 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
         for step in steps {
             log(step.description)
         }
-                
-        var canvasItemsAdded = 0
-         
+        
         let parsedSteps: [StepTypeAction] = steps.compactMap { StepTypeAction.fromStep($0) }
         
         let couldNotParseAllSteps = (parsedSteps.count != steps.count)
@@ -320,33 +318,12 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
         state.graphUI.insertNodeMenuState.show = false
         state.graphUI.insertNodeMenuState.isGeneratingAINode = false
 
-        // Are these steps valid?
-        // invalid = e.g. tried to create a connection for a node before we created that node
-        if !parsedSteps.areLLMStepsValid() {
-            // immediately enter correction-mode: one of the actions, or perhaps the ordering, was incorrect
-            // TODO: JAN 31: enter correction-mode for these parsed-step
-            state.startLLMAugmentationMode()
-            return
-        }
-                
         log(" Storing Original AI Generated Actions ")
         log(" Original Actions to store: \(steps.asJSONDisplay())")
         state.llmRecording.actions = parsedSteps
         state.llmRecording.promptState.prompt = originalPrompt
         
-        for parsedStep in parsedSteps {
-            if let _canvasItemsAdded = state.applyAction(
-                parsedStep,
-                canvasItemsAdded: canvasItemsAdded) {
-                
-                canvasItemsAdded = _canvasItemsAdded
-            } else {
-                // immediately enter correction-mode: we were not able to apply one of the actions
-                // TODO: JAN 31: enter correction-mode for these parsed-step
-                state.startLLMAugmentationMode()
-                return
-            }
-        }
+        state.validateAndApplyActions(parsedSteps)
     }
     
     /// Main handler for completed requests

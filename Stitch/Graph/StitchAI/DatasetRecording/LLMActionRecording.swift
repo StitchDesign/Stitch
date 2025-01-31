@@ -43,10 +43,6 @@ extension StitchDocumentViewModel {
 
     @MainActor
     func startLLMAugmentationMode() {
-        guard self.graphUI.insertNodeMenuState.isFromAIGeneration else {
-            fatalErrorIfDebug("Should not have called startLLMAugmentationMode when not in AI Mode")
-            return
-        }
         
         log("🔄 🤖 TRANSITIONING FROM AI MODE TO RECORDING - ENTERING AUGMENTATION MODE 🤖 🔄")
         // First store the current AI-generated actions
@@ -99,7 +95,7 @@ extension StitchDocumentViewModel {
         self.llmRecording.isRecording = false
         
         // Debug print all actions
-        print("🤖 Complete Action Sequence: \(self.llmRecording.actions.asJSONDisplay())")
+//        print("🤖 Complete Action Sequence: \(self.llmRecording.actions.asJSONDisplay())")
         
         // Cache the json of all actions
         self.llmRecording.promptState.actionsAsDisplayString = self.llmRecording.actions.asJSONDisplay()
