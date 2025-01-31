@@ -282,4 +282,16 @@ enum PatchOrLayer: Equatable, Codable, Hashable {
             return .layer(layer)
         }
     }
+    
+    static func from(nodeKind: NodeKind) -> Self? {
+        switch nodeKind {
+        case .patch(let x):
+            return .patch(x)
+        case .layer(let x):
+            return .layer(x)
+        case .group:
+            fatalErrorIfDebug()
+            return nil
+        }
+    }
 }
