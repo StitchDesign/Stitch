@@ -308,7 +308,7 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
         if couldNotParseAllSteps {
             // TODO: JAN 30: retry the whole prompt; OpenAI might have given us bad data; e.g. specified a non-existent nodeType
             // Note that this can also be from a parsing error on our side, e.g. we incorrectly read the data OpenAI sent
-            fatalErrorIfDebug()
+            state.handleRetry()
         }
         
         // If we successfully parsed the JSON and LLMStepActions,

@@ -97,31 +97,15 @@ extension StitchDocumentViewModel {
         
     }
     
-    
     @MainActor
-    private func handleRetry(action: LLMStepAction,
-                            canvasItemsAdded: Int,
-                            attempt: Int,
-                            maxAttempts: Int) -> Int {
-        if attempt < maxAttempts {
-            log("🔄 Retrying step action:")
-            log("   - Action Type: \(action.stepType)")
-            log("   - Attempt: \(attempt + 1) of \(maxAttempts)")
-            
-            // Wait briefly before retry
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            // TODO: JAN 30: retry
-//                _ = self.handleLLMStepAction(action,
-//                                            canvasItemsAdded: canvasItemsAdded,
-//                                            attempt: attempt + 1,
-//                                            maxAttempts: maxAttempts)
-            }
-        } else {
-            log("❌ All retries failed, requesting new response from OpenAI")
-            // If all retries failed, trigger a new OpenAI request
+    func handleRetry() {
+        if self.llmRecording.attempts < LLMRecordingState.maxAttempts {
+            self.llmRecording.attempts += 1
             retryOpenAIRequest()
+        } else {
+            fatalErrorIfDebug("Ran out of retry attempts")
+            return
         }
-        return canvasItemsAdded
     }
     
     @MainActor

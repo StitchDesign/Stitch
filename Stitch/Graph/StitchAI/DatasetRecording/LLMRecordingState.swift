@@ -31,6 +31,10 @@ struct LLMRecordingState: Equatable {
     // Are we actively recording redux-actions which we then turn into LLM-actions?
     var isRecording: Bool = false
     
+    var attempts: Int = 0
+    
+    static let maxAttempts: Int = 3
+    
     var mode: LLMRecordingMode = .normal
     
     var actions: [StepTypeAction] = .init() {
@@ -102,9 +106,8 @@ extension StitchDocumentViewModel {
                 canvasItemsAdded = _canvasItemsAdded
             } else {
                 // immediately enter correction-mode: we were not able to apply one of the actions
-                // TODO: JAN 31: enter correction-mode for these parsed-step
-
                 log("validateAndApplyActions: will show edit modal: could not appply action: \(action)")
+                // TODO: should we also remove the action that could not be parsed?
                 self.startLLMAugmentationMode()
                 return
             }
