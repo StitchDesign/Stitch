@@ -33,24 +33,13 @@ struct LLMRecordingState: Equatable {
     
     var mode: LLMRecordingMode = .normal
     
-    var actions: [LLMStepAction] = .init() {
+    var actions: [StepTypeAction] = .init() {
         didSet {
-            var acc = [NodeId: String]()
-            self.actions.forEach { (action: LLMStepAction) in
+            var acc = [NodeId: PatchOrLayer]()
+            self.actions.forEach { action in
                 // Add Node step uses nodeId; but Connect Nodes step uses toNodeId and fromNodeId
-                if let nodeId = action.parseNodeId,
-                   let nodeName = action.nodeName {
-                    acc.updateValue(nodeName, forKey: nodeId)
-                }
-                
-                if let nodeId = action.fromNodeId?.parseNodeId,
-                   let nodeName = action.nodeName {
-                    acc.updateValue(nodeName, forKey: nodeId)
-                }
-                
-                if let nodeId = action.toNodeId?.parseNodeId,
-                   let nodeName = action.nodeName {
-                    acc.updateValue(nodeName, forKey: nodeId)
+                if case let .addNode(x) = action {
+                    acc.updateValue(x.nodeName, forKey: x.nodeId)
                 }
                 
                 log("LLMRecordingState: nodeIdToNameMapping: \(acc)")
@@ -71,35 +60,24 @@ struct LLMRecordingState: Equatable {
 
     // Alternatively: use a stored var that is updated by `self.actions`'s `didSet`
     // Note: it's okay for this just to be patch nodes and entire layer nodes; any layer inputs from an AI-created layer node will be 'blue' 
-    var nodeIdToNameMapping: [NodeId: String] = .init()
-//    {
-//        var acc = [NodeId: String]()
-//        self.actions.forEach { (action: LLMStepAction) in
-//            // Add Node step uses nodeId; but Connect Nodes step uses toNodeId and fromNodeId
-//            if let nodeId = action.parseNodeId,
-//               let nodeName = action.nodeName {
-//                acc.updateValue(nodeName, forKey: nodeId)
-//            }
-//            
-//            if let nodeId = action.fromNodeId?.parseNodeId,
-//               let nodeName = action.nodeName {
-//                acc.updateValue(nodeName, forKey: nodeId)
-//            }
-//            
-//            if let nodeId = action.toNodeId?.parseNodeId,
-//               let nodeName = action.nodeName {
-//                acc.updateValue(nodeName, forKey: nodeId)
-//            }
-//            
-//            log("LLMRecordingState: nodeIdToNameMapping: \(acc)")
-//        } // forEach
-//        
-//        return acc
-//    }
+    var nodeIdToNameMapping: [NodeId: PatchOrLayer] = .init()
     
 }
 
 extension StitchDocumentViewModel {
+
+    func nodesCreatedByLLMActions(_ actions: [StepTypeAction]) -> IdSet {
+        
+        let createdNodes = actions.reduce(into: IdSet()) { partialResult, step in
+            if case let .addNode(x) = step {
+                partialResult.insert(x.nodeId)
+            }
+        }
+        
+        log("StitchDocumentViewModel: wipeNodesCreatedFromLLMActions: createdNodes: \(createdNodes)")
+        
+        return createdNodes
+    }
     
     @MainActor
     func reapplyLLMActions() {
@@ -111,27 +89,18 @@ extension StitchDocumentViewModel {
         // Delete patches and layers that were created from actions;
         
         // NOTE: this llmRecording.actions will already reflect any edits the user has made to the list of actions
-        let createdNodes = self.llmRecording.actions.reduce(into: IdSet()) { partialResult, step in
-            if let id = step.nodeId,
-               let uuid = UUID(uuidString: id) {
-                partialResult.insert(uuid)
-            }
-        }
-        
-        log("StitchDocumentViewModel: reapplyLLMActions: createdNodes: \(createdNodes)")
-        
+        let createdNodes = nodesCreatedByLLMActions(self.llmRecording.actions)
         createdNodes.forEach {
             self.graph.deleteNode(id: $0,
                                    willDeleteLayerGroupChildren: true)
         }
         
         // Apply the LLM-actions (model-generated and user-augmented) to the graph
-        
         var canvasItemsAdded = 0
         self.llmRecording.actions.forEach { action in
-            canvasItemsAdded = self.handleLLMStepAction(
-                action,
-                canvasItemsAdded: canvasItemsAdded)
+            if let _canvasItemsAdded = self.applyAction(action, canvasItemsAdded: canvasItemsAdded) {
+                canvasItemsAdded = _canvasItemsAdded
+            }
         }
         
         // Write to disk
