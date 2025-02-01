@@ -106,7 +106,8 @@ extension NodeViewModel {
         
         assertInDebug(longestLoopLength == castedEphemeralObservers.count)
         
-        return self.loopedEval(minLoopCount: minLoopCount) { values, loopIndex in
+        return self.loopedEval(inputsValues: inputsValues,
+                               minLoopCount: minLoopCount) { values, loopIndex in
             let ephemeralObserver = castedEphemeralObservers[loopIndex]
             return evalOp(values, ephemeralObserver, loopIndex)
         }
@@ -150,10 +151,11 @@ extension NodeViewModel {
    }
 
     @MainActor
-    func loopedEval<EvalOpResult: NodeEvalOpResult>(minLoopCount: Int = 0,
+    func loopedEval<EvalOpResult: NodeEvalOpResult>(inputsValues: PortValuesList? = nil,
+                                                    minLoopCount: Int = 0,
                                                     shouldAddOutputs: Bool = true,
                                                     evalOp: @escaping OpWithIndex<EvalOpResult>) -> [EvalOpResult] {
-        let inputsValues = self.inputs
+        let inputsValues = inputsValues ?? self.inputs
         let outputsValues = self.outputs
         
         
