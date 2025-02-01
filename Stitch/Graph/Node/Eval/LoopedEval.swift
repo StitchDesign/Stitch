@@ -13,14 +13,21 @@ typealias NodeEphemeralObservableOp<T, EphemeralObserver> = (PortValues, Ephemer
 
 //typealias NodeMediaObservableOp<T, EphemeralObserver> = (MediaEvalOpResult, EphemeralObserver, Int) -> T where EphemeralObserver: NodeEphemeralObservable
 
-typealias NodeEphemeralObservableListOp<EphemeralObserver> = (PortValues, EphemeralObserver) -> PortValuesList where EphemeralObserver: NodeEphemeralObservable
+typealias NodeEphemeralObservableListOp<OpResult, EphemeralObserver> = (PortValuesList, EphemeralObserver) -> OpResult where OpResult: NodeEvalOpResult, EphemeralObserver: NodeEphemeralObservable
+
 typealias NodeEphemeralInteractiveOp<T, EphemeralObserver> = (PortValues, EphemeralObserver, InteractiveLayer, Int) -> T where EphemeralObserver: NodeEphemeralObservable
+
 typealias NodeInteractiveOp<T> = (PortValues, InteractiveLayer, Int) -> T
+
 typealias NodeLayerViewModelInteractiveOp<T> = (LayerViewModel, InteractiveLayer, Int) -> T
 
 /// Allows for generic results while ensure there's some way to get default output values.
 protocol NodeEvalOpResult {
     init(from values: PortValues)
+    
+    @MainActor
+    static func createEvalResult(from results: [Self],
+                                 node: NodeViewModel) -> EvalResult
 }
 
 extension NodeViewModel {
@@ -133,23 +140,23 @@ extension NodeViewModel {
         .createPureEvalResult(node: self)
     }
     
-   @MainActor
-   /// Looped eval for PortValues returning an EvalFlowResult. Used for nodes like object detection.
-   func loopedEvalList<T: NodeEphemeralObservable>(_ ephemeralObserverType: T.Type,
-                                                   evalOp: @escaping NodeEphemeralObservableListOp<T>) -> EvalResult {
-       // Ignore input loops for nodes like object detection
-       let inputs = self.inputs.remapValuesByLoop()
-       
-       guard let firstInputs = inputs.first,
-             let ephemeralObserver = self.ephemeralObservers?.first as? T else {
-           fatalErrorIfDebug()
-           return .init()
-       }
-       
-       let outputs = evalOp(firstInputs, ephemeralObserver)
-       return .init(outputsValues: outputs)
-   }
-
+//    @MainActor
+//    /// Looped eval for PortValues returning an EvalFlowResult. Used for nodes like object detection.
+//    func loopedEvalList<OpResult, Observable>(_ ephemeralObserverType: Observable.Type,
+//                                                evalOp: @escaping NodeEphemeralObservableListOp<OpResult, Observable>) -> EvalResult where OpResult: NodeEvalOpResult, Observable: NodeEphemeralObservable {
+//        // Ignore input loops for nodes like object detection
+//        let inputs = self.inputs
+//        
+//        guard let ephemeralObserver = self.ephemeralObservers?.first as? Observable else {
+//            fatalErrorIfDebug()
+//            return EvalResult()
+//        }
+//        
+//        let result = evalOp(inputs, ephemeralObserver)
+//        return OpResult.createEvalResult(from: [result],
+//                                         node: self)
+//    }
+    
     @MainActor
     func loopedEval<EvalOpResult: NodeEvalOpResult>(inputsValues: PortValuesList? = nil,
                                                     minLoopCount: Int = 0,

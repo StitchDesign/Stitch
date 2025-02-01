@@ -18,6 +18,11 @@ enum AsyncMediaOutputs {
 }
 
 extension AsyncMediaOutputs: NodeEvalOpResult {
+    static func createEvalResult(from results: [AsyncMediaOutputs],
+                                 node: NodeViewModel) -> EvalResult {
+        results.toImpureEvalResult()
+    }
+    
     init(from values: PortValues) {
         self = .byIndex(values)
     }
@@ -113,27 +118,7 @@ extension PortValuesList {
 extension Array where Element == MediaEvalOpResult {
     @MainActor
     func createPureEvalResult(node: NodeViewModel) -> EvalResult {
-        let valuesList = self.map { $0.values }
-        let mediaList = self.map { $0.media }
-        
-        // Values need to be re-mapped by port index since self
-        // is an array of results for each loop index.
-        let outputs = valuesList.remapOutputs()
-        
-        // Update ephemeral observers
-        for (newMedia, ephemeralObserver) in zip(mediaList, node.ephemeralObservers ?? []) {
-            guard let mediaObserver = ephemeralObserver as? MediaEvalOpViewable else {
-                fatalErrorIfDebug()
-                break
-            }
-            
-            if let newMedia = newMedia {
-                mediaObserver.currentMedia = newMedia
-            } else {
-                mediaObserver.currentMedia = nil
-            }
-        }
-        
-        return .init(outputsValues: outputs)
+        MediaEvalOpResult.createEvalResult(from: self,
+                                           node: node)
     }
 }

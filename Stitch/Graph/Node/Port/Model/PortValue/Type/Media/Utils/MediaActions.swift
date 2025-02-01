@@ -245,9 +245,9 @@ extension StitchDocumentViewModel {
 
 extension GraphState {
     @MainActor
-    func recalculateGraph(result: MediaEvalOpResult,
-                          nodeId: NodeId,
-                          loopIndex: Int) {
+    func recalculateGraph<MediaEvalResult>(result: MediaEvalResult,
+                                           nodeId: NodeId,
+                                           loopIndex: Int) where MediaEvalResult: MediaEvalResultable{
         guard let node = self.getNodeViewModel(nodeId) else {
             log("recalculateGraph: AsyncMediaImpureEvalOpResult: could not retrieve node \(nodeId)")
             return
@@ -264,7 +264,7 @@ extension GraphState {
         // Important to not dispatch main actor task as this creates race conditions
         mediaObserver.currentLoadingMediaId = nil
         
-        self.recalculateGraph(outputValues: .byIndex(result.values),
+        self.recalculateGraph(outputValues: result.valueResult,
                               nodeId: nodeId,
                               loopIndex: loopIndex)
     }

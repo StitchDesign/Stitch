@@ -16,15 +16,130 @@ final class MediaViewModel: Sendable {
     @MainActor init() { }
 }
 
-struct MediaEvalOpResult {
+protocol MediaEvalResultable: Sendable {
+    associatedtype ValueType: Sendable
+    
+    var media: GraphMediaValue? { get set }
+    
+    var valueResult: AsyncMediaOutputs { get }
+    
+    @MainActor
+    func prevOutputs(node: NodeViewModel) -> [ValueType]
+    
+    static func getInputMediaValue(from inputs: [ValueType]) -> AsyncMediaValue?
+    
+    init(from values: [ValueType])
+    
+    init(values: [ValueType],
+         media: GraphMediaValue?)
+}
+
+struct MediaEvalOpResult: MediaEvalResultable {
     var values: PortValues
     var media: GraphMediaValue?
 }
 
 extension MediaEvalOpResult: NodeEvalOpResult {
+    var valueResult: AsyncMediaOutputs { .byIndex(self.values) }
+    
+    @MainActor
+    func prevOutputs(node: NodeViewModel) -> PortValues {
+        self.values.prevOutputs(node: node)
+    }
+    
+    static func getInputMediaValue(from inputs: PortValues) -> AsyncMediaValue? {
+        inputs.first?.asyncMedia
+    }
+    
+    static func createEvalResult(from results: [MediaEvalOpResult],
+                                 node: NodeViewModel) -> EvalResult {
+        let valuesList = results.map { $0.values }
+        let mediaList = results.map { $0.media }
+        
+        // Values need to be re-mapped by port index since self
+        // is an array of results for each loop index.
+        let outputs = valuesList.remapOutputs()
+        
+        // Update ephemeral observers
+        for (newMedia, ephemeralObserver) in zip(mediaList, node.ephemeralObservers ?? []) {
+            guard let mediaObserver = ephemeralObserver as? MediaEvalOpViewable else {
+                fatalErrorIfDebug()
+                break
+            }
+            
+            if let newMedia = newMedia {
+                mediaObserver.currentMedia = newMedia
+            } else {
+                mediaObserver.currentMedia = nil
+            }
+        }
+        
+        return .init(outputsValues: outputs)
+    }
+    
     init(from values: PortValues) {
         self.values = values
         self.media = nil
+    }
+}
+
+/// Used by Core ML Detection node.
+struct MediaEvalValuesListResult: NodeEvalOpResult, MediaEvalResultable {
+    var valuesList: PortValuesList
+    var media: GraphMediaValue?
+}
+
+extension MediaEvalValuesListResult {
+    init(from values: PortValuesList) {
+        self.valuesList = values
+    }
+    
+    init(from values: PortValues) {
+        self.valuesList = [values]
+    }
+    
+    init(values: PortValuesList,
+         media: GraphMediaValue?) {
+        self.valuesList = values
+        self.media = media
+    }
+    
+    var valueResult: AsyncMediaOutputs { .all(self.valuesList) }
+    
+    static func getInputMediaValue(from inputs: PortValuesList) -> AsyncMediaValue? {
+        inputs.first?.first?.asyncMedia
+    }
+    
+    @MainActor
+    func prevOutputs(node: NodeViewModel) -> PortValuesList {
+        node.outputs
+    }
+    
+    @MainActor
+    static func createEvalResult(from results: [MediaEvalValuesListResult],
+                                 node: NodeViewModel) -> EvalResult {
+        guard let result = results.first,
+              results.count == 1 else {
+            fatalErrorIfDebug()
+            return .init()
+        }
+        
+        let outputs = result.valuesList
+        let media = result.media
+        
+        // Update ephemeral observer
+        guard let mediaObserver = node.ephemeralObservers?.first as? MediaEvalOpViewable else {
+            fatalErrorIfDebug()
+            return .init()
+        }
+        
+        if let newMedia = media {
+            mediaObserver.currentMedia = newMedia
+        } else {
+            mediaObserver.currentMedia = nil
+        }
+        
+        return .init(outputsValues: outputs)
     }
 }
 

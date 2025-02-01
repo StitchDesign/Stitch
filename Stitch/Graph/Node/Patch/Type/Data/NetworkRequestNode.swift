@@ -128,7 +128,7 @@ func networkRequestEval(node: PatchNode,
                                                       url: url,
                                                       headers: headers,
                                                       body: body) else {
-                return .init(from: defaultOutputs)
+                return MediaEvalOpResult(from: defaultOutputs)
             }
             
             return result

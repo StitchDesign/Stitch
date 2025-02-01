@@ -112,17 +112,17 @@ extension MediaEvalOpObservable {
     }
     
     /// A specific media eval handler that only creates new media when a particular input's media value has changed.
-    @MainActor func mediaEvalOpCoordinator(inputPortIndex: Int,
-                                           values: PortValues,
-                                           loopIndex: Int,
-                                           defaultOutputs: PortValues,
-                                           evalOp: @escaping @MainActor (GraphMediaValue) -> PortValues) -> MediaEvalOpResult {
+    @MainActor func mediaEvalOpCoordinator<MediaEvalResult>(inputPortIndex: Int,
+                                                            values: [MediaEvalResult.ValueType],
+                                                            loopIndex: Int,
+                                                            defaultOutputs: [MediaEvalResult.ValueType],
+                                                            evalOp: @escaping @MainActor (GraphMediaValue) -> [MediaEvalResult.ValueType]) -> MediaEvalResult where MediaEvalResult: MediaEvalResultable {
         guard let node = self.nodeDelegate else {
             return .init(from: defaultOutputs)
         }
         
         let mediaObserver = self
-        let inputMediaValue = values.first?.asyncMedia
+        let inputMediaValue = MediaEvalResult.getInputMediaValue(from: values)
         
         // This kind of media is saved in ephemeral observers
         let currentMedia = node.getComputedMediaValue(loopIndex: loopIndex)
@@ -137,17 +137,17 @@ extension MediaEvalOpObservable {
             guard let inputMediaValue = inputMediaValue else {
                 // Set to nil case
                 mediaObserver.currentMedia = nil
-                return MediaEvalOpResult(from: defaultOutputs)
+                return .init(from: defaultOutputs)
             }
             
             // Create new unique copy
-            return mediaObserver.asyncMediaEvalOp(loopIndex: loopIndex,
-                                                  values: values,
-                                                  node: node) { [weak mediaObserver] () -> MediaEvalOpResult in
+            return mediaObserver
+                .asyncMediaEvalOp(loopIndex: loopIndex,
+                                  values: values) { [weak mediaObserver] () -> MediaEvalResult in
                 guard let media = await mediaObserver?.getUniqueMedia(inputMediaValue: inputMediaValue,
                                                                       inputPortIndex: inputPortIndex,
                                                                       loopIndex: loopIndex) else {
-                    return MediaEvalOpResult(from: defaultOutputs)
+                    return .init(from: defaultOutputs)
                 }
                 
                 let outputs = await evalOp(media)
@@ -162,8 +162,8 @@ extension MediaEvalOpObservable {
         }
 
         let outputs = evalOp(currentMedia)
-        return MediaEvalOpResult(values: outputs,
-                                 media: currentMedia)
+        return .init(values: outputs,
+                     media: currentMedia)
     }
 
     /// Condtionally gets or creates new media object based on input media and possible existence of current media
@@ -212,9 +212,9 @@ extension MediaEvalOpObservable {
     }
     
     /// Async callback to prevent data races for media object changes.
-    @MainActor func asyncMediaEvalOp(loopIndex: Int,
-                                     values: PortValues,
-                                     callback: @Sendable @escaping () async -> MediaEvalOpResult) -> MediaEvalOpResult {
+    @MainActor func asyncMediaEvalOp<MediaEvalResult>(loopIndex: Int,
+                                                      values: [MediaEvalResult.ValueType],
+                                                      callback: @Sendable @escaping () async -> MediaEvalResult) -> MediaEvalResult where MediaEvalResult: MediaEvalResultable {
         self.asyncMediaEvalOp(loopIndex: loopIndex,
                               values: values,
                               node: self.nodeDelegate,
@@ -222,16 +222,16 @@ extension MediaEvalOpObservable {
     }
     
     /// Async callback to prevent data races for media object changes.
-    @MainActor func asyncMediaEvalOp(loopIndex: Int,
-                                     values: PortValues,
-                                     node: NodeDelegate?,
-                                     callback: @Sendable @escaping () async -> MediaEvalOpResult) -> MediaEvalOpResult {
+    @MainActor func asyncMediaEvalOp<MediaEvalResult>(loopIndex: Int,
+                                                      values: [MediaEvalResult.ValueType],
+                                                      node: NodeDelegate?,
+                                                      callback: @Sendable @escaping () async -> MediaEvalResult) -> MediaEvalResult where MediaEvalResult: MediaEvalResultable {
         guard let nodeDelegate = node else {
             fatalErrorIfDebug()
             return .init(from: [])
         }
 
-        let outputs = values.prevOutputs(node: nodeDelegate)
+        let outputs = MediaEvalResult(from: values).prevOutputs(node: nodeDelegate)
         let currentMedia = self.currentMedia
         
         Task(priority: .high) { [weak self, weak nodeDelegate] in
@@ -361,9 +361,9 @@ actor MediaEvalOpCoordinator {
     }
     
     /// Async callback to prevent data races for media object changes.
-    func asyncMediaEvalOp(loopIndex: Int,
-                          node: NodeDelegate,
-                          callback: @Sendable @escaping () async -> MediaEvalOpResult) async {
+    func asyncMediaEvalOp<MediaEvalResult>(loopIndex: Int,
+                                           node: NodeViewModel,
+                                           callback: @Sendable @escaping () async -> MediaEvalResult) async where MediaEvalResult: MediaEvalResultable {
         let result = await callback()
         await node.graphDelegate?.recalculateGraph(result: result,
                                                    nodeId: node.id,
