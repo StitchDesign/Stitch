@@ -43,6 +43,8 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
 
     @MainActor internal var previousSwipeX: CGFloat = 0
     
+    @MainActor var isHovered = false
+    
     @MainActor weak var sidebarDelegate: LayersSidebarViewModel?
     
     @MainActor weak var parentDelegate: SidebarItemGestureViewModel? {
