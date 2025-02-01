@@ -7,6 +7,9 @@
 
 import Foundation
 import SwiftUI
+import StitchSchemaKit
+import StitchEngine
+
 
 let LLM_COLLECTION_DIRECTORY = "StitchDataCollection"
 
@@ -30,6 +33,9 @@ struct LLMRecordingState: Equatable {
     
     // Are we actively recording redux-actions which we then turn into LLM-actions?
     var isRecording: Bool = false
+    
+    // Do not create LLMActions while we are applying LLMActions
+    var isApplyingActions: Bool = false
     
     var attempts: Int = 0
     
@@ -113,12 +119,60 @@ extension StitchDocumentViewModel {
             }
         }
         
+        // Only adjust node positions if we were successful
+        self.positionAIGeneratedNodes()
+        
         // Write to disk ONLY IF WE WERE SUCCESSFUL
         self.encodeProjectInBackground()
     }
     
     @MainActor
-    func reapplyLLMActions() {
+    func positionAIGeneratedNodes() {
+        
+        let adjacency = AdjacencyCalculator()
+        
+        // Assumes actions already validated and applicable
+        self.llmRecording.actions.forEach { action in
+            if case let .connectNodes(x) = action {
+                adjacency.addEdge(from: x.fromNodeId, to: x.toNodeId)
+            }
+        }
+        
+        let (depthMap, hasCycle) = adjacency.computeDepth()
+        if hasCycle {
+            // TODO: JAN 31: if the model created a cycle... should we retry? or is that okay?
+            fatalErrorIfDebug("")
+            return
+        } else {
+            
+            // TODO: should also look at layer inputs? Note: layer inputs are always a leaf
+            let createdNodes = nodesCreatedByLLMActions(self.llmRecording.actions)
+            createdNodes.forEach {
+                if let depth = depthMap?.get($0),
+                   let createdNode = self.graph.getNodeViewModel($0) {
+                    
+                    createdNode.getAllCanvasObservers().enumerated().forEach { k in
+                        let canvasItem: CanvasItemViewModel = k.element
+                        
+                        canvasItem.position =  CGPoint(
+                            x: self.newNodeCenterLocation.x + (CGFloat(depth) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER),
+                            
+                            y: self.newNodeCenterLocation.y + (CGFloat(k.offset) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER/2)
+                        )
+                        
+                        canvasItem.previousPosition = canvasItem.position
+                    }
+                    
+                } else {
+                    log("No depth or node for created node id \($0); depthMap: \(depthMap)")
+                } // if / else
+                
+            } // forEach
+        }
+    }
+    
+    @MainActor
+    func reapplyActions() {
         let actions = self.llmRecording.actions
         
         log("StitchDocumentViewModel: reapplyLLMActions: actions: \(actions)")
