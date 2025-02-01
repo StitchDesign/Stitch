@@ -19,6 +19,7 @@ extension StitchDocumentViewModel {
     func maybeCreateStepTypeAddNode(_ newlyCreatedNodeId: NodeId) {
         // If we're LLM-recording, add an `LLMAddNode` action
         if self.llmRecording.isRecording,
+           !self.llmRecording.isApplyingActions,
            let newlyCreatedNode = self.graph.getNodeViewModel(newlyCreatedNodeId),
            let patchOrLayer: PatchOrLayer = PatchOrLayer.from(nodeKind: newlyCreatedNode.kind) {
 
@@ -29,7 +30,8 @@ extension StitchDocumentViewModel {
     @MainActor
     func maybeCreateLLMStepChangeNodeType(node: NodeViewModel,
                                           newNodeType: NodeType) {
-        if self.llmRecording.isRecording {
+        if self.llmRecording.isRecording,
+           !self.llmRecording.isApplyingActions {
             self.llmRecording.actions.append(.changeNodeType(.init(nodeId: node.id, nodeType: newNodeType)))
         }
     }
@@ -38,7 +40,8 @@ extension StitchDocumentViewModel {
     func maybeCreateLLMStepSetInput(node: NodeViewModel,
                                     input: InputCoordinate,
                                     value: PortValue) {
-        if self.llmRecording.isRecording {
+        if self.llmRecording.isRecording,
+           !self.llmRecording.isApplyingActions {
             self.llmRecording.actions.append(.setInput(
                 .init(nodeId: node.id,
                       port: input.portType,
@@ -53,7 +56,8 @@ extension StitchDocumentViewModel {
             
         log("maybeCreateLLMStepConnectionAdded: input: \(input)")
         log("maybeCreateLLMStepConnectionAdded: output: \(output)")
-        if self.llmRecording.isRecording {
+        if self.llmRecording.isRecording,
+           !self.llmRecording.isApplyingActions {
                         
             self.llmRecording.actions.append(.connectNodes(.init(
                 port: input.portType,
@@ -66,7 +70,8 @@ extension StitchDocumentViewModel {
     @MainActor
     func maybeCreateLLMStepAddLayerInput(_ nodeId: NodeId, _ property: LayerInputType) {
         // If we're LLM-recording, add an `LLMAddNode` action
-        if self.llmRecording.isRecording {
+        if self.llmRecording.isRecording,
+           !self.llmRecording.isApplyingActions {
 
             let step = StepTypeAction.addLayerInput(.init(nodeId: nodeId, port: property.layerInput))
                         

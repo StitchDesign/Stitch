@@ -23,7 +23,7 @@ struct ShowLLMApprovalModal: StitchDocumentEvent {
         
         // Don't need to do this again here, since we've already done it whenever user edits the LLMAction list
         // TODO: should not need to do this final application again, not really?
-        state.reapplyLLMActions()
+        state.reapplyActions()
         
         // End recording when we open the final submit
         state.llmRecordingEnded()
@@ -132,7 +132,7 @@ struct LLMActionsUpdatedByModal: StitchDocumentEvent {
         log("LLMActionsUpdated: newActions: \(newActions)")
         log("LLMActionsUpdated: state.llmRecording.actions was: \(state.llmRecording.actions)")
         state.llmRecording.actions = newActions
-        state.reapplyLLMActions()
+        state.reapplyActions()
     }
 }
 
@@ -177,6 +177,6 @@ struct LLMActionDeleted: StitchDocumentEvent {
                 
         // If immediately "de-apply" the removed action(s) from graph,
         // so that user instantly sees what changed.
-        state.reapplyLLMActions()
+        state.reapplyActions()
     }
 }
