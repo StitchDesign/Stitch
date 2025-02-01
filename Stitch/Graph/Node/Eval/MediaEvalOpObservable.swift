@@ -63,16 +63,19 @@ final class ImageClassifierOpObserver: MediaEvalOpObservable {
 
 extension MediaEvalOpObserver {
     @MainActor func onPrototypeRestart() {
-        switch currentMedia?.mediaObject {
-        case .video(let videoPlayer):
-            videoPlayer.resetPlayer()
-        case .soundfile(let soundPlayer):
-            soundPlayer.delegate.setJumpTime(.zero)
-        case .model3D(let stitchEntity):
-            stitchEntity.containerEntity.transform = .init()
-        default:
-            return
-        }
+        self.currentMedia = nil
+        
+        // MARK: below functionality keeps objects in place, which would make restarts less jarring should be an issue again
+//        switch currentMedia?.mediaObject {
+//        case .video(let videoPlayer):
+//            videoPlayer.resetPlayer()
+//        case .soundfile(let soundPlayer):
+//            soundPlayer.delegate.setJumpTime(.zero)
+//        case .model3D(let stitchEntity):
+//            stitchEntity.containerEntity.transform = .init()
+//        default:
+//            return
+//        }
     }
 }
 
