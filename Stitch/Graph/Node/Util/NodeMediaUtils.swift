@@ -125,11 +125,16 @@ extension NodeViewModel {
         // Do nothing if no upstream connection for media
         guard let connectedUpstreamObserver = self.inputsObservers[safe: portIndex]?.upstreamOutputObserver,
                 let connectedUpstreamNode = connectedUpstreamObserver.nodeDelegate else {
+            // MARK: below functionality allows nodes like media import patch nodes to display media at the input even though computed ephemeral observers only hold media. For some nodes like loop builder this isn't ideal as it'll incorrectly display valid data at an empty input.
+            if self.kind == .patch(.loopBuilder) {
+                return nil
+            }
+            
             // Check if media eval op exists here if no connection
             return self.getComputedMediaObserver(loopIndex: loopIndex)
         }
         
-        // MARK: media object is obtained by looking at upstream connected node's saved media objects.
+        // Media object is obtained by looking at upstream connected node's saved media objects.
         return connectedUpstreamNode.getComputedMediaObserver(loopIndex: loopIndex)
     }
     
