@@ -10,7 +10,7 @@ import Foundation
 
 // MARK: RECEIVING A LIST OF LLM-STEP-ACTIONS (i.e. `Step`) AND TURNING EACH ACTION INTO A STATE CHANGE
 
-let CANVAS_ITEM_ADDED_VIA_LLM_STEP_WDITH_STAGGER = 400.0
+let CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER = 400.0
 let CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER = 100.0
 
 extension StitchDocumentViewModel {
@@ -24,34 +24,30 @@ extension StitchDocumentViewModel {
     // returns nil = failed, and should retry
     @MainActor
     func applyAction(_ action: StepTypeAction,
-                     canvasItemsAdded: Int,
-                     attempt: Int = 1,
-                     maxAttempts: Int = 3) -> Int? {
+                     canvasItemsAdded: Int) -> Int? {
+        
+        // Set true whenever we are
+        self.llmRecording.isApplyingActions = true
         
         let newCenter = CGPoint(
-            x: self.newNodeCenterLocation.x + (CGFloat(canvasItemsAdded) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_WDITH_STAGGER),
+            x: self.newNodeCenterLocation.x + (CGFloat(canvasItemsAdded) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER),
             y: self.newNodeCenterLocation.y)
-        
-        // Check retry attempts
-        guard attempt <= maxAttempts else {
-            log("❌ All retry attempts exhausted for step action:")
-            log("   - action: \(action)")
-            return nil
-        }
-        
+                
         switch action {
         case .addNode(let x):
             guard let _ = self.nodeCreated(choice: x.nodeName.asNodeKind,
                                            nodeId: x.nodeId,
                                            center: newCenter) else {
+                self.llmRecording.isApplyingActions = false
                 return nil
             }
-            
+            self.llmRecording.isApplyingActions = false
             return canvasItemsAdded + 1
             
         case .addLayerInput(let x):
             guard let node = self.graph.getNode(x.nodeId),
                   let layerNode = node.layerNode else {
+                self.llmRecording.isApplyingActions = false
                 return nil
             }
             
@@ -62,6 +58,7 @@ extension StitchDocumentViewModel {
                                               input: input,
                                               coordinate: layerInputType,
                                               manualLLMStepCenter: newCenter)
+            self.llmRecording.isApplyingActions = false
             return canvasItemsAdded + 1
         
         case .connectNodes(let x):
@@ -70,19 +67,21 @@ extension StitchDocumentViewModel {
                 to: .init(portType: x.port, nodeId: x.toNodeId))
             
             let _ = graph.edgeAdded(edge: edge)
-            
+            self.llmRecording.isApplyingActions = false
             return canvasItemsAdded
         
         case .changeNodeType(let x):
             // NodeType etc. for this patch was already validated in `[StepTypeAction].areValidLLMSteps`
             let _ = self.graph.nodeTypeChanged(nodeId: x.nodeId,
                                                newNodeType: x.nodeType)
+            self.llmRecording.isApplyingActions = false
             return canvasItemsAdded
         
         case .setInput(let x):
             let inputCoordinate = InputCoordinate(portType: x.port,
                                                   nodeId: x.nodeId)
             guard let input = self.graph.getInputObserver(coordinate: inputCoordinate) else {
+                self.llmRecording.isApplyingActions = false
                 return nil
             }
             
@@ -92,6 +91,7 @@ extension StitchDocumentViewModel {
                                           value: x.value,
                                           wasDropdown: false)
             
+            self.llmRecording.isApplyingActions = false
             return canvasItemsAdded
         }
         
