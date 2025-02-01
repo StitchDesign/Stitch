@@ -17,7 +17,7 @@ final class MediaViewModel: Sendable {
 }
 
 struct MediaEvalOpResult {
-    let values: PortValues
+    var values: PortValues
     var media: GraphMediaValue?
 }
 

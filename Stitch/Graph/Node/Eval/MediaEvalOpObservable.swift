@@ -211,6 +211,16 @@ extension MediaEvalOpObservable {
     /// Async callback to prevent data races for media object changes.
     @MainActor func asyncMediaEvalOp(loopIndex: Int,
                                      values: PortValues,
+                                     callback: @Sendable @escaping () async -> MediaEvalOpResult) -> MediaEvalOpResult {
+        self.asyncMediaEvalOp(loopIndex: loopIndex,
+                              values: values,
+                              node: self.nodeDelegate,
+                              callback: callback)
+    }
+    
+    /// Async callback to prevent data races for media object changes.
+    @MainActor func asyncMediaEvalOp(loopIndex: Int,
+                                     values: PortValues,
                                      node: NodeDelegate?,
                                      callback: @Sendable @escaping () async -> MediaEvalOpResult) -> MediaEvalOpResult {
         guard let nodeDelegate = node else {

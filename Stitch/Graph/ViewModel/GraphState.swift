@@ -73,8 +73,6 @@ final class GraphState: Sendable {
     
     @MainActor var motionManagers = StitchMotionManagersDict()
     
-    @MainActor var networkRequestCompletedTimes = NetworkRequestLatestCompletedTimeDict()
-    
     // Tracks IDs for rows that need to be updated for the view. Cached here for perf so we can throttle view updates.
     @MainActor var portsToUpdate: NodePortCacheSet = .init()
     
