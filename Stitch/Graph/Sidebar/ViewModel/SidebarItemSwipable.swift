@@ -42,6 +42,8 @@ protocol SidebarItemSwipable: StitchNestedListElementObservable, Sendable, Ident
     
     @MainActor var isMasking: Bool { get }
     
+    @MainActor var isHovered: Bool { get set }
+    
     @MainActor
     init(data: Self.EncodedItemData,
          parentDelegate: Self?,
