@@ -827,6 +827,7 @@
 		ECD60DAC2627805800D534DF /* LoopInsert.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD60DAB2627805800D534DF /* LoopInsert.swift */; };
 		ECD7FA8B29D73C010073ACAC /* InsertNodeMenuOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD7FA8A29D73C010073ACAC /* InsertNodeMenuOption.swift */; };
 		ECD7FA8D29D73E2D0073ACAC /* ComponentActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD7FA8C29D73E2D0073ACAC /* ComponentActions.swift */; };
+		ECD83E9E2D4D87AD002B7A3E /* LLMActionPositionNodeUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD83E9D2D4D87AC002B7A3E /* LLMActionPositionNodeUtil.swift */; };
 		ECD83F0E2C19ED0800722AD7 /* LLMRecordingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD83F0D2C19ED0800722AD7 /* LLMRecordingState.swift */; };
 		ECD83F1B2C1A0C5F00722AD7 /* LLMPromptModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD83F1A2C1A0C5F00722AD7 /* LLMPromptModalView.swift */; };
 		ECD8871C29410BF500003B47 /* LoopFilterNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD8871B29410BF500003B47 /* LoopFilterNode.swift */; };
@@ -1768,6 +1769,7 @@
 		ECD60DAB2627805800D534DF /* LoopInsert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopInsert.swift; sourceTree = "<group>"; };
 		ECD7FA8A29D73C010073ACAC /* InsertNodeMenuOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsertNodeMenuOption.swift; sourceTree = "<group>"; };
 		ECD7FA8C29D73E2D0073ACAC /* ComponentActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentActions.swift; sourceTree = "<group>"; };
+		ECD83E9D2D4D87AC002B7A3E /* LLMActionPositionNodeUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMActionPositionNodeUtil.swift; sourceTree = "<group>"; };
 		ECD83F0D2C19ED0800722AD7 /* LLMRecordingState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMRecordingState.swift; sourceTree = "<group>"; };
 		ECD83F1A2C1A0C5F00722AD7 /* LLMPromptModalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMPromptModalView.swift; sourceTree = "<group>"; };
 		ECD8871B29410BF500003B47 /* LoopFilterNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopFilterNode.swift; sourceTree = "<group>"; };
@@ -3900,6 +3902,7 @@
 				E4D0D2D62CE6B4B000E482E4 /* LLM_ACTIONS_TO_ADD_LATER.swift */,
 				ECD83F1A2C1A0C5F00722AD7 /* LLMPromptModalView.swift */,
 				ECD83F0D2C19ED0800722AD7 /* LLMRecordingState.swift */,
+				ECD83E9D2D4D87AC002B7A3E /* LLMActionPositionNodeUtil.swift */,
 				EC5C6C392C2DAE690023D0C0 /* LLMActionRecording.swift */,
 				ECAFD08D2D4878CC00101226 /* LLMActionHelpers.swift */,
 				ECAFD08F2D48792600101226 /* LLMModalViews.swift */,
@@ -4829,6 +4832,7 @@
 				EC2614512B897BFA00BEB066 /* Point3DUnpackNode.swift in Sources */,
 				EC2614552B897C4200BEB066 /* MatrixUnpackNode.swift in Sources */,
 				B5C0E0A72998813A00322A1E /* StitchMediaObject.swift in Sources */,
+				ECD83E9E2D4D87AD002B7A3E /* LLMActionPositionNodeUtil.swift in Sources */,
 				B55C958428CBAB4000ED59B2 /* StitchUndoManager.swift in Sources */,
 				B526AFFE2C764E8D00B5971F /* SchemaVersions.swift in Sources */,
 				EC6C68D02937CA800023B700 /* ReverseProgressNode.swift in Sources */,
