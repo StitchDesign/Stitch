@@ -6576,8 +6576,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/AudioKit/AudioKit.git";
 			requirement = {
-				kind = revision;
-				revision = 9f212b5af6d1ed530f6cde632cf9cf255ff361e5;
+				kind = exactVersion;
+				version = 5.6.2;
 			};
 		};
 		EC53F3C1287E27250021095B /* XCRemoteSwiftPackageReference "swift-numerics" */ = {
