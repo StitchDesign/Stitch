@@ -123,7 +123,6 @@ func networkRequestEval(node: PatchNode,
 
     let inputsValues = node.inputs
     let nodeId = node.id
-    let nodeType = node.userVisibleType!
     let graphTime = graphStep.graphTime
     let defaultOutputs: PortValuesList = [[boolDefaultFalse],
                                           [defaultFalseJSON],
