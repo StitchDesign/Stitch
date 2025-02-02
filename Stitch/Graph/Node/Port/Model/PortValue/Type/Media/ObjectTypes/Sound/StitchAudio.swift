@@ -28,11 +28,14 @@ final class StitchSoundPlayer<Player: StitchSoundPlayerDelegate>: Sendable {
 
     @MainActor
     init(delegate: Player, willPlay: Bool = true) {
+        // Should be defined or else player could have problems (see: mic)
+        let isOutputDefined = delegate.engine.output != nil
+        
         self.delegate = delegate
         self.isEnabled = willPlay
 
         // isEnabled publisher won't play from init
-        if willPlay {
+        if willPlay && isOutputDefined {
             self.start()
         }
 

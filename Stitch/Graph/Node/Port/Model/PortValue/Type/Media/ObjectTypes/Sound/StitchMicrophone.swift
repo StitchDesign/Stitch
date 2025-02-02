@@ -79,9 +79,7 @@ final class StitchMic: NSObject, Sendable, StitchSoundPlayerDelegate {
         guard let recorder = recorder else {
             if let newRecorder = Self.createAVAudioRecorder() {
                 self.recorder = newRecorder
-                DispatchQueue.main.async { [weak self] in
-                    self?.recorder?.startRecording()
-                }
+                newRecorder.startRecording()
             }
             return
         }
@@ -140,8 +138,10 @@ final class StitchMic: NSObject, Sendable, StitchSoundPlayerDelegate {
              AVNumberOfChannelsKey: 2,
              AVSampleRateKey: 44100]
 
+        let tempUrl = StitchFileManager.createTempURL(fileExt: MIC_RECORDING_FILE_EXT)
+        
         return try? AVAudioRecorder(
-            url: StitchFileManager.createTempURL(fileExt: MIC_RECORDING_FILE_EXT),
+            url: tempUrl,
             settings: recordSettings)
     }
 }
