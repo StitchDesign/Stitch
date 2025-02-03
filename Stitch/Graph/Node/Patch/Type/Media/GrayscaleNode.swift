@@ -63,11 +63,6 @@ func grayscaleEval(node: PatchNode) -> EvalResult {
                 Task { ReceivedStitchFileError(error: error) }
                 let values = await values.prevOutputs(node: node)
                 return MediaEvalOpResult(from: values)
-//            default:
-//                let values = await values.prevOutputs(node: node)
-//                let currentMedia = await mediaObservable?.currentMedia?.mediaObject
-//                return MediaEvalOpResult(values: values,
-//                                         media: currentMedia)
             }
         }
     }

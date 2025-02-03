@@ -199,21 +199,6 @@ extension InputNodeRowObserver {
         // Update that upstream observer of new edge
         self.upstreamOutputObserver?.containsDownstreamConnection = true
     }
-
-    /// Values for import dropdowns don't hold media directly, so we need to find it.
-//    @MainActor var importedMediaObject: StitchMediaObject? {
-//        guard self.id.portId == 0,
-//              self.upstreamOutputCoordinate == nil else {
-//            return nil
-//        }
-//        
-//        if let ephemeralObserver = self.nodeDelegate?.ephemeralObservers?.first,
-//           let mediaObserver = ephemeralObserver as? MediaEvalOpObservable {
-//            return mediaObserver.currentMedia?.mediaObject
-//        }
-//        
-//        return nil
-//    }
     
     // Because `private`, needs to be declared in same file(?) as method that uses it
     @MainActor

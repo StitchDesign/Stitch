@@ -11,8 +11,6 @@ import StitchSchemaKit
 typealias OpWithIndex<T> = (PortValues, Int) -> T
 typealias NodeEphemeralObservableOp<T, EphemeralObserver> = (PortValues, EphemeralObserver, Int) -> T where EphemeralObserver: NodeEphemeralObservable
 
-//typealias NodeMediaObservableOp<T, EphemeralObserver> = (MediaEvalOpResult, EphemeralObserver, Int) -> T where EphemeralObserver: NodeEphemeralObservable
-
 typealias NodeEphemeralObservableListOp<OpResult, EphemeralObserver> = (PortValuesList, EphemeralObserver) -> OpResult where OpResult: NodeEvalOpResult, EphemeralObserver: NodeEphemeralObservable
 
 typealias NodeEphemeralInteractiveOp<T, EphemeralObserver> = (PortValues, EphemeralObserver, InteractiveLayer, Int) -> T where EphemeralObserver: NodeEphemeralObservable
@@ -139,23 +137,6 @@ extension NodeViewModel {
         }
         .createPureEvalResult(node: self)
     }
-    
-//    @MainActor
-//    /// Looped eval for PortValues returning an EvalFlowResult. Used for nodes like object detection.
-//    func loopedEvalList<OpResult, Observable>(_ ephemeralObserverType: Observable.Type,
-//                                                evalOp: @escaping NodeEphemeralObservableListOp<OpResult, Observable>) -> EvalResult where OpResult: NodeEvalOpResult, Observable: NodeEphemeralObservable {
-//        // Ignore input loops for nodes like object detection
-//        let inputs = self.inputs
-//        
-//        guard let ephemeralObserver = self.ephemeralObservers?.first as? Observable else {
-//            fatalErrorIfDebug()
-//            return EvalResult()
-//        }
-//        
-//        let result = evalOp(inputs, ephemeralObserver)
-//        return OpResult.createEvalResult(from: [result],
-//                                         node: self)
-//    }
     
     @MainActor
     func loopedEval<EvalOpResult: NodeEvalOpResult>(inputsValues: PortValuesList? = nil,

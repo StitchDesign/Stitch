@@ -519,10 +519,6 @@ struct NonGroupPreviewLayersView: View {
                                                     document: document,
                                                     mediaRowObserver: layerViewModel?.mediaRowObserver)
                 }
-                
-//                if let _mediaObject = mediaValue._mediaObject as? StitchMediaObject {
-//                    self.layerViewModel.mediaObject = _mediaObject
-//                }
             }
         } else {
             EmptyView()
