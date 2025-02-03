@@ -33,7 +33,7 @@ struct PreviewGroupLayer: View {
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     @Bindable var layerViewModel: LayerViewModel
-    @Binding var realityContent: LayerRealityCameraContent?
+    let realityContent: LayerRealityCameraContent?
     let layersInGroup: LayerDataList // child layers for THIS group
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
@@ -267,7 +267,7 @@ struct PreviewGroupLayer: View {
                               noFixedSizeForLayerGroup: noFixedSizeForLayerGroup,
                               parentGridData: gridData,
                               isGhostView: !isPinnedViewRendering,
-                              realityContent: $realityContent)
+                              realityContent: realityContent)
             }
     }
 }

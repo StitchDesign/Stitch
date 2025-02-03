@@ -79,7 +79,10 @@ struct PreviewRealityLayer: View {
     }
 }
 
-struct RealityLayerView: View {    
+struct RealityLayerView: View {
+    // New reality content defined from this group context
+    @State private var realityContent = StitchRealityContent()
+
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
@@ -148,10 +151,9 @@ struct RealityLayerView: View {
                         // Update list of node Ids using camera
                         graph.enabledCameraNodeIds.insert(node.id)
                         
-                        self.layerViewModel.realityContent = arView
-                    }
-                    .onDisappear {
-                        self.layerViewModel.realityContent = nil
+                        // Reality content must be assigned due to race conditions with other views (like 3D Model layers) which need it to exist, or else those views will use the wrong flow
+                        self.realityContent.arView = arView
+//                        self.layerViewModel.realityContent = self.realityContent
                     }
                 }
                 
@@ -177,13 +179,11 @@ struct RealityLayerView: View {
         
         else {
             NonCameraRealityView(layerViewModel: layerViewModel,
+                                 realityContent: self.realityContent,
                                  size: layerSize,
                                  scale: scale,
                                  opacity: opacity,
                                  isShadowsEnabled: isShadowsEnabled)
-                                 .onDisappear {
-                                     self.layerViewModel.realityContent = nil
-                                 }
         }
     }
     
@@ -227,7 +227,7 @@ struct RealityLayerView: View {
                                    isPinnedViewRendering: isPinnedViewRendering,
                                    parentDisablesPosition: parentDisablesPosition,
                                    parentIsScrollableGrid: parentIsScrollableGrid,
-                                   realityContent: self.$layerViewModel.realityContent)
+                                   realityContent: self.realityContent)
         }
     }
 }

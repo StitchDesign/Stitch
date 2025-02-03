@@ -64,7 +64,7 @@ struct CanvasSketchLayerNode: LayerNodeDefinition {
                         isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool,
                         parentIsScrollableGrid: Bool,
-                        realityContent: Binding<LayerRealityCameraContent?>) -> some View {
+                        realityContent: LayerRealityCameraContent?) -> some View {
         CanvasSketchView(document: document,
                          graph: graph,
                          layerViewModel: viewModel,

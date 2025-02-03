@@ -32,8 +32,8 @@ struct Preview3DModelLayer: View {
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     @Bindable var layerViewModel: LayerViewModel
-    @Binding var realityContent: LayerRealityCameraContent?
     
+    let realityContent: LayerRealityCameraContent?
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
     let entity: StitchEntity?
@@ -75,17 +75,22 @@ struct Preview3DModelLayer: View {
     }
     
     @ViewBuilder
-    func entityView(realityContent: StitchARView) -> some View {
-        Color.clear
-            .modifier(ModelEntityLayerViewModifier(previewLayer: layerViewModel,
-                                                   entity: self.entity,
-                                                   realityContent: realityContent,
-                                                   graph: graph,
-                                                   anchorEntityId: anchorEntityId,
-                                                   translationEnabled: translation3DEnabled,
-                                                   rotationEnabled: rotation3DEnabled,
-                                                   scaleEnabled: scale3DEnabled,
-                                                   isRendering: isPinnedViewRendering))
+    func entityView(realityContent: StitchRealityContent) -> some View {
+        if let realityContent = realityContent.arView {
+            Color.clear
+                .modifier(ModelEntityLayerViewModifier(previewLayer: layerViewModel,
+                                                       entity: self.entity,
+                                                       realityContent: realityContent,
+                                                       graph: graph,
+                                                       anchorEntityId: anchorEntityId,
+                                                       translationEnabled: translation3DEnabled,
+                                                       rotationEnabled: rotation3DEnabled,
+                                                       scaleEnabled: scale3DEnabled,
+                                                       isRendering: isPinnedViewRendering))
+        } else {
+            // Loading nothing if ARView isn't set yet
+            EmptyView()
+        }
     }
     
     var body: some View {
@@ -100,6 +105,7 @@ struct Preview3DModelLayer: View {
             
             else if let entity = entity {
                 Model3DView(layerViewModel: layerViewModel,
+                            realityContent: realityContent,
                             graph: graph,
                             entity: entity,
                             size: self.size,
@@ -155,7 +161,7 @@ struct ModelEntityLayerViewModifier: ViewModifier {
     @Bindable var previewLayer: LayerViewModel
     
     let entity: StitchEntity?
-    let realityContent: LayerRealityCameraContent
+    let realityContent: StitchARView
     let graph: GraphState
     let anchorEntityId: UUID?
     let translationEnabled: Bool
@@ -181,7 +187,7 @@ struct ModelEntityLayerViewModifier: ViewModifier {
     
     func asssignNewAnchor(_ newAnchor: AnchorEntity,
                           entity: StitchEntity?,
-                          to realityContent: LayerRealityCameraContent) {
+                          to realityContent: StitchARView) {
         self.anchorEntity = newAnchor
         
         if let entity = entity {

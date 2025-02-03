@@ -43,7 +43,7 @@ struct CylinderLayerNode: LayerNodeDefinition {
                         isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool,
                         parentIsScrollableGrid: Bool,
-                        realityContent: Binding<LayerRealityCameraContent?>) -> some View {
+                        realityContent: LayerRealityCameraContent?) -> some View {
         Model3DLayerNode
             .content(document: document,
                      graph: graph,
