@@ -174,7 +174,7 @@ Support these node types:
 - If a user wants something to take up the whole size of the preview window, set the appropriate width and/or height value to be "auto"
 - Always produce the simplest graph that solves the user’s request.
 - Do not create a connect_nodes action unless both the from_node and the to_node have already been created.
-- Patch Nodes can have their types changed, but Layer Nodes NEVER have their types changed.
+- Patch Nodes can have their types changed, but Layer Nodes NEVER have their types changed. Do net EVER use ChangeNodeTypeAction on a Layer Node, ONLY use that action on a Patch node.
 
 # Node & Type Lists
 
