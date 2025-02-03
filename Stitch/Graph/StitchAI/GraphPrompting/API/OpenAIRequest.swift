@@ -271,13 +271,13 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
             let (stepsFromResponse, error) = data.getOpenAISteps()
             
             if let stepsFromResponse = stepsFromResponse {
-                log("JSON parsing succeeded on retry \(attempt)")
+                log("StitchAI JSON parsing succeeded on retry \(attempt)")
                 self.handleSuccessfulParse(steps: stepsFromResponse, state: state)
             } else if attempt < self.maxParsingAttempts {
-                log("Stitch AI JSON parsing failed on retry \(attempt): \(error?.localizedDescription ?? "")", .logToServer)
+                log("StitchAI JSON parsing failed on retry \(attempt): \(error?.localizedDescription ?? "")", .logToServer)
                 self.retryParsing(data: data, attempt: attempt + 1, state: state)
             } else {
-                log("Stitch AI All parsing retries exhausted for \(self.originalPrompt)", .logToServer)
+                log("StitchAI All parsing retries exhausted for \(self.originalPrompt)", .logToServer)
                 
                 state.showErrorModal(
                     message: error?.localizedDescription ?? "Failed to parse response after \(self.maxParsingAttempts) attempts",
@@ -393,10 +393,10 @@ extension Data {
             
             do {
                 let contentJSON = try firstChoice.message.parseContent()
-                log("Stitch AI JSON parsing succeeded")
+                log("StitchAI JSON parsing succeeded")
                 return (contentJSON.steps, nil)
             } catch {
-                log("Stitch AI JSON parsing failed: \(error.localizedDescription)", .logToServer)
+                log("StitchAI JSON parsing failed: \(error.localizedDescription)", .logToServer)
                 return (nil, error)
             }
             
