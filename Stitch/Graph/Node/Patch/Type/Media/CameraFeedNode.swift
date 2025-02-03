@@ -107,7 +107,7 @@ func cameraManagerEval(node: PatchNode,
                        graph: GraphDelegate,
                        document: StitchDocumentViewModel,
                        cameraEnabledInputIndex: Int,
-                       mediaOp: @escaping AsyncSingletonMediaEvalOp) -> ImpureEvalResult {
+                       mediaOp: @escaping AsyncSingletonMediaEvalOp) -> EvalResult {
     // Check if any instance is enabled
     let isNodeEnabled = node.inputs[safe: cameraEnabledInputIndex]?
         .compactMap { $0.getBool }
@@ -137,7 +137,7 @@ func cameraManagerEval(node: PatchNode,
                                    mediaCreation: createCameraFeedManager,
                                    mediaManagerKeyPath: \.cameraFeedManager,
                                    mediaOp: mediaOp)
-    .toImpureEvalResult()
+    .createPureEvalResult(node: node)
 }
 
 @MainActor
@@ -155,29 +155,32 @@ func cameraFeedEval(node: PatchNode,
         
         guard !document.isGeneratingProjectThumbnail else {
             log("cameraFeedEval: generating project thumbnail, so will not use camera image")
-            return node.defaultOutputs
+            return .init(from: node.defaultOutputs)
         }
         
         guard let isEnabled = values.first?.getBool else {
             log("cameraFeedEval: issue decoding values")
-            return node.defaultOutputs
+            return .init(from: node.defaultOutputs)
         }
         
         guard isEnabled else {
-            return node.defaultOutputs
+            return .init(from: node.defaultOutputs)
         }
         
-        guard let currentCamearaImage = document.cameraFeed?.currentCameraImage else {
-            return node.defaultOutputs
+        guard let currentCameraImage = document.cameraFeed?.currentCameraImage else {
+            return .init(from: node.defaultOutputs)
         }
         
         let newId = UUID()
         
-        return [
-            .asyncMedia(AsyncMediaValue(id: newId,
-                                        dataType: .computed,
-                                        mediaObject: .image(currentCamearaImage))),
-            .size(currentCamearaImage.layerSize)
-        ]
+        return .init(
+            values: [
+                .asyncMedia(AsyncMediaValue(id: newId,
+                                            dataType: .computed,
+                                            label: "Camera")),
+                .size(currentCameraImage.layerSize)
+            ],
+            media: .init(computedMedia: .image(currentCameraImage))
+        )
     }
 }

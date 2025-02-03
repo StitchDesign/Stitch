@@ -64,9 +64,10 @@ func locationEval(node: PatchNode,
         let long = location.location.longitude
         let address = location.address
 
-        return [.number(lat),
-                .number(long),
-                .string(.init(address))]
+        return .init(from: [.number(lat),
+                            .number(long),
+                            .string(.init(address))]
+        )
     }
-                            .toImpureEvalResult()
+                            .createPureEvalResult(node: node)
 }

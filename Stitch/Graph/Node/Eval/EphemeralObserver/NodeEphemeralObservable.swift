@@ -115,13 +115,14 @@ struct SampleRangeComputedState: Equatable, Hashable {
     // Our means for tracking if a media object has been created
     var mediaId: MediaObjectId?
 
+    @MainActor
     func createOutputs(mediaObject: StitchMediaObject) -> PortValues {
         // Output value equates to the created sample range file
         var outputMediaValue: AsyncMediaValue?
         if let sampleRangeMediaId = self.mediaId {
             outputMediaValue = AsyncMediaValue(id: sampleRangeMediaId, 
                                                dataType: .computed,
-                                               mediaObject: mediaObject)
+                                               label: mediaObject.name)
         }
 
         return [.asyncMedia(outputMediaValue)]

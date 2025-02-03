@@ -51,16 +51,19 @@ struct QRCodeDetectionNode: PatchNodeDefinition {
 
 @MainActor
 func qrCodeDetectionEval(node: PatchNode) -> EvalResult {
-    node.loopedEval(MediaEvalOpObserver.self) { values, asyncObserver, loopIndex in
-        guard let media = asyncObserver.getUniqueMedia(from: values.first,
-                                                       loopIndex: loopIndex),
-              let image = media.mediaObject.image else {
-            return node.defaultOutputs
-        }
-        
-        return asyncObserver.asyncMediaEvalOp(loopIndex: loopIndex,
+    let defaultOutputs = node.defaultOutputs
+    
+    return node.loopedEval(MediaEvalOpObserver.self) { values, asyncObserver, loopIndex in
+        asyncObserver.asyncMediaEvalOp(loopIndex: loopIndex,
                                               values: values,
-                                              node: node) {
+                                              node: node) { [weak asyncObserver] in
+            guard let media = await asyncObserver?.getUniqueMedia(inputMediaValue: values.first?.asyncMedia,
+                                                                  inputPortIndex: 0,
+                                                                  loopIndex: loopIndex),
+                  let image = media.mediaObject.image else {
+                return defaultOutputs
+            }
+
             switch await image.detectQRCode() {
             case .success(let detectionResult):
                 let message = detectionResult.message

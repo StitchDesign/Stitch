@@ -128,7 +128,7 @@ extension Patch {
         case .microphone:
             return MicrophoneNode.self
         case .networkRequest:
-            return nil
+            return NetworkRequestNode.self
         case .valueForKey:
             return ValueForKeyNode.self
         case .valueAtIndex:

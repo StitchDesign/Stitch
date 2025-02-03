@@ -75,85 +75,76 @@ func coreMLDetectionDefaultOutputs(nodeId: NodeId, inputsCount: Int) -> Outputs 
  */
 @MainActor
 func coreMLDetectionEval(node: PatchNode) -> EvalResult {
-    return node.loopedEvalList(VisionOpObserver.self) { values, mediaObserver in
-        let defaultOutputs = node.defaultOutputsList
-
-        guard let modelMediaObject = mediaObserver.getUniqueMedia(from: values.first,
-                                                                  loopIndex: 0)?.mediaObject,
-              let model = modelMediaObject.coreMLImageModel,
-              let cropAndScaleOption = values[safe: 2]?.vnImageCropOption,
-              let image = values[safe: 1]?.asyncMedia?.mediaObject.image else {
-            // defaults/failures we still treat as "by index"
-            return defaultOutputs
-        }
-        
-        return mediaObserver.asyncMediaEvalOpList(node: node) { [weak model, weak image] in
-            guard let model = model,
-                  let image = image else {
-                // Return same previous outputs list
-                return defaultOutputs
-            }
-            
-            let results: [VNRecognizedObjectObservation] = await mediaObserver.coreMlActor
-                .visionDetectionRequest(for: model,
-                                        with: image,
-                                        vnImageCropOption: cropAndScaleOption)
-            
-            if results.isEmpty {
-                //                log("coreMLDetectionEval: results were empty; returning existing outputs")
-                return defaultOutputs
-            }
-            
-            //            log("coreMLDetectionEval: result.description: \(results.description)")
-            
-            var labelsOutputLoop = [String]()
-            var confidenceOutputLoop = [Double]()
-            var locationOutputLoop = [StitchPosition]()
-            var sizeOutputLoop = [CGSize]()
-            
-            let imageSize = image.size
-            
-            //            log("coreMLDetectionEval: results.count: \(results.count)")
-            
-            results.forEach { (result: VNRecognizedObjectObservation) in
-                
-                //                log("result.labels identifier: \(result.labels.map(\.identifier))")
-                //                log("result.labels confidence: \(result.labels.map(\.confidence))")
-                
-                if let mostConfidentLabel = result.labels.mostConfidentLabel() {
-                    
-                    labelsOutputLoop.append(mostConfidentLabel.identifier)
-                    
-                    confidenceOutputLoop.append(Double(mostConfidentLabel.confidence))
-                    
-                    let rect = transformRect(
-                        fromRect: result.boundingBox,
-                        // viewSize is treated as imageSize
-                        toViewSize: imageSize)
-                    
-                    locationOutputLoop.append(
-                        .init(x: rect.minX,
-                              y: rect.minY)
-                    )
-                    
-                    sizeOutputLoop.append(
-                        .init(width: rect.width,
-                              height: rect.height))
-                    
-                }
-                //                else {
-                //                    log("coreMLDetectionEval: Could not find label for result: \(result)")
-                //                }
-            }
-            
-            return [
-                labelsOutputLoop.map { PortValue.string(.init($0)) },
-                confidenceOutputLoop.map(PortValue.number),
-                locationOutputLoop.map(PortValue.position),
-                sizeOutputLoop.map { PortValue.size(.init($0)) }
-            ]
-        }
+    let defaultOutputs = node.defaultOutputsList
+    let inputs = node.inputs
+    
+    guard let mediaObserver = node.ephemeralObservers?.first as? VisionOpObserver,
+          let image = node.getInputMedia(portIndex: 1, loopIndex: 0)?.image,
+          let cropAndScaleOption = inputs[safe: 2]?.first?.vnImageCropOption else {
+        return .init(outputsValues: defaultOutputs)
     }
+        
+    let result: MediaEvalValuesListResult = mediaObserver
+        .mediaEvalOpCoordinator(inputPortIndex: 0,
+                                values: inputs,
+                                loopIndex: 0,
+                                defaultOutputs: defaultOutputs) { (media) -> PortValuesList in
+            mediaObserver.asyncMediaEvalOpList(node: node) { [weak image] in
+                guard let model = media.mediaObject.coreMLImageModel,
+                      let image = image else {
+                    // Return same previous outputs list
+                    return defaultOutputs
+                }
+                
+                let results: [VNRecognizedObjectObservation] = await mediaObserver.coreMlActor
+                    .visionDetectionRequest(for: model,
+                                            with: image,
+                                            vnImageCropOption: cropAndScaleOption)
+                
+                if results.isEmpty {
+                    return defaultOutputs
+                }
+                
+                var labelsOutputLoop = [String]()
+                var confidenceOutputLoop = [Double]()
+                var locationOutputLoop = [StitchPosition]()
+                var sizeOutputLoop = [CGSize]()
+                
+                let imageSize = image.size
+                
+                results.forEach { (result: VNRecognizedObjectObservation) in
+                    if let mostConfidentLabel = result.labels.mostConfidentLabel() {
+                        
+                        labelsOutputLoop.append(mostConfidentLabel.identifier)
+                        confidenceOutputLoop.append(Double(mostConfidentLabel.confidence))
+                        
+                        let rect = transformRect(
+                            fromRect: result.boundingBox,
+                            // viewSize is treated as imageSize
+                            toViewSize: imageSize)
+                        
+                        locationOutputLoop.append(
+                            .init(x: rect.minX,
+                                  y: rect.minY)
+                        )
+                        
+                        sizeOutputLoop.append(
+                            .init(width: rect.width,
+                                  height: rect.height))
+                    }
+                }
+                
+                return [
+                    labelsOutputLoop.map { PortValue.string(.init($0)) },
+                    confidenceOutputLoop.map(PortValue.number),
+                    locationOutputLoop.map(PortValue.position),
+                    sizeOutputLoop.map { PortValue.size(.init($0)) }
+                ]
+            }
+        }
+    
+    return MediaEvalValuesListResult.createEvalResult(from: [result],
+                                                      node: node)
 }
 
 

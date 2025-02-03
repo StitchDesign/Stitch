@@ -54,15 +54,19 @@ struct DelayPatchNode: PatchNodeDefinition {
     }
 }
 
-final class NodeTimerEphemeralObserver: NodeEphemeralObservable {    
+final class NodeTimerEphemeralObserver: MediaEvalOpViewable {
+    let mediaViewModel: MediaViewModel
+    
     // Buffer of timer objects
     @MainActor var runningTimers: [UUID: DelayNodeTimer] = .init()
     
     // Tracks previous values for delay node to track increasing/decreasing trend.
     // Maps a loop index to a PortValue
-    var prevDelayInputValue: PortValue?
+    @MainActor var prevDelayInputValue: PortValue?
     
-    @MainActor init () { }
+    @MainActor init () {
+        self.mediaViewModel = .init()
+    }
 }
 
 extension NodeTimerEphemeralObserver {
@@ -78,6 +82,7 @@ final class DelayNodeTimer {
     let timerId: UUID
     let delayValue: Double
     let value: PortValue
+    let media: GraphMediaValue?
     let loopIndex: Int
     let originalNodeType: UserVisibleType?
     weak var ephemeralObserver: NodeTimerEphemeralObserver?
@@ -86,6 +91,7 @@ final class DelayNodeTimer {
     init(timerId: UUID,
          delayValue: Double,
          value: PortValue,
+         media: GraphMediaValue?,
          loopIndex: Int,
          originalNodeType: UserVisibleType?,
          ephemeralObserver: NodeTimerEphemeralObserver,
@@ -93,6 +99,7 @@ final class DelayNodeTimer {
         self.timerId = timerId
         self.delayValue = delayValue
         self.value = value
+        self.media = media
         self.loopIndex = loopIndex
         self.originalNodeType = originalNodeType
         self.ephemeralObserver = ephemeralObserver
@@ -114,6 +121,7 @@ final class DelayNodeTimer {
         ephemeralObserver?.assignDelayedValueAction(timerId: timerId,
                                                     node: node,
                                                     value: value,
+                                                    media: media,
                                                     loopIndex: loopIndex,
                                                     delayLength: delayValue,
                                                     originalNodeType: originalNodeType)
@@ -148,6 +156,8 @@ func delayEval(node: PatchNode) -> EvalResult {
             let timer = DelayNodeTimer(timerId: id,
                                        delayValue: delayValue,
                                        value: inputValue,
+                                       media: node.getInputMediaValue(portIndex: 0,
+                                                                      loopIndex: index),
                                        loopIndex: index,
                                        originalNodeType: node.userVisibleType,
                                        ephemeralObserver: timerObserver,

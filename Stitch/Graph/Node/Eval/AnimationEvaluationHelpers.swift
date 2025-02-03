@@ -21,4 +21,9 @@ extension ImpureEvalOpResult: NodeEvalOpResult {
     init(from values: PortValues) {
         self.outputs = values
     }
+    
+    static func createEvalResult(from results: [ImpureEvalOpResult],
+                                 node: NodeViewModel) -> EvalResult {
+        results.toImpureEvalResult()
+    }
 }

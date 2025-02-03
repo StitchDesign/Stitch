@@ -10,15 +10,14 @@ import StitchSchemaKit
 import SwiftUI
 
 extension GraphDelegate {
+    @MainActor
     func createMediaObject(mediaKey: MediaKey,
                            url: URL?) async -> StitchFileResult<StitchMediaObject?> {
         guard let url = url else {
             // Check temp storage before failing
             switch await self.undoDeletedMedia(mediaKey: mediaKey) {
             case .success(let url):
-                await MainActor.run { [weak self] in
-                    let _ = self?.mediaLibrary.updateValue(url, forKey: mediaKey)
-                }
+                let _ = self.mediaLibrary.updateValue(url, forKey: mediaKey)
                 return await url.createMediaObject()
 
             case .failure(let error):
@@ -39,6 +38,7 @@ extension UIImage {
 
 extension URL {
     /// Creates media object. ID only needed for 3D model object.
+    @MainActor
     func createMediaObject() async -> MediaObjectResult {
         let pathExtension = self.pathExtension.uppercased()
 
@@ -49,21 +49,19 @@ extension URL {
             }
 
             // Provides the ability to assign some name
-            await uiImage.setAccessibilityIdentifier(self.filename)
+            uiImage.setAccessibilityIdentifier(self.filename)
 
             return .success(.image(uiImage))
         }
         if isVideoFile(pathExtension: pathExtension) {
-            let videoPlayer = await StitchVideoImportPlayer(url: self,
-                                                            videoData: VideoMetadata(),
-                                                            initialVolume: 0)
+            let videoPlayer = StitchVideoImportPlayer(url: self,
+                                                      videoData: VideoMetadata(),
+                                                      initialVolume: 0)
             return .success(.video(videoPlayer))
         }
         if isSoundFile(pathExtension: pathExtension) {
-            let soundPlayer = await MainActor.run {
-                let soundFilePlayer = StitchSoundFilePlayer(url: self)
-                return StitchSoundPlayer(delegate: soundFilePlayer)
-            }
+            let soundFilePlayer = StitchSoundFilePlayer(url: self)
+            let soundPlayer = StitchSoundPlayer(delegate: soundFilePlayer)
             return .success(.soundfile(soundPlayer))
         }
         if isMlModelFile(pathExtension: pathExtension) {

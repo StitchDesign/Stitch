@@ -190,7 +190,6 @@ extension JSONFriendlyFormat {
 }
 
 extension JSON {
-    @MainActor
     init(key: String,
          value: PortValue) {
         
@@ -713,7 +712,6 @@ extension JSONFriendlyFormat {
     
     // TODO: JAN 29: replace this initializer with `llmFriendlyDisplay`? Main difference is .display vs .rawValue
     // PortValue -> JSONFriendlyFormat
-    @MainActor
     init(value: PortValue) {
         switch value {
 

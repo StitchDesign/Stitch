@@ -82,7 +82,7 @@ extension NodeRowViewModelId {
 }
 
 protocol NodeRowViewModel: StitchLayoutCachable, Observable, Identifiable {
-    associatedtype FieldType: FieldViewModel
+    associatedtype FieldType: FieldViewModel where FieldType.NodeRowType == Self
     associatedtype RowObserver: NodeRowObserver
     associatedtype PortViewType: PortViewData
     
@@ -122,6 +122,8 @@ protocol NodeRowViewModel: StitchLayoutCachable, Observable, Identifiable {
     @MainActor func hasSelectedEdge() -> Bool
     
     @MainActor func findConnectedCanvasItems() -> CanvasItemIdSet
+    
+    @MainActor func getMediaObject() -> GraphMediaValue?
     
     @MainActor
     init(id: NodeRowViewModelId,
@@ -197,7 +199,7 @@ extension NodeRowViewModel {
     func initializeValues(rowDelegate: Self.RowObserver,
                           unpackedPortParentFieldGroupType: FieldGroupType?,
                           unpackedPortIndex: Int?,
-                          initialValue: PortValue) {        
+                          initialValue: PortValue) {
         if initialValue != self.activeValue {
             self.activeValue = initialValue
         }
@@ -205,8 +207,7 @@ extension NodeRowViewModel {
         let fields = self.createFieldValueTypes(initialValue: initialValue,
                                                 nodeIO: Self.nodeIO,
                                                 unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                                unpackedPortIndex: unpackedPortIndex,
-                                                importedMediaObject: nil)
+                                                unpackedPortIndex: unpackedPortIndex)
         
         /*
          Note: we seem to call `initializeValues` several times in row for the *same* NodeRowViewModel,
@@ -251,7 +252,6 @@ extension NodeRowViewModel {
         if shouldUpdate {
             self.activeValue = newViewValue
 
-            // TODO: pass in media to here!
             self.activeValueChanged(oldValue: oldViewValue,
                                     newValue: newViewValue)
         }
@@ -361,6 +361,13 @@ extension InputNodeRowViewModel {
         
         return graphDelegate.selectedEdges.contains { $0.to == portViewData }
     }
+    
+    @MainActor func getMediaObject() -> GraphMediaValue? {
+        let inputCoordinate = self.id.asNodeIOCoordinate
+        let loopIndex = self.rowDelegate?.getActiveLoopIndex() ?? 0
+        return self.nodeDelegate?.getInputMediaValue(coordinate: inputCoordinate,
+                                                     loopIndex: loopIndex)
+    }
 }
 
 @Observable
@@ -437,6 +444,12 @@ extension OutputNodeRowViewModel {
         }
         
         return graphDelegate.selectedEdges.contains { $0.from == portViewData }
+    }
+    
+    @MainActor func getMediaObject() -> GraphMediaValue? {
+        // No port index needed as there's only a max of one computed media
+        let loopIndex = self.rowDelegate?.getActiveLoopIndex() ?? 0
+        return self.nodeDelegate?.getComputedMediaValue(loopIndex: loopIndex)
     }
 }
 

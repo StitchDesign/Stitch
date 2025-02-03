@@ -86,8 +86,6 @@ extension Patch {
             node = loopSelectNode(id: id, position: position, zIndex: zIndex)
         case .speaker:
             node = speakerNode(id: id, position: position, zIndex: zIndex)
-        case .networkRequest:
-            node = networkRequestNode(id: id, position: position, zIndex: zIndex)
         case .loopOverArray:
             node = loopOverArrayNode(id: id, position: position, zIndex: zIndex)
         case .setValueForKey:

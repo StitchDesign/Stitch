@@ -1037,7 +1037,13 @@ extension LayerViewModel {
             self.scrollJumpToYLocation = value
         case .transform3D:
             self.transform3D = value
-            self.updateTransform()
+            
+            // Updates transform specifcally when layer nodes are recalculated, in turn updating the values used for prototype restart. This is in conjunction to our manual check at graph step which only updates fields without impacting prototype restart.
+            if let model3D = self.mediaObject?.model3DEntity {
+                Model3DLayerNode.updateTransform(entity: model3D,
+                                                 layerViewModel: self)
+            }
+            
         case .anchorEntity:
             self.anchorEntity = value
         case .isEntityAnimating:
