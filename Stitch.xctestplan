@@ -1,0 +1,34 @@
+{
+  "configurations" : [
+    {
+      "id" : "9756298B-978B-40CD-8CE9-91C2DE687AEF",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : false,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:Stitch.xcodeproj",
+      "identifier" : "200BD856254F66EB00692903",
+      "name" : "Stitch"
+    }
+  },
+  "testTargets" : [
+    {
+      "skippedTests" : [
+        "EvalTests\/testAddEvalString()",
+        "StitchFileTests\/testSampleAppsLoaded()",
+        "TopologyTests"
+      ],
+      "target" : {
+        "containerPath" : "container:Stitch.xcodeproj",
+        "identifier" : "208AFA8B25D45B440035B250",
+        "name" : "StitchTests"
+      }
+    }
+  ],
+  "version" : 1
+}
