@@ -34,21 +34,18 @@ struct MediaFieldValueView: View {
     let layerInputObserver: LayerInputObserver?
     let isUpstreamValue: Bool
     let media: FieldValueMedia
+    let mediaName: String
+    @Bindable var mediaObserver: MediaViewModel
     let nodeKind: NodeKind
     let isInput: Bool
     let fieldIndex: Int
     let isNodeSelected: Bool
     let isFieldInsideLayerInspector: Bool
     let isSelectedInspectorRow: Bool
-
     
     @Bindable var graph: GraphState
 
     var alignment: Alignment { isInput ? .leading : .trailing }
-    
-    var mediaObject: StitchMediaObject? {
-        self.media.mediaObject
-    }
     
     var canUseMediaPicker: Bool {
         switch nodeKind {
@@ -102,20 +99,26 @@ struct MediaFieldValueView: View {
     }
     
     var body: some View {
+        // MARK: using StitchMediaObject is more dangerous than GraphMediaValue as it won't refresh when media is changed, causing media to be retained
+        
         HStack {
             if isInput && canUseMediaPicker {
                 MediaPickerValueEntry(coordinate: inputCoordinate,
                                       isUpstreamValue: isUpstreamValue,
                                       mediaValue: media,
+                                      label: mediaName,
                                       nodeKind: nodeKind,
                                       isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                       graph: graph,
                                       isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues,
                                       isSelectedInspectorRow: isSelectedInspectorRow)
+                .onChange(of: mediaName, initial: true) {
+                    print("media name in inner value view: \(mediaName)")
+                }
             }
             
-            if let mediaObject = mediaObject {
-                MediaFieldLabelView(mediaObject: mediaObject,
+            if let media = mediaObserver.currentMedia {
+                MediaFieldLabelView(media: media,
                                     inputCoordinate: inputCoordinate,
                                     isInput: isInput,
                                     fieldIndex: fieldIndex,
@@ -134,7 +137,7 @@ struct MediaFieldValueView: View {
 }
 
 struct MediaFieldLabelView: View {
-    let mediaObject: StitchMediaObject
+    let media: GraphMediaValue
     let inputCoordinate: InputCoordinate
     let isInput: Bool
     let fieldIndex: Int
@@ -148,7 +151,7 @@ struct MediaFieldLabelView: View {
         } else {
             // For image and video media pickers,
             // show both dropdown and thumbnail
-            switch mediaObject {
+            switch media.mediaObject {
             case .image(let image):
                 ValueStitchImageView(image: image)
             case .video(let video):

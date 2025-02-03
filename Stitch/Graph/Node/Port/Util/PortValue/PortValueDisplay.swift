@@ -135,7 +135,7 @@ extension PortValue {
         case .none:
             return "none"
         case .asyncMedia(let media):
-            return (media?.mediaKey?.filename ?? nil) ?? "None"
+            return (media?.label) ?? "None"
         case .json(let x):
             return x.display
         case .networkRequestType(let x):

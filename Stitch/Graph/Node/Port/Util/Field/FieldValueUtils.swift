@@ -11,10 +11,13 @@ import StitchSchemaKit
 
 extension PortValue {
     /// Coercion logic from port value to fields. Contains a 2D list of field values given a 1-many mapping between a field group type and its field values.
-    func createFieldValuesList(nodeIO: NodeIO,
-                               importedMediaObject: StitchMediaObject?,
-                               layerInputPort: LayerInputPort?,
-                               isLayerInspector: Bool) -> [FieldValues] {
+    @MainActor
+    func createFieldValuesList<RowViewModel>(nodeIO: NodeIO,
+                                             rowViewModel: RowViewModel) -> [FieldValues] where RowViewModel: NodeRowViewModel {
+        
+        let layerInputPort = rowViewModel.id.layerInputPort
+        let isLayerInspector = rowViewModel.isLayerInspector
+        
         switch self.getNodeRowType(nodeIO: nodeIO,
                                    layerInputPort: layerInputPort,
                                    isLayerInspector: isLayerInspector) {
@@ -241,22 +244,15 @@ extension PortValue {
             return [[.bool(bool)]]
 
         case .asyncMedia:
-            var asyncMedia = self._asyncMedia
-            var fieldValue: FieldValueMedia = .none
-            
-            // Check for imported media value, which doesn't hold media directly
-            if let importedMedia = importedMediaObject {
-                asyncMedia?._mediaObject = importedMedia
+            guard let asyncMedia = self.asyncMedia else {
+                return [[.media(.none)]]
             }
-            
-            if let asyncMedia = asyncMedia {
-                if let media = GraphMediaValue(from: asyncMedia) {
-                    fieldValue = .media(media)
-                } else if let selectedDefaultOption = DefaultMediaOption.findDefaultOption(from: asyncMedia) {
-                    fieldValue = .defaultMedia(selectedDefaultOption)
-                }
+                
+            if let selectedDefaultOption = DefaultMediaOption.findDefaultOption(from: asyncMedia) {
+                return [[.media(.defaultMedia(selectedDefaultOption))]]
             }
-            return [[.media(fieldValue)]]
+
+            return [[.media(.media(asyncMedia))]]
 
         case .number:
             // if self is PortValue.comparable, then .getNumber will fail;

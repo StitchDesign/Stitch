@@ -15,6 +15,7 @@ struct MediaPickerValueEntry: View {
     let coordinate: InputCoordinate
     let isUpstreamValue: Bool   // is input port connected
     let mediaValue: FieldValueMedia
+    let label: String
     let nodeKind: NodeKind
     let isFieldInsideLayerInspector: Bool
     let graph: GraphState // Doesn't need to be @Bindable, since not directly relied on in the UI for a render-cycle
@@ -29,8 +30,6 @@ struct MediaPickerValueEntry: View {
         let defaultOptions = DefaultMediaOption
             .getDefaultOptions(for: nodeKind,
                                isMediaCurrentlySelected: mediaValue.hasMediaSelected)
-        
-        let label = mediaValue.getName()
                 
         StitchMenu(id: coordinate.nodeId,
                    selection: label,

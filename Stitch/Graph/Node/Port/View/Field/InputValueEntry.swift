@@ -422,17 +422,28 @@ struct InputValueView: View {
                 
                 
             case .media(let media):
-                MediaFieldValueView(inputCoordinate: rowObserverId,
-                                    layerInputObserver: layerInputObserver,
-                                    isUpstreamValue: isUpstreamValue,
-                                    media: media,
-                                    nodeKind: nodeKind,
-                                    isInput: true,
-                                    fieldIndex: fieldIndex,
-                                    isNodeSelected: isCanvasItemSelected,
-                                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                                    isSelectedInspectorRow: isSelectedInspectorRow,
-                                    graph: graph)
+                let loopIndex = graph.activeIndex.adjustedIndex(viewModel.rowViewModelDelegate?.rowDelegate?.allLoopedValues.count ?? .zero)
+                
+                let mediaObserver = viewModel.rowViewModelDelegate?.nodeDelegate?
+                    .getInputMediaObserver(inputCoordinate: rowObserverId,
+                                           loopIndex: loopIndex)
+                
+                if let mediaObserver = mediaObserver {
+                    MediaFieldValueView(
+                        inputCoordinate: rowObserverId,
+                        layerInputObserver: layerInputObserver,
+                        isUpstreamValue: isUpstreamValue,
+                        media: media,
+                        mediaName: media.name,
+                        mediaObserver: mediaObserver,
+                        nodeKind: nodeKind,
+                        isInput: true,
+                        fieldIndex: fieldIndex,
+                        isNodeSelected: isCanvasItemSelected,
+                        isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                        isSelectedInspectorRow: isSelectedInspectorRow,
+                        graph: graph)
+                }
                 
             case .color(let color):
                 ColorOrbValueButtonView(fieldViewModel: viewModel,

@@ -457,6 +457,7 @@ struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
             // Note: there is a bug where the first time this view-closure would fire (when `self.showPopover` set `true`), the closure's `self.showPopover` was somehow still `false`, so the popover opened with an `EmptyView`
             // Perf-wise, we do not need the `if self.showPopover` check because `PortValuesPreviewView` only re-renders when the popover is open.
             PortValuesPreviewView(rowObserver: rowObserver,
+                                  rowViewModel: rowViewModel,
                                   nodeIO: nodeIO)
         }
     }

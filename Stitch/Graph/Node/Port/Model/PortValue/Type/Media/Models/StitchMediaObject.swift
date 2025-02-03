@@ -89,10 +89,8 @@ extension StitchMediaObject {
                 return
             }
 
-            await MainActor.run { [weak soundFilePlayer] in
-                soundFilePlayer?.isEnabled = otherSoundFilePlayer.isEnabled
-                soundFilePlayer?.delegate.isLooping = otherSoundFilePlayer.delegate.isLooping
-            }
+            soundFilePlayer.isEnabled = otherSoundFilePlayer.isEnabled
+            soundFilePlayer.delegate.isLooping = otherSoundFilePlayer.delegate.isLooping
             self = .soundfile(soundFilePlayer)
 
         case .mic(let micPlayer):
@@ -100,9 +98,7 @@ extension StitchMediaObject {
                 return
             }
 
-            await MainActor.run { [weak micPlayer] in
-                micPlayer?.isEnabled = otherMic.isEnabled
-            }
+            micPlayer.isEnabled = otherMic.isEnabled
             self = .mic(micPlayer)
 
         case .model3D(let stitchEntity):
@@ -126,6 +122,7 @@ extension StitchMediaObject {
     }
 
     /// Creates a unique refrence copy of some media object.
+    @MainActor
     func createComputedCopy() async throws -> StitchMediaObject? {
         var copiedMediaObject: StitchMediaObject?
 
@@ -141,9 +138,9 @@ extension StitchMediaObject {
 
         case .video(let videoPlayer):
             let url = videoPlayer.url
-            let newPlayer = await StitchVideoImportPlayer(url: url,
-                                                          videoData: videoPlayer.stitchVideoDelegate.videoData,
-                                                          initialVolume: 0.5)
+            let newPlayer = StitchVideoImportPlayer(url: url,
+                                                    videoData: videoPlayer.stitchVideoDelegate.videoData,
+                                                    initialVolume: 0.5)
             copiedMediaObject = .video(newPlayer)
 
         case .soundfile(let soundFilePlayer):
@@ -152,22 +149,13 @@ extension StitchMediaObject {
                 return nil
             }
             
-            let newSoundPlayer: StitchSoundPlayer<StitchSoundFilePlayer>? = await MainActor.run { [weak soundFilePlayer] in
-                guard let soundFilePlayer = soundFilePlayer else {
-                    return nil
-                }
-                let newFilePlayer = StitchSoundFilePlayer(url: url,
-                                                          willLoop: soundFilePlayer.delegate.isLooping,
-                                                          rate: soundFilePlayer.delegate.rate,
-                                                          jumpTime: soundFilePlayer.delegate.getCurrentPlaybackTime())
-                let newSoundPlayer = StitchSoundPlayer(delegate: newFilePlayer,
-                                         willPlay: soundFilePlayer.delegate.isRunning)
-                return newSoundPlayer
-            }
-            
-            if let newSoundPlayer = newSoundPlayer {
-                copiedMediaObject = .soundfile(newSoundPlayer)
-            }
+            let newFilePlayer = StitchSoundFilePlayer(url: url,
+                                                      willLoop: soundFilePlayer.delegate.isLooping,
+                                                      rate: soundFilePlayer.delegate.rate,
+                                                      jumpTime: soundFilePlayer.delegate.getCurrentPlaybackTime())
+            let newSoundPlayer = StitchSoundPlayer(delegate: newFilePlayer,
+                                                   willPlay: soundFilePlayer.delegate.isRunning)
+            return .soundfile(newSoundPlayer)
 
         case .mic(let mic):
             let newSoundPlayer: StitchSoundPlayer<StitchMic>? = await MainActor.run { [weak mic] in
