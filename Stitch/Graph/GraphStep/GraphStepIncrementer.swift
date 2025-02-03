@@ -130,7 +130,7 @@ extension NodeViewModel {
                     // Update port value manually if transform changed
                     previewLayer.transform3D = .transform(.init(from: inferredTransform))
                     
-                    // MARK:  Apply transform to entity but do NOT update the transform instance property
+                    // MARK:  Apply transform to entity but do NOT update the transform instance property, which enables prototype restart functionality
                     model._applyMatrix(newMatrix: inferredTransform)
                     return true
                 }

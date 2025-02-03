@@ -93,14 +93,6 @@ struct Model3DLayerNode: LayerNodeDefinition {
                                      layerViewModel: viewModel)
             }
         }
-        .onChange(of: viewModel.transform3D) {
-            guard let entity = viewModel.mediaViewModel.currentMedia?.mediaObject.model3DEntity else {
-                return
-            }
-            
-            Self.updateTransform(entity: entity,
-                                 layerViewModel: viewModel)
-        }
     }
     
     @MainActor
