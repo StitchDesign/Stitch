@@ -1940,14 +1940,14 @@
 		200BD84E254F66EB00692903 = {
 			isa = PBXGroup;
 			children = (
-				B53B54F62D507A60007A52AF /* Stitch.xctestplan */,
-				E4D9CC6C2D44176800370C0A /* ci_scripts */,
 				200BD859254F66EB00692903 /* Stitch */,
 				B5F5FD412B3755C200BBD9A2 /* TestFlight */,
 				208AFA8D25D45B440035B250 /* StitchTests */,
 				E4CC7D0E28F48EF6008EA1C0 /* StitchQuickLookExtension */,
 				200BD858254F66EB00692903 /* Products */,
 				EC15E4282602A08B006F2E08 /* Frameworks */,
+				E4D9CC6C2D44176800370C0A /* ci_scripts */,
+				B53B54F62D507A60007A52AF /* Stitch.xctestplan */,
 			);
 			sourceTree = "<group>";
 		};
@@ -6535,7 +6535,7 @@
 			repositoryURL = "https://github.com/StitchDesign/StitchSchemaKit";
 			requirement = {
 				kind = revision;
-				revision = 97fc50df93833fbca69bcf22b64c28e11cc27863;
+				revision = 4e22cef0cc711114a17ccc0a0418e6c9bb78c3ff;
 			};
 		};
 		E4A848A92D32FCFA0029AFDE /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
