@@ -121,7 +121,7 @@ extension String {
         
         // treat as string ? or?
         case .shape:
-            // TODO: JAN 29: PortValue.shape is not really handle properly?
+            // TODO: JAN 29: PortValue.shape is not really handled properly?
             fatalErrorIfDebug()
             return nil
             
@@ -225,6 +225,9 @@ extension PortValue {
     // JSONFriendlyFormat is how we describe a PortValue to the LLM
     // nil = we currently do not properly handle that PortValue type with the LLM
     var llmFriendlyDisplay: JSONFriendlyFormat? {
+        
+        log("PortValue.llmFriendlyDisplay: self: \(self)")
+        
         switch self {
         
         case .string(let x):
@@ -380,9 +383,7 @@ extension PortValue {
             return x.rawValue.asJFFString
         
         case .spacing(let x):
-            // TODO: JAN 29: handle properly
-            fatalErrorIfDebug()
-            return nil
+            return x.display.asJFFString
             
         case .padding(let x):
             return .dictionary(x.asDictionary)
@@ -391,9 +392,7 @@ extension PortValue {
             return x.rawValue.asJFFString
         
         case .pinTo(let x):
-            // TODO: JAN 29: handle properly
-            fatalErrorIfDebug()
-            return nil
+            return x.display.asJFFString
             
         case .deviceAppearance(let x):
             return x.rawValue.asJFFString
