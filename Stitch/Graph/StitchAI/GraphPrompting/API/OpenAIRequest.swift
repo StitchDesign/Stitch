@@ -157,6 +157,18 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
         // Create data task and store it
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
+                // Calculate and log request duration if we have a start time
+                if let startTime = OpenAIRequestManager.networkStartTime {
+                    let duration = Date().timeIntervalSince(startTime)
+                    log("")
+                    log("⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️")
+                    log("⚡️   OPENAI REQUEST COMPLETE!   ⚡️")
+                    log("⚡️   TIME: \(String(format: "%.2f", duration)) SECONDS   ⚡️")
+                    log("⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️")
+                    log("")
+                    OpenAIRequestManager.networkStartTime = nil
+                }
+
                 // Reset the flag when the request completes
                 OpenAIRequestManager.isRequestInProgress = false
                 OpenAIRequestManager.currentTask = nil
@@ -245,6 +257,13 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
         }
         
         OpenAIRequestManager.currentTask = task
+        OpenAIRequestManager.networkStartTime = Date()
+        log("")
+        log("🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀")
+        log("🚀   STARTING OPENAI REQUEST   🚀")
+        log("🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀")
+        log("")
+        
         task.resume()
     }
     
@@ -428,6 +447,7 @@ extension Stitch.Step: CustomStringConvertible {
 @MainActor class OpenAIRequestManager {
     static var currentTask: URLSessionDataTask?
     static var isRequestInProgress = false
+    static var networkStartTime: Date?
     
     static func cancelCurrentRequest() {
         if currentTask != nil {
@@ -435,6 +455,7 @@ extension Stitch.Step: CustomStringConvertible {
             currentTask?.cancel()
             currentTask = nil
             isRequestInProgress = false
+            networkStartTime = nil
         }
     }
 }
