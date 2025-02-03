@@ -81,26 +81,22 @@ final class LayerViewModel: Sendable {
         }
     }
     
+    @MainActor var mediaViewModel = MediaViewModel()
+    
     // State for media needed if we need to async load an import
     @MainActor var mediaObject: StitchMediaObject? {
-        // Update transform for 3D model once loaded
-        didSet(oldValue) {
-            if oldValue != self.mediaObject,
-               self.mediaObject?.model3DEntity != nil {
-                self.updateTransform()
-            }
-        }
+        self.mediaViewModel.currentMedia?.mediaObject
     }
     
     @MainActor
     var mediaPortValue: AsyncMediaValue? {
         switch self.layer {
         case .video:
-            return self.video._asyncMedia
+            return self.video.asyncMedia
         case .image:
-            return self.image._asyncMedia
+            return self.image.asyncMedia
         case .model3D:
-            return self.model3D._asyncMedia
+            return self.model3D.asyncMedia
         default:
             return nil
         }
@@ -404,9 +400,6 @@ final class LayerViewModel: Sendable {
         
         self.nodeDelegate = nodeDelegate
         self.interactiveLayer.delegate = self
-        
-        // Update 3D transform
-        self.updateTransform()
     }
 
     @MainActor
@@ -459,20 +452,24 @@ extension LayerViewModel {
                 // Only set media to nil if mediaValue is nil as well
                 // Fixes issue where camrea feed would stutter
                 if mediaValue == nil {
-                    self.mediaObject = nil                    
+                    self.mediaViewModel.currentMedia = nil
                 }
             }
             return
         }
         
-        let newMediaObject = await mediaImportCoordinator
+        guard let newMediaObject = await mediaImportCoordinator
             .getUniqueImport(mediaKey: mediaKey,
                              mediaValue: mediaValue,
                              document: document,
-                             mediaRowObserver: mediaRowObserver)
+                             mediaRowObserver: mediaRowObserver) else {
+            return
+        }
         
         await MainActor.run {
-            self.mediaObject = newMediaObject
+            self.mediaViewModel.currentMedia = .init(id: .init(),
+                                                     dataType: .source(mediaKey),
+                                                     mediaObject: newMediaObject)
         }
     }
     
@@ -493,17 +490,6 @@ extension LayerViewModel {
         if let videoPlayer = mediaObject?.video {
             videoPlayer.pause()
             videoPlayer.stitchVideoDelegate.removeAllObservers()
-        }
-    }
-    
-    @MainActor
-    func updateTransform() {
-        if let entity = self.mediaObject?.model3DEntity {
-            let transform = self.transform3D.getTransform ?? .zero
-            let matrix = simd_float4x4(position: transform.position3D,
-                                       scale: transform.scale3D,
-                                       rotation: transform.rotation3D)
-            entity.applyMatrix(newMatrix: matrix)
         }
     }
     

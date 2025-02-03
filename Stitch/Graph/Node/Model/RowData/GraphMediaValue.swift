@@ -16,11 +16,8 @@ struct GraphMediaValue: Hashable {
 }
 
 extension GraphMediaValue {
-    init?(from media: AsyncMediaValue) {
-        guard let mediaObject = media._mediaObject as? StitchMediaObject else {
-            return nil
-        }
-        
+    init?(from media: AsyncMediaValue,
+          mediaObject: StitchMediaObject) {        
         self.id = media.id
         self.dataType = media.dataType
         self.mediaObject = mediaObject
@@ -32,10 +29,24 @@ extension GraphMediaValue {
         self.mediaObject = computedMedia
     }
     
+    @MainActor
     var portValue: PortValue {
-        .asyncMedia(.init(id: self.id,
-                          dataType: self.dataType,
-                          _mediaObject: self.mediaObject))
+        .asyncMedia(self.mediaValue)
+    }
+    
+    func mediaValue(label: String) -> AsyncMediaValue {
+        .init(id: self.id,
+              dataType: self.dataType,
+              label: label)
+    }
+    
+    func portValue(label: String) -> PortValue {
+        .asyncMedia(self.mediaValue(label: label))
+    }
+    
+    @MainActor
+    var mediaValue: AsyncMediaValue {
+        self.mediaValue(label: self.mediaObject.name)
     }
     
     var mediaKey: MediaKey? {

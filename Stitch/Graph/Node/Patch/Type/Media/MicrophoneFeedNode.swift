@@ -60,13 +60,17 @@ func microphoneEval(node: PatchNode) -> EvalResult {
         guard let isEnabled = values.first?.getBool,
               isEnabled else {
             mediaObserver.resetMedia()
-            return node.defaultOutputs
+            return .init(from: node.defaultOutputs)
         }
            
+        let id: UUID
         let mic: StitchSoundPlayer<StitchMic>
-        if let currentMic = mediaObserver.currentMedia?.mediaObject.mic {
+        if let currentMedia = mediaObserver.currentMedia,
+           let currentMic = currentMedia.mediaObject.mic {
+            id = currentMedia.id
             mic = currentMic
         } else {
+            id = .init()
             mic = createMic(isEnabled: isEnabled,
                             observer: mediaObserver)
         }
@@ -74,7 +78,7 @@ func microphoneEval(node: PatchNode) -> EvalResult {
         guard var previousVolume: Double = values[safe: 2]?.getNumber,
               var previousPeakVolume: Double = values[safe: 3]?.getNumber else {
             log("microphoneEval: issue finding inputs")
-            return node.defaultOutputs
+                return .init(from: node.defaultOutputs)
         }
         
         mic.isEnabled = isEnabled
@@ -85,11 +89,16 @@ func microphoneEval(node: PatchNode) -> EvalResult {
         previousVolume = Double(average)
         previousPeakVolume = Double(peak)
         
-        let mediaValue = GraphMediaValue(computedMedia: .mic(mic))
-        return [mediaValue.portValue,
+        let mediaValue = GraphMediaValue(id: id,
+                                         dataType: .computed,
+                                         mediaObject: .mic(mic))
+        let outputs = [mediaValue.portValue,
                 .number(previousVolume), // values[2], // volume, unchanged
                 .number(previousPeakVolume)// values[3] // peak volume, unchanged
         ]
+        
+        return MediaEvalOpResult(values: outputs,
+                                 media: mediaValue)
     }
 }
 

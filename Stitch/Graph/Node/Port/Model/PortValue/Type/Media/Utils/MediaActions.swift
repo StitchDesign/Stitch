@@ -92,17 +92,16 @@ extension DocumentEncodable {
     }
     
     /// Called when media is imported from a patch node's file picker.
+    @MainActor
     func importFileToExistingNode(fileURL: URL, nodeImportPayload: NodeMediaImportPayload) async {
-        let copyResult = self.copyToMediaDirectory(originalURL: fileURL,
-                                                   forRecentlyDeleted: false)
-        await MainActor.run {
-            switch copyResult {
-            case .success(let newURL):
-                dispatch(MediaCopiedToExistingNode(url: newURL,
-                                                   nodeMediaImportPayload: nodeImportPayload))
-            case .failure(let error):
-                dispatch(DisplayError(error: error))
-            }
+        let copyResult = await self.copyToMediaDirectory(originalURL: fileURL,
+                                                         forRecentlyDeleted: false)
+        switch copyResult {
+        case .success(let newURL):
+            dispatch(MediaCopiedToExistingNode(url: newURL,
+                                               nodeMediaImportPayload: nodeImportPayload))
+        case .failure(let error):
+            dispatch(DisplayError(error: error))
         }
     }
     
@@ -194,8 +193,7 @@ extension GraphState {
             self.mediaLibrary.updateValue(newURL, forKey: newURL.mediaKey)
 
             // Can now be patch- OR layer-node
-            guard let existingNode = self.getNodeViewModel(nodeId),
-                  let mediaObserver = existingNode.ephemeralObservers?.first as? MediaEvalOpObserver else {
+            guard let existingNode = self.getNodeViewModel(nodeId) else {
                 dispatch(DisplayError(error: .mediaCopiedFailed))
                 return
             }
@@ -206,31 +204,14 @@ extension GraphState {
                     self.checkToDeleteMedia(mediaKey, from: existingNode.id)
                 }
             }
-            
-            // Create async task to load media
-            Task { [weak self] in
-                guard let graph = self,
-                      let newMedia = await MediaEvalOpCoordinator
-                    .createMediaValue(from: mediaKey,
-                                      isComputedCopy: false,
-                                      mediaId: .init(),
-                                      graphDelegate: graph) else {
-                    return
-                }
-                
-                graph.mediaInputEditCommitted(input: destinationInput,
-                                              value: newMedia.portValue)
-                
-                // Persist project once media has loaded
-                graph.encodeProjectInBackground()
-            }
 
-            // Nil value for now while media loads
-            let portValue = PortValue.asyncMedia(nil)
+            let newMedia = AsyncMediaValue(mediaKey: mediaKey)
+            let portValue = PortValue.asyncMedia(newMedia)
 
             self.mediaInputEditCommitted(input: destinationInput,
                                          value: portValue)
-            
+
+            self.encodeProjectInBackground()       
         } // for destinationInput in ...        
     }
 }
@@ -263,6 +244,31 @@ extension StitchDocumentViewModel {
 }
 
 extension GraphState {
+    @MainActor
+    func recalculateGraph<MediaEvalResult>(result: MediaEvalResult,
+                                           nodeId: NodeId,
+                                           loopIndex: Int) where MediaEvalResult: MediaEvalResultable{
+        guard let node = self.getNodeViewModel(nodeId) else {
+            log("recalculateGraph: AsyncMediaImpureEvalOpResult: could not retrieve node \(nodeId)")
+            return
+        }
+        
+        guard let mediaObserver = node.ephemeralObservers?[safe: loopIndex] as? MediaEvalOpObservable else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        mediaObserver.currentMedia = result.media
+        
+        // Disable loading state
+        // Important to not dispatch main actor task as this creates race conditions
+        mediaObserver.currentLoadingMediaId = nil
+        
+        self.recalculateGraph(outputValues: result.valueResult,
+                              nodeId: nodeId,
+                              loopIndex: loopIndex)
+    }
+    
     @MainActor
     /// Recalculates the graph when the **outputs** of a node need to be updated.
     /// This updates at a particular loop index rather than all values.
@@ -329,6 +335,10 @@ extension GraphState {
             // Recalculate downstream patch nodes after values are updated
             self.calculate(changedDownstreamNodes)
         }
+        
+        // Update all output fields
+        // Fixes issue where async race condition may not properly update fields for image nodes
+        self.portsToUpdate.insert(.allOutputs(node.id))
     }
 }
 
@@ -380,7 +390,7 @@ func createPatchNode(from importedMediaURL: URL,
     let asyncMedia = AsyncMediaValue(
         id: UUID(),
         dataType: .source(importedMediaURL.mediaKey),
-        _mediaObject: nil)
+        label: importedMediaURL.filename)
 
     guard let node = mediaType.nodeKind?.graphNode?.createViewModel(id: nodeId,
                                                                     position: position.toCGPoint,

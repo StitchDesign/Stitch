@@ -35,8 +35,6 @@ typealias Operation9 = (PortValues) -> (PortValue, PortValue, PortValue, PortVal
 
 typealias Operation10 = (PortValues) -> (PortValue, PortValue, PortValue, PortValue, PortValue, PortValue, PortValue, PortValue, PortValue, PortValue)
 
-// 5 outputs + a side-effect
-typealias OperationIndexSideEffectAndValue = (PortValues, Int) -> NetworkRequestOpResult
 
 // mostly commonly used; for node evals that produce 1 output
 @MainActor

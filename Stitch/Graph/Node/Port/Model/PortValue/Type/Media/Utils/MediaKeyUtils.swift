@@ -42,7 +42,7 @@ extension PortValuesList {
 extension PortValues {
     func findImportedMediaKeys() -> [MediaKey] {
         let defaultMediaKeys = MediaLibrary.getAllDefaultMediaKeys().toSet
-        return self.compactMap { $0._asyncMedia }
+        return self.compactMap { $0.asyncMedia }
             // Exclude default media and any non-imported media
             .filter { asyncMedia in
                 switch asyncMedia.dataType {

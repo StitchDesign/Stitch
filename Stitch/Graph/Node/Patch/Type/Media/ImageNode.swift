@@ -39,20 +39,24 @@ struct ImageImportPatchNode: PatchNodeDefinition {
 @MainActor
 func imageImportEval(node: PatchNode) -> EvalResult {
     node.loopedEval(MediaEvalOpObserver.self) { values, asyncObserver, loopIndex in
-        guard let media = asyncObserver.getUniqueMedia(from: values.first,
-                                                       loopIndex: loopIndex),
-              let image = media.mediaObject.image else {
-            let isLoading = asyncObserver.currentLoadingMediaId != nil
-            
-            if isLoading {
-                // Return previous values if loading
-                return values.prevOutputs(node: node)
-            } else {
-                // Else there's no image to which we return default outputs
-                return [.asyncMedia(nil), .size(.zero)]
+        asyncObserver.asyncMediaEvalOp(loopIndex: loopIndex,
+                                       values: values,
+                                       node: node) { [weak asyncObserver] () -> MediaEvalOpResult in
+            guard let mediaValue = values.first?.asyncMedia,
+                  let media = await asyncObserver?.getUniqueMedia(inputMediaValue: mediaValue,
+                                                                  inputPortIndex: 0,
+                                                                  loopIndex: loopIndex),
+                  let image = media.mediaObject.image else {
+                return .init(from: [.asyncMedia(nil), .size(.zero)])
             }
+            
+            let computedMediaValue = AsyncMediaValue(id: .init(),
+                                                     dataType: .computed,
+                                                     label: mediaValue.label)
+            return .init(values: [
+                .asyncMedia(computedMediaValue),
+                .size(image.layerSize)
+            ], media: media)
         }
-
-        return [media.portValue, .size(image.layerSize)]
     }
 }

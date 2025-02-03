@@ -37,27 +37,32 @@ struct GrayscaleNode: PatchNodeDefinition {
 // Modifies image's metadata, rather than image itself.
 @MainActor
 func grayscaleEval(node: PatchNode) -> EvalResult {
-    node.loopedEval(MediaEvalOpObserver.self) { values, mediaObservable, loopIndex in
-        guard let mediaValue = mediaObservable.getUniqueMedia(from: values.first,
-                                                              loopIndex: loopIndex),
-              let image = mediaValue.mediaObject.image else {
-            return values.prevOutputs(node: node)
-        }
-
+    node.loopedEval(MediaEvalOpObserver.self) { values, mediaObservable, loopIndex -> MediaEvalOpResult in
+        let prevOutputs = values.prevOutputs(node: node)
+        
         return mediaObservable.asyncMediaEvalOp(loopIndex: loopIndex,
                                                 values: values,
-                                                node: node) { [weak image] in
-            var mediaValue = mediaValue
+                                                node: node) { [weak mediaObservable] in
+            guard var mediaValue = await mediaObservable?.getUniqueMedia(inputMediaValue: values.first?.asyncMedia,
+                                                                         inputPortIndex: 0,
+                                                                         loopIndex: loopIndex),
+                  let image = mediaValue.mediaObject.image else {
+                return MediaEvalOpResult(from: prevOutputs)
+            }
             
-            switch await image?.setGrayscale() {
+            switch await image.setGrayscale() {
             case .success(let grayscaleImage):
                 mediaValue.mediaObject = .image(grayscaleImage)
-                return [mediaValue.portValue]
+                let mediaPortValue = AsyncMediaValue(id: .init(),
+                                                     dataType: .computed,
+                                                     label: values.first?.asyncMedia?.label ?? "Grayscale")
+                
+                return MediaEvalOpResult(values: [.asyncMedia(mediaPortValue)],
+                                         media: mediaValue)
             case .failure(let error):
                 Task { ReceivedStitchFileError(error: error) }
-                return await values.prevOutputs(node: node)
-            default:
-                return await values.prevOutputs(node: node)
+                let values = await values.prevOutputs(node: node)
+                return MediaEvalOpResult(from: values)
             }
         }
     }

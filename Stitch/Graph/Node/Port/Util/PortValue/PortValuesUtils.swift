@@ -133,4 +133,9 @@ extension PortValues: NodeEvalOpResult {
     init(from values: PortValues) {
         self = values
     }
+    
+    static func createEvalResult(from results: PortValuesList,
+                                 node: NodeViewModel) -> EvalResult {
+        results.createPureEvalResult()
+    }
 }

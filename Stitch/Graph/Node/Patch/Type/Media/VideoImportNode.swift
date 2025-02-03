@@ -62,20 +62,18 @@ struct VideoImportNode: PatchNodeDefinition {
         )
     }
 
-        static func createEphemeralObserver() -> NodeEphemeralObservable? {
+    static func createEphemeralObserver() -> NodeEphemeralObservable? {
         MediaEvalOpObserver()
     }
 }
 
-// MESSAGE-BASED IMPLEMENTATION OF VIDEO PLAYING
-// Saved for later harmonizing with scrubTime-seeking approach.
-@MainActor
-func videoImportEval(node: PatchNode) -> EvalResult {
-    node.loopedEval(MediaEvalOpObserver.self) { values, asyncObserver, loopIndex in
-        guard let media = asyncObserver.getUniqueMedia(from: values.first,
-                                                       loopIndex: loopIndex),
-                let videoPlayer = media.mediaObject.video else {
-            return node.defaultOutputs
+extension VideoImportNode {
+    @MainActor
+    static func videoImportEvalOp(media: GraphMediaValue,
+                                  values: PortValues,
+                                  defaultOutputs: PortValues) -> PortValues {
+        guard let videoPlayer = media.mediaObject.video else {
+            return defaultOutputs
         }
         
         let scrubbable: Bool = values[safe: 1]?.getBool ?? false
@@ -94,15 +92,38 @@ func videoImportEval(node: PatchNode) -> EvalResult {
                                         playing: playing && !scrubbable,
                                         isLooped: isLooped)
         
-        if videoPlayer.metadata != newMetadata {
+        let willVideoMetadataChange = videoPlayer.metadata != newMetadata
+        
+        if willVideoMetadataChange {
             // Update player in media manager
             videoPlayer.metadata = newMetadata
         }
         
-        return [media.portValue,
-                .number(previousVolume),
-                .number(previousPeakVolume),
-                .number(playTime),
-                .number(duration)]
+        return [
+            media.portValue,
+            .number(previousVolume),
+            .number(previousPeakVolume),
+            .number(playTime),
+            .number(duration)
+        ]
     }
+}
+
+// MESSAGE-BASED IMPLEMENTATION OF VIDEO PLAYING
+// Saved for later harmonizing with scrubTime-seeking approach.
+@MainActor
+func videoImportEval(node: PatchNode) -> EvalResult {
+    let defaultOutputs = node.defaultOutputs
+    
+    return node.loopedEval(MediaEvalOpObserver.self) { values, asyncObserver, loopIndex in
+        asyncObserver.mediaEvalOpCoordinator(inputPortIndex: 0,
+                                             values: values,
+                                             loopIndex: loopIndex,
+                                             defaultOutputs: defaultOutputs) { media in
+            VideoImportNode.videoImportEvalOp(media: media,
+                                              values: values,
+                                              defaultOutputs: defaultOutputs)
+        }
+    }
+    .createPureEvalResult(node: node)
 }

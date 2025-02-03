@@ -10,14 +10,22 @@ import StitchSchemaKit
 
 typealias OpWithIndex<T> = (PortValues, Int) -> T
 typealias NodeEphemeralObservableOp<T, EphemeralObserver> = (PortValues, EphemeralObserver, Int) -> T where EphemeralObserver: NodeEphemeralObservable
-typealias NodeEphemeralObservableListOp<EphemeralObserver> = (PortValues, EphemeralObserver) -> PortValuesList where EphemeralObserver: NodeEphemeralObservable
+
+typealias NodeEphemeralObservableListOp<OpResult, EphemeralObserver> = (PortValuesList, EphemeralObserver) -> OpResult where OpResult: NodeEvalOpResult, EphemeralObserver: NodeEphemeralObservable
+
 typealias NodeEphemeralInteractiveOp<T, EphemeralObserver> = (PortValues, EphemeralObserver, InteractiveLayer, Int) -> T where EphemeralObserver: NodeEphemeralObservable
+
 typealias NodeInteractiveOp<T> = (PortValues, InteractiveLayer, Int) -> T
+
 typealias NodeLayerViewModelInteractiveOp<T> = (LayerViewModel, InteractiveLayer, Int) -> T
 
 /// Allows for generic results while ensure there's some way to get default output values.
 protocol NodeEvalOpResult {
     init(from values: PortValues)
+    
+    @MainActor
+    static func createEvalResult(from results: [Self],
+                                 node: NodeViewModel) -> EvalResult
 }
 
 extension NodeViewModel {
@@ -103,7 +111,8 @@ extension NodeViewModel {
         
         assertInDebug(longestLoopLength == castedEphemeralObservers.count)
         
-        return self.loopedEval(minLoopCount: minLoopCount) { values, loopIndex in
+        return self.loopedEval(inputsValues: inputsValues,
+                               minLoopCount: minLoopCount) { values, loopIndex in
             let ephemeralObserver = castedEphemeralObservers[loopIndex]
             return evalOp(values, ephemeralObserver, loopIndex)
         }
@@ -120,27 +129,21 @@ extension NodeViewModel {
     }
     
     @MainActor
-    /// Looped eval for PortValues returning an EvalFlowResult. Used for nodes like object detection.
-    func loopedEvalList<T: NodeEphemeralObservable>(_ ephemeralObserverType: T.Type,
-                                                    evalOp: @escaping NodeEphemeralObservableListOp<T>) -> EvalResult {
-        // Ignore input loops for nodes like object detection
-        let inputs = self.inputs.remapValuesByLoop()
-        
-        guard let firstInputs = inputs.first,
-              let ephemeralObserver = self.ephemeralObservers?.first as? T else {
-            fatalErrorIfDebug()
-            return .init()
+    /// Looped eval for PortValues returning an EvalFlowResult.
+    func loopedEval<T: NodeEphemeralObservable>(_ ephemeralObserverType: T.Type,
+                                                evalOp: @escaping NodeEphemeralObservableOp<MediaEvalOpResult, T>) -> EvalResult {
+        self.loopedEval(T.self) { values, ephemeralObserver, loopIndex in
+            evalOp(values, ephemeralObserver, loopIndex)
         }
-        
-        let outputs = evalOp(firstInputs, ephemeralObserver)
-        return .init(outputsValues: outputs)
+        .createPureEvalResult(node: self)
     }
-
+    
     @MainActor
-    func loopedEval<EvalOpResult: NodeEvalOpResult>(minLoopCount: Int = 0,
+    func loopedEval<EvalOpResult: NodeEvalOpResult>(inputsValues: PortValuesList? = nil,
+                                                    minLoopCount: Int = 0,
                                                     shouldAddOutputs: Bool = true,
                                                     evalOp: @escaping OpWithIndex<EvalOpResult>) -> [EvalOpResult] {
-        let inputsValues = self.inputs
+        let inputsValues = inputsValues ?? self.inputs
         let outputsValues = self.outputs
         
         

@@ -128,21 +128,9 @@ extension PortValue {
         default: return nil
         }
     }
-
-    var asyncMedia: GraphMediaValue? {
-        switch self {
-        case.asyncMedia(let media):
-            guard let media = media else {
-                return nil
-            }
-            return GraphMediaValue(from: media)
-        default:
-            return nil
-        }
-    }
     
     /// Tech debt, only used for file import.
-    var _asyncMedia: AsyncMediaValue? {
+    var asyncMedia: AsyncMediaValue? {
         switch self {
         case.asyncMedia(let media):
             return media

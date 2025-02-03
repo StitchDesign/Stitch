@@ -11,7 +11,7 @@ import StitchSchemaKit
 enum FieldValueMedia: Equatable, Hashable {
     case none
     case importButton
-    case media(GraphMediaValue)
+    case media(AsyncMediaValue)
     case defaultMedia(DefaultMediaOption)
 }
 
@@ -23,7 +23,7 @@ extension FieldValueMedia: Identifiable {
         case .importButton:
             return IMPORT_BUTTON_ID.hashValue
         case .media(let media):
-            return media.id.hashValue
+            return media.hashValue
         case .defaultMedia(let media):
             return media.hashValue
         }
@@ -31,15 +31,6 @@ extension FieldValueMedia: Identifiable {
 }
 
 extension FieldValueMedia {
-    var mediaObject: StitchMediaObject? {
-        switch self {
-        case .media(let media):
-            return media.mediaObject
-        default:
-            return nil
-        }
-    }
-    
     var hasMediaSelected: Bool {
         switch self {
         case .media, .defaultMedia:
@@ -49,15 +40,14 @@ extension FieldValueMedia {
         }
     }
     
-    @MainActor
-    func getName() -> String {
+    var name: String {
         switch self {
         case .none:
             return MEDIA_EMPTY_NAME
         case .importButton:
             return IMPORT_BUTTON_DISPLAY
         case .media(let media):
-            return media.mediaObject.name
+            return media.label
         case .defaultMedia(let defaultMedia):
             return defaultMedia.name
         }
@@ -95,7 +85,7 @@ extension FieldValueMedia {
             dispatch(ShowFileImportModal(nodeImportPayload: payload))
         
         case .media(let mediaValue):
-            dispatch(MediaPickerChanged(selectedValue: mediaValue.portValue,
+            dispatch(MediaPickerChanged(selectedValue: .asyncMedia(mediaValue),
                                         mediaType: mediaType,
                                         input: inputCoordinate,
                                         isFieldInsideLayerInspector: isFieldInsideLayerInspector))
@@ -103,7 +93,7 @@ extension FieldValueMedia {
         case .defaultMedia(let defaultMedia):
             let mediaValue = AsyncMediaValue(id: .init(),
                                              dataType: .source(defaultMedia.mediaKey),
-                                             _mediaObject: defaultMedia)
+                                             label: defaultMedia.mediaKey.filename)
             let portValue = PortValue.asyncMedia(mediaValue)
             
             dispatch(MediaPickerChanged(selectedValue: portValue,

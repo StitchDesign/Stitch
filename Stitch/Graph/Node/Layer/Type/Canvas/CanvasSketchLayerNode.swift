@@ -127,11 +127,11 @@ func canvasSketchEval(node: PatchNode) -> EvalResult {
             switch await createUIImageFromCanvasView(canvasLayerViewModel.lines,
                                                      sizeAtIndex) {
                 
-            case .success(let image):
+            case .success:
                 // log("canvasSketchEval: success")
                 return [.asyncMedia(AsyncMediaValue(id: .init(),
                                                     dataType: .computed,
-                                                    mediaObject: .image(image)))]
+                                                    label: "Canvas"))]
                 
             case .failure:
                 // log("canvasSketchEval: failure")

@@ -213,6 +213,7 @@
 		B5B20BAD279095B9008A2B5A /* StitchSheetInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B20BAC279095B9008A2B5A /* StitchSheetInput.swift */; };
 		B5B20BB0279925EC008A2B5A /* FullScreenPreviewViewWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B20BAF279925EC008A2B5A /* FullScreenPreviewViewWrapper.swift */; };
 		B5B20BB2279A171E008A2B5A /* GestureHostingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B20BB1279A171E008A2B5A /* GestureHostingController.swift */; };
+		B5B300ED2D49627F0064D071 /* NodeMediaUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B300EC2D49627A0064D071 /* NodeMediaUtils.swift */; };
 		B5B43FCC2B4F565300C6A847 /* NodeDefinition.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B43FCB2B4F565300C6A847 /* NodeDefinition.swift */; };
 		B5B8166B2BBD105C003EA2AD /* NodeIOCoordiante.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B8166A2BBD105C003EA2AD /* NodeIOCoordiante.swift */; };
 		B5B95B982CB6D67A00DA64B3 /* StitchSystemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B95B972CB6D67200DA64B3 /* StitchSystemViewModel.swift */; };
@@ -246,7 +247,6 @@
 		B5D7EC79298DDEF300549E80 /* StitchEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D7EC78298DDEF300549E80 /* StitchEnvironment.swift */; };
 		B5DB632E2C61A8C900B78B68 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B5DB632D2C61A8C900B78B68 /* StitchEngine */; };
 		B5DDF6FE293AD24C00D72220 /* GraphStepManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5DDF6FD293AD24C00D72220 /* GraphStepManager.swift */; };
-		B5DDF700293BC69B00D72220 /* NetworkRequestUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5DDF6FF293BC69B00D72220 /* NetworkRequestUtils.swift */; };
 		B5E0DDF828DA88090080BE71 /* StitchFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E0DDF728DA88090080BE71 /* StitchFileManager.swift */; };
 		B5E0DDFA28DBF4B90080BE71 /* StitchFileManagerProject.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E0DDF928DBF4B90080BE71 /* StitchFileManagerProject.swift */; };
 		B5E0DDFC28DBF6770080BE71 /* DocumentEncodableUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E0DDFB28DBF6770080BE71 /* DocumentEncodableUtil.swift */; };
@@ -1047,6 +1047,7 @@
 		B539C2E92B92BF3D00C6CEC3 /* DocumentEncodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentEncodable.swift; sourceTree = "<group>"; };
 		B53A92282A7D80CC00192E86 /* GraphMovementViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphMovementViewModifier.swift; sourceTree = "<group>"; };
 		B53B1D95289E265900489652 /* StitchVideoPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchVideoPlayer.swift; sourceTree = "<group>"; };
+		B53B54F62D507A60007A52AF /* Stitch.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = Stitch.xctestplan; sourceTree = "<group>"; };
 		B53E0BEB2D35B5DD0072FD43 /* BoxLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoxLayerNode.swift; sourceTree = "<group>"; };
 		B53E0BEE2D36E1120072FD43 /* LayerInspectorSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInspectorSection.swift; sourceTree = "<group>"; };
 		B53E477F2894918500A3D060 /* Microphone Recorder.stitch */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Microphone Recorder.stitch"; sourceTree = "<group>"; };
@@ -1168,6 +1169,7 @@
 		B5B20BAC279095B9008A2B5A /* StitchSheetInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchSheetInput.swift; sourceTree = "<group>"; };
 		B5B20BAF279925EC008A2B5A /* FullScreenPreviewViewWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullScreenPreviewViewWrapper.swift; sourceTree = "<group>"; };
 		B5B20BB1279A171E008A2B5A /* GestureHostingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureHostingController.swift; sourceTree = "<group>"; };
+		B5B300EC2D49627A0064D071 /* NodeMediaUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeMediaUtils.swift; sourceTree = "<group>"; };
 		B5B43FCB2B4F565300C6A847 /* NodeDefinition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeDefinition.swift; sourceTree = "<group>"; };
 		B5B8166A2BBD105C003EA2AD /* NodeIOCoordiante.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeIOCoordiante.swift; sourceTree = "<group>"; };
 		B5B95B972CB6D67200DA64B3 /* StitchSystemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchSystemViewModel.swift; sourceTree = "<group>"; };
@@ -1198,7 +1200,6 @@
 		B5D689BE275836390086C297 /* ProjectAlertActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectAlertActions.swift; sourceTree = "<group>"; };
 		B5D7EC78298DDEF300549E80 /* StitchEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchEnvironment.swift; sourceTree = "<group>"; };
 		B5DDF6FD293AD24C00D72220 /* GraphStepManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphStepManager.swift; sourceTree = "<group>"; };
-		B5DDF6FF293BC69B00D72220 /* NetworkRequestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkRequestUtils.swift; sourceTree = "<group>"; };
 		B5E0DDF728DA88090080BE71 /* StitchFileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchFileManager.swift; sourceTree = "<group>"; };
 		B5E0DDF928DBF4B90080BE71 /* StitchFileManagerProject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchFileManagerProject.swift; sourceTree = "<group>"; };
 		B5E0DDFB28DBF6770080BE71 /* DocumentEncodableUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentEncodableUtil.swift; sourceTree = "<group>"; };
@@ -1939,13 +1940,14 @@
 		200BD84E254F66EB00692903 = {
 			isa = PBXGroup;
 			children = (
-				E4D9CC6C2D44176800370C0A /* ci_scripts */,
 				200BD859254F66EB00692903 /* Stitch */,
 				B5F5FD412B3755C200BBD9A2 /* TestFlight */,
 				208AFA8D25D45B440035B250 /* StitchTests */,
 				E4CC7D0E28F48EF6008EA1C0 /* StitchQuickLookExtension */,
 				200BD858254F66EB00692903 /* Products */,
 				EC15E4282602A08B006F2E08 /* Frameworks */,
+				E4D9CC6C2D44176800370C0A /* ci_scripts */,
+				B53B54F62D507A60007A52AF /* Stitch.xctestplan */,
 			);
 			sourceTree = "<group>";
 		};
@@ -2161,7 +2163,6 @@
 				EC28CC9D287E351100987792 /* PatchNodeTypeExtensions.swift */,
 				EC28CC9B287E348A00987792 /* PatchDefaultNodeExtensions.swift */,
 				EC4A7212274C5A460026B233 /* WirelessReceiver.swift */,
-				B5DDF6FF293BC69B00D72220 /* NetworkRequestUtils.swift */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -3661,6 +3662,7 @@
 			isa = PBXGroup;
 			children = (
 				B55501272C1BFA660081C3F1 /* Movement */,
+				B5B300EC2D49627A0064D071 /* NodeMediaUtils.swift */,
 				B5410607286D66F3000688CA /* NodeUtils.swift */,
 				EC1E7A6A287CCC8A00144D05 /* NodeKindUtils.swift */,
 				EC572B3A26337C5F00C8E49A /* NodeTypeUtils.swift */,
@@ -4790,6 +4792,7 @@
 				ECEC4A442CE2FB900062ACAF /* StateChangeToStepAction.swift in Sources */,
 				EC1224A32B98F1E20011D687 /* StitchBlendMode.swift in Sources */,
 				ECE35EE027CEE50300CB8F5C /* FieldValueHelpers.swift in Sources */,
+				B5B300ED2D49627F0064D071 /* NodeMediaUtils.swift in Sources */,
 				E48A07922D38C528002E8A98 /* SupabaseManager.swift in Sources */,
 				EC0B8A7F2953C4C500AA01B6 /* RoundedRectanglePatchNode.swift in Sources */,
 				EC2614452B89605700BEB066 /* PositionPackNode.swift in Sources */,
@@ -4959,7 +4962,6 @@
 				B50AD534292C9E3F003CC61E /* InsertNodeMenuSearchResults.swift in Sources */,
 				B5CB68362CC9A0D700DFC660 /* LayersSidebarViewModel.swift in Sources */,
 				ECFAB3DB2BB75F8D007B569A /* SpringAnimationNumberOp.swift in Sources */,
-				B5DDF700293BC69B00D72220 /* NetworkRequestUtils.swift in Sources */,
 				EC808C022CC6CF4400F30C70 /* NumberCoercers.swift in Sources */,
 				B5B20BA9278CE6FE008A2B5A /* ProjectSettingsView.swift in Sources */,
 				EC9348A42CE3F86000772117 /* OpenAIRequest.swift in Sources */,
@@ -6533,7 +6535,7 @@
 			repositoryURL = "https://github.com/StitchDesign/StitchSchemaKit";
 			requirement = {
 				kind = revision;
-				revision = 8e2dd92817fe367707788a784839246c748d4e0d;
+				revision = 4e22cef0cc711114a17ccc0a0418e6c9bb78c3ff;
 			};
 		};
 		E4A848A92D32FCFA0029AFDE /* XCRemoteSwiftPackageReference "supabase-swift" */ = {

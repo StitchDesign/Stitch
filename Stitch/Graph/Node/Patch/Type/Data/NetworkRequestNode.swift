@@ -37,79 +37,34 @@ extension NetworkRequestType: PortValueEnum {
     }
 }
 
-@MainActor
-func networkRequestNode(id: NodeId,
-                        urlString: String = "",
-                        //                        urlString: String = facebookAppIconString,
-                        method: NetworkRequestType = .get,
-                        //                        nodeType: UserVisibleType = .json,
-                        nodeType: UserVisibleType = .string,
-                        //                        nodeType: UserVisibleType = .image,
-                        position: CGSize = .zero,
-                        zIndex: Double = 0) -> PatchNode {
-
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("URL", [.string(.init(urlString))]), // 0
-        ("URL Parameters", [defaultFalseJSON]), // 1
-        ("Body", [defaultFalseJSON]), // 2
-        ("Headers", [defaultFalseJSON]), // 3
-        ("Method", [.networkRequestType(method)]), // 4
-        ("Request", [pulseDefaultFalse]) // 5
-
-    )
-
-    // type of result changes according to node's current type
-    var resultValue: PortValue = defaultFalseJSON
-
-    switch nodeType {
-    case .media:
-        resultValue = mediaDefault
-    case .string:
-        resultValue = stringDefault
-    case .json:
-        resultValue = defaultFalseJSON
-    default:
-        #if DEBUG
-        fatalError()
-        #endif
-        break
+struct NetworkRequestNode: PatchNodeDefinition {
+    static let patch = Patch.networkRequest
+    
+    static let defaultUserVisibleType: UserVisibleType? = .string
+    
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(inputs: [
+            .init(defaultValues: [.string(.init(""))], label: "URL", isTypeStatic: true),
+            .init(defaultValues: [defaultFalseJSON], label: "URL Parameters", isTypeStatic: true),
+            .init(defaultValues: [defaultFalseJSON], label: "Body", isTypeStatic: true),
+            .init(defaultValues: [defaultFalseJSON], label: "Headers", isTypeStatic: true),
+            .init(defaultValues: [.networkRequestType(.get)], label: "Method", isTypeStatic: true),
+            .init(defaultValues: [pulseDefaultFalse], label: "Request", isTypeStatic: true)
+        ],
+              outputs: [
+                .init(label: "Loading", type: .bool),
+                .init(label: "Result", type: .json),
+                .init(label: "Errored", type: .bool),
+                .init(label: "Error", type: .json),
+                .init(label: "Headers", type: .json)
+              ]
+        )
     }
-
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values:
-            ("Loading", [boolDefaultFalse]),
-        ("Result", [resultValue]),
-        ("Errored", [boolDefaultFalse]),
-        ("Error", [defaultFalseJSON]),
-        ("Headers", [defaultFalseJSON])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .networkRequest,
-        // can be .image, .string or .json
-        userVisibleType: nodeType,
-        inputs: inputs,
-        outputs: outputs)
+    
+    static func createEphemeralObserver() -> NodeEphemeralObservable? {
+        MediaEvalOpObserver()
+    }
 }
-
-typealias NetworkRequestArgs = (PortValue,
-                                Effect?)
-
-typealias NetworkRequestOpResult = (PortValue,
-                                    PortValue,
-                                    PortValue,
-                                    PortValue,
-                                    PortValue,
-                                    Effect?)
-
-typealias NetworkRequestOp = (NetworkRequestArgs) -> NetworkRequestOpResult
 
 func hasHttpOrHttps(urlString: String) -> Bool {
     return urlString.hasPrefix("http://") || urlString.hasPrefix("https://")
@@ -117,25 +72,14 @@ func hasHttpOrHttps(urlString: String) -> Bool {
 
 @MainActor
 func networkRequestEval(node: PatchNode,
-                        graphStep: GraphStepState) -> ImpureEvalResult {
-
-    // log("networkRequestEval: called, node: \(node.id)")
-
-    let inputsValues = node.inputs
-    let nodeId = node.id
-    let nodeType = node.userVisibleType!
+                        graphStep: GraphStepState) -> EvalResult {
     let graphTime = graphStep.graphTime
-    let defaultOutputs: PortValuesList = [[boolDefaultFalse],
-                                          [defaultFalseJSON],
-                                          [boolDefaultFalse],
-                                          [defaultFalseJSON],
-                                          [defaultFalseJSON]]
-    let outputs: PortValuesList = node.outputs.flatMap { $0 }.isEmpty ? defaultOutputs : node.outputs
+    let defaultOutputs = node.defaultOutputs
+    
+    assertInDebug(node.userVisibleType != nil)
+    let type: UserVisibleType = node.userVisibleType ?? NetworkRequestNode.defaultUserVisibleType ?? .string
 
-    // ops need to receive their current index running value,
-    // ie which index they're on
-    let networkRequestOp: OperationIndexSideEffectAndValue = { (values: PortValues, index: Int) -> NetworkRequestOpResult in
-
+    return node.loopedEval(MediaEvalOpObserver.self) { (values, mediaObserver, loopIndex) -> MediaEvalOpResult in
         var urlString: String = values.first?.getString?.string ?? ""
         if !hasHttpOrHttps(urlString: urlString) {
             urlString = "https://" + urlString
@@ -149,28 +93,22 @@ func networkRequestEval(node: PatchNode,
         let method = values[safe: 4]?.getNetworkRequestType ?? .get
         let pulsedAt = values[safe: 5]?.getPulse ?? .zero
 
-        let previousLoadingValue = values[safe: 6] ?? boolDefaultFalse
-        let previousResultValue = values[safe: 7] ?? defaultFalseJSON
-        let previousErroredValue = values[safe: 8] ?? boolDefaultFalse
-        let previousErrorValue = values[safe: 9] ?? defaultFalseJSON
-        let previousHeadersValue = values[safe: 10] ?? defaultFalseJSON
+        let prevOutputs = [
+            values[safe: 6] ?? boolDefaultFalse,
+            values[safe: 7] ?? defaultFalseJSON,
+            values[safe: 8] ?? boolDefaultFalse,
+            values[safe: 9] ?? defaultFalseJSON,
+            values[safe: 10] ?? defaultFalseJSON
+        ]
 
-        let resultFn: NetworkRequestOp = { (args: NetworkRequestArgs) -> NetworkRequestOpResult in
-            (
-                args.0,
-                previousResultValue,
-                previousErroredValue,
-                previousErrorValue,
-                previousHeadersValue,
-                args.1
-            )
-        }
+        let prevMedia = mediaObserver.currentMedia
 
         // What was this case ?
         // if we didn't have a pulse, "don't do anything"
         if !pulsedAt.shouldPulse(graphTime) {
             // log("networkRequestEval: no pulse: previousLoadingValue: \(previousLoadingValue)")
-            return resultFn((previousLoadingValue, nil))
+            return MediaEvalOpResult(values: prevOutputs,
+                                     media: prevMedia)
         }
 
         urlString = urlString.replacingOccurrences(
@@ -180,56 +118,34 @@ func networkRequestEval(node: PatchNode,
         guard let url = URL(string: urlString) else {
             // log("networkRequestEval: Could not make URL from string: \(urlString)")
             // If we could not make a URL from the string, then loading output should be false, no matter what.
-            return resultFn((.bool(false), nil))
+            return .init(from: defaultOutputs)
         }
 
-        let effect: Effect = {
-            guard let result = await getNetworkRequestOpSideEffect(nodeId: nodeId,
-                                                                   index: index,
-                                                                   method: method,
-                                                                   url: url,
-                                                                   headers: headers,
-                                                                   body: body) else {
-                return NoOp()
+        var result = mediaObserver.asyncMediaEvalOp(loopIndex: loopIndex,
+                                                    values: values) {
+            guard let result = await networkRequestOp(type: type,
+                                                      method: method,
+                                                      url: url,
+                                                      headers: headers,
+                                                      body: body) else {
+                return MediaEvalOpResult(from: defaultOutputs)
             }
             
             return result
         }
-
-        // log("networkRequestEval: effect: done")
-        return resultFn((.bool(true),
-                         effect))
+        
+        // This is loading so we update the loading output
+        result.values[0] = .bool(true)
+        return result
     }
-
-    let (newLoadingOutputs,
-         newResultOutputs,
-         newErroredOutputs,
-         newErrorOutputs,
-         newHeaderOutputs,
-         newEffects) = sideEffectOutputEvalHelper(
-            inputs: inputsValues + outputs,
-            operation: networkRequestOp)
-
-    let allNewOutputs: PortValuesList = [
-        newLoadingOutputs,
-        newResultOutputs,
-        newErroredOutputs,
-        newErrorOutputs,
-        newHeaderOutputs
-    ]
-    
-    newEffects.processEffects()
-
-    return ImpureEvalResult(outputsValues: allNewOutputs)
+    .createPureEvalResult(node: node)
 }
 
-@MainActor
-func getNetworkRequestOpSideEffect(nodeId: NodeId,
-                                   index: Int,
-                                   method: NetworkRequestType,
-                                   url: URL,
-                                   headers: JSON,
-                                   body: JSON) async -> NetworkRequestCompleted? {
+func networkRequestOp(type: UserVisibleType,
+                      method: NetworkRequestType,
+                      url: URL,
+                      headers: JSON,
+                      body: JSON) async -> MediaEvalOpResult? {
     var urlRequest: URLRequest?
     
     if method == .post {
@@ -249,8 +165,6 @@ func getNetworkRequestOpSideEffect(nodeId: NodeId,
         // log("networkRequestEval: Unable to create URLRequest.")
         return nil
     }
-    
-    let thisRequestStartTime: TimeInterval = Date().timeIntervalSince1970
     //            log("thisRequestStartTime: \(thisRequestStartTime)")
     
     do {
@@ -261,67 +175,15 @@ func getNetworkRequestOpSideEffect(nodeId: NodeId,
             response: result.1,
             error: nil)
         
-        return NetworkRequestCompleted(
-            index: index,
-            nodeId: nodeId,
-            thisRequestStartTime: thisRequestStartTime,
-            result: handledResponse)
+        return NetworkRequestNode.requestCompleted(type: type,
+                                                   result: handledResponse)
     } catch {
         let handledResponse = handleRequestResponse(
             data: nil,
             response: nil,
             error: error)
         
-        return NetworkRequestCompleted(
-            index: index,
-            nodeId: nodeId,
-            thisRequestStartTime: thisRequestStartTime,
-            result: handledResponse)
+        return NetworkRequestNode.requestCompleted(type: type,
+                                                   result: handledResponse)
     }
-}
-
-// basically only for network request...
-func sideEffectOutputEvalHelper(inputs: PortValuesList,
-                                operation: OperationIndexSideEffectAndValue) -> (PortValues, PortValues, PortValues, PortValues, PortValues, SideEffects) {
-
-    var newLoadingOutputs: PortValues = []
-    var newResultOutputs: PortValues = []
-    var newErroredOutputs: PortValues = []
-    var newErrorOutputs: PortValues = []
-    var newHeaderOutputs: PortValues = []
-
-    var resultEffects: SideEffects = []
-
-    let (longestLoopLength, adjustedInputs) = getMaxCountAndLengthenedArrays(inputs, [])
-
-    (0..<longestLoopLength).forEach { (index: Int) in
-
-        var callArgs: PortValues = []
-
-        adjustedInputs.forEach { (input: PortValues) in
-            callArgs.append(input[index])
-        }
-
-        // some operations require the current index
-        let x = operation(callArgs, index)
-
-        newLoadingOutputs.append(x.0)
-        newResultOutputs.append(x.1)
-        newErroredOutputs.append(x.2)
-        newErrorOutputs.append(x.3)
-        newHeaderOutputs.append(x.4)
-
-        if let effect: Effect = x.5 {
-            resultEffects.append(effect)
-        }
-    }
-
-    return (
-        newLoadingOutputs,
-        newResultOutputs,
-        newErroredOutputs,
-        newErrorOutputs,
-        newHeaderOutputs,
-        resultEffects
-    )
 }

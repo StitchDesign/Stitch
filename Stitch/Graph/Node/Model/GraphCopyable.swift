@@ -458,7 +458,7 @@ extension GraphState {
             .flatMap { $0 ?? [] }
             
         let mediaUrls: [URL] = portValues.compactMap { (value: PortValue) -> URL? in
-                guard let media = value._asyncMedia,
+                guard let media = value.asyncMedia,
                       let mediaKey = media.mediaKey,
                       let originalMediaUrl = self.getMediaUrl(forKey: mediaKey) else {
                     return nil
