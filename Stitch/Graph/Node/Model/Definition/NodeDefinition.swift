@@ -47,8 +47,6 @@ extension Layer {
     }
 }
 
-typealias LayerRealityCameraContent = StitchARView
-
 // fka `LayerGraphNode`
 protocol LayerNodeDefinition: NodeDefinition {
     associatedtype Content: View
@@ -66,7 +64,7 @@ protocol LayerNodeDefinition: NodeDefinition {
                         isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool,
                         parentIsScrollableGrid: Bool,
-                        realityContent: Binding<LayerRealityCameraContent?>) -> Content
+                        realityContent: LayerRealityCameraContent?) -> Content
 }
 
 extension LayerNodeDefinition {

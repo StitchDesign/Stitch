@@ -56,7 +56,7 @@ struct MapLayerNode: LayerNodeDefinition {
                         isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool,
                         parentIsScrollableGrid: Bool,
-                        realityContent: Binding<LayerRealityCameraContent?>) -> some View {
+                        realityContent: LayerRealityCameraContent?) -> some View {
         PreviewMapLayer(
             document: document,
             graph: graph,

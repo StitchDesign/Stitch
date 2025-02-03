@@ -51,7 +51,7 @@ struct MaterialLayerNode: LayerNodeDefinition {
                         isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool,
                         parentIsScrollableGrid: Bool,
-                        realityContent: Binding<LayerRealityCameraContent?>) -> some View {
+                        realityContent: LayerRealityCameraContent?) -> some View {
         
         PreviewMaterialLayer(document: document,
                              graph: graph,
