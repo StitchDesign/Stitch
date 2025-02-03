@@ -740,13 +740,9 @@ extension JSONFriendlyFormat {
     }
     
     func asPortValueForLLMSetField(_ nodeType: NodeType) -> PortValue? {
-                                   // for turning a string into a LayerNodeId
-//                                   with mapping: LLMNodeIdMapping) -> PortValue? {
-                                   
         
-        // log("asPortValueForLLMSetField: self: \(self)")
-        // log("asPortValueForLLMSetField: nodeType: \(nodeType)")
-        // log("asPortValueForLLMSetField: mapping: \(mapping)")
+        log("asPortValueForLLMSetField: self: \(self)")
+        log("asPortValueForLLMSetField: nodeType: \(nodeType)")
         
         // Try to match on the specific JFF-case,
         // if the LLM Model sent something
@@ -817,6 +813,8 @@ extension JSONFriendlyFormat {
             
             // .string is used for PortValue.string but also any other non-multifield value
         case .string(let x):
+            log("asPortValueForLLMSetField: JFF string: x \(x)")
+            
             // can actually just return a string,
             // and the logic of `handleInputEdited` handles the rest
             switch nodeType {
@@ -834,10 +832,16 @@ extension JSONFriendlyFormat {
 //                }
                 return .assignedLayer(nil)
             
+            case .string:
+                log("asPortValueForLLMSetField: JFF string: had genuine stirng")
+                return .string(.init(x))
             
             default:
+                // Should try to parse this
+                // If model gave us a string JFF value with a non-string node-type,
+                // try to parse the JFF
                 log("asPortValueForLLMSetField: JFF string: x: \(x)")
-                return .string(.init(x))
+                return x.parseAsPortValue(nodeType)
             }
         }
         
