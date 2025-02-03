@@ -112,7 +112,7 @@ actor SupabaseManager {
                         log(" Data uploaded successfully to Supabase!")
                         return
                     } catch DecodingError.keyNotFound(let key, let context) {
-                        let errorMessage = " Error: Missing key '\(key.stringValue)' - \(context.debugDescription)"
+                        let errorMessage = "SupabaseManager Error: Missing key '\(key.stringValue)' - \(context.debugDescription)"
                         log(errorMessage, .logToServer)
                     } catch DecodingError.typeMismatch(let type, let context) {
                         let errorMessage = "SupabaseManager Error: Type mismatch for type '\(type)' - \(context.debugDescription)"
