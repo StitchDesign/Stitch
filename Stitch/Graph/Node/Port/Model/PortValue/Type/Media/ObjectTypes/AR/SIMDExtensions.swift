@@ -131,7 +131,8 @@ extension simd_float4x4 {
     }
     
     var rotation: simd_quatf {
-        let qw = sqrt(1 + columns.0.x + columns.1.y + columns.2.z) / 2
+        // must be absolute value for square root
+        let qw = sqrt(abs(1 + columns.0.x + columns.1.y + columns.2.z)) / 2
         let qx = (columns.2.y - columns.1.z) / (4 * qw)
         let qy = (columns.0.z - columns.2.x) / (4 * qw)
         let qz = (columns.1.x - columns.0.y) / (4 * qw)

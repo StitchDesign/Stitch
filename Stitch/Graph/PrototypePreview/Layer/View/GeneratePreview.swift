@@ -495,6 +495,13 @@ struct NonGroupPreviewLayersView: View {
                     return
                 }
                 
+                // Check for nil case
+                guard let mediaValue = self.mediaValue else {
+                    LayerViewModel.resetMedia(self.layerViewModel.mediaObject)
+                    self.layerViewModel.mediaViewModel.currentMedia = nil
+                    return
+                }
+                
                 let layerInputType = LayerInputType(layerInput: mediaPort,
                                                     // Media port is always packed
                                                     portType: .packed)
@@ -503,13 +510,7 @@ struct NonGroupPreviewLayersView: View {
                 if let existingMedia = self.layerNode
                     .getConnectedInputMedia(keyPath: layerInputType,
                                             loopIndex: self.layerViewModel.id.loopIndex) {
-                    self.layerViewModel.mediaObject = existingMedia
-                    return
-                }
-                
-                guard let mediaValue = self.mediaValue else {
-                    LayerViewModel.resetMedia(self.layerViewModel.mediaObject)
-                    self.layerViewModel.mediaObject = nil
+                    self.layerViewModel.mediaViewModel.currentMedia = .init(computedMedia: existingMedia)
                     return
                 }
                 

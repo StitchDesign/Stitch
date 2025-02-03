@@ -172,10 +172,7 @@ extension MediaEvalOpObservable {
                                           inputMediaValue: AsyncMediaValue?,
                                           inputPortIndex: Int,
                                           loopIndex: Int) async -> GraphMediaValue? {
-        // TODO: consider removing arguments, properties etc
-        
         guard let inputMediaValue = inputMediaValue else {
-//            self.currentMedia = nil
             return nil
         }
 

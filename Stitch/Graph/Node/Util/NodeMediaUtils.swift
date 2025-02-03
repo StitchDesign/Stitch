@@ -288,13 +288,11 @@ extension LayerNodeViewModel {
             return upstreamNode.getComputedMediaObserver(loopIndex: loopIndex)
         }
         
-//        // No upstream connection, find media at layer view model
-//        guard let layerViewModel = self.previewLayerViewModels[safe: loopIndex] else {
-//            return nil
-//        }
-//
-//        return layerViewModel.mediaObject
-        
-        return nil
+        // No upstream connection, find media at layer view model
+        guard let layerViewModel = self.previewLayerViewModels[safe: loopIndex] else {
+            return nil
+        }
+
+        return layerViewModel.mediaViewModel
     }
 }
