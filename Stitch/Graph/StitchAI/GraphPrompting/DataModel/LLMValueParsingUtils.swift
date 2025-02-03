@@ -32,7 +32,7 @@ extension String {
         case .number:
             return numberParser(x)
         
-            // should be a layer size, i.e. a string?
+        // should be a layer size, i.e. a string?
         case .layerDimension:
             // TODO: JAN 29: is this correct?
             return parseUpdate(nodeType.defaultPortValue, x)
@@ -49,7 +49,10 @@ extension String {
             return NetworkRequestType(rawValue: x).map(PortValue.networkRequestType)
         
         case .color:
-            // TODO: JAN 29: assume LLM represents colors as hex?
+            if let uiColorFromHex = UIColor(hex: self) {
+                return .color(uiColorFromHex.toColor)
+            }
+            fatalErrorIfDebug()
             return nil
         
         case .size:
@@ -66,7 +69,6 @@ extension String {
             
         case .pulse:
             // TODO: JAN 29: how does LLM handle pulses?
-            
             return numberParser(x)
         
         case .media: // aka .asyncMedia
@@ -121,7 +123,7 @@ extension String {
         
         // treat as string ? or?
         case .shape:
-            // TODO: JAN 29: PortValue.shape is not really handle properly?
+            // TODO: JAN 29: PortValue.shape is not really handled properly?
             fatalErrorIfDebug()
             return nil
             
@@ -129,12 +131,7 @@ extension String {
             return ScrollJumpStyle(rawValue: x).map(PortValue.scrollJumpStyle)
         case .scrollDecelerationRate:
             return ScrollDecelerationRate(rawValue: x).map(PortValue.scrollDecelerationRate)
-        
-//        case .comparable:
-//            // TODO: JAN 29: how to handle
-//            fatalErrorIfDebug()
-//            return nil
-            
+                    
         case .delayStyle:
             return DelayStyle(rawValue: x).map(PortValue.delayStyle)
         case .shapeCoordinates:
@@ -185,11 +182,8 @@ extension String {
         case .contentMode:
             return StitchContentMode(rawValue: x).map(PortValue.contentMode)
 
-        
         case .spacing:
-            // TODO: JAN 29: handle properly
-            fatalErrorIfDebug()
-            return nil
+            return spacingParser(self)
             
         case .padding:
             return parseJSON(x)?.toStitchPadding.map(PortValue.padding)
@@ -198,9 +192,12 @@ extension String {
             return SizingScenario(rawValue: x).map(PortValue.sizingScenario)
         
         case .pinToId:
-            // TODO: JAN 29: handle properly
-            fatalErrorIfDebug()
-            return nil
+            if let pinId = PinToId.fromString(self) {
+                return .pinTo(pinId)
+            } else {
+                fatalErrorIfDebug()
+                return nil
+            }
             
         case .deviceAppearance:
             return DeviceAppearance(rawValue: x).map(PortValue.deviceAppearance)
@@ -225,6 +222,9 @@ extension PortValue {
     // JSONFriendlyFormat is how we describe a PortValue to the LLM
     // nil = we currently do not properly handle that PortValue type with the LLM
     var llmFriendlyDisplay: JSONFriendlyFormat? {
+        
+        log("PortValue.llmFriendlyDisplay: self: \(self)")
+        
         switch self {
         
         case .string(let x):
@@ -380,9 +380,7 @@ extension PortValue {
             return x.rawValue.asJFFString
         
         case .spacing(let x):
-            // TODO: JAN 29: handle properly
-            fatalErrorIfDebug()
-            return nil
+            return x.display.asJFFString
             
         case .padding(let x):
             return .dictionary(x.asDictionary)
@@ -391,9 +389,7 @@ extension PortValue {
             return x.rawValue.asJFFString
         
         case .pinTo(let x):
-            // TODO: JAN 29: handle properly
-            fatalErrorIfDebug()
-            return nil
+            return x.display.asJFFString
             
         case .deviceAppearance(let x):
             return x.rawValue.asJFFString

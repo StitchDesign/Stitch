@@ -23,6 +23,19 @@ extension PinToId {
             return x.id.description
         }
     }
+    
+    static func fromString(_ s: String) -> Self? {
+        if let id = UUID(uuidString: s) {
+            return .layer(.init(id))
+        } else if s.lowercased() == LayerDropdownChoice.RootLayerDropDownChoice.name.lowercased() {
+            return .root
+        } else if s.lowercased() == LayerDropdownChoice.ParentLayerDropDownChoice.name.lowercased() {
+            return .parent
+        } else {
+            return nil
+        }
+        
+    }
 }
 
 struct PinReceiverSizeData: Equatable, Hashable, Codable {
