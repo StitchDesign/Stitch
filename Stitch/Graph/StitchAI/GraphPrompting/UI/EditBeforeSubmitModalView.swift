@@ -52,12 +52,10 @@ struct EditBeforeSubmitModalView: View {
         .cornerRadius(16)
         .padding()
         .onChange(of: self.recordingStateActions) { oldValue, newValue in
-            log(".onChange(of: self.recordingStateActions): oldValue: \(oldValue)")
             log(".onChange(of: self.recordingStateActions): newValue: \(newValue)")
             self.actions = newValue
         }
         .onChange(of: self.actions) { oldValue, newValue in
-            log(".onChange(of: self.actions): oldValue: \(oldValue)")
             log(".onChange(of: self.actions): newValue: \(newValue)")
             dispatch(LLMActionsUpdatedByModal(newActions: newValue))
         }
