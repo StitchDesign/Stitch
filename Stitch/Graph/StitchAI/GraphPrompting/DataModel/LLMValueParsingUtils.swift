@@ -13,6 +13,8 @@ extension String {
     // (String, NodeType) -> PortValue
     // i.e. handling the serialized
     func parseAsPortValue(_ nodeType: NodeType) -> PortValue? {
+        log("String: parseAsPortValue: self: \(self)")
+        log("String: parseAsPortValue: nodeType: \(nodeType)")
         
         let x = self
         
