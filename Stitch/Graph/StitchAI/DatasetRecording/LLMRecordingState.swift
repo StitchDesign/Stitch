@@ -138,6 +138,7 @@ extension StitchDocumentViewModel {
             }
         }
         
+        // no depth map if no connections?
         let (depthMap, hasCycle) = adjacency.computeDepth()
         
         guard let depthMap = depthMap,
@@ -146,6 +147,8 @@ extension StitchDocumentViewModel {
             fatalErrorIfDebug("Had cycle or could not create depth-map")
             return
         }
+        
+        
         
         let depthLevels = depthMap.values.sorted().toOrderedSet
 
