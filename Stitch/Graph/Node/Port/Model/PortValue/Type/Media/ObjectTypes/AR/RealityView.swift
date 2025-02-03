@@ -10,6 +10,15 @@ import RealityKit
 import SwiftUI
 import StitchSchemaKit
 
+typealias LayerRealityCameraContent = StitchRealityContent
+
+/// Views point to `StitchRealityContent` when child layers are nested inside of a Reality View.
+/// A `StitchRealityContent` always exists even when its `StitchARView` may not be present due to race conditions assigning the AR view.
+@Observable
+final class StitchRealityContent {
+    var arView: StitchARView?
+}
+
 struct CameraRealityView: UIViewRepresentable {
     // AR view must already be created in media manager
     let arView: ARView
@@ -36,6 +45,7 @@ struct CameraRealityView: UIViewRepresentable {
 
 struct NonCameraRealityView: UIViewRepresentable {
     @Bindable var layerViewModel: LayerViewModel
+    let realityContent: StitchRealityContent?
     let size: LayerSize
     let scale: Double
     let opacity: Double
@@ -50,8 +60,8 @@ struct NonCameraRealityView: UIViewRepresentable {
         // MARK: useful for debugging gestures
 //        arView.debugOptions = .showPhysics
         
-        // Update object with scene
-        layerViewModel.realityContent = arView
+        // Update object with scene if this is a valid group reality view
+        realityContent?.arView = arView
         
         return arView.arView
     }

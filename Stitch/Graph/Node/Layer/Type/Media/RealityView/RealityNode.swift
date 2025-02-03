@@ -49,9 +49,9 @@ struct RealityViewLayerNode: LayerNodeDefinition {
                         isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool,
                         parentIsScrollableGrid: Bool,
-                        realityContent: Binding<LayerRealityCameraContent?>) -> some View {
+                        realityContent: LayerRealityCameraContent?) -> some View {
         // Create reality view if reality layer AND no reality content is created at this hierarchy
-        if realityContent.wrappedValue != nil {
+        if let realityContent = realityContent {
             GroupLayerNode.content(document: document,
                                    graph: graph,
                                    viewModel: viewModel,
@@ -62,7 +62,10 @@ struct RealityViewLayerNode: LayerNodeDefinition {
                                    parentIsScrollableGrid: parentIsScrollableGrid,
                                    realityContent: realityContent)
             .eraseToAnyView()
-        } else {
+        }
+        
+        // ONLY create a reality view session if none yet made
+        else {
             PreviewRealityLayer(document: document,
                                 graph: graph,
                                 viewModel: viewModel,
