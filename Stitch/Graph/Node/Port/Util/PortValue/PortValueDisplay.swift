@@ -119,7 +119,7 @@ extension PortValue {
         case let .color(x):
             return x.asHexDisplay
         case let .size(x):
-            return x.asAlgebraicCGSize.asDictionary.description
+            return x.asLayerDictionary.description
         case let .position(x):
             return x.asDictionary.description
         case let .point3D(x):
