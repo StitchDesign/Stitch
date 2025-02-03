@@ -41,7 +41,7 @@ struct ProgressIndicatorLayerNode: LayerNodeDefinition {
                         isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool,
                         parentIsScrollableGrid: Bool,
-                        realityContent: Binding<LayerRealityCameraContent?>) -> some View {
+                        realityContent: LayerRealityCameraContent?) -> some View {
         PreviewProgressIndicatorLayer(
             document: document,
             graph: graph,

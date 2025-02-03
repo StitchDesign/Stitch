@@ -78,7 +78,7 @@ struct RectangleLayerNode: LayerNodeDefinition {
                         isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool,
                         parentIsScrollableGrid: Bool,
-                        realityContent: Binding<LayerRealityCameraContent?>) -> some View {
+                        realityContent: LayerRealityCameraContent?) -> some View {
         ShapeLayerView(document: document,
                        graph: graph,
                        viewModel: viewModel,

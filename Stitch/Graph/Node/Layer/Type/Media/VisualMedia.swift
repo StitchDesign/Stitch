@@ -47,7 +47,7 @@ struct ImageLayerNode: LayerNodeDefinition {
                         isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool,
                         parentIsScrollableGrid: Bool,
-                        realityContent: Binding<LayerRealityCameraContent?>) -> some View {
+                        realityContent: LayerRealityCameraContent?) -> some View {
         VisualMediaLayerView(document: document,
                              graph: graph,
                              viewModel: viewModel,

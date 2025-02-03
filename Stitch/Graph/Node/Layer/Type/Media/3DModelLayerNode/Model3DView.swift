@@ -15,6 +15,7 @@ struct Model3DView: View {
     @State private var anchorEntity: AnchorEntity = .init()
     
     let layerViewModel: LayerViewModel
+    let realityContent: StitchRealityContent?
     let graph: GraphState
     let entity: StitchEntity
     let size: LayerSize
@@ -36,6 +37,7 @@ struct Model3DView: View {
         default:
             // geometry case
             Model3DGeometryView(layerViewModel: layerViewModel,
+                                realityContent: realityContent,
                                 graph: graph,
                                 entity: entity,
                                 size: size,
@@ -50,6 +52,7 @@ struct Model3DGeometryView: View {
     @State private var anchorEntity: AnchorEntity = .init()
     
     let layerViewModel: LayerViewModel
+    let realityContent: StitchRealityContent?
     let graph: GraphState
     let entity: StitchEntity
     let size: LayerSize
@@ -60,12 +63,13 @@ struct Model3DGeometryView: View {
     var body: some View {
         ZStack {
             NonCameraRealityView(layerViewModel: layerViewModel,
+                                 realityContent: nil,   // not a grouping scenario so make nil
                                  size: size,
                                  scale: scale,
                                  opacity: opacity,
                                  isShadowsEnabled: false)
             
-            if let arView = layerViewModel.realityContent {
+            if let arView = realityContent?.arView {
                 Color.clear
                     .modifier(ModelEntityLayerViewModifier(previewLayer: layerViewModel,
                                                            entity: entity,
