@@ -85,5 +85,23 @@ struct Model3DLayerNode: LayerNodeDefinition {
             parentSize: parentSize,
             parentDisablesPosition: parentDisablesPosition,
             parentIsScrollableGrid: parentIsScrollableGrid)
+        .onChange(of: viewModel.mediaViewModel.currentMedia, initial: true) { oldValue, newValue in
+            // Update transform for 3D model once loaded
+            if oldValue != newValue,
+               let model3DEntity = newValue?.mediaObject.model3DEntity {
+                Self.updateTransform(entity: model3DEntity,
+                                     layerViewModel: viewModel)
+            }
+        }
+    }
+    
+    @MainActor
+    static func updateTransform(entity: StitchEntity,
+                                layerViewModel: LayerViewModel) {
+        let transform = layerViewModel.transform3D.getTransform ?? .zero
+        let matrix = simd_float4x4(position: transform.position3D,
+                                   scale: transform.scale3D,
+                                   rotation: transform.rotation3D)
+        entity.applyMatrix(newMatrix: matrix)
     }
 }

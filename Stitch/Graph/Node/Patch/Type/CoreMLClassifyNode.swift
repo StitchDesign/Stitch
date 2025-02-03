@@ -44,30 +44,52 @@ struct CoreMLClassifyNode: PatchNodeDefinition {
     }
 }
 
-@MainActor
-func coreMLClassifyEval(node: PatchNode) -> EvalResult {
-    node.loopedEval(ImageClassifierOpObserver.self) { values, mediaObserver, loopIndex in
-        guard let modelMediaObject = mediaObserver.getUniqueMedia(from: values.first,
-                                                                  loopIndex: loopIndex)?.mediaObject,
-              let model = modelMediaObject.coreMLImageModel else {
-            return node.defaultOutputs
+extension CoreMLClassifyNode {
+    static func coreMLEvalOp(media: GraphMediaValue,
+                             mediaObserver: ImageClassifierOpObserver,
+                             image: UIImage,
+                             defaultOutputs: PortValues) async -> PortValues {
+        guard let model = media.mediaObject.coreMLImageModel,
+              let result = await mediaObserver.coreMlActor
+            .visionClassificationRequest(for: model,
+                                         with: image) else {
+            return defaultOutputs
         }
         
-        let defaultOutputs = node.defaultOutputs
-        
-        return mediaObserver.asyncMediaEvalOp(loopIndex: loopIndex,
-                                              values: values,
-                                              node: node) { [weak model] in
-            guard let model = model,
-                  let image = values[safe: 1]?.asyncMedia?.mediaObject.image,
-                  let result = await mediaObserver.coreMlActor
-                .visionClassificationRequest(for: model,
-                                             with: image) else {
+        return [
+            .string(.init(result.identifier)),
+            .number(Double(result.confidence))
+        ]
+    }
+}
+
+@MainActor
+func coreMLClassifyEval(node: PatchNode) -> EvalResult {
+    let defaultOutputs = node.defaultOutputs
+    
+    return node.loopedEval(ImageClassifierOpObserver.self) { values, mediaObserver, loopIndex in
+        mediaObserver.mediaEvalOpCoordinator(inputPortIndex: 0,
+                                             values: values,
+                                             loopIndex: loopIndex,
+                                             defaultOutputs: defaultOutputs) { media in
+            guard let image = node.getInputMedia(portIndex: 1,
+                                                 loopIndex: loopIndex)?.image else {
                 return defaultOutputs
             }
             
-            return [.string(.init(result.identifier)),
-                    .number(Double(result.confidence))]
+            return mediaObserver.asyncMediaEvalOp(loopIndex: loopIndex,
+                                                  values: values,
+                                                  node: node) { [weak mediaObserver, weak image] in
+                guard let image = image,
+                      let mediaObserver = mediaObserver else {
+                    return defaultOutputs
+                }
+                
+                return await CoreMLClassifyNode.coreMLEvalOp(media: media,
+                                                             mediaObserver: mediaObserver,
+                                                             image: image,
+                                                             defaultOutputs: defaultOutputs)
+            }
         }
     }
 }

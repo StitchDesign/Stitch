@@ -30,7 +30,7 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
     @MainActor
     var hasLoopedValues: Bool { get set }
     
-    @MainActor var importedMediaObject: StitchMediaObject? { get }
+//    @MainActor var importedMediaObject: StitchMediaObject? { get }
     
     @MainActor
     var hasEdge: Bool { get }
@@ -198,21 +198,6 @@ extension InputNodeRowObserver {
         
         // Update that upstream observer of new edge
         self.upstreamOutputObserver?.containsDownstreamConnection = true
-    }
-
-    /// Values for import dropdowns don't hold media directly, so we need to find it.
-    @MainActor var importedMediaObject: StitchMediaObject? {
-        guard self.id.portId == 0,
-              self.upstreamOutputCoordinate == nil else {
-            return nil
-        }
-        
-        if let ephemeralObserver = self.nodeDelegate?.ephemeralObservers?.first,
-           let mediaObserver = ephemeralObserver as? MediaEvalOpObservable {
-            return mediaObserver.currentMedia?.mediaObject
-        }
-        
-        return nil
     }
     
     // Because `private`, needs to be declared in same file(?) as method that uses it
@@ -454,11 +439,11 @@ extension NodeRowViewModel {
         }
         
         let nodeIO = Self.RowObserver.nodeIOType
+
         let newRowType = newValue.getNodeRowType(nodeIO: nodeIO,
                                                  layerInputPort: self.id.layerInputPort,
                                                  isLayerInspector: self.isLayerInspector)
         let nodeRowTypeChanged = oldRowType != newRowType
-        let importedMediaObject = rowDelegate.importedMediaObject
         
         // Create new field value observers if the row type changed
         // This can happen on various input changes
@@ -468,15 +453,12 @@ extension NodeRowViewModel {
                 nodeIO: nodeIO,
                 // Node Row Type change is only when a patch node changes its node type; can't happen for layer nodes
                 unpackedPortParentFieldGroupType: nil,
-                unpackedPortIndex: nil,
-                importedMediaObject: importedMediaObject)
+                unpackedPortIndex: nil)
             return
         }
         
         let newFieldsByGroup = newValue.createFieldValuesList(nodeIO: nodeIO,
-                                                              importedMediaObject: importedMediaObject,
-                                                              layerInputPort: self.id.layerInputPort,
-                                                              isLayerInspector: self.isLayerInspector)
+                                                              rowViewModel: self)
         
         // Assert equal array counts
         guard newFieldsByGroup.count == self.fieldValueTypes.count else {
@@ -492,7 +474,8 @@ extension NodeRowViewModel {
             let fieldObserversCount = fieldObserverGroup.fieldObservers.count
             
             // Force update if any media--inefficient but works
-            let willUpdateField = newFields.count != fieldObserversCount || importedMediaObject.isDefined
+//            let isMediaField = fieldObserverGroup.type == .asyncMedia
+            let willUpdateField = newFields.count != fieldObserversCount // || isMediaField
             
             if willUpdateField {
                 self.fieldValueTypes = self.createFieldValueTypes(
@@ -501,8 +484,7 @@ extension NodeRowViewModel {
                     // Note: this is only for a patch node whose node-type has changed (?); does not happen with layer nodes, a layer input being packed or unpacked is irrelevant here etc.
                     // Not relevant?
                     unpackedPortParentFieldGroupType: nil,
-                    unpackedPortIndex:  nil,
-                    importedMediaObject: importedMediaObject)
+                    unpackedPortIndex:  nil)
                 return
             }
             

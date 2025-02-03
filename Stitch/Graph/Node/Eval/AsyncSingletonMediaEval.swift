@@ -11,9 +11,11 @@ import StitchEngine
 
 typealias MediaManagerSingletonKeyPath = ReferenceWritableKeyPath<StitchDocumentViewModel, LoadingStatus<StitchSingletonMediaObject>?>
 typealias SingletonMediaCreation = @Sendable (StitchDocumentViewModel, GraphDelegate, NodeId) async -> ()
-typealias AsyncSingletonMediaEvalOp = (PortValues, StitchSingletonMediaObject, Int) -> PortValues
+typealias AsyncSingletonMediaEvalOp = (PortValues, StitchSingletonMediaObject, Int) -> MediaEvalOpResult
 
-actor SingletonMediaNodeCoordinator: NodeEphemeralObservable {
+actor SingletonMediaNodeCoordinator: NodeEphemeralObservable, MediaEvalOpViewable {
+    let mediaViewModel: MediaViewModel
+    
     @MainActor
     func createSingletonMedia(graph: GraphDelegate,
                               nodeId: NodeId,
@@ -23,6 +25,10 @@ actor SingletonMediaNodeCoordinator: NodeEphemeralObservable {
         await mediaCreation(document, graph, nodeId)
         
         graph.calculate(nodeId)
+    }
+    
+    @MainActor init() {
+        self.mediaViewModel = .init()
     }
 }
 
@@ -36,7 +42,7 @@ func asyncSingletonMediaEval(node: PatchNode,
                              graph: GraphDelegate,
                              mediaCreation: @escaping SingletonMediaCreation,
                              mediaManagerKeyPath: MediaManagerSingletonKeyPath,
-                             mediaOp: @escaping AsyncSingletonMediaEvalOp) -> PortValuesList {
+                             mediaOp: @escaping AsyncSingletonMediaEvalOp) -> [MediaEvalOpResult] {
     
     guard let document = graph.documentDelegate,
             let singletonMediaNodeCoordinator = node.ephemeralObservers?.first as? SingletonMediaNodeCoordinator else {
@@ -52,7 +58,7 @@ func asyncSingletonMediaEval(node: PatchNode,
         
         // Skip if loading
         guard !(document[keyPath: mediaManagerKeyPath]?.isLoading ?? false) else {
-            return node.defaultOutputs
+            return MediaEvalOpResult(from: node.defaultOutputs)
         }
 
         let nodeId = node.id
@@ -69,6 +75,6 @@ func asyncSingletonMediaEval(node: PatchNode,
                                       mediaCreation: mediaCreation)
         }
         
-        return node.defaultOutputs
+        return MediaEvalOpResult(from: node.defaultOutputs)
     }
 }

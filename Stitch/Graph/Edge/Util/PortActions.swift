@@ -47,8 +47,12 @@ extension InputNodeRowObserver {
         // Remove audio from disconnected speaker nodes.
         else if self.nodeKind.isSpeakerNode,
                 // Only look at this input if it is the media input
-                self.id.isMediaSelectorLocation {
-            self.allLoopedValues.compactMap { $0.asyncMedia }.forEach { media in
+                self.id.isMediaSelectorLocation,
+                let node = self.nodeDelegate {
+            self.allLoopedValues.enumerated().compactMap { loopIndex, _ in
+                node.getInputMedia(portIndex: 0,
+                                   loopIndex: loopIndex)
+            }.forEach { media in
                 // Run effect to mute sound player
                 self.upstreamOutputObserver?.getMediaObjects().forEach { media in
                     media.updateVolume(to: .zero)

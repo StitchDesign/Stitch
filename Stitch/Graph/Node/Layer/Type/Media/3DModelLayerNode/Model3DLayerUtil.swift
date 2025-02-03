@@ -60,7 +60,7 @@ struct Model3DViewModifier: ViewModifier {
                 
                 // Set state for media object
                 let entity = self.createEntity()
-                viewModel.mediaObject = .model3D(entity)
+                viewModel.mediaViewModel.currentMedia = .init(computedMedia: .model3D(entity))
             }
             .onChange(of: viewModel.size3D) {
                 self.updateEntity()

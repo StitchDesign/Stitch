@@ -43,7 +43,7 @@ extension URL {
             return .failure(.trimMediaFileFailed)
         }
 
-        let mediaAsset = AVAsset(url: self)
+        let mediaAsset = AVURLAsset(url: self)
         let composition = AVMutableComposition()
 
         // Both video and audio types require an audio track, however only video creates a video track

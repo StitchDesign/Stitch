@@ -455,6 +455,22 @@ struct NonGroupPreviewLayersView: View {
         isPinnedViewRendering ? self.layerViewModel.mediaPortValue : nil
     }
     
+    var mediaPort: LayerInputPort? {
+        switch self.layerNode.layer {
+        case .model3D:
+            return .model3D
+            
+        case .image:
+            return .image
+            
+        case .video:
+            return .video
+            
+        default:
+            return nil
+        }
+    }
+    
     var body: some View {
         if layerNode.hasSidebarVisibility,
            let graph = layerNode.nodeDelegate?.graphDelegate as? GraphState {
@@ -468,13 +484,33 @@ struct NonGroupPreviewLayersView: View {
                              parentIsScrollableGrid: parentIsScrollableGrid,
                              realityContent: $realityContent)
             .onChange(of: mediaValue, initial: true) {
+                guard let mediaPort = self.mediaPort else {
+                    assertInDebug(self.mediaValue == nil)
+                    return
+                }
+                
                 guard isPinnedViewRendering,
                       // Ignore non-import scenarios
-                      layerNode.layer.containsMediaImport else { return }
+                      layerNode.layer.containsMediaImport else {
+                    return
+                }
                 
+                // Check for nil case
                 guard let mediaValue = self.mediaValue else {
                     LayerViewModel.resetMedia(self.layerViewModel.mediaObject)
-                    self.layerViewModel.mediaObject = nil
+                    self.layerViewModel.mediaViewModel.currentMedia = nil
+                    return
+                }
+                
+                let layerInputType = LayerInputType(layerInput: mediaPort,
+                                                    // Media port is always packed
+                                                    portType: .packed)
+                
+                // Checks for connected upstream media
+                if let existingMedia = self.layerNode
+                    .getConnectedInputMedia(keyPath: layerInputType,
+                                            loopIndex: self.layerViewModel.id.loopIndex) {
+                    self.layerViewModel.mediaViewModel.currentMedia = .init(computedMedia: existingMedia)
                     return
                 }
                 
@@ -482,10 +518,6 @@ struct NonGroupPreviewLayersView: View {
                     await layerViewModel?.loadMedia(mediaValue: mediaValue,
                                                     document: document,
                                                     mediaRowObserver: layerViewModel?.mediaRowObserver)
-                }
-                
-                if let _mediaObject = mediaValue._mediaObject as? StitchMediaObject {
-                    self.layerViewModel.mediaObject = _mediaObject
                 }
             }
         } else {

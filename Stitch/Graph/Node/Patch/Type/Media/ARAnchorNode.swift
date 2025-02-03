@@ -34,8 +34,8 @@ struct ArAnchorNode: PatchNodeDefinition {
 }
 
 final class ARAnchorObserver: MediaEvalOpObservable {
-    // 3D model entity
-    @MainActor var currentMedia: GraphMediaValue?
+    // where 3D model entity is tored
+    let mediaViewModel: MediaViewModel
     
     @MainActor var currentLoadingMediaId: UUID?
     
@@ -47,6 +47,10 @@ final class ARAnchorObserver: MediaEvalOpObservable {
     let mediaActor = MediaEvalOpCoordinator()
 
     @MainActor weak var nodeDelegate: NodeDelegate?
+    
+    @MainActor init() {
+        self.mediaViewModel = .init()
+    }
 }
 
 extension ARAnchorObserver {

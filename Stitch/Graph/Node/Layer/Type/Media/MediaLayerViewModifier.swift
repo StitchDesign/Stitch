@@ -31,7 +31,7 @@ final actor MediaLayerImportCoordinator {
             let newMediaValue = GraphMediaValue(id: mediaValue.id,
                                                 dataType: mediaValue.dataType,
                                                 mediaObject: newMediaObject)
-            let newPortValue = newMediaValue.portValue
+            let newPortValue = newMediaValue.portValue(label: mediaValue.label)
             
             // Update all row view models
             await MainActor.run {

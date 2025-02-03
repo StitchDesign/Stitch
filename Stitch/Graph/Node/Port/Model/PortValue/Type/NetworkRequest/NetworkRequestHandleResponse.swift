@@ -47,7 +47,6 @@ enum RequestedResource: Equatable {
          text(String)
 }
 
-@MainActor
 func handleRequestResponse(data: Data?,
                            response: URLResponse?,
                            error: Error?) -> StitchNetworkRequestResult {
@@ -106,7 +105,6 @@ func handleRequestResponse(data: Data?,
     // image
     if let image = UIImage(data: data) {
         // log("handleRequestResponse: had image")
-        image.accessibilityIdentifier = "Network Request Image"
         return .success((.image(image), headersAsJSON))
     }
 
@@ -140,219 +138,94 @@ func handleRequestResponse(data: Data?,
     }
 }
 
-// sets 'loading = false' on NR patch node,
-// and updates patch node with error / success etc.
-struct NetworkRequestCompleted: ProjectEnvironmentEvent {
-    let index: Int // loop index
-    let nodeId: NodeId
-    let thisRequestStartTime: TimeInterval
-    let result: StitchNetworkRequestResult
-
-    func handle(graphState: GraphState,
-                environment: StitchEnvironment) -> GraphResponse {
-
-        // log("NetworkRequestCompleted called")
-
-        // call fns to out handle the result.success or result.error
-        //        log("NetworkRequestCompleted handler: result: \(result)")
-
-        // Happens when a successful network request completes but the original network request node is no longer present (e.g. because it was
-        guard let node = graphState.getPatchNode(id: nodeId) else {
-            log("NetworkRequestCompleted: completed but could not find node \(nodeId)")
-            return .noChange
-        }
-
-        if case .success = result {
-
-            // log("NetworkRequestCompleted: thisRequestStartTime: \(thisRequestStartTime)")
-            // log("NetworkRequestCompleted: computedGraphState.networkRequestCompletedTimes was: \(computedGraphState.networkRequestCompletedTimes)")
-
-            var latestCompleted: TimeInterval? = graphState
-                .networkRequestCompletedTimes.get(.init(nodeId: nodeId, index: index))
-
-            // log("NetworkRequestCompleted: latestCompleted was: \(latestCompleted)")
-
-            if !latestCompleted.isDefined {
-                // log("NetworkRequestCompleted: latestCompleted.isDefined was not defined; will use thisRequestStartTime: \(thisRequestStartTime)")
-                graphState.networkRequestCompletedTimes[.init(nodeId: nodeId, index: index)] = thisRequestStartTime
-                latestCompleted = thisRequestStartTime
-                // log("NetworkRequestCompleted: computedGraphState.networkRequestCompletedTimes is now: \(computedGraphState.networkRequestCompletedTimes)")
-            }
-
-            // log("NetworkRequestCompleted: latestCompleted is now: \(latestCompleted)")
-
-            if let latestCompleted = latestCompleted,
-               thisRequestStartTime >= latestCompleted {
-                // log("NetworkRequestCompleted: thisRequestStartTime was greater than latestCompleted")
-                graphState.networkRequestCompletedTimes[.init(nodeId: nodeId, index: index)] = thisRequestStartTime
-            } else {
-                #if DEBUG
-                log("NetworkRequestCompleted: exiting early since this request was started earlier than the latest completed request")
-                #endif
-                return .noChange
-            }
-        }
-
+extension NetworkRequestNode {
+    // sets 'loading = false' on NR patch node,
+    // and updates patch node with error / success etc.
+    static func requestCompleted(type: UserVisibleType,
+                                 result: StitchNetworkRequestResult) -> MediaEvalOpResult {
         switch result {
 
         case .success(let x):
-            handleSuccessfulNetworkRequest(
-                index: index,
-                node: node,
+            return Self.handleSuccessfulNetworkRequest(
                 resource: x.0,
-                headers: x.1,
-                state: graphState)
+                headers: x.1)
 
         case .failure(let x):
-            graphState.handleFailedNetworkRequest(
-                index: index,
-                node: node,
+            return Self.handleFailedNetworkRequest(
+                type: type,
                 error: x)
         }
+    }
 
-        graphState.calculate(nodeId)
+    static func handleSuccessfulNetworkRequest(resource: RequestedResource,
+                                               headers: JSON) -> MediaEvalOpResult {
         
-        return .noChange
+        var value: PortValue
+        var media: GraphMediaValue?
+        
+        switch resource {
+            
+            // got a UIImage downloaded; needs to be put in
+        case (RequestedResource.image(let x)):
+            let id = UUID()
+            
+            // Eventually update media manager with new image
+            let mediaObjectLoaded = StitchMediaObject.image(x)
+            
+            value = .asyncMedia(AsyncMediaValue(id: id,
+                                                dataType: .computed,
+                                                label: "Network Request Image"))
+            media = .init(computedMedia: mediaObjectLoaded)
+            
+        case (RequestedResource.json(let x)):
+            value = .init(x)
+            
+        case (RequestedResource.text(let x)):
+            value = .string(.init(x))
+        }
+        
+        let outputs: PortValues = [
+            .bool(false), // loading
+            value, // results
+            .bool(false), // errored
+            defaultFalseJSON, // error
+            .json(headers.toStitchJSON), // headers
+        ]
+        
+        return .init(values: outputs,
+                     media: media)
     }
-}
 
-// TODO: simplify and extract helpers for this method and the failure handler
-@MainActor
-func handleSuccessfulNetworkRequest(index: Int,
-                                    node: PatchNode,
-                                    resource: RequestedResource,
-                                    headers: JSON,
-                                    state: GraphState) {
-
-    var value: PortValue
-    let nodeId: NodeId = node.id
-
-    switch resource {
-
-    // got a UIImage downloaded; needs to be put in
-    case (RequestedResource.image(let x)):
-        let id = UUID()
-
-        // Eventually update media manager with new image
-        let mediaObjectLoaded = StitchMediaObject.image(x)
-
-        value = .asyncMedia(AsyncMediaValue(id: id, 
-                                            dataType: .computed,
-                                            mediaObject: mediaObjectLoaded))
-
-    case (RequestedResource.json(let x)):
-        value = .init(x)
-
-    case (RequestedResource.text(let x)):
-        value = .string(.init(x))
+    private static func createErrorJSON(error: String) -> JSON {
+        JSON(key: "error", value: .string(.init(error)))
     }
 
-    let outputs: PortValuesList = node.outputs
-
-    var loadingLoop: PortValues = outputs.first ?? [boolDefaultFalse]
-    // retrieve the old values for the 'results' output:
-    var resultsLoop: PortValues = outputs[safe: 1] ?? [stringDefault]
-    var erroredLoop: PortValues = outputs[safe: 2] ?? [boolDefaultFalse]
-    var errorLoop: PortValues = outputs[safe: 3] ?? [defaultFalseJSON]
-    var headersLoop: PortValues = outputs[safe: 4] ?? [defaultFalseJSON]
-
-    // set it false again
-    loadingLoop[index] = .bool(false)
-    resultsLoop[index] = value
-    erroredLoop[index] = .bool(false)
-    errorLoop[index] = defaultFalseJSON
-    headersLoop[index] = .json(headers.toStitchJSON)
-
-    // // TODO: why does `node.outputsObservers.updateAllValues = ...` updates UI, but `node.outputs = ...` doesn't? Should we make `node.outputs` setter protected?
-
-    //    node.outputs = [
-    //        loadingLoop,
-    //        resultsLoop,
-    //        erroredLoop,
-    //        errorLoop,
-    //        headersLoop
-    //    ]
-    //
-
-    let newValues: PortValuesList = [
-        loadingLoop,
-        resultsLoop,
-        erroredLoop,
-        errorLoop,
-        headersLoop
-    ]
-
-    node.updateOutputsObservers(newValuesList: newValues)
-}
-
-@MainActor
-func createErrorJSON(error: String) -> JSON {
-    JSON(key: "error", value: .string(.init(error)))
-}
-
-extension GraphState {
-
-    @MainActor
-    func handleFailedNetworkRequest(index: Int,
-                                    node: PatchNode,
-                                    error: StitchNetworkRequestError) {
-
-        // TODO: pull out into a separate function that takes certain arguments,
-        // and returns the updated patch node
-        let outputs: PortValuesList = node.outputs
-
-        var loadingLoop: PortValues = outputs.first ?? [boolDefaultFalse]
-        var resultsLoop: PortValues = outputs[safe: 1] ?? [defaultFalseJSON]
-        var erroredLoop: PortValues = outputs[safe: 2] ?? [boolDefaultFalse]
-        var errorLoop: PortValues = outputs[safe: 3] ?? [defaultFalseJSON]
-        var headersLoop: PortValues = outputs[safe: 4] ?? [defaultFalseJSON]
-
+    static func handleFailedNetworkRequest(type: UserVisibleType,
+                                           error: StitchNetworkRequestError) -> MediaEvalOpResult {
         var nullResult: PortValue
 
-        if let existingResultValueAtIndex: PortValue = resultsLoop[safe: index] {
-            switch existingResultValueAtIndex {
-            case .json:
-                nullResult = defaultFalseJSON
-            case .asyncMedia:
-                nullResult = mediaDefault
-            case .string:
-                nullResult = stringDefault
-            // if we had some other port value here, then we messed something up...
-            default:
-                log("handleFailedNetworkRequest: unrecognized existingResultValueAtIndex")
-                nullResult = stringDefault
-            }
-        } else {
-            log("handleFailedNetworkRequest: could not retrieve index \(index) in resultsLoop: \(resultsLoop)")
+        switch type {
+        case .json:
+            nullResult = defaultFalseJSON
+        case .media:
+            nullResult = mediaDefault
+        case .string:
+            nullResult = stringDefault
+        // if we had some other port value here, then we messed something up...
+        default:
+            log("handleFailedNetworkRequest: unrecognized existingResultValueAtIndex")
             nullResult = stringDefault
         }
 
         // Set false again
-        loadingLoop[index] = .bool(false)
-        resultsLoop[index] = nullResult
-        erroredLoop[index] = .bool(true)
-        errorLoop[index] = .init(createErrorJSON(error: error.error))
-
-        // Headers for errors are null
-        headersLoop[index] = error.headers.map { PortValue.json(.init($0)) } ?? defaultFalseJSON
-
-        let newValues: PortValuesList = [
-            loadingLoop,
-            resultsLoop,
-            erroredLoop,
-            errorLoop,
-            headersLoop
+        let outputs: PortValues = [
+            .bool(false), // loading
+            nullResult, // results
+            .bool(true), // errored
+            .json(.init(createErrorJSON(error: error.error))), // error
+            .json(.init(error.headers ?? JSON())) // headers
         ]
 
-        // SEE NOTE IN `handleSuccessfulNetworkRequest` about `node.outputsObservers.updateAllValues` vs `node.outputs`
-        node.updateOutputsObservers(newValuesList: newValues)
-
-        //        node.outputs = [
-        //            loadingLoop,
-        //            resultsLoop,
-        //            erroredLoop,
-        //            errorLoop,
-        //            headersLoop
-        //        ]
+        return .init(from: outputs)
     }
 }

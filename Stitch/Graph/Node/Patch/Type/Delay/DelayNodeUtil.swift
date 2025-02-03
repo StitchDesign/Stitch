@@ -23,6 +23,7 @@ extension NodeTimerEphemeralObserver {
     func assignDelayedValueAction(timerId: UUID,
                                   node: NodeDelegate,
                                   value: PortValue,
+                                  media: GraphMediaValue?,
                                   loopIndex: Int,
                                   delayLength: Double,
                                   originalNodeType: UserVisibleType?) {
@@ -49,7 +50,8 @@ extension NodeTimerEphemeralObserver {
         }
         
         // Normal outputs if no media
-        guard let media = value.asyncMedia else {
+        guard value.asyncMedia != nil,
+              let mediaObject = media else {
             graph.recalculateGraph(outputValues: .init(from: [value]),
                                    nodeId: nodeId,
                                    loopIndex: loopIndex)
@@ -58,24 +60,21 @@ extension NodeTimerEphemeralObserver {
         
         // Create computed copy if there's media
         Task(priority: .userInitiated) { [weak node] in
-            guard let mediaCopy = try await media.mediaObject.createComputedCopy() else {
-                return
-            }
+//            guard let mediaCopy = try await mediaObject.createComputedCopy() else {
+//                return
+//            }
             
             // Mic media needs delayed assigned accordingly
-            if let mic = mediaCopy.mic {
+            if let mic = mediaObject.mediaObject.mic {
                 await MainActor.run { [weak mic] in
                     mic?.delegate.assignDelay(delayLength)
                 }
             }
             
-            let newGraphMedia = GraphMediaValue(id: media.id,
-                                                dataType: .computed,
-                                                mediaObject: mediaCopy)
-            
-            let newOutputs = [newGraphMedia.portValue]
+            let newOutputs = [mediaObject.portValue]
             
             await MainActor.run { [weak node] in
+                self.currentMedia = mediaObject
                 return node?.graphDelegate?.recalculateGraph(outputValues: .byIndex(newOutputs),
                                                              nodeId: nodeId,
                                                              loopIndex: loopIndex)
