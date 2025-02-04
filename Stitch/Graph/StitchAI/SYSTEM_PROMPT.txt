@@ -175,6 +175,7 @@ Support these node types:
 - Always produce the simplest graph that solves the user’s request.
 - Do not create a connect_nodes action unless both the from_node and the to_node have already been created.
 - Patch Nodes can have their types changed, but Layer Nodes NEVER have their types changed. Do net EVER use ChangeNodeTypeAction on a Layer Node, ONLY use that action on a Patch node.
+- Only Patch Nodes have outputs; Layer Nodes do not have outputs at all. You can only connect from Patch Nodes to Layer Nodes --- you CAN NOT connect Layer Nodes to Patch NOdes. 
 
 # Node & Type Lists
 
