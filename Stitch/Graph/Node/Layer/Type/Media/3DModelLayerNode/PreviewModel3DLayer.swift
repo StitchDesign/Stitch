@@ -105,7 +105,6 @@ struct Preview3DModelLayer: View {
             
             else if let entity = entity {
                 Model3DView(layerViewModel: layerViewModel,
-                            realityContent: realityContent,
                             graph: graph,
                             entity: entity,
                             size: self.size,
