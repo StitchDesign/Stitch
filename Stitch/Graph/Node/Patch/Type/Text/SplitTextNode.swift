@@ -36,17 +36,15 @@ func splitTextNode(id: NodeId,
 func splitTextEval(inputs: PortValuesList,
                    outputs: PortValuesList) -> PortValuesList {
 
-    let op: Operation = { (values: PortValues) -> PortValue in
-        let text: String = (values[safe: 0]?.getString?.string ?? .empty)
-        let token: String = (values[safe: 1]?.getString?.string ?? .empty)
-
-        if let first = text.split(separator: token).first {
-            log("splitTextEval: first: \(first)")
-            return .string(.init(String(first)))
-        } else {
-            return .string(.init(.empty))
-        }
+    // Note: if any input on this node has a loop, we only use the last index
+    guard let text = inputs[safe: 0]?.last?.getString?.string, // last value in first input
+          let token = inputs[safe: 1]?.last?.getString?.string // last value in second input
+    else {
+        return [[.string(.init(.empty))]]
     }
-
-    return resultsMaker(inputs)(op)
+    
+    let splitText: [String] = text.split(separator: token).map { String($0) }
+    return [
+        splitText.map { PortValue.string(.init($0))}
+    ]
 }
