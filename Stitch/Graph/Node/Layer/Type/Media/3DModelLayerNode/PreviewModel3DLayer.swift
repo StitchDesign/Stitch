@@ -219,7 +219,9 @@ struct ModelEntityLayerViewModifier: ViewModifier {
         
         return content
             .onDisappear {
-                realityContent.arView.scene.removeAnchor(self.anchorEntity)
+                if let entity = self.entity?.containerEntity {
+                    self.anchorEntity.removeChild(entity)
+                }
             }
             .onChange(of: realityContent.id, initial: true) {
                 if let anchorId = self.anchorEntityId,
