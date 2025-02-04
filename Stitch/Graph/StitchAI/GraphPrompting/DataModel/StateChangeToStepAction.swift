@@ -54,15 +54,22 @@ extension StitchDocumentViewModel {
     func maybeCreateLLMStepConnectionAdded(input: InputCoordinate,
                                            output: OutputCoordinate) {
             
-        log("maybeCreateLLMStepConnectionAdded: input: \(input)")
-        log("maybeCreateLLMStepConnectionAdded: output: \(output)")
+        
         if self.llmRecording.isRecording,
            !self.llmRecording.isApplyingActions {
+            
+            log("maybeCreateLLMStepConnectionAdded: input: \(input)")
+            log("maybeCreateLLMStepConnectionAdded: output: \(output)")
+            
+            guard let fromPort = output.portType.portId else {
+                log("maybeCreateLLMStepConnectionAdded: output coordinate was not portId ?")
+                return
+            }
                         
             self.llmRecording.actions.append(.connectNodes(.init(
                 port: input.portType,
                 toNodeId: input.nodeId,
-                fromPort: output.portType,
+                fromPort: fromPort,
                 fromNodeId: output.nodeId)))
         }
     }
