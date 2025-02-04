@@ -86,6 +86,7 @@ extension NodeDefinition {
     static var kind: NodeKind { Self.graphKind.kind }
     static var defaultTitle: String { Self.kind.getDisplayTitle(customName: nil) }
 
+    // TODO: separate functions for creating Patch vs Layer nodes; Layer nodes themselves never take canvas-position
     @MainActor
     static func createViewModel(id: NodeId = NodeId(),
                                 position: CGPoint,
