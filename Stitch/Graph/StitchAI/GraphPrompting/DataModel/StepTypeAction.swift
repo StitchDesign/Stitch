@@ -129,9 +129,14 @@ extension [StepTypeAction] {
                 }
             
             case .connectNodes(let x):
+                let originNode = createdNodes.get(x.fromNodeId)
+                let destinationNode = createdNodes.get(x.toNodeId)
+                
                 // the to-node and from-node must exist
-                guard createdNodes.get(x.fromNodeId).isDefined,
-                      createdNodes.get(x.toNodeId).isDefined else {
+                guard destinationNode.isDefined,
+                      let originNode = originNode,
+                      // For now, the destination node cannot be a layer node
+                      !originNode.asNodeKind.isLayer else {
                     log("areLLMStepsValid: Invalid .connectNodes: \(x)")
                     return false
                 }
