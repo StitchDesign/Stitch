@@ -172,8 +172,8 @@ extension StitchDocumentViewModel {
             createdNodesAtThisLevel.forEach { createdNode in
                 createdNode.getAllCanvasObservers().enumerated().forEach { canvasItemAndIndex in
                     let newPosition =  CGPoint(
-                        x: self.newNodeCenterLocation.x + (CGFloat(depthLevel) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER),
-                        y: self.newNodeCenterLocation.y + (CGFloat(canvasItemAndIndex.offset) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER/2) + (CGFloat(depthLevelIndex) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER/2)
+                        x: self.viewPortCenter.x + (CGFloat(depthLevel) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER),
+                        y: self.viewPortCenter.y + (CGFloat(canvasItemAndIndex.offset) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER/2) + (CGFloat(depthLevelIndex) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER/2)
                     )
                     canvasItemAndIndex.element.position = newPosition
                     canvasItemAndIndex.element.previousPosition = newPosition
