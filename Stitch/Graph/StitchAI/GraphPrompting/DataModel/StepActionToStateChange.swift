@@ -33,9 +33,11 @@ extension StitchDocumentViewModel {
         // Set true whenever we are
         self.llmRecording.isApplyingActions = true
         
+        // TODO: move this logic to the `positioAINodes` function and use it only as
+        // NOTE: this positioning is
         let newCenter = CGPoint(
-            x: self.newNodeCenterLocation.x + (CGFloat(canvasItemsAdded) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER),
-            y: self.newNodeCenterLocation.y)
+            x: self.viewPortCenter.x + (CGFloat(canvasItemsAdded) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER),
+            y: self.viewPortCenter.y)
                 
         switch action {
         case .addNode(let x):
