@@ -22,8 +22,8 @@ extension LayersSidebarViewModel {
         }
         
         // Create node view model for the new Layer Group
-        
         let newNode = Layer.group.layerGraphNode.createViewModel(
+            // TODO: remove the misleading `position` parameter; a layer node's inputs and outputs can have canvas-position but never the layer node itself
             position: state.newNodeCenterLocation,
             zIndex: graph.highestZIndex + 1,
             graphDelegate: graph)
@@ -40,7 +40,6 @@ extension LayersSidebarViewModel {
             return
         }
         
-//        newNode.adjustPosition(center: state.newNodeCenterLocation)
         newNode.graphDelegate = graph // redundant?
                 
         // Add to state

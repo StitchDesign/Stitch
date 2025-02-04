@@ -330,8 +330,10 @@ extension GraphState {
         self.resetSelectedCanvasItems()
         self.graphUI.insertNodeMenuState.searchResults = InsertNodeMenuState.allSearchOptions
         
+        // TODO: should we just reset the entire insertNodeMenuState?
         withAnimation(.INSERT_NODE_MENU_TOGGLE_ANIMATION) {
             self.graphUI.insertNodeMenuState.show = false
+            self.graphUI.insertNodeMenuState.doubleTapLocation = nil
         }
         
         self.graphUI.isFullScreenMode = false
