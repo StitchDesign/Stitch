@@ -17,7 +17,6 @@ struct EditBeforeSubmitModalView: View {
         recordingState.promptState.prompt
     }
     
-//    var actions: [StepTypeAction] {
     var recordingStateActions: [StepTypeAction] {
         recordingState.actions
     }
@@ -44,19 +43,27 @@ struct EditBeforeSubmitModalView: View {
             }
             .listStyle(.plain)
             
+            if let invalidReason = recordingState.actionsError {
+                StitchTextView(string: "Error: " + invalidReason.value,
+                               fontColor: .red)
+                .padding()
+                .border(.red)
+                .padding()
+            }
+            
             buttons
                 .padding(.bottom)
         }
-        .frame(maxWidth: 360, maxHeight: 600)
+        .frame(maxWidth: 360, maxHeight: .infinity)
         .background(.ultraThinMaterial)
         .cornerRadius(16)
         .padding()
         .onChange(of: self.recordingStateActions) { oldValue, newValue in
-            log(".onChange(of: self.recordingStateActions): newValue: \(newValue)")
+            // log(".onChange(of: self.recordingStateActions): newValue: \(newValue)")
             self.actions = newValue
         }
         .onChange(of: self.actions) { oldValue, newValue in
-            log(".onChange(of: self.actions): newValue: \(newValue)")
+            // log(".onChange(of: self.actions): newValue: \(newValue)")
             dispatch(LLMActionsUpdatedByModal(newActions: newValue))
         }
     }
@@ -131,26 +138,36 @@ struct LLMActionCorrectionView: View {
                     LLMNodeIOPortTypeView(nodeName: nodeName,
                                           port: .keyPath(x.port.asFullInput),
                                           generalLabel: "Layer Input")
+                } else {
+                    StitchTextView(string: "No Patch/Layer found for Node \(x.nodeId.debugFriendlyId)")
                 }
             
             case .connectNodes(let x):
                 if let fromNodeName = nodeIdToNameMapping.get(x.fromNodeId) {
                     StitchTextView(string: "From Node: \(fromNodeName.asNodeKind.description) \(x.fromNodeId.debugFriendlyId)")
                     LLMNodeIOPortTypeView(nodeName: fromNodeName,
-                                          port: x.fromPort,
+                                          port: .portIndex(x.fromPort),
                                           generalLabel: "From Port")
+                } else {
+                    StitchTextView(string: "No Patch/Layer found for From Node \(x.fromNodeId.debugFriendlyId)")
                 }
+                
                 if let toNodeName = nodeIdToNameMapping.get(x.toNodeId) {
                     StitchTextView(string: "To Node: \(toNodeName.asNodeKind.description) \(x.toNodeId.debugFriendlyId)")
                     LLMNodeIOPortTypeView(nodeName: toNodeName,
                                           port: x.port,
                                           generalLabel: "To Port")
+                } else {
+                    StitchTextView(string: "No Patch/Layer found for To Node \(x.toNodeId.debugFriendlyId)")
                 }
                 
             case .changeNodeType(let x):
                 if let nodeName = nodeIdToNameMapping.get(x.nodeId) {
                     StitchTextView(string: "Node: \(nodeName.asNodeKind.description) \(x.nodeId.debugFriendlyId)")
+                } else {
+                    StitchTextView(string: "No Patch/Layer found for Node \(x.nodeId.debugFriendlyId)")
                 }
+                
                 StitchTextView(string: "NodeType: \(x.nodeType.display)")
                 
             case .setInput(let x):
@@ -159,6 +176,8 @@ struct LLMActionCorrectionView: View {
                     LLMNodeIOPortTypeView(nodeName: nodeName,
                                           port: x.port,
                                           generalLabel: "Input")
+                } else {
+                    StitchTextView(string: "No Patch/Layer found for Node \(x.nodeId.debugFriendlyId)")
                 }
                 StitchTextView(string: "NodeType: \(x.nodeType.display)")
                 StitchTextView(string: "Value: \(x.value.display)")
