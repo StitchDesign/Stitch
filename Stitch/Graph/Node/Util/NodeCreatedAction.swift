@@ -31,11 +31,10 @@ extension GraphState {
 }
 
 extension StitchDocumentViewModel {
+    
+    /// Only for insert-node-menu creation of nodes; shortcut key creation of nodes uses `viewPortCenter`
     @MainActor
     var newNodeCenterLocation: CGPoint {
-        // `state.graphUI.center` is always proper center
-        // self.adjustedDoubleTapLocation(self.localPosition) ?? self.graphUI.center(self.localPosition, graphScale: self.graph.graphMovement.zoomData.zoom)
-        
         if let doubleTapLocation = self.graphUI.doubleTapLocation {
             log("newNodeCenterLocation: had doubleTapLocation: \(doubleTapLocation)")
             return adjustPositionToMultipleOf(doubleTapLocation)
@@ -83,7 +82,7 @@ extension StitchDocumentViewModel {
         let localPosition = self.graphMovement.localPosition
         let scale = self.graphMovement.zoomData.final
         let viewPortFrame = self.graphUI.frame
-            
+        
         // Apply scale to the viewPort-centering
         let scaledViewPortFrame = CGPoint(
             x: viewPortFrame.width/2 * 1/scale,
