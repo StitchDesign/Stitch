@@ -138,37 +138,49 @@ extension StitchDocumentViewModel {
             }
         }
         
+        // no depth map if no connections?
         let (depthMap, hasCycle) = adjacency.computeDepth()
-        if hasCycle {
+        
+        guard let depthMap = depthMap,
+              !hasCycle else {
             // TODO: JAN 31: if the model created a cycle... should we retry? or is that okay?
-            fatalErrorIfDebug("")
+            fatalErrorIfDebug("Had cycle or could not create depth-map")
             return
-        } else {
-            
-            // TODO: should also look at layer inputs? Note: layer inputs are always a leaf
-            let createdNodes = nodesCreatedByLLMActions(self.llmRecording.actions)
-            createdNodes.forEach {
-                if let depth = depthMap?.get($0),
-                   let createdNode = self.graph.getNodeViewModel($0) {
-                    
-                    createdNode.getAllCanvasObservers().enumerated().forEach { k in
-                        let canvasItem: CanvasItemViewModel = k.element
-                        
-                        canvasItem.position =  CGPoint(
-                            x: self.newNodeCenterLocation.x + (CGFloat(depth) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER),
-                            
-                            y: self.newNodeCenterLocation.y + (CGFloat(k.offset) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER/2)
-                        )
-                        
-                        canvasItem.previousPosition = canvasItem.position
-                    }
-                    
-                } else {
-                    log("No depth or node for created node id \($0); depthMap: \(depthMap)")
-                } // if / else
-                
-            } // forEach
         }
+        
+        
+        
+        let depthLevels = depthMap.values.sorted().toOrderedSet
+
+        let createdNodes = nodesCreatedByLLMActions(self.llmRecording.actions)
+        
+        // Iterate by depth-level, so that nodes at same depth (e.g. 0) can be y-offset from each other
+        depthLevels.enumerated().forEach {
+            let depthLevel: Int = $0.element
+            let depthLevelIndex: Int = $0.offset
+
+            // TODO: just rewrite the adjacency logic to be a mapping of [Int: [UUID]] instead of [UUID: Int]
+            // Find all the created-nodes at this depth-level,
+            // and adjust their positions
+            let createdNodesAtThisLevel = createdNodes.compactMap {
+                if depthMap.get($0) == depthLevel {
+                    return self.graph.getNodeViewModel($0)
+                }
+                return nil
+            }
+            
+            createdNodesAtThisLevel.forEach { createdNode in
+                createdNode.getAllCanvasObservers().enumerated().forEach { canvasItemAndIndex in
+                    let newPosition =  CGPoint(
+                        x: self.newNodeCenterLocation.x + (CGFloat(depthLevel) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER),
+                        y: self.newNodeCenterLocation.y + (CGFloat(canvasItemAndIndex.offset) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER/2) + (CGFloat(depthLevelIndex) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER/2)
+                    )
+                    canvasItemAndIndex.element.position = newPosition
+                    canvasItemAndIndex.element.previousPosition = newPosition
+                }
+            }
+        }
+    
     }
     
     @MainActor
@@ -186,7 +198,6 @@ extension StitchDocumentViewModel {
             self.graph.deleteNode(id: $0,
                                    willDeleteLayerGroupChildren: true)
         }
-        
         // Apply the LLM-actions (model-generated and user-augmented) to the graph
         self.validateAndApplyActions(actions)
         
@@ -202,8 +213,6 @@ extension StitchDocumentViewModel {
         }
     }
 }
-
-
 
 // Might not need this anymore ?
 // Also overlaps with `StitchAIPromptState` ?
