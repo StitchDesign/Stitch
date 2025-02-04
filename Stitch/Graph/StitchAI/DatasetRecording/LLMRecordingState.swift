@@ -37,6 +37,10 @@ struct LLMRecordingState: Equatable {
     // Do not create LLMActions while we are applying LLMActions
     var isApplyingActions: Bool = false
     
+    // Error from validating or applying the LLM actions;
+    // Note: we can actually have several, but only display one at a time
+    var actionsError: LLMActionsInvalidMessage?
+    
     var attempts: Int = 0
     
     static let maxAttempts: Int = 3
@@ -51,10 +55,7 @@ struct LLMRecordingState: Equatable {
                 if case let .addNode(x) = action {
                     acc.updateValue(x.nodeName, forKey: x.nodeId)
                 }
-                
-                log("LLMRecordingState: nodeIdToNameMapping: \(acc)")
             } // forEach
-            
             return self.nodeIdToNameMapping = acc
         }
     }
@@ -74,72 +75,58 @@ struct LLMRecordingState: Equatable {
     
 }
 
-extension StitchDocumentViewModel {
-
-    func nodesCreatedByLLMActions(_ actions: [StepTypeAction]) -> IdSet {
-        
-        let createdNodes = actions.reduce(into: IdSet()) { partialResult, step in
+extension [StepTypeAction] {
+    func nodesCreatedByLLMActions() -> IdSet {
+        let createdNodes = self.reduce(into: IdSet()) { partialResult, step in
             if case let .addNode(x) = step {
                 partialResult.insert(x.nodeId)
             }
         }
-        
-        log("StitchDocumentViewModel: wipeNodesCreatedFromLLMActions: createdNodes: \(createdNodes)")
-        
+        log("nodesCreatedByLLMActions: createdNodes: \(createdNodes)")
         return createdNodes
     }
+}
+
+extension StitchDocumentViewModel {
     
     @MainActor
     func validateAndApplyActions(_ actions: [StepTypeAction]) {
         
-        var canvasItemsAdded = 0
+        // Wipe old error reason
+        self.llmRecording.actionsError = nil
         
         // Are these steps valid?
         // invalid = e.g. tried to create a connection for a node before we created that node
-        if !actions.areLLMStepsValid() {
-            // immediately enter correction-mode: one of the actions, or perhaps the ordering, was incorrect
-            // TODO: JAN 31: enter correction-mode for these parsed-step
+    
+        if let invalidReason = actions.areLLMStepsValid() {
             log("validateAndApplyActions: will show edit modal: invalid actions: \(actions)")
+            // immediately enter correction-mode: one of the actions, or perhaps the ordering, was incorrect
+            self.llmRecording.actionsError = invalidReason
             self.startLLMAugmentationMode()
             return
         }
         
         for action in actions {
-            if let _canvasItemsAdded = self.applyAction(
-                action,
-                canvasItemsAdded: canvasItemsAdded) {
-                
-                canvasItemsAdded = _canvasItemsAdded
-            } else {
-                // immediately enter correction-mode: we were not able to apply one of the actions
-                log("validateAndApplyActions: will show edit modal: could not appply action: \(action)")
-                // TODO: should we also remove the action that could not be parsed?
+            // We may also encounter
+            if let invalidReason = self.applyAction(action) {
+                self.llmRecording.actionsError = invalidReason
                 self.startLLMAugmentationMode()
                 return
             }
         }
         
-        // Only adjust node positions if we were successful
+        // Only adjust node positions if actions were valid and successfully applied
         self.positionAIGeneratedNodes()
         
         // Write to disk ONLY IF WE WERE SUCCESSFUL
         self.encodeProjectInBackground()
     }
     
+    
     @MainActor
     func positionAIGeneratedNodes() {
         
-        let adjacency = AdjacencyCalculator()
-        
-        // Assumes actions already validated and applicable
-        self.llmRecording.actions.forEach { action in
-            if case let .connectNodes(x) = action {
-                adjacency.addEdge(from: x.fromNodeId, to: x.toNodeId)
-            }
-        }
-        
-        // no depth map if no connections?
-        let (depthMap, hasCycle) = adjacency.computeDepth()
+        let (depthMap, hasCycle) = calculateAINodesAdjacency(self.llmRecording.actions)
         
         guard let depthMap = depthMap,
               !hasCycle else {
@@ -147,12 +134,10 @@ extension StitchDocumentViewModel {
             fatalErrorIfDebug("Had cycle or could not create depth-map")
             return
         }
-        
-        
-        
+                        
         let depthLevels = depthMap.values.sorted().toOrderedSet
 
-        let createdNodes = nodesCreatedByLLMActions(self.llmRecording.actions)
+        let createdNodes = self.llmRecording.actions.nodesCreatedByLLMActions()
         
         // Iterate by depth-level, so that nodes at same depth (e.g. 0) can be y-offset from each other
         depthLevels.enumerated().forEach {
@@ -166,6 +151,7 @@ extension StitchDocumentViewModel {
                 if depthMap.get($0) == depthLevel {
                     return self.graph.getNodeViewModel($0)
                 }
+                log("Could not get depth level for \($0.debugFriendlyId)")
                 return nil
             }
             
@@ -173,7 +159,7 @@ extension StitchDocumentViewModel {
                 createdNode.getAllCanvasObservers().enumerated().forEach { canvasItemAndIndex in
                     let newPosition =  CGPoint(
                         x: self.viewPortCenter.x + (CGFloat(depthLevel) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER),
-                        y: self.viewPortCenter.y + (CGFloat(canvasItemAndIndex.offset) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER/2) + (CGFloat(depthLevelIndex) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER/2)
+                        y: self.viewPortCenter.y + (CGFloat(canvasItemAndIndex.offset) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER) + (CGFloat(depthLevelIndex) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER)
                     )
                     canvasItemAndIndex.element.position = newPosition
                     canvasItemAndIndex.element.previousPosition = newPosition
@@ -193,11 +179,12 @@ extension StitchDocumentViewModel {
         // Delete patches and layers that were created from actions;
         
         // NOTE: this llmRecording.actions will already reflect any edits the user has made to the list of actions
-        let createdNodes = nodesCreatedByLLMActions(self.llmRecording.actions)
+        let createdNodes = self.llmRecording.actions.nodesCreatedByLLMActions()
         createdNodes.forEach {
             self.graph.deleteNode(id: $0,
                                    willDeleteLayerGroupChildren: true)
         }
+        
         // Apply the LLM-actions (model-generated and user-augmented) to the graph
         self.validateAndApplyActions(actions)
         

@@ -27,34 +27,27 @@ extension StitchDocumentViewModel {
     // fka `handleLLMStepAction`
     // returns nil = failed, and should retry
     @MainActor
-    func applyAction(_ action: StepTypeAction,
-                     canvasItemsAdded: Int) -> Int? {
+    func applyAction(_ action: StepTypeAction) -> LLMActionsInvalidMessage? {
         
         // Set true whenever we are
         self.llmRecording.isApplyingActions = true
-        
-        // TODO: move this logic to the `positioAINodes` function and use it only as
-        // NOTE: this positioning is
-        let newCenter = CGPoint(
-            x: self.viewPortCenter.x + (CGFloat(canvasItemsAdded) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER),
-            y: self.viewPortCenter.y)
-                
+                        
         switch action {
         case .addNode(let x):
             guard let _ = self.nodeCreated(choice: x.nodeName.asNodeKind,
-                                           nodeId: x.nodeId,
-                                           center: newCenter) else {
+                                           nodeId: x.nodeId) else {
+                log("applyAction: could not apply addNode")
                 self.llmRecording.isApplyingActions = false
-                return nil
+                return .init("Applying Action: could not create node \(x.nodeId.debugFriendlyId) \(x.nodeName)")
             }
             self.llmRecording.isApplyingActions = false
-            return canvasItemsAdded + 1
             
         case .addLayerInput(let x):
             guard let node = self.graph.getNode(x.nodeId),
                   let layerNode = node.layerNode else {
+                log("applyAction: could not apply addLayerInput")
                 self.llmRecording.isApplyingActions = false
-                return nil
+                return .init("Applying Action: node \(x.nodeId.debugFriendlyId) did not exist in state or was not a layer")
             }
             
             let layerInputType = x.port.asFullInput
@@ -62,33 +55,30 @@ extension StitchDocumentViewModel {
 
             self.graph.layerInputAddedToGraph(node: node,
                                               input: input,
-                                              coordinate: layerInputType,
-                                              manualLLMStepCenter: newCenter)
+                                              coordinate: layerInputType)
             self.llmRecording.isApplyingActions = false
-            return canvasItemsAdded + 1
         
         case .connectNodes(let x):
             let edge: PortEdgeData = PortEdgeData(
-                from: .init(portType: x.fromPort, nodeId: x.fromNodeId),
+                from: .init(portType: .portIndex(x.fromPort), nodeId: x.fromNodeId),
                 to: .init(portType: x.port, nodeId: x.toNodeId))
             
             let _ = graph.edgeAdded(edge: edge)
             self.llmRecording.isApplyingActions = false
-            return canvasItemsAdded
         
         case .changeNodeType(let x):
             // NodeType etc. for this patch was already validated in `[StepTypeAction].areValidLLMSteps`
             let _ = self.graph.nodeTypeChanged(nodeId: x.nodeId,
                                                newNodeType: x.nodeType)
             self.llmRecording.isApplyingActions = false
-            return canvasItemsAdded
         
         case .setInput(let x):
             let inputCoordinate = InputCoordinate(portType: x.port,
                                                   nodeId: x.nodeId)
             guard let input = self.graph.getInputObserver(coordinate: inputCoordinate) else {
+                log("applyAction: could not apply setInput")
                 self.llmRecording.isApplyingActions = false
-                return nil
+                return .init("Applying Action: could not retrieve input \(inputCoordinate)")
             }
             
             // Use the common input-edit-committed function, so that we remove edges, block or unblock fields, etc.
@@ -98,9 +88,9 @@ extension StitchDocumentViewModel {
                                           wasDropdown: false)
             
             self.llmRecording.isApplyingActions = false
-            return canvasItemsAdded
         }
-        
+
+        return nil // nil = no errors or invalidations
     }
     
     @MainActor
