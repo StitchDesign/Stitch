@@ -30,7 +30,7 @@ extension PortValue {
         }
     }
 
-    // Some PortValues (.anchoring, .point3D etc.)
+    // Some PortValues (.anchoring, .point3D, .bool etc.)
     // are never edited via direct text input.
     // Instead, they use a drop-down,
     // or aren't editable at all.
@@ -45,6 +45,9 @@ extension PortValue {
         case
             // uses adjustment bar
             .color,
+
+            // uses a button
+            .bool,
 
             // multifield values edited via
             // separate number/layerDimension fields
