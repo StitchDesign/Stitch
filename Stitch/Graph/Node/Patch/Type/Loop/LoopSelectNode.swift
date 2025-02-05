@@ -9,83 +9,109 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-@MainActor
-func loopSelectNode(id: NodeId,
-                    position: CGSize = .zero,
-                    zIndex: Double = 0) -> PatchNode {
-
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Input", [.string(.init(""))]), // 0
-        ("Index Loop", [.number(0)]) // 1
-    )
-
-    // loop Builder has TWO outputs:
-    // 1. indices: ALWAYS a loop of ints, where each int is just an index
-    // 2. values: a loop of the user-chosen value-type (here: color)
-
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        // it's called index, but it's actually the loop that's coming out
-        values:
-            ("Loop", [.string(.init(""))]),
-        ("Index", [.number(0)]))
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .loopSelect,
-        userVisibleType: .string,
-        inputs: inputs,
-        outputs: outputs)
-}
-
-func loopSelectEval(inputs: PortValuesList,
-                    outputs: PortValuesList) -> PortValuesList {
-
-    // operates at the level of loops (rather than 'value-at-index of a loop'),
-    // and so we can't use op, etc.
-
-    let valueLoop: PortValues = inputs.first!
-    let indexLoop: PortValues = inputs[1]
-
-    let longestLoopLength: Int = getLongestLoopLength(inputs)
-    let adjustedValueLoop = lengthenArray(loop: valueLoop, length: longestLoopLength)
-    let adjustedIndexLoop = lengthenArray(loop: indexLoop, length: longestLoopLength)
-
-    // The Index Loop input's values could be [7, 8, 9],
-    // i.e. indices we don't have;
-    // so we mod those values by the length of the original,
-    // unextended valueLoop.
-    let valueLoopLength = valueLoop.count
-
-    //                log("loopSelectEval: longestLoopLength: \(longestLoopLength)")
-    //                log("loopSelectEval: valueLoop: \(valueLoop)")
-    //                log("loopSelectEval: indexLoop: \(indexLoop)")
-    //                log("loopSelectEval: adjustedValueLoop: \(adjustedValueLoop)")
-    //                log("loopSelectEval: adjustedIndexLoop: \(adjustedIndexLoop)")
-    //                log("loopSelectEval: valueLoopLength: \(valueLoopLength)")
-
-    var outputLoop: PortValues = adjustedIndexLoop
-        .map { Int($0.getNumber!) }
-        .asLoopFriendlyIndices(valueLoopLength)
-        //            .asLoopInsertFriendlyIndices(valueLoopLength)
-        //            .map { adjustedValueLoop[$0 % valueLoopLength] }
-        .map { adjustedValueLoop[$0] }
-
-    //                log("loopSelectEval: outputLoop: \(outputLoop)")
-    //                log("loopSelectEval: outputLoop.asLoopIndices: \(outputLoop.asLoopIndices)")
-
-    let outputLoopCount = outputLoop.count
-    let indexLoopCount = indexLoop.count
-
-    // Outputs cannot be longer than index-loop input
-    outputLoop = outputLoop.dropLast(outputLoopCount - indexLoopCount)
-
-    return [outputLoop, outputLoop.asLoopIndices]
+struct LoopSelectNode: PatchNodeDefinition {
+    static let patch: Patch = .loopSelect
+    
+    private static let _defaultUserVisibleType: UserVisibleType = .string
+    
+    // overrides protocol
+    static let defaultUserVisibleType: UserVisibleType? = Self._defaultUserVisibleType
+    
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(inputs: [
+            .init(label: "Input",
+                  defaultType: Self._defaultUserVisibleType),
+            .init(label: "Index Loop",
+                  staticType: .number)
+        ],
+              outputs: [
+                .init(label: "Loop", type: Self._defaultUserVisibleType),
+                .init(label: "Index", type: .number)
+              ])
+    }
+    
+    static func createEphemeralObserver() -> NodeEphemeralObservable? {
+        MediaReferenceObserver()
+    }
+    
+    @MainActor
+    static func evaluate(node: NodeViewModel) -> EvalResult? {
+        let inputs = node.inputs
+        let defaultOutputs = node.defaultOutputs
+        
+        guard //let mediaObserver = node.ephemeralObservers?.first as? MediaReferenceObserver,
+              let valueLoop: PortValues = inputs.first,
+              let indexLoop: PortValues = inputs[safe: 1] else {
+            fatalErrorIfDebug()
+            return .init(outputsValues: [defaultOutputs])
+        }
+        
+        // operates at the level of loops (rather than 'value-at-index of a loop'),
+        // and so we can't use op, etc.
+        
+        let longestLoopLength: Int = getLongestLoopLength(inputs)
+        let adjustedValueLoop = lengthenArray(loop: valueLoop, length: longestLoopLength)
+        let adjustedIndexLoop = lengthenArray(loop: indexLoop, length: longestLoopLength)
+        
+        // The Index Loop input's values could be [7, 8, 9],
+        // i.e. indices we don't have;
+        // so we mod those values by the length of the original,
+        // unextended valueLoop.
+        let valueLoopLength = valueLoop.count
+        
+        let indexLoopCount = indexLoop.count
+        
+        // Match output loop count with indexLoopCount. We pass in fake values to match media observers with output loop count.
+        let fakeValuesLoop: PortValues = (0..<indexLoopCount)
+            .map { PortValue.number(Double($0)) }
+        
+        return node.loopedEval(MediaReferenceObserver.self,
+                               inputsValuesList: [fakeValuesLoop]) { _, mediaObserver, loopIndex in
+            guard let inputLoopIndex = adjustedIndexLoop[safe: loopIndex]?.getInt else {
+                return MediaEvalOpResult(from: defaultOutputs)
+            }
+            
+            // Protects divide by 0
+            guard valueLoopLength != 0 else {
+                fatalErrorIfDebug()
+                return .init(from: defaultOutputs)
+            }
+            
+            // Use mod to wrap selected index if input exceeds length
+            var modInputIndex = inputLoopIndex % valueLoopLength
+            
+            // Use positive index if mod creates negative result
+            if modInputIndex < 0 {
+                modInputIndex += valueLoopLength
+            }
+            
+            guard let value = adjustedValueLoop[safe: modInputIndex] else {
+                return MediaEvalOpResult(from: defaultOutputs)
+            }
+            
+            return Self.createMediaEvalOp(value: value,
+                                          selectedLoopIndex: modInputIndex,
+                                          outputLoopIndex: loopIndex,
+                                          node: node)
+        }
+                               .createPureEvalResult(node: node)
+    }
+    
+    @MainActor
+    private static func createMediaEvalOp(value: PortValue,
+                                          selectedLoopIndex: Int,
+                                          outputLoopIndex: Int,
+                                          node: NodeViewModel) -> MediaEvalOpResult {
+        let outputs = [value, .number(Double(outputLoopIndex))]
+        if value.asyncMedia != nil,
+           let mediaObject = node.getInputMediaValue(portIndex: 0,
+                                                     loopIndex: selectedLoopIndex) {
+            return .init(values: outputs,
+                         media: mediaObject)
+        }
+        
+        return MediaEvalOpResult(from: outputs)
+    }
 }
 
 extension Double {
