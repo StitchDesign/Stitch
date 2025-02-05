@@ -140,9 +140,10 @@ extension StitchDocumentViewModel {
         let createdNodes = self.llmRecording.actions.nodesCreatedByLLMActions()
         
         // Iterate by depth-level, so that nodes at same depth (e.g. 0) can be y-offset from each other
-        depthLevels.enumerated().forEach {
-            let depthLevel: Int = $0.element
-            let depthLevelIndex: Int = $0.offset
+//        depthLevels.enumerated().forEach {
+        depthLevels.forEach {
+            let depthLevel: Int = $0// .element
+//            let depthLevelIndex: Int = $0.offset
 
             // TODO: just rewrite the adjacency logic to be a mapping of [Int: [UUID]] instead of [UUID: Int]
             // Find all the created-nodes at this depth-level,
@@ -155,12 +156,18 @@ extension StitchDocumentViewModel {
                 return nil
             }
             
-            createdNodesAtThisLevel.forEach { createdNode in
+            createdNodesAtThisLevel.enumerated().forEach { x in
+                let createdNode = x.element
+                let createdNodeIndexAtThisDepthLevel = x.offset
+                log("createdNode.id: \(createdNode.id)")
+                log("createdNodeIndexAtThisDepthLevel: \(createdNodeIndexAtThisDepthLevel)")
                 createdNode.getAllCanvasObservers().enumerated().forEach { canvasItemAndIndex in
                     let newPosition =  CGPoint(
                         x: self.viewPortCenter.x + (CGFloat(depthLevel) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER),
-                        y: self.viewPortCenter.y + (CGFloat(canvasItemAndIndex.offset) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER) + (CGFloat(depthLevelIndex) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER)
+                        y: self.viewPortCenter.y + (CGFloat(canvasItemAndIndex.offset) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER) + (CGFloat(createdNodeIndexAtThisDepthLevel) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER)
                     )
+                    log("canvasItemAndIndex.element.id: \(canvasItemAndIndex.element.id)")
+                    log("newPosition: \(newPosition)")
                     canvasItemAndIndex.element.position = newPosition
                     canvasItemAndIndex.element.previousPosition = newPosition
                 }
