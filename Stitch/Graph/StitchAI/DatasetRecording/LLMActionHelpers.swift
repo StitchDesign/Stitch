@@ -79,9 +79,9 @@ struct SubmitLLMActionsToSupabase: StitchDocumentEvent {
                 state.llmRecording = .init()
             }
             
-        } // Task
+        }
         
-    } // handle
+    }
 }
 
 extension [StepTypeAction] {
