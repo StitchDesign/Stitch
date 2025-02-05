@@ -130,9 +130,9 @@ extension StitchDocumentViewModel {
         }
         
         // Only open the Edit Modal if we were in Augment mode
-        if currentMode == .augmentation {
+//        if currentMode == .augmentation {
             dispatch(ShowLLMEditModal())
-        }
+//        }
     }
 }
 
