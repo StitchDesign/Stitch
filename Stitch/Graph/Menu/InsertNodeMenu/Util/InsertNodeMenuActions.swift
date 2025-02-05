@@ -15,10 +15,9 @@ import StitchSchemaKit
 struct ToggleInsertNodeMenu: GraphUIEvent {
     func handle(state: GraphUIState) {
         log("ToggleInsertNodeMenu called")
-        if !state.insertNodeMenuState.menuAnimatingToNode {
-            state.toggleInsertNodeMenu()
-            state.doubleTapLocation = nil
-        }
+
+        state.toggleInsertNodeMenu()
+        state.doubleTapLocation = nil
     }
 }
 
@@ -56,17 +55,7 @@ extension GraphUIState {
             self.insertNodeMenuState.activeSelection = InsertNodeMenuState.startingActiveSelection
         }
 
-        // Only animate the properties relevant to animation
-        
-        // `withAnimation` still seems to cause view to scroll
-        
-        withAnimation(.INSERT_NODE_MENU_TOGGLE_ANIMATION) {
-            self.insertNodeMenuState.show = showMenu
-
-            // whenever we toggle (open or close) the menu,
-            // set `menuAnimating = false`
-            self.insertNodeMenuState.menuAnimatingToNode = false
-        }
+        self.insertNodeMenuState.show = showMenu
     }
 }
 
@@ -79,11 +68,7 @@ struct CloseAndResetInsertNodeMenu: GraphUIEvent {
     func handle(state: GraphUIState) {
         // log("CloseAndResetInsertNodeMenu called")
 
-        if !state.insertNodeMenuState.menuAnimatingToNode {
-            withAnimation(.INSERT_NODE_MENU_TOGGLE_ANIMATION) {
-                state.insertNodeMenuState = InsertNodeMenuState()
-            }
-        }
+        state.insertNodeMenuState = InsertNodeMenuState()
     }
 }
 
@@ -167,9 +152,6 @@ extension GraphState {
 
         // hide the menu and animated-node
         self.graphUI.insertNodeMenuState.show = false
-
-        // mark the animation as completed
-        self.graphUI.insertNodeMenuState.menuAnimatingToNode = false
 
         // reset active selection
         //        self.graphUI.insertNodeMenuState.activeSelection = nil
