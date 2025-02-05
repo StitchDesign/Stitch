@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Foundation
 
 // TODO: every zoom in/out jumps is 0.25, but the second-to-last zoom out jump feels too big?
 let ZOOM_COMMAND_RATE: CGFloat = 0.25
@@ -172,7 +173,12 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
                 newOffset: uiView.contentOffset,
                 newZoom: uiView.zoomScale
             ))
-            document.graphUI.canvasJumpLocation = nil
+            
+            // During the animation to the jump-location,
+            // we do not want to check the borders
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                document.graphUI.canvasJumpLocation = nil
+            }
         }
         
         if document.graphUI.canvasZoomedIn {
@@ -266,9 +272,11 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
     }
     
     func checkBorder(_ scrollView: UIScrollView) {
-        
+                
         let scale = scrollView.zoomScale
         let cache = self.document?.graph.visibleNodesViewModel.infiniteCanvasCache ?? .init()
+        
+        let jumpLocationDefined = self.document?.graphUI.canvasJumpLocation.isDefined ?? false
         
         // Only check borders etc. if we have cached size and position data for the nodes
         guard let canvasItemsInFrame = self.document?.graph.getVisibleCanvasItems().filter(\.isVisibleInFrame),
@@ -279,7 +287,10 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
               let northNode = self.document?.graph.northernMostNodeForBorderCheck(canvasItemsInFrame),
               let southNode = self.document?.graph.southernMostNodeForBorderCheck(canvasItemsInFrame),
               let northBounds = cache.get(northNode.id),
-              let southBounds = cache.get(southNode.id) else {
+              let southBounds = cache.get(southNode.id),
+              
+              // Do not want to check borders during 'jump to canvas item'.
+              !jumpLocationDefined else {
             
             dispatch(GraphScrollDataUpdated(
                 newOffset: scrollView.contentOffset,
