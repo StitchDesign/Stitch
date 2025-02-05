@@ -32,7 +32,7 @@ struct ProjectWindowSizeReader: View {
     let menuHeight: CGFloat
 //    @Binding var screenSize: CGSize
 
-    let menuAnimatingToNode: Bool
+//    let menuAnimatingToNode: Bool
 
     @State private var defaultLandscapeSize: CGSize?
 
@@ -74,11 +74,11 @@ struct ProjectWindowSizeReader: View {
                         self.previewWindowSizing.userDeviceSize = geometry.size
                     }
 
-                    // TODO: not necessary?
-                    if menuAnimatingToNode {
-                        // log("ProjectWindowSizeReader: animating to node; will not change size")
-                        return
-                    }
+//                    // TODO: not necessary?
+//                    if menuAnimatingToNode {
+//                        // log("ProjectWindowSizeReader: animating to node; will not change size")
+//                        return
+//                    }
 
                     // TODO: ignore geometry changes when magic keyboard attached, so that we don't "slightly move up" the insert node menu?
 //                    screenSize = geometry.size

@@ -40,7 +40,7 @@ struct ContentView: View, KeyboardReadable {
 
     /// Shows menu wrapper view while node animation takes place
     var showMenu: Bool {
-        graphUI.insertNodeMenuState.menuAnimatingToNode ||
+//        graphUI.insertNodeMenuState.menuAnimatingToNode ||
         graphUI.insertNodeMenuState.show
     }
 
@@ -76,9 +76,7 @@ struct ContentView: View, KeyboardReadable {
                                     showFullScreenAnimateCompleted: $showFullScreenAnimateCompleted,
                                     showFullScreenObserver: showFullScreen,
 //                                    menuHeight: $menuHeight,
-                                    menuHeight: menuHeight,
-//                                    screenSize: $screenSize,
-                                    menuAnimatingToNode: graphUI.insertNodeMenuState.menuAnimatingToNode)
+                                    menuHeight: menuHeight)
 
             // Must IGNORE keyboard safe-area
             nodeAndMenu

@@ -10,6 +10,9 @@ import StitchSchemaKit
 
 struct InsertNodeMenuSearchResults: View {
 
+    @State private var nodeResultSizes: [UUID: CGRect] = .init()
+    @State private var localId = UUID()
+
     @Environment(\.appTheme) var theme
 
     // All the nodes and components (default or custom) that met the entered search criteria
@@ -21,12 +24,6 @@ struct InsertNodeMenuSearchResults: View {
     @Binding var footerRect: CGRect
 
     let show: Bool
-    
-    let animatingNodeOpacity: CGFloat
-
-    @State var nodeResultSizes: [UUID: CGRect] = .init()
-
-    @State var localId = UUID()
     
     // TODO: iterate through DefaultComponents enum
     var defaultComponents: [InsertNodeMenuOptionData] {
@@ -42,7 +39,6 @@ struct InsertNodeMenuSearchResults: View {
     }
 
     var body: some View {
-
         ScrollViewReader { (proxy: ScrollViewProxy) in
             ScrollView(showsIndicators: false) {
                 LazyVStack(spacing: 0) {
@@ -115,7 +111,7 @@ struct InsertNodeMenuSearchResults: View {
     }
 
     var selectionColor: Color {
-        theme.themeData.edgeColor.opacity(1 - animatingNodeOpacity)
+        theme.themeData.edgeColor
     }
 
     @MainActor

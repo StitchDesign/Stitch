@@ -39,8 +39,6 @@ struct InsertNodeMenuView: View {
     @Environment(StitchStore.self) private var store
     @Environment(\.appTheme) var theme
 
-    @Binding var cornerRadius: CGFloat
-
     let insertNodeMenuState: InsertNodeMenuState
     let isPortraitMode: Bool
     let showMenu: Bool
@@ -49,13 +47,11 @@ struct InsertNodeMenuView: View {
 
     @State var footerRect: CGRect = .zero
 
-    let animatingNodeOpacity: CGFloat
-
     var body: some View {
         sheetView
             .frame(width: InsertNodeMenuWrapper.menuWidth,
                    height: menuHeight)
-            .cornerRadius(cornerRadius)
+            .cornerRadius(InsertNodeMenuWrapper.shownMenuCornerRadius)
     }
 
     @MainActor
@@ -69,8 +65,7 @@ struct InsertNodeMenuView: View {
                     searchResults: insertNodeMenuState.searchResults,
                     activeSelection: insertNodeMenuState.activeSelection,
                     footerRect: self.$footerRect,
-                    show: store.currentDocument?.graphUI.insertNodeMenuState.show ?? false,
-                    animatingNodeOpacity: animatingNodeOpacity)
+                    show: store.currentDocument?.graphUI.insertNodeMenuState.show ?? false)
                     //                    .frame(width: 170, height: 300) // Figma
                     .frame(width: INSERT_NODE_MENU_SEARCH_RESULTS_WIDTH)
                 //                    .compositingGroup() // added
@@ -84,7 +79,7 @@ struct InsertNodeMenuView: View {
                 footerView
             }
         } // VStack
-        .background(INSERT_NODE_SEARCH_BACKGROUND.opacity(1 - animatingNodeOpacity))
+        .background(INSERT_NODE_SEARCH_BACKGROUND)
         .foregroundColor(INSERT_NODE_MENU_SEARCH_TEXT)
         // Important: animates the entire view's appearance at same time; otherwise e.g. the frosted background fades in separately
         .compositingGroup()
@@ -123,7 +118,7 @@ struct InsertNodeMenuView: View {
                     }
                 }
                 .padding(8)
-                .background(theme.themeData.edgeColor.opacity(1 - animatingNodeOpacity))
+                .background(theme.themeData.edgeColor)
                 .cornerRadius(8)
             })
         }
@@ -142,12 +137,10 @@ struct InsertNodeMenu_Previews: PreviewProvider {
 
     static var previews: some View {
         ZStack {
-            InsertNodeMenuView(cornerRadius: .constant(20),
-                               insertNodeMenuState: .init(),
+            InsertNodeMenuView(insertNodeMenuState: .init(),
                                isPortraitMode: false,
                                showMenu: true,
-                               menuHeight: INSERT_NODE_MENU_MAX_HEIGHT,
-                               animatingNodeOpacity: 0.0)
+                               menuHeight: INSERT_NODE_MENU_MAX_HEIGHT)
         }
         .previewDevice("iPad mini (6th generation)")
     }

@@ -53,8 +53,7 @@ struct StitchRootView: View {
              return false
          }
 
-         return document.graphUI.insertNodeMenuState.menuAnimatingToNode ||
-         document.graphUI.insertNodeMenuState.show
+         return document.graphUI.insertNodeMenuState.show
      }
     
     var body: some View {
