@@ -227,9 +227,12 @@ struct OutputValueView: View {
             case .media(let media):
                 // No keypaths ever used for output
                 let portIndex = coordinate.portId!
+                let mediaId: UUID? = viewModel.rowViewModelDelegate?.activeValue.asyncMedia?.id
+                let mediaObserver = mediaId != nil ? viewModel.rowViewModelDelegate?.nodeDelegate?
+                    .getVisibleMediaObserver(outputPortId: portIndex,
+                                             mediaId: mediaId!) : nil
                 
-                if let mediaObserver = viewModel.rowViewModelDelegate?.nodeDelegate?
-                    .getVisibleMediaObserver(outputPortId: portIndex) {
+                if let mediaObserver = mediaObserver {
                     MediaFieldValueView(inputCoordinate: coordinate,
                                         layerInputObserver: nil,
                                         isUpstreamValue: false,     // only valid for inputs

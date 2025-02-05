@@ -149,7 +149,9 @@ func soundImportEval(node: PatchNode) -> EvalResult {
     
     // MARK: frequencies logic saved for end due to loop of values
     
-    if let soundPlayer = node.getComputedMedia(loopIndex: 0)?.soundFilePlayer {
+    if let mediaId = node.getInputRowObserver(0)?.values.first?.asyncMedia?.id,
+       let soundPlayer = node.getComputedMedia(loopIndex: 0,
+                                               mediaId: mediaId)?.soundFilePlayer {
         // Frequencies logic
         let frequencyAmplitudes = soundPlayer.delegate.frequencyAmplitudes
         
