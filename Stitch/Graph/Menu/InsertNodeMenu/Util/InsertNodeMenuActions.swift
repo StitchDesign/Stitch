@@ -60,13 +60,14 @@ extension GraphUIState {
         
         // `withAnimation` still seems to cause view to scroll
         
-        withAnimation(.INSERT_NODE_MENU_TOGGLE_ANIMATION) {
+        // MARK: animation cancels possible gestures like scroll, removing for now
+//        withAnimation(.INSERT_NODE_MENU_TOGGLE_ANIMATION) {
             self.insertNodeMenuState.show = showMenu
 
             // whenever we toggle (open or close) the menu,
             // set `menuAnimating = false`
             self.insertNodeMenuState.menuAnimatingToNode = false
-        }
+//        }
     }
 }
 
