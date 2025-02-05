@@ -92,7 +92,8 @@ func loopBuilderEval(node: PatchNode,
             guard let inputMediaValue = values.first?.asyncMedia,
                   // MARK: loop and port index are flipped
                   let mediaObject = node.getInputMediaValue(portIndex: index,
-                                                            loopIndex: 0) else {
+                                                            loopIndex: 0,
+                                                            mediaId: inputMediaValue.id) else {
                 return .init(from: [indexPortValue,
                                     .asyncMedia(nil)])
             }

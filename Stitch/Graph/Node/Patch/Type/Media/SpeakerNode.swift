@@ -38,9 +38,11 @@ func speakerNode(id: NodeId,
 func speakerEval(node: PatchNode) -> EvalResult {
     let _ = loopedEval(node: node) { values, loopIndex in
         // MARK: media object is obtained by looking at upstream connected node's saved media objects. This system isn't perfect as not all nodes which can hold media use the MediaEvalOpObserver.
-        guard let volume = values[safe: 1]?.getNumber,
+        guard let mediaId = values.first?.asyncMedia?.id,
+              let volume = values[safe: 1]?.getNumber,
               let mediaObject = node.getInputMedia(portIndex: 0,
-                                                   loopIndex: loopIndex),
+                                                   loopIndex: loopIndex,
+                                                   mediaId: mediaId),
               let speakerMedia = mediaObject.soundFilePlayer else {
             log("speakerEval error: no engine or soundinput found.")
             return
