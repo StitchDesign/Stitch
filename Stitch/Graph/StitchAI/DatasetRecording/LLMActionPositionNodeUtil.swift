@@ -14,23 +14,22 @@ final class AdjacencyCalculator {
     var adjacencyList: [UUID: [UUID]] = [:]
     
     var inDegree: [UUID: Int] = [:]
-    var nodeCount: Int = 0
+    
+    var seenNodes: Set<UUID> = .init()
+    
+    var nodeCount: Int {
+        seenNodes.count
+    }
 
     func addEdge(from: UUID, to: UUID) {
         
         // Always make sure we have at least an empty list for this key (From).
         if adjacencyList[from] == nil {
             adjacencyList[from] = []
-            log("AdjacencyCalculator: addEdge: added new unique node: from \(from)")
-            nodeCount += 1  // Count unique nodes
         }
         
-        // If this To node is not yet in the Key's list, count it as a new node.
-        if let downstreamNodes = adjacencyList[from],
-           !downstreamNodes.contains(to) {
-            log("AdjacencyCalculator: addEdge: added new unique node: to \(to)")
-            nodeCount += 1  // Count unique nodes
-        }
+        seenNodes.insert(from)
+        seenNodes.insert(to)
                 
         adjacencyList[from]?.append(to)
         inDegree[to, default: 0] += 1
