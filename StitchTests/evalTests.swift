@@ -25,6 +25,29 @@ class EvalTests: XCTestCase {
         self.document.graphStepManager.delegate = self.document
         self.document.graph.documentDelegate = self.document
     }
+    
+    @MainActor
+    func loopSelectEval(inputs: PortValuesList,
+                        outputs: PortValuesList) -> PortValuesList {
+        guard let node = Patch.loopSelect.defaultNode(id: .init(),
+                                                      position: .zero,
+                                                      zIndex: .zero,
+                                                      graphDelegate: self.graphState) else {
+            fatalError()
+        }
+        
+        zip(inputs, node.inputsObservers).forEach { values, inputObserver in
+            inputObserver.updateValues(values)
+        }
+        
+        let result = LoopSelectNode.evaluate(node: node)
+        
+        guard let outputs = result?.outputsValues else {
+            fatalError()
+        }
+        
+        return outputs
+    }
 
     /// Runs all evals to make sure nodes can initialize.
     @MainActor
@@ -801,6 +824,7 @@ class EvalTests: XCTestCase {
     }
 
     // single value selection
+    @MainActor
     func testLoopSelectEvalSingleSelection() throws {
 
         // "input"
@@ -824,6 +848,7 @@ class EvalTests: XCTestCase {
         XCTAssertEqual(result[1], expectedOutput2)
     }
 
+    @MainActor
     func testLoopSelectEvalNegativeSingleSelection() throws {
 
         let apple = "apple"
@@ -841,9 +866,9 @@ class EvalTests: XCTestCase {
         let input2: PortValues = [.number(-1)]
 
         let getResult = { (index: Int) -> PortValuesList in
-            loopSelectEval(inputs: [input1,
-                                    [.number(Double(index))]],
-                           outputs: [])
+            self.loopSelectEval(inputs: [input1,
+                                         [.number(Double(index))]],
+                                outputs: [])
         }
 
         // POSITIVE INDICES
@@ -921,6 +946,7 @@ class EvalTests: XCTestCase {
     //    func testLoopFriendlyIndicies
 
     // see for details: https://origami.design/documentation/patches/builtin.loop.selectReorder.html
+    @MainActor
     func testLoopSelectEvalMultiSelection() throws {
 
         // "input"
@@ -944,6 +970,7 @@ class EvalTests: XCTestCase {
         XCTAssertEqual(result[1], expectedOutput2)
     }
 
+    @MainActor
     func testLoopSelectEvalMultiSelectionUnequalLength() throws {
 
         // "input"
@@ -966,7 +993,7 @@ class EvalTests: XCTestCase {
         XCTAssertEqual(result.first!, expectedOutput1)
         XCTAssertEqual(result[1], expectedOutput2)
     }
-
 }
 
 let fakeGraphTime: TimeInterval = .zero
+

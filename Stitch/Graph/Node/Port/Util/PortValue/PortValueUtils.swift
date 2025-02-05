@@ -34,6 +34,7 @@ extension PortValue {
     var getInt: Int? {
         switch self {
         case .int(let x): return x
+        case .number(let x): return Int(x)
         default: return nil
         }
     }

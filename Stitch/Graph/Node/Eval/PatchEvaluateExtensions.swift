@@ -11,7 +11,7 @@ import StitchSchemaKit
 
 extension Patch {
     @MainActor
-    var evaluate: PureEvals {
+    var evaluate: PureEvals? {
         switch self {
         case
             // wireless nodes are just splitter nodes with covered up edges and invisible edges
@@ -114,8 +114,6 @@ extension Patch {
             return .graphStep(sampleAndHoldEval)
         case .grayscale:
             return .node(grayscaleEval)
-        case .loopSelect:
-            return .node(outputsOnlyEval(loopSelectEval))
         case .videoImport:
             return .node(videoImportEval)
         case .sampleRange:
@@ -340,6 +338,8 @@ extension Patch {
             return .node(outputsOnlyEval(springFromResponseAndDampingRatioEval))
         case .springFromSettlingDurationAndDampingRatio:
             return .node(outputsOnlyEval(springFromSettlingDurationAndDampingRatioEval))
+        default:
+            return nil
         }
     }
 }
