@@ -150,14 +150,18 @@ func delayEval(node: PatchNode) -> EvalResult {
         if currentOutput.toNodeType != inputValue.toNodeType {
             currentOutput = inputValue.defaultFalseValue
         }
+        
+        let mediaId: UUID? = inputValue.asyncMedia != nil ? inputValue.asyncMedia!.id : nil
+        let mediaValue: GraphMediaValue? = mediaId != nil ? node.getInputMediaValue(portIndex: 0,
+                                                                                    loopIndex: index,
+                                                                                    mediaId: mediaId!) : nil
 
         let createTimer = {
             let id = UUID()
             let timer = DelayNodeTimer(timerId: id,
                                        delayValue: delayValue,
                                        value: inputValue,
-                                       media: node.getInputMediaValue(portIndex: 0,
-                                                                      loopIndex: index),
+                                       media: mediaValue,
                                        loopIndex: index,
                                        originalNodeType: node.userVisibleType,
                                        ephemeralObserver: timerObserver,

@@ -103,9 +103,10 @@ struct LoopSelectNode: PatchNodeDefinition {
                                           outputLoopIndex: Int,
                                           node: NodeViewModel) -> MediaEvalOpResult {
         let outputs = [value, .number(Double(outputLoopIndex))]
-        if value.asyncMedia != nil,
+        if let mediaValue = value.asyncMedia,
            let mediaObject = node.getInputMediaValue(portIndex: 0,
-                                                     loopIndex: selectedLoopIndex) {
+                                                     loopIndex: selectedLoopIndex,
+                                                     mediaId: mediaValue.id) {
             return .init(values: outputs,
                          media: mediaObject)
         }
