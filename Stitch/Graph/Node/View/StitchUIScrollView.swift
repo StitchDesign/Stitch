@@ -145,21 +145,18 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
     }
     
     private func initializeContentOffset(_ scrollView: UIScrollView) {
-        DispatchQueue.main.async {
-            
 //            let newOffset =  CGPoint(x: WHOLE_GRAPH_LENGTH/2,
 //                                     y: WHOLE_GRAPH_LENGTH/2)
-            
-            let newOffset =  self.document.localPosition
-            log("StitchUIScrollView: initializeContentOffset: newOffset: \(newOffset)")
-            
-            scrollView.setContentOffset(newOffset, animated: false)
-            
-            dispatch(GraphScrollDataUpdated(
-                newOffset: newOffset,
-                newZoom: scrollView.zoomScale
-            ))
-        }
+        
+        let newOffset =  self.document.localPosition
+        log("StitchUIScrollView: initializeContentOffset: newOffset: \(newOffset)")
+        
+        scrollView.setContentOffset(newOffset, animated: false)
+        
+        dispatch(GraphScrollDataUpdated(
+            newOffset: newOffset,
+            newZoom: scrollView.zoomScale
+        ))
     }
     
 
@@ -174,10 +171,13 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
                 newZoom: uiView.zoomScale
             ))
             
+            // Note: `self` is a struct but `GraphUIState` is a reference type, so we had a potential retain cycle even when callinh on MainThread (?)
+            let graphUI = document.graphUI
+            
             // During the animation to the jump-location,
             // we do not want to check the borders
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                document.graphUI.canvasJumpLocation = nil
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak graphUI] in
+                graphUI?.canvasJumpLocation = nil
             }
         }
         
