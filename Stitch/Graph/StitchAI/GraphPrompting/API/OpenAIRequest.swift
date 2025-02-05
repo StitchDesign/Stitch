@@ -125,7 +125,7 @@ struct MakeOpenAIRequest: StitchDocumentEvent {
         let payload: [String: Any] = [
             "model": model,
             "n": 1,
-            "temperature": 1,
+            "temperature": 0.5,
             "response_format": [
                 "type": "json_schema",
                 "json_schema": [
@@ -309,6 +309,7 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
             // TODO: JAN 30: retry the whole prompt; OpenAI might have given us bad data; e.g. specified a non-existent nodeType
             // Note that this can also be from a parsing error on our side, e.g. we incorrectly read the data OpenAI sent
             state.handleRetry()
+            return
         }
         
         // If we successfully parsed the JSON and LLMStepActions,
