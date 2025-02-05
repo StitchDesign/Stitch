@@ -176,10 +176,21 @@ extension NodeViewModel: NodeCalculatable {
     @MainActor func evaluate() -> EvalResult? {
         switch self.nodeType {
         case .patch(let patchNodeViewModel):
-            return patchNodeViewModel.patch.evaluate.runEvaluation(
-                node: self
-            )
+            // NodeKind.evaluate is our legacy eval caller, cheeck for those first
+            if let eval = patchNodeViewModel.patch.evaluate {
+                return eval.runEvaluation(
+                    node: self
+                )
+            }
+
+            // New-style eval which doesn't require filling out a switch statement
+            guard let nodeType = self.kind.graphNode else {
+                fatalErrorIfDebug()
+                return nil
+            }
             
+            return nodeType.evaluate(node: self)
+        
         case .layer(let layerNodeViewModel):
             // Only a handful of layer nodes have node evals
             if let eval = layerNodeViewModel.layer.evaluate {

@@ -116,7 +116,7 @@ extension Patch {
         case .grayscale:
             return GrayscaleNode.self
         case .loopSelect:
-            return nil
+            return LoopSelectNode.self
         case .videoImport:
             return VideoImportNode.self
         case .sampleRange:

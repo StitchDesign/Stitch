@@ -14,25 +14,40 @@ import RealityKit
 // fka `GraphNode`
 protocol NodeDefinition {
     static var graphKind: NodeDefinitionKind { get }
+    
     static var defaultTitle: String { get }
     
-    // TODO: `LayerGraphNode.rowDefinitions` can NEVER have a UserVisibleType
     @MainActor
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions
+    
+    @MainActor
+    static func evaluate(node: NodeViewModel) -> EvalResult?
     
     @MainActor
     static func createEphemeralObserver() -> NodeEphemeralObservable?
 
     static var inputCountVariesByType: Bool { get }
+    
     static var outputCountVariesByType: Bool { get }
 }
 
 // fka `PatchGraphNode`
 protocol PatchNodeDefinition: NodeDefinition {
     static var patch: Patch { get }
+    
     static var defaultUserVisibleType: UserVisibleType? { get }
+    
     static var inputCountVariesByType: Bool { get }
+    
     static var outputCountVariesByType: Bool { get }
+}
+
+extension NodeDefinition {
+    /// Default eval caller which calls legacy eval.
+    @MainActor
+    static func evaluate(node: NodeViewModel) -> EvalResult? {
+        node.evaluate()
+    }
 }
 
 extension PatchNodeDefinition {
