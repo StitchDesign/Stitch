@@ -73,7 +73,8 @@ func coreMLClassifyEval(node: PatchNode) -> EvalResult {
                                              loopIndex: loopIndex,
                                              defaultOutputs: defaultOutputs) { media in
             guard let image = node.getInputMedia(portIndex: 1,
-                                                 loopIndex: loopIndex)?.image else {
+                                                 loopIndex: loopIndex,
+                                                 mediaId: media.id)?.image else {
                 return defaultOutputs
             }
             

@@ -51,7 +51,8 @@ extension InputNodeRowObserver {
                 let node = self.nodeDelegate {
             self.allLoopedValues.enumerated().compactMap { loopIndex, _ in
                 node.getInputMedia(portIndex: 0,
-                                   loopIndex: loopIndex)
+                                   loopIndex: loopIndex,
+                                   mediaId: nil)  // setting nil will get object without equality checking
             }.forEach { media in
                 // Run effect to mute sound player
                 self.upstreamOutputObserver?.getMediaObjects().forEach { media in

@@ -135,7 +135,8 @@ extension MediaEvalOpObservable {
         let inputMediaValue = MediaEvalResult.getInputMediaValue(from: values)
         
         // This kind of media is saved in ephemeral observers
-        let currentMedia = node.getComputedMediaValue(loopIndex: loopIndex)
+        let currentMedia = node.getComputedMediaValue(loopIndex: loopIndex,
+                                                      mediaId: nil)
                 
         let didMediaChange = inputMediaValue?.id != currentMedia?.id
         let isLoadingNewMedia = mediaObserver.currentLoadingMediaId != nil
@@ -201,7 +202,8 @@ extension MediaEvalOpObservable {
         
         // No media key scenario
         if let mediaObject = node.getInputMedia(portIndex: inputPortIndex,
-                                                loopIndex: loopIndex) {
+                                                loopIndex: loopIndex,
+                                                mediaId: inputMediaValue.id) {
             // Create computed copy from another computed media object
             guard let copy = try? await mediaObject.createComputedCopy() else {
                 fatalErrorIfDebug()

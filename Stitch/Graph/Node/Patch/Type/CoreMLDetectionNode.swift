@@ -79,7 +79,10 @@ func coreMLDetectionEval(node: PatchNode) -> EvalResult {
     let inputs = node.inputs
     
     guard let mediaObserver = node.ephemeralObservers?.first as? VisionOpObserver,
-          let image = node.getInputMedia(portIndex: 1, loopIndex: 0)?.image,
+          let imageMediaId = inputs[safe: 1]?.first?.asyncMedia?.id,
+          let image = node.getInputMedia(portIndex: 1,
+                                         loopIndex: 0,
+                                         mediaId: imageMediaId)?.image,
           let cropAndScaleOption = inputs[safe: 2]?.first?.vnImageCropOption else {
         return .init(outputsValues: defaultOutputs)
     }

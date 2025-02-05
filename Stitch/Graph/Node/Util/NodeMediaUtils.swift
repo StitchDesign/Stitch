@@ -147,50 +147,63 @@ extension NodeViewModel {
     @MainActor
     /// Gets the media object for some connected input.
     func getInputMedia(coordinate: NodeIOCoordinate,
-                       loopIndex: Int) -> StitchMediaObject? {
+                       loopIndex: Int,
+                       mediaId: UUID) -> StitchMediaObject? {
         self.getInputMediaObserver(inputCoordinate: coordinate,
-                                   loopIndex: loopIndex)?.currentMedia?.mediaObject
+                                   loopIndex: loopIndex,
+                                   mediaId: mediaId)?.currentMedia?.mediaObject
     }
     
     @MainActor
     /// Gets the media object for some connected input.
     func getInputMedia(portIndex: Int,
-                       loopIndex: Int) -> StitchMediaObject? {
+                       loopIndex: Int,
+                       mediaId: UUID?) -> StitchMediaObject? {
         self.getInputMediaValue(portIndex: portIndex,
-                                loopIndex: loopIndex)?.mediaObject
+                                loopIndex: loopIndex,
+                                mediaId: mediaId)?.mediaObject
     }
     
     @MainActor
     /// Gets the media object for some connected input.
     func getInputMediaValue(portIndex: Int,
-                            loopIndex: Int) -> GraphMediaValue? {
+                            loopIndex: Int,
+                            mediaId: UUID?) -> GraphMediaValue? {
         self.getInputMediaObserver(portIndex: portIndex,
-                                   loopIndex: loopIndex)?.currentMedia
+                                   loopIndex: loopIndex,
+                                   mediaId: mediaId)?.currentMedia
     }
     
     @MainActor
     /// Gets the media object for some connected input.
     func getInputMediaValue(coordinate: NodeIOCoordinate,
-                            loopIndex: Int) -> GraphMediaValue? {
+                            loopIndex: Int,
+                            mediaId: UUID) -> GraphMediaValue? {
         self.getInputMediaObserver(inputCoordinate: coordinate,
-                                   loopIndex: loopIndex)?.currentMedia
+                                   loopIndex: loopIndex,
+                                   mediaId: mediaId)?.currentMedia
     }
 
     @MainActor
     /// Gets the media object for some connected input.
-    func getComputedMediaValue(loopIndex: Int) -> GraphMediaValue? {
-        self.getComputedMediaObserver(loopIndex: loopIndex)?.currentMedia
+    func getComputedMediaValue(loopIndex: Int,
+                               mediaId: UUID?) -> GraphMediaValue? {
+        self.getComputedMediaObserver(loopIndex: loopIndex,
+                                      mediaId: mediaId)?.currentMedia
     }
     
     @MainActor
     /// Gets the media object for some connected input.
-    func getComputedMedia(loopIndex: Int) -> StitchMediaObject? {
-        self.getComputedMediaValue(loopIndex: loopIndex)?.mediaObject
+    func getComputedMedia(loopIndex: Int,
+                          mediaId: UUID) -> StitchMediaObject? {
+        self.getComputedMediaValue(loopIndex: loopIndex,
+                                   mediaId: mediaId)?.mediaObject
     }
     
     /// Used for fields.
     @MainActor
-    func getVisibleMediaObserver(inputCoordinate: NodeIOCoordinate) -> MediaViewModel? {
+    func getVisibleMediaObserver(inputCoordinate: NodeIOCoordinate,
+                                 mediaId: UUID) -> MediaViewModel? {
         guard let rowObserver = self.getInputRowObserver(for: inputCoordinate.portType) else {
             fatalErrorIfDebug()
             return nil
@@ -198,28 +211,33 @@ extension NodeViewModel {
         
         let loopIndex = rowObserver.getActiveLoopIndex()
         return self.getInputMediaObserver(inputCoordinate: inputCoordinate,
-                                          loopIndex: loopIndex)
+                                          loopIndex: loopIndex,
+                                          mediaId: mediaId)
     }
     
     /// Used for fields.
     @MainActor
-    func getVisibleMediaObserver(outputPortId: Int) -> MediaViewModel? {
+    func getVisibleMediaObserver(outputPortId: Int,
+                                 mediaId: UUID) -> MediaViewModel? {
         guard let rowObserver = self.getOutputRowObserver(outputPortId) else {
             fatalErrorIfDebug()
             return nil
         }
         
         let loopIndex = rowObserver.getActiveLoopIndex()
-        return self.getComputedMediaObserver(loopIndex: loopIndex)
+        return self.getComputedMediaObserver(loopIndex: loopIndex,
+                                             mediaId: mediaId)
     }
     
     @MainActor
     func getInputMediaObserver(inputCoordinate: NodeIOCoordinate,
-                               loopIndex: Int) -> MediaViewModel? {
+                               loopIndex: Int,
+                               mediaId: UUID) -> MediaViewModel? {
         switch inputCoordinate.portType {
         case .portIndex(let portIndex):
             return self.getInputMediaObserver(portIndex: portIndex,
-                                      loopIndex: loopIndex)
+                                              loopIndex: loopIndex,
+                                              mediaId: mediaId)
             
         case .keyPath(let keyPath):
             guard let layerNode = self.layerNode else {
@@ -229,35 +247,69 @@ extension NodeViewModel {
             
             // MARK: helpers here will not retrieve local imported layer view model, thorough testing needed if scope increases
             return layerNode.getConnectedInputMediaObserver(keyPath: keyPath,
-                                                            loopIndex: loopIndex)
+                                                            loopIndex: loopIndex,
+                                                            mediaId: mediaId)
         }
     }
     
     @MainActor
     /// Gets the media object for some connected input.
     func getInputMediaObserver(portIndex: Int,
-                               loopIndex: Int) -> MediaViewModel? {
+                               loopIndex: Int,
+                               mediaId: UUID?) -> MediaViewModel? {
         // Do nothing if no upstream connection for media
-        guard let connectedUpstreamObserver = self.inputsObservers[safe: portIndex]?.upstreamOutputObserver,
-                let connectedUpstreamNode = connectedUpstreamObserver.nodeDelegate else {
+        guard let connectedUpstreamNode = self.getUpstreamNode(inputPortIndex: portIndex) else {
+            
             // MARK: below functionality allows nodes like media import patch nodes to display media at the input even though computed ephemeral observers only hold media. For some nodes like loop builder this isn't ideal as it'll incorrectly display valid data at an empty input.
             if self.kind == .patch(.loopBuilder) {
                 return nil
             }
             
             // Check if media eval op exists here if no connection
-            return self.getComputedMediaObserver(loopIndex: loopIndex)
+            return self.getComputedMediaObserver(loopIndex: loopIndex,
+                                                 mediaId: mediaId)
         }
         
+        return connectedUpstreamNode.getUpstreamNodeMediaObserver(loopIndex: loopIndex,
+                                                                  mediaId: mediaId)
+    }
+    
+    @MainActor
+    private func getUpstreamNode(inputPortIndex: Int) -> NodeViewModel? {
+        self.inputsObservers[safe: inputPortIndex]?.upstreamOutputObserver?.nodeDelegate
+    }
+    
+    @MainActor
+    private func getUpstreamNodeMediaObserver(loopIndex: Int,
+                                              mediaId: UUID?) -> MediaViewModel? {
         // Media object is obtained by looking at upstream connected node's saved media objects.
-        return connectedUpstreamNode.getComputedMediaObserver(loopIndex: loopIndex)
+        if let viewModel = self.getComputedMediaObserver(loopIndex: loopIndex,
+                                                                          mediaId: mediaId) {
+            return viewModel
+        }
+        
+        // Fallback logic below: recursively check upstream nodes at the firt port index. Provides support for nodes like splitters which don't directly hold media.
+        return self.getInputMediaObserver(portIndex: 0,
+                                          loopIndex: loopIndex,
+                                          mediaId: mediaId)
     }
     
     @MainActor
     /// Gets the media object for some connected input.
-    func getComputedMediaObserver(loopIndex: Int) -> MediaViewModel? {
+    func getComputedMediaObserver(loopIndex: Int,
+                                  mediaId: UUID?) -> MediaViewModel? {
         // Check if media eval op exists here if no connection
-        (self.ephemeralObservers?[safe: loopIndex] as? MediaEvalOpViewable)?.mediaViewModel
+        if let viewModel = (self.ephemeralObservers?[safe: loopIndex] as? MediaEvalOpViewable)?.mediaViewModel {
+            // Only check on media ID if provided, else always return object
+            if let mediaId = mediaId,
+               viewModel.currentMedia?.id == mediaId {
+                return viewModel
+            }
+            
+            return viewModel
+        }
+        
+        return nil
     }
 }
 
@@ -271,25 +323,41 @@ extension NodeRowObserver {
 extension LayerNodeViewModel {
     @MainActor
     func getConnectedInputMedia(keyPath: LayerInputType,
-                                loopIndex: Int) -> StitchMediaObject? {
-        self.getConnectedInputMediaObserver(keyPath: keyPath,
-                                            loopIndex: loopIndex)?
-            .currentMedia?.mediaObject
+                                loopIndex: Int,
+                                mediaId: UUID) -> StitchMediaObject? {
+        if let mediaValue = self.getConnectedInputMediaObserver(keyPath: keyPath,
+                                                                loopIndex: loopIndex,
+                                                                mediaId: mediaId)?.currentMedia {
+            return mediaValue.mediaObject
+        }
+        
+        return nil
     }
     
     @MainActor
     /// Gets the media observer for some connected input.
     func getConnectedInputMediaObserver(keyPath: LayerInputType,
-                                        loopIndex: Int) -> MediaViewModel? {
+                                        loopIndex: Int,
+                                        mediaId: UUID) -> MediaViewModel? {
         let port = self[keyPath: keyPath.layerNodeKeyPath]
         
         if let upstreamObserver = port.rowObserver.upstreamOutputObserver,
            let upstreamNode = upstreamObserver.nodeDelegate {
-            return upstreamNode.getComputedMediaObserver(loopIndex: loopIndex)
+            if let upstreamComputedMedia = upstreamNode
+                .getComputedMediaObserver(loopIndex: loopIndex,
+                                          mediaId: mediaId) {
+                return upstreamComputedMedia
+            }
+            
+            // Fallback logic: check input of upstream node and kick-start recursive strategy
+            return upstreamNode.getInputMediaObserver(portIndex: 0,
+                                                      loopIndex: loopIndex,
+                                                      mediaId: mediaId)
         }
         
         // No upstream connection, find media at layer view model
-        guard let layerViewModel = self.previewLayerViewModels[safe: loopIndex] else {
+        guard let layerViewModel = self.previewLayerViewModels[safe: loopIndex],
+              layerViewModel.mediaViewModel.currentMedia?.id == mediaId else {
             return nil
         }
 
