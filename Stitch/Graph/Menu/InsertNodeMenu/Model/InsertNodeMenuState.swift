@@ -23,7 +23,7 @@ struct UpdateSearchQuery: Action {
     // False = we are not animating, or the menu has just first been shown.
 struct InsertNodeMenuState: Hashable {
     var hiddenNodeId: NodeId?
-    var menuAnimatingToNode: Bool = false
+
     // The bounds of the user-committed node; we need this node size so that we can know the starting size for animation node.
 //    var activeSelectionBounds: CGRect?
 
