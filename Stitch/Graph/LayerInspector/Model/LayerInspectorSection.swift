@@ -178,11 +178,11 @@ extension LayerInspectorSection {
             return [
                 .text,
                 .placeholderText,
+                .textFont,
                 .fontSize,
                 .textAlignment,
                 .verticalAlignment,
-                .textDecoration,
-                .textFont,
+                .textDecoration
             ]
         
         case .stroke:
