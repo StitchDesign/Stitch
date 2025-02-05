@@ -16,9 +16,11 @@ final class AdjacencyCalculator {
     func addEdge(from: UUID, to: UUID) {
         if adjacencyList[from] == nil {
             adjacencyList[from] = []
+            log("AdjacencyCalculator: addEdge: added new unique node: from \(from)")
             nodeCount += 1  // Count unique nodes
         }
         if adjacencyList[to] == nil {
+            log("AdjacencyCalculator: addEdge: added new unique node: to \(to)")
             nodeCount += 1  // Count unique nodes
         }
         adjacencyList[from]?.append(to)
@@ -56,32 +58,8 @@ final class AdjacencyCalculator {
         
         // If not all nodes were processed, a cycle exists
         let hasCycle = (processedNodes < nodeCount)
+        log("AdjacencyCalculator: computeDepth: processedNodes: \(processedNodes)")
+        log("AdjacencyCalculator: computeDepth: nodeCount: \(nodeCount)")
         return hasCycle ? (nil, true) : (depth, false)
     }
 }
-
-//// Example Usage
-//let graph = Graph()
-//
-//// Create UUIDs for nodes
-//let nodeA = UUID()
-//let nodeB = UUID()
-//let nodeC = UUID()
-//let nodeD = UUID()
-//
-//// Construct the graph with a cycle: A → B → C → D → B (cycle)
-//graph.addEdge(from: nodeA, to: nodeB)
-//graph.addEdge(from: nodeB, to: nodeC)
-//graph.addEdge(from: nodeC, to: nodeD)
-//graph.addEdge(from: nodeD, to: nodeB)  // Creates a cycle
-//
-//// Compute topological depth and detect cycle
-//let (depthMap, hasCycle) = graph.computeDepth()
-//
-//if hasCycle {
-//    print("Cycle detected! Topological sorting is not possible.")
-//} else {
-//    for (node, depth) in depthMap! {
-//        print("\(node): Depth \(depth)")
-//    }
-//}
