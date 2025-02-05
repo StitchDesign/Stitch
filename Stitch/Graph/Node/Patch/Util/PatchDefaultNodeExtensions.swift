@@ -82,8 +82,6 @@ extension Patch {
             node = notNode(id: id, position: position, zIndex: zIndex)
         case .transition:
             node = transitionNode(id: id, position: position, zIndex: zIndex)
-        case .loopSelect:
-            node = loopSelectNode(id: id, position: position, zIndex: zIndex)
         case .speaker:
             node = speakerNode(id: id, position: position, zIndex: zIndex)
         case .loopOverArray:
