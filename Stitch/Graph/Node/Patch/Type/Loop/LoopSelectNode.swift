@@ -90,7 +90,8 @@ struct LoopSelectNode: PatchNodeDefinition {
             }
             
             return Self.createMediaEvalOp(value: value,
-                                          loopIndex: loopIndex,
+                                          selectedLoopIndex: modInputIndex,
+                                          outputLoopIndex: loopIndex,
                                           node: node)
         }
                                .createPureEvalResult(node: node)
@@ -98,12 +99,13 @@ struct LoopSelectNode: PatchNodeDefinition {
     
     @MainActor
     private static func createMediaEvalOp(value: PortValue,
-                                          loopIndex: Int,
+                                          selectedLoopIndex: Int,
+                                          outputLoopIndex: Int,
                                           node: NodeViewModel) -> MediaEvalOpResult {
-        let outputs = [value, .number(Double(loopIndex))]
+        let outputs = [value, .number(Double(outputLoopIndex))]
         if value.asyncMedia != nil,
            let mediaObject = node.getInputMediaValue(portIndex: 0,
-                                                     loopIndex: loopIndex) {
+                                                     loopIndex: selectedLoopIndex) {
             return .init(values: outputs,
                          media: mediaObject)
         }
