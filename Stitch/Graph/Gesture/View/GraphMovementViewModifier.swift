@@ -40,8 +40,9 @@ struct GraphMovementViewModifier: ViewModifier {
                  - https://github.com/StitchDesign/Stitch--Old/issues/6779
                  */
                 self.graph.visibleNodesViewModel.setAllNodesVisible()
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    self.graph.updateVisibleNodes()
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak graph] in
+                    graph?.updateVisibleNodes()
                 }
             }
             .onChange(of: graphMovement.localPosition) { _, newValue in
