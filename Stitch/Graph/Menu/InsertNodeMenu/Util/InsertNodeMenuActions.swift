@@ -55,18 +55,7 @@ extension GraphUIState {
             self.insertNodeMenuState.activeSelection = InsertNodeMenuState.startingActiveSelection
         }
 
-        // Only animate the properties relevant to animation
-        
-        // `withAnimation` still seems to cause view to scroll
-        
-        // MARK: animation cancels possible gestures like scroll, removing for now
-//        withAnimation(.INSERT_NODE_MENU_TOGGLE_ANIMATION) {
-            self.insertNodeMenuState.show = showMenu
-
-            // whenever we toggle (open or close) the menu,
-            // set `menuAnimating = false`
-//            self.insertNodeMenuState.menuAnimatingToNode = false
-//        }
+        self.insertNodeMenuState.show = showMenu
     }
 }
 
@@ -80,10 +69,6 @@ struct CloseAndResetInsertNodeMenu: GraphUIEvent {
         // log("CloseAndResetInsertNodeMenu called")
 
         state.insertNodeMenuState = InsertNodeMenuState()
-//        if !state.insertNodeMenuState.menuAnimatingToNode {
-////            withAnimation(.INSERT_NODE_MENU_TOGGLE_ANIMATION) {
-////            }
-//        }
     }
 }
 
@@ -167,9 +152,6 @@ extension GraphState {
 
         // hide the menu and animated-node
         self.graphUI.insertNodeMenuState.show = false
-
-        // mark the animation as completed
-//        self.graphUI.insertNodeMenuState.menuAnimatingToNode = false
 
         // reset active selection
         //        self.graphUI.insertNodeMenuState.activeSelection = nil

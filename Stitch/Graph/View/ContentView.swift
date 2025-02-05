@@ -40,7 +40,6 @@ struct ContentView: View, KeyboardReadable {
 
     /// Shows menu wrapper view while node animation takes place
     var showMenu: Bool {
-//        graphUI.insertNodeMenuState.menuAnimatingToNode ||
         graphUI.insertNodeMenuState.show
     }
 
