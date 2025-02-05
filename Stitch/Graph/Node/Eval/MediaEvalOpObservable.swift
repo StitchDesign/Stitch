@@ -22,6 +22,16 @@ protocol MediaEvalOpObservable: NodeEphemeralObservable, MediaEvalOpViewable, Se
     var mediaActor: MediaEvalOpCoordinator { get }
 }
 
+final class MediaReferenceObserver: MediaEvalOpViewable {
+    let mediaViewModel: MediaViewModel
+    
+    @MainActor init() {
+        self.mediaViewModel = .init()
+    }
+    
+    func onPrototypeRestart() { }
+}
+
 final class MediaEvalOpObserver: MediaEvalOpObservable {
     let mediaViewModel: MediaViewModel
     var currentLoadingMediaId: UUID?
