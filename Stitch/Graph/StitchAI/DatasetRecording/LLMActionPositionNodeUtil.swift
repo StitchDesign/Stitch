@@ -9,20 +9,29 @@ import Foundation
 
 
 final class AdjacencyCalculator {
+    // key = From node
+    // value = To nodes
     var adjacencyList: [UUID: [UUID]] = [:]
+    
     var inDegree: [UUID: Int] = [:]
     var nodeCount: Int = 0
 
     func addEdge(from: UUID, to: UUID) {
+        
+        // Always make sure we have at least an empty list for this key (From).
         if adjacencyList[from] == nil {
             adjacencyList[from] = []
             log("AdjacencyCalculator: addEdge: added new unique node: from \(from)")
             nodeCount += 1  // Count unique nodes
         }
-        if adjacencyList[to] == nil {
+        
+        // If this To node is not yet in the Key's list, count it as a new node.
+        if let downstreamNodes = adjacencyList[from],
+           !downstreamNodes.contains(to) {
             log("AdjacencyCalculator: addEdge: added new unique node: to \(to)")
             nodeCount += 1  // Count unique nodes
         }
+                
         adjacencyList[from]?.append(to)
         inDegree[to, default: 0] += 1
         inDegree[from, default: 0] += 0 // Ensure source nodes exist
