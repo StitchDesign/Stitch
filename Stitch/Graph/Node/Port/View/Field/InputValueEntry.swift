@@ -423,12 +423,12 @@ struct InputValueView: View {
                 
             case .media(let media):
                 let loopIndex = graph.activeIndex.adjustedIndex(viewModel.rowViewModelDelegate?.rowDelegate?.allLoopedValues.count ?? .zero)
-                let mediaId: UUID? = viewModel.rowViewModelDelegate?.activeValue.asyncMedia?.id
                 
-                let mediaObserver = mediaId != nil ? viewModel.rowViewModelDelegate?.nodeDelegate?
+                let mediaObserver = viewModel.rowViewModelDelegate?.nodeDelegate?
                     .getInputMediaObserver(inputCoordinate: rowObserverId,
                                            loopIndex: loopIndex,
-                                           mediaId: mediaId!) : nil
+                                           // nil mediaId ensures observer is returned
+                                           mediaId: nil)
                 
                 if let mediaObserver = mediaObserver {
                     MediaFieldValueView(
