@@ -185,9 +185,33 @@ struct NodeOutputView: View {
         self.rowObserver.nodeDelegate?.kind ?? .patch(.splitter)
     }
     
+    // Most splitters do NOT show their outputs;
+    // however, a group node's output-splitters seen from the same level as the group node (i.e. not inside the group node itself, but where)
     @MainActor
-    var isSplitter: Bool {
-        self.nodeKind == .patch(.splitter)
+    var showOutputFields: Bool {
+                
+        if self.nodeKind == .patch(.splitter) {
+
+            // A regular (= inline) splitter NEVER shows its output
+            let isRegularSplitter = self.rowObserver.nodeDelegate?.patchNodeViewModel?.splitterType == .inline
+            if isRegularSplitter {
+                return false
+            }
+
+            // If this is a group output splitter, AND we are looking at the group node itself (i.e. NOT inside of the group node but "above" it),
+            // then show the output splitter's fields.
+            let isOutputSplitter = self.rowObserver.nodeDelegate?.patchNodeViewModel?.splitterType == .output
+            if isOutputSplitter {
+                // See `NodeRowObserver.label()` for similar logic for *inputs*
+                let parentGroupNode = self.rowObserver.nodeDelegate?.patchNodeViewModel?.parentGroupNodeId
+                let currentTraversalLevel = self.rowObserver.nodeDelegate?.graphDelegate?.groupNodeFocused
+                return parentGroupNode != currentTraversalLevel
+            }
+            
+            return false
+        }
+        
+        return true
     }
         
     @ViewBuilder @MainActor
@@ -213,8 +237,7 @@ struct NodeOutputView: View {
                 Spacer()
             }
             
-            // Hide outputs for value node
-            if !isSplitter {
+            if showOutputFields {
                 FieldsListView<OutputNodeRowViewModel, OutputValueEntry>(
                     graph: graph,
                     fieldValueTypes: rowViewModel.fieldValueTypes,
