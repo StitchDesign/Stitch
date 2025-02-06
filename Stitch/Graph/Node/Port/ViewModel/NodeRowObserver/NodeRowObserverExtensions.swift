@@ -190,11 +190,25 @@ extension NodeRowObserver {
     @MainActor
     func label(_ useShortLabel: Bool = false) -> String {
 
-        // A Group Node uses its underlying Splitter node's row for its own row.
-        // Thus we use the underyling Splitter node's title for the row label:
-        if self.nodeKind.getPatch == .splitter,
-           (self.nodeDelegate?.patchNodeViewModel?.parentGroupNodeId.isDefined ?? false) {
-            // Rows in a group-ui-node use the underlying splitter node's tit
+        let isSplitterPatch = self.nodeKind.getPatch == .splitter
+        let parentGroupNode = self.nodeDelegate?.patchNodeViewModel?.parentGroupNodeId
+        let hasParentGroupNode = parentGroupNode.isDefined ?? false
+        
+        let currentTraversalLevel = self.nodeDelegate?.graphDelegate?.groupNodeFocused
+        
+        let areWeCurrentlyInsideParent = parentGroupNode == currentTraversalLevel
+     
+        /*
+         Two scenarios re: a Group Node and its splitters:
+         
+         1. We are looking at the Group Node itself; so we want to use its underlying group node input- and output-splitters' titles as labels for the group node's rows
+         
+         2. We are INSIDE THE GROUP NODE, looking at its input- and output-splitters at that traversal level; so we do not use the splitters' titles as labels
+         */
+        if isSplitterPatch,
+            hasParentGroupNode,
+           !areWeCurrentlyInsideParent {
+            // Rows in a group-ui-node use the underlying splitter node's title
             let labelFromSplitter = self.nodeDelegate?.displayTitle
             assertInDebug(labelFromSplitter.isDefined)
 
@@ -202,7 +216,7 @@ extension NodeRowObserver {
             if labelFromSplitter == Patch.splitter.defaultDisplayTitle() {
                 return ""
             }
-            
+                        
             return labelFromSplitter ?? ""
         }
         
