@@ -9,7 +9,6 @@ import Foundation
 
 typealias AppResponse = ReframeResponse<AppState>
 typealias GraphUIResponse = ReframeResponse<GraphUIState>
-typealias ProjectAlertResponse = ReframeResponse<ProjectAlertState>
 typealias GraphResponse = ReframeResponse<NoState>
 typealias MiddlewareManagerResponse = ReframeResponse<EmptyState>
 
@@ -91,16 +90,16 @@ extension GraphResponse {
     }
 }
 
-extension AppResponse {
-    /// Displays specified `StitchFileError` to user.
-    static func displayError(error: StitchFileError,
-                             in state: AppState,
-                             effects: SideEffects? = nil) -> AppResponse {
-        var state = state
-        state.alertState.stitchFileError = error
-        return AppResponse(effects: effects, state: state)
-    }
-}
+//extension AppResponse {
+//    /// Displays specified `StitchFileError` to user.
+//    static func displayError(error: StitchFileError,
+//                             in state: AppState,
+//                             effects: SideEffects? = nil) -> AppResponse {
+//        var state = state
+//        state.alertState.stitchFileError = error
+//        return AppResponse(effects: effects, state: state)
+//    }
+//}
 
 extension ReframeResponse {
     /// Convenience init uses user initiated effects by default

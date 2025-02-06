@@ -75,14 +75,7 @@ final actor CameraFeedActor {
                                         startCameraCallback: startCameraCallback)
             }
         default:
-//            DispatchQueue.main.async {
-                
-                
-                
-                // TODO: need alert
-                
-                dispatch(CameraPermissionDeclined())
-//            }
+            dispatch(CameraPermissionDeclined())
         }
     }
 

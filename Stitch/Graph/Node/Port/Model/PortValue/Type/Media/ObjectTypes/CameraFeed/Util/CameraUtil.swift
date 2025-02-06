@@ -14,6 +14,8 @@ struct CameraPermissionDeclined: GraphEvent {
     func handle(state: GraphState) {
         state.updateAllCameras(with: .bool(false),
                                at: CameraFeedNodeInputLocations.cameraEnabled)
+        
+        state.storeDelegate?.alertState.showCameraPermissionsAlert = true
     }
 }
 

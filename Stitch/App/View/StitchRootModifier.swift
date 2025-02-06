@@ -14,12 +14,10 @@ struct StitchRootModifier: ViewModifier {
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.colorScheme) var colorScheme: ColorScheme
 
-    let alertState: ProjectAlertState
-
     func body(content: Content) -> some View {
         content
             .modifier(FileDropModifier())
-            .modifier(AlertsViewModifier(alertState: alertState))
+            .modifier(AlertsViewModifier(store: store))
             .onOpenURL { (url: URL) in
                 
                 if url.isStitchCampsiteURL() {
@@ -44,7 +42,7 @@ struct StitchRootModifier: ViewModifier {
                                           isImport: true) else {
                             return
                         }
-                        await store?.createNewProject(from: importedDoc)
+                        store?.createNewProject(from: importedDoc)
                     }
                 }
             } // .onOpenURL
