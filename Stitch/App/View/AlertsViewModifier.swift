@@ -75,7 +75,13 @@ struct AlertsViewModifier: ViewModifier {
                    isPresented: $store.alertState.showCameraPermissionsAlert,
                    actions: {
                 StitchButton("Go to Settings") {
-                    UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
+                    let url: String
+#if targetEnvironment(macCatalyst)
+                    url = "x-apple.systempreferences:com.apple.preference.security?Privacy_Camera"
+#else
+                    url = UIApplication.openSettingsURLString
+#endif
+                    UIApplication.shared.open(URL(string: url)!)
                 }
                 StitchButton("Cancel", role: .cancel) {}
             })
