@@ -11,9 +11,13 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct AlertsViewModifier: ViewModifier {
-    let alertState: ProjectAlertState
-    @State private var showProjectDeleteAllAlert = false
     @State private var showStitchFileAlert = false
+    
+    @Bindable var store: StitchStore
+    
+    var alertState: ProjectAlertState {
+        store.alertState
+    }
     
     var showSettingsPrompt: Bool {
         alertState.stitchFileError?.showSettingsPrompt ?? false
@@ -34,28 +38,35 @@ struct AlertsViewModifier: ViewModifier {
             .onChange(of: alertState.stitchFileError) { _, stitchFileError in
                 showStitchFileAlert = stitchFileError != nil
             }
-            .onChange(of: showStitchFileAlert) { _, showAlert in
+            .onChange(of: alertState.stitchFileError != nil) { _, showAlert in
                 // Hide alert when state value is toggled to false from user dismissing alert
                 if !showAlert { dispatch(HideStitchFileErrorAlert()) }
             }
         
-        // Delete ALL projects
-            .onChange(of: alertState.showDeleteAllProjectsConfirmation) { _, willShow in
-                showProjectDeleteAllAlert = willShow
-            }
-            .onChange(of: showProjectDeleteAllAlert) { _, willShow in
-                // Hide alert when state value is toggled to false from user dismissing alert
-                if !willShow { dispatch(HideDeleteAllProjectsConfirmation()) }
-            }
-        
         // Confirmation to delete ALL projects
             .alert(Text("This will delete ALL projects. Are you sure you want to proceed?"),
-                   isPresented: $showProjectDeleteAllAlert,
+                   isPresented: $store.alertState.showDeleteAllProjectsConfirmation,
                    actions: {
                 StitchButton("Keep", role: .cancel) {}
                 StitchButton("Delete", role: .destructive) {
-                    dispatch(DeleteAllProjectsConfirmed())
+                    store.deleteAllProjectsConfirmed()
                 }
+            })
+        
+        // Camera permissions
+            .alert(Text("You cannot use the camera until permissions have been granted."),
+                   isPresented: $store.alertState.showCameraPermissionsAlert,
+                   actions: {
+                StitchButton("Go to Settings") {
+                    let url: String
+#if targetEnvironment(macCatalyst)
+                    url = "x-apple.systempreferences:com.apple.preference.security?Privacy_Camera"
+#else
+                    url = UIApplication.openSettingsURLString
+#endif
+                    UIApplication.shared.open(URL(string: url)!)
+                }
+                StitchButton("Cancel", role: .cancel) {}
             })
         
         // This is the scenario when a project is deleted from another device, and your current device has that same project open

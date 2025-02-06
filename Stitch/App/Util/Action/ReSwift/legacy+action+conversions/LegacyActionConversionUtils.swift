@@ -92,12 +92,9 @@ func _getResponse(from legacyAction: Action,
 
     // Project Alert Events
     else if let projectAlertAction = (legacyAction as? ProjectAlertEvent) {
-        let state = getState()
-        let response = projectAlertAction
-            .handle(state: state.alertState)
-            .toAppResponse(state)
+        projectAlertAction.handle(state: store.alertState)
 
-        return response
+        return .noChange
     }
 
     // TODO: is such a specific signature worth it for only a couple actions?
@@ -150,29 +147,6 @@ func handleLegacyStateUpdate(store: StitchStore,
     store.appTheme.setOnChange(legacyState.appTheme)
     store.isShowingDrawer.setOnChange(legacyState.isShowingDrawer)
     store.projectIdForTitleEdit.setOnChange(legacyState.projectIdForTitleEdit)
-    store.alertState.setOnChange(legacyState.alertState)
-}
-
-
-
-// MARK: `toAppResponse` helpers for legacy Action
-
-extension ProjectAlertResponse {
-
-    func toAppResponse(_ appState: AppState) -> AppResponse {
-
-        var updatedAppState: AppState?
-
-        if let stateUpdate = self.state {
-            updatedAppState = appState
-            updatedAppState?.alertState = stateUpdate
-        }
-
-        return AppResponse(
-            sideEffectCoordinator: self.sideEffectCoordinator,
-            state: updatedAppState,
-            shouldPersist: self.shouldPersist)
-    }
 }
 
 // TODO: just use `GraphResponse` instead of `MiddlewareManagerResponse` ?
