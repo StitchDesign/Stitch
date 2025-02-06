@@ -227,10 +227,10 @@ struct OutputValueView: View {
             case .media(let media):
                 // No keypaths ever used for output
                 let portIndex = coordinate.portId!
-                let mediaId: UUID? = viewModel.rowViewModelDelegate?.activeValue.asyncMedia?.id
-                let mediaObserver = mediaId != nil ? viewModel.rowViewModelDelegate?.nodeDelegate?
+                let mediaObserver = viewModel.rowViewModelDelegate?.nodeDelegate?
                     .getVisibleMediaObserver(outputPortId: portIndex,
-                                             mediaId: mediaId!) : nil
+                                             // nil mediaId ensures observer is returned
+                                             mediaId: nil)
                 
                 if let mediaObserver = mediaObserver {
                     MediaFieldValueView(inputCoordinate: coordinate,
