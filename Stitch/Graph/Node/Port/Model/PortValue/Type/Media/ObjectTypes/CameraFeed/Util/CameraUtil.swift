@@ -25,13 +25,29 @@ extension GraphState {
         // Search for all camera feed nodes AND RealityView nodes
         let cameraFeedNodes = self.nodes.values
             .filter {
-                $0.kind == .patch(.cameraFeed) ||
-                    $0.kind == .layer(.realityView)
+                $0.kind == .patch(.cameraFeed)
+            }
+        
+        let realityNodes = self.nodes.values
+            .filter {
+                $0.kind == .layer(.realityView)
             }
 
         // Update all camera nodes
         cameraFeedNodes.forEach { node in
             let coordinate = InputCoordinate(portId: inputIndex, nodeId: node.id)
+            self.handleInputEditCommitted(
+                input: coordinate,
+                value: value,
+                // TODO: is this accurate? Can we change camera direction via any of the layers (i.e. via layer inspector)?
+                isFieldInsideLayerInspector: false,
+                wasDropdown: true)
+        }
+        
+        realityNodes.forEach { node in
+            let coordinate = NodeIOCoordinate(portType: .keyPath(.init(layerInput: .isCameraEnabled,
+                                                                       portType: .packed)),
+                                              nodeId: node.id)
             self.handleInputEditCommitted(
                 input: coordinate,
                 value: value,

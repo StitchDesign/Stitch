@@ -104,6 +104,8 @@ enum StitchFileError: Error {
     case recordingPermissionsDisabled
     // Project duplication
     case projectDuplicationFailed
+    // Just pass in a string
+    case customError(_ message: String)
     // Unexpected error
     case unknownError(_ message: String)
 }
@@ -205,6 +207,8 @@ extension StitchFileError: CustomStringConvertible {
             return "This project requires Stitch to access your microphone."
         case .projectDuplicationFailed:
             return "Stitch was unable to duplicate this project."
+        case .customError(let message):
+            return message
         }
     }
 
