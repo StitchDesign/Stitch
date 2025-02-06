@@ -50,7 +50,7 @@ final class StitchDocumentViewModel: Sendable {
     @MainActor var locationManager: LoadingStatus<StitchSingletonMediaObject>?
     @MainActor var cameraFeedManager: LoadingStatus<StitchSingletonMediaObject>?
     
-    @MainActor weak var storeDelegate: StoreDelegate?
+    @MainActor weak var storeDelegate: StitchStore?
     @MainActor weak var projectLoader: ProjectLoader?
     @MainActor weak var documentEncoder: DocumentEncoder?
     

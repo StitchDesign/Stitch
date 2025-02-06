@@ -8,33 +8,38 @@
 import SwiftUI
 import StitchSchemaKit
 
-struct ProjectAlertState: Equatable {
+@Observable
+final class ProjectAlertState: Sendable {
     // Shows alert if currently opened project is deleted elsewhere
-    var isCurrentProjectDeleted = false
+    @MainActor var isCurrentProjectDeleted = false
 
     // Toggles action sheet for full screen preview on iOS
-    var showFullScreenPreviewSheet = false
+    @MainActor var showFullScreenPreviewSheet = false
 
     // Modal for app-wide settings
-    var showAppSettings = false
+    @MainActor var showAppSettings = false
 
     // Modal for project-specific settings
-    var showProjectSettings = false
+    @MainActor var showProjectSettings = false
+    
+    @MainActor var showCameraPermissionsAlert = false
 
     // Modal for file import
-    var fileImportModalState = FileImportState.notImporting
+    @MainActor var fileImportModalState = FileImportState.notImporting
 
     // Error to display to user if any stage of serialization fails
-    var stitchFileError: StitchFileError?
+    @MainActor var stitchFileError: StitchFileError?
 
     // Sheet for list of quick-start sample projects
-    var showSampleAppsSheet = false
+    @MainActor var showSampleAppsSheet = false
 
     // If a project was recently deleted, store the undo event here
-    var deletedProjectId: ProjectId?
+    @MainActor var deletedProjectId: ProjectId?
 
     // Alert state to confirm deleting ALL projects
-    var showDeleteAllProjectsConfirmation = false
+    @MainActor var showDeleteAllProjectsConfirmation = false
+    
+    @MainActor init() { }
 }
 
 /// A boolean wrapper which reflects the visibile state of the import file sheet. Provides an optional "destination" input

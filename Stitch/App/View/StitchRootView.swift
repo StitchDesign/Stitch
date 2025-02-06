@@ -106,7 +106,7 @@ struct StitchRootView: View {
             }
         }    
 //        .coordinateSpace(name: Self.STITCH_ROOT_VIEW_COORDINATE_SPACE)
-        .modifier(StitchRootModifier(alertState: alertState))
+        .modifier(StitchRootModifier())
         .onAppear {
             // TODO: move this to the start of StitchStore instead?
             //            dispatch(ImportDefaultComponents())

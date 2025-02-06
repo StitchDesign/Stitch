@@ -72,7 +72,7 @@ final class CameraFeedManager: Sendable, MiddlewareService {
             self.session = nil
         }
 
-        assertInDebug(!isEnabled ? !self.session.isDefined : self.session.isDefined)
+//        assertInDebug(!isEnabled ? !self.session.isDefined : self.session.isDefined)
     }
 
     var isRunning: Bool {
@@ -85,9 +85,14 @@ final class CameraFeedManager: Sendable, MiddlewareService {
 
     @MainActor
     static func createSession(cameraSettings: CameraSettings,
-                              isCameraFeedNode: Bool) -> StitchCameraSession {
+                              isCameraFeedNode: Bool) -> StitchCameraSession? {
         let cameraPosition = cameraSettings.direction.avCapturePosition
-        let cameraPref = UserDefaults.standard.getCameraPref(position: cameraPosition)
+        
+        guard let cameraPref = UserDefaults.standard.getCameraPref(position: cameraPosition) else {
+            dispatch(ReceivedStitchFileError(error: .cameraDeviceNotFound))
+            return nil
+        }
+        
         return Self.createSession(device: cameraPref,
                                   position: cameraPosition,
                                   cameraOrientation: cameraSettings.orientation,
