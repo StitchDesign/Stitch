@@ -182,7 +182,7 @@ final actor CameraFeedActor {
             log("FrameExtractor error: could not setup input or output.")
             
             DispatchQueue.main.async {
-                dispatch(ReceivedStitchFileError(error: .customError("There was an issue finding your camera device. Check your camera in application settings and try again.")))                
+                dispatch(ReceivedStitchFileError(error: .cameraDeviceNotFound))
             }
             
             session.commitConfiguration() // commit configuration if we must exit
