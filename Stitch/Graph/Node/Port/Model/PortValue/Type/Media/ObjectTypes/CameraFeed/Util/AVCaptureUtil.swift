@@ -23,8 +23,8 @@ extension AVCaptureDevice: @unchecked Sendable { }
 /// Abstraction for types of cameras later used to determine with ARSession or AVCaptureSession should run,
 /// since only one can run at a given time.
 enum StitchCameraDevice: Sendable {
-    case builtIn(AVCaptureDevice?)
-    case custom(AVCaptureDevice?)
+    case builtIn(AVCaptureDevice)
+    case custom(AVCaptureDevice)
 
     var device: AVCaptureDevice? {
         switch self {
@@ -58,12 +58,16 @@ enum StitchCameraDevice: Sendable {
 /// Obtains the user's last selected camera device (if any) on their particular device.
 /// `UserDefaults` is used because this setting needs to be device-specific.
 extension UserDefaults {
-    func getCameraPref(position: AVCaptureDevice.Position) -> StitchCameraDevice {
+    func getCameraPref(position: AVCaptureDevice.Position) -> StitchCameraDevice? {
         // We combine front + back cameras under one umbrella option.
         // If Catalyst, a "back" camera won't return an option so we request again for unspecified direction
         guard let cameraPrefId = self.object(forKey: CAMERA_PREF_KEY_NAME) as? String,
               cameraPrefId != BUILT_IN_CAM_LABEL else {
-            return .builtIn(AVCaptureDevice.getDefaultCamera(specifiedPosition: position))
+            guard let device = AVCaptureDevice.getDefaultCamera(specifiedPosition: position) else {
+                return nil
+            }
+            
+            return .builtIn(device)
         }
 
         // First, look for cameras by specified position. If no results, try again, but set as .unspecified.
@@ -71,8 +75,11 @@ extension UserDefaults {
         let camerasByPosition = discoverExternalCameraDevices(position: position)
         //        guard camerasByPosition.isNotEmpty else {
         guard !camerasByPosition.isEmpty else {
-            let camera = discoverExternalCameraDevices(position: .unspecified)
-                .first { $0.uniqueID == cameraPrefId }
+            guard let camera = discoverExternalCameraDevices(position: .unspecified)
+                .first(where: { $0.uniqueID == cameraPrefId }) else {
+                    return nil
+                }
+            
             return .custom(camera)
         }
 
@@ -81,10 +88,16 @@ extension UserDefaults {
         // If selected camera is iPad's dual camera, change the camera selection rather
         // than just its position
         if getDualCameraIDs().contains(where: { $0 == result?.uniqueID }) {
-            let camera = AVCaptureDevice.getDefaultCamera(specifiedPosition: position)
+            guard let camera = AVCaptureDevice.getDefaultCamera(specifiedPosition: position) else {
+                return nil
+            }
             return .builtIn(camera)
         }
 
+        guard let result = result else {
+            return nil
+        }
+        
         return .custom(result)
     }
 

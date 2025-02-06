@@ -355,7 +355,6 @@
 		EC0E892626265B3200A586C2 /* LoopBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0E892526265B3200A586C2 /* LoopBuilder.swift */; };
 		EC0F334A2BED93D9008093BC /* NodeDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0F33492BED93D9008093BC /* NodeDelegate.swift */; };
 		EC0F334C2BED93EF008093BC /* GraphDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0F334B2BED93EF008093BC /* GraphDelegate.swift */; };
-		EC0F334E2BED9415008093BC /* StoreDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0F334D2BED9415008093BC /* StoreDelegate.swift */; };
 		EC0FD2DE2B50D4A700CCEAB5 /* CatalystNavigationBarHelperViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0FD2DD2B50D4A700CCEAB5 /* CatalystNavigationBarHelperViews.swift */; };
 		EC10BA522629FBF800A9BE89 /* evalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC10BA512629FBF800A9BE89 /* evalTests.swift */; };
 		EC11218D2942839700F0AE19 /* TrianglePatchNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC11218C2942839700F0AE19 /* TrianglePatchNode.swift */; };
@@ -1306,7 +1305,6 @@
 		EC0E892526265B3200A586C2 /* LoopBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopBuilder.swift; sourceTree = "<group>"; };
 		EC0F33492BED93D9008093BC /* NodeDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeDelegate.swift; sourceTree = "<group>"; };
 		EC0F334B2BED93EF008093BC /* GraphDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphDelegate.swift; sourceTree = "<group>"; };
-		EC0F334D2BED9415008093BC /* StoreDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreDelegate.swift; sourceTree = "<group>"; };
 		EC0FD2DD2B50D4A700CCEAB5 /* CatalystNavigationBarHelperViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalystNavigationBarHelperViews.swift; sourceTree = "<group>"; };
 		EC10BA512629FBF800A9BE89 /* evalTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = evalTests.swift; sourceTree = "<group>"; };
 		EC11218C2942839700F0AE19 /* TrianglePatchNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrianglePatchNode.swift; sourceTree = "<group>"; };
@@ -3399,7 +3397,6 @@
 			isa = PBXGroup;
 			children = (
 				B5CB82F3283D987F00FE29A6 /* StitchStore.swift */,
-				EC0F334D2BED9415008093BC /* StoreDelegate.swift */,
 				B5D7EC78298DDEF300549E80 /* StitchEnvironment.swift */,
 				B55C958328CBAB4000ED59B2 /* StitchUndoManager.swift */,
 			);
@@ -5160,7 +5157,6 @@
 				ECA92A14260A69DC00281B52 /* DivideNode.swift in Sources */,
 				ECCFB36C2C35E16300E94D60 /* PreviewLayerSizeModifier.swift in Sources */,
 				EC8C5C112616334B0099C374 /* OptionSwitchNode.swift in Sources */,
-				EC0F334E2BED9415008093BC /* StoreDelegate.swift in Sources */,
 				B55500F92C1BC2D20081C3F1 /* SidebarListItemSwipeMenu.swift in Sources */,
 				EC0F334A2BED93D9008093BC /* NodeDelegate.swift in Sources */,
 				EC5E3A1828188DF5001E156F /* ProjectDestructiveActions.swift in Sources */,

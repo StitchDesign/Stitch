@@ -104,6 +104,10 @@ enum StitchFileError: Error {
     case recordingPermissionsDisabled
     // Project duplication
     case projectDuplicationFailed
+    // No camera found
+    case cameraDeviceNotFound
+    // Just pass in a string
+    case customError(_ message: String)
     // Unexpected error
     case unknownError(_ message: String)
 }
@@ -205,6 +209,10 @@ extension StitchFileError: CustomStringConvertible {
             return "This project requires Stitch to access your microphone."
         case .projectDuplicationFailed:
             return "Stitch was unable to duplicate this project."
+        case .cameraDeviceNotFound:
+            return "There was an issue finding your camera device. Check your camera in application settings and try again."
+        case .customError(let message):
+            return message
         }
     }
 

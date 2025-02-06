@@ -63,17 +63,6 @@ extension StitchStore {
     }
 }
 
-struct DeleteAllProjects: FileManagerEvent {
-    func handle(fileManager: StitchFileManager) -> MiddlewareManagerResponse {
-        if let contents = StitchFileManager.readDirectoryContents(StitchFileManager.documentsURL).value {
-            contents.forEach { url in
-                try? FileManager.default.removeItem(at: url)
-            }
-        }
-        return .noChange
-    }
-}
-
 extension StitchStore {
     @MainActor
     func undoDeleteProject(projectId: ProjectId) {
@@ -101,13 +90,15 @@ extension StitchStore {
     }
 }
 
-struct DeleteAllProjectsConfirmed: AppEvent {
-    func handle(state: AppState) -> AppResponse {
-        var state = state
-        state.alertState.showDeleteAllProjectsConfirmation = false
+extension StitchStore {
+    @MainActor
+    func deleteAllProjectsConfirmed() {
+        self.alertState.showDeleteAllProjectsConfirmation = false
 
-        let effect: Effect = { DeleteAllProjects() }
-
-        return AppResponse(effects: [effect], state: state)
+        if let contents = StitchFileManager.readDirectoryContents(StitchFileManager.documentsURL).value {
+            contents.forEach { url in
+                try? FileManager.default.removeItem(at: url)
+            }
+        }
     }
 }
