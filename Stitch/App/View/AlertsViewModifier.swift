@@ -19,14 +19,6 @@ struct AlertsViewModifier: ViewModifier {
         store.alertState
     }
     
-//    var showProjectDeleteAllAlert: Binding<Bool> {
-//        self.$alertState.showDeleteAllProjectsConfirmation
-//    }
-    
-//    var showStitchFileAlert: Binding<Bool> {
-//        self.$alertState.stitchFileError
-//    }
-    
     var showSettingsPrompt: Bool {
         alertState.stitchFileError?.showSettingsPrompt ?? false
     }
@@ -50,15 +42,6 @@ struct AlertsViewModifier: ViewModifier {
                 // Hide alert when state value is toggled to false from user dismissing alert
                 if !showAlert { dispatch(HideStitchFileErrorAlert()) }
             }
-        
-        // Delete ALL projects
-//            .onChange(of: alertState.showDeleteAllProjectsConfirmation) { _, willShow in
-//                showProjectDeleteAllAlert = willShow
-//            }
-//            .onChange(of: showProjectDeleteAllAlert) { _, willShow in
-//                // Hide alert when state value is toggled to false from user dismissing alert
-//                if !willShow { dispatch(HideDeleteAllProjectsConfirmation()) }
-//            }
         
         // Confirmation to delete ALL projects
             .alert(Text("This will delete ALL projects. Are you sure you want to proceed?"),

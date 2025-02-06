@@ -114,9 +114,3 @@ struct ShowDeleteAllProjectsConfirmation: ProjectAlertEvent {
         state.showDeleteAllProjectsConfirmation = true
     }
 }
-
-struct HideDeleteAllProjectsConfirmation: ProjectAlertEvent {
-    func handle(state: ProjectAlertState) {
-        state.showDeleteAllProjectsConfirmation = false
-    }
-}
