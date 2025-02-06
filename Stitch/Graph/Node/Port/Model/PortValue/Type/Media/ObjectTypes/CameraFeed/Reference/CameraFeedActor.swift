@@ -45,44 +45,67 @@ final actor CameraFeedActor {
                      device: StitchCameraDevice,
                      position: AVCaptureDevice.Position,
                      cameraOrientation: StitchCameraOrientation,
-                     startCameraCallback: @escaping () -> ()) {
+                     startCameraCallback: @MainActor @escaping () -> ()) {
         let authStatus = self.authStatus
         switch authStatus {
         case .authorized:
-            self.configureSession(
-                session: session,
-                device: device,
-                position: position,
-                cameraOrientation: cameraOrientation,
-                startCameraCallback: startCameraCallback)
-
-        case .notDetermined:
-            self.requestPermission(session: session,
-                                   device: device,
-                                   position: position,
-                                   cameraOrientation: cameraOrientation,
-                                   startCameraCallback: startCameraCallback)
-        default:
-            DispatchQueue.main.async {
-                dispatch(CameraPermissionDeclined())
-            }
-        }
-    }
-
-    @MainActor
-    private func requestPermission(session: StitchCameraSession,
-                                   device: StitchCameraDevice,
-                                   position: AVCaptureDevice.Position,
-                                   cameraOrientation: StitchCameraOrientation,
-                                   startCameraCallback: @escaping () -> ()) {
-        AVCaptureDevice.requestAccess(for: CAMERA_FEED_MEDIA_TYPE) { isGranted in
-            if isGranted {
-                self.startCamera(
+            DispatchQueue.main.async { [weak self, weak session] in
+                guard let session = session else {
+                    return
+                }
+                
+                self?.configureSession(
                     session: session,
                     device: device,
                     position: position,
                     cameraOrientation: cameraOrientation,
                     startCameraCallback: startCameraCallback)
+            }
+
+        case .notDetermined:
+            Task { [weak self, weak session] in
+                guard let session = session else {
+                    return
+                }
+                
+                self?.requestPermission(session: session,
+                                        device: device,
+                                        position: position,
+                                        cameraOrientation: cameraOrientation,
+                                        startCameraCallback: startCameraCallback)
+            }
+        default:
+//            DispatchQueue.main.async {
+                
+                
+                
+                // TODO: need alert
+                
+                dispatch(CameraPermissionDeclined())
+//            }
+        }
+    }
+
+    // MARK: important to keep this nonisolated or else requestAccess will crash.
+    private nonisolated func requestPermission(session: StitchCameraSession,
+                                               device: StitchCameraDevice,
+                                               position: AVCaptureDevice.Position,
+                                               cameraOrientation: StitchCameraOrientation,
+                                               startCameraCallback: @MainActor @escaping () -> ()) {
+        AVCaptureDevice.requestAccess(for: CAMERA_FEED_MEDIA_TYPE) { isGranted in
+            if isGranted {
+                DispatchQueue.main.async { [weak self, weak session] in
+                    guard let session = session else {
+                        return
+                    }
+                    
+                    self?.startCamera(
+                        session: session,
+                        device: device,
+                        position: position,
+                        cameraOrientation: cameraOrientation,
+                        startCameraCallback: startCameraCallback)
+                }
             }
         }
     }
