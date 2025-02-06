@@ -527,6 +527,7 @@
 		EC519E372BACC0ED005C6131 /* MathExpressionSubmenuButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC519E362BACC0ED005C6131 /* MathExpressionSubmenuButtonView.swift */; };
 		EC51AA7926B307E3007919D6 /* groupTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC51AA7826B307E3007919D6 /* groupTests.swift */; };
 		EC5263032B59D83600EE1E52 /* HandleStitchAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5263022B59D83600EE1E52 /* HandleStitchAction.swift */; };
+		EC53C0EE2D543A32002ECAEB /* LayerInspectorRowButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC53C0ED2D543A32002ECAEB /* LayerInspectorRowButton.swift */; };
 		EC53F3BA287E25D60021095B /* SineNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC53F3B9287E25D60021095B /* SineNode.swift */; };
 		EC53F3BC287E25EE0021095B /* ArcTan2Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC53F3BB287E25EE0021095B /* ArcTan2Node.swift */; };
 		EC53F3C0287E25FD0021095B /* CosineNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC53F3BF287E25FD0021095B /* CosineNode.swift */; };
@@ -1474,6 +1475,7 @@
 		EC519E362BACC0ED005C6131 /* MathExpressionSubmenuButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MathExpressionSubmenuButtonView.swift; sourceTree = "<group>"; };
 		EC51AA7826B307E3007919D6 /* groupTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = groupTests.swift; sourceTree = "<group>"; };
 		EC5263022B59D83600EE1E52 /* HandleStitchAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HandleStitchAction.swift; sourceTree = "<group>"; };
+		EC53C0ED2D543A32002ECAEB /* LayerInspectorRowButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInspectorRowButton.swift; sourceTree = "<group>"; };
 		EC53F3B9287E25D60021095B /* SineNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SineNode.swift; sourceTree = "<group>"; };
 		EC53F3BB287E25EE0021095B /* ArcTan2Node.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArcTan2Node.swift; sourceTree = "<group>"; };
 		EC53F3BF287E25FD0021095B /* CosineNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CosineNode.swift; sourceTree = "<group>"; };
@@ -2237,6 +2239,7 @@
 			children = (
 				B56FFB662C1967F600623CC7 /* Field */,
 				ECF387C8280B5C4C0075F0E5 /* NodeInputOutputView.swift */,
+				EC53C0ED2D543A32002ECAEB /* LayerInspectorRowButton.swift */,
 				ECF387CA280B5C650075F0E5 /* PortValuesPreviewView.swift */,
 				205BB3B025BA203D00F144A7 /* PortView.swift */,
 				EC825409287DE2E80020D943 /* LabelDisplayView.swift */,
@@ -5451,6 +5454,7 @@
 				B55500FB2C1BC2FF0081C3F1 /* SidebarListItemSwipeButton.swift in Sources */,
 				B55780652CAF66D900907BA8 /* StitchComponentable.swift in Sources */,
 				ECCF23532D4C6C7B00BC2F2F /* StepType.swift in Sources */,
+				EC53C0EE2D543A32002ECAEB /* LayerInspectorRowButton.swift in Sources */,
 				B56FFB3E2C18F52600623CC7 /* StitchFileResult.swift in Sources */,
 				B54D0BAF2957811A00F3B2F9 /* ProjectsListItemLoadedView.swift in Sources */,
 				E419F3F72D40337400C169D4 /* EditBeforeSubmitModalView.swift in Sources */,
