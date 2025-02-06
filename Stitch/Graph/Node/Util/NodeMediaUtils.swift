@@ -218,7 +218,7 @@ extension NodeViewModel {
     /// Used for fields.
     @MainActor
     func getVisibleMediaObserver(outputPortId: Int,
-                                 mediaId: UUID) -> MediaViewModel? {
+                                 mediaId: UUID?) -> MediaViewModel? {
         guard let rowObserver = self.getOutputRowObserver(outputPortId) else {
             fatalErrorIfDebug()
             return nil
@@ -232,7 +232,7 @@ extension NodeViewModel {
     @MainActor
     func getInputMediaObserver(inputCoordinate: NodeIOCoordinate,
                                loopIndex: Int,
-                               mediaId: UUID) -> MediaViewModel? {
+                               mediaId: UUID?) -> MediaViewModel? {
         switch inputCoordinate.portType {
         case .portIndex(let portIndex):
             return self.getInputMediaObserver(portIndex: portIndex,
@@ -338,7 +338,7 @@ extension LayerNodeViewModel {
     /// Gets the media observer for some connected input.
     func getConnectedInputMediaObserver(keyPath: LayerInputType,
                                         loopIndex: Int,
-                                        mediaId: UUID) -> MediaViewModel? {
+                                        mediaId: UUID?) -> MediaViewModel? {
         let port = self[keyPath: keyPath.layerNodeKeyPath]
         
         if let upstreamObserver = port.rowObserver.upstreamOutputObserver,
