@@ -18,7 +18,7 @@ struct Secrets {
             let json = try JSONSerialization.jsonObject(with: data, options: [])
             return json as? [String: Any]
         } catch {
-            fatalErrorIfDebug("Error loading secrets.json: \(error)")
+            log("Error loading secrets.json: \(error)")
             return nil
         }
     }
@@ -65,7 +65,7 @@ struct Secrets {
     
     static var sentryDSN: String {
         guard let model = loadSecrets()?["SENTRY_DSN"] as? String else {
-            fatalErrorIfDebug("SENTRY_DSN not found in secrets.json")
+            log("SENTRY_DSN not found in secrets.json")
             return ""
         }
         return model
