@@ -192,11 +192,10 @@ extension NodeRowObserver {
 
         let isSplitterPatch = self.nodeKind.getPatch == .splitter
         let parentGroupNode = self.nodeDelegate?.patchNodeViewModel?.parentGroupNodeId
-        let hasParentGroupNode = parentGroupNode.isDefined ?? false
+        let hasParentGroupNode = parentGroupNode.isDefined
         
         let currentTraversalLevel = self.nodeDelegate?.graphDelegate?.groupNodeFocused
-        
-        let areWeCurrentlyInsideParent = parentGroupNode == currentTraversalLevel
+        let isSplitterAtCurrentTraversalLevel = parentGroupNode == currentTraversalLevel
      
         /*
          Two scenarios re: a Group Node and its splitters:
@@ -207,7 +206,7 @@ extension NodeRowObserver {
          */
         if isSplitterPatch,
             hasParentGroupNode,
-           !areWeCurrentlyInsideParent {
+           !isSplitterAtCurrentTraversalLevel {
             // Rows in a group-ui-node use the underlying splitter node's title
             let labelFromSplitter = self.nodeDelegate?.displayTitle
             assertInDebug(labelFromSplitter.isDefined)
