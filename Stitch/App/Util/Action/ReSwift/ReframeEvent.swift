@@ -68,7 +68,7 @@ protocol GraphUIActionHandler {
 
 protocol ProjectAlertActionHandler {
     @MainActor
-    func handle(state: ProjectAlertState) -> ProjectAlertResponse
+    func handle(state: ProjectAlertState)
 }
 
 //protocol LogListenerEffectHandler {

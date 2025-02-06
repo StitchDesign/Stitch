@@ -24,6 +24,4 @@ struct AppState: Equatable {
 
     // Tracks ID of project which has a title that's currently getting modified
     var projectIdForTitleEdit: ProjectId?
-
-    var alertState = ProjectAlertState()
 }

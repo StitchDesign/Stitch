@@ -9,8 +9,10 @@ import AudioKit
 import SwiftUI
 import StitchSchemaKit
 
+typealias StoreDelegate = StitchStore
+
 @Observable
-final class StitchStore: Sendable, StoreDelegate {
+final class StitchStore: Sendable {
         
     @MainActor var llmRecordingModeEnabled: Bool = false
     
@@ -18,6 +20,8 @@ final class StitchStore: Sendable, StoreDelegate {
     let documentLoader = DocumentLoader()
     let clipboardEncoder = ClipboardEncoder()
     let clipboardDelegate = ClipboardEncoderDelegate()
+    
+    @MainActor var alertState: ProjectAlertState
     
     @MainActor
     var systems: [StitchSystemType: StitchSystemViewModel] = [:]
@@ -34,7 +38,6 @@ final class StitchStore: Sendable, StoreDelegate {
     // TODO: should be properly persisted
     @MainActor var edgeStyle: EdgeStyle = .defaultEdgeStyle
     @MainActor var appTheme: StitchTheme = .defaultTheme
-    @MainActor var alertState = ProjectAlertState()
 
     // Tracks ID of project which has a title that's currently getting modified
     @MainActor var projectIdForTitleEdit: ProjectId?
@@ -44,6 +47,7 @@ final class StitchStore: Sendable, StoreDelegate {
     @MainActor
     init() {
         self.environment = StitchEnvironment()
+        self.alertState = .init()
         
         // Remove cached data from previous session
         try? FileManager.default.removeItem(at: StitchFileManager.tempDir)
@@ -64,8 +68,7 @@ final class StitchStore: Sendable, StoreDelegate {
             edgeStyle: self.edgeStyle,
             appTheme: self.appTheme,
             isShowingDrawer: self.isShowingDrawer,
-            projectIdForTitleEdit: self.projectIdForTitleEdit,
-            alertState: self.alertState
+            projectIdForTitleEdit: self.projectIdForTitleEdit
         )
     }
 }
@@ -86,7 +89,7 @@ final class ClipboardEncoderDelegate: DocumentEncodableDelegate {
     
     func updateAsync(from schema: StitchClipboardContent) async { }
     
-    var storeDelegate: (any StoreDelegate)? {
+    var storeDelegate: StitchStore? {
         self.store
     }
 }
