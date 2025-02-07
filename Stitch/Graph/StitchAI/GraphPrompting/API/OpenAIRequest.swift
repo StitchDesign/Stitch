@@ -160,8 +160,7 @@ extension StitchAIManager {
                 // Handle successful response
                 dispatch(OpenAIRequestCompleted(
                     originalPrompt: request.prompt,
-                    data: data,
-                    error: nil
+                    data: data
                 ))
             } catch {
                 guard let error = error as? StitchAIManagerError else {
@@ -339,35 +338,35 @@ extension StitchAIManager {
 struct OpenAIRequestCompleted: StitchDocumentEvent {
     let originalPrompt: String
     let data: Data?
-    let error: Error?
-    let maxParsingAttempts = 3
-    let parsingRetryDelay: TimeInterval = 1
+//    let error: Error?
+//    let maxParsingAttempts = 3
+//    let parsingRetryDelay: TimeInterval = 1
     
     /// Retry parsing JSON response with delay using dispatch queue
-    @MainActor private func retryParsing(data: Data, attempt: Int, state: StitchDocumentViewModel) {
-        log("Retrying JSON parsing, attempt \(attempt) of \(maxParsingAttempts)", .logToServer)
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + parsingRetryDelay) {
-            let (stepsFromResponse, error) = data.getOpenAISteps()
-            
-            if let stepsFromResponse = stepsFromResponse {
-                log("StitchAI JSON parsing succeeded on retry \(attempt)")
-                self.handleSuccessfulParse(steps: stepsFromResponse, state: state)
-            } else if attempt < self.maxParsingAttempts {
-                log("StitchAI JSON parsing failed on retry \(attempt): \(error?.localizedDescription ?? "")", .logToServer)
-                self.retryParsing(data: data, attempt: attempt + 1, state: state)
-            } else {
-                log("StitchAI All parsing retries exhausted for \(self.originalPrompt)", .logToServer)
-                
-                state.showErrorModal(
-                    message: error?.localizedDescription ?? "Failed to parse response after \(self.maxParsingAttempts) attempts",
-                    userPrompt: self.originalPrompt,
-                    jsonResponse: String(data: data, encoding: .utf8) ?? ""
-                )
-                self.handleError(error ?? NSError(domain: "OpenAIRequestCompleted", code: 0, userInfo: nil), state: state)
-            }
-        }
-    }
+//    @MainActor private func retryParsing(data: Data, attempt: Int, state: StitchDocumentViewModel) {
+//        log("Retrying JSON parsing, attempt \(attempt) of \(maxParsingAttempts)", .logToServer)
+//        
+//        DispatchQueue.main.asyncAfter(deadline: .now() + parsingRetryDelay) {
+//            let (stepsFromResponse, error) = data.getOpenAISteps()
+//            
+//            if let stepsFromResponse = stepsFromResponse {
+//                log("StitchAI JSON parsing succeeded on retry \(attempt)")
+//                self.handleSuccessfulParse(steps: stepsFromResponse, state: state)
+//            } else if attempt < self.maxParsingAttempts {
+//                log("StitchAI JSON parsing failed on retry \(attempt): \(error?.localizedDescription ?? "")", .logToServer)
+//                self.retryParsing(data: data, attempt: attempt + 1, state: state)
+//            } else {
+//                log("StitchAI All parsing retries exhausted for \(self.originalPrompt)", .logToServer)
+//                
+//                state.showErrorModal(
+//                    message: error?.localizedDescription ?? "Failed to parse response after \(self.maxParsingAttempts) attempts",
+//                    userPrompt: self.originalPrompt,
+//                    jsonResponse: String(data: data, encoding: .utf8) ?? ""
+//                )
+//                self.handleError(error ?? NSError(domain: "OpenAIRequestCompleted", code: 0, userInfo: nil), state: state)
+//            }
+//        }
+//    }
     
     /// Process successfully parsed response data
     /// How we do this:
@@ -410,15 +409,15 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
     /// Main handler for completed requests
     func handle(state: StitchDocumentViewModel) {
         
-        if let error = error {
-            state.showErrorModal(
-                message: "Request error: \(error.localizedDescription)",
-                userPrompt: originalPrompt,
-                jsonResponse: nil
-            )
-            handleError(error, state: state)
-            return
-        }
+//        if let error = error {
+//            state.showErrorModal(
+//                message: "Request error: \(error.localizedDescription)",
+//                userPrompt: originalPrompt,
+//                jsonResponse: nil
+//            )
+//            handleError(error, state: state)
+//            return
+//        }
         
         guard let data = data else {
             state.showErrorModal(
@@ -445,8 +444,10 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
             handleSuccessfulParse(steps: stepsFromResponse, state: state)
         } else {
             log("Initial StitchAI JSON parsing failed: \(error?.localizedDescription ?? "")", .logToServer)
-            log("Starting parsing retries")
-            retryParsing(data: data, attempt: 1, state: state)
+            fatalErrorIfDebug()
+            return
+//            log("Starting parsing retries")
+//            retryParsing(data: data, attempt: 1, state: state)
         }
     }
     
