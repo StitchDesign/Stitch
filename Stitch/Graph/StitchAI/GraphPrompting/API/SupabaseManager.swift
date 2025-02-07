@@ -26,29 +26,40 @@ struct RecordingWrapper: Codable {
     var actions: [LLMStepAction]
 }
 
-actor SupabaseManager {
-    static let shared = SupabaseManager()
-    private var postgrest: PostgrestClient
-    private var tableName: String
+final actor StitchAIManager {
+    let secrets: Secrets
 
-    private init() {
+    var postgrest: PostgrestClient
+    var tableName: String
+    
+    @MainActor var currentTask: Task<Void, Never>?
+    @MainActor weak var documentDelegate: StitchDocumentViewModel?
+
+    init?() throws {
+        guard let secrets = try Secrets() else {
+            return nil
+        }
+        
+        self.secrets = secrets
+        
         // Initialize with empty values first
         self.postgrest = PostgrestClient(url: URL(fileURLWithPath: ""),
-                                         schema: "", headers: [:])
+                                         schema: "",
+                                         headers: [:])
         self.tableName = ""
-
+        
         // Extract required environment variables
-        let supabaseURL = Secrets.supabaseURL
-        let supabaseAnonKey = Secrets.supabaseAnonKey
-        let tableName = Secrets.tableName
-
+        let supabaseURL = secrets.supabaseURL
+        let supabaseAnonKey = secrets.supabaseAnonKey
+        let tableName = secrets.tableName
+        
         // Initialize the PostgREST client
         guard let baseURL = URL(string: supabaseURL),
               let apiURL = URL(string: "/rest/v1", relativeTo: baseURL) else {
             fatalErrorIfDebug(" Invalid Supabase URL")
             return
         }
-
+        
         // Assign the actual values only if everything succeeds
         self.tableName = tableName
         self.postgrest = PostgrestClient(
@@ -60,25 +71,41 @@ actor SupabaseManager {
             ]
         )
     }
+}
 
-    // User had to edit/augment some actions created by the LLM;
-    func uploadEditedActions(prompt: String,
-                             finalActions: [Step]) async throws {
+extension StitchAIManager {
+    @MainActor
+    func cancelCurrentRequest() {
+        guard let currentTask = self.currentTask else {
+            return
+        }
         
-        guard let deviceUUID = await UIDevice.current.identifierForVendor?.uuidString else {
+        currentTask.cancel()
+        self.currentTask = nil
+    }
+    
+    @MainActor static func getDeviceUUID() throws -> String? {
+        guard let deviceUUID = UIDevice.current.identifierForVendor?.uuidString else {
             log("Unable to retrieve device UUID", .logToServer)
 #if DEV_DEBUG || DEBUG
             throw NSError(domain: "DeviceIDError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Unable to retrieve device UUID"])
             #endif
-            return
+            return nil
         }
         
+        return deviceUUID
+    }
+    
+    // User had to edit/augment some actions created by the LLM;
+    func uploadEditedActions(prompt: String,
+                             finalActions: [Step],
+                             deviceUUID: String) async throws {
         let wrapper = RecordingWrapper(
             prompt: prompt,
             actions: finalActions)
         
         // Not good to have as a var in an async context?
-        var payload = Payload(
+        let payload = Payload(
             user_id: deviceUUID,
             actions: wrapper,
             correction: true)
@@ -93,7 +120,7 @@ actor SupabaseManager {
         do {
             let jsonData = try JSONEncoder().encode(payload)
             if let jsonString = String(data: jsonData, encoding: .utf8) {
-                var submittedString: String = jsonString
+                let submittedString: String = jsonString
                 log(" Edited JSON payload:\n\(submittedString)")
                 
                 // TODO: JAN 25: take this logic and put it into a side-effect

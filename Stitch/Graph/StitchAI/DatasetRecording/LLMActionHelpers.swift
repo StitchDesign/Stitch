@@ -51,36 +51,45 @@ struct SubmitLLMActionsToSupabase: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
         log("SubmitLLMActionsToSupabase called")
         
-        Task {
-            do {
-                log("📼 ⬆️ Uploading recording data to Supabase ⬆️ 📼")
-              
-                // TODO: JAN 25: these should be from the edited whatever...
-                let actions: [StepTypeAction] = state.llmRecording.actions
-                log("ShowLLMApprovalModal: actions: \(actions)")
-                
-                let actionsAsSteps: [Step] = actions.map { $0.toStep() }
-                
-                try await SupabaseManager.shared.uploadEditedActions(
+        guard let supabaseManager = state.aiManager else {
+            log("SubmitLLMActionsToSupabase error: no supabase")
+            return
+        }
+        
+        do {
+            log("📼 ⬆️ Uploading recording data to Supabase ⬆️ 📼")
+            
+            // TODO: JAN 25: these should be from the edited whatever...
+            let actions: [StepTypeAction] = state.llmRecording.actions
+            log("ShowLLMApprovalModal: actions: \(actions)")
+            
+            let actionsAsSteps: [Step] = actions.map { $0.toStep() }
+            
+            guard let deviceUUID = try StitchAIManager.getDeviceUUID() else {
+                log("SubmitLLMActionsToSupabase error: no device ID found.")
+                return
+            }
+            
+            Task { [weak supabaseManager] in
+                try await supabaseManager?.uploadEditedActions(
                     prompt: state.llmRecording.promptState.prompt,
-                    finalActions: actionsAsSteps)
-                                
-                log("📼 ✅ Data successfully saved locally and uploaded to Supabase ✅ 📼")
-                state.llmRecording = .init()
+                    finalActions: actionsAsSteps,
+                    deviceUUID: deviceUUID)
                 
-            } catch let encodingError as EncodingError {
-                log("📼 ❌ Encoding error: \(encodingError.localizedDescription) ❌ 📼")
-                state.llmRecording = .init()
-            } catch let fileError as NSError {
-                log("📼 ❌ File system error: \(fileError.localizedDescription) ❌ 📼")
-                state.llmRecording = .init()
-            } catch {
-                log("📼 ❌ Error: \(error.localizedDescription) ❌ 📼")
+                log("📼 ✅ Data successfully saved locally and uploaded to Supabase ✅ 📼")
                 state.llmRecording = .init()
             }
             
+        } catch let encodingError as EncodingError {
+            log("📼 ❌ Encoding error: \(encodingError.localizedDescription) ❌ 📼")
+            state.llmRecording = .init()
+        } catch let fileError as NSError {
+            log("📼 ❌ File system error: \(fileError.localizedDescription) ❌ 📼")
+            state.llmRecording = .init()
+        } catch {
+            log("📼 ❌ Error: \(error.localizedDescription) ❌ 📼")
+            state.llmRecording = .init()
         }
-        
     }
 }
 

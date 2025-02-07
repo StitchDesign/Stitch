@@ -75,6 +75,7 @@ struct InsertNodeMenuWrapper: View {
         // however, GeometryReader (used for determining preview window size) SHOULD;
         // so, we need to apply the InsertNodeMenu SwiftUI .modifier after we've ignored safe areas.
         InsertNodeMenuView(
+            document: document,
             insertNodeMenuState: insertNodeMenuState,
             isPortraitMode: document.previewWindowSize.isPortrait,
             showMenu: insertNodeMenuState.show,

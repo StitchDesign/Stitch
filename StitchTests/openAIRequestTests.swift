@@ -9,12 +9,8 @@ import XCTest
 @testable import Stitch
 
 class OpenAIRequestTests: XCTestCase {
-    
-    func testSecretsVariablesNotNil() {
-        XCTAssertNotNil(Secrets.openAIAPIKey)
-        XCTAssertFalse(Secrets.openAIAPIKey.isEmpty)
-        
-        XCTAssertNotNil(Secrets.openAIModel)
-        XCTAssertFalse(Secrets.openAIModel.isEmpty)
+    func testSecretsNotNil() {
+        let secrets = try? Secrets()
+        XCTAssertNotNil(secrets)
     }
 }
