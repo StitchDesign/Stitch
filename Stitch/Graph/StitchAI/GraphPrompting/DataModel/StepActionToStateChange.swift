@@ -94,10 +94,10 @@ extension StitchDocumentViewModel {
     }
     
     @MainActor
-    func handleRetry() {
+    func handleRetry(prompt: String) {
         if self.llmRecording.attempts < LLMRecordingState.maxAttempts {
             self.llmRecording.attempts += 1
-            retryOpenAIRequest()
+            retryOpenAIRequest(lastPrompt: prompt)
         } else {
             fatalErrorIfDebug("Ran out of retry attempts")
             return
@@ -105,10 +105,9 @@ extension StitchDocumentViewModel {
     }
     
     @MainActor
-    private func retryOpenAIRequest() {
+    private func retryOpenAIRequest(lastPrompt: String) {
         // Re-trigger the OpenAI request with the original prompt
-        if let lastPrompt = stitchAI.lastPrompt,
-           !lastPrompt.isEmpty,
+        if !lastPrompt.isEmpty,
            let aiManager = self.aiManager {
             log("🔄 Retrying OpenAI request with last prompt")
             

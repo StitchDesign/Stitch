@@ -10,17 +10,15 @@ import SwiftUI
 import SwiftyJSON
 
 extension StitchDocumentViewModel {
-     
+    @MainActor
     func showErrorModal(message: String, userPrompt: String, jsonResponse: String?) {
-        DispatchQueue.main.async {
-            if let rootViewController = UIApplication.shared.windows.first?.rootViewController {
-                let hostingController = UIHostingController(rootView: StitchAIErrorModalView(
-                    message: message,
-                    userPrompt: userPrompt,
-                    jsonResponse: jsonResponse
-                ))
-                rootViewController.present(hostingController, animated: true, completion: nil)
-            }
+        if let rootViewController = UIApplication.shared.windows.first?.rootViewController {
+            let hostingController = UIHostingController(rootView: StitchAIErrorModalView(
+                message: message,
+                userPrompt: userPrompt,
+                jsonResponse: jsonResponse
+            ))
+            rootViewController.present(hostingController, animated: true, completion: nil)
         }
     }
 }

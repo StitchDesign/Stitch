@@ -158,10 +158,10 @@ extension StitchAIManager {
                 let data = try await manager.makeRequest(request)
 
                 // Handle successful response
-                dispatch(OpenAIRequestCompleted(
+                manager.openAIRequestCompleted(
                     originalPrompt: request.prompt,
                     data: data
-                ))
+                )
             } catch {
                 guard let error = error as? StitchAIManagerError else {
                     log("StitchAI handleRequest unknown error: \(error)")
@@ -183,9 +183,11 @@ extension StitchAIManager {
                     
                 }
             }
+         
+            await MainActor.run { [weak currentDocument] in
+                currentDocument?.graphUI.insertNodeMenuState.isGeneratingAINode = false
+            }
         }
-        
-        currentDocument.graphUI.insertNodeMenuState.isGeneratingAINode = false
     }
     
     /// Execute the API request with retry logic
@@ -332,82 +334,10 @@ extension StitchAIManager {
 //        makeRequest(state: state)
 //    }
     
-}
-
-/// Event handler for completed OpenAI requests
-struct OpenAIRequestCompleted: StitchDocumentEvent {
-    let originalPrompt: String
-    let data: Data?
-//    let error: Error?
-//    let maxParsingAttempts = 3
-//    let parsingRetryDelay: TimeInterval = 1
-    
-    /// Retry parsing JSON response with delay using dispatch queue
-//    @MainActor private func retryParsing(data: Data, attempt: Int, state: StitchDocumentViewModel) {
-//        log("Retrying JSON parsing, attempt \(attempt) of \(maxParsingAttempts)", .logToServer)
-//        
-//        DispatchQueue.main.asyncAfter(deadline: .now() + parsingRetryDelay) {
-//            let (stepsFromResponse, error) = data.getOpenAISteps()
-//            
-//            if let stepsFromResponse = stepsFromResponse {
-//                log("StitchAI JSON parsing succeeded on retry \(attempt)")
-//                self.handleSuccessfulParse(steps: stepsFromResponse, state: state)
-//            } else if attempt < self.maxParsingAttempts {
-//                log("StitchAI JSON parsing failed on retry \(attempt): \(error?.localizedDescription ?? "")", .logToServer)
-//                self.retryParsing(data: data, attempt: attempt + 1, state: state)
-//            } else {
-//                log("StitchAI All parsing retries exhausted for \(self.originalPrompt)", .logToServer)
-//                
-//                state.showErrorModal(
-//                    message: error?.localizedDescription ?? "Failed to parse response after \(self.maxParsingAttempts) attempts",
-//                    userPrompt: self.originalPrompt,
-//                    jsonResponse: String(data: data, encoding: .utf8) ?? ""
-//                )
-//                self.handleError(error ?? NSError(domain: "OpenAIRequestCompleted", code: 0, userInfo: nil), state: state)
-//            }
-//        }
-//    }
-    
-    /// Process successfully parsed response data
-    /// How we do this:
-    /// 1. We receive the `LLMStepActions`, which we decoded from the JSON sent to us by OpenAI
-    /// 2. We parse these `LLMStepActions` into `[StepTypeAction]` which is the more specific data structure we like to work with
-    /// 3. We validate the `[StepTypeAction]`, e.g. make sure model did not try to use a NodeType that is unavailable for a given Patch
-    /// 4. If all this succeeds, ONLY THEN do we apply the `[StepTypeAction]` to the state (fka `handleLLMStepAction`
-    @MainActor func handleSuccessfulParse(steps: LLMStepActions,
-                                          state: StitchDocumentViewModel) {
-        log("OpenAIRequestCompleted: stepsFromReponse:")
-        for step in steps {
-            log(step.description)
-        }
-        
-        let parsedSteps: [StepTypeAction] = steps.compactMap { StepTypeAction.fromStep($0) }
-        
-        let couldNotParseAllSteps = (parsedSteps.count != steps.count)
-        if couldNotParseAllSteps {
-            // TODO: JAN 30: retry the whole prompt; OpenAI might have given us bad data; e.g. specified a non-existent nodeType
-            // Note that this can also be from a parsing error on our side, e.g. we incorrectly read the data OpenAI sent
-            state.handleRetry()
-            return
-        }
-        
-        // If we successfully parsed the JSON and LLMStepActions,
-        // we should close the insert-node-menu,
-        // since we're not doing any retries.
-        state.graphUI.reduxFocusedField = nil
-        state.graphUI.insertNodeMenuState.show = false
-        state.graphUI.insertNodeMenuState.isGeneratingAINode = false
-
-        log(" Storing Original AI Generated Actions ")
-        log(" Original Actions to store: \(steps.asJSONDisplay())")
-        state.llmRecording.actions = parsedSteps
-        state.llmRecording.promptState.prompt = originalPrompt
-        
-        state.validateAndApplyActions(parsedSteps)
-    }
-    
     /// Main handler for completed requests
-    func handle(state: StitchDocumentViewModel) {
+    @MainActor
+    func openAIRequestCompleted(originalPrompt: String,
+                                data: Data?) {
         
 //        if let error = error {
 //            state.showErrorModal(
@@ -420,12 +350,17 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
 //        }
         
         guard let data = data else {
-            state.showErrorModal(
+            self.documentDelegate?
+                .showErrorModal(
                 message: "No data received",
                 userPrompt: originalPrompt,
                 jsonResponse: nil
             )
-            handleError(NSError(domain: "OpenAIRequestCompleted", code: 0, userInfo: nil), state: state)
+            
+            self.documentDelegate?
+                .handleError(NSError(domain: "OpenAIRequestCompleted",
+                                     code: 0,
+                                     userInfo: nil))
             return
         }
         
@@ -441,7 +376,9 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
         
         if let stepsFromResponse = stepsFromResponse {
             log("JSON parsing succeeded on first attempt")
-            handleSuccessfulParse(steps: stepsFromResponse, state: state)
+            self.documentDelegate?
+                .handleSuccessfulParse(steps: stepsFromResponse,
+                                       originalPrompt: originalPrompt)
         } else {
             log("Initial StitchAI JSON parsing failed: \(error?.localizedDescription ?? "")", .logToServer)
             fatalErrorIfDebug()
@@ -450,15 +387,55 @@ struct OpenAIRequestCompleted: StitchDocumentEvent {
 //            retryParsing(data: data, attempt: 1, state: state)
         }
     }
-    
-    @MainActor func handleError(_ error: Error, state: StitchDocumentViewModel) {
-        log("Error generating graph with StitchAI: \(error)", .logToServer)
-        state.graphUI.insertNodeMenuState.show = false
-        state.graphUI.insertNodeMenuState.isGeneratingAINode = false
-    }
 }
 
 // MARK: - Extensions
+
+extension StitchDocumentViewModel {
+    /// Process successfully parsed response data
+    /// How we do this:
+    /// 1. We receive the `LLMStepActions`, which we decoded from the JSON sent to us by OpenAI
+    /// 2. We parse these `LLMStepActions` into `[StepTypeAction]` which is the more specific data structure we like to work with
+    /// 3. We validate the `[StepTypeAction]`, e.g. make sure model did not try to use a NodeType that is unavailable for a given Patch
+    /// 4. If all this succeeds, ONLY THEN do we apply the `[StepTypeAction]` to the state (fka `handleLLMStepAction`
+    @MainActor func handleSuccessfulParse(steps: LLMStepActions,
+                                          originalPrompt: String) {
+        log("OpenAIRequestCompleted: stepsFromReponse:")
+        for step in steps {
+            log(step.description)
+        }
+        
+        let parsedSteps: [StepTypeAction] = steps.compactMap { StepTypeAction.fromStep($0) }
+        
+        let couldNotParseAllSteps = (parsedSteps.count != steps.count)
+        if couldNotParseAllSteps {
+            // TODO: JAN 30: retry the whole prompt; OpenAI might have given us bad data; e.g. specified a non-existent nodeType
+            // Note that this can also be from a parsing error on our side, e.g. we incorrectly read the data OpenAI sent
+            self.handleRetry(prompt: originalPrompt)
+            return
+        }
+        
+        // If we successfully parsed the JSON and LLMStepActions,
+        // we should close the insert-node-menu,
+        // since we're not doing any retries.
+        self.graphUI.reduxFocusedField = nil
+        self.graphUI.insertNodeMenuState.show = false
+        self.graphUI.insertNodeMenuState.isGeneratingAINode = false
+
+        log(" Storing Original AI Generated Actions ")
+        log(" Original Actions to store: \(steps.asJSONDisplay())")
+        self.llmRecording.actions = parsedSteps
+        self.llmRecording.promptState.prompt = originalPrompt
+        
+        self.validateAndApplyActions(parsedSteps)
+    }
+    
+    @MainActor func handleError(_ error: Error) {
+        log("Error generating graph with StitchAI: \(error)", .logToServer)
+        self.graphUI.insertNodeMenuState.show = false
+        self.graphUI.insertNodeMenuState.isGeneratingAINode = false
+    }
+}
 
 extension Data {
     /// Parse OpenAI response data into step actions

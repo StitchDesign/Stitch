@@ -171,9 +171,6 @@ struct GenerateAINode: StitchDocumentEvent {
         
         print("🤖 isFromAIGeneration set to: \(state.graph.graphUI.insertNodeMenuState.isFromAIGeneration)")
         
-        // Update lastPrompt for retry attempts
-        state.stitchAI.lastPrompt = prompt
-        
         // Dispatch OpenAI request
         let request = OpenAIRequest(prompt: prompt)
         state.aiManager?.handleRequest(request)

@@ -41,7 +41,6 @@ final class StitchDocumentViewModel: Sendable {
     @MainActor var llmRecording = LLMRecordingState()
         
     let aiManager: StitchAIManager?
-    @MainActor var stitchAI = StitchAIState()
     
     // Remains false if an encoding action never happened (used for thumbnail creation)
     @MainActor var didDocumentChange: Bool = false
