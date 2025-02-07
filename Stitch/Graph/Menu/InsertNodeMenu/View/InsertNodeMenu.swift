@@ -39,6 +39,7 @@ struct InsertNodeMenuView: View {
     @Environment(StitchStore.self) private var store
     @Environment(\.appTheme) var theme
 
+    let document: StitchDocumentViewModel
     let insertNodeMenuState: InsertNodeMenuState
     let isPortraitMode: Bool
     let showMenu: Bool
@@ -89,13 +90,17 @@ struct InsertNodeMenuView: View {
             store.currentDocument?.graphUI.insertNodeMenuState.isGeneratingAINode = false
         }
     }
+    
+    var isAIMode: Bool {
+        // AI is supported if manager was created
+        self.document.aiManager != nil && self.insertNodeMenuState.isAIMode
+    }
 
     @MainActor
     var footerView: some View {
         HStack {
             Spacer()
             StitchButton(action: {
-                let isAIMode = store.currentDocument?.graphUI.insertNodeMenuState.isAIMode ?? false
                 if isAIMode {
                     if let query = store.currentDocument?.graphUI.insertNodeMenuState.searchQuery {
                         dispatch(GenerateAINode(prompt: query))
@@ -104,7 +109,6 @@ struct InsertNodeMenuView: View {
                     dispatch(AddNodeButtonPressed())
                 }
             }, label: {
-                let isAIMode = store.currentDocument?.graphUI.insertNodeMenuState.isAIMode ?? false
                 let isLoading = store.currentDocument?.graphUI.insertNodeMenuState.isGeneratingAINode ?? false
                 
                 HStack(spacing: 8) {
@@ -137,7 +141,8 @@ struct InsertNodeMenu_Previews: PreviewProvider {
 
     static var previews: some View {
         ZStack {
-            InsertNodeMenuView(insertNodeMenuState: .init(),
+            InsertNodeMenuView(document: .createEmpty(),
+                               insertNodeMenuState: .init(),
                                isPortraitMode: false,
                                showMenu: true,
                                menuHeight: INSERT_NODE_MENU_MAX_HEIGHT)
