@@ -275,12 +275,51 @@ func portValueToNodeType(_ value: PortValue) -> UserVisibleType {
     }
 }
 
+extension PortValue {
+    var anyEncodable: any Encodable {
+        switch self {
+        case .string(let x):
+            return x
+        case .number(let x):
+            return x
+        default:
+            fatalError()
+        }
+    }
+}
+
 extension UserVisibleType {
-    // When converting a node type (i.e. UVT) to a port value,
-    // we don't care about the actual content of the associated value for that port value.
-    // TODO: instead of using `defaultPortValue`, just pass in the UVT directly
-    var toPortValue: PortValue {
-        self.defaultPortValue
+    var portValueType: Decodable.Type {
+        switch self {
+        case .string:
+            return StitchStringValue.self
+        case .number:
+            return Double.self
+        
+        default:
+            fatalError()
+        }
+    }
+    
+    func coerceToPortValue(from anyValue: Any) throws -> PortValue {
+//        guard let test = anyValue as? self.portValueType.Self else {
+//            throw StitchAICodingError.decoding
+//        }
+        
+        switch self {
+        case .string:
+            guard let string = anyValue as? StitchStringValue else {
+                throw StitchAICodingError.typeCasting
+            }
+            return .string(string)
+        case .number:
+            guard let number = anyValue as? Double else {
+                throw StitchAICodingError.typeCasting
+            }
+            return .number(number)
+        default:
+            fatalError()
+        }
     }
 
     // given a user-visible node type, get its corresponding PortValue
