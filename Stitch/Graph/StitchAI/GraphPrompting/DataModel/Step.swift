@@ -18,7 +18,10 @@ struct Step: Equatable, Codable, Hashable {
     var fromPort: StringOrNumber?  // Source port for connections
     var fromNodeId: String?   // Source node for connections
     var toNodeId: String?     // Target node for connections
-    var value: JSONFriendlyFormat? // Associated value data
+    
+    // flag
+    var value: StitchAIPortValue? // Associated value data
+    
     var nodeType: String?     // Type of the node
     
     enum CodingKeys: String, CodingKey {

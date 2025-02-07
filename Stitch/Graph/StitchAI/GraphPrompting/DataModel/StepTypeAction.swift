@@ -326,11 +326,12 @@ struct StepActionSetInput: Equatable, Hashable, Codable {
     let value: PortValue
     let nodeType: NodeType
     
+    // encoding
     var toStep: Step {
         Step(stepType: Self.stepType.rawValue,
              nodeId: nodeId.description,
              port: .init(value: port.asLLMStepPort()),
-             value: value.llmFriendlyDisplay,
+             value: StitchAIPortValue(portValue: value),
              nodeType: value.toNodeType.asLLMStepNodeType)
     }
     

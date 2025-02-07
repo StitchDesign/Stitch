@@ -136,13 +136,13 @@ extension LLMStepAction {
     }
         
     func parseValueForSetInput(nodeType: NodeType) -> PortValue? {
-        
-        guard let value: JSONFriendlyFormat = self.value else {
-            log("parseValueForSetInput: value was not defined")
-            return nil
-        }
-        
-        return value.asPortValueForLLMSetField(nodeType)
+        self.value?.value
+//        guard let value: JSONFriendlyFormat = self.value else {
+//            log("parseValueForSetInput: value was not defined")
+//            return nil
+//        }
+//        
+//        return value.asPortValueForLLMSetField(nodeType)
     }
     
     // TODO: `LLMStepAction`'s `port` parameter does not yet properly distinguish between input vs output?

@@ -213,7 +213,7 @@ extension String {
     }
 }
 
-struct StitchAIPortValue {
+struct StitchAIPortValue: Hashable {
     var type: UserVisibleType
     var value: PortValue
 }
@@ -240,6 +240,8 @@ extension StitchAIPortValue: Codable {
         let type = try container.decode(UserVisibleType.self, forKey: .type)
         
         let portValueType = type.portValueType
+        
+        // MARK: if the below try fails, check if `PortValue.anyCodable` needs to be updated
         let decodedValue = try container.decode(portValueType, forKey: .value)
         let value = try type.coerceToPortValue(from: decodedValue)
         
@@ -250,7 +252,7 @@ extension StitchAIPortValue: Codable {
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
-        let anyCodable = self.value.anyEncodable
+        let anyCodable = self.value.anyCodable
         
         try container.encode(type, forKey: .type)
         try container.encode(anyCodable, forKey: .value)
