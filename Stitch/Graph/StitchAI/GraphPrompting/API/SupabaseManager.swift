@@ -31,9 +31,8 @@ final actor StitchAIManager {
 
     var postgrest: PostgrestClient
     var tableName: String
-//    var currentTask: URLSessionDataTask?
-//    var timeoutErrorCount = 0
     
+    @MainActor var currentTask: Task<Void, Never>?
     @MainActor weak var documentDelegate: StitchDocumentViewModel?
 
     init?() throws {
@@ -78,14 +77,16 @@ extension StitchAIManager {
 //    var isRequestInProgress: Bool {
 //        self.currentTask != nil
 //    }
-//    
-//    func cancelCurrentRequest() {
-//        if currentTask != nil {
-//            log("Cancelling current OpenAI request")
-//            currentTask?.cancel()
-//            currentTask = nil
-//        }
-//    }
+//
+    @MainActor
+    func cancelCurrentRequest() {
+        guard let currentTask = self.currentTask else {
+            return
+        }
+        
+        currentTask.cancel()
+        self.currentTask = nil
+    }
     
     @MainActor static func getDeviceUUID() throws -> String? {
         guard let deviceUUID = UIDevice.current.identifierForVendor?.uuidString else {

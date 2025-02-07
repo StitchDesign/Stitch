@@ -149,7 +149,7 @@ extension StitchAIManager {
         // Set the flag to indicate a request is in progress
         currentDocument.graphUI.insertNodeMenuState.isGeneratingAINode = true
         
-        Task(priority: .high) { [weak self] in
+        self.currentTask = Task(priority: .high) { [weak self] in
             guard let manager = self else {
                 return
             }
