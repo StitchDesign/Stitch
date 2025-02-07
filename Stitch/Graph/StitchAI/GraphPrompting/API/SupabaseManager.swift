@@ -74,10 +74,6 @@ final actor StitchAIManager {
 }
 
 extension StitchAIManager {
-//    var isRequestInProgress: Bool {
-//        self.currentTask != nil
-//    }
-//
     @MainActor
     func cancelCurrentRequest() {
         guard let currentTask = self.currentTask else {

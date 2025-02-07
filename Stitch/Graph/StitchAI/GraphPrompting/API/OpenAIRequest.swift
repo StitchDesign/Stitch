@@ -38,9 +38,6 @@ struct OpenAIRequest {
     let systemPrompt: String       // System-level instructions loaded from file
     let schema: JSON              // JSON schema for response validation
     let config: OpenAIRequestConfig // Request configuration settings
-//    private let apiKey: String
-//    private let model: String
-//    @MainActor static var timeoutErrorCount = 0
     
     /// Initialize a new request with prompt and optional configuration
     init(prompt: String,
@@ -62,9 +59,6 @@ struct OpenAIRequest {
             loadedSchema = JSON(data)
         }
         self.schema = loadedSchema
-        
-        //        self.apiKey = secrets.openAIAPIKey
-        //        self.model = secrets.openAIModel
     }
 }
 
@@ -193,21 +187,10 @@ extension StitchAIManager {
     /// Execute the API request with retry logic
     private func makeRequest(_ request: OpenAIRequest,
                              attempt: Int = 1) async throws -> Data? {
-        // Check if a request is already in progress
-//        guard !self.isRequestInProgress else {
-//            throw StitchAIManagerError.requestInProgress(request)
-//        }
-        
         let config = request.config
         let prompt = request.prompt
         let schema = request.schema
         let systemPrompt = request.systemPrompt
-        
-        // Reset timeout count
-        //        var timeoutErrorCount = 0
-        
-        // Cancel any existing request before starting a new one
-//        self.cancelCurrentRequest()
         
         // Check if we've exceeded retry attempts
         guard attempt <= config.maxRetries else {
@@ -302,10 +285,6 @@ extension StitchAIManager {
             }
             throw StitchAIManagerError.invalidURL(request)
         }
-            
-            // Reset the flag when the request completes
-//            manager.currentTask = nil
-            
         
         // Check HTTP status code
         if let httpResponse = response as? HTTPURLResponse,
@@ -324,31 +303,12 @@ extension StitchAIManager {
         
         log("OpenAI Request succeeded")
         return data
-        
-//        self.currentTask = task
-//        task.resume()
     }
-    
-//    /// Entry point for handling the request event
-//    func handle(state: StitchDocumentViewModel) {
-//        makeRequest(state: state)
-//    }
     
     /// Main handler for completed requests
     @MainActor
     func openAIRequestCompleted(originalPrompt: String,
-                                data: Data?) {
-        
-//        if let error = error {
-//            state.showErrorModal(
-//                message: "Request error: \(error.localizedDescription)",
-//                userPrompt: originalPrompt,
-//                jsonResponse: nil
-//            )
-//            handleError(error, state: state)
-//            return
-//        }
-        
+                                data: Data?) {        
         guard let data = data else {
             self.documentDelegate?
                 .showErrorModal(
@@ -383,8 +343,6 @@ extension StitchAIManager {
             log("Initial StitchAI JSON parsing failed: \(error?.localizedDescription ?? "")", .logToServer)
             fatalErrorIfDebug()
             return
-//            log("Starting parsing retries")
-//            retryParsing(data: data, attempt: 1, state: state)
         }
     }
 }
