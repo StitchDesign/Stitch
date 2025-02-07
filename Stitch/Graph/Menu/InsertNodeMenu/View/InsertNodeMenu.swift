@@ -36,9 +36,9 @@ let INSERT_NODE_MENU_SCROLL_LIST_BOTTOM_PADDING: CGFloat = INSERT_NODE_MENU_FOOT
 
 
 struct InsertNodeMenuView: View {
-    @Environment(StitchStore.self) private var store
     @Environment(\.appTheme) var theme
 
+    let document: StitchDocumentViewModel
     let insertNodeMenuState: InsertNodeMenuState
     let isPortraitMode: Bool
     let showMenu: Bool
@@ -65,7 +65,7 @@ struct InsertNodeMenuView: View {
                     searchResults: insertNodeMenuState.searchResults,
                     activeSelection: insertNodeMenuState.activeSelection,
                     footerRect: self.$footerRect,
-                    show: store.currentDocument?.graphUI.insertNodeMenuState.show ?? false)
+                    show: document.graphUI.insertNodeMenuState.show)
                     //                    .frame(width: 170, height: 300) // Figma
                     .frame(width: INSERT_NODE_MENU_SEARCH_RESULTS_WIDTH)
                 //                    .compositingGroup() // added
@@ -85,9 +85,14 @@ struct InsertNodeMenuView: View {
         .compositingGroup()
         // Add onDisappear to cancel any in-progress request
         .onDisappear {
-            OpenAIRequestManager.cancelCurrentRequest()
-            store.currentDocument?.graphUI.insertNodeMenuState.isGeneratingAINode = false
+            document.aiManager?.cancelCurrentRequest()
+            document.graphUI.insertNodeMenuState.isGeneratingAINode = false
         }
+    }
+    
+    var isAIMode: Bool {
+        // AI is supported if manager was created
+        self.document.aiManager != nil && self.insertNodeMenuState.isAIMode
     }
 
     @MainActor
@@ -95,17 +100,15 @@ struct InsertNodeMenuView: View {
         HStack {
             Spacer()
             StitchButton(action: {
-                let isAIMode = store.currentDocument?.graphUI.insertNodeMenuState.isAIMode ?? false
                 if isAIMode {
-                    if let query = store.currentDocument?.graphUI.insertNodeMenuState.searchQuery {
+                    if let query = document.graphUI.insertNodeMenuState.searchQuery {
                         dispatch(GenerateAINode(prompt: query))
                     }
                 } else {
                     dispatch(AddNodeButtonPressed())
                 }
             }, label: {
-                let isAIMode = store.currentDocument?.graphUI.insertNodeMenuState.isAIMode ?? false
-                let isLoading = store.currentDocument?.graphUI.insertNodeMenuState.isGeneratingAINode ?? false
+                let isLoading = document.graphUI.insertNodeMenuState.isGeneratingAINode
                 
                 HStack(spacing: 8) {
                     Text(isAIMode ? "Submit Prompt" : "Add Node")
@@ -137,7 +140,8 @@ struct InsertNodeMenu_Previews: PreviewProvider {
 
     static var previews: some View {
         ZStack {
-            InsertNodeMenuView(insertNodeMenuState: .init(),
+            InsertNodeMenuView(document: .createEmpty(),
+                               insertNodeMenuState: .init(),
                                isPortraitMode: false,
                                showMenu: true,
                                menuHeight: INSERT_NODE_MENU_MAX_HEIGHT)
