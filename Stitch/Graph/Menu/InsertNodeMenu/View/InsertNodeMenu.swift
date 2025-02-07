@@ -85,7 +85,7 @@ struct InsertNodeMenuView: View {
         .compositingGroup()
         // Add onDisappear to cancel any in-progress request
         .onDisappear {
-            OpenAIRequestManager.cancelCurrentRequest()
+//            OpenAIRequestManager.cancelCurrentRequest()
             store.currentDocument?.graphUI.insertNodeMenuState.isGeneratingAINode = false
         }
     }

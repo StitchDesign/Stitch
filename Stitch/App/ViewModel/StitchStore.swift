@@ -13,7 +13,7 @@ typealias StoreDelegate = StitchStore
 
 @Observable
 final class StitchStore: Sendable {
-        
+    
     @MainActor var llmRecordingModeEnabled: Bool = false
     
     @MainActor var allProjectUrls = [ProjectLoader]()
@@ -25,23 +25,25 @@ final class StitchStore: Sendable {
     
     @MainActor
     var systems: [StitchSystemType: StitchSystemViewModel] = [:]
-
+    
     // Components are unqiue to a user, not to a project,
     // and loaded when app loads.
     //    var defaultComponents = ComponentsDict()
-
+    
     // Navigation path for viewing documents
     @MainActor var navPath: [ProjectLoader] = []
-
+    
     @MainActor var isShowingDrawer = false
-
+    
     // TODO: should be properly persisted
     @MainActor var edgeStyle: EdgeStyle = .defaultEdgeStyle
     @MainActor var appTheme: StitchTheme = .defaultTheme
-
+    
     // Tracks ID of project which has a title that's currently getting modified
     @MainActor var projectIdForTitleEdit: ProjectId?
-
+    
+    let aiManager: StitchAIManager?
+    
     let environment: StitchEnvironment
     
     @MainActor
@@ -52,15 +54,34 @@ final class StitchStore: Sendable {
         // Remove cached data from previous session
         try? FileManager.default.removeItem(at: StitchFileManager.tempDir)
         
+        // Handles Stitch AI if enabled
+#if STITCH_AI
+        do {
+            self.aiManager = try StitchAIManager()
+        } catch {
+            self.aiManager = nil
+            log("StitchStore error: could no init secrets file with error: \(error)")
+        }
+#else
+        self.aiManager = nil
+#endif
+        
         // Sets up action dispatching
         GlobalDispatch.shared.delegate = self
-
+        
         self.environment.dirObserver.delegate = self
         self.environment.store = self
         self.clipboardEncoder.delegate = self.clipboardDelegate
         self.clipboardDelegate.store = self
+        self.aiManager?.storeDelegate = self
     }
+}
 
+extension StitchStore {
+    var secrets: Secrets? {
+        self.aiManager?.secrets
+    }
+    
     // Gets the Redux-style state for legacy purposes
     @MainActor
     func getState() -> AppState {

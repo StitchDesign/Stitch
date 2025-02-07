@@ -108,9 +108,12 @@ extension StitchDocumentViewModel {
     private func retryOpenAIRequest() {
         // Re-trigger the OpenAI request with the original prompt
         if let lastPrompt = stitchAI.lastPrompt,
-           !lastPrompt.isEmpty {
+           !lastPrompt.isEmpty,
+           let aiManager = self.storeDelegate?.aiManager {
             log("🔄 Retrying OpenAI request with last prompt")
-            dispatch(MakeOpenAIRequest(prompt: lastPrompt))
+            
+            let request = OpenAIRequest(prompt: lastPrompt)
+            aiManager.handleRequest(request)
         } else {
             log("❌ Cannot retry OpenAI request: No last prompt available")
         }

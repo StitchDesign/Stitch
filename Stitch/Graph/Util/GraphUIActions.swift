@@ -175,7 +175,8 @@ struct GenerateAINode: StitchDocumentEvent {
         state.stitchAI.lastPrompt = prompt
         
         // Dispatch OpenAI request
-        dispatch(MakeOpenAIRequest(prompt: prompt))
+        let request = OpenAIRequest(prompt: prompt)
+        state.storeDelegate?.aiManager?.handleRequest(request)
     }
 }
 
