@@ -20,6 +20,18 @@ struct StitchApp: App {
             // iPad uses StitchRouter to use the project zoom in/out animation
             StitchRootView(store: self.store)
                 .onAppear {
+                    let stringTest = StitchStringValue("yoooo")
+                    let testObject = StitchAIPortValue(portValue: PortValue.string(stringTest))
+                    
+                    do {
+                        let encoding = try getStitchEncoder().encode(testObject)
+                        let decoding = try getStitchDecoder().decode(StitchAIPortValue.self,
+                                                                     from: encoding)
+                        print("success: \(decoding)")
+                    } catch {
+                        fatalError(error.localizedDescription)
+                    }
+                    
                     dispatch(DirectoryUpdated())
                     
                     SentrySDK.start { options in
