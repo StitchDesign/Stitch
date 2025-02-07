@@ -34,7 +34,7 @@ final actor StitchAIManager {
 //    var currentTask: URLSessionDataTask?
 //    var timeoutErrorCount = 0
     
-    @MainActor weak var storeDelegate: StitchStore?
+    @MainActor weak var documentDelegate: StitchDocumentViewModel?
 
     init?() throws {
         guard let secrets = try Secrets() else {

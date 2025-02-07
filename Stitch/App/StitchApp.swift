@@ -21,16 +21,15 @@ struct StitchApp: App {
             StitchRootView(store: self.store)
                 .onAppear {
                     dispatch(DirectoryUpdated())
-                }
-                .onChange(of: store.secrets, initial: true) { _, secrets in
+                    
                     SentrySDK.start { options in
-                        guard let secrets = secrets else {
+                        guard let secrets = try? Secrets() else {
                             return
                         }
                         
                         options.dsn = secrets.sentryDSN
-                            options.debug = false
-                        }
+                        options.debug = false
+                    }
                 }
                 .environment(self.store)
                 .environment(self.store.environment)

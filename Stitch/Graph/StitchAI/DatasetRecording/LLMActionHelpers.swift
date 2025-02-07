@@ -51,7 +51,7 @@ struct SubmitLLMActionsToSupabase: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
         log("SubmitLLMActionsToSupabase called")
         
-        guard let supabaseManager = state.storeDelegate?.aiManager else {
+        guard let supabaseManager = state.aiManager else {
             log("SubmitLLMActionsToSupabase error: no supabase")
             return
         }

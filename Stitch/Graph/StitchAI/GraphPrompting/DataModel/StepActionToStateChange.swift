@@ -109,7 +109,7 @@ extension StitchDocumentViewModel {
         // Re-trigger the OpenAI request with the original prompt
         if let lastPrompt = stitchAI.lastPrompt,
            !lastPrompt.isEmpty,
-           let aiManager = self.storeDelegate?.aiManager {
+           let aiManager = self.aiManager {
             log("🔄 Retrying OpenAI request with last prompt")
             
             let request = OpenAIRequest(prompt: lastPrompt)

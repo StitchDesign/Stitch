@@ -142,7 +142,7 @@ extension StitchAIManagerError {
 
 extension StitchAIManager {
     @MainActor func handleRequest(_ request: OpenAIRequest) {
-        guard let currentDocument = self.storeDelegate?.currentDocument else {
+        guard let currentDocument = self.documentDelegate else {
             return
         }
         
@@ -172,7 +172,7 @@ extension StitchAIManager {
                 
                 if error.shouldDisplayModal {
                     await MainActor.run { [weak self] in
-                        guard let state = self?.storeDelegate?.currentDocument else { return }
+                        guard let state = self?.documentDelegate else { return }
                         
                         state.showErrorModal(
                             message: "Multiple timeout errors occurred. Please check your internet connection and try again later.",

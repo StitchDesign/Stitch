@@ -40,8 +40,8 @@ final class StitchDocumentViewModel: Sendable {
     
     @MainActor var llmRecording = LLMRecordingState()
         
+    let aiManager: StitchAIManager?
     @MainActor var stitchAI = StitchAIState()
-
     
     // Remains false if an encoding action never happened (used for thumbnail creation)
     @MainActor var didDocumentChange: Bool = false
@@ -72,6 +72,19 @@ final class StitchDocumentViewModel: Sendable {
         self.graph = graph
         self.projectLoader = projectLoader
         self.isDebugMode = isDebugMode
+        
+        // Handles Stitch AI if enabled
+#if STITCH_AI
+        do {
+            self.aiManager = try StitchAIManager()
+        } catch {
+            self.aiManager = nil
+            log("StitchStore error: could no init secrets file with error: \(error)")
+        }
+#else
+        self.aiManager = nil
+#endif
+
         self.lastEncodedDocument = schema
         
         if let store = store {
@@ -85,6 +98,7 @@ final class StitchDocumentViewModel: Sendable {
                             isInitialization: Bool = false) {
         self.documentEncoder?.delegate = self
         self.graphStepManager.delegate = self
+        self.aiManager?.documentDelegate = self
         self.storeDelegate = store
         
         guard let documentEncoder = self.documentEncoder else {

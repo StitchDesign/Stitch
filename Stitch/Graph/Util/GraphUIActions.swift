@@ -176,7 +176,7 @@ struct GenerateAINode: StitchDocumentEvent {
         
         // Dispatch OpenAI request
         let request = OpenAIRequest(prompt: prompt)
-        state.storeDelegate?.aiManager?.handleRequest(request)
+        state.aiManager?.handleRequest(request)
     }
 }
 
