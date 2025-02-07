@@ -141,6 +141,7 @@
 		B555010D2C1BD0E10081C3F1 /* SidebarVisibilityUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B555010C2C1BD0E10081C3F1 /* SidebarVisibilityUtils.swift */; };
 		B55501342C1C00EB0081C3F1 /* GraphStepIncrementer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55501332C1C00EB0081C3F1 /* GraphStepIncrementer.swift */; };
 		B555FB3D2D56C51200E1D349 /* StitchAICodableTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B555FB3C2D56C50C00E1D349 /* StitchAICodableTypes.swift */; };
+		B555FB412D59CD3E00E1D349 /* StitchAISchema.swift in Sources */ = {isa = PBXBuildFile; fileRef = B555FB402D59CD3A00E1D349 /* StitchAISchema.swift */; };
 		B55780632CAF667900907BA8 /* StitchClipboardContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55780622CAF667700907BA8 /* StitchClipboardContent.swift */; };
 		B55780652CAF66D900907BA8 /* StitchComponentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55780642CAF66D600907BA8 /* StitchComponentable.swift */; };
 		B55780692CB043B600907BA8 /* StitchComponentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55780682CB043AF00907BA8 /* StitchComponentViewModel.swift */; };
@@ -1103,6 +1104,7 @@
 		B555010C2C1BD0E10081C3F1 /* SidebarVisibilityUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarVisibilityUtils.swift; sourceTree = "<group>"; };
 		B55501332C1C00EB0081C3F1 /* GraphStepIncrementer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphStepIncrementer.swift; sourceTree = "<group>"; };
 		B555FB3C2D56C50C00E1D349 /* StitchAICodableTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAICodableTypes.swift; sourceTree = "<group>"; };
+		B555FB402D59CD3A00E1D349 /* StitchAISchema.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAISchema.swift; sourceTree = "<group>"; };
 		B55780622CAF667700907BA8 /* StitchClipboardContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchClipboardContent.swift; sourceTree = "<group>"; };
 		B55780642CAF66D600907BA8 /* StitchComponentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchComponentable.swift; sourceTree = "<group>"; };
 		B55780682CB043AF00907BA8 /* StitchComponentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchComponentViewModel.swift; sourceTree = "<group>"; };
@@ -3875,6 +3877,7 @@
 		E4D0D2D32CE6AD6A00E482E4 /* DataModel */ = {
 			isa = PBXGroup;
 			children = (
+				B555FB402D59CD3A00E1D349 /* StitchAISchema.swift */,
 				B555FB3C2D56C50C00E1D349 /* StitchAICodableTypes.swift */,
 				B59602142D568396007C7AA9 /* StitchAITypeCasting.swift */,
 				E40B2F542CB86F2B005F5479 /* OpenAIResponseStructs.swift */,
@@ -5536,6 +5539,7 @@
 				EC004DD92B46438900C5DB33 /* TextFieldLayerNode.swift in Sources */,
 				E4100F9E29B83E0C00656871 /* Resnet50.mlmodel in Sources */,
 				EC89F7DF27602BE700C4447A /* SelectionHelpers.swift in Sources */,
+				B555FB412D59CD3E00E1D349 /* StitchAISchema.swift in Sources */,
 				B59602152D56839C007C7AA9 /* StitchAITypeCasting.swift in Sources */,
 				ECD887232941494800003B47 /* LayerNodeId.swift in Sources */,
 				ECCF23552D4C6C9300BC2F2F /* Step.swift in Sources */,

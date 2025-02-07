@@ -110,9 +110,9 @@ extension StitchAIStringConvertable {
     /// Encodes the value as a string
     func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
-        
-        // LLM expects string type
-        try container.encode(self.value.encodableString)
+
+        // TODO: this is the test
+        try container.encode(self.value)
     }
     
     /// Decodes a value that could be string, int, double, or JSON
