@@ -213,6 +213,50 @@ extension String {
     }
 }
 
+struct StitchAIPortValue {
+    var type: UserVisibleType
+    var value: PortValue
+}
+
+extension StitchAIPortValue {
+    init(portValue: PortValue) {
+        self.type = portValue.toNodeType
+        self.value = portValue
+    }
+}
+
+enum StitchAICodingError: Error {
+    case decoding
+    case typeCasting
+}
+
+extension StitchAIPortValue: Codable {
+    enum CodingKeys: String, CodingKey {
+        case type, value
+    }
+    
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let type = try container.decode(UserVisibleType.self, forKey: .type)
+        
+        let portValueType = type.portValueType
+        let decodedValue = try container.decode(portValueType, forKey: .value)
+        let value = try type.coerceToPortValue(from: decodedValue)
+        
+        self.type = type
+        self.value = value
+    }
+    
+    public func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        let anyCodable = self.value.anyEncodable
+        
+        try container.encode(type, forKey: .type)
+        try container.encode(anyCodable, forKey: .value)
+    }
+}
+
 extension PortValue {
     
     // a better (PortValue -> JSONFriendlyFormat) conversion than the JFF.init(value:)
