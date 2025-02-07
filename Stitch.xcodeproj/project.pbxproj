@@ -277,7 +277,6 @@
 		B5FEE4C828AEF11100B50BCD /* AVCaptureUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5FEE4C728AEF11100B50BCD /* AVCaptureUtil.swift */; };
 		B5FEE4CA28AEF88100B50BCD /* AppSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5FEE4C928AEF88100B50BCD /* AppSettingsView.swift */; };
 		E4085DC629BF899C0057AAAF /* ConvertPositionNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4085DC529BF899C0057AAAF /* ConvertPositionNode.swift */; };
-		E40B2F4E2CB86BC3005F5479 /* StitchAIPromptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E40B2F4D2CB86BC3005F5479 /* StitchAIPromptView.swift */; };
 		E40B2F502CB86D21005F5479 /* StitchAIEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = E40B2F4F2CB86D21005F5479 /* StitchAIEvents.swift */; };
 		E40B2F552CB86F2B005F5479 /* OpenAIResponseStructs.swift in Sources */ = {isa = PBXBuildFile; fileRef = E40B2F542CB86F2B005F5479 /* OpenAIResponseStructs.swift */; };
 		E40EBAD22BB5D8DD00CCA3C3 /* SwitchLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E40EBAD12BB5D8DD00CCA3C3 /* SwitchLayerNode.swift */; };
@@ -290,7 +289,6 @@
 		E419F3F72D40337400C169D4 /* EditBeforeSubmitModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E419F3F62D40337400C169D4 /* EditBeforeSubmitModalView.swift */; };
 		E419F3F92D4048A600C169D4 /* ProccessInfo+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E419F3F82D4048A600C169D4 /* ProccessInfo+Extension.swift */; };
 		E41A66B32BD2BB8E00385C9F /* LinearGradientNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41A66B22BD2BB8E00385C9F /* LinearGradientNode.swift */; };
-		E41C43742D442EFE003A453E /* supabaseMangerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41C43732D442EFE003A453E /* supabaseMangerTests.swift */; };
 		E42AAE4C2D4844EE002D187D /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = E42AAE4B2D4844EE002D187D /* Sentry */; };
 		E42BA45D291C69C200EB7356 /* SIMDExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42BA45C291C69C200EB7356 /* SIMDExtensions.swift */; };
 		E42C0D052D47F87A00AA2BB1 /* openAIRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42C0D042D47F87A00AA2BB1 /* openAIRequestTests.swift */; };
@@ -1228,7 +1226,6 @@
 		B5FEE4C728AEF11100B50BCD /* AVCaptureUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVCaptureUtil.swift; sourceTree = "<group>"; };
 		B5FEE4C928AEF88100B50BCD /* AppSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettingsView.swift; sourceTree = "<group>"; };
 		E4085DC529BF899C0057AAAF /* ConvertPositionNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConvertPositionNode.swift; sourceTree = "<group>"; };
-		E40B2F4D2CB86BC3005F5479 /* StitchAIPromptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIPromptView.swift; sourceTree = "<group>"; };
 		E40B2F4F2CB86D21005F5479 /* StitchAIEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIEvents.swift; sourceTree = "<group>"; };
 		E40B2F542CB86F2B005F5479 /* OpenAIResponseStructs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIResponseStructs.swift; sourceTree = "<group>"; };
 		E40EBAD12BB5D8DD00CCA3C3 /* SwitchLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchLayerNode.swift; sourceTree = "<group>"; };
@@ -1241,7 +1238,6 @@
 		E419F3F62D40337400C169D4 /* EditBeforeSubmitModalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditBeforeSubmitModalView.swift; sourceTree = "<group>"; };
 		E419F3F82D4048A600C169D4 /* ProccessInfo+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ProccessInfo+Extension.swift"; sourceTree = "<group>"; };
 		E41A66B22BD2BB8E00385C9F /* LinearGradientNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinearGradientNode.swift; sourceTree = "<group>"; };
-		E41C43732D442EFE003A453E /* supabaseMangerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = supabaseMangerTests.swift; sourceTree = "<group>"; };
 		E42BA45C291C69C200EB7356 /* SIMDExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SIMDExtensions.swift; sourceTree = "<group>"; };
 		E42C0D042D47F87A00AA2BB1 /* openAIRequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = openAIRequestTests.swift; sourceTree = "<group>"; };
 		E42CFD452D4413F90034CCFF /* secrets.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = secrets.json; sourceTree = SOURCE_ROOT; };
@@ -2006,7 +2002,6 @@
 				EC28CCA5287E3DBA00987792 /* mathTests.swift */,
 				8BD59DA426CCB93400F38DFF /* SchemaConversionTests.swift */,
 				EC981F73273049F800B25F14 /* sidebarTests.swift */,
-				E41C43732D442EFE003A453E /* supabaseMangerTests.swift */,
 				E42C0D042D47F87A00AA2BB1 /* openAIRequestTests.swift */,
 				B57575F82A187E0600CDB0BA /* previewLayerTests.swift */,
 				B5E5FFBA274C978800C5FE92 /* nodeUIGroupingTests.swift */,
@@ -3841,7 +3836,6 @@
 		E4B1FD172CE689F600C00372 /* UI */ = {
 			isa = PBXGroup;
 			children = (
-				E40B2F4D2CB86BC3005F5479 /* StitchAIPromptView.swift */,
 				E4E860012CBD5448006763DA /* StitchAIErrorModalView.swift */,
 				E419F3F62D40337400C169D4 /* EditBeforeSubmitModalView.swift */,
 			);
@@ -5567,7 +5561,6 @@
 				B549AD7229CFC30D002F3252 /* NodePositionUtils.swift in Sources */,
 				EC28D55B26B2142D00E1118E /* LayerGroups.swift in Sources */,
 				20308FAB25AD1721008CE3BE /* MiscUtils.swift in Sources */,
-				E40B2F4E2CB86BC3005F5479 /* StitchAIPromptView.swift in Sources */,
 				EC004DD32B44D24300C5DB33 /* CanvasSketchUtils.swift in Sources */,
 				ECF387E1280B61A80075F0E5 /* NodeConstants.swift in Sources */,
 				EC26144F2B897BD800BEB066 /* PositionUnpackNode.swift in Sources */,
@@ -5624,7 +5617,6 @@
 				ECFCF1832A395C6900A20C40 /* perfTests.swift in Sources */,
 				EC51AA7926B307E3007919D6 /* groupTests.swift in Sources */,
 				EC3914BF29F35C0C00ED8D90 /* loopTests.swift in Sources */,
-				E41C43742D442EFE003A453E /* supabaseMangerTests.swift in Sources */,
 				EC24E37F28516D7D0078A9B7 /* animationTests.swift in Sources */,
 				ECEDC09F29E4C62C0034BA50 /* TestStateUtils.swift in Sources */,
 				B54C37BF281BB96C00D81E43 /* ProjectMigrationTests.swift in Sources */,
