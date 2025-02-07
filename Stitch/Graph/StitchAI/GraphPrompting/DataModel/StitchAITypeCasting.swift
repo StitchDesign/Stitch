@@ -10,7 +10,7 @@ import StitchSchemaKit
 import Vision
 
 extension PortValue {
-    var anyEncodable: any Encodable {
+    var anyCodable: any Codable {
         switch self {
         case .string(let x):
             return x
@@ -33,7 +33,7 @@ extension PortValue {
         case .size(let x):
             return x
         case .position(let x):
-            return x
+            return StitchAIPosition(x: x.x, y: x.y)
         case .point3D(let x):
             return x
         case .point4D(let x):
@@ -154,7 +154,7 @@ extension UserVisibleType {
         case .size:
             return LayerSize.self
         case .position:
-            return CGPoint.self
+            return StitchAIPosition.self
         case .point3D:
             return Point3D.self
         case .point4D:
@@ -301,10 +301,12 @@ extension UserVisibleType {
             }
             return .size(x)
         case .position:
-            guard let x = anyValue as? CGPoint else {
+            guard let x = anyValue as? StitchAIPosition else {
                 throw StitchAICodingError.typeCasting
             }
-            return .position(x)
+            
+            let newValue = CGPoint(x: x.x, y: x.y)
+            return .position(newValue)
         case .point3D:
             guard let x = anyValue as? Point3D else {
                 throw StitchAICodingError.typeCasting
