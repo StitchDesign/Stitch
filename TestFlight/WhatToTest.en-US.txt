@@ -1,21 +1,24 @@
-3D & AR Prototyping
-- Reality Layer now acts as a layer group and makes adding 3D layers easier
-- Added Box, Sphere, Cylinder, and Cone layers
-- Translation, scale, and rotation gesture support for 3D layers
-- Easier AR anchor input selection with new dropdown for all 3D model layers
-- New 3D transform matrix input for layers to make matrix changes easier
+Media Handling Improvements
+- Reduced memory consumption to improve support for graphs with potentially many media objects
+- Fixed issue where media may continue running even after project closure
+- Fixed issues where inputs and outputs may display out-of-date media information
+- Fixed issue where granting camera permissions causes a crash
+- Improved camera permissions UX to directly link to settings if camera is requested with disabled permissions
 
-App Improvements
-- Overhauled graph movement and zoom gesture handling for native iOS behavior
-- Introduced a new “Debug Mode” project open option for editing fields without running the prototype
-- Specify alignment for HStack and VStack layer groups
-- Support for creating multiple graph nodes for a field when multiple layers are selected via sidebar
-- Improved formatting for numeric values with many decimals
-- Up/down arrow keys increment or decrement number fields
-- Click a wireless receiver’s icon to jump to its assigned broadcaster
+3D + AR Fixes
+- Enhanced AR transform reliability
+- Fixed 3D geometry shapes appearing out of frame
+- Fixed 3D entity removal problems in Reality node
+- Improved dragging 3D entity layers in and out of reality views in sidebar
 
-Bug Fixes
-- Graph reset no longer breaks the Repeating Animation node
-- Fixed camera direction mismatch for newly created reality nodes
-- Fixed UI field updates and node selection when entering group node
-- Fixed issues with out-of-date UI fields after application boot
+Other Bug Fixes + Improvements
+- Improved graph responsiveness after closing the insert node menu
+- Improved group label color in layer inspector for better visibility
+- Updated UI pickers for layer alignment and text decoration
+- Fixed graph responsiveness issues with preview window offscreen
+- Improved labels for group nodes and their splitters
+- Improved reliability of graph panning to nodes
+- Reset double-tap location after alerts or similar states
+- Fixed Split Text patch to handle all loop values instead of just the last
+- Fixed JSON Array patch handling to prevent errors
+- Removed crashes when option-drag duplicating nodes
