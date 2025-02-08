@@ -47,7 +47,8 @@
           "anyOf": [
             { "type": "number" },
             { "type": "string" },
-            { "type": "boolean" }
+            { "type": "boolean" },
+            { "type": "object" } 
           ]
         },
         "port": {
