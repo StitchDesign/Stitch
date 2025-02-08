@@ -13,7 +13,7 @@ extension PortValue {
     var anyCodable: any Codable {
         switch self {
         case .string(let x):
-            return x
+            return x.string
         case .bool(let x):
             return x
         case .int(let x):
@@ -134,7 +134,7 @@ extension UserVisibleType {
     var portValueType: Decodable.Type {
         switch self {
         case .string:
-            return StitchStringValue.self
+            return String.self
         case .bool:
             return Bool.self
         case .int:
@@ -251,10 +251,10 @@ extension UserVisibleType {
     func coerceToPortValue(from anyValue: Any) throws -> PortValue {
         switch self {
         case .string:
-            guard let x = anyValue as? StitchStringValue else {
+            guard let x = anyValue as? String else {
                 throw StitchAICodingError.typeCasting
             }
-            return .string(x)
+            return .string(.init(x))
         case .bool:
             guard let x = anyValue as? Bool else {
                 throw StitchAICodingError.typeCasting
