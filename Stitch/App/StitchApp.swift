@@ -8,7 +8,6 @@
 import SwiftUI
 import StitchSchemaKit
 import Sentry
-import SwiftyJSON
 
 @main @MainActor
 struct StitchApp: App {
