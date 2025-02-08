@@ -101,12 +101,6 @@ extension NodeIOPortType {
     }
 }
 
-//extension InputCoordinate {
-//    func asLLMStepPort() -> NodeIOPortType {
-//        self.portType.asLLMStepPort()
-//    }
-//}
-
 extension OutputCoordinate {
     func asLLMStepFromPort() -> Int {
         switch self.portType {

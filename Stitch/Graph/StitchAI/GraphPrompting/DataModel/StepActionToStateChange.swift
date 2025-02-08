@@ -119,32 +119,7 @@ extension StitchDocumentViewModel {
     }
 }
 
-//extension String {
-//    var parseNodeId: NodeId? {
-//        UUID(uuidString: self)
-//    }
-//}
-
 extension NodeIOPortType {
-    
-//    var parseStepType: StepType? {
-//        StepType(rawValue: self.stepType)
-//    }
-//    
-//    var parseNodeId: NodeId? {
-//        self.nodeId?.parseNodeId
-//    }
-        
-//    func parseValueForSetInput(nodeType: NodeType) -> PortValue? {
-//        self.value?.value
-////        guard let value: JSONFriendlyFormat = self.value else {
-////            log("parseValueForSetInput: value was not defined")
-////            return nil
-////        }
-////        
-////        return value.asPortValueForLLMSetField(nodeType)
-//    }
-    
     // TODO: `LLMStepAction`'s `port` parameter does not yet properly distinguish between input vs output?
     // Note: the older LLMAction port-string-parsing logic was more complicated?
     init?(stringValue: String?) {
@@ -166,36 +141,6 @@ extension NodeIOPortType {
             return nil
         }
     }
-    
-//    func parseFromPort() -> Int? {
-//        let fromPort = self
-//        
-//        // Try to convert the string value to Int
-//        return Int(fromPort.value) ?? 0
-//    }
-    
-//    // See note in `NodeType.asLLMStepNodeType`
-//    func parseNodeType() -> NodeType? {
-//        guard let nodeType = self.nodeType else {
-//            log("nodeType was not defined")
-//            return nil
-//        }
-//        
-//        return NodeType.allCases.first {
-//            $0.asLLMStepNodeType == nodeType
-//        }
-//    }
-    
-    
-//    func parseNodeKind() -> PatchOrLayer? {
-//        
-//        guard let nodeName = self.nodeName else {
-//            log("nodeName was not defined")
-//            return nil
-//        }
-//        
-//        return nodeName.parseNodeKind()
-//    }
 }
 
 extension NodeType {
