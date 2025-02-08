@@ -221,11 +221,11 @@ enum StitchAICodingError: Error {
 extension PortValue {
     init?(decoderContainer: KeyedDecodingContainer<Step.CodingKeys>,
           type: UserVisibleType) throws {
-        let portValueType = type.portValueType
+        let portValueType = type.portValueTypeForStitchAI
         
         // MARK: if the below try fails, check if `PortValue.anyCodable` needs to be updated
         let decodedValue = try decoderContainer.decode(portValueType, forKey: .value)
-        let value = try type.coerceToPortValue(from: decodedValue)
+        let value = try type.coerceToPortValueForStitchAI(from: decodedValue)
         self = value
     }
 }
