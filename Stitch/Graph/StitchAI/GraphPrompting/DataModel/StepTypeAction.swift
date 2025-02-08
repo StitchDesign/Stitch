@@ -235,10 +235,10 @@ struct StepActionAddLayerInput: Equatable, Hashable, Codable {
     let port: LayerInputPort // assumes .packed
     
     var toStep: Step {
-        fatalError("need clarification on adding layer input")
-//        Step(stepType: Self.stepType,
-//             nodeId: nodeId,
-//             nodeType: port.asLLMStepPort)
+        Step(stepType: Self.stepType,
+             nodeId: nodeId,
+             port: NodeIOPortType.keyPath(.init(layerInput: port,
+                                                portType: .packed)))
     }
     
     static func fromStep(_ action: Step) -> Self? {
