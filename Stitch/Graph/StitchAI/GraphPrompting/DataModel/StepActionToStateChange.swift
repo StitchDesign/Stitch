@@ -119,100 +119,99 @@ extension StitchDocumentViewModel {
     }
 }
 
-extension String {
-    var parseNodeId: NodeId? {
-        UUID(uuidString: self)
-    }
-}
+//extension String {
+//    var parseNodeId: NodeId? {
+//        UUID(uuidString: self)
+//    }
+//}
 
-extension LLMStepAction {
+extension NodeIOPortType {
     
-    var parseStepType: StepType? {
-        StepType(rawValue: self.stepType)
-    }
-    
-    var parseNodeId: NodeId? {
-        self.nodeId?.parseNodeId
-    }
+//    var parseStepType: StepType? {
+//        StepType(rawValue: self.stepType)
+//    }
+//    
+//    var parseNodeId: NodeId? {
+//        self.nodeId?.parseNodeId
+//    }
         
-    func parseValueForSetInput(nodeType: NodeType) -> PortValue? {
-        self.value?.value
-//        guard let value: JSONFriendlyFormat = self.value else {
-//            log("parseValueForSetInput: value was not defined")
-//            return nil
-//        }
-//        
-//        return value.asPortValueForLLMSetField(nodeType)
-    }
+//    func parseValueForSetInput(nodeType: NodeType) -> PortValue? {
+//        self.value?.value
+////        guard let value: JSONFriendlyFormat = self.value else {
+////            log("parseValueForSetInput: value was not defined")
+////            return nil
+////        }
+////        
+////        return value.asPortValueForLLMSetField(nodeType)
+//    }
     
     // TODO: `LLMStepAction`'s `port` parameter does not yet properly distinguish between input vs output?
     // Note: the older LLMAction port-string-parsing logic was more complicated?
-    func parsePort() -> NodeIOPortType? {
-        guard let port: StringOrNumber = self.port else {
-            log("port was not defined")
-            return nil
-        }
+    init?(stringValue: String?) {
+        guard let port = stringValue else { return nil }
   
-        if let portId = Int(port.value) {
+        if let portId = Int(port) {
             // could be patch input/output OR layer output
-            return .portIndex(portId)
-        } else if let portId = Double(port.value) {
+            self = .portIndex(portId)
+        } else if let portId = Double(port) {
             // could be patch input/output OR layer output
-            return .portIndex(Int(portId))
-        } else if let layerInputPort: LayerInputPort = LayerInputPort.allCases.first(where: {$0.asLLMStepPort == port.value }) {
+            self = .portIndex(Int(portId))
+        } else if let layerInputPort: LayerInputPort = LayerInputPort.allCases.first(where: { $0.asLLMStepPort == port }) {
             let layerInputType = LayerInputType(layerInput: layerInputPort,
                                                 // TODO: support unpacked with StitchAI
                                                 portType: .packed)
-            return .keyPath(layerInputType)
+            self = .keyPath(layerInputType)
         } else {
             log("could not parse LLMStepAction's port: \(port)")
             return nil
         }
     }
     
-    func parseFromPort() -> Int? {
-        guard let fromPort: StringOrNumber = self.fromPort else {
-            log("fromPort was not defined")
-            // For legacy reasons, assume 0
-//            return 0
-            
-            // Do not assume 0; all our data should be updated and accurate now
+//    func parseFromPort() -> Int? {
+//        let fromPort = self
+//        
+//        // Try to convert the string value to Int
+//        return Int(fromPort.value) ?? 0
+//    }
+    
+//    // See note in `NodeType.asLLMStepNodeType`
+//    func parseNodeType() -> NodeType? {
+//        guard let nodeType = self.nodeType else {
+//            log("nodeType was not defined")
+//            return nil
+//        }
+//        
+//        return NodeType.allCases.first {
+//            $0.asLLMStepNodeType == nodeType
+//        }
+//    }
+    
+    
+//    func parseNodeKind() -> PatchOrLayer? {
+//        
+//        guard let nodeName = self.nodeName else {
+//            log("nodeName was not defined")
+//            return nil
+//        }
+//        
+//        return nodeName.parseNodeKind()
+//    }
+}
+
+extension NodeType {
+    init?(llmString: String) {
+        guard let match = NodeType.allCases.first(where: {
+            $0.asLLMStepNodeType == llmString
+        }) else {
             return nil
         }
         
-        // Try to convert the string value to Int
-        return Int(fromPort.value) ?? 0
-    }
-    
-    // See note in `NodeType.asLLMStepNodeType`
-    func parseNodeType() -> NodeType? {
-        guard let nodeType = self.nodeType else {
-            log("nodeType was not defined")
-            return nil
-        }
-        
-        return NodeType.allCases.first {
-            $0.asLLMStepNodeType == nodeType
-        }
-    }
-    
-    
-    func parseNodeKind() -> PatchOrLayer? {
-        
-        guard let nodeName = self.nodeName else {
-            log("nodeName was not defined")
-            return nil
-        }
-        
-        return nodeName.parseNodeKind()
+        self = match
     }
 }
 
-extension String {
-    
-    func parseNodeKind() -> PatchOrLayer? {
-        let nodeName = self
-        
+extension PatchOrLayer {
+    init?(nodeName: String) {
         // E.G. from "squareRoot || Patch", grab just the camelCase "squareRoot"
         if let nodeKindName = nodeName.components(separatedBy: "||").first?.trimmingCharacters(in: .whitespaces) {
             
@@ -222,20 +221,22 @@ extension String {
                 let patchDisplay = $0.defaultDisplayTitle().toCamelCase()
                 return patchDisplay == nodeKindName
             }) {
-                return .patch(patch)
+                self = .patch(patch)
             }
             
             else if let layer = Layer.allCases.first(where: {
                 $0.defaultDisplayTitle().toCamelCase() == nodeKindName
             }) {
-                return .layer(layer)
+                self = .layer(layer)
             }
         }
         
-        log("parseLLMStepNodeKind: could not parse \(self) as PatchOrLayer")
+        log("parseLLMStepNodeKind: could not parse \(nodeName) as PatchOrLayer")
         return nil
     }
-    
+}
+
+extension String {
     func toCamelCase() -> String {
         let sentence = self
         let words = sentence.components(separatedBy: " ")

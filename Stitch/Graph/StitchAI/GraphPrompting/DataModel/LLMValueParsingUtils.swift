@@ -226,38 +226,50 @@ extension StitchAIPortValue {
 }
 
 enum StitchAICodingError: Error {
-    case decoding
     case typeCasting
+    case stepDecoding
 }
 
-extension StitchAIPortValue: Codable {
-    enum CodingKeys: String, CodingKey {
-        case type, value
-    }
-    
-    public init(from decoder: any Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        let type = try container.decode(UserVisibleType.self, forKey: .type)
-        
+extension PortValue {
+    init?(decoderContainer: KeyedDecodingContainer<Step.CodingKeys>,
+          type: UserVisibleType) throws {
         let portValueType = type.portValueType
         
         // MARK: if the below try fails, check if `PortValue.anyCodable` needs to be updated
-        let decodedValue = try container.decode(portValueType, forKey: .value)
+        let decodedValue = try decoderContainer.decode(portValueType, forKey: .value)
         let value = try type.coerceToPortValue(from: decodedValue)
-        
-        self.type = type
-        self.value = value
-    }
-    
-    public func encode(to encoder: any Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        
-        let anyCodable = self.value.anyCodable
-        
-        try container.encode(type, forKey: .type)
-        try container.encode(anyCodable, forKey: .value)
+        self = value
     }
 }
+
+//extension StitchAIPortValue: Codable {
+//    enum CodingKeys: String, CodingKey {
+//        case type, value
+//    }
+//    
+//    public init(from decoder: any Decoder) throws {
+//        let container = try decoder.container(keyedBy: CodingKeys.self)
+//        let type = try container.decode(UserVisibleType.self, forKey: .type)
+//        
+//        let portValueType = type.portValueType
+//        
+//        // MARK: if the below try fails, check if `PortValue.anyCodable` needs to be updated
+//        let decodedValue = try container.decode(portValueType, forKey: .value)
+//        let value = try type.coerceToPortValue(from: decodedValue)
+//        
+//        self.type = type
+//        self.value = value
+//    }
+//    
+//    public func encode(to encoder: any Encoder) throws {
+//        var container = encoder.container(keyedBy: CodingKeys.self)
+//        
+//        let anyCodable = self.value.anyCodable
+//        
+//        try container.encode(type, forKey: .type)
+//        try container.encode(anyCodable, forKey: .value)
+//    }
+//}
 
 extension PortValue {
     

@@ -430,13 +430,13 @@ extension Stitch.Step: CustomStringConvertible {
         return """
         Step(
             stepType: "\(stepType)",
-            nodeId: \(nodeId ?? "nil"),
-            nodeName: \(nodeName ?? "nil"),
-            port: \(port?.value ?? "nil"),
-            fromNodeId: \(fromNodeId ?? "nil"),
-            toNodeId: \(toNodeId ?? "nil"),
+            nodeId: \(nodeId?.uuidString ?? "nil"),
+            nodeName: \(nodeName?.asNodeKind.asLLMStepNodeName ?? "nil"),
+            port: \(port?.asLLMStepPort() ?? "nil"),
+            fromNodeId: \(fromNodeId?.uuidString ?? "nil"),
+            toNodeId: \(toNodeId?.uuidString ?? "nil"),
             value: \(String(describing: value)),
-            nodeType: \(nodeType ?? "nil")
+            nodeType: \(nodeType?.display ?? "nil")
         )
         """
     }
