@@ -76,7 +76,7 @@ extension Step: Codable {
         }
         
         if let nodeNameString = try? container.decode(String?.self, forKey: .nodeName) {
-            self.nodeName = PatchOrLayer(nodeName: nodeNameString)
+            self.nodeName = .fromLLMNodeName(nodeNameString)
         }
         
         if let portString = try? container.decode(String?.self, forKey: .port) {

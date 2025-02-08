@@ -138,6 +138,7 @@ extension NodeIOPortType {
             self = .keyPath(layerInputType)
         } else {
             log("could not parse LLMStepAction's port: \(port)")
+            fatalErrorIfDebug()
             return nil
         }
     }
@@ -148,6 +149,7 @@ extension NodeType {
         guard let match = NodeType.allCases.first(where: {
             $0.asLLMStepNodeType == llmString
         }) else {
+            fatalErrorIfDebug()
             return nil
         }
         
@@ -156,27 +158,30 @@ extension NodeType {
 }
 
 extension PatchOrLayer {
-    init?(nodeName: String) {
+    // Note: Swift `init?` is tricky for returning nil vs initializing self; we have to both initialize self *and* return, else we continue past if/else branches etc.;
+    // let's prefer functions with clearer return values
+    static func fromLLMNodeName(_ nodeName: String) -> Self? {
         // E.G. from "squareRoot || Patch", grab just the camelCase "squareRoot"
         if let nodeKindName = nodeName.components(separatedBy: "||").first?.trimmingCharacters(in: .whitespaces) {
-            
+                        
             // Tricky: can't use `Patch(rawValue:)` constructor since newer patches use a non-camelCase rawValue
             if let patch = Patch.allCases.first(where: {
                 // e.g. Patch.squareRoot -> "Square Root" -> "squareRoot"
                 let patchDisplay = $0.defaultDisplayTitle().toCamelCase()
                 return patchDisplay == nodeKindName
             }) {
-                self = .patch(patch)
+                return .patch(patch)
             }
             
             else if let layer = Layer.allCases.first(where: {
                 $0.defaultDisplayTitle().toCamelCase() == nodeKindName
             }) {
-                self = .layer(layer)
+                return .layer(layer)
             }
         }
         
-        log("parseLLMStepNodeKind: could not parse \(nodeName) as PatchOrLayer")
+        log("fromLLMNodeName: could not parse \(nodeName) as PatchOrLayer")
+        fatalErrorIfDebug()
         return nil
     }
 }
