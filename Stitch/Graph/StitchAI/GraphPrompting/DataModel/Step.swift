@@ -38,17 +38,19 @@ extension Step: Codable {
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
-        try container.encode(stepType.rawValue, forKey: .stepType)
-        try container.encode(nodeId?.description, forKey: .nodeId)
-        try container.encode(nodeName?.asNodeKind.asLLMStepNodeName, forKey: .nodeName)
-        try container.encode(port?.asLLMStepPort(), forKey: .port)
-        try container.encode(fromPort, forKey: .fromPort)
-        try container.encode(fromNodeId?.description, forKey: .fromNodeId)
-        try container.encode(toNodeId?.description, forKey: .toNodeId)
-        try container.encode(nodeType?.asLLMStepNodeType, forKey: .nodeType)
+        // `encodeIfPresent` cleans up JSON by removing properties
+        
+        try container.encodeIfPresent(stepType.rawValue, forKey: .stepType)
+        try container.encodeIfPresent(nodeId?.description, forKey: .nodeId)
+        try container.encodeIfPresent(nodeName?.asNodeKind.asLLMStepNodeName, forKey: .nodeName)
+        try container.encodeIfPresent(port?.asLLMStepPort(), forKey: .port)
+        try container.encodeIfPresent(fromPort, forKey: .fromPort)
+        try container.encodeIfPresent(fromNodeId?.description, forKey: .fromNodeId)
+        try container.encodeIfPresent(toNodeId?.description, forKey: .toNodeId)
+        try container.encodeIfPresent(nodeType?.asLLMStepNodeType, forKey: .nodeType)
         
         if let valueCodable = value?.anyCodable {
-            try container.encode(valueCodable, forKey: .value)
+            try container.encodeIfPresent(valueCodable, forKey: .value)
         }
     }
     
@@ -63,7 +65,7 @@ extension Step: Codable {
         
         self.stepType = stepType
         
-        if let nodeIdString = try? container.decode(String?.self, forKey: .nodeId) {
+        if let nodeIdString = try container.decode(String?.self, forKey: .nodeId) {
             self.nodeId = UUID(uuidString: nodeIdString)
         }
         if let fromNodeIdString = try? container.decode(String?.self, forKey: .fromNodeId) {
