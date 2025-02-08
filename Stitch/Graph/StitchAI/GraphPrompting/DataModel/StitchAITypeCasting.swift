@@ -29,7 +29,7 @@ extension PortValue {
         case .networkRequestType(let x):
             return x
         case .color(let x):
-            return x
+            return HexColor(x)
         case .size(let x):
             return x
         case .position(let x):
@@ -131,7 +131,12 @@ extension PortValue {
 }
 
 extension UserVisibleType {
-    var portValueType: Decodable.Type {
+    /*
+     Note: StitchAI treats certain PortValues in an LLM-friendly way, e.g.
+     - Color as a hex
+     - CGPoint as a dictionary/json-object instead of a tuple
+     */
+    var portValueTypeForStitchAI: Decodable.Type {
         switch self {
         case .string:
             return String.self
@@ -150,7 +155,7 @@ extension UserVisibleType {
         case .networkRequestType:
             return NetworkRequestType.self
         case .color:
-            return Color.self
+            return HexColor.self
         case .size:
             return LayerSize.self
         case .position:
@@ -248,7 +253,7 @@ extension UserVisibleType {
         }
     }
     
-    func coerceToPortValue(from anyValue: Any) throws -> PortValue {
+    func coerceToPortValueForStitchAI(from anyValue: Any) throws -> PortValue {
         switch self {
         case .string:
             guard let x = anyValue as? String else {
@@ -291,7 +296,8 @@ extension UserVisibleType {
             }
             return .networkRequestType(x)
         case .color:
-            guard let x = anyValue as? Color else {
+            guard let hexString = anyValue as? HexColor,
+                  let x = hexString.toColor() else {
                 throw StitchAICodingError.typeCasting
             }
             return .color(x)

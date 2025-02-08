@@ -22,7 +22,7 @@ class OpenAIRequestTests: XCTestCase {
             
             let portValue = type.defaultPortValue
             let valueCodable = portValue.anyCodable
-            let portValueType = type.portValueType
+            let portValueType = type.portValueTypeForStitchAI
             
             do {
                 let encoding = try getStitchEncoder().encode(valueCodable)
