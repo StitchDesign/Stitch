@@ -48,12 +48,7 @@ enum StepTypeAction: Equatable, Hashable, Codable {
     }
     
     static func fromStep(_ action: Step) -> Self? {
-        guard let stepType = action.parseStepType else {
-//            fatalErrorIfDebug()
-            log("StepTypeAction.fromStep: could not create parse Step into StepTypeAction, please retry?: action: \(action)")
-            return nil
-        }
-        
+        let stepType = action.stepType
         switch stepType {
             
         case .addNode:
@@ -215,14 +210,14 @@ struct StepActionAddNode: Equatable, Hashable, Codable {
     var nodeName: PatchOrLayer
 
     var toStep: Step {
-        Step(stepType: Self.stepType.rawValue,
-             nodeId: nodeId.description,
-             nodeName: nodeName.asNodeKind.asLLMStepNodeName)
+        Step(stepType: Self.stepType,
+             nodeId: nodeId,
+             nodeName: nodeName)
     }
     
     static func fromStep(_ action: Step) -> Self? {
-        if let nodeId = action.parseNodeId,
-           let nodeKind = action.parseNodeKind() {
+        if let nodeId = action.nodeId,
+           let nodeKind = action.nodeName {
             return .init(nodeId: nodeId,
                          nodeName: nodeKind)
         }
@@ -240,14 +235,15 @@ struct StepActionAddLayerInput: Equatable, Hashable, Codable {
     let port: LayerInputPort // assumes .packed
     
     var toStep: Step {
-        Step(stepType: Self.stepType.rawValue,
-             nodeId: nodeId.description,
-             nodeType: port.asLLMStepPort)
+        fatalError("need clarification on adding layer input")
+//        Step(stepType: Self.stepType,
+//             nodeId: nodeId,
+//             nodeType: port.asLLMStepPort)
     }
     
     static func fromStep(_ action: Step) -> Self? {
-        guard let nodeId = action.parseNodeId,
-              let layerInput = action.parsePort()?.keyPath?.layerInput else {
+        guard let nodeId = action.nodeId,
+              let layerInput = action.port?.keyPath?.layerInput else {
             return nil
         }
         
@@ -268,23 +264,23 @@ struct StepActionConnectionAdded: Equatable, Hashable, Codable {
     
     var toStep: Step {
         Step(
-            stepType: Self.stepType.rawValue,
-            port: .init(value: port.asLLMStepPort()),
-            fromPort: .init(value: String(fromPort)),
-            fromNodeId: fromNodeId.uuidString,
-            toNodeId: toNodeId.uuidString
+            stepType: Self.stepType,
+            port: port,
+            fromPort: fromPort,
+            fromNodeId: fromNodeId,
+            toNodeId: toNodeId
         )
     }
     
     static func fromStep(_ action: Step) -> Self? {
-        guard let fromNodeId = action.fromNodeId?.parseNodeId,
-              let toPort: NodeIOPortType = action.parsePort(),
-              let toNodeId = action.toNodeId?.parseNodeId else {
+        guard let fromNodeId = action.nodeId,
+              let toPort = action.port,
+              let toNodeId = action.nodeId else {
             return nil
         }
 
         // default to 0 for some legacy actions ?
-        let fromPort = Int(action.fromPort?.value ?? "0") ?? 0
+        let fromPort = action.fromPort ?? 0
         
         return .init(port: toPort,
                      toNodeId: toNodeId,
@@ -301,14 +297,14 @@ struct StepActionChangeNodeType: Equatable, Hashable, Codable {
     var nodeType: NodeType
     
     var toStep: Step {
-        Step(stepType: Self.stepType.rawValue,
-             nodeId: nodeId.description,
-             nodeType: nodeType.asLLMStepNodeType)
+        Step(stepType: Self.stepType,
+             nodeId: nodeId,
+             nodeType: nodeType)
     }
     
     static func fromStep(_ action: Step) -> Self? {
-        if let nodeId = action.parseNodeId,
-           let nodeType = action.parseNodeType() {
+        if let nodeId = action.nodeId,
+           let nodeType = action.nodeType {
             return .init(nodeId: nodeId,
                          nodeType: nodeType)
         }
@@ -328,18 +324,18 @@ struct StepActionSetInput: Equatable, Hashable, Codable {
     
     // encoding
     var toStep: Step {
-        Step(stepType: Self.stepType.rawValue,
-             nodeId: nodeId.description,
-             port: .init(value: port.asLLMStepPort()),
-             value: StitchAIPortValue(portValue: value),
-             nodeType: value.toNodeType.asLLMStepNodeType)
+        Step(stepType: Self.stepType,
+             nodeId: nodeId,
+             port: port,
+             value: value,
+             nodeType: value.toNodeType)
     }
     
     static func fromStep(_ action: Step) -> Self? {
-        if let nodeId = action.parseNodeId,
-           let port = action.parsePort(),
-           let nodeType = action.parseNodeType(),
-           let value = action.parseValueForSetInput(nodeType: nodeType) {
+        if let nodeId = action.nodeId,
+           let port = action.port,
+           let nodeType = action.nodeType,
+           let value = action.value {
             return .init(nodeId: nodeId,
                          port: port,
                          value: value,
