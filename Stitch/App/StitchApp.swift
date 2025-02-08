@@ -20,25 +20,7 @@ struct StitchApp: App {
 
             // iPad uses StitchRouter to use the project zoom in/out animation
             StitchRootView(store: self.store)
-                .onAppear {
-//                    let stringTest = StitchStringValue("yoooo")
-//                    let testObject = StitchAIPortValue(portValue: PortValue.position(.init(x: 6, y: 9)))
-//                    
-//                    do {
-//                        let encoding = try getStitchEncoder().encode(testObject)
-//                        
-////                        let json = try JSONSerialization.jsonObject(with: encoding, options: [])
-//                        let jsonString = String(data: encoding, encoding: .utf8)
-//                        
-//                        print("Json test: \(jsonString)")
-//                        
-//                        let decoding = try getStitchDecoder().decode(StitchAIPortValue.self,
-//                                                                     from: encoding)
-//                        print("success: \(decoding)")
-//                    } catch {
-//                        fatalError(error.localizedDescription)
-//                    }
-                    
+                .onAppear {                    
                     dispatch(DirectoryUpdated())
                     
                     SentrySDK.start { options in
