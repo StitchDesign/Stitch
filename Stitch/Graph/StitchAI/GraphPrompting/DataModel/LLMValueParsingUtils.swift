@@ -216,6 +216,7 @@ extension String {
 enum StitchAICodingError: Error {
     case typeCasting
     case stepDecoding
+    case action
 }
 
 extension PortValue {

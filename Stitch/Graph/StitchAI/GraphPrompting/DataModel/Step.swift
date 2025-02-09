@@ -10,19 +10,40 @@ import SwiftUI
 import SwiftyJSON
 
 /// Represents a single step/action in the visual programming sequence
-struct Step: Equatable, Hashable {
+struct Step: Hashable {
     var stepType: StepType        // Type of step (e.g., "add_node", "connect_nodes")
-    var nodeId: UUID?        // Identifier for the node
+    var nodeId: StitchAIUUID?        // Identifier for the node
     var nodeName: PatchOrLayer?      // Display name for the node
     var port: NodeIOPortType?  // Port identifier (can be string or number)
-    var fromPort: Int?  // Source port for connections
-    var fromNodeId: UUID?   // Source node for connections
-    var toNodeId: UUID?     // Target node for connections
+    var fromPort: StitchAIInt?  // Source port for connections
+    var fromNodeId: StitchAIUUID?   // Source node for connections
+    var toNodeId: StitchAIUUID?     // Target node for connections
     var value: PortValue? // Associated value data
     var nodeType: NodeType?     // Type of the node
+    
+    init(stepType: StepType,
+         nodeId: UUID? = nil,
+         nodeName: PatchOrLayer? = nil,
+         port: NodeIOPortType? = nil,
+         fromPort: Int? = nil,
+         fromNodeId: UUID? = nil,
+         toNodeId: UUID? = nil,
+         value: PortValue? = nil,
+         nodeType: NodeType? = nil) {
+        self.stepType = stepType
+        self.nodeId = .init(value: nodeId)
+        self.nodeName = nodeName
+        self.port = port
+        self.fromPort = .init(value: fromPort)
+        self.fromNodeId = .init(value: fromNodeId)
+        self.toNodeId = .init(value: toNodeId)
+        self.value = value
+        self.nodeType = nodeType
+    }
 }
 
 extension Step: Codable {
+    
     enum CodingKeys: String, CodingKey {
         case stepType = "step_type"
         case nodeId = "node_id"
@@ -41,12 +62,12 @@ extension Step: Codable {
         // `encodeIfPresent` cleans up JSON by removing properties
         
         try container.encodeIfPresent(stepType.rawValue, forKey: .stepType)
-        try container.encodeIfPresent(nodeId?.description, forKey: .nodeId)
+        try container.encodeIfPresent(nodeId, forKey: .nodeId)
         try container.encodeIfPresent(nodeName?.asNodeKind.asLLMStepNodeName, forKey: .nodeName)
         try container.encodeIfPresent(port?.asLLMStepPort(), forKey: .port)
         try container.encodeIfPresent(fromPort, forKey: .fromPort)
-        try container.encodeIfPresent(fromNodeId?.description, forKey: .fromNodeId)
-        try container.encodeIfPresent(toNodeId?.description, forKey: .toNodeId)
+        try container.encodeIfPresent(fromNodeId, forKey: .fromNodeId)
+        try container.encodeIfPresent(toNodeId, forKey: .toNodeId)
         try container.encodeIfPresent(nodeType?.asLLMStepNodeType, forKey: .nodeType)
         
         if let valueCodable = value?.anyCodable {
@@ -64,16 +85,10 @@ extension Step: Codable {
         }
         
         self.stepType = stepType
-        
-        if let nodeIdString = try container.decode(String?.self, forKey: .nodeId) {
-            self.nodeId = UUID(uuidString: nodeIdString)
-        }
-        if let fromNodeIdString = try? container.decode(String?.self, forKey: .fromNodeId) {
-            self.fromNodeId = UUID(uuidString: fromNodeIdString)
-        }
-        if let toNodeIdString = try? container.decode(String?.self, forKey: .toNodeId) {
-            self.toNodeId = UUID(uuidString: toNodeIdString)
-        }
+        self.nodeId = try container.decodeIfPresent(StitchAIUUID.self, forKey: .nodeId)
+        self.fromNodeId = try container.decodeIfPresent(StitchAIUUID.self, forKey: .fromNodeId)
+        self.toNodeId = try container.decodeIfPresent(StitchAIUUID.self, forKey: .toNodeId)
+        self.fromPort = try container.decodeIfPresent(StitchAIInt.self, forKey: .fromPort)
         
         if let nodeNameString = try? container.decode(String?.self, forKey: .nodeName) {
             self.nodeName = .fromLLMNodeName(nodeNameString)
@@ -83,8 +98,6 @@ extension Step: Codable {
             self.port = NodeIOPortType(stringValue: portString)
         }
         
-        self.fromPort = try? container.decode(Int?.self, forKey: .fromPort)
-
         guard let nodeTypeString = try? container.decode(String?.self, forKey: .nodeType),
               let nodeType = NodeType(llmString: nodeTypeString) else {
             return
