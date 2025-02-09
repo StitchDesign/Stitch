@@ -17,9 +17,9 @@ extension PortValue {
         case .bool(let x):
             return x
         case .int(let x):
-            return x
+            return "\(x)"
         case .number(let x):
-            return x
+            return "\(x)"
         case .layerDimension(let x):
             return x
         case .transform(let x):
@@ -33,7 +33,7 @@ extension PortValue {
         case .size(let x):
             return x
         case .position(let x):
-            return StitchAIPosition(x: x.x, y: x.y)
+            return StitchAIPosition(x: "\(x.x)", y: "\(x.y)")
         case .point3D(let x):
             return x
         case .point4D(let x):
@@ -142,10 +142,8 @@ extension UserVisibleType {
             return String.self
         case .bool:
             return Bool.self
-        case .int:
-            return Int.self
-        case .number:
-            return Double.self
+        case .int, .number:
+            return String.self
         case .layerDimension:
             return LayerDimension.self
         case .transform:
@@ -266,10 +264,11 @@ extension UserVisibleType {
             }
             return .bool(x)
         case .int:
-            guard let x = anyValue as? Int else {
+            guard let x = anyValue as? String,
+                  let xInt = Int(x) else {
                 throw StitchAICodingError.typeCasting
             }
-            return .int(x)
+            return .int(xInt)
         case .number:
             guard let x = anyValue as? Double else {
                 throw StitchAICodingError.typeCasting
@@ -307,11 +306,13 @@ extension UserVisibleType {
             }
             return .size(x)
         case .position:
-            guard let x = anyValue as? StitchAIPosition else {
+            guard let data = anyValue as? StitchAIPosition,
+                  let x = Double(data.x),
+                  let y = Double(data.y) else {
                 throw StitchAICodingError.typeCasting
             }
             
-            let newValue = CGPoint(x: x.x, y: x.y)
+            let newValue = CGPoint(x: x, y: x)
             return .position(newValue)
         case .point3D:
             guard let x = anyValue as? Point3D else {
