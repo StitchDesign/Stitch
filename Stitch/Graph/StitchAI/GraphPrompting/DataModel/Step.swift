@@ -9,62 +9,6 @@ import Foundation
 import SwiftUI
 import SwiftyJSON
 
-//protocol StitchAIStepActionable: Hashable, Codable {
-//    static var stepType: StepType { get }
-//    
-//    // Type of step (e.g., "add_node", "connect_nodes")
-//    var stepType: StepType  { get set }
-//    
-//    // Identifier for the node
-//    var nodeId: UUID? { get set }
-//    
-//    // Display name for the node
-//    var nodeName: PatchOrLayer? { get set }
-//    
-//    // Port identifier (can be string or number)
-//    var port: NodeIOPortType? { get set }
-//    
-//    // Source port for connections
-//    var fromPort: Int? { get set }
-//    
-//    // Source node for connections
-//    var fromNodeId: UUID? { get set }
-//    
-//    // Target node for connections
-//    var toNodeId: UUID? { get set }
-//    
-//    // Associated value data
-//    var value: PortValue? { get set }
-//    
-//    // Type of the node
-//    var nodeType: NodeType? { get set }
-//    
-//    
-//    init(nodeId: StitchAIUUID?,
-//         nodeName: PatchOrLayer?,
-//         port: NodeIOPortType?,
-//         fromPort: Int?,
-//         fromNodeId: UUID?,
-//         toNodeId: UUID?,
-//         value: PortValue?,
-//         nodeType: NodeType?
-//    )
-//}
-//
-//extension StitchAIStepActionable {
-//    var toStep: Step {
-//        Step(stepType: Self.stepType,
-//             nodeId: self.nodeId != nil ? .init(self.nodeId!) : nil,
-//             nodeName: self.nodeName,
-//             port: self.port,
-//             fromPort: self.fromPort,
-//             fromNodeId: self.fromNodeId,
-//             toNodeId: self.toNodeId,
-//             value: self.value,
-//             nodeType: self.nodeType)
-//    }
-//}
-
 /// Represents a single step/action in the visual programming sequence
 struct Step: Hashable {
     var stepType: StepType        // Type of step (e.g., "add_node", "connect_nodes")
