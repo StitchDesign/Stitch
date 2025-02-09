@@ -52,6 +52,14 @@ protocol StitchAIStringConvertable: Codable, Hashable {
 
 
 extension StitchAIStringConvertable {
+    init?(value: T?) {
+        guard let value = value else {
+            return nil
+        }
+        
+        self.init(value: value)
+    }
+    
     /// Encodes the value as a string
     func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()

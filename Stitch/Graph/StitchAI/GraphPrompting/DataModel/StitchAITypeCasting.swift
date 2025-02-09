@@ -264,16 +264,15 @@ extension UserVisibleType {
             }
             return .bool(x)
         case .int:
-            guard let x = anyValue as? String,
-                  let xInt = Int(x) else {
+            guard let x = anyValue as? StitchAINumber else {
                 throw StitchAICodingError.typeCasting
             }
-            return .int(xInt)
+            return .int(Int(x.value))
         case .number:
-            guard let x = anyValue as? Double else {
+            guard let x = anyValue as? StitchAINumber else {
                 throw StitchAICodingError.typeCasting
             }
-            return .number(x)
+            return .number(x.value)
         case .layerDimension:
             guard let x = anyValue as? LayerDimension else {
                 throw StitchAICodingError.typeCasting
