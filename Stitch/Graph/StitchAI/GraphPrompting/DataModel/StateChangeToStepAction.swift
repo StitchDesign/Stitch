@@ -135,7 +135,7 @@ func createLLMStepConnectionAdded(input: InputCoordinate,
 func createLLMStepAddLayerInput(nodeId: NodeId,
                                 input: LayerInputPort) -> LLMStepAction {
       LLMStepAction(stepType: StepType.addLayerInput,
-                    nodeId: nodeId, // Don't need to specify node name?
+                    nodeId: .init(nodeId), // Don't need to specify node name?
                     port: .keyPath(.init(layerInput: input,
                                          portType: .packed)))
   }

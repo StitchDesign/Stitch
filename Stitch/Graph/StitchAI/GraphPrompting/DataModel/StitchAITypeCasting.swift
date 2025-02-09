@@ -17,9 +17,9 @@ extension PortValue {
         case .bool(let x):
             return x
         case .int(let x):
-            return "\(x)"
+            return StitchAINumber(value: Double(x))
         case .number(let x):
-            return "\(x)"
+            return StitchAINumber(value: x)
         case .layerDimension(let x):
             return x
         case .transform(let x):
@@ -143,7 +143,7 @@ extension UserVisibleType {
         case .bool:
             return Bool.self
         case .int, .number:
-            return String.self
+            return StitchAINumber.self
         case .layerDimension:
             return LayerDimension.self
         case .transform:

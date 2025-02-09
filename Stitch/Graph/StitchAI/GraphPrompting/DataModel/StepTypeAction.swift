@@ -216,7 +216,7 @@ struct StepActionAddNode: Equatable, Hashable, Codable {
     }
     
     static func fromStep(_ action: Step) -> Self? {
-        if let nodeId = action.nodeId,
+        if let nodeId = action.nodeId?.value,
            let nodeKind = action.nodeName {
             return .init(nodeId: nodeId,
                          nodeName: nodeKind)
@@ -242,12 +242,13 @@ struct StepActionAddLayerInput: Equatable, Hashable, Codable {
     }
     
     static func fromStep(_ action: Step) -> Self? {
-        guard let nodeId = action.nodeId,
+        guard let nodeId = action.nodeId?.value,
               let layerInput = action.port?.keyPath?.layerInput else {
             return nil
         }
         
-        return .init(nodeId: nodeId, port: layerInput)
+        return .init(nodeId: nodeId,
+                     port: layerInput)
     }
 }
 
@@ -273,9 +274,9 @@ struct StepActionConnectionAdded: Equatable, Hashable, Codable {
     }
     
     static func fromStep(_ action: Step) -> Self? {
-        guard let fromNodeId = action.nodeId,
+        guard let fromNodeId = action.nodeId?.value,
               let toPort = action.port,
-              let toNodeId = action.nodeId else {
+              let toNodeId = action.nodeId?.value else {
             return nil
         }
 
@@ -303,7 +304,7 @@ struct StepActionChangeNodeType: Equatable, Hashable, Codable {
     }
     
     static func fromStep(_ action: Step) -> Self? {
-        if let nodeId = action.nodeId,
+        if let nodeId = action.nodeId?.value,
            let nodeType = action.nodeType {
             return .init(nodeId: nodeId,
                          nodeType: nodeType)
@@ -332,7 +333,7 @@ struct StepActionSetInput: Equatable, Hashable, Codable {
     }
     
     static func fromStep(_ action: Step) -> Self? {
-        if let nodeId = action.nodeId,
+        if let nodeId = action.nodeId?.value,
            let port = action.port,
            let nodeType = action.nodeType,
            let value = action.value {

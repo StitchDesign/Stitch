@@ -9,10 +9,66 @@ import Foundation
 import SwiftUI
 import SwiftyJSON
 
+//protocol StitchAIStepActionable: Hashable, Codable {
+//    static var stepType: StepType { get }
+//    
+//    // Type of step (e.g., "add_node", "connect_nodes")
+//    var stepType: StepType  { get set }
+//    
+//    // Identifier for the node
+//    var nodeId: UUID? { get set }
+//    
+//    // Display name for the node
+//    var nodeName: PatchOrLayer? { get set }
+//    
+//    // Port identifier (can be string or number)
+//    var port: NodeIOPortType? { get set }
+//    
+//    // Source port for connections
+//    var fromPort: Int? { get set }
+//    
+//    // Source node for connections
+//    var fromNodeId: UUID? { get set }
+//    
+//    // Target node for connections
+//    var toNodeId: UUID? { get set }
+//    
+//    // Associated value data
+//    var value: PortValue? { get set }
+//    
+//    // Type of the node
+//    var nodeType: NodeType? { get set }
+//    
+//    
+//    init(nodeId: StitchAIUUID?,
+//         nodeName: PatchOrLayer?,
+//         port: NodeIOPortType?,
+//         fromPort: Int?,
+//         fromNodeId: UUID?,
+//         toNodeId: UUID?,
+//         value: PortValue?,
+//         nodeType: NodeType?
+//    )
+//}
+//
+//extension StitchAIStepActionable {
+//    var toStep: Step {
+//        Step(stepType: Self.stepType,
+//             nodeId: self.nodeId != nil ? .init(self.nodeId!) : nil,
+//             nodeName: self.nodeName,
+//             port: self.port,
+//             fromPort: self.fromPort,
+//             fromNodeId: self.fromNodeId,
+//             toNodeId: self.toNodeId,
+//             value: self.value,
+//             nodeType: self.nodeType)
+//    }
+//}
+
 /// Represents a single step/action in the visual programming sequence
-struct Step: Equatable, Hashable {
+struct Step: Hashable {
     var stepType: StepType        // Type of step (e.g., "add_node", "connect_nodes")
-    var nodeId: UUID?        // Identifier for the node
+    var nodeId: StitchAIUUID?        // Identifier for the node
     var nodeName: PatchOrLayer?      // Display name for the node
     var port: NodeIOPortType?  // Port identifier (can be string or number)
     var fromPort: Int?  // Source port for connections
@@ -20,9 +76,30 @@ struct Step: Equatable, Hashable {
     var toNodeId: UUID?     // Target node for connections
     var value: PortValue? // Associated value data
     var nodeType: NodeType?     // Type of the node
+    
+    init(stepType: StepType,
+         nodeId: UUID? = nil,
+         nodeName: PatchOrLayer? = nil,
+         port: NodeIOPortType? = nil,
+         fromPort: Int? = nil,
+         fromNodeId: UUID? = nil,
+         toNodeId: UUID? = nil,
+         value: PortValue? = nil,
+         nodeType: NodeType? = nil) {
+        self.stepType = stepType
+        self.nodeId = nodeId != nil ? .init(value: nodeId!) : nil
+        self.nodeName = nodeName
+        self.port = port
+        self.fromPort = fromPort
+        self.fromNodeId = fromNodeId
+        self.toNodeId = toNodeId
+        self.value = value
+        self.nodeType = nodeType
+    }
 }
 
 extension Step: Codable {
+    
     enum CodingKeys: String, CodingKey {
         case stepType = "step_type"
         case nodeId = "node_id"
@@ -41,7 +118,7 @@ extension Step: Codable {
         // `encodeIfPresent` cleans up JSON by removing properties
         
         try container.encodeIfPresent(stepType.rawValue, forKey: .stepType)
-        try container.encodeIfPresent(nodeId?.description, forKey: .nodeId)
+        try container.encodeIfPresent(nodeId, forKey: .nodeId)
         try container.encodeIfPresent(nodeName?.asNodeKind.asLLMStepNodeName, forKey: .nodeName)
         try container.encodeIfPresent(port?.asLLMStepPort(), forKey: .port)
         try container.encodeIfPresent(fromPort, forKey: .fromPort)
@@ -65,9 +142,8 @@ extension Step: Codable {
         
         self.stepType = stepType
         
-        if let nodeIdString = try container.decode(String?.self, forKey: .nodeId) {
-            self.nodeId = UUID(uuidString: nodeIdString)
-        }
+        self.nodeId = try container.decodeIfPresent(StitchAIUUID.self, forKey: .nodeId)
+
         if let fromNodeIdString = try? container.decode(String?.self, forKey: .fromNodeId) {
             self.fromNodeId = UUID(uuidString: fromNodeIdString)
         }
