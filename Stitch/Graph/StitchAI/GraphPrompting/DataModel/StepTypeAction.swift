@@ -274,14 +274,14 @@ struct StepActionConnectionAdded: Equatable, Hashable, Codable {
     }
     
     static func fromStep(_ action: Step) -> Self? {
-        guard let fromNodeId = action.nodeId?.value,
+        guard let fromNodeId = action.fromNodeId?.value,
               let toPort = action.port,
-              let toNodeId = action.nodeId?.value else {
+              let toNodeId = action.toNodeId?.value else {
             return nil
         }
 
         // default to 0 for some legacy actions ?
-        let fromPort = action.fromPort ?? 0
+        let fromPort = action.fromPort?.value ?? 0
         
         return .init(port: toPort,
                      toNodeId: toNodeId,

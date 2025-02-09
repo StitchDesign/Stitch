@@ -20,6 +20,10 @@ struct StitchAIPosition: Codable {
 
 // TODO: will delete below when LLM is more reliable at producing number types when expected.
 
+struct StitchAIInt: StitchAIStringConvertable {
+    var value: Int
+}
+
 struct StitchAINumber: StitchAIStringConvertable {
     var value: Double
 }
@@ -76,22 +80,22 @@ extension StitchAIStringConvertable {
         
         // Try decoding as different types, converting each to string
         if let value = try? container.decode(Self.T.self) {
-            log("StringOrNumber: Decoder: tried double")
+            log("StitchAIStringConvertable: Decoder: tried double")
             self.init(value: value)
         } else if let stringValue = try? container.decode(String.self),
                   let valueFromString = Self.T(stringValue) {
-            log("StringOrNumber: Decoder: tried string")
+            log("StitchAIStringConvertable: Decoder: tried string")
             self.init(value: valueFromString)
         } else if let jsonValue = try? container.decode(JSON.self),
                   let valueFromJson = Self.T(jsonValue.description) {
-            log("StringOrNumber: Decoder: had json \(jsonValue)")
+            log("StitchAIStringConvertable: Decoder: had json \(jsonValue)")
             self.init(value: valueFromJson)
         } else {
             throw DecodingError.typeMismatch(
                 String.self,
                 DecodingError.Context(
                     codingPath: decoder.codingPath,
-                    debugDescription: "Unexpected type for \(Self.T.self)"
+                    debugDescription: "StitchAIStringConvertable: unexpected type for \(Self.T.self)"
                 )
             )
         }

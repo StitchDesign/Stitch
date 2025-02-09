@@ -71,7 +71,7 @@ struct Step: Hashable {
     var nodeId: StitchAIUUID?        // Identifier for the node
     var nodeName: PatchOrLayer?      // Display name for the node
     var port: NodeIOPortType?  // Port identifier (can be string or number)
-    var fromPort: Int?  // Source port for connections
+    var fromPort: StitchAIInt?  // Source port for connections
     var fromNodeId: StitchAIUUID?   // Source node for connections
     var toNodeId: StitchAIUUID?     // Target node for connections
     var value: PortValue? // Associated value data
@@ -90,7 +90,7 @@ struct Step: Hashable {
         self.nodeId = .init(value: nodeId)
         self.nodeName = nodeName
         self.port = port
-        self.fromPort = fromPort
+        self.fromPort = .init(value: fromPort)
         self.fromNodeId = .init(value: fromNodeId)
         self.toNodeId = .init(value: toNodeId)
         self.value = value
@@ -144,6 +144,7 @@ extension Step: Codable {
         self.nodeId = try container.decodeIfPresent(StitchAIUUID.self, forKey: .nodeId)
         self.fromNodeId = try container.decodeIfPresent(StitchAIUUID.self, forKey: .fromNodeId)
         self.toNodeId = try container.decodeIfPresent(StitchAIUUID.self, forKey: .toNodeId)
+        self.fromPort = try container.decodeIfPresent(StitchAIInt.self, forKey: .fromPort)
         
         if let nodeNameString = try? container.decode(String?.self, forKey: .nodeName) {
             self.nodeName = .fromLLMNodeName(nodeNameString)
@@ -153,8 +154,6 @@ extension Step: Codable {
             self.port = NodeIOPortType(stringValue: portString)
         }
         
-        self.fromPort = try? container.decode(Int?.self, forKey: .fromPort)
-
         guard let nodeTypeString = try? container.decode(String?.self, forKey: .nodeType),
               let nodeType = NodeType(llmString: nodeTypeString) else {
             return
