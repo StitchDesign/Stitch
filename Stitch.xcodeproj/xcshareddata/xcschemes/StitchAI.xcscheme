@@ -77,7 +77,7 @@
       buildConfiguration = "Debug">
    </AnalyzeAction>
    <ArchiveAction
-      buildConfiguration = "Release"
+      buildConfiguration = "StitchAI"
       revealArchiveInOrganizer = "YES">
    </ArchiveAction>
 </Scheme>
