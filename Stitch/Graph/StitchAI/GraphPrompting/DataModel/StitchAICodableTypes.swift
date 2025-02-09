@@ -40,12 +40,6 @@ extension UUID: LosslessStringConvertible {
 
 typealias StitchAIValueStringConvertable = Codable & CustomStringConvertible & LosslessStringConvertible & Hashable
 
-//extension StitchAIStringConvertable {
-//    init(_ value: T) {
-//        self.value =
-//    }
-//}
-
 protocol StitchAIStringConvertable: Codable, Hashable {
     associatedtype T: StitchAIValueStringConvertable
     
