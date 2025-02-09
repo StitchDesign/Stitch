@@ -13,7 +13,7 @@ import StitchSchemaKit
  */
 
 struct StitchAIPosition: Codable {
-    var x: String
-    var y: String
+    var x: Double
+    var y: Double
 }
 
