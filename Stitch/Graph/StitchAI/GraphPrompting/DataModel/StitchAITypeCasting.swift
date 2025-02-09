@@ -33,7 +33,7 @@ extension PortValue {
         case .size(let x):
             return x
         case .position(let x):
-            return StitchAIPosition(x: "\(x.x)", y: "\(x.y)")
+            return StitchAIPosition(x: x.x, y: x.y)
         case .point3D(let x):
             return x
         case .point4D(let x):
@@ -306,14 +306,11 @@ extension UserVisibleType {
             }
             return .size(x)
         case .position:
-            guard let data = anyValue as? StitchAIPosition,
-                  let x = Double(data.x),
-                  let y = Double(data.y) else {
+            guard let x = anyValue as? StitchAIPosition else {
                 throw StitchAICodingError.typeCasting
             }
             
-            let newValue = CGPoint(x: x, y: x)
-            return .position(newValue)
+            return .position(.init(x: x.x, y: x.y))
         case .point3D:
             guard let x = anyValue as? Point3D else {
                 throw StitchAICodingError.typeCasting
