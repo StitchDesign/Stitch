@@ -21,7 +21,7 @@ extension PortValue {
         case .number(let x):
             return StitchAINumber(value: x)
         case .layerDimension(let x):
-            return x
+            return StitchAISizeDimension(value: x)
         case .transform(let x):
             return x
         case .plane(let x):
@@ -30,8 +30,9 @@ extension PortValue {
             return x
         case .color(let x):
             return HexColor(x)
-        case .size(let x):
-            return x
+        case .size(let size):
+            return StitchAISize(width: .init(value: size.width),
+                                height: .init(value: size.height))
         case .position(let x):
             return StitchAIPosition(x: x.x, y: x.y)
         case .point3D(let x):
@@ -145,7 +146,7 @@ extension UserVisibleType {
         case .int, .number:
             return StitchAINumber.self
         case .layerDimension:
-            return LayerDimension.self
+            return StitchAISizeDimension.self
         case .transform:
             return StitchTransform.self
         case .plane:
@@ -155,7 +156,7 @@ extension UserVisibleType {
         case .color:
             return HexColor.self
         case .size:
-            return LayerSize.self
+            return StitchAISize.self
         case .position:
             return StitchAIPosition.self
         case .point3D:
@@ -274,10 +275,10 @@ extension UserVisibleType {
             }
             return .number(x.value)
         case .layerDimension:
-            guard let x = anyValue as? LayerDimension else {
+            guard let x = anyValue as? StitchAISizeDimension else {
                 throw StitchAICodingError.typeCasting
             }
-            return .layerDimension(x)
+            return .layerDimension(x.value)
         case .transform:
             guard let x = anyValue as? StitchTransform else {
                 throw StitchAICodingError.typeCasting
@@ -300,10 +301,14 @@ extension UserVisibleType {
             }
             return .color(x)
         case .size:
-            guard let x = anyValue as? LayerSize else {
+            guard let aiSize = anyValue as? StitchAISize else {
                 throw StitchAICodingError.typeCasting
             }
-            return .size(x)
+            
+            let size = LayerSize(width: aiSize.width.value,
+                                 height: aiSize.height.value)
+            
+            return .size(size)
         case .position:
             guard let x = anyValue as? StitchAIPosition else {
                 throw StitchAICodingError.typeCasting
