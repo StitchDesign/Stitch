@@ -68,7 +68,7 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     // Data-side for values
     @MainActor
     var allLoopedValues: PortValues = .init()
-    
+
     // Connected upstream node, if input
     @MainActor
     var upstreamOutputCoordinate: NodeIOCoordinate? {
@@ -77,7 +77,6 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
         }
     }
     
-    // TODO: an output row can NEVER have an `upstream output` (i.e. incoming edge)
     /// Tracks upstream output row observer for some input. Cached for perf.
     @MainActor
     var upstreamOutputObserver: OutputNodeRowObserver? {
@@ -114,12 +113,18 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     
     @MainActor
     func didValuesUpdate() { }
+    
+    func updateOutputValues(_ values: [StitchSchemaKit.CurrentPortValue.PortValue]) {
+        fatalErrorIfDebug("Should never be called for InputNodeRowObserver")
+    }
+    
 }
 
 extension NodeIOCoordinate: Sendable { }
 
 @Observable
 final class OutputNodeRowObserver: NodeRowObserver {
+    
     static let nodeIOType: NodeIO = .output
     let containsUpstreamConnection = false  // always false
 
@@ -168,6 +173,10 @@ final class OutputNodeRowObserver: NodeRowObserver {
             .getPulseReversionEffects(id: self.id,
                                       graphTime: graphTime)
             .processEffects()
+    }
+    
+    func updateOutputValues(_ values: [StitchSchemaKit.CurrentPortValue.PortValue]) {
+        self.updateValues(values)
     }
 }
 
@@ -532,6 +541,7 @@ extension NodeRowObserver {
     
     @MainActor
     func initializeDelegate(_ node: NodeDelegate) {
+        log("initializeDelegate called")
         self.nodeDelegate = node
         self.postProcessing(oldValues: [], newValues: values)
     }
