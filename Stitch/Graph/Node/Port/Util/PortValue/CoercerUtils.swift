@@ -208,7 +208,7 @@ extension NodeRowObserver {
     @MainActor
     func coerceUpdate(these values: PortValues,
                       to thisType: PortValue,
-
+                      oldValues: PortValues, // ALL old values
                       // Additional data used for input coercion:
                       currentGraphTime: TimeInterval) {
 
@@ -216,6 +216,7 @@ extension NodeRowObserver {
                                       currentGraphTime: currentGraphTime)
 
         // Update new values to input observer
-        self.updateValues(newValues)
+        self.updateValues(newValues,
+                          oldValues: oldValues)
     }
 }

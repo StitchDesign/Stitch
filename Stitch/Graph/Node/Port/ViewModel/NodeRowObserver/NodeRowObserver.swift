@@ -66,21 +66,9 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     let id: NodeIOCoordinate
     
     // Data-side for values
-    // THIS IS GETTING SET BEFORE WE ACTUALLY CALL updateValues
     @MainActor
     var allLoopedValues: PortValues = .init()
-//    {
-//        didSet {
-//            if let x = allLoopedValues.first,
-//               case let .assignedLayer(layerId) = x {
-//                log("allLoopedValues didSet: oldValue \(oldValue) and new value \(allLoopedValues)")
-//                if layerId == nil {
-//                    fatalErrorIfDebug() // see when this was set nil
-//                }
-//            }
-//        }
-//    }
-    
+
     // Connected upstream node, if input
     @MainActor
     var upstreamOutputCoordinate: NodeIOCoordinate? {
@@ -89,7 +77,6 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
         }
     }
     
-    // TODO: an output row can NEVER have an `upstream output` (i.e. incoming edge)
     /// Tracks upstream output row observer for some input. Cached for perf.
     @MainActor
     var upstreamOutputObserver: OutputNodeRowObserver? {
