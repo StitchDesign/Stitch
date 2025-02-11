@@ -31,6 +31,7 @@ func loopReverseNode(id: NodeId,
         zIndex: zIndex,
         id: id,
         patchName: .loopReverse,
+        userVisibleType: .number,
         inputs: inputs,
         outputs: outputs)
 }
