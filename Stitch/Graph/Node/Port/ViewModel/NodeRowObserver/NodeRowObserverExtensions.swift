@@ -12,8 +12,15 @@ import StitchEngine
 // MARK: non-derived data: values, assigned interactions, label, upstream/downstream connection
 
 extension NodeRowObserver {
+    
+    /*
+     Note: StitchEngine's `setValuesInInput` has already updated an InputRowObserver's `allLoopedValues` by the time `updateValues` is called, therefore `allLoopedValues` already reflects "new values", so we must rely on the explicitly passed-in `oldValues`
+     TODO: separate `updateValues` functions for InputNodeRowObserver vs OutputNodeRowObserver, since `oldValues` only relevant for input updates' post-processing?
+     */
     @MainActor
-    func updateValues(_ newValues: PortValues) {
+    func updateValues(_ newValues: PortValues,
+                      oldValues: PortValues? = nil)
+    {
         // Check if this port is for a packed layer input but the set mode is unpacked
         // Valid scenarios here--we use input row observer getters for all-up value getting
         if let layerId = self.id.keyPath,
@@ -32,11 +39,11 @@ extension NodeRowObserver {
         }
         
         // Save these for `postProcessing`
-        let oldValues = self.allLoopedValues
-        
+        let oldValues = oldValues ?? self.allLoopedValues
+                
         // Always update the non-view data in the NodeRowObserver
         self.allLoopedValues = newValues
-        
+                
         // Always update "hasLoop", since offscreen node may have an onscreen edge.
         let hasLoop = newValues.hasLoop
         if hasLoop != self.hasLoopedValues {
@@ -118,6 +125,7 @@ extension NodeRowObserver {
     @MainActor
     func postProcessing(oldValues: PortValues,
                         newValues: PortValues) {
+
         // Update cached interactions data in graph
         self.updateInteractionNodeData(oldValues: oldValues,
                                        newValues: newValues)
@@ -134,9 +142,10 @@ extension NodeRowObserver {
                                    newValues: PortValues) {
         
         // Interaction nodes ignore loops of assigned layers and only use the first
+        // Note: may be nil when first initializing the graph
         let firstValueOld = oldValues.first
         let firstValueNew = newValues.first
-                
+               
         guard let graphDelegate = self.nodeDelegate?.graphDelegate,
               let patch = self.nodeKind.getPatch,
               patch.isInteractionPatchNode,
@@ -145,37 +154,46 @@ extension NodeRowObserver {
             return
         }
         
-        // Remove old value from graph state
-        // Note: can be nil when first initializing the graph
-        if let oldLayerId = firstValueOld?.getInteractionId {
-            switch patch {
-            case .dragInteraction:
-                graphDelegate.dragInteractionNodes.removeValue(forKey: oldLayerId)
-            case .pressInteraction:
-                graphDelegate.pressInteractionNodes.removeValue(forKey: oldLayerId)
-            case .scrollInteraction:
-                graphDelegate.scrollInteractionNodes.removeValue(forKey: oldLayerId)
-            default:
-                fatalErrorIfDebug()
+        if let firstValueOld = firstValueOld,
+            case let .assignedLayer(oldLayerId) = firstValueOld {
+            // Note: `.assignedLayer(nil)` is for when the interaction patch has no assigned layer
+            if let oldLayerId = oldLayerId {
+                switch patch {
+                case .dragInteraction:
+                    graphDelegate.dragInteractionNodes.removeValue(forKey: oldLayerId)
+                case .pressInteraction:
+                    graphDelegate.pressInteractionNodes.removeValue(forKey: oldLayerId)
+                case .scrollInteraction:
+                    graphDelegate.scrollInteractionNodes.removeValue(forKey: oldLayerId)
+                default:
+                    fatalErrorIfDebug()
+                }
             }
         }
-                
-        if let newLayerId = firstValueNew?.getInteractionId {
-            switch patch {
-            case .dragInteraction:
-                var currentIds = graphDelegate.dragInteractionNodes.get(newLayerId) ?? NodeIdSet()
-                currentIds.insert(self.id.nodeId)
-                graphDelegate.dragInteractionNodes.updateValue(currentIds, forKey: newLayerId)
-            case .pressInteraction:
-                var currentIds = graphDelegate.pressInteractionNodes.get(newLayerId) ?? NodeIdSet()
-                currentIds.insert(self.id.nodeId)
-                graphDelegate.pressInteractionNodes.updateValue(currentIds, forKey: newLayerId)
-            case .scrollInteraction:
-                var currentIds = graphDelegate.scrollInteractionNodes.get(newLayerId) ?? NodeIdSet()
-                currentIds.insert(self.id.nodeId)
-                graphDelegate.scrollInteractionNodes.updateValue(currentIds, forKey: newLayerId)
-            default:
-                fatalErrorIfDebug()
+        
+        // Remove old value from graph state
+        // Note: can be nil when first initializing the graph
+        if let firstValueNew = firstValueNew,
+            case let .assignedLayer(newLayerId) = firstValueNew {
+            
+            // Note: `.assignedLayer(nil)` is for when the interaction patch has no assigned layer
+            if let newLayerId = newLayerId {
+                switch patch {
+                case .dragInteraction:
+                    var currentIds = graphDelegate.dragInteractionNodes.get(newLayerId) ?? NodeIdSet()
+                    currentIds.insert(self.id.nodeId)
+                    graphDelegate.dragInteractionNodes.updateValue(currentIds, forKey: newLayerId)
+                case .pressInteraction:
+                    var currentIds = graphDelegate.pressInteractionNodes.get(newLayerId) ?? NodeIdSet()
+                    currentIds.insert(self.id.nodeId)
+                    graphDelegate.pressInteractionNodes.updateValue(currentIds, forKey: newLayerId)
+                case .scrollInteraction:
+                    var currentIds = graphDelegate.scrollInteractionNodes.get(newLayerId) ?? NodeIdSet()
+                    currentIds.insert(self.id.nodeId)
+                    graphDelegate.scrollInteractionNodes.updateValue(currentIds, forKey: newLayerId)
+                default:
+                    fatalErrorIfDebug()
+                }
             }
         }
     }

@@ -34,8 +34,7 @@ extension NodeRowObserver {
                          isVisible: Bool) {
 
         if let portId = self.id.portId,
-           nodeKind.rowIsTypeStatic(nodeType: newType,
-                                    portId: portId) {
+           nodeKind.rowIsTypeStatic(nodeType: newType, portId: portId) {
             log("NodeRowObserver: coerceInput: had static node row, so nothing to do")
             return
         }
@@ -66,9 +65,9 @@ extension NodeRowObserver {
         // If we had preserved values for this node type,
         // do we really need to coerce again?
         // They're already same type.
-
         self.coerceUpdate(these: valuesToUse,
                           to: newType.defaultPortValue,
+                          oldValues: values, // treat self.loopedValues as oldValues ?
                           currentGraphTime: currentGraphTime)
         
         // Update port views
