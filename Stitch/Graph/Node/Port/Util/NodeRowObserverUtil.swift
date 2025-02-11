@@ -105,6 +105,7 @@ extension NodeRowObserver {
             if let firstOriginalValues = oldValues.first {
                 self.coerceUpdate(these: newValues,
                                   to: firstOriginalValues,
+                                  oldValues: oldValues,
                                   currentGraphTime: graphTime)
             } else {
                 fatalErrorIfDebug()
