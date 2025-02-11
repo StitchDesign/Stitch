@@ -66,8 +66,20 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     let id: NodeIOCoordinate
     
     // Data-side for values
+    // THIS IS GETTING SET BEFORE WE ACTUALLY CALL updateValues
     @MainActor
     var allLoopedValues: PortValues = .init()
+//    {
+//        didSet {
+//            if let x = allLoopedValues.first,
+//               case let .assignedLayer(layerId) = x {
+//                log("allLoopedValues didSet: oldValue \(oldValue) and new value \(allLoopedValues)")
+//                if layerId == nil {
+//                    fatalErrorIfDebug() // see when this was set nil
+//                }
+//            }
+//        }
+//    }
     
     // Connected upstream node, if input
     @MainActor
@@ -114,12 +126,18 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     
     @MainActor
     func didValuesUpdate() { }
+    
+    func updateOutputValues(_ values: [StitchSchemaKit.CurrentPortValue.PortValue]) {
+        fatalErrorIfDebug("Should never be called for InputNodeRowObserver")
+    }
+    
 }
 
 extension NodeIOCoordinate: Sendable { }
 
 @Observable
 final class OutputNodeRowObserver: NodeRowObserver {
+    
     static let nodeIOType: NodeIO = .output
     let containsUpstreamConnection = false  // always false
 
@@ -168,6 +186,10 @@ final class OutputNodeRowObserver: NodeRowObserver {
             .getPulseReversionEffects(id: self.id,
                                       graphTime: graphTime)
             .processEffects()
+    }
+    
+    func updateOutputValues(_ values: [StitchSchemaKit.CurrentPortValue.PortValue]) {
+        self.updateValues(values)
     }
 }
 
@@ -532,6 +554,7 @@ extension NodeRowObserver {
     
     @MainActor
     func initializeDelegate(_ node: NodeDelegate) {
+        log("initializeDelegate called")
         self.nodeDelegate = node
         self.postProcessing(oldValues: [], newValues: values)
     }
