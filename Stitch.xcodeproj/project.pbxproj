@@ -1513,7 +1513,6 @@
 		EC609DD329357C0A00BF60A5 /* EqualsExactly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EqualsExactly.swift; sourceTree = "<group>"; };
 		EC60B8642C18044D00984FC8 /* ProjectThumbnailActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectThumbnailActions.swift; sourceTree = "<group>"; };
 		EC60E57B27178DDD00AABE71 /* LayerUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerUtils.swift; sourceTree = "<group>"; };
-		EC6225BB2D5BF4F5000059E8 /* StitchEngineClosedSource */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = StitchEngineClosedSource; path = "/Users/christianjclampitt/Local Documents/wissenschaft/StitchEngine-ACTUAL-CODE/StitchEngineClosedSource"; sourceTree = "<absolute>"; };
 		EC631401265C418D00BD45B2 /* LoopSelectNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopSelectNode.swift; sourceTree = "<group>"; };
 		EC63B97929FB0D8800C65A95 /* ExistingEdgesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExistingEdgesView.swift; sourceTree = "<group>"; };
 		EC650BD826864DF200C4CCC9 /* SoundImportNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundImportNode.swift; sourceTree = "<group>"; };
@@ -1959,7 +1958,6 @@
 		200BD859254F66EB00692903 /* Stitch */ = {
 			isa = PBXGroup;
 			children = (
-				EC6225BB2D5BF4F5000059E8 /* StitchEngineClosedSource */,
 				EC15E425260271C6006F2E08 /* Stitch.entitlements */,
 				200BD863254F66EE00692903 /* Info.plist */,
 				B5617A7B2C175C3C00B53DAF /* App */,
@@ -4672,6 +4670,7 @@
 				E463E7ED2C6FC7090008E318 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */,
 				E4A848A92D32FCFA0029AFDE /* XCRemoteSwiftPackageReference "supabase-swift" */,
 				E42AAE4A2D4844EE002D187D /* XCRemoteSwiftPackageReference "sentry-cocoa" */,
+				ECFCBEF02D5C03ED00AD677B /* XCRemoteSwiftPackageReference "StitchEngine" */,
 			);
 			productRefGroup = 200BD858254F66EB00692903 /* Products */;
 			projectDirPath = "";
@@ -6590,6 +6589,14 @@
 			requirement = {
 				branch = master;
 				kind = branch;
+			};
+		};
+		ECFCBEF02D5C03ED00AD677B /* XCRemoteSwiftPackageReference "StitchEngine" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/StitchDesign/StitchEngine.git";
+			requirement = {
+				kind = revision;
+				revision = d7da03a9b3cb45aaf0ba2950fd985e98b62ab9b0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
