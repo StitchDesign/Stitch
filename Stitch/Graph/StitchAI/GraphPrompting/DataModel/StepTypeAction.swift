@@ -207,7 +207,7 @@ struct StepActionAddNode: StepActionable {
             return .init(nodeId: nodeId,
                          nodeName: nodeKind)
         }
-        throw StitchAIManagerError.stepDecoding(Self.stepType)
+        throw StitchAIManagerError.stepDecoding(Self.stepType, action)
     }
 }
 
@@ -230,7 +230,7 @@ struct StepActionAddLayerInput: StepActionable {
     static func fromStep(_ action: Step) throws -> Self {
         guard let nodeId = action.nodeId?.value,
               let layerInput = action.port?.keyPath?.layerInput else {
-            throw StitchAIManagerError.stepDecoding(Self.stepType)
+            throw StitchAIManagerError.stepDecoding(Self.stepType, action)
         }
         
         return .init(nodeId: nodeId,
@@ -263,7 +263,7 @@ struct StepActionConnectionAdded: StepActionable {
         guard let fromNodeId = action.fromNodeId?.value,
               let toPort = action.port,
               let toNodeId = action.toNodeId?.value else {
-            throw StitchAIManagerError.stepDecoding(Self.stepType)
+            throw StitchAIManagerError.stepDecoding(Self.stepType, action)
         }
 
         // default to 0 for some legacy actions ?
@@ -296,7 +296,7 @@ struct StepActionChangeNodeType: StepActionable {
                          nodeType: nodeType)
         }
         
-        throw StitchAIManagerError.stepDecoding(Self.stepType)
+        throw StitchAIManagerError.stepDecoding(Self.stepType, action)
     }
 }
 
@@ -329,7 +329,7 @@ struct StepActionSetInput: StepActionable {
                          nodeType: nodeType)
         }
         
-        throw StitchAIManagerError.stepDecoding(Self.stepType)
+        throw StitchAIManagerError.stepDecoding(Self.stepType, action)
     }
 }
 

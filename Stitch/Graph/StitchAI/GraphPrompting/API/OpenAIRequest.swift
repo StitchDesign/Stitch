@@ -62,67 +62,6 @@ struct OpenAIRequest {
     }
 }
 
-enum StitchAIManagerError: Error {
-    case documentNotFound(OpenAIRequest)
-    case requestInProgress(OpenAIRequest)
-    case maxRetriesError(Int)
-    case invalidURL(OpenAIRequest)
-    case jsonEncodingError(OpenAIRequest, Error)
-    case multipleTimeoutErrors(OpenAIRequest)
-    case requestCancelled(OpenAIRequest)
-    case internetConnectionFailed(OpenAIRequest)
-    case typeCasting
-    case stepActionDecoding(String)
-    case stepDecoding(StepType)
-    case emptySuccessfulResponse
-    case other(OpenAIRequest, Error)
-}
-
-extension StitchAIManagerError: CustomStringConvertible {
-    var description: String {
-        switch self {
-        case .documentNotFound:
-            return ""
-        case .requestInProgress:
-            return "A request is already in progress. Skipping this request."
-        case .maxRetriesError(let maxRetries):
-            return "Request failed after \(maxRetries) attempts. Please check your internet connection and try again."
-        case .invalidURL:
-            return "Invalid URL"
-        case .jsonEncodingError(_, let error):
-            return "Error encoding JSON: \(error.localizedDescription)"
-        case .multipleTimeoutErrors(let request):
-            return "Multiple timeout errors occurred. Please check your internet connection and try again later."
-        case .internetConnectionFailed:
-            return "No internet connection. Please try again when your connection is restored."
-        case .other(let request, let error):
-            return "OpenAI Request error: \(error.localizedDescription)"
-        case .requestCancelled(_):
-            return ""
-        case .typeCasting:
-            return "Unable to cast type for object."
-        case .stepActionDecoding(let string):
-            return "Unable to parse action step type from: \(string)"
-        case .stepDecoding(let stepType):
-            return "Unable to decode: \(stepType)"
-        case .emptySuccessfulResponse:
-            return "StitchAI JSON parsing failed: No choices available"
-        }
-    }
-}
-
-extension StitchAIManagerError {
-    var shouldDisplayModal: Bool {
-        switch self {
-        case .requestInProgress, .documentNotFound, .requestCancelled:
-            return false
-            
-        default:
-            return true
-        }
-    }
-}
-
 extension StitchAIManager {
     @MainActor func handleRequest(_ request: OpenAIRequest) {
         guard let currentDocument = self.documentDelegate else {
@@ -154,15 +93,13 @@ extension StitchAIManager {
                     
                     if let error = error as? StitchAIManagerError {
                         state.showErrorModal(
-                            message: "Multiple timeout errors occurred. Please check your internet connection and try again later.",
-                            userPrompt: request.prompt,
-                            jsonResponse: nil
+                            message: error.description,
+                            userPrompt: request.prompt
                         )
                     } else {
                         state.showErrorModal(
                             message: "StitchAI handleRequest unknown error: \(error)",
-                            userPrompt: request.prompt,
-                            jsonResponse: nil
+                            userPrompt: request.prompt
                         )
                     }
                 }
@@ -303,8 +240,7 @@ extension StitchAIManager {
             self.documentDelegate?
                 .showErrorModal(
                 message: "No data received",
-                userPrompt: originalPrompt,
-                jsonResponse: nil
+                userPrompt: originalPrompt
             )
             
             self.documentDelegate?

@@ -111,7 +111,7 @@ extension Step: Codable {
         } catch {
             if stepType == .setInput {
                 log("Stitch AI error decoding value for setInput action: \(error.localizedDescription)")
-                throw StitchAIManagerError.stepDecoding(.setInput)
+                throw error
             }
         }
     }
