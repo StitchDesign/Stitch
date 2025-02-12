@@ -94,13 +94,12 @@ extension StitchDocumentViewModel {
     }
     
     @MainActor
-    func handleRetry(prompt: String) {
+    func handleRetry(prompt: String) throws {
         if self.llmRecording.attempts < LLMRecordingState.maxAttempts {
             self.llmRecording.attempts += 1
             retryOpenAIRequest(lastPrompt: prompt)
         } else {
-            fatalErrorIfDebug("Ran out of retry attempts")
-            return
+            throw StitchAIManagerError.maxRetriesError(LLMRecordingState.maxAttempts)
         }
     }
     

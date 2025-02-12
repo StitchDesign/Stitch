@@ -256,53 +256,53 @@ extension UserVisibleType {
         switch self {
         case .string:
             guard let x = anyValue as? String else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .string(.init(x))
         case .bool:
             guard let x = anyValue as? Bool else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .bool(x)
         case .int:
             guard let x = anyValue as? StitchAIInt else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .int(x.value)
         case .number:
             guard let x = anyValue as? StitchAINumber else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .number(x.value)
         case .layerDimension:
             guard let x = anyValue as? StitchAISizeDimension else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .layerDimension(x.value)
         case .transform:
             guard let x = anyValue as? StitchTransform else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .transform(x)
         case .plane:
             guard let x = anyValue as? Plane else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .plane(x)
         case .networkRequestType:
             guard let x = anyValue as? NetworkRequestType else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .networkRequestType(x)
         case .color:
             guard let hexString = anyValue as? HexColor,
                   let x = hexString.toColor() else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .color(x)
         case .size:
             guard let aiSize = anyValue as? StitchAISize else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             
             let size = LayerSize(width: aiSize.width.value,
@@ -311,228 +311,228 @@ extension UserVisibleType {
             return .size(size)
         case .position:
             guard let x = anyValue as? StitchAIPosition else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             
             return .position(.init(x: x.x, y: x.y))
         case .point3D:
             guard let x = anyValue as? Point3D else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .point3D(x)
         case .point4D:
             guard let x = anyValue as? Point4D else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .point4D(x)
         case .pulse:
             guard let x = anyValue as? TimeInterval else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .pulse(x)
         case .media:
             guard let x = anyValue as? AsyncMediaValue? else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .asyncMedia(x)
         case .json:
             guard let x = anyValue as? StitchJSON else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .json(x)
         case .anchoring:
             guard let x = anyValue as? Anchoring else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .anchoring(x)
         case .cameraDirection:
             guard let x = anyValue as? CameraDirection else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .cameraDirection(x)
         case .interactionId:
             guard let x = anyValue as? LayerNodeId? else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .assignedLayer(x)
         case .scrollMode:
             guard let x = anyValue as? ScrollMode else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .scrollMode(x)
         case .textAlignment:
             guard let x = anyValue as? LayerTextAlignment else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .textAlignment(x)
         case .textVerticalAlignment:
             guard let x = anyValue as? LayerTextVerticalAlignment else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .textVerticalAlignment(x)
         case .fitStyle:
             guard let x = anyValue as? VisualMediaFitStyle else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .fitStyle(x)
         case .animationCurve:
             guard let x = anyValue as? ClassicAnimationCurve else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .animationCurve(x)
         case .lightType:
             guard let x = anyValue as? LightType else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .lightType(x)
         case .layerStroke:
             guard let x = anyValue as? LayerStroke else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .layerStroke(x)
         case .textTransform:
             guard let x = anyValue as? TextTransform else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .textTransform(x)
         case .dateAndTimeFormat:
             guard let x = anyValue as? DateAndTimeFormat else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .dateAndTimeFormat(x)
         case .shape:
             guard let x = anyValue as? CustomShape? else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .shape(x)
         case .scrollJumpStyle:
             guard let x = anyValue as? ScrollJumpStyle else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .scrollJumpStyle(x)
         case .scrollDecelerationRate:
             guard let x = anyValue as? ScrollDecelerationRate else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .scrollDecelerationRate(x)
         case .delayStyle:
             guard let x = anyValue as? DelayStyle else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .delayStyle(x)
         case .shapeCoordinates:
             guard let x = anyValue as? ShapeCoordinates else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .shapeCoordinates(x)
         case .shapeCommandType:
             guard let x = anyValue as? ShapeCommandType else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .shapeCommandType(x)
         case .shapeCommand:
             guard let x = anyValue as? ShapeCommand else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .shapeCommand(x)
         case .orientation:
             guard let x = anyValue as? StitchOrientation else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .orientation(x)
         case .cameraOrientation:
             guard let x = anyValue as? StitchCameraOrientation else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .cameraOrientation(x)
         case .deviceOrientation:
             guard let x = anyValue as? StitchDeviceOrientation else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .deviceOrientation(x)
         case .vnImageCropOption:
             guard let x = anyValue as? VNImageCropAndScaleOption else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .vnImageCropOption(x)
         case .textDecoration:
             guard let x = anyValue as? LayerTextDecoration else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .textDecoration(x)
         case .textFont:
             guard let x = anyValue as? StitchFont else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .textFont(x)
         case .blendMode:
             guard let x = anyValue as? StitchBlendMode else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .blendMode(x)
         case .mapType:
             guard let x = anyValue as? StitchMapType else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .mapType(x)
         case .progressIndicatorStyle:
             guard let x = anyValue as? ProgressIndicatorStyle else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .progressIndicatorStyle(x)
         case .mobileHapticStyle:
             guard let x = anyValue as? MobileHapticStyle else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .mobileHapticStyle(x)
         case .strokeLineCap:
             guard let x = anyValue as? StrokeLineCap else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .strokeLineCap(x)
         case .strokeLineJoin:
             guard let x = anyValue as? StrokeLineJoin else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .strokeLineJoin(x)
         case .contentMode:
             guard let x = anyValue as? StitchContentMode else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .contentMode(x)
         case .spacing:
             guard let x = anyValue as? StitchSpacing else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .spacing(x)
         case .padding:
             guard let x = anyValue as? StitchPadding else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .padding(x)
         case .sizingScenario:
             guard let x = anyValue as? SizingScenario else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .sizingScenario(x)
         case .deviceAppearance:
             guard let x = anyValue as? DeviceAppearance else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .deviceAppearance(x)
         case .materialThickness:
             guard let x = anyValue as? MaterialThickness else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .materialThickness(x)
         case .anchorEntity:
             guard let x = anyValue as? UUID? else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .anchorEntity(x)
         case .pinToId:
             guard let x = anyValue as? PinToId else {
-                throw StitchAICodingError.typeCasting
+                throw StitchAIManagerError.typeCasting
             }
             return .pinTo(x)
         case .none:

@@ -214,12 +214,6 @@ extension String {
     }
 }
 
-enum StitchAICodingError: Error {
-    case typeCasting
-    case stepDecoding
-    case action
-}
-
 extension KeyedDecodingContainerProtocol {
     func decodeIfPresentSitchAI<T>(_ Type: T.Type,
                                    forKey key: KeyedDecodingContainer<Key>.Key) throws -> T? where T: Decodable {
