@@ -90,8 +90,8 @@ extension Step: Codable {
         self.toNodeId = try container.decodeIfPresent(StitchAIUUID.self, forKey: .toNodeId)
         self.fromPort = try container.decodeIfPresent(StitchAIInt.self, forKey: .fromPort)
         
-        if let nodeNameString = try? container.decode(String?.self, forKey: .nodeName) {
-            self.nodeName = .fromLLMNodeName(nodeNameString)
+        if let nodeNameString = try container.decode(String?.self, forKey: .nodeName) {
+            self.nodeName = try .fromLLMNodeName(nodeNameString)
         }
         
         if let portString = try? container.decode(String?.self, forKey: .port) {

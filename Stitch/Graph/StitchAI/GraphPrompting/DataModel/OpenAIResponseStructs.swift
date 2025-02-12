@@ -9,6 +9,7 @@
 // handling token usage metrics, and managing step-based visual programming operations.
 
 import Foundation
+import StitchSchemaKit
 import SwiftyJSON
 
 /// Represents the complete response structure from OpenAI's API
@@ -101,15 +102,14 @@ struct MessageStruct: Codable {
             ))
         }
         
-        let decoder = JSONDecoder()
+        let decoder = getStitchDecoder()
         
         do {
             let result = try decoder.decode(ContentJSON.self, from: contentData)
             print("MessageStruct: successfully decoded with \(result.steps.count) steps with json:\n\(self.content)")
             return result
         } catch {
-            print("MessageStruct: detailed decoding error: \(error)")
-            throw error
+            throw StitchAIManagerError.contentDataDecodingError(self.content, error.localizedDescription)
         }
     }
 }

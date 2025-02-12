@@ -21,7 +21,9 @@ enum StitchAIManagerError: Error {
     case stepActionDecoding(String)
     case stepDecoding(StepType, Step)
     case emptySuccessfulResponse
+    case nodeNameParsing(String)
     case other(OpenAIRequest, Error)
+    case contentDataDecodingError(String, String)
 }
 
 extension StitchAIManagerError: CustomStringConvertible {
@@ -53,6 +55,10 @@ extension StitchAIManagerError: CustomStringConvertible {
             return "Unable to decode: \(stepType) with step payload:\n\(step)"
         case .emptySuccessfulResponse:
             return "StitchAI JSON parsing failed: No choices available"
+        case .nodeNameParsing(let string):
+            return "Could not parse node name: \(string)"
+        case .contentDataDecodingError(let contentData, let errorResponse):
+            return "Unable to parse step actions from: \(contentData) with error: \(errorResponse)"
         }
     }
 }

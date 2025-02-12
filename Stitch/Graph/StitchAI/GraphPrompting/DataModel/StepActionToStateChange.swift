@@ -159,7 +159,7 @@ extension NodeType {
 extension PatchOrLayer {
     // Note: Swift `init?` is tricky for returning nil vs initializing self; we have to both initialize self *and* return, else we continue past if/else branches etc.;
     // let's prefer functions with clearer return values
-    static func fromLLMNodeName(_ nodeName: String) -> Self? {
+    static func fromLLMNodeName(_ nodeName: String) throws -> Self {
         // E.G. from "squareRoot || Patch", grab just the camelCase "squareRoot"
         if let nodeKindName = nodeName.components(separatedBy: "||").first?.trimmingCharacters(in: .whitespaces) {
                         
@@ -179,9 +179,7 @@ extension PatchOrLayer {
             }
         }
         
-        log("fromLLMNodeName: could not parse \(nodeName) as PatchOrLayer")
-        fatalErrorIfDebug()
-        return nil
+        throw StitchAIManagerError.nodeNameParsing(nodeName)
     }
 }
 
