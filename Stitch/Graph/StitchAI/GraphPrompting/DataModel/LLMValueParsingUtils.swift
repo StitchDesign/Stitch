@@ -227,7 +227,7 @@ extension KeyedDecodingContainerProtocol {
             return try self.decodeIfString(Type, forKey: key)
         }
         
-        return nil
+        return decodedValue
     }
     
     func decodeIfString<T>(_ Type: T.Type,
