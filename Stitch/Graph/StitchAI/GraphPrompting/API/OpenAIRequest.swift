@@ -270,7 +270,7 @@ extension StitchAIManager {
                     log("StitchAI Request timed out: \(error.localizedDescription)", .logToServer)
                     log("Retrying in \(config.retryDelay) seconds")
                     
-                    try await Task.sleep(nanoseconds: UInt64(config.retryDelay))
+                    try await Task.sleep(nanoseconds: UInt64(config.retryDelay * Double(nanoSecondsInSecond)))
                     return try await self.makeRequest(request,
                                                       attempt: attempt + 1)
                 }
@@ -296,7 +296,7 @@ extension StitchAIManager {
                 log("StitchAI Request failed with status code: \(httpResponse.statusCode)", .logToServer)
                 log("Retrying in \(config.retryDelay) seconds")
                 
-                try await Task.sleep(nanoseconds: UInt64(config.retryDelay))
+                try await Task.sleep(nanoseconds: UInt64(config.retryDelay * Double(nanoSecondsInSecond)))
                 return try await self.makeRequest(request,
                                                   attempt: attempt + 1)
             }
