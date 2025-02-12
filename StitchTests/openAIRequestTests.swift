@@ -30,12 +30,12 @@ class OpenAIRequestTests: XCTestCase {
 //                let jsonString = String(data: encoding, encoding: .utf8)
 //                print("Json test: \(jsonString)")
                 
-                let decoding = try getStitchDecoder().decode(portValueType,
-                                                             from: encoding)
+                let decoding = try getStitchDecoder()
+                    .decodeStitchAI(portValueType,
+                                    data: encoding)
             } catch {
                 XCTFail(error.localizedDescription)
             }
         }
-        
     }
 }
