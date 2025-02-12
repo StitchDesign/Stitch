@@ -550,3 +550,276 @@ GetKeys: Inputs: [object({})]. Outputs: [keys([])]
 IndexOf: Inputs: [array([]), value({})]. Outputs: [index(0)]
 SetValueForKey: Inputs: [object({}), key(""), value({})]. Outputs: [object(updated)]
 ArrayJoin: Inputs: [array([]), separator("")]. Outputs: [text("")]
+
+# Examples
+Below is a schema illustrating various Node Types and the types of values they take:
+
+{
+  "nodeTypes" : [
+    {
+      "example" : "",
+      "type" : "String"
+    },
+    {
+      "example" : false,
+      "type" : "Bool"
+    },
+    {
+      "example" : 0,
+      "type" : "Int"
+    },
+    {
+      "example" : {
+        "value" : "#000000FF"
+      },
+      "type" : "Color"
+    },
+    {
+      "example" : 0,
+      "type" : "Number"
+    },
+    {
+      "example" : "100",
+      },
+      "type" : "Layer Dimension"
+    },
+    {
+      "example" : {
+        "height" : "100",
+        "width" : "100"
+      },
+      "type" : "Size"
+    },
+    {
+      "example" : {
+        "x" : 0,
+        "y" : 0
+      },
+      "type" : "Position"
+    },
+    {
+      "example" : {
+        "x" : 0,
+        "y" : 0,
+        "z" : 0
+      },
+      "type" : "3D Point"
+    },
+    {
+      "example" : {
+        "w" : 0,
+        "x" : 0,
+        "y" : 0,
+        "z" : 0
+      },
+      "type" : "4D Point"
+    },
+    {
+      "example" : {
+        "positionX" : 0,
+        "positionY" : 0,
+        "positionZ" : 0,
+        "rotationX" : 0,
+        "rotationY" : 0,
+        "rotationZ" : 0,
+        "scaleX" : 1,
+        "scaleY" : 1,
+        "scaleZ" : 1
+      },
+      "type" : "Transform"
+    },
+    {
+      "example" : "any",
+      "type" : "Plane"
+    },
+    {
+      "example" : 0,
+      "type" : "Pulse"
+    },
+    {
+      "example" : null,
+      "type" : "Media"
+    },
+    {
+      "example" : {
+        "id" : "A6D1D4C5-DEEA-418C-8DEF-68BF80352026",
+        "value" : {
+        }
+      },
+      "type" : "JSON"
+    },
+    {
+      "example" : "get",
+      "type" : "Network Request Type"
+    },
+    {
+      "example" : {
+        "x" : 0,
+        "y" : 0
+      },
+      "type" : "Anchor"
+    },
+    {
+      "example" : "front",
+      "type" : "Camera Direction"
+    },
+    {
+      "example" : null,
+      "type" : "Layer"
+    },
+    {
+      "example" : "free",
+      "type" : "Scroll Mode"
+    },
+    {
+      "example" : "left",
+      "type" : "Text Horizontal Alignment"
+    },
+    {
+      "example" : "top",
+      "type" : "Text Vertical Alignment"
+    },
+    {
+      "example" : "fill",
+      "type" : "Fit"
+    },
+    {
+      "example" : "linear",
+      "type" : "Animation Curve"
+    },
+    {
+      "example" : "ambient",
+      "type" : "Light Type"
+    },
+    {
+      "example" : "none",
+      "type" : "Layer Stroke"
+    },
+    {
+      "example" : "Round",
+      "type" : "Stroke Line Cap"
+    },
+    {
+      "example" : "Round",
+      "type" : "Stroke Line Join"
+    },
+    {
+      "example" : "uppercase",
+      "type" : "Text Transform"
+    },
+    {
+      "example" : "medium",
+      "type" : "Date and Time Format"
+    },
+    {
+      "example" : "instant",
+      "type" : "Scroll Jump Style"
+    },
+    {
+      "example" : "normal",
+      "type" : "Scroll Deceleration Rate"
+    },
+    {
+      "example" : "Always",
+      "type" : "Delay Style"
+    },
+    {
+      "example" : "Relative",
+      "type" : "Shape Coordinates"
+    },
+    {
+      "example" : {
+        "point" : {
+          "x" : 0,
+          "y" : 0
+        },
+        "type" : "moveTo"
+      },
+      "type" : "Shape Command"
+    },
+    {
+      "example" : "moveTo",
+      "type" : "Shape Command Type"
+    },
+    {
+      "example" : "none",
+      "type" : "Orientation"
+    },
+    {
+      "example" : "Landscape Right",
+      "type" : "Camera Orientation"
+    },
+    {
+      "example" : "Portrait",
+      "type" : "Device Orientation"
+    },
+    {
+      "example" : 2,
+      "type" : "Image Crop & Scale"
+    },
+    {
+      "example" : "None",
+      "type" : "Text Decoration"
+    },
+    {
+      "example" : {
+        "fontChoice" : "SF",
+        "fontWeight" : "SF_regular"
+      },
+      "type" : "Text Font"
+    },
+    {
+      "example" : "Normal",
+      "type" : "Blend Mode"
+    },
+    {
+      "example" : "Standard",
+      "type" : "Map Type"
+    },
+    {
+      "example" : "Circular",
+      "type" : "Progress Style"
+    },
+    {
+      "example" : "Heavy",
+      "type" : "Haptic Style"
+    },
+    {
+      "example" : "Fit",
+      "type" : "Content Mode"
+    },
+    {
+      "example" : "Evenly",
+      "type" : "Spacing"
+    },
+    {
+      "example" : {
+        "bottom" : 0,
+        "left" : 0,
+        "right" : 0,
+        "top" : 0
+      },
+      "type" : "Padding"
+    },
+    {
+      "example" : "Auto",
+      "type" : "Sizing Scenario"
+    },
+    {
+      "example" : "root",
+      "type" : "Pin To ID"
+    },
+    {
+      "example" : "System",
+      "type" : "Device Appearance"
+    },
+    {
+      "example" : "Regular",
+      "type" : "Materialize Thickness"
+    },
+    {
+      "example" : null,
+      "type" : "Anchor Entity"
+    }
+  ]
+}
