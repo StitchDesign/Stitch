@@ -214,6 +214,37 @@ extension String {
     }
 }
 
+extension JSONDecoder {
+    func decodeStitchAI<T>(_ Type: T.Type,
+                           data: Data) throws -> T? where T: Decodable {
+        guard let decodedValue = try? self.decode(T.self, from: data) else {
+            return try self.decodeIfString(Type, data: data)
+        }
+        
+        return decodedValue
+    }
+    
+    private func decodeIfString<T>(_ Type: T.Type,
+                                   data: Data) throws -> T? where T: Decodable {
+        guard let string = try? self.decode(String.self,
+                                            from: data) else {
+            log("decodeIfString: could not parse string type.")
+            return nil
+        }
+        
+        guard let data = string.data(using: .utf8) else {
+            return nil
+        }
+        
+        do {
+            let result = try self.decode(T.self, from: data)
+            return result
+        } catch {
+            throw StitchAIManagerError.decodeObjectFromString(string, error.localizedDescription)
+        }
+    }
+}
+
 extension KeyedDecodingContainerProtocol {
     func decodeIfPresentSitchAI<T>(_ Type: T.Type,
                                    forKey key: KeyedDecodingContainer<Key>.Key) throws -> T? where T: Decodable {
