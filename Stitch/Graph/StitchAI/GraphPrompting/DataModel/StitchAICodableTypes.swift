@@ -29,15 +29,15 @@ struct StitchAISize: Codable {
 
 // TODO: will delete below when LLM is more reliable at producing number types when expected.
 
-struct StitchAIInt: StitchAIPrimitiveStringConvertable {
+struct StitchAIInt: StitchAIStringConvertable {
     var value: Int
 }
 
-struct StitchAINumber: StitchAIPrimitiveStringConvertable {
+struct StitchAINumber: StitchAIStringConvertable {
     var value: Double
 }
 
-struct StitchAIUUID: StitchAIPrimitiveStringConvertable {
+struct StitchAIUUID: StitchAIStringConvertable {
     var value: UUID
 }
 
@@ -47,7 +47,7 @@ extension UUID: LosslessStringConvertible {
     }
 }
 
-struct StitchAISizeDimension: StitchAIPrimitiveStringConvertable {
+struct StitchAISizeDimension: StitchAIStringConvertable {
     var value: LayerDimension
 }
 
@@ -63,7 +63,7 @@ extension LayerDimension: LosslessStringConvertible {
 
 typealias StitchAIValueStringConvertable = Codable & CustomStringConvertible & LosslessStringConvertible & Hashable
 
-protocol StitchAIStringConvertable: Hashable {
+protocol StitchAIStringConvertable: Codable, Hashable {
     associatedtype T: StitchAIValueStringConvertable
     
     var value: T { get set }
@@ -71,10 +71,10 @@ protocol StitchAIStringConvertable: Hashable {
     init(value: T)
 }
 
-protocol StitchAIPrimitiveStringConvertable: Codable, StitchAIStringConvertable { }
+//protocol StitchAIStringConvertable: Codable, StitchAIStringConvertable { }
 //protocol StitchAICustomStringConvertable: Codable, StitchAIStringConvertable { }
 
-extension StitchAIPrimitiveStringConvertable {
+extension StitchAIStringConvertable {
     init?(value: T?) {
         guard let value = value else {
             return nil
