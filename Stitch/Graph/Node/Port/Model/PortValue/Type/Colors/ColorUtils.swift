@@ -7,6 +7,7 @@
 import SwiftUI
 import UIKit
 
+
 extension Color {
     static let trueColor = Stitch.trueColor
     static let falseColor = Stitch.falseColor

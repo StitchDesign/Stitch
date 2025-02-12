@@ -276,13 +276,6 @@ func portValueToNodeType(_ value: PortValue) -> UserVisibleType {
 }
 
 extension UserVisibleType {
-    // When converting a node type (i.e. UVT) to a port value,
-    // we don't care about the actual content of the associated value for that port value.
-    // TODO: instead of using `defaultPortValue`, just pass in the UVT directly
-    var toPortValue: PortValue {
-        self.defaultPortValue
-    }
-
     // given a user-visible node type, get its corresponding PortValue
     var defaultPortValue: PortValue {
         //    log("nodeTypeToPortValue: nodeType: \(nodeType)")

@@ -29,7 +29,7 @@ extension [NodeInputDefinition] {
             // TODO: should we pass in `graphTime` and a real `mediaDict` here?
             // The `rowDefinitions` property is actually used for deserializing an input that has an upstream observer?
             var inputInfo = inputInfo
-            inputInfo.defaultValues = inputInfo.defaultValues.coerce(to: nodeType.toPortValue,
+            inputInfo.defaultValues = inputInfo.defaultValues.coerce(to: nodeType.defaultPortValue,
                                                                      currentGraphTime: .zero)
             return inputInfo
         }

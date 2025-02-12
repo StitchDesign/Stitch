@@ -47,7 +47,8 @@
           "anyOf": [
             { "type": "number" },
             { "type": "string" },
-            { "type": "boolean" }
+            { "type": "boolean" },
+            { "type": "object" } 
           ]
         },
         "port": {
@@ -210,8 +211,8 @@
           "layerDimension",
           "size",
           "position",
-          "point3D",
-          "point4D",
+          "3dPoint",
+          "4dPoint",
           "transform",
           "plane",
           "pulse",

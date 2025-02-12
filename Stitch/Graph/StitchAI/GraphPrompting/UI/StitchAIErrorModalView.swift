@@ -10,7 +10,7 @@ import SwiftUI
 struct StitchAIErrorModalView: View {
     var message: String
     var userPrompt: String
-    var jsonResponse: String?
+//    var jsonResponse: String?
     
     @Environment(\.presentationMode) var presentationMode
     
@@ -24,14 +24,14 @@ struct StitchAIErrorModalView: View {
                 VStack(alignment: .leading, spacing: 10) {
                     Text("Message: \(message)")
                     Text("User Prompt: \(userPrompt)")
-                    Text("Response: \(jsonResponse ?? "No JSON Response")")
+//                    Text("Response: \(jsonResponse ?? "No JSON Response")")
                 }
                 .padding()
             }
             
             HStack {
                 Button("Copy") {
-                    let textToCopy = "Message: \(message)\nUser Prompt: \(userPrompt)\nResponse: \(jsonResponse ?? "No JSON Response")"
+                    let textToCopy = "Message: \(message)\nUser Prompt: \(userPrompt)"
                     UIPasteboard.general.setValue(textToCopy, forPasteboardType: "public.utf8-plain-text")
                     presentationMode.wrappedValue.dismiss()
                 }
