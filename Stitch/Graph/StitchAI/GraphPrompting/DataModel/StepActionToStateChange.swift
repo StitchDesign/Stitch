@@ -144,12 +144,11 @@ extension NodeIOPortType {
 }
 
 extension NodeType {
-    init?(llmString: String) {
+    init(llmString: String) throws {
         guard let match = NodeType.allCases.first(where: {
             $0.asLLMStepNodeType == llmString
         }) else {
-            fatalErrorIfDebug()
-            return nil
+            throw StitchAIManagerError.nodeTypeParsing(llmString)
         }
         
         self = match

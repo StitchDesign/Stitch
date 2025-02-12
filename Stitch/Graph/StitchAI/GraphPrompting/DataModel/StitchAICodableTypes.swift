@@ -23,7 +23,12 @@ struct StitchAISize: Codable {
     var height: StitchAISizeDimension
 }
 
+
 // TODO: will delete below when LLM is more reliable at producing number types when expected.
+
+struct StitchAIColor: StitchAIStringConvertable {
+    var value: Color
+}
 
 struct StitchAIInt: StitchAIStringConvertable {
     var value: Int
@@ -40,6 +45,20 @@ struct StitchAIUUID: StitchAIStringConvertable {
 extension UUID: LosslessStringConvertible {
     public init?(_ description: String) {
         self.init(uuidString: description)
+    }
+}
+
+extension Color: LosslessStringConvertible {
+    var description: String {
+        self.asHexDisplay
+    }
+    
+    public init?(_ description: String) {
+        guard let color = ColorConversionUtils.hexToColor(description) else {
+            return nil
+        }
+        
+        self = color
     }
 }
 

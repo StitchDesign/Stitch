@@ -242,8 +242,7 @@ extension KeyedDecodingContainerProtocol {
             let result = try newDecoder.decode(T.self, from: data)
             return result
         } catch {
-            log("decodeIfString: could not parse from string: \(string)")
-            throw error
+            throw StitchAIManagerError.decodeObjectFromString(string, error.localizedDescription)
         }
     }
 }

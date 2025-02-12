@@ -22,8 +22,11 @@ enum StitchAIManagerError: Error {
     case stepDecoding(StepType, Step)
     case emptySuccessfulResponse
     case nodeNameParsing(String)
+    case nodeTypeParsing(String)
     case other(OpenAIRequest, Error)
     case contentDataDecodingError(String, String)
+    case portValueDecodingError(String)
+    case decodeObjectFromString(String, String)
 }
 
 extension StitchAIManagerError: CustomStringConvertible {
@@ -57,8 +60,14 @@ extension StitchAIManagerError: CustomStringConvertible {
             return "StitchAI JSON parsing failed: No choices available"
         case .nodeNameParsing(let string):
             return "Could not parse node name: \(string)"
+        case .nodeTypeParsing(let string):
+            return "Could not parse node type: \(string)"
         case .contentDataDecodingError(let contentData, let errorResponse):
             return "Unable to parse step actions from: \(contentData) with error: \(errorResponse)"
+        case .portValueDecodingError(let errorResponse):
+            return "Unable to decode PortValue with error: \(errorResponse)"
+        case .decodeObjectFromString(let stringObject, let errorResponse):
+            return "Unable to decode object from string: \(stringObject)\nError: \(errorResponse)"
         }
     }
 }

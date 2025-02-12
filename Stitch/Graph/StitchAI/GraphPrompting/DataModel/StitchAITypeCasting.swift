@@ -29,7 +29,7 @@ extension PortValue {
         case .networkRequestType(let x):
             return x
         case .color(let x):
-            return HexColor(x)
+            return StitchAIColor(value: x)
         case .size(let size):
             return StitchAISize(width: .init(value: size.width),
                                 height: .init(value: size.height))
@@ -154,7 +154,7 @@ extension UserVisibleType {
         case .networkRequestType:
             return NetworkRequestType.self
         case .color:
-            return HexColor.self
+            return StitchAIColor.self
         case .size:
             return StitchAISize.self
         case .position:
@@ -295,11 +295,10 @@ extension UserVisibleType {
             }
             return .networkRequestType(x)
         case .color:
-            guard let hexString = anyValue as? HexColor,
-                  let x = hexString.toColor() else {
+            guard let stitchAIColor = anyValue as? StitchAIColor else {
                 throw StitchAIManagerError.typeCasting
             }
-            return .color(x)
+            return .color(stitchAIColor.value)
         case .size:
             guard let aiSize = anyValue as? StitchAISize else {
                 throw StitchAIManagerError.typeCasting

@@ -108,6 +108,8 @@ struct MessageStruct: Codable {
             let result = try decoder.decode(ContentJSON.self, from: contentData)
             print("MessageStruct: successfully decoded with \(result.steps.count) steps with json:\n\(self.content)")
             return result
+        } catch let error as StitchAIManagerError {
+            throw error
         } catch {
             throw StitchAIManagerError.contentDataDecodingError(self.content, error.localizedDescription)
         }
