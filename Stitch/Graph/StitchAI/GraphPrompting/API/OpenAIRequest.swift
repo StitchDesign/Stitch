@@ -77,14 +77,11 @@ extension StitchAIManager {
             }
             
             do {
-                let data = try await manager.makeRequest(request)
+                let steps = try await manager.makeRequest(request)
 
                 // Handle successful response
-                // TODO: need this to be await so mainactor call below isn't called
-                try manager.openAIRequestCompleted(
-                    originalPrompt: request.prompt,
-                    data: data
-                )
+                manager.openAIRequestCompleted(steps: steps,
+                                               originalPrompt: request.prompt)
             } catch {
                 log("StitchAI handleRequest error: \(error.localizedDescription)", .logToServer)
                 
@@ -113,7 +110,7 @@ extension StitchAIManager {
     
     /// Execute the API request with retry logic
     private func makeRequest(_ request: OpenAIRequest,
-                             attempt: Int = 1) async throws -> Data? {
+                             attempt: Int = 1) async throws -> [StepTypeAction] {
         let config = request.config
         let prompt = request.prompt
         let schema = request.schema
@@ -167,7 +164,7 @@ extension StitchAIManager {
             throw StitchAIManagerError.jsonEncodingError(request, error)
         }
         
-        let data: Data?
+        let data: Data
         let response: URLResponse
         
         do {
@@ -177,7 +174,7 @@ extension StitchAIManager {
             response = result.1
         } catch {
             log("OpenAI request failed: \(error)")
-
+            
             // Handle network errors
             if let error = error as NSError? {
                 // Don't show error for cancelled requests
@@ -196,9 +193,8 @@ extension StitchAIManager {
                     log("StitchAI Request timed out: \(error.localizedDescription)", .logToServer)
                     log("Retrying in \(config.retryDelay) seconds")
                     
-                    try await Task.sleep(nanoseconds: UInt64(config.retryDelay * Double(nanoSecondsInSecond)))
-                    return try await self.makeRequest(request,
-                                                      attempt: attempt + 1)
+                    return try await self.retryMakeRequest(request,
+                                                           currentAttempts: attempt)
                 }
                 
                 // Handle network connection errors
@@ -222,34 +218,21 @@ extension StitchAIManager {
                 log("StitchAI Request failed with status code: \(httpResponse.statusCode)", .logToServer)
                 log("Retrying in \(config.retryDelay) seconds")
                 
-                try await Task.sleep(nanoseconds: UInt64(config.retryDelay * Double(nanoSecondsInSecond)))
-                return try await self.makeRequest(request,
-                                                  attempt: attempt + 1)
+                return try await self.retryMakeRequest(request,
+                                                       currentAttempts: attempt)
             }
         }
         
-        log("OpenAI Request succeeded")
-        return data
+        return try await self.convertResponseToStepActions(request,
+                                                           data: data,
+                                                           currentAttempt: attempt)
     }
     
-    /// Main handler for completed requests
-    @MainActor
-    func openAIRequestCompleted(originalPrompt: String,
-                                data: Data?) throws {
-        guard let data = data else {
-            self.documentDelegate?
-                .showErrorModal(
-                message: "No data received",
-                userPrompt: originalPrompt
-            )
-            
-            self.documentDelegate?
-                .handleError(NSError(domain: "OpenAIRequestCompleted",
-                                     code: 0,
-                                     userInfo: nil))
-            return
-        }
-        
+    // Convert data to decoded Step actions
+    private func convertResponseToStepActions(_ request: OpenAIRequest,
+                                              data: Data,
+                                              currentAttempt: Int) async throws -> [StepTypeAction] {
+        // Try to parse request
         // log raw JSON response
         let jsonResponse = String(data: data, encoding: .utf8) ?? "Invalid JSON format"
         log("OpenAIRequestCompleted: Full JSON Response:")
@@ -258,60 +241,65 @@ extension StitchAIManager {
         log("----------------------------------------")
         log("OpenAIRequestCompleted: JSON RESPONSE: \(jsonResponse)")
         
-        let stepsFromResponse = try data.getOpenAISteps()
-        log("JSON parsing succeeded on first attempt")
-        try self.documentDelegate?
-            .handleSuccessfulParse(steps: stepsFromResponse,
-                                   originalPrompt: originalPrompt)
+        do {
+            let steps = try data.getOpenAISteps()
+            let convertedSteps: [StepTypeAction] = try steps.map { step in
+                try StepTypeAction.fromStep(step)
+            }
+            
+            log("OpenAI Request succeeded")
+            return convertedSteps
+        } catch let error as StitchAIManagerError {
+            log("StitchAIManager error parsing steps: \(error.description)")
+            return try await self.retryMakeRequest(request,
+                                                   currentAttempts: currentAttempt)
+        } catch {
+            log("StitchAIManager unknown error parsing steps: \(error.localizedDescription)")
+            return try await self.retryMakeRequest(request,
+                                                   currentAttempts: currentAttempt)
+        }
     }
-}
-
-// MARK: - Extensions
-
-extension StitchDocumentViewModel {
+    
+    private func retryMakeRequest(_ request: OpenAIRequest,
+                                  currentAttempts: Int) async throws -> [StepTypeAction] {
+        let config = request.config
+        try await Task.sleep(nanoseconds: UInt64(config.retryDelay * Double(nanoSecondsInSecond)))
+        return try await self.makeRequest(request,
+                                          attempt: currentAttempts + 1)
+    }
+    
     /// Process successfully parsed response data
     /// How we do this:
     /// 1. We receive the `LLMStepActions`, which we decoded from the JSON sent to us by OpenAI
     /// 2. We parse these `LLMStepActions` into `[StepTypeAction]` which is the more specific data structure we like to work with
     /// 3. We validate the `[StepTypeAction]`, e.g. make sure model did not try to use a NodeType that is unavailable for a given Patch
     /// 4. If all this succeeds, ONLY THEN do we apply the `[StepTypeAction]` to the state (fka `handleLLMStepAction`
-    @MainActor func handleSuccessfulParse(steps: LLMStepActions,
-                                          originalPrompt: String) throws {
-        log("OpenAIRequestCompleted: stepsFromReponse:")
-        for step in steps {
-            log(step.description)
-        }
-        
-        let parsedSteps: [StepTypeAction]
-        
-        do {
-            parsedSteps = try steps.map { step in
-                try StepTypeAction.fromStep(step)
-            }
-        } catch {
-            log("StitchAI handleSuccessfulParse error: could not parse step with error: \(error.localizedDescription)")
-            
-            // TODO: JAN 30: retry the whole prompt; OpenAI might have given us bad data; e.g. specified a non-existent nodeType
-            // Note that this can also be from a parsing error on our side, e.g. we incorrectly read the data OpenAI sent
-            try self.handleRetry(prompt: originalPrompt)
+    @MainActor
+    func openAIRequestCompleted(steps: [StepTypeAction],
+                                originalPrompt: String) {
+        guard let document = self.documentDelegate else {
             return
         }
         
         // If we successfully parsed the JSON and LLMStepActions,
         // we should close the insert-node-menu,
         // since we're not doing any retries.
-        self.graphUI.reduxFocusedField = nil
-        self.graphUI.insertNodeMenuState.show = false
-        self.graphUI.insertNodeMenuState.isGeneratingAINode = false
+        document.graphUI.reduxFocusedField = nil
+        document.graphUI.insertNodeMenuState.show = false
+        document.graphUI.insertNodeMenuState.isGeneratingAINode = false
 
         log(" Storing Original AI Generated Actions ")
         log(" Original Actions to store: \(steps.asJSONDisplay())")
-        self.llmRecording.actions = parsedSteps
-        self.llmRecording.promptState.prompt = originalPrompt
+        document.llmRecording.actions = steps
+        document.llmRecording.promptState.prompt = originalPrompt
         
-        self.validateAndApplyActions(parsedSteps)
+        document.validateAndApplyActions(steps)
     }
-    
+}
+
+// MARK: - Extensions
+
+extension StitchDocumentViewModel {
     @MainActor func handleError(_ error: Error) {
         log("Error generating graph with StitchAI: \(error)", .logToServer)
         self.graphUI.insertNodeMenuState.show = false
