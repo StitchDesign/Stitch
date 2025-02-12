@@ -158,24 +158,24 @@ extension StitchAIManager {
                     data: data
                 )
             } catch {
-                guard let error = error as? StitchAIManagerError else {
-                    log("StitchAI handleRequest unknown error: \(error)")
-                    return
-                }
-                
                 log("StitchAI handleRequest error: \(error)")
                 
-                if error.shouldDisplayModal {
-                    await MainActor.run { [weak self] in
-                        guard let state = self?.documentDelegate else { return }
-                        
+                await MainActor.run { [weak self] in
+                    guard let state = self?.documentDelegate else { return }
+                    
+                    if let error = error as? StitchAIManagerError {
                         state.showErrorModal(
                             message: "Multiple timeout errors occurred. Please check your internet connection and try again later.",
                             userPrompt: error.request.prompt,
                             jsonResponse: nil
                         )
+                    } else {
+                        state.showErrorModal(
+                            message: "StitchAI handleRequest unknown error: \(error)",
+                            userPrompt: request.prompt,
+                            jsonResponse: nil
+                        )
                     }
-                    
                 }
             }
          
