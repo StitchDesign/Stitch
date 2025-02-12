@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import SwiftyJSON
+import StitchSchemaKit
 
 extension String {
     // (String, NodeType) -> PortValue
@@ -225,7 +226,28 @@ extension PortValue {
         let portValueType = type.portValueTypeForStitchAI
         
         // MARK: if the below try fails, check if `PortValue.anyCodable` needs to be updated
-        let decodedValue = try decoderContainer.decode(portValueType, forKey: .value)
+        guard let decodedValue = try? decoderContainer.decodeIfPresent(portValueType,
+                                                                       forKey: .value) else {
+            // Fallback json
+            guard let string = try? decoderContainer.decode(String.self,
+                                                            forKey: .value) else {
+//                let json = try? decoderContainer.decode(JSON.self,
+//                                                              forKey: .value)
+//                print("json")
+                return nil
+            }
+            
+            let newDecoder = getStitchDecoder()
+            guard let data = string.data(using: .utf8) else {
+                return nil
+            }
+            
+            let decodedValueFromString = try? newDecoder.decode(portValueType, from: data)
+            let value = try type.coerceToPortValueForStitchAI(from: decodedValueFromString)
+            self = value
+            return
+        }
+        
         let value = try type.coerceToPortValueForStitchAI(from: decodedValue)
         self = value
     }

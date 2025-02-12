@@ -105,7 +105,15 @@ extension Step: Codable {
         self.nodeType = nodeType
         
         // Parse value given node type
-        self.value = try? PortValue(decoderContainer: container,
-                                    type: nodeType)
+        do {
+            self.value = try PortValue(decoderContainer: container,
+                                       type: nodeType)
+        } catch {
+            if stepType == .setInput {
+                log("Stitch AI error decoding value for setInput action: \(error.localizedDescription)")
+                throw StitchAICodingError.stepDecoding
+            }
+        }
     }
 }
+   

@@ -152,6 +152,7 @@ extension StitchAIManager {
                 let data = try await manager.makeRequest(request)
 
                 // Handle successful response
+                // TODO: need this to be await so mainactor call below isn't called
                 manager.openAIRequestCompleted(
                     originalPrompt: request.prompt,
                     data: data

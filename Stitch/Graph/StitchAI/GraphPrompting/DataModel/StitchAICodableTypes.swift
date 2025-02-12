@@ -18,6 +18,11 @@ struct StitchAIPosition: Codable {
     var y: Double
 }
 
+struct StitchAISize: Codable {
+    var width: StitchAISizeDimension
+    var height: StitchAISizeDimension
+}
+
 // TODO: will delete below when LLM is more reliable at producing number types when expected.
 
 struct StitchAIInt: StitchAIStringConvertable {
@@ -38,6 +43,20 @@ extension UUID: LosslessStringConvertible {
     }
 }
 
+struct StitchAISizeDimension: StitchAIStringConvertable {
+    var value: LayerDimension
+}
+
+extension LayerDimension: LosslessStringConvertible {
+    public init?(_ description: String) {
+        guard let result = Self.fromUserEdit(edit: description) else {
+            return nil
+        }
+        
+        self = result
+    }
+}
+
 typealias StitchAIValueStringConvertable = Codable & CustomStringConvertible & LosslessStringConvertible & Hashable
 
 protocol StitchAIStringConvertable: Codable, Hashable {
@@ -47,7 +66,6 @@ protocol StitchAIStringConvertable: Codable, Hashable {
     
     init(value: T)
 }
-
 
 extension StitchAIStringConvertable {
     init?(value: T?) {
