@@ -145,6 +145,7 @@ func dragInteractionEvalOp(values: PortValues,
                            graphTime: TimeInterval,
                            fps: StitchFPS) -> ImpureEvalOpResult {
     
+    
     let dragEnabled: Bool = values[safeIndex: DragNodeInputLocations.isEnabled]?.getBool ?? false
     let momentumEnabled: Bool = values[safeIndex: DragNodeInputLocations.isMomentumEnabled]?.getBool ?? false
     let startingPoint: CGPoint = values[safeIndex: DragNodeInputLocations.startPoint]?.getPoint ?? .zero
@@ -153,10 +154,9 @@ func dragInteractionEvalOp(values: PortValues,
     let clippingEnabled = values[safeIndex: DragNodeInputLocations.clippingEnabled]?.getBool ?? false
     let min = values[safeIndex: DragNodeInputLocations.min]?.getPoint ?? .zero
     let max = values[safeIndex: DragNodeInputLocations.max]?.getPoint ?? .zero
-    
-//    let previousStartingPoint: CGPoint = values[safeIndex: 8]?.getPoint ?? interactiveLayer.layerPosition
-    
+        
     // Note: If we can't find the output, it's because we reset the prototype, and so should be starting at 0,0 again anyway.
+    // Note: also technically the currentOutput ?
     let previousStartingPoint: CGPoint = values[safeIndex: 8]?.getPoint ?? .zero
     
     let prevVelocity: CGPoint = values[safeIndex: 9]?.getSize?.asCGSize?.toCGPoint ?? .zero
@@ -315,9 +315,14 @@ func dragInteractionEvalOp(values: PortValues,
     
     // HANDLING MOMENTUM
     
+    // When Enabled input = false, we can still handle a reset, but we just return the current output
     guard dragEnabled else {
-        // log("dragInteractionEvalOp: GUARD: drag disabled")
-        return capOpOnly
+        return ImpureEvalOpResult(outputs: [
+            PortValue.position(previousStartingPoint), // reuse current output
+            .size(.zero), // velocity and translation become zero
+            .size(.zero)
+        ],
+                                  willRunAgain: false)
     }
     
     guard momentumEnabled else {
