@@ -109,63 +109,45 @@ extension StitchAIManager {
             user_id: deviceUUID,
             actions: wrapper,
             correction: true)
-
+        
         log(" Uploading payload:")
         log("  - User ID: \(deviceUUID)")
         log("  - Prompt: \(wrapper.prompt)")
         log("  - Total actions: \(wrapper.actions.count)")
         log("  - Full actions sequence: \(wrapper.actions.asJSONDisplay())")
-
         
         do {
-            let jsonData = try JSONEncoder().encode(payload)
-            if let jsonString = String(data: jsonData, encoding: .utf8) {
-                let submittedString: String = jsonString
-                log(" Edited JSON payload:\n\(submittedString)")
-                
-                // TODO: JAN 25: take this logic and put it into a side-effect
-                
-                // Validate JSON structure
-                if let editedData = submittedString.data(using: .utf8) {
-                    do {
-                        let editedPayload = try JSONDecoder().decode(Payload.self, from: editedData)
-                        
-                        // Use the edited payload for insertion
-                        try await postgrest
-                            .from(tableName)
-                            .insert(editedPayload, returning: .minimal)
-                            .execute()
-                        
-                        log(" Data uploaded successfully to Supabase!")
-                        return
-                    } catch DecodingError.keyNotFound(let key, let context) {
-                        let errorMessage = "SupabaseManager Error: Missing key '\(key.stringValue)' - \(context.debugDescription)"
-                        log(errorMessage, .logToServer)
-                    } catch DecodingError.typeMismatch(let type, let context) {
-                        let errorMessage = "SupabaseManager Error: Type mismatch for type '\(type)' - \(context.debugDescription)"
-                        log(errorMessage, .logToServer)
-                    } catch DecodingError.valueNotFound(let type, let context) {
-                        let errorMessage = "SupabaseManager Error: Missing value for type '\(type)' - \(context.debugDescription)"
-                        log(errorMessage, .logToServer)
-                    } catch DecodingError.dataCorrupted(let context) {
-                        let errorMessage = "SupabaseManager Error: Data corrupted - \(context.debugDescription)"
-                        log(errorMessage, .logToServer)
-                    } catch {
-                        log("SupabaseManager Error decoding JSON: \(error.localizedDescription)", .logToServer)
-                    }
-                } else {
-                    log("SupabaseManager Error: Unable to convert edited JSON to Data", .logToServer)
-                }
-                log("SupabaseManager Error: Failed to decode edited JSON. Using original payload", .logToServer)
-            }
+            // Use the edited payload for insertion
+            try await postgrest
+                .from(tableName)
+                .insert(payload, returning: .minimal)
+                .execute()
             
+            log(" Data uploaded successfully to Supabase!")
+            return
+        } catch DecodingError.keyNotFound(let key, let context) {
+            let errorMessage = "SupabaseManager Error: Missing key '\(key.stringValue)' - \(context.debugDescription)"
+            log(errorMessage, .logToServer)
+        } catch DecodingError.typeMismatch(let type, let context) {
+            let errorMessage = "SupabaseManager Error: Type mismatch for type '\(type)' - \(context.debugDescription)"
+            log(errorMessage, .logToServer)
+        } catch DecodingError.valueNotFound(let type, let context) {
+            let errorMessage = "SupabaseManager Error: Missing value for type '\(type)' - \(context.debugDescription)"
+            log(errorMessage, .logToServer)
+        } catch DecodingError.dataCorrupted(let context) {
+            let errorMessage = "SupabaseManager Error: Data corrupted - \(context.debugDescription)"
+            log(errorMessage, .logToServer)
+        } catch {
+            log("SupabaseManager Error decoding JSON: \(error.localizedDescription)", .logToServer)
+        }
+        
+        do {
             // Fallback to original payload if JSON editing/parsing fails
             try await postgrest
                 .from(tableName)
                 .insert(payload, returning: .minimal)
                 .execute()
             log(" Data uploaded successfully to Supabase!")
-            
         } catch let error as HTTPError {
             if let errorMessage = String(data: error.data, encoding: .utf8) {
                 log("HTTPError uploading to Supabase Error details: \(errorMessage)", .logToServer)
@@ -175,7 +157,6 @@ extension StitchAIManager {
             log("SupabaseManager Unknown error: \(error)", .logToServer)
             throw error
         }
-        
     }
 }
 

@@ -72,7 +72,7 @@ func coerceJSONToNodeType(json: JSON,
     // Most json -> some NodeType/PortValue.type coercions are not defined; so we do them here via switch;
     // but if we can't
     let defaultValue = [PortValue.json(.init(json))]
-        .coerce(to: nodeType.toPortValue,
+        .coerce(to: nodeType.defaultPortValue,
                 currentGraphTime: graphTime)
         .first ?? defaultFalseJSON
     

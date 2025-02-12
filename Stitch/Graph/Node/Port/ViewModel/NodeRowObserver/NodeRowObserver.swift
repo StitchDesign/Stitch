@@ -541,7 +541,6 @@ extension NodeRowObserver {
     
     @MainActor
     func initializeDelegate(_ node: NodeDelegate) {
-        log("initializeDelegate called")
         self.nodeDelegate = node
         self.postProcessing(oldValues: [], newValues: values)
     }
