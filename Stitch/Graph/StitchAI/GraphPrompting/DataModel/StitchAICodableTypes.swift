@@ -42,14 +42,17 @@ struct StitchAIUUID: StitchAIStringConvertable {
     var value: UUID
 }
 
-extension UUID: LosslessStringConvertible {
+extension UUID: StitchAIValueStringConvertable {
     public init?(_ description: String) {
         self.init(uuidString: description)
     }
 }
 
-extension Color: LosslessStringConvertible {
-    var description: String {
+extension Int: StitchAIValueStringConvertable { }
+extension Double: StitchAIValueStringConvertable { }
+
+extension Color: StitchAIValueStringConvertable {
+    var encodableString: String {
         self.asHexDisplay
     }
     
@@ -66,7 +69,7 @@ struct StitchAISizeDimension: StitchAIStringConvertable {
     var value: LayerDimension
 }
 
-extension LayerDimension: LosslessStringConvertible {
+extension LayerDimension: StitchAIValueStringConvertable {
     public init?(_ description: String) {
         guard let result = Self.fromUserEdit(edit: description) else {
             return nil
@@ -76,7 +79,16 @@ extension LayerDimension: LosslessStringConvertible {
     }
 }
 
-typealias StitchAIValueStringConvertable = Codable & CustomStringConvertible & LosslessStringConvertible & Hashable
+protocol StitchAIValueStringConvertable: Codable, CustomStringConvertible, LosslessStringConvertible, Hashable {
+    var encodableString: String { get }
+}
+
+extension StitchAIValueStringConvertable {
+    // Provides default value but can be overwritten.
+    var encodableString: String {
+        self.description
+    }
+}
 
 protocol StitchAIStringConvertable: Codable, Hashable {
     associatedtype T: StitchAIValueStringConvertable
@@ -100,7 +112,7 @@ extension StitchAIStringConvertable {
         var container = encoder.singleValueContainer()
         
         // LLM expects string type
-        try container.encode(self.value.description)
+        try container.encode(self.value.encodableString)
     }
     
     /// Decodes a value that could be string, int, double, or JSON
