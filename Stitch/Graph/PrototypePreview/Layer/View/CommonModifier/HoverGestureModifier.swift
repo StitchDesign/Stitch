@@ -75,7 +75,7 @@ struct HoverGestureModifier: ViewModifier {
                         //                        log("Hover: active: location: \(location)")
                         //                        #endif
                         document.layerHovered(location: location,
-                                           velocity: velocity)
+                                              velocity: velocity)
                     }
 
                     self.lastDragPosition = location
