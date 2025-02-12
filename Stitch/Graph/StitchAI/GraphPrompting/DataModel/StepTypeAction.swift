@@ -47,48 +47,28 @@ enum StepTypeAction: Equatable, Hashable, Codable {
         }
     }
     
-    static func fromStep(_ action: Step) -> Self? {
+    static func fromStep(_ action: Step) throws -> Self {
         let stepType = action.stepType
         switch stepType {
             
         case .addNode:
-            guard let x = StepActionAddNode.fromStep(action) else {
-//                fatalErrorIfDebug()
-                log("StepTypeAction.fromStep: could not create parse Step into StepTypeAction, please retry?: action: \(action)")
-                return nil
-            }
+            let x = try StepActionAddNode.fromStep(action)
             return .addNode(x)
             
         case .addLayerInput:
-            guard let x = StepActionAddLayerInput.fromStep(action) else {
-//                fatalErrorIfDebug()
-                log("StepTypeAction.fromStep: could not create parse Step into StepTypeAction, please retry?: action: \(action)")
-                return nil
-            }
+            let x = try StepActionAddLayerInput.fromStep(action)
             return .addLayerInput(x)
             
         case .connectNodes:
-            guard let x = StepActionConnectionAdded.fromStep(action) else {
-//                fatalErrorIfDebug()
-                log("StepTypeAction.fromStep: could not create parse Step into StepTypeAction, please retry?: action: \(action)")
-                return nil
-            }
+            let x = try StepActionConnectionAdded.fromStep(action)
             return .connectNodes(x)
         
         case .changeNodeType:
-            guard let x = StepActionChangeNodeType.fromStep(action) else {
-//                fatalErrorIfDebug()
-                log("StepTypeAction.fromStep: could not create parse Step into StepTypeAction, please retry?: action: \(action)")
-                return nil
-            }
+            let x = try StepActionChangeNodeType.fromStep(action)
             return .changeNodeType(x)
         
         case .setInput:
-            guard let x = StepActionSetInput.fromStep(action) else {
-//                fatalErrorIfDebug()
-                log("StepTypeAction.fromStep: could not create parse Step into StepTypeAction, please retry?: action: \(action)")
-                return nil
-            }
+            let x = try StepActionSetInput.fromStep(action)
             return .setInput(x)
         }
     }
@@ -202,8 +182,14 @@ func calculateAINodesAdjacency(_ actions: [StepTypeAction]) -> (depthMap: [UUID:
 
 // "Which properties from `Step` are actually needed by StepType = .addNode ?"
 
+protocol StepActionable: Hashable, Codable {
+    static var stepType: StepType { get }
+    
+    static func fromStep(_ action: Step) throws -> Self
+}
+
 // See `createLLMStepAddNode`
-struct StepActionAddNode: Equatable, Hashable, Codable {
+struct StepActionAddNode: StepActionable {
     static let stepType: StepType = .addNode
     
     var nodeId: NodeId
@@ -215,18 +201,18 @@ struct StepActionAddNode: Equatable, Hashable, Codable {
              nodeName: nodeName)
     }
     
-    static func fromStep(_ action: Step) -> Self? {
+    static func fromStep(_ action: Step) throws -> Self {
         if let nodeId = action.nodeId?.value,
            let nodeKind = action.nodeName {
             return .init(nodeId: nodeId,
                          nodeName: nodeKind)
         }
-        return nil
+        throw StitchAIManagerError.stepDecoding(Self.stepType, action)
     }
 }
 
 // See `createLLMStepAddLayerInput`
-struct StepActionAddLayerInput: Equatable, Hashable, Codable {
+struct StepActionAddLayerInput: StepActionable {
     static let stepType = StepType.addLayerInput
     
     let nodeId: NodeId
@@ -241,10 +227,10 @@ struct StepActionAddLayerInput: Equatable, Hashable, Codable {
                                                 portType: .packed)))
     }
     
-    static func fromStep(_ action: Step) -> Self? {
+    static func fromStep(_ action: Step) throws -> Self {
         guard let nodeId = action.nodeId?.value,
               let layerInput = action.port?.keyPath?.layerInput else {
-            return nil
+            throw StitchAIManagerError.stepDecoding(Self.stepType, action)
         }
         
         return .init(nodeId: nodeId,
@@ -253,7 +239,7 @@ struct StepActionAddLayerInput: Equatable, Hashable, Codable {
 }
 
 // See `createLLMStepConnectionAdded`
-struct StepActionConnectionAdded: Equatable, Hashable, Codable {
+struct StepActionConnectionAdded: StepActionable {
     static let stepType = StepType.connectNodes
     
     // effectively the 'to port'
@@ -273,11 +259,11 @@ struct StepActionConnectionAdded: Equatable, Hashable, Codable {
         )
     }
     
-    static func fromStep(_ action: Step) -> Self? {
+    static func fromStep(_ action: Step) throws -> Self {
         guard let fromNodeId = action.fromNodeId?.value,
               let toPort = action.port,
               let toNodeId = action.toNodeId?.value else {
-            return nil
+            throw StitchAIManagerError.stepDecoding(Self.stepType, action)
         }
 
         // default to 0 for some legacy actions ?
@@ -291,7 +277,7 @@ struct StepActionConnectionAdded: Equatable, Hashable, Codable {
 }
 
 // See: `createLLMStepChangeNodeType`
-struct StepActionChangeNodeType: Equatable, Hashable, Codable {
+struct StepActionChangeNodeType: StepActionable {
     static let stepType = StepType.changeNodeType
     
     var nodeId: NodeId
@@ -303,19 +289,19 @@ struct StepActionChangeNodeType: Equatable, Hashable, Codable {
              nodeType: nodeType)
     }
     
-    static func fromStep(_ action: Step) -> Self? {
+    static func fromStep(_ action: Step) throws -> Self {
         if let nodeId = action.nodeId?.value,
            let nodeType = action.nodeType {
             return .init(nodeId: nodeId,
                          nodeType: nodeType)
         }
         
-        return nil
+        throw StitchAIManagerError.stepDecoding(Self.stepType, action)
     }
 }
 
 // See: `createLLMStepSetInput`
-struct StepActionSetInput: Equatable, Hashable, Codable {
+struct StepActionSetInput: StepActionable {
     static let stepType = StepType.setInput
     
     let nodeId: NodeId
@@ -332,7 +318,7 @@ struct StepActionSetInput: Equatable, Hashable, Codable {
              nodeType: value.toNodeType)
     }
     
-    static func fromStep(_ action: Step) -> Self? {
+    static func fromStep(_ action: Step) throws -> Self {
         if let nodeId = action.nodeId?.value,
            let port = action.port,
            let nodeType = action.nodeType,
@@ -343,7 +329,7 @@ struct StepActionSetInput: Equatable, Hashable, Codable {
                          nodeType: nodeType)
         }
         
-        return nil
+        throw StitchAIManagerError.stepDecoding(Self.stepType, action)
     }
 }
 

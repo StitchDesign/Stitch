@@ -94,13 +94,12 @@ extension StitchDocumentViewModel {
     }
     
     @MainActor
-    func handleRetry(prompt: String) {
+    func handleRetry(prompt: String) throws {
         if self.llmRecording.attempts < LLMRecordingState.maxAttempts {
             self.llmRecording.attempts += 1
             retryOpenAIRequest(lastPrompt: prompt)
         } else {
-            fatalErrorIfDebug("Ran out of retry attempts")
-            return
+            throw StitchAIManagerError.maxRetriesError(LLMRecordingState.maxAttempts)
         }
     }
     
@@ -145,12 +144,11 @@ extension NodeIOPortType {
 }
 
 extension NodeType {
-    init?(llmString: String) {
+    init(llmString: String) throws {
         guard let match = NodeType.allCases.first(where: {
             $0.asLLMStepNodeType == llmString
         }) else {
-            fatalErrorIfDebug()
-            return nil
+            throw StitchAIManagerError.nodeTypeParsing(llmString)
         }
         
         self = match
@@ -160,7 +158,7 @@ extension NodeType {
 extension PatchOrLayer {
     // Note: Swift `init?` is tricky for returning nil vs initializing self; we have to both initialize self *and* return, else we continue past if/else branches etc.;
     // let's prefer functions with clearer return values
-    static func fromLLMNodeName(_ nodeName: String) -> Self? {
+    static func fromLLMNodeName(_ nodeName: String) throws -> Self {
         // E.G. from "squareRoot || Patch", grab just the camelCase "squareRoot"
         if let nodeKindName = nodeName.components(separatedBy: "||").first?.trimmingCharacters(in: .whitespaces) {
                         
@@ -180,9 +178,7 @@ extension PatchOrLayer {
             }
         }
         
-        log("fromLLMNodeName: could not parse \(nodeName) as PatchOrLayer")
-        fatalErrorIfDebug()
-        return nil
+        throw StitchAIManagerError.nodeNameParsing(nodeName)
     }
 }
 

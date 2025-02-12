@@ -81,7 +81,7 @@ extension Step: Codable {
         let stepTypeString = try container.decode(String.self, forKey: .stepType)
         
         guard let stepType = StepType(rawValue: stepTypeString) else {
-            throw StitchAICodingError.stepDecoding
+            throw StitchAIManagerError.stepActionDecoding(stepTypeString)
         }
         
         self.stepType = stepType
@@ -90,18 +90,19 @@ extension Step: Codable {
         self.toNodeId = try container.decodeIfPresent(StitchAIUUID.self, forKey: .toNodeId)
         self.fromPort = try container.decodeIfPresent(StitchAIInt.self, forKey: .fromPort)
         
-        if let nodeNameString = try? container.decode(String?.self, forKey: .nodeName) {
-            self.nodeName = .fromLLMNodeName(nodeNameString)
+        if let nodeNameString = try container.decodeIfPresent(String.self, forKey: .nodeName) {
+            self.nodeName = try .fromLLMNodeName(nodeNameString)
         }
         
-        if let portString = try? container.decode(String?.self, forKey: .port) {
+        if let portString = try container.decodeIfPresent(String.self, forKey: .port) {
             self.port = NodeIOPortType(stringValue: portString)
         }
         
-        guard let nodeTypeString = try? container.decode(String?.self, forKey: .nodeType),
-              let nodeType = NodeType(llmString: nodeTypeString) else {
+        // MARK: node type required for everything below this line
+        guard let nodeTypeString = try container.decodeIfPresent(String.self, forKey: .nodeType) else {
             return
         }
+        let nodeType = try NodeType(llmString: nodeTypeString)
         self.nodeType = nodeType
         
         // Parse value given node type
@@ -111,7 +112,12 @@ extension Step: Codable {
         } catch {
             if stepType == .setInput {
                 log("Stitch AI error decoding value for setInput action: \(error.localizedDescription)")
-                throw StitchAICodingError.stepDecoding
+            }
+            
+            if let stitchAIError = error as? StitchAIManagerError {
+                throw stitchAIError
+            } else {
+                throw StitchAIManagerError.portValueDecodingError(error.localizedDescription)
             }
         }
     }
