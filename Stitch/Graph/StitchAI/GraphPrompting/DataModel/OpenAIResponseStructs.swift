@@ -105,10 +105,10 @@ struct MessageStruct: Codable {
         
         do {
             let result = try decoder.decode(ContentJSON.self, from: contentData)
-            print("Successfully decoded with \(result.steps.count) steps")
+            print("MessageStruct: successfully decoded with \(result.steps.count) steps with json:\n\(self.content)")
             return result
         } catch {
-            print("Detailed decoding error: \(error)")
+            print("MessageStruct: detailed decoding error: \(error)")
             throw error
         }
     }

@@ -228,9 +228,7 @@ extension KeyedDecodingContainerProtocol {
                            forKey key: KeyedDecodingContainer<Key>.Key) throws -> T? where T: Decodable {
         guard let string = try? self.decode(String.self,
                                             forKey: key) else {
-            //                let json = try? decoderContainer.decode(JSON.self,
-            //                                                              forKey: .value)
-            //                print("json")
+            log("decodeIfString: could not parse string type.")
             return nil
         }
         
@@ -239,7 +237,14 @@ extension KeyedDecodingContainerProtocol {
         }
         
         let newDecoder = getStitchDecoder()
-        return try newDecoder.decode(T.self, from: data)
+        
+        do {
+            let result = try newDecoder.decode(T.self, from: data)
+            return result
+        } catch {
+            log("decodeIfString: could not parse from string: \(string)")
+            throw error
+        }
     }
 }
 
