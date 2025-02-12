@@ -10,16 +10,39 @@ import SwiftUI
 import SwiftyJSON
 
 /// Represents a single step/action in the visual programming sequence
-struct Step: Equatable, Codable, Hashable {
-    var stepType: String        // Type of step (e.g., "add_node", "connect_nodes")
-    var nodeId: String?        // Identifier for the node
-    var nodeName: String?      // Display name for the node
-    var port: StringOrNumber?  // Port identifier (can be string or number)
-    var fromPort: StringOrNumber?  // Source port for connections
-    var fromNodeId: String?   // Source node for connections
-    var toNodeId: String?     // Target node for connections
-    var value: JSONFriendlyFormat? // Associated value data
-    var nodeType: String?     // Type of the node
+struct Step: Hashable {
+    var stepType: StepType        // Type of step (e.g., "add_node", "connect_nodes")
+    var nodeId: StitchAIUUID?        // Identifier for the node
+    var nodeName: PatchOrLayer?      // Display name for the node
+    var port: NodeIOPortType?  // Port identifier (can be string or number)
+    var fromPort: StitchAIInt?  // Source port for connections
+    var fromNodeId: StitchAIUUID?   // Source node for connections
+    var toNodeId: StitchAIUUID?     // Target node for connections
+    var value: PortValue? // Associated value data
+    var nodeType: NodeType?     // Type of the node
+    
+    init(stepType: StepType,
+         nodeId: UUID? = nil,
+         nodeName: PatchOrLayer? = nil,
+         port: NodeIOPortType? = nil,
+         fromPort: Int? = nil,
+         fromNodeId: UUID? = nil,
+         toNodeId: UUID? = nil,
+         value: PortValue? = nil,
+         nodeType: NodeType? = nil) {
+        self.stepType = stepType
+        self.nodeId = .init(value: nodeId)
+        self.nodeName = nodeName
+        self.port = port
+        self.fromPort = .init(value: fromPort)
+        self.fromNodeId = .init(value: fromNodeId)
+        self.toNodeId = .init(value: toNodeId)
+        self.value = value
+        self.nodeType = nodeType
+    }
+}
+
+extension Step: Codable {
     
     enum CodingKeys: String, CodingKey {
         case stepType = "step_type"
@@ -32,47 +55,71 @@ struct Step: Equatable, Codable, Hashable {
         case value
         case nodeType = "node_type"
     }
-}
-
-/// Wrapper for handling values that could be either string or number
-struct StringOrNumber: Equatable, Hashable {
-    let value: String          // Normalized string representation of the value
-}
-
-extension StringOrNumber: Codable {
-    /// Encodes the value as a string
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        try container.encode(self.value)
+    
+    public func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        // `encodeIfPresent` cleans up JSON by removing properties
+        
+        try container.encodeIfPresent(stepType.rawValue, forKey: .stepType)
+        try container.encodeIfPresent(nodeId, forKey: .nodeId)
+        try container.encodeIfPresent(nodeName?.asNodeKind.asLLMStepNodeName, forKey: .nodeName)
+        try container.encodeIfPresent(port?.asLLMStepPort(), forKey: .port)
+        try container.encodeIfPresent(fromPort, forKey: .fromPort)
+        try container.encodeIfPresent(fromNodeId, forKey: .fromNodeId)
+        try container.encodeIfPresent(toNodeId, forKey: .toNodeId)
+        try container.encodeIfPresent(nodeType?.asLLMStepNodeType, forKey: .nodeType)
+        
+        if let valueCodable = value?.anyCodable {
+            try container.encodeIfPresent(valueCodable, forKey: .value)
+        }
     }
     
-    /// Decodes a value that could be string, int, double, or JSON
-    /// - Parameter decoder: The decoder to read from
-    /// - Throws: DecodingError if value cannot be converted to string
-    init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        // Try decoding as different types, converting each to string
-        if let intValue = try? container.decode(Int.self) {
-            log("StringOrNumber: Decoder: tried int")
-            self.value = String(intValue)
-        } else if let doubleValue = try? container.decode(Double.self) {
-            log("StringOrNumber: Decoder: tried double")
-            self.value = String(doubleValue)
-        } else if let stringValue = try? container.decode(String.self) {
-            log("StringOrNumber: Decoder: tried string")
-            self.value = stringValue
-        } else if let jsonValue = try? container.decode(JSON.self) {
-            log("StringOrNumber: Decoder: had json \(jsonValue)")
-            self.value = jsonValue.description
-        } else {
-            throw DecodingError.typeMismatch(
-                String.self,
-                DecodingError.Context(
-                    codingPath: decoder.codingPath,
-                    debugDescription: "Expected String, Int, or Double"
-                )
-            )
+        let stepTypeString = try container.decode(String.self, forKey: .stepType)
+        
+        guard let stepType = StepType(rawValue: stepTypeString) else {
+            throw StitchAIManagerError.stepActionDecoding(stepTypeString)
+        }
+        
+        self.stepType = stepType
+        self.nodeId = try container.decodeIfPresent(StitchAIUUID.self, forKey: .nodeId)
+        self.fromNodeId = try container.decodeIfPresent(StitchAIUUID.self, forKey: .fromNodeId)
+        self.toNodeId = try container.decodeIfPresent(StitchAIUUID.self, forKey: .toNodeId)
+        self.fromPort = try container.decodeIfPresent(StitchAIInt.self, forKey: .fromPort)
+        
+        if let nodeNameString = try container.decodeIfPresent(String.self, forKey: .nodeName) {
+            self.nodeName = try .fromLLMNodeName(nodeNameString)
+        }
+        
+        if let portString = try container.decodeIfPresent(String.self, forKey: .port) {
+            self.port = NodeIOPortType(stringValue: portString)
+        }
+        
+        // MARK: node type required for everything below this line
+        guard let nodeTypeString = try container.decodeIfPresent(String.self, forKey: .nodeType) else {
+            return
+        }
+        let nodeType = try NodeType(llmString: nodeTypeString)
+        self.nodeType = nodeType
+        
+        // Parse value given node type
+        do {
+            self.value = try PortValue(decoderContainer: container,
+                                       type: nodeType)
+        } catch {
+            if stepType == .setInput {
+                log("Stitch AI error decoding value for setInput action: \(error.localizedDescription)")
+            }
+            
+            if let stitchAIError = error as? StitchAIManagerError {
+                throw stitchAIError
+            } else {
+                throw StitchAIManagerError.portValueDecodingError(error.localizedDescription)
+            }
         }
     }
 }
+   

@@ -101,16 +101,10 @@ extension NodeIOPortType {
     }
 }
 
-extension InputCoordinate {
-    func asLLMStepPort() -> String {
-        self.portType.asLLMStepPort()
-    }
-}
-
 extension OutputCoordinate {
     func asLLMStepFromPort() -> Int {
         switch self.portType {
-        case .keyPath(let x):
+        case .keyPath:
             fatalErrorIfDebug()
             return 0
         case .portIndex(let x):
@@ -129,23 +123,21 @@ func createLLMStepConnectionAdded(input: InputCoordinate,
     
     assertInDebug(output.portId.isDefined)
     
-    let fromNodeString = output.nodeId.uuidString
-    let toNodeString = input.nodeId.uuidString
-    
     return LLMStepAction(
-        stepType: StepType.connectNodes.rawValue,
-        port: .init(value: input.asLLMStepPort()),
-        fromPort: .init(value: String(output.asLLMStepFromPort())), 
-        fromNodeId: fromNodeString,
-        toNodeId: toNodeString)
+        stepType: StepType.connectNodes,
+        port: input.portType,
+        fromPort: output.asLLMStepFromPort(),
+        fromNodeId: output.nodeId,
+        toNodeId: input.nodeId)
 }
 
 
 func createLLMStepAddLayerInput(nodeId: NodeId,
                                 input: LayerInputPort) -> LLMStepAction {
-      LLMStepAction(stepType: StepType.addLayerInput.rawValue,
-                    nodeId: nodeId.description, // Don't need to specify node name?
-                    port: .init(value: input.asLLMStepPort))
+      LLMStepAction(stepType: StepType.addLayerInput,
+                    nodeId: .init(nodeId), // Don't need to specify node name?
+                    port: .keyPath(.init(layerInput: input,
+                                         portType: .packed)))
   }
 
 extension LayerInputPort {
