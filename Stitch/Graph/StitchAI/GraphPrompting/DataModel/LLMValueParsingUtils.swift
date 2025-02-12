@@ -220,33 +220,42 @@ enum StitchAICodingError: Error {
     case action
 }
 
+extension KeyedDecodingContainerProtocol {
+    func decodeIfPresentSitchAI<T>(_ Type: T.Type,
+                                   forKey key: KeyedDecodingContainer<Key>.Key) throws -> T? where T: Decodable {
+        guard let decodedValue = try? self.decodeIfPresent(Type, forKey: key) else {
+            return try self.decodeIfString(Type, forKey: key)
+        }
+        
+        return nil
+    }
+    
+    func decodeIfString<T>(_ Type: T.Type,
+                           forKey key: KeyedDecodingContainer<Key>.Key) throws -> T? where T: Decodable {
+        guard let string = try? self.decode(String.self,
+                                            forKey: key) else {
+            //                let json = try? decoderContainer.decode(JSON.self,
+            //                                                              forKey: .value)
+            //                print("json")
+            return nil
+        }
+        
+        guard let data = string.data(using: .utf8) else {
+            return nil
+        }
+        
+        let newDecoder = getStitchDecoder()
+        return try newDecoder.decode(T.self, from: data)
+    }
+}
+
 extension PortValue {
     init?(decoderContainer: KeyedDecodingContainer<Step.CodingKeys>,
           type: UserVisibleType) throws {
         let portValueType = type.portValueTypeForStitchAI
         
-        // MARK: if the below try fails, check if `PortValue.anyCodable` needs to be updated
-        guard let decodedValue = try? decoderContainer.decodeIfPresent(portValueType,
-                                                                       forKey: .value) else {
-            // Fallback json
-            guard let string = try? decoderContainer.decode(String.self,
-                                                            forKey: .value) else {
-//                let json = try? decoderContainer.decode(JSON.self,
-//                                                              forKey: .value)
-//                print("json")
-                return nil
-            }
-            
-            let newDecoder = getStitchDecoder()
-            guard let data = string.data(using: .utf8) else {
-                return nil
-            }
-            
-            let decodedValueFromString = try? newDecoder.decode(portValueType, from: data)
-            let value = try type.coerceToPortValueForStitchAI(from: decodedValueFromString)
-            self = value
-            return
-        }
+        let decodedValue = try decoderContainer
+            .decodeIfPresentSitchAI(portValueType, forKey: .value)
         
         let value = try type.coerceToPortValueForStitchAI(from: decodedValue)
         self = value
