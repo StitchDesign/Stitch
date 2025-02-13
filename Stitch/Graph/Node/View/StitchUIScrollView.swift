@@ -265,38 +265,32 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
         return hostingController.view
     }
     
+    static func updateGraphScrollData(_ scrollView: UIScrollView,
+                                      shouldPersist: Bool = false) {
+        dispatch(GraphScrollDataUpdated(
+            newOffset: scrollView.contentOffset,
+            newZoom: scrollView.zoomScale,
+            shouldPersist: shouldPersist
+        ))
+    }
     
     
     func scrollViewDidZoom(_ scrollView: UIScrollView) {
-        dispatch(GraphScrollDataUpdated(
-            newOffset: scrollView.contentOffset,
-            newZoom: scrollView.zoomScale
-        ))
+        Self.updateGraphScrollData(scrollView)
     }
     
     // Only called when scroll first begins; not DURING scroll
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        dispatch(GraphScrollDataUpdated(
-            newOffset: scrollView.contentOffset,
-            newZoom: scrollView.zoomScale
-        ))
+        Self.updateGraphScrollData(scrollView)
     }
     
     func scrollViewWillBeginDecelerating(_ scrollView: UIScrollView) {
-        dispatch(GraphScrollDataUpdated(
-            newOffset: scrollView.contentOffset,
-            newZoom: scrollView.zoomScale
-        ))
+        Self.updateGraphScrollData(scrollView)
     }
     
     // Called when scroll-view movement comes to an end
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        dispatch(GraphScrollDataUpdated(
-            newOffset: scrollView.contentOffset,
-            newZoom: scrollView.zoomScale,
-            // Persist when
-            shouldPersist: true
-        ))
+        Self.updateGraphScrollData(scrollView, shouldPersist: true)
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -328,10 +322,7 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
             let northBounds = cache.get(northNode.id),
             let southBounds = cache.get(southNode.id) else {
             
-            dispatch(GraphScrollDataUpdated(
-                newOffset: scrollView.contentOffset,
-                newZoom: scrollView.zoomScale
-            ))
+            Self.updateGraphScrollData(scrollView)
             
             // log("StitchUIScrollView: scrollViewDidScroll: MISSING WEST, EAST, SOUTH OR NORTH IN-FRAME NODES OR BOUNDS")
             
@@ -419,10 +410,7 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
                 newZoom: scrollView.zoomScale
             ))
         } else {
-            dispatch(GraphScrollDataUpdated(
-                newOffset: scrollView.contentOffset,
-                newZoom: scrollView.zoomScale
-            ))
+            Self.updateGraphScrollData(scrollView)
         }
     }
     
@@ -525,7 +513,6 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
                 newZoom: scrollView.zoomScale
             ))
             
-            
         case .possible:
             log("StitchUIScrollView: handlePan: possible")
             
@@ -533,11 +520,7 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
             document?.graphUI.activeSpacebarClickDrag = false
             scrollView.setContentOffset(scrollView.contentOffset,
                                         animated: false)
-            dispatch(GraphScrollDataUpdated(
-                newOffset: scrollView.contentOffset,
-                newZoom: scrollView.zoomScale,
-                shouldPersist: true
-            ))
+            Self.updateGraphScrollData(scrollView, shouldPersist: true)
             
         @unknown default:
             log("StitchUIScrollView: handlePan: default")
