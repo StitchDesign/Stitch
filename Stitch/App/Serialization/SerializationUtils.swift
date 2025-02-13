@@ -16,4 +16,14 @@ extension Encodable {
             try JSONEncoder().encode(self)
         }
     }
+    
+    func encodeToData() throws -> Data {
+        let encoder = getStitchEncoder()
+        return try encoder.encode(self)
+    }
+    
+    func encodeToPrintableString() throws -> String {
+        let data = try self.encodeToData()
+        return try data.createPrintableJsonString()
+    }
 }

@@ -13,18 +13,16 @@ struct StitchAISchemaMeta: Encodable {
 }
 
 extension StitchAISchemaMeta {
-    static func createSchema() throws -> Data {
+    static func createSchema() -> Self {
         let nodeTypes = NodeType.allCases.filter { $0 != .none }
         let schema = StitchAISchemaMeta(nodeTypes: nodeTypes.map { .init(type: $0) })
-        let encoder = getStitchEncoder()
-        return try encoder.encode(schema)
+        return schema
     }
 }
 
 struct StitchAISchemaNodeType {
     let type: NodeType
 }
-
 
 extension StitchAISchemaNodeType: Encodable {
     enum StitchSchemaTypeCodingKeys: String, CodingKey {
