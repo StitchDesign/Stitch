@@ -19,11 +19,7 @@ struct StitchApp: App {
 
             // iPad uses StitchRouter to use the project zoom in/out animation
             StitchRootView(store: self.store)
-                .onAppear {
-                    // MARK: test schema here, should be removed
-                    let stitchAISchemaData = try! StitchAISchemaMeta.createSchema()
-                    stitchAISchemaData.printJson()
-                    
+                .onAppear {                    
                     dispatch(DirectoryUpdated())
                     
                     SentrySDK.start { options in

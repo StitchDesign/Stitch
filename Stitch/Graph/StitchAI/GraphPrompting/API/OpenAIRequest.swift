@@ -41,15 +41,12 @@ struct OpenAIRequest {
     
     /// Initialize a new request with prompt and optional configuration
     init(prompt: String,
-         config: OpenAIRequestConfig = .default) {
+         config: OpenAIRequestConfig = .default) throws {
         self.prompt = prompt
         self.config = config
         
         // Load system prompt from bundled file
-        var loadedPrompt = ""
-        if let filePath = Bundle.main.path(forResource: "SYSTEM_PROMPT", ofType: "txt") {
-            loadedPrompt = (try? String(contentsOfFile: filePath, encoding: .utf8)) ?? ""
-        }
+        let loadedPrompt = try StitchAIManager.systemPrompt()
         self.systemPrompt = loadedPrompt
         
         // Load JSON schema for response validation
