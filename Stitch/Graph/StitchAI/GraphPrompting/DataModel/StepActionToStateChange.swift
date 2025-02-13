@@ -92,30 +92,6 @@ extension StitchDocumentViewModel {
 
         return nil // nil = no errors or invalidations
     }
-    
-    @MainActor
-    func handleRetry(prompt: String) throws {
-        if self.llmRecording.attempts < LLMRecordingState.maxAttempts {
-            self.llmRecording.attempts += 1
-            retryOpenAIRequest(lastPrompt: prompt)
-        } else {
-            throw StitchAIManagerError.maxRetriesError(LLMRecordingState.maxAttempts)
-        }
-    }
-    
-    @MainActor
-    private func retryOpenAIRequest(lastPrompt: String) {
-        // Re-trigger the OpenAI request with the original prompt
-        if !lastPrompt.isEmpty,
-           let aiManager = self.aiManager {
-            log("🔄 Retrying OpenAI request with last prompt")
-            
-            let request = OpenAIRequest(prompt: lastPrompt)
-            aiManager.handleRequest(request)
-        } else {
-            log("❌ Cannot retry OpenAI request: No last prompt available")
-        }
-    }
 }
 
 extension NodeIOPortType {

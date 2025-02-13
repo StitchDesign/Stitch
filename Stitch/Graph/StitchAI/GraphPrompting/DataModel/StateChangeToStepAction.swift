@@ -160,9 +160,9 @@ extension NodeKind {
         switch self {
         case .patch(let x):
             // e.g. Patch.squareRoot -> "Square Root" -> "squareRoot || Patch"
-            return x.defaultDisplayTitle().toCamelCase() + " || Patch"
+            return x.aiDisplayTitle
         case .layer(let x):
-            return x.defaultDisplayTitle().toCamelCase() + " || Layer"
+            return x.aiDisplayTitle
         case .group:
             fatalErrorIfDebug("NodeKind: asLLMStepNodeName: should never create a group node with step actions")
             return ""

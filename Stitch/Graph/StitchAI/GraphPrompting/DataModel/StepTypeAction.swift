@@ -267,7 +267,7 @@ struct StepActionConnectionAdded: StepActionable {
         }
 
         // default to 0 for some legacy actions ?
-        let fromPort = action.fromPort?.value ?? 0
+        let fromPort = action.fromPort ?? 0
         
         return .init(port: toPort,
                      toNodeId: toNodeId,
