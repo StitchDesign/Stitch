@@ -32,7 +32,7 @@ extension StitchDocumentViewModel {
                                           newNodeType: NodeType) {
         if self.llmRecording.isRecording,
            !self.llmRecording.isApplyingActions {
-            self.llmRecording.actions.append(.changeNodeType(.init(nodeId: node.id, nodeType: newNodeType)))
+            self.llmRecording.actions.append(.changeNodeType(.init(nodeId: node.id, valueType: newNodeType)))
         }
     }
     
@@ -46,7 +46,7 @@ extension StitchDocumentViewModel {
                 .init(nodeId: node.id,
                       port: input.portType,
                       value: value,
-                      nodeType: value.toNodeType)))
+                      valueType: value.toNodeType)))
         }
     }
     

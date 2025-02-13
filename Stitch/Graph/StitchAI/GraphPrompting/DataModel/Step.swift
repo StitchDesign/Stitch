@@ -29,7 +29,7 @@ struct Step: Hashable {
          fromNodeId: UUID? = nil,
          toNodeId: UUID? = nil,
          value: PortValue? = nil,
-         nodeType: NodeType? = nil) {
+         valueType: NodeType? = nil) {
         self.stepType = stepType
         self.nodeId = .init(value: nodeId)
         self.nodeName = nodeName
@@ -38,7 +38,7 @@ struct Step: Hashable {
         self.fromNodeId = .init(value: fromNodeId)
         self.toNodeId = .init(value: toNodeId)
         self.value = value
-        self.valueType = nodeType
+        self.valueType = valueType
     }
 }
 
