@@ -145,7 +145,7 @@ extension StitchAIManager {
         let payload: [String: Any] = [
             "model": self.secrets.openAIModel,
             "n": 1,
-            "temperature": 0.5,
+            "temperature": 0.0,      // Lower temperature for more focused responses
             "response_format": [
                 "type": "json_schema",
                 "json_schema": [
