@@ -175,6 +175,7 @@ Support these node types:
 
 17. Actions must conform to the types defined in provided structured outputs, i.e. `node_name`, `node_id` properties must adhere to these conditions.
     
+18. For port properties in actions, use strings for layer inputs and numbers for patch inputs.
 
 # Core Rules:
 - Each node must have a unique UUID as its node_id.
@@ -220,7 +221,7 @@ These are the nodes in our application; and the input and output ports they have
 \(try NodeSection.getAllAIDescriptions().encodeToPrintableString())
 
 # Examples
-Below is a schema illustrating various Node Types and the types of values they take:
+Below is a schema illustrating various Node Types and the types of values they take. Adhere to the exact schema of provided examples for values:
 
 \(try StitchAISchemaMeta.createSchema().encodeToPrintableString())
 """
