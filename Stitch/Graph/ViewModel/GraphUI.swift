@@ -38,8 +38,8 @@ final class GraphUIState: Sendable {
         
     // Set true / non-nil in redux-actions
     // Set false in StitchUIScrollView
-    @MainActor var canvasZoomedIn: Bool = false
-    @MainActor var canvasZoomedOut: Bool = false
+    @MainActor var canvasZoomedIn: GraphManualZoom = .noZoom
+    @MainActor var canvasZoomedOut: GraphManualZoom = .noZoom
     @MainActor var canvasJumpLocation: CGPoint? = nil
     
     @MainActor var nodeMenuHeight: CGFloat = INSERT_NODE_MENU_MAX_HEIGHT
@@ -494,7 +494,11 @@ extension CanvasItemViewModel {
 // Model for graph zoom.
 @Observable
 final class GraphZoom {
+    // Mouse wheel
     static let zoomScrollRate = 0.04
+    
+    // Shortcut
+    static let zoomCommandRate = 0.1 // 0.25 // 0.175
     
     var current: CGFloat = 0
     var final: CGFloat = 1
@@ -503,6 +507,25 @@ final class GraphZoom {
         self.current + self.final
     }
 }
+
+enum GraphManualZoom: Equatable, Hashable, Codable {
+    case noZoom,
+         // different scroll rates: shortcut vs mouse wheel:
+         shortcutKey,
+         mouseWheel
+    
+    var zoomAmount: CGFloat? {
+        switch self {
+        case .noZoom:
+            return nil
+        case .shortcutKey:
+            return GraphZoom.zoomCommandRate
+        case .mouseWheel:
+            return GraphZoom.zoomScrollRate
+        }
+    }
+}
+
 
 extension GraphState {
     @MainActor
