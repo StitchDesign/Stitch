@@ -23,10 +23,10 @@ struct OpenAIRequestConfig {
     
     /// Default configuration with optimized retry settings
     static let `default` = OpenAIRequestConfig(
-        maxRetries: 5,             // Increased from 3 to 5 for more retry attempts
-        timeoutInterval: 30,        // Reduced from 45 to 30 seconds
-        retryDelay: 1,             // Reduced from 2 to 1 second
-        maxTimeoutErrors: 4         // Increased from 3 to 4
+        maxRetries: 5,
+        timeoutInterval: 30,
+        retryDelay: 1,
+        maxTimeoutErrors: 4
     )
 }
 
@@ -145,6 +145,7 @@ extension StitchAIManager {
         let payload: [String: Any] = [
             "model": self.secrets.openAIModel,
             "n": 1,
+            //https://platform.openai.com/docs/api-reference/making-requests
             "temperature": 0.0,      // Lower temperature for more focused responses
             "response_format": [
                 "type": "json_schema",
