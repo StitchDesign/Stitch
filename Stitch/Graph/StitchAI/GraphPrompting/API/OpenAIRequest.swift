@@ -21,12 +21,12 @@ struct OpenAIRequestConfig {
     let retryDelay: TimeInterval       // Delay between retry attempts
     let maxTimeoutErrors: Int  // Maximum number of timeout errors before showing alert
     
-    /// Default configuration with standard retry settings
+    /// Default configuration with optimized retry settings
     static let `default` = OpenAIRequestConfig(
-        maxRetries: 3,
-        timeoutInterval: 30,
-        retryDelay: 2,
-        maxTimeoutErrors: 3
+        maxRetries: 5,             // Increased from 3 to 5 for more retry attempts
+        timeoutInterval: 30,        // Reduced from 45 to 30 seconds
+        retryDelay: 1,             // Reduced from 2 to 1 second
+        maxTimeoutErrors: 4         // Increased from 3 to 4
     )
 }
 
