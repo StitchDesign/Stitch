@@ -48,15 +48,14 @@ struct ImportFileToNewNode: GraphEventWithResponse {
     }
 }
 
-
 struct GraphZoomedIn: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
-        state.graphZoomedIn()
+        state.graphZoomedIn(.shortcutKey)
     }
 }
 
 struct GraphZoomedOut: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
-        state.graphZoomedOut()
+        state.graphZoomedOut(.shortcutKey)
     }
 }
