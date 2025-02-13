@@ -81,27 +81,25 @@ extension StitchAINodeIODescription {
         let rowDefinitions = NodeInfo.rowDefinitions(for: NodeInfo.defaultUserVisibleType)
         
         self.inputs = rowDefinitions.inputs.map {
-            .init($0.defaultValues.first!)
+            .init(label: $0.label,
+                  value: $0.defaultValues.first!)
         }
         
         self.outputs = rowDefinitions.outputs.map {
-            .init($0.value)
+            .init(label: $0.label,
+                  value: $0.value)
         }
     }
 }
 
 struct StitchAIPortValueDescription {
+    var label: String
     var value: PortValue
-}
-
-extension StitchAIPortValueDescription {
-    init(_ portValue: PortValue) {
-        self.value = portValue
-    }
 }
 
 extension StitchAIPortValueDescription: Encodable {
     enum CodingKeys: String, CodingKey {
+        case label
         case nodeType
         case value
     }
@@ -110,6 +108,8 @@ extension StitchAIPortValueDescription: Encodable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         let nodeType = self.value.toNodeType
         
+        try container.encodeIfPresent(self.label != "" ? self.label : nil,
+                                      forKey: .label)
         try container.encode(nodeType.asLLMStepNodeType,
                              forKey: .nodeType)
         try container.encode(self.value.anyCodable,
