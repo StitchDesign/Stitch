@@ -171,6 +171,8 @@ Support these node types:
     -  Media
     -  String
     -  JSON
+
+17. Actions must conform to the types defined in provided structured outputs, i.e. `node_name`, `node_id` properties must adhere to these conditions.
     
 
 # Core Rules:
