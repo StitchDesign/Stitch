@@ -29,13 +29,13 @@ protocol NodeDefinition {
     static var inputCountVariesByType: Bool { get }
     
     static var outputCountVariesByType: Bool { get }
+    
+    static var defaultUserVisibleType: UserVisibleType? { get }
 }
 
 // fka `PatchGraphNode`
 protocol PatchNodeDefinition: NodeDefinition {
     static var patch: Patch { get }
-    
-    static var defaultUserVisibleType: UserVisibleType? { get }
     
     static var inputCountVariesByType: Bool { get }
     
@@ -84,6 +84,8 @@ protocol LayerNodeDefinition: NodeDefinition {
 
 extension LayerNodeDefinition {
     static var graphKind: NodeDefinitionKind { .layer(Self.self) }
+    
+    static var defaultUserVisibleType: UserVisibleType? { nil }
     
     @MainActor
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {

@@ -120,7 +120,7 @@ extension Data {
             }
             return jsonString
         } catch {
-            log("createPrintableJsonString: rror: \(error.localizedDescription)")
+            log("createPrintableJsonString: error: \(error.localizedDescription)")
             throw error
         }
     }
