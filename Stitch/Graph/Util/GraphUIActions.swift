@@ -163,6 +163,8 @@ struct GenerateAINode: StitchDocumentEvent {
         print("🤖 🔥 GENERATE AI NODE - STARTING AI GENERATION MODE 🔥 🤖")
         print("🤖 Prompt: \(prompt)")
         
+        assertInDebug(state.aiManager?.secrets != nil)
+        
         // Set loading state
         state.graph.graphUI.insertNodeMenuState.isGeneratingAINode = true
         

@@ -25,6 +25,11 @@ struct InsertNodeMenuSearchBar: View {
     @State private var queryString = ""
     @FocusState private var isFocused: Bool
     
+    var isAIMode: Bool {
+        let isAIMode = store.currentDocument?.graphUI.insertNodeMenuState.isAIMode ?? false
+        return isAIMode && FeatureFlags.USE_AI_MODE && store.currentDocument?.aiManager?.secrets != nil
+    }
+    
     var body: some View {
         let searchInput = VStack(spacing: .zero) {
             TextField("Search or enter AI prompt...", text: $queryString)
@@ -42,8 +47,7 @@ struct InsertNodeMenuSearchBar: View {
                 .font(.system(size: 24))
                 .disableAutocorrection(true)
                 .onSubmit {
-                    let isAIMode = store.currentDocument?.graphUI.insertNodeMenuState.isAIMode ?? false
-                    if isAIMode && FeatureFlags.USE_AI_MODE {
+                    if self.isAIMode {
                         dispatch(GenerateAINode(prompt: queryString))
                     } else if (self.store.currentDocument?.graphUI.insertNodeMenuState.activeSelection) != nil {
                         dispatch(AddNodeButtonPressed())
