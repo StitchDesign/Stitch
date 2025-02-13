@@ -110,19 +110,29 @@ extension Data {
         self.toJSON.toJSONResult
     }
 
-    func printJson() {
+    func createPrintableJsonString() throws -> String {
         do {
             let json = try JSONSerialization.jsonObject(with: self, options: [])
             let data = try JSONSerialization.data(withJSONObject: json, options: [.sortedKeys, .prettyPrinted])
             guard let jsonString = String(data: data, encoding: .utf8) else {
-                print("Inavlid data")
-                return
+                print("createPrintableJsonString: invalid data.")
+                throw SwiftyJSONError.invalidJSON
             }
-            print(jsonString)
+            return jsonString
         } catch {
-            print("Error: \(error.localizedDescription)")
+            log("createPrintableJsonString: rror: \(error.localizedDescription)")
+            throw error
         }
     }
+//    
+//    func printJson() {
+//        do {
+//            let json = try self.createPrintableJsonString()
+//            print(json)
+//        } catch {
+//            log("printJson: unable to print with error: \(error.localizedDescription)")
+//        }
+//    }
 }
 
 // Lift a `JSON?` into a Result
