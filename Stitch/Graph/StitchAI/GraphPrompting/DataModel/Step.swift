@@ -94,8 +94,10 @@ extension Step: Codable {
             self.nodeName = try .fromLLMNodeName(nodeNameString)
         }
         
-        if let portString = try container.decodeIfPresent(String.self, forKey: .port) {
+        if let portString = try? container.decodeIfPresent(String.self, forKey: .port) {
             self.port = NodeIOPortType(stringValue: portString)
+        } else if let portInt = try? container.decodeIfPresent(Int.self, forKey: .port) {
+            self.port = NodeIOPortType.portIndex(portInt)
         }
         
         // MARK: node type required for everything below this line
