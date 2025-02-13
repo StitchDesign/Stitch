@@ -34,9 +34,9 @@ struct StitchAIInt: StitchAIStringConvertable {
     var value: Int
 }
 
-struct StitchAINumber: StitchAIStringConvertable {
-    var value: Double
-}
+//struct StitchAINumber: StitchAIStringConvertable {
+//    var value: Double
+//}
 
 struct StitchAIUUID: StitchAIStringConvertable {
     var value: UUID
