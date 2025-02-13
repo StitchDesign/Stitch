@@ -19,7 +19,7 @@ struct Step: Hashable {
     var fromNodeId: StitchAIUUID?   // Source node for connections
     var toNodeId: StitchAIUUID?     // Target node for connections
     var value: PortValue? // Associated value data
-    var nodeType: NodeType?     // Type of the node
+    var valueType: NodeType?     // Type of the node
     
     init(stepType: StepType,
          nodeId: UUID? = nil,
@@ -29,7 +29,7 @@ struct Step: Hashable {
          fromNodeId: UUID? = nil,
          toNodeId: UUID? = nil,
          value: PortValue? = nil,
-         nodeType: NodeType? = nil) {
+         valueType: NodeType? = nil) {
         self.stepType = stepType
         self.nodeId = .init(value: nodeId)
         self.nodeName = nodeName
@@ -38,7 +38,7 @@ struct Step: Hashable {
         self.fromNodeId = .init(value: fromNodeId)
         self.toNodeId = .init(value: toNodeId)
         self.value = value
-        self.nodeType = nodeType
+        self.valueType = valueType
     }
 }
 
@@ -68,7 +68,7 @@ extension Step: Codable {
         try container.encodeIfPresent(fromPort, forKey: .fromPort)
         try container.encodeIfPresent(fromNodeId, forKey: .fromNodeId)
         try container.encodeIfPresent(toNodeId, forKey: .toNodeId)
-        try container.encodeIfPresent(nodeType?.asLLMStepNodeType, forKey: .nodeType)
+        try container.encodeIfPresent(valueType?.asLLMStepNodeType, forKey: .nodeType)
         
         if let valueCodable = value?.anyCodable {
             try container.encodeIfPresent(valueCodable, forKey: .value)
@@ -105,7 +105,7 @@ extension Step: Codable {
             return
         }
         let nodeType = try NodeType(llmString: nodeTypeString)
-        self.nodeType = nodeType
+        self.valueType = nodeType
         
         // Parse value given node type
         do {

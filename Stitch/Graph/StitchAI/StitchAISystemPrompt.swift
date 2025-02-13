@@ -188,12 +188,13 @@ Support these node types:
 - Do not create a connect_nodes action unless both the from_node and the to_node have already been created.
 - Patch Nodes can have their types changed, but Layer Nodes NEVER have their types changed. Do net EVER use ChangeNodeTypeAction on a Layer Node, ONLY use that action on a Patch node.
 - Only Patch Nodes have outputs; Layer Nodes do not have outputs at all. You can only connect from Patch Nodes to Layer Nodes --- you CAN NOT connect Layer Nodes to Patch Nodes. 
+- Whenever you set an input with set_input, you must also specify the ValueType of the node. ONLY use the items in the ValueNode enum for this. 
 
 # Node & Type Lists
 
 \(try NodeKind.getAiNodeDescriptions().encodeToPrintableString())
 
-# Allowed NodeType enum values:
+# Allowed ValueType enum values:
 # "number", "text", "boolean", "size", "position", "point3D", "padding", "assignedLayer"
 
 # Allowed LayerPorts enum values:
