@@ -291,7 +291,7 @@ struct StepActionChangeNodeType: StepActionable {
     
     static func fromStep(_ action: Step) throws -> Self {
         if let nodeId = action.nodeId?.value,
-           let nodeType = action.nodeType {
+           let nodeType = action.valueType {
             return .init(nodeId: nodeId,
                          nodeType: nodeType)
         }
@@ -321,7 +321,7 @@ struct StepActionSetInput: StepActionable {
     static func fromStep(_ action: Step) throws -> Self {
         if let nodeId = action.nodeId?.value,
            let port = action.port,
-           let nodeType = action.nodeType,
+           let nodeType = action.valueType,
            let value = action.value {
             return .init(nodeId: nodeId,
                          port: port,

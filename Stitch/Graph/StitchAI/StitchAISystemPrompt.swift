@@ -193,7 +193,7 @@ Support these node types:
 
 \(try NodeKind.getAiNodeDescriptions().encodeToPrintableString())
 
-# Allowed NodeType enum values:
+# Allowed ValueType enum values:
 # "number", "text", "boolean", "size", "position", "point3D", "padding", "assignedLayer"
 
 # Allowed LayerPorts enum values:

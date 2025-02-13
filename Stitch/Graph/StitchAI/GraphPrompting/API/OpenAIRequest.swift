@@ -335,7 +335,7 @@ extension Stitch.Step: CustomStringConvertible {
             fromNodeId: \(fromNodeId?.value.uuidString ?? "nil"),
             toNodeId: \(toNodeId?.value.uuidString ?? "nil"),
             value: \(String(describing: value)),
-            nodeType: \(nodeType?.display ?? "nil")
+            nodeType: \(valueType?.display ?? "nil")
         )
         """
     }
