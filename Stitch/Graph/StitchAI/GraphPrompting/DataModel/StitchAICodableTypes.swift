@@ -23,19 +23,8 @@ struct StitchAISize: Codable {
     var height: StitchAISizeDimension
 }
 
-
-// TODO: will delete below when LLM is more reliable at producing number types when expected.
-
 struct StitchAIColor: StitchAIStringConvertable {
     var value: Color
-}
-
-struct StitchAIInt: StitchAIStringConvertable {
-    var value: Int
-}
-
-struct StitchAINumber: StitchAIStringConvertable {
-    var value: Double
 }
 
 struct StitchAIUUID: StitchAIStringConvertable {
@@ -47,9 +36,6 @@ extension UUID: StitchAIValueStringConvertable {
         self.init(uuidString: description)
     }
 }
-
-extension Int: StitchAIValueStringConvertable { }
-extension Double: StitchAIValueStringConvertable { }
 
 extension Color: StitchAIValueStringConvertable {
     var encodableString: String {
@@ -110,9 +96,9 @@ extension StitchAIStringConvertable {
     /// Encodes the value as a string
     func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
-        
-        // LLM expects string type
-        try container.encode(self.value.encodableString)
+
+        // TODO: this is the test
+        try container.encode(self.value)
     }
     
     /// Decodes a value that could be string, int, double, or JSON

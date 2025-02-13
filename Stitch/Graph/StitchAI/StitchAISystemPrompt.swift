@@ -1,3 +1,13 @@
+//
+//  StitchAISystemPrompt.swift
+//  Stitch
+//
+//  Created by Elliot Boschwitz on 2/12/25.
+//
+
+extension StitchAIManager {
+    static func systemPrompt() throws -> String {
+"""
 # Strict Adherence to Schema and Node Lists:
 - Your output must strictly follow the given JSON schema.
 - You may only use node names from the provided NodeName enum.
@@ -161,6 +171,8 @@ Support these node types:
     -  Media
     -  String
     -  JSON
+
+17. Actions must conform to the types defined in provided structured outputs, i.e. `node_name`, `node_id` properties must adhere to these conditions.
     
 
 # Core Rules:
@@ -175,185 +187,11 @@ Support these node types:
 - Always produce the simplest graph that solves the user’s request.
 - Do not create a connect_nodes action unless both the from_node and the to_node have already been created.
 - Patch Nodes can have their types changed, but Layer Nodes NEVER have their types changed. Do net EVER use ChangeNodeTypeAction on a Layer Node, ONLY use that action on a Patch node.
-- Only Patch Nodes have outputs; Layer Nodes do not have outputs at all. You can only connect from Patch Nodes to Layer Nodes --- you CAN NOT connect Layer Nodes to Patch NOdes. 
+- Only Patch Nodes have outputs; Layer Nodes do not have outputs at all. You can only connect from Patch Nodes to Layer Nodes --- you CAN NOT connect Layer Nodes to Patch Nodes. 
 
 # Node & Type Lists
 
-"add || Patch - Adds two numbers together.",
-"subtract || Patch - Subtracts one number from another.",
-"multiply || Patch - Multiplies two numbers together.",
-"divide || Patch - Divides one number by another.",
-"mod || Patch - Calculates the remainder of a division.",
-"power || Patch - Raises a number to the power of another.",
-"squareRoot || Patch - Calculates the square root of a number.",
-"absoluteValue || Patch - Finds the absolute value of a number.",
-"round || Patch - Rounds a number to the nearest integer.",
-"max || Patch - Finds the maximum of two numbers.",
-"min || Patch - Finds the minimum of two numbers.",
-"length || Patch - Calculates the length of a collection.",
-"arcTan2 || Patch - Calculates the arctangent of a quotient.",
-"sine || Patch - Calculates the sine of an angle.",
-"cosine || Patch - Calculates the cosine of an angle.",
-"clip || Patch - Clips a value to a specified range.",
-"or || Patch - Logical OR operation.",
-"and || Patch - Logical AND operation.",
-"not || Patch - Logical NOT operation.",
-"equals || Patch - Checks if two values are equal.",
-"equalsExactly || Patch - Checks if two values are exactly equal.",
-"greaterThan || Patch - Checks if one value is greater than another.",
-"greaterOrEqual || Patch - Checks if one value is greater or equal to another.",
-"lessThan || Patch - Checks if one value is less than another.",
-"lessThanOrEqual || Patch - Checks if one value is less than or equal to another.",
-"splitText || Patch - Splits text into parts.",
-"textLength || Patch - Calculates the length of a text string.",
-"textReplace || Patch - Replaces text within a string.",
-"textStartsWith || Patch - Checks if text starts with a specific substring.",
-"textEndsWith || Patch - Checks if text ends with a specific substring.",
-"textTransform || Patch - Transforms text into a different format.",
-"trimText || Patch - Removes whitespace from the beginning and end of a text string.",
-"time || Patch - Returns number of seconds and frames since a prototype started.",
-"deviceTime || Patch - returns current time.",
-"dateAndTimeFormatter || Patch - creates a human-readable date/time value from a time in seconds.",
-"stopwatch || Patch - measures elapsed time in seconds.",
-"delay || Patch - delays a value by a specified number of seconds.",
-"delayOne || Patch - delays incoming value by 1 frame.",
-"imageImport || Patch - imports an image asset.",
-"videoImport || Patch - imports a video asset.",
-"soundImport || Patch - imports an audio asset.",
-"qrCodeDetection || Patch - detects the value of a QR code from an image or video.",
-"anchor || Patch - creates an anchor from a 3D model and ARTransform.",
-"arRaycasting || Patch - returns a 3D location that corresponds to a 2D screen location.",
-"imageClassification || Patch - performs image classification on an image or video.",
-"objectDetection || Patch - detects objects in an image or video.",
-"cameraFeed || Patch - creates a live camera feed.",
-"deviceInfo || Patch - gets info of the running device.",
-"deviceMotion || Patch - gets acceleration/rotation values of the running device.",
-"hapticFeedback || Patch - generates haptic feedback.",
-"keyboard || Patch - handles keyboard input.",
-"mouse || Patch - handles mouse input.",
-"microphone || Patch - handles microphone input.",
-"speaker || Patch - handles audio speaker output.",
-"dragInteraction || Patch - detects a drag interaction.",
-"pressInteraction || Patch - detects a press interaction.",
-"scrollInteraction || Patch - detects a scroll interaction.",
-"location || Patch - gets the current location.",
-"circleShape || Patch - generates a circle shape.",
-"ovalShape || Patch - generates an oval shape.",
-"roundedRectangleShape || Patch - generates a rounded rectangle shape.",
-"triangleShape || Patch - generates a triangle shape.",
-"shapeToCommands || Patch - takes a shape as input, outputs the commands to generate the shape.",
-"commandsToShape || Patch - generates a shape from a given loop of shape commands.",
-"transformPack || Patch - packs inputs into a transform.",
-"transformUnpack || Patch - unpacks a transform.",
-"moveToPack || Patch - packs a position into a MoveTo shape command.",
-"lineToPack || Patch - packs a position into a LineTo shape command.",
-"closePath || Patch - ClosePath shape command.",
-"base64StringToImage || Patch - converts a base64 string to an image.",
-"imageToBase64String || Patch - converts an image to a base64 string.",
-"colorToHSL || Patch - converts a color to HSL components.",
-"colorToRGB || Patch - converts a color to RGB components.",
-"colorToHex || Patch - converts a color to a hex string.",
-"hslColor || Patch - generates a color from HSL components.",
-"hexColor || Patch - converts a hex string to a color.",
-"grayscale || Patch - applies grayscale effect to image/video.",
-"value || Patch - stores a value.",
-"random || Patch - generates a random value.",
-"progress || Patch - calculates progress value.",
-"reverseProgress || Patch - calculates inverse progress.",
-"convertPosition || Patch - converts position values between layers.",
-"velocity || Patch - measures velocity over time.",
-"soulver || Patch - evaluates plain-text math expressions.",
-"whenPrototypeStarts || Patch - fires pulse when prototype starts.",
-"valueForKey || Patch - extracts a value from JSON by key.",
-"valueAtIndex || Patch - extracts a value from JSON by index.",
-"valueAtPath || Patch - extracts a value from JSON by path.",
-"splitter || Patch - splits an input into multiple outputs.",
-"pack || Patch - creates a new value from inputs.",
-"unpack || Patch - splits a value into components.",
-"sampleAndHold || Patch - stores a value until new one is received.",
-"sampleRange || Patch - samples a range of values.",
-"smoothValue || Patch - smoothes input value.",
-"runningTotal || Patch - continuously sums values.",
-"jsonToShape || Patch - creates a Shape from JSON.",
-"jsonArray || Patch - creates a JSON array from inputs.",
-"jsonObject || Patch - creates a JSON object from key-value pairs.",
-"bouncyConverter || Patch - Converts bounce and duration values to spring animation parameters.",
-"loopBuilder || Patch - Creates a new loop with specified values.",
-"loopFilter || Patch - Filters elements in a loop based on a condition.",
-"loopSelect || Patch - Selects specific elements from a loop.",
-"loopCount || Patch - Counts the number of elements in a loop.",
-"loopDedupe || Patch - Removes duplicate elements from a loop.",
-"loopOptionSwitch || Patch - Switches between different loop options.",
-"loopOverArray || Patch - Iterates over elements in an array.",
-"loopToArray || Patch - Converts a loop into an array.",
-"transition || Patch - Controls transitions between states.",
-"optionEquals || Patch - Checks if an option equals a specific value.",
-"curve || Patch - Defines an animation curve.",
-"cubicBezierCurve || Patch - Creates a cubic bezier curve for animations.",
-"any || Patch - Returns true if any input is true.",
-"rgba || Patch - Creates a color from RGBA components.",
-"arrayJoin || Patch - Joins array elements into a string.",
-"arraySort || Patch - Sorts array elements.",
-"arrayReverse || Patch - Reverses array elements.",
-"getKeys || Patch - Gets all keys from an object.",
-"indexOf || Patch - Gets the index of an element in an array.",
-"positionUnpack || Patch - Unpacks a position into X and Y components.",
-"point3DUnpack || Patch - Unpacks a 3D point into X, Y, and Z components.",
-"point4DUnpack || Patch - Unpacks a 4D point into X, Y, Z, and W components.",
-"mathExpression || Patch - Evaluates a mathematical expression.",
-"setValueForKey || Patch - Sets a value for a specified key in an object.",
-"text || Layer - displays a text string.",
-"oval || Layer - displays an oval.",
-"rectangle || Layer - displays a rectangle.",
-"shape || Layer - takes a Shape and displays it.",
-"colorFill || Layer - displays a color fill.",
-"image || Layer - displays an image.",
-"video || Layer - displays a video.",
-"videoStreaming || Layer - displays a streaming video.",
-"realityView || Layer - displays AR scene output.",
-"canvasSketch || Layer - draw custom shapes interactively.",
-"3dModel || Layer - display a 3D model asset (of a USDZ file type) in the preview window."
-"box || Layer - A box 3D shape, which can be used inside a Reality View."
-"sphere || Layer - A sphere 3D shape, which can be used inside a Reality View"
-"cylinder || Layer - A cylinder 3D shape, which can be used inside a Reality View."
-"cone || Layer - A cylinder 3D shape, which can be used inside a Reality View."
-"group || Layer - A container layer that can hold multiple child layers."
-"hitArea || Layer - A layer that defines an interactive area for touch input."
-"textField || Layer - An editable text input field."
-"progressIndicator || Layer - Displays a progress indicator or loading state."
-"switchLayer || Layer - A toggle switch control layer."
-springAnimation || Patch - Creates an animation based off of the physical model of a spring.
-"popAnimation || Patch -  Animates a value using a spring effect."
-"classicAnimation || Patch - Animates a number using a standard animation curve."
-"cubicBezierAnimation || Patch - Creates custom animation curves by defining two control points"
-"repeatingAnimation || Patch - Repeatedly animates a number."
-"pulse || Patch - Outputs a pulse event when it's toggled on or off."
-"pulseOnChange || Patch - The Pulse On Change node outputs a pulse if an input value comes in that is different from the specified value."
-"repeatingPulse || Patch - A node that will fire a pulse at a defined interval."
-"union || Patch - Combines two or more shapes to generate a new shape."
-"arrayAppend || Patch -  This node appends to the end of the provided array."
-"arrayCount || Patch - This node returns the number of items in an array."
-"subarray || Patch - Returns a subarray from a given array."
-"arraySort || Patch - This node sorts the array in ascending order."
-"arrayReverse || Patch - This node reverses the order of the items in the array."
-"arrayJoin || Patch -  This node join's one or more arrays together into a single array."
-"nativeScrollInteraction || Patch - Adds scroll interaction to a specified layer."
-"networkRequest || Layer - The Network Request node allows you to make HTTP GET and POST requests to an endpoint. Results are returned as JSON."
-"linearGradient || Layer - Creates a linear gradient."
-"radialGradient || Layer -Creates a radial gradient."
-"angularGradient || Layer - Creates an angular gradient."
-"material || Layer - A Material Effect layer."
-"arAnchor || Patch - Creates an AR anchor from a 3D model and an ARTransform. Represents the position and orientation of a 3D item in the physical environment."
-"arRaycasting || Patch - Returns a 3D location in physical space that corresponds to a given 2D location on the screen."
-"deviceTime || Patch - Returns the current time of the device your prototype is running on."
-"deviceMotion || Patch - Returns the acceleration and rotation values of the device the patch is running on."
-"wirelessBroadcaster || Patch - Sends a value to a selected Wireless Receiver node. Useful for organizing large, complicated projects by replacing cables between patches."
-"wirelessReceiver || Patch -Used with the Wireless Broadcaster node to route values across the graph. Useful for organizing large, complicated projects."
-"restartPrototype || Patch - A node that will restart the state of your prototype. All inputs and outputs of the nodes on your graph will be reset."
-"optionPicker || Patch - The Option Picker node lets you cycle through and select one of N inputs to use as the output. Multiple inputs can be added and removed from the node, and it can be configured to work with a variety of node types."
-"optionSender || Patch - Used to pick an output to send a value to. Multiple value types can be used with this node."
-"optionSwitch || Patch - Used to control two or more states with an index value. N number of inputs can be added to the node."
-
+\(try NodeKind.getAiNodeDescriptions().encodeToPrintableString())
 
 # Allowed NodeType enum values:
 # "number", "text", "boolean", "size", "position", "point3D", "padding", "assignedLayer"
@@ -550,3 +388,11 @@ GetKeys: Inputs: [object({})]. Outputs: [keys([])]
 IndexOf: Inputs: [array([]), value({})]. Outputs: [index(0)]
 SetValueForKey: Inputs: [object({}), key(""), value({})]. Outputs: [object(updated)]
 ArrayJoin: Inputs: [array([]), separator("")]. Outputs: [text("")]
+
+# Examples
+Below is a schema illustrating various Node Types and the types of values they take:
+
+\(try StitchAISchemaMeta.createSchema().encodeToPrintableString())
+"""
+    }
+}
