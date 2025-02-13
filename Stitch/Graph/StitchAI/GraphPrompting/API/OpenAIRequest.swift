@@ -41,23 +41,22 @@ struct OpenAIRequest {
     
     /// Initialize a new request with prompt and optional configuration
     init(prompt: String,
-         config: OpenAIRequestConfig = .default) {
+         config: OpenAIRequestConfig = .default) throws {
         self.prompt = prompt
         self.config = config
         
         // Load system prompt from bundled file
-        var loadedPrompt = ""
-        if let filePath = Bundle.main.path(forResource: "SYSTEM_PROMPT", ofType: "txt") {
-            loadedPrompt = (try? String(contentsOfFile: filePath, encoding: .utf8)) ?? ""
-        }
+        let loadedPrompt = try StitchAIManager.systemPrompt()
         self.systemPrompt = loadedPrompt
         
-        // Load JSON schema for response validation
-        var loadedSchema = JSON()
-        if let jsonFilePath = Bundle.main.path(forResource: "StitchStructuredOutputSchema", ofType: "json"),
-           let data = try? Data(contentsOf: URL(fileURLWithPath: jsonFilePath)) {
-            loadedSchema = JSON(data)
+        // Load JSON schema for response validationç
+        guard let jsonFilePath = Bundle.main.path(forResource: "StitchStructuredOutputSchema",
+                                                  ofType: "json") else {
+            throw StitchAIManagerError.structuredOutputsNotFound
         }
+        
+        let data = try Data(contentsOf: URL(fileURLWithPath: jsonFilePath))
+        let loadedSchema = JSON(data)
         self.schema = loadedSchema
     }
 }

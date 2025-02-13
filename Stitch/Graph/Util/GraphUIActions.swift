@@ -174,8 +174,12 @@ struct GenerateAINode: StitchDocumentEvent {
         print("🤖 isFromAIGeneration set to: \(state.graph.graphUI.insertNodeMenuState.isFromAIGeneration)")
         
         // Dispatch OpenAI request
-        let request = OpenAIRequest(prompt: prompt)
-        state.aiManager?.handleRequest(request)
+        do {
+            let request = try OpenAIRequest(prompt: prompt)
+            state.aiManager?.handleRequest(request)
+        } catch {
+            fatalErrorIfDebug("Unable to generate Stitch AI prompt with error: \(error.localizedDescription)")
+        }
     }
 }
 

@@ -21,7 +21,7 @@ struct NodeInfo: Encodable {
 
 extension NodeInfo {
     @MainActor
-    static func printAllNodeInfo() {
+    static func printAllNodeInfo() throws -> String {
         let patchNodeInfo = Patch.allCases.map { patch in
             let node = patch.defaultNode(id: .init(),
                                          position: .zero,
@@ -59,7 +59,7 @@ extension NodeInfo {
         }
 
         let jsonData = try! JSONEncoder().encode(patchNodeInfo + layerNodeInfo)
-        jsonData.printJson()
+        return try jsonData.createPrintableJsonString()
     }
 }
 
