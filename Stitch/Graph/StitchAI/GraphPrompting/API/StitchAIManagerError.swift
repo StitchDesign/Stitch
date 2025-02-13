@@ -27,6 +27,7 @@ enum StitchAIManagerError: Error {
     case contentDataDecodingError(String, String)
     case portValueDecodingError(String)
     case decodeObjectFromString(String, String)
+    case structuredOutputsNotFound
 }
 
 extension StitchAIManagerError: CustomStringConvertible {
@@ -68,6 +69,8 @@ extension StitchAIManagerError: CustomStringConvertible {
             return "Unable to decode PortValue with error: \(errorResponse)"
         case .decodeObjectFromString(let stringObject, let errorResponse):
             return "Unable to decode object from string: \(stringObject)\nError: \(errorResponse)"
+        case .structuredOutputsNotFound:
+            return "Structured outputs file wasn't found."
         }
     }
 }
