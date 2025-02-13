@@ -7,11 +7,6 @@
 
 import SwiftUI
 import Foundation
-
-// TODO: every zoom in/out jumps is 0.25, but the second-to-last zoom out jump feels too big?
-let ZOOM_COMMAND_RATE: CGFloat = 0.25
-//let ZOOM_COMMAND_RATE: CGFloat = 0.1
-//let ZOOM_COMMAND_RATE: CGFloat = 0.175
     
 //let WHOLE_GRAPH_LENGTH: CGFloat = 30000 // 30,000 x 30,000
 let WHOLE_GRAPH_LENGTH: CGFloat = 300000 // 300,000 x 300,000
@@ -158,8 +153,7 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             newZoom: scrollView.zoomScale
         ))
     }
-    
-
+        
     func updateUIView(_ uiView: UIScrollView, context: Context) {
         // Update content when SwiftUI view changes
         context.coordinator.hostingController.rootView = content
@@ -170,33 +164,68 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
                 newOffset: uiView.contentOffset,
                 newZoom: uiView.zoomScale
             ))
+            document.graphUI.canvasJumpLocation = nil
             
             // Note: `self` is a struct but `GraphUIState` is a reference type, so we had a potential retain cycle even when callinh on MainThread (?)
             let graphUI = document.graphUI
             
+            context.coordinator.borderCheckingDisabled = true
+            
             // During the animation to the jump-location,
             // we do not want to check the borders
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak graphUI] in
-                graphUI?.canvasJumpLocation = nil
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                context.coordinator.borderCheckingDisabled = false
+            }
+        } // if let
+                
+        if let zoomInAmount = document.graphUI.canvasZoomedIn.zoomAmount {
+            // log("StitchUIScrollView: ZOOM IN: uiView.zoomScale was: \(uiView.zoomScale)")
+            // log("StitchUIScrollView: ZOOM IN: uiView.contentOffset was: \(uiView.contentOffset)")
+            
+            uiView.zoomScale += zoomInAmount
+            
+            // Does zooming in automatically modify the contentOffset ?
+            // log("StitchUIScrollView: ZOOM IN: uiView.zoomScale is now: \(uiView.zoomScale)")
+            // log("StitchUIScrollView: ZOOM IN: uiView.contentOffset is now: \(uiView.contentOffset)")
+            
+            dispatch(GraphScrollDataUpdated(
+                newOffset: uiView.contentOffset,
+                newZoom: uiView.zoomScale
+            ))
+            
+            document.graphUI.canvasZoomedIn = .noZoom
+            context.coordinator.borderCheckingDisabled = true
+            
+            // Do not check borders during zoom.
+            let graphUI = document.graphUI
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                context.coordinator.borderCheckingDisabled = false
             }
         }
         
-        if document.graphUI.canvasZoomedIn {
-            uiView.zoomScale += ZOOM_COMMAND_RATE
+        if let zoomOutAmount = document.graphUI.canvasZoomedOut.zoomAmount {
+            
+            // log("StitchUIScrollView: ZOOM OUT: uiView.zoomScale was: \(uiView.zoomScale)")
+            // log("StitchUIScrollView: ZOOM OUT: uiView.contentOffset was: \(uiView.contentOffset)")
+            
+            uiView.zoomScale -= zoomOutAmount
+            
+            // log("StitchUIScrollView: ZOOM OUT: uiView.zoomScale is now: \(uiView.zoomScale)")
+            // log("StitchUIScrollView: ZOOM OUT: uiView.contentOffset is now: \(uiView.contentOffset)")
+            
             dispatch(GraphScrollDataUpdated(
                 newOffset: uiView.contentOffset,
                 newZoom: uiView.zoomScale
             ))
-            document.graphUI.canvasZoomedIn = false
-        }
-        
-        if document.graphUI.canvasZoomedOut {
-            uiView.zoomScale -= ZOOM_COMMAND_RATE
-            dispatch(GraphScrollDataUpdated(
-                newOffset: uiView.contentOffset,
-                newZoom: uiView.zoomScale
-            ))
-            document.graphUI.canvasZoomedOut = false
+            
+            document.graphUI.canvasZoomedOut = .noZoom
+            context.coordinator.borderCheckingDisabled = true
+            
+            // Do not check borders during zoom.
+            let graphUI = document.graphUI
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                context.coordinator.borderCheckingDisabled = false
+            }
         }
         
     }
@@ -213,6 +242,8 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
     
     // Used during spacebar + trackpad click-&-drag gesture
     private var initialContentOffset: CGPoint = .zero
+    
+    var borderCheckingDisabled: Bool = false
     
     weak var document: StitchDocumentViewModel?
     
@@ -234,37 +265,32 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
         return hostingController.view
     }
     
-    func scrollViewDidZoom(_ scrollView: UIScrollView) {
+    static func updateGraphScrollData(_ scrollView: UIScrollView,
+                                      shouldPersist: Bool = false) {
         dispatch(GraphScrollDataUpdated(
             newOffset: scrollView.contentOffset,
-            newZoom: scrollView.zoomScale
+            newZoom: scrollView.zoomScale,
+            shouldPersist: shouldPersist
         ))
+    }
+    
+    
+    func scrollViewDidZoom(_ scrollView: UIScrollView) {
+        Self.updateGraphScrollData(scrollView)
     }
     
     // Only called when scroll first begins; not DURING scroll
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        dispatch(GraphScrollDataUpdated(
-            newOffset: scrollView.contentOffset,
-            newZoom: scrollView.zoomScale
-        ))
+        Self.updateGraphScrollData(scrollView)
     }
     
     func scrollViewWillBeginDecelerating(_ scrollView: UIScrollView) {
-        dispatch(GraphScrollDataUpdated(
-            newOffset: scrollView.contentOffset,
-            newZoom: scrollView.zoomScale
-        ))
+        Self.updateGraphScrollData(scrollView)
     }
     
     // Called when scroll-view movement comes to an end
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        dispatch(GraphScrollDataUpdated(
-            newOffset: scrollView.contentOffset,
-            newZoom: scrollView.zoomScale,
-            // Persist when
-            shouldPersist: true
-        ))
-        
+        Self.updateGraphScrollData(scrollView, shouldPersist: true)
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -278,24 +304,25 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
         
         let jumpLocationDefined = self.document?.graphUI.canvasJumpLocation.isDefined ?? false
         
-        // Only check borders etc. if we have cached size and position data for the nodes
-        guard let canvasItemsInFrame = self.document?.graph.getVisibleCanvasItems().filter(\.isVisibleInFrame),
-              let westNode = self.document?.graph.westernMostNodeForBorderCheck(canvasItemsInFrame),
-              let eastNode = self.document?.graph.easternMostNodeForBorderCheck(canvasItemsInFrame),
-              let westBounds = cache.get(westNode.id),
-              let eastBounds = cache.get(eastNode.id),
-              let northNode = self.document?.graph.northernMostNodeForBorderCheck(canvasItemsInFrame),
-              let southNode = self.document?.graph.southernMostNodeForBorderCheck(canvasItemsInFrame),
-              let northBounds = cache.get(northNode.id),
-              let southBounds = cache.get(southNode.id),
-              
-              // Do not want to check borders during 'jump to canvas item'.
-              !jumpLocationDefined else {
+        let activelyZooming = self.document?.graphUI.canvasZoomedIn.zoomAmount.isDefined ?? self.document?.graphUI.canvasZoomedOut.zoomAmount.isDefined ?? false
+        
+
+        guard
+            // Do not check borders for ~1 second after (1) jumping to an item on the canvas or (2) zooming in/out
+            !self.borderCheckingDisabled,
             
-            dispatch(GraphScrollDataUpdated(
-                newOffset: scrollView.contentOffset,
-                newZoom: scrollView.zoomScale
-            ))
+                // Only check borders if we have cached size and position data for canvas items
+            let canvasItemsInFrame = self.document?.graph.getVisibleCanvasItems().filter(\.isVisibleInFrame),
+            let westNode = self.document?.graph.westernMostNodeForBorderCheck(canvasItemsInFrame),
+            let eastNode = self.document?.graph.easternMostNodeForBorderCheck(canvasItemsInFrame),
+            let westBounds = cache.get(westNode.id),
+            let eastBounds = cache.get(eastNode.id),
+            let northNode = self.document?.graph.northernMostNodeForBorderCheck(canvasItemsInFrame),
+            let southNode = self.document?.graph.southernMostNodeForBorderCheck(canvasItemsInFrame),
+            let northBounds = cache.get(northNode.id),
+            let southBounds = cache.get(southNode.id) else {
+            
+            Self.updateGraphScrollData(scrollView)
             
             // log("StitchUIScrollView: scrollViewDidScroll: MISSING WEST, EAST, SOUTH OR NORTH IN-FRAME NODES OR BOUNDS")
             
@@ -383,10 +410,7 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
                 newZoom: scrollView.zoomScale
             ))
         } else {
-            dispatch(GraphScrollDataUpdated(
-                newOffset: scrollView.contentOffset,
-                newZoom: scrollView.zoomScale
-            ))
+            Self.updateGraphScrollData(scrollView)
         }
     }
     
@@ -427,10 +451,10 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
         case .changed:
             if translation.y > 0 {
                 // Scrolling up, zoom in
-                self.document?.graphZoomedIn(rate: GraphZoom.zoomScrollRate)
+                self.document?.graphZoomedIn(.mouseWheel)
             } else if translation.y < 0 {
                 // Scrolling down, zoom out
-                self.document?.graphZoomedOut(rate: GraphZoom.zoomScrollRate)
+                self.document?.graphZoomedOut(.mouseWheel)
             }
         default:
             break
@@ -489,7 +513,6 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
                 newZoom: scrollView.zoomScale
             ))
             
-            
         case .possible:
             log("StitchUIScrollView: handlePan: possible")
             
@@ -497,11 +520,7 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
             document?.graphUI.activeSpacebarClickDrag = false
             scrollView.setContentOffset(scrollView.contentOffset,
                                         animated: false)
-            dispatch(GraphScrollDataUpdated(
-                newOffset: scrollView.contentOffset,
-                newZoom: scrollView.zoomScale,
-                shouldPersist: true
-            ))
+            Self.updateGraphScrollData(scrollView, shouldPersist: true)
             
         @unknown default:
             log("StitchUIScrollView: handlePan: default")
