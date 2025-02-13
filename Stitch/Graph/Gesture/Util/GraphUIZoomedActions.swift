@@ -53,16 +53,17 @@ extension StitchDocumentViewModel {
     }
 
     @MainActor
-    func graphZoomedIn(rate: Double = 0.25) {
-        self.graphUI.canvasZoomedIn = true
+    func graphZoomedIn(_ manualZoom: GraphManualZoom) {
+        // Set `true` here; set `false` by the UIScrollView
+        self.graphUI.canvasZoomedIn = manualZoom
         
         // Wipe comment box bounds
         self.wipeCommentBoxBounds()
     }
 
     @MainActor
-    func graphZoomedOut(rate: Double = 0.25) {
-        self.graphUI.canvasZoomedOut = true
+    func graphZoomedOut(_ manualZoom: GraphManualZoom) {
+        self.graphUI.canvasZoomedOut = manualZoom
         
         // Wipe comment box bounds
         self.wipeCommentBoxBounds()
