@@ -38,8 +38,8 @@ public enum NodeSection: String, CaseIterable, CustomStringConvertible {
 
 extension NodeSection {
     @MainActor
-    static func getAllAIDescriptions() throws -> [StitchAINodeSectionDescription] {
-        try Self.allCases.map(StitchAINodeSectionDescription.init)
+    static func getAllAIDescriptions() -> [StitchAINodeSectionDescription] {
+        Self.allCases.map(StitchAINodeSectionDescription.init)
     }
     
     public var description: String {
@@ -77,64 +77,119 @@ extension NodeKind {
 }
 
 extension Patch {
-    /// Returns the section header that this Patch case belongs to.
     var section: NodeSection {
         switch self {
-        // MARK: General Nodes
+            // MARK: General Nodes
         case .splitter, .random, .counter, .flipSwitch:
             return .general
             
-        // MARK: Math Operation Nodes
-        case .absoluteValue, .add, .max, .min, .mod, .multiply, .power, .round, .squareRoot, .subtract:
+            // MARK: Math Operation Nodes
+        case .add, .multiply, .divide, .absoluteValue, .round, .squareRoot,
+                .subtract, .max, .min, .mod, .power, .soulver, .length,
+                .mathExpression, .clip:
             return .mathOperation
             
-        // MARK: Comparison Nodes
-        case .equals, .equalsExactly, .greaterOrEqual, .lessThanOrEqual, .greaterThan, .lessThan:
+            // MARK: Comparison Nodes
+        case .greaterOrEqual, .lessThanOrEqual, .equals, .equalsExactly,
+                .greaterThan, .lessThan, .or, .and, .not:
             return .comparison
             
-        // MARK: Animation Nodes
-        case .springAnimation, .popAnimation, .classicAnimation, .cubicBezierAnimation, .curve, .cubicBezierCurve, .repeatingAnimation:
+            // MARK: Animation Nodes
+        case .springAnimation, .popAnimation, .classicAnimation,
+                .cubicBezierAnimation, .repeatingAnimation, .curve,
+                .cubicBezierCurve, .bouncyConverter, .transition,
+                .springFromDurationAndBounce, .springFromResponseAndDampingRatio,
+                .springFromSettlingDurationAndDampingRatio:
             return .animation
             
-        // MARK: Pulse Nodes
+            // MARK: Pulse Nodes
         case .pulse, .pulseOnChange, .repeatingPulse, .restartPrototype:
             return .pulse
             
-        // MARK: Shape Nodes
-        case .triangleShape, .circleShape, .ovalShape, .roundedRectangleShape, .union, .shapeToCommands, .commandsToShape:
-            return .shape
-            
-        // MARK: Text Nodes
-        case .textTransform, .textLength, .textReplace, .splitText, .textStartsWith, .textEndsWith, .trimText:
-            return .text
-            
-        // MARK: Media Nodes
-        case .cameraFeed, .grayscale, .soundImport, .speaker, .microphone, .videoImport, .imageImport, .imageToBase64String, .base64StringToImage:
-            return .media
-            
-        // MARK: Position and Transform Nodes
-        case .convertPosition, .transformPack, .transformUnpack, .positionPack, .point3DPack, .point4DPack:
-            return .positionTransform
-            
-        // MARK: Interaction Nodes
-        case .dragInteraction, .pressInteraction, .scrollInteraction:
-            return .interaction
-            
-        // MARK: JSON and Array Nodes
-        case .networkRequest, .jsonObject, .jsonArray, .arrayAppend, .arrayCount, .arrayJoin, .arrayReverse, .arraySort, .getKeys, .indexOf, .subarray, .valueAtPath, .setValueForKey:
-            return .jsonArray
-            
-        // MARK: Loop Nodes
-        case .loop, .loopBuilder, .loopInsert, .loopOptionSwitch, .loopRemove, .loopReverse, .loopShuffle, .loopSum, .loopToArray, .runningTotal, .loopCount, .loopDedupe, .loopFilter:
-            return .loop
-            
-        // MARK: Utility Nodes
-        case .layerInfo, .hapticFeedback, .springFromDurationAndBounce, .springFromResponseAndDampingRatio, .springFromSettlingDurationAndDampingRatio:
+            // MARK: Utility Nodes
+        case .delay, .delayOne, .whenPrototypeStarts, .smoothValue,
+                .stopwatch, .any, .hapticFeedback, .sampleAndHold, .time,
+                .layerInfo, .velocity, .sampleRange,
+            // Color conversion nodes are also treated as utility here.
+                .hslColor, .colorToHSL, .colorToHex, .colorToRGB, .hexColor, .rgba:
             return .utility
             
-        // Fallback
-        default:
-            return .general
+            // MARK: Additional Pack/Unpack Nodes
+        case .pack, .unpack, .sizePack, .sizeUnpack, .closePath,
+                .moveToPack, .lineToPack, .curveToPack, .curveToUnpack:
+            return .additionalPack
+            
+            // MARK: Position and Transform Nodes
+        case .convertPosition, .positionPack, .positionUnpack,
+                .point3DPack, .point3DUnpack, .point4DPack, .point4DUnpack,
+                .transformPack, .transformUnpack:
+            return .positionTransform
+            
+            // MARK: Progress and Option Nodes
+        case .optionPicker, .optionSwitch, .optionEquals, .optionSender,
+                .progress, .reverseProgress:
+            return .progressState
+            
+            // MARK: Device Time and Location
+        case .deviceTime, .location:
+            return .deviceSystem
+            
+            // MARK: Interaction Nodes
+        case .dragInteraction, .pressInteraction, .scrollInteraction,
+                .keyboard, .mouse:
+            return .interaction
+            
+            // MARK: Loop Nodes
+        case .loop, .loopBuilder, .loopInsert, .loopSelect, .loopOverArray,
+                .loopCount, .loopDedupe, .loopFilter, .loopOptionSwitch,
+                .loopRemove, .loopReverse, .loopShuffle, .loopSum, .loopToArray,
+                .runningTotal:
+            return .loop
+            
+            // MARK: JSON and Array Nodes
+        case .networkRequest, .jsonObject, .jsonArray:
+            return .jsonArray
+            
+            // MARK: Device and System Nodes
+        case .deviceMotion, .deviceInfo:
+            return .deviceSystem
+            
+            // MARK: Additional Math and Trigonometry Nodes
+        case .arcTan2, .sine, .cosine:
+            return .additionalMath
+            
+            // MARK: Machine Learning Nodes
+        case .coreMLClassify, .coreMLDetection:
+            return .machineLearning
+            
+            // MARK: Extension Support Nodes
+        case .wirelessBroadcaster, .wirelessReceiver:
+            return .extensionSupport
+            
+            // MARK: Text Nodes
+        case .splitText, .textEndsWith, .textLength, .textReplace,
+                .textStartsWith, .textTransform, .trimText, .dateAndTimeFormatter:
+            return .text
+            
+            // MARK: Additional Layer (Shape) Nodes
+        case .triangleShape, .circleShape, .ovalShape, .roundedRectangleShape,
+                .union, .jsonToShape, .shapeToCommands, .commandsToShape:
+            return .additionalLayer
+            
+            // MARK: Media Nodes
+        case .cameraFeed, .grayscale, .soundImport, .speaker, .microphone,
+                .videoImport, .imageImport, .base64StringToImage, .imageToBase64String, .qrCodeDetection:
+            return .media
+            
+            // MARK: AR and 3D Nodes
+        case .arRaycasting, .arAnchor:
+            return .ar3D
+            
+            // MARK: Array Operations
+        case .arrayAppend, .arrayCount, .arrayJoin, .arrayReverse, .arraySort, .getKeys,
+                .indexOf, .subarray, .setValueForKey, .valueForKey, .valueAtIndex,
+                .valueAtPath:
+            return .arrayOperation
         }
     }
 }
@@ -143,47 +198,47 @@ extension Layer {
     /// Returns the section header that this Layer case belongs to.
     var section: NodeSection {
         switch self {
-        // For text-based layers
+            // For text-based layers
         case .text, .textField:
             return .text
             
-        // For shape-like layers
+            // For shape-like layers
         case .oval, .rectangle, .shape:
             return .shape
             
-        // For media layers
+            // For media layers
         case .image, .video, .videoStreaming:
             return .media
             
-        // Grouping-related or container layers
+            // Grouping-related or container layers
         case .group, .canvasSketch:
             return .general
             
-        // For 3D layers
+            // For 3D layers
         case .model3D, .realityView, .box, .sphere, .cylinder, .cone:
             return .ar3D
             
-        // Additional effects or fill layers
+            // Additional effects or fill layers
         case .colorFill:
             return .utility
             
-        // For interactive layers
+            // For interactive layers
         case .hitArea:
             return .interaction
             
-        // Map-related layers
+            // Map-related layers
         case .map:
             return .media
             
-        // For progress or switch type layers
+            // For progress or switch type layers
         case .progressIndicator, .switchLayer:
             return .progressState
             
-        // For gradient layers
+            // For gradient layers
         case .linearGradient, .radialGradient, .angularGradient:
             return .gradient
             
-        // For symbol or material layers
+            // For symbol or material layers
         case .sfSymbol, .material:
             return .layerEffect
         }
