@@ -102,8 +102,8 @@ extension [StepTypeAction] {
                     return .init("ChangeNodeType: no patch for node \(x.nodeId.debugFriendlyId)")
                 }
                 
-                guard patch.availableNodeTypes.contains(x.nodeType) else {
-                    return .init("ChangeNodeType: invalid node type \(x.nodeType.display) for patch \(patch.defaultDisplayTitle()) on node \(x.nodeId.debugFriendlyId)")
+                guard patch.availableNodeTypes.contains(x.valueType) else {
+                    return .init("ChangeNodeType: invalid node type \(x.valueType.display) for patch \(patch.defaultDisplayTitle()) on node \(x.nodeId.debugFriendlyId)")
                 }
             
             case .addLayerInput(let x):
@@ -281,19 +281,19 @@ struct StepActionChangeNodeType: StepActionable {
     static let stepType = StepType.changeNodeType
     
     var nodeId: NodeId
-    var nodeType: NodeType
+    var valueType: NodeType
     
     var toStep: Step {
         Step(stepType: Self.stepType,
              nodeId: nodeId,
-             nodeType: nodeType)
+             valueType: valueType)
     }
     
     static func fromStep(_ action: Step) throws -> Self {
         if let nodeId = action.nodeId?.value,
-           let nodeType = action.nodeType {
+           let valueType = action.valueType {
             return .init(nodeId: nodeId,
-                         nodeType: nodeType)
+                         valueType: valueType)
         }
         
         throw StitchAIManagerError.stepDecoding(Self.stepType, action)
@@ -307,7 +307,7 @@ struct StepActionSetInput: StepActionable {
     let nodeId: NodeId
     let port: NodeIOPortType // integer or key path
     let value: PortValue
-    let nodeType: NodeType
+    let valueType: NodeType
     
     // encoding
     var toStep: Step {
@@ -315,18 +315,18 @@ struct StepActionSetInput: StepActionable {
              nodeId: nodeId,
              port: port,
              value: value,
-             nodeType: value.toNodeType)
+             valueType: value.toNodeType)
     }
     
     static func fromStep(_ action: Step) throws -> Self {
         if let nodeId = action.nodeId?.value,
            let port = action.port,
-           let nodeType = action.nodeType,
+           let valueType = action.valueType,
            let value = action.value {
             return .init(nodeId: nodeId,
                          port: port,
                          value: value,
-                         nodeType: nodeType)
+                         valueType: valueType)
         }
         
         throw StitchAIManagerError.stepDecoding(Self.stepType, action)
