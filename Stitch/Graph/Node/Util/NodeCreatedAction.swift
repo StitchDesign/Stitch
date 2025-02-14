@@ -136,28 +136,7 @@ extension StitchDocumentViewModel {
         // Reset nodes layout cache
         self.visibleGraph.visibleNodesViewModel.resetCache()
     }
-
-    // GOOD EXAMPLE FOR ARKIT NODES
-    @MainActor
-    func createDeviceMotionNode(newNodeId: NodeId? = nil,
-                                center: CGSize) -> PatchNode {
-
-        let newNodeId: NodeId = newNodeId ?? NodeId()
-
-        let node = deviceMotionNode(id: newNodeId,
-                                    position: center,
-                                    zIndex: self.visibleGraph.highestZIndex + 1)
-
-        self.visibleGraph.updatePatchNode(node)
-
-        // device motion requires a special item in state
-        self.visibleGraph.motionManagers.updateValue(
-            createActiveCMMotionManager(),
-            forKey: newNodeId)
-
-        return node
-    }
-
+    
     @MainActor
     func createNode(graphTime: TimeInterval,
                     newNodeId: NodeId = NodeId(),
@@ -210,20 +189,12 @@ extension StitchDocumentViewModel {
 
         case let .patch(x):
 
-            switch x {
-            case .deviceMotion:
-                return self.createDeviceMotionNode(
-                    newNodeId: newNodeId,
-                    center: center.toCGSize)
-
-            default:
-                return x.defaultNode(
-                    id: newNodeId,
-                    position: center.toCGSize,
-                    zIndex: highestZIndex + 1,
-                    graphTime: graphTime,
-                    graphDelegate: self.visibleGraph)
-            } // choice
+            return x.defaultNode(
+                id: newNodeId,
+                position: center.toCGSize,
+                zIndex: highestZIndex + 1,
+                graphTime: graphTime,
+                graphDelegate: self.visibleGraph)
         }
     }
 }
