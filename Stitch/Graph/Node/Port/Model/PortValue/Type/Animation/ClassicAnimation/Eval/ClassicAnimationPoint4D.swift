@@ -21,7 +21,7 @@ func classicAnimationEvalOpPoint4D(values: PortValues,
 
     // Our current output is always the 'starting point'
     // of a given animation step.
-    let currentOutput: Point4D = values.last?.getPoint4D ?? .zero
+    let currentOutput: Point4D = graphTime.graphJustStarted ? toValue : values.last?.getPoint4D ?? .zero
 
     let equivalentX = areEquivalent(n: currentOutput.x,
                                       n2: toValue.x)
