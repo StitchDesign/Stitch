@@ -151,7 +151,7 @@ struct ProjectsListItemView: View {
                     if store.homescreenProjectSelectionState.selections.contains(document.id) {
                         RoundedRectangle(cornerRadius: 8)
                             .fill(.clear)
-                            .stroke(LinearGradient(colors: [.red, .magenta, .purple, .blue, .cyan, .green, .yellow, .orange],
+                            .stroke(LinearGradient(colors: [.red, .indigo, .purple, .blue, .cyan, .green, .yellow, .orange],
                                                    startPoint: .topLeading,
                                                    endPoint: .bottomTrailing),
                                     lineWidth: 4)
