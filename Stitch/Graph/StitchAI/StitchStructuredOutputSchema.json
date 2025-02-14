@@ -6,9 +6,9 @@
         "step_type": { "type": "string", "const": "add_node" },
         "node_name": { "$ref": "#/$defs/NodeName" },
         "node_id": { "type": "string" },
-        "node_type": { "$ref": "#/$defs/NodeType" }
+        "value_type": { "$ref": "#/$defs/ValueType" }
       },
-      "required": ["step_type", "node_name", "node_id", "node_type"],
+      "required": ["step_type", "node_name", "node_id", "value_type"],
       "additionalProperties": false
     },
     "ConnectNodesAction": {
@@ -33,7 +33,7 @@
       "properties": {
         "step_type": { "type": "string", "const": "change_node_type" },
         "node_id": { "type": "string" },
-        "value_type": { "$ref": "#/$defs/NodeType" }
+        "value_type": { "$ref": "#/$defs/ValueType" }
       },
       "required": ["step_type", "node_id", "value_type"],
       "additionalProperties": false
@@ -57,9 +57,9 @@
             { "$ref": "#/$defs/LayerPorts" }
           ]
         },
-        "node_type": { "$ref": "#/$defs/NodeType" }
+        "value_type": { "$ref": "#/$defs/NodeType" }
       },
-      "required": ["step_type", "node_id", "port", "value", "node_type"],
+      "required": ["step_type", "node_id", "port", "value", "value_type"],
       "additionalProperties": false
     },
     "AddLayerInputAction": {
@@ -201,7 +201,7 @@
       ],
       "type": "string"
     },
-    "NodeType": {
+    "ValueType": {
       "enum": [
           "string",
           "bool",
