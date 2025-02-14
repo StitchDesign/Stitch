@@ -166,9 +166,6 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             ))
             document.graphUI.canvasJumpLocation = nil
             
-            // Note: `self` is a struct but `GraphUIState` is a reference type, so we had a potential retain cycle even when callinh on MainThread (?)
-            let graphUI = document.graphUI
-            
             context.coordinator.borderCheckingDisabled = true
             
             // During the animation to the jump-location,
@@ -182,7 +179,15 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             // log("StitchUIScrollView: ZOOM IN: uiView.zoomScale was: \(uiView.zoomScale)")
             // log("StitchUIScrollView: ZOOM IN: uiView.contentOffset was: \(uiView.contentOffset)")
             
-            uiView.zoomScale += zoomInAmount
+            // TODO: 'appropriate feeling' zoom step size is probably some non-linear curve, since zoom step size of 0.1 near max zoom-in level also feels bad (too small)
+            if uiView.zoomScale < 0.3,
+               document.graphUI.canvasZoomedIn == .shortcutKey {
+                uiView.zoomScale += zoomInAmount/4 //zoomInAmount/2
+            } else if uiView.zoomScale < 0.4  {
+                uiView.zoomScale += zoomInAmount/2
+            } else {
+                uiView.zoomScale += zoomInAmount
+            }
             
             // Does zooming in automatically modify the contentOffset ?
             // log("StitchUIScrollView: ZOOM IN: uiView.zoomScale is now: \(uiView.zoomScale)")
@@ -197,7 +202,6 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             context.coordinator.borderCheckingDisabled = true
             
             // Do not check borders during zoom.
-            let graphUI = document.graphUI
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                 context.coordinator.borderCheckingDisabled = false
             }
@@ -207,8 +211,14 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             
             // log("StitchUIScrollView: ZOOM OUT: uiView.zoomScale was: \(uiView.zoomScale)")
             // log("StitchUIScrollView: ZOOM OUT: uiView.contentOffset was: \(uiView.contentOffset)")
-            
-            uiView.zoomScale -= zoomOutAmount
+            if uiView.zoomScale < 0.3,
+               document.graphUI.canvasZoomedOut == .shortcutKey {
+                uiView.zoomScale -= zoomOutAmount/4
+            } else if uiView.zoomScale < 0.4  {
+                uiView.zoomScale -= zoomOutAmount/2
+            } else {
+                uiView.zoomScale -= zoomOutAmount
+            }
             
             // log("StitchUIScrollView: ZOOM OUT: uiView.zoomScale is now: \(uiView.zoomScale)")
             // log("StitchUIScrollView: ZOOM OUT: uiView.contentOffset is now: \(uiView.contentOffset)")
@@ -222,7 +232,6 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             context.coordinator.borderCheckingDisabled = true
             
             // Do not check borders during zoom.
-            let graphUI = document.graphUI
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                 context.coordinator.borderCheckingDisabled = false
             }
