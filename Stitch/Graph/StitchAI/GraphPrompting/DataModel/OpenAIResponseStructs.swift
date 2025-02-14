@@ -133,7 +133,7 @@ extension ContentJSON {
                                           port: .portIndex(1),
                                           value: .number(5),
                                           valueType: .number)
-        let changeType = StepActionChangeNodeType(nodeId: id,
+        let changeType = StepActionChangeValueType(nodeId: id,
                                                   valueType: .string)
         
         let steps: [Step] = [

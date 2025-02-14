@@ -14,7 +14,7 @@ enum StepTypeAction: Equatable, Hashable, Codable {
     case addNode(StepActionAddNode)
     case addLayerInput(StepActionAddLayerInput)
     case connectNodes(StepActionConnectionAdded)
-    case changeNodeType(StepActionChangeNodeType)
+    case changeValueType(StepActionChangeValueType)
     case setInput(StepActionSetInput)
     
     var stepType: StepType {
@@ -25,8 +25,8 @@ enum StepTypeAction: Equatable, Hashable, Codable {
             return StepActionAddLayerInput.stepType
         case .connectNodes:
             return StepActionConnectionAdded.stepType
-        case .changeNodeType:
-            return StepActionChangeNodeType.stepType
+        case .changeValueType:
+            return StepActionChangeValueType.stepType
         case .setInput:
             return StepActionSetInput.stepType
         }
@@ -40,7 +40,7 @@ enum StepTypeAction: Equatable, Hashable, Codable {
             return x.toStep
         case .connectNodes(let x):
             return x.toStep
-        case .changeNodeType(let x):
+        case .changeValueType(let x):
             return x.toStep
         case .setInput(let x):
             return x.toStep
@@ -64,8 +64,8 @@ enum StepTypeAction: Equatable, Hashable, Codable {
             return .connectNodes(x)
         
         case .changeValueType:
-            let x = try StepActionChangeNodeType.fromStep(action)
-            return .changeNodeType(x)
+            let x = try StepActionChangeValueType.fromStep(action)
+            return .changeValueType(x)
         
         case .setInput:
             let x = try StepActionSetInput.fromStep(action)
@@ -97,13 +97,13 @@ extension [StepTypeAction] {
             case .addNode(let x):
                 createdNodes.updateValue(x.nodeName, forKey: x.nodeId)
                 
-            case .changeNodeType(let x):
+            case .changeValueType(let x):
                 guard let patch = createdNodes.get(x.nodeId)?.asNodeKind.getPatch else {
-                    return .init("ChangeNodeType: no patch for node \(x.nodeId.debugFriendlyId)")
+                    return .init("ChangeValueType: no patch for node \(x.nodeId.debugFriendlyId)")
                 }
                 
                 guard patch.availableNodeTypes.contains(x.valueType) else {
-                    return .init("ChangeNodeType: invalid node type \(x.valueType.display) for patch \(patch.defaultDisplayTitle()) on node \(x.nodeId.debugFriendlyId)")
+                    return .init("ChangeValueType: invalid node type \(x.valueType.display) for patch \(patch.defaultDisplayTitle()) on node \(x.nodeId.debugFriendlyId)")
                 }
             
             case .addLayerInput(let x):
@@ -276,8 +276,8 @@ struct StepActionConnectionAdded: StepActionable {
     }
 }
 
-// See: `createLLMStepChangeNodeType`
-struct StepActionChangeNodeType: StepActionable {
+// See: `createLLMStepChangeValueType`
+struct StepActionChangeValueType: StepActionable {
     static let stepType = StepType.changeValueType
     
     var nodeId: NodeId
