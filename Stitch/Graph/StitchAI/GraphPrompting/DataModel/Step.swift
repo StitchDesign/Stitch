@@ -53,7 +53,7 @@ extension Step: Codable {
         case fromNodeId = "from_node_id"
         case toNodeId = "to_node_id"
         case value
-        case nodeType = "node_type"
+        case valueType = "value_type"
     }
     
     public func encode(to encoder: any Encoder) throws {
@@ -68,7 +68,7 @@ extension Step: Codable {
         try container.encodeIfPresent(fromPort, forKey: .fromPort)
         try container.encodeIfPresent(fromNodeId, forKey: .fromNodeId)
         try container.encodeIfPresent(toNodeId, forKey: .toNodeId)
-        try container.encodeIfPresent(valueType?.asLLMStepNodeType, forKey: .nodeType)
+        try container.encodeIfPresent(valueType?.asLLMStepNodeType, forKey: .valueType)
         
         if let valueCodable = value?.anyCodable {
             try container.encodeIfPresent(valueCodable, forKey: .value)
@@ -101,7 +101,7 @@ extension Step: Codable {
         }
         
         // MARK: node type required for everything below this line
-        guard let nodeTypeString = try container.decodeIfPresent(String.self, forKey: .nodeType) else {
+        guard let nodeTypeString = try container.decodeIfPresent(String.self, forKey: .valueType) else {
             return
         }
         let nodeType = try NodeType(llmString: nodeTypeString)
