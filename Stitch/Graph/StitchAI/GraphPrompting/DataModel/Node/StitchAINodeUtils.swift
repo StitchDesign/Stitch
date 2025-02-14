@@ -9,11 +9,6 @@ import SwiftUI
 import StitchSchemaKit
 
 extension NodeKind {
-//    static let aiNodeDescriptions: String = """
-//\(Patch.allCases.map(\.aiDisplayTitle))\n
-//\(Layer.allCases.map(\.aiDisplayTitle))\n
-//"""
-    
     static func getAiNodeDescriptions() -> [StitchAINodeKindDescription] {
         Patch.allAiDescriptions + Layer.allAiDescriptions
     }
@@ -129,7 +124,7 @@ struct StitchAIPortValueDescription {
 extension StitchAIPortValueDescription: Encodable {
     enum CodingKeys: String, CodingKey {
         case label
-        case nodeType
+        case valueType
         case value
     }
     
@@ -140,7 +135,7 @@ extension StitchAIPortValueDescription: Encodable {
         try container.encodeIfPresent(self.label != "" ? self.label : nil,
                                       forKey: .label)
         try container.encode(nodeType.asLLMStepNodeType,
-                             forKey: .nodeType)
+                             forKey: .valueType)
         try container.encode(self.value.anyCodable,
                              forKey: .value)
     }
