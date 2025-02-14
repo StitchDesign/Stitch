@@ -10,7 +10,7 @@ import StitchSchemaKit
 
 let MIN_GRAPH_SCALE: CGFloat = 0.1 // most zoomed out
 
-let MAX_GRAPH_SCALE: CGFloat = 2.8 // most zoomed
+let MAX_GRAPH_SCALE: CGFloat = 2.8 // most zoomed in
 
 struct SetSidebarWidth: GraphUIEvent {
     
