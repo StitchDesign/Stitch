@@ -178,7 +178,7 @@ struct LLMActionDeleted: StitchDocumentEvent {
                 // Always .packed
                 deletedLayerInput: x.port.asFullInput)
                         
-        case .connectNodes, .changeNodeType, .setInput:
+        case .connectNodes, .changeValueType, .setInput:
             // deleting these LLMActions does not require us to delete any other LLMActions;
             // we just 'wipe and replay LLMActions'
             log("do not need to delete any other other LLMActions")
