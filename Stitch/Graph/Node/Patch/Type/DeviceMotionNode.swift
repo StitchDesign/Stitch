@@ -12,6 +12,7 @@ import SwiftUI
 
 typealias StitchMotionManagersDict = [NodeId: CMMotionManager]
 
+
 @MainActor
 func deviceMotionNode(id: NodeId,
                       position: CGSize = .zero,
@@ -55,8 +56,8 @@ extension CMRotationRate {
     }
 }
 
-// Returns PatchNode, ie we're only updating the patch node, not the state;
-// we're just READING FROM the state
+// Device Motion patch node has no inputs and can never have a loop;
+// we simply read the motion manager's data
 @MainActor
 func deviceMotionEval(node: PatchNode,
                       state: GraphDelegate) -> EvalResult {
@@ -69,19 +70,38 @@ func deviceMotionEval(node: PatchNode,
         [boolDefaultFalse],
         [point3DDefaultFalse]
     ]
+        
+    #if targetEnvironment(macCatalyst)
+    // Catalyst does not support device-motion
+    return .init(outputsValues: defaultOutputs)
+    #endif
+    
+    // Retrieve (or create) motion manager
+    
+    var motionManager: CMMotionManager?
+    
+    if let existingMotionManager = state.motionManagers.get(node.id) {
+        motionManager = existingMotionManager
+    } else {
+        // TODO: `createDeviceMotionNode` adds a motion manager to `StitchDocumentViewModel.visibleGraph`; is the passed-in `state: GraphDelegate` here the `StitchDocumentViewModel.visibleGraph`?
+        
+        // If motion manager does not yet exist, create it
+        let newMotionManager = createActiveCMMotionManager()
+        state.motionManagers.updateValue(newMotionManager,
+                                         forKey: node.id)
+        motionManager = newMotionManager
+    }
+    
+    guard let motionManager: CMMotionManager = motionManager else {
+        fatalErrorIfDebug("deviceMotionEval: could not retrieve or create motion manager for node \(node.id)")
+        return .init(outputsValues: defaultOutputs)
+    }
+    
+
+    // Read motion manager to update outputs
     
     var outputs = node.outputs
     
-    // RETRIEVE THE MOTION MANAGER FROM STATE
-    guard let motionManager = state.motionManagers[node.id] else {
-        // Catalyst does not support device motion; but iPad does, so we should crash on debug if iPad did not have the motion managers we expected
-        #if !targetEnvironment(macCatalyst)
-        fatalErrorIfDebug("deviceMotionEval: Could not find motionManager for nodeId \(node.id)")
-        #endif
-        return .init(outputsValues: defaultOutputs)
-    }
-
-    // LOOKING AT STATE AND UPDATING THE LAST TWO PORTS (ACCELERATION ENABLED AND ACCELERATION DATA)
     var accelerationEnabled = false
     var accelerationPoint3D = Point3D.zero
 
