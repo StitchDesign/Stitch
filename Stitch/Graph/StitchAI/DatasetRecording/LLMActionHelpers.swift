@@ -40,7 +40,7 @@ struct ShowLLMEditModal: StitchDocumentEvent {
         state.llmRecording.isRecording = true
         
         // Always treat edit modal as an augmentation
-        state.llmRecording.mode = .augmentation
+//        state.llmRecording.mode = .augmentation
         
         state.llmRecording.modal = .editBeforeSubmit
     }
@@ -74,7 +74,8 @@ struct SubmitLLMActionsToSupabase: StitchDocumentEvent {
                 try await supabaseManager?.uploadEditedActions(
                     prompt: state.llmRecording.promptState.prompt,
                     finalActions: actionsAsSteps,
-                    deviceUUID: deviceUUID)
+                    deviceUUID: deviceUUID,
+                    isCorrection: state.llmRecording.mode == .augmentation)
                 
                 log("📼 ✅ Data successfully saved locally and uploaded to Supabase ✅ 📼")
                 state.llmRecording = .init()

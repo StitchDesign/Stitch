@@ -31,6 +31,8 @@ enum LLMRecordinModal: Equatable, Hashable {
 
 struct LLMRecordingState: Equatable {
     
+    var recentOpenAIRequestCompleted: Bool = false
+    
     // Are we actively recording redux-actions which we then turn into LLM-actions?
     var isRecording: Bool = false
     
