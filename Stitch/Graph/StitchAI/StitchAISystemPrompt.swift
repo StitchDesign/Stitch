@@ -79,7 +79,7 @@ extension StitchAIManager {
     -  ValueAtIndex
     -  ValueForKey
 
-Support these node types:
+Support these value types:
     -  String
     -  Bool
     -  Int
@@ -136,20 +136,20 @@ Support these node types:
     -  MaterialThickness
     -  AnchorEntity
 
-11. **The Add and Length nodes support the following node types**:
+11. **The Add and Length nodes support the following value types**:
     -  String
     -  Number
     -  Position
     -  Size
     -  Point3D
     
-12. **The Subtract, Multiply, Divide, Power, and SquareRoot nodes support the following node types**:
+12. **The Subtract, Multiply, Divide, Power, and SquareRoot nodes support the following value types**:
     -  Number
     -  Position
     -  Size
     -  Point3D
         
-13. The ClassicAnimation and Transition nodes support the following node types:
+13. The ClassicAnimation and Transition nodes support the following value types:
     -  Number
     -  Position
     -  Size
@@ -160,7 +160,7 @@ Support these node types:
          
 14. **The PopAnimation and SpringAnimation nodes support Number and Position types**
          
-15. **The Pack and Unpack nodes support the follwoing node types**:
+15. **The Pack and Unpack nodes support the follwoing value types**:
     -  Position
     -  Size
     -  Point3D
