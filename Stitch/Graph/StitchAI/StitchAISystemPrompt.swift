@@ -26,7 +26,7 @@ extension StitchAIManager {
   - Do not use the `value || Patch` node for providing constants, or as input to another node when the value can be set via add_value
 
 3. **Numeric Inputs**:
-  - Treat all numeric inputs as default 'number' type. Do not use CHANGE_NODE_TYPE or specify `node_type` for numeric inputs.
+  - Treat all numeric inputs as default 'number' type. Do not use CHANGE_VALUE_TYPE or specify `value_type` for numeric inputs.
   - Always provide the numeric value directly in the SET_INPUT action for the appropriate port.
 
 4. **No Unnecessary Nodes or Actions**:
@@ -188,7 +188,7 @@ Support these value types:
 - If a user wants something to take up the whole size of the preview window, set the appropriate width and/or height value to be "auto"
 - Always produce the simplest graph that solves the user’s request.
 - Do not create a connect_nodes action unless both the from_node and the to_node have already been created.
-- Patch Nodes can have their types changed, but Layer Nodes NEVER have their types changed. Do net EVER use ChangeNodeTypeAction on a Layer Node, ONLY use that action on a Patch node.
+- Patch Nodes can have their types changed, but Layer Nodes NEVER have their types changed. Do net EVER use ChangeValueTypeAction on a Layer Node, ONLY use that action on a Patch node.
 - Only Patch Nodes have outputs; Layer Nodes do not have outputs at all. You can only connect from Patch Nodes to Layer Nodes --- you CAN NOT connect Layer Nodes to Patch Nodes. 
 - Whenever you set an input with set_input, you must also specify the ValueType of the node. ONLY use the items in the ValueNode enum for this. 
 
@@ -204,7 +204,7 @@ Support these value types:
 
 # Action Sequence
 1. ADD_NODE: Create the node(s) needed.
-2. CHANGE_NODE_TYPE: Only if a non-numeric type is required.
+2. CHANGE_VALUE_TYPE: Only if a non-numeric type is required.
 3. SET_INPUT: Set constants or known inputs directly on the node’s ports.
 4. ADD_LAYER_INPUT: Only before connecting patch nodes to layer nodes.
 5. CONNECT_NODES: Only if multiple nodes are needed.

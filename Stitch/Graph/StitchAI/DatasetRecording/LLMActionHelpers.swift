@@ -106,7 +106,7 @@ extension [StepTypeAction] {
                 return x.nodeId == deletedNode
             case .connectNodes(let x):
                 return x.fromNodeId == deletedNode || x.toNodeId == deletedNode
-            case .changeNodeType(let x):
+            case .changeValueType(let x):
                 return x.nodeId == deletedNode
             }
         })

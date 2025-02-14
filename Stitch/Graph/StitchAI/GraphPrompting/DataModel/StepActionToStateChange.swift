@@ -66,7 +66,7 @@ extension StitchDocumentViewModel {
             let _ = graph.edgeAdded(edge: edge)
             self.llmRecording.isApplyingActions = false
         
-        case .changeNodeType(let x):
+        case .changeValueType(let x):
             // NodeType etc. for this patch was already validated in `[StepTypeAction].areValidLLMSteps`
             let _ = self.graph.nodeTypeChanged(nodeId: x.nodeId,
                                                newNodeType: x.valueType)
