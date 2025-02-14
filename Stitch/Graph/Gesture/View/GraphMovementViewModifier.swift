@@ -97,6 +97,9 @@ extension GraphState {
             
             if isVisibleInFrame {
                 newVisibleNodes.insert(id)
+                // log("updateVisibleNodes: visible: \(id)")
+            } else {
+                // log("updateVisibleNodes: NOT visible: \(id), cachedBounds: \(cachedBounds)")
             }
         }
                         
