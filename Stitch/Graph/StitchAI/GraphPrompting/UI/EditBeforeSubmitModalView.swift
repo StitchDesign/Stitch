@@ -161,7 +161,7 @@ struct LLMActionCorrectionView: View {
                     StitchTextView(string: "No Patch/Layer found for To Node \(x.toNodeId.debugFriendlyId)")
                 }
                 
-            case .changeNodeType(let x):
+            case .changeValueType(let x):
                 if let nodeName = nodeIdToNameMapping.get(x.nodeId) {
                     StitchTextView(string: "Node: \(nodeName.asNodeKind.description) \(x.nodeId.debugFriendlyId)")
                 } else {
