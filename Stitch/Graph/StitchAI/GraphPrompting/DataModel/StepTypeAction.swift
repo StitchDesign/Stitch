@@ -63,7 +63,7 @@ enum StepTypeAction: Equatable, Hashable, Codable {
             let x = try StepActionConnectionAdded.fromStep(action)
             return .connectNodes(x)
         
-        case .changeNodeType:
+        case .changeValueType:
             let x = try StepActionChangeNodeType.fromStep(action)
             return .changeNodeType(x)
         
@@ -278,7 +278,7 @@ struct StepActionConnectionAdded: StepActionable {
 
 // See: `createLLMStepChangeNodeType`
 struct StepActionChangeNodeType: StepActionable {
-    static let stepType = StepType.changeNodeType
+    static let stepType = StepType.changeValueType
     
     var nodeId: NodeId
     var valueType: NodeType

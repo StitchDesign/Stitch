@@ -283,8 +283,11 @@ extension PortValue {
           type: UserVisibleType) throws {
         let portValueType = type.portValueTypeForStitchAI
         
-        let decodedValue = try decoderContainer
-            .decodeIfPresentSitchAI(portValueType, forKey: .value)
+        guard let decodedValue = try decoderContainer
+            .decodeIfPresentSitchAI(portValueType, forKey: .value) else {
+            // No value
+            return nil
+        }
         
         let value = try type.coerceToPortValueForStitchAI(from: decodedValue)
         self = value
