@@ -22,7 +22,7 @@ enum StepType: String, Equatable, Codable {
     case addNode = "add_node"
     case addLayerInput = "add_layer_input"
     case connectNodes = "connect_nodes"
-    case changeNodeType = "change_node_type"
+    case changeValueType = "change_node_type"
     case setInput = "set_input"
     
     var display: String {
@@ -33,7 +33,7 @@ enum StepType: String, Equatable, Codable {
             return "Add Layer Input"
         case .connectNodes:
             return "Connect Nodes"
-        case .changeNodeType:
+        case .changeValueType:
             return "Change Node Type"
         case .setInput:
             return "Set Input"
