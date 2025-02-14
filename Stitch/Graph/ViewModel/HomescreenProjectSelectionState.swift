@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import StitchSchemaKit
 
 struct HomescreenProjectSelectionState: Equatable, Codable, Hashable {
     var isSelecting = false
