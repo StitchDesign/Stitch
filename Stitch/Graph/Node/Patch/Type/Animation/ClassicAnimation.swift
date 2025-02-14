@@ -97,7 +97,6 @@ struct ClassicAnimationNode: PatchNodeDefinition {
         // If we have existing inputs, then we're deserializing,
         // and should base internal state and starting outputs on those inputs.
         let state = ClassicAnimationState.defaultFromNodeType(.fromNodeType(Self._defaultUserVisibleType))
-
         return ComputedNodeState(classicAnimationState: state)
     }
 }
@@ -106,18 +105,13 @@ struct ClassicAnimationNode: PatchNodeDefinition {
 func classicAnimationEval(node: PatchNode,
                           state: GraphStepState) -> ImpureEvalResult {
     
-//    let inputs = node.inputs
-//    let outputs = node.outputs
-//    let animationStates: [ClassicAnimationState] = node.computedStates?.compactMap {
-//        $0.classicAnimationState
-//    } ?? []
     let fps = state.estimatedFPS
-
+    
     return node.loopedEval(ComputedNodeState.self) { values, computedState, index in
         
         // We must have a userVisibleType on a classic animation node
         guard let evalType: AnimationNodeType = node.userVisibleType.map(AnimationNodeType.fromNodeType) else {
-            log("classicAnimationEval: had invalide node type: \(node.userVisibleType)")
+            log("classicAnimationEval: had invalid node type: \(node.userVisibleType)")
             fatalErrorIfDebug() // we were assigned some false or bad type
             return ImpureEvalOpResult(outputs: [.number(.zero)])
         }

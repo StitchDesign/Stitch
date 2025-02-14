@@ -11,6 +11,7 @@ import StitchSchemaKit
 
 func springAnimationPositionOp(values: PortValues, // ie inputs and outputs
                                computedState: ComputedNodeState,
+                               graphTime: TimeInterval,
                                isPopAnimation: Bool) -> ImpureEvalOpResult {
     
     //    log("springAnimationPositionOp: isPopAnimation: \(isPopAnimation)")
@@ -34,7 +35,7 @@ func springAnimationPositionOp(values: PortValues, // ie inputs and outputs
     // Spring node has 4 inputs, so current output will be 5th value, i.e. index = 4
     let currentOutputIndex = isPopAnimation ? 3 : 4
     
-    let currentOutput: StitchPosition = values[safe: currentOutputIndex]?.getPosition ?? toValue
+    let currentOutput: StitchPosition = graphTime.graphJustStarted ? toValue : values[safe: currentOutputIndex]?.getPosition ?? toValue
     let currentOutputX = currentOutput.x
     let currentOutputY = currentOutput.y
     

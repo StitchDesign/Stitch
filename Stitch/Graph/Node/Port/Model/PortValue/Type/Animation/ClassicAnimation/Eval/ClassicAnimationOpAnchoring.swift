@@ -20,7 +20,7 @@ func classicAnimationEvalOpAnchoring(values: PortValues,
 
     // Our current output is always the 'starting point'
     // of a given animation step.
-    let currentOutput: Anchoring = values.last?.getAnchoring ?? .topLeft
+    let currentOutput: Anchoring = graphTime.graphJustStarted ? toValue : values.last?.getAnchoring ?? .topLeft
     log("\n \n classicAnimationEvalOpSize: TOP: currentOutput: \(currentOutput)")
     
     let equivalentX = areEquivalent(n: currentOutput.x,
