@@ -50,6 +50,7 @@ struct DeleteHomescreenSelectedProjects: StitchStoreEvent {
                 store.homescreenProjectSelectionState.selections.remove(selectedProject)
             }
         }
+        store.homescreenProjectSelectionState.isSelecting = false
         
         return .noChange
     }
