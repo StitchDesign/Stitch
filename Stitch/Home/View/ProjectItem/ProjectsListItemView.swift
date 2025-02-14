@@ -125,19 +125,40 @@ struct ProjectsListItemView: View {
                                          previewWindowBackgroundColor: nil)
                     .modifier(ProjectsListItemErrorOverlayViewModifer())
             case .loaded(let document, let thumbnail):
-                #if DEV_DEBUG
+#if DEV_DEBUG
                 logInView("LOADED: \(document.name) \(document.id)")
-                #endif
+#endif
                 ProjectsListItemIconView(
                     projectThumbnail: thumbnail,
                     previewWindowBackgroundColor: document.previewWindowBackgroundColor,
                     modifiedDate: projectLoader.modifiedDate,
                     isLoading: self.isLoadingForPresentation)
-                    .onTapGesture {
-                        self.openProject(document: document,
-                                         inDebug: false)
+                .onTapGesture {
+#if DEV_DEBUG
+                    if store.homescreenProjectSelectionState.isSelecting {
+                        dispatch(ProjectTappedDuringHomescreenSelection(projectId: document.id))
+                    } else {
+                        self.openProject(document: document, inDebug: false)
                     }
-                    .transition(.opacity)
+#else
+                    self.openProject(document: document, inDebug: false)
+#endif
+                }
+                .transition(.opacity)
+#if DEV_DEBUG
+                .overlay {
+                    
+                    if store.homescreenProjectSelectionState.selections.contains(document.id) {
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(.clear)
+                            .stroke(LinearGradient(colors: [.red, .indigo, .purple, .blue, .cyan, .green, .yellow, .orange],
+                                                   startPoint: .topLeading,
+                                                   endPoint: .bottomTrailing),
+                                    lineWidth: 4)
+                            .allowsHitTesting(false)
+                    }
+                }
+#endif
             }
         } labelView: {
             switch projectLoader.loadingDocument {
