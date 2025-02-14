@@ -220,10 +220,14 @@ These are the nodes in our application; and the input and output ports they have
 
 \(try NodeSection.getAllAIDescriptions().encodeToPrintableString())
 
-# Examples
-Below is a schema illustrating various Node Types and the types of values they take. Adhere to the exact schema of provided examples for values:
+# Value Examples
+Below is a schema illustrating various value types and the types of values they take. Adhere to the exact schema of provided examples for values:
 
 \(try StitchAISchemaMeta.createSchema().encodeToPrintableString())
+
+# Content Response Example
+Below is an example of a response payload Stitch AI should return:
+\(try ContentJSON.exampleData().encodeToPrintableString())
 """
     }
 }
