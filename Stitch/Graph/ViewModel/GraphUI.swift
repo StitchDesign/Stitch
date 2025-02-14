@@ -38,6 +38,7 @@ final class GraphUIState: Sendable {
         
     // Set true / non-nil in redux-actions
     // Set false in StitchUIScrollView
+    // TODO: combine canvasZoomedIn and canvasZoomedOut? can never have both at same time? or we can, and they cancel each other?
     @MainActor var canvasZoomedIn: GraphManualZoom = .noZoom
     @MainActor var canvasZoomedOut: GraphManualZoom = .noZoom
     @MainActor var canvasJumpLocation: CGPoint? = nil
