@@ -71,6 +71,7 @@ final class GraphState: Sendable {
     // Tracks nodes with camera enabled
     @MainActor var enabledCameraNodeIds = NodeIdSet()
     
+    // TODO: can a given graph (or even *device*) really ever have more than one motion manager? There's only one hardware.
     @MainActor var motionManagers = StitchMotionManagersDict()
     
     // Tracks IDs for rows that need to be updated for the view. Cached here for perf so we can throttle view updates.
