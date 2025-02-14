@@ -46,27 +46,52 @@ struct ProjectsHomeView: View {
 
     var body: some View {
         VStack {
-            // Search Bar
+            
+            
 #if DEV_DEBUG
+            // Search Bar
             TextField("Search Projects...", text: $searchQuery)
                 .padding()
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding(.horizontal)
-#endif
+            
+            HStack {
+                
+                let activelySelectingProjects = store.homescreenProjectSelectionState.isSelecting
+                let selectedProjectCount = store.homescreenProjectSelectionState.selections.count
+                
+                Button {
+                    dispatch(HomescreenProjectSelectionToggled())
+                } label: {
+                    Text(store.homescreenProjectSelectionState.isSelecting ? "Stop Selecting" : "Select Projects")
+                }
+                
+                Button {
+                    dispatch(DeleteHomescreenSelectedProjects())
+                } label: {
+                    Text("Delete \(selectedProjectCount) selected projected")
+                }
+                .opacity(activelySelectingProjects ? 1 : 0)
 
-            // Undo button for debugging
-            #if DEV_DEBUG
-            Button {
-                UNDO_ACTION()
-            } label: {
-                Text("Undo")
+
+                // Some spacing
+                Rectangle().fill(.clear).frame(width: 32, height: 8)
+                
+                // Undo and Redo buttons
+                
+                Button {
+                    UNDO_ACTION()
+                } label: {
+                    Text("Undo")
+                }
+                Button {
+                    REDO_ACTION()
+                } label: {
+                    Text("Redo")
+                }
             }
-            Button {
-                REDO_ACTION()
-            } label: {
-                Text("Redo")
-            }
-            #endif
+#endif
+            
             ProjectsListView(store: store, namespace: namespace, projects: filteredProjects)
         }
         .modifier(SampleAppsSheet(showSampleAppsSheet: alertState.showSampleAppsSheet,
