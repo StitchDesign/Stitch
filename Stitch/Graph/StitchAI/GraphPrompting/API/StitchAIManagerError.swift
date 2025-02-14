@@ -78,7 +78,7 @@ extension StitchAIManagerError: CustomStringConvertible {
 extension StitchAIManagerError {
     var shouldDisplayModal: Bool {
         switch self {
-        case .requestInProgress, .documentNotFound, .requestCancelled:
+        case .requestCancelled:
             return false
             
         default:

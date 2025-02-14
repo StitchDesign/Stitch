@@ -89,6 +89,10 @@ extension StitchAIManager {
                     guard let state = self?.documentDelegate else { return }
                     
                     if let error = error as? StitchAIManagerError {
+                        guard error.shouldDisplayModal else {
+                            return
+                        }
+                        
                         state.showErrorModal(
                             message: error.description,
                             userPrompt: request.prompt
