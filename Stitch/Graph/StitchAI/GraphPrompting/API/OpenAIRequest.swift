@@ -40,6 +40,7 @@ struct OpenAIRequest {
     let config: OpenAIRequestConfig // Request configuration settings
     
     /// Initialize a new request with prompt and optional configuration
+    @MainActor
     init(prompt: String,
          config: OpenAIRequestConfig = .default) throws {
         self.prompt = prompt

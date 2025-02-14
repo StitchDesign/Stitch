@@ -268,6 +268,7 @@
 		B5EFD5B12D5D896B006A68FB /* StitchAISystemPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EFD5B02D5D8967006A68FB /* StitchAISystemPrompt.swift */; };
 		B5EFD5B32D5E57AD006A68FB /* StitchAINodeUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EFD5B22D5E57A7006A68FB /* StitchAINodeUtils.swift */; };
 		B5EFD5B62D5E63F3006A68FB /* StitchAINodeDescriptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EFD5B52D5E63ED006A68FB /* StitchAINodeDescriptions.swift */; };
+		B5EFD5B82D5E69C1006A68FB /* StitchAINodeSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EFD5B72D5E69BC006A68FB /* StitchAINodeSection.swift */; };
 		B5EFD61A2C1134EC006F5E7F /* MediaLayerViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EFD6192C1134EC006F5E7F /* MediaLayerViewModifier.swift */; };
 		B5F0FC162B4F2FB5009104A8 /* GraphReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F0FC152B4F2FB5009104A8 /* GraphReducer.swift */; };
 		B5F5FD432B37564500BBD9A2 /* WhatToTest.en-US.txt in Resources */ = {isa = PBXBuildFile; fileRef = B5F5FD422B37564500BBD9A2 /* WhatToTest.en-US.txt */; };
@@ -1224,6 +1225,7 @@
 		B5EFD5B02D5D8967006A68FB /* StitchAISystemPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAISystemPrompt.swift; sourceTree = "<group>"; };
 		B5EFD5B22D5E57A7006A68FB /* StitchAINodeUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAINodeUtils.swift; sourceTree = "<group>"; };
 		B5EFD5B52D5E63ED006A68FB /* StitchAINodeDescriptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAINodeDescriptions.swift; sourceTree = "<group>"; };
+		B5EFD5B72D5E69BC006A68FB /* StitchAINodeSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAINodeSection.swift; sourceTree = "<group>"; };
 		B5EFD6192C1134EC006F5E7F /* MediaLayerViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaLayerViewModifier.swift; sourceTree = "<group>"; };
 		B5F0FC152B4F2FB5009104A8 /* GraphReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphReducer.swift; sourceTree = "<group>"; };
 		B5F5FD422B37564500BBD9A2 /* WhatToTest.en-US.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "WhatToTest.en-US.txt"; sourceTree = "<group>"; };
@@ -3788,6 +3790,7 @@
 		B5EFD5B42D5E63E4006A68FB /* Node */ = {
 			isa = PBXGroup;
 			children = (
+				B5EFD5B72D5E69BC006A68FB /* StitchAINodeSection.swift */,
 				B5EFD5B52D5E63ED006A68FB /* StitchAINodeDescriptions.swift */,
 				B5EFD5B22D5E57A7006A68FB /* StitchAINodeUtils.swift */,
 			);
@@ -4810,6 +4813,7 @@
 				ECE35EE027CEE50300CB8F5C /* FieldValueHelpers.swift in Sources */,
 				B5B300ED2D49627F0064D071 /* NodeMediaUtils.swift in Sources */,
 				E48A07922D38C528002E8A98 /* SupabaseManager.swift in Sources */,
+				B5EFD5B82D5E69C1006A68FB /* StitchAINodeSection.swift in Sources */,
 				EC0B8A7F2953C4C500AA01B6 /* RoundedRectanglePatchNode.swift in Sources */,
 				EC2614452B89605700BEB066 /* PositionPackNode.swift in Sources */,
 				B51C67512C6441A5002F83D1 /* UnpackedValueCoercer.swift in Sources */,
