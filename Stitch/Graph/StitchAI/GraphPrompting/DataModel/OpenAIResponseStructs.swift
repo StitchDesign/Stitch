@@ -120,3 +120,26 @@ struct MessageStruct: Codable {
 struct ContentJSON: Codable {
     var steps: [Step] // Array of steps in the visual programming sequence
 }
+
+extension ContentJSON {
+    static func exampleData() -> Self {
+        let id = UUID()
+        let addNode = StepActionAddNode(nodeId: id, nodeName: .patch(.add))
+        let setInput1 = StepActionSetInput(nodeId: id,
+                                          port: .portIndex(0),
+                                          value: .number(3),
+                                          valueType: .number)
+        let setInput2 = StepActionSetInput(nodeId: id,
+                                          port: .portIndex(1),
+                                          value: .number(5),
+                                          valueType: .number)
+        
+        let steps: [Step] = [
+            addNode.toStep,
+            setInput1.toStep,
+            setInput2.toStep
+        ]
+        
+        return .init(steps: steps)
+    }
+}
