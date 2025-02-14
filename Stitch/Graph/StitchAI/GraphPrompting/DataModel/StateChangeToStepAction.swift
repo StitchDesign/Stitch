@@ -28,11 +28,11 @@ extension StitchDocumentViewModel {
     }
     
     @MainActor
-    func maybeCreateLLMStepChangeNodeType(node: NodeViewModel,
-                                          newNodeType: NodeType) {
+    func maybeCreateLLMStepChangeValueType(node: NodeViewModel,
+                                          newValueType: NodeType) {
         if self.llmRecording.isRecording,
            !self.llmRecording.isApplyingActions {
-            self.llmRecording.actions.append(.changeNodeType(.init(nodeId: node.id, valueType: newNodeType)))
+            self.llmRecording.actions.append(.changeValueType(.init(nodeId: node.id, valueType: newValueType)))
         }
     }
     

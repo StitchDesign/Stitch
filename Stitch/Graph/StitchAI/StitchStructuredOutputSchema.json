@@ -28,10 +28,10 @@
       "required": ["step_type", "from_node_id", "to_node_id", "port", "from_port"],
       "additionalProperties": false
     },
-    "ChangeNodeTypeAction": {
+    "ChangeValueTypeAction": {
       "type": "object",
       "properties": {
-        "step_type": { "type": "string", "const": "change_node_type" },
+        "step_type": { "type": "string", "const": "change_value_type" },
         "node_id": { "type": "string" },
         "value_type": { "$ref": "#/$defs/ValueType" }
       },
@@ -283,7 +283,7 @@
         "anyOf": [
           { "$ref": "#/$defs/AddNodeAction" },
           { "$ref": "#/$defs/ConnectNodesAction" },
-          { "$ref": "#/$defs/ChangeNodeTypeAction" },
+          { "$ref": "#/$defs/ChangeValueTypeAction" },
           { "$ref": "#/$defs/SetInputAction" },
           { "$ref": "#/$defs/AddLayerInputAction" }
         ]
