@@ -21,12 +21,12 @@ struct OpenAIRequestConfig {
     let retryDelay: TimeInterval       // Delay between retry attempts
     let maxTimeoutErrors: Int  // Maximum number of timeout errors before showing alert
     
-    /// Default configuration with standard retry settings
+    /// Default configuration with optimized retry settings
     static let `default` = OpenAIRequestConfig(
-        maxRetries: 3,
+        maxRetries: 5,
         timeoutInterval: 30,
-        retryDelay: 2,
-        maxTimeoutErrors: 3
+        retryDelay: 1,
+        maxTimeoutErrors: 4
     )
 }
 
@@ -145,7 +145,8 @@ extension StitchAIManager {
         let payload: [String: Any] = [
             "model": self.secrets.openAIModel,
             "n": 1,
-            "temperature": 0.5,
+            //https://platform.openai.com/docs/api-reference/making-requests
+            "temperature": 0.0,      // Lower temperature for more focused responses
             "response_format": [
                 "type": "json_schema",
                 "json_schema": [

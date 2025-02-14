@@ -231,3 +231,4 @@ Below is an example of a response payload Stitch AI should return:
 """
     }
 }
+
