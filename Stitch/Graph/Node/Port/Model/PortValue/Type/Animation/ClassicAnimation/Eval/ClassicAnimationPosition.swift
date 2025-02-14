@@ -34,7 +34,7 @@ func classicAnimationEvalOpPosition(values: PortValues,
 
     // Our current output is always the 'starting point'
     // of a given animation step.
-    let currentOutput: StitchPosition = values.last?.getPosition ?? .zero
+    let currentOutput: StitchPosition = graphTime.graphJustStarted ? toValue : values.last?.getPosition ?? .zero
     log("\n \n classicAnimationEvalOpPosition: TOP: currentOutput: \(currentOutput)")
 
     let equivalentX = areEquivalent(n: currentOutput.x,

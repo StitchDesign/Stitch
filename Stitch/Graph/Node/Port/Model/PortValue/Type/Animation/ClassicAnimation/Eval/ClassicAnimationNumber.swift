@@ -23,32 +23,45 @@ extension ClassicAnimationState {
     }
 }
 
+extension TimeInterval {
+    // i.e. Graph was just opened or reset
+    var graphJustStarted: Bool {
+        self == .zero
+    }
+}
+
 func classicAnimationEvalOpNumber(values: PortValues,
                                   computedState: ComputedNodeState,
                                   graphTime: TimeInterval,
                                   graphFrameCount: Int,
                                   fps: StitchFPS) -> ImpureEvalOpResult {
 
+     // log("classicAnimationEvalOpNumber: values: \(values)")
+     // log("classicAnimationEvalOpNumber: computedState: \(computedState)")
+    
     // Doesn't change during animation itself;
     // ie if we change this, then a NEW animation starts.
     let toValue: Double = values.first?.getNumber ?? .zero
+     // log("classicAnimationEvalOpNumber: toValue: \(toValue)")
 
     // Our current output is always the 'starting point'
     // of a given animation step.
-    let currentOutput: Double = values.last?.getNumber ?? toValue
-    //    log("classicAnimationEvalOpNumber: currentOutput: \(currentOutput)")
-
+    let currentOutput: Double = graphTime.graphJustStarted ? toValue : values.last?.getNumber ?? toValue
+    
     let duration: Double = values[safe: 1]?.getNumber ?? .zero
-
-    if areEquivalent(n: currentOutput, n2: toValue)
-        || duration.isZero {
-        //        log("classicAnimationEvalOpNumber: already at destination: classicAnimationState: \(animationState)")
+       
+    // When project first opens, the output should be the toValue, like when we reset the graph.
+    if areEquivalent(n: currentOutput, n2: toValue) || duration.isZero {
+        // log("classicAnimationEvalOpNumber: already at destination: classicAnimationState")
+        // TODO: any reason to return `currentOutput` as opposed to the destination (`toValue`) ?
         return .init(outputs: [.number(currentOutput)],
+//        return .init(outputs: [.number(toValue)],
                      willRunAgain: false)
     }
-
+    
     var animationState = computedState.classicAnimationState?.asSingleState ?? .init()
 
+//    // PROBABLY, THIS STARTS OUT AS EMPTY when project opens, causing
     let notYetInitialized = !animationState.initialValues.isDefined
 
     let goalChanged = animationState.initialValues
