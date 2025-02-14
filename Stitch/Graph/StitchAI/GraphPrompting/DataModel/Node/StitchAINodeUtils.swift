@@ -50,3 +50,98 @@ extension StitchAINodeKindDescription {
         self.description = nodeKindType.aiNodeDescription
     }
 }
+
+struct StitchAINodeSectionDescription: Encodable {
+    var header: String
+    var nodes: [StitchAINodeIODescription]
+}
+
+extension StitchAINodeSectionDescription {
+    @MainActor
+    init(_ section: NodeSection) {
+        let nodesInSection: [StitchAINodeIODescription] = section
+            .getNodesForSection()
+            .compactMap { nodeKind -> StitchAINodeIODescription? in
+                // Use node definitions, if available
+                if let graphNode = nodeKind.graphNode {
+                    return .init(graphNode)
+                }
+                
+                // Backup plan: create default node, extract data from there
+                guard let defaultNode = nodeKind.createDefaultNode(id: .init(),
+                                                             activeIndex: .init(.zero),
+                                                                   graphDelegate: nil) else {
+                    fatalErrorIfDebug()
+                    return nil
+                }
+                
+                let inputs: [StitchAIPortValueDescription] = defaultNode.inputsObservers.map { inputObserver in
+                    StitchAIPortValueDescription(label: inputObserver.label(),
+                                                 value: inputObserver.activeValue)
+                }
+                
+                let outputs: [StitchAIPortValueDescription] = defaultNode.outputsObservers.map { outputObserver in
+                    StitchAIPortValueDescription(label: outputObserver.label(),
+                                                 value: outputObserver.activeValue)
+                }
+                
+                return .init(nodeKind: nodeKind.asLLMStepNodeName,
+                             inputs: inputs,
+                             outputs: outputs)
+            }
+
+        self.header = section.description
+        self.nodes = nodesInSection
+    }
+}
+
+struct StitchAINodeIODescription: Encodable {
+    var nodeKind: String
+    var inputs: [StitchAIPortValueDescription]
+    var outputs: [StitchAIPortValueDescription]
+}
+
+extension StitchAINodeIODescription {
+    
+    
+    @MainActor
+    init(_ NodeInfo: any NodeDefinition.Type) {
+        self.nodeKind = NodeInfo.graphKind.kind.asLLMStepNodeName
+        let rowDefinitions = NodeInfo.rowDefinitions(for: NodeInfo.defaultUserVisibleType)
+        
+        self.inputs = rowDefinitions.inputs.map {
+            .init(label: $0.label,
+                  value: $0.defaultValues.first!)
+        }
+        
+        self.outputs = rowDefinitions.outputs.map {
+            .init(label: $0.label,
+                  value: $0.value)
+        }
+    }
+}
+
+struct StitchAIPortValueDescription {
+    var label: String
+    var value: PortValue
+}
+
+extension StitchAIPortValueDescription: Encodable {
+    enum CodingKeys: String, CodingKey {
+        case label
+        case nodeType
+        case value
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        let nodeType = self.value.toNodeType
+        
+        try container.encodeIfPresent(self.label != "" ? self.label : nil,
+                                      forKey: .label)
+        try container.encode(nodeType.asLLMStepNodeType,
+                             forKey: .nodeType)
+        try container.encode(self.value.anyCodable,
+                             forKey: .value)
+    }
+}
