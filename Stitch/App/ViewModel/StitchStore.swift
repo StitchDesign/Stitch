@@ -14,6 +14,9 @@ typealias StoreDelegate = StitchStore
 @Observable
 final class StitchStore: Sendable {
     
+    // For now, just for debug purposes
+    @MainActor var homescreenProjectSelectionState = HomescreenProjectSelectionState()
+    
     @MainActor var llmRecordingModeEnabled: Bool = false
     
     @MainActor var allProjectUrls = [ProjectLoader]()
