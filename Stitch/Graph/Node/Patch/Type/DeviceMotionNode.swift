@@ -54,7 +54,6 @@ extension CMRotationRate {
                 z: self.z)
     }
 }
-// just pulls from the state; has no inputs and can never be a loop
 
 // Returns PatchNode, ie we're only updating the patch node, not the state;
 // we're just READING FROM the state
@@ -64,12 +63,22 @@ func deviceMotionEval(node: PatchNode,
 
     //    log("deviceMotionEval called")
 
+    let defaultOutputs: PortValuesList = [
+        [boolDefaultFalse],
+        [point3DDefaultFalse],
+        [boolDefaultFalse],
+        [point3DDefaultFalse]
+    ]
+    
     var outputs = node.outputs
-
+    
     // RETRIEVE THE MOTION MANAGER FROM STATE
     guard let motionManager = state.motionManagers[node.id] else {
-        log("deviceMotionEval: Could not find motionManager for nodeId \(node.id)")
-        return .init(outputsValues: node.outputs)
+        // Catalyst does not support device motion; but iPad does, so we should crash on debug if iPad did not have the motion managers we expected
+        #if !targetEnvironment(macCatalyst)
+        fatalErrorIfDebug("deviceMotionEval: Could not find motionManager for nodeId \(node.id)")
+        #endif
+        return .init(outputsValues: defaultOutputs)
     }
 
     // LOOKING AT STATE AND UPDATING THE LAST TWO PORTS (ACCELERATION ENABLED AND ACCELERATION DATA)

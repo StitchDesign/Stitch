@@ -8,8 +8,6 @@
 import SwiftUI
 import StitchSchemaKit
 
-typealias NodeEntityDict = [NodeId: NodeEntity]
-
 @Observable
 final class VisibleNodesViewModel: Sendable {
     // Storage for view models
