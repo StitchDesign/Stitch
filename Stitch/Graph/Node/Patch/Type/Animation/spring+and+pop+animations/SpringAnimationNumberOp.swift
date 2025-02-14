@@ -12,6 +12,7 @@ import StitchSchemaKit
 // NOTE: Used by both pop and spring animation nodes.
 func springAnimationNumberOp(values: PortValues, // ie inputs and outputs
                              computedState: ComputedNodeState,
+                             graphTime: TimeInterval,
                              isPopAnimation: Bool) -> ImpureEvalOpResult {
         
     //    log("springAnimationNumberOp: eval called")
@@ -37,7 +38,7 @@ func springAnimationNumberOp(values: PortValues, // ie inputs and outputs
     let currentOutputIndex = isPopAnimation ? 3 : 4
     
     // i.e. current output
-    let position: Double = values[safe: currentOutputIndex]?.getNumber ?? toValue
+    let position: Double = graphTime.graphJustStarted ? toValue : values[safe: currentOutputIndex]?.getNumber ?? toValue
     
     //    log("springAnimationNumberOp: position: \(position)")
     //    log("springAnimationNumberOp: toValue: \(toValue)")

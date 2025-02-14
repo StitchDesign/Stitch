@@ -63,11 +63,13 @@ func popAnimationEval(node: PatchNode,
             return springAnimationNumberOp(
                     values: values,
                     computedState: computedState,
+                    graphTime: graphStepState.graphTime,
                     isPopAnimation: true)
         case .position:
             return springAnimationPositionOp(
                     values: values,
                     computedState: computedState,
+                    graphTime: graphStepState.graphTime,
                     isPopAnimation: true)
         default:
             fatalError()
