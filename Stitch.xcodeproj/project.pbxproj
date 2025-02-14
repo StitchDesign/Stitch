@@ -294,7 +294,6 @@
 		E41685E128A3FA5800731889 /* PreviewModel3DLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41685E028A3FA5800731889 /* PreviewModel3DLayer.swift */; };
 		E416861228A3FC9600731889 /* Vintage Toy Robot.usdz in Resources */ = {isa = PBXBuildFile; fileRef = E416860328A3FC9600731889 /* Vintage Toy Robot.usdz */; };
 		E419F3F72D40337400C169D4 /* EditBeforeSubmitModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E419F3F62D40337400C169D4 /* EditBeforeSubmitModalView.swift */; };
-		E419F3F92D4048A600C169D4 /* ProccessInfo+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E419F3F82D4048A600C169D4 /* ProccessInfo+Extension.swift */; };
 		E41A66B32BD2BB8E00385C9F /* LinearGradientNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41A66B22BD2BB8E00385C9F /* LinearGradientNode.swift */; };
 		E42AAE4C2D4844EE002D187D /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = E42AAE4B2D4844EE002D187D /* Sentry */; };
 		E42BA45D291C69C200EB7356 /* SIMDExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42BA45C291C69C200EB7356 /* SIMDExtensions.swift */; };
@@ -1250,7 +1249,6 @@
 		E41685E028A3FA5800731889 /* PreviewModel3DLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewModel3DLayer.swift; sourceTree = "<group>"; };
 		E416860328A3FC9600731889 /* Vintage Toy Robot.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = "Vintage Toy Robot.usdz"; sourceTree = "<group>"; };
 		E419F3F62D40337400C169D4 /* EditBeforeSubmitModalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditBeforeSubmitModalView.swift; sourceTree = "<group>"; };
-		E419F3F82D4048A600C169D4 /* ProccessInfo+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ProccessInfo+Extension.swift"; sourceTree = "<group>"; };
 		E41A66B22BD2BB8E00385C9F /* LinearGradientNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinearGradientNode.swift; sourceTree = "<group>"; };
 		E42BA45C291C69C200EB7356 /* SIMDExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SIMDExtensions.swift; sourceTree = "<group>"; };
 		E42C0D042D47F87A00AA2BB1 /* openAIRequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = openAIRequestTests.swift; sourceTree = "<group>"; };
@@ -3885,7 +3883,6 @@
 				E48A07912D38C528002E8A98 /* SupabaseManager.swift */,
 				E42CFD472D4414F10034CCFF /* Secrets.swift */,
 				E42CFD452D4413F90034CCFF /* secrets.json */,
-				E419F3F82D4048A600C169D4 /* ProccessInfo+Extension.swift */,
 			);
 			path = API;
 			sourceTree = "<group>";
@@ -5151,7 +5148,6 @@
 				ECA92A20260A6A1400281B52 /* CounterNode.swift in Sources */,
 				EC650BD926864DF200C4CCC9 /* SoundImportNode.swift in Sources */,
 				ECE08E432649D14D00996EE2 /* ScrollInteractionNode.swift in Sources */,
-				E419F3F92D4048A600C169D4 /* ProccessInfo+Extension.swift in Sources */,
 				ECF387D1280B5E560075F0E5 /* StitchTextView.swift in Sources */,
 				EC560E19293A9ACC00350046 /* LoopSumNode.swift in Sources */,
 				B5B95B982CB6D67A00DA64B3 /* StitchSystemViewModel.swift in Sources */,
