@@ -17,10 +17,12 @@ struct HomescreenProjectSelectionState: Equatable, Codable, Hashable {
 struct HomescreenProjectSelectionToggled: StitchStoreEvent {
 
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
-        store.homescreenProjectSelectionState.isSelecting.toggle()
-        if !store.homescreenProjectSelectionState.isSelecting {
-            // wipe selections
-            store.homescreenProjectSelectionState.selections = .init()
+        withAnimation(.linear(duration: 0.2)) {
+            store.homescreenProjectSelectionState.isSelecting.toggle()
+            if !store.homescreenProjectSelectionState.isSelecting {
+                // wipe selections
+                store.homescreenProjectSelectionState.selections = .init()
+            }
         }
         return .noChange
     }
@@ -30,10 +32,12 @@ struct ProjectTappedDuringHomescreenSelection:  StitchStoreEvent {
     let projectId: ProjectId
     
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
-        if store.homescreenProjectSelectionState.selections.contains(projectId) {
-            store.homescreenProjectSelectionState.selections.remove(projectId)
-        } else {
-            store.homescreenProjectSelectionState.selections.insert(projectId)
+        withAnimation(.linear(duration: 0.2)) {
+            if store.homescreenProjectSelectionState.selections.contains(projectId) {
+                store.homescreenProjectSelectionState.selections.remove(projectId)
+            } else {
+                store.homescreenProjectSelectionState.selections.insert(projectId)
+            }
         }
         return .noChange
     }
@@ -50,7 +54,9 @@ struct DeleteHomescreenSelectedProjects: StitchStoreEvent {
                 store.homescreenProjectSelectionState.selections.remove(selectedProject)
             }
         }
-        store.homescreenProjectSelectionState.isSelecting = false
+        withAnimation(.linear(duration: 0.2)) {
+            store.homescreenProjectSelectionState.isSelecting = false
+        }
         
         return .noChange
     }
