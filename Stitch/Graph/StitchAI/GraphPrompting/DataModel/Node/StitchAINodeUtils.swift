@@ -59,12 +59,39 @@ struct StitchAINodeSectionDescription: Encodable {
 extension StitchAINodeSectionDescription {
     @MainActor
     init(_ section: NodeSection) {
-        let nodesInSection: [any NodeDefinition.Type] = section
+        let nodesInSection: [StitchAINodeIODescription] = section
             .getNodesForSection()
-            .compactMap(\.graphNode)
+            .compactMap { nodeKind -> StitchAINodeIODescription? in
+                // Use node definitions, if available
+                if let graphNode = nodeKind.graphNode {
+                    return .init(graphNode)
+                }
+                
+                // Backup plan: create default node, extract data from there
+                guard let defaultNode = nodeKind.createDefaultNode(id: .init(),
+                                                             activeIndex: .init(.zero),
+                                                                   graphDelegate: nil) else {
+                    fatalErrorIfDebug()
+                    return nil
+                }
+                
+                let inputs: [StitchAIPortValueDescription] = defaultNode.inputsObservers.map { inputObserver in
+                    StitchAIPortValueDescription(label: inputObserver.label(),
+                                                 value: inputObserver.activeValue)
+                }
+                
+                let outputs: [StitchAIPortValueDescription] = defaultNode.outputsObservers.map { outputObserver in
+                    StitchAIPortValueDescription(label: outputObserver.label(),
+                                                 value: outputObserver.activeValue)
+                }
+                
+                return .init(nodeKind: nodeKind.asLLMStepNodeName,
+                             inputs: inputs,
+                             outputs: outputs)
+            }
 
         self.header = section.description
-        self.nodes = nodesInSection.map(StitchAINodeIODescription.init)
+        self.nodes = nodesInSection
     }
 }
 
@@ -75,6 +102,8 @@ struct StitchAINodeIODescription: Encodable {
 }
 
 extension StitchAINodeIODescription {
+    
+    
     @MainActor
     init(_ NodeInfo: any NodeDefinition.Type) {
         self.nodeKind = NodeInfo.graphKind.kind.asLLMStepNodeName
