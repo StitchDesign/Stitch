@@ -69,11 +69,13 @@ func springAnimationEval(node: PatchNode,
             springAnimationNumberOp(
                 values: values,
                 computedState: computedState,
+                graphTime: graphStepState.graphTime,
                 isPopAnimation: false)
         case .position:
             springAnimationPositionOp(
                 values: values,
                 computedState: computedState,
+                graphTime: graphStepState.graphTime,
                 isPopAnimation: false)
         default:
             fatalError()

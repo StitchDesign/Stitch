@@ -34,7 +34,7 @@ func classicAnimationEvalOpColor(values: PortValues,
 
     // Our current output is always the 'starting point'
     // of a given animation step.
-    let currentOutput: RGBA = values.last?.getColor?.asRGBA ?? RGBA(red: 0, green: 0, blue: 0, alpha: 1)
+    let currentOutput: RGBA = graphTime.graphJustStarted ? toValue : values.last?.getColor?.asRGBA ?? RGBA(red: 0, green: 0, blue: 0, alpha: 1)
 
     let equivalentRed = areEquivalent(n: currentOutput.red,
                                       n2: toValue.red)

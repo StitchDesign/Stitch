@@ -21,7 +21,7 @@ func classicAnimationEvalOpSize(values: PortValues,
 
     // Our current output is always the 'starting point'
     // of a given animation step.
-    let currentOutput: LayerSize = values.last?.getSize ?? .zero
+    let currentOutput: LayerSize = graphTime.graphJustStarted ? toValue : values.last?.getSize ?? .zero
     log("\n \n classicAnimationEvalOpSize: TOP: currentOutput: \(currentOutput)")
     
     let equivalentX = areEquivalent(n: currentOutput.width.asNumber,
