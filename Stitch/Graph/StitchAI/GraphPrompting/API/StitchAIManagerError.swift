@@ -11,10 +11,10 @@ import StitchSchemaKit
 enum StitchAIManagerError: Error {
     case documentNotFound(OpenAIRequest)
     case requestInProgress(OpenAIRequest)
-    case maxRetriesError(Int)
+    case maxRetriesError(Int, String)
     case invalidURL(OpenAIRequest)
     case jsonEncodingError(OpenAIRequest, Error)
-    case multipleTimeoutErrors(OpenAIRequest)
+    case multipleTimeoutErrors(OpenAIRequest, String)
     case requestCancelled(OpenAIRequest)
     case internetConnectionFailed(OpenAIRequest)
     case typeCasting
@@ -28,6 +28,7 @@ enum StitchAIManagerError: Error {
     case portValueDecodingError(String)
     case decodeObjectFromString(String, String)
     case structuredOutputsNotFound
+    case apiResponseError
 }
 
 extension StitchAIManagerError: CustomStringConvertible {
@@ -37,14 +38,14 @@ extension StitchAIManagerError: CustomStringConvertible {
             return ""
         case .requestInProgress:
             return "A request is already in progress. Skipping this request."
-        case .maxRetriesError(let maxRetries):
-            return "Request failed after \(maxRetries) attempts. Please check your internet connection and try again."
+        case .maxRetriesError(let maxRetries, let errorDescription):
+            return "Request failed after \(maxRetries) attempts. Last error:\n\(errorDescription)"
         case .invalidURL:
             return "Invalid URL"
         case .jsonEncodingError(_, let error):
             return "Error encoding JSON: \(error.localizedDescription)"
-        case .multipleTimeoutErrors:
-            return "Multiple timeout errors occurred. Please check your internet connection and try again later."
+        case .multipleTimeoutErrors(_, let errorDescription):
+            return "Stitch AI failed on multiple requests. Last captured error:\n\(errorDescription)"
         case .internetConnectionFailed:
             return "No internet connection. Please try again when your connection is restored."
         case .other(_, let error):
@@ -71,6 +72,8 @@ extension StitchAIManagerError: CustomStringConvertible {
             return "Unable to decode object from string: \(stringObject)\nError: \(errorResponse)"
         case .structuredOutputsNotFound:
             return "Structured outputs file wasn't found."
+        case .apiResponseError:
+            return "API returned non-successful status code."
         }
     }
 }

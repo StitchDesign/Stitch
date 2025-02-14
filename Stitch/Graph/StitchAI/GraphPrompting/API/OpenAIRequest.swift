@@ -114,7 +114,8 @@ extension StitchAIManager {
     
     /// Execute the API request with retry logic
     private func makeRequest(_ request: OpenAIRequest,
-                             attempt: Int = 1) async throws -> [StepTypeAction] {
+                             attempt: Int = 1,
+                             lastCapturedError: String? = nil) async throws -> [StepTypeAction] {
         let config = request.config
         let prompt = request.prompt
         let schema = request.schema
@@ -125,7 +126,7 @@ extension StitchAIManager {
             log("All StitchAI retry attempts exhausted")
             SentrySDK.capture(message: "All StitchAI retry attempts exhausted")
             
-            throw StitchAIManagerError.maxRetriesError(request.config.maxRetries)
+            throw StitchAIManagerError.maxRetriesError(request.config.maxRetries, lastCapturedError ?? "")
         }
         
         // Validate API URL
@@ -191,14 +192,15 @@ extension StitchAIManager {
                     log("Timeout error count: \(attempt)")
                     
                     if attempt > config.maxTimeoutErrors {
-                        throw StitchAIManagerError.multipleTimeoutErrors(request)
+                        throw StitchAIManagerError.multipleTimeoutErrors(request, error.localizedDescription)
                     }
                     
                     log("StitchAI Request timed out: \(error.localizedDescription)", .logToServer)
                     log("Retrying in \(config.retryDelay) seconds")
                     
                     return try await self.retryMakeRequest(request,
-                                                           currentAttempts: attempt)
+                                                           currentAttempts: attempt,
+                                                           lastError: error.localizedDescription)
                 }
                 
                 // Handle network connection errors
@@ -223,7 +225,8 @@ extension StitchAIManager {
                 log("Retrying in \(config.retryDelay) seconds")
                 
                 return try await self.retryMakeRequest(request,
-                                                       currentAttempts: attempt)
+                                                       currentAttempts: attempt,
+                                                       lastError: StitchAIManagerError.apiResponseError.description)
             }
         }
         
@@ -256,20 +259,24 @@ extension StitchAIManager {
         } catch let error as StitchAIManagerError {
             log("StitchAIManager error parsing steps: \(error.description)")
             return try await self.retryMakeRequest(request,
-                                                   currentAttempts: currentAttempt)
+                                                   currentAttempts: currentAttempt,
+                                                   lastError: error.description)
         } catch {
             log("StitchAIManager unknown error parsing steps: \(error.localizedDescription)")
             return try await self.retryMakeRequest(request,
-                                                   currentAttempts: currentAttempt)
+                                                   currentAttempts: currentAttempt,
+                                                   lastError: error.localizedDescription)
         }
     }
     
     private func retryMakeRequest(_ request: OpenAIRequest,
-                                  currentAttempts: Int) async throws -> [StepTypeAction] {
+                                  currentAttempts: Int,
+                                  lastError: String) async throws -> [StepTypeAction] {
         let config = request.config
         try await Task.sleep(nanoseconds: UInt64(config.retryDelay * Double(nanoSecondsInSecond)))
         return try await self.makeRequest(request,
-                                          attempt: currentAttempts + 1)
+                                          attempt: currentAttempts + 1,
+                                          lastCapturedError: lastError)
     }
     
     /// Process successfully parsed response data
