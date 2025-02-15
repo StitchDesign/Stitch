@@ -105,9 +105,10 @@ extension StitchDocumentViewModel {
             if currentMode == .augmentation {
                 print("📼 🤖 Augmentation mode - Skipping prompt modal and proceeding to save 🤖 📼")
                 self.closedLLMRecordingPrompt()
-            } else {
+            } else if !self.llmRecording.hasShownModalInNormalMode {
                 print("📼 📝 Opening LLM Recording Prompt Modal 📝 📼")
                 self.llmRecording.promptState.showModal = true
+                self.llmRecording.hasShownModalInNormalMode = true
                 self.graphUI.reduxFocusedField = .llmRecordingModal
             }
         }

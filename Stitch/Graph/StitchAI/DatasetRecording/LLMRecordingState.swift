@@ -43,6 +43,9 @@ struct LLMRecordingState: Equatable {
     // Are we actively recording redux-actions which we then turn into LLM-actions?
     var isRecording: Bool = false
     
+    // Track whether we've shown the modal in normal mode
+    var hasShownModalInNormalMode: Bool = false
+    
     // Do not create LLMActions while we are applying LLMActions
     var isApplyingActions: Bool = false
     
