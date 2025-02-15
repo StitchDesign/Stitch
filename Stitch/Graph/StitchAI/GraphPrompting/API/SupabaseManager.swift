@@ -99,7 +99,8 @@ extension StitchAIManager {
     // User had to edit/augment some actions created by the LLM;
     func uploadEditedActions(prompt: String,
                              finalActions: [Step],
-                             deviceUUID: String) async throws {
+                             deviceUUID: String,
+                             isCorrection: Bool) async throws {
         let wrapper = RecordingWrapper(
             prompt: prompt,
             actions: finalActions)
@@ -108,7 +109,7 @@ extension StitchAIManager {
         let payload = Payload(
             user_id: deviceUUID,
             actions: wrapper,
-            correction: true)
+            correction: isCorrection)
         
         log(" Uploading payload:")
         log("  - User ID: \(deviceUUID)")
