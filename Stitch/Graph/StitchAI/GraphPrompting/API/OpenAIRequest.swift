@@ -123,8 +123,7 @@ extension StitchAIManager {
         let systemPrompt = request.systemPrompt
         
         guard let document = self.documentDelegate else {
-            return []
-//            throw StitchAIManagerError.documentNotFound(.init(prompt: "")))
+            throw StitchAIManagerError.documentNotFound(request) 
         }
         document.llmRecording.recentOpenAIRequestCompleted = false
         
