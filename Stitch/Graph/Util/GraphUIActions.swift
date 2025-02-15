@@ -7,6 +7,7 @@
 
 import SwiftUI
 import StitchSchemaKit
+import OrderedCollections
 
 let MIN_GRAPH_SCALE: CGFloat = 0.1 // most zoomed out
 
@@ -249,17 +250,25 @@ func searchForNodes(by query: String,
     default: break
     }
     
-    // Regular search logic for all other cases
-    let filtered = searchOptions.filter { option in
-        // Your existing filter logic remains the same
-        let matchesContent = option.data.displayTitle.localizedCaseInsensitiveContains(trimmedQuery) ||
-        option.data.displayDescription.replacingOccurrences(of: "*", with: "")
+    // Split results into title matches and description matches
+    let titleMatches = searchOptions.filter { option in
+        option.data.displayTitle.localizedCaseInsensitiveContains(trimmedQuery)
+    }
+    
+    let descriptionMatches = searchOptions.filter { option in
+        option.data.displayDescription
+            .replacingOccurrences(of: "*", with: "")
             .replacingOccurrences(of: "/", with: "")
             .localizedCaseInsensitiveContains(trimmedQuery)
-            
-        if matchesContent { return true }
+    }
+    
+    // Using OrderedSet to handle duplicates
+    var results = OrderedSet(titleMatches + descriptionMatches)
+
+    // Check for text-based matches for remaining items
+    let textBasedMatches = searchOptions.filter { option in
+        guard !results.contains(option) else { return false }
         
-        // Check for text-based matches based on the node type
         if case .patch(let patchData) = option.data {
             switch patchData {
             case .add: return "add".hasPrefix(trimmedQuery) || "plus".hasPrefix(trimmedQuery)
@@ -271,22 +280,33 @@ func searchForNodes(by query: String,
             default: return false
             }
         }
-        
         return false
     }
     
-    // Sort results remain the same
-    return filtered.sorted { first, second in
+    results.append(contentsOf: textBasedMatches)
+    
+    // Sort items within their respective groups (title matches and description matches)
+    return results.sorted { first, second in
+        // First prioritize type of match (title vs description)
+        let firstInTitleMatches = titleMatches.contains(first)
+        let secondInTitleMatches = titleMatches.contains(second)
+        if firstInTitleMatches != secondInTitleMatches {
+            return firstInTitleMatches
+        }
+        
         let firstTitle = first.data.displayTitle.lowercased()
         let secondTitle = second.data.displayTitle.lowercased()
 
+        // Then exact matches
         if firstTitle == trimmedQuery { return true }
         if secondTitle == trimmedQuery { return false }
 
+        // Then prefix matches
         let firstStartsWithQuery = firstTitle.hasPrefix(trimmedQuery)
         let secondStartsWithQuery = secondTitle.hasPrefix(trimmedQuery)
         if firstStartsWithQuery != secondStartsWithQuery { return firstStartsWithQuery }
 
+        // Finally alphabetical
         return firstTitle < secondTitle
     }
 }
