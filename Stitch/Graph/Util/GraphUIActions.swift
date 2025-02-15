@@ -225,7 +225,21 @@ func searchForNodes(by query: String,
         return searchOptions
     }
 
-    // Handle exact symbol matches first
+    // Check for "when prototype" sequence first
+    // This needs to handle partial typing of the entire sequence
+    if trimmedQuery.hasPrefix("when") {
+        let targetPhrase = "when prototype start"
+        if targetPhrase.hasPrefix(trimmedQuery) {
+            // If what they typed is the start of our target phrase, show the node
+            if let prototypeStartNode = searchOptions.first(where: {
+                $0.data.displayTitle.lowercased().contains("on prototype start")
+            }) {
+                return [prototypeStartNode]
+            }
+        }
+    }
+
+    // Handle exact symbol matches next
     switch trimmedQuery {
     case "+": return [.init(data: .patch(.add))]
     case "-": return [.init(data: .patch(.subtract))]
@@ -235,15 +249,14 @@ func searchForNodes(by query: String,
     default: break
     }
     
-    // Single filter that handles all cases
+    // Regular search logic for all other cases
     let filtered = searchOptions.filter { option in
-        // Check the display title and description
+        // Your existing filter logic remains the same
         let matchesContent = option.data.displayTitle.localizedCaseInsensitiveContains(trimmedQuery) ||
         option.data.displayDescription.replacingOccurrences(of: "*", with: "")
             .replacingOccurrences(of: "/", with: "")
             .localizedCaseInsensitiveContains(trimmedQuery)
             
-        // If it already matches content, no need to check further
         if matchesContent { return true }
         
         // Check for text-based matches based on the node type
@@ -262,21 +275,18 @@ func searchForNodes(by query: String,
         return false
     }
     
-    // Sort results
+    // Sort results remain the same
     return filtered.sorted { first, second in
         let firstTitle = first.data.displayTitle.lowercased()
         let secondTitle = second.data.displayTitle.lowercased()
 
-        // Exact matches first
         if firstTitle == trimmedQuery { return true }
         if secondTitle == trimmedQuery { return false }
 
-        // Then prefix matches
         let firstStartsWithQuery = firstTitle.hasPrefix(trimmedQuery)
         let secondStartsWithQuery = secondTitle.hasPrefix(trimmedQuery)
         if firstStartsWithQuery != secondStartsWithQuery { return firstStartsWithQuery }
 
-        // Finally alphabetical
         return firstTitle < secondTitle
     }
 }
