@@ -21,8 +21,14 @@ struct ShowLLMApprovalModal: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
         log("ShowLLMApprovalModal called")
         
-        // Don't need to do this again here, since we've already done it whenever user edits the LLMAction list
-        // TODO: should not need to do this final application again, not really?
+        // Skip approval UI for normal mode
+        if state.llmRecording.mode == .normal {
+            // Directly submit to Supabase
+            dispatch(SubmitLLMActionsToSupabase())
+            return
+        }
+        
+        // For augmentation mode, continue with approval flow
         state.reapplyActions()
         
         // End recording when we open the final submit
