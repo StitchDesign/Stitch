@@ -7,6 +7,7 @@
 
 import SwiftUI
 import StitchSchemaKit
+import OrderedCollections
 
 let MIN_GRAPH_SCALE: CGFloat = 0.1 // most zoomed out
 
@@ -263,8 +264,8 @@ func searchForNodes(by query: String,
     }
     
     // Combine results with title matches first
-    var results = titleMatches + descriptionMatches
-    
+    var results = OrderedSet(titleMatches + descriptionMatches)
+
     // Check for text-based matches for remaining items
     let textBasedMatches = searchOptions.filter { option in
         guard !results.contains(option) else { return false }
