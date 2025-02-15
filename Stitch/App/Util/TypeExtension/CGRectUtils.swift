@@ -20,14 +20,6 @@ extension CGRect: Hashable {
         hasher.combine(size.width)
         hasher.combine(size.height)
     }
-
-    /// Helper from getting graph center.
-    func getGraphCenter(localPosition: CGPoint) -> CGPoint {
-        let frameCenter = CGPoint(
-            x: self.midX - localPosition.x,
-            y: self.midY - localPosition.y)
-        return adjustPositionToMultipleOf(frameCenter)
-    }
 }
 
 extension CGRect {

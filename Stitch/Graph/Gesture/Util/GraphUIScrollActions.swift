@@ -639,7 +639,7 @@ extension StitchDocumentViewModel {
          So if we were inside a group, we save not the group's graph-offset (graphState.localPosition), but the root graph-offset
          */
 
-        // log("GraphState.localPositionToPersists: self.localPosition: \(self.localPosition)")
+         log("GraphState.localPositionToPersists: self.localPosition: \(self.localPosition)")
 
         let _rootLevelGraphOffset = self.visibleGraph
             .visibleNodesViewModel
@@ -654,8 +654,8 @@ extension StitchDocumentViewModel {
 
         let graphOffset = self.graphUI.groupNodeFocused.isDefined ? rootLevelGraphOffset : self.localPosition
 
-        // log("GraphState.localPositionToPersists: rootLevelGraphOffset: \(rootLevelGraphOffset)")
-        // log("GraphState.localPositionToPersists: graphOffset: \(graphOffset)")
+         log("GraphState.localPositionToPersists: rootLevelGraphOffset: \(rootLevelGraphOffset)")
+         log("GraphState.localPositionToPersists: graphOffset: \(graphOffset)")
 
         // TODO: factor out zoom level
         
@@ -664,13 +664,21 @@ extension StitchDocumentViewModel {
         // UIScrollView's contentOffset is based on contentSize, which is a function zoomScale;
         // but we do not persist zoom;
         // so, we factor out the effect of zoom on contentOffset.
-        let scaledGraphOffset = CGPoint(x: graphOffset.x * 1/scale,
-                                        y: graphOffset.y * 1/scale)
         
-        // log("GraphState.localPositionToPersists: scale: \(scale)")
-        // log("GraphState.localPositionToPersists: scaledGraphOffset: \(scaledGraphOffset)")
+        let currentScale = scale
+        let currentOffset = graphOffset
+        log("GraphState.localPositionToPersists: currentScale: \(currentScale)")
+        log("GraphState.localPositionToPersists: currentOffset: \(currentOffset)")
         
-        return scaledGraphOffset
+        let scaleDiff = currentScale - 1 // 1 is the scale we open the graph with
+        let offsetAdjustment = scaleDiff * (WHOLE_GRAPH_LENGTH/2)
+        let offsetToPersist = currentOffset - offsetAdjustment
+        
+        log("GraphState.localPositionToPersists: scaleDiff: \(scaleDiff)")
+        log("GraphState.localPositionToPersists: offsetAdjustment: \(offsetAdjustment)")
+        log("GraphState.localPositionToPersists: offsetToPersist: \(offsetToPersist)")
+        
+        return offsetToPersist
     }
 
     @MainActor

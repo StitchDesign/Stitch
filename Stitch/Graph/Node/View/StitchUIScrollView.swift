@@ -176,8 +176,8 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         } // if let
                 
         if let zoomInAmount = document.graphUI.canvasZoomedIn.zoomAmount {
-            // log("StitchUIScrollView: ZOOM IN: uiView.zoomScale was: \(uiView.zoomScale)")
-            // log("StitchUIScrollView: ZOOM IN: uiView.contentOffset was: \(uiView.contentOffset)")
+            log("StitchUIScrollView: ZOOM IN: uiView.zoomScale was: \(uiView.zoomScale)")
+            log("StitchUIScrollView: ZOOM IN: uiView.contentOffset was: \(uiView.contentOffset)")
             
             // TODO: 'appropriate feeling' zoom step size is probably some non-linear curve, since zoom step size of 0.1 near max zoom-in level also feels bad (too small)
             if uiView.zoomScale < 0.3,
@@ -190,8 +190,8 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             }
             
             // Does zooming in automatically modify the contentOffset ?
-            // log("StitchUIScrollView: ZOOM IN: uiView.zoomScale is now: \(uiView.zoomScale)")
-            // log("StitchUIScrollView: ZOOM IN: uiView.contentOffset is now: \(uiView.contentOffset)")
+            log("StitchUIScrollView: ZOOM IN: uiView.zoomScale is now: \(uiView.zoomScale)")
+            log("StitchUIScrollView: ZOOM IN: uiView.contentOffset is now: \(uiView.contentOffset)")
             
             dispatch(GraphScrollDataUpdated(
                 newOffset: uiView.contentOffset,
@@ -209,8 +209,8 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         
         if let zoomOutAmount = document.graphUI.canvasZoomedOut.zoomAmount {
             
-            // log("StitchUIScrollView: ZOOM OUT: uiView.zoomScale was: \(uiView.zoomScale)")
-            // log("StitchUIScrollView: ZOOM OUT: uiView.contentOffset was: \(uiView.contentOffset)")
+            log("StitchUIScrollView: ZOOM OUT: uiView.zoomScale was: \(uiView.zoomScale)")
+            log("StitchUIScrollView: ZOOM OUT: uiView.contentOffset was: \(uiView.contentOffset)")
             if uiView.zoomScale < 0.3,
                document.graphUI.canvasZoomedOut == .shortcutKey {
                 uiView.zoomScale -= zoomOutAmount/4
@@ -220,8 +220,8 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
                 uiView.zoomScale -= zoomOutAmount
             }
             
-            // log("StitchUIScrollView: ZOOM OUT: uiView.zoomScale is now: \(uiView.zoomScale)")
-            // log("StitchUIScrollView: ZOOM OUT: uiView.contentOffset is now: \(uiView.contentOffset)")
+            log("StitchUIScrollView: ZOOM OUT: uiView.zoomScale is now: \(uiView.zoomScale)")
+            log("StitchUIScrollView: ZOOM OUT: uiView.contentOffset is now: \(uiView.contentOffset)")
             
             dispatch(GraphScrollDataUpdated(
                 newOffset: uiView.contentOffset,
