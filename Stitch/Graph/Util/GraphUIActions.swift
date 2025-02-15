@@ -253,17 +253,16 @@ func searchForNodes(by query: String,
     // Split results into title matches and description matches
     let titleMatches = searchOptions.filter { option in
         option.data.displayTitle.localizedCaseInsensitiveContains(trimmedQuery)
-    }   
+    }
     
     let descriptionMatches = searchOptions.filter { option in
-        !titleMatches.contains(option) && // Exclude nodes that already matched by title
         option.data.displayDescription
             .replacingOccurrences(of: "*", with: "")
             .replacingOccurrences(of: "/", with: "")
             .localizedCaseInsensitiveContains(trimmedQuery)
     }
     
-    // Combine results with title matches first
+    // Using OrderedSet to handle duplicates
     var results = OrderedSet(titleMatches + descriptionMatches)
 
     // Check for text-based matches for remaining items
