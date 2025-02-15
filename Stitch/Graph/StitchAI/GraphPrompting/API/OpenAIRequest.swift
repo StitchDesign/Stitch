@@ -126,7 +126,7 @@ extension StitchAIManager {
             return []
 //            throw StitchAIManagerError.documentNotFound(.init(prompt: "")))
         }
-        document.llmRecording.recentOpenAIRequestCompleted = true
+        document.llmRecording.recentOpenAIRequestCompleted = false
         
         // Check if we've exceeded retry attempts
         guard attempt <= config.maxRetries else {
