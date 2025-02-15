@@ -113,6 +113,7 @@ extension StitchAIManager {
     }
     
     /// Execute the API request with retry logic
+    @MainActor
     private func makeRequest(_ request: OpenAIRequest,
                              attempt: Int = 1,
                              lastCapturedError: String? = nil) async throws -> [StepTypeAction] {
@@ -120,6 +121,11 @@ extension StitchAIManager {
         let prompt = request.prompt
         let schema = request.schema
         let systemPrompt = request.systemPrompt
+        
+        guard let document = self.documentDelegate else {
+            throw StitchAIManagerError.documentNotFound(request) 
+        }
+        document.llmRecording.recentOpenAIRequestCompleted = false
         
         // Check if we've exceeded retry attempts
         guard attempt <= config.maxRetries else {
@@ -240,6 +246,9 @@ extension StitchAIManager {
     private func convertResponseToStepActions(_ request: OpenAIRequest,
                                               data: Data,
                                               currentAttempt: Int) async throws -> [StepTypeAction] {
+        
+        
+        
         // Try to parse request
         // log raw JSON response
         let jsonResponse = String(data: data, encoding: .utf8) ?? "Invalid JSON format"
@@ -306,6 +315,8 @@ extension StitchAIManager {
         document.llmRecording.promptState.prompt = originalPrompt
         
         document.validateAndApplyActions(steps)
+        
+        document.llmRecording.recentOpenAIRequestCompleted = true
     }
 }
 

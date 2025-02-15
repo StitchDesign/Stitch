@@ -31,8 +31,20 @@ enum LLMRecordinModal: Equatable, Hashable {
 
 struct LLMRecordingState: Equatable {
     
+    var recentOpenAIRequestCompleted: Bool = false {
+        didSet {
+            // When a request is completed and we're recording, switch to augmentation mode
+            if recentOpenAIRequestCompleted && isRecording {
+                mode = .augmentation
+            }
+        }
+    }
+    
     // Are we actively recording redux-actions which we then turn into LLM-actions?
     var isRecording: Bool = false
+    
+    // Track whether we've shown the modal in normal mode
+    var hasShownModalInNormalMode: Bool = false
     
     // Do not create LLMActions while we are applying LLMActions
     var isApplyingActions: Bool = false
@@ -70,7 +82,7 @@ struct LLMRecordingState: Equatable {
     // Also serves as source of truth for which nodes (ids) have been created by
 
     // Alternatively: use a stored var that is updated by `self.actions`'s `didSet`
-    // Note: it's okay for this just to be patch nodes and entire layer nodes; any layer inputs from an AI-created layer node will be 'blue' 
+    // Note: it's okay for this just to be patch nodes and entire layer nodes; any layer inputs from an AI-created layer node will be 'blue'
     var nodeIdToNameMapping: [NodeId: PatchOrLayer] = .init()
     
 }
@@ -228,7 +240,7 @@ struct LLMJsonEntryState: Equatable {
     var jsonEntry: String = ""
     
     // Mapping of LLM node ids (e.g. "123456") to the id created
-    // TODO: no longer needed, since LLM now provides real UUIDs which we use with the node? 
+    // TODO: no longer needed, since LLM now provides real UUIDs which we use with the node?
     var llmNodeIdMapping = LLMNodeIdMapping()
 }
 
