@@ -95,7 +95,6 @@ struct AddNodeButtonPressed: GraphEvent {
             // Create the real node, but hide it until animation has completed.
             // (Versus the "animated node" which is really just a NodeView created from activeSelection.)
             guard let node = state.documentDelegate?.nodeCreated(choice: nodeKind) else {
-                fatalErrorIfDebug()
                 return
             }
             

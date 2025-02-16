@@ -110,6 +110,9 @@ enum StitchFileError: Error {
     case customError(_ message: String)
     // Unexpected error
     case unknownError(_ message: String)
+    case realityNodeExists
+    case cameraNodeExists
+    
 }
 
 extension StitchFileError: CustomStringConvertible {
@@ -211,6 +214,10 @@ extension StitchFileError: CustomStringConvertible {
             return "Stitch was unable to duplicate this project."
         case .cameraDeviceNotFound:
             return "There was an issue finding your camera device. Check your camera in application settings and try again."
+        case .realityNodeExists:
+            return "You can only have one CameraFeed or RealityView in a project."
+        case .cameraNodeExists:
+            return "You can only have one CameraFeed or RealityView in a project."
         case .customError(let message):
             return message
         }
