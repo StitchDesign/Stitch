@@ -86,7 +86,6 @@ struct AddNodeButtonPressed: GraphEvent {
         // Immediately create a LayerNode; do not animate.
         if nodeKind.isLayer {
             guard let newNode = state.documentDelegate?.nodeCreated(choice: nodeKind) else {
-                fatalErrorIfDebug() // should not fail to return
                 return
             }
             state.nodeCreationCompleted(newNode.id)
