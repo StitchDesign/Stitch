@@ -81,12 +81,12 @@ extension StitchDocumentViewModel {
         // Check for reality and camera nodes
         if case .layer(.realityView) = choice {
             if hasCameraNode() || hasRealityNode(){
-                dispatch(ReceivedStitchFileError(error: .realityNodeExists))
+                dispatch(ReceivedStitchFileError(error: .cameraBasedNodeExists))
                 return nil
             }
         } else if case .patch(.cameraFeed) = choice {
             if hasRealityNode() || hasCameraNode() {
-                dispatch(ReceivedStitchFileError(error: .cameraNodeExists))
+                dispatch(ReceivedStitchFileError(error: .cameraBasedNodeExists))
                 return nil
             }
         }
