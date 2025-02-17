@@ -389,7 +389,7 @@ struct StepActionSetInput: StepActionable {
                 OpenAISchema(type: .boolean),
                 OpenAISchema(type: .object)
               ]),
-              valueType: OpenAISchemaRef(ref: "NodeType")
+              valueType: OpenAISchemaRef(ref: "ValueType")
         )
     }
     
