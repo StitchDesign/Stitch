@@ -16,15 +16,43 @@ import SwiftyJSON
 //}
 
 
-struct StitchAIStructeredOutputsWrapper: Encodable {
-    var defs: [StitchAIStructeredOutputs]
+struct StitchAIStructeredOutputsPayload {
+    var defs: StitchAIStructeredOutputs = .init()
 }
 
 struct StitchAIStructeredOutputs: Encodable {
-    var AddNodeAction: StepStructeredOutputs
+    // Step actions
+    let AddNodeAction = StepStructeredOutputs(StepActionAddNode.self)
+    let ConnectNodesAction = StepStructeredOutputs(StepActionConnectionAdded.self)
+    let ChangeValueTypeAction = StepStructeredOutputs(StepActionChangeValueType.self)
+    let SetInputAction = StepStructeredOutputs(StepActionSetInput.self)
+    let AddLayerInputAction = StepStructeredOutputs(StepActionAddLayerInput.self)
     
-    init() {
-        self.AddNodeAction = StepStructeredOutputs(StepActionAddNode.self)
+    // Types
+    let NodeID = OpenAISchema(type: .string,
+                              description: "The unique identifier for the node (UUID)")
+    let NodeName = OpenAISchemaEnum(values: NodeKind.getAiNodeDescriptions().map(\.nodeKind))
+}
+
+//enum StitchAIStructeredOutputs: String, CodingKey {
+//    case AddNodeAction
+//    case ConnectNodesAction
+//    case ChangeValueTypeAction
+//    case SetInputAction
+//    case AddLayerInputAction
+//    case NodeID
+//    case NodeName
+//}
+
+extension StitchAIStructeredOutputsPayload: Encodable {
+    enum CodingKeys: String, CodingKey {
+        case defs = "$defs"
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        try container.encode(self.defs, forKey: .defs)
     }
 }
 
@@ -32,10 +60,13 @@ struct StepStructeredOutputs: OpenAISchemaCustomizable {
     var properties: StitchAIStepSchema?
     var schema: OpenAISchema
     
-    init<T>(_ stepActionType: T) where T: StepActionable {
+    init<T>(_ stepActionType: T.Type) where T: StepActionable {
+        let requiredProps = T.structeredOutputsCodingKeys.map { $0.rawValue }
+        
         self.properties = T.createStructeredOutputs()
-        
-        
+        self.schema = .init(type: .object,
+                            required: requiredProps,
+                            additionalPropertes: false)
     }
     
     init(properties: StitchAIStepSchema?, schema: OpenAISchema) {
@@ -118,22 +149,41 @@ struct OpenAISchema {
     var const: String? = nil
     var required: [String]? = nil
     var additionalPropertes: Bool? = nil
+    var description: String? = nil
 }
 
 extension OpenAISchema: Encodable {
     enum CodingKeys: String, CodingKey {
         case type
+        case description
         case const
         case required
         case additionalPropertes
+        case enumType = "enum"
     }
     
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(self.type, forKey: .type)
+        try container.encodeIfPresent(self.description, forKey: .description)
         try container.encodeIfPresent(self.const, forKey: .const)
         try container.encodeIfPresent(self.required, forKey: .required)
         try container.encodeIfPresent(self.additionalPropertes, forKey: .additionalPropertes)
+    }
+}
+
+struct OpenAISchemaEnum: Encodable {
+    var values: [String]
+    
+    enum CodingKeys: String, CodingKey {
+        case type
+        case enumType = "enum"
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(OpenAISchemaType.string, forKey: .type)
+        try container.encode(self.values, forKey: .enumType)
     }
 }
 

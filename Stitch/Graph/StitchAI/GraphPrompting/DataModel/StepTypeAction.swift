@@ -184,10 +184,13 @@ func calculateAINodesAdjacency(_ actions: [StepTypeAction]) -> (depthMap: [UUID:
 
 protocol StepActionable: Hashable, Codable {
     static var stepType: StepType { get }
-    
+        
     static func fromStep(_ action: Step) throws -> Self
     
     static func createStructeredOutputs() -> StitchAIStepSchema
+    
+    /// Lists each property tracked in OpenAI's structered outputs.
+    static var structeredOutputsCodingKeys: Set<Step.CodingKeys> { get }
 }
 
 // See `createLLMStepAddNode`
@@ -219,6 +222,8 @@ struct StepActionAddNode: StepActionable {
               valueType: OpenAISchemaRef(ref: "ValueType")
         )
     }
+    
+    static let structeredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .nodeName, .valueType]
 }
 
 // See `createLLMStepAddLayerInput`
@@ -254,6 +259,8 @@ struct StepActionAddLayerInput: StepActionable {
                                   ref: OpenAISchemaRef(ref: "LayerPorts"))
               )
     }
+    
+    static let structeredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .port]
 }
 
 // See `createLLMStepConnectionAdded`
@@ -302,6 +309,8 @@ struct StepActionConnectionAdded: StepActionable {
               toNodeId: OpenAISchema(type: .string)
         )
     }
+    
+    static let structeredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .port, .fromPort, .fromNodeId, .toNodeId]
 }
 
 // See: `createLLMStepChangeValueType`
@@ -333,6 +342,8 @@ struct StepActionChangeValueType: StepActionable {
               valueType: OpenAISchemaRef(ref: "ValueType")
         )
     }
+    
+    static let structeredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .valueType]
 }
 
 // See: `createLLMStepSetInput`
@@ -381,5 +392,7 @@ struct StepActionSetInput: StepActionable {
               valueType: OpenAISchemaRef(ref: "NodeType")
         )
     }
+    
+    static let structeredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .port, .value, .valueType]
 }
 
