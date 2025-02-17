@@ -23,7 +23,7 @@ struct StitchAIStructuredOutputsSchema: OpenAISchemaCustomizable {
     
     var schema = OpenAISchema(type: .object,
                               required: ["steps"],
-                              additionalPropertes: false,
+                              additionalProperties: false,
                               title: "VisualProgrammingActions")
 }
 
@@ -75,7 +75,7 @@ struct StepStructuredOutputs: OpenAISchemaCustomizable {
         self.properties = T.createStructuredOutputs()
         self.schema = .init(type: .object,
                             required: requiredProps,
-                            additionalPropertes: false)
+                            additionalProperties: false)
     }
     
     init(properties: StitchAIStepSchema,
@@ -130,11 +130,11 @@ extension OpenAISchemaCustomizable {
          properties: Self.PropertiesType,
          const: String? = nil,
          required: [String]? = nil,
-         additionalPropertes: Bool? = nil) {
+         additionalProperties: Bool? = nil) {
         let schema = OpenAISchema(type: type,
                                   const: const,
                                   required: required,
-                                  additionalPropertes: additionalPropertes)
+                                  additionalProperties: additionalProperties)
         self.init(properties: properties,
                   schema: schema)
     }
@@ -180,7 +180,7 @@ struct OpenAISchema {
     var type: OpenAISchemaType
     var const: String? = nil
     var required: [String]? = nil
-    var additionalPropertes: Bool? = nil
+    var additionalProperties: Bool? = nil
     var title: String? = nil
     var description: String? = nil
     var items: OpenAIGeneric? = nil
@@ -193,7 +193,7 @@ extension OpenAISchema: Encodable {
         case description
         case const
         case required
-        case additionalPropertes
+        case additionalProperties
         case items
     }
     
@@ -203,7 +203,7 @@ extension OpenAISchema: Encodable {
         try container.encodeIfPresent(self.description, forKey: .description)
         try container.encodeIfPresent(self.const, forKey: .const)
         try container.encodeIfPresent(self.required, forKey: .required)
-        try container.encodeIfPresent(self.additionalPropertes, forKey: .additionalPropertes)
+        try container.encodeIfPresent(self.additionalProperties, forKey: .additionalProperties)
         try container.encodeIfPresent(self.items, forKey: .items)
         try container.encodeIfPresent(self.title, forKey: .title)
     }

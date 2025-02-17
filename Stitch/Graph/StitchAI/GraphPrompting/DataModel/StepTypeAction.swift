@@ -302,7 +302,7 @@ struct StepActionConnectionAdded: StepActionable {
     
     static func createStructuredOutputs() -> StitchAIStepSchema {
         .init(stepType: .connectNodes,
-              port: OpenAIGeneric(types: [OpenAISchema(type: .string)],
+              port: OpenAIGeneric(types: [OpenAISchema(type: .integer)],
                                   refs: [OpenAISchemaRef(ref: "LayerPorts")]),
               fromPort: OpenAISchema(type: .integer),
               fromNodeId: OpenAISchema(type: .string),
