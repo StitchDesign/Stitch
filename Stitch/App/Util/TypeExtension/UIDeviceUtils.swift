@@ -352,8 +352,6 @@ extension UIDevice {
         sysctlbyname("hw.model", &model, &size, nil, 0)
         let modelIdentifier = String(cString: model)
 
-        print("DEBUG: Detected Mac Model: \(modelIdentifier)") // ✅ Debugging
-
         let modelMap: [String: DeviceModel] = [
             // Mac Mini
             "Mac13,1": .MacMini,
@@ -384,10 +382,7 @@ extension UIDevice {
             "Mac13,3": .MacPro
             
         ]
-
-        return modelMap[modelIdentifier] ?? .Mac 
+        return modelMap[modelIdentifier] ?? .Mac
     }
 
 }
-
-
