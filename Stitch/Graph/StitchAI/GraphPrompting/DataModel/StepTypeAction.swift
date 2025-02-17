@@ -186,6 +186,8 @@ protocol StepActionable: Hashable, Codable {
     static var stepType: StepType { get }
     
     static func fromStep(_ action: Step) throws -> Self
+    
+    static func createStructeredOutputs() -> StitchAIStepSchema
 }
 
 // See `createLLMStepAddNode`
@@ -208,6 +210,14 @@ struct StepActionAddNode: StepActionable {
                          nodeName: nodeKind)
         }
         throw StitchAIManagerError.stepDecoding(Self.stepType, action)
+    }
+    
+    static func createStructeredOutputs() -> StitchAIStepSchema {
+        .init(stepType: .addNode,
+              nodeId: OpenAISchema(type: .string),
+              nodeName: OpenAISchemaRef(ref: "NodeName"),
+              valueType: OpenAISchemaRef(ref: "ValueType")
+        )
     }
 }
 
@@ -235,6 +245,14 @@ struct StepActionAddLayerInput: StepActionable {
         
         return .init(nodeId: nodeId,
                      port: layerInput)
+    }
+    
+    static func createStructeredOutputs() -> StitchAIStepSchema {
+        .init(stepType: .addLayerInput,
+              nodeId: OpenAISchema(type: .string),
+              port: OpenAIGeneric(types: [OpenAISchema(type: .integer)],
+                                  ref: OpenAISchemaRef(ref: "LayerPorts"))
+              )
     }
 }
 
@@ -274,6 +292,16 @@ struct StepActionConnectionAdded: StepActionable {
                      fromPort: fromPort,
                      fromNodeId: fromNodeId)
     }
+    
+    static func createStructeredOutputs() -> StitchAIStepSchema {
+        .init(stepType: .connectNodes,
+              port: OpenAIGeneric(types: [OpenAISchema(type: .string)],
+                                  ref: OpenAISchemaRef(ref: "LayerPorts")),
+              fromPort: OpenAISchema(type: .integer),
+              fromNodeId: OpenAISchema(type: .string),
+              toNodeId: OpenAISchema(type: .string)
+        )
+    }
 }
 
 // See: `createLLMStepChangeValueType`
@@ -297,6 +325,13 @@ struct StepActionChangeValueType: StepActionable {
         }
         
         throw StitchAIManagerError.stepDecoding(Self.stepType, action)
+    }
+    
+    static func createStructeredOutputs() -> StitchAIStepSchema {
+        .init(stepType: .changeValueType,
+              nodeId: OpenAISchema(type: .string),
+              valueType: OpenAISchemaRef(ref: "ValueType")
+        )
     }
 }
 
@@ -330,6 +365,21 @@ struct StepActionSetInput: StepActionable {
         }
         
         throw StitchAIManagerError.stepDecoding(Self.stepType, action)
+    }
+    
+    static func createStructeredOutputs() -> StitchAIStepSchema {
+        .init(stepType: .setInput,
+              nodeId: OpenAISchema(type: .string),
+              port: OpenAIGeneric(types: [OpenAISchema(type: .integer)],
+                                  ref: OpenAISchemaRef(ref: "LayerPorts")),
+              value: OpenAIGeneric(types: [
+                OpenAISchema(type: .number),
+                OpenAISchema(type: .string),
+                OpenAISchema(type: .boolean),
+                OpenAISchema(type: .object)
+              ]),
+              valueType: OpenAISchemaRef(ref: "NodeType")
+        )
     }
 }
 
