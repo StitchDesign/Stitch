@@ -9,13 +9,13 @@ import SwiftUI
 import StitchSchemaKit
 
 struct StitchAISchemaMeta: Encodable {
-    let nodeTypes: [StitchAISchemaNodeType]
+    let valueTypes: [StitchAISchemaNodeType]
 }
 
 extension StitchAISchemaMeta {
     static func createSchema() -> Self {
-        let nodeTypes = NodeType.allCases.filter { $0 != .none }
-        let schema = StitchAISchemaMeta(nodeTypes: nodeTypes.map { .init(type: $0) })
+        let valueTypes = NodeType.allCases.filter { $0 != .none }
+        let schema = StitchAISchemaMeta(valueTypes: valueTypes.map { .init(type: $0) })
         return schema
     }
 }

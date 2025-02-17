@@ -36,7 +36,6 @@ struct OpenAIRequest {
     private let OPEN_AI_BASE_URL = "https://api.openai.com/v1/chat/completions"
     let prompt: String             // User's input prompt
     let systemPrompt: String       // System-level instructions loaded from file
-    let schema: JSON              // JSON schema for response validation
     let config: OpenAIRequestConfig // Request configuration settings
     
     /// Initialize a new request with prompt and optional configuration
@@ -49,16 +48,6 @@ struct OpenAIRequest {
         // Load system prompt from bundled file
         let loadedPrompt = try StitchAIManager.systemPrompt()
         self.systemPrompt = loadedPrompt
-        
-        // Load JSON schema for response validationç
-        guard let jsonFilePath = Bundle.main.path(forResource: "StitchStructuredOutputSchema",
-                                                  ofType: "json") else {
-            throw StitchAIManagerError.structuredOutputsNotFound
-        }
-        
-        let data = try Data(contentsOf: URL(fileURLWithPath: jsonFilePath))
-        let loadedSchema = JSON(data)
-        self.schema = loadedSchema
     }
 }
 
@@ -117,9 +106,11 @@ extension StitchAIManager {
     private func makeRequest(_ request: OpenAIRequest,
                              attempt: Int = 1,
                              lastCapturedError: String? = nil) async throws -> [StepTypeAction] {
+        let structuredOutputs = StitchAIStructuredOutputsPayload()
+        let encodedStructuredOutputs = JSON(try JSONEncoder().encode(structuredOutputs))
+
         let config = request.config
         let prompt = request.prompt
-        let schema = request.schema
         let systemPrompt = request.systemPrompt
         
         guard let document = self.documentDelegate else {
@@ -157,11 +148,11 @@ extension StitchAIManager {
                 "type": "json_schema",
                 "json_schema": [
                     "name": "VisualProgrammingActions",
-                    "schema": schema.object
+                    "schema": encodedStructuredOutputs.object
                 ]
             ],
             "messages": [
-                ["role": "system", "content": systemPrompt + "Make sure your response follows this schema: \(String(describing: schema.string))"],
+                ["role": "system", "content": systemPrompt + "Make sure your response follows this schema: \(encodedStructuredOutputs.stringValue)"],
                 ["role": "user", "content": prompt]
             ]
         ]
