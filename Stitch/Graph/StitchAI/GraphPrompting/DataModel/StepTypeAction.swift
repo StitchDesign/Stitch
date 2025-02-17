@@ -187,10 +187,10 @@ protocol StepActionable: Hashable, Codable {
         
     static func fromStep(_ action: Step) throws -> Self
     
-    static func createStructeredOutputs() -> StitchAIStepSchema
+    static func createStructuredOutputs() -> StitchAIStepSchema
     
-    /// Lists each property tracked in OpenAI's structered outputs.
-    static var structeredOutputsCodingKeys: Set<Step.CodingKeys> { get }
+    /// Lists each property tracked in OpenAI's structured outputs.
+    static var structuredOutputsCodingKeys: Set<Step.CodingKeys> { get }
 }
 
 // See `createLLMStepAddNode`
@@ -215,7 +215,7 @@ struct StepActionAddNode: StepActionable {
         throw StitchAIManagerError.stepDecoding(Self.stepType, action)
     }
     
-    static func createStructeredOutputs() -> StitchAIStepSchema {
+    static func createStructuredOutputs() -> StitchAIStepSchema {
         .init(stepType: .addNode,
               nodeId: OpenAISchema(type: .string),
               nodeName: OpenAISchemaRef(ref: "NodeName"),
@@ -223,7 +223,7 @@ struct StepActionAddNode: StepActionable {
         )
     }
     
-    static let structeredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .nodeName, .valueType]
+    static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .nodeName, .valueType]
 }
 
 // See `createLLMStepAddLayerInput`
@@ -252,7 +252,7 @@ struct StepActionAddLayerInput: StepActionable {
                      port: layerInput)
     }
     
-    static func createStructeredOutputs() -> StitchAIStepSchema {
+    static func createStructuredOutputs() -> StitchAIStepSchema {
         .init(stepType: .addLayerInput,
               nodeId: OpenAISchema(type: .string),
               port: OpenAIGeneric(types: [OpenAISchema(type: .integer)],
@@ -260,7 +260,7 @@ struct StepActionAddLayerInput: StepActionable {
               )
     }
     
-    static let structeredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .port]
+    static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .port]
 }
 
 // See `createLLMStepConnectionAdded`
@@ -300,7 +300,7 @@ struct StepActionConnectionAdded: StepActionable {
                      fromNodeId: fromNodeId)
     }
     
-    static func createStructeredOutputs() -> StitchAIStepSchema {
+    static func createStructuredOutputs() -> StitchAIStepSchema {
         .init(stepType: .connectNodes,
               port: OpenAIGeneric(types: [OpenAISchema(type: .string)],
                                   refs: [OpenAISchemaRef(ref: "LayerPorts")]),
@@ -310,7 +310,7 @@ struct StepActionConnectionAdded: StepActionable {
         )
     }
     
-    static let structeredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .port, .fromPort, .fromNodeId, .toNodeId]
+    static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .port, .fromPort, .fromNodeId, .toNodeId]
 }
 
 // See: `createLLMStepChangeValueType`
@@ -336,14 +336,14 @@ struct StepActionChangeValueType: StepActionable {
         throw StitchAIManagerError.stepDecoding(Self.stepType, action)
     }
     
-    static func createStructeredOutputs() -> StitchAIStepSchema {
+    static func createStructuredOutputs() -> StitchAIStepSchema {
         .init(stepType: .changeValueType,
               nodeId: OpenAISchema(type: .string),
               valueType: OpenAISchemaRef(ref: "ValueType")
         )
     }
     
-    static let structeredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .valueType]
+    static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .valueType]
 }
 
 // See: `createLLMStepSetInput`
@@ -378,7 +378,7 @@ struct StepActionSetInput: StepActionable {
         throw StitchAIManagerError.stepDecoding(Self.stepType, action)
     }
     
-    static func createStructeredOutputs() -> StitchAIStepSchema {
+    static func createStructuredOutputs() -> StitchAIStepSchema {
         .init(stepType: .setInput,
               nodeId: OpenAISchema(type: .string),
               port: OpenAIGeneric(types: [OpenAISchema(type: .integer)],
@@ -393,6 +393,6 @@ struct StepActionSetInput: StepActionable {
         )
     }
     
-    static let structeredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .port, .value, .valueType]
+    static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .port, .value, .valueType]
 }
 

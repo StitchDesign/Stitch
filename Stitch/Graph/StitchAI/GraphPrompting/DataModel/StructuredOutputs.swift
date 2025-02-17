@@ -1,5 +1,5 @@
 //
-//  StructeredOutputs.swift
+//  StructuredOutputs.swift
 //  Stitch
 //
 //  Created by Elliot Boschwitz on 2/16/25.
@@ -9,22 +9,16 @@ import SwiftUI
 import StitchSchemaKit
 import SwiftyJSON
 
-//extension StitchAIManager {
-//    static func createStructeredOutputs() -> StitchAIStructeredOutputsWrapper {
-//        
-//    }
-//}
-
 extension StitchAIManager {
-    static let structuredOutputs = StitchAIStructeredOutputsPayload()
+    static let structuredOutputs = StitchAIStructuredOutputsPayload()
 }
 
-struct StitchAIStructeredOutputsPayload: OpenAISchemaDefinable {
-    var defs = StitchAIStructeredOutputsDefinitions()
-    var schema = StitchAIStructeredOutputsSchema()
+struct StitchAIStructuredOutputsPayload: OpenAISchemaDefinable {
+    var defs = StitchAIStructuredOutputsDefinitions()
+    var schema = StitchAIStructuredOutputsSchema()
 }
 
-struct StitchAIStructeredOutputsSchema: OpenAISchemaCustomizable {
+struct StitchAIStructuredOutputsSchema: OpenAISchemaCustomizable {
     var properties = StitchAIStepsSchema()
     
     var schema = OpenAISchema(type: .object,
@@ -33,13 +27,13 @@ struct StitchAIStructeredOutputsSchema: OpenAISchemaCustomizable {
                               title: "VisualProgrammingActions")
 }
 
-struct StitchAIStructeredOutputsDefinitions: Encodable {
+struct StitchAIStructuredOutputsDefinitions: Encodable {
     // Step actions
-    let AddNodeAction = StepStructeredOutputs(StepActionAddNode.self)
-    let ConnectNodesAction = StepStructeredOutputs(StepActionConnectionAdded.self)
-    let ChangeValueTypeAction = StepStructeredOutputs(StepActionChangeValueType.self)
-    let SetInputAction = StepStructeredOutputs(StepActionSetInput.self)
-    let AddLayerInputAction = StepStructeredOutputs(StepActionAddLayerInput.self)
+    let AddNodeAction = StepStructuredOutputs(StepActionAddNode.self)
+    let ConnectNodesAction = StepStructuredOutputs(StepActionConnectionAdded.self)
+    let ChangeValueTypeAction = StepStructuredOutputs(StepActionChangeValueType.self)
+    let SetInputAction = StepStructuredOutputs(StepActionSetInput.self)
+    let AddLayerInputAction = StepStructuredOutputs(StepActionAddLayerInput.self)
     
     // Types
     let NodeID = OpenAISchema(type: .string,
@@ -71,14 +65,14 @@ struct StitchAIStepsSchema: Encodable {
     )
 }
 
-struct StepStructeredOutputs: OpenAISchemaCustomizable {
+struct StepStructuredOutputs: OpenAISchemaCustomizable {
     var properties: StitchAIStepSchema
     var schema: OpenAISchema
     
     init<T>(_ stepActionType: T.Type) where T: StepActionable {
-        let requiredProps = T.structeredOutputsCodingKeys.map { $0.rawValue }
+        let requiredProps = T.structuredOutputsCodingKeys.map { $0.rawValue }
         
-        self.properties = T.createStructeredOutputs()
+        self.properties = T.createStructuredOutputs()
         self.schema = .init(type: .object,
                             required: requiredProps,
                             additionalPropertes: false)

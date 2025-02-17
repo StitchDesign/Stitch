@@ -21,8 +21,8 @@ struct StitchApp: App {
             StitchRootView(store: self.store)
                 .onAppear {
                     let encoder = getStitchEncoder()
-                    let structeredOutputs = StitchAIStructeredOutputsPayload()
-                    print(try! structeredOutputs.encodeToPrintableString())
+                    let structuredOutputs = StitchAIStructuredOutputsPayload()
+                    print(try! structuredOutputs.encodeToPrintableString())
                     
                     dispatch(DirectoryUpdated())
                     
