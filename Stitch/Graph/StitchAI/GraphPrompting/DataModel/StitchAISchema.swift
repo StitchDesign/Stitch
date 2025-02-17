@@ -27,7 +27,6 @@ struct StitchAISchemaNodeType {
 extension StitchAISchemaNodeType: Encodable {
     enum StitchSchemaTypeCodingKeys: String, CodingKey {
         case type
-        //    case properties
         case example
     }
     
@@ -36,18 +35,7 @@ extension StitchAISchemaNodeType: Encodable {
         
         let defaultValue = self.type.defaultPortValue.anyCodable
         
-//        let mirror = Mirror(reflecting: defaultValue)
-//        let properties = mirror.children.map { $0.label }
-        
         try container.encode(self.type.display, forKey: .type)
-//        try container.encode(properties, forKey: .properties)
-        
-        // TODO: come back and consider making everything case iterable
-        //        let defaultValueType = self.type.portValueTypeForStitchAI
-//        if let caseIterable = defaultValueType as? (any CaseIterable & Encodable) {
-//            try container.encode(caseIterable.allCases , forKey: .examples)
-//        }
-        
         try container.encode(defaultValue, forKey: .example)
     }
 }
