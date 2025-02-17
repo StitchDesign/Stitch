@@ -1718,6 +1718,16 @@ extension LayerInputPort {
             return nil
         }
     }
+    
+    @MainActor var showsLabelForInspector: Bool {
+        switch self {
+        case .transform3D, .size3D:
+            return false
+            
+        default:
+            return true
+        }
+    }
 }
 
 extension LayerInputEntity {

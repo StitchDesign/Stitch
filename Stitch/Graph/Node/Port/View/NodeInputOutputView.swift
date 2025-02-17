@@ -72,6 +72,15 @@ struct NodeInputView: View {
         layerInputObserver?.port == .transform3D
     }
     
+    /// Skip the label if we have a 3D transform or 3D size input but are not in the flyout.
+    var willShowLabel: Bool {
+        if forFlyout {
+            return true
+        }
+           
+        return self.layerInputObserver?.port.showsLabelForInspector ?? true
+    }
+    
     var body: some View {
         HStack(alignment: hStackAlignment) {
             
@@ -81,9 +90,7 @@ struct NodeInputView: View {
                 ShadowInputInspectorRow(nodeId: nodeId,
                                         propertyIsSelected: propertyIsSelected)
             }  else {
-                
-                // Skip the label if we have a 3D transform input but are not in the flyout
-                if !(is3DTransform && !forFlyout) {
+                if willShowLabel {
                     labelView
                 }
                 
