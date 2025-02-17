@@ -34,16 +34,6 @@ struct StitchAIStructeredOutputs: Encodable {
     let NodeName = OpenAISchemaEnum(values: NodeKind.getAiNodeDescriptions().map(\.nodeKind))
 }
 
-//enum StitchAIStructeredOutputs: String, CodingKey {
-//    case AddNodeAction
-//    case ConnectNodesAction
-//    case ChangeValueTypeAction
-//    case SetInputAction
-//    case AddLayerInputAction
-//    case NodeID
-//    case NodeName
-//}
-
 extension StitchAIStructeredOutputsPayload: Encodable {
     enum CodingKeys: String, CodingKey {
         case defs = "$defs"
@@ -189,6 +179,18 @@ struct OpenAISchemaEnum: Encodable {
 
 struct OpenAISchemaRef: Encodable {
     var ref: String
+    
+    enum CodingKeys: String, CodingKey {
+        case ref = "$ref"
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        let path = "#/$defs/\(self.ref)"
+        
+        try container.encode(path, forKey: .ref)
+    }
 }
 
 struct OpenAIGeneric: Encodable {
