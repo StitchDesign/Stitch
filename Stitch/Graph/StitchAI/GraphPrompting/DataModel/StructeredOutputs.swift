@@ -15,12 +15,25 @@ import SwiftyJSON
 //    }
 //}
 
-
-struct StitchAIStructeredOutputsPayload {
-    var defs: StitchAIStructeredOutputs = .init()
+extension StitchAIManager {
+    static let structuredOutputs = StitchAIStructeredOutputsPayload()
 }
 
-struct StitchAIStructeredOutputs: Encodable {
+struct StitchAIStructeredOutputsPayload: OpenAISchemaDefinable {
+    var defs = StitchAIStructeredOutputsDefinitions()
+    var schema = StitchAIStructeredOutputsSchema()
+}
+
+struct StitchAIStructeredOutputsSchema: OpenAISchemaCustomizable {
+    var properties = StitchAIStepsSchema()
+    
+    var schema = OpenAISchema(type: .object,
+                              required: ["steps"],
+                              additionalPropertes: false,
+                              title: "VisualProgrammingActions")
+}
+
+struct StitchAIStructeredOutputsDefinitions: Encodable {
     // Step actions
     let AddNodeAction = StepStructeredOutputs(StepActionAddNode.self)
     let ConnectNodesAction = StepStructeredOutputs(StepActionConnectionAdded.self)
@@ -31,23 +44,35 @@ struct StitchAIStructeredOutputs: Encodable {
     // Types
     let NodeID = OpenAISchema(type: .string,
                               description: "The unique identifier for the node (UUID)")
+    
     let NodeName = OpenAISchemaEnum(values: NodeKind.getAiNodeDescriptions().map(\.nodeKind))
+    
+    let ValueType = OpenAISchemaEnum(values:
+                                        NodeType.allCases
+        .filter { $0 != .none }
+        .map { $0.asLLMStepNodeType }
+    )
+    
+    let LayerPorts = OpenAISchemaEnum(values: LayerInputPort.allCases
+        .map { $0.asLLMStepPort }
+    )
 }
 
-extension StitchAIStructeredOutputsPayload: Encodable {
-    enum CodingKeys: String, CodingKey {
-        case defs = "$defs"
-    }
-    
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        
-        try container.encode(self.defs, forKey: .defs)
-    }
+struct StitchAIStepsSchema: Encodable {
+    let steps = OpenAISchema(type: .array,
+                             description: "The actions taken to create a graph",
+                             items: OpenAIGeneric(refs: [
+                                .init(ref: "AddNodeAction"),
+                                .init(ref: "ConnectNodesAction"),
+                                .init(ref: "ChangeValueTypeAction"),
+                                .init(ref: "SetInputAction"),
+                                .init(ref: "AddLayerInputAction")
+                             ])
+    )
 }
 
 struct StepStructeredOutputs: OpenAISchemaCustomizable {
-    var properties: StitchAIStepSchema?
+    var properties: StitchAIStepSchema
     var schema: OpenAISchema
     
     init<T>(_ stepActionType: T.Type) where T: StepActionable {
@@ -59,7 +84,8 @@ struct StepStructeredOutputs: OpenAISchemaCustomizable {
                             additionalPropertes: false)
     }
     
-    init(properties: StitchAIStepSchema?, schema: OpenAISchema) {
+    init(properties: StitchAIStepSchema,
+         schema: OpenAISchema) {
         self.properties = properties
         self.schema = schema
     }
@@ -98,10 +124,10 @@ struct StitchAIStepSchema: Encodable {
 protocol OpenAISchemaCustomizable: Encodable {
     associatedtype PropertiesType: Encodable
     
-    var properties: PropertiesType? { get set }
+    var properties: PropertiesType { get set }
     var schema: OpenAISchema { get set }
     
-    init(properties: Self.PropertiesType?,
+    init(properties: Self.PropertiesType,
          schema: OpenAISchema)
 }
 
@@ -134,22 +160,47 @@ extension OpenAISchemaCustomizable {
     }
 }
 
+protocol OpenAISchemaDefinable: Encodable {
+    associatedtype Defs: Encodable
+    associatedtype Schema: OpenAISchemaCustomizable
+    
+    var defs: Defs { get }
+    
+    var schema: Schema { get }
+}
+
+enum OpenAISchemaDefinableCodingKeys: String, CodingKey {
+    case defs = "$defs"
+}
+
+extension OpenAISchemaDefinable {
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: OpenAISchemaDefinableCodingKeys.self)
+        try container.encode(self.defs, forKey: .defs)
+        
+        try self.schema.encode(to: encoder)
+    }
+}
+
 struct OpenAISchema {
     var type: OpenAISchemaType
     var const: String? = nil
     var required: [String]? = nil
     var additionalPropertes: Bool? = nil
+    var title: String? = nil
     var description: String? = nil
+    var items: OpenAIGeneric? = nil
 }
 
 extension OpenAISchema: Encodable {
     enum CodingKeys: String, CodingKey {
         case type
+        case title
         case description
         case const
         case required
         case additionalPropertes
-        case enumType = "enum"
+        case items
     }
     
     func encode(to encoder: Encoder) throws {
@@ -159,6 +210,8 @@ extension OpenAISchema: Encodable {
         try container.encodeIfPresent(self.const, forKey: .const)
         try container.encodeIfPresent(self.required, forKey: .required)
         try container.encodeIfPresent(self.additionalPropertes, forKey: .additionalPropertes)
+        try container.encodeIfPresent(self.items, forKey: .items)
+        try container.encodeIfPresent(self.title, forKey: .title)
     }
 }
 
@@ -194,8 +247,8 @@ struct OpenAISchemaRef: Encodable {
 }
 
 struct OpenAIGeneric: Encodable {
-    var types: [OpenAISchema]
-    var ref: OpenAISchemaRef? = nil
+    var types: [OpenAISchema] = []
+    var refs: [OpenAISchemaRef] = []
     
     enum CodingKeys: String, CodingKey {
         case anyOf
@@ -210,8 +263,8 @@ struct OpenAIGeneric: Encodable {
             try arrayContainer.encode(type)
         }
         
-        // Add ref, if exists
-        if let ref = self.ref {
+        // Add refs to array
+        for ref in self.refs {
             try arrayContainer.encode(ref)
         }
     }
@@ -223,4 +276,5 @@ enum OpenAISchemaType: String, Encodable {
     case number
     case integer
     case boolean
+    case array
 }

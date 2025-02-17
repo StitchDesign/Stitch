@@ -256,7 +256,7 @@ struct StepActionAddLayerInput: StepActionable {
         .init(stepType: .addLayerInput,
               nodeId: OpenAISchema(type: .string),
               port: OpenAIGeneric(types: [OpenAISchema(type: .integer)],
-                                  ref: OpenAISchemaRef(ref: "LayerPorts"))
+                                  refs: [OpenAISchemaRef(ref: "LayerPorts")])
               )
     }
     
@@ -303,7 +303,7 @@ struct StepActionConnectionAdded: StepActionable {
     static func createStructeredOutputs() -> StitchAIStepSchema {
         .init(stepType: .connectNodes,
               port: OpenAIGeneric(types: [OpenAISchema(type: .string)],
-                                  ref: OpenAISchemaRef(ref: "LayerPorts")),
+                                  refs: [OpenAISchemaRef(ref: "LayerPorts")]),
               fromPort: OpenAISchema(type: .integer),
               fromNodeId: OpenAISchema(type: .string),
               toNodeId: OpenAISchema(type: .string)
@@ -382,7 +382,7 @@ struct StepActionSetInput: StepActionable {
         .init(stepType: .setInput,
               nodeId: OpenAISchema(type: .string),
               port: OpenAIGeneric(types: [OpenAISchema(type: .integer)],
-                                  ref: OpenAISchemaRef(ref: "LayerPorts")),
+                                  refs: [OpenAISchemaRef(ref: "LayerPorts")]),
               value: OpenAIGeneric(types: [
                 OpenAISchema(type: .number),
                 OpenAISchema(type: .string),
