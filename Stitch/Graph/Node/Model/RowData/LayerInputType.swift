@@ -1439,6 +1439,7 @@ extension LayerInputEntity {
 
 extension LayerInputPort {
     // shortLabel = used for property sidebar
+    // MARK: this is used by Stitch AI and must contain values.
     func label(useShortLabel: Bool = false) -> String {
         switch self {
         case .position:
@@ -1677,7 +1678,7 @@ extension LayerInputPort {
         case .transform3D:
             return "3D Transform"
         case .size3D:
-            return ""
+            return "Size 3D"
         case .radius3D:
             return "Radius"
         case .height3D:
@@ -1715,6 +1716,16 @@ extension LayerInputPort {
             
         default:
             return nil
+        }
+    }
+    
+    @MainActor var showsLabelForInspector: Bool {
+        switch self {
+        case .transform3D, .size3D:
+            return false
+            
+        default:
+            return true
         }
     }
 }
