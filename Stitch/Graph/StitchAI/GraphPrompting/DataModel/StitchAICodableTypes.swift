@@ -27,6 +27,13 @@ struct StitchAIColor: StitchAIStringConvertable {
     var value: Color
 }
 
+extension StitchAIColor: Encodable {
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(value.encodableString)
+    }
+}
+
 struct StitchAIUUID: StitchAIStringConvertable {
     var value: UUID
 }
@@ -65,14 +72,13 @@ extension LayerDimension: StitchAIValueStringConvertable {
     }
 }
 
-protocol StitchAIValueStringConvertable: Codable, CustomStringConvertible, LosslessStringConvertible, Hashable {
+protocol StitchAIValueStringConvertable: Codable, LosslessStringConvertible, Hashable {
     var encodableString: String { get }
 }
 
 extension StitchAIValueStringConvertable {
-    // Provides default value but can be overwritten.
     var encodableString: String {
-        self.description
+        self.encodableString
     }
 }
 
@@ -97,7 +103,6 @@ extension StitchAIStringConvertable {
     func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
 
-        // TODO: this is the test
         try container.encode(self.value)
     }
     
