@@ -23,6 +23,7 @@ struct SizeUnpackPatchNode: PatchNodeDefinition {
     }
 }
 
+@MainActor
 func sizeUnpackEval(inputs: PortValuesList,
                     outputs: PortValuesList) -> PortValuesList {
     resultsMaker2(inputs)(sizeUnpackOp)

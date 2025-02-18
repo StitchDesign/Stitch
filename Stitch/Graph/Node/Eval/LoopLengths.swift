@@ -31,6 +31,7 @@ struct ActiveIndex: Equatable, Codable, Hashable {
     }
 }
 
+@MainActor
 func getLongestLoopIndices<T>(valuesList: [[T]]) -> [Int] {
     let count = getLongestLoopLength(valuesList)
     //    log("getLongestLoopIndices: count: \(count)")
@@ -54,6 +55,7 @@ func getAdjustedActiveIndex(activeIndex: Int, loopLength: Int) -> Int {
     return x
 }
 
+@MainActor
 func getLongestLoopLength<T>(_ inputs: [[T]]) -> Int {
     var max: Int = 1
     inputs.forEach { (values: [T]) in
@@ -150,6 +152,7 @@ func lengthenArray<T>(loop: [T], length: Int) -> [T] {
     return newLoop
 }
 
+@MainActor
 func getMaxCountAndLengthenedArrays<T>(_ inputs: [[T]],
                                        _ outputs: [[T]]) -> (Int, [[T]]) {
     // Ignore outputs if no values

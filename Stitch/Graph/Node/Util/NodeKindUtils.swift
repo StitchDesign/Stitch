@@ -186,7 +186,7 @@ extension NodeKind {
     }
     
     /// Considers special nodes which loop inputs.
-    func determineMaxLoopCount(from valuesList: PortValuesList) -> Int {
+    @MainActor func determineMaxLoopCount(from valuesList: PortValuesList) -> Int {
         switch self {
         case .layer(let layer):
             switch layer {

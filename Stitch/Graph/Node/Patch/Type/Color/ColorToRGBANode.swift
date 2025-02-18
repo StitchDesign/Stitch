@@ -42,6 +42,7 @@ func colorToRGBANode(id: NodeId,
         outputs: outputs)
 }
 
+@MainActor
 func colorToRGBAEval(inputs: PortValuesList,
                      outputs: PortValuesList) -> PortValuesList {
 
