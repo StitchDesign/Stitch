@@ -32,6 +32,7 @@ struct BouncyConverterNode: PatchNodeDefinition {
     }
 }
 
+@MainActor
 func bouncyConverterEval(inputs: PortValuesList,
                          outputs: PortValuesList) -> PortValuesList {
 

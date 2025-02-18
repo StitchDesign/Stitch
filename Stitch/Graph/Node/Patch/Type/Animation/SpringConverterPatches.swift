@@ -125,6 +125,7 @@ extension Spring {
 
 let defaultSpringConverterOutputs = (PortValue.number(.zero), PortValue.number(.zero))
 
+@MainActor
 func springFromDurationAndBounceEval(inputs: PortValuesList,
                                      outputs: PortValuesList) -> PortValuesList {
 
@@ -142,6 +143,7 @@ func springFromDurationAndBounceEval(inputs: PortValuesList,
     return results(op)
 }
 
+@MainActor
 func springFromResponseAndDampingRatioEval(inputs: PortValuesList,
                                            outputs: PortValuesList) -> PortValuesList {
 
@@ -159,7 +161,7 @@ func springFromResponseAndDampingRatioEval(inputs: PortValuesList,
     return results(op)
 }
 
-
+@MainActor
 func springFromSettlingDurationAndDampingRatioEval(inputs: PortValuesList,
                                            outputs: PortValuesList) -> PortValuesList {
 

@@ -44,6 +44,7 @@ func loopFilterNode(id: NodeId,
         outputs: outputs)
 }
 
+@MainActor
 func loopFilterEval(inputs: PortValuesList,
                     outputs: PortValuesList) -> PortValuesList {
 

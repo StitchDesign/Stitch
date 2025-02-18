@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+@MainActor
 func pulseEvalUpdate(_ opValues: PortValuesList,
                      _ opOutputs: PortValuesList,
                      _ operation: @escaping PulseOperationT) -> ImpureEvalResult {

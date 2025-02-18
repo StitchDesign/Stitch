@@ -52,6 +52,7 @@ func jsonToShapeNode(id: NodeId,
         outputs: outputs)
 }
 
+@MainActor
 func jsonToShapeEval(inputs: PortValuesList,
                      outputs: PortValuesList) -> PortValuesList {
 

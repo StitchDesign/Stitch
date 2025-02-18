@@ -60,11 +60,13 @@ extension PortValues {
 }
 
 extension PortValuesList {
+    @MainActor
     var longestLoopLength: Int {
         getLongestLoopLength(self)
     }
 
     /// An almost replica to `Stitch.getMaxCountAndLengthenArrays` but adds a modifier for new `PortValues`.
+    @MainActor
     func getMaxCountAndLengthenedArrays() -> (Int, Self) {
         let longestLoopLength: Int = getLongestLoopLength(self)
 
@@ -76,6 +78,7 @@ extension PortValuesList {
         return (longestLoopLength, adjustedInputs)
     }
     
+    @MainActor
     func lengthenArrays() -> Self {
         let data = self.getMaxCountAndLengthenedArrays()
         return data.1
