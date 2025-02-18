@@ -19,12 +19,14 @@ struct StitchAIStructuredOutputsPayload: OpenAISchemaDefinable {
 }
 
 struct StitchAIStructuredOutputsSchema: OpenAISchemaCustomizable {
+    static let title = "VisualProgrammingActions"
+    
     var properties = StitchAIStepsSchema()
     
     var schema = OpenAISchema(type: .object,
                               required: ["steps"],
                               additionalProperties: false,
-                              title: "VisualProgrammingActions")
+                              title: Self.title)
 }
 
 struct StitchAIStructuredOutputsDefinitions: Encodable {

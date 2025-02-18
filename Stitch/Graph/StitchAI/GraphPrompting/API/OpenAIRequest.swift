@@ -139,27 +139,15 @@ extension StitchAIManager {
         urlRequest.setValue("Bearer \(self.secrets.openAIAPIKey)", forHTTPHeaderField: "Authorization")
         
         // Construct request payload
-        let payload: [String: Any] = [
-            "model": self.secrets.openAIModel,
-            "n": 1,
-            //https://platform.openai.com/docs/api-reference/making-requests
-            "temperature": 0.0,      // Lower temperature for more focused responses
-            "response_format": [
-                "type": "json_schema",
-                "json_schema": [
-                    "name": "VisualProgrammingActions",
-                    "schema": encodedStructuredOutputs.object
-                ]
-            ],
-            "messages": [
-                ["role": "system", "content": systemPrompt + "Make sure your response follows this schema: \(encodedStructuredOutputs.stringValue)"],
-                ["role": "user", "content": prompt]
-            ]
-        ]
+        let payload = try StitchAIRequest(secrets: secrets,
+                                          userPrompt: prompt,
+                                          systemPrompt: systemPrompt)
         
         // Serialize and send request
         do {
-            let jsonData = try JSONSerialization.data(withJSONObject: payload, options: [.withoutEscapingSlashes])
+            let encoder = JSONEncoder()
+//            encoder.outputFormatting = [.withoutEscapingSlashes]
+            let jsonData = try encoder.encode(payload)
             urlRequest.httpBody = jsonData
             log("Making request attempt \(attempt) of \(config.maxRetries)")
             // log("Request payload: \(payload.description)")

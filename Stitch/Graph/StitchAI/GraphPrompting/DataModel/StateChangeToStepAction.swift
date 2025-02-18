@@ -154,7 +154,7 @@ extension LLMStepActions {
         do {
             let data = try JSONEncoder().encode(self)
             let json = try JSON(data: data)
-            log("LLMStepActions: asJSON: encoded json: \(json)")
+//            log("LLMStepActions: asJSON: encoded json: \(json)")
             return json
         } catch {
             log("LLMStepActions: asJSON: error: \(error)")
@@ -172,7 +172,7 @@ extension [StepTypeAction] {
         do {
             let data = try JSONEncoder().encode(self)
             let json = try JSON(data: data)
-            log("[StepTypeAction]: asJSON: encoded json: \(json)")
+//            log("[StepTypeAction]: asJSON: encoded json: \(json)")
             return json
         } catch {
             log("[StepTypeAction]: asJSON: error: \(error)")
