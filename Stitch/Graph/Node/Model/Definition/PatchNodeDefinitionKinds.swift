@@ -292,7 +292,7 @@ extension Patch {
         case .commandsToShape:
             return nil
         case .mouse:
-            return nil
+            return MouseInteractNode.self
         case .sizePack:
             return SizePackPatchNode.self
         case .sizeUnpack:

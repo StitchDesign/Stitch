@@ -84,9 +84,7 @@ final class DragInteractionNodeState: NodeEphemeralObservable {
     
     // Updates whenever drag ends so a new drag increments from here, fixing issue where values could constantly increment
     var prevPositionStart: CGPoint = .zero
-}
-
-extension DragInteractionNodeState {
+    
     func onPrototypeRestart() {
         self.momentum = .init()
         self.reset = .init()
