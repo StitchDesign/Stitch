@@ -44,6 +44,7 @@ func optionSenderNode(id: NodeId,
         outputs: outputs)
 }
 
+@MainActor
 func optionSenderEval(inputs: PortValuesList,
                       outputs: PortValuesList) -> PortValuesList {
 

@@ -68,6 +68,7 @@ func resultsMaker(_ inputs: PortValuesList,
     }
 }
 
+@MainActor
 func resultsMaker2(_ inputs: PortValuesList,
                    outputs: PortValuesList = []) -> (Operation2) -> PortValuesList {
     return { (op: Operation2) in
@@ -77,6 +78,7 @@ func resultsMaker2(_ inputs: PortValuesList,
     }
 }
 
+@MainActor
 func resultsMaker3(_ inputs: PortValuesList,
                    outputs: PortValuesList = []) -> (Operation3) -> PortValuesList {
     return { (op: Operation3) in
@@ -86,6 +88,7 @@ func resultsMaker3(_ inputs: PortValuesList,
     }
 }
 
+@MainActor
 func resultsMaker4(_ inputs: PortValuesList,
                    outputs: PortValuesList = []) -> (Operation4) -> PortValuesList {
     return { (op: Operation4) in

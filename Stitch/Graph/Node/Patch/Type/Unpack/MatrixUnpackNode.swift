@@ -34,6 +34,7 @@ struct TransformUnpackPatchNode: PatchNodeDefinition {
     }
 }
 
+@MainActor
 func transformUnpackEval(inputs: PortValuesList,
                                outputs: PortValuesList) -> PortValuesList {
 

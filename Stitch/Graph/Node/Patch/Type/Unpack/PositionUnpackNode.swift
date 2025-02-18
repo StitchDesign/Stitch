@@ -22,6 +22,7 @@ struct PositionUnpackPatchNode: PatchNodeDefinition {
     }
 }
 
+@MainActor
 func positionUnpackEval(inputs: PortValuesList,
                         outputs: PortValuesList) -> PortValuesList {
     resultsMaker2(inputs)(positionUnpackOp)

@@ -172,6 +172,7 @@ extension NodeViewModel {
     }
 }
 
+@MainActor
 func loopedEval<EvalOpResult>(inputsValues: PortValuesList,
                               outputsValues: PortValuesList? = nil,
                               evalOp: @escaping OpWithIndex<EvalOpResult>) -> [EvalOpResult] {

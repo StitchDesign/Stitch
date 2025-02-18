@@ -44,6 +44,7 @@ func indexOfNode(id: NodeId,
 // if first input is a json object rather than an array,
 // this append will fail / should fail, per Origami
 
+@MainActor
 func indexOfEval(inputs: PortValuesList,
                  outputs: PortValuesList) -> PortValuesList {
 

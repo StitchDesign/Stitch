@@ -45,6 +45,7 @@ func cubicBezierCurveNode(id: NodeId,
         outputs: outputs)
 }
 
+@MainActor
 func cubicBezierCurveEval(inputs: PortValuesList,
                           outputs: PortValuesList) -> PortValuesList {
 
