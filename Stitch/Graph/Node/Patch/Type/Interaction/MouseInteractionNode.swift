@@ -9,37 +9,44 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-@MainActor
-func mouseInteractionNode(id: NodeId,
-                          position: CGSize = .zero,
-                          zIndex: Double = 0,
-                          interactionId: PortValue = interactionIdDefault) -> PatchNode {
-
-    let inputs = fakeInputs(id: id)
-
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values:
-            ("Down", [boolDefaultFalse]), // 0
-        ("Position", [.position(.zero)]), // 1
-        ("Velocity", [.position(.zero)]) // 2
-    )
-
-    // Don't need any internal state
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .mouse,
-        inputs: inputs,
-        outputs: outputs)
+struct MouseInteractNode: PatchNodeDefinition {
+    static let patch = Patch.mouse
+    
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [], // Actually has NO inputs
+            outputs: [
+                .init(
+                    label: "Down",
+                    type: .bool
+                ),
+                .init(
+                    label: LayerInputPort.position.label(),
+                    type: .position
+                ),
+                .init(
+                    label: "Velocity",
+                    type: .position
+                )
+            ]
+        )
+    }
+    
+    static func createEphemeralObserver() -> NodeEphemeralObservable? {
+        MouseNodeState()
+    }
 }
 
-struct MouseNodeOutputLocations {
-    static let leftClick = 0
-    static let position = 1
-    static let velocity = 2
+final class MouseNodeState: NodeEphemeralObservable {
+    var isDown: Bool = false
+    var position: CGPoint = .zero
+    var velocity: CGPoint = .zero
+    
+    func onPrototypeRestart() {
+        self.isDown = false
+        self.position = .zero
+        self.velocity = .zero
+    }
 }
 
 let MOUSE_NODE_DEFAULT_OUTPUTS: PortValuesList = [
@@ -58,14 +65,16 @@ extension GraphState {
     }
 }
 
-func mouseEval(inputs: PortValuesList,
-               outputs: PortValuesList) -> PortValuesList {
-    // If first input is not bool, then we've called this node eval after
-    if outputs.first?.first?.getBool == nil {
-        return MOUSE_NODE_DEFAULT_OUTPUTS
+@MainActor
+func mouseEval(node: PatchNode) -> EvalResult {
+    
+    guard let mouseNodeState = node.ephemeralObservers?.first as? MouseNodeState else {
+        return .init(outputsValues: MOUSE_NODE_DEFAULT_OUTPUTS)
     }
     
-    // Else it's a noop -- just reuse the values from LayerHovered and LayerHoverEnded
-    return outputs
+    return .init(outputsValues: [
+        [.bool(mouseNodeState.isDown)],
+        [.position(mouseNodeState.position)],
+        [.position(mouseNodeState.velocity)]
+    ])
 }
-

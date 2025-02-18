@@ -92,9 +92,9 @@ struct EdgeEditModeOutputHoverViewModifier: ViewModifier {
                         let now = Date.now.timeIntervalSince1970
                         let diff = now - hoverStartTime
 
-                        log("hoverStartTime: \(hoverStartTime)")
-                        log("now: \(now)")
-                        log("diff: \(diff)")
+                        //                        log("hoverStartTime: \(hoverStartTime)")
+                        //                        log("now: \(now)")
+                        //                        log("diff: \(diff)")
 
                         if diff > Self.REQUIRED_HOVER_DURATION {
                             dispatch(OutputHoveredLongEnough())

@@ -54,7 +54,7 @@ struct ProjectsHomeViewWrapper: View {
                                                        iconName: PROJECT_SETTINGS_ICON_NAME)
 #else
                         iPadNavBarButton(action: {
-                            store.createNewProject()
+                            store.createNewProject(isProjectImport: false)
                         },
                                          iconName: NEW_PROJECT_ICON_NAME)
                         
