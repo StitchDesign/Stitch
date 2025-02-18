@@ -112,6 +112,20 @@ enum DeviceModel: String {
          AppleTV_4K         = "Apple TV 4K",
          AppleTV2_4K        = "Apple TV 4K 2gen",
 
+         // Mac
+         MacBookAir         = "MacBook Air",
+         MacBookPro         = "MacBook Pro",
+         MacBookPro_M1      = "MacBook Pro M1",
+         MacBookPro_M2      = "MacBook Pro M2",
+         MacBookAir_M1      = "MacBook Air M1",
+         MacBookAir_M2      = "MacBook Air M2",
+         iMac               = "iMac",
+         iMacPro            = "iMac Pro",
+         MacPro             = "Mac Pro",
+         MacMini            = "Mac Mini",
+         MacStudio          = "Mac Studio",
+         Mac                = "Mac",
+         
          unrecognized       = "?unrecognized?"
 }
 
@@ -312,15 +326,63 @@ extension UIDevice {
             "AppleTV6,2": .AppleTV_4K,
             "AppleTV11,1": .AppleTV2_4K
         ]
+        
+        if ProcessInfo.processInfo.isMacCatalystApp {
+            return getMacModel()
+        }
 
-        guard let mcode = modelCode, let map = String(validatingUTF8: mcode), let model = modelMap[map] else { return DeviceModel.unrecognized }
-        if model == .simulator {
-            if let simModelCode = ProcessInfo().environment["SIMULATOR_MODEL_IDENTIFIER"] {
-                if let simMap = String(validatingUTF8: simModelCode), let simModel = modelMap[simMap] {
-                    return simModel
+        if let mcode = modelCode, let map = String(validatingUTF8: mcode), let model = modelMap[map] {
+            if model == .simulator {
+                if let simModelCode = ProcessInfo().environment["SIMULATOR_MODEL_IDENTIFIER"] {
+                    if let simMap = String(validatingUTF8: simModelCode), let simModel = modelMap[simMap] {
+                        return simModel
+                    }
                 }
             }
+            return model
         }
-        return model
+
+        return .unrecognized
     }
+    
+    private func getMacModel() -> DeviceModel {
+        var size = 0
+        sysctlbyname("hw.model", nil, &size, nil, 0)
+        var model = [CChar](repeating: 0, count: size)
+        sysctlbyname("hw.model", &model, &size, nil, 0)
+        let modelIdentifier = String(cString: model)
+
+        let modelMap: [String: DeviceModel] = [
+            // Mac Mini
+            "Mac13,1": .MacMini,
+
+            // MacBook Air
+            "Mac14,2": .MacBookAir_M2,
+            "Mac14,9": .MacBookAir_M2,
+            "Mac14,10": .MacBookAir_M2,
+
+            // MacBook Pro
+            "Mac13,2": .MacBookPro_M1,
+            "Mac14,3": .MacBookPro_M2,
+            "Mac14,5": .MacBookPro_M2,
+            "Mac14,6": .MacBookPro_M2,
+            "Mac14,7": .MacBookPro_M2,
+
+            // Mac Studio
+            "Mac14,0": .MacStudio,
+
+            // iMac
+            "iMac21,1": .iMac,
+            "iMac21,2": .iMac,
+
+            // iMac Pro
+            "iMacPro1,1": .iMacPro,
+
+            // Mac Pro
+            "Mac13,3": .MacPro
+            
+        ]
+        return modelMap[modelIdentifier] ?? .Mac
+    }
+
 }
