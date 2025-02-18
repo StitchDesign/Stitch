@@ -42,7 +42,7 @@ struct StitchRootModifier: ViewModifier {
                                           isImport: true) else {
                             return
                         }
-                        store?.createNewProject(from: importedDoc)
+                        store?.createNewProject(from: importedDoc, isProjectImport: true)
                     }
                 }
             } // .onOpenURL
@@ -50,7 +50,7 @@ struct StitchRootModifier: ViewModifier {
                 // Only open document if one is imported
                 if docs.count == 1,
                    let firstDoc = docs.first {
-                    store.createNewProject(from: firstDoc)
+                    store.createNewProject(from: firstDoc, isProjectImport: true)
                 }
 
                 return true
