@@ -42,6 +42,7 @@ func colorToHSLNode(id: NodeId,
         outputs: outputs)
 }
 
+@MainActor
 func colorToHSLEval(inputs: PortValuesList, outputs: PortValuesList) -> PortValuesList {
 
     let op: Operation4 = { (values: PortValues) -> (PortValue, PortValue, PortValue, PortValue) in

@@ -29,6 +29,7 @@ struct CurveToUnpackPatchNode: PatchNodeDefinition {
     }
 }
 
+@MainActor
 func curveToUnpackEval(inputs: PortValuesList,
                        outputs: PortValuesList) -> PortValuesList {
     //    resultsMaker2(inputs)(curveToUnpackOp)

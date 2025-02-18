@@ -47,6 +47,7 @@ func optionEqualsNode(id: NodeId,
 }
 
 // returns `(.number(index), .bool(equals))` outputs regardless of node-type
+@MainActor
 func optionEqualsEval(inputs: PortValuesList,
                       outputs: PortValuesList) -> PortValuesList {
 

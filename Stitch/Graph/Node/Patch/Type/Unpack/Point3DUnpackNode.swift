@@ -24,6 +24,7 @@ struct Point3DUnpackPatchNode: PatchNodeDefinition {
     }
 }
 
+@MainActor
 func point3DUnpackEval(inputs: PortValuesList,
                        outputs: PortValuesList) -> PortValuesList {
     resultsMaker3(inputs)(point3DUnpackOp)
