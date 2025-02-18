@@ -157,6 +157,7 @@ func dragInteractionEvalOp(values: PortValues,
         
     // Note: If we can't find the output, it's because we reset the prototype, and so should be starting at 0,0 again anyway.
     // Note: also technically the currentOutput ?
+        
     let previousStartingPoint: CGPoint = values[safeIndex: 8]?.getPoint ?? .zero
     
     let prevVelocity: CGPoint = values[safeIndex: 9]?.getSize?.asCGSize?.toCGPoint ?? .zero
@@ -202,7 +203,7 @@ func dragInteractionEvalOp(values: PortValues,
      since pressing `reset` overrides any active reset animation or current
      */
     
-    let receivedResetPulse = resetPulse.shouldPulse(graphTime)
+    let receivedResetPulse = resetPulse.shouldPulse(graphTime) || graphTime.graphJustStarted
     
     // Save is dragging state for next cycle
     state.wasDragging = interactiveLayer.dragStartingPoint.isDefined
