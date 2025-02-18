@@ -11,6 +11,7 @@ struct StitchThemeData: Identifiable, Equatable, Codable, Hashable {
     var id = UUID()
     let edgeColor: Color // Also used for text now
     let highlightedEdgeColor: Color
+    let loopEdgeColor: Color
 
     // TODO: add associated file for app icon
     //    let appIconFileName: String
@@ -64,55 +65,66 @@ extension StitchThemeData {
 
     static let purpleTheme = StitchThemeData(
         edgeColor: StitchThemeData.STITCH_PURPLE_COLOR,
-        highlightedEdgeColor: StitchThemeData.STITCH_PURPLE_HIGHLIGHTED_COLOR)
+        highlightedEdgeColor: StitchThemeData.STITCH_PURPLE_HIGHLIGHTED_COLOR,
+        loopEdgeColor: StitchThemeData.STITCH_PURPLE_DARK_COLOR)
 
     static let mintTheme = StitchThemeData(
         edgeColor: StitchThemeData.STITCH_MINT_COLOR,
-        highlightedEdgeColor: StitchThemeData.STITCH_MINT_HIGHLIGHTED_COLOR)
+        highlightedEdgeColor: StitchThemeData.STITCH_MINT_HIGHLIGHTED_COLOR,
+        loopEdgeColor: StitchThemeData.STITCH_MINT_DARK_COLOR)
 
     static let redTheme = StitchThemeData(
         edgeColor: StitchThemeData.STITCH_EDGE_RED_COLOR,
-        highlightedEdgeColor: StitchThemeData.STITCH_EDGE_RED_HIGHLIGHTED_COLOR)
+        highlightedEdgeColor: StitchThemeData.STITCH_EDGE_RED_HIGHLIGHTED_COLOR,
+        loopEdgeColor: StitchThemeData.STITCH_EDGE_RED_DARK_COLOR)
 
     static let orangeTheme = StitchThemeData(
         edgeColor: StitchThemeData.STITCH_ORANGE_COLOR,
-        highlightedEdgeColor: StitchThemeData.STITCH_ORANGE_HIGHLIGHTED_COLOR)
+        highlightedEdgeColor: StitchThemeData.STITCH_ORANGE_HIGHLIGHTED_COLOR,
+        loopEdgeColor: StitchThemeData.STITCH_ORANGE_DARK_COLOR)
 
     static let pinkTheme = StitchThemeData(
         edgeColor: StitchThemeData.STITCH_PINK_COLOR,
-        highlightedEdgeColor: StitchThemeData.STITCH_PINK_HIGHLIGHTED_COLOR)
+        highlightedEdgeColor: StitchThemeData.STITCH_PINK_HIGHLIGHTED_COLOR,
+        loopEdgeColor: StitchThemeData.STITCH_PINK_DARK_COLOR)
 
     // THEME EDGE COLORS:
 
     // purple
     static let STITCH_PURPLE_COLOR = STITCH_PURPLE
     static let STITCH_PURPLE_HIGHLIGHTED_COLOR = Color(.highlightedEdge)
+    static let STITCH_PURPLE_DARK_HEX = "#846FBF" // highlighted
+    static let STITCH_PURPLE_DARK_COLOR = UIColor(hex: Self.STITCH_PURPLE_DARK_HEX)!.toColor
 
     // mint
     static let STITCH_MINT_HEX = "#38CB96"
     static let STITCH_MINT_COLOR = UIColor(hex: Self.STITCH_MINT_HEX)!.toColor
     static let STITCH_MINT_HIGHLIGHTED_HEX = "#5ED3A9" // highlighted
     static let STITCH_MINT_HIGHLIGHTED_COLOR = UIColor(hex: Self.STITCH_MINT_HIGHLIGHTED_HEX)!.toColor
+    static let STITCH_MINT_DARK_HEX = "#2EA47A" // highlighted
+    static let STITCH_MINT_DARK_COLOR = UIColor(hex: Self.STITCH_MINT_DARK_HEX)!.toColor
 
     // red
     static let STITCH_EDGE_RED_HEX = "#E04040"
     static let STITCH_EDGE_RED_COLOR = UIColor(hex: Self.STITCH_EDGE_RED_HEX)!.toColor
     static let STITCH_EDGE_RED_HIGHLIGHTED_HEX = "#E46464" // highlighted
     static let STITCH_EDGE_RED_HIGHLIGHTED_COLOR = UIColor(hex: Self.STITCH_EDGE_RED_HIGHLIGHTED_HEX)!.toColor
+    static let STITCH_EDGE_RED_DARK_HEX = "#B53535" // highlighted
+    static let STITCH_EDGE_RED_DARK_COLOR = UIColor(hex: Self.STITCH_EDGE_RED_DARK_HEX)!.toColor
 
     // orange
     static let STITCH_ORANGE_HEX = "#F17530"
     static let STITCH_ORANGE_COLOR = UIColor(hex: Self.STITCH_ORANGE_HEX)!.toColor
     static let STITCH_ORANGE_HIGHLIGHTED_HEX = "#F28F57" // highlighted
     static let STITCH_ORANGE_HIGHLIGHTED_COLOR = UIColor(hex: Self.STITCH_ORANGE_HIGHLIGHTED_HEX)!.toColor
+    static let STITCH_ORANGE_DARK_HEX = "#C35E28" // highlighted
+    static let STITCH_ORANGE_DARK_COLOR = UIColor(hex: Self.STITCH_ORANGE_DARK_HEX)!.toColor
 
     // pink
     static let STITCH_PINK_HEX = "#F8A7F0"
     static let STITCH_PINK_COLOR = UIColor(hex: Self.STITCH_PINK_HEX)!.toColor
     static let STITCH_PINK_HIGHLIGHTED_HEX = "#F7B7F1" // highlighted
     static let STITCH_PINK_HIGHLIGHTED_COLOR = UIColor(hex: Self.STITCH_PINK_HIGHLIGHTED_HEX)!.toColor
+    static let STITCH_PINK_DARK_HEX = "#C987C2" // highlighted
+    static let STITCH_PINK_DARK_COLOR = UIColor(hex: Self.STITCH_PINK_HIGHLIGHTED_HEX)!.toColor
 }
-
-// #Preview {
-//    AppThemes()
-// }

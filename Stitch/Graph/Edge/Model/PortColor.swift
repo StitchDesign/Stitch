@@ -29,7 +29,7 @@ enum PortColor: Equatable {
         case .edge:
             return themeData.edgeColor
         case .loopEdge:
-            return LOOP_EDGE_COLOR
+            return themeData.loopEdgeColor
         case .highlightedEdge:
             return themeData.highlightedEdgeColor
         case .highlightedLoopEdge:
