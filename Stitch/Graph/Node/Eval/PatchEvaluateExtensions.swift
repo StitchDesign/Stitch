@@ -295,7 +295,7 @@ extension Patch {
         case .commandsToShape:
             return .node(outputsOnlyEval(commandsToShapeEval))
         case .mouse:
-            return .node(outputsOnlyEval(mouseEval))
+            return .node(mouseEval)
         case .sizePack:
             return .node(outputsOnlyEval(sizePackEval))
         case .sizeUnpack:

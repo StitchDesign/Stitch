@@ -121,11 +121,6 @@ extension NodeViewModel: NodeCalculatable {
         return self.splitterType == .output && isNodeInComponent
     }
     
-    @MainActor
-    var requiresOutputValuesChange: Bool {
-        self.kind.getPatch == .pressInteraction
-    }
-    
     @MainActor func getAllParentInputsObservers() -> [InputNodeRowObserver] {
         self.getAllInputsObservers()
     }

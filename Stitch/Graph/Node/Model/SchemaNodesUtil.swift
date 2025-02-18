@@ -108,32 +108,31 @@ extension NodePortInputEntity {
 }
 
 extension NodeRowDefinitions {
+    // Used when initializing patch's outputs upon Graph Open. We start with `allLoopedValues = []` just as we do in Graph Reset.
     @MainActor
-    func createOutputObservers(nodeId: NodeId,
-                               // Pass in values directly from eval
-                               values: PortValuesList) -> [OutputNodeRowObserver] {
+    func createEmptyOutputObservers(nodeId: NodeId) -> [OutputNodeRowObserver] {
         self.outputs.enumerated().map { portId, _ in
-            OutputNodeRowObserver(values: values[safe: portId] ?? [],
+            OutputNodeRowObserver(values: [],
                                   id: .init(portId: portId, nodeId: nodeId),
                                   upstreamOutputCoordinate: nil)
         }
     }
 
+    // Used when initializing layer's outputs upon Graph Open. We start with `allLoopedValues = []` just as we do in Graph Reset.
     @MainActor
-    func createOutputLayerPorts(schema: LayerNodeEntity,
-                                // Pass in values directly from eval
-                                valuesList: PortValuesList) -> [OutputLayerNodeRowData] {
+    func createEmptyOutputLayerPorts(schema: LayerNodeEntity,
+                                     // Pass in values directly from eval
+                                     valuesList: PortValuesList) -> [OutputLayerNodeRowData] {
         let nodeId = schema.id
-        let kind = NodeKind.layer(schema.layer)
         
         assertInDebug(self.outputs.count == schema.outputCanvasPorts.count)
         
         return zip(valuesList.enumerated(), schema.outputCanvasPorts).map { outputData, canvasEntity in
             var canvasObserver: CanvasItemViewModel?
             let portId = outputData.0
-            let values = outputData.1
+//            let values = outputData.1
             
-            let observer = OutputNodeRowObserver(values: values,
+            let observer = OutputNodeRowObserver(values: [], //values,
                                                  id: .init(portId: portId, nodeId: nodeId))
 
             if let canvasEntity = canvasEntity {

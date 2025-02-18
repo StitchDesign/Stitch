@@ -37,20 +37,23 @@ extension StitchDocumentViewModel {
         }
         
         for mouseNodeId in mouseNodeIds {
+            // allGraphs = have to update all components etc., so that values flow up properly ?
             self.allGraphs.forEach { graph in
-                if let node = graph.getPatchNode(id: mouseNodeId)?.patchCanvasItem {
-                    // Always scalar
-                    node.outputViewModels[safe: MouseNodeOutputLocations.leftClick]?.rowDelegate?
-                        .updateValues([PortValue.bool(leftClick)])
+                
+                if let mouseNode = graph.getPatchNode(id: mouseNodeId) {
+                    // Note: a mouse node will only ever have a single ephemeral observer, since it has no inputs and cannot be assigned to a layer (only the preview window as a whole)
+                    guard let ephemeralObservers: [MouseNodeState] = (mouseNode.ephemeralObservers as? [MouseNodeState]) else {
+                        fatalErrorIfDebug() // should have
+                        return
+                    }
                     
-                    node.outputViewModels[safe: MouseNodeOutputLocations.position]?.rowDelegate?
-                        .updateValues([PortValue.position(position)])
+                    assertInDebug(ephemeralObservers.count < 2)
                     
-                    node.outputViewModels[safe: MouseNodeOutputLocations.velocity]?.rowDelegate?
-                        .updateValues([PortValue.position(finalVelocity)])
-                    
-                } else {
-                    log("updateMouseNodesPosition: could not find mouse node \(mouseNodeId)")
+                    ephemeralObservers.forEach { (ephemeralObserver: MouseNodeState) in
+                        ephemeralObserver.isDown = leftClick
+                        ephemeralObserver.position = position
+                        ephemeralObserver.velocity = finalVelocity
+                    }
                 }
             }
         }

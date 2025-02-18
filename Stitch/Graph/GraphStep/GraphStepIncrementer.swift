@@ -54,15 +54,18 @@ extension GraphState {
         // If we have actively-interacted-with mouse nodes, we may need reset their velocity outputs
         if let lastMouseMovement = self.graphUI.lastMouseNodeMovement,
            (graphTime - lastMouseMovement) > DRAG_NODE_VELOCITY_RESET_STEP {
+            
             let mouseNodeIds = self.mouseNodes
-            for mouseNodeId in mouseNodeIds {
-                if let mouseNode = self.getNodeViewModel(id: mouseNodeId) {
-                    mouseNode.getOutputRowObserver(MouseNodeOutputLocations.velocity)?
-                        .updateValues([.position(.zero)])
+            
+            for mouseNodeId in self.mouseNodes {
+                if let mouseNodeState = self.getPatchNode(id: mouseNodeId)?.ephemeralObservers?.first as? MouseNodeState {
+                    
+                    mouseNodeState.velocity = .zero
+                    nodesToRunOnGraphStep.insert(mouseNodeId)
                 }
             }
             
-            nodesToRunOnGraphStep = nodesToRunOnGraphStep.union(mouseNodeIds)
+//            nodesToRunOnGraphStep = nodesToRunOnGraphStep.union(mouseNodeIds)
             
             // Add components containing mouse nodes
             nodesToRunOnGraphStep = components.reduce(into: nodesToRunOnGraphStep) { nodesSet, component in
