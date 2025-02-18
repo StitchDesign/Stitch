@@ -27,9 +27,9 @@ struct StitchAIRequest: OpenAIRequestable {
         self.temperature = 0.0
         self.response_format = responseFormat
         self.messages = [
-            .init(role: "system",
+            .init(role: .system,
                   content: systemPrompt + "Make sure your response follows this schema: \(try structuredOutputs.encodeToPrintableString())"),
-            .init(role: "user",
+            .init(role: .user,
                   content: userPrompt)
         ]
     }

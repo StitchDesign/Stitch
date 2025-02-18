@@ -273,6 +273,7 @@
 		B5EFD5BC2D63EC5D006A68FB /* OpenAIStructuredOutputs.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EFD5BB2D63EC58006A68FB /* OpenAIStructuredOutputs.swift */; };
 		B5EFD5C12D64EC5F006A68FB /* StitchAIRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EFD5C02D64EC5C006A68FB /* StitchAIRequest.swift */; };
 		B5EFD5C32D64EC86006A68FB /* OpenAIRequestable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EFD5C22D64EC85006A68FB /* OpenAIRequestable.swift */; };
+		B5EFD5C72D650D4A006A68FB /* StitchAITrainingData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EFD5C62D650D47006A68FB /* StitchAITrainingData.swift */; };
 		B5EFD61A2C1134EC006F5E7F /* MediaLayerViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EFD6192C1134EC006F5E7F /* MediaLayerViewModifier.swift */; };
 		B5F0FC162B4F2FB5009104A8 /* GraphReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F0FC152B4F2FB5009104A8 /* GraphReducer.swift */; };
 		B5F5FD432B37564500BBD9A2 /* WhatToTest.en-US.txt in Resources */ = {isa = PBXBuildFile; fileRef = B5F5FD422B37564500BBD9A2 /* WhatToTest.en-US.txt */; };
@@ -1233,6 +1234,7 @@
 		B5EFD5BB2D63EC58006A68FB /* OpenAIStructuredOutputs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIStructuredOutputs.swift; sourceTree = "<group>"; };
 		B5EFD5C02D64EC5C006A68FB /* StitchAIRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIRequest.swift; sourceTree = "<group>"; };
 		B5EFD5C22D64EC85006A68FB /* OpenAIRequestable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIRequestable.swift; sourceTree = "<group>"; };
+		B5EFD5C62D650D47006A68FB /* StitchAITrainingData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAITrainingData.swift; sourceTree = "<group>"; };
 		B5EFD6192C1134EC006F5E7F /* MediaLayerViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaLayerViewModifier.swift; sourceTree = "<group>"; };
 		B5F0FC152B4F2FB5009104A8 /* GraphReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphReducer.swift; sourceTree = "<group>"; };
 		B5F5FD422B37564500BBD9A2 /* WhatToTest.en-US.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "WhatToTest.en-US.txt"; sourceTree = "<group>"; };
@@ -3908,6 +3910,7 @@
 			children = (
 				B5EFD5C22D64EC85006A68FB /* OpenAIRequestable.swift */,
 				B5EFD5C02D64EC5C006A68FB /* StitchAIRequest.swift */,
+				B5EFD5C62D650D47006A68FB /* StitchAITrainingData.swift */,
 				B5EFD5BF2D64EC23006A68FB /* OpenAISchema */,
 				B5EFD5B92D62D50B006A68FB /* StitchStructuredOutputs.swift */,
 				B555FB402D59CD3A00E1D349 /* StitchAISchema.swift */,
@@ -5523,6 +5526,7 @@
 				EC49148F293580EE00D74344 /* ColorToHSLNode.swift in Sources */,
 				B596609B2C1A4B9900BE75D7 /* StitchShape.swift in Sources */,
 				EC4121912BAD53F200B24000 /* PatchNodeDefinitionKinds.swift in Sources */,
+				B5EFD5C72D650D4A006A68FB /* StitchAITrainingData.swift in Sources */,
 				EC9C498E268E29F4004150F8 /* SoundHelpers.swift in Sources */,
 				ECC7382D2BB6093100A680B5 /* ClassicAnimationOpAnchoring.swift in Sources */,
 				EC17ACD326B4C12800137EA5 /* CameraFeedManager.swift in Sources */,

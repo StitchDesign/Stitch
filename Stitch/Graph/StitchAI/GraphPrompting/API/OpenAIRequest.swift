@@ -106,9 +106,6 @@ extension StitchAIManager {
     private func makeRequest(_ request: OpenAIRequest,
                              attempt: Int = 1,
                              lastCapturedError: String? = nil) async throws -> [StepTypeAction] {
-        let structuredOutputs = StitchAIStructuredOutputsPayload()
-        let encodedStructuredOutputs = JSON(try JSONEncoder().encode(structuredOutputs))
-
         let config = request.config
         let prompt = request.prompt
         let systemPrompt = request.systemPrompt

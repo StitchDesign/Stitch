@@ -114,15 +114,15 @@ extension StitchAIStringConvertable {
         
         // Try decoding as different types, converting each to string
         if let value = try? container.decode(Self.T.self) {
-            log("StitchAIStringConvertable: Decoder: tried double")
+//            log("StitchAIStringConvertable: Decoder: tried double")
             self.init(value: value)
         } else if let stringValue = try? container.decode(String.self),
                   let valueFromString = Self.T(stringValue) {
-            log("StitchAIStringConvertable: Decoder: tried string")
+//            log("StitchAIStringConvertable: Decoder: tried string")
             self.init(value: valueFromString)
         } else if let jsonValue = try? container.decode(JSON.self),
                   let valueFromJson = Self.T(jsonValue.description) {
-            log("StitchAIStringConvertable: Decoder: had json \(jsonValue)")
+//            log("StitchAIStringConvertable: Decoder: had json \(jsonValue)")
             self.init(value: valueFromJson)
         } else {
             throw DecodingError.typeMismatch(
