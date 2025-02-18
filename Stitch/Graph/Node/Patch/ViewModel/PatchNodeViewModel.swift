@@ -66,7 +66,6 @@ final class PatchNodeViewModel: Sendable {
         // Create initial inputs and outputs using default data
         let rowDefinitions = NodeKind.patch(schema.patch)
             .rowDefinitions(for: schema.userVisibleType)
-        let defaultOutputsList = rowDefinitions.outputs.defaultList
         
         // Must set inputs before calling eval below
         let inputsObservers = schema.inputs
@@ -75,8 +74,7 @@ final class PatchNodeViewModel: Sendable {
                                   userVisibleType: schema.userVisibleType)
 
         let outputsObservers = rowDefinitions
-            .createOutputObservers(nodeId: schema.id,
-                                   values: defaultOutputsList)
+            .createEmptyOutputObservers(nodeId: schema.id)
         
         self.canvasObserver = .init(from: schema.canvasEntity,
                                     id: .node(schema.id),

@@ -218,8 +218,6 @@ extension Patch {
             node = ShapeToCommandsNode(id: id, position: position, zIndex: zIndex)
         case .commandsToShape:
             node = commandsToShapeNode(id: id, position: position, zIndex: zIndex)
-        case .mouse:
-            node = mouseInteractionNode(id: id, position: position, zIndex: zIndex)
         default:
             // Shouldn't happen
             fatalErrorIfDebug()
