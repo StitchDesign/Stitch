@@ -143,6 +143,19 @@ extension PatchOrLayer {
             }) {
                 return .patch(patch)
             }
+
+            //Handle cases where we have numbers...
+            if nodeKindName == "base64StringToImage" {
+                return .patch(.base64StringToImage)
+            }
+            
+            if nodeKindName == "imageToBase64String" {
+                return .patch(.imageToBase64String)
+            }
+            
+            if nodeKindName == "arcTan2" {
+                return .patch(.arcTan2)
+            }
             
             else if let layer = Layer.allCases.first(where: {
                 $0.defaultDisplayTitle().toCamelCase() == nodeKindName
