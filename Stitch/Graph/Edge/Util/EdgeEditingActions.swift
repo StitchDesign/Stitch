@@ -20,36 +20,36 @@ extension GraphState {
 
     @MainActor
     func outputHovered(outputCoordinate: OutputPortViewData) {
-        log("outputHovered fired")
+        // log("outputHovered fired")
         
         if self.edgeDrawingObserver.drawingGesture != nil {
-            log("OutputHovered called during edge drawing gesture; exiting")
+            // log("OutputHovered called during edge drawing gesture; exiting")
             self.graphUI.edgeAnimationEnabled = false
             self.graphUI.edgeEditingState = nil
             return
         }
         
         if self.graphMovement.canvasItemIsDragged || self.nodeIsMoving {
-            log("OutputHovered called during node drag; exiting")
+            // log("OutputHovered called during node drag; exiting")
             self.graphUI.edgeAnimationEnabled = false
             self.graphUI.edgeEditingState = nil
             return
         }
                 
         guard let nodesEastOfOutput = self.getNodesToTheEastFromClosestToFarthest(eastOf: outputCoordinate.canvasId) else {
-            log("OutputHovered: no nodes to the east of this hovered output")
+            // log("OutputHovered: no nodes to the east of this hovered output")
             // This is okay; it can happen that there are no nodes east of this node
             return
         }
         
         guard let nearbyNodeId = nodesEastOfOutput[safeIndex: EdgeEditingState.defaultNearbyCanvasItemIndex] else {
-            log("OutputHovered: could not retrieve closest nearby-node")
+            // log("OutputHovered: could not retrieve closest nearby-node")
             fatalErrorIfDebug()
             return
         }
                 
         guard let nearbyNode = self.getCanvasItem(nearbyNodeId) else {
-            log("OutputHovered: could not retrieve nearby node \(nearbyNodeId)")
+            // log("OutputHovered: could not retrieve nearby node \(nearbyNodeId)")
             return
         }
         
@@ -220,7 +220,7 @@ extension GraphState {
             return nil
         }
         
-        log("getNodesToTheEastFromClosestToFarthest: for originOutputNode \(originOutputNode.id), hoveredOutputLocation: \(hoveredOutputLocation)")
+        // log("getNodesToTheEastFromClosestToFarthest: for originOutputNode \(originOutputNode.id), hoveredOutputLocation: \(hoveredOutputLocation)")
                 
         let nodes = self.visibleNodesViewModel
             .getVisibleCanvasItems(at: self.graphUI.groupNodeFocused?.asNodeId)
