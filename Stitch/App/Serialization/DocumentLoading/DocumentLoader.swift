@@ -164,12 +164,11 @@ extension DocumentLoader {
         
         documentViewModel?.didDocumentChange = true // creates fresh thumbnail
         
+        // TODO: why and how can this fail? Should we have a `fatalErrorIfDebug here?
         guard let documentViewModel = documentViewModel else { return }
         
         projectLoader.loadingDocument = .loaded(document, nil)
         
-        
-        // We're not using the passed-in StitchDocument's preview window size
         if isProjectImport {
             documentViewModel.previewSizeDevice = document.previewSizeDevice
             documentViewModel.previewWindowSize = document.previewWindowSize
