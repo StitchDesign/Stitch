@@ -140,11 +140,13 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
     }
     
     private func initializeContentOffset(_ scrollView: UIScrollView) {
-//            let newOffset =  CGPoint(x: WHOLE_GRAPH_LENGTH/2,
-//                                     y: WHOLE_GRAPH_LENGTH/2)
-        
-        let newOffset =  self.document.localPosition
-        log("StitchUIScrollView: initializeContentOffset: newOffset: \(newOffset)")
+
+        // TODO: either continue to start graph at center, or persist BOTH zoom and offset (persisting offset but not zoom makes it easy to reopen the graph with no nodes visible, especially if we had been highly zoomed out)
+        // let newOffset =  self.document.localPosition
+        log("StitchUIScrollView: initializeContentOffset: self.document.localPosition: \(self.document.localPosition)")
+        log("StitchUIScrollView: USING GRAPH'S ABSOLUTE CENTER, NOT PERSISTED LOCAL POSITION")
+        let newOffset =  CGPoint(x: WHOLE_GRAPH_LENGTH/2,
+                                 y: WHOLE_GRAPH_LENGTH/2)
         
         scrollView.setContentOffset(newOffset, animated: false)
         
