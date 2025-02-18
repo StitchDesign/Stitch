@@ -65,18 +65,10 @@ enum StepTypeAction: Equatable, Hashable, Codable {
     }
 }
 
-struct LLMActionsInvalidMessage: Equatable, Hashable {
-    let value: String
-    
-    init(_ value: String) {
-        self.value = value
-    }
-}
-
 extension [StepTypeAction] {
     // Note: just some obvious validations; NOT a full validation; we can still e.g. create a connection from an output that doesn't exist etc.
     // nil = valid
-    func areLLMStepsValid() -> LLMActionsInvalidMessage? {
+    func validateLLMSteps() throws {
                 
         // Need to update this *as we go*, so that we can confirm that e.g. connectNodes came after we created at least two different nodes
         var createdNodes = [NodeId: PatchOrLayer]()
@@ -90,11 +82,13 @@ extension [StepTypeAction] {
                 
             case .changeValueType(let x):
                 guard let patch = createdNodes.get(x.nodeId)?.asNodeKind.getPatch else {
-                    return .init("ChangeValueType: no patch for node \(x.nodeId.debugFriendlyId)")
+                    throw StitchAIManagerError
+                        .actionValidationError("ChangeValueType: no patch for node \(x.nodeId.debugFriendlyId)")
                 }
                 
                 guard patch.availableNodeTypes.contains(x.valueType) else {
-                    return .init("ChangeValueType: invalid node type \(x.valueType.display) for patch \(patch.defaultDisplayTitle()) on node \(x.nodeId.debugFriendlyId)")
+                    throw StitchAIManagerError
+                        .actionValidationError("ChangeValueType: invalid node type \(x.valueType.display) for patch \(patch.defaultDisplayTitle()) on node \(x.nodeId.debugFriendlyId)")
                 }
             
             case .connectNodes(let x):
@@ -102,22 +96,26 @@ extension [StepTypeAction] {
                 let destinationNode = createdNodes.get(x.toNodeId)
                 
                 guard destinationNode.isDefined else {
-                    return .init("ConnectNodes: Tried create a connection from node \(x.fromNodeId.debugFriendlyId) to \(x.toNodeId.debugFriendlyId), but the To Node does not yet exist")
+                    throw StitchAIManagerError
+                        .actionValidationError("ConnectNodes: Tried create a connection from node \(x.fromNodeId.debugFriendlyId) to \(x.toNodeId.debugFriendlyId), but the To Node does not yet exist")
                 }
                 
                 guard let originNode = originNode else {
-                    return .init("ConnectNodes: Tried create a connection from node \(x.fromNodeId.debugFriendlyId) to \(x.toNodeId.debugFriendlyId), but the From Node does not yet exist")
+                    throw StitchAIManagerError
+                        .actionValidationError("ConnectNodes: Tried create a connection from node \(x.fromNodeId.debugFriendlyId) to \(x.toNodeId.debugFriendlyId), but the From Node does not yet exist")
                 }
                 
                 guard originNode.asNodeKind.isPatch else {
-                    return .init("ConnectNodes: Tried create a connection from node \(x.fromNodeId.debugFriendlyId) to \(x.toNodeId.debugFriendlyId), but the From Node was a layer or group")
+                    throw StitchAIManagerError
+                        .actionValidationError("ConnectNodes: Tried create a connection from node \(x.fromNodeId.debugFriendlyId) to \(x.toNodeId.debugFriendlyId), but the From Node was a layer or group")
                 }
             
             case .setInput(let x):
                 // node must exist
                 guard createdNodes.get(x.nodeId).isDefined else {
                     log("areLLMStepsValid: Invalid .setInput: \(x)")
-                    return .init("SetInput: Node \(x.nodeId.debugFriendlyId) does not yet exist")
+                    throw StitchAIManagerError
+                        .actionValidationError("SetInput: Node \(x.nodeId.debugFriendlyId) does not yet exist")
                 }
             }
         } // for step in self
@@ -125,16 +123,14 @@ extension [StepTypeAction] {
         let (depthMap, hasCycle) = calculateAINodesAdjacency(self)
         
         if hasCycle {
-            return .init("Had cycle")
+            throw StitchAIManagerError
+                .actionValidationError("Had cycle")
         }
         
         guard depthMap.isDefined else {
-            return .init("Could not topologically order the graph")
+            throw StitchAIManagerError
+                .actionValidationError("Could not topologically order the graph")
         }
-        
-        // If we didn't hit any guard statements, then the steps passed these validations
-        // nil = no error! So we're valid
-        return nil
     }
 }
 

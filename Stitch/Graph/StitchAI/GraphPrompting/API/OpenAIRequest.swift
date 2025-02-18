@@ -69,8 +69,8 @@ extension StitchAIManager {
                 let steps = try await manager.makeRequest(request)
 
                 // Handle successful response
-                manager.openAIRequestCompleted(steps: steps,
-                                               originalPrompt: request.prompt)
+                try manager.openAIRequestCompleted(steps: steps,
+                                                   originalPrompt: request.prompt)
             } catch {
                 log("StitchAI handleRequest error: \(error.localizedDescription)", .logToServer)
                 
@@ -238,8 +238,6 @@ extension StitchAIManager {
                                               data: Data,
                                               currentAttempt: Int) async throws -> [StepTypeAction] {
         
-        
-        
         // Try to parse request
         // log raw JSON response
         let jsonResponse = String(data: data, encoding: .utf8) ?? "Invalid JSON format"
@@ -288,7 +286,7 @@ extension StitchAIManager {
     /// 4. If all this succeeds, ONLY THEN do we apply the `[StepTypeAction]` to the state (fka `handleLLMStepAction`
     @MainActor
     func openAIRequestCompleted(steps: [StepTypeAction],
-                                originalPrompt: String) {
+                                originalPrompt: String) throws {
         guard let document = self.documentDelegate else {
             return
         }
@@ -305,7 +303,7 @@ extension StitchAIManager {
         document.llmRecording.actions = steps
         document.llmRecording.promptState.prompt = originalPrompt
         
-        document.validateAndApplyActions(steps)
+        try document.validateAndApplyActions(steps)
         
         document.llmRecording.recentOpenAIRequestCompleted = true
     }

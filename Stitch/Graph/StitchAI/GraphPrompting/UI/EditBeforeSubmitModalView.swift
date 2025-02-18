@@ -44,7 +44,7 @@ struct EditBeforeSubmitModalView: View {
             .listStyle(.plain)
             
             if let invalidReason = recordingState.actionsError {
-                StitchTextView(string: "Error: " + invalidReason.value,
+                StitchTextView(string: "Error: " + invalidReason,
                                fontColor: .red)
                 .padding()
                 .border(.red)

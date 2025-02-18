@@ -29,7 +29,14 @@ struct ShowLLMApprovalModal: StitchDocumentEvent {
         }
         
         // For augmentation mode, continue with approval flow
-        state.reapplyActions()
+        do {
+            try state.reapplyActions()
+        } catch let error as StitchFileError {
+            state.showErrorModal(message: error.description,
+                                 userPrompt: "")
+        } catch {
+            log("ShowLLMApprovalModal error: \(error.localizedDescription)")
+        }
         
         // End recording when we open the final submit
         state.llmRecordingEnded()
@@ -146,7 +153,7 @@ struct LLMActionsUpdatedByModal: StitchDocumentEvent {
         log("LLMActionsUpdated: newActions: \(newActions)")
         log("LLMActionsUpdated: state.llmRecording.actions was: \(state.llmRecording.actions)")
         state.llmRecording.actions = newActions
-        state.reapplyActions()
+        try? state.reapplyActions()
     }
 }
 
@@ -184,6 +191,6 @@ struct LLMActionDeleted: StitchDocumentEvent {
                 
         // If immediately "de-apply" the removed action(s) from graph,
         // so that user instantly sees what changed.
-        state.reapplyActions()
+        try? state.reapplyActions()
     }
 }
