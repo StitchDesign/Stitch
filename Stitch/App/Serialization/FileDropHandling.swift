@@ -61,7 +61,7 @@ func handleOnDrop(providers: [NSItemProvider],
                         switch await store?.documentLoader.loadDocument(from: tempURL,
                                                                         isImport: true) {
                         case .loaded(let data, _):
-                            await store?.createNewProject(from: data)
+                            await store?.createNewProject(from: data, isProjectImport: true)
                        default:
                             DispatchQueue.main.async {
                                 dispatch(DisplayError(error: .unsupportedProject))
@@ -71,7 +71,7 @@ func handleOnDrop(providers: [NSItemProvider],
                     }
                 }
                 return
-            }
+            } // guard
 
             // TODO: concurrency issues, ignoring for now
 //            #if targetEnvironment(macCatalyst)

@@ -11,22 +11,27 @@ import StitchSchemaKit
 // Creating a brand new project: empty state, no imported files
 extension StitchStore {
     @MainActor
-    func createNewProject(from document: StitchDocument = .init()) {
+    func createNewProject(from document: StitchDocument = .init(),
+                          isProjectImport: Bool) {
         let isPhoneDevice = GraphUIState.isPhoneDevice
         
         Task(priority: .high) { [weak self] in
             guard let store = self else { return }
             await store.createNewProject(from: document,
+                                         isProjectImport: isProjectImport,
                                          isPhoneDevice: isPhoneDevice)
         }
     }
     
     func createNewProject(from document: StitchDocument = .init(),
+                          isProjectImport: Bool,
                           isPhoneDevice: Bool) async {
         do {
-            try await self.documentLoader.createNewProject(from: document,
-                                                           isPhoneDevice: isPhoneDevice,
-                                                           store: self)
+            try await self.documentLoader.createNewProject(
+                from: document,
+                isProjectImport: isProjectImport,
+                isPhoneDevice: isPhoneDevice,
+                store: self)
         } catch {
             log("StitchStore.createNewProject error: \(error.localizedDescription)")
             fatalErrorIfDebug(error.localizedDescription)
