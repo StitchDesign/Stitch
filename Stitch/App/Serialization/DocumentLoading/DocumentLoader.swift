@@ -146,6 +146,7 @@ final actor DocumentLoader {
 extension DocumentLoader {
     @MainActor
     func createNewProject(from document: StitchDocument = .init(),
+                          isProjectImport: Bool,
                           isPhoneDevice: Bool,
                           store: StitchStore) async throws {
         let projectLoader = try await self.installDocument(document: document)
@@ -163,21 +164,25 @@ extension DocumentLoader {
         
         documentViewModel?.didDocumentChange = true // creates fresh thumbnail
         
+        // TODO: why and how can this fail? Should we have a `fatalErrorIfDebug here?
         guard let documentViewModel = documentViewModel else { return }
         
         projectLoader.loadingDocument = .loaded(document, nil)
         
-        // Get latest preview window size
-        let previewDeviceString = UserDefaults.standard.string(forKey: DEFAULT_PREVIEW_WINDOW_DEVICE_KEY_NAME) ??
-        PreviewWindowDevice.defaultPreviewWindowDevice.rawValue
-        
-        guard let previewDevice = PreviewWindowDevice(rawValue: previewDeviceString) else {
-            fatalErrorIfDebug()
-            return
+        if isProjectImport {
+            documentViewModel.previewSizeDevice = document.previewSizeDevice
+            documentViewModel.previewWindowSize = document.previewWindowSize
+        } else {
+            // Get latest preview window size
+            guard let previewDevice = PreviewWindowDevice(rawValue: UserDefaults.standard.string(forKey: DEFAULT_PREVIEW_WINDOW_DEVICE_KEY_NAME) ??
+                                                          PreviewWindowDevice.defaultPreviewWindowDevice.rawValue) else {
+                fatalErrorIfDebug()
+                return
+            }
+            documentViewModel.previewSizeDevice = previewDevice
+            documentViewModel.previewWindowSize = previewDevice.previewWindowDimensions
         }
         
-        documentViewModel.previewSizeDevice = previewDevice
-        documentViewModel.previewWindowSize = previewDevice.previewWindowDimensions
         projectLoader.documentViewModel = documentViewModel
         store.navPath = [projectLoader]
     }
