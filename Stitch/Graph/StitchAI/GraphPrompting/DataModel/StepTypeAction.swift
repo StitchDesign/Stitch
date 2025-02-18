@@ -12,7 +12,6 @@ import SwiftUI
 enum StepTypeAction: Equatable, Hashable, Codable {
     
     case addNode(StepActionAddNode)
-    case addLayerInput(StepActionAddLayerInput)
     case connectNodes(StepActionConnectionAdded)
     case changeValueType(StepActionChangeValueType)
     case setInput(StepActionSetInput)
@@ -21,8 +20,6 @@ enum StepTypeAction: Equatable, Hashable, Codable {
         switch self {
         case .addNode:
             return StepActionAddNode.stepType
-        case .addLayerInput:
-            return StepActionAddLayerInput.stepType
         case .connectNodes:
             return StepActionConnectionAdded.stepType
         case .changeValueType:
@@ -35,8 +32,6 @@ enum StepTypeAction: Equatable, Hashable, Codable {
     func toStep() -> Step {
         switch self {
         case .addNode(let x):
-            return x.toStep
-        case .addLayerInput(let x):
             return x.toStep
         case .connectNodes(let x):
             return x.toStep
@@ -54,11 +49,7 @@ enum StepTypeAction: Equatable, Hashable, Codable {
         case .addNode:
             let x = try StepActionAddNode.fromStep(action)
             return .addNode(x)
-            
-        case .addLayerInput:
-            let x = try StepActionAddLayerInput.fromStep(action)
-            return .addLayerInput(x)
-            
+
         case .connectNodes:
             let x = try StepActionConnectionAdded.fromStep(action)
             return .connectNodes(x)
@@ -104,12 +95,6 @@ extension [StepTypeAction] {
                 
                 guard patch.availableNodeTypes.contains(x.valueType) else {
                     return .init("ChangeValueType: invalid node type \(x.valueType.display) for patch \(patch.defaultDisplayTitle()) on node \(x.nodeId.debugFriendlyId)")
-                }
-            
-            case .addLayerInput(let x):
-                // the layer node must exist already
-                guard createdNodes.get(x.nodeId)?.asNodeKind.getLayer.isDefined ?? false else {
-                    return .init("AddLayerInput: layer node \(x.nodeId.debugFriendlyId) does not exist yet")
                 }
             
             case .connectNodes(let x):
@@ -224,43 +209,6 @@ struct StepActionAddNode: StepActionable {
     }
     
     static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .nodeName, .valueType]
-}
-
-// See `createLLMStepAddLayerInput`
-struct StepActionAddLayerInput: StepActionable {
-    static let stepType = StepType.addLayerInput
-    
-    let nodeId: NodeId
-    
-    // can only ever be a layer-input
-    let port: LayerInputPort // assumes .packed
-    
-    var toStep: Step {
-        Step(stepType: Self.stepType,
-             nodeId: nodeId,
-             port: NodeIOPortType.keyPath(.init(layerInput: port,
-                                                portType: .packed)))
-    }
-    
-    static func fromStep(_ action: Step) throws -> Self {
-        guard let nodeId = action.nodeId?.value,
-              let layerInput = action.port?.keyPath?.layerInput else {
-            throw StitchAIManagerError.stepDecoding(Self.stepType, action)
-        }
-        
-        return .init(nodeId: nodeId,
-                     port: layerInput)
-    }
-    
-    static func createStructuredOutputs() -> StitchAIStepSchema {
-        .init(stepType: .addLayerInput,
-              nodeId: OpenAISchema(type: .string),
-              port: OpenAIGeneric(types: [OpenAISchema(type: .integer)],
-                                  refs: [OpenAISchemaRef(ref: "LayerPorts")])
-              )
-    }
-    
-    static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .port]
 }
 
 // See `createLLMStepConnectionAdded`

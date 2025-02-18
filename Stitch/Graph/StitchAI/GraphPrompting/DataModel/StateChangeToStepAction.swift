@@ -73,18 +73,6 @@ extension StitchDocumentViewModel {
                 fromNodeId: output.nodeId)))
         }
     }
-    
-    @MainActor
-    func maybeCreateLLMStepAddLayerInput(_ nodeId: NodeId, _ property: LayerInputType) {
-        // If we're LLM-recording, add an `LLMAddNode` action
-        if self.llmRecording.isRecording,
-           !self.llmRecording.isApplyingActions {
-
-            let step = StepTypeAction.addLayerInput(.init(nodeId: nodeId, port: property.layerInput))
-                        
-            self.llmRecording.actions.append(step)
-        }
-    }
 }
 
 extension NodeIOPortType {
@@ -130,15 +118,6 @@ func createLLMStepConnectionAdded(input: InputCoordinate,
         fromNodeId: output.nodeId,
         toNodeId: input.nodeId)
 }
-
-
-func createLLMStepAddLayerInput(nodeId: NodeId,
-                                input: LayerInputPort) -> LLMStepAction {
-      LLMStepAction(stepType: StepType.addLayerInput,
-                    nodeId: .init(nodeId), // Don't need to specify node name?
-                    port: .keyPath(.init(layerInput: input,
-                                         portType: .packed)))
-  }
 
 extension LayerInputPort {
     var asLLMStepPort: String {

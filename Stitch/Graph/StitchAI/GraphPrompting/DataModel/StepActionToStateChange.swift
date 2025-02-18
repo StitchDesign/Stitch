@@ -41,22 +41,6 @@ extension StitchDocumentViewModel {
                 return .init("Applying Action: could not create node \(x.nodeId.debugFriendlyId) \(x.nodeName)")
             }
             self.llmRecording.isApplyingActions = false
-            
-        case .addLayerInput(let x):
-            guard let node = self.graph.getNode(x.nodeId),
-                  let layerNode = node.layerNode else {
-                log("applyAction: could not apply addLayerInput")
-                self.llmRecording.isApplyingActions = false
-                return .init("Applying Action: node \(x.nodeId.debugFriendlyId) did not exist in state or was not a layer")
-            }
-            
-            let layerInputType = x.port.asFullInput
-            let input = layerNode[keyPath: layerInputType.layerNodeKeyPath]
-
-            self.graph.layerInputAddedToGraph(node: node,
-                                              input: input,
-                                              coordinate: layerInputType)
-            self.llmRecording.isApplyingActions = false
         
         case .connectNodes(let x):
             let edge: PortEdgeData = PortEdgeData(

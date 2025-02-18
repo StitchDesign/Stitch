@@ -107,8 +107,6 @@ extension [StepTypeAction] {
             switch action {
             case .addNode(let x):
                 return x.nodeId == deletedNode
-            case .addLayerInput(let x):
-                return x.nodeId == deletedNode
             case .setInput(let x):
                 return x.nodeId == deletedNode
             case .connectNodes(let x):
@@ -175,16 +173,9 @@ struct LLMActionDeleted: StitchDocumentEvent {
                                    willDeleteLayerGroupChildren: true)
             
             // Remove any other actions that relied on this AddNode action
-            // e.g. cannot AddLayerInput if layer node longer exists
             state.llmRecording.actions = state.llmRecording.actions
                 .removeActionsForDeletedNode(deletedNode: x.nodeId)
-            
-        case .addLayerInput(let x):
-            state.llmRecording.actions = state.llmRecording.actions.removeActionsForDeletedLayerInput(
-                nodeId: x.nodeId,
-                // Always .packed
-                deletedLayerInput: x.port.asFullInput)
-                        
+
         case .connectNodes, .changeValueType, .setInput:
             // deleting these LLMActions does not require us to delete any other LLMActions;
             // we just 'wipe and replay LLMActions'

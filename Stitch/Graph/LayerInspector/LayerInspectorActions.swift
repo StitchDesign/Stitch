@@ -156,8 +156,6 @@ extension GraphState {
         }
         
         document.graphUI.propertySidebar.selectedProperty = nil
-        
-        document.maybeCreateLLMStepAddLayerInput(nodeId, coordinate)
     }
 }
 

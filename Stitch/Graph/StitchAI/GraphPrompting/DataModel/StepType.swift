@@ -20,7 +20,6 @@ typealias LLMStepActions = [LLMStepAction]
 /// Enumeration of possible step types in the visual programming system
 enum StepType: String, Equatable, Codable {
     case addNode = "add_node"
-    case addLayerInput = "add_layer_input"
     case connectNodes = "connect_nodes"
     case changeValueType = "change_value_type"
     case setInput = "set_input"
@@ -29,8 +28,6 @@ enum StepType: String, Equatable, Codable {
         switch self {
         case .addNode:
             return "Add Node"
-        case .addLayerInput:
-            return "Add Layer Input"
         case .connectNodes:
             return "Connect Nodes"
         case .changeValueType:
