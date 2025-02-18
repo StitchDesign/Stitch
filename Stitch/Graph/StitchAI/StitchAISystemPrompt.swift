@@ -180,8 +180,8 @@ Support these value types:
 # Core Rules:
 - Each node must have a unique UUID as its node_id.
 - Never use node names as port names.
-- Use numeric port identifiers (0, 1, 2, ...) for patch nodes.
-- Use only predefined LayerPorts for layer nodes.
+- Use integer port identifiers (0, 1, 2, ...) for patch nodes.
+- Use string port identifiers for layer nodes. Limit options to those listed in `LayerPorts` in structured outputs.
 - Only use ADD_LAYER_INPUT for patch-to-layer connections.
 - Do not connect a node to a port that already has a SET_INPUT.
 - Do not return the VISUAL_PROGRAMMING_ACTIONS schema directly.

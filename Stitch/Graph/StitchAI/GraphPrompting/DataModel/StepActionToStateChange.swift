@@ -80,8 +80,8 @@ extension StitchDocumentViewModel {
 extension NodeIOPortType {
     // TODO: `LLMStepAction`'s `port` parameter does not yet properly distinguish between input vs output?
     // Note: the older LLMAction port-string-parsing logic was more complicated?
-    init?(stringValue: String?) {
-        guard let port = stringValue else { return nil }
+    init(stringValue: String) throws {
+        let port = stringValue
   
         if let portId = Int(port) {
             // could be patch input/output OR layer output
@@ -95,9 +95,7 @@ extension NodeIOPortType {
                                                 portType: .packed)
             self = .keyPath(layerInputType)
         } else {
-            log("could not parse LLMStepAction's port: \(port)")
-            fatalErrorIfDebug()
-            return nil
+            throw StitchAIManagerError.portTypeDecodingError(port)
         }
     }
 }

@@ -203,12 +203,11 @@ struct StepActionAddNode: StepActionable {
     static func createStructuredOutputs() -> StitchAIStepSchema {
         .init(stepType: .addNode,
               nodeId: OpenAISchema(type: .string),
-              nodeName: OpenAISchemaRef(ref: "NodeName"),
-              valueType: OpenAISchemaRef(ref: "ValueType")
+              nodeName: OpenAISchemaRef(ref: "NodeName")
         )
     }
     
-    static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .nodeName, .valueType]
+    static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .nodeName]
 }
 
 // See `createLLMStepConnectionAdded`

@@ -95,7 +95,7 @@ extension Step: Codable {
         }
         
         if let portString = try? container.decodeIfPresent(String.self, forKey: .port) {
-            self.port = NodeIOPortType(stringValue: portString)
+            self.port = try NodeIOPortType(stringValue: portString)
         } else if let portInt = try? container.decodeIfPresent(Int.self, forKey: .port) {
             self.port = NodeIOPortType.portIndex(portInt)
         }
