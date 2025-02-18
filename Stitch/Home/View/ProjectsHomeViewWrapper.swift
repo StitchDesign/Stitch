@@ -46,7 +46,7 @@ struct ProjectsHomeViewWrapper: View {
                         
                         CatalystHomescreenNavBarButton(
                             action: {
-                                store.createNewProject()
+                                store.createNewProject(isProjectImport: false)
                             },
                             iconName: NEW_PROJECT_ICON_NAME)
                         
