@@ -207,7 +207,7 @@ final class LayerNodeViewModel {
         //self.layerGroupId = schema.layerGroupId
         
         self.outputPorts = rowDefinitions
-            .createOutputLayerPorts(schema: schema,
+            .createEmptyOutputLayerPorts(schema: schema,
                                     valuesList: rowDefinitions.outputs.defaultList)
         
         self.positionPort = .init(from: schema, port: .position)

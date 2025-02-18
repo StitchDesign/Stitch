@@ -4702,7 +4702,7 @@
 				E463E7ED2C6FC7090008E318 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */,
 				E4A848A92D32FCFA0029AFDE /* XCRemoteSwiftPackageReference "supabase-swift" */,
 				E42AAE4A2D4844EE002D187D /* XCRemoteSwiftPackageReference "sentry-cocoa" */,
-				ECFCBEF02D5C03ED00AD677B /* XCRemoteSwiftPackageReference "StitchEngine" */,
+				EC8E94672D642CD5008B01BB /* XCRemoteSwiftPackageReference "StitchEngine" */,
 			);
 			productRefGroup = 200BD858254F66EB00692903 /* Products */;
 			projectDirPath = "";
@@ -6615,6 +6615,14 @@
 				version = 0.9.18;
 			};
 		};
+		EC8E94672D642CD5008B01BB /* XCRemoteSwiftPackageReference "StitchEngine" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/StitchDesign/StitchEngine.git";
+			requirement = {
+				kind = revision;
+				revision = 18ad4770f22757b2e6557d4302cb0c89242bb399;
+			};
+		};
 		EC91034829109DF3007C548E /* XCRemoteSwiftPackageReference "SoulverCore" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/soulverteam/SoulverCore.git";
@@ -6629,14 +6637,6 @@
 			requirement = {
 				branch = master;
 				kind = branch;
-			};
-		};
-		ECFCBEF02D5C03ED00AD677B /* XCRemoteSwiftPackageReference "StitchEngine" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/StitchDesign/StitchEngine.git";
-			requirement = {
-				kind = revision;
-				revision = d7da03a9b3cb45aaf0ba2950fd985e98b62ab9b0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
