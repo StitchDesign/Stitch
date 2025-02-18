@@ -35,7 +35,7 @@ extension StitchAITrainingData {
             do {
                 actionsData = try jsonDecoder.decode(StitchAIActionsTrainingData.self, from: messageData)
             } catch {
-                log("StitchAITrainingData validation error with example \(index): Step decoding failed with error: \(error)")
+                log("StitchAITrainingData validation error with example \(index+1): Step decoding failed with error: \(error)")
                 continue
             }
             
@@ -56,7 +56,7 @@ extension StitchAITrainingData {
                 continue
             }
             
-            log("StitchAITrainingData validation successful at \(index)")
+            log("StitchAITrainingData validation successful at \(index + 1)")
         }
     }
     
