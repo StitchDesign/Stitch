@@ -285,6 +285,19 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
         ))
     }
     
+    func scrollViewWillBeginZooming(_ scrollView: UIScrollView,
+                                    with view: UIView?) {
+        // log("scrollViewWillBeginZooming")
+        self.borderCheckingDisabled = true
+    }
+    
+    func scrollViewDidEndZooming(_ scrollView: UIScrollView,
+                                 with view: UIView?,
+                                 atScale scale: CGFloat) {
+        // log("scrollViewDidEndZooming")
+        self.borderCheckingDisabled = false
+    }
+    
     
     func scrollViewDidZoom(_ scrollView: UIScrollView) {
         Self.updateGraphScrollData(scrollView)
