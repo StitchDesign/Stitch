@@ -53,7 +53,8 @@ struct StitchAINodeSectionDescription: Encodable {
 
 extension StitchAINodeSectionDescription {
     @MainActor
-    init(_ section: NodeSection) {
+    init(_ section: NodeSection,
+         graph: GraphState) {
         let nodesInSection: [StitchAINodeIODescription] = section
             .getNodesForSection()
             .compactMap { nodeKind -> StitchAINodeIODescription? in
@@ -64,8 +65,8 @@ extension StitchAINodeSectionDescription {
                 
                 // Backup plan: create default node, extract data from there
                 guard let defaultNode = nodeKind.createDefaultNode(id: .init(),
-                                                             activeIndex: .init(.zero),
-                                                                   graphDelegate: nil) else {
+                                                                   activeIndex: .init(.zero),
+                                                                   graphDelegate: graph) else {
                     fatalErrorIfDebug()
                     return nil
                 }
@@ -75,10 +76,19 @@ extension StitchAINodeSectionDescription {
                                                  value: inputObserver.activeValue)
                 }
                 
+                // Calculate node to get outputs values
+                if let evalResult = defaultNode.evaluate() {
+                    defaultNode.updateOutputsObservers(newValuesList: evalResult.outputsValues)
+                }
+                
+                
                 let outputs: [StitchAIPortValueDescription] = defaultNode.outputsObservers.map { outputObserver in
                     StitchAIPortValueDescription(label: outputObserver.label(),
                                                  value: outputObserver.activeValue)
                 }
+                
+                assertInDebug(inputs.first { $0.value == .none } == nil)
+                assertInDebug(outputs.first { $0.value == .none } == nil)
                 
                 return .init(nodeKind: nodeKind.asLLMStepNodeName,
                              inputs: inputs,

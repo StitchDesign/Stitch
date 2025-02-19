@@ -12,7 +12,6 @@ import SwiftUI
 enum StepTypeAction: Equatable, Hashable, Codable {
     
     case addNode(StepActionAddNode)
-    case addLayerInput(StepActionAddLayerInput)
     case connectNodes(StepActionConnectionAdded)
     case changeValueType(StepActionChangeValueType)
     case setInput(StepActionSetInput)
@@ -21,8 +20,6 @@ enum StepTypeAction: Equatable, Hashable, Codable {
         switch self {
         case .addNode:
             return StepActionAddNode.stepType
-        case .addLayerInput:
-            return StepActionAddLayerInput.stepType
         case .connectNodes:
             return StepActionConnectionAdded.stepType
         case .changeValueType:
@@ -35,8 +32,6 @@ enum StepTypeAction: Equatable, Hashable, Codable {
     func toStep() -> Step {
         switch self {
         case .addNode(let x):
-            return x.toStep
-        case .addLayerInput(let x):
             return x.toStep
         case .connectNodes(let x):
             return x.toStep
@@ -54,11 +49,7 @@ enum StepTypeAction: Equatable, Hashable, Codable {
         case .addNode:
             let x = try StepActionAddNode.fromStep(action)
             return .addNode(x)
-            
-        case .addLayerInput:
-            let x = try StepActionAddLayerInput.fromStep(action)
-            return .addLayerInput(x)
-            
+
         case .connectNodes:
             let x = try StepActionConnectionAdded.fromStep(action)
             return .connectNodes(x)
@@ -74,18 +65,10 @@ enum StepTypeAction: Equatable, Hashable, Codable {
     }
 }
 
-struct LLMActionsInvalidMessage: Equatable, Hashable {
-    let value: String
-    
-    init(_ value: String) {
-        self.value = value
-    }
-}
-
 extension [StepTypeAction] {
     // Note: just some obvious validations; NOT a full validation; we can still e.g. create a connection from an output that doesn't exist etc.
     // nil = valid
-    func areLLMStepsValid() -> LLMActionsInvalidMessage? {
+    func validateLLMSteps() throws {
                 
         // Need to update this *as we go*, so that we can confirm that e.g. connectNodes came after we created at least two different nodes
         var createdNodes = [NodeId: PatchOrLayer]()
@@ -99,17 +82,13 @@ extension [StepTypeAction] {
                 
             case .changeValueType(let x):
                 guard let patch = createdNodes.get(x.nodeId)?.asNodeKind.getPatch else {
-                    return .init("ChangeValueType: no patch for node \(x.nodeId.debugFriendlyId)")
+                    throw StitchAIManagerError
+                        .actionValidationError("ChangeValueType: no patch for node \(x.nodeId.debugFriendlyId)")
                 }
                 
                 guard patch.availableNodeTypes.contains(x.valueType) else {
-                    return .init("ChangeValueType: invalid node type \(x.valueType.display) for patch \(patch.defaultDisplayTitle()) on node \(x.nodeId.debugFriendlyId)")
-                }
-            
-            case .addLayerInput(let x):
-                // the layer node must exist already
-                guard createdNodes.get(x.nodeId)?.asNodeKind.getLayer.isDefined ?? false else {
-                    return .init("AddLayerInput: layer node \(x.nodeId.debugFriendlyId) does not exist yet")
+                    throw StitchAIManagerError
+                        .actionValidationError("ChangeValueType: invalid node type \(x.valueType.display) for patch \(patch.defaultDisplayTitle()) on node \(x.nodeId.debugFriendlyId)")
                 }
             
             case .connectNodes(let x):
@@ -117,22 +96,26 @@ extension [StepTypeAction] {
                 let destinationNode = createdNodes.get(x.toNodeId)
                 
                 guard destinationNode.isDefined else {
-                    return .init("ConnectNodes: Tried create a connection from node \(x.fromNodeId.debugFriendlyId) to \(x.toNodeId.debugFriendlyId), but the To Node does not yet exist")
+                    throw StitchAIManagerError
+                        .actionValidationError("ConnectNodes: Tried create a connection from node \(x.fromNodeId.debugFriendlyId) to \(x.toNodeId.debugFriendlyId), but the To Node does not yet exist")
                 }
                 
                 guard let originNode = originNode else {
-                    return .init("ConnectNodes: Tried create a connection from node \(x.fromNodeId.debugFriendlyId) to \(x.toNodeId.debugFriendlyId), but the From Node does not yet exist")
+                    throw StitchAIManagerError
+                        .actionValidationError("ConnectNodes: Tried create a connection from node \(x.fromNodeId.debugFriendlyId) to \(x.toNodeId.debugFriendlyId), but the From Node does not yet exist")
                 }
                 
                 guard originNode.asNodeKind.isPatch else {
-                    return .init("ConnectNodes: Tried create a connection from node \(x.fromNodeId.debugFriendlyId) to \(x.toNodeId.debugFriendlyId), but the From Node was a layer or group")
+                    throw StitchAIManagerError
+                        .actionValidationError("ConnectNodes: Tried create a connection from node \(x.fromNodeId.debugFriendlyId) to \(x.toNodeId.debugFriendlyId), but the From Node was a layer or group")
                 }
             
             case .setInput(let x):
                 // node must exist
                 guard createdNodes.get(x.nodeId).isDefined else {
                     log("areLLMStepsValid: Invalid .setInput: \(x)")
-                    return .init("SetInput: Node \(x.nodeId.debugFriendlyId) does not yet exist")
+                    throw StitchAIManagerError
+                        .actionValidationError("SetInput: Node \(x.nodeId.debugFriendlyId) does not yet exist")
                 }
             }
         } // for step in self
@@ -140,16 +123,14 @@ extension [StepTypeAction] {
         let (depthMap, hasCycle) = calculateAINodesAdjacency(self)
         
         if hasCycle {
-            return .init("Had cycle")
+            throw StitchAIManagerError
+                .actionValidationError("Had cycle")
         }
         
         guard depthMap.isDefined else {
-            return .init("Could not topologically order the graph")
+            throw StitchAIManagerError
+                .actionValidationError("Could not topologically order the graph")
         }
-        
-        // If we didn't hit any guard statements, then the steps passed these validations
-        // nil = no error! So we're valid
-        return nil
     }
 }
 
@@ -218,49 +199,11 @@ struct StepActionAddNode: StepActionable {
     static func createStructuredOutputs() -> StitchAIStepSchema {
         .init(stepType: .addNode,
               nodeId: OpenAISchema(type: .string),
-              nodeName: OpenAISchemaRef(ref: "NodeName"),
-              valueType: OpenAISchemaRef(ref: "ValueType")
+              nodeName: OpenAISchemaRef(ref: "NodeName")
         )
     }
     
-    static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .nodeName, .valueType]
-}
-
-// See `createLLMStepAddLayerInput`
-struct StepActionAddLayerInput: StepActionable {
-    static let stepType = StepType.addLayerInput
-    
-    let nodeId: NodeId
-    
-    // can only ever be a layer-input
-    let port: LayerInputPort // assumes .packed
-    
-    var toStep: Step {
-        Step(stepType: Self.stepType,
-             nodeId: nodeId,
-             port: NodeIOPortType.keyPath(.init(layerInput: port,
-                                                portType: .packed)))
-    }
-    
-    static func fromStep(_ action: Step) throws -> Self {
-        guard let nodeId = action.nodeId?.value,
-              let layerInput = action.port?.keyPath?.layerInput else {
-            throw StitchAIManagerError.stepDecoding(Self.stepType, action)
-        }
-        
-        return .init(nodeId: nodeId,
-                     port: layerInput)
-    }
-    
-    static func createStructuredOutputs() -> StitchAIStepSchema {
-        .init(stepType: .addLayerInput,
-              nodeId: OpenAISchema(type: .string),
-              port: OpenAIGeneric(types: [OpenAISchema(type: .integer)],
-                                  refs: [OpenAISchemaRef(ref: "LayerPorts")])
-              )
-    }
-    
-    static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .port]
+    static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .nodeName]
 }
 
 // See `createLLMStepConnectionAdded`

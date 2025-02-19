@@ -271,6 +271,9 @@
 		B5EFD5B82D5E69C1006A68FB /* StitchAINodeSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EFD5B72D5E69BC006A68FB /* StitchAINodeSection.swift */; };
 		B5EFD5BA2D62D510006A68FB /* StitchStructuredOutputs.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EFD5B92D62D50B006A68FB /* StitchStructuredOutputs.swift */; };
 		B5EFD5BC2D63EC5D006A68FB /* OpenAIStructuredOutputs.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EFD5BB2D63EC58006A68FB /* OpenAIStructuredOutputs.swift */; };
+		B5EFD5C12D64EC5F006A68FB /* StitchAIRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EFD5C02D64EC5C006A68FB /* StitchAIRequest.swift */; };
+		B5EFD5C32D64EC86006A68FB /* OpenAIRequestable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EFD5C22D64EC85006A68FB /* OpenAIRequestable.swift */; };
+		B5EFD5C72D650D4A006A68FB /* StitchAITrainingData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EFD5C62D650D47006A68FB /* StitchAITrainingData.swift */; };
 		B5EFD61A2C1134EC006F5E7F /* MediaLayerViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EFD6192C1134EC006F5E7F /* MediaLayerViewModifier.swift */; };
 		B5F0FC162B4F2FB5009104A8 /* GraphReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F0FC152B4F2FB5009104A8 /* GraphReducer.swift */; };
 		B5F5FD432B37564500BBD9A2 /* WhatToTest.en-US.txt in Resources */ = {isa = PBXBuildFile; fileRef = B5F5FD422B37564500BBD9A2 /* WhatToTest.en-US.txt */; };
@@ -1229,6 +1232,9 @@
 		B5EFD5B72D5E69BC006A68FB /* StitchAINodeSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAINodeSection.swift; sourceTree = "<group>"; };
 		B5EFD5B92D62D50B006A68FB /* StitchStructuredOutputs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchStructuredOutputs.swift; sourceTree = "<group>"; };
 		B5EFD5BB2D63EC58006A68FB /* OpenAIStructuredOutputs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIStructuredOutputs.swift; sourceTree = "<group>"; };
+		B5EFD5C02D64EC5C006A68FB /* StitchAIRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIRequest.swift; sourceTree = "<group>"; };
+		B5EFD5C22D64EC85006A68FB /* OpenAIRequestable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIRequestable.swift; sourceTree = "<group>"; };
+		B5EFD5C62D650D47006A68FB /* StitchAITrainingData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAITrainingData.swift; sourceTree = "<group>"; };
 		B5EFD6192C1134EC006F5E7F /* MediaLayerViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaLayerViewModifier.swift; sourceTree = "<group>"; };
 		B5F0FC152B4F2FB5009104A8 /* GraphReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphReducer.swift; sourceTree = "<group>"; };
 		B5F5FD422B37564500BBD9A2 /* WhatToTest.en-US.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "WhatToTest.en-US.txt"; sourceTree = "<group>"; };
@@ -3800,6 +3806,14 @@
 			path = Node;
 			sourceTree = "<group>";
 		};
+		B5EFD5BF2D64EC23006A68FB /* OpenAISchema */ = {
+			isa = PBXGroup;
+			children = (
+				B5EFD5BB2D63EC58006A68FB /* OpenAIStructuredOutputs.swift */,
+			);
+			path = OpenAISchema;
+			sourceTree = "<group>";
+		};
 		B5F5FD412B3755C200BBD9A2 /* TestFlight */ = {
 			isa = PBXGroup;
 			children = (
@@ -3894,9 +3908,11 @@
 		E4D0D2D32CE6AD6A00E482E4 /* DataModel */ = {
 			isa = PBXGroup;
 			children = (
-				B5EFD5BB2D63EC58006A68FB /* OpenAIStructuredOutputs.swift */,
+				B5EFD5C22D64EC85006A68FB /* OpenAIRequestable.swift */,
+				B5EFD5C02D64EC5C006A68FB /* StitchAIRequest.swift */,
+				B5EFD5C62D650D47006A68FB /* StitchAITrainingData.swift */,
+				B5EFD5BF2D64EC23006A68FB /* OpenAISchema */,
 				B5EFD5B92D62D50B006A68FB /* StitchStructuredOutputs.swift */,
-				B5EFD5B42D5E63E4006A68FB /* Node */,
 				B555FB402D59CD3A00E1D349 /* StitchAISchema.swift */,
 				B555FB3C2D56C50C00E1D349 /* StitchAICodableTypes.swift */,
 				B59602142D568396007C7AA9 /* StitchAITypeCasting.swift */,
@@ -3907,6 +3923,7 @@
 				ECEC4A432CE2FB900062ACAF /* StateChangeToStepAction.swift */,
 				ECEC4A452CE3BEAF0062ACAF /* StepActionToStateChange.swift */,
 				EC0E1AFD2D4B2288004AAA37 /* LLMValueParsingUtils.swift */,
+				B5EFD5B42D5E63E4006A68FB /* Node */,
 			);
 			path = DataModel;
 			sourceTree = "<group>";
@@ -5121,6 +5138,7 @@
 				B55500DD2C1BA9E40081C3F1 /* PreviewTextFieldLayerUtils.swift in Sources */,
 				EC91034729109CE7007C548E /* SoulverNode.swift in Sources */,
 				B55500ED2C1BAD610081C3F1 /* PreviewAbsoluteShapeLayerModifier.swift in Sources */,
+				B5EFD5C12D64EC5F006A68FB /* StitchAIRequest.swift in Sources */,
 				ECA92A28260A6A3400281B52 /* DelayNode.swift in Sources */,
 				ECB9A86B2AEB4935006E65EE /* SaturationSliderView.swift in Sources */,
 				EC5C6C3A2C2DAE690023D0C0 /* LLMActionRecording.swift in Sources */,
@@ -5441,6 +5459,7 @@
 				EC49069D2CCACD4000165554 /* StitchCustomColorPickerView.swift in Sources */,
 				EC609DC42935468000BF60A5 /* SubtractNode.swift in Sources */,
 				EC89F7E127602C0700C4447A /* ExpansionBox.swift in Sources */,
+				B5EFD5C32D64EC86006A68FB /* OpenAIRequestable.swift in Sources */,
 				ECF6AEF7263CB7C70011C679 /* NotNode.swift in Sources */,
 				EC2C8C992C654D5300D067B8 /* OpenFlyoutView.swift in Sources */,
 				EC8DE63C2637689600A22587 /* NodeRowType.swift in Sources */,
@@ -5507,6 +5526,7 @@
 				EC49148F293580EE00D74344 /* ColorToHSLNode.swift in Sources */,
 				B596609B2C1A4B9900BE75D7 /* StitchShape.swift in Sources */,
 				EC4121912BAD53F200B24000 /* PatchNodeDefinitionKinds.swift in Sources */,
+				B5EFD5C72D650D4A006A68FB /* StitchAITrainingData.swift in Sources */,
 				EC9C498E268E29F4004150F8 /* SoundHelpers.swift in Sources */,
 				ECC7382D2BB6093100A680B5 /* ClassicAnimationOpAnchoring.swift in Sources */,
 				EC17ACD326B4C12800137EA5 /* CameraFeedManager.swift in Sources */,

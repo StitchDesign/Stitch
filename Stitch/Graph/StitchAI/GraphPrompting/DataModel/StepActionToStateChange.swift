@@ -27,7 +27,7 @@ extension StitchDocumentViewModel {
     // fka `handleLLMStepAction`
     // returns nil = failed, and should retry
     @MainActor
-    func applyAction(_ action: StepTypeAction) -> LLMActionsInvalidMessage? {
+    func applyAction(_ action: StepTypeAction) throws {
         
         // Set true whenever we are
         self.llmRecording.isApplyingActions = true
@@ -36,26 +36,9 @@ extension StitchDocumentViewModel {
         case .addNode(let x):
             guard let _ = self.nodeCreated(choice: x.nodeName.asNodeKind,
                                            nodeId: x.nodeId) else {
-                log("applyAction: could not apply addNode")
                 self.llmRecording.isApplyingActions = false
-                return .init("Applying Action: could not create node \(x.nodeId.debugFriendlyId) \(x.nodeName)")
+                throw StitchAIManagerError.actionValidationError("Could not create node \(x.nodeId.debugFriendlyId) \(x.nodeName)")
             }
-            self.llmRecording.isApplyingActions = false
-            
-        case .addLayerInput(let x):
-            guard let node = self.graph.getNode(x.nodeId),
-                  let layerNode = node.layerNode else {
-                log("applyAction: could not apply addLayerInput")
-                self.llmRecording.isApplyingActions = false
-                return .init("Applying Action: node \(x.nodeId.debugFriendlyId) did not exist in state or was not a layer")
-            }
-            
-            let layerInputType = x.port.asFullInput
-            let input = layerNode[keyPath: layerInputType.layerNodeKeyPath]
-
-            self.graph.layerInputAddedToGraph(node: node,
-                                              input: input,
-                                              coordinate: layerInputType)
             self.llmRecording.isApplyingActions = false
         
         case .connectNodes(let x):
@@ -64,6 +47,25 @@ extension StitchDocumentViewModel {
                 to: .init(portType: x.port, nodeId: x.toNodeId))
             
             let _ = graph.edgeAdded(edge: edge)
+            
+            // Create canvas node if destination is layer
+            if let fromNodeLocation = graph.getNodeViewModel(x.fromNodeId)?.patchCanvasItem?.position,
+               let destinationNode = graph.getNodeViewModel(x.toNodeId),
+               let layerNode = destinationNode.layerNode {
+                guard let keyPath = x.port.keyPath else {
+                    throw StitchAIManagerError.actionValidationError("expected layer node keypath but got: \(x.port)")
+                }
+                
+                var position = fromNodeLocation
+                position.x += 200
+                
+                let inputData = layerNode[keyPath: keyPath.layerNodeKeyPath]
+                graph.layerInputAddedToGraph(node: destinationNode,
+                                             input: inputData,
+                                             coordinate: keyPath,
+                                             position: position)
+            }
+            
             self.llmRecording.isApplyingActions = false
         
         case .changeValueType(let x):
@@ -78,7 +80,7 @@ extension StitchDocumentViewModel {
             guard let input = self.graph.getInputObserver(coordinate: inputCoordinate) else {
                 log("applyAction: could not apply setInput")
                 self.llmRecording.isApplyingActions = false
-                return .init("Applying Action: could not retrieve input \(inputCoordinate)")
+                throw StitchAIManagerError.actionValidationError("Could not retrieve input \(inputCoordinate)")
             }
             
             // Use the common input-edit-committed function, so that we remove edges, block or unblock fields, etc.
@@ -88,16 +90,14 @@ extension StitchDocumentViewModel {
             
             self.llmRecording.isApplyingActions = false
         }
-
-        return nil // nil = no errors or invalidations
     }
 }
 
 extension NodeIOPortType {
     // TODO: `LLMStepAction`'s `port` parameter does not yet properly distinguish between input vs output?
     // Note: the older LLMAction port-string-parsing logic was more complicated?
-    init?(stringValue: String?) {
-        guard let port = stringValue else { return nil }
+    init(stringValue: String) throws {
+        let port = stringValue
   
         if let portId = Int(port) {
             // could be patch input/output OR layer output
@@ -111,9 +111,7 @@ extension NodeIOPortType {
                                                 portType: .packed)
             self = .keyPath(layerInputType)
         } else {
-            log("could not parse LLMStepAction's port: \(port)")
-            fatalErrorIfDebug()
-            return nil
+            throw StitchAIManagerError.portTypeDecodingError(port)
         }
     }
 }
@@ -144,6 +142,19 @@ extension PatchOrLayer {
                 return patchDisplay == nodeKindName
             }) {
                 return .patch(patch)
+            }
+
+            //Handle cases where we have numbers...
+            if nodeKindName == "base64StringToImage" {
+                return .patch(.base64StringToImage)
+            }
+            
+            if nodeKindName == "imageToBase64String" {
+                return .patch(.imageToBase64String)
+            }
+            
+            if nodeKindName == "arcTan2" {
+                return .patch(.arcTan2)
             }
             
             else if let layer = Layer.allCases.first(where: {
