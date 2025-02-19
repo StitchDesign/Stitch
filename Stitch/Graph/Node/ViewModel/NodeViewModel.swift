@@ -212,8 +212,7 @@ extension NodeViewModel: NodeCalculatable {
         
         // Updates preview layers if layer specified
         // Must be before runEval check below since most layers don't have eval!
-        self.layerNode?.didValuesUpdate(newValuesList: values,
-                                        id: self.id)
+        self.layerNode?.didValuesUpdate(newValuesList: values)
     }
     
     @MainActor
