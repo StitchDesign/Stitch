@@ -44,7 +44,7 @@ struct EditBeforeSubmitModalView: View {
             .listStyle(.plain)
             
             if let invalidReason = recordingState.actionsError {
-                StitchTextView(string: "Error: " + invalidReason.value,
+                StitchTextView(string: "Error: " + invalidReason,
                                fontColor: .red)
                 .padding()
                 .border(.red)
@@ -130,18 +130,7 @@ struct LLMActionCorrectionView: View {
             switch action {
             case .addNode(let x):
                 StitchTextView(string: "Node: \(x.nodeName.asNodeKind.description) \(x.nodeId.debugFriendlyId)")
-                
-            case .addLayerInput(let x):
-                if let nodeName = nodeIdToNameMapping.get(x.nodeId) {
-                    StitchTextView(string: "Node: \(nodeName.asNodeKind.description) \(x.nodeId.debugFriendlyId)")
-                    
-                    LLMNodeIOPortTypeView(nodeName: nodeName,
-                                          port: .keyPath(x.port.asFullInput),
-                                          generalLabel: "Layer Input")
-                } else {
-                    StitchTextView(string: "No Patch/Layer found for Node \(x.nodeId.debugFriendlyId)")
-                }
-            
+
             case .connectNodes(let x):
                 if let fromNodeName = nodeIdToNameMapping.get(x.fromNodeId) {
                     StitchTextView(string: "From Node: \(fromNodeName.asNodeKind.description) \(x.fromNodeId.debugFriendlyId)")

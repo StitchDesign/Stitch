@@ -73,18 +73,6 @@ extension StitchDocumentViewModel {
                 fromNodeId: output.nodeId)))
         }
     }
-    
-    @MainActor
-    func maybeCreateLLMStepAddLayerInput(_ nodeId: NodeId, _ property: LayerInputType) {
-        // If we're LLM-recording, add an `LLMAddNode` action
-        if self.llmRecording.isRecording,
-           !self.llmRecording.isApplyingActions {
-
-            let step = StepTypeAction.addLayerInput(.init(nodeId: nodeId, port: property.layerInput))
-                        
-            self.llmRecording.actions.append(step)
-        }
-    }
 }
 
 extension NodeIOPortType {
@@ -131,15 +119,6 @@ func createLLMStepConnectionAdded(input: InputCoordinate,
         toNodeId: input.nodeId)
 }
 
-
-func createLLMStepAddLayerInput(nodeId: NodeId,
-                                input: LayerInputPort) -> LLMStepAction {
-      LLMStepAction(stepType: StepType.addLayerInput,
-                    nodeId: .init(nodeId), // Don't need to specify node name?
-                    port: .keyPath(.init(layerInput: input,
-                                         portType: .packed)))
-  }
-
 extension LayerInputPort {
     var asLLMStepPort: String {
         self.label(useShortLabel: true)
@@ -175,7 +154,7 @@ extension LLMStepActions {
         do {
             let data = try JSONEncoder().encode(self)
             let json = try JSON(data: data)
-            log("LLMStepActions: asJSON: encoded json: \(json)")
+//            log("LLMStepActions: asJSON: encoded json: \(json)")
             return json
         } catch {
             log("LLMStepActions: asJSON: error: \(error)")
@@ -193,7 +172,7 @@ extension [StepTypeAction] {
         do {
             let data = try JSONEncoder().encode(self)
             let json = try JSON(data: data)
-            log("[StepTypeAction]: asJSON: encoded json: \(json)")
+//            log("[StepTypeAction]: asJSON: encoded json: \(json)")
             return json
         } catch {
             log("[StepTypeAction]: asJSON: error: \(error)")

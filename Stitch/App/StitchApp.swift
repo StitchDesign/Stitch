@@ -20,6 +20,8 @@ struct StitchApp: App {
             // iPad uses StitchRouter to use the project zoom in/out animation
             StitchRootView(store: self.store)
                 .onAppear {
+//                    StitchAITrainingData.validateTrainingData(from: "stitch-training")
+                    
                     dispatch(DirectoryUpdated())
                     
                     SentrySDK.start { options in

@@ -38,8 +38,11 @@ public enum NodeSection: String, CaseIterable, CustomStringConvertible {
 
 extension NodeSection {
     @MainActor
-    static func getAllAIDescriptions() -> [StitchAINodeSectionDescription] {
-        Self.allCases.map(StitchAINodeSectionDescription.init)
+    static func getAllAIDescriptions(graph: GraphState) -> [StitchAINodeSectionDescription] {
+        Self.allCases.map {
+            StitchAINodeSectionDescription.init($0,
+                                                graph: graph)
+        }
     }
     
     public var description: String {

@@ -228,7 +228,7 @@ extension JSONDecoder {
                                    data: Data) throws -> T? where T: Decodable {
         guard let string = try? self.decode(String.self,
                                             from: data) else {
-            log("decodeIfString: could not parse string type.")
+//            log("decodeIfString: could not parse string type.")
             return nil
         }
         

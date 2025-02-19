@@ -51,7 +51,7 @@ struct LLMRecordingState: Equatable {
     
     // Error from validating or applying the LLM actions;
     // Note: we can actually have several, but only display one at a time
-    var actionsError: LLMActionsInvalidMessage?
+    var actionsError: String?
     
     var attempts: Int = 0
     
@@ -102,7 +102,7 @@ extension [StepTypeAction] {
 extension StitchDocumentViewModel {
     
     @MainActor
-    func validateAndApplyActions(_ actions: [StepTypeAction]) {
+    func validateAndApplyActions(_ actions: [StepTypeAction]) throws {
         
         // Wipe old error reason
         self.llmRecording.actionsError = nil
@@ -110,20 +110,25 @@ extension StitchDocumentViewModel {
         // Are these steps valid?
         // invalid = e.g. tried to create a connection for a node before we created that node
     
-        if let invalidReason = actions.areLLMStepsValid() {
+        do {
+            try actions.validateLLMSteps()
+        } catch let error as StitchAIManagerError {
             log("validateAndApplyActions: will show edit modal: invalid actions: \(actions)")
             // immediately enter correction-mode: one of the actions, or perhaps the ordering, was incorrect
-            self.llmRecording.actionsError = invalidReason
+            self.llmRecording.actionsError = error.description
             self.startLLMAugmentationMode()
-            return
+            
+            throw error
         }
         
         for action in actions {
-            // We may also encounter
-            if let invalidReason = self.applyAction(action) {
-                self.llmRecording.actionsError = invalidReason
+            do {
+                try self.applyAction(action)
+            } catch let error as StitchFileError {
+                self.llmRecording.actionsError = error.localizedDescription
                 self.startLLMAugmentationMode()
-                return
+                
+                throw error
             }
         }
         
@@ -189,7 +194,7 @@ extension StitchDocumentViewModel {
     }
     
     @MainActor
-    func reapplyActions() {
+    func reapplyActions() throws {
         let actions = self.llmRecording.actions
         
         log("StitchDocumentViewModel: reapplyLLMActions: actions: \(actions)")
@@ -205,7 +210,7 @@ extension StitchDocumentViewModel {
         }
         
         // Apply the LLM-actions (model-generated and user-augmented) to the graph
-        self.validateAndApplyActions(actions)
+        try self.validateAndApplyActions(actions)
         
         // TODO: also select the nodes when we first successfully parse?
         // Select the created nodes

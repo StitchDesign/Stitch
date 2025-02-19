@@ -29,7 +29,14 @@ struct ShowLLMApprovalModal: StitchDocumentEvent {
         }
         
         // For augmentation mode, continue with approval flow
-        state.reapplyActions()
+        do {
+            try state.reapplyActions()
+        } catch let error as StitchFileError {
+            state.showErrorModal(message: error.description,
+                                 userPrompt: "")
+        } catch {
+            log("ShowLLMApprovalModal error: \(error.localizedDescription)")
+        }
         
         // End recording when we open the final submit
         state.llmRecordingEnded()
@@ -107,8 +114,6 @@ extension [StepTypeAction] {
             switch action {
             case .addNode(let x):
                 return x.nodeId == deletedNode
-            case .addLayerInput(let x):
-                return x.nodeId == deletedNode
             case .setInput(let x):
                 return x.nodeId == deletedNode
             case .connectNodes(let x):
@@ -148,7 +153,7 @@ struct LLMActionsUpdatedByModal: StitchDocumentEvent {
         log("LLMActionsUpdated: newActions: \(newActions)")
         log("LLMActionsUpdated: state.llmRecording.actions was: \(state.llmRecording.actions)")
         state.llmRecording.actions = newActions
-        state.reapplyActions()
+        try? state.reapplyActions()
     }
 }
 
@@ -175,16 +180,9 @@ struct LLMActionDeleted: StitchDocumentEvent {
                                    willDeleteLayerGroupChildren: true)
             
             // Remove any other actions that relied on this AddNode action
-            // e.g. cannot AddLayerInput if layer node longer exists
             state.llmRecording.actions = state.llmRecording.actions
                 .removeActionsForDeletedNode(deletedNode: x.nodeId)
-            
-        case .addLayerInput(let x):
-            state.llmRecording.actions = state.llmRecording.actions.removeActionsForDeletedLayerInput(
-                nodeId: x.nodeId,
-                // Always .packed
-                deletedLayerInput: x.port.asFullInput)
-                        
+
         case .connectNodes, .changeValueType, .setInput:
             // deleting these LLMActions does not require us to delete any other LLMActions;
             // we just 'wipe and replay LLMActions'
@@ -193,6 +191,6 @@ struct LLMActionDeleted: StitchDocumentEvent {
                 
         // If immediately "de-apply" the removed action(s) from graph,
         // so that user instantly sees what changed.
-        state.reapplyActions()
+        try? state.reapplyActions()
     }
 }
