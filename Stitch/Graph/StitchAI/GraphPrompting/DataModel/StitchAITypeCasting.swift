@@ -176,7 +176,7 @@ extension UserVisibleType {
         case .cameraDirection:
             return CameraDirection.self
         case .interactionId:
-            return LayerNodeId?.self
+            return StitchAIUUID?.self
         case .scrollMode:
             return ScrollMode.self
         case .textAlignment:
