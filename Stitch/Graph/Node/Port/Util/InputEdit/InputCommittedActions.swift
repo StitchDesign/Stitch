@@ -23,7 +23,6 @@ extension GraphState {
         }
         
         self.inputEditCommitted(input: input,
-                                nodeId: node.id,
                                 value: value,
                                 wasDropdown: true, // true?
                                 wasAdjustmentBarSelection: false)
@@ -63,7 +62,6 @@ extension GraphState {
             // Note: heterogenous values doesn't matter; only the multiselect does
             layerMultiselectInput.multiselectObservers(self).forEach { observer in
                 self.inputEditCommitted(input: observer.rowObserver,
-                                        nodeId: node.id,
                                         value: value,
                                         wasDropdown: wasDropdown,
                                         wasAdjustmentBarSelection: wasAdjustmentBarSelection)
@@ -73,7 +71,6 @@ extension GraphState {
         // just editing a single
         else {
             self.inputEditCommitted(input: input,
-                                    nodeId: node.id,
                                     value: value,
                                     wasDropdown: wasDropdown,
                                     wasAdjustmentBarSelection: wasAdjustmentBarSelection)
@@ -82,10 +79,11 @@ extension GraphState {
     
     @MainActor
     func inputEditCommitted(input: InputNodeRowObserver,
-                            nodeId: NodeId,
                             value: PortValue?,
                             wasDropdown: Bool,
                             wasAdjustmentBarSelection: Bool = false) {
+        
+        let nodeId = input.id.nodeId
         
         // TODO: debug: why was input.nodeDelegate `nil` for e.g. the padding layer-input but not the size layer-input, and only in the context of generating an LLM action?
         guard // let nodeId = input.nodeDelegate?.id,

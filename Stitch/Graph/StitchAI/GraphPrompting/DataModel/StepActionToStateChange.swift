@@ -83,7 +83,6 @@ extension StitchDocumentViewModel {
             
             // Use the common input-edit-committed function, so that we remove edges, block or unblock fields, etc.
             self.graph.inputEditCommitted(input: input,
-                                          nodeId: x.nodeId,
                                           value: x.value,
                                           wasDropdown: false)
             
