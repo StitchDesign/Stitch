@@ -93,6 +93,8 @@ extension GraphState {
             return
         }
         
+        self.confirmInputIsVisibleInFrame(input)
+                
         // if we had a value, and the value was different than the existing value,
         // THEN we detach the edge.
         // Should be okay since whenever we connect an edge, we evaluate the node and thus extend its inputs and outputs.
@@ -137,4 +139,27 @@ extension GraphState {
         
         self.calculate(nodeId)
     }
+    
+    @MainActor
+    func confirmInputIsVisibleInFrame(_ input: InputNodeRowObserver) {
+        input.allRowViewModels.forEach { rowViewModel in
+            // If we're editing a field on the canvas (pacth, or layer-input-on-canvas),
+            // that field must be 'visible in frame.'
+            // If the field is not visible, log this to Sentry and manually set the canvas item visible.
+            if let canvasItem = rowViewModel.canvasItemDelegate,
+               !canvasItem.isVisibleInFrame {
+                
+                // On dev debug, crash
+                fatalErrorIfDebug()
+                
+                // On prod, log to Sentry
+                log("Canvas item \(canvasItem.id) was considered off-screen, yet we edited one of its fields?", .logToServer)
+                
+                // Set the item to be visible, no matter what
+                self.visibleNodesViewModel.visibleCanvasIds.insert(canvasItem.id)
+            }
+        }
+    }
+    
 }
+
