@@ -29,6 +29,8 @@ enum StitchAIManagerError: Error {
     case decodeObjectFromString(String, String)
     case structuredOutputsNotFound
     case apiResponseError
+    case portTypeDecodingError(String)
+    case actionValidationError(String)
 }
 
 extension StitchAIManagerError: CustomStringConvertible {
@@ -74,6 +76,10 @@ extension StitchAIManagerError: CustomStringConvertible {
             return "Structured outputs file wasn't found."
         case .apiResponseError:
             return "API returned non-successful status code."
+        case .portTypeDecodingError(let port):
+            return "Could not decode node's port from: \(port)"
+        case .actionValidationError(let string):
+            return "Action validation error: \(string)"
         }
     }
 }

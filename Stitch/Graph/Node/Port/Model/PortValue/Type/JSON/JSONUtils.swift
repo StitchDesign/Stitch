@@ -113,7 +113,7 @@ extension Data {
     func createPrintableJsonString() throws -> String {
         do {
             let json = try JSONSerialization.jsonObject(with: self, options: [])
-            let data = try JSONSerialization.data(withJSONObject: json, options: [.sortedKeys, .prettyPrinted])
+            let data = try JSONSerialization.data(withJSONObject: json, options: [.sortedKeys, .prettyPrinted, .withoutEscapingSlashes])
             guard let jsonString = String(data: data, encoding: .utf8) else {
                 print("createPrintableJsonString: invalid data.")
                 throw SwiftyJSONError.invalidJSON

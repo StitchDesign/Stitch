@@ -41,12 +41,13 @@ struct OpenAIRequest {
     /// Initialize a new request with prompt and optional configuration
     @MainActor
     init(prompt: String,
-         config: OpenAIRequestConfig = .default) throws {
+         config: OpenAIRequestConfig = .default,
+         graph: GraphState) throws {
         self.prompt = prompt
         self.config = config
         
         // Load system prompt from bundled file
-        let loadedPrompt = try StitchAIManager.systemPrompt()
+        let loadedPrompt = try StitchAIManager.systemPrompt(graph: graph)
         self.systemPrompt = loadedPrompt
     }
 }
@@ -69,8 +70,8 @@ extension StitchAIManager {
                 let steps = try await manager.makeRequest(request)
 
                 // Handle successful response
-                manager.openAIRequestCompleted(steps: steps,
-                                               originalPrompt: request.prompt)
+                try manager.openAIRequestCompleted(steps: steps,
+                                                   originalPrompt: request.prompt)
             } catch {
                 log("StitchAI handleRequest error: \(error.localizedDescription)", .logToServer)
                 
@@ -106,9 +107,6 @@ extension StitchAIManager {
     private func makeRequest(_ request: OpenAIRequest,
                              attempt: Int = 1,
                              lastCapturedError: String? = nil) async throws -> [StepTypeAction] {
-        let structuredOutputs = StitchAIStructuredOutputsPayload()
-        let encodedStructuredOutputs = JSON(try JSONEncoder().encode(structuredOutputs))
-
         let config = request.config
         let prompt = request.prompt
         let systemPrompt = request.systemPrompt
@@ -139,27 +137,15 @@ extension StitchAIManager {
         urlRequest.setValue("Bearer \(self.secrets.openAIAPIKey)", forHTTPHeaderField: "Authorization")
         
         // Construct request payload
-        let payload: [String: Any] = [
-            "model": self.secrets.openAIModel,
-            "n": 1,
-            //https://platform.openai.com/docs/api-reference/making-requests
-            "temperature": 0.0,      // Lower temperature for more focused responses
-            "response_format": [
-                "type": "json_schema",
-                "json_schema": [
-                    "name": "VisualProgrammingActions",
-                    "schema": encodedStructuredOutputs.object
-                ]
-            ],
-            "messages": [
-                ["role": "system", "content": systemPrompt + "Make sure your response follows this schema: \(encodedStructuredOutputs.stringValue)"],
-                ["role": "user", "content": prompt]
-            ]
-        ]
+        let payload = try StitchAIRequest(secrets: secrets,
+                                          userPrompt: prompt,
+                                          systemPrompt: systemPrompt)
         
         // Serialize and send request
         do {
-            let jsonData = try JSONSerialization.data(withJSONObject: payload, options: [.withoutEscapingSlashes])
+            let encoder = JSONEncoder()
+//            encoder.outputFormatting = [.withoutEscapingSlashes]
+            let jsonData = try encoder.encode(payload)
             urlRequest.httpBody = jsonData
             log("Making request attempt \(attempt) of \(config.maxRetries)")
             // log("Request payload: \(payload.description)")
@@ -238,8 +224,6 @@ extension StitchAIManager {
                                               data: Data,
                                               currentAttempt: Int) async throws -> [StepTypeAction] {
         
-        
-        
         // Try to parse request
         // log raw JSON response
         let jsonResponse = String(data: data, encoding: .utf8) ?? "Invalid JSON format"
@@ -288,7 +272,7 @@ extension StitchAIManager {
     /// 4. If all this succeeds, ONLY THEN do we apply the `[StepTypeAction]` to the state (fka `handleLLMStepAction`
     @MainActor
     func openAIRequestCompleted(steps: [StepTypeAction],
-                                originalPrompt: String) {
+                                originalPrompt: String) throws {
         guard let document = self.documentDelegate else {
             return
         }
@@ -305,7 +289,7 @@ extension StitchAIManager {
         document.llmRecording.actions = steps
         document.llmRecording.promptState.prompt = originalPrompt
         
-        document.validateAndApplyActions(steps)
+        try document.validateAndApplyActions(steps)
         
         document.llmRecording.recentOpenAIRequestCompleted = true
     }
