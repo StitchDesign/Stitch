@@ -149,11 +149,12 @@ extension GraphState {
             if let canvasItem = rowViewModel.canvasItemDelegate,
                !canvasItem.isVisibleInFrame {
                 
-                // On dev debug, crash
-                fatalErrorIfDebug()
-                
-                // On prod, log to Sentry
-                log("Canvas item \(canvasItem.id) was considered off-screen, yet we edited one of its fields?", .logToServer)
+                // TODO: we are firing input edit events merely when an item is added to the canvas
+//                // On dev debug, crash
+//                fatalErrorIfDebug()
+//                
+//                // On prod, log to Sentry
+//                log("Canvas item \(canvasItem.id) was considered off-screen, yet we edited one of its fields?", .logToServer)
                 
                 // Set the item to be visible, no matter what
                 self.visibleNodesViewModel.visibleCanvasIds.insert(canvasItem.id)
