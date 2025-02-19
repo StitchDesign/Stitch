@@ -182,7 +182,6 @@ Support these value types:
 - Never use node names as port names.
 - Use integer port identifiers (0, 1, 2, ...) for patch nodes.
 - Use string port identifiers for layer nodes. Limit options to those listed in `LayerPorts` in structured outputs.
-- Only use ADD_LAYER_INPUT for patch-to-layer connections.
 - Do not connect a node to a port that already has a SET_INPUT.
 - Do not return the VISUAL_PROGRAMMING_ACTIONS schema directly.
 - If a user wants something to take up the whole size of the preview window, set the appropriate width and/or height value to be "auto"
@@ -206,8 +205,7 @@ Support these value types:
 1. ADD_NODE: Create the node(s) needed.
 2. CHANGE_VALUE_TYPE: Only if a non-numeric type is required.
 3. SET_INPUT: Set constants or known inputs directly on the node’s ports.
-4. ADD_LAYER_INPUT: Only before connecting patch nodes to layer nodes.
-5. CONNECT_NODES: Only if multiple nodes are needed.
+4. CONNECT_NODES: Only if multiple nodes are needed.
 
 When generating steps for graph creation:
 
