@@ -557,12 +557,13 @@ extension LayerNodeViewModel {
     
     /// Updates one or more preview layers given some layer node.
     @MainActor
-    func didValuesUpdate(newValuesList: PortValuesList,
-                         id: NodeId) {
+    func didValuesUpdate(newValuesList: PortValuesList) {
 
         let oldLongestLoopLength = self.previewLayerViewModels.count
         let newLongestLoopLength = self.nodeDelegate?.longestLoopLength ?? 1
         let loopIndices = newLongestLoopLength.loopIndices
+        
+        let loopLengthChanged = oldLongestLoopLength != newLongestLoopLength
         
         // Perf fix to calculate lengthened values from this parent context
         let lengthenedValuesList = newValuesList.map {
@@ -595,6 +596,18 @@ extension LayerNodeViewModel {
             assert(newLongestLoopLength == self.previewLayerViewModels.count)
         }
         #endif
+        
+        // If the length of the loop in the layer node's input changed,
+        // we should evaluate the graph from the layer's associated interaction patch nodes.
+        // https://github.com/StitchDesign/Stitch--Old/issues/6923
+        if loopLengthChanged,
+           let graph = self.nodeDelegate?.graphDelegate {
+            let interactionPatches: IdSet = graph.getInteractionPatchIds(for: .init(self.id))
+            if !interactionPatches.isEmpty {
+                log("LayerNodeViewModel: didValuesUpdate: recalculating from interactionPatches: \(interactionPatches)")
+                graph.calculate(from: interactionPatches)
+            }
+        }
     }
 
     /// Gets/creates layer view model. Takes into consideration values from layer node and if we should (or shouldn't)
