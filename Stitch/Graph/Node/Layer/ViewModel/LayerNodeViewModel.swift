@@ -605,7 +605,9 @@ extension LayerNodeViewModel {
             let interactionPatches: IdSet = graph.getInteractionPatchIds(for: .init(self.id))
             if !interactionPatches.isEmpty {
                 log("LayerNodeViewModel: didValuesUpdate: recalculating from interactionPatches: \(interactionPatches)")
-                graph.calculate(from: interactionPatches)
+                
+                // Note: calculate on next graph step. Avoids potential infinite-eval loop on a single graph step, if a graph somehow changes some layer input loop length on every run.
+                graph.setNodesForNextGraphStep(interactionPatches)
             }
         }
     }
