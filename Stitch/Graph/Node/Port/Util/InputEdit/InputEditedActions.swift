@@ -50,6 +50,8 @@ extension InputNodeRowObserver {
             return
         }
     
+        graph.confirmInputIsVisibleInFrame(self)
+        
         let parentPortValue = self.activeValue
 
         //        log("inputEdited: fieldValue: \(fieldValue)")
