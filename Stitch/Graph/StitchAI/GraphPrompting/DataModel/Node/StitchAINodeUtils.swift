@@ -87,8 +87,8 @@ extension StitchAINodeSectionDescription {
                                                  value: outputObserver.activeValue)
                 }
                 
-                assert(inputs.first { $0.value == .none } == nil)
-                assert(outputs.first { $0.value == .none } == nil)
+                assertInDebug(inputs.first { $0.value == .none } == nil)
+                assertInDebug(outputs.first { $0.value == .none } == nil)
                 
                 return .init(nodeKind: nodeKind.asLLMStepNodeName,
                              inputs: inputs,
