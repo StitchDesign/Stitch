@@ -7,7 +7,7 @@
 
 extension StitchAIManager {
     @MainActor
-    static func systemPrompt() throws -> String {
+    static func systemPrompt(graph: GraphState) throws -> String {
 """
 # Strict Adherence to Schema and Node Lists:
 - Your output must strictly follow the given JSON schema.
@@ -218,7 +218,7 @@ Ensure each step is a plain object without any wrapping or nesting.
 
 These are the nodes in our application; and the input and output ports they have:
 
-\(try NodeSection.getAllAIDescriptions().encodeToPrintableString())
+\(try NodeSection.getAllAIDescriptions(graph: graph).encodeToPrintableString())
 
 # Value Examples
 Below is a schema illustrating various value types and the types of values they take. Adhere to the exact schema of provided examples for values:

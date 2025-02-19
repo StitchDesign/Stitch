@@ -41,12 +41,13 @@ struct OpenAIRequest {
     /// Initialize a new request with prompt and optional configuration
     @MainActor
     init(prompt: String,
-         config: OpenAIRequestConfig = .default) throws {
+         config: OpenAIRequestConfig = .default,
+         graph: GraphState) throws {
         self.prompt = prompt
         self.config = config
         
         // Load system prompt from bundled file
-        let loadedPrompt = try StitchAIManager.systemPrompt()
+        let loadedPrompt = try StitchAIManager.systemPrompt(graph: graph)
         self.systemPrompt = loadedPrompt
     }
 }

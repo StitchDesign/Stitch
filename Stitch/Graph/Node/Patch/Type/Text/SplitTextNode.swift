@@ -44,6 +44,11 @@ func splitTextEval(inputs: PortValuesList,
     }
     
     let splitText: [String] = text.split(separator: token).map { String($0) }
+    
+    guard !splitText.isEmpty else {
+        return [[PortValue.string(.init(""))]]
+    }
+    
     return [
         splitText.map { PortValue.string(.init($0))}
     ]
