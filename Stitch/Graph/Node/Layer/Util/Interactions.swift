@@ -37,6 +37,14 @@ extension GraphState {
         || !getScrollInteractionIds(for: layerNodeId).isEmpty
         || !getPressInteractionIds(for: layerNodeId).isEmpty
     }
+    
+    @MainActor
+    func getInteractionPatchIds(for layerNodeId: LayerNodeId) -> IdSet {
+        self.getPressInteractionIds(for: layerNodeId)
+            .union(self.getDragInteractionIds(for: layerNodeId))
+            .union(self.getScrollInteractionIds(for: layerNodeId))
+    }
+    
 }
 
 extension NodeViewModel {

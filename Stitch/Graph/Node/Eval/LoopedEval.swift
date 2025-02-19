@@ -39,6 +39,7 @@ extension NodeViewModel {
 
         guard let interactionLayerId = inputs.first?.first?.getInteractionId,
               let layerNode = graphState.getNodeViewModel(interactionLayerId.id)?.layerNode else {
+            log("loopedEval: could not retrieve interactive layer id and layer node")
             return [0..<loopCount].map { _ in
                 return .init(from: self.defaultOutputs)
             }
@@ -50,6 +51,7 @@ extension NodeViewModel {
         return self.loopedEval(ephemeralObserverType,
                                minLoopCount: layerNode.previewLayerViewModels.count) { values, ephemeralObserver, loopIndex in
             guard let interactiveLayer = lengthenedPreviewLayers[safe: loopIndex]?.interactiveLayer else {
+                log("loopedEval: could not find interactive layer for loopIndex \(loopIndex) in lengthenedPreviewLayers \(lengthenedPreviewLayers)")
                 return .init(from: self.defaultOutputs)
             }
             return evalOp(values, ephemeralObserver, interactiveLayer, loopIndex)
