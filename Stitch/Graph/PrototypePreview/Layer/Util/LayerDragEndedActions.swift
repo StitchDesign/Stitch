@@ -60,6 +60,6 @@ extension GraphState {
         } // if let
         
         // Recalculate the graph
-        self.calculate(nodesToRecalculate)
+        self.scheduleForNextGraphStep(nodesToRecalculate)
     }
 }

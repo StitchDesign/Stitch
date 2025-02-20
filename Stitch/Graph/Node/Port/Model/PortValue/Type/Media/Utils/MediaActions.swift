@@ -174,7 +174,7 @@ extension GraphState {
             store.alertState.stitchFileError = error
         }
 
-        self.calculate(newNodeId)
+        self.scheduleForNextGraphStep(newNodeId)
         self.encodeProjectInBackground()
     }
     
@@ -334,7 +334,7 @@ extension GraphState {
             }
             
             // Recalculate downstream patch nodes after values are updated
-            self.calculate(changedDownstreamNodes)
+            self.scheduleForNextGraphStep(changedDownstreamNodes)
         }
         
         // Update all output fields

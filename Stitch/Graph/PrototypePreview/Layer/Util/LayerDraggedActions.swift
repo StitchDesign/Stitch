@@ -74,6 +74,6 @@ extension GraphState {
             } // for
         } // if
         
-        self.calculate(nodesToRecalculate)
+        self.scheduleForNextGraphStep(nodesToRecalculate)
     }
 }

@@ -132,7 +132,7 @@ extension GraphState {
         
         // Then recalculate the graph again, with new edge,
         // starting at the 'from' node downward:
-        self.calculate(edge.from.nodeId)
+        self.scheduleForNextGraphStep(edge.from.nodeId)
         
         //we need the port here
         self.documentDelegate?.maybeCreateLLMStepConnectionAdded(

@@ -24,7 +24,7 @@ actor SingletonMediaNodeCoordinator: NodeEphemeralObservable, MediaEvalOpViewabl
         
         await mediaCreation(document, graph, nodeId)
         
-        graph.calculate(nodeId)
+        graph.scheduleForNextGraphStep(nodeId)
     }
     
     @MainActor init() {

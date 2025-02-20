@@ -81,7 +81,7 @@ struct SwitchLayerToggled: GraphEvent {
     let id: PreviewCoordinate
     
     func handle(state: GraphState) {
-        state.calculate(id.layerNodeId.id)
+        state.scheduleForNextGraphStep(id.layerNodeId.id)
     }
 }
 
