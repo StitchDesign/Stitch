@@ -177,7 +177,7 @@ struct DrawingViewDragEnded: ProjectEnvironmentEvent {
 
         layerViewModelAtIndex.parentSizeFromDrag = parentSize
 
-        graphState.calculate(id.layerNodeId.id)
+        graphState.scheduleForNextGraphStep(id.layerNodeId.id)
         return .noChange
     }
 }
@@ -217,7 +217,7 @@ struct DrawingViewDragged: ProjectEnvironmentEvent {
 
         layerViewModelAtIndex.parentSizeFromDrag = parentSize
 
-        graphState.calculate(id.layerNodeId.id)
+        graphState.scheduleForNextGraphStep(id.layerNodeId.id)
         return .noChange
     }
 }

@@ -79,7 +79,7 @@ extension StitchDocumentViewModel {
                                           graphTime: self.graphStepState.graphTime)
             
             // Recalculate the graph
-            graph.calculate(mouseNodeIds)
+            graph.scheduleForNextGraphStep(mouseNodeIds)
         }
     }
     
@@ -100,7 +100,7 @@ extension StitchDocumentViewModel {
                                           graphTime: self.graphStepState.graphTime)
             
             // Recalculate the graph
-            graph.calculate(mouseNodeIds)
+            graph.scheduleForNextGraphStep(mouseNodeIds)
         }
     }
 }

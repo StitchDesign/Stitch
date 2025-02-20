@@ -607,7 +607,7 @@ extension LayerNodeViewModel {
                 log("LayerNodeViewModel: didValuesUpdate: recalculating from interactionPatches: \(interactionPatches)")
                 
                 // Note: calculate on next graph step. Avoids potential infinite-eval loop on a single graph step, if a graph somehow changes some layer input loop length on every run.
-                graph.setNodesForNextGraphStep(interactionPatches)
+                graph.scheduleForNextGraphStep(interactionPatches)
             }
         }
     }

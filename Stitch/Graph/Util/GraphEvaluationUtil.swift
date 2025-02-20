@@ -41,6 +41,6 @@ extension GraphState {
 extension NodeViewModel {
     @MainActor
     func calculate() {
-        self.graphDelegate?.calculate(self.id)
+        self.graphDelegate?.scheduleForNextGraphStep(self.id)
     }
 }

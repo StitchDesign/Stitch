@@ -137,7 +137,7 @@ extension GraphState {
                                                               value: value)
         }
         
-        self.calculate(nodeId)
+        self.scheduleForNextGraphStep(nodeId)
     }
     
     @MainActor

@@ -110,7 +110,7 @@ struct TextFieldInputEdited: ProjectEnvironmentEvent {
 
         layerViewModelAtIndex.text = .string(.init(newEdit))
 
-        graphState.calculate(id.layerNodeId.id)
+        graphState.scheduleForNextGraphStep(id.layerNodeId.id)
 
         return .noChange
     }

@@ -821,6 +821,6 @@ extension GraphState {
         node.updateOutputsObservers(newValuesList: outputsToUpdate)
         
         // Recalculate graph
-        self.calculate(nodeIdsToRecalculate)
+        self.scheduleForNextGraphStep(nodeIdsToRecalculate)
     }
 }

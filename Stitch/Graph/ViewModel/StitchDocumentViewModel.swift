@@ -267,7 +267,7 @@ extension StitchDocumentViewModel {
     @MainActor func calculateAllKeyboardNodes() {
         self.allGraphs.forEach { graph in
             let keyboardNodes = graph.keyboardNodes
-            graph.calculate(keyboardNodes)
+            graph.scheduleForNextGraphStep(keyboardNodes)
         }
     }
 }
