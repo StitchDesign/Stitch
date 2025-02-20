@@ -76,6 +76,9 @@ final class GraphState: Sendable {
     
     // Tracks IDs for rows that need to be updated for the view. Cached here for perf so we can throttle view updates.
     @MainActor var portsToUpdate: NodePortCacheSet = .init()
+
+    /// Subscribed by view to trigger graph view update based on data changes.
+    @MainActor var graphUpdaterId: Int = .zero
     
     @MainActor var lastEncodedDocument: GraphEntity
     @MainActor weak var documentDelegate: StitchDocumentViewModel?
@@ -458,6 +461,22 @@ extension GraphState {
             .map { $0.zIndex }
         return zIndices.max() ?? 0
     }
+
+    /// Creases a unique hash based on view data which if changes, requires graph data update.
+    @MainActor
+    func calculateGraphUpdaterId() -> Int {
+        var hasher = Hasher()
+        
+        // Tracks edge changes to reset cached data
+        let upstreamConnections = self.nodes.values
+            .flatMap { $0.getAllInputsObservers() }
+            .map { $0.upstreamOutputCoordinate }
+        
+        hasher.combine(self.nodes.keys.count)
+        hasher.combine(upstreamConnections)
+        
+        return hasher.finalize()
+    }
     
     @MainActor
     func encodeProjectInBackground(temporaryURL: URL? = nil,
@@ -465,6 +484,12 @@ extension GraphState {
         self.documentEncoderDelegate?.encodeProjectInBackground(from: self,
                                                                 temporaryUrl: temporaryURL,
                                                                 willUpdateUndoHistory: willUpdateUndoHistory)
+        
+        // Updates graph data when changed
+        let newViewId = self.calculateGraphUpdaterId()
+        if self.graphUpdaterId != newViewId {
+            self.graphUpdaterId = newViewId
+        }
         
         // If debug mode, make sure fields are updated as we aren't using calculate
         // to update them

@@ -75,9 +75,7 @@ struct DuplicateShortcutKeyPressed: StitchDocumentEvent {
     // Duplicates BOTH nodes AND comments
     @MainActor
     func handle(state: StitchDocumentViewModel) {
-        Task(priority: .high) { [weak state] in
-            await state?.duplicateShortcutKeyPressed()
-        }
+        state.duplicateShortcutKeyPressed()
     }
 }
 
@@ -128,31 +126,31 @@ func insertAfterID(data: [SidebarLayerData], newDataList: [SidebarLayerData], af
 
 extension StitchDocumentViewModel {
     @MainActor
-    func duplicateShortcutKeyPressed() async {
-        let state = self
-        
-        guard !state.llmRecording.isRecording else {
+    func duplicateShortcutKeyPressed() {
+        guard !self.llmRecording.isRecording else {
             log("Duplication disabled during LLM Recording")
             return
         }
         
         // TODO: `graph` vs `visibleGraph` ?
-        let activelySelectedLayers = state.visibleGraph.isSidebarFocused
+        let activelySelectedLayers = self.visibleGraph.isSidebarFocused
         
         if activelySelectedLayers {
-            state.visibleGraph.sidebarSelectedItemsDuplicated()
+            self.visibleGraph.sidebarSelectedItemsDuplicated()
+            self.visibleGraph.encodeProjectInBackground()
         } else {
-            let copiedComponentResult = state.visibleGraph.createCopiedComponent(
-                groupNodeFocused: state.graphUI.groupNodeFocused,
-                selectedNodeIds: state.visibleGraph.selectedNodeIds.compactMap(\.nodeCase).toSet)
+            let copiedComponentResult = self.visibleGraph.createCopiedComponent(
+                groupNodeFocused: self.graphUI.groupNodeFocused,
+                selectedNodeIds: self.visibleGraph.selectedNodeIds.compactMap(\.nodeCase).toSet)
             
-            await state.visibleGraph.insertNewComponent(copiedComponentResult,
-                                                        isCopyPaste: false,
-                                                        encoder: state.visibleGraph.documentEncoderDelegate)
-        }
-        
-        Task { [weak self] in
-            self?.visibleGraph.encodeProjectInBackground()
+            Task(priority: .high) { [weak self] in
+                guard let state = self else { return }
+                
+                await state.visibleGraph.insertNewComponent(copiedComponentResult,
+                                                            isCopyPaste: false,
+                                                            encoder: state.visibleGraph.documentEncoderDelegate)
+                state.visibleGraph.encodeProjectInBackground()
+            }
         }
     }
 }
