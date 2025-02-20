@@ -352,10 +352,16 @@ extension UserVisibleType {
             }
             return .cameraDirection(x)
         case .interactionId:
-            guard let x = anyValue as? LayerNodeId? else {
+            guard let x = anyValue as? StitchAIUUID? else {
                 throw StitchAIManagerError.typeCasting
             }
-            return .assignedLayer(x)
+            
+            if let x = x {
+                return .assignedLayer(.init(x.value))
+            }
+            
+            return .assignedLayer(nil)
+            
         case .scrollMode:
             guard let x = anyValue as? ScrollMode else {
                 throw StitchAIManagerError.typeCasting
