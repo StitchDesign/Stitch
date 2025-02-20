@@ -11,7 +11,11 @@ import Combine
 import Foundation
 import StitchSchemaKit
 
-final class StitchSoundPlayer<Player: StitchSoundPlayerDelegate>: Sendable {
+protocol StitchSoundPlayable {
+    @MainActor func updateVolume(_ volume: Double)
+}
+
+final class StitchSoundPlayer<Player: StitchSoundPlayerDelegate>: Sendable, StitchSoundPlayable {
     let delegate: Player
 
     @MainActor var isEnabled: Bool {
