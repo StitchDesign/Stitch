@@ -39,10 +39,10 @@ func absoluteValueNode(id: NodeId,
 
 @MainActor
 func absoluteValueEval(inputs: PortValuesList, outputs: PortValuesList) -> PortValuesList {
-    log("absoluteValueEval called")
+    // log("absoluteValueEval called")
 
     let op: Operation = { (values: PortValues) -> PortValue in
-        log("absoluteValueEval: values: \(values)")
+        // log("absoluteValueEval: values: \(values)")
         let n = values[0].getNumber!
 
         // ie if n == n2, then just use n

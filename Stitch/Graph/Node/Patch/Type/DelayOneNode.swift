@@ -34,21 +34,19 @@ struct DelayOneNode: PatchNodeDefinition {
     static func eval(node: NodeViewModel) -> EvalResult {
         node.loopedEval(DelayOneEvalObserver.self) { values, observer, _ in
             guard let value = values.first else {
-                return [DelayOneNode.defaultUserVisibleType.defaultPortValue]
+                return .init(outputs: [DelayOneNode.defaultUserVisibleType.defaultPortValue], willRunAgain: true)
             }
             
             let output = observer.nextOutput
-            
+
             // Set input as return value for next frame
             observer.nextOutput = value
             
-            // Mark node as needing to be calcualted for next frame if values changed
-            if output != value {
-                node.calculate()
-            }
-            
-            return [output]
+            // Mark node as needing to be calcuated for next frame if values changed
+            let shouldRunOnNextFrame = output != value
+            return .init(outputs: [output], willRunAgain: shouldRunOnNextFrame)
         }
+        .toImpureEvalResult()
     }
     
     static let description = """
