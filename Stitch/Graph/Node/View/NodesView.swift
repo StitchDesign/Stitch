@@ -96,6 +96,9 @@ struct NodesView: View {
 }
 
 struct CanvasEdgesViewModifier: ViewModifier {
+    @State private var allInputs: [InputNodeRowViewModel] = []
+    @State private var connectedInputs: [InputNodeRowViewModel] = []
+    
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     @Bindable var graphUI: GraphUIState
@@ -116,19 +119,6 @@ struct CanvasEdgesViewModifier: ViewModifier {
     }
     
     func body(content: Content) -> some View {
-        let allInputs: [InputNodeRowViewModel] = self.graph
-            .getVisibleCanvasItems()
-            .flatMap { canvasItem -> [InputNodeRowViewModel] in
-                canvasItem.inputViewModels
-            }
-        
-        let connectedInputs = allInputs.filter { input in
-            guard input.nodeDelegate?.patchNodeViewModel?.patch != .wirelessReceiver else {
-                return false
-            }
-            return input.rowDelegate?.containsUpstreamConnection ?? false
-        }
-        
         // Including "possible" inputs enables edge animation
         let candidateInputs: [InputNodeRowViewModel] = graphUI.edgeEditingState?.possibleEdges.compactMap {
             let inputData = $0.edge.to
@@ -142,6 +132,21 @@ struct CanvasEdgesViewModifier: ViewModifier {
         } ?? []
         
         return content
+        // Moves expensive computation here to reduce render cycles
+            .onChange(of: graph.graphUpdaterId, initial: true) {
+                self.allInputs = self.graph
+                    .getVisibleCanvasItems()
+                    .flatMap { canvasItem -> [InputNodeRowViewModel] in
+                        canvasItem.inputViewModels
+                    }
+                
+                self.connectedInputs = allInputs.filter { input in
+                    guard input.nodeDelegate?.patchNodeViewModel?.patch != .wirelessReceiver else {
+                        return false
+                    }
+                    return input.rowDelegate?.containsUpstreamConnection ?? false
+                }
+            }
             .background {
                 // Using background ensures edges z-index are always behind ndoes
                 connectedEdgesView(allConnectedInputs: connectedInputs + candidateInputs)
@@ -153,7 +158,7 @@ struct CanvasEdgesViewModifier: ViewModifier {
                 EdgeInputLabelsView(inputs: allInputs,
                                     document: document,
                                     graphUI: document.graphUI)
-        }
+            }
     }
 }
 
