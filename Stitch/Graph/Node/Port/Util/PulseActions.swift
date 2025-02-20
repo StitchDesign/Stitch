@@ -107,6 +107,7 @@ struct ReversePulseCoercion: GraphEvent {
         let changedDownstreamInputIds = state
             .updateDownstreamInputs(sourceNode: node,
                                     flowValues: currentOutputs,
+                                    upstreamOutputChanged: true, // just treat as true ?
                                     outputCoordinate: pulsedOutput)
         let changedDownstreamNodeIds = Set(changedDownstreamInputIds.map(\.nodeId)).toSet
         

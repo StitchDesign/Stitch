@@ -4719,7 +4719,7 @@
 				E463E7ED2C6FC7090008E318 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */,
 				E4A848A92D32FCFA0029AFDE /* XCRemoteSwiftPackageReference "supabase-swift" */,
 				E42AAE4A2D4844EE002D187D /* XCRemoteSwiftPackageReference "sentry-cocoa" */,
-				EC8E94672D642CD5008B01BB /* XCRemoteSwiftPackageReference "StitchEngine" */,
+				EC5BC3DB2D66B72E000DF722 /* XCRemoteSwiftPackageReference "StitchEngine" */,
 			);
 			productRefGroup = 200BD858254F66EB00692903 /* Products */;
 			projectDirPath = "";
@@ -6627,20 +6627,20 @@
 				version = 1.0.2;
 			};
 		};
+		EC5BC3DB2D66B72E000DF722 /* XCRemoteSwiftPackageReference "StitchEngine" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/StitchDesign/StitchEngine.git";
+			requirement = {
+				kind = revision;
+				revision = 140779e42153b395e6131ead747f76dfd6676345;
+			};
+		};
 		EC7784CD27053D9700B662DD /* XCRemoteSwiftPackageReference "ZIPFoundation" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/weichsel/ZIPFoundation.git";
 			requirement = {
 				kind = exactVersion;
 				version = 0.9.18;
-			};
-		};
-		EC8E94672D642CD5008B01BB /* XCRemoteSwiftPackageReference "StitchEngine" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/StitchDesign/StitchEngine.git";
-			requirement = {
-				kind = revision;
-				revision = 18ad4770f22757b2e6557d4302cb0c89242bb399;
 			};
 		};
 		EC91034829109DF3007C548E /* XCRemoteSwiftPackageReference "SoulverCore" */ = {
