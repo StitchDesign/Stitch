@@ -763,12 +763,15 @@ extension GraphState {
         
         for (portId, newOutputValue) in portValues.enumerated() {
             let outputCoordinate = OutputCoordinate(portId: portId, nodeId: nodeId)
-            var outputValuesToUpdate = outputsToUpdate[safe: portId] ?? []
+            var outputValuesToUpdate: PortValues = outputsToUpdate[safe: portId] ?? []
             
             // Lengthen outputs if loop index exceeds count
             if outputValuesToUpdate.count < loopIndex + 1 {
                 outputValuesToUpdate = outputValuesToUpdate.lengthenArray(loopIndex + 1)
             }
+            
+            // If we can't find the old value at this loop index, assume the output change
+            var outputsChanged: Bool = outputValuesToUpdate[safe: loopIndex].map { $0 == newOutputValue } ?? true
             
             // Insert new output value at correct loop index
             outputValuesToUpdate[loopIndex] = newOutputValue
@@ -783,6 +786,7 @@ extension GraphState {
             let changedInputIds = self.updateDownstreamInputs(
                 sourceNode: node,
                 flowValues: outputToUpdate,
+                upstreamOutputChanged: outputsChanged,
                 outputCoordinate: outputCoordinate)
             let changedNodeIds = Set(changedInputIds.map(\.nodeId)).toSet
             
