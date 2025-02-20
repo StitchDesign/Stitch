@@ -61,7 +61,7 @@ extension GraphState {
             // Always add the node itself, in case node has no incoming edges
             .pureInsert(nodeId)
 
-        self.calculate(ids)
+        self.scheduleForNextGraphStep(ids)
         return ids
     }
     

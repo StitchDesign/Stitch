@@ -68,7 +68,7 @@ extension GraphState {
                  
                  Since we've already changed the Wireless Receiver's input, we can't rely on the "old input vs new input" change in `updateDownstreamInputs`.
                  */
-                self.calculate(node.id)
+                self.scheduleForNextGraphStep(node.id)
                 updateReceiversResults.insert(node.id)
             }
         }

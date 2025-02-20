@@ -22,7 +22,7 @@ struct InputAddedAction: GraphEventWithResponse {
             // (node: node, added?: true)
             inputChanger(node, true)
 
-            state.calculate(.init([nodeId]))
+            state.scheduleForNextGraphStep(.init([nodeId]))
             
             return .persistenceResponse
         } else {
@@ -49,7 +49,7 @@ struct InputRemovedAction: GraphEventWithResponse {
             // Remove the input from the node itself.
             inputChanger(node, false)
             
-            state.calculate(.init([nodeId]))
+            state.scheduleForNextGraphStep(.init([nodeId]))
             
             return .persistenceResponse
         } else {

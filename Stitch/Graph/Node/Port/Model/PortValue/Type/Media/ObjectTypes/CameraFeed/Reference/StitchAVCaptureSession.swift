@@ -104,6 +104,6 @@ struct RecalculateCameraNodes: GraphEvent {
             return
         }
         
-        state.calculate(cameraNodeIds)
+        state.scheduleForNextGraphStep(cameraNodeIds)
     }
 }

@@ -268,7 +268,7 @@ extension GraphState {
 
         // Then recalculate the graph again, with new edge,
         // starting at the 'from' node downward:
-        self.calculate(sourceNodeId)
+        self.scheduleForNextGraphStep(sourceNodeId)
     }
 }
 
