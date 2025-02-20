@@ -118,6 +118,10 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
         fatalErrorIfDebug("Should never be called for InputNodeRowObserver")
     }
     
+    @MainActor
+    var isPulseNodeType: Bool {
+        self.allLoopedValues.first?.getPulse.isDefined ?? false
+    }
 }
 
 extension NodeIOCoordinate: Sendable { }

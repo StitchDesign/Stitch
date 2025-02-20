@@ -44,12 +44,3 @@ extension NodeViewModel {
         self.graphDelegate?.calculate(self.id)
     }
 }
-
-// Recalculates graph from a specific node
-struct RecalculateGraphFromNode: GraphEvent {
-    let nodeId: NodeId
-
-    func handle(state: GraphState) {
-        state.calculate(nodeId)
-    }
-}
