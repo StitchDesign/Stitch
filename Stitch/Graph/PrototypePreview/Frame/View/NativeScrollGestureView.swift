@@ -175,7 +175,7 @@ struct NativeScrollGestureViewInner: ViewModifier {
                 y: (-newValue.y).asPositiveZero
             )
             
-            graph.calculate(layerViewModel.id.layerNodeId.asNodeId)
+            graph.scheduleForNextGraphStep(layerViewModel.id.layerNodeId.asNodeId)
             
         } // .onScrollGeometryChange
         

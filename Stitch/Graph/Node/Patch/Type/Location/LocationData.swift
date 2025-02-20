@@ -47,7 +47,7 @@ struct LocationUpdateReceived: ProjectEnvironmentEvent {
         var effects = SideEffects()
 
         let locationNodes = graphState.visibleNodesViewModel.nodes.locationNodes.map { $0.id }.toSet
-        graphState.calculate(locationNodes)
+        graphState.scheduleForNextGraphStep(locationNodes)
 
         return .noChange
     }

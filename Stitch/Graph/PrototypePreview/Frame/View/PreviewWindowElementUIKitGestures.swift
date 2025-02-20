@@ -95,14 +95,14 @@ struct PreviewWindowElementSwiftUIGestures: ViewModifier {
                 if let pressIds = self.getPressInteractionIds() {
                     // Set true here, then set false in press node eval
                     self.interactiveLayer.doubleTapped = true
-                    graph.calculate(pressIds)
+                    graph.scheduleForNextGraphStep(pressIds)
                 }
             }))
             .simultaneousGesture(TapGesture(count: 1).onEnded {
                 if let pressIds = self.getPressInteractionIds() {
                     // Set true here, then set false in press node eval
                     self.interactiveLayer.singleTapped = true
-                    graph.calculate(pressIds)
+                    graph.scheduleForNextGraphStep(pressIds)
                 }
             })
     }

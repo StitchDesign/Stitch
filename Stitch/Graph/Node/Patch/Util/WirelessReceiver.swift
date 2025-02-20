@@ -39,7 +39,7 @@ struct SetBroadcastForWirelessReceiver: ProjectEnvironmentEvent {
 
             receiverNodeInputObserver.removeUpstreamConnection(activeIndex: graphState.activeIndex,
                                                                isVisible: receiverNode.isVisibleInFrame)
-            graphState.calculate(receiverNodeId)
+            graphState.scheduleForNextGraphStep(receiverNodeId)
             
             return .init(willPersist: true)
         }
@@ -63,7 +63,7 @@ struct SetBroadcastForWirelessReceiver: ProjectEnvironmentEvent {
             activeIndex: graphState.activeIndex)
 
         // Then recalculate the graph from the broadcaster onward:
-        graphState.calculate(broadcasterNodeId)
+        graphState.scheduleForNextGraphStep(broadcasterNodeId)
 
         return .persistenceResponse
     }

@@ -32,7 +32,7 @@ extension GraphState {
     @MainActor
     func assignedLayerUpdated(changedLayerNode: LayerNodeId) {
         for id in self.layerListeningPatchNodes(assignedTo: changedLayerNode) {
-            self.calculate(id)
+            self.scheduleForNextGraphStep(id)
         }
     }
     

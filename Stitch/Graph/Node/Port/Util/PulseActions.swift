@@ -70,7 +70,7 @@ extension GraphState {
         
         inputObserver.updateValues([.pulse(self.graphStepState.graphTime)])
         
-        self.calculate(nodeId)
+        self.scheduleForNextGraphStep(nodeId)
     }
 }
 
@@ -112,7 +112,7 @@ struct ReversePulseCoercion: GraphEvent {
         let changedDownstreamNodeIds = Set(changedDownstreamInputIds.map(\.nodeId)).toSet
         
         // Run the downstream inputs' node evals
-        state.calculate(changedDownstreamNodeIds)
+        state.scheduleForNextGraphStep(changedDownstreamNodeIds)
     } // handle
 }
 
