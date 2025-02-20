@@ -326,6 +326,7 @@ extension GraphState {
                 let downstreamInputs = graph.updateDownstreamInputs(
                     sourceNode: node,
                     flowValues: values,
+                    upstreamOutputChanged: true, // Currently only used for downstream pulse inputs
                     outputCoordinate: .init(portId: index, nodeId: node.id))
                 let downstreamNodes = Set(downstreamInputs.map(\.nodeId)).toSet
                 
