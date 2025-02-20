@@ -21,7 +21,7 @@ final class StitchMic: NSObject, Sendable, StitchSoundPlayerDelegate {
     @MainActor private var recorder: AVAudioRecorder?
 
     @MainActor
-    init(isEnabled: Bool) {
+    init(isEnabled: Bool) async {
         self.session = AVAudioSession.sharedInstance()
     
         super.init()
@@ -39,24 +39,22 @@ final class StitchMic: NSObject, Sendable, StitchSoundPlayerDelegate {
                                     // MARK: necessary on iOS!
                                     options: [.allowBluetooth])
             try session.setActive(true)
-
-            Task {
-                log("initializeAVAudioSession called")
-                
-                if await AVAudioApplication.requestRecordPermission() {
-                    await MainActor.run { [weak self] in
-                        // Engine callers, play etc must be called after permissions logic runs
-                        self?.engine.output = self?.engine.input
-                        
-                        if isEnabled {
-                            self?.play()
-                        }
+            
+            log("initializeAVAudioSession called")
+            
+            if await AVAudioApplication.requestRecordPermission() {
+                await MainActor.run { [weak self] in
+                    // Engine callers, play etc must be called after permissions logic runs
+                    self?.engine.output = self?.engine.input
+                    
+                    if isEnabled {
+                        self?.play()
                     }
-                } else {
-                    // Prompt user to consider enabling mic permissions
-                    DispatchQueue.main.async {
-                        dispatch(ReceivedStitchFileError(error: .recordingPermissionsDisabled))
-                    }
+                }
+            } else {
+                // Prompt user to consider enabling mic permissions
+                DispatchQueue.main.async {
+                    dispatch(ReceivedStitchFileError(error: .recordingPermissionsDisabled))
                 }
             }
         } catch {
