@@ -18,13 +18,6 @@ struct ProjectNavigationView: View {
         self.document.previewWindowSizingObserver
     }
 
-    // Tracks edge changes to reset cached data
-    @MainActor var upstreamConnections: [NodeIOCoordinate?] {
-        self.document.visibleGraph.nodes.values
-            .flatMap { $0.getAllInputsObservers() }
-            .map { $0.upstreamOutputCoordinate }
-    }
-
     var body: some View {
         @Bindable var visibleGraph = document.visibleGraph
         
@@ -38,10 +31,7 @@ struct ProjectNavigationView: View {
                 document.encodeProjectInBackground()
             })
         }
-        .onChange(of: document.visibleGraph.nodes.keys.count) {
-            document.visibleGraph.updateGraphData()
-        }
-        .onChange(of: upstreamConnections) {
+        .onChange(of: document.visibleGraph.graphUpdaterId) {
             document.visibleGraph.updateGraphData()
         }
         .onChange(of: document.isCameraEnabled) { _, isCameraEnabled in
