@@ -49,7 +49,7 @@ extension StitchAITrainingData {
             }
             
             guard validationErrors.isEmpty else {
-                log("StitchAITrainingData validation error with example \(index): Step action validation failed with the following errors:\n")
+                log("StitchAITrainingData validation error with example \(index+1): Step action validation failed with the following errors:\n")
                 for errorMessage in validationErrors {
                     log(errorMessage)
                 }
