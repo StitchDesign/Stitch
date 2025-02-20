@@ -43,7 +43,7 @@ func speakerEval(node: PatchNode) -> EvalResult {
               let mediaObject = node.getInputMedia(portIndex: 0,
                                                    loopIndex: loopIndex,
                                                    mediaId: mediaId),
-              let speakerMedia = mediaObject.soundFilePlayer else {
+              let speakerMedia = mediaObject.soundPlayable else {
             log("speakerEval error: no engine or soundinput found.")
             return
         }

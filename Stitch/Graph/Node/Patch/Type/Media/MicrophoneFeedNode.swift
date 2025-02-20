@@ -44,11 +44,32 @@ struct MicrophoneNode: PatchNodeDefinition {
 
 /// Creates mic and assigns to observer.
 @MainActor func createMic(isEnabled: Bool,
-               observer: MediaEvalOpObserver) -> StitchSoundPlayer<StitchMic> {
-    let newMic = StitchMic(isEnabled: isEnabled)
-    let newSoundPlayer = StitchSoundPlayer(delegate: newMic, willPlay: true)
-    observer.currentMedia = .init(computedMedia: .mic(newSoundPlayer))
-    return newSoundPlayer
+                          observer: MediaEvalOpObserver) {
+    guard observer.currentLoadingMediaId == nil else {
+        return
+    }
+    
+    observer.currentLoadingMediaId = .init()
+    
+    Task(priority: .high) { [weak observer] in
+        guard let observer = observer else {
+            return
+        }
+
+        let newMic = await StitchMic(isEnabled: isEnabled)
+        let newSoundPlayer = StitchSoundPlayer(delegate: newMic, willPlay: true)
+        
+        observer.currentLoadingMediaId = .init()
+        await MainActor.run { [weak observer, weak newSoundPlayer] in
+            guard let observer = observer,
+                  let newSoundPlayer = newSoundPlayer else {
+                return
+            }
+            
+            observer.currentMedia = .init(computedMedia: .mic(newSoundPlayer))
+            observer.currentLoadingMediaId = nil
+        }
+    }
 }
 
 // needs to be impure, in order to be able to update state as well;
@@ -56,29 +77,30 @@ struct MicrophoneNode: PatchNodeDefinition {
 // but if eg the microphone is turned off, then we'll need to dispatch a side effect to change the state as well
 @MainActor
 func microphoneEval(node: PatchNode) -> EvalResult {
-    node.loopedEval(MediaEvalOpObserver.self) { values, mediaObserver, _ in
+    node.loopedEval(MediaEvalOpObserver.self) { (values, mediaObserver, _) -> MediaEvalOpResult in
         guard let isEnabled = values.first?.getBool,
               isEnabled else {
             mediaObserver.resetMedia()
-            return .init(from: node.defaultOutputs)
+            return MediaEvalOpResult(from: node.defaultOutputs)
+        }
+        
+        // Skip if mic still loading
+        guard mediaObserver.currentLoadingMediaId == nil else {
+            return MediaEvalOpResult(from: node.defaultOutputs)
         }
            
-        let id: UUID
-        let mic: StitchSoundPlayer<StitchMic>
-        if let currentMedia = mediaObserver.currentMedia,
-           let currentMic = currentMedia.mediaObject.mic {
-            id = currentMedia.id
-            mic = currentMic
-        } else {
-            id = .init()
-            mic = createMic(isEnabled: isEnabled,
-                            observer: mediaObserver)
+        guard let currentMedia = mediaObserver.currentMedia,
+              let mic = currentMedia.mediaObject.mic else {
+            createMic(isEnabled: isEnabled,
+                      observer: mediaObserver)
+            
+            return MediaEvalOpResult(from: node.defaultOutputs)
         }
         
         guard var previousVolume: Double = values[safe: 2]?.getNumber,
               var previousPeakVolume: Double = values[safe: 3]?.getNumber else {
             log("microphoneEval: issue finding inputs")
-                return .init(from: node.defaultOutputs)
+                return MediaEvalOpResult(from: node.defaultOutputs)
         }
         
         mic.isEnabled = isEnabled
@@ -89,16 +111,13 @@ func microphoneEval(node: PatchNode) -> EvalResult {
         previousVolume = Double(average)
         previousPeakVolume = Double(peak)
         
-        let mediaValue = GraphMediaValue(id: id,
-                                         dataType: .computed,
-                                         mediaObject: .mic(mic))
-        let outputs = [mediaValue.portValue,
+        let outputs = [currentMedia.portValue,
                 .number(previousVolume), // values[2], // volume, unchanged
                 .number(previousPeakVolume)// values[3] // peak volume, unchanged
         ]
         
         return MediaEvalOpResult(values: outputs,
-                                 media: mediaValue)
+                                 media: currentMedia)
     }
 }
 

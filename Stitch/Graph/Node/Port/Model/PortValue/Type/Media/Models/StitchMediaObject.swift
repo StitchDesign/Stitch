@@ -158,20 +158,10 @@ extension StitchMediaObject {
             return .soundfile(newSoundPlayer)
 
         case .mic(let mic):
-            let newSoundPlayer: StitchSoundPlayer<StitchMic>? = await MainActor.run { [weak mic] in
-                guard let mic = mic else {
-                    return nil
-                }
-                
-                let isEnabled = mic.delegate.isRunning
-                let newMic = StitchMic(isEnabled: isEnabled)
-                let newSoundPlayer = StitchSoundPlayer(delegate: newMic, willPlay: isEnabled)
-                return newSoundPlayer
-            }
-
-            if let newSoundPlayer = newSoundPlayer {                
-                copiedMediaObject = .mic(newSoundPlayer)
-            }
+            let isEnabled = mic.delegate.isRunning
+            let newMic = await StitchMic(isEnabled: isEnabled)
+            let newSoundPlayer = StitchSoundPlayer(delegate: newMic, willPlay: isEnabled)
+            copiedMediaObject = .mic(newSoundPlayer)
 
         case .model3D(let entity):
             let newStitchEntity = try await entity.createCopy()
@@ -287,6 +277,17 @@ extension StitchMediaObject {
         switch self {
         case .mic(let mic):
             return mic
+        default:
+            return nil
+        }
+    }
+    
+    var soundPlayable: StitchSoundPlayable? {
+        switch self {
+        case .mic(let mic):
+            return mic
+        case .soundfile(let soundPlayer):
+            return soundPlayer
         default:
             return nil
         }
