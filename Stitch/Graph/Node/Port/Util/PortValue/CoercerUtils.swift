@@ -45,7 +45,8 @@ func coerceToTruthyOrFalsey(_ value: PortValue,
         // A pulse is true if we're 
         return x == graphTime && graphTime != .zero
     case .json(let x):
-        return x.value != ""
+        // TODO: https://github.com/StitchDesign/Stitch--Old/issues/6939
+        return x.value.bool ?? x.value.isEmpty
     case .point3D(let x):
         return x != Point3D.zero
     case .assignedLayer(let x):

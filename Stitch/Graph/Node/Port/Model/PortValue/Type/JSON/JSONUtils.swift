@@ -76,9 +76,7 @@ func parseJSON(_ jsonString: String) -> JSON? {
                                   allowLossyConversion: false) {
         return data.toJSON
     } else {
-        #if DEV_DEBUG
         log("parseJSON: failed to create json from jsonString")
-        #endif
         return nil
     }
 }
@@ -94,15 +92,10 @@ extension Data {
 
         // If created-JSON is empty, then the JSON was improperly formatted.
         if isNullJSON(json) {
-            //            #if DEV_DEBUG
-            //            log("Data.toJSON: data json was null")
-            //            #endif
+            log("Data.toJSON: data json was null")
             return nil
         }
-
-        //        #if DEV_DEBUG
-        //        log("Data.toJSON: success?: \(json)")
-        //        #endif
+        log("Data.toJSON: success?: \(json)")
         return json
     }
 

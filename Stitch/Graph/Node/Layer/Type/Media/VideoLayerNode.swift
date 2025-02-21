@@ -10,7 +10,10 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-let defaultMediaFitStyle = VisualMediaFitStyle.fill
+extension VisualMediaFitStyle {
+    static let defaultMediaFitStyle = VisualMediaFitStyle.fill
+    static let defaultMediaFitStylePortValue = PortValue.fitStyle(VisualMediaFitStyle.fill)
+}
 
 struct VideoLayerNode: LayerNodeDefinition {
     static let layer = Layer.video
