@@ -364,7 +364,7 @@ actor MediaEvalOpCoordinator {
                           node: NodeDelegate,
                           callback: @Sendable @escaping () async -> PortValues) async {
         let newOutputs = await callback()
-        await node.graphDelegate?.recalculateGraph(outputValues: .byIndex(newOutputs),
+        await node.graphDelegate?.recalculateGraphForMedia(outputValues: .byIndex(newOutputs),
                                                    nodeId: node.id,
                                                    loopIndex: loopIndex)
     }
@@ -374,7 +374,7 @@ actor MediaEvalOpCoordinator {
                                            node: NodeViewModel,
                                            callback: @Sendable @escaping () async -> MediaEvalResult) async where MediaEvalResult: MediaEvalResultable {
         let result = await callback()
-        await node.graphDelegate?.recalculateGraph(result: result,
+        await node.graphDelegate?.recalculateGraphForMedia(result: result,
                                                    nodeId: node.id,
                                                    loopIndex: loopIndex)
     }
@@ -383,7 +383,7 @@ actor MediaEvalOpCoordinator {
     func asyncMediaEvalOpList(node: NodeDelegate,
                               callback: @Sendable @escaping () async -> PortValuesList) async {
         let newOutputs = await callback()
-        await node.graphDelegate?.recalculateGraph(outputValues: .all(newOutputs),
+        await node.graphDelegate?.recalculateGraphForMedia(outputValues: .all(newOutputs),
                                                    nodeId: node.id,
                                                    loopIndex: 0)
     }
