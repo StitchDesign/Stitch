@@ -373,6 +373,9 @@ extension GraphState {
         }
         
         await self.syncNodes(with: schema.nodes)
+        
+        // Determines if graph data needs updating
+        self.graphUpdaterId = self.calculateGraphUpdaterId()
     }
     
     // Used with copy-paste / duplication

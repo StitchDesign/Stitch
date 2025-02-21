@@ -221,8 +221,7 @@ extension StitchDocumentViewModel {
         // to new component graph
         if isComponent {
             selectedCanvasItems.forEach {
-                // TODO: consider layer behavior when selected layers are involved
-                guard let node = $0.nodeDelegate as? NodeViewModel else {
+                guard let node = $0.nodeDelegate else {
                     fatalErrorIfDebug()
                     return
                 }
