@@ -32,17 +32,7 @@ struct GraphBaseView: View {
         // so our touch-responsive interfaces must ignore them to.
 
         nodesAndCursor
-            .simultaneousGesture(
-                MagnifyGesture()
-                    .onChanged { value in
-                        self.document.graphPinchToZoom(amount: value.magnification)
-                    }
-                    .onEnded { _ in
-                        self.document.graphZoomEnded()
-                    }
-            )
             .onAppear {
-
                 #if targetEnvironment(macCatalyst)
                 if self.spaceHeld || document.keypressState.isSpacePressed {
                     NSCursor.openHand.push()

@@ -60,14 +60,6 @@ struct GraphGestureBackgroundView<T: View>: UIViewControllerRepresentable {
         longPressGesture.delegate = delegate
         vc.view.addGestureRecognizer(longPressGesture)
 
-        // Now pinch only available on graph background
-        let pinchGesture = UIPinchGestureRecognizer(
-            target: delegate,
-            action: #selector(delegate.pinchInView))
-        pinchGesture.delegate = delegate
-        pinchGesture.allowedTouchTypes = [SCREEN_TOUCH_ID]
-        vc.view.addGestureRecognizer(pinchGesture)
-
         return vc
     }
 
@@ -137,17 +129,4 @@ final class NodeSelectionGestureRecognizer: NSObject, UIGestureRecognizerDelegat
             gestureState: gestureRecognizer.state,
             shiftHeld: self.shiftHeld)
     }
-
-    @MainActor
-    @objc func pinchInView(_ gestureRecognizer: UIPinchGestureRecognizer) {
-        switch gestureRecognizer.state {
-        case .changed:
-            self.document?.graphPinchToZoom(amount: gestureRecognizer.scale)
-        case .cancelled, .ended:
-            self.document?.graphZoomEnded()
-        default:
-            break
-        }
-    }
-
 }

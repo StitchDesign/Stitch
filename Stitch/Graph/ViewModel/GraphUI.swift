@@ -501,11 +501,10 @@ final class GraphZoom {
     // Shortcut
     static let zoomCommandRate = 0.1 // 0.25 // 0.175
     
-    var current: CGFloat = 0
     var final: CGFloat = 1
 
     var zoom: CGFloat {
-        self.current + self.final
+        self.final
     }
 }
 
