@@ -478,9 +478,13 @@ extension GraphState {
                 return $0.activeValue
             }
         
+        // Track group node ID, which fixes edges when traversing
+        let groupNodeIdFocused = self.graphUI.groupNodeFocused
+        
         hasher.combine(self.nodes.keys.count)
         hasher.combine(upstreamConnections)
         hasher.combine(manualEdits)
+        hasher.combine(groupNodeIdFocused)
         
         return hasher.finalize()
     }

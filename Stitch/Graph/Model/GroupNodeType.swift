@@ -9,7 +9,7 @@ import SwiftUI
 import StitchSchemaKit
 
 /// Used to represent group data with visual graph hierarchical data.
-enum GroupNodeType: Equatable {
+enum GroupNodeType: Hashable {
     case groupNode(NodeId)
     case component(UUID) // NodeID of component node
 }
