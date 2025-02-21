@@ -243,17 +243,17 @@ func searchForNodes(by query: String,
         }
     }
     
-    if trimmedQuery.hasPrefix("text") {
-        let targetPhrase = "text split"
-        if targetPhrase.hasPrefix(trimmedQuery) {
-            // If what they typed is the start of our target phrase, show the node
-            if let splitTextNode = searchOptions.first(where: {
-                $0.data.displayTitle.lowercased().contains("split text")
-            }) {
-                return [splitTextNode]
-            }
-        }
-    }
+//    if trimmedQuery.hasPrefix("text") {
+//        let targetPhrase = "text split"
+//        if targetPhrase.hasPrefix(trimmedQuery) {
+//            // If what they typed is the start of our target phrase, show the node
+//            if let splitTextNode = searchOptions.first(where: {
+//                $0.data.displayTitle.lowercased().contains("split text")
+//            }) {
+//                return [splitTextNode]
+//            }
+//        }
+//    }
 
     // Handle exact symbol matches next
     switch trimmedQuery {
