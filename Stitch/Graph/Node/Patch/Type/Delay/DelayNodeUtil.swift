@@ -52,7 +52,7 @@ extension NodeTimerEphemeralObserver {
         // Normal outputs if no media
         guard value.asyncMedia != nil,
               let mediaObject = media else {
-            graph.recalculateGraph(outputValues: .init(from: [value]),
+            graph.recalculateGraphForMedia(outputValues: .init(from: [value]),
                                    nodeId: nodeId,
                                    loopIndex: loopIndex)
             return
@@ -75,7 +75,7 @@ extension NodeTimerEphemeralObserver {
             
             await MainActor.run { [weak node] in
                 self.currentMedia = mediaObject
-                return node?.graphDelegate?.recalculateGraph(outputValues: .byIndex(newOutputs),
+                return node?.graphDelegate?.recalculateGraphForMedia(outputValues: .byIndex(newOutputs),
                                                              nodeId: nodeId,
                                                              loopIndex: loopIndex)
             }
