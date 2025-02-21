@@ -178,7 +178,6 @@ extension GraphState {
                                                       destinationGraphFrame: self.graphUI.frame,
                                                       destinationGraphScale: self.graphMovement.zoomData.zoom) : nil
         )
-        let encoderDelegate = self.documentEncoderDelegate      // keep optional for unit tests
         
         guard let document = self.documentDelegate else {
             return
@@ -215,11 +214,6 @@ extension GraphState {
             }
         } else {
             fatalErrorIfDebug()
-        }
-        
-        if let encoderDelegate = encoderDelegate {
-            self.initializeDelegate(document: document,
-                                    documentEncoderDelegate: encoderDelegate)
         }
         
         await self.updateAsync(from: graph)
