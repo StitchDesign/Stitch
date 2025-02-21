@@ -39,6 +39,10 @@ struct StitchAIUUID: StitchAIStringConvertable {
 }
 
 extension UUID: StitchAIValueStringConvertable {
+    var encodableString: String {
+        self.description
+    }
+    
     public init?(_ description: String) {
         self.init(uuidString: description)
     }
@@ -63,6 +67,10 @@ struct StitchAISizeDimension: StitchAIStringConvertable {
 }
 
 extension LayerDimension: StitchAIValueStringConvertable {
+    var encodableString: String {
+        self.description
+    }
+    
     public init?(_ description: String) {
         guard let result = Self.fromUserEdit(edit: description) else {
             return nil
@@ -74,12 +82,6 @@ extension LayerDimension: StitchAIValueStringConvertable {
 
 protocol StitchAIValueStringConvertable: Codable, LosslessStringConvertible, Hashable {
     var encodableString: String { get }
-}
-
-extension StitchAIValueStringConvertable {
-    var encodableString: String {
-        self.encodableString
-    }
 }
 
 protocol StitchAIStringConvertable: Codable, Hashable {
@@ -103,7 +105,7 @@ extension StitchAIStringConvertable {
     func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
 
-        try container.encode(self.value)
+        try container.encode(self.value.encodableString)
     }
     
     /// Decodes a value that could be string, int, double, or JSON
