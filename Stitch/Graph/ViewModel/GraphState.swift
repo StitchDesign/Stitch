@@ -466,8 +466,20 @@ extension GraphState {
             .flatMap { $0.getAllInputsObservers() }
             .map { $0.upstreamOutputCoordinate }
         
+        // Tracks manual edits
+        let manualEdits: [PortValue] = self.nodes.values
+            .flatMap { $0.getAllInputsObservers() }
+            .compactMap {
+                guard $0.upstreamOutputCoordinate == nil else {
+                    return nil
+                }
+                
+                return $0.activeValue
+            }
+        
         hasher.combine(self.nodes.keys.count)
         hasher.combine(upstreamConnections)
+        hasher.combine(manualEdits)
         
         return hasher.finalize()
     }
