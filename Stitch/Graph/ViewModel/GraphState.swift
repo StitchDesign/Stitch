@@ -374,11 +374,8 @@ extension GraphState {
         
         await self.syncNodes(with: schema.nodes)
         
-        if let document = self.documentDelegate,
-           let documentEncoder = self.documentEncoderDelegate {
-            self.initializeDelegate(document: document,
-                                    documentEncoderDelegate: documentEncoder)
-        }
+        // Determines if graph data needs updating
+        self.graphUpdaterId = self.calculateGraphUpdaterId()
     }
     
     // Used with copy-paste / duplication
@@ -392,11 +389,8 @@ extension GraphState {
         
         self.syncNodes(with: schema.nodes)
         
-        if let document = self.documentDelegate,
-           let documentEncoder = self.documentEncoderDelegate {
-            self.initializeDelegate(document: document,
-                                    documentEncoderDelegate: documentEncoder)
-        }
+        // Determines if graph data needs updating
+        self.graphUpdaterId = self.calculateGraphUpdaterId()
     }
     
     @MainActor func onPrototypeRestart() {
@@ -467,13 +461,30 @@ extension GraphState {
     func calculateGraphUpdaterId() -> Int {
         var hasher = Hasher()
         
-        // Tracks edge changes to reset cached data
-        let upstreamConnections = self.nodes.values
+        let allInputsObservers = self.nodes.values
             .flatMap { $0.getAllInputsObservers() }
+
+        // Tracks edge changes to reset cached data
+        let upstreamConnections = allInputsObservers
             .map { $0.upstreamOutputCoordinate }
+        
+        // Tracks manual edits
+        let manualEdits: [PortValue] = allInputsObservers
+            .compactMap {
+                guard $0.upstreamOutputCoordinate == nil else {
+                    return nil
+                }
+                
+                return $0.activeValue
+            }
+        
+        // Track group node ID, which fixes edges when traversing
+        let groupNodeIdFocused = self.graphUI.groupNodeFocused
         
         hasher.combine(self.nodes.keys.count)
         hasher.combine(upstreamConnections)
+        hasher.combine(manualEdits)
+        hasher.combine(groupNodeIdFocused)
         
         return hasher.finalize()
     }
