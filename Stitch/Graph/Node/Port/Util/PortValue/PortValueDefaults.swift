@@ -171,7 +171,7 @@ extension PortValue {
         case .textVerticalAlignment:
             return defaultTextVerticalAlignment
         case .fitStyle:
-            return .fitStyle(defaultMediaFitStyle)
+            return .fitStyle(.defaultMediaFitStyle)
         case .animationCurve:
             return .animationCurve(defaultAnimationCurve)
         case .lightType:
