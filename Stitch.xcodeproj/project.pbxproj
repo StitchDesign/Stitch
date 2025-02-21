@@ -556,6 +556,7 @@
 		EC5734332B75BAD100D93A78 /* LegacyActionConversionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5734322B75BAD100D93A78 /* LegacyActionConversionUtils.swift */; };
 		EC5A2DDF2632020700D8DEE5 /* PreviewImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5A2DDE2632020700D8DEE5 /* PreviewImage.swift */; };
 		EC5A2DE3263202FC00D8DEE5 /* VisualMediaLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5A2DE2263202FC00D8DEE5 /* VisualMediaLayerNode.swift */; };
+		EC5BC3DF2D681331000DF722 /* JSONCoercionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5BC3DE2D681331000DF722 /* JSONCoercionUtils.swift */; };
 		EC5C6C3A2C2DAE690023D0C0 /* LLMActionRecording.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5C6C392C2DAE690023D0C0 /* LLMActionRecording.swift */; };
 		EC5E3A1828188DF5001E156F /* ProjectDestructiveActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5E3A1728188DF5001E156F /* ProjectDestructiveActions.swift */; };
 		EC5E6C872B717F0800B4CACC /* AnimatableCircuitLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5E6C862B717F0800B4CACC /* AnimatableCircuitLine.swift */; };
@@ -1511,6 +1512,7 @@
 		EC5734322B75BAD100D93A78 /* LegacyActionConversionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyActionConversionUtils.swift; sourceTree = "<group>"; };
 		EC5A2DDE2632020700D8DEE5 /* PreviewImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewImage.swift; sourceTree = "<group>"; };
 		EC5A2DE2263202FC00D8DEE5 /* VisualMediaLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualMediaLayerNode.swift; sourceTree = "<group>"; };
+		EC5BC3DE2D681331000DF722 /* JSONCoercionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONCoercionUtils.swift; sourceTree = "<group>"; };
 		EC5C6C392C2DAE690023D0C0 /* LLMActionRecording.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMActionRecording.swift; sourceTree = "<group>"; };
 		EC5E3A1728188DF5001E156F /* ProjectDestructiveActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectDestructiveActions.swift; sourceTree = "<group>"; };
 		EC5E6C862B717F0800B4CACC /* AnimatableCircuitLine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatableCircuitLine.swift; sourceTree = "<group>"; };
@@ -2682,6 +2684,7 @@
 			children = (
 				20D9D79325D5A78900F5C7A4 /* Parsers.swift */,
 				20B8D4F725D75FAD005D71C5 /* Coercers.swift */,
+				EC5BC3DE2D681331000DF722 /* JSONCoercionUtils.swift */,
 				EC808C032CC6D29E00F30C70 /* CoercerUtilHelpers */,
 				EC1318C42B8801CF00F74E93 /* CoercerUtils.swift */,
 				201E5D3B25C86D72008698BF /* PortValueUtils.swift */,
@@ -5218,6 +5221,7 @@
 				EC9D16E02808D89000684978 /* CanvasItemTitleView.swift in Sources */,
 				EC3A6C4B2C20C4FD00CCBACC /* NodeRowObserverCachedViewDataExtensions.swift in Sources */,
 				EC0FD2DE2B50D4A700CCEAB5 /* CatalystNavigationBarHelperViews.swift in Sources */,
+				EC5BC3DF2D681331000DF722 /* JSONCoercionUtils.swift in Sources */,
 				EC560E15293A944100350046 /* LoopReverseNode.swift in Sources */,
 				B57F3A802946CE4700DFC0AE /* VisibleNodesViewModel.swift in Sources */,
 				B55501072C1BCAD60081C3F1 /* SidebarListItemActions.swift in Sources */,
