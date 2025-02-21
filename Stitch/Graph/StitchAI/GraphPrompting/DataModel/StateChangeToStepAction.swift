@@ -76,15 +76,15 @@ extension StitchDocumentViewModel {
 }
 
 extension NodeIOPortType {
-    func asLLMStepPort() -> String {
+    func asLLMStepPort() -> Any {
         switch self {
         case .keyPath(let x):
             // Note: StitchAI does not yet support unpacked ports
             // Note 2: see our OpenAI schema for list of possible `LayerPorts`
             return x.layerInput.asLLMStepPort
         case .portIndex(let x):
-            // an integer
-            return x.description
+            // Return the integer directly instead of converting to string
+            return x
         }
     }
 }
