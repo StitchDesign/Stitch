@@ -458,14 +458,15 @@ extension GraphState {
     func calculateGraphUpdaterId() -> Int {
         var hasher = Hasher()
         
-        // Tracks edge changes to reset cached data
-        let upstreamConnections = self.nodes.values
+        let allInputsObservers = self.nodes.values
             .flatMap { $0.getAllInputsObservers() }
+
+        // Tracks edge changes to reset cached data
+        let upstreamConnections = allInputsObservers
             .map { $0.upstreamOutputCoordinate }
         
         // Tracks manual edits
-        let manualEdits: [PortValue] = self.nodes.values
-            .flatMap { $0.getAllInputsObservers() }
+        let manualEdits: [PortValue] = allInputsObservers
             .compactMap {
                 guard $0.upstreamOutputCoordinate == nil else {
                     return nil
