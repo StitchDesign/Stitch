@@ -221,8 +221,7 @@ extension StitchDocumentViewModel {
         // to new component graph
         if isComponent {
             selectedCanvasItems.forEach {
-                // TODO: consider layer behavior when selected layers are involved
-                guard let node = $0.nodeDelegate as? NodeViewModel else {
+                guard let node = $0.nodeDelegate else {
                     fatalErrorIfDebug()
                     return
                 }
@@ -241,14 +240,6 @@ extension StitchDocumentViewModel {
 
         // Stop any active node dragging etc.
         self.graphMovement.stopNodeMovement()
-        
-        // Updates graph data in VisibleNodesViewModel
-        if let encoderDelegate = self.visibleGraph.documentEncoderDelegate {
-            self.visibleGraph.initializeDelegate(document: self,
-                                                 documentEncoderDelegate: encoderDelegate)
-        } else {
-//            fatalErrorIfDebug()
-        }
 
         // Recalculate graph
         self.graph.updateGraphData()

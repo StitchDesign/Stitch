@@ -34,6 +34,9 @@ struct ProjectNavigationView: View {
         .onChange(of: document.visibleGraph.graphUpdaterId) {
             document.visibleGraph.updateGraphData()
         }
+        .onChange(of: document.graphUI.groupNodeFocused) {
+            document.visibleGraph.graphUpdaterId = document.visibleGraph.calculateGraphUpdaterId()
+        }
         .onChange(of: document.isCameraEnabled) { _, isCameraEnabled in
             if !isCameraEnabled {
                 // Tear down if no nodes enabled camera

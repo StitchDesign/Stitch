@@ -39,6 +39,8 @@ struct GraphConnectedEdgesView: View {
     
     var body: some View {
         ForEach(allConnectedInputs) { inputObserver in
+            // Bindable fixes issue where edges may not appear initially
+            @Bindable var inputObserver = inputObserver
             
             let possibleEdge = animatingEdges.first(where: { $0.edge.to == inputObserver.portViewData })
             
