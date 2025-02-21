@@ -27,32 +27,6 @@ extension GraphZoom {
 
 extension StitchDocumentViewModel {
     @MainActor
-    func graphPinchToZoom( amount: CGFloat) {
-        let graphZoom = self.graphMovement.zoomData
-
-        // Scale zoom based on current device zoom--makes pinch to zoom feel more natural
-        var newAmount = (amount - 1) * graphZoom.final
-        
-        newAmount = GraphZoom.throttleGraphZoom(zoomAmount: newAmount,
-                                                currentScale: graphZoom.final)
-        
-        graphZoom.current = newAmount
-    }
-    
-    @MainActor
-    func graphZoomEnded() {
-        // set new zoom final to current + final of last zoom state
-        self.graphMovement.zoomData.final += self.graphMovement.zoomData.current
-        
-        if self.graphMovement.zoomData.current != 0 {
-            self.graphMovement.zoomData.current = 0
-        }
-
-        // Wipe comment box bounds
-        self.wipeCommentBoxBounds()
-    }
-
-    @MainActor
     func graphZoomedIn(_ manualZoom: GraphManualZoom) {
         // Set `true` here; set `false` by the UIScrollView
         self.graphUI.canvasZoomedIn = manualZoom
