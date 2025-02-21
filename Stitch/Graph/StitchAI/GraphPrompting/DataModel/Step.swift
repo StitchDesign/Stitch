@@ -60,11 +60,19 @@ extension Step: Codable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
         // `encodeIfPresent` cleans up JSON by removing properties
-        
         try container.encodeIfPresent(stepType.rawValue, forKey: .stepType)
         try container.encodeIfPresent(nodeId, forKey: .nodeId)
         try container.encodeIfPresent(nodeName?.asNodeKind.asLLMStepNodeName, forKey: .nodeName)
-        try container.encodeIfPresent(port?.asLLMStepPort(), forKey: .port)
+        
+        // Handle port encoding differently based on type
+        if let portValue = port?.asLLMStepPort() {
+            if let intValue = portValue as? Int {
+                try container.encodeIfPresent(intValue, forKey: .port)
+            } else if let stringValue = portValue as? String {
+                try container.encodeIfPresent(stringValue, forKey: .port)
+            }
+        }
+        
         try container.encodeIfPresent(fromPort, forKey: .fromPort)
         try container.encodeIfPresent(fromNodeId, forKey: .fromNodeId)
         try container.encodeIfPresent(toNodeId, forKey: .toNodeId)
