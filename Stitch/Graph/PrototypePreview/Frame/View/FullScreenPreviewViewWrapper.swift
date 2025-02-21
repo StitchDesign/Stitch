@@ -11,6 +11,7 @@ import StitchSchemaKit
 let actionSheetHeaderString = "Preview Window Actions"
 let changeScaleString = "Change Scale"
 let exitString = "Exit Full Screen"
+let iPhoneExitString = "Exit Prototype"
 let appResetString = "Reset Prototype"
 let cancelString = "Cancel"
 
@@ -84,7 +85,7 @@ struct FullScreenPreviewViewWrapper: View {
                                       document: document.createSchema())
             StitchButton(changeScaleString, action: showProjectSettingsAction)
             StitchButton(appResetString, action: appResetAction)
-            StitchButton(exitString, action: closeGraphBtnAction)
+            StitchButton(isPhoneDevice() ? iPhoneExitString : exitString, action: closeGraphBtnAction)
             StitchButton(cancelString, role: .cancel) { }
                 .keyboardShortcut(.cancelAction)
         }
