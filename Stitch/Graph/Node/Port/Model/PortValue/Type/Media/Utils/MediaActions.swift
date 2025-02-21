@@ -245,9 +245,9 @@ extension StitchDocumentViewModel {
 
 extension GraphState {
     @MainActor
-    func recalculateGraph<MediaEvalResult>(result: MediaEvalResult,
-                                           nodeId: NodeId,
-                                           loopIndex: Int) where MediaEvalResult: MediaEvalResultable{
+    func recalculateGraphForMedia<MediaEvalResult>(result: MediaEvalResult,
+                                                   nodeId: NodeId,
+                                                   loopIndex: Int) where MediaEvalResult: MediaEvalResultable{
         guard let node = self.getNodeViewModel(nodeId) else {
             log("recalculateGraph: AsyncMediaImpureEvalOpResult: could not retrieve node \(nodeId)")
             return
@@ -264,7 +264,7 @@ extension GraphState {
         // Important to not dispatch main actor task as this creates race conditions
         mediaObserver.currentLoadingMediaId = nil
         
-        self.recalculateGraph(outputValues: result.valueResult,
+        self.recalculateGraphForMedia(outputValues: result.valueResult,
                               nodeId: nodeId,
                               loopIndex: loopIndex)
     }
@@ -273,9 +273,9 @@ extension GraphState {
     /// Recalculates the graph when the **outputs** of a node need to be updated.
     /// This updates at a particular loop index rather than all values.
     /// NOTE: we DO NOT want to run the eval of the media node itself again; we just want to evaluate any downstream nodes
-    func recalculateGraph(outputValues: AsyncMediaOutputs,
-                          nodeId: NodeId,
-                          loopIndex: Int) {
+    func recalculateGraphForMedia(outputValues: AsyncMediaOutputs,
+                                  nodeId: NodeId,
+                                  loopIndex: Int) {
         let graph = self
         let outputValues = outputValues
         var nodeIdsToRecalculate = NodeIdSet()
@@ -326,7 +326,7 @@ extension GraphState {
                 let downstreamInputs = graph.updateDownstreamInputs(
                     sourceNode: node,
                     flowValues: values,
-                    upstreamOutputChanged: true, // Currently only used for downstream pulse inputs
+                    upstreamOutputChanged: true, // Okay to treat a media change as always some output changing?
                     outputCoordinate: .init(portId: index, nodeId: node.id))
                 let downstreamNodes = Set(downstreamInputs.map(\.nodeId)).toSet
                 

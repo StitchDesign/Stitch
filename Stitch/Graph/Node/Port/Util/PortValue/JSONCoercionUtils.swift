@@ -29,7 +29,7 @@ extension PortValue {
         case .number, .string, .bool:
             // Swift types that have direct JSON equivalents: (json-number, json-bool, json-string) need to use SwiftyJSON's `JSON(rawValue:)`.
             if let json: JSON = JSON(rawValue: self.anyCodable as Any) {
-                log("jsonCoercer: coerced \(self) to a json \(json) via rawValue")
+                // log("jsonCoercer: coerced \(self) to a json \(json) via rawValue")
                 return .init(json)
             } else {
                 return emptyStitchJSONObject
@@ -39,14 +39,14 @@ extension PortValue {
             // Encode the PortValue as a human-readable/friendly JSON (e.g. StitchAIColor instead of SwiftUI.Color)
             if let encoding: Data = try? getStitchEncoder().encode(self.anyCodable),
                let json = try? JSON.init(data: encoding) {
-                log("jsonCoercer: coerced \(self) to a json \(json) via encoding")
+                // log("jsonCoercer: coerced \(self) to a json \(json) via encoding")
                 return .init(json)
             }
             
             // Best for enums: `SwiftyJSON.JSON(rawValue:)` cannot directly handle Swift enums, so we use the enum's human-friendly display instead.
             // Note: Can we go directly from a SwiftUI `Codable` to a SwiftyJSON?
             else if let json: JSON = JSON(rawValue: self.display) {
-                log("jsonCoercer: coerced \(self) to a json \(json) via display i.e. \(self.display)")
+                // log("jsonCoercer: coerced \(self) to a json \(json) via display i.e. \(self.display)")
                 return .init(json)
             }
             
@@ -84,10 +84,10 @@ extension JSON {
             
         default:
             if let valueFromJSON: PortValue = try? nodeType.coerceToPortValueForStitchAI(from: self) {
-                log("coerceToPortValue: got valueFromJSON: \(valueFromJSON) for existingValue \(nodeType)")
+                // log("coerceToPortValue: got valueFromJSON: \(valueFromJSON) for existingValue \(nodeType)")
                 return valueFromJSON
             } else {
-                log("coerceToPortValue: could not get PortValue from json \(self) for existingValue \(nodeType)")
+                // log("coerceToPortValue: could not get PortValue from json \(self) for existingValue \(nodeType)")
                 return nodeType.defaultPortValue
             }
         }

@@ -788,6 +788,7 @@ extension GraphState {
                   saveLocation: [])
     }
     
+    // used by e.g. Delay node
     /// Updates values at a specific output loop index.
     @MainActor
     func updateOutputs(at loopIndex: Int,
@@ -806,8 +807,8 @@ extension GraphState {
                 outputValuesToUpdate = outputValuesToUpdate.lengthenArray(loopIndex + 1)
             }
             
-            // If we can't find the old value at this loop index, assume the output change
-            var outputsChanged: Bool = outputValuesToUpdate[safe: loopIndex].map { $0 == newOutputValue } ?? true
+            // If we can't find the old value at this loop index, assume the output changed
+            var outputsChanged: Bool = outputValuesToUpdate[safe: loopIndex].map { $0 != newOutputValue } ?? true
             
             // Insert new output value at correct loop index
             outputValuesToUpdate[loopIndex] = newOutputValue
