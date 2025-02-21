@@ -23,8 +23,6 @@ struct GraphMovementViewModifier: ViewModifier {
                 // curentNodePage local position is default rather than persisted local position when graph first opened
                 self.graphMovement.localPosition = currentNodePage.localPosition
                 self.graphMovement.localPreviousPosition = currentNodePage.localPosition
-                
-                self.graphMovement.zoomData.current = currentNodePage.zoomData.current
                 self.graphMovement.zoomData.final = currentNodePage.zoomData.final
                 
                 /*
@@ -49,9 +47,6 @@ struct GraphMovementViewModifier: ViewModifier {
                 currentNodePage.localPosition = graphMovement.localPosition
                 
                 self.graph.updateVisibleNodes()
-            }
-            .onChange(of: graphMovement.zoomData.current) { _, newValue in
-                currentNodePage.zoomData.current = graphMovement.zoomData.current
             }
             .onChange(of: graphMovement.zoomData.final) { _, newValue in
                 currentNodePage.zoomData.final = graphMovement.zoomData.final
