@@ -52,6 +52,7 @@ struct GraphMovementViewModifier: ViewModifier {
             }
             .onChange(of: graphMovement.zoomData.current) { _, newValue in
                 currentNodePage.zoomData.current = graphMovement.zoomData.current
+                self.graph.updateVisibleNodes()
             }
             .onChange(of: graphMovement.zoomData.final) { _, newValue in
                 currentNodePage.zoomData.final = graphMovement.zoomData.final
