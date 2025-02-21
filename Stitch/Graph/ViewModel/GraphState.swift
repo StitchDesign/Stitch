@@ -386,11 +386,8 @@ extension GraphState {
         
         self.syncNodes(with: schema.nodes)
         
-        if let document = self.documentDelegate,
-           let documentEncoder = self.documentEncoderDelegate {
-            self.initializeDelegate(document: document,
-                                    documentEncoderDelegate: documentEncoder)
-        }
+        // Determines if graph data needs updating
+        self.graphUpdaterId = self.calculateGraphUpdaterId()
     }
     
     @MainActor func onPrototypeRestart() {
