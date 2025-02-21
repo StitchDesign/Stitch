@@ -816,7 +816,19 @@ extension NodeViewModel {
             return
         }
 
-        patchNode.inputsObservers = patchNode.inputsObservers.dropLast()
+        if let removedInputObserver = patchNode.inputsObservers.last {
+            patchNode.inputsObservers = patchNode.inputsObservers.dropLast()
+            
+            // Remove input view models--fixes behavior for input edit mode
+            let inputViewModels = removedInputObserver.allRowViewModels
+            for input in inputViewModels {
+                if let canvas = input.canvasItemDelegate {
+                    canvas.inputViewModels = canvas.inputViewModels.filter {
+                        $0.id != input.id
+                    }
+                }
+            }
+        }
     }
     
     @MainActor func flattenOutputs() {
