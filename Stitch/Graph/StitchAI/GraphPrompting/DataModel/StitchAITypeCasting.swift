@@ -50,7 +50,10 @@ extension PortValue {
         case .cameraDirection(let x):
             return x
         case .assignedLayer(let x):
-            return x
+            guard let x = x else {
+                return "None"
+            }
+            return StitchAIUUID(value: x.id)
         case .scrollMode(let x):
             return x
         case .textAlignment(let x):
@@ -353,6 +356,11 @@ extension UserVisibleType {
             return .cameraDirection(x)
         case .interactionId:
             guard let x = anyValue as? StitchAIUUID? else {
+                if let xString = anyValue as? String,
+                   xString == "None" {
+                    return .assignedLayer(nil)
+                }
+                
                 throw StitchAIManagerError.typeCasting
             }
             
