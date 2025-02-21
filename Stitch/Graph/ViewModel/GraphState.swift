@@ -373,12 +373,6 @@ extension GraphState {
         }
         
         await self.syncNodes(with: schema.nodes)
-        
-        if let document = self.documentDelegate,
-           let documentEncoder = self.documentEncoderDelegate {
-            self.initializeDelegate(document: document,
-                                    documentEncoderDelegate: documentEncoder)
-        }
     }
     
     // Used with copy-paste / duplication
