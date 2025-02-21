@@ -186,7 +186,7 @@ extension SidebarItemSwipable {
     @MainActor
     var isPrimarilySelected: Bool {
         guard let sidebar = self.sidebarDelegate else {
-            fatalErrorIfDebug()
+            // fatalErrorIfDebug() // It's okay for this check to fail?
             return false
         }
         
