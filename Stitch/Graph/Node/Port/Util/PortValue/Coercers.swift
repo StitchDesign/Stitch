@@ -402,8 +402,8 @@ func fitStyleCoercer(_ values: PortValues) -> PortValues {
             return $0
         case .number(let x):
             return VisualMediaFitStyle.fromNumber(x)
-            //        case .json(let x):
-            //            return x.value.coerceToPortValue(ofType: .fitStyle)
+        case .json(let x):
+            return x.value.coerceToPortValue(ofType: .fitStyle)
         default:
             return VisualMediaFitStyle.defaultMediaFitStylePortValue
         }
@@ -799,8 +799,8 @@ extension PortValue {
         case .number(let x):
             return SizingScenario.fromNumber(x)
                 .getSizingScenario ?? .defaultSizingScenario
-            //        case .json(let x):
-            //            return x.value.coerceToPortValue(ofType: .sizingScenario).getSizingScenario ?? .defaultSizingScenario
+        case .json(let x):
+            return x.value.coerceToPortValue(ofType: .sizingScenario).getSizingScenario ?? .defaultSizingScenario
         default:
             return .defaultSizingScenario
         }
