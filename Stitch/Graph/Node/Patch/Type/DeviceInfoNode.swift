@@ -12,8 +12,8 @@ import SwiftUI
 
 let defaultColorScheme: ColorScheme = .dark
 
-let LIGHT_COLOR_SCHEME = "light"
-let DARK_COLOR_SCHEME = "dark"
+let LIGHT_COLOR_SCHEME = "Light"
+let DARK_COLOR_SCHEME = "Dark"
 
 extension ColorScheme {
     var description: String {
