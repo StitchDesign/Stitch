@@ -160,10 +160,10 @@ struct AddEvalOps {
             let colorRGBA = color.asRGBA
             
             let newRGBA = RGBA(
-                red: min(accRGBA.red + colorRGBA.red, 1.0),
-                green: min(accRGBA.green + colorRGBA.green, 1.0),
-                blue: min(accRGBA.blue + colorRGBA.blue, 1.0),
-                alpha: min(accRGBA.alpha + colorRGBA.alpha, 1.0)
+                red: accRGBA.red + colorRGBA.red,
+                green: accRGBA.green + colorRGBA.green,
+                blue: accRGBA.blue + colorRGBA.blue,
+                alpha: accRGBA.alpha + colorRGBA.alpha
             )
             
             return newRGBA.toColor
