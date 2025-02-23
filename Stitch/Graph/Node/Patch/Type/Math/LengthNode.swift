@@ -90,15 +90,16 @@ func lengthEval(inputs: PortValuesList,
     }
 
     let colorOp: Operation = { (values: PortValues) -> PortValue in
-        guard let color = values[0].getColor else { return .number(1) } // Default to 1 for no color
+        guard let color = values[0].getColor else { return .number(0) } // Default to 0 for no color
         let rgba = color.asRGBA
-        // Scale factor is (2/√3 * 1.33) to get our target values
-        let scaleToWhite = (2.0 / sqrt(3.0)) * 1.33
+        
+        // Calculate normalized vector length in RGB space
         let length = sqrt(
             rgba.red * rgba.red +
             rgba.green * rgba.green +
             rgba.blue * rgba.blue
-        ) * scaleToWhite
+        ) / sqrt(3.0) // Normalize by dividing by √3 so white has length 1
+        
         return .number(length)
     }
 
