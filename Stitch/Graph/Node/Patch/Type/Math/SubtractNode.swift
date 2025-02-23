@@ -16,12 +16,15 @@ func subtractNode(id: NodeId,
                   position: CGSize = .zero,
                   zIndex: Double = 0,
                   n1Loop: PortValues? = nil,
-                  n2Loop: PortValues? = nil) -> PatchNode {
+                  n2Loop: PortValues? = nil,
+                  userVisibleType: UserVisibleType = .number) -> PatchNode {
+
+    let defaultValue: PortValue = userVisibleType == .color ? .color(.clear) : .number(0.0)
 
     let inputs = toInputs(id: id,
                           values:
-                            (nil, n1Loop ?? [.number(n1)]),
-                          (nil, n2Loop ?? [.number(n2)]))
+                            (nil, n1Loop ?? [defaultValue]),
+                          (nil, n2Loop ?? [defaultValue]))
 
     let outputs = toOutputs(id: id, offset: inputs.count,
                             values: (nil, [.number(n1 + n2)]))
@@ -31,7 +34,7 @@ func subtractNode(id: NodeId,
         zIndex: zIndex,
         id: id,
         patchName: .subtract,
-        userVisibleType: .number,
+        userVisibleType: userVisibleType,
         inputs: inputs,
         outputs: outputs)
 }
