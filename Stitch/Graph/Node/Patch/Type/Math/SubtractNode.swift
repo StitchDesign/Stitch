@@ -20,13 +20,13 @@ func subtractNode(id: NodeId,
 
 
     let inputs = toInputs(id: id,
-                          values:
-                            (nil, n1Loop ?? [.number(n1)]),
-                          (nil, n2Loop ?? [.number(n2)]))
+                            values:
+                              (nil, n1Loop ?? [.number(n1)]),
+                            (nil, n2Loop ?? [.number(n2)]))
 
     let outputs = toOutputs(id: id, offset: inputs.count,
-                            values: (nil, [.number(n1 + n2)]))
-
+                              values: (nil, [.number(n1 + n2)]))
+    
     return PatchNode(
         position: position,
         zIndex: zIndex,
