@@ -186,7 +186,7 @@ func deviceInfoEval(node: PatchNode,
         [.number(state.graphMovement.zoomData.zoom)],
         [.deviceOrientation(orientation.toStitchDeviceOrientation)],
         [.string(.init(deviceType.rawValue))],
-        [.string(.init(defaultColorScheme.description))],
+        [.string(.init(state.graphUI.colorScheme.description))],
         [
             .number(state.safeAreaInsets.top)
         ],
