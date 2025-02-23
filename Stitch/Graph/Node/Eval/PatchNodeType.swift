@@ -114,6 +114,17 @@ struct MathUVT: NodeTypeEnummable {
     ])
 }
 
+struct MathWithColorUVT: NodeTypeEnummable {
+    typealias NT = MathNodeTypeWithColor
+    static let value = UVTSet([
+        .number,
+        .position,
+        .size,
+        .point3D,
+        .color
+    ])
+}
+
 enum MathNodeType: PatchNodeTypeSet {
     case number, position, size, point3D
 
@@ -123,6 +134,21 @@ enum MathNodeType: PatchNodeTypeSet {
         case .position: return .position
         case .size: return .size
         case .point3D: return .point3D
+        default: return .number
+        }
+    }
+}
+
+enum MathNodeTypeWithColor: PatchNodeTypeSet {
+    case number, position, size, point3D, color
+
+    static func fromNodeType(_ nodeType: UserVisibleType) -> MathNodeTypeWithColor {
+        switch nodeType {
+        case .number: return .number
+        case .position: return .position
+        case .size: return .size
+        case .point3D: return .point3D
+        case .color: return .color
         default: return .number
         }
     }
