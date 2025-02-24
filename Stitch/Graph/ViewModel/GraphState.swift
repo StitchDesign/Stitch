@@ -461,8 +461,16 @@ extension GraphState {
     func calculateGraphUpdaterId() -> Int {
         var hasher = Hasher()
         
-        let allInputsObservers = self.nodes.values
+        let nodes = self.nodes
+        
+        let allInputsObservers = nodes.values
             .flatMap { $0.getAllInputsObservers() }
+        
+        // Track overall node count
+        let nodeCount = nodes.keys.count
+        
+        // Track graph canvas items count
+        let canvasItems = self.getVisibleCanvasItems().count
 
         // Tracks edge changes to reset cached data
         let upstreamConnections = allInputsObservers
@@ -481,7 +489,8 @@ extension GraphState {
         // Track group node ID, which fixes edges when traversing
         let groupNodeIdFocused = self.graphUI.groupNodeFocused
         
-        hasher.combine(self.nodes.keys.count)
+        hasher.combine(nodeCount)
+        hasher.combine(canvasItems)
         hasher.combine(upstreamConnections)
         hasher.combine(manualEdits)
         hasher.combine(groupNodeIdFocused)
