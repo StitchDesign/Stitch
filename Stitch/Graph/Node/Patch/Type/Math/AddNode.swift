@@ -40,10 +40,10 @@ func addPatchNode(nodeId: NodeId = NodeId(),
 //// This has an output of .none during `insert-node-animation` ?
 //struct AddPatchNode: PatchNodeDefinition {
 //    static let patch = Patch.add
-//    
+//
 //    static private let _defaultUserVisibleType: UserVisibleType = .number
 //    static let defaultUserVisibleType: UserVisibleType? = Self._defaultUserVisibleType
-//    
+//
 //    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
 //        .init(
 //            inputs: [
@@ -71,7 +71,7 @@ func addEval(inputs: PortValuesList,
     
     let result = resultsMaker(inputs)
     
-    // Check if any input is a string
+    // Check if any input is a string or color
     let hasStringInput = inputs.contains { portValues in
         portValues.contains { portValue in
             if case .string(_) = portValue {
@@ -81,8 +81,21 @@ func addEval(inputs: PortValuesList,
         }
     }
     
+    let hasColorInput = inputs.contains { portValues in
+        portValues.contains { portValue in
+            if case .color(_) = portValue {
+                return true
+            }
+            return false
+        }
+    }
+    
     if hasStringInput {
         return result(AddEvalOps.stringOperation)
+    }
+    
+    if hasColorInput {
+        return result(AddEvalOps.colorOperation)
     }
     
     switch evalKind {
@@ -94,6 +107,8 @@ func addEval(inputs: PortValuesList,
         return result(AddEvalOps.positionOperation)
     case .point3D:
         return result(AddEvalOps.point3DOperation)
+    case .color:
+        return result(AddEvalOps.colorOperation)
     }
 }
 
@@ -134,5 +149,26 @@ struct AddEvalOps {
             .point3D(values.reduce(.additionIdentity) { (acc: Point3D, value: PortValue) -> Point3D in
                 acc + (value.getPoint3D ?? .additionIdentity)
             })
+    }
+    
+    static let colorOperation: Operation = { (values: PortValues) -> PortValue in
+        let colors = values.compactMap { $0.getColor }
+        guard !colors.isEmpty else { return .color(.clear) }
+        
+        let result = colors.reduce(Color.clear) { (acc: Color, color: Color) -> Color in
+            let accRGBA = acc.asRGBA
+            let colorRGBA = color.asRGBA
+            
+            let newRGBA = RGBA(
+                red: accRGBA.red + colorRGBA.red,
+                green: accRGBA.green + colorRGBA.green,
+                blue: accRGBA.blue + colorRGBA.blue,
+                alpha: accRGBA.alpha + colorRGBA.alpha
+            )
+            
+            return newRGBA.toColor
+        }
+        
+        return .color(result)
     }
 }

@@ -7,6 +7,7 @@
 
 import Foundation
 import StitchSchemaKit
+import SwiftUI
 
 @MainActor
 func subtractNode(id: NodeId,
@@ -17,14 +18,15 @@ func subtractNode(id: NodeId,
                   n1Loop: PortValues? = nil,
                   n2Loop: PortValues? = nil) -> PatchNode {
 
+
     let inputs = toInputs(id: id,
-                          values:
-                            (nil, n1Loop ?? [.number(n1)]),
-                          (nil, n2Loop ?? [.number(n2)]))
+                            values:
+                              (nil, n1Loop ?? [.number(n1)]),
+                            (nil, n2Loop ?? [.number(n2)]))
 
     let outputs = toOutputs(id: id, offset: inputs.count,
-                            values: (nil, [.number(n1 + n2)]))
-
+                              values: (nil, [.number(n1 + n2)]))
+    
     return PatchNode(
         position: position,
         zIndex: zIndex,
@@ -37,7 +39,7 @@ func subtractNode(id: NodeId,
 
 @MainActor
 func subtractEval(inputs: PortValuesList,
-                  evalKind: MathNodeType) -> PortValuesList {
+                  evalKind: MathNodeTypeWithColor) -> PortValuesList {
 
     let numberOperation: Operation = { (values: PortValues) -> PortValue in
 
@@ -86,6 +88,32 @@ func subtractEval(inputs: PortValuesList,
         })
     }
 
+    let colorOperation: Operation = { (values: PortValues) -> PortValue in
+        guard let firstColor = values.first?.getColor else {
+            return .color(.clear)
+        }
+        
+        let tail = values.tail
+        
+        let result = tail.reduce(firstColor) { (acc: Color, value: PortValue) -> Color in
+            guard let colorToSubtract = value.getColor else { return acc }
+            
+            let accRGBA = acc.asRGBA
+            let subtractRGBA = colorToSubtract.asRGBA
+            
+            let newRGBA = RGBA(
+                red: max(0, accRGBA.red - subtractRGBA.red),
+                green: max(0, accRGBA.green - subtractRGBA.green),
+                blue: max(0, accRGBA.blue - subtractRGBA.blue),
+                alpha: max(0, accRGBA.alpha - subtractRGBA.alpha)
+            )
+            
+            return newRGBA.toColor
+        }
+        
+        return .color(result)
+    }
+
     let result = resultsMaker(inputs)
 
     switch evalKind {
@@ -97,5 +125,7 @@ func subtractEval(inputs: PortValuesList,
         return result(positionOperation)
     case .point3D:
         return result(point3DOperation)
+    case .color:
+        return result(colorOperation)
     }
 }

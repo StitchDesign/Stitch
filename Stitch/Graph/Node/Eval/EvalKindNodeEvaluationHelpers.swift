@@ -56,6 +56,10 @@ let pureNodeEval = { (_ eval: @escaping PureEval) in { (node: PatchNode) in
     outputsOnlyEvalT(eval, \.asMathEval)
 }
 
+@MainActor let mathNodeTypeWithColorEval = { (_ eval: @escaping OutputsOnlyPureEvalT<MathNodeTypeWithColor>) in
+    outputsOnlyEvalT(eval, \.asMathWithColorEval)
+}
+
 // Default helper for now
 let stringOp: Operation = { (_: PortValues) -> PortValue in .string(.init("")) }
 
