@@ -172,6 +172,12 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
         
         // Blocks thumbnail from being selected until encoding completes
         self.projectLoader?.loadingDocument = .loading
+        
+        // Updates graph data when changed
+        let newViewId = self.visibleGraph.calculateGraphUpdaterId()
+        if self.visibleGraph.graphUpdaterId != newViewId {
+            self.visibleGraph.graphUpdaterId = newViewId
+        }
     }
     
     func didEncodeProject(schema: StitchDocument) {
