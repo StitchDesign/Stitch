@@ -154,7 +154,7 @@ extension PortValue {
             return LayerDimension.fromUserEdit(edit: x.string) ?? defaultValue
 
         case .json(let x):
-            return x.value.coerceToPortValue(ofType: .layerDimension).getLayerDimension ?? .auto
+            return x.value.coerceToPortValue(.layerDimension).getLayerDimension ?? .auto
             
         case .transform, .plane, .networkRequestType, .color, .pulse, .asyncMedia, .anchoring, .cameraDirection, .assignedLayer, .scrollMode, .textAlignment, .textVerticalAlignment, .fitStyle, .animationCurve, .lightType, .layerStroke, .textTransform, .dateAndTimeFormat, .shape, .scrollJumpStyle, .scrollDecelerationRate, .delayStyle, .shapeCoordinates, .shapeCommandType, .shapeCommand, .orientation, .cameraOrientation, .deviceOrientation, .vnImageCropOption, .textDecoration, .textFont, .blendMode, .mapType, .progressIndicatorStyle, .mobileHapticStyle, .strokeLineCap, .strokeLineJoin, .contentMode, .sizingScenario, .pinTo, .deviceAppearance, .materialThickness, .anchorEntity, .none:
             return defaultValue

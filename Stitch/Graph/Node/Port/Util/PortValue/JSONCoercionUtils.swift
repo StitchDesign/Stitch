@@ -12,7 +12,7 @@ import SwiftyJSON
 
 extension PortValue {
     var coerceToHumanFriendlyJSON: StitchJSON {
-        
+
         switch self {
             
         case .json(let x):
@@ -36,15 +36,14 @@ extension PortValue {
             }
             
         default:
+                        
             // Encode the PortValue as a human-readable/friendly JSON (e.g. StitchAIColor instead of SwiftUI.Color)
             if let encoding: Data = try? getStitchEncoder().encode(self.anyCodable),
                let json = try? JSON.init(data: encoding) {
                 // log("jsonCoercer: coerced \(self) to a json \(json) via encoding")
                 return .init(json)
             }
-           
-            // JSONFriendlyFormat(value: self)
-            
+                       
             // Best for enums: `SwiftyJSON.JSON(rawValue:)` cannot directly handle Swift enums, so we use the enum's human-friendly display instead.
             // Note: Can we go directly from a SwiftUI `Codable` to a SwiftyJSON?
             else if let rawValueStr = self.rawValueString,
@@ -53,6 +52,7 @@ extension PortValue {
                 return .init(json)
             }
             
+            // TODO: when does this really happen? just e.g. PortValue.layerDimension ?
             else if let json: JSON = JSON(rawValue: self.display) {
                 log("jsonCoercer: coerced \(self) to a json \(json) via display i.e. \(self.display)")
                 return .init(json)
@@ -146,62 +146,62 @@ extension PortValue {
 }
 
 extension JSON {
-    // We have a PortValue.json flowing into an input with a PortValue.nonJSONCase value;
-    // we want to convert the JSON into the existing value's PortValue case.
-    
-    // TODO: an input of a certain type is receiving a PortValue.json(StitchJSON) value; the JSON could represent any other PortValue, completely different from the
-    // i.e. `JSON` is a kind of `Any` type.
-    func coerceToPortValue(ofType nodeType: NodeType) -> PortValue {
-        log("coerceToPortValue: ofType nodeType: \(nodeType)")
-        for nt in NodeType.allCases {
-            if nt == .none {
-                continue
-            }
-            
-            log("coerceToPortValue: on nt: \(nt)")
-            
-            let k: Any = self
-            
-//            if let valueFromJSON: PortValue = try? nt.coerceToPortValueForStitchAI(from: self) {
-            if let valueFromJSON: PortValue = try? nt.coerceToPortValueForStitchAI(from: k) {
-                log("coerceToPortValue: got valueFromJSON: \(valueFromJSON) for existingValue \(nodeType)")
-                return valueFromJSON
+    func coerceToPortValue(_ currentNodeTypeOnInput: NodeType) -> PortValue {
+                
+        log("coerceToPortValue: json type: \(self.type)")
+        
+        let defaultReturnJSON = PortValue.json(.init(id: .init(), value: self))
+        
+        guard let encoded: Data = self.type == .dictionary ? (try? self.encodeToData()) : (try? self.stringValue.encodeToData()) else {
+            log("coerceToPortValue: could not encode data; will return JSON as PortValue.json")
+            return defaultReturnJSON
+        }
+        
+        let decoder = JSONDecoder()
+        
+        let attempToDecodeAs = { (nodeType: NodeType) -> PortValue? in
+            if let decodedAnyValue = try? decoder.decode(nodeType.portValueTypeForStitchAI, from: encoded),
+               let decodedPortValue: PortValue = try? nodeType.coerceToPortValueForStitchAI(from: decodedAnyValue) {
+                log("coerceToPortValue: got decodedPortValue: \(decodedPortValue) for existingValue \(nodeType)")
+                return decodedPortValue
+            } else {
+                return nil
             }
         }
         
-        log("coerceToPortValue: could not get PortValue from json \(self) for existingValue \(nodeType)")
-        return nodeType.defaultPortValue
+        // First, attempt to decode JSON as the *input's current node type.*
+        // Helpful for cases where, without additional context, the JSON could be equally decoded as more than one PortValue type.
+        // e.g. a json-string `fill` could match either to VisualMediaFitStyle or LayerDimension
+        if let valueFromJSON = attempToDecodeAs(currentNodeTypeOnInput) {
+            return valueFromJSON
+        }
+
+        // Next, iterate through all remaining
+        for nodeType in NodeType.allCases {
+            // TODO: remove `PortValue.none` case
+            // Note: String is handled last
+            if nodeType == .none || nodeType == .string {
+                continue
+            }
+            
+            if let valueFromJSON = attempToDecodeAs(nodeType) {
+                return valueFromJSON
+            }
+        } // for nodeType in ...
+                
+        // Finally:
+        // rawValue enum cases are all json-strings, which we can be decoded as either String or the specific enum type (e.g. SizingScenario, VisualMediaFitStyle etc.).
+        // We want to decode the JSON into the most specific type possible, so e.g. decode the json-string "stretch" as a VisualMediaFitStyle rather than just a String.
+        // Thus, we attempt 'decode as String' LAST, after trying other types first.
+        if let valueFromJSON = attempToDecodeAs(.string) {
+            return valueFromJSON
+        }
         
-//
-//        switch nodeType {
-//        case .json:
-//            return .json(.init(self)) // Not really how this is supposed to be used?
-//            //        case .shape:
-//            //            return .shape(self.coerceToCustomShape)
-//            //        case .number:
-//            //            return .number(self.double ?? .zero)
-//            //        case .bool:
-//            //            return .bool(self.bool ?? false)
-//            //        case .string:
-//            //            return .string(.init(self.string ?? .empty))
-//            //        case .int:
-//            //            return .int(self.int ?? .zero)
-//            //
-//            
-//        default:
-//            
-//            NodeType.allCases.forEach { nodeType in
-//                
-//            }
-//            
-//            if let valueFromJSON: PortValue = try? nodeType.coerceToPortValueForStitchAI(from: self) {
-//                // log("coerceToPortValue: got valueFromJSON: \(valueFromJSON) for existingValue \(nodeType)")
-//                return valueFromJSON
-//            } else {
-//                log("coerceToPortValue: could not get PortValue from json \(self) for existingValue \(nodeType)")
-//                return nodeType.defaultPortValue
-//            }
-//        }
-        
+        // If we could not decode the JSON as some other more specific PortValue type,
+        // simply continue to treat it as a JSON PortValue type.
+        else {
+            log("coerceToPortValue: could not get PortValue from json \(self)")
+            return defaultReturnJSON
+        }
     }
 }

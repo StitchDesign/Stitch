@@ -35,6 +35,8 @@ class OpenAIRequestTests: XCTestCase {
                 let decoding = try getStitchDecoder()
                     .decodeStitchAI(portValueType,
                                     data: encoding)
+                
+                // TODO: make sure encoded-decoded value is same as original value
             } catch {
                 XCTFail(error.localizedDescription)
             }

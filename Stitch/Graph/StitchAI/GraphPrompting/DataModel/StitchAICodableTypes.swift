@@ -38,6 +38,27 @@ struct StitchAIUUID: StitchAIStringConvertable {
     var value: UUID
 }
 
+
+//extension VisualMediaFitStyle: StitchAIValueStringConvertable {
+//    public var description: String {
+//        self.rawValue
+//    }
+//    
+//    var encodableString: String {
+//        self.rawValue
+//    }
+//    
+//    public init?(_ description: String) {
+//        self.init(rawValue: description)
+//    }
+//}
+
+//
+//struct StitchAIVisualMediaFitStyle: StitchAIStringConvertable {
+//    var value: VisualMediaFitStyle
+//}
+
+
 extension UUID: StitchAIValueStringConvertable {
     var encodableString: String {
         self.description
