@@ -20,7 +20,6 @@ struct NodeTypeView: View {
     let atleastOneCommentBoxSelected: Bool
     let activeIndex: ActiveIndex
     let groupNodeFocused: GroupNodeType?
-    let adjustmentBarSessionId: AdjustmentBarSessionId
     let isSelected: Bool
 
     var boundsReaderDisabled: Bool = false
@@ -78,7 +77,7 @@ struct NodeTypeView: View {
                                      node: node,
                                      canvas: canvasNode,
                                      isNodeSelected: isSelected,
-                                     adjustmentBarSessionId: adjustmentBarSessionId)
+                                     adjustmentBarSessionId: document.graphUI.adjustmentBarSessionId)
             }
         }
     }
@@ -96,7 +95,7 @@ struct NodeTypeView: View {
                                       node: node,
                                       canvas: canvasNode,
                                       isNodeSelected: isSelected,
-                                      adjustmentBarSessionId: adjustmentBarSessionId)
+                                      adjustmentBarSessionId: document.graphUI.adjustmentBarSessionId)
             }
         }
     }
