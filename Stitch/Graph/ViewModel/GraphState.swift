@@ -81,7 +81,7 @@ final class GraphState: Sendable {
     @MainActor var graphUpdaterId: Int = .zero
     
     /// Prevents possible loop of cache recreation.
-    @MainActor var isUpdatingCache: Bool = false
+//    @MainActor var isUpdatingCache: Bool = false
     
     @MainActor var lastEncodedDocument: GraphEntity
     @MainActor weak var documentDelegate: StitchDocumentViewModel?

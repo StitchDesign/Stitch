@@ -51,7 +51,7 @@ struct NodesView: View {
 //         but can live somewhere else?
         InfiniteCanvas(graph: graph,
                        existingCache: graph.visibleNodesViewModel.infiniteCanvasCache,
-                       isUpdatingCache: graph.isUpdatingCache,
+//                       isUpdatingCache: graph.isUpdatingCache,
                        needsInfiniteCanvasCacheReset: graph.visibleNodesViewModel.needsInfiniteCanvasCacheReset) {
             
             //                        commentBoxes

@@ -20,13 +20,13 @@ struct CanvasPositionKey: LayoutValueKey {
 struct InfiniteCanvas: Layout {
     let graph: GraphState
     let existingCache: Self.Cache
-    let isUpdatingCache: Bool
+//    let isUpdatingCache: Bool
     let needsInfiniteCanvasCacheReset: Bool
     
     typealias Cache = [CanvasItemId: CGRect]
     
     var willUpdateCache: Bool {
-        self.needsInfiniteCanvasCacheReset && !isUpdatingCache
+        self.needsInfiniteCanvasCacheReset// && !isUpdatingCache
     }
     
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) -> CGSize {
@@ -43,7 +43,7 @@ struct InfiniteCanvas: Layout {
 //        }
         
         // Override native cache
-        let cache = self.existingCache
+//        let cache = self.existingCache
         
         // Place subviews
         for subview in subviews {
@@ -63,25 +63,33 @@ struct InfiniteCanvas: Layout {
     }
     
     func makeCache(subviews: Subviews) -> Cache {
-        // Only make cache when specified
-        if willUpdateCache {
-            DispatchQueue.main.async { [weak graph] in
-                guard let graph = graph else {
-                    return
-                }
-                
-                Self.recreateCache(subviews: subviews,
-                                   graph: graph)
-            }
-        }
-    
-        return self.existingCache
+        self.recreateCache(subviews: subviews,
+                           oldCache: nil)
+       
+//        // Only make cache when specified
+//        if willUpdateCache {
+//            DispatchQueue.main.async { [weak graph] in
+//                guard let graph = graph else {
+//                    return
+//                }
+//                
+//            }
+//        }
+//    
+//        return self.existingCache
     }
     
-    @MainActor
-    static func recreateCache(subviews: Subviews,
-                              graph: GraphState) {
-        graph.isUpdatingCache = true
+    func updateCache(_ cache: inout Cache, subviews: Subviews) {
+        if self.willUpdateCache {
+            cache = self.recreateCache(subviews: subviews,
+                                       oldCache: cache)
+        }
+    }
+    
+    
+    func recreateCache(subviews: Subviews,
+                       oldCache: Cache?) -> Cache {
+//        graph.isUpdatingCache = true
         
         // Rebuilding cache scenario
         let cache = subviews.reduce(into: Cache()) { result, subview in
@@ -95,17 +103,21 @@ struct InfiniteCanvas: Layout {
             result.updateValue(bounds, forKey: id)
         }
         
-        DispatchQueue.main.async { [weak graph] in
-            graph?.isUpdatingCache = false
-            graph?.visibleNodesViewModel.needsInfiniteCanvasCacheReset = false
-            graph?.visibleNodesViewModel.infiniteCanvasCache = cache
-            
-            // Update visible nodes (fixes init case)
-            graph?.updateVisibleNodes()
+        if cache != oldCache {
+            DispatchQueue.main.async { [weak graph] in
+//                graph?.isUpdatingCache = false
+                graph?.visibleNodesViewModel.needsInfiniteCanvasCacheReset = false
+                graph?.visibleNodesViewModel.infiniteCanvasCache = cache
+                
+                // Update visible nodes (fixes init case)
+                graph?.updateVisibleNodes()
+            }
         }
+        
+        return cache
     }
     
-    func updateCache(_ cache: inout Cache, subviews: Subviews) { }
+//    func updateCache(_ cache: inout Cache, subviews: Subviews) { }
     
     func explicitAlignment(of guide: HorizontalAlignment,
                            in bounds: CGRect,
