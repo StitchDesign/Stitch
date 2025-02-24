@@ -89,6 +89,20 @@ func lengthEval(inputs: PortValuesList,
         return .number(Double(length)) // Return the length as a number
     }
 
+    let colorOp: Operation = { (values: PortValues) -> PortValue in
+        guard let color = values[0].getColor else { return .number(0) } // Default to 0 for no color
+        let rgba = color.asRGBA
+        
+        // Calculate normalized vector length in RGB space
+        let length = sqrt(
+            rgba.red * rgba.red +
+            rgba.green * rgba.green +
+            rgba.blue * rgba.blue
+        ) / sqrt(3.0) // Normalize by dividing by √3 so white has length 1
+        
+        return .number(length)
+    }
+
     let result = resultsMaker(inputs)
         
     if hasStringInput {
@@ -104,5 +118,7 @@ func lengthEval(inputs: PortValuesList,
         return result(sizeOp)
     case .point3D:
         return result(point3DOp)
+    case .color:
+        return result(colorOp)
     }
 }

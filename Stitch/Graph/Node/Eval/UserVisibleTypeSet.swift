@@ -24,6 +24,10 @@ extension UVTSet {
     func asMath(_ uvt: UserVisibleType) -> MathNodeType? {
         self == MathUVT.value ? MathUVT.choices(uvt) : nil
     }
+    
+    func asMathWithColor(_ uvt: UserVisibleType) -> MathNodeTypeWithColor? {
+        self == MathWithColorUVT.value ? MathWithColorUVT.choices(uvt) : nil
+    }
 
     func asPack(_ uvt: UserVisibleType) -> PackNodeType? {
         self == PackUVT.value ? PackUVT.choices(uvt) : nil
@@ -49,6 +53,11 @@ extension PatchNodeViewModel {
     @MainActor
     var asMathEval: MathNodeType? {
         return self.userVisibleType.flatMap(patch.availableNodeTypes.asMath)
+    }
+    
+    @MainActor
+    var asMathWithColorEval: MathNodeTypeWithColor? {
+        return self.userVisibleType.flatMap(patch.availableNodeTypes.asMathWithColor)
     }
 
     @MainActor
