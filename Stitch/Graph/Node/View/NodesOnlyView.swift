@@ -9,16 +9,13 @@ import SwiftUI
 import StitchSchemaKit
 
 struct NodesOnlyView: View {
+    @State private var canvasNodes: [CanvasItemViewModel] = []
     
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     @Bindable var graphUI: GraphUIState
     @Bindable var nodePageData: NodePageData
     
-    var canvasNodeIds: [CanvasItemId] {
-        self.graph.visibleNodesViewModel.allViewModels.map(\.id)
-    }
-
     var selection: GraphUISelectionState {
         graphUI.selection
     }
@@ -27,18 +24,32 @@ struct NodesOnlyView: View {
         graphUI.activeIndex
     }
     
-    var adjustmentBarSessionId: AdjustmentBarSessionId {
-        graphUI.adjustmentBarSessionId
-    }
-    
     var focusedGroup: GroupNodeType? {
         self.graph.graphUI.groupNodeFocused
+    }
+    
+    func refreshCanvasNodes() {
+        // Calculate canvas nodes at efficient cadence
+        let canvasNodeIds = self.graph.visibleNodesViewModel.allViewModels.map(\.id)
+        
+        self.canvasNodes = canvasNodeIds
+            .compactMap { id in
+                guard let canvas = self.graph.getCanvasItem(id),
+                      canvas.parentGroupNodeId == self.focusedGroup?.groupNodeId else {
+                    return nil
+                }
+                
+                return canvas
+            }
     }
         
     var body: some View {
         // HACK for when no nodes present
-        if canvasNodeIds.isEmpty {
+        if canvasNodes.isEmpty {
             Rectangle().fill(.clear)
+                .onAppear() {
+                    self.refreshCanvasNodes()
+                }
         }
         
         #if DEV_DEBUG
@@ -58,30 +69,24 @@ struct NodesOnlyView: View {
             .zIndex(999999999999999)
         #endif
 
-        let canvasNodes: [CanvasItemViewModel] = canvasNodeIds
-            .compactMap { id in
-                guard let canvas = self.graph.getCanvasItem(id),
-                      canvas.parentGroupNodeId == self.focusedGroup?.groupNodeId else {
-                    return nil
-                }
-                
-                return canvas
+        Group {
+            ForEach(canvasNodes) { canvasNode in
+                // Note: if/else seems better than opacity modifier, which introduces funkiness with edges (port preference values?) when going in and out of groups;
+                // (`.opacity(0)` means we still render the view, and thus anchor preferences?)
+                NodeTypeView(
+                    document: document,
+                    graph: graph,
+                    node: canvasNode.nodeDelegate ?? .init(),
+                    canvasNode: canvasNode,
+                    atleastOneCommentBoxSelected: selection.selectedCommentBoxes.count >= 1,
+                    activeIndex: activeIndex,
+                    groupNodeFocused: graphUI.groupNodeFocused,
+                    isSelected: graphUI.selection.selectedNodeIds.contains(canvasNode.id)
+                )
             }
-
-        ForEach(canvasNodes) { canvasNode in
-            // Note: if/else seems better than opacity modifier, which introduces funkiness with edges (port preference values?) when going in and out of groups;
-            // (`.opacity(0)` means we still render the view, and thus anchor preferences?)
-            NodeTypeView(
-                document: document,
-                graph: graph,
-                node: canvasNode.nodeDelegate ?? .init(),
-                canvasNode: canvasNode,
-                atleastOneCommentBoxSelected: selection.selectedCommentBoxes.count >= 1,
-                activeIndex: activeIndex,
-                groupNodeFocused: graphUI.groupNodeFocused,
-                adjustmentBarSessionId: adjustmentBarSessionId,
-                isSelected: graphUI.selection.selectedNodeIds.contains(canvasNode.id)
-            )
+        }
+        .onChange(of: self.graph.graphUpdaterId, initial: true) {
+            self.refreshCanvasNodes()
         }
         .onChange(of: self.activeIndex) {
             // Update values when active index changes
