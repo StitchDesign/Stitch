@@ -26,7 +26,7 @@ extension UVTSet {
     }
     
     func asMathWithColor(_ uvt: UserVisibleType) -> MathNodeTypeWithColor? {
-        self == MathUVT.value ? MathWithColorUVT.choices(uvt) : nil
+        self == MathWithColorUVT.value ? MathWithColorUVT.choices(uvt) : nil
     }
 
     func asPack(_ uvt: UserVisibleType) -> PackNodeType? {

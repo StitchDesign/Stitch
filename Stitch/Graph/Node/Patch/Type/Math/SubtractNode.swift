@@ -116,19 +116,6 @@ func subtractEval(inputs: PortValuesList,
 
     let result = resultsMaker(inputs)
 
-    let hasColorInput = inputs.contains { portValues in
-        portValues.contains { portValue in
-            if case .color(_) = portValue {
-                return true
-            }
-            return false
-        }
-    }
-
-    if hasColorInput {
-        return result(colorOperation)
-    }
-
     switch evalKind {
     case .number:
         return result(numberOperation)

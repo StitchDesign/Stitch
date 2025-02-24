@@ -102,7 +102,6 @@ extension Patch {
 
         // ARITHMETIC
         case .add, .length:
-            // LATER: color
             return ArithmeticUVT.value
 
         // Updated to exclude text/string types
