@@ -21,6 +21,7 @@ class OpenAIRequestTests: XCTestCase {
     func testStitchAICodables() {
         for type in NodeType.allCases {
             guard type != .none else { continue }
+            print("type: \(type)")
             
             let portValue = type.defaultPortValue
             let valueCodable = portValue.anyCodable
@@ -29,17 +30,21 @@ class OpenAIRequestTests: XCTestCase {
             do {
                 let encoding = try getStitchEncoder().encode(valueCodable)
                 
-//                let jsonString = String(data: encoding, encoding: .utf8)
-//                print("Json test: \(jsonString)")
+                let jsonString = String(data: encoding, encoding: .utf8)
+                print("Json test: \(jsonString)")
                 
                 let decoding = try getStitchDecoder()
                     .decodeStitchAI(portValueType,
                                     data: encoding)
+                print("decoding: \(decoding)")
                 
                 // TODO: make sure encoded-decoded value is same as original value
             } catch {
+                print("failed to encode type \(type)")
                 XCTFail(error.localizedDescription)
             }
+            
+            
         }
     }
 }
