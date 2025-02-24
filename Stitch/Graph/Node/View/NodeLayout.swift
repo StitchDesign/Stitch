@@ -10,6 +10,10 @@ import SwiftUI
 /// Used by view models to cache local data.
 protocol StitchLayoutCachable: AnyObject, Sendable {
     @MainActor var viewCache: NodeLayoutCache? { get set }
+    
+    // Check that prevents loop of cache updates given dispatch
+    // updating cache on next cycle
+//    @MainActor var isUpdatingCache: Bool { get set }
 }
 
 struct NodeLayoutCache {
@@ -42,12 +46,9 @@ struct NodeLayoutView<T: StitchLayoutCachable, Content: View>: View {
 
 struct NodeLayout<T: StitchLayoutCachable>: Layout, Sendable {
     typealias Cache = ()
-    
-    // Check that prevents loop of cache updates given dispatch
-    // updating cache on next cycle
-    @State private var isUpdatingCache = false
-    
+        
     let observer: T
+//    let isUpdatingCache = false
     let existingCache: NodeLayoutCache?
     
     // IMPORTANT
@@ -56,7 +57,7 @@ struct NodeLayout<T: StitchLayoutCachable>: Layout, Sendable {
         let isMarkedForUpdate = existingCache?.needsUpdating ?? true
         
         // Condition for needing new cache
-        if isMarkedForUpdate && !self.isUpdatingCache {
+        if isMarkedForUpdate { //} && !self.isUpdatingCache {
             let newCache = self.recreateCache(subviews: subviews)
             return newCache.sizeThatFits
         }
@@ -66,10 +67,10 @@ struct NodeLayout<T: StitchLayoutCachable>: Layout, Sendable {
     
     func recreateCache(subviews: Subviews) -> NodeLayoutCache {
         let newCache = self.createCache(subviews: subviews)
-        self.isUpdatingCache = true
+//        self.isUpdatingCache = true
         
         DispatchQueue.main.async {
-            self.isUpdatingCache = false
+//            self.isUpdatingCache = false
             self.observer.viewCache = newCache
         }
         
