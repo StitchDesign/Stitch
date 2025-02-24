@@ -399,6 +399,9 @@ extension LayerNodeViewModel: SchemaObserver {
         
         // Process output canvases
         self.updateOutputData(from: schema.outputCanvasPorts)
+        
+        // Updates canvas item counts
+        self.resetInputCanvasItemsCache()
     }
     
     /// Helper which discovers a layer node's inputs and passes its port into a callback.
