@@ -11,16 +11,24 @@ import SwiftUI
 protocol StitchLayoutCachable: AnyObject, Sendable {
     @MainActor var viewCache: NodeLayoutCache? { get set }
     
+    @MainActor var willUpdateCache: Bool { get set }
+    
     // Check that prevents loop of cache updates given dispatch
     // updating cache on next cycle
 //    @MainActor var isUpdatingCache: Bool { get set }
 }
 
-struct NodeLayoutCache {
-    var needsUpdating = false
+struct NodeLayoutCache: Equatable {
     var sizes: [CGSize] = []
     var sizeThatFits: CGSize = .zero
     var spacing: ViewSpacing = .zero
+}
+
+extension ViewSpacing: Equatable {
+    /// Returns true to allow equality checks with `NodeLayoutCache`.
+    public static func == (lhs: ViewSpacing, rhs: ViewSpacing) -> Bool {
+        true
+    }
 }
 
 extension View {
@@ -38,40 +46,59 @@ struct NodeLayoutView<T: StitchLayoutCachable, Content: View>: View {
     
     var body: some View {
         NodeLayout(observer: observer,
-                   existingCache: observer.viewCache) {
+                   willUpdateCache: observer.willUpdateCache) {
             content()
         }
     }
 }
 
 struct NodeLayout<T: StitchLayoutCachable>: Layout, Sendable {
-    typealias Cache = ()
+    typealias Cache = NodeLayoutCache
         
     let observer: T
+    let willUpdateCache: Bool
 //    let isUpdatingCache = false
-    let existingCache: NodeLayoutCache?
+//    let existingCache: NodeLayoutCache?
     
     // IMPORTANT
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) -> CGSize {
         
-        let isMarkedForUpdate = existingCache?.needsUpdating ?? true
+        let isMarkedForUpdate = self.willUpdateCache
         
         // Condition for needing new cache
         if isMarkedForUpdate { //} && !self.isUpdatingCache {
-            let newCache = self.recreateCache(subviews: subviews)
+            let newCache = self.recreateCache(subviews: subviews,
+                                              oldCache: cache)
             return newCache.sizeThatFits
         }
         
-        return existingCache?.sizeThatFits ?? .zero
+        return cache.sizeThatFits
     }
     
-    func recreateCache(subviews: Subviews) -> NodeLayoutCache {
+    func makeCache(subviews: Subviews) -> NodeLayoutCache {
+        self.recreateCache(subviews: subviews,
+                           oldCache: nil)
+    }
+    
+    func updateCache(_ cache: inout Cache, subviews: Subviews) {
+        if self.willUpdateCache {
+            cache = self.recreateCache(subviews: subviews,
+                                       oldCache: cache)
+        }
+    }
+    
+    func recreateCache(subviews: Subviews,
+                       oldCache: NodeLayoutCache?) -> NodeLayoutCache {
         let newCache = self.createCache(subviews: subviews)
 //        self.isUpdatingCache = true
         
-        DispatchQueue.main.async {
-//            self.isUpdatingCache = false
-            self.observer.viewCache = newCache
+        // Prevents render cycles by assigning observer with redundant copy
+        if newCache != oldCache {
+            DispatchQueue.main.async { [weak observer] in
+                //            self.isUpdatingCache = false
+                observer?.willUpdateCache = false
+                observer?.viewCache = newCache
+            }
         }
         
         return newCache
@@ -82,8 +109,7 @@ struct NodeLayout<T: StitchLayoutCachable>: Layout, Sendable {
         let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
         let sizeThatFits = self.calculateSizeThatFits(subviews: subviews)
         let spacing = self.calculateSpacing(subviews: subviews)
-        let cache = NodeLayoutCache(needsUpdating: false,
-                                    sizes: sizes,
+        let cache = NodeLayoutCache(sizes: sizes,
                                     sizeThatFits: sizeThatFits,
                                     spacing: spacing)
         
@@ -115,13 +141,13 @@ struct NodeLayout<T: StitchLayoutCachable>: Layout, Sendable {
         
         guard !subviews.isEmpty else { return }
         
-        let cache = self.existingCache ?? self.createCache(subviews: subviews)
+//        let cache = self.existingCache ?? self.createCache(subviews: subviews)
             
-        if self.existingCache == nil {
-            DispatchQueue.main.async {
-                self.observer.viewCache = cache
-            }
-        }
+//        if self.existingCache == nil {
+//            DispatchQueue.main.async {
+//                self.observer.viewCache = cache
+//            }
+//        }
         
         for index in subviews.indices {
             let subview = subviews[index]
@@ -140,11 +166,11 @@ struct NodeLayout<T: StitchLayoutCachable>: Layout, Sendable {
     }
     
     func spacing(subviews: Self.Subviews, cache: inout Cache) -> ViewSpacing {
-        guard let cache = self.existingCache else {
-            let newCache = self.createCache(subviews: subviews)
-            return newCache.spacing
-        }
-        
+//        guard let cache = self.existingCache else {
+//            let newCache = self.createCache(subviews: subviews)
+//            return newCache.spacing
+//        }
+//        
         return cache.spacing
     }
     

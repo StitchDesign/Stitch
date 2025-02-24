@@ -81,7 +81,7 @@ extension NodeRowViewModelId {
     }
 }
 
-protocol NodeRowViewModel: StitchLayoutCachable, Observable, Identifiable {
+protocol NodeRowViewModel: AnyObject, Sendable, Observable, Identifiable {
     associatedtype FieldType: FieldViewModel where FieldType.NodeRowType == Self
     associatedtype RowObserver: NodeRowObserver
     associatedtype PortViewType: PortViewData
@@ -297,7 +297,6 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     static let nodeIO: NodeIO = .input
     
     let id: NodeRowViewModelId
-    @MainActor var viewCache: NodeLayoutCache?
     @MainActor var activeValue: PortValue = .number(.zero)
     @MainActor var fieldValueTypes = FieldGroupTypeDataList<InputFieldViewModel>()
     @MainActor var connectedCanvasItems: Set<CanvasItemId> = .init()
@@ -367,7 +366,6 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     static let nodeIO: NodeIO = .output
     
     let id: NodeRowViewModelId
-    @MainActor var viewCache: NodeLayoutCache?
     @MainActor var activeValue: PortValue = .number(.zero)
     @MainActor var fieldValueTypes = FieldGroupTypeDataList<OutputFieldViewModel>()
     @MainActor var connectedCanvasItems: Set<CanvasItemId> = .init()

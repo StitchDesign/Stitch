@@ -11,7 +11,7 @@ import StitchSchemaKit
 typealias InputFieldViewModels = [InputFieldViewModel]
 typealias OutputFieldViewModels = [OutputFieldViewModel]
 
-protocol FieldViewModel: StitchLayoutCachable, Observable, AnyObject, Identifiable where Self.ID == FieldCoordinate {
+protocol FieldViewModel: Sendable, Observable, AnyObject, Identifiable where Self.ID == FieldCoordinate {
     associatedtype NodeRowType: NodeRowViewModel
     
     @MainActor var fieldValue: FieldValue { get set }
@@ -71,7 +71,6 @@ final class InputFieldViewModel: FieldViewModel {
     @MainActor var fieldValue: FieldValue
     @MainActor var fieldIndex: Int
     @MainActor var fieldLabel: String
-    @MainActor var viewCache: NodeLayoutCache?
 
     @MainActor weak var rowViewModelDelegate: InputNodeRowViewModel?
     
@@ -95,7 +94,6 @@ final class OutputFieldViewModel: FieldViewModel {
     @MainActor var fieldValue: FieldValue
     @MainActor var fieldIndex: Int
     @MainActor var fieldLabel: String
-    @MainActor var viewCache: NodeLayoutCache?
     
     @MainActor weak var rowViewModelDelegate: OutputNodeRowViewModel?
     
