@@ -199,7 +199,7 @@ extension Patch {
         case .optionEquals:
             return .node(outputsOnlyEval(optionEqualsEval))
         case .subtract:
-            return .node(mathNodeTypeEval(subtractEval))
+            return .node(mathNodeTypeWithColorEval(subtractEval))
         case .squareRoot:
             return .node(mathNodeTypeEval(squareRootEval))
         case .length:
