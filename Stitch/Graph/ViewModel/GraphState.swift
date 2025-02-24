@@ -505,12 +505,6 @@ extension GraphState {
                                                                 temporaryUrl: temporaryURL,
                                                                 willUpdateUndoHistory: willUpdateUndoHistory)
         
-        // Updates graph data when changed
-        let newViewId = self.calculateGraphUpdaterId()
-        if self.graphUpdaterId != newViewId {
-            self.graphUpdaterId = newViewId
-        }
-        
         // If debug mode, make sure fields are updated as we aren't using calculate
         // to update them
         // MARK: should move to delegate, however this works fine for now
