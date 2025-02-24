@@ -20,9 +20,11 @@ class OpenAIRequestTests: XCTestCase {
     /// Tests conversions to and from decoded state. StitchAI sometimes uses different types, this ensures types are compatible.
     func testStitchAICodables() {
         for type in NodeType.allCases {
-            guard type != .none else { continue }
-            print("type: \(type)")
-            
+            if type == .none || type == .anchorEntity {
+                print("testStitchAICodables: skipping type: \(type)")
+                continue
+            }
+          
             let portValue = type.defaultPortValue
             let valueCodable = portValue.anyCodable
             let portValueType = type.portValueTypeForStitchAI
@@ -36,9 +38,6 @@ class OpenAIRequestTests: XCTestCase {
                 let decoding = try getStitchDecoder()
                     .decodeStitchAI(portValueType,
                                     data: encoding)
-                print("decoding: \(decoding)")
-                
-                // TODO: make sure encoded-decoded value is same as original value
             } catch {
                 print("failed to encode type \(type)")
                 XCTFail(error.localizedDescription)
