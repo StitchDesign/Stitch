@@ -51,8 +51,10 @@ extension SidebarItemGestureViewModel {
             return "photo"
         case .rectangle:
             return "rectangle"
-        case .oval, .colorFill:
+        case .oval:
             return "oval"
+        case .colorFill:
+            return "swatchpalette.fill"
         case .model3D:
             return "move.3d"
         case .realityView:
