@@ -97,11 +97,6 @@ final class CanvasItemViewModel: Identifiable, StitchLayoutCachable, Sendable {
     @MainActor
     weak var nodeDelegate: NodeDelegate?
     
-//    @MainActor
-//    var graphDelegate: GraphDelegate? {
-//        self.nodeDelegate?.graphDelegate
-//    }
-    
     @MainActor
     init(id: CanvasItemId,
          position: CGPoint,
