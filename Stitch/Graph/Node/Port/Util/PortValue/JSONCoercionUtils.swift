@@ -48,20 +48,20 @@ extension PortValue {
             // Note: Can we go directly from a SwiftUI `Codable` to a SwiftyJSON?
             else if let rawValueStr = self.rawValueString,
                     let json: JSON = JSON(rawValue: rawValueStr) {
-                log("jsonCoercer: coerced \(self) to a json \(json) via rawValueStr i.e. \(rawValueStr)")
+                // log("jsonCoercer: coerced \(self) to a json \(json) via rawValueStr i.e. \(rawValueStr)")
                 return .init(json)
             }
             
             // TODO: when does this really happen? just e.g. PortValue.layerDimension ?
             else if let json: JSON = JSON(rawValue: self.display) {
-                log("jsonCoercer: coerced \(self) to a json \(json) via display i.e. \(self.display)")
+                // log("jsonCoercer: coerced \(self) to a json \(json) via display i.e. \(self.display)")
                 return .init(json)
             }
             
             // All our PortValues are (1) primitive SwiftUI types that have JSON-equivalents, (2) Encodable Swift Structs, or (3) Swift enums that have a human-friendly display representation.
             else {
                 fatalErrorIfDebug() // We probably made some mistake
-                log("Failed to turn PortValue \(self) into a JSON", .logToServer)
+                // log("Failed to turn PortValue \(self) into a JSON", .logToServer)
                 return emptyStitchJSONObject
             }
         }
@@ -146,27 +146,39 @@ extension PortValue {
 }
 
 extension JSON {
-    func coerceToPortValue(_ currentNodeTypeOnInput: NodeType) -> PortValue {
+    func coerceJSONToPortValue(_ currentNodeTypeOnInput: NodeType) -> PortValue {
                 
-        log("coerceToPortValue: json type: \(self.type)")
+        // log("coerceToPortValue: json type: \(self.type)")
         
         let defaultReturnJSON = PortValue.json(.init(id: .init(), value: self))
         
         guard let encoded: Data = self.type == .dictionary ? (try? self.encodeToData()) : (try? self.stringValue.encodeToData()) else {
-            log("coerceToPortValue: could not encode data; will return JSON as PortValue.json")
+            // log("coerceToPortValue: could not encode data; will return JSON as PortValue.json")
             return defaultReturnJSON
         }
         
         let decoder = JSONDecoder()
         
         let attempToDecodeAs = { (nodeType: NodeType) -> PortValue? in
-            if let decodedAnyValue = try? decoder.decode(nodeType.portValueTypeForStitchAI, from: encoded),
-               let decodedPortValue: PortValue = try? nodeType.coerceToPortValueForStitchAI(from: decodedAnyValue) {
-                log("coerceToPortValue: got decodedPortValue: \(decodedPortValue) for existingValue \(nodeType)")
-                return decodedPortValue
-            } else {
+            
+            // TODO: update the Decoder to handle "None" as the representation of `.assignedLayer(nil)`
+            if nodeType == .interactionId,
+               self.string == PortValue.assignedLayer(nil).display {
+                return PortValue.assignedLayer(nil)
+            }
+            
+            guard let decodedAnyValue = try? decoder.decode(nodeType.portValueTypeForStitchAI, from: encoded) else {
+                // log("coerceToPortValue: could not decode json \(self) as \(nodeType)")
                 return nil
             }
+            
+            guard let decodedPortValue: PortValue = try? nodeType.coerceToPortValueForStitchAI(from: decodedAnyValue) else {
+                // log("coerceToPortValue: could not decode port value for json \(self) as \(nodeType)")
+                return nil
+            }
+            
+            // log("coerceToPortValue: got decodedPortValue: \(decodedPortValue) for existingValue \(nodeType)")
+            return decodedPortValue
         }
         
         // First, attempt to decode JSON as the *input's current node type.*
@@ -189,6 +201,7 @@ extension JSON {
             }
         } // for nodeType in ...
                 
+        
         // Finally:
         // rawValue enum cases are all json-strings, which we can be decoded as either String or the specific enum type (e.g. SizingScenario, VisualMediaFitStyle etc.).
         // We want to decode the JSON into the most specific type possible, so e.g. decode the json-string "stretch" as a VisualMediaFitStyle rather than just a String.
@@ -200,7 +213,7 @@ extension JSON {
         // If we could not decode the JSON as some other more specific PortValue type,
         // simply continue to treat it as a JSON PortValue type.
         else {
-            log("coerceToPortValue: could not get PortValue from json \(self)")
+            // log("coerceToPortValue: could not get PortValue from json \(self)")
             return defaultReturnJSON
         }
     }

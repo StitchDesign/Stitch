@@ -222,7 +222,7 @@ func networkRequestTypeCoercer(_ values: PortValues) -> PortValues {
         case .number(let x):
             return NetworkRequestType.fromNumber(x)
         case .json(let x):
-            return x.value.coerceToPortValue(.networkRequestType)
+            return x.value.coerceJSONToPortValue(.networkRequestType)
         default:
             return networkRequestTypeDefault
         }
@@ -238,7 +238,7 @@ func interactionIdCoercer(_ values: PortValues) -> PortValues {
         case .none:
             return .assignedLayer(nil)
         case .json(let x):
-            return x.value.coerceToPortValue(.interactionId)
+            return x.value.coerceJSONToPortValue(.interactionId)
         default:
             log("interactionIdCoercer: default")
             return .assignedLayer(nil)
@@ -262,7 +262,7 @@ func pinToCoercer(_ values: PortValues) -> PortValues {
                 return defaultValue
             }
         case .json(let x):
-            return x.value.coerceToPortValue(.pinToId)
+            return x.value.coerceJSONToPortValue(.pinToId)
         default:
             log("pinToCoercer: default")
             return defaultValue
@@ -278,7 +278,7 @@ func deviceAppearanceCoercer(_ values: PortValues) -> PortValues {
         case .number(let x):
             return DeviceAppearance.fromNumber(x)
         case .json(let x):
-            return x.value.coerceToPortValue(.deviceAppearance)
+            return x.value.coerceJSONToPortValue(.deviceAppearance)
         default:
             return .deviceAppearance(DeviceAppearance.defaultDeviceAppearance)
         }
@@ -293,7 +293,7 @@ func materialThicknessCoercer(_ values: PortValues) -> PortValues {
         case .number(let x):
             return MaterialThickness.fromNumber(x)
         case .json(let x):
-            return x.value.coerceToPortValue(.materialThickness)
+            return x.value.coerceJSONToPortValue(.materialThickness)
         default:
             return .materialThickness(MaterialThickness.defaultMaterialThickness)
         }
@@ -308,7 +308,7 @@ func scrollModeCoercer(_ values: PortValues) -> PortValues {
         case .number(let x):
             return ScrollMode.fromNumber(x)
         case .json(let x):
-            return x.value.coerceToPortValue(.scrollMode)
+            return x.value.coerceJSONToPortValue(.scrollMode)
         default:
             return scrollModeDefault
         }
@@ -323,7 +323,7 @@ func textAlignmentCoercer(_ values: PortValues) -> PortValues {
         case .number(let x):
             return LayerTextAlignment.fromNumber(x)
         case .json(let x):
-            return x.value.coerceToPortValue(.textAlignment)
+            return x.value.coerceJSONToPortValue(.textAlignment)
         default:
             return defaultTextAlignment
         }
@@ -338,7 +338,7 @@ func textVerticalAlignmentCoercer(_ values: PortValues) -> PortValues {
         case .number(let x):
             return LayerTextVerticalAlignment.fromNumber(x)
         case .json(let x):
-            return x.value.coerceToPortValue(.textVerticalAlignment)
+            return x.value.coerceJSONToPortValue(.textVerticalAlignment)
         default:
             return defaultTextVerticalAlignment
         }
@@ -353,7 +353,7 @@ func textDecorationCoercer(_ values: PortValues) -> PortValues {
         case .number(let x):
             return LayerTextDecoration.fromNumber(x)
         case .json(let x):
-            return x.value.coerceToPortValue(.textDecoration)
+            return x.value.coerceJSONToPortValue(.textDecoration)
         default:
             return .textDecoration(.defaultLayerTextDecoration)
         }
@@ -366,7 +366,7 @@ func textFontCoercer(_ values: PortValues) -> PortValues {
         case .textFont:
             return $0
         case .json(let x):
-            return x.value.coerceToPortValue(.textFont)
+            return x.value.coerceJSONToPortValue(.textFont)
         default:
             return defaultStitchFontPortValue
         }
@@ -382,7 +382,7 @@ extension PortValue {
         case .number(let x):
             return StitchBlendMode.fromNumber(x).getBlendMode ?? .defaultBlendMode
         case .json(let x):
-            return x.value.coerceToPortValue(.blendMode).getBlendMode ?? .defaultBlendMode
+            return x.value.coerceJSONToPortValue(.blendMode).getBlendMode ?? .defaultBlendMode
         default:
             return .defaultBlendMode
         }
@@ -403,7 +403,7 @@ func fitStyleCoercer(_ values: PortValues) -> PortValues {
         case .number(let x):
             return VisualMediaFitStyle.fromNumber(x)
         case .json(let x):
-            return x.value.coerceToPortValue(.fitStyle)
+            return x.value.coerceJSONToPortValue(.fitStyle)
         default:
             return VisualMediaFitStyle.defaultMediaFitStylePortValue
         }
@@ -418,7 +418,7 @@ func animationCurveCoercer(_ values: PortValues) -> PortValues {
         case .number(let x):
             return ClassicAnimationCurve.fromNumber(x)
         case .json(let x):
-            return x.value.coerceToPortValue(.animationCurve)
+            return x.value.coerceJSONToPortValue(.animationCurve)
         default:
             return .animationCurve(defaultAnimationCurve)
         }
@@ -433,7 +433,7 @@ func lightTypeCoercer(_ values: PortValues) -> PortValues {
         case .number(let x):
             return LightType.fromNumber(x)
         case .json(let x):
-            return x.value.coerceToPortValue(.lightType)
+            return x.value.coerceJSONToPortValue(.lightType)
         default:
             return .lightType(defaultLightType)
         }
@@ -448,7 +448,7 @@ func layerStrokeCoercer(_ values: PortValues) -> PortValues {
         case .number(let x):
             return LayerStroke.fromNumber(x)
         case .json(let x):
-            return x.value.coerceToPortValue(.layerStroke)
+            return x.value.coerceJSONToPortValue(.layerStroke)
         default:
             return .layerStroke(.defaultStroke)
         }
@@ -463,7 +463,7 @@ func textTransformCoercer(_ values: PortValues) -> PortValues {
         case .number(let x):
             return TextTransform.fromNumber(x)
         case .json(let x):
-            return x.value.coerceToPortValue(.textTransform)
+            return x.value.coerceJSONToPortValue(.textTransform)
         default:
             return .textTransform(.defaultTransform)
         }
@@ -478,7 +478,7 @@ func dateAndTimeFormatCoercer(_ values: PortValues) -> PortValues {
         case .number(let x):
             return DateAndTimeFormat.fromNumber(x)
         case .json(let x):
-            return x.value.coerceToPortValue(.dateAndTimeFormat)
+            return x.value.coerceJSONToPortValue(.dateAndTimeFormat)
         default:
             return .dateAndTimeFormat(.defaultFormat)
         }
@@ -494,7 +494,7 @@ func orientationCoercer(_ values: PortValues) -> PortValues {
         case .number(let x):
             return StitchOrientation.fromNumber(x)
         case .json(let x):
-            return x.value.coerceToPortValue(.orientation)
+            return x.value.coerceJSONToPortValue(.orientation)
         default:
             return .orientation(.defaultOrientation)
         }
@@ -513,7 +513,7 @@ extension PortValue {
             // Is `.portrait` not quite correct?
             return StitchCameraOrientation.fromNumber(x).getCameraOrientation ?? .portrait
         case .json(let x):
-            return x.value.coerceToPortValue(.cameraOrientation).getCameraOrientation ?? .portrait
+            return x.value.coerceJSONToPortValue(.cameraOrientation).getCameraOrientation ?? .portrait
         default:
             return .portrait
         }
@@ -542,7 +542,7 @@ extension PortValue {
         case .number(let x):
             return CameraDirection.fromNumber(x).getCameraDirection ?? .defaultCameraDirection
         case .json(let x):
-            return x.value.coerceToPortValue(.cameraDirection).getCameraDirection ?? .defaultCameraDirection
+            return x.value.coerceJSONToPortValue(.cameraDirection).getCameraDirection ?? .defaultCameraDirection
         default:
             return .defaultCameraDirection
         }
@@ -563,7 +563,7 @@ func deviceOrientationCoercer(_ values: PortValues) -> PortValues {
         case .number(let x):
             return StitchDeviceOrientation.fromNumber(x)
         case .json(let x):
-            return x.value.coerceToPortValue(.deviceOrientation)
+            return x.value.coerceJSONToPortValue(.deviceOrientation)
         default:
             return .deviceOrientation(.defaultDeviceOrientation)
         }
@@ -687,7 +687,7 @@ func scrollJumpStyleCoercer(_ values: PortValues) -> PortValues {
         case .number(let x):
             return ScrollJumpStyle.fromNumber(x)
         case .json(let x):
-            return x.value.coerceToPortValue(.scrollJumpStyle)
+            return x.value.coerceJSONToPortValue(.scrollJumpStyle)
         default:
             return .scrollJumpStyle(.scrollJumpStyleDefault)
         }
@@ -702,7 +702,7 @@ func scrollDecelerationRateCoercer(_ values: PortValues) -> PortValues {
         case .number(let x):
             return ScrollDecelerationRate.fromNumber(x)
         case .json(let x):
-            return x.value.coerceToPortValue(.scrollDecelerationRate)
+            return x.value.coerceJSONToPortValue(.scrollDecelerationRate)
         default:
             return .scrollDecelerationRate(.scrollDecelerationRateDefault)
         }
@@ -718,7 +718,7 @@ func vnImageCropCoercer(_ values: PortValues) -> PortValues {
             //        case .number(let x):
             //            return VNIma.fromNumber(x)
         case .json(let x):
-            return x.value.coerceToPortValue(.vnImageCropOption)
+            return x.value.coerceJSONToPortValue(.vnImageCropOption)
         default:
             return .vnImageCropOption(.scaleFill)
         }
@@ -736,7 +736,7 @@ func anchoringCoercer(_ values: PortValues) -> PortValues {
             return portValueEnumCase(from: Int(x),
                                      with: Anchoring.choices)
         case .json(let x):
-            return x.value.coerceToPortValue(.anchoring)
+            return x.value.coerceJSONToPortValue(.anchoring)
         default:
             // Origami seems to default to first couple anchorings;
             // Origami does not parse a
@@ -779,7 +779,7 @@ extension PortValue {
             return StitchContentMode.fromNumber(x)
                 .getContentMode ?? .defaultContentMode
         case .json(let x):
-            return x.value.coerceToPortValue(.contentMode).getContentMode ?? .defaultContentMode
+            return x.value.coerceJSONToPortValue(.contentMode).getContentMode ?? .defaultContentMode
         default:
             return .defaultContentMode
         }
@@ -800,7 +800,7 @@ extension PortValue {
             return SizingScenario.fromNumber(x)
                 .getSizingScenario ?? .defaultSizingScenario
         case .json(let x):
-            return x.value.coerceToPortValue(.sizingScenario).getSizingScenario ?? .defaultSizingScenario
+            return x.value.coerceJSONToPortValue(.sizingScenario).getSizingScenario ?? .defaultSizingScenario
         default:
             return .defaultSizingScenario
         }
