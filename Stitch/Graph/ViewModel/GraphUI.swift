@@ -343,7 +343,9 @@ extension GraphState {
 
         // Wipe any redux-controlled focus field
         // (For now, just used with TextField layers)
-        self.graphUI.reduxFocusedField = nil
+        if self.graphUI.reduxFocusedField != nil {
+            self.graphUI.reduxFocusedField = nil
+        }
         
         withAnimation {
             self.graphUI.showCatalystProjectTitleModal = false

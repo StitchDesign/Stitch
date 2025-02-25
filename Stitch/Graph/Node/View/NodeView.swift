@@ -80,7 +80,8 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
                 .modifier(NodeViewTapGestureModifier(
                     onSingleTap: {
                         // deselect any fields; NOTE: not used on GroupNodes due to .simultaneousGesture
-                        if !self.stitch.kind.isGroup {
+                        if !self.stitch.kind.isGroup,
+                           graph.graphUI.reduxFocusedField != nil {
                             graph.graphUI.reduxFocusedField = nil
                         }
                         
