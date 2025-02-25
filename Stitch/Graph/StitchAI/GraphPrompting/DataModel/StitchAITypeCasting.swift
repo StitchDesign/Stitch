@@ -357,7 +357,9 @@ extension UserVisibleType {
         case .interactionId:
             guard let x = anyValue as? StitchAIUUID? else {
                 if let xString = anyValue as? String,
-                   xString == "None" {
+                   // TODO: how did "None" get wrapped with extra quotes?
+                   (xString == "None") {
+//                   (xString == "None" || xString == "\"None\"") {
                     return .assignedLayer(nil)
                 }
                 
