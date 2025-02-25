@@ -190,8 +190,6 @@ extension Patch {
             node = loopOptionSwitchNode(id: id, position: position, zIndex: zIndex)
         case .loopReverse:
             node = loopReverseNode(id: id, position: position, zIndex: zIndex)
-        case .loopShuffle:
-            node = loopShuffleNode(id: id, position: position, zIndex: zIndex)
         case .loopSum:
             node = loopSumNode(id: id, position: position, zIndex: zIndex)
         case .loopToArray:
