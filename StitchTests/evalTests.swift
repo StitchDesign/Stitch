@@ -570,7 +570,8 @@ class EvalTests: XCTestCase {
         // node =
         node.updateNodeTypeAndInputs(newType: .string,
                                      currentGraphTime: fakeGraphTime,
-                                     activeIndex: .init(.zero))
+                                     activeIndex: .init(.zero),
+                                     graph: .createEmpty())
         
         let newInputs = node.inputs
         
@@ -612,7 +613,8 @@ class EvalTests: XCTestCase {
         node.updateNodeTypeAndInputs(
             newType: .point3D,
             currentGraphTime: fakeGraphTime,
-            activeIndex: .init(.zero))
+            activeIndex: .init(.zero),
+            graph: .createEmpty())
         let newInputs = node.inputs
         
         let expectedCoercedInputs: PortValuesList = [

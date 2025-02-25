@@ -89,7 +89,8 @@ extension GraphState {
 
         // Removes edge and checks for media to remove
         downstreamNode.removeIncomingEdge(at: input,
-                                          activeIndex: self.activeIndex)
+                                          activeIndex: self.activeIndex,
+                                          graph: self)
     }
 
     @MainActor
@@ -154,10 +155,11 @@ extension NodeViewModel {
     // or when we add a new edge to an input that already has an edge
     @MainActor
     func removeIncomingEdge(at coordinate: NodeIOCoordinate,
-                            activeIndex: ActiveIndex) {
+                            activeIndex: ActiveIndex,
+                            graph: GraphState) {
         self.getInputRowObserver(for: coordinate.portType)?
             .removeUpstreamConnection(activeIndex: activeIndex,
-                                      isVisible: self.isVisibleInFrame)
+                                      isVisible: self.isVisibleInFrame(graph.visibleCanvasIds, graph.selectedSidebarLayers))
     }
 }
 
