@@ -109,32 +109,33 @@ struct InputValueEntry: View {
     }
     
     var body: some View {
-        HStack(spacing: NODE_COMMON_SPACING) {
-            
-            if !forPropertySidebar,
-               !isForFlyout,
-               let fieldGroupLabel = fieldsRowLabel {
-                LabelDisplayView(label: fieldGroupLabel,
-                                 isLeftAligned: true,
-                                 fontColor: STITCH_FONT_GRAY_COLOR,
-                                 isSelectedInspectorRow: isSelectedInspectorRow)
+        NodeRowLayout(fieldGroupType: self.viewModel.rowViewModelDelegate!.activeValue.toNodeType) {
+            HStack(spacing: NODE_COMMON_SPACING) {
+                if !forPropertySidebar,
+                   !isForFlyout,
+                   let fieldGroupLabel = fieldsRowLabel {
+                    LabelDisplayView(label: fieldGroupLabel,
+                                     isLeftAligned: true,
+                                     fontColor: STITCH_FONT_GRAY_COLOR,
+                                     isSelectedInspectorRow: isSelectedInspectorRow)
+                }
+                
+                if self.useIndividualFieldLabel {
+                    individualFieldLabelDisplay
+                }
+                
+                if forPropertySidebar,
+                   isForFlyout,
+                   isFieldInMultifieldInput {
+                    Spacer()
+                }
+                
+                valueDisplay
             }
-            
-            if self.useIndividualFieldLabel {
-                individualFieldLabelDisplay
-            }
-             
-            if forPropertySidebar,
-               isForFlyout,
-               isFieldInMultifieldInput {
-                Spacer()
-            }
-            
-            valueDisplay
+            .foregroundColor(VALUE_FIELD_BODY_COLOR)
+            .height(NODE_ROW_HEIGHT + 6)
+            .allowsHitTesting(!(forPropertySidebar && propertyIsAlreadyOnGraph))
         }
-        .foregroundColor(VALUE_FIELD_BODY_COLOR)
-        .height(NODE_ROW_HEIGHT + 6)
-        .allowsHitTesting(!(forPropertySidebar && propertyIsAlreadyOnGraph))
     }
 
 }

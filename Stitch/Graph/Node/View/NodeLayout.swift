@@ -182,3 +182,132 @@ struct NodeLayout<T: StitchLayoutCachable>: Layout, Sendable {
         return nil
     }
 }
+
+
+
+struct NodeRowLayout: Layout, Sendable {
+    typealias Cache = [NodeType : NodeLayoutCache]
+    
+    let fieldGroupType: NodeType
+    
+    // IMPORTANT
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) -> CGSize {
+        if let existingCache = cache.get(fieldGroupType) {
+            return existingCache.sizeThatFits
+        }
+        
+        // Update cache with this field group
+        let cacheForField = self.createCacheForField(subviews: subviews)
+        cache.updateValue(cacheForField, forKey: fieldGroupType)
+        
+        return cacheForField.sizeThatFits
+    }
+    
+    func makeCache(subviews: Subviews) -> Cache {
+        var cache = Cache()
+        let cacheForField = self.createCacheForField(subviews: subviews)
+        cache.updateValue(cacheForField, forKey: fieldGroupType)
+        return cache
+    }
+    
+    // Ignore when not needed for perf
+    private func createCacheForField(subviews: Subviews) -> NodeLayoutCache {
+        let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
+        let sizeThatFits = self.calculateSizeThatFits(subviews: subviews)
+        let spacing = self.calculateSpacing(subviews: subviews)
+        let cache = NodeLayoutCache(needsUpdating: false,
+                                    sizes: sizes,
+                                    sizeThatFits: sizeThatFits,
+                                    spacing: spacing)
+        
+        return cache
+    }
+    
+    //    func updateCache(_ cache: inout Cache, subviews: Subviews) { }
+    
+    private func calculateSizeThatFits(subviews: Subviews) -> CGSize {
+        var totalWidth: CGFloat = 0
+        var totalHeight: CGFloat = 0
+        
+        for subview in subviews {
+            let subviewSize = subview.sizeThatFits(.unspecified) // Ask subview for its natural size
+            totalWidth = max(totalWidth, subviewSize.width) // Expand the width to fit the widest subview
+            totalHeight += subviewSize.height // Stack the subviews vertically
+        }
+        
+        return CGSize(width: totalWidth, height: totalHeight)
+    }
+    
+    // What does this mean for e.g. ScrollView { Image } ?
+    // Explore in Playgrounds
+    
+    // Some parent view is calling this view to place its child;
+    // start from parent, work down to children
+    func placeSubviews(in bounds: CGRect,
+                       proposal: ProposedViewSize,
+                       subviews: Subviews,
+                       cache: inout Cache) {
+        
+        guard !subviews.isEmpty else { return }
+        
+        guard let cacheForField = cache.get(self.fieldGroupType) else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        for index in subviews.indices {
+            let subview = subviews[index]
+            let size = cacheForField.sizes[index]
+            
+            subview.place(
+                at: bounds.origin, // bounds are received from parent
+                anchor: .topLeading, // typical SwiftUI default top-left anchoring
+                proposal: ProposedViewSize(size))
+        }
+    }
+    
+    func spacing(subviews: Self.Subviews, cache: inout Cache) -> ViewSpacing {
+        guard let cache = cache.get(self.fieldGroupType) else {
+            let cacheForField = self.createCacheForField(subviews: subviews)
+            cache.updateValue(cacheForField, forKey: fieldGroupType)
+            return cacheForField.spacing
+        }
+        
+        return cache.spacing
+    }
+    
+    private func calculateSpacing(subviews: Self.Subviews) -> ViewSpacing {
+        var spacing = ViewSpacing()
+
+        for index in subviews.indices {
+            var edges: Edge.Set = [.leading, .trailing]
+            if index == 0 { edges.formUnion(.top) }
+            if index == subviews.count - 1 { edges.formUnion(.bottom) }
+            spacing.formUnion(subviews[index].spacing, edges: edges)
+        }
+
+        return spacing
+    }
+    
+    // MARK: we don't use SwiftUI Layout's native cache as it doesn't resize properly for our needs.
+//    func makeCache(subviews: Subviews) -> Cache { }
+    
+    // Keep this empty for perf
+    func updateCache(_ cache: inout Cache, subviews: Subviews) { }
+    
+    func explicitAlignment(of guide: HorizontalAlignment,
+                           in bounds: CGRect,
+                           proposal: ProposedViewSize,
+                           subviews: Self.Subviews,
+                           cache: inout Cache) -> CGFloat? {
+        return nil
+    }
+    
+    func explicitAlignment(of guide: VerticalAlignment,
+                           in bounds: CGRect,
+                           proposal: ProposedViewSize,
+                           subviews: Self.Subviews,
+                           cache: inout Cache) -> CGFloat? {
+        return nil
+    }
+}
