@@ -37,8 +37,10 @@ struct SetBroadcastForWirelessReceiver: ProjectEnvironmentEvent {
             // Note 1: we may not have actually had an edge, e.g. if we were already on a nil broadcaster.
             // Note 2: removeAnyEdges already recalculates the graph from the `to` node of the removed edge.
 
-            receiverNodeInputObserver.removeUpstreamConnection(activeIndex: graphState.activeIndex,
-                                                               isVisible: receiverNode.isVisibleInFrame)
+            receiverNodeInputObserver.removeUpstreamConnection(
+                activeIndex: graphState.activeIndex,
+                isVisible: receiverNode.isVisibleInFrame(graphState.visibleCanvasIds, graphState.selectedSidebarLayers))
+            
             graphState.scheduleForNextGraphStep(receiverNodeId)
             
             return .init(willPersist: true)
@@ -60,7 +62,8 @@ struct SetBroadcastForWirelessReceiver: ProjectEnvironmentEvent {
         receiverNode.updateNodeTypeAndInputs(
             newType: broadcasterNode.userVisibleType!,
             currentGraphTime: graphTime,
-            activeIndex: graphState.activeIndex)
+            activeIndex: graphState.activeIndex,
+            graph: graphState)
 
         // Then recalculate the graph from the broadcaster onward:
         graphState.scheduleForNextGraphStep(broadcasterNodeId)

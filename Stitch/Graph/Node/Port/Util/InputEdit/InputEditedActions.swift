@@ -68,7 +68,8 @@ extension InputNodeRowObserver {
 
             // MARK: very important to remove edges before input changes
             node.removeIncomingEdge(at: self.id,
-                                    activeIndex: graph.activeIndex)
+                                    activeIndex: graph.activeIndex,
+                                    graph: graph)
 
             self.setValuesInInput([newValue])
         }

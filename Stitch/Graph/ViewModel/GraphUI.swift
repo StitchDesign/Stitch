@@ -473,9 +473,8 @@ extension GraphState {
 extension CanvasItemViewModel {
     @MainActor
     func select(_ graph: GraphState) {
-        log("CanvasItemViewModel: selecting called")
         // Prevent render cycles if already selected
-        guard !self.isSelected  else { return }
+        guard !self.isSelected(graph)  else { return }
         
         graph.graphUI.selection.selectedNodeIds.insert(self.id)
         
@@ -486,7 +485,7 @@ extension CanvasItemViewModel {
     @MainActor
     func deselect(_ graph: GraphState) {
         // Prevent render cycles if already unselected
-        guard self.isSelected else { return }
+        guard self.isSelected(graph) else { return }
         graph.graphUI.selection.selectedNodeIds.remove(self.id)
     }
 }
@@ -533,7 +532,7 @@ extension GraphState {
             .flatMap { node in
                 node.getAllCanvasObservers()
                     .compactMap { canvas in
-                        guard canvas.isSelected else {
+                        guard canvas.isSelected(self) else {
                             return nil
                         }
                         return canvas.id
@@ -546,7 +545,7 @@ extension GraphState {
 extension GraphState {
     @MainActor
     var selectedCanvasItems: CanvasItemViewModels {
-        self.getVisibleCanvasItems().filter(\.isSelected)
+        self.getVisibleCanvasItems().filter { $0.isSelected(self) }
     }
     
     @MainActor

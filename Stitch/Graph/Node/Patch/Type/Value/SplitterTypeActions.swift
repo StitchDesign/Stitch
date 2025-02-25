@@ -62,12 +62,12 @@ extension GraphState {
             // we need to remove some edges.
             if currentType == .output {
                 self.removeConnections(from: outputPort,
-                                       isNodeVisible: splitterNode.isVisibleInFrame)
+                                       isNodeVisible: splitterNode.isVisibleInFrame(self.visibleCanvasIds, self.selectedSidebarLayers))
             } else if currentType == .input {
                 if let inputObserver = splitterNode.getInputRowObserver(for: .portIndex(0)) {
                     inputObserver
                         .removeUpstreamConnection(activeIndex: self.activeIndex,
-                                                  isVisible: splitterNode.isVisibleInFrame)
+                                                  isVisible: splitterNode.isVisibleInFrame(self.visibleCanvasIds, self.selectedSidebarLayers))
                 }
             }
 
@@ -76,7 +76,7 @@ extension GraphState {
             // then need to remove outgoing edges.
             if currentType == .output {
                 self.removeConnections(from: outputPort,
-                                       isNodeVisible: splitterNode.isVisibleInFrame)
+                                       isNodeVisible: splitterNode.isVisibleInFrame(self.visibleCanvasIds, self.selectedSidebarLayers))
             }
 
         case .output:
@@ -86,7 +86,7 @@ extension GraphState {
                 if let inputObserver = splitterNode.getInputRowObserver(for: .portIndex(0)) {
                     inputObserver
                         .removeUpstreamConnection(activeIndex: self.activeIndex,
-                                                  isVisible: splitterNode.isVisibleInFrame)
+                                                  isVisible: splitterNode.isVisibleInFrame(self.visibleCanvasIds, self.selectedSidebarLayers))
                 }
             }
         }

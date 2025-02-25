@@ -86,7 +86,7 @@ extension GraphState {
 
         self.nodes.values.forEach { node in
             // Checks for transform updates each graph step--needed due to lack of transform publishers
-            node.checkARTransformUpdate()
+            node.checkARTransformUpdate(self)
         }
         
         if nodesToRunOnGraphStep.isEmpty {
@@ -114,7 +114,7 @@ extension NodeViewModel {
     /// Checks if some 3D model's transform was changed due to external event like gestures.
     /// Solves problem where gestures won't update fields directly, and without available publishers we have to manually check on graph step.
     @MainActor
-    func checkARTransformUpdate() {
+    func checkARTransformUpdate(_ graph: GraphState) {
         guard let layerNode = self.nodeType.layerNode,
               Layer.layers3D.contains(layerNode.layer) else {
             return
@@ -145,20 +145,20 @@ extension NodeViewModel {
             let newValues = layerNode.previewLayerViewModels
                 .map { $0.transform3D }
             layerNode.transform3DPort.updatePortValues(newValues)
-            layerNode.transform3DPort.updateAllRowObserversPortViewModels()
+            layerNode.transform3DPort.updateAllRowObserversPortViewModels(graph)
         }
     }
 }
 
 extension LayerInputObserver {
     @MainActor
-    func updateAllRowObserversPortViewModels() {
+    func updateAllRowObserversPortViewModels(_ graph: GraphState) {
         switch self.mode {
         case .packed:
-            self._packedData.rowObserver.updatePortViewModels()
+            self._packedData.rowObserver.updatePortViewModels(graph)
         case .unpacked:
             self._unpackedData.allPorts.forEach {
-                $0.rowObserver.updatePortViewModels()
+                $0.rowObserver.updatePortViewModels(graph)
             }
         }
     }

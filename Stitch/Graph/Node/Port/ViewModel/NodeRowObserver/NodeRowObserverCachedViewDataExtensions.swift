@@ -14,7 +14,7 @@ extension NodeRowViewModel {
     /// Gets node ID for currently visible node. Covers edge cause where group nodes use splitter nodes,
     /// which save a differnt node ID.
     @MainActor
-    var visibleNodeIds: Set<CanvasItemId> {
+    func visibleNodeIds(_ graph: GraphState) -> Set<CanvasItemId> {
         guard let nodeDelegate = self.nodeDelegate else {
             return []
         }
@@ -22,15 +22,15 @@ extension NodeRowViewModel {
         let canvasItems = nodeDelegate.getAllCanvasObservers()
         
         return canvasItems.compactMap { canvasItem in
-            guard canvasItem.isVisibleInFrame else {
+            guard canvasItem.isVisibleInFrame(graph.visibleCanvasIds) else {
                 return nil
             }
             
             // We use the group node ID only if it isn't in focus
             if nodeDelegate.splitterType == .input &&
-                 nodeDelegate.graphDelegate?.groupNodeFocused != canvasItem.parentGroupNodeId,
+                graph.groupNodeFocused != canvasItem.parentGroupNodeId,
                let parentNodeId = canvasItem.parentGroupNodeId,
-               let parentNode = self.graphDelegate?.getNodeViewModel(parentNodeId),
+               let parentNode = graph.getNodeViewModel(parentNodeId),
                let parentCanvasItem = parentNode.patchCanvasItem {
                 return parentCanvasItem.id
             }
