@@ -60,7 +60,9 @@ extension GraphState {
     func reduxFieldFocused(focusedField: FocusedUserEditField) {
         log("reduxFieldFocused: focusedField: \(focusedField)")
         log("reduxFieldFocused: self.graphUI.reduxFocusedField was: \(self.graphUI.reduxFocusedField)")
-        self.graphUI.reduxFocusedField = focusedField
+        if self.graphUI.reduxFocusedField != focusedField {
+            self.graphUI.reduxFocusedField = focusedField            
+        }
         
         // if we selected a canvas item, we also thereby selected it:
         if let canvasItemId = focusedField.canvasFieldId {

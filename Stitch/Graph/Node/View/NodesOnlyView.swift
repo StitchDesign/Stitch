@@ -44,32 +44,32 @@ struct NodesOnlyView: View {
     }
         
     var body: some View {
-        // HACK for when no nodes present
-        if canvasNodes.isEmpty {
-            Rectangle().fill(.clear)
-                .onAppear() {
-                    self.refreshCanvasNodes()
-                }
-        }
-        
-        #if DEV_DEBUG
-        // scrollView.contentOffset without taking scrollView.zoomScale into account
-        Circle().fill(.yellow.opacity(0.95))
-            .frame(width: 60, height: 60)
-            .position(self.document.graphMovement.localPosition)
-            .zIndex(999999999999999)
-        
-        // scrollView.contentOffset WITH taking scrollView.zoomScale into account
-        Circle().fill(.black.opacity(0.95))
-            .frame(width: 60, height: 60)
-            .position(
-                x: self.document.graphMovement.localPosition.x / self.document.graphMovement.zoomData.final,
-                y: self.document.graphMovement.localPosition.y / self.document.graphMovement.zoomData.final
-            )
-            .zIndex(999999999999999)
-        #endif
-
         Group {
+            // HACK for when no nodes present
+            if canvasNodes.isEmpty {
+                Rectangle().fill(.clear)
+                //                .onAppear() {
+                //                    self.refreshCanvasNodes()
+                //                }
+            }
+            
+#if DEV_DEBUG
+            // scrollView.contentOffset without taking scrollView.zoomScale into account
+            Circle().fill(.yellow.opacity(0.95))
+                .frame(width: 60, height: 60)
+                .position(self.document.graphMovement.localPosition)
+                .zIndex(999999999999999)
+            
+            // scrollView.contentOffset WITH taking scrollView.zoomScale into account
+            Circle().fill(.black.opacity(0.95))
+                .frame(width: 60, height: 60)
+                .position(
+                    x: self.document.graphMovement.localPosition.x / self.document.graphMovement.zoomData.final,
+                    y: self.document.graphMovement.localPosition.y / self.document.graphMovement.zoomData.final
+                )
+                .zIndex(999999999999999)
+#endif
+            
             ForEach(canvasNodes) { canvasNode in
                 // Note: if/else seems better than opacity modifier, which introduces funkiness with edges (port preference values?) when going in and out of groups;
                 // (`.opacity(0)` means we still render the view, and thus anchor preferences?)

@@ -52,14 +52,18 @@ struct MathExpressionDefocused: GraphEventWithResponse {
 
 // ViewModifier only applied to NodeTitleView if the title is for a 
 struct MathExpressionPopoverViewModifier: ViewModifier {
+    @State private var show = false
+    @State private var expr = "" // Alternatively?: pass down a @Bindable mathExpression
     
     let id: NodeId
+    let graph: GraphState
     let shouldDisplay: Bool
     let mathExpression: String
-    let isFocused: Bool // more like?: "is popover open"
     
-    @State var show = false
-    @State var expr = "" // Alternatively?: pass down a @Bindable mathExpression
+    // more like?: "is popover open"
+    var isFocused: Bool {
+        graph.graphUI.reduxFocusedField == .mathExpression(id)
+    }
     
     func body(content: Content) -> some View {
         guard shouldDisplay else {

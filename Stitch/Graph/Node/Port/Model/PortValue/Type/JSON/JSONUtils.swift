@@ -95,7 +95,7 @@ extension Data {
             log("Data.toJSON: data json was null")
             return nil
         }
-        log("Data.toJSON: success?: \(json)")
+//        log("Data.toJSON: success?: \(json)")
         return json
     }
 
