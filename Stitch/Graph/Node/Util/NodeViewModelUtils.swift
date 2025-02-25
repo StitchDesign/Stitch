@@ -161,7 +161,8 @@ extension NodeViewModel {
     @MainActor
     func updateNodeTypeAndInputs(newType: UserVisibleType,
                                  currentGraphTime: TimeInterval,
-                                 activeIndex: ActiveIndex) {
+                                 activeIndex: ActiveIndex,
+                                 graph: GraphState) {
 
         self.userVisibleType = newType
         
@@ -172,7 +173,7 @@ extension NodeViewModel {
                 currentGraphTime: currentGraphTime,
                 computedState: self.computedStates?[safe: index],
                 activeIndex: activeIndex,
-                isVisible: self.isVisibleInFrame)
+                isVisible: self.isVisibleInFrame(graph.visibleCanvasIds, graph.selectedSidebarLayers))
         }
     }
     

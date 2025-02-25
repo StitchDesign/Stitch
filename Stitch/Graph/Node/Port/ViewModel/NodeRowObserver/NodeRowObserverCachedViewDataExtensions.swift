@@ -22,7 +22,7 @@ extension NodeRowViewModel {
         let canvasItems = nodeDelegate.getAllCanvasObservers()
         
         return canvasItems.compactMap { canvasItem in
-            guard canvasItem.isVisibleInFrame(graph) else {
+            guard canvasItem.isVisibleInFrame(graph.visibleCanvasIds) else {
                 return nil
             }
             

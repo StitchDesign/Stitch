@@ -56,10 +56,10 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
             nodeBody
                 .opacity(node.viewCache.isDefined ? 1 : 0)
             .onAppear {
-                self.node.updateVisibilityStatus(with: true)
+                self.node.updateVisibilityStatus(with: true, graph: graph)
             }
             .onDisappear {
-                self.node.updateVisibilityStatus(with: false)
+                self.node.updateVisibilityStatus(with: false, graph: graph)
             }
             .onChange(of: self.isSelected) {
                 self.stitch.updatePortColorDataUponNodeSelection()

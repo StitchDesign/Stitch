@@ -74,8 +74,9 @@ final class CanvasItemViewModel: Identifiable, StitchLayoutCachable, Sendable {
     @MainActor var parentGroupNodeId: NodeId?
     
     @MainActor
-    func isVisibleInFrame(_ graph: GraphState) -> Bool {
-        return graph.visibleNodesViewModel.visibleCanvasIds.contains(self.id)
+//    func isVisibleInFrame(_ graph: GraphState) -> Bool {
+    func isVisibleInFrame(_ visibleCanvasIds: CanvasItemIdSet) -> Bool {
+        return visibleCanvasIds.contains(self.id)
     }
     
     // View specific port value data
@@ -256,10 +257,10 @@ extension CanvasItemViewModel {
     }
 
     @MainActor
-    func updateVisibilityStatus(with newValue: Bool) {
+    func updateVisibilityStatus(with newValue: Bool, graph: GraphState) {
         if newValue {
             self.updatePortLocations()
-            self.nodeDelegate?.updatePortViewModels()
+            self.nodeDelegate?.updatePortViewModels(graph)
         }
         
 //        let oldValue = self.isVisibleInFrame

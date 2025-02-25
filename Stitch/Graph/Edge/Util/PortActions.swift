@@ -159,7 +159,7 @@ extension NodeViewModel {
                             graph: GraphState) {
         self.getInputRowObserver(for: coordinate.portType)?
             .removeUpstreamConnection(activeIndex: activeIndex,
-                                      isVisible: self.isVisibleInFrame(graph))
+                                      isVisible: self.isVisibleInFrame(graph.visibleCanvasIds, graph.selectedSidebarLayers))
     }
 }
 

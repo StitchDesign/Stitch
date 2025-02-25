@@ -148,7 +148,7 @@ extension GraphState {
             // that field must be 'visible in frame.'
             // If the field is not visible, log this to Sentry and manually set the canvas item visible.
             if let canvasItem = rowViewModel.canvasItemDelegate,
-               !canvasItem.isVisibleInFrame(self) {
+               !canvasItem.isVisibleInFrame(self.visibleCanvasIds) {
                 
                 // TODO: we are firing input edit events merely when an item is added to the canvas
 //                // On dev debug, crash

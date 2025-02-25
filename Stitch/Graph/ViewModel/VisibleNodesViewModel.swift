@@ -16,7 +16,7 @@ final class VisibleNodesViewModel: Sendable {
     // Saves location and zoom-specific data for groups
     @MainActor var nodesByPage: NodesPagingDict // = [.root: .init()]
     
-    @MainActor var visibleCanvasIds = Set<CanvasItemId>()
+    @MainActor var visibleCanvasIds = CanvasItemIdSet()
     
     // Signals to SwiftUI layout when new sizing data is needed;
     // tracked here to fix stutter that exists if we reset cache before
@@ -26,6 +26,33 @@ final class VisibleNodesViewModel: Sendable {
     
     @MainActor init(localPosition: CGPoint) {
         self.nodesByPage = [.root: .init(localPosition: localPosition)]
+    }
+}
+
+/*
+ //        let x: Set<LayersSidebarViewModel.ItemID> = graph.sidebarSelectionState.primary
+ //        let k: SidebarLayerIdSet = graph.sidebarSelectionState.primary
+ */
+typealias SidebarLayerIdSet = Set<LayersSidebarViewModel.ItemID>
+
+extension GraphState {
+    
+    @MainActor
+    var visibleCanvasIds: CanvasItemIdSet {
+        get {
+            self.visibleNodesViewModel.visibleCanvasIds
+        } set(newValue) {
+            self.visibleNodesViewModel.visibleCanvasIds = newValue
+        }
+    }
+    
+    @MainActor
+    var selectedSidebarLayers: SidebarLayerIdSet {
+        get {
+            self.sidebarSelectionState.primary
+        } set(newValue) {
+            self.sidebarSelectionState.primary = newValue
+        }
     }
 }
 
