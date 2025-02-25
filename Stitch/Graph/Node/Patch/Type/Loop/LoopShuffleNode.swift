@@ -8,33 +8,31 @@
 import Foundation
 import StitchSchemaKit
 
-@MainActor
-func loopShuffleNode(id: NodeId,
-                     position: CGSize = .zero,
-                     zIndex: Double = 0) -> PatchNode {
-
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Loop", [.number(0)]),
-        ("Shuffle", [pulseDefaultFalse])
-    )
-
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values:
-            ("Loop", [.number(0)])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .loopShuffle,
-        inputs: inputs,
-        outputs: outputs)
+struct LoopShuffleNode: PatchNodeDefinition {
+    static let patch: Patch = .loopShuffle
+    
+    static let _defaultUserVisibleType: UserVisibleType = .number
+    
+    // overrides protocol
+    static let defaultUserVisibleType: UserVisibleType? = Self._defaultUserVisibleType
+    
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(inputs: [
+            .init(label: "Loop",
+                  defaultType: Self._defaultUserVisibleType),
+            .init(label: "Shuffle",
+                  staticType: .pulse)
+        ],
+              outputs: [
+                .init(label: "Loop", type: Self._defaultUserVisibleType),
+              ])
+    }
+    
+    static func createEphemeralObserver() -> NodeEphemeralObservable? {
+        MediaReferenceObserver()
+    }    
 }
+
 
 @MainActor
 func loopShuffleEval(node: PatchNode,
