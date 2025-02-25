@@ -35,7 +35,7 @@ struct ProjectNavigationView: View {
             document.visibleGraph.updateGraphData()
         }
         .onChange(of: document.graphUI.groupNodeFocused) {
-            document.visibleGraph.graphUpdaterId = document.visibleGraph.calculateGraphUpdaterId()
+            document.visibleGraph.refreshGraphUpdaterId()
         }
         .onChange(of: document.isCameraEnabled) { _, isCameraEnabled in
             if !isCameraEnabled {
