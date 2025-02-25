@@ -195,7 +195,7 @@ struct NodeOutputView: View {
     // Most splitters do NOT show their outputs;
     // however, a group node's output-splitters seen from the same level as the group node (i.e. not inside the group node itself, but where)
     @MainActor
-    var showOutputFields: Bool {
+    func showOutputFields(_ graph: GraphState) -> Bool {
                 
         if self.nodeKind == .patch(.splitter) {
 
@@ -211,7 +211,7 @@ struct NodeOutputView: View {
             if isOutputSplitter {
                 // See `NodeRowObserver.label()` for similar logic for *inputs*
                 let parentGroupNode = self.rowObserver.nodeDelegate?.patchNodeViewModel?.parentGroupNodeId
-                let currentTraversalLevel = self.rowObserver.nodeDelegate?.graphDelegate?.groupNodeFocused
+                let currentTraversalLevel = graph.groupNodeFocused
                 return parentGroupNode != currentTraversalLevel
             }
             
@@ -244,7 +244,7 @@ struct NodeOutputView: View {
                 Spacer()
             }
             
-            if showOutputFields {
+            if showOutputFields(graph) {
                 FieldsListView<OutputNodeRowViewModel, OutputValueEntry>(
                     graph: graph,
                     fieldValueTypes: rowViewModel.fieldValueTypes,

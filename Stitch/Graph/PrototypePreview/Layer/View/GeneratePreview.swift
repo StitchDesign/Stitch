@@ -472,8 +472,8 @@ struct NonGroupPreviewLayersView: View {
     }
     
     var body: some View {
-        if layerNode.hasSidebarVisibility,
-           let graph = layerNode.nodeDelegate?.graphDelegate as? GraphState {
+        if layerNode.hasSidebarVisibility {
+            let graph = document.graph
             PreviewLayerView(document: document,
                              graph: graph,
                              layerViewModel: layerViewModel,
@@ -539,8 +539,8 @@ struct GroupPreviewLayersView: View {
     let realityContent: LayerRealityCameraContent?
     
     var body: some View {
-        if layerNode.hasSidebarVisibility,
-           let graph = layerNode.nodeDelegate?.graphDelegate as? GraphState {
+        if layerNode.hasSidebarVisibility {
+            let graph = document.graph
             switch layerNode.layer {
             case .group:
                 GroupLayerNode.content(document: document,

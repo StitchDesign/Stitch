@@ -106,12 +106,14 @@ extension MediaEvalOpObservable {
     /// at this loop index.
     @MainActor func getUniqueMedia(inputMediaValue: AsyncMediaValue?,
                                    inputPortIndex: Int,
-                                   loopIndex: Int) async -> GraphMediaValue? {
+                                   loopIndex: Int,
+                                   graph: GraphState) async -> GraphMediaValue? {
         if let node = self.nodeDelegate {
             return await Self.getUniqueMedia(node: node,
                                              inputMediaValue: inputMediaValue,
                                              inputPortIndex: inputPortIndex,
-                                             loopIndex: loopIndex)
+                                             loopIndex: loopIndex,
+                                             graph: graph)
         }
         
         return nil
@@ -182,20 +184,22 @@ extension MediaEvalOpObservable {
     @MainActor static func getUniqueMedia(node: NodeViewModel,
                                           inputMediaValue: AsyncMediaValue?,
                                           inputPortIndex: Int,
-                                          loopIndex: Int) async -> GraphMediaValue? {
+                                          loopIndex: Int,
+                                          graph: GraphState) async -> GraphMediaValue? {
         guard let inputMediaValue = inputMediaValue else {
             return nil
         }
 
         // Create new media for input if media key and no media set yet
-        if let graphDelegate = node.graphDelegate,
-           let mediaKey = inputMediaValue.dataType.mediaKey {
+//        if let graphDelegate = node.graphDelegate,
+        
+           if let mediaKey = inputMediaValue.dataType.mediaKey {
             // Async create media object and recalculate full node when complete
             let mediaObject = await MediaEvalOpCoordinator
                 .createMediaValue(from: mediaKey,
                                   isComputedCopy: false,    // always import scenario here
                                   mediaId: inputMediaValue.id,
-                                  graphDelegate: graphDelegate)
+                                  graphDelegate: graph)
             
             return mediaObject
         }
@@ -249,6 +253,7 @@ extension MediaEvalOpObservable {
             }
             await self?.mediaActor.asyncMediaEvalOp(loopIndex: loopIndex,
                                                     node: nodeDelegate,
+                                                    graph: graph,
                                                     callback: callback)
         }
         
@@ -274,6 +279,7 @@ extension MediaEvalOpObservable {
             }
             await self?.mediaActor.asyncMediaEvalOp(loopIndex: loopIndex,
                                                     node: nodeDelegate,
+                                                    graph: graph,
                                                     callback: callback)
         }
         
@@ -362,29 +368,32 @@ actor MediaEvalOpCoordinator {
     /// Async callback to prevent data races for media object changes.
     func asyncMediaEvalOp(loopIndex: Int,
                           node: NodeDelegate,
+                          graph: GraphState,
                           callback: @Sendable @escaping () async -> PortValues) async {
         let newOutputs = await callback()
-        await node.graphDelegate?.recalculateGraphForMedia(outputValues: .byIndex(newOutputs),
-                                                   nodeId: node.id,
-                                                   loopIndex: loopIndex)
+        await graph.recalculateGraphForMedia(outputValues: .byIndex(newOutputs),
+                                             nodeId: node.id,
+                                             loopIndex: loopIndex)
     }
     
     /// Async callback to prevent data races for media object changes.
     func asyncMediaEvalOp<MediaEvalResult>(loopIndex: Int,
                                            node: NodeViewModel,
+                                           graph: GraphState,
                                            callback: @Sendable @escaping () async -> MediaEvalResult) async where MediaEvalResult: MediaEvalResultable {
         let result = await callback()
-        await node.graphDelegate?.recalculateGraphForMedia(result: result,
-                                                   nodeId: node.id,
-                                                   loopIndex: loopIndex)
+        await graph.recalculateGraphForMedia(result: result,
+                                             nodeId: node.id,
+                                             loopIndex: loopIndex)
     }
     
     /// Async callback to prevent data races for media object changes.
     func asyncMediaEvalOpList(node: NodeDelegate,
+                              graph: GraphState,
                               callback: @Sendable @escaping () async -> PortValuesList) async {
         let newOutputs = await callback()
-        await node.graphDelegate?.recalculateGraphForMedia(outputValues: .all(newOutputs),
-                                                   nodeId: node.id,
-                                                   loopIndex: 0)
+        await graph.recalculateGraphForMedia(outputValues: .all(newOutputs),
+                                             nodeId: node.id,
+                                             loopIndex: 0)
     }
 }

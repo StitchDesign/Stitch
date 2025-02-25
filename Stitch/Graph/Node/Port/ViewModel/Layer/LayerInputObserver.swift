@@ -228,15 +228,15 @@ extension LayerInputObserver {
         }
     }
     
-    @MainActor
-    var graphDelegate: GraphDelegate? {
-        // Hacky solution, just get row observer delegate from packed data
-        self._packedData.rowObserver.nodeDelegate?.graphDelegate
-    }
+//    @MainActor
+//    var graphDelegate: GraphDelegate? {
+//        // Hacky solution, just get row observer delegate from packed data
+//        self._packedData.rowObserver.nodeDelegate?.graphDelegate
+//    }
     
     @MainActor
-    var activeValue: PortValue {
-        let activeIndex = self.graphDelegate?.activeIndex ?? .init(.zero)
+    func activeValue(_ activeIndex: ActiveIndex) -> PortValue {
+//        let activeIndex = self.graphDelegate?.activeIndex ?? .init(.zero)
         let values = self.values
         
         guard let value = values[safe: activeIndex.adjustedIndex(values.count)] else {

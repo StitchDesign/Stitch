@@ -315,8 +315,8 @@ extension NodeViewModel {
 
 extension NodeRowObserver {
     @MainActor
-    func getActiveLoopIndex() -> Int {
-        self.nodeDelegate?.graphDelegate?.activeIndex.adjustedIndex(self.allLoopedValues.count) ?? .zero
+    func getActiveLoopIndex(_ graph: GraphState) -> Int {
+        graph.activeIndex.adjustedIndex(self.allLoopedValues.count)
     }
 }
 

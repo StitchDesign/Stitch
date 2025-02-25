@@ -174,11 +174,11 @@ final class LayerNodeViewModel {
     }
 
     @MainActor
-    var layerGroupId: NodeId? {
-        guard let graph = self.nodeDelegate?.graphDelegate else {
-            log("LayerNodeViewModel: layerGroupId for layer \(self.id): no node or graph delegate?")
-            return nil
-        }
+    func layerGroupId(_ graph: GraphState) -> NodeId? {
+//        guard let graph = self.nodeDelegate?.graphDelegate else {
+//            log("LayerNodeViewModel: layerGroupId for layer \(self.id): no node or graph delegate?")
+//            return nil
+//        }
         
         guard let sidebarItem: SidebarItemGestureViewModel = graph.layersSidebarViewModel.items.get(self.id) else {
             log("LayerNodeViewModel: layerGroupId for layer \(self.id): no sidebar item")
@@ -560,7 +560,7 @@ extension LayerNodeViewModel {
     
     /// Updates one or more preview layers given some layer node.
     @MainActor
-    func didValuesUpdate(newValuesList: PortValuesList) {
+    func didValuesUpdate(newValuesList: PortValuesList, graph: GraphState) {
 
         let oldLongestLoopLength = self.previewLayerViewModels.count
         let newLongestLoopLength = self.nodeDelegate?.longestLoopLength ?? 1
@@ -578,7 +578,8 @@ extension LayerNodeViewModel {
             self.previewLayerViewModels = Array(self.previewLayerViewModels[0..<newLongestLoopLength])
             
             // Re-sort preview layers when looping changes
-            self.nodeDelegate?.graphDelegate?.shouldResortPreviewLayers = true
+//            self.nodeDelegate?.graphDelegate?.shouldResortPreviewLayers = true
+            graph.shouldResortPreviewLayers = true
         }
 
         // Get preview layer view model given values loop index
@@ -589,7 +590,8 @@ extension LayerNodeViewModel {
                 self.updatePreviewLayers(lengthenedValuesList: lengthenedValuesList,
                                          id: id,
                                          loopIndex: loopIndex,
-                                         changedPortId: portId)
+                                         changedPortId: portId,
+                                         graph: graph)
             }
         }
 
@@ -603,8 +605,8 @@ extension LayerNodeViewModel {
         // If the length of the loop in the layer node's input changed,
         // we should evaluate the graph from the layer's associated interaction patch nodes.
         // https://github.com/StitchDesign/Stitch--Old/issues/6923
-        if loopLengthChanged,
-           let graph = self.nodeDelegate?.graphDelegate {
+        if loopLengthChanged {
+//           let graph = self.nodeDelegate?.graphDelegate {
             let interactionPatches: IdSet = graph.getInteractionPatchIds(for: .init(self.id))
             if !interactionPatches.isEmpty {
                 log("LayerNodeViewModel: didValuesUpdate: recalculating from interactionPatches: \(interactionPatches)")
@@ -621,7 +623,8 @@ extension LayerNodeViewModel {
     func updatePreviewLayers(lengthenedValuesList: PortValuesList,
                              id: NodeId,
                              loopIndex: Int,
-                             changedPortId: Int) {
+                             changedPortId: Int,
+                             graph: GraphState) {
         let previewCoordinate = PreviewCoordinate(layerNodeId: id.asLayerNodeId,
                                                   loopIndex: loopIndex)
         // Always true except for inputs like Reality node's first input which accepts multiple anchors
@@ -645,7 +648,8 @@ extension LayerNodeViewModel {
                 self.previewLayerViewModels.append(newPreviewLayer)
                 
                 // Re-sort preview layers when looping changes
-                self.nodeDelegate?.graphDelegate?.shouldResortPreviewLayers = true
+//                self.nodeDelegate?.graphDelegate?.shouldResortPreviewLayers = true
+                graph.shouldResortPreviewLayers = true
             }
             return
         }

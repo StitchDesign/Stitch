@@ -170,8 +170,8 @@ final class OutputNodeRowObserver: NodeRowObserver {
     }
     
     @MainActor
-    func didValuesUpdate() {
-        let graphTime = self.nodeDelegate?.graphDelegate?.graphStepState.graphTime ?? .zero
+    func didValuesUpdate(_ graph: GraphState) {
+        let graphTime = graph.graphStepState.graphTime
         
         // Must also run pulse reversion effects
         self.allLoopedValues
@@ -187,7 +187,7 @@ final class OutputNodeRowObserver: NodeRowObserver {
 
 extension InputNodeRowObserver {
     @MainActor
-    func didUpstreamOutputCoordinateUpdate(oldValue: NodeIOCoordinate?) {
+    func didUpstreamOutputCoordinateUpdate(oldValue: NodeIOCoordinate?, graph: GraphState) {
         let coordinateValueChanged = oldValue != self.upstreamOutputCoordinate
         
         guard let upstreamOutputCoordinate = self.upstreamOutputCoordinate else {
@@ -204,7 +204,7 @@ extension InputNodeRowObserver {
                 self.updateValues(newFlattenedValues)
                 
                 // Recalculate node once values update
-                self.nodeDelegate?.calculate()
+                self.nodeDelegate?.calculate(graph: graph)
             }
             
             return
@@ -216,14 +216,14 @@ extension InputNodeRowObserver {
     
     // Because `private`, needs to be declared in same file(?) as method that uses it
     @MainActor
-    private func getUpstreamOutputObserver() -> OutputNodeRowObserver? {
+    private func getUpstreamOutputObserver(_ graph: GraphState) -> OutputNodeRowObserver? {
         guard let upstreamCoordinate = self.upstreamOutputCoordinate,
               let upstreamPortId = upstreamCoordinate.portId else {
             return nil
         }
 
         // Set current upstream observer
-        return self.nodeDelegate?.graphDelegate?.getNodeViewModel(upstreamCoordinate.nodeId)?
+        return graph.getNodeViewModel(upstreamCoordinate.nodeId)?
             .getOutputRowObserver(upstreamPortId)
     }
     
@@ -232,7 +232,7 @@ extension InputNodeRowObserver {
         self.upstreamOutputCoordinate.isDefined
     }
     
-    @MainActor var allRowViewModels: [InputNodeRowViewModel] {
+    @MainActor func allRowViewModels(graph: GraphState) -> [InputNodeRowViewModel] {
         guard let node = self.nodeDelegate else {
             return []
         }
@@ -258,7 +258,7 @@ extension InputNodeRowObserver {
             if patchNode.splitterNode?.type == .input {
                 // Group id is the only other row view model's canvas's parent ID
                 if let groupNodeId = inputs.first?.canvasItemDelegate?.parentGroupNodeId,
-                   let groupNode = self.nodeDelegate?.graphDelegate?.getNodeViewModel(groupNodeId)?.nodeType.groupNode {
+                   let groupNode = graph.getNodeViewModel(groupNodeId)?.nodeType.groupNode {
                     inputs += groupNode.inputViewModels.filter {
                         $0.rowDelegate?.id == self.id
                     }

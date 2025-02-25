@@ -26,11 +26,8 @@ extension NodeTimerEphemeralObserver {
                                   media: GraphMediaValue?,
                                   loopIndex: Int,
                                   delayLength: Double,
-                                  originalNodeType: UserVisibleType?) {
-        guard let graph = node.graphDelegate else {
-            fatalErrorIfDebug()
-            return
-        }
+                                  originalNodeType: UserVisibleType?,
+                                  graph: GraphState) {
         
         let nodeId = node.id
         self.runningTimers.removeValue(forKey: timerId)
@@ -59,7 +56,7 @@ extension NodeTimerEphemeralObserver {
         }
         
         // Create computed copy if there's media
-        Task(priority: .userInitiated) { [weak node] in
+        Task(priority: .userInitiated) { [weak graph] in
 //            guard let mediaCopy = try await mediaObject.createComputedCopy() else {
 //                return
 //            }
@@ -73,11 +70,11 @@ extension NodeTimerEphemeralObserver {
             
             let newOutputs = [mediaObject.portValue]
             
-            await MainActor.run { [weak node] in
+            await MainActor.run { [weak graph] in
                 self.currentMedia = mediaObject
-                return node?.graphDelegate?.recalculateGraphForMedia(outputValues: .byIndex(newOutputs),
-                                                             nodeId: nodeId,
-                                                             loopIndex: loopIndex)
+                return graph?.recalculateGraphForMedia(outputValues: .byIndex(newOutputs),
+                                                       nodeId: nodeId,
+                                                       loopIndex: loopIndex)
             }
         }
     }

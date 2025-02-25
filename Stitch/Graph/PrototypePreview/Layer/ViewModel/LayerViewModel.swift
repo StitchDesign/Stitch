@@ -433,9 +433,8 @@ extension LayerViewModel: InteractiveLayerDelegate {
 }
 
 extension LayerViewModel {
-    @MainActor var mediaRowObserver: InputNodeRowObserver? {
-        guard let layerNode = self.nodeDelegate?.graphDelegate?
-            .getNodeViewModel(self.id.layerNodeId.asNodeId)?.layerNode else {
+    @MainActor func mediaRowObserver(_ graph: GraphState) -> InputNodeRowObserver? {
+        guard let layerNode = graph.getNodeViewModel(self.id.layerNodeId.asNodeId)?.layerNode else {
             return nil
         }
         
@@ -521,7 +520,8 @@ extension LayerViewModel {
     
     @MainActor
     func updatePreviewLayer(from lengthenedValuesList: PortValuesList,
-                            changedPortId: Int) {
+                            changedPortId: Int,
+                            graph: GraphState) {
         guard let inputType = self.layer.layerGraphNode
             .inputDefinitions[safe: changedPortId] else {
             fatalErrorIfDebug()
@@ -530,14 +530,16 @@ extension LayerViewModel {
         
         self.updatePreviewLayer(lengthenedValuesList: lengthenedValuesList,
                                 portId: changedPortId,
-                                inputType: inputType)
+                                inputType: inputType,
+                                graph: graph)
     }
     
     /// Update preview layer from layer node.
     @MainActor
     private func updatePreviewLayer(lengthenedValuesList: PortValuesList,
                                     portId: Int,
-                                    inputType: LayerInputPort) {
+                                    inputType: LayerInputPort,
+                                    graph: GraphState) {
         let loopIndex = self.id.loopIndex
         let inputSupportsLoopedValues = inputType.supportsLoopedTypes
         
@@ -565,7 +567,7 @@ extension LayerViewModel {
                 self.updatePreviewLayerInput(value, inputType: inputType)
                 
                 if inputType.shouldResetGraphPreviews {
-                    self.nodeDelegate?.graphDelegate?.shouldResortPreviewLayers = true
+                    graph.shouldResortPreviewLayers = true
                 }
             }
         }
