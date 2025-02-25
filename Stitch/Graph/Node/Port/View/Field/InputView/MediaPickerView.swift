@@ -29,13 +29,13 @@ extension GraphState {
 }
 
 /// Picker view for all imported media nodes (Core ML, image, audio, video etc.).
-struct MediaFieldValueView: View {
-    let inputCoordinate: InputCoordinate
+struct MediaFieldValueView<Field: FieldViewModel>: View {
+    let viewModel: Field
+    let coordinate: NodeIOCoordinate
     let layerInputObserver: LayerInputObserver?
     let isUpstreamValue: Bool
     let media: FieldValueMedia
     let mediaName: String
-    @Bindable var mediaObserver: MediaViewModel
     let nodeKind: NodeKind
     let isInput: Bool
     let fieldIndex: Int
@@ -56,6 +56,74 @@ struct MediaFieldValueView: View {
         default:
             return false
         }
+    }
+
+    @MainActor
+    var isMultiselectInspectorInputWithHeterogenousValues: Bool {
+        if let layerInputObserver = layerInputObserver {
+            @Bindable var layerInputObserver = layerInputObserver
+            return layerInputObserver.fieldHasHeterogenousValues(
+                fieldIndex,
+                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+        } else {
+            return false
+        }
+    }
+    
+    var body: some View {
+        // MARK: using StitchMediaObject is more dangerous than GraphMediaValue as it won't refresh when media is changed, causing media to be retained
+        
+        HStack {
+            if isInput && canUseMediaPicker {
+                MediaPickerValueEntry(coordinate: coordinate,
+                                      isUpstreamValue: isUpstreamValue,
+                                      mediaValue: media,
+                                      label: mediaName,
+                                      nodeKind: nodeKind,
+                                      isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                                      graph: graph,
+                                      isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues,
+                                      isSelectedInspectorRow: isSelectedInspectorRow)
+                .onChange(of: mediaName, initial: true) {
+                    print("media name in inner value view: \(mediaName)")
+                }
+            }
+            
+            MediaFieldLabelView(viewModel: viewModel,
+                                graph: graph,
+                                coordinate: coordinate,
+                                nodeKind: nodeKind,
+                                isInput: isInput,
+                                fieldIndex: fieldIndex,
+                                isNodeSelected: isNodeSelected,
+                                isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues)
+        }
+    }
+}
+
+struct MediaFieldLabelView<Field: FieldViewModel>: View {
+    @State private var mediaObserver: MediaViewModel?
+    
+    let viewModel: Field
+    let graph: GraphState
+    let coordinate: InputCoordinate
+    let nodeKind: NodeKind
+    let isInput: Bool
+    let fieldIndex: Int
+    let isNodeSelected: Bool
+    let isMultiselectInspectorInputWithHeterogenousValues: Bool
+    
+    var media: GraphMediaValue? {
+        self.mediaObserver?.currentMedia
+    }
+    
+    @MainActor
+    func updateMediaObserver() {
+        self.mediaObserver = viewModel.getMediaObserver()
+    }
+    
+    var loopCount: Int {
+        self.viewModel.rowViewModelDelegate?.rowDelegate?.allLoopedValues.count ?? .zero
     }
     
     // An image/video input or output shows a placeholder 'blank image' if it currently contains no image/video.
@@ -85,83 +153,42 @@ struct MediaFieldValueView: View {
             return false
         }
     }
-
-    @MainActor
-    var isMultiselectInspectorInputWithHeterogenousValues: Bool {
-        if let layerInputObserver = layerInputObserver {
-            @Bindable var layerInputObserver = layerInputObserver
-            return layerInputObserver.fieldHasHeterogenousValues(
-                fieldIndex,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
-        } else {
-            return false
-        }
-    }
     
-    var body: some View {
-        // MARK: using StitchMediaObject is more dangerous than GraphMediaValue as it won't refresh when media is changed, causing media to be retained
-        
-        HStack {
-            if isInput && canUseMediaPicker {
-                MediaPickerValueEntry(coordinate: inputCoordinate,
-                                      isUpstreamValue: isUpstreamValue,
-                                      mediaValue: media,
-                                      label: mediaName,
-                                      nodeKind: nodeKind,
-                                      isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                                      graph: graph,
-                                      isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues,
-                                      isSelectedInspectorRow: isSelectedInspectorRow)
-                .onChange(of: mediaName, initial: true) {
-                    print("media name in inner value view: \(mediaName)")
-                }
-            }
-            
-            if let media = mediaObserver.currentMedia {
-                MediaFieldLabelView(media: media,
-                                    inputCoordinate: inputCoordinate,
-                                    isInput: isInput,
-                                    fieldIndex: fieldIndex,
-                                    isNodeSelected: isNodeSelected,
-                                    isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues)
+    @ViewBuilder
+    func visualMediaView(mediaObserver: MediaViewModel) -> some View {
+        // For image and video media pickers,
+        // show both dropdown and thumbnail
+        switch mediaObserver.currentMedia?.mediaObject {
+        case .image(let image):
+            ValueStitchImageView(image: image)
+        case .video(let video):
+            ValueStitchVideoView(thumbnail: video.thumbnail)
+
+        default:
+            if usesVisualMediaPlaceholder {
+                NilImageView()
             } else {
-                if usesVisualMediaPlaceholder {
-                    NilImageView()
-                } else {
-                    EmptyView()
-                }
-                
-            }
-        }
-    }
-}
-
-struct MediaFieldLabelView: View {
-    let media: GraphMediaValue
-    let inputCoordinate: InputCoordinate
-    let isInput: Bool
-    let fieldIndex: Int
-    let isNodeSelected: Bool
-    let isMultiselectInspectorInputWithHeterogenousValues: Bool
-    
-    var body: some View {
-        
-        if isMultiselectInspectorInputWithHeterogenousValues {
-            NilImageView()
-        } else {
-            // For image and video media pickers,
-            // show both dropdown and thumbnail
-            switch media.mediaObject {
-            case .image(let image):
-                ValueStitchImageView(image: image)
-            case .video(let video):
-                ValueStitchVideoView(thumbnail: video.thumbnail)
-
-            // Other media types: don't show label.
-            default:
+                // Other media types: don't show label.
                 EmptyView()
             }
         }
-      
+    }
+    
+    var body: some View {
+        Group {
+            if isMultiselectInspectorInputWithHeterogenousValues {
+                NilImageView()
+            } else if let mediaObserver = self.mediaObserver {
+                visualMediaView(mediaObserver: mediaObserver)
+            } else {
+                EmptyView()
+            }
+        }
+        .onChange(of: graph.activeIndex, initial: true) {
+            self.updateMediaObserver()
+        }
+        .onChange(of: self.loopCount) {
+            self.updateMediaObserver()
+        }
     }
 }

@@ -225,28 +225,19 @@ struct OutputValueView: View {
                        alignment: .leading)
                 
             case .media(let media):
-                // No keypaths ever used for output
-                let portIndex = coordinate.portId!
-                let mediaObserver = viewModel.rowViewModelDelegate?.nodeDelegate?
-                    .getVisibleMediaObserver(outputPortId: portIndex,
-                                             // nil mediaId ensures observer is returned
-                                             mediaId: nil)
-                
-                if let mediaObserver = mediaObserver {
-                    MediaFieldValueView(inputCoordinate: coordinate,
-                                        layerInputObserver: nil,
-                                        isUpstreamValue: false,     // only valid for inputs
-                                        media: media,
-                                        mediaName: media.name,
-                                        mediaObserver: mediaObserver,
-                                        nodeKind: nodeKind,
-                                        isInput: false,
-                                        fieldIndex: fieldIndex,
-                                        isNodeSelected: isCanvasItemSelected,
-                                        isFieldInsideLayerInspector: false,
-                                        isSelectedInspectorRow: isSelectedInspectorRow,
-                                        graph: graph)
-                }
+                MediaFieldValueView(viewModel: viewModel,
+                                    coordinate: coordinate,
+                                    layerInputObserver: nil,
+                                    isUpstreamValue: false,     // only valid for inputs
+                                    media: media,
+                                    mediaName: media.name,
+                                    nodeKind: nodeKind,
+                                    isInput: false,
+                                    fieldIndex: fieldIndex,
+                                    isNodeSelected: isCanvasItemSelected,
+                                    isFieldInsideLayerInspector: false,
+                                    isSelectedInspectorRow: isSelectedInspectorRow,
+                                    graph: graph)
                 
             case .color(let color):
                 StitchColorPickerOrb(chosenColor: color,

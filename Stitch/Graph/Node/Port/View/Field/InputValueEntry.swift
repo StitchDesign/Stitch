@@ -422,30 +422,20 @@ struct InputValueView: View {
                 
                 
             case .media(let media):
-                let loopIndex = graph.activeIndex.adjustedIndex(viewModel.rowViewModelDelegate?.rowDelegate?.allLoopedValues.count ?? .zero)
-                
-                let mediaObserver = viewModel.rowViewModelDelegate?.nodeDelegate?
-                    .getInputMediaObserver(inputCoordinate: rowObserverId,
-                                           loopIndex: loopIndex,
-                                           // nil mediaId ensures observer is returned
-                                           mediaId: nil)
-                
-                if let mediaObserver = mediaObserver {
-                    MediaFieldValueView(
-                        inputCoordinate: rowObserverId,
-                        layerInputObserver: layerInputObserver,
-                        isUpstreamValue: isUpstreamValue,
-                        media: media,
-                        mediaName: media.name,
-                        mediaObserver: mediaObserver,
-                        nodeKind: nodeKind,
-                        isInput: true,
-                        fieldIndex: fieldIndex,
-                        isNodeSelected: isCanvasItemSelected,
-                        isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                        isSelectedInspectorRow: isSelectedInspectorRow,
-                        graph: graph)
-                }
+                MediaFieldValueView(
+                    viewModel: viewModel,
+                    coordinate: rowObserverId,
+                    layerInputObserver: layerInputObserver,
+                    isUpstreamValue: isUpstreamValue,
+                    media: media,
+                    mediaName: media.name,
+                    nodeKind: nodeKind,
+                    isInput: true,
+                    fieldIndex: fieldIndex,
+                    isNodeSelected: isCanvasItemSelected,
+                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                    isSelectedInspectorRow: isSelectedInspectorRow,
+                    graph: graph)
                 
             case .color(let color):
                 ColorOrbValueButtonView(fieldViewModel: viewModel,
