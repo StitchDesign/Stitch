@@ -38,6 +38,7 @@ struct StitchAIUUID: StitchAIStringConvertable {
     var value: UUID
 }
 
+
 extension UUID: StitchAIValueStringConvertable {
     var encodableString: String {
         self.description
