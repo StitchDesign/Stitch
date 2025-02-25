@@ -51,7 +51,6 @@ struct GraphConnectedEdgesView: View {
             let upstreamObserver = inputObserver.rowDelegate?.upstreamOutputObserver?.nodeRowViewModel
             
             ConnectedEdgeView(
-                graph: graph,
                 inputObserver: inputObserver,
                 outputObserver: upstreamObserver,
                 possibleEdgeOutputObserver: possibleEdgeOutputObserver,
@@ -64,12 +63,11 @@ struct GraphConnectedEdgesView: View {
 
 extension ConnectedEdgeView {
     @MainActor
-    init(graph: GraphState,
-          inputObserver: InputNodeRowViewModel,
-          outputObserver: OutputNodeRowViewModel?,
-          possibleEdgeOutputObserver: OutputNodeRowViewModel?,
-          possibleEdge: PossibleEdge?,
-          edgeAnimationEnabled: Bool,
+    init(inputObserver: InputNodeRowViewModel,
+         outputObserver: OutputNodeRowViewModel?,
+         possibleEdgeOutputObserver: OutputNodeRowViewModel?,
+         possibleEdge: PossibleEdge?,
+         edgeAnimationEnabled: Bool,
          shownPossibleEdgeIds: Set<PossibleEdgeId>) {
         let downstreamNode = inputObserver.nodeDelegate
         // Needs to have at least a connected output or a "possible" output
@@ -79,7 +77,6 @@ extension ConnectedEdgeView {
         self.outputData = .init(from: outputObserverForData,
                                 connectedDownstreamNode: downstreamNode)
         
-        self.graph = graph
         self.upstreamObserver = outputObserver
         self.inputObserver = inputObserver
         self.edgeAnimationEnabled = edgeAnimationEnabled
@@ -93,8 +90,6 @@ struct ConnectedEdgeView: View {
 
     @Environment(\.appTheme) private var theme
     @Environment(\.edgeStyle) private var edgeStyle
-
-    let graph: GraphState
     
     // Optional in event we only have possible edge
     let upstreamObserver: OutputNodeRowViewModel?
