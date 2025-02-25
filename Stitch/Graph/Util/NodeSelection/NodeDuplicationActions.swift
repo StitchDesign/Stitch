@@ -353,7 +353,7 @@ extension GraphState {
                             if let canvas = inputData.canvasItem,
                                let canvasItem = self.getCanvasItem(.layerInput(.init(node: nodeEntity.id,
                                                                                      keyPath: layerId))) {
-                                canvasItem.select()
+                                canvasItem.select(self)
                             }
                         }
                     }
@@ -361,7 +361,7 @@ extension GraphState {
                 case .patch, .group, .component:
                     let stitch = self.getNodeViewModel(nodeEntity.id)
                     if let canvasItem = stitch?.patchCanvasItem {
-                        canvasItem.select()
+                        canvasItem.select(self)
                     }
                 }
         }
