@@ -45,7 +45,7 @@ struct SelectedGraphNodesDeleted: GraphEventWithResponse {
         if state.selectedCanvasItems.isEmpty,
            let canvasItemId = canvasItemId,
            let canvasItem = state.getCanvasItem(canvasItemId) {
-            canvasItem.select()
+            canvasItem.select(state)
         }
 
         state.selectedGraphNodesDeleted(

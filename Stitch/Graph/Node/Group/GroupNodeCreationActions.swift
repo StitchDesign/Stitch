@@ -236,7 +236,7 @@ extension StitchDocumentViewModel {
         self.visibleGraph.resetSelectedCanvasItems()
         
         // ... then select the GroupNode and its edges
-        newGroupNode.patchCanvasItem?.select()
+        newGroupNode.patchCanvasItem?.select(self.graph)
 
         // Stop any active node dragging etc.
         self.graphMovement.stopNodeMovement()

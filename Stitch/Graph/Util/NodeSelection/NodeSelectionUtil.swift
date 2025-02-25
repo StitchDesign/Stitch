@@ -123,7 +123,7 @@ func selectAllNodesAtTraversalLevel(_ state: GraphState) {
     state.resetSelectedCanvasItems()
     
     visibleNodes.forEach {
-        $0.select()
+        $0.select(state)
     }
 }
 
