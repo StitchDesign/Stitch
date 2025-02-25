@@ -99,7 +99,7 @@ extension PortValue {
                 return [[.dropdown(blendMode, choices)]]
                 
             case .fitStyle:
-                let fitStyle = self.getFitStyle?.rawValue ?? .empty
+                let fitStyle = self.getFitStyle?.display ?? .empty
                 let choices = VisualMediaFitStyle.choices
                 return [[.dropdown(fitStyle, choices)]]
                 
