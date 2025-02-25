@@ -264,7 +264,7 @@ extension Patch {
         case .loopReverse:
             return nil
         case .loopShuffle:
-            return nil
+            return LoopShuffleNode.self
         case .loopSum:
             return nil
         case .loopToArray:
