@@ -30,6 +30,9 @@ protocol FieldViewModel: StitchLayoutCachable, Observable, AnyObject, Identifiab
          fieldIndex: Int,
          fieldLabel: String,
          rowViewModelDelegate: NodeRowType?)
+    
+    @MainActor
+    func getMediaObserver() -> MediaViewModel?
 }
 
 extension FieldViewModel {
@@ -87,6 +90,23 @@ final class InputFieldViewModel: FieldViewModel {
         self.fieldLabel = fieldLabel
         self.rowViewModelDelegate = rowViewModelDelegate
     }
+    
+    func getMediaObserver() -> MediaViewModel? {
+        let inputCoordinate = id.rowId.asNodeIOCoordinate
+        
+        // MARK: cheating with 0 since logic causes render cycles
+        let loopCount = 0 //self.rowViewModelDelegate?.rowDelegate?.allLoopedValues.count ?? .zero
+        
+        let loopIndex = self.rowViewModelDelegate?.graphDelegate?.activeIndex.adjustedIndex(loopCount) ?? .zero
+        
+        let mediaObserver = self.rowViewModelDelegate?.nodeDelegate?
+            .getInputMediaObserver(inputCoordinate: inputCoordinate,
+                                   loopIndex: loopIndex,
+                                   // nil mediaId ensures observer is returned
+                                   mediaId: nil)
+        
+        return mediaObserver
+    }
 }
 
 @Observable
@@ -110,6 +130,17 @@ final class OutputFieldViewModel: FieldViewModel {
         self.fieldIndex = fieldIndex
         self.fieldLabel = fieldLabel
         self.rowViewModelDelegate = rowViewModelDelegate
+    }
+    
+    func getMediaObserver() -> MediaViewModel? {
+        // No keypaths ever used for output
+        let portIndex = self.id.rowId.portId
+        let mediaObserver = self.rowViewModelDelegate?.nodeDelegate?
+            .getVisibleMediaObserver(outputPortId: portIndex,
+                                     // nil mediaId ensures observer is returned
+                                     mediaId: nil)
+        
+        return mediaObserver
     }
 }
 
