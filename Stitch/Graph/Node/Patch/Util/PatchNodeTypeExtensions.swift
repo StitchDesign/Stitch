@@ -89,7 +89,7 @@ extension Patch {
     var availableNodeTypes: Set<UserVisibleType> {
         switch self {
         // ALL
-        case .splitter, .loopSelect, .loopInsert, .setValueForKey, .jsonObject, .jsonArray, .wirelessBroadcaster, .optionPicker, .optionEquals, .pulseOnChange, .loopBuilder, .optionSender, .loopFilter, .loopToArray, .loopReverse, .sampleAndHold, .delay, .loopDedupe, .valueAtPath, .valueAtIndex, .valueForKey:
+        case .splitter, .loopSelect, .loopRemove, .loopInsert, .setValueForKey, .jsonObject, .jsonArray, .wirelessBroadcaster, .optionPicker, .optionEquals, .pulseOnChange, .loopBuilder, .optionSender, .loopFilter, .loopToArray, .loopReverse, .sampleAndHold, .delay, .loopDedupe, .valueAtPath, .valueAtIndex, .valueForKey:
             return AllUVT.value
 
         // NUMBER
