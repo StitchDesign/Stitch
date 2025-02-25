@@ -39,7 +39,7 @@ extension NodeViewModel {
 
         guard let interactionLayerId = inputs.first?.first?.getInteractionId,
               let layerNode = graphState.getNodeViewModel(interactionLayerId.id)?.layerNode else {
-            log("loopedEval: could not retrieve interactive layer id and layer node")
+//            log("loopedEval: could not retrieve interactive layer id and layer node")
             return [0..<loopCount].map { _ in
                 return .init(from: self.defaultOutputs)
             }
