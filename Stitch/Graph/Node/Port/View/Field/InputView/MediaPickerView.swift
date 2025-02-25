@@ -163,8 +163,5 @@ struct MediaFieldLabelView<Field: FieldViewModel>: View {
         .onChange(of: graph.activeIndex, initial: true) {
             self.updateMediaObserver()
         }
-//        .onChange(of: self.loopCount) {
-//            self.updateMediaObserver()
-//        }
     }
 }
