@@ -113,10 +113,6 @@ struct MediaFieldLabelView<Field: FieldViewModel>: View {
     let isNodeSelected: Bool
     let isMultiselectInspectorInputWithHeterogenousValues: Bool
     
-    var media: GraphMediaValue? {
-        self.mediaObserver?.currentMedia
-    }
-    
     @MainActor
     func updateMediaObserver() {
         self.mediaObserver = viewModel.getMediaObserver()
