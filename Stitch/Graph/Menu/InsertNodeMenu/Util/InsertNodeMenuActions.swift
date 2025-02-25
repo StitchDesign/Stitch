@@ -81,7 +81,9 @@ struct AddNodeButtonPressed: GraphEvent {
         }
         
         // Reset focused field
-        state.graphUI.reduxFocusedField = nil
+        if state.graphUI.reduxFocusedField != nil {
+            state.graphUI.reduxFocusedField = nil            
+        }
         
         // Immediately create a LayerNode; do not animate.
         if nodeKind.isLayer {

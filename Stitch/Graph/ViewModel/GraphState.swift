@@ -375,7 +375,16 @@ extension GraphState {
         await self.syncNodes(with: schema.nodes)
         
         // Determines if graph data needs updating
-        self.graphUpdaterId = self.calculateGraphUpdaterId()
+        self.refreshGraphUpdaterId()
+    }
+     
+    @MainActor
+    func refreshGraphUpdaterId() {
+        let newId = self.calculateGraphUpdaterId()
+        
+        if self.graphUpdaterId != newId {
+            self.graphUpdaterId = newId
+        }
     }
     
     // Used with copy-paste / duplication
@@ -390,7 +399,7 @@ extension GraphState {
         self.syncNodes(with: schema.nodes)
         
         // Determines if graph data needs updating
-        self.graphUpdaterId = self.calculateGraphUpdaterId()
+        self.refreshGraphUpdaterId()
     }
     
     @MainActor func onPrototypeRestart() {

@@ -41,10 +41,7 @@ extension GraphState: DocumentEncodableDelegate {
     
     func willEncodeProject(schema: GraphEntity) {
         // Updates graph data when changed
-        let newViewId = self.calculateGraphUpdaterId()
-        if self.graphUpdaterId != newViewId {
-            self.graphUpdaterId = newViewId
-        }
+        self.refreshGraphUpdaterId()
         
         // Updates thumbnail
          if let document = self.documentDelegate {

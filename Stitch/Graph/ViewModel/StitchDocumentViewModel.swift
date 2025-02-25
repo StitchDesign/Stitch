@@ -174,10 +174,7 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
         self.projectLoader?.loadingDocument = .loading
         
         // Updates graph data when changed
-        let newViewId = self.visibleGraph.calculateGraphUpdaterId()
-        if self.visibleGraph.graphUpdaterId != newViewId {
-            self.visibleGraph.graphUpdaterId = newViewId
-        }
+        self.visibleGraph.refreshGraphUpdaterId()
     }
     
     func didEncodeProject(schema: StitchDocument) {

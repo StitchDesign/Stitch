@@ -67,9 +67,9 @@ struct CanvasItemTitleView: View {
                 .modifier(
                     MathExpressionPopoverViewModifier(
                         id: nodeId,
+                        graph: graph,
                         shouldDisplay: node.patch == .mathExpression,
-                        mathExpression: mathExpression ?? "",
-                        isFocused: graph.graphUI.reduxFocusedField == .mathExpression(nodeId))
+                        mathExpression: mathExpression ?? "")
                 )
                 
                 // Show formula if not empty
