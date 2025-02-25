@@ -44,7 +44,7 @@ struct SplitterPatchNode: PatchNodeDefinition {
 
 @MainActor
 func splitterEval(node: PatchNode,
-                  graphStep: GraphStepState) -> ImpureEvalResult {
+                  graphStep: GraphStepState) -> EvalResult {
 
     let inputsValues = node.inputs
 

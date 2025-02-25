@@ -19,21 +19,24 @@ class OpenAIRequestTests: XCTestCase {
     
     /// Tests conversions to and from decoded state. StitchAI sometimes uses different types, this ensures types are compatible.
     func testStitchAICodables() {
-        for type in NodeType.allCases.filter({
+        
+        let types = NodeType.allCases.filter({
             $0 != .none
             
             // TODO: implement anchorEntity decoding
             && $0 != .anchorEntity
             
-            // TODO: why does decoding interactionId fail in this test but it's just fine in atual app?
+            // TODO: why does decoding interactionId fail in this test but it's just fine in actual app?
             && $0 != .interactionId
-        }) {
+        })
+        
+        for type in types  {
             
             print("testStitchAICodables: testing type: \(type)")
-          
+            
             let portValue: PortValue = type.defaultPortValue
-            let valueCodable: any Codable = portValue.anyCodable
-            let portValueType: Decodable.Type = type.portValueTypeForStitchAI
+            let valueCodable = portValue.anyCodable
+            let portValueType = type.portValueTypeForStitchAI
             
             guard let encoding: Data = try? getStitchEncoder().encode(valueCodable) else {
                 XCTFail("Could not encode type \(type)")
@@ -47,9 +50,6 @@ class OpenAIRequestTests: XCTestCase {
                 XCTFail("Could not decode type \(type)")
                 fatalError()
             }
-            
-            
         }
     }
-
 }
