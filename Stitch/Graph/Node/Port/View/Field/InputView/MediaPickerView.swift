@@ -118,55 +118,36 @@ struct MediaFieldLabelView<Field: FieldViewModel>: View {
         self.mediaObserver = viewModel.getMediaObserver()
     }
     
-    // MARK: commented logic below causes render cycles, cheating with 0 for now
-//    var loopCount: Int {
-//        self.viewModel.rowViewModelDelegate?.rowDelegate?.allLoopedValues.count ?? .zero
-//    }
-    
-    // An image/video input or output shows a placeholder 'blank image' if it currently contains no image/video.
-    // TODO: update FieldValueMedia (or even PortValue ?) to distinguish between visual media and other types?
-    var usesVisualMediaPlaceholder: Bool {
-        
-        switch nodeKind {
+    var isVisualMediaPort: Bool {
+        self.coordinate.portId == 0 && (
+            self.nodeKind.isVisualMediaLayerNode ||
             
-        case .patch(let patch):
-            switch patch {
-            case .soundImport:
-                return false
-            default:
-                return true
-            }
-            
-        case .layer(let layer):
-            switch layer {
-            case .model3D, .realityView:
-                return false
-            default:
-                return true
-            }
-        
-        // Should a group node input/output use the placeholder image? Maybe not?
-        default:
-            return false
-        }
+            // Checks if patch node uses observer object used for storing visual media
+            (self.viewModel.rowViewModelDelegate?.nodeDelegate?.ephemeralObservers?.first as? MediaEvalOpViewable) != nil
+        )
     }
     
     @ViewBuilder
-    func visualMediaView(mediaObserver: MediaViewModel) -> some View {
+    func visualMediaView(mediaObserver: MediaViewModel?) -> some View {
         // For image and video media pickers,
         // show both dropdown and thumbnail
-        switch mediaObserver.currentMedia?.mediaObject {
+        switch mediaObserver?.currentMedia?.mediaObject {
         case .image(let image):
             ValueStitchImageView(image: image)
         case .video(let video):
             ValueStitchVideoView(thumbnail: video.thumbnail)
 
         default:
-            if usesVisualMediaPlaceholder {
+            if !isVisualMediaPort {
                 NilImageView()
             } else {
                 // Other media types: don't show label.
-                EmptyView()
+                Color.clear
+                    .onChange(of: self.viewModel.fieldValue, initial: true) {
+                        if self.isVisualMediaPort {
+                            self.updateMediaObserver()
+                        }
+                    }
             }
         }
     }
@@ -175,10 +156,8 @@ struct MediaFieldLabelView<Field: FieldViewModel>: View {
         Group {
             if isMultiselectInspectorInputWithHeterogenousValues {
                 NilImageView()
-            } else if let mediaObserver = self.mediaObserver {
-                visualMediaView(mediaObserver: mediaObserver)
             } else {
-                EmptyView()
+                visualMediaView(mediaObserver: self.mediaObserver)
             }
         }
         .onChange(of: graph.activeIndex, initial: true) {
