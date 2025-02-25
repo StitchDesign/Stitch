@@ -8,7 +8,7 @@
 import SwiftUI
 
 /// Used by view models to cache local data.
-protocol StitchLayoutCachable: AnyObject, Sendable {
+protocol StitchLayoutCachable: AnyObject, Sendable, Identifiable {
     @MainActor var viewCache: NodeLayoutCache? { get set }
 }
 
@@ -41,7 +41,7 @@ struct NodeLayoutView<T: StitchLayoutCachable, Content: View>: View {
 }
 
 struct NodeLayout<T: StitchLayoutCachable>: Layout, Sendable {
-    typealias Cache = ()
+    typealias Cache = NodeLayoutCache
     
     // Check that prevents loop of cache updates given dispatch
     // updating cache on next cycle
@@ -53,15 +53,17 @@ struct NodeLayout<T: StitchLayoutCachable>: Layout, Sendable {
     // IMPORTANT
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) -> CGSize {
         
-        let isMarkedForUpdate = existingCache?.needsUpdating ?? true
+//        let isMarkedForUpdate = existingCache?.needsUpdating ?? true
+//        
+//        // Condition for needing new cache
+//        if isMarkedForUpdate && !self.isUpdatingCache {
+//            let newCache = self.recreateCache(subviews: subviews)
+//            return newCache.sizeThatFits
+//        }
+//        
+//        return existingCache?.sizeThatFits ?? .zero
         
-        // Condition for needing new cache
-        if isMarkedForUpdate && !self.isUpdatingCache {
-            let newCache = self.recreateCache(subviews: subviews)
-            return newCache.sizeThatFits
-        }
-        
-        return existingCache?.sizeThatFits ?? .zero
+        cache.sizeThatFits
     }
     
     func recreateCache(subviews: Subviews) -> NodeLayoutCache {
@@ -111,16 +113,17 @@ struct NodeLayout<T: StitchLayoutCachable>: Layout, Sendable {
                        proposal: ProposedViewSize,
                        subviews: Subviews,
                        cache: inout Cache) {
+        print("Place subview: \(observer.id)")
         
         guard !subviews.isEmpty else { return }
         
-        let cache = self.existingCache ?? self.createCache(subviews: subviews)
+//        let cache = self.existingCache ?? self.createCache(subviews: subviews)
             
-        if self.existingCache == nil {
-            DispatchQueue.main.async {
-                self.observer.viewCache = cache
-            }
-        }
+//        if self.existingCache == nil {
+//            DispatchQueue.main.async {
+//                self.observer.viewCache = cache
+//            }
+//        }
         
         for index in subviews.indices {
             let subview = subviews[index]
@@ -139,10 +142,10 @@ struct NodeLayout<T: StitchLayoutCachable>: Layout, Sendable {
     }
     
     func spacing(subviews: Self.Subviews, cache: inout Cache) -> ViewSpacing {
-        guard let cache = self.existingCache else {
-            let newCache = self.createCache(subviews: subviews)
-            return newCache.spacing
-        }
+//        guard let cache = self.existingCache else {
+//            let newCache = self.createCache(subviews: subviews)
+//            return newCache.spacing
+//        }
         
         return cache.spacing
     }
@@ -161,10 +164,12 @@ struct NodeLayout<T: StitchLayoutCachable>: Layout, Sendable {
     }
     
     // MARK: we don't use SwiftUI Layout's native cache as it doesn't resize properly for our needs.
-//    func makeCache(subviews: Subviews) -> Cache { }
+    func makeCache(subviews: Subviews) -> Cache {
+        self.recreateCache(subviews: subviews)
+    }
     
     // Keep this empty for perf
-//    func updateCache(_ cache: inout Cache, subviews: Subviews) { }
+    func updateCache(_ cache: inout Cache, subviews: Subviews) { }
     
     func explicitAlignment(of guide: HorizontalAlignment,
                            in bounds: CGRect,
