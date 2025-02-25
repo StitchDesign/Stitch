@@ -418,7 +418,7 @@ extension GraphState {
     func resetSelectedCanvasItems() {
         
         self.getCanvasItems().forEach {
-            $0.deselect()
+            $0.deselect(self)
         }
     }
 }
@@ -442,7 +442,7 @@ extension GraphState {
         // get reset when we select a single node.
         self.graphUI.selection = GraphUISelectionState()
         self.resetSelectedCanvasItems()
-        node.select()
+        node.select(self)
     }
     
     @MainActor
@@ -456,7 +456,7 @@ extension GraphState {
         // ie expansionBox, isSelecting, selected-comments etc.
         // get reset when we select a single canvasItem.
         self.deselectAllCanvasItems()
-        canvasItem.select()
+        canvasItem.select(self)
     }
     
     // TEST HELPER
@@ -466,28 +466,27 @@ extension GraphState {
             fatalErrorIfDebug()
             return
         }
-        node.select()
+        node.select(self)
     }
 }
 
 extension CanvasItemViewModel {
     @MainActor
-    func select() {
+    func select(_ graph: GraphState) {
+        log("CanvasItemViewModel: selecting called")
         // Prevent render cycles if already selected
-        guard !self.isSelected,
-              let graph = self.graphDelegate else { return }
+        guard !self.isSelected  else { return }
         
         graph.graphUI.selection.selectedNodeIds.insert(self.id)
         
         // Unfocus sidebar
-        self.graphDelegate?.isSidebarFocused = false
+        graph.isSidebarFocused = false
     }
     
     @MainActor
-    func deselect() {
+    func deselect(_ graph: GraphState) {
         // Prevent render cycles if already unselected
-        guard self.isSelected,
-              let graph = self.graphDelegate else { return }
+        guard self.isSelected else { return }
         graph.graphUI.selection.selectedNodeIds.remove(self.id)
     }
 }

@@ -43,9 +43,9 @@ extension CanvasItemViewModel {
             // toggle selection
             let isSelected = document.graphUI.selection.selectedNodeIds.contains(self.id)
             if isSelected {
-                self.deselect()
+                self.deselect(document.graph)
             } else {
-                self.select()
+                self.select(document.graph)
             }
         }
         

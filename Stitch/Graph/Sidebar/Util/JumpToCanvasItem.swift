@@ -69,7 +69,7 @@ extension GraphState {
         
         self.graphUI.selection = GraphUISelectionState()
         self.resetSelectedCanvasItems()
-        canvasItem.select()
+        canvasItem.select(self)
         
         // Update focused group
         if let newGroup = canvasItem.parentGroupNodeId {
