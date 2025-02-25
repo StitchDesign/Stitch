@@ -93,7 +93,9 @@ final class InputFieldViewModel: FieldViewModel {
     
     func getMediaObserver() -> MediaViewModel? {
         let inputCoordinate = id.rowId.asNodeIOCoordinate
-        let loopCount = self.rowViewModelDelegate?.rowDelegate?.allLoopedValues.count ?? .zero
+        
+        // MARK: cheating with 0 since logic causes render cycles
+        let loopCount = 0 //self.rowViewModelDelegate?.rowDelegate?.allLoopedValues.count ?? .zero
         
         let loopIndex = self.rowViewModelDelegate?.graphDelegate?.activeIndex.adjustedIndex(loopCount) ?? .zero
         

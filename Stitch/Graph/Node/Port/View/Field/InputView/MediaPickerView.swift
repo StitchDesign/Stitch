@@ -122,9 +122,10 @@ struct MediaFieldLabelView<Field: FieldViewModel>: View {
         self.mediaObserver = viewModel.getMediaObserver()
     }
     
-    var loopCount: Int {
-        self.viewModel.rowViewModelDelegate?.rowDelegate?.allLoopedValues.count ?? .zero
-    }
+    // MARK: commented logic below causes render cycles, cheating with 0 for now
+//    var loopCount: Int {
+//        self.viewModel.rowViewModelDelegate?.rowDelegate?.allLoopedValues.count ?? .zero
+//    }
     
     // An image/video input or output shows a placeholder 'blank image' if it currently contains no image/video.
     // TODO: update FieldValueMedia (or even PortValue ?) to distinguish between visual media and other types?
@@ -187,8 +188,8 @@ struct MediaFieldLabelView<Field: FieldViewModel>: View {
         .onChange(of: graph.activeIndex, initial: true) {
             self.updateMediaObserver()
         }
-        .onChange(of: self.loopCount) {
-            self.updateMediaObserver()
-        }
+//        .onChange(of: self.loopCount) {
+//            self.updateMediaObserver()
+//        }
     }
 }
