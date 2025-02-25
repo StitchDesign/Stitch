@@ -29,13 +29,13 @@ extension GraphState {
 }
 
 /// Picker view for all imported media nodes (Core ML, image, audio, video etc.).
-struct MediaFieldValueView: View {
-    let inputCoordinate: InputCoordinate
+struct MediaFieldValueView<Field: FieldViewModel>: View {
+    let viewModel: Field
+    let coordinate: NodeIOCoordinate
     let layerInputObserver: LayerInputObserver?
     let isUpstreamValue: Bool
     let media: FieldValueMedia
     let mediaName: String
-    @Bindable var mediaObserver: MediaViewModel
     let nodeKind: NodeKind
     let isInput: Bool
     let fieldIndex: Int
@@ -53,34 +53,6 @@ struct MediaFieldValueView: View {
             return patch.isMediaImportInput
         case .layer(let layer):
             return layer.usesCustomValueSpaceWidth
-        default:
-            return false
-        }
-    }
-    
-    // An image/video input or output shows a placeholder 'blank image' if it currently contains no image/video.
-    // TODO: update FieldValueMedia (or even PortValue ?) to distinguish between visual media and other types?
-    var usesVisualMediaPlaceholder: Bool {
-        
-        switch nodeKind {
-            
-        case .patch(let patch):
-            switch patch {
-            case .soundImport:
-                return false
-            default:
-                return true
-            }
-            
-        case .layer(let layer):
-            switch layer {
-            case .model3D, .realityView:
-                return false
-            default:
-                return true
-            }
-        
-        // Should a group node input/output use the placeholder image? Maybe not?
         default:
             return false
         }
@@ -103,7 +75,7 @@ struct MediaFieldValueView: View {
         
         HStack {
             if isInput && canUseMediaPicker {
-                MediaPickerValueEntry(coordinate: inputCoordinate,
+                MediaPickerValueEntry(coordinate: coordinate,
                                       isUpstreamValue: isUpstreamValue,
                                       mediaValue: media,
                                       label: mediaName,
@@ -117,51 +89,79 @@ struct MediaFieldValueView: View {
                 }
             }
             
-            if let media = mediaObserver.currentMedia {
-                MediaFieldLabelView(media: media,
-                                    inputCoordinate: inputCoordinate,
-                                    isInput: isInput,
-                                    fieldIndex: fieldIndex,
-                                    isNodeSelected: isNodeSelected,
-                                    isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues)
-            } else {
-                if usesVisualMediaPlaceholder {
-                    NilImageView()
-                } else {
-                    EmptyView()
-                }
-                
-            }
+            MediaFieldLabelView(viewModel: viewModel,
+                                graph: graph,
+                                coordinate: coordinate,
+                                nodeKind: nodeKind,
+                                isInput: isInput,
+                                fieldIndex: fieldIndex,
+                                isNodeSelected: isNodeSelected,
+                                isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues)
         }
     }
 }
 
-struct MediaFieldLabelView: View {
-    let media: GraphMediaValue
-    let inputCoordinate: InputCoordinate
+struct MediaFieldLabelView<Field: FieldViewModel>: View {
+    @State private var mediaObserver: MediaViewModel?
+    
+    let viewModel: Field
+    let graph: GraphState
+    let coordinate: InputCoordinate
+    let nodeKind: NodeKind
     let isInput: Bool
     let fieldIndex: Int
     let isNodeSelected: Bool
     let isMultiselectInspectorInputWithHeterogenousValues: Bool
     
-    var body: some View {
-        
-        if isMultiselectInspectorInputWithHeterogenousValues {
-            NilImageView()
-        } else {
-            // For image and video media pickers,
-            // show both dropdown and thumbnail
-            switch media.mediaObject {
-            case .image(let image):
-                ValueStitchImageView(image: image)
-            case .video(let video):
-                ValueStitchVideoView(thumbnail: video.thumbnail)
+    @MainActor
+    func updateMediaObserver() {
+        self.mediaObserver = viewModel.getMediaObserver()
+    }
+    
+    var isVisualMediaPort: Bool {
+        self.coordinate.portId == 0 && (
+            self.nodeKind.isVisualMediaLayerNode ||
+            
+            // Checks if patch node uses observer object used for storing visual media
+            (self.viewModel.rowViewModelDelegate?.nodeDelegate?.ephemeralObservers?.first as? MediaEvalOpViewable) != nil
+        )
+    }
+    
+    @ViewBuilder
+    func visualMediaView(mediaObserver: MediaViewModel?) -> some View {
+        // For image and video media pickers,
+        // show both dropdown and thumbnail
+        switch mediaObserver?.currentMedia?.mediaObject {
+        case .image(let image):
+            ValueStitchImageView(image: image)
+        case .video(let video):
+            ValueStitchVideoView(thumbnail: video.thumbnail)
 
-            // Other media types: don't show label.
-            default:
-                EmptyView()
+        default:
+            if !isVisualMediaPort {
+                NilImageView()
+            } else {
+                // Other media types: don't show label.
+                Color.clear
+                    .onChange(of: self.viewModel.fieldValue, initial: true) {
+                        if self.isVisualMediaPort {
+                            self.updateMediaObserver()
+                        }
+                    }
             }
         }
-      
+    }
+    
+    var body: some View {
+        Group {
+            if isMultiselectInspectorInputWithHeterogenousValues {
+                NilImageView()
+            } else {
+                visualMediaView(mediaObserver: self.mediaObserver)
+            }
+        }
+        .onChange(of: graph.activeIndex, initial: true) {
+            self.updateMediaObserver()
+        }
     }
 }
