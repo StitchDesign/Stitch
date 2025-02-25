@@ -63,23 +63,21 @@ extension NodeRowObserver {
     /// Updates port view models when the backend port observer has been updated.
     /// Also invoked when nodes enter the viewframe incase they need to be udpated.
     @MainActor
-    func updatePortViewModels() {
-        guard (self.nodeDelegate?.isVisibleInFrame ?? false) else {
+    func updatePortViewModels(_ graph: GraphState) {
+        guard (self.nodeDelegate?.isVisibleInFrame(graph) ?? false) else {
             return
         }
         
-        self.getVisibleRowViewModels().forEach { rowViewModel in
+        self.getVisibleRowViewModels(graph, showsLayerInspector: graph.graphUI.showsLayerInspector).forEach { rowViewModel in
             rowViewModel.didPortValuesUpdate(values: self.allLoopedValues)
         }
     }
     
     @MainActor
-    func getVisibleRowViewModels() -> [Self.RowViewModelType] {
-        guard let graph = self.nodeDelegate?.graphDelegate,
-              // Make sure we're not in full screen mode
-              !graph.isFullScreenMode,
-              // Make sure we have can access whether inspector is open or not
-              let showsLayerInspector = graph.documentDelegate?.graphUI.showsLayerInspector else {
+    func getVisibleRowViewModels(_ graph: GraphState,
+                                 showsLayerInspector: Bool) -> [Self.RowViewModelType] {
+        // Make sure we're not in full screen mode
+        guard !graph.isFullScreenMode else {
             return []
         }
         
@@ -103,7 +101,7 @@ extension NodeRowObserver {
                     return false
                 }
                 
-                let isVisibleInCurrentGroup = canvas.isVisibleInFrame && canvas.parentGroupNodeId == self.nodeDelegate?.graphDelegate?.groupNodeFocused
+                let isVisibleInCurrentGroup = canvas.isVisibleInFrame(graph) && canvas.parentGroupNodeId == graph.groupNodeFocused
              
                 // always update group node, whose row view models don't otherwise update
                 let isGroupNode = canvas.nodeDelegate?.nodeType.groupNode.isDefined ?? false

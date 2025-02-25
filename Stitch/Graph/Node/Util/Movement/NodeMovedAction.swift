@@ -97,7 +97,7 @@ extension GraphState {
             }
             
             // If we drag a canvas item that is not yet selected, we'll select it and deselect all the others.
-            if !canvasItem.isSelected {
+            if !canvasItem.isSelected(state) {
                 // log("NodeDuplicateDraggedAction: \(canvasItem.id) was NOT already selected")
                 // select the canvas item and de-select all the others
                 state.selectSingleCanvasItem(canvasItem)
@@ -220,7 +220,7 @@ extension GraphState {
 
         // Dragging an unselected node selects that node
         // and de-selects all other nodes.
-        let alreadySelected = canvasItem.isSelected
+        let alreadySelected = canvasItem.isSelected(self)
 
         if !alreadySelected {
             // update node's position
@@ -286,7 +286,7 @@ extension StitchDocumentViewModel {
         
         let _update = { (canvasItem: CanvasItemViewModel) in
             
-            guard let nodeSize = canvasItem.graphBaseViewSize else {
+            guard let nodeSize = canvasItem.graphBaseViewSize(self.graphMovement) else {
                 return
             }
             

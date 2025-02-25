@@ -74,8 +74,7 @@ final class CanvasItemViewModel: Identifiable, StitchLayoutCachable, Sendable {
     @MainActor var parentGroupNodeId: NodeId?
     
     @MainActor
-    var isVisibleInFrame: Bool {
-        guard let graph = self.graphDelegate else { return false }
+    func isVisibleInFrame(_ graph: GraphState) -> Bool {
         return graph.visibleNodesViewModel.visibleCanvasIds.contains(self.id)
     }
     
@@ -89,19 +88,18 @@ final class CanvasItemViewModel: Identifiable, StitchLayoutCachable, Sendable {
     
     // Moved state here for render cycle perf on port view for colors
     @MainActor
-    var isSelected: Bool {
-        guard let graphDelegate = self.graphDelegate else { return false }
-        return graphDelegate.graphUI.selection.selectedNodeIds.contains(self.id)
+    func isSelected(_ graph: GraphState) -> Bool {
+        return graph.graphUI.selection.selectedNodeIds.contains(self.id)
     }
     
     // Reference back to the parent node entity
     @MainActor
     weak var nodeDelegate: NodeDelegate?
     
-    @MainActor
-    var graphDelegate: GraphDelegate? {
-        self.nodeDelegate?.graphDelegate
-    }
+//    @MainActor
+//    var graphDelegate: GraphDelegate? {
+//        self.nodeDelegate?.graphDelegate
+//    }
     
     @MainActor
     init(id: CanvasItemId,
