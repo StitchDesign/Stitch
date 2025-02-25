@@ -260,7 +260,7 @@ extension Patch {
         case .loopOptionSwitch:
             return nil
         case .loopRemove:
-            return nil
+            return LoopRemoveNode.self
         case .loopReverse:
             return nil
         case .loopShuffle:
