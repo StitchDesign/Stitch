@@ -218,7 +218,7 @@ extension StitchDocumentViewModel {
             if let node = self.graph.getNodeViewModel(nodeId) {
                 // Will select a patch node or a layer nodes' inputs/outputs on canvas
                 node.getAllCanvasObservers().forEach { (canvasItem: CanvasItemViewModel) in
-                    canvasItem.select()
+                    canvasItem.select(self.graph)
                 }
             }
         }

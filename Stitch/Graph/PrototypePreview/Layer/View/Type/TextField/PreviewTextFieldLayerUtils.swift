@@ -64,7 +64,7 @@ extension GraphState {
         
         // if we selected a canvas item, we also thereby selected it:
         if let canvasItemId = focusedField.canvasFieldId {
-            self.getCanvasItem(canvasItemId)?.select()
+            self.getCanvasItem(canvasItemId)?.select(self)
         }
     }
 }
