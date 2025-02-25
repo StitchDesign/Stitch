@@ -61,6 +61,7 @@ extension NodeRowObserver {
 
 @Observable
 final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
+    
     static let nodeIOType: NodeIO = .input
 
     let id: NodeIOCoordinate

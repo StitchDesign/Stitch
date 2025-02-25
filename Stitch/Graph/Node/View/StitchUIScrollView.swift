@@ -324,27 +324,33 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
     func checkBorder(_ scrollView: UIScrollView) {
                 
         let scale = scrollView.zoomScale
-        let cache = self.document?.graph.visibleNodesViewModel.infiniteCanvasCache ?? .init()
         
-        let jumpLocationDefined = self.document?.graphUI.canvasJumpLocation.isDefined ?? false
-        
-        let activelyZooming = self.document?.graphUI.canvasZoomedIn.zoomAmount.isDefined ?? self.document?.graphUI.canvasZoomedOut.zoomAmount.isDefined ?? false
-        
+        guard let document = self.document else {
+            log("checkBorder: no document, exiting early")
+            return
+        }
+        let graph = document.graph
+        let cache = graph.visibleNodesViewModel.infiniteCanvasCache
 
-        guard
-            // Do not check borders for ~1 second after (1) jumping to an item on the canvas or (2) zooming in/out
-            !self.borderCheckingDisabled,
-            
-                // Only check borders if we have cached size and position data for canvas items
-            let canvasItemsInFrame = self.document?.graph.getVisibleCanvasItems().filter(\.isVisibleInFrame),
-            let westNode = self.document?.graph.westernMostNodeForBorderCheck(canvasItemsInFrame),
-            let eastNode = self.document?.graph.easternMostNodeForBorderCheck(canvasItemsInFrame),
-            let westBounds = cache.get(westNode.id),
-            let eastBounds = cache.get(eastNode.id),
-            let northNode = self.document?.graph.northernMostNodeForBorderCheck(canvasItemsInFrame),
-            let southNode = self.document?.graph.southernMostNodeForBorderCheck(canvasItemsInFrame),
-            let northBounds = cache.get(northNode.id),
-            let southBounds = cache.get(southNode.id) else {
+        // Do not check borders for ~1 second after (1) jumping to an item on the canvas or (2) zooming in/out
+        
+        guard !self.borderCheckingDisabled else {
+            log("checkBorder: border checking disabled")
+            Self.updateGraphScrollData(scrollView)
+            return
+        }
+        
+        // Only check borders if we have cached size and position data for canvas items
+        let canvasItemsInFrame = graph.getVisibleCanvasItems().filter({ $0.isVisibleInFrame(graph.visibleCanvasIds) })
+        
+        guard let westNode = graph.westernMostNodeForBorderCheck(canvasItemsInFrame),
+              let eastNode = graph.easternMostNodeForBorderCheck(canvasItemsInFrame),
+              let westBounds = cache.get(westNode.id),
+              let eastBounds = cache.get(eastNode.id),
+              let northNode = graph.northernMostNodeForBorderCheck(canvasItemsInFrame),
+              let southNode = graph.southernMostNodeForBorderCheck(canvasItemsInFrame),
+              let northBounds = cache.get(northNode.id),
+              let southBounds = cache.get(southNode.id) else {
             
             Self.updateGraphScrollData(scrollView)
             
@@ -353,8 +359,8 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
             return
         }
         
-        let screenWidth = self.document?.graphUI.frame.width ?? .zero
-        let screenHeight = self.document?.graphUI.frame.height ?? .zero
+        let screenWidth = document.graphUI.frame.width
+        let screenHeight = document.graphUI.frame.height
         
         let westernMostNodeCachedBoundsOriginX: CGFloat = westBounds.origin.x
         let easternMostNodeCachedBoundsOriginX: CGFloat = eastBounds.origin.x
@@ -488,16 +494,22 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
     func graphScroll(_ gesture: UIPanGestureRecognizer,
                      translation: CGPoint,
                      scrollView: UIScrollView) {
+        
+        guard let document = self.document else {
+            log("graphScroll: no document")
+            return
+        }
+        
         switch gesture.state {
         case .began:
             initialContentOffset = scrollView.contentOffset
-            document?.graphUI.activeSpacebarClickDrag = true
+            document.graphUI.activeSpacebarClickDrag = true
             
         case .changed:
-            document?.graphUI.activeSpacebarClickDrag = true
+            document.graphUI.activeSpacebarClickDrag = true
             
-            let screenHeight = self.document?.graphUI.frame.height ?? .zero
-            let screenWidth = self.document?.graphUI.frame.width ?? .zero
+            let screenHeight = document.graphUI.frame.height
+            let screenWidth = document.graphUI.frame.width
             
             // UIScrollView's contentOffset can never be negative
             let minOffset: CGFloat = 0
@@ -541,7 +553,7 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
             log("StitchUIScrollView: handlePan: possible")
             
         case .ended, .cancelled, .failed:
-            document?.graphUI.activeSpacebarClickDrag = false
+            document.graphUI.activeSpacebarClickDrag = false
             scrollView.setContentOffset(scrollView.contentOffset,
                                         animated: false)
             Self.updateGraphScrollData(scrollView, shouldPersist: true)

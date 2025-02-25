@@ -342,17 +342,17 @@ extension NodeViewModel {
     
     /// Checks if any canvas entity for this node is visible.
     @MainActor
-    var isVisibleInFrame: Bool {
+    func isVisibleInFrame(_ visibleCanvasIds: CanvasItemIdSet,
+                          _ selectedSidebarLayers: SidebarLayerIdSet) -> Bool {
         for canvasObserver in self.getAllCanvasObservers() {
-            if canvasObserver.isVisibleInFrame {
+            if canvasObserver.isVisibleInFrame(visibleCanvasIds) {
                 return true
             }
         }
         
         // Check for visible layer inspectors
         if let layerId = self.layerNode?.id,
-           let graph = self.graphDelegate,
-           graph.layersSidebarViewModel.selectionState.primary.contains(layerId) {
+           selectedSidebarLayers.contains(layerId) {
             return true
         }
         

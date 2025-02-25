@@ -58,7 +58,8 @@ extension GraphState {
                 // we want to update the node type and inputs types
                 node.updateNodeTypeAndInputs(newType: newNodeType,
                                              currentGraphTime: graphTime,
-                                             activeIndex: activeIndex)
+                                             activeIndex: activeIndex,
+                                             graph: self)
                 
                 /*
                  When a Wireless Broadcaster's node-type changes, we updates its inputs (and thus outputs, since Wireless node's evals are just `identity`),

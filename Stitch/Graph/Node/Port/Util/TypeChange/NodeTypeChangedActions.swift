@@ -96,7 +96,8 @@ extension GraphState {
             node.updateNodeTypeAndInputs(
                 newType: newType,
                 currentGraphTime: graphTime,
-                activeIndex: activeIndex)
+                activeIndex: activeIndex,
+                graph: self)
         } else {
             // For network request node, we just change the user-visible-type manually.
             patchNode.userVisibleType = newType
