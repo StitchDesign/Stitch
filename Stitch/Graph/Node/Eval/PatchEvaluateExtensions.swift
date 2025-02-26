@@ -213,13 +213,13 @@ extension Patch {
         case .equalsExactly:
             return .node(outputsOnlyEval(equalsExactlyEval))
         case .greaterThan:
-            return .node(pureNodeEval(greaterThanEval))
+            return .node(outputsOnlyEval(greaterThanEval))
         case .greaterOrEqual:
-            return .node(pureNodeEval(greaterOrEqualEval))
+            return .node(outputsOnlyEval(greaterOrEqualEval))
         case .lessThan:
-            return .node(pureNodeEval(lessThanEval))
+            return .node(outputsOnlyEval(lessThanEval))
         case .lessThanOrEqual:
-            return .node(pureNodeEval(lessThanOrEqualEval))
+            return .node(outputsOnlyEval(lessThanOrEqualEval))
         case .colorToHSL:
             return .node(outputsOnlyEval(colorToHSLEval))
         case .colorToHex:
