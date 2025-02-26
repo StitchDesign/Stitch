@@ -48,14 +48,6 @@ func equalsExactlyPatchNode(id: NodeId,
 func equalsExactlyEval(inputs: PortValuesList,
                        outputs: PortValuesList) -> PortValuesList {
     
-//    // Return false if failure case
-//    guard let firstValue = inputValues[safe: 0]?.comparableValue,
-//          let secondValue = inputValues[safe: 1]?.comparableValue else {
-//        return [.bool(false)]
-//    }
-//
-//    return [.bool(firstValue.number == secondValue.number)]
-    
     let op: Operation = { (values: PortValues) -> PortValue in
         guard let firstValue = values.first else {
             return .bool(false)
