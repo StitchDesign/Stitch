@@ -32,6 +32,13 @@ extension LayerSize {
             HEIGHT: self.height.description
         ]
     }
+    
+    var asOrderedDictionary: OrderedDictionary<String, String> {
+        OrderedDictionary(uniqueKeysWithValues: [
+            (WIDTH, self.width.description),
+            (HEIGHT, self.height.description)
+        ])
+    }
 }
 
 extension CGPoint {
@@ -40,6 +47,13 @@ extension CGPoint {
             X: self.x,
             Y: self.y
         ]
+    }
+    
+    var asOrderedDictionary: OrderedDictionary<String, Double> {
+        OrderedDictionary(uniqueKeysWithValues: [
+            (X, self.x),
+            (Y, self.y)
+        ])
     }
 }
 
@@ -60,6 +74,14 @@ extension Point3D {
             Z: self.z
         ]
     }
+    
+    var asOrderedDictionary: OrderedDictionary<String, Double> {
+        OrderedDictionary(uniqueKeysWithValues: [
+            (X, self.x),
+            (Y, self.y),
+            (Z, self.z)
+        ])
+    }
 }
 
 extension Point4D {
@@ -70,6 +92,15 @@ extension Point4D {
             Z: self.z,
             W: self.w
         ]
+    }
+    
+    var asOrderedDictionary: OrderedDictionary<String, Double> {
+        OrderedDictionary(uniqueKeysWithValues: [
+            (X, self.x),
+            (Y, self.y),
+            (Z, self.z),
+            (W, self.w)
+        ])
     }
 }
 
@@ -119,13 +150,13 @@ extension PortValue {
         case let .color(x):
             return x.asHexDisplay
         case let .size(x):
-            return x.asLayerDictionary.description
+            return x.asOrderedDictionary.description
         case let .position(x):
-            return x.asDictionary.description
+            return x.asOrderedDictionary.description
         case let .point3D(x):
-            return x.asDictionary.description
+            return x.asOrderedDictionary.description
         case let .point4D(x):
-            return x.asDictionary.description
+            return x.asOrderedDictionary.description
         case .transform:
             return ""
         case .plane(let plane):
