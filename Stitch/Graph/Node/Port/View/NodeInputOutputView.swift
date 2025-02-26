@@ -318,6 +318,7 @@ struct FieldsListView<PortType, ValueEntryView>: View where PortType: NodeRowVie
 
 struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
     @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var rowObserver: NodeRowObserverType
     @Bindable var rowViewModel: NodeRowObserverType.RowViewModelType
     
@@ -335,15 +336,6 @@ struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
     @MainActor
     var isGroup: Bool {
         self.rowObserver.nodeDelegate?.kind.isGroup ?? false
-    }
-    
-    var document: StitchDocumentViewModel {
-        guard let doc = graph.documentDelegate else {
-            fatalErrorIfDebug()
-            return .createEmpty()
-        }
-        
-        return doc
     }
     
     var body: some View {

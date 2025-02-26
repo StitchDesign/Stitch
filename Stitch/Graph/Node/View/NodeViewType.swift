@@ -74,6 +74,7 @@ struct NodeTypeView: View {
                     .padding(.trailing, NODE_BODY_SPACING)
             } else {
                 DefaultNodeInputView(graph: graph,
+                                     document: document,
                                      node: node,
                                      canvas: canvasNode,
                                      isNodeSelected: isSelected)
@@ -91,6 +92,7 @@ struct NodeTypeView: View {
                     .padding(.leading, NODE_BODY_SPACING)
             } else {
                 DefaultNodeOutputView(graph: graph,
+                                      document: document,
                                       node: node,
                                       canvas: canvasNode,
                                       isNodeSelected: isSelected)
@@ -102,6 +104,7 @@ struct NodeTypeView: View {
 struct DefaultNodeInputView: View {
     
     @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var node: NodeViewModel
     @Bindable var canvas: CanvasItemViewModel
     let isNodeSelected: Bool
@@ -118,6 +121,7 @@ struct DefaultNodeInputView: View {
 //            NodeLayoutView(observer: rowViewModel) {
                 HStack {
                     NodeRowPortView(graph: graph,
+                                    document: document,
                                     rowObserver: rowObserver,
                                     rowViewModel: rowViewModel)
                     
@@ -145,6 +149,7 @@ struct DefaultNodeInputView: View {
 struct DefaultNodeOutputView: View {
     
     @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var node: NodeViewModel
     @Bindable var canvas: CanvasItemViewModel
     let isNodeSelected: Bool
@@ -166,6 +171,7 @@ struct DefaultNodeOutputView: View {
                                    label: rowObserver.label())
                     
                     NodeRowPortView(graph: graph,
+                                    document: document,
                                     rowObserver: rowObserver,
                                     rowViewModel: rowViewModel)
                 }
