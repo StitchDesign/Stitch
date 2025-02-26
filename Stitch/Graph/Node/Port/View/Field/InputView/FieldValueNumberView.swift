@@ -63,6 +63,7 @@ struct FieldValueNumberView: View {
                 // Default to zero if "auto" currently selected
                 // Limit renders by not passing in number value unless button pressed
                 NumberValueButtonView(graph: graph,
+                                      graphUI: graph.graphUI,
                                       value: isButtonPressed ? fieldValue.numberValue : .zero,
                                       fieldCoordinate: fieldCoordinate,
                                       rowObserverCoordinate: rowObserverCoordinate,

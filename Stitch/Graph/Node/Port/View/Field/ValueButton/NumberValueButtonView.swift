@@ -30,6 +30,7 @@ typealias AdjustmentBarSessionId = UUID
 struct NumberValueButtonView: View {
     
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     let value: Double
     let fieldCoordinate: FieldCoordinate
     let rowObserverCoordinate: NodeIOCoordinate
@@ -47,7 +48,7 @@ struct NumberValueButtonView: View {
             .onTapGesture {
                 self.isPressed = true
             }
-            .onChange(of: graph.graphUI.adjustmentBarSessionId) { _, _ in
+            .onChange(of: graphUI.adjustmentBarSessionId) {
                 // `AdjustmentBarSessionId` is changed just when
                 self.isPressed = false
             }
