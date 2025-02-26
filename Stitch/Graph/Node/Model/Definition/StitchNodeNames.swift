@@ -167,7 +167,7 @@ Smooths a given input value based on a hysteresis value. Hysteresis is a number 
 
 The formula for calculating the smoothed value is:
 
-    smoothedValue = (previousValue • hysteresis) + (currentValue • (1 - hysteresis))
+smoothedValue = (previousValue • hysteresis) + (currentValue • (1 - hysteresis))
 
 This method is particularly useful for filtering noisy or fluctuating data streams, like sensor readings or user input, to obtain more stable and reliable values.
 
