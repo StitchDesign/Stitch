@@ -20,7 +20,6 @@ struct FieldValueNumberView: View {
     let rowObserverCoordinate: NodeIOCoordinate
     let isCanvasItemSelected: Bool
     let choices: [String]?
-    let adjustmentBarSessionId: AdjustmentBarSessionId
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
     let isFieldInMultifieldInput: Bool
@@ -68,7 +67,6 @@ struct FieldValueNumberView: View {
                                       fieldCoordinate: fieldCoordinate,
                                       rowObserverCoordinate: rowObserverCoordinate,
                                       fieldValueNumberType: fieldValueNumberType,
-                                      adjustmentBarSessionId: adjustmentBarSessionId,
                                       isFieldInsideLayerInspector: fieldViewModel.isFieldInsideLayerInspector, 
                                       isSelectedInspectorRow: isSelectedInspectorRow,
                                       isPressed: $isButtonPressed)
@@ -81,7 +79,6 @@ struct FieldValueNumberView: View {
                                      fieldCoordinate: fieldCoordinate,
                                      isCanvasItemSelected: isCanvasItemSelected,
                                      choices: choices,
-                                     adjustmentBarSessionId: adjustmentBarSessionId,
                                      forPropertySidebar: forPropertySidebar,
                                      propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                                      isFieldInMultifieldInput: isFieldInMultifieldInput,

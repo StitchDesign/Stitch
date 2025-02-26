@@ -34,7 +34,6 @@ struct NumberValueButtonView: View {
     let fieldCoordinate: FieldCoordinate
     let rowObserverCoordinate: NodeIOCoordinate
     let fieldValueNumberType: FieldValueNumberType
-    let adjustmentBarSessionId: AdjustmentBarSessionId
     let isFieldInsideLayerInspector: Bool
     let isSelectedInspectorRow: Bool
     
@@ -48,7 +47,7 @@ struct NumberValueButtonView: View {
             .onTapGesture {
                 self.isPressed = true
             }
-            .onChange(of: self.adjustmentBarSessionId) { _, _ in
+            .onChange(of: graph.graphUI.adjustmentBarSessionId) { _, _ in
                 // `AdjustmentBarSessionId` is changed just when
                 self.isPressed = false
             }

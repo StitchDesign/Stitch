@@ -181,10 +181,6 @@ struct InputValueView: View {
         viewModel.fieldValue
     }
 
-    @MainActor var adjustmentBarSessionId: AdjustmentBarSessionId {
-        self.graph.graphUI.adjustmentBarSessionId
-    }
-
     var isFieldInsideLayerInspector: Bool {
         viewModel.isFieldInsideLayerInspector
     }
@@ -210,7 +206,6 @@ struct InputValueView: View {
                                          fieldCoordinate: fieldCoordinate,
                                          isCanvasItemSelected: isCanvasItemSelected,
                                          choices: nil,
-                                         adjustmentBarSessionId: adjustmentBarSessionId,
                                          forPropertySidebar: forPropertySidebar,
                                          propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                                          isFieldInMultifieldInput: isFieldInMultifieldInput,
@@ -228,7 +223,6 @@ struct InputValueView: View {
                                      rowObserverCoordinate: rowObserverId,
                                      isCanvasItemSelected: isCanvasItemSelected,
                                      choices: nil,
-                                     adjustmentBarSessionId: adjustmentBarSessionId,
                                      forPropertySidebar: forPropertySidebar,
                                      propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                                      isFieldInMultifieldInput: isFieldInMultifieldInput,
@@ -250,7 +244,6 @@ struct InputValueView: View {
                                                                                      nodeKind: nodeKind,
                                                                                      layerInputObserver: layerInputObserver)
                                         .map(\.rawValue),
-                                     adjustmentBarSessionId: adjustmentBarSessionId,
                                      forPropertySidebar: forPropertySidebar,
                                      propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                                      isFieldInMultifieldInput: isFieldInMultifieldInput,
@@ -269,7 +262,6 @@ struct InputValueView: View {
                                      rowObserverCoordinate: rowObserverId,
                                      isCanvasItemSelected: isCanvasItemSelected,
                                      choices: StitchSpacing.choices,
-                                     adjustmentBarSessionId: adjustmentBarSessionId,
                                      forPropertySidebar: forPropertySidebar,
                                      propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                                      isFieldInMultifieldInput: isFieldInMultifieldInput,
