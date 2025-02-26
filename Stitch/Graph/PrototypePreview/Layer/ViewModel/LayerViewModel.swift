@@ -256,15 +256,43 @@ final class LayerViewModel: Sendable {
     
     // Ephemeral state on the layer view model
     
+    @MainActor
+    var ephemeralState: LayerEphemeralState = .init()
+    
     // Canvas Sketch properties
-    @MainActor var lines: DrawingViewLines = .init()
-    @MainActor var parentSizeFromDrag: CGSize = .zero
+    @MainActor var lines: DrawingViewLines {
+        get {
+            self.ephemeralState.lines
+        } set(newValue) {
+            self.ephemeralState.lines = newValue
+        }
+    }
+    
+    @MainActor var parentSizeFromDrag: CGSize {
+        get {
+            self.ephemeralState.parentSizeFromDrag
+        } set(newValue) {
+            self.ephemeralState.parentSizeFromDrag = newValue
+        }
+    }
     
     // Text Field property
-    @MainActor var textFieldInput: String = ""
+    @MainActor var textFieldInput: String {
+        get {
+            self.ephemeralState.textFieldInput
+        } set(newValue) {
+            self.ephemeralState.textFieldInput = newValue
+        }
+    }
     
     // Switch Toggle property
-    @MainActor var isUIToggled: Bool = false
+    @MainActor var isUIToggled: Bool {
+        get {
+            self.ephemeralState.isUIToggled
+        } set(newValue) {
+            self.ephemeralState.isUIToggled = newValue
+        }
+    }
     
     // TODO: Why not initalize with proper values? If we need a 'default false/empty' LayerViewModel, do that view a separate function; and then pass in
     @MainActor
@@ -494,6 +522,9 @@ extension LayerViewModel {
            let transform = model3D.transform {
             model3D.applyMatrix(newMatrix: transform)
         }
+        
+        // Resets canvas sketch lines, text field input, toggle-state etc.
+        self.ephemeralState = .init()
     }
 
     @MainActor
