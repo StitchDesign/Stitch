@@ -62,7 +62,7 @@ extension Patch {
 
         // minimum 2 inputs
         case .add, .multiply, .divide,
-             .or, .and, .union, .arrayJoin, .subtract:
+                .or, .and, .union, .arrayJoin, .subtract, .equalsExactly:
             return 2
 
         // minimum 3 inputs (including Option slot)
@@ -89,7 +89,7 @@ extension Patch {
     var availableNodeTypes: Set<UserVisibleType> {
         switch self {
         // ALL
-        case .splitter, .loopSelect, .loopShuffle, .loopRemove, .loopInsert, .setValueForKey, .jsonObject, .jsonArray, .wirelessBroadcaster, .optionPicker, .optionEquals, .pulseOnChange, .loopBuilder, .optionSender, .loopFilter, .loopToArray, .loopReverse, .sampleAndHold, .loopDedupe, .valueAtPath, .valueAtIndex, .valueForKey:
+        case .splitter, .loopSelect, .loopShuffle, .loopRemove, .loopInsert, .setValueForKey, .jsonObject, .jsonArray, .wirelessBroadcaster, .optionPicker, .optionEquals, .pulseOnChange, .loopBuilder, .optionSender, .loopFilter, .loopToArray, .loopReverse, .sampleAndHold, .loopDedupe, .valueAtPath, .valueAtIndex, .valueForKey, .equalsExactly:
             return AllUVT.value
 
         // NUMBER

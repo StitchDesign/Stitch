@@ -211,7 +211,7 @@ extension Patch {
         case .equals:
             return .node(outputsOnlyEval(equalsEval))
         case .equalsExactly:
-            return .node(pureNodeEval(equalsExactlyEval))
+            return .node(outputsOnlyEval(equalsExactlyEval))
         case .greaterThan:
             return .node(pureNodeEval(greaterThanEval))
         case .greaterOrEqual:
