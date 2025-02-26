@@ -22,8 +22,8 @@ func equalsExactlyPatchNode(id: NodeId,
     let inputs = toInputs(
         id: id,
         values:
-            (nil, [.comparable(.number(n1))]),
-        (nil, [.comparable(.number(n2))])
+            (nil, [.number(n1)]),
+        (nil, [.number(n2)])
     )
 
     let outputValue = n1.isEqualWithinThreshold(
@@ -39,17 +39,24 @@ func equalsExactlyPatchNode(id: NodeId,
                      zIndex: zIndex,
                      id: id,
                      patchName: .equalsExactly,
+                     userVisibleType: .number,
                      inputs: inputs,
                      outputs: outputs)
 }
 
-func equalsExactlyEval(inputValues: PortValues) -> PortValues {
-
-    // Return false if failure case
-    guard let firstValue = inputValues[safe: 0]?.comparableValue,
-          let secondValue = inputValues[safe: 1]?.comparableValue else {
-        return [.bool(false)]
+@MainActor
+func equalsExactlyEval(inputs: PortValuesList,
+                       outputs: PortValuesList) -> PortValuesList {
+    
+    let op: Operation = { (values: PortValues) -> PortValue in
+        guard let firstValue = values.first else {
+            return .bool(false)
+        }
+        
+        // All values must be exactly the same as each other (fine to check against first value),
+        // otherwise we return false.
+        return .bool(values.allSatisfy({ $0 == firstValue }))
     }
-
-    return [.bool(firstValue.number == secondValue.number)]
+    
+    return resultsMaker(inputs)(op)
 }
