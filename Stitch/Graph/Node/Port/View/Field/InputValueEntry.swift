@@ -12,6 +12,7 @@ import StitchSchemaKit
 struct InputValueEntry: View {
 
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     
     @Bindable var viewModel: InputFieldViewModel
     
@@ -82,6 +83,7 @@ struct InputValueEntry: View {
     @MainActor
     var valueDisplay: some View {
         InputValueView(graph: graph,
+                       graphUI: graphUI,
                        viewModel: viewModel,
                        layerInputObserver: layerInputObserver,
                        rowObserverId: rowObserverId,
@@ -156,6 +158,7 @@ extension UnpackedPortType {
 
 struct InputValueView: View {
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     @Bindable var viewModel: InputFieldViewModel
     let layerInputObserver: LayerInputObserver?
     let rowObserverId: NodeIOCoordinate
@@ -200,6 +203,7 @@ struct InputValueView: View {
             switch fieldValue {
             case .string:
                 CommonEditingViewWrapper(graph: graph,
+                                         graphUI: graphUI,
                                          fieldViewModel: viewModel,
                                          layerInputObserver: layerInputObserver,
                                          fieldValue: fieldValue,
@@ -215,6 +219,7 @@ struct InputValueView: View {
                 
             case .number:
                 FieldValueNumberView(graph: graph,
+                                     graphUI: graphUI,
                                      fieldViewModel: viewModel,
                                      layerInputObserver: layerInputObserver,
                                      fieldValue: fieldValue,
@@ -232,6 +237,7 @@ struct InputValueView: View {
                 
             case .layerDimension(let layerDimensionField):
                 FieldValueNumberView(graph: graph,
+                                     graphUI: graphUI,
                                      fieldViewModel: viewModel,
                                      layerInputObserver: layerInputObserver,
                                      fieldValue: fieldValue,
@@ -254,6 +260,7 @@ struct InputValueView: View {
                 
             case .spacing:
                 FieldValueNumberView(graph: graph,
+                                     graphUI: graphUI,
                                      fieldViewModel: viewModel,
                                      layerInputObserver: layerInputObserver,
                                      fieldValue: fieldValue,

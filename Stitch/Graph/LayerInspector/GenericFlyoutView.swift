@@ -39,6 +39,7 @@ struct GenericFlyoutView: View {
     @State var height: CGFloat? = nil
     
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     
     // non-nil, because flyouts are always for inspector inputs
     let layerInputObserver: LayerInputObserver
@@ -79,6 +80,7 @@ struct GenericFlyoutView: View {
             blockedFields: layerInputObserver.blockedFields) { inputFieldViewModel, isMultifield in
                 GenericFlyoutRowView(
                     graph: graph,
+                    graphUI: graphUI,
                     viewModel: inputFieldViewModel,
                     layerInputObserver: layerInputObserver,
                     nodeId: nodeId,
@@ -130,6 +132,7 @@ extension LayerInputObserver {
 struct GenericFlyoutRowView: View {
     
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     let viewModel: InputFieldViewModel
         
     let layerInputObserver: LayerInputObserver
@@ -158,7 +161,7 @@ struct GenericFlyoutRowView: View {
     
     @MainActor
     var propertyRowIsSelected: Bool {
-        graph.graphUI.propertySidebar.selectedProperty == layerInspectorRowId
+        graphUI.propertySidebar.selectedProperty == layerInspectorRowId
     }
     
     var body: some View {
@@ -180,6 +183,7 @@ struct GenericFlyoutRowView: View {
                                     fieldIndex: fieldIndex)
                         
             InputValueEntry(graph: graph,
+                            graphUI: graphUI,
                             viewModel: viewModel,
                             layerInputObserver: layerInputObserver,
                             // For input editing, however, we need the proper packed vs unpacked state
@@ -200,7 +204,7 @@ struct GenericFlyoutRowView: View {
             self.isHovered = hovering
         })
         .onTapGesture {
-            graph.graphUI.onLayerPortRowTapped(
+            graphUI.onLayerPortRowTapped(
                 layerInspectorRowId: layerInspectorRowId,
                  canvasItemId: canvasItemId)
         }

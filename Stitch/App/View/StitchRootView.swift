@@ -81,7 +81,8 @@ struct StitchRootView: View {
                                     
                                     VStack(alignment: .leading) {
                                         StitchTextView(string: "Edit Project Title")
-                                        CatalystProjectTitleModalView(graph: document.visibleGraph)
+                                        CatalystProjectTitleModalView(graph: document.visibleGraph,
+                                                                      graphUI: document.graphUI)
                                     }
                                     .padding()
                                     //                                .frame(width: 260, alignment: .leading)

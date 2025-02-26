@@ -41,6 +41,7 @@ struct LayerInspectorView: View {
 #endif
     
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
 
     @State var safeAreaInsets: EdgeInsets = .init()
             
@@ -103,6 +104,7 @@ struct LayerInspectorView: View {
                             section: section,
                             layerInputs: .init(layerInputs: filteredInputs),
                             graph: graph,
+                            graphUI: graphUI,
                             nodeId: node
                         )
                     }
@@ -114,7 +116,8 @@ struct LayerInspectorView: View {
                 
                 LayerInspectorOutputsSectionView(
                     outputs: layerOutputs,
-                    graph: graph)
+                    graph: graph,
+                    graphUI: graphUI)
                 .padding(.horizontal)
                 #if targetEnvironment(macCatalyst)
                 .padding(.trailing, LAYER_INSPECTOR_ROW_SPACING + LAYER_INSPECTOR_ROW_ICON_LENGTH)
@@ -136,6 +139,7 @@ struct LayerInspectorView: View {
 struct LayerPropertyRowOriginReader: ViewModifier {
     
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     let layerInput: LayerInputPort
     
     func body(content: Content) -> some View {
@@ -148,7 +152,7 @@ struct LayerPropertyRowOriginReader: ViewModifier {
                     
                     // Guide for where to place the flyout;
                     // we read the origin even if this row doesn't support flyout.
-                    graph.graphUI.propertySidebar.propertyRowOrigins
+                    graphUI.propertySidebar.propertyRowOrigins
                         .updateValue(newValue.origin, forKey: layerInput)
                 }
             } // GeometryReader
@@ -195,6 +199,7 @@ struct LayerInspectorInputView: View {
     // `@Bindable var` (vs. `let`) seems to improve a strange issue where toggling scroll-enabled input on iPad would update the LayerInputObserver's blockedFields set but not re-render the view.
     @Bindable var layerInput: LayerInputAndObserver
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     let nodeId: NodeId
     
     var body: some View {
@@ -210,8 +215,10 @@ struct LayerInspectorInputView: View {
         if !allFieldsBlockedOut {
             LayerInspectorInputPortView(layerInputObserver: layerInputObserver,
                                         graph: graph,
+                                        graphUI: graphUI,
                                         nodeId: nodeId)
             .modifier(LayerPropertyRowOriginReader(graph: graph,
+                                                   graphUI: graphUI,
                                                    layerInput: layerInput.layerInput))
         } else {
             EmptyView()
@@ -240,6 +247,7 @@ struct LayerInspectorInputsSectionView: View {
     // This section's layer inputs, filtered to excluded any not supported by this specific layer.
     @Bindable var layerInputs: LayerInputsAndObservers
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     let nodeId: NodeId
     
     @State private var expanded = true
@@ -250,6 +258,7 @@ struct LayerInspectorInputsSectionView: View {
             ForEach(layerInputs.layerInputs, id: \.layerInput) { (layerInput: LayerInputAndObserver) in
                 LayerInspectorInputView(layerInput: layerInput,
                                         graph: graph,
+                                        graphUI: graphUI,
                                         nodeId: nodeId)
             }
             .transition(.slideInAndOut(edge: .top))
@@ -283,9 +292,9 @@ struct LayerInspectorInputsSectionView: View {
                     dispatch(LayerInspectorSectionToggled(section: section))
                     
                     layerInputs.layerInputs.forEach { layerInput in
-                        if case let .layerInput(x) = graph.graphUI.propertySidebar.selectedProperty,
+                        if case let .layerInput(x) = graphUI.propertySidebar.selectedProperty,
                            x.layerInput == layerInput.layerInput {
-                            graph.graphUI.propertySidebar.selectedProperty = nil
+                            graphUI.propertySidebar.selectedProperty = nil
                         }
                     }
                 }
@@ -298,6 +307,7 @@ struct LayerInspectorOutputsSectionView: View {
     
     var outputs: [OutputLayerNodeRowData] // layerNode.outputPorts
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     
     var body: some View {
         if outputs.isEmpty {
@@ -311,6 +321,7 @@ struct LayerInspectorOutputsSectionView: View {
                             rowViewModel: output.inspectorRowViewModel,
                             rowObserver: output.rowObserver,
                             graph: graph,
+                            graphUI: graphUI,
                             canvasItemId: output.canvasObserver?.id)
                     } else {
                         Color.clear.onAppear {

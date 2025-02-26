@@ -18,6 +18,7 @@ struct NodeInputView: View {
     @Environment(\.appTheme) var theme
     
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     
     let nodeId: NodeId
     let nodeKind: NodeKind
@@ -41,16 +42,12 @@ struct NodeInputView: View {
 
     var label: String
     var forFlyout: Bool = false
-    
-    @MainActor
-    private var graphUI: GraphUIState {
-        self.graph.graphUI
-    }
-    
+
     @ViewBuilder @MainActor
     func valueEntryView(portViewModel: InputFieldViewModel,
                         isMultiField: Bool) -> InputValueEntry {
         InputValueEntry(graph: graph,
+                        graphUI: graphUI,
                         viewModel: portViewModel,
                         layerInputObserver: layerInputObserver,
                         rowObserverId: rowObserverId,
@@ -169,6 +166,7 @@ struct ShadowInputInspectorRow: View {
 
 struct NodeOutputView: View {
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     
     @Bindable var rowObserver: OutputNodeRowObserver
     @Bindable var rowViewModel: OutputNodeRowObserver.RowViewModelType
@@ -177,11 +175,6 @@ struct NodeOutputView: View {
     let propertyIsAlreadyOnGraph: Bool
     let isCanvasItemSelected: Bool
     let label: String
-    
-    @MainActor
-    private var graphUI: GraphUIState {
-        self.graph.graphUI
-    }
     
     var nodeId: NodeId {
         self.rowObserver.id.nodeId

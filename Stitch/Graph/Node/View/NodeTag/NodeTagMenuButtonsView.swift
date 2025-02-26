@@ -16,6 +16,8 @@ struct NodeTagMenuButtonsView: View {
     @Environment(StitchStore.self) private var store
     
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var node: NodeViewModel
 
     let canvasItemId: CanvasItemId // id for Node or LayerInputOnGraph
@@ -37,11 +39,6 @@ struct NodeTagMenuButtonsView: View {
     @MainActor
     var _loopIndices: [Int] {
         loopIndices ?? self.node.getLoopIndices()
-    }
-    
-    @MainActor
-    var graphUI: GraphUIState {
-        self.graph.graphUI
     }
 
     @MainActor
@@ -368,7 +365,7 @@ struct NodeTagMenuButtonsView: View {
         if let linkedSystem = self.store.systems.findSystem(forComponent: component.id) {
             return nodeTagMenuButton(label: "Unlink Component") {
                 do {
-                    try self.graph.documentDelegate?.unlinkComponent(localComponent: component)
+                    try self.document.unlinkComponent(localComponent: component)
                 } catch {
                     log(error.localizedDescription)
                 }

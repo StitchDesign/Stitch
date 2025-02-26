@@ -19,6 +19,7 @@ struct ShadowFlyoutView: View {
     @Bindable var node: NodeViewModel
     @Bindable var layerNode: LayerNodeViewModel
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     
     var body: some View {
         
@@ -41,7 +42,8 @@ struct ShadowFlyoutView: View {
                                     nodeKind: node.kind,
                                     shadowInput: shadowInput,
                                     layerInputObserver: layerNode[keyPath: shadowInput.layerNodeKeyPath],
-                                    graph: graph)
+                                    graph: graph,
+                                    graphUI: graphUI)
             } // ForEach
         }
     }
@@ -56,6 +58,7 @@ struct ShadowFlyoutRowView: View {
     let layerInputObserver: LayerInputObserver
     
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     
     @State var isHovered = false
     
@@ -83,7 +86,7 @@ struct ShadowFlyoutRowView: View {
     }
     
     var propertyRowIsSelected: Bool {
-        graph.graphUI.propertySidebar.selectedProperty == layerInspectorRowId
+        graphUI.propertySidebar.selectedProperty == layerInspectorRowId
     }
     
     var isShadowOffsetRow: Bool {
@@ -109,6 +112,7 @@ struct ShadowFlyoutRowView: View {
             .offset(y: isShadowOffsetRow ? INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET : 0)
             
             NodeInputView(graph: graph,
+                          graphUI: graphUI,
                           nodeId: nodeId,
                           nodeKind: nodeKind,
                           hasIncomingEdge: false,
@@ -136,7 +140,7 @@ struct ShadowFlyoutRowView: View {
             self.isHovered = hovering
         })
         .onTapGesture {
-            graph.graphUI.onLayerPortRowTapped(
+            graphUI.onLayerPortRowTapped(
                 layerInspectorRowId: layerInspectorRowId,
                 canvasItemId: canvasItemId)
         }

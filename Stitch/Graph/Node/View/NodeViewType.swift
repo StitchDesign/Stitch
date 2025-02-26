@@ -15,6 +15,7 @@ struct NodeTypeView: View {
     
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     @Bindable var node: NodeViewModel
     @Bindable var canvasNode: CanvasItemViewModel
     let atleastOneCommentBoxSelected: Bool
@@ -46,6 +47,7 @@ struct NodeTypeView: View {
                  stitch: node,
                  document: document,
                  graph: graph,
+                 graphUI: graphUI,
                  isSelected: isSelected,
                  atleastOneCommentBoxSelected: atleastOneCommentBoxSelected,
                  activeGroupId: groupNodeFocused,
@@ -74,6 +76,7 @@ struct NodeTypeView: View {
                     .padding(.trailing, NODE_BODY_SPACING)
             } else {
                 DefaultNodeInputView(graph: graph,
+                                     graphUI: graphUI,
                                      document: document,
                                      node: node,
                                      canvas: canvasNode,
@@ -92,6 +95,7 @@ struct NodeTypeView: View {
                     .padding(.leading, NODE_BODY_SPACING)
             } else {
                 DefaultNodeOutputView(graph: graph,
+                                      graphUI: graphUI,
                                       document: document,
                                       node: node,
                                       canvas: canvasNode,
@@ -104,6 +108,7 @@ struct NodeTypeView: View {
 struct DefaultNodeInputView: View {
     
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     @Bindable var document: StitchDocumentViewModel
     @Bindable var node: NodeViewModel
     @Bindable var canvas: CanvasItemViewModel
@@ -126,6 +131,7 @@ struct DefaultNodeInputView: View {
                                     rowViewModel: rowViewModel)
                     
                     NodeInputView(graph: graph,
+                                  graphUI: graphUI,
                                   nodeId: node.id,
                                   nodeKind: node.kind,
                                   hasIncomingEdge: rowObserver.upstreamOutputCoordinate.isDefined,
@@ -149,6 +155,7 @@ struct DefaultNodeInputView: View {
 struct DefaultNodeOutputView: View {
     
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     @Bindable var document: StitchDocumentViewModel
     @Bindable var node: NodeViewModel
     @Bindable var canvas: CanvasItemViewModel
@@ -162,6 +169,7 @@ struct DefaultNodeOutputView: View {
 //            NodeLayoutView(observer: rowViewModel) {
                 HStack {
                     NodeOutputView(graph: graph,
+                                   graphUI: graphUI,
                                    rowObserver: rowObserver,
                                    rowViewModel: rowViewModel,
                                    forPropertySidebar: false,

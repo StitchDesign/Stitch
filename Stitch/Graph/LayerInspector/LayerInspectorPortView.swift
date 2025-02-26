@@ -11,6 +11,7 @@ import StitchSchemaKit
 struct LayerInspectorInputPortView: View {
     @Bindable var layerInputObserver: LayerInputObserver
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     let nodeId: NodeId
     
     var fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>] {
@@ -45,8 +46,10 @@ struct LayerInspectorInputPortView: View {
             layerInspectorRowId: layerInspectorRowId,
             coordinate: coordinate,
             graph: graph,
+            graphUI: graphUI,
             canvasItemId: canvasItemId) { propertyRowIsSelected in
                 NodeInputView(graph: graph,
+                              graphUI: graphUI,
                               nodeId: nodeId,
                               nodeKind: .layer(layerInputObserver.layer),
                               hasIncomingEdge: false, // always false
@@ -79,6 +82,7 @@ struct LayerInspectorOutputPortView: View {
     @Bindable var rowViewModel: OutputNodeRowViewModel
     @Bindable var rowObserver: OutputNodeRowObserver
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     
     let canvasItemId: CanvasItemId?
     
@@ -99,9 +103,11 @@ struct LayerInspectorOutputPortView: View {
             layerInputObserver: nil,
             layerInspectorRowId: .layerOutput(rowViewModel.id.portId),
             coordinate: coordinate,
-            graph: graph, 
+            graph: graph,
+            graphUI: graphUI,
             canvasItemId: canvasItemId) { propertyRowIsSelected in
                 NodeOutputView(graph: graph,
+                               graphUI: graphUI,
                                rowObserver: rowObserver,
                                rowViewModel: rowViewModel,
                                forPropertySidebar: true,
@@ -130,6 +136,7 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
     
     let coordinate: NodeIOCoordinate
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     
     // non-nil = this row is present on canvas
     // NOTE: apparently, the destruction of a weak var reference does NOT trigger a SwiftUI view update; so, avoid using delegates in the UI body.
@@ -143,7 +150,7 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
     // Is this property-row selected?
     @MainActor
     var propertyRowIsSelected: Bool {
-        graph.graphUI.propertySidebar.selectedProperty == layerInspectorRowId
+        graphUI.propertySidebar.selectedProperty == layerInspectorRowId
     }
     
     var isOnGraphAlready: Bool {
@@ -193,6 +200,7 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
         })
         .contentShape(Rectangle())
         .modifier(LayerInspectorPortViewTapModifier(graph: graph,
+                                                    graphUI: graphUI,
                                                     isAutoLayoutRow: layerInputObserver?.port == .orientation,
                                                     layerInspectorRowId: layerInspectorRowId,
                                                     canvasItemId: canvasItemId))
@@ -203,6 +211,7 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
 struct LayerInspectorPortViewTapModifier: ViewModifier {
     
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     let isAutoLayoutRow: Bool
     let layerInspectorRowId: LayerInspectorRowId
     let canvasItemId: CanvasItemId?
@@ -223,7 +232,7 @@ struct LayerInspectorPortViewTapModifier: ViewModifier {
         } else {
             content.gesture(TapGesture().onEnded({ _ in
                 log("LayerInspectorPortView tapped")
-                graph.graphUI.onLayerPortRowTapped(
+                graphUI.onLayerPortRowTapped(
                     layerInspectorRowId: layerInspectorRowId,
                     canvasItemId: canvasItemId)
             }))

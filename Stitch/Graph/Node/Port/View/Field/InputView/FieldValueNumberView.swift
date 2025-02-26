@@ -12,6 +12,7 @@ import StitchSchemaKit
 struct FieldValueNumberView: View {
     
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     @Bindable var fieldViewModel: InputFieldViewModel
     let layerInputObserver: LayerInputObserver?
     let fieldValue: FieldValue
@@ -63,7 +64,7 @@ struct FieldValueNumberView: View {
                 // Default to zero if "auto" currently selected
                 // Limit renders by not passing in number value unless button pressed
                 NumberValueButtonView(graph: graph,
-                                      graphUI: graph.graphUI,
+                                      graphUI: graphUI,
                                       value: isButtonPressed ? fieldValue.numberValue : .zero,
                                       fieldCoordinate: fieldCoordinate,
                                       rowObserverCoordinate: rowObserverCoordinate,
@@ -74,6 +75,7 @@ struct FieldValueNumberView: View {
             }
             
             CommonEditingViewWrapper(graph: graph,
+                                     graphUI: graphUI,
                                      fieldViewModel: fieldViewModel,
                                      layerInputObserver: layerInputObserver,
                                      fieldValue: fieldValue,

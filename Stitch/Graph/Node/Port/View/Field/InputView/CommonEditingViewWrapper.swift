@@ -11,6 +11,7 @@ import StitchSchemaKit
 struct CommonEditingViewWrapper: View {
     
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     @Bindable var fieldViewModel: InputFieldViewModel
     let layerInputObserver: LayerInputObserver?
     let fieldValue: FieldValue
@@ -83,6 +84,7 @@ struct CommonEditingViewWrapper: View {
                           layerInputObserver: layerInputObserver,
                           inputString: stringValue,
                           graph: graph,
+                          graphUI: graphUI,
                           fieldIndex: fieldCoordinate.fieldIndex,
                           isCanvasItemSelected: isCanvasItemSelected,
                           choices: choices,

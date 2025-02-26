@@ -14,6 +14,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
     @Bindable var stitch: NodeViewModel
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     let isSelected: Bool
     let atleastOneCommentBoxSelected: Bool
     let activeGroupId: GroupNodeType?
@@ -68,6 +69,8 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
             // Catalyst right-click to open node tag menu
                 .contextMenu {
                     NodeTagMenuButtonsView(graph: graph,
+                                           graphUI: graphUI,
+                                           document: document,
                                            node: stitch,
                                            canvasItemId: node.id,
                                            activeGroupId: activeGroupId,
@@ -81,8 +84,8 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
                     onSingleTap: {
                         // deselect any fields; NOTE: not used on GroupNodes due to .simultaneousGesture
                         if !self.stitch.kind.isGroup,
-                           graph.graphUI.reduxFocusedField != nil {
-                            graph.graphUI.reduxFocusedField = nil
+                           graphUI.reduxFocusedField != nil {
+                            graphUI.reduxFocusedField = nil
                         }
                         
                         // and select just the node
@@ -104,6 +107,8 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
                     if isSelected {
                         CanvasItemTag(node: node,
                                       graph: graph,
+                                      graphUI: graphUI,
+                                      document: document,
                                       stitch: stitch,
                                       activeGroupId: activeGroupId,
                                       sortedUserTypeChoices: sortedUserTypeChoices,
@@ -278,6 +283,8 @@ struct CanvasItemBackground: ViewModifier {
 struct CanvasItemTag: View {
     @Bindable var node: CanvasItemViewModel
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var stitch: NodeViewModel
     let activeGroupId: GroupNodeType?
     var sortedUserTypeChoices: [UserVisibleType] = []
@@ -287,6 +294,8 @@ struct CanvasItemTag: View {
     
     @ViewBuilder var nodeTagMenu: NodeTagMenuButtonsView {
         NodeTagMenuButtonsView(graph: graph,
+                               graphUI: graphUI,
+                               document: document,
                                node: stitch,
                                canvasItemId: node.id,
                                activeGroupId: activeGroupId,
