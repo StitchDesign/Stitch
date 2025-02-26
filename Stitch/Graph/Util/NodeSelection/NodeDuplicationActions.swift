@@ -14,36 +14,49 @@ struct CopyPasteGraphDestinationInfo: Equatable {
     let destinationGraphOffset: CGPoint
     let destinationGraphFrame: CGRect
     let destinationGraphScale: CGFloat
+    let destinationGraphTraversalLevel: NodeId?
 }
 
-
+/// Adjust the position of pasted nodes, so that they are pasted in viewport.
 @MainActor
 func adjustPastedNodesPositions(pastedNodes: [NodeEntity],
                                 destinationGraphOffset: CGPoint,
                                 destinationGraphFrame: CGRect,
-                                destinationGraphScale: CGFloat) -> [NodeEntity] {
+                                destinationGraphScale: CGFloat,
+                                destinationGraphTraversalLevel: NodeId?) -> [NodeEntity] {
 
-    // Adjust the position of pasted nodes,
-    // so that they are pasted in views
-    let nodesCount = pastedNodes.count
-
+    let isAtThisTraversalLevel = { (canvasEntity: CanvasNodeEntity) -> Bool in
+        canvasEntity.parentGroupNodeId == destinationGraphTraversalLevel
+    }
+    
+    // Note: We only want to look at number of pasted canvas items present at destination graph's current traversal level.
+    // So e.g. if pasting 2 GroupNodes and each GroupNode had 10 children, the canvasItemCount should be 2, not 20 or 22.
+    let canvasItemCount = pastedNodes.reduce(0) { partialResult, nodeEntity in
+        partialResult + nodeEntity.canvasEntities.filter(isAtThisTraversalLevel).count
+    }
+    
     let averageX = zeroCompatibleDivision(
         numerator: pastedNodes.reduce(0.0) { partialResult, nodeSchema in
-            partialResult + nodeSchema.canvasEntities.reduce(0.0) { $0 + $1.position.x }
+            partialResult + nodeSchema.canvasEntities.filter(isAtThisTraversalLevel).reduce(0.0) { $0 + $1.position.x }
         },
-        denominator: CGFloat(nodesCount))
+        denominator: CGFloat(canvasItemCount))
 
     let averageY = zeroCompatibleDivision(
         numerator: pastedNodes.reduce(0.0) { partialResult, nodeSchema in
-            partialResult + nodeSchema.canvasEntities.reduce(0.0) { $0 + $1.position.y }
+            partialResult + nodeSchema.canvasEntities.filter(isAtThisTraversalLevel).reduce(0.0) { $0 + $1.position.y }
         },
-        denominator: CGFloat(nodesCount))
+        denominator: CGFloat(canvasItemCount))
     
     
     return pastedNodes.reduce(into: [NodeEntity]()) { acc, node in
         var node = node
 
         node = node.canvasEntityMap { canvasEntity in
+            
+            // Do not modify position of pasted canvas items that are not at the destination graph's current traversal level
+            guard isAtThisTraversalLevel(canvasEntity) else {
+                return canvasEntity
+            }
             
             var canvasEntity = canvasEntity
             
@@ -176,7 +189,8 @@ extension GraphState {
             component: component,
             destinationGraphInfo: isCopyPaste ? .init(destinationGraphOffset: self.localPosition,
                                                       destinationGraphFrame: self.graphUI.frame,
-                                                      destinationGraphScale: self.graphMovement.zoomData.zoom) : nil
+                                                      destinationGraphScale: self.graphMovement.zoomData.zoom,
+                                                      destinationGraphTraversalLevel: self.groupNodeFocused) : nil
         )
         
         guard let document = self.documentDelegate else {
@@ -236,7 +250,8 @@ extension GraphState {
                 pastedNodes: newComponent.graph.nodes,
                 destinationGraphOffset: destinationGraphInfo.destinationGraphOffset,
                 destinationGraphFrame: destinationGraphInfo.destinationGraphFrame,
-                destinationGraphScale: destinationGraphInfo.destinationGraphScale)
+                destinationGraphScale: destinationGraphInfo.destinationGraphScale,
+                destinationGraphTraversalLevel: destinationGraphInfo.destinationGraphTraversalLevel)
         }
         
         // else is duplication, which uses staggering strategy for node re-positioning
@@ -265,12 +280,15 @@ extension GraphState {
         newComponent.nodes.map {
             $0.canvasEntityMap { canvasItem in
                 var canvasItem = canvasItem
-                let isTopLevel = canvasItem.parentGroupNodeId == nil
-                guard isTopLevel else {
+                // Note: suppose that the canvas item we copied from the origin project was actually in a group node, but we did not copy that group node.
+                // The pasted canvas item will have `parentGroupNodeId = nil` since we did not bring its parent along.
+                // TODO: write a test that demonstrates this
+                if canvasItem.parentGroupNodeId == nil {
+                    canvasItem.parentGroupNodeId = focusedGroupNode
+                    return canvasItem
+                } else {
                     return canvasItem
                 }
-                canvasItem.parentGroupNodeId = focusedGroupNode
-                return canvasItem
             }
         }
     }
