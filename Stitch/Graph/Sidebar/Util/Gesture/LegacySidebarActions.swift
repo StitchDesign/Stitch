@@ -82,19 +82,18 @@ extension ProjectSidebarObservable {
         // Focus sidebar
         graph.isSidebarFocused = true
         
-//        if state.keypressState.isOptionPressed && state.sidebarSelectionState.haveDuplicated {
-//        if state.keypressState.isOptionPressed && state.sidebarSelectionState.optionDragInProgress {
-        if state.selectionState.optionDragInProgress {
-            // If we're currently doing an option+drag, then item needs to just be the top
-            log("SidebarListItemDragged: had option drag and have already duplicated the layers")
-            
-            if let selectedItemIdWithSmallestIndex = self.findSetItemWithSmallestIndex(
-                from: state.selectionState.primary),
-               let selectedItemWithSmallestIndex = self.items.get(selectedItemIdWithSmallestIndex) {
-                log("SidebarListItemDragged: had option drag, will use selectedItemWithSmallestIndex \(selectedItemWithSmallestIndex) as itemId")
-                draggedItem = selectedItemWithSmallestIndex
-            }
-        }
+        // TODO: debug and reintroduce option-duge drag in sidebar
+//        if state.selectionState.optionDragInProgress {
+//            // If we're currently doing an option+drag, then item needs to just be the top
+//            log("SidebarListItemDragged: had option drag and have already duplicated the layers")
+//            
+//            if let selectedItemIdWithSmallestIndex = self.findSetItemWithSmallestIndex(
+//                from: state.selectionState.primary),
+//               let selectedItemWithSmallestIndex = self.items.get(selectedItemIdWithSmallestIndex) {
+//                log("SidebarListItemDragged: had option drag, will use selectedItemWithSmallestIndex \(selectedItemWithSmallestIndex) as itemId")
+//                draggedItem = selectedItemWithSmallestIndex
+//            }
+//        }
         
         let focusedLayers = state.selectionState.primary
         
@@ -104,23 +103,24 @@ extension ProjectSidebarObservable {
             state.sidebarItemSelectedViaEditMode(draggedItem.id)
             state.selectionState.lastFocused = draggedItem.id
         }
-                
-        if graph.keypressState.isOptionPressed
-            && !state.selectionState.haveDuplicated
-            && !state.selectionState.optionDragInProgress {
-            log("SidebarListItemDragged: option held during drag; will duplicate layers")
-            
-            // duplicate the items
-            // NOTE: will this be okay even though secretly async?, seems to work fine with option+node drag;
-            // also, it aready updates the selected and focused sidebar layers etc.
-            
-            // But will the user's cursor still be on / under the original layer ?
-            state.graphDelegate?.sidebarSelectedItemsDuplicated(isOptionDrag: true)
-            state.selectionState.haveDuplicated = true
-            state.selectionState.optionDragInProgress = true
-            
-            return
-        }
+           
+        // TODO: debug and reintroduce option-duge drag in sidebar
+//        if graph.keypressState.isOptionPressed
+//            && !state.selectionState.haveDuplicated
+//            && !state.selectionState.optionDragInProgress {
+//            log("SidebarListItemDragged: option held during drag; will duplicate layers")
+//            
+//            // duplicate the items
+//            // NOTE: will this be okay even though secretly async?, seems to work fine with option+node drag;
+//            // also, it aready updates the selected and focused sidebar layers etc.
+//            
+//            // But will the user's cursor still be on / under the original layer ?
+//            state.graphDelegate?.sidebarSelectedItemsDuplicated(isOptionDrag: true)
+//            state.selectionState.haveDuplicated = true
+//            state.selectionState.optionDragInProgress = true
+//            
+//            return
+//        }
         
         // If we have multiple layers already selected and are dragging one of these already-selected layers,
         // we create a "stack" (reorganization of selected layers) and treat the first layer in the stack as the user-dragged layer.
