@@ -671,6 +671,7 @@
 		EC98326B2B69D324003F9462 /* PossibleEdgesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC98326A2B69D324003F9462 /* PossibleEdgesView.swift */; };
 		EC991F6B2937D55600AE0A45 /* ArrayJoinNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC991F6A2937D55600AE0A45 /* ArrayJoinNode.swift */; };
 		EC991F6D2937DC3F00AE0A45 /* ArrayReverseNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC991F6C2937DC3F00AE0A45 /* ArrayReverseNode.swift */; };
+		EC9A48DC2D6FC2D2006A1FC9 /* LayerEphemeralState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9A48DB2D6FC2D2006A1FC9 /* LayerEphemeralState.swift */; };
 		EC9AB1372BD4299500F22730 /* PreviewWindowDeviceUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9AB1362BD4299500F22730 /* PreviewWindowDeviceUtils.swift */; };
 		EC9AB63D28DFE33A002810BC /* LayerDragEndedActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9AB63C28DFE33A002810BC /* LayerDragEndedActions.swift */; };
 		EC9AB63F28DFE66A002810BC /* ScrollFoundation.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9AB63E28DFE66A002810BC /* ScrollFoundation.swift */; };
@@ -1625,6 +1626,7 @@
 		EC98326A2B69D324003F9462 /* PossibleEdgesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PossibleEdgesView.swift; sourceTree = "<group>"; };
 		EC991F6A2937D55600AE0A45 /* ArrayJoinNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrayJoinNode.swift; sourceTree = "<group>"; };
 		EC991F6C2937DC3F00AE0A45 /* ArrayReverseNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrayReverseNode.swift; sourceTree = "<group>"; };
+		EC9A48DB2D6FC2D2006A1FC9 /* LayerEphemeralState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerEphemeralState.swift; sourceTree = "<group>"; };
 		EC9AB1362BD4299500F22730 /* PreviewWindowDeviceUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewWindowDeviceUtils.swift; sourceTree = "<group>"; };
 		EC9AB63C28DFE33A002810BC /* LayerDragEndedActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerDragEndedActions.swift; sourceTree = "<group>"; };
 		EC9AB63E28DFE66A002810BC /* ScrollFoundation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollFoundation.swift; sourceTree = "<group>"; };
@@ -3226,6 +3228,7 @@
 				ECB7B5D22A72DD9400E2D30B /* NodePageData.swift */,
 				ECB7B5D02A72DD7600E2D30B /* NodeViewModelType.swift */,
 				B5368D122A886C1900FE3489 /* InteractionLayer.swift */,
+				EC9A48DB2D6FC2D2006A1FC9 /* LayerEphemeralState.swift */,
 				EC1D03BE2CFF89E90094EE9F /* NativeScrollInteractionLayer.swift */,
 			);
 			path = ViewModel;
@@ -5160,6 +5163,7 @@
 				ECD1F6C32965FDCC00DBD9A8 /* CubicBezierCurveNode.swift in Sources */,
 				EC9AB64528DFE99B002810BC /* ScrollFreeInteractionHelpers.swift in Sources */,
 				B5E28AEE2A7AB9180007C0CB /* ProjectToolbar.swift in Sources */,
+				EC9A48DC2D6FC2D2006A1FC9 /* LayerEphemeralState.swift in Sources */,
 				EC609DCE29354C6E00BF60A5 /* LengthNode.swift in Sources */,
 				ECC30E122C234E8800F0F54C /* CanvasItemViewModel.swift in Sources */,
 				EC004DD12B449D0700C5DB33 /* CanvasSketchView.swift in Sources */,
