@@ -396,7 +396,8 @@ struct NodeTagMenuButtonsView: View {
         
         return nodeTagMenuButton(label: visitLabel) {
             if let nodeId = canvasItemId.nodeCase {
-                dispatch(GroupNodeDoubleTapped(id: nodeId))
+                graph.groupNodeDoubleTapped(id: nodeId,
+                                            graphUI: graphUI)
             }
         }
     }

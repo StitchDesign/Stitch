@@ -92,7 +92,8 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
                         node.isTapped(document: document)
                     },
                     onDoubleTap: {
-                        dispatch(GroupNodeDoubleTapped(id: stitch.id))
+                        graph.groupNodeDoubleTapped(id: stitch.id,
+                                                    graphUI: graphUI)
                     },
                     isGroup: self.stitch.kind.isGroup))
             
