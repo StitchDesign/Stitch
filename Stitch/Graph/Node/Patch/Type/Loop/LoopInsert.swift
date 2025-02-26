@@ -92,16 +92,24 @@ func loopInsertEval(node: PatchNode,
 
     let defaultFirstInputs: PortValues = [.color(.red), .color(.yellow), .color(.blue), .color(.green)]
 
-    let inputsValues = node.inputs
-    let outputsValues = node.outputs
+    //if the outputs are empty (when we reset/open a graph); just provide the inputs instead
+    //outputs = inputs
+    //to match origimai
+    
+    let inputsValues: PortValuesList = node.inputs
+    var outputsValues: PortValuesList = node.outputs
+    
+    let firstOutput: PortValues? = outputsValues.first
+    
+    if (firstOutput?.isEmpty == true) || (firstOutput?.first == nil) {
+        outputsValues = inputsValues
+    }
+    
     let graphTime = graphStep.graphTime
 
     // Apparently: If ANY indices pulsed, then we insert.
-    let shouldPulse: Bool = (inputsValues[safe: 3] ?? []).contains { (value: PortValue) -> Bool in
-        if let pulseAt = value.getPulse {
-            return pulseAt.shouldPulse(graphTime)
-        }
-        return false
+    let shouldPulse: Bool = (inputsValues[safe: 3] ?? []).contains { value in
+        value.getPulse?.shouldPulse(graphTime) ?? false
     }
 
     let currentInput = inputsValues.first ?? defaultFirstInputs
