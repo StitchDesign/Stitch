@@ -62,7 +62,8 @@ extension Patch {
 
         // minimum 2 inputs
         case .add, .multiply, .divide,
-                .or, .and, .union, .arrayJoin, .subtract, .equalsExactly:
+                .or, .and, .union, .arrayJoin, .subtract,
+                .equalsExactly, .greaterThan, .greaterOrEqual, .lessThan, .lessThanOrEqual:
             return 2
 
         // minimum 3 inputs (including Option slot)
