@@ -20,56 +20,19 @@ struct GraphMovementViewModifier: ViewModifier {
 
             // Note: `initial: true` seemed to fire only upon first opening of a given project after app re-opened, and not upon every opening of the project?
             .onChange(of: groupNodeFocused) { oldValue, newValue in
-                
-                log("onChange of groupNodeFocused: oldValue: \(oldValue)")
-                log("onChange of groupNodeFocused: newValue: \(newValue)")
-                log("onChange of groupNodeFocused: self.graphMovement.localPosition; was \(self.graphMovement.localPosition) )")
-                log("onChange of groupNodeFocused: currentNodePage.localPosition: \(currentNodePage.localPosition))")
-                log("onChange of groupNodeFocused: currentNodePage.zoomData: \(currentNodePage.zoomData))")
-                
                 dispatch(SetGraphScrollDataUponPageChange(
                     newPageLocalPosition: currentNodePage.localPosition,
                     newPageZoom: currentNodePage.zoomData
                 ))
-                
-                
-                // curentNodePage local position is default rather than persisted local position when graph first opened
-//                self.graphMovement.localPosition = currentNodePage.localPosition
-//                self.graphMovement.localPreviousPosition = currentNodePage.localPosition
-//                self.graphMovement.zoomData = currentNodePage.zoomData
-                
-                /*
-                 Set all nodes visible for the field updates, since when we enter the new traversal level
-                 our infiniteCanvasCache may not yet have entries for canvas items at this level.
-                 
-                 Then, do the actual determination of onscreen nodes.
-                 
-                 (Similar to how, when first loading a project, we set all nodes visible before we call updateVisibleNodes to actually determine on- vs offscreen nodes.)
-                 
-                 Resolves:
-                 - https://github.com/StitchDesign/Stitch--Old/issues/6787
-                 - https://github.com/StitchDesign/Stitch--Old/issues/6779
-                 
-                 */
-//                self.graph.visibleNodesViewModel.setAllNodesVisible()
-//                
-//                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak graph] in
-//                    graph?.updateVisibleNodes()
-//                }
             }
-        
-        //  these should only be updated by `GraphScrollDataUpdated` ?
+
+            // TODO: either update these `graphMovement: GraphMovementObserver` in `GraphScrollDataUpdated` OR get rid of GraphMovementObserver completely and merely rely on node-page's offset and zoom
             .onChange(of: graphMovement.localPosition) { _, newValue in
-                log("onChange of graphMovement.localPosition: \(graphMovement.localPosition)")
-                log("onChange of graphMovement.localPosition: level \(graph.graphUI.groupNodeFocused)")
-                
                 currentNodePage.localPosition = graphMovement.localPosition
-                
                 self.graph.updateVisibleNodes()
             }
             .onChange(of: graphMovement.zoomData) { _, newValue in
                 currentNodePage.zoomData = graphMovement.zoomData
-                
                 self.graph.updateVisibleNodes()
             }
     }

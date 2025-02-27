@@ -12,21 +12,8 @@ import StitchEngine
 
 let STITCH_PROJECT_DEFAULT_NAME = StitchDocument.defaultName
 
-//final class StitchUIScrollViewWrapper: NSObject {
-//    // Should this be nil
-//    let scrollView: UIScrollView?
-//    
-//    init(_ scrollView: UIScrollView?) {
-//        self.scrollView = scrollView
-//    }
-//}
-
 @Observable
 final class StitchDocumentViewModel: Sendable {
-//    
-//    var stitchUIScrollView = StitchUIScrollViewWrapper(nil)
-//
-    
     let rootId: UUID
     let isDebugMode: Bool
     let graph: GraphState

@@ -667,10 +667,8 @@ extension StitchDocumentViewModel {
     @MainActor
     var localPosition: CGPoint {
         get {
-            log("StitchDocument: localPosition: get: \(self.graphMovement.localPosition)")
             return self.graphMovement.localPosition
         } set {
-            log("StitchDocument: localPosition: set newValue: \(newValue)")
             self.graphMovement.localPosition = newValue
         }
     }

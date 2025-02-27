@@ -34,23 +34,6 @@ enum FocusedFieldChangedByArrowKey: Equatable, Hashable {
          downArrow // decrement
 }
 
-struct SetGraphScrollDataUponPageChange: GraphEvent {
-    let newPageLocalPosition: CGPoint
-    let newPageZoom: CGFloat
-    
-    func handle(state: GraphState) {
-        log("SetGraphScrollDataUponPageChange: newPageLocalPosition: \(newPageLocalPosition)")
-        log("SetGraphScrollDataUponPageChange: newPageZoom: \(newPageZoom)")
-        state.graphUI.canvasPageOffsetChanged = newPageLocalPosition
-        state.graphUI.canvasPageZoomScaleChanged = newPageZoom
-        
-        state.visibleNodesViewModel.setAllNodesVisible()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak state] in
-            state?.updateVisibleNodes()
-        }
-    }
-}
 
 @Observable
 final class GraphUIState: Sendable {
