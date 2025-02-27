@@ -45,10 +45,10 @@ func trimTextEval(inputs: PortValuesList,
         let length: Int = Int(values[safe: 2]?.getNumber ?? .zero)
 
         if position > (text.count - 1) {
-            log("trimTextEval: position too far")
+            // log("trimTextEval: position too far")
             return .string(.init(""))
         } else if length > text.count {
-            log("trimTextEval: length too large for text")
+            // log("trimTextEval: length too large for text")
             return .string(.init(text))
         } else {
 
@@ -57,9 +57,9 @@ func trimTextEval(inputs: PortValuesList,
             let newSub = text.substring(from: position)
 
             if length > newSub.count {
-                log("trimTextEval: length too large for substring")
+                // log("trimTextEval: length too large for substring")
                 let s = newSub[newSub.startIndex...newSub.endIndex]
-                log("trimTextEval: length too large for substring: s: \(s)")
+                // log("trimTextEval: length too large for substring: s: \(s)")
                 return .string(.init(String(s)))
             }
 
@@ -68,9 +68,9 @@ func trimTextEval(inputs: PortValuesList,
             let sub = text.substring(
                 with: position..<endPosition)
 
-            log("trimTextEval: position: \(position)")
-            log("trimTextEval: endPosition: \(endPosition)")
-            log("trimTextEval: sub: \(sub)")
+            // log("trimTextEval: position: \(position)")
+            // log("trimTextEval: endPosition: \(endPosition)")
+            // log("trimTextEval: sub: \(sub)")
             return .string(.init(sub))
         }
     }

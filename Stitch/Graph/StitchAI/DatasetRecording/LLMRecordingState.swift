@@ -109,15 +109,13 @@ extension StitchDocumentViewModel {
         
         // Are these steps valid?
         // invalid = e.g. tried to create a connection for a node before we created that node
-    
         do {
             try actions.validateLLMSteps()
         } catch let error as StitchAIManagerError {
-            log("validateAndApplyActions: will show edit modal: invalid actions: \(actions)")
             // immediately enter correction-mode: one of the actions, or perhaps the ordering, was incorrect
             self.llmRecording.actionsError = error.description
             self.startLLMAugmentationMode()
-            
+            log("validateAndApplyActions: hit error when validating LLM-actions: \(actions) ... error was: \(error)")
             throw error
         }
         
@@ -127,7 +125,7 @@ extension StitchDocumentViewModel {
             } catch let error as StitchFileError {
                 self.llmRecording.actionsError = error.localizedDescription
                 self.startLLMAugmentationMode()
-                
+                log("validateAndApplyActions: encountered error while trying to apply LLM-actions: \(error)")
                 throw error
             }
         }
@@ -147,8 +145,7 @@ extension StitchDocumentViewModel {
         
         guard let depthMap = depthMap,
               !hasCycle else {
-            // TODO: JAN 31: if the model created a cycle... should we retry? or is that okay?
-            fatalErrorIfDebug("Had cycle or could not create depth-map")
+            fatalErrorIfDebug("Did not have a cycle but was not able create depth-map")
             return
         }
                         
@@ -176,15 +173,15 @@ extension StitchDocumentViewModel {
             createdNodesAtThisLevel.enumerated().forEach { x in
                 let createdNode = x.element
                 let createdNodeIndexAtThisDepthLevel = x.offset
-                log("createdNode.id: \(createdNode.id)")
-                log("createdNodeIndexAtThisDepthLevel: \(createdNodeIndexAtThisDepthLevel)")
+                // log("positionAIGeneratedNodes: createdNode.id: \(createdNode.id)")
+                // log("positionAIGeneratedNodes: createdNodeIndexAtThisDepthLevel: \(createdNodeIndexAtThisDepthLevel)")
                 createdNode.getAllCanvasObservers().enumerated().forEach { canvasItemAndIndex in
                     let newPosition =  CGPoint(
                         x: self.viewPortCenter.x + (CGFloat(depthLevel) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER),
                         y: self.viewPortCenter.y + (CGFloat(canvasItemAndIndex.offset) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER) + (CGFloat(createdNodeIndexAtThisDepthLevel) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER)
                     )
-                    log("canvasItemAndIndex.element.id: \(canvasItemAndIndex.element.id)")
-                    log("newPosition: \(newPosition)")
+                    // log("positionAIGeneratedNodes: canvasItemAndIndex.element.id: \(canvasItemAndIndex.element.id)")
+                    // log("positionAIGeneratedNodes: newPosition: \(newPosition)")
                     canvasItemAndIndex.element.position = newPosition
                     canvasItemAndIndex.element.previousPosition = newPosition
                 }
