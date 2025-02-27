@@ -35,14 +35,3 @@ struct GraphDoubleTappedAction: StitchDocumentEvent {
         // log("GraphDoubleTappedAction: state.doubleTapLocation is now: \(state.doubleTapLocation)")
     }
 }
-
-extension GraphMovementObserver {
-    @MainActor func centerViewOnNode(frame: CGRect,
-                          position: CGPoint) {
-
-        // the size of the screen and nodeView
-        let newLocation = calculateMove(frame, position)
-        self.localPosition = newLocation
-        self.localPreviousPosition = newLocation
-    }
-}

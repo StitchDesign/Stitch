@@ -54,15 +54,6 @@ extension StitchDocumentViewModel {
             gestureTranslation: translation.toCGSize,
             wasTrackpadScroll: wasTrackpadScroll)
     }
-
-    /// Fixes issue where tap gestures need to be registered in UKit to stop a graph jumpiness bug.
-    /// Tapping the graph should stop momentum.
-    @MainActor
-    func graphTappedDuringMouseScroll() {
-        log("GraphTappedDuringMouseScroll called")
-        self.graphMovement.resetGraphMovement()
-        self.graphUI.selection.graphDragState = .none
-    }
 }
 
 extension GraphMovementObserver {
@@ -549,7 +540,7 @@ extension StitchDocumentViewModel {
 //
 //        // Always update the graph offset,
 //        // regardless whether there is another active gesture.
-//        self.graphMovement.localPosition = self.localPreviousPosition + (translation.toCGPoint / self.graphMovement.zoomData.zoom)
+//        self.graphMovement.localPosition = self.localPreviousPosition + (translation.toCGPoint / self.graphMovement.zoomData)
 
         //    log("handleGraphScrolled: state.graphUI.graphMovement.localPosition is now: \(state.graphUI.graphMovement.localPosition)")
 
@@ -583,7 +574,7 @@ extension StitchDocumentViewModel {
                 node.updateNodeOnGraphDragged(
                     translation,
                     self.visibleGraph.highestZIndex + 1,
-                    zoom: self.graphMovement.zoomData.zoom,
+                    zoom: self.graphMovement.zoomData,
                     state: self.graphMovement)
             }
 
@@ -659,7 +650,7 @@ extension StitchDocumentViewModel {
 
         // TODO: factor out zoom level
         
-        let scale = self.graphMovement.zoomData.zoom
+        let scale = self.graphMovement.zoomData
         
         // UIScrollView's contentOffset is based on contentSize, which is a function zoomScale;
         // but we do not persist zoom;
@@ -676,7 +667,7 @@ extension StitchDocumentViewModel {
     @MainActor
     var localPosition: CGPoint {
         get {
-            self.graphMovement.localPosition
+            return self.graphMovement.localPosition
         } set {
             self.graphMovement.localPosition = newValue
         }
@@ -750,7 +741,7 @@ extension StitchDocumentViewModel {
 
         // Only add to `accumulated` if we're indeed dragging at least one node
         if graphMovement.canvasItemIsDragged {
-            graphMovement.accumulatedGraphTranslation += (graphMovement.runningGraphTranslation ?? .zero) / graphMovement.zoomData.zoom
+            graphMovement.accumulatedGraphTranslation += (graphMovement.runningGraphTranslation ?? .zero) / graphMovement.zoomData
         }
 
         graphMovement.runningGraphTranslation = nil
@@ -775,13 +766,13 @@ extension StitchDocumentViewModel {
 
             graphMovement
                 .momentumState = startMomentum(graphMovement.momentumState,
-                                               graphMovement.zoomData.zoom,
+                                               graphMovement.zoomData,
                                                velocity)
 
             // also set graphOrigins; JUST FOR GRAPH DRAG AND GRAPH MOMENTUM
             if let nodesPositionalData = self.graphMovement.boundaryNodes {
                 let momentumOrigin = self.visibleGraph
-                    .graphBounds(graphMovement.zoomData.zoom,
+                    .graphBounds(graphMovement.zoomData,
                                  graphView: graphUIState.frame,
                                  graphOffset: graphMovement.localPosition,
                                  positionalData: nodesPositionalData)

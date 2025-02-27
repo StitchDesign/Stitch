@@ -8,6 +8,8 @@
 import SwiftUI
 import StitchSchemaKit
 
+typealias GraphZoom = CGFloat
+
 let EXTENDED_HITBOX_WIDTH: CGFloat = 32 // 68 // 48 // 40 // 32
 let EXTENDED_HITBOX_HEIGHT: CGFloat = 24
 
@@ -23,7 +25,7 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
     @Bindable var rowViewModel: NodeRowViewModelType
     @Bindable var graph: GraphState
     @Bindable var graphMultigesture: GraphMultigesture
-    @Bindable var zoomData: GraphZoom
+    var zoomData: CGFloat
     let coordinate: NodeIOPortType
 
     @MainActor

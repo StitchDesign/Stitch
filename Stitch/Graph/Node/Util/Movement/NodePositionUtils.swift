@@ -28,7 +28,7 @@ extension CanvasItemViewModel {
             return nil
         }
         
-        let denominator = graphMovement.zoomData.zoom
+        let denominator = graphMovement.zoomData
         
         return .init(width: nodeSize.width / denominator,
                      height: nodeSize.height / denominator)
