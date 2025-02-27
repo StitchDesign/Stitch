@@ -334,7 +334,7 @@ struct ActiveIndexChangedAction: GraphEvent {
         
         // Note: previously this logic was handled in the view (`NodeInputOutputView`);
         // the advantage was that only actively-rendered
-        state.getVisibleNodes().forEach { node in
+        state.getNodesAtThisTraversalLevel().forEach { node in
             node.updatePortViewModels(state)
         }
     }

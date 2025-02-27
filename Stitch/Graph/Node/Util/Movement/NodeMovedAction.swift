@@ -400,7 +400,7 @@ extension GraphState {
         let currentTraversalLevel = self.graphUI.groupNodeFocused?.asNodeId
 
         // Only check nodes on this current traversal level
-        let visibleNodes = self.getVisibleCanvasItems()
+        let visibleNodes = self.getCanvasItemsAtTraversalLevel()
         let visibleCommentBoxes = self
             .commentBoxesDict.boxesForTraversalLevel(currentTraversalLevel)
 

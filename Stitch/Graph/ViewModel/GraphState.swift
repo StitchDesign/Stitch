@@ -447,7 +447,7 @@ extension GraphState {
     
     @MainActor
     func getBroadcasterNodesAtThisTraversalLevel() -> [NodeDelegate] {
-        self.visibleNodesViewModel.getVisibleNodes(at: self.graphUI.groupNodeFocused?.groupNodeId)
+        self.visibleNodesViewModel.getNodesAtThisTraversalLevel(at: self.graphUI.groupNodeFocused?.groupNodeId)
             .compactMap { node in
                 guard node.kind == .patch(.wirelessBroadcaster) else {
                     return nil
@@ -481,7 +481,7 @@ extension GraphState {
         let nodeCount = nodes.keys.count
         
         // Track graph canvas items count
-        let canvasItems = self.getVisibleCanvasItems().count
+        let canvasItems = self.getCanvasItemsAtTraversalLevel().count
 
         // Tracks edge changes to reset cached data
         let upstreamConnections = allInputsObservers
@@ -719,15 +719,15 @@ extension GraphState {
     }
     
     @MainActor
-    func getVisibleNodes() -> [NodeDelegate] {
+    func getNodesAtThisTraversalLevel() -> [NodeDelegate] {
         self.visibleNodesViewModel
-            .getVisibleNodes(at: self.graphUI.groupNodeFocused?.groupNodeId)
+            .getNodesAtThisTraversalLevel(at: self.graphUI.groupNodeFocused?.groupNodeId)
     }
     
     @MainActor
-    func getVisibleCanvasItems() -> CanvasItemViewModels {
+    func getCanvasItemsAtTraversalLevel() -> CanvasItemViewModels {
         self.visibleNodesViewModel
-            .getVisibleCanvasItems(at: self.graphUI.groupNodeFocused?.groupNodeId)
+            .getCanvasItemsAtTraversalLevel(at: self.graphUI.groupNodeFocused?.groupNodeId)
     }
     
     @MainActor

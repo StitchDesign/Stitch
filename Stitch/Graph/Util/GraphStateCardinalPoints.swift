@@ -19,7 +19,7 @@ extension GraphState {
     @MainActor
     func canvasItemsAtTraversalLevel(_ focusedGroupNodeId: NodeId?) -> CanvasItemViewModels {
         self.visibleNodesViewModel
-            .getVisibleCanvasItems(at: focusedGroupNodeId )
+            .getCanvasItemsAtTraversalLevel(at: focusedGroupNodeId )
     }
 
     // eastern-most node is node with greatest x-position
