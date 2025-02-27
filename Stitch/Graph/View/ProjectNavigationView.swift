@@ -32,6 +32,7 @@ struct ProjectNavigationView: View {
             })
         }
         .onChange(of: document.visibleGraph.graphUpdaterId) {
+            log("NodesOnlyView: .onChange(of: document.visibleGraph.graphUpdaterId)")
             document.visibleGraph.updateGraphData()
         }
         .onChange(of: document.graphUI.groupNodeFocused) {

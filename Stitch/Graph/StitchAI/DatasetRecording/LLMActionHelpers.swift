@@ -161,8 +161,8 @@ struct LLMActionDeleted: StitchDocumentEvent {
     let deletedAction: StepTypeAction
     
     func handle(state: StitchDocumentViewModel) {
-        log("LLMActionsUpdated: deletedAction: \(deletedAction)")
-        log("LLMActionsUpdated: state.llmRecording.actions was: \(state.llmRecording.actions)")
+        log("LLMActionDeleted: deletedAction: \(deletedAction)")
+        log("LLMActionDeleted: state.llmRecording.actions was: \(state.llmRecording.actions)")
         
         // Note: fine to do equality check because not editing actions per se here
         // TODO: what if we change the `value` of
@@ -186,11 +186,15 @@ struct LLMActionDeleted: StitchDocumentEvent {
         case .connectNodes, .changeValueType, .setInput:
             // deleting these LLMActions does not require us to delete any other LLMActions;
             // we just 'wipe and replay LLMActions'
-            log("do not need to delete any other other LLMActions")
+            log("LLMActionDeleted: Do not need to delete any other other LLMActions")
         }
                 
-        // If immediately "de-apply" the removed action(s) from graph,
+        // We immediately "de-apply" the removed action(s) from graph,
         // so that user instantly sees what changed.
-        try? state.reapplyActions()
+        do {
+            try state.reapplyActions()
+        } catch {
+            log("LLMActionDeleted: when reapplying actions, encountered: \(error)")
+        }
     }
 }
