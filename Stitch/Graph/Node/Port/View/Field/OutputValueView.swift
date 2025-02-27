@@ -11,6 +11,7 @@ import StitchSchemaKit
 struct OutputValueEntry: View {
 
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     @Bindable var viewModel: OutputFieldViewModel
 
     let coordinate: NodeIOCoordinate
@@ -39,6 +40,7 @@ struct OutputValueEntry: View {
 
     var valueDisplay: some View {
         OutputValueView(graph: graph,
+                        graphUI: graphUI,
                         viewModel: viewModel,
                         coordinate: coordinate,
                         isMultiField: isMultiField,
@@ -68,6 +70,7 @@ struct OutputValueEntry: View {
 
 struct OutputValueView: View {
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     @Bindable var viewModel: OutputFieldViewModel
     
     let coordinate: NodeIOCoordinate
@@ -245,7 +248,9 @@ struct OutputValueView: View {
                                      isMultiselectInspectorInputWithHeterogenousValues: false)
                 
             case .pulse(let pulseTime):
-                PulseValueButtonView(inputCoordinate: nil,
+                PulseValueButtonView(graph: graph,
+                                     graphUI: graphUI,
+                                     inputCoordinate: nil,
                                      nodeId: coordinate.nodeId,
                                      pulseTime: pulseTime,
                                      hasIncomingEdge: false)

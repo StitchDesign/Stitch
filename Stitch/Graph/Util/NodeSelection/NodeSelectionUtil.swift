@@ -120,7 +120,7 @@ func selectAllNodesAtTraversalLevel(_ state: GraphState) {
     let visibleNodes = state.visibleNodesViewModel
         .getCanvasItemsAtTraversalLevel(at: state.graphUI.groupNodeFocused?.asNodeId)
 
-    state.resetSelectedCanvasItems()
+    state.resetSelectedCanvasItems(graphUI: state.graphUI)
     
     visibleNodes.forEach {
         $0.select(state)

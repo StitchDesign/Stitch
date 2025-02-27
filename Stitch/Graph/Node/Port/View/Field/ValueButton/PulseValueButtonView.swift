@@ -13,6 +13,9 @@ let PULSE_ICON_SF_SYMBOL_NAME = "record.circle.fill"
 struct PulseValueButtonView: View {
     @State private var isPulsed = false
     
+    @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
+    
     let inputCoordinate: NodeIOCoordinate? // nil = for output
     
     let nodeId: NodeId
@@ -36,7 +39,8 @@ struct PulseValueButtonView: View {
         // TODO: you made this a button, double check it works
         StitchButton {
             if let inputCoordinate = inputCoordinate {
-                dispatch(PulseValueButtonClicked(coordinate: inputCoordinate))
+                graph.pulseValueButtonClicked(inputCoordinate,
+                                              graphUI: graphUI)
             } else {
                 log("PulseValueButtonView error: output unexpectedly encountered for \(nodeId)")
             }

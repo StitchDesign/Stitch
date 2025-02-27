@@ -172,7 +172,9 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
     var body: some View {
         HStack(alignment: hstackAlignment) {
             
-            LayerInspectorRowButton(layerInputObserver: layerInputObserver,
+            LayerInspectorRowButton(graph: graph,
+                                    graphUI: graphUI,
+                                    layerInputObserver: layerInputObserver,
                                     layerInspectorRowId: layerInspectorRowId,
                                     coordinate: coordinate,
                                     canvasItemId: canvasItemId,
@@ -234,7 +236,8 @@ struct LayerInspectorPortViewTapModifier: ViewModifier {
                 log("LayerInspectorPortView tapped")
                 graphUI.onLayerPortRowTapped(
                     layerInspectorRowId: layerInspectorRowId,
-                    canvasItemId: canvasItemId)
+                    canvasItemId: canvasItemId,
+                    graph: graph)
             }))
         }
     }
@@ -243,10 +246,12 @@ struct LayerInspectorPortViewTapModifier: ViewModifier {
 extension GraphUIState {
     @MainActor
     func onLayerPortRowTapped(layerInspectorRowId: LayerInspectorRowId,
-                              canvasItemId: CanvasItemId?) {
+                              canvasItemId: CanvasItemId?,
+                              graph: GraphState) {
         // Defined canvas item id = we're already on the canvas
         if let canvasItemId = canvasItemId {
-            dispatch(JumpToCanvasItem(id: canvasItemId))
+            graph.jumpToCanvasItem(id: canvasItemId,
+                                   graphUI: self)
         }
         
         // Else select/de-select the property

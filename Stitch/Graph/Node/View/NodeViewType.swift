@@ -72,7 +72,10 @@ struct NodeTypeView: View {
         VStack(alignment: .leading,
                spacing: SPACING_BETWEEN_NODE_ROWS) {
             if self.node.patch == .wirelessReceiver {
-                WirelessPortView(isOutput: false, id: node.id)
+                WirelessPortView(graph: graph,
+                                 graphUI: graphUI,
+                                 isOutput: false,
+                                 id: node.id)
                     .padding(.trailing, NODE_BODY_SPACING)
             } else {
                 DefaultNodeInputView(graph: graph,
@@ -91,7 +94,10 @@ struct NodeTypeView: View {
                spacing: SPACING_BETWEEN_NODE_ROWS) {
 
             if self.node.patch == .wirelessBroadcaster {
-                WirelessPortView(isOutput: true, id: node.id)
+                WirelessPortView(graph: graph,
+                                 graphUI: graphUI,
+                                 isOutput: true,
+                                 id: node.id)
                     .padding(.leading, NODE_BODY_SPACING)
             } else {
                 DefaultNodeOutputView(graph: graph,

@@ -447,7 +447,9 @@ struct InputValueView: View {
                                         graph: graph)
                 
             case .pulse(let pulseTime):
-                PulseValueButtonView(inputCoordinate: rowObserverId,
+                PulseValueButtonView(graph: graph,
+                                     graphUI: graphUI,
+                                     inputCoordinate: rowObserverId,
                                      nodeId: rowObserverId.nodeId,
                                      pulseTime: pulseTime,
                                      hasIncomingEdge: hasIncomingEdge)

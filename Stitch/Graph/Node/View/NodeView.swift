@@ -89,7 +89,8 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
                         }
                         
                         // and select just the node
-                        node.isTapped(document: document)
+                        node.isTapped(document: document,
+                                      graphUI: graphUI)
                     },
                     onDoubleTap: {
                         graph.groupNodeDoubleTapped(id: stitch.id,

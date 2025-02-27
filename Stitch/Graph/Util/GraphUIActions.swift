@@ -71,7 +71,7 @@ extension GraphState {
         log("GroupNodeDoubleTapped: id: \(id)")
 
         // De-select any nodes once new parent is shown
-        self.resetAlertAndSelectionState()
+        self.resetAlertAndSelectionState(graphUI: graphUI)
         
         guard let groupNodeType = self.getGroupNodeType(for: id) else {
             return
@@ -83,7 +83,7 @@ extension GraphState {
         graphUI.groupTraversedToChild = true
 
         // reset any active selections
-        self.resetAlertAndSelectionState()
+        self.resetAlertAndSelectionState(graphUI: graphUI)
     }
 }
 

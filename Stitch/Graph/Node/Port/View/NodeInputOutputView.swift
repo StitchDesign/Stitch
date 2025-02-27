@@ -218,6 +218,7 @@ struct NodeOutputView: View {
     func valueEntryView(portViewModel: OutputFieldViewModel,
                         isMultiField: Bool) -> OutputValueEntry {
         OutputValueEntry(graph: graph,
+                         graphUI: graphUI,
                          viewModel: portViewModel,
                          coordinate: rowObserver.id,
                          isMultiField: isMultiField,

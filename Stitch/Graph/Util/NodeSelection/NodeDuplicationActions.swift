@@ -331,7 +331,7 @@ extension GraphState {
     @MainActor
     func updateGraphAfterPaste(newNodes: [NodeEntity]) {
         // Reset selected nodes
-        self.resetSelectedCanvasItems()
+        self.resetSelectedCanvasItems(graphUI: graphUI)
 
         // Reset edit mode selections + inspector focus and actively-selected
         self.sidebarSelectionState.resetEditModeSelections()

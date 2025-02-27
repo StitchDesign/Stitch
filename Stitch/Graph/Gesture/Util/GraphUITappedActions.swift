@@ -10,12 +10,11 @@ import SwiftUI
 import StitchSchemaKit
 
 // More like: `ResetGraphUIEdits`
-struct GraphTappedAction: ProjectEnvironmentEvent {
-    func handle(graphState: GraphState,
-                environment: StitchEnvironment) -> GraphResponse {
+extension GraphState {
+    @MainActor
+    func graphTapped(graphUI: GraphUIState) {
         log("GraphTappedAction called")
-        graphState.resetAlertAndSelectionState()
-        return .noChange
+        self.resetAlertAndSelectionState(graphUI: graphUI)
     }
 }
 

@@ -172,7 +172,9 @@ struct GenericFlyoutRowView: View {
         
         HStack {
             // For the layer inspector row button, use a
-            LayerInspectorRowButton(layerInputObserver: layerInputObserver,
+            LayerInspectorRowButton(graph: graph,
+                                    graphUI: graphUI,
+                                    layerInputObserver: layerInputObserver,
                                     layerInspectorRowId: layerInspectorRowId,
                                     // For layer inspector row button, provide a NodeIOCoordinate that assumes unpacked + field index
                                     coordinate: InputCoordinate(portType: .keyPath(layerInputType),
@@ -206,7 +208,8 @@ struct GenericFlyoutRowView: View {
         .onTapGesture {
             graphUI.onLayerPortRowTapped(
                 layerInspectorRowId: layerInspectorRowId,
-                 canvasItemId: canvasItemId)
+                canvasItemId: canvasItemId,
+                graph: graph)
         }
         
     }

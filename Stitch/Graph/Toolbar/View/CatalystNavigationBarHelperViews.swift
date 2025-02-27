@@ -157,6 +157,8 @@ extension String {
 struct CatalystTopBarGraphButtons: View {
 
     let document: StitchDocumentViewModel
+    let graph: GraphState
+    let graphUI: GraphUIState
     let hasActiveGroupFocused: Bool
     let isFullscreen: Bool // = false
     let isPreviewWindowShown: Bool // = true
@@ -189,7 +191,7 @@ struct CatalystTopBarGraphButtons: View {
             
             // TODO: should be a toast only shows up when no nodes are on-screen?
             CatalystNavBarButton(.FIND_NODE_ON_GRAPH) {
-                dispatch(FindSomeCanvasItemOnGraph())
+                graph.findSomeCanvasItemOnGraph(graphUI: graphUI)
             }
 
             // TODO: implement
@@ -263,7 +265,7 @@ struct GoUpOneTraversalLevel: GraphEvent {
         state.graphUI.groupNodeBreadcrumbs = state.graphUI.groupNodeBreadcrumbs.dropLast()
 
         // Reset any active selections
-        state.resetAlertAndSelectionState()
+        state.resetAlertAndSelectionState(graphUI: state.graphUI)
 
         // Zoom-out animate to parent
         state.graphUI.groupTraversedToChild = false

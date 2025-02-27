@@ -103,7 +103,9 @@ struct ShadowFlyoutRowView: View {
         let layerInputData = layerInputObserver._packedData
                         
         HStack(alignment: hstackAlignment) {
-            LayerInspectorRowButton(layerInputObserver: layerInputObserver,
+            LayerInspectorRowButton(graph: graph,
+                                    graphUI: graphUI,
+                                    layerInputObserver: layerInputObserver,
                                     layerInspectorRowId: layerInspectorRowId,
                                     coordinate: coordinate,
                                     canvasItemId: canvasItemId,
@@ -142,7 +144,8 @@ struct ShadowFlyoutRowView: View {
         .onTapGesture {
             graphUI.onLayerPortRowTapped(
                 layerInspectorRowId: layerInspectorRowId,
-                canvasItemId: canvasItemId)
+                canvasItemId: canvasItemId,
+                graph: graph)
         }
     }
     

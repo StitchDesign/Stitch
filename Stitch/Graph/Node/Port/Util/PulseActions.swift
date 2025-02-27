@@ -20,18 +20,10 @@ let PULSE_LENGTH: Int = 100
 
 typealias FlashSet = Set<Coordinate>
 
-struct PulseValueButtonClicked: GraphEvent {
-    
-    let coordinate: InputCoordinate
-    
-    func handle(state: GraphState) {
-        state.pulseValueButtonClicked(coordinate)
-    }
-}
-
-extension GraphState {
+extension GraphState {    
     @MainActor
-    func pulseValueButtonClicked(_ coordinate: InputCoordinate) {
+    func pulseValueButtonClicked(_ coordinate: InputCoordinate,
+                                 graphUI: GraphUIState) {
         //        log("PulseValueButtonClicked called: nodeId: \(nodeId)")
         //        log("PulseValueButtonClicked inputCoordinate: \(inputCoordinate)")
 
@@ -65,7 +57,8 @@ extension GraphState {
         
         // Select canvas if associated here
         if let canvasItem = inputObserver.nodeRowViewModel?.canvasItemDelegate { // inputPort.canvasItemDelegate {
-            self.selectSingleNode(canvasItem)
+            self.selectSingleNode(canvasItem,
+                                  graphUI: graphUI)
         }
         
         inputObserver.updateValues([.pulse(self.graphStepState.graphTime)])
