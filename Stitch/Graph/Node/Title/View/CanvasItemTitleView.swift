@@ -102,49 +102,36 @@ struct CanvasItemTitleView: View {
 
 struct CanvasItemTitleWirelessReceiverMenuView: View {
     @State private var broadcasterNode: NodeViewModel?
-//    @State private var choice: BroadcastChoice?
+    @State private var choice: BroadcastChoice = nilBroadcastChoice
     
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
     @Bindable var rowObserver: InputNodeRowObserver
     let nodeName: String
     
-//    init(graph: GraphState,
-//         node: NodeViewModel,
-//         nodeName: String) {
-//        self.graph = graph
-//        self.node = node
-//        self.nodeName = nodeName
-//        self.title = nodeName
-//    }
-    
     func updateBroadcasterNode() {
-        guard let choice = self.currentBroadcastChoice else {
-            self.broadcasterNode = nil
-            return
-        }
-        
         self.broadcasterNode = graph.getNodeViewModel(choice.id)
     }
     
     var currentBroadcastChoiceNodeId: NodeId? {
-        self.rowObserver.upstreamOutputObserver?.id.nodeId
+        self.rowObserver.upstreamOutputCoordinate?.nodeId
     }
     
-    var currentBroadcastChoice: BroadcastChoice? {
+    func updateCurrentBroadcastChoice() {
         guard let currentBroadcastChoiceNodeId = currentBroadcastChoiceNodeId else {
-            return nilBroadcastChoice
+            self.choice = nilBroadcastChoice
+            return
         }
         
-        return .init(title: self.node.displayTitle,
-                     id: currentBroadcastChoiceNodeId)
+        self.choice = .init(title: self.node.displayTitle,
+                            id: currentBroadcastChoiceNodeId)
     }
     
     @ViewBuilder
     var body: some View {
         Menu {
             NodeWirelessBroadcastSubmenuView(graph: graph,
-                                             currentBroadcastChoice: self.currentBroadcastChoice ?? nilBroadcastChoice,
+                                             currentBroadcastChoice: self.choice,
                                              nodeId: node.id,
                                              forNodeTitle: true)
         } label: {
@@ -155,11 +142,11 @@ struct CanvasItemTitleWirelessReceiverMenuView: View {
         .foregroundColor(STITCH_TITLE_FONT_COLOR)
         .menuIndicator(.hidden)
         // Choice logic here for perf
-//        .onChange(of: self.currentBroadcastChoice, initial: true) { _, newChoice in
-//            self.choice = newChoice ?? nilBroadcastChoice
-//        }
+        .onChange(of: self.rowObserver.upstreamOutputCoordinate, initial: true) {
+            self.updateCurrentBroadcastChoice()
+        }
         // Broadcaster detection saved here for perf
-        .onChange(of: self.currentBroadcastChoice, initial: true) {
+        .onChange(of: self.choice, initial: true) {
             self.updateBroadcasterNode()
         }
         .onChange(of: graph.graphUpdaterId) {
