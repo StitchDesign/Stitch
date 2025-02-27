@@ -376,7 +376,7 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
         }
         
         // Only check borders if we have cached size and position data for canvas items
-        let canvasItemsInFrame = graph.getVisibleCanvasItems().filter({ $0.isVisibleInFrame(graph.visibleCanvasIds) })
+        let canvasItemsInFrame = graph.getCanvasItemsAtTraversalLevel().filter({ $0.isVisibleInFrame(graph.visibleCanvasIds) })
         
         guard let westNode = graph.westernMostNodeForBorderCheck(canvasItemsInFrame),
               let eastNode = graph.easternMostNodeForBorderCheck(canvasItemsInFrame),

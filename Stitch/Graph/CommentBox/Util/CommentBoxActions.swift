@@ -27,7 +27,7 @@ extension GraphState {
         }
 
         let visibleNodes = self.visibleNodesViewModel
-            .getVisibleCanvasItems(at: self.graphUI.groupNodeFocused?.asNodeId)
+            .getCanvasItemsAtTraversalLevel(at: self.graphUI.groupNodeFocused?.asNodeId)
 
         let visibleSelectedNodes = visibleNodes
             .filter { selectedNodes.contains($0.id) }

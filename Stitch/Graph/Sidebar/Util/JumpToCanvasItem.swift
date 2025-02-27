@@ -36,7 +36,7 @@ struct FindSomeCanvasItemOnGraph: GraphEvent {
     func handle(state: GraphState) {
         if let canvasItem = GraphState.westernMostNode(
             state.groupNodeFocused,
-            canvasItems: state.getVisibleCanvasItems()) {
+            canvasItems: state.getCanvasItemsAtTraversalLevel()) {
             
             state.panGraphToNodeLocation(id: canvasItem.id)
         }
