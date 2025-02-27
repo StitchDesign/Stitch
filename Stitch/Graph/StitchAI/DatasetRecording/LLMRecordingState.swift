@@ -31,6 +31,8 @@ enum LLMRecordinModal: Equatable, Hashable {
 
 struct LLMRecordingState: Equatable {
     
+    // Set true just when we have received and successfully validated and applied an OpenAI request
+    // Set false when make another request or submit a correction
     var recentOpenAIRequestCompleted: Bool = false {
         didSet {
             // When a request is completed and we're recording, switch to augmentation mode
@@ -103,7 +105,7 @@ extension StitchDocumentViewModel {
     
     @MainActor
     func validateAndApplyActions(_ actions: [StepTypeAction]) throws {
-        
+                
         // Wipe old error reason
         self.llmRecording.actionsError = nil
         
@@ -247,14 +249,3 @@ struct LLMJsonEntryState: Equatable {
 }
 
 typealias LLMNodeIdMapping = [String: NodeId]
-
-extension StitchDocumentViewModel {
-    @MainActor
-    var llmNodeIdMapping: LLMNodeIdMapping {
-        get {
-            self.llmRecording.jsonEntryState.llmNodeIdMapping
-        } set(newValue) {
-            self.llmRecording.jsonEntryState.llmNodeIdMapping = newValue
-        }
-    }
-}

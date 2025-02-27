@@ -37,6 +37,7 @@ extension StitchDocumentViewModel {
             guard let _ = self.nodeCreated(choice: x.nodeName.asNodeKind,
                                            nodeId: x.nodeId) else {
                 self.llmRecording.isApplyingActions = false
+                // fatalErrorIfDebug()
                 throw StitchAIManagerError.actionValidationError("Could not create node \(x.nodeId.debugFriendlyId) \(x.nodeName)")
             }
             self.llmRecording.isApplyingActions = false
@@ -53,6 +54,7 @@ extension StitchDocumentViewModel {
                let destinationNode = graph.getNodeViewModel(x.toNodeId),
                let layerNode = destinationNode.layerNode {
                 guard let keyPath = x.port.keyPath else {
+                    // fatalErrorIfDebug()
                     throw StitchAIManagerError.actionValidationError("expected layer node keypath but got: \(x.port)")
                 }
                 
@@ -80,6 +82,7 @@ extension StitchDocumentViewModel {
             guard let input = self.graph.getInputObserver(coordinate: inputCoordinate) else {
                 log("applyAction: could not apply setInput")
                 self.llmRecording.isApplyingActions = false
+                // fatalErrorIfDebug()
                 throw StitchAIManagerError.actionValidationError("Could not retrieve input \(inputCoordinate)")
             }
             
@@ -90,6 +93,11 @@ extension StitchDocumentViewModel {
             
             self.llmRecording.isApplyingActions = false
         }
+
+        self.graph.visibleNodesViewModel.setAllNodesVisible()
+        
+        // Finally, updateGraphData ?
+        self.graph.refreshGraphUpdaterId()
     }
 }
 
