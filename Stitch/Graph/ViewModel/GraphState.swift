@@ -169,7 +169,8 @@ extension GraphState {
         self.visibleNodesViewModel
             .updateNodesPagingDict(components: self.components,
                                    graphFrame: self.graphUI.frame,
-                                   parentGraphPath: self.saveLocation)
+                                   parentGraphPath: self.saveLocation,
+                                   graph: self)
         
         // Update connected port data
         self.visibleNodesViewModel.updateAllNodeViewData()

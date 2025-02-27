@@ -241,14 +241,18 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         
         if let canvasPageOffsetChanged = document.graphUI.canvasPageOffsetChanged,
            let canvasPageZoomScaleChanged = document.graphUI.canvasPageZoomScaleChanged {
-            log("StitchUIScrollView: canvasPageOffsetChanged: \(canvasPageOffsetChanged)")
-            log("StitchUIScrollView: canvasPageZoomScaleChanged: \(canvasPageZoomScaleChanged)")
-            
-            // Update UIScrollView from redux temp change
-            uiView.setContentOffset(canvasPageOffsetChanged, animated: false)
+            // log("StitchUIScrollView: canvasPageOffsetChanged: \(canvasPageOffsetChanged)")
+            // log("StitchUIScrollView: canvasPageZoomScaleChanged: \(canvasPageZoomScaleChanged)")
+                        
+            /*
+             VERY IMPORTANT: when manually setting UIScrollView's zoomScale and contentOffset at the same time,
+             WE MUST UPDATE zoomScale FIRST.
+             Otherwise `.setContentOffset` uses the OLD zoomScale and auto-adjusts the manual contentOffset we want to provide.
+             */
             uiView.zoomScale = canvasPageZoomScaleChanged
+            uiView.setContentOffset(canvasPageOffsetChanged, animated: false)
+
             
-            // then drive state change
             dispatch(GraphScrollDataUpdated(
                 newOffset: uiView.contentOffset,
                 newZoom: uiView.zoomScale
@@ -265,7 +269,6 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             }
             
         }
-        
     }
     
     func makeCoordinator() -> StitchScrollCoordinator<Content> {
@@ -327,24 +330,29 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
     
     
     func scrollViewDidZoom(_ scrollView: UIScrollView) {
+        // log("scrollViewDidZoom")
         Self.updateGraphScrollData(scrollView)
     }
     
     // Only called when scroll first begins; not DURING scroll
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        // log("scrollViewWillBeginDragging")
         Self.updateGraphScrollData(scrollView)
     }
     
     func scrollViewWillBeginDecelerating(_ scrollView: UIScrollView) {
+        // log("scrollViewWillBeginDecelerating")
         Self.updateGraphScrollData(scrollView)
     }
     
     // Called when scroll-view movement comes to an end
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        // log("scrollViewDidEndDecelerating")
         Self.updateGraphScrollData(scrollView, shouldPersist: true)
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        // log("scrollViewDidScroll")
         self.checkBorder(scrollView)
     }
     
@@ -467,6 +475,7 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
                 newZoom: scrollView.zoomScale
             ))
         } else {
+            // log("StitchUIScrollView: scrollViewDidScroll: did not hit border")
             Self.updateGraphScrollData(scrollView)
         }
     }

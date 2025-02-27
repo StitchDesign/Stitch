@@ -102,7 +102,8 @@ extension VisibleNodesViewModel {
     @MainActor
     func updateNodesPagingDict(components: [UUID: StitchMasterComponent],
                                graphFrame: CGRect,
-                               parentGraphPath: [UUID]) {
+                               parentGraphPath: [UUID],
+                               graph: GraphState) {
 
         // Remove any groups in the node paging dict that no longer exist in GraphSchema:
         let existingGroupPages = self.nodesByPage.compactMap(\.key.getGroupNodePage).toSet
@@ -111,16 +112,24 @@ extension VisibleNodesViewModel {
             .compactMap { $0.parentGroupNodeId }
             .toSet
 
-        // Check for groups (traversal levels) to add for position/zoom data
+        // Add position and zoom for new traversal levels
         for incomingGroupId in incomingGroupIds where !existingGroupPages.contains(incomingGroupId) {
             
-            let westernMostNode = GraphState.westernMostNode(
+            let westernMostNode: CanvasItemViewModel? = GraphState.westernMostNode(
                 incomingGroupId,
                 // Canvas items at this new group's traversal level
                 canvasItems: self.getVisibleCanvasItems(at: incomingGroupId))
             
-            let startOffset: CGPoint = westernMostNode.map { calculateMove(graphFrame, $0.position) } ?? ABSOLUTE_GRAPH_CENTER
-                        
+            var startOffset: CGPoint = ABSOLUTE_GRAPH_CENTER
+            
+            // Note: `getNodeGraphPanLocation` relies on cached-bounds data, which we will not have for ANY of the canvas items in a graph-traversal-level that we have never yet visited.
+            // So we currently never hit this condition for new pages.
+            // TODO: how to enter a group-node for the first time with a guaranteed node on screen? ... start with a nil localPosition in the pageData?
+            if let westernMostNode = westernMostNode,
+               let jumpLocation = graph.getNodeGraphPanLocation(id: westernMostNode.id) {
+                startOffset = jumpLocation
+            }
+            
             self.nodesByPage.updateValue(NodePageData(localPosition: startOffset),
                                          forKey: .group(incomingGroupId))
         }
