@@ -17,10 +17,10 @@ struct GraphScrollDataUpdated: StitchDocumentEvent {
     var shouldPersist: Bool = false // true just when e.g. we stopped decelerating
     
     func handle(state: StitchDocumentViewModel) {
-        // log("GraphScrolledViaUIScrollView: newOffset: \(newOffset)")
-        // log("GraphZoomUpdated: newZoom: \(newZoom)")
+        log("GraphScrollDataUpdated: newOffset: \(newOffset)")
+        log("GraphScrollDataUpdated: newZoom: \(newZoom)")
         state.graphMovement.localPosition = newOffset
-        state.graphMovement.zoomData.final = newZoom
+        state.graphMovement.zoomData = newZoom
         
         if shouldPersist {
             log("GraphScrollDataUpdated: will persist")

@@ -14,14 +14,24 @@ typealias NodesPagingDict = [NodePageType: NodePageData]
 final class NodePageData {
     // The graph's movement (offset, momentum, etc.) for this traversal level
     // TODO: for root page data, should always be same as the persisted localPosition of GraphEntity; currently we only persist a single localPosition on the document entity
-    var localPosition: CGPoint
+    var localPosition: CGPoint {
+        didSet {
+            log("NodePageData: didSet: localPosition \(self.localPosition)")
+        }
+    }
 
-    // TODO: you probably only need to save the zoomData.final, since that's roughly equivalent during a magnification gesture to localPosition during a graph scroll gesture
-    let zoomData = GraphZoom()
+    // TODO: you probably only need to save the zoomData, since that's roughly equivalent during a magnification gesture to localPosition during a graph scroll gesture
+    var zoomData: CGFloat {
+        didSet {
+            log("NodePageData: zoomData: zoomData \(self.zoomData)")
+        }
+    }
 
     init(localPosition: CGPoint, zoomFinal: Double = 1) {
+        log("NodePageData: init: localPosition: \(localPosition)")
+        log("NodePageData: init: zoomFinal: \(zoomFinal)")
         self.localPosition = localPosition
-        self.zoomData.final = zoomFinal
+        self.zoomData = zoomFinal
     }
 }
 

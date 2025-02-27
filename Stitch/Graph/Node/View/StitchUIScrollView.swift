@@ -65,7 +65,7 @@ struct StitchUIScrollViewModifier: ViewModifier {
                     CursorDotView(
                         currentDragLocation: currentDrag,
                         isFingerOnScreenSelection: selectionState.isFingerOnScreenSelection,
-                        scale: document.graphMovement.zoomData.final)
+                        scale: document.graphMovement.zoomData)
                 }
             } // ZStack
         } // StitchUIScrollView
@@ -237,6 +237,33 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                 context.coordinator.borderCheckingDisabled = false
             }
+        }
+        
+        if let canvasPageOffsetChanged = document.graphUI.canvasPageOffsetChanged,
+           let canvasPageZoomScaleChanged = document.graphUI.canvasPageZoomScaleChanged {
+            log("StitchUIScrollView: canvasPageOffsetChanged: \(canvasPageOffsetChanged)")
+            log("StitchUIScrollView: canvasPageZoomScaleChanged: \(canvasPageZoomScaleChanged)")
+            
+            // Update UIScrollView from redux temp change
+            uiView.setContentOffset(canvasPageOffsetChanged, animated: false)
+            uiView.zoomScale = canvasPageZoomScaleChanged
+            
+            // then drive state change
+            dispatch(GraphScrollDataUpdated(
+                newOffset: uiView.contentOffset,
+                newZoom: uiView.zoomScale
+            ))
+            
+            context.coordinator.borderCheckingDisabled = true
+            
+            document.graphUI.canvasPageOffsetChanged = nil
+            document.graphUI.canvasPageZoomScaleChanged = nil
+            
+            // Do not check borders during zoom.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                context.coordinator.borderCheckingDisabled = false
+            }
+            
         }
         
     }

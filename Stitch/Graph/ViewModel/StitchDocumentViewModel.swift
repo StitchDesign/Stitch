@@ -12,8 +12,21 @@ import StitchEngine
 
 let STITCH_PROJECT_DEFAULT_NAME = StitchDocument.defaultName
 
+//final class StitchUIScrollViewWrapper: NSObject {
+//    // Should this be nil
+//    let scrollView: UIScrollView?
+//    
+//    init(_ scrollView: UIScrollView?) {
+//        self.scrollView = scrollView
+//    }
+//}
+
 @Observable
 final class StitchDocumentViewModel: Sendable {
+//    
+//    var stitchUIScrollView = StitchUIScrollViewWrapper(nil)
+//
+    
     let rootId: UUID
     let isDebugMode: Bool
     let graph: GraphState
@@ -336,7 +349,7 @@ extension StitchDocumentViewModel {
                        previewWindowBackgroundColor: self.previewWindowBackgroundColor,
                        // Important: `StitchDocument.localPosition` currently represents only the root level's graph-offset
                        localPosition: self.localPositionToPersist,
-                       zoomData: self.graphMovement.zoomData.zoom,
+                       zoomData: self.graphMovement.zoomData,
                        cameraSettings: self.cameraSettings)
     }
     

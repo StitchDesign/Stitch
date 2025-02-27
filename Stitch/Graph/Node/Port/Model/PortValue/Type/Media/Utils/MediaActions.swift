@@ -127,7 +127,7 @@ extension GraphState {
                               store: StitchStore) {
         var droppedLocation = nodeLocation
         let localPosition = self.localPosition
-        let graphScale = self.graphMovement.zoomData.zoom
+        let graphScale = self.graphMovement.zoomData
 
         let originalNodeLocation = nodeLocation.toCGSize
 

@@ -7,6 +7,7 @@
 
 import SwiftUI
 import StitchSchemaKit
+import UIKit
 
 let DEFAULT_LANDSCAPE_ORIGIN = CGPoint(x: 0.0, y: 24.0)
 
@@ -33,15 +34,38 @@ enum FocusedFieldChangedByArrowKey: Equatable, Hashable {
          downArrow // decrement
 }
 
+struct SetGraphScrollDataUponPageChange: GraphEvent {
+    let newPageLocalPosition: CGPoint
+    let newPageZoom: CGFloat
+    
+    func handle(state: GraphState) {
+        log("SetGraphScrollDataUponPageChange: newPageLocalPosition: \(newPageLocalPosition)")
+        log("SetGraphScrollDataUponPageChange: newPageZoom: \(newPageZoom)")
+        state.graphUI.canvasPageOffsetChanged = newPageLocalPosition
+        state.graphUI.canvasPageZoomScaleChanged = newPageZoom
+        
+        state.visibleNodesViewModel.setAllNodesVisible()
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak state] in
+            state?.updateVisibleNodes()
+        }
+    }
+}
+
 @Observable
 final class GraphUIState: Sendable {
-        
+    
     // Set true / non-nil in redux-actions
     // Set false in StitchUIScrollView
     // TODO: combine canvasZoomedIn and canvasZoomedOut? can never have both at same time? or we can, and they cancel each other?
     @MainActor var canvasZoomedIn: GraphManualZoom = .noZoom
     @MainActor var canvasZoomedOut: GraphManualZoom = .noZoom
     @MainActor var canvasJumpLocation: CGPoint? = nil
+    
+    // non-nil when we have just change
+    @MainActor var canvasPageOffsetChanged: CGPoint? = nil
+    @MainActor var canvasPageZoomScaleChanged: CGFloat? = nil
+    
     
     @MainActor var nodeMenuHeight: CGFloat = INSERT_NODE_MENU_MAX_HEIGHT
     
@@ -195,7 +219,7 @@ extension StitchDocumentViewModel {
                 factorOutGraphOffsetAndScale(
                     location: doubleTapLocation,
                     graphOffset: localPosition,
-                    graphScale: self.graphMovement.zoomData.zoom,
+                    graphScale: self.graphMovement.zoomData,
                     deviceScreen: self.graphUI.frame))
         }
         
@@ -492,21 +516,13 @@ extension CanvasItemViewModel {
     }
 }
 
-// Model for graph zoom.
-@Observable
-final class GraphZoom {
-    // Mouse wheel
-    static let zoomScrollRate = 0.04
-    
-    // Shortcut
-    static let zoomCommandRate = 0.1 // 0.25 // 0.175
-    
-    var final: CGFloat = 1
+// TODO: probably doesn't need to be a class anymore? Can just be a proe
 
-    var zoom: CGFloat {
-        self.final
-    }
-}
+// Mouse wheel
+let MOUSE_WHEEL_ZOOM_SCROLL_RATE = 0.04
+
+// Shortcut
+let SHORTCUT_COMMAND_ZOOM_RATE = 0.1 // 0.25 // 0.175
 
 enum GraphManualZoom: Equatable, Hashable, Codable {
     case noZoom,
@@ -519,9 +535,9 @@ enum GraphManualZoom: Equatable, Hashable, Codable {
         case .noZoom:
             return nil
         case .shortcutKey:
-            return GraphZoom.zoomCommandRate
+            return SHORTCUT_COMMAND_ZOOM_RATE
         case .mouseWheel:
-            return GraphZoom.zoomScrollRate
+            return MOUSE_WHEEL_ZOOM_SCROLL_RATE
         }
     }
 }

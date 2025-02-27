@@ -34,7 +34,7 @@ extension GraphState {
 
         let box = CommentBoxViewModel(
             zIndex: self.highestZIndex + 1,
-            scale: self.graphMovement.zoomData.zoom,
+            scale: self.graphMovement.zoomData,
             nodes: visibleSelectedNodes)
 
         self.commentBoxesDict.updateValue(box, forKey: box.id)

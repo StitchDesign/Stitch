@@ -57,7 +57,7 @@ extension GraphState {
             return
         }
         
-        let scale: CGFloat = self.documentDelegate?.graphMovement.zoomData.final ?? 1
+        let scale: CGFloat = self.documentDelegate?.graphMovement.zoomData ?? 1
         
         let jumpPosition = CGPoint(
             // TODO: why do we have to SUBTRACT rather than add?

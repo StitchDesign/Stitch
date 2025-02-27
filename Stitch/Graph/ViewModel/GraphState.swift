@@ -17,6 +17,7 @@ import Vision
 
 @Observable
 final class GraphState: Sendable {
+    
     typealias CachedPortUI = NodePortType<NodeViewModel>
     typealias NodePortCacheSet = Set<CachedPortUI>
     
