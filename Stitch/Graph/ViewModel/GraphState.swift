@@ -382,11 +382,11 @@ extension GraphState {
      
     @MainActor
     func refreshGraphUpdaterId() {
-        log("refreshGraphUpdaterId called")
+        // log("refreshGraphUpdaterId called")
         let newId = self.calculateGraphUpdaterId()
         
         if self.graphUpdaterId != newId {
-            log("refreshGraphUpdaterId: newId: \(newId)")
+            // log("refreshGraphUpdaterId: newId: \(newId)")
             self.graphUpdaterId = newId
         }
     }
@@ -472,9 +472,9 @@ extension GraphState {
     /// Creases a unique hash based on view data which if changes, requires graph data update.
     @MainActor
     func calculateGraphUpdaterId() -> Int {
-//        let randomInt = Int.random(in: -999999999999999...999999999999)
-//        log("calculateGraphUpdaterId: randomInt: \(randomInt)")
-//        return randomInt
+        //        let randomInt = Int.random(in: -999999999999999...999999999999)
+        //        log("calculateGraphUpdaterId: randomInt: \(randomInt)")
+        //        return randomInt
         
         var hasher = Hasher()
         
@@ -513,9 +513,10 @@ extension GraphState {
         hasher.combine(groupNodeIdFocused)
         
         let newGraphUpdaterId = hasher.finalize()
-        log("calculateGraphUpdaterId: newGraphUpdaterId: \(newGraphUpdaterId)")
+        // log("calculateGraphUpdaterId: newGraphUpdaterId: \(newGraphUpdaterId)")
         return newGraphUpdaterId
-//        return hasher.finalize()
+        
+        // return hasher.finalize()
     }
     
     @MainActor
