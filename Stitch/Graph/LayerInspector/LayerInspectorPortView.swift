@@ -79,6 +79,7 @@ struct LayerInspectorInputPortView: View {
 struct LayerInspectorOutputPortView: View {
     let outputPortId: Int
     
+    @Bindable var node: NodeViewModel
     @Bindable var rowViewModel: OutputNodeRowViewModel
     @Bindable var rowObserver: OutputNodeRowObserver
     @Bindable var graph: GraphState
@@ -108,6 +109,7 @@ struct LayerInspectorOutputPortView: View {
             canvasItemId: canvasItemId) { propertyRowIsSelected in
                 NodeOutputView(graph: graph,
                                graphUI: graphUI,
+                               node: node,
                                rowObserver: rowObserver,
                                rowViewModel: rowViewModel,
                                forPropertySidebar: true,

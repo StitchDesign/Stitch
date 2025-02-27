@@ -177,6 +177,7 @@ struct DefaultNodeOutputView: View {
                 HStack {
                     NodeOutputView(graph: graph,
                                    graphUI: graphUI,
+                                   node: node,
                                    rowObserver: rowObserver,
                                    rowViewModel: rowViewModel,
                                    forPropertySidebar: false,

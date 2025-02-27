@@ -167,7 +167,7 @@ struct ShadowInputInspectorRow: View {
 struct NodeOutputView: View {
     @Bindable var graph: GraphState
     @Bindable var graphUI: GraphUIState
-    
+    @Bindable var node: NodeViewModel
     @Bindable var rowObserver: OutputNodeRowObserver
     @Bindable var rowViewModel: OutputNodeRowObserver.RowViewModelType
     let forPropertySidebar: Bool
@@ -182,7 +182,7 @@ struct NodeOutputView: View {
     
     @MainActor
     var nodeKind: NodeKind {
-        self.rowObserver.nodeDelegate?.kind ?? .patch(.splitter)
+        node.kind
     }
     
     // Most splitters do NOT show their outputs;
@@ -193,18 +193,18 @@ struct NodeOutputView: View {
         if self.nodeKind == .patch(.splitter) {
 
             // A regular (= inline) splitter NEVER shows its output
-            let isRegularSplitter = self.rowObserver.nodeDelegate?.patchNodeViewModel?.splitterType == .inline
+            let isRegularSplitter = node.patchNodeViewModel?.splitterType == .inline
             if isRegularSplitter {
                 return false
             }
 
             // If this is a group output splitter, AND we are looking at the group node itself (i.e. NOT inside of the group node but "above" it),
             // then show the output splitter's fields.
-            let isOutputSplitter = self.rowObserver.nodeDelegate?.patchNodeViewModel?.splitterType == .output
+            let isOutputSplitter = node.patchNodeViewModel?.splitterType == .output
             if isOutputSplitter {
                 // See `NodeRowObserver.label()` for similar logic for *inputs*
-                let parentGroupNode = self.rowObserver.nodeDelegate?.patchNodeViewModel?.parentGroupNodeId
-                let currentTraversalLevel = self.rowObserver.nodeDelegate?.graphDelegate?.groupNodeFocused
+                let parentGroupNode = node.patchNodeViewModel?.parentGroupNodeId
+                let currentTraversalLevel = graph.groupNodeFocused
                 return parentGroupNode != currentTraversalLevel
             }
             
