@@ -49,13 +49,19 @@ struct ShowLLMApprovalModal: StitchDocumentEvent {
 struct ShowLLMEditModal: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
         log("ShowLLMEditModal called")
+        state.showLLMEditModal()
+    }
+}
 
-        state.llmRecording.isRecording = true
+extension StitchDocumentViewModel {
+    @MainActor
+    func showLLMEditModal() {
+        self.llmRecording.isRecording = true
         
-        // Always treat edit modal as an augmentation
-//        state.llmRecording.mode = .augmentation
+        //       Always treat edit modal as an augmentation
+        //       state.llmRecording.mode = .augmentation
         
-        state.llmRecording.modal = .editBeforeSubmit
+        self.llmRecording.modal = .editBeforeSubmit
     }
 }
 
@@ -88,10 +94,11 @@ struct SubmitLLMActionsToSupabase: StitchDocumentEvent {
                     prompt: state.llmRecording.promptState.prompt,
                     finalActions: actionsAsSteps,
                     deviceUUID: deviceUUID,
-                    isCorrection: state.llmRecording.mode == .augmentation)
+                    isCorrection: state.llmRecording.mode == .augmentation && state.llmRecording.recentOpenAIRequestCompleted)
                 
                 log("📼 ✅ Data successfully saved locally and uploaded to Supabase ✅ 📼")
                 state.llmRecording = .init()
+                state.llmRecording.recentOpenAIRequestCompleted = false
             }
             
         } catch let encodingError as EncodingError {

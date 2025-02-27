@@ -130,13 +130,15 @@ extension StitchDocumentViewModel {
             return
         }
         
-        // Only show the edit modal if we're in augmentation mode
-        if currentMode == .augmentation {
-            dispatch(ShowLLMEditModal())
-        } else {
-            // For normal mode, proceed directly to approve and submit
-            dispatch(ShowLLMApprovalModal())
-        }
+        self.showLLMEditModal()
+        
+//        // Only show the edit modal if we're in augmentation mode
+//        if currentMode == .augmentation {
+//            dispatch(ShowLLMEditModal())
+//        } else {
+//            // For normal mode, proceed directly to approve and submit
+//            dispatch(ShowLLMApprovalModal())
+//        }
     }
 }
 
