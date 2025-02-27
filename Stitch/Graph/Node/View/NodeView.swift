@@ -15,6 +15,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     @Bindable var graphUI: GraphUIState
+    let nodeId: NodeId
     let isSelected: Bool
     let atleastOneCommentBoxSelected: Bool
     let activeGroupId: GroupNodeType?
@@ -80,23 +81,13 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
                                            atleastOneCommentBoxSelected: atleastOneCommentBoxSelected)
                 }
 #endif
-                .modifier(NodeViewTapGestureModifier(
-                    onSingleTap: {
-                        // deselect any fields; NOTE: not used on GroupNodes due to .simultaneousGesture
-                        if !self.stitch.kind.isGroup,
-                           graphUI.reduxFocusedField != nil {
-                            graphUI.reduxFocusedField = nil
-                        }
-                        
-                        // and select just the node
-                        node.isTapped(document: document,
-                                      graphUI: graphUI)
-                    },
-                    onDoubleTap: {
-                        graph.groupNodeDoubleTapped(id: stitch.id,
-                                                    graphUI: graphUI)
-                    },
-                    isGroup: self.stitch.kind.isGroup))
+                .modifier(
+                    NodeViewTapGestureModifier(graph: graph,
+                                               document: document,
+                                               graphUI: graphUI,
+                                               stitch: stitch,
+                                               node: node)
+                )
             
             /*
              Note: every touch on a part of a node is an interaction (e.g. the title, an input field etc.) with a single node --- except for touching the node tag menu.
@@ -353,10 +344,33 @@ struct CanvasItemTag: View {
 // TODO: perf implications of this view
 struct NodeViewTapGestureModifier: ViewModifier {
     
-    let onSingleTap: () -> Void
-    let onDoubleTap: () -> Void
-    let isGroup: Bool
+    let graph: GraphState
+    let document: StitchDocumentViewModel
+    let graphUI: GraphUIState
+    let stitch: NodeViewModel
+    let node: CanvasItemViewModel
+    
+    var isGroup: Bool {
+        self.stitch.kind.isGroup
+    }
 
+    func onSingleTap() {
+        // deselect any fields; NOTE: not used on GroupNodes due to .simultaneousGesture
+        if !self.stitch.kind.isGroup,
+           graphUI.reduxFocusedField != nil {
+            graphUI.reduxFocusedField = nil
+        }
+        
+        // and select just the node
+        node.isTapped(document: document,
+                      graphUI: graphUI)
+    }
+    
+    func onDoubleTap() {
+        graph.groupNodeDoubleTapped(id: stitch.id,
+                                    graphUI: graphUI)
+    }
+    
     func body(content: Content) -> some View {
         /*
          Note: we must order these gestures as `double tap gesture -> single tap simultaneous gesture`.

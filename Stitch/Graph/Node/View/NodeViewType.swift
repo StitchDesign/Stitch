@@ -48,6 +48,7 @@ struct NodeTypeView: View {
                  document: document,
                  graph: graph,
                  graphUI: graphUI,
+                 nodeId: node.id,
                  isSelected: isSelected,
                  atleastOneCommentBoxSelected: atleastOneCommentBoxSelected,
                  activeGroupId: groupNodeFocused,
