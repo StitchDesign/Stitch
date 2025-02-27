@@ -393,7 +393,7 @@ extension GraphState {
     func rebuildCommentBoxes() {
 
         guard !self.commentBoxesDict.isEmpty else {
-            log("rebuildCommentBoxes: no comment boxes; returning early")
+            // log("rebuildCommentBoxes: no comment boxes; returning early")
             return
         }
 
@@ -406,7 +406,7 @@ extension GraphState {
 
         // Only check comment-boxes on this current traversal level
         guard !visibleCommentBoxes.isEmpty else {
-            log("rebuildCommentBoxes: no comment boxes for this traversal level")
+            // log("rebuildCommentBoxes: no comment boxes for this traversal level")
             return
         }
 

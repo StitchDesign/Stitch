@@ -49,12 +49,12 @@ func restartPrototypeEval(node: PatchNode,
     }
 
     guard receivedPulse else {
-        log("restartPrototypeEval: no pulse")
+        // log("restartPrototypeEval: no pulse")
         // Has no outputs, so nothing to do here
         return .noChange(node)
     }
 
-    log("restartPrototypeEval: had pulse")
+    // log("restartPrototypeEval: had pulse")
     Task { @MainActor in
         dispatch(PrototypeRestartedAction())
     }

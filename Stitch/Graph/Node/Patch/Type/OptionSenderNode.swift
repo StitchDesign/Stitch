@@ -58,9 +58,9 @@ func optionSenderEval(inputs: PortValuesList,
         // what every other output gets:
         let defaultValue: PortValue = values[2]
 
-        log("selection: \(selection)")
-        log("value: \(value)")
-        log("defaultValue: \(defaultValue)")
+        // log("optionSenderEval: selection: \(selection)")
+        // log("optionSenderEval: value: \(value)")
+        // log("optionSenderEval: defaultValue: \(defaultValue)")
 
         if selection == 0 {
             return (value, defaultValue, defaultValue)
