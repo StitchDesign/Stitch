@@ -17,7 +17,7 @@ extension GraphState {
                                    translation: CGSize) {
         canvasItem.updateCanvasItemOnDragged(translation: translation,
                                              highestZIndex: self.highestZIndex + 1,
-                                             zoom: self.graphMovement.zoomData.zoom,
+                                             zoom: self.graphMovement.zoomData,
                                              state: self.graphMovement)
     }
 }
@@ -211,7 +211,7 @@ extension GraphState {
                 log("canvasItemMoved: setting runningGraphTranslationBeforeNodeDragged to be self.graphMovement.runningGraphTranslation: \(self.graphMovement.runningGraphTranslation)")
                 self.graphMovement
                     .runningGraphTranslationBeforeNodeDragged = (
-                        self.graphMovement.runningGraphTranslation ?? .zero) / self.graphMovement.zoomData.zoom
+                        self.graphMovement.runningGraphTranslation ?? .zero) / self.graphMovement.zoomData
             }
         }
 

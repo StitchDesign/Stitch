@@ -336,7 +336,7 @@ extension StitchDocumentViewModel {
                        previewWindowBackgroundColor: self.previewWindowBackgroundColor,
                        // Important: `StitchDocument.localPosition` currently represents only the root level's graph-offset
                        localPosition: self.localPositionToPersist,
-                       zoomData: self.graphMovement.zoomData.zoom,
+                       zoomData: self.graphMovement.zoomData,
                        cameraSettings: self.cameraSettings)
     }
     

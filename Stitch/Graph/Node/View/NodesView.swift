@@ -44,9 +44,9 @@ struct NodesView: View {
     }
     
     var body: some View {
-        let nodePageData = self.graph.visibleNodesViewModel
+        let currentNodePageData = self.graph.visibleNodesViewModel
             .getViewData(groupNodeFocused: graphUI.groupNodeFocused?.groupNodeId) ?? .init(localPosition: graph.localPosition)
-        
+                
         // CommentBox needs to be affected by graph offset and zoom
 //         but can live somewhere else?
         InfiniteCanvas(graph: graph,
@@ -55,7 +55,7 @@ struct NodesView: View {
             
             //                        commentBoxes
             
-            nodesOnlyView(nodePageData: nodePageData)
+            nodesOnlyView(nodePageData: currentNodePageData)
         }
            .modifier(CanvasEdgesViewModifier(document: document,
                                              graph: graph,
@@ -68,7 +68,7 @@ struct NodesView: View {
            .coordinateSpace(name: Self.coordinateNameSpace)
         
            .modifier(GraphMovementViewModifier(graphMovement: graph.graphMovement,
-                                               currentNodePage: nodePageData,
+                                               currentNodePage: currentNodePageData,
                                                graph: graph,
                                                groupNodeFocused: graphUI.groupNodeFocused))
         // should come after edges, so that edges are offset, scaled etc.

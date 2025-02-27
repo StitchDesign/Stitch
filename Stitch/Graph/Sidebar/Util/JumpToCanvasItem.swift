@@ -47,24 +47,17 @@ extension GraphState {
     // TODO: anywhere this isn't being used but should be?
     @MainActor
     func panGraphToNodeLocation(id: CanvasItemId) {
+        
         guard let canvasItem = self.getCanvasItem(id) else {
             fatalErrorIfDebug("panGraphToNodeLocation: no canvasItem found")
             return
         }
         
-        guard let cachedBounds = self.visibleNodesViewModel.infiniteCanvasCache.get(id) else {
-            fatalErrorIfDebug("Could not find cached bounds for canvas item \(id)")
+        guard let jumpPosition = self.getNodeGraphPanLocation(id: id) else {
+            log("panGraphToNodeLocation: could not retrieve jump location")
             return
         }
         
-        let scale: CGFloat = self.documentDelegate?.graphMovement.zoomData.final ?? 1
-        
-        let jumpPosition = CGPoint(
-            // TODO: why do we have to SUBTRACT rather than add?
-            x: (cachedBounds.origin.x * scale) - self.graphUI.frame.size.width/2,
-            y: (cachedBounds.origin.y * scale) - self.graphUI.frame.size.height/2
-        )
-                
         self.graphUI.canvasJumpLocation = jumpPosition
         
         self.graphUI.selection = GraphUISelectionState()
@@ -77,28 +70,22 @@ extension GraphState {
             self.graphUI.groupNodeBreadcrumbs.append(.groupNode(newGroup))
         }
     }
-}
-
-// graphViewFrame is same for screen and nodeView.size;
-// we're actually calculate how the nodeView will be moved
-// to bring the child into center of screen.
-func calculateMove(_ graphViewFrame: CGRect,
-                   // the location of child
-                   _ childPosition: CGPoint) -> CGPoint {
-
-    // you always know the absolute center
-    let center = CGPoint(x: graphViewFrame.midX,
-                         y: graphViewFrame.midY)
-
-    let distance = CGPoint(x: center.x - childPosition.x,
-                           y: center.y - childPosition.y)
-
-    let newOffset = CGPoint(x: distance.x,
-                            y: distance.y)
-
-    // log("calculateMove: childPosition: \(childPosition)")
-    // log("calculateMove: distance: \(distance)")
-    // log("calculateMove: newOffset: \(newOffset)")
-
-    return newOffset
+    
+    // nil could not be be found
+    @MainActor
+    func getNodeGraphPanLocation(id: CanvasItemId) -> CGPoint? {
+                
+        guard let cachedBounds = self.visibleNodesViewModel.infiniteCanvasCache.get(id) else {
+            // Can be `nil` when called for a canvas item that has never yet been on-screen
+            return nil
+        }
+        
+        let scale: CGFloat = self.documentDelegate?.graphMovement.zoomData ?? 1
+        
+        return CGPoint(
+            // TODO: why do we have to SUBTRACT rather than add?
+            x: (cachedBounds.origin.x * scale) - self.graphUI.frame.size.width/2,
+            y: (cachedBounds.origin.y * scale) - self.graphUI.frame.size.height/2
+        )
+    }
 }

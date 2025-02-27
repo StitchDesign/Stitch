@@ -24,7 +24,7 @@ extension StitchDocumentViewModel: GraphStepManagerDelegate {
         
         // Update fields every 30 frames
         if !self.visibleGraph.portsToUpdate.isEmpty &&
-            frameCount % Self.fieldsFrequency(from: self.graphMovement.zoomData.zoom) == 0 {
+            frameCount % Self.fieldsFrequency(from: self.graphMovement.zoomData) == 0 {
             self.visibleGraph.updatePortViews()
         }
     }

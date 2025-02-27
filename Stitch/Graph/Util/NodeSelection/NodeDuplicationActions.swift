@@ -189,7 +189,7 @@ extension GraphState {
             component: component,
             destinationGraphInfo: isCopyPaste ? .init(destinationGraphOffset: self.localPosition,
                                                       destinationGraphFrame: self.graphUI.frame,
-                                                      destinationGraphScale: self.graphMovement.zoomData.zoom,
+                                                      destinationGraphScale: self.graphMovement.zoomData,
                                                       destinationGraphTraversalLevel: self.groupNodeFocused) : nil
         )
         
