@@ -183,7 +183,7 @@ func deviceInfoEval(node: PatchNode,
 
     let outputs: PortValuesList = [
         [.size(deviceSize.toLayerSize)],
-        [.number(state.graphMovement.zoomData.zoom)],
+        [.number(state.graphMovement.zoomData)],
         [.deviceOrientation(orientation.toStitchDeviceOrientation)],
         [.string(.init(deviceType.rawValue))],
         [.string(.init(state.graphUI.colorScheme.description))],

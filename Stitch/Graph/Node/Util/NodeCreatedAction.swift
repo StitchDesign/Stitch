@@ -113,7 +113,7 @@ extension StitchDocumentViewModel {
     @MainActor
     var viewPortCenter: CGPoint {
         let localPosition = self.graphMovement.localPosition
-        let scale = self.graphMovement.zoomData.final
+        let scale = self.graphMovement.zoomData
         let viewPortFrame = self.graphUI.frame
         
         // Apply scale to the viewPort-centering

@@ -40,7 +40,7 @@ extension StitchDocumentViewModel {
                                    value: DragGesture.Value) {
 
         // log("CommentBoxPositionDragged called")
-        let zoom: CGFloat = self.graphMovement.zoomData.zoom
+        let zoom: CGFloat = self.graphMovement.zoomData
 
         // log("CommentBoxPositionDragged: value.translation: \(value.translation)")
         // log("CommentBoxPositionDragged: value.translation / zoom: \(value.translation / zoom)")
@@ -160,7 +160,7 @@ extension StitchDocumentViewModel {
                                     value: DragGesture.Value) {
         self.graphUI.selection.selectedCommentBoxes = Set([box.id])
 
-        let zoom = self.graphMovement.zoomData.zoom
+        let zoom = self.graphMovement.zoomData
 
         // STEP 1: UPDATE THE COMMENT BOX ITSELF
         box.expansionBox.startPoint = box.position

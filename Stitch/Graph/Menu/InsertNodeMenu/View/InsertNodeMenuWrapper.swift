@@ -20,7 +20,7 @@ struct InsertNodeMenuWrapper: View {
     }
     
     var graphScale: CGFloat {
-        graphMovement.zoomData.zoom
+        graphMovement.zoomData
     }
     
     // menu and animating-node start in middle

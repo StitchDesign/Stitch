@@ -64,8 +64,8 @@ struct NodesOnlyView: View {
             Circle().fill(.black.opacity(0.95))
                 .frame(width: 60, height: 60)
                 .position(
-                    x: self.document.graphMovement.localPosition.x / self.document.graphMovement.zoomData.final,
-                    y: self.document.graphMovement.localPosition.y / self.document.graphMovement.zoomData.final
+                    x: self.document.graphMovement.localPosition.x / self.document.graphMovement.zoomData,
+                    y: self.document.graphMovement.localPosition.y / self.document.graphMovement.zoomData
                 )
                 .zIndex(999999999999999)
 #endif

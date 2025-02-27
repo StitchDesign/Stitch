@@ -77,11 +77,11 @@ struct BoundaryNodesPositions {
 
 @Observable
 final class GraphMovementObserver: Sendable {
-    @MainActor var localPosition: CGPoint = ABSOLUTE_GRAPH_CENTER
     
-    @MainActor var zoomData: GraphZoom = .init()
-
+    @MainActor var localPosition: CGPoint = ABSOLUTE_GRAPH_CENTER
     @MainActor var localPreviousPosition: CGPoint = ABSOLUTE_GRAPH_CENTER
+    
+    @MainActor var zoomData: CGFloat = 1.0
 
     let graphMultigesture = GraphMultigesture()
 
@@ -167,12 +167,6 @@ extension GraphMovementObserver {
         momentumState.delta
     }
 
-    @MainActor
-    func resetGraphMovement() {
-        self.localPreviousPosition = self.localPosition
-        self.momentumState = resetMomentum(self.momentumState)
-    }
-    
     @MainActor
     func stopNodeMovement() {
         self.draggedCanvasItem = nil

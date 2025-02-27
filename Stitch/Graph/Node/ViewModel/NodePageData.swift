@@ -16,12 +16,11 @@ final class NodePageData {
     // TODO: for root page data, should always be same as the persisted localPosition of GraphEntity; currently we only persist a single localPosition on the document entity
     var localPosition: CGPoint
 
-    // TODO: you probably only need to save the zoomData.final, since that's roughly equivalent during a magnification gesture to localPosition during a graph scroll gesture
-    let zoomData = GraphZoom()
+    var zoomData: CGFloat
 
     init(localPosition: CGPoint, zoomFinal: Double = 1) {
         self.localPosition = localPosition
-        self.zoomData.final = zoomFinal
+        self.zoomData = zoomFinal
     }
 }
 
