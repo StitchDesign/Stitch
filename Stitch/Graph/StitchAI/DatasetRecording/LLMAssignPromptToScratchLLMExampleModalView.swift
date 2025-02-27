@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftyJSON
 
 // User has recorded some LLM Steps in the app and now assigns a prompt to them
-struct LLMPromptModalView: View {
+struct LLMAssignPromptToScratchLLMExampleModalView: View {
         
     @State var prompt: String = ""
     

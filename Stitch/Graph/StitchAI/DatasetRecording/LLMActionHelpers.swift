@@ -49,13 +49,19 @@ struct ShowLLMApprovalModal: StitchDocumentEvent {
 struct ShowLLMEditModal: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
         log("ShowLLMEditModal called")
+        state.showLLMEditModal()
+    }
+}
 
-        state.llmRecording.isRecording = true
+extension StitchDocumentViewModel {
+    @MainActor
+    func showLLMEditModal() {
+        self.llmRecording.isRecording = true
         
-        // Always treat edit modal as an augmentation
-//        state.llmRecording.mode = .augmentation
+        //       Always treat edit modal as an augmentation
+        self.llmRecording.mode = .augmentation
         
-        state.llmRecording.modal = .editBeforeSubmit
+        self.llmRecording.modal = .editBeforeSubmit
     }
 }
 
@@ -88,10 +94,11 @@ struct SubmitLLMActionsToSupabase: StitchDocumentEvent {
                     prompt: state.llmRecording.promptState.prompt,
                     finalActions: actionsAsSteps,
                     deviceUUID: deviceUUID,
-                    isCorrection: state.llmRecording.mode == .augmentation)
+                    isCorrection: state.llmRecording.mode == .augmentation && state.llmRecording.recentOpenAIRequestCompleted)
                 
                 log("📼 ✅ Data successfully saved locally and uploaded to Supabase ✅ 📼")
                 state.llmRecording = .init()
+                state.llmRecording.recentOpenAIRequestCompleted = false
             }
             
         } catch let encodingError as EncodingError {
@@ -161,8 +168,8 @@ struct LLMActionDeleted: StitchDocumentEvent {
     let deletedAction: StepTypeAction
     
     func handle(state: StitchDocumentViewModel) {
-        log("LLMActionsUpdated: deletedAction: \(deletedAction)")
-        log("LLMActionsUpdated: state.llmRecording.actions was: \(state.llmRecording.actions)")
+        log("LLMActionDeleted: deletedAction: \(deletedAction)")
+        log("LLMActionDeleted: state.llmRecording.actions was: \(state.llmRecording.actions)")
         
         // Note: fine to do equality check because not editing actions per se here
         // TODO: what if we change the `value` of
@@ -186,11 +193,15 @@ struct LLMActionDeleted: StitchDocumentEvent {
         case .connectNodes, .changeValueType, .setInput:
             // deleting these LLMActions does not require us to delete any other LLMActions;
             // we just 'wipe and replay LLMActions'
-            log("do not need to delete any other other LLMActions")
+            log("LLMActionDeleted: Do not need to delete any other other LLMActions")
         }
                 
-        // If immediately "de-apply" the removed action(s) from graph,
+        // We immediately "de-apply" the removed action(s) from graph,
         // so that user instantly sees what changed.
-        try? state.reapplyActions()
+        do {
+            try state.reapplyActions()
+        } catch {
+            log("LLMActionDeleted: when reapplying actions, encountered: \(error)")
+        }
     }
 }

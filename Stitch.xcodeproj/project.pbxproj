@@ -839,7 +839,7 @@
 		ECD7FA8D29D73E2D0073ACAC /* ComponentActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD7FA8C29D73E2D0073ACAC /* ComponentActions.swift */; };
 		ECD83E9E2D4D87AD002B7A3E /* LLMActionPositionNodeUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD83E9D2D4D87AC002B7A3E /* LLMActionPositionNodeUtil.swift */; };
 		ECD83F0E2C19ED0800722AD7 /* LLMRecordingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD83F0D2C19ED0800722AD7 /* LLMRecordingState.swift */; };
-		ECD83F1B2C1A0C5F00722AD7 /* LLMPromptModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD83F1A2C1A0C5F00722AD7 /* LLMPromptModalView.swift */; };
+		ECD83F1B2C1A0C5F00722AD7 /* LLMAssignPromptToScratchLLMExampleModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD83F1A2C1A0C5F00722AD7 /* LLMAssignPromptToScratchLLMExampleModalView.swift */; };
 		ECD8871C29410BF500003B47 /* LoopFilterNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD8871B29410BF500003B47 /* LoopFilterNode.swift */; };
 		ECD8871F2941417900003B47 /* LayerInfoNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD8871E2941417900003B47 /* LayerInfoNode.swift */; };
 		ECD887232941494800003B47 /* LayerNodeId.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD887222941494800003B47 /* LayerNodeId.swift */; };
@@ -1793,7 +1793,7 @@
 		ECD7FA8C29D73E2D0073ACAC /* ComponentActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentActions.swift; sourceTree = "<group>"; };
 		ECD83E9D2D4D87AC002B7A3E /* LLMActionPositionNodeUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMActionPositionNodeUtil.swift; sourceTree = "<group>"; };
 		ECD83F0D2C19ED0800722AD7 /* LLMRecordingState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMRecordingState.swift; sourceTree = "<group>"; };
-		ECD83F1A2C1A0C5F00722AD7 /* LLMPromptModalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMPromptModalView.swift; sourceTree = "<group>"; };
+		ECD83F1A2C1A0C5F00722AD7 /* LLMAssignPromptToScratchLLMExampleModalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMAssignPromptToScratchLLMExampleModalView.swift; sourceTree = "<group>"; };
 		ECD8871B29410BF500003B47 /* LoopFilterNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopFilterNode.swift; sourceTree = "<group>"; };
 		ECD8871E2941417900003B47 /* LayerInfoNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInfoNode.swift; sourceTree = "<group>"; };
 		ECD887222941494800003B47 /* LayerNodeId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerNodeId.swift; sourceTree = "<group>"; };
@@ -3949,7 +3949,7 @@
 			isa = PBXGroup;
 			children = (
 				E4D0D2D62CE6B4B000E482E4 /* LLM_ACTIONS_TO_ADD_LATER.swift */,
-				ECD83F1A2C1A0C5F00722AD7 /* LLMPromptModalView.swift */,
+				ECD83F1A2C1A0C5F00722AD7 /* LLMAssignPromptToScratchLLMExampleModalView.swift */,
 				ECD83F0D2C19ED0800722AD7 /* LLMRecordingState.swift */,
 				ECD83E9D2D4D87AC002B7A3E /* LLMActionPositionNodeUtil.swift */,
 				EC5C6C392C2DAE690023D0C0 /* LLMActionRecording.swift */,
@@ -4842,7 +4842,7 @@
 				EC0B8A7F2953C4C500AA01B6 /* RoundedRectanglePatchNode.swift in Sources */,
 				EC2614452B89605700BEB066 /* PositionPackNode.swift in Sources */,
 				B51C67512C6441A5002F83D1 /* UnpackedValueCoercer.swift in Sources */,
-				ECD83F1B2C1A0C5F00722AD7 /* LLMPromptModalView.swift in Sources */,
+				ECD83F1B2C1A0C5F00722AD7 /* LLMAssignPromptToScratchLLMExampleModalView.swift in Sources */,
 				ECA92A54260A6BB700281B52 /* Output.swift in Sources */,
 				ECCE40E327E29B5D0068484B /* ICloudSyncStatus.swift in Sources */,
 				EC08D55B28988C4D00FEE846 /* AdjustmentBarPopoverView.swift in Sources */,

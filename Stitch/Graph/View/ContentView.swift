@@ -155,7 +155,7 @@ struct ContentView: View, KeyboardReadable {
                      titleLabel: "LLM Recording",
                      hideAction: document.closedLLMRecordingPrompt,
                      sheetBody: {
-            LLMPromptModalView()
+            LLMAssignPromptToScratchLLMExampleModalView()
         })
     }
 
