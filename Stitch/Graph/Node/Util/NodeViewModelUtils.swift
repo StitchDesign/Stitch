@@ -122,14 +122,14 @@ extension NodeViewModel {
         self.getInputRowObserver(0)?.currentBroadcastChoiceId
     }
     
-    @MainActor
-    var currentBroadcastChoice: BroadcastChoice? {
-        if let currentBroadcastChoiceId = currentBroadcastChoiceId {
-            return .init(title: self.displayTitle, id: currentBroadcastChoiceId)
-        }
-        return nilBroadcastChoice
-        
-    }
+//    @MainActor
+//    var currentBroadcastChoice: BroadcastChoice? {
+//        if let currentBroadcastChoiceId = currentBroadcastChoiceId {
+//            return .init(title: self.displayTitle, id: currentBroadcastChoiceId)
+//        }
+//        return nilBroadcastChoice
+//        
+//    }
 
     @MainActor
     static var mock: NodeViewModel {

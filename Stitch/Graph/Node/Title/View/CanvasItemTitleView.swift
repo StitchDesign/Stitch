@@ -39,16 +39,19 @@ struct CanvasItemTitleView: View {
     }
     
     @State private var showMenu = false
-            
+    
     var body: some View {
-//        logInView("NodeTitleView body \(id)")
+        //        logInView("NodeTitleView body \(id)")
         
         let label = name
         let mathExpression = node.patchNode?.mathExpression
-
+        
         VStack(alignment: .leading) {
-            if node.patch == .wirelessReceiver {
-                wirelessReceiverMenuView
+            if node.patch == .wirelessReceiver,
+               let rowObserver = node.inputsObservers.first {
+                CanvasItemTitleWirelessReceiverMenuView(graph: graph,
+                                                        node: node, rowObserver: rowObserver,
+                                                        nodeName: self.name)
             } else {
                 HStack {
                     if node.kind == .group {
@@ -95,25 +98,74 @@ struct CanvasItemTitleView: View {
         
         return node.getValidCustomTitle()
     }
+}
+
+struct CanvasItemTitleWirelessReceiverMenuView: View {
+    @State private var broadcasterNode: NodeViewModel?
+//    @State private var choice: BroadcastChoice?
+    
+    @Bindable var graph: GraphState
+    @Bindable var node: NodeViewModel
+    @Bindable var rowObserver: InputNodeRowObserver
+    let nodeName: String
+    
+//    init(graph: GraphState,
+//         node: NodeViewModel,
+//         nodeName: String) {
+//        self.graph = graph
+//        self.node = node
+//        self.nodeName = nodeName
+//        self.title = nodeName
+//    }
+    
+    func updateBroadcasterNode() {
+        guard let choice = self.currentBroadcastChoice else {
+            self.broadcasterNode = nil
+            return
+        }
+        
+        self.broadcasterNode = graph.getNodeViewModel(choice.id)
+    }
+    
+    var currentBroadcastChoiceNodeId: NodeId? {
+        self.rowObserver.upstreamOutputObserver?.id.nodeId
+    }
+    
+    var currentBroadcastChoice: BroadcastChoice? {
+        guard let currentBroadcastChoiceNodeId = currentBroadcastChoiceNodeId else {
+            return nilBroadcastChoice
+        }
+        
+        return .init(title: self.node.displayTitle,
+                     id: currentBroadcastChoiceNodeId)
+    }
     
     @ViewBuilder
-    var wirelessReceiverMenuView: some View {
-        let _title = node.currentBroadcastChoiceId.flatMap { graph.getNodeViewModel($0)?.displayTitle } ?? name
-                    
+    var body: some View {
         Menu {
-            let choice = node.currentBroadcastChoice
             NodeWirelessBroadcastSubmenuView(graph: graph,
-                                             currentBroadcastChoice: choice ?? nilBroadcastChoice,
-//                                                 assignedBroadcaster: choice,
-                                             nodeId: nodeId,
+                                             currentBroadcastChoice: self.currentBroadcastChoice ?? nilBroadcastChoice,
+                                             nodeId: node.id,
                                              forNodeTitle: true)
         } label: {
-            StitchTextView(string: _title)
+            StitchTextView(string: self.broadcasterNode?.displayTitle ?? nodeName)
                 .height(NODE_TITLE_HEIGHT)
         }
         .buttonStyle(.plain)
         .foregroundColor(STITCH_TITLE_FONT_COLOR)
         .menuIndicator(.hidden)
+        // Choice logic here for perf
+//        .onChange(of: self.currentBroadcastChoice, initial: true) { _, newChoice in
+//            self.choice = newChoice ?? nilBroadcastChoice
+//        }
+        // Broadcaster detection saved here for perf
+        .onChange(of: self.currentBroadcastChoice, initial: true) {
+            self.updateBroadcasterNode()
+        }
+        .onChange(of: graph.graphUpdaterId) {
+            self.updateBroadcasterNode()
+        }
+        // Check for new nodes
     }
 }
 
