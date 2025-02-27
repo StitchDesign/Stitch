@@ -135,7 +135,7 @@ struct CanvasEdgesViewModifier: ViewModifier {
         // Moves expensive computation here to reduce render cycles
             .onChange(of: graph.graphUpdaterId, initial: true) {
                 self.allInputs = self.graph
-                    .getVisibleCanvasItems()
+                    .getCanvasItemsAtTraversalLevel()
                     .flatMap { canvasItem -> [InputNodeRowViewModel] in
                         canvasItem.inputViewModels
                     }

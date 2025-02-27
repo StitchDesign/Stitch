@@ -544,7 +544,7 @@ extension GraphState {
 extension GraphState {
     @MainActor
     var selectedCanvasItems: CanvasItemViewModels {
-        self.getVisibleCanvasItems().filter { $0.isSelected(self) }
+        self.getCanvasItemsAtTraversalLevel().filter { $0.isSelected(self) }
     }
     
     @MainActor

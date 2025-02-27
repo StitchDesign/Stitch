@@ -118,7 +118,7 @@ extension VisibleNodesViewModel {
             let westernMostNode: CanvasItemViewModel? = GraphState.westernMostNode(
                 incomingGroupId,
                 // Canvas items at this new group's traversal level
-                canvasItems: self.getVisibleCanvasItems(at: incomingGroupId))
+                canvasItems: self.getCanvasItemsAtTraversalLevel(at: incomingGroupId))
             
             var startOffset: CGPoint = ABSOLUTE_GRAPH_CENTER
             
@@ -217,8 +217,8 @@ extension VisibleNodesViewModel {
     }
 
     @MainActor
-    func getVisibleNodes(at focusedGroup: NodeId?) -> [NodeDelegate] {
-        self.getVisibleCanvasItems(at: focusedGroup)
+    func getNodesAtThisTraversalLevel(at focusedGroup: NodeId?) -> [NodeDelegate] {
+        self.getCanvasItemsAtTraversalLevel(at: focusedGroup)
             .filter { $0.parentGroupNodeId ==  focusedGroup }
             .compactMap { $0.nodeDelegate }
     }
@@ -241,7 +241,7 @@ extension VisibleNodesViewModel {
     
     // TODO: "visible" is ambiguous between "canvas item is on-screen" vs "canvas item is at this traversal level"
     @MainActor
-    func getVisibleCanvasItems(at focusedGroup: NodeId?) -> CanvasItemViewModels {
+    func getCanvasItemsAtTraversalLevel(at focusedGroup: NodeId?) -> CanvasItemViewModels {
         self.getCanvasItems()
             .filter { $0.parentGroupNodeId == focusedGroup }
     }
