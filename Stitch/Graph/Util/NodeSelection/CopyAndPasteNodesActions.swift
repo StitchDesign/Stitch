@@ -34,6 +34,7 @@ struct SelectedGraphItemsCut: GraphEvent {
         }
 
         state.updateGraphData()
+        state.encodeProjectInBackground()
     }
 }
 
