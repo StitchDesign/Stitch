@@ -27,7 +27,7 @@ extension GraphState {
         for id in selectedGroupNodes {
             
             let visibleCanvasItemsForSelectedGroupNode = self.visibleNodesViewModel
-                .getVisibleCanvasItems(at: id)
+                .getCanvasItemsAtTraversalLevel(at: id)
                 .reduce(into: CanvasItemIdSet(), { $0.insert($1.id) })
             
             impliedIds = impliedIds.union(visibleCanvasItemsForSelectedGroupNode)
@@ -180,7 +180,7 @@ extension StitchDocumentViewModel {
         let center = self.viewPortCenter
 
         // Every selected node must belong to this traversal level.
-        let nodesAtThisLevel = self.visibleGraph.getVisibleCanvasItems().map(\.id).toSet
+        let nodesAtThisLevel = self.visibleGraph.getCanvasItemsAtTraversalLevel().map(\.id).toSet
         
         assertInDebug(!self.visibleGraph.selectedNodeIds.contains(where: { selectedNodeId in !nodesAtThisLevel.contains(selectedNodeId) }))
         

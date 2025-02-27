@@ -132,7 +132,7 @@ extension CanvasItemViewModel {
         
         // this looks at ALL nodes' inputs -- need to look only at
         
-        nodes.getVisibleCanvasItems(at: focusedGroupId)
+        nodes.getCanvasItemsAtTraversalLevel(at: focusedGroupId)
             .flatMap { canvasItem -> [InputPortViewData] in
                 
                 guard let nodeId = self.nodeDelegate?.id,
@@ -223,7 +223,7 @@ extension GraphState {
         // log("getNodesToTheEastFromClosestToFarthest: for originOutputNode \(originOutputNode.id), hoveredOutputLocation: \(hoveredOutputLocation)")
                 
         let nodes = self.visibleNodesViewModel
-            .getVisibleCanvasItems(at: self.graphUI.groupNodeFocused?.asNodeId)
+            .getCanvasItemsAtTraversalLevel(at: self.graphUI.groupNodeFocused?.asNodeId)
             .filter { node in
                 // "Nearby node" for edge-edit mode can never be a wireless receiver node
                 node.nodeDelegate?.kind.getPatch != .wirelessReceiver
