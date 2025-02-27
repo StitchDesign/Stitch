@@ -10,10 +10,15 @@ import SwiftUI
 // Final approval modal
 struct LLMApprovalModalView: View {
     
+    let prompt: String
+    
     var body: some View {
         VStack(alignment: .leading) {
             Text("Does this graph look correct?")
                 .font(.headline)
+            
+            Text("Prompt: \(prompt)")
+                .font(.subheadline)
             
             HStack {
                 Button {
@@ -23,9 +28,6 @@ struct LLMApprovalModalView: View {
                 }
                 
                 Button {
-                    // dispatch(ShowLLMEditModal())
-                    // Actually submit to Supabase here
-                    // call the logic in `SupabaseManager.uploadLLMRecording`
                     dispatch(SubmitLLMActionsToSupabase())
                 } label: {
                     Text("Upload") // "Send to Supabase"

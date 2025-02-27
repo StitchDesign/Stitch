@@ -48,7 +48,7 @@ func convertPositionEval(node: PatchNode,
     let defaultOpResult = PortValue.position(.zero)
     
     let op: OpWithIndex<PortValue> = { (values: PortValues, loopIndex: Int) -> PortValue in
-        log("convertPositionEval: op: values: \(values)")
+        // log("convertPositionEval: op: values: \(values)")
         
         let layerViewModelAtIndex = { (layerNodeId: LayerNodeId) -> LayerViewModel? in
             let layerNode = graphState.getNodeViewModel(layerNodeId.asNodeId)?.layerNode
