@@ -117,7 +117,7 @@ struct LLMNodeIOPortTypeView: View {
 }
 
 struct LLMActionCorrectionView: View {
-    let action: StepTypeAction
+    let action: Step
     let nodeIdToNameMapping: [NodeId: PatchOrLayer]
         
     var body: some View {
@@ -127,7 +127,7 @@ struct LLMActionCorrectionView: View {
             // added
             stepTypeAndDeleteView
             
-            switch action {
+            switch try? StepTypeAction.fromStep(action) {
             case .addNode(let x):
                 StitchTextView(string: "Node: \(x.nodeName.asNodeKind.description) \(x.nodeId.debugFriendlyId)")
 
@@ -170,6 +170,9 @@ struct LLMActionCorrectionView: View {
                 }
                 StitchTextView(string: "ValueType: \(x.valueType.display)")
                 StitchTextView(string: "Value: \(x.value.display)")
+                
+            case .none:
+                FatalErrorIfDebugView()
             }
         }
         .padding()

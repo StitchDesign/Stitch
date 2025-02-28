@@ -163,40 +163,33 @@ struct LLMActionsUpdatedByModal: StitchDocumentEvent {
 }
 
 struct LLMActionDeleted: StitchDocumentEvent {
-    let deletedAction: StepTypeAction
+    let deletedAction: Step
     
     func handle(state: StitchDocumentViewModel) {
         log("LLMActionDeleted: deletedAction: \(deletedAction)")
         log("LLMActionDeleted: state.llmRecording.actions was: \(state.llmRecording.actions)")
+        let graph = state.visibleGraph
         
         // Note: fine to do equality check because not editing actions per se here
         // TODO: what if we change the `value` of
-        let filteredActions = state.llmRecording.actions.filter { $0 != deletedAction.toStep() }
+        let filteredActions = state.llmRecording.actions.filter { $0 != deletedAction }
         
         state.llmRecording.actions = filteredActions
                 
         // If we deleted the LLMAction that added a patch to the graph,
         // then we should also delete any LLMActions that e.g. changed that patch's nodeType or inputs.
-            
-        switch deletedAction {
-            
-        case .addNode(let x):
-            state.graph.deleteNode(id: x.nodeId,
-                                   willDeleteLayerGroupChildren: true)
-            
-            // Remove any other actions that relied on this AddNode action
-            state.llmRecording.actions = state.llmRecording.actions
-                .removeActionsForDeletedNode(deletedNode: x.nodeId)
-
-        case .connectNodes, .changeValueType, .setInput:
-            // deleting these LLMActions does not require us to delete any other LLMActions;
-            // we just 'wipe and replay LLMActions'
-            log("LLMActionDeleted: Do not need to delete any other other LLMActions")
-        }
-                
+        
         // We immediately "de-apply" the removed action(s) from graph,
         // so that user instantly sees what changed.
         do {
+            // Remove all actions before re-applying
+            try state.llmRecording.actions
+                .reversed()
+                .forEach { action in
+                    let step = try action.convertToType()
+                    step.removeAction(graph: graph)
+                }
+            
             try state.reapplyActions()
         } catch {
             log("LLMActionDeleted: when reapplying actions, encountered: \(error)")

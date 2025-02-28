@@ -42,21 +42,45 @@ enum StepTypeAction: Equatable, Hashable, Codable {
         }
     }
     
-    static func fromStep(_ action: Step) throws -> any StepActionable {
+    static func fromStep(_ action: Step) throws -> Self {
         let stepType = action.stepType
         switch stepType {
             
         case .addNode:
-            return try StepActionAddNode.fromStep(action)
+            let x = try StepActionAddNode.fromStep(action)
+            return .addNode(x)
+            
+        case .connectNodes:
+            let x = try StepActionConnectionAdded.fromStep(action)
+            return .connectNodes(x)
+            
+        case .changeValueType:
+            let x = try StepActionChangeValueType.fromStep(action)
+            return .changeValueType(x)
+            
+        case .setInput:
+            let x = try StepActionSetInput.fromStep(action)
+            return .setInput(x)
+        }
+    }
+}
+
+extension Step {
+    func convertToType() throws -> any StepActionable {
+        let stepType = self.stepType
+        switch stepType {
+            
+        case .addNode:
+            return try StepActionAddNode.fromStep(self)
 
         case .connectNodes:
-            return try StepActionConnectionAdded.fromStep(action)
+            return try StepActionConnectionAdded.fromStep(self)
         
         case .changeValueType:
-            return try StepActionChangeValueType.fromStep(action)
+            return try StepActionChangeValueType.fromStep(self)
         
         case .setInput:
-            return try StepActionSetInput.fromStep(action)
+            return try StepActionSetInput.fromStep(self)
         }
     }
 }
@@ -175,7 +199,8 @@ struct StepActionAddNode: StepActionable {
     }
     
     func removeAction(graph: GraphState) {
-        graph.deleteNode(id: self.nodeId)
+        graph.deleteNode(id: self.nodeId,
+                         willDeleteLayerGroupChildren: true)
     }
     
     func validate(createdNodes: inout [NodeId : PatchOrLayer]) throws {
