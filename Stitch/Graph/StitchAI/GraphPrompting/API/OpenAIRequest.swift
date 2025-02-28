@@ -107,6 +107,12 @@ extension StitchAIManager {
                 await MainActor.run { [weak self] in
                     guard let state = self?.documentDelegate else { return }
                     
+                    // Reset recording state
+                    state.llmRecording = .init()
+                    
+                    // Reset checks which would later break new recording mode
+                    state.graphUI.insertNodeMenuState = InsertNodeMenuState()
+                    
                     if let error = error as? StitchAIManagerError {
                         guard error.shouldDisplayModal else {
                             return
