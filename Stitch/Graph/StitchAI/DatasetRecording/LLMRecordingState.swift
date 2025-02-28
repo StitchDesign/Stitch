@@ -87,6 +87,8 @@ struct LLMRecordingState {
     // Note: it's okay for this just to be patch nodes and entire layer nodes; any layer inputs from an AI-created layer node will be 'blue'
     var nodeIdToNameMapping: [NodeId: PatchOrLayer] = .init()
     
+    // Tracks node positions, persisting across edits in case node is removed from validation failure
+    var canvasItemPositions: [CanvasItemId : CGPoint] = .init()
 }
 
 extension Array where Element == any StepActionable {
@@ -196,23 +198,24 @@ extension StitchDocumentViewModel {
     
     @MainActor
     func reapplyActions() throws {
-        let actions = try self.llmRecording.actions.convertSteps()
-        let graph = self.visibleGraph
+        let actions = try graph.llmRecording.actions.convertSteps()
         
         log("StitchDocumentViewModel: reapplyLLMActions: actions: \(actions)")
-        // Wipe patches and layers
-        // TODO: keep patches and layers that WERE NOT created by this recent LLM prompt? Folks may use AI to supplement their existing work.
-        // Delete patches and layers that were created from actions;
-        
-        // NOTE: this llmRecording.actions will already reflect any edits the user has made to the list of actions
-//        let createdNodes = actions.nodesCreatedByLLMActions()
-//        createdNodes.forEach {
-//            self.graph.deleteNode(id: $0,
-//                                   willDeleteLayerGroupChildren: true)
-//        }
+        // Save node positions
+        self.llmRecording.canvasItemPositions = actions.reduce(into: [CanvasItemId : CGPoint]()) { result, action in
+            if let action = action as? StepActionAddNode,
+               let node = graph.getNodeViewModel(action.nodeId) {
+                let canvasItems = node.getAllCanvasObservers()
+
+                canvasItems.forEach { canvasItem in
+                    result.updateValue(canvasItem.position,
+                                       forKey: canvasItem.id)
+                }
+            }
+        }
         
         // Remove all actions before re-applying
-        try graph.llmRecording.actions
+        try self.llmRecording.actions
             .reversed()
             .forEach { action in
                 let step = try action.convertToType()
@@ -221,6 +224,14 @@ extension StitchDocumentViewModel {
         
         // Apply the LLM-actions (model-generated and user-augmented) to the graph
         try self.validateAndApplyActions(self.llmRecording.actions)
+        
+        // Update node positions to reflect previous position
+        self.llmRecording.canvasItemPositions.forEach { canvasId, canvasPosition in
+            if let canvas = graph.getCanvasItem(canvasId) {
+                canvas.position = canvasPosition
+                canvas.previousPosition = canvasPosition
+            }
+        }
         
         // TODO: also select the nodes when we first successfully parse?
         // Select the created nodes
@@ -232,6 +243,8 @@ extension StitchDocumentViewModel {
 //                }
 //            }
 //        }
+        
+        self.encodeProjectInBackground()
     }
 }
 

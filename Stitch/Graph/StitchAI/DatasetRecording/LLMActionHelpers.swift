@@ -168,20 +168,28 @@ struct LLMActionDeleted: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
         log("LLMActionDeleted: deletedAction: \(deletedAction)")
         log("LLMActionDeleted: state.llmRecording.actions was: \(state.llmRecording.actions)")
-        let graph = state.visibleGraph
         
-        // Note: fine to do equality check because not editing actions per se here
-        // TODO: what if we change the `value` of
-        let filteredActions = state.llmRecording.actions.filter { $0 != deletedAction }
-        
-        state.llmRecording.actions = filteredActions
+        guard let deletedAction = state.llmRecording.actions.first(where: {
+            $0 == deletedAction
+        }) else {
+            fatalErrorIfDebug()
+            return
+        }
                 
-        // If we deleted the LLMAction that added a patch to the graph,
-        // then we should also delete any LLMActions that e.g. changed that patch's nodeType or inputs.
-        
-        // We immediately "de-apply" the removed action(s) from graph,
-        // so that user instantly sees what changed.
         do {
+            // Run deletion process for action
+            try deletedAction.convertToType().removeAction(graph: state.visibleGraph)
+            
+            // Filter out removed action before re-applying actions
+            let filteredActions = state.llmRecording.actions.filter { $0 != deletedAction }
+            
+            state.llmRecording.actions = filteredActions
+
+            // If we deleted the LLMAction that added a patch to the graph,
+            // then we should also delete any LLMActions that e.g. changed that patch's nodeType or inputs.
+            
+            // We immediately "de-apply" the removed action(s) from graph,
+            // so that user instantly sees what changed.
             try state.reapplyActions()
         } catch {
             log("LLMActionDeleted: when reapplying actions, encountered: \(error)")
