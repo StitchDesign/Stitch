@@ -29,7 +29,7 @@ enum LLMRecordinModal: Equatable, Hashable {
     case approveAndSubmit
 }
 
-struct LLMRecordingState: Equatable {
+struct LLMRecordingState {
     
     // Set true just when we have received and successfully validated and applied an OpenAI request
     // Set false when make another request or submit a correction
@@ -61,13 +61,13 @@ struct LLMRecordingState: Equatable {
     
     var mode: LLMRecordingMode = .normal
     
-    var actions: [StepTypeAction] = .init() {
+    var actions: [Step] = .init() {
         didSet {
             var acc = [NodeId: PatchOrLayer]()
             self.actions.forEach { action in
                 // Add Node step uses nodeId; but Connect Nodes step uses toNodeId and fromNodeId
-                if case let .addNode(x) = action {
-                    acc.updateValue(x.nodeName, forKey: x.nodeId)
+                if let addNodeAction = action as? StepActionAddNode {
+                    acc.updateValue(addNodeAction.nodeName, forKey: addNodeAction.nodeId)
                 }
             } // forEach
             return self.nodeIdToNameMapping = acc
@@ -89,11 +89,11 @@ struct LLMRecordingState: Equatable {
     
 }
 
-extension [StepTypeAction] {
+extension Array where Element == any StepActionable {
     func nodesCreatedByLLMActions() -> IdSet {
         let createdNodes = self.reduce(into: IdSet()) { partialResult, step in
-            if case let .addNode(x) = step {
-                partialResult.insert(x.nodeId)
+            if let addNodeAction = step as? StepActionAddNode {
+                partialResult.insert(addNodeAction.nodeId)
             }
         }
         log("nodesCreatedByLLMActions: createdNodes: \(createdNodes)")
@@ -104,15 +104,16 @@ extension [StepTypeAction] {
 extension StitchDocumentViewModel {
     
     @MainActor
-    func validateAndApplyActions(_ actions: [any StepActionable]) throws {
-                
+    func validateAndApplyActions(_ actions: [Step]) throws {
         // Wipe old error reason
         self.llmRecording.actionsError = nil
+        
+        let convertedActions = try actions.convertSteps()
         
         // Are these steps valid?
         // invalid = e.g. tried to create a connection for a node before we created that node
         do {
-            try actions.validateLLMSteps()
+            try convertedActions.validateLLMSteps()
         } catch let error as StitchAIManagerError {
             // immediately enter correction-mode: one of the actions, or perhaps the ordering, was incorrect
             self.llmRecording.actionsError = error.description
@@ -121,7 +122,7 @@ extension StitchDocumentViewModel {
             throw error
         }
         
-        for action in actions {
+        for action in convertedActions {
             do {
                 try self.applyAction(action)
             } catch let error as StitchFileError {
@@ -133,7 +134,7 @@ extension StitchDocumentViewModel {
         }
         
         // Only adjust node positions if actions were valid and successfully applied
-        self.positionAIGeneratedNodes()
+        try self.positionAIGeneratedNodes()
         
         // Write to disk ONLY IF WE WERE SUCCESSFUL
         self.encodeProjectInBackground()
@@ -141,9 +142,10 @@ extension StitchDocumentViewModel {
     
     
     @MainActor
-    func positionAIGeneratedNodes() {
+    func positionAIGeneratedNodes() throws {
         
-        let (depthMap, hasCycle) = calculateAINodesAdjacency(self.llmRecording.actions)
+        let convertedActions = try self.llmRecording.actions.convertSteps()
+        let (depthMap, hasCycle) = convertedActions.calculateAINodesAdjacency()
         
         guard let depthMap = depthMap,
               !hasCycle else {
@@ -153,7 +155,7 @@ extension StitchDocumentViewModel {
                         
         let depthLevels = depthMap.values.sorted().toOrderedSet
 
-        let createdNodes = self.llmRecording.actions.nodesCreatedByLLMActions()
+        let createdNodes = convertedActions.nodesCreatedByLLMActions()
         
         // Iterate by depth-level, so that nodes at same depth (e.g. 0) can be y-offset from each other
 //        depthLevels.enumerated().forEach {
@@ -194,7 +196,7 @@ extension StitchDocumentViewModel {
     
     @MainActor
     func reapplyActions() throws {
-        let actions = self.llmRecording.actions
+        let actions = try self.llmRecording.actions.convertSteps()
         
         log("StitchDocumentViewModel: reapplyLLMActions: actions: \(actions)")
         // Wipe patches and layers
@@ -202,14 +204,14 @@ extension StitchDocumentViewModel {
         // Delete patches and layers that were created from actions;
         
         // NOTE: this llmRecording.actions will already reflect any edits the user has made to the list of actions
-        let createdNodes = self.llmRecording.actions.nodesCreatedByLLMActions()
+        let createdNodes = actions.nodesCreatedByLLMActions()
         createdNodes.forEach {
             self.graph.deleteNode(id: $0,
                                    willDeleteLayerGroupChildren: true)
         }
         
         // Apply the LLM-actions (model-generated and user-augmented) to the graph
-        try self.validateAndApplyActions(actions)
+        try self.validateAndApplyActions(self.llmRecording.actions)
         
         // TODO: also select the nodes when we first successfully parse?
         // Select the created nodes

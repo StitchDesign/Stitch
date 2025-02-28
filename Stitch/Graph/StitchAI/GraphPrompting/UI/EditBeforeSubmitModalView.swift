@@ -17,7 +17,7 @@ struct EditBeforeSubmitModalView: View {
         recordingState.promptState.prompt
     }
     
-    var recordingStateActions: [StepTypeAction] {
+    var recordingStateActions: [Step] {
         recordingState.actions
     }
     
@@ -25,7 +25,7 @@ struct EditBeforeSubmitModalView: View {
         recordingState.nodeIdToNameMapping
     }
     
-    @State var actions: [StepTypeAction]
+    @State var actions: [Step]
     
     var body: some View {
         VStack {
