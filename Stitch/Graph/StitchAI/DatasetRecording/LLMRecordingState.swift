@@ -30,18 +30,6 @@ enum LLMRecordinModal: Equatable, Hashable {
 }
 
 struct LLMRecordingState {
-    
-    // Set true just when we have received and successfully validated and applied an OpenAI request
-    // Set false when make another request or submit a correction
-//    var recentOpenAIRequestCompleted: Bool = false {
-//        didSet {
-//            // When a request is completed and we're recording, switch to augmentation mode
-//            if recentOpenAIRequestCompleted && isRecording {
-//                self.mode = .augmentation
-//            }
-//        }
-//    }
-    
     // Are we actively recording redux-actions which we then turn into LLM-actions?
     var isRecording: Bool = false
     
@@ -68,13 +56,6 @@ struct LLMRecordingState {
     var jsonEntryState = LLMJsonEntryState()
     
     var modal: LLMRecordinModal = .none
-
-    // Maps nodeIds to Patch/Layer name;
-    // Also serves as source of truth for which nodes (ids) have been created by
-
-    // Alternatively: use a stored var that is updated by `self.actions`'s `didSet`
-    // Note: it's okay for this just to be patch nodes and entire layer nodes; any layer inputs from an AI-created layer node will be 'blue'
-//    var nodeIdToNameMapping: [NodeId: PatchOrLayer] = .init()
     
     // Tracks node positions, persisting across edits in case node is removed from validation failure
     var canvasItemPositions: [CanvasItemId : CGPoint] = .init()

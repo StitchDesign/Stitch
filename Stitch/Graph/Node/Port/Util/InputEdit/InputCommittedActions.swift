@@ -76,7 +76,6 @@ extension GraphState {
     @MainActor
     func inputEditCommitted(input: InputNodeRowObserver,
                             value: PortValue?,
-//                            wasDropdown: Bool,
                             wasAdjustmentBarSelection: Bool = false) {
         
         let nodeId = input.id.nodeId
@@ -127,12 +126,6 @@ extension GraphState {
         
         // Only change the input if valued actually changed.
         input.setValuesInInput([value])
-        
-//        if wasDropdown {
-//            self.documentDelegate?.maybeCreateLLMStepSetInput(node: nodeViewModel,
-//                                                              input: input.id,
-//                                                              value: value)
-//        }
         
         self.scheduleForNextGraphStep(nodeId)
     }
