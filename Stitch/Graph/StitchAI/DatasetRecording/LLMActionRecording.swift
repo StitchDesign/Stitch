@@ -87,7 +87,8 @@ extension StitchDocumentViewModel {
         self.llmRecording.isRecording = true
         
         // Save initial graph entity state for tracking changes
-        self.llmRecording.initialGraphState = self.visibleGraph.createSchema()
+        // MARK: only overwrite if not yet set, since AI request may have already set it
+        self.llmRecording.initialGraphState = self.llmRecording.initialGraphState ?? self.visibleGraph.createSchema()
     }
     
     @MainActor
