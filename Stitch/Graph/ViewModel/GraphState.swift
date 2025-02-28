@@ -491,7 +491,8 @@ extension GraphState {
 
         // Tracks edge changes to reset cached data
         let upstreamConnections = allInputsObservers
-            .map { $0.upstreamOutputCoordinate }
+        // Important: use compactMap, otherwise `nil` (i.e. non-existence connections) will be counted as a valid connection
+            .compactMap { $0.upstreamOutputCoordinate }
         
         // Tracks manual edits
         let manualEdits: [PortValue] = allInputsObservers
