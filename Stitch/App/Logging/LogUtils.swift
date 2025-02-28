@@ -71,7 +71,7 @@ func log(_ message: Any, _ loggingAction: LoggingAction = .none) {
 }
 
 func logInView(_ message: String) -> EmptyView {
-    #if DEBUG || DEV_DEBUG
+    #if DEBUG || DEV_DEBUG || STITCH_AI
     print("** \(message)")
     #endif
     return EmptyView()

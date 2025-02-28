@@ -159,7 +159,90 @@ struct CanvasEdgesViewModifier: ViewModifier {
                 EdgeInputLabelsView(inputs: allInputs,
                                     document: document,
                                     graphUI: document.graphUI)
+                
+                PortPreviewPopoverView(inputs: allInputs,
+                                       graphUI: document.graphUI)
+                .border(.red)
             }
+    }
+}
+
+struct PortPreviewPopoverView: View {
+    let inputs: [InputNodeRowViewModel]
+//    @Bindable var document: StitchDocumentViewModel
+    @Bindable var graphUI: GraphUIState
+    
+    var body: some View {
+        
+        // If we have an open port preview
+        if case let .input(portPreviewInputObserverCoordinate, portPreviewCanvasItemId) = graphUI.openPortPreview {
+            ForEach(inputs) { (inputRowViewModel: InputNodeRowViewModel) in
+                // And i
+                let isPortPreviewInput = (inputRowViewModel.canvasItemDelegate?.id == portPreviewCanvasItemId)
+                if isPortPreviewInput,
+                   let rowObserver = inputRowViewModel.rowDelegate,
+                   rowObserver.id == portPreviewInputObserverCoordinate,
+                   let inputAnchor = inputRowViewModel.anchorPoint {
+//                    Text("preview")
+                    logInView("PortPreviewPopoverView: will open for input row view model  \(inputRowViewModel.id)")
+                    logInView("PortPreviewPopoverView: inputAnchor: \(inputAnchor)")
+                    
+                    PortValuesPreviewView(rowObserver: rowObserver,
+                                          rowViewModel: inputRowViewModel,
+                                          nodeIO: .input)
+//                    Text("Love me")
+//                    .frame(width: 300, height: 300)
+//                    .frame(minWidth: 300,
+//                           maxWidth: 600,
+//                           minHeight: 300,
+//                           maxHeight: 600)
+                    
+//                    .frame(minHeight: NODE_ROW_HEIGHT * 2,
+////                           maxHeight: 600)
+//                           maxHeight: 200)
+                
+//                    .frame(width: 300)
+                    
+                    .background {
+                        GeometryReader { proxy in
+                            Color.clear
+                                .onChange(of: proxy.frame(in: .global), initial: true) { _, newFrameData in
+                                    log("PortPreviewPopoverView: newFrameData.origin: \(newFrameData.origin)")
+                                    log("PortPreviewPopoverView: newFrameData.size: \(newFrameData.size)")
+                                    
+                                }
+                        }
+                    }
+                    
+                    .frame(width: 300, height: 300)
+                    
+                    // Need a geometry reader to know how about the stable-popover actually is?
+                    
+//                    .frame(width: 300,
+//                           height: 600)
+//                    .position(inputRowViewModel.anchorPoint ?? .zero)
+//                    .position(inputAnchor - 100)
+                    
+                    // Where does this number come from?
+                    // And how to do an arrow etc.?
+//                    .position(inputAnchor - 50)
+                    .position(x: inputAnchor.x - 75,
+                              y: inputAnchor.y)
+                    
+                    // this doesn't read the size of the popover 
+//                    .background {
+//                        GeometryReader { proxy in
+//                            Color.clear
+//                                .onChange(of: proxy.frame(in: .global), initial: true) { _, newFrameData in
+//                                    log("PortPreviewPopoverView: newFrameData.origin: \(newFrameData.origin)")
+//                                    log("PortPreviewPopoverView: newFrameData.size: \(newFrameData.size)")
+//                                    
+//                                }
+//                        }
+//                    }
+                }
+            }
+        }
     }
 }
 
@@ -174,10 +257,9 @@ struct EdgeInputLabelsView: View {
         if let nearbyCanvasItem: CanvasItemId = document.graphUI.edgeEditingState?.nearbyCanvasItem {
             ForEach(inputs) { inputRowViewModel in
                 
-                
                 // Doesn't seem to be needed? Checking the canvasItemDelegate seems to work well
                 // visibleNodeId property checks for group splitter inputs
-//                let isInputForNearbyNode = inputRowViewModel.visibleNodeIds.contains(nearbyCanvasItem)
+                // let isInputForNearbyNode = inputRowViewModel.visibleNodeIds.contains(nearbyCanvasItem)
                 
                 let isInputOnNearbyCanvasItem = inputRowViewModel.canvasItemDelegate?.id == nearbyCanvasItem
                 let isVisible = isInputOnNearbyCanvasItem && showLabels

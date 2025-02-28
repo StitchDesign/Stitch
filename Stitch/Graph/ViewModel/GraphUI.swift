@@ -34,9 +34,33 @@ enum FocusedFieldChangedByArrowKey: Equatable, Hashable {
          downArrow // decrement
 }
 
+enum OpenedPortPreview: Equatable, Hashable, Codable {
+    case none,
+         input(InputCoordinate, CanvasItemId),
+         output(OutputCoordinate, CanvasItemId)
+}
+
+struct PortPreviewOpened: StitchDocumentEvent {
+    let port: NodeIOCoordinate
+    let nodeIO: NodeIO
+    let canvasItemId: CanvasItemId
+    
+    func handle(state: StitchDocumentViewModel) {
+        // Access via document to avoid weak reference
+        switch nodeIO {
+        case .input:
+            state.graphUI.openPortPreview = .input(port, canvasItemId)
+        case .output:
+            state.graphUI.openPortPreview = .output(port, canvasItemId)
+        }
+    }
+}
+
 
 @Observable
 final class GraphUIState: Sendable {
+    
+    @MainActor var openPortPreview: OpenedPortPreview = .none
     
     // Set true / non-nil in methods or action handlers
     // Set false / nil in StitchUIScrollView
@@ -46,7 +70,6 @@ final class GraphUIState: Sendable {
     @MainActor var canvasJumpLocation: CGPoint? = nil
     @MainActor var canvasPageOffsetChanged: CGPoint? = nil
     @MainActor var canvasPageZoomScaleChanged: CGFloat? = nil
-
     
     @MainActor var nodeMenuHeight: CGFloat = INSERT_NODE_MENU_MAX_HEIGHT
     
@@ -357,6 +380,8 @@ extension GraphState {
         }
         
         self.graphUI.isSidebarFocused = false
+        
+        self.graphUI.openPortPreview = .none
     }
 }
 

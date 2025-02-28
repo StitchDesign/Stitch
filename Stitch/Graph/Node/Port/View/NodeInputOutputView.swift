@@ -356,22 +356,36 @@ struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
          In practice, seems okay; e.g. Loop node changing from 3 to 1 disables the tap, and changing from 1 to 3 enables the tap.
          */
         .onTapGesture {
-            // Do nothing when input/output doesn't contain a loop
-            if rowObserver.hasLoopedValues {
-                self.showPopover.toggle()
-            } else {
-                // If input/output count is no longer a loop,
-                // any tap should just close the popover.
-                self.showPopover = false
+            // Can only tap canvas ports, not layer inspector ports
+            guard let canvasItemId = rowViewModel.canvasItemDelegate?.id else {
+                return
             }
+            let coord = self.rowObserver.id
+            
+            log("NodeRowPortView: tapped coord: \(coord)")
+            
+            dispatch(PortPreviewOpened(port: coord,
+                                       nodeIO: nodeIO,
+                                       canvasItemId: canvasItemId))
+            
+//
+            
+//            // Do nothing when input/output doesn't contain a loop
+//            if rowObserver.hasLoopedValues {
+//                self.showPopover.toggle()
+//            } else {
+//                // If input/output count is no longer a loop,
+//                // any tap should just close the popover.
+//                self.showPopover = false
+//            }
         }
-        // TODO: get popover to work with all values
-        .popover(isPresented: self.$showPopover) {
-            // Note: there is a bug where the first time this view-closure would fire (when `self.showPopover` set `true`), the closure's `self.showPopover` was somehow still `false`, so the popover opened with an `EmptyView`
-            // Perf-wise, we do not need the `if self.showPopover` check because `PortValuesPreviewView` only re-renders when the popover is open.
-            PortValuesPreviewView(rowObserver: rowObserver,
-                                  rowViewModel: rowViewModel,
-                                  nodeIO: nodeIO)
-        }
+//        // TODO: get popover to work with all values
+//        .popover(isPresented: self.$showPopover) {
+//            // Note: there is a bug where the first time this view-closure would fire (when `self.showPopover` set `true`), the closure's `self.showPopover` was somehow still `false`, so the popover opened with an `EmptyView`
+//            // Perf-wise, we do not need the `if self.showPopover` check because `PortValuesPreviewView` only re-renders when the popover is open.
+//            PortValuesPreviewView(rowObserver: rowObserver,
+//                                  rowViewModel: rowViewModel,
+//                                  nodeIO: nodeIO)
+//        }
     }
 }

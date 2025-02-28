@@ -114,7 +114,6 @@ struct OutputValueView: View {
                 readOnlyView(string.string)
                 
             case .number, .layerDimension, .spacing:
-                logInView("OutValueView: body: fieldValue.stringValue: \(fieldValue.stringValue)")
                 readOnlyView(fieldValue.stringValue)
                 
             case .bool(let bool):
