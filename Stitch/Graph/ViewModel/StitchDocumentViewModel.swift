@@ -173,6 +173,11 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
         // Blocks thumbnail from being selected until encoding completes
         self.projectLoader?.loadingDocument = .loading
         
+        // Checks if AI edit mode is enabled and if actions should be updated
+        if self.llmRecording.mode == .augmentation {
+            self.llmRecording.actions = self.deriveNewAIActions()
+        }
+        
         // Updates graph data when changed
         self.visibleGraph.refreshGraphUpdaterId()
     }

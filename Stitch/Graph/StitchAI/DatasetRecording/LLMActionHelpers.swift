@@ -151,16 +151,16 @@ extension [StepTypeAction] {
 //    }
 }
 
-struct LLMActionsUpdatedByModal: StitchDocumentEvent {
-    let newActions: [Step]
-    
-    func handle(state: StitchDocumentViewModel) {
-        log("LLMActionsUpdated: newActions: \(newActions)")
-        log("LLMActionsUpdated: state.llmRecording.actions was: \(state.llmRecording.actions)")
-        state.llmRecording.actions = newActions
-        try? state.reapplyActions()
-    }
-}
+//struct LLMActionsUpdatedByModal: StitchDocumentEvent {
+//    let newActions: [Step]
+//    
+//    func handle(state: StitchDocumentViewModel) {
+//        log("LLMActionsUpdated: newActions: \(newActions)")
+//        log("LLMActionsUpdated: state.llmRecording.actions was: \(state.llmRecording.actions)")
+//        state.llmRecording.actions = newActions
+//        try? state.reapplyActions()
+//    }
+//}
 
 struct LLMActionDeleted: StitchDocumentEvent {
     let deletedAction: Step

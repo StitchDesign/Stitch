@@ -37,7 +37,7 @@ struct LLMRecordingState {
         didSet {
             // When a request is completed and we're recording, switch to augmentation mode
             if recentOpenAIRequestCompleted && isRecording {
-                mode = .augmentation
+                self.mode = .augmentation
             }
         }
     }
@@ -89,6 +89,9 @@ struct LLMRecordingState {
     
     // Tracks node positions, persisting across edits in case node is removed from validation failure
     var canvasItemPositions: [CanvasItemId : CGPoint] = .init()
+    
+    // Tracks graph state before recording
+    var initialGraphState: GraphEntity?
 }
 
 extension Array where Element == any StepActionable {
@@ -193,7 +196,35 @@ extension StitchDocumentViewModel {
                 }
             }
         }
+    }
     
+    @MainActor
+    func deriveNewAIActions() -> [Step] {
+        guard let oldGraphEntity = self.llmRecording.initialGraphState else {
+            fatalErrorIfDebug()
+            return []
+        }
+        
+        let newGraphEntity = self.visibleGraph.createSchema()
+        let oldNodeIds = oldGraphEntity.nodes.map(\.id).toSet
+        let newNodeIds = newGraphEntity.nodes.map(\.id).toSet
+        
+        let nodesToCreate = newNodeIds.subtracting(oldNodeIds)
+        
+        let newNodeSteps: [Step] = nodesToCreate.compactMap { newNodeId -> Step? in
+            guard let nodeEntity = newGraphEntity.nodes.first(where: { $0.id == newNodeId }),
+                  let nodeName = PatchOrLayer.from(nodeKind: nodeEntity.kind) else {
+                fatalErrorIfDebug()
+                return nil
+            }
+            
+            let step = StepActionAddNode(nodeId: newNodeId,
+                                         nodeName: nodeName)
+            return step.toStep
+        }
+        
+        // TODO: other kinds
+        return newNodeSteps
     }
     
     @MainActor

@@ -74,6 +74,9 @@ extension StitchAIManager {
         // Set the flag to indicate a request is in progress
         currentDocument.graphUI.insertNodeMenuState.isGeneratingAINode = true
         
+        // Track initial graph state
+        currentDocument.llmRecording.initialGraphState = currentDocument.visibleGraph.createSchema()
+        
         self.currentTask = Task(priority: .high) { [weak self] in
             guard let manager = self else {
                 return
