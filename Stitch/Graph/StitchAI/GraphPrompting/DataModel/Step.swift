@@ -43,7 +43,6 @@ struct Step: Hashable {
 }
 
 extension Step: Codable {
-    
     enum CodingKeys: String, CodingKey {
         case stepType = "step_type"
         case nodeId = "node_id"
@@ -130,5 +129,16 @@ extension Step: Codable {
                 throw StitchAIManagerError.portValueDecodingError(error.localizedDescription)
             }
         }
+    }
+}
+
+extension StepActionable {
+    var toPortCoordinate: NodeIOCoordinate? {
+        let step = self.toStep
+        
+        guard let nodeId = step.nodeId ?? step.toNodeId,
+              let port = step.port else { return nil }
+        
+        return .init(portType: port, nodeId: nodeId.value)
     }
 }

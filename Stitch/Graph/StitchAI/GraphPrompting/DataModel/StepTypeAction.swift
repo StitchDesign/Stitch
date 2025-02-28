@@ -151,6 +151,8 @@ protocol StepActionable: Hashable, Codable {
     /// Lists each property tracked in OpenAI's structured outputs.
     static var structuredOutputsCodingKeys: Set<Step.CodingKeys> { get }
     
+    var toStep: Step { get }
+    
     @MainActor
     func applyAction(graph: GraphState) throws
     

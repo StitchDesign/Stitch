@@ -252,18 +252,23 @@ extension StitchDocumentViewModel {
         }
         
         // Sorting necessary for validation
-        return newNodesSteps
+        let newNodesStepsSorted = newNodesSteps
             .sorted { $0.nodeId < $1.nodeId }
-            .map { $0.toStep } +
-        newNodeTypesSteps
-            .sorted { $0.nodeId < $1.nodeId }
-            .map { $0.toStep } +
-        newConnectionSteps
-            .sorted { $0.port.hashValue < $1.port.hashValue }
-            .map { $0.toStep } +
-        newSetInputSteps
-            .sorted { $0.port.hashValue < $1.port.hashValue }
             .map { $0.toStep }
+        let newNodeTypesStepsSorted = newNodeTypesSteps
+            .sorted { $0.nodeId < $1.nodeId }
+            .map { $0.toStep }
+        let newConnectionStepsSorted = newConnectionSteps
+            .sorted { ($0.toPortCoordinate?.hashValue ?? 0) < ($1.toPortCoordinate?.hashValue ?? 0) }
+            .map { $0.toStep }
+        let newSetInputStepsSorted = newSetInputSteps
+            .sorted { ($0.toPortCoordinate?.hashValue ?? 0) < ($1.toPortCoordinate?.hashValue ?? 0) }
+            .map { $0.toStep }
+        
+        return newNodesStepsSorted +
+        newNodeTypesStepsSorted +
+        newConnectionStepsSorted +
+        newSetInputStepsSorted
     }
     
     private static func deriveNewInputActions(input: NodeConnectionType,
@@ -340,7 +345,7 @@ extension StitchDocumentViewModel {
         let newActions = self.llmRecording.actions
         try zip(oldActions, newActions).forEach { oldAction, newAction in
             if oldAction != newAction {
-                throw StitchAIManagerError.actionValidationError("Found unequal actions:\n\(oldAction)\n\(newAction)")
+                throw StitchAIManagerError.actionValidationError("Found unequal actions:\n\(try oldAction.convertToType())\n\(try newAction.convertToType())")
             }
         }
     }
