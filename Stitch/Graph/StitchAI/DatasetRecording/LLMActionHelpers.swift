@@ -29,14 +29,14 @@ struct ShowLLMApprovalModal: StitchDocumentEvent {
         }
         
         // For augmentation mode, continue with approval flow
-        do {
-            try state.reapplyActions()
-        } catch let error as StitchFileError {
-            state.showErrorModal(message: error.description,
-                                 userPrompt: "")
-        } catch {
-            log("ShowLLMApprovalModal error: \(error.localizedDescription)")
-        }
+//        do {
+//            try state.reapplyActions()
+//        } catch let error as StitchFileError {
+//            state.showErrorModal(message: error.description,
+//                                 userPrompt: "")
+//        } catch {
+//            log("ShowLLMApprovalModal error: \(error.localizedDescription)")
+//        }
         
         // End recording when we open the final submit
         state.llmRecordingEnded()
@@ -92,11 +92,11 @@ struct SubmitLLMActionsToSupabase: StitchDocumentEvent {
                     prompt: state.llmRecording.promptState.prompt,
                     finalActions: actionsAsSteps,
                     deviceUUID: deviceUUID,
-                    isCorrection: state.llmRecording.mode == .augmentation && state.llmRecording.recentOpenAIRequestCompleted)
+                    isCorrection: state.llmRecording.mode == .augmentation)
                 
                 log("📼 ✅ Data successfully saved locally and uploaded to Supabase ✅ 📼")
                 state.llmRecording = .init()
-                state.llmRecording.recentOpenAIRequestCompleted = false
+//                state.llmRecording.recentOpenAIRequestCompleted = false
             }
             
         } catch let encodingError as EncodingError {
@@ -180,17 +180,17 @@ struct LLMActionDeleted: StitchDocumentEvent {
             // Run deletion process for action
             try deletedAction.convertToType().removeAction(graph: state.visibleGraph)
             
-            // Filter out removed action before re-applying actions
-            let filteredActions = state.llmRecording.actions.filter { $0 != deletedAction }
-            
-            state.llmRecording.actions = filteredActions
+//            // Filter out removed action before re-applying actions
+//            let filteredActions = state.llmRecording.actions.filter { $0 != deletedAction }
+//            
+//            state.llmRecording.actions = filteredActions
 
             // If we deleted the LLMAction that added a patch to the graph,
             // then we should also delete any LLMActions that e.g. changed that patch's nodeType or inputs.
             
             // We immediately "de-apply" the removed action(s) from graph,
             // so that user instantly sees what changed.
-            try state.reapplyActions()
+//            try state.reapplyActions()
         } catch {
             log("LLMActionDeleted: when reapplying actions, encountered: \(error)")
         }

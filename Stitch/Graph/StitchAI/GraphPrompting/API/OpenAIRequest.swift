@@ -132,7 +132,7 @@ extension StitchAIManager {
         guard let document = self.documentDelegate else {
             throw StitchAIManagerError.documentNotFound(request) 
         }
-        document.llmRecording.recentOpenAIRequestCompleted = false
+//        document.llmRecording.recentOpenAIRequestCompleted = false
         
         // Check if we've exceeded retry attempts
         guard attempt <= config.maxRetries else {
@@ -299,12 +299,13 @@ extension StitchAIManager {
 
         log(" Storing Original AI Generated Actions ")
 //        log(" Original Actions to store: \(steps.asJSONDisplay())")
-        document.llmRecording.actions = steps
+//        document.llmRecording.actions = steps
         document.llmRecording.promptState.prompt = originalPrompt
         
-        try document.validateAndApplyActions(steps)
+        // Enable edit mode for actions after succsesful request
+        document.llmRecording.mode = .augmentation
         
-        document.llmRecording.recentOpenAIRequestCompleted = true
+        try document.validateAndApplyActions(steps)
     }
 }
 
