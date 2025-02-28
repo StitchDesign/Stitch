@@ -12,6 +12,7 @@ import SwiftyJSON
 struct EditBeforeSubmitModalView: View {
  
     let recordingState: LLMRecordingState
+    let graph: GraphState
     
     var prompt: String {
         recordingState.promptState.prompt
@@ -21,9 +22,9 @@ struct EditBeforeSubmitModalView: View {
         recordingState.actions
     }
     
-    var nodeIdToNameMapping: [NodeId: PatchOrLayer] {
-        recordingState.nodeIdToNameMapping
-    }
+//    var nodeIdToNameMapping: [NodeId: PatchOrLayer] {
+//        recordingState.nodeIdToNameMapping
+//    }
     
     var actions: [Step] {
         recordingState.actions
@@ -40,7 +41,7 @@ struct EditBeforeSubmitModalView: View {
             List {
                 ForEach(self.actions, id: \.hashValue) { action in
                     LLMActionCorrectionView(action: action,
-                                            nodeIdToNameMapping: self.nodeIdToNameMapping)
+                                            graph: graph)
                 }
                 .listRowBackground(Color.clear)
                 .listRowSpacing(8)
@@ -123,7 +124,7 @@ struct LLMNodeIOPortTypeView: View {
 
 struct LLMActionCorrectionView: View {
     let action: Step
-    let nodeIdToNameMapping: [NodeId: PatchOrLayer]
+    let graph: GraphState
         
     var body: some View {
         
@@ -137,8 +138,9 @@ struct LLMActionCorrectionView: View {
                 StitchTextView(string: "Node: \(x.nodeName.asNodeKind.description) \(x.nodeId.debugFriendlyId)")
 
             case .connectNodes(let x):
-                if let fromNodeName = nodeIdToNameMapping.get(x.fromNodeId) {
-                    StitchTextView(string: "From Node: \(fromNodeName.asNodeKind.description) \(x.fromNodeId.debugFriendlyId)")
+                if let nodeKind = graph.getNodeViewModel(x.fromNodeId)?.kind,
+                   let fromNodeName = PatchOrLayer.from(nodeKind: nodeKind) {
+                    StitchTextView(string: "From Node: \(nodeKind.description) \(x.fromNodeId.debugFriendlyId)")
                     LLMNodeIOPortTypeView(nodeName: fromNodeName,
                                           port: .portIndex(x.fromPort),
                                           generalLabel: "From Port")
@@ -146,8 +148,9 @@ struct LLMActionCorrectionView: View {
                     StitchTextView(string: "No Patch/Layer found for From Node \(x.fromNodeId.debugFriendlyId)")
                 }
                 
-                if let toNodeName = nodeIdToNameMapping.get(x.toNodeId) {
-                    StitchTextView(string: "To Node: \(toNodeName.asNodeKind.description) \(x.toNodeId.debugFriendlyId)")
+                if let nodeKind = graph.getNodeViewModel(x.toNodeId)?.kind,
+                   let toNodeName = PatchOrLayer.from(nodeKind: nodeKind) {
+                    StitchTextView(string: "To Node: \(nodeKind.description) \(x.toNodeId.debugFriendlyId)")
                     LLMNodeIOPortTypeView(nodeName: toNodeName,
                                           port: x.port,
                                           generalLabel: "To Port")
@@ -156,7 +159,8 @@ struct LLMActionCorrectionView: View {
                 }
                 
             case .changeValueType(let x):
-                if let nodeName = nodeIdToNameMapping.get(x.nodeId) {
+                if let nodeKind = graph.getNodeViewModel(x.nodeId)?.kind,
+                   let nodeName = PatchOrLayer.from(nodeKind: nodeKind) {
                     StitchTextView(string: "Node: \(nodeName.asNodeKind.description) \(x.nodeId.debugFriendlyId)")
                 } else {
                     StitchTextView(string: "No Patch/Layer found for Node \(x.nodeId.debugFriendlyId)")
@@ -165,7 +169,8 @@ struct LLMActionCorrectionView: View {
                 StitchTextView(string: "NodeType: \(x.valueType.display)")
                 
             case .setInput(let x):
-                if let nodeName = nodeIdToNameMapping.get(x.nodeId) {
+                if let nodeKind = graph.getNodeViewModel(x.nodeId)?.kind,
+                   let nodeName = PatchOrLayer.from(nodeKind: nodeKind) {
                     StitchTextView(string: "Node: \(nodeName.asNodeKind.description) \(x.nodeId.debugFriendlyId)")
                     LLMNodeIOPortTypeView(nodeName: nodeName,
                                           port: x.port,

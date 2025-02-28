@@ -61,18 +61,7 @@ struct LLMRecordingState {
     
     var mode: LLMRecordingMode = .normal
     
-    var actions: [Step] = .init() {
-        didSet {
-            var acc = [NodeId: PatchOrLayer]()
-            self.actions.forEach { action in
-                // Add Node step uses nodeId; but Connect Nodes step uses toNodeId and fromNodeId
-                if let addNodeAction = action as? StepActionAddNode {
-                    acc.updateValue(addNodeAction.nodeName, forKey: addNodeAction.nodeId)
-                }
-            } // forEach
-            return self.nodeIdToNameMapping = acc
-        }
-    }
+    var actions: [Step] = .init()
     
     var promptState = LLMPromptState()
     
@@ -85,7 +74,7 @@ struct LLMRecordingState {
 
     // Alternatively: use a stored var that is updated by `self.actions`'s `didSet`
     // Note: it's okay for this just to be patch nodes and entire layer nodes; any layer inputs from an AI-created layer node will be 'blue'
-    var nodeIdToNameMapping: [NodeId: PatchOrLayer] = .init()
+//    var nodeIdToNameMapping: [NodeId: PatchOrLayer] = .init()
     
     // Tracks node positions, persisting across edits in case node is removed from validation failure
     var canvasItemPositions: [CanvasItemId : CGPoint] = .init()

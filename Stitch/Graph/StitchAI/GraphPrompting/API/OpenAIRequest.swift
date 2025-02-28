@@ -63,6 +63,17 @@ extension Array where Element == Step {
     mutating func append(_ stepType: StepTypeAction) {
         self.append(stepType.toStep())
     }
+    
+    func containsNewNode(from id: NodeId) -> Bool {
+        self.contains(where: { step in
+            if let convertedStep = try? step.convertToType(),
+               let addStep = convertedStep as? StepActionAddNode {
+                return addStep.nodeId == id
+            }
+            
+            return false
+        })
+    }
 }
 
 extension StitchAIManager {
