@@ -197,6 +197,7 @@ extension StitchDocumentViewModel {
     @MainActor
     func reapplyActions() throws {
         let actions = try self.llmRecording.actions.convertSteps()
+        let graph = self.visibleGraph
         
         log("StitchDocumentViewModel: reapplyLLMActions: actions: \(actions)")
         // Wipe patches and layers
@@ -204,25 +205,33 @@ extension StitchDocumentViewModel {
         // Delete patches and layers that were created from actions;
         
         // NOTE: this llmRecording.actions will already reflect any edits the user has made to the list of actions
-        let createdNodes = actions.nodesCreatedByLLMActions()
-        createdNodes.forEach {
-            self.graph.deleteNode(id: $0,
-                                   willDeleteLayerGroupChildren: true)
-        }
+//        let createdNodes = actions.nodesCreatedByLLMActions()
+//        createdNodes.forEach {
+//            self.graph.deleteNode(id: $0,
+//                                   willDeleteLayerGroupChildren: true)
+//        }
+        
+        // Remove all actions before re-applying
+        try graph.llmRecording.actions
+            .reversed()
+            .forEach { action in
+                let step = try action.convertToType()
+                step.removeAction(graph: graph)
+            }
         
         // Apply the LLM-actions (model-generated and user-augmented) to the graph
         try self.validateAndApplyActions(self.llmRecording.actions)
         
         // TODO: also select the nodes when we first successfully parse?
         // Select the created nodes
-        createdNodes.forEach { nodeId in
-            if let node = self.graph.getNodeViewModel(nodeId) {
-                // Will select a patch node or a layer nodes' inputs/outputs on canvas
-                node.getAllCanvasObservers().forEach { (canvasItem: CanvasItemViewModel) in
-                    canvasItem.select(self.graph)
-                }
-            }
-        }
+//        createdNodes.forEach { nodeId in
+//            if let node = self.graph.getNodeViewModel(nodeId) {
+//                // Will select a patch node or a layer nodes' inputs/outputs on canvas
+//                node.getAllCanvasObservers().forEach { (canvasItem: CanvasItemViewModel) in
+//                    canvasItem.select(self.graph)
+//                }
+//            }
+//        }
     }
 }
 
