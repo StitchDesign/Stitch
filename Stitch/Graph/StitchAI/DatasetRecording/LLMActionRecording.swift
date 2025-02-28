@@ -85,6 +85,9 @@ extension StitchDocumentViewModel {
 //        print("🤖 Current Actions at Recording Start: \(self.llmRecording.actions.asJSONDisplay())")
         
         self.llmRecording.isRecording = true
+        
+        // Save initial graph entity state for tracking changes
+        self.llmRecording.initialGraphState = self.visibleGraph.createSchema()
     }
     
     @MainActor
