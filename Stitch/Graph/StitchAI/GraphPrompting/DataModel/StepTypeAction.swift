@@ -428,8 +428,7 @@ struct StepActionSetInput: StepActionable {
         
         // Use the common input-edit-committed function, so that we remove edges, block or unblock fields, etc.
         graph.inputEditCommitted(input: input,
-                                 value: self.value,
-                                 wasDropdown: false)
+                                 value: self.value)
     }
     
     func removeAction(graph: GraphState) {

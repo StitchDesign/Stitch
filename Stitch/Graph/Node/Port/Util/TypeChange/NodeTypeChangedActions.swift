@@ -20,12 +20,12 @@ struct NodeTypeChanged: GraphEvent {
                                                newNodeType: newNodeType)
         
         // if we successfully changed the node's type, create an LLMAction
-        if changedIds.isDefined,
-           let node = state.getNodeViewModel(nodeId) {
-            state.documentDelegate?.maybeCreateLLMStepChangeValueType(
-                node: node,
-                newValueType: newNodeType)
-        }
+//        if changedIds.isDefined,
+//           let node = state.getNodeViewModel(nodeId) {
+//            state.documentDelegate?.maybeCreateLLMStepChangeValueType(
+//                node: node,
+//                newValueType: newNodeType)
+//        }
         
         state.encodeProjectInBackground()
     }
