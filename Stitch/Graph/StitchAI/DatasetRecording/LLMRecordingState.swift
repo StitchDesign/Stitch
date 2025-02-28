@@ -79,6 +79,9 @@ struct LLMRecordingState {
     // Tracks node positions, persisting across edits in case node is removed from validation failure
     var canvasItemPositions: [CanvasItemId : CGPoint] = .init()
     
+    // Runs validation after every change
+    var willAutoValidate = true
+    
     // Tracks graph state before recording
     var initialGraphState: GraphEntity?
 }
@@ -312,12 +315,13 @@ extension StitchDocumentViewModel {
     func reapplyActions() throws {
         let oldActions = self.llmRecording.actions
         let actions = try self.llmRecording.actions.convertSteps()
+        let graph = self.visibleGraph
         
         log("StitchDocumentViewModel: reapplyLLMActions: actions: \(actions)")
         // Save node positions
         self.llmRecording.canvasItemPositions = actions.reduce(into: [CanvasItemId : CGPoint]()) { result, action in
             if let action = action as? StepActionAddNode,
-               let node = self.visibleGraph.getNodeViewModel(action.nodeId) {
+               let node = graph.getNodeViewModel(action.nodeId) {
                 let canvasItems = node.getAllCanvasObservers()
 
                 canvasItems.forEach { canvasItem in
@@ -359,10 +363,15 @@ extension StitchDocumentViewModel {
         
         self.encodeProjectInBackground()
         
+        // Force update view
+        graph.graphUpdaterId = .init()
+        
         // Validates that action data didn't change after derived actions is computed
         let newActions = self.llmRecording.actions
-        zip(oldActions, newActions).forEach { oldAction, newAction in
-            assertInDebug(oldAction == newAction)
+        try zip(oldActions, newActions).forEach { oldAction, newAction in
+            if oldAction != newAction {
+                throw StitchAIManagerError.actionValidationError("Found unequal actions:\n\(oldAction)\n\(newAction)")
+            }
         }
     }
 }

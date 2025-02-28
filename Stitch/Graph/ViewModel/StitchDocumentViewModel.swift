@@ -175,7 +175,22 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
         
         // Checks if AI edit mode is enabled and if actions should be updated
         if self.llmRecording.mode == .augmentation {
-            self.llmRecording.actions = self.deriveNewAIActions()
+            let oldActions = self.llmRecording.actions
+            let newActions = self.deriveNewAIActions()
+            
+            if oldActions != newActions {
+                self.llmRecording.actions = newActions
+                
+                if self.llmRecording.willAutoValidate {
+                    do {
+                        try self.reapplyActions()
+                    } catch let error as StitchAIManagerError {
+                        self.llmRecording.actionsError = error.description
+                    } catch {
+                        self.llmRecording.actionsError = error.localizedDescription
+                    }
+                }
+            }
         }
         
         // Updates graph data when changed
