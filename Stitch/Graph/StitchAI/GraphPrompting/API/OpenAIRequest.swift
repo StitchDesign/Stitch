@@ -55,9 +55,13 @@ struct OpenAIRequest {
 extension Array where Element == Step {
     func convertSteps() throws -> [any StepActionable] {
         let convertedSteps: [any StepActionable] = try self.map { step in
-            try StepTypeAction.fromStep(step)
+            try step.convertToType()
         }
         return convertedSteps
+    }
+    
+    mutating func append(_ stepType: StepTypeAction) {
+        self.append(stepType.toStep())
     }
 }
 
