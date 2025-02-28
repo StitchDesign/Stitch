@@ -65,7 +65,7 @@ enum StepTypeAction: Equatable, Hashable, Codable {
     }
 }
 
-extension [StepTypeAction] {
+extension Array where Element: StepActionable {
     // Note: just some obvious validations; NOT a full validation; we can still e.g. create a connection from an output that doesn't exist etc.
     // nil = valid
     func validateLLMSteps() throws {
@@ -75,7 +75,7 @@ extension [StepTypeAction] {
         
         for step in self {
             
-            switch step {
+            switch step.stepType {
                 
             case .addNode(let x):
                 createdNodes.updateValue(x.nodeName, forKey: x.nodeId)
@@ -172,6 +172,12 @@ protocol StepActionable: Hashable, Codable {
     
     /// Lists each property tracked in OpenAI's structured outputs.
     static var structuredOutputsCodingKeys: Set<Step.CodingKeys> { get }
+    
+    @MainActor
+    func applyAction(graph: GraphState) throws
+    
+    @MainActor
+    func removeAction(graph: GraphState)
 }
 
 // See `createLLMStepAddNode`
@@ -204,6 +210,17 @@ struct StepActionAddNode: StepActionable {
     }
     
     static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .nodeName]
+    
+    func applyAction(graph: GraphState) throws {
+        guard let _ = graph.documentDelegate?.nodeCreated(choice: self.nodeName.asNodeKind,
+                                                          nodeId: self.nodeId) else {
+            throw StitchAIManagerError.actionValidationError("Could not create node \(self.nodeId.debugFriendlyId) \(self.nodeName)")
+        }
+    }
+    
+    func removeAction(graph: GraphState) {
+        graph.deleteNode(id: self.nodeId)
+    }
 }
 
 // See `createLLMStepConnectionAdded`
@@ -254,6 +271,41 @@ struct StepActionConnectionAdded: StepActionable {
     }
     
     static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .port, .fromPort, .fromNodeId, .toNodeId]
+    
+    var inputPort: NodeIOCoordinate {
+        .init(portType: self.port, nodeId: self.toNodeId)
+    }
+    
+    func applyAction(graph: GraphState) throws {
+        let edge: PortEdgeData = PortEdgeData(
+            from: .init(portType: .portIndex(self.fromPort), nodeId: self.fromNodeId),
+            to: self.inputPort)
+        
+        let _ = graph.edgeAdded(edge: edge)
+        
+        // Create canvas node if destination is layer
+        if let fromNodeLocation = graph.getNodeViewModel(self.fromNodeId)?.patchCanvasItem?.position,
+           let destinationNode = graph.getNodeViewModel(self.toNodeId),
+           let layerNode = destinationNode.layerNode {
+            guard let keyPath = self.port.keyPath else {
+                // fatalErrorIfDebug()
+                throw StitchAIManagerError.actionValidationError("expected layer node keypath but got: \(self.port)")
+            }
+            
+            var position = fromNodeLocation
+            position.x += 200
+            
+            let inputData = layerNode[keyPath: keyPath.layerNodeKeyPath]
+            graph.layerInputAddedToGraph(node: destinationNode,
+                                         input: inputData,
+                                         coordinate: keyPath,
+                                         position: position)
+        }
+    }
+    
+    func removeAction(graph: GraphState) {
+        graph.removeEdgeAt(input: self.inputPort)
+    }
 }
 
 // See: `createLLMStepChangeValueType`
@@ -287,6 +339,16 @@ struct StepActionChangeValueType: StepActionable {
     }
     
     static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .valueType]
+    
+    func applyAction(graph: GraphState) throws {
+        // NodeType etc. for this patch was already validated in `[StepTypeAction].areValidLLMSteps`
+        let _ = graph.nodeTypeChanged(nodeId: self.nodeId,
+                                      newNodeType: self.valueType)
+    }
+    
+    func removeAction(graph: GraphState) {
+        // Do nothing, assume node will be removed
+    }
 }
 
 // See: `createLLMStepSetInput`
@@ -337,5 +399,24 @@ struct StepActionSetInput: StepActionable {
     }
     
     static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .port, .value, .valueType]
+    
+    func applyAction(graph: GraphState) throws {
+        let inputCoordinate = InputCoordinate(portType: self.port,
+                                              nodeId: self.nodeId)
+        guard let input = graph.getInputObserver(coordinate: inputCoordinate) else {
+            log("applyAction: could not apply setInput")
+            // fatalErrorIfDebug()
+            throw StitchAIManagerError.actionValidationError("Could not retrieve input \(inputCoordinate)")
+        }
+        
+        // Use the common input-edit-committed function, so that we remove edges, block or unblock fields, etc.
+        graph.inputEditCommitted(input: input,
+                                 value: self.value,
+                                 wasDropdown: false)
+    }
+    
+    func removeAction(graph: GraphState) {
+        // Do nothing, assume node will be removed
+    }
 }
 

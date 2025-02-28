@@ -104,7 +104,7 @@ extension [StepTypeAction] {
 extension StitchDocumentViewModel {
     
     @MainActor
-    func validateAndApplyActions(_ actions: [StepTypeAction]) throws {
+    func validateAndApplyActions(_ actions: [any StepActionable]) throws {
                 
         // Wipe old error reason
         self.llmRecording.actionsError = nil
@@ -221,10 +221,6 @@ extension StitchDocumentViewModel {
                 }
             }
         }
-        
-        // Manually call graph update since hash may be the same
-        // Has to be a new ID since objects are cached in the view
-        self.visibleGraph.graphUpdaterId = .init()
     }
 }
 
