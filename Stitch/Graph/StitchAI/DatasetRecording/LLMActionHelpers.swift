@@ -182,14 +182,6 @@ struct LLMActionDeleted: StitchDocumentEvent {
         // We immediately "de-apply" the removed action(s) from graph,
         // so that user instantly sees what changed.
         do {
-            // Remove all actions before re-applying
-            try state.llmRecording.actions
-                .reversed()
-                .forEach { action in
-                    let step = try action.convertToType()
-                    step.removeAction(graph: graph)
-                }
-            
             try state.reapplyActions()
         } catch {
             log("LLMActionDeleted: when reapplying actions, encountered: \(error)")
