@@ -115,42 +115,42 @@ struct SubmitLLMActionsToSupabase: StitchDocumentEvent {
 }
 
 extension [StepTypeAction] {
-    func removeActionsForDeletedNode(deletedNode: NodeId) -> Self {
-        var actions = self
-        actions.removeAll(where: { action in
-            switch action {
-            case .addNode(let x):
-                return x.nodeId == deletedNode
-            case .setInput(let x):
-                return x.nodeId == deletedNode
-            case .connectNodes(let x):
-                return x.fromNodeId == deletedNode || x.toNodeId == deletedNode
-            case .changeValueType(let x):
-                return x.nodeId == deletedNode
-            }
-        })
-        return actions
-    }
-    
-    func removeActionsForDeletedLayerInput(nodeId: NodeId,
-                                           // Assumes packed; LLModel only works with packed layer inputs
-                                           deletedLayerInput: LayerInputType) -> Self {
-        var actions = self
-        let thisLayerInput = NodeIOPortType.keyPath(deletedLayerInput)
-        actions.removeAll(where: { action in
-            switch action {
-            case .setInput(let x):
-                // We had set the input for this specific layer node, at this specific port
-                return x.nodeId == nodeId && x.port == thisLayerInput
-            case .connectNodes(let x):
-                // We had created an edge for to this specific layer's node specific port
-                return x.toNodeId == nodeId && x.port == thisLayerInput
-            default: // NodeType, CreateNode etc. not affected just by removing a layer node's input from the graph
-                return false
-            }
-        })
-        return actions
-    }
+//    func removeActionsForDeletedNode(deletedNode: NodeId) -> Self {
+//        var actions = self
+//        actions.removeAll(where: { action in
+//            switch action {
+//            case .addNode(let x):
+//                return x.nodeId == deletedNode
+//            case .setInput(let x):
+//                return x.nodeId == deletedNode
+//            case .connectNodes(let x):
+//                return x.fromNodeId == deletedNode || x.toNodeId == deletedNode
+//            case .changeValueType(let x):
+//                return x.nodeId == deletedNode
+//            }
+//        })
+//        return actions
+//    }
+//    
+//    func removeActionsForDeletedLayerInput(nodeId: NodeId,
+//                                           // Assumes packed; LLModel only works with packed layer inputs
+//                                           deletedLayerInput: LayerInputType) -> Self {
+//        var actions = self
+//        let thisLayerInput = NodeIOPortType.keyPath(deletedLayerInput)
+//        actions.removeAll(where: { action in
+//            switch action {
+//            case .setInput(let x):
+//                // We had set the input for this specific layer node, at this specific port
+//                return x.nodeId == nodeId && x.port == thisLayerInput
+//            case .connectNodes(let x):
+//                // We had created an edge for to this specific layer's node specific port
+//                return x.toNodeId == nodeId && x.port == thisLayerInput
+//            default: // NodeType, CreateNode etc. not affected just by removing a layer node's input from the graph
+//                return false
+//            }
+//        })
+//        return actions
+//    }
 }
 
 struct LLMActionsUpdatedByModal: StitchDocumentEvent {
