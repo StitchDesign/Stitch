@@ -86,7 +86,7 @@ struct NodesOnlyView: View {
             }
         }
         .onChange(of: self.graph.graphUpdaterId, initial: true) {
-            // log("NodesOnlyView: .onChange(of: self.graph.graphUpdaterId)")
+            log("NodesOnlyView: .onChange(of: self.graph.graphUpdaterId)")
             self.refreshCanvasNodes()
         }
         .onChange(of: self.activeIndex) {

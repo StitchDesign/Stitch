@@ -94,10 +94,10 @@ extension StitchDocumentViewModel {
             self.llmRecording.isApplyingActions = false
         }
 
-        self.graph.visibleNodesViewModel.setAllNodesVisible()
-        
-        // Finally, updateGraphData ?
-        self.graph.refreshGraphUpdaterId()
+//        self.graph.visibleNodesViewModel.setAllNodesVisible()
+//        
+//        // Finally, updateGraphData ?
+//        self.graph.refreshGraphUpdaterId()
     }
 }
 

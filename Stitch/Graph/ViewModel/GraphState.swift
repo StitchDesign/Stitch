@@ -282,14 +282,17 @@ extension GraphState {
     /// Syncs visible nodes and topological data when persistence actions take place.
     @MainActor
     func updateGraphData() {
+        log("GraphState: updateGraphData called")
         // Update parent graphs first if this graph is a component
         // Order here needed so parent components know if there are input/output changes
         if let parentGraph = self.parentGraph {
+            log("GraphState: updateGraphData: had parent grap")
             parentGraph.updateGraphData()
         }
         
         if let document = self.documentDelegate,
            let encoderDelegate = self.documentEncoderDelegate {
+            log("GraphState: had document and encoder delegates")
             self.initializeDelegate(document: document,
                                     documentEncoderDelegate: encoderDelegate)
         }
@@ -382,12 +385,15 @@ extension GraphState {
      
     @MainActor
     func refreshGraphUpdaterId() {
-        // log("refreshGraphUpdaterId called")
+        log("refreshGraphUpdaterId called")
         let newId = self.calculateGraphUpdaterId()
         
         if self.graphUpdaterId != newId {
-            // log("refreshGraphUpdaterId: newId: \(newId)")
+            log("refreshGraphUpdaterId: newId: \(newId)")
             self.graphUpdaterId = newId
+            self.updateGraphData()
+        } else {
+            log("refreshGraphUpdaterId: no id change")
         }
     }
     
@@ -482,16 +488,21 @@ extension GraphState {
         
         let allInputsObservers = nodes.values
             .flatMap { $0.getAllInputsObservers() }
-        
+                
         // Track overall node count
         let nodeCount = nodes.keys.count
+        log("calculateGraphUpdaterId: nodeCount: \(nodeCount)")
         
         // Track graph canvas items count
         let canvasItems = self.getCanvasItemsAtTraversalLevel().count
-
+        log("calculateGraphUpdaterId: canvasItems: \(canvasItems)")
+        
         // Tracks edge changes to reset cached data
         let upstreamConnections = allInputsObservers
-            .map { $0.upstreamOutputCoordinate }
+//            .map { $0.upstreamOutputCoordinate }
+            .compactMap { $0.upstreamOutputCoordinate }
+        
+        log("calculateGraphUpdaterId: upstreamConnections.count: \(upstreamConnections.count)")
         
         // Tracks manual edits
         let manualEdits: [PortValue] = allInputsObservers
@@ -502,6 +513,8 @@ extension GraphState {
                 
                 return $0.activeValue
             }
+        
+        log("calculateGraphUpdaterId: manualEdits.count: \(manualEdits.count)")
         
         // Track group node ID, which fixes edges when traversing
         let groupNodeIdFocused = self.graphUI.groupNodeFocused

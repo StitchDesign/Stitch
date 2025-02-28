@@ -30,7 +30,7 @@ struct ShowLLMApprovalModal: StitchDocumentEvent {
         
         // For augmentation mode, continue with approval flow
         do {
-            try state.reapplyActions()
+//            try state.reapplyActions()
         } catch let error as StitchFileError {
             state.showErrorModal(message: error.description,
                                  userPrompt: "")
@@ -157,10 +157,10 @@ struct LLMActionsUpdatedByModal: StitchDocumentEvent {
     let newActions: [StepTypeAction]
     
     func handle(state: StitchDocumentViewModel) {
-        log("LLMActionsUpdated: newActions: \(newActions)")
-        log("LLMActionsUpdated: state.llmRecording.actions was: \(state.llmRecording.actions)")
+        // log("LLMActionsUpdated: newActions: \(newActions)")
+        // log("LLMActionsUpdated: state.llmRecording.actions was: \(state.llmRecording.actions)")
         state.llmRecording.actions = newActions
-        try? state.reapplyActions()
+//        try? state.reapplyActions()
     }
 }
 
@@ -168,8 +168,8 @@ struct LLMActionDeleted: StitchDocumentEvent {
     let deletedAction: StepTypeAction
     
     func handle(state: StitchDocumentViewModel) {
-        log("LLMActionDeleted: deletedAction: \(deletedAction)")
-        log("LLMActionDeleted: state.llmRecording.actions was: \(state.llmRecording.actions)")
+        // log("LLMActionDeleted: deletedAction: \(deletedAction)")
+        // log("LLMActionDeleted: state.llmRecording.actions was: \(state.llmRecording.actions)")
         
         // Note: fine to do equality check because not editing actions per se here
         // TODO: what if we change the `value` of
@@ -199,7 +199,7 @@ struct LLMActionDeleted: StitchDocumentEvent {
         // We immediately "de-apply" the removed action(s) from graph,
         // so that user instantly sees what changed.
         do {
-            try state.reapplyActions()
+//            try state.reapplyActions()
         } catch {
             log("LLMActionDeleted: when reapplying actions, encountered: \(error)")
         }

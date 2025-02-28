@@ -127,6 +127,7 @@ extension GraphState {
     // `addEdgeWithoutGraphRecalc` + graph recalc
     @MainActor
     func edgeAdded(edge: PortEdgeData) {
+        log("edgeAdded called")
 
         // Add edge
         self.addEdgeWithoutGraphRecalc(edge: edge)

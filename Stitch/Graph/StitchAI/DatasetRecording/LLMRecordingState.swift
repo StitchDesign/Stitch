@@ -194,9 +194,11 @@ extension StitchDocumentViewModel {
     
     @MainActor
     func reapplyActions() throws {
-        let actions = self.llmRecording.actions
         
-        log("StitchDocumentViewModel: reapplyLLMActions: actions: \(actions)")
+        let actions = self.llmRecording.actions
+        log("reapplyActions called: actions.count \(actions.count)")
+        
+        // log("StitchDocumentViewModel: reapplyLLMActions: actions: \(actions)")
         // Wipe patches and layers
         // TODO: keep patches and layers that WERE NOT created by this recent LLM prompt? Folks may use AI to supplement their existing work.
         // Delete patches and layers that were created from actions;
