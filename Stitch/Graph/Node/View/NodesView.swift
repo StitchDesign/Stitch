@@ -168,78 +168,64 @@ struct CanvasEdgesViewModifier: ViewModifier {
 }
 
 struct PortPreviewPopoverView: View {
+    
+    static let MAX_HEIGHT: CGFloat = 420
+    
     let inputs: [InputNodeRowViewModel]
-//    @Bindable var document: StitchDocumentViewModel
     @Bindable var graphUI: GraphUIState
+    
+    @State private var width: CGFloat = .zero
     
     var body: some View {
         
         // If we have an open port preview
         if case let .input(portPreviewInputObserverCoordinate, portPreviewCanvasItemId) = graphUI.openPortPreview {
             ForEach(inputs) { (inputRowViewModel: InputNodeRowViewModel) in
-                // And i
-                let isPortPreviewInput = (inputRowViewModel.canvasItemDelegate?.id == portPreviewCanvasItemId)
-                if isPortPreviewInput,
+                
+                if (inputRowViewModel.canvasItemDelegate?.id == portPreviewCanvasItemId),
                    let rowObserver = inputRowViewModel.rowDelegate,
                    rowObserver.id == portPreviewInputObserverCoordinate,
                    let inputAnchor = inputRowViewModel.anchorPoint {
-//                    Text("preview")
+                    
                     logInView("PortPreviewPopoverView: will open for input row view model  \(inputRowViewModel.id)")
                     logInView("PortPreviewPopoverView: inputAnchor: \(inputAnchor)")
-                    
-                    PortValuesPreviewView(rowObserver: rowObserver,
-                                          rowViewModel: inputRowViewModel,
-                                          nodeIO: .input)
-//                    Text("Love me")
-//                    .frame(width: 300, height: 300)
-//                    .frame(minWidth: 300,
-//                           maxWidth: 600,
-//                           minHeight: 300,
-//                           maxHeight: 600)
-                    
-//                    .frame(minHeight: NODE_ROW_HEIGHT * 2,
-////                           maxHeight: 600)
-//                           maxHeight: 200)
-                
-//                    .frame(width: 300)
-                    
-                    .background {
-                        GeometryReader { proxy in
-                            Color.clear
-                                .onChange(of: proxy.frame(in: .global), initial: true) { _, newFrameData in
-                                    log("PortPreviewPopoverView: newFrameData.origin: \(newFrameData.origin)")
-                                    log("PortPreviewPopoverView: newFrameData.size: \(newFrameData.size)")
-                                    
-                                }
+                                        
+                    ZStack {
+
+                        Rectangle().fill(.clear)
+                            .frame(width: 30, height: 30)
+                            .background(.ultraThinMaterial)
+//                            .background(.red)
+                            .rotationEffect(.degrees(45))
+                            .position(x: inputAnchor.x - self.width/2,
+                                      y: inputAnchor.y)
+                            .offset(x: self.width/2 - 36)
+                                                
+                        PortValuesPreviewView(rowObserver: rowObserver,
+                                              rowViewModel: inputRowViewModel,
+                                              nodeIO: .input)
+                        .background {
+                            GeometryReader { proxy in
+                                Color.clear
+                                // IMPORTANT: use .local frame, since .global is affected by zooming and creates infinite loop
+                                    .onChange(of: proxy.frame(in: .local), initial: true) { _, newFrameData in
+                                        log("PortPreviewPopoverView: newFrameData.size.width: \(newFrameData.size.width)")
+                                        self.width = newFrameData.size.width
+                                    }
+                            }
                         }
-                    }
+                        .frame(maxHeight: Self.MAX_HEIGHT)
+//                        .fixedSize(horizontal: true, vertical: true)
+                        .fixedSize(horizontal: false, vertical: true)
+                        
+                        // self.width/1.65 is actually not a consistent
+                        .position(x: inputAnchor.x - self.width/2,
+                                  y: inputAnchor.y)
+                        .offset(x: -32)
+                        
+                    } // ZStack
                     
-                    .frame(width: 300, height: 300)
                     
-                    // Need a geometry reader to know how about the stable-popover actually is?
-                    
-//                    .frame(width: 300,
-//                           height: 600)
-//                    .position(inputRowViewModel.anchorPoint ?? .zero)
-//                    .position(inputAnchor - 100)
-                    
-                    // Where does this number come from?
-                    // And how to do an arrow etc.?
-//                    .position(inputAnchor - 50)
-                    .position(x: inputAnchor.x - 75,
-                              y: inputAnchor.y)
-                    
-                    // this doesn't read the size of the popover 
-//                    .background {
-//                        GeometryReader { proxy in
-//                            Color.clear
-//                                .onChange(of: proxy.frame(in: .global), initial: true) { _, newFrameData in
-//                                    log("PortPreviewPopoverView: newFrameData.origin: \(newFrameData.origin)")
-//                                    log("PortPreviewPopoverView: newFrameData.size: \(newFrameData.size)")
-//                                    
-//                                }
-//                        }
-//                    }
                 }
             }
         }
