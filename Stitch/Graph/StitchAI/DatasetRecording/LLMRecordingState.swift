@@ -267,10 +267,19 @@ extension StitchDocumentViewModel {
             }
         }
         
-        return newNodesSteps.map { $0.toStep } +
-        newNodeTypesSteps.map { $0.toStep } +
-        newConnectionSteps.map { $0.toStep } +
-        newSetInputSteps.map { $0.toStep }
+        // Sorting necessary for validation
+        return newNodesSteps
+            .sorted { $0.nodeId < $1.nodeId }
+            .map { $0.toStep } +
+        newNodeTypesSteps
+            .sorted { $0.nodeId < $1.nodeId }
+            .map { $0.toStep } +
+        newConnectionSteps
+            .sorted { $0.port.hashValue < $1.port.hashValue }
+            .map { $0.toStep } +
+        newSetInputSteps
+            .sorted { $0.port.hashValue < $1.port.hashValue }
+            .map { $0.toStep }
     }
     
     private static func deriveNewInputActions(input: NodeConnectionType,
@@ -280,7 +289,7 @@ extension StitchDocumentViewModel {
                                               newSetInputSteps: inout [StepActionSetInput]) {
         switch input {
         case .upstreamConnection(let upstreamConnection):
-            let connectionStep: StepActionConnectionAdded = .init(port: upstreamConnection.portType,
+            let connectionStep: StepActionConnectionAdded = .init(port: port.portType,
                                                                   toNodeId: port.nodeId,
                                                                   fromPort: upstreamConnection.portId!,
                                                                   fromNodeId: upstreamConnection.nodeId)
@@ -301,13 +310,14 @@ extension StitchDocumentViewModel {
     
     @MainActor
     func reapplyActions() throws {
-        let actions = try graph.llmRecording.actions.convertSteps()
+        let oldActions = self.llmRecording.actions
+        let actions = try self.llmRecording.actions.convertSteps()
         
         log("StitchDocumentViewModel: reapplyLLMActions: actions: \(actions)")
         // Save node positions
         self.llmRecording.canvasItemPositions = actions.reduce(into: [CanvasItemId : CGPoint]()) { result, action in
             if let action = action as? StepActionAddNode,
-               let node = graph.getNodeViewModel(action.nodeId) {
+               let node = self.visibleGraph.getNodeViewModel(action.nodeId) {
                 let canvasItems = node.getAllCanvasObservers()
 
                 canvasItems.forEach { canvasItem in
@@ -348,6 +358,12 @@ extension StitchDocumentViewModel {
 //        }
         
         self.encodeProjectInBackground()
+        
+        // Validates that action data didn't change after derived actions is computed
+        let newActions = self.llmRecording.actions
+        zip(oldActions, newActions).forEach { oldAction, newAction in
+            assertInDebug(oldAction == newAction)
+        }
     }
 }
 
