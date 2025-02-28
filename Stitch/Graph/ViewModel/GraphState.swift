@@ -388,6 +388,8 @@ extension GraphState {
         if self.graphUpdaterId != newId {
             log("refreshGraphUpdaterId: newId: \(newId)")
             self.graphUpdaterId = newId
+        } else {
+            log("refreshGraphUpdaterId: id did not change")
         }
     }
     
