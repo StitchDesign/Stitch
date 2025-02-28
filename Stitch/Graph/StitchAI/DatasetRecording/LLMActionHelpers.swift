@@ -79,10 +79,8 @@ struct SubmitLLMActionsToSupabase: StitchDocumentEvent {
             log("📼 ⬆️ Uploading recording data to Supabase ⬆️ 📼")
             
             // TODO: JAN 25: these should be from the edited whatever...
-            let actions: [StepTypeAction] = state.llmRecording.actions
-            log("ShowLLMApprovalModal: actions: \(actions)")
-            
-            let actionsAsSteps: [Step] = actions.map { $0.toStep() }
+            let actionsAsSteps = state.llmRecording.actions
+            log("ShowLLMApprovalModal: actions: \(actionsAsSteps)")
             
             guard let deviceUUID = try StitchAIManager.getDeviceUUID() else {
                 log("SubmitLLMActionsToSupabase error: no device ID found.")
@@ -154,7 +152,7 @@ extension [StepTypeAction] {
 }
 
 struct LLMActionsUpdatedByModal: StitchDocumentEvent {
-    let newActions: [StepTypeAction]
+    let newActions: [Step]
     
     func handle(state: StitchDocumentViewModel) {
         log("LLMActionsUpdated: newActions: \(newActions)")
@@ -173,7 +171,7 @@ struct LLMActionDeleted: StitchDocumentEvent {
         
         // Note: fine to do equality check because not editing actions per se here
         // TODO: what if we change the `value` of
-        let filteredActions = state.llmRecording.actions.filter { $0 != deletedAction }
+        let filteredActions = state.llmRecording.actions.filter { $0 != deletedAction.toStep() }
         
         state.llmRecording.actions = filteredActions
                 

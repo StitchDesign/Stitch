@@ -52,6 +52,15 @@ struct OpenAIRequest {
     }
 }
 
+extension Array where Element == Step {
+    func convertSteps() throws -> [any StepActionable] {
+        let convertedSteps: [any StepActionable] = try self.map { step in
+            try StepTypeAction.fromStep(step)
+        }
+        return convertedSteps
+    }
+}
+
 extension StitchAIManager {
     @MainActor func handleRequest(_ request: OpenAIRequest) {
         guard let currentDocument = self.documentDelegate else {
@@ -68,7 +77,9 @@ extension StitchAIManager {
             
             do {
                 let steps = try await manager.makeRequest(request)
-
+                
+                log("OpenAI Request succeeded")
+                
                 // Handle successful response
                 try manager.openAIRequestCompleted(steps: steps,
                                                    originalPrompt: request.prompt)
@@ -106,7 +117,7 @@ extension StitchAIManager {
     @MainActor
     private func makeRequest(_ request: OpenAIRequest,
                              attempt: Int = 1,
-                             lastCapturedError: String? = nil) async throws -> [StepTypeAction] {
+                             lastCapturedError: String? = nil) async throws -> [Step] {
         let config = request.config
         let prompt = request.prompt
         let systemPrompt = request.systemPrompt
@@ -222,7 +233,7 @@ extension StitchAIManager {
     // Convert data to decoded Step actions
     private func convertResponseToStepActions(_ request: OpenAIRequest,
                                               data: Data,
-                                              currentAttempt: Int) async throws -> [StepTypeAction] {
+                                              currentAttempt: Int) async throws -> [Step] {
         
         // Try to parse request
         // log raw JSON response
@@ -235,12 +246,7 @@ extension StitchAIManager {
         
         do {
             let steps = try data.getOpenAISteps()
-            let convertedSteps: [StepTypeAction] = try steps.map { step in
-                try StepTypeAction.fromStep(step)
-            }
-            
-            log("OpenAI Request succeeded")
-            return convertedSteps
+            return steps
         } catch let error as StitchAIManagerError {
             log("StitchAIManager error parsing steps: \(error.description)")
             return try await self.retryMakeRequest(request,
@@ -256,7 +262,7 @@ extension StitchAIManager {
     
     private func retryMakeRequest(_ request: OpenAIRequest,
                                   currentAttempts: Int,
-                                  lastError: String) async throws -> [StepTypeAction] {
+                                  lastError: String) async throws -> [Step] {
         let config = request.config
         try await Task.sleep(nanoseconds: UInt64(config.retryDelay * Double(nanoSecondsInSecond)))
         return try await self.makeRequest(request,
@@ -271,7 +277,7 @@ extension StitchAIManager {
     /// 3. We validate the `[StepTypeAction]`, e.g. make sure model did not try to use a NodeType that is unavailable for a given Patch
     /// 4. If all this succeeds, ONLY THEN do we apply the `[StepTypeAction]` to the state (fka `handleLLMStepAction`
     @MainActor
-    func openAIRequestCompleted(steps: [StepTypeAction],
+    func openAIRequestCompleted(steps: [Step],
                                 originalPrompt: String) throws {
         guard let document = self.documentDelegate else {
             return
@@ -285,7 +291,7 @@ extension StitchAIManager {
         document.graphUI.insertNodeMenuState.isGeneratingAINode = false
 
         log(" Storing Original AI Generated Actions ")
-        log(" Original Actions to store: \(steps.asJSONDisplay())")
+//        log(" Original Actions to store: \(steps.asJSONDisplay())")
         document.llmRecording.actions = steps
         document.llmRecording.promptState.prompt = originalPrompt
         
