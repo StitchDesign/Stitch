@@ -209,22 +209,108 @@ extension StitchDocumentViewModel {
         let oldNodeIds = oldGraphEntity.nodes.map(\.id).toSet
         let newNodeIds = newGraphEntity.nodes.map(\.id).toSet
         
-        let nodesToCreate = newNodeIds.subtracting(oldNodeIds)
+        let nodeIdsToCreate = newNodeIds.subtracting(oldNodeIds)
         
-        let newNodeSteps: [Step] = nodesToCreate.compactMap { newNodeId -> Step? in
-            guard let nodeEntity = newGraphEntity.nodes.first(where: { $0.id == newNodeId }),
-                  let nodeName = PatchOrLayer.from(nodeKind: nodeEntity.kind) else {
+        let newNodes: [NodeEntity] = nodeIdsToCreate.compactMap { newNodeId -> NodeEntity? in
+            guard let nodeEntity = newGraphEntity.nodes.first(where: { $0.id == newNodeId }) else {
                 fatalErrorIfDebug()
                 return nil
             }
             
-            let step = StepActionAddNode(nodeId: newNodeId,
-                                         nodeName: nodeName)
-            return step.toStep
+            return nodeEntity
         }
         
-        // TODO: other kinds
-        return newNodeSteps
+        let newInputs: [NodeConnectionType] = newNodes.flatMap(\.inputs)
+        
+        var newNodesSteps: [StepActionAddNode] = []
+        var newNodeTypesSteps: [StepActionChangeValueType] = []
+        var newConnectionSteps: [StepActionConnectionAdded] = []
+        var newSetInputSteps: [StepActionSetInput] = []
+        
+        // Create steps
+        for nodeEntity in newNodes {
+            guard let nodeName = PatchOrLayer.from(nodeKind: nodeEntity.kind) else {
+                fatalErrorIfDebug()
+                continue
+            }
+            
+            let valueType = nodeEntity.nodeTypeEntity.patchNodeEntity?.userVisibleType
+            let defaultValueType = nodeEntity.kind.getPatch?.defaultNodeType
+            let defaultNodeInputs = nodeEntity.kind.defaultInputs(for: valueType)
+            let stepAddNode = StepActionAddNode(nodeId: nodeEntity.id,
+                                                nodeName: nodeName)
+            newNodesSteps.append(stepAddNode)
+            
+            // Value type change if different from default
+            if valueType != defaultValueType,
+               let valueType = valueType {
+                newNodeTypesSteps.append(.init(nodeId: nodeEntity.id,
+                                               valueType: valueType))
+            }
+            
+            // Create actions for values and connections
+            switch nodeEntity.nodeTypeEntity {
+            case .patch(let patchNode):
+                let defaultInputs = nodeEntity.kind.defaultInputs(for: valueType)
+                
+                for (input, defaultInputValues) in zip(patchNode.inputs, defaultInputs) {
+                    Self.deriveNewInputActions(input: input.portData,
+                                               port: input.id,
+                                               defaultInputs: defaultInputValues,
+                                               newConnectionSteps: &newConnectionSteps,
+                                               newSetInputSteps: &newSetInputSteps)
+                }
+                
+            case .layer(let layerNode):
+                for layerInput in layerNode.layer.layerGraphNode.inputDefinitions {
+                    let port = NodeIOCoordinate(portType: .keyPath(.init(layerInput: layerInput,
+                                                                         portType: .packed)),
+                                                nodeId: nodeEntity.id)
+                    let defaultInputValue = layerInput.getDefaultValue(for: layerNode.layer)
+                    
+                    let input = layerNode[keyPath: layerInput.schemaPortKeyPath].inputConnections.first!
+                    Self.deriveNewInputActions(input: input,
+                                               port: port,
+                                               defaultInputs: [defaultInputValue],
+                                               newConnectionSteps: &newConnectionSteps,
+                                               newSetInputSteps: &newSetInputSteps)
+                }
+                
+            default:
+                continue
+            }
+        }
+        
+        return newNodesSteps.map { $0.toStep } +
+        newNodeTypesSteps.map { $0.toStep } +
+        newConnectionSteps.map { $0.toStep } +
+        newSetInputSteps.map { $0.toStep }
+    }
+    
+    private static func deriveNewInputActions(input: NodeConnectionType,
+                                              port: NodeIOCoordinate,
+                                              defaultInputs: PortValues,
+                                              newConnectionSteps: inout [StepActionConnectionAdded],
+                                              newSetInputSteps: inout [StepActionSetInput]) {
+        switch input {
+        case .upstreamConnection(let upstreamConnection):
+            let connectionStep: StepActionConnectionAdded = .init(port: upstreamConnection.portType,
+                                                                  toNodeId: port.nodeId,
+                                                                  fromPort: upstreamConnection.portId!,
+                                                                  fromNodeId: upstreamConnection.nodeId)
+            newConnectionSteps.append(connectionStep)
+            
+        case .values(let newInputs):
+            if defaultInputs != newInputs {
+                let value = newInputs.first!
+                
+                let setInputStep = StepActionSetInput(nodeId: port.nodeId,
+                                                      port: port.portType,
+                                                      value: value,
+                                                      valueType: value.toNodeType)
+                newSetInputSteps.append(setInputStep)
+            }
+        }
     }
     
 //    @MainActor

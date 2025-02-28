@@ -104,20 +104,20 @@ extension OutputCoordinate {
 
 //need to feed in port id's as well
 //pass in the input coordinate
-func createLLMStepConnectionAdded(input: InputCoordinate,
-                                  output: OutputCoordinate) -> LLMStepAction {
-    //actually create the action with the input coordiante using
-    //asLLMStepPort()
-    
-    assertInDebug(output.portId.isDefined)
-    
-    return LLMStepAction(
-        stepType: StepType.connectNodes,
-        port: input.portType,
-        fromPort: output.asLLMStepFromPort(),
-        fromNodeId: output.nodeId,
-        toNodeId: input.nodeId)
-}
+//func createLLMStepConnectionAdded(input: InputCoordinate,
+//                                  output: OutputCoordinate) -> LLMStepAction {
+//    //actually create the action with the input coordiante using
+//    //asLLMStepPort()
+//    
+//    assertInDebug(output.portId.isDefined)
+//    
+//    return LLMStepAction(
+//        stepType: StepType.connectNodes,
+//        port: input.portType,
+//        fromPort: output.asLLMStepFromPort(),
+//        fromNodeId: output.nodeId,
+//        toNodeId: input.nodeId)
+//}
 
 extension LayerInputPort {
     var asLLMStepPort: String {
