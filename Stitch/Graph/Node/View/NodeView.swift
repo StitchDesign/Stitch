@@ -140,7 +140,8 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
                 .allowsHitTesting(!isLayerInvisible)
         }
         .overlay {
-            if graph.llmRecording.mode == .augmentation {
+            if graph.llmRecording.mode == .augmentation &&
+                document.llmRecording.modal == .editBeforeSubmit {
                 let isAICreated = graph.llmRecording.actions.containsNewNode(from: stitch.id)
                 Color.blue.opacity(isAICreated ? 0.2 : 0)
                     .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
