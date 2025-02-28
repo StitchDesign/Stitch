@@ -26,10 +26,6 @@ struct EditBeforeSubmitModalView: View {
         recordingState.actions
     }
     
-//    var nodeIdToNameMapping: [NodeId: PatchOrLayer] {
-//        recordingState.nodeIdToNameMapping
-//    }
-    
     var actions: [Step] {
         recordingState.actions
     }
@@ -40,8 +36,6 @@ struct EditBeforeSubmitModalView: View {
                 .font(.headline)
                 .padding(.top)
             
-            // https://www.hackingwithswift.com/quick-start/swiftui/how-to-let-users-move-rows-in-a-list
-//            List(self.$actions, id: \.hashValue, editActions: .move) { $action in
             List {
                 ForEach(self.actions, id: \.hashValue) { action in
                     LLMActionCorrectionView(action: action,
@@ -68,14 +62,6 @@ struct EditBeforeSubmitModalView: View {
         .background(.ultraThinMaterial)
         .cornerRadius(16)
         .padding()
-//        .onChange(of: self.recordingStateActions) { oldValue, newValue in
-//            // log(".onChange(of: self.recordingStateActions): newValue: \(newValue)")
-//            self.actions = newValue
-//        }
-//        .onChange(of: self.actions) { oldValue, newValue in
-//            // log(".onChange(of: self.actions): newValue: \(newValue)")
-//            dispatch(LLMActionsUpdatedByModal(newActions: newValue))
-//        }
     }
         
     var buttons: some View {

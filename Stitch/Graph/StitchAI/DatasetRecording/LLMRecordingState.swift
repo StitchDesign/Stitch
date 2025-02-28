@@ -331,17 +331,6 @@ extension StitchDocumentViewModel {
             }
         }
         
-        // TODO: also select the nodes when we first successfully parse?
-        // Select the created nodes
-//        createdNodes.forEach { nodeId in
-//            if let node = self.graph.getNodeViewModel(nodeId) {
-//                // Will select a patch node or a layer nodes' inputs/outputs on canvas
-//                node.getAllCanvasObservers().forEach { (canvasItem: CanvasItemViewModel) in
-//                    canvasItem.select(self.graph)
-//                }
-//            }
-//        }
-        
         self.encodeProjectInBackground()
         
         // Force update view

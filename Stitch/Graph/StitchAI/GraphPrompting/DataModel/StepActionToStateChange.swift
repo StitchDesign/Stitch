@@ -34,11 +34,6 @@ extension StitchDocumentViewModel {
                         
         try action.applyAction(graph: self.visibleGraph)
         self.llmRecording.isApplyingActions = false
-
-//        self.graph.visibleNodesViewModel.setAllNodesVisible()
-        
-        // Finally, updateGraphData ?
-//        self.graph.refreshGraphUpdaterId()
     }
 }
 

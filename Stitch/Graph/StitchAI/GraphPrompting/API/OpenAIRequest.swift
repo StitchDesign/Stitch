@@ -309,8 +309,6 @@ extension StitchAIManager {
         document.graphUI.insertNodeMenuState.isGeneratingAINode = false
 
         log(" Storing Original AI Generated Actions ")
-//        log(" Original Actions to store: \(steps.asJSONDisplay())")
-//        document.llmRecording.actions = steps
         document.llmRecording.promptState.prompt = originalPrompt
         
         // Enable edit mode for actions after succsesful request
