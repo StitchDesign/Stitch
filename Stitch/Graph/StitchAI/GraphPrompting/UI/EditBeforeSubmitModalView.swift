@@ -25,7 +25,9 @@ struct EditBeforeSubmitModalView: View {
         recordingState.nodeIdToNameMapping
     }
     
-    @State var actions: [Step]
+    var actions: [Step] {
+        recordingState.actions
+    }
     
     var body: some View {
         VStack {
@@ -34,9 +36,12 @@ struct EditBeforeSubmitModalView: View {
                 .padding(.top)
             
             // https://www.hackingwithswift.com/quick-start/swiftui/how-to-let-users-move-rows-in-a-list
-            List(self.$actions, id: \.hashValue, editActions: .move) { $action in
-                LLMActionCorrectionView(action: action,
-                                        nodeIdToNameMapping: self.nodeIdToNameMapping)
+//            List(self.$actions, id: \.hashValue, editActions: .move) { $action in
+            List {
+                ForEach(self.actions, id: \.hashValue) { action in
+                    LLMActionCorrectionView(action: action,
+                                            nodeIdToNameMapping: self.nodeIdToNameMapping)
+                }
                 .listRowBackground(Color.clear)
                 .listRowSpacing(8)
                 .listRowSeparator(.hidden)
@@ -58,14 +63,14 @@ struct EditBeforeSubmitModalView: View {
         .background(.ultraThinMaterial)
         .cornerRadius(16)
         .padding()
-        .onChange(of: self.recordingStateActions) { oldValue, newValue in
-            // log(".onChange(of: self.recordingStateActions): newValue: \(newValue)")
-            self.actions = newValue
-        }
-        .onChange(of: self.actions) { oldValue, newValue in
-            // log(".onChange(of: self.actions): newValue: \(newValue)")
-            dispatch(LLMActionsUpdatedByModal(newActions: newValue))
-        }
+//        .onChange(of: self.recordingStateActions) { oldValue, newValue in
+//            // log(".onChange(of: self.recordingStateActions): newValue: \(newValue)")
+//            self.actions = newValue
+//        }
+//        .onChange(of: self.actions) { oldValue, newValue in
+//            // log(".onChange(of: self.actions): newValue: \(newValue)")
+//            dispatch(LLMActionsUpdatedByModal(newActions: newValue))
+//        }
     }
         
     var buttons: some View {
