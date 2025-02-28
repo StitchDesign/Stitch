@@ -84,7 +84,24 @@ struct EditBeforeSubmitModalView: View {
             }
             
             Button(action: {
-                log("will complete and dismiss")
+                log("Stitch AI edit modal: validating")
+                do {
+                    try self.graph.documentDelegate?.reapplyActions()
+                } catch let error as StitchAIManagerError {
+                    self.graph.documentDelegate?.llmRecording.actionsError = error.description
+                } catch {
+                    self.graph.documentDelegate?.llmRecording.actionsError = error.localizedDescription
+                }
+                
+                // Force update view
+                self.graph.graphUpdaterId = .init()
+            }) {
+                Text("Validate")
+                    .padding()
+            }
+            
+            Button(action: {
+                log("Stitch AI edit modal: will complete and dismiss")
                 dispatch(ShowLLMApprovalModal())
             }) {
                 Text("Submit")
