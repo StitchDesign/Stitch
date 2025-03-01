@@ -30,7 +30,7 @@ extension GraphState {
     func findSomeCanvasItemOnGraph(graphUI: GraphUIState) {
         if let canvasItem = GraphState.westernMostNode(
             self.groupNodeFocused,
-            canvasItems: self.getVisibleCanvasItems()) {
+            canvasItems: self.getCanvasItemsAtTraversalLevel()) {
             
             self.panGraphToNodeLocation(id: canvasItem.id,
                                         graphUI: graphUI)
