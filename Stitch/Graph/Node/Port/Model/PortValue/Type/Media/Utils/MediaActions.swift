@@ -354,8 +354,7 @@ struct MediaPickerChanged: ProjectEnvironmentEvent {
         // Commit the new media to the selector input
         graphState.handleInputEditCommitted(input: input,
                                             value: selectedValue,
-                                            isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                                            wasDropdown: true)
+                                            isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         
         return .persistenceResponse
     }
@@ -370,8 +369,7 @@ struct MediaPickerNoneChanged: ProjectEnvironmentEvent {
         let emptyPortValue = PortValue.asyncMedia(nil)
         graphState.handleInputEditCommitted(input: input,
                                             value: emptyPortValue,
-                                            isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                                            wasDropdown: true)
+                                            isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         
         return .persistenceResponse
     }

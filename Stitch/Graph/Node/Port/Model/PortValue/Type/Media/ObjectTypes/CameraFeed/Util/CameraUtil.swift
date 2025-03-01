@@ -42,8 +42,7 @@ extension GraphState {
                 input: coordinate,
                 value: value,
                 // TODO: is this accurate? Can we change camera direction via any of the layers (i.e. via layer inspector)?
-                isFieldInsideLayerInspector: false,
-                wasDropdown: true)
+                isFieldInsideLayerInspector: false)
         }
         
         realityNodes.forEach { node in
@@ -54,8 +53,7 @@ extension GraphState {
                 input: coordinate,
                 value: value,
                 // TODO: is this accurate? Can we change camera direction via any of the layers (i.e. via layer inspector)?
-                isFieldInsideLayerInspector: false,
-                wasDropdown: true)
+                isFieldInsideLayerInspector: false)
         }
     }
 }

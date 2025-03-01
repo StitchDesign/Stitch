@@ -43,8 +43,7 @@ struct AnchorEntitiesDropdownView: View {
         
         graph.handleInputEditCommitted(input: inputCoordinate,
                                        value: .anchorEntity(selectedId),
-                                       isFieldInsideLayerInspector: false,
-                                       wasDropdown: true)
+                                       isFieldInsideLayerInspector: false)
         graph.encodeProjectInBackground()
     }
     
