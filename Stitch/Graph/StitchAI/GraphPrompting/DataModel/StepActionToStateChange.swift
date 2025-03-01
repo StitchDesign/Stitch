@@ -27,77 +27,13 @@ extension StitchDocumentViewModel {
     // fka `handleLLMStepAction`
     // returns nil = failed, and should retry
     @MainActor
-    func applyAction(_ action: StepTypeAction) throws {
+    func applyAction<ActionType: StepActionable>(_ action: ActionType) throws {
         
         // Set true whenever we are
         self.llmRecording.isApplyingActions = true
                         
-        switch action {
-        case .addNode(let x):
-            guard let _ = self.nodeCreated(choice: x.nodeName.asNodeKind,
-                                           nodeId: x.nodeId) else {
-                self.llmRecording.isApplyingActions = false
-                // fatalErrorIfDebug()
-                throw StitchAIManagerError.actionValidationError("Could not create node \(x.nodeId.debugFriendlyId) \(x.nodeName)")
-            }
-            self.llmRecording.isApplyingActions = false
-        
-        case .connectNodes(let x):
-            let edge: PortEdgeData = PortEdgeData(
-                from: .init(portType: .portIndex(x.fromPort), nodeId: x.fromNodeId),
-                to: .init(portType: x.port, nodeId: x.toNodeId))
-            
-            let _ = graph.edgeAdded(edge: edge)
-            
-            // Create canvas node if destination is layer
-            if let fromNodeLocation = graph.getNodeViewModel(x.fromNodeId)?.patchCanvasItem?.position,
-               let destinationNode = graph.getNodeViewModel(x.toNodeId),
-               let layerNode = destinationNode.layerNode {
-                guard let keyPath = x.port.keyPath else {
-                    // fatalErrorIfDebug()
-                    throw StitchAIManagerError.actionValidationError("expected layer node keypath but got: \(x.port)")
-                }
-                
-                var position = fromNodeLocation
-                position.x += 200
-                
-                let inputData = layerNode[keyPath: keyPath.layerNodeKeyPath]
-                graph.layerInputAddedToGraph(node: destinationNode,
-                                             input: inputData,
-                                             coordinate: keyPath,
-                                             position: position)
-            }
-            
-            self.llmRecording.isApplyingActions = false
-        
-        case .changeValueType(let x):
-            // NodeType etc. for this patch was already validated in `[StepTypeAction].areValidLLMSteps`
-            let _ = self.graph.nodeTypeChanged(nodeId: x.nodeId,
-                                               newNodeType: x.valueType)
-            self.llmRecording.isApplyingActions = false
-        
-        case .setInput(let x):
-            let inputCoordinate = InputCoordinate(portType: x.port,
-                                                  nodeId: x.nodeId)
-            guard let input = self.graph.getInputObserver(coordinate: inputCoordinate) else {
-                log("applyAction: could not apply setInput")
-                self.llmRecording.isApplyingActions = false
-                // fatalErrorIfDebug()
-                throw StitchAIManagerError.actionValidationError("Could not retrieve input \(inputCoordinate)")
-            }
-            
-            // Use the common input-edit-committed function, so that we remove edges, block or unblock fields, etc.
-            self.graph.inputEditCommitted(input: input,
-                                          value: x.value,
-                                          wasDropdown: false)
-            
-            self.llmRecording.isApplyingActions = false
-        }
-
-        self.graph.visibleNodesViewModel.setAllNodesVisible()
-        
-        // Finally, updateGraphData ?
-        self.graph.refreshGraphUpdaterId()
+        try action.applyAction(graph: self.visibleGraph)
+        self.llmRecording.isApplyingActions = false
     }
 }
 

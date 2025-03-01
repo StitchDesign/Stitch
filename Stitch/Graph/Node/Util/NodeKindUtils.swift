@@ -160,7 +160,7 @@ extension NodeKind {
     }
 
     @MainActor
-    func defaultInputs(for type: UserVisibleType?) -> PortValuesList? {
+    func defaultInputs(for type: UserVisibleType?) -> PortValuesList {
         self.rowDefinitions(for: type).inputs.map { $0.defaultValues }
     }
 

@@ -94,8 +94,8 @@ struct GraphBaseView: View {
                 VStack {
                     HStack {
                         EditBeforeSubmitModalView(
-                            recordingState: document.llmRecording,
-                            actions: document.llmRecording.actions)
+                            document: document,
+                            graph: graph)
                         Spacer()
                     }
                     Spacer()

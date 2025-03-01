@@ -507,11 +507,15 @@ extension GraphState {
         // Track group node ID, which fixes edges when traversing
         let groupNodeIdFocused = self.graphUI.groupNodeFocused
         
+        // Stitch AI changes in case order changes
+        let aiActions = self.llmRecording.actions
+        
         hasher.combine(nodeCount)
         hasher.combine(canvasItems)
         hasher.combine(upstreamConnections)
         hasher.combine(manualEdits)
         hasher.combine(groupNodeIdFocused)
+        hasher.combine(aiActions)
         
         let newGraphUpdaterId = hasher.finalize()
         // log("calculateGraphUpdaterId: newGraphUpdaterId: \(newGraphUpdaterId)")
