@@ -167,14 +167,42 @@ struct CanvasEdgesViewModifier: ViewModifier {
                 
                 
                 
-                
-                // For inputs:
-                InputPreviewPopoverView(ports: allInputs,
-                                        graphUI: graphUI)
-                
-                // For outputs:
-                OutputPreviewPopoverView(ports: allOutputs,
-                                         graphUI: graphUI)
+                if let openPortPreview = graphUI.openPortPreview {
+                    
+                    // Find the input or output that has the matching canvas-item-id and row-observer-id
+                    
+//                    
+//                    if let rowViewModel = (openPortPreview.nodeIO == .input ? allInputs : allOutputs).first { rowViewModel in
+//                        rowViewModel.canvasItemDelegate?.id == openPortPreview.canvasItemId
+//                        && rowViewModel?.rowDelegate?.id == openPortPreview.port
+//                    } {
+//                        PortPreviewPopoverView(rowViewModel: rowViewModel,
+//                                               nodeIO: openPortPreview.nodeIO)
+//                    }
+//                    
+                    switch openPortPreview.nodeIO {
+                    case .input:
+                        if let rowViewModel = allInputs.first(where: { rowViewModel in
+                            rowViewModel.canvasItemDelegate?.id == openPortPreview.canvasItemId
+                            && rowViewModel.rowDelegate?.id == openPortPreview.port
+                        }) {
+                            PortPreviewPopoverView(rowViewModel: rowViewModel,
+                                                   nodeIO: .input)
+                        }
+//                        InputPreviewPopoverView(ports: allInputs,
+//                                                graphUI: graphUI)
+                    case .output:
+                        if let rowViewModel = allOutputs.first(where: { rowViewModel in
+                            rowViewModel.canvasItemDelegate?.id == openPortPreview.canvasItemId
+                            && rowViewModel.rowDelegate?.id == openPortPreview.port
+                        }) {
+                            PortPreviewPopoverView(rowViewModel: rowViewModel,
+                                                   nodeIO: .output)
+                        }
+//                        OutputPreviewPopoverView(ports: allOutputs,
+//                                                 graphUI: graphUI)
+                    }
+                }
             }
     }
 }
@@ -259,7 +287,6 @@ struct OutputPreviewPopoverView: View {
         // If we have an open port preview
         if let openPortPreview = graphUI.openPortPreview,
            openPortPreview.nodeIO == .output {
-//        if case let .input(portPreviewOutputObserverCoordinate, portPreviewCanvasItemId) = graphUI.openPortPreview {
             ForEach(ports) { outputRowViewModel in
                 let portPreviewCanvasItemId = openPortPreview.canvasItemId
                 
@@ -302,6 +329,57 @@ struct OutputPreviewPopoverView: View {
                      
                 }
             }
+        }
+    }
+}
+
+struct PortPreviewPopoverView<NodeRowObserverType: NodeRowObserver>: View {
+
+    let rowViewModel: NodeRowObserverType.RowViewModelType
+    let nodeIO: NodeIO
+    
+    @State private var width: CGFloat = .zero
+    
+    var body: some View {
+        if let rowObserver = rowViewModel.rowDelegate,
+           let anchor = rowViewModel.anchorPoint {
+            
+            let positionAdjustment: CGFloat = nodeIO == .input ? -self.width/2 : self.width/2
+            let arrowOffsetAdjustment: CGFloat = nodeIO == .input ? (self.width/2 - 36) : (-self.width/2 + 36)
+            let popoverOffsetAdjustment: CGFloat = nodeIO == .input ? -32 : 32
+            
+            ZStack {
+                Rectangle().fill(.clear)
+                    .frame(width: 30, height: 30)
+                    .background(.ultraThinMaterial)
+                    .rotationEffect(.degrees(45))
+                    .position(x: anchor.x + positionAdjustment,
+                              y: anchor.y)
+                    .offset(x: arrowOffsetAdjustment)
+                
+                PortValuesPreviewView(
+                    rowObserver: rowObserver,
+                    rowViewModel: rowViewModel,
+                    nodeIO: nodeIO)
+                
+                .background {
+                    GeometryReader { proxy in
+                        Color.clear
+                        // IMPORTANT: use .local frame, since .global is affected by zooming and creates infinite loop
+                            .onChange(of: proxy.frame(in: .local), initial: true) { _, newFrameData in
+                                log("PortPreviewPopoverView: newFrameData.size.width: \(newFrameData.size.width)")
+                                self.width = newFrameData.size.width
+                            }
+                    }
+                }
+                .frame(maxHeight: PORT_PREVIEW_POPOVER_MAX_HEIGHT)
+                .fixedSize(horizontal: false, vertical: true)
+                .position(x: anchor.x + positionAdjustment,
+                          y: anchor.y)
+                .offset(x: popoverOffsetAdjustment)
+                
+            } // ZStack
+            
         }
     }
 }
