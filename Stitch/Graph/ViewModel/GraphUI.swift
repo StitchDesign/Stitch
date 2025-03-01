@@ -34,10 +34,16 @@ enum FocusedFieldChangedByArrowKey: Equatable, Hashable {
          downArrow // decrement
 }
 
-enum OpenedPortPreview: Equatable, Hashable, Codable {
-    case none,
-         input(InputCoordinate, CanvasItemId),
-         output(OutputCoordinate, CanvasItemId)
+//enum OpenedPortPreview: Equatable, Hashable, Codable {
+//    case none,
+//         input(InputCoordinate, CanvasItemId),
+//         output(OutputCoordinate, CanvasItemId)
+//}
+
+struct OpenedPortPreview: Equatable, Hashable {
+    let port: NodeIOCoordinate
+    let nodeIO: NodeIO
+    let canvasItemId: CanvasItemId
 }
 
 struct PortPreviewOpened: StitchDocumentEvent {
@@ -47,12 +53,14 @@ struct PortPreviewOpened: StitchDocumentEvent {
     
     func handle(state: StitchDocumentViewModel) {
         // Access via document to avoid weak reference
-        switch nodeIO {
-        case .input:
-            state.graphUI.openPortPreview = .input(port, canvasItemId)
-        case .output:
-            state.graphUI.openPortPreview = .output(port, canvasItemId)
-        }
+        state.graphUI.openPortPreview = .init(port: port, nodeIO: nodeIO, canvasItemId: canvasItemId)
+        
+//        switch nodeIO {
+//        case .input:
+//            state.graphUI.openPortPreview = .input(port, canvasItemId)
+//        case .output:
+//            state.graphUI.openPortPreview = .output(port, canvasItemId)
+//        }
     }
 }
 
@@ -60,7 +68,7 @@ struct PortPreviewOpened: StitchDocumentEvent {
 @Observable
 final class GraphUIState: Sendable {
     
-    @MainActor var openPortPreview: OpenedPortPreview = .none
+    @MainActor var openPortPreview: OpenedPortPreview?
     
     // Set true / non-nil in methods or action handlers
     // Set false / nil in StitchUIScrollView
@@ -381,7 +389,8 @@ extension GraphState {
         
         self.graphUI.isSidebarFocused = false
         
-        self.graphUI.openPortPreview = .none
+//        self.graphUI.openPortPreview = .none
+        self.graphUI.openPortPreview = nil
     }
 }
 
