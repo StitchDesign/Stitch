@@ -11,21 +11,24 @@ import SwiftyJSON
 // TODO: re-introduce the specific enum cases of Step, so that they can be manipulated more easily in views etc.
 struct EditBeforeSubmitModalView: View {
  
-    let recordingState: LLMRecordingState
+    @Bindable var document: StitchDocumentViewModel
+    let graph: GraphState
     
+    var recordingState: LLMRecordingState {
+        self.document.llmRecording
+    }
+
     var prompt: String {
         recordingState.promptState.prompt
     }
     
-    var recordingStateActions: [StepTypeAction] {
+    var recordingStateActions: [Step] {
         recordingState.actions
     }
     
-    var nodeIdToNameMapping: [NodeId: PatchOrLayer] {
-        recordingState.nodeIdToNameMapping
+    var actions: [Step] {
+        recordingState.actions
     }
-    
-    @State var actions: [StepTypeAction]
     
     var body: some View {
         VStack {
@@ -33,10 +36,11 @@ struct EditBeforeSubmitModalView: View {
                 .font(.headline)
                 .padding(.top)
             
-            // https://www.hackingwithswift.com/quick-start/swiftui/how-to-let-users-move-rows-in-a-list
-            List(self.$actions, id: \.hashValue, editActions: .move) { $action in
-                LLMActionCorrectionView(action: action,
-                                        nodeIdToNameMapping: self.nodeIdToNameMapping)
+            List {
+                ForEach(self.actions, id: \.hashValue) { action in
+                    LLMActionCorrectionView(action: action,
+                                            graph: graph)
+                }
                 .listRowBackground(Color.clear)
                 .listRowSpacing(8)
                 .listRowSeparator(.hidden)
@@ -58,14 +62,6 @@ struct EditBeforeSubmitModalView: View {
         .background(.ultraThinMaterial)
         .cornerRadius(16)
         .padding()
-        .onChange(of: self.recordingStateActions) { oldValue, newValue in
-            // log(".onChange(of: self.recordingStateActions): newValue: \(newValue)")
-            self.actions = newValue
-        }
-        .onChange(of: self.actions) { oldValue, newValue in
-            // log(".onChange(of: self.actions): newValue: \(newValue)")
-            dispatch(LLMActionsUpdatedByModal(newActions: newValue))
-        }
     }
         
     var buttons: some View {
@@ -77,14 +73,18 @@ struct EditBeforeSubmitModalView: View {
                     .padding()
             }
             
+            
             Button(action: {
-                log("will complete and dismiss")
+                log("Stitch AI edit modal: will complete and dismiss")
                 dispatch(ShowLLMApprovalModal())
             }) {
                 Text("Submit")
                     .padding()
             }
-        } // HStack
+            
+            Toggle("Auto Validate", isOn: self.$document.llmRecording.willAutoValidate)
+                .toggleStyle(CheckboxToggleStyle())
+        }
     }
 }
 
@@ -117,8 +117,8 @@ struct LLMNodeIOPortTypeView: View {
 }
 
 struct LLMActionCorrectionView: View {
-    let action: StepTypeAction
-    let nodeIdToNameMapping: [NodeId: PatchOrLayer]
+    let action: Step
+    let graph: GraphState
         
     var body: some View {
         
@@ -127,13 +127,14 @@ struct LLMActionCorrectionView: View {
             // added
             stepTypeAndDeleteView
             
-            switch action {
+            switch try? StepTypeAction.fromStep(action) {
             case .addNode(let x):
                 StitchTextView(string: "Node: \(x.nodeName.asNodeKind.description) \(x.nodeId.debugFriendlyId)")
 
             case .connectNodes(let x):
-                if let fromNodeName = nodeIdToNameMapping.get(x.fromNodeId) {
-                    StitchTextView(string: "From Node: \(fromNodeName.asNodeKind.description) \(x.fromNodeId.debugFriendlyId)")
+                if let nodeKind = graph.getNodeViewModel(x.fromNodeId)?.kind,
+                   let fromNodeName = PatchOrLayer.from(nodeKind: nodeKind) {
+                    StitchTextView(string: "From Node: \(nodeKind.description) \(x.fromNodeId.debugFriendlyId)")
                     LLMNodeIOPortTypeView(nodeName: fromNodeName,
                                           port: .portIndex(x.fromPort),
                                           generalLabel: "From Port")
@@ -141,8 +142,9 @@ struct LLMActionCorrectionView: View {
                     StitchTextView(string: "No Patch/Layer found for From Node \(x.fromNodeId.debugFriendlyId)")
                 }
                 
-                if let toNodeName = nodeIdToNameMapping.get(x.toNodeId) {
-                    StitchTextView(string: "To Node: \(toNodeName.asNodeKind.description) \(x.toNodeId.debugFriendlyId)")
+                if let nodeKind = graph.getNodeViewModel(x.toNodeId)?.kind,
+                   let toNodeName = PatchOrLayer.from(nodeKind: nodeKind) {
+                    StitchTextView(string: "To Node: \(nodeKind.description) \(x.toNodeId.debugFriendlyId)")
                     LLMNodeIOPortTypeView(nodeName: toNodeName,
                                           port: x.port,
                                           generalLabel: "To Port")
@@ -151,7 +153,8 @@ struct LLMActionCorrectionView: View {
                 }
                 
             case .changeValueType(let x):
-                if let nodeName = nodeIdToNameMapping.get(x.nodeId) {
+                if let nodeKind = graph.getNodeViewModel(x.nodeId)?.kind,
+                   let nodeName = PatchOrLayer.from(nodeKind: nodeKind) {
                     StitchTextView(string: "Node: \(nodeName.asNodeKind.description) \(x.nodeId.debugFriendlyId)")
                 } else {
                     StitchTextView(string: "No Patch/Layer found for Node \(x.nodeId.debugFriendlyId)")
@@ -160,7 +163,8 @@ struct LLMActionCorrectionView: View {
                 StitchTextView(string: "NodeType: \(x.valueType.display)")
                 
             case .setInput(let x):
-                if let nodeName = nodeIdToNameMapping.get(x.nodeId) {
+                if let nodeKind = graph.getNodeViewModel(x.nodeId)?.kind,
+                   let nodeName = PatchOrLayer.from(nodeKind: nodeKind) {
                     StitchTextView(string: "Node: \(nodeName.asNodeKind.description) \(x.nodeId.debugFriendlyId)")
                     LLMNodeIOPortTypeView(nodeName: nodeName,
                                           port: x.port,
@@ -170,6 +174,9 @@ struct LLMActionCorrectionView: View {
                 }
                 StitchTextView(string: "ValueType: \(x.valueType.display)")
                 StitchTextView(string: "Value: \(x.value.display)")
+                
+            case .none:
+                FatalErrorIfDebugView()
             }
         }
         .padding()
@@ -187,5 +194,25 @@ struct LLMActionCorrectionView: View {
                     dispatch(LLMActionDeleted(deletedAction: action))
                 }
         }
+    }
+}
+
+// Hack for supporting check box on iOS
+struct CheckboxToggleStyle: ToggleStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        // 1
+        Button(action: {
+
+            // 2
+            configuration.isOn.toggle()
+
+        }, label: {
+            HStack {
+                // 3
+                Image(systemName: configuration.isOn ? "checkmark.square" : "square")
+
+                configuration.label
+            }
+        })
     }
 }

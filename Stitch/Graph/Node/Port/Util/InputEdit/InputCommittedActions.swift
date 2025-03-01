@@ -24,7 +24,6 @@ extension GraphState {
         
         self.inputEditCommitted(input: input,
                                 value: value,
-                                wasDropdown: true, // true?
                                 wasAdjustmentBarSelection: false)
     }
 
@@ -45,7 +44,6 @@ extension GraphState {
     func handleInputEditCommitted(input: NodeIOCoordinate,
                                   value: PortValue?,
                                   isFieldInsideLayerInspector: Bool,
-                                  wasDropdown: Bool,
                                   wasAdjustmentBarSelection: Bool = false) {
         
         guard let node = self.getNodeViewModel(input.nodeId),
@@ -63,7 +61,6 @@ extension GraphState {
             layerMultiselectInput.multiselectObservers(self).forEach { observer in
                 self.inputEditCommitted(input: observer.rowObserver,
                                         value: value,
-                                        wasDropdown: wasDropdown,
                                         wasAdjustmentBarSelection: wasAdjustmentBarSelection)
             }
         } 
@@ -72,7 +69,6 @@ extension GraphState {
         else {
             self.inputEditCommitted(input: input,
                                     value: value,
-                                    wasDropdown: wasDropdown,
                                     wasAdjustmentBarSelection: wasAdjustmentBarSelection)
         }
     }
@@ -80,7 +76,6 @@ extension GraphState {
     @MainActor
     func inputEditCommitted(input: InputNodeRowObserver,
                             value: PortValue?,
-                            wasDropdown: Bool,
                             wasAdjustmentBarSelection: Bool = false) {
         
         let nodeId = input.id.nodeId
@@ -131,12 +126,6 @@ extension GraphState {
         
         // Only change the input if valued actually changed.
         input.setValuesInInput([value])
-        
-        if wasDropdown {
-            self.documentDelegate?.maybeCreateLLMStepSetInput(node: nodeViewModel,
-                                                              input: input.id,
-                                                              value: value)
-        }
         
         self.scheduleForNextGraphStep(nodeId)
     }

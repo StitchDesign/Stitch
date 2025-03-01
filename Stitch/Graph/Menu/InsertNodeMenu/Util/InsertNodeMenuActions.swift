@@ -139,14 +139,6 @@ extension GraphState {
     
     @MainActor
     func nodeCreationCompleted(_ immediatelyCreatedLayerNode: NodeId?) {
-        
-        if let newlyCreatedNodeId = immediatelyCreatedLayerNode ?? self.graphUI.insertNodeMenuState.hiddenNodeId {
-            
-            self.documentDelegate?.maybeCreateStepTypeAddNode(newlyCreatedNodeId)
-        } else {
-            log("nodeCreationCompleted: finished creating node, but had neither id of immediately created layer node nor id of the node during animation")
-            fatalErrorIfDebug()
-        }
                 
          // log("InsertNodeAnimationCompleted called")
 

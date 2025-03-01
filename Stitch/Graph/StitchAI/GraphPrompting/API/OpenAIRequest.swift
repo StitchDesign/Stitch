@@ -52,6 +52,30 @@ struct OpenAIRequest {
     }
 }
 
+extension Array where Element == Step {
+    func convertSteps() throws -> [any StepActionable] {
+        let convertedSteps: [any StepActionable] = try self.map { step in
+            try step.convertToType()
+        }
+        return convertedSteps
+    }
+    
+    mutating func append(_ stepType: StepTypeAction) {
+        self.append(stepType.toStep())
+    }
+    
+    func containsNewNode(from id: NodeId) -> Bool {
+        self.contains(where: { step in
+            if let convertedStep = try? step.convertToType(),
+               let addStep = convertedStep as? StepActionAddNode {
+                return addStep.nodeId == id
+            }
+            
+            return false
+        })
+    }
+}
+
 extension StitchAIManager {
     @MainActor func handleRequest(_ request: OpenAIRequest) {
         guard let currentDocument = self.documentDelegate else {
@@ -61,6 +85,9 @@ extension StitchAIManager {
         // Set the flag to indicate a request is in progress
         currentDocument.graphUI.insertNodeMenuState.isGeneratingAINode = true
         
+        // Track initial graph state
+        currentDocument.llmRecording.initialGraphState = currentDocument.visibleGraph.createSchema()
+        
         self.currentTask = Task(priority: .high) { [weak self] in
             guard let manager = self else {
                 return
@@ -68,7 +95,9 @@ extension StitchAIManager {
             
             do {
                 let steps = try await manager.makeRequest(request)
-
+                
+                log("OpenAI Request succeeded")
+                
                 // Handle successful response
                 try manager.openAIRequestCompleted(steps: steps,
                                                    originalPrompt: request.prompt)
@@ -77,6 +106,12 @@ extension StitchAIManager {
                 
                 await MainActor.run { [weak self] in
                     guard let state = self?.documentDelegate else { return }
+                    
+                    // Reset recording state
+                    state.llmRecording = .init()
+                    
+                    // Reset checks which would later break new recording mode
+                    state.graphUI.insertNodeMenuState = InsertNodeMenuState()
                     
                     if let error = error as? StitchAIManagerError {
                         guard error.shouldDisplayModal else {
@@ -106,7 +141,7 @@ extension StitchAIManager {
     @MainActor
     private func makeRequest(_ request: OpenAIRequest,
                              attempt: Int = 1,
-                             lastCapturedError: String? = nil) async throws -> [StepTypeAction] {
+                             lastCapturedError: String? = nil) async throws -> [Step] {
         let config = request.config
         let prompt = request.prompt
         let systemPrompt = request.systemPrompt
@@ -114,7 +149,7 @@ extension StitchAIManager {
         guard let document = self.documentDelegate else {
             throw StitchAIManagerError.documentNotFound(request) 
         }
-        document.llmRecording.recentOpenAIRequestCompleted = false
+//        document.llmRecording.recentOpenAIRequestCompleted = false
         
         // Check if we've exceeded retry attempts
         guard attempt <= config.maxRetries else {
@@ -222,7 +257,7 @@ extension StitchAIManager {
     // Convert data to decoded Step actions
     private func convertResponseToStepActions(_ request: OpenAIRequest,
                                               data: Data,
-                                              currentAttempt: Int) async throws -> [StepTypeAction] {
+                                              currentAttempt: Int) async throws -> [Step] {
         
         // Try to parse request
         // log raw JSON response
@@ -235,12 +270,7 @@ extension StitchAIManager {
         
         do {
             let steps = try data.getOpenAISteps()
-            let convertedSteps: [StepTypeAction] = try steps.map { step in
-                try StepTypeAction.fromStep(step)
-            }
-            
-            log("OpenAI Request succeeded")
-            return convertedSteps
+            return steps
         } catch let error as StitchAIManagerError {
             log("StitchAIManager error parsing steps: \(error.description)")
             return try await self.retryMakeRequest(request,
@@ -256,7 +286,7 @@ extension StitchAIManager {
     
     private func retryMakeRequest(_ request: OpenAIRequest,
                                   currentAttempts: Int,
-                                  lastError: String) async throws -> [StepTypeAction] {
+                                  lastError: String) async throws -> [Step] {
         let config = request.config
         try await Task.sleep(nanoseconds: UInt64(config.retryDelay * Double(nanoSecondsInSecond)))
         return try await self.makeRequest(request,
@@ -271,7 +301,7 @@ extension StitchAIManager {
     /// 3. We validate the `[StepTypeAction]`, e.g. make sure model did not try to use a NodeType that is unavailable for a given Patch
     /// 4. If all this succeeds, ONLY THEN do we apply the `[StepTypeAction]` to the state (fka `handleLLMStepAction`
     @MainActor
-    func openAIRequestCompleted(steps: [StepTypeAction],
+    func openAIRequestCompleted(steps: [Step],
                                 originalPrompt: String) throws {
         guard let document = self.documentDelegate else {
             return
@@ -285,13 +315,12 @@ extension StitchAIManager {
         document.graphUI.insertNodeMenuState.isGeneratingAINode = false
 
         log(" Storing Original AI Generated Actions ")
-        log(" Original Actions to store: \(steps.asJSONDisplay())")
-        document.llmRecording.actions = steps
         document.llmRecording.promptState.prompt = originalPrompt
         
-        try document.validateAndApplyActions(steps)
+        // Enable edit mode for actions after succsesful request
+        document.llmRecording.mode = .augmentation
         
-        document.llmRecording.recentOpenAIRequestCompleted = true
+        try document.validateAndApplyActions(steps)
     }
 }
 

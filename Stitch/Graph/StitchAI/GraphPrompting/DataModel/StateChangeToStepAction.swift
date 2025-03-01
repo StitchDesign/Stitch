@@ -9,72 +9,6 @@ import Foundation
 import SwiftyJSON
 import SwiftUI
 
-// MARK: LISTENING TO STATE CHANGES WHIE LLM-RECORDING MODE IS ACTIVE AND TURNING EACH STATE CHANGE INTO AN LLM-STEP-ACTION (i.e. `Step`)
-
-extension StitchDocumentViewModel {
-    
-    // TODO: see `LLMActionUtil` methods like `maybeCreateLLMMoveNode` etc. for remaining methods that need to be converted from `LLMAction` to `LLMStepAction`
-    // fka `maybeCreateLLMAddNode`
-    @MainActor
-    func maybeCreateStepTypeAddNode(_ newlyCreatedNodeId: NodeId) {
-        // If we're LLM-recording, add an `LLMAddNode` action
-        if self.llmRecording.isRecording,
-           !self.llmRecording.isApplyingActions,
-           let newlyCreatedNode = self.graph.getNodeViewModel(newlyCreatedNodeId),
-           let patchOrLayer: PatchOrLayer = PatchOrLayer.from(nodeKind: newlyCreatedNode.kind) {
-
-            self.llmRecording.actions.append(.addNode(.init(nodeId: newlyCreatedNodeId, nodeName: patchOrLayer)))
-        }
-    }
-    
-    @MainActor
-    func maybeCreateLLMStepChangeValueType(node: NodeViewModel,
-                                          newValueType: NodeType) {
-        if self.llmRecording.isRecording,
-           !self.llmRecording.isApplyingActions {
-            self.llmRecording.actions.append(.changeValueType(.init(nodeId: node.id, valueType: newValueType)))
-        }
-    }
-    
-    @MainActor
-    func maybeCreateLLMStepSetInput(node: NodeViewModel,
-                                    input: InputCoordinate,
-                                    value: PortValue) {
-        if self.llmRecording.isRecording,
-           !self.llmRecording.isApplyingActions {
-            self.llmRecording.actions.append(.setInput(
-                .init(nodeId: node.id,
-                      port: input.portType,
-                      value: value,
-                      valueType: value.toNodeType)))
-        }
-    }
-    
-    @MainActor
-    func maybeCreateLLMStepConnectionAdded(input: InputCoordinate,
-                                           output: OutputCoordinate) {
-            
-        
-        if self.llmRecording.isRecording,
-           !self.llmRecording.isApplyingActions {
-            
-            log("maybeCreateLLMStepConnectionAdded: input: \(input)")
-            log("maybeCreateLLMStepConnectionAdded: output: \(output)")
-            
-            guard let fromPort = output.portType.portId else {
-                log("maybeCreateLLMStepConnectionAdded: output coordinate was not portId ?")
-                return
-            }
-                        
-            self.llmRecording.actions.append(.connectNodes(.init(
-                port: input.portType,
-                toNodeId: input.nodeId,
-                fromPort: fromPort,
-                fromNodeId: output.nodeId)))
-        }
-    }
-}
-
 extension NodeIOPortType {
     func asLLMStepPort() -> Any {
         switch self {
@@ -100,23 +34,6 @@ extension OutputCoordinate {
             return x
         }
     }
-}
-
-//need to feed in port id's as well
-//pass in the input coordinate
-func createLLMStepConnectionAdded(input: InputCoordinate,
-                                  output: OutputCoordinate) -> LLMStepAction {
-    //actually create the action with the input coordiante using
-    //asLLMStepPort()
-    
-    assertInDebug(output.portId.isDefined)
-    
-    return LLMStepAction(
-        stepType: StepType.connectNodes,
-        port: input.portType,
-        fromPort: output.asLLMStepFromPort(),
-        fromNodeId: output.nodeId,
-        toNodeId: input.nodeId)
 }
 
 extension LayerInputPort {

@@ -24,8 +24,7 @@ struct PickerOptionSelected: GraphEventWithResponse {
         state.handleInputEditCommitted(
             input: input,
             value: choice,
-            isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-            wasDropdown: true)
+            isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         
         return .persistenceResponse
     }

@@ -64,9 +64,7 @@ struct EditJSONEntry: View {
                                 input: rowObserverCoordinate,
                                 value: .json(edit.toStitchJSON),
                                 // TODO: currently we never use json input for a layer input; but should pass down proper values here
-                                isFieldInsideLayerInspector: false,
-                                // TODO: technically not a dropdown, but not a regular textfield entry either
-                                wasDropdown: true)
+                                isFieldInsideLayerInspector: false)
                             
                             // TODO: clean up this, use same functions as `inputEdited` etc.?
                             graph.encodeProjectInBackground()

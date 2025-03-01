@@ -49,15 +49,15 @@ enum StepTypeAction: Equatable, Hashable, Codable {
         case .addNode:
             let x = try StepActionAddNode.fromStep(action)
             return .addNode(x)
-
+            
         case .connectNodes:
             let x = try StepActionConnectionAdded.fromStep(action)
             return .connectNodes(x)
-        
+            
         case .changeValueType:
             let x = try StepActionChangeValueType.fromStep(action)
             return .changeValueType(x)
-        
+            
         case .setInput:
             let x = try StepActionSetInput.fromStep(action)
             return .setInput(x)
@@ -65,7 +65,27 @@ enum StepTypeAction: Equatable, Hashable, Codable {
     }
 }
 
-extension [StepTypeAction] {
+extension Step {
+    func convertToType() throws -> any StepActionable {
+        let stepType = self.stepType
+        switch stepType {
+            
+        case .addNode:
+            return try StepActionAddNode.fromStep(self)
+
+        case .connectNodes:
+            return try StepActionConnectionAdded.fromStep(self)
+        
+        case .changeValueType:
+            return try StepActionChangeValueType.fromStep(self)
+        
+        case .setInput:
+            return try StepActionSetInput.fromStep(self)
+        }
+    }
+}
+
+extension Array where Element == any StepActionable {
     // Note: just some obvious validations; NOT a full validation; we can still e.g. create a connection from an output that doesn't exist etc.
     // nil = valid
     func validateLLMSteps() throws {
@@ -74,53 +94,10 @@ extension [StepTypeAction] {
         var createdNodes = [NodeId: PatchOrLayer]()
         
         for step in self {
-            
-            switch step {
-                
-            case .addNode(let x):
-                createdNodes.updateValue(x.nodeName, forKey: x.nodeId)
-                
-            case .changeValueType(let x):
-                guard let patch = createdNodes.get(x.nodeId)?.asNodeKind.getPatch else {
-                    throw StitchAIManagerError
-                        .actionValidationError("ChangeValueType: no patch for node \(x.nodeId.debugFriendlyId)")
-                }
-                
-                guard patch.availableNodeTypes.contains(x.valueType) else {
-                    throw StitchAIManagerError
-                        .actionValidationError("ChangeValueType: invalid node type \(x.valueType.display) for patch \(patch.defaultDisplayTitle()) on node \(x.nodeId.debugFriendlyId)")
-                }
-            
-            case .connectNodes(let x):
-                let originNode = createdNodes.get(x.fromNodeId)
-                let destinationNode = createdNodes.get(x.toNodeId)
-                
-                guard destinationNode.isDefined else {
-                    throw StitchAIManagerError
-                        .actionValidationError("ConnectNodes: Tried create a connection from node \(x.fromNodeId.debugFriendlyId) to \(x.toNodeId.debugFriendlyId), but the To Node does not yet exist")
-                }
-                
-                guard let originNode = originNode else {
-                    throw StitchAIManagerError
-                        .actionValidationError("ConnectNodes: Tried create a connection from node \(x.fromNodeId.debugFriendlyId) to \(x.toNodeId.debugFriendlyId), but the From Node does not yet exist")
-                }
-                
-                guard originNode.asNodeKind.isPatch else {
-                    throw StitchAIManagerError
-                        .actionValidationError("ConnectNodes: Tried create a connection from node \(x.fromNodeId.debugFriendlyId) to \(x.toNodeId.debugFriendlyId), but the From Node was a layer or group")
-                }
-            
-            case .setInput(let x):
-                // node must exist
-                guard createdNodes.get(x.nodeId).isDefined else {
-                    log("areLLMStepsValid: Invalid .setInput: \(x)")
-                    throw StitchAIManagerError
-                        .actionValidationError("SetInput: Node \(x.nodeId.debugFriendlyId) does not yet exist")
-                }
-            }
+            try step.validate(createdNodes: &createdNodes)
         } // for step in self
         
-        let (depthMap, hasCycle) = calculateAINodesAdjacency(self)
+        let (depthMap, hasCycle) = self.calculateAINodesAdjacency()
         
         if hasCycle {
             throw StitchAIManagerError
@@ -132,33 +109,34 @@ extension [StepTypeAction] {
                 .actionValidationError("Could not topologically order the graph")
         }
     }
-}
-
-func calculateAINodesAdjacency(_ actions: [StepTypeAction]) -> (depthMap: [UUID: Int]?,
-                                                                hasCycle: Bool)  {
-    let adjacency = AdjacencyCalculator()
-    actions.forEach {
-        if case let .connectNodes(x) = $0 {
-            adjacency.addEdge(from: x.fromNodeId, to: x.toNodeId)
-        }
-    }
     
-    let (depthMap, hasCycle) = adjacency.computeDepth()
-    
-    if var depthMap = depthMap, !hasCycle {
-        // If we did not have a cycle, also add those nodes which did not have a connection;
-        // Node without connection = node with depth level 0
-        actions.nodesCreatedByLLMActions().forEach {
-            if !depthMap.get($0).isDefined {
-                depthMap.updateValue(0, forKey: $0)
+    func calculateAINodesAdjacency() -> (depthMap: [UUID: Int]?,
+                                         hasCycle: Bool) {
+        let adjacency = AdjacencyCalculator()
+        self.forEach {
+            if let connectNodesAction = $0 as? StepActionConnectionAdded {
+                adjacency.addEdge(from: connectNodesAction.fromNodeId, to: connectNodesAction.toNodeId)
             }
         }
-        return (depthMap, hasCycle)
         
-    } else {
-        return (depthMap, hasCycle)
+        let (depthMap, hasCycle) = adjacency.computeDepth()
+        
+        if var depthMap = depthMap, !hasCycle {
+            // If we did not have a cycle, also add those nodes which did not have a connection;
+            // Node without connection = node with depth level 0
+            self.nodesCreatedByLLMActions().forEach {
+                if !depthMap.get($0).isDefined {
+                    depthMap.updateValue(0, forKey: $0)
+                }
+            }
+            return (depthMap, hasCycle)
+            
+        } else {
+            return (depthMap, hasCycle)
+        }
     }
 }
+
 
 
 // "Which properties from `Step` are actually needed by StepType = .addNode ?"
@@ -172,6 +150,16 @@ protocol StepActionable: Hashable, Codable {
     
     /// Lists each property tracked in OpenAI's structured outputs.
     static var structuredOutputsCodingKeys: Set<Step.CodingKeys> { get }
+    
+    var toStep: Step { get }
+    
+    @MainActor
+    func applyAction(graph: GraphState) throws
+    
+    @MainActor
+    func removeAction(graph: GraphState)
+    
+    func validate(createdNodes: inout [NodeId : PatchOrLayer]) throws
 }
 
 // See `createLLMStepAddNode`
@@ -204,6 +192,22 @@ struct StepActionAddNode: StepActionable {
     }
     
     static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .nodeName]
+    
+    func applyAction(graph: GraphState) throws {
+        guard let _ = graph.documentDelegate?.nodeCreated(choice: self.nodeName.asNodeKind,
+                                                          nodeId: self.nodeId) else {
+            throw StitchAIManagerError.actionValidationError("Could not create node \(self.nodeId.debugFriendlyId) \(self.nodeName)")
+        }
+    }
+    
+    func removeAction(graph: GraphState) {
+        graph.deleteNode(id: self.nodeId,
+                         willDeleteLayerGroupChildren: true)
+    }
+    
+    func validate(createdNodes: inout [NodeId : PatchOrLayer]) throws {
+        createdNodes.updateValue(self.nodeName, forKey: self.nodeId)
+    }
 }
 
 // See `createLLMStepConnectionAdded`
@@ -254,6 +258,61 @@ struct StepActionConnectionAdded: StepActionable {
     }
     
     static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .port, .fromPort, .fromNodeId, .toNodeId]
+    
+    var inputPort: NodeIOCoordinate {
+        .init(portType: self.port, nodeId: self.toNodeId)
+    }
+    
+    func applyAction(graph: GraphState) throws {
+        let edge: PortEdgeData = PortEdgeData(
+            from: .init(portType: .portIndex(self.fromPort), nodeId: self.fromNodeId),
+            to: self.inputPort)
+        
+        let _ = graph.edgeAdded(edge: edge)
+        
+        // Create canvas node if destination is layer
+        if let fromNodeLocation = graph.getNodeViewModel(self.fromNodeId)?.patchCanvasItem?.position,
+           let destinationNode = graph.getNodeViewModel(self.toNodeId),
+           let layerNode = destinationNode.layerNode {
+            guard let keyPath = self.port.keyPath else {
+                // fatalErrorIfDebug()
+                throw StitchAIManagerError.actionValidationError("expected layer node keypath but got: \(self.port)")
+            }
+            
+            var position = fromNodeLocation
+            position.x += 200
+            
+            let inputData = layerNode[keyPath: keyPath.layerNodeKeyPath]
+            graph.layerInputAddedToGraph(node: destinationNode,
+                                         input: inputData,
+                                         coordinate: keyPath,
+                                         position: position)
+        }
+    }
+    
+    func removeAction(graph: GraphState) {
+        graph.removeEdgeAt(input: self.inputPort)
+    }
+    
+    func validate(createdNodes: inout [NodeId : PatchOrLayer]) throws {
+        let originNode = createdNodes.get(self.fromNodeId)
+        let destinationNode = createdNodes.get(self.toNodeId)
+        
+        guard destinationNode.isDefined else {
+            throw StitchAIManagerError
+                .actionValidationError("ConnectNodes: Tried create a connection from node \(self.fromNodeId.debugFriendlyId) to \(self.toNodeId.debugFriendlyId), but the To Node does not yet exist")
+        }
+        
+        guard let originNode = originNode else {
+            throw StitchAIManagerError
+                .actionValidationError("ConnectNodes: Tried create a connection from node \(self.fromNodeId.debugFriendlyId) to \(self.toNodeId.debugFriendlyId), but the From Node does not yet exist")
+        }
+        
+        guard originNode.asNodeKind.isPatch else {
+            throw StitchAIManagerError
+                .actionValidationError("ConnectNodes: Tried create a connection from node \(self.fromNodeId.debugFriendlyId) to \(self.toNodeId.debugFriendlyId), but the From Node was a layer or group")
+        }
+    }
 }
 
 // See: `createLLMStepChangeValueType`
@@ -287,6 +346,28 @@ struct StepActionChangeValueType: StepActionable {
     }
     
     static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .valueType]
+    
+    func applyAction(graph: GraphState) throws {
+        // NodeType etc. for this patch was already validated in `[StepTypeAction].areValidLLMSteps`
+        let _ = graph.nodeTypeChanged(nodeId: self.nodeId,
+                                      newNodeType: self.valueType)
+    }
+    
+    func removeAction(graph: GraphState) {
+        // Do nothing, assume node will be removed
+    }
+    
+    func validate(createdNodes: inout [NodeId : PatchOrLayer]) throws {
+        guard let patch = createdNodes.get(self.nodeId)?.asNodeKind.getPatch else {
+            throw StitchAIManagerError
+                .actionValidationError("ChangeValueType: no patch for node \(self.nodeId.debugFriendlyId)")
+        }
+        
+        guard patch.availableNodeTypes.contains(self.valueType) else {
+            throw StitchAIManagerError
+                .actionValidationError("ChangeValueType: invalid node type \(self.valueType.display) for patch \(patch.defaultDisplayTitle()) on node \(self.nodeId.debugFriendlyId)")
+        }
+    }
 }
 
 // See: `createLLMStepSetInput`
@@ -337,5 +418,31 @@ struct StepActionSetInput: StepActionable {
     }
     
     static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .port, .value, .valueType]
+    
+    func applyAction(graph: GraphState) throws {
+        let inputCoordinate = InputCoordinate(portType: self.port,
+                                              nodeId: self.nodeId)
+        guard let input = graph.getInputObserver(coordinate: inputCoordinate) else {
+            log("applyAction: could not apply setInput")
+            // fatalErrorIfDebug()
+            throw StitchAIManagerError.actionValidationError("Could not retrieve input \(inputCoordinate)")
+        }
+        
+        // Use the common input-edit-committed function, so that we remove edges, block or unblock fields, etc.
+        graph.inputEditCommitted(input: input,
+                                 value: self.value)
+    }
+    
+    func removeAction(graph: GraphState) {
+        // Do nothing, assume node will be removed
+    }
+    
+    func validate(createdNodes: inout [NodeId : PatchOrLayer]) throws {
+        // node must exist
+        guard createdNodes.get(self.nodeId).isDefined else {
+            log("areLLMStepsValid: Invalid .setInput: \(self)")
+            throw StitchAIManagerError
+                .actionValidationError("SetInput: Node \(self.nodeId.debugFriendlyId) does not yet exist")
+        }
+    }
 }
-
