@@ -27,9 +27,9 @@ extension Patch {
         case .convertPosition:
             return .graph(outputsOnlyGraphStateEval(convertPositionEval))
         case .multiply:
-            return .node(mathNodeTypeEval(multiplyEval))
+            return .node(mathNodeTypeWithColorEval(multiplyEval))
         case .divide:
-            return .node(mathNodeTypeEval(divideEval))
+            return .node(mathNodeTypeWithColorEval(divideEval))
         // Scroll interaction is a little different because scroll does animation stuff
         case .pressInteraction:
             // DOES NOT USE graph step

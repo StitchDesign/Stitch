@@ -106,10 +106,10 @@ extension Patch {
             return ArithmeticUVT.value
 
         // Updated to exclude text/string types
-        case .multiply, .divide, .power, .squareRoot:
+        case .power, .squareRoot:
             return MathUVT.value
             
-        case .subtract:
+        case .subtract, .multiply, .divide:
             return MathWithColorUVT.value
 
         // ANIMATION
