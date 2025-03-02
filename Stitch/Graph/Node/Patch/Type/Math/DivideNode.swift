@@ -48,7 +48,7 @@ func zeroCompatibleDivision(numerator: Double, denominator: Double) -> Double {
 
 @MainActor
 func divideEval(inputs: PortValuesList,
-                evalKind: MathNodeType) -> PortValuesList {
+                evalKind: MathNodeTypeWithColor) -> PortValuesList {
 
     let numberOperation: Operation = { (values: PortValues) -> PortValue in
 
@@ -119,6 +119,32 @@ func divideEval(inputs: PortValuesList,
         })
     }
 
+    let colorOperation: Operation = { (values: PortValues) -> PortValue in
+        guard let firstColor = values.first?.getColor else {
+            return .color(.clear)
+        }
+        
+        let tail = values.tail
+        
+        let result = tail.reduce(firstColor) { (acc: Color, value: PortValue) -> Color in
+            guard let colorToDivide = value.getColor else { return acc }
+            
+            let accRGBA = acc.asRGBA
+            let divideRGBA = colorToDivide.asRGBA
+            
+            let newRGBA = RGBA(
+                red: zeroCompatibleDivision(numerator: accRGBA.red, denominator: divideRGBA.red),
+                green: zeroCompatibleDivision(numerator: accRGBA.green, denominator: divideRGBA.green),
+                blue: zeroCompatibleDivision(numerator: accRGBA.blue, denominator: divideRGBA.blue),
+                alpha: zeroCompatibleDivision(numerator: accRGBA.alpha, denominator: divideRGBA.alpha)
+            )
+            
+            return newRGBA.toColor
+        }
+        
+        return .color(result)
+    }
+
     let result = resultsMaker(inputs)
 
     switch evalKind {
@@ -130,5 +156,7 @@ func divideEval(inputs: PortValuesList,
         return result(positionOperation)
     case .point3D:
         return result(point3DOperation)
+    case .color:
+        return result(colorOperation)
     }
 }
