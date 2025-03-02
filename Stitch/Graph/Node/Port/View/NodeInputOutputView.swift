@@ -310,7 +310,7 @@ struct FieldsListView<PortType, ValueEntryView>: View where PortType: NodeRowVie
 
 struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
     @Bindable var graph: GraphState
-    @Bindable var document: StitchDocumentViewModel
+    @Bindable var node: NodeViewModel
     @Bindable var rowObserver: NodeRowObserverType
     @Bindable var rowViewModel: NodeRowObserverType.RowViewModelType
     
@@ -327,14 +327,12 @@ struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
     // should be passed down as a param
     @MainActor
     var isGroup: Bool {
-        self.rowObserver.nodeDelegate?.kind.isGroup ?? false
+        node.kind.isGroup
     }
     
     var body: some View {
         PortEntryView(rowViewModel: rowViewModel,
                       graph: graph,
-                      graphMultigesture: document.graphMovement.graphMultigesture,
-                      zoomData: document.graphMovement.zoomData,
                       coordinate: coordinate)
         /*
          In practice, seems okay; e.g. Loop node changing from 3 to 1 disables the tap, and changing from 1 to 3 enables the tap.

@@ -134,7 +134,7 @@ struct DefaultNodeInputView: View {
 //            NodeLayoutView(observer: rowViewModel) {
                 HStack {
                     NodeRowPortView(graph: graph,
-                                    document: document,
+                                    node: node,
                                     rowObserver: rowObserver,
                                     rowViewModel: rowViewModel)
                     
@@ -188,7 +188,7 @@ struct DefaultNodeOutputView: View {
                                    label: rowObserver.label())
                     
                     NodeRowPortView(graph: graph,
-                                    document: document,
+                                    node: node,
                                     rowObserver: rowObserver,
                                     rowViewModel: rowViewModel)
                 }
