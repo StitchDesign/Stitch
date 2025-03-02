@@ -414,12 +414,7 @@ extension NodeViewModel {
 
     @MainActor
     func getInputRowObserver(_ portId: Int) -> InputNodeRowObserver? {
-        guard let canvas = self.patchCanvasItem else {
-            fatalErrorIfDebug("Only intended for patch nodes")
-            return nil
-        }
-        
-        return canvas.inputViewModels[safe: portId]?.rowDelegate
+        self.inputsObservers[safe: portId]
     }
     
     @MainActor
@@ -499,17 +494,16 @@ extension NodeViewModel {
     /// Gets output row observer for some node.
     @MainActor
     func getOutputRowObserver(_ portId: Int) -> OutputNodeRowObserver? {
-        guard let canvas = self.patchCanvasItem else {
-            // Check for output in layer
-            guard let layerNode = self.layerNode,
-                  let outputRow = layerNode.outputPorts[safe: portId]?.rowObserver else {
+        // Check for output in layer
+        if let layerNode = self.layerNode {
+            guard let outputRow = layerNode.outputPorts[safe: portId]?.rowObserver else {
                 return nil
             }
             
             return outputRow
         }
         
-        return canvas.outputViewModels[safe: portId]?.rowDelegate
+        return self.patchNode?.outputsObservers[safe: portId]
     }
     
     @MainActor

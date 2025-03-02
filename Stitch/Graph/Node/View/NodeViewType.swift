@@ -124,6 +124,7 @@ struct DefaultNodeInputView: View {
     var body: some View {
         DefaultNodeRowView(graph: graph,
                            node: node,
+                           canvas: canvas,
                            rowViewModels: canvas.inputViewModels,
                            nodeIO: .input) { rowObserver, rowViewModel in
             
@@ -171,6 +172,7 @@ struct DefaultNodeOutputView: View {
     var body: some View {
         DefaultNodeRowView(graph: graph,
                            node: node,
+                           canvas: canvas,
                            rowViewModels: canvas.outputViewModels,
                            nodeIO: .output) { rowObserver, rowViewModel in
 //            NodeLayoutView(observer: rowViewModel) {
@@ -205,6 +207,7 @@ struct DefaultNodeRowView<RowViewModel, RowView>: View where RowViewModel: NodeR
 
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
+    @Bindable var canvas: CanvasItemViewModel
     let rowViewModels: [RowViewModel]
     let nodeIO: NodeIO
     @ViewBuilder var rowView: (RowViewModel.RowObserver, RowViewModel) -> RowView
@@ -245,6 +248,14 @@ struct DefaultNodeRowView<RowViewModel, RowView>: View where RowViewModel: NodeR
         }
     }
 
+    func getRowObserver(port: NodeIOPortType) -> RowViewModel.RowObserver? {
+        if nodeIO == .input {
+            return node.getInputRowObserver(for: port) as? RowViewModel.RowObserver
+        }
+        
+        return node.getOutputRowObserver(for: port) as? RowViewModel.RowObserver
+    }
+    
     var body: some View {
         VStack(alignment: self.alignment) {
             // If no rows, create a dummy view to create some empty space
@@ -254,13 +265,13 @@ struct DefaultNodeRowView<RowViewModel, RowView>: View where RowViewModel: NodeR
                            height: NODE_ROW_HEIGHT)
             } else {
                 ForEach(self.rowViewModels) { rowViewModel in
-                    if let rowObserver = rowViewModel.rowDelegate {
+                    if let rowObserver = self.getRowObserver(port: rowViewModel.id.portType) {
                         self.rowView(rowObserver, rowViewModel)
                         // fixes issue where ports could have inconsistent height with no label
                             .height(NODE_ROW_HEIGHT + 8)
                             .onChange(of: rowViewModel.fieldValueTypes.first?.type) {
                                 // Resets node sizing data when either node or portvalue types change
-                                rowViewModel.canvasItemDelegate?.resetViewSizingCache()
+                                canvas.resetViewSizingCache()
                                 graph.visibleNodesViewModel.needsInfiniteCanvasCacheReset = true
                             }
                     }
