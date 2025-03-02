@@ -34,7 +34,7 @@ func multiplyPatchNode(id: NodeId,
 
 @MainActor
 func multiplyEval(inputs: PortValuesList,
-                  evalKind: MathNodeType) -> PortValuesList {
+                  evalKind: MathNodeTypeWithColor) -> PortValuesList {
 
     let numberOperation: Operation = { (values: PortValues) -> PortValue in
         .number(values.reduce(.multiplicationIdentity) { (acc: Double, value: PortValue) -> Double in
@@ -64,6 +64,27 @@ func multiplyEval(inputs: PortValuesList,
         })
     }
 
+    let colorOperation: Operation = { (values: PortValues) -> PortValue in
+        let colors = values.compactMap { $0.getColor }
+        guard !colors.isEmpty else { return .color(.clear) }
+        
+        let result = colors.reduce(Color.white) { (acc: Color, color: Color) -> Color in
+            let accRGBA = acc.asRGBA
+            let colorRGBA = color.asRGBA
+            
+            let newRGBA = RGBA(
+                red: accRGBA.red * colorRGBA.red,
+                green: accRGBA.green * colorRGBA.green,
+                blue: accRGBA.blue * colorRGBA.blue,
+                alpha: accRGBA.alpha * colorRGBA.alpha
+            )
+            
+            return newRGBA.toColor
+        }
+        
+        return .color(result)
+    }
+
     let result = resultsMaker(inputs)
 
     switch evalKind {
@@ -75,5 +96,7 @@ func multiplyEval(inputs: PortValuesList,
         return result(sizeOperation)
     case .point3D:
         return result(point3DOperation)
+    case .color:
+        return result(colorOperation)
     }
 }
