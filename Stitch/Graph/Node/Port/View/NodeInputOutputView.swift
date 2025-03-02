@@ -23,12 +23,10 @@ struct NodeInputView: View {
     let nodeId: NodeId
     let nodeKind: NodeKind
     let hasIncomingEdge: Bool
-    
-    // What does this really mean
-    let rowObserverId: NodeIOCoordinate
         
+    let rowObserver: InputNodeRowObserver
+
     // ONLY for port-view, which is only on canvas items
-    let rowObserver: InputNodeRowObserver?
     let rowViewModel: InputNodeRowObserver.RowViewModelType? // i.e. `InputNodeRowViewModel?`
         
     let fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>]
@@ -50,7 +48,7 @@ struct NodeInputView: View {
                         graphUI: graphUI,
                         viewModel: portViewModel,
                         layerInputObserver: layerInputObserver,
-                        rowObserverId: rowObserverId,
+                        rowObserver: rowObserver,
                         nodeKind: nodeKind,
                         isCanvasItemSelected: isCanvasItemSelected,
                         hasIncomingEdge: hasIncomingEdge,

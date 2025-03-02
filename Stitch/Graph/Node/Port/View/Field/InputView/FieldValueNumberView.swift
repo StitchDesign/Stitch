@@ -13,12 +13,12 @@ struct FieldValueNumberView: View {
     
     @Bindable var graph: GraphState
     @Bindable var graphUI: GraphUIState
+    @Bindable var rowObserver: InputNodeRowObserver
     @Bindable var fieldViewModel: InputFieldViewModel
     let layerInputObserver: LayerInputObserver?
     let fieldValue: FieldValue
     let fieldValueNumberType: FieldValueNumberType
     let fieldCoordinate: FieldCoordinate
-    let rowObserverCoordinate: NodeIOCoordinate
     let isCanvasItemSelected: Bool
     let choices: [String]?
     let forPropertySidebar: Bool
@@ -67,7 +67,7 @@ struct FieldValueNumberView: View {
                                       graphUI: graphUI,
                                       value: isButtonPressed ? fieldValue.numberValue : .zero,
                                       fieldCoordinate: fieldCoordinate,
-                                      rowObserverCoordinate: rowObserverCoordinate,
+                                      rowObserver: rowObserver,
                                       fieldValueNumberType: fieldValueNumberType,
                                       isFieldInsideLayerInspector: fieldViewModel.isFieldInsideLayerInspector, 
                                       isSelectedInspectorRow: isSelectedInspectorRow,
@@ -77,6 +77,7 @@ struct FieldValueNumberView: View {
             CommonEditingViewWrapper(graph: graph,
                                      graphUI: graphUI,
                                      fieldViewModel: fieldViewModel,
+                                     rowObserver: rowObserver,
                                      layerInputObserver: layerInputObserver,
                                      fieldValue: fieldValue,
                                      fieldCoordinate: fieldCoordinate,

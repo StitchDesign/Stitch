@@ -13,6 +13,7 @@ struct CommonEditingViewWrapper: View {
     @Bindable var graph: GraphState
     @Bindable var graphUI: GraphUIState
     @Bindable var fieldViewModel: InputFieldViewModel
+    @Bindable var rowObserver: InputNodeRowObserver
     let layerInputObserver: LayerInputObserver?
     let fieldValue: FieldValue
     let fieldCoordinate: FieldCoordinate
@@ -85,6 +86,7 @@ struct CommonEditingViewWrapper: View {
                           inputString: stringValue,
                           graph: graph,
                           graphUI: graphUI,
+                          rowObserver: rowObserver,
                           fieldIndex: fieldCoordinate.fieldIndex,
                           isCanvasItemSelected: isCanvasItemSelected,
                           choices: choices,

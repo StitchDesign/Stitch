@@ -15,7 +15,7 @@ extension GraphState {
     func inputEditedFromUI(fieldValue: FieldValue,
                            // Single-fields always 0, multi-fields are like size or position inputs
                            fieldIndex: Int,
-                           coordinate: NodeIOCoordinate,
+                           rowObserver: InputNodeRowObserver,
                            isFieldInsideLayerInspector: Bool,
                            isCommitting: Bool = true) {
         
@@ -24,11 +24,6 @@ extension GraphState {
         //        log("inputEdited: coordinate: \(coordinate)")
         //        log("inputEdited: isFieldInsideLayerInspector: \(isFieldInsideLayerInspector)")
         //        log("inputEdited: isCommitting: \(isCommitting)")
-        
-        guard let rowObserver = self.getInputRowObserver(coordinate) else {
-            log("inputEdited error: no parent values list found.")
-            return
-        }
 
         rowObserver.handleInputEdited(graph: self,
                                       fieldValue: fieldValue,

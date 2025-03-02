@@ -69,6 +69,7 @@ struct CommonEditingView: View {
     
     @Bindable var graph: GraphState
     @Bindable var graphUI: GraphUIState
+    @Bindable var rowObserver: InputNodeRowObserver
     
     let fieldIndex: Int
     let isCanvasItemSelected: Bool
@@ -391,7 +392,7 @@ struct CommonEditingView: View {
             self.graph.inputEditedFromUI(
                 fieldValue: .string(.init(newEdit)),
                 fieldIndex: fieldIndex,
-                coordinate: coordinate,
+                rowObserver: rowObserver,
                 isFieldInsideLayerInspector: self.isFieldInsideLayerInspector,
                 isCommitting: isCommitting)
         }

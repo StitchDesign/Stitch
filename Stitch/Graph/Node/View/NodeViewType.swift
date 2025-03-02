@@ -143,7 +143,6 @@ struct DefaultNodeInputView: View {
                                   nodeId: node.id,
                                   nodeKind: node.kind,
                                   hasIncomingEdge: rowObserver.upstreamOutputCoordinate.isDefined,
-                                  rowObserverId: rowObserver.id,
                                   rowObserver: rowObserver,
                                   rowViewModel: rowViewModel,
                                   fieldValueTypes: rowViewModel.fieldValueTypes,

@@ -33,7 +33,7 @@ struct NumberValueButtonView: View {
     @Bindable var graphUI: GraphUIState
     let value: Double
     let fieldCoordinate: FieldCoordinate
-    let rowObserverCoordinate: NodeIOCoordinate
+    let rowObserver: InputNodeRowObserver
     let fieldValueNumberType: FieldValueNumberType
     let isFieldInsideLayerInspector: Bool
     let isSelectedInspectorRow: Bool
@@ -57,7 +57,7 @@ struct NumberValueButtonView: View {
                 graph: graph,
                 numberValue: value,
                 fieldCoordinate: fieldCoordinate,
-                rowObserverCoordinate: rowObserverCoordinate,
+                rowObserver: rowObserver,
                 isPressed: $isPressed,
                 fieldValueNumberType: fieldValueNumberType,
                 isFieldInsideLayerInspector: isFieldInsideLayerInspector))
@@ -68,7 +68,7 @@ struct AdjustmentBarViewModifier: ViewModifier {
     @Bindable var graph: GraphState
     let numberValue: Double
     let fieldCoordinate: FieldCoordinate
-    let rowObserverCoordinate: NodeIOCoordinate
+    let rowObserver: InputNodeRowObserver
     @Binding var isPressed: Bool
     let fieldValueNumberType: FieldValueNumberType
     let isFieldInsideLayerInspector: Bool
@@ -84,7 +84,7 @@ struct AdjustmentBarViewModifier: ViewModifier {
                     stateNumber: numberValue,
                     fieldValueNumberType: fieldValueNumberType,
                     fieldCoordinate: fieldCoordinate,
-                    rowObserverCoordinate: rowObserverCoordinate, 
+                    rowObserver: rowObserver,
                     isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                     isPopoverOpen: self.$isPressed
                 )

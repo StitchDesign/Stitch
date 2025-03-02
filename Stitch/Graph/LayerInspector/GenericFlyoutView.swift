@@ -164,6 +164,10 @@ struct GenericFlyoutRowView: View {
         graphUI.propertySidebar.selectedProperty == layerInspectorRowId
     }
     
+    var rowObserver: InputNodeRowObserver {
+        self.layerInputObserver.rowObserver
+    }
+    
     var body: some View {
         
         //        logInView("GenericFlyoutRowView: layerInputType: \(layerInputType)")
@@ -189,8 +193,7 @@ struct GenericFlyoutRowView: View {
                             viewModel: viewModel,
                             layerInputObserver: layerInputObserver,
                             // For input editing, however, we need the proper packed vs unpacked state
-                            rowObserverId: InputCoordinate(portType: .keyPath(layerInputObserver.layerInputType(fieldIndex: fieldIndex)),
-                                                           nodeId: nodeId),
+                            rowObserver: rowObserver,
                             nodeKind: nodeKind,
                             isCanvasItemSelected: false, // Always false
                             hasIncomingEdge: false,

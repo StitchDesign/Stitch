@@ -53,10 +53,9 @@ struct LayerInspectorInputPortView: View {
                               nodeId: nodeId,
                               nodeKind: .layer(layerInputObserver.layer),
                               hasIncomingEdge: false, // always false
-                              rowObserverId: coordinate,
                               
                               // Only used for PortEntryView, which inspector- and flyout-rows do not use
-                              rowObserver: nil,
+                              rowObserver: layerInputObserver.rowObserver,
                               rowViewModel: nil,
                               // Always use the packed
                               fieldValueTypes: self.fieldValueTypes,

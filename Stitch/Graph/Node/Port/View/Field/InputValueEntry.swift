@@ -18,7 +18,7 @@ struct InputValueEntry: View {
     
     let layerInputObserver: LayerInputObserver?
     
-    let rowObserverId: NodeIOCoordinate
+    let rowObserver: InputNodeRowObserver
     let nodeKind: NodeKind
     let isCanvasItemSelected: Bool
     let hasIncomingEdge: Bool
@@ -46,7 +46,7 @@ struct InputValueEntry: View {
            layerInputObserver.port == .transform3D {
             
             if layerInputObserver.mode == .unpacked,
-               let fieldGroupLabel = rowObserverId.keyPath?.getUnpackedPortType?.fieldGroupLabelForUnpacked3DTransformInput {
+               let fieldGroupLabel = rowObserver.id.keyPath?.getUnpackedPortType?.fieldGroupLabelForUnpacked3DTransformInput {
                 
                 return layerInputObserver.port.label() + " " + fieldGroupLabel
             } else {
@@ -86,7 +86,7 @@ struct InputValueEntry: View {
                        graphUI: graphUI,
                        viewModel: viewModel,
                        layerInputObserver: layerInputObserver,
-                       rowObserverId: rowObserverId,
+                       rowObserver: rowObserver,
                        nodeKind: nodeKind,
                        isCanvasItemSelected: isCanvasItemSelected,
                        forPropertySidebar: forPropertySidebar,
@@ -161,7 +161,7 @@ struct InputValueView: View {
     @Bindable var graphUI: GraphUIState
     @Bindable var viewModel: InputFieldViewModel
     let layerInputObserver: LayerInputObserver?
-    let rowObserverId: NodeIOCoordinate
+    let rowObserver: InputNodeRowObserver
     let nodeKind: NodeKind
     let isCanvasItemSelected: Bool
     let forPropertySidebar: Bool
@@ -173,7 +173,7 @@ struct InputValueView: View {
     var hasIncomingEdge: Bool
     var isForLayerGroup: Bool
     var isUpstreamValue: Bool
-    
+
     @Binding var isButtonPressed: Bool
     
     var fieldCoordinate: FieldCoordinate {
@@ -186,6 +186,10 @@ struct InputValueView: View {
 
     var isFieldInsideLayerInspector: Bool {
         viewModel.isFieldInsideLayerInspector
+    }
+    
+    var rowObserverId: NodeIOCoordinate {
+        self.rowObserver.id
     }
     
     // Which part of the port-value this value is for.
@@ -205,6 +209,7 @@ struct InputValueView: View {
                 CommonEditingViewWrapper(graph: graph,
                                          graphUI: graphUI,
                                          fieldViewModel: viewModel,
+                                         rowObserver: rowObserver,
                                          layerInputObserver: layerInputObserver,
                                          fieldValue: fieldValue,
                                          fieldCoordinate: fieldCoordinate,
@@ -220,12 +225,12 @@ struct InputValueView: View {
             case .number:
                 FieldValueNumberView(graph: graph,
                                      graphUI: graphUI,
+                                     rowObserver: rowObserver,
                                      fieldViewModel: viewModel,
                                      layerInputObserver: layerInputObserver,
                                      fieldValue: fieldValue,
                                      fieldValueNumberType: .number,
                                      fieldCoordinate: fieldCoordinate,
-                                     rowObserverCoordinate: rowObserverId,
                                      isCanvasItemSelected: isCanvasItemSelected,
                                      choices: nil,
                                      forPropertySidebar: forPropertySidebar,
@@ -238,12 +243,12 @@ struct InputValueView: View {
             case .layerDimension(let layerDimensionField):
                 FieldValueNumberView(graph: graph,
                                      graphUI: graphUI,
+                                     rowObserver: rowObserver,
                                      fieldViewModel: viewModel,
                                      layerInputObserver: layerInputObserver,
                                      fieldValue: fieldValue,
                                      fieldValueNumberType: layerDimensionField.fieldValueNumberType,
                                      fieldCoordinate: fieldCoordinate,
-                                     rowObserverCoordinate: rowObserverId,
                                      isCanvasItemSelected: isCanvasItemSelected,
                                      // TODO: perf implications? split into separate view?
                                      choices: graph.getFilteredLayerDimensionChoices(nodeId: fieldCoordinate.rowId.nodeId,
@@ -261,12 +266,12 @@ struct InputValueView: View {
             case .spacing:
                 FieldValueNumberView(graph: graph,
                                      graphUI: graphUI,
+                                     rowObserver: rowObserver,
                                      fieldViewModel: viewModel,
                                      layerInputObserver: layerInputObserver,
                                      fieldValue: fieldValue,
                                      fieldValueNumberType: .number,
                                      fieldCoordinate: fieldCoordinate,
-                                     rowObserverCoordinate: rowObserverId,
                                      isCanvasItemSelected: isCanvasItemSelected,
                                      choices: StitchSpacing.choices,
                                      forPropertySidebar: forPropertySidebar,

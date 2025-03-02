@@ -31,7 +31,7 @@ struct AdjustmentBarPopoverView: View {
     let stateNumber: Double
     let fieldValueNumberType: FieldValueNumberType
     let fieldCoordinate: FieldCoordinate
-    let rowObserverCoordinate: NodeIOCoordinate
+    let rowObserver: InputNodeRowObserver
     let isFieldInsideLayerInspector: Bool
     
     @Binding var isPopoverOpen: Bool
@@ -98,7 +98,7 @@ struct AdjustmentBarPopoverView: View {
                 graph.inputEditedFromUI(
                     fieldValue: .layerDimension(.auto),
                     fieldIndex: fieldCoordinate.fieldIndex,
-                    coordinate: rowObserverCoordinate,
+                    rowObserver: rowObserver,
                     isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                     isCommitting: false)
             } label: {
@@ -198,7 +198,7 @@ struct AdjustmentBarPopoverView: View {
             fieldValueNumberType: fieldValueNumberType,
             centerSelectionDisabled: centerSelectionDisabled,
             fieldCoordinate: fieldCoordinate,
-            rowObserverCoordinate: rowObserverCoordinate,
+            rowObserver: rowObserver,
             isFieldInsideLayerInspector: isFieldInsideLayerInspector, 
             currentlySelectedNumber: barNumber,
             numberLineMiddle: barNumber)
