@@ -190,7 +190,7 @@ struct InputValueView: View {
     }
 
     var isFieldInsideLayerInspector: Bool {
-        viewModel.isFieldInsideLayerInspector
+        rowViewModel.isFieldInsideLayerInspector
     }
     
     // Which part of the port-value this value is for.
@@ -206,6 +206,19 @@ struct InputValueView: View {
         self.node.kind
     }
 
+    @MainActor
+    var hasHeterogenousValues: Bool {
+        if let layerInputObserver = layerInputObserver {
+            @Bindable var layerInputObserver = layerInputObserver
+            return layerInputObserver.fieldHasHeterogenousValues(
+                fieldIndex,
+                isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                graph: graph)
+        } else {
+            return false
+        }
+    }
+    
     var body: some View {
         // NodeLayout(observer: viewModel,
         //            existingCache: viewModel.viewCache) {
@@ -215,6 +228,7 @@ struct InputValueView: View {
                                          graphUI: graphUI,
                                          fieldViewModel: viewModel,
                                          rowObserver: rowObserver,
+                                         rowViewModel: rowViewModel,
                                          layerInputObserver: layerInputObserver,
                                          fieldValue: fieldValue,
                                          fieldCoordinate: fieldCoordinate,
@@ -231,6 +245,7 @@ struct InputValueView: View {
                 FieldValueNumberView(graph: graph,
                                      graphUI: graphUI,
                                      rowObserver: rowObserver,
+                                     rowViewModel: rowViewModel,
                                      fieldViewModel: viewModel,
                                      layerInputObserver: layerInputObserver,
                                      fieldValue: fieldValue,
@@ -249,6 +264,7 @@ struct InputValueView: View {
                 FieldValueNumberView(graph: graph,
                                      graphUI: graphUI,
                                      rowObserver: rowObserver,
+                                     rowViewModel: rowViewModel,
                                      fieldViewModel: viewModel,
                                      layerInputObserver: layerInputObserver,
                                      fieldValue: fieldValue,
@@ -272,6 +288,7 @@ struct InputValueView: View {
                 FieldValueNumberView(graph: graph,
                                      graphUI: graphUI,
                                      rowObserver: rowObserver,
+                                     rowViewModel: rowViewModel,
                                      fieldViewModel: viewModel,
                                      layerInputObserver: layerInputObserver,
                                      fieldValue: fieldValue,
@@ -302,7 +319,8 @@ struct InputValueView: View {
                                    choiceDisplay: choiceDisplay,
                                    choices: choices,
                                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                                   isSelectedInspectorRow: isSelectedInspectorRow)
+                                   isSelectedInspectorRow: isSelectedInspectorRow,
+                                   hasHeterogenousValues: hasHeterogenousValues)
                 
             case .textFontDropdown(let stitchFont):
                 StitchFontDropdown(rowObserver: rowObserver,
@@ -310,26 +328,27 @@ struct InputValueView: View {
                                    stitchFont: stitchFont,
                                    layerInputObserver: layerInputObserver,
                                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                                   propertyIsSelected: isSelectedInspectorRow)
+                                   propertyIsSelected: isSelectedInspectorRow,
+                                   hasHeterogenousValues: hasHeterogenousValues)
                 // need enough width for font design + font weight name
                 .frame(minWidth: TEXT_FONT_DROPDOWN_WIDTH,
                        alignment: .leading)
                 
             case .layerDropdown(let layerId):
-                // TODO: disable or use read-only view if this is an output ?
                 LayerNamesDropDownChoiceView(
                     graph: graph,
                     rowObserver: rowObserver,
                     value: .assignedLayer(layerId),
                     layerInputObserver: layerInputObserver,
-                    isFieldInsideLayerInspector: viewModel.isFieldInsideLayerInspector,
+                    isFieldInsideLayerInspector: rowViewModel.isFieldInsideLayerInspector,
                     isForPinTo: false,
                     isSelectedInspectorRow: isSelectedInspectorRow,
                     choices: graph
                         .layerDropdownChoices(isForNode: node.id,
                                               isForLayerGroup: false,
                                               isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                                              isForPinTo: false))
+                                              isForPinTo: false),
+                    hasHeterogenousValues: hasHeterogenousValues)
                 
             case .anchorEntity(let anchorEntityId):
                 AnchorEntitiesDropdownView(rowObserver: rowObserver,
@@ -343,7 +362,8 @@ struct InputValueView: View {
                     graph: graph,
                     value: x,
                     layerInputObserver: layerInputObserver,
-                    isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                    hasHeterogenousValues: hasHeterogenousValues)
                 
             case .layerGroupAlignment(let x):
 
@@ -361,7 +381,8 @@ struct InputValueView: View {
                             graph: graph,
                             value: x,
                             layerInputObserver: layerInputObserver,
-                            isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+                            isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                            hasHeterogenousValues: hasHeterogenousValues)
                     case .horizontal:
                         // logInView("InputValueView: vertical")
                         LayerGroupVerticalAlignmentPickerFieldValueView(
@@ -369,7 +390,8 @@ struct InputValueView: View {
                             graph: graph,
                             value: x,
                             layerInputObserver: layerInputObserver,
-                            isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+                            isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                            hasHeterogenousValues: hasHeterogenousValues)
                         
                     case .grid, .none:
                         // Should never happen
@@ -388,7 +410,8 @@ struct InputValueView: View {
                     value: .textAlignment(x),
                     choices: LayerTextAlignment.choices,
                     layerInputObserver: layerInputObserver,
-                    isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                    hasHeterogenousValues: hasHeterogenousValues)
                 
             case .textVerticalAlignmentPicker(let x):
                 SpecialPickerFieldValueView(
@@ -398,7 +421,8 @@ struct InputValueView: View {
                     value: .textVerticalAlignment(x),
                     choices: LayerTextVerticalAlignment.choices,
                     layerInputObserver: layerInputObserver,
-                    isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                    hasHeterogenousValues: hasHeterogenousValues)
             
             case .textDecoration(let x):
                 SpecialPickerFieldValueView(
@@ -408,7 +432,8 @@ struct InputValueView: View {
                     value: .textDecoration(x),
                     choices: LayerTextDecoration.choices,
                     layerInputObserver: layerInputObserver,
-                    isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                    hasHeterogenousValues: hasHeterogenousValues)
                 
             case .pinTo(let pinToId):
                 LayerNamesDropDownChoiceView(
@@ -423,7 +448,8 @@ struct InputValueView: View {
                         .layerDropdownChoices(isForNode: node.id,
                                               isForLayerGroup: isForLayerGroup,
                                               isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                                              isForPinTo: true))
+                                              isForPinTo: true),
+                    hasHeterogenousValues: hasHeterogenousValues)
                 
             case .anchorPopover(let anchor):
                 AnchorPopoverView(rowObserver: rowObserver,
@@ -431,7 +457,8 @@ struct InputValueView: View {
                                   selection: anchor,
                                   layerInputObserver: layerInputObserver,
                                   isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                                  isSelectedInspectorRow: isSelectedInspectorRow)
+                                  isSelectedInspectorRow: isSelectedInspectorRow,
+                                  hasHeterogenousValues: hasHeterogenousValues)
                 .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH,
                        height: NODE_ROW_HEIGHT,
                        // Note: why are these reversed? Because we scaled the view down?
@@ -459,6 +486,7 @@ struct InputValueView: View {
                 
             case .color(let color):
                 ColorOrbValueButtonView(fieldViewModel: viewModel,
+                                        rowViewModel: rowViewModel,
                                         rowObserver: rowObserver,
                                         layerInputObserver: layerInputObserver,
                                         isForFlyout: isForFlyout,

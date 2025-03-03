@@ -42,6 +42,7 @@ struct LayerGroupOrientationDropDownChoiceView: View {
     let value: StitchOrientation
     let layerInputObserver: LayerInputObserver?
     let isFieldInsideLayerInspector: Bool
+    let hasHeterogenousValues: Bool
     
     var choices: [StitchOrientation] {
         StitchOrientation.choices.compactMap(\.getOrientation)
@@ -49,18 +50,6 @@ struct LayerGroupOrientationDropDownChoiceView: View {
 //    var choices: [String] {
 //        StitchOrientation.choices.compactMap(\.getOrientation?.display)
 //    }
-    
-    @MainActor
-    var hasHeterogenousValues: Bool {
-        if let layerInputObserver = layerInputObserver {
-            @Bindable var layerInputObserver = layerInputObserver
-            return layerInputObserver.fieldHasHeterogenousValues(
-                0,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
-        } else {
-            return false
-        }
-    }
     
     var body: some View {
         Picker("Here", selection: $currentChoice) {

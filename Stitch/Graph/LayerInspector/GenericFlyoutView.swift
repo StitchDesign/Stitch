@@ -85,10 +85,8 @@ struct GenericFlyoutView: View {
                     rowViewModel: rowViewModel,
                     node: node,
                     layerInputObserver: layerInputObserver,
-                    fieldIndex: inputFieldViewModel.fieldIndex,
                     isMultifield: isMultifield)
             }
-        
     }
 }
 
@@ -139,11 +137,13 @@ struct GenericFlyoutRowView: View {
     let node: NodeViewModel
     let layerInputObserver: LayerInputObserver
     
-    let fieldIndex: Int
-    
     let isMultifield: Bool
     
     @State var isHovered: Bool = false
+
+    var fieldIndex: Int {
+        viewModel.fieldIndex
+    }
         
     var layerInputType: LayerInputType {
         layerInputObserver.layerInputTypeForFieldIndex(fieldIndex)
@@ -165,7 +165,17 @@ struct GenericFlyoutRowView: View {
     }
     
     var rowObserver: InputNodeRowObserver {
-        self.layerInputObserver.rowObserver
+        switch self.layerInputObserver.observerMode {
+        case .packed(let inputLayerNodeRowData):
+            return inputLayerNodeRowData.rowObserver
+        case .unpacked(let layerInputUnpackedPortObserver):
+            guard let unpackedObserver = layerInputUnpackedPortObserver.allPorts[safe: fieldIndex] else {
+                fatalErrorIfDebug()
+                return self.layerInputObserver._packedData.rowObserver
+            }
+            
+            return unpackedObserver.rowObserver
+        }
     }
     
     var body: some View {

@@ -16,19 +16,7 @@ struct StitchFontDropdown: View {
     let layerInputObserver: LayerInputObserver?
     let isFieldInsideLayerInspector: Bool
     let propertyIsSelected: Bool
-
-    @MainActor
-    var hasHeterogenousValues: Bool {
-        
-        if let layerInputObserver = layerInputObserver {
-            @Bindable var layerInputObserver = layerInputObserver
-            return layerInputObserver.fieldHasHeterogenousValues(
-                0,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
-        } else {
-            return false
-        }
-    }
+    let hasHeterogenousValues: Bool
     
     @MainActor
     var finalChoiceDisplay: String {

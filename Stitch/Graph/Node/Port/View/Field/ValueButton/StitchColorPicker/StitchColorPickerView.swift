@@ -79,7 +79,8 @@ struct StitchColorPickerView: View {
             @Bindable var layerInputObserver = layerInputObserver
             return layerInputObserver.fieldHasHeterogenousValues(
                 fieldCoordinate.fieldIndex,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+                isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                graph: graph)
         } else {
             return false
         }
