@@ -23,19 +23,7 @@ struct DropDownChoiceView: View {
     let choices: PortValues
     let isFieldInsideLayerInspector: Bool
     let isSelectedInspectorRow: Bool
-    
-    @MainActor
-    var hasHeterogenousValues: Bool {
-        
-        if let layerInputObserver = layerInputObserver {
-            @Bindable var layerInputObserver = layerInputObserver
-            return layerInputObserver.fieldHasHeterogenousValues(
-                0,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
-        } else {
-            return false
-        }
-    }
+    let hasHeterogenousValues: Bool
 
     @MainActor
     var finalChoiceDisplay: String {

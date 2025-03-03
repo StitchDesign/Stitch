@@ -14,6 +14,7 @@ struct CommonEditingViewWrapper: View {
     @Bindable var graphUI: GraphUIState
     @Bindable var fieldViewModel: InputFieldViewModel
     @Bindable var rowObserver: InputNodeRowObserver
+    let rowViewModel: InputNodeRowViewModel
     let layerInputObserver: LayerInputObserver?
     let fieldValue: FieldValue
     let fieldCoordinate: FieldCoordinate
@@ -40,7 +41,8 @@ struct CommonEditingViewWrapper: View {
             @Bindable var layerInputObserver = layerInputObserver
             return layerInputObserver.fieldHasHeterogenousValues(
                 fieldIndex,
-                isFieldInsideLayerInspector: forPropertySidebar)
+                isFieldInsideLayerInspector: forPropertySidebar,
+                graph: graph)
         } else {
             return false
         }
@@ -87,6 +89,7 @@ struct CommonEditingViewWrapper: View {
                           graph: graph,
                           graphUI: graphUI,
                           rowObserver: rowObserver,
+                          rowViewModel: rowViewModel,
                           fieldIndex: fieldCoordinate.fieldIndex,
                           isCanvasItemSelected: isCanvasItemSelected,
                           choices: choices,
