@@ -30,20 +30,9 @@ struct AnchorPopoverView: View {
     let layerInputObserver: LayerInputObserver?
     let isFieldInsideLayerInspector: Bool
     let isSelectedInspectorRow: Bool
+    let hasHeterogenousValues: Bool
 
     @State private var isOpen = false
-
-    @MainActor
-    var hasHeterogenousValues: Bool {
-        if let layerInputObserver = layerInputObserver {
-            @Bindable var layerInputObserver = layerInputObserver
-            return layerInputObserver.fieldHasHeterogenousValues(
-                0,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
-        } else {
-            return false
-        }
-    }
     
     var body: some View {
         AnchoringGridIconView(

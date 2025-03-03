@@ -70,6 +70,7 @@ struct CommonEditingView: View {
     @Bindable var graph: GraphState
     @Bindable var graphUI: GraphUIState
     @Bindable var rowObserver: InputNodeRowObserver
+    let rowViewModel: InputNodeRowViewModel
     
     let fieldIndex: Int
     let isCanvasItemSelected: Bool
@@ -134,11 +135,11 @@ struct CommonEditingView: View {
     }
     
     var isFieldInsideLayerInspector: Bool {
-        inputField.isFieldInsideLayerInspector
+        rowViewModel.isFieldInsideLayerInspector
     }
 
     var layerInput: LayerInputPort? {
-        inputField.layerInput
+        rowViewModel.layerInput
     }
     
     @MainActor
@@ -152,7 +153,8 @@ struct CommonEditingView: View {
             @Bindable var layerInputObserver = layerInputObserver
             return layerInputObserver.fieldHasHeterogenousValues(
                 fieldIndex,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+                isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                graph: graph)
         } else {
             return false
         }
@@ -285,7 +287,7 @@ struct CommonEditingView: View {
         if isFieldInMultifieldInput,
            forPropertySidebar,
            !isForFlyout,
-           let layerInput = inputField.layerInput {
+           let layerInput = rowViewModel.layerInput {
             return layerInput
         }
         
@@ -353,7 +355,7 @@ struct CommonEditingView: View {
             onTap: {
                 // Every multifield input in the inspector uses a flyout
                 if isFieldInMultifieldInspectorInputAndNotFlyout,
-                   let layerInput = inputField.layerInput,
+                   let layerInput = rowViewModel.layerInput,
                    !isForFlyout {
                     dispatch(FlyoutToggled(flyoutInput: layerInput,
                                            flyoutNodeId: nodeId,
@@ -388,14 +390,12 @@ struct CommonEditingView: View {
     // fka `createInputEditAction`
     @MainActor func inputEditedCallback(newEdit: String,
                                         isCommitting: Bool) {
-        if let coordinate = self.inputField.rowViewModelDelegate?.rowDelegate?.id {
-            self.graph.inputEditedFromUI(
-                fieldValue: .string(.init(newEdit)),
-                fieldIndex: fieldIndex,
-                rowObserver: rowObserver,
-                isFieldInsideLayerInspector: self.isFieldInsideLayerInspector,
-                isCommitting: isCommitting)
-        }
+        self.graph.inputEditedFromUI(
+            fieldValue: .string(.init(newEdit)),
+            fieldIndex: fieldIndex,
+            rowObserver: rowObserver,
+            isFieldInsideLayerInspector: self.isFieldInsideLayerInspector,
+            isCommitting: isCommitting)
     }
 }
 

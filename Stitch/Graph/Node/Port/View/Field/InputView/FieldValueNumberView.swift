@@ -14,6 +14,7 @@ struct FieldValueNumberView: View {
     @Bindable var graph: GraphState
     @Bindable var graphUI: GraphUIState
     @Bindable var rowObserver: InputNodeRowObserver
+    @Bindable var rowViewModel: InputNodeRowViewModel
     @Bindable var fieldViewModel: InputFieldViewModel
     let layerInputObserver: LayerInputObserver?
     let fieldValue: FieldValue
@@ -36,20 +37,6 @@ struct FieldValueNumberView: View {
         self.fieldViewModel.fieldIndex
     }
     
-    // Bad: do not want this running constantly when we're not inside a
-    @MainActor
-    var fieldHasHeterogenousValues: Bool {
-        if let layerInputObserver = layerInputObserver {
-            @Bindable var layerInputObserver = layerInputObserver
-            return layerInputObserver.fieldHasHeterogenousValues(
-                fieldIndex,
-                // should be same as `forPropertySidebar`
-                isFieldInsideLayerInspector: forPropertySidebar)
-        } else {
-            return false
-        }
-    }
-    
     var isFieldInMultifieldInputInInspector: Bool {
         isFieldInMultifieldInput && forPropertySidebar && !isForFlyout
     }
@@ -69,7 +56,7 @@ struct FieldValueNumberView: View {
                                       fieldCoordinate: fieldCoordinate,
                                       rowObserver: rowObserver,
                                       fieldValueNumberType: fieldValueNumberType,
-                                      isFieldInsideLayerInspector: fieldViewModel.isFieldInsideLayerInspector, 
+                                      isFieldInsideLayerInspector: rowViewModel.isFieldInsideLayerInspector,
                                       isSelectedInspectorRow: isSelectedInspectorRow,
                                       isPressed: $isButtonPressed)
             }
@@ -78,6 +65,7 @@ struct FieldValueNumberView: View {
                                      graphUI: graphUI,
                                      fieldViewModel: fieldViewModel,
                                      rowObserver: rowObserver,
+                                     rowViewModel: rowViewModel,
                                      layerInputObserver: layerInputObserver,
                                      fieldValue: fieldValue,
                                      fieldCoordinate: fieldCoordinate,

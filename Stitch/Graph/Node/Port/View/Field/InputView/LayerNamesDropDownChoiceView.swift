@@ -124,6 +124,7 @@ struct LayerNamesDropDownChoiceView: View {
     let isForPinTo: Bool
     let isSelectedInspectorRow: Bool
     let choices: LayerDropdownChoices
+    let hasHeterogenousValues: Bool
     
     @MainActor
     func onSet(_ choice: LayerDropdownChoice) {
@@ -145,18 +146,6 @@ struct LayerNamesDropDownChoiceView: View {
         //        #else
         self.hasHeterogenousValues ? .HETEROGENOUS_VALUES : self.selection.name
         //        #endif
-    }
-    
-    @MainActor
-    var hasHeterogenousValues: Bool {
-        if let layerInputObserver = layerInputObserver {
-            @Bindable var layerInputObserver = layerInputObserver
-            return layerInputObserver.fieldHasHeterogenousValues(
-                0,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
-        } else {
-            return false
-        }
     }
     
     var body: some View {

@@ -134,18 +134,7 @@ struct LayerGroupHorizontalAlignmentPickerFieldValueView: View {
     let value: Anchoring
     let layerInputObserver: LayerInputObserver?
     let isFieldInsideLayerInspector: Bool
-    
-    @MainActor
-    var hasHeterogenousValues: Bool {
-        if let layerInputObserver = layerInputObserver {
-            @Bindable var layerInputObserver = layerInputObserver
-            return layerInputObserver.fieldHasHeterogenousValues(
-                0,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
-        } else {
-            return false
-        }
-    }
+    let hasHeterogenousValues: Bool
     
     var body: some View {
         Picker("", selection: $currentChoice) {
@@ -176,18 +165,7 @@ struct LayerGroupVerticalAlignmentPickerFieldValueView: View {
     let value: Anchoring
     let layerInputObserver: LayerInputObserver?
     let isFieldInsideLayerInspector: Bool
-    
-    @MainActor
-    var hasHeterogenousValues: Bool {
-        if let layerInputObserver = layerInputObserver {
-            @Bindable var layerInputObserver = layerInputObserver
-            return layerInputObserver.fieldHasHeterogenousValues(
-                0,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
-        } else {
-            return false
-        }
-    }
+    let hasHeterogenousValues: Bool
     
     var body: some View {
         Picker("", selection: $currentChoice) {

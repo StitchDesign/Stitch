@@ -66,7 +66,8 @@ struct MediaFieldValueView<Field: FieldViewModel>: View {
             @Bindable var layerInputObserver = layerInputObserver
             return layerInputObserver.fieldHasHeterogenousValues(
                 fieldIndex,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+                isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                graph: graph)
         } else {
             return false
         }
