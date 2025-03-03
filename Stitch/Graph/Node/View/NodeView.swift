@@ -154,7 +154,8 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
     var nodeTitle: some View {
         
         HStack {
-            CanvasItemTitleView(graph: graph,
+            CanvasItemTitleView(document: document,
+                                graph: graph,
                                 graphUI: graphUI,
                                 node: stitch,
                                 canvasItem: node,

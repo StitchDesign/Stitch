@@ -9,6 +9,7 @@ import SwiftUI
 import StitchSchemaKit
 
 struct NodeTitleTextField: View {
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     @Bindable var graphUI: GraphUIState
     @Bindable var node: NodeViewModel
@@ -18,7 +19,8 @@ struct NodeTitleTextField: View {
     var font: Font = STITCH_FONT
 
     var body: some View {
-        StitchTitleTextField(graph: graph,
+        StitchTitleTextField(document: document,
+                             graph: graph,
                              graphUI: graphUI,
                              node: node,
                              canvasItem: canvasItem,
@@ -33,6 +35,7 @@ struct NodeTitleTextField: View {
 struct StitchTitleTextField: View {
     @State private var isTitleFocused: Bool = false
     
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     @Bindable var graphUI: GraphUIState
     @Bindable var node: NodeViewModel
@@ -116,7 +119,7 @@ struct StitchTitleTextField: View {
         return label + " " + id.nodeId.debugFriendlyId
 #else
         // Show debug-friendly id during debug mode, so user see which nodes are referred to
-        if graph.llmRecording.mode == .augmentation {
+        if document.llmRecording.mode == .augmentation {
             return label + " " + node.id.debugFriendlyId
         } else {
             return label

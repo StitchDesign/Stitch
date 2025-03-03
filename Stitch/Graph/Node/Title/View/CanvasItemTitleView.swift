@@ -19,6 +19,7 @@ struct CanvasItemTitleView: View {
     // BAD: causes re-renders even when not used anywhere in View
     //    @FocusedValue(\.focusedField) private var focusedField
     
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     @Bindable var graphUI: GraphUIState
     @Bindable var node: NodeViewModel
@@ -59,7 +60,8 @@ struct CanvasItemTitleView: View {
                         Image(systemName: "folder")
                             .foregroundColor(Color(.nodeTitleFont))
                     }
-                    NodeTitleTextField(graph: graph,
+                    NodeTitleTextField(document: document,
+                                       graph: graph,
                                        graphUI: graphUI,
                                        node: node,
                                        canvasItem: canvasItem,
