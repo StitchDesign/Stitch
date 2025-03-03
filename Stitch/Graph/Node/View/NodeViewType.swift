@@ -126,12 +126,12 @@ struct DefaultNodeInputView: View {
                            node: node,
                            canvas: canvas,
                            rowViewModels: canvas.inputViewModels,
-                           nodeIO: .input) { rowObserver, rowViewModel in
-            
-            let layerInputObserver: LayerInputObserver? = rowObserver.id.layerInput
-                .flatMap { node.layerNode?.getLayerInputObserver($0.layerInput) }
-            
-//            NodeLayoutView(observer: rowViewModel) {
+                           nodeIO: .input) { rowViewModel in
+            if let rowObserver = node.getInputRowObserver(for: rowViewModel.id.portType) {
+                let layerInputObserver: LayerInputObserver? = rowObserver.id.layerInput
+                    .flatMap { node.layerNode?.getLayerInputObserver($0.layerInput) }
+                
+                //            NodeLayoutView(observer: rowViewModel) {
                 HStack {
                     NodeRowPortView(graph: graph,
                                     node: node,
@@ -157,7 +157,8 @@ struct DefaultNodeInputView: View {
                                graph: graph)
                     )
                 }
-//            }
+            }
+            
         }
     }
 }
@@ -176,8 +177,8 @@ struct DefaultNodeOutputView: View {
                            node: node,
                            canvas: canvas,
                            rowViewModels: canvas.outputViewModels,
-                           nodeIO: .output) { rowObserver, rowViewModel in
-//            NodeLayoutView(observer: rowViewModel) {
+                           nodeIO: .output) { rowViewModel in
+            if let rowObserver = node.getOutputRowObserver(for: rowViewModel.id.portType) {
                 HStack {
                     NodeOutputView(graph: graph,
                                    graphUI: graphUI,
@@ -204,7 +205,7 @@ struct DefaultNodeOutputView: View {
                     outputCoordinate: .init(portId: rowViewModel.id.portId,
                                             canvasId: canvas.id)))
             }
-//        }
+        }
     }
 }
 
@@ -216,7 +217,7 @@ struct DefaultNodeRowView<RowViewModel, RowView>: View where RowViewModel: NodeR
     @Bindable var canvas: CanvasItemViewModel
     let rowViewModels: [RowViewModel]
     let nodeIO: NodeIO
-    @ViewBuilder var rowView: (RowViewModel.RowObserver, RowViewModel) -> RowView
+    @ViewBuilder var rowView: (RowViewModel) -> RowView
 
     var id: NodeId {
         self.node.id
@@ -253,14 +254,6 @@ struct DefaultNodeRowView<RowViewModel, RowView>: View where RowViewModel: NodeR
             return .trailing
         }
     }
-
-    func getRowObserver(port: NodeIOPortType) -> RowViewModel.RowObserver? {
-        if nodeIO == .input {
-            return node.getInputRowObserver(for: port) as? RowViewModel.RowObserver
-        }
-        
-        return node.getOutputRowObserver(for: port) as? RowViewModel.RowObserver
-    }
     
     var body: some View {
         VStack(alignment: self.alignment) {
@@ -271,16 +264,14 @@ struct DefaultNodeRowView<RowViewModel, RowView>: View where RowViewModel: NodeR
                            height: NODE_ROW_HEIGHT)
             } else {
                 ForEach(self.rowViewModels) { rowViewModel in
-                    if let rowObserver = self.getRowObserver(port: rowViewModel.id.portType) {
-                        self.rowView(rowObserver, rowViewModel)
-                        // fixes issue where ports could have inconsistent height with no label
-                            .height(NODE_ROW_HEIGHT + 8)
-                            .onChange(of: rowViewModel.fieldValueTypes.first?.type) {
-                                // Resets node sizing data when either node or portvalue types change
-                                canvas.resetViewSizingCache()
-                                graph.visibleNodesViewModel.needsInfiniteCanvasCacheReset = true
-                            }
-                    }
+                    self.rowView(rowViewModel)
+                    // fixes issue where ports could have inconsistent height with no label
+                        .height(NODE_ROW_HEIGHT + 8)
+                        .onChange(of: rowViewModel.fieldValueTypes.first?.type) {
+                            // Resets node sizing data when either node or portvalue types change
+                            canvas.resetViewSizingCache()
+                            graph.visibleNodesViewModel.needsInfiniteCanvasCacheReset = true
+                        }
                 }
             }
         }
