@@ -20,6 +20,7 @@ struct ColorOrbValueButtonView: View {
     let currentColor: Color // the current color, from input
     let hasIncomingEdge: Bool
     let graph: GraphState
+    let graphUI: GraphUIState
     
     var body: some View {
 
@@ -51,7 +52,8 @@ struct ColorOrbValueButtonView: View {
                               isFieldInsideLayerInspector: rowViewModel.isFieldInsideLayerInspector,
                               isForFlyout: isForFlyout,
                               chosenColor: binding,
-                              graph: graph)
+                              graph: graph,
+                              graphUI: graphUI)
         .onAppear {
             self.colorState = currentColor
         }

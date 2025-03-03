@@ -108,14 +108,13 @@ extension GraphState {
     @MainActor
     func createGroupNode(newGroupNodeId: NodeId,
                          componentId: UUID?,
-                         center: CGPoint) async -> NodeViewModel {
+                         center: CGPoint,
+                         // If current focused group is component, make parent node ID nil as we're creating a new graph state
+                         focusedGroupNodeId: NodeId?) async -> NodeViewModel {
         guard let document = self.documentDelegate else {
             fatalErrorIfDebug()
             return .createEmpty()
         }
-        
-        // If current focused group is component, make parent node ID nil as we're creating a new graph state
-        let focusedGroupNodeId = self.graphUI.groupNodeFocused?.groupNodeId
         
         let canvasEntity = CanvasNodeEntity(position: center,
                                             zIndex: self.highestZIndex + 1,
@@ -175,12 +174,13 @@ extension StitchDocumentViewModel {
         
         let newGroupNodeId = UUID()
         let newComponentId = UUID()
-        let selectedCanvasItems = self.visibleGraph.selectedCanvasItems
+        let selectedCanvasItems = self.visibleGraph.getSelectedCanvasItems(graphUI: self.graphUI)
         let edges = self.visibleGraph.createEdges()
         let center = self.viewPortCenter
 
         // Every selected node must belong to this traversal level.
-        let nodesAtThisLevel = self.visibleGraph.getCanvasItemsAtTraversalLevel().map(\.id).toSet
+        let nodesAtThisLevel = self.visibleGraph.getCanvasItemsAtTraversalLevel(graphUI: self.graphUI)
+            .map(\.id).toSet
         
         assertInDebug(!self.visibleGraph.selectedNodeIds.contains(where: { selectedNodeId in !nodesAtThisLevel.contains(selectedNodeId) }))
         
@@ -199,7 +199,8 @@ extension StitchDocumentViewModel {
         let newGroupNode = await self.visibleGraph
             .createGroupNode(newGroupNodeId: newGroupNodeId,
                              componentId: isComponent ? newComponentId : nil,
-                             center: center)
+                             center: center,
+                             focusedGroupNodeId: self.graphUI.groupNodeFocused?.groupNodeId)
         
         //input splitters need to be west of the `to` node for the `edge`
         self.visibleGraph.createSplitterForNewGroup(splitterType: .input,
@@ -236,7 +237,8 @@ extension StitchDocumentViewModel {
         self.visibleGraph.resetSelectedCanvasItems(graphUI: graphUI)
         
         // ... then select the GroupNode and its edges
-        newGroupNode.patchCanvasItem?.select(self.graph)
+        newGroupNode.patchCanvasItem?.select(self.graph,
+                                             graphUI: self.graphUI)
 
         // Stop any active node dragging etc.
         self.graphMovement.stopNodeMovement()

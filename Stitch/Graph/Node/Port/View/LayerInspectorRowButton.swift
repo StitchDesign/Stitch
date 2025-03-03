@@ -90,18 +90,19 @@ struct LayerInspectorRowButton: View {
             else if let layerInput = coordinate.keyPath {
                 
                 if let fieldIndex = fieldIndex {
-                    dispatch(LayerInputFieldAddedToGraph(layerInput: layerInput.layerInput,
-                                                         nodeId: nodeId,
-                                                         fieldIndex: fieldIndex))
+                    graph.layerInputFieldAddedToGraph(layerInput: layerInput.layerInput,
+                                                      nodeId: nodeId,
+                                                      fieldIndex: fieldIndex,
+                                                      graphUI: graphUI)
                 } else {
-                    dispatch(LayerInputAddedToGraph(
+                    graph.layerInputAddedToGraph(
                         nodeId: nodeId,
-                        coordinate: layerInput))
+                        coordinate: layerInput)
                 }
                 
             } else if let portId = coordinate.portId {
-                dispatch(LayerOutputAddedToGraph(nodeId: nodeId,
-                                                 portId: portId))
+                graph.layerOutputAddedToGraph(nodeId: nodeId,
+                                              portId: portId)
             }
         }
         // Shrink down the dot view

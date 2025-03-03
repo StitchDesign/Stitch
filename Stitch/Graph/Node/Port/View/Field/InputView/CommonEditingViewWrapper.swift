@@ -42,7 +42,8 @@ struct CommonEditingViewWrapper: View {
             return layerInputObserver.fieldHasHeterogenousValues(
                 fieldIndex,
                 isFieldInsideLayerInspector: forPropertySidebar,
-                graph: graph)
+                graph: graph,
+                graphUI: graphUI)
         } else {
             return false
         }

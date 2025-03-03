@@ -15,6 +15,7 @@ struct BoolCheckboxView: View {
     
     let rowObserver: InputNodeRowObserver? // nil = used in output
     let graph: GraphState
+    let graphUI: GraphUIState
     let layerInputObserver: LayerInputObserver?
     let value: Bool
     let isFieldInsideLayerInspector: Bool
@@ -29,7 +30,8 @@ struct BoolCheckboxView: View {
             return layerInputObserver.fieldHasHeterogenousValues(
                 0,
                 isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                graph: graph)
+                graph: graph,
+                graphUI: graphUI)
         } else {
             return false
         }

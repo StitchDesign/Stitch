@@ -43,7 +43,7 @@ struct NodeTagMenuButtonsView: View {
 
     @MainActor
     var moreThanOneNodeSelected: Bool {
-        graph.selectedCanvasItems.count > 1
+        graph.getSelectedCanvasItems(graphUI: graphUI).count > 1
     }
 
     @MainActor
@@ -225,22 +225,6 @@ struct NodeTagMenuButtonsView: View {
             }
         }
     }
-    
-//    var onlyLayerCanvasItemsSelected: Bool {
-//        graph.selectedCanvasItems.allSatisfy(\.id.isForLayer)
-//    }
-//    
-//    @ViewBuilder
-//    var hideLayersButton: some View {
-//        // TODO: see `SelectedLayersHiddenStatusToggled`
-//        if onlyLayerCanvasItemsSelected {
-//            Button {
-//                dispatch(SelectedLayersHiddenStatusToggled(selectedLayers: graph.selectedCanvasLayerItemIds.toSet))
-//            } label: {
-//                Text(isHiddenLayer ? "Unhide Layers" : "Hide Layers")
-//            }
-//        }
-//    }
 
     @MainActor
     func splitterTypeSubmenu(nodeId: NodeId,

@@ -154,7 +154,8 @@ struct CommonEditingView: View {
             return layerInputObserver.fieldHasHeterogenousValues(
                 fieldIndex,
                 isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                graph: graph)
+                graph: graph,
+                graphUI: graphUI)
         } else {
             return false
         }

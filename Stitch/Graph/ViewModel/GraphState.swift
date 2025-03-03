@@ -168,7 +168,7 @@ extension GraphState {
         
         self.visibleNodesViewModel
             .updateNodesPagingDict(components: self.components,
-                                   graphFrame: self.graphUI.frame,
+                                   graphFrame: document.graphUI.frame,
                                    parentGraphPath: self.saveLocation,
                                    graph: self)
         
@@ -186,14 +186,14 @@ extension GraphState {
         }
     }
 
-    @MainActor
-    var graphUI: GraphUIState {
-        guard let graphUI = self.documentDelegate?.graphUI else {
-            return GraphUIState(isPhoneDevice: false)
-        }
-        
-        return graphUI
-    }
+//    @MainActor
+//    var graphUI: GraphUIState {
+//        guard let graphUI = self.documentDelegate?.graphUI else {
+//            return GraphUIState(isPhoneDevice: false)
+//        }
+//        
+//        return graphUI
+//    }
     
     @MainActor
     var storeDelegate: StoreDelegate? {
@@ -211,32 +211,13 @@ extension GraphState {
     }
     
     @MainActor
-    var groupNodeFocused: NodeId? {
-        self.graphUI.groupNodeFocused?.groupNodeId
-    }
-    
-    @MainActor
     var nodesDict: NodesViewModelDict {
         self.nodes
     }
 
     @MainActor
-    var safeAreaInsets: SafeAreaInsets {
-        self.graphUI.safeAreaInsets
-    }
-    
-    @MainActor
-    var isFullScreenMode: Bool {
-        self.graphUI.isFullScreenMode
-    }
-    
-    @MainActor
     func getMediaUrl(forKey key: MediaKey) -> URL? {
         self.mediaLibrary.get(key)
-    }
-    
-    @MainActor var multiselectInputs: LayerInputPortSet? {
-        self.graphUI.propertySidebar.inputsCommonToSelectedLayers
     }
     
     func undoDeletedMedia(mediaKey: MediaKey) async -> URLResult {
@@ -296,16 +277,6 @@ extension GraphState {
         
         // Updates node visibility data
         self.visibleNodesViewModel.resetCache()
-    }
-    
-    @MainActor
-    var isSidebarFocused: Bool {
-        get {
-            self.graphUI.isSidebarFocused
-        }
-        set(newValue) {
-            self.graphUI.isSidebarFocused = newValue
-        }
     }
 }
 
@@ -382,8 +353,12 @@ extension GraphState {
      
     @MainActor
     func refreshGraphUpdaterId() {
+        guard let document = self.documentDelegate else {
+            return
+        }
+        
         // log("refreshGraphUpdaterId called")
-        let newId = self.calculateGraphUpdaterId()
+        let newId = self.calculateGraphUpdaterId(document: document)
         
         if self.graphUpdaterId != newId {
             // log("refreshGraphUpdaterId: newId: \(newId)")
@@ -427,16 +402,6 @@ extension GraphState {
     }
     
     @MainActor
-    var activeIndex: ActiveIndex {
-        self.graphUI.activeIndex
-    }
-    
-    @MainActor
-    var llmRecording: LLMRecordingState {
-        self.documentDelegate?.llmRecording ?? .init()
-    }
-    
-    @MainActor
     var graphStepManager: GraphStepManager {
         guard let document = self.documentDelegate else {
 //            fatalErrorIfDebug()
@@ -448,8 +413,8 @@ extension GraphState {
     }
     
     @MainActor
-    func getBroadcasterNodesAtThisTraversalLevel() -> [NodeDelegate] {
-        self.visibleNodesViewModel.getNodesAtThisTraversalLevel(at: self.graphUI.groupNodeFocused?.groupNodeId)
+    func getBroadcasterNodesAtThisTraversalLevel(graphUI: GraphUIState) -> [NodeDelegate] {
+        self.visibleNodesViewModel.getNodesAtThisTraversalLevel(at: graphUI.groupNodeFocused?.groupNodeId)
             .compactMap { node in
                 guard node.kind == .patch(.wirelessBroadcaster) else {
                     return nil
@@ -471,7 +436,7 @@ extension GraphState {
 
     /// Creases a unique hash based on view data which if changes, requires graph data update.
     @MainActor
-    func calculateGraphUpdaterId() -> Int {
+    func calculateGraphUpdaterId(document: StitchDocumentViewModel) -> Int {
         //        let randomInt = Int.random(in: -999999999999999...999999999999)
         //        log("calculateGraphUpdaterId: randomInt: \(randomInt)")
         //        return randomInt
@@ -487,7 +452,7 @@ extension GraphState {
         let nodeCount = nodes.keys.count
         
         // Track graph canvas items count
-        let canvasItems = self.getCanvasItemsAtTraversalLevel().count
+        let canvasItems = self.getCanvasItemsAtTraversalLevel(graphUI: document.graphUI).count
 
         // Tracks edge changes to reset cached data
         let upstreamConnections = allInputsObservers
@@ -505,10 +470,10 @@ extension GraphState {
             }
         
         // Track group node ID, which fixes edges when traversing
-        let groupNodeIdFocused = self.graphUI.groupNodeFocused
+        let groupNodeIdFocused = document.graphUI.groupNodeFocused
         
         // Stitch AI changes in case order changes
-        let aiActions = self.llmRecording.actions
+        let aiActions = document.llmRecording.actions
         
         hasher.combine(nodeCount)
         hasher.combine(canvasItems)
@@ -734,15 +699,15 @@ extension GraphState {
     }
     
     @MainActor
-    func getNodesAtThisTraversalLevel() -> [NodeDelegate] {
+    func getNodesAtThisTraversalLevel(graphUI: GraphUIState) -> [NodeDelegate] {
         self.visibleNodesViewModel
-            .getNodesAtThisTraversalLevel(at: self.graphUI.groupNodeFocused?.groupNodeId)
+            .getNodesAtThisTraversalLevel(at: graphUI.groupNodeFocused?.groupNodeId)
     }
     
     @MainActor
-    func getCanvasItemsAtTraversalLevel() -> CanvasItemViewModels {
+    func getCanvasItemsAtTraversalLevel(graphUI: GraphUIState) -> CanvasItemViewModels {
         self.visibleNodesViewModel
-            .getCanvasItemsAtTraversalLevel(at: self.graphUI.groupNodeFocused?.groupNodeId)
+            .getCanvasItemsAtTraversalLevel(at: graphUI.groupNodeFocused?.groupNodeId)
     }
     
     @MainActor

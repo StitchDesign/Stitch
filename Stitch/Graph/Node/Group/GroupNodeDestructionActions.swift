@@ -39,16 +39,20 @@ struct GroupNodeUncreated: GraphEventWithResponse {
     }
 }
 
-struct SelectedGroupNodesUncreated: GraphEventWithResponse {
+struct SelectedGroupNodesUncreated: StitchDocumentEvent {
     
-    func handle(state: GraphState) -> GraphResponse {
-        state.selectedCanvasItems.forEach { (canvasItem: CanvasItemViewModel) in
+    func handle(state: StitchDocumentViewModel) {
+        let graph = state.visibleGraph
+        
+        graph.getSelectedCanvasItems(graphUI: state.graphUI)
+            .forEach { (canvasItem: CanvasItemViewModel) in
             if (canvasItem.nodeDelegate?.isGroupNode ?? false),
                case let .node(nodeId) = canvasItem.id {
-                state.handleGroupNodeUncreated(nodeId)
+                graph.handleGroupNodeUncreated(nodeId)
             }
         }
-        return .persistenceResponse
+        
+        state.encodeProjectInBackground()
     }
 }
 
@@ -58,7 +62,12 @@ extension GraphState {
     // to compensate for the destruction of the GroupNode's input and output splitter nodes.
     @MainActor
     func handleGroupNodeUncreated(_ uncreatedGroupNodeId: NodeId) {
-        let newGroupId = self.graphUI.groupNodeFocused?.asNodeId
+        guard let graphUI = self.documentDelegate?.graphUI else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        let newGroupId = graphUI.groupNodeFocused?.asNodeId
 
         // Update nodes to map to new group id
         self.getCanvasItems().forEach { canvasItem in

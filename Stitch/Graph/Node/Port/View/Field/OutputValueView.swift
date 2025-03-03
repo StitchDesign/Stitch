@@ -133,6 +133,7 @@ struct OutputValueView: View {
             case .bool(let bool):
                 BoolCheckboxView(rowObserver: nil,
                                  graph: graph,
+                                 graphUI: graphUI,
                                  layerInputObserver: nil,
                                  value: bool,
                                  isFieldInsideLayerInspector: false,
@@ -254,7 +255,8 @@ struct OutputValueView: View {
                                     isNodeSelected: isCanvasItemSelected,
                                     isFieldInsideLayerInspector: false,
                                     isSelectedInspectorRow: isSelectedInspectorRow,
-                                    graph: graph)
+                                    graph: graph,
+                                    graphUI: graphUI)
                 
             case .color(let color):
                 StitchColorPickerOrb(chosenColor: color,

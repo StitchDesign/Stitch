@@ -52,6 +52,7 @@ struct CanvasItemTitleView: View {
             if node.patch == .wirelessReceiver,
                let rowObserver = node.inputsObservers.first {
                 CanvasItemTitleWirelessReceiverMenuView(graph: graph,
+                                                        graphUI: graphUI,
                                                         node: node, rowObserver: rowObserver,
                                                         nodeName: self.name)
             } else {
@@ -110,6 +111,7 @@ struct CanvasItemTitleWirelessReceiverMenuView: View {
     @State private var choice: BroadcastChoice = nilBroadcastChoice
     
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     @Bindable var node: NodeViewModel
     @Bindable var rowObserver: InputNodeRowObserver
     let nodeName: String
@@ -136,6 +138,7 @@ struct CanvasItemTitleWirelessReceiverMenuView: View {
     var body: some View {
         Menu {
             NodeWirelessBroadcastSubmenuView(graph: graph,
+                                             graphUI: graphUI,
                                              currentBroadcastChoice: self.choice,
                                              nodeId: node.id,
                                              forNodeTitle: true)

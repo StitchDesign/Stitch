@@ -10,7 +10,7 @@ import SwiftUI
 import StitchSchemaKit
 
 
-extension GraphDelegate {
+extension GraphState {
     // TODO: cache these for perf
     @MainActor
     var nonEditModeSelectedLayerInLayerSidebar: NodeId? {
@@ -30,35 +30,30 @@ extension GraphDelegate {
     var layerFocusedInPropertyInspector: NodeId? {
         self.nonEditModeSelectedLayerInLayerSidebar ?? self.firstLayerInLayerSidebar
     }
-}
-
-struct LayerInputAddedToGraph: GraphEvent {
-
-    // just pass in LayerInspectorRowId and switch on that;
-    // don't need two actions
-    let nodeId: NodeId
-    let coordinate: LayerInputType
     
-    func handle(state: GraphState) {
+    @MainActor
+    func layerInputAddedToGraph(
+    // just pass in LayerInspectorRowId and switch on that;
+        // don't need two actions
+        nodeId: NodeId,
+        coordinate: LayerInputType) {
         
         // log("LayerInputAddedToGraph: nodeId: \(nodeId)")
         // log("LayerInputAddedToGraph: coordinate: \(coordinate)")
         
-        guard let node = state.getNodeViewModel(nodeId),
+        guard let node = self.getNodeViewModel(nodeId),
               let _ = node.layerNode else {
             log("LayerInputAddedToGraph: could not add Layer Input to graph")
             fatalErrorIfDebug()
             return
         }
         
-        state.handleLayerInputAdded(nodeId: nodeId,
+        self.handleLayerInputAdded(nodeId: nodeId,
                                     coordinate: coordinate)
         
-        state.encodeProjectInBackground()
+        self.encodeProjectInBackground()
     }
-}
 
-extension GraphState {
     @MainActor
     func handleLayerInputAdded(nodeId: NodeId,
                                coordinate: LayerInputType) {
@@ -157,35 +152,29 @@ extension GraphState {
         
         document.graphUI.propertySidebar.selectedProperty = nil
     }
-}
-
-struct LayerOutputAddedToGraph: GraphEventWithResponse {
     
-    let nodeId: NodeId
-    let portId: Int
-    
-    func handle(state: GraphState) -> GraphResponse {
+    @MainActor
+    func layerOutputAddedToGraph(nodeId: NodeId,
+                                 portId: Int) {
         
         // log("LayerOutputAddedToGraph: nodeId: \(nodeId)")
         // log("LayerOutputAddedToGraph: coordinate: \(coordinate)")
         
-        guard let node = state.getNodeViewModel(nodeId),
+        guard let node = self.getNodeViewModel(nodeId),
               let layerNode = node.layerNode,
               let outputPort = layerNode.outputPorts[safe: portId] else {
             log("LayerOutputAddedToGraph: could not add Layer Output to graph")
             fatalErrorIfDebug()
-            return .noChange
+            return
         }
         
-        state.layerOutputAddedToGraph(node: node,
-                                      output: outputPort,
-                                      portId: portId)
-                
-        return .shouldPersist
+        self.layerOutputAddedToGraph(node: node,
+                                     output: outputPort,
+                                     portId: portId)
+        
+        self.encodeProjectInBackground()
     }
-}
 
-extension GraphState {
     @MainActor
     func layerOutputAddedToGraph(node: NodeViewModel,
                                  output: OutputLayerNodeRowData,

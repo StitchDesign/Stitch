@@ -154,7 +154,7 @@ extension ProjectSidebarObservable {
             graph.deselectAllCanvasItems(graphUI: graphUI)
         }
         
-        graph.updateInspectorFocusedLayers()
+        graph.updateInspectorFocusedLayers(graphUI: graphUI)
         
         // Reset selected row in property sidebar when focused-layers changes
         graphUI.propertySidebar.selectedProperty = nil
@@ -163,16 +163,16 @@ extension ProjectSidebarObservable {
 
 extension GraphState {
     @MainActor
-    func updateInspectorFocusedLayers() {        
+    func updateInspectorFocusedLayers(graphUI: GraphUIState) {
         if self.sidebarSelectionState.primary.count > 1 {
-            self.graphUI.propertySidebar.inputsCommonToSelectedLayers = self.multipleSidebarLayersSelected()
+            graphUI.propertySidebar.inputsCommonToSelectedLayers = self.multipleSidebarLayersSelected()
         } else {
-            self.graphUI.propertySidebar.inputsCommonToSelectedLayers = nil
+            graphUI.propertySidebar.inputsCommonToSelectedLayers = nil
         }
         
         // Reset selected-inspector-row whenever inspector-focused layers change
-        self.graphUI.propertySidebar.selectedProperty = nil
-        self.graphUI.closeFlyout()
+        graphUI.propertySidebar.selectedProperty = nil
+        graphUI.closeFlyout()
     }
     
     @MainActor
@@ -246,7 +246,7 @@ extension ProjectSidebarObservable {
         }
            
         self.addExclusivelyToPrimary(id)  
-        self.graphDelegate?.updateInspectorFocusedLayers()
+        self.graphDelegate?.updateInspectorFocusedLayers(graphUI: graphUI)
     }
 }
 
@@ -270,6 +270,6 @@ extension ProjectSidebarObservable {
 
         item.removeFromSelections()
 
-        self.graphDelegate?.updateInspectorFocusedLayers()
+        self.graphDelegate?.updateInspectorFocusedLayers(graphUI: graphUI)
     }
 }

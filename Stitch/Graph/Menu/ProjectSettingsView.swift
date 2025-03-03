@@ -242,7 +242,8 @@ struct ProjectSettingsView: View {
             isForPreviewWindowBackgroundPicker: true,
             isForIPhone: isPhoneDevice(),
             chosenColor: binding, 
-            graph: graph)
+            graph: graph,
+            graphUI: graphUI)
     }
 }
 

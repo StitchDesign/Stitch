@@ -569,7 +569,7 @@ extension StitchDocumentViewModel {
         // so that node stays under our finger:
         if self.graphMovement.canvasItemIsDragged {
 
-            self.visibleGraph.selectedCanvasItems.forEach { node in
+            self.visibleGraph.getSelectedCanvasItems(graphUI: self.graphUI).forEach { node in
             // self.getSelectedNodeViewModels().forEach { node in
                 node.updateNodeOnGraphDragged(
                     translation,

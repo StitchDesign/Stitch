@@ -66,6 +66,7 @@ struct StitchColorPickerView: View {
     //    @State var chosenColor: Color = .red
     @Binding var chosenColor: Color
     let graph: GraphState
+    let graphUI: GraphUIState
         
 #if targetEnvironment(macCatalyst)
     let isCatalyst: Bool = true
@@ -80,7 +81,8 @@ struct StitchColorPickerView: View {
             return layerInputObserver.fieldHasHeterogenousValues(
                 fieldCoordinate.fieldIndex,
                 isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                graph: graph)
+                graph: graph,
+                graphUI: graphUI)
         } else {
             return false
         }

@@ -235,6 +235,11 @@ extension GraphUIState {
             .roundedUp(toMultipleOf: SQUARE_SIDE_LENGTH)
         return CGFloat(length)
     }
+    
+    @MainActor var multiselectInputs: LayerInputPortSet? {
+        self.propertySidebar.inputsCommonToSelectedLayers
+    }
+    
 
     // A center that is aware of whether the sidebar is open or not;
     // used when inserting new nodes.
@@ -448,14 +453,15 @@ extension GraphState {
                           graphUI: GraphUIState) {
         // ie expansionBox, isSelecting, selected-comments etc.
         // get reset when we select a single node.
-        self.graphUI.selection = GraphUISelectionState()
+        graphUI.selection = GraphUISelectionState()
         self.resetSelectedCanvasItems(graphUI: graphUI)
-        node.select(self)
+        node.select(self,
+                    graphUI: graphUI)
     }
     
     @MainActor
     func deselectAllCanvasItems(graphUI: GraphUIState) {
-        self.graphUI.selection = GraphUISelectionState()
+        graphUI.selection = GraphUISelectionState()
         self.resetSelectedCanvasItems(graphUI: graphUI)
     }
     
@@ -465,30 +471,34 @@ extension GraphState {
         // ie expansionBox, isSelecting, selected-comments etc.
         // get reset when we select a single canvasItem.
         self.deselectAllCanvasItems(graphUI: graphUI)
-        canvasItem.select(self)
+        canvasItem.select(self,
+                          graphUI: graphUI)
     }
     
     // TEST HELPER
     @MainActor
-    func addNodeToSelections(_ nodeId: CanvasItemId) {
+    func addNodeToSelections(_ nodeId: CanvasItemId,
+                             graphUI: GraphUIState) {
         guard let node = self.getCanvasItem(nodeId) else {
             fatalErrorIfDebug()
             return
         }
-        node.select(self)
+        node.select(self,
+                    graphUI: graphUI)
     }
 }
 
 extension CanvasItemViewModel {
     @MainActor
-    func select(_ graph: GraphState) {
+    func select(_ graph: GraphState,
+                graphUI: GraphUIState) {
         // Prevent render cycles if already selected
         guard !self.isSelected(graph)  else { return }
         
-        graph.graphUI.selection.selectedNodeIds.insert(self.id)
+        graphUI.selection.selectedNodeIds.insert(self.id)
         
         // Unfocus sidebar
-        graph.isSidebarFocused = false
+        graphUI.isSidebarFocused = false
     }
     
     @MainActor
@@ -546,14 +556,8 @@ extension GraphState {
 
 extension GraphState {
     @MainActor
-    var selectedCanvasItems: CanvasItemViewModels {
-        self.getCanvasItemsAtTraversalLevel().filter { $0.isSelected(self) }
-    }
-    
-    @MainActor
-    var selectedCanvasLayerItemIds: [LayerNodeId] {
-        self.selectedCanvasItems
-            .filter(\.id.isForLayer)
-            .map(\.id.associatedNodeId.asLayerNodeId)
+    func getSelectedCanvasItems(graphUI: GraphUIState) -> CanvasItemViewModels {
+        self.getCanvasItemsAtTraversalLevel(graphUI: graphUI)
+            .filter { $0.isSelected(self) }
     }
 }

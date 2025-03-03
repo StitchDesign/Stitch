@@ -72,23 +72,25 @@ extension CanvasItemViewModel {
 // TODO: this seems to only duplicate a single node?
 // TODO: we can only dupe-drag nodes and comment boxes, NOT layer-inputs-on-graph
 // What if we have multiple nodes on the graph selected and we hold `Option` + drag?
-struct NodeDuplicateDraggedAction: GraphEvent {
+struct NodeDuplicateDraggedAction: StitchDocumentEvent {
     let id: NodeId
     let translation: CGSize
     
-    func handle(state: GraphState) {
-        state.nodeDuplicateDragged(id: id,
-                                   translation: translation)
+    func handle(state: StitchDocumentViewModel) {
+        state.visibleGraph.nodeDuplicateDragged(id: id,
+                                                translation: translation,
+                                                graphUI: state.graphUI)
     }
 }
 
 extension GraphState {
     @MainActor
     func nodeDuplicateDragged(id: NodeId,
-                              translation: CGSize) {
+                              translation: CGSize,
+                              graphUI: GraphUIState) {
         let state = self
         
-        guard state.graphUI.dragDuplication else {
+        guard graphUI.dragDuplication else {
             
             // Might need to adjust the currently selected nodes, if e.g. we're option-dragging a node that wasn't previously selected
             guard let canvasItem = state.getCanvasItem(.node(id)) else {
@@ -105,11 +107,11 @@ extension GraphState {
                 // add node's edges to highlighted edges; wipe old highlighted edges
                 state.selectedEdges = .init()
             }
-            state.graphUI.dragDuplication = true
+            graphUI.dragDuplication = true
             
             // Copy nodes if no drag started yet
             let copiedComponentResult = self
-                .createCopiedComponent(groupNodeFocused: self.graphUI.groupNodeFocused,
+                .createCopiedComponent(groupNodeFocused: graphUI.groupNodeFocused,
                                        selectedNodeIds: state.selectedNodeIds.compactMap(\.nodeCase).toSet)
             
             let (newComponent, nodeIdMap) = Self.updateCopiedNodes(
@@ -119,7 +121,7 @@ extension GraphState {
             // Update top-level nodes to match current focused group
             let newNodes: [NodeEntity] = Self.createNewNodes(
                 from: newComponent,
-                focusedGroupNode: self.groupNodeFocused)
+                focusedGroupNode: graphUI.groupNodeFocused?.groupNodeId)
             
             // this actually adds the new components' nodes to the state
             let graph = self.addComponentToGraph(newComponent: newComponent,
@@ -143,7 +145,8 @@ extension GraphState {
                 // log("NodeDuplicateDraggedAction: already had dragged node id, so will do normal node drag for id \(draggedNode.id)")
                 state.canvasItemMoved(for: draggedNode,
                                       translation: translation,
-                                      wasDrag: true)
+                                      wasDrag: true,
+                                      graphUI: graphUI)
             }
     }
 }
@@ -155,15 +158,16 @@ extension GraphState {
     func canvasItemMoved(for canvasItem: CanvasItemViewModel,
                          translation: CGSize,
                          // drag vs long-press
-                         wasDrag: Bool) {
+                         wasDrag: Bool,
+                         graphUI: GraphUIState) {
         
         // log("canvasItemMoved: original id: \(id)")
 
         // Edges should *never* animate when node is being dragged
-        self.graphUI.edgeAnimationEnabled = false
+        graphUI.edgeAnimationEnabled = false
 
         // Dragging node exits edge-edit-mode
-        self.graphUI.edgeEditingState = nil
+        graphUI.edgeEditingState = nil
 
         /*
          HACK:
@@ -238,7 +242,7 @@ extension GraphState {
         // If we're dragging a node that's already selected,
         // then just update positions of all selected nodes.
         else {
-            self.selectedCanvasItems
+            self.getSelectedCanvasItems(graphUI: graphUI)
             // need to sort by z index to retain order
                 .sorted { $0.zIndex < $1.zIndex }
                 .forEach { self.updateCanvasItemOnDragged($0, translation: translation) }
@@ -311,7 +315,8 @@ extension StitchDocumentViewModel {
         
         // Update boundary nodes
         
-        self.visibleGraph.selectedCanvasItems.forEach { _update($0) }
+        self.visibleGraph.getSelectedCanvasItems(graphUI: self.graphUI)
+            .forEach { _update($0) }
         
         self.visibleGraph.nodeIsMoving = false
         self.visibleGraph.outputDragStartedCount = 0
@@ -320,16 +325,15 @@ extension StitchDocumentViewModel {
         self.graphUI.dragDuplication = false
         
         // Rebuild comment boxes
-        self.visibleGraph.rebuildCommentBoxes()
+        self.visibleGraph.rebuildCommentBoxes(graphUI: self.graphUI)
         
         // Recalculate positional data
-        self.updateBoundaryNodes()
+        self.updateBoundaryNodes(groupNodeFocused: graphUI.groupNodeFocused?.groupNodeId)
     }
     
     @MainActor
-    func updateBoundaryNodes() {
+    func updateBoundaryNodes(groupNodeFocused: NodeId?) {
         let visibleGraph = self.visibleGraph
-        let groupNodeFocused = visibleGraph.groupNodeFocused
         
         // NOTE: nodes are retrieved per active traversal level,
         // ie top level vs some specific, focused group.
@@ -392,17 +396,17 @@ extension GraphState {
 
     // Reads but does not mutate GraphState
     @MainActor
-    func rebuildCommentBoxes() {
+    func rebuildCommentBoxes(graphUI: GraphUIState) {
 
         guard !self.commentBoxesDict.isEmpty else {
             // log("rebuildCommentBoxes: no comment boxes; returning early")
             return
         }
 
-        let currentTraversalLevel = self.graphUI.groupNodeFocused?.asNodeId
+        let currentTraversalLevel = graphUI.groupNodeFocused?.asNodeId
 
         // Only check nodes on this current traversal level
-        let visibleNodes = self.getCanvasItemsAtTraversalLevel()
+        let visibleNodes = self.getCanvasItemsAtTraversalLevel(graphUI: graphUI)
         let visibleCommentBoxes = self
             .commentBoxesDict.boxesForTraversalLevel(currentTraversalLevel)
 
@@ -414,7 +418,7 @@ extension GraphState {
 
         return self.buildCommentBoxes(visibleNodes: visibleNodes,
                                       visibleCommentBoxes: visibleCommentBoxes,
-                                      commentBoxBoundsDict: self.graphUI.commentBoxBoundsDict)
+                                      commentBoxBoundsDict: graphUI.commentBoxBoundsDict)
 
     } // func
 

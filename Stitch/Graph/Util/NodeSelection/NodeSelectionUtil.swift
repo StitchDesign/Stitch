@@ -87,20 +87,21 @@ func applyGraphOffsetAndScale(nodeSize: CGSize,
     return adjustedPosition
 }
 
-struct SelectAllShortcutKeyPressed: GraphEvent {
-    func handle(state: GraphState) {
+struct SelectAllShortcutKeyPressed: StitchDocumentEvent {
+    func handle(state: StitchDocumentViewModel) {
+        let graph = state.visibleGraph
         
         // If we have at least one actively selected sidebar layers,
         // then select all layers, not canvas items.
         if state.graphUI.isSidebarFocused {            
-            let allLayers = state.orderedSidebarLayers.flattenedItems.map(\.id).toSet
-            state.sidebarSelectionState.primary = state.sidebarSelectionState.primary.union(allLayers)
+            let allLayers = graph.orderedSidebarLayers.flattenedItems.map(\.id).toSet
+            graph.sidebarSelectionState.primary = graph.sidebarSelectionState.primary.union(allLayers)
             
-            state.layersSidebarViewModel.editModeSelectTappedItems(tappedItems: state.sidebarSelectionState.all)
+            graph.layersSidebarViewModel.editModeSelectTappedItems(tappedItems: graph.sidebarSelectionState.all)
             
         } else {
-            selectAllNodesAtTraversalLevel(state)
-            state.selectAllCommentsAtTraversalLevel()
+            graph.selectAllNodesAtTraversalLevel(graphUI: state.graphUI)
+            graph.selectAllCommentsAtTraversalLevel(graphUI: state.graphUI)
         }
     }
 }
@@ -108,37 +109,36 @@ struct SelectAllShortcutKeyPressed: GraphEvent {
 extension GraphState {
     // TODO: handle proper traversal level comments
     @MainActor
-    func selectAllCommentsAtTraversalLevel() {
-        self.graphUI.selection.selectedCommentBoxes = self.commentBoxesDict.keys.toSet
+    func selectAllCommentsAtTraversalLevel(graphUI: GraphUIState) {
+        graphUI.selection.selectedCommentBoxes = self.commentBoxesDict.keys.toSet
     }
-}
-
-@MainActor
-func selectAllNodesAtTraversalLevel(_ state: GraphState) {
-    // Only select the visible nodes,
-    // i.e. those at this traversal level.
-    let visibleNodes = state.visibleNodesViewModel
-        .getCanvasItemsAtTraversalLevel(at: state.graphUI.groupNodeFocused?.asNodeId)
-
-    state.resetSelectedCanvasItems(graphUI: state.graphUI)
     
-    visibleNodes.forEach {
-        $0.select(state)
+    @MainActor
+    func selectAllNodesAtTraversalLevel(graphUI: GraphUIState) {
+        // Only select the visible nodes,
+        // i.e. those at this traversal level.
+        let visibleNodes = self.visibleNodesViewModel
+            .getCanvasItemsAtTraversalLevel(at: graphUI.groupNodeFocused?.asNodeId)
+        
+        self.resetSelectedCanvasItems(graphUI: graphUI)
+        
+        visibleNodes.forEach {
+            $0.select(self,
+                      graphUI: graphUI)
+        }
     }
-}
-
-// TODO: needs to potentially select comment boxes as well
-extension GraphState {
+    
     @MainActor
     // fka `processNodeSelectionBoxChange`
-    func processCanvasSelectionBoxChange(selectionBox: CGRect) {
+    func processCanvasSelectionBoxChange(selectionBox: CGRect,
+                                         graphUI: GraphUIState) {
         let graphState = self
         var selectedNodes = Set<CanvasItemId>()
-        let nodesSelectedOnShift = self.graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag
+        let nodesSelectedOnShift = graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag
         let isCurrentlyDragging = selectionBox != .zero
         
         // Unfocus sidebar
-        graphState.graphUI.isSidebarFocused = false
+        graphUI.isSidebarFocused = false
         
         // TODO: pass shift down via the UIKit gesture handler
         let shiftHeld = graphState.keypressState.shiftHeldDuringGesture
@@ -149,14 +149,14 @@ extension GraphState {
         }
         
         if shiftHeld {
-            let initiallySelectedNodes = self.selectedCanvasItems.map(\.id).toSet
-            let previouslySelectedNodes = self.graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag ?? .init()
+            let initiallySelectedNodes = self.getSelectedCanvasItems(graphUI: graphUI).map(\.id).toSet
+            let previouslySelectedNodes = graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag ?? .init()
 
-            if self.graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag == nil {
+            if graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag == nil {
                 // Increment previously-selected shift-click nodes to current selected set
                 // on new shift click
                 let allSelectedNodes = initiallySelectedNodes.union(previouslySelectedNodes)
-                self.graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag = initiallySelectedNodes.union(allSelectedNodes)
+                graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag = initiallySelectedNodes.union(allSelectedNodes)
                 selectedNodes = selectedNodes.union(allSelectedNodes)
             } else {
                 // Ignore previously selected nodes on pre-existing shift click
@@ -164,7 +164,7 @@ extension GraphState {
             }
         } else {
             // Note: alternatively?: wipe this collection/set when gesure ends
-            self.graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag = nil
+            graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag = nil
         }
                 
         let selectionBoxInViewFrame: CGRect = selectionBox
@@ -192,8 +192,8 @@ extension GraphState {
             }
         }
         
-        if self.graphUI.selection.selectedNodeIds != selectedNodes {
-            self.graphUI.selection.selectedNodeIds = selectedNodes
+        if graphUI.selection.selectedNodeIds != selectedNodes {
+            graphUI.selection.selectedNodeIds = selectedNodes
         }        
         
         // Determine selected comment boxes

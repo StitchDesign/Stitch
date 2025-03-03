@@ -127,7 +127,7 @@ extension StitchDocumentViewModel {
                 self.updateNodesAfterCommentBoxDragEnded(box)
 
                 // Remove the bounds-dict entry so that view will repopulate/refresh the bounds-dict for that
-                self.visibleGraph.graphUI.commentBoxBoundsDict.removeValue(forKey: id)
+                self.graphUI.commentBoxBoundsDict.removeValue(forKey: id)
 
             } else {
                 log("CommentBoxPositionDragEnded: could not retrieve comment box \(id)")
@@ -206,7 +206,7 @@ extension StitchDocumentViewModel {
 
         // RE-DETERMINE WHICH NODES FALL WITHIN THIS COMMENT BOX
         // Assumes this comment box's bounds were recently updated
-        self.visibleGraph.rebuildCommentBoxes()
+        self.visibleGraph.rebuildCommentBoxes(graphUI: self.graphUI)
 
         guard let box = self.visibleGraph.commentBoxesDict.get(id) else {
             log("CommentBoxExpansionDragEnded: could not retrieve comment box \(id)")
@@ -237,7 +237,7 @@ extension StitchDocumentViewModel {
 
         // Then redetermine which nodes fall into the boxes
         // TODO: only redetermine for this single box, not all boxes?
-        self.visibleGraph.rebuildCommentBoxes()
+        self.visibleGraph.rebuildCommentBoxes(graphUI: self.graphUI)
 
         self.visibleGraph.encodeProjectInBackground()
     }

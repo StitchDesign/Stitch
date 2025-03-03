@@ -46,6 +46,7 @@ struct MediaFieldValueView<Field: FieldViewModel>: View {
     let isSelectedInspectorRow: Bool
     
     @Bindable var graph: GraphState
+    let graphUI: GraphUIState
 
     var alignment: Alignment { isInput ? .leading : .trailing }
     
@@ -67,7 +68,8 @@ struct MediaFieldValueView<Field: FieldViewModel>: View {
             return layerInputObserver.fieldHasHeterogenousValues(
                 fieldIndex,
                 isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                graph: graph)
+                graph: graph,
+                graphUI: graphUI)
         } else {
             return false
         }
@@ -97,6 +99,7 @@ struct MediaFieldValueView<Field: FieldViewModel>: View {
                                 rowViewModel: rowViewModel,
                                 node: node,
                                 graph: graph,
+                                graphUI: graphUI,
                                 coordinate: rowObserver.id,
                                 isInput: isInput,
                                 fieldIndex: fieldIndex,
@@ -113,6 +116,7 @@ struct MediaFieldLabelView<Field: FieldViewModel>: View {
     let rowViewModel: Field.NodeRowType
     let node: NodeViewModel
     let graph: GraphState
+    let graphUI: GraphUIState
     let coordinate: InputCoordinate
     let isInput: Bool
     let fieldIndex: Int
@@ -168,7 +172,7 @@ struct MediaFieldLabelView<Field: FieldViewModel>: View {
                 visualMediaView(mediaObserver: self.mediaObserver)
             }
         }
-        .onChange(of: graph.activeIndex, initial: true) {
+        .onChange(of: graphUI.activeIndex, initial: true) {
             self.updateMediaObserver()
         }
     }

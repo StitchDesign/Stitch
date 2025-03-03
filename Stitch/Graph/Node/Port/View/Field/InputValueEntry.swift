@@ -213,7 +213,8 @@ struct InputValueView: View {
             return layerInputObserver.fieldHasHeterogenousValues(
                 fieldIndex,
                 isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                graph: graph)
+                graph: graph,
+                graphUI: graphUI)
         } else {
             return false
         }
@@ -307,6 +308,7 @@ struct InputValueView: View {
             case .bool(let bool):
                 BoolCheckboxView(rowObserver: rowObserver,
                                  graph: graph,
+                                 graphUI: graphUI,
                                  layerInputObserver: layerInputObserver,
                                  value: bool,
                                  isFieldInsideLayerInspector: isFieldInsideLayerInspector,
@@ -482,7 +484,8 @@ struct InputValueView: View {
                     isNodeSelected: isCanvasItemSelected,
                     isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                     isSelectedInspectorRow: isSelectedInspectorRow,
-                    graph: graph)
+                    graph: graph,
+                    graphUI: graphUI)
                 
             case .color(let color):
                 ColorOrbValueButtonView(fieldViewModel: viewModel,
@@ -492,7 +495,8 @@ struct InputValueView: View {
                                         isForFlyout: isForFlyout,
                                         currentColor: color,
                                         hasIncomingEdge: hasIncomingEdge,
-                                        graph: graph)
+                                        graph: graph,
+                                        graphUI: graphUI)
                 
             case .pulse(let pulseTime):
                 PulseValueButtonView(graph: graph,

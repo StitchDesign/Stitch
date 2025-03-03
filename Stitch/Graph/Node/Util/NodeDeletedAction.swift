@@ -10,48 +10,53 @@ import SwiftUI
 import StitchSchemaKit
 
 // Used for Delete key shortcut
-struct DeleteShortcutKeyPressed: GraphEventWithResponse {
+struct DeleteShortcutKeyPressed: StitchDocumentEvent {
     
-    func handle(state: GraphState) -> GraphResponse {
+    func handle(state: StitchDocumentViewModel) {
+        let graph = state.visibleGraph
 
         // Check which we have focused: layers or canvas items
         if state.graphUI.isSidebarFocused {
-            state.layersSidebarViewModel.deleteSelectedItems()
-            state.updateInspectorFocusedLayers()
+            graph.layersSidebarViewModel.deleteSelectedItems()
+            graph.updateInspectorFocusedLayers(graphUI: state.graphUI)
         }
         
         // If no layers actively selected, then assume canvas items may be selected
         else {
             
             // delete comment boxes
-            state.deleteSelectedCommentBoxes()
+            graph.deleteSelectedCommentBoxes()
 
             // delete nodes
-            state.selectedGraphNodesDeleted(
-                selectedNodes: state.selectedNodeIds)
+            graph.selectedGraphNodesDeleted(
+                selectedNodes: graph.selectedNodeIds,
+                graphUI: state.graphUI)
         }
                 
-        return .shouldPersist
+        state.encodeProjectInBackground()
     }
 }
 
 // Used by Node Tag Menu 'delete' option
-struct SelectedGraphNodesDeleted: GraphEventWithResponse {
+struct SelectedGraphNodesDeleted: StitchDocumentEvent {
 
     var canvasItemId: CanvasItemId? // for when node tag menu opened via right-click
 
-    func handle(state: GraphState) -> GraphResponse {
+    func handle(state: StitchDocumentViewModel) {
+        let graph = state.visibleGraph
         
-        if state.selectedCanvasItems.isEmpty,
+        if graph.getSelectedCanvasItems(graphUI: state.graphUI).isEmpty,
            let canvasItemId = canvasItemId,
-           let canvasItem = state.getCanvasItem(canvasItemId) {
-            canvasItem.select(state)
+           let canvasItem = graph.getCanvasItem(canvasItemId) {
+            canvasItem.select(graph,
+                              graphUI: state.graphUI)
         }
 
-        state.selectedGraphNodesDeleted(
-            selectedNodes: state.selectedNodeIds)
+        graph.selectedGraphNodesDeleted(
+            selectedNodes: graph.selectedNodeIds,
+            graphUI: state.graphUI)
 
-        return .shouldPersist
+        state.encodeProjectInBackground()
     }
 }
 
@@ -59,14 +64,15 @@ struct SelectedGraphNodesDeleted: GraphEventWithResponse {
 extension GraphState {
     // Preferred way to delete node(s); deletes each individual node and intelligently handles batch operations
     @MainActor
-    func selectedGraphNodesDeleted(selectedNodes: CanvasItemIdSet) {
+    func selectedGraphNodesDeleted(selectedNodes: CanvasItemIdSet,
+                                   graphUI: GraphUIState) {
 
         selectedNodes.forEach { canvasItemId in
             self.deleteCanvasItem(canvasItemId)
         }
             
         // reset node-ui highlight/selection state
-        self.graphUI.selection = GraphUISelectionState()
+        graphUI.selection = GraphUISelectionState()
 
         // reset selected edges;
         // NOTE: it's safe to completely reset these, since we only select edges for selected nodes,
