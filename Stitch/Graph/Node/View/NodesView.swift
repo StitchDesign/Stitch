@@ -15,6 +15,7 @@ struct NodesView: View {
     
     // Manages visible nodes array to animate instances when a group node changes
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     
     // animation state for group node traversals
     let groupTraversedToChild: Bool
@@ -22,11 +23,6 @@ struct NodesView: View {
 
     private var visibleNodesViewModel: VisibleNodesViewModel {
         self.graph.visibleNodesViewModel
-    }
-    
-    @MainActor
-    private var graphUI: GraphUIState {
-        self.graph.graphUI
     }
     
     // Finds a group node's offset from center, used for animating
@@ -72,7 +68,9 @@ struct NodesView: View {
                                                graph: graph,
                                                groupNodeFocused: graphUI.groupNodeFocused))
         // should come after edges, so that edges are offset, scaled etc.
-           .modifier(StitchUIScrollViewModifier(document: document))
+           .modifier(StitchUIScrollViewModifier(document: document,
+                                                graph: graph,
+                                                graphUI: graphUI))
     }
     
     // TODO: better location for CommentBoxes?

@@ -12,15 +12,15 @@ import StitchSchemaKit
 struct FieldValueNumberView: View {
     
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
+    @Bindable var rowObserver: InputNodeRowObserver
     @Bindable var fieldViewModel: InputFieldViewModel
     let layerInputObserver: LayerInputObserver?
     let fieldValue: FieldValue
     let fieldValueNumberType: FieldValueNumberType
     let fieldCoordinate: FieldCoordinate
-    let rowObserverCoordinate: NodeIOCoordinate
     let isCanvasItemSelected: Bool
     let choices: [String]?
-    let adjustmentBarSessionId: AdjustmentBarSessionId
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
     let isFieldInMultifieldInput: Bool
@@ -64,24 +64,25 @@ struct FieldValueNumberView: View {
                 // Default to zero if "auto" currently selected
                 // Limit renders by not passing in number value unless button pressed
                 NumberValueButtonView(graph: graph,
+                                      graphUI: graphUI,
                                       value: isButtonPressed ? fieldValue.numberValue : .zero,
                                       fieldCoordinate: fieldCoordinate,
-                                      rowObserverCoordinate: rowObserverCoordinate,
+                                      rowObserver: rowObserver,
                                       fieldValueNumberType: fieldValueNumberType,
-                                      adjustmentBarSessionId: adjustmentBarSessionId,
                                       isFieldInsideLayerInspector: fieldViewModel.isFieldInsideLayerInspector, 
                                       isSelectedInspectorRow: isSelectedInspectorRow,
                                       isPressed: $isButtonPressed)
             }
             
             CommonEditingViewWrapper(graph: graph,
+                                     graphUI: graphUI,
                                      fieldViewModel: fieldViewModel,
+                                     rowObserver: rowObserver,
                                      layerInputObserver: layerInputObserver,
                                      fieldValue: fieldValue,
                                      fieldCoordinate: fieldCoordinate,
                                      isCanvasItemSelected: isCanvasItemSelected,
                                      choices: choices,
-                                     adjustmentBarSessionId: adjustmentBarSessionId,
                                      forPropertySidebar: forPropertySidebar,
                                      propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                                      isFieldInMultifieldInput: isFieldInMultifieldInput,

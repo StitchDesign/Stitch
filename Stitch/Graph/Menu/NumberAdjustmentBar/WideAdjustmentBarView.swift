@@ -48,7 +48,7 @@ struct WideAdjustmentBarView: View {
     // true just when tearing down view
     let centerSelectionDisabled: Bool
     let fieldCoordinate: FieldCoordinate
-    let rowObserverCoordinate: NodeIOCoordinate
+    let rowObserver: InputNodeRowObserver
     let isFieldInsideLayerInspector: Bool
 
     // Starts out same as `middleNumber`,
@@ -149,7 +149,7 @@ struct WideAdjustmentBarView: View {
                                 graph.inputEditedFromUI(
                                     fieldValue: fieldValueNumberType.createFieldValueForAdjustmentBar(from: n.number),
                                     fieldIndex: self.fieldCoordinate.fieldIndex,
-                                    coordinate: rowObserverCoordinate,
+                                    rowObserver: rowObserver,
                                     isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                     isCommitting: false)
                             }
@@ -373,7 +373,7 @@ struct WideAdjustmentBarView: View {
                     graph?.inputEditedFromUI(
                         fieldValue: fieldValue,
                         fieldIndex: pref.field.fieldIndex,
-                        coordinate: rowObserverCoordinate,
+                        rowObserver: rowObserver,
                         isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                         // We don't persist changes from auto-selectiong the center value during scroll
                         isCommitting: false)

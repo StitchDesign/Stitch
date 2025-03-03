@@ -100,7 +100,8 @@ extension GraphState {
             if !canvasItem.isSelected(state) {
                 // log("NodeDuplicateDraggedAction: \(canvasItem.id) was NOT already selected")
                 // select the canvas item and de-select all the others
-                state.selectSingleCanvasItem(canvasItem)
+                state.selectSingleCanvasItem(canvasItem,
+                                             graphUI: graphUI)
                 // add node's edges to highlighted edges; wipe old highlighted edges
                 state.selectedEdges = .init()
             }
@@ -227,7 +228,8 @@ extension GraphState {
             self.updateCanvasItemOnDragged(canvasItem, translation: translation)
 
             // select the canvas item and de-select all the others
-            self.selectSingleCanvasItem(canvasItem)
+            self.selectSingleCanvasItem(canvasItem,
+                                        graphUI: graphUI)
 
             // add node's edges to highlighted edges; wipe old highlighted edges
             self.selectedEdges = .init()

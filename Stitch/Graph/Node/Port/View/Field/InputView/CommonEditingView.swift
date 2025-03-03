@@ -68,6 +68,8 @@ struct CommonEditingView: View {
     let inputString: String
     
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
+    @Bindable var rowObserver: InputNodeRowObserver
     
     let fieldIndex: Int
     let isCanvasItemSelected: Bool
@@ -120,7 +122,7 @@ struct CommonEditingView: View {
     
     @MainActor
     var thisFieldIsFocused: Bool {
-        switch graph.graphUI.reduxFocusedField {
+        switch graphUI.reduxFocusedField {
         case .textInput(let focusedFieldCoordinate):
             let k = focusedFieldCoordinate == id
             // log("CommonEditingView: thisFieldIsFocused: k: \(k) for \(fieldCoordinate)")
@@ -141,7 +143,7 @@ struct CommonEditingView: View {
     
     @MainActor
     var multiselectInputs: LayerInputPortSet? {
-        graph.graphUI.propertySidebar.inputsCommonToSelectedLayers
+        graphUI.propertySidebar.inputsCommonToSelectedLayers
     }
             
     @MainActor
@@ -390,7 +392,7 @@ struct CommonEditingView: View {
             self.graph.inputEditedFromUI(
                 fieldValue: .string(.init(newEdit)),
                 fieldIndex: fieldIndex,
-                coordinate: coordinate,
+                rowObserver: rowObserver,
                 isFieldInsideLayerInspector: self.isFieldInsideLayerInspector,
                 isCommitting: isCommitting)
         }

@@ -9,45 +9,38 @@
 import SwiftUI
 import StitchSchemaKit
 
-// MARK: ACTIONS
-
-struct JumpToCanvasItem: GraphEvent {
-
-    let id: CanvasItemId
-
-    func handle(state: GraphState) {
-        state.panGraphToNodeLocation(id: id)
-    }
-}
-
-struct JumpToAssignedBroadcaster: GraphEvent {
-    
-    let wirelessReceiverNodeId: NodeId
-    
-    func handle(state: GraphState) {
-        if let assignedBroadcaster = state.getNodeViewModel(wirelessReceiverNodeId)?.currentBroadcastChoiceId {
-            state.panGraphToNodeLocation(id: .node(assignedBroadcaster))
-        }
-    }
-}
-
-struct FindSomeCanvasItemOnGraph: GraphEvent {
-    
-    func handle(state: GraphState) {
-        if let canvasItem = GraphState.westernMostNode(
-            state.groupNodeFocused,
-            canvasItems: state.getCanvasItemsAtTraversalLevel()) {
-            
-            state.panGraphToNodeLocation(id: canvasItem.id)
-        }
-    }
-}
-
 extension GraphState {
+    @MainActor
+    func jumpToCanvasItem(id: CanvasItemId,
+                          graphUI: GraphUIState) {
+        self.panGraphToNodeLocation(id: id,
+                                    graphUI: graphUI)
+    }
+    
+    @MainActor
+    func jumpToAssignedBroadcaster(wirelessReceiverNodeId: NodeId,
+                                   graphUI: GraphUIState) {
+        if let assignedBroadcaster = self.getNodeViewModel(wirelessReceiverNodeId)?.currentBroadcastChoiceId {
+            self.panGraphToNodeLocation(id: .node(assignedBroadcaster),
+                                        graphUI: graphUI)
+        }
+    }
+    
+    @MainActor
+    func findSomeCanvasItemOnGraph(graphUI: GraphUIState) {
+        if let canvasItem = GraphState.westernMostNode(
+            self.groupNodeFocused,
+            canvasItems: self.getCanvasItemsAtTraversalLevel()) {
+            
+            self.panGraphToNodeLocation(id: canvasItem.id,
+                                        graphUI: graphUI)
+        }
+    }
+    
     // TODO: anywhere this isn't being used but should be?
     @MainActor
-    func panGraphToNodeLocation(id: CanvasItemId) {
-        
+    func panGraphToNodeLocation(id: CanvasItemId,
+                                graphUI: GraphUIState) {
         guard let canvasItem = self.getCanvasItem(id) else {
             fatalErrorIfDebug("panGraphToNodeLocation: no canvasItem found")
             return
@@ -61,7 +54,7 @@ extension GraphState {
         self.graphUI.canvasJumpLocation = jumpPosition
         
         self.graphUI.selection = GraphUISelectionState()
-        self.resetSelectedCanvasItems()
+        self.resetSelectedCanvasItems(graphUI: graphUI)
         canvasItem.select(self)
         
         // Update focused group

@@ -9,16 +9,22 @@ import SwiftUI
 import StitchSchemaKit
 
 struct NodeTitleTextField: View {
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
-    let id: CanvasItemId
+    @Bindable var graphUI: GraphUIState
+    @Bindable var node: NodeViewModel
+    @Bindable var canvasItem: CanvasItemViewModel
     let label: String
     let isCanvasItemSelected: Bool
     var font: Font = STITCH_FONT
 
     var body: some View {
-        StitchTitleTextField(graph: graph,
-                             id: id,
-                             titleEditType: .canvas(id),
+        StitchTitleTextField(document: document,
+                             graph: graph,
+                             graphUI: graphUI,
+                             node: node,
+                             canvasItem: canvasItem,
+                             titleEditType: .canvas(canvasItem.id),
                              label: label,
                              isCanvasItemSelected: isCanvasItemSelected,
                              font: font)
@@ -27,8 +33,13 @@ struct NodeTitleTextField: View {
     /// A wrapper view for `TextField` which renders a read-only view when the input isn't in focus. This fixes a performance
     /// issue with `TextField` which becomes exacerbated by many rendered `TextField`'s in a view.
 struct StitchTitleTextField: View {
+    @State private var isTitleFocused: Bool = false
+    
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
-    let id: CanvasItemId
+    @Bindable var graphUI: GraphUIState
+    @Bindable var node: NodeViewModel
+    @Bindable var canvasItem: CanvasItemViewModel
     let titleEditType: StitchTitleEdit
     let label: String
     let isCanvasItemSelected: Bool
@@ -36,7 +47,7 @@ struct StitchTitleTextField: View {
     
     @MainActor
     var isFocused: Bool {
-        (graph.graphUI.reduxFocusedField?.getNodeTitleEdit == titleEditType)
+        (graphUI.reduxFocusedField?.getNodeTitleEdit == titleEditType)
         // && isCanvasItemSelected
     }
 
@@ -52,9 +63,10 @@ struct StitchTitleTextField: View {
                     isForNodeTitle: true,
                     font: font,
                     fontColor: Color(.nodeTitleFont)) { newEdit, isCommitting in
-                        dispatch(NodeTitleEdited(titleEditType: titleEditType,
-                                                 edit: newEdit,
-                                                 isCommitting: isCommitting))
+                        node.nodeTitleEdited(titleEditType: titleEditType,
+                                             edit: newEdit,
+                                             isCommitting: isCommitting,
+                                             graph: graph)
                     }
                     // .border(.yellow)
                     .frame(height: NODE_TITLE_HEIGHT,
@@ -74,7 +86,7 @@ struct StitchTitleTextField: View {
 //                        let labelWidth = label.widthOfString(usingFont: STITCH_UIFONT)
 //                        log("StitchTitleTextField: onAppear: labelWidth: \(labelWidth)")
 //                        
-                        let canvasItemWidth = graph.getCanvasItem(id)?.sizeByLocalBounds?.width
+                        let canvasItemWidth = canvasItem.sizeByLocalBounds?.width
 //                        log("StitchTitleTextField: onAppear: canvasItemWidth: \(canvasItemWidth)")
 
                         self.editWidth = canvasItemWidth
@@ -94,7 +106,8 @@ struct StitchTitleTextField: View {
                 // Better as global redux-state than local view-state: only one field in entire app can be focused at a time.
                 .onTapGesture {
                     // log("NodeTitleTextField tapped")
-                    dispatch(ReduxFieldFocused(focusedField: .nodeTitle(titleEditType)))
+                    graph.reduxFieldFocused(focusedField: .nodeTitle(titleEditType),
+                                            graphUI: self.graphUI)
                 }
             }
         }
@@ -106,8 +119,8 @@ struct StitchTitleTextField: View {
         return label + " " + id.nodeId.debugFriendlyId
 #else
         // Show debug-friendly id during debug mode, so user see which nodes are referred to
-        if graph.llmRecording.mode == .augmentation {
-            return label + " " + id.nodeId.debugFriendlyId
+        if document.llmRecording.mode == .augmentation {
+            return label + " " + node.id.debugFriendlyId
         } else {
             return label
         }

@@ -45,12 +45,23 @@ extension GraphState {
                                   value: PortValue?,
                                   isFieldInsideLayerInspector: Bool,
                                   wasAdjustmentBarSelection: Bool = false) {
-        
         guard let node = self.getNodeViewModel(input.nodeId),
               let input = node.getInputRowObserver(for: input.portType) else {
             fatalErrorIfDebug()
             return
         }
+        
+        return self.handleInputEditCommitted(input: input,
+                                             value: value,
+                                             isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                                             wasAdjustmentBarSelection: wasAdjustmentBarSelection)
+    }
+    
+    @MainActor
+    func handleInputEditCommitted(input: InputNodeRowObserver,
+                                  value: PortValue?,
+                                  isFieldInsideLayerInspector: Bool,
+                                  wasAdjustmentBarSelection: Bool = false) {
         
         if isFieldInsideLayerInspector,
            let layerInput = input.id.keyPath?.layerInput,
@@ -59,7 +70,7 @@ extension GraphState {
         
             // Note: heterogenous values doesn't matter; only the multiselect does
             layerMultiselectInput.multiselectObservers(self).forEach { observer in
-                self.inputEditCommitted(input: observer.rowObserver,
+                self.inputEditCommitted(input: input,
                                         value: value,
                                         wasAdjustmentBarSelection: wasAdjustmentBarSelection)
             }

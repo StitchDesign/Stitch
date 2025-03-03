@@ -37,7 +37,8 @@ struct LayerGroupOrientationDropDownChoiceView: View {
     @State private var currentChoice: StitchOrientation = .none
 //    @State private var currentChoice: String = ""
     
-    let id: InputCoordinate
+    let rowObserver: InputNodeRowObserver
+    let graph: GraphState
     let value: StitchOrientation
     let layerInputObserver: LayerInputObserver?
     let isFieldInsideLayerInspector: Bool
@@ -74,13 +75,9 @@ struct LayerGroupOrientationDropDownChoiceView: View {
         .frame(width: 148, height: NODE_ROW_HEIGHT * 2, alignment: .trailing)
         // .frame(width: 148, height: NODE_ROW_HEIGHT * 1.5, alignment: .trailing)
         .onChange(of: self.currentChoice) { oldValue, newValue in
-//            if let newChoice = StitchOrientation(rawValue: newValue) {
-                dispatch(PickerOptionSelected(input: self.id,
-//                                              choice: .orientation(newChoice),
-                                              choice: .orientation(newValue),
-                                              isFieldInsideLayerInspector: isFieldInsideLayerInspector))
-//            }
-            
+            graph.pickerOptionSelected(rowObserver: rowObserver,
+                                       choice: .orientation(newValue),
+                                       isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         }
         .onAppear {
 //            if !self.hasHeterogenousValues {

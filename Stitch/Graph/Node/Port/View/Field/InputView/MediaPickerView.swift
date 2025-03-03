@@ -31,7 +31,9 @@ extension GraphState {
 /// Picker view for all imported media nodes (Core ML, image, audio, video etc.).
 struct MediaFieldValueView<Field: FieldViewModel>: View {
     let viewModel: Field
-    let coordinate: NodeIOCoordinate
+    let rowViewModel: Field.NodeRowType
+    let rowObserver: Field.NodeRowType.RowObserver
+    let node: NodeViewModel
     let layerInputObserver: LayerInputObserver?
     let isUpstreamValue: Bool
     let media: FieldValueMedia
@@ -74,8 +76,9 @@ struct MediaFieldValueView<Field: FieldViewModel>: View {
         // MARK: using StitchMediaObject is more dangerous than GraphMediaValue as it won't refresh when media is changed, causing media to be retained
         
         HStack {
-            if isInput && canUseMediaPicker {
-                MediaPickerValueEntry(coordinate: coordinate,
+            if isInput && canUseMediaPicker,
+               let inputRowObserver = rowObserver as? InputNodeRowObserver {
+                MediaPickerValueEntry(rowObserver: inputRowObserver,
                                       isUpstreamValue: isUpstreamValue,
                                       mediaValue: media,
                                       label: mediaName,
@@ -90,9 +93,10 @@ struct MediaFieldValueView<Field: FieldViewModel>: View {
             }
             
             MediaFieldLabelView(viewModel: viewModel,
+                                rowViewModel: rowViewModel,
+                                node: node,
                                 graph: graph,
-                                coordinate: coordinate,
-                                nodeKind: nodeKind,
+                                coordinate: rowObserver.id,
                                 isInput: isInput,
                                 fieldIndex: fieldIndex,
                                 isNodeSelected: isNodeSelected,
@@ -105,9 +109,10 @@ struct MediaFieldLabelView<Field: FieldViewModel>: View {
     @State private var mediaObserver: MediaViewModel?
     
     let viewModel: Field
+    let rowViewModel: Field.NodeRowType
+    let node: NodeViewModel
     let graph: GraphState
     let coordinate: InputCoordinate
-    let nodeKind: NodeKind
     let isInput: Bool
     let fieldIndex: Int
     let isNodeSelected: Bool
@@ -115,15 +120,17 @@ struct MediaFieldLabelView<Field: FieldViewModel>: View {
     
     @MainActor
     func updateMediaObserver() {
-        self.mediaObserver = viewModel.getMediaObserver()
+        self.mediaObserver = Field.getMediaObserver(node: node,
+                                                    rowViewModel: rowViewModel,
+                                                    graph: graph)
     }
     
     var isVisualMediaPort: Bool {
         self.coordinate.portId == 0 && (
-            self.nodeKind.isVisualMediaLayerNode ||
+            self.node.kind.isVisualMediaLayerNode ||
             
             // Checks if patch node uses observer object used for storing visual media
-            (self.viewModel.rowViewModelDelegate?.nodeDelegate?.ephemeralObservers?.first as? MediaEvalOpViewable) != nil
+            (self.node.ephemeralObservers?.first as? MediaEvalOpViewable) != nil
         )
     }
     

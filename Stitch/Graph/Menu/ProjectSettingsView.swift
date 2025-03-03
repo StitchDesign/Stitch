@@ -13,7 +13,8 @@ struct ProjectSettingsView: View {
     let previewWindowSize: CGSize
     let previewSizeDevice: PreviewWindowDevice
     let previewWindowBackgroundColor: Color
-    let graph: GraphState
+    @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
 
     var body: some View {
 
@@ -88,7 +89,7 @@ struct ProjectSettingsView: View {
     }
     
     var reduxFocusedField: FocusedUserEditField? {
-        graph.graphUI.reduxFocusedField
+        graphUI.reduxFocusedField
     }
 
     var widthReduxFocused: Bool {
@@ -156,14 +157,14 @@ struct ProjectSettingsView: View {
         
         // // When redux state changes, update local focus state
         .onChange(of: self.reduxFocusedField, initial: true) { oldValue, newValue in
-            // log("self.graph.graphUI.reduxFocusedField: changed: oldValue: \(oldValue)")
-            // log("self.graph.graphUI.reduxFocusedField: changed: newValue: \(newValue)")
+            // log("self.graphUI.reduxFocusedField: changed: oldValue: \(oldValue)")
+            // log("self.graphUI.reduxFocusedField: changed: newValue: \(newValue)")
             
             let widthFocused = newValue == .previewWindowSettingsWidth
             let heightFocused = newValue == .previewWindowSettingsHeight
             
-            // log("self.graph.graphUI.reduxFocusedField: changed: widthFocused: \(widthFocused)")
-            // log("self.graph.graphUI.reduxFocusedField: changed: heightFocused: \(heightFocused)")
+            // log("self.graphUI.reduxFocusedField: changed: widthFocused: \(widthFocused)")
+            // log("self.graphUI.reduxFocusedField: changed: heightFocused: \(heightFocused)")
             
             if widthFocused {
                 self.focusedPWField = .width
@@ -233,7 +234,7 @@ struct ProjectSettingsView: View {
         }
 
         return StitchColorPickerView(
-            rowId: nil, 
+            rowObserver: nil, 
             layerInputObserver: nil,
             fieldCoordinate: .fakeFieldCoordinate,
             isFieldInsideLayerInspector: false,
@@ -260,18 +261,21 @@ struct PreviewWindowBackgroundColorSet: StitchDocumentEvent {
 struct ProjectSettingsView_Previews: PreviewProvider {
     @State static var show = true
     static let graph = GraphState.createEmpty()
+    static let graphUI = GraphUIState(isPhoneDevice: false)
 
     static var previews: some View {
         ProjectSettingsView(previewWindowSize: PreviewWindowDevice.DEFAULT_PREVIEW_SIZE,
                             previewSizeDevice: .custom,
                             previewWindowBackgroundColor: DEFAULT_FLOATING_WINDOW_COLOR, 
-                            graph: graph)
+                            graph: graph,
+                            graphUI: graphUI)
             .previewDevice(PreviewDevice(rawValue: "iPad Pro (11-inch) (3rd generation)"))
 
         ProjectSettingsView(previewWindowSize: PreviewWindowDevice.DEFAULT_PREVIEW_SIZE,
                             previewSizeDevice: .custom,
                             previewWindowBackgroundColor: DEFAULT_FLOATING_WINDOW_COLOR, 
-                            graph: graph)
+                            graph: graph,
+                            graphUI: graphUI)
             .previewDevice(PreviewDevice(rawValue: "iPhone 13"))
     }
 }

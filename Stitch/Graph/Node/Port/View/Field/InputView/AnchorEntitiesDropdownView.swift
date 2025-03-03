@@ -21,9 +21,9 @@ extension AnchorDropdownChoice {
 
 struct AnchorEntitiesDropdownView: View {
     @State private var selection: AnchorDropdownChoice = .none
-    @Bindable var graph: GraphState
+    let rowObserver: InputNodeRowObserver
+    let graph: GraphState
     let value: PortValue
-    let inputCoordinate: NodeIOCoordinate
     let isFieldInsideLayerInspector: Bool
     
     var choices: [AnchorDropdownChoice] {
@@ -41,7 +41,7 @@ struct AnchorEntitiesDropdownView: View {
     func onSet(_ choice: AnchorDropdownChoice) {
         let selectedId: UUID? = choice.id == AnchorDropdownChoice.none.id ? nil : choice.id
         
-        graph.handleInputEditCommitted(input: inputCoordinate,
+        graph.handleInputEditCommitted(input: rowObserver,
                                        value: .anchorEntity(selectedId),
                                        isFieldInsideLayerInspector: false)
         graph.encodeProjectInBackground()
