@@ -186,7 +186,7 @@ struct CanvasEdgesViewModifier: ViewModifier {
                             rowViewModel.canvasItemDelegate?.id == openPortPreview.canvasItemId
                             && rowViewModel.rowDelegate?.id == openPortPreview.port
                         }) {
-                            PortPreviewPopoverView(rowViewModel: rowViewModel,
+                            PortPreviewPopoverView<InputNodeRowObserver>(rowViewModel: rowViewModel,
                                                    nodeIO: .input)
                         }
 //                        InputPreviewPopoverView(ports: allInputs,
@@ -196,7 +196,7 @@ struct CanvasEdgesViewModifier: ViewModifier {
                             rowViewModel.canvasItemDelegate?.id == openPortPreview.canvasItemId
                             && rowViewModel.rowDelegate?.id == openPortPreview.port
                         }) {
-                            PortPreviewPopoverView(rowViewModel: rowViewModel,
+                            PortPreviewPopoverView<OutputNodeRowObserver>(rowViewModel: rowViewModel,
                                                    nodeIO: .output)
                         }
 //                        OutputPreviewPopoverView(ports: allOutputs,
@@ -210,128 +210,128 @@ struct CanvasEdgesViewModifier: ViewModifier {
 
 let PORT_PREVIEW_POPOVER_MAX_HEIGHT: CGFloat = 420
 
-//struct PortPreviewPopoverView<NodeRowObserverType: NodeRowObserver>: View {
-struct InputPreviewPopoverView: View {
-
-    let ports: [InputNodeRowViewModel]
-    @Bindable var graphUI: GraphUIState
-    
-    @State private var width: CGFloat = .zero
-    
-    var body: some View {
-        
-        // If we have an open port preview
-        if let openPortPreview = graphUI.openPortPreview,
-           openPortPreview.nodeIO == .input {
-//        if case let .input(portPreviewInputObserverCoordinate, portPreviewCanvasItemId) = graphUI.openPortPreview {
-            ForEach(ports) { inputRowViewModel in
-                let portPreviewCanvasItemId = openPortPreview.canvasItemId
-                
-                 if inputRowViewModel.canvasItemDelegate?.id == openPortPreview.canvasItemId,
-                    let rowObserver = inputRowViewModel.rowDelegate,
-                    rowObserver.id == openPortPreview.port,
-                    let anchor = inputRowViewModel.anchorPoint {
-                    
-                     
-                     ZStack {
-                         Rectangle().fill(.clear)
-                             .frame(width: 30, height: 30)
-                             .background(.ultraThinMaterial)
- //                            .background(.red)
-                             .rotationEffect(.degrees(45))
-                             .position(x: anchor.x - self.width/2,
-                                       y: anchor.y)
-                             .offset(x: self.width/2 - 36)
-                                                 
-                         PortValuesPreviewView(
-                            rowObserver: rowObserver,
-                            rowViewModel: inputRowViewModel,
-                            nodeIO: openPortPreview.nodeIO)
-                         
-                         .background {
-                             GeometryReader { proxy in
-                                 Color.clear
-                                 // IMPORTANT: use .local frame, since .global is affected by zooming and creates infinite loop
-                                     .onChange(of: proxy.frame(in: .local), initial: true) { _, newFrameData in
-                                         log("InputPreviewPopoverView: newFrameData.size.width: \(newFrameData.size.width)")
-                                         self.width = newFrameData.size.width
-                                     }
-                             }
-                         }
-                         .frame(maxHeight: PORT_PREVIEW_POPOVER_MAX_HEIGHT)
- //                        .fixedSize(horizontal: true, vertical: true)
-                         .fixedSize(horizontal: false, vertical: true)
-                         
-                         // self.width/1.65 is actually not a consistent
-                         .position(x: anchor.x - self.width/2,
-                                   y: anchor.y)
-                         .offset(x: -32)
-                         
-                     } // ZStack
-                     
-                }
-            }
-        }
-    }
-}
-
-struct OutputPreviewPopoverView: View {
-
-    let ports: [OutputNodeRowViewModel]
-    @Bindable var graphUI: GraphUIState
-    
-    @State private var width: CGFloat = .zero
-    
-    var body: some View {
-        
-        // If we have an open port preview
-        if let openPortPreview = graphUI.openPortPreview,
-           openPortPreview.nodeIO == .output {
-            ForEach(ports) { outputRowViewModel in
-                let portPreviewCanvasItemId = openPortPreview.canvasItemId
-                
-                 if outputRowViewModel.canvasItemDelegate?.id == openPortPreview.canvasItemId,
-                    let rowObserver = outputRowViewModel.rowDelegate,
-                    rowObserver.id == openPortPreview.port,
-                    let anchor = outputRowViewModel.anchorPoint {
-                    
-                     ZStack {
-                         Rectangle().fill(.clear)
-                             .frame(width: 30, height: 30)
-                             .background(.ultraThinMaterial)
-                             .rotationEffect(.degrees(45))
-                             .position(x: anchor.x + self.width/2,
-                                       y: anchor.y)
-                             .offset(x: -self.width/2 + 36)
-                                                 
-                         PortValuesPreviewView(
-                            rowObserver: rowObserver,
-                            rowViewModel: outputRowViewModel,
-                            nodeIO: openPortPreview.nodeIO)
-                         
-                         .background {
-                             GeometryReader { proxy in
-                                 Color.clear
-                                 // IMPORTANT: use .local frame, since .global is affected by zooming and creates infinite loop
-                                     .onChange(of: proxy.frame(in: .local), initial: true) { _, newFrameData in
-                                         log("OutputPreviewPopoverView: newFrameData.size.width: \(newFrameData.size.width)")
-                                         self.width = newFrameData.size.width
-                                     }
-                             }
-                         }
-                         .frame(maxHeight: PORT_PREVIEW_POPOVER_MAX_HEIGHT)
-                         .fixedSize(horizontal: false, vertical: true)
-                         .position(x: anchor.x + self.width/2,
-                                   y: anchor.y)
-                         .offset(x: 32)
-                         
-                     } // ZStack
-                     
-                }
-            }
-        }
-    }
-}
+////struct PortPreviewPopoverView<NodeRowObserverType: NodeRowObserver>: View {
+//struct InputPreviewPopoverView: View {
+//
+//    let ports: [InputNodeRowViewModel]
+//    @Bindable var graphUI: GraphUIState
+//    
+//    @State private var width: CGFloat = .zero
+//    
+//    var body: some View {
+//        
+//        // If we have an open port preview
+//        if let openPortPreview = graphUI.openPortPreview,
+//           openPortPreview.nodeIO == .input {
+////        if case let .input(portPreviewInputObserverCoordinate, portPreviewCanvasItemId) = graphUI.openPortPreview {
+//            ForEach(ports) { inputRowViewModel in
+//                let portPreviewCanvasItemId = openPortPreview.canvasItemId
+//                
+//                 if inputRowViewModel.canvasItemDelegate?.id == openPortPreview.canvasItemId,
+//                    let rowObserver = inputRowViewModel.rowDelegate,
+//                    rowObserver.id == openPortPreview.port,
+//                    let anchor = inputRowViewModel.anchorPoint {
+//                    
+//                     
+//                     ZStack {
+//                         Rectangle().fill(.clear)
+//                             .frame(width: 30, height: 30)
+//                             .background(.ultraThinMaterial)
+// //                            .background(.red)
+//                             .rotationEffect(.degrees(45))
+//                             .position(x: anchor.x - self.width/2,
+//                                       y: anchor.y)
+//                             .offset(x: self.width/2 - 36)
+//                                                 
+//                         PortValuesPreviewView(
+//                            rowObserver: rowObserver,
+//                            rowViewModel: inputRowViewModel,
+//                            nodeIO: openPortPreview.nodeIO)
+//                         
+//                         .background {
+//                             GeometryReader { proxy in
+//                                 Color.clear
+//                                 // IMPORTANT: use .local frame, since .global is affected by zooming and creates infinite loop
+//                                     .onChange(of: proxy.frame(in: .local), initial: true) { _, newFrameData in
+//                                         log("InputPreviewPopoverView: newFrameData.size.width: \(newFrameData.size.width)")
+//                                         self.width = newFrameData.size.width
+//                                     }
+//                             }
+//                         }
+//                         .frame(maxHeight: PORT_PREVIEW_POPOVER_MAX_HEIGHT)
+// //                        .fixedSize(horizontal: true, vertical: true)
+//                         .fixedSize(horizontal: false, vertical: true)
+//                         
+//                         // self.width/1.65 is actually not a consistent
+//                         .position(x: anchor.x - self.width/2,
+//                                   y: anchor.y)
+//                         .offset(x: -32)
+//                         
+//                     } // ZStack
+//                     
+//                }
+//            }
+//        }
+//    }
+//}
+//
+//struct OutputPreviewPopoverView: View {
+//
+//    let ports: [OutputNodeRowViewModel]
+//    @Bindable var graphUI: GraphUIState
+//    
+//    @State private var width: CGFloat = .zero
+//    
+//    var body: some View {
+//        
+//        // If we have an open port preview
+//        if let openPortPreview = graphUI.openPortPreview,
+//           openPortPreview.nodeIO == .output {
+//            ForEach(ports) { outputRowViewModel in
+//                let portPreviewCanvasItemId = openPortPreview.canvasItemId
+//                
+//                 if outputRowViewModel.canvasItemDelegate?.id == openPortPreview.canvasItemId,
+//                    let rowObserver = outputRowViewModel.rowDelegate,
+//                    rowObserver.id == openPortPreview.port,
+//                    let anchor = outputRowViewModel.anchorPoint {
+//                    
+//                     ZStack {
+//                         Rectangle().fill(.clear)
+//                             .frame(width: 30, height: 30)
+//                             .background(.ultraThinMaterial)
+//                             .rotationEffect(.degrees(45))
+//                             .position(x: anchor.x + self.width/2,
+//                                       y: anchor.y)
+//                             .offset(x: -self.width/2 + 36)
+//                                                 
+//                         PortValuesPreviewView(
+//                            rowObserver: rowObserver,
+//                            rowViewModel: outputRowViewModel,
+//                            nodeIO: openPortPreview.nodeIO)
+//                         
+//                         .background {
+//                             GeometryReader { proxy in
+//                                 Color.clear
+//                                 // IMPORTANT: use .local frame, since .global is affected by zooming and creates infinite loop
+//                                     .onChange(of: proxy.frame(in: .local), initial: true) { _, newFrameData in
+//                                         log("OutputPreviewPopoverView: newFrameData.size.width: \(newFrameData.size.width)")
+//                                         self.width = newFrameData.size.width
+//                                     }
+//                             }
+//                         }
+//                         .frame(maxHeight: PORT_PREVIEW_POPOVER_MAX_HEIGHT)
+//                         .fixedSize(horizontal: false, vertical: true)
+//                         .position(x: anchor.x + self.width/2,
+//                                   y: anchor.y)
+//                         .offset(x: 32)
+//                         
+//                     } // ZStack
+//                     
+//                }
+//            }
+//        }
+//    }
+//}
 
 struct PortPreviewPopoverView<NodeRowObserverType: NodeRowObserver>: View {
 
@@ -340,43 +340,70 @@ struct PortPreviewPopoverView<NodeRowObserverType: NodeRowObserver>: View {
     
     @State private var width: CGFloat = .zero
     
+    
+    func stablePopoverArrow(anchor: CGPoint,
+                            positionAdjustment: CGFloat) -> some View {
+        
+        let arrowOffsetAdjustment: CGFloat = nodeIO == .input ? (self.width/2 - 36) : (-self.width/2 + 36)
+        
+        return Rectangle().fill(.clear)
+            .frame(width: 30, height: 30)
+            .background(.ultraThinMaterial)
+            .rotationEffect(.degrees(45))
+            .position(x: anchor.x + positionAdjustment,
+                      y: anchor.y)
+            .offset(x: arrowOffsetAdjustment)
+    }
+    
+    func stablePopoverPreview(rowObserver: NodeRowObserverType) -> some View {
+        PortValuesPreviewView(
+            rowObserver: rowObserver,
+            rowViewModel: self.rowViewModel,
+            nodeIO: self.nodeIO)
+    }
+    
+    
     var body: some View {
-        if let rowObserver = rowViewModel.rowDelegate,
+        if let rowObserver: NodeRowObserverType = rowViewModel.rowDelegate,
            let anchor = rowViewModel.anchorPoint {
             
             let positionAdjustment: CGFloat = nodeIO == .input ? -self.width/2 : self.width/2
-            let arrowOffsetAdjustment: CGFloat = nodeIO == .input ? (self.width/2 - 36) : (-self.width/2 + 36)
             let popoverOffsetAdjustment: CGFloat = nodeIO == .input ? -32 : 32
             
             ZStack {
-                Rectangle().fill(.clear)
-                    .frame(width: 30, height: 30)
-                    .background(.ultraThinMaterial)
-                    .rotationEffect(.degrees(45))
-                    .position(x: anchor.x + positionAdjustment,
-                              y: anchor.y)
-                    .offset(x: arrowOffsetAdjustment)
+//                Rectangle().fill(.clear)
+//                    .frame(width: 30, height: 30)
+//                    .background(.ultraThinMaterial)
+//                    .rotationEffect(.degrees(45))
+//                    .position(x: anchor.x + positionAdjustment,
+//                              y: anchor.y)
+//                    .offset(x: arrowOffsetAdjustment)
                 
-                PortValuesPreviewView(
-                    rowObserver: rowObserver,
-                    rowViewModel: rowViewModel,
-                    nodeIO: nodeIO)
+                stablePopoverArrow(anchor: anchor,
+                                   positionAdjustment: positionAdjustment)
                 
-                .background {
-                    GeometryReader { proxy in
-                        Color.clear
-                        // IMPORTANT: use .local frame, since .global is affected by zooming and creates infinite loop
-                            .onChange(of: proxy.frame(in: .local), initial: true) { _, newFrameData in
-                                log("PortPreviewPopoverView: newFrameData.size.width: \(newFrameData.size.width)")
-                                self.width = newFrameData.size.width
-                            }
-                    }
-                }
-                .frame(maxHeight: PORT_PREVIEW_POPOVER_MAX_HEIGHT)
-                .fixedSize(horizontal: false, vertical: true)
-                .position(x: anchor.x + positionAdjustment,
-                          y: anchor.y)
-                .offset(x: popoverOffsetAdjustment)
+//                PortValuesPreviewView(
+//                    rowObserver: rowObserver,
+//                    rowViewModel: rowViewModel,
+//                    nodeIO: nodeIO)
+                
+                stablePopoverPreview(rowObserver: rowObserver)
+
+//                .background {
+//                    GeometryReader { proxy in
+//                        Color.clear
+//                        // IMPORTANT: use .local frame, since .global is affected by zooming and creates infinite loop
+//                            .onChange(of: proxy.frame(in: .local), initial: true) { _, newFrameData in
+//                                log("PortPreviewPopoverView: newFrameData.size.width: \(newFrameData.size.width)")
+//                                self.width = newFrameData.size.width
+//                            }
+//                    }
+//                }
+//                .frame(maxHeight: PORT_PREVIEW_POPOVER_MAX_HEIGHT)
+//                .fixedSize(horizontal: false, vertical: true)
+//                .position(x: anchor.x + positionAdjustment,
+//                          y: anchor.y)
+//                .offset(x: popoverOffsetAdjustment)
                 
             } // ZStack
             
