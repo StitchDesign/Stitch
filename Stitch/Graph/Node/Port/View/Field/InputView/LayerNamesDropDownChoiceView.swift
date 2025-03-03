@@ -117,7 +117,7 @@ struct LayerNamesDropDownChoiceView: View {
     
     @Bindable var graph: GraphState
     
-    let id: InputCoordinate
+    let rowObserver: InputNodeRowObserver
     let value: PortValue
     let layerInputObserver: LayerInputObserver?
     let isFieldInsideLayerInspector: Bool
@@ -132,10 +132,10 @@ struct LayerNamesDropDownChoiceView: View {
         ? .pinTo(choice.asPinToId)
         : .assignedLayer(UUID(uuidString: choice.id)?.asLayerNodeId)
         
-        dispatch(PickerOptionSelected(
-            input: self.id,
+        graph.pickerOptionSelected(
+            rowObserver: rowObserver,
             choice: value,
-            isFieldInsideLayerInspector: isFieldInsideLayerInspector))
+            isFieldInsideLayerInspector: isFieldInsideLayerInspector)
     }
         
     @MainActor

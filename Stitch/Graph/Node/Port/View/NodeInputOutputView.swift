@@ -18,20 +18,15 @@ struct NodeInputView: View {
     @Environment(\.appTheme) var theme
     
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     
-    let nodeId: NodeId
-    let nodeKind: NodeKind
+    let node: NodeViewModel
     let hasIncomingEdge: Bool
-    
-    // What does this really mean
-    let rowObserverId: NodeIOCoordinate
         
-    // ONLY for port-view, which is only on canvas items
-    let rowObserver: InputNodeRowObserver?
-    let rowViewModel: InputNodeRowObserver.RowViewModelType? // i.e. `InputNodeRowViewModel?`
-        
+    let rowObserver: InputNodeRowObserver
+    let rowViewModel: InputNodeRowObserver.RowViewModelType
     let fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>]
-    
+    let canvasItem: CanvasItemViewModel?
     let layerInputObserver: LayerInputObserver?
     
     let forPropertySidebar: Bool
@@ -41,20 +36,18 @@ struct NodeInputView: View {
 
     var label: String
     var forFlyout: Bool = false
-    
-    @MainActor
-    private var graphUI: GraphUIState {
-        self.graph.graphUI
-    }
-    
+
     @ViewBuilder @MainActor
     func valueEntryView(portViewModel: InputFieldViewModel,
                         isMultiField: Bool) -> InputValueEntry {
         InputValueEntry(graph: graph,
+                        graphUI: graphUI,
                         viewModel: portViewModel,
+                        node: node,
+                        rowViewModel: rowViewModel,
                         layerInputObserver: layerInputObserver,
-                        rowObserverId: rowObserverId,
-                        nodeKind: nodeKind,
+                        canvasItem: canvasItem,
+                        rowObserver: rowObserver,
                         isCanvasItemSelected: isCanvasItemSelected,
                         hasIncomingEdge: hasIncomingEdge,
                         forPropertySidebar: forPropertySidebar,
@@ -87,7 +80,7 @@ struct NodeInputView: View {
             // TODO: is there a better way to build this UI, to avoid the perf-intensive `if/else` branch?
             // We want to show just a single text that, when tapped, opens the flyout; we do not want to show any fields
             if isShadowLayerInputRow, forPropertySidebar, !forFlyout {
-                ShadowInputInspectorRow(nodeId: nodeId,
+                ShadowInputInspectorRow(nodeId: node.id,
                                         propertyIsSelected: propertyIsSelected)
             }  else {
                 if willShowLabel {
@@ -119,7 +112,7 @@ struct NodeInputView: View {
         FieldsListView<InputNodeRowViewModel, InputValueEntry>(
             graph: graph,
             fieldValueTypes: fieldValueTypes,
-            nodeId: nodeId,
+            nodeId: node.id,
             forPropertySidebar: forPropertySidebar,
             forFlyout: forFlyout,
             blockedFields: layerInputObserver?.blockedFields,
@@ -169,19 +162,16 @@ struct ShadowInputInspectorRow: View {
 
 struct NodeOutputView: View {
     @Bindable var graph: GraphState
-    
+    @Bindable var graphUI: GraphUIState
+    @Bindable var node: NodeViewModel
     @Bindable var rowObserver: OutputNodeRowObserver
     @Bindable var rowViewModel: OutputNodeRowObserver.RowViewModelType
+    let canvasItem: CanvasItemViewModel?
     let forPropertySidebar: Bool
     let propertyIsSelected: Bool
     let propertyIsAlreadyOnGraph: Bool
     let isCanvasItemSelected: Bool
     let label: String
-    
-    @MainActor
-    private var graphUI: GraphUIState {
-        self.graph.graphUI
-    }
     
     var nodeId: NodeId {
         self.rowObserver.id.nodeId
@@ -189,7 +179,7 @@ struct NodeOutputView: View {
     
     @MainActor
     var nodeKind: NodeKind {
-        self.rowObserver.nodeDelegate?.kind ?? .patch(.splitter)
+        node.kind
     }
     
     // Most splitters do NOT show their outputs;
@@ -200,18 +190,18 @@ struct NodeOutputView: View {
         if self.nodeKind == .patch(.splitter) {
 
             // A regular (= inline) splitter NEVER shows its output
-            let isRegularSplitter = self.rowObserver.nodeDelegate?.patchNodeViewModel?.splitterType == .inline
+            let isRegularSplitter = node.patchNodeViewModel?.splitterType == .inline
             if isRegularSplitter {
                 return false
             }
 
             // If this is a group output splitter, AND we are looking at the group node itself (i.e. NOT inside of the group node but "above" it),
             // then show the output splitter's fields.
-            let isOutputSplitter = self.rowObserver.nodeDelegate?.patchNodeViewModel?.splitterType == .output
+            let isOutputSplitter = node.patchNodeViewModel?.splitterType == .output
             if isOutputSplitter {
                 // See `NodeRowObserver.label()` for similar logic for *inputs*
-                let parentGroupNode = self.rowObserver.nodeDelegate?.patchNodeViewModel?.parentGroupNodeId
-                let currentTraversalLevel = self.rowObserver.nodeDelegate?.graphDelegate?.groupNodeFocused
+                let parentGroupNode = node.patchNodeViewModel?.parentGroupNodeId
+                let currentTraversalLevel = graph.groupNodeFocused
                 return parentGroupNode != currentTraversalLevel
             }
             
@@ -225,10 +215,13 @@ struct NodeOutputView: View {
     func valueEntryView(portViewModel: OutputFieldViewModel,
                         isMultiField: Bool) -> OutputValueEntry {
         OutputValueEntry(graph: graph,
+                         graphUI: graphUI,
                          viewModel: portViewModel,
-                         coordinate: rowObserver.id,
+                         rowViewModel: rowViewModel,
+                         rowObserver: rowObserver,
+                         node: node,
+                         canvasItem: canvasItem,
                          isMultiField: isMultiField,
-                         nodeKind: nodeKind,
                          isCanvasItemSelected: isCanvasItemSelected,
                          forPropertySidebar: forPropertySidebar,
                          propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
@@ -318,6 +311,7 @@ struct FieldsListView<PortType, ValueEntryView>: View where PortType: NodeRowVie
 
 struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
     @Bindable var graph: GraphState
+    @Bindable var node: NodeViewModel
     @Bindable var rowObserver: NodeRowObserverType
     @Bindable var rowViewModel: NodeRowObserverType.RowViewModelType
     
@@ -334,23 +328,12 @@ struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
     // should be passed down as a param
     @MainActor
     var isGroup: Bool {
-        self.rowObserver.nodeDelegate?.kind.isGroup ?? false
-    }
-    
-    var document: StitchDocumentViewModel {
-        guard let doc = graph.documentDelegate else {
-            fatalErrorIfDebug()
-            return .createEmpty()
-        }
-        
-        return doc
+        node.kind.isGroup
     }
     
     var body: some View {
         PortEntryView(rowViewModel: rowViewModel,
                       graph: graph,
-                      graphMultigesture: document.graphMovement.graphMultigesture,
-                      zoomData: document.graphMovement.zoomData,
                       coordinate: coordinate)
         /*
          In practice, seems okay; e.g. Loop node changing from 3 to 1 disables the tap, and changing from 1 to 3 enables the tap.

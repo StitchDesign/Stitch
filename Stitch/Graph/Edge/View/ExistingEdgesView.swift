@@ -175,7 +175,7 @@ struct EdgeTapped: GraphEvent {
     let edge: PortEdgeUI
 
     func handle(state: GraphState) {
-        state.resetAlertAndSelectionState()
+        state.resetAlertAndSelectionState(graphUI: state.graphUI)
         state.selectedEdges = Set([edge])
     }
 }

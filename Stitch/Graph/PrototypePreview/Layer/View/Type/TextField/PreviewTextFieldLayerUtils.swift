@@ -8,11 +8,13 @@
 import Foundation
 import StitchSchemaKit
 
-struct ReduxFieldFocused: GraphEvent {
+struct ReduxFieldFocused: StitchDocumentEvent {
     let focusedField: FocusedUserEditField
 
-    func handle(state: GraphState) {
-        state.reduxFieldFocused(focusedField: focusedField)
+    func handle(state: StitchDocumentViewModel) {
+        state.visibleGraph
+            .reduxFieldFocused(focusedField: focusedField,
+                               graphUI: state.graphUI)
     }
 }
 
@@ -57,11 +59,12 @@ extension FocusedUserEditField {
 //extension GraphUIState {
 extension GraphState {
     @MainActor
-    func reduxFieldFocused(focusedField: FocusedUserEditField) {
+    func reduxFieldFocused(focusedField: FocusedUserEditField,
+                           graphUI: GraphUIState) {
         log("reduxFieldFocused: focusedField: \(focusedField)")
-        log("reduxFieldFocused: self.graphUI.reduxFocusedField was: \(self.graphUI.reduxFocusedField)")
-        if self.graphUI.reduxFocusedField != focusedField {
-            self.graphUI.reduxFocusedField = focusedField            
+        log("reduxFieldFocused: self.graphUI.reduxFocusedField was: \(graphUI.reduxFocusedField)")
+        if graphUI.reduxFocusedField != focusedField {
+            graphUI.reduxFocusedField = focusedField
         }
         
         // if we selected a canvas item, we also thereby selected it:

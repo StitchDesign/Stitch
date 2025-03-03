@@ -164,7 +164,8 @@ final class SidebarListGestureRecognizer<SidebarViewModel: ProjectSidebarObserva
       
     @objc func tapInView(_ gestureRecognizer: UITapGestureRecognizer) {
         guard let sidebarViewModel = self.sidebarViewModel,
-              let gestureViewModel = self.gestureViewModel else { return }
+              let gestureViewModel = self.gestureViewModel,
+              let graph = self.sidebarViewModel?.graphDelegate else { return }
         
         if sidebarViewModel.isEditing || gestureViewModel.swipeSetting == .open {
             return
@@ -172,7 +173,9 @@ final class SidebarListGestureRecognizer<SidebarViewModel: ProjectSidebarObserva
         
         self.sidebarViewModel?.sidebarItemTapped(id: self.itemId,
                                                  shiftHeld: self.shiftHeldDown,
-                                                 commandHeld: self.commandHeldDown)
+                                                 commandHeld: self.commandHeldDown,
+                                                 graph: graph,
+                                                 graphUI: graph.graphUI)
     }
     
     // finger on screen
@@ -268,15 +271,18 @@ final class SidebarListGestureRecognizer<SidebarViewModel: ProjectSidebarObserva
         guard let graph = self.graph else {
             return nil
         }
-        return self.gestureViewModel?.contextMenuInteraction(itemId: self.itemId,
-                                                             graph: graph)
+        return self.gestureViewModel?
+            .contextMenuInteraction(itemId: self.itemId,
+                                    graph: graph,
+                                    graphUI: graph.graphUI)
     }
 }
 
 extension SidebarItemGestureViewModel {
     @MainActor
     func contextMenuInteraction(itemId: SidebarListItemId,
-                                graph: GraphState) -> UIContextMenuConfiguration? {
+                                graph: GraphState,
+                                graphUI: GraphUIState) -> UIContextMenuConfiguration? {
         // log("UIContextMenuInteractionDelegate: contextMenuInteraction")
         
         guard let sidebarViewModel = self.sidebarDelegate else { return nil }
@@ -292,7 +298,9 @@ extension SidebarItemGestureViewModel {
             self.sidebarDelegate?.sidebarItemTapped(
                 id: itemId,
                 shiftHeld: isShiftDown,
-                commandHeld: graph.keypressState.isCommandPressed)
+                commandHeld: graph.keypressState.isCommandPressed,
+                graph: graph,
+                graphUI: graphUI)
         }
         
         return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak graph] _ in

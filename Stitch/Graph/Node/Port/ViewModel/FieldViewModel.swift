@@ -32,7 +32,9 @@ protocol FieldViewModel: StitchLayoutCachable, Observable, AnyObject, Identifiab
          rowViewModelDelegate: NodeRowType?)
     
     @MainActor
-    func getMediaObserver() -> MediaViewModel?
+    static func getMediaObserver(node: NodeViewModel,
+                                 rowViewModel: Self.NodeRowType,
+                                 graph: GraphState) -> MediaViewModel?
 }
 
 extension FieldViewModel {
@@ -91,15 +93,18 @@ final class InputFieldViewModel: FieldViewModel {
         self.rowViewModelDelegate = rowViewModelDelegate
     }
     
-    func getMediaObserver() -> MediaViewModel? {
-        let inputCoordinate = id.rowId.asNodeIOCoordinate
+    @MainActor
+    static func getMediaObserver(node: NodeViewModel,
+                                 rowViewModel: InputNodeRowViewModel,
+                                 graph: GraphState) -> MediaViewModel? {
+        let inputCoordinate = rowViewModel.id.asNodeIOCoordinate
         
         // MARK: cheating with 0 since logic causes render cycles
         let loopCount = 0 //self.rowViewModelDelegate?.rowDelegate?.allLoopedValues.count ?? .zero
         
-        let loopIndex = self.rowViewModelDelegate?.graphDelegate?.activeIndex.adjustedIndex(loopCount) ?? .zero
+        let loopIndex = graph.activeIndex.adjustedIndex(loopCount)
         
-        let mediaObserver = self.rowViewModelDelegate?.nodeDelegate?
+        let mediaObserver = node
             .getInputMediaObserver(inputCoordinate: inputCoordinate,
                                    loopIndex: loopIndex,
                                    // nil mediaId ensures observer is returned
@@ -132,14 +137,16 @@ final class OutputFieldViewModel: FieldViewModel {
         self.rowViewModelDelegate = rowViewModelDelegate
     }
     
-    func getMediaObserver() -> MediaViewModel? {
+    static func getMediaObserver(node: NodeViewModel,
+                                 rowViewModel: OutputNodeRowViewModel,
+                                 graph: GraphState) -> MediaViewModel? {
         // No keypaths ever used for output
-        let portIndex = self.id.rowId.portId
-        let mediaObserver = self.rowViewModelDelegate?.nodeDelegate?
+        let portIndex = rowViewModel.id.portId
+        let mediaObserver = node
             .getVisibleMediaObserver(outputPortId: portIndex,
                                      // nil mediaId ensures observer is returned
-                                     mediaId: nil)
-        
+                                     mediaId: nil,
+                                     graph: graph)
         return mediaObserver
     }
 }

@@ -67,13 +67,13 @@ extension GraphUIState {
     }
 }
 
-struct FlyoutToggled: GraphEvent {
+struct FlyoutToggled: StitchDocumentEvent {
     
     let flyoutInput: LayerInputPort
     let flyoutNodeId: NodeId
     let fieldToFocus: FocusedUserEditField?
     
-    func handle(state: GraphState) {
+    func handle(state: StitchDocumentViewModel) {
         if let flyoutState = state.graphUI.propertySidebar.flyoutState,
            flyoutState.flyoutInput == flyoutInput,
            flyoutState.flyoutNode == flyoutNodeId {
@@ -86,7 +86,9 @@ struct FlyoutToggled: GraphEvent {
                     flyoutNode: flyoutNodeId)
             
             if let fieldToFocus = fieldToFocus {
-                state.reduxFieldFocused(focusedField: fieldToFocus)
+                state.visibleGraph
+                    .reduxFieldFocused(focusedField: fieldToFocus,
+                                       graphUI: state.graphUI)
             }
             
 //            }

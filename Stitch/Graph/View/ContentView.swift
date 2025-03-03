@@ -143,7 +143,8 @@ struct ContentView: View, KeyboardReadable {
             ProjectSettingsView(previewWindowSize: document.previewWindowSize,
                                 previewSizeDevice: document.previewSizeDevice,
                                 previewWindowBackgroundColor: document.previewWindowBackgroundColor,
-                                graph: document.graph) }
+                                graph: document.graph,
+                                graphUI: graphUI) }
         .modifier(FileImportView(fileImportState: alertState.fileImportModalState))
         .modifier(AnimateCompletionHandler(percentage: showFullScreen.value) {
             // only set this state to true when we're animating into full screen mode
@@ -171,7 +172,8 @@ struct ContentView: View, KeyboardReadable {
         
     @ViewBuilder
     var flyout: some View {
-        OpenFlyoutView(graph: document.visibleGraph)
+        OpenFlyoutView(graph: document.visibleGraph,
+                       graphUI: graphUI)
     }
 }
 

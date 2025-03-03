@@ -72,7 +72,9 @@ extension StitchAINodeSectionDescription {
                 }
                 
                 let inputs: [StitchAIPortValueDescription] = defaultNode.inputsObservers.map { inputObserver in
-                    StitchAIPortValueDescription(label: inputObserver.label(),
+                    StitchAIPortValueDescription(label: inputObserver
+                        .label(node: defaultNode,
+                               graph: graph),
                                                  value: inputObserver.activeValue)
                 }
                 
@@ -83,7 +85,9 @@ extension StitchAINodeSectionDescription {
                 
                 
                 let outputs: [StitchAIPortValueDescription] = defaultNode.outputsObservers.map { outputObserver in
-                    StitchAIPortValueDescription(label: outputObserver.label(),
+                    StitchAIPortValueDescription(label: outputObserver
+                        .label(node: defaultNode,
+                               graph: graph),
                                                  value: outputObserver.activeValue)
                 }
                 

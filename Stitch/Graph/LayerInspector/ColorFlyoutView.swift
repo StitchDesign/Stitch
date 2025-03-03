@@ -21,8 +21,8 @@ struct ColorFlyoutView: View {
     
     @Bindable var graph: GraphState
     
+    let rowObserver: InputNodeRowObserver
     let layerInputObserver: LayerInputObserver
-    let nodeId: NodeId
     
     @State var chosenColor: Color = .white
 
@@ -40,7 +40,7 @@ struct ColorFlyoutView: View {
            let rowId = fieldObserver.rowDelegate?.id {
             
             StitchCustomColorPickerView(
-                rowId: rowId,
+                rowObserver: rowObserver,
                 fieldCoordinate: fieldObserver.id,
                 isFieldInsideLayerInspector: true, // true for purposes of editing multiple layers
                 isForPreviewWindowBackgroundPicker: false,
@@ -55,14 +55,13 @@ struct ColorFlyoutView: View {
                 self.chosenColor = activeColor
             })
             .onChange(of: self.chosenColor) { oldColor, newColor in
-                dispatch(PickerOptionSelected(
-                    input: rowId,
+                graph.pickerOptionSelected(
+                    rowObserver: rowObserver,
                     choice: .color(newColor),
                     isFieldInsideLayerInspector: true,
                     // Lots of small changes so don't persist everything
-                    isPersistence: false))
+                    isPersistence: false)
             }
-            
         }
     }
 }

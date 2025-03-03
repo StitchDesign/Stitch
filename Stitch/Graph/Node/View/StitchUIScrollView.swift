@@ -20,11 +20,13 @@ let ABSOLUTE_GRAPH_CENTER = CGPoint(x: WHOLE_GRAPH_LENGTH/2,
                                     y: WHOLE_GRAPH_LENGTH/2)
 
 struct StitchUIScrollViewModifier: ViewModifier {
-    let document: StitchDocumentViewModel
+    @Bindable var document: StitchDocumentViewModel
+    @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     
     @MainActor
     var selectionState: GraphUISelectionState {
-        document.graphUI.selection
+        graphUI.selection
     }
     
     func body(content: Content) -> some View {
@@ -46,8 +48,9 @@ struct StitchUIScrollViewModifier: ViewModifier {
                     )
                     .simultaneousGesture(TapGesture(count: 1)
                         .onEnded({
-                            dispatch(GraphTappedAction())
-                        }))
+                            graph.graphTapped(graphUI: graphUI)
+                        })
+                    )
                 
                     .gesture(StitchLongPressGestureRecognizerRepresentable())
                     .gesture(StitchTrackpadGraphBackgroundPanGesture())
@@ -56,7 +59,7 @@ struct StitchUIScrollViewModifier: ViewModifier {
                 
                 // Selection box and cursor
                 if let expansionBox = selectionState.expansionBox {
-                    ExpansionBoxView(graph: document.graph,
+                    ExpansionBoxView(graph: graph,
                                      box: expansionBox)
                 }
                 

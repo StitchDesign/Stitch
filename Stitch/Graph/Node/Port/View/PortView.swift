@@ -24,8 +24,6 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
     
     @Bindable var rowViewModel: NodeRowViewModelType
     @Bindable var graph: GraphState
-    @Bindable var graphMultigesture: GraphMultigesture
-    var zoomData: CGFloat
     let coordinate: NodeIOPortType
 
     @MainActor

@@ -54,20 +54,20 @@ extension FieldValueMedia {
     }
 
     @MainActor
-    func handleSelection(inputCoordinate: InputCoordinate,
+    func handleSelection(rowObserver: InputNodeRowObserver,
                          mediaType: SupportedMediaFormat,
                          isFieldInsideLayerInspector: Bool,
                          graph: GraphState) {
         switch self {
         case .none:
-            dispatch(MediaPickerNoneChanged(input: inputCoordinate,
-                                            isFieldInsideLayerInspector: isFieldInsideLayerInspector))
+            graph.mediaPickerNoneChanged(rowObserver: rowObserver,
+                                         isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         
         case .importButton:
             
-            var destinationInputs = [inputCoordinate]
+            var destinationInputs = [rowObserver.id]
             
-            if let layerInput = inputCoordinate.layerInput,
+            if let layerInput = rowObserver.id.layerInput,
                let multiselectInput = graph.getLayerMultiselectInput(
                 layerInput: layerInput.layerInput,
                 isFieldInsideLayerInspector: isFieldInsideLayerInspector) {
@@ -85,10 +85,10 @@ extension FieldValueMedia {
             dispatch(ShowFileImportModal(nodeImportPayload: payload))
         
         case .media(let mediaValue):
-            dispatch(MediaPickerChanged(selectedValue: .asyncMedia(mediaValue),
-                                        mediaType: mediaType,
-                                        input: inputCoordinate,
-                                        isFieldInsideLayerInspector: isFieldInsideLayerInspector))
+            graph.mediaPickerChanged(selectedValue: .asyncMedia(mediaValue),
+                                     mediaType: mediaType,
+                                     rowObserver: rowObserver,
+                                     isFieldInsideLayerInspector: isFieldInsideLayerInspector)
             
         case .defaultMedia(let defaultMedia):
             let mediaValue = AsyncMediaValue(id: .init(),
@@ -96,10 +96,10 @@ extension FieldValueMedia {
                                              label: defaultMedia.mediaKey.filename)
             let portValue = PortValue.asyncMedia(mediaValue)
             
-            dispatch(MediaPickerChanged(selectedValue: portValue,
-                                        mediaType: mediaType,
-                                        input: inputCoordinate,
-                                        isFieldInsideLayerInspector: isFieldInsideLayerInspector))
+            graph.mediaPickerChanged(selectedValue: portValue,
+                                     mediaType: mediaType,
+                                     rowObserver: rowObserver,
+                                     isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         }
     }
 }

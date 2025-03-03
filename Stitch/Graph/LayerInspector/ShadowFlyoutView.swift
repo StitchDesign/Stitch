@@ -19,6 +19,7 @@ struct ShadowFlyoutView: View {
     @Bindable var node: NodeViewModel
     @Bindable var layerNode: LayerNodeViewModel
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     
     var body: some View {
         
@@ -37,11 +38,11 @@ struct ShadowFlyoutView: View {
                spacing: INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET * 2) {
             
             ForEach(LayerInspectorSection.shadow, id: \.self) { shadowInput in
-                ShadowFlyoutRowView(nodeId: node.id,
-                                    nodeKind: node.kind,
+                ShadowFlyoutRowView(node: node,
                                     shadowInput: shadowInput,
                                     layerInputObserver: layerNode[keyPath: shadowInput.layerNodeKeyPath],
-                                    graph: graph)
+                                    graph: graph,
+                                    graphUI: graphUI)
             } // ForEach
         }
     }
@@ -50,12 +51,12 @@ struct ShadowFlyoutView: View {
 // TODO: combine this view with GenericFlyoutView ? Tricky: a shadow flyout uses one LayerInspectorRowButton per input, but generic flyout uses one LayerInspectorRowButton per input-field
 struct ShadowFlyoutRowView: View {
     
-    let nodeId: NodeId
-    let nodeKind: NodeKind
+    let node: NodeViewModel
     let shadowInput: LayerInputPort
     let layerInputObserver: LayerInputObserver
     
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     
     @State var isHovered = false
     
@@ -75,7 +76,7 @@ struct ShadowFlyoutRowView: View {
     // Coordinate is used for editing, which needs to know the
     var coordinate: NodeIOCoordinate {
         .init(portType: .keyPath(layerInputType),
-              nodeId: nodeId)
+              nodeId: node.id)
     }
         
     var canvasItemId: CanvasItemId? {
@@ -83,7 +84,7 @@ struct ShadowFlyoutRowView: View {
     }
     
     var propertyRowIsSelected: Bool {
-        graph.graphUI.propertySidebar.selectedProperty == layerInspectorRowId
+        graphUI.propertySidebar.selectedProperty == layerInspectorRowId
     }
     
     var isShadowOffsetRow: Bool {
@@ -100,7 +101,9 @@ struct ShadowFlyoutRowView: View {
         let layerInputData = layerInputObserver._packedData
                         
         HStack(alignment: hstackAlignment) {
-            LayerInspectorRowButton(layerInputObserver: layerInputObserver,
+            LayerInspectorRowButton(graph: graph,
+                                    graphUI: graphUI,
+                                    layerInputObserver: layerInputObserver,
                                     layerInspectorRowId: layerInspectorRowId,
                                     coordinate: coordinate,
                                     canvasItemId: canvasItemId,
@@ -109,19 +112,22 @@ struct ShadowFlyoutRowView: View {
             .offset(y: isShadowOffsetRow ? INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET : 0)
             
             NodeInputView(graph: graph,
-                          nodeId: nodeId,
-                          nodeKind: nodeKind,
+                          graphUI: graphUI,
+                          node: node,
                           hasIncomingEdge: false,
-                          rowObserverId: layerInputData.rowObserver.id,
-                          rowObserver: nil,
-                          rowViewModel: nil,
+                          rowObserver: layerInputData.rowObserver,
+                          rowViewModel: layerInputData.inspectorRowViewModel,
                           fieldValueTypes: layerInputData.inspectorRowViewModel.fieldValueTypes,
+                          canvasItem: nil,
                           layerInputObserver: layerInputObserver,
                           forPropertySidebar: true,
                           propertyIsSelected: propertyRowIsSelected,
                           propertyIsAlreadyOnGraph: layerInputObserver.getCanvasItemForWholeInput().isDefined,
                           isCanvasItemSelected: false,
-                          label: layerInputData.rowObserver.label(true),
+                          label: layerInputData.rowObserver
+                .label(useShortLabel: true,
+                       node: node,
+                       graph: graph),
                           forFlyout: true)
         } // HStack
         
@@ -136,9 +142,10 @@ struct ShadowFlyoutRowView: View {
             self.isHovered = hovering
         })
         .onTapGesture {
-            graph.graphUI.onLayerPortRowTapped(
+            graphUI.onLayerPortRowTapped(
                 layerInspectorRowId: layerInspectorRowId,
-                canvasItemId: canvasItemId)
+                canvasItemId: canvasItemId,
+                graph: graph)
         }
     }
     

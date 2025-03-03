@@ -11,7 +11,8 @@ import StitchSchemaKit
 struct LayerInspectorInputPortView: View {
     @Bindable var layerInputObserver: LayerInputObserver
     @Bindable var graph: GraphState
-    let nodeId: NodeId
+    @Bindable var graphUI: GraphUIState
+    let node: NodeViewModel
     
     var fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>] {
         layerInputObserver.fieldValueTypes
@@ -35,7 +36,7 @@ struct LayerInspectorInputPortView: View {
         
         let coordinate: NodeIOCoordinate = .init(
             portType: .keyPath(layerInputType),
-            nodeId: nodeId)
+            nodeId: node.id)
         
         // Does this inspector-row (the entire input) have a canvas item?
         let canvasItemId: CanvasItemId? = observerMode.isPacked ? layerInputObserver._packedData.canvasObserver?.id : nil
@@ -45,25 +46,30 @@ struct LayerInspectorInputPortView: View {
             layerInspectorRowId: layerInspectorRowId,
             coordinate: coordinate,
             graph: graph,
+            graphUI: graphUI,
             canvasItemId: canvasItemId) { propertyRowIsSelected in
                 NodeInputView(graph: graph,
-                              nodeId: nodeId,
-                              nodeKind: .layer(layerInputObserver.layer),
+                              graphUI: graphUI,
+                              node: node,
                               hasIncomingEdge: false, // always false
-                              rowObserverId: coordinate,
                               
-                              // Only used for PortEntryView, which inspector- and flyout-rows do not use
-                              rowObserver: nil,
-                              rowViewModel: nil,
+                              // we can use packed data since this is purely visual
+                              rowObserver: layerInputObserver._packedData.rowObserver,
+                              rowViewModel: layerInputObserver._packedData.inspectorRowViewModel,
                               // Always use the packed
                               fieldValueTypes: self.fieldValueTypes,
+                              canvasItem: nil,
                               layerInputObserver: layerInputObserver,
                               forPropertySidebar: true,
                               propertyIsSelected: propertyRowIsSelected,
                               propertyIsAlreadyOnGraph: canvasItemId.isDefined,
                               isCanvasItemSelected: false,
                               // Inspector Row always uses the overall input label, never an individual field label
-                              label: layerInputObserver.overallPortLabel(usesShortLabel: true))
+                              label: layerInputObserver
+                    .overallPortLabel(usesShortLabel: true,
+                                      node: node,
+                                      graph: graph)
+                )
             }
         
         // NOTE: this fires unexpectedly, so we rely on canvas item deletion and `layer input field added to canvas` to handle changes in pack vs unpacked mode.
@@ -76,9 +82,11 @@ struct LayerInspectorInputPortView: View {
 struct LayerInspectorOutputPortView: View {
     let outputPortId: Int
     
+    @Bindable var node: NodeViewModel
     @Bindable var rowViewModel: OutputNodeRowViewModel
     @Bindable var rowObserver: OutputNodeRowObserver
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     
     let canvasItemId: CanvasItemId?
     
@@ -99,17 +107,25 @@ struct LayerInspectorOutputPortView: View {
             layerInputObserver: nil,
             layerInspectorRowId: .layerOutput(rowViewModel.id.portId),
             coordinate: coordinate,
-            graph: graph, 
+            graph: graph,
+            graphUI: graphUI,
             canvasItemId: canvasItemId) { propertyRowIsSelected in
                 NodeOutputView(graph: graph,
+                               graphUI: graphUI,
+                               node: node,
                                rowObserver: rowObserver,
                                rowViewModel: rowViewModel,
+                               canvasItem: nil,
                                forPropertySidebar: true,
                                propertyIsSelected: propertyRowIsSelected,
                                propertyIsAlreadyOnGraph: canvasItemId.isDefined,
                                isCanvasItemSelected: false,
-                               label: rowObserver.label(true))
-            }        
+                               label: rowObserver
+                    .label(useShortLabel: true,
+                           node: node,
+                           graph: graph)
+                )
+            }
     }
 }
 
@@ -130,6 +146,7 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
     
     let coordinate: NodeIOCoordinate
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     
     // non-nil = this row is present on canvas
     // NOTE: apparently, the destruction of a weak var reference does NOT trigger a SwiftUI view update; so, avoid using delegates in the UI body.
@@ -143,7 +160,7 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
     // Is this property-row selected?
     @MainActor
     var propertyRowIsSelected: Bool {
-        graph.graphUI.propertySidebar.selectedProperty == layerInspectorRowId
+        graphUI.propertySidebar.selectedProperty == layerInspectorRowId
     }
     
     var isOnGraphAlready: Bool {
@@ -165,7 +182,9 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
     var body: some View {
         HStack(alignment: hstackAlignment) {
             
-            LayerInspectorRowButton(layerInputObserver: layerInputObserver,
+            LayerInspectorRowButton(graph: graph,
+                                    graphUI: graphUI,
+                                    layerInputObserver: layerInputObserver,
                                     layerInspectorRowId: layerInspectorRowId,
                                     coordinate: coordinate,
                                     canvasItemId: canvasItemId,
@@ -193,6 +212,7 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
         })
         .contentShape(Rectangle())
         .modifier(LayerInspectorPortViewTapModifier(graph: graph,
+                                                    graphUI: graphUI,
                                                     isAutoLayoutRow: layerInputObserver?.port == .orientation,
                                                     layerInspectorRowId: layerInspectorRowId,
                                                     canvasItemId: canvasItemId))
@@ -203,6 +223,7 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
 struct LayerInspectorPortViewTapModifier: ViewModifier {
     
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     let isAutoLayoutRow: Bool
     let layerInspectorRowId: LayerInspectorRowId
     let canvasItemId: CanvasItemId?
@@ -223,9 +244,10 @@ struct LayerInspectorPortViewTapModifier: ViewModifier {
         } else {
             content.gesture(TapGesture().onEnded({ _ in
                 log("LayerInspectorPortView tapped")
-                graph.graphUI.onLayerPortRowTapped(
+                graphUI.onLayerPortRowTapped(
                     layerInspectorRowId: layerInspectorRowId,
-                    canvasItemId: canvasItemId)
+                    canvasItemId: canvasItemId,
+                    graph: graph)
             }))
         }
     }
@@ -234,10 +256,12 @@ struct LayerInspectorPortViewTapModifier: ViewModifier {
 extension GraphUIState {
     @MainActor
     func onLayerPortRowTapped(layerInspectorRowId: LayerInspectorRowId,
-                              canvasItemId: CanvasItemId?) {
+                              canvasItemId: CanvasItemId?,
+                              graph: GraphState) {
         // Defined canvas item id = we're already on the canvas
         if let canvasItemId = canvasItemId {
-            dispatch(JumpToCanvasItem(id: canvasItemId))
+            graph.jumpToCanvasItem(id: canvasItemId,
+                                   graphUI: self)
         }
         
         // Else select/de-select the property

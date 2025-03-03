@@ -9,7 +9,7 @@ import SwiftUI
 
 struct StitchCustomColorPickerView: View {
     
-    let rowId: NodeIOCoordinate?
+    let rowObserver: InputNodeRowObserver?
     let fieldCoordinate: FieldCoordinate
     let isFieldInsideLayerInspector: Bool
     let isForPreviewWindowBackgroundPicker: Bool
@@ -169,14 +169,14 @@ struct StitchCustomColorPickerView: View {
 
                 // When user manually clicks a pre-selected color,
                 // we should persist that change.
-                if let rowId = rowId,
+                if let rowObserver = rowObserver,
                    self.chosenColor.asHexDisplay != color.asHexDisplay {
-                    dispatch(PickerOptionSelected(
-                        input: rowId,
+                    graph.pickerOptionSelected(
+                        rowObserver: rowObserver,
                         choice: .color(color),
                         isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                         // Lots of small changes so don't persist everything
-                        isPersistence: true))
+                        isPersistence: true)
                 }
 
                 self.chosenColor = color

@@ -129,15 +129,15 @@ extension CanvasItemViewModel {
                            unpackedPortParentFieldGroupType: FieldGroupType?,
                            unpackedPortIndex: Int?) {
         
-        self.inputViewModels.sync(with: inputRowObservers,
-                                  canvas: self,
-                                  unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                  unpackedPortIndex: unpackedPortIndex)
+        self.syncRowViewModels(with: inputRowObservers,
+                               keyPath: \.inputViewModels,
+                               unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                               unpackedPortIndex: unpackedPortIndex)
         
-        self.outputViewModels.sync(with: outputRowObservers,
-                                   canvas: self,
-                                   unpackedPortParentFieldGroupType: nil,
-                                   unpackedPortIndex: nil)
+        self.syncRowViewModels(with: outputRowObservers,
+                               keyPath: \.outputViewModels,
+                               unpackedPortParentFieldGroupType: nil,
+                               unpackedPortIndex: nil)
     }
     
     @MainActor
