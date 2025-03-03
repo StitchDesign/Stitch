@@ -116,7 +116,7 @@ struct StitchTitleTextField: View {
     
     var readOnlyLabel: String {
 #if DEV_DEBUG
-        return label + " " + id.nodeId.debugFriendlyId
+        return label + " " + node.id.debugFriendlyId
 #else
         // Show debug-friendly id during debug mode, so user see which nodes are referred to
         if document.llmRecording.mode == .augmentation {
