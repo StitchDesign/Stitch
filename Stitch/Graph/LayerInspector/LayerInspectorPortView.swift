@@ -65,7 +65,11 @@ struct LayerInspectorInputPortView: View {
                               propertyIsAlreadyOnGraph: canvasItemId.isDefined,
                               isCanvasItemSelected: false,
                               // Inspector Row always uses the overall input label, never an individual field label
-                              label: layerInputObserver.overallPortLabel(usesShortLabel: true))
+                              label: layerInputObserver
+                    .overallPortLabel(usesShortLabel: true,
+                                      node: node,
+                                      graph: graph)
+                )
             }
         
         // NOTE: this fires unexpectedly, so we rely on canvas item deletion and `layer input field added to canvas` to handle changes in pack vs unpacked mode.
@@ -116,8 +120,12 @@ struct LayerInspectorOutputPortView: View {
                                propertyIsSelected: propertyRowIsSelected,
                                propertyIsAlreadyOnGraph: canvasItemId.isDefined,
                                isCanvasItemSelected: false,
-                               label: rowObserver.label(true))
-            }        
+                               label: rowObserver
+                    .label(useShortLabel: true,
+                           node: node,
+                           graph: graph)
+                )
+            }
     }
 }
 

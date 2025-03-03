@@ -152,7 +152,10 @@ struct DefaultNodeInputView: View {
                                   propertyIsSelected: false,
                                   propertyIsAlreadyOnGraph: true, // Irrelevant?
                                   isCanvasItemSelected: isNodeSelected,
-                                  label: rowObserver.label())
+                                  label: rowObserver
+                        .label(node: node,
+                               graph: graph)
+                    )
                 }
 //            }
         }
@@ -186,7 +189,10 @@ struct DefaultNodeOutputView: View {
                                    propertyIsSelected: false,
                                    propertyIsAlreadyOnGraph: true,
                                    isCanvasItemSelected: isNodeSelected,
-                                   label: rowObserver.label())
+                                   label: rowObserver
+                        .label(node: node,
+                               graph: graph)
+                    )
                     
                     NodeRowPortView(graph: graph,
                                     node: node,

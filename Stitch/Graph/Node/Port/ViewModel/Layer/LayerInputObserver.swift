@@ -109,8 +109,13 @@ extension LayerInputObserver {
     
     // The overall-label for the port, e.g. "Size" (not "W" or "H") for the size property
     @MainActor
-    func overallPortLabel(usesShortLabel: Bool) -> String {
-        guard let label = self._packedData.inspectorRowViewModel.rowDelegate?.label(true) else {
+    func overallPortLabel(usesShortLabel: Bool,
+                          node: NodeViewModel,
+                          graph: GraphState) -> String {
+        guard let label = self._packedData.inspectorRowViewModel.rowDelegate?
+            .label(useShortLabel: true,
+                   node: node,
+                   graph: graph) else {
             fatalErrorIfDebug("Did not have rowDelegate?")
             return "NO LABEL"
         }

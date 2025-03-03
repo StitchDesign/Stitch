@@ -124,7 +124,10 @@ struct ShadowFlyoutRowView: View {
                           propertyIsSelected: propertyRowIsSelected,
                           propertyIsAlreadyOnGraph: layerInputObserver.getCanvasItemForWholeInput().isDefined,
                           isCanvasItemSelected: false,
-                          label: layerInputData.rowObserver.label(true),
+                          label: layerInputData.rowObserver
+                .label(useShortLabel: true,
+                       node: node,
+                       graph: graph),
                           forFlyout: true)
         } // HStack
         
