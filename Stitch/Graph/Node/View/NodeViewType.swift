@@ -140,13 +140,13 @@ struct DefaultNodeInputView: View {
                     
                     NodeInputView(graph: graph,
                                   graphUI: graphUI,
-                                  nodeId: node.id,
-                                  nodeKind: node.kind,
+                                  node: node,
                                   hasIncomingEdge: rowObserver.upstreamOutputCoordinate.isDefined,
                                   rowObserver: rowObserver,
                                   rowViewModel: rowViewModel,
                                   fieldValueTypes: rowViewModel.fieldValueTypes,
                                   // Pass down the layerInputObserver if we have a 'layer input on the canvas'
+                                  canvasItem: canvas,
                                   layerInputObserver: layerInputObserver,
                                   forPropertySidebar: false, // Always false, since not an inspector-row
                                   propertyIsSelected: false,
@@ -181,6 +181,7 @@ struct DefaultNodeOutputView: View {
                                    node: node,
                                    rowObserver: rowObserver,
                                    rowViewModel: rowViewModel,
+                                   canvasItem: canvas,
                                    forPropertySidebar: false,
                                    propertyIsSelected: false,
                                    propertyIsAlreadyOnGraph: true,

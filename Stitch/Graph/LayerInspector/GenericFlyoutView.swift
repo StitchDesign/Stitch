@@ -41,15 +41,15 @@ struct GenericFlyoutView: View {
     @Bindable var graph: GraphState
     @Bindable var graphUI: GraphUIState
     
+    let rowViewModel: InputNodeRowViewModel
+    let node: NodeViewModel
+    
     // non-nil, because flyouts are always for inspector inputs
     let layerInputObserver: LayerInputObserver
     
     let layer: Layer
     var hasIncomingEdge: Bool = false
     let layerInput: LayerInputPort
-    
-    let nodeId: NodeId
-    let nodeKind: NodeKind
     
     var fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>] {
         layerInputObserver.fieldValueTypes
@@ -74,7 +74,7 @@ struct GenericFlyoutView: View {
         FieldsListView<InputNodeRowViewModel, GenericFlyoutRowView>(
             graph: graph,
             fieldValueTypes: fieldValueTypes,
-            nodeId: nodeId,
+            nodeId: node.id,
             forPropertySidebar: true,
             forFlyout: true,
             blockedFields: layerInputObserver.blockedFields) { inputFieldViewModel, isMultifield in
@@ -82,11 +82,11 @@ struct GenericFlyoutView: View {
                     graph: graph,
                     graphUI: graphUI,
                     viewModel: inputFieldViewModel,
+                    rowViewModel: rowViewModel,
+                    node: node,
                     layerInputObserver: layerInputObserver,
-                    nodeId: nodeId,
                     fieldIndex: inputFieldViewModel.fieldIndex,
-                    isMultifield: isMultifield,
-                    nodeKind: nodeKind)
+                    isMultifield: isMultifield)
             }
         
     }
@@ -135,13 +135,13 @@ struct GenericFlyoutRowView: View {
     @Bindable var graphUI: GraphUIState
     let viewModel: InputFieldViewModel
         
+    let rowViewModel: InputNodeRowViewModel
+    let node: NodeViewModel
     let layerInputObserver: LayerInputObserver
     
-    let nodeId: NodeId
     let fieldIndex: Int
     
     let isMultifield: Bool
-    let nodeKind: NodeKind
     
     @State var isHovered: Bool = false
         
@@ -182,7 +182,7 @@ struct GenericFlyoutRowView: View {
                                     layerInspectorRowId: layerInspectorRowId,
                                     // For layer inspector row button, provide a NodeIOCoordinate that assumes unpacked + field index
                                     coordinate: InputCoordinate(portType: .keyPath(layerInputType),
-                                                                nodeId: nodeId),
+                                                                nodeId: node.id),
                                     canvasItemId: canvasItemId,
                                     isPortSelected: propertyRowIsSelected,
                                     isHovered: isHovered,
@@ -191,10 +191,12 @@ struct GenericFlyoutRowView: View {
             InputValueEntry(graph: graph,
                             graphUI: graphUI,
                             viewModel: viewModel,
+                            node: node,
+                            rowViewModel: rowViewModel,
                             layerInputObserver: layerInputObserver,
+                            canvasItem: nil,
                             // For input editing, however, we need the proper packed vs unpacked state
                             rowObserver: rowObserver,
-                            nodeKind: nodeKind,
                             isCanvasItemSelected: false, // Always false
                             hasIncomingEdge: false,
                             forPropertySidebar: true,

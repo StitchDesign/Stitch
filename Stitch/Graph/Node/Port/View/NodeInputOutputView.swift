@@ -20,17 +20,13 @@ struct NodeInputView: View {
     @Bindable var graph: GraphState
     @Bindable var graphUI: GraphUIState
     
-    let nodeId: NodeId
-    let nodeKind: NodeKind
+    let node: NodeViewModel
     let hasIncomingEdge: Bool
         
     let rowObserver: InputNodeRowObserver
-
-    // ONLY for port-view, which is only on canvas items
-    let rowViewModel: InputNodeRowObserver.RowViewModelType? // i.e. `InputNodeRowViewModel?`
-        
+    let rowViewModel: InputNodeRowObserver.RowViewModelType
     let fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>]
-    
+    let canvasItem: CanvasItemViewModel?
     let layerInputObserver: LayerInputObserver?
     
     let forPropertySidebar: Bool
@@ -47,9 +43,11 @@ struct NodeInputView: View {
         InputValueEntry(graph: graph,
                         graphUI: graphUI,
                         viewModel: portViewModel,
+                        node: node,
+                        rowViewModel: rowViewModel,
                         layerInputObserver: layerInputObserver,
+                        canvasItem: canvasItem,
                         rowObserver: rowObserver,
-                        nodeKind: nodeKind,
                         isCanvasItemSelected: isCanvasItemSelected,
                         hasIncomingEdge: hasIncomingEdge,
                         forPropertySidebar: forPropertySidebar,
@@ -82,7 +80,7 @@ struct NodeInputView: View {
             // TODO: is there a better way to build this UI, to avoid the perf-intensive `if/else` branch?
             // We want to show just a single text that, when tapped, opens the flyout; we do not want to show any fields
             if isShadowLayerInputRow, forPropertySidebar, !forFlyout {
-                ShadowInputInspectorRow(nodeId: nodeId,
+                ShadowInputInspectorRow(nodeId: node.id,
                                         propertyIsSelected: propertyIsSelected)
             }  else {
                 if willShowLabel {
@@ -114,7 +112,7 @@ struct NodeInputView: View {
         FieldsListView<InputNodeRowViewModel, InputValueEntry>(
             graph: graph,
             fieldValueTypes: fieldValueTypes,
-            nodeId: nodeId,
+            nodeId: node.id,
             forPropertySidebar: forPropertySidebar,
             forFlyout: forFlyout,
             blockedFields: layerInputObserver?.blockedFields,
@@ -168,6 +166,7 @@ struct NodeOutputView: View {
     @Bindable var node: NodeViewModel
     @Bindable var rowObserver: OutputNodeRowObserver
     @Bindable var rowViewModel: OutputNodeRowObserver.RowViewModelType
+    let canvasItem: CanvasItemViewModel?
     let forPropertySidebar: Bool
     let propertyIsSelected: Bool
     let propertyIsAlreadyOnGraph: Bool
@@ -218,9 +217,11 @@ struct NodeOutputView: View {
         OutputValueEntry(graph: graph,
                          graphUI: graphUI,
                          viewModel: portViewModel,
-                         coordinate: rowObserver.id,
+                         rowViewModel: rowViewModel,
+                         rowObserver: rowObserver,
+                         node: node,
+                         canvasItem: canvasItem,
                          isMultiField: isMultiField,
-                         nodeKind: nodeKind,
                          isCanvasItemSelected: isCanvasItemSelected,
                          forPropertySidebar: forPropertySidebar,
                          propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,

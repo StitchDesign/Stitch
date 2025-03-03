@@ -24,7 +24,8 @@ struct AnchorPopoverView: View {
     
     @Environment(\.appTheme) var theme
     
-    let input: InputCoordinate
+    let rowObserver: InputNodeRowObserver
+    let graph: GraphState
     let selection: Anchoring
     let layerInputObserver: LayerInputObserver?
     let isFieldInsideLayerInspector: Bool
@@ -64,11 +65,11 @@ struct AnchorPopoverView: View {
         Button {
             // log("AnchorPopoverView: selected \(option.rawValue)")
 
-            dispatch(PickerOptionSelected(
-                        input: input,
-                        choice: .anchoring(option), 
-                        isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                        isPersistence: true))
+            graph.pickerOptionSelected(
+                rowObserver: rowObserver,
+                choice: .anchoring(option),
+                isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                isPersistence: true)
 
         } label: {
             Image(systemName: (!self.hasHeterogenousValues && option == selection) ? ANCHOR_SELECTION_OPTION_ICON : ANCHOR_OPTION_ICON)

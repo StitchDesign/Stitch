@@ -11,21 +11,21 @@ import StitchSchemaKit
 
 // this should be a single field committed
 // ASSUMES: only single field values use dropdown
-struct PickerOptionSelected: GraphEventWithResponse {
-
-    let input: InputCoordinate
-    let choice: PortValue
-    let isFieldInsideLayerInspector: Bool
-    var isPersistence = true
-
-    func handle(state: GraphState) -> GraphResponse {
+extension GraphState {
+    @MainActor
+    func pickerOptionSelected(rowObserver: InputNodeRowObserver,
+                              choice: PortValue,
+                              isFieldInsideLayerInspector: Bool,
+                              isPersistence: Bool = true) {
         //        log("PickerOptionSelected: input: \(input)")`
         //        log("PickerOptionSelected: choice: \(choice)")
-        state.handleInputEditCommitted(
-            input: input,
+        self.handleInputEditCommitted(
+            input: rowObserver,
             value: choice,
             isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         
-        return .persistenceResponse
+        if isPersistence {
+            self.encodeProjectInBackground()            
+        }
     }
 }

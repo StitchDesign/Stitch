@@ -22,7 +22,7 @@ struct MediaPickerButtons: View {
     
     @Environment(\.appTheme) var theme
     
-    let inputCoordinate: InputCoordinate
+    let rowObserver: InputNodeRowObserver
     let mediaType: SupportedMediaFormat
     let choices: [FieldValueMedia]
     let isFieldInsideLayerInspector: Bool
@@ -33,8 +33,8 @@ struct MediaPickerButtons: View {
         ForEach(choices) { choice in
             StitchButton {
                 // Update binding which later gets processed by view model
-                choice.handleSelection(inputCoordinate: inputCoordinate,
-                                       mediaType: mediaType, 
+                choice.handleSelection(rowObserver: rowObserver,
+                                       mediaType: mediaType,
                                        isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                        graph: graph)
             } label: {

@@ -105,7 +105,7 @@ struct LayerInspectorView: View {
                             layerInputs: .init(layerInputs: filteredInputs),
                             graph: graph,
                             graphUI: graphUI,
-                            nodeId: node.id
+                            node: node
                         )
                     }
                 } // ForEach
@@ -201,7 +201,7 @@ struct LayerInspectorInputView: View {
     @Bindable var layerInput: LayerInputAndObserver
     @Bindable var graph: GraphState
     @Bindable var graphUI: GraphUIState
-    let nodeId: NodeId
+    let node: NodeViewModel
     
     var body: some View {
         let layerInputObserver: LayerInputObserver = layerInput.portObserver
@@ -217,7 +217,7 @@ struct LayerInspectorInputView: View {
             LayerInspectorInputPortView(layerInputObserver: layerInputObserver,
                                         graph: graph,
                                         graphUI: graphUI,
-                                        nodeId: nodeId)
+                                        node: node)
             .modifier(LayerPropertyRowOriginReader(graph: graph,
                                                    graphUI: graphUI,
                                                    layerInput: layerInput.layerInput))
@@ -249,7 +249,7 @@ struct LayerInspectorInputsSectionView: View {
     @Bindable var layerInputs: LayerInputsAndObservers
     @Bindable var graph: GraphState
     @Bindable var graphUI: GraphUIState
-    let nodeId: NodeId
+    let node: NodeViewModel
     
     @State private var expanded = true
     @State private var isHovered = false
@@ -260,7 +260,7 @@ struct LayerInspectorInputsSectionView: View {
                 LayerInspectorInputView(layerInput: layerInput,
                                         graph: graph,
                                         graphUI: graphUI,
-                                        nodeId: nodeId)
+                                        node: node)
             }
             .transition(.slideInAndOut(edge: .top))
         } header: {

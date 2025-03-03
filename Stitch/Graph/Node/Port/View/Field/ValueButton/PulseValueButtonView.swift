@@ -16,9 +16,9 @@ struct PulseValueButtonView: View {
     @Bindable var graph: GraphState
     @Bindable var graphUI: GraphUIState
     
-    let inputCoordinate: NodeIOCoordinate? // nil = for output
+    let rowObserver: InputNodeRowObserver? // nil = for output
     
-    let nodeId: NodeId
+    let canvasItem: CanvasItemViewModel?
     let pulseTime: TimeInterval
 
     // always false for outputs
@@ -38,11 +38,12 @@ struct PulseValueButtonView: View {
     var body: some View {
         // TODO: you made this a button, double check it works
         StitchButton {
-            if let inputCoordinate = inputCoordinate {
-                graph.pulseValueButtonClicked(inputCoordinate,
+            if let rowObserver = rowObserver {
+                graph.pulseValueButtonClicked(rowObserver,
+                                              canvasItem: canvasItem,
                                               graphUI: graphUI)
             } else {
-                log("PulseValueButtonView error: output unexpectedly encountered for \(nodeId)")
+                log("PulseValueButtonView error: output unexpectedly encountered for \(rowObserver?.id)")
             }
         } label: {
             Image(systemName: PULSE_ICON_SF_SYMBOL_NAME)
@@ -50,7 +51,7 @@ struct PulseValueButtonView: View {
             // This animation causes the bug described here: https://github.com/vpl-codesign/stitch/issues/2387
             // .animation(.linear(duration: 0.25), value: color.color)
         }
-        .disabled(hasIncomingEdge || !inputCoordinate.isDefined)
+        .disabled(hasIncomingEdge || !rowObserver.isDefined)
         // Check if we should visibily pulse node as new pulse data comes in
         .onChange(of: pulseTime) {
             // Note: `isPulsed` in this UI is different from our `shouldPulse` check in nodes' evals

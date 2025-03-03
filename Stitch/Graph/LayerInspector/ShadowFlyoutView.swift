@@ -38,8 +38,7 @@ struct ShadowFlyoutView: View {
                spacing: INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET * 2) {
             
             ForEach(LayerInspectorSection.shadow, id: \.self) { shadowInput in
-                ShadowFlyoutRowView(nodeId: node.id,
-                                    nodeKind: node.kind,
+                ShadowFlyoutRowView(node: node,
                                     shadowInput: shadowInput,
                                     layerInputObserver: layerNode[keyPath: shadowInput.layerNodeKeyPath],
                                     graph: graph,
@@ -52,8 +51,7 @@ struct ShadowFlyoutView: View {
 // TODO: combine this view with GenericFlyoutView ? Tricky: a shadow flyout uses one LayerInspectorRowButton per input, but generic flyout uses one LayerInspectorRowButton per input-field
 struct ShadowFlyoutRowView: View {
     
-    let nodeId: NodeId
-    let nodeKind: NodeKind
+    let node: NodeViewModel
     let shadowInput: LayerInputPort
     let layerInputObserver: LayerInputObserver
     
@@ -78,7 +76,7 @@ struct ShadowFlyoutRowView: View {
     // Coordinate is used for editing, which needs to know the
     var coordinate: NodeIOCoordinate {
         .init(portType: .keyPath(layerInputType),
-              nodeId: nodeId)
+              nodeId: node.id)
     }
         
     var canvasItemId: CanvasItemId? {
@@ -115,12 +113,12 @@ struct ShadowFlyoutRowView: View {
             
             NodeInputView(graph: graph,
                           graphUI: graphUI,
-                          nodeId: nodeId,
-                          nodeKind: nodeKind,
+                          node: node,
                           hasIncomingEdge: false,
                           rowObserver: layerInputData.rowObserver,
-                          rowViewModel: nil,
+                          rowViewModel: layerInputData.inspectorRowViewModel,
                           fieldValueTypes: layerInputData.inspectorRowViewModel.fieldValueTypes,
+                          canvasItem: nil,
                           layerInputObserver: layerInputObserver,
                           forPropertySidebar: true,
                           propertyIsSelected: propertyRowIsSelected,

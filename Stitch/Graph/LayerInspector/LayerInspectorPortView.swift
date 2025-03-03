@@ -12,7 +12,7 @@ struct LayerInspectorInputPortView: View {
     @Bindable var layerInputObserver: LayerInputObserver
     @Bindable var graph: GraphState
     @Bindable var graphUI: GraphUIState
-    let nodeId: NodeId
+    let node: NodeViewModel
     
     var fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>] {
         layerInputObserver.fieldValueTypes
@@ -36,7 +36,7 @@ struct LayerInspectorInputPortView: View {
         
         let coordinate: NodeIOCoordinate = .init(
             portType: .keyPath(layerInputType),
-            nodeId: nodeId)
+            nodeId: node.id)
         
         // Does this inspector-row (the entire input) have a canvas item?
         let canvasItemId: CanvasItemId? = observerMode.isPacked ? layerInputObserver._packedData.canvasObserver?.id : nil
@@ -50,15 +50,15 @@ struct LayerInspectorInputPortView: View {
             canvasItemId: canvasItemId) { propertyRowIsSelected in
                 NodeInputView(graph: graph,
                               graphUI: graphUI,
-                              nodeId: nodeId,
-                              nodeKind: .layer(layerInputObserver.layer),
+                              node: node,
                               hasIncomingEdge: false, // always false
                               
-                              // Only used for PortEntryView, which inspector- and flyout-rows do not use
-                              rowObserver: layerInputObserver.rowObserver,
-                              rowViewModel: nil,
+                              // we can use packed data since this is purely visual
+                              rowObserver: layerInputObserver._packedData.rowObserver,
+                              rowViewModel: layerInputObserver._packedData.inspectorRowViewModel,
                               // Always use the packed
                               fieldValueTypes: self.fieldValueTypes,
+                              canvasItem: nil,
                               layerInputObserver: layerInputObserver,
                               forPropertySidebar: true,
                               propertyIsSelected: propertyRowIsSelected,
@@ -111,6 +111,7 @@ struct LayerInspectorOutputPortView: View {
                                node: node,
                                rowObserver: rowObserver,
                                rowViewModel: rowViewModel,
+                               canvasItem: nil,
                                forPropertySidebar: true,
                                propertyIsSelected: propertyRowIsSelected,
                                propertyIsAlreadyOnGraph: canvasItemId.isDefined,

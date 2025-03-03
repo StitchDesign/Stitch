@@ -77,8 +77,8 @@ struct OpenFlyoutView: View, KeyboardReadable {
                                         graphUI: graphUI)
                     } else if flyoutInput.usesColor {
                         ColorFlyoutView(graph: graph,
-                                        layerInputObserver: portObserver,
-                                        nodeId: node.id)
+                                        rowObserver: portObserver.rowObserver,
+                                        layerInputObserver: portObserver)
                     }
                     // One multifield input presented in separate rows in the flyout
                     else {                        
@@ -86,11 +86,12 @@ struct OpenFlyoutView: View, KeyboardReadable {
                         // and displays each field
                         GenericFlyoutView(graph: graph,
                                           graphUI: graphUI,
+                                          // packed data ok for for view purposes
+                                          rowViewModel: portObserver._packedData.inspectorRowViewModel,
+                                          node: node,
                                           layerInputObserver: portObserver,
                                           layer: layerNode.layer,
-                                          layerInput: flyoutInput,
-                                          nodeId: node.id,
-                                          nodeKind: node.kind)
+                                          layerInput: flyoutInput)
                     }
                 }
                 .offset(

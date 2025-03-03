@@ -203,13 +203,14 @@ extension NodeViewModel {
     /// Used for fields.
     @MainActor
     func getVisibleMediaObserver(inputCoordinate: NodeIOCoordinate,
-                                 mediaId: UUID) -> MediaViewModel? {
+                                 mediaId: UUID,
+                                 graph: GraphState) -> MediaViewModel? {
         guard let rowObserver = self.getInputRowObserver(for: inputCoordinate.portType) else {
             fatalErrorIfDebug()
             return nil
         }
         
-        let loopIndex = rowObserver.getActiveLoopIndex()
+        let loopIndex = rowObserver.getActiveLoopIndex(graph: graph)
         return self.getInputMediaObserver(inputCoordinate: inputCoordinate,
                                           loopIndex: loopIndex,
                                           mediaId: mediaId)
@@ -218,13 +219,14 @@ extension NodeViewModel {
     /// Used for fields.
     @MainActor
     func getVisibleMediaObserver(outputPortId: Int,
-                                 mediaId: UUID?) -> MediaViewModel? {
+                                 mediaId: UUID?,
+                                 graph: GraphState) -> MediaViewModel? {
         guard let rowObserver = self.getOutputRowObserver(outputPortId) else {
             fatalErrorIfDebug()
             return nil
         }
         
-        let loopIndex = rowObserver.getActiveLoopIndex()
+        let loopIndex = rowObserver.getActiveLoopIndex(graph: graph)
         return self.getComputedMediaObserver(loopIndex: loopIndex,
                                              mediaId: mediaId)
     }
@@ -315,8 +317,8 @@ extension NodeViewModel {
 
 extension NodeRowObserver {
     @MainActor
-    func getActiveLoopIndex() -> Int {
-        self.nodeDelegate?.graphDelegate?.activeIndex.adjustedIndex(self.allLoopedValues.count) ?? .zero
+    func getActiveLoopIndex(graph: GraphState) -> Int {
+        graph.activeIndex.adjustedIndex(self.allLoopedValues.count)
     }
 }
 

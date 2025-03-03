@@ -22,48 +22,19 @@ typealias FlashSet = Set<Coordinate>
 
 extension GraphState {    
     @MainActor
-    func pulseValueButtonClicked(_ coordinate: InputCoordinate,
+    func pulseValueButtonClicked(_ inputObserver: InputNodeRowObserver,
+                                 canvasItem: CanvasItemViewModel?,
                                  graphUI: GraphUIState) {
-        //        log("PulseValueButtonClicked called: nodeId: \(nodeId)")
-        //        log("PulseValueButtonClicked inputCoordinate: \(inputCoordinate)")
-
-        // TODO: how to disable `PulseValueButtonView` if node is being dragged?
-        // Problem: any touch of the node is picked up by NodeInteractiveView's long-press GestureRecognizer, which then sets `state.graphUI.graphMovement.nodeIsDragged = true`.
-        // Solution?: differentiate between long-press's touch vs actually dragging the node
-
-        //        // if pulse-value button was pressed as part of a node drag,
-        //        // do nothing.
-        //        if state.graphUI.graphMovement.nodeIsDragged {
-        //            log("PulseValueButtonClicked: doing nothing since nodes are dragged")
-        //            return .noChange
-        //        }
-
-        
-
-        //        guard let inputCoordinate = inputCoordinate else {
-        //            log("PulseValueButtonClicked: Did not have input coordinate")
-        //            return .stateOnly(state)
-        //        }
-
-        let nodeId: NodeId = coordinate.nodeId
-                
-        guard let node = self.getNodeViewModel(nodeId),
-              let inputObserver = node.getInputRowObserver(for: coordinate.portType),
-                // inputPort.rowDelegate,
-              // Can't manually pulses with upstream observer
-              !inputObserver.upstreamOutputObserver.isDefined else {
-            return
-        }
         
         // Select canvas if associated here
-        if let canvasItem = inputObserver.nodeRowViewModel?.canvasItemDelegate { // inputPort.canvasItemDelegate {
+        if let canvasItem = canvasItem { // inputPort.canvasItemDelegate {
             self.selectSingleNode(canvasItem,
                                   graphUI: graphUI)
         }
         
         inputObserver.updateValues([.pulse(self.graphStepState.graphTime)])
         
-        self.scheduleForNextGraphStep(nodeId)
+        self.scheduleForNextGraphStep(inputObserver.id.nodeId)
     }
 }
 
