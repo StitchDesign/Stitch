@@ -95,6 +95,7 @@ struct NodesView: View {
 
 struct CanvasEdgesViewModifier: ViewModifier {
     @State private var allInputs: [InputNodeRowViewModel] = []
+    @State private var allOutputs: [OutputNodeRowViewModel] = []
     @State private var connectedInputs: [InputNodeRowViewModel] = []
     
     @Bindable var document: StitchDocumentViewModel
@@ -133,8 +134,9 @@ struct CanvasEdgesViewModifier: ViewModifier {
         // Moves expensive computation here to reduce render cycles
             .onChange(of: graph.graphUpdaterId, initial: true) {
                 // log("CanvasEdgesViewModifier: .onChange(of: self.graph.graphUpdaterId)")
-                self.allInputs = self.graph
-                    .getCanvasItemsAtTraversalLevel()
+                let canvasItemsAtThisTraversalLevel = self.graph.getCanvasItemsAtTraversalLevel()
+                
+                self.allInputs = canvasItemsAtThisTraversalLevel
                     .flatMap { canvasItem -> [InputNodeRowViewModel] in
                         canvasItem.inputViewModels
                     }
@@ -145,6 +147,9 @@ struct CanvasEdgesViewModifier: ViewModifier {
                     }
                     return input.rowDelegate?.containsUpstreamConnection ?? false
                 }
+                
+                self.allOutputs = canvasItemsAtThisTraversalLevel
+                    .flatMap { $0.outputViewModels }
             }
             .background {
                 // Using background ensures edges z-index are always behind ndoes
@@ -157,38 +162,15 @@ struct CanvasEdgesViewModifier: ViewModifier {
                 EdgeInputLabelsView(inputs: allInputs,
                                     document: document,
                                     graphUI: document.graphUI)
+                
+                // TODO: does PortPreviewPopoverView render too many times when open?
+                // TODO: more elegant way to do this? Generic types giving Swift compiler trouble
+                if let openPortPreview = graphUI.openPortPreview {
+                    PortPreviewPopoverWrapperView(
+                        allInputs: allInputs,
+                        allOutputs: allOutputs,
+                        openPortPreview: openPortPreview)
+                }
             }
-    }
-}
-
-struct EdgeInputLabelsView: View {
-    let inputs: [InputNodeRowViewModel]
-    @Bindable var document: StitchDocumentViewModel
-    @Bindable var graphUI: GraphUIState
-
-    var body: some View {
-        let showLabels = document.graphUI.edgeEditingState?.labelsShown ?? false
-        
-        if let nearbyCanvasItem: CanvasItemId = document.graphUI.edgeEditingState?.nearbyCanvasItem {
-            ForEach(inputs) { inputRowViewModel in
-                
-                
-                // Doesn't seem to be needed? Checking the canvasItemDelegate seems to work well
-                // visibleNodeId property checks for group splitter inputs
-//                let isInputForNearbyNode = inputRowViewModel.visibleNodeIds.contains(nearbyCanvasItem)
-                
-                let isInputOnNearbyCanvasItem = inputRowViewModel.canvasItemDelegate?.id == nearbyCanvasItem
-                let isVisible = isInputOnNearbyCanvasItem && showLabels
-                
-                EdgeEditModeLabelsView(document: document,
-                                       portId: inputRowViewModel.id.portId)
-                .position(inputRowViewModel.anchorPoint ?? .zero)
-                .opacity(isVisible ? 1 : 0)
-                .animation(.linear(duration: .EDGE_EDIT_MODE_NODE_UI_ELEMENT_ANIMATION_LENGTH),
-                           value: isVisible)
-            }
-        } else {
-            EmptyView()
-        }
     }
 }

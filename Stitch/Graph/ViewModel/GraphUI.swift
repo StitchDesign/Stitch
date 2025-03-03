@@ -34,9 +34,10 @@ enum FocusedFieldChangedByArrowKey: Equatable, Hashable {
          downArrow // decrement
 }
 
-
 @Observable
 final class GraphUIState: Sendable {
+    
+    @MainActor var openPortPreview: OpenedPortPreview?
     
     // Set true / non-nil in methods or action handlers
     // Set false / nil in StitchUIScrollView
@@ -46,7 +47,6 @@ final class GraphUIState: Sendable {
     @MainActor var canvasJumpLocation: CGPoint? = nil
     @MainActor var canvasPageOffsetChanged: CGPoint? = nil
     @MainActor var canvasPageZoomScaleChanged: CGFloat? = nil
-
     
     @MainActor var nodeMenuHeight: CGFloat = INSERT_NODE_MENU_MAX_HEIGHT
     
@@ -357,6 +357,7 @@ extension GraphState {
         }
         
         graphUI.isSidebarFocused = false
+        graphUI.openPortPreview = nil
     }
 }
 
