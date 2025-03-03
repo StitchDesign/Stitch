@@ -590,6 +590,7 @@
 		EC68A700288B31A000689F92 /* GroupNodeDestructionActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC68A6FF288B31A000689F92 /* GroupNodeDestructionActions.swift */; };
 		EC69451C2ABD3BF6003ED2CF /* EdgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC69451B2ABD3BF6003ED2CF /* EdgeView.swift */; };
 		EC6AAE6B2B52337F00D07E3C /* IconName.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6AAE6A2B52337F00D07E3C /* IconName.swift */; };
+		EC6B2E122D76273600804E38 /* PortPreviewPopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6B2E112D76273600804E38 /* PortPreviewPopoverView.swift */; };
 		EC6BFE4A2829CB5D005EB7B8 /* GridLinesHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6BFE492829CB5D005EB7B8 /* GridLinesHelper.swift */; };
 		EC6C68D02937CA800023B700 /* ReverseProgressNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6C68CF2937CA800023B700 /* ReverseProgressNode.swift */; };
 		EC6C68D42937D27A0023B700 /* ArrayCountNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6C68D32937D27A0023B700 /* ArrayCountNode.swift */; };
@@ -1547,6 +1548,7 @@
 		EC68A6FF288B31A000689F92 /* GroupNodeDestructionActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupNodeDestructionActions.swift; sourceTree = "<group>"; };
 		EC69451B2ABD3BF6003ED2CF /* EdgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeView.swift; sourceTree = "<group>"; };
 		EC6AAE6A2B52337F00D07E3C /* IconName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconName.swift; sourceTree = "<group>"; };
+		EC6B2E112D76273600804E38 /* PortPreviewPopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortPreviewPopoverView.swift; sourceTree = "<group>"; };
 		EC6BFE492829CB5D005EB7B8 /* GridLinesHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridLinesHelper.swift; sourceTree = "<group>"; };
 		EC6C68CF2937CA800023B700 /* ReverseProgressNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReverseProgressNode.swift; sourceTree = "<group>"; };
 		EC6C68D32937D27A0023B700 /* ArrayCountNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrayCountNode.swift; sourceTree = "<group>"; };
@@ -2257,7 +2259,7 @@
 				B56FFB662C1967F600623CC7 /* Field */,
 				ECF387C8280B5C4C0075F0E5 /* NodeInputOutputView.swift */,
 				EC53C0ED2D543A32002ECAEB /* LayerInspectorRowButton.swift */,
-				ECF387CA280B5C650075F0E5 /* PortValuesPreviewView.swift */,
+				EC6B2E102D76272100804E38 /* PortValuesPreview */,
 				205BB3B025BA203D00F144A7 /* PortView.swift */,
 				EC825409287DE2E80020D943 /* LabelDisplayView.swift */,
 			);
@@ -4287,6 +4289,15 @@
 			path = NodeTag;
 			sourceTree = "<group>";
 		};
+		EC6B2E102D76272100804E38 /* PortValuesPreview */ = {
+			isa = PBXGroup;
+			children = (
+				ECF387CA280B5C650075F0E5 /* PortValuesPreviewView.swift */,
+				EC6B2E112D76273600804E38 /* PortPreviewPopoverView.swift */,
+			);
+			path = PortValuesPreview;
+			sourceTree = "<group>";
+		};
 		EC808C032CC6D29E00F30C70 /* CoercerUtilHelpers */ = {
 			isa = PBXGroup;
 			children = (
@@ -5626,6 +5637,7 @@
 				EC28D55B26B2142D00E1118E /* LayerGroups.swift in Sources */,
 				20308FAB25AD1721008CE3BE /* MiscUtils.swift in Sources */,
 				EC004DD32B44D24300C5DB33 /* CanvasSketchUtils.swift in Sources */,
+				EC6B2E122D76273600804E38 /* PortPreviewPopoverView.swift in Sources */,
 				ECF387E1280B61A80075F0E5 /* NodeConstants.swift in Sources */,
 				EC26144F2B897BD800BEB066 /* PositionUnpackNode.swift in Sources */,
 				B5743AED29CC128100B3230D /* PortValueComparable.swift in Sources */,

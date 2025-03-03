@@ -73,6 +73,8 @@ struct PortValuesPreviewView<NodeRowObserverType: NodeRowObserver>: View {
         }
         .scrollBounceBehavior(.basedOnSize)
         .padding()
+        .background(.ultraThinMaterial)
+        .cornerRadius(8)
     }
     
     @State var hoveredIndex: Int? = nil
@@ -109,7 +111,7 @@ struct PortValuesPreviewView<NodeRowObserverType: NodeRowObserver>: View {
                 
                 .onHover { hovering in
                     if hovering {
-                        log("hovered data.loopIndex \(data.loopIndex)")
+//                        log("hovered data.loopIndex \(data.loopIndex)")
                         self.hoveredIndex = data.loopIndex
                         dispatch(ActiveIndexChangedAction(index: .init(data.loopIndex)))
                     }
@@ -121,6 +123,7 @@ struct PortValuesPreviewView<NodeRowObserverType: NodeRowObserver>: View {
     }
 }
 
+// TODO: get popover to work with all values
 struct PortValuesPreviewValueView: View {
     
     let fieldValue: FieldValue
