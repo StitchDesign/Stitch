@@ -117,13 +117,14 @@ struct LayerNamesDropDownChoiceView: View {
     
     @Bindable var graph: GraphState
     
-    let id: InputCoordinate
+    let rowObserver: InputNodeRowObserver
     let value: PortValue
     let layerInputObserver: LayerInputObserver?
     let isFieldInsideLayerInspector: Bool
     let isForPinTo: Bool
     let isSelectedInspectorRow: Bool
     let choices: LayerDropdownChoices
+    let hasHeterogenousValues: Bool
     
     @MainActor
     func onSet(_ choice: LayerDropdownChoice) {
@@ -132,10 +133,10 @@ struct LayerNamesDropDownChoiceView: View {
         ? .pinTo(choice.asPinToId)
         : .assignedLayer(UUID(uuidString: choice.id)?.asLayerNodeId)
         
-        dispatch(PickerOptionSelected(
-            input: self.id,
+        graph.pickerOptionSelected(
+            rowObserver: rowObserver,
             choice: value,
-            isFieldInsideLayerInspector: isFieldInsideLayerInspector))
+            isFieldInsideLayerInspector: isFieldInsideLayerInspector)
     }
         
     @MainActor
@@ -145,18 +146,6 @@ struct LayerNamesDropDownChoiceView: View {
         //        #else
         self.hasHeterogenousValues ? .HETEROGENOUS_VALUES : self.selection.name
         //        #endif
-    }
-    
-    @MainActor
-    var hasHeterogenousValues: Bool {
-        if let layerInputObserver = layerInputObserver {
-            @Bindable var layerInputObserver = layerInputObserver
-            return layerInputObserver.fieldHasHeterogenousValues(
-                0,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
-        } else {
-            return false
-        }
     }
     
     var body: some View {

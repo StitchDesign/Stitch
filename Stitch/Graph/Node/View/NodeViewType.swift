@@ -15,6 +15,7 @@ struct NodeTypeView: View {
     
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     @Bindable var node: NodeViewModel
     @Bindable var canvasNode: CanvasItemViewModel
     let atleastOneCommentBoxSelected: Bool
@@ -46,6 +47,8 @@ struct NodeTypeView: View {
                  stitch: node,
                  document: document,
                  graph: graph,
+                 graphUI: graphUI,
+                 nodeId: node.id,
                  isSelected: isSelected,
                  atleastOneCommentBoxSelected: atleastOneCommentBoxSelected,
                  activeGroupId: groupNodeFocused,
@@ -70,14 +73,18 @@ struct NodeTypeView: View {
         VStack(alignment: .leading,
                spacing: SPACING_BETWEEN_NODE_ROWS) {
             if self.node.patch == .wirelessReceiver {
-                WirelessPortView(isOutput: false, id: node.id)
+                WirelessPortView(graph: graph,
+                                 graphUI: graphUI,
+                                 isOutput: false,
+                                 id: node.id)
                     .padding(.trailing, NODE_BODY_SPACING)
             } else {
                 DefaultNodeInputView(graph: graph,
+                                     graphUI: graphUI,
+                                     document: document,
                                      node: node,
                                      canvas: canvasNode,
-                                     isNodeSelected: isSelected,
-                                     adjustmentBarSessionId: document.graphUI.adjustmentBarSessionId)
+                                     isNodeSelected: isSelected)
             }
         }
     }
@@ -88,14 +95,18 @@ struct NodeTypeView: View {
                spacing: SPACING_BETWEEN_NODE_ROWS) {
 
             if self.node.patch == .wirelessBroadcaster {
-                WirelessPortView(isOutput: true, id: node.id)
+                WirelessPortView(graph: graph,
+                                 graphUI: graphUI,
+                                 isOutput: true,
+                                 id: node.id)
                     .padding(.leading, NODE_BODY_SPACING)
             } else {
                 DefaultNodeOutputView(graph: graph,
+                                      graphUI: graphUI,
+                                      document: document,
                                       node: node,
                                       canvas: canvasNode,
-                                      isNodeSelected: isSelected,
-                                      adjustmentBarSessionId: document.graphUI.adjustmentBarSessionId)
+                                      isNodeSelected: isSelected)
             }
         }
     }
@@ -104,44 +115,49 @@ struct NodeTypeView: View {
 struct DefaultNodeInputView: View {
     
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var node: NodeViewModel
     @Bindable var canvas: CanvasItemViewModel
     let isNodeSelected: Bool
-    let adjustmentBarSessionId: AdjustmentBarSessionId
     
     var body: some View {
         DefaultNodeRowView(graph: graph,
                            node: node,
+                           canvas: canvas,
                            rowViewModels: canvas.inputViewModels,
-                           nodeIO: .input,
-                           adjustmentBarSessionId: adjustmentBarSessionId) { rowObserver, rowViewModel in
-            
-            let layerInputObserver: LayerInputObserver? = rowObserver.id.layerInput
-                .flatMap { node.layerNode?.getLayerInputObserver($0.layerInput) }
-            
-//            NodeLayoutView(observer: rowViewModel) {
+                           nodeIO: .input) { rowViewModel in
+            if let rowObserver = node.getInputRowObserver(for: rowViewModel.id.portType) {
+                let layerInputObserver: LayerInputObserver? = rowObserver.id.layerInput
+                    .flatMap { node.layerNode?.getLayerInputObserver($0.layerInput) }
+                
+                //            NodeLayoutView(observer: rowViewModel) {
                 HStack {
                     NodeRowPortView(graph: graph,
+                                    node: node,
                                     rowObserver: rowObserver,
                                     rowViewModel: rowViewModel)
                     
                     NodeInputView(graph: graph,
-                                  nodeId: node.id,
-                                  nodeKind: node.kind,
+                                  graphUI: graphUI,
+                                  node: node,
                                   hasIncomingEdge: rowObserver.upstreamOutputCoordinate.isDefined,
-                                  rowObserverId: rowObserver.id,
                                   rowObserver: rowObserver,
                                   rowViewModel: rowViewModel,
                                   fieldValueTypes: rowViewModel.fieldValueTypes,
                                   // Pass down the layerInputObserver if we have a 'layer input on the canvas'
+                                  canvasItem: canvas,
                                   layerInputObserver: layerInputObserver,
                                   forPropertySidebar: false, // Always false, since not an inspector-row
                                   propertyIsSelected: false,
                                   propertyIsAlreadyOnGraph: true, // Irrelevant?
                                   isCanvasItemSelected: isNodeSelected,
-                                  label: rowObserver.label())
+                                  label: rowObserver
+                        .label(node: node,
+                               graph: graph)
+                    )
                 }
-//            }
+            }
         }
     }
 }
@@ -149,29 +165,37 @@ struct DefaultNodeInputView: View {
 struct DefaultNodeOutputView: View {
     
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var node: NodeViewModel
     @Bindable var canvas: CanvasItemViewModel
     let isNodeSelected: Bool
-    let adjustmentBarSessionId: AdjustmentBarSessionId
     
     var body: some View {
         DefaultNodeRowView(graph: graph,
                            node: node,
+                           canvas: canvas,
                            rowViewModels: canvas.outputViewModels,
-                           nodeIO: .output,
-                           adjustmentBarSessionId: adjustmentBarSessionId) { rowObserver, rowViewModel in
-//            NodeLayoutView(observer: rowViewModel) {
+                           nodeIO: .output) { rowViewModel in
+            if let rowObserver = node.getOutputRowObserver(for: rowViewModel.id.portType) {
                 HStack {
                     NodeOutputView(graph: graph,
+                                   graphUI: graphUI,
+                                   node: node,
                                    rowObserver: rowObserver,
                                    rowViewModel: rowViewModel,
+                                   canvasItem: canvas,
                                    forPropertySidebar: false,
                                    propertyIsSelected: false,
                                    propertyIsAlreadyOnGraph: true,
                                    isCanvasItemSelected: isNodeSelected,
-                                   label: rowObserver.label())
+                                   label: rowObserver
+                        .label(node: node,
+                               graph: graph)
+                    )
                     
                     NodeRowPortView(graph: graph,
+                                    node: node,
                                     rowObserver: rowObserver,
                                     rowViewModel: rowViewModel)
                 }
@@ -180,7 +204,7 @@ struct DefaultNodeOutputView: View {
                     outputCoordinate: .init(portId: rowViewModel.id.portId,
                                             canvasId: canvas.id)))
             }
-//        }
+        }
     }
 }
 
@@ -189,10 +213,10 @@ struct DefaultNodeRowView<RowViewModel, RowView>: View where RowViewModel: NodeR
 
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
+    @Bindable var canvas: CanvasItemViewModel
     let rowViewModels: [RowViewModel]
     let nodeIO: NodeIO
-    let adjustmentBarSessionId: AdjustmentBarSessionId
-    @ViewBuilder var rowView: (RowViewModel.RowObserver, RowViewModel) -> RowView
+    @ViewBuilder var rowView: (RowViewModel) -> RowView
 
     var id: NodeId {
         self.node.id
@@ -229,7 +253,7 @@ struct DefaultNodeRowView<RowViewModel, RowView>: View where RowViewModel: NodeR
             return .trailing
         }
     }
-
+    
     var body: some View {
         VStack(alignment: self.alignment) {
             // If no rows, create a dummy view to create some empty space
@@ -239,16 +263,14 @@ struct DefaultNodeRowView<RowViewModel, RowView>: View where RowViewModel: NodeR
                            height: NODE_ROW_HEIGHT)
             } else {
                 ForEach(self.rowViewModels) { rowViewModel in
-                    if let rowObserver = rowViewModel.rowDelegate {
-                        self.rowView(rowObserver, rowViewModel)
-                        // fixes issue where ports could have inconsistent height with no label
-                            .height(NODE_ROW_HEIGHT + 8)
-                            .onChange(of: rowViewModel.fieldValueTypes.first?.type) {
-                                // Resets node sizing data when either node or portvalue types change
-                                rowViewModel.canvasItemDelegate?.resetViewSizingCache()
-                                graph.visibleNodesViewModel.needsInfiniteCanvasCacheReset = true
-                            }
-                    }
+                    self.rowView(rowViewModel)
+                    // fixes issue where ports could have inconsistent height with no label
+                        .height(NODE_ROW_HEIGHT + 8)
+                        .onChange(of: rowViewModel.fieldValueTypes.first?.type) {
+                            // Resets node sizing data when either node or portvalue types change
+                            canvas.resetViewSizingCache()
+                            graph.visibleNodesViewModel.needsInfiniteCanvasCacheReset = true
+                        }
                 }
             }
         }

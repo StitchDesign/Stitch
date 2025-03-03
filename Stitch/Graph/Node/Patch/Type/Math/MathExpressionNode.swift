@@ -27,15 +27,19 @@ struct MathExpressionPatchNode: PatchNodeDefinition {
 
 @MainActor
 func mathExpressionEval(node: PatchNode) -> EvalResult {
- 
-    let labels = node.getAllInputsObservers().map { $0.label() }
     
     guard let patchNode = node.patchNode,
-          let formula = patchNode.mathExpression else {
+          let formula = patchNode.mathExpression,
+          let graph = node.graphDelegate else {
         log("mathExpressionEval: no math expression on node \(node.id)")
         return .init(outputsValues: node.outputs)
     }
     
+    let labels = node.getAllInputsObservers().map { $0
+        .label(node: node,
+               graph: graph)
+    }
+
     let op: Operation = { values -> PortValue in
                 
         // the [("a", 5), ("b", 6)] etc. VariablesList Soulver expects

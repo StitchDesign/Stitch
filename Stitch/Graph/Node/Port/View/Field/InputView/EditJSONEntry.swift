@@ -19,7 +19,7 @@ struct EditJSONEntry: View {
 
     @Bindable var graph: GraphState
     let coordinate: FieldCoordinate
-    let rowObserverCoordinate: NodeIOCoordinate
+    let rowObserver: InputNodeRowObserver
     let json: StitchJSON? // nil helps with perf?
     let isSelectedInspectorRow: Bool
     @Binding var isPressed: Bool
@@ -61,18 +61,16 @@ struct EditJSONEntry: View {
                            !areEqualJsons(edit, json) {
                             
                             graph.handleInputEditCommitted(
-                                input: rowObserverCoordinate,
+                                input: rowObserver,
                                 value: .json(edit.toStitchJSON),
                                 // TODO: currently we never use json input for a layer input; but should pass down proper values here
-                                isFieldInsideLayerInspector: false,
-                                // TODO: technically not a dropdown, but not a regular textfield entry either
-                                wasDropdown: true)
+                                isFieldInsideLayerInspector: false)
                             
                             // TODO: clean up this, use same functions as `inputEdited` etc.?
                             graph.encodeProjectInBackground()
                         }
                     }
-                    .onChange(of: internalEditString) { newValue in
+                    .onChange(of: internalEditString) { _, newValue in
                         log("onChange of internalEditString: ")
                         if !getCleanedJSON(newValue).isDefined {
                             properJson = false

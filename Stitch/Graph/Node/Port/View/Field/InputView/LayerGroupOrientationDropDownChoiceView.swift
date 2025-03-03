@@ -37,10 +37,12 @@ struct LayerGroupOrientationDropDownChoiceView: View {
     @State private var currentChoice: StitchOrientation = .none
 //    @State private var currentChoice: String = ""
     
-    let id: InputCoordinate
+    let rowObserver: InputNodeRowObserver
+    let graph: GraphState
     let value: StitchOrientation
     let layerInputObserver: LayerInputObserver?
     let isFieldInsideLayerInspector: Bool
+    let hasHeterogenousValues: Bool
     
     var choices: [StitchOrientation] {
         StitchOrientation.choices.compactMap(\.getOrientation)
@@ -48,18 +50,6 @@ struct LayerGroupOrientationDropDownChoiceView: View {
 //    var choices: [String] {
 //        StitchOrientation.choices.compactMap(\.getOrientation?.display)
 //    }
-    
-    @MainActor
-    var hasHeterogenousValues: Bool {
-        if let layerInputObserver = layerInputObserver {
-            @Bindable var layerInputObserver = layerInputObserver
-            return layerInputObserver.fieldHasHeterogenousValues(
-                0,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
-        } else {
-            return false
-        }
-    }
     
     var body: some View {
         Picker("Here", selection: $currentChoice) {
@@ -74,13 +64,9 @@ struct LayerGroupOrientationDropDownChoiceView: View {
         .frame(width: 148, height: NODE_ROW_HEIGHT * 2, alignment: .trailing)
         // .frame(width: 148, height: NODE_ROW_HEIGHT * 1.5, alignment: .trailing)
         .onChange(of: self.currentChoice) { oldValue, newValue in
-//            if let newChoice = StitchOrientation(rawValue: newValue) {
-                dispatch(PickerOptionSelected(input: self.id,
-//                                              choice: .orientation(newChoice),
-                                              choice: .orientation(newValue),
-                                              isFieldInsideLayerInspector: isFieldInsideLayerInspector))
-//            }
-            
+            graph.pickerOptionSelected(rowObserver: rowObserver,
+                                       choice: .orientation(newValue),
+                                       isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         }
         .onAppear {
 //            if !self.hasHeterogenousValues {

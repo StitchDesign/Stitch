@@ -63,28 +63,27 @@ struct SafeAreaInsetsReceived: GraphUIEvent {
     }
 }
 
-struct GroupNodeDoubleTapped: GraphEvent {
-
-    let id: NodeId
-
-    func handle(state: GraphState) {
+extension GraphState {
+    @MainActor
+    func groupNodeDoubleTapped(id: NodeId,
+                               graphUI: GraphUIState) {
 
         log("GroupNodeDoubleTapped: id: \(id)")
 
         // De-select any nodes once new parent is shown
-        state.resetAlertAndSelectionState()
+        self.resetAlertAndSelectionState(graphUI: graphUI)
         
-        guard let groupNodeType = state.getGroupNodeType(for: id) else {
+        guard let groupNodeType = self.getGroupNodeType(for: id) else {
             return
         }
 
-        state.graphUI.groupNodeBreadcrumbs.append(groupNodeType)
+        graphUI.groupNodeBreadcrumbs.append(groupNodeType)
 
         // Animate to child
-        state.graphUI.groupTraversedToChild = true
+        graphUI.groupTraversedToChild = true
 
         // reset any active selections
-        state.resetAlertAndSelectionState()
+        self.resetAlertAndSelectionState(graphUI: graphUI)
     }
 }
 

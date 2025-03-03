@@ -29,19 +29,7 @@ enum LLMRecordinModal: Equatable, Hashable {
     case approveAndSubmit
 }
 
-struct LLMRecordingState: Equatable {
-    
-    // Set true just when we have received and successfully validated and applied an OpenAI request
-    // Set false when make another request or submit a correction
-    var recentOpenAIRequestCompleted: Bool = false {
-        didSet {
-            // When a request is completed and we're recording, switch to augmentation mode
-            if recentOpenAIRequestCompleted && isRecording {
-                mode = .augmentation
-            }
-        }
-    }
-    
+struct LLMRecordingState {
     // Are we actively recording redux-actions which we then turn into LLM-actions?
     var isRecording: Bool = false
     
@@ -61,39 +49,29 @@ struct LLMRecordingState: Equatable {
     
     var mode: LLMRecordingMode = .normal
     
-    var actions: [StepTypeAction] = .init() {
-        didSet {
-            var acc = [NodeId: PatchOrLayer]()
-            self.actions.forEach { action in
-                // Add Node step uses nodeId; but Connect Nodes step uses toNodeId and fromNodeId
-                if case let .addNode(x) = action {
-                    acc.updateValue(x.nodeName, forKey: x.nodeId)
-                }
-            } // forEach
-            return self.nodeIdToNameMapping = acc
-        }
-    }
+    var actions: [Step] = .init()
     
     var promptState = LLMPromptState()
     
     var jsonEntryState = LLMJsonEntryState()
     
     var modal: LLMRecordinModal = .none
-
-    // Maps nodeIds to Patch/Layer name;
-    // Also serves as source of truth for which nodes (ids) have been created by
-
-    // Alternatively: use a stored var that is updated by `self.actions`'s `didSet`
-    // Note: it's okay for this just to be patch nodes and entire layer nodes; any layer inputs from an AI-created layer node will be 'blue'
-    var nodeIdToNameMapping: [NodeId: PatchOrLayer] = .init()
     
+    // Tracks node positions, persisting across edits in case node is removed from validation failure
+    var canvasItemPositions: [CanvasItemId : CGPoint] = .init()
+    
+    // Runs validation after every change
+    var willAutoValidate = true
+    
+    // Tracks graph state before recording
+    var initialGraphState: GraphEntity?
 }
 
-extension [StepTypeAction] {
+extension Array where Element == any StepActionable {
     func nodesCreatedByLLMActions() -> IdSet {
         let createdNodes = self.reduce(into: IdSet()) { partialResult, step in
-            if case let .addNode(x) = step {
-                partialResult.insert(x.nodeId)
+            if let addNodeAction = step as? StepActionAddNode {
+                partialResult.insert(addNodeAction.nodeId)
             }
         }
         log("nodesCreatedByLLMActions: createdNodes: \(createdNodes)")
@@ -104,15 +82,16 @@ extension [StepTypeAction] {
 extension StitchDocumentViewModel {
     
     @MainActor
-    func validateAndApplyActions(_ actions: [StepTypeAction]) throws {
-                
+    func validateAndApplyActions(_ actions: [Step]) throws {
         // Wipe old error reason
         self.llmRecording.actionsError = nil
+        
+        let convertedActions = try actions.convertSteps()
         
         // Are these steps valid?
         // invalid = e.g. tried to create a connection for a node before we created that node
         do {
-            try actions.validateLLMSteps()
+            try convertedActions.validateLLMSteps()
         } catch let error as StitchAIManagerError {
             // immediately enter correction-mode: one of the actions, or perhaps the ordering, was incorrect
             self.llmRecording.actionsError = error.description
@@ -121,7 +100,7 @@ extension StitchDocumentViewModel {
             throw error
         }
         
-        for action in actions {
+        for action in convertedActions {
             do {
                 try self.applyAction(action)
             } catch let error as StitchFileError {
@@ -133,7 +112,7 @@ extension StitchDocumentViewModel {
         }
         
         // Only adjust node positions if actions were valid and successfully applied
-        self.positionAIGeneratedNodes()
+        try self.positionAIGeneratedNodes()
         
         // Write to disk ONLY IF WE WERE SUCCESSFUL
         self.encodeProjectInBackground()
@@ -141,9 +120,10 @@ extension StitchDocumentViewModel {
     
     
     @MainActor
-    func positionAIGeneratedNodes() {
+    func positionAIGeneratedNodes() throws {
         
-        let (depthMap, hasCycle) = calculateAINodesAdjacency(self.llmRecording.actions)
+        let convertedActions = try self.llmRecording.actions.convertSteps()
+        let (depthMap, hasCycle) = convertedActions.calculateAINodesAdjacency()
         
         guard let depthMap = depthMap,
               !hasCycle else {
@@ -153,7 +133,7 @@ extension StitchDocumentViewModel {
                         
         let depthLevels = depthMap.values.sorted().toOrderedSet
 
-        let createdNodes = self.llmRecording.actions.nodesCreatedByLLMActions()
+        let createdNodes = convertedActions.nodesCreatedByLLMActions()
         
         // Iterate by depth-level, so that nodes at same depth (e.g. 0) can be y-offset from each other
 //        depthLevels.enumerated().forEach {
@@ -189,42 +169,185 @@ extension StitchDocumentViewModel {
                 }
             }
         }
+    }
     
+    @MainActor
+    func deriveNewAIActions() -> [Step] {
+        guard let oldGraphEntity = self.llmRecording.initialGraphState else {
+            fatalErrorIfDebug()
+            return []
+        }
+        
+        let newGraphEntity = self.visibleGraph.createSchema()
+        let oldNodeIds = oldGraphEntity.nodes.map(\.id).toSet
+        let newNodeIds = newGraphEntity.nodes.map(\.id).toSet
+        
+        let nodeIdsToCreate = newNodeIds.subtracting(oldNodeIds)
+        
+        let newNodes: [NodeEntity] = nodeIdsToCreate.compactMap { newNodeId -> NodeEntity? in
+            guard let nodeEntity = newGraphEntity.nodes.first(where: { $0.id == newNodeId }) else {
+                fatalErrorIfDebug()
+                return nil
+            }
+            
+            return nodeEntity
+        }
+        
+        var newNodesSteps: [StepActionAddNode] = []
+        var newNodeTypesSteps: [StepActionChangeValueType] = []
+        var newConnectionSteps: [StepActionConnectionAdded] = []
+        var newSetInputSteps: [StepActionSetInput] = []
+        
+        // Create steps
+        for nodeEntity in newNodes {
+            guard let nodeName = PatchOrLayer.from(nodeKind: nodeEntity.kind) else {
+                fatalErrorIfDebug()
+                continue
+            }
+            
+            let valueType = nodeEntity.nodeTypeEntity.patchNodeEntity?.userVisibleType
+            let defaultValueType = nodeEntity.kind.getPatch?.defaultNodeType
+            let stepAddNode = StepActionAddNode(nodeId: nodeEntity.id,
+                                                nodeName: nodeName)
+            newNodesSteps.append(stepAddNode)
+            
+            // Value type change if different from default
+            if valueType != defaultValueType,
+               let valueType = valueType {
+                newNodeTypesSteps.append(.init(nodeId: nodeEntity.id,
+                                               valueType: valueType))
+            }
+            
+            // Create actions for values and connections
+            switch nodeEntity.nodeTypeEntity {
+            case .patch(let patchNode):
+                let defaultInputs = nodeEntity.kind.defaultInputs(for: valueType)
+                
+                for (input, defaultInputValues) in zip(patchNode.inputs, defaultInputs) {
+                    Self.deriveNewInputActions(input: input.portData,
+                                               port: input.id,
+                                               defaultInputs: defaultInputValues,
+                                               newConnectionSteps: &newConnectionSteps,
+                                               newSetInputSteps: &newSetInputSteps)
+                }
+                
+            case .layer(let layerNode):
+                for layerInput in layerNode.layer.layerGraphNode.inputDefinitions {
+                    let port = NodeIOCoordinate(portType: .keyPath(.init(layerInput: layerInput,
+                                                                         portType: .packed)),
+                                                nodeId: nodeEntity.id)
+                    let defaultInputValue = layerInput.getDefaultValue(for: layerNode.layer)
+                    
+                    let input = layerNode[keyPath: layerInput.schemaPortKeyPath].inputConnections.first!
+                    Self.deriveNewInputActions(input: input,
+                                               port: port,
+                                               defaultInputs: [defaultInputValue],
+                                               newConnectionSteps: &newConnectionSteps,
+                                               newSetInputSteps: &newSetInputSteps)
+                }
+                
+            default:
+                continue
+            }
+        }
+        
+        // Sorting necessary for validation
+        let newNodesStepsSorted = newNodesSteps
+            .sorted { $0.nodeId < $1.nodeId }
+            .map { $0.toStep }
+        let newNodeTypesStepsSorted = newNodeTypesSteps
+            .sorted { $0.nodeId < $1.nodeId }
+            .map { $0.toStep }
+        let newConnectionStepsSorted = newConnectionSteps
+            .sorted { ($0.toPortCoordinate?.hashValue ?? 0) < ($1.toPortCoordinate?.hashValue ?? 0) }
+            .map { $0.toStep }
+        let newSetInputStepsSorted = newSetInputSteps
+            .sorted { ($0.toPortCoordinate?.hashValue ?? 0) < ($1.toPortCoordinate?.hashValue ?? 0) }
+            .map { $0.toStep }
+        
+        return newNodesStepsSorted +
+        newNodeTypesStepsSorted +
+        newConnectionStepsSorted +
+        newSetInputStepsSorted
+    }
+    
+    private static func deriveNewInputActions(input: NodeConnectionType,
+                                              port: NodeIOCoordinate,
+                                              defaultInputs: PortValues,
+                                              newConnectionSteps: inout [StepActionConnectionAdded],
+                                              newSetInputSteps: inout [StepActionSetInput]) {
+        switch input {
+        case .upstreamConnection(let upstreamConnection):
+            let connectionStep: StepActionConnectionAdded = .init(port: port.portType,
+                                                                  toNodeId: port.nodeId,
+                                                                  fromPort: upstreamConnection.portId!,
+                                                                  fromNodeId: upstreamConnection.nodeId)
+            newConnectionSteps.append(connectionStep)
+            
+        case .values(let newInputs):
+            if defaultInputs != newInputs {
+                let value = newInputs.first!
+                
+                let setInputStep = StepActionSetInput(nodeId: port.nodeId,
+                                                      port: port.portType,
+                                                      value: value,
+                                                      valueType: value.toNodeType)
+                newSetInputSteps.append(setInputStep)
+            }
+        }
     }
     
     @MainActor
     func reapplyActions() throws {
-        let actions = self.llmRecording.actions
+        let oldActions = self.llmRecording.actions
+        let actions = try self.llmRecording.actions.convertSteps()
+        let graph = self.visibleGraph
         
         log("StitchDocumentViewModel: reapplyLLMActions: actions: \(actions)")
-        // Wipe patches and layers
-        // TODO: keep patches and layers that WERE NOT created by this recent LLM prompt? Folks may use AI to supplement their existing work.
-        // Delete patches and layers that were created from actions;
-        
-        // NOTE: this llmRecording.actions will already reflect any edits the user has made to the list of actions
-        let createdNodes = self.llmRecording.actions.nodesCreatedByLLMActions()
-        createdNodes.forEach {
-            self.graph.deleteNode(id: $0,
-                                   willDeleteLayerGroupChildren: true)
-        }
-        
-        // Apply the LLM-actions (model-generated and user-augmented) to the graph
-        try self.validateAndApplyActions(actions)
-        
-        // TODO: also select the nodes when we first successfully parse?
-        // Select the created nodes
-        createdNodes.forEach { nodeId in
-            if let node = self.graph.getNodeViewModel(nodeId) {
-                // Will select a patch node or a layer nodes' inputs/outputs on canvas
-                node.getAllCanvasObservers().forEach { (canvasItem: CanvasItemViewModel) in
-                    canvasItem.select(self.graph)
+        // Save node positions
+        self.llmRecording.canvasItemPositions = actions.reduce(into: [CanvasItemId : CGPoint]()) { result, action in
+            if let action = action as? StepActionAddNode,
+               let node = graph.getNodeViewModel(action.nodeId) {
+                let canvasItems = node.getAllCanvasObservers()
+
+                canvasItems.forEach { canvasItem in
+                    result.updateValue(canvasItem.position,
+                                       forKey: canvasItem.id)
                 }
             }
         }
         
-        // Manually call graph update since hash may be the same
-        // Has to be a new ID since objects are cached in the view
-        self.visibleGraph.graphUpdaterId = .init()
+        // Remove all actions before re-applying
+        try self.llmRecording.actions
+            .reversed()
+            .forEach { action in
+                let step = try action.convertToType()
+                step.removeAction(graph: graph)
+            }
+        
+        // Apply the LLM-actions (model-generated and user-augmented) to the graph
+        try self.validateAndApplyActions(self.llmRecording.actions)
+        
+        // Update node positions to reflect previous position
+        self.llmRecording.canvasItemPositions.forEach { canvasId, canvasPosition in
+            if let canvas = graph.getCanvasItem(canvasId) {
+                canvas.position = canvasPosition
+                canvas.previousPosition = canvasPosition
+            }
+        }
+        
+        self.encodeProjectInBackground()
+        
+        // Force update view
+        graph.graphUpdaterId = .init()
+        
+        // Validates that action data didn't change after derived actions is computed
+        let newActions = self.llmRecording.actions
+        try zip(oldActions, newActions).forEach { oldAction, newAction in
+            if oldAction != newAction {
+                throw StitchAIManagerError.actionValidationError("Found unequal actions:\n\(try oldAction.convertToType())\n\(try newAction.convertToType())")
+            }
+        }
     }
 }
 

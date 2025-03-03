@@ -24,25 +24,15 @@ struct AnchorPopoverView: View {
     
     @Environment(\.appTheme) var theme
     
-    let input: InputCoordinate
+    let rowObserver: InputNodeRowObserver
+    let graph: GraphState
     let selection: Anchoring
     let layerInputObserver: LayerInputObserver?
     let isFieldInsideLayerInspector: Bool
     let isSelectedInspectorRow: Bool
+    let hasHeterogenousValues: Bool
 
     @State private var isOpen = false
-
-    @MainActor
-    var hasHeterogenousValues: Bool {
-        if let layerInputObserver = layerInputObserver {
-            @Bindable var layerInputObserver = layerInputObserver
-            return layerInputObserver.fieldHasHeterogenousValues(
-                0,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
-        } else {
-            return false
-        }
-    }
     
     var body: some View {
         AnchoringGridIconView(
@@ -64,11 +54,11 @@ struct AnchorPopoverView: View {
         Button {
             // log("AnchorPopoverView: selected \(option.rawValue)")
 
-            dispatch(PickerOptionSelected(
-                        input: input,
-                        choice: .anchoring(option), 
-                        isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                        isPersistence: true))
+            graph.pickerOptionSelected(
+                rowObserver: rowObserver,
+                choice: .anchoring(option),
+                isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                isPersistence: true)
 
         } label: {
             Image(systemName: (!self.hasHeterogenousValues && option == selection) ? ANCHOR_SELECTION_OPTION_ICON : ANCHOR_OPTION_ICON)

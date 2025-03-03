@@ -12,6 +12,7 @@ struct SidebarListItemLeftLabelView<SidebarViewModel>: View where SidebarViewMod
     @State private var isBeingEditedAnimated = false
     
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     @Bindable var sidebarViewModel: SidebarViewModel
     @Bindable var itemViewModel: SidebarViewModel.ItemViewModel
     let fontColor: Color
@@ -73,7 +74,8 @@ struct SidebarListItemLeftLabelView<SidebarViewModel>: View where SidebarViewMod
             if isBeingEdited {
                 SidebarListLabelEditView(item: self.itemViewModel,
                                          fontColor: fontColor,
-                                         graph: graph)
+                                         graph: graph,
+                                         graphUI: graphUI)
                 .truncationMode(.tail)
 #if targetEnvironment(macCatalyst)
                 .padding(.trailing, 44)
@@ -83,7 +85,8 @@ struct SidebarListItemLeftLabelView<SidebarViewModel>: View where SidebarViewMod
             } else {
                 SidebarListLabelEditView(item: self.itemViewModel,
                                          fontColor: fontColor,
-                                         graph: graph)
+                                         graph: graph,
+                                         graphUI: graphUI)
             }
         }
         .lineLimit(1)
@@ -99,12 +102,13 @@ struct SidebarListLabelEditView<ItemViewModel>: View where ItemViewModel: Sideba
     let fontColor: Color
     
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
         
     @State var edit: String = ""
         
     @MainActor
     var isFocused: Bool {
-        switch graph.graphUI.reduxFocusedField {
+        switch graphUI.reduxFocusedField {
         case .sidebarLayerTitle(let idString):
             let k = item.id.description == idString
             // log("SidebarListLabelEditView: isFocused: \(k) for \(id)")
@@ -135,7 +139,8 @@ struct SidebarListLabelEditView<ItemViewModel>: View where ItemViewModel: Sideba
                                               fontColor: fontColor,
                                               fieldEditCallback: { (newEdit: String, isCommitting: Bool) in
                     self.item.didLabelEdit(to: newEdit,
-                                           isCommitting: isCommitting)
+                                           isCommitting: isCommitting,
+                                           graph: graph)
                 })
             } else {
                 // logInView("SidebarListLabelEditView: read only")

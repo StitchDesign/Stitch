@@ -13,7 +13,7 @@ struct DropDownChoiceView: View {
 
     @Environment(\.appTheme) var theme
     
-    let id: InputCoordinate
+    let rowObserver: InputNodeRowObserver
     
     let layerInputObserver: LayerInputObserver?
     
@@ -23,19 +23,7 @@ struct DropDownChoiceView: View {
     let choices: PortValues
     let isFieldInsideLayerInspector: Bool
     let isSelectedInspectorRow: Bool
-    
-    @MainActor
-    var hasHeterogenousValues: Bool {
-        
-        if let layerInputObserver = layerInputObserver {
-            @Bindable var layerInputObserver = layerInputObserver
-            return layerInputObserver.fieldHasHeterogenousValues(
-                0,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
-        } else {
-            return false
-        }
-    }
+    let hasHeterogenousValues: Bool
 
     @MainActor
     var finalChoiceDisplay: String {
@@ -44,7 +32,8 @@ struct DropDownChoiceView: View {
     
     var body: some View {
         Menu {
-            StitchPickerView(input: id,
+            StitchPickerView(input: rowObserver,
+                             graph: graph,
                              choices: choices,
                              choiceDisplay: finalChoiceDisplay,
                              isFieldInsideLayerInspector: isFieldInsideLayerInspector)
@@ -68,7 +57,8 @@ struct DropDownChoiceView: View {
 // see https://github.com/vpl-codesign/stitch/issues/5294
 struct StitchPickerView: View {
 
-    let input: InputCoordinate
+    let input: InputNodeRowObserver
+    let graph: GraphState
     let choices: PortValues
     let choiceDisplay: String // current choice
     let isFieldInsideLayerInspector: Bool
@@ -92,9 +82,9 @@ struct StitchPickerView: View {
         let _selection = choices.first(where: { $0.display == selection })
         
         if let _selection = _selection {
-            pickerOptionSelected(input: input,
-                                 choice: _selection,
-                                 isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+            graph.pickerOptionSelected(rowObserver: input,
+                                       choice: _selection,
+                                       isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         } else {
             log("StitchPickerView: could not create PortValue from string: \(selection) ... in choices: \(choices)")
         }
@@ -110,13 +100,4 @@ struct StitchPickerView: View {
             }
         }
     }
-}
-
-@MainActor
-func pickerOptionSelected(input: InputCoordinate, 
-                          choice: PortValue,
-                          isFieldInsideLayerInspector: Bool) {
-    dispatch(PickerOptionSelected(input: input,
-                                  choice: choice,
-                                  isFieldInsideLayerInspector: isFieldInsideLayerInspector))
 }

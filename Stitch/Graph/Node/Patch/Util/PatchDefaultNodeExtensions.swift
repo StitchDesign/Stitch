@@ -10,6 +10,13 @@ import SwiftUI
 import StitchSchemaKit
 
 extension Patch {
+    @MainActor
+    var defaultNodeType: NodeType? {
+        self.defaultNode(id: .init(),
+                         position: .zero,
+                         zIndex: .zero,
+                         graphDelegate: nil)?.userVisibleType
+    }
 
     @MainActor
     var defaultOutputs: PortValuesList {

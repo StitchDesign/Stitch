@@ -39,6 +39,10 @@ struct GenericFlyoutView: View {
     @State var height: CGFloat? = nil
     
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
+    
+    let rowViewModel: InputNodeRowViewModel
+    let node: NodeViewModel
     
     // non-nil, because flyouts are always for inspector inputs
     let layerInputObserver: LayerInputObserver
@@ -46,9 +50,6 @@ struct GenericFlyoutView: View {
     let layer: Layer
     var hasIncomingEdge: Bool = false
     let layerInput: LayerInputPort
-    
-    let nodeId: NodeId
-    let nodeKind: NodeKind
     
     var fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>] {
         layerInputObserver.fieldValueTypes
@@ -73,20 +74,19 @@ struct GenericFlyoutView: View {
         FieldsListView<InputNodeRowViewModel, GenericFlyoutRowView>(
             graph: graph,
             fieldValueTypes: fieldValueTypes,
-            nodeId: nodeId,
+            nodeId: node.id,
             forPropertySidebar: true,
             forFlyout: true,
             blockedFields: layerInputObserver.blockedFields) { inputFieldViewModel, isMultifield in
                 GenericFlyoutRowView(
                     graph: graph,
+                    graphUI: graphUI,
                     viewModel: inputFieldViewModel,
+                    rowViewModel: rowViewModel,
+                    node: node,
                     layerInputObserver: layerInputObserver,
-                    nodeId: nodeId,
-                    fieldIndex: inputFieldViewModel.fieldIndex,
-                    isMultifield: isMultifield,
-                    nodeKind: nodeKind)
+                    isMultifield: isMultifield)
             }
-        
     }
 }
 
@@ -130,17 +130,20 @@ extension LayerInputObserver {
 struct GenericFlyoutRowView: View {
     
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     let viewModel: InputFieldViewModel
         
+    let rowViewModel: InputNodeRowViewModel
+    let node: NodeViewModel
     let layerInputObserver: LayerInputObserver
     
-    let nodeId: NodeId
-    let fieldIndex: Int
-    
     let isMultifield: Bool
-    let nodeKind: NodeKind
     
     @State var isHovered: Bool = false
+
+    var fieldIndex: Int {
+        viewModel.fieldIndex
+    }
         
     var layerInputType: LayerInputType {
         layerInputObserver.layerInputTypeForFieldIndex(fieldIndex)
@@ -158,7 +161,21 @@ struct GenericFlyoutRowView: View {
     
     @MainActor
     var propertyRowIsSelected: Bool {
-        graph.graphUI.propertySidebar.selectedProperty == layerInspectorRowId
+        graphUI.propertySidebar.selectedProperty == layerInspectorRowId
+    }
+    
+    var rowObserver: InputNodeRowObserver {
+        switch self.layerInputObserver.observerMode {
+        case .packed(let inputLayerNodeRowData):
+            return inputLayerNodeRowData.rowObserver
+        case .unpacked(let layerInputUnpackedPortObserver):
+            guard let unpackedObserver = layerInputUnpackedPortObserver.allPorts[safe: fieldIndex] else {
+                fatalErrorIfDebug()
+                return self.layerInputObserver._packedData.rowObserver
+            }
+            
+            return unpackedObserver.rowObserver
+        }
     }
     
     var body: some View {
@@ -169,23 +186,27 @@ struct GenericFlyoutRowView: View {
         
         HStack {
             // For the layer inspector row button, use a
-            LayerInspectorRowButton(layerInputObserver: layerInputObserver,
+            LayerInspectorRowButton(graph: graph,
+                                    graphUI: graphUI,
+                                    layerInputObserver: layerInputObserver,
                                     layerInspectorRowId: layerInspectorRowId,
                                     // For layer inspector row button, provide a NodeIOCoordinate that assumes unpacked + field index
                                     coordinate: InputCoordinate(portType: .keyPath(layerInputType),
-                                                                nodeId: nodeId),
+                                                                nodeId: node.id),
                                     canvasItemId: canvasItemId,
                                     isPortSelected: propertyRowIsSelected,
                                     isHovered: isHovered,
                                     fieldIndex: fieldIndex)
                         
             InputValueEntry(graph: graph,
+                            graphUI: graphUI,
                             viewModel: viewModel,
+                            node: node,
+                            rowViewModel: rowViewModel,
                             layerInputObserver: layerInputObserver,
+                            canvasItem: nil,
                             // For input editing, however, we need the proper packed vs unpacked state
-                            rowObserverId: InputCoordinate(portType: .keyPath(layerInputObserver.layerInputType(fieldIndex: fieldIndex)),
-                                                           nodeId: nodeId),
-                            nodeKind: nodeKind,
+                            rowObserver: rowObserver,
                             isCanvasItemSelected: false, // Always false
                             hasIncomingEdge: false,
                             forPropertySidebar: true,
@@ -200,9 +221,10 @@ struct GenericFlyoutRowView: View {
             self.isHovered = hovering
         })
         .onTapGesture {
-            graph.graphUI.onLayerPortRowTapped(
+            graphUI.onLayerPortRowTapped(
                 layerInspectorRowId: layerInspectorRowId,
-                 canvasItemId: canvasItemId)
+                canvasItemId: canvasItemId,
+                graph: graph)
         }
         
     }

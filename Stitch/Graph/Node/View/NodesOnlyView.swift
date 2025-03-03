@@ -25,7 +25,7 @@ struct NodesOnlyView: View {
     }
     
     var focusedGroup: GroupNodeType? {
-        self.graph.graphUI.groupNodeFocused
+        self.graphUI.groupNodeFocused
     }
     
     func refreshCanvasNodes() {
@@ -76,6 +76,7 @@ struct NodesOnlyView: View {
                 NodeTypeView(
                     document: document,
                     graph: graph,
+                    graphUI: graphUI,
                     node: canvasNode.nodeDelegate ?? .init(),
                     canvasNode: canvasNode,
                     atleastOneCommentBoxSelected: selection.selectedCommentBoxes.count >= 1,

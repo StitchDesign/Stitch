@@ -174,10 +174,12 @@ extension NodeRowViewModel {
         
         self.nodeDelegate = node
         
-        self.initializeValues(rowDelegate: rowDelegate,
-                              unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                              unpackedPortIndex: unpackedPortIndex,
-                              initialValue: rowDelegate.activeValue)
+        if self.fieldValueTypes.isEmpty {
+            self.initializeValues(rowDelegate: rowDelegate,
+                                  unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                                  unpackedPortIndex: unpackedPortIndex,
+                                  initialValue: rowDelegate.activeValue)
+        }
         
         self.portViewData = self.getPortViewData()
     }
@@ -207,22 +209,11 @@ extension NodeRowViewModel {
                                                 unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                                                 unpackedPortIndex: unpackedPortIndex)
         
-        /*
-         Note: we seem to call `initializeValues` several times in row for the *same* NodeRowViewModel,
-         e.g. when generating an AI project from a prompt "Add 2 + 3", first with initialValue = 0, then again with e.g. initialValue = 2.
-         
-         The first call creates fields with proper types and values for 0, and the second call creates fields with proper types and values for 2;
-         but since the field count and type did not change, the `didFieldsChange` check below prevents us from setting the fields with the new, proper values (2).
-         
-         It should be fine to set the fields more than once, since presumably `initializeValues` is only called when `NodeRowViewModel` (and parent view models like `CanvasItemViewModel` etc.)
-         
-         TODO: why do we call `initializeValues` so often?
-         */
-        //        let didFieldsChange = self.fieldValueTypes.isEmpty || self.fieldValueTypes.first?.type != fields.first?.type
+//        let didFieldsChange = !zip(self.fieldValueTypes, fields).allSatisfy { $0 == $1 }
         
-        //        if didFieldsChange {
-            self.fieldValueTypes = fields
-        //        }
+        self.fieldValueTypes = fields
+//        if self.fieldValueTypes.isEmpty || didFieldsChange {
+//        }
     }
     
     @MainActor
@@ -438,55 +429,52 @@ extension OutputNodeRowViewModel {
     }
 }
 
-extension Array where Element: NodeRowViewModel {
-    // easier code search
-    @MainActor
-    mutating func syncRowViewModelsWithCanvasItem(with newEntities: [Element.RowObserver],
-                                                  canvas: CanvasItemViewModel,
-                                                  unpackedPortParentFieldGroupType: FieldGroupType?,
-                                                  unpackedPortIndex: Int?) {
-        self.sync(with: newEntities,
-                  canvas: canvas,
-                  unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                  unpackedPortIndex: unpackedPortIndex)
-    }
-    
+extension CanvasItemViewModel {
     // TODO: This is impossible to find via a code search; too many methods are called `sync`
     /// Syncing logic as influced from `SchemaObserverIdentifiable`.
     @MainActor
-    mutating func sync(with newEntities: [Element.RowObserver],
-                       canvas: CanvasItemViewModel,
-                       unpackedPortParentFieldGroupType: FieldGroupType?,
-                       unpackedPortIndex: Int?) {
+    func syncRowViewModels<RowViewModel>(with newEntities: [RowViewModel.RowObserver],
+                                         keyPath: ReferenceWritableKeyPath<CanvasItemViewModel, [RowViewModel]>,
+                                         unpackedPortParentFieldGroupType: FieldGroupType?,
+                                         unpackedPortIndex: Int?) where RowViewModel: NodeRowViewModel {
         
+        let canvas = self
         let incomingIds = newEntities.map { $0.id }.toSet
-        let currentIds = self.compactMap { $0.rowDelegate?.id }.toSet
+        let currentIds = self[keyPath: keyPath].compactMap { $0.rowDelegate?.id }.toSet
         let entitiesToRemove = currentIds.subtracting(incomingIds)
 
-        let currentEntitiesMap = self.reduce(into: [:]) { result, currentEntity in
+        let currentEntitiesMap = self[keyPath: keyPath].reduce(into: [:]) { result, currentEntity in
             result.updateValue(currentEntity, forKey: currentEntity.rowDelegate?.id)
         }
 
         // Remove element if no longer tracked by incoming list
         entitiesToRemove.forEach { idToRemove in
-            self.removeAll { $0.rowDelegate?.id == idToRemove }
+            self[keyPath: keyPath].removeAll { $0.rowDelegate?.id == idToRemove }
         }
 
         // Create or update entities from new list
-        self = newEntities.enumerated().map { portIndex, newEntity in
-            if let entity = currentEntitiesMap.get(newEntity.id) {
-                return entity
-            } else {
-                let rowId = NodeRowViewModelId(graphItemType: .node(canvas.id),
-                                               // Important this is the node ID from canvas for group nodes
-                                               nodeId: canvas.nodeDelegate?.id ?? newEntity.id.nodeId,
-                                               portId: portIndex)
-                
-                let rowViewModel = Element(id: rowId,
-                                           rowDelegate: newEntity,
-                                           canvasItemDelegate: canvas)
-                
-                return rowViewModel
+        let didCurrentEntitiesChange = newEntities.contains {
+            // If no entity found, we have a change
+            currentEntitiesMap.get($0.id) == nil
+        }
+        
+        // MARK: only self-assign if anything changed or else there will be extra render cycles
+        if didCurrentEntitiesChange {
+            self[keyPath: keyPath] = newEntities.enumerated().map { portIndex, newEntity in
+                if let entity = currentEntitiesMap.get(newEntity.id) {
+                    return entity
+                } else {
+                    let rowId = NodeRowViewModelId(graphItemType: .node(canvas.id),
+                                                   // Important this is the node ID from canvas for group nodes
+                                                   nodeId: canvas.nodeDelegate?.id ?? newEntity.id.nodeId,
+                                                   portId: portIndex)
+                    
+                    let rowViewModel = RowViewModel(id: rowId,
+                                                    rowDelegate: newEntity,
+                                                    canvasItemDelegate: canvas)
+                    
+                    return rowViewModel
+                }
             }
         }
     }

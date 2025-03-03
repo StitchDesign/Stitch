@@ -13,10 +13,10 @@ struct ColorOrbValueButtonView: View {
     @State private var show = false
 
     let fieldViewModel: InputFieldViewModel
+    let rowViewModel: InputNodeRowViewModel
+    let rowObserver: InputNodeRowObserver
     let layerInputObserver: LayerInputObserver?
     let isForFlyout: Bool
-    let nodeId: NodeId
-    let id: InputCoordinate
     let currentColor: Color // the current color, from input
     let hasIncomingEdge: Bool
     let graph: GraphState
@@ -36,19 +36,19 @@ struct ColorOrbValueButtonView: View {
 
             // Must compare the strings
             if currentColor.asHexDisplay != self.colorState.asHexDisplay {
-                dispatch(PickerOptionSelected(
-                            input: id,
-                            choice: .color(newColor),
-                            isFieldInsideLayerInspector: fieldViewModel.isFieldInsideLayerInspector,
-                            // Lots of small changes so don't persist everything
-                            isPersistence: false))
+                graph.pickerOptionSelected(
+                    rowObserver: rowObserver,
+                    choice: .color(newColor),
+                    isFieldInsideLayerInspector: rowViewModel.isFieldInsideLayerInspector,
+                    // Lots of small changes so don't persist everything
+                    isPersistence: false)
             }
         }
 
-        StitchColorPickerView(rowId: id, 
+        StitchColorPickerView(rowObserver: rowObserver,
                               layerInputObserver: layerInputObserver,
                               fieldCoordinate: fieldViewModel.id,
-                              isFieldInsideLayerInspector: fieldViewModel.isFieldInsideLayerInspector,
+                              isFieldInsideLayerInspector: rowViewModel.isFieldInsideLayerInspector,
                               isForFlyout: isForFlyout,
                               chosenColor: binding,
                               graph: graph)

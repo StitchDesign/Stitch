@@ -14,13 +14,13 @@ extension LayerInputObserver {
     // which could be for a field on the canvas or in the layer inspector
     @MainActor
     func fieldHasHeterogenousValues(_ fieldIndex: Int,
-                                    isFieldInsideLayerInspector: Bool) -> Bool {
+                                    isFieldInsideLayerInspector: Bool,
+                                    graph: GraphState) -> Bool {
 
         let layerInputPort: LayerInputPort = self.port
         
         // Only relevant when this layer-input field is in the layer inspector and multiple layers are selected
         guard isFieldInsideLayerInspector,
-              let graph = self.graphDelegate,
               graph.multiselectInputs.isDefined else {
             return false
         }

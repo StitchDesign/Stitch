@@ -233,7 +233,7 @@ extension StitchDocumentViewModel {
         // wipe selected edges and canvas items
         self.graphUI.selection = GraphUISelectionState()
         self.visibleGraph.selectedEdges = .init()
-        self.visibleGraph.resetSelectedCanvasItems()
+        self.visibleGraph.resetSelectedCanvasItems(graphUI: graphUI)
         
         // ... then select the GroupNode and its edges
         newGroupNode.patchCanvasItem?.select(self.graph)

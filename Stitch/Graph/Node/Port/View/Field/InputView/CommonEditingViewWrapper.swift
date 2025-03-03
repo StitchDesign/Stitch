@@ -11,13 +11,15 @@ import StitchSchemaKit
 struct CommonEditingViewWrapper: View {
     
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     @Bindable var fieldViewModel: InputFieldViewModel
+    @Bindable var rowObserver: InputNodeRowObserver
+    let rowViewModel: InputNodeRowViewModel
     let layerInputObserver: LayerInputObserver?
     let fieldValue: FieldValue
     let fieldCoordinate: FieldCoordinate
     let isCanvasItemSelected: Bool
     let choices: [String]?
-    let adjustmentBarSessionId: AdjustmentBarSessionId
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
     let isFieldInMultifieldInput: Bool
@@ -39,7 +41,8 @@ struct CommonEditingViewWrapper: View {
             @Bindable var layerInputObserver = layerInputObserver
             return layerInputObserver.fieldHasHeterogenousValues(
                 fieldIndex,
-                isFieldInsideLayerInspector: forPropertySidebar)
+                isFieldInsideLayerInspector: forPropertySidebar,
+                graph: graph)
         } else {
             return false
         }
@@ -84,6 +87,9 @@ struct CommonEditingViewWrapper: View {
                           layerInputObserver: layerInputObserver,
                           inputString: stringValue,
                           graph: graph,
+                          graphUI: graphUI,
+                          rowObserver: rowObserver,
+                          rowViewModel: rowViewModel,
                           fieldIndex: fieldCoordinate.fieldIndex,
                           isCanvasItemSelected: isCanvasItemSelected,
                           choices: choices,

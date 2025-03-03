@@ -13,18 +13,16 @@ extension String {
     static let HETEROGENOUS_VALUES = "Multi"
 }
 
-extension InputFieldViewModel {
-    
-    // Get rid of this -- it's used
+extension NodeRowViewModel {
     @MainActor
     var isFieldInsideLayerInspector: Bool {
-        self.rowViewModelDelegate?.id.graphItemType.isLayerInspector ?? false
+        self.id.graphItemType.isLayerInspector
     }
     
     // Is this input-field for a layer input, and if so, which one?
     @MainActor
     var layerInput: LayerInputPort? {
-        self.rowViewModelDelegate?.id.portType.keyPath?.layerInput
+        self.id.portType.keyPath?.layerInput
     }
 }
 

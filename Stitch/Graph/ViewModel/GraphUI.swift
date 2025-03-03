@@ -344,7 +344,7 @@ extension GraphState {
     
     /// Resets various state including any alert state or graph selection state. Called after graph tap gesture or ESC key.
     @MainActor
-    func resetAlertAndSelectionState() {
+    func resetAlertAndSelectionState(graphUI: GraphUIState) {
 
         #if !targetEnvironment(macCatalyst)
         // Fixes bug where keyboard may not disappear
@@ -363,34 +363,32 @@ extension GraphState {
             self.graphMovement.graphIsDragged = false            
         }
 
-        self.graphUI.selection = GraphUISelectionState()
-        self.resetSelectedCanvasItems()
-        self.graphUI.insertNodeMenuState.searchResults = InsertNodeMenuState.allSearchOptions
+        graphUI.selection = GraphUISelectionState()
+        self.resetSelectedCanvasItems(graphUI: graphUI)
+        graphUI.insertNodeMenuState.searchResults = InsertNodeMenuState.allSearchOptions
         
         // TODO: should we just reset the entire insertNodeMenuState?
         withAnimation(.INSERT_NODE_MENU_TOGGLE_ANIMATION) {
-            self.graphUI.insertNodeMenuState.show = false
-            self.graphUI.insertNodeMenuState.doubleTapLocation = nil
+            graphUI.insertNodeMenuState.show = false
+            graphUI.insertNodeMenuState.doubleTapLocation = nil
         }
         
-        self.graphUI.isFullScreenMode = false
+        graphUI.isFullScreenMode = false
 
-        self.graphUI.activelyEditedCommentBoxTitle = nil
+        graphUI.activelyEditedCommentBoxTitle = nil
 
         // Wipe any redux-controlled focus field
         // (For now, just used with TextField layers)
-        if self.graphUI.reduxFocusedField != nil {
-            self.graphUI.reduxFocusedField = nil
+        if graphUI.reduxFocusedField != nil {
+            graphUI.reduxFocusedField = nil
         }
         
         withAnimation {
-            self.graphUI.showCatalystProjectTitleModal = false
+            graphUI.showCatalystProjectTitleModal = false
         }
         
-        self.graphUI.isSidebarFocused = false
-        
-//        self.graphUI.openPortPreview = .none
-        self.graphUI.openPortPreview = nil
+        graphUI.isSidebarFocused = false
+        graphUI.openPortPreview = nil
     }
 }
 
@@ -456,10 +454,10 @@ enum GraphDragState: Codable {
 extension GraphState {
         
     @MainActor
-    func resetSelectedCanvasItems() {
-        
+    func resetSelectedCanvasItems(graphUI: GraphUIState) {
         self.getCanvasItems().forEach {
-            $0.deselect(self)
+            $0.deselect(self,
+                        graphUI: graphUI)
         }
     }
 }
@@ -478,25 +476,27 @@ extension GraphState {
     
     // Keep this helper around
     @MainActor
-    func selectSingleNode(_ node: CanvasItemViewModel) {
+    func selectSingleNode(_ node: CanvasItemViewModel,
+                          graphUI: GraphUIState) {
         // ie expansionBox, isSelecting, selected-comments etc.
         // get reset when we select a single node.
         self.graphUI.selection = GraphUISelectionState()
-        self.resetSelectedCanvasItems()
+        self.resetSelectedCanvasItems(graphUI: graphUI)
         node.select(self)
     }
     
     @MainActor
-    func deselectAllCanvasItems() {
+    func deselectAllCanvasItems(graphUI: GraphUIState) {
         self.graphUI.selection = GraphUISelectionState()
-        self.resetSelectedCanvasItems()
+        self.resetSelectedCanvasItems(graphUI: graphUI)
     }
     
     @MainActor
-    func selectSingleCanvasItem(_ canvasItem: CanvasItemViewModel) {
+    func selectSingleCanvasItem(_ canvasItem: CanvasItemViewModel,
+                                graphUI: GraphUIState) {
         // ie expansionBox, isSelecting, selected-comments etc.
         // get reset when we select a single canvasItem.
-        self.deselectAllCanvasItems()
+        self.deselectAllCanvasItems(graphUI: graphUI)
         canvasItem.select(self)
     }
     
@@ -524,10 +524,11 @@ extension CanvasItemViewModel {
     }
     
     @MainActor
-    func deselect(_ graph: GraphState) {
+    func deselect(_ graph: GraphState,
+                  graphUI: GraphUIState) {
         // Prevent render cycles if already unselected
         guard self.isSelected(graph) else { return }
-        graph.graphUI.selection.selectedNodeIds.remove(self.id)
+        graphUI.selection.selectedNodeIds.remove(self.id)
     }
 }
 
