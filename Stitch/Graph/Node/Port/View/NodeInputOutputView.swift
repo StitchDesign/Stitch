@@ -80,10 +80,6 @@ struct NodeInputView: View {
     var body: some View {
         HStack(alignment: hStackAlignment) {
             
-            if let layerInputObserver = layerInputObserver {
-                logInView("NodeInputView: layerInputObserver.usesMultifields: \(layerInputObserver.usesMultifields)")
-            }
-            
             // TODO: is there a better way to build this UI, to avoid the perf-intensive `if/else` branch?
             // We want to show just a single text that, when tapped, opens the flyout; we do not want to show any fields
             if isShadowLayerInputRow, forPropertySidebar, !forFlyout {
