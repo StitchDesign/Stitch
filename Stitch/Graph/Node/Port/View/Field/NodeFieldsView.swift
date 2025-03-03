@@ -56,11 +56,6 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
     
     @ViewBuilder
     var constrainedMultifieldsView: some View {
-        
-        if layerInput == .layerMargin { // || layerInput == .padding {
-            logInView("had margin")
-        }
-        
         let p0 = fieldGroupViewModel.fieldObservers[safe: 0]
         let p1 = fieldGroupViewModel.fieldObservers[safe: 1]
         let p2 = fieldGroupViewModel.fieldObservers[safe: 2]
