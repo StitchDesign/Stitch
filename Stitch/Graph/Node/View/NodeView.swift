@@ -155,6 +155,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
         
         HStack {
             CanvasItemTitleView(graph: graph,
+                                graphUI: graphUI,
                                 node: stitch,
                                 canvasItem: node,
                                 isCanvasItemSelected: isSelected)

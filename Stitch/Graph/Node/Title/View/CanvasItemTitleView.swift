@@ -20,6 +20,7 @@ struct CanvasItemTitleView: View {
     //    @FocusedValue(\.focusedField) private var focusedField
     
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     @Bindable var node: NodeViewModel
     let canvasItem: CanvasItemViewModel
     let isCanvasItemSelected: Bool
@@ -59,6 +60,7 @@ struct CanvasItemTitleView: View {
                             .foregroundColor(Color(.nodeTitleFont))
                     }
                     NodeTitleTextField(graph: graph,
+                                       graphUI: graphUI,
                                        node: node,
                                        canvasItem: canvasItem,
                                        label: label,

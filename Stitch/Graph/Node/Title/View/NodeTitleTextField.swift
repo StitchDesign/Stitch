@@ -10,6 +10,7 @@ import StitchSchemaKit
 
 struct NodeTitleTextField: View {
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     @Bindable var node: NodeViewModel
     @Bindable var canvasItem: CanvasItemViewModel
     let label: String
@@ -18,6 +19,7 @@ struct NodeTitleTextField: View {
 
     var body: some View {
         StitchTitleTextField(graph: graph,
+                             graphUI: graphUI,
                              node: node,
                              canvasItem: canvasItem,
                              titleEditType: .canvas(canvasItem.id),
@@ -29,7 +31,10 @@ struct NodeTitleTextField: View {
     /// A wrapper view for `TextField` which renders a read-only view when the input isn't in focus. This fixes a performance
     /// issue with `TextField` which becomes exacerbated by many rendered `TextField`'s in a view.
 struct StitchTitleTextField: View {
+    @State private var isTitleFocused: Bool = false
+    
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     @Bindable var node: NodeViewModel
     @Bindable var canvasItem: CanvasItemViewModel
     let titleEditType: StitchTitleEdit
@@ -39,7 +44,7 @@ struct StitchTitleTextField: View {
     
     @MainActor
     var isFocused: Bool {
-        (graph.graphUI.reduxFocusedField?.getNodeTitleEdit == titleEditType)
+        (graphUI.reduxFocusedField?.getNodeTitleEdit == titleEditType)
         // && isCanvasItemSelected
     }
 
