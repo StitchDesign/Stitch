@@ -57,12 +57,16 @@ struct NodeInputView: View {
                         isSelectedInspectorRow: propertyIsSelected)
     }
     
+    var layerInput: LayerInputPort? {
+        layerInputObserver?.port
+    }
+    
     var isShadowLayerInputRow: Bool {
-        layerInputObserver?.port == SHADOW_FLYOUT_LAYER_INPUT_PROXY
+        layerInput == SHADOW_FLYOUT_LAYER_INPUT_PROXY
     }
     
     var is3DTransform: Bool {
-        layerInputObserver?.port == .transform3D
+        layerInput == .transform3D
     }
     
     /// Skip the label if we have a 3D transform or 3D size input but are not in the flyout.
@@ -70,12 +74,15 @@ struct NodeInputView: View {
         if forFlyout {
             return true
         }
-           
         return self.layerInputObserver?.port.showsLabelForInspector ?? true
     }
     
     var body: some View {
         HStack(alignment: hStackAlignment) {
+            
+            if let layerInputObserver = layerInputObserver {
+                logInView("NodeInputView: layerInputObserver.usesMultifields: \(layerInputObserver.usesMultifields)")
+            }
             
             // TODO: is there a better way to build this UI, to avoid the perf-intensive `if/else` branch?
             // We want to show just a single text that, when tapped, opens the flyout; we do not want to show any fields
@@ -95,28 +102,56 @@ struct NodeInputView: View {
                 // then vertically stack those.
                 if is3DTransform {
                     VStack {
-                        fieldsListView
+                        fieldsListView(fieldValueTypes)
+                    }
+                }
+                
+                /*
+                 When packed, `margin` has one row observer with four field models (which can be handled by NodeFieldsView)
+                 When unpacked, `margin` has four row observers with one field model each.
+                 
+                 TODO: we need an API that abstracts away "packed vs unpacked" layer input's differing row observer and field model counts; "packed vs unpacked" is just for canvas items and should not affect layer inspector display
+                 */
+                else if forPropertySidebar,
+                   layerInput == .layerMargin || layerInput == .padding,
+                   layerInputObserver?.mode == .unpacked,
+                   let f0 = fieldValueTypes[safeIndex: 0],
+                   let f1 = fieldValueTypes[safeIndex: 1],
+                   let f2 = fieldValueTypes[safeIndex: 2],
+                   let f3 = fieldValueTypes[safeIndex: 3] {
+                    
+                    VStack {
+                        HStack {
+                            // Individual fields for PortValue.padding can never be blocked; only the input as a whole can be blocked
+                            fieldsListView([f0])
+                            fieldsListView([f1])
+                        }
+                        HStack {
+                            fieldsListView([f2])
+                            fieldsListView([f3])
+                        }
                     }
                 }
                 
                 // Vast majority of inputs, however, have a single row of fields.
                 // TODO: this part of the UI is not clear; we allow the single row of fields to float up into the enclosing HStack, yet flyouts always vertically stack their fields
                 else {
-                    fieldsListView
+                    fieldsListView(fieldValueTypes)
                 }
             }
         } // HStack
     }
     
-    var fieldsListView: FieldsListView<InputNodeRowViewModel, InputValueEntry> {
+    func fieldsListView(_ fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>]) -> FieldsListView<InputNodeRowViewModel, InputValueEntry> {
+        
         FieldsListView<InputNodeRowViewModel, InputValueEntry>(
-            graph: graph,
+            graph: self.graph,
             fieldValueTypes: fieldValueTypes,
-            nodeId: node.id,
-            forPropertySidebar: forPropertySidebar,
-            forFlyout: forFlyout,
-            blockedFields: layerInputObserver?.blockedFields,
-            valueEntryView: valueEntryView)
+            nodeId: self.node.id,
+            forPropertySidebar: self.forPropertySidebar,
+            forFlyout: self.forFlyout,
+            layerInputObserver: self.layerInputObserver,
+            valueEntryView: self.valueEntryView)
     }
     
     @ViewBuilder @MainActor
@@ -127,10 +162,16 @@ struct NodeInputView: View {
                          isSelectedInspectorRow: propertyIsSelected)
     }
     
-    // Only needed for Shadow Flyout's Shadow Offset multifield-input?
+    // Needed for alignment of e.g. Packed vs Unpacked layer inputs for Margin, Padding
     var hStackAlignment: VerticalAlignment {
-        let isMultiField = (fieldValueTypes.first?.fieldObservers.count ?? 0) > 1
-        return (forPropertySidebar && isMultiField) ? .firstTextBaseline : .center
+        
+        // Several ways an input can be "multifield":
+        // 1. patch node input or packed layer node input: one fieldValue type with multiple field observers
+        // 2. unpacked layer node input: multuple field value types with one field observer each
+        // 3. patch node input for shape commands (IGNORED FOR NOW?)
+        let isMultifield = self.layerInputObserver?.usesMultifields ?? ((fieldValueTypes.first?.fieldObservers.count ?? 0) > 1)
+        
+        return (forPropertySidebar && isMultifield) ? .firstTextBaseline : .center
     }
 }
 
@@ -244,7 +285,7 @@ struct NodeOutputView: View {
                     nodeId: nodeId,
                     forPropertySidebar: forPropertySidebar,
                     forFlyout: false, // Outputs do not use flyouts
-                    blockedFields: nil, // Always nil for output fields
+                    layerInputObserver: nil,
                     valueEntryView: valueEntryView)
             }
             
@@ -271,28 +312,41 @@ struct FieldsListView<PortType, ValueEntryView>: View where PortType: NodeRowVie
     let nodeId: NodeId
     let forPropertySidebar: Bool
     let forFlyout: Bool
-    let blockedFields: LayerPortTypeSet?
-
-    @ViewBuilder var valueEntryView: (PortType.FieldType, Bool) -> ValueEntryView
+    let layerInputObserver: LayerInputObserver?
     
+    // When displaying an individual field, we often want to know whether it is one of many, so as to not display adjustment bar button, certain lavels etc.
+    
+    // Actually, this is really determined by the layer input observer's type.
+    var blockedFields: LayerPortTypeSet? {
+        layerInputObserver?.blockedFields
+    }
+    
+    var layerInputUsesMultifields: Bool {
+        layerInputObserver?.usesMultifields ?? false
+    }
+    
+    @ViewBuilder var valueEntryView: (PortType.FieldType, Bool) -> ValueEntryView
+
     var body: some View {
      
-        let multipleFieldGroups = fieldValueTypes.count > 1
+//        let multipleFieldGroups = fieldValueTypes.count > 1
+        let isMultifield = layerInputUsesMultifields || fieldValueTypes.count > 1
         
         ForEach(fieldValueTypes) { (fieldGroupViewModel: FieldGroupTypeData<PortType.FieldType>) in
             
             let multipleFieldsPerGroup = fieldGroupViewModel.fieldObservers.count > 1
             
             // Note: "multifield" is more complicated for layer inputs, since `fieldObservers.count` is now inaccurate for an unpacked port
-            let isMultiField = forPropertySidebar ?  (multipleFieldGroups || multipleFieldsPerGroup) : fieldGroupViewModel.fieldObservers.count > 1
-            
+            let _isMultiField = forPropertySidebar ?  (isMultifield || multipleFieldsPerGroup) : fieldGroupViewModel.fieldObservers.count > 1
+                        
             if !self.isAllFieldsBlockedOut(fieldGroupViewModel: fieldGroupViewModel) {
                 NodeFieldsView(graph: graph,
                                fieldGroupViewModel: fieldGroupViewModel,
                                nodeId: nodeId,
-                               isMultiField: isMultiField,
+                               isMultiField: _isMultiField,
                                forPropertySidebar: forPropertySidebar,
                                forFlyout: forFlyout,
+                               layerInputObserver: layerInputObserver,
                                blockedFields: blockedFields,
                                valueEntryView: valueEntryView)
             }

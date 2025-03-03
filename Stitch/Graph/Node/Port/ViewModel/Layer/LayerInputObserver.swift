@@ -107,6 +107,19 @@ extension LayerInputType {
 
 extension LayerInputObserver {
     
+    // "Does this layer input use multifield fields?"
+    // Regardless of packed vs unpacked mode.
+    @MainActor
+    var usesMultifields: Bool {
+        //        log("LayerInputObserver: usesMultifields: for layer input \(self.port)")
+        switch self.mode {
+        case .packed:
+            return (self.fieldValueTypes.first?.fieldObservers.count ?? 0) > 1
+        case .unpacked:
+            return self.fieldValueTypes.count > 1
+        }
+    }
+    
     // The overall-label for the port, e.g. "Size" (not "W" or "H") for the size property
     @MainActor
     func overallPortLabel(usesShortLabel: Bool,
