@@ -28,7 +28,8 @@ struct BoolCheckboxView: View {
                         
             return layerInputObserver.fieldHasHeterogenousValues(
                 0,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+                isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                graph: graph)
         } else {
             return false
         }

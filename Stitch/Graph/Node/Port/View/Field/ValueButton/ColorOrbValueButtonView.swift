@@ -13,6 +13,7 @@ struct ColorOrbValueButtonView: View {
     @State private var show = false
 
     let fieldViewModel: InputFieldViewModel
+    let rowViewModel: InputNodeRowViewModel
     let rowObserver: InputNodeRowObserver
     let layerInputObserver: LayerInputObserver?
     let isForFlyout: Bool
@@ -38,7 +39,7 @@ struct ColorOrbValueButtonView: View {
                 graph.pickerOptionSelected(
                     rowObserver: rowObserver,
                     choice: .color(newColor),
-                    isFieldInsideLayerInspector: fieldViewModel.isFieldInsideLayerInspector,
+                    isFieldInsideLayerInspector: rowViewModel.isFieldInsideLayerInspector,
                     // Lots of small changes so don't persist everything
                     isPersistence: false)
             }
@@ -47,7 +48,7 @@ struct ColorOrbValueButtonView: View {
         StitchColorPickerView(rowObserver: rowObserver,
                               layerInputObserver: layerInputObserver,
                               fieldCoordinate: fieldViewModel.id,
-                              isFieldInsideLayerInspector: fieldViewModel.isFieldInsideLayerInspector,
+                              isFieldInsideLayerInspector: rowViewModel.isFieldInsideLayerInspector,
                               isForFlyout: isForFlyout,
                               chosenColor: binding,
                               graph: graph)
