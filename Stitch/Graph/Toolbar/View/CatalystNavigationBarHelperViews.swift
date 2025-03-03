@@ -8,13 +8,14 @@
 import SwiftUI
 import StitchSchemaKit
 
-struct CatalystProjectTitleModalOpened: GraphEvent {
-    func handle(state: GraphState) {
+struct CatalystProjectTitleModalOpened: StitchDocumentEvent {
+    func handle(state: StitchDocumentViewModel) {
         // log("CatalystProjectTitleModalOpened")
         withAnimation {
             state.graphUI.showCatalystProjectTitleModal = true
         }
-        state.reduxFieldFocused(focusedField: .projectTitle)
+        state.visibleGraph.reduxFieldFocused(focusedField: .projectTitle,
+                                             graphUI: state.graphUI)
     }
 }
 

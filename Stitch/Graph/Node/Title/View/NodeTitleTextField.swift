@@ -103,7 +103,8 @@ struct StitchTitleTextField: View {
                 // Better as global redux-state than local view-state: only one field in entire app can be focused at a time.
                 .onTapGesture {
                     // log("NodeTitleTextField tapped")
-                    dispatch(ReduxFieldFocused(focusedField: .nodeTitle(titleEditType)))
+                    graph.reduxFieldFocused(focusedField: .nodeTitle(titleEditType),
+                                            graphUI: self.graphUI)
                 }
             }
         }
