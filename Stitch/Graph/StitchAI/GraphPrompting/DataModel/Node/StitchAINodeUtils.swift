@@ -74,8 +74,9 @@ extension StitchAINodeSectionDescription {
                 let inputs: [StitchAIPortValueDescription] = defaultNode.inputsObservers.map { inputObserver in
                     StitchAIPortValueDescription(label: inputObserver
                         .label(node: defaultNode,
+                               currentTraversalLevel: nil,
                                graph: graph),
-                                                 value: inputObserver.activeValue)
+                                                 value: inputObserver.getActiveValue(activeIndex: .init(.zero)))
                 }
                 
                 // Calculate node to get outputs values
@@ -87,8 +88,9 @@ extension StitchAINodeSectionDescription {
                 let outputs: [StitchAIPortValueDescription] = defaultNode.outputsObservers.map { outputObserver in
                     StitchAIPortValueDescription(label: outputObserver
                         .label(node: defaultNode,
+                               currentTraversalLevel: nil,
                                graph: graph),
-                                                 value: outputObserver.activeValue)
+                                                 value: outputObserver.getActiveValue(activeIndex: .init(.zero)))
                 }
                 
                 assertInDebug(inputs.first { $0.value == .none } == nil)

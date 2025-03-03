@@ -22,15 +22,15 @@ let ABSOLUTE_GRAPH_CENTER = CGPoint(x: WHOLE_GRAPH_LENGTH/2,
 struct StitchUIScrollViewModifier: ViewModifier {
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
     
     @MainActor
     var selectionState: GraphUISelectionState {
-        graphUI.selection
+        graph.selection
     }
     
     func body(content: Content) -> some View {
-        StitchUIScrollView(document: document) {
+        StitchUIScrollView(document: document,
+                           graph: graph) {
             ZStack {
                 content
                     .ignoresSafeArea()
@@ -48,7 +48,7 @@ struct StitchUIScrollViewModifier: ViewModifier {
                     )
                     .simultaneousGesture(TapGesture(count: 1)
                         .onEnded({
-                            graph.graphTapped(graphUI: graphUI)
+                            graph.graphTapped(document: document)
                         })
                     )
                 
@@ -60,6 +60,7 @@ struct StitchUIScrollViewModifier: ViewModifier {
                 // Selection box and cursor
                 if let expansionBox = selectionState.expansionBox {
                     ExpansionBoxView(graph: graph,
+                                     document: document,
                                      box: expansionBox)
                 }
                 
@@ -88,13 +89,8 @@ struct StitchUIScrollViewModifier: ViewModifier {
 
 struct StitchUIScrollView<Content: View>: UIViewRepresentable {
     let document: StitchDocumentViewModel
-    let content: Content
-    
-    init(document: StitchDocumentViewModel,
-         @ViewBuilder content: () -> Content) {
-        self.content = content()
-        self.document = document
-    }
+    let graph: GraphState
+    @ViewBuilder var content: () -> Content
     
     func makeUIView(context: Context) -> UIScrollView {
         let scrollView = UIScrollView()
@@ -146,7 +142,6 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
 
         // TODO: either continue to start graph at center, or persist BOTH zoom and offset (persisting offset but not zoom makes it easy to reopen the graph with no nodes visible, especially if we had been highly zoomed out)
         // let newOffset =  self.document.localPosition
-        log("StitchUIScrollView: initializeContentOffset: self.document.localPosition: \(self.document.localPosition)")
         log("StitchUIScrollView: USING GRAPH'S ABSOLUTE CENTER, NOT PERSISTED LOCAL POSITION")
         let newOffset =  CGPoint(x: WHOLE_GRAPH_LENGTH/2,
                                  y: WHOLE_GRAPH_LENGTH/2)
@@ -161,15 +156,15 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         
     func updateUIView(_ uiView: UIScrollView, context: Context) {
         // Update content when SwiftUI view changes
-        context.coordinator.hostingController.rootView = content
+        context.coordinator.hostingController.rootView = content()
         
-        if let canvasJumpLocation = document.graphUI.canvasJumpLocation {
+        if let canvasJumpLocation = graph.canvasJumpLocation {
             uiView.setContentOffset(canvasJumpLocation, animated: true)
             dispatch(GraphScrollDataUpdated(
                 newOffset: uiView.contentOffset,
                 newZoom: uiView.zoomScale
             ))
-            document.graphUI.canvasJumpLocation = nil
+            graph.canvasJumpLocation = nil
             
             context.coordinator.borderCheckingDisabled = true
             
@@ -180,13 +175,13 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             }
         } // if let
                 
-        if let zoomInAmount = document.graphUI.canvasZoomedIn.zoomAmount {
+        if let zoomInAmount = graph.canvasZoomedIn.zoomAmount {
             // log("StitchUIScrollView: ZOOM IN: uiView.zoomScale was: \(uiView.zoomScale)")
             // log("StitchUIScrollView: ZOOM IN: uiView.contentOffset was: \(uiView.contentOffset)")
             
             // TODO: 'appropriate feeling' zoom step size is probably some non-linear curve, since zoom step size of 0.1 near max zoom-in level also feels bad (too small)
             if uiView.zoomScale < 0.3,
-               document.graphUI.canvasZoomedIn == .shortcutKey {
+               graph.canvasZoomedIn == .shortcutKey {
                 uiView.zoomScale += zoomInAmount/4 //zoomInAmount/2
             } else if uiView.zoomScale < 0.4  {
                 uiView.zoomScale += zoomInAmount/2
@@ -203,7 +198,7 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
                 newZoom: uiView.zoomScale
             ))
             
-            document.graphUI.canvasZoomedIn = .noZoom
+            graph.canvasZoomedIn = .noZoom
             context.coordinator.borderCheckingDisabled = true
             
             // Do not check borders during zoom.
@@ -212,12 +207,12 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             }
         }
         
-        if let zoomOutAmount = document.graphUI.canvasZoomedOut.zoomAmount {
+        if let zoomOutAmount = graph.canvasZoomedOut.zoomAmount {
             
             // log("StitchUIScrollView: ZOOM OUT: uiView.zoomScale was: \(uiView.zoomScale)")
             // log("StitchUIScrollView: ZOOM OUT: uiView.contentOffset was: \(uiView.contentOffset)")
             if uiView.zoomScale < 0.3,
-               document.graphUI.canvasZoomedOut == .shortcutKey {
+               graph.canvasZoomedOut == .shortcutKey {
                 uiView.zoomScale -= zoomOutAmount/4
             } else if uiView.zoomScale < 0.4  {
                 uiView.zoomScale -= zoomOutAmount/2
@@ -233,7 +228,7 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
                 newZoom: uiView.zoomScale
             ))
             
-            document.graphUI.canvasZoomedOut = .noZoom
+            graph.canvasZoomedOut = .noZoom
             context.coordinator.borderCheckingDisabled = true
             
             // Do not check borders during zoom.
@@ -242,8 +237,8 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             }
         }
         
-        if let canvasPageOffsetChanged = document.graphUI.canvasPageOffsetChanged,
-           let canvasPageZoomScaleChanged = document.graphUI.canvasPageZoomScaleChanged {
+        if let canvasPageOffsetChanged = graph.canvasPageOffsetChanged,
+           let canvasPageZoomScaleChanged = graph.canvasPageZoomScaleChanged {
             // log("StitchUIScrollView: canvasPageOffsetChanged: \(canvasPageOffsetChanged)")
             // log("StitchUIScrollView: canvasPageZoomScaleChanged: \(canvasPageZoomScaleChanged)")
                         
@@ -263,8 +258,8 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
             
             context.coordinator.borderCheckingDisabled = true
             
-            document.graphUI.canvasPageOffsetChanged = nil
-            document.graphUI.canvasPageZoomScaleChanged = nil
+            graph.canvasPageOffsetChanged = nil
+            graph.canvasPageZoomScaleChanged = nil
             
             // Do not check borders during zoom.
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
@@ -275,7 +270,7 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
     }
     
     func makeCoordinator() -> StitchScrollCoordinator<Content> {
-        StitchScrollCoordinator(content: content,
+        StitchScrollCoordinator(content: content(),
                                 document: document)
     }
     
@@ -379,14 +374,19 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
         }
         
         // Only check borders if we have cached size and position data for canvas items
-        let canvasItemsInFrame = graph.getCanvasItemsAtTraversalLevel().filter({ $0.isVisibleInFrame(graph.visibleCanvasIds) })
+        let canvasItemsInFrame = graph
+            .getCanvasItemsAtTraversalLevel(groupNodeFocused: document.groupNodeFocused?.groupNodeId).filter({ $0.isVisibleInFrame(graph.visibleCanvasIds) })
         
-        guard let westNode = graph.westernMostNodeForBorderCheck(canvasItemsInFrame),
-              let eastNode = graph.easternMostNodeForBorderCheck(canvasItemsInFrame),
+        guard let westNode = graph.westernMostNodeForBorderCheck(canvasItemsInFrame,
+                                                                 groupNodeFocused: document.groupNodeFocused?.groupNodeId),
+              let eastNode = graph.easternMostNodeForBorderCheck(canvasItemsInFrame,
+                                                                 groupNodeFocused: document.groupNodeFocused?.groupNodeId),
               let westBounds = cache.get(westNode.id),
               let eastBounds = cache.get(eastNode.id),
-              let northNode = graph.northernMostNodeForBorderCheck(canvasItemsInFrame),
-              let southNode = graph.southernMostNodeForBorderCheck(canvasItemsInFrame),
+              let northNode = graph.northernMostNodeForBorderCheck(canvasItemsInFrame,
+                                                                   groupNodeFocused: document.groupNodeFocused?.groupNodeId),
+              let southNode = graph.southernMostNodeForBorderCheck(canvasItemsInFrame,
+                                                                   groupNodeFocused: document.groupNodeFocused?.groupNodeId),
               let northBounds = cache.get(northNode.id),
               let southBounds = cache.get(southNode.id) else {
             
@@ -520,10 +520,10 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
         case .changed:
             if translation.y > 0 {
                 // Scrolling up, zoom in
-                self.document?.graphZoomedIn(.mouseWheel)
+                self.document?.visibleGraph.graphZoomedIn(.mouseWheel)
             } else if translation.y < 0 {
                 // Scrolling down, zoom out
-                self.document?.graphZoomedOut(.mouseWheel)
+                self.document?.visibleGraph.graphZoomedOut(.mouseWheel)
             }
         default:
             break

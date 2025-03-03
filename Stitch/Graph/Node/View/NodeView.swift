@@ -14,7 +14,6 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
     @Bindable var stitch: NodeViewModel
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
     let nodeId: NodeId
     let isSelected: Bool
     let atleastOneCommentBoxSelected: Bool
@@ -70,7 +69,6 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
             // Catalyst right-click to open node tag menu
                 .contextMenu {
                     NodeTagMenuButtonsView(graph: graph,
-                                           graphUI: graphUI,
                                            document: document,
                                            node: stitch,
                                            canvasItemId: node.id,
@@ -84,7 +82,6 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
                 .modifier(
                     NodeViewTapGestureModifier(graph: graph,
                                                document: document,
-                                               graphUI: graphUI,
                                                stitch: stitch,
                                                node: node)
                 )
@@ -100,7 +97,6 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
                     if isSelected {
                         CanvasItemTag(node: node,
                                       graph: graph,
-                                      graphUI: graphUI,
                                       document: document,
                                       stitch: stitch,
                                       activeGroupId: activeGroupId,
@@ -156,7 +152,6 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
         HStack {
             CanvasItemTitleView(document: document,
                                 graph: graph,
-                                graphUI: graphUI,
                                 node: stitch,
                                 canvasItem: node,
                                 isCanvasItemSelected: isSelected)
@@ -278,7 +273,6 @@ struct CanvasItemBackground: ViewModifier {
 struct CanvasItemTag: View {
     @Bindable var node: CanvasItemViewModel
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
     @Bindable var document: StitchDocumentViewModel
     @Bindable var stitch: NodeViewModel
     let activeGroupId: GroupNodeType?
@@ -289,7 +283,6 @@ struct CanvasItemTag: View {
     
     @ViewBuilder var nodeTagMenu: NodeTagMenuButtonsView {
         NodeTagMenuButtonsView(graph: graph,
-                               graphUI: graphUI,
                                document: document,
                                node: stitch,
                                canvasItemId: node.id,
@@ -348,7 +341,6 @@ struct NodeViewTapGestureModifier: ViewModifier {
     
     let graph: GraphState
     let document: StitchDocumentViewModel
-    let graphUI: GraphUIState
     let stitch: NodeViewModel
     let node: CanvasItemViewModel
     
@@ -359,18 +351,17 @@ struct NodeViewTapGestureModifier: ViewModifier {
     func onSingleTap() {
         // deselect any fields; NOTE: not used on GroupNodes due to .simultaneousGesture
         if !self.stitch.kind.isGroup,
-           graphUI.reduxFocusedField != nil {
-            graphUI.reduxFocusedField = nil
+           document.reduxFocusedField != nil {
+            document.reduxFocusedField = nil
         }
         
         // and select just the node
-        node.isTapped(document: document,
-                      graphUI: graphUI)
+        node.isTapped(document: document)
     }
     
     func onDoubleTap() {
         graph.groupNodeDoubleTapped(id: stitch.id,
-                                    graphUI: graphUI)
+                                    document: document)
     }
     
     func body(content: Content) -> some View {

@@ -162,7 +162,7 @@ struct ProjectContextMenuModifer: ViewModifier {
                         Image(systemName: "doc.on.doc")
                     })
                     
-                    if !GraphUIState.isPhoneDevice {
+                    if !StitchDocumentViewModel.isPhoneDevice {
                         StitchButton(action: {
                             // Opens project in debug mode
                             projectOpenCallback(document, true)

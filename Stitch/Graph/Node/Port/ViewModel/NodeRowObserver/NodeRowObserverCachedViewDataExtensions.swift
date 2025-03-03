@@ -11,34 +11,34 @@ import StitchSchemaKit
 // MARK: derived/cached data: PortViewData, ActiveValue, PortColor
 
 extension NodeRowViewModel {
-    /// Gets node ID for currently visible node. Covers edge cause where group nodes use splitter nodes,
-    /// which save a differnt node ID.
-    @MainActor
-    func visibleNodeIds(_ graph: GraphState) -> Set<CanvasItemId> {
-        guard let nodeDelegate = self.nodeDelegate else {
-            return []
-        }
-        
-        let canvasItems = nodeDelegate.getAllCanvasObservers()
-        
-        return canvasItems.compactMap { canvasItem in
-            guard canvasItem.isVisibleInFrame(graph.visibleCanvasIds) else {
-                return nil
-            }
-            
-            // We use the group node ID only if it isn't in focus
-            if nodeDelegate.splitterType == .input &&
-                graph.groupNodeFocused != canvasItem.parentGroupNodeId,
-               let parentNodeId = canvasItem.parentGroupNodeId,
-               let parentNode = graph.getNodeViewModel(parentNodeId),
-               let parentCanvasItem = parentNode.patchCanvasItem {
-                return parentCanvasItem.id
-            }
-            
-            return canvasItem.id
-        }
-        .toSet
-    }
+//    /// Gets node ID for currently visible node. Covers edge cause where group nodes use splitter nodes,
+//    /// which save a differnt node ID.
+//    @MainActor
+//    func visibleNodeIds(_ graph: GraphState) -> Set<CanvasItemId> {
+//        guard let nodeDelegate = self.nodeDelegate else {
+//            return []
+//        }
+//        
+//        let canvasItems = nodeDelegate.getAllCanvasObservers()
+//        
+//        return canvasItems.compactMap { canvasItem in
+//            guard canvasItem.isVisibleInFrame(graph.visibleCanvasIds) else {
+//                return nil
+//            }
+//            
+//            // We use the group node ID only if it isn't in focus
+//            if nodeDelegate.splitterType == .input &&
+//                graph.groupNodeFocused != canvasItem.parentGroupNodeId,
+//               let parentNodeId = canvasItem.parentGroupNodeId,
+//               let parentNode = graph.getNodeViewModel(parentNodeId),
+//               let parentCanvasItem = parentNode.patchCanvasItem {
+//                return parentCanvasItem.id
+//            }
+//            
+//            return canvasItem.id
+//        }
+//        .toSet
+//    }
    
    @MainActor
    func updateConnectedCanvasItems() {

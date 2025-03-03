@@ -8,20 +8,22 @@
 import Foundation
 
 // TODO: what happens if you duplicate a video layer node?
-struct SidebarSelectedItemsDuplicated: GraphEventWithResponse {
+struct SidebarSelectedItemsDuplicated: StitchDocumentEvent {
 
-    func handle(state: GraphState) -> GraphResponse {
-        state.sidebarSelectedItemsDuplicated()
-        return .persistenceResponse
+    func handle(state: StitchDocumentViewModel) {
+        state.visibleGraph.sidebarSelectedItemsDuplicated(document: state)
+        state.encodeProjectInBackground()
     }
 }
 
 extension GraphState {
     @MainActor
-    func sidebarSelectedItemsDuplicated(isOptionDrag: Bool = false) {
+    func sidebarSelectedItemsDuplicated(isOptionDrag: Bool = false,
+                                        document: StitchDocumentViewModel) {
         let nodeIds = self.layersSidebarViewModel.selectionState.primary
         self.copyAndPasteSelectedNodes(selectedNodeIds: nodeIds,
-                                       isOptionDragInSidebar: isOptionDrag)
+                                       isOptionDragInSidebar: isOptionDrag,
+                                       document: document)
         
         // Move nodes
     }

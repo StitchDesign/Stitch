@@ -15,7 +15,6 @@ struct NodeTypeView: View {
     
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
     @Bindable var node: NodeViewModel
     @Bindable var canvasNode: CanvasItemViewModel
     let atleastOneCommentBoxSelected: Bool
@@ -47,7 +46,6 @@ struct NodeTypeView: View {
                  stitch: node,
                  document: document,
                  graph: graph,
-                 graphUI: graphUI,
                  nodeId: node.id,
                  isSelected: isSelected,
                  atleastOneCommentBoxSelected: atleastOneCommentBoxSelected,
@@ -74,13 +72,12 @@ struct NodeTypeView: View {
                spacing: SPACING_BETWEEN_NODE_ROWS) {
             if self.node.patch == .wirelessReceiver {
                 WirelessPortView(graph: graph,
-                                 graphUI: graphUI,
+                                 graphUI: document,
                                  isOutput: false,
                                  id: node.id)
                     .padding(.trailing, NODE_BODY_SPACING)
             } else {
                 DefaultNodeInputView(graph: graph,
-                                     graphUI: graphUI,
                                      document: document,
                                      node: node,
                                      canvas: canvasNode,
@@ -96,13 +93,12 @@ struct NodeTypeView: View {
 
             if self.node.patch == .wirelessBroadcaster {
                 WirelessPortView(graph: graph,
-                                 graphUI: graphUI,
+                                 graphUI: document,
                                  isOutput: true,
                                  id: node.id)
                     .padding(.leading, NODE_BODY_SPACING)
             } else {
                 DefaultNodeOutputView(graph: graph,
-                                      graphUI: graphUI,
                                       document: document,
                                       node: node,
                                       canvas: canvasNode,
@@ -115,7 +111,6 @@ struct NodeTypeView: View {
 struct DefaultNodeInputView: View {
     
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
     @Bindable var document: StitchDocumentViewModel
     @Bindable var node: NodeViewModel
     @Bindable var canvas: CanvasItemViewModel
@@ -139,7 +134,7 @@ struct DefaultNodeInputView: View {
                                     rowViewModel: rowViewModel)
                     
                     NodeInputView(graph: graph,
-                                  graphUI: graphUI,
+                                  graphUI: document,
                                   node: node,
                                   hasIncomingEdge: rowObserver.upstreamOutputCoordinate.isDefined,
                                   rowObserver: rowObserver,
@@ -154,6 +149,7 @@ struct DefaultNodeInputView: View {
                                   isCanvasItemSelected: isNodeSelected,
                                   label: rowObserver
                         .label(node: node,
+                               currentTraversalLevel: document.groupNodeFocused?.groupNodeId,
                                graph: graph)
                     )
                 }
@@ -165,7 +161,6 @@ struct DefaultNodeInputView: View {
 struct DefaultNodeOutputView: View {
     
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
     @Bindable var document: StitchDocumentViewModel
     @Bindable var node: NodeViewModel
     @Bindable var canvas: CanvasItemViewModel
@@ -180,7 +175,7 @@ struct DefaultNodeOutputView: View {
             if let rowObserver = node.getOutputRowObserver(for: rowViewModel.id.portType) {
                 HStack {
                     NodeOutputView(graph: graph,
-                                   graphUI: graphUI,
+                                   graphUI: document,
                                    node: node,
                                    rowObserver: rowObserver,
                                    rowViewModel: rowViewModel,
@@ -191,6 +186,7 @@ struct DefaultNodeOutputView: View {
                                    isCanvasItemSelected: isNodeSelected,
                                    label: rowObserver
                         .label(node: node,
+                               currentTraversalLevel: document.groupNodeFocused?.groupNodeId,
                                graph: graph)
                     )
                     
@@ -201,6 +197,7 @@ struct DefaultNodeOutputView: View {
                 }
                 .modifier(EdgeEditModeOutputHoverViewModifier(
                     graph: graph,
+                    document: document,
                     outputCoordinate: .init(portId: rowViewModel.id.portId,
                                             canvasId: canvas.id)))
             }

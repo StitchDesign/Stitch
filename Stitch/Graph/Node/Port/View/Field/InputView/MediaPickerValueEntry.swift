@@ -21,6 +21,7 @@ struct MediaPickerValueEntry: View {
     let graph: GraphState // Doesn't need to be @Bindable, since not directly relied on in the UI for a render-cycle
     let isMultiselectInspectorInputWithHeterogenousValues: Bool
     let isSelectedInspectorRow: Bool
+    let activeIndex: ActiveIndex
     
     var mediaType: SupportedMediaFormat {
         nodeKind.mediaType
@@ -40,7 +41,8 @@ struct MediaPickerValueEntry: View {
                                choices: [.importButton],
                                isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                graph: graph,
-                               isSelectedInspectorRow: isSelectedInspectorRow)
+                               isSelectedInspectorRow: isSelectedInspectorRow,
+                               activeIndex: activeIndex)
             
             // Only show the incoming value as an option if there's an incoming edge
             if isUpstreamValue {
@@ -49,7 +51,8 @@ struct MediaPickerValueEntry: View {
                                    choices: [],
                                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                    graph: graph,
-                                   isSelectedInspectorRow: isSelectedInspectorRow)
+                                   isSelectedInspectorRow: isSelectedInspectorRow,
+                                   activeIndex: activeIndex)
                 
             }
             
@@ -60,7 +63,8 @@ struct MediaPickerValueEntry: View {
                                    choices: [mediaValue],
                                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                    graph: graph,
-                                   isSelectedInspectorRow: isSelectedInspectorRow)
+                                   isSelectedInspectorRow: isSelectedInspectorRow,
+                                   activeIndex: activeIndex)
             }
             
             Divider()
@@ -69,7 +73,8 @@ struct MediaPickerValueEntry: View {
                                choices: defaultOptions,
                                isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                graph: graph,
-                               isSelectedInspectorRow: isSelectedInspectorRow)
+                               isSelectedInspectorRow: isSelectedInspectorRow,
+                               activeIndex: activeIndex)
         },
                    
                    contentIPad: {
@@ -77,6 +82,7 @@ struct MediaPickerValueEntry: View {
                 $0.handleSelection(rowObserver: rowObserver,
                                    mediaType: mediaType,
                                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                                   activeIndex: activeIndex,
                                    graph: graph)
             })) {
                 // Import button and any default media

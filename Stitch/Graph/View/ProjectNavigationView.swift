@@ -21,8 +21,7 @@ struct ProjectNavigationView: View {
     var body: some View {
         @Bindable var visibleGraph = document.visibleGraph
         
-        GraphBaseView(document: document,
-                      graphUI: document.graphUI)
+        GraphBaseView(document: document)
         .alert(item: $visibleGraph.migrationWarning) { warningMessage in
             Alert(title: Text("Document Migration Warning"),
                   message: Text(warningMessage.rawValue),
@@ -35,7 +34,7 @@ struct ProjectNavigationView: View {
             log("NodesOnlyView: .onChange(of: document.visibleGraph.graphUpdaterId)")
             document.visibleGraph.updateGraphData()
         }
-        .onChange(of: document.graphUI.groupNodeFocused) {
+        .onChange(of: document.groupNodeFocused?.groupNodeId) {
             document.visibleGraph.refreshGraphUpdaterId()
         }
         .onChange(of: document.isCameraEnabled) { _, isCameraEnabled in

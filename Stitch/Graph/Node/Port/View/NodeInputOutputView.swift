@@ -18,7 +18,7 @@ struct NodeInputView: View {
     @Environment(\.appTheme) var theme
     
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var graphUI: StitchDocumentViewModel
     
     let node: NodeViewModel
     let hasIncomingEdge: Bool
@@ -238,7 +238,7 @@ struct NodeOutputView: View {
             if isOutputSplitter {
                 // See `NodeRowObserver.label()` for similar logic for *inputs*
                 let parentGroupNode = node.patchNodeViewModel?.parentGroupNodeId
-                let currentTraversalLevel = graph.groupNodeFocused
+                let currentTraversalLevel = graphUI.groupNodeFocused?.groupNodeId
                 return parentGroupNode != currentTraversalLevel
             }
             

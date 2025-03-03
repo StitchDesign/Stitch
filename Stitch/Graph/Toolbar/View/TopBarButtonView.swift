@@ -86,7 +86,6 @@ struct iPadGraphTopBarButtons: View {
 
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
     let hasActiveGroupFocused: Bool
     let isFullscreen: Bool // = false
     let isPreviewWindowShown: Bool // = true
@@ -112,7 +111,9 @@ struct iPadGraphTopBarButtons: View {
             iPadNavBarButton(action: INSERT_NODE_ACTION,
                              iconName: .sfSymbol(.ADD_NODE_SF_SYMBOL_NAME))
             
-            iPadNavBarButton(action: { graph.findSomeCanvasItemOnGraph(graphUI: graphUI) },
+            iPadNavBarButton(action: {
+                graph.findSomeCanvasItemOnGraph(document: document)
+            },
                              iconName: .sfSymbol(.FIND_NODE_ON_GRAPH))
 
             // TODO: implement

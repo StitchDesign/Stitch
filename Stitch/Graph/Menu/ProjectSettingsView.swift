@@ -241,7 +241,9 @@ struct ProjectSettingsView: View {
             isForFlyout: false,
             isForPreviewWindowBackgroundPicker: true,
             isForIPhone: isPhoneDevice(),
-            chosenColor: binding, 
+            isMultiselectInspectorInputWithHeterogenousValues: false,
+            activeIndex: .init(.zero),
+            chosenColor: binding,
             graph: graph)
     }
 }
@@ -258,24 +260,23 @@ struct PreviewWindowBackgroundColorSet: StitchDocumentEvent {
 
 
 // TODO: create an inner view that still receives this data
-struct ProjectSettingsView_Previews: PreviewProvider {
-    @State static var show = true
-    static let graph = GraphState.createEmpty()
-    static let graphUI = GraphUIState(isPhoneDevice: false)
-
-    static var previews: some View {
-        ProjectSettingsView(previewWindowSize: PreviewWindowDevice.DEFAULT_PREVIEW_SIZE,
-                            previewSizeDevice: .custom,
-                            previewWindowBackgroundColor: DEFAULT_FLOATING_WINDOW_COLOR, 
-                            graph: graph,
-                            graphUI: graphUI)
-            .previewDevice(PreviewDevice(rawValue: "iPad Pro (11-inch) (3rd generation)"))
-
-        ProjectSettingsView(previewWindowSize: PreviewWindowDevice.DEFAULT_PREVIEW_SIZE,
-                            previewSizeDevice: .custom,
-                            previewWindowBackgroundColor: DEFAULT_FLOATING_WINDOW_COLOR, 
-                            graph: graph,
-                            graphUI: graphUI)
-            .previewDevice(PreviewDevice(rawValue: "iPhone 13"))
-    }
-}
+//struct ProjectSettingsView_Previews: PreviewProvider {
+//    @State static var show = true
+//    static let graph = GraphState.createEmpty()
+//
+//    static var previews: some View {
+//        ProjectSettingsView(previewWindowSize: PreviewWindowDevice.DEFAULT_PREVIEW_SIZE,
+//                            previewSizeDevice: .custom,
+//                            previewWindowBackgroundColor: DEFAULT_FLOATING_WINDOW_COLOR, 
+//                            graph: graph,
+//                            graphUI: graphUI)
+//            .previewDevice(PreviewDevice(rawValue: "iPad Pro (11-inch) (3rd generation)"))
+//
+//        ProjectSettingsView(previewWindowSize: PreviewWindowDevice.DEFAULT_PREVIEW_SIZE,
+//                            previewSizeDevice: .custom,
+//                            previewWindowBackgroundColor: DEFAULT_FLOATING_WINDOW_COLOR, 
+//                            graph: graph,
+//                            graphUI: graphUI)
+//            .previewDevice(PreviewDevice(rawValue: "iPhone 13"))
+//    }
+//}

@@ -81,6 +81,43 @@ final class GraphState: Sendable {
     /// Subscribed by view to trigger graph view update based on data changes.
     @MainActor var graphUpdaterId: Int = .zero
     
+    // Set true / non-nil in methods or action handlers
+    // Set false / nil in StitchUIScrollView
+    // TODO: combine canvasZoomedIn and canvasZoomedOut? can never have both at same time? or we can, and they cancel each other?
+    @MainActor var canvasZoomedIn: GraphManualZoom = .noZoom
+    @MainActor var canvasZoomedOut: GraphManualZoom = .noZoom
+    @MainActor var canvasJumpLocation: CGPoint? = nil
+    @MainActor var canvasPageOffsetChanged: CGPoint? = nil
+    @MainActor var canvasPageZoomScaleChanged: CGFloat? = nil
+    
+    // Hackiness for handling option+drag "duplicate node and drag it"
+    @MainActor var dragDuplication: Bool = false
+    
+    // Only for node cursor selection box done when shift held
+    @MainActor var nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag: CanvasItemIdSet? = nil
+    
+    let propertySidebar = PropertySidebarObserver()
+    
+    // e.g. user is hovering over or has selected a layer in the sidebar, which we then highlight in the preview window itself
+    @MainActor var highlightedSidebarLayers: LayerIdSet = .init()
+    
+    @MainActor
+    var edgeEditingState: EdgeEditingState?
+    
+    @MainActor var edgeAnimationEnabled: Bool = false
+    
+    @MainActor var activelyEditedCommentBoxTitle: CommentBoxId?
+
+    @MainActor var commentBoxBoundsDict = CommentBoxBoundsDict()
+
+    // Note: our device-screen reading logic uses `.local` coordinate space and so does not detect that items in the graph actually sit a little lower on the screen.
+    // TODO: better?: just always look at `.global`
+    @MainActor var graphYPosition: CGFloat = .zero
+    
+    @MainActor var selection = GraphUISelectionState()
+
+    @MainActor var activeDragInteraction = ActiveDragInteractionNodeVelocityData()
+    
     @MainActor var lastEncodedDocument: GraphEntity
     @MainActor weak var documentDelegate: StitchDocumentViewModel?
     @MainActor weak var documentEncoderDelegate: (any DocumentEncodable)?
@@ -113,6 +150,10 @@ final class GraphState: Sendable {
 }
 
 extension GraphState {
+    var graphUI: Self {
+        self
+    }
+    
     @MainActor
     var orderedSidebarLayers: [SidebarItemGestureViewModel] {
         self.layersSidebarViewModel.items
@@ -168,9 +209,10 @@ extension GraphState {
         
         self.visibleNodesViewModel
             .updateNodesPagingDict(components: self.components,
-                                   graphFrame: self.graphUI.frame,
+                                   graphFrame: document.frame,
                                    parentGraphPath: self.saveLocation,
-                                   graph: self)
+                                   graph: self,
+                                   document: document)
         
         // Update connected port data
         self.visibleNodesViewModel.updateAllNodeViewData()
@@ -184,15 +226,6 @@ extension GraphState {
             // Update all fields since calculation is skipped
             self.updatePortViews()
         }
-    }
-
-    @MainActor
-    var graphUI: GraphUIState {
-        guard let graphUI = self.documentDelegate?.graphUI else {
-            return GraphUIState(isPhoneDevice: false)
-        }
-        
-        return graphUI
     }
     
     @MainActor
@@ -210,25 +243,25 @@ extension GraphState {
         }
     }
     
-    @MainActor
-    var groupNodeFocused: NodeId? {
-        self.graphUI.groupNodeFocused?.groupNodeId
-    }
+//    @MainActor
+//    var groupNodeFocused: NodeId? {
+//        self.graphUI.groupNodeFocused?.groupNodeId
+//    }
     
     @MainActor
     var nodesDict: NodesViewModelDict {
         self.nodes
     }
 
-    @MainActor
-    var safeAreaInsets: SafeAreaInsets {
-        self.graphUI.safeAreaInsets
-    }
+//    @MainActor
+//    var safeAreaInsets: SafeAreaInsets {
+//        self.graphUI.safeAreaInsets
+//    }
     
-    @MainActor
-    var isFullScreenMode: Bool {
-        self.graphUI.isFullScreenMode
-    }
+//    @MainActor
+//    var isFullScreenMode: Bool {
+//        self.graphUI.isFullScreenMode
+//    }
     
     @MainActor
     func getMediaUrl(forKey key: MediaKey) -> URL? {
@@ -236,7 +269,7 @@ extension GraphState {
     }
     
     @MainActor var multiselectInputs: LayerInputPortSet? {
-        self.graphUI.propertySidebar.inputsCommonToSelectedLayers
+        self.propertySidebar.inputsCommonToSelectedLayers
     }
     
     func undoDeletedMedia(mediaKey: MediaKey) async -> URLResult {
@@ -298,15 +331,15 @@ extension GraphState {
         self.visibleNodesViewModel.resetCache()
     }
     
-    @MainActor
-    var isSidebarFocused: Bool {
-        get {
-            self.graphUI.isSidebarFocused
-        }
-        set(newValue) {
-            self.graphUI.isSidebarFocused = newValue
-        }
-    }
+//    @MainActor
+//    var isSidebarFocused: Bool {
+//        get {
+//            self.graphUI.isSidebarFocused
+//        }
+//        set(newValue) {
+//            self.graphUI.isSidebarFocused = newValue
+//        }
+//    }
 }
 
 extension GraphState {
@@ -427,11 +460,6 @@ extension GraphState {
     }
     
     @MainActor
-    var activeIndex: ActiveIndex {
-        self.graphUI.activeIndex
-    }
-    
-    @MainActor
     var llmRecording: LLMRecordingState {
         self.documentDelegate?.llmRecording ?? .init()
     }
@@ -448,8 +476,8 @@ extension GraphState {
     }
     
     @MainActor
-    func getBroadcasterNodesAtThisTraversalLevel() -> [NodeDelegate] {
-        self.visibleNodesViewModel.getNodesAtThisTraversalLevel(at: self.graphUI.groupNodeFocused?.groupNodeId)
+    func getBroadcasterNodesAtThisTraversalLevel(document: StitchDocumentViewModel) -> [NodeDelegate] {
+        self.visibleNodesViewModel.getNodesAtThisTraversalLevel(at: document.groupNodeFocused?.groupNodeId)
             .compactMap { node in
                 guard node.kind == .patch(.wirelessBroadcaster) else {
                     return nil
@@ -472,9 +500,9 @@ extension GraphState {
     /// Creases a unique hash based on view data which if changes, requires graph data update.
     @MainActor
     func calculateGraphUpdaterId() -> Int {
-        //        let randomInt = Int.random(in: -999999999999999...999999999999)
-        //        log("calculateGraphUpdaterId: randomInt: \(randomInt)")
-        //        return randomInt
+        guard let document = self.documentDelegate else {
+            return .zero
+        }
         
         var hasher = Hasher()
         
@@ -487,7 +515,7 @@ extension GraphState {
         let nodeCount = nodes.keys.count
         
         // Track graph canvas items count
-        let canvasItems = self.getCanvasItemsAtTraversalLevel().count
+        let canvasItems = self.getCanvasItemsAtTraversalLevel(groupNodeFocused: document.groupNodeFocused?.groupNodeId).count
 
         // Tracks edge changes to reset cached data
         let upstreamConnections = allInputsObservers
@@ -501,11 +529,11 @@ extension GraphState {
                     return nil
                 }
                 
-                return $0.activeValue
+                return $0.getActiveValue(activeIndex: document.activeIndex)
             }
         
         // Track group node ID, which fixes edges when traversing
-        let groupNodeIdFocused = self.graphUI.groupNodeFocused
+        let groupNodeIdFocused = document.groupNodeFocused
         
         // Stitch AI changes in case order changes
         let aiActions = self.llmRecording.actions
@@ -734,15 +762,15 @@ extension GraphState {
     }
     
     @MainActor
-    func getNodesAtThisTraversalLevel() -> [NodeDelegate] {
+    func getNodesAtThisTraversalLevel(groupNodeFocused: NodeId?) -> [NodeDelegate] {
         self.visibleNodesViewModel
-            .getNodesAtThisTraversalLevel(at: self.graphUI.groupNodeFocused?.groupNodeId)
+            .getNodesAtThisTraversalLevel(at: groupNodeFocused)
     }
     
     @MainActor
-    func getCanvasItemsAtTraversalLevel() -> CanvasItemViewModels {
+    func getCanvasItemsAtTraversalLevel(groupNodeFocused: NodeId?) -> CanvasItemViewModels {
         self.visibleNodesViewModel
-            .getCanvasItemsAtTraversalLevel(at: self.graphUI.groupNodeFocused?.groupNodeId)
+            .getCanvasItemsAtTraversalLevel(at: groupNodeFocused)
     }
     
     @MainActor

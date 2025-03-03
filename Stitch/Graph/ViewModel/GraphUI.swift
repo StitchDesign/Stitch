@@ -34,185 +34,38 @@ enum FocusedFieldChangedByArrowKey: Equatable, Hashable {
          downArrow // decrement
 }
 
-@Observable
-final class GraphUIState: Sendable {
-    
-    @MainActor var openPortPreview: OpenedPortPreview?
-    
-    // Set true / non-nil in methods or action handlers
-    // Set false / nil in StitchUIScrollView
-    // TODO: combine canvasZoomedIn and canvasZoomedOut? can never have both at same time? or we can, and they cancel each other?
-    @MainActor var canvasZoomedIn: GraphManualZoom = .noZoom
-    @MainActor var canvasZoomedOut: GraphManualZoom = .noZoom
-    @MainActor var canvasJumpLocation: CGPoint? = nil
-    @MainActor var canvasPageOffsetChanged: CGPoint? = nil
-    @MainActor var canvasPageZoomScaleChanged: CGFloat? = nil
-    
-    @MainActor var nodeMenuHeight: CGFloat = INSERT_NODE_MENU_MAX_HEIGHT
-    
-    @MainActor var sidebarWidth: CGFloat = .zero // i.e. origin of graph from .global frame
-
-    @MainActor var showCatalystProjectTitleModal: Bool = false
-    
-    // Only for node cursor selection box done when shift held
-    @MainActor var nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag: CanvasItemIdSet? = nil
-    
-    let propertySidebar = PropertySidebarObserver()
-    
-    @MainActor var lastMomentumRunTime: TimeInterval = .zero
-    
-    // e.g. user is hovering over or has selected a layer in the sidebar, which we then highlight in the preview window itself
-    @MainActor var highlightedSidebarLayers: LayerIdSet = .init()
-
-    @MainActor
-    var edgeEditingState: EdgeEditingState?
-
-    @MainActor var restartPrototypeWindowIconRotationZ: CGFloat = .zero
-
-    // nil = no field focused
-    @MainActor var reduxFocusedField: FocusedUserEditField?
-    
-    // set non-nil by up- and down-arrow key presses while an input's fields are focused
-    // set nil after key press has been handled by `StitchTextEditingBindingField`
-    @MainActor var reduxFocusedFieldChangedByArrowKey: FocusedFieldChangedByArrowKey?
-
-    // Hack: to differentiate state updates that came from undo/redo (and which close the adjustment bar popover),
-    // vs those that came from user manipulation of adjustment bar (which do not close the adjustment bar popover).
-    @MainActor var adjustmentBarSessionId: UUID = .init()
-
-    @MainActor var activelyEditedCommentBoxTitle: CommentBoxId?
-
-    @MainActor var commentBoxBoundsDict = CommentBoxBoundsDict()
-
-    @MainActor
-    static let isPhoneDevice = Stitch.isPhoneDevice()
-
-    @MainActor var edgeAnimationEnabled: Bool = false
-
-    @MainActor var activeSpacebarClickDrag = false
-
-    @MainActor var safeAreaInsets = SafeAreaInsetsEnvironmentKey.defaultValue
-    @MainActor var colorScheme: ColorScheme = defaultColorScheme
-
-    // Hackiness for handling option+drag "duplicate node and drag it"
-    @MainActor var dragDuplication: Bool = false
-
-    @MainActor var doubleTapLocation: CGPoint? {
-        get {
-            self.insertNodeMenuState.doubleTapLocation
-        } set(newValue) {
-            self.insertNodeMenuState.doubleTapLocation = newValue
-        }
-    }
-
-    // which loop index to show
-    @MainActor var activeIndex: ActiveIndex = ActiveIndex(0)
-
-    // GRAPH: UI GROUPS AND LAYER PANELS
-    // layer nodes (group or non-group) that have been selected
-    // via the layer panel UI
-
-    // Starts out as default value, but on first render of GraphView
-    // we get the exact device screen size via GeometryReader.
-    @MainActor var frame = DEFAULT_LANDSCAPE_GRAPH_FRAME
-
-    // Note: our device-screen reading logic uses `.local` coordinate space and so does not detect that items in the graph actually sit a little lower on the screen.
-    // TODO: better?: just always look at `.global`
-    @MainActor var graphYPosition: CGFloat = .zero
-
-    @MainActor var selection = GraphUISelectionState()
-
-    // Control animation direction when group nodes are traversed
-    @MainActor var groupTraversedToChild = false
-
-    // Only applies to non-iPhones so that exiting full-screen mode goes
-    // back to graph instead of projects list
-    @MainActor var isFullScreenMode: Bool = false
-    
-    #if DEV_DEBUG
-//    var showsLayerInspector = true   during dev
-    @MainActor var showsLayerInspector = false // during dev
-    #else
-    @MainActor var showsLayerInspector = false
-    #endif
-    
-    @MainActor var leftSidebarOpen = false
-
-    // Tracks group breadcrumbs when group nodes are visited
-    @MainActor var groupNodeBreadcrumbs: [GroupNodeType] = []
-
-    @MainActor var showPreviewWindow = PREVIEW_SHOWN_DEFAULT_STATE
-
-    @MainActor var insertNodeMenuState = InsertNodeMenuState()
-
-    /*
-     Similar to `activeDragInteraction`, but just for mouse nodes.
-     - nil when LayerHoverEnded or LayerDragEnded
-     - non-nil when LayerHovered or LayerDragged
-     - when non-nil and it’s been more than `DRAG_NODE_VELOCITY_RESET_STEP` since last movement, reset velocity to `.zero`
-     */
-    @MainActor var lastMouseNodeMovement: TimeInterval?
-
-    @MainActor var activeDragInteraction = ActiveDragInteractionNodeVelocityData()
-    
-    // tracks if sidebar is focused
-    @MainActor var isSidebarFocused: Bool = false
-
-    // Explicit `init` is required to use `didSet` on a property
-    @MainActor
-    init(activeSpacebarClickDrag: Bool = false,
-         safeAreaInsets: SafeAreaInsets = SafeAreaInsetsEnvironmentKey.defaultValue,
-         colorScheme: ColorScheme = defaultColorScheme,
-         dragDuplication: Bool = false,
-         doubleTapLocation: CGPoint? = nil,
-         activeIndex: ActiveIndex = .defaultActiveIndex,
-         frame: CGRect = DEFAULT_LANDSCAPE_GRAPH_FRAME,
-         selection: GraphUISelectionState = .init(),
-         groupTraversedToChild: Bool = false,
-         isPhoneDevice: Bool,
-         groupNodeBreadcrumbs: [GroupNodeType] = .init(),
-         showPreviewWindow: Bool = PREVIEW_SHOWN_DEFAULT_STATE,
-         insertNodeMenuState: InsertNodeMenuState = .init(),
-         activeDragInteraction: ActiveDragInteractionNodeVelocityData = .init()) {
-
-        self.activeSpacebarClickDrag = activeSpacebarClickDrag
-        self.safeAreaInsets = safeAreaInsets
-        self.colorScheme = colorScheme
-        self.dragDuplication = dragDuplication
-        self.doubleTapLocation = doubleTapLocation
-        self.activeIndex = activeIndex
-        self.frame = frame
-        self.selection = selection
-        self.groupTraversedToChild = groupTraversedToChild
-        self.isFullScreenMode = isPhoneDevice
-        self.groupNodeBreadcrumbs = groupNodeBreadcrumbs
-        self.showPreviewWindow = showPreviewWindow
-        self.insertNodeMenuState = insertNodeMenuState
-        self.activeDragInteraction = activeDragInteraction
-    }
-}
+typealias GraphUIState = StitchDocumentViewModel
 
 extension StitchDocumentViewModel {
     @MainActor
     func adjustedDoubleTapLocation(_ localPosition: CGPoint) -> CGPoint? {
-        if let doubleTapLocation = self.graphUI.doubleTapLocation {
+        if let doubleTapLocation = self.insertNodeMenuState.doubleTapLocation {
             return adjustPositionToMultipleOf(
                 factorOutGraphOffsetAndScale(
                     location: doubleTapLocation,
                     graphOffset: localPosition,
                     graphScale: self.graphMovement.zoomData,
-                    deviceScreen: self.graphUI.frame))
+                    deviceScreen: self.frame))
         }
         
         return nil
     }
 }
 
-extension GraphUIState {
+extension StitchDocumentViewModel {
+    var graphUI: Self {
+        self
+    }
+    
     // If there's a group in focus
     @MainActor
     var groupNodeFocused: GroupNodeType? {
         self.groupNodeBreadcrumbs.last
+    }
+    
+    @MainActor
+    var doubleTapLocation: CGPoint? {
+        self.insertNodeMenuState.doubleTapLocation
     }
     
     @MainActor
@@ -313,7 +166,7 @@ extension GraphState {
     
     /// Resets various state including any alert state or graph selection state. Called after graph tap gesture or ESC key.
     @MainActor
-    func resetAlertAndSelectionState(graphUI: GraphUIState) {
+    func resetAlertAndSelectionState(document: StitchDocumentViewModel) {
 
         #if !targetEnvironment(macCatalyst)
         // Fixes bug where keyboard may not disappear
@@ -332,32 +185,32 @@ extension GraphState {
             self.graphMovement.graphIsDragged = false            
         }
 
-        graphUI.selection = GraphUISelectionState()
-        self.resetSelectedCanvasItems(graphUI: graphUI)
-        graphUI.insertNodeMenuState.searchResults = InsertNodeMenuState.allSearchOptions
+        self.selection = GraphUISelectionState()
+        self.resetSelectedCanvasItems()
+        document.insertNodeMenuState.searchResults = InsertNodeMenuState.allSearchOptions
         
         // TODO: should we just reset the entire insertNodeMenuState?
         withAnimation(.INSERT_NODE_MENU_TOGGLE_ANIMATION) {
-            graphUI.insertNodeMenuState.show = false
-            graphUI.insertNodeMenuState.doubleTapLocation = nil
+            document.insertNodeMenuState.show = false
+            document.insertNodeMenuState.doubleTapLocation = nil
         }
         
-        graphUI.isFullScreenMode = false
+        document.isFullScreenMode = false
 
-        graphUI.activelyEditedCommentBoxTitle = nil
+        self.activelyEditedCommentBoxTitle = nil
 
         // Wipe any redux-controlled focus field
         // (For now, just used with TextField layers)
-        if graphUI.reduxFocusedField != nil {
-            graphUI.reduxFocusedField = nil
+        if document.reduxFocusedField != nil {
+            document.reduxFocusedField = nil
         }
         
         withAnimation {
-            graphUI.showCatalystProjectTitleModal = false
+            document.showCatalystProjectTitleModal = false
         }
         
-        graphUI.isSidebarFocused = false
-        graphUI.openPortPreview = nil
+        document.isSidebarFocused = false
+        document.openPortPreview = nil
     }
 }
 
@@ -423,10 +276,9 @@ enum GraphDragState: Codable {
 extension GraphState {
         
     @MainActor
-    func resetSelectedCanvasItems(graphUI: GraphUIState) {
+    func resetSelectedCanvasItems() {
         self.getCanvasItems().forEach {
-            $0.deselect(self,
-                        graphUI: graphUI)
+            $0.deselect(self)
         }
     }
 }
@@ -446,58 +298,62 @@ extension GraphState {
     // Keep this helper around
     @MainActor
     func selectSingleNode(_ node: CanvasItemViewModel,
-                          graphUI: GraphUIState) {
+                          document: StitchDocumentViewModel) {
         // ie expansionBox, isSelecting, selected-comments etc.
         // get reset when we select a single node.
-        self.graphUI.selection = GraphUISelectionState()
-        self.resetSelectedCanvasItems(graphUI: graphUI)
-        node.select(self)
+        self.selection = GraphUISelectionState()
+        self.resetSelectedCanvasItems()
+        node.select(self,
+                    document: document)
     }
     
     @MainActor
-    func deselectAllCanvasItems(graphUI: GraphUIState) {
-        self.graphUI.selection = GraphUISelectionState()
-        self.resetSelectedCanvasItems(graphUI: graphUI)
+    func deselectAllCanvasItems() {
+        self.selection = GraphUISelectionState()
+        self.resetSelectedCanvasItems()
     }
     
     @MainActor
     func selectSingleCanvasItem(_ canvasItem: CanvasItemViewModel,
-                                graphUI: GraphUIState) {
+                                document: StitchDocumentViewModel) {
         // ie expansionBox, isSelecting, selected-comments etc.
         // get reset when we select a single canvasItem.
-        self.deselectAllCanvasItems(graphUI: graphUI)
-        canvasItem.select(self)
+        self.deselectAllCanvasItems()
+        canvasItem.select(self,
+                          document: document)
     }
     
     // TEST HELPER
     @MainActor
-    func addNodeToSelections(_ nodeId: CanvasItemId) {
+    func addNodeToSelections(_ nodeId: CanvasItemId,
+                             document: StitchDocumentViewModel) {
         guard let node = self.getCanvasItem(nodeId) else {
             fatalErrorIfDebug()
             return
         }
-        node.select(self)
+        node.select(self,
+                    document: document)
     }
 }
 
 extension CanvasItemViewModel {
     @MainActor
-    func select(_ graph: GraphState) {
+    func select(_ graph: GraphState,
+                document: StitchDocumentViewModel) {
         // Prevent render cycles if already selected
         guard !self.isSelected(graph)  else { return }
         
-        graph.graphUI.selection.selectedNodeIds.insert(self.id)
+        graph.selection.selectedNodeIds.insert(self.id)
         
         // Unfocus sidebar
-        graph.isSidebarFocused = false
+        document.isSidebarFocused = false
     }
     
     @MainActor
-    func deselect(_ graph: GraphState,
-                  graphUI: GraphUIState) {
+    func deselect(_ graph: GraphState) {
         // Prevent render cycles if already unselected
         guard self.isSelected(graph) else { return }
-        graphUI.selection.selectedNodeIds.remove(self.id)
+        graph.selection.selectedNodeIds.remove(self.id)
     }
 }
 
@@ -547,13 +403,14 @@ extension GraphState {
 
 extension GraphState {
     @MainActor
-    var selectedCanvasItems: CanvasItemViewModels {
-        self.getCanvasItemsAtTraversalLevel().filter { $0.isSelected(self) }
+    func getSelectedCanvasItems(groupNodeFocused: NodeId?) -> CanvasItemViewModels {
+        self.getCanvasItemsAtTraversalLevel(groupNodeFocused: groupNodeFocused)
+            .filter { $0.isSelected(self) }
     }
     
     @MainActor
-    var selectedCanvasLayerItemIds: [LayerNodeId] {
-        self.selectedCanvasItems
+    func getSelectedCanvasLayerItemIds(groupNodeFocused: NodeId?) -> [LayerNodeId] {
+        self.getSelectedCanvasItems(groupNodeFocused: groupNodeFocused)
             .filter(\.id.isForLayer)
             .map(\.id.associatedNodeId.asLayerNodeId)
     }

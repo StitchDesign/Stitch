@@ -87,20 +87,21 @@ func applyGraphOffsetAndScale(nodeSize: CGSize,
     return adjustedPosition
 }
 
-struct SelectAllShortcutKeyPressed: GraphEvent {
-    func handle(state: GraphState) {
+struct SelectAllShortcutKeyPressed: StitchDocumentEvent {
+    func handle(state: StitchDocumentViewModel) {
+        let graph = state.visibleGraph
         
         // If we have at least one actively selected sidebar layers,
         // then select all layers, not canvas items.
-        if state.graphUI.isSidebarFocused {            
-            let allLayers = state.orderedSidebarLayers.flattenedItems.map(\.id).toSet
-            state.sidebarSelectionState.primary = state.sidebarSelectionState.primary.union(allLayers)
+        if state.isSidebarFocused {
+            let allLayers = graph.orderedSidebarLayers.flattenedItems.map(\.id).toSet
+            graph.sidebarSelectionState.primary = graph.sidebarSelectionState.primary.union(allLayers)
             
-            state.layersSidebarViewModel.editModeSelectTappedItems(tappedItems: state.sidebarSelectionState.all)
+            graph.layersSidebarViewModel.editModeSelectTappedItems(tappedItems: graph.sidebarSelectionState.all)
             
         } else {
-            selectAllNodesAtTraversalLevel(state)
-            state.selectAllCommentsAtTraversalLevel()
+            graph.selectAllNodesAtTraversalLevel(document: state)
+            graph.selectAllCommentsAtTraversalLevel()
         }
     }
 }
@@ -111,34 +112,32 @@ extension GraphState {
     func selectAllCommentsAtTraversalLevel() {
         self.graphUI.selection.selectedCommentBoxes = self.commentBoxesDict.keys.toSet
     }
-}
-
-@MainActor
-func selectAllNodesAtTraversalLevel(_ state: GraphState) {
-    // Only select the visible nodes,
-    // i.e. those at this traversal level.
-    let visibleNodes = state.visibleNodesViewModel
-        .getCanvasItemsAtTraversalLevel(at: state.graphUI.groupNodeFocused?.asNodeId)
-
-    state.resetSelectedCanvasItems(graphUI: state.graphUI)
     
-    visibleNodes.forEach {
-        $0.select(state)
+    @MainActor
+    func selectAllNodesAtTraversalLevel(document: StitchDocumentViewModel) {
+        // Only select the visible nodes,
+        // i.e. those at this traversal level.
+        let visibleNodes = self.visibleNodesViewModel
+            .getCanvasItemsAtTraversalLevel(at: document.groupNodeFocused?.groupNodeId)
+        
+        self.resetSelectedCanvasItems()
+        
+        visibleNodes.forEach {
+            $0.select(self, document: document)
+        }
     }
-}
 
-// TODO: needs to potentially select comment boxes as well
-extension GraphState {
     @MainActor
     // fka `processNodeSelectionBoxChange`
-    func processCanvasSelectionBoxChange(selectionBox: CGRect) {
+    func processCanvasSelectionBoxChange(selectionBox: CGRect,
+                                         document: StitchDocumentViewModel) {
         let graphState = self
         var selectedNodes = Set<CanvasItemId>()
         let nodesSelectedOnShift = self.graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag
         let isCurrentlyDragging = selectionBox != .zero
         
         // Unfocus sidebar
-        graphState.graphUI.isSidebarFocused = false
+        document.isSidebarFocused = false
         
         // TODO: pass shift down via the UIKit gesture handler
         let shiftHeld = graphState.keypressState.shiftHeldDuringGesture
@@ -149,7 +148,8 @@ extension GraphState {
         }
         
         if shiftHeld {
-            let initiallySelectedNodes = self.selectedCanvasItems.map(\.id).toSet
+            let initiallySelectedNodes = self.getSelectedCanvasItems(groupNodeFocused: document.groupNodeFocused?.groupNodeId)
+                .map(\.id).toSet
             let previouslySelectedNodes = self.graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag ?? .init()
 
             if self.graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag == nil {

@@ -26,6 +26,7 @@ struct AnchorPopoverView: View {
     
     let rowObserver: InputNodeRowObserver
     let graph: GraphState
+    let document: StitchDocumentViewModel
     let selection: Anchoring
     let layerInputObserver: LayerInputObserver?
     let isFieldInsideLayerInspector: Bool
@@ -57,6 +58,7 @@ struct AnchorPopoverView: View {
             graph.pickerOptionSelected(
                 rowObserver: rowObserver,
                 choice: .anchoring(option),
+                activeIndex: document.activeIndex,
                 isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                 isPersistence: true)
 

@@ -11,6 +11,7 @@ import StitchSchemaKit
 struct ExpansionBoxView: View {
     
     let graph: GraphState
+    let document: StitchDocumentViewModel
     let box: ExpansionBox
     
     @Environment(\.appTheme) var theme
@@ -33,7 +34,8 @@ struct ExpansionBoxView: View {
         .frame(box.size)
         .position(box.anchorCorner)
         .onChange(of: box) { _, newSelectionBounds in
-            graph.processCanvasSelectionBoxChange(selectionBox: newSelectionBounds.asCGRect)
+            graph.processCanvasSelectionBoxChange(selectionBox: newSelectionBounds.asCGRect,
+                                                  document: document)
         }
     }
 }

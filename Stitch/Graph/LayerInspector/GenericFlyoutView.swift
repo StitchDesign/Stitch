@@ -161,7 +161,7 @@ struct GenericFlyoutRowView: View {
     
     @MainActor
     var propertyRowIsSelected: Bool {
-        graphUI.propertySidebar.selectedProperty == layerInspectorRowId
+        graph.propertySidebar.selectedProperty == layerInspectorRowId
     }
     
     var rowObserver: InputNodeRowObserver {
@@ -267,7 +267,8 @@ extension GraphState {
     @MainActor
     func addLayerFieldToGraph(layerInput: LayerInputPort,
                               nodeId: NodeId,
-                              fieldIndex: Int) {
+                              fieldIndex: Int,
+                              groupNodeFocused: NodeId?) {
         
         guard let node = self.getNode(nodeId),
               let layerNode = node.layerNode,
@@ -289,7 +290,7 @@ extension GraphState {
         var unpackSchema = unpackedPort.createSchema()
         unpackSchema.canvasItem = .init(position: document.newLayerPropertyLocation,
                                         zIndex: self.highestZIndex + 1,
-                                        parentGroupNodeId: self.groupNodeFocused)
+                                        parentGroupNodeId: groupNodeFocused)
         
         // MARK: first group type grabbed since layers don't have differing groups within one input
         guard let unpackedPortParentFieldGroupType: FieldGroupType = layerInput
@@ -325,35 +326,38 @@ extension GraphState {
     }
 }
 
-struct LayerInputFieldAddedToGraph: GraphEventWithResponse {
+struct LayerInputFieldAddedToGraph: StitchDocumentEvent {
     
     let layerInput: LayerInputPort
     let nodeId: NodeId
     let fieldIndex: Int
     
     @MainActor
-    func handle(state: GraphState) -> GraphResponse {
+    func handle(state: StitchDocumentViewModel) {
         
         //        log("LayerInputFieldAddedToGraph: layerInput: \(layerInput)")
         //        log("LayerInputFieldAddedToGraph: nodeId: \(nodeId)")
         //        log("LayerInputFieldAddedToGraph: fieldIndex: \(fieldIndex)")
         
+        let graph = state.visibleGraph
+        
         let addLayerField = { (nodeId: NodeId) in
-            state.addLayerFieldToGraph(layerInput: layerInput,
+            graph.addLayerFieldToGraph(layerInput: layerInput,
                                        nodeId: nodeId,
-                                       fieldIndex: fieldIndex)
+                                       fieldIndex: fieldIndex,
+                                       groupNodeFocused: state.groupNodeFocused?.groupNodeId)
         }
         
-        if let multiselectInputs = state.documentDelegate?.graphUI.propertySidebar.inputsCommonToSelectedLayers,
+        if let multiselectInputs = graph.propertySidebar.inputsCommonToSelectedLayers,
            let layerMultiselectInput = multiselectInputs.first(where: { $0 == layerInput}) {
             
-            layerMultiselectInput.multiselectObservers(state).forEach { observer in
+            layerMultiselectInput.multiselectObservers(graph).forEach { observer in
                 addLayerField(observer.rowObserver.id.nodeId)
             }
         } else {
             addLayerField(nodeId)
         }
         
-        return .persistenceResponse
+        state.encodeProjectInBackground()
     }
 }

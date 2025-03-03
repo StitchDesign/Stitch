@@ -291,7 +291,7 @@ struct StepActionConnectionAdded: StepActionable {
     }
     
     func removeAction(graph: GraphState) {
-        graph.removeEdgeAt(input: self.inputPort)
+        graph.removeEdgeAt(input: self.inputPort, activeIndex: .init(.zero))
     }
     
     func validate(createdNodes: inout [NodeId : PatchOrLayer]) throws {
@@ -350,7 +350,8 @@ struct StepActionChangeValueType: StepActionable {
     func applyAction(graph: GraphState) throws {
         // NodeType etc. for this patch was already validated in `[StepTypeAction].areValidLLMSteps`
         let _ = graph.nodeTypeChanged(nodeId: self.nodeId,
-                                      newNodeType: self.valueType)
+                                      newNodeType: self.valueType,
+                                      activeIndex: graph.documentDelegate?.activeIndex ?? .init(.zero))
     }
     
     func removeAction(graph: GraphState) {
@@ -430,7 +431,8 @@ struct StepActionSetInput: StepActionable {
         
         // Use the common input-edit-committed function, so that we remove edges, block or unblock fields, etc.
         graph.inputEditCommitted(input: input,
-                                 value: self.value)
+                                 value: self.value,
+                                 activeIndex: graph.documentDelegate?.activeIndex ?? .init(.zero))
     }
     
     func removeAction(graph: GraphState) {

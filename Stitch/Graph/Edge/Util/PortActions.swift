@@ -75,21 +75,24 @@ extension GraphState {
     // Note: this removes ANY incoming edge to the `edge.to` input; whereas in some use-cases e.g. group node creation, we had expected only to remove the specific passed-in edge if it existed.
     // Hence the rename from `edgeRemoved` to `removesEdgeAt`
     @MainActor
-    func removeEdgeAt(input: InputPortViewData) {
+    func removeEdgeAt(input: InputPortViewData,
+                      activeIndex: ActiveIndex) {
         if let inputCoordinate = self.getInputCoordinate(from: input) {
-            self.removeEdgeAt(input: inputCoordinate)
+            self.removeEdgeAt(input: inputCoordinate,
+                              activeIndex: activeIndex)
         }
     }
     
     @MainActor
-    func removeEdgeAt(input: InputCoordinate) {
+    func removeEdgeAt(input: InputCoordinate,
+                      activeIndex: ActiveIndex) {
         guard let downstreamNode = self.getNodeViewModel(input.nodeId) else {
             return
         }
 
         // Removes edge and checks for media to remove
         downstreamNode.removeIncomingEdge(at: input,
-                                          activeIndex: self.activeIndex,
+                                          activeIndex: activeIndex,
                                           graph: self)
     }
 

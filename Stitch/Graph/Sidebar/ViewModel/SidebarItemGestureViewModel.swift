@@ -50,7 +50,8 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
     @MainActor weak var parentDelegate: SidebarItemGestureViewModel? {
         didSet {
             dispatch(AssignedLayerUpdated(changedLayerNode: self.id.asLayerNodeId))
-            dispatch(LayerGroupIdChanged(layerNodeId: self.id.asLayerNodeId))
+            dispatch(LayerGroupIdChanged(layerNodeId: self.id.asLayerNodeId,
+                                         activeIndex: sidebarDelegate?.graphDelegate?.documentDelegate?.activeIndex ?? .init(.zero)))
         }
     }
 
@@ -133,8 +134,9 @@ extension SidebarItemGestureViewModel {
     }
     
     @MainActor
-    func sidebarLayerHovered(itemId: SidebarListItemId) {
-        self.graphDelegate?.graphUI.sidebarLayerHovered(layerId: itemId.asLayerNodeId)
+    func sidebarLayerHovered(itemId: SidebarListItemId,
+                             graph: GraphState) {
+        graph.sidebarLayerHovered(layerId: itemId.asLayerNodeId)
     }
     
     @MainActor

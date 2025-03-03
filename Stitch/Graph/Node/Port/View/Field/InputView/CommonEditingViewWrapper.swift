@@ -35,19 +35,6 @@ struct CommonEditingViewWrapper: View {
         self.fieldViewModel.fieldIndex
     }
     
-    @MainActor
-    var fieldHasHeterogenousValues: Bool {
-        if let layerInputObserver = layerInputObserver {
-            @Bindable var layerInputObserver = layerInputObserver
-            return layerInputObserver.fieldHasHeterogenousValues(
-                fieldIndex,
-                isFieldInsideLayerInspector: forPropertySidebar,
-                graph: graph)
-        } else {
-            return false
-        }
-    }
-    
     var isFieldInMultifieldInspectorInputAndNotFlyout: Bool {
         isFieldInMultifieldInput && forPropertySidebar && !isForFlyout
     }
@@ -58,7 +45,9 @@ struct CommonEditingViewWrapper: View {
     @MainActor
     var isPaddingFieldInsideInspector: Bool {
         isFieldInMultifieldInspectorInputAndNotFlyout
-        && (layerInputObserver?.activeValue.getPadding.isDefined ?? false)
+        && (layerInputObserver?
+            .getActiveValue(activeIndex: graphUI.activeIndex)
+            .getPadding.isDefined ?? false)
     }
     
     @MainActor

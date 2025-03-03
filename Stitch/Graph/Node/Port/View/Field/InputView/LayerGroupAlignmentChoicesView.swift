@@ -135,6 +135,7 @@ struct LayerGroupHorizontalAlignmentPickerFieldValueView: View {
     let layerInputObserver: LayerInputObserver?
     let isFieldInsideLayerInspector: Bool
     let hasHeterogenousValues: Bool
+    let activeIndex: ActiveIndex
     
     var body: some View {
         Picker("", selection: $currentChoice) {
@@ -149,6 +150,7 @@ struct LayerGroupHorizontalAlignmentPickerFieldValueView: View {
             graph.pickerOptionSelected(
                 rowObserver: rowObserver,
                 choice: .anchoring(newValue.asAnchoring),
+                activeIndex: activeIndex,
                 isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         }
         .onAppear {
@@ -162,6 +164,7 @@ struct LayerGroupVerticalAlignmentPickerFieldValueView: View {
     
     let rowObserver: InputNodeRowObserver
     let graph: GraphState
+    let activeIndex: ActiveIndex
     let value: Anchoring
     let layerInputObserver: LayerInputObserver?
     let isFieldInsideLayerInspector: Bool
@@ -180,6 +183,7 @@ struct LayerGroupVerticalAlignmentPickerFieldValueView: View {
             graph.pickerOptionSelected(
                 rowObserver: rowObserver,
                 choice: .anchoring(newValue.asAnchoring),
+                activeIndex: activeIndex,
                 isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         }
         .onAppear {

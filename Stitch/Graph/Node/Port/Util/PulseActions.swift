@@ -29,7 +29,7 @@ extension GraphState {
         // Select canvas if associated here
         if let canvasItem = canvasItem { // inputPort.canvasItemDelegate {
             self.selectSingleNode(canvasItem,
-                                  graphUI: graphUI)
+                                  document: graphUI)
         }
         
         inputObserver.updateValues([.pulse(self.graphStepState.graphTime)])

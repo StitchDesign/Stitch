@@ -10,14 +10,14 @@ import Combine
 import UIKit
 
 struct OpenFlyoutView: View, KeyboardReadable {
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
     
     var body: some View {
-        if let flyoutState = graphUI.propertySidebar.flyoutState,
+        if let flyoutState = graph.propertySidebar.flyoutState,
            let node: NodeViewModel = graph.getNodeViewModel(flyoutState.flyoutNode),
            let layerNode: LayerNodeViewModel = node.layerNode,
-           let entry = graphUI.propertySidebar.propertyRowOrigins.get(flyoutState.flyoutInput) {
+           let entry = graph.propertySidebar.propertyRowOrigins.get(flyoutState.flyoutInput) {
             
             let flyoutSize = flyoutState.flyoutSize
             
@@ -35,27 +35,27 @@ struct OpenFlyoutView: View, KeyboardReadable {
                 Color.blue.opacity(pseudoPopoverBackgroundOpacity)
             }
             
-            let topPadding = graphUI.propertySidebar.safeAreaTopPadding
+            let topPadding = graph.propertySidebar.safeAreaTopPadding
               
             // // Apaprently don't need to worry about bottom safe areas of UIKitWrapper ?
             // let bottomPadding = graphUI.propertySidebar.safeAreaBottomPadding
             
             // Place top edge of flyout at top of graph;
             // We subtract half the screen height because we use .offset modifier
-            let start = -(graphUI.frame.midY - flyoutSize.height/2)
+            let start = -(document.frame.midY - flyoutSize.height/2)
                         
             // If the bottom edge of the flyout will go past the bottom edge of the screen,
             // move the flyout up a bit.
             let flyoutEndpoint = entry.y + flyoutSize.height // where the flyout's bottom edge would be
-            let needsSafeAreaAdjustment = flyoutEndpoint > graphUI.frame.maxY
+            let needsSafeAreaAdjustment = flyoutEndpoint > document.frame.maxY
             let safeAreaAdjustment = needsSafeAreaAdjustment
-            ? ((flyoutEndpoint - graphUI.frame.maxY) + FLYOUT_SAFE_AREA_BOTTOM_PADDING + topPadding) // +8 for padding from bottom
+            ? ((flyoutEndpoint - document.frame.maxY) + FLYOUT_SAFE_AREA_BOTTOM_PADDING + topPadding) // +8 for padding from bottom
             : 0.0
             
             let keyboardAdjustment = (self.keyboardOpen && needsSafeAreaAdjustment) ? 64.0 : 0.0
             
             // Note: the graph's frame itself sits at a certain y-position
-            let graphYPositionAdjustment = needsSafeAreaAdjustment ? .zero : graphUI.graphYPosition
+            let graphYPositionAdjustment = needsSafeAreaAdjustment ? .zero : graph.graphYPosition
             
             let flyoutPosition = start // move flyout's top edge to top of graph
             + entry.y // move flyout's top edge to row's height
@@ -74,18 +74,19 @@ struct OpenFlyoutView: View, KeyboardReadable {
                        ShadowFlyoutView(node: node,
                                         layerNode: layerNode,
                                         graph: graph,
-                                        graphUI: graphUI)
+                                        graphUI: document)
                     } else if flyoutInput.usesColor {
                         ColorFlyoutView(graph: graph,
                                         rowObserver: portObserver.rowObserver,
-                                        layerInputObserver: portObserver)
+                                        layerInputObserver: portObserver,
+                                        activeIndex: document.activeIndex)
                     }
                     // One multifield input presented in separate rows in the flyout
                     else {                        
                         // The Flyout takes the whole input,
                         // and displays each field
                         GenericFlyoutView(graph: graph,
-                                          graphUI: graphUI,
+                                          graphUI: document,
                                           // packed data ok for for view purposes
                                           rowViewModel: portObserver._packedData.inspectorRowViewModel,
                                           node: node,
@@ -102,7 +103,7 @@ struct OpenFlyoutView: View, KeyboardReadable {
                 )
                 .onReceive(keyboardPublisher) { value in
                     withAnimation {
-                        graphUI.propertySidebar.flyoutState?.keyboardIsOpen = value
+                        graph.propertySidebar.flyoutState?.keyboardIsOpen = value
                     }
                 }
             }
@@ -111,7 +112,7 @@ struct OpenFlyoutView: View, KeyboardReadable {
     
     @MainActor
     var keyboardOpen: Bool {
-        graphUI.propertySidebar.flyoutState?.keyboardIsOpen ?? false
+        graph.propertySidebar.flyoutState?.keyboardIsOpen ?? false
     }
 }
 

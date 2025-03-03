@@ -67,7 +67,8 @@ extension NodeRowObserver {
     func updatePortViewModels(_ graph: any GraphCalculatable) {
         
         // TODO: this actually works? We don't have to extend the GraphCalculatable protocol to have `visibleCanvasIds`, `selectedSidebarLayers`, `isFullScreenMode` and `groupNodeFocused`? ... Swift is tracking the concrete type?
-        guard let graph = graph as? GraphState else {
+        guard let graph = graph as? GraphState,
+              let document = graph.documentDelegate else {
             log("updatePortViewModels: could not ")
             return
         }
@@ -87,8 +88,8 @@ extension NodeRowObserver {
         
         let visibleRowViewModels = self.getVisibleRowViewModels(
             visibleCanvasIds: graph.visibleCanvasIds,
-            isFullScreenMode: graph.isFullScreenMode,
-            groupNodeFocused: graph.groupNodeFocused)
+            isFullScreenMode: document.isFullScreenMode,
+            groupNodeFocused: document.groupNodeFocused?.groupNodeId)
         
         visibleRowViewModels.forEach { rowViewModel in
             rowViewModel.didPortValuesUpdate(values: self.allLoopedValues)
@@ -139,12 +140,8 @@ extension NodeRowObserver {
     }
     
     @MainActor
-    var activeValue: PortValue {
-        guard let graph = self.nodeDelegate?.graphDelegate else {
-            return self.allLoopedValues.first ?? .none
-        }
-        
-        return self.allLoopedValues[safe: graph.activeIndex.adjustedIndex(self.allLoopedValues.count)] ?? .none
+    func getActiveValue(activeIndex: ActiveIndex) -> PortValue {
+        self.allLoopedValues[safe: activeIndex.adjustedIndex(self.allLoopedValues.count)] ?? .none
     }
     
     @MainActor
@@ -233,13 +230,13 @@ extension NodeRowObserver {
     @MainActor
     func label(useShortLabel: Bool = false,
                node: NodeViewModel,
+               currentTraversalLevel: NodeId?,
                graph: GraphState) -> String {
 
         let isSplitterPatch = node.kind.getPatch == .splitter
         let parentGroupNode = node.patchNodeViewModel?.parentGroupNodeId
         let hasParentGroupNode = parentGroupNode.isDefined
         
-        let currentTraversalLevel = graph.groupNodeFocused
         let isSplitterAtCurrentTraversalLevel = parentGroupNode == currentTraversalLevel
      
         /*

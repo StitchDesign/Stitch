@@ -117,7 +117,8 @@ extension PatchNodeViewModel: SchemaObserver {
                 // call the changeType helper
                 let _ = graph.changeType(for: node,
                                          oldType: oldType,
-                                         newType: newType)
+                                         newType: newType,
+                                         activeIndex: graph.documentDelegate?.activeIndex ?? .init(.zero))
             }
         }
         if self.splitterNode != schema.splitterNode {

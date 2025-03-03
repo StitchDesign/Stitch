@@ -20,13 +20,14 @@ struct MediaCopiedToNewNode: StitchStoreEvent {
     }
 }
 
-struct MediaCopiedToExistingNode: GraphEvent {
+struct MediaCopiedToExistingNode: StitchDocumentEvent {
     let url: URL
     let nodeMediaImportPayload: NodeMediaImportPayload
     
-    func handle(state: GraphState) {
-        state.mediaCopiedToExistingNode(nodeImportPayload: nodeMediaImportPayload,
-                                        newURL: url)
+    func handle(state: StitchDocumentViewModel) {
+        state.visibleGraph.mediaCopiedToExistingNode(nodeImportPayload: nodeMediaImportPayload,
+                                                     newURL: url,
+                                                     activeIndex: state.activeIndex)
     }
 }
 
@@ -48,14 +49,14 @@ struct ImportFileToNewNode: GraphEventWithResponse {
     }
 }
 
-struct GraphZoomedIn: StitchDocumentEvent {
-    func handle(state: StitchDocumentViewModel) {
+struct GraphZoomedIn: GraphEvent {
+    func handle(state: GraphState) {
         state.graphZoomedIn(.shortcutKey)
     }
 }
 
-struct GraphZoomedOut: StitchDocumentEvent {
-    func handle(state: StitchDocumentViewModel) {
+struct GraphZoomedOut: GraphEvent {
+    func handle(state: GraphState) {
         state.graphZoomedOut(.shortcutKey)
     }
 }

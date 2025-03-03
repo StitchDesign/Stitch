@@ -37,6 +37,7 @@ func mathExpressionEval(node: PatchNode) -> EvalResult {
     
     let labels = node.getAllInputsObservers().map { $0
         .label(node: node,
+               currentTraversalLevel: graph.documentDelegate?.groupNodeFocused?.groupNodeId,
                graph: graph)
     }
 

@@ -13,7 +13,6 @@ struct StitchProjectView: View {
     
     @Bindable var store: StitchStore
     @Bindable var document: StitchDocumentViewModel
-    @Bindable var graphUI: GraphUIState
 
     let alertState: ProjectAlertState
 
@@ -25,7 +24,7 @@ struct StitchProjectView: View {
     }
 
     var activeIndex: ActiveIndex {
-        graphUI.activeIndex
+        document.activeIndex
     }
 
     var body: some View {
@@ -45,7 +44,6 @@ struct StitchProjectView: View {
 
             .modifier(ProjectToolbarViewModifier(document: document,
                                                  graph: graphState,
-                                                 graphUI: document.graphUI,
                                                  // In reality this won't be nil
                                                  projectName: graphState.name,
                                                  projectId: graphState.projectId,
@@ -63,7 +61,6 @@ struct StitchProjectView: View {
     func projectView() -> some View {
         ContentView(store: store,
                     document: document,
-                    graphUI: document.graphUI,
                     alertState: alertState,
                     routerNamespace: routerNamespace)
     }

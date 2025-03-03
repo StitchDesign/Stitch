@@ -10,23 +10,23 @@ import StitchSchemaKit
 
 // When a broadcaster is assigned to a receiver:
 // -- create a connection and an invisible edge from broadcaster output to receiver input
-struct SetBroadcastForWirelessReceiver: ProjectEnvironmentEvent {
+struct SetBroadcastForWirelessReceiver: StitchDocumentEvent {
     let broadcasterNodeId: NodeId?
     let receiverNodeId: NodeId
 
-    func handle(graphState: GraphState,
-                environment: StitchEnvironment) -> GraphResponse {
+    func handle(state: StitchDocumentViewModel) {
 
         log("SetBroadcastForWirelessReceiver called")
         log("SetBroadcastForWirelessReceiver: broadcasterNodeId: \(broadcasterNodeId?.uuidString ?? "none")")
         log("SetBroadcastForWirelessReceiver: receiverNodeId: \(receiverNodeId)")
-
-        let graphTime = graphState.graphStepManager.graphTime
+        
+        let graphState = state.visibleGraph
+        let graphTime = state.graphStepManager.graphTime
 
         guard let receiverNode = graphState.getPatchNode(id: receiverNodeId),
               let receiverNodeInputObserver = receiverNode.getInputRowObserver(0) else {
             log("SetBroadcastForWirelessReceiver: could not find received node \(receiverNodeId)")
-            return .noChange
+            return
         }
 
         // If we DE-ASSIGNED a broadcaster from this receiver,
@@ -38,18 +38,19 @@ struct SetBroadcastForWirelessReceiver: ProjectEnvironmentEvent {
             // Note 2: removeAnyEdges already recalculates the graph from the `to` node of the removed edge.
 
             receiverNodeInputObserver.removeUpstreamConnection(
-                activeIndex: graphState.activeIndex,
+                activeIndex: state.activeIndex,
                 isVisible: receiverNode.isVisibleInFrame(graphState.visibleCanvasIds, graphState.selectedSidebarLayers))
             
             graphState.scheduleForNextGraphStep(receiverNodeId)
             
-            return .init(willPersist: true)
+            state.encodeProjectInBackground()
+            return
         }
 
         // Find the broadcaster and the receiver.
         guard let broadcasterNode = graphState.getPatchNode(id: broadcasterNodeId) else {
             log("SetBroadcastForWirelessReceiver: could not find node for broadcaster id \(broadcasterNodeId)")
-            return .noChange
+            return
         }
 
         // wireless nodes only have a single input and output
@@ -62,12 +63,12 @@ struct SetBroadcastForWirelessReceiver: ProjectEnvironmentEvent {
         receiverNode.updateNodeTypeAndInputs(
             newType: broadcasterNode.userVisibleType!,
             currentGraphTime: graphTime,
-            activeIndex: graphState.activeIndex,
+            activeIndex: state.activeIndex,
             graph: graphState)
 
         // Then recalculate the graph from the broadcaster onward:
         graphState.scheduleForNextGraphStep(broadcasterNodeId)
 
-        return .persistenceResponse
+        state.encodeProjectInBackground()
     }
 }

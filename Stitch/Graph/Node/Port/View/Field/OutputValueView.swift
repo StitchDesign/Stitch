@@ -132,10 +132,12 @@ struct OutputValueView: View {
             case .bool(let bool):
                 BoolCheckboxView(rowObserver: nil,
                                  graph: graph,
+                                 document: graphUI,
                                  layerInputObserver: nil,
                                  value: bool,
                                  isFieldInsideLayerInspector: false,
-                                 isSelectedInspectorRow: isSelectedInspectorRow)
+                                 isSelectedInspectorRow: isSelectedInspectorRow,
+                                 isMultiselectInspectorInputWithHeterogenousValues: false)
                 
             case .dropdown(let choiceDisplay, _):
                 // Values that use dropdowns for their inputs use instead a display-only view for their outputs
@@ -253,7 +255,9 @@ struct OutputValueView: View {
                                     isNodeSelected: isCanvasItemSelected,
                                     isFieldInsideLayerInspector: false,
                                     isSelectedInspectorRow: isSelectedInspectorRow,
-                                    graph: graph)
+                                    isMultiselectInspectorInputWithHeterogenousValues: false,
+                                    graph: graph,
+                                    document: graphUI)
                 
             case .color(let color):
                 StitchColorPickerOrb(chosenColor: color,

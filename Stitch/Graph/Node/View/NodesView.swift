@@ -15,7 +15,6 @@ struct NodesView: View {
     
     // Manages visible nodes array to animate instances when a group node changes
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
     
     // animation state for group node traversals
     let groupTraversedToChild: Bool
@@ -41,7 +40,7 @@ struct NodesView: View {
     
     var body: some View {
         let currentNodePageData = self.graph.visibleNodesViewModel
-            .getViewData(groupNodeFocused: graphUI.groupNodeFocused?.groupNodeId) ?? .init(localPosition: graph.localPosition)
+            .getViewData(groupNodeFocused: document.groupNodeFocused?.groupNodeId) ?? .init(localPosition: graph.localPosition)
                 
         // CommentBox needs to be affected by graph offset and zoom
 //         but can live somewhere else?
@@ -54,8 +53,7 @@ struct NodesView: View {
             nodesOnlyView(nodePageData: currentNodePageData)
         }
            .modifier(CanvasEdgesViewModifier(document: document,
-                                             graph: graph,
-                                             graphUI: graphUI))
+                                             graph: graph))
         
            .transition(.groupTraverse(isVisitingChild: groupTraversedToChild,
                                       nodeLocation: groupNodeLocation,
@@ -66,11 +64,10 @@ struct NodesView: View {
            .modifier(GraphMovementViewModifier(graphMovement: graph.graphMovement,
                                                currentNodePage: currentNodePageData,
                                                graph: graph,
-                                               groupNodeFocused: graphUI.groupNodeFocused))
+                                               groupNodeFocused: document.groupNodeFocused))
         // should come after edges, so that edges are offset, scaled etc.
            .modifier(StitchUIScrollViewModifier(document: document,
-                                                graph: graph,
-                                                graphUI: graphUI))
+                                                graph: graph))
     }
     
     // TODO: better location for CommentBoxes?
@@ -88,7 +85,6 @@ struct NodesView: View {
     func nodesOnlyView(nodePageData: NodePageData) -> some View {
         NodesOnlyView(document: document,
                       graph: graph,
-                      graphUI: graphUI,
                       nodePageData: nodePageData)
     }
 }
@@ -100,12 +96,10 @@ struct CanvasEdgesViewModifier: ViewModifier {
     
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
     
     @MainActor
     func connectedEdgesView(allConnectedInputs: [InputNodeRowViewModel]) -> some View {
         GraphConnectedEdgesView(graph: graph,
-                                graphUI: graphUI,
                                 allConnectedInputs: allConnectedInputs)
     }
     
@@ -119,7 +113,7 @@ struct CanvasEdgesViewModifier: ViewModifier {
     
     func body(content: Content) -> some View {
         // Including "possible" inputs enables edge animation
-        let candidateInputs: [InputNodeRowViewModel] = graphUI.edgeEditingState?.possibleEdges.compactMap {
+        let candidateInputs: [InputNodeRowViewModel] = graph.edgeEditingState?.possibleEdges.compactMap {
             let inputData = $0.edge.to
             
             guard let node = self.graph.getCanvasItem(inputData.canvasId),
@@ -134,7 +128,8 @@ struct CanvasEdgesViewModifier: ViewModifier {
         // Moves expensive computation here to reduce render cycles
             .onChange(of: graph.graphUpdaterId, initial: true) {
                 // log("CanvasEdgesViewModifier: .onChange(of: self.graph.graphUpdaterId)")
-                let canvasItemsAtThisTraversalLevel = self.graph.getCanvasItemsAtTraversalLevel()
+                let canvasItemsAtThisTraversalLevel = self.graph
+                    .getCanvasItemsAtTraversalLevel(groupNodeFocused: document.groupNodeFocused?.groupNodeId)
                 
                 self.allInputs = canvasItemsAtThisTraversalLevel
                     .flatMap { canvasItem -> [InputNodeRowViewModel] in
@@ -161,11 +156,11 @@ struct CanvasEdgesViewModifier: ViewModifier {
                 
                 EdgeInputLabelsView(inputs: allInputs,
                                     document: document,
-                                    graphUI: document.graphUI)
+                                    graph: graph)
                 
                 // TODO: does PortPreviewPopoverView render too many times when open?
                 // TODO: more elegant way to do this? Generic types giving Swift compiler trouble
-                if let openPortPreview = graphUI.openPortPreview {
+                if let openPortPreview = document.openPortPreview {
                     PortPreviewPopoverWrapperView(
                         allInputs: allInputs,
                         allOutputs: allOutputs,
