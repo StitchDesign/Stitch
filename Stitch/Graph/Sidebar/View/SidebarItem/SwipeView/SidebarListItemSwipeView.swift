@@ -14,11 +14,12 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
     @Environment(\.appTheme) private var theme
     
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     @Bindable var sidebarViewModel: SidebarViewModel
     @Bindable var gestureViewModel: ItemViewModel
     
     var isSidebarFocused: Bool {
-        self.graph.graphUI.isSidebarFocused
+        self.graphUI.isSidebarFocused
     }
     
     var isSelected: Bool {
@@ -125,6 +126,7 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
     var customSwipeItem: some View {
         SidebarListItemSwipeInnerView(
             graph: graph,
+            graphUI: graphUI,
             sidebarViewModel: sidebarViewModel,
             itemViewModel: gestureViewModel)
         .padding(1) // ensures .clipped doesn't cut off proposed-group border

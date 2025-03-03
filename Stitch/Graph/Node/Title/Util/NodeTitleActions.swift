@@ -9,40 +9,34 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-struct NodeTitleEdited: GraphEventWithResponse {
-    let titleEditType: StitchTitleEdit
-    let edit: String
-    let isCommitting: Bool
-
-    func handle(state: GraphState) -> GraphResponse {
+extension NodeViewModel {
+    @MainActor
+    func nodeTitleEdited(titleEditType: StitchTitleEdit,
+                         edit: String,
+                         isCommitting: Bool,
+                         graph: GraphState) {
         switch titleEditType {
         case .canvas(let id):
-            guard let node = state.getNode(id.associatedNodeId) else {
-                log("NodeTitleEdited: could not retrieve node \(id)...")
-                return .noChange
-            }
-            node.title = edit
+            self.title = edit
             
             // Check for component
-            if let componentNode = node.componentNode {
+            if let componentNode = self.componentNode {
                 componentNode.graph.name = edit
-
+                
                 // Always save changes to disk (hack for when view disappears before finishing)
                 componentNode.graph.encodeProjectInBackground()
             }
             
             // Resize node
-            node.patchCanvasItem?.resetViewSizingCache()
-
-        case .layerInspector(let id):
-            guard let node = state.getNodeViewModel(id) else {
-                return .noChange
-            }
+            self.patchCanvasItem?.resetViewSizingCache()
             
-            node.title = edit
+        case .layerInspector(let id):
+            self.title = edit
         }
         
-        return .init(willPersist: isCommitting)
+        if isCommitting {
+            graph.encodeProjectInBackground()
+        }
     }
 }
 

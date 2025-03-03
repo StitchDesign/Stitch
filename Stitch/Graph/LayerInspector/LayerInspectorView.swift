@@ -41,11 +41,12 @@ struct LayerInspectorView: View {
 #endif
     
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
 
     @State var safeAreaInsets: EdgeInsets = .init()
             
     var layerInspectorData: (header: String,
-                             node: NodeId,
+                             node: NodeViewModel,
                              inputs: LayerInputObserverDict,
                              outputs: [OutputLayerNodeRowData])? {
         graph.getLayerInspectorData()
@@ -71,7 +72,7 @@ struct LayerInspectorView: View {
     
     @MainActor @ViewBuilder
     func selectedLayerView(layerInspectorHeader: String,
-                           node: NodeId,
+                           node: NodeViewModel,
                            // Represents the already-filtered layer input+observer for this specific layer
                            layerInputObserverDict: LayerInputObserverDict,
                            layerOutputs: [OutputLayerNodeRowData]) -> some View {
@@ -103,7 +104,8 @@ struct LayerInspectorView: View {
                             section: section,
                             layerInputs: .init(layerInputs: filteredInputs),
                             graph: graph,
-                            nodeId: node
+                            graphUI: graphUI,
+                            node: node
                         )
                     }
                 } // ForEach
@@ -114,7 +116,9 @@ struct LayerInspectorView: View {
                 
                 LayerInspectorOutputsSectionView(
                     outputs: layerOutputs,
-                    graph: graph)
+                    graph: graph,
+                    graphUI: graphUI,
+                    node: node)
                 .padding(.horizontal)
                 #if targetEnvironment(macCatalyst)
                 .padding(.trailing, LAYER_INSPECTOR_ROW_SPACING + LAYER_INSPECTOR_ROW_ICON_LENGTH)
@@ -136,6 +140,7 @@ struct LayerInspectorView: View {
 struct LayerPropertyRowOriginReader: ViewModifier {
     
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     let layerInput: LayerInputPort
     
     func body(content: Content) -> some View {
@@ -148,7 +153,7 @@ struct LayerPropertyRowOriginReader: ViewModifier {
                     
                     // Guide for where to place the flyout;
                     // we read the origin even if this row doesn't support flyout.
-                    graph.graphUI.propertySidebar.propertyRowOrigins
+                    graphUI.propertySidebar.propertyRowOrigins
                         .updateValue(newValue.origin, forKey: layerInput)
                 }
             } // GeometryReader
@@ -195,7 +200,8 @@ struct LayerInspectorInputView: View {
     // `@Bindable var` (vs. `let`) seems to improve a strange issue where toggling scroll-enabled input on iPad would update the LayerInputObserver's blockedFields set but not re-render the view.
     @Bindable var layerInput: LayerInputAndObserver
     @Bindable var graph: GraphState
-    let nodeId: NodeId
+    @Bindable var graphUI: GraphUIState
+    let node: NodeViewModel
     
     var body: some View {
         let layerInputObserver: LayerInputObserver = layerInput.portObserver
@@ -210,8 +216,10 @@ struct LayerInspectorInputView: View {
         if !allFieldsBlockedOut {
             LayerInspectorInputPortView(layerInputObserver: layerInputObserver,
                                         graph: graph,
-                                        nodeId: nodeId)
+                                        graphUI: graphUI,
+                                        node: node)
             .modifier(LayerPropertyRowOriginReader(graph: graph,
+                                                   graphUI: graphUI,
                                                    layerInput: layerInput.layerInput))
         } else {
             EmptyView()
@@ -240,7 +248,8 @@ struct LayerInspectorInputsSectionView: View {
     // This section's layer inputs, filtered to excluded any not supported by this specific layer.
     @Bindable var layerInputs: LayerInputsAndObservers
     @Bindable var graph: GraphState
-    let nodeId: NodeId
+    @Bindable var graphUI: GraphUIState
+    let node: NodeViewModel
     
     @State private var expanded = true
     @State private var isHovered = false
@@ -250,7 +259,8 @@ struct LayerInspectorInputsSectionView: View {
             ForEach(layerInputs.layerInputs, id: \.layerInput) { (layerInput: LayerInputAndObserver) in
                 LayerInspectorInputView(layerInput: layerInput,
                                         graph: graph,
-                                        nodeId: nodeId)
+                                        graphUI: graphUI,
+                                        node: node)
             }
             .transition(.slideInAndOut(edge: .top))
         } header: {
@@ -283,9 +293,9 @@ struct LayerInspectorInputsSectionView: View {
                     dispatch(LayerInspectorSectionToggled(section: section))
                     
                     layerInputs.layerInputs.forEach { layerInput in
-                        if case let .layerInput(x) = graph.graphUI.propertySidebar.selectedProperty,
+                        if case let .layerInput(x) = graphUI.propertySidebar.selectedProperty,
                            x.layerInput == layerInput.layerInput {
-                            graph.graphUI.propertySidebar.selectedProperty = nil
+                            graphUI.propertySidebar.selectedProperty = nil
                         }
                     }
                 }
@@ -298,6 +308,8 @@ struct LayerInspectorOutputsSectionView: View {
     
     var outputs: [OutputLayerNodeRowData] // layerNode.outputPorts
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
+    @Bindable var node: NodeViewModel
     
     var body: some View {
         if outputs.isEmpty {
@@ -308,9 +320,11 @@ struct LayerInspectorOutputsSectionView: View {
                     if let portId = output.rowObserver.id.portId {
                         LayerInspectorOutputPortView(
                             outputPortId: portId,
+                            node: node,
                             rowViewModel: output.inspectorRowViewModel,
                             rowObserver: output.rowObserver,
                             graph: graph,
+                            graphUI: graphUI,
                             canvasItemId: output.canvasObserver?.id)
                     } else {
                         Color.clear.onAppear {
@@ -341,7 +355,7 @@ extension GraphState {
     // Note: just used for `LayerInspectorView`
     @MainActor
     func getLayerInspectorData() -> (header: String,
-                                     node: NodeId,
+                                     node: NodeViewModel,
                                      inputs: LayerInputObserverDict,
                                      outputs: [OutputLayerNodeRowData])? {
         // log("getLayerInspectorData called")
@@ -365,7 +379,8 @@ extension GraphState {
         
         // multiselect
         if inspectorFocusedLayers.count > 1 {
-            guard let firstLayer = inspectorFocusedLayers.first,
+            guard let firstLayerId = inspectorFocusedLayers.first,
+                  let firstLayer = self.getNodeViewModel(firstLayerId),
                   let multiselectState = self.graphUI.propertySidebar.inputsCommonToSelectedLayers else {
                 log("getLayerInspectorData: Had multiple selected layers but no multiselect state")
                 return nil
@@ -394,7 +409,7 @@ extension GraphState {
             let inputs = layerNode.filteredLayerInputObserverDict(supportedInputs: layerNode.layer.inputDefinitions)
             
             return (header: node.displayTitle,
-                    node: node.id,
+                    node: node,
                     inputs: inputs,
                     outputs: layerNode.outputPorts)
         }

@@ -157,9 +157,7 @@ extension GraphState {
                                graphDelegate: self) {
         case .success(let patchNode):
             guard let patchViewModel = patchNode.patchNode else {
-                #if DEBUG
-                fatalError()
-                #endif
+                fatalErrorIfDebug()
                 return
             }
 
@@ -341,39 +339,33 @@ extension GraphState {
         // Fixes issue where async race condition may not properly update fields for image nodes
         self.portsToUpdate.insert(.allOutputs(node.id))
     }
-}
-
-struct MediaPickerChanged: ProjectEnvironmentEvent {
-    let selectedValue: PortValue
-    let mediaType: SupportedMediaFormat
-    let input: InputCoordinate
-    let isFieldInsideLayerInspector: Bool
-
-    func handle(graphState: GraphState,
-                environment: StitchEnvironment) -> GraphResponse {
-        // Commit the new media to the selector input
-        graphState.handleInputEditCommitted(input: input,
-                                            value: selectedValue,
-                                            isFieldInsideLayerInspector: isFieldInsideLayerInspector)
-        
-        return .persistenceResponse
-    }
-}
-
-struct MediaPickerNoneChanged: ProjectEnvironmentEvent {
-    let input: InputCoordinate
-    let isFieldInsideLayerInspector: Bool
     
-    func handle(graphState: GraphState,
-                environment: StitchEnvironment) -> GraphResponse {
-        let emptyPortValue = PortValue.asyncMedia(nil)
-        graphState.handleInputEditCommitted(input: input,
-                                            value: emptyPortValue,
-                                            isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+    @MainActor
+    func mediaPickerChanged(selectedValue: PortValue,
+                            mediaType: SupportedMediaFormat,
+                            rowObserver: InputNodeRowObserver,
+                            isFieldInsideLayerInspector: Bool) {
+        // Commit the new media to the selector input
+        self.handleInputEditCommitted(input: rowObserver,
+                                      value: selectedValue,
+                                      isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         
-        return .persistenceResponse
+        self.encodeProjectInBackground()
+    }
+    
+    @MainActor
+    func mediaPickerNoneChanged(rowObserver: InputNodeRowObserver,
+                                isFieldInsideLayerInspector: Bool) {
+            let emptyPortValue = PortValue.asyncMedia(nil)
+        self.handleInputEditCommitted(input: rowObserver,
+                                      value: emptyPortValue,
+                                      isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+            
+        self.encodeProjectInBackground()
     }
 }
+
+
 
 // TODO: video-import node should also show resource size output?
 /// Creates node specifically from some imported media URL.

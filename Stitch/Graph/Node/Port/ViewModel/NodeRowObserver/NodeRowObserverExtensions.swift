@@ -231,13 +231,15 @@ extension NodeRowObserver {
     }
     
     @MainActor
-    func label(_ useShortLabel: Bool = false) -> String {
+    func label(useShortLabel: Bool = false,
+               node: NodeViewModel,
+               graph: GraphState) -> String {
 
-        let isSplitterPatch = self.nodeKind.getPatch == .splitter
-        let parentGroupNode = self.nodeDelegate?.patchNodeViewModel?.parentGroupNodeId
+        let isSplitterPatch = node.kind.getPatch == .splitter
+        let parentGroupNode = node.patchNodeViewModel?.parentGroupNodeId
         let hasParentGroupNode = parentGroupNode.isDefined
         
-        let currentTraversalLevel = self.nodeDelegate?.graphDelegate?.groupNodeFocused
+        let currentTraversalLevel = graph.groupNodeFocused
         let isSplitterAtCurrentTraversalLevel = parentGroupNode == currentTraversalLevel
      
         /*
@@ -251,26 +253,25 @@ extension NodeRowObserver {
             hasParentGroupNode,
            !isSplitterAtCurrentTraversalLevel {
             // Rows in a group-ui-node use the underlying splitter node's title
-            let labelFromSplitter = self.nodeDelegate?.displayTitle
-            assertInDebug(labelFromSplitter.isDefined)
+            let labelFromSplitter = node.displayTitle
 
             // Don't show label on group node's input/output row unless it is custom
             if labelFromSplitter == Patch.splitter.defaultDisplayTitle() {
                 return ""
             }
                         
-            return labelFromSplitter ?? ""
+            return labelFromSplitter
         }
         
-        switch id.portType {
+        switch self.id.portType {
         case .portIndex(let portId):
             if Self.nodeIOType == .input,
-               let mathExpr = self.nodeDelegate?.getMathExpression?.getSoulverVariables(),
+               let mathExpr = node.getMathExpression?.getSoulverVariables(),
                let variableChar = mathExpr[safe: portId] {
                 return String(variableChar)
             }
             
-            let rowDefinitions = self.nodeKind.graphNode?.rowDefinitions(for: userVisibleType) ?? self.nodeKind.rowDefinitions(for: userVisibleType)
+            let rowDefinitions = node.kind.graphNode?.rowDefinitions(for: userVisibleType) ?? node.kind.rowDefinitions(for: userVisibleType)
             
             // Note: when an input is added (e.g. adding an input to an Add node),
             // the newly-added input will not be found in the rowDefinitions,

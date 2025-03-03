@@ -66,6 +66,7 @@ struct GraphBaseView: View {
     var nodesView: some View {
         NodesView(document: document,
                   graph: graph,
+                  graphUI: graphUI,
                   groupTraversedToChild: graphUI.groupTraversedToChild)
         .overlay {
             // Show debug mode tip view
@@ -126,7 +127,8 @@ struct GraphBaseView: View {
                 .frame(width: 1, height: 1)
                 .inspector(isPresented: $graphUI.showsLayerInspector) {
                     
-                    LayerInspectorView(graph: graph)
+                    LayerInspectorView(graph: graph,
+                                       graphUI: graphUI)
                     
                     // TODO: setting an inspector width DOES move over the graph view content
                         .inspectorColumnWidth(LayerInspectorView.LAYER_INSPECTOR_WIDTH)

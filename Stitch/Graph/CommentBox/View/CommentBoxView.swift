@@ -14,11 +14,8 @@ struct CommentBoxView: View {
 
     @Environment(\.appTheme) private var theme
     @Bindable var graph: GraphState
-    
-    @MainActor
-    private var graphUI: GraphUIState {
-        self.graph.graphUI
-    }
+    @Bindable var graphUI: GraphUIState
+    @Bindable var document: StitchDocumentViewModel
 
     @Bindable var box: CommentBoxViewModel
     let isSelected: Bool // = false
@@ -79,13 +76,13 @@ struct CommentBoxView: View {
         .overlay(selectionBorder)
         .simultaneousGesture(TapGesture().onEnded({ _ in
             log("simultaneousGesture: TapGesture: onEnded")
-            graph.documentDelegate?.commentBoxTapped(box: self.box)
+            document.commentBoxTapped(box: self.box)
         }))
         .onChange(of: self.boundsDictEntry) { _, newValue in
             log("CommentBoxView: onChange of: self.boundsDictEntry")
             if newValue == nil {
                 log("CommentBoxView: onChange of: self.boundsDictEntry: will dispatch UpdateCommentBoxBounds")
-                graph.documentDelegate?.updateCommentBoxBounds(
+                document.updateCommentBoxBounds(
                     box: box,
                     bounds: self.boxBounds)
             }
@@ -178,6 +175,7 @@ struct CommentBoxView: View {
     var commentTagMenuButtons: some View {
         CommentBoxTagMenuButtonsView(
             graph: graph,
+            graphUI: graphUI,
             box: box,
             atleastOneNodeSelected: atleastOneNodeSelected)
     }
@@ -219,7 +217,7 @@ struct CommentBoxView: View {
                     // then update the state with the box's current bounds:
                     //                    if !self.commentBoxBoundsDict.hasKey(id) {
                     // log("CommentBoxView: boxBoundsReader: onAppear: will dispatch UpdateCommentBoxBounds")
-                    graph.documentDelegate?.updateCommentBoxBounds(
+                    document.updateCommentBoxBounds(
                         box: box,
                         bounds: self.boxBounds)
                 }
@@ -249,7 +247,7 @@ struct CommentBoxView: View {
                     // then update the state with the box's current bounds:
                     //                    if !self.commentBoxBoundsDict.hasKey(id) {
                     // log("CommentBoxView: titleBoundsReader: onAppear: will dispatch UpdateCommentBoxBounds")
-                    graph.documentDelegate?.updateCommentBoxBounds(
+                    document.updateCommentBoxBounds(
                         box: box,
                         bounds: self.boxBounds)
                 }
@@ -295,11 +293,11 @@ struct CommentBoxView: View {
                 redPosition.width = redPreviousPosition.width + value.translation.width
                 redPosition.height = redPreviousPosition.height + value.translation.height
 
-                graph.documentDelegate?.commentBoxPositionDragged(id: id, value: value)
+                document.commentBoxPositionDragged(id: id, value: value)
             }
             .onEnded { _ in
                 redPreviousPosition = redPosition
-                graph.documentDelegate?.commentBoxPositionDragEnded()
+                document.commentBoxPositionDragEnded()
             }
     }
 
@@ -316,11 +314,11 @@ struct CommentBoxView: View {
         DragGesture(coordinateSpace: .named(GraphBaseView.coordinateNamespace))
             .onChanged { newValue in
                 // print("expansionDrag: dragged")
-                graph.documentDelegate?.commentBoxExpansionDragged(box: box, value: newValue)
+                document.commentBoxExpansionDragged(box: box, value: newValue)
             }
             .onEnded({ value in
                 // print("expansionDrag: drag ended")
-                graph.documentDelegate?.commentBoxExpansionDragEnded(
+                document.commentBoxExpansionDragEnded(
                     box: box,
                     value: value,
                     newestBoxBounds: self.boxBounds)

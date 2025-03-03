@@ -14,6 +14,8 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
     @Bindable var stitch: NodeViewModel
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
+    let nodeId: NodeId
     let isSelected: Bool
     let atleastOneCommentBoxSelected: Bool
     let activeGroupId: GroupNodeType?
@@ -68,6 +70,8 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
             // Catalyst right-click to open node tag menu
                 .contextMenu {
                     NodeTagMenuButtonsView(graph: graph,
+                                           graphUI: graphUI,
+                                           document: document,
                                            node: stitch,
                                            canvasItemId: node.id,
                                            activeGroupId: activeGroupId,
@@ -77,21 +81,13 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
                                            atleastOneCommentBoxSelected: atleastOneCommentBoxSelected)
                 }
 #endif
-                .modifier(NodeViewTapGestureModifier(
-                    onSingleTap: {
-                        // deselect any fields; NOTE: not used on GroupNodes due to .simultaneousGesture
-                        if !self.stitch.kind.isGroup,
-                           graph.graphUI.reduxFocusedField != nil {
-                            graph.graphUI.reduxFocusedField = nil
-                        }
-                        
-                        // and select just the node
-                        node.isTapped(document: document)
-                    },
-                    onDoubleTap: {
-                        dispatch(GroupNodeDoubleTapped(id: stitch.id))
-                    },
-                    isGroup: self.stitch.kind.isGroup))
+                .modifier(
+                    NodeViewTapGestureModifier(graph: graph,
+                                               document: document,
+                                               graphUI: graphUI,
+                                               stitch: stitch,
+                                               node: node)
+                )
             
             /*
              Note: every touch on a part of a node is an interaction (e.g. the title, an input field etc.) with a single node --- except for touching the node tag menu.
@@ -104,6 +100,8 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
                     if isSelected {
                         CanvasItemTag(node: node,
                                       graph: graph,
+                                      graphUI: graphUI,
+                                      document: document,
                                       stitch: stitch,
                                       activeGroupId: activeGroupId,
                                       sortedUserTypeChoices: sortedUserTypeChoices,
@@ -156,10 +154,12 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
     var nodeTitle: some View {
         
         HStack {
-            CanvasItemTitleView(graph: graph,
+            CanvasItemTitleView(document: document,
+                                graph: graph,
+                                graphUI: graphUI,
                                 node: stitch,
-                                isCanvasItemSelected: isSelected,
-                                canvasId: node.id)
+                                canvasItem: node,
+                                isCanvasItemSelected: isSelected)
             .modifier(CanvasItemTitlePadding())
             
             Spacer()
@@ -278,6 +278,8 @@ struct CanvasItemBackground: ViewModifier {
 struct CanvasItemTag: View {
     @Bindable var node: CanvasItemViewModel
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var stitch: NodeViewModel
     let activeGroupId: GroupNodeType?
     var sortedUserTypeChoices: [UserVisibleType] = []
@@ -287,6 +289,8 @@ struct CanvasItemTag: View {
     
     @ViewBuilder var nodeTagMenu: NodeTagMenuButtonsView {
         NodeTagMenuButtonsView(graph: graph,
+                               graphUI: graphUI,
+                               document: document,
                                node: stitch,
                                canvasItemId: node.id,
                                activeGroupId: activeGroupId,
@@ -342,10 +346,33 @@ struct CanvasItemTag: View {
 // TODO: perf implications of this view
 struct NodeViewTapGestureModifier: ViewModifier {
     
-    let onSingleTap: () -> Void
-    let onDoubleTap: () -> Void
-    let isGroup: Bool
+    let graph: GraphState
+    let document: StitchDocumentViewModel
+    let graphUI: GraphUIState
+    let stitch: NodeViewModel
+    let node: CanvasItemViewModel
+    
+    var isGroup: Bool {
+        self.stitch.kind.isGroup
+    }
 
+    func onSingleTap() {
+        // deselect any fields; NOTE: not used on GroupNodes due to .simultaneousGesture
+        if !self.stitch.kind.isGroup,
+           graphUI.reduxFocusedField != nil {
+            graphUI.reduxFocusedField = nil
+        }
+        
+        // and select just the node
+        node.isTapped(document: document,
+                      graphUI: graphUI)
+    }
+    
+    func onDoubleTap() {
+        graph.groupNodeDoubleTapped(id: stitch.id,
+                                    graphUI: graphUI)
+    }
+    
     func body(content: Content) -> some View {
         /*
          Note: we must order these gestures as `double tap gesture -> single tap simultaneous gesture`.

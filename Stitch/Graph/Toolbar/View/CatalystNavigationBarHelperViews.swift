@@ -8,13 +8,14 @@
 import SwiftUI
 import StitchSchemaKit
 
-struct CatalystProjectTitleModalOpened: GraphEvent {
-    func handle(state: GraphState) {
+struct CatalystProjectTitleModalOpened: StitchDocumentEvent {
+    func handle(state: StitchDocumentViewModel) {
         // log("CatalystProjectTitleModalOpened")
         withAnimation {
             state.graphUI.showCatalystProjectTitleModal = true
         }
-        state.reduxFieldFocused(focusedField: .projectTitle)
+        state.visibleGraph.reduxFieldFocused(focusedField: .projectTitle,
+                                             graphUI: state.graphUI)
     }
 }
 
@@ -31,6 +32,7 @@ struct CatalystProjectTitleModalClosed: GraphUIEvent {
 struct CatalystProjectTitleModalView: View {
     
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     @FocusState var focus: Bool
     
     var body: some View {
@@ -43,14 +45,14 @@ struct CatalystProjectTitleModalView: View {
                 // log("CatalystProjectTitleModalView: onAppear")
                 self.focus = true
             }
-            .onChange(of: self.graph.graphUI.reduxFocusedField == .projectTitle, initial: true) { oldValue, newValue in
-                // log("CatalystProjectTitleModalView: .onChange(of: self.graph.graphUI.reduxFocusedField): oldValue: \(oldValue)")
-                // log("CatalystProjectTitleModalView: .onChange(of: self.graph.graphUI.reduxFocusedField): newValue: \(newValue)")
+            .onChange(of: self.graphUI.reduxFocusedField == .projectTitle, initial: true) { oldValue, newValue in
+                // log("CatalystProjectTitleModalView: .onChange(of: self.graphUI.reduxFocusedField): oldValue: \(oldValue)")
+                // log("CatalystProjectTitleModalView: .onChange(of: self.graphUI.reduxFocusedField): newValue: \(newValue)")
                 if !newValue {
-                    // log("CatalystProjectTitleModalView: .onChange(of: self.graph.graphUI.reduxFocusedField): will set focus false")
+                    // log("CatalystProjectTitleModalView: .onChange(of: self.graphUI.reduxFocusedField): will set focus false")
                     self.focus = false
                 } else {
-                    // log("CatalystProjectTitleModalView: .onChange(of: self.graph.graphUI.reduxFocusedField): will set focus true")
+                    // log("CatalystProjectTitleModalView: .onChange(of: self.graphUI.reduxFocusedField): will set focus true")
                     self.focus = true
                 }
             }
@@ -156,6 +158,8 @@ extension String {
 struct CatalystTopBarGraphButtons: View {
 
     let document: StitchDocumentViewModel
+    let graph: GraphState
+    let graphUI: GraphUIState
     let hasActiveGroupFocused: Bool
     let isFullscreen: Bool // = false
     let isPreviewWindowShown: Bool // = true
@@ -188,7 +192,7 @@ struct CatalystTopBarGraphButtons: View {
             
             // TODO: should be a toast only shows up when no nodes are on-screen?
             CatalystNavBarButton(.FIND_NODE_ON_GRAPH) {
-                dispatch(FindSomeCanvasItemOnGraph())
+                graph.findSomeCanvasItemOnGraph(graphUI: graphUI)
             }
 
             // TODO: implement
@@ -262,7 +266,7 @@ struct GoUpOneTraversalLevel: GraphEvent {
         state.graphUI.groupNodeBreadcrumbs = state.graphUI.groupNodeBreadcrumbs.dropLast()
 
         // Reset any active selections
-        state.resetAlertAndSelectionState()
+        state.resetAlertAndSelectionState(graphUI: state.graphUI)
 
         // Zoom-out animate to parent
         state.graphUI.groupTraversedToChild = false

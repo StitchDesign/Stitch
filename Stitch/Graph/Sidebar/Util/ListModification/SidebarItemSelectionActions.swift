@@ -14,14 +14,16 @@ extension ProjectSidebarObservable {
     @MainActor
     func sidebarItemTapped(id: Self.ItemID,
                            shiftHeld: Bool,
-                           commandHeld: Bool) {
+                           commandHeld: Bool,
+                           graph: GraphState,
+                           graphUI: GraphUIState) {
         // log("sidebarItemTapped: id: \(id)")
         // log("sidebarItemTapped: shiftHeld: \(shiftHeld)")
         
         let originalSelections = self.selectionState.primary
         
         // Set sidebar to be focused:
-        self.graphDelegate?.graphUI.isSidebarFocused = true
+        graphUI.isSidebarFocused = true
         
         // log("sidebarItemTapped: originalSelections: \(originalSelections)")
         
@@ -96,7 +98,7 @@ extension ProjectSidebarObservable {
                 
                 self.editModeSelectTappedItems(tappedItems: self.selectionState.primary)
                 
-                self.graphDelegate?.deselectAllCanvasItems()
+                graph.deselectAllCanvasItems(graphUI: graphUI)
                 
             } else {
                 // log("sidebarItemTapped: did not have itemsBetween")
@@ -112,7 +114,7 @@ extension ProjectSidebarObservable {
                     
                     self.editModeSelectTappedItems(tappedItems: self.selectionState.primary)
                     
-                    self.graphDelegate?.deselectAllCanvasItems()
+                    graph.deselectAllCanvasItems(graphUI: graphUI)
                 }
             }
         }
@@ -137,7 +139,7 @@ extension ProjectSidebarObservable {
                 self.selectionState.primary.insert(id)
                 self.sidebarItemSelectedViaEditMode(id)
                 self.selectionState.lastFocused = id
-                self.graphDelegate?.deselectAllCanvasItems()
+                graph.deselectAllCanvasItems(graphUI: graphUI)
             }
             
         } else {
@@ -149,13 +151,13 @@ extension ProjectSidebarObservable {
             self.selectionState.primary = .init([id])
             self.sidebarItemSelectedViaEditMode(id)
             self.selectionState.lastFocused = id
-            self.graphDelegate?.deselectAllCanvasItems()
+            graph.deselectAllCanvasItems(graphUI: graphUI)
         }
         
-        self.graphDelegate?.updateInspectorFocusedLayers()
+        graph.updateInspectorFocusedLayers()
         
         // Reset selected row in property sidebar when focused-layers changes
-        self.graphDelegate?.documentDelegate?.graphUI.propertySidebar.selectedProperty = nil
+        graphUI.propertySidebar.selectedProperty = nil
     }
 }
 

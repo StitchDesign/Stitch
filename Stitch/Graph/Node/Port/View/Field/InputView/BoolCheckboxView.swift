@@ -13,7 +13,8 @@ struct BoolCheckboxView: View {
     
     @Environment(\.appTheme) var theme
     
-    let id: InputCoordinate? // nil = used in output
+    let rowObserver: InputNodeRowObserver? // nil = used in output
+    let graph: GraphState
     let layerInputObserver: LayerInputObserver?
     let value: Bool
     let isFieldInsideLayerInspector: Bool
@@ -65,13 +66,12 @@ struct BoolCheckboxView: View {
 //                }
 //            }
             .onTapGesture {
-                if let id = id {
-                    log("BoolCheckboxView: id: \(id)")
+                if let rowObserver = rowObserver {
                     let toggled = toggleBool(value)
-                    dispatch(PickerOptionSelected(
-                                input: id,
-                                choice: .bool(toggled),
-                                isFieldInsideLayerInspector: isFieldInsideLayerInspector))
+                    graph.pickerOptionSelected(
+                        rowObserver: rowObserver,
+                        choice: .bool(toggled),
+                        isFieldInsideLayerInspector: isFieldInsideLayerInspector)
                 }
             }
     }

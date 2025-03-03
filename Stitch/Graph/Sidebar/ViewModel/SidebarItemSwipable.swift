@@ -54,7 +54,8 @@ protocol SidebarItemSwipable: StitchNestedListElementObservable, Sendable, Ident
     
     @MainActor
     func contextMenuInteraction(itemId: Self.ID,
-                                graph: GraphState) -> UIContextMenuConfiguration?
+                                graph: GraphState,
+                                graphUI: GraphUIState) -> UIContextMenuConfiguration?
     
     @MainActor
     func sidebarLayerHovered(itemId: Self.ID)
@@ -75,7 +76,9 @@ protocol SidebarItemSwipable: StitchNestedListElementObservable, Sendable, Ident
     func didToggleVisibility()
     
     @MainActor
-    func didLabelEdit(to newString: String, isCommitting: Bool)
+    func didLabelEdit(to newString: String,
+                      isCommitting: Bool,
+                      graph: GraphState)
     
     @MainActor
     func createSchema() -> SidebarViewModel.EncodedItemData

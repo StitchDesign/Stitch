@@ -15,6 +15,7 @@ struct SidebarListItemView<SidebarViewModel>: View where SidebarViewModel: Proje
     @Environment(\.appTheme) private var theme
     
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     @Bindable var sidebarViewModel: SidebarViewModel
     @Bindable var item: SidebarViewModel.ItemViewModel
     let swipeOffset: CGFloat
@@ -49,6 +50,7 @@ struct SidebarListItemView<SidebarViewModel>: View where SidebarViewModel: Proje
         HStack(spacing: 0) {
             SidebarListItemLeftLabelView(
                 graph: graph,
+                graphUI: graphUI,
                 sidebarViewModel: sidebarViewModel,
                 itemViewModel: item,
                 fontColor: fontColor)
