@@ -123,6 +123,7 @@ struct PortValuesPreviewView<NodeRowObserverType: NodeRowObserver>: View {
     }
 }
 
+// TODO: get popover to work with all values
 struct PortValuesPreviewValueView: View {
     
     let fieldValue: FieldValue

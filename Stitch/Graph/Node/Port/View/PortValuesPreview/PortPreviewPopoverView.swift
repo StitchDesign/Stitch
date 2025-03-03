@@ -9,6 +9,23 @@ import SwiftUI
 
 let PORT_PREVIEW_POPOVER_MAX_HEIGHT: CGFloat = 420
 
+struct OpenedPortPreview: Equatable, Hashable {
+    let port: NodeIOCoordinate
+    let nodeIO: NodeIO
+    let canvasItemId: CanvasItemId
+}
+
+struct PortPreviewOpened: StitchDocumentEvent {
+    let port: NodeIOCoordinate
+    let nodeIO: NodeIO
+    let canvasItemId: CanvasItemId
+    
+    func handle(state: StitchDocumentViewModel) {
+        // Access via document to avoid weak reference
+        state.graphUI.openPortPreview = .init(port: port, nodeIO: nodeIO, canvasItemId: canvasItemId)
+    }
+}
+
 struct PortPreviewPopoverWrapperView: View {
     let allInputs: [InputNodeRowViewModel]
     let allOutputs: [OutputNodeRowViewModel]
@@ -96,7 +113,6 @@ struct PortPreviewPopoverView<NodeRowObserverType: NodeRowObserver>: View {
                     Color.clear
                     // IMPORTANT: use .local frame, since .global is affected by zooming and creates infinite loop
                         .onChange(of: proxy.frame(in: .local), initial: true) { _, newFrameData in
-                            log("PortPreviewPopoverView: newFrameData.size.width: \(newFrameData.size.width)")
                             self.width = newFrameData.size.width
                         }
                 }

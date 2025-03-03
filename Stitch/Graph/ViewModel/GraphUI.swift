@@ -34,37 +34,6 @@ enum FocusedFieldChangedByArrowKey: Equatable, Hashable {
          downArrow // decrement
 }
 
-//enum OpenedPortPreview: Equatable, Hashable, Codable {
-//    case none,
-//         input(InputCoordinate, CanvasItemId),
-//         output(OutputCoordinate, CanvasItemId)
-//}
-
-struct OpenedPortPreview: Equatable, Hashable {
-    let port: NodeIOCoordinate
-    let nodeIO: NodeIO
-    let canvasItemId: CanvasItemId
-}
-
-struct PortPreviewOpened: StitchDocumentEvent {
-    let port: NodeIOCoordinate
-    let nodeIO: NodeIO
-    let canvasItemId: CanvasItemId
-    
-    func handle(state: StitchDocumentViewModel) {
-        // Access via document to avoid weak reference
-        state.graphUI.openPortPreview = .init(port: port, nodeIO: nodeIO, canvasItemId: canvasItemId)
-        
-//        switch nodeIO {
-//        case .input:
-//            state.graphUI.openPortPreview = .input(port, canvasItemId)
-//        case .output:
-//            state.graphUI.openPortPreview = .output(port, canvasItemId)
-//        }
-    }
-}
-
-
 @Observable
 final class GraphUIState: Sendable {
     
