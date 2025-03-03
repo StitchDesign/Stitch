@@ -22,6 +22,7 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
     let isMultiField: Bool
     let forPropertySidebar: Bool
     let forFlyout: Bool
+    let layerInputObserver: LayerInputObserver?
     
     let blockedFields: Set<LayerInputKeyPathType>?
     
@@ -44,9 +45,10 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
     
     var displaysNarrowMultifields: Bool {
         switch layerInput {
-        case .layerPadding, .layerMargin, .transform3D:
+        case .transform3D:
             return true
-            
+        case .layerPadding, .layerMargin:
+            return layerInputObserver?.mode == .packed
         default:
             return false
         }
@@ -67,7 +69,8 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
                 self.valueEntry(p2)
             }
         }
-        
+  
+        // See note in `NodeInputView`: this use assumes Margin and Padding are in a Packed state, i.e. one row observer and 4 field models
         else if fieldGroupViewModel.fieldObservers.count == 4 {
             VStack {
                 HStack {
@@ -117,7 +120,7 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
         
         else if forPropertySidebar,
                 !forFlyout,
-                isMultiField,
+                // isMultiField,
                 displaysNarrowMultifields {
             HStack {
                 Spacer()
