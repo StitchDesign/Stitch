@@ -158,7 +158,6 @@ struct DefaultNodeInputView: View {
                     )
                 }
             }
-            
         }
     }
 }
