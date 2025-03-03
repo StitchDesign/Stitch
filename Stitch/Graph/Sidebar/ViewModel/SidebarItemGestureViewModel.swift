@@ -118,11 +118,18 @@ extension SidebarItemGestureViewModel {
     
     @MainActor
     func didLabelEdit(to newString: String,
-                      isCommitting: Bool) {
+                      isCommitting: Bool,
+                      graph: GraphState) {
+        guard let node = graph.getNodeViewModel(self.id) else {
+            fatalErrorIfDebug()
+            return
+        }
+        
         // Treat this is as a "layer inspector edit" ?
-        dispatch(NodeTitleEdited(titleEditType: .layerInspector(self.id),
-                                 edit: newString,
-                                 isCommitting: isCommitting))
+        node.nodeTitleEdited(titleEditType: .layerInspector(self.id),
+                             edit: newString,
+                             isCommitting: isCommitting,
+                             graph: graph)
     }
     
     @MainActor

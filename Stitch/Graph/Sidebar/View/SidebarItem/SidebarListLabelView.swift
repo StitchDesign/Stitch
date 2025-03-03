@@ -139,7 +139,8 @@ struct SidebarListLabelEditView<ItemViewModel>: View where ItemViewModel: Sideba
                                               fontColor: fontColor,
                                               fieldEditCallback: { (newEdit: String, isCommitting: Bool) in
                     self.item.didLabelEdit(to: newEdit,
-                                           isCommitting: isCommitting)
+                                           isCommitting: isCommitting,
+                                           graph: graph)
                 })
             } else {
                 // logInView("SidebarListLabelEditView: read only")

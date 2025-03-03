@@ -156,8 +156,8 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
         HStack {
             CanvasItemTitleView(graph: graph,
                                 node: stitch,
-                                isCanvasItemSelected: isSelected,
-                                canvasId: node.id)
+                                canvasItem: node,
+                                isCanvasItemSelected: isSelected)
             .modifier(CanvasItemTitlePadding())
             
             Spacer()

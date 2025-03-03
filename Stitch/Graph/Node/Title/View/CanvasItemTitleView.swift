@@ -21,8 +21,8 @@ struct CanvasItemTitleView: View {
     
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
+    let canvasItem: CanvasItemViewModel
     let isCanvasItemSelected: Bool
-    let canvasId: CanvasItemId
     
     var nodeId: NodeId {
         node.id
@@ -59,7 +59,8 @@ struct CanvasItemTitleView: View {
                             .foregroundColor(Color(.nodeTitleFont))
                     }
                     NodeTitleTextField(graph: graph,
-                                       id: canvasId,
+                                       node: node,
+                                       canvasItem: canvasItem,
                                        label: label,
                                        isCanvasItemSelected: isCanvasItemSelected)
                 }

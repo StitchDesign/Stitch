@@ -76,7 +76,9 @@ protocol SidebarItemSwipable: StitchNestedListElementObservable, Sendable, Ident
     func didToggleVisibility()
     
     @MainActor
-    func didLabelEdit(to newString: String, isCommitting: Bool)
+    func didLabelEdit(to newString: String,
+                      isCommitting: Bool,
+                      graph: GraphState)
     
     @MainActor
     func createSchema() -> SidebarViewModel.EncodedItemData
