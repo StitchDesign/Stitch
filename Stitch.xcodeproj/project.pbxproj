@@ -1024,6 +1024,7 @@
 		B50AD535292C9F69003CC61E /* InsertNodeMenuSearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsertNodeMenuSearchBar.swift; sourceTree = "<group>"; };
 		B50AD537292CB170003CC61E /* KeyBindingActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyBindingActions.swift; sourceTree = "<group>"; };
 		B50B3A132C0FCCF9006B6E79 /* StitchViewModelKit.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = StitchViewModelKit.xcframework; path = ../StitchViewModelKit/StitchViewModelKit.xcframework; sourceTree = "<group>"; };
+		B50BC9E02D776F1E00311551 /* StitchViewKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = StitchViewKit; path = ../StitchViewKit; sourceTree = SOURCE_ROOT; };
 		B50C897A2864E2750032E95D /* DelayedEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelayedEffect.swift; sourceTree = "<group>"; };
 		B50CE3072908D0C40065378E /* StitchTextEditingField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchTextEditingField.swift; sourceTree = "<group>"; };
 		B50F41702C1F52C00082262F /* LayerInspectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInspectorView.swift; sourceTree = "<group>"; };
@@ -1984,6 +1985,7 @@
 		200BD859254F66EB00692903 /* Stitch */ = {
 			isa = PBXGroup;
 			children = (
+				B50BC9E02D776F1E00311551 /* StitchViewKit */,
 				EC15E425260271C6006F2E08 /* Stitch.entitlements */,
 				200BD863254F66EE00692903 /* Info.plist */,
 				B5617A7B2C175C3C00B53DAF /* App */,
