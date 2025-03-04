@@ -165,18 +165,18 @@ extension GraphState {
     @MainActor
     func updateInspectorFocusedLayers() {        
         if self.sidebarSelectionState.primary.count > 1 {
-            self.graphUI.propertySidebar.inputsCommonToSelectedLayers = self.multipleSidebarLayersSelected()
+            self.propertySidebar.heterogenousFieldsMap = self.multipleSidebarLayersSelected()
         } else {
-            self.graphUI.propertySidebar.inputsCommonToSelectedLayers = nil
+            self.propertySidebar.heterogenousFieldsMap = nil
         }
         
         // Reset selected-inspector-row whenever inspector-focused layers change
-        self.graphUI.propertySidebar.selectedProperty = nil
-        self.graphUI.closeFlyout()
+        self.propertySidebar.selectedProperty = nil
+        self.closeFlyout()
     }
     
     @MainActor
-    func multipleSidebarLayersSelected() -> LayerInputPortSet? {
+    func multipleSidebarLayersSelected() -> [LayerInputPort : Set<Int>]? {
                 
         let selectedNodes: [NodeViewModel] = self.sidebarSelectionState.primary.compactMap {
             self.getNode($0)
@@ -188,9 +188,7 @@ extension GraphState {
             return nil
         }
         
-        guard let firstSelectedLayer = self.sidebarSelectionState.primary.first,
-              let firstSelectedNode: NodeViewModel = self.getNode(firstSelectedLayer),
-              let firstSelectedLayerNode: LayerNodeViewModel = firstSelectedNode.layerNode else {
+        guard let firstSelectedLayer = self.sidebarSelectionState.primary.first else {
             log("multipleSidebarLayersSelected: did not have any selected sidebar layers?")
             return nil
         }
@@ -218,11 +216,22 @@ extension GraphState {
         
         // log("multipleSidebarLayersSelected: commonLayerInputs: \(commonLayerInputs)")
         
-        // Doesn't need to be ordered?
-        return .init(commonLayerInputs)
+        let heterogenousMap = commonLayerInputs.getHeterogenousFieldsMap(graph: self)
+        return heterogenousMap
     }
 }
 
+extension Set where Element == LayerInputPort {
+    @MainActor
+    func getHeterogenousFieldsMap(graph: GraphState) -> [LayerInputPort : Set<Int>] {
+        self.reduce(into: [LayerInputPort : Set<Int>]()) { result, layerPort in
+                // Check each layer node to find values
+            let fieldsWithHeterogenousValues = layerPort
+                .fieldsInMultiselectInputWithHeterogenousValues(graph)
+            result.updateValue(fieldsWithHeterogenousValues, forKey: layerPort)
+        }
+    }
+}
 
 // group or top level
 struct SidebarItemSelected: GraphEvent {
@@ -238,14 +247,7 @@ extension ProjectSidebarObservable {
     
     @MainActor
     func sidebarItemSelectedViaEditMode(_ id: Self.ItemID) {
-        
-        // we selected a group -- so 100% select the group
-        // and 80% all the children further down in the street
-        guard let item = self.retrieveItem(id) else {
-            return
-        }
-           
-        self.addExclusivelyToPrimary(id)  
+        self.addExclusivelyToPrimary(id)
         self.graphDelegate?.updateInspectorFocusedLayers()
     }
 }

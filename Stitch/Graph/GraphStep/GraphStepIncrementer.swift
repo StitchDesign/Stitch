@@ -55,8 +55,6 @@ extension GraphState {
         if let lastMouseMovement = self.documentDelegate?.lastMouseNodeMovement,
            (graphTime - lastMouseMovement) > DRAG_NODE_VELOCITY_RESET_STEP {
             
-            let mouseNodeIds = self.mouseNodes
-            
             for mouseNodeId in self.mouseNodes {
                 if let mouseNodeState = self.getPatchNode(id: mouseNodeId)?.ephemeralObservers?.first as? MouseNodeState {
                     

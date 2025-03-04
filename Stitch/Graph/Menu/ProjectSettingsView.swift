@@ -234,8 +234,8 @@ struct ProjectSettingsView: View {
         }
 
         return StitchColorPickerView(
-            rowObserver: nil, 
-            layerInputObserver: nil,
+            rowViewModelId: .init(graphItemType: .empty, nodeId: .init(), portId: -1),
+            rowObserver: nil,
             fieldCoordinate: .fakeFieldCoordinate,
             isFieldInsideLayerInspector: false,
             isForFlyout: false,

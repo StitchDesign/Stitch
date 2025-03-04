@@ -13,7 +13,6 @@ struct StitchFontDropdown: View {
     let rowObserver: InputNodeRowObserver
     let graph: GraphState
     let stitchFont: StitchFont
-    let layerInputObserver: LayerInputObserver?
     let isFieldInsideLayerInspector: Bool
     let propertyIsSelected: Bool
     let hasHeterogenousValues: Bool

@@ -40,7 +40,6 @@ struct LayerGroupOrientationDropDownChoiceView: View {
     let rowObserver: InputNodeRowObserver
     let graph: GraphState
     let value: StitchOrientation
-    let layerInputObserver: LayerInputObserver?
     let isFieldInsideLayerInspector: Bool
     let hasHeterogenousValues: Bool
     let activeIndex: ActiveIndex

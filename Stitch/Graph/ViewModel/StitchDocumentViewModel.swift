@@ -354,6 +354,18 @@ extension StitchDocumentViewModel {
 }
 
 extension GraphState: GraphCalculatable {
+    func didPortsUpdate(ports: Set<StitchEngine.NodePortType<NodeViewModel>>) {
+        // Update multi-selected layers in sidebar with possible heterogenous values
+        if let currentMultiselectionMap = self.propertySidebar.heterogenousFieldsMap {
+            let newMultiselectionMap = Set(currentMultiselectionMap.keys)
+                .getHeterogenousFieldsMap(graph: self)
+            
+            if currentMultiselectionMap != newMultiselectionMap {
+                self.propertySidebar.heterogenousFieldsMap = newMultiselectionMap
+            }
+        }
+    }
+    
     
     @MainActor
     func updateOrderedPreviewLayers() {

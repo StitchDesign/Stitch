@@ -34,7 +34,6 @@ struct MediaFieldValueView<Field: FieldViewModel>: View {
     let rowViewModel: Field.NodeRowType
     let rowObserver: Field.NodeRowType.RowObserver
     let node: NodeViewModel
-    let layerInputObserver: LayerInputObserver?
     let isUpstreamValue: Bool
     let media: FieldValueMedia
     let mediaName: String

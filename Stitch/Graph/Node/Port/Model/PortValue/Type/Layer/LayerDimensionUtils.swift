@@ -80,7 +80,7 @@ enum NonNumberLayerDimension: String, Equatable, Codable, CaseIterable {
 extension GraphState {
     @MainActor
     func getFilteredLayerDimensionChoices(node: NodeViewModel,
-                                          layerInputObserver: LayerInputObserver?,
+                                          layerInputPort: LayerInputPort?,
                                           activeIndex: ActiveIndex) -> [NonNumberLayerDimension] {
         
         let allChoices = LayerDimension.choicesAsNonNumberLayerDimension
@@ -92,8 +92,8 @@ extension GraphState {
         }
         
         // TODO: `layerInputObserver` is not passed down to layer inputs on the canvas?
-        if let layerInputObserver = layerInputObserver,
-            layerInputObserver.port == .minSize || layerInputObserver.port == .maxSize {
+        if let layerInputPort = layerInputPort,
+            layerInputPort == .minSize || layerInputPort == .maxSize {
             // Min and max size can only use `auto` (i.e. none), `static number` or `parent percentage`
             return [.auto]
         }

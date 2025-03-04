@@ -28,7 +28,6 @@ struct AnchorPopoverView: View {
     let graph: GraphState
     let document: StitchDocumentViewModel
     let selection: Anchoring
-    let layerInputObserver: LayerInputObserver?
     let isFieldInsideLayerInspector: Bool
     let isSelectedInspectorRow: Bool
     let hasHeterogenousValues: Bool

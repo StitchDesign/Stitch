@@ -16,7 +16,6 @@ struct BoolCheckboxView: View {
     let rowObserver: InputNodeRowObserver? // nil = used in output
     let graph: GraphState
     let document: StitchDocumentViewModel
-    let layerInputObserver: LayerInputObserver?
     let value: Bool
     let isFieldInsideLayerInspector: Bool
     let isSelectedInspectorRow: Bool

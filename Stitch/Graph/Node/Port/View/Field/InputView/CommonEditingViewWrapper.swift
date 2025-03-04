@@ -15,13 +15,13 @@ struct CommonEditingViewWrapper: View {
     @Bindable var fieldViewModel: InputFieldViewModel
     @Bindable var rowObserver: InputNodeRowObserver
     let rowViewModel: InputNodeRowViewModel
-    let layerInputObserver: LayerInputObserver?
     let fieldValue: FieldValue
     let fieldCoordinate: FieldCoordinate
     let isCanvasItemSelected: Bool
     let choices: [String]?
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
+    let hasHeterogenousValues: Bool
     let isFieldInMultifieldInput: Bool
     let isForFlyout: Bool
     let isSelectedInspectorRow: Bool
@@ -45,9 +45,7 @@ struct CommonEditingViewWrapper: View {
     @MainActor
     var isPaddingFieldInsideInspector: Bool {
         isFieldInMultifieldInspectorInputAndNotFlyout
-        && (layerInputObserver?
-            .getActiveValue(activeIndex: graphUI.activeIndex)
-            .getPadding.isDefined ?? false)
+        && rowViewModel.activeValue.getPadding.isDefined
     }
     
     @MainActor
@@ -73,7 +71,6 @@ struct CommonEditingViewWrapper: View {
     var body: some View {
         let stringValue = fieldValue.stringValue
         CommonEditingView(inputField: fieldViewModel,
-                          layerInputObserver: layerInputObserver,
                           inputString: stringValue,
                           graph: graph,
                           graphUI: graphUI,
@@ -89,6 +86,7 @@ struct CommonEditingViewWrapper: View {
                           isForFlyout: isForFlyout,
                           isForSpacingField: isForSpacingField,
                           isSelectedInspectorRow: isSelectedInspectorRow,
+                          hasHeterogenousValues: hasHeterogenousValues,
                           isFieldInMultifieldInspectorInputAndNotFlyout: isFieldInMultifieldInspectorInputAndNotFlyout,
                           fieldWidth: fieldWidth)
     }

@@ -120,20 +120,11 @@ struct OutputValueView: View {
     }
 
     var body: some View {
-//        NodeLayoutView(observer: viewModel) {
             switch fieldValue {
-            case .string(let string):
-                // Leading alignment when multifield
-                readOnlyView(string.string)
-                
-            case .number, .layerDimension, .spacing:
-                readOnlyView(fieldValue.stringValue)
-                
             case .bool(let bool):
                 BoolCheckboxView(rowObserver: nil,
                                  graph: graph,
                                  document: graphUI,
-                                 layerInputObserver: nil,
                                  value: bool,
                                  isFieldInsideLayerInspector: false,
                                  isSelectedInspectorRow: isSelectedInspectorRow,
@@ -143,109 +134,18 @@ struct OutputValueView: View {
                 // Values that use dropdowns for their inputs use instead a display-only view for their outputs
                 readOnlyView(choiceDisplay)
                 
-//            case .textFontDropdown(let stitchFont):
-//                StitchFontDropdown(input: rowObserver,
-//                                   stitchFont: stitchFont,
-//                                   layerInputObserver: nil,
-//                                   isFieldInsideLayerInspector: false,
-//                                   propertyIsSelected: isSelectedInspectorRow)
-//                // need enough width for font design + font weight name
-//                .frame(minWidth: 200,
-//                       alignment: .leading)
-//                .disabled(true)
-                
-//            case .layerDropdown(let layerId):
-//                // TODO: use read-only view if this is an output ?
-//                LayerNamesDropDownChoiceView(graph: graph,
-//                                             id: coordinate,
-//                                             value: .assignedLayer(layerId),
-//                                             layerInputObserver: nil,
-//                                             isFieldInsideLayerInspector: false,
-//                                             isForPinTo: false,
-//                                             isSelectedInspectorRow: isSelectedInspectorRow,
-//                                             choices: [])
-//                .disabled(true)
-                
             case .anchorEntity(let anchorEntityId):
                 let displayName = graph.getNodeViewModel(anchorEntityId ?? .init())?.getDisplayTitle() ?? AnchorDropdownChoice.noneDisplayName
                 readOnlyView(displayName)
                 
-//            case .layerGroupOrientationDropdown(let x):
-//                LayerGroupOrientationDropDownChoiceView(
-//                    id: coordinate,
-//                    value: x,
-//                    layerInputObserver: nil,
-//                    isFieldInsideLayerInspector: false)
-//                .disabled(true)
-                
             case .layerGroupAlignment(_):
                 EmptyView() // Can't really happen
-            
-//            case .textAlignmentPicker(let x):
-//                SpecialPickerFieldValueView(
-//                    currentChoice: .textAlignment(x),
-//                    id: coordinate,
-//                    value: .textAlignment(x),
-//                    choices: LayerTextAlignment.choices,
-//                    layerInputObserver: nil,
-//                    isFieldInsideLayerInspector: false)
-//                .disabled(false)
-                
-//            case .textVerticalAlignmentPicker(let x):
-//                SpecialPickerFieldValueView(
-//                    currentChoice: .textVerticalAlignment(x),
-//                    id: coordinate,
-//                    value: .textVerticalAlignment(x),
-//                    choices: LayerTextVerticalAlignment.choices,
-//                    layerInputObserver: nil,
-//                    isFieldInsideLayerInspector: false)
-//                .disabled(false)
-//            
-//            case .textDecoration(let x):
-//                SpecialPickerFieldValueView(
-//                    currentChoice: .textDecoration(x),
-//                    id: coordinate,
-//                    value: .textDecoration(x),
-//                    choices: LayerTextDecoration.choices,
-//                    layerInputObserver: nil,
-//                    isFieldInsideLayerInspector: false)
-//                .disabled(false)
-//                
-//            case .pinTo(let pinToId):
-//                LayerNamesDropDownChoiceView(graph: graph,
-//                                             id: coordinate,
-//                                             value: .pinTo(pinToId),
-//                                             layerInputObserver: nil,
-//                                             isFieldInsideLayerInspector: false,
-//                                             isForPinTo: true,
-//                                             isSelectedInspectorRow: isSelectedInspectorRow,
-//                                             choices: [] //[pinToId.asLayerDropdownChoice] //
-//                                             //                                            graph.layerDropdownChoices(
-//                                             //                                            isForNode: coordinate.nodeId,
-//                                             //                                            isForLayerGroup: false,
-//                                             ////                                            isFieldInsideLayerInspector: false,
-//                                             //                                            isForPinTo: false)
-//                )
-//                
-//                .disabled(true)
-                
-//            case .anchorPopover(let anchor):
-//                AnchorPopoverView(input: coordinate,
-//                                  selection: anchor,
-//                                  layerInputObserver: nil,
-//                                  isFieldInsideLayerInspector: false,
-//                                  isSelectedInspectorRow: isSelectedInspectorRow)
-//                .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH,
-//                       height: NODE_ROW_HEIGHT,
-//                       // Note: why are these reversed? Because we scaled the view down?
-//                       alignment: .leading)
                 
             case .media(let media):
                 MediaFieldValueView(viewModel: viewModel,
                                     rowViewModel: rowViewModel,
                                     rowObserver: rowObserver,
                                     node: node,
-                                    layerInputObserver: nil,
                                     isUpstreamValue: false,     // only valid for inputs
                                     media: media,
                                     mediaName: media.name,
@@ -280,7 +180,6 @@ struct OutputValueView: View {
             default:
                 readOnlyView(self.fieldValue.stringValue)
             }
-//        }
     }
 
     @ViewBuilder func readOnlyView(_ displayName: String) -> some View {
