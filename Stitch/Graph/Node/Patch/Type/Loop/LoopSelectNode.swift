@@ -36,7 +36,7 @@ struct LoopSelectNode: PatchNodeDefinition {
     
     @MainActor
     static func evaluate(node: NodeViewModel) -> EvalResult? {
-        let inputs = node.inputs
+        let inputs = node.inputsForEval
         let defaultOutputs = node.defaultOutputs
         
         guard //let mediaObserver = node.ephemeralObservers?.first as? MediaReferenceObserver,

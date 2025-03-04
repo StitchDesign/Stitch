@@ -413,7 +413,7 @@ extension NodeViewModel {
             return nil
             
         case .portIndex(let portId):
-            return self.getOutputRowObserver(portId, graph)
+            return self.getOutputRowObserverForEval(portId)
         }
     }
     
@@ -469,8 +469,8 @@ extension NodeViewModel {
 
     /// Gets output row observer for some node.
     @MainActor
-    func getOutputRowObserver(_ portId: Int, _ graph: GraphState) -> OutputNodeRowObserver? {
-        self.getAllOutputsObservers(graph)[safe: portId]
+    func getOutputRowObserverForEval(_ portId: Int) -> OutputNodeRowObserver? {
+        self.getOutputsObserversForEval()[safe: portId]
         
 //        // Check for output in layer
 //        if let layerNode = self.layerNode {

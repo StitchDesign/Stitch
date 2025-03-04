@@ -304,7 +304,7 @@ extension NodeViewModel {
                                               _ graph: GraphState) -> MediaViewModel? {
         // Media object is obtained by looking at upstream connected node's saved media objects.
         if let viewModel = self.getComputedMediaObserver(loopIndex: loopIndex,
-                                                                          mediaId: mediaId) {
+                                                         mediaId: mediaId) {
             return viewModel
         }
         
