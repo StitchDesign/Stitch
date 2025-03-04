@@ -74,7 +74,6 @@ final class CanvasItemViewModel: Identifiable, StitchLayoutCachable, Sendable {
     @MainActor var parentGroupNodeId: NodeId?
     
     @MainActor
-//    func isVisibleInFrame(_ graph: GraphState) -> Bool {
     func isVisibleInFrame(_ visibleCanvasIds: CanvasItemIdSet) -> Bool {
         return visibleCanvasIds.contains(self.id)
     }

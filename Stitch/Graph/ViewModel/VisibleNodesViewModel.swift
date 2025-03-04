@@ -252,6 +252,11 @@ extension VisibleNodesViewModel {
             .filter { $0.parentGroupNodeId == focusedGroup }
     }
 
+    @MainActor
+    func getSplitterInputRowObserverIds(for groupNodeId: NodeId?) -> CanvasItemIdSet {
+        self.getSplitterInputRowObservers(for: groupNodeId).reduce(into: CanvasItemIdSet()) { $0.insert(.node($1.id.nodeId)) }
+    }
+    
     /// Obtains input row observers directly from splitter patch nodes given its parent group node.
     @MainActor
     func getSplitterInputRowObservers(for groupNodeId: NodeId?) -> [InputNodeRowObserver] {
@@ -289,6 +294,11 @@ extension VisibleNodesViewModel {
             }
 
         return splitterRowObservers
+    }
+    
+    @MainActor
+    func getSplitterOutputRowObserverIds(for groupNodeId: NodeId?) -> CanvasItemIdSet {
+        self.getSplitterOutputRowObservers(for: groupNodeId).reduce(into: CanvasItemIdSet()) { $0.insert(.node($1.id.nodeId)) }
     }
     
     /// Obtains output row observers directly from splitter patch nodes given its parent group node.

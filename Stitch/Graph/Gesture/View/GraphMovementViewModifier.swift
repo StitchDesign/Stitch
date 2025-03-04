@@ -76,6 +76,20 @@ extension GraphState {
             
             if isVisibleInFrame {
                 newVisibleNodes.insert(id)
+                
+                /*
+                 If a GroupNode is "visible on screen" (i.e. within the user's viewport),
+                 then we should consider its underlying input- and output-splitters visible as well,
+                 for the purposes of UI field updates.
+                
+                 Note: CanvasItemId.layerInput and CanvasItemId.layerOutput can never be a GroupNode,
+                 but CanvasItemId.node could be a GroupNode.
+                 */
+                if let potentialGroupNodeId = id.nodeCase {
+                    newVisibleNodes.formUnion(self.visibleNodesViewModel.getSplitterInputRowObserverIds(for: potentialGroupNodeId))
+                    newVisibleNodes.formUnion(self.visibleNodesViewModel.getSplitterOutputRowObserverIds(for: potentialGroupNodeId))
+                }
+                
                 // log("updateVisibleNodes: visible: \(id)")
             } else {
                 // log("updateVisibleNodes: NOT visible: \(id), cachedBounds: \(cachedBounds)")
