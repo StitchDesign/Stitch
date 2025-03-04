@@ -648,6 +648,7 @@
 		EC8BA54726A6383F002E345C /* SmoothValueNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8BA54626A6383F002E345C /* SmoothValueNode.swift */; };
 		EC8BA54926A6388B002E345C /* VelocityNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8BA54826A6388B002E345C /* VelocityNode.swift */; };
 		EC8BD76E2B6C1350009BA60C /* EdgeEditModeOutputHoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8BD76D2B6C1350009BA60C /* EdgeEditModeOutputHoverView.swift */; };
+		EC8C1AA32D7795100058D969 /* NodeViewModelNodeCalculatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8C1AA22D7795100058D969 /* NodeViewModelNodeCalculatable.swift */; };
 		EC8C5C112616334B0099C374 /* OptionSwitchNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8C5C102616334B0099C374 /* OptionSwitchNode.swift */; };
 		EC8C5C152616415F0099C374 /* SoundKitNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8C5C142616415F0099C374 /* SoundKitNode.swift */; };
 		EC8C5C2326165C870099C374 /* PulseOnChangeNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8C5C2226165C870099C374 /* PulseOnChangeNode.swift */; };
@@ -1604,6 +1605,7 @@
 		EC8BA54626A6383F002E345C /* SmoothValueNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmoothValueNode.swift; sourceTree = "<group>"; };
 		EC8BA54826A6388B002E345C /* VelocityNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VelocityNode.swift; sourceTree = "<group>"; };
 		EC8BD76D2B6C1350009BA60C /* EdgeEditModeOutputHoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeEditModeOutputHoverView.swift; sourceTree = "<group>"; };
+		EC8C1AA22D7795100058D969 /* NodeViewModelNodeCalculatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeViewModelNodeCalculatable.swift; sourceTree = "<group>"; };
 		EC8C5C102616334B0099C374 /* OptionSwitchNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionSwitchNode.swift; sourceTree = "<group>"; };
 		EC8C5C142616415F0099C374 /* SoundKitNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundKitNode.swift; sourceTree = "<group>"; };
 		EC8C5C2226165C870099C374 /* PulseOnChangeNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PulseOnChangeNode.swift; sourceTree = "<group>"; };
@@ -3222,7 +3224,7 @@
 			isa = PBXGroup;
 			children = (
 				EC0F33492BED93D9008093BC /* NodeDelegate.swift */,
-				B5EC61FA2A5F5713002A639F /* NodeViewModel.swift */,
+				EC8C1AA42D7795E40058D969 /* NodeViewModel */,
 				ECC30E112C234E8800F0F54C /* CanvasItemViewModel.swift */,
 				ECB7B5D22A72DD9400E2D30B /* NodePageData.swift */,
 				ECB7B5D02A72DD7600E2D30B /* NodeViewModelType.swift */,
@@ -4378,6 +4380,15 @@
 			path = Font;
 			sourceTree = "<group>";
 		};
+		EC8C1AA42D7795E40058D969 /* NodeViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				B5EC61FA2A5F5713002A639F /* NodeViewModel.swift */,
+				EC8C1AA22D7795100058D969 /* NodeViewModelNodeCalculatable.swift */,
+			);
+			path = NodeViewModel;
+			sourceTree = "<group>";
+		};
 		EC96B0432B8D087F00B58227 /* Pack */ = {
 			isa = PBXGroup;
 			children = (
@@ -5240,6 +5251,7 @@
 				EC731CB92A37F05100241CB2 /* PatchDescription.swift in Sources */,
 				B59F03B72CB75B8D00A9422C /* GraphComponentHashable.swift in Sources */,
 				B5B00FFA2BBFC7E000E83CE7 /* LayerInputType.swift in Sources */,
+				EC8C1AA32D7795100058D969 /* NodeViewModelNodeCalculatable.swift in Sources */,
 				ECD0E1A028D3697D00133045 /* Base64StringToImagePatchNode.swift in Sources */,
 				B5F8D6A82C224A6600B99E5C /* LayerNodeData.swift in Sources */,
 				EC3A6C472C20C27300CCBACC /* NodeRowObserverSchemaObserverIdentifiable.swift in Sources */,

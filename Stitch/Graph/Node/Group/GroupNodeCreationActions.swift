@@ -427,8 +427,13 @@ extension GraphState {
 
     @MainActor
     func outputExists(_ output: OutputCoordinate) -> Bool {
-        self.getPatchNode(id: output.nodeId)?
-            .getOutputRowObserver(for: output.portType)
+        guard let portId = output.portId else {
+            fatalErrorIfDebug("Attempted to check if a layer input exists?")
+            return false
+        }
+        
+        return self.getPatchNode(id: output.nodeId)?
+            .getOutputRowObserver(for: portId)
             .isDefined ?? false
     }
 
