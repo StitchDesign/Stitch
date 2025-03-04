@@ -45,6 +45,7 @@ extension NodeDelegate {
     }
     
     /// Similar to `getAllInputsObservers` but gets unpacked layer observers if used.
+    /// Retrieve inputs for patch, layers or components. Not intented for group nodes.
     @MainActor func getAllInputsObservers() -> [InputNodeRowObserver] {
         switch self.nodeType {
         case .patch(let patch):
@@ -54,8 +55,6 @@ extension NodeDelegate {
                 // Grabs packed or unpacked data depending on what's used
                 portObserver.allInputData.map { $0.rowObserver }
             }
-            
-        // Maybe should debug-crash here instead?
         case .group(let canvas):
             fatalErrorIfDebug("Attempted to retrieve a row observer for a GroupNode input")
             return canvas.inputViewModels.compactMap {
@@ -73,13 +72,14 @@ extension NodeDelegate {
             return patch.outputsObservers
         case .layer(let layer):
             return layer.outputPorts.map { $0.rowObserver }
-        case .group(let canvas):
+        case .group:
             return graph.visibleNodesViewModel.getSplitterOutputRowObservers(for: self.id)
         case .component(let component):
             return component.outputsObservers
         }
     }
     
+    /// Retrieve outputs for patch, layers or components. Not intented for group nodes.
     @MainActor func getAllOutputsObservers() -> [OutputNodeRowObserver] {
         switch self.nodeType {
         case .patch(let patch):
