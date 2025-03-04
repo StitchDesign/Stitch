@@ -138,7 +138,9 @@ final class GraphState: Sendable {
         self.topologicalData = .init()
         self.commentBoxesDict.sync(from: schema.commentBoxes)
         self.components = components
-        self.visibleNodesViewModel.nodes = nodes
+        
+        // Sync nodes and cached data
+        self.syncNodes(nodesDict: nodes)
         
         if let stringWarning = schema.migrationWarning {
             self.migrationWarning = .init(rawValue: stringWarning)
@@ -337,6 +339,12 @@ extension GraphState {
     
     @MainActor
     func syncNodes(with entities: [NodeEntity]) async {
+        let currentEntities = self.createSchema().nodes
+        
+        guard currentEntities != entities else {
+            return
+        }
+        
         let newDictionary = await self.visibleNodesViewModel.nodes
             .sync(with: entities,
                   updateCallback: { nodeViewModel, nodeSchema in
@@ -348,11 +356,17 @@ extension GraphState {
                                 parentGraphPath: self.saveLocation)
         }
         
-        self.visibleNodesViewModel.nodes = newDictionary
+        self.syncNodes(nodesDict: newDictionary)
     }
     
     @MainActor
     func syncNodes(with entities: [NodeEntity]) {
+        let currentEntities = self.createSchema().nodes
+        
+        guard currentEntities != entities else {
+            return
+        }
+        
         let newDictionary = self.visibleNodesViewModel.nodes
             .sync(with: entities,
                   updateCallback: { nodeViewModel, nodeSchema in
@@ -364,7 +378,23 @@ extension GraphState {
                                  nodeType: nodeType)
         }
         
-        self.visibleNodesViewModel.nodes = newDictionary
+        self.syncNodes(nodesDict: newDictionary)
+    }
+    
+    @MainActor
+    func syncNodes(nodesDict: NodesViewModelDict) {
+        self.visibleNodesViewModel.nodes = nodesDict
+        
+        // Cache layer node info for perf
+        let newLayerCache = nodesDict.values.reduce(into: [NodeId : LayerDropdownChoice]()) { result, node in
+            if node.kind.isLayer {
+                result.updateValue(node.asLayerDropdownChoice, forKey: node.id)
+            }
+        }
+        
+        if self.visibleNodesViewModel.layerDropdownChoiceCache != newLayerCache {
+            self.visibleNodesViewModel.layerDropdownChoiceCache = newLayerCache
+        }
     }
     
     @MainActor

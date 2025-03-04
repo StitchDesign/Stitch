@@ -16,6 +16,9 @@ final class VisibleNodesViewModel: Sendable {
     // Saves location and zoom-specific data for groups
     @MainActor var nodesByPage: NodesPagingDict // = [.root: .init()]
     
+    // Caches layer node data for perf
+    @MainActor var layerDropdownChoiceCache: [NodeId : LayerDropdownChoice] = [:]
+    
     @MainActor var visibleCanvasIds = CanvasItemIdSet()
     
     // Signals to SwiftUI layout when new sizing data is needed;

@@ -79,15 +79,14 @@ enum NonNumberLayerDimension: String, Equatable, Codable, CaseIterable {
 
 extension GraphState {
     @MainActor
-    func getFilteredLayerDimensionChoices(nodeId: NodeId,
-                                          nodeKind: NodeKind,
+    func getFilteredLayerDimensionChoices(node: NodeViewModel,
                                           layerInputObserver: LayerInputObserver?,
                                           activeIndex: ActiveIndex) -> [NonNumberLayerDimension] {
         
         let allChoices = LayerDimension.choicesAsNonNumberLayerDimension
         
         // If we have a patch or group node input, show all layer-dimension choices
-        guard let layer = nodeKind.getLayer else {
+        guard let layer = node.kind.getLayer else {
             // TODO: how to handle patch and group nodes' layer-dimension fields?
             return allChoices
         }
@@ -110,7 +109,7 @@ extension GraphState {
             case .hug:
                 // Show `hug` just if this is a layer group AND the layer group has orientation != ZStack
                 let isLayerGroup = layer == .group
-                let canUseHug = self.getLayerNode(id: nodeId)?.layerNode?.orientationPort
+                let canUseHug = node.layerNode?.orientationPort
                     .getActiveValue(activeIndex: activeIndex)
                     .getOrientation?.canUseHug ?? false
                 return isLayerGroup && canUseHug
