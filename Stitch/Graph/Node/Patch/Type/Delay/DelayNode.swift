@@ -70,7 +70,7 @@ final class NodeTimerEphemeralObserver: MediaEvalOpViewable {
 }
 
 extension NodeTimerEphemeralObserver {
-    @MainActor func onPrototypeRestart() {
+    @MainActor func onPrototypeRestart(_ graph: GraphState) {
         self.runningTimers = .init()
         self.prevDelayInputValue = nil
     }

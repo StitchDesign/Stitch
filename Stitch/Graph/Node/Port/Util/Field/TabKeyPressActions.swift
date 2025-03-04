@@ -38,7 +38,8 @@ extension GraphState {
         
         let newFocusedField = node.previousInput(focusedField,
                                                  layerInputOnCanvas: layerInputOnCanvas,
-                                                 propertySidebarState: self.graphUI.propertySidebar)
+                                                 propertySidebarState: self.graphUI.propertySidebar,
+                                                 graph)
         
         log("shiftTabPressed: newFocusedField: \(newFocusedField)")
         self.graphUI.reduxFocusedField = .textInput(newFocusedField)
@@ -341,7 +342,8 @@ extension NodeViewModel {
     func previousInput(_ currentFocusedField: FieldCoordinate,
                        // non-nil = we're tabbing through this layer input on the canvas
                        layerInputOnCanvas: LayerInputPort? = nil,
-                       propertySidebarState: PropertySidebarObserver) -> FieldCoordinate {
+                       propertySidebarState: PropertySidebarObserver,
+                       graph: GraphState) -> FieldCoordinate {
         
         let currentInputCoordinate = currentFocusedField.rowId
         let isLayerInputInspector = layerInputOnCanvas != nil
@@ -349,7 +351,10 @@ extension NodeViewModel {
         switch currentInputCoordinate.portType {
         
         case .portIndex(let portId):
-            let eligibleFields: PortIdEligibleFields = self.allNodeInputRowViewModels.portIdEligibleFields(isLayerInputInspector: isLayerInputInspector)
+            let eligibleFields: PortIdEligibleFields = self
+                .allInputRowViewModels(graph)
+                .filter { $0.id.isNode } // Should be `node`
+                .portIdEligibleFields(isLayerInputInspector: isLayerInputInspector)
               
             guard let currentEligibleField = eligibleFields.first(where: {
                 // eligible fields are equatable

@@ -13,7 +13,7 @@ struct PrototypeRestartedAction: GraphEvent {
     func handle(state: GraphState) {
         log("PrototypeRestartedAction called")
         if let documentDelegate = state.documentDelegate {
-            documentDelegate.onPrototypeRestart()
+            documentDelegate.onPrototypeRestart(state)
         } else {
             fatalErrorIfDebug()
         }

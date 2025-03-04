@@ -50,7 +50,7 @@ struct CanvasItemTitleView: View {
         
         VStack(alignment: .leading) {
             if node.patch == .wirelessReceiver,
-               let rowObserver = node.inputsObservers.first {
+               let rowObserver = node.getAllInputsObservers(graph).first {
                 CanvasItemTitleWirelessReceiverMenuView(graph: graph,
                                                         node: node, rowObserver: rowObserver,
                                                         nodeName: self.name)

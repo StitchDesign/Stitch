@@ -53,33 +53,34 @@ extension NodeDelegate {
      ASSUMES NODE VIEW MODEL'S `isSelected` HAS BEEN UPDATED.
      */
     @MainActor
-    func updatePortColorDataUponNodeSelection() {
+    func updatePortColorDataUponNodeSelection(_ graph: GraphState) {
         Stitch.updatePortColorDataUponNodeSelection(
-            inputs: self.allInputRowViewModels,
-            outputs: self.allOutputRowViewModels)
+            inputs: self.allInputRowViewModels(graph),
+            outputs: self.allOutputRowViewModels(graph))
     }
 }
 
 @MainActor
 func updatePortColorDataUponNodeSelection(inputs: [InputNodeRowViewModel],
-                                          outputs: [OutputNodeRowViewModel]) {
+                                          outputs: [OutputNodeRowViewModel],
+                                          _ graph: GraphState) {
     inputs.forEach { input in
-        input.updateColorOfInputAndUpstreamOutput()
+        input.updateColorOfInputAndUpstreamOutput(graph)
     }
     
     outputs.forEach { output in
-        output.updateColorOfOutputAndDownstreamInputs()
+        output.updateColorOfOutputAndDownstreamInputs(graph)
     }
 }
 
 extension InputNodeRowViewModel {
     @MainActor
-    func updateColorOfInputAndUpstreamOutput() {
+    func updateColorOfInputAndUpstreamOutput(_ graph: GraphState) {
         
         self.updatePortColor()
         
         // Update upstream-output
-        if let output = self.rowDelegate?.upstreamOutputObserver {
+        if let output = self.rowDelegate?.upstreamOutputObserver(graph) {
             output.allRowViewModels.forEach {
                 $0.updatePortColor()
             }
@@ -89,16 +90,15 @@ extension InputNodeRowViewModel {
 
 extension OutputNodeRowViewModel {
     @MainActor
-    func updateColorOfOutputAndDownstreamInputs() {
+    func updateColorOfOutputAndDownstreamInputs(_ graph: GraphState) {
         self.updatePortColor()
         
         // Update downstream-inputs
-        if let rowDelegate = self.rowDelegate,
-           let graphDelegate = rowDelegate.nodeDelegate?.graphDelegate {
-            graphDelegate.connections
+        if let rowDelegate = self.rowDelegate {
+            graph.connections
                 .get(rowDelegate.id)?
-                .compactMap { graphDelegate.getInputObserver(coordinate: $0) }
-                .flatMap { $0.allRowViewModels }
+                .compactMap { graph.getInputObserver(coordinate: $0) }
+                .flatMap { $0.allRowViewModels() }
                 .forEach { downstreamInput in
                     downstreamInput.updatePortColor()
                 }

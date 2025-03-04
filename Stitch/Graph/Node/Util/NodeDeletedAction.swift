@@ -163,7 +163,7 @@ extension GraphState {
             // If we delete a layer, update any inputs that were using that layer for `PortValue.assignedLayer`.
             // Note: can't just look at interaction patch node's first input or a layer node's pinTo input, since e.g. a splitter could have nodeType = assignedLayer
             self.nodes.values.forEach { (_node: NodeViewModel) in
-                _node.inputsObservers.forEach { inputObserver in
+                _node.getAllInputsObservers(self).forEach { inputObserver in
                     inputObserver.values = inputObserver.values.map({ value in
                         if let layerId = value.getInteractionId,
                            layerId == id.asLayerNodeId {

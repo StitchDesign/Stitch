@@ -29,7 +29,7 @@ final class MediaReferenceObserver: MediaEvalOpViewable {
         self.mediaViewModel = .init()
     }
     
-    func onPrototypeRestart() { }
+    func onPrototypeRestart(_ graph: GraphState) { }
 }
 
 final class MediaEvalOpObserver: MediaEvalOpObservable {
@@ -54,7 +54,7 @@ final class VisionOpObserver: MediaEvalOpObservable {
         self.mediaViewModel = .init()
     }
 
-    func onPrototypeRestart() { }
+    func onPrototypeRestart(_ graph: GraphState) { }
 }
 
 final class ImageClassifierOpObserver: MediaEvalOpObservable {
@@ -68,7 +68,7 @@ final class ImageClassifierOpObserver: MediaEvalOpObservable {
         self.mediaViewModel = .init()
     }
     
-    func onPrototypeRestart() { }
+    func onPrototypeRestart(_ graph: GraphState) { }
 }
 
 extension MediaEvalOpObserver {

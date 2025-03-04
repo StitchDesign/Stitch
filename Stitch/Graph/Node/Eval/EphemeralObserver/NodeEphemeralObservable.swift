@@ -20,7 +20,8 @@ protocol NodeEphemeralObservable: AnyObject {
                          newType: UserVisibleType,
                          kind: NodeKind)
     
-    @MainActor func onPrototypeRestart()
+    // There's not really a common signature
+    @MainActor func onPrototypeRestart(_ graph: GraphState)
 }
 
 extension NodeEphemeralObservable {
@@ -56,7 +57,7 @@ final class ComputedNodeState: NodeEphemeralObservable {
 }
 
 extension ComputedNodeState {
-    func onPrototypeRestart() {
+    func onPrototypeRestart(_ graph: GraphState) {
         self.previousValue = nil
         self.preservedValues = .init()
         self.stopwatchIsRunning = false

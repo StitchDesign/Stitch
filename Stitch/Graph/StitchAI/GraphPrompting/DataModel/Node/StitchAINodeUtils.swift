@@ -71,7 +71,7 @@ extension StitchAINodeSectionDescription {
                     return nil
                 }
                 
-                let inputs: [StitchAIPortValueDescription] = defaultNode.inputsObservers.map { inputObserver in
+                let inputs: [StitchAIPortValueDescription] = defaultNode.getAllInputsObservers(graph).map { inputObserver in
                     StitchAIPortValueDescription(label: inputObserver
                         .label(node: defaultNode,
                                graph: graph),
@@ -80,11 +80,11 @@ extension StitchAINodeSectionDescription {
                 
                 // Calculate node to get outputs values
                 if let evalResult = defaultNode.evaluate() {
-                    defaultNode.updateOutputsObservers(newValuesList: evalResult.outputsValues)
+                    defaultNode.updateOutputsObservers(newValuesList: evalResult.outputsValues, graph)
                 }
                 
                 
-                let outputs: [StitchAIPortValueDescription] = defaultNode.outputsObservers.map { outputObserver in
+                let outputs: [StitchAIPortValueDescription] = defaultNode.getAllOutputsObservers(graph).map { outputObserver in
                     StitchAIPortValueDescription(label: outputObserver
                         .label(node: defaultNode,
                                graph: graph),

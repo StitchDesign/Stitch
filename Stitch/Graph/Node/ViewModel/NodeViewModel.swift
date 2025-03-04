@@ -97,71 +97,96 @@ final class NodeViewModel: Sendable {
 }
 
 extension NodeViewModel: NodeCalculatable {
-    var inputsObservers: [InputNodeRowObserver] {
-        get {
-            self.getAllInputsObservers()
-        }
-        set(newValue) {
-            self.patchNode?.inputsObservers = newValue
-        }
-    }
+    // TODO: if we can't set a GroupNode's inputs directly, should this `set` really be allowed? How do we establish a clear API?
+//    
+//    func getAllInputObservers(_ graph: GraphState) -> [InputNodeRowObserver] {
+//        self.getAllInputsObservers(<#T##graph: GraphState##GraphState#>)
+//    }
     
-    var outputsObservers: [OutputNodeRowObserver] {
-        get {
-            self.getAllOutputsObservers()
+//    var inputsObservers: [InputNodeRowObserver] {
+//        get {
+//            // Previously this relied on accessing GraphState via `graphDelegate`; but
+//            self.getAllInputsObservers()
+//        }
+//        set(newValue) {
+//            self.patchNode?.inputsObservers = newValue
+//        }
+//    }
+    
+//    var outputsObservers: [OutputNodeRowObserver] {
+//        get {
+//            self.getAllOutputsObservers()
+//        }
+//        set(newValue) {
+//            self.patchNode?.outputsObservers = newValue
+//        }
+//    }
+    
+    @MainActor
+    func inputsObservers(_ graph: any GraphCalculatable) -> [InputNodeRowObserver] {
+        guard let graph = graph as? GraphState else {
+            fatalErrorIfDebug()
+            return []
         }
-        set(newValue) {
-            self.patchNode?.outputsObservers = newValue
-        }
+        return self.getAllInputsObservers(graph)
     }
     
     @MainActor
-    var isComponentOutputSplitter: Bool {
-        let isNodeInComponent = !(self.graphDelegate?.saveLocation.isEmpty ?? true)
+    func setPatchInputsObservers(_ newValue: [InputNodeRowObserver]) {
+        self.patchNode?.inputsObservers = newValue
+    }
+    
+    @MainActor
+    func outputsObservers(_ graph: any GraphCalculatable) -> [OutputNodeRowObserver] {
+        guard let graph = graph as? GraphState else {
+            fatalErrorIfDebug()
+            return []
+        }
+        return self.getAllOutputsObservers(graph)
+    }
+    
+    @MainActor
+    func setPatchOutputsObservers(_ newValue: [OutputNodeRowObserver]) {
+        self.patchNode?.outputsObservers = newValue
+    }
+    
+    @MainActor
+    func isComponentOutputSplitter(_ graph: any GraphCalculatable) -> Bool {
+        guard let graph = graph as? GraphState else {
+            fatalErrorIfDebug()
+            return false
+        }
+        
+        let isNodeInComponent = !graph.saveLocation.isEmpty
         return self.splitterType == .output && isNodeInComponent
     }
-    
-    @MainActor func getAllParentInputsObservers() -> [InputNodeRowObserver] {
-        self.getAllInputsObservers()
-    }
-    
+        
     @MainActor
-    var inputsValuesList: PortValuesList {
+//    var inputsValuesList: PortValuesList {
+    func inputsValuesList(_ graph: any GraphCalculatable) -> PortValuesList {
+        
+        guard let graph = graph as? GraphState else {
+            fatalErrorIfDebug()
+            return []
+        }
+        
         switch self.nodeType {
-        case .patch(let patch):
-            return patch.inputsObservers.map { $0.allLoopedValues }
+//        case .patch(let patch):
+//            return self.getAllInputsObservers(graph).map { $0.allLoopedValues }
+//            // return patch.inputsObservers.map { $0.allLoopedValues }
         case .layer(let layer):
-            return layer.getSortedInputPorts().map { inputPort in
-                inputPort.allLoopedValues
-            }
-        case .group(let canvas):
-            return canvas.inputViewModels.compactMap {
-                $0.rowDelegate?.allLoopedValues
-            }
-        case .component(let componentData):
-            return componentData.canvas.inputViewModels.compactMap {
-                $0.rowDelegate?.allLoopedValues
-            }
+            // TODO: does this have to be sorted?
+            return layer.getSortedInputPorts().map { $0.allLoopedValues }
+        case .patch, .group, .component:
+            return self.getAllInputsObservers(graph).map { $0.allLoopedValues }
+            // return graph.visibleNodesViewModel.getSplitterInputRowObservers(for: self.id).map { $0.allLoopedValues }
+//        case .component(let componentData):
+//            return componentData.canvas.inputViewModels.compactMap {
+//                $0.rowDelegate?.allLoopedValues
+//            }
         }
     }
-    
-    @MainActor func getAllOutputsObservers() -> [OutputNodeRowObserver] {        
-        switch self.nodeType {
-        case .patch(let patch):
-            return patch.outputsObservers
-        case .layer(let layer):
-            return layer.outputPorts.map { $0.rowObserver }
-        case .group(let canvas):
-            return canvas.outputViewModels.compactMap {
-                $0.rowDelegate
-            }
-        case .component(let component):
-            return component.canvas.outputViewModels.compactMap {
-                $0.rowDelegate
-            }
-        }
-    }
-    
+        
     // after we eval a node, we sets its current inputs to be its previous inputs,
     // so that we know we've run the node once,
     // and so that we won't run the node again until at least one of the inputs has changed
@@ -173,9 +198,7 @@ extension NodeViewModel: NodeCalculatable {
         case .patch(let patchNodeViewModel):
             // NodeKind.evaluate is our legacy eval caller, cheeck for those first
             if let eval = patchNodeViewModel.patch.evaluate {
-                return eval.runEvaluation(
-                    node: self
-                )
+                return eval.runEvaluation(node: self)
             }
 
             // New-style eval which doesn't require filling out a switch statement
@@ -189,9 +212,7 @@ extension NodeViewModel: NodeCalculatable {
         case .layer(let layerNodeViewModel):
             // Only a handful of layer nodes have node evals
             if let eval = layerNodeViewModel.layer.evaluate {
-                return eval.runEvaluation(
-                    node: self
-                )
+                return eval.runEvaluation(node: self)
             } else {
                 return nil
             }
@@ -381,8 +402,9 @@ extension NodeViewModel {
     }
     
     @MainActor
-    func updateOutputsObservers(newValuesList: PortValuesList? = nil) {
-        let outputsObservers = self.getAllOutputsObservers()
+    func updateOutputsObservers(newValuesList: PortValuesList? = nil,
+                                _ graph: GraphState) {
+        let outputsObservers = self.getAllOutputsObservers(graph)
         
         if let newValuesList = newValuesList {
             self.updateRowObservers(rowObservers: outputsObservers,
@@ -394,42 +416,39 @@ extension NodeViewModel {
         }
     }
     
+    // Note: if this is a GroupNode, we will actually be retrieving the underlying input-splitter.
+    
     @MainActor
-    func getInputRowObserver(for portType: NodeIOPortType) -> InputNodeRowObserver? {
+    func getInputRowObserver(for portType: NodeIOPortType, _ graph: GraphState) -> InputNodeRowObserver? {
+        
         switch portType {
+            
         case .portIndex(let portId):
-            // Assumes patch node or component for port ID
-            return self.patchNode?.inputsObservers[safe: portId] ??
-            self.nodeType.componentNode?.inputsObservers[safe: portId]
-
+            assertInDebug(!self.nodeType.kind.getLayer.isDefined) // Should not have portId with layer input
+            
+            return self.getAllInputsObservers(graph)[safe: portId]
+            
+//            // Assumes patch node or component for port ID
+//            return self.patchNode?.inputsObservers[safe: portId] ??
+//            self.nodeType.componentNode?.inputsObservers[safe: portId]
+            
         case .keyPath(let keyPath):
             guard let layerNode = self.layerNode else {
                 fatalErrorIfDebug()
                 return nil
             }
-            
             return layerNode[keyPath: keyPath.layerNodeKeyPath].rowObserver
         }
     }
 
     @MainActor
-    func getInputRowObserver(_ portId: Int) -> InputNodeRowObserver? {
-        self.inputsObservers[safe: portId]
+    func getInputRowObserver(_ portId: Int, _ graph: GraphState) -> InputNodeRowObserver? {
+        self.getInputRowObserver(for: .portIndex(portId), graph)
     }
     
+    // TODO: this should only take `portId: Int`; there is no such thing as an output that uses a `NodeIOPortType.keyPath`; do not give representation to illegal-state in function signatures
     @MainActor
-    func getInputActivePortValue(for layerInputType: LayerInputPort) -> PortValue? {
-        guard let layerNode = self.layerNode else {
-            fatalErrorIfDebug()
-            return nil
-        }
-        
-        let portObserver = layerNode[keyPath: layerInputType.layerNodeKeyPath]
-        return portObserver.activeValue
-    }
-    
-    @MainActor
-    func getOutputRowObserver(for portType: NodeIOPortType) -> OutputNodeRowObserver? {
+    func getOutputRowObserver(for portType: NodeIOPortType, _ graph: GraphState) -> OutputNodeRowObserver? {
         switch portType {
         case .keyPath:
             // No support here
@@ -437,7 +456,7 @@ extension NodeViewModel {
             return nil
             
         case .portIndex(let portId):
-            return self.getOutputRowObserver(portId)
+            return self.getOutputRowObserver(portId, graph)
         }
     }
     
@@ -456,7 +475,7 @@ extension NodeViewModel {
             
             switch portType {
             case .portIndex:
-                fatalErrorIfDebug("unexpected port index for input view model getter")
+                fatalErrorIfDebug("Unexpected port index for input view model getter")
                 return nil
                 
             case .keyPath(let keyPath):
@@ -481,7 +500,7 @@ extension NodeViewModel {
             
             switch portType {
             case .keyPath:
-                fatalErrorIfDebug("unexpected keypath for output view model getter")
+                fatalErrorIfDebug("Unexpected keypath for output view model getter")
                 return nil
                 
             case .portIndex(let portId):
@@ -493,17 +512,18 @@ extension NodeViewModel {
 
     /// Gets output row observer for some node.
     @MainActor
-    func getOutputRowObserver(_ portId: Int) -> OutputNodeRowObserver? {
-        // Check for output in layer
-        if let layerNode = self.layerNode {
-            guard let outputRow = layerNode.outputPorts[safe: portId]?.rowObserver else {
-                return nil
-            }
-            
-            return outputRow
-        }
+    func getOutputRowObserver(_ portId: Int, _ graph: GraphState) -> OutputNodeRowObserver? {
+        self.getAllOutputsObservers(graph)[safe: portId]
         
-        return self.patchNode?.outputsObservers[safe: portId]
+//        // Check for output in layer
+//        if let layerNode = self.layerNode {
+//            guard let outputRow = layerNode.outputPorts[safe: portId]?.rowObserver else {
+//                return nil
+//            }
+//            return outputRow
+//        }
+//        
+//        return self.patchNode?.outputsObservers[safe: portId]
     }
     
     @MainActor
@@ -569,13 +589,13 @@ extension NodeViewModel {
 
 extension NodeViewModel {
     @MainActor
-    var inputsRowCount: Int {
-        self.getAllParentInputsObservers().count
+    func inputsRowCount(_ graph: GraphState) -> Int {
+        self.getAllInputsObservers(graph).count
     }
     
     @MainActor
-    var outputsRowCount: Int {
-        self.getAllOutputsObservers().count
+    func outputsRowCount(_ graph: GraphState) -> Int {
+        self.getAllOutputsObservers(graph).count
     }
     
     @MainActor
@@ -672,19 +692,19 @@ extension NodeViewModel {
                    title: self.title)
     }
     
-    @MainActor func onPrototypeRestart() {
+    @MainActor func onPrototypeRestart(_ graph: GraphState) {
         // Reset ephemeral observers
         self.ephemeralObservers?.forEach {
-            $0.onPrototypeRestart()
+            $0.onPrototypeRestart(graph)
         }
         
         // Reset outputs
         // TODO: should we really be resetting inputs?
-        self.getAllInputsObservers().onPrototypeRestart()
-        self.getAllOutputsObservers().forEach { $0.onPrototypeRestart() }
+        self.getAllInputsObservers(graph).onPrototypeRestart(graph)
+        self.getAllOutputsObservers(graph).forEach { $0.onPrototypeRestart(graph) }
         
         // Reset properties specific to the node's actual type (patch vs layer vs component vs group)
-        self.nodeType.onPrototypeRestart()
+        self.nodeType.onPrototypeRestart(graph)
     }
 }
 
@@ -692,8 +712,9 @@ extension NodeViewModel: Identifiable { }
 
 extension NodeViewModel {
     @MainActor
-    func activeIndexChanged(activeIndex: ActiveIndex) {
-        self.getAllInputsObservers().forEach { observer in
+    func activeIndexChanged(activeIndex: ActiveIndex,
+                            _ graph: GraphState) {
+        self.getAllInputsObservers(graph).forEach { observer in
             let oldValue = observer.activeValue
             let newValue = PortValue
                 .getActiveValue(allLoopedValues: observer.allLoopedValues,
@@ -704,7 +725,7 @@ extension NodeViewModel {
             }
         }
 
-        self.getAllOutputsObservers().forEach { observer in
+        self.getAllOutputsObservers(graph).forEach { observer in
             let oldValue = observer.activeValue
             let newValue = PortValue
                 .getActiveValue(allLoopedValues: observer.allLoopedValues,
@@ -732,8 +753,9 @@ extension NodeViewModel {
     
     // See https://github.com/vpl-codesign/stitch/issues/5148
     @MainActor
-    func inputsWithoutImmediatelyUpstreamInteractionNode(_ nodes: NodesViewModelDict) -> PortValuesList {
-        self.getAllInputsObservers()
+    func inputsWithoutImmediatelyUpstreamInteractionNode(_ nodes: NodesViewModelDict,
+                                                         _ graph: GraphState) -> PortValuesList {
+        self.getAllInputsObservers(graph)
             .filter { $0.hasUpstreamInteractionNode(nodes) }
             .map(\.allLoopedValues)
     }
@@ -741,19 +763,20 @@ extension NodeViewModel {
     @MainActor
     func updateOutput(_ values: PortValues,
                       at portId: Int,
-                      activeIndex: ActiveIndex) {
+                      activeIndex: ActiveIndex,
+                      _ graph: GraphState) {
         guard self.outputs.count > portId else {
             log("PatchNode: portID exceeds outputs count")
             return
         }
 
-        self.getAllOutputsObservers()[safe: portId]?.updateValues(values)
+        self.getAllOutputsObservers(graph)[safe: portId]?.updateValues(values)
     }
     
     // don't worry about making the input a loop or not --
     // the extension will happen at eval-time
     @MainActor
-    func inputAdded() {
+    func inputAdded(_ graph: GraphState) {
         guard let patchNode = self.patchNode else {
             fatalErrorIfDebug()
             return
@@ -761,7 +784,7 @@ extension NodeViewModel {
         
         // assumes new input has no label, etc.
         log("inputAdded called")
-        let allInputsObservers = self.getAllInputsObservers()
+        let allInputsObservers = self.getAllInputsObservers(graph)
 
         // New value needs to be a default of same type as other inputs
         // Grab the type's default, based on value of last input;
@@ -797,7 +820,8 @@ extension NodeViewModel {
     }
 
     @MainActor
-    func inputRemoved(minimumInputs: Int) {
+    func inputRemoved(minimumInputs: Int,
+                      _ graph: GraphState) {
         guard let patchNode = self.patchNode else {
             fatalErrorIfDebug()
             return
@@ -806,7 +830,7 @@ extension NodeViewModel {
         // assumes new input has no label, etc.
         log("inputRemoved called")
         
-        guard self.getAllInputsObservers().count > minimumInputs else {
+        guard self.getAllInputsObservers(graph).count > minimumInputs else {
             return
         }
 
@@ -825,8 +849,8 @@ extension NodeViewModel {
         }
     }
     
-    @MainActor func flattenOutputs() {
-        self.getAllOutputsObservers().flattenOutputs()
+    @MainActor func flattenOutputs(_ graph: GraphState) {
+        self.getAllOutputsObservers(graph).flattenOutputs()
     }
     
     @MainActor

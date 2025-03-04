@@ -135,7 +135,7 @@ extension PatchNodeViewModel: SchemaObserver {
                         mathExpression: self.mathExpression)
     }
     
-    func onPrototypeRestart() { }
+    func onPrototypeRestart(_ graph: GraphState) { }
 }
 
 extension PatchNodeViewModel {

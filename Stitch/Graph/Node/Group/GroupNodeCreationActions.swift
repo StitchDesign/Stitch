@@ -416,7 +416,7 @@ extension GraphState {
     @MainActor
     func outputExists(_ output: OutputCoordinate) -> Bool {
         self.getPatchNode(id: output.nodeId)?
-            .getOutputRowObserver(for: output.portType)
+            .getOutputRowObserver(for: output.portType, self)
             .isDefined ?? false
     }
 

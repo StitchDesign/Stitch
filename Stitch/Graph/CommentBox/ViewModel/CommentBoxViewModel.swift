@@ -79,7 +79,7 @@ extension CommentBoxViewModel: SchemaObserver {
         )
     }
     
-    func onPrototypeRestart() { }
+    func onPrototypeRestart(_ graph: GraphState) { }
 }
 
 // TODO: move to view

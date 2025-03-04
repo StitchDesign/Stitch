@@ -407,7 +407,7 @@ extension GraphState {
     }
     
     @MainActor func onPrototypeRestart() {
-        self.nodes.values.forEach { $0.onPrototypeRestart() }
+        self.nodes.values.forEach { $0.onPrototypeRestart(self) }
         self.initializeGraphComputation()
     }
     
@@ -481,7 +481,7 @@ extension GraphState {
         let nodes = self.nodes
         
         let allInputsObservers = nodes.values
-            .flatMap { $0.getAllInputsObservers() }
+            .flatMap { $0.getAllInputsObservers(self) }
         
         // Track overall node count
         let nodeCount = nodes.keys.count
@@ -591,14 +591,14 @@ extension GraphState {
     @MainActor
     func getInputValues(coordinate: InputCoordinate) -> PortValues? {
         self.visibleNodesViewModel.getViewModel(coordinate.nodeId)?
-            .getInputRowObserver(for: coordinate.portType)?
+            .getInputRowObserver(for: coordinate.portType, self)?
             .allLoopedValues
     }
     
     @MainActor
     func getInputObserver(coordinate: InputCoordinate) -> InputNodeRowObserver? {
         self.visibleNodesViewModel.getViewModel(coordinate.nodeId)?
-            .getInputRowObserver(for: coordinate.portType)
+            .getInputRowObserver(for: coordinate.portType, self)
     }
     
     @MainActor func getOutputObserver(coordinate: OutputPortViewData) -> OutputNodeRowObserver? {

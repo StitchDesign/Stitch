@@ -146,7 +146,7 @@ extension NodeViewModelType {
         }
     }
     
-    @MainActor func onPrototypeRestart() {
+    @MainActor func onPrototypeRestart(_ graph: GraphState) {
         switch self {
         case .patch(let patchNode):
             // Flatten interaction nodes' outputs when graph reset
@@ -155,7 +155,7 @@ extension NodeViewModelType {
             }
             
         case .layer(let layerNode):
-            layerNode.onPrototypeRestart()
+            layerNode.onPrototypeRestart(graph)
             
         case .component(let component):
             component.graph.onPrototypeRestart()

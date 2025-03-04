@@ -65,7 +65,7 @@ final class DelayOneEvalObserver: NodeEphemeralObservable {
 }
 
 extension DelayOneEvalObserver {
-    func onPrototypeRestart() {
+    func onPrototypeRestart(_ graph: GraphState) {
         self.nextOutput = DelayOneNode.defaultUserVisibleType.defaultPortValue
     }
 }

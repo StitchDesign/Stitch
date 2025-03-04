@@ -20,7 +20,7 @@ final class ScrollInteractionState: NodeEphemeralObservable {
 }
 
 extension ScrollInteractionState {
-    func onPrototypeRestart() {
+    func onPrototypeRestart(_ graph: GraphState) {
         self.lastDragStartingPoint = nil
         self.reset()
     }

@@ -20,7 +20,7 @@ protocol SchemaObserver: AnyObject, Identifiable {
     func createSchema() -> CodableSchema
     
     @MainActor
-    func onPrototypeRestart()
+    func onPrototypeRestart(_ graph: GraphState)
 }
 
 protocol SchemaObserverIdentifiable: SchemaObserver where CodableSchema: CodableIdentifiable,
@@ -149,7 +149,7 @@ extension Array where Element: Identifiable & AnyObject {
 
 extension Array where Element: SchemaObserver {
     @MainActor
-    func onPrototypeRestart() {
-        self.forEach { $0.onPrototypeRestart() }
+    func onPrototypeRestart(_ graph: GraphState) {
+        self.forEach { $0.onPrototypeRestart(graph) }
     }
 }

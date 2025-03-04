@@ -80,8 +80,8 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     
     /// Tracks upstream output row observer for some input. Cached for perf.
     @MainActor
-    var upstreamOutputObserver: OutputNodeRowObserver? {
-        self.getUpstreamOutputObserver()
+    func upstreamOutputObserver(_ graph: GraphState) -> OutputNodeRowObserver? {
+        self.getUpstreamOutputObserver(graph)
     }
     
     // NodeRowObserver holds a reference to its parent, the Node
@@ -187,11 +187,12 @@ final class OutputNodeRowObserver: NodeRowObserver {
 
 extension InputNodeRowObserver {
     @MainActor
-    func didUpstreamOutputCoordinateUpdate(oldValue: NodeIOCoordinate?) {
+    func didUpstreamOutputCoordinateUpdate(oldValue: NodeIOCoordinate?,
+                                           _ graph: GraphState) {
         let coordinateValueChanged = oldValue != self.upstreamOutputCoordinate
         
         guard let upstreamOutputCoordinate = self.upstreamOutputCoordinate else {
-            if let oldUpstreamObserver = self.upstreamOutputObserver {
+            if let oldUpstreamObserver = self.upstreamOutputObserver(graph) {
                 log("upstreamOutputCoordinate: removing edge")
                 
                 // Remove edge data
@@ -211,20 +212,19 @@ extension InputNodeRowObserver {
         }
         
         // Update that upstream observer of new edge
-        self.upstreamOutputObserver?.containsDownstreamConnection = true
+        self.upstreamOutputObserver(graph)?.containsDownstreamConnection = true
     }
     
     // Because `private`, needs to be declared in same file(?) as method that uses it
     @MainActor
-    private func getUpstreamOutputObserver() -> OutputNodeRowObserver? {
+    private func getUpstreamOutputObserver(_ graph: GraphState) -> OutputNodeRowObserver? {
         guard let upstreamCoordinate = self.upstreamOutputCoordinate,
               let upstreamPortId = upstreamCoordinate.portId else {
             return nil
         }
 
         // Set current upstream observer
-        return self.nodeDelegate?.graphDelegate?.getNodeViewModel(upstreamCoordinate.nodeId)?
-            .getOutputRowObserver(upstreamPortId)
+        return graph.getNode(upstreamCoordinate.nodeId)?.getOutputRowObserver(upstreamPortId, graph)
     }
     
     @MainActor
@@ -302,8 +302,8 @@ extension InputNodeRowObserver {
     }
     
     @MainActor
-    func buildUpstreamReference() {
-        guard let connectedOutputObserver = self.upstreamOutputObserver else {
+    func buildUpstreamReference(_ graph: GraphState) {
+        guard let connectedOutputObserver: OutputNodeRowObserver = self.upstreamOutputObserver(graph) else {
             // Upstream values are cached and need to be refreshed if disconnected
             if self.upstreamOutputCoordinate != nil {
                 self.upstreamOutputCoordinate = nil
@@ -312,9 +312,13 @@ extension InputNodeRowObserver {
             return
         }
 
+        // TODO: is this really necessary?
         // Check for connected row observer rather than just setting ID--makes for
         // a more robust check in ensuring the connection actually exists
-        assertInDebug(self.nodeDelegate?.graphDelegate?.visibleNodesViewModel.getOutputRowObserver(for: connectedOutputObserver.id) != nil)
+        assertInDebug(graph
+            .getNode(connectedOutputObserver.id.nodeId)?
+            .getOutputRowObserver(for: connectedOutputObserver.id.portType, graph)
+            .isDefined ?? false)
         
         // Report to output observer that there's an edge (for port colors)
         // We set this to false on default above
@@ -393,9 +397,8 @@ extension OutputNodeRowObserver {
     }
     
     @MainActor
-    func getConnectedDownstreamNodes() -> [CanvasItemViewModel] {
-        guard let graph = self.nodeDelegate?.graphDelegate,
-              let downstreamConnections: Set<NodeIOCoordinate> = graph.connections
+    func getConnectedDownstreamNodes(_ graph: GraphState) -> [CanvasItemViewModel] {
+        guard let downstreamConnections: Set<NodeIOCoordinate> = graph.connections
             .get(self.id) else {
             return .init()
         }

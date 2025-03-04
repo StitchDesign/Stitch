@@ -70,7 +70,7 @@ final class PressInteractionNodeObserver: NodeEphemeralObservable, Sendable {
 
 extension PressInteractionNodeObserver {
     @MainActor
-    func onPrototypeRestart() {
+    func onPrototypeRestart(_ graph: GraphState) {
         self.prevTapTime = nil
     }
 }

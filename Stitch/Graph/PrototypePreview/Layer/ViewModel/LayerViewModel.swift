@@ -514,9 +514,9 @@ extension LayerViewModel {
     }
     
     @MainActor
-    func onPrototypeRestart() {
+    func onPrototypeRestart(_ graph: GraphState) {
         // Rest interaction state values
-        self.interactiveLayer.onPrototypeRestart()
+        self.interactiveLayer.onPrototypeRestart(graph)
         
         if let model3D = self.mediaObject?.model3DEntity,
            let transform = model3D.transform {

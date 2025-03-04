@@ -62,7 +62,7 @@ struct ReversePulseCoercion: GraphEvent {
         // Cannot recalculate full node in some examples (like delay node)
         // so we just update downstream nodes
         guard let node = state.getNodeViewModel(pulsedOutput.nodeId),
-              let currentOutputs = node.getOutputRowObserver(for: pulsedOutput.portType)?.allLoopedValues else {
+              let currentOutputs = node.getOutputRowObserver(for: pulsedOutput.portType, state)?.allLoopedValues else {
 //                  fatalErrorIfDebug("ReversePulseCoercion error: data not found.")
                   return
               }

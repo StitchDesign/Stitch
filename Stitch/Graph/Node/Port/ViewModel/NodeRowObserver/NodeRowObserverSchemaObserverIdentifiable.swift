@@ -82,7 +82,7 @@ extension InputNodeRowObserver: SchemaObserverIdentifiable {
 
 extension OutputNodeRowObserver {
     @MainActor
-    func onPrototypeRestart() {
+    func onPrototypeRestart(_ graph: GraphState) {
         // Set outputs to be empty
         self.allLoopedValues = []
     }

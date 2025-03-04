@@ -136,14 +136,14 @@ extension VisibleNodesViewModel {
 
         // Toggle output downstream connections to false, will correct later
         self.nodes.values.forEach { node in
-            node.getAllOutputsObservers().forEach {
+            node.getAllOutputsObservers(graph).forEach {
                 $0.containsDownstreamConnection = false
             }
         }
         
         // Build weak references to connected nodes
         self.nodes.values.forEach { node in
-            self.buildUpstreamReferences(nodeViewModel: node)
+            self.buildUpstreamReferences(nodeViewModel: node, graph)
         }
         
         // Sync port view models for applicable nodes
@@ -198,7 +198,7 @@ extension VisibleNodesViewModel {
     }
 
     @MainActor
-    func buildUpstreamReferences(nodeViewModel: NodeViewModel) {
+    func buildUpstreamReferences(nodeViewModel: NodeViewModel, _ graph: GraphState) {
         // Layers use keypaths
         if let layerNodeViewModel = nodeViewModel.layerNode {
             layerNodeViewModel.layer.layerGraphNode.inputDefinitions.forEach { inputType in
@@ -206,12 +206,12 @@ extension VisibleNodesViewModel {
                 // Loop over ports for each layer input--multiple if in unpacked mode
                 layerNodeViewModel[keyPath: inputType.layerNodeKeyPath].allInputData.forEach { inputData in
                     let inputObserver = inputData.rowObserver
-                    inputObserver.buildUpstreamReference()
+                    inputObserver.buildUpstreamReference(graph)
                 }
             }
         } else {
-            nodeViewModel.getAllInputsObservers().enumerated().forEach { portId, inputObserver in
-                inputObserver.buildUpstreamReference()
+            nodeViewModel.getAllInputsObservers(graph).enumerated().forEach { portId, inputObserver in
+                inputObserver.buildUpstreamReference(graph)
             }
         }   
     }
@@ -358,13 +358,7 @@ extension VisibleNodesViewModel {
             node.updateAllConnectedNodes()
         }
     }
-    
-    @MainActor
-    func getOutputRowObserver(for coordinate: NodeIOCoordinate) -> OutputNodeRowObserver? {
-        self.nodes.get(coordinate.nodeId)?
-            .getOutputRowObserver(for: coordinate.portType)
-    }
-    
+        
     @MainActor
     func setAllNodesVisible() {
         self.visibleCanvasIds = self.allViewModels.map(\.id).toSet

@@ -477,9 +477,9 @@ extension LayerNodeViewModel: SchemaObserver {
         return schema
     }
     
-    func onPrototypeRestart() {
+    func onPrototypeRestart(_ graph: GraphState) {
         self.previewLayerViewModels.forEach {
-            $0.onPrototypeRestart()
+            $0.onPrototypeRestart(graph)
         }
     }
 }
