@@ -96,7 +96,7 @@ extension GraphState {
                     return nil
                 }
                 
-                return self.getNodeViewModel(layerId)?.asLayerDropdownChoice
+                return self.visibleNodesViewModel.layerDropdownChoiceCache.get(layerId)
             }
         
         return initialChoices + layers
@@ -116,6 +116,7 @@ struct LayerNamesDropDownChoiceView: View {
     @State private var selection: LayerDropdownChoice = .NilLayerDropDownChoice
     
     @Bindable var graph: GraphState
+    @Bindable var visibleNodes: VisibleNodesViewModel
     
     let rowObserver: InputNodeRowObserver
     let value: PortValue
@@ -200,10 +201,10 @@ struct LayerNamesDropDownChoiceView: View {
                 case .parent:
                     self.selection = .ParentLayerDropDownChoice
                 case .layer(let x):
-                    self.selection = self.graph.getNode(x.id)?.asLayerDropdownChoice ?? .NilLayerDropDownChoice
+                    self.selection = self.visibleNodes.layerDropdownChoiceCache.get(x.id) ?? .NilLayerDropDownChoice
                 }
             } else if let interactionId = newValue.getInteractionId {
-                if let node = self.graph.getNodeViewModel(interactionId.id)?.asLayerDropdownChoice {
+                if let node = self.visibleNodes.layerDropdownChoiceCache.get(interactionId.id) {
                     self.selection = node
                 } else {
                     // i.e. what happens if the passed-in PortValue is for a node that no longer exists?
