@@ -202,6 +202,7 @@ struct AdjustmentBarPopoverView: View {
             fieldCoordinate: fieldCoordinate,
             rowObserver: rowObserver,
             isFieldInsideLayerInspector: isFieldInsideLayerInspector, 
+            activeIndex: activeIndex,
             currentlySelectedNumber: barNumber,
             numberLineMiddle: barNumber)
     }
