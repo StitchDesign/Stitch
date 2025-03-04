@@ -24,8 +24,8 @@ struct OpenAIRequestConfig {
     /// Default configuration with optimized retry settings
     static let `default` = OpenAIRequestConfig(
         maxRetries: 5,
-        timeoutInterval: 30,
-        retryDelay: 1,
+        timeoutInterval: 60,
+        retryDelay: 2,
         maxTimeoutErrors: 4
     )
 }
@@ -147,7 +147,7 @@ extension StitchAIManager {
         let systemPrompt = request.systemPrompt
         
         guard let document = self.documentDelegate else {
-            throw StitchAIManagerError.documentNotFound(request) 
+            throw StitchAIManagerError.documentNotFound(request)
         }
 //        document.llmRecording.recentOpenAIRequestCompleted = false
         
@@ -193,7 +193,10 @@ extension StitchAIManager {
         
         do {
             // Create data task and store it
+            let startTime = Date()
             let result = try await URLSession.shared.data(for: urlRequest)
+            let responseTime = Date().timeIntervalSince(startTime)
+            log("OpenAI request completed in \(responseTime) seconds")
             data = result.0
             response = result.1
         } catch {
@@ -288,7 +291,14 @@ extension StitchAIManager {
                                   currentAttempts: Int,
                                   lastError: String) async throws -> [Step] {
         let config = request.config
-        try await Task.sleep(nanoseconds: UInt64(config.retryDelay * Double(nanoSecondsInSecond)))
+        // Calculate exponential backoff delay: 2^attempt * base delay
+        let backoffDelay = pow(2.0, Double(currentAttempts)) * config.retryDelay
+        // Cap the maximum delay at 30 seconds
+        let cappedDelay = min(backoffDelay, 30.0)
+        
+        log("Retrying request with backoff delay: \(cappedDelay) seconds")
+        try await Task.sleep(nanoseconds: UInt64(cappedDelay * Double(nanoSecondsInSecond)))
+        
         return try await self.makeRequest(request,
                                           attempt: currentAttempts + 1,
                                           lastCapturedError: lastError)
