@@ -337,6 +337,12 @@ extension GraphState {
     
     @MainActor
     func syncNodes(with entities: [NodeEntity]) async {
+        let currentEntities = self.createSchema().nodes
+        
+        guard currentEntities != entities else {
+            return
+        }
+        
         let newDictionary = await self.visibleNodesViewModel.nodes
             .sync(with: entities,
                   updateCallback: { nodeViewModel, nodeSchema in
@@ -353,6 +359,12 @@ extension GraphState {
     
     @MainActor
     func syncNodes(with entities: [NodeEntity]) {
+        let currentEntities = self.createSchema().nodes
+        
+        guard currentEntities != entities else {
+            return
+        }
+        
         let newDictionary = self.visibleNodesViewModel.nodes
             .sync(with: entities,
                   updateCallback: { nodeViewModel, nodeSchema in
