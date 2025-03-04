@@ -138,7 +138,9 @@ final class GraphState: Sendable {
         self.topologicalData = .init()
         self.commentBoxesDict.sync(from: schema.commentBoxes)
         self.components = components
-        self.visibleNodesViewModel.nodes = nodes
+        
+        // Sync nodes and cached data
+        self.syncNodes(nodesDict: nodes)
         
         if let stringWarning = schema.migrationWarning {
             self.migrationWarning = .init(rawValue: stringWarning)
@@ -354,7 +356,7 @@ extension GraphState {
                                 parentGraphPath: self.saveLocation)
         }
         
-        self._syncNodes(nodesDict: newDictionary)
+        self.syncNodes(nodesDict: newDictionary)
     }
     
     @MainActor
@@ -376,11 +378,11 @@ extension GraphState {
                                  nodeType: nodeType)
         }
         
-        self._syncNodes(nodesDict: newDictionary)
+        self.syncNodes(nodesDict: newDictionary)
     }
     
     @MainActor
-    private func _syncNodes(nodesDict: NodesViewModelDict) {
+    func syncNodes(nodesDict: NodesViewModelDict) {
         self.visibleNodesViewModel.nodes = nodesDict
         
         // Cache layer node info for perf
