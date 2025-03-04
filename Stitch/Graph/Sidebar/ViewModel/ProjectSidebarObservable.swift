@@ -88,13 +88,18 @@ extension ProjectSidebarObservable {
     
     @MainActor
     func sync(from encodedData: [Self.EncodedItemData]) {
-        let existingViewModels = self.items.reduce(into: [Self.ItemID : Self.ItemViewModel]()) { result, viewModel in
-            result.updateValue(viewModel, forKey: viewModel.id)
-        }
+        // Only apply updates if there are changes to reduce render cycles
+        let currentEncodedData = self.createdOrderedEncodedData()
         
-        self.items = self.recursiveSync(elements: encodedData,
-                                        existingViewModels: existingViewModels)
-        self.items.updateSidebarIndices()
+        if encodedData != currentEncodedData {
+            let existingViewModels = self.items.reduce(into: [Self.ItemID : Self.ItemViewModel]()) { result, viewModel in
+                result.updateValue(viewModel, forKey: viewModel.id)
+            }
+    
+            self.items = self.recursiveSync(elements: encodedData,
+                                            existingViewModels: existingViewModels)
+            self.items.updateSidebarIndices()
+        }
     }
     
     @MainActor

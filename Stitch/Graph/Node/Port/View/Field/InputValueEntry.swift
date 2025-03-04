@@ -286,9 +286,7 @@ struct InputValueView: View {
                                      fieldValueNumberType: layerDimensionField.fieldValueNumberType,
                                      fieldCoordinate: fieldCoordinate,
                                      isCanvasItemSelected: isCanvasItemSelected,
-                                     // TODO: perf implications? split into separate view?
-                                     choices: graph.getFilteredLayerDimensionChoices(nodeId: fieldCoordinate.rowId.nodeId,
-                                                                                     nodeKind: nodeKind,
+                                     choices: graph.getFilteredLayerDimensionChoices(node: node,
                                                                                      layerInputObserver: layerInputObserver,
                                                                                      activeIndex: graphUI.activeIndex)
                                         .map(\.rawValue),
@@ -357,6 +355,7 @@ struct InputValueView: View {
             case .layerDropdown(let layerId):
                 LayerNamesDropDownChoiceView(
                     graph: graph,
+                    visibleNodes: graph.visibleNodesViewModel,
                     rowObserver: rowObserver,
                     value: .assignedLayer(layerId),
                     layerInputObserver: layerInputObserver,
@@ -468,6 +467,7 @@ struct InputValueView: View {
             case .pinTo(let pinToId):
                 LayerNamesDropDownChoiceView(
                     graph: graph,
+                    visibleNodes: graph.visibleNodesViewModel,
                     rowObserver: rowObserver,
                     value: .pinTo(pinToId),
                     layerInputObserver: layerInputObserver,
