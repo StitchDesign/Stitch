@@ -72,7 +72,6 @@ struct SpecialPickerFieldValueView: View {
     let graph: GraphState
     let value: PortValue
     let choices: PortValues
-    let layerInputObserver: LayerInputObserver?
     let isFieldInsideLayerInspector: Bool
     let hasHeterogenousValues: Bool
     let activeIndex: ActiveIndex

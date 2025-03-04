@@ -54,6 +54,14 @@ extension LayerInputPortSet {
     // Note: this loses information about the heterogenous values etc.
     @MainActor
     func asLayerInputObserverDict(_ graph: GraphState) -> LayerInputObserverDict {
+        self.toSet.asLayerInputObserverDict(graph)
+    }
+}
+
+extension Set where Element == LayerInputPort {
+    // Note: this loses information about the heterogenous values etc.
+    @MainActor
+    func asLayerInputObserverDict(_ graph: GraphState) -> LayerInputObserverDict {
         self.reduce(into: LayerInputObserverDict()) { partialResult, layerInput in
             if let firstObserver = layerInput.multiselectObservers(graph).first {
                 partialResult.updateValue(firstObserver,
