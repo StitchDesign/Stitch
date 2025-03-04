@@ -96,7 +96,7 @@ extension GraphState {
                     return nil
                 }
                 
-                return self.getNodeViewModel(layerId)?.asLayerDropdownChoice
+                return self.visibleNodesViewModel.layerDropdownChoiceCache.get(layerId)
             }
         
         return initialChoices + layers

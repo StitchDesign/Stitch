@@ -354,7 +354,7 @@ extension GraphState {
                                 parentGraphPath: self.saveLocation)
         }
         
-        self.visibleNodesViewModel.nodes = newDictionary
+        self._syncNodes(nodesDict: newDictionary)
     }
     
     @MainActor
@@ -376,7 +376,23 @@ extension GraphState {
                                  nodeType: nodeType)
         }
         
-        self.visibleNodesViewModel.nodes = newDictionary
+        self._syncNodes(nodesDict: newDictionary)
+    }
+    
+    @MainActor
+    private func _syncNodes(nodesDict: NodesViewModelDict) {
+        self.visibleNodesViewModel.nodes = nodesDict
+        
+        // Cache layer node info for perf
+        let newLayerCache = nodesDict.values.reduce(into: [NodeId : LayerDropdownChoice]()) { result, node in
+            if node.kind.isLayer {
+                result.updateValue(node.asLayerDropdownChoice, forKey: node.id)
+            }
+        }
+        
+        if self.visibleNodesViewModel.layerDropdownChoiceCache != newLayerCache {
+            self.visibleNodesViewModel.layerDropdownChoiceCache = newLayerCache
+        }
     }
     
     @MainActor
