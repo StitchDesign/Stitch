@@ -10,10 +10,10 @@ import SwiftUI
 import StitchSchemaKit
 
 
-struct NodeMenuHeightSet: GraphUIEvent {
+struct NodeMenuHeightSet: StitchDocumentEvent {
     let newHeight: CGFloat
     
-    func handle(state: GraphUIState) {
+    func handle(state: StitchDocumentViewModel) {
         state.nodeMenuHeight = newHeight
     }
 }

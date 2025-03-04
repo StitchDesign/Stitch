@@ -20,7 +20,6 @@ struct GraphBaseView: View {
     @State private var spaceHeld = false
 
     @Bindable var document: StitchDocumentViewModel
-    @Bindable var graphUI: GraphUIState
     
     @MainActor
     var graph: GraphState {
@@ -58,7 +57,7 @@ struct GraphBaseView: View {
 
     @MainActor
     var selectionState: GraphUISelectionState {
-        graphUI.selection
+        graph.selection
     }
 
     @ViewBuilder
@@ -66,8 +65,7 @@ struct GraphBaseView: View {
     var nodesView: some View {
         NodesView(document: document,
                   graph: graph,
-                  graphUI: graphUI,
-                  groupTraversedToChild: graphUI.groupTraversedToChild)
+                  groupTraversedToChild: document.groupTraversedToChild)
         .overlay {
             // Show debug mode tip view
             if document.isDebugMode {
@@ -125,10 +123,10 @@ struct GraphBaseView: View {
             // IMPORTANT: applying .inspector outside of this ZStack causes displacement of graph contents when graph zoom != 1
             Circle().fill(Stitch.APP_BACKGROUND_COLOR.opacity(0.001))
                 .frame(width: 1, height: 1)
-                .inspector(isPresented: $graphUI.showsLayerInspector) {
+                .inspector(isPresented: $document.showsLayerInspector) {
                     
                     LayerInspectorView(graph: graph,
-                                       graphUI: graphUI)
+                                       graphUI: document)
                     
                     // TODO: setting an inspector width DOES move over the graph view content
                         .inspectorColumnWidth(LayerInspectorView.LAYER_INSPECTOR_WIDTH)

@@ -81,7 +81,7 @@ struct PreviewShapeLayer: View {
                     viewModel: layerViewModel,
                     isPinnedViewRendering: isPinnedViewRendering,
                     nodeId: interactiveLayer.id.layerNodeId,
-                    highlightedSidebarLayers: document.graphUI.highlightedSidebarLayers,
+                    highlightedSidebarLayers: graph.highlightedSidebarLayers,
                     scale: scale))
             // order of .blur vs other modiifers doesn't matter?
                 .blur(radius: blurRadius)

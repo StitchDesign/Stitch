@@ -10,14 +10,16 @@ import StitchSchemaKit
 
 // Easier to find than `nodeTypeChanged` which shares same name as several protocol methods.
 // Also separates view model update logic from disk-reading/writing side-effects.
-struct NodeTypeChanged: GraphEvent {
+struct NodeTypeChanged: StitchDocumentEvent {
     let nodeId: NodeId
     let newNodeType: NodeType
     
     @MainActor
-    func handle(state: GraphState) {
-        let _ = state.nodeTypeChanged(nodeId: nodeId,
-                                      newNodeType: newNodeType)
+    func handle(state: StitchDocumentViewModel) {
+        let _ = state.visibleGraph
+            .nodeTypeChanged(nodeId: nodeId,
+                             newNodeType: newNodeType,
+                             activeIndex: state.activeIndex)
         
         state.encodeProjectInBackground()
     }
@@ -28,7 +30,8 @@ extension GraphState {
     /// Helper used by NodeTypeChanged and GroupNodeCreated (coercing type of group splitters)
     @MainActor
     func nodeTypeChanged(nodeId: NodeId,
-                         newNodeType: UserVisibleType) -> NodeIdSet? {
+                         newNodeType: UserVisibleType,
+                         activeIndex: ActiveIndex) -> NodeIdSet? {
 
         guard let node = self.getNodeViewModel(nodeId) else {
             log("NodeTypeChangedAction: no change...")
@@ -44,7 +47,8 @@ extension GraphState {
         let changedNodeIds = self.changeType(
             for: node,
             oldType: oldType,
-            newType: newNodeType)
+            newType: newNodeType,
+            activeIndex: activeIndex)
 
         // Recalculate the graph from each of the changed nodes' incoming edges
         let ids = changedNodeIds
@@ -60,7 +64,8 @@ extension GraphState {
     @MainActor
     func changeType(for node: NodeViewModel,
                     oldType: UserVisibleType,
-                    newType: UserVisibleType) -> NodeIdSet {
+                    newType: UserVisibleType,
+                    activeIndex: ActiveIndex) -> NodeIdSet {
         let graphTime = self.graphStepManager.graphTime
 
         guard let patchNode = node.patchNode else {

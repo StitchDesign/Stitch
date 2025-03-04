@@ -43,6 +43,7 @@ struct LayerGroupOrientationDropDownChoiceView: View {
     let layerInputObserver: LayerInputObserver?
     let isFieldInsideLayerInspector: Bool
     let hasHeterogenousValues: Bool
+    let activeIndex: ActiveIndex
     
     var choices: [StitchOrientation] {
         StitchOrientation.choices.compactMap(\.getOrientation)
@@ -66,6 +67,7 @@ struct LayerGroupOrientationDropDownChoiceView: View {
         .onChange(of: self.currentChoice) { oldValue, newValue in
             graph.pickerOptionSelected(rowObserver: rowObserver,
                                        choice: .orientation(newValue),
+                                       activeIndex: activeIndex,
                                        isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         }
         .onAppear {

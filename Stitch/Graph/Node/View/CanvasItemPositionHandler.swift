@@ -61,7 +61,8 @@ struct CanvasItemPositionHandler: ViewModifier {
                         } else {
                             document.visibleGraph.canvasItemMoved(for: node,
                                                                   translation: gesture.translation,
-                                                                  wasDrag: true)
+                                                                  wasDrag: true,
+                                                                  document: document)
                         }
                     }
                         .onEnded { _ in

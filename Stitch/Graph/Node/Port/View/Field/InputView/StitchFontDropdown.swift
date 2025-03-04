@@ -17,6 +17,7 @@ struct StitchFontDropdown: View {
     let isFieldInsideLayerInspector: Bool
     let propertyIsSelected: Bool
     let hasHeterogenousValues: Bool
+    let activeIndex: ActiveIndex
     
     @MainActor
     var finalChoiceDisplay: String {
@@ -63,6 +64,7 @@ struct StitchFontDropdown: View {
 
             graph.pickerOptionSelected(rowObserver: rowObserver,
                                        choice: PortValue.textFont(newStitchFont),
+                                       activeIndex: activeIndex,
                                        isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         }
     }

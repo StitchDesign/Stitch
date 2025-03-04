@@ -60,7 +60,8 @@ struct NumberValueButtonView: View {
                 rowObserver: rowObserver,
                 isPressed: $isPressed,
                 fieldValueNumberType: fieldValueNumberType,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector))
+                isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                activeIndex: graphUI.activeIndex))
     }
 }
 
@@ -72,6 +73,7 @@ struct AdjustmentBarViewModifier: ViewModifier {
     @Binding var isPressed: Bool
     let fieldValueNumberType: FieldValueNumberType
     let isFieldInsideLayerInspector: Bool
+    let activeIndex: ActiveIndex
 
     func body(content: Content) -> some View {
         return content
@@ -86,6 +88,7 @@ struct AdjustmentBarViewModifier: ViewModifier {
                     fieldCoordinate: fieldCoordinate,
                     rowObserver: rowObserver,
                     isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                    activeIndex: activeIndex,
                     isPopoverOpen: self.$isPressed
                 )
                 #if !targetEnvironment(macCatalyst)

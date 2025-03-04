@@ -157,7 +157,7 @@ struct PreviewGroupLayer: View {
                 viewModel: layerViewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
                 nodeId: interactiveLayer.id.layerNodeId,
-                highlightedSidebarLayers: document.graphUI.highlightedSidebarLayers,
+                highlightedSidebarLayers: graph.highlightedSidebarLayers,
                 scale: scale))
                         
         // .clipped modifier should come before the offset/position modifier,

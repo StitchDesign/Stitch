@@ -57,10 +57,12 @@ extension FieldValueMedia {
     func handleSelection(rowObserver: InputNodeRowObserver,
                          mediaType: SupportedMediaFormat,
                          isFieldInsideLayerInspector: Bool,
+                         activeIndex: ActiveIndex,
                          graph: GraphState) {
         switch self {
         case .none:
             graph.mediaPickerNoneChanged(rowObserver: rowObserver,
+                                         activeIndex: activeIndex,
                                          isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         
         case .importButton:
@@ -88,6 +90,7 @@ extension FieldValueMedia {
             graph.mediaPickerChanged(selectedValue: .asyncMedia(mediaValue),
                                      mediaType: mediaType,
                                      rowObserver: rowObserver,
+                                     activeIndex: activeIndex,
                                      isFieldInsideLayerInspector: isFieldInsideLayerInspector)
             
         case .defaultMedia(let defaultMedia):
@@ -99,6 +102,7 @@ extension FieldValueMedia {
             graph.mediaPickerChanged(selectedValue: portValue,
                                      mediaType: mediaType,
                                      rowObserver: rowObserver,
+                                     activeIndex: activeIndex,
                                      isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         }
     }

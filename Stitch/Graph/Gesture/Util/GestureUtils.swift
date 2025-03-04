@@ -30,7 +30,7 @@ extension NodeSelectionGestureRecognizer {
 //                log("Graph pan disabled during LLM Recording")
 //                return
 //            }
-            self.document?.graphScrollBegan()
+            self.document?.visibleGraph.graphScrollBegan()
             
         case .changed:
             
@@ -40,10 +40,13 @@ extension NodeSelectionGestureRecognizer {
 //            }
             // Should only have a single touch
             if gestureRecognizer.numberOfTouches == 1 {
-                self.document?.graphDragged(
-                    // not an accurate translation?
-                    translation: translation.toCGSize,
-                    location: location)
+                if let document = document {
+                    document.visibleGraph.graphDragged(
+                        // not an accurate translation?
+                        translation: translation.toCGSize,
+                        location: location,
+                        document: document)
+                }
             }
         
         case .ended, .cancelled:
@@ -57,11 +60,13 @@ extension NodeSelectionGestureRecognizer {
             //        log("handleScreenGraphPanGesture: screenPanInView: translation: \(translation)")
             //        log("handleScreenGraphPanGesture: screenPanInView: velocity: \(velocity)")
             // should have no touches
-            if gestureRecognizer.numberOfTouches == 0 {
-                self.document?.graphDragEnded(
+            if gestureRecognizer.numberOfTouches == 0,
+               let document = self.document {
+                document.visibleGraph.graphDragEnded(
                     location: location,
                     velocity: velocity,
-                    wasScreenDrag: true)
+                    wasScreenDrag: true,
+                    frame: document.frame)
             }
             
         default:

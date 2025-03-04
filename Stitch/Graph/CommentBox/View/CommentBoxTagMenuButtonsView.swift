@@ -10,7 +10,6 @@ import StitchSchemaKit
 
 struct CommentBoxTagMenuButtonsView: View {
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
     @Bindable var box: CommentBoxViewModel
     let atleastOneNodeSelected: Bool
 
@@ -18,7 +17,7 @@ struct CommentBoxTagMenuButtonsView: View {
         deleteButton
         duplicateButton
         Button("Edit Title") {
-            graphUI.commentBoxTitleEditStarted(id: box.id)
+            graph.commentBoxTitleEditStarted(id: box.id)
         }
         commentBoxColorPicker
     }

@@ -30,23 +30,22 @@ struct MathExpressionFormulaEdited: GraphEvent {
     }
 }
 
-struct MathExpressionFocused: GraphUIEvent {
+struct MathExpressionFocused: StitchDocumentEvent {
     let id: NodeId
     
-    func handle(state: GraphUIState) {
+    func handle(state: StitchDocumentViewModel) {
         state.reduxFocusedField = .mathExpression(id)
     }
 }
 
-struct MathExpressionDefocused: GraphEventWithResponse {
+struct MathExpressionDefocused: StitchDocumentEvent {
     let id: NodeId
     
-    func handle(state: GraphState) -> GraphResponse {
-        if case state.graphUI.reduxFocusedField = .mathExpression(id) {
-            state.graphUI.reduxFocusedField = nil
-            return .persistenceResponse
+    func handle(state: StitchDocumentViewModel) {
+        if case state.reduxFocusedField = .mathExpression(id) {
+            state.reduxFocusedField = nil
+            state.encodeProjectInBackground()
         }
-        return .noChange
     }
 }
 
@@ -56,13 +55,13 @@ struct MathExpressionPopoverViewModifier: ViewModifier {
     @State private var expr = "" // Alternatively?: pass down a @Bindable mathExpression
     
     let id: NodeId
-    let graph: GraphState
+    let document: StitchDocumentViewModel
     let shouldDisplay: Bool
     let mathExpression: String
     
     // more like?: "is popover open"
     var isFocused: Bool {
-        graph.graphUI.reduxFocusedField == .mathExpression(id)
+        document.reduxFocusedField == .mathExpression(id)
     }
     
     func body(content: Content) -> some View {

@@ -16,7 +16,6 @@ struct NodeTagMenuButtonsView: View {
     @Environment(StitchStore.self) private var store
     
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
     @Bindable var document: StitchDocumentViewModel
     @Bindable var node: NodeViewModel
 
@@ -40,10 +39,15 @@ struct NodeTagMenuButtonsView: View {
     var _loopIndices: [Int] {
         loopIndices ?? self.node.getLoopIndices()
     }
+    
+    var graphUI: StitchDocumentViewModel {
+        self.document
+    }
 
     @MainActor
     var moreThanOneNodeSelected: Bool {
-        graph.selectedCanvasItems.count > 1
+        graph.getSelectedCanvasItems(groupNodeFocused: document.groupNodeFocused?.groupNodeId)
+            .count > 1
     }
 
     @MainActor
@@ -210,7 +214,7 @@ struct NodeTagMenuButtonsView: View {
            let assignedBroadcaster = node.currentBroadcastChoiceId {
             nodeTagMenuButton(label: "Jump to Assigned Broadcaster") {
                 graph.jumpToCanvasItem(id: .node(assignedBroadcaster),
-                                       graphUI: graphUI)
+                                       document: document)
             }
         }
     }
@@ -398,7 +402,7 @@ struct NodeTagMenuButtonsView: View {
         return nodeTagMenuButton(label: visitLabel) {
             if let nodeId = canvasItemId.nodeCase {
                 graph.groupNodeDoubleTapped(id: nodeId,
-                                            graphUI: graphUI)
+                                            document: document)
             }
         }
     }

@@ -108,14 +108,13 @@ extension GraphState {
     @MainActor
     func createGroupNode(newGroupNodeId: NodeId,
                          componentId: UUID?,
-                         center: CGPoint) async -> NodeViewModel {
+                         center: CGPoint,
+                         // If current focused group is component, make parent node ID nil as we're creating a new graph state
+                         focusedGroupNodeId: NodeId?) async -> NodeViewModel {
         guard let document = self.documentDelegate else {
             fatalErrorIfDebug()
             return .createEmpty()
         }
-        
-        // If current focused group is component, make parent node ID nil as we're creating a new graph state
-        let focusedGroupNodeId = self.graphUI.groupNodeFocused?.groupNodeId
         
         let canvasEntity = CanvasNodeEntity(position: center,
                                             zIndex: self.highestZIndex + 1,
@@ -173,14 +172,17 @@ extension StitchDocumentViewModel {
             return
         }
         
+        let graph = self.visibleGraph
         let newGroupNodeId = UUID()
         let newComponentId = UUID()
-        let selectedCanvasItems = self.visibleGraph.selectedCanvasItems
+        let selectedCanvasItems = self.visibleGraph.getSelectedCanvasItems(groupNodeFocused: self.groupNodeFocused?.groupNodeId)
         let edges = self.visibleGraph.createEdges()
         let center = self.viewPortCenter
 
         // Every selected node must belong to this traversal level.
-        let nodesAtThisLevel = self.visibleGraph.getCanvasItemsAtTraversalLevel().map(\.id).toSet
+        let nodesAtThisLevel = self.visibleGraph
+            .getCanvasItemsAtTraversalLevel(groupNodeFocused: self.groupNodeFocused?.groupNodeId)
+            .map(\.id).toSet
         
         assertInDebug(!self.visibleGraph.selectedNodeIds.contains(where: { selectedNodeId in !nodesAtThisLevel.contains(selectedNodeId) }))
         
@@ -199,23 +201,26 @@ extension StitchDocumentViewModel {
         let newGroupNode = await self.visibleGraph
             .createGroupNode(newGroupNodeId: newGroupNodeId,
                              componentId: isComponent ? newComponentId : nil,
-                             center: center)
+                             center: center,
+                             focusedGroupNodeId: self.groupNodeFocused?.groupNodeId)
         
         //input splitters need to be west of the `to` node for the `edge`
-        self.visibleGraph.createSplitterForNewGroup(splitterType: .input,
-                                                    selectedCanvasItems: selectedCanvasItems,
-                                                    edges: edges,
-                                                    newGroupNodeId: newGroupNodeId,
-                                                    isComponent: isComponent,
-                                                    center: center)
+        graph.createSplitterForNewGroup(splitterType: .input,
+                                        selectedCanvasItems: selectedCanvasItems,
+                                        edges: edges,
+                                        newGroupNodeId: newGroupNodeId,
+                                        isComponent: isComponent,
+                                        center: center,
+                                        activeIndex: self.activeIndex)
         
         // output edge = an edge going FROM a node in the group, TO a node outside the group
-        self.visibleGraph.createSplitterForNewGroup(splitterType: .output,
-                                                    selectedCanvasItems: selectedCanvasItems,
-                                                    edges: edges,
-                                                    newGroupNodeId: newGroupNodeId,
-                                                    isComponent: isComponent,
-                                                    center: center)
+        graph.createSplitterForNewGroup(splitterType: .output,
+                                        selectedCanvasItems: selectedCanvasItems,
+                                        edges: edges,
+                                        newGroupNodeId: newGroupNodeId,
+                                        isComponent: isComponent,
+                                        center: center,
+                                        activeIndex: self.activeIndex)
         
         // Delete items from original graph since selected items have been copied
         // to new component graph
@@ -226,17 +231,18 @@ extension StitchDocumentViewModel {
                     return
                 }
                 
-                self.visibleGraph.deleteNode(id: node.id)
+                graph.deleteNode(id: node.id)
             }
         }
 
         // wipe selected edges and canvas items
-        self.graphUI.selection = GraphUISelectionState()
-        self.visibleGraph.selectedEdges = .init()
-        self.visibleGraph.resetSelectedCanvasItems(graphUI: graphUI)
+        graph.selection = GraphUISelectionState()
+        graph.selectedEdges = .init()
+        graph.resetSelectedCanvasItems()
         
         // ... then select the GroupNode and its edges
-        newGroupNode.patchCanvasItem?.select(self.graph)
+        newGroupNode.patchCanvasItem?.select(graph,
+                                             document: self)
 
         // Stop any active node dragging etc.
         self.graphMovement.stopNodeMovement()
@@ -280,7 +286,8 @@ extension GraphState {
                                               edges: [PortEdgeData],
                                               newGroupNodeId: NodeId,
                                               isComponent: Bool,
-                                              center: CGPoint) {
+                                              center: CGPoint,
+                                              activeIndex: ActiveIndex) {
         let (inputEdgesToUpdate,
              outputEdgesToUpdate) = self.getEdgesToUpdate(
                 selectedCanvasItems: selectedCanvasItems.map(\.id).toSet,
@@ -304,7 +311,8 @@ extension GraphState {
                 isComponent: isComponent,
                 splitterType: splitterType,
                 portId: portId,
-                position: nodePosition)
+                position: nodePosition,
+                activeIndex: activeIndex)
             
             // Increment node position for next input splitter node
             nodePosition.x += NODE_POSITION_STAGGER_SIZE
@@ -326,7 +334,8 @@ extension GraphState {
                                 isComponent: Bool,
                                 splitterType: SplitterType,
                                 portId: Int,
-                                position: CGPoint) {
+                                position: CGPoint,
+                                activeIndex: ActiveIndex) {
 
         // log("insertIntermediaryNode: oldEdge: \(oldEdge)")
         
@@ -381,22 +390,25 @@ extension GraphState {
             if let values: PortValues = self.getInputValues(coordinate: oldEdge.to),
                let nodeType = values.first?.toNodeType {
                 
-                self.nodeTypeChanged(nodeId: newSplitterNodeId,
-                                     newNodeType: nodeType)
+                let _ = self.nodeTypeChanged(nodeId: newSplitterNodeId,
+                                             newNodeType: nodeType,
+                                             activeIndex: activeIndex)
             }
             
         } else if splitterType == .output {
             if let values: PortValues = self.getInputValues(coordinate: oldEdge.from),
-            let nodeType = values.first?.toNodeType {
-                self.nodeTypeChanged(nodeId: newSplitterNodeId,
-                                     newNodeType: nodeType)
+               let nodeType = values.first?.toNodeType {
+                let _ = self.nodeTypeChanged(nodeId: newSplitterNodeId,
+                                             newNodeType: nodeType,
+                                             activeIndex: activeIndex)
             }
         }
 
         // UPDATE EDGES
 
         // Remove the old edge FIRST; otherwise `edgeRemoved` will remove
-        self.removeEdgeAt(input: oldEdge.to)
+        self.removeEdgeAt(input: oldEdge.to,
+                          activeIndex: activeIndex)
 
         // Create edge from source patch node to new splitter node
 //        if willCreateNewInputConnection {

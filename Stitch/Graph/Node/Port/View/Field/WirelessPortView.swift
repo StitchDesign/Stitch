@@ -25,7 +25,8 @@ struct WirelessPortView: View {
             .offset(x: isOutput ? -12 : 12)
             .onTapGesture {
                 if !isOutput {
-                    graph.jumpToAssignedBroadcaster(wirelessReceiverNodeId: id, graphUI: graphUI)
+                    graph.jumpToAssignedBroadcaster(wirelessReceiverNodeId: id,
+                                                    document: graphUI)
                 }
             }
         #if targetEnvironment(macCatalyst)

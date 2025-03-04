@@ -25,6 +25,7 @@ struct AnchorEntitiesDropdownView: View {
     let graph: GraphState
     let value: PortValue
     let isFieldInsideLayerInspector: Bool
+    let activeIndex: ActiveIndex
     
     var choices: [AnchorDropdownChoice] {
         let initialChoices: [AnchorDropdownChoice] = [.none]
@@ -43,6 +44,7 @@ struct AnchorEntitiesDropdownView: View {
         
         graph.handleInputEditCommitted(input: rowObserver,
                                        value: .anchorEntity(selectedId),
+                                       activeIndex: activeIndex,
                                        isFieldInsideLayerInspector: false)
         graph.encodeProjectInBackground()
     }

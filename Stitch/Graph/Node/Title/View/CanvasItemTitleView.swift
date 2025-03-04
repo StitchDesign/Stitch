@@ -21,7 +21,6 @@ struct CanvasItemTitleView: View {
     
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
     @Bindable var node: NodeViewModel
     let canvasItem: CanvasItemViewModel
     let isCanvasItemSelected: Bool
@@ -52,6 +51,7 @@ struct CanvasItemTitleView: View {
             if node.patch == .wirelessReceiver,
                let rowObserver = node.inputsObservers.first {
                 CanvasItemTitleWirelessReceiverMenuView(graph: graph,
+                                                        document: document,
                                                         node: node, rowObserver: rowObserver,
                                                         nodeName: self.name)
             } else {
@@ -62,7 +62,6 @@ struct CanvasItemTitleView: View {
                     }
                     NodeTitleTextField(document: document,
                                        graph: graph,
-                                       graphUI: graphUI,
                                        node: node,
                                        canvasItem: canvasItem,
                                        label: label,
@@ -75,7 +74,7 @@ struct CanvasItemTitleView: View {
                 .modifier(
                     MathExpressionPopoverViewModifier(
                         id: nodeId,
-                        graph: graph,
+                        document: document,
                         shouldDisplay: node.patch == .mathExpression,
                         mathExpression: mathExpression ?? "")
                 )
@@ -110,6 +109,7 @@ struct CanvasItemTitleWirelessReceiverMenuView: View {
     @State private var choice: BroadcastChoice = nilBroadcastChoice
     
     @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var node: NodeViewModel
     @Bindable var rowObserver: InputNodeRowObserver
     let nodeName: String
@@ -136,6 +136,7 @@ struct CanvasItemTitleWirelessReceiverMenuView: View {
     var body: some View {
         Menu {
             NodeWirelessBroadcastSubmenuView(graph: graph,
+                                             document: document,
                                              currentBroadcastChoice: self.choice,
                                              nodeId: node.id,
                                              forNodeTitle: true)

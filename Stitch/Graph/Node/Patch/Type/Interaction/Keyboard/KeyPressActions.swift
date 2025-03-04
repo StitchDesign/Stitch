@@ -29,6 +29,7 @@ struct KeyModifierPressBegan: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
          // log("KeyModifierPressBegan: listener \(name) had modifiers: \(modifiers)")
         
+        let graph = state.visibleGraph
         state.keypressState.modifiers = state.keypressState.modifiers.union(modifiers)
         
         // if TAB pressed and  move forward one foucsed , or SHIFT + TAB,
@@ -45,14 +46,15 @@ struct KeyModifierPressBegan: StitchDocumentEvent {
         
         // When we tab, we change the edge editing state's nearbyNode, labelsShown, and possible and shown edges
         // but hovered output and nodest-to-the-east stays the same
-        if let edgeEditingState = state.graphUI.edgeEditingState,
+        if let edgeEditingState = graph.edgeEditingState,
            name == .mainGraph,
            tabPressed {
             
-            state.graphUI.edgeEditingState = edgeEditingState.canvasItemIndexChanged(
+            graph.edgeEditingState = edgeEditingState.canvasItemIndexChanged(
                 edgeEditState: edgeEditingState,
-                graph: state.graph,
-                wasIncremented: shiftTabPressed ? false : true)
+                graph: graph,
+                wasIncremented: shiftTabPressed ? false : true,
+                groupNodeFocused: state.groupNodeFocused?.groupNodeId)
             
             return
         }
@@ -60,22 +62,22 @@ struct KeyModifierPressBegan: StitchDocumentEvent {
         // Tabbing between inputs project setting's preview window dimensions fields
         if focusedField == .previewWindowSettingsWidth, tabPressed {
             // Both tab and shift-tab move us to height
-            state.graphUI.reduxFocusedField = .previewWindowSettingsHeight
+            state.reduxFocusedField = .previewWindowSettingsHeight
             return
         } else if focusedField == .previewWindowSettingsHeight, tabPressed {
             // Both tab and shift-tab move us to height
-            state.graphUI.reduxFocusedField = .previewWindowSettingsWidth
+            state.reduxFocusedField = .previewWindowSettingsWidth
             return
         }
         // Ignore shift/tab if no node input field is focused.
         else if let focusedField = focusedField?.getTextInputEdit,
-                let node = state.visibleGraph.getNode(focusedField.rowId.nodeId) {
+                let node = graph.getNode(focusedField.rowId.nodeId) {
             if shiftTabPressed {
-                state.visibleGraph.shiftTabPressed(focusedField: focusedField,
-                                                   node: node)
+                state.shiftTabPressed(focusedField: focusedField,
+                                      node: node)
             } else if tabPressed {
-                state.visibleGraph.tabPressed(focusedField: focusedField,
-                                              node: node)
+                state.tabPressed(focusedField: focusedField,
+                                 node: node)
             }
         }
     }
@@ -127,13 +129,13 @@ extension StitchStore {
             return
         }
     
-        if document.graphUI.reduxFocusedField.isDefined {
+        if document.reduxFocusedField.isDefined {
             // log("KEY: KeyCharacterPressBegan: ignoring key press for char \(char) since some field is focused")
             return
         }
         
         // if insert node menu is open, ignore key presses:
-        if document.graphUI.insertNodeMenuState.show {
+        if document.insertNodeMenuState.show {
             // log("KEY: KeyCharacterPressBegan: ignoring key press for char \(char) since insert node menu is open")
             return
         }
@@ -142,6 +144,8 @@ extension StitchStore {
             // log("KEY: KeyCharacterPressBegan: ignoring key press for char \(char) since project settings modal is open")
             return
         }
+        
+        let graph = document.visibleGraph
 
         // We always add `char` to key press state,
         // but if we're currently hovering over an output (= edge-editing mode),
@@ -150,7 +154,7 @@ extension StitchStore {
         // TODO: edge-added and edge-removed logic still recalculate the graph
         document.keypressState.characters.insert(char)
 
-        if document.graphUI.edgeEditingState.isDefined {
+        if graph.edgeEditingState.isDefined {
             document.keyCharPressedDuringEdgeEditingMode(char: char)
         }
 

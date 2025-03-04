@@ -103,7 +103,8 @@ extension VisibleNodesViewModel {
     func updateNodesPagingDict(components: [UUID: StitchMasterComponent],
                                graphFrame: CGRect,
                                parentGraphPath: [UUID],
-                               graph: GraphState) {
+                               graph: GraphState,
+                               document: StitchDocumentViewModel) {
 
         // Remove any groups in the node paging dict that no longer exist in GraphSchema:
         let existingGroupPages = self.nodesByPage.compactMap(\.key.getGroupNodePage).toSet
@@ -126,7 +127,8 @@ extension VisibleNodesViewModel {
             // So we currently never hit this condition for new pages.
             // TODO: how to enter a group-node for the first time with a guaranteed node on screen? ... start with a nil localPosition in the pageData?
             if let westernMostNode = westernMostNode,
-               let jumpLocation = graph.getNodeGraphPanLocation(id: westernMostNode.id) {
+               let jumpLocation = graph.getNodeGraphPanLocation(id: westernMostNode.id,
+                                                                document: document) {
                 startOffset = jumpLocation
             }
             
@@ -190,8 +192,9 @@ extension VisibleNodesViewModel {
                 // Special case: we must re-initialize the group orientation input, since its first initialization happens before we have constructed the layer view models that can tell us all the parent's children
                 if layerNode.layer == .group {
                     layerNode.blockOrUnblockFields(
-                        newValue: layerNode.orientationPort.activeValue,
-                        layerInput: .orientation)
+                        newValue: layerNode.orientationPort.getActiveValue(activeIndex: document.activeIndex),
+                        layerInput: .orientation,
+                        activeIndex: document.activeIndex)
                 }
             }
         }

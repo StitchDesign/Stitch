@@ -12,7 +12,7 @@ struct LayerInspectorRowButton: View {
     @Environment(\.appTheme) var theme
     
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var graphUI: StitchDocumentViewModel
     let layerInputObserver: LayerInputObserver?
     let layerInspectorRowId: LayerInspectorRowId
     let coordinate: NodeIOCoordinate
@@ -83,7 +83,7 @@ struct LayerInspectorRowButton: View {
             // If we're already on the canvas, jump to that canvas item
             if let canvasItemId = canvasItemId {
                 graph.jumpToCanvasItem(id: canvasItemId,
-                                       graphUI: graphUI)
+                                       document: graphUI)
             }
             
             // Else we're adding an input (whole or field) or an output to the canvas

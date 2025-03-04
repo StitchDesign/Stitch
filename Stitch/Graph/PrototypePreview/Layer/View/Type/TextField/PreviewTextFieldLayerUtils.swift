@@ -12,9 +12,7 @@ struct ReduxFieldFocused: StitchDocumentEvent {
     let focusedField: FocusedUserEditField
 
     func handle(state: StitchDocumentViewModel) {
-        state.visibleGraph
-            .reduxFieldFocused(focusedField: focusedField,
-                               graphUI: state.graphUI)
+        state.reduxFieldFocused(focusedField: focusedField)
     }
 }
 
@@ -56,33 +54,25 @@ extension FocusedUserEditField {
     }
 }
 
-//extension GraphUIState {
-extension GraphState {
+extension StitchDocumentViewModel {
     @MainActor
-    func reduxFieldFocused(focusedField: FocusedUserEditField,
-                           graphUI: GraphUIState) {
+    func reduxFieldFocused(focusedField: FocusedUserEditField) {
         log("reduxFieldFocused: focusedField: \(focusedField)")
-        log("reduxFieldFocused: self.graphUI.reduxFocusedField was: \(graphUI.reduxFocusedField)")
-        if graphUI.reduxFocusedField != focusedField {
-            graphUI.reduxFocusedField = focusedField
+        log("reduxFieldFocused: self.graphUI.reduxFocusedField was: \(self.reduxFocusedField)")
+        let graph = self.visibleGraph
+        
+        if self.reduxFocusedField != focusedField {
+            self.reduxFocusedField = focusedField
         }
         
         // if we selected a canvas item, we also thereby selected it:
         if let canvasItemId = focusedField.canvasFieldId {
-            self.getCanvasItem(canvasItemId)?.select(self)
+            graph.getCanvasItem(canvasItemId)?
+                .select(graph,
+                        document: self)
         }
     }
-}
-
-struct ReduxFieldDefocused: GraphUIEvent {
-    let focusedField: FocusedUserEditField
     
-    func handle(state: GraphUIState) {
-        state.reduxFieldDefocused(focusedField: focusedField)
-    }
-}
-
-extension GraphUIState {
     @MainActor
     func reduxFieldDefocused(focusedField: FocusedUserEditField) {
         log("reduxFieldDefocused: focusedField: \(focusedField)")
@@ -90,6 +80,14 @@ extension GraphUIState {
         if self.reduxFocusedField == focusedField {
             self.reduxFocusedField = nil
         }
+    }
+}
+
+struct ReduxFieldDefocused: StitchDocumentEvent {
+    let focusedField: FocusedUserEditField
+    
+    func handle(state: StitchDocumentViewModel) {
+        state.reduxFieldDefocused(focusedField: focusedField)
     }
 }
 

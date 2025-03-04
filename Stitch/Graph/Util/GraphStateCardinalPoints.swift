@@ -34,24 +34,28 @@ extension GraphState {
     
     // Do we want the node's "position" or its cached-bounds origin ?
     @MainActor
-    func westernMostNodeForBorderCheck(_ canvasItems: CanvasItemViewModels) -> CanvasItemViewModel? {
-        GraphState.westernMostNode(self.groupNodeFocused, canvasItems: canvasItems)
+    func westernMostNodeForBorderCheck(_ canvasItems: CanvasItemViewModels,
+                                       groupNodeFocused: NodeId?) -> CanvasItemViewModel? {
+        GraphState.westernMostNode(groupNodeFocused, canvasItems: canvasItems)
     }
     
     @MainActor
-    func easternMostNodeForBorderCheck(_ canvasItems: CanvasItemViewModels) -> CanvasItemViewModel? {
-        GraphState.easternMostNode(self.groupNodeFocused, canvasItems: canvasItems)
+    func easternMostNodeForBorderCheck(_ canvasItems: CanvasItemViewModels,
+                                       groupNodeFocused: NodeId?) -> CanvasItemViewModel? {
+        GraphState.easternMostNode(groupNodeFocused, canvasItems: canvasItems)
     }
     
     // Do we want the node's "position" or its cached-bounds origin ?
     @MainActor
-    func northernMostNodeForBorderCheck(_ canvasItems: CanvasItemViewModels) -> CanvasItemViewModel? {
-        GraphState.northernMostNode(self.groupNodeFocused, canvasItems: canvasItems)
+    func northernMostNodeForBorderCheck(_ canvasItems: CanvasItemViewModels,
+                                        groupNodeFocused: NodeId?) -> CanvasItemViewModel? {
+        GraphState.northernMostNode(groupNodeFocused, canvasItems: canvasItems)
     }
     
     @MainActor
-    func southernMostNodeForBorderCheck(_ canvasItems: CanvasItemViewModels) -> CanvasItemViewModel? {
-        GraphState.southernMostNode(self.groupNodeFocused, canvasItems: canvasItems)
+    func southernMostNodeForBorderCheck(_ canvasItems: CanvasItemViewModels,
+                                        groupNodeFocused: NodeId?) -> CanvasItemViewModel? {
+        GraphState.southernMostNode(groupNodeFocused, canvasItems: canvasItems)
     }
     
     // western-most node is node with least x-position

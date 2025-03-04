@@ -19,7 +19,6 @@ struct ProjectToolbarViewModifier: ViewModifier {
     @Environment(StitchStore.self) private var store
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
     let projectName: String
     let projectId: ProjectId
     @Binding var isFullScreen: Bool
@@ -29,12 +28,12 @@ struct ProjectToolbarViewModifier: ViewModifier {
     // Note: Do NOT hide toolbar in Catalyst full screen mode
     @MainActor
     var hideToolbar: Bool {
-        GraphUIState.isPhoneDevice || (!isCatalyst && graphUI.isFullScreenMode)
+        GraphUIState.isPhoneDevice || (!isCatalyst && document.isFullScreenMode)
     }
 
     func body(content: Content) -> some View {
         content
-            .onChange(of: graphUI.isFullScreenMode) { _, newValue in
+            .onChange(of: document.isFullScreenMode) { _, newValue in
                 isFullScreen = newValue
             }
             .toolbarRole(.editor) // no "Back" text on back button
@@ -86,10 +85,11 @@ struct ProjectToolbarViewModifier: ViewModifier {
                 ToolbarItemGroup(placement: .primaryAction) {
                     iPadGraphTopBarButtons(
                         document: document,
-                        hasActiveGroupFocused: graphUI.groupNodeFocused.isDefined,
-                        isFullscreen: graphUI.isFullScreenMode,
-                        isPreviewWindowShown: graphUI.showPreviewWindow,
-                        restartPrototypeWindowIconRotationZ: graphUI.restartPrototypeWindowIconRotationZ,
+                        graph: graph,
+                        hasActiveGroupFocused: document.groupNodeFocused.isDefined,
+                        isFullscreen: document.isFullScreenMode,
+                        isPreviewWindowShown: document.showPreviewWindow,
+                        restartPrototypeWindowIconRotationZ: document.restartPrototypeWindowIconRotationZ,
                         llmRecordingModeEnabled: self.llmRecordingMode,
                         llmRecordingModeActive: document.llmRecording.isRecording)
                 }
@@ -123,17 +123,16 @@ struct ProjectToolbarViewModifier: ViewModifier {
                     CatalystTopBarGraphButtons(
                         document: document,
                         graph: graph,
-                        graphUI: graphUI,
-                        hasActiveGroupFocused: graphUI.groupNodeFocused.isDefined,
-                        isFullscreen: graphUI.isFullScreenMode,
-                        isPreviewWindowShown: graphUI.showPreviewWindow,
+                        hasActiveGroupFocused: document.groupNodeFocused.isDefined,
+                        isFullscreen: document.isFullScreenMode,
+                        isPreviewWindowShown: document.showPreviewWindow,
                         llmRecordingModeEnabled: self.llmRecordingMode,
                         llmRecordingModeActive: document.llmRecording.isRecording)
                 }
                 #endif
 
             }
-            .animation(.spring, value: graphUI.restartPrototypeWindowIconRotationZ) // .animation modifier must be placed here
+            .animation(.spring, value: document.restartPrototypeWindowIconRotationZ) // .animation modifier must be placed here
             .toolbarBackground(.visible, for: .automatic)
             .toolbar(hideToolbar ? .hidden : .automatic)
     }

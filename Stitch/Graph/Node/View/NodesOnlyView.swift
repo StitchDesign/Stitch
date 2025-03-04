@@ -13,19 +13,18 @@ struct NodesOnlyView: View {
     
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
     @Bindable var nodePageData: NodePageData
     
     var selection: GraphUISelectionState {
-        graphUI.selection
+        graph.selection
     }
     
     var activeIndex: ActiveIndex {
-        graphUI.activeIndex
+        document.activeIndex
     }
     
     var focusedGroup: GroupNodeType? {
-        self.graphUI.groupNodeFocused
+        document.groupNodeFocused
     }
     
     func refreshCanvasNodes() {
@@ -76,13 +75,12 @@ struct NodesOnlyView: View {
                 NodeTypeView(
                     document: document,
                     graph: graph,
-                    graphUI: graphUI,
                     node: canvasNode.nodeDelegate ?? .init(),
                     canvasNode: canvasNode,
                     atleastOneCommentBoxSelected: selection.selectedCommentBoxes.count >= 1,
                     activeIndex: activeIndex,
-                    groupNodeFocused: graphUI.groupNodeFocused,
-                    isSelected: graphUI.selection.selectedNodeIds.contains(canvasNode.id)
+                    groupNodeFocused: document.groupNodeFocused,
+                    isSelected: graph.selection.selectedNodeIds.contains(canvasNode.id)
                 )
             }
         }

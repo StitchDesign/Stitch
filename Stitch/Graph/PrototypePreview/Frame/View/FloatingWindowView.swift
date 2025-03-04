@@ -204,7 +204,7 @@ struct FloatingWindowView: View {
     
     var finalXOffset: CGFloat {
         
-        return document.graphUI.showsLayerInspector ? Self.xOffset - LayerInspectorView.LAYER_INSPECTOR_WIDTH : Self.xOffset
+        return document.showsLayerInspector ? Self.xOffset - LayerInspectorView.LAYER_INSPECTOR_WIDTH : Self.xOffset
         
         //        if showPreviewWindow {
         //            // Original

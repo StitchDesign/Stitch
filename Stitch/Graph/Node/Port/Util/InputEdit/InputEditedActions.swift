@@ -15,6 +15,7 @@ extension GraphState {
     func inputEditedFromUI(fieldValue: FieldValue,
                            // Single-fields always 0, multi-fields are like size or position inputs
                            fieldIndex: Int,
+                           activeIndex: ActiveIndex,
                            rowObserver: InputNodeRowObserver,
                            isFieldInsideLayerInspector: Bool,
                            isCommitting: Bool = true) {
@@ -28,6 +29,7 @@ extension GraphState {
         rowObserver.handleInputEdited(graph: self,
                                       fieldValue: fieldValue,
                                       fieldIndex: fieldIndex,
+                                      activeIndex: activeIndex,
                                       isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                       isCommitting: isCommitting)
     }
@@ -39,7 +41,8 @@ extension InputNodeRowObserver {
                      fieldValue: FieldValue,
                      // Single-fields always 0, multi-fields are like size or position inputs
                      fieldIndex: Int,
-                     isCommitting: Bool = true) {        
+                     activeIndex: ActiveIndex,
+                     isCommitting: Bool = true) {
         guard let node = graph.getNodeViewModel(self.id.nodeId) else {
             fatalErrorIfDebug()
             return
@@ -47,7 +50,7 @@ extension InputNodeRowObserver {
     
         graph.confirmInputIsVisibleInFrame(self)
         
-        let parentPortValue = self.activeValue
+        let parentPortValue = self.getActiveValue(activeIndex: activeIndex)
 
         //        log("inputEdited: fieldValue: \(fieldValue)")
         //        log("inputEdited: fieldIndex: \(fieldIndex)")
@@ -63,7 +66,7 @@ extension InputNodeRowObserver {
 
             // MARK: very important to remove edges before input changes
             node.removeIncomingEdge(at: self.id,
-                                    activeIndex: graph.activeIndex,
+                                    activeIndex: activeIndex,
                                     graph: graph)
 
             self.setValuesInInput([newValue])
@@ -86,6 +89,7 @@ extension InputNodeRowObserver {
                            fieldValue: FieldValue,
                            // Single-fields always 0, multi-fields are like size or position inputs
                            fieldIndex: Int,
+                           activeIndex: ActiveIndex,
                            isFieldInsideLayerInspector: Bool,
                            isCommitting: Bool = true) {
                 
@@ -99,6 +103,7 @@ extension InputNodeRowObserver {
                 observer.rowObserver.inputEdited(graph: graph,
                                                  fieldValue: fieldValue,
                                                  fieldIndex: fieldIndex,
+                                                 activeIndex: activeIndex,
                                                  isCommitting: isCommitting)
             }
         }
@@ -108,6 +113,7 @@ extension InputNodeRowObserver {
             self.inputEdited(graph: graph,
                              fieldValue: fieldValue,
                              fieldIndex: fieldIndex,
+                             activeIndex: activeIndex,
                              isCommitting: isCommitting)
         }
         

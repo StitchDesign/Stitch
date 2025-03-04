@@ -8,7 +8,7 @@
 import Foundation
 import StitchSchemaKit
 
-extension GraphUIState {
+extension GraphState {
     @MainActor
     func sidebarLayerHovered(layerId: LayerNodeId) {
         self.highlightedSidebarLayers.insert(layerId)

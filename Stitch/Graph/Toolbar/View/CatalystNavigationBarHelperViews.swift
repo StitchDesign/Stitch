@@ -12,15 +12,14 @@ struct CatalystProjectTitleModalOpened: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
         // log("CatalystProjectTitleModalOpened")
         withAnimation {
-            state.graphUI.showCatalystProjectTitleModal = true
+            state.showCatalystProjectTitleModal = true
         }
-        state.visibleGraph.reduxFieldFocused(focusedField: .projectTitle,
-                                             graphUI: state.graphUI)
+        state.reduxFieldFocused(focusedField: .projectTitle)
     }
 }
 
-struct CatalystProjectTitleModalClosed: GraphUIEvent {
-    func handle(state: GraphUIState) {
+struct CatalystProjectTitleModalClosed: StitchDocumentEvent {
+    func handle(state: StitchDocumentViewModel) {
         // log("CatalystProjectTitleModalClosed")
         withAnimation {
             state.showCatalystProjectTitleModal = false
@@ -159,7 +158,6 @@ struct CatalystTopBarGraphButtons: View {
 
     let document: StitchDocumentViewModel
     let graph: GraphState
-    let graphUI: GraphUIState
     let hasActiveGroupFocused: Bool
     let isFullscreen: Bool // = false
     let isPreviewWindowShown: Bool // = true
@@ -192,7 +190,7 @@ struct CatalystTopBarGraphButtons: View {
             
             // TODO: should be a toast only shows up when no nodes are on-screen?
             CatalystNavBarButton(.FIND_NODE_ON_GRAPH) {
-                graph.findSomeCanvasItemOnGraph(graphUI: graphUI)
+                graph.findSomeCanvasItemOnGraph(document: document)
             }
 
             // TODO: implement
@@ -236,40 +234,42 @@ struct CatalystTopBarGraphButtons: View {
     }
 }
 
-struct LayerInspectorToggled: GraphUIEvent {
-    func handle(state: GraphUIState) {
+struct LayerInspectorToggled: StitchDocumentEvent {
+    func handle(state: StitchDocumentViewModel) {
         
         withAnimation {
             state.showsLayerInspector.toggle()
         }
         
-        // reset selected inspector-row when inspector panel toggled
-        state.propertySidebar.selectedProperty = nil
+        let graph = state.visibleGraph
         
-        state.closeFlyout()
+        // reset selected inspector-row when inspector panel toggled
+        graph.propertySidebar.selectedProperty = nil
+        
+        graph.closeFlyout()
     }
 }
 
-struct GoUpOneTraversalLevel: GraphEvent {
+struct GoUpOneTraversalLevel: StitchDocumentEvent {
 
-    func handle(state: GraphState) {
+    func handle(state: StitchDocumentViewModel) {
 
         log("GoUpOneTraversalLevel called")
         
-        guard state.graphUI.groupNodeFocused.isDefined else {
+        guard state.groupNodeFocused.isDefined else {
             // If there's no current group node, do nothing
             log("GoUpOneTraversalLevel: already at top level")
             return
         }
         
         // Set new active parent
-        state.graphUI.groupNodeBreadcrumbs = state.graphUI.groupNodeBreadcrumbs.dropLast()
+        state.groupNodeBreadcrumbs = state.groupNodeBreadcrumbs.dropLast()
 
         // Reset any active selections
-        state.resetAlertAndSelectionState(graphUI: state.graphUI)
+        state.visibleGraph.resetAlertAndSelectionState(document: state)
 
         // Zoom-out animate to parent
-        state.graphUI.groupTraversedToChild = false
+        state.groupTraversedToChild = false
     }
 }
 

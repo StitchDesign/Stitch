@@ -11,7 +11,6 @@ import StitchSchemaKit
 struct NodeTitleTextField: View {
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
     @Bindable var node: NodeViewModel
     @Bindable var canvasItem: CanvasItemViewModel
     let label: String
@@ -21,7 +20,6 @@ struct NodeTitleTextField: View {
     var body: some View {
         StitchTitleTextField(document: document,
                              graph: graph,
-                             graphUI: graphUI,
                              node: node,
                              canvasItem: canvasItem,
                              titleEditType: .canvas(canvasItem.id),
@@ -37,7 +35,6 @@ struct StitchTitleTextField: View {
     
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
     @Bindable var node: NodeViewModel
     @Bindable var canvasItem: CanvasItemViewModel
     let titleEditType: StitchTitleEdit
@@ -47,7 +44,7 @@ struct StitchTitleTextField: View {
     
     @MainActor
     var isFocused: Bool {
-        (graphUI.reduxFocusedField?.getNodeTitleEdit == titleEditType)
+        (document.reduxFocusedField?.getNodeTitleEdit == titleEditType)
         // && isCanvasItemSelected
     }
 
@@ -106,8 +103,7 @@ struct StitchTitleTextField: View {
                 // Better as global redux-state than local view-state: only one field in entire app can be focused at a time.
                 .onTapGesture {
                     // log("NodeTitleTextField tapped")
-                    graph.reduxFieldFocused(focusedField: .nodeTitle(titleEditType),
-                                            graphUI: self.graphUI)
+                    document.reduxFieldFocused(focusedField: .nodeTitle(titleEditType))
                 }
             }
         }

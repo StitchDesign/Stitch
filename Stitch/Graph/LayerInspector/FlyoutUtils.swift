@@ -44,21 +44,21 @@ extension LayerInputPort {
 
 // Used by a given flyout view to update its read-height in state,
 // for proper positioning.
-struct UpdateFlyoutSize: GraphUIEvent {
+struct UpdateFlyoutSize: GraphEvent {
     let size: CGSize
     
-    func handle(state: GraphUIState) {
+    func handle(state: GraphState) {
         state.propertySidebar.flyoutState?.flyoutSize = size
     }
 }
 
-struct FlyoutClosed: GraphUIEvent {
-    func handle(state: GraphUIState) {
+struct FlyoutClosed: GraphEvent {
+    func handle(state: GraphState) {
         state.closeFlyout()
     }
 }
 
-extension GraphUIState {
+extension GraphState {
     @MainActor
     func closeFlyout() {
 //        withAnimation {
@@ -74,35 +74,32 @@ struct FlyoutToggled: StitchDocumentEvent {
     let fieldToFocus: FocusedUserEditField?
     
     func handle(state: StitchDocumentViewModel) {
-        if let flyoutState = state.graphUI.propertySidebar.flyoutState,
+        let graph = state.visibleGraph
+        
+        if let flyoutState = graph.propertySidebar.flyoutState,
            flyoutState.flyoutInput == flyoutInput,
            flyoutState.flyoutNode == flyoutNodeId {
-            state.graphUI.closeFlyout()
+            graph.closeFlyout()
         } else {
-//            withAnimation {
-            state.graphUI.propertySidebar.flyoutState = .init(
+            graph.propertySidebar.flyoutState = .init(
                     // TODO: assuming flyout state is packed here
                     flyoutInput: flyoutInput,
                     flyoutNode: flyoutNodeId)
             
             if let fieldToFocus = fieldToFocus {
-                state.visibleGraph
-                    .reduxFieldFocused(focusedField: fieldToFocus,
-                                       graphUI: state.graphUI)
+                state.reduxFieldFocused(focusedField: fieldToFocus)
             }
-            
-//            }
         }
     }
 }
 
-struct LeftSidebarSet: GraphUIEvent {
+struct LeftSidebarSet: StitchDocumentEvent {
     
     let open: Bool
     
-    func handle(state: GraphUIState) {
+    func handle(state: StitchDocumentViewModel) {
         // Reset flyout
-        state.closeFlyout()
+        state.visibleGraph.closeFlyout()
         
         state.leftSidebarOpen = open
     }

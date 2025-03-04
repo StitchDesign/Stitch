@@ -17,7 +17,6 @@ typealias GraphEventWithResponse = Action & GraphActionWithResponseHandler
 typealias ProjectEnvironmentEvent = Action & ProjectEnvironmentActionHandler
 typealias AppEvent = Action & AppActionHandler
 typealias AppEnvironmentEvent = Action & AppEnvironmentActionHandler
-typealias GraphUIEvent = Action & GraphUIActionHandler
 typealias ProjectAlertEvent = Action & ProjectAlertActionHandler
 typealias FileManagerEvent = Action & FileManagerEffectHandler
 //typealias LogEvent = Action & LogListenerEffectHandler
@@ -59,11 +58,6 @@ protocol AppEnvironmentActionHandler {
     @MainActor
     func handle(state: AppState,
                 environment: StitchEnvironment) -> AppResponse
-}
-
-protocol GraphUIActionHandler {
-    @MainActor
-    func handle(state: GraphUIState)
 }
 
 protocol ProjectAlertActionHandler {

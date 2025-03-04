@@ -15,10 +15,10 @@ extension NodeRowViewModelId {
     }
 }
 
-struct ArrowPressedWhileInputTextFieldFocused: GraphEvent {
+struct ArrowPressedWhileInputTextFieldFocused: StitchDocumentEvent {
     let wasUpArrow: Bool // currently only up vs down arrows supported
     
-    func handle(state: GraphState) {
+    func handle(state: StitchDocumentViewModel) {
         
         guard state.graphUI.reduxFocusedField?.getTextInputEdit.isDefined ?? false else {
             fatalErrorIfDebug("ArrowKeyPressedWhileInputTextFieldFocused: no text field focused")
@@ -32,10 +32,10 @@ struct ArrowPressedWhileInputTextFieldFocused: GraphEvent {
 }
 
 /// Process arrow key events.
-struct ArrowKeyPressed: GraphEvent {
+struct ArrowKeyPressed: StitchDocumentEvent {
     let arrowKey: ArrowKey
 
-    func handle(state: GraphState) {
+    func handle(state: StitchDocumentViewModel) {
         log("ArrowKeyPressed: \(arrowKey) called.")
 
         // Update selected option for insert node menu
@@ -101,7 +101,7 @@ extension StitchStore {
     func escKeyPressed() {
         // Reset GraphUI state
         if let document = self.currentDocument {
-            document.visibleGraph.resetAlertAndSelectionState(graphUI: document.graphUI)
+            document.visibleGraph.resetAlertAndSelectionState(document: document)
         }
         
         // Reset alert state

@@ -52,7 +52,7 @@ extension GraphState {
             .compactMap { $0.nodeType.componentNode }
         
         // If we have actively-interacted-with mouse nodes, we may need reset their velocity outputs
-        if let lastMouseMovement = self.graphUI.lastMouseNodeMovement,
+        if let lastMouseMovement = self.documentDelegate?.lastMouseNodeMovement,
            (graphTime - lastMouseMovement) > DRAG_NODE_VELOCITY_RESET_STEP {
             
             let mouseNodeIds = self.mouseNodes
