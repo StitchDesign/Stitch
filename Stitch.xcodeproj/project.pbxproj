@@ -786,7 +786,6 @@
 		ECC2BCE52B9B7E8000D5F942 /* SidebarListItemSelectionCircleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC2BCE42B9B7E8000D5F942 /* SidebarListItemSelectionCircleView.swift */; };
 		ECC2BCEB2B9B867E00D5F942 /* SidebarListActionHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC2BCEA2B9B867E00D5F942 /* SidebarListActionHelpers.swift */; };
 		ECC2BCED2B9CD43100D5F942 /* SidebarListItemGroupActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC2BCEC2B9CD43100D5F942 /* SidebarListItemGroupActions.swift */; };
-		ECC2BCEF2B9E3B9200D5F942 /* LayerGroupFit.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC2BCEE2B9E3B9200D5F942 /* LayerGroupFit.swift */; };
 		ECC301AB293808BF00C34F10 /* ArraySortNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC301AA293808BF00C34F10 /* ArraySortNode.swift */; };
 		ECC301AD2938096000C34F10 /* GetKeysNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC301AC2938096000C34F10 /* GetKeysNode.swift */; };
 		ECC301AF293809D200C34F10 /* IndexOf.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC301AE293809D200C34F10 /* IndexOf.swift */; };
@@ -1742,7 +1741,6 @@
 		ECC2BCE42B9B7E8000D5F942 /* SidebarListItemSelectionCircleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListItemSelectionCircleView.swift; sourceTree = "<group>"; };
 		ECC2BCEA2B9B867E00D5F942 /* SidebarListActionHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListActionHelpers.swift; sourceTree = "<group>"; };
 		ECC2BCEC2B9CD43100D5F942 /* SidebarListItemGroupActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListItemGroupActions.swift; sourceTree = "<group>"; };
-		ECC2BCEE2B9E3B9200D5F942 /* LayerGroupFit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerGroupFit.swift; sourceTree = "<group>"; };
 		ECC301AA293808BF00C34F10 /* ArraySortNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArraySortNode.swift; sourceTree = "<group>"; };
 		ECC301AC2938096000C34F10 /* GetKeysNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetKeysNode.swift; sourceTree = "<group>"; };
 		ECC301AE293809D200C34F10 /* IndexOf.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IndexOf.swift; sourceTree = "<group>"; };
@@ -2544,7 +2542,6 @@
 			isa = PBXGroup;
 			children = (
 				EC4BD8992BA1350300B8F38A /* SidebarLayerData.swift */,
-				ECC2BCEE2B9E3B9200D5F942 /* LayerGroupFit.swift */,
 			);
 			path = LayerGrouping;
 			sourceTree = "<group>";
@@ -5161,7 +5158,6 @@
 				EC5C6C3A2C2DAE690023D0C0 /* LLMActionRecording.swift in Sources */,
 				E41685E128A3FA5800731889 /* PreviewModel3DLayer.swift in Sources */,
 				EC1D03BD2CFF86FA0094EE9F /* NativeScrollInteraction.swift in Sources */,
-				ECC2BCEF2B9E3B9200D5F942 /* LayerGroupFit.swift in Sources */,
 				ECB7C72028A56C3700252DE7 /* ClassicAnimationPoint3D.swift in Sources */,
 				EC8BA54526A62D14002E345C /* DeviceMotionNode.swift in Sources */,
 				EC65B25628653CAA00BC8FBF /* FileDropModifier.swift in Sources */,

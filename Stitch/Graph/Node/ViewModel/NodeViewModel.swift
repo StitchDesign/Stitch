@@ -416,17 +416,6 @@ extension NodeViewModel {
     func getInputRowObserver(_ portId: Int) -> InputNodeRowObserver? {
         self.inputsObservers[safe: portId]
     }
-//    
-//    @MainActor
-//    func getInputActivePortValue(for layerInputType: LayerInputPort) -> PortValue? {
-//        guard let layerNode = self.layerNode else {
-//            fatalErrorIfDebug()
-//            return nil
-//        }
-//        
-//        let portObserver = layerNode[keyPath: layerInputType.layerNodeKeyPath]
-//        return portObserver.activeValue
-//    }
     
     @MainActor
     func getOutputRowObserver(for portType: NodeIOPortType) -> OutputNodeRowObserver? {
