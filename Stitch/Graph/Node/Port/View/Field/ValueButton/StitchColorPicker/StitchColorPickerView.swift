@@ -61,6 +61,8 @@ struct StitchColorPickerView: View {
     let isForFlyout: Bool
     var isForPreviewWindowBackgroundPicker: Bool = false
     var isForIPhone: Bool = false
+    let isMultiselectInspectorInputWithHeterogenousValues: Bool
+    let activeIndex: ActiveIndex
 
     //    @State var currentColor: Color = .clear
     //    @State var chosenColor: Color = .red
@@ -72,19 +74,6 @@ struct StitchColorPickerView: View {
 #else
     let isCatalyst: Bool = false
 #endif
-    
-    @MainActor
-    var isMultiselectInspectorInputWithHeterogenousValues: Bool {
-        if let layerInputObserver = layerInputObserver {
-            @Bindable var layerInputObserver = layerInputObserver
-            return layerInputObserver.fieldHasHeterogenousValues(
-                fieldCoordinate.fieldIndex,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                graph: graph)
-        } else {
-            return false
-        }
-    }
     
     var body: some View {
 
@@ -101,6 +90,7 @@ struct StitchColorPickerView: View {
                         isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                         isForPreviewWindowBackgroundPicker: isForPreviewWindowBackgroundPicker,
                         isForIPhone: isForIPhone,
+                        activeIndex: activeIndex,
                         chosenColor: self.$chosenColor,
                         graph: graph)
                     .padding()

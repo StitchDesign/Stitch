@@ -125,6 +125,8 @@ extension GraphState {
     func mediaCopiedToNewNode(newURL: URL,
                               nodeLocation: CGPoint,
                               store: StitchStore) {
+        guard let document = store.currentDocument else { return }
+        
         var droppedLocation = nodeLocation
         let localPosition = self.localPosition
         let graphScale = self.graphMovement.zoomData
@@ -153,7 +155,7 @@ extension GraphState {
                                patch: nil,
                                position: droppedLocation.toCGSize,
                                zIndex: self.highestZIndex + 1,
-                               activeIndex: self.activeIndex,
+                               activeIndex: document.activeIndex,
                                graphDelegate: self) {
         case .success(let patchNode):
             guard let patchViewModel = patchNode.patchNode else {
@@ -162,7 +164,7 @@ extension GraphState {
             }
 
             // Update group state if node created inside group
-            patchViewModel.parentGroupNodeId = self.graphUI.groupNodeFocused?.asNodeId
+            patchViewModel.parentGroupNodeId = document.groupNodeFocused?.asNodeId
 
             // Must also add the media patch node to graphState,
             // so that it can be found when we evaluate the graph.
@@ -179,7 +181,8 @@ extension GraphState {
     /// Takes some imported media and applies it directly to the input of some node.
     @MainActor
     func mediaCopiedToExistingNode(nodeImportPayload: NodeMediaImportPayload,
-                                   newURL: URL) {
+                                   newURL: URL,
+                                   activeIndex: ActiveIndex) {
         let mediaKey = newURL.mediaKey
         let destinationInputs = nodeImportPayload.destinationInputs
         
@@ -207,7 +210,8 @@ extension GraphState {
             let portValue = PortValue.asyncMedia(newMedia)
 
             self.mediaInputEditCommitted(input: destinationInput,
-                                         value: portValue)
+                                         value: portValue,
+                                         activeIndex: activeIndex)
 
             self.encodeProjectInBackground()       
         } // for destinationInput in ...        
@@ -344,10 +348,12 @@ extension GraphState {
     func mediaPickerChanged(selectedValue: PortValue,
                             mediaType: SupportedMediaFormat,
                             rowObserver: InputNodeRowObserver,
+                            activeIndex: ActiveIndex,
                             isFieldInsideLayerInspector: Bool) {
         // Commit the new media to the selector input
         self.handleInputEditCommitted(input: rowObserver,
                                       value: selectedValue,
+                                      activeIndex: activeIndex,
                                       isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         
         self.encodeProjectInBackground()
@@ -355,17 +361,17 @@ extension GraphState {
     
     @MainActor
     func mediaPickerNoneChanged(rowObserver: InputNodeRowObserver,
+                                activeIndex: ActiveIndex,
                                 isFieldInsideLayerInspector: Bool) {
             let emptyPortValue = PortValue.asyncMedia(nil)
         self.handleInputEditCommitted(input: rowObserver,
                                       value: emptyPortValue,
+                                      activeIndex: activeIndex,
                                       isFieldInsideLayerInspector: isFieldInsideLayerInspector)
             
         self.encodeProjectInBackground()
     }
 }
-
-
 
 // TODO: video-import node should also show resource size output?
 /// Creates node specifically from some imported media URL.

@@ -510,7 +510,8 @@ extension NodeRowViewModel {
            let layerInputForThisRow = rowDelegate.id.keyPath {
             
             layerNode.blockOrUnblockFields(newValue: newValue, 
-                                           layerInput: layerInputForThisRow.layerInput)
+                                           layerInput: layerInputForThisRow.layerInput,
+                                           activeIndex: self.graphDelegate?.documentDelegate?.activeIndex ?? .init(.zero))
         }
     }
 }
@@ -569,7 +570,7 @@ extension NodeRowObserver {
             // is for node (rather than layer inspector)
             $0.id.isNode &&
             // is currently visible in selected group
-            $0.graphDelegate?.groupNodeFocused == $0.canvasItemDelegate?.parentGroupNodeId
+            $0.graphDelegate?.documentDelegate?.groupNodeFocused?.groupNodeId == $0.canvasItemDelegate?.parentGroupNodeId
         }
     }
 }

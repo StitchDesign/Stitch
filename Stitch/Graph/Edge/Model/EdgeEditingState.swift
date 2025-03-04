@@ -95,7 +95,8 @@ extension EdgeEditingState {
     @MainActor
     func canvasItemIndexChanged(edgeEditState: EdgeEditingState,
                                 graph: GraphState,
-                                wasIncremented: Bool) -> Self {
+                                wasIncremented: Bool,
+                                groupNodeFocused: NodeId?) -> Self {
         
         var edgeEditState = edgeEditState._indexChanged(
             edgeEditState: edgeEditState,
@@ -113,7 +114,8 @@ extension EdgeEditingState {
         let (alreadyShownEdges,
              possibleEdges) = graph.getShownAndPossibleEdges(
             nearbyNode: newNearbyNode,
-            outputCoordinate: edgeEditState.originOutput)
+            outputCoordinate: edgeEditState.originOutput,
+            groupNodeFocused: groupNodeFocused)
         
         edgeEditState.shownIds = alreadyShownEdges
         edgeEditState.possibleEdges = possibleEdges

@@ -79,14 +79,16 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
             theme.fontColor
                 .opacity(backgroundOpacity)
         }
-        .onHover { [weak gestureViewModel] hovering in
+        .onHover { [weak gestureViewModel, weak graph] hovering in
             // MARK: - SUPER DUPER IMPORTANT TO WEAKLY REFERENCE **EVERYTHING** ELSE SEE RETAIN CYCLES
             
-            guard let gestureViewModel = gestureViewModel else { return }
+            guard let gestureViewModel = gestureViewModel,
+                  let graph = graph else { return }
             
             gestureViewModel.isHovered = hovering
             if hovering {
-                gestureViewModel.sidebarLayerHovered(itemId: gestureViewModel.id)
+                gestureViewModel.sidebarLayerHovered(itemId: gestureViewModel.id,
+                                                     graph: graph)
             } else {
                 gestureViewModel.sidebarLayerHoverEnded(itemId: gestureViewModel.id)
             }

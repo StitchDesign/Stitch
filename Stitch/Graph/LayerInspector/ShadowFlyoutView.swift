@@ -84,7 +84,7 @@ struct ShadowFlyoutRowView: View {
     }
     
     var propertyRowIsSelected: Bool {
-        graphUI.propertySidebar.selectedProperty == layerInspectorRowId
+        graph.propertySidebar.selectedProperty == layerInspectorRowId
     }
     
     var isShadowOffsetRow: Bool {
@@ -127,6 +127,7 @@ struct ShadowFlyoutRowView: View {
                           label: layerInputData.rowObserver
                 .label(useShortLabel: true,
                        node: node,
+                       currentTraversalLevel: graphUI.groupNodeFocused?.groupNodeId,
                        graph: graph),
                           forFlyout: true)
         } // HStack

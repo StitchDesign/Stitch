@@ -140,7 +140,6 @@ struct LayerInspectorView: View {
 struct LayerPropertyRowOriginReader: ViewModifier {
     
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
     let layerInput: LayerInputPort
     
     func body(content: Content) -> some View {
@@ -153,7 +152,7 @@ struct LayerPropertyRowOriginReader: ViewModifier {
                     
                     // Guide for where to place the flyout;
                     // we read the origin even if this row doesn't support flyout.
-                    graphUI.propertySidebar.propertyRowOrigins
+                    graph.propertySidebar.propertyRowOrigins
                         .updateValue(newValue.origin, forKey: layerInput)
                 }
             } // GeometryReader
@@ -161,10 +160,10 @@ struct LayerPropertyRowOriginReader: ViewModifier {
     }
 }
 
-struct LayerInspectorSectionToggled: GraphUIEvent {
+struct LayerInspectorSectionToggled: GraphEvent {
     let section: LayerInspectorSection
     
-    func handle(state: GraphUIState) {
+    func handle(state: GraphState) {
         let alreadyClosed = state.propertySidebar.collapsedSections.contains(section)
         if alreadyClosed {
             state.propertySidebar.collapsedSections.remove(section)
@@ -219,7 +218,6 @@ struct LayerInspectorInputView: View {
                                         graphUI: graphUI,
                                         node: node)
             .modifier(LayerPropertyRowOriginReader(graph: graph,
-                                                   graphUI: graphUI,
                                                    layerInput: layerInput.layerInput))
         } else {
             EmptyView()
@@ -293,9 +291,9 @@ struct LayerInspectorInputsSectionView: View {
                     dispatch(LayerInspectorSectionToggled(section: section))
                     
                     layerInputs.layerInputs.forEach { layerInput in
-                        if case let .layerInput(x) = graphUI.propertySidebar.selectedProperty,
+                        if case let .layerInput(x) = graph.propertySidebar.selectedProperty,
                            x.layerInput == layerInput.layerInput {
-                            graphUI.propertySidebar.selectedProperty = nil
+                            graph.propertySidebar.selectedProperty = nil
                         }
                     }
                 }

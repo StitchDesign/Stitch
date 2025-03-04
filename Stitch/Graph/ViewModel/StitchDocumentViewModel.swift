@@ -17,7 +17,6 @@ final class StitchDocumentViewModel: Sendable {
     let rootId: UUID
     let isDebugMode: Bool
     let graph: GraphState
-    let graphUI: GraphUIState
     let graphStepManager = GraphStepManager()
     let graphMovement = GraphMovementObserver()
     
@@ -48,6 +47,70 @@ final class StitchDocumentViewModel: Sendable {
     // Singleton instances
     @MainActor var locationManager: LoadingStatus<StitchSingletonMediaObject>?
     @MainActor var cameraFeedManager: LoadingStatus<StitchSingletonMediaObject>?
+        
+    @MainActor var sidebarWidth: CGFloat = .zero // i.e. origin of graph from .global frame
+
+    @MainActor var showCatalystProjectTitleModal: Bool = false
+    
+    @MainActor var restartPrototypeWindowIconRotationZ: CGFloat = .zero
+
+    // nil = no field focused
+    @MainActor var reduxFocusedField: FocusedUserEditField?
+    
+    // set non-nil by up- and down-arrow key presses while an input's fields are focused
+    // set nil after key press has been handled by `StitchTextEditingBindingField`
+    @MainActor var reduxFocusedFieldChangedByArrowKey: FocusedFieldChangedByArrowKey?
+
+    // Hack: to differentiate state updates that came from undo/redo (and which close the adjustment bar popover),
+    // vs those that came from user manipulation of adjustment bar (which do not close the adjustment bar popover).
+    @MainActor var adjustmentBarSessionId: UUID = .init()
+    
+    @MainActor
+    static let isPhoneDevice = Stitch.isPhoneDevice()
+    
+    @MainActor var activeSpacebarClickDrag = false
+
+    @MainActor var safeAreaInsets = SafeAreaInsetsEnvironmentKey.defaultValue
+    @MainActor var colorScheme: ColorScheme = defaultColorScheme
+    
+    // which loop index to show
+    @MainActor var activeIndex: ActiveIndex = ActiveIndex(0)
+    
+    // Starts out as default value, but on first render of GraphView
+    // we get the exact device screen size via GeometryReader.
+    @MainActor var frame = DEFAULT_LANDSCAPE_GRAPH_FRAME
+    
+    // Control animation direction when group nodes are traversed
+    @MainActor var groupTraversedToChild = false
+
+    // Only applies to non-iPhones so that exiting full-screen mode goes
+    // back to graph instead of projects list
+    @MainActor var isFullScreenMode: Bool = false
+    
+    @MainActor var showsLayerInspector = false
+    
+    @MainActor var leftSidebarOpen = false
+    
+    // Tracks group breadcrumbs when group nodes are visited
+    @MainActor var groupNodeBreadcrumbs: [GroupNodeType] = []
+
+    @MainActor var showPreviewWindow = PREVIEW_SHOWN_DEFAULT_STATE
+    
+    @MainActor var insertNodeMenuState = InsertNodeMenuState()
+    @MainActor var nodeMenuHeight: CGFloat = INSERT_NODE_MENU_MAX_HEIGHT
+
+    /*
+     Similar to `activeDragInteraction`, but just for mouse nodes.
+     - nil when LayerHoverEnded or LayerDragEnded
+     - non-nil when LayerHovered or LayerDragged
+     - when non-nil and it’s been more than `DRAG_NODE_VELOCITY_RESET_STEP` since last movement, reset velocity to `.zero`
+     */
+    @MainActor var lastMouseNodeMovement: TimeInterval?
+    
+    // tracks if sidebar is focused
+    @MainActor var isSidebarFocused: Bool = false
+    
+    @MainActor var openPortPreview: OpenedPortPreview?
     
     @MainActor weak var storeDelegate: StitchStore?
     @MainActor weak var projectLoader: ProjectLoader?
@@ -67,7 +130,6 @@ final class StitchDocumentViewModel: Sendable {
         self.previewWindowBackgroundColor = schema.previewWindowBackgroundColor
         self.cameraSettings = schema.cameraSettings
         self.graphMovement.localPosition = schema.localPosition
-        self.graphUI = GraphUIState(isPhoneDevice: isPhoneDevice)
         self.graph = graph
         self.projectLoader = projectLoader
         self.isDebugMode = isDebugMode
@@ -245,10 +307,6 @@ extension StitchDocumentViewModel {
         return self.graph
     }
     
-    @MainActor var activeIndex: ActiveIndex {
-        self.graphUI.activeIndex
-    }
-    
     @MainActor var graphStepState: GraphStepState {
         self.graphStepManager.graphStepState
     }
@@ -307,7 +365,8 @@ extension GraphState: GraphCalculatable {
         
         let previewLayers: LayerDataList = self.recursivePreviewLayers(
             sidebarLayersGlobal: self.layersSidebarViewModel.createdOrderedEncodedData(),
-            pinMap: rootPinMap)
+            pinMap: rootPinMap,
+            activeIndex: self.documentDelegate?.activeIndex ?? .init(.zero))
         
         self.cachedOrderedPreviewLayers = previewLayers
         self.flattenedPinMap = flattenedPinMap
@@ -370,12 +429,12 @@ extension StitchDocumentViewModel {
         self.graph.onPrototypeRestart()
         
         // Defocus the preview window's TextField layer
-        if self.graphUI.reduxFocusedField?.getTextFieldLayerInputEdit.isDefined ?? false {
-            self.graphUI.reduxFocusedField = nil
+        if self.reduxFocusedField?.getTextFieldLayerInputEdit.isDefined ?? false {
+            self.reduxFocusedField = nil
         }
         
         // Update animation value for restart-prototype icon;
-        self.graphUI.restartPrototypeWindowIconRotationZ += 360
+        self.restartPrototypeWindowIconRotationZ += 360
     }
     
     @MainActor static func createEmpty() -> StitchDocumentViewModel {

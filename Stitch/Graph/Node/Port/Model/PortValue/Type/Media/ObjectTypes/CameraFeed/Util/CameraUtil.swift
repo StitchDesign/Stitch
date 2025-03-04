@@ -34,6 +34,8 @@ extension GraphState {
             .filter {
                 $0.kind == .layer(.realityView)
             }
+        
+        let activeIndex = self.documentDelegate?.activeIndex ?? .init(.zero)
 
         // Update all camera nodes
         cameraFeedNodes.forEach { node in
@@ -41,6 +43,7 @@ extension GraphState {
             self.handleInputEditCommitted(
                 input: coordinate,
                 value: value,
+                activeIndex: activeIndex,
                 // TODO: is this accurate? Can we change camera direction via any of the layers (i.e. via layer inspector)?
                 isFieldInsideLayerInspector: false)
         }
@@ -52,6 +55,7 @@ extension GraphState {
             self.handleInputEditCommitted(
                 input: coordinate,
                 value: value,
+                activeIndex: activeIndex,
                 // TODO: is this accurate? Can we change camera direction via any of the layers (i.e. via layer inspector)?
                 isFieldInsideLayerInspector: false)
         }

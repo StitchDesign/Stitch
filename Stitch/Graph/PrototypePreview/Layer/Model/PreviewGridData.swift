@@ -13,6 +13,7 @@ let HEIGHT_FIELD_INDEX = 1
 
 struct LayerGroupIdChanged: GraphEvent {
     let layerNodeId: LayerNodeId
+    let activeIndex: ActiveIndex
     
     func handle(state: GraphState) {
         
@@ -26,7 +27,7 @@ struct LayerGroupIdChanged: GraphEvent {
         // NOTE: complication: the parent's layout-orientation could vary by loop-index, but blocking/unblocking fields and the inspector-view are currently unaware of loop-index.
         if let parentId = layerNode.layerGroupId,
            let parentLayerNodeViewModel = state.getLayerNode(id: parentId)?.layerNode,
-           let parentLayerViewModel = parentLayerNodeViewModel.previewLayerViewModels[safe: state.activeIndex.adjustedIndex(parentLayerNodeViewModel.previewLayerViewModels.count)] ?? parentLayerNodeViewModel.previewLayerViewModels.first,
+           let parentLayerViewModel = parentLayerNodeViewModel.previewLayerViewModels[safe: activeIndex.adjustedIndex(parentLayerNodeViewModel.previewLayerViewModels.count)] ?? parentLayerNodeViewModel.previewLayerViewModels.first,
            parentLayerViewModel.orientation.getOrientation != StitchOrientation.none {
             
             layerNode.blockPositionInput()
@@ -106,7 +107,8 @@ extension LayerNodeViewModel {
     
     @MainActor
     func blockOrUnblockFields(newValue: PortValue,
-                              layerInput: LayerInputPort) {
+                              layerInput: LayerInputPort,
+                              activeIndex: ActiveIndex) {
         
         // log("LayerInputObserver: blockOrUnblockFields called for layerInput \(layerInput) with newValue \(newValue)")
         
@@ -121,7 +123,10 @@ extension LayerNodeViewModel {
             newValue.getSize.map(self.layerSizeUpdated)
             
         case .sizingScenario:
-            newValue.getSizingScenario.map(self.sizingScenarioUpdated)
+            newValue.getSizingScenario.map {
+                self.sizingScenarioUpdated(scenario: $0,
+                                           activeIndex: activeIndex)
+            }
             
         case .isPinned:
             newValue.getBool.map(self.isPinnedUpdated)
@@ -320,7 +325,8 @@ extension LayerNodeViewModel {
     
     // Assumes input was already updated via e.g. PickerOptionSelected
     @MainActor
-    func sizingScenarioUpdated(scenario: SizingScenario) {
+    func sizingScenarioUpdated(scenario: SizingScenario,
+                               activeIndex: ActiveIndex) {
         
         // log("sizingScenarioUpdated: scenario: \(scenario)")
         
@@ -339,8 +345,8 @@ extension LayerNodeViewModel {
             // ... and block the min and max width and height (until width and height are set to grow or hug)
             // TODO: check whether each dimenion's field != point; if so, unblock that dimension's min/max fields
 //            stitch.blockMinAndMaxSizeInputs()
-            stitch.updateMinMaxWidthFieldsBlockingPerWidth()
-            stitch.updateMinMaxHeightFieldsBlockingPerHeight()
+            stitch.updateMinMaxWidthFieldsBlockingPerWidth(activeIndex: activeIndex)
+            stitch.updateMinMaxHeightFieldsBlockingPerHeight(activeIndex: activeIndex)
                                     
             // ... and block the aspect ratio inputs:
             stitch.blockAspectRatio()
@@ -352,7 +358,7 @@ extension LayerNodeViewModel {
             // ... and unblock the width field:
             // TODO: also unblock min/max width fields if width field != point
             stitch.unblockWidthField()
-            stitch.updateMinMaxWidthFieldsBlockingPerWidth()
+            stitch.updateMinMaxWidthFieldsBlockingPerWidth(activeIndex: activeIndex)
             
             // ... and unblock the aspect ratio inputs:
             stitch.unblockAspectRatio()
@@ -364,7 +370,7 @@ extension LayerNodeViewModel {
             // ... and unblock the height fields:
             // TODO: also unblock min/max height fields if height field != point
             stitch.unblockHeightField()
-            stitch.updateMinMaxHeightFieldsBlockingPerHeight()
+            stitch.updateMinMaxHeightFieldsBlockingPerHeight(activeIndex: activeIndex)
             
             // ... and unblock the aspect ratio inputs:
             stitch.unblockAspectRatio()
@@ -388,12 +394,12 @@ extension LayerNodeViewModel {
     }
     
     @MainActor
-    func updateMinMaxWidthFieldsBlockingPerWidth() {
+    func updateMinMaxWidthFieldsBlockingPerWidth(activeIndex: ActiveIndex) {
         
         // Check the input itself (the value at the active-index), not the field view model.
         
         
-        guard let widthIsNumber = self.getLayerInputObserver(.size).activeValue.getSize?.width.isNumber else {
+        guard let widthIsNumber = self.getLayerInputObserver(.size).getActiveValue(activeIndex: activeIndex).getSize?.width.isNumber else {
             fatalErrorIfDebug("updateMinMaxWidthFieldsBlockingPerWidth: no field?")
             return
         }
@@ -406,10 +412,10 @@ extension LayerNodeViewModel {
     }
     
     @MainActor
-    func updateMinMaxHeightFieldsBlockingPerHeight() {
+    func updateMinMaxHeightFieldsBlockingPerHeight(activeIndex: ActiveIndex) {
 
         // Check the input itself (the value at the active-index), not the field view model.
-        guard let heightIsNumber = self.getLayerInputObserver(.size).activeValue.getSize?.height.isNumber else {
+        guard let heightIsNumber = self.getLayerInputObserver(.size).getActiveValue(activeIndex: activeIndex).getSize?.height.isNumber else {
             fatalErrorIfDebug("updateMinMaxHeightFieldsBlockingPerHeight: no field?")
             return
         }

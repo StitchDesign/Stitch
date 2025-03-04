@@ -9,30 +9,30 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-extension StitchDocumentViewModel {
+extension GraphState {
     @MainActor
     func commentBoxTapped(box: CommentBoxViewModel) {
         // If CMD held:
         // TODO: pass this down from the gesture handler
         if self.keypressState.isCommandPressed {
-            if self.graphUI.selection
+            if self.selection
                 .selectedCommentBoxes.contains(id) {
-                self.graphUI.selection.selectedCommentBoxes.remove(id)
+                self.selection.selectedCommentBoxes.remove(id)
             } else {
-                self.graphUI.selection.selectedCommentBoxes.insert(id)
+                self.selection.selectedCommentBoxes.insert(id)
             }
         }
 
         // CMD not held, so select this box and deselect everything else
         else {
             // reset selection state; select only this comment box
-            self.graphUI.selection = .init()
-            self.graphUI.selection.selectedCommentBoxes = Set([id])
+            self.selection = .init()
+            self.selection.selectedCommentBoxes = Set([id])
         }
 
-        box.zIndex = self.visibleGraph.highestZIndex + 1
+        box.zIndex = self.highestZIndex + 1
 
-        self.visibleGraph.encodeProjectInBackground()
+        self.encodeProjectInBackground()
     }
 
     @MainActor
@@ -45,7 +45,7 @@ extension StitchDocumentViewModel {
         // log("CommentBoxPositionDragged: value.translation: \(value.translation)")
         // log("CommentBoxPositionDragged: value.translation / zoom: \(value.translation / zoom)")
 
-        self.graphUI.selection.selectedCommentBoxes.insert(id)
+        self.selection.selectedCommentBoxes.insert(id)
 
         let selectedBoxes = self.graphUI.selection.selectedCommentBoxes
         self.graphUI.selection.selectedCommentBoxes = Set(selectedBoxes)
@@ -54,7 +54,7 @@ extension StitchDocumentViewModel {
 
         for boxId in selectedBoxes {
 
-            if let box = self.visibleGraph.commentBoxesDict.get(boxId) {
+            if let box = self.commentBoxesDict.get(boxId) {
 
                 // log("CommentBoxPositionDragged: box.previousPosition: \(box.previousPosition)")
                 // log("CommentBoxPositionDragged: box.position was: \(box.position)")
@@ -73,9 +73,9 @@ extension StitchDocumentViewModel {
                 box.expansionBox.startPoint = box.position
 
                 // update box's z-index
-                box.zIndex = self.visibleGraph.highestZIndex + 1
+                box.zIndex = self.highestZIndex + 1
 
-                self.visibleGraph.commentBoxesDict.updateValue(box, forKey: boxId)
+                self.commentBoxesDict.updateValue(box, forKey: boxId)
 
                 // update the positions of this comment box's nodes;
                 // note that we don't update the nodes' z-indices here
@@ -100,11 +100,11 @@ extension StitchDocumentViewModel {
         // Update box's nodes:
         for nodeId in box.nodes {
             // During drag itself, we just update the node view model
-            if let node = self.visibleGraph.getCanvasItem(nodeId) {
-                self.visibleGraph.updateCanvasItemOnDragged(node,
+            if let node = self.getCanvasItem(nodeId) {
+                self.updateCanvasItemOnDragged(node,
                                                translation: translation)
 
-                self.visibleGraph.nodeIsMoving = true
+                self.nodeIsMoving = true
             }
         }
     }
@@ -114,7 +114,7 @@ extension StitchDocumentViewModel {
         // log("CommentBoxPositionDragEnded called")
 
         for id in self.graphUI.selection.selectedCommentBoxes {
-            if let box = self.visibleGraph.commentBoxesDict.get(id) {
+            if let box = self.commentBoxesDict.get(id) {
 
                 box.previousPosition = box.position
 
@@ -127,7 +127,7 @@ extension StitchDocumentViewModel {
                 self.updateNodesAfterCommentBoxDragEnded(box)
 
                 // Remove the bounds-dict entry so that view will repopulate/refresh the bounds-dict for that
-                self.visibleGraph.graphUI.commentBoxBoundsDict.removeValue(forKey: id)
+                self.graphUI.commentBoxBoundsDict.removeValue(forKey: id)
 
             } else {
                 log("CommentBoxPositionDragEnded: could not retrieve comment box \(id)")
@@ -135,7 +135,7 @@ extension StitchDocumentViewModel {
 
         } // for boxId in ...
 
-        self.visibleGraph.encodeProjectInBackground()
+        self.encodeProjectInBackground()
     }
 
     @MainActor
@@ -143,7 +143,7 @@ extension StitchDocumentViewModel {
         // Update box's nodes:
         for nodeId in box.nodes {
             // When drag ends, we update both the node view model and the node schema
-            if let node = self.visibleGraph.getCanvasItem(nodeId) {
+            if let node = self.getCanvasItem(nodeId) {
                 // update node view model
                 node.previousPosition = node.position
 
@@ -152,7 +152,7 @@ extension StitchDocumentViewModel {
             }
         }
 
-        self.visibleGraph.nodeIsMoving = false
+        self.nodeIsMoving = false
     }
 
     @MainActor
@@ -166,7 +166,7 @@ extension StitchDocumentViewModel {
         box.expansionBox.startPoint = box.position
         box.expansionBox.endPoint = value.location
 
-        box.zIndex = self.visibleGraph.highestZIndex + 1
+        box.zIndex = self.highestZIndex + 1
 
         //        let scaledTranslation = CGSize(
         //            width: value.translation.width/zoom,
@@ -198,7 +198,8 @@ extension StitchDocumentViewModel {
     @MainActor
     func commentBoxExpansionDragEnded(box: CommentBoxViewModel,
                                       value: DragGesture.Value,
-                                      newestBoxBounds: CommentBoxBounds) {
+                                      newestBoxBounds: CommentBoxBounds,
+                                      groupNodeFocused: NodeId?) {
         // ALWAYS update this comment box's bounds
         self.graphUI.commentBoxBoundsDict.updateValue(
             newestBoxBounds,
@@ -206,9 +207,9 @@ extension StitchDocumentViewModel {
 
         // RE-DETERMINE WHICH NODES FALL WITHIN THIS COMMENT BOX
         // Assumes this comment box's bounds were recently updated
-        self.visibleGraph.rebuildCommentBoxes()
+        self.rebuildCommentBoxes(currentTraversalLevel: groupNodeFocused)
 
-        guard let box = self.visibleGraph.commentBoxesDict.get(id) else {
+        guard let box = self.commentBoxesDict.get(id) else {
             log("CommentBoxExpansionDragEnded: could not retrieve comment box \(id)")
             return
         }
@@ -220,12 +221,13 @@ extension StitchDocumentViewModel {
         box.position = box.expansionBox.anchorCorner
         box.previousPosition = box.position
 
-        self.visibleGraph.encodeProjectInBackground()
+        self.encodeProjectInBackground()
     }
 
     @MainActor
     func updateCommentBoxBounds(box: CommentBoxViewModel,
-                                bounds: CommentBoxBounds) {
+                                bounds: CommentBoxBounds,
+                                groupNodeFocused: NodeId?) {
 
         // log("UpdateCommentBoxBounds: id: \(id)")
         // log("UpdateCommentBoxBounds: bounds: \(bounds)")
@@ -237,8 +239,8 @@ extension StitchDocumentViewModel {
 
         // Then redetermine which nodes fall into the boxes
         // TODO: only redetermine for this single box, not all boxes?
-        self.visibleGraph.rebuildCommentBoxes()
+        self.rebuildCommentBoxes(currentTraversalLevel: groupNodeFocused)
 
-        self.visibleGraph.encodeProjectInBackground()
+        self.encodeProjectInBackground()
     }
 }

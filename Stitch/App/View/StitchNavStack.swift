@@ -18,7 +18,6 @@ struct StitchNavStack: View {
                     if let document = projectLoader.documentViewModel {
                         StitchProjectView(store: store,
                                           document: document,
-                                          graphUI: document.graphUI,
                                           alertState: store.alertState)
                         .onDisappear {
                             // Remove document from project loader

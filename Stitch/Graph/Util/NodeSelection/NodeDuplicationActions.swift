@@ -146,10 +146,10 @@ extension StitchDocumentViewModel {
         }
         
         // TODO: `graph` vs `visibleGraph` ?
-        let activelySelectedLayers = self.visibleGraph.isSidebarFocused
+        let activelySelectedLayers = self.isSidebarFocused
         
         if activelySelectedLayers {
-            self.visibleGraph.sidebarSelectedItemsDuplicated()
+            self.visibleGraph.sidebarSelectedItemsDuplicated(document: self)
             self.visibleGraph.encodeProjectInBackground()
         } else {
             let copiedComponentResult = self.visibleGraph.createCopiedComponent(
@@ -159,9 +159,11 @@ extension StitchDocumentViewModel {
             Task(priority: .high) { [weak self] in
                 guard let state = self else { return }
                 
-                await state.visibleGraph.insertNewComponent(copiedComponentResult,
-                                                            isCopyPaste: false,
-                                                            encoder: state.visibleGraph.documentEncoderDelegate)
+                await state.visibleGraph
+                    .insertNewComponent(copiedComponentResult,
+                                        isCopyPaste: false,
+                                        encoder: state.visibleGraph.documentEncoderDelegate,
+                                        document: state)
                 state.visibleGraph.encodeProjectInBackground()
             }
         }
@@ -173,24 +175,28 @@ extension GraphState {
     @MainActor
     func insertNewComponent<T>(_ copiedComponentResult: StitchComponentCopiedResult<T>,
                                isCopyPaste: Bool,
-                               encoder: (any DocumentEncodable)?) async where T: StitchComponentable {
+                               encoder: (any DocumentEncodable)?,
+                               document: StitchDocumentViewModel) async where T: StitchComponentable {
         await self.insertNewComponent(component: copiedComponentResult.component,
                                       encoder: encoder,
                                       copiedFiles: copiedComponentResult.copiedSubdirectoryFiles,
-                                      isCopyPaste: isCopyPaste)
+                                      isCopyPaste: isCopyPaste,
+                                      document: document)
     }
 
     @MainActor
     func insertNewComponent<T>(component: T,
                                encoder: (any DocumentEncodable)?,
                                copiedFiles: StitchDocumentDirectory,
-                               isCopyPaste: Bool) async where T: StitchComponentable {
+                               isCopyPaste: Bool,
+                               document: StitchDocumentViewModel) async where T: StitchComponentable {
         let (newComponent, nodeIdMap) = Self.updateCopiedNodes(
             component: component,
-            destinationGraphInfo: isCopyPaste ? .init(destinationGraphOffset: self.localPosition,
-                                                      destinationGraphFrame: self.graphUI.frame,
-                                                      destinationGraphScale: self.graphMovement.zoomData,
-                                                      destinationGraphTraversalLevel: self.groupNodeFocused) : nil
+            destinationGraphInfo: isCopyPaste ?
+                .init(destinationGraphOffset: self.localPosition,
+                      destinationGraphFrame: document.frame,
+                      destinationGraphScale: self.graphMovement.zoomData,
+                      destinationGraphTraversalLevel: document.groupNodeFocused?.groupNodeId) : nil
         )
         
         guard let document = self.documentDelegate else {
@@ -205,7 +211,7 @@ extension GraphState {
         // Update top-level nodes to match current focused group
         let newNodes: [NodeEntity] = Self.createNewNodes(
             from: newComponent,
-            focusedGroupNode: self.groupNodeFocused
+            focusedGroupNode: document.groupNodeFocused?.groupNodeId
         )
         let graph = self.addComponentToGraph(newComponent: newComponent,
                                              newNodes: newNodes,
@@ -232,7 +238,8 @@ extension GraphState {
         
         await self.updateAsync(from: graph)
         
-        self.updateGraphAfterPaste(newNodes: newNodes)
+        self.updateGraphAfterPaste(newNodes: newNodes,
+                                   document: document)
     }
     
     @MainActor
@@ -329,9 +336,10 @@ extension GraphState {
     }
     
     @MainActor
-    func updateGraphAfterPaste(newNodes: [NodeEntity]) {
+    func updateGraphAfterPaste(newNodes: [NodeEntity],
+                               document: StitchDocumentViewModel) {
         // Reset selected nodes
-        self.resetSelectedCanvasItems(graphUI: graphUI)
+        self.resetSelectedCanvasItems()
 
         // Reset edit mode selections + inspector focus and actively-selected
         self.sidebarSelectionState.resetEditModeSelections()
@@ -371,7 +379,8 @@ extension GraphState {
                             if let canvas = inputData.canvasItem,
                                let canvasItem = self.getCanvasItem(.layerInput(.init(node: nodeEntity.id,
                                                                                      keyPath: layerId))) {
-                                canvasItem.select(self)
+                                canvasItem.select(self,
+                                                  document: document)
                             }
                         }
                     }
@@ -379,7 +388,8 @@ extension GraphState {
                 case .patch, .group, .component:
                     let stitch = self.getNodeViewModel(nodeEntity.id)
                     if let canvasItem = stitch?.patchCanvasItem {
-                        canvasItem.select(self)
+                        canvasItem.select(self,
+                                          document: document)
                     }
                 }
         }

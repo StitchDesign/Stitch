@@ -11,12 +11,12 @@ import StitchSchemaKit
 struct EdgeInputLabelsView: View {
     let inputs: [InputNodeRowViewModel]
     @Bindable var document: StitchDocumentViewModel
-    @Bindable var graphUI: GraphUIState
+    @Bindable var graph: GraphState
 
     var body: some View {
-        let showLabels = document.graphUI.edgeEditingState?.labelsShown ?? false
+        let showLabels = graph.edgeEditingState?.labelsShown ?? false
         
-        if let nearbyCanvasItem: CanvasItemId = document.graphUI.edgeEditingState?.nearbyCanvasItem {
+        if let nearbyCanvasItem: CanvasItemId = graph.edgeEditingState?.nearbyCanvasItem {
             ForEach(inputs) { inputRowViewModel in
                 
                 // Doesn't seem to be needed? Checking the canvasItemDelegate seems to work well

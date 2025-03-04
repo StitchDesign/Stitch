@@ -165,7 +165,8 @@ final class SidebarListGestureRecognizer<SidebarViewModel: ProjectSidebarObserva
     @objc func tapInView(_ gestureRecognizer: UITapGestureRecognizer) {
         guard let sidebarViewModel = self.sidebarViewModel,
               let gestureViewModel = self.gestureViewModel,
-              let graph = self.sidebarViewModel?.graphDelegate else { return }
+              let graph = self.sidebarViewModel?.graphDelegate,
+              let doucment = graph.documentDelegate else { return }
         
         if sidebarViewModel.isEditing || gestureViewModel.swipeSetting == .open {
             return
@@ -175,7 +176,7 @@ final class SidebarListGestureRecognizer<SidebarViewModel: ProjectSidebarObserva
                                                  shiftHeld: self.shiftHeldDown,
                                                  commandHeld: self.commandHeldDown,
                                                  graph: graph,
-                                                 graphUI: graph.graphUI)
+                                                 graphUI: doucment)
     }
     
     // finger on screen
@@ -268,13 +269,14 @@ final class SidebarListGestureRecognizer<SidebarViewModel: ProjectSidebarObserva
     
     func contextMenuInteraction(_ interaction: UIContextMenuInteraction,
                                 configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
-        guard let graph = self.graph else {
+        guard let graph = self.graph,
+              let document = graph.documentDelegate else {
             return nil
         }
         return self.gestureViewModel?
             .contextMenuInteraction(itemId: self.itemId,
                                     graph: graph,
-                                    graphUI: graph.graphUI)
+                                    graphUI: document)
     }
 }
 

@@ -23,11 +23,12 @@ struct ColorFlyoutView: View {
     
     let rowObserver: InputNodeRowObserver
     let layerInputObserver: LayerInputObserver
+    let activeIndex: ActiveIndex
     
     @State var chosenColor: Color = .white
 
     var activeColor: Color {
-        if let color = layerInputObserver.activeValue.getColor {
+        if let color = layerInputObserver.getActiveValue(activeIndex: activeIndex).getColor {
             return color
         } else {
             fatalErrorIfDebug()
@@ -45,6 +46,7 @@ struct ColorFlyoutView: View {
                 isFieldInsideLayerInspector: true, // true for purposes of editing multiple layers
                 isForPreviewWindowBackgroundPicker: false,
                 isForIPhone: false,
+                activeIndex: activeIndex,
                 // i.e. the current active value
                 chosenColor: self.$chosenColor,
                 graph: graph)
@@ -58,6 +60,7 @@ struct ColorFlyoutView: View {
                 graph.pickerOptionSelected(
                     rowObserver: rowObserver,
                     choice: .color(newColor),
+                    activeIndex: activeIndex,
                     isFieldInsideLayerInspector: true,
                     // Lots of small changes so don't persist everything
                     isPersistence: false)

@@ -20,6 +20,8 @@ struct ColorOrbValueButtonView: View {
     let currentColor: Color // the current color, from input
     let hasIncomingEdge: Bool
     let graph: GraphState
+    let isMultiselectInspectorInputWithHeterogenousValues: Bool
+    let activeIndex: ActiveIndex
     
     var body: some View {
 
@@ -39,6 +41,7 @@ struct ColorOrbValueButtonView: View {
                 graph.pickerOptionSelected(
                     rowObserver: rowObserver,
                     choice: .color(newColor),
+                    activeIndex: activeIndex,
                     isFieldInsideLayerInspector: rowViewModel.isFieldInsideLayerInspector,
                     // Lots of small changes so don't persist everything
                     isPersistence: false)
@@ -50,6 +53,8 @@ struct ColorOrbValueButtonView: View {
                               fieldCoordinate: fieldViewModel.id,
                               isFieldInsideLayerInspector: rowViewModel.isFieldInsideLayerInspector,
                               isForFlyout: isForFlyout,
+                              isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues,
+                              activeIndex: activeIndex,
                               chosenColor: binding,
                               graph: graph)
         .onAppear {

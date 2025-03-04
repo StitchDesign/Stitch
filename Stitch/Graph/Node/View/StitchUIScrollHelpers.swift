@@ -15,8 +15,8 @@ struct SetGraphScrollDataUponPageChange: GraphEvent {
     func handle(state: GraphState) {
         //        log("SetGraphScrollDataUponPageChange: newPageLocalPosition: \(newPageLocalPosition)")
         //        log("SetGraphScrollDataUponPageChange: newPageZoom: \(newPageZoom)")
-        state.graphUI.canvasPageOffsetChanged = newPageLocalPosition
-        state.graphUI.canvasPageZoomScaleChanged = newPageZoom
+        state.canvasPageOffsetChanged = newPageLocalPosition
+        state.canvasPageZoomScaleChanged = newPageZoom
         
         /*
          Set all nodes visible for the field updates, since when we enter the new traversal level

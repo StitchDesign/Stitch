@@ -21,7 +21,7 @@ struct ProjectsHomeCommands: Commands {
     }
         
     var isSidebarFocused: Bool {
-        self.graph?.graphUI.isSidebarFocused ?? false
+        store.currentDocument?.isSidebarFocused ?? false
     }
     
     var graph: GraphState? {

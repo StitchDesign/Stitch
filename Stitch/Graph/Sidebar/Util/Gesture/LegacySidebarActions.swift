@@ -15,7 +15,7 @@ extension ProjectSidebarObservable {
     @MainActor
     func sidebarListItemLongPressed(itemId: Self.ItemID) {
         self.currentItemDragged = itemId
-        self.graphDelegate?.isSidebarFocused = true
+        self.graphDelegate?.documentDelegate?.isSidebarFocused = true
     }
 
     // Function to find the set item whose index in the list is the smallest
@@ -69,7 +69,8 @@ extension ProjectSidebarObservable {
                                 translation: CGSize) {
         
         // log("SidebarListItemDragged called: item \(itemId) ")
-        guard let graph = self.graphDelegate else {
+        guard let graph = self.graphDelegate,
+              let document = graph.documentDelegate else {
             fatalErrorIfDebug()
             return
         }
@@ -80,7 +81,7 @@ extension ProjectSidebarObservable {
         var draggedItem = item
         
         // Focus sidebar
-        graph.isSidebarFocused = true
+        document.isSidebarFocused = true
         
         // TODO: debug and reintroduce option-duge drag in sidebar
 //        if state.selectionState.optionDragInProgress {

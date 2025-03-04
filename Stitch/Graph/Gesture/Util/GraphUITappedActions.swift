@@ -12,9 +12,9 @@ import StitchSchemaKit
 // More like: `ResetGraphUIEdits`
 extension GraphState {
     @MainActor
-    func graphTapped(graphUI: GraphUIState) {
+    func graphTapped(document: StitchDocumentViewModel) {
         log("GraphTappedAction called")
-        self.resetAlertAndSelectionState(graphUI: graphUI)
+        self.resetAlertAndSelectionState(document: document)
     }
 }
 
@@ -24,11 +24,11 @@ struct GraphDoubleTappedAction: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
         log("GraphDoubleTappedAction: location: \(location)")
         
-        state.graphUI.toggleInsertNodeMenu()
+        state.toggleInsertNodeMenu()
         
 //        if !state.llmRecording.isRecording {
         // Do not set double-tap location if we're actively recording
-        state.graphUI.doubleTapLocation = location
+        state.insertNodeMenuState.doubleTapLocation = location
 //        }
         
         // log("GraphDoubleTappedAction: state.doubleTapLocation is now: \(state.doubleTapLocation)")

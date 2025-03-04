@@ -110,7 +110,7 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
                 viewModel: layerViewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
                 nodeId: interactiveLayer.id.layerNodeId,
-                highlightedSidebarLayers: document.graphUI.highlightedSidebarLayers,
+                highlightedSidebarLayers: graph.highlightedSidebarLayers,
                 scale: scale))
         
             .modifier(PreviewLayerRotationModifier(

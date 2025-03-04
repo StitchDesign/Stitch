@@ -29,7 +29,6 @@ struct ContentView: View, KeyboardReadable {
 
     @Bindable var store: StitchStore
     @Bindable var document: StitchDocumentViewModel
-    @Bindable var graphUI: GraphUIState
 
     let alertState: ProjectAlertState
     let routerNamespace: Namespace.ID
@@ -40,7 +39,7 @@ struct ContentView: View, KeyboardReadable {
 
     /// Shows menu wrapper view while node animation takes place
     var showMenu: Bool {
-        graphUI.insertNodeMenuState.show
+        document.insertNodeMenuState.show
     }
 
     var nodeAndMenu: some View {
@@ -48,17 +47,10 @@ struct ContentView: View, KeyboardReadable {
             
             // Best place to listen for TAB key for flyout
             UIKitWrapper(ignoresKeyCommands: true,
-                         inputTextFieldFocused: graphUI.reduxFocusedField?.inputTextFieldWithNumberIsFocused(document.graph) ?? false,
+                         inputTextFieldFocused: document.reduxFocusedField?.inputTextFieldWithNumberIsFocused(document.graph) ?? false,
                          name: .mainGraph) {
                 contentView // the graph
             }
-            
-//            if showMenu {
-//                InsertNodeMenuWrapper(document: document,
-//                                      graphUI: graphUI,
-//                                      menuHeight: $menuHeight,
-//                                      screenSize: $screenSize) // node menu + other animating views
-//            }
         }
     }
 
@@ -71,7 +63,7 @@ struct ContentView: View, KeyboardReadable {
             // Must respect keyboard safe-area
             ProjectWindowSizeReader(previewWindowSizing: previewWindowSizing,
                                     previewWindowSize: document.previewWindowSize,
-                                    isFullScreen: graphUI.isFullScreenMode,
+                                    isFullScreen: document.isFullScreenMode,
                                     showFullScreenAnimateCompleted: $showFullScreenAnimateCompleted,
                                     showFullScreenObserver: showFullScreen,
 //                                    menuHeight: $menuHeight,
@@ -84,8 +76,8 @@ struct ContentView: View, KeyboardReadable {
                 .ignoresSafeArea([.keyboard])
 #endif
         }
-       .environment(\.viewframe, graphUI.frame)
-       .environment(\.isSelectionBoxInUse, graphUI.selection.isSelecting)
+       .environment(\.viewframe, document.frame)
+       .environment(\.isSelectionBoxInUse, document.visibleGraph.selection.isSelecting)
     }
 
     @ViewBuilder
@@ -94,7 +86,7 @@ struct ContentView: View, KeyboardReadable {
             
             // ALWAYS show full-screen preview on iPhone.
             // Also, if in full-screen preview mode on Catalyst or iPad, place the fullscreen preview on top.
-            if showFullScreen.isTrue || GraphUIState.isPhoneDevice {
+            if showFullScreen.isTrue || StitchDocumentViewModel.isPhoneDevice {
                 fullScreenPreviewView
 #if !targetEnvironment(macCatalyst)
                 // Fullscreen ALWAYS ignores ALL safe areas
@@ -144,7 +136,7 @@ struct ContentView: View, KeyboardReadable {
                                 previewSizeDevice: document.previewSizeDevice,
                                 previewWindowBackgroundColor: document.previewWindowBackgroundColor,
                                 graph: document.graph,
-                                graphUI: graphUI) }
+                                graphUI: document) }
         .modifier(FileImportView(fileImportState: alertState.fileImportModalState))
         .modifier(AnimateCompletionHandler(percentage: showFullScreen.value) {
             // only set this state to true when we're animating into full screen mode
@@ -172,8 +164,8 @@ struct ContentView: View, KeyboardReadable {
         
     @ViewBuilder
     var flyout: some View {
-        OpenFlyoutView(graph: document.visibleGraph,
-                       graphUI: graphUI)
+        OpenFlyoutView(document: document,
+                       graph: document.visibleGraph)
     }
 }
 

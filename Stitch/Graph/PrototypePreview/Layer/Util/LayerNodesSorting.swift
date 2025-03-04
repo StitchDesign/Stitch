@@ -16,7 +16,8 @@ extension GraphState {
     func recursivePreviewLayers(sidebarLayersAtHierarchy: SidebarLayerList? = nil,
                                 sidebarLayersGlobal: SidebarLayerList,
                                 pinMap: RootPinMap,
-                                isInGroupOrientation: Bool = false) -> LayerDataList {
+                                isInGroupOrientation: Bool = false,
+                                activeIndex: ActiveIndex) -> LayerDataList {
         
         let isRoot = sidebarLayersAtHierarchy == nil
         let sidebarLayersAtHierarchy = sidebarLayersAtHierarchy ?? sidebarLayersGlobal
@@ -42,6 +43,7 @@ extension GraphState {
                     sidebarLayersAtHierarchy: filteredSidebarLayersAtHierarchy,
                     sidebarLayersGlobal: sidebarLayersGlobal,
                     layerNodes: self.layerNodes,
+                    activeIndex: activeIndex,
                     pinMap: pinMap)
             
             layerTypesAtThisLevel = layerTypesAtThisLevel.union(newLayerTypesAtThisLevel)
@@ -67,6 +69,7 @@ extension GraphState {
         var sortedLayerTypes = layerTypesAtThisLevel.sorted(by: { lhs, rhs in
             Self.layerSortingComparator(lhs: lhs,
                                         rhs: rhs,
+                                        activeIndex: activeIndex,
                                         pinMap: pinMap)
         })
                 
@@ -78,7 +81,8 @@ extension GraphState {
             self.getLayerDataFromLayerType(layerType,
                                            pinMap: pinMap,
                                            sidebarLayersGlobal: sidebarLayersGlobal,
-                                           layerNodes: self.layerNodes)
+                                           layerNodes: self.layerNodes,
+                                           activeIndex: activeIndex)
         }
         
         return sortedLayerDataList
@@ -91,6 +95,7 @@ extension GraphState {
     ///   3. Sidebar order
     static func layerSortingComparator(lhs: LayerType,
                                        rhs: LayerType,
+                                       activeIndex: ActiveIndex,
                                        pinMap: RootPinMap) -> Bool {
         // Variables for sorting
         let lhsZIndex = lhs.zIndex
@@ -130,7 +135,8 @@ extension GraphState {
     func getLayerDataFromLayerType(_ layerType: LayerType,
                                    pinMap: RootPinMap,
                                    sidebarLayersGlobal: SidebarLayerList,
-                                   layerNodes: NodesViewModelDict) -> LayerData? {
+                                   layerNodes: NodesViewModelDict,
+                                   activeIndex: ActiveIndex) -> LayerData? {
         
         switch layerType {
             
@@ -140,14 +146,16 @@ extension GraphState {
                 getLayerDataFromLayerType($0,
                                           pinMap: pinMap,
                                           sidebarLayersGlobal: sidebarLayersGlobal,
-                                          layerNodes: layerNodes)
+                                          layerNodes: layerNodes,
+                                          activeIndex: activeIndex)
             }
             
             var maskerLayerData = masker.compactMap {
                 getLayerDataFromLayerType($0,
                                           pinMap: pinMap,
                                           sidebarLayersGlobal: sidebarLayersGlobal,
-                                          layerNodes: layerNodes)
+                                          layerNodes: layerNodes,
+                                          activeIndex: activeIndex)
             }
             
             // Extend the masked/masker views:
@@ -196,7 +204,8 @@ extension GraphState {
                 sidebarLayersAtHierarchy: layerGroupData.childrenSidebarLayers,
                 sidebarLayersGlobal: sidebarLayersGlobal,
                 pinMap: pinMap,
-                isInGroupOrientation: isInGroupOrientation)
+                isInGroupOrientation: isInGroupOrientation,
+                activeIndex: activeIndex)
             
             return .group(previewLayer,
                           childrenData,
@@ -261,6 +270,7 @@ func handleRawSidebarLayer(sidebarIndex: Int,
                            sidebarLayersAtHierarchy: SidebarLayerList, // raw sidebar layers
                            sidebarLayersGlobal: SidebarLayerList, // all sidebar layers, needed for pinning
                            layerNodes: NodesViewModelDict,
+                           activeIndex: ActiveIndex,
                            pinMap: RootPinMap) -> (LayerTypeSet,
                                                // layers used as masks
                                                // TODO: not needed anymore?
@@ -290,7 +300,11 @@ func handleRawSidebarLayer(sidebarIndex: Int,
      }
      */
     let hasMask = maskerLayerData
-        .flatMap { layerNodes.get($0.id)?.layerNode?.masksPort.activeValue.getBool }
+        .flatMap {
+            layerNodes.get($0.id)?.layerNode?.masksPort
+                .getActiveValue(activeIndex: activeIndex)
+                .getBool
+        }
     ?? false
     
     // WE HAD A MASKER FOR THIS SIDEBAR LAYER
@@ -319,6 +333,7 @@ func handleRawSidebarLayer(sidebarIndex: Int,
             sidebarLayersAtHierarchy: sidebarLayersAtHierarchy,
             sidebarLayersGlobal: sidebarLayersGlobal,
             layerNodes: layerNodes,
+            activeIndex: activeIndex,
             pinMap: pinMap)
         
         handled = handled.union(acc2)

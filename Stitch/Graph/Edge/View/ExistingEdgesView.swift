@@ -10,19 +10,18 @@ import StitchSchemaKit
 
 struct GraphConnectedEdgesView: View {
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
     let allConnectedInputs: [InputNodeRowViewModel]
     
     var animatingEdges: PossibleEdgeSet {
-        graphUI.edgeEditingState?.possibleEdges ?? .init()
+        graph.edgeEditingState?.possibleEdges ?? .init()
     }
     
     var edgeAnimationEnabled: Bool {
-        graphUI.edgeAnimationEnabled
+        graph.edgeAnimationEnabled
     }
     
     var shownPossibleEdgeIds: Set<PossibleEdgeId> {
-        graphUI.edgeEditingState?.shownIds ?? .init()
+        graph.edgeEditingState?.shownIds ?? .init()
     }
     
     @MainActor
@@ -171,12 +170,13 @@ struct ConnectedEdgeView: View {
 // If we tap an edge specifically,
 // then deselect all other edges and nodes,
 // and select only that tapped edge.
-struct EdgeTapped: GraphEvent {
+struct EdgeTapped: StitchDocumentEvent {
     let edge: PortEdgeUI
 
-    func handle(state: GraphState) {
-        state.resetAlertAndSelectionState(graphUI: state.graphUI)
-        state.selectedEdges = Set([edge])
+    func handle(state: StitchDocumentViewModel) {
+        let graph = state.visibleGraph
+        graph.resetAlertAndSelectionState(document: state)
+        graph.selectedEdges = Set([edge])
     }
 }
 

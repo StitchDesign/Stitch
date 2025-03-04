@@ -416,17 +416,17 @@ extension NodeViewModel {
     func getInputRowObserver(_ portId: Int) -> InputNodeRowObserver? {
         self.inputsObservers[safe: portId]
     }
-    
-    @MainActor
-    func getInputActivePortValue(for layerInputType: LayerInputPort) -> PortValue? {
-        guard let layerNode = self.layerNode else {
-            fatalErrorIfDebug()
-            return nil
-        }
-        
-        let portObserver = layerNode[keyPath: layerInputType.layerNodeKeyPath]
-        return portObserver.activeValue
-    }
+//    
+//    @MainActor
+//    func getInputActivePortValue(for layerInputType: LayerInputPort) -> PortValue? {
+//        guard let layerNode = self.layerNode else {
+//            fatalErrorIfDebug()
+//            return nil
+//        }
+//        
+//        let portObserver = layerNode[keyPath: layerInputType.layerNodeKeyPath]
+//        return portObserver.activeValue
+//    }
     
     @MainActor
     func getOutputRowObserver(for portType: NodeIOPortType) -> OutputNodeRowObserver? {
@@ -579,11 +579,6 @@ extension NodeViewModel {
     }
     
     @MainActor
-    var activeIndex: ActiveIndex {
-        graphDelegate?.activeIndex ?? .init(.zero)
-    }
-    
-    @MainActor
     var getMathExpression: String? {
         self.patchNode?.mathExpression
     }
@@ -694,7 +689,7 @@ extension NodeViewModel {
     @MainActor
     func activeIndexChanged(activeIndex: ActiveIndex) {
         self.getAllInputsObservers().forEach { observer in
-            let oldValue = observer.activeValue
+            let oldValue = observer.getActiveValue(activeIndex: activeIndex)
             let newValue = PortValue
                 .getActiveValue(allLoopedValues: observer.allLoopedValues,
                                 activeIndex: activeIndex)
@@ -705,7 +700,7 @@ extension NodeViewModel {
         }
 
         self.getAllOutputsObservers().forEach { observer in
-            let oldValue = observer.activeValue
+            let oldValue = observer.getActiveValue(activeIndex: activeIndex)
             let newValue = PortValue
                 .getActiveValue(allLoopedValues: observer.allLoopedValues,
                                 activeIndex: activeIndex)

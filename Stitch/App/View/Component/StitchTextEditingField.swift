@@ -173,30 +173,31 @@ struct StitchTextEditingBindingField: View {
                 }
             }
         // When an input's field is focused, we treat an up- or down-arrow as a user "increment" or "decrement" input
-            .onChange(of: self.store.currentDocument?.graphUI.reduxFocusedFieldChangedByArrowKey) { _, _ in
-                if let numberEdit = self.store.currentDocument?.graph.handleArrowKeyInput(self.currentEdit) {
+            .onChange(of: self.store.currentDocument?.reduxFocusedFieldChangedByArrowKey) { _, _ in
+                if let numberEdit = self.store.currentDocument?
+                    .handleArrowKeyInput(self.currentEdit) {
                     self.currentEdit = numberEdit
                 }
             }
     }
 }
 
-extension GraphState {
+extension StitchDocumentViewModel {
     
     @MainActor
     func handleArrowKeyInput(_ currentEdit: String) -> String? {
         
-        guard self.graphUI.reduxFocusedField?.getTextInputEdit.isDefined ?? false, // only for an input's fields, not node title etc.
-              let arrowKey = self.graphUI.reduxFocusedFieldChangedByArrowKey else {
+        guard self.reduxFocusedField?.getTextInputEdit.isDefined ?? false, // only for an input's fields, not node title etc.
+              let arrowKey = self.reduxFocusedFieldChangedByArrowKey else {
             
             log("handleArrowKeyInput: no text field focused or no relevant arrow key")
-            self.graphUI.reduxFocusedFieldChangedByArrowKey = nil
+            self.reduxFocusedFieldChangedByArrowKey = nil
             
             return nil
         }
         
         // Always wipe
-        self.graphUI.reduxFocusedFieldChangedByArrowKey = nil
+        self.reduxFocusedFieldChangedByArrowKey = nil
                 
         // If we had a regular, non-percentage number:
         if let n: Double = toNumber(currentEdit) {
@@ -224,8 +225,8 @@ struct TextFieldDisappeared: StitchDocumentEvent {
     let focusedField: FocusedUserEditField
     
     func handle(state: StitchDocumentViewModel) {
-        if state.graphUI.reduxFocusedField == focusedField {
-            state.graphUI.reduxFocusedField = nil
+        if state.reduxFocusedField == focusedField {
+            state.reduxFocusedField = nil
         }
         
         /*

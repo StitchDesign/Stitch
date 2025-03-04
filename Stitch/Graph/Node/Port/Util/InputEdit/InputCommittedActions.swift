@@ -14,7 +14,8 @@ extension GraphState {
   
     @MainActor
     func mediaInputEditCommitted(input: NodeIOCoordinate,
-                                 value: PortValue?) {
+                                 value: PortValue?,
+                                 activeIndex: ActiveIndex) {
         
         guard let node = self.getNodeViewModel(input.nodeId),
               let input = node.getInputRowObserver(for: input.portType) else {
@@ -24,6 +25,7 @@ extension GraphState {
         
         self.inputEditCommitted(input: input,
                                 value: value,
+                                activeIndex: activeIndex,
                                 wasAdjustmentBarSelection: false)
     }
 
@@ -43,6 +45,7 @@ extension GraphState {
     @MainActor
     func handleInputEditCommitted(input: NodeIOCoordinate,
                                   value: PortValue?,
+                                  activeIndex: ActiveIndex,
                                   isFieldInsideLayerInspector: Bool,
                                   wasAdjustmentBarSelection: Bool = false) {
         guard let node = self.getNodeViewModel(input.nodeId),
@@ -53,6 +56,7 @@ extension GraphState {
         
         return self.handleInputEditCommitted(input: input,
                                              value: value,
+                                             activeIndex: activeIndex,
                                              isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                              wasAdjustmentBarSelection: wasAdjustmentBarSelection)
     }
@@ -60,18 +64,20 @@ extension GraphState {
     @MainActor
     func handleInputEditCommitted(input: InputNodeRowObserver,
                                   value: PortValue?,
+                                  activeIndex: ActiveIndex,
                                   isFieldInsideLayerInspector: Bool,
                                   wasAdjustmentBarSelection: Bool = false) {
         
         if isFieldInsideLayerInspector,
            let layerInput = input.id.keyPath?.layerInput,
-           let multiselectInputs = self.graphUI.propertySidebar.inputsCommonToSelectedLayers,
+           let multiselectInputs = self.propertySidebar.inputsCommonToSelectedLayers,
            let layerMultiselectInput = multiselectInputs.first(where: { $0 == layerInput}) {
         
             // Note: heterogenous values doesn't matter; only the multiselect does
             layerMultiselectInput.multiselectObservers(self).forEach { observer in
                 self.inputEditCommitted(input: input,
                                         value: value,
+                                        activeIndex: activeIndex,
                                         wasAdjustmentBarSelection: wasAdjustmentBarSelection)
             }
         } 
@@ -80,6 +86,7 @@ extension GraphState {
         else {
             self.inputEditCommitted(input: input,
                                     value: value,
+                                    activeIndex: activeIndex,
                                     wasAdjustmentBarSelection: wasAdjustmentBarSelection)
         }
     }
@@ -87,6 +94,7 @@ extension GraphState {
     @MainActor
     func inputEditCommitted(input: InputNodeRowObserver,
                             value: PortValue?,
+                            activeIndex: ActiveIndex,
                             wasAdjustmentBarSelection: Bool = false) {
         
         let nodeId = input.id.nodeId
@@ -104,7 +112,7 @@ extension GraphState {
         // if we had a value, and the value was different than the existing value,
         // THEN we detach the edge.
         // Should be okay since whenever we connect an edge, we evaluate the node and thus extend its inputs and outputs.
-        let valueAtIndex = input.activeValue
+        let valueAtIndex = input.getActiveValue(activeIndex: activeIndex)
         let valueChange = (valueAtIndex != value)
         
         guard valueChange else {
@@ -113,14 +121,15 @@ extension GraphState {
         }
         
         nodeViewModel.removeIncomingEdge(at: input.id,
-                                         activeIndex: self.activeIndex,
+                                         activeIndex: activeIndex,
                                          graph: self)
         
         // Block or unblock certain layer inputs
         if let layerInputType: LayerInputType = input.id.keyPath,
            let layerNode: LayerNodeViewModel = nodeViewModel.layerNode {
             layerNode.blockOrUnblockFields(newValue: value,
-                                           layerInput: layerInputType.layerInput)
+                                           layerInput: layerInputType.layerInput,
+                                           activeIndex: activeIndex)
         }
         
         let newCommandType = value.shapeCommandType

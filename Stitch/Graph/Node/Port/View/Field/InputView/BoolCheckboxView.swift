@@ -15,25 +15,12 @@ struct BoolCheckboxView: View {
     
     let rowObserver: InputNodeRowObserver? // nil = used in output
     let graph: GraphState
+    let document: StitchDocumentViewModel
     let layerInputObserver: LayerInputObserver?
     let value: Bool
     let isFieldInsideLayerInspector: Bool
     let isSelectedInspectorRow: Bool
-
-    @MainActor
-    var isMultiselectInspectorInputWithHeterogenousValues: Bool {
-        
-        if let layerInputObserver = layerInputObserver {
-            @Bindable var layerInputObserver = layerInputObserver
-                        
-            return layerInputObserver.fieldHasHeterogenousValues(
-                0,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                graph: graph)
-        } else {
-            return false
-        }
-    }
+    let isMultiselectInspectorInputWithHeterogenousValues: Bool
     
     @MainActor
     var iconName: String {
@@ -72,6 +59,7 @@ struct BoolCheckboxView: View {
                     graph.pickerOptionSelected(
                         rowObserver: rowObserver,
                         choice: .bool(toggled),
+                        activeIndex: document.activeIndex,
                         isFieldInsideLayerInspector: isFieldInsideLayerInspector)
                 }
             }

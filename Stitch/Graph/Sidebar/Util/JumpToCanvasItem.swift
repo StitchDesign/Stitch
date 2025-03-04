@@ -12,73 +12,75 @@ import StitchSchemaKit
 extension GraphState {
     @MainActor
     func jumpToCanvasItem(id: CanvasItemId,
-                          graphUI: GraphUIState) {
+                          document: StitchDocumentViewModel) {
         self.panGraphToNodeLocation(id: id,
-                                    graphUI: graphUI)
+                                    document: document)
     }
     
     @MainActor
     func jumpToAssignedBroadcaster(wirelessReceiverNodeId: NodeId,
-                                   graphUI: GraphUIState) {
+                                   document: StitchDocumentViewModel) {
         if let assignedBroadcaster = self.getNodeViewModel(wirelessReceiverNodeId)?.currentBroadcastChoiceId {
             self.panGraphToNodeLocation(id: .node(assignedBroadcaster),
-                                        graphUI: graphUI)
+                                        document: document)
         }
     }
     
     @MainActor
-    func findSomeCanvasItemOnGraph(graphUI: GraphUIState) {
+    func findSomeCanvasItemOnGraph(document: StitchDocumentViewModel) {
         if let canvasItem = GraphState.westernMostNode(
-            self.groupNodeFocused,
-            canvasItems: self.getCanvasItemsAtTraversalLevel()) {
+            document.groupNodeFocused?.groupNodeId,
+            canvasItems: self.getCanvasItemsAtTraversalLevel(groupNodeFocused: document.groupNodeFocused?.groupNodeId)) {
             
             self.panGraphToNodeLocation(id: canvasItem.id,
-                                        graphUI: graphUI)
+                                        document: document)
         }
     }
     
     // TODO: anywhere this isn't being used but should be?
     @MainActor
     func panGraphToNodeLocation(id: CanvasItemId,
-                                graphUI: GraphUIState) {
+                                document: StitchDocumentViewModel) {
         guard let canvasItem = self.getCanvasItem(id) else {
             fatalErrorIfDebug("panGraphToNodeLocation: no canvasItem found")
             return
         }
         
-        guard let jumpPosition = self.getNodeGraphPanLocation(id: id) else {
+        guard let jumpPosition = self.getNodeGraphPanLocation(id: id,
+                                                              document: document) else {
             log("panGraphToNodeLocation: could not retrieve jump location")
             return
         }
         
-        self.graphUI.canvasJumpLocation = jumpPosition
+        self.canvasJumpLocation = jumpPosition
         
-        self.graphUI.selection = GraphUISelectionState()
-        self.resetSelectedCanvasItems(graphUI: graphUI)
-        canvasItem.select(self)
+        self.selection = GraphUISelectionState()
+        self.resetSelectedCanvasItems()
+        canvasItem.select(self, document: document)
         
         // Update focused group
         if let newGroup = canvasItem.parentGroupNodeId {
             // TODO: need panning logic for component
-            self.graphUI.groupNodeBreadcrumbs.append(.groupNode(newGroup))
+            document.groupNodeBreadcrumbs.append(.groupNode(newGroup))
         }
     }
     
     // nil could not be be found
     @MainActor
-    func getNodeGraphPanLocation(id: CanvasItemId) -> CGPoint? {
+    func getNodeGraphPanLocation(id: CanvasItemId,
+                                 document: StitchDocumentViewModel) -> CGPoint? {
                 
         guard let cachedBounds = self.visibleNodesViewModel.infiniteCanvasCache.get(id) else {
             // Can be `nil` when called for a canvas item that has never yet been on-screen
             return nil
         }
         
-        let scale: CGFloat = self.documentDelegate?.graphMovement.zoomData ?? 1
+        let scale: CGFloat = document.graphMovement.zoomData
         
         return CGPoint(
             // TODO: why do we have to SUBTRACT rather than add?
-            x: (cachedBounds.origin.x * scale) - self.graphUI.frame.size.width/2,
-            y: (cachedBounds.origin.y * scale) - self.graphUI.frame.size.height/2
+            x: (cachedBounds.origin.x * scale) - document.frame.size.width/2,
+            y: (cachedBounds.origin.y * scale) - document.frame.size.height/2
         )
     }
 }

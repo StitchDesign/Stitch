@@ -28,6 +28,7 @@ struct MediaPickerButtons: View {
     let isFieldInsideLayerInspector: Bool
     let graph: GraphState
     let isSelectedInspectorRow: Bool
+    let activeIndex: ActiveIndex
 
     var body: some View {
         ForEach(choices) { choice in
@@ -36,6 +37,7 @@ struct MediaPickerButtons: View {
                 choice.handleSelection(rowObserver: rowObserver,
                                        mediaType: mediaType,
                                        isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                                       activeIndex: activeIndex,
                                        graph: graph)
             } label: {
                 // We add a value for truncating text here to ensure that the title view in the picker does not stretch too long when importing a file with a long tiel

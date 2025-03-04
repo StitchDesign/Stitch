@@ -15,6 +15,7 @@ extension GraphState {
     @MainActor
     func pickerOptionSelected(rowObserver: InputNodeRowObserver,
                               choice: PortValue,
+                              activeIndex: ActiveIndex,
                               isFieldInsideLayerInspector: Bool,
                               isPersistence: Bool = true) {
         //        log("PickerOptionSelected: input: \(input)")`
@@ -22,6 +23,7 @@ extension GraphState {
         self.handleInputEditCommitted(
             input: rowObserver,
             value: choice,
+            activeIndex: activeIndex,
             isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         
         if isPersistence {

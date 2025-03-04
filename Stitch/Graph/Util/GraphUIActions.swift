@@ -13,51 +13,51 @@ let MIN_GRAPH_SCALE: CGFloat = 0.1 // most zoomed out
 
 let MAX_GRAPH_SCALE: CGFloat = 2.8 // most zoomed in
 
-struct SetSidebarWidth: GraphUIEvent {
+struct SetSidebarWidth: StitchDocumentEvent {
     
     let frame: CGRect // .global frame
     
-    func handle(state: GraphUIState) {
+    func handle(state: StitchDocumentViewModel) {
         // log("SetSidebarWidth: frame.origin.x: \(frame.origin.x)")
         state.sidebarWidth = frame.origin.x
     }
 }
 
-struct SetDeviceScreenSize: GraphEvent {
+struct SetDeviceScreenSize: StitchDocumentEvent {
 
     let frame: CGRect
 
-    func handle(state: GraphState) {
+    func handle(state: StitchDocumentViewModel) {
         // Set frame of view
         // log("SetDeviceScreenSize: frame: \(frame)")
         // log("SetDeviceScreenSize: state.graphUI.frame was: \(state.graphUI.frame)")
 
-        state.graphUI.frame = frame
+        state.frame = frame
         // log("SetDeviceScreenSize: state.graphUI.frame is now: \(state.graphUI.frame)")
     }
 }
 
-struct SetGraphYPosition: GraphUIEvent {
+struct SetGraphYPosition: GraphEvent {
     let graphYPosition: CGFloat
     
-    func handle(state: GraphUIState) {
+    func handle(state: GraphState) {
         state.graphYPosition = graphYPosition
     }
 }
 
-struct ColorSchemeReceived: GraphUIEvent {
+struct ColorSchemeReceived: StitchDocumentEvent {
     let colorScheme: ColorScheme
 
-    func handle(state: GraphUIState) {
+    func handle(state: StitchDocumentViewModel) {
         //        log("ColorSchemeReceived: colorScheme: \(colorScheme)")
         state.colorScheme = colorScheme
     }
 }
 
-struct SafeAreaInsetsReceived: GraphUIEvent {
+struct SafeAreaInsetsReceived: StitchDocumentEvent {
     let insets: SafeAreaInsets
 
-    func handle(state: GraphUIState) {
+    func handle(state: StitchDocumentViewModel) {
         //        log("SafeAreaInsetsReceived: insets: \(insets)")
         state.safeAreaInsets = insets
     }
@@ -66,24 +66,24 @@ struct SafeAreaInsetsReceived: GraphUIEvent {
 extension GraphState {
     @MainActor
     func groupNodeDoubleTapped(id: NodeId,
-                               graphUI: GraphUIState) {
+                               document: StitchDocumentViewModel) {
 
         log("GroupNodeDoubleTapped: id: \(id)")
 
         // De-select any nodes once new parent is shown
-        self.resetAlertAndSelectionState(graphUI: graphUI)
+        self.resetAlertAndSelectionState(document: document)
         
         guard let groupNodeType = self.getGroupNodeType(for: id) else {
             return
         }
 
-        graphUI.groupNodeBreadcrumbs.append(groupNodeType)
+        document.groupNodeBreadcrumbs.append(groupNodeType)
 
         // Animate to child
-        graphUI.groupTraversedToChild = true
+        document.groupTraversedToChild = true
 
         // reset any active selections
-        self.resetAlertAndSelectionState(graphUI: graphUI)
+        self.resetAlertAndSelectionState(document: document)
     }
 }
 
@@ -108,49 +108,49 @@ extension GraphState {
 }
 
 // When we enter fullscreen preview window mode, we save which nodes were on-screen, and set those visible again when we exit fullscreen preview window mode.
-struct ToggleFullScreenEvent: GraphEvent {
-    func handle(state: GraphState) {
-        state.graphUI.isFullScreenMode.toggle()
+struct ToggleFullScreenEvent: StitchDocumentEvent {
+    func handle(state: StitchDocumentViewModel) {
+        state.isFullScreenMode.toggle()
                 
-        if state.graphUI.isFullScreenMode {
+        if state.isFullScreenMode {
             // Ports should not update while in fullscreen mode
-            state.visibleNodesViewModel.visibleCanvasIds = .init()
+            state.visibleGraph.visibleNodesViewModel.visibleCanvasIds = .init()
         }  else {
             // Mark all nodes as visible, will correct later
-            state.visibleNodesViewModel.setAllNodesVisible()
+            state.visibleGraph.visibleNodesViewModel.setAllNodesVisible()
         }
     }
 }
 
-struct TogglePreviewWindow: GraphUIEvent {
-    func handle(state: GraphUIState) {
+struct TogglePreviewWindow: StitchDocumentEvent {
+    func handle(state: StitchDocumentViewModel) {
         state.showPreviewWindow.toggle()
     }
 }
 
-struct ToggleSidebars: GraphEvent {
-    func handle(state: GraphState) {
+struct ToggleSidebars: StitchDocumentEvent {
+    func handle(state: StitchDocumentViewModel) {
         // Opens both if both are already closed;
         // else closes both.
-        let inspectorOpen = state.graphUI.showsLayerInspector
-        let layerSidebarOpen = state.graphUI.leftSidebarOpen
+        let inspectorOpen = state.showsLayerInspector
+        let layerSidebarOpen = state.leftSidebarOpen
         
         withAnimation {
             if !inspectorOpen && !layerSidebarOpen {
-                state.graphUI.showsLayerInspector = true
-                state.graphUI.leftSidebarOpen = true
+                state.showsLayerInspector = true
+                state.leftSidebarOpen = true
             } else {
-                state.graphUI.showsLayerInspector = false
-                state.graphUI.leftSidebarOpen = false
+                state.showsLayerInspector = false
+                state.leftSidebarOpen = false
             }
         }
     }
 }
 
-struct InsertNodeSelectionChanged: GraphUIEvent {
+struct InsertNodeSelectionChanged: StitchDocumentEvent {
     let selection: InsertNodeMenuOptionData
 
-    func handle(state: GraphUIState) {
+    func handle(state: StitchDocumentViewModel) {
         state.insertNodeMenuState.activeSelection = selection
     }
 }
@@ -168,12 +168,12 @@ struct GenerateAINode: StitchDocumentEvent {
         let graph = state.visibleGraph
         
         // Set loading state
-        graph.graphUI.insertNodeMenuState.isGeneratingAINode = true
+        state.insertNodeMenuState.isGeneratingAINode = true
         
         // Set flag to indicate this is from AI generation
-        graph.graphUI.insertNodeMenuState.isFromAIGeneration = true
+        state.insertNodeMenuState.isFromAIGeneration = true
         
-        print("🤖 isFromAIGeneration set to: \(graph.graphUI.insertNodeMenuState.isFromAIGeneration)")
+        print("🤖 isFromAIGeneration set to: \(state.insertNodeMenuState.isFromAIGeneration)")
         
         // Dispatch OpenAI request
         do {
@@ -187,29 +187,29 @@ struct GenerateAINode: StitchDocumentEvent {
 }
 
 /// Process search results in the insert node menu sheet
-struct InsertNodeQuery: GraphEvent {
+struct InsertNodeQuery: StitchDocumentEvent {
     let query: String
     
-    func handle(state: GraphState) {
+    func handle(state: StitchDocumentViewModel) {
         // Update the search query in menu state
-        state.graphUI.insertNodeMenuState.searchQuery = query
+        state.insertNodeMenuState.searchQuery = query
         
         // Update search results
         if query.isEmpty {
-            state.graphUI.insertNodeMenuState.searchResults = InsertNodeMenuState.allSearchOptions
-            state.graphUI.insertNodeMenuState.activeSelection = InsertNodeMenuState.startingActiveSelection
+            state.insertNodeMenuState.searchResults = InsertNodeMenuState.allSearchOptions
+            state.insertNodeMenuState.activeSelection = InsertNodeMenuState.startingActiveSelection
         } else {
             let filtered = searchForNodes(by: query,
                                            searchOptions: InsertNodeMenuState.allSearchOptions)
             
-            state.graphUI.insertNodeMenuState.searchResults = filtered
+            state.insertNodeMenuState.searchResults = filtered
             
             // Update selection based on search results
             if !filtered.isEmpty {
-                state.graphUI.insertNodeMenuState.activeSelection = filtered.first
+                state.insertNodeMenuState.activeSelection = filtered.first
             } else {
                 // We're in AI mode - clear selection
-                state.graphUI.insertNodeMenuState.activeSelection = nil
+                state.insertNodeMenuState.activeSelection = nil
             }
         }
     }
@@ -325,16 +325,19 @@ func searchForNodes(by query: String,
     }
 }
 
-struct ActiveIndexChangedAction: GraphEvent {
+struct ActiveIndexChangedAction: StitchDocumentEvent {
     let index: ActiveIndex
 
-    func handle(state: GraphState) {
-        state.graphUI.activeIndex = index
+    func handle(state: StitchDocumentViewModel) {
+        let graph = state.visibleGraph
+        
+        state.activeIndex = index
         
         // Note: previously this logic was handled in the view (`NodeInputOutputView`);
         // the advantage was that only actively-rendered
-        state.getNodesAtThisTraversalLevel().forEach { node in
-            node.updatePortViewModels(state)
+        graph.getNodesAtThisTraversalLevel(groupNodeFocused: state.groupNodeFocused?.groupNodeId)
+            .forEach { node in
+            node.updatePortViewModels(graph)
         }
     }
 }

@@ -58,17 +58,17 @@ final class InputLayerNodeRowData: LayerNodeRowData, Identifiable {
     // which could be for a field on the canvas or in the layer inspector
     @MainActor
     func fieldHasHeterogenousValues(_ fieldIndex: Int,
-                                    isFieldInsideLayerInspector: Bool) -> Bool {
+                                    isFieldInsideLayerInspector: Bool,
+                                    graph: GraphState) -> Bool {
 
         // Only relevant when this layer-input field is in the layer inspector and multiple layers are selected
         guard isFieldInsideLayerInspector,
-              let graphDelegate = self.inspectorRowViewModel.graphDelegate,
-              graphDelegate.multiselectInputs.isDefined else {
+              graph.multiselectInputs.isDefined else {
             return false
         }
     
          return self.id.layerInput
-            .fieldsInMultiselectInputWithHeterogenousValues(graphDelegate)
+            .fieldsInMultiselectInputWithHeterogenousValues(graph)
             .contains(fieldIndex)
     }
     

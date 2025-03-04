@@ -22,6 +22,7 @@ struct EditJSONEntry: View {
     let rowObserver: InputNodeRowObserver
     let json: StitchJSON? // nil helps with perf?
     let isSelectedInspectorRow: Bool
+    let activeIndex: ActiveIndex
     @Binding var isPressed: Bool
 
     var body: some View {
@@ -63,6 +64,7 @@ struct EditJSONEntry: View {
                             graph.handleInputEditCommitted(
                                 input: rowObserver,
                                 value: .json(edit.toStitchJSON),
+                                activeIndex: activeIndex,
                                 // TODO: currently we never use json input for a layer input; but should pass down proper values here
                                 isFieldInsideLayerInspector: false)
                             

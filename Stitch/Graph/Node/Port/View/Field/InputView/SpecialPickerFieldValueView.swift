@@ -75,6 +75,7 @@ struct SpecialPickerFieldValueView: View {
     let layerInputObserver: LayerInputObserver?
     let isFieldInsideLayerInspector: Bool
     let hasHeterogenousValues: Bool
+    let activeIndex: ActiveIndex
     
     var body: some View {
         Picker("", selection: $currentChoice) {
@@ -89,6 +90,7 @@ struct SpecialPickerFieldValueView: View {
             graph.pickerOptionSelected(
                 rowObserver: rowObserver,
                 choice: newValue,
+                activeIndex: activeIndex,
                 isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         }
         .onAppear {

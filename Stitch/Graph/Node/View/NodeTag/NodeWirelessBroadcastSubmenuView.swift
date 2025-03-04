@@ -21,6 +21,7 @@ let nilBroadcastChoice = BroadcastChoice(
 struct NodeWirelessBroadcastSubmenuView: View {
 
     @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     
     @State var currentBroadcastChoice: BroadcastChoice
         
@@ -30,10 +31,12 @@ struct NodeWirelessBroadcastSubmenuView: View {
 
     // TODO: Picker's selection state (the checkmark) is incorrect; and .onChange for a manually passed in input value completely breaks Picker's selection state; and this explicit `init` does not help either
     init(graph: GraphState,
+         document: StitchDocumentViewModel,
          currentBroadcastChoice: BroadcastChoice,
          nodeId: NodeId,
          forNodeTitle: Bool = false) {
         self.graph = graph
+        self.document = document
         self.currentBroadcastChoice = currentBroadcastChoice
         self.nodeId = nodeId
         self.forNodeTitle = forNodeTitle
@@ -44,7 +47,7 @@ struct NodeWirelessBroadcastSubmenuView: View {
     @MainActor
     var choices: [BroadcastChoice] {
         [nilBroadcastChoice] + self.graph
-            .getBroadcasterNodesAtThisTraversalLevel()
+            .getBroadcasterNodesAtThisTraversalLevel(document: document)
             // Sort alphabetically
             .sorted(by: { $0.displayTitle < $1.displayTitle })
             .map { .init(title: $0.displayTitle, id: $0.id) }
