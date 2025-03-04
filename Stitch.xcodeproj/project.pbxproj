@@ -649,6 +649,12 @@
 		EC8BA54926A6388B002E345C /* VelocityNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8BA54826A6388B002E345C /* VelocityNode.swift */; };
 		EC8BD76E2B6C1350009BA60C /* EdgeEditModeOutputHoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8BD76D2B6C1350009BA60C /* EdgeEditModeOutputHoverView.swift */; };
 		EC8C1AA32D7795100058D969 /* NodeViewModelNodeCalculatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8C1AA22D7795100058D969 /* NodeViewModelNodeCalculatable.swift */; };
+		EC8C1AA62D7798B70058D969 /* InputNodeRowObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8C1AA52D7798B70058D969 /* InputNodeRowObserver.swift */; };
+		EC8C1AA82D7798E70058D969 /* OutputNodeRowObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8C1AA72D7798E70058D969 /* OutputNodeRowObserver.swift */; };
+		EC8C1AAB2D7799A90058D969 /* InputNodeRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8C1AAA2D7799A90058D969 /* InputNodeRowViewModel.swift */; };
+		EC8C1AAD2D7799CA0058D969 /* OutputNodeRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8C1AAC2D7799CA0058D969 /* OutputNodeRowViewModel.swift */; };
+		EC8C1AAF2D779A090058D969 /* GraphItemType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8C1AAE2D779A090058D969 /* GraphItemType.swift */; };
+		EC8C1AB12D779A190058D969 /* NodeRowViewModelId.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8C1AB02D779A190058D969 /* NodeRowViewModelId.swift */; };
 		EC8C5C112616334B0099C374 /* OptionSwitchNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8C5C102616334B0099C374 /* OptionSwitchNode.swift */; };
 		EC8C5C152616415F0099C374 /* SoundKitNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8C5C142616415F0099C374 /* SoundKitNode.swift */; };
 		EC8C5C2326165C870099C374 /* PulseOnChangeNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8C5C2226165C870099C374 /* PulseOnChangeNode.swift */; };
@@ -1606,6 +1612,12 @@
 		EC8BA54826A6388B002E345C /* VelocityNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VelocityNode.swift; sourceTree = "<group>"; };
 		EC8BD76D2B6C1350009BA60C /* EdgeEditModeOutputHoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeEditModeOutputHoverView.swift; sourceTree = "<group>"; };
 		EC8C1AA22D7795100058D969 /* NodeViewModelNodeCalculatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeViewModelNodeCalculatable.swift; sourceTree = "<group>"; };
+		EC8C1AA52D7798B70058D969 /* InputNodeRowObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputNodeRowObserver.swift; sourceTree = "<group>"; };
+		EC8C1AA72D7798E70058D969 /* OutputNodeRowObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutputNodeRowObserver.swift; sourceTree = "<group>"; };
+		EC8C1AAA2D7799A90058D969 /* InputNodeRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputNodeRowViewModel.swift; sourceTree = "<group>"; };
+		EC8C1AAC2D7799CA0058D969 /* OutputNodeRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutputNodeRowViewModel.swift; sourceTree = "<group>"; };
+		EC8C1AAE2D779A090058D969 /* GraphItemType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphItemType.swift; sourceTree = "<group>"; };
+		EC8C1AB02D779A190058D969 /* NodeRowViewModelId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeRowViewModelId.swift; sourceTree = "<group>"; };
 		EC8C5C102616334B0099C374 /* OptionSwitchNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionSwitchNode.swift; sourceTree = "<group>"; };
 		EC8C5C142616415F0099C374 /* SoundKitNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundKitNode.swift; sourceTree = "<group>"; };
 		EC8C5C2226165C870099C374 /* PulseOnChangeNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PulseOnChangeNode.swift; sourceTree = "<group>"; };
@@ -2292,6 +2304,7 @@
 			isa = PBXGroup;
 			children = (
 				B50192072C6D100000A048ED /* Layer */,
+				EC8C1AA92D7799890058D969 /* NodeRowViewModel */,
 				EC3A6C452C20C23200CCBACC /* NodeRowObserver */,
 				B55500BF2C1B9D890081C3F1 /* FieldGroupTypeData.swift */,
 				B55500C32C1B9E300081C3F1 /* FieldViewModel.swift */,
@@ -4071,10 +4084,11 @@
 			isa = PBXGroup;
 			children = (
 				B523698B29F9E5E800240395 /* NodeRowObserver.swift */,
+				EC8C1AA72D7798E70058D969 /* OutputNodeRowObserver.swift */,
+				EC8C1AA52D7798B70058D969 /* InputNodeRowObserver.swift */,
 				EC3A6C482C20C2A400CCBACC /* NodeRowObserverExtensions.swift */,
 				EC3A6C4A2C20C4FD00CCBACC /* NodeRowObserverCachedViewDataExtensions.swift */,
 				EC3A6C462C20C27300CCBACC /* NodeRowObserverSchemaObserverIdentifiable.swift */,
-				B5969F8B2C2CAAA60012F4BD /* NodeRowViewModel.swift */,
 			);
 			path = NodeRowObserver;
 			sourceTree = "<group>";
@@ -4387,6 +4401,18 @@
 				EC8C1AA22D7795100058D969 /* NodeViewModelNodeCalculatable.swift */,
 			);
 			path = NodeViewModel;
+			sourceTree = "<group>";
+		};
+		EC8C1AA92D7799890058D969 /* NodeRowViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				B5969F8B2C2CAAA60012F4BD /* NodeRowViewModel.swift */,
+				EC8C1AAA2D7799A90058D969 /* InputNodeRowViewModel.swift */,
+				EC8C1AAC2D7799CA0058D969 /* OutputNodeRowViewModel.swift */,
+				EC8C1AAE2D779A090058D969 /* GraphItemType.swift */,
+				EC8C1AB02D779A190058D969 /* NodeRowViewModelId.swift */,
+			);
+			path = NodeRowViewModel;
 			sourceTree = "<group>";
 		};
 		EC96B0432B8D087F00B58227 /* Pack */ = {
@@ -4990,6 +5016,7 @@
 				EC650BDB2686702800C4CCC9 /* SpeakerNode.swift in Sources */,
 				B56FFB382C18F12600623CC7 /* CGRectUtils.swift in Sources */,
 				EC844A662B5F20D400C79B0B /* StitchFontChoice.swift in Sources */,
+				EC8C1AAF2D779A090058D969 /* GraphItemType.swift in Sources */,
 				ECD887252941496000003B47 /* ScaledSize.swift in Sources */,
 				EC7A4FC0267A89D500487CDA /* VideoDisplayView.swift in Sources */,
 				ECC6F00928BFBBC600535493 /* LayerNamesDropDownChoiceView.swift in Sources */,
@@ -5251,6 +5278,7 @@
 				EC731CB92A37F05100241CB2 /* PatchDescription.swift in Sources */,
 				B59F03B72CB75B8D00A9422C /* GraphComponentHashable.swift in Sources */,
 				B5B00FFA2BBFC7E000E83CE7 /* LayerInputType.swift in Sources */,
+				EC8C1AB12D779A190058D969 /* NodeRowViewModelId.swift in Sources */,
 				EC8C1AA32D7795100058D969 /* NodeViewModelNodeCalculatable.swift in Sources */,
 				ECD0E1A028D3697D00133045 /* Base64StringToImagePatchNode.swift in Sources */,
 				B5F8D6A82C224A6600B99E5C /* LayerNodeData.swift in Sources */,
@@ -5262,6 +5290,7 @@
 				ECF01AED264F2151003B5AF2 /* PreviewCommon.swift in Sources */,
 				EC17ACD626B4C32200137EA5 /* PortActions.swift in Sources */,
 				B5657D362C0983E300287362 /* MediaEvalOpObservable.swift in Sources */,
+				EC8C1AA62D7798B70058D969 /* InputNodeRowObserver.swift in Sources */,
 				ECC558A9294A9B3A0025BB42 /* DragInteractionUtils.swift in Sources */,
 				B569E58B2B06A8B100C7435B /* NodeInfo.swift in Sources */,
 				B5221F6A2D39788E009FF89A /* Model3DLayerUtil.swift in Sources */,
@@ -5403,6 +5432,7 @@
 				EC733DC02639CB2100DD4EC1 /* Interactions.swift in Sources */,
 				EC31438728189FDF0023DB26 /* ProjectCreatedActions.swift in Sources */,
 				EC3127F62BA3B6470087049A /* NodeWirelessBroadcastSubmenuView.swift in Sources */,
+				EC8C1AAD2D7799CA0058D969 /* OutputNodeRowViewModel.swift in Sources */,
 				ECAD8930292EAF9A005A87A2 /* OptionEqualsNode.swift in Sources */,
 				EC865B8429E7584F0030FD89 /* TopBarButtonView.swift in Sources */,
 				B55501052C1BC8890081C3F1 /* SidebarSwipeSetting.swift in Sources */,
@@ -5644,6 +5674,7 @@
 				B549AD7229CFC30D002F3252 /* NodePositionUtils.swift in Sources */,
 				EC28D55B26B2142D00E1118E /* LayerGroups.swift in Sources */,
 				20308FAB25AD1721008CE3BE /* MiscUtils.swift in Sources */,
+				EC8C1AAB2D7799A90058D969 /* InputNodeRowViewModel.swift in Sources */,
 				EC004DD32B44D24300C5DB33 /* CanvasSketchUtils.swift in Sources */,
 				EC6B2E122D76273600804E38 /* PortPreviewPopoverView.swift in Sources */,
 				ECF387E1280B61A80075F0E5 /* NodeConstants.swift in Sources */,
@@ -5674,6 +5705,7 @@
 				B58F9C24294AE0AA00FFBF2C /* KeyPressState.swift in Sources */,
 				20308FAD25AD1721008CE3BE /* StitchApp.swift in Sources */,
 				EC3A6C492C20C2A400CCBACC /* NodeRowObserverExtensions.swift in Sources */,
+				EC8C1AA82D7798E70058D969 /* OutputNodeRowObserver.swift in Sources */,
 				EC609DD429357C0A00BF60A5 /* EqualsExactly.swift in Sources */,
 				B586D16527FE7FD500E56106 /* PreviewUtils.swift in Sources */,
 				B5B20BB2279A171E008A2B5A /* GestureHostingController.swift in Sources */,
