@@ -224,7 +224,7 @@ extension InputNodeRowObserver {
 
         // Set current upstream observer
         return self.nodeDelegate?.graphDelegate?.getNodeViewModel(upstreamCoordinate.nodeId)?
-            .getOutputRowObserver(upstreamPortId)
+            .getOutputRowObserver(for: upstreamPortId)
     }
     
     @MainActor
@@ -314,7 +314,11 @@ extension InputNodeRowObserver {
 
         // Check for connected row observer rather than just setting ID--makes for
         // a more robust check in ensuring the connection actually exists
-        assertInDebug(self.nodeDelegate?.graphDelegate?.visibleNodesViewModel.getOutputRowObserver(for: connectedOutputObserver.id) != nil)
+        assertInDebug(connectedOutputObserver
+            .id
+            .portId
+            .flatMap { self.nodeDelegate?.getOutputRowObserver(for: $0) }
+            .isDefined)
         
         // Report to output observer that there's an edge (for port colors)
         // We set this to false on default above

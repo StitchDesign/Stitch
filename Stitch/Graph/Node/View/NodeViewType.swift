@@ -122,7 +122,7 @@ struct DefaultNodeInputView: View {
                            canvas: canvas,
                            rowViewModels: canvas.inputViewModels,
                            nodeIO: .input) { rowViewModel in
-            if let rowObserver = node.getInputRowObserver(for: rowViewModel.id.portType) {
+            if let rowObserver = node.getInputRowObserverForUI(for: rowViewModel.id.portType, graph) {
                 let layerInputObserver: LayerInputObserver? = rowObserver.id.layerInput
                     .flatMap { node.layerNode?.getLayerInputObserver($0.layerInput) }
                 
@@ -172,7 +172,8 @@ struct DefaultNodeOutputView: View {
                            canvas: canvas,
                            rowViewModels: canvas.outputViewModels,
                            nodeIO: .output) { rowViewModel in
-            if let rowObserver = node.getOutputRowObserver(for: rowViewModel.id.portType) {
+            if let portId = rowViewModel.id.portType.portId,
+               let rowObserver = node.getOutputRowObserverForUI(for: portId, graph) {
                 HStack {
                     NodeOutputView(graph: graph,
                                    graphUI: document,
