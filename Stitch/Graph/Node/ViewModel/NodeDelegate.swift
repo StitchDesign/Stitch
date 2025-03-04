@@ -56,7 +56,8 @@ extension NodeDelegate {
                 portObserver.allInputData.map { $0.rowObserver }
             }
         case .group(let canvas):
-            fatalErrorIfDebug("Attempted to retrieve a row observer for a GroupNode input")
+//            fatalErrorIfDebug("Attempted to retrieve a row observer for a GroupNode input")
+            log("Attempted to retrieve a row observer for a GroupNode input")
             return canvas.inputViewModels.compactMap {
                 $0.rowDelegate
             }
@@ -87,7 +88,8 @@ extension NodeDelegate {
         case .layer(let layer):
             return layer.outputPorts.map { $0.rowObserver }
         case .group(let canvas):
-            fatalErrorIfDebug("Attempted to retrieve a row observer for a GroupNode output")
+//            fatalErrorIfDebug("Attempted to retrieve a row observer for a GroupNode output")
+            log("Attempted to retrieve a row observer for a GroupNode output")
             return canvas.outputViewModels.compactMap {
                 $0.rowDelegate
             }
