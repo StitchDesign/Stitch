@@ -103,51 +103,27 @@ extension NodeViewModel: NodeCalculatable {
 //        self.getAllInputsObservers(<#T##graph: GraphState##GraphState#>)
 //    }
     
-//    var inputsObservers: [InputNodeRowObserver] {
-//        get {
-//            // Previously this relied on accessing GraphState via `graphDelegate`; but
+    @MainActor
+    var inputsObservers: [InputNodeRowObserver] {
+        get {
+            // Previously this relied on accessing GraphState via `graphDelegate`; but
 //            self.getAllInputsObservers()
-//        }
-//        set(newValue) {
-//            self.patchNode?.inputsObservers = newValue
-//        }
-//    }
-    
-//    var outputsObservers: [OutputNodeRowObserver] {
-//        get {
-//            self.getAllOutputsObservers()
-//        }
-//        set(newValue) {
-//            self.patchNode?.outputsObservers = newValue
-//        }
-//    }
-    
-    @MainActor
-    func inputsObservers(_ graph: any GraphCalculatable) -> [InputNodeRowObserver] {
-        guard let graph = graph as? GraphState else {
-            fatalErrorIfDebug()
-            return []
+            self.getInputsObserversForEval()
         }
-        return self.getAllInputsObservers(graph)
-    }
-    
-    @MainActor
-    func setPatchInputsObservers(_ newValue: [InputNodeRowObserver]) {
-        self.patchNode?.inputsObservers = newValue
-    }
-    
-    @MainActor
-    func outputsObservers(_ graph: any GraphCalculatable) -> [OutputNodeRowObserver] {
-        guard let graph = graph as? GraphState else {
-            fatalErrorIfDebug()
-            return []
+        set(newValue) {
+            self.patchNode?.inputsObservers = newValue
         }
-        return self.getAllOutputsObservers(graph)
     }
     
     @MainActor
-    func setPatchOutputsObservers(_ newValue: [OutputNodeRowObserver]) {
-        self.patchNode?.outputsObservers = newValue
+    var outputsObservers: [OutputNodeRowObserver] {
+        get {
+            // self.getAllOutputsObservers()
+            self.getOutputsObserversForEval()
+        }
+        set(newValue) {
+            self.patchNode?.outputsObservers = newValue
+        }
     }
     
     @MainActor
@@ -166,27 +142,6 @@ extension NodeViewModel: NodeCalculatable {
 //    var inputsValuesList: PortValuesList {
     func inputsValuesListForEval() -> PortValuesList {
         self.getInputsObserversForEval().map { $0.allLoopedValues }
-        
-//        guard let graph = graph as? GraphState else {
-//            fatalErrorIfDebug()
-//            return []
-//        }
-        
-//        switch self.nodeType {
-////        case .patch(let patch):
-////            return self.getAllInputsObservers(graph).map { $0.allLoopedValues }
-////            // return patch.inputsObservers.map { $0.allLoopedValues }
-//        case .layer(let layer):
-//            // TODO: does this have to be sorted?
-//            return layer.getSortedInputPorts().map { $0.allLoopedValues }
-//        case .patch, .group, .component:
-//            return self.getAllInputsObservers(graph).map { $0.allLoopedValues }
-//            // return graph.visibleNodesViewModel.getSplitterInputRowObservers(for: self.id).map { $0.allLoopedValues }
-////        case .component(let componentData):
-////            return componentData.canvas.inputViewModels.compactMap {
-////                $0.rowDelegate?.allLoopedValues
-////            }
-//        }
     }
         
     // after we eval a node, we sets its current inputs to be its previous inputs,
@@ -413,7 +368,7 @@ extension NodeViewModel {
                                     newIOValues: newValuesList)
         }
 
-        zip(outputsObservers, newValuesList ?? self.outputs).forEach { rowObserver, values in
+        zip(outputsObservers, newValuesList ?? self.outputsForEval).forEach { rowObserver, values in
             rowObserver.updateValues(values)
         }
     }
@@ -571,7 +526,7 @@ extension NodeViewModel {
     @MainActor
     func getLoopIndices() -> [Int] {
         let inputValuesList = self.inputsForEval
-        let outputValuesList = self.outputs
+        let outputValuesList = self.outputsForEval
 
         switch self.nodeType {
         case .patch, .layer:
@@ -758,7 +713,7 @@ extension NodeViewModel {
     func inputsWithoutImmediatelyUpstreamInteractionNode(_ nodes: NodesViewModelDict,
                                                          _ graph: GraphState) -> PortValuesList {
         self.getAllInputsObservers(graph)
-            .filter { $0.hasUpstreamInteractionNode(nodes) }
+            .filter { $0.hasUpstreamInteractionNode(nodes, graph) }
             .map(\.allLoopedValues)
     }
     

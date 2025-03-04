@@ -60,7 +60,7 @@ extension NodeDelegate {
         }
     }
     
-    @MainActor func getInputsObserversForEval() -> [OutputNodeRowObserver] {
+    @MainActor func getInputsObserversForEval() -> [InputNodeRowObserver] {
         switch self.nodeType {
         case .patch(let patch):
             return patch.inputsObservers

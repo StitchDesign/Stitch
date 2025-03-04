@@ -42,7 +42,7 @@ final class MouseNodeState: NodeEphemeralObservable {
     var position: CGPoint = .zero
     var velocity: CGPoint = .zero
     
-    func onPrototypeRestart() {
+    func onPrototypeRestart(_ graph: GraphState) {
         self.isDown = false
         self.position = .zero
         self.velocity = .zero

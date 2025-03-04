@@ -72,7 +72,7 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
 
     // TODO: `internal` vs `private` ?
     @MainActor
-    internal var upstreamOutputCoordinate: NodeIOCoordinate?
+    private var upstreamOutputCoordinate: NodeIOCoordinate?
 //    {
 ////        didSet(oldValue) {
 ////            self.didUpstreamOutputCoordinateUpdate(oldValue: oldValue, <#T##GraphState#>)
@@ -241,7 +241,7 @@ extension InputNodeRowObserver {
     
     // Because `private`, needs to be declared in same file(?) as method that uses it
     @MainActor
-    private func getUpstreamOutputObserver(_ graph: GraphState) -> OutputNodeRowObserver? {
+    func getUpstreamOutputObserver(_ graph: GraphState) -> OutputNodeRowObserver? {
         guard let upstreamCoordinate = self.upstreamOutputCoordinate,
               let upstreamPortId = upstreamCoordinate.portId else {
             return nil

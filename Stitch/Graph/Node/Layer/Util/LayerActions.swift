@@ -22,8 +22,8 @@ extension Layer {
 
 extension InputNodeRowObserver {
     @MainActor
-    func hasUpstreamInteractionNode(_ nodes: NodesViewModelDict) -> Bool {
-        if let upstreamNodeId = self.upstreamOutputObserver?.id.nodeId,
+    func hasUpstreamInteractionNode(_ nodes: NodesViewModelDict, _ graph: GraphState) -> Bool {
+        if let upstreamNodeId = self.getUpstreamOutputObserver(graph)?.id.nodeId,
            let upstreamNode = nodes.get(upstreamNodeId),
            upstreamNode.patch?.isInteractionPatchNode ?? false {
             return false
