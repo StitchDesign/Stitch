@@ -88,7 +88,9 @@ struct DuplicateShortcutKeyPressed: StitchDocumentEvent {
     // Duplicates BOTH nodes AND comments
     @MainActor
     func handle(state: StitchDocumentViewModel) {
-        state.duplicateShortcutKeyPressed()
+        Task(priority: .high) { [weak state] in
+            await state?.duplicateShortcutKeyPressed()
+        }
     }
 }
 
@@ -139,7 +141,7 @@ func insertAfterID(data: [SidebarLayerData], newDataList: [SidebarLayerData], af
 
 extension StitchDocumentViewModel {
     @MainActor
-    func duplicateShortcutKeyPressed() {
+    func duplicateShortcutKeyPressed() async {
         guard !self.llmRecording.isRecording else {
             log("Duplication disabled during LLM Recording")
             return
@@ -155,17 +157,13 @@ extension StitchDocumentViewModel {
             let copiedComponentResult = self.visibleGraph.createCopiedComponent(
                 groupNodeFocused: self.graphUI.groupNodeFocused,
                 selectedNodeIds: self.visibleGraph.selectedNodeIds.compactMap(\.nodeCase).toSet)
-            
-            Task(priority: .high) { [weak self] in
-                guard let state = self else { return }
                 
-                await state.visibleGraph
-                    .insertNewComponent(copiedComponentResult,
-                                        isCopyPaste: false,
-                                        encoder: state.visibleGraph.documentEncoderDelegate,
-                                        document: state)
-                state.visibleGraph.encodeProjectInBackground()
-            }
+            await self.visibleGraph
+                .insertNewComponent(copiedComponentResult,
+                                    isCopyPaste: false,
+                                    encoder: self.visibleGraph.documentEncoderDelegate,
+                                    document: self)
+            self.visibleGraph.encodeProjectInBackground()
         }
     }
 }
