@@ -212,7 +212,7 @@ struct InputValueView: View {
 
     @MainActor
     var hasHeterogenousValues: Bool {
-        guard let layerInputPort = layerInputObserver?.port else {
+        guard let layerInputPort = rowViewModel.id.layerInputPort else {
             return false
         }
         

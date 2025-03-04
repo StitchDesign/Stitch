@@ -188,8 +188,7 @@ extension GraphState {
             return nil
         }
         
-        guard let firstSelectedLayer = self.sidebarSelectionState.primary.first,
-              let firstSelectedNode: NodeViewModel = self.getNode(firstSelectedLayer) else {
+        guard let firstSelectedLayer = self.sidebarSelectionState.primary.first else {
             log("multipleSidebarLayersSelected: did not have any selected sidebar layers?")
             return nil
         }
@@ -248,14 +247,7 @@ extension ProjectSidebarObservable {
     
     @MainActor
     func sidebarItemSelectedViaEditMode(_ id: Self.ItemID) {
-        
-        // we selected a group -- so 100% select the group
-        // and 80% all the children further down in the street
-        guard let item = self.retrieveItem(id) else {
-            return
-        }
-           
-        self.addExclusivelyToPrimary(id)  
+        self.addExclusivelyToPrimary(id)
         self.graphDelegate?.updateInspectorFocusedLayers()
     }
 }
