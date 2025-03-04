@@ -34,8 +34,7 @@ struct ExpansionBoxView: View {
         .frame(box.size)
         .position(box.anchorCorner)
         .onChange(of: box) { _, newSelectionBounds in
-            graph.processCanvasSelectionBoxChange(selectionBox: newSelectionBounds.asCGRect,
-                                                  document: document)
+            document.processCanvasSelectionBoxChange(selectionBox: newSelectionBounds.asCGRect)
         }
     }
 }
