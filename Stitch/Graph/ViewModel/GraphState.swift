@@ -824,7 +824,7 @@ extension GraphState {
                        node: NodeViewModel,
                        portValues: PortValues) {
         let nodeId = node.id
-        var outputsToUpdate = node.outputs
+        var outputsToUpdate = node.outputsForEval
         var nodeIdsToRecalculate = NodeIdSet()
         
         for (portId, newOutputValue) in portValues.enumerated() {

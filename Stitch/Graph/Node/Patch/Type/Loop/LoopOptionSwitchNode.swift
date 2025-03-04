@@ -44,7 +44,7 @@ func loopOptionSwitchEval(node: PatchNode,
 
     let inputLoop = inputsValues.first!
     
-    let previousValue: Double = node.outputs.first?.first?.getNumber ?? .zero
+    let previousValue: Double = node.outputsForEval.first?.first?.getNumber ?? .zero
 
     // log("loopOptionSwitchEval: inputLoop: \(inputLoop)")
     // log("loopOptionSwitchEval: graphTime: \(graphTime)")

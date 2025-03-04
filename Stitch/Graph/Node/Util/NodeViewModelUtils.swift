@@ -118,8 +118,8 @@ extension NodeViewModel {
     }
 
     @MainActor
-    var currentBroadcastChoiceId: NodeId? {
-        self.getInputRowObserver(0)?.currentBroadcastChoiceId
+    func currentBroadcastChoiceId(_ graph: GraphState) -> NodeId? {
+        self.getInputRowObserver(0, graph)?.currentBroadcastChoiceId
     }
 
     @MainActor
@@ -129,13 +129,13 @@ extension NodeViewModel {
     }
 
     @MainActor
-    var inputs: PortValuesList {
-        self.inputsValuesList
+    var inputsForEval: PortValuesList {
+        self.inputsValuesListForEval()
     }
 
     @MainActor
-    var outputs: PortValuesList {
-        self.getAllOutputsObservers().map { $0.allLoopedValues }
+    var outputsForEval: PortValuesList {
+        self.getOutputsObserversForEval().map { $0.allLoopedValues }
     }
 
     /*
@@ -157,7 +157,7 @@ extension NodeViewModel {
 
         self.userVisibleType = newType
         
-        self.getAllInputsObservers().enumerated().forEach { index, inputObserver in
+        self.getAllInputsObservers(graph).enumerated().forEach { index, inputObserver in
             inputObserver.changeInputType(
                 to: newType,
                 nodeKind: self.kind,
@@ -193,15 +193,15 @@ extension NodeViewModel {
     }
     
     @MainActor
-    func inputCoordinate(at portId: Int) -> InputCoordinate? {
-        portId > self.inputs.count
+    func inputCoordinate(at portId: Int, _ graph: GraphState) -> InputCoordinate? {
+        portId > self.inputsForEval.count
             ? nil
             : InputCoordinate(portId: portId, nodeId: self.id)
     }
 
     @MainActor
-    func outputCoordinate(at portId: Int) -> OutputCoordinate? {
-        portId > self.outputs.count
+    func outputCoordinate(at portId: Int, _ graph: GraphState) -> OutputCoordinate? {
+        portId > self.outputsForEval.count
             ? nil
             : OutputCoordinate(portId: portId, nodeId: self.id)
     }
@@ -245,14 +245,14 @@ extension NodeViewModel {
 
     @MainActor
     var outputsLengthenedByLongestInputLoop: PortValuesList {
-        getLengthenedArrays(self.outputs,
-                            longestLoopLength: getLongestLoopLength(self.inputs))
+        getLengthenedArrays(self.outputsForEval,
+                            longestLoopLength: getLongestLoopLength(self.inputsForEval))
     }
     
     @MainActor
-    var outputCoordinates: NodeIOCoordinates {
+    func outputCoordinates() -> NodeIOCoordinates {
         (
-            0..<self.outputs.count
+            0..<self.outputsForEval.count
         )
         .map {
             .init(portId: $0, nodeId: self.id)

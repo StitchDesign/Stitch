@@ -38,7 +38,7 @@ struct LoopShuffleNode: PatchNodeDefinition {
 func loopShuffleEval(node: PatchNode,
                      graphStep: GraphStepState) -> EvalResult {
 
-    let inputsValues = node.inputs
+    let inputsValues = node.inputsForEval
     let graphTime = graphStep.graphTime
 
     // Suppose the inputLoop is a loop of pulses;

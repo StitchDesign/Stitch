@@ -60,6 +60,24 @@ extension NodeDelegate {
         }
     }
     
+    @MainActor func getInputsObserversForEval() -> [OutputNodeRowObserver] {
+        switch self.nodeType {
+        case .patch(let patch):
+            return patch.inputsObservers
+        // NOTE: if we're looking for a specific input, it's better to use keyPath access, see `getInputRowObserver`
+        case .layer(let layer):
+            return layer.getSortedInputPorts().flatMap { portObserver in
+                // Grabs packed or unpacked data depending on what's used
+                portObserver.allInputData.map { $0.rowObserver }
+            }
+        case .group(let group):
+            fatalErrorIfDebug("Should never try to evaluate a GroupNode")
+            return .init()
+        case .component(let component):
+            return component.inputsObservers
+        }
+    }
+    
     @MainActor func getAllOutputsObservers(_ graph: GraphState) -> [OutputNodeRowObserver] {
         switch self.nodeType {
         case .patch(let patch):
@@ -76,6 +94,20 @@ extension NodeDelegate {
 //            return component.canvas.outputViewModels.compactMap {
 //                $0.rowDelegate
 //            }
+        }
+    }
+    
+    @MainActor func getOutputsObserversForEval() -> [OutputNodeRowObserver] {
+        switch self.nodeType {
+        case .patch(let patch):
+            return patch.outputsObservers
+        case .layer(let layer):
+            return layer.outputPorts.map { $0.rowObserver }
+        case .group:
+            fatalErrorIfDebug("Should never try to evaluate a GroupNode")
+            return .init()
+        case .component(let component):
+            return component.outputsObservers
         }
     }
     

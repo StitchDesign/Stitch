@@ -76,7 +76,7 @@ func coreMLDetectionDefaultOutputs(nodeId: NodeId, inputsCount: Int) -> Outputs 
 @MainActor
 func coreMLDetectionEval(node: PatchNode) -> EvalResult {
     let defaultOutputs = node.defaultOutputsList
-    let inputs = node.inputs
+    let inputs = node.inputsForEval
     
     guard let mediaObserver = node.ephemeralObservers?.first as? VisionOpObserver,
           let imageMediaId = inputs[safe: 1]?.first?.asyncMedia?.id,

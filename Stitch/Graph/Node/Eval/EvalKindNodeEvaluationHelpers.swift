@@ -22,11 +22,11 @@ func outputsOnlyEvalT<T: PatchNodeTypeSet>(_ eval: @escaping OutputsOnlyPureEval
             #if DEBUG
             fatalError()
             #endif
-            return EvalResult(outputsValues: node.outputs)
+            return EvalResult(outputsValues: node.outputsForEval)
         }
 
         let newOutputValues: PortValuesList = eval(
-            node.inputs,
+            node.inputsForEval,
             evalKind)
 
         return .init(outputsValues: newOutputValues)
@@ -35,7 +35,7 @@ func outputsOnlyEvalT<T: PatchNodeTypeSet>(_ eval: @escaping OutputsOnlyPureEval
 
 @MainActor
 let pureNodeEval = { (_ eval: @escaping PureEval) in { (node: PatchNode) in
-    let outputsValues = loopedEval(inputsValues: node.inputs, outputsValues: node.outputs) { values, _ in
+    let outputsValues = loopedEval(inputsValues: node.inputsForEval, outputsValues: node.outputsForEval) { values, _ in
         eval(values)
     }
     .remapOutputs()

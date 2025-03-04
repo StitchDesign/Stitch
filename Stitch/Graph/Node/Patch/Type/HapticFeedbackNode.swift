@@ -42,7 +42,7 @@ struct HapticFeedbackNode: PatchNodeDefinition {
 func hapticFeedbackEval(node: PatchNode,
                         graphStep: GraphStepState) -> ImpureEvalResult {
 
-    let inputsValues = node.inputs
+    let inputsValues = node.inputsForEval
     let outputsValues = node.outputs
     let graphTime: TimeInterval = graphStep.graphTime
 

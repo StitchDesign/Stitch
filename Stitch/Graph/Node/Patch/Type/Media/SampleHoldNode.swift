@@ -94,7 +94,7 @@ func sampleAndHoldOpClosure(graphTime: TimeInterval,
 func sampleAndHoldEval(node: NodeViewModel,
                        graphStep: GraphStepState) -> ImpureEvalResult {
 
-    let inputsValues = node.inputs
+    let inputsValues = node.inputsForEval
     let outputsValues: PortValuesList = node.outputs
     let graphTime: TimeInterval = graphStep.graphTime
     let nodeType = node.userVisibleType ?? .media

@@ -52,14 +52,14 @@ extension NodeViewModel {
     /// Get assigned layer id in this patch node's input.
     /// Non-nil just if (1) patch node can be assigned to a layer and (2) actually is assigned..
     @MainActor
-    func getInteractionId() -> LayerNodeId? {
+    func getInteractionId(_ graph: GraphState) -> LayerNodeId? {
         if self.layerNode.isDefined {
             return nil
         }
         
         return self
             // Assumes assigned-layer alwauy in first input
-            .getInputRowObserver(0)?
+            .getInputRowObserver(0, graph)?
             // We always ignore loops; just use first value in loop
             .allLoopedValues.first?
             .getInteractionId

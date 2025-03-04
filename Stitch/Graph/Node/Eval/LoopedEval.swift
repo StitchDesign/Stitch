@@ -146,7 +146,7 @@ extension NodeViewModel {
                                                     shouldAddOutputs: Bool = true,
                                                     evalOp: @escaping OpWithIndex<EvalOpResult>) -> [EvalOpResult] {
         let inputsValues = inputsValues ?? self.inputs
-        let outputsValues = self.outputs
+        let outputsValues = self.outputsForEval
         
         
         let longestLoopLength = max(getLongestLoopLength(inputsValues), minLoopCount)
@@ -218,7 +218,7 @@ func loopedEval<EvalOpResult>(node: PatchNode,
 
     // Remaps values by loop index
     let remappedLengthenedInputs = lengthenedInputs.remapValuesByLoop()
-    let remappedOutputs = node.outputs.remapValuesByLoop()
+    let remappedOutputs = node.outputsForEval.remapValuesByLoop()
 
     let results = remappedLengthenedInputs.enumerated().map { loopIndex, inputValues in
         var callArgs = inputValues

@@ -41,7 +41,7 @@ struct LoopRemoveNode: PatchNodeDefinition {
 func loopRemoveEval(node: PatchNode,
                     graphStep: GraphStepState) -> EvalResult {
 
-    let inputsValues = node.inputs
+    let inputsValues = node.inputsForEval
     let graphTime = graphStep.graphTime
     
     // log("loopRemoveEval: inputsValues: \(inputsValues)")

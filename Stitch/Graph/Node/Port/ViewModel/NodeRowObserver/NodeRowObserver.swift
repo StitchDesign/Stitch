@@ -70,13 +70,37 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     @MainActor
     var allLoopedValues: PortValues = .init()
 
-    // Connected upstream node, if input
+    // TODO: `internal` vs `private` ?
     @MainActor
-    var upstreamOutputCoordinate: NodeIOCoordinate? {
-        didSet(oldValue) {
-            self.didUpstreamOutputCoordinateUpdate(oldValue: oldValue)
-        }
+    internal var upstreamOutputCoordinate: NodeIOCoordinate?
+//    {
+////        didSet(oldValue) {
+////            self.didUpstreamOutputCoordinateUpdate(oldValue: oldValue, <#T##GraphState#>)
+////            self.didUpstreamOutputCoordinateUpdate(oldValue: oldValue)
+////        }
+//    }
+    
+    @MainActor
+    var getUpstreamOutputCoordinate: NodeIOCoordinate? {
+        self.upstreamOutputCoordinate
     }
+    
+    @MainActor
+    func setUpstreamOutputCoordinate(_ newValue: NodeIOCoordinate?, _ graph: GraphState) {
+        let oldValue = self.upstreamOutputCoordinate
+        self.upstreamOutputCoordinate = newValue
+        self.didUpstreamOutputCoordinateUpdate(oldValue: oldValue, graph)
+    }
+    
+    // so awkward... a property that, when
+    // Connected upstream node, if input
+//    @MainActor
+//    var upstreamOutputCoordinate: NodeIOCoordinate? {
+//        didSet(oldValue) {
+//            self.didUpstreamOutputCoordinateUpdate(oldValue: oldValue, <#T##GraphState#>)
+//            self.didUpstreamOutputCoordinateUpdate(oldValue: oldValue)
+//        }
+//    }
     
     /// Tracks upstream output row observer for some input. Cached for perf.
     @MainActor

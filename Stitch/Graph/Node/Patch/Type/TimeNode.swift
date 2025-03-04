@@ -39,7 +39,7 @@ func timePatchNode(id: NodeId,
 func timeEvalWrapper(node: PatchNode,
                      state: GraphStepState) -> EvalResult {
 
-    let inputsValues = node.inputs
+    let inputsValues = node.inputsForEval
 
     let outputs: PortValuesList = timeEval(
         inputsValues: inputsValues,

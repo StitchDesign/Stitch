@@ -111,7 +111,7 @@ func optionSwitchOpClosure(graphTime: TimeInterval) -> PulseOperationT {
 func optionSwitchEval(node: PatchNode,
                       graphStep: GraphStepState) -> ImpureEvalResult {
 
-    let firstOutputValue = node.outputs.first ?? [.number(.zero)]
+    let firstOutputValue = node.outputsForEval.first ?? [.number(.zero)]
 
     let graphTime: TimeInterval = graphStep.graphTime
 

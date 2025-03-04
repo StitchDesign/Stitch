@@ -24,7 +24,7 @@ extension ImpureEvalResult {
         #if DEV_DEBUG
         //        log("ImpureEvalResult: noChange: evaluating \(node.id) produced no change")
         #endif
-        if node.outputs.isEmpty {
+        if node.outputsForEval.isEmpty {
             #if DEV_DEBUG
             //            log("ImpureEvalResult: noChange: will use default outputs")
             #endif
@@ -33,6 +33,6 @@ extension ImpureEvalResult {
             }
         }
 
-        return .init(outputsValues: node.outputs)
+        return .init(outputsValues: node.outputsForEval)
     }
 }

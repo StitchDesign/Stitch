@@ -161,30 +161,32 @@ extension NodeViewModel: NodeCalculatable {
         return self.splitterType == .output && isNodeInComponent
     }
         
+    // NOTE: used in Eval contexts
     @MainActor
 //    var inputsValuesList: PortValuesList {
-    func inputsValuesList(_ graph: any GraphCalculatable) -> PortValuesList {
+    func inputsValuesListForEval() -> PortValuesList {
+        self.getInputsObserversForEval().map { $0.allLoopedValues }
         
-        guard let graph = graph as? GraphState else {
-            fatalErrorIfDebug()
-            return []
-        }
+//        guard let graph = graph as? GraphState else {
+//            fatalErrorIfDebug()
+//            return []
+//        }
         
-        switch self.nodeType {
-//        case .patch(let patch):
+//        switch self.nodeType {
+////        case .patch(let patch):
+////            return self.getAllInputsObservers(graph).map { $0.allLoopedValues }
+////            // return patch.inputsObservers.map { $0.allLoopedValues }
+//        case .layer(let layer):
+//            // TODO: does this have to be sorted?
+//            return layer.getSortedInputPorts().map { $0.allLoopedValues }
+//        case .patch, .group, .component:
 //            return self.getAllInputsObservers(graph).map { $0.allLoopedValues }
-//            // return patch.inputsObservers.map { $0.allLoopedValues }
-        case .layer(let layer):
-            // TODO: does this have to be sorted?
-            return layer.getSortedInputPorts().map { $0.allLoopedValues }
-        case .patch, .group, .component:
-            return self.getAllInputsObservers(graph).map { $0.allLoopedValues }
-            // return graph.visibleNodesViewModel.getSplitterInputRowObservers(for: self.id).map { $0.allLoopedValues }
-//        case .component(let componentData):
-//            return componentData.canvas.inputViewModels.compactMap {
-//                $0.rowDelegate?.allLoopedValues
-//            }
-        }
+//            // return graph.visibleNodesViewModel.getSplitterInputRowObservers(for: self.id).map { $0.allLoopedValues }
+////        case .component(let componentData):
+////            return componentData.canvas.inputViewModels.compactMap {
+////                $0.rowDelegate?.allLoopedValues
+////            }
+//        }
     }
         
     // after we eval a node, we sets its current inputs to be its previous inputs,
@@ -568,7 +570,7 @@ extension NodeViewModel {
     // Returns indices of LONGEST LOOP
     @MainActor
     func getLoopIndices() -> [Int] {
-        let inputValuesList = self.inputs
+        let inputValuesList = self.inputsForEval
         let outputValuesList = self.outputs
 
         switch self.nodeType {

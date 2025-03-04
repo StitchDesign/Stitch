@@ -283,7 +283,7 @@ extension GraphState {
             return
         }
         
-        let outputsToUpdate = node.outputs
+        let outputsToUpdate = node.outputsForEval
         
         // List of new outputvalues must match the node's
         guard outputValues.count == outputsToUpdate.count else {
@@ -320,7 +320,7 @@ extension GraphState {
             nodeIdsToRecalculate = nodeIdsToRecalculate.union(downstreamNodeIds)
             
             // Flow new outputs to downstream nodes
-            node.outputs.enumerated().forEach { index, values in
+            node.outputsForEval.enumerated().forEach { index, values in
                 let downstreamInputs = graph.updateDownstreamInputs(
                     sourceNode: node,
                     flowValues: values,

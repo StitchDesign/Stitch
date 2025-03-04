@@ -20,7 +20,7 @@ extension GraphState {
     @MainActor
     func jumpToAssignedBroadcaster(wirelessReceiverNodeId: NodeId,
                                    graphUI: GraphUIState) {
-        if let assignedBroadcaster = self.getNodeViewModel(wirelessReceiverNodeId)?.currentBroadcastChoiceId {
+        if let assignedBroadcaster = self.getNodeViewModel(wirelessReceiverNodeId)?.currentBroadcastChoiceId(self) {
             self.panGraphToNodeLocation(id: .node(assignedBroadcaster),
                                         graphUI: graphUI)
         }
