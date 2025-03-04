@@ -82,14 +82,6 @@ func _getResponse(from legacyAction: Action,
         return response
     }
 
-    // GraphUIEvents
-    else if let graphUIAction = (legacyAction as? GraphUIEvent),
-            let graphState = graphState {
-        // Mutates GraphState.graphUI in-place
-        graphUIAction.handle(state: graphState.graphUI)
-        return .noChange
-    }
-
     // Project Alert Events
     else if let projectAlertAction = (legacyAction as? ProjectAlertEvent) {
         projectAlertAction.handle(state: store.alertState)

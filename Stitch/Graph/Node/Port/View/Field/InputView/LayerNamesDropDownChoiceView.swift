@@ -125,6 +125,7 @@ struct LayerNamesDropDownChoiceView: View {
     let isSelectedInspectorRow: Bool
     let choices: LayerDropdownChoices
     let hasHeterogenousValues: Bool
+    let activeIndex: ActiveIndex
     
     @MainActor
     func onSet(_ choice: LayerDropdownChoice) {
@@ -136,6 +137,7 @@ struct LayerNamesDropDownChoiceView: View {
         graph.pickerOptionSelected(
             rowObserver: rowObserver,
             choice: value,
+            activeIndex: activeIndex,
             isFieldInsideLayerInspector: isFieldInsideLayerInspector)
     }
         

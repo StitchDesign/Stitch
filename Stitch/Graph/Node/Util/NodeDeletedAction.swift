@@ -10,48 +10,51 @@ import SwiftUI
 import StitchSchemaKit
 
 // Used for Delete key shortcut
-struct DeleteShortcutKeyPressed: GraphEventWithResponse {
+struct DeleteShortcutKeyPressed: StitchDocumentEvent {
     
-    func handle(state: GraphState) -> GraphResponse {
-
+    func handle(state: StitchDocumentViewModel) {
+        let graph = state.visibleGraph
+        
         // Check which we have focused: layers or canvas items
-        if state.graphUI.isSidebarFocused {
-            state.layersSidebarViewModel.deleteSelectedItems()
-            state.updateInspectorFocusedLayers()
+        if state.isSidebarFocused {
+            graph.layersSidebarViewModel.deleteSelectedItems()
+            graph.updateInspectorFocusedLayers()
         }
         
         // If no layers actively selected, then assume canvas items may be selected
         else {
             
             // delete comment boxes
-            state.deleteSelectedCommentBoxes()
+            graph.deleteSelectedCommentBoxes()
 
             // delete nodes
-            state.selectedGraphNodesDeleted(
-                selectedNodes: state.selectedNodeIds)
+            graph.selectedGraphNodesDeleted(
+                selectedNodes: graph.selectedNodeIds)
         }
                 
-        return .shouldPersist
+        state.encodeProjectInBackground()
     }
 }
 
 // Used by Node Tag Menu 'delete' option
-struct SelectedGraphNodesDeleted: GraphEventWithResponse {
+struct SelectedGraphNodesDeleted: StitchDocumentEvent {
 
     var canvasItemId: CanvasItemId? // for when node tag menu opened via right-click
 
-    func handle(state: GraphState) -> GraphResponse {
+    func handle(state: StitchDocumentViewModel) {
+        let graph = state.visibleGraph
         
-        if state.selectedCanvasItems.isEmpty,
+        if graph.getSelectedCanvasItems(groupNodeFocused: state.groupNodeFocused?.groupNodeId).isEmpty,
            let canvasItemId = canvasItemId,
-           let canvasItem = state.getCanvasItem(canvasItemId) {
-            canvasItem.select(state)
+           let canvasItem = graph.getCanvasItem(canvasItemId) {
+            canvasItem.select(graph,
+                              document: state)
         }
 
-        state.selectedGraphNodesDeleted(
-            selectedNodes: state.selectedNodeIds)
+        graph.selectedGraphNodesDeleted(
+            selectedNodes: graph.selectedNodeIds)
 
-        return .shouldPersist
+        state.encodeProjectInBackground()
     }
 }
 

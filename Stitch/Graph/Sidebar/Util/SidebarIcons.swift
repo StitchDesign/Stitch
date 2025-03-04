@@ -39,7 +39,7 @@ extension SidebarItemGestureViewModel {
     
     @MainActor var sidebarLeftSideIcon: String {
         guard let layerNode = self.graphDelegate?.getNodeViewModel(id)?.layerNode,
-              let activeIndex = self.graphDelegate?.activeIndex else {
+              let activeIndex = self.graphDelegate?.documentDelegate?.activeIndex else {
 //            fatalErrorIfDebug()
             return "oval"
         }

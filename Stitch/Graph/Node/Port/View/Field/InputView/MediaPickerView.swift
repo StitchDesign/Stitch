@@ -44,8 +44,10 @@ struct MediaFieldValueView<Field: FieldViewModel>: View {
     let isNodeSelected: Bool
     let isFieldInsideLayerInspector: Bool
     let isSelectedInspectorRow: Bool
+    let isMultiselectInspectorInputWithHeterogenousValues: Bool
     
     @Bindable var graph: GraphState
+    let document: StitchDocumentViewModel
 
     var alignment: Alignment { isInput ? .leading : .trailing }
     
@@ -60,19 +62,6 @@ struct MediaFieldValueView<Field: FieldViewModel>: View {
         }
     }
 
-    @MainActor
-    var isMultiselectInspectorInputWithHeterogenousValues: Bool {
-        if let layerInputObserver = layerInputObserver {
-            @Bindable var layerInputObserver = layerInputObserver
-            return layerInputObserver.fieldHasHeterogenousValues(
-                fieldIndex,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                graph: graph)
-        } else {
-            return false
-        }
-    }
-    
     var body: some View {
         // MARK: using StitchMediaObject is more dangerous than GraphMediaValue as it won't refresh when media is changed, causing media to be retained
         
@@ -87,7 +76,8 @@ struct MediaFieldValueView<Field: FieldViewModel>: View {
                                       isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                       graph: graph,
                                       isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues,
-                                      isSelectedInspectorRow: isSelectedInspectorRow)
+                                      isSelectedInspectorRow: isSelectedInspectorRow,
+                                      activeIndex: document.activeIndex)
                 .onChange(of: mediaName, initial: true) {
                     print("media name in inner value view: \(mediaName)")
                 }
@@ -97,6 +87,7 @@ struct MediaFieldValueView<Field: FieldViewModel>: View {
                                 rowViewModel: rowViewModel,
                                 node: node,
                                 graph: graph,
+                                document: document,
                                 coordinate: rowObserver.id,
                                 isInput: isInput,
                                 fieldIndex: fieldIndex,
@@ -113,6 +104,7 @@ struct MediaFieldLabelView<Field: FieldViewModel>: View {
     let rowViewModel: Field.NodeRowType
     let node: NodeViewModel
     let graph: GraphState
+    let document: StitchDocumentViewModel
     let coordinate: InputCoordinate
     let isInput: Bool
     let fieldIndex: Int
@@ -123,7 +115,8 @@ struct MediaFieldLabelView<Field: FieldViewModel>: View {
     func updateMediaObserver() {
         self.mediaObserver = Field.getMediaObserver(node: node,
                                                     rowViewModel: rowViewModel,
-                                                    graph: graph)
+                                                    graph: graph,
+                                                    activeIndex: document.activeIndex)
     }
     
     var isVisualMediaPort: Bool {
@@ -168,7 +161,7 @@ struct MediaFieldLabelView<Field: FieldViewModel>: View {
                 visualMediaView(mediaObserver: self.mediaObserver)
             }
         }
-        .onChange(of: graph.activeIndex, initial: true) {
+        .onChange(of: document.activeIndex, initial: true) {
             self.updateMediaObserver()
         }
     }

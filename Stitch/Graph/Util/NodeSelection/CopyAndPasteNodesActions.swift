@@ -15,10 +15,12 @@ typealias PredicateTK<T, K> = (T, K) -> Bool
 // Must be
 // "Cut" = cuts both selected nodes AND selected comments
 
-struct SelectedGraphItemsCut: GraphEvent {
+struct SelectedGraphItemsCut: StitchDocumentEvent {
 
-    func handle(state: GraphState) {
+    func handle(state: StitchDocumentViewModel) {
         log("SelectedGraphNodesCut called")
+        
+        let graph = state.visibleGraph
         
         guard !state.llmRecording.isRecording else {
             log("Cut disabled during LLM Recording")
@@ -26,38 +28,42 @@ struct SelectedGraphItemsCut: GraphEvent {
         }
 
         // Copy selected graph data to clipboard
-        state.copyToClipboard(selectedNodeIds: state.selectedNodeIds.compactMap(\.nodeCase).toSet)
+        graph.copyToClipboard(selectedNodeIds: graph.selectedNodeIds.compactMap(\.nodeCase).toSet,
+                              groupNodeFocused: state.groupNodeFocused)
 
         // Delete selected nodes
-        state.selectedNodeIds.forEach {
-            state.deleteCanvasItem($0)
+        graph.selectedNodeIds.forEach {
+            graph.deleteCanvasItem($0)
         }
 
-        state.updateGraphData()
+        graph.updateGraphData()
         state.encodeProjectInBackground()
     }
 }
 
 // "Copy" = copy shortcut, which copies BOTH nodes AND comments
 // struct SelectedGraphNodesCopied: AppEnvironmentEvent {
-struct SelectedGraphItemsCopied: GraphEvent {
-    func handle(state: GraphState) {
+struct SelectedGraphItemsCopied: StitchDocumentEvent {
+    func handle(state: StitchDocumentViewModel) {
         log("SelectedGraphNodesCopied called")
         
         guard !state.llmRecording.isRecording else {
             log("Copy disabled during LLM Recording")
             return
         }
+        
+        let graph = state.visibleGraph
                 
-        state.copyToClipboard(selectedNodeIds: state.selectedNodeIds.compactMap(\.nodeCase).toSet)
+        graph.copyToClipboard(selectedNodeIds: graph.selectedNodeIds.compactMap(\.nodeCase).toSet,
+                              groupNodeFocused: state.groupNodeFocused)
     }
 }
 
 // "Paste" = past shortcut, which pastes BOTH nodes AND comments
 // struct SelectedGraphNodesPasted: AppEnvironmentEvent {
-struct SelectedGraphItemsPasted: GraphEvent {
+struct SelectedGraphItemsPasted: StitchDocumentEvent {
 
-    func handle(state: GraphState) {
+    func handle(state: StitchDocumentViewModel) {
         
         guard !state.llmRecording.isRecording else {
             log("Paste disabled during LLM Recording")
@@ -73,11 +79,14 @@ struct SelectedGraphItemsPasted: GraphEvent {
             
             Task(priority: .high) { [weak state] in
                 guard let state = state else { return }
+                
+                let graph = state.visibleGraph
     
-                await state.insertNewComponent(component: newComponent,
-                                               encoder: state.documentEncoderDelegate,
+                await graph.insertNewComponent(component: newComponent,
+                                               encoder: graph.documentEncoderDelegate,
                                                copiedFiles: importedFiles,
-                                               isCopyPaste: true)
+                                               isCopyPaste: true,
+                                               document: state)
                 state.encodeProjectInBackground()
             }
         } catch {

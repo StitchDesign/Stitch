@@ -9,27 +9,29 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-extension StitchDocumentViewModel {
+extension GraphState {
     // this is 'graph panned via screen finger'
     @MainActor
     func graphDragged(translation: CGSize,
-                      location: CGPoint) {
+                      location: CGPoint,
+                      document: StitchDocumentViewModel) {
         // Always set current drag location
-        self.graphUI.selection.dragCurrentLocation = location
+        self.selection.dragCurrentLocation = location
         
-        if self.graphUI.edgeEditingState != nil {
-            self.graphUI.edgeEditingState = nil
+        if self.edgeEditingState != nil {
+            self.edgeEditingState = nil
         }
 
         // Active node selection cursor
-        if self.graphUI.selection.isSelecting {
+        if self.selection.isSelecting {
             self.handleGraphDraggedDuringSelection(
                 location)
             return
         } else {
             self.handleGraphScrollWithBorders(
                 gestureTranslation: translation,
-                wasTrackpadScroll: false)
+                wasTrackpadScroll: false,
+                document: document)
         }
     }
 
@@ -38,10 +40,10 @@ extension StitchDocumentViewModel {
     /// take place.
     @MainActor
     func graphScrollBegan() {
-        self.graphUI.selection.graphDragState = .dragging
+        self.selection.graphDragState = .dragging
         
-        if self.graphUI.edgeEditingState != nil {
-            self.graphUI.edgeEditingState = nil
+        if self.edgeEditingState != nil {
+            self.edgeEditingState = nil
         }
     }
 
@@ -49,10 +51,12 @@ extension StitchDocumentViewModel {
     // distinct from GraphDragged because cannot trigger a long-press.
     @MainActor
     func graphScrolled(translation: CGPoint,
-                       wasTrackpadScroll: Bool = false) {
+                       wasTrackpadScroll: Bool = false,
+                       document: StitchDocumentViewModel) {
         self.handleGraphScrollWithBorders(
             gestureTranslation: translation.toCGSize,
-            wasTrackpadScroll: wasTrackpadScroll)
+            wasTrackpadScroll: wasTrackpadScroll,
+            document: document)
     }
 }
 
@@ -460,31 +464,31 @@ extension GraphMovementObserver {
     }
 }
 
-struct GraphDraggedDuringSelection: StitchDocumentEvent {
+struct GraphDraggedDuringSelection: GraphEvent {
     
     let location: CGPoint
     
-    func handle(state: StitchDocumentViewModel) {
+    func handle(state: GraphState) {
         
         // added:
         // Always set current drag location
-        state.graphUI.selection.dragCurrentLocation = location
+        state.selection.dragCurrentLocation = location
         
         // added: called by `graphScrollBegan
-        state.graphUI.selection.graphDragState = .dragging
+        state.selection.graphDragState = .dragging
         
-        if state.graphUI.edgeEditingState != nil {
-            state.graphUI.edgeEditingState = nil
+        if state.edgeEditingState != nil {
+            state.edgeEditingState = nil
         }
         
         state.handleGraphDraggedDuringSelection(location)
     }
 }
 
-extension StitchDocumentViewModel {
+extension GraphState {
     @MainActor
     func handleGraphDraggedDuringSelection(_ gestureLocation: CGPoint) {
-        guard let gestureStartLocation = self.graphUI.selection.dragStartLocation else {
+        guard let gestureStartLocation = self.selection.dragStartLocation else {
             log("GraphState.handleGraphDraggedDuringSelection: no start location")
             return
         }
@@ -496,7 +500,7 @@ extension StitchDocumentViewModel {
 //                          height: gestureLocation.y - gestureStartLocation.y)
 //        box.size = size
         
-        var box = self.graphUI.selection.expansionBox ?? .init()
+        var box = self.selection.expansionBox ?? .init()
         box.startPoint = gestureStartLocation
         
         let (newSize, newDirection) = trigCalc(
@@ -508,21 +512,22 @@ extension StitchDocumentViewModel {
         box.expansionDirection = newDirection
         box.endPoint = gestureLocation
         
-        self.graphUI.selection.expansionBox = box
+        self.selection.expansionBox = box
     }
 
     @MainActor
     func handleGraphScrolled(_ translation: CGSize,
-                             wasTrackpadScroll: Bool) {
+                             wasTrackpadScroll: Bool,
+                             document: StitchDocumentViewModel) {
 
         // Scrolling the graph immediately exits edge-editing state and disables edge-animation
         // setOnChange needed to prevent extra render cycles
-        if self.graphUI.edgeEditingState != nil {
-            self.graphUI.edgeEditingState = nil
+        if self.edgeEditingState != nil {
+            self.edgeEditingState = nil
         }
 
-        if self.graphUI.edgeAnimationEnabled {
-            self.graphUI.edgeAnimationEnabled = false
+        if self.edgeAnimationEnabled {
+            self.edgeAnimationEnabled = false
         }
 
         // End dragging if some event (i.e. graph tap) happened
@@ -530,7 +535,8 @@ extension StitchDocumentViewModel {
             log("handleGraphScrolled: ended due to cancelled dragging from other event.")
             self.graphDragEnded(location: nil,
                                 velocity: .zero,
-                                wasScreenDrag: false)
+                                wasScreenDrag: false,
+                                frame: document.frame)
             return
         }
 
@@ -569,11 +575,12 @@ extension StitchDocumentViewModel {
         // so that node stays under our finger:
         if self.graphMovement.canvasItemIsDragged {
 
-            self.visibleGraph.selectedCanvasItems.forEach { node in
+            self.getSelectedCanvasItems(groupNodeFocused: document.groupNodeFocused?.groupNodeId)
+                .forEach { node in
             // self.getSelectedNodeViewModels().forEach { node in
                 node.updateNodeOnGraphDragged(
                     translation,
-                    self.visibleGraph.highestZIndex + 1,
+                    self.highestZIndex + 1,
                     zoom: self.graphMovement.zoomData,
                     state: self.graphMovement)
             }
@@ -591,13 +598,15 @@ extension StitchDocumentViewModel {
     // nil = no prep work to be done; ie we didn't hit any borders yet
     @MainActor
     func handleGraphScrollWithBorders(gestureTranslation: CGSize,
-                                      wasTrackpadScroll: Bool) {
+                                      wasTrackpadScroll: Bool,
+                                      document: StitchDocumentViewModel) {
 
         // SEE GITHUB ISSUE ABOUT OPTIMIZING BORDER-CHECKING FOR LARGE GRAPHS:
         // https://github.com/vpl-codesign/stitch/issues/2469
         self.handleGraphScrolled(
             gestureTranslation,
-            wasTrackpadScroll: wasTrackpadScroll)
+            wasTrackpadScroll: wasTrackpadScroll,
+            document: document)
     }
 }
 
@@ -624,30 +633,30 @@ extension StitchDocumentViewModel {
     var localPositionToPersist: CGPoint {
         /*
          TODO: serialize graph-offset by traversal level; introduce centroid/find-node button
-
+         
          Ideally, we remember (serialize) each traversal level's graph-offset.
          Currently, we only remember the root level's graph-offset.
          So if we were inside a group, we save not the group's graph-offset (graphState.localPosition), but the root graph-offset
          */
-
+        
         // log("GraphState.localPositionToPersists: self.localPosition: \(self.localPosition)")
-
+        
         let _rootLevelGraphOffset = self.visibleGraph
             .visibleNodesViewModel
             .nodePageDataAtCurrentTraversalLevel(nil)?
             .localPosition
-
+        
         if !_rootLevelGraphOffset.isDefined {
             log("GraphState.localPositionToPersists: no root level graph offset")
         }
-
+        
         let rootLevelGraphOffset = _rootLevelGraphOffset ?? ABSOLUTE_GRAPH_CENTER
-
+        
         let graphOffset = self.graphUI.groupNodeFocused.isDefined ? rootLevelGraphOffset : self.localPosition
-
+        
         // log("GraphState.localPositionToPersists: rootLevelGraphOffset: \(rootLevelGraphOffset)")
         // log("GraphState.localPositionToPersists: graphOffset: \(graphOffset)")
-
+        
         // TODO: factor out zoom level
         
         let scale = self.graphMovement.zoomData
@@ -663,7 +672,7 @@ extension StitchDocumentViewModel {
         
         return scaledGraphOffset
     }
-
+    
     @MainActor
     var localPosition: CGPoint {
         get {
@@ -672,7 +681,7 @@ extension StitchDocumentViewModel {
             self.graphMovement.localPosition = newValue
         }
     }
-
+    
     @MainActor
     var localPreviousPosition: CGPoint {
         get {
@@ -681,20 +690,21 @@ extension StitchDocumentViewModel {
             self.graphMovement.localPreviousPosition = newValue
         }
     }
-    
+}
+
+extension GraphState {
     @MainActor
     func handleTrackpadGraphDragEnded() {
 
         //    log("handleTrackpadGraphDragEnded called")
 
-        let state = self.graphUI
         let graphMovement = self.graphMovement
 
         // DO NOT reset selected nodes themselves
-        state.selection.expansionBox = nil
-        state.selection.isSelecting = false
-        state.selection.dragStartLocation = nil
-        state.selection.dragCurrentLocation = nil
+        self.selection.expansionBox = nil
+        self.selection.isSelecting = false
+        self.selection.dragStartLocation = nil
+        self.selection.dragCurrentLocation = nil
 
         // always reset 'wasTrackpadScroll'
         graphMovement.wasTrackpadScroll = false
@@ -702,29 +712,29 @@ extension StitchDocumentViewModel {
         graphMovement.draggedCanvasItem = nil
         
         // Reset shift+click drag selections
-        state.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag = nil
+        self.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag = nil
     }
 
     // you should pass in GraphMovement
     @MainActor
     func graphDragEnded(location: CGPoint?,
                         velocity: CGPoint,
-                        wasScreenDrag: Bool) {
+                        wasScreenDrag: Bool,
+                        frame: CGRect) {
 
         let graphMovement = self.graphMovement
-        let graphUIState = self.graphUI
 
-        let doNotStartMomentum = wasScreenDrag && graphUIState.selection.isSelecting
+        let doNotStartMomentum = wasScreenDrag && self.selection.isSelecting
 
         // always set start and current location of drag gesture
-        graphUIState.selection.dragStartLocation = nil
+        self.selection.dragStartLocation = nil
 
         if location.isDefined {
-            graphUIState.selection.dragCurrentLocation = nil
+            self.selection.dragCurrentLocation = nil
         }
 
-        graphUIState.selection.expansionBox = nil
-        graphUIState.selection.isSelecting = false
+        self.selection.expansionBox = nil
+        self.selection.isSelecting = false
 
         //    log("handleGraphDragEnded: state.graphMovement.localPreviousPosition was \(state.graphMovement.localPreviousPosition)")
         //    log("handleGraphDragEnded: state.graphMovement.localPosition was \(state.graphMovement.localPosition)")
@@ -771,9 +781,9 @@ extension StitchDocumentViewModel {
 
             // also set graphOrigins; JUST FOR GRAPH DRAG AND GRAPH MOMENTUM
             if let nodesPositionalData = self.graphMovement.boundaryNodes {
-                let momentumOrigin = self.visibleGraph
+                let momentumOrigin = self
                     .graphBounds(graphMovement.zoomData,
-                                 graphView: graphUIState.frame,
+                                 graphView: frame,
                                  graphOffset: graphMovement.localPosition,
                                  positionalData: nodesPositionalData)
                 
@@ -788,24 +798,17 @@ extension StitchDocumentViewModel {
         graphMovement.wasTrackpadScroll = false
 
         // Wipe comment box bounds
-        graphUIState.wipeCommentBoxBounds()
+        self.wipeCommentBoxBounds()
 
         // Cancel any possible active graph pan gesture
-        graphUIState.selection.graphDragState = .none
+        self.selection.graphDragState = .none
         
         // Reset shift-click selection state
-        graphUIState.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag = nil
+        self.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag = nil
     }
 }
 
-extension StitchDocumentViewModel {
-    @MainActor
-    func wipeCommentBoxBounds() {
-        self.graphUI.wipeCommentBoxBounds()
-    }
-}
-
-extension GraphUIState {
+extension GraphState {
     @MainActor
     func wipeCommentBoxBounds() {
         self.commentBoxBoundsDict = .init()

@@ -14,6 +14,7 @@ struct StitchCustomColorPickerView: View {
     let isFieldInsideLayerInspector: Bool
     let isForPreviewWindowBackgroundPicker: Bool
     let isForIPhone: Bool
+    let activeIndex: ActiveIndex
     
     @Binding var chosenColor: Color
     let graph: GraphState
@@ -174,6 +175,7 @@ struct StitchCustomColorPickerView: View {
                     graph.pickerOptionSelected(
                         rowObserver: rowObserver,
                         choice: .color(color),
+                        activeIndex: activeIndex,
                         isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                         // Lots of small changes so don't persist everything
                         isPersistence: true)

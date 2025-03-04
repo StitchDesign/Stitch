@@ -519,11 +519,14 @@ extension LayerNodeViewModel {
                                           layer: self.layer)
         }
         
+        let activeIndex = node.graphDelegate?.documentDelegate?.activeIndex ?? .init(.zero)
+        
         // Set blocked fields after all fields have been initialized
         self.forEachInput { layerInput in
             self.blockOrUnblockFields(
-                newValue: layerInput.activeValue,
-                layerInput: layerInput.port)
+                newValue: layerInput.getActiveValue(activeIndex: activeIndex),
+                layerInput: layerInput.port,
+                activeIndex: activeIndex)
         }
     }
     
@@ -555,7 +558,7 @@ extension LayerNodeViewModel {
     
     @MainActor
     func layerSize(_ activeIndex: ActiveIndex) -> LayerSize? {
-        self.sizePort.activeValue.getSize
+        self.sizePort.getActiveValue(activeIndex: activeIndex).getSize
     }
     
     /// Updates one or more preview layers given some layer node.
@@ -678,16 +681,17 @@ extension Layer {
 extension LayerNodeViewModel {
     @MainActor
     func layerPosition(_ activeIndex: ActiveIndex) -> CGPoint? {
-        self.positionPort.activeValue.getPoint
+        self.positionPort.getActiveValue(activeIndex: activeIndex).getPoint
     }
     
     @MainActor
     func scaledLayerSize(for nodeId: NodeId,
                          parentSize: CGSize,
                          activeIndex: ActiveIndex) -> ScaledSize? {
-        let scale = self.scalePort.activeValue.getNumber ?? .zero
+        let scale = self.scalePort.getActiveValue(activeIndex: activeIndex)
+            .getNumber ?? .zero
         
-        return self.sizePort.activeValue
+        return self.sizePort.getActiveValue(activeIndex: activeIndex)
             .getSize?.asCGSize(parentSize)
             .asScaledSize(scale)
     }

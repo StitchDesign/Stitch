@@ -12,12 +12,12 @@ import StitchSchemaKit
 /// Toggles state to show the menu for inserting a new patch or layer node to the graph.
 
 // i.e. user toggled the insert-node-menu via
-struct ToggleInsertNodeMenu: GraphUIEvent {
-    func handle(state: GraphUIState) {
+struct ToggleInsertNodeMenu: StitchDocumentEvent {
+    func handle(state: StitchDocumentViewModel) {
         log("ToggleInsertNodeMenu called")
 
         state.toggleInsertNodeMenu()
-        state.doubleTapLocation = nil
+        state.insertNodeMenuState.doubleTapLocation = nil
     }
 }
 
@@ -30,7 +30,7 @@ struct ToggleInsertNodeMenu: GraphUIEvent {
 //    }
 //}
 
-extension GraphUIState {
+extension StitchDocumentViewModel {
     @MainActor
     func toggleInsertNodeMenu() {
 
@@ -42,7 +42,7 @@ extension GraphUIState {
 
         //        self.insertNodeMenuState.activeSelection = InsertNodeMenuState.startingActiveSelection
 
-        self.activelyEditedCommentBoxTitle = nil
+//        self.activelyEditedCommentBoxTitle = nil
 
         if showMenu {
             self.insertNodeMenuState.activeSelection = InsertNodeMenuState.startingActiveSelection
@@ -64,8 +64,8 @@ extension Animation {
 }
 
 /// Resets all state include hiding the menu and the node selection.
-struct CloseAndResetInsertNodeMenu: GraphUIEvent {
-    func handle(state: GraphUIState) {
+struct CloseAndResetInsertNodeMenu: StitchDocumentEvent {
+    func handle(state: StitchDocumentViewModel) {
         // log("CloseAndResetInsertNodeMenu called")
 
         state.insertNodeMenuState = InsertNodeMenuState()
@@ -73,41 +73,43 @@ struct CloseAndResetInsertNodeMenu: GraphUIEvent {
 }
 
 // i.e. User has 'committed' their node-menu selection
-struct AddNodeButtonPressed: GraphEvent {
-    func handle(state: GraphState) {
+struct AddNodeButtonPressed: StitchDocumentEvent {
+    func handle(state: StitchDocumentViewModel) {
         
-        guard let nodeKind = state.graphUI.insertNodeMenuState.activeSelection?.data.kind else {
+        guard let nodeKind = state.insertNodeMenuState.activeSelection?.data.kind else {
             return
         }
         
+        let graph = state.visibleGraph
+        
         // Reset focused field
-        if state.graphUI.reduxFocusedField != nil {
-            state.graphUI.reduxFocusedField = nil            
+        if state.reduxFocusedField != nil {
+            state.reduxFocusedField = nil
         }
         
         // Immediately create a LayerNode; do not animate.
         if nodeKind.isLayer {
-            guard let newNode = state.documentDelegate?.nodeCreated(choice: nodeKind) else {
+            guard let newNode = state.nodeCreated(choice: nodeKind) else {
                 return
             }
             state.nodeCreationCompleted(newNode.id)
-            state.persistNewNode(newNode)
-        } else {            
+            graph.persistNewNode(newNode)
+        } else {
             // Create the real node, but hide it until animation has completed.
             // (Versus the "animated node" which is really just a NodeView created from activeSelection.)
-            guard let node = state.documentDelegate?.nodeCreated(choice: nodeKind) else {
+            guard let node = state.nodeCreated(choice: nodeKind) else {
                 return
             }
             
             let createdNodeId = node.id
             
-            state.persistNewNode(node)
+            graph.persistNewNode(node)
             
             // MARK: with animation disabled we now call this immediately
             dispatch(InsertNodeAnimationCompleted(createdNodeId: createdNodeId))
             
             withAnimation {
-                state.graphUI.insertNodeMenuState.show = false
+                state.insertNodeMenuState.show = false
     
                 // TODO: animation disabled for now
 //                // log("ActiveSelectionSizeReadingCompleted: withAnimation")
@@ -135,7 +137,7 @@ struct AddNodeButtonPressed: GraphEvent {
     }
 }
 
-extension GraphState {
+extension StitchDocumentViewModel {
     
     @MainActor
     func nodeCreationCompleted(_ immediatelyCreatedLayerNode: NodeId?) {
@@ -143,22 +145,22 @@ extension GraphState {
          // log("InsertNodeAnimationCompleted called")
 
         // hide the menu and animated-node
-        self.graphUI.insertNodeMenuState.show = false
+        self.insertNodeMenuState.show = false
 
         // reset active selection
-        //        self.graphUI.insertNodeMenuState.activeSelection = nil
-        self.graphUI.insertNodeMenuState.activeSelection = InsertNodeMenuState.startingActiveSelection
+        //        self.insertNodeMenuState.activeSelection = nil
+        self.insertNodeMenuState.activeSelection = InsertNodeMenuState.startingActiveSelection
 
         // reset double tap location, now that animation has completed
-        self.graphUI.doubleTapLocation = nil
+        self.insertNodeMenuState.doubleTapLocation = nil
     }
 }
 
-struct InsertNodeAnimationCompleted: GraphEvent {
+struct InsertNodeAnimationCompleted: StitchDocumentEvent {
     let createdNodeId: NodeId
 
     @MainActor
-    func handle(state: GraphState) {
+    func handle(state: StitchDocumentViewModel) {
         state.nodeCreationCompleted(createdNodeId)
     }
 }

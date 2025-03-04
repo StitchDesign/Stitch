@@ -70,7 +70,7 @@ extension GraphState {
                                       coordinate: coordinate)
         }
         
-        if let multiselectInputs = self.documentDelegate?.graphUI.propertySidebar.inputsCommonToSelectedLayers,
+        if let multiselectInputs = self.propertySidebar.inputsCommonToSelectedLayers,
            let layerMultiselectInput = multiselectInputs.first(where: { $0 == layerInput}) {
             layerMultiselectInput.multiselectObservers(self).forEach { observer in
                 addLayerInput(observer.rowObserver.id.nodeId)
@@ -137,7 +137,7 @@ extension GraphState {
             position: position ?? document.newLayerPropertyLocation,
             zIndex: document.visibleGraph.highestZIndex + 1,
             // Put newly-created LIG into graph's current traversal level
-            parentGroupNodeId: document.graphUI.groupNodeFocused?.asNodeId,
+            parentGroupNodeId: document.groupNodeFocused?.asNodeId,
             inputRowObservers: [input.rowObserver],
             outputRowObservers: [],
             unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
@@ -155,33 +155,36 @@ extension GraphState {
             self.resetLayerInputsCache(layerNode: layerNode)
         }
         
-        document.graphUI.propertySidebar.selectedProperty = nil
+        self.propertySidebar.selectedProperty = nil
     }
 }
 
-struct LayerOutputAddedToGraph: GraphEventWithResponse {
+struct LayerOutputAddedToGraph: StitchDocumentEvent {
     
     let nodeId: NodeId
     let portId: Int
     
-    func handle(state: GraphState) -> GraphResponse {
+    func handle(state: StitchDocumentViewModel) {
         
         // log("LayerOutputAddedToGraph: nodeId: \(nodeId)")
         // log("LayerOutputAddedToGraph: coordinate: \(coordinate)")
         
-        guard let node = state.getNodeViewModel(nodeId),
+        let graph = state.visibleGraph
+        
+        guard let node = graph.getNodeViewModel(nodeId),
               let layerNode = node.layerNode,
               let outputPort = layerNode.outputPorts[safe: portId] else {
             log("LayerOutputAddedToGraph: could not add Layer Output to graph")
             fatalErrorIfDebug()
-            return .noChange
+            return
         }
         
-        state.layerOutputAddedToGraph(node: node,
+        graph.layerOutputAddedToGraph(node: node,
                                       output: outputPort,
-                                      portId: portId)
+                                      portId: portId,
+                                      groupNodeFocused: state.groupNodeFocused?.groupNodeId)
                 
-        return .shouldPersist
+        state.encodeProjectInBackground()
     }
 }
 
@@ -189,7 +192,8 @@ extension GraphState {
     @MainActor
     func layerOutputAddedToGraph(node: NodeViewModel,
                                  output: OutputLayerNodeRowData,
-                                 portId: Int) {
+                                 portId: Int,
+                                 groupNodeFocused: NodeId?) {
         
         guard let document = self.documentDelegate else {
             fatalErrorIfDebug()
@@ -205,7 +209,7 @@ extension GraphState {
             position: document.newLayerPropertyLocation,
             zIndex: self.highestZIndex + 1,
             // Put newly-created LIG into graph's current traversal level
-            parentGroupNodeId: self.groupNodeFocused,
+            parentGroupNodeId: groupNodeFocused,
             inputRowObservers: [],
             outputRowObservers: [output.rowObserver],
             unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
@@ -218,7 +222,7 @@ extension GraphState {
         // Subscribe inspector row ui data to the row data's canvas item
         output.inspectorRowViewModel.canvasItemDelegate = output.canvasObserver
         
-        document.graphUI.propertySidebar.selectedProperty = nil
+        self.propertySidebar.selectedProperty = nil
         
         // TODO: OPEN AI SCHEMA: ADD LAYER OUTPUTS TO CANVAS
         // document.maybeCreateLLMAddLayerOutput(node.id, portId)

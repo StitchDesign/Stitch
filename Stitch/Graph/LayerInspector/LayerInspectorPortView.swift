@@ -11,7 +11,7 @@ import StitchSchemaKit
 struct LayerInspectorInputPortView: View {
     @Bindable var layerInputObserver: LayerInputObserver
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var graphUI: StitchDocumentViewModel
     let node: NodeViewModel
     
     var fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>] {
@@ -67,6 +67,7 @@ struct LayerInspectorInputPortView: View {
                               // Inspector Row always uses the overall input label, never an individual field label
                               label: layerInputObserver
                     .overallPortLabel(usesShortLabel: true,
+                                      currentTraversalLevel: graphUI.groupNodeFocused?.groupNodeId,
                                       node: node,
                                       graph: graph)
                 )
@@ -86,7 +87,7 @@ struct LayerInspectorOutputPortView: View {
     @Bindable var rowViewModel: OutputNodeRowViewModel
     @Bindable var rowObserver: OutputNodeRowObserver
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var graphUI: StitchDocumentViewModel
     
     let canvasItemId: CanvasItemId?
     
@@ -123,6 +124,7 @@ struct LayerInspectorOutputPortView: View {
                                label: rowObserver
                     .label(useShortLabel: true,
                            node: node,
+                           currentTraversalLevel: graphUI.groupNodeFocused?.groupNodeId,
                            graph: graph)
                 )
             }
@@ -160,7 +162,7 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
     // Is this property-row selected?
     @MainActor
     var propertyRowIsSelected: Bool {
-        graphUI.propertySidebar.selectedProperty == layerInspectorRowId
+        graph.propertySidebar.selectedProperty == layerInspectorRowId
     }
     
     var isOnGraphAlready: Bool {
@@ -253,7 +255,7 @@ struct LayerInspectorPortViewTapModifier: ViewModifier {
     }
 }
 
-extension GraphUIState {
+extension StitchDocumentViewModel {
     @MainActor
     func onLayerPortRowTapped(layerInspectorRowId: LayerInspectorRowId,
                               canvasItemId: CanvasItemId?,
@@ -261,7 +263,7 @@ extension GraphUIState {
         // Defined canvas item id = we're already on the canvas
         if let canvasItemId = canvasItemId {
             graph.jumpToCanvasItem(id: canvasItemId,
-                                   graphUI: self)
+                                   document: self)
         }
         
         // Else select/de-select the property
@@ -269,13 +271,13 @@ extension GraphUIState {
 
             // On Catalyst, use hover-only, never row-selection.
             #if !targetEnvironment(macCatalyst)
-            let alreadySelected = self.propertySidebar.selectedProperty == layerInspectorRowId
+            let alreadySelected = graph.propertySidebar.selectedProperty == layerInspectorRowId
             
             withAnimation {
                 if alreadySelected {
-                    self.propertySidebar.selectedProperty = nil
+                    graph.propertySidebar.selectedProperty = nil
                 } else {
-                    self.propertySidebar.selectedProperty = layerInspectorRowId
+                    graph.propertySidebar.selectedProperty = layerInspectorRowId
                 }
             }
             #endif

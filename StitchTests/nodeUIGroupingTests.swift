@@ -47,8 +47,10 @@ class GroupNodeTests: XCTestCase {
         XCTAssert(canvasNode2.parentGroupNodeId == nil)
                 
         // Select the nodes
-        graphState.addNodeToSelections(canvasNode1.id)
-        graphState.addNodeToSelections(canvasNode2.id)
+        graphState.addNodeToSelections(canvasNode1.id,
+                                       document: document)
+        graphState.addNodeToSelections(canvasNode2.id,
+                                       document: document)
             
         // Create the group
         let _ = await document.createGroup(isComponent: false)
@@ -89,14 +91,15 @@ class GroupNodeTests: XCTestCase {
             fatalError()
         }
         
-        graphState.addNodeToSelections(canvasItem.id)
+        graphState.addNodeToSelections(canvasItem.id,
+                                       document: document)
         
         // Make sure only one node is selected
         // TODO: fix after changing "selecting group node = selecting its splitters as well"
         XCTAssertEqual(graphState.selectedNodeIds.count, 1)
         XCTAssertEqual(graphState.selectedNodeIds.first!, canvasItem.id)
         
-        await document.duplicateShortcutKeyPressed()
+        document.duplicateShortcutKeyPressed()
         
         XCTAssertEqual(graphState.groupNodes.keys.count, 2)
         

@@ -28,27 +28,35 @@ struct GroupNodeDeletedAction: ProjectEnvironmentEvent {
 
 // We uncreated a node-ui-group node via the graph (as opposed to the sidebar).
 // We remove the node-ui-grouping but keep
-struct GroupNodeUncreated: GraphEventWithResponse {
+struct GroupNodeUncreated: StitchDocumentEvent {
 
     let groupId: GroupNodeId // the group that was deleted
 
-    func handle(state: GraphState) -> GraphResponse {
+    func handle(state: StitchDocumentViewModel) {
         log("GroupNodeUncreated called for groupId: \(groupId)")
-        state.handleGroupNodeUncreated(groupId.asNodeId)
-        return .persistenceResponse
+        state.visibleGraph
+            .handleGroupNodeUncreated(groupId.asNodeId,
+                                      groupNodeFocused: state.groupNodeFocused?.groupNodeId)
+        
+        state.encodeProjectInBackground()
     }
 }
 
-struct SelectedGroupNodesUncreated: GraphEventWithResponse {
+struct SelectedGroupNodesUncreated: StitchDocumentEvent {
     
-    func handle(state: GraphState) -> GraphResponse {
-        state.selectedCanvasItems.forEach { (canvasItem: CanvasItemViewModel) in
+    func handle(state: StitchDocumentViewModel) {
+        let graph = state.visibleGraph
+        
+        graph.getSelectedCanvasItems(groupNodeFocused: state.groupNodeFocused?.groupNodeId)
+            .forEach { (canvasItem: CanvasItemViewModel) in
             if (canvasItem.nodeDelegate?.isGroupNode ?? false),
                case let .node(nodeId) = canvasItem.id {
-                state.handleGroupNodeUncreated(nodeId)
+                graph.handleGroupNodeUncreated(nodeId,
+                                               groupNodeFocused: state.groupNodeFocused?.groupNodeId)
             }
         }
-        return .persistenceResponse
+        
+        state.encodeProjectInBackground()
     }
 }
 
@@ -57,8 +65,9 @@ extension GraphState {
     // Inserts new edges (connections) where necessary,
     // to compensate for the destruction of the GroupNode's input and output splitter nodes.
     @MainActor
-    func handleGroupNodeUncreated(_ uncreatedGroupNodeId: NodeId) {
-        let newGroupId = self.graphUI.groupNodeFocused?.asNodeId
+    func handleGroupNodeUncreated(_ uncreatedGroupNodeId: NodeId,
+                                  groupNodeFocused: NodeId?) {
+        let newGroupId = groupNodeFocused
 
         // Update nodes to map to new group id
         self.getCanvasItems().forEach { canvasItem in

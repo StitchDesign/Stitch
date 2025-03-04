@@ -35,7 +35,7 @@ extension StitchDocumentViewModel {
     /// Only for insert-node-menu creation of nodes; shortcut key creation of nodes uses `viewPortCenter`
     @MainActor
     var newNodeCenterLocation: CGPoint {
-        if let doubleTapLocation = self.graphUI.doubleTapLocation {
+        if let doubleTapLocation = self.doubleTapLocation {
             log("newNodeCenterLocation: had doubleTapLocation: \(doubleTapLocation)")
             return adjustPositionToMultipleOf(doubleTapLocation)
         } else {
@@ -114,7 +114,7 @@ extension StitchDocumentViewModel {
     var viewPortCenter: CGPoint {
         let localPosition = self.graphMovement.localPosition
         let scale = self.graphMovement.zoomData
-        let viewPortFrame = self.graphUI.frame
+        let viewPortFrame = self.frame
         
         // Apply scale to the viewPort-centering
         let scaledViewPortFrame = CGPoint(
@@ -149,7 +149,7 @@ extension StitchDocumentViewModel {
         // self.graphUI.insertNodeMenuState.activeSelection = InsertNodeMenuState.allSearchOptions.first
 
         node.getAllCanvasObservers().forEach {
-            $0.parentGroupNodeId = self.graphUI.groupNodeFocused?.groupNodeId
+            $0.parentGroupNodeId = self.groupNodeFocused?.groupNodeId
         }
         self.visibleGraph.visibleNodesViewModel.nodes.updateValue(node, forKey: node.id)
         
@@ -216,7 +216,7 @@ extension StitchDocumentViewModel {
             self.visibleGraph.layersSidebarViewModel.resetEditModeSelections()
             self.visibleGraph.layersSidebarViewModel.sidebarItemSelectedViaEditMode(sidebarLayerData.id)
             self.visibleGraph.layersSidebarViewModel.selectionState.lastFocused = sidebarLayerData.id
-            self.visibleGraph.deselectAllCanvasItems(graphUI: graphUI)
+            self.visibleGraph.deselectAllCanvasItems()
             
             return layerNode
 

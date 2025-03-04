@@ -45,6 +45,8 @@ extension GraphState {
     @MainActor
     func updateVisibleNodes() {
         
+        guard let document = self.documentDelegate else { return }
+        
         let zoom = self.graphMovement.zoomData
         
         // How much that content is offset from the UIScrollView's top-left corner;
@@ -54,7 +56,7 @@ extension GraphState {
         let scaledOffset = CGPoint(x: originOffset.x / zoom,
                                    y: originOffset.y / zoom)
 
-        let viewPortSize = self.graphUI.frame.size
+        let viewPortSize = document.frame.size
                 
         let scaledSize = CGSize(width: viewPortSize.width * 1/zoom,
                                 height: viewPortSize.height * 1/zoom)

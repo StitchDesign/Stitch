@@ -13,7 +13,7 @@ import OrderedCollections
 
 // TODO: can likely consolidate a lot of the portId vs layerInput, tab vs shift+tab logic
 
-extension GraphState {
+extension StitchDocumentViewModel {
     @MainActor
     func tabPressed(focusedField: FieldCoordinate,
                     node: NodeViewModel) {
@@ -23,10 +23,10 @@ extension GraphState {
         
         let newFocusedField = node.nextInput(focusedField,
                                              layerInput: layerInputOnCanvas,
-                                             propertySidebarState: self.graphUI.propertySidebar)
+                                             propertySidebarState: self.visibleGraph.propertySidebar)
 
         log("tabPressed: newFocusedField: \(newFocusedField)")
-        self.graphUI.reduxFocusedField = .textInput(newFocusedField)
+        self.reduxFocusedField = .textInput(newFocusedField)
     }
     
     @MainActor
@@ -38,10 +38,10 @@ extension GraphState {
         
         let newFocusedField = node.previousInput(focusedField,
                                                  layerInputOnCanvas: layerInputOnCanvas,
-                                                 propertySidebarState: self.graphUI.propertySidebar)
+                                                 propertySidebarState: self.visibleGraph.propertySidebar)
         
         log("shiftTabPressed: newFocusedField: \(newFocusedField)")
-        self.graphUI.reduxFocusedField = .textInput(newFocusedField)
+        self.reduxFocusedField = .textInput(newFocusedField)
     }
 }
 

@@ -81,7 +81,8 @@ extension GraphState {
     @MainActor
     func getFilteredLayerDimensionChoices(nodeId: NodeId,
                                           nodeKind: NodeKind,
-                                          layerInputObserver: LayerInputObserver?) -> [NonNumberLayerDimension] {
+                                          layerInputObserver: LayerInputObserver?,
+                                          activeIndex: ActiveIndex) -> [NonNumberLayerDimension] {
         
         let allChoices = LayerDimension.choicesAsNonNumberLayerDimension
         
@@ -109,7 +110,9 @@ extension GraphState {
             case .hug:
                 // Show `hug` just if this is a layer group AND the layer group has orientation != ZStack
                 let isLayerGroup = layer == .group
-                let canUseHug = self.getLayerNode(id: nodeId)?.layerNode?.orientationPort.activeValue.getOrientation?.canUseHug ?? false
+                let canUseHug = self.getLayerNode(id: nodeId)?.layerNode?.orientationPort
+                    .getActiveValue(activeIndex: activeIndex)
+                    .getOrientation?.canUseHug ?? false
                 return isLayerGroup && canUseHug
             }
         }

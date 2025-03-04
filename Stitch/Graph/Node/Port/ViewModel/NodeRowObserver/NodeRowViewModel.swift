@@ -178,7 +178,7 @@ extension NodeRowViewModel {
             self.initializeValues(rowDelegate: rowDelegate,
                                   unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                                   unpackedPortIndex: unpackedPortIndex,
-                                  initialValue: rowDelegate.activeValue)
+                                  initialValue: rowDelegate.getActiveValue(activeIndex: node.graphDelegate?.documentDelegate?.activeIndex ?? .init(.zero)))
         }
         
         self.portViewData = self.getPortViewData()
@@ -222,7 +222,7 @@ extension NodeRowViewModel {
             return
         }
         
-        let activeIndex = rowDelegate.nodeDelegate?.activeIndex ?? .init(.zero)
+        let activeIndex = rowDelegate.nodeDelegate?.graphDelegate?.documentDelegate?.activeIndex ?? .init(.zero)
         let isLayerFocusedInPropertySidebar = rowDelegate.nodeDelegate?.graphDelegate?.layerFocusedInPropertyInspector == rowDelegate.id.nodeId
         
         let oldViewValue = self.activeValue // the old cached

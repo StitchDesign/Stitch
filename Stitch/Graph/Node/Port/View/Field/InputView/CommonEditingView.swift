@@ -144,7 +144,7 @@ struct CommonEditingView: View {
     
     @MainActor
     var multiselectInputs: LayerInputPortSet? {
-        graphUI.propertySidebar.inputsCommonToSelectedLayers
+        graph.propertySidebar.inputsCommonToSelectedLayers
     }
             
     @MainActor
@@ -393,6 +393,7 @@ struct CommonEditingView: View {
         self.graph.inputEditedFromUI(
             fieldValue: .string(.init(newEdit)),
             fieldIndex: fieldIndex,
+            activeIndex: graphUI.activeIndex,
             rowObserver: rowObserver,
             isFieldInsideLayerInspector: self.isFieldInsideLayerInspector,
             isCommitting: isCommitting)

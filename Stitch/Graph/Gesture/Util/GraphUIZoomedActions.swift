@@ -9,11 +9,11 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-extension StitchDocumentViewModel {
+extension GraphState {
     @MainActor
     func graphZoomedIn(_ manualZoom: GraphManualZoom) {
         // Set `true` here; set `false` by the UIScrollView
-        self.graphUI.canvasZoomedIn = manualZoom
+        self.canvasZoomedIn = manualZoom
         
         // Wipe comment box bounds
         self.wipeCommentBoxBounds()
@@ -21,7 +21,7 @@ extension StitchDocumentViewModel {
 
     @MainActor
     func graphZoomedOut(_ manualZoom: GraphManualZoom) {
-        self.graphUI.canvasZoomedOut = manualZoom
+        self.canvasZoomedOut = manualZoom
         
         // Wipe comment box bounds
         self.wipeCommentBoxBounds()

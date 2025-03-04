@@ -10,36 +10,39 @@ import SwiftUI
 import StitchSchemaKit
 
 // formerly `SplitterOptionSelected`
-struct SplitterTypeChanged: GraphEvent {
+struct SplitterTypeChanged: StitchDocumentEvent {
 
     let newType: SplitterType
     let currentType: SplitterType
     let splitterNodeId: NodeId
 
-    func handle(state: GraphState) {
+    func handle(state: StitchDocumentViewModel) {
         //        log("SplitterOptionSelected called: newType: \(newType)")
         //        log("SplitterOptionSelected called: currentType: \(currentType)")
 
-        guard let activeGroupId = state.graphUI.groupNodeFocused else {
+        let graph = state.visibleGraph
+        
+        guard let activeGroupId = state.groupNodeFocused else {
             log("SplitterOptionSelected: no active group")
             return
         }
 
-        guard let splitterNode = state.getNodeViewModel(splitterNodeId) else {
+        guard let splitterNode = graph.getNodeViewModel(splitterNodeId) else {
             log("SplitterOptionSelected: could not find GroupNode \(activeGroupId)")
             return
         }
 
-        state.setSplitterType(
+        graph.setSplitterType(
             splitterNode: splitterNode,
             newType: newType,
-            currentType: currentType)
+            currentType: currentType,
+            activeIndex: state.activeIndex)
         
         // Forces group port view models to update
-        state.updateGraphData()
+        graph.updateGraphData()
 
         // Recalculate the graph, since we may have flattened an input on a splitter node and so that output should be flat as well (happens via node eval).
-        state.calculateFullGraph()
+        graph.calculateFullGraph()
         
         state.encodeProjectInBackground()
     }
@@ -49,7 +52,8 @@ extension GraphState {
     @MainActor
     func setSplitterType(splitterNode: NodeViewModel,
                          newType: SplitterType,
-                         currentType: SplitterType) {
+                         currentType: SplitterType,
+                         activeIndex: ActiveIndex) {
 
         let outputPort = NodeIOCoordinate(portId: 0, nodeId: splitterNode.id)
 
@@ -62,11 +66,12 @@ extension GraphState {
             // we need to remove some edges.
             if currentType == .output {
                 self.removeConnections(from: outputPort,
-                                       isNodeVisible: splitterNode.isVisibleInFrame(self.visibleCanvasIds, self.selectedSidebarLayers))
+                                       isNodeVisible: splitterNode.isVisibleInFrame(self.visibleCanvasIds, self.selectedSidebarLayers),
+                                       activeIndex: activeIndex)
             } else if currentType == .input {
                 if let inputObserver = splitterNode.getInputRowObserver(for: .portIndex(0)) {
                     inputObserver
-                        .removeUpstreamConnection(activeIndex: self.activeIndex,
+                        .removeUpstreamConnection(activeIndex: activeIndex,
                                                   isVisible: splitterNode.isVisibleInFrame(self.visibleCanvasIds, self.selectedSidebarLayers))
                 }
             }
@@ -76,7 +81,8 @@ extension GraphState {
             // then need to remove outgoing edges.
             if currentType == .output {
                 self.removeConnections(from: outputPort,
-                                       isNodeVisible: splitterNode.isVisibleInFrame(self.visibleCanvasIds, self.selectedSidebarLayers))
+                                       isNodeVisible: splitterNode.isVisibleInFrame(self.visibleCanvasIds, self.selectedSidebarLayers),
+                                       activeIndex: activeIndex)
             }
 
         case .output:
@@ -85,7 +91,7 @@ extension GraphState {
             if currentType == .input {
                 if let inputObserver = splitterNode.getInputRowObserver(for: .portIndex(0)) {
                     inputObserver
-                        .removeUpstreamConnection(activeIndex: self.activeIndex,
+                        .removeUpstreamConnection(activeIndex: activeIndex,
                                                   isVisible: splitterNode.isVisibleInFrame(self.visibleCanvasIds, self.selectedSidebarLayers))
                 }
             }

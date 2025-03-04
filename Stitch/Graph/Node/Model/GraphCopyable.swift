@@ -511,11 +511,14 @@ extension GraphState {
     /// Synchronous caller for node copying, used for Option + drag.
     @MainActor
     func copyAndPasteSelectedNodes(selectedNodeIds: NodeIdSet,
-                                   isOptionDragInSidebar: Bool = false) {
+                                   isOptionDragInSidebar: Bool = false,
+                                   document: StitchDocumentViewModel) {
+        let groupNodeFocused = document.groupNodeFocused
+        
         log("copyAndPasteSelectedNodes: selectedNodeIds: \(selectedNodeIds)")
         // Copy nodes if no drag started yet
         let copiedComponentResult = self
-            .createCopiedComponent(groupNodeFocused: self.graphUI.groupNodeFocused,
+            .createCopiedComponent(groupNodeFocused: groupNodeFocused,
                                    selectedNodeIds: selectedNodeIds)
         
         // creates new ids for nodes and sidebar layers; updates nodes' positions (staggering for duplication)
@@ -531,7 +534,7 @@ extension GraphState {
         // Update top-level nodes to match current focused group
         let newNodes: [NodeEntity] = Self.createNewNodes(
             from: newComponent,
-            focusedGroupNode: self.graphUI.groupNodeFocused?.asNodeId)
+            focusedGroupNode: groupNodeFocused?.groupNodeId)
         
         let graph = self.addComponentToGraph(newComponent: newComponent,
                                              newNodes: newNodes,
@@ -540,14 +543,16 @@ extension GraphState {
 
         self.updateSync(from: graph)
         
-        self.updateGraphAfterPaste(newNodes: newNodes)
+        self.updateGraphAfterPaste(newNodes: newNodes,
+                                   document: document)
     }
 
     @MainActor
-    func copyToClipboard(selectedNodeIds: NodeIdSet) {
+    func copyToClipboard(selectedNodeIds: NodeIdSet,
+                         groupNodeFocused: GroupNodeType?) {
         // Copy selected nodes
         let copiedComponentResult = self
-            .createCopiedComponent(groupNodeFocused: self.graphUI.groupNodeFocused,
+            .createCopiedComponent(groupNodeFocused: groupNodeFocused,
                                    selectedNodeIds: selectedNodeIds)
 
         Task { [weak self] in

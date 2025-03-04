@@ -24,6 +24,7 @@ struct DropDownChoiceView: View {
     let isFieldInsideLayerInspector: Bool
     let isSelectedInspectorRow: Bool
     let hasHeterogenousValues: Bool
+    let activeIndex: ActiveIndex
 
     @MainActor
     var finalChoiceDisplay: String {
@@ -36,7 +37,8 @@ struct DropDownChoiceView: View {
                              graph: graph,
                              choices: choices,
                              choiceDisplay: finalChoiceDisplay,
-                             isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+                             isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                             activeIndex: activeIndex)
         } label: {
             StitchTextView(string: finalChoiceDisplay,
                            fontColor: isSelectedInspectorRow ? theme.fontColor : STITCH_FONT_GRAY_COLOR)
@@ -62,6 +64,7 @@ struct StitchPickerView: View {
     let choices: PortValues
     let choiceDisplay: String // current choice
     let isFieldInsideLayerInspector: Bool
+    let activeIndex: ActiveIndex
 
     var pickerLabel: String {
         // slightly different Picker label logic for Catalyst vs iPad
@@ -84,6 +87,7 @@ struct StitchPickerView: View {
         if let _selection = _selection {
             graph.pickerOptionSelected(rowObserver: input,
                                        choice: _selection,
+                                       activeIndex: activeIndex,
                                        isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         } else {
             log("StitchPickerView: could not create PortValue from string: \(selection) ... in choices: \(choices)")

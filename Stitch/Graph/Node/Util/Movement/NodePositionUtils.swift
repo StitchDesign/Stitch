@@ -35,32 +35,32 @@ extension CanvasItemViewModel {
     }
     
     @MainActor
-    func isTapped(document: StitchDocumentViewModel,
-                  graphUI: GraphUIState) {
+    func isTapped(document: StitchDocumentViewModel) {
         log("canvasItemTapped: id: \(self.id)")
+        let graph = document.visibleGraph
         
         // when holding CMD ...
         // TODO: pass this down from the gesture handler or fix key listening
         if document.keypressState.isCommandPressed {
             // toggle selection
-            let isSelected = document.graphUI.selection.selectedNodeIds.contains(self.id)
+            let isSelected = graph.selection.selectedNodeIds.contains(self.id)
             if isSelected {
-                self.deselect(document.graph,
-                              graphUI: graphUI)
+                self.deselect(graph)
             } else {
-                self.select(document.graph)
+                self.select(graph,
+                            document: document)
             }
         }
         
         // when not holding CMD ...
         else {
-            document.visibleGraph.selectSingleCanvasItem(self,
-                                                         graphUI: graphUI)
+            graph.selectSingleCanvasItem(self,
+                                         document: document)
         }
         
         // if we tapped a node, we're no longer moving it
         document.graphMovement.draggedCanvasItem = nil
         
-        self.zIndex = document.visibleGraph.highestZIndex + 1
+        self.zIndex = graph.highestZIndex + 1
     }
 }

@@ -204,13 +204,15 @@ extension NodeViewModel {
     @MainActor
     func getVisibleMediaObserver(inputCoordinate: NodeIOCoordinate,
                                  mediaId: UUID,
-                                 graph: GraphState) -> MediaViewModel? {
+                                 graph: GraphState,
+                                 activeIndex: ActiveIndex) -> MediaViewModel? {
         guard let rowObserver = self.getInputRowObserver(for: inputCoordinate.portType) else {
             fatalErrorIfDebug()
             return nil
         }
         
-        let loopIndex = rowObserver.getActiveLoopIndex(graph: graph)
+        let loopIndex = rowObserver.getActiveLoopIndex(graph: graph,
+                                                       activeIndex: activeIndex)
         return self.getInputMediaObserver(inputCoordinate: inputCoordinate,
                                           loopIndex: loopIndex,
                                           mediaId: mediaId)
@@ -220,13 +222,15 @@ extension NodeViewModel {
     @MainActor
     func getVisibleMediaObserver(outputPortId: Int,
                                  mediaId: UUID?,
-                                 graph: GraphState) -> MediaViewModel? {
+                                 graph: GraphState,
+                                 activeIndex: ActiveIndex) -> MediaViewModel? {
         guard let rowObserver = self.getOutputRowObserver(outputPortId) else {
             fatalErrorIfDebug()
             return nil
         }
         
-        let loopIndex = rowObserver.getActiveLoopIndex(graph: graph)
+        let loopIndex = rowObserver.getActiveLoopIndex(graph: graph,
+                                                       activeIndex: activeIndex)
         return self.getComputedMediaObserver(loopIndex: loopIndex,
                                              mediaId: mediaId)
     }
@@ -317,8 +321,9 @@ extension NodeViewModel {
 
 extension NodeRowObserver {
     @MainActor
-    func getActiveLoopIndex(graph: GraphState) -> Int {
-        graph.activeIndex.adjustedIndex(self.allLoopedValues.count)
+    func getActiveLoopIndex(graph: GraphState,
+                            activeIndex: ActiveIndex) -> Int {
+        activeIndex.adjustedIndex(self.allLoopedValues.count)
     }
 }
 

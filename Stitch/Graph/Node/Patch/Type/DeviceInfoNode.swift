@@ -169,6 +169,8 @@ func deviceInfoEval(node: PatchNode,
     // TODO: rewrite the SO code to get around this linter warning?
     let deviceType = UIDevice().type // UIDevice.current.model
 
+    let safeAreaInsets = state.documentDelegate?.safeAreaInsets ?? .init()
+    
     //    #if DEV_DEBUG
     //    log("deviceInfoEval: deviceSize: \(deviceSize)")
     //
@@ -186,12 +188,12 @@ func deviceInfoEval(node: PatchNode,
         [.number(state.graphMovement.zoomData)],
         [.deviceOrientation(orientation.toStitchDeviceOrientation)],
         [.string(.init(deviceType.rawValue))],
-        [.string(.init(state.graphUI.colorScheme.description))],
+        [.string(.init(state.documentDelegate?.colorScheme.description ?? ""))],
         [
-            .number(state.safeAreaInsets.top)
+            .number(safeAreaInsets.top)
         ],
         [
-            .number(state.safeAreaInsets.bottom)
+            .number(safeAreaInsets.bottom)
         ]
     ]
 

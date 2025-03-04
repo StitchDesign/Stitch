@@ -15,6 +15,7 @@ extension Double {
 struct EdgeEditModeOutputHoverViewModifier: ViewModifier {
 
     @Bindable var graph: GraphState
+    let document: StitchDocumentViewModel
     let outputCoordinate: OutputPortViewData
     
     var isDraggingOutput: Bool {
@@ -76,7 +77,8 @@ struct EdgeEditModeOutputHoverViewModifier: ViewModifier {
                 }
 
                 // immediately enable edge-edit mode
-                graph.outputHovered(outputCoordinate: outputCoordinate)
+                graph.outputHovered(outputCoordinate: outputCoordinate,
+                                    groupNodeFocused: document.groupNodeFocused?.groupNodeId)
 
                 if !self.hoverStartTime.isDefined {
                     self.hoverStartTime = Date.now.timeIntervalSince1970
