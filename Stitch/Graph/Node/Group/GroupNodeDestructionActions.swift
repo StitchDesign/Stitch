@@ -110,16 +110,14 @@ extension GraphState {
     @MainActor
     func insertEdgesAfterGroupUncreated(for splitterNode: NodeViewModel) {
         guard splitterNode.splitterType?.isGroupSplitter ?? false else {
-            #if DEBUG
-            fatalError()
-            #endif
+            fatalErrorIfDebug()
             return
         }
 
         let splitterOutputCoordinate = NodeIOCoordinate(portId: .zero,
                                                         nodeId: splitterNode.id)
 
-        guard let upstreamOutput = splitterNode.getInputRowObserver(0)?.upstreamOutputCoordinate,
+        guard let upstreamOutput = splitterNode.getInputRowObserver(for: .portIndex(0))?.upstreamOutputCoordinate,
               let downstreamInputsFromSplitter = self.connections.get(splitterOutputCoordinate) else {
             // Nothing to do if no upstream output or downstream inputs
             return

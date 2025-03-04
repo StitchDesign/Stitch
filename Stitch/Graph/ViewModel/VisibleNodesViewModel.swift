@@ -319,7 +319,7 @@ extension VisibleNodesViewModel {
             .compactMap { node in
                 switch node.splitterType {
                 case .output:
-                    return node.getOutputRowObserver(0)
+                    return node.getOutputRowObserver(for: 0)
                 default:
                     // Shouldn't be called
                     fatalErrorIfDebug()
@@ -363,12 +363,6 @@ extension VisibleNodesViewModel {
         self.nodes.values.forEach { node in
             node.updateAllConnectedNodes()
         }
-    }
-    
-    @MainActor
-    func getOutputRowObserver(for coordinate: NodeIOCoordinate) -> OutputNodeRowObserver? {
-        self.nodes.get(coordinate.nodeId)?
-            .getOutputRowObserver(for: coordinate.portType)
     }
     
     @MainActor

@@ -224,7 +224,7 @@ extension NodeViewModel {
                                  mediaId: UUID?,
                                  graph: GraphState,
                                  activeIndex: ActiveIndex) -> MediaViewModel? {
-        guard let rowObserver = self.getOutputRowObserver(outputPortId) else {
+        guard let rowObserver = self.getOutputRowObserver(for: outputPortId) else {
             fatalErrorIfDebug()
             return nil
         }
