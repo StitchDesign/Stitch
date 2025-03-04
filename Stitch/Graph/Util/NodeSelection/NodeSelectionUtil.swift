@@ -126,18 +126,22 @@ extension GraphState {
             $0.select(self, document: document)
         }
     }
+}
 
+extension StitchDocumentViewModel {
+    
     @MainActor
     // fka `processNodeSelectionBoxChange`
-    func processCanvasSelectionBoxChange(selectionBox: CGRect,
-                                         document: StitchDocumentViewModel) {
+    func processCanvasSelectionBoxChange(selectionBox: CGRect) {
+        
         let graphState = self
         var selectedNodes = Set<CanvasItemId>()
-        let nodesSelectedOnShift = self.graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag
+        let nodesSelectedOnShift = self.graph.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag
         let isCurrentlyDragging = selectionBox != .zero
+        let focusedGroupNode = self.groupNodeFocused?.groupNodeId
         
         // Unfocus sidebar
-        document.isSidebarFocused = false
+        self.isSidebarFocused = false
         
         // TODO: pass shift down via the UIKit gesture handler
         let shiftHeld = graphState.keypressState.shiftHeldDuringGesture
@@ -148,15 +152,15 @@ extension GraphState {
         }
         
         if shiftHeld {
-            let initiallySelectedNodes = self.getSelectedCanvasItems(groupNodeFocused: document.groupNodeFocused?.groupNodeId)
+            let initiallySelectedNodes = self.graph.getSelectedCanvasItems(groupNodeFocused: focusedGroupNode)
                 .map(\.id).toSet
-            let previouslySelectedNodes = self.graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag ?? .init()
+            let previouslySelectedNodes = self.graph.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag ?? .init()
 
-            if self.graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag == nil {
+            if self.graph.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag == nil {
                 // Increment previously-selected shift-click nodes to current selected set
                 // on new shift click
                 let allSelectedNodes = initiallySelectedNodes.union(previouslySelectedNodes)
-                self.graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag = initiallySelectedNodes.union(allSelectedNodes)
+                self.graph.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag = initiallySelectedNodes.union(allSelectedNodes)
                 selectedNodes = selectedNodes.union(allSelectedNodes)
             } else {
                 // Ignore previously selected nodes on pre-existing shift click
@@ -164,18 +168,27 @@ extension GraphState {
             }
         } else {
             // Note: alternatively?: wipe this collection/set when gesure ends
-            self.graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag = nil
+            self.graph.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag = nil
         }
                 
         let selectionBoxInViewFrame: CGRect = selectionBox
         
-        for cachedSubviewData in self.visibleNodesViewModel.infiniteCanvasCache {
+        // NOTE: DO NOT NEED TO LOOK AT 'ON THIS TRAVERSAL LEVEL VS NOT', SINCE INFINITE-CANVAS-CACHE ONLY CONTAINS ITEMS FOR THIS TRAVERSAL LEVEL
+        
+        // Note: a Group Node's underlying input- and output-splitters are considered 'visible on canvas' (i.e. visible within user's viewport) if the Group Node itself is. However, we only want to look at nodes at this traversal level.
+        //        let canvasItemsAtThisTraversalLevel = self.graph.getCanvasItemsAtTraversalLevel(groupNodeFocused: focusedGroupNode)
+        
+        for cachedSubviewData in self.graph.visibleNodesViewModel.infiniteCanvasCache {
             let id = cachedSubviewData.key
             var cachedBounds = cachedSubviewData.value
             
-            guard self.visibleNodesViewModel.visibleCanvasIds.contains(id) else {
+            guard self.graph.visibleNodesViewModel.visibleCanvasIds.contains(id) else {
                 continue
             }
+            
+            //            guard canvasItemsAtThisTraversalLevel.contains(where: { $0.id == id }) else {
+            //                continue
+            //            }
             
             if nodesSelectedOnShift?.contains(id) ?? false {
                 continue
@@ -192,9 +205,9 @@ extension GraphState {
             }
         }
         
-        if self.graphUI.selection.selectedNodeIds != selectedNodes {
-            self.graphUI.selection.selectedNodeIds = selectedNodes
-        }        
+        if self.graph.selection.selectedNodeIds != selectedNodes {
+            self.graph.selection.selectedNodeIds = selectedNodes
+        }
         
         // Determine selected comment boxes
 
