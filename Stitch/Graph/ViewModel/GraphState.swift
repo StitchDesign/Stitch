@@ -243,26 +243,11 @@ extension GraphState {
         }
     }
     
-//    @MainActor
-//    var groupNodeFocused: NodeId? {
-//        self.graphUI.groupNodeFocused?.groupNodeId
-//    }
-    
     @MainActor
     var nodesDict: NodesViewModelDict {
         self.nodes
     }
 
-//    @MainActor
-//    var safeAreaInsets: SafeAreaInsets {
-//        self.graphUI.safeAreaInsets
-//    }
-    
-//    @MainActor
-//    var isFullScreenMode: Bool {
-//        self.graphUI.isFullScreenMode
-//    }
-    
     @MainActor
     func getMediaUrl(forKey key: MediaKey) -> URL? {
         self.mediaLibrary.get(key)
@@ -330,16 +315,6 @@ extension GraphState {
         // Updates node visibility data
         self.visibleNodesViewModel.resetCache()
     }
-    
-//    @MainActor
-//    var isSidebarFocused: Bool {
-//        get {
-//            self.graphUI.isSidebarFocused
-//        }
-//        set(newValue) {
-//            self.graphUI.isSidebarFocused = newValue
-//        }
-//    }
 }
 
 extension GraphState {
