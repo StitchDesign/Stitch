@@ -223,19 +223,6 @@ struct InputValueView: View {
         self.rowViewModel.id.layerInputPort
     }
     
-//    @MainActor
-//    var isMultiselectInspectorInputWithHeterogenousValues: Bool {
-//        if let layerInputObserver = layerInputObserver {
-//            @Bindable var layerInputObserver = layerInputObserver
-//            return layerInputObserver.fieldHasHeterogenousValues(
-//                fieldCoordinate.fieldIndex,
-//                isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-//                graph: graph)
-//        } else {
-//            return false
-//        }
-//    }
-    
     var body: some View {
         // NodeLayout(observer: viewModel,
         //            existingCache: viewModel.viewCache) {
