@@ -16,7 +16,6 @@ struct FieldValueNumberView: View {
     @Bindable var rowObserver: InputNodeRowObserver
     @Bindable var rowViewModel: InputNodeRowViewModel
     @Bindable var fieldViewModel: InputFieldViewModel
-    let layerInputObserver: LayerInputObserver?
     let fieldValue: FieldValue
     let fieldValueNumberType: FieldValueNumberType
     let fieldCoordinate: FieldCoordinate
@@ -67,7 +66,6 @@ struct FieldValueNumberView: View {
                                      fieldViewModel: fieldViewModel,
                                      rowObserver: rowObserver,
                                      rowViewModel: rowViewModel,
-                                     layerInputObserver: layerInputObserver,
                                      fieldValue: fieldValue,
                                      fieldCoordinate: fieldCoordinate,
                                      isCanvasItemSelected: isCanvasItemSelected,

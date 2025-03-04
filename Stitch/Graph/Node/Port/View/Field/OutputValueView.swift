@@ -133,7 +133,6 @@ struct OutputValueView: View {
                 BoolCheckboxView(rowObserver: nil,
                                  graph: graph,
                                  document: graphUI,
-                                 layerInputObserver: nil,
                                  value: bool,
                                  isFieldInsideLayerInspector: false,
                                  isSelectedInspectorRow: isSelectedInspectorRow,
@@ -245,7 +244,6 @@ struct OutputValueView: View {
                                     rowViewModel: rowViewModel,
                                     rowObserver: rowObserver,
                                     node: node,
-                                    layerInputObserver: nil,
                                     isUpstreamValue: false,     // only valid for inputs
                                     media: media,
                                     mediaName: media.name,

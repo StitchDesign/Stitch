@@ -15,7 +15,6 @@ struct CommonEditingViewWrapper: View {
     @Bindable var fieldViewModel: InputFieldViewModel
     @Bindable var rowObserver: InputNodeRowObserver
     let rowViewModel: InputNodeRowViewModel
-    let layerInputObserver: LayerInputObserver?
     let fieldValue: FieldValue
     let fieldCoordinate: FieldCoordinate
     let isCanvasItemSelected: Bool
@@ -46,9 +45,7 @@ struct CommonEditingViewWrapper: View {
     @MainActor
     var isPaddingFieldInsideInspector: Bool {
         isFieldInMultifieldInspectorInputAndNotFlyout
-        && (layerInputObserver?
-            .getActiveValue(activeIndex: graphUI.activeIndex)
-            .getPadding.isDefined ?? false)
+        && rowViewModel.activeValue.getPadding.isDefined
     }
     
     @MainActor
@@ -74,7 +71,6 @@ struct CommonEditingViewWrapper: View {
     var body: some View {
         let stringValue = fieldValue.stringValue
         CommonEditingView(inputField: fieldViewModel,
-                          layerInputObserver: layerInputObserver,
                           inputString: stringValue,
                           graph: graph,
                           graphUI: graphUI,

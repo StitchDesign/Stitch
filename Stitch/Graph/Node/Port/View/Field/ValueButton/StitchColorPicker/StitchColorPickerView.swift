@@ -54,8 +54,8 @@ struct StitchColorPickerView: View {
     // TODO: opening or closing the color-gradient-picker view should disable nodes copy-paste shortcut
     @State private var show: Bool = false
 
+    let rowViewModelId: NodeRowViewModelId
     let rowObserver: InputNodeRowObserver?
-    let layerInputObserver: LayerInputObserver?
     let fieldCoordinate: FieldCoordinate
     let isFieldInsideLayerInspector: Bool
     let isForFlyout: Bool
@@ -104,10 +104,10 @@ struct StitchColorPickerView: View {
                        isFieldInsideLayerInspector,
                        !isForPreviewWindowBackgroundPicker,
                        !isForIPhone,
-                       let layerInputObserver = layerInputObserver,
+                       let layerPort = rowViewModelId.layerInputPort,
                        let nodeId = rowObserver?.id.nodeId {
                         // iPad
-                        dispatch(FlyoutToggled(flyoutInput: layerInputObserver.port,
+                        dispatch(FlyoutToggled(flyoutInput: layerPort,
                                                flyoutNodeId: nodeId,
                                                fieldToFocus: nil))
                     } else {

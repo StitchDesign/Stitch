@@ -92,7 +92,6 @@ struct InputValueEntry: View {
                        node: node,
                        rowViewModel: rowViewModel,
                        canvasItem: canvasItem,
-                       layerInputObserver: layerInputObserver,
                        rowObserver: rowObserver,
                        isCanvasItemSelected: isCanvasItemSelected,
                        forPropertySidebar: forPropertySidebar,
@@ -170,7 +169,6 @@ struct InputValueView: View {
     let node: NodeViewModel
     let rowViewModel: InputNodeRowViewModel
     let canvasItem: CanvasItemViewModel?
-    let layerInputObserver: LayerInputObserver?
     let rowObserver: InputNodeRowObserver
     let isCanvasItemSelected: Bool
     let forPropertySidebar: Bool
@@ -221,6 +219,10 @@ struct InputValueView: View {
             .contains(self.fieldIndex) ?? false
     }
     
+    var layerInputPort: LayerInputPort? {
+        self.rowViewModel.id.layerInputPort
+    }
+    
 //    @MainActor
 //    var isMultiselectInspectorInputWithHeterogenousValues: Bool {
 //        if let layerInputObserver = layerInputObserver {
@@ -244,7 +246,6 @@ struct InputValueView: View {
                                          fieldViewModel: viewModel,
                                          rowObserver: rowObserver,
                                          rowViewModel: rowViewModel,
-                                         layerInputObserver: layerInputObserver,
                                          fieldValue: fieldValue,
                                          fieldCoordinate: fieldCoordinate,
                                          isCanvasItemSelected: isCanvasItemSelected,
@@ -263,7 +264,6 @@ struct InputValueView: View {
                                      rowObserver: rowObserver,
                                      rowViewModel: rowViewModel,
                                      fieldViewModel: viewModel,
-                                     layerInputObserver: layerInputObserver,
                                      fieldValue: fieldValue,
                                      fieldValueNumberType: .number,
                                      fieldCoordinate: fieldCoordinate,
@@ -283,13 +283,12 @@ struct InputValueView: View {
                                      rowObserver: rowObserver,
                                      rowViewModel: rowViewModel,
                                      fieldViewModel: viewModel,
-                                     layerInputObserver: layerInputObserver,
                                      fieldValue: fieldValue,
                                      fieldValueNumberType: layerDimensionField.fieldValueNumberType,
                                      fieldCoordinate: fieldCoordinate,
                                      isCanvasItemSelected: isCanvasItemSelected,
                                      choices: graph.getFilteredLayerDimensionChoices(node: node,
-                                                                                     layerInputObserver: layerInputObserver,
+                                                                                     layerInputPort: layerInputPort,
                                                                                      activeIndex: graphUI.activeIndex)
                                         .map(\.rawValue),
                                      forPropertySidebar: forPropertySidebar,
@@ -307,7 +306,6 @@ struct InputValueView: View {
                                      rowObserver: rowObserver,
                                      rowViewModel: rowViewModel,
                                      fieldViewModel: viewModel,
-                                     layerInputObserver: layerInputObserver,
                                      fieldValue: fieldValue,
                                      fieldValueNumberType: .number,
                                      fieldCoordinate: fieldCoordinate,
@@ -326,7 +324,6 @@ struct InputValueView: View {
                 BoolCheckboxView(rowObserver: rowObserver,
                                  graph: graph,
                                  document: graphUI,
-                                 layerInputObserver: layerInputObserver,
                                  value: bool,
                                  isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                  isSelectedInspectorRow: isSelectedInspectorRow,
@@ -334,7 +331,6 @@ struct InputValueView: View {
                 
             case .dropdown(let choiceDisplay, let choices):
                 DropDownChoiceView(rowObserver: rowObserver,
-                                   layerInputObserver: layerInputObserver,
                                    graph: graph,
                                    choiceDisplay: choiceDisplay,
                                    choices: choices,
@@ -347,7 +343,6 @@ struct InputValueView: View {
                 StitchFontDropdown(rowObserver: rowObserver,
                                    graph: graph,
                                    stitchFont: stitchFont,
-                                   layerInputObserver: layerInputObserver,
                                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                    propertyIsSelected: isSelectedInspectorRow,
                                    hasHeterogenousValues: hasHeterogenousValues,
@@ -362,7 +357,6 @@ struct InputValueView: View {
                     visibleNodes: graph.visibleNodesViewModel,
                     rowObserver: rowObserver,
                     value: .assignedLayer(layerId),
-                    layerInputObserver: layerInputObserver,
                     isFieldInsideLayerInspector: rowViewModel.isFieldInsideLayerInspector,
                     isForPinTo: false,
                     isSelectedInspectorRow: isSelectedInspectorRow,
@@ -386,7 +380,6 @@ struct InputValueView: View {
                     rowObserver: rowObserver,
                     graph: graph,
                     value: x,
-                    layerInputObserver: layerInputObserver,
                     isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                     hasHeterogenousValues: hasHeterogenousValues,
                     activeIndex: graphUI.activeIndex)
@@ -408,7 +401,6 @@ struct InputValueView: View {
                             rowObserver: rowObserver,
                             graph: graph,
                             value: x,
-                            layerInputObserver: layerInputObserver,
                             isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                             hasHeterogenousValues: hasHeterogenousValues,
                             activeIndex: graphUI.activeIndex)
@@ -419,7 +411,6 @@ struct InputValueView: View {
                             graph: graph,
                             activeIndex: graphUI.activeIndex,
                             value: x,
-                            layerInputObserver: layerInputObserver,
                             isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                             hasHeterogenousValues: hasHeterogenousValues)
                         
@@ -439,7 +430,6 @@ struct InputValueView: View {
                     graph: graph,
                     value: .textAlignment(x),
                     choices: LayerTextAlignment.choices,
-                    layerInputObserver: layerInputObserver,
                     isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                     hasHeterogenousValues: hasHeterogenousValues,
                     activeIndex: graphUI.activeIndex)
@@ -451,7 +441,6 @@ struct InputValueView: View {
                     graph: graph,
                     value: .textVerticalAlignment(x),
                     choices: LayerTextVerticalAlignment.choices,
-                    layerInputObserver: layerInputObserver,
                     isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                     hasHeterogenousValues: hasHeterogenousValues,
                     activeIndex: graphUI.activeIndex)
@@ -463,7 +452,6 @@ struct InputValueView: View {
                     graph: graph,
                     value: .textDecoration(x),
                     choices: LayerTextDecoration.choices,
-                    layerInputObserver: layerInputObserver,
                     isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                     hasHeterogenousValues: hasHeterogenousValues,
                     activeIndex: graphUI.activeIndex)
@@ -474,7 +462,6 @@ struct InputValueView: View {
                     visibleNodes: graph.visibleNodesViewModel,
                     rowObserver: rowObserver,
                     value: .pinTo(pinToId),
-                    layerInputObserver: layerInputObserver,
                     isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                     isForPinTo: true,
                     isSelectedInspectorRow: isSelectedInspectorRow,
@@ -491,7 +478,6 @@ struct InputValueView: View {
                                   graph: graph,
                                   document: graphUI,
                                   selection: anchor,
-                                  layerInputObserver: layerInputObserver,
                                   isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                   isSelectedInspectorRow: isSelectedInspectorRow,
                                   hasHeterogenousValues: hasHeterogenousValues)
@@ -508,7 +494,6 @@ struct InputValueView: View {
                     rowViewModel: rowViewModel,
                     rowObserver: rowObserver,
                     node: node,
-                    layerInputObserver: layerInputObserver,
                     isUpstreamValue: isUpstreamValue,
                     media: media,
                     mediaName: media.name,
@@ -526,7 +511,6 @@ struct InputValueView: View {
                 ColorOrbValueButtonView(fieldViewModel: viewModel,
                                         rowViewModel: rowViewModel,
                                         rowObserver: rowObserver,
-                                        layerInputObserver: layerInputObserver,
                                         isForFlyout: isForFlyout,
                                         currentColor: color,
                                         hasIncomingEdge: hasIncomingEdge,

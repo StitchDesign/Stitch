@@ -63,7 +63,6 @@ struct CommonEditingView: View {
     @State var isHovering: Bool = false
     
     @Bindable var inputField: InputFieldViewModel
-    let layerInputObserver: LayerInputObserver?
     
     let inputString: String
     
