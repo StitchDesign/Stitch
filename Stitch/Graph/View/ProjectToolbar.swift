@@ -86,7 +86,7 @@ struct ProjectToolbarViewModifier: ViewModifier {
                     iPadGraphTopBarButtons(
                         document: document,
                         graph: graph,
-                        hasActiveGroupFocused: graphUI.groupNodeFocused.isDefined,
+                        hasActiveGroupFocused: document.groupNodeFocused.isDefined,
                         isFullscreen: document.isFullScreenMode,
                         isPreviewWindowShown: document.showPreviewWindow,
                         restartPrototypeWindowIconRotationZ: document.restartPrototypeWindowIconRotationZ,

@@ -271,13 +271,13 @@ extension StitchDocumentViewModel {
 
             // On Catalyst, use hover-only, never row-selection.
             #if !targetEnvironment(macCatalyst)
-            let alreadySelected = self.propertySidebar.selectedProperty == layerInspectorRowId
+            let alreadySelected = graph.propertySidebar.selectedProperty == layerInspectorRowId
             
             withAnimation {
                 if alreadySelected {
-                    self.propertySidebar.selectedProperty = nil
+                    graph.propertySidebar.selectedProperty = nil
                 } else {
-                    self.propertySidebar.selectedProperty = layerInspectorRowId
+                    graph.propertySidebar.selectedProperty = layerInspectorRowId
                 }
             }
             #endif

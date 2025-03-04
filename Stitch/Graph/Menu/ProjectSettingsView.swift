@@ -257,26 +257,3 @@ struct PreviewWindowBackgroundColorSet: StitchDocumentEvent {
         state.visibleGraph.encodeProjectInBackground()
     }
 }
-
-
-// TODO: create an inner view that still receives this data
-//struct ProjectSettingsView_Previews: PreviewProvider {
-//    @State static var show = true
-//    static let graph = GraphState.createEmpty()
-//
-//    static var previews: some View {
-//        ProjectSettingsView(previewWindowSize: PreviewWindowDevice.DEFAULT_PREVIEW_SIZE,
-//                            previewSizeDevice: .custom,
-//                            previewWindowBackgroundColor: DEFAULT_FLOATING_WINDOW_COLOR, 
-//                            graph: graph,
-//                            graphUI: graphUI)
-//            .previewDevice(PreviewDevice(rawValue: "iPad Pro (11-inch) (3rd generation)"))
-//
-//        ProjectSettingsView(previewWindowSize: PreviewWindowDevice.DEFAULT_PREVIEW_SIZE,
-//                            previewSizeDevice: .custom,
-//                            previewWindowBackgroundColor: DEFAULT_FLOATING_WINDOW_COLOR, 
-//                            graph: graph,
-//                            graphUI: graphUI)
-//            .previewDevice(PreviewDevice(rawValue: "iPhone 13"))
-//    }
-//}
