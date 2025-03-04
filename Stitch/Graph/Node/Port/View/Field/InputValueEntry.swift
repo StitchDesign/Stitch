@@ -88,6 +88,7 @@ struct InputValueEntry: View {
         InputValueView(graph: graph,
                        graphUI: graphUI,
                        viewModel: viewModel,
+                       propertySidebar: graph.propertySidebar,
                        node: node,
                        rowViewModel: rowViewModel,
                        canvasItem: canvasItem,
@@ -165,6 +166,7 @@ struct InputValueView: View {
     @Bindable var graph: GraphState
     @Bindable var graphUI: GraphUIState
     @Bindable var viewModel: InputFieldViewModel
+    @Bindable var propertySidebar: PropertySidebarObserver
     let node: NodeViewModel
     let rowViewModel: InputNodeRowViewModel
     let canvasItem: CanvasItemViewModel?
@@ -210,29 +212,27 @@ struct InputValueView: View {
 
     @MainActor
     var hasHeterogenousValues: Bool {
-        if let layerInputObserver = layerInputObserver {
-            @Bindable var layerInputObserver = layerInputObserver
-            return layerInputObserver.fieldHasHeterogenousValues(
-                fieldIndex,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                graph: graph)
-        } else {
+        guard let layerInputPort = layerInputObserver?.port else {
             return false
         }
+        
+        return propertySidebar.heterogenousFieldsMap?
+            .get(layerInputPort)?
+            .contains(self.fieldIndex) ?? false
     }
     
-    @MainActor
-    var isMultiselectInspectorInputWithHeterogenousValues: Bool {
-        if let layerInputObserver = layerInputObserver {
-            @Bindable var layerInputObserver = layerInputObserver
-            return layerInputObserver.fieldHasHeterogenousValues(
-                fieldCoordinate.fieldIndex,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                graph: graph)
-        } else {
-            return false
-        }
-    }
+//    @MainActor
+//    var isMultiselectInspectorInputWithHeterogenousValues: Bool {
+//        if let layerInputObserver = layerInputObserver {
+//            @Bindable var layerInputObserver = layerInputObserver
+//            return layerInputObserver.fieldHasHeterogenousValues(
+//                fieldCoordinate.fieldIndex,
+//                isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+//                graph: graph)
+//        } else {
+//            return false
+//        }
+//    }
     
     var body: some View {
         // NodeLayout(observer: viewModel,
@@ -251,6 +251,7 @@ struct InputValueView: View {
                                          choices: nil,
                                          forPropertySidebar: forPropertySidebar,
                                          propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                                         hasHeterogenousValues: hasHeterogenousValues,
                                          isFieldInMultifieldInput: isFieldInMultifieldInput,
                                          isForFlyout: isForFlyout,
                                          isSelectedInspectorRow: isSelectedInspectorRow,
@@ -269,6 +270,7 @@ struct InputValueView: View {
                                      isCanvasItemSelected: isCanvasItemSelected,
                                      choices: nil,
                                      forPropertySidebar: forPropertySidebar,
+                                     hasHeterogenousValues: hasHeterogenousValues,
                                      propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                                      isFieldInMultifieldInput: isFieldInMultifieldInput,
                                      isForFlyout: isForFlyout,
@@ -291,6 +293,7 @@ struct InputValueView: View {
                                                                                      activeIndex: graphUI.activeIndex)
                                         .map(\.rawValue),
                                      forPropertySidebar: forPropertySidebar,
+                                     hasHeterogenousValues: hasHeterogenousValues,
                                      propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                                      isFieldInMultifieldInput: isFieldInMultifieldInput,
                                      isForFlyout: isForFlyout,
@@ -311,6 +314,7 @@ struct InputValueView: View {
                                      isCanvasItemSelected: isCanvasItemSelected,
                                      choices: StitchSpacing.choices,
                                      forPropertySidebar: forPropertySidebar,
+                                     hasHeterogenousValues: hasHeterogenousValues,
                                      propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                                      isFieldInMultifieldInput: isFieldInMultifieldInput,
                                      isForFlyout: isForFlyout,
@@ -326,7 +330,7 @@ struct InputValueView: View {
                                  value: bool,
                                  isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                  isSelectedInspectorRow: isSelectedInspectorRow,
-                                 isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues)
+                                 isMultiselectInspectorInputWithHeterogenousValues: hasHeterogenousValues)
                 
             case .dropdown(let choiceDisplay, let choices):
                 DropDownChoiceView(rowObserver: rowObserver,
@@ -514,7 +518,7 @@ struct InputValueView: View {
                     isNodeSelected: isCanvasItemSelected,
                     isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                     isSelectedInspectorRow: isSelectedInspectorRow,
-                    isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues,
+                    isMultiselectInspectorInputWithHeterogenousValues: hasHeterogenousValues,
                     graph: graph,
                     document: graphUI)
                 
@@ -527,7 +531,7 @@ struct InputValueView: View {
                                         currentColor: color,
                                         hasIncomingEdge: hasIncomingEdge,
                                         graph: graph,
-                                        isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues,
+                                        isMultiselectInspectorInputWithHeterogenousValues: hasHeterogenousValues,
                                         activeIndex: graphUI.activeIndex)
                 
             case .pulse(let pulseTime):

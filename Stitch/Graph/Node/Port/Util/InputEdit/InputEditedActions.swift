@@ -133,7 +133,7 @@ extension GraphState {
 
     @MainActor
     func getLayerMultiselectInput(for layerInput: LayerInputPort) -> LayerInputPort? {
-        self.graphUI.propertySidebar
+        self.propertySidebar
             .inputsCommonToSelectedLayers?
             .first(where: { $0 == layerInput })
     }

@@ -88,6 +88,7 @@ struct CommonEditingView: View {
     let isForFlyout: Bool
     let isForSpacingField: Bool
     let isSelectedInspectorRow: Bool
+    let hasHeterogenousValues: Bool
     
     let isFieldInMultifieldInspectorInputAndNotFlyout: Bool
     let fieldWidth: CGFloat
@@ -142,24 +143,6 @@ struct CommonEditingView: View {
         rowViewModel.layerInput
     }
     
-    @MainActor
-    var multiselectInputs: LayerInputPortSet? {
-        graph.propertySidebar.inputsCommonToSelectedLayers
-    }
-            
-    @MainActor
-    var fieldHasHeterogenousValues: Bool {
-        if let layerInputObserver = layerInputObserver {
-            @Bindable var layerInputObserver = layerInputObserver
-            return layerInputObserver.fieldHasHeterogenousValues(
-                fieldIndex,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                graph: graph)
-        } else {
-            return false
-        }
-    }
-    
     var hasPicker: Bool {
         choices.isDefined && !isFieldInMultifieldInspectorInputAndNotFlyout
     }
@@ -212,7 +195,7 @@ struct CommonEditingView: View {
                 self.isHovering = isHovering
             }
         }
-        .onChange(of: self.fieldHasHeterogenousValues, initial: true) { oldValue, newValue in
+        .onChange(of: self.hasHeterogenousValues, initial: true) { oldValue, newValue in
             // log("CommonEditingView: on change of: self.hasHeterogenousValues: id: \(id)")
             // log("CommonEditingView: on change of: self.hasHeterogenousValues: oldValue: \(oldValue)")
             // log("CommonEditingView: on change of: self.hasHeterogenousValues: newValue: \(newValue)")
@@ -349,7 +332,7 @@ struct CommonEditingView: View {
             isHovering: isHovering,
             choices: choices,
             fieldWidth: fieldWidth,
-            fieldHasHeterogenousValues: fieldHasHeterogenousValues,
+            fieldHasHeterogenousValues: hasHeterogenousValues,
             isSelectedInspectorRow: isSelectedInspectorRow,
             isFieldInMultfieldInspectorInput: isFieldInMultifieldInspectorInputAndNotFlyout,
             onTap: {
@@ -372,7 +355,7 @@ struct CommonEditingView: View {
     @MainActor
     func updateCurrentEdit(message: String? = nil) {
         
-        if self.fieldHasHeterogenousValues {
+        if self.hasHeterogenousValues {
             self.currentEdit = .HETEROGENOUS_VALUES
         } else {
             self.currentEdit = isLargeString ? "" : self.inputString

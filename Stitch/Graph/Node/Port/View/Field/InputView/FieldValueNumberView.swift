@@ -23,6 +23,7 @@ struct FieldValueNumberView: View {
     let isCanvasItemSelected: Bool
     let choices: [String]?
     let forPropertySidebar: Bool
+    let hasHeterogenousValues: Bool
     let propertyIsAlreadyOnGraph: Bool
     let isFieldInMultifieldInput: Bool
     let isForFlyout: Bool
@@ -73,6 +74,7 @@ struct FieldValueNumberView: View {
                                      choices: choices,
                                      forPropertySidebar: forPropertySidebar,
                                      propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                                     hasHeterogenousValues: hasHeterogenousValues,
                                      isFieldInMultifieldInput: isFieldInMultifieldInput,
                                      isForFlyout: isForFlyout, 
                                      isSelectedInspectorRow: isSelectedInspectorRow,

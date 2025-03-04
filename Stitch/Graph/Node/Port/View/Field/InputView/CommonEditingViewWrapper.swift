@@ -22,6 +22,7 @@ struct CommonEditingViewWrapper: View {
     let choices: [String]?
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
+    let hasHeterogenousValues: Bool
     let isFieldInMultifieldInput: Bool
     let isForFlyout: Bool
     let isSelectedInspectorRow: Bool
@@ -89,6 +90,7 @@ struct CommonEditingViewWrapper: View {
                           isForFlyout: isForFlyout,
                           isForSpacingField: isForSpacingField,
                           isSelectedInspectorRow: isSelectedInspectorRow,
+                          hasHeterogenousValues: hasHeterogenousValues,
                           isFieldInMultifieldInspectorInputAndNotFlyout: isFieldInMultifieldInspectorInputAndNotFlyout,
                           fieldWidth: fieldWidth)
     }
