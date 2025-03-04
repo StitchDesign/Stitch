@@ -435,11 +435,6 @@ extension GraphState {
     }
     
     @MainActor
-    var llmRecording: LLMRecordingState {
-        self.documentDelegate?.llmRecording ?? .init()
-    }
-    
-    @MainActor
     var graphStepManager: GraphStepManager {
         guard let document = self.documentDelegate else {
 //            fatalErrorIfDebug()
@@ -511,7 +506,7 @@ extension GraphState {
         let groupNodeIdFocused = document.groupNodeFocused
         
         // Stitch AI changes in case order changes
-        let aiActions = self.llmRecording.actions
+        let aiActions = document.llmRecording.actions
         
         hasher.combine(nodeCount)
         hasher.combine(canvasItems)
