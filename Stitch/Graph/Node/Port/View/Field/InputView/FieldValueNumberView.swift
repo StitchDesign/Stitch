@@ -16,13 +16,13 @@ struct FieldValueNumberView: View {
     @Bindable var rowObserver: InputNodeRowObserver
     @Bindable var rowViewModel: InputNodeRowViewModel
     @Bindable var fieldViewModel: InputFieldViewModel
-    let layerInputObserver: LayerInputObserver?
     let fieldValue: FieldValue
     let fieldValueNumberType: FieldValueNumberType
     let fieldCoordinate: FieldCoordinate
     let isCanvasItemSelected: Bool
     let choices: [String]?
     let forPropertySidebar: Bool
+    let hasHeterogenousValues: Bool
     let propertyIsAlreadyOnGraph: Bool
     let isFieldInMultifieldInput: Bool
     let isForFlyout: Bool
@@ -66,13 +66,13 @@ struct FieldValueNumberView: View {
                                      fieldViewModel: fieldViewModel,
                                      rowObserver: rowObserver,
                                      rowViewModel: rowViewModel,
-                                     layerInputObserver: layerInputObserver,
                                      fieldValue: fieldValue,
                                      fieldCoordinate: fieldCoordinate,
                                      isCanvasItemSelected: isCanvasItemSelected,
                                      choices: choices,
                                      forPropertySidebar: forPropertySidebar,
                                      propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                                     hasHeterogenousValues: hasHeterogenousValues,
                                      isFieldInMultifieldInput: isFieldInMultifieldInput,
                                      isForFlyout: isForFlyout, 
                                      isSelectedInspectorRow: isSelectedInspectorRow,

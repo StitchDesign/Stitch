@@ -359,7 +359,6 @@ extension LayerInputObserver {
     /// Helper only intended for use with ports that don't support unpacked mode.
     @MainActor
     var rowObserver: InputNodeRowObserver {
-        assertInDebug(self.mode == .packed)
         return self._packedData.rowObserver
     }
 }

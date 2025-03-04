@@ -132,7 +132,6 @@ struct LayerGroupHorizontalAlignmentPickerFieldValueView: View {
     let rowObserver: InputNodeRowObserver
     let graph: GraphState
     let value: Anchoring
-    let layerInputObserver: LayerInputObserver?
     let isFieldInsideLayerInspector: Bool
     let hasHeterogenousValues: Bool
     let activeIndex: ActiveIndex
@@ -166,7 +165,6 @@ struct LayerGroupVerticalAlignmentPickerFieldValueView: View {
     let graph: GraphState
     let activeIndex: ActiveIndex
     let value: Anchoring
-    let layerInputObserver: LayerInputObserver?
     let isFieldInsideLayerInspector: Bool
     let hasHeterogenousValues: Bool
     

@@ -15,8 +15,6 @@ struct DropDownChoiceView: View {
     
     let rowObserver: InputNodeRowObserver
     
-    let layerInputObserver: LayerInputObserver?
-    
     @Bindable var graph: GraphState
     
     let choiceDisplay: String

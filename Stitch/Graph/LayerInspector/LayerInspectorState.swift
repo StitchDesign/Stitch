@@ -27,7 +27,8 @@ typealias LayerInspectorRowIdSet = Set<LayerInspectorRowId>
 final class PropertySidebarObserver: Sendable {
         
     // Non-nil just if we have multiple layers selected
-    @MainActor var inputsCommonToSelectedLayers: LayerInputPortSet?
+    // Values refer to field indices containing heterogenous fields
+    @MainActor var heterogenousFieldsMap: [LayerInputPort : Set<Int>]?
     
     @MainActor var selectedProperty: LayerInspectorRowId?
     
@@ -48,6 +49,17 @@ final class PropertySidebarObserver: Sendable {
     // var safeAreaBottomPadding: CGFloat = 0
     
     init() { }
+}
+
+extension PropertySidebarObserver {
+    @MainActor
+    var inputsCommonToSelectedLayers: Set<LayerInputPort>? {
+        guard let multiselectionHeterogenousMap = self.heterogenousFieldsMap else {
+            return nil
+        }
+        
+        return Set(multiselectionHeterogenousMap.keys)
+    }
 }
 
 struct PropertySidebarFlyoutState: Equatable {
