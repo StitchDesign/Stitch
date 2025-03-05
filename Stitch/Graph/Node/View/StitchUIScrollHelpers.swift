@@ -54,10 +54,12 @@ struct GraphScrollDataUpdated: StitchDocumentEvent {
         state.graphMovement.localPosition = newOffset
         state.graphMovement.zoomData = newZoom
         
-        if shouldPersist {
-            // log("GraphScrollDataUpdated: will persist")
-            state.encodeProjectInBackground()
-        }
+        // NOTE: we no longer persist after graph scroll ends, since we now always open the graph to the center.
+        
+//        if shouldPersist {
+//            log("GraphScrollDataUpdated: will persist")
+//            state.encodeProjectInBackground()
+//        }
     }
     
 }
