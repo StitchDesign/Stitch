@@ -7,6 +7,7 @@
 
 import Foundation
 import StitchSchemaKit
+import StitchEngine
 import RealityKit
 import SwiftUI
 

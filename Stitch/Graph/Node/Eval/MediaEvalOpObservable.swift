@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import StitchEngine
 import StitchSchemaKit
 import SwiftUI
 
@@ -86,6 +87,15 @@ extension MediaEvalOpObserver {
 //        default:
 //            return
 //        }
+    }
+}
+
+extension MediaViewModel: StitchEngine.MediaEphemeralObservable {
+    typealias Node = NodeViewModel
+    
+    @MainActor
+    func updateMedia(_ media: GraphMediaValue?) {
+        self.currentMedia = media
     }
 }
 
@@ -364,9 +374,11 @@ actor MediaEvalOpCoordinator {
                           node: NodeDelegate,
                           callback: @Sendable @escaping () async -> PortValues) async {
         let newOutputs = await callback()
-        await node.graphDelegate?.recalculateGraphForMedia(outputValues: .byIndex(newOutputs),
-                                                   nodeId: node.id,
-                                                   loopIndex: loopIndex)
+        await node.graphDelegate?
+            .recalculateGraphForMedia(outputValues: .byIndex(newOutputs),
+                                      media: nil,
+                                      nodeId: node.id,
+                                      loopIndex: loopIndex)
     }
     
     /// Async callback to prevent data races for media object changes.
@@ -383,8 +395,10 @@ actor MediaEvalOpCoordinator {
     func asyncMediaEvalOpList(node: NodeDelegate,
                               callback: @Sendable @escaping () async -> PortValuesList) async {
         let newOutputs = await callback()
-        await node.graphDelegate?.recalculateGraphForMedia(outputValues: .all(newOutputs),
-                                                   nodeId: node.id,
-                                                   loopIndex: 0)
+        await node.graphDelegate?
+            .recalculateGraphForMedia(outputValues: .all(newOutputs),
+                                      media: nil,
+                                      nodeId: node.id,
+                                      loopIndex: 0)
     }
 }

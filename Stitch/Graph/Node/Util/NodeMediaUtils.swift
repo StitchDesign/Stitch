@@ -61,20 +61,26 @@ extension MediaEvalOpResult: NodeEvalOpResult {
         let outputs = valuesList.remapOutputs()
         
         // Update ephemeral observers
-        for (newMedia, ephemeralObserver) in zip(mediaList, node.ephemeralObservers ?? []) {
-            guard let mediaObserver = ephemeralObserver as? MediaEvalOpViewable else {
-                fatalErrorIfDebug()
-                break
-            }
-            
-            if let newMedia = newMedia {
-                mediaObserver.currentMedia = newMedia
-            } else {
-                mediaObserver.currentMedia = nil
-            }
-        }
+//        
+//        
+//        // TODO: remove
+//        for (newMedia, ephemeralObserver) in zip(mediaList, node.ephemeralObservers ?? []) {
+//            guard let mediaObserver = ephemeralObserver as? MediaEvalOpViewable else {
+//                fatalErrorIfDebug()
+//                break
+//            }
+//            
+//            if let newMedia = newMedia {
+//                if newMedia != mediaObserver.currentMedia {
+//                    mediaObserver.currentMedia = newMedia
+//                }
+//            } else {
+//                mediaObserver.currentMedia = nil
+//            }
+//        }
         
-        return .init(outputsValues: outputs)
+        return .init(outputsValues: outputs,
+                     mediaList: mediaList)
     }
     
     init(from values: PortValues) {
