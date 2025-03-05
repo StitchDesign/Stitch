@@ -14,7 +14,6 @@ struct PulseValueButtonView: View {
     @State private var isPulsed = false
     
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
     
     let rowObserver: InputNodeRowObserver? // nil = for output
     
@@ -40,8 +39,7 @@ struct PulseValueButtonView: View {
         StitchButton {
             if let rowObserver = rowObserver {
                 graph.pulseValueButtonClicked(rowObserver,
-                                              canvasItem: canvasItem,
-                                              graphUI: graphUI)
+                                              canvasItem: canvasItem)
             } else {
                 log("PulseValueButtonView error: output unexpectedly encountered for \(rowObserver?.id)")
             }

@@ -25,6 +25,7 @@ final class LayersSidebarViewModel: ProjectSidebarObservable, Sendable {
     @MainActor var optionDragInProgress: Bool = false
     @MainActor var primary = Set<ItemID>()     // items selected because directly clicked
     @MainActor var lastFocused: ItemID?
+    @MainActor var isSidebarFocused: Bool = false
     
     @MainActor weak var graphDelegate: GraphState?
     

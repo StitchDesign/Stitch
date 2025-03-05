@@ -107,9 +107,6 @@ final class StitchDocumentViewModel: Sendable {
      */
     @MainActor var lastMouseNodeMovement: TimeInterval?
     
-    // tracks if sidebar is focused
-    @MainActor var isSidebarFocused: Bool = false
-    
     @MainActor var openPortPreview: OpenedPortPreview?
     
     @MainActor weak var storeDelegate: StitchStore?

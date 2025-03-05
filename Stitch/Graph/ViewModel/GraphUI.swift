@@ -209,8 +209,13 @@ extension GraphState {
             document.showCatalystProjectTitleModal = false
         }
         
-        document.isSidebarFocused = false
-        document.openPortPreview = nil
+        if self.layersSidebarViewModel.isSidebarFocused {
+            self.layersSidebarViewModel.isSidebarFocused = false
+        }
+        
+        if document.openPortPreview != nil {
+            document.openPortPreview = nil
+        }
     }
 }
 
@@ -297,14 +302,12 @@ extension GraphState {
     
     // Keep this helper around
     @MainActor
-    func selectSingleNode(_ node: CanvasItemViewModel,
-                          document: StitchDocumentViewModel) {
+    func selectSingleNode(_ node: CanvasItemViewModel) {
         // ie expansionBox, isSelecting, selected-comments etc.
         // get reset when we select a single node.
         self.selection = GraphUISelectionState()
         self.resetSelectedCanvasItems()
-        node.select(self,
-                    document: document)
+        node.select(self)
     }
     
     @MainActor
@@ -314,39 +317,36 @@ extension GraphState {
     }
     
     @MainActor
-    func selectSingleCanvasItem(_ canvasItem: CanvasItemViewModel,
-                                document: StitchDocumentViewModel) {
+    func selectSingleCanvasItem(_ canvasItem: CanvasItemViewModel) {
         // ie expansionBox, isSelecting, selected-comments etc.
         // get reset when we select a single canvasItem.
         self.deselectAllCanvasItems()
-        canvasItem.select(self,
-                          document: document)
+        canvasItem.select(self)
     }
     
     // TEST HELPER
     @MainActor
-    func addNodeToSelections(_ nodeId: CanvasItemId,
-                             document: StitchDocumentViewModel) {
+    func addNodeToSelections(_ nodeId: CanvasItemId) {
         guard let node = self.getCanvasItem(nodeId) else {
             fatalErrorIfDebug()
             return
         }
-        node.select(self,
-                    document: document)
+        node.select(self)
     }
 }
 
 extension CanvasItemViewModel {
     @MainActor
-    func select(_ graph: GraphState,
-                document: StitchDocumentViewModel) {
+    func select(_ graph: GraphState) {
         // Prevent render cycles if already selected
         guard !self.isSelected(graph)  else { return }
         
         graph.selection.selectedNodeIds.insert(self.id)
         
         // Unfocus sidebar
-        document.isSidebarFocused = false
+        if graph.layersSidebarViewModel.isSidebarFocused {
+            graph.layersSidebarViewModel.isSidebarFocused = false
+        }
     }
     
     @MainActor
