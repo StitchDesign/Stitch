@@ -251,10 +251,12 @@ extension NodeViewModel {
                 return nil
             }
             
+            return layerNode.previewLayerViewModels[safe: loopIndex]?.mediaViewModel
+            
             // MARK: helpers here will not retrieve local imported layer view model, thorough testing needed if scope increases
-            return layerNode.getConnectedInputMediaObserver(keyPath: keyPath,
-                                                            loopIndex: loopIndex,
-                                                            mediaId: mediaId)
+//            return layerNode.getConnectedInputMediaObserver(keyPath: keyPath,
+//                                                            loopIndex: loopIndex,
+//                                                            mediaId: mediaId)
         }
     }
     
@@ -264,7 +266,7 @@ extension NodeViewModel {
                                loopIndex: Int,
                                mediaId: UUID?) -> MediaViewModel? {
         // Do nothing if no upstream connection for media
-        guard let connectedUpstreamNode = self.getUpstreamNode(inputPortIndex: portIndex) else {
+//        guard let connectedUpstreamNode = self.getUpstreamNode(inputPortIndex: portIndex) else {
             
             // MARK: below functionality allows nodes like media import patch nodes to display media at the input even though computed ephemeral observers only hold media. For some nodes like loop builder this isn't ideal as it'll incorrectly display valid data at an empty input.
             if self.kind == .patch(.loopBuilder) {
@@ -274,31 +276,31 @@ extension NodeViewModel {
             // Check if media eval op exists here if no connection
             return self.getComputedMediaObserver(loopIndex: loopIndex,
                                                  mediaId: mediaId)
-        }
+//        }
         
-        return connectedUpstreamNode.getUpstreamNodeMediaObserver(loopIndex: loopIndex,
-                                                                  mediaId: mediaId)
+//        return connectedUpstreamNode.getUpstreamNodeMediaObserver(loopIndex: loopIndex,
+//                                                                  mediaId: mediaId)
     }
     
-    @MainActor
-    private func getUpstreamNode(inputPortIndex: Int) -> NodeViewModel? {
-        self.inputsObservers[safe: inputPortIndex]?.upstreamOutputObserver?.nodeDelegate
-    }
+//    @MainActor
+//    private func getUpstreamNode(inputPortIndex: Int) -> NodeViewModel? {
+//        self.inputsObservers[safe: inputPortIndex]?.upstreamOutputObserver?.nodeDelegate
+//    }
     
-    @MainActor
-    private func getUpstreamNodeMediaObserver(loopIndex: Int,
-                                              mediaId: UUID?) -> MediaViewModel? {
-        // Media object is obtained by looking at upstream connected node's saved media objects.
-        if let viewModel = self.getComputedMediaObserver(loopIndex: loopIndex,
-                                                                          mediaId: mediaId) {
-            return viewModel
-        }
-        
-        // Fallback logic below: recursively check upstream nodes at the firt port index. Provides support for nodes like splitters which don't directly hold media.
-        return self.getInputMediaObserver(portIndex: 0,
-                                          loopIndex: loopIndex,
-                                          mediaId: mediaId)
-    }
+//    @MainActor
+//    private func getUpstreamNodeMediaObserver(loopIndex: Int,
+//                                              mediaId: UUID?) -> MediaViewModel? {
+//        // Media object is obtained by looking at upstream connected node's saved media objects.
+//        if let viewModel = self.getComputedMediaObserver(loopIndex: loopIndex,
+//                                                                          mediaId: mediaId) {
+//            return viewModel
+//        }
+//        
+//        // Fallback logic below: recursively check upstream nodes at the firt port index. Provides support for nodes like splitters which don't directly hold media.
+//        return self.getInputMediaObserver(portIndex: 0,
+//                                          loopIndex: loopIndex,
+//                                          mediaId: mediaId)
+//    }
     
     @MainActor
     /// Gets the media object for some connected input.
@@ -328,46 +330,46 @@ extension NodeRowObserver {
 }
 
 extension LayerNodeViewModel {
-    @MainActor
-    func getConnectedInputMedia(keyPath: LayerInputType,
-                                loopIndex: Int,
-                                mediaId: UUID) -> StitchMediaObject? {
-        if let mediaValue = self.getConnectedInputMediaObserver(keyPath: keyPath,
-                                                                loopIndex: loopIndex,
-                                                                mediaId: mediaId)?.currentMedia {
-            return mediaValue.mediaObject
-        }
-        
-        return nil
-    }
+//    @MainActor
+//    func getConnectedInputMedia(keyPath: LayerInputType,
+//                                loopIndex: Int,
+//                                mediaId: UUID) -> StitchMediaObject? {
+//        if let mediaValue = self.getConnectedInputMediaObserver(keyPath: keyPath,
+//                                                                loopIndex: loopIndex,
+//                                                                mediaId: mediaId)?.currentMedia {
+//            return mediaValue.mediaObject
+//        }
+//        
+//        return nil
+//    }
     
-    @MainActor
-    /// Gets the media observer for some connected input.
-    func getConnectedInputMediaObserver(keyPath: LayerInputType,
-                                        loopIndex: Int,
-                                        mediaId: UUID?) -> MediaViewModel? {
-        let port = self[keyPath: keyPath.layerNodeKeyPath]
-        
-        if let upstreamObserver = port.rowObserver.upstreamOutputObserver,
-           let upstreamNode = upstreamObserver.nodeDelegate {
-            if let upstreamComputedMedia = upstreamNode
-                .getComputedMediaObserver(loopIndex: loopIndex,
-                                          mediaId: mediaId) {
-                return upstreamComputedMedia
-            }
-            
-            // Fallback logic: check input of upstream node and kick-start recursive strategy
-            return upstreamNode.getInputMediaObserver(portIndex: 0,
-                                                      loopIndex: loopIndex,
-                                                      mediaId: mediaId)
-        }
-        
-        // No upstream connection, find media at layer view model
-        guard let layerViewModel = self.previewLayerViewModels[safe: loopIndex],
-              layerViewModel.mediaViewModel.currentMedia?.id == mediaId else {
-            return nil
-        }
-
-        return layerViewModel.mediaViewModel
-    }
+//    @MainActor
+//    /// Gets the media observer for some connected input.
+//    func getConnectedInputMediaObserver(keyPath: LayerInputType,
+//                                        loopIndex: Int,
+//                                        mediaId: UUID?) -> MediaViewModel? {
+//        let port = self[keyPath: keyPath.layerNodeKeyPath]
+//        
+//        if let upstreamObserver = port.rowObserver.upstreamOutputObserver,
+//           let upstreamNode = upstreamObserver.nodeDelegate {
+//            if let upstreamComputedMedia = upstreamNode
+//                .getComputedMediaObserver(loopIndex: loopIndex,
+//                                          mediaId: mediaId) {
+//                return upstreamComputedMedia
+//            }
+//            
+//            // Fallback logic: check input of upstream node and kick-start recursive strategy
+//            return upstreamNode.getInputMediaObserver(portIndex: 0,
+//                                                      loopIndex: loopIndex,
+//                                                      mediaId: mediaId)
+//        }
+//        
+//        // No upstream connection, find media at layer view model
+//        guard let layerViewModel = self.previewLayerViewModels[safe: loopIndex],
+//              layerViewModel.mediaViewModel.currentMedia?.id == mediaId else {
+//            return nil
+//        }
+//
+//        return layerViewModel.mediaViewModel
+//    }
 }
