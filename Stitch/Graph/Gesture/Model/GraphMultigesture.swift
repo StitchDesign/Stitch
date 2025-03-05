@@ -77,7 +77,6 @@ extension GraphMovementObserver {
         }
     }
 
-//    @MainActor var draggedNode: NodeId? {
     @MainActor var draggedCanvasItem: CanvasItemId? {
         get {
             self.graphMultigesture.draggedCanvasItem
