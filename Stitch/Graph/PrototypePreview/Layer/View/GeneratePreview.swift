@@ -506,15 +506,6 @@ struct NonGroupPreviewLayersView: View {
                                                     // Media port is always packed
                                                     portType: .packed)
                 
-                // Checks for connected upstream media
-//                if let existingMedia = self.layerNode
-//                    .getConnectedInputMedia(keyPath: layerInputType,
-//                                            loopIndex: self.layerViewModel.id.loopIndex,
-//                                            mediaId: mediaValue.id) {
-//                    self.layerViewModel.mediaViewModel.currentMedia = .init(computedMedia: existingMedia)
-//                    return
-//                }
-                
                 Task(priority: .high) { [weak layerViewModel] in
                     await layerViewModel?.loadMedia(mediaValue: mediaValue,
                                                     document: document,
