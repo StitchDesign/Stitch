@@ -90,8 +90,8 @@ protocol SidebarItemSwipable: StitchNestedListElementObservable, Sendable, Ident
 
 extension SidebarItemSwipable {
     @MainActor
-    var isSelected: Bool {
-        self.isPrimarilySelected
+    func isSelected(sidebar: Self.SidebarViewModel) -> Bool {
+        self.isPrimarilySelected(sidebar: sidebar)
     }
     
     @MainActor
@@ -164,12 +164,18 @@ extension SidebarItemSwipable {
     }
     
     @MainActor
-    var selectionStatus: SidebarListItemSelectionStatus {
-        if self.isPrimarilySelected {
+    func selectionStatus(sidebar: SidebarViewModel) -> SidebarListItemSelectionStatus {
+        Self.selectionStatus(isPrimarilySelected: self.isPrimarilySelected(sidebar: sidebar),
+                             isParentSelected: self.isParentSelected(sidebar: sidebar))
+    }
+    
+    @MainActor
+    static func selectionStatus(isPrimarilySelected: Bool, isParentSelected: Bool) -> SidebarListItemSelectionStatus {
+        if isPrimarilySelected {
             return .primary
         }
         
-        if self.isParentSelected {
+        if isParentSelected {
             return .secondary
         }
         
@@ -188,12 +194,7 @@ extension SidebarItemSwipable {
     }
     
     @MainActor
-    var isPrimarilySelected: Bool {
-        guard let sidebar = self.sidebarDelegate else {
-            // fatalErrorIfDebug() // It's okay for this check to fail?
-            return false
-        }
-        
+    func isPrimarilySelected(sidebar: SidebarViewModel) -> Bool {
         if sidebar.selectionState.primary.contains(self.id) {
             return true
         }
@@ -202,8 +203,7 @@ extension SidebarItemSwipable {
     }
     
     @MainActor
-    var isParentSelected: Bool {
-        guard let sidebar = self.sidebarDelegate else { return false }
+    func isParentSelected(sidebar: Self.SidebarViewModel) -> Bool {
         
         var visitedItem: Self? = self
         

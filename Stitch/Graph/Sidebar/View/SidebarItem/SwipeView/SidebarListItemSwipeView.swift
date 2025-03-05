@@ -27,7 +27,7 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
     }
     
     var isParentSelected: Bool {
-        self.gestureViewModel.isParentSelected
+        self.gestureViewModel.isParentSelected(sidebar: sidebarViewModel)
     }
     
     var yOffset: CGFloat {
