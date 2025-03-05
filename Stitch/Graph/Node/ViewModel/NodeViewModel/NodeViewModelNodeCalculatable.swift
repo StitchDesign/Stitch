@@ -37,7 +37,7 @@ extension NodeViewModel: NodeCalculatable {
             return layerNode.previewLayerViewModels.map { $0.mediaViewModel }
         }
         
-        if let mediaEvalOpObservers = self.ephemeralObservers as? [MediaEvalOpObserver] {
+        if let mediaEvalOpObservers = self.ephemeralObservers as? [MediaEvalOpViewable] {
             return mediaEvalOpObservers.map(\.mediaViewModel)
         }
         

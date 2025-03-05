@@ -18,14 +18,14 @@ extension NodeKind {
         switch self {
         case .patch(let patch):
             switch patch {
-            case .imageImport, .grayscale, .videoImport:
+            case .imageImport, .grayscale, .videoImport, .cameraFeed:
                 return true
     
             default:
                 return false
             }
             
-        case .layer(let layer):
+        case .layer:
             return self.isVisualMediaLayerNode
             
         default:
