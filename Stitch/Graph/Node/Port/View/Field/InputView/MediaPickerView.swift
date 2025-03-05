@@ -141,7 +141,7 @@ struct MediaFieldLabelView<Field: FieldViewModel>: View {
             ValueStitchVideoView(thumbnail: video.thumbnail)
 
         default:
-            if !isVisualMediaPort {
+            if isVisualMediaPort {
                 NilImageView()
             } else {
                 // Other media types: don't show label.
