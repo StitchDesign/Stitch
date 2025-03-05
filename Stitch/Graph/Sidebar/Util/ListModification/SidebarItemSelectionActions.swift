@@ -23,7 +23,9 @@ extension ProjectSidebarObservable {
         let originalSelections = self.selectionState.primary
         
         // Set sidebar to be focused:
-        graphUI.isSidebarFocused = true
+        if !self.isSidebarFocused {
+            self.isSidebarFocused = true            
+        }
         
         // log("sidebarItemTapped: originalSelections: \(originalSelections)")
         

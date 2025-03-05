@@ -34,6 +34,12 @@ protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID 
     @MainActor var lastFocused: ItemID? { get set }
     
     @MainActor var currentItemDragged: Self.ItemID? { get set }
+
+    // e.g. user is hovering over or has selected a layer in the sidebar, which we then highlight in the preview window itself
+    @MainActor var highlightedSidebarLayers: Set<Self.ItemID> { get set }
+    
+    // tracks if sidebar is focused
+    @MainActor var isSidebarFocused: Bool { get set }
     
     @MainActor var graphDelegate: GraphState? { get set }
 

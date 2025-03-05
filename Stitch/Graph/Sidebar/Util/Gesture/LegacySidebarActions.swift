@@ -14,8 +14,13 @@ let SIDEBAR_ITEM_MAX_Z_INDEX: ZIndex = 999
 extension ProjectSidebarObservable {
     @MainActor
     func sidebarListItemLongPressed(itemId: Self.ItemID) {
-        self.currentItemDragged = itemId
-        self.graphDelegate?.documentDelegate?.isSidebarFocused = true
+        if self.currentItemDragged != itemId {
+            self.currentItemDragged = itemId
+        }
+        
+        if !self.isSidebarFocused {
+            self.isSidebarFocused = true
+        }
     }
 
     // Function to find the set item whose index in the list is the smallest
@@ -68,20 +73,15 @@ extension ProjectSidebarObservable {
     func sidebarListItemDragged(item: Self.ItemViewModel,
                                 translation: CGSize) {
         
-        // log("SidebarListItemDragged called: item \(itemId) ")
-        guard let graph = self.graphDelegate,
-              let document = graph.documentDelegate else {
-            fatalErrorIfDebug()
-            return
-        }
-        
         let state = self
         
         // The tracked dragged item may change if option + click
         var draggedItem = item
         
         // Focus sidebar
-        document.isSidebarFocused = true
+        if !self.isSidebarFocused {
+            self.isSidebarFocused = true
+        }
         
         // TODO: debug and reintroduce option-duge drag in sidebar
 //        if state.selectionState.optionDragInProgress {
