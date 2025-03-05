@@ -523,7 +523,6 @@
 		EC4CFB6526FE480700D085F3 /* StitchSoundFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4CFB6426FE480700D085F3 /* StitchSoundFile.swift */; };
 		EC4CFB6726FE483300D085F3 /* StitchMicrophone.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4CFB6626FE483300D085F3 /* StitchMicrophone.swift */; };
 		EC4D0D8A290861E300444B04 /* GraphBounds.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4D0D89290861E300444B04 /* GraphBounds.swift */; };
-		EC4D0D8C2908624400444B04 /* GraphDraggablePosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4D0D8B2908624400444B04 /* GraphDraggablePosition.swift */; };
 		EC4D959D26B48F7900AD5AB4 /* PulseActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4D959C26B48F7900AD5AB4 /* PulseActions.swift */; };
 		EC4D959F26B48FCB00AD5AB4 /* NodeSelectionUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4D959E26B48FCB00AD5AB4 /* NodeSelectionUtil.swift */; };
 		EC4D95A126B4908600AD5AB4 /* PrototypeActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4D95A026B4908600AD5AB4 /* PrototypeActions.swift */; };
@@ -1488,7 +1487,6 @@
 		EC4CFB6426FE480700D085F3 /* StitchSoundFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchSoundFile.swift; sourceTree = "<group>"; };
 		EC4CFB6626FE483300D085F3 /* StitchMicrophone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchMicrophone.swift; sourceTree = "<group>"; };
 		EC4D0D89290861E300444B04 /* GraphBounds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphBounds.swift; sourceTree = "<group>"; };
-		EC4D0D8B2908624400444B04 /* GraphDraggablePosition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphDraggablePosition.swift; sourceTree = "<group>"; };
 		EC4D959C26B48F7900AD5AB4 /* PulseActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PulseActions.swift; sourceTree = "<group>"; };
 		EC4D959E26B48FCB00AD5AB4 /* NodeSelectionUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeSelectionUtil.swift; sourceTree = "<group>"; };
 		EC4D95A026B4908600AD5AB4 /* PrototypeActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrototypeActions.swift; sourceTree = "<group>"; };
@@ -2891,7 +2889,6 @@
 			isa = PBXGroup;
 			children = (
 				EC4D9BC82829EBCD0066DFC8 /* GestureUtils.swift */,
-				EC4D0D8B2908624400444B04 /* GraphDraggablePosition.swift */,
 				EC83D8912926E1CB00255311 /* GraphUIScrollActions.swift */,
 				EC83D8952926E2E700255311 /* GraphUITappedActions.swift */,
 				EC83D8992926E42400255311 /* GraphUICursorSelectionActions.swift */,
@@ -5120,7 +5117,6 @@
 				EC28CCA2287E35F500987792 /* PatchEvaluation.swift in Sources */,
 				ECB9A8672AEB48FF006E65EE /* HSLSliderView.swift in Sources */,
 				EC0E392D29F9C6100076FE4B /* JSONSampleData.swift in Sources */,
-				EC4D0D8C2908624400444B04 /* GraphDraggablePosition.swift in Sources */,
 				20D9D79425D5A78900F5C7A4 /* Parsers.swift in Sources */,
 				ECB9A8652AEB48A2006E65EE /* StitchColorPickerView.swift in Sources */,
 				B55500EF2C1BADB20081C3F1 /* PreviewCommonMisc.swift in Sources */,
