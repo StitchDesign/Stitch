@@ -85,87 +85,13 @@ final class GraphMovementObserver: Sendable {
 
     let graphMultigesture = GraphMultigesture()
 
-    /*
-     Non-nil when graph translation is such that eg eastern-most node would be at or past the western-border.
-
-     Set nil when GraphDragEnded or eg eastern-most node moves away from western-border.
-     */
-
-    // Max translation in a given direction;
-    // eg. `graphOffset.localPreviousPosition.height + maxTranslationY` = new position for graph
-    @MainActor var maxTranslationX: CGFloat?
-    @MainActor var maxTranslationY: CGFloat?
-
-    // Used to determine, during a gesture that would extend past the border,
-    // whether we've started to move away from the border or not.
-    //    var lastInvalidTranslation: CGSize?
-    @MainActor var lastInvalidTranslationX: CGFloat?
-    @MainActor var lastInvalidTranslationY: CGFloat?
-
-    @MainActor var graphBoundOriginAtStart: GraphOriginAtStart?
-
-    /*
-     Left ie west side.
-     True just when eastern node is already at or past western border.
-     If true we don't apply the special border-checking logic.
-     Set false as soon as eastern node crosses over to the right of the western border again
-     */
-    @MainActor var currentlyOffsidesWest: Bool?
-
-    // Did the western-most node on the graph start to the east of the eastern border?
-    @MainActor var currentlyOffsidesEast: Bool?
-
-    // Did the northern-most node on the graph start to the south of the southern border?
-    @MainActor var currentlyOffsidesSouth: Bool?
-
-    // Did the southern-most node on the graph start to the north of the north border?
-    @MainActor var currentlyOffsidesNorth: Bool?
-
     // Set true just when scrolling via trackpad.
     @MainActor var wasTrackpadScroll = false
-
-    @MainActor var momentumState = MomentumAnimationState()
-    
-    @MainActor var boundaryNodes: BoundaryNodesPositions?
-    
-//    @MainActor
-//    init(_ rootLevelPersistedLocalPosition: CGPoint) {
-//        self.localPosition = rootLevelPersistedLocalPosition
-//        self.localPreviousPosition = rootLevelPersistedLocalPosition
-//    }
-    
+        
     init() { }
-    
 }
 
 extension GraphMovementObserver {
-    @MainActor var shouldRunY: Bool {
-        momentumState.shouldRunY
-    }
-    @MainActor var shouldRunX: Bool {
-        momentumState.shouldRunX
-    }
-
-    // Do we need to run this momentum?
-    @MainActor var shouldRun: Bool {
-        shouldRunY || shouldRunX
-    }
-
-    @MainActor var stepY: CGFloat {
-        momentumState.stepY
-    }
-
-    @MainActor var stepX: CGFloat {
-        momentumState.stepX
-    }
-
-    @MainActor var amplitude: CGPoint {
-        momentumState.amplitude
-    }
-
-    @MainActor var delta: CGPoint {
-        momentumState.delta
-    }
 
     @MainActor
     func stopNodeMovement() {
