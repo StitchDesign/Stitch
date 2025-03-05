@@ -296,7 +296,7 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
     
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
                            shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        // log("StitchUIScrollView: gestureRecognizer: shouldRecognizeSimultaneouslyWith")
+        log("StitchUIScrollView: gestureRecognizer: shouldRecognizeSimultaneouslyWith")
         return true
     }
 
@@ -306,35 +306,7 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
             newOffset: scrollView.contentOffset,
             newZoom: scrollView.zoomScale))
     }
-    
-    // MANAGING ZOOMING
-    
-    // UIScrollViewDelegate method for zooming
-    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-        return hostingController.view
-    }
-    
-    func scrollViewWillBeginZooming(_ scrollView: UIScrollView,
-                                    with view: UIView?) {
-        // log("scrollViewWillBeginZooming")
-        self.borderCheckingDisabled = true
-        self.checkBorder(scrollView)
-    }
-    
-    func scrollViewDidEndZooming(_ scrollView: UIScrollView,
-                                 with view: UIView?,
-                                 atScale scale: CGFloat) {
-        // log("scrollViewDidEndZooming")
-        self.borderCheckingDisabled = false
-        self.checkBorder(scrollView)
-    }
-    
-    func scrollViewDidZoom(_ scrollView: UIScrollView) {
-        // log("scrollViewDidZoom")
-        self.borderCheckingDisabled = true // Disable border-checking during an active zoom
-         self.checkBorder(scrollView)
-    }
-    
+        
     // RESPONDING TO SCROLLING AND DRAGGING
     
     // Note: called even by ZOOMING
@@ -359,6 +331,13 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
         self.checkBorder(scrollView)
     }
     
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView,
+                                  willDecelerate: Bool) {
+        // log("scrollViewDidEndDragging")
+        self.borderCheckingDisabled = false
+        self.checkBorder(scrollView)
+    }
+    
     func scrollViewWillBeginDecelerating(_ scrollView: UIScrollView) {
         // log("scrollViewWillBeginDecelerating")
         self.borderCheckingDisabled = false
@@ -369,6 +348,34 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         // log("scrollViewDidEndDecelerating")
         self.borderCheckingDisabled = false
+        self.checkBorder(scrollView)
+    }
+    
+    // MANAGING ZOOMING
+    
+    // UIScrollViewDelegate method for zooming
+    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+        return hostingController.view
+    }
+    
+    func scrollViewWillBeginZooming(_ scrollView: UIScrollView,
+                                    with view: UIView?) {
+        // log("scrollViewWillBeginZooming")
+        self.borderCheckingDisabled = true // Disable border-checking when we begin to zoom
+        self.checkBorder(scrollView)
+    }
+    
+    func scrollViewDidEndZooming(_ scrollView: UIScrollView,
+                                 with view: UIView?,
+                                 atScale scale: CGFloat) {
+        // log("scrollViewDidEndZooming")
+        self.borderCheckingDisabled = false // Re-enable border-checking when zooming has ended
+        self.checkBorder(scrollView)
+    }
+    
+    func scrollViewDidZoom(_ scrollView: UIScrollView) {
+        // log("scrollViewDidZoom")
+        self.borderCheckingDisabled = true // Disable border-checking during an active zoom
         self.checkBorder(scrollView)
     }
         
@@ -384,7 +391,7 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
     func checkBorder(_ scrollView: UIScrollView) {
                         
         guard let document = self.document else {
-            // log("checkBorder: no document, exiting early")
+            log("checkBorder: no document, exiting early")
             return
         }
         let graph = document.graph
@@ -502,6 +509,10 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
             let finalOffset = CGPoint(x: finalContentOffsetX, y: finalContentOffsetY)
             // log("StitchUIScrollView: scrollViewDidScroll: hit border: finalContentOffsetX: \(finalContentOffsetX)")
             // log("StitchUIScrollView: scrollViewDidScroll: hit border: finalContentOffsetY: \(finalContentOffsetY)")
+            let xDiff = scrollView.contentOffset.x - finalContentOffsetX
+            let yDiff = scrollView.contentOffset.y - finalContentOffsetY
+            log("StitchUIScrollView: scrollViewDidScroll: hit border: xDiff: \(xDiff)")
+            log("StitchUIScrollView: scrollViewDidScroll: hit border: yDiff: \(yDiff)")
             scrollView.setContentOffset(finalOffset, animated: false)
             dispatch(GraphScrollDataUpdated(
                 newOffset: finalOffset,
