@@ -68,20 +68,13 @@ extension ProjectSidebarObservable {
     func sidebarListItemDragged(item: Self.ItemViewModel,
                                 translation: CGSize) {
         
-        // log("SidebarListItemDragged called: item \(itemId) ")
-        guard let graph = self.graphDelegate,
-              let document = graph.documentDelegate else {
-            fatalErrorIfDebug()
-            return
-        }
-        
         let state = self
         
         // The tracked dragged item may change if option + click
         var draggedItem = item
         
         // Focus sidebar
-        document.isSidebarFocused = true
+        self.graphDelegate?.documentDelegate?.isSidebarFocused = true
         
         // TODO: debug and reintroduce option-duge drag in sidebar
 //        if state.selectionState.optionDragInProgress {
