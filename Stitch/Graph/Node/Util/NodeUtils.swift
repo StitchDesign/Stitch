@@ -14,7 +14,26 @@ extension NodeKind {
     }
 
     /// Returns true if video or image layer node.
-    var isVisualMediaLayerNode: Bool {
+    var isVisualMediaNode: Bool {
+        switch self {
+        case .patch(let patch):
+            switch patch {
+            case .imageImport, .grayscale, .videoImport:
+                return true
+    
+            default:
+                return false
+            }
+            
+        case .layer(let layer):
+            return self.isVisualMediaLayerNode
+            
+        default:
+            return false
+        }
+    }
+    
+    var isVisualMediaLayerNode: Bool{
         self == .layer(.image) || self == .layer(.video)
     }
 }

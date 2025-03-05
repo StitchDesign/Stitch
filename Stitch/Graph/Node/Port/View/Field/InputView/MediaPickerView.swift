@@ -123,7 +123,7 @@ struct MediaFieldLabelView<Field: FieldViewModel>: View {
     
     var isVisualMediaPort: Bool {
         self.coordinate.portId == 0 &&
-        self.node.kind.isVisualMediaLayerNode
+        self.node.kind.isVisualMediaNode
     }
     
     var media: GraphMediaValue? {
