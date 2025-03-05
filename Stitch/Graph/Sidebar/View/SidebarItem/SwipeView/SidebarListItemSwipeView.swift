@@ -102,7 +102,7 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
         // SwiftUI gesture handlers must come AFTER `.offset`
         .onTapGesture { } // fixes long press + drag on iPad screen-touch
         // could also be a `.simultaneousGesture`?
-        .gesture(gestureViewModel.longPressDragGesture)
+        .gesture(gestureViewModel.longPressDragGesture(sidebar: self.sidebarViewModel))
 #endif
         
         .onChange(of: sidebarViewModel.activeSwipeId) {
