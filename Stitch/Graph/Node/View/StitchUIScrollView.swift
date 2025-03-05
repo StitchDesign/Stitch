@@ -393,7 +393,6 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
         // Do not check borders for ~1 second after (1) jumping to an item on the canvas or (2) zooming in/out
         
         guard !self.borderCheckingDisabled else {
-            // log("checkBorder: border checking disabled")
             Self.updateGraphScrollData(scrollView)
             return
         }
