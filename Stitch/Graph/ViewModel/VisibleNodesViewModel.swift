@@ -51,11 +51,7 @@ extension GraphState {
     
     @MainActor
     var selectedSidebarLayers: SidebarLayerIdSet {
-        get {
-            self.sidebarSelectionState.primary
-        } set(newValue) {
-            self.sidebarSelectionState.primary = newValue
-        }
+        self.sidebarSelectionState.primary
     }
 }
 

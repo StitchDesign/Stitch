@@ -147,8 +147,7 @@ extension StitchDocumentViewModel {
             return
         }
         
-        // TODO: `graph` vs `visibleGraph` ?
-        let activelySelectedLayers = self.isSidebarFocused
+        let activelySelectedLayers = self.visibleGraph.layersSidebarViewModel.isSidebarFocused
         
         if activelySelectedLayers {
             self.visibleGraph.sidebarSelectedItemsDuplicated(document: self)
@@ -236,8 +235,7 @@ extension GraphState {
         
         await self.updateAsync(from: graph)
         
-        self.updateGraphAfterPaste(newNodes: newNodes,
-                                   document: document)
+        self.updateGraphAfterPaste(newNodes: newNodes)
     }
     
     @MainActor
@@ -334,8 +332,7 @@ extension GraphState {
     }
     
     @MainActor
-    func updateGraphAfterPaste(newNodes: [NodeEntity],
-                               document: StitchDocumentViewModel) {
+    func updateGraphAfterPaste(newNodes: [NodeEntity]) {
         // Reset selected nodes
         self.resetSelectedCanvasItems()
 
@@ -377,8 +374,7 @@ extension GraphState {
                             if let canvas = inputData.canvasItem,
                                let canvasItem = self.getCanvasItem(.layerInput(.init(node: nodeEntity.id,
                                                                                      keyPath: layerId))) {
-                                canvasItem.select(self,
-                                                  document: document)
+                                canvasItem.select(self)
                             }
                         }
                     }
@@ -386,8 +382,7 @@ extension GraphState {
                 case .patch, .group, .component:
                     let stitch = self.getNodeViewModel(nodeEntity.id)
                     if let canvasItem = stitch?.patchCanvasItem {
-                        canvasItem.select(self,
-                                          document: document)
+                        canvasItem.select(self)
                     }
                 }
         }

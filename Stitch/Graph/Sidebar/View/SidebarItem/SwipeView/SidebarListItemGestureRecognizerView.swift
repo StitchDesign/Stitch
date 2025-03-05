@@ -181,6 +181,8 @@ final class SidebarListGestureRecognizer<SidebarViewModel: ProjectSidebarObserva
     
     // finger on screen
     @objc func screenGestureHandler(_ gestureRecognizer: UIPanGestureRecognizer) {
+        
+        guard let sidebar = self.sidebarViewModel else { return }
 
         // for finger on screen, we'll still use long press + drag for item-dragging;
         // so we'll still use a SwiftUI long-press-drag gesture
@@ -197,7 +199,7 @@ final class SidebarListGestureRecognizer<SidebarViewModel: ProjectSidebarObserva
             case .changed:
 
                 if instantDrag {
-                    gestureViewModel?.onItemDragChanged(translation.toCGSize)
+                    gestureViewModel?.onItemDragChanged(sidebar: sidebar)(translation.toCGSize)
                 }
                 // let velocity = gestureRecognizer.velocity(in: gestureRecognizer.view)
                 gestureViewModel?.onItemSwipeChanged(translation.x)
@@ -212,7 +214,7 @@ final class SidebarListGestureRecognizer<SidebarViewModel: ProjectSidebarObserva
             switch gestureRecognizer.state {
             case .ended, .cancelled:
                 if instantDrag {
-                    gestureViewModel?.onItemDragEnded()
+                    gestureViewModel?.onItemDragEnded(sidebar: sidebar)()
                 }
                 gestureViewModel?.onItemSwipeEnded()
             default:
@@ -227,7 +229,7 @@ final class SidebarListGestureRecognizer<SidebarViewModel: ProjectSidebarObserva
     
     @objc func trackpadGestureHandler(_ gestureRecognizer: UIPanGestureRecognizer) {
 
-        //        log("CustomListItemGestureRecognizerVC: trackpadGestureHandler: gestureRecognizer.numberOfTouches:  \(gestureRecognizer.numberOfTouches)")
+        guard let sidebar = self.sidebarViewModel else { return }
 
         let translation = gestureRecognizer.translation(in: gestureRecognizer.view)
 
@@ -243,7 +245,7 @@ final class SidebarListGestureRecognizer<SidebarViewModel: ProjectSidebarObserva
                 // let velocity = gestureRecognizer.velocity(in: gestureRecognizer.view)
             case .ended, .cancelled:
                 gestureViewModel?.onItemSwipeEnded()
-                gestureViewModel?.onItemDragEnded()
+                gestureViewModel?.onItemDragEnded(sidebar: sidebar)()
             default:
 //                log("CustomListItemGestureRecognizerVC: touches 0: trackpadGestureHandler: default")
                 break
@@ -254,7 +256,7 @@ final class SidebarListGestureRecognizer<SidebarViewModel: ProjectSidebarObserva
         else if gestureRecognizer.numberOfTouches == 1 {
             switch gestureRecognizer.state {
             case .changed:
-                gestureViewModel?.onItemDragChanged(translation.toCGSize)
+                gestureViewModel?.onItemDragChanged(sidebar: sidebar)(translation.toCGSize)
             default:
                 // log("CustomListItemGestureRecognizerVC: trackpadGestureHandler: default")
                 break

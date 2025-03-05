@@ -14,13 +14,14 @@ struct SidebarListItemSelectionCircleView<Item>: View where Item: SidebarItemSwi
     private let SELECTION_CIRCLE = "circle"
 
     @Bindable var item: Item
+    @Bindable var sidebar: Item.SidebarViewModel
     
     // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status
     let fontColor: Color
     let isBeingEdited: Bool
         
     var iconName: String {
-        item.isSelected
+        item.isSelected(sidebar: sidebar)
               ? self.SELECTION_CIRCLE_SELECTED
               : self.SELECTION_CIRCLE
     }
@@ -51,7 +52,7 @@ struct SidebarListItemSelectionCircleView<Item>: View where Item: SidebarItemSwi
                 // ie What kind of selection did we have?
                 // - if item was already 100% selected, then deselect
                 // - if was 80% or 0% selected, then 100% select
-                switch item.selectionStatus {
+                switch item.selectionStatus(sidebar: sidebar) {
                 case .primary:
                     item.didUnselectOnEditMode()
                 case .secondary, .none:

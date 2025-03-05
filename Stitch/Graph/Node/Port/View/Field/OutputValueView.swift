@@ -165,7 +165,6 @@ struct OutputValueView: View {
                 
             case .pulse(let pulseTime):
                 PulseValueButtonView(graph: graph,
-                                     graphUI: graphUI,
                                      rowObserver: nil,
                                      canvasItem: canvasItem,
                                      pulseTime: pulseTime,

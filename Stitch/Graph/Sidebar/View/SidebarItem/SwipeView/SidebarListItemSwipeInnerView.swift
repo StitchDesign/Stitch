@@ -19,6 +19,10 @@ struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewMo
     @Bindable var sidebarViewModel: SidebarViewModel
     @Bindable var itemViewModel: SidebarViewModel.ItemViewModel
     
+    var isPrimarilySelected: Bool {
+        self.itemViewModel.isPrimarilySelected(sidebar: sidebarViewModel)
+    }
+    
     var showMainItem: Bool { swipeX < DEFAULT_ACTION_THRESHOLD }
     
     var isBeingEdited: Bool {
@@ -46,6 +50,7 @@ struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewMo
 #if !targetEnvironment(macCatalyst)
                     SidebarListItemRightLabelView(
                         item: itemViewModel,
+                        sidebar: sidebarViewModel,
                         isBeingEdited: sidebarViewModel.isEditing,
                         fontColor: fontColor)
                     .frame(height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
@@ -118,9 +123,14 @@ struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewMo
         .animation(.stitchAnimation(duration: 0.25), value: showMainItem)
     }
     
+    var selectionStatus: SidebarListItemSelectionStatus {
+        SidebarViewModel.ItemViewModel.selectionStatus(isPrimarilySelected: isPrimarilySelected,
+                                                       isParentSelected: self.itemViewModel.isParentSelected(sidebar: self.sidebarViewModel))
+    }
+    
     @MainActor
     var fontColor: Color {
-        let selection = self.itemViewModel.selectionStatus
+        let selection = self.selectionStatus
 
 #if DEV_DEBUG
         if itemViewModel.isHidden {
@@ -129,7 +139,7 @@ struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewMo
 #endif
 
         // Any 'focused' (doesn't have to be 'actively selected') layer uses white text
-        if !self.isBeingEdited && itemViewModel.isSelected {
+        if !self.isBeingEdited && itemViewModel.isSelected(sidebar: self.sidebarViewModel) {
 #if DEV_DEBUG
             return .red
 #else
@@ -162,7 +172,7 @@ struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewMo
     
     // a secondarily- or hidden primarily-selected color has half the strength
     func getColor() -> Color {
-        switch itemViewModel.selectionStatus {
+        switch self.selectionStatus {
         // both primary selection and non-selection use white;
         // the difference whether the circle gets filled or not
         case .primary, .none:

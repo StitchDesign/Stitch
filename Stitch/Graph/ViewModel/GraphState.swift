@@ -98,9 +98,6 @@ final class GraphState: Sendable {
     
     let propertySidebar = PropertySidebarObserver()
     
-    // e.g. user is hovering over or has selected a layer in the sidebar, which we then highlight in the preview window itself
-    @MainActor var highlightedSidebarLayers: LayerIdSet = .init()
-    
     @MainActor
     var edgeEditingState: EdgeEditingState?
     
