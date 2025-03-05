@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import StitchEngine
 import StitchSchemaKit
 import SwiftUI
 
@@ -73,7 +74,7 @@ final class ImageClassifierOpObserver: MediaEvalOpObservable {
 
 extension MediaEvalOpObserver {
     @MainActor func onPrototypeRestart() {
-        self.currentMedia = nil
+        self.resetMedia()
         
         // MARK: below functionality keeps objects in place, which would make restarts less jarring should be an issue again
 //        switch currentMedia?.mediaObject {
@@ -89,14 +90,33 @@ extension MediaEvalOpObserver {
     }
 }
 
+extension MediaViewModel: StitchEngine.MediaEphemeralObservable {
+    typealias Node = NodeViewModel
+    
+    @MainActor
+    func updateInputMedia(_ media: GraphMediaValue?) {
+        self.inputMedia = media
+    }
+}
+
 extension MediaEvalOpViewable {
     @MainActor
-    var currentMedia: GraphMediaValue? {
+    var inputMedia: GraphMediaValue? {
         get {
-            self.mediaViewModel.currentMedia
+            self.mediaViewModel.inputMedia
         }
         set(newValue) {
-            self.mediaViewModel.currentMedia = newValue
+            self.mediaViewModel.inputMedia = newValue
+        }
+    }
+    
+    @MainActor
+    var computedMedia: GraphMediaValue? {
+        get {
+            self.mediaViewModel.computedMedia
+        }
+        set(newValue) {
+            self.mediaViewModel.computedMedia = newValue
         }
     }
 }
@@ -107,18 +127,29 @@ extension MediaEvalOpObservable {
     @MainActor func getUniqueMedia(inputMediaValue: AsyncMediaValue?,
                                    inputPortIndex: Int,
                                    loopIndex: Int) async -> GraphMediaValue? {
+        // Get already existing media if matching ID
+        if self.inputMedia?.id == inputMediaValue?.id {
+            return self.inputMedia
+        }
+        
         if let node = self.nodeDelegate {
-            return await Self.getUniqueMedia(node: node,
-                                             inputMediaValue: inputMediaValue,
-                                             inputPortIndex: inputPortIndex,
-                                             loopIndex: loopIndex)
+            let media = await Self.getUniqueMedia(node: node,
+                                                  inputMediaValue: inputMediaValue,
+                                                  inputPortIndex: inputPortIndex,
+                                                  loopIndex: loopIndex)
+            
+            // Save media to observer
+            self.inputMedia = media
+            
+            return media
         }
         
         return nil
     }
     
     @MainActor func resetMedia() {
-        self.currentMedia = nil
+        self.inputMedia = nil
+        self.computedMedia = nil
     }
     
     /// A specific media eval handler that only creates new media when a particular input's media value has changed.
@@ -147,7 +178,7 @@ extension MediaEvalOpObservable {
             
             guard let inputMediaValue = inputMediaValue else {
                 // Set to nil case
-                mediaObserver.currentMedia = nil
+                mediaObserver.resetMedia()
                 return .init(from: defaultOutputs)
             }
             
@@ -241,7 +272,7 @@ extension MediaEvalOpObservable {
         }
 
         let outputs = MediaEvalResult(from: values).prevOutputs(node: nodeDelegate)
-        let currentMedia = self.currentMedia
+        let currentMedia = self.computedMedia
         
         Task(priority: .high) { [weak self, weak nodeDelegate] in
             guard let nodeDelegate = nodeDelegate else {
@@ -364,9 +395,11 @@ actor MediaEvalOpCoordinator {
                           node: NodeDelegate,
                           callback: @Sendable @escaping () async -> PortValues) async {
         let newOutputs = await callback()
-        await node.graphDelegate?.recalculateGraphForMedia(outputValues: .byIndex(newOutputs),
-                                                   nodeId: node.id,
-                                                   loopIndex: loopIndex)
+        await node.graphDelegate?
+            .recalculateGraphForMedia(outputValues: .byIndex(newOutputs),
+                                      media: nil,
+                                      nodeId: node.id,
+                                      loopIndex: loopIndex)
     }
     
     /// Async callback to prevent data races for media object changes.
@@ -375,16 +408,18 @@ actor MediaEvalOpCoordinator {
                                            callback: @Sendable @escaping () async -> MediaEvalResult) async where MediaEvalResult: MediaEvalResultable {
         let result = await callback()
         await node.graphDelegate?.recalculateGraphForMedia(result: result,
-                                                   nodeId: node.id,
-                                                   loopIndex: loopIndex)
+                                                           nodeId: node.id,
+                                                           loopIndex: loopIndex)
     }
     
     /// Async callback to prevent data races for media object changes.
     func asyncMediaEvalOpList(node: NodeDelegate,
                               callback: @Sendable @escaping () async -> PortValuesList) async {
         let newOutputs = await callback()
-        await node.graphDelegate?.recalculateGraphForMedia(outputValues: .all(newOutputs),
-                                                   nodeId: node.id,
-                                                   loopIndex: 0)
+        await node.graphDelegate?
+            .recalculateGraphForMedia(outputValues: .all(newOutputs),
+                                      media: nil,
+                                      nodeId: node.id,
+                                      loopIndex: 0)
     }
 }

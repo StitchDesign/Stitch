@@ -850,7 +850,8 @@ extension GraphState {
     @MainActor
     func updateOutputs(at loopIndex: Int,
                        node: NodeViewModel,
-                       portValues: PortValues) {
+                       portValues: PortValues,
+                       media: GraphMediaValue?) {
         let nodeId = node.id
         var outputsToUpdate = node.outputs
         var nodeIdsToRecalculate = NodeIdSet()
@@ -876,10 +877,13 @@ extension GraphState {
             
             outputsToUpdate[portId] = outputToUpdate
             
+            let mediaList: [GraphMediaValue?]? = media == nil ? nil : [media]
+            
             // Update downstream node's inputs
             let changedInputIds = self.updateDownstreamInputs(
                 sourceNode: node,
                 flowValues: outputToUpdate,
+                mediaList: mediaList,
                 upstreamOutputChanged: outputsChanged,
                 outputCoordinate: outputCoordinate)
             let changedNodeIds = Set(changedInputIds.map(\.nodeId)).toSet

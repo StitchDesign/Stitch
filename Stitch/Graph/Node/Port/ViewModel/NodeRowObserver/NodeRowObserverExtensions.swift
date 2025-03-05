@@ -221,9 +221,9 @@ extension NodeRowObserver {
     }
     
     @MainActor
-    func getMediaObjects() -> [StitchMediaObject] {
+    func getComputedMediaObjects() -> [StitchMediaObject] {
         self.nodeDelegate?.ephemeralObservers?.compactMap {
-            ($0 as? MediaEvalOpObservable)?.currentMedia?.mediaObject
+            ($0 as? MediaEvalOpObservable)?.computedMedia?.mediaObject
         } ?? []
     }
     
