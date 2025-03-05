@@ -13,8 +13,8 @@ struct SetGraphScrollDataUponPageChange: GraphEvent {
     let newPageZoom: CGFloat
     
     func handle(state: GraphState) {
-        //        log("SetGraphScrollDataUponPageChange: newPageLocalPosition: \(newPageLocalPosition)")
-        //        log("SetGraphScrollDataUponPageChange: newPageZoom: \(newPageZoom)")
+        // log("SetGraphScrollDataUponPageChange: newPageLocalPosition: \(newPageLocalPosition)")
+        // log("SetGraphScrollDataUponPageChange: newPageZoom: \(newPageZoom)")
         state.canvasPageOffsetChanged = newPageLocalPosition
         state.canvasPageZoomScaleChanged = newPageZoom
         
