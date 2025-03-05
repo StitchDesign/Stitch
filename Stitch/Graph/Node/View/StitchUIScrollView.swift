@@ -159,6 +159,8 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         context.coordinator.hostingController.rootView = content()
         
         if let canvasJumpLocation = graph.canvasJumpLocation {
+            log("StitchUIScrollView: enabled canvas jump location")
+            
             uiView.setContentOffset(canvasJumpLocation, animated: true)
             dispatch(GraphScrollDataUpdated(
                 newOffset: uiView.contentOffset,
@@ -239,8 +241,8 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         
         if let canvasPageOffsetChanged = graph.canvasPageOffsetChanged,
            let canvasPageZoomScaleChanged = graph.canvasPageZoomScaleChanged {
-            // log("StitchUIScrollView: canvasPageOffsetChanged: \(canvasPageOffsetChanged)")
-            // log("StitchUIScrollView: canvasPageZoomScaleChanged: \(canvasPageZoomScaleChanged)")
+             log("StitchUIScrollView: canvasPageOffsetChanged: \(canvasPageOffsetChanged)")
+             log("StitchUIScrollView: canvasPageZoomScaleChanged: \(canvasPageZoomScaleChanged)")
                         
             /*
              VERY IMPORTANT: when manually setting UIScrollView's zoomScale and contentOffset at the same time,
