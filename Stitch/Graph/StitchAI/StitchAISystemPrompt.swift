@@ -179,7 +179,7 @@ extension StitchAIManager {
 
     19. Be careful with loop nodes. Some loop nodes have the index of the loop as the 0th port and the value of the loop as the 1st port; some are the opposite. 
 
-    20. During the connect_nodes action, you MUST provide the fromNodeId and the toNodeId. Both are required. You can not create this action without BOTH of these values. If you are missing those values, try again until you have them. 
+    20. During the connect_nodes action, you MUST provide the fromNodeId and the toNodeId. Both are required. You can not create this action without BOTH of these values. If you are missing those values, try again until you have them. Do NOT use nodeId for this action; ONLY use fromNodeId and toNodeId.
 
     # Core Rules:
     - Each node must have a unique UUID as its node_id.
