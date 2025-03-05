@@ -249,8 +249,7 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
              */
             uiView.zoomScale = canvasPageZoomScaleChanged
             uiView.setContentOffset(canvasPageOffsetChanged, animated: false)
-
-            
+ 
             dispatch(GraphScrollDataUpdated(
                 newOffset: uiView.contentOffset,
                 newZoom: uiView.zoomScale
@@ -276,12 +275,14 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
     
 }
 
+// All available delegate methods described here: https://developer.apple.com/documentation/uikit/uiscrollviewdelegate
 final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelegate, UIGestureRecognizerDelegate {
     let hostingController: UIHostingController<Content>
     
     // Used during spacebar + trackpad click-&-drag gesture
     private var initialContentOffset: CGPoint = .zero
     
+    // Broadly speaking: do not check borders when jumping to a canvas item, or zooming
     var borderCheckingDisabled: Bool = false
     
     weak var document: StitchDocumentViewModel?
@@ -295,28 +296,29 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
     
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
                            shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        log("StitchUIScrollView: gestureRecognizer: shouldRecognizeSimultaneouslyWith")
+        // log("StitchUIScrollView: gestureRecognizer: shouldRecognizeSimultaneouslyWith")
         return true
     }
+
+    
+    static func updateGraphScrollData(_ scrollView: UIScrollView) {
+        dispatch(GraphScrollDataUpdated(
+            newOffset: scrollView.contentOffset,
+            newZoom: scrollView.zoomScale))
+    }
+    
+    // MANAGING ZOOMING
     
     // UIScrollViewDelegate method for zooming
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
         return hostingController.view
     }
     
-    static func updateGraphScrollData(_ scrollView: UIScrollView,
-                                      shouldPersist: Bool = false) {
-        dispatch(GraphScrollDataUpdated(
-            newOffset: scrollView.contentOffset,
-            newZoom: scrollView.zoomScale,
-            shouldPersist: shouldPersist
-        ))
-    }
-    
     func scrollViewWillBeginZooming(_ scrollView: UIScrollView,
                                     with view: UIView?) {
         // log("scrollViewWillBeginZooming")
         self.borderCheckingDisabled = true
+        self.checkBorder(scrollView)
     }
     
     func scrollViewDidEndZooming(_ scrollView: UIScrollView,
@@ -324,42 +326,65 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
                                  atScale scale: CGFloat) {
         // log("scrollViewDidEndZooming")
         self.borderCheckingDisabled = false
+        self.checkBorder(scrollView)
     }
-    
     
     func scrollViewDidZoom(_ scrollView: UIScrollView) {
         // log("scrollViewDidZoom")
-        Self.updateGraphScrollData(scrollView)
+        self.borderCheckingDisabled = true // Disable border-checking during an active zoom
+         self.checkBorder(scrollView)
     }
     
-    // Only called when scroll first begins; not DURING scroll
-    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        // log("scrollViewWillBeginDragging")
-        Self.updateGraphScrollData(scrollView)
-    }
+    // RESPONDING TO SCROLLING AND DRAGGING
     
-    func scrollViewWillBeginDecelerating(_ scrollView: UIScrollView) {
-        // log("scrollViewWillBeginDecelerating")
-        Self.updateGraphScrollData(scrollView)
-    }
-    
-    // Called when scroll-view movement comes to an end
-    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        // log("scrollViewDidEndDecelerating")
-        Self.updateGraphScrollData(scrollView, shouldPersist: true)
-    }
-    
+    // Note: called even by ZOOMING
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         // log("scrollViewDidScroll")
         self.checkBorder(scrollView)
     }
     
-    func checkBorder(_ scrollView: UIScrollView) {
-                
-        let scale = scrollView.zoomScale
+    // Only called when scroll first begins, not DURING scroll;
+    // Also apparently never triggered by zooming
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        // log("scrollViewWillBeginDragging")
+        self.borderCheckingDisabled = false
+        self.checkBorder(scrollView)
+    }
+    
+    func scrollViewWillEndDragging(_ scrollView: UIScrollView,
+                                   withVelocity: CGPoint,
+                                   targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+        // log("scrollViewWillEndDragging")
+        self.borderCheckingDisabled = false
+        self.checkBorder(scrollView)
+    }
+    
+    func scrollViewWillBeginDecelerating(_ scrollView: UIScrollView) {
+        // log("scrollViewWillBeginDecelerating")
+        self.borderCheckingDisabled = false
+        self.checkBorder(scrollView)
+    }
+    
+    // Called when scroll-view movement comes to an end
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        // log("scrollViewDidEndDecelerating")
+        self.borderCheckingDisabled = false
+        self.checkBorder(scrollView)
+    }
         
+    // RESPONDING TO SCROLL ANIMATIONS
+    
+    func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+        // log("scrollViewDidEndScrollingAnimation")
+        self.checkBorder(scrollView)
+    }
+    
+    // CHECKING THE BORDER
+    
+    func checkBorder(_ scrollView: UIScrollView) {
+                        
         guard let document = self.document else {
-            log("checkBorder: no document, exiting early")
+            // log("checkBorder: no document, exiting early")
             return
         }
         let graph = document.graph
@@ -368,7 +393,7 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
         // Do not check borders for ~1 second after (1) jumping to an item on the canvas or (2) zooming in/out
         
         guard !self.borderCheckingDisabled else {
-            log("checkBorder: border checking disabled")
+            // log("checkBorder: border checking disabled")
             Self.updateGraphScrollData(scrollView)
             return
         }
@@ -390,12 +415,12 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
               let northBounds = cache.get(northNode.id),
               let southBounds = cache.get(southNode.id) else {
             
-            Self.updateGraphScrollData(scrollView)
-            
             // log("StitchUIScrollView: scrollViewDidScroll: MISSING WEST, EAST, SOUTH OR NORTH IN-FRAME NODES OR BOUNDS")
-            
+            Self.updateGraphScrollData(scrollView)
             return
         }
+        
+        let scale = scrollView.zoomScale
         
         let screenWidth = document.graphUI.frame.width
         let screenHeight = document.graphUI.frame.height
@@ -452,7 +477,9 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
             log("StitchUIScrollView: scrollViewDidScroll: hit min x offset")
             finalContentOffsetX = minimumContentOffsetX
             hitBorder = true
-        } else if easternMostNodeAtWesternScreenEdge {
+        }
+        
+        if easternMostNodeAtWesternScreenEdge {
             log("StitchUIScrollView: scrollViewDidScroll: hit max x offset")
             finalContentOffsetX = maximumContentOffsetX
             hitBorder = true
@@ -462,7 +489,9 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
             log("StitchUIScrollView: scrollViewDidScroll: hit min y offset")
             finalContentOffsetY = minimumContentOffsetY
             hitBorder = true
-        } else if southernMostNodeAtNorthernScreenEdge {
+        }
+        
+        if southernMostNodeAtNorthernScreenEdge {
             log("StitchUIScrollView: scrollViewDidScroll: hit max y offset")
             finalContentOffsetY = maximumContentOffsetY
             hitBorder = true
@@ -472,21 +501,30 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
         if hitBorder {
             log("StitchUIScrollView: scrollViewDidScroll: hit border")
             let finalOffset = CGPoint(x: finalContentOffsetX, y: finalContentOffsetY)
+            // log("StitchUIScrollView: scrollViewDidScroll: hit border: finalContentOffsetX: \(finalContentOffsetX)")
+            // log("StitchUIScrollView: scrollViewDidScroll: hit border: finalContentOffsetY: \(finalContentOffsetY)")
             scrollView.setContentOffset(finalOffset, animated: false)
             dispatch(GraphScrollDataUpdated(
                 newOffset: finalOffset,
                 newZoom: scrollView.zoomScale
             ))
         } else {
-            // log("StitchUIScrollView: scrollViewDidScroll: did not hit border")
+            log("StitchUIScrollView: scrollViewDidScroll: did not hit border")
+            // log("StitchUIScrollView: scrollViewDidScroll: did not hit border: scrollView.contentOffset.x: \(scrollView.contentOffset.x)")
+            // log("StitchUIScrollView: scrollViewDidScroll: did not hit border: scrollView.contentOffset.y: \(scrollView.contentOffset.y)")
             Self.updateGraphScrollData(scrollView)
         }
     }
     
     // Handle pan gesture with boundary checks
     @objc func handlePan(_ gesture: UIPanGestureRecognizer) {
-        let isSpaceHeld = document?.keypressState.isSpacePressed ?? false
-        let isCmdHeld = document?.keypressState.isCommandPressed ?? false
+        guard let document = document else {
+            log("StitchUIScrollView: handlePan: no document")
+            return
+        }
+        
+        let isSpaceHeld = document.keypressState.isSpacePressed
+        let isCmdHeld = document.keypressState.isCommandPressed
         let isScrollWheel = gesture.numberOfTouches == 0
         let isValidScroll = isSpaceHeld || isScrollWheel
         
@@ -592,10 +630,11 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
             log("StitchUIScrollView: handlePan: possible")
             
         case .ended, .cancelled, .failed:
+            log("StitchUIScrollView: handlePan: ended, canceled or failed")
             document.graphUI.activeSpacebarClickDrag = false
             scrollView.setContentOffset(scrollView.contentOffset,
                                         animated: false)
-            Self.updateGraphScrollData(scrollView, shouldPersist: true)
+            Self.updateGraphScrollData(scrollView)
             
         @unknown default:
             log("StitchUIScrollView: handlePan: default")
