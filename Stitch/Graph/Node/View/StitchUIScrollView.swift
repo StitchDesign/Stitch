@@ -93,6 +93,8 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
     @ViewBuilder var content: () -> Content
     
     func makeUIView(context: Context) -> UIScrollView {
+        log("StitchUIScrollView: init")
+        
         let scrollView = UIScrollView()
         
         #if !DEV_DEBUG
@@ -155,6 +157,8 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
     }
         
     func updateUIView(_ uiView: UIScrollView, context: Context) {
+        log("StitchUIScrollView: update")
+        
         // Update content when SwiftUI view changes
         context.coordinator.hostingController.rootView = content()
         
