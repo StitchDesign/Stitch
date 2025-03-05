@@ -31,11 +31,11 @@ protocol FieldViewModel: StitchLayoutCachable, Observable, AnyObject, Identifiab
          fieldLabel: String,
          rowViewModelDelegate: NodeRowType?)
     
-    @MainActor
-    static func getMediaObserver(node: NodeViewModel,
-                                 rowViewModel: Self.NodeRowType,
-                                 graph: GraphState,
-                                 activeIndex: ActiveIndex) -> MediaViewModel?
+//    @MainActor
+//    static func getMediaObserver(node: NodeViewModel,
+//                                 rowViewModel: Self.NodeRowType,
+//                                 graph: GraphState,
+//                                 activeIndex: ActiveIndex) -> MediaViewModel?
 }
 
 extension FieldViewModel {
@@ -94,26 +94,26 @@ final class InputFieldViewModel: FieldViewModel {
         self.rowViewModelDelegate = rowViewModelDelegate
     }
     
-    @MainActor
-    static func getMediaObserver(node: NodeViewModel,
-                                 rowViewModel: InputNodeRowViewModel,
-                                 graph: GraphState,
-                                 activeIndex: ActiveIndex) -> MediaViewModel? {
-        let inputCoordinate = rowViewModel.id.asNodeIOCoordinate
-        
-        // MARK: cheating with 0 since logic causes render cycles
-        let loopCount = 0 //self.rowViewModelDelegate?.rowDelegate?.allLoopedValues.count ?? .zero
-        
-        let loopIndex = activeIndex.adjustedIndex(loopCount)
-        
-        let mediaObserver = node
-            .getInputMediaObserver(inputCoordinate: inputCoordinate,
-                                   loopIndex: loopIndex,
-                                   // nil mediaId ensures observer is returned
-                                   mediaId: nil)
-        
-        return mediaObserver
-    }
+//    @MainActor
+//    static func getMediaObserver(node: NodeViewModel,
+//                                 rowViewModel: InputNodeRowViewModel,
+//                                 graph: GraphState,
+//                                 activeIndex: ActiveIndex) -> MediaViewModel? {
+//        let inputCoordinate = rowViewModel.id.asNodeIOCoordinate
+//        
+//        // MARK: cheating with 0 since logic causes render cycles
+//        let loopCount = 0 //self.rowViewModelDelegate?.rowDelegate?.allLoopedValues.count ?? .zero
+//        
+//        let loopIndex = activeIndex.adjustedIndex(loopCount)
+//        
+//        let mediaObserver = node
+//            .getInputMediaObserver(inputCoordinate: inputCoordinate,
+//                                   loopIndex: loopIndex,
+//                                   // nil mediaId ensures observer is returned
+//                                   mediaId: nil)
+//
+//        return mediaObserver
+//    }
 }
 
 @Observable
@@ -139,20 +139,20 @@ final class OutputFieldViewModel: FieldViewModel {
         self.rowViewModelDelegate = rowViewModelDelegate
     }
     
-    @MainActor static func getMediaObserver(node: NodeViewModel,
-                                            rowViewModel: OutputNodeRowViewModel,
-                                            graph: GraphState,
-                                            activeIndex: ActiveIndex) -> MediaViewModel? {
-        // No keypaths ever used for output
-        let portIndex = rowViewModel.id.portId
-        let mediaObserver = node
-            .getVisibleMediaObserver(outputPortId: portIndex,
-                                     // nil mediaId ensures observer is returned
-                                     mediaId: nil,
-                                     graph: graph,
-                                     activeIndex: activeIndex)
-        return mediaObserver
-    }
+//    @MainActor static func getMediaObserver(node: NodeViewModel,
+//                                            rowViewModel: OutputNodeRowViewModel,
+//                                            graph: GraphState,
+//                                            activeIndex: ActiveIndex) -> MediaViewModel? {
+//        // No keypaths ever used for output
+//        let portIndex = rowViewModel.id.portId
+//        let mediaObserver = node
+//            .getVisibleMediaObserver(outputPortId: portIndex,
+//                                     // nil mediaId ensures observer is returned
+//                                     mediaId: nil,
+//                                     graph: graph,
+//                                     activeIndex: activeIndex)
+//        return mediaObserver
+//    }
 }
 
 extension FieldViewModel {

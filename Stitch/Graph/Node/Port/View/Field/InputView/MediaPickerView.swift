@@ -112,10 +112,13 @@ struct MediaFieldLabelView<Field: FieldViewModel>: View {
     
     @MainActor
     func updateMediaObserver() {
-        self.mediaObserver = Field.getMediaObserver(node: node,
-                                                    rowViewModel: rowViewModel,
-                                                    graph: graph,
-                                                    activeIndex: document.activeIndex)
+        self.mediaObserver = node.getMediaObserver(portType: rowViewModel.id.portType,
+                                                   
+                                                   // TODO: loop support
+                                                   loopIndex: 0,
+                                                   
+                                                   // TODO: remove media ID check
+                                                   mediaId: nil)
     }
     
     var isVisualMediaPort: Bool {

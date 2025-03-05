@@ -262,7 +262,7 @@ extension MediaEvalOpObservable {
         }
 
         let outputs = MediaEvalResult(from: values).prevOutputs(node: nodeDelegate)
-        let currentMedia = self.inputMedia
+        let currentMedia = self.computedMedia
         
         Task(priority: .high) { [weak self, weak nodeDelegate] in
             guard let nodeDelegate = nodeDelegate else {
@@ -398,8 +398,8 @@ actor MediaEvalOpCoordinator {
                                            callback: @Sendable @escaping () async -> MediaEvalResult) async where MediaEvalResult: MediaEvalResultable {
         let result = await callback()
         await node.graphDelegate?.recalculateGraphForMedia(result: result,
-                                                   nodeId: node.id,
-                                                   loopIndex: loopIndex)
+                                                           nodeId: node.id,
+                                                           loopIndex: loopIndex)
     }
     
     /// Async callback to prevent data races for media object changes.
