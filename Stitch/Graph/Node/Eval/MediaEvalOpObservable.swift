@@ -127,11 +127,21 @@ extension MediaEvalOpObservable {
     @MainActor func getUniqueMedia(inputMediaValue: AsyncMediaValue?,
                                    inputPortIndex: Int,
                                    loopIndex: Int) async -> GraphMediaValue? {
+        // Get already existing media if matching ID
+        if self.inputMedia?.id == inputMediaValue?.id {
+            return self.inputMedia
+        }
+        
         if let node = self.nodeDelegate {
-            return await Self.getUniqueMedia(node: node,
-                                             inputMediaValue: inputMediaValue,
-                                             inputPortIndex: inputPortIndex,
-                                             loopIndex: loopIndex)
+            let media = await Self.getUniqueMedia(node: node,
+                                                  inputMediaValue: inputMediaValue,
+                                                  inputPortIndex: inputPortIndex,
+                                                  loopIndex: loopIndex)
+            
+            // Save media to observer
+            self.inputMedia = media
+            
+            return media
         }
         
         return nil
