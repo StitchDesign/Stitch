@@ -39,7 +39,7 @@ struct NodesView: View {
     }
     
     var body: some View {
-        let currentNodePageData = self.graph.visibleNodesViewModel
+        let currentNodePage = self.graph.visibleNodesViewModel
             .getViewData(groupNodeFocused: document.groupNodeFocused?.groupNodeId) ?? .init(localPosition: graph.localPosition)
                 
         // CommentBox needs to be affected by graph offset and zoom
@@ -50,7 +50,7 @@ struct NodesView: View {
             
             //                        commentBoxes
             
-            nodesOnlyView(nodePageData: currentNodePageData)
+            nodesOnlyView()
         }
            .modifier(CanvasEdgesViewModifier(document: document,
                                              graph: graph))
@@ -60,11 +60,19 @@ struct NodesView: View {
                                       graphOffset: .zero))
         
            .coordinateSpace(name: Self.coordinateNameSpace)
+
+        // TODO: either update these `graphMovement: GraphMovementObserver` in `GraphScrollDataUpdated` OR get rid of GraphMovementObserver completely and merely rely on node-page's offset and zoom
+           .onChange(of: graph.graphMovement.localPosition) { _, newValue in
+               // log("GraphMovementViewModifier: .onChange(of: graph.graphMovement.localPosition): \(newValue)")
+               currentNodePage.localPosition = newValue
+               self.graph.updateVisibleNodes()
+           }
+           .onChange(of: graph.graphMovement.zoomData) { _, newValue in
+               // log("GraphMovementViewModifier: .onChange(of: graph.graphMovement.zoomData): \(newValue)")
+               currentNodePage.zoomData = newValue
+               self.graph.updateVisibleNodes()
+           }
         
-           .modifier(GraphMovementViewModifier(graphMovement: graph.graphMovement,
-                                               currentNodePage: currentNodePageData,
-                                               graph: graph,
-                                               groupNodeFocused: document.groupNodeFocused))
         // should come after edges, so that edges are offset, scaled etc.
            .modifier(StitchUIScrollViewModifier(document: document,
                                                 graph: graph))
@@ -82,10 +90,9 @@ struct NodesView: View {
 //    }
     
     @MainActor
-    func nodesOnlyView(nodePageData: NodePageData) -> some View {
+    func nodesOnlyView() -> some View {
         NodesOnlyView(document: document,
-                      graph: graph,
-                      nodePageData: nodePageData)
+                      graph: graph)
     }
 }
 

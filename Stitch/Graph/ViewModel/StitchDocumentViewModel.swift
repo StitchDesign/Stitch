@@ -92,7 +92,19 @@ final class StitchDocumentViewModel: Sendable {
     @MainActor var leftSidebarOpen = false
     
     // Tracks group breadcrumbs when group nodes are visited
-    @MainActor var groupNodeBreadcrumbs: [GroupNodeType] = []
+    @MainActor var groupNodeBreadcrumbs: [GroupNodeType] = [] {
+        didSet {
+            if let nodePageData = self.graph.visibleNodesViewModel.nodePageDataAtCurrentTraversalLevel(self.groupNodeFocused?.groupNodeId) {
+
+                self.graph.canvasPageOffsetChanged = nodePageData.localPosition
+                self.graph.canvasPageZoomScaleChanged = nodePageData.zoomData
+                
+                // Note: refreshing graph-updater-id here in `didSet` seems preferable to `myView.onChange(groupNodeId)`;
+                // seems to remove race condition where groupNodeId change would not trigger the proper re-render.
+                self.graph.refreshGraphUpdaterId()
+            }
+        }
+    }
 
     @MainActor var showPreviewWindow = PREVIEW_SHOWN_DEFAULT_STATE
     
@@ -190,7 +202,7 @@ final class StitchDocumentViewModel: Sendable {
         let documentEncoder = DocumentEncoder(document: schema)
 
         let graph = await GraphState(from: schema.graph,
-                                     localPosition: schema.localPosition,
+                                     localPosition: ABSOLUTE_GRAPH_CENTER, // schema.localPosition,
                                      saveLocation: [],
                                      encoder: documentEncoder)
                 
@@ -424,7 +436,8 @@ extension StitchDocumentViewModel {
                        previewSizeDevice: self.previewSizeDevice,
                        previewWindowBackgroundColor: self.previewWindowBackgroundColor,
                        // Important: `StitchDocument.localPosition` currently represents only the root level's graph-offset
-                       localPosition: self.localPositionToPersist,
+                       // TODO: we currently are not actually using persisted graph-offset; we always open graph afresh to the absolute-center
+                       localPosition: ABSOLUTE_GRAPH_CENTER, // self.localPositionToPersist,
                        zoomData: self.graphMovement.zoomData,
                        cameraSettings: self.cameraSettings)
     }

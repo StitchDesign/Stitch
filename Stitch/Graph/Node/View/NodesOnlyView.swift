@@ -13,7 +13,6 @@ struct NodesOnlyView: View {
     
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
-    @Bindable var nodePageData: NodePageData
     
     var selection: GraphUISelectionState {
         graph.selection

@@ -209,46 +209,49 @@ extension GraphState {
 extension StitchDocumentViewModel {
     @MainActor
     var localPositionToPersist: CGPoint {
-        /*
-         TODO: serialize graph-offset by traversal level; introduce centroid/find-node button
-         
-         Ideally, we remember (serialize) each traversal level's graph-offset.
-         Currently, we only remember the root level's graph-offset.
-         So if we were inside a group, we save not the group's graph-offset (graphState.localPosition), but the root graph-offset
-         */
         
-        // log("GraphState.localPositionToPersists: self.localPosition: \(self.localPosition)")
+        return ABSOLUTE_GRAPH_CENTER
         
-        let _rootLevelGraphOffset = self.visibleGraph
-            .visibleNodesViewModel
-            .nodePageDataAtCurrentTraversalLevel(nil)?
-            .localPosition
-        
-        if !_rootLevelGraphOffset.isDefined {
-            log("GraphState.localPositionToPersists: no root level graph offset")
-        }
-        
-        let rootLevelGraphOffset = _rootLevelGraphOffset ?? ABSOLUTE_GRAPH_CENTER
-        
-        let graphOffset = self.graphUI.groupNodeFocused.isDefined ? rootLevelGraphOffset : self.localPosition
-        
-        // log("GraphState.localPositionToPersists: rootLevelGraphOffset: \(rootLevelGraphOffset)")
-        // log("GraphState.localPositionToPersists: graphOffset: \(graphOffset)")
-        
-        // TODO: factor out zoom level
-        
-        let scale = self.graphMovement.zoomData
-        
-        // UIScrollView's contentOffset is based on contentSize, which is a function zoomScale;
-        // but we do not persist zoom;
-        // so, we factor out the effect of zoom on contentOffset.
-        let scaledGraphOffset = CGPoint(x: graphOffset.x * 1/scale,
-                                        y: graphOffset.y * 1/scale)
-        
-        // log("GraphState.localPositionToPersists: scale: \(scale)")
-        // log("GraphState.localPositionToPersists: scaledGraphOffset: \(scaledGraphOffset)")
-        
-        return scaledGraphOffset
+//        /*
+//         TODO: serialize graph-offset by traversal level; introduce centroid/find-node button
+//         
+//         Ideally, we remember (serialize) each traversal level's graph-offset.
+//         Currently, we only remember the root level's graph-offset.
+//         So if we were inside a group, we save not the group's graph-offset (graphState.localPosition), but the root graph-offset
+//         */
+//        
+//        // log("GraphState.localPositionToPersists: self.localPosition: \(self.localPosition)")
+//        
+//        let _rootLevelGraphOffset = self.visibleGraph
+//            .visibleNodesViewModel
+//            .nodePageDataAtCurrentTraversalLevel(nil)?
+//            .localPosition
+//        
+//        if !_rootLevelGraphOffset.isDefined {
+//            log("GraphState.localPositionToPersists: no root level graph offset")
+//        }
+//        
+//        let rootLevelGraphOffset = _rootLevelGraphOffset ?? ABSOLUTE_GRAPH_CENTER
+//        
+//        let graphOffset = self.graphUI.groupNodeFocused.isDefined ? rootLevelGraphOffset : self.localPosition
+//        
+//        // log("GraphState.localPositionToPersists: rootLevelGraphOffset: \(rootLevelGraphOffset)")
+//        // log("GraphState.localPositionToPersists: graphOffset: \(graphOffset)")
+//        
+//        // TODO: factor out zoom level
+//        
+//        let scale = self.graphMovement.zoomData
+//        
+//        // UIScrollView's contentOffset is based on contentSize, which is a function zoomScale;
+//        // but we do not persist zoom;
+//        // so, we factor out the effect of zoom on contentOffset.
+//        let scaledGraphOffset = CGPoint(x: graphOffset.x * 1/scale,
+//                                        y: graphOffset.y * 1/scale)
+//        
+//        // log("GraphState.localPositionToPersists: scale: \(scale)")
+//        // log("GraphState.localPositionToPersists: scaledGraphOffset: \(scaledGraphOffset)")
+//        
+//        return scaledGraphOffset
     }
     
     @MainActor
