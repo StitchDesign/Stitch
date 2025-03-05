@@ -330,36 +330,6 @@ extension StitchDocumentViewModel {
         
         // Rebuild comment boxes
         graph.rebuildCommentBoxes(currentTraversalLevel: groupNodeFocused)
-        
-        // Recalculate positional data
-        self.updateBoundaryNodes(groupNodeFocused: groupNodeFocused)
-    }
-    
-    @MainActor
-    func updateBoundaryNodes(groupNodeFocused: NodeId?) {
-        let visibleGraph = self.visibleGraph
-        
-        // NOTE: nodes are retrieved per active traversal level,
-        // ie top level vs some specific, focused group.
-        let canvasItemsAtTraversalLevel = visibleGraph.canvasItemsAtTraversalLevel(groupNodeFocused)
-        
-        // If there are no nodes, then there is no graphBounds
-        guard let east = GraphState.easternMostNode(groupNodeFocused,
-                                                    canvasItems: canvasItemsAtTraversalLevel),
-              let west = GraphState.westernMostNode(groupNodeFocused,
-                                                    canvasItems: canvasItemsAtTraversalLevel),
-              let south = GraphState.southernMostNode(groupNodeFocused,
-                                                      canvasItems: canvasItemsAtTraversalLevel),
-              let north = GraphState.northernMostNode(groupNodeFocused,
-                                                      canvasItems: canvasItemsAtTraversalLevel) else {
-            //            log("GraphState: graphBounds: had no nodes")
-            return
-        }
-        
-        self.graphMovement.boundaryNodes = .init(north: north.position,
-                                                 south: south.position,
-                                                 west: west.position,
-                                                 east: east.position)
     }
 }
 
