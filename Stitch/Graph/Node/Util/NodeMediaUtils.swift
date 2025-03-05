@@ -11,7 +11,9 @@ import StitchSchemaKit
 
 @Observable
 final class MediaViewModel: Sendable {
-    @MainActor var currentMedia: GraphMediaValue?
+    @MainActor var inputMedia: GraphMediaValue?
+    
+    @MainActor var computedMedia: GraphMediaValue?
     
     @MainActor init() { }
 }
@@ -140,9 +142,9 @@ extension MediaEvalValuesListResult {
         }
         
         if let newMedia = media {
-            mediaObserver.currentMedia = newMedia
+            mediaObserver.computedMedia = newMedia
         } else {
-            mediaObserver.currentMedia = nil
+            mediaObserver.computedMedia = nil
         }
         
         return .init(outputsValues: outputs)
@@ -157,7 +159,7 @@ extension NodeViewModel {
                        mediaId: UUID) -> StitchMediaObject? {
         self.getInputMediaObserver(inputCoordinate: coordinate,
                                    loopIndex: loopIndex,
-                                   mediaId: mediaId)?.currentMedia?.mediaObject
+                                   mediaId: mediaId)?.inputMedia?.mediaObject
     }
     
     @MainActor
@@ -177,7 +179,7 @@ extension NodeViewModel {
                             mediaId: UUID?) -> GraphMediaValue? {
         self.getInputMediaObserver(portIndex: portIndex,
                                    loopIndex: loopIndex,
-                                   mediaId: mediaId)?.currentMedia
+                                   mediaId: mediaId)?.inputMedia
     }
     
     @MainActor
@@ -187,7 +189,7 @@ extension NodeViewModel {
                             mediaId: UUID) -> GraphMediaValue? {
         self.getInputMediaObserver(inputCoordinate: coordinate,
                                    loopIndex: loopIndex,
-                                   mediaId: mediaId)?.currentMedia
+                                   mediaId: mediaId)?.inputMedia
     }
 
     @MainActor
@@ -195,7 +197,7 @@ extension NodeViewModel {
     func getComputedMediaValue(loopIndex: Int,
                                mediaId: UUID?) -> GraphMediaValue? {
         self.getComputedMediaObserver(loopIndex: loopIndex,
-                                      mediaId: mediaId)?.currentMedia
+                                      mediaId: mediaId)?.computedMedia
     }
     
     @MainActor
@@ -316,7 +318,7 @@ extension NodeViewModel {
         if let viewModel = (self.ephemeralObservers?[safe: loopIndex] as? MediaEvalOpViewable)?.mediaViewModel {
             // Only check on media ID if provided, else always return object
             if let mediaId = mediaId,
-               viewModel.currentMedia?.id == mediaId {
+               viewModel.computedMedia?.id == mediaId {
                 return viewModel
             }
             

@@ -260,7 +260,7 @@ extension GraphState {
             return
         }
         
-        mediaObserver.currentMedia = result.media
+        mediaObserver.computedMedia = result.media
         
         // Disable loading state
         // Important to not dispatch main actor task as this creates race conditions

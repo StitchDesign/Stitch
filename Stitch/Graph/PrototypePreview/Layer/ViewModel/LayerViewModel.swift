@@ -97,7 +97,7 @@ final class LayerViewModel: Sendable {
     
     // State for media needed if we need to async load an import
     @MainActor var mediaObject: StitchMediaObject? {
-        self.mediaViewModel.currentMedia?.mediaObject
+        self.mediaViewModel.inputMedia?.mediaObject
     }
     
     @MainActor
@@ -492,7 +492,7 @@ extension LayerViewModel {
                 // Only set media to nil if mediaValue is nil as well
                 // Fixes issue where camrea feed would stutter
                 if mediaValue == nil {
-                    self.mediaViewModel.currentMedia = nil
+                    self.mediaViewModel.inputMedia = nil
                 }
             }
             return
@@ -507,9 +507,9 @@ extension LayerViewModel {
         }
         
         await MainActor.run {
-            self.mediaViewModel.currentMedia = .init(id: .init(),
-                                                     dataType: .source(mediaKey),
-                                                     mediaObject: newMediaObject)
+            self.mediaViewModel.inputMedia = .init(id: .init(),
+                                                   dataType: .source(mediaKey),
+                                                   mediaObject: newMediaObject)
         }
     }
     

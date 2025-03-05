@@ -74,7 +74,7 @@ final class ImageClassifierOpObserver: MediaEvalOpObservable {
 
 extension MediaEvalOpObserver {
     @MainActor func onPrototypeRestart() {
-        self.currentMedia = nil
+        self.resetMedia()
         
         // MARK: below functionality keeps objects in place, which would make restarts less jarring should be an issue again
 //        switch currentMedia?.mediaObject {
@@ -94,19 +94,29 @@ extension MediaViewModel: StitchEngine.MediaEphemeralObservable {
     typealias Node = NodeViewModel
     
     @MainActor
-    func updateMedia(_ media: GraphMediaValue?) {
-        self.currentMedia = media
+    func updateInputMedia(_ media: GraphMediaValue?) {
+        self.inputMedia = media
     }
 }
 
 extension MediaEvalOpViewable {
     @MainActor
-    var currentMedia: GraphMediaValue? {
+    var inputMedia: GraphMediaValue? {
         get {
-            self.mediaViewModel.currentMedia
+            self.mediaViewModel.inputMedia
         }
         set(newValue) {
-            self.mediaViewModel.currentMedia = newValue
+            self.mediaViewModel.inputMedia = newValue
+        }
+    }
+    
+    @MainActor
+    var computedMedia: GraphMediaValue? {
+        get {
+            self.mediaViewModel.computedMedia
+        }
+        set(newValue) {
+            self.mediaViewModel.computedMedia = newValue
         }
     }
 }
@@ -128,7 +138,8 @@ extension MediaEvalOpObservable {
     }
     
     @MainActor func resetMedia() {
-        self.currentMedia = nil
+        self.inputMedia = nil
+        self.computedMedia = nil
     }
     
     /// A specific media eval handler that only creates new media when a particular input's media value has changed.
@@ -157,7 +168,7 @@ extension MediaEvalOpObservable {
             
             guard let inputMediaValue = inputMediaValue else {
                 // Set to nil case
-                mediaObserver.currentMedia = nil
+                mediaObserver.resetMedia()
                 return .init(from: defaultOutputs)
             }
             
@@ -251,7 +262,7 @@ extension MediaEvalOpObservable {
         }
 
         let outputs = MediaEvalResult(from: values).prevOutputs(node: nodeDelegate)
-        let currentMedia = self.currentMedia
+        let currentMedia = self.inputMedia
         
         Task(priority: .high) { [weak self, weak nodeDelegate] in
             guard let nodeDelegate = nodeDelegate else {

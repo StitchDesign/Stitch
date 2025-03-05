@@ -131,7 +131,7 @@ struct MediaFieldLabelView<Field: FieldViewModel>: View {
     func visualMediaView(mediaObserver: MediaViewModel?) -> some View {
         // For image and video media pickers,
         // show both dropdown and thumbnail
-        switch mediaObserver?.currentMedia?.mediaObject {
+        switch mediaObserver?.inputMedia?.mediaObject {
         case .image(let image):
             ValueStitchImageView(image: image)
         case .video(let video):

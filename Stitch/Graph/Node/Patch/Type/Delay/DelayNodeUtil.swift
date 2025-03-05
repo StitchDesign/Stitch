@@ -75,7 +75,7 @@ extension NodeTimerEphemeralObserver {
             let newOutputs = [mediaObject.portValue]
             
             await MainActor.run { [weak node] in
-                self.currentMedia = mediaObject
+                self.computedMedia = mediaObject
                 return node?.graphDelegate?
                     .recalculateGraphForMedia(outputValues: .byIndex(newOutputs),
                                               media: mediaObject,

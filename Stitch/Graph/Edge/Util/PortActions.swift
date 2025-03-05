@@ -33,7 +33,7 @@ extension InputNodeRowObserver {
            self.id.isMediaSelectorLocation {
             if willUpstreamBeDisconnected,
                let upstreamOutputObserver = self.upstreamOutputObserver {
-                upstreamOutputObserver.getMediaObjects().forEach {
+                upstreamOutputObserver.getComputedMediaObjects().forEach {
                     if let video = $0.video {
                         video.muteSound()
                     }
@@ -55,7 +55,7 @@ extension InputNodeRowObserver {
                                    mediaId: nil)  // setting nil will get object without equality checking
             }.forEach { media in
                 // Run effect to mute sound player
-                self.upstreamOutputObserver?.getMediaObjects().forEach { media in
+                self.upstreamOutputObserver?.getComputedMediaObjects().forEach { media in
                     media.updateVolume(to: .zero)
                 }
             }
