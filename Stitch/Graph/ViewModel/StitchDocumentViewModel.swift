@@ -99,9 +99,18 @@ final class StitchDocumentViewModel: Sendable {
                 self.graph.canvasPageOffsetChanged = nodePageData.localPosition
                 self.graph.canvasPageZoomScaleChanged = nodePageData.zoomData
                 
+                // Set all nodes visible so that input/output fields' UI update when we enter a new traversal level
+                self.graph.visibleNodesViewModel.setAllNodesVisible()
+                
                 // Note: refreshing graph-updater-id here in `didSet` seems preferable to `myView.onChange(groupNodeId)`;
                 // seems to remove race condition where groupNodeId change would not trigger the proper re-render.
                 self.graph.refreshGraphUpdaterId()
+                
+                // User will probably have moved the graph or done something else to trigger an `updateVisibleNodes` call; but we put this here just in case they don't.
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+                    log("calling updateVisibleNodes after 1 second")
+                    self?.graph.updateVisibleNodes()
+                }
             }
         }
     }
