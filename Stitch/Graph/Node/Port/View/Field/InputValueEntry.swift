@@ -507,7 +507,6 @@ struct InputValueView: View {
                 
             case .pulse(let pulseTime):
                 PulseValueButtonView(graph: graph,
-                                     graphUI: graphUI,
                                      rowObserver: rowObserver,
                                      canvasItem: canvasItem,
                                      pulseTime: pulseTime,

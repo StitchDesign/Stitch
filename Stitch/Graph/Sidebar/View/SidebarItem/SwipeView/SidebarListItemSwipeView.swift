@@ -19,7 +19,7 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
     @Bindable var gestureViewModel: ItemViewModel
     
     var isSidebarFocused: Bool {
-        self.graphUI.isSidebarFocused
+        self.sidebarViewModel.isSidebarFocused
     }
     
     var isSelected: Bool {
@@ -27,7 +27,7 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
     }
     
     var isParentSelected: Bool {
-        self.gestureViewModel.isParentSelected
+        self.gestureViewModel.isParentSelected(sidebar: sidebarViewModel)
     }
     
     var yOffset: CGFloat {
@@ -79,18 +79,16 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
             theme.fontColor
                 .opacity(backgroundOpacity)
         }
-        .onHover { [weak gestureViewModel, weak graph] hovering in
+        .onHover { [weak gestureViewModel] hovering in
             // MARK: - SUPER DUPER IMPORTANT TO WEAKLY REFERENCE **EVERYTHING** ELSE SEE RETAIN CYCLES
             
-            guard let gestureViewModel = gestureViewModel,
-                  let graph = graph else { return }
+            guard let gestureViewModel = gestureViewModel else { return }
             
             gestureViewModel.isHovered = hovering
             if hovering {
-                gestureViewModel.sidebarLayerHovered(itemId: gestureViewModel.id,
-                                                     graph: graph)
+                self.sidebarViewModel.highlightedSidebarLayers.insert(gestureViewModel.id)
             } else {
-                gestureViewModel.sidebarLayerHoverEnded(itemId: gestureViewModel.id)
+                self.sidebarViewModel.highlightedSidebarLayers.remove(gestureViewModel.id)
             }
         }
         
@@ -99,7 +97,7 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
         
 #if targetEnvironment(macCatalyst)
         // SwiftUI gesture handlers must come AFTER `.offset`
-        .simultaneousGesture(gestureViewModel.macDragGesture)
+        .simultaneousGesture(gestureViewModel.macDragGesture(sidebar: self.sidebarViewModel))
 #else
         // SwiftUI gesture handlers must come AFTER `.offset`
         .onTapGesture { } // fixes long press + drag on iPad screen-touch

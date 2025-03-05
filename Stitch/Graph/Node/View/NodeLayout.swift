@@ -68,9 +68,9 @@ struct NodeLayout<T: StitchLayoutCachable>: Layout, Sendable {
         let newCache = self.createCache(subviews: subviews)
         self.isUpdatingCache = true
         
-        DispatchQueue.main.async {
+        DispatchQueue.main.async { [weak observer] in
             self.isUpdatingCache = false
-            self.observer.viewCache = newCache
+            observer?.viewCache = newCache
         }
         
         return newCache
@@ -117,8 +117,8 @@ struct NodeLayout<T: StitchLayoutCachable>: Layout, Sendable {
         let cache = self.existingCache ?? self.createCache(subviews: subviews)
             
         if self.existingCache == nil {
-            DispatchQueue.main.async {
-                self.observer.viewCache = cache
+            DispatchQueue.main.async { [weak observer] in
+                observer?.viewCache = cache
             }
         }
         

@@ -156,8 +156,8 @@ struct PreviewGroupLayer: View {
             .modifier(PreviewSidebarHighlightModifier(
                 viewModel: layerViewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
-                nodeId: interactiveLayer.id.layerNodeId,
-                highlightedSidebarLayers: graph.highlightedSidebarLayers,
+                nodeId: interactiveLayer.id.layerNodeId.asNodeId,
+                highlightedSidebarLayers: graph.layersSidebarViewModel.highlightedSidebarLayers,
                 scale: scale))
                         
         // .clipped modifier should come before the offset/position modifier,
