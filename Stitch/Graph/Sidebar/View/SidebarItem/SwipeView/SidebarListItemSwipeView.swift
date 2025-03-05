@@ -87,10 +87,9 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
             
             gestureViewModel.isHovered = hovering
             if hovering {
-                gestureViewModel.sidebarLayerHovered(itemId: gestureViewModel.id,
-                                                     graph: graph)
+                self.sidebarViewModel.highlightedSidebarLayers.insert(gestureViewModel.id)
             } else {
-                gestureViewModel.sidebarLayerHoverEnded(itemId: gestureViewModel.id)
+                self.sidebarViewModel.highlightedSidebarLayers.remove(gestureViewModel.id)
             }
         }
         

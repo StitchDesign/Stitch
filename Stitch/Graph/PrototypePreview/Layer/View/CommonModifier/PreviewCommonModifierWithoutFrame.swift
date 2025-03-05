@@ -109,8 +109,8 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
             .modifier(PreviewSidebarHighlightModifier(
                 viewModel: layerViewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
-                nodeId: interactiveLayer.id.layerNodeId,
-                highlightedSidebarLayers: graph.highlightedSidebarLayers,
+                nodeId: interactiveLayer.id.layerNodeId.asNodeId,
+                highlightedSidebarLayers: graph.layersSidebarViewModel.highlightedSidebarLayers,
                 scale: scale))
         
             .modifier(PreviewLayerRotationModifier(
