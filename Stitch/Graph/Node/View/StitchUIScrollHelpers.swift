@@ -51,12 +51,12 @@ struct GraphScrollDataUpdated: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
         
         // // // VERY HELPFUL FOR DEBUGGING
-        log("GraphScrollDataUpdated: newOffset: \(newOffset)")
-        log("GraphScrollDataUpdated: newZoom: \(newZoom)")
-        let xDiff = state.graphMovement.localPosition.x - newOffset.x
-        let yDiff = state.graphMovement.localPosition.y - newOffset.y
-        log("GraphScrollDataUpdated: xDiff: \(xDiff)")
-        log("GraphScrollDataUpdated: yDiff: \(yDiff)")
+        // log("GraphScrollDataUpdated: newOffset: \(newOffset)")
+        // log("GraphScrollDataUpdated: newZoom: \(newZoom)")
+        // let xDiff = state.graphMovement.localPosition.x - newOffset.x
+        // let yDiff = state.graphMovement.localPosition.y - newOffset.y
+        // log("GraphScrollDataUpdated: xDiff: \(xDiff)")
+        // log("GraphScrollDataUpdated: yDiff: \(yDiff)")
         
         state.graphMovement.localPosition = newOffset
         state.graphMovement.zoomData = newZoom
