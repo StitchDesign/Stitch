@@ -112,42 +112,51 @@ struct MediaFieldLabelView<Field: FieldViewModel>: View {
     
     @MainActor
     func updateMediaObserver() {
-        self.mediaObserver = Field.getMediaObserver(node: node,
-                                                    rowViewModel: rowViewModel,
-                                                    graph: graph,
-                                                    activeIndex: document.activeIndex)
+        self.mediaObserver = node.getMediaObserver(portType: rowViewModel.id.portType,
+                                                   
+                                                   // TODO: loop support
+                                                   loopIndex: 0,
+                                                   
+                                                   // TODO: remove media ID check
+                                                   mediaId: nil)
     }
     
     var isVisualMediaPort: Bool {
-        self.coordinate.portId == 0 && (
-            self.node.kind.isVisualMediaLayerNode ||
-            
-            // Checks if patch node uses observer object used for storing visual media
-            (self.node.ephemeralObservers?.first as? MediaEvalOpViewable) != nil
-        )
+        self.coordinate.portType.isVisualMeiaPortType &&
+        self.node.kind.isVisualMediaNode
+    }
+    
+    var media: GraphMediaValue? {
+        // Fixes issue where we grab visual media for wrong port
+        guard isVisualMediaPort else { return nil }
+        
+        let _media = self.isInput ? self.mediaObserver?.inputMedia : self.mediaObserver?.computedMedia
+        
+        return _media
     }
     
     @ViewBuilder
-    func visualMediaView(mediaObserver: MediaViewModel?) -> some View {
-        // For image and video media pickers,
-        // show both dropdown and thumbnail
-        switch mediaObserver?.currentMedia?.mediaObject {
+    func createMediaView<Content>(emptyView: () -> Content) -> some View where Content: View {
+        switch self.media?.mediaObject {
         case .image(let image):
             ValueStitchImageView(image: image)
         case .video(let video):
             ValueStitchVideoView(thumbnail: video.thumbnail)
-
         default:
-            if !isVisualMediaPort {
-                NilImageView()
-            } else {
-                // Other media types: don't show label.
-                Color.clear
-                    .onChange(of: self.viewModel.fieldValue, initial: true) {
-                        if self.isVisualMediaPort {
-                            self.updateMediaObserver()
-                        }
-                    }
+            emptyView()
+        }
+    }
+    
+    @ViewBuilder
+    var visualMediaView: some View {
+        // For image and video media pickers,
+        // show both dropdown and thumbnail
+        self.createMediaView() {
+            NilImageView()
+        }
+        .onChange(of: self.viewModel.fieldValue, initial: true) {
+            if self.isVisualMediaPort {
+                self.updateMediaObserver()
             }
         }
     }
@@ -156,8 +165,15 @@ struct MediaFieldLabelView<Field: FieldViewModel>: View {
         Group {
             if isMultiselectInspectorInputWithHeterogenousValues {
                 NilImageView()
+            } else if isVisualMediaPort {
+                // For image and video media pickers,
+                // show both dropdown and thumbnail
+                visualMediaView
             } else {
-                visualMediaView(mediaObserver: self.mediaObserver)
+                // Similar logic to visualMediaView but nil case displays empty
+                self.createMediaView() {
+                    Color.clear
+                }
             }
         }
         .onChange(of: document.activeIndex, initial: true) {

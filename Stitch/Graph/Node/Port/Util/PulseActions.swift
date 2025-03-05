@@ -71,6 +71,7 @@ struct ReversePulseCoercion: GraphEvent {
         let changedDownstreamInputIds = state
             .updateDownstreamInputs(sourceNode: node,
                                     flowValues: currentOutputs,
+                                    mediaList: nil,
                                     upstreamOutputChanged: true, // True, since we reversed the pulse effect?
                                     outputCoordinate: pulsedOutput)
         let changedDownstreamNodeIds = Set(changedDownstreamInputIds.map(\.nodeId)).toSet

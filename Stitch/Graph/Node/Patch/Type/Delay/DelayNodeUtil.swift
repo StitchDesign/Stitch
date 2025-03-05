@@ -53,8 +53,9 @@ extension NodeTimerEphemeralObserver {
         guard value.asyncMedia != nil,
               let mediaObject = media else {
             graph.recalculateGraphForMedia(outputValues: .init(from: [value]),
-                                   nodeId: nodeId,
-                                   loopIndex: loopIndex)
+                                           media: nil,
+                                           nodeId: nodeId,
+                                           loopIndex: loopIndex)
             return
         }
         
@@ -74,10 +75,12 @@ extension NodeTimerEphemeralObserver {
             let newOutputs = [mediaObject.portValue]
             
             await MainActor.run { [weak node] in
-                self.currentMedia = mediaObject
-                return node?.graphDelegate?.recalculateGraphForMedia(outputValues: .byIndex(newOutputs),
-                                                             nodeId: nodeId,
-                                                             loopIndex: loopIndex)
+                self.computedMedia = mediaObject
+                return node?.graphDelegate?
+                    .recalculateGraphForMedia(outputValues: .byIndex(newOutputs),
+                                              media: mediaObject,
+                                              nodeId: nodeId,
+                                              loopIndex: loopIndex)
             }
         }
     }
