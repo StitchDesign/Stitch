@@ -17,7 +17,9 @@ extension InputNodeRowObserver: SchemaObserverIdentifiable {
     /// Updates values for inputs.
     @MainActor
     func update(from schema: NodePortInputEntity) {
-        self.upstreamOutputCoordinate = schema.portData.upstreamConnection
+        if self.upstreamOutputCoordinate != schema.portData.upstreamConnection {
+            self.upstreamOutputCoordinate = schema.portData.upstreamConnection
+        }
 
         // Update values if no upstream connection
         if let values = schema.portData.values {
@@ -34,7 +36,9 @@ extension InputNodeRowObserver: SchemaObserverIdentifiable {
                         
         switch nodeConnection {
         case .upstreamConnection(let upstreamOutputCoordinate):
-            self.upstreamOutputCoordinate = upstreamOutputCoordinate
+            if self.upstreamOutputCoordinate != upstreamOutputCoordinate {
+                self.upstreamOutputCoordinate = upstreamOutputCoordinate                
+            }
             
         case .values(let values):
             let values = values.isEmpty ? [inputType.getDefaultValue(for: layer)] : values
