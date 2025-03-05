@@ -543,8 +543,7 @@ extension GraphState {
 
         self.updateSync(from: graph)
         
-        self.updateGraphAfterPaste(newNodes: newNodes,
-                                   document: document)
+        self.updateGraphAfterPaste(newNodes: newNodes)
     }
 
     @MainActor

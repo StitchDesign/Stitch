@@ -93,6 +93,8 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
     @ViewBuilder var content: () -> Content
     
     func makeUIView(context: Context) -> UIScrollView {
+        log("StitchUIScrollView: init")
+        
         let scrollView = UIScrollView()
         
         #if !DEV_DEBUG
@@ -155,10 +157,14 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
     }
         
     func updateUIView(_ uiView: UIScrollView, context: Context) {
+        log("StitchUIScrollView: update")
+        
         // Update content when SwiftUI view changes
         context.coordinator.hostingController.rootView = content()
         
         if let canvasJumpLocation = graph.canvasJumpLocation {
+            log("StitchUIScrollView: enabled canvas jump location")
+            
             uiView.setContentOffset(canvasJumpLocation, animated: true)
             dispatch(GraphScrollDataUpdated(
                 newOffset: uiView.contentOffset,
@@ -239,8 +245,8 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         
         if let canvasPageOffsetChanged = graph.canvasPageOffsetChanged,
            let canvasPageZoomScaleChanged = graph.canvasPageZoomScaleChanged {
-            // log("StitchUIScrollView: canvasPageOffsetChanged: \(canvasPageOffsetChanged)")
-            // log("StitchUIScrollView: canvasPageZoomScaleChanged: \(canvasPageZoomScaleChanged)")
+             log("StitchUIScrollView: canvasPageOffsetChanged: \(canvasPageOffsetChanged)")
+             log("StitchUIScrollView: canvasPageZoomScaleChanged: \(canvasPageZoomScaleChanged)")
                         
             /*
              VERY IMPORTANT: when manually setting UIScrollView's zoomScale and contentOffset at the same time,
@@ -519,7 +525,7 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
                 newZoom: scrollView.zoomScale
             ))
         } else {
-            log("StitchUIScrollView: scrollViewDidScroll: did not hit border")
+//            log("StitchUIScrollView: scrollViewDidScroll: did not hit border")
             // log("StitchUIScrollView: scrollViewDidScroll: did not hit border: scrollView.contentOffset.x: \(scrollView.contentOffset.x)")
             // log("StitchUIScrollView: scrollViewDidScroll: did not hit border: scrollView.contentOffset.y: \(scrollView.contentOffset.y)")
             Self.updateGraphScrollData(scrollView)

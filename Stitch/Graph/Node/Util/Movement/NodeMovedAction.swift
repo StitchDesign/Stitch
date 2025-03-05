@@ -102,8 +102,7 @@ extension GraphState {
             if !canvasItem.isSelected(state) {
                 // log("NodeDuplicateDraggedAction: \(canvasItem.id) was NOT already selected")
                 // select the canvas item and de-select all the others
-                state.selectSingleCanvasItem(canvasItem,
-                                             document: document)
+                state.selectSingleCanvasItem(canvasItem)
                 // add node's edges to highlighted edges; wipe old highlighted edges
                 state.selectedEdges = .init()
             }
@@ -130,8 +129,7 @@ extension GraphState {
             
             self.updateSync(from: graph)
             
-            self.updateGraphAfterPaste(newNodes: newNodes,
-                                       document: document)
+            self.updateGraphAfterPaste(newNodes: newNodes)
             
             return
         }
@@ -182,7 +180,7 @@ extension GraphState {
          long press would fire and see that the node was not yet selected, so it would select it; then tap would fire and see that the node was already selected, so it would de-select that same node.
          */
         // TODO: pass isCommandPressed down from the gesture handler
-        if !wasDrag && (self.documentDelegate?.keypressState.isCommandPressed ?? false) {
+        if !wasDrag && (document.keypressState.isCommandPressed) {
             log("canvasItemMoved: we long pressed while holding command; doing nothing; this logic will instead be handled by NodeTapped")
             return
         }
@@ -233,8 +231,7 @@ extension GraphState {
             self.updateCanvasItemOnDragged(canvasItem, translation: translation)
 
             // select the canvas item and de-select all the others
-            self.selectSingleCanvasItem(canvasItem,
-                                        document: document)
+            self.selectSingleCanvasItem(canvasItem)
 
             // add node's edges to highlighted edges; wipe old highlighted edges
             self.selectedEdges = .init()

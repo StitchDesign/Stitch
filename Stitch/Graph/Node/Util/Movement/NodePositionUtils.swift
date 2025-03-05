@@ -47,15 +47,13 @@ extension CanvasItemViewModel {
             if isSelected {
                 self.deselect(graph)
             } else {
-                self.select(graph,
-                            document: document)
+                self.select(graph)
             }
         }
         
         // when not holding CMD ...
         else {
-            graph.selectSingleCanvasItem(self,
-                                         document: document)
+            graph.selectSingleCanvasItem(self)
         }
         
         // if we tapped a node, we're no longer moving it

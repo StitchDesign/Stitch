@@ -68,8 +68,7 @@ extension StitchDocumentViewModel {
         // if we selected a canvas item, we also thereby selected it:
         if let canvasItemId = focusedField.canvasFieldId {
             graph.getCanvasItem(canvasItemId)?
-                .select(graph,
-                        document: self)
+                .select(graph)
         }
     }
     

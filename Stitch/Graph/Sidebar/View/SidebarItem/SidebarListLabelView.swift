@@ -165,6 +165,7 @@ struct SidebarListItemRightLabelView<ItemViewModel>: View where ItemViewModel: S
     @State private var isBeingEditedAnimated = false
 
     let item: ItemViewModel
+    let sidebar: ItemViewModel.SidebarViewModel
     let isBeingEdited: Bool // is sidebar being edited?
     let fontColor: Color
 
@@ -173,6 +174,7 @@ struct SidebarListItemRightLabelView<ItemViewModel>: View where ItemViewModel: S
             if isBeingEditedAnimated {
                 HStack(spacing: .zero) {
                     SidebarListItemSelectionCircleView(item: item,
+                                                       sidebar: sidebar,
                                                        fontColor: fontColor,
                                                        isBeingEdited: isBeingEdited)
                         .padding(.trailing, 4)

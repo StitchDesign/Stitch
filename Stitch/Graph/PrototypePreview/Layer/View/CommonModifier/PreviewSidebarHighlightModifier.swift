@@ -15,8 +15,8 @@ struct PreviewSidebarHighlightModifier: ViewModifier {
     
     let isPinnedViewRendering: Bool
     
-    let nodeId: LayerNodeId
-    let highlightedSidebarLayers: LayerIdSet
+    let nodeId: NodeId
+    let highlightedSidebarLayers: NodeIdSet
     let scale: CGFloat
     
     static let baseBorderWidth = 2.0

@@ -134,17 +134,6 @@ extension SidebarItemGestureViewModel {
     }
     
     @MainActor
-    func sidebarLayerHovered(itemId: SidebarListItemId,
-                             graph: GraphState) {
-        graph.sidebarLayerHovered(layerId: itemId.asLayerNodeId)
-    }
-    
-    @MainActor
-    func sidebarLayerHoverEnded(itemId: SidebarListItemId) {
-        self.graphDelegate?.graphUI.sidebarLayerHoverEnded(layerId: itemId.asLayerNodeId)
-    }
-    
-    @MainActor
     func didDeleteItem() {
         self.graphDelegate?.sidebarItemDeleted(itemId: self.id)
     }

@@ -93,7 +93,7 @@ struct SelectAllShortcutKeyPressed: StitchDocumentEvent {
         
         // If we have at least one actively selected sidebar layers,
         // then select all layers, not canvas items.
-        if state.isSidebarFocused {
+        if state.visibleGraph.layersSidebarViewModel.isSidebarFocused {
             let allLayers = graph.orderedSidebarLayers.flattenedItems.map(\.id).toSet
             graph.sidebarSelectionState.primary = graph.sidebarSelectionState.primary.union(allLayers)
             
@@ -123,7 +123,7 @@ extension GraphState {
         self.resetSelectedCanvasItems()
         
         visibleNodes.forEach {
-            $0.select(self, document: document)
+            $0.select(self)
         }
     }
 }
@@ -141,7 +141,9 @@ extension StitchDocumentViewModel {
         let focusedGroupNode = self.groupNodeFocused?.groupNodeId
         
         // Unfocus sidebar
-        self.isSidebarFocused = false
+        if self.visibleGraph.layersSidebarViewModel.isSidebarFocused {
+            self.visibleGraph.layersSidebarViewModel.isSidebarFocused = false            
+        }
         
         // TODO: pass shift down via the UIKit gesture handler
         let shiftHeld = graphState.keypressState.shiftHeldDuringGesture
