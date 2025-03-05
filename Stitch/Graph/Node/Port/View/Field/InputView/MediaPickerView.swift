@@ -78,7 +78,7 @@ struct MediaFieldValueView<Field: FieldViewModel>: View {
                                       isSelectedInspectorRow: isSelectedInspectorRow,
                                       activeIndex: document.activeIndex)
                 .onChange(of: mediaName, initial: true) {
-                    print("media name in inner value view: \(mediaName)")
+                    // log("media name in inner value view: \(mediaName)")
                 }
             }
             

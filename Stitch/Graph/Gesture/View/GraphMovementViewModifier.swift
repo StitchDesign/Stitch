@@ -19,7 +19,7 @@ struct GraphMovementViewModifier: ViewModifier {
         content
 
             // Note: `initial: true` seemed to fire only upon first opening of a given project after app re-opened, and not upon every opening of the project?
-            .onChange(of: groupNodeFocused) { oldValue, newValue in
+            .onChange(of: groupNodeFocused) { _, _ in
                 dispatch(SetGraphScrollDataUponPageChange(
                     newPageLocalPosition: currentNodePage.localPosition,
                     newPageZoom: currentNodePage.zoomData
@@ -28,11 +28,11 @@ struct GraphMovementViewModifier: ViewModifier {
 
             // TODO: either update these `graphMovement: GraphMovementObserver` in `GraphScrollDataUpdated` OR get rid of GraphMovementObserver completely and merely rely on node-page's offset and zoom
             .onChange(of: graphMovement.localPosition) { _, newValue in
-                currentNodePage.localPosition = graphMovement.localPosition
+                currentNodePage.localPosition = newValue
                 self.graph.updateVisibleNodes()
             }
             .onChange(of: graphMovement.zoomData) { _, newValue in
-                currentNodePage.zoomData = graphMovement.zoomData
+                currentNodePage.zoomData = newValue
                 self.graph.updateVisibleNodes()
             }
     }
