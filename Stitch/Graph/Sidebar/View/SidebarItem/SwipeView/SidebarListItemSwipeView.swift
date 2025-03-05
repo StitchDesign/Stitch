@@ -79,11 +79,10 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
             theme.fontColor
                 .opacity(backgroundOpacity)
         }
-        .onHover { [weak gestureViewModel, weak graph] hovering in
+        .onHover { [weak gestureViewModel] hovering in
             // MARK: - SUPER DUPER IMPORTANT TO WEAKLY REFERENCE **EVERYTHING** ELSE SEE RETAIN CYCLES
             
-            guard let gestureViewModel = gestureViewModel,
-                  let graph = graph else { return }
+            guard let gestureViewModel = gestureViewModel else { return }
             
             gestureViewModel.isHovered = hovering
             if hovering {
@@ -98,7 +97,7 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
         
 #if targetEnvironment(macCatalyst)
         // SwiftUI gesture handlers must come AFTER `.offset`
-        .simultaneousGesture(gestureViewModel.macDragGesture)
+        .simultaneousGesture(gestureViewModel.macDragGesture(sidebar: self.sidebarViewModel))
 #else
         // SwiftUI gesture handlers must come AFTER `.offset`
         .onTapGesture { } // fixes long press + drag on iPad screen-touch

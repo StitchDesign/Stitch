@@ -222,7 +222,7 @@ extension SidebarItemSwipable {
     // MARK: GESTURE HANDLERS
 
     @MainActor
-    var onItemDragChanged: OnItemDragChangedHandler {
+    func onItemDragChanged(sidebar: Self.SidebarViewModel) -> OnItemDragChangedHandler {
         return { (translation: CGSize) in
             
             if self.activeGesture != .dragging(self.id) {
@@ -231,10 +231,10 @@ extension SidebarItemSwipable {
             }
             
             // Needs to be dispatched due to simultaneous access issues with view
-            Task { @MainActor [weak self] in
+            Task { @MainActor [weak self, weak sidebar] in
                 guard let item = self else { return }
                 
-                item.sidebarDelegate?.sidebarListItemDragged(
+                sidebar?.sidebarListItemDragged(
                     item: item,
                     translation: translation)
             }
@@ -242,7 +242,7 @@ extension SidebarItemSwipable {
     }
 
     @MainActor
-    var onItemDragEnded: OnDragEndedHandler {
+    func onItemDragEnded(sidebar: Self.SidebarViewModel) -> OnDragEndedHandler {
         return {
             guard self.activeGesture != .none else { return }
 
@@ -251,14 +251,14 @@ extension SidebarItemSwipable {
             }
 
             // Task here resolves a race condition with onItemDragChanged which also uses a Task
-            Task { @MainActor [weak self] in
-                self?.sidebarDelegate?.sidebarListItemDragEnded()
+            Task { @MainActor [weak sidebar] in
+                sidebar?.sidebarListItemDragEnded()
             }
         }
     }
 
     @MainActor
-    var macDragGesture: DragGestureTypeSignature {
+    func macDragGesture(sidebar: Self.SidebarViewModel) -> DragGestureTypeSignature {
 
         // print("SidebarItemGestureViewModel: macDragGesture: called")
         
@@ -268,17 +268,17 @@ extension SidebarItemSwipable {
         let itemDrag = DragGesture(minimumDistance: 15)
             .onChanged { value in
                 // print("SidebarItemGestureViewModel: macDragGesture: itemDrag onChanged")
-                self.onItemDragChanged(value.translation)
+                self.onItemDragChanged(sidebar: sidebar)(value.translation)
             }.onEnded { _ in
                 // print("SidebarItemGestureViewModel: macDragGesture: itemDrag onEnded")
-                self.onItemDragEnded()
+                self.onItemDragEnded(sidebar: sidebar)()
             }
 
         return itemDrag
     }
     
     @MainActor
-    var longPressDragGesture: LongPressAndDragGestureType {
+    func longPressDragGesture(sidebar: SidebarViewModel) -> LongPressAndDragGestureType {
 
         let longPress = LongPressGesture(minimumDuration: 0.5).onEnded { _ in
             if self.activeGesture != .dragging(self.id) {
@@ -294,10 +294,10 @@ extension SidebarItemSwipable {
         let itemDrag = DragGesture(minimumDistance: 5)
             .onChanged { value in
 //                print("SidebarItemGestureViewModel: longPressDragGesture: itemDrag onChanged")
-                self.onItemDragChanged(value.translation)
+                self.onItemDragChanged(sidebar: sidebar)(value.translation)
             }.onEnded { _ in
 //                print("SidebarItemGestureViewModel: longPressDragGesture: itemDrag onEnded")
-                self.onItemDragEnded()
+                self.onItemDragEnded(sidebar: sidebar)()
             }
 
         return longPress.sequenced(before: itemDrag)
