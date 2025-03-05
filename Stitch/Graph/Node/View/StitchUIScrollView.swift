@@ -382,9 +382,7 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
     // CHECKING THE BORDER
     
     func checkBorder(_ scrollView: UIScrollView) {
-                
-        let scale = scrollView.zoomScale
-        
+                        
         guard let document = self.document else {
             // log("checkBorder: no document, exiting early")
             return
@@ -421,6 +419,8 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
             Self.updateGraphScrollData(scrollView)
             return
         }
+        
+        let scale = scrollView.zoomScale
         
         let screenWidth = document.graphUI.frame.width
         let screenHeight = document.graphUI.frame.height
