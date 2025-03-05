@@ -213,6 +213,46 @@ struct StitchAIDateAndTimeFormat: StitchAIStringConvertable {
     }
 }
 
+struct StitchAIScrollJumpStyle: StitchAIStringConvertable {
+    enum ScrollJumpStyle: String, Codable {
+        case animated
+        case instant
+    }
+    
+    var value: ScrollJumpStyle
+    
+    init(value: ScrollJumpStyle) {
+        self.value = value
+    }
+}
+
+struct StitchAIScrollDecelerationRate: StitchAIStringConvertable {
+    enum ScrollDecelerationRate: String, Codable {
+        case normal
+        case fast
+    }
+    
+    var value: ScrollDecelerationRate
+    
+    init(value: ScrollDecelerationRate) {
+        self.value = value
+    }
+}
+
+struct StitchAIDelayStyle: StitchAIStringConvertable {
+    enum DelayStyle: String, Codable {
+        case always = "Always"
+        case increasing = "Increasing"
+        case decreasing = "Decreasing"
+    }
+    
+    var value: DelayStyle
+    
+    init(value: DelayStyle) {
+        self.value = value
+    }
+}
+
 extension StitchAIColor: Encodable {
     func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
@@ -422,7 +462,47 @@ extension StitchAIDateAndTimeFormat.DateAndTimeFormat: StitchAIValueStringConver
 }
 
 
+extension StitchAIScrollJumpStyle.ScrollJumpStyle: StitchAIValueStringConvertable, CustomStringConvertible {
+    var description: String {
+        self.rawValue
+    }
+    
+    var encodableString: String {
+        self.rawValue
+    }
+    
+    init?(_ description: String) {
+        self.init(rawValue: description)
+    }
+}
 
+extension StitchAIScrollDecelerationRate.ScrollDecelerationRate: StitchAIValueStringConvertable, CustomStringConvertible {
+    var description: String {
+        self.rawValue
+    }
+    
+    var encodableString: String {
+        self.rawValue
+    }
+    
+    init?(_ description: String) {
+        self.init(rawValue: description)
+    }
+}
+
+extension StitchAIDelayStyle.DelayStyle: StitchAIValueStringConvertable, CustomStringConvertible {
+    var description: String {
+        self.rawValue
+    }
+    
+    var encodableString: String {
+        self.rawValue
+    }
+    
+    init?(_ description: String) {
+        self.init(rawValue: description)
+    }
+}
 
 
 protocol StitchAIValueStringConvertable: Codable, LosslessStringConvertible, Hashable {

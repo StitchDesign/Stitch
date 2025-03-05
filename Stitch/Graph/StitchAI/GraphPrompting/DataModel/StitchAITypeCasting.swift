@@ -197,15 +197,15 @@ extension UserVisibleType {
         case .textTransform:
             return StitchAITextTransform.self
         case .dateAndTimeFormat:
-            return DateAndTimeFormat.self
+            return StitchAIDateAndTimeFormat.self
         case .shape:
             return CustomShape?.self
         case .scrollJumpStyle:
-            return ScrollJumpStyle.self
+            return StitchAIScrollJumpStyle.self
         case .scrollDecelerationRate:
-            return ScrollDecelerationRate.self
+            return StitchAIScrollDecelerationRate.self
         case .delayStyle:
-            return DelayStyle.self
+            return StitchAIDelayStyle.self
         case .shapeCoordinates:
             return ShapeCoordinates.self
         case .shapeCommandType:
