@@ -46,11 +46,18 @@ struct SetGraphScrollDataUponPageChange: GraphEvent {
 struct GraphScrollDataUpdated: StitchDocumentEvent {
     let newOffset: CGPoint
     let newZoom: CGFloat
-    var shouldPersist: Bool = false // true just when e.g. we stopped decelerating
+    // var shouldPersist: Bool = false // true just when e.g. we stopped decelerating
     
     func handle(state: StitchDocumentViewModel) {
+        
+        // // // VERY HELPFUL FOR DEBUGGING
         // log("GraphScrollDataUpdated: newOffset: \(newOffset)")
         // log("GraphScrollDataUpdated: newZoom: \(newZoom)")
+        // let xDiff = state.graphMovement.localPosition.x - newOffset.x
+        // let yDiff = state.graphMovement.localPosition.y - newOffset.y
+        // log("GraphScrollDataUpdated: xDiff: \(xDiff)")
+        // log("GraphScrollDataUpdated: yDiff: \(yDiff)")
+        
         state.graphMovement.localPosition = newOffset
         state.graphMovement.zoomData = newZoom
         
