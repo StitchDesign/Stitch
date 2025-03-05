@@ -122,12 +122,8 @@ struct MediaFieldLabelView<Field: FieldViewModel>: View {
     }
     
     var isVisualMediaPort: Bool {
-        self.coordinate.portId == 0 && (
-            self.node.kind.isVisualMediaLayerNode ||
-            
-            // Checks if patch node uses observer object used for storing visual media
-            (self.node.ephemeralObservers?.first as? MediaEvalOpViewable) != nil
-        )
+        self.coordinate.portId == 0 &&
+        self.node.kind.isVisualMediaLayerNode
     }
     
     var media: GraphMediaValue? {
