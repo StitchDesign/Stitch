@@ -31,11 +31,8 @@ struct ProjectNavigationView: View {
             })
         }
         .onChange(of: document.visibleGraph.graphUpdaterId) {
-            log("NodesOnlyView: .onChange(of: document.visibleGraph.graphUpdaterId)")
+            // log("ProjectNavigationView: .onChange(of: document.visibleGraph.graphUpdaterId)")
             document.visibleGraph.updateGraphData()
-        }
-        .onChange(of: document.groupNodeFocused?.groupNodeId) {
-            document.visibleGraph.refreshGraphUpdaterId()
         }
         .onChange(of: document.isCameraEnabled) { _, isCameraEnabled in
             if !isCameraEnabled {

@@ -8,35 +8,6 @@
 import Foundation
 import SwiftUI
 import StitchSchemaKit
-
-struct GraphMovementViewModifier: ViewModifier {
-    @Bindable var graphMovement: GraphMovementObserver
-    @Bindable var currentNodePage: NodePageData
-    @Bindable var graph: GraphState
-    let groupNodeFocused: GroupNodeType?
-    
-    func body(content: Content) -> some View {
-        content
-
-            // Note: `initial: true` seemed to fire only upon first opening of a given project after app re-opened, and not upon every opening of the project?
-            .onChange(of: groupNodeFocused) { _, _ in
-                dispatch(SetGraphScrollDataUponPageChange(
-                    newPageLocalPosition: currentNodePage.localPosition,
-                    newPageZoom: currentNodePage.zoomData
-                ))
-            }
-
-            // TODO: either update these `graphMovement: GraphMovementObserver` in `GraphScrollDataUpdated` OR get rid of GraphMovementObserver completely and merely rely on node-page's offset and zoom
-            .onChange(of: graphMovement.localPosition) { _, newValue in
-                currentNodePage.localPosition = newValue
-                self.graph.updateVisibleNodes()
-            }
-            .onChange(of: graphMovement.zoomData) { _, newValue in
-                currentNodePage.zoomData = newValue
-                self.graph.updateVisibleNodes()
-            }
-    }
-}
     
 extension GraphState {
     /// Accomplishes the following tasks:
