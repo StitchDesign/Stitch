@@ -88,15 +88,12 @@ extension NodeDelegate {
         case .layer(let layer):
             return layer.outputPorts.map { $0.rowObserver }
         case .group(let canvas):
-//            fatalErrorIfDebug("Attempted to retrieve a row observer for a GroupNode output")
-            log("Attempted to retrieve a row observer for a GroupNode output")
+            //            fatalErrorIfDebug("Attempted to retrieve a row observer for a GroupNode output")
+            //             log("Attempted to retrieve a row observer for a GroupNode output")
             return canvas.outputViewModels.compactMap {
                 $0.rowDelegate
             }
         case .component(let component):
-            // We look at the component's canvas item's list of OutputNodeRowViewModel,
-            // and then grab each OutputNodeRowViewModel's row delegate ie. OutputNodeRowObserver ?
-            // Why not just do `component.outputsObservers` ?
             return component.outputsObservers
         }
     }

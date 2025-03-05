@@ -205,11 +205,15 @@ extension InputNodeRowObserver {
 
         // Check for connected row observer rather than just setting ID--makes for
         // a more robust check in ensuring the connection actually exists
-        assertInDebug(connectedOutputObserver
-            .id
-            .portId
-            .flatMap { self.nodeDelegate?.getOutputRowObserver(for: $0) }
-            .isDefined)
+        assertInDebug(
+            connectedOutputObserver.id.portId.flatMap { portId in
+                self.nodeDelegate?
+                    .graphDelegate?
+                // Note: we have to retrieve the node for the upstream output
+                    .getNode(connectedOutputObserver.id.nodeId)?
+                    .getOutputRowObserver(for: portId)
+            }.isDefined
+        )
         
         // Report to output observer that there's an edge (for port colors)
         // We set this to false on default above
