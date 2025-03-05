@@ -33,7 +33,7 @@ extension InputNodeRowObserver {
            self.id.isMediaSelectorLocation {
             if willUpstreamBeDisconnected,
                let upstreamOutputObserver = self.upstreamOutputObserver {
-                upstreamOutputObserver.getMediaObjects().forEach {
+                upstreamOutputObserver.getComputedMediaObjects().forEach {
                     if let video = $0.video {
                         video.muteSound()
                     }
@@ -48,17 +48,13 @@ extension InputNodeRowObserver {
         else if self.nodeKind.isSpeakerNode,
                 // Only look at this input if it is the media input
                 self.id.isMediaSelectorLocation,
-                let node = self.nodeDelegate {
-            self.allLoopedValues.enumerated().compactMap { loopIndex, _ in
-                node.getInputMedia(portIndex: 0,
-                                   loopIndex: loopIndex,
-                                   mediaId: nil)  // setting nil will get object without equality checking
-            }.forEach { media in
-                // Run effect to mute sound player
-                self.upstreamOutputObserver?.getMediaObjects().forEach { media in
-                    media.updateVolume(to: .zero)
+                let node = self.upstreamOutputObserver?.nodeDelegate {
+            node.getMediaObservers()?
+                .map(\.computedMedia)
+                .forEach { media in
+                    // Run effect to mute sound player
+                    media?.mediaObject.updateVolume(to: .zero)
                 }
-            }
             self.updateValues([.asyncMedia(nil)])
         } else {
             // Flatten values by default
@@ -121,6 +117,11 @@ extension GraphState {
             return
         }
 
+        // Runs logic to disconnect existing media conntected by edge
+        if downstreamInputObserver.upstreamOutputCoordinate != nil {
+            downstreamInputObserver.removeUpstreamConnection()
+        }
+        
         // Sets edge
         downstreamInputObserver.upstreamOutputCoordinate = edge.from
 

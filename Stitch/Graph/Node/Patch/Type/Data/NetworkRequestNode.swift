@@ -101,7 +101,7 @@ func networkRequestEval(node: PatchNode,
             values[safe: 10] ?? defaultFalseJSON
         ]
 
-        let prevMedia = mediaObserver.currentMedia
+        let prevMedia = mediaObserver.computedMedia
 
         // What was this case ?
         // if we didn't have a pulse, "don't do anything"

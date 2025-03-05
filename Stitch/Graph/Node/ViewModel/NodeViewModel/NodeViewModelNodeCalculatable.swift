@@ -11,6 +11,8 @@ import StitchEngine
 import StitchSchemaKit
 
 extension NodeViewModel: NodeCalculatable {
+    typealias NodeMediaEphemeralObservable = MediaViewModel
+    
     var inputsObservers: [InputNodeRowObserver] {
         get {
             self.getAllInputsObservers()
@@ -27,6 +29,19 @@ extension NodeViewModel: NodeCalculatable {
         set(newValue) {
             self.patchNode?.outputsObservers = newValue
         }
+    }
+    
+    @MainActor
+    func getMediaObservers() -> [MediaViewModel]? {
+        if let layerNode = self.layerNode {
+            return layerNode.previewLayerViewModels.map { $0.mediaViewModel }
+        }
+        
+        if let mediaEvalOpObservers = self.ephemeralObservers as? [MediaEvalOpViewable] {
+            return mediaEvalOpObservers.map(\.mediaViewModel)
+        }
+        
+        return nil
     }
     
     @MainActor

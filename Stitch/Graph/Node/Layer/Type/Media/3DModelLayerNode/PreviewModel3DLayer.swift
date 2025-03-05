@@ -281,7 +281,7 @@ struct ModelEntityLayerViewModifier: ViewModifier {
                      
                         await MainActor.run { [weak entityCopy] in
                             guard let entityCopy = entityCopy else { return }
-                            previewLayer.mediaViewModel.currentMedia = .init(computedMedia: .model3D(entityCopy))
+                            previewLayer.mediaViewModel.inputMedia = .init(computedMedia: .model3D(entityCopy))
                             self.anchorEntity.addChild(entityCopy.containerEntity)
                             
                             self.assignGestures(entity: entityCopy)

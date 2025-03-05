@@ -95,7 +95,8 @@ actor PressInteractionActor {
             
             graph.updateOutputs(at: loopIndex,
                                 node: pressNode,
-                                portValues: createNewValues(graph.graphStepState.graphTime))
+                                portValues: createNewValues(graph.graphStepState.graphTime),
+                                media: nil)
         }
     }
 }

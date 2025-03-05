@@ -260,15 +260,16 @@ extension GraphState {
             return
         }
         
-        mediaObserver.currentMedia = result.media
+        mediaObserver.computedMedia = result.media
         
         // Disable loading state
         // Important to not dispatch main actor task as this creates race conditions
         mediaObserver.currentLoadingMediaId = nil
         
         self.recalculateGraphForMedia(outputValues: result.valueResult,
-                              nodeId: nodeId,
-                              loopIndex: loopIndex)
+                                      media: result.media,
+                                      nodeId: nodeId,
+                                      loopIndex: loopIndex)
     }
     
     @MainActor
@@ -276,6 +277,7 @@ extension GraphState {
     /// This updates at a particular loop index rather than all values.
     /// NOTE: we DO NOT want to run the eval of the media node itself again; we just want to evaluate any downstream nodes
     func recalculateGraphForMedia(outputValues: AsyncMediaOutputs,
+                                  media: GraphMediaValue?,
                                   nodeId: NodeId,
                                   loopIndex: Int) {
         let graph = self
@@ -304,7 +306,8 @@ extension GraphState {
             
             graph.updateOutputs(at: loopIndex,
                                 node: node,
-                                portValues: portValues)
+                                portValues: portValues,
+                                media: media)
             
         case .all(let portValuesList):
             var changedDownstreamNodes = NodeIdSet()
@@ -328,6 +331,7 @@ extension GraphState {
                 let downstreamInputs = graph.updateDownstreamInputs(
                     sourceNode: node,
                     flowValues: values,
+                    mediaList: [media],
                     upstreamOutputChanged: true, // Okay to treat a media change as always some output changing?
                     outputCoordinate: .init(portId: index, nodeId: node.id))
                 let downstreamNodes = Set(downstreamInputs.map(\.nodeId)).toSet

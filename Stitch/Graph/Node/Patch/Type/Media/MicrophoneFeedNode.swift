@@ -66,7 +66,7 @@ struct MicrophoneNode: PatchNodeDefinition {
                 return
             }
             
-            observer.currentMedia = .init(computedMedia: .mic(newSoundPlayer))
+            observer.computedMedia = .init(computedMedia: .mic(newSoundPlayer))
             observer.currentLoadingMediaId = nil
         }
     }
@@ -89,7 +89,7 @@ func microphoneEval(node: PatchNode) -> EvalResult {
             return MediaEvalOpResult(from: node.defaultOutputs)
         }
            
-        guard let currentMedia = mediaObserver.currentMedia,
+        guard let currentMedia = mediaObserver.computedMedia,
               let mic = currentMedia.mediaObject.mic else {
             createMic(isEnabled: isEnabled,
                       observer: mediaObserver)
