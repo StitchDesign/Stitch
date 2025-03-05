@@ -127,11 +127,15 @@ struct MediaFieldLabelView<Field: FieldViewModel>: View {
         )
     }
     
+    var media: GraphMediaValue? {
+        self.isInput ? self.mediaObserver?.inputMedia : self.mediaObserver?.computedMedia
+    }
+    
     @ViewBuilder
-    func visualMediaView(mediaObserver: MediaViewModel?) -> some View {
+    var visualMediaView: some View {
         // For image and video media pickers,
         // show both dropdown and thumbnail
-        switch mediaObserver?.inputMedia?.mediaObject {
+        switch self.media?.mediaObject {
         case .image(let image):
             ValueStitchImageView(image: image)
         case .video(let video):
@@ -157,7 +161,7 @@ struct MediaFieldLabelView<Field: FieldViewModel>: View {
             if isMultiselectInspectorInputWithHeterogenousValues {
                 NilImageView()
             } else {
-                visualMediaView(mediaObserver: self.mediaObserver)
+                visualMediaView
             }
         }
         .onChange(of: document.activeIndex, initial: true) {
