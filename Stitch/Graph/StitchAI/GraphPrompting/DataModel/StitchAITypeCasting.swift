@@ -157,7 +157,7 @@ extension UserVisibleType {
         case .plane:
             return Plane.self
         case .networkRequestType:
-            return NetworkRequestType.self
+            return StitchAINetworkRequestType.self
         case .color:
             return StitchAIColor.self
         case .size:
@@ -165,9 +165,9 @@ extension UserVisibleType {
         case .position:
             return StitchAIPosition.self
         case .point3D:
-            return Point3D.self
+            return StitchAIPoint3D.self
         case .point4D:
-            return Point4D.self
+            return StitchAIPoint4D.self
         case .pulse:
             return TimeInterval.self
         case .media:
@@ -177,25 +177,25 @@ extension UserVisibleType {
         case .anchoring:
             return Anchoring.self
         case .cameraDirection:
-            return CameraDirection.self
+            return StitchAICameraDirection.self
         case .interactionId:
             return StitchAIUUID?.self
         case .scrollMode:
-            return ScrollMode.self
+            return StitchAIScrollMode.self
         case .textAlignment:
-            return LayerTextAlignment.self
+            return StitchAILayerTextAlignment.self
         case .textVerticalAlignment:
-            return LayerTextVerticalAlignment.self
+            return StitchAITextVerticalAlignment.self
         case .fitStyle:
-            return VisualMediaFitStyle.self
+            return  StitchAIVisualMediaFitStyle.self
         case .animationCurve:
-            return ClassicAnimationCurve.self
+            return StitchAIClassicAnimationCurve.self
         case .lightType:
-            return LightType.self
+            return StitchAILightType.self
         case .layerStroke:
-            return LayerStroke.self
+            return StitchAILayerStroke.self
         case .textTransform:
-            return TextTransform.self
+            return StitchAITextTransform.self
         case .dateAndTimeFormat:
             return DateAndTimeFormat.self
         case .shape:
