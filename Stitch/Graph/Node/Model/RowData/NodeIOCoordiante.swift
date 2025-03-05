@@ -73,6 +73,22 @@ extension NodeIOPortType {
             return nil
         }
     }
+    
+    var isVisualMeiaPortType: Bool {
+        switch self {
+        case .portIndex(let index):
+            return index == 0
+            
+        case .keyPath(let keyPath):
+            switch keyPath.layerInput {
+            case .image, .video:
+                return true
+                
+            default:
+                return false
+            }
+        }
+    }
 }
 
 extension LayerInputPort {
