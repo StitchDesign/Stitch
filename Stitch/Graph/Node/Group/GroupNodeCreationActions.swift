@@ -184,7 +184,7 @@ extension StitchDocumentViewModel {
             .getCanvasItemsAtTraversalLevel(groupNodeFocused: self.groupNodeFocused?.groupNodeId)
             .map(\.id).toSet
         
-        assertInDebug(!self.visibleGraph.selectedNodeIds.contains(where: { selectedNodeId in !nodesAtThisLevel.contains(selectedNodeId) }))
+        assertInDebug(!self.visibleGraph.selectedCanvasItems.contains(where: { selectedNodeId in !nodesAtThisLevel.contains(selectedNodeId) }))
         
         // Update selected canvas items with new parent id
         // Components are set with nil because of new graph state

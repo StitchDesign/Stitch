@@ -111,7 +111,7 @@ extension GraphState {
             // Copy nodes if no drag started yet
             let copiedComponentResult = self
                 .createCopiedComponent(groupNodeFocused: document.groupNodeFocused,
-                                       selectedNodeIds: state.selectedNodeIds.compactMap(\.nodeCase).toSet)
+                                       selectedNodeIds: state.selectedCanvasItems.compactMap(\.nodeCase).toSet)
             
             let (newComponent, nodeIdMap) = Self.updateCopiedNodes(
                 component: copiedComponentResult.component,
@@ -138,7 +138,7 @@ extension GraphState {
         // log("NodeDuplicateDraggedAction: state.selectedNodeIds at end: \(state.selectedNodeIds)")
         
         // Drag all selected nodes if dragging already started
-        state.selectedNodeIds
+        state.selectedCanvasItems
             .compactMap { state.getCanvasItem($0) }
             .forEach { draggedNode in
                 // log("NodeDuplicateDraggedAction: already had dragged node id, so will do normal node drag for id \(draggedNode.id)")

@@ -386,7 +386,7 @@ enum GraphManualZoom: Equatable, Hashable, Codable {
 
 extension GraphState {
     @MainActor
-    var selectedNodeIds: Set<CanvasItemId> {
+    var selectedCanvasItems: Set<CanvasItemId> {
         self.nodes.values
             .flatMap { node in
                 node.getAllCanvasObservers()
