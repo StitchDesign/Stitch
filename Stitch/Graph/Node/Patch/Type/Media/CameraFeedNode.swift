@@ -61,7 +61,7 @@ struct CameraFeedPatchNode: PatchNodeDefinition {
                     label: "Camera"
                 ),
                 .init(
-                    defaultValues: [.cameraOrientation(.landscapeRight)],
+                    defaultValues: [.cameraOrientation(StitchCameraOrientation.defaultOrientation)],
                     label: "Orientation"
                 )
             ],

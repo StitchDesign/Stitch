@@ -49,22 +49,28 @@ extension StitchCameraOrientation: PortValueEnum {
     // Catalyst seems incorrect (e.g. .portrait is wider than it is tall),
     // therefore we convert Catalyst orientation to iPad orientation.
     var convertOrientation: Self {
+        #if targetEnvironment(macCatalyst)
+        switch self {
+        case .portrait:
+            return .landscapeLeft
+        case .portraitUpsideDown:
+            return .landscapeRight
+        case .landscapeLeft:
+            return .portraitUpsideDown
+        case .landscapeRight:
+            return .portrait
+        }
+        #else
+        // if we're already on iPad, nothing to convert
         return self
-        
-//#if targetEnvironment(macCatalyst)
-//        switch self {
-//        case .portrait:
-//            return .landscapeLeft
-//        case .portraitUpsideDown:
-//            return .landscapeRight
-//        case .landscapeLeft:
-//            return .portraitUpsideDown
-//        case .landscapeRight:
-//            return .portrait
-//        }
-//        #else
-//        // if we're already on iPad, nothing to convert
-//        return self
-//        #endif
+        #endif
+    }
+
+    static var defaultOrientation: Self {
+        #if targetEnvironment(macCatalyst)
+        return .portrait  // Will be converted to landscapeLeft by convertOrientation
+        #else
+        return .landscapeRight  // Default for iPad
+        #endif
     }
 }
