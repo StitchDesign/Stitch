@@ -51,7 +51,7 @@ extension PortValue {
             return x
         case .assignedLayer(let x):
             guard let x = x else {
-                return "None"
+                return nil as StitchAIUUID?
             }
             return StitchAIUUID(value: x.id)
         case .scrollMode(let x):
@@ -127,7 +127,10 @@ extension PortValue {
         case .materialThickness(let x):
             return x
         case .anchorEntity(let x):
-            return x
+            guard let x = x else {
+                return nil as StitchAIUUID?
+            }
+            return StitchAIUUID(value: x)
         case .none:
             fatalError()
         }
@@ -249,7 +252,7 @@ extension UserVisibleType {
         case .materialThickness:
             return MaterialThickness.self
         case .anchorEntity:
-            return UUID?.self
+            return StitchAIUUID?.self
         case .pinToId:
             return PinToId.self
         case .none:
@@ -543,10 +546,13 @@ extension UserVisibleType {
             }
             return .materialThickness(x)
         case .anchorEntity:
-            guard let x = anyValue as? UUID? else {
+            guard let stitchUUID = anyValue as? StitchAIUUID? else {
+                if let xString = anyValue as? String, xString == "None" {
+                    return .anchorEntity(nil)
+                }
                 throw StitchAIManagerError.typeCasting
             }
-            return .anchorEntity(x)
+            return .anchorEntity(stitchUUID?.value)
         case .pinToId:
             guard let x = anyValue as? PinToId else {
                 throw StitchAIManagerError.typeCasting
