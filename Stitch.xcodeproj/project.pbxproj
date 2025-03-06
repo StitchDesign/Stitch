@@ -6648,8 +6648,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/StitchDesign/StitchSchemaKit";
 			requirement = {
-				branch = "update-default-camera-settings";
-				kind = branch;
+				kind = revision;
+				revision = 78cae3014dbe8684ac1750239e71fd7130dfdadc;
 			};
 		};
 		E4A848A92D32FCFA0029AFDE /* XCRemoteSwiftPackageReference "supabase-swift" */ = {

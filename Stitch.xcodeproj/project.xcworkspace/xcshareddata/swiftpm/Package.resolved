@@ -67,8 +67,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/StitchDesign/StitchSchemaKit",
       "state" : {
-        "branch" : "update-default-camera-settings",
-        "revision" : "670dcc37ea901d95900ec90df2bbb6616efbd0a8"
+        "revision" : "78cae3014dbe8684ac1750239e71fd7130dfdadc"
       }
     },
     {
