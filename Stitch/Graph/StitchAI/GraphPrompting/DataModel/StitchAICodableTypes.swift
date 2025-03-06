@@ -253,6 +253,50 @@ struct StitchAIDelayStyle: StitchAIStringConvertable {
     }
 }
 
+struct StitchAILayerTextDecoration: StitchAIStringConvertable {
+    enum LayerTextDecoration: String, Codable {
+        case none = "None"
+        case underline = "Underline"
+        case strikethrough = "Strikethrough"
+    }
+    
+    var value: LayerTextDecoration
+    
+    init(value: LayerTextDecoration) {
+        self.value = value
+    }
+}
+
+struct StitchAIProgressIndicatorStyle: StitchAIStringConvertable {
+    enum ProgressIndicatorStyle: String, Codable {
+        case circular = "Circular"
+        case linear = "Linear"
+    }
+    
+    var value: ProgressIndicatorStyle
+    
+    init(value: ProgressIndicatorStyle) {
+        self.value = value
+    }
+}
+
+struct StitchAIStitchMapType: StitchAIStringConvertable {
+    enum MapType: String, Codable {
+        case standard = "Standard"
+        case satellite = "Satellite"
+        case hybrid = "Hybrid"
+        case hybridFlyover = "Hybrid Flyover"
+        case satelliteFlyover = "Satellite Flyover"
+        case mutedStandard = "Muted Standard"
+    }
+    
+    var value: MapType
+    
+    init(value: MapType) {
+        self.value = value
+    }
+}
+
 extension StitchAIColor: Encodable {
     func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
@@ -503,6 +547,49 @@ extension StitchAIDelayStyle.DelayStyle: StitchAIValueStringConvertable, CustomS
         self.init(rawValue: description)
     }
 }
+
+extension StitchAILayerTextDecoration.LayerTextDecoration: StitchAIValueStringConvertable, CustomStringConvertible {
+    var description: String {
+        self.rawValue
+    }
+    
+    var encodableString: String {
+        self.rawValue
+    }
+    
+    init?(_ description: String) {
+        self.init(rawValue: description)
+    }
+}
+
+extension StitchAIProgressIndicatorStyle.ProgressIndicatorStyle: StitchAIValueStringConvertable, CustomStringConvertible {
+    var description: String {
+        self.rawValue
+    }
+    
+    var encodableString: String {
+        self.rawValue
+    }
+    
+    init?(_ description: String) {
+        self.init(rawValue: description)
+    }
+}
+
+extension StitchAIStitchMapType.MapType: StitchAIValueStringConvertable, CustomStringConvertible {
+    var description: String {
+        self.rawValue
+    }
+    
+    var encodableString: String {
+        self.rawValue
+    }
+    
+    init?(_ description: String) {
+        self.init(rawValue: description)
+    }
+}
+
 
 
 protocol StitchAIValueStringConvertable: Codable, LosslessStringConvertible, Hashable {

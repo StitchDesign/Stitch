@@ -221,15 +221,15 @@ extension UserVisibleType {
         case .vnImageCropOption:
             return VNImageCropAndScaleOption.self
         case .textDecoration:
-            return LayerTextDecoration.self
+            return StitchAILayerTextDecoration.self
         case .textFont:
             return StitchFont.self
         case .blendMode:
             return StitchBlendMode.self
         case .mapType:
-            return StitchMapType.self
+            return StitchAIStitchMapType.self
         case .progressIndicatorStyle:
-            return ProgressIndicatorStyle.self
+            return StitchAIProgressIndicatorStyle.self
         case .mobileHapticStyle:
             return MobileHapticStyle.self
         case .strokeLineCap:
