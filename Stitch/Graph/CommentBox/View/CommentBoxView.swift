@@ -21,7 +21,7 @@ struct CommentBoxView: View {
     
     @MainActor
     var atleastOneNodeSelected: Bool {
-        !graph.selectedNodeIds.isEmpty
+        !graph.selectedCanvasItems.isEmpty
     }
 
     @MainActor
