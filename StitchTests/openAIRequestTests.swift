@@ -22,12 +22,6 @@ class OpenAIRequestTests: XCTestCase {
         
         let types = NodeType.allCases.filter({
             $0 != .none
-            
-            // TODO: implement anchorEntity decoding
-            && $0 != .anchorEntity
-            
-            // TODO: why does decoding interactionId fail in this test but it's just fine in actual app?
-            && $0 != .interactionId
         })
         
         for type in types  {
