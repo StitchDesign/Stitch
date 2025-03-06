@@ -51,7 +51,7 @@ extension PortValue {
             return x
         case .assignedLayer(let x):
             guard let x = x else {
-                return "None"
+                return nil as StitchAIUUID?
             }
             return StitchAIUUID(value: x.id)
         case .scrollMode(let x):
