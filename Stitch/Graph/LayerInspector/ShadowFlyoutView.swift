@@ -119,7 +119,6 @@ struct ShadowFlyoutRowView: View {
                           rowViewModel: layerInputData.inspectorRowViewModel,
                           fieldValueTypes: layerInputData.inspectorRowViewModel.fieldValueTypes,
                           canvasItem: nil,
-                          layerInputObserver: layerInputObserver,
                           forPropertySidebar: true,
                           propertyIsSelected: propertyRowIsSelected,
                           propertyIsAlreadyOnGraph: layerInputObserver.getCanvasItemForWholeInput().isDefined,
@@ -129,7 +128,16 @@ struct ShadowFlyoutRowView: View {
                        node: node,
                        currentTraversalLevel: graphUI.groupNodeFocused?.groupNodeId,
                        graph: graph),
-                          forFlyout: true)
+                          forFlyout: true,
+                          fieldsRowLabel: layerInputObserver.fieldsRowLabel,
+                          useIndividualFieldLabel: layerInputObserver.useIndividualFieldLabel(activeIndex: graphUI.activeIndex)
+            ) { labelView, valueEntryView in
+                LayerNodeInputView(layerInputObserver: layerInputObserver,
+                                   forFlyout: true,
+                                   fieldValueTypes: layerInputData.inspectorRowViewModel.fieldValueTypes,
+                                   labelView: labelView,
+                                   valueEntryView: valueEntryView)
+            }
         } // HStack
         
         .padding([.top, .bottom], INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET * 2)

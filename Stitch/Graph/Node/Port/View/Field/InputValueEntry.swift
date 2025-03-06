@@ -17,7 +17,6 @@ struct InputValueEntry: View {
     @Bindable var viewModel: InputFieldViewModel
     let node: NodeViewModel
     let rowViewModel: InputNodeRowViewModel
-    let layerInputObserver: LayerInputObserver?
     let canvasItem: CanvasItemViewModel?
     
     let rowObserver: InputNodeRowObserver
@@ -30,6 +29,9 @@ struct InputValueEntry: View {
     let isFieldInMultifieldInput: Bool
     let isForFlyout: Bool
     let isSelectedInspectorRow: Bool
+    
+    let fieldsRowLabel: String?
+    let useIndividualFieldLabel: Bool
 
     // Used by button view to determine if some button has been pressed.
     // Saving this state outside the button context allows us to control renders.
@@ -42,39 +44,38 @@ struct InputValueEntry: View {
     // TRICKY: currently only used for unpacked 3D Transform fields on the canvas,
     // but such *unpacked* values are treated as Number fields.
     // So we check information about the parent (i.e. the whole layer input, LayerInputObserver) and compare against child (i.e. the individual field, UnpackedPortType).
-    var fieldsRowLabel: String? {
-        if let layerInputObserver = layerInputObserver,
-           layerInputObserver.port == .transform3D {
-            
-            if layerInputObserver.mode == .unpacked,
-               let fieldGroupLabel = rowObserver.id.keyPath?.getUnpackedPortType?.fieldGroupLabelForUnpacked3DTransformInput {
-                
-                return layerInputObserver.port.label() + " " + fieldGroupLabel
-            } else {
-                // Show '3D Transform' label on packed 3D Transform input-on-canvas
-                return layerInputObserver.port.label()
-            }
-        }
-        
-        return nil
-    }
-    
-    // TODO: support derived field-labels
-    // TODO: perf-impact? is this running all the time?
-    @MainActor
-    var useIndividualFieldLabel: Bool {
-        if forPropertySidebar,
-           isFieldInMultifieldInput,
-           !isForFlyout,
-           // Do not use labels on the fields of a padding-type input
-           (layerInputObserver?
-            .getActiveValue(activeIndex: self.graphUI.activeIndex)
-            .getPadding.isDefined ?? false) {
-            return false
-        }
-        
-        return true
-    }
+//    var fieldsRowLabel: String? {
+//        if let layerInputObserver = layerInputObserver,
+//           layerInputObserver.port == .transform3D {
+//            
+//            if layerInputObserver.mode == .unpacked,
+//               let fieldGroupLabel = rowObserver.id.keyPath?.getUnpackedPortType?.fieldGroupLabelForUnpacked3DTransformInput {
+//                
+//                return layerInputObserver.port.label() + " " + fieldGroupLabel
+//            } else {
+//                // Show '3D Transform' label on packed 3D Transform input-on-canvas
+//                return layerInputObserver.port.label()
+//            }
+//        }
+//        
+//        return nil
+//    }
+//    
+//    // TODO: support derived field-labels
+//    @MainActor
+//    var useIndividualFieldLabel: Bool {
+//        if forPropertySidebar,
+//           isFieldInMultifieldInput,
+//           !isForFlyout,
+//           // Do not use labels on the fields of a padding-type input
+//           (layerInputObserver?
+//            .getActiveValue(activeIndex: self.graphUI.activeIndex)
+//            .getPadding.isDefined ?? false) {
+//            return false
+//        }
+//        
+//        return true
+//    }
         
     var individualFieldLabelDisplay: LabelDisplayView {
         LabelDisplayView(label: individualFieldLabel,
@@ -127,7 +128,7 @@ struct InputValueEntry: View {
                                  isSelectedInspectorRow: isSelectedInspectorRow)
             }
             
-            if self.useIndividualFieldLabel {
+            if self.isFieldInMultifieldInput && self.useIndividualFieldLabel {
                 individualFieldLabelDisplay
             }
              

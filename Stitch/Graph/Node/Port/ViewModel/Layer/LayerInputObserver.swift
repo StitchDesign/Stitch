@@ -361,6 +361,30 @@ extension LayerInputObserver {
     var rowObserver: InputNodeRowObserver {
         return self._packedData.rowObserver
     }
+    
+    @MainActor
+    var fieldsRowLabel: String? {
+        if self.port == .transform3D {
+            if self.mode == .unpacked,
+               let fieldGroupLabel = self.rowObserver.id.keyPath?.getUnpackedPortType?.fieldGroupLabelForUnpacked3DTransformInput {
+                
+                return self.port.label() + " " + fieldGroupLabel
+            } else {
+                // Show '3D Transform' label on packed 3D Transform input-on-canvas
+                return self.port.label()
+            }
+        }
+        
+        return nil
+    }
+    
+    @MainActor
+    func useIndividualFieldLabel(activeIndex: ActiveIndex) -> Bool {
+        // Do not use labels on the fields of a padding-type input
+        self
+            .getActiveValue(activeIndex: activeIndex)
+            .getPadding.isDefined
+    }
 }
 
 extension InputLayerNodeRowData {

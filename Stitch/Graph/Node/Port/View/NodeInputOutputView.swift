@@ -13,7 +13,10 @@ import StitchSchemaKit
  
  Layer node input of Size = one node row observer becomes 1 single field
  */
-struct NodeInputView: View {
+struct NodeInputView<Content>: View where Content: View {
+//    typealias FieldsViewBuilder = (FieldGroupTypeData<InputFieldViewModel>) -> FieldsView
+//    typealias FieldsListViewBuilder = (FieldsViewBuilder) -> FieldsListView
+    typealias ValueEntryViewBuilder = (InputFieldViewModel, Bool) -> InputValueEntry
     
     @Environment(\.appTheme) var theme
     
@@ -27,7 +30,6 @@ struct NodeInputView: View {
     let rowViewModel: InputNodeRowObserver.RowViewModelType
     let fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>]
     let canvasItem: CanvasItemViewModel?
-    let layerInputObserver: LayerInputObserver?
     
     let forPropertySidebar: Bool
     let propertyIsSelected: Bool
@@ -36,7 +38,12 @@ struct NodeInputView: View {
 
     var label: String
     var forFlyout: Bool = false
-
+    let fieldsRowLabel: String?
+    let useIndividualFieldLabel: Bool
+    @ViewBuilder var content: (LabelDisplayView, @escaping ValueEntryViewBuilder) -> Content
+//    @ViewBuilder var fieldsViewBuilder: FieldsViewBuilder
+//    @ViewBuilder var fieldsViewBuilder: (FieldGroupTypeData<InputFieldViewModel>) -> NodeFieldsView<InputFieldViewModel, InputValueEntry>
+    
     @ViewBuilder @MainActor
     func valueEntryView(portViewModel: InputFieldViewModel,
                         isMultiField: Bool) -> InputValueEntry {
@@ -45,7 +52,6 @@ struct NodeInputView: View {
                         viewModel: portViewModel,
                         node: node,
                         rowViewModel: rowViewModel,
-                        layerInputObserver: layerInputObserver,
                         canvasItem: canvasItem,
                         rowObserver: rowObserver,
                         isCanvasItemSelected: isCanvasItemSelected,
@@ -54,101 +60,53 @@ struct NodeInputView: View {
                         propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                         isFieldInMultifieldInput: isMultiField,
                         isForFlyout: forFlyout,
-                        isSelectedInspectorRow: propertyIsSelected)
+                        isSelectedInspectorRow: propertyIsSelected,
+                        fieldsRowLabel: fieldsRowLabel,
+                        useIndividualFieldLabel: useIndividualFieldLabel)
     }
     
-    var layerInput: LayerInputPort? {
-        layerInputObserver?.port
-    }
+//    var layerInput: LayerInputPort? {
+//        self.rowViewModel.layerInput
+//    }
+//    
+//    var isShadowLayerInputRow: Bool {
+//        layerInput == SHADOW_FLYOUT_LAYER_INPUT_PROXY
+//    }
     
-    var isShadowLayerInputRow: Bool {
-        layerInput == SHADOW_FLYOUT_LAYER_INPUT_PROXY
-    }
-    
-    var is3DTransform: Bool {
-        layerInput == .transform3D
-    }
+//    var is3DTransform: Bool {
+//        layerInput == .transform3D
+//    }
     
     /// Skip the label if we have a 3D transform or 3D size input but are not in the flyout.
-    var willShowLabel: Bool {
-        if forFlyout {
-            return true
-        }
-        return self.layerInputObserver?.port.showsLabelForInspector ?? true
-    }
+//    var willShowLabel: Bool {
+//        if forFlyout {
+//            return true
+//        }
+//        return layerInput?.showsLabelForInspector ?? true
+//    }
     
     var body: some View {
-        HStack(alignment: hStackAlignment) {
-            
-            // TODO: is there a better way to build this UI, to avoid the perf-intensive `if/else` branch?
-            // We want to show just a single text that, when tapped, opens the flyout; we do not want to show any fields
-            if isShadowLayerInputRow, forPropertySidebar, !forFlyout {
-                ShadowInputInspectorRow(nodeId: node.id,
-                                        propertyIsSelected: propertyIsSelected)
-            }  else {
-                if willShowLabel {
-                    labelView
-                }
-                
-                if forPropertySidebar {
-                    Spacer()
-                }
-                
-                // If the input has multiple rows of fields (e.g. 3D Transform)
-                // then vertically stack those.
-                if is3DTransform {
-                    VStack {
-                        fieldsListView(fieldValueTypes)
-                    }
-                }
-                
-                /*
-                 When packed, `margin` has one row observer with four field models (which can be handled by NodeFieldsView)
-                 When unpacked, `margin` has four row observers with one field model each.
-                 
-                 TODO: we need an API that abstracts away "packed vs unpacked" layer input's differing row observer and field model counts; "packed vs unpacked" is just for canvas items and should not affect layer inspector display
-                 */
-                else if forPropertySidebar,
-                   layerInput == .layerMargin || layerInput == .padding,
-                   layerInputObserver?.mode == .unpacked,
-                   let f0 = fieldValueTypes[safeIndex: 0],
-                   let f1 = fieldValueTypes[safeIndex: 1],
-                   let f2 = fieldValueTypes[safeIndex: 2],
-                   let f3 = fieldValueTypes[safeIndex: 3] {
-                    
-                    VStack {
-                        HStack {
-                            // Individual fields for PortValue.padding can never be blocked; only the input as a whole can be blocked
-                            fieldsListView([f0])
-                            fieldsListView([f1])
-                        }
-                        HStack {
-                            fieldsListView([f2])
-                            fieldsListView([f3])
-                        }
-                    }
-                }
-                
-                // Vast majority of inputs, however, have a single row of fields.
-                // TODO: this part of the UI is not clear; we allow the single row of fields to float up into the enclosing HStack, yet flyouts always vertically stack their fields
-                else {
-                    fieldsListView(fieldValueTypes)
-                }
-            }
-        } // HStack
+        content(self.labelView, valueEntryView)
+//        { fieldsViewBuilder in
+//            ForEach(fieldValueTypes) { (fieldGroupViewModel: FieldGroupTypeData<InputFieldViewModel>) in
+//                fieldsViewBuilder(fieldGroupViewModel)
+//            }
+//        }
     }
     
-    func fieldsListView(_ fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>]) -> FieldsListView<InputNodeRowViewModel, InputValueEntry> {
-        
-        FieldsListView<InputNodeRowViewModel, InputValueEntry>(
-            graph: self.graph,
-            fieldValueTypes: fieldValueTypes,
-            nodeId: self.node.id,
-            forPropertySidebar: self.forPropertySidebar,
-            forFlyout: self.forFlyout,
-            layerInputObserver: self.layerInputObserver,
-            valueEntryView: self.valueEntryView)
-    }
+//    var fieldsBuilder: FieldsViewBuilder { fieldGroupData in
+//        
+//    }
+    
+//    func fieldsListView(_ fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>]) -> FieldsListView<InputNodeRowViewModel, InputValueEntry> {
+//        FieldsListView<InputNodeRowViewModel, InputValueEntry>(
+//            graph: self.graph,
+//            fieldValueTypes: fieldValueTypes,
+//            nodeId: self.node.id,
+//            forPropertySidebar: self.forPropertySidebar,
+//            forFlyout: self.forFlyout,
+//            valueEntryView: self.valueEntryView)
+//    }
     
     @ViewBuilder @MainActor
     var labelView: LabelDisplayView {
@@ -158,17 +116,17 @@ struct NodeInputView: View {
                          isSelectedInspectorRow: propertyIsSelected)
     }
     
-    // Needed for alignment of e.g. Packed vs Unpacked layer inputs for Margin, Padding
-    var hStackAlignment: VerticalAlignment {
-        
-        // Several ways an input can be "multifield":
-        // 1. patch node input or packed layer node input: one fieldValue type with multiple field observers
-        // 2. unpacked layer node input: multuple field value types with one field observer each
-        // 3. patch node input for shape commands (IGNORED FOR NOW?)
-        let isMultifield = self.layerInputObserver?.usesMultifields ?? ((fieldValueTypes.first?.fieldObservers.count ?? 0) > 1)
-        
-        return (forPropertySidebar && isMultifield) ? .firstTextBaseline : .center
-    }
+//    // Needed for alignment of e.g. Packed vs Unpacked layer inputs for Margin, Padding
+//    var hStackAlignment: VerticalAlignment {
+//        
+//        // Several ways an input can be "multifield":
+//        // 1. patch node input or packed layer node input: one fieldValue type with multiple field observers
+//        // 2. unpacked layer node input: multuple field value types with one field observer each
+//        // 3. patch node input for shape commands (IGNORED FOR NOW?)
+//        let isMultifield = self.layerInputObserver?.usesMultifields ?? ((fieldValueTypes.first?.fieldObservers.count ?? 0) > 1)
+//        
+//        return (forPropertySidebar && isMultifield) ? .firstTextBaseline : .center
+//    }
 }
 
 struct ShadowInputInspectorRow: View {
@@ -267,28 +225,30 @@ struct NodeOutputView: View {
     }
     
     var body: some View {
-        HStack(alignment: forPropertySidebar ? .firstTextBaseline: .center) {
-            // Property sidebar always shows labels on left side, never right
-            if forPropertySidebar {
-                labelView
-                Spacer()
-            }
-            
-            if showOutputFields {
-                FieldsListView<OutputNodeRowViewModel, OutputValueEntry>(
-                    graph: graph,
-                    fieldValueTypes: rowViewModel.fieldValueTypes,
-                    nodeId: nodeId,
-                    forPropertySidebar: forPropertySidebar,
-                    forFlyout: false, // Outputs do not use flyouts
-                    layerInputObserver: nil,
-                    valueEntryView: valueEntryView)
-            }
-            
-            if !forPropertySidebar {
-                labelView
-            }
-        } // HStack
+        // TODO: come back
+        EmptyView()
+//        HStack(alignment: forPropertySidebar ? .firstTextBaseline: .center) {
+//            // Property sidebar always shows labels on left side, never right
+//            if forPropertySidebar {
+//                labelView
+//                Spacer()
+//            }
+//            
+//            if showOutputFields {
+//                FieldsListView<OutputNodeRowViewModel, OutputValueEntry>(
+//                    graph: graph,
+//                    fieldValueTypes: rowViewModel.fieldValueTypes,
+//                    nodeId: nodeId,
+//                    forPropertySidebar: forPropertySidebar,
+//                    forFlyout: false, // Outputs do not use flyouts
+//                    layerInputObserver: nil,
+//                    valueEntryView: valueEntryView)
+//            }
+//            
+//            if !forPropertySidebar {
+//                labelView
+//            }
+//        } // HStack
     }
     
     @ViewBuilder @MainActor
@@ -300,64 +260,63 @@ struct NodeOutputView: View {
     }
 }
 
-struct FieldsListView<PortType, ValueEntryView>: View where PortType: NodeRowViewModel, ValueEntryView: View {
-
-    @Bindable var graph: GraphState
-
-    var fieldValueTypes: [FieldGroupTypeData<PortType.FieldType>]
-    let nodeId: NodeId
-    let forPropertySidebar: Bool
-    let forFlyout: Bool
-    let layerInputObserver: LayerInputObserver?
-    
-    // When displaying an individual field, we often want to know whether it is one of many, so as to not display adjustment bar button, certain lavels etc.
-    
-    // Actually, this is really determined by the layer input observer's type.
-    var blockedFields: LayerPortTypeSet? {
-        layerInputObserver?.blockedFields
-    }
-    
-    var layerInputUsesMultifields: Bool {
-        layerInputObserver?.usesMultifields ?? false
-    }
-    
-    @ViewBuilder var valueEntryView: (PortType.FieldType, Bool) -> ValueEntryView
-
-    var body: some View {
-     
-//        let multipleFieldGroups = fieldValueTypes.count > 1
-        let isMultifield = layerInputUsesMultifields || fieldValueTypes.count > 1
-        
-        ForEach(fieldValueTypes) { (fieldGroupViewModel: FieldGroupTypeData<PortType.FieldType>) in
-            
-            let multipleFieldsPerGroup = fieldGroupViewModel.fieldObservers.count > 1
-            
-            // Note: "multifield" is more complicated for layer inputs, since `fieldObservers.count` is now inaccurate for an unpacked port
-            let _isMultiField = forPropertySidebar ?  (isMultifield || multipleFieldsPerGroup) : fieldGroupViewModel.fieldObservers.count > 1
-                        
-            if !self.isAllFieldsBlockedOut(fieldGroupViewModel: fieldGroupViewModel) {
-                NodeFieldsView(graph: graph,
-                               fieldGroupViewModel: fieldGroupViewModel,
-                               nodeId: nodeId,
-                               isMultiField: _isMultiField,
-                               forPropertySidebar: forPropertySidebar,
-                               forFlyout: forFlyout,
-                               layerInputObserver: layerInputObserver,
-                               blockedFields: blockedFields,
-                               valueEntryView: valueEntryView)
-            }
-        }
-    }
-    
-    func isAllFieldsBlockedOut(fieldGroupViewModel: FieldGroupTypeData<PortType.FieldType>) -> Bool {
-        if let blockedFields = blockedFields {
-            return fieldGroupViewModel.fieldObservers.allSatisfy {
-                $0.isBlocked(blockedFields)
-            }
-        }
-        return false
-    }
-}
+//struct FieldsListView<PortType, ValueEntryView>: View where PortType: NodeRowViewModel, ValueEntryView: View {
+//
+//    @Bindable var graph: GraphState
+//
+//    var fieldValueTypes: [FieldGroupTypeData<PortType.FieldType>]
+//    let nodeId: NodeId
+//    let forPropertySidebar: Bool
+//    let forFlyout: Bool
+//    
+//    // When displaying an individual field, we often want to know whether it is one of many, so as to not display adjustment bar button, certain lavels etc.
+//    
+//    // Actually, this is really determined by the layer input observer's type.
+//    var blockedFields: LayerPortTypeSet? {
+//        layerInputObserver?.blockedFields
+//    }
+//    
+//    var layerInputUsesMultifields: Bool {
+//        layerInputObserver?.usesMultifields ?? false
+//    }
+//    
+//    @ViewBuilder var valueEntryView: (PortType.FieldType, Bool) -> ValueEntryView
+//
+//    var body: some View {
+//     
+////        let multipleFieldGroups = fieldValueTypes.count > 1
+//        let isMultifield = layerInputUsesMultifields || fieldValueTypes.count > 1
+//        
+//        ForEach(fieldValueTypes) { (fieldGroupViewModel: FieldGroupTypeData<PortType.FieldType>) in
+//            
+//            let multipleFieldsPerGroup = fieldGroupViewModel.fieldObservers.count > 1
+//            
+//            // Note: "multifield" is more complicated for layer inputs, since `fieldObservers.count` is now inaccurate for an unpacked port
+//            let _isMultiField = forPropertySidebar ?  (isMultifield || multipleFieldsPerGroup) : fieldGroupViewModel.fieldObservers.count > 1
+//                        
+//            if !self.isAllFieldsBlockedOut(fieldGroupViewModel: fieldGroupViewModel) {
+//                NodeFieldsView(graph: graph,
+//                               fieldGroupViewModel: fieldGroupViewModel,
+//                               nodeId: nodeId,
+//                               isMultiField: _isMultiField,
+//                               forPropertySidebar: forPropertySidebar,
+//                               forFlyout: forFlyout,
+//                               layerInputObserver: layerInputObserver,
+//                               blockedFields: blockedFields,
+//                               valueEntryView: valueEntryView)
+//            }
+//        }
+//    }
+//    
+//    func isAllFieldsBlockedOut(fieldGroupViewModel: FieldGroupTypeData<PortType.FieldType>) -> Bool {
+//        if let blockedFields = blockedFields {
+//            return fieldGroupViewModel.fieldObservers.allSatisfy {
+//                $0.isBlocked(blockedFields)
+//            }
+//        }
+//        return false
+//    }
+//}
 
 struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
     @Bindable var graph: GraphState

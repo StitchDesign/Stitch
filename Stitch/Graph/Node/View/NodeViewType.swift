@@ -122,10 +122,9 @@ struct DefaultNodeInputView: View {
                            canvas: canvas,
                            rowViewModels: canvas.inputViewModels,
                            nodeIO: .input) { rowViewModel in
-            if let rowObserver = node.getInputRowObserverForUI(for: rowViewModel.id.portType, graph),
-               let nodeForRowObserver = graph.getNodeViewModel(rowObserver.id.nodeId) {
-                let layerInputObserver: LayerInputObserver? = rowObserver.id.layerInput
-                    .flatMap { node.layerNode?.getLayerInputObserver($0.layerInput) }
+            if let rowObserver = node.getInputRowObserverForUI(for: rowViewModel.id.portType, graph) {
+//                let layerInputObserver: LayerInputObserver? = rowObserver.id.layerInput
+//                    .flatMap { node.layerNode?.getLayerInputObserver($0.layerInput) }
                 
                 //            NodeLayoutView(observer: rowViewModel) {
                 HStack {
@@ -141,19 +140,32 @@ struct DefaultNodeInputView: View {
                                   rowObserver: rowObserver,
                                   rowViewModel: rowViewModel,
                                   fieldValueTypes: rowViewModel.fieldValueTypes,
-                                  // Pass down the layerInputObserver if we have a 'layer input on the canvas'
                                   canvasItem: canvas,
-                                  layerInputObserver: layerInputObserver,
                                   forPropertySidebar: false, // Always false, since not an inspector-row
                                   propertyIsSelected: false,
                                   propertyIsAlreadyOnGraph: true, // Irrelevant?
                                   isCanvasItemSelected: isNodeSelected,
                                   label: rowObserver
                         // Note: Label is based on row observer's node, which in the case of a group node will be for an underlying splitter patch node, not the group node itself
-                        .label(node: nodeForRowObserver, // node,
+                        .label(node: node, // node,
                                currentTraversalLevel: document.groupNodeFocused?.groupNodeId,
-                               graph: graph)
-                    )
+                               graph: graph),
+                                  fieldsRowLabel: nil,
+                                  useIndividualFieldLabel: true
+                    ) { labelView, valueEntryView in
+                        let isMultiField = (rowViewModel.fieldValueTypes.first?.fieldObservers.count ?? 0) > 1
+                        
+                        HStack(alignment: isMultiField ? .firstTextBaseline : .center) {
+                            labelView
+                            
+                            ForEach(rowViewModel.fieldValueTypes) { fieldGroupViewModel in
+                                NodePortDefaultFieldsView(fieldGroupViewModel: fieldGroupViewModel,
+                                                          isMultiField: isMultiField,
+                                                          blockedFields: [],
+                                                          valueEntryView: valueEntryView)
+                            }
+                        }
+                    }
                 }
             }
         }
