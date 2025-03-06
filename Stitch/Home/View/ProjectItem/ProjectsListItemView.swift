@@ -125,9 +125,7 @@ struct ProjectsListItemView: View {
                                          previewWindowBackgroundColor: nil)
                     .modifier(ProjectsListItemErrorOverlayViewModifer())
             case .loaded(let document, let thumbnail):
-#if DEV_DEBUG
-                logInView("LOADED: \(document.name) \(document.id)")
-#endif
+                // logInView("LOADED: \(document.name) \(document.id)")
                 ProjectsListItemIconView(
                     projectThumbnail: thumbnail,
                     previewWindowBackgroundColor: document.previewWindowBackgroundColor,

@@ -28,16 +28,24 @@ struct SelectedGraphItemsCut: StitchDocumentEvent {
         }
 
         // Copy selected graph data to clipboard
-        graph.copyToClipboard(selectedNodeIds: graph.selectedNodeIds.compactMap(\.nodeCase).toSet,
+        graph.copyToClipboard(selectedNodeIds: graph.selectedPatchAndLayerNodes,
                               groupNodeFocused: state.groupNodeFocused)
 
         // Delete selected nodes
-        graph.selectedNodeIds.forEach {
+        graph.selectedCanvasItems.forEach {
             graph.deleteCanvasItem($0)
         }
 
         graph.updateGraphData()
         state.encodeProjectInBackground()
+    }
+}
+
+extension GraphState {
+    @MainActor
+    var selectedPatchAndLayerNodes: NodeIdSet {
+        self.selectedCanvasItems.compactMap(\.nodeCase).toSet
+            .union(self.selectedSidebarLayers)
     }
 }
 
@@ -53,8 +61,8 @@ struct SelectedGraphItemsCopied: StitchDocumentEvent {
         }
         
         let graph = state.visibleGraph
-                
-        graph.copyToClipboard(selectedNodeIds: graph.selectedNodeIds.compactMap(\.nodeCase).toSet,
+        
+        graph.copyToClipboard(selectedNodeIds: graph.selectedPatchAndLayerNodes,
                               groupNodeFocused: state.groupNodeFocused)
     }
 }

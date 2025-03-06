@@ -93,8 +93,8 @@ class GroupNodeTests: XCTestCase {
         
         // Make sure only one node is selected
         // TODO: fix after changing "selecting group node = selecting its splitters as well"
-        XCTAssertEqual(graphState.selectedNodeIds.count, 1)
-        XCTAssertEqual(graphState.selectedNodeIds.first!, canvasItem.id)
+        XCTAssertEqual(graphState.selectedCanvasItems.count, 1)
+        XCTAssertEqual(graphState.selectedCanvasItems.first!, canvasItem.id)
         
         await document.duplicateShortcutKeyPressed()
         
