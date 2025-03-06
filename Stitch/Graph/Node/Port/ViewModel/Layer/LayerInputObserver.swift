@@ -381,7 +381,7 @@ extension LayerInputObserver {
     @MainActor
     func useIndividualFieldLabel(activeIndex: ActiveIndex) -> Bool {
         // Do not use labels on the fields of a padding-type input
-        self
+        !self
             .getActiveValue(activeIndex: activeIndex)
             .getPadding.isDefined
     }
