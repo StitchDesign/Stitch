@@ -155,7 +155,7 @@ extension StitchDocumentViewModel {
         } else {
             let copiedComponentResult = self.visibleGraph.createCopiedComponent(
                 groupNodeFocused: self.graphUI.groupNodeFocused,
-                selectedNodeIds: self.visibleGraph.selectedNodeIds.compactMap(\.nodeCase).toSet)
+                selectedNodeIds: self.visibleGraph.selectedCanvasItems.compactMap(\.nodeCase).toSet)
                 
             await self.visibleGraph
                 .insertNewComponent(copiedComponentResult,
@@ -210,9 +210,10 @@ extension GraphState {
             from: newComponent,
             focusedGroupNode: document.groupNodeFocused?.groupNodeId
         )
-        let graph = self.addComponentToGraph(newComponent: newComponent,
-                                             newNodes: newNodes,
-                                             nodeIdMap: nodeIdMap)
+        
+        let graph: GraphEntity = self.addComponentToGraph(newComponent: newComponent,
+                                                          newNodes: newNodes,
+                                                          nodeIdMap: nodeIdMap)
         
         // Create master component if any imported
         if let decodedFiles = GraphDecodedFiles(importedFilesDir: copiedFiles) {
@@ -309,26 +310,39 @@ extension GraphState {
         
         // Add new nodes
         graph.nodes += newNodes
-                
-        // TODO: how to proper duplication insertion during an option+drag of a sidebar layer
-        guard !isOptionDragInSidebar else {
+        
+        // TODO: how to handle the duplication-insertion of sidebar layers' during an option+drag gesture?
+        // Why can't we just use the same logic as regular copy-paste/duplication, i.e. `insertAfterID` ?
+        if isOptionDragInSidebar {
+            log("GraphState: addComponentToGraph: had option drag in sidebar, will add duplicated layers to front")
             graph.orderedSidebarLayers = newComponent.orderedSidebarLayers + graph.orderedSidebarLayers
             return graph
         }
         
-        // We assume the ordered sidebar layers are in same order,
-        // in which case the copied-component's ordered sidebar layers are  the exact layers that were copied,
-        if let firstCopiedLayer = newComponent.graph.orderedSidebarLayers.first,
-           let originalLayerId: NodeId = nodeIdMap.first(where: { $0.value == firstCopiedLayer.id })?.key,
-           let originalLayerIndex: Int = graph.orderedSidebarLayers.getSidebarLayerDataIndex(originalLayerId) {
+        guard let firstCopiedLayer = newComponent.graph.orderedSidebarLayers.first else {
+            log("GraphState: addComponentToGraph: did not copy or duplicate any sidebar layers")
+            return graph
+        }
+        
+        // Are we pasting into the same project where the copied sidebar layers came from?
+        // If so, then we should insert the copied sidebar layers after that original sidebar layer.
+        if let originalLayerId: NodeId = nodeIdMap.first(where: { $0.value == firstCopiedLayer.id })?.key,
+           graph.orderedSidebarLayers.getSidebarLayerDataIndex(originalLayerId).isDefined {
             
+            // Note: is this really correct for cases where we have a nested layer group in the sidebar? ... Should be, because nested?
             graph.orderedSidebarLayers = insertAfterID(
                 data: graph.orderedSidebarLayers,
                 newDataList: newComponent.graph.orderedSidebarLayers,
                 afterID: originalLayerId)
+            
+            return graph
         }
         
-        return graph
+        // Otherwise, we're pasting sidebar layers into a completely different project and so will just add to front.
+        else {
+            graph.orderedSidebarLayers = newComponent.orderedSidebarLayers + graph.orderedSidebarLayers
+            return graph
+        }
     }
     
     @MainActor
@@ -386,6 +400,7 @@ extension GraphState {
                     }
                 }
         }
+                
     }
     
     // Duplicate ONLY the selected comment boxes

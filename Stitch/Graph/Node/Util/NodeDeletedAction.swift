@@ -29,7 +29,7 @@ struct DeleteShortcutKeyPressed: StitchDocumentEvent {
 
             // delete nodes
             graph.selectedGraphNodesDeleted(
-                selectedNodes: graph.selectedNodeIds)
+                selectedNodes: graph.selectedCanvasItems)
         }
                 
         state.encodeProjectInBackground()
@@ -51,7 +51,7 @@ struct SelectedGraphNodesDeleted: StitchDocumentEvent {
         }
 
         graph.selectedGraphNodesDeleted(
-            selectedNodes: graph.selectedNodeIds)
+            selectedNodes: graph.selectedCanvasItems)
 
         state.encodeProjectInBackground()
     }

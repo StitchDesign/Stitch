@@ -20,7 +20,7 @@ extension GraphState {
     @MainActor
     func commentBoxCreated(nodeId: CanvasItemId,
                            groupNodeFocused: NodeId?) {
-        var selectedNodes = self.selectedNodeIds
+        var selectedNodes = self.selectedCanvasItems
 
         // Alternatively?: always add this id to selectedNodes in GraphUIState, so that we start it selected.
         if selectedNodes.isEmpty {
