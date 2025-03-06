@@ -14,8 +14,6 @@ import StitchSchemaKit
  Layer node input of Size = one node row observer becomes 1 single field
  */
 struct NodeInputView<Content>: View where Content: View {
-//    typealias FieldsViewBuilder = (FieldGroupTypeData<InputFieldViewModel>) -> FieldsView
-//    typealias FieldsListViewBuilder = (FieldsViewBuilder) -> FieldsListView
     typealias ValueEntryViewBuilder = (InputFieldViewModel, Bool) -> InputValueEntry
     
     @Environment(\.appTheme) var theme
@@ -41,8 +39,6 @@ struct NodeInputView<Content>: View where Content: View {
     let fieldsRowLabel: String?
     let useIndividualFieldLabel: Bool
     @ViewBuilder var content: (LabelDisplayView, @escaping ValueEntryViewBuilder) -> Content
-//    @ViewBuilder var fieldsViewBuilder: FieldsViewBuilder
-//    @ViewBuilder var fieldsViewBuilder: (FieldGroupTypeData<InputFieldViewModel>) -> NodeFieldsView<InputFieldViewModel, InputValueEntry>
     
     @ViewBuilder @MainActor
     func valueEntryView(portViewModel: InputFieldViewModel,
@@ -65,48 +61,9 @@ struct NodeInputView<Content>: View where Content: View {
                         useIndividualFieldLabel: useIndividualFieldLabel)
     }
     
-//    var layerInput: LayerInputPort? {
-//        self.rowViewModel.layerInput
-//    }
-//    
-//    var isShadowLayerInputRow: Bool {
-//        layerInput == SHADOW_FLYOUT_LAYER_INPUT_PROXY
-//    }
-    
-//    var is3DTransform: Bool {
-//        layerInput == .transform3D
-//    }
-    
-    /// Skip the label if we have a 3D transform or 3D size input but are not in the flyout.
-//    var willShowLabel: Bool {
-//        if forFlyout {
-//            return true
-//        }
-//        return layerInput?.showsLabelForInspector ?? true
-//    }
-    
     var body: some View {
         content(self.labelView, valueEntryView)
-//        { fieldsViewBuilder in
-//            ForEach(fieldValueTypes) { (fieldGroupViewModel: FieldGroupTypeData<InputFieldViewModel>) in
-//                fieldsViewBuilder(fieldGroupViewModel)
-//            }
-//        }
     }
-    
-//    var fieldsBuilder: FieldsViewBuilder { fieldGroupData in
-//        
-//    }
-    
-//    func fieldsListView(_ fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>]) -> FieldsListView<InputNodeRowViewModel, InputValueEntry> {
-//        FieldsListView<InputNodeRowViewModel, InputValueEntry>(
-//            graph: self.graph,
-//            fieldValueTypes: fieldValueTypes,
-//            nodeId: self.node.id,
-//            forPropertySidebar: self.forPropertySidebar,
-//            forFlyout: self.forFlyout,
-//            valueEntryView: self.valueEntryView)
-//    }
     
     @ViewBuilder @MainActor
     var labelView: LabelDisplayView {
@@ -115,18 +72,6 @@ struct NodeInputView<Content>: View where Content: View {
                          fontColor: STITCH_FONT_GRAY_COLOR,
                          isSelectedInspectorRow: propertyIsSelected)
     }
-    
-//    // Needed for alignment of e.g. Packed vs Unpacked layer inputs for Margin, Padding
-//    var hStackAlignment: VerticalAlignment {
-//        
-//        // Several ways an input can be "multifield":
-//        // 1. patch node input or packed layer node input: one fieldValue type with multiple field observers
-//        // 2. unpacked layer node input: multuple field value types with one field observer each
-//        // 3. patch node input for shape commands (IGNORED FOR NOW?)
-//        let isMultifield = self.layerInputObserver?.usesMultifields ?? ((fieldValueTypes.first?.fieldObservers.count ?? 0) > 1)
-//        
-//        return (forPropertySidebar && isMultifield) ? .firstTextBaseline : .center
-//    }
 }
 
 struct ShadowInputInspectorRow: View {
