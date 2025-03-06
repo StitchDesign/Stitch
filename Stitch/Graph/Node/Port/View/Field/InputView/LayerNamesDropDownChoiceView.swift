@@ -96,9 +96,18 @@ extension GraphState {
                     return nil
                 }
                 
-                return self.visibleNodesViewModel.layerDropdownChoiceCache.get(layerId)
+                // Note: When a layer node is added via the node menu, we don't call the `syncNodes(nodesDict: NodesViewModelDict)` function that updates the layer-choices cache. Should we call that function more often?
+                // Note: should be fine to populate the cache here? Worst case we have several different layer-dropdowns that run in parallel when rendering?
+                if let cachedChoice = self.visibleNodesViewModel.layerDropdownChoiceCache.get(layerId) {
+                    return cachedChoice
+                } else if let newChoice = self.getNodeViewModel(layerId)?.asLayerDropdownChoice {
+                    self.visibleNodesViewModel.layerDropdownChoiceCache[layerId] = newChoice
+                    return newChoice
+                } else {
+                    return nil
+                }
             }
-        
+
         return initialChoices + layers
     }
     
