@@ -60,7 +60,7 @@ extension LayerInputPort {
             case .textField:
                 return .size(LayerSize.DEFAULT_TEXT_FIELD_SIZE)
             case .text:
-                return .size(LayerSize.DEFAULT_TEXT_LABEL_SIZE)
+                return .size(.init(width: .auto, height: .auto))
             case .group:
                 return .size(.init(width: .hug, height: .hug))
             default:
