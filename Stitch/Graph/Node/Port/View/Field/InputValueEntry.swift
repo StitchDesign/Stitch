@@ -116,6 +116,11 @@ struct InputValueEntry: View {
             .lineLimit(1)
     }
     
+    var showIndividualFieldLabel: Bool {
+        // always shows if flyout
+        (self.isFieldInMultifieldInput && self.useIndividualFieldLabel) || isForFlyout
+    }
+    
     var body: some View {
         HStack(spacing: NODE_COMMON_SPACING) {
             
@@ -128,7 +133,7 @@ struct InputValueEntry: View {
                                  isSelectedInspectorRow: isSelectedInspectorRow)
             }
             
-            if self.isFieldInMultifieldInput && self.useIndividualFieldLabel {
+            if showIndividualFieldLabel {
                 individualFieldLabelDisplay
             }
              
