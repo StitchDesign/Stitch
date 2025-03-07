@@ -30,6 +30,10 @@ struct LayerInspectorInputPortView: View {
         return layerInput.showsLabelForInspector
     }
     
+    var layerInputData: InputLayerNodeRowData {
+        layerInputObserver._packedData
+    }
+    
     var body: some View {
         
         let observerMode = layerInputObserver.observerMode
@@ -60,43 +64,18 @@ struct LayerInspectorInputPortView: View {
             graph: graph,
             graphUI: graphUI,
             canvasItemId: canvasItemId) { propertyRowIsSelected in
-                NodeInputView(graph: graph,
-                              graphUI: graphUI,
-                              node: node,
-                              hasIncomingEdge: false, // always false
-                              
-                              // we can use packed data since this is purely visual
-                              rowObserver: layerInputObserver._packedData.rowObserver,
-                              rowViewModel: layerInputObserver._packedData.inspectorRowViewModel,
-                              // Always use the packed
-                              fieldValueTypes: self.fieldValueTypes,
-                              canvasItem: nil,
-                              forPropertySidebar: true,
-                              propertyIsSelected: propertyRowIsSelected,
-                              propertyIsAlreadyOnGraph: canvasItemId.isDefined,
-                              isCanvasItemSelected: false,
-                              // Inspector Row always uses the overall input label, never an individual field label
-                              label: layerInputObserver
-                    .overallPortLabel(usesShortLabel: true,
-                                      currentTraversalLevel: graphUI.groupNodeFocused?.groupNodeId,
-                                      node: node,
-                                      graph: graph),
-                              fieldsRowLabel: layerInputObserver.fieldsRowLabel,
-                              useIndividualFieldLabel: layerInputObserver.useIndividualFieldLabel(activeIndex: graphUI.activeIndex)
-                ) { labelView, valueEntryView in
                     HStack {
                         if isShadowLayerInputRow {
                             ShadowInputInspectorRow(nodeId: node.id,
                                                     propertyIsSelected: propertyRowIsSelected)
                         } else {
-                            LayerNodeInputView(layerInputObserver: layerInputObserver,
-                                               forFlyout: false,
-                                               fieldValueTypes: self.fieldValueTypes,
-                                               labelView: labelView,
-                                               valueEntryView: valueEntryView)
+                            LayerNodeInputView(document: graphUI,
+                                               graph: graph,
+                                               node: node,
+                                               layerInputObserver: layerInputObserver,
+                                               forFlyout: false)
                         }
                     }
-                }
             }
         
         // NOTE: this fires unexpectedly, so we rely on canvas item deletion and `layer input field added to canvas` to handle changes in pack vs unpacked mode.
@@ -107,12 +86,28 @@ struct LayerInspectorInputPortView: View {
 }
 
 struct LayerNodeInputView: View {
+    @Bindable var document: StitchDocumentViewModel
+    @Bindable var graph: GraphState
+    @Bindable var node: NodeViewModel
     let layerInputObserver: LayerInputObserver
     let forFlyout: Bool
-    let fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>]
-    let labelView: LabelDisplayView
-    @ViewBuilder var valueEntryView: NodeInputView.ValueEntryViewBuilder
-    //    let fieldsListViewBuilder: NodeInputView.FieldsListViewBuilder
+    
+    var label: String {
+        layerInputObserver
+            .overallPortLabel(usesShortLabel: true,
+                              currentTraversalLevel: document.groupNodeFocused?.groupNodeId,
+                              node: node,
+                              graph: graph)
+    }
+    
+    var layerInputType: LayerInputType {
+        LayerInputType.init(layerInput: layerInputObserver.port,
+                            portType: .packed)
+    }
+    
+    var layerInspectorRowId: LayerInspectorRowId {
+        .layerInput(layerInputType)
+    }
     
     var layerInput: LayerInputPort {
         self.layerInputObserver.port
@@ -133,10 +128,46 @@ struct LayerNodeInputView: View {
         layerInput == .transform3D
     }
     
+    var layerInputData: InputLayerNodeRowData {
+        layerInputObserver._packedData
+    }
+    
+    var fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>] {
+        layerInputData.inspectorRowViewModel.fieldValueTypes
+    }
+    
+    var propertyRowIsSelected: Bool {
+        graph.propertySidebar.selectedProperty == layerInspectorRowId
+    }
+    
+    @ViewBuilder @MainActor
+    func valueEntryView(portViewModel: InputFieldViewModel,
+                        isMultiField: Bool) -> InputValueEntry {
+        InputValueEntry(graph: graph,
+                        graphUI: document,
+                        viewModel: portViewModel,
+                        node: node,
+                        rowViewModel: layerInputData.inspectorRowViewModel,
+                        canvasItem: nil,
+                        rowObserver: layerInputData.rowObserver,
+                        isCanvasItemSelected: false,
+                        hasIncomingEdge: false,
+                        forPropertySidebar: true,
+                        propertyIsAlreadyOnGraph: layerInputObserver.getCanvasItemForWholeInput().isDefined,
+                        isFieldInMultifieldInput: isMultiField,
+                        isForFlyout: forFlyout,
+                        isSelectedInspectorRow: propertyRowIsSelected,
+                        fieldsRowLabel: layerInputObserver.fieldsRowLabel,
+                        useIndividualFieldLabel: layerInputObserver.useIndividualFieldLabel(activeIndex: document.activeIndex))
+    }
+    
     var body: some View {
         HStack(alignment: hStackAlignment) {
             if willShowLabel {
-                labelView
+                LabelDisplayView(label: label,
+                                 isLeftAligned: false,
+                                 fontColor: STITCH_FONT_GRAY_COLOR,
+                                 isSelectedInspectorRow: propertyRowIsSelected)
             }
             
             Spacer()
@@ -253,11 +284,11 @@ struct LayerInputFieldsView<ValueEntry>: View where ValueEntry: View {
 //                        if isMultiField && layerInput == .shadowOffset {
                             VStack {
                                 NodePortDefaultFieldsView(fieldGroupViewModel: fieldGroupViewModel,
-                                                          isMultiField: _isMultifield,
-                                                          blockedFields: blockedFields,
-                                                          valueEntryView: valueEntryView)
+                                                          blockedFields: blockedFields) { fieldViewModel in
+                                    self.valueEntryView(fieldViewModel,
+                                                        _isMultifield)
+                                }
                             }
-//                        }
                     }
                     
                     else if displaysNarrowMultifields {
@@ -282,9 +313,10 @@ struct LayerInputFieldsView<ValueEntry>: View where ValueEntry: View {
                     else {
                         HStack {
                             NodePortDefaultFieldsView(fieldGroupViewModel: fieldGroupViewModel,
-                                                      isMultiField: _isMultifield,
-                                                      blockedFields: blockedFields,
-                                                      valueEntryView: valueEntryView)
+                                                      blockedFields: blockedFields)  { fieldViewModel in
+                                self.valueEntryView(fieldViewModel,
+                                                    _isMultifield)
+                            }
                         }
                     }
                 }
@@ -412,7 +444,6 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
                                     layerInspectorRowId: layerInspectorRowId,
                                     coordinate: coordinate,
                                     canvasItemId: canvasItemId,
-                                    isPortSelected: propertyRowIsSelected,
                                     isHovered: isHovered)
             // TODO: `.firstTextBaseline` doesn't align symbols and text in quite the way we want;
             // Really, we want the center of the symbol and the center of the input's label text to align

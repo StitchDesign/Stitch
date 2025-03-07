@@ -190,7 +190,6 @@ struct GenericFlyoutRowView: View {
                                     coordinate: InputCoordinate(portType: .keyPath(layerInputType),
                                                                 nodeId: node.id),
                                     canvasItemId: canvasItemId,
-                                    isPortSelected: propertyRowIsSelected,
                                     isHovered: isHovered,
                                     fieldIndex: fieldIndex)
                         

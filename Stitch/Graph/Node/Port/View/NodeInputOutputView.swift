@@ -8,71 +8,14 @@
 import SwiftUI
 import StitchSchemaKit
 
+typealias ValueEntryViewBuilder = (InputFieldViewModel, Bool) -> InputValueEntry
+
 /*
  Patch node input of Point4D = one node row observer becomes 4 fields
  
  Layer node input of Size = one node row observer becomes 1 single field
  */
-struct NodeInputView<Content>: View where Content: View {
-    typealias ValueEntryViewBuilder = (InputFieldViewModel, Bool) -> InputValueEntry
-    
-    @Environment(\.appTheme) var theme
-    
-    @Bindable var graph: GraphState
-    @Bindable var graphUI: StitchDocumentViewModel
-    
-    let node: NodeViewModel
-    let hasIncomingEdge: Bool
-        
-    let rowObserver: InputNodeRowObserver
-    let rowViewModel: InputNodeRowObserver.RowViewModelType
-    let fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>]
-    let canvasItem: CanvasItemViewModel?
-    
-    let forPropertySidebar: Bool
-    let propertyIsSelected: Bool
-    let propertyIsAlreadyOnGraph: Bool
-    let isCanvasItemSelected: Bool
 
-    var label: String
-    var forFlyout: Bool = false
-    let fieldsRowLabel: String?
-    let useIndividualFieldLabel: Bool
-    @ViewBuilder var content: (LabelDisplayView, @escaping ValueEntryViewBuilder) -> Content
-    
-    @ViewBuilder @MainActor
-    func valueEntryView(portViewModel: InputFieldViewModel,
-                        isMultiField: Bool) -> InputValueEntry {
-        InputValueEntry(graph: graph,
-                        graphUI: graphUI,
-                        viewModel: portViewModel,
-                        node: node,
-                        rowViewModel: rowViewModel,
-                        canvasItem: canvasItem,
-                        rowObserver: rowObserver,
-                        isCanvasItemSelected: isCanvasItemSelected,
-                        hasIncomingEdge: hasIncomingEdge,
-                        forPropertySidebar: forPropertySidebar,
-                        propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
-                        isFieldInMultifieldInput: isMultiField,
-                        isForFlyout: forFlyout,
-                        isSelectedInspectorRow: propertyIsSelected,
-                        fieldsRowLabel: fieldsRowLabel,
-                        useIndividualFieldLabel: useIndividualFieldLabel)
-    }
-    
-    var body: some View {
-        content(self.labelView, valueEntryView)
-    }
-    
-    @ViewBuilder @MainActor
-    var labelView: LabelDisplayView {
-        LabelDisplayView(label: label,
-                         isLeftAligned: false,
-                         fontColor: STITCH_FONT_GRAY_COLOR,
-                         isSelectedInspectorRow: propertyIsSelected)
-    }
-}
 
 struct ShadowInputInspectorRow: View {
     

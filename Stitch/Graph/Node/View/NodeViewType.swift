@@ -116,6 +116,29 @@ struct DefaultNodeInputView: View {
     @Bindable var canvas: CanvasItemViewModel
     let isNodeSelected: Bool
     
+    @ViewBuilder @MainActor
+    func valueEntryView(rowObserver: InputNodeRowObserver,
+                        rowViewModel: InputNodeRowViewModel,
+                        portViewModel: InputFieldViewModel,
+                        isMultiField: Bool) -> InputValueEntry {
+        InputValueEntry(graph: graph,
+                        graphUI: document,
+                        viewModel: portViewModel,
+                        node: node,
+                        rowViewModel: rowViewModel,
+                        canvasItem: canvas,
+                        rowObserver: rowObserver,
+                        isCanvasItemSelected: isNodeSelected,
+                        hasIncomingEdge: rowObserver.upstreamOutputCoordinate.isDefined,
+                        forPropertySidebar: false,
+                        propertyIsAlreadyOnGraph: true,
+                        isFieldInMultifieldInput: isMultiField,
+                        isForFlyout: false,
+                        isSelectedInspectorRow: false,
+                        fieldsRowLabel: nil,
+                        useIndividualFieldLabel: true)
+    }
+    
     var body: some View {
         DefaultNodeRowView(graph: graph,
                            node: node,
@@ -123,46 +146,30 @@ struct DefaultNodeInputView: View {
                            rowViewModels: canvas.inputViewModels,
                            nodeIO: .input) { rowViewModel in
             if let rowObserver = node.getInputRowObserverForUI(for: rowViewModel.id.portType, graph) {
-//                let layerInputObserver: LayerInputObserver? = rowObserver.id.layerInput
-//                    .flatMap { node.layerNode?.getLayerInputObserver($0.layerInput) }
                 
-                //            NodeLayoutView(observer: rowViewModel) {
+                let isMultiField = (rowViewModel.fieldValueTypes.first?.fieldObservers.count ?? 0) > 1
+                
                 HStack {
                     NodeRowPortView(graph: graph,
                                     node: node,
                                     rowObserver: rowObserver,
                                     rowViewModel: rowViewModel)
                     
-                    NodeInputView(graph: graph,
-                                  graphUI: document,
-                                  node: node,
-                                  hasIncomingEdge: rowObserver.upstreamOutputCoordinate.isDefined,
-                                  rowObserver: rowObserver,
-                                  rowViewModel: rowViewModel,
-                                  fieldValueTypes: rowViewModel.fieldValueTypes,
-                                  canvasItem: canvas,
-                                  forPropertySidebar: false, // Always false, since not an inspector-row
-                                  propertyIsSelected: false,
-                                  propertyIsAlreadyOnGraph: true, // Irrelevant?
-                                  isCanvasItemSelected: isNodeSelected,
-                                  label: rowObserver
+                    HStack(alignment: isMultiField ? .firstTextBaseline : .center) {
+                        LabelDisplayView(label: rowObserver
                         // Note: Label is based on row observer's node, which in the case of a group node will be for an underlying splitter patch node, not the group node itself
-                        .label(node: node, // node,
-                               currentTraversalLevel: document.groupNodeFocused?.groupNodeId,
-                               graph: graph),
-                                  fieldsRowLabel: nil,
-                                  useIndividualFieldLabel: true
-                    ) { labelView, valueEntryView in
-                        let isMultiField = (rowViewModel.fieldValueTypes.first?.fieldObservers.count ?? 0) > 1
+                            .label(node: node,
+                                   currentTraversalLevel: document.groupNodeFocused?.groupNodeId,
+                                   graph: graph),
+                                         isLeftAligned: false,
+                                         fontColor: STITCH_FONT_GRAY_COLOR,
+                                         isSelectedInspectorRow: false)
                         
-                        HStack(alignment: isMultiField ? .firstTextBaseline : .center) {
-                            labelView
-                            
-                            ForEach(rowViewModel.fieldValueTypes) { fieldGroupViewModel in
-                                NodePortDefaultFieldsView(fieldGroupViewModel: fieldGroupViewModel,
-                                                          isMultiField: isMultiField,
-                                                          blockedFields: [],
-                                                          valueEntryView: valueEntryView)
+                        ForEach(rowViewModel.fieldValueTypes) { fieldGroupViewModel in
+                            NodePortDefaultFieldsView(fieldGroupViewModel: fieldGroupViewModel,
+                                                      blockedFields: []) { fieldViewModel in
+                                self.valueEntryView(rowObserver: rowObserver,
+                                                    rowViewModel: rowViewModel, portViewModel: fieldViewModel, isMultiField: isMultiField)
                             }
                         }
                     }

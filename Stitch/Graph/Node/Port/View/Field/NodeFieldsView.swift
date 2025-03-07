@@ -113,9 +113,8 @@ struct NodeFieldsView<FieldType, ValueEntryView, FieldsView>: View where FieldTy
 
 struct NodePortDefaultFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldViewModel, ValueEntryView: View {
     let fieldGroupViewModel: FieldGroupTypeData<FieldType>
-    let isMultiField: Bool
     let blockedFields: Set<LayerInputKeyPathType>?
-    @ViewBuilder var valueEntryView: (FieldType, Bool) -> ValueEntryView
+    @ViewBuilder var valueEntryView: (FieldType) -> ValueEntryView
     
     // fieldObservers / field view models remain our bread-and-butter
     var body: some View {
@@ -124,7 +123,7 @@ struct NodePortDefaultFieldsView<FieldType, ValueEntryView>: View where FieldTyp
         ForEach(fieldGroupViewModel.fieldObservers) { (fieldViewModel: FieldType) in
             let isBlocked = self.blockedFields.map { fieldViewModel.isBlocked($0) } ?? false
             if !isBlocked {
-                self.valueEntryView(fieldViewModel, isMultiField)
+                self.valueEntryView(fieldViewModel)
             }
         }
     }
