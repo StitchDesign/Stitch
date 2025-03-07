@@ -210,7 +210,8 @@ struct InputValueView: View {
 
     @MainActor
     var hasHeterogenousValues: Bool {
-        guard let layerInputPort = rowViewModel.id.layerInputPort else {
+        guard rowViewModel.id.graphItemType.isLayerInspector,
+             let layerInputPort = rowViewModel.id.layerInputPort else {
             return false
         }
         
