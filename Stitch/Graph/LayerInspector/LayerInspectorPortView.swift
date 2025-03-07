@@ -273,6 +273,7 @@ struct LayerInputFieldsView<ValueEntry>: View where ValueEntry: View {
             //            // Note: "multifield" is more complicated for layer inputs, since `fieldObservers.count` is now inaccurate for an unpacked port
             let _isMultifield = isMultifield || multipleFieldsPerGroup
             
+            // TODO: shadow field
             let isShadowMultiFieldFlyout = forFlyout && _isMultifield && layerInput == .shadowOffset
                         
             if !self.isAllFieldsBlockedOut(fieldGroupViewModel: fieldGroupViewModel) {
@@ -343,7 +344,46 @@ struct LayerInspectorOutputPortView: View {
     @Bindable var graph: GraphState
     @Bindable var graphUI: StitchDocumentViewModel
     
-    let canvasItemId: CanvasItemId?
+    let canvasItem: CanvasItemViewModel?
+    let forFlyout: Bool
+
+    var isCanvasItemSelected: Bool {
+        self.canvasItem?.isSelected(graph) ?? false
+    }
+    
+    var propertyIsAlreadyOnGraph: Bool {
+        self.canvasItem != nil
+    }
+    
+    var propertyRowIsSelected: Bool {
+        graph.propertySidebar.selectedProperty == .layerOutput(outputPortId)
+    }
+
+    var label: String {
+        rowObserver
+            .label(useShortLabel: true,
+                   node: node,
+                   currentTraversalLevel: graphUI.groupNodeFocused?.groupNodeId,
+                   graph: graph)
+    }
+    
+    @ViewBuilder @MainActor
+    func valueEntryView(portViewModel: OutputFieldViewModel,
+                        isMultiField: Bool) -> OutputValueEntry {
+        OutputValueEntry(graph: graph,
+                         graphUI: graphUI,
+                         viewModel: portViewModel,
+                         rowViewModel: rowViewModel,
+                         rowObserver: rowObserver,
+                         node: node,
+                         canvasItem: canvasItem,
+                         isMultiField: isMultiField,
+                         isCanvasItemSelected: isCanvasItemSelected,
+                         forPropertySidebar: true,
+                         propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                         isFieldInMultifieldInput: isMultiField,
+                         isSelectedInspectorRow: propertyRowIsSelected)
+    }
     
     var body: some View {
         
@@ -356,7 +396,7 @@ struct LayerInspectorOutputPortView: View {
         // Does this inspector-row (entire output) have a canvas item?
         // Note: CANNOT rely on delegate since weak var references do not trigger view updates
 //        let canvasItemId: CanvasItemId? = rowViewModel.canvasItemDelegate?.id
-        let canvasItemId: CanvasItemId? = graph.getCanvasItem(outputId: coordinate)?.id
+//        let canvasItemId: CanvasItemId? = graph.getCanvasItem(outputId: coordinate)?.id
         
         LayerInspectorPortView(
             layerInputObserver: nil,
@@ -364,26 +404,65 @@ struct LayerInspectorOutputPortView: View {
             coordinate: coordinate,
             graph: graph,
             graphUI: graphUI,
-            canvasItemId: canvasItemId) { propertyRowIsSelected in
-                NodeOutputView(graph: graph,
-                               graphUI: graphUI,
-                               node: node,
-                               rowObserver: rowObserver,
-                               rowViewModel: rowViewModel,
-                               canvasItem: nil,
-                               forPropertySidebar: true,
-                               propertyIsSelected: propertyRowIsSelected,
-                               propertyIsAlreadyOnGraph: canvasItemId.isDefined,
-                               isCanvasItemSelected: false,
-                               label: rowObserver
-                    .label(useShortLabel: true,
-                           node: node,
-                           currentTraversalLevel: graphUI.groupNodeFocused?.groupNodeId,
-                           graph: graph)
-                )
+            canvasItemId: canvasItem?.id) { propertyRowIsSelected in
+                HStack(alignment: .firstTextBaseline) {
+                    // Property sidebar always shows labels on left side, never right
+                    LabelDisplayView(label: label,
+                                     isLeftAligned: false,
+                                     fontColor: STITCH_FONT_GRAY_COLOR,
+                                     isSelectedInspectorRow: propertyRowIsSelected)
+                    Spacer()
+                    
+                    LayerOutputFieldsView(fieldValueTypes: rowViewModel.fieldValueTypes,
+                                          forFlyout: forFlyout,
+                                          valueEntryView: valueEntryView)
+                } // HStack
             }
     }
 }
+
+struct LayerOutputFieldsView<ValueEntry>: View where ValueEntry: View {
+    typealias ValueEntryViewBuilder = (OutputFieldViewModel, Bool) -> ValueEntry
+    
+    let fieldValueTypes: [FieldGroupTypeData<OutputNodeRowViewModel.FieldType>]
+    let forFlyout: Bool
+    @ViewBuilder var valueEntryView: ValueEntryViewBuilder
+
+    var body: some View {
+        ForEach(fieldValueTypes) { (fieldGroupViewModel: FieldGroupTypeData<OutputFieldViewModel>) in
+            
+            let isMultifield = fieldGroupViewModel.fieldObservers.count > 1
+            
+            NodeFieldsView(
+                fieldGroupViewModel: fieldGroupViewModel,
+                valueEntryView: valueEntryView) {
+                    // TODO: how to handle the multifield "shadow offset" input in the Shadow Flyout? For now, we stack those fields vertically
+                    if forFlyout {
+                        //                        if isMultiField && layerInput == .shadowOffset {
+                        VStack {
+                            NodePortDefaultFieldsView(fieldGroupViewModel: fieldGroupViewModel,
+                                                      blockedFields: []) { fieldViewModel in
+                                self.valueEntryView(fieldViewModel,
+                                                    isMultifield)
+                            }
+                        }
+                    }
+
+                    // patch inputs and inspector fields are horizontally aligned
+                    else {
+                        HStack {
+                            NodePortDefaultFieldsView(fieldGroupViewModel: fieldGroupViewModel,
+                                                      blockedFields: [])  { fieldViewModel in
+                                self.valueEntryView(fieldViewModel,
+                                                    isMultifield)
+                            }
+                        }
+                    }
+            }
+        }
+    }
+}
+
 
 // spacing between e.g. "add to graph" button (icon) and start of row capsule
 let LAYER_INSPECTOR_ROW_SPACING = 8.0
