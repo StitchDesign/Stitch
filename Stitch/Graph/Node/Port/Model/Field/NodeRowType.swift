@@ -48,9 +48,9 @@ extension NodeRowType {
     // TODO: smarter / easier to way to do this?
     func inputUsesTextField(isLayerInputInspector: Bool) -> Bool {
         switch self {
-        case .size, .size3D, .position, .point3D, .point4D, .padding, .layerDimension, .number, .string, .spacing, .transform3D:
+        case .size, .size3D, .position, .point3D, .point4D, .padding, .layerDimension, .number, .string, .spacing, .transform3D, .shapeCommand:
             return true
-        case .readOnly, .shapeCommand, .singleDropdown, .textFontDropdown, .bool, .asyncMedia, .pulse, .color, .json, .assignedLayer, .anchoring, .pinTo, .layerGroupOrientationDropdown, .anchorEntity, .layerGroupAlignment, .textAlignmentPicker, .textVerticalAlignmentPicker, .textDecoration:
+        case .readOnly, .singleDropdown, .textFontDropdown, .bool, .asyncMedia, .pulse, .color, .json, .assignedLayer, .anchoring, .pinTo, .layerGroupOrientationDropdown, .anchorEntity, .layerGroupAlignment, .textAlignmentPicker, .textVerticalAlignmentPicker, .textDecoration:
             return false
         }
     }
