@@ -91,6 +91,7 @@ struct PreviewContent: View {
                              name: .previewWindow) {
                     EmptyView()
                 }
+                             .allowsHitTesting(false)
             }
         } // Group
         .onChange(of: showPreviewWindow) { oldValue, newValue in
