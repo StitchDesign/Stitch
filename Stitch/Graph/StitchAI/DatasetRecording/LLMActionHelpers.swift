@@ -47,10 +47,6 @@ extension StitchDocumentViewModel {
     @MainActor
     func showLLMEditModal() {
         self.llmRecording.isRecording = true
-        
-        //       Always treat edit modal as an augmentation
-        self.llmRecording.mode = .augmentation
-        
         self.llmRecording.modal = .editBeforeSubmit
     }
 }
