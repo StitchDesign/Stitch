@@ -122,7 +122,8 @@ struct DefaultNodeInputView: View {
                            canvas: canvas,
                            rowViewModels: canvas.inputViewModels,
                            nodeIO: .input) { rowViewModel in
-            if let rowObserver = node.getInputRowObserverForUI(for: rowViewModel.id.portType, graph) {
+            if let rowObserver = node.getInputRowObserverForUI(for: rowViewModel.id.portType, graph),
+               let nodeForRowObserver = graph.getNodeViewModel(rowObserver.id.nodeId) {
                 let layerInputObserver: LayerInputObserver? = rowObserver.id.layerInput
                     .flatMap { node.layerNode?.getLayerInputObserver($0.layerInput) }
                 
@@ -148,7 +149,8 @@ struct DefaultNodeInputView: View {
                                   propertyIsAlreadyOnGraph: true, // Irrelevant?
                                   isCanvasItemSelected: isNodeSelected,
                                   label: rowObserver
-                        .label(node: node,
+                        // Note: Label is based on row observer's node, which in the case of a group node will be for an underlying splitter patch node, not the group node itself
+                        .label(node: nodeForRowObserver, // node,
                                currentTraversalLevel: document.groupNodeFocused?.groupNodeId,
                                graph: graph)
                     )
@@ -173,7 +175,8 @@ struct DefaultNodeOutputView: View {
                            rowViewModels: canvas.outputViewModels,
                            nodeIO: .output) { rowViewModel in
             if let portId = rowViewModel.id.portType.portId,
-               let rowObserver = node.getOutputRowObserverForUI(for: portId, graph) {
+               let rowObserver = node.getOutputRowObserverForUI(for: portId, graph),
+               let nodeForRowObserver = graph.getNodeViewModel(rowObserver.id.nodeId) {
                 HStack {
                     NodeOutputView(graph: graph,
                                    graphUI: document,
@@ -186,7 +189,7 @@ struct DefaultNodeOutputView: View {
                                    propertyIsAlreadyOnGraph: true,
                                    isCanvasItemSelected: isNodeSelected,
                                    label: rowObserver
-                        .label(node: node,
+                        .label(node: nodeForRowObserver,
                                currentTraversalLevel: document.groupNodeFocused?.groupNodeId,
                                graph: graph)
                     )
