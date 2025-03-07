@@ -166,7 +166,7 @@ struct DefaultNodeInputView: View {
                                          isSelectedInspectorRow: false)
                         
                         ForEach(rowViewModel.fieldValueTypes) { fieldGroupViewModel in
-                            NodePortDefaultFieldsView(fieldGroupViewModel: fieldGroupViewModel,
+                            NodePortDefaultFieldsView(fieldObservers: fieldGroupViewModel.fieldObservers,
                                                       blockedFields: []) { fieldViewModel in
                                 self.valueEntryView(rowObserver: rowObserver,
                                                     rowViewModel: rowViewModel, portViewModel: fieldViewModel, isMultiField: isMultiField)
@@ -249,7 +249,7 @@ struct DefaultNodeOutputView: View {
                 HStack {
                     if showOutputFields {
                         ForEach(rowViewModel.fieldValueTypes) { fieldGroupViewModel in
-                            NodePortDefaultFieldsView(fieldGroupViewModel: fieldGroupViewModel,
+                            NodePortDefaultFieldsView(fieldObservers: fieldGroupViewModel.fieldObservers,
                                                       blockedFields: []) { fieldViewModel in
                                 self.valueEntryView(rowObserver: rowObserver,
                                                     rowViewModel: rowViewModel, portViewModel: fieldViewModel,

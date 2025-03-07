@@ -156,7 +156,8 @@ extension LayerInputObserver {
                 var fieldGroupFromPacked = fieldGroupsFromPacked[fieldGroupIndex]
                 let fieldsFromUnpacked = Array(flattenedFields[labelData.portRange])
                 
-                fieldGroupFromPacked.fieldObservers = fieldsFromUnpacked
+                // TODO: this isn't causing problems
+//                fieldGroupFromPacked.fieldObservers = fieldsFromUnpacked
                 return fieldGroupFromPacked
             }
         }
