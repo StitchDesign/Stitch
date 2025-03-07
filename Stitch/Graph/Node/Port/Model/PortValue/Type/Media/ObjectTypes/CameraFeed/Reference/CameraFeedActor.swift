@@ -207,9 +207,7 @@ final actor CameraFeedActor {
             connection.videoRotationAngle = rotationAngle
         }
         
-#if !targetEnvironment(macCatalyst)
         connection.isVideoMirrored = position == .front
-#endif
         
         session.commitConfiguration()
     }
