@@ -228,7 +228,7 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
     @MainActor var lastEncodedDocument: StitchDocument {
         get {
             guard let document = self.projectLoader?.lastEncodedDocument else {
-                fatalErrorIfDebug()
+//                fatalErrorIfDebug()
                 return StitchDocument()
             }
             
