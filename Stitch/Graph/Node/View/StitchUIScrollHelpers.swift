@@ -25,15 +25,29 @@ struct GraphScrollDataUpdated: StitchDocumentEvent {
         //        log("GraphScrollDataUpdated: xDiff: \(xDiff)")
         //        log("GraphScrollDataUpdated: yDiff: \(yDiff)")
         
+        // NOTE: we no longer persist after graph scroll ends, since we now always open the graph to the center.
+        let graph = state.visibleGraph
+        
         state.graphMovement.localPosition = newOffset
         state.graphMovement.zoomData = newZoom
+
+        let pageType: NodePageType = state.groupNodeFocused?.groupNodeId.nodePageType ?? .root
         
-        // NOTE: we no longer persist after graph scroll ends, since we now always open the graph to the center.
+        guard let nodePage = graph.visibleNodesViewModel.nodesByPage.get(pageType) else {
+            fatalErrorIfDebug()
+            return
+        }
         
-//        if shouldPersist {
-//            log("GraphScrollDataUpdated: will persist")
-//            state.encodeProjectInBackground()
-//        }
+        if nodePage.localPosition != newOffset {
+            nodePage.localPosition = newOffset
+        }
+        
+        if nodePage.zoomData != newZoom {
+            nodePage.zoomData = newZoom
+        }
+        
+        // Update which nodes are visible in frame
+        graph.updateVisibleNodes()
     }
     
 }
