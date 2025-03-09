@@ -83,10 +83,6 @@ struct ShadowFlyoutRowView: View {
         layerInputObserver.getCanvasItemForWholeInput()?.id
     }
     
-    var propertyRowIsSelected: Bool {
-        graph.propertySidebar.selectedProperty == layerInspectorRowId
-    }
-    
     var isShadowOffsetRow: Bool {
         layerInput == .shadowOffset
     }
@@ -96,10 +92,6 @@ struct ShadowFlyoutRowView: View {
     }
     
     var body: some View {
-
-        // Shadow input is *always packed*
-        let layerInputData = layerInputObserver._packedData
-                        
         HStack(alignment: hstackAlignment) {
             LayerInspectorRowButton(graph: graph,
                                     graphUI: graphUI,
@@ -107,29 +99,16 @@ struct ShadowFlyoutRowView: View {
                                     layerInspectorRowId: layerInspectorRowId,
                                     coordinate: coordinate,
                                     canvasItemId: canvasItemId,
-                                    isPortSelected: propertyRowIsSelected,
                                     isHovered: isHovered)
             .offset(y: isShadowOffsetRow ? INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET : 0)
-            
-            NodeInputView(graph: graph,
-                          graphUI: graphUI,
-                          node: node,
-                          hasIncomingEdge: false,
-                          rowObserver: layerInputData.rowObserver,
-                          rowViewModel: layerInputData.inspectorRowViewModel,
-                          fieldValueTypes: layerInputData.inspectorRowViewModel.fieldValueTypes,
-                          canvasItem: nil,
-                          layerInputObserver: layerInputObserver,
-                          forPropertySidebar: true,
-                          propertyIsSelected: propertyRowIsSelected,
-                          propertyIsAlreadyOnGraph: layerInputObserver.getCanvasItemForWholeInput().isDefined,
-                          isCanvasItemSelected: false,
-                          label: layerInputData.rowObserver
-                .label(useShortLabel: true,
-                       node: node,
-                       currentTraversalLevel: graphUI.groupNodeFocused?.groupNodeId,
-                       graph: graph),
-                          forFlyout: true)
+
+            LayerNodeInputView(document: graphUI,
+                               graph: graph,
+                               node: node,
+                               layerInputObserver: layerInputObserver,
+                               forFlyout: true)
+//                               propertyRowIsSelected: propertyRowIsSelected,
+//                               valueEntryView: valueEntryView)
         } // HStack
         
         .padding([.top, .bottom], INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET * 2)

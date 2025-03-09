@@ -116,44 +116,64 @@ struct DefaultNodeInputView: View {
     @Bindable var canvas: CanvasItemViewModel
     let isNodeSelected: Bool
     
+    @ViewBuilder @MainActor
+    func valueEntryView(rowObserver: InputNodeRowObserver,
+                        rowViewModel: InputNodeRowViewModel,
+                        portViewModel: InputFieldViewModel,
+                        isMultiField: Bool) -> InputValueEntry {
+        InputValueEntry(graph: graph,
+                        graphUI: document,
+                        viewModel: portViewModel,
+                        node: node,
+                        rowViewModel: rowViewModel,
+                        canvasItem: canvas,
+                        rowObserver: rowObserver,
+                        isCanvasItemSelected: isNodeSelected,
+                        hasIncomingEdge: rowObserver.upstreamOutputCoordinate.isDefined,
+                        forPropertySidebar: false,
+                        propertyIsAlreadyOnGraph: true,
+                        isFieldInMultifieldInput: isMultiField,
+                        isForFlyout: false,
+                        isSelectedInspectorRow: false,
+                        fieldsRowLabel: nil,
+                        useIndividualFieldLabel: true)
+    }
+    
     var body: some View {
         DefaultNodeRowView(graph: graph,
                            node: node,
                            canvas: canvas,
                            rowViewModels: canvas.inputViewModels,
                            nodeIO: .input) { rowViewModel in
-            if let rowObserver = node.getInputRowObserverForUI(for: rowViewModel.id.portType, graph),
-               let nodeForRowObserver = graph.getNodeViewModel(rowObserver.id.nodeId) {
-                let layerInputObserver: LayerInputObserver? = rowObserver.id.layerInput
-                    .flatMap { node.layerNode?.getLayerInputObserver($0.layerInput) }
+            if let rowObserver = node.getInputRowObserverForUI(for: rowViewModel.id.portType, graph) {
                 
-                //            NodeLayoutView(observer: rowViewModel) {
-                HStack {
+                let isMultiField = (rowViewModel.fieldValueTypes.first?.fieldObservers.count ?? 0) > 1
+                
+                HStack(alignment: .center) {
                     NodeRowPortView(graph: graph,
                                     node: node,
                                     rowObserver: rowObserver,
                                     rowViewModel: rowViewModel)
                     
-                    NodeInputView(graph: graph,
-                                  graphUI: document,
-                                  node: node,
-                                  hasIncomingEdge: rowObserver.upstreamOutputCoordinate.isDefined,
-                                  rowObserver: rowObserver,
-                                  rowViewModel: rowViewModel,
-                                  fieldValueTypes: rowViewModel.fieldValueTypes,
-                                  // Pass down the layerInputObserver if we have a 'layer input on the canvas'
-                                  canvasItem: canvas,
-                                  layerInputObserver: layerInputObserver,
-                                  forPropertySidebar: false, // Always false, since not an inspector-row
-                                  propertyIsSelected: false,
-                                  propertyIsAlreadyOnGraph: true, // Irrelevant?
-                                  isCanvasItemSelected: isNodeSelected,
-                                  label: rowObserver
+                    HStack(alignment: isMultiField ? .firstTextBaseline : .center) {
+                        LabelDisplayView(label: rowObserver
                         // Note: Label is based on row observer's node, which in the case of a group node will be for an underlying splitter patch node, not the group node itself
-                        .label(node: nodeForRowObserver, // node,
-                               currentTraversalLevel: document.groupNodeFocused?.groupNodeId,
-                               graph: graph)
-                    )
+                            .label(node: node,
+                                   coordinate: .input(rowObserver.id),
+                                   graph: graph),
+                                         isLeftAligned: false,
+                                         fontColor: STITCH_FONT_GRAY_COLOR,
+                                         isSelectedInspectorRow: false)
+                        
+                        ForEach(rowViewModel.fieldValueTypes) { fieldGroupViewModel in
+                            ForEach(fieldGroupViewModel.fieldObservers) { fieldViewModel in
+                                self.valueEntryView(rowObserver: rowObserver,
+                                                    rowViewModel: rowViewModel,
+                                                    portViewModel: fieldViewModel,
+                                                    isMultiField: isMultiField)
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -168,6 +188,35 @@ struct DefaultNodeOutputView: View {
     @Bindable var canvas: CanvasItemViewModel
     let isNodeSelected: Bool
     
+    // Most splitters do NOT show their outputs;
+    // however, a group node's output-splitters seen from the same level as the group node (i.e. not inside the group node itself, but where)
+    @MainActor
+    var showOutputFields: Bool {
+        
+        if self.node.kind == .patch(.splitter) {
+            
+            // A regular (= inline) splitter NEVER shows its output
+            let isRegularSplitter = node.patchNodeViewModel?.splitterType == .inline
+            if isRegularSplitter {
+                return false
+            }
+            
+            // If this is a group output splitter, AND we are looking at the group node itself (i.e. NOT inside of the group node but "above" it),
+            // then show the output splitter's fields.
+            let isOutputSplitter = node.patchNodeViewModel?.splitterType == .output
+            if isOutputSplitter {
+                // See `NodeRowObserver.label()` for similar logic for *inputs*
+                let parentGroupNode = node.patchNodeViewModel?.parentGroupNodeId
+                let currentTraversalLevel = document.groupNodeFocused?.groupNodeId
+                return parentGroupNode != currentTraversalLevel
+            }
+            
+            return false
+        }
+        
+        return true
+    }
+    
     var body: some View {
         DefaultNodeRowView(graph: graph,
                            node: node,
@@ -175,24 +224,37 @@ struct DefaultNodeOutputView: View {
                            rowViewModels: canvas.outputViewModels,
                            nodeIO: .output) { rowViewModel in
             if let portId = rowViewModel.id.portType.portId,
-               let rowObserver = node.getOutputRowObserverForUI(for: portId, graph),
-               let nodeForRowObserver = graph.getNodeViewModel(rowObserver.id.nodeId) {
+               let rowObserver = node.getOutputRowObserverForUI(for: portId, graph) {
+                let isMultiField = (rowViewModel.fieldValueTypes.first?.fieldObservers.count ?? 0) > 1
+                
                 HStack {
-                    NodeOutputView(graph: graph,
-                                   graphUI: document,
-                                   node: node,
-                                   rowObserver: rowObserver,
-                                   rowViewModel: rowViewModel,
-                                   canvasItem: canvas,
-                                   forPropertySidebar: false,
-                                   propertyIsSelected: false,
-                                   propertyIsAlreadyOnGraph: true,
-                                   isCanvasItemSelected: isNodeSelected,
-                                   label: rowObserver
-                        .label(node: nodeForRowObserver,
-                               currentTraversalLevel: document.groupNodeFocused?.groupNodeId,
-                               graph: graph)
-                    )
+                    if showOutputFields {
+                        ForEach(rowViewModel.fieldValueTypes) { fieldGroupViewModel in
+                            ForEach(fieldGroupViewModel.fieldObservers) { fieldViewModel in
+                                OutputValueEntry(graph: graph,
+                                                 graphUI: document,
+                                                 viewModel: fieldViewModel,
+                                                 rowViewModel: rowViewModel,
+                                                 rowObserver: rowObserver,
+                                                 node: node,
+                                                 canvasItem: canvas,
+                                                 isMultiField: isMultiField,
+                                                 isCanvasItemSelected: isNodeSelected,
+                                                 forPropertySidebar: false,
+                                                 propertyIsAlreadyOnGraph: false,
+                                                 isFieldInMultifieldInput: isMultiField,
+                                                 isSelectedInspectorRow: false)
+                            }
+                        }
+                    }
+                    
+                    LabelDisplayView(label: rowObserver
+                        .label(node: node,
+                               coordinate: .output(rowObserver.id),
+                               graph: graph),
+                                     isLeftAligned: false,
+                                     fontColor: STITCH_FONT_GRAY_COLOR,
+                                     isSelectedInspectorRow: false)
                     
                     NodeRowPortView(graph: graph,
                                     node: node,
