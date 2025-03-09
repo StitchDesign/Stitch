@@ -166,8 +166,7 @@ struct DefaultNodeInputView: View {
                                          isSelectedInspectorRow: false)
                         
                         ForEach(rowViewModel.fieldValueTypes) { fieldGroupViewModel in
-                            NodePortDefaultFieldsView(fieldObservers: fieldGroupViewModel.fieldObservers,
-                                                      blockedFields: []) { fieldViewModel in
+                            ForEach(fieldGroupViewModel.fieldObservers) { fieldViewModel in
                                 self.valueEntryView(rowObserver: rowObserver,
                                                     rowViewModel: rowViewModel, portViewModel: fieldViewModel, isMultiField: isMultiField)
                             }
@@ -216,26 +215,6 @@ struct DefaultNodeOutputView: View {
         return true
     }
     
-    @ViewBuilder @MainActor
-    func valueEntryView(rowObserver: OutputNodeRowObserver,
-                        rowViewModel: OutputNodeRowViewModel,
-                        portViewModel: OutputFieldViewModel,
-                        isMultiField: Bool) -> OutputValueEntry {
-        OutputValueEntry(graph: graph,
-                         graphUI: document,
-                         viewModel: portViewModel,
-                         rowViewModel: rowViewModel,
-                         rowObserver: rowObserver,
-                         node: node,
-                         canvasItem: canvas,
-                         isMultiField: isMultiField,
-                         isCanvasItemSelected: isNodeSelected,
-                         forPropertySidebar: false,
-                         propertyIsAlreadyOnGraph: false,
-                         isFieldInMultifieldInput: isMultiField,
-                         isSelectedInspectorRow: false)
-    }
-    
     var body: some View {
         DefaultNodeRowView(graph: graph,
                            node: node,
@@ -249,11 +228,20 @@ struct DefaultNodeOutputView: View {
                 HStack {
                     if showOutputFields {
                         ForEach(rowViewModel.fieldValueTypes) { fieldGroupViewModel in
-                            NodePortDefaultFieldsView(fieldObservers: fieldGroupViewModel.fieldObservers,
-                                                      blockedFields: []) { fieldViewModel in
-                                self.valueEntryView(rowObserver: rowObserver,
-                                                    rowViewModel: rowViewModel, portViewModel: fieldViewModel,
-                                                    isMultiField: isMultiField)
+                            ForEach(fieldGroupViewModel.fieldObservers) { fieldViewModel in
+                                OutputValueEntry(graph: graph,
+                                                 graphUI: document,
+                                                 viewModel: fieldViewModel,
+                                                 rowViewModel: rowViewModel,
+                                                 rowObserver: rowObserver,
+                                                 node: node,
+                                                 canvasItem: canvas,
+                                                 isMultiField: isMultiField,
+                                                 isCanvasItemSelected: isNodeSelected,
+                                                 forPropertySidebar: false,
+                                                 propertyIsAlreadyOnGraph: false,
+                                                 isFieldInMultifieldInput: isMultiField,
+                                                 isSelectedInspectorRow: false)
                             }
                         }
                     }

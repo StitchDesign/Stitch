@@ -111,23 +111,6 @@ struct NodeFieldsView<FieldType, ValueEntryView, FieldsView>: View where FieldTy
     }
 }
 
-struct NodePortDefaultFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldViewModel, ValueEntryView: View {
-    let fieldObservers: [FieldType]
-    let blockedFields: Set<LayerInputKeyPathType>?
-    @ViewBuilder var valueEntryView: (FieldType) -> ValueEntryView
-    
-    // fieldObservers / field view models remain our bread-and-butter
-    var body: some View {
-        
-        // By default, this ForEach bubbles up to an HStack that contains it; how
-        ForEach(fieldObservers) { (fieldViewModel: FieldType) in
-            let isBlocked = self.blockedFields.map { fieldViewModel.isBlocked($0) } ?? false
-            if !isBlocked {
-                self.valueEntryView(fieldViewModel)
-            }
-        }
-    }
-}
 
 struct NodePortContrainedFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldViewModel, ValueEntryView: View {
     let fieldGroupViewModel: FieldGroupTypeData<FieldType>

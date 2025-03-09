@@ -284,10 +284,12 @@ struct LayerInputFieldsView<ValueEntry>: View where ValueEntry: View {
                     if forFlyout {
 //                        if isMultiField && layerInput == .shadowOffset {
                             VStack {
-                                NodePortDefaultFieldsView(fieldObservers: fieldGroupViewModel.fieldObservers,
-                                                          blockedFields: blockedFields) { fieldViewModel in
-                                    self.valueEntryView(fieldViewModel,
-                                                        _isMultifield)
+                                ForEach(fieldGroupViewModel.fieldObservers) { fieldViewModel in
+                                    let isBlocked = self.blockedFields.map { fieldViewModel.isBlocked($0) } ?? false
+                                    if !isBlocked {
+                                        self.valueEntryView(fieldViewModel,
+                                                            _isMultifield)
+                                    }
                                 }
                             }
                     }
@@ -313,10 +315,12 @@ struct LayerInputFieldsView<ValueEntry>: View where ValueEntry: View {
                     // patch inputs and inspector fields are horizontally aligned
                     else {
                         HStack {
-                            NodePortDefaultFieldsView(fieldObservers: fieldGroupViewModel.fieldObservers,
-                                                      blockedFields: blockedFields)  { fieldViewModel in
-                                self.valueEntryView(fieldViewModel,
-                                                    _isMultifield)
+                            ForEach(fieldGroupViewModel.fieldObservers) { fieldViewModel in
+                                let isBlocked = self.blockedFields.map { fieldViewModel.isBlocked($0) } ?? false
+                                if !isBlocked {
+                                    self.valueEntryView(fieldViewModel,
+                                                        _isMultifield)
+                                }
                             }
                         }
                     }
@@ -440,8 +444,7 @@ struct LayerOutputFieldsView<ValueEntry>: View where ValueEntry: View {
                     if forFlyout {
                         //                        if isMultiField && layerInput == .shadowOffset {
                         VStack {
-                            NodePortDefaultFieldsView(fieldObservers: fieldGroupViewModel.fieldObservers,
-                                                      blockedFields: []) { fieldViewModel in
+                            ForEach(fieldGroupViewModel.fieldObservers) { fieldViewModel in
                                 self.valueEntryView(fieldViewModel,
                                                     isMultifield)
                             }
@@ -451,8 +454,7 @@ struct LayerOutputFieldsView<ValueEntry>: View where ValueEntry: View {
                     // patch inputs and inspector fields are horizontally aligned
                     else {
                         HStack {
-                            NodePortDefaultFieldsView(fieldObservers: fieldGroupViewModel.fieldObservers,
-                                                      blockedFields: [])  { fieldViewModel in
+                            ForEach(fieldGroupViewModel.fieldObservers) { fieldViewModel in
                                 self.valueEntryView(fieldViewModel,
                                                     isMultifield)
                             }
