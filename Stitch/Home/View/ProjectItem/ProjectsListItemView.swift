@@ -161,8 +161,16 @@ struct ProjectsListItemView: View {
         } labelView: {
             switch projectLoader.loadingDocument {
             case .loaded(let document, _):
-                ProjectThumbnailTextField(document: document,
-                                          namespace: namespace)
+                if self.store.currentDocument == nil {
+                    ProjectThumbnailTextField(document: document,
+                                              namespace: namespace)
+                } else {
+                    // Perf fix hides text field when home screen not visible
+                    Text(document.name)
+                        .font(STITCH_FONT)
+                        .lineLimit(1)
+                }
+                
             default:
                 // Blank text view to copy height of loaded view
                 Color.clear
