@@ -246,7 +246,9 @@ extension PatchNodeViewModel {
     func updateMathExpressionNodeInputs(newExpression: String,
                                         node: NodeDelegate) {
         // Always set math-expr on node for its eval and (default) title
-        self.mathExpression = newExpression
+        if self.mathExpression != newExpression {
+            self.mathExpression = newExpression            
+        }
         
         // log("updateMathExpressionNodeInputs: newExpression: \(newExpression)")
 

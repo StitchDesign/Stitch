@@ -406,7 +406,11 @@ extension GraphState {
     @MainActor
     private func updateSynchronousProperties(from schema: GraphEntity) {
         assertInDebug(self.id == schema.id)
-        self.name = schema.name
+        
+        if self.name != schema.name {
+            self.name = schema.name
+        }
+        
         self.layersSidebarViewModel.update(from: schema.orderedSidebarLayers)
     }
     
