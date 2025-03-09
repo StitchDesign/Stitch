@@ -11,23 +11,43 @@ import StitchSchemaKit
 
 typealias LayerPortTypeSet = Set<LayerInputKeyPathType>
 
-struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldViewModel,
-                                                             ValueEntryView: View {
-    @Bindable var graph: GraphState
-    
-    // just becomes a list of field models
+struct NodeFieldsView<FieldType, ValueEntryView, FieldsView>: View where FieldType: FieldViewModel,
+                                                             ValueEntryView: View,
+                                                             FieldsView: View {
     let fieldGroupViewModel: FieldGroupTypeData<FieldType>
-        
-    let nodeId: NodeId
-    let isMultiField: Bool
-    let forPropertySidebar: Bool
-    let forFlyout: Bool
-    let layerInputObserver: LayerInputObserver?
-    
-    let blockedFields: Set<LayerInputKeyPathType>?
     
     @ViewBuilder var valueEntryView: (FieldType, Bool) -> ValueEntryView
+    @ViewBuilder var fieldsView: () -> FieldsView
     
+    var layerInput: LayerInputPort? {
+        fieldGroupViewModel.layerInput
+    }
+    
+    var body: some View {
+        
+        // Only non-nil for 3D transform
+        // NOTE: this only shows up for PACKED 3D Transform; unpacked 3D Transform fields are treat as Number fields, which are not created with a `groupLabel`
+        // Alternatively we could create Number fieldGroups with their proper parent label if they are for an unpacked multifeld layer input?
+        if let fieldGroupLabel = fieldGroupViewModel.groupLabel {
+            HStack {
+                LabelDisplayView(label: fieldGroupLabel,
+                                 isLeftAligned: false,
+                                 fontColor: STITCH_FONT_GRAY_COLOR,
+                                 isSelectedInspectorRow: false)
+                Spacer()
+            }
+        }
+        
+        fieldsView()
+    }
+}
+
+
+struct NodePortContrainedFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldViewModel, ValueEntryView: View {
+    let fieldGroupViewModel: FieldGroupTypeData<FieldType>
+    let isMultiField: Bool
+    @ViewBuilder var valueEntryView: (FieldType, Bool) -> ValueEntryView
+
     var layerInput: LayerInputPort? {
         fieldGroupViewModel.layerInput
     }
@@ -43,19 +63,7 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
         }
     }
     
-    var displaysNarrowMultifields: Bool {
-        switch layerInput {
-        case .transform3D:
-            return true
-        case .layerPadding, .layerMargin:
-            return layerInputObserver?.mode == .packed
-        default:
-            return false
-        }
-    }
-    
-    @ViewBuilder
-    var constrainedMultifieldsView: some View {
+    var body: some View {
         let p0 = fieldGroupViewModel.fieldObservers[safe: 0]
         let p1 = fieldGroupViewModel.fieldObservers[safe: 1]
         let p2 = fieldGroupViewModel.fieldObservers[safe: 2]
@@ -69,7 +77,7 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
                 self.valueEntry(p2)
             }
         }
-  
+        
         // See note in `NodeInputView`: this use assumes Margin and Padding are in a Packed state, i.e. one row observer and 4 field models
         else if fieldGroupViewModel.fieldObservers.count == 4 {
             VStack {
@@ -90,81 +98,6 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
                 .onAppear {
                     fatalErrorIfDebug()
                 }
-        }
-    }
-    
-    var body: some View {
-        
-        // Only non-nil for 3D transform
-        // NOTE: this only shows up for PACKED 3D Transform; unpacked 3D Transform fields are treat as Number fields, which are not created with a `groupLabel`
-        // Alternatively we could create Number fieldGroups with their proper parent label if they are for an unpacked multifeld layer input?
-        if let fieldGroupLabel = fieldGroupViewModel.groupLabel {
-            HStack {
-                LabelDisplayView(label: fieldGroupLabel,
-                               isLeftAligned: false,
-                               fontColor: STITCH_FONT_GRAY_COLOR,
-                               isSelectedInspectorRow: false)
-                Spacer()
-            }
-        }
-        
-        // TODO: how to handle the multifield "shadow offset" input in the Shadow Flyout? For now, we stack those fields vertically
-        if forPropertySidebar,
-           forFlyout,
-           isMultiField,
-           layerInput == .shadowOffset {
-            VStack {
-                fields
-            }
-        }
-        
-        else if forPropertySidebar,
-                !forFlyout,
-                // isMultiField,
-                displaysNarrowMultifields {
-            HStack {
-                Spacer()
-                constrainedMultifieldsView
-            }
-            // TODO: `LayerInspectorPortView`'s `.listRowInsets` should maintain consistent padding between input-rows in the layer inspector, so why is additional padding needed?
-            .padding(.vertical, INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET * 2)
-        }
-        
-        // flyout fields generally are vertically stacked (`shadowOffset` is exception)
-        else if forFlyout {
-            VStack {
-                fields
-            }
-        }
-        
-        // patch inputs and inspector fields are horizontally aligned
-        else {
-            HStack {
-                fields
-            }
-        }
-    }
-    
-    // fieldObservers / field view models remain our bread-and-butter
-    var fields: some View {
-        
-        // By default, this ForEach bubbles up to an HStack that contains it; how
-        ForEach(fieldGroupViewModel.fieldObservers) { (fieldViewModel: FieldType) in
-//            self.valueEntryView(fieldViewModel)
-//                .overlay {
-//                    if fieldViewModel.isBlockedOut {
-//                        Color.black.opacity(0.3)
-//                            .cornerRadius(4)
-//                            .allowsHitTesting(false)
-//                    } else {
-//                        Color.clear
-//                    }
-//                }
-
-            let isBlocked = self.blockedFields.map { fieldViewModel.isBlocked($0) } ?? false
-            if !isBlocked {
-                self.valueEntryView(fieldViewModel, isMultiField)
-            }
         }
     }
 }

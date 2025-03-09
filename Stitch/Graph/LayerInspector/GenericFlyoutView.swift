@@ -71,14 +71,10 @@ struct GenericFlyoutView: View {
     @ViewBuilder @MainActor
     var flyoutRows: some View {
         // Assumes: all flyouts (besides shadow-flyout) have a single row which contains multiple fields
-        FieldsListView<InputNodeRowViewModel, GenericFlyoutRowView>(
-            graph: graph,
-            fieldValueTypes: fieldValueTypes,
-            nodeId: node.id,
-            forPropertySidebar: true,
-            forFlyout: true,
-            layerInputObserver: layerInputObserver) { inputFieldViewModel, isMultifield in
-                GenericFlyoutRowView(
+        LayerInputFieldsView(fieldValueTypes: fieldValueTypes,
+                             layerInputObserver: layerInputObserver,
+                             forFlyout: true) { inputFieldViewModel, isMultifield in
+            GenericFlyoutRowView(
                     graph: graph,
                     graphUI: graphUI,
                     viewModel: inputFieldViewModel,
@@ -194,7 +190,6 @@ struct GenericFlyoutRowView: View {
                                     coordinate: InputCoordinate(portType: .keyPath(layerInputType),
                                                                 nodeId: node.id),
                                     canvasItemId: canvasItemId,
-                                    isPortSelected: propertyRowIsSelected,
                                     isHovered: isHovered,
                                     fieldIndex: fieldIndex)
                         
@@ -203,7 +198,6 @@ struct GenericFlyoutRowView: View {
                             viewModel: viewModel,
                             node: node,
                             rowViewModel: rowViewModel,
-                            layerInputObserver: layerInputObserver,
                             canvasItem: nil,
                             // For input editing, however, we need the proper packed vs unpacked state
                             rowObserver: rowObserver,
@@ -214,7 +208,9 @@ struct GenericFlyoutRowView: View {
                             isFieldInMultifieldInput: isMultifield,
                             isForFlyout: true,
                             // Always false for flyout row
-                            isSelectedInspectorRow: propertyRowIsSelected)
+                            isSelectedInspectorRow: propertyRowIsSelected,
+                            fieldsRowLabel: layerInputObserver.fieldsRowLabel,
+                            useIndividualFieldLabel: layerInputObserver.useIndividualFieldLabel(activeIndex: graphUI.activeIndex))
         } // HStack
         .contentShape(Rectangle())
         .onHover(perform: { hovering in

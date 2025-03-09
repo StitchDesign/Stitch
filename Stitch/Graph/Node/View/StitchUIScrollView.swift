@@ -406,6 +406,7 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
         // Do not check borders for ~1 second after (1) jumping to an item on the canvas or (2) zooming in/out
         
         guard !self.borderCheckingDisabled else {
+            log("StitchScrollCoordinator check border: border checking disabled")
             Self.updateGraphScrollData(scrollView)
             return
         }
@@ -427,7 +428,7 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
               let northBounds = cache.get(northNode.id),
               let southBounds = cache.get(southNode.id) else {
             
-            // log("StitchUIScrollView: scrollViewDidScroll: MISSING WEST, EAST, SOUTH OR NORTH IN-FRAME NODES OR BOUNDS")
+             log("StitchUIScrollView: scrollViewDidScroll: MISSING WEST, EAST, SOUTH OR NORTH IN-FRAME NODES OR BOUNDS")
             Self.updateGraphScrollData(scrollView)
             return
         }
@@ -525,7 +526,7 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
                 newZoom: scrollView.zoomScale
             ))
         } else {
-//            log("StitchUIScrollView: scrollViewDidScroll: did not hit border")
+            log("StitchUIScrollView: scrollViewDidScroll: did not hit border")
             // log("StitchUIScrollView: scrollViewDidScroll: did not hit border: scrollView.contentOffset.x: \(scrollView.contentOffset.x)")
             // log("StitchUIScrollView: scrollViewDidScroll: did not hit border: scrollView.contentOffset.y: \(scrollView.contentOffset.y)")
             Self.updateGraphScrollData(scrollView)

@@ -323,7 +323,8 @@ struct LayerInspectorOutputsSectionView: View {
                             rowObserver: output.rowObserver,
                             graph: graph,
                             graphUI: graphUI,
-                            canvasItemId: output.canvasObserver?.id)
+                            canvasItem: output.canvasObserver,
+                            forFlyout: false)
                     } else {
                         Color.clear.onAppear {
                             fatalErrorIfDebug("Did not have portId for layer node output")

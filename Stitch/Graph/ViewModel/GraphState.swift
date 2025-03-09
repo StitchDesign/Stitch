@@ -115,6 +115,9 @@ final class GraphState: Sendable {
 
     @MainActor var activeDragInteraction = ActiveDragInteractionNodeVelocityData()
     
+    // Tracks labels for group ports for perf
+    @MainActor var groupPortLabels = [Coordinate : String]()
+    
     @MainActor var lastEncodedDocument: GraphEntity
     @MainActor weak var documentDelegate: StitchDocumentViewModel?
     @MainActor weak var documentEncoderDelegate: (any DocumentEncodable)?
@@ -215,6 +218,12 @@ extension GraphState {
         
         // Update connected port data
         self.visibleNodesViewModel.updateAllNodeViewData()
+        
+        // Update labels for group nodes
+        let newGroupLabels = self.getGroupPortLabels()
+        if self.groupPortLabels != newGroupLabels {
+            self.groupPortLabels = newGroupLabels
+        }
         
         if !document.isDebugMode {
             self.updateOrderedPreviewLayers()
@@ -535,18 +544,41 @@ extension GraphState {
         // Stitch AI changes in case order changes
         let aiActions = document.llmRecording.actions
         
+        // Labels for splitter nodes
+        let splitterLabels = self.getGroupPortLabels()
+        
         hasher.combine(nodeCount)
         hasher.combine(canvasItems)
         hasher.combine(upstreamConnections)
         hasher.combine(manualEdits)
         hasher.combine(groupNodeIdFocused)
         hasher.combine(aiActions)
+        hasher.combine(splitterLabels)
         
         let newGraphUpdaterId = hasher.finalize()
         // log("calculateGraphUpdaterId: newGraphUpdaterId: \(newGraphUpdaterId)")
         return newGraphUpdaterId
         
         // return hasher.finalize()
+    }
+    
+    @MainActor func getGroupPortLabels() -> [Coordinate : String] {
+        self.nodes.values.reduce(into: [Coordinate : String]()) { result, node in
+            guard let patchNode = node.patchNodeViewModel,
+                  let splitterNode = patchNode.splitterNode else {
+                return
+            }
+            
+            let title = node.displayTitle
+            
+            if splitterNode.type == .input {
+                result.updateValue(title, forKey: .input(patchNode.inputsObservers.first!.id))
+            }
+            
+            else if splitterNode.type == .output {
+                result.updateValue(title, forKey: .output(patchNode.outputsObservers.first!.id))
+            }
+        }
     }
     
     @MainActor

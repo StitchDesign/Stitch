@@ -227,30 +227,26 @@ extension NodeRowObserver {
         } ?? []
     }
     
+    // MARK: change args here if working
     @MainActor
     func label(useShortLabel: Bool = false,
                node: NodeViewModel,
-               currentTraversalLevel: NodeId?,
-               graph: GraphState) -> String {
-
-        let isSplitterPatch = node.kind.getPatch == .splitter
-        let parentGroupNode = node.patchNodeViewModel?.parentGroupNodeId
-        let hasParentGroupNode = parentGroupNode.isDefined
-        
-        let isSplitterAtCurrentTraversalLevel = parentGroupNode == currentTraversalLevel
-     
+               coordinate: Coordinate,
+               graph: GraphState) -> String {     
         /*
          Two scenarios re: a Group Node and its splitters:
          
          1. We are looking at the Group Node itself; so we want to use its underlying group node input- and output-splitters' titles as labels for the group node's rows
          
          2. We are INSIDE THE GROUP NODE, looking at its input- and output-splitters at that traversal level; so we do not use the splitters' titles as labels
-         */
-        if isSplitterPatch,
-            hasParentGroupNode,
-           !isSplitterAtCurrentTraversalLevel {
-            // Rows in a group-ui-node use the underlying splitter node's title
-            let labelFromSplitter = node.displayTitle
+         */        
+        if node.kind == .group {
+            // Cached values which get underlying splitter node's title
+            guard let labelFromSplitter = graph.groupPortLabels.get(coordinate) else {
+                // Could be loading initially
+//                fatalErrorIfDebug()
+                return ""
+            }
 
             // Don't show label on group node's input/output row unless it is custom
             if labelFromSplitter == Patch.splitter.defaultDisplayTitle() {

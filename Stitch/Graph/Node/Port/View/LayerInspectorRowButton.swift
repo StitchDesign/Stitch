@@ -17,7 +17,6 @@ struct LayerInspectorRowButton: View {
     let layerInspectorRowId: LayerInspectorRowId
     let coordinate: NodeIOCoordinate
     let canvasItemId: CanvasItemId?
-    let isPortSelected: Bool
     let isHovered: Bool
     
     // non-nil = this inspector row button is for a field, not a
@@ -34,6 +33,10 @@ struct LayerInspectorRowButton: View {
         }
         
         return false
+    }
+    
+    var isPortSelected: Bool {
+        graph.propertySidebar.selectedProperty == layerInspectorRowId
     }
     
     @MainActor
