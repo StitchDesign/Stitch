@@ -61,18 +61,6 @@ struct NodesView: View {
         
            .coordinateSpace(name: Self.coordinateNameSpace)
 
-        // TODO: either update these `graphMovement: GraphMovementObserver` in `GraphScrollDataUpdated` OR get rid of GraphMovementObserver completely and merely rely on node-page's offset and zoom
-           .onChange(of: graph.graphMovement.localPosition) { _, newValue in
-               // log("GraphMovementViewModifier: .onChange(of: graph.graphMovement.localPosition): \(newValue)")
-               currentNodePage.localPosition = newValue
-               self.graph.updateVisibleNodes()
-           }
-           .onChange(of: graph.graphMovement.zoomData) { _, newValue in
-               // log("GraphMovementViewModifier: .onChange(of: graph.graphMovement.zoomData): \(newValue)")
-               currentNodePage.zoomData = newValue
-               self.graph.updateVisibleNodes()
-           }
-        
         // should come after edges, so that edges are offset, scaled etc.
            .modifier(StitchUIScrollViewModifier(document: document,
                                                 graph: graph))
