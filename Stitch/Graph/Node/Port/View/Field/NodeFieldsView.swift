@@ -14,18 +14,7 @@ typealias LayerPortTypeSet = Set<LayerInputKeyPathType>
 struct NodeFieldsView<FieldType, ValueEntryView, FieldsView>: View where FieldType: FieldViewModel,
                                                              ValueEntryView: View,
                                                              FieldsView: View {
-//    @Bindable var graph: GraphState
-    
-    // just becomes a list of field models
     let fieldGroupViewModel: FieldGroupTypeData<FieldType>
-    
-//    let rowID: NodeIOCoordinate
-//    let isMultiField: Bool
-    //    let forPropertySidebar: Bool
-    //    let forFlyout: Bool
-    //    let layerInputObserver: LayerInputObserver?
-    
-//    let blockedFields: Set<LayerInputKeyPathType>?
     
     @ViewBuilder var valueEntryView: (FieldType, Bool) -> ValueEntryView
     @ViewBuilder var fieldsView: () -> FieldsView
@@ -33,28 +22,6 @@ struct NodeFieldsView<FieldType, ValueEntryView, FieldsView>: View where FieldTy
     var layerInput: LayerInputPort? {
         fieldGroupViewModel.layerInput
     }
-    
-//    @ViewBuilder
-//    func valueEntry(_ fieldType: FieldType?) -> some View {
-//        if let fieldType = fieldType {
-//            self.valueEntryView(fieldType,
-//                                self.isMultiField)
-//        } else {
-//            EmptyView()
-//                .onAppear { fatalErrorIfDebug() }
-//        }
-//    }
-//    
-//    var displaysNarrowMultifields: Bool {
-//        switch layerInput {
-//        case .transform3D:
-//            return true
-//        case .layerPadding, .layerMargin:
-//            return layerInputObserver?.mode == .packed
-//        default:
-//            return false
-//        }
-//    }
     
     var body: some View {
         
@@ -72,42 +39,6 @@ struct NodeFieldsView<FieldType, ValueEntryView, FieldsView>: View where FieldTy
         }
         
         fieldsView()
-//
-//        // TODO: how to handle the multifield "shadow offset" input in the Shadow Flyout? For now, we stack those fields vertically
-//        if forPropertySidebar,
-//           forFlyout,
-//           isMultiField,
-//           layerInput == .shadowOffset {
-//            VStack {
-//                fields
-//            }
-//        }
-//        
-//        else if forPropertySidebar,
-//                !forFlyout,
-//                // isMultiField,
-//                displaysNarrowMultifields {
-//            HStack {
-//                Spacer()
-//                constrainedMultifieldsView
-//            }
-//            // TODO: `LayerInspectorPortView`'s `.listRowInsets` should maintain consistent padding between input-rows in the layer inspector, so why is additional padding needed?
-//            .padding(.vertical, INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET * 2)
-//        }
-//        
-//        // flyout fields generally are vertically stacked (`shadowOffset` is exception)
-//        else if forFlyout {
-//            VStack {
-//                fields
-//            }
-//        }
-//        
-//        // patch inputs and inspector fields are horizontally aligned
-//        else {
-//            HStack {
-//                fields
-//            }
-//        }
     }
 }
 

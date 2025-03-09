@@ -8,8 +8,6 @@
 import SwiftUI
 import StitchSchemaKit
 
-typealias ValueEntryViewBuilder = (InputFieldViewModel, Bool) -> InputValueEntry
-
 /*
  Patch node input of Point4D = one node row observer becomes 4 fields
  
