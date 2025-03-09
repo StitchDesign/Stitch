@@ -123,13 +123,14 @@ extension LayerInputObserver {
     // The overall-label for the port, e.g. "Size" (not "W" or "H") for the size property
     @MainActor
     func overallPortLabel(usesShortLabel: Bool,
-                          currentTraversalLevel: NodeId?,
                           node: NodeViewModel,
                           graph: GraphState) -> String {
-        self._packedData.rowObserver
+        let rowObserver = self._packedData.rowObserver
+        
+        return rowObserver
             .label(useShortLabel: true,
                    node: node,
-                   currentTraversalLevel: currentTraversalLevel,
+                   coordinate: .input(rowObserver.id),
                    graph: graph)
     }
         

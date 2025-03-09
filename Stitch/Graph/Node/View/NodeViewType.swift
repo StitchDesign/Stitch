@@ -159,7 +159,7 @@ struct DefaultNodeInputView: View {
                         LabelDisplayView(label: rowObserver
                         // Note: Label is based on row observer's node, which in the case of a group node will be for an underlying splitter patch node, not the group node itself
                             .label(node: node,
-                                   currentTraversalLevel: document.groupNodeFocused?.groupNodeId,
+                                   coordinate: .input(rowObserver.id),
                                    graph: graph),
                                          isLeftAligned: false,
                                          fontColor: STITCH_FONT_GRAY_COLOR,
@@ -168,7 +168,9 @@ struct DefaultNodeInputView: View {
                         ForEach(rowViewModel.fieldValueTypes) { fieldGroupViewModel in
                             ForEach(fieldGroupViewModel.fieldObservers) { fieldViewModel in
                                 self.valueEntryView(rowObserver: rowObserver,
-                                                    rowViewModel: rowViewModel, portViewModel: fieldViewModel, isMultiField: isMultiField)
+                                                    rowViewModel: rowViewModel,
+                                                    portViewModel: fieldViewModel,
+                                                    isMultiField: isMultiField)
                             }
                         }
                     }
@@ -248,7 +250,7 @@ struct DefaultNodeOutputView: View {
                     
                     LabelDisplayView(label: rowObserver
                         .label(node: node,
-                               currentTraversalLevel: document.groupNodeFocused?.groupNodeId,
+                               coordinate: .output(rowObserver.id),
                                graph: graph),
                                      isLeftAligned: false,
                                      fontColor: STITCH_FONT_GRAY_COLOR,

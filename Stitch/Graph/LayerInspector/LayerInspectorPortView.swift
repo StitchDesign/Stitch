@@ -95,7 +95,6 @@ struct LayerNodeInputView: View {
     var label: String {
         layerInputObserver
             .overallPortLabel(usesShortLabel: true,
-                              currentTraversalLevel: document.groupNodeFocused?.groupNodeId,
                               node: node,
                               graph: graph)
     }
@@ -367,7 +366,7 @@ struct LayerInspectorOutputPortView: View {
         rowObserver
             .label(useShortLabel: true,
                    node: node,
-                   currentTraversalLevel: graphUI.groupNodeFocused?.groupNodeId,
+                   coordinate: .output(rowObserver.id),
                    graph: graph)
     }
     

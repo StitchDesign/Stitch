@@ -78,7 +78,7 @@ extension StitchAINodeSectionDescription {
                 let inputs: [StitchAIPortValueDescription] = defaultNode.inputsObservers.map { inputObserver in
                     StitchAIPortValueDescription(label: inputObserver
                         .label(node: defaultNode,
-                               currentTraversalLevel: nil,
+                               coordinate: .input(inputObserver.id),
                                graph: graph),
                                                  value: inputObserver.getActiveValue(activeIndex: .init(.zero)))
                 }
@@ -92,7 +92,7 @@ extension StitchAINodeSectionDescription {
                 let outputs: [StitchAIPortValueDescription] = defaultNode.outputsObservers.map { outputObserver in
                     StitchAIPortValueDescription(label: outputObserver
                         .label(node: defaultNode,
-                               currentTraversalLevel: nil,
+                               coordinate: .output(outputObserver.id),
                                graph: graph),
                                                  value: outputObserver.getActiveValue(activeIndex: .init(.zero)))
                 }
