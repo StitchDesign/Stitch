@@ -22,7 +22,7 @@ extension OpenAISchemaCustomizable {
          properties: Self.PropertiesType,
          const: String? = nil,
          required: [String]? = nil,
-         additionalProperties: Bool? = nil) {
+         additionalProperties: Bool? = false) {
         let schema = OpenAISchema(type: type,
                                   const: const,
                                   required: required,

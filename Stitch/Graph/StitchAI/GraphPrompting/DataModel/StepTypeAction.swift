@@ -409,10 +409,10 @@ struct StepActionSetInput: StepActionable {
               port: OpenAIGeneric(types: [OpenAISchema(type: .integer)],
                                   refs: [OpenAISchemaRef(ref: "LayerPorts")]),
               value: OpenAIGeneric(types: [
-                OpenAISchema(type: .number),
-                OpenAISchema(type: .string),
-                OpenAISchema(type: .boolean),
-                OpenAISchema(type: .object)
+                OpenAISchema(type: .number, additionalProperties: false),
+                OpenAISchema(type: .string, additionalProperties: false),
+                OpenAISchema(type: .boolean, additionalProperties: false),
+                OpenAISchema(type: .object, additionalProperties: false)
               ]),
               valueType: OpenAISchemaRef(ref: "ValueType")
         )

@@ -38,6 +38,7 @@ struct StitchAIStructuredOutputsDefinitions: Encodable {
     
     // Types
     let NodeID = OpenAISchema(type: .string,
+                              additionalProperties: false,
                               description: "The unique identifier for the node (UUID)")
     
     let NodeName = OpenAISchemaEnum(values: NodeKind.getAiNodeDescriptions().map(\.nodeKind))
@@ -55,6 +56,7 @@ struct StitchAIStructuredOutputsDefinitions: Encodable {
 
 struct StitchAIStepsSchema: Encodable {
     let steps = OpenAISchema(type: .array,
+                             additionalProperties: false,
                              description: "The actions taken to create a graph",
                              items: OpenAIGeneric(refs: [
                                 .init(ref: "AddNodeAction"),
@@ -101,7 +103,8 @@ struct StitchAIStepSchema: Encodable {
         var container = encoder.container(keyedBy: Step.CodingKeys.self)
         
         let stepTypeSchema = OpenAISchema(type: .string,
-                                          const: self.stepType.rawValue)
+                                          const: self.stepType.rawValue,
+                                          additionalProperties: false)
         
         try container.encode(stepTypeSchema, forKey: .stepType)
         try container.encodeIfPresent(nodeId, forKey: .nodeId)
