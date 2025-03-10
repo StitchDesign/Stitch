@@ -474,6 +474,7 @@
 		EC3420E22AF9C2EC00EBD896 /* CommentBoxHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC3420E12AF9C2EC00EBD896 /* CommentBoxHelpers.swift */; };
 		EC35A511297622030014D14A /* JSONShapeCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC35A510297622030014D14A /* JSONShapeCommand.swift */; };
 		EC363D56294282FD0093C473 /* Triangle.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC363D55294282FD0093C473 /* Triangle.swift */; };
+		EC365A832D7F48E60015B8D7 /* ShadowInspectorRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC365A822D7F48E60015B8D7 /* ShadowInspectorRow.swift */; };
 		EC388D332975FB5F00CFA7D1 /* JSONToShapeNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC388D322975FB5F00CFA7D1 /* JSONToShapeNode.swift */; };
 		EC3914BF29F35C0C00ED8D90 /* loopTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC3914BE29F35C0C00ED8D90 /* loopTests.swift */; };
 		EC39894027BDCA8400683EEE /* ValueImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC39893F27BDCA8400683EEE /* ValueImageView.swift */; };
@@ -1439,6 +1440,7 @@
 		EC3420E12AF9C2EC00EBD896 /* CommentBoxHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentBoxHelpers.swift; sourceTree = "<group>"; };
 		EC35A510297622030014D14A /* JSONShapeCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONShapeCommand.swift; sourceTree = "<group>"; };
 		EC363D55294282FD0093C473 /* Triangle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Triangle.swift; sourceTree = "<group>"; };
+		EC365A822D7F48E60015B8D7 /* ShadowInspectorRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowInspectorRow.swift; sourceTree = "<group>"; };
 		EC388D322975FB5F00CFA7D1 /* JSONToShapeNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONToShapeNode.swift; sourceTree = "<group>"; };
 		EC3914BE29F35C0C00ED8D90 /* loopTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = loopTests.swift; sourceTree = "<group>"; };
 		EC39893F27BDCA8400683EEE /* ValueImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValueImageView.swift; sourceTree = "<group>"; };
@@ -2274,6 +2276,7 @@
 			children = (
 				B56FFB662C1967F600623CC7 /* Field */,
 				ECF387C8280B5C4C0075F0E5 /* NodeInputOutputView.swift */,
+				EC365A822D7F48E60015B8D7 /* ShadowInspectorRow.swift */,
 				EC53C0ED2D543A32002ECAEB /* LayerInspectorRowButton.swift */,
 				EC6B2E102D76272100804E38 /* PortValuesPreview */,
 				205BB3B025BA203D00F144A7 /* PortView.swift */,
@@ -5103,6 +5106,7 @@
 				ECDCE3582821EA9400D83EC3 /* FieldViewModelTypeUtils.swift in Sources */,
 				ECA92A30260A6A4700281B52 /* RandomNode.swift in Sources */,
 				EC55EB8E293682A9005EF38B /* Point4D.swift in Sources */,
+				EC365A832D7F48E60015B8D7 /* ShadowInspectorRow.swift in Sources */,
 				EC9486A42AE2007800B51AB1 /* HoverGestureModifier.swift in Sources */,
 				ECC301AD2938096000C34F10 /* GetKeysNode.swift in Sources */,
 				ECCEB26E2963B10F007E35D1 /* CustomShape.swift in Sources */,
