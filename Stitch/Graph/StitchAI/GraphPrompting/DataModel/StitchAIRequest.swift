@@ -43,4 +43,5 @@ struct StitchAIResponseFormat: OpenAIResponseFormatable {
 struct StitchAIJsonSchema: OpenAIJsonSchema {
     let name = StitchAIStructuredOutputsSchema.title
     let schema = StitchAIStructuredOutputsPayload()
+    let strict = true
 }
