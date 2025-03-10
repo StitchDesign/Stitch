@@ -300,6 +300,7 @@ A node for accessing the device microphone.
 
 *Outputs*
 • The current volume of the microphone input
+• The peak volume of the microphone
 """
 
 let speakerDescription = """
