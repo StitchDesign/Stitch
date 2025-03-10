@@ -99,7 +99,6 @@ final class StitchMic: NSObject, Sendable, StitchSoundPlayerDelegate {
 
     @MainActor
     func retrieveVolumeData() -> (Float, Float) {
-        self.recorder?.retrieveVolumes() ?? (.zero, .zero)
     }
 
     // Delay doesn't work with mic - tracked in #2362
