@@ -179,9 +179,18 @@ extension StitchAIManager {
         // Serialize and send request
         do {
             let encoder = JSONEncoder()
-//            encoder.outputFormatting = [.withoutEscapingSlashes]
+            encoder.outputFormatting = [.prettyPrinted]
             let jsonData = try encoder.encode(payload)
             urlRequest.httpBody = jsonData
+            
+            // Log the full request payload to see the structured output schema
+            if let requestPayloadString = String(data: jsonData, encoding: .utf8) {
+                log("OPEN AI REQUEST PAYLOAD:")
+                log("----------------------------------------")
+                log(requestPayloadString)
+                log("----------------------------------------")
+            }
+            
             log("Making request attempt \(attempt) of \(config.maxRetries)")
             // log("Request payload: \(payload.description)")
         } catch {
