@@ -43,7 +43,7 @@ struct VideoImportNode: PatchNodeDefinition {
                     type: .media
                 ),
                 .init(
-                    label: "Average Volume",
+                    label: "Volume",
                     type: .number
                 ),
                 .init(

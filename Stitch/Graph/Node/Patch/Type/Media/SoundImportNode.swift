@@ -50,7 +50,7 @@ struct SoundImportNode: PatchNodeDefinition {
                     type: .media
                 ),
                 .init(
-                    label: "Overall Volume",
+                    label: "Volume",
                     type: .number
                 ),
                 .init(

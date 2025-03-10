@@ -300,7 +300,6 @@ A node for accessing the device microphone.
 
 *Outputs*
 • The current volume of the microphone input
-• The peak volume of the microphone
 """
 
 let speakerDescription = """
@@ -1816,7 +1815,7 @@ A node for importing a sound file.
 
 *Outputs*
 • The audio file; can be connected to a Speaker node to hear output
-• Peak volume of the sound file
+• Volume
 • Current playback position
 • Duration of the sound file
 • A loop of amplitude values for 16 component frequencies of the sound file
@@ -1834,7 +1833,6 @@ Allows for importing video file assets. The video can be displayed in the Previe
 
 *Outputs*
 • Average volume of the video
-• Peak volume of the video
 • Current playback position
 • Duration of the video
 """
