@@ -106,7 +106,7 @@ final class StitchMic: NSObject, Sendable, StitchSoundPlayerDelegate {
         // Stop the amplitude tap
         self.ampTap?.stop()
         // Optionally stop the engine if needed
-        // self.engine.stop()
+        self.engine.stop()
     }
 
     @MainActor
