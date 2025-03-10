@@ -76,12 +76,13 @@ struct StitchAIStepsSchema: Encodable {
     let steps = OpenAISchema(type: .array,
                              additionalProperties: false,
                              description: "The actions taken to create a graph",
-                             items: OpenAIGeneric(refs: [
-                                .init(ref: "AddNodeAction"),
-                                .init(ref: "ConnectNodesAction"),
-                                .init(ref: "ChangeValueTypeAction"),
-                                .init(ref: "SetInputAction")
-                             ])
+                             items: OpenAIGeneric(types: [],
+                                                refs: [
+                                                    OpenAISchemaRef(ref: "AddNodeAction"),
+                                                    OpenAISchemaRef(ref: "ConnectNodesAction"),
+                                                    OpenAISchemaRef(ref: "ChangeValueTypeAction"),
+                                                    OpenAISchemaRef(ref: "SetInputAction")
+                                                ])
     )
 }
 
