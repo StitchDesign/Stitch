@@ -17,10 +17,10 @@ protocol OpenAIRequestable: Encodable {
 }
 
 protocol OpenAIResponseFormatable: Encodable {
-//    associatedtype JsonSchema: OpenAIJsonSchema
+    associatedtype JsonSchema: OpenAIJsonSchema
     
     var type: String { get }
-    var json_schema: String { get }
+    var json_schema: JsonSchema { get }
 }
 
 protocol OpenAIJsonSchema: Encodable {
