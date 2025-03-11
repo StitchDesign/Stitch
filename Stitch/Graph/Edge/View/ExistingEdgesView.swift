@@ -61,6 +61,7 @@ extension ConnectedEdgeView {
         self.upstreamObserver = data.upstreamRowObserver
         self.inputData = data.inputData
         self.outputData = data.outputData
+        self.zIndex = data.zIndex
         self.edgeAnimationEnabled = edgeAnimationEnabled
     }
 //    @MainActor
@@ -119,6 +120,7 @@ struct ConnectedEdgeView: View {
     let inputData: EdgeAnchorDownstreamData
     let outputData: EdgeAnchorUpstreamData
     let edgeAnimationEnabled: Bool
+    let zIndex: Double
     
     // Optional in event we only have possible edge
 //    let upstreamObserver: OutputNodeRowViewModel?
@@ -158,15 +160,9 @@ struct ConnectedEdgeView: View {
                                   to: inputPortViewData)
             let portColor: PortColor = inputObserver.portColor
             let isSelectedEdge = (portColor == .highlightedEdge || portColor == .highlightedLoopEdge)
-            
-            // TODO: this is a problem with delegates
-            
-            let upstreamObserverZIndex = upstreamObserver.canvasItemDelegate?.zIndex ?? 0
-            let defaultInputNodeIndex = inputObserver.canvasItemDelegate?.zIndex ?? 0
-            let zIndexOfInputNode = inputObserver.canvasItemDelegate?.zIndex ?? defaultInputNodeIndex
-            let base = max(upstreamObserverZIndex, zIndexOfInputNode)
-            let boost = isSelectedEdge ? SELECTED_EDGE_Z_INDEX_BOOST : 0
-            let zIndex: ZIndex = base + boost
+           
+            let zIndexBoost = isSelectedEdge ? SELECTED_EDGE_Z_INDEX_BOOST : 0
+            let newZIndex: ZIndex = self.zIndex + zIndexBoost
             
             EdgeView(edge: edge,
                      pointFrom: pointFrom,
@@ -183,7 +179,7 @@ struct ConnectedEdgeView: View {
                      lastToWithEdge: lastToWithEdge,
                      totalOutputs: totalOutputs,
                      edgeAnimationEnabled: edgeAnimationEnabled)
-            .zIndex(zIndex)
+            .zIndex(newZIndex)
             
         } else {
             Color.clear
