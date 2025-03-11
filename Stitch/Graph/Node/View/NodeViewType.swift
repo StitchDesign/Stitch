@@ -388,7 +388,7 @@ struct DefaultNodeRowsView<RowViewModel, RowView>: View where RowViewModel: Node
                 ForEach(self.rowViewModels) { rowViewModel in
                     self.rowView(rowViewModel)
                     // fixes issue where ports could have inconsistent height with no label
-                        .height(NODE_ROW_HEIGHT + 8)
+                        .modifier(CanvasPortHeightModifier())
                         .onChange(of: rowViewModel.fieldValueTypes.first?.type) {
                             // Resets node sizing data when either node or portvalue types change
                             canvas.resetViewSizingCache()

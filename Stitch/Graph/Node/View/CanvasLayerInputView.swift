@@ -65,6 +65,13 @@ struct CanvasLayerInputView: View {
                                  forFlyout: false,
                                  valueEntryView: valueEntryView)
         }
-        .height(NODE_ROW_HEIGHT + 6)
+        .modifier(CanvasPortHeightModifier())
+    }
+}
+
+struct CanvasPortHeightModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .height(NODE_ROW_HEIGHT + 8)
     }
 }
