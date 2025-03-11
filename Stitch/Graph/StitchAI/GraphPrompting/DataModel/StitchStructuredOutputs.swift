@@ -72,16 +72,25 @@ struct StitchAIStructuredOutputsDefinitions: Encodable {
 
 }
 
+struct OpenAIDiscriminator: Encodable {
+    let propertyName: String
+}
+
 struct StitchAIStepsSchema: Encodable {
     let steps = OpenAISchema(type: .array,
                              additionalProperties: false,
-                             description: "The actions taken to create a graph",
+                             description: "The actions taken to create a graph - Strictly follow the action sequence: 1. ADD_NODE, 2. CHANGE_VALUE_TYPE, 3. SET_INPUT, 4. CONNECT_NODES",
                              items: OpenAIGeneric(types: [],
                                                 refs: [
+                                                    // Order actions according to system prompt:
+                                                    // 1. ADD_NODE
                                                     OpenAISchemaRef(ref: "AddNodeAction"),
-                                                    OpenAISchemaRef(ref: "ConnectNodesAction"),
+                                                    // 2. CHANGE_VALUE_TYPE
                                                     OpenAISchemaRef(ref: "ChangeValueTypeAction"),
-                                                    OpenAISchemaRef(ref: "SetInputAction")
+                                                    // 3. SET_INPUT
+                                                    OpenAISchemaRef(ref: "SetInputAction"),
+                                                    // 4. CONNECT_NODES
+                                                    OpenAISchemaRef(ref: "ConnectNodesAction")
                                                 ])
     )
 }

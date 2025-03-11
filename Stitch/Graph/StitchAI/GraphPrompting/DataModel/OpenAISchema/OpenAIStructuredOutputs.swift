@@ -152,46 +152,43 @@ struct OpenAISchemaRef: Encodable {
 struct OpenAIGeneric: Encodable {
     var types: [OpenAISchema] = []
     var refs: [OpenAISchemaRef] = []
-    var anyOf: [Any]? = nil
-
+    var oneOf: [OpenAISchemaRef]? = nil
+    var discriminator: OpenAIDiscriminator? = nil
+    
     enum CodingKeys: String, CodingKey {
         case type
         case items
         case anyOf
-        case additionalProperties
+        case oneOf
+        case discriminator
     }
 
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-
-        // Encode the 'type' if 'anyOf' is not present
-        if anyOf == nil {
-            try container.encode(OpenAISchemaType.array, forKey: .type)
-            try container.encode(false, forKey: .additionalProperties)
+        
+        if !self.types.isEmpty || !self.refs.isEmpty {
+            var arrayContainer = container.nestedUnkeyedContainer(forKey: .anyOf)
+            
+            // Add types to array
+            for type in self.types {
+                try arrayContainer.encode(type)
+            }
+            
+            // Add refs to array
+            for ref in self.refs {
+                try arrayContainer.encode(ref)
+            }
         }
-
-        // Encode 'anyOf' if it's present
-        if let anyOfSchemas = anyOf {
-            // Special handling for anyOf to avoid the identical first keys issue
-            var anyOfContainer = container.nestedUnkeyedContainer(forKey: .anyOf)
+        
+        // Handle oneOf with discriminator
+        if let oneOf = self.oneOf {
+            var oneOfContainer = container.nestedUnkeyedContainer(forKey: .oneOf)
             
-            for case let schema as OpenAISchemaRef in anyOfSchemas {
-                try anyOfContainer.encode(schema)
-            }
-            
-            for case let schema as OpenAISchema in anyOfSchemas {
-                try anyOfContainer.encode(schema)
+            for ref in oneOf {
+                try oneOfContainer.encode(ref)
             }
             
-            try container.encode(false, forKey: .additionalProperties)
-        } else {
-            // Handle refs and types as before
-            if !refs.isEmpty {
-                try container.encode(refs, forKey: .items)
-            }
-            else if !types.isEmpty {
-                try container.encode(types, forKey: .items)
-            }
+            try container.encodeIfPresent(self.discriminator, forKey: .discriminator)
         }
     }
 }

@@ -20,7 +20,7 @@ struct StitchAIRequest: OpenAIRequestable {
          userPrompt: String,
          systemPrompt: String) throws {
         let responseFormat = StitchAIResponseFormat()
-        let structuredOutputs = responseFormat.json_schema.schema
+        //let structuredOutputs = responseFormat.json_schema.schema
         
         self.model = secrets.openAIModel
         self.n = 1
