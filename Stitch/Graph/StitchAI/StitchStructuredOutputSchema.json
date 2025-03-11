@@ -74,7 +74,7 @@
           ]
         }
       },
-      "required": ["step_type", "node_id", "port", "value"],
+      "required": ["step_type", "node_id", "port"],
       "additionalProperties": false
     },
     "NodeID": {
