@@ -85,17 +85,16 @@ struct NodesView: View {
 }
 
 struct CanvasEdgesViewModifier: ViewModifier {
-    @State private var allInputs: [InputNodeRowViewModel] = []
-    @State private var allOutputs: [OutputNodeRowViewModel] = []
-    @State private var connectedInputs: [InputNodeRowViewModel] = []
+//    @State private var allInputs: [InputNodeRowViewModel] = []
+//    @State private var allOutputs: [OutputNodeRowViewModel] = []
+//    @State private var connectedInputs: [InputNodeRowViewModel] = []
     
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     
     @MainActor
-    func connectedEdgesView(allConnectedInputs: [InputNodeRowViewModel]) -> some View {
-        GraphConnectedEdgesView(graph: graph,
-                                allConnectedInputs: allConnectedInputs)
+    func connectedEdgesView() -> some View {
+        GraphConnectedEdgesView(graph: graph)
     }
     
     @MainActor
@@ -121,42 +120,42 @@ struct CanvasEdgesViewModifier: ViewModifier {
         
         return content
         // Moves expensive computation here to reduce render cycles
-            .onChange(of: graph.graphUpdaterId, initial: true) {
-                // log("CanvasEdgesViewModifier: .onChange(of: self.graph.graphUpdaterId)")
-                let canvasItemsAtThisTraversalLevel = self.graph
-                    .getCanvasItemsAtTraversalLevel(groupNodeFocused: document.groupNodeFocused?.groupNodeId)
-                
-                let newInputs = canvasItemsAtThisTraversalLevel
-                    .flatMap { canvasItem -> [InputNodeRowViewModel] in
-                        canvasItem.inputViewModels
-                    }
-                
-                
-                let newConnections = allInputs.filter { input in
-                    guard input.nodeDelegate?.patchNodeViewModel?.patch != .wirelessReceiver else {
-                        return false
-                    }
-                    return input.rowDelegate?.containsUpstreamConnection ?? false
-                }
-                
-                let newOutputs = canvasItemsAtThisTraversalLevel
-                    .flatMap { $0.outputViewModels }
-
-                if self.allInputs.map(\.id).toSet != newInputs.map(\.id).toSet {
-                    self.allInputs = newInputs
-                }
-                
-                if self.connectedInputs.map(\.id).toSet != newConnections.map(\.id).toSet {
-                    self.connectedInputs = newConnections
-                }
-                
-                if self.allOutputs.map(\.id).toSet != newOutputs.map(\.id).toSet {
-                    self.allOutputs = newOutputs
-                }
-            }
+//            .onChange(of: graph.graphUpdaterId, initial: true) {
+//                // log("CanvasEdgesViewModifier: .onChange(of: self.graph.graphUpdaterId)")
+//                let canvasItemsAtThisTraversalLevel = self.graph
+//                    .getCanvasItemsAtTraversalLevel(groupNodeFocused: document.groupNodeFocused?.groupNodeId)
+//                
+//                let newInputs = canvasItemsAtThisTraversalLevel
+//                    .flatMap { canvasItem -> [InputNodeRowViewModel] in
+//                        canvasItem.inputViewModels
+//                    }
+//                
+//                
+//                let newConnections = newInputs.filter { input in
+//                    guard input.nodeDelegate?.patchNodeViewModel?.patch != .wirelessReceiver else {
+//                        return false
+//                    }
+//                    return input.rowDelegate?.containsUpstreamConnection ?? false
+//                }
+//                
+//                let newOutputs = canvasItemsAtThisTraversalLevel
+//                    .flatMap { $0.outputViewModels }
+//
+//                if self.allInputs.map(\.id).toSet != newInputs.map(\.id).toSet {
+//                    self.allInputs = newInputs
+//                }
+//                
+//                if self.connectedInputs.map(\.id).toSet != newConnections.map(\.id).toSet {
+//                    self.connectedInputs = newConnections
+//                }
+//                
+//                if self.allOutputs.map(\.id).toSet != newOutputs.map(\.id).toSet {
+//                    self.allOutputs = newOutputs
+//                }
+//            }
             .background {
                 // Using background ensures edges z-index are always behind ndoes
-                connectedEdgesView(allConnectedInputs: self.connectedInputs) // + candidateInputs)
+                connectedEdgesView() // + candidateInputs)
             }
 //            .overlay {
 //                edgeDrawingView(inputs: allInputs,

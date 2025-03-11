@@ -15,6 +15,51 @@ import StitchEngine
 import SwiftUI
 import Vision
 
+struct ConnectedEdgeData: Equatable {
+    static func == (lhs: ConnectedEdgeData, rhs: ConnectedEdgeData) -> Bool {
+        lhs.upstreamRowObserver.id == rhs.upstreamRowObserver.id &&
+        lhs.downstreamRowObserver.id == rhs.downstreamRowObserver.id &&
+        lhs.zIndex == rhs.zIndex
+    }
+    
+    let upstreamRowObserver: OutputNodeRowViewModel
+    let downstreamRowObserver: InputNodeRowViewModel
+    let inputData: EdgeAnchorDownstreamData
+    let outputData: EdgeAnchorUpstreamData
+    let zIndex: Double
+    
+    @MainActor
+    init?(downstreamRowObserver: InputNodeRowViewModel) {
+        let downstreamNode = downstreamRowObserver.nodeDelegate
+        
+        guard let upstreamRowObserver = downstreamRowObserver.rowDelegate?.upstreamOutputObserver?.nodeRowViewModel,
+              let inputData = EdgeAnchorDownstreamData(
+                from: downstreamRowObserver,
+                upstreamNodeId: upstreamRowObserver.canvasItemDelegate?.id),
+              let outputData = EdgeAnchorUpstreamData(
+                from: upstreamRowObserver,
+                connectedDownstreamNode: downstreamNode) else {
+            return nil
+        }
+        
+        self.upstreamRowObserver = upstreamRowObserver
+        self.downstreamRowObserver = downstreamRowObserver
+        self.inputData = inputData
+        self.outputData = outputData
+        
+        let upstreamRowObserverZIndex = upstreamRowObserver.canvasItemDelegate?.zIndex ?? 0
+        let defaultInputNodeIndex = downstreamRowObserver.canvasItemDelegate?.zIndex ?? 0
+        let zIndexOfInputNode = downstreamRowObserver.canvasItemDelegate?.zIndex ?? defaultInputNodeIndex
+        self.zIndex = max(upstreamRowObserverZIndex, zIndexOfInputNode)
+    }
+}
+
+extension ConnectedEdgeData: Identifiable {
+    var id: NodeRowViewModelId {
+        self.downstreamRowObserver.id
+    }
+}
+
 @Observable
 final class GraphState: Sendable {
     
@@ -118,7 +163,8 @@ final class GraphState: Sendable {
     // Tracks labels for group ports for perf
     @MainActor var groupPortLabels = [Coordinate : String]()
     
-    // 
+    // Visual edge data
+    @MainActor var connectedEdges = [ConnectedEdgeData]()
     
     @MainActor var lastEncodedDocument: GraphEntity
     @MainActor weak var documentDelegate: StitchDocumentViewModel?
@@ -220,6 +266,13 @@ extension GraphState {
         
         // Update connected port data
         self.visibleNodesViewModel.updateAllNodeViewData()
+        
+        // Update edges after everything else
+        let newEdges = self.getVisualEdgeData(groupNodeFocused: self.documentDelegate?.groupNodeFocused?.groupNodeId)
+        
+        if self.connectedEdges != newEdges {
+            self.connectedEdges = newEdges
+        }
         
         // Update labels for group nodes
         let newGroupLabels = self.getGroupPortLabels()
@@ -324,6 +377,39 @@ extension GraphState {
         
         // Updates node visibility data
         self.visibleNodesViewModel.resetCache()
+        
+//        // Update edges after everything else
+//        let newEdges = self.getVisualEdgeData(groupNodeFocused: self.documentDelegate?.groupNodeFocused?.groupNodeId)
+//        
+//        if self.connectedEdges != newEdges {
+//            self.connectedEdges = newEdges
+//        }
+    }
+    
+    @MainActor
+    func getVisualEdgeData(groupNodeFocused: NodeId?) -> [ConnectedEdgeData] {
+        let canvasItemsAtThisTraversalLevel = self
+            .getCanvasItemsAtTraversalLevel(groupNodeFocused: groupNodeFocused)
+        
+        let newInputs = canvasItemsAtThisTraversalLevel
+            .flatMap { canvasItem -> [InputNodeRowViewModel] in
+                canvasItem.inputViewModels
+            }
+        
+        
+        let connectedInputs = newInputs.filter { input in
+            guard input.nodeDelegate?.patchNodeViewModel?.patch != .wirelessReceiver else {
+                return false
+            }
+            return input.rowDelegate?.containsUpstreamConnection ?? false
+        }
+        
+//        let newOutputs = canvasItemsAtThisTraversalLevel
+//            .flatMap { $0.outputViewModels }
+        
+        return connectedInputs.compactMap { connection in
+            ConnectedEdgeData(downstreamRowObserver: connection)
+        }
     }
 }
 

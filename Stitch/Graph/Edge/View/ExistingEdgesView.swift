@@ -10,7 +10,7 @@ import StitchSchemaKit
 
 struct GraphConnectedEdgesView: View {
     @Bindable var graph: GraphState
-    let allConnectedInputs: [InputNodeRowViewModel]
+//    let allConnectedInputs: [InputNodeRowViewModel]
     
     var animatingEdges: PossibleEdgeSet {
         graph.edgeEditingState?.possibleEdges ?? .init()
@@ -37,7 +37,7 @@ struct GraphConnectedEdgesView: View {
     }
     
     var body: some View {
-        ForEach(allConnectedInputs) { inputObserver in
+        ForEach(graph.connectedEdges) { edgeData in
             // Bindable fixes issue where edges may not appear initially
 //            @Bindable var inputObserver = inputObserver
             
@@ -47,42 +47,43 @@ struct GraphConnectedEdgesView: View {
 //                from: inputObserver,
 //                possibleEdge: possibleEdge)
             
-            if let upstreamObserver = inputObserver.rowDelegate?.upstreamOutputObserver?.nodeRowViewModel {
-                ConnectedEdgeView(
-                    inputObserver: inputObserver,
-                    outputObserver: upstreamObserver,
-                    //                possibleEdgeOutputObserver: possibleEdgeOutputObserver,
-                    //                possibleEdge: possibleEdge,
-                    edgeAnimationEnabled: edgeAnimationEnabled)
-                //                shownPossibleEdgeIds: shownPossibleEdgeIds)
-            }
+            ConnectedEdgeView(data: edgeData,
+                              edgeAnimationEnabled: edgeAnimationEnabled)
             
         }
     }
 }
 
 extension ConnectedEdgeView {
-    @MainActor
-    init?(inputObserver: InputNodeRowViewModel,
-          outputObserver: OutputNodeRowViewModel,
-          edgeAnimationEnabled: Bool) {
-        let downstreamNode = inputObserver.nodeDelegate
-        
-        guard let inputData = EdgeAnchorDownstreamData(
-            from: inputObserver,
-            upstreamNodeId: outputObserver.canvasItemDelegate?.id),
-              let outputData = EdgeAnchorUpstreamData(
-                from: outputObserver,
-                connectedDownstreamNode: downstreamNode) else {
-            return nil
-        }
-        
-        self.inputData = inputData
-        self.outputData = outputData
-        self.upstreamObserver = outputObserver
-        self.inputObserver = inputObserver
+    @MainActor init(data: ConnectedEdgeData,
+                    edgeAnimationEnabled: Bool) {
+        self.inputObserver = data.downstreamRowObserver
+        self.upstreamObserver = data.upstreamRowObserver
+        self.inputData = data.inputData
+        self.outputData = data.outputData
         self.edgeAnimationEnabled = edgeAnimationEnabled
     }
+//    @MainActor
+//    init?(inputObserver: InputNodeRowViewModel,
+//          outputObserver: OutputNodeRowViewModel,
+//          edgeAnimationEnabled: Bool) {
+//        let downstreamNode = inputObserver.nodeDelegate
+//        
+//        guard let inputData = EdgeAnchorDownstreamData(
+//            from: inputObserver,
+//            upstreamNodeId: outputObserver.canvasItemDelegate?.id),
+//              let outputData = EdgeAnchorUpstreamData(
+//                from: outputObserver,
+//                connectedDownstreamNode: downstreamNode) else {
+//            return nil
+//        }
+//        
+//        self.inputData = inputData
+//        self.outputData = outputData
+//        self.upstreamObserver = outputObserver
+//        self.inputObserver = inputObserver
+//        self.edgeAnimationEnabled = edgeAnimationEnabled
+//    }
     
 //    @MainActor
 //    init(inputObserver: InputNodeRowViewModel,
@@ -136,7 +137,6 @@ struct ConnectedEdgeView: View {
         let totalOutputs = outputData.totalOutputs
         let lastConnectedUpstreamObserver = outputData.lastConnectedUpstreamObserver
 //        let pointTo = inputObserver.anchorPoint
-        let edgeAnimationEnabled = edgeAnimationEnabled
         
 //        let possibleEdge = possibleEdge
 //        let possibleEdgeOutputObserver = possibleEdgeOutputObserver
