@@ -372,7 +372,7 @@ let LAYER_INSPECTOR_ROW_SPACING = 8.0
 // how big an icon / button is
 let LAYER_INSPECTOR_ROW_ICON_LENGTH = 16.0
 
-//struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: NodeRowObserver, RowView: View {
+
 struct LayerInspectorPortView<RowView>: View where RowView: View {
     
     // This ought to be non-optional?
