@@ -386,6 +386,7 @@ struct InspectorLayerMultifieldInputView: View {
                               graph: graph)
     }
     
+    // TODO: MARCH 10: inaccurate for unpacked ? or okay, since always ... ; check on iPad!
     // Can we really assume that this is packed?
     var layerInputType: LayerInputType {
         LayerInputType.init(layerInput: layerInputObserver.port,
@@ -423,135 +424,112 @@ struct InspectorLayerMultifieldInputView: View {
         graph.propertySidebar.selectedProperty == layerInspectorRowId
     }
     
-//    @ViewBuilder @MainActor
-//    func valueEntryView(portViewModel: InputFieldViewModel,
-//                        isMultiField: Bool) -> InputValueEntry {
-//        
-//        InputValueEntry(graph: graph,
-//                        graphUI: document,
-//                        viewModel: portViewModel,
-//                        node: node,
-//                        rowViewModel: layerInputData.inspectorRowViewModel,
-//                        canvasItem: nil,
-//                        rowObserver: layerInputData.rowObserver,
-//                        isCanvasItemSelected: false,
-//                        hasIncomingEdge: false,
-//                        forPropertySidebar: true,
-//                        // TODO: MARCH 10: this is actually more like "is this field/input on the canvas already? if so, tapping CommonEditingView should NOT focus it"
-//                        // How was this logic ever correct in the past? It's not by field?
-//                        
-//                        // invalid for unpacked multifiple fields on canvas
-//                        propertyIsAlreadyOnGraph: layerInputObserver.getCanvasItemForWholeInput().isDefined,
-//                        
-//                        // Flyout broken with unpacked layer inputs because this passed in param is not accurate for unpacked layer inputs
-//                        // Shiuld instead look at layer input observer
-//                        isFieldInMultifieldInput: true,
-//                        
-//                        isForFlyout: forFlyout,
-//                        isSelectedInspectorRow: propertyRowIsSelected,
-//                        fieldsRowLabel: layerInputObserver.fieldsRowLabel,
-//                        useIndividualFieldLabel: layerInputObserver.useIndividualFieldLabel(activeIndex: document.activeIndex))
-//    }
-    
-//    var fieldIndex: Int {
-//        viewModel.fieldIndex
-//    }
-//    
-//    @MainActor
-//    var hasHeterogenousValues: Bool {
-//        guard rowViewModel.id.graphItemType.isLayerInspector,
-//             let layerInputPort = rowViewModel.id.layerInputPort else {
-//            return false
-//        }
-//        
-//        return propertySidebar.heterogenousFieldsMap?
-//            .get(layerInputPort)?
-//            .contains(self.fieldIndex) ?? false
-//    }
-    
     var body: some View {
         HStack(alignment: .firstTextBaseline) {
             
             // OVERALL LABEL
             
 //            if willShowLabel {
+//                LabelDisplayView(label: label,
+//                                 isLeftAligned: false,
+//                                 fontColor: STITCH_FONT_GRAY_COLOR,
+//                                 isSelectedInspectorRow: propertyRowIsSelected)
+////            }
+//            
+//            Spacer()
+            
+            logInView("InspectorLayerMultifieldInputView: self.layerInputObserver.port: \(self.layerInputObserver.port)")
+            logInView("InspectorLayerMultifieldInputView: self.fieldValueTypes count: \(self.fieldValueTypes)")
+            
+            
+            if layerInputObserver.port == .transform3D {
+                LayerInspectorThreeFieldView(document: document,
+                                             graph: graph,
+                                             node: node,
+                                             layerInputObserver: layerInputObserver)
+            } else {
+                
                 LabelDisplayView(label: label,
                                  isLeftAligned: false,
                                  fontColor: STITCH_FONT_GRAY_COLOR,
                                  isSelectedInspectorRow: propertyRowIsSelected)
 //            }
             
-            Spacer()
-            
-            logInView("InspectorLayerMultifieldInputView: self.layerInputObserver.port: \(self.layerInputObserver.port)")
-            logInView("InspectorLayerMultifieldInputView: self.fieldValueTypes count: \(self.fieldValueTypes)")
-            
-            ForEach(fieldValueTypes) { fieldGrouping in
+                Spacer()
                 
-                // Not needed?
-//                if let fieldGroupLabel = fieldGrouping.groupLabel {
-//                    HStack {
-//                        LabelDisplayView(label: fieldGroupLabel,
-//                                         isLeftAligned: false,
-//                                         fontColor: STITCH_FONT_GRAY_COLOR,
-//                                         isSelectedInspectorRow: false)
-//                        Spacer()
-//                    }
-//                }
-                
-                
-                ForEach(fieldGrouping.fieldObservers) { fieldObserver in
-                                            
-                    LabelDisplayView(label: fieldObserver.fieldLabel,
-                                     isLeftAligned: true,
-                                     fontColor: STITCH_FONT_GRAY_COLOR,
-                                     // TODO: MARCH 10: for font color when selected on iPad
-                                     isSelectedInspectorRow: false)
-                    .border(.yellow)
+                ForEach(fieldValueTypes) { fieldGrouping in
                     
-                    CommonEditingViewReadOnly(
-                        inputField: fieldObserver,
-                        inputString: fieldObserver.fieldValue.stringValue,
-                        forPropertySidebar: true,
-                        isHovering: false, // Can never hover on a inspector's multifield
-                        choices: nil, // always nil for layer dropdown ?
+                    // Not needed?
+    //                if let fieldGroupLabel = fieldGrouping.groupLabel {
+    //                    HStack {
+    //                        LabelDisplayView(label: fieldGroupLabel,
+    //                                         isLeftAligned: false,
+    //                                         fontColor: STITCH_FONT_GRAY_COLOR,
+    //                                         isSelectedInspectorRow: false)
+    //                        Spacer()
+    //                    }
+    //                }
+                    
+                    
+                    // Nested ForEach works well for abstracting over packed vs unpacked for simple two-field inputs
+                    
+                    
+                    ForEach(fieldGrouping.fieldObservers) { fieldObserver in
+                                                
+                        LabelDisplayView(label: fieldObserver.fieldLabel,
+                                         isLeftAligned: true,
+                                         fontColor: STITCH_FONT_GRAY_COLOR,
+                                         // TODO: MARCH 10: for font color when selected on iPad
+                                         isSelectedInspectorRow: propertyRowIsSelected)
+                        .border(.yellow)
                         
-                        // field width is the most variable for read only views in inspector?
-                        fieldWidth: self.fieldWidth,
-                        
-                        // TODO: MARCH 10: easier way to tell if part of heterogenous layer multiselect
-                        fieldHasHeterogenousValues: false,
-                        
-                        // TODO: MARCH 10: for font color when selected on iPad
-                        isSelectedInspectorRow: false,
-                        
-                        isFieldInMultfieldInspectorInput: true) {
+                        CommonEditingViewReadOnly(
+                            inputField: fieldObserver,
+                            inputString: fieldObserver.fieldValue.stringValue,
+                            forPropertySidebar: true,
+                            isHovering: false, // Can never hover on a inspector's multifield
+                            choices: nil, // always nil for layer dropdown ?
                             
-                            // If entire packed input is already on canvas, don't do anything; rather, let the LayerInspectorPortView's onTap take over
-                            if layerInputObserver.mode == .packed,
-                               let canvasNodeForPackedInput = layerInputObserver.getCanvasItemForWholeInput() {
-                                log("InspectorLayerMultifieldInputView: will jump to canvas for \(layerInput)")
-                                graph.jumpToCanvasItem(id: canvasNodeForPackedInput.id,
-                                                       document: document)
-                            } else {
-                                log("InspectorLayerMultifieldInputView: will open flyout for \(layerInput)")
-                                dispatch(FlyoutToggled(
-                                    flyoutInput: layerInput,
-                                    flyoutNodeId: self.node.id,
-                                    fieldToFocus: .textInput(fieldObserver.id)))
+                            // field width is the most variable for read only views in inspector?
+                            fieldWidth: self.fieldWidth,
+                            
+                            // TODO: MARCH 10: easier way to tell if part of heterogenous layer multiselect
+                            fieldHasHeterogenousValues: false,
+                            
+                            // TODO: MARCH 10: for font color when selected on iPad
+                            isSelectedInspectorRow: propertyRowIsSelected,
+                            
+                            isFieldInMultfieldInspectorInput: true) {
+                                
+                                // If entire packed input is already on canvas, don't do anything; rather, let the LayerInspectorPortView's onTap take over
+                                if layerInputObserver.mode == .packed,
+                                   let canvasNodeForPackedInput = layerInputObserver.getCanvasItemForWholeInput() {
+                                    log("InspectorLayerMultifieldInputView: will jump to canvas for \(layerInput)")
+                                    graph.jumpToCanvasItem(id: canvasNodeForPackedInput.id,
+                                                           document: document)
+                                } else {
+                                    log("InspectorLayerMultifieldInputView: will open flyout for \(layerInput)")
+                                    dispatch(FlyoutToggled(
+                                        flyoutInput: layerInput,
+                                        flyoutNodeId: self.node.id,
+                                        fieldToFocus: .textInput(fieldObserver.id)))
+                                }
+                                
+                                
                             }
-                            
-                            
-                        }
-                        .border(.purple)
+                            .border(.purple)
+                    }
+                    
+                    // 3 fields (3D transform, 3D size)
+                    
+                    
+                    // 4 fields (margin, padding)
+                    
                 }
+            } // else
                 
-                // 3 fields (3D transform, 3D size)
-                
-                
-                // 4 fields (margin, padding)
-                
-            }
+            
+            
                         
 //
 //            // If the input has multiple rows of fields (e.g. 3D Transform)
@@ -613,13 +591,85 @@ struct InspectorLayerMultifieldInputView: View {
             return INSPECTOR_MULTIFIELD_INDIVIDUAL_FIELD_WIDTH
         }
     }
+}
+
+// 3D Transform, 3D Size etc.
+struct LayerInspectorThreeFieldView: View {
+    
+    @Bindable var document: StitchDocumentViewModel
+    @Bindable var graph: GraphState
+    @Bindable var node: NodeViewModel
+    let layerInputObserver: LayerInputObserver
+    
+    var body: some View {
+        VStack {
+            ForEach(layerInputObserver.fieldValueTypes) { fieldGrouping in
+                VStack {
+                    if let fieldGroupLabel = fieldGrouping.groupLabel {
+                        HStack {
+                            LabelDisplayView(label: fieldGroupLabel,
+                                             isLeftAligned: false,
+                                             fontColor: STITCH_FONT_GRAY_COLOR,
+                                             isSelectedInspectorRow: false)
+                            Spacer()
+                        }
+                    }
+                    
+                    HStack {
+                        self.observerViews(fieldGrouping.fieldObservers)
+                    }
+                }
+            } // ForEach
+        }
+    }
+    
+    func observerViews(_ fieldObservers: [InputNodeRowViewModel.FieldType]) -> some View {
         
-//    func fieldsListView(_ fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>]) -> some View {
-//        LayerInputFieldsView(fieldValueTypes: fieldValueTypes,
-//                             layerInputObserver: layerInputObserver,
-//                             forFlyout: forFlyout,
-//                             valueEntryView: valueEntryView)
-//    }
+        ForEach(fieldObservers) { fieldObserver  in
+            HStack {
+                
+                // NEED AN ABSTRACTION VIEW FOR THIS LABEL + READ-ONLY VIEW
+                LabelDisplayView(label: fieldObserver.fieldLabel,
+                                 isLeftAligned: true,
+                                 fontColor: STITCH_FONT_GRAY_COLOR,
+                                 // TODO: MARCH 10: for font color when selected on iPad
+                                 isSelectedInspectorRow: false)
+                
+                CommonEditingViewReadOnly(
+                    inputField: fieldObserver,
+                    inputString: fieldObserver.fieldValue.stringValue,
+                    forPropertySidebar: true,
+                    isHovering: false, // Can never hover on a inspector's multifield
+                    choices: nil, // always nil for layer dropdown ?
+                    
+                    // field width is the most variable for read only views in inspector?
+                    fieldWidth: INSPECTOR_MULTIFIELD_INDIVIDUAL_FIELD_WIDTH,
+                    
+                    // TODO: MARCH 10: easier way to tell if part of heterogenous layer multiselect
+                    fieldHasHeterogenousValues: false,
+                    
+                    // TODO: MARCH 10: for font color when selected on iPad
+                    isSelectedInspectorRow: false,
+                    
+                    isFieldInMultfieldInspectorInput: true) {
+                        // If entire packed input is already on canvas, don't do anything; rather, let the LayerInspectorPortView's onTap take over
+                        if layerInputObserver.mode == .packed,
+                           let canvasNodeForPackedInput = layerInputObserver.getCanvasItemForWholeInput() {
+                            log("LayerInspectorThreeFieldView: will jump to canvas for \(layerInputObserver.port)")
+                            graph.jumpToCanvasItem(id: canvasNodeForPackedInput.id,
+                                                   document: document)
+                        } else {
+                            log("LayerInspectorThreeFieldView: will open flyout for \(layerInputObserver.port)")
+                            dispatch(FlyoutToggled(
+                                flyoutInput: layerInputObserver.port,
+                                flyoutNodeId: self.node.id,
+                                fieldToFocus: .textInput(fieldObserver.id)))
+                        }
+                    }
+            }
+        } // ForEach
+    }
+    
 }
 
 struct LayerInspectorOutputPortView: View {
