@@ -45,15 +45,15 @@
         "node_id": { "type": "string" },
         "value": {
           "anyOf": [
-            { "type": "number" },
-            { "type": "string" },
-            { "type": "boolean" },
-            { "type": "object" } 
+            { "type": "number", "additionalProperties": false },
+            { "type": "string", "additionalProperties": false },
+            { "type": "boolean", "additionalProperties": false },
+            { "type": "object", "additionalProperties": false }
           ]
         },
         "port": {
           "anyOf": [
-            { "type": "integer" },
+            { "type": "integer", "additionalProperties": false },
             { "$ref": "#/$defs/LayerPorts" }
           ]
         },

@@ -143,10 +143,10 @@ extension StitchAIManager {
             "temperature": 0.5,
             "response_format": [
                 "type": "json_schema",
-                "strict": true,
                 "json_schema": [
                     "name": "VisualProgrammingActions",
-                    "schema": schema.object
+                    "schema": schema.object,
+                    "strict": true
                 ]
             ],
             "messages": [
