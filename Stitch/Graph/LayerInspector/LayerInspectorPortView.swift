@@ -159,23 +159,19 @@ struct InspectorLayerInputView: View {
                         isCanvasItemSelected: false,
                         hasIncomingEdge: false,
                         forPropertySidebar: true,
-                        // TODO: MARCH 10: this is actually more like "is this field/input on the canvas already? if so, tapping CommonEditingView should NOT focus it"
-                        // How was this logic ever correct in the past? It's not by field?
-                        
-                        // invalid for unpacked multifiple fields on canvas
+                        // Note: tricky; layerInputObserver.getCanvasItemForWholeInput should fail when layer is .unpacked,
+                        // but seems like our layerInputObserver is always .packed here!?
                         propertyIsAlreadyOnGraph: layerInputObserver.getCanvasItemForWholeInput().isDefined,
-                        
-                        // Flyout broken with unpacked layer inputs because this passed in param is not accurate for unpacked layer inputs
-                        // Should instead look at layer input observer
                         isFieldInMultifieldInput: layerInputObserver.usesMultifields,
-                        
                         isForFlyout: forFlyout,
                         isSelectedInspectorRow: propertyRowIsSelected,
                         useIndividualFieldLabel: layerInputObserver.useIndividualFieldLabel(activeIndex: document.activeIndex))
     }
     
     var body: some View {
-        HStack {
+        // Note: ShadowFlyout's .shadowOffset row uses a VStack for it's x vs y fields
+        // TODO: let .shadowOffset fields appear side-by-side?
+        HStack(alignment: layerInput == .shadowOffset ? .firstTextBaseline : .center) {
             if willShowLabel {
                 LabelDisplayView(label: label,
                                  isLeftAligned: false,
@@ -188,9 +184,9 @@ struct InspectorLayerInputView: View {
             // Vast majority of inputs, however, have a single row of fields.
             // TODO: this part of the UI is not clear; we allow the single row of fields to float up into the enclosing HStack, yet flyouts always vertically stack their fields
             LayerInputFieldsView(fieldValueTypes: fieldValueTypes,
-                                          layerInputObserver: layerInputObserver,
-                                          forFlyout: forFlyout,
-                                          valueEntryView: valueEntryView)
+                                 layerInputObserver: layerInputObserver,
+                                 forFlyout: forFlyout,
+                                 valueEntryView: valueEntryView)
         }
     }
 }
@@ -319,11 +315,6 @@ struct LayerInspectorOutputPortView: View {
         let coordinate: NodeIOCoordinate = .init(
             portType: .portIndex(portId),
             nodeId: rowViewModel.id.nodeId)
-
-        // Does this inspector-row (entire output) have a canvas item?
-        // Note: CANNOT rely on delegate since weak var references do not trigger view updates
-//        let canvasItemId: CanvasItemId? = rowViewModel.canvasItemDelegate?.id
-//        let canvasItemId: CanvasItemId? = graph.getCanvasItem(outputId: coordinate)?.id
         
         LayerInspectorPortView(layerInputObserver: nil,
                                layerInspectorRowId: .layerOutput(portId),
