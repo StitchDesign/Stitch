@@ -86,8 +86,14 @@ struct LayerInspectorInputPortView: View {
 }
 
 
-// Used by (1) ShadowFlyoutRowView (i.e. each row in the shadow flyout) and (2) for single-field inputs in the inspector
-// fka `LayerNodeInputView`
+/*
+ fka `LayerNodeInputView`
+ 
+ Used by
+ - (1) inspector's ShadowFlyoutRow,
+ - (2) inspector single-field inputs,
+ - (3) inspector multi-field inputs that can be arranged in a simple HStack
+ */
 struct InspectorLayerInputView: View {
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
@@ -182,17 +188,17 @@ struct InspectorLayerInputView: View {
           
             // Vast majority of inputs, however, have a single row of fields.
             // TODO: this part of the UI is not clear; we allow the single row of fields to float up into the enclosing HStack, yet flyouts always vertically stack their fields
-            LayerInputFieldsView(fieldValueTypes: fieldValueTypes,
-                                 layerInputObserver: layerInputObserver,
-                                 forFlyout: forFlyout,
-                                 valueEntryView: valueEntryView)
+            InspectorLayerInputFieldsView(fieldValueTypes: fieldValueTypes,
+                                          layerInputObserver: layerInputObserver,
+                                          forFlyout: forFlyout,
+                                          valueEntryView: valueEntryView)
         }
     }
 }
 
-// Primarily used by flyouts
-// Used directly by most flyouts (GenericFlyoutView), implicitly by ShadowFlyout and by single-fl
-struct LayerInputFieldsView<ValueEntry>: View where ValueEntry: View {
+// fka `LayerInputFieldsView`
+// Used by InspectorLayerInputView and most flyouts
+struct InspectorLayerInputFieldsView<ValueEntry>: View where ValueEntry: View {
     typealias ValueEntryViewBuilder = (InputFieldViewModel, Bool) -> ValueEntry
     
     let fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>]
@@ -256,7 +262,6 @@ struct LayerInputFieldsView<ValueEntry>: View where ValueEntry: View {
         return false
     }
 }
-
 
 struct LayerInspectorOutputPortView: View {
     let outputPortId: Int

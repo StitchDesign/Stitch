@@ -71,7 +71,7 @@ struct GenericFlyoutView: View {
     @ViewBuilder @MainActor
     var flyoutRows: some View {
         // Assumes: all flyouts (besides shadow-flyout) have a single row which contains multiple fields
-        LayerInputFieldsView(fieldValueTypes: fieldValueTypes,
+        InspectorLayerInputFieldsView(fieldValueTypes: fieldValueTypes,
                              layerInputObserver: layerInputObserver,
                              forFlyout: true) { inputFieldViewModel, isMultifield in
             GenericFlyoutRowView(
