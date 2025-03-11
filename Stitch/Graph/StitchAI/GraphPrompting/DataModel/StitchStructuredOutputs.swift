@@ -26,7 +26,8 @@ struct StitchAIStructuredOutputsSchema: OpenAISchemaCustomizable {
     var schema = OpenAISchema(type: .object,
                               required: ["steps"],
                               additionalProperties: false,
-                              title: Self.title)
+                              title: Self.title,
+                              description: "Strictly follow the action sequence: 1. ADD_NODE, 2. CHANGE_VALUE_TYPE, 3. SET_INPUT, 4. CONNECT_NODES")
 }
 
 struct StitchAIStructuredOutputsDefinitions: Encodable {
