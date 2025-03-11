@@ -18,11 +18,7 @@ struct NodeFieldsView<FieldType, ValueEntryView, FieldsView>: View where FieldTy
     
     @ViewBuilder var valueEntryView: (FieldType, Bool) -> ValueEntryView
     @ViewBuilder var fieldsView: () -> FieldsView
-    
-    var layerInput: LayerInputPort? {
-        fieldGroupViewModel.layerInput
-    }
-    
+        
     var body: some View {
         
         // Only non-nil for 3D transform
@@ -34,11 +30,14 @@ struct NodeFieldsView<FieldType, ValueEntryView, FieldsView>: View where FieldTy
                                  isLeftAligned: false,
                                  fontColor: STITCH_FONT_GRAY_COLOR,
                                  isSelectedInspectorRow: false)
+                .border(.cyan)
+                
                 Spacer()
             }
         }
         
         fieldsView()
+            .border(.white)
     }
 }
 

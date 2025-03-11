@@ -19,7 +19,7 @@ struct CanvasLayerInputView: View {
     let inputRowObserver: InputNodeRowObserver
     let inputRowViewModel: InputNodeRowViewModel
 
-    var label: String {
+    var overallLabel: String {
         layerInputObserver
             .overallPortLabel(usesShortLabel: false,
                               node: node,
@@ -39,28 +39,92 @@ struct CanvasLayerInputView: View {
                                   inputRowViewModel: inputRowViewModel)
     }
     
+    var port: LayerInputPort {
+        layerInputObserver.port
+    }
+    
+    
     var body: some View {
         HStack {
             
-//            if layerInputObserver.port.showsLabelForInspector {
+//            if layerInputObserver.port == .transform3D,
+//               layerInputObserver.mode == .unpacked {
 //                
-//            }
-//            
-//            if layerInputObserver.port != .transform3D,
-//               layerInputObserver.port != .size3D {
+//                // here, we're not iterating through all the fieldGroupings -- we probably have just one?
+//                logInView("CanvasLayerInputView: port \(port)")
+//                logInView("CanvasLayerInputView: inputRowObserver.id \(inputRowObserver.id)")
+//                logInView("CanvasLayerInputView: inputRowViewModel.id \(inputRowViewModel.id)")
+//                logInView("CanvasLayerInputView: inputRowViewModel.id \(inputRowViewModel.id)")
+//                
+//                
+//                
+//                // some possibilities: packed or unpacked
+//                
+//                // if packed, show overall label but nothing else
+//                // if unpacked, show overall label + row label + individual field label
+//                LabelDisplayView(label: overallLabel,
+//                                 isLeftAligned: false,
+//                                 fontColor: STITCH_FONT_GRAY_COLOR,
+//                                 isSelectedInspectorRow: false)
+//                .border(.green)
+//                
+//                // The individual row or port that we have ... will be for an unpacked
+//                ForEach(inputRowViewModel.fieldValueTypes) { fieldGrouping in
+//                    
+//                    // When unpacked, groupLabel is nil here?
+//                    
+//                    Text("FieldGroup Label: \(fieldGrouping.groupLabel)")
+//                        .border(.yellow)
+//                    
+//                    if port == .transform3D,
+//                       layerInputObserver.mode == .unpacked,
+//                        let rowLabel = inputRowObserver.id.keyPath?.getUnpackedPortType?.fieldGroupLabelForUnpacked3DTransformInput {
+//                        Text("\(rowLabel)")
+//                            .border(.pink)
+//                    }
+//                    
+//                    // self.rowObserver.id.keyPath?.getUnpackedPortType?.fieldGroupLabelForUnpacked3DTransformInput
+//                    
+//                    ForEach(fieldGrouping.fieldObservers) { fieldObserver in
+//                        Text("FieldObserver Label: \(fieldObserver.fieldLabel)")
+//                            .border(.blue)
+//                    }
+//                }
+//                
+//            } else {
                 
-                LabelDisplayView(label: label,
-                                 isLeftAligned: false,
-                                 fontColor: STITCH_FONT_GRAY_COLOR,
-                                 isSelectedInspectorRow: false)
-                .border(.green)
-//            }
-            
-            Spacer()
-                        
-            CanvasLayerInputFieldsView(fieldValueTypes: inputRowViewModel.fieldValueTypes,
-                                       layerInputObserver: layerInputObserver,
-                                       valueEntryView: valueEntryView)
+    //            if layerInputObserver.port.showsLabelForInspector {
+    //
+    //            }
+    //
+    //            if layerInputObserver.port != .transform3D,
+    //               layerInputObserver.port != .size3D {
+                    
+                // The overall label
+                    LabelDisplayView(label: overallLabel,
+                                     isLeftAligned: false,
+                                     fontColor: STITCH_FONT_GRAY_COLOR,
+                                     isSelectedInspectorRow: false)
+                    .border(.green)
+    //            }
+                
+//                Spacer()
+                
+                if layerInputObserver.port == .transform3D,
+                   layerInputObserver.mode == .unpacked,
+                    let rowLabel = inputRowObserver.id.keyPath?.getUnpackedPortType?.fieldGroupLabelForUnpacked3DTransformInput {
+                    
+                    LabelDisplayView(label: rowLabel,
+                                     isLeftAligned: false,
+                                     fontColor: STITCH_FONT_GRAY_COLOR,
+                                     isSelectedInspectorRow: false)
+                }
+                            
+                CanvasLayerInputFieldsView(fieldValueTypes: inputRowViewModel.fieldValueTypes,
+                                           layerInputObserver: layerInputObserver,
+                                           valueEntryView: valueEntryView)
+//            } // else
+       
         }
     }
 }
@@ -88,6 +152,7 @@ struct CanvasLayerInputValueView: View {
                          isLeftAligned: true,
                          fontColor: STITCH_FONT_GRAY_COLOR,
                          isSelectedInspectorRow: false)
+        .border(.brown)
         
         valueDisplay
     }
@@ -110,8 +175,8 @@ struct CanvasLayerInputValueView: View {
                             // TODO: MARCH 10: remove and pack up these inspector-specific params?
                             isCanvasItemSelected: false,
                             forPropertySidebar: false,
-                            propertyIsAlreadyOnGraph: false, // inspector only
-                            isFieldInMultifieldInput: false, // inspector only
+                            propertyIsAlreadyOnGraph: true, //false, // inspector only
+                            isFieldInMultifieldInput: true, // inspector only
                             isForFlyout: false,
                             isSelectedInspectorRow: false,
                             
@@ -147,27 +212,29 @@ struct CanvasLayerInputFieldsView<ValueEntry>: View where ValueEntry: View {
     }
     
     var body: some View {
-        ForEach(fieldValueTypes) { (fieldGroupViewModel: FieldGroupTypeData<InputFieldViewModel>) in
+        ForEach(fieldValueTypes) { (fieldGrouping: FieldGroupTypeData<InputFieldViewModel>) in
             
-            let multipleFieldsPerGroup = fieldGroupViewModel.fieldObservers.count > 1
+            let multipleFieldsPerGroup = fieldGrouping.fieldObservers.count > 1
             
             //            // Note: "multifield" is more complicated for layer inputs, since `fieldObservers.count` is now inaccurate for an unpacked port
             let _isMultifield = isMultifield || multipleFieldsPerGroup
             
-            if !self.isAllFieldsBlockedOut(fieldGroupViewModel: fieldGroupViewModel) {
-                NodeFieldsView(
-                    fieldGroupViewModel: fieldGroupViewModel,
-                    valueEntryView: valueEntryView) {
-                        HStack {
-                            ForEach(fieldGroupViewModel.fieldObservers) { fieldViewModel in
-                                let isBlocked = self.blockedFields.map { fieldViewModel.isBlocked($0) } ?? false
-                                if !isBlocked {
-                                    self.valueEntryView(fieldViewModel,
-                                                        _isMultifield)
-                                }
+            if !self.isAllFieldsBlockedOut(fieldGroupViewModel: fieldGrouping) {
+                
+                // `NodeFieldsView` displays fieldGrouping's label,
+                NodeFieldsView(fieldGroupViewModel: fieldGrouping,
+                               valueEntryView: valueEntryView) {
+                    
+                    HStack {
+                        ForEach(fieldGrouping.fieldObservers) { fieldViewModel in
+                            let isBlocked = self.blockedFields.map { fieldViewModel.isBlocked($0) } ?? false
+                            if !isBlocked {
+                                self.valueEntryView(fieldViewModel,
+                                                    _isMultifield)
                             }
                         }
                     }
+                }
             }
         }
     }
