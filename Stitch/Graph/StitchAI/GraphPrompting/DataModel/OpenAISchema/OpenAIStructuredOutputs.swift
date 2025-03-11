@@ -135,23 +135,41 @@ struct OpenAISchemaRef: Encodable {
 struct OpenAIGeneric: Encodable {
     var types: [OpenAISchema] = []
     var refs: [OpenAISchemaRef] = []
+    var oneOf: [OpenAISchemaRef]? = nil
+    var discriminator: OpenAIDiscriminator? = nil
     
     enum CodingKeys: String, CodingKey {
         case anyOf
+        case oneOf
+        case discriminator
     }
     
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        var arrayContainer = container.nestedUnkeyedContainer(forKey: .anyOf)
         
-        // Add types to array
-        for type in self.types {
-            try arrayContainer.encode(type)
+        if !self.types.isEmpty || !self.refs.isEmpty {
+            var arrayContainer = container.nestedUnkeyedContainer(forKey: .anyOf)
+            
+            // Add types to array
+            for type in self.types {
+                try arrayContainer.encode(type)
+            }
+            
+            // Add refs to array
+            for ref in self.refs {
+                try arrayContainer.encode(ref)
+            }
         }
         
-        // Add refs to array
-        for ref in self.refs {
-            try arrayContainer.encode(ref)
+        // Handle oneOf with discriminator
+        if let oneOf = self.oneOf {
+            var oneOfContainer = container.nestedUnkeyedContainer(forKey: .oneOf)
+            
+            for ref in oneOf {
+                try oneOfContainer.encode(ref)
+            }
+            
+            try container.encodeIfPresent(self.discriminator, forKey: .discriminator)
         }
     }
 }
