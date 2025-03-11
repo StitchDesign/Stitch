@@ -54,7 +54,7 @@ struct LayerInspectorInputPortView: View {
                         }
                         
                         // Note: 3D Transform and PortValue.padding are arranged in a "grid" in the inspector ONLY.
-                        // So we handle them here, rather than in more common `fields` views used in flyouts and on canvas.
+                        // So we handle them here, rather than in `fields` views used in flyouts and on canvas.
                         else if layerInputObserver.port == .transform3D {
                             LayerInspector3DTransformInputView(document: graphUI,
                                                               graph: graph,

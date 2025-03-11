@@ -111,10 +111,6 @@ extension LayerInputObserver {
     // Regardless of packed vs unpacked mode.
     @MainActor
     var usesMultifields: Bool {
-        log("LayerInputObserver: usesMultifields: for layer input \(self.port)")
-        if self.port == .size {
-            log("had size")
-        }
         switch self.mode {
         case .packed:
             return (self.fieldValueTypes.first?.fieldObservers.count ?? 0) > 1

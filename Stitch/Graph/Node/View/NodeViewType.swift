@@ -86,7 +86,7 @@ struct NodeTypeView: View {
                                      layerInputCoordinate: layerInputCoordinate)
             }  else {
                 // fka `DefaultNodeInputView`
-                PatchOrGroupCanvasInputsView(graph: graph,
+                DefaultNodeInputsView(graph: graph,
                                              document: document,
                                              node: node,
                                              canvas: canvasNode,
@@ -107,7 +107,7 @@ struct NodeTypeView: View {
                                  id: node.id)
                     .padding(.leading, NODE_BODY_SPACING)
             } else {
-                CanvasNodeOutputView(graph: graph,
+                DefaultNodeOutputsView(graph: graph,
                                      document: document,
                                      node: node,
                                      canvas: canvasNode,
@@ -164,7 +164,8 @@ struct LayerCanvasInputView: View {
     }
 }
 
-struct PatchOrGroupCanvasInputsView: View {
+// Used just for patches' and group nodes' inputs
+struct DefaultNodeInputsView: View {
     
     @Bindable var graph: GraphState
     @Bindable var document: StitchDocumentViewModel
@@ -196,7 +197,7 @@ struct PatchOrGroupCanvasInputsView: View {
     }
     
     var body: some View {
-        CanvasRowsView(graph: graph,
+        DefaultNodeRowsView(graph: graph,
                        node: node,
                        canvas: canvas,
                        rowViewModels: canvas.inputViewModels,
@@ -235,8 +236,8 @@ struct PatchOrGroupCanvasInputsView: View {
     }
 }
 
-// Common to ALL outputs, whether
-struct CanvasNodeOutputView: View {
+// Common to ALL outputs, whether patch, group or layer
+struct DefaultNodeOutputsView: View {
     
     @Bindable var graph: GraphState
     @Bindable var document: StitchDocumentViewModel
@@ -274,7 +275,7 @@ struct CanvasNodeOutputView: View {
     }
     
     var body: some View {
-        CanvasRowsView(graph: graph,
+        DefaultNodeRowsView(graph: graph,
                        node: node,
                        canvas: canvas,
                        rowViewModels: canvas.outputViewModels,
@@ -329,7 +330,7 @@ struct CanvasNodeOutputView: View {
 
 // fka `DefaultNodeRowView`
 // Used by patch and group-node inputs (but not layer inputs) and ALL ouputs (patch, group, layer)
-struct CanvasRowsView<RowViewModel, RowView>: View where RowViewModel: NodeRowViewModel,
+struct DefaultNodeRowsView<RowViewModel, RowView>: View where RowViewModel: NodeRowViewModel,
                                                                      RowView: View {
 
     @Bindable var graph: GraphState
