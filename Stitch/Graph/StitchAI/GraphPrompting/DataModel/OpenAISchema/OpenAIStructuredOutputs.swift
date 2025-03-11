@@ -123,7 +123,6 @@ struct OpenAISchemaEnum: Encodable {
         case type
         case enumType = "enum"
         case description
-        case additionalProperties
     }
     
     func encode(to encoder: Encoder) throws {
