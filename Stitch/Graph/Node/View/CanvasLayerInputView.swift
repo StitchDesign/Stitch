@@ -46,15 +46,13 @@ struct CanvasLayerInputView: View {
     
     var body: some View {
         HStack {
-            
-            // The overall label
             LabelDisplayView(label: overallLabel,
                              isLeftAligned: false,
                              fontColor: STITCH_FONT_GRAY_COLOR,
                              isSelectedInspectorRow: false)
-            .border(.green)
             
-            //
+            // Unpacked 3D Transform fields on the canvas are a special case;
+            // they need
             if layerInputObserver.port == .transform3D,
                layerInputObserver.mode == .unpacked,
                let rowLabel = inputRowObserver.id.keyPath?.getUnpackedPortType?.fieldGroupLabelForUnpacked3DTransformInput {
@@ -69,6 +67,7 @@ struct CanvasLayerInputView: View {
                                        layerInputObserver: layerInputObserver,
                                        valueEntryView: valueEntryView)
         }
+        .height(NODE_ROW_HEIGHT + 6)
     }
 }
 
