@@ -126,41 +126,54 @@ struct CanvasEdgesViewModifier: ViewModifier {
                 let canvasItemsAtThisTraversalLevel = self.graph
                     .getCanvasItemsAtTraversalLevel(groupNodeFocused: document.groupNodeFocused?.groupNodeId)
                 
-                self.allInputs = canvasItemsAtThisTraversalLevel
+                let newInputs = canvasItemsAtThisTraversalLevel
                     .flatMap { canvasItem -> [InputNodeRowViewModel] in
                         canvasItem.inputViewModels
                     }
                 
-                self.connectedInputs = allInputs.filter { input in
+                
+                let newConnections = allInputs.filter { input in
                     guard input.nodeDelegate?.patchNodeViewModel?.patch != .wirelessReceiver else {
                         return false
                     }
                     return input.rowDelegate?.containsUpstreamConnection ?? false
                 }
                 
-                self.allOutputs = canvasItemsAtThisTraversalLevel
+                let newOutputs = canvasItemsAtThisTraversalLevel
                     .flatMap { $0.outputViewModels }
+
+                if self.allInputs.map(\.id).toSet != newInputs.map(\.id).toSet {
+                    self.allInputs = newInputs
+                }
+                
+                if self.connectedInputs.map(\.id).toSet != newConnections.map(\.id).toSet {
+                    self.connectedInputs = newConnections
+                }
+                
+                if self.allOutputs.map(\.id).toSet != newOutputs.map(\.id).toSet {
+                    self.allOutputs = newOutputs
+                }
             }
             .background {
                 // Using background ensures edges z-index are always behind ndoes
-                connectedEdgesView(allConnectedInputs: connectedInputs + candidateInputs)
+                connectedEdgesView(allConnectedInputs: self.connectedInputs) // + candidateInputs)
             }
-            .overlay {
-                edgeDrawingView(inputs: allInputs,
-                                graph: self.graph)
-                
-                EdgeInputLabelsView(inputs: allInputs,
-                                    document: document,
-                                    graph: graph)
-                
-                // TODO: does PortPreviewPopoverView render too many times when open?
-                // TODO: more elegant way to do this? Generic types giving Swift compiler trouble
-                if let openPortPreview = document.openPortPreview {
-                    PortPreviewPopoverWrapperView(
-                        allInputs: allInputs,
-                        allOutputs: allOutputs,
-                        openPortPreview: openPortPreview)
-                }
-            }
+//            .overlay {
+//                edgeDrawingView(inputs: allInputs,
+//                                graph: self.graph)
+//                
+//                EdgeInputLabelsView(inputs: allInputs,
+//                                    document: document,
+//                                    graph: graph)
+//                
+//                // TODO: does PortPreviewPopoverView render too many times when open?
+//                // TODO: more elegant way to do this? Generic types giving Swift compiler trouble
+//                if let openPortPreview = document.openPortPreview {
+//                    PortPreviewPopoverWrapperView(
+//                        allInputs: allInputs,
+//                        allOutputs: allOutputs,
+//                        openPortPreview: openPortPreview)
+//                }
+//            }
     }
 }

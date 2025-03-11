@@ -118,6 +118,8 @@ final class GraphState: Sendable {
     // Tracks labels for group ports for perf
     @MainActor var groupPortLabels = [Coordinate : String]()
     
+    // 
+    
     @MainActor var lastEncodedDocument: GraphEntity
     @MainActor weak var documentDelegate: StitchDocumentViewModel?
     @MainActor weak var documentEncoderDelegate: (any DocumentEncodable)?

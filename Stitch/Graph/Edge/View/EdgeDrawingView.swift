@@ -87,10 +87,10 @@ struct EdgeFromDraggedOutputView: View {
                          firstTo: inputAnchorData?.firstInputObserver.anchorPoint ?? .zero,
                          lastFrom: outputAnchorData.lastUpstreamObserver.anchorPoint ?? .zero,
                          lastTo: inputAnchorData?.lastInputObserver.anchorPoint ?? .zero,
-                         firstFromWithEdge: outputAnchorData.firstConnectedUpstreamObserver?.anchorPoint?.y,
-                         lastFromWithEdge: outputAnchorData.lastConnectedUpstreamObserver?.anchorPoint?.y,
-                         firstToWithEdge: inputAnchorData?.firstConnectedInputObserver?.anchorPoint?.y,
-                         lastToWithEdge: inputAnchorData?.lastConectedInputObserver?.anchorPoint?.y,
+                         firstFromWithEdge: outputAnchorData.firstConnectedUpstreamObserver.anchorPoint?.y,
+                         lastFromWithEdge: outputAnchorData.lastConnectedUpstreamObserver.anchorPoint?.y,
+                         firstToWithEdge: inputAnchorData?.firstConnectedInputObserver.anchorPoint?.y,
+                         lastToWithEdge: inputAnchorData?.lastConectedInputObserver.anchorPoint?.y,
                          totalOutputs: outputAnchorData.totalOutputs,
                          // we never animate the actively dragged edge
                          edgeAnimationEnabled: false)
