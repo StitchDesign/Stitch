@@ -476,6 +476,8 @@
 		EC363D56294282FD0093C473 /* Triangle.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC363D55294282FD0093C473 /* Triangle.swift */; };
 		EC365A832D7F48E60015B8D7 /* ShadowInspectorRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC365A822D7F48E60015B8D7 /* ShadowInspectorRow.swift */; };
 		EC365A852D7F6ACA0015B8D7 /* CanvasLayerInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC365A842D7F6ACA0015B8D7 /* CanvasLayerInputView.swift */; };
+		EC365A892D80E41E0015B8D7 /* LayerInspectorGridInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC365A882D80E41E0015B8D7 /* LayerInspectorGridInputView.swift */; };
+		EC365A8B2D80E4EE0015B8D7 /* LayerInspector3DTransformInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC365A8A2D80E4EE0015B8D7 /* LayerInspector3DTransformInputView.swift */; };
 		EC388D332975FB5F00CFA7D1 /* JSONToShapeNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC388D322975FB5F00CFA7D1 /* JSONToShapeNode.swift */; };
 		EC3914BF29F35C0C00ED8D90 /* loopTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC3914BE29F35C0C00ED8D90 /* loopTests.swift */; };
 		EC39894027BDCA8400683EEE /* ValueImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC39893F27BDCA8400683EEE /* ValueImageView.swift */; };
@@ -1443,6 +1445,8 @@
 		EC363D55294282FD0093C473 /* Triangle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Triangle.swift; sourceTree = "<group>"; };
 		EC365A822D7F48E60015B8D7 /* ShadowInspectorRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowInspectorRow.swift; sourceTree = "<group>"; };
 		EC365A842D7F6ACA0015B8D7 /* CanvasLayerInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasLayerInputView.swift; sourceTree = "<group>"; };
+		EC365A882D80E41E0015B8D7 /* LayerInspectorGridInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInspectorGridInputView.swift; sourceTree = "<group>"; };
+		EC365A8A2D80E4EE0015B8D7 /* LayerInspector3DTransformInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInspector3DTransformInputView.swift; sourceTree = "<group>"; };
 		EC388D322975FB5F00CFA7D1 /* JSONToShapeNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONToShapeNode.swift; sourceTree = "<group>"; };
 		EC3914BE29F35C0C00ED8D90 /* loopTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = loopTests.swift; sourceTree = "<group>"; };
 		EC39893F27BDCA8400683EEE /* ValueImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValueImageView.swift; sourceTree = "<group>"; };
@@ -2096,6 +2100,8 @@
 				ECE639212C489C6900FB8D5F /* FlyoutUtils.swift */,
 				ECE6391F2C489C4F00FB8D5F /* ShadowFlyoutView.swift */,
 				EC5F642C2C29E68500A9E52F /* LayerInspectorPortView.swift */,
+				EC365A882D80E41E0015B8D7 /* LayerInspectorGridInputView.swift */,
+				EC365A8A2D80E4EE0015B8D7 /* LayerInspector3DTransformInputView.swift */,
 				EC5F642E2C29E6A900A9E52F /* LayerInspectorState.swift */,
 				ECB8778B2C7D56D0004ACF60 /* LayerMultiselect.swift */,
 			);
@@ -4932,6 +4938,7 @@
 				EC6EDC3227FF93CF00843E62 /* SidebarSelectionState.swift in Sources */,
 				ECB54D70288638A200EB75D0 /* RepeatingAnimationNode.swift in Sources */,
 				ECDCE3502821BBB100D83EC3 /* LayerTextView.swift in Sources */,
+				EC365A8B2D80E4EE0015B8D7 /* LayerInspector3DTransformInputView.swift in Sources */,
 				ECA4FCC728EB4169006B4F23 /* NetworkRequestContentType.swift in Sources */,
 				EC7451B0294D2C4F00C7EB80 /* LocationManager.swift in Sources */,
 				EC2614512B897BFA00BEB066 /* Point3DUnpackNode.swift in Sources */,
@@ -5109,6 +5116,7 @@
 				ECDCE3582821EA9400D83EC3 /* FieldViewModelTypeUtils.swift in Sources */,
 				ECA92A30260A6A4700281B52 /* RandomNode.swift in Sources */,
 				EC55EB8E293682A9005EF38B /* Point4D.swift in Sources */,
+				EC365A892D80E41E0015B8D7 /* LayerInspectorGridInputView.swift in Sources */,
 				EC365A832D7F48E60015B8D7 /* ShadowInspectorRow.swift in Sources */,
 				EC9486A42AE2007800B51AB1 /* HoverGestureModifier.swift in Sources */,
 				ECC301AD2938096000C34F10 /* GetKeysNode.swift in Sources */,
