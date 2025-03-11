@@ -42,16 +42,16 @@ struct StitchAIStructuredOutputsDefinitions: Encodable {
                               additionalProperties: false,
                               description: "The unique identifier for the node (UUID)")
     
-    let NodeName = OpenAISchemaEnum(values: NodeKind.getAiNodeDescriptions().map(\.nodeKind))
+    let NodeName = OpenAISchemaEnum(values: NodeKind.getAiNodeDescriptions().map(\.nodeKind), description: "The type of node to be created")
     
     let ValueType = OpenAISchemaEnum(values:
                                         NodeType.allCases
         .filter { $0 != .none }
-        .map { $0.asLLMStepNodeType }
+        .map { $0.asLLMStepNodeType }, description: "The type of value for the node"
     )
     
     let LayerPorts = OpenAISchemaEnum(values: LayerInputPort.allCases
-        .map { $0.asLLMStepPort }
+        .map { $0.asLLMStepPort }, description: "The available ports for layer connections"
     )
 }
 
