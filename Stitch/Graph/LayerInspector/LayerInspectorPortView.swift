@@ -169,13 +169,10 @@ struct InspectorLayerInputView: View {
                         
                         // invalid for unpacked multifiple fields on canvas
                         propertyIsAlreadyOnGraph: layerInputObserver.getCanvasItemForWholeInput().isDefined,
-//                        propertyIsAlreadyOnGraph: !layerInputObserver.getAllCanvasObservers().isEmpty,
-                        
                         
                         // Flyout broken with unpacked layer inputs because this passed in param is not accurate for unpacked layer inputs
-                        // Shiuld instead look at layer input observer
-                        isFieldInMultifieldInput: layerInputObserver.usesMultifields, // isMultiField,
-                        
+                        // Should instead look at layer input observer
+                        isFieldInMultifieldInput: layerInputObserver.usesMultifields,
                         
                         isForFlyout: forFlyout,
                         isSelectedInspectorRow: propertyRowIsSelected,
@@ -193,51 +190,10 @@ struct InspectorLayerInputView: View {
             }
             
             Spacer()
-            
-            // If the input has multiple rows of fields (e.g. 3D Transform)
-            // then vertically stack those.
-            if is3DTransform {
-                VStack {
-                    fieldsListView(fieldValueTypes)
-                }
-            }
-            
-            // TODO: MARCH 10: consolidate with `NodePortConstraintedFieldsView` ?
-            
-            /*
-             When packed, `margin` has one row observer with four field models (which can be handled by NodeFieldsView)
-             When unpacked, `margin` has four row observers with one field model each.
-             
-             TODO: we need an API that abstracts away "packed vs unpacked" layer input's differing row observer and field model counts; "packed vs unpacked" is just for canvas items and should not affect layer inspector display
-             */
-            else if layerInput == .layerMargin || layerInput == .padding,
-                    layerInputObserver.mode == .unpacked,
-                    let f0 = fieldValueTypes[safeIndex: 0],
-                    let f1 = fieldValueTypes[safeIndex: 1],
-                    let f2 = fieldValueTypes[safeIndex: 2],
-                    let f3 = fieldValueTypes[safeIndex: 3] {
-                
-                VStack {
-                    HStack {
-                        // Individual fields for PortValue.padding can never be blocked; only the input as a whole can be blocked
-                        fieldsListView([f0])
-                        fieldsListView([f1])
-                    }
-                    
-                    HStack {
-                        fieldsListView([f2])
-                        fieldsListView([f3])
-                    }
-                    
-                }
-                .padding(.vertical, INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET * 2)
-            }
-            
+          
             // Vast majority of inputs, however, have a single row of fields.
             // TODO: this part of the UI is not clear; we allow the single row of fields to float up into the enclosing HStack, yet flyouts always vertically stack their fields
-            else {
-                fieldsListView(fieldValueTypes)
-            }
+            fieldsListView(fieldValueTypes)
         }
     }
     
@@ -450,18 +406,6 @@ struct InspectorLayerMultifieldInputView: View {
                 Spacer()
                 
                 ForEach(fieldValueTypes) { fieldGrouping in
-                    
-                    // Not needed?
-    //                if let fieldGroupLabel = fieldGrouping.groupLabel {
-    //                    HStack {
-    //                        LabelDisplayView(label: fieldGroupLabel,
-    //                                         isLeftAligned: false,
-    //                                         fontColor: STITCH_FONT_GRAY_COLOR,
-    //                                         isSelectedInspectorRow: false)
-    //                        Spacer()
-    //                    }
-    //                }
-                    
                     
                     // Nested ForEach works well for abstracting over packed vs unpacked for simple two-field inputs
                     ForEach(fieldGrouping.fieldObservers) { fieldObserver in
