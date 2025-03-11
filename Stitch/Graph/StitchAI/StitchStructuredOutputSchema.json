@@ -1,33 +1,33 @@
 {
   "$defs": {
-    "AddNodeAction": {
-      "type": "object",
-      "properties": {
-        "step_type": { "type": "string", "const": "add_node" },
-        "node_name": { "$ref": "#/$defs/NodeName" },
-        "node_id": { "type": "string" },
-        "node_type": { "$ref": "#/$defs/NodeType" }
-      },
-      "required": ["step_type", "node_name", "node_id", "node_type"],
-      "additionalProperties": false
-    },
-    "ConnectNodesAction": {
-      "type": "object",
-      "properties": {
-        "step_type": { "type": "string", "const": "connect_nodes" },
-        "from_node_id": { "type": "string" },
-        "to_node_id": { "type": "string" },
-        "port": {
-          "anyOf": [
-            { "type": "integer" },
-            { "$ref": "#/$defs/LayerPorts" }
-          ]
+      "AddNodeAction": {
+        "type": "object",
+        "properties": {
+          "node_id": { "type": "string" },
+          "node_name": { "$ref": "#/$defs/NodeName" },
+          "node_type": { "$ref": "#/$defs/NodeType" },
+          "step_type": { "type": "string", "const": "add_node" }
         },
-        "from_port": { "type": "integer" }
+        "required": ["node_id", "node_name", "node_type", "step_type"],
+        "additionalProperties": false
       },
-      "required": ["step_type", "from_node_id", "to_node_id", "port", "from_port"],
-      "additionalProperties": false
-    },
+      "ConnectNodesAction": {
+        "type": "object",
+        "properties": {
+          "from_node_id": { "type": "string" },
+          "to_node_id": { "type": "string" },
+          "port": {
+            "anyOf": [
+              { "type": "integer" },
+              { "$ref": "#/$defs/LayerPorts" }
+            ]
+          },
+          "from_port": { "type": "integer" },
+          "step_type": { "type": "string", "const": "connect_nodes" }
+        },
+        "required": ["from_node_id", "to_node_id", "port", "from_port", "step_type"],
+        "additionalProperties": false
+      },
     "ChangeNodeTypeAction": {
       "type": "object",
       "properties": {
@@ -276,19 +276,19 @@
     }
   },
   "properties": {
-    "steps": {
-      "description": "The actions taken to create a graph",
-      "type": "array",
-      "items": {
-        "anyOf": [
-          { "$ref": "#/$defs/AddNodeAction" },
-          { "$ref": "#/$defs/ConnectNodesAction" },
-          { "$ref": "#/$defs/ChangeNodeTypeAction" },
-          { "$ref": "#/$defs/SetInputAction" },
-          { "$ref": "#/$defs/AddLayerInputAction" }
-        ]
+      "steps": {
+        "description": "The actions taken to create a graph",
+        "type": "array",
+        "items": {
+          "anyOf": [
+            { "$ref": "#/$defs/AddNodeAction" },
+            { "$ref": "#/$defs/ConnectNodesAction" },
+            { "$ref": "#/$defs/ChangeNodeTypeAction" },
+            { "$ref": "#/$defs/SetInputAction" },
+            { "$ref": "#/$defs/AddLayerInputAction" }
+          ]
+        }
       }
-    }
   },
   "required": ["steps"],
   "title": "VisualProgrammingActions",
