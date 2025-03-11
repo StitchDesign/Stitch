@@ -84,7 +84,6 @@ struct CommonEditingView: View {
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
     
-    
     // inspector only?
     let isFieldInMultifieldInput: Bool
     
@@ -349,8 +348,6 @@ struct CommonEditingView: View {
                     dispatch(ReduxFieldFocused(focusedField: .textInput(id)))
                 }
             })
-        
-        
     }
 
     // Currently only used when we focus or de-focus

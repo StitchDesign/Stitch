@@ -51,14 +51,23 @@ struct LayerInspectorInputPortView: View {
                         if isShadowLayerInputRow {
                             ShadowInputInspectorRow(nodeId: node.id,
                                                     propertyIsSelected: propertyRowIsSelected)
-                        } else if layerInputObserver.usesMultifields {
+                        }
+                        
+                        // Note: 3D Transform and PortValue.padding are arranged in a "grid" in the inspector ONLY.
+                        // So we handle them here, rather than in more common `fields` views used in flyouts and on canvas.
+                        else if layerInputObserver.port == .transform3D {
+                            LayerInspector3DTransformInputView(document: graphUI,
+                                                              graph: graph,
+                                                              node: node,
+                                                              layerInputObserver: layerInputObserver)
+                        } else if layerInputObserver.usesGridMultifieldArrangement() {
                             // Multifields in the inspector are always "read-only" and "tap to open flyout"
-                            InspectorLayerMultifieldInputView(
-                                document: graphUI,
-                                graph: graph,
-                                node: node,
-                                layerInputObserver: layerInputObserver)
+                            LayerInspectorGridInputView(document: graphUI,
+                                                        graph: graph,
+                                                        node: node,
+                                                        layerInputObserver: layerInputObserver)
                         } else {
+                            // Handles both single- and multifield-inputs (arranges an input's multiple-fields in an HStack)
                             InspectorLayerInputView(
                                 document: graphUI,
                                 graph: graph,
@@ -77,6 +86,7 @@ struct LayerInspectorInputPortView: View {
 }
 
 
+// Used by (1) ShadowFlyoutRowView (i.e. each row in the shadow flyout) and (2) for single-field inputs in the inspector
 // fka `LayerNodeInputView`
 struct InspectorLayerInputView: View {
     @Bindable var document: StitchDocumentViewModel
@@ -167,7 +177,7 @@ struct InspectorLayerInputView: View {
                                  fontColor: STITCH_FONT_GRAY_COLOR,
                                  isSelectedInspectorRow: propertyRowIsSelected)
             }
-            
+             
             Spacer()
           
             // Vast majority of inputs, however, have a single row of fields.
@@ -180,6 +190,8 @@ struct InspectorLayerInputView: View {
     }
 }
 
+// Primarily used by flyouts
+// Used directly by most flyouts (GenericFlyoutView), implicitly by ShadowFlyout and by single-fl
 struct LayerInputFieldsView<ValueEntry>: View where ValueEntry: View {
     typealias ValueEntryViewBuilder = (InputFieldViewModel, Bool) -> ValueEntry
     
@@ -187,11 +199,7 @@ struct LayerInputFieldsView<ValueEntry>: View where ValueEntry: View {
     let layerInputObserver: LayerInputObserver
     let forFlyout: Bool
     @ViewBuilder var valueEntryView: ValueEntryViewBuilder
-    
-    var layerInput: LayerInputPort {
-        layerInputObserver.port
-    }
-    
+        
     var isMultifield: Bool {
         layerInputObserver.usesMultifields || fieldValueTypes.count > 1
     }
@@ -214,7 +222,6 @@ struct LayerInputFieldsView<ValueEntry>: View where ValueEntry: View {
                     valueEntryView: valueEntryView) {
                     // TODO: how to handle the multifield "shadow offset" input in the Shadow Flyout? For now, we stack those fields vertically
                     if forFlyout {
-//                        if isMultiField && layerInput == .shadowOffset {
                             VStack {
                                 ForEach(fieldGroupViewModel.fieldObservers) { fieldViewModel in
                                     let isBlocked = self.blockedFields.map { fieldViewModel.isBlocked($0) } ?? false
@@ -224,10 +231,7 @@ struct LayerInputFieldsView<ValueEntry>: View where ValueEntry: View {
                                     }
                                 }
                             }
-                    }
-                    
-                    // patch inputs and inspector fields are horizontally aligned
-                    else {
+                    } else {
                         HStack {
                             ForEach(fieldGroupViewModel.fieldObservers) { fieldViewModel in
                                 let isBlocked = self.blockedFields.map { fieldViewModel.isBlocked($0) } ?? false
@@ -253,139 +257,6 @@ struct LayerInputFieldsView<ValueEntry>: View where ValueEntry: View {
     }
 }
 
-// Multifeld layer inputs (regardless packed vs unpacked) ALWAYS use read-only views that open flyouts when tapped
-// e.g. Size, Position, 3D Transform, Padding, Margin
-// Note: this is for inspector but NOT inspector's flyout
-// (Using this separate view lets us simplify CommonEditingView as well)
-struct InspectorLayerMultifieldInputView: View {
-    
-    @Bindable var document: StitchDocumentViewModel
-    @Bindable var graph: GraphState
-    @Bindable var node: NodeViewModel
-    let layerInputObserver: LayerInputObserver
-        
-    // TODO: MARCH 10: inaccurate for unpacked ? or okay, since always ... ; check on iPad!
-    // Can we really assume that this is packed?
-    var layerInputType: LayerInputType {
-        LayerInputType.init(layerInput: layerInputObserver.port,
-                            portType: .packed)
-    }
-    
-    var layerInspectorRowId: LayerInspectorRowId {
-        .layerInput(layerInputType)
-    }
-    
-    var layerInput: LayerInputPort {
-        self.layerInputObserver.port
-    }
-  
-    var willShowLabel: Bool {
-        layerInput.showsLabelForInspector
-    }
-    
-    var is3DTransform: Bool {
-        layerInput == .transform3D
-    }
-    
-    var layerInputData: InputLayerNodeRowData {
-        layerInputObserver._packedData
-    }
-    
-    var fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>] {
-        self.layerInputObserver.fieldValueTypes
-    }
-    
-    var propertyRowIsSelected: Bool {
-        graph.propertySidebar.selectedProperty == layerInspectorRowId
-    }
-    
-    var body: some View {
-        HStack(alignment: .firstTextBaseline) {
-          
-            if layerInputObserver.port == .transform3D {
-                LayerInspectorThreeFieldInputView(document: document,
-                                                  graph: graph,
-                                                  node: node,
-                                                  layerInputObserver: layerInputObserver)
-            }
-            
-            else if layerInputObserver.port == .padding || layerInputObserver.port == .layerMargin || layerInputObserver.port == .layerPadding {
-                LayerInspectorGridInputView(document: document,
-                                            graph: graph,
-                                            node: node,
-                                            layerInputObserver: layerInputObserver)
-            } else {
-                LabelDisplayView(label: layerInputObserver.overallPortLabel(usesShortLabel: true,
-                                                                            node: node,
-                                                                            graph: graph),
-                                 isLeftAligned: false,
-                                 fontColor: STITCH_FONT_GRAY_COLOR,
-                                 isSelectedInspectorRow: propertyRowIsSelected)
-                
-                Spacer()
-                
-                ForEach(fieldValueTypes) { fieldGrouping in
-                    
-                    // Nested ForEach works well for abstracting over packed vs unpacked for simple two-field inputs
-                    ForEach(fieldGrouping.fieldObservers) { fieldObserver in
-                                                
-                        LabelDisplayView(label: fieldObserver.fieldLabel,
-                                         isLeftAligned: true,
-                                         fontColor: STITCH_FONT_GRAY_COLOR,
-                                         // TODO: MARCH 10: for font color when selected on iPad
-                                         isSelectedInspectorRow: propertyRowIsSelected)
-                        
-                        CommonEditingViewReadOnly(
-                            inputField: fieldObserver,
-                            inputString: fieldObserver.fieldValue.stringValue,
-                            forPropertySidebar: true,
-                            isHovering: false, // Can never hover on a inspector's multifield
-                            choices: nil, // always nil for layer dropdown ?
-                            
-                            // field width is the most variable for read only views in inspector?
-                            fieldWidth: self.fieldWidth,
-                            
-                            // TODO: MARCH 10: easier way to tell if part of heterogenous layer multiselect
-                            fieldHasHeterogenousValues: false,
-                            
-                            // TODO: MARCH 10: for font color when selected on iPad
-                            isSelectedInspectorRow: propertyRowIsSelected,
-                            
-                            isFieldInMultfieldInspectorInput: true) {
-                                
-                                // If entire packed input is already on canvas, don't do anything; rather, let the LayerInspectorPortView's onTap take over
-                                if layerInputObserver.mode == .packed,
-                                   let canvasNodeForPackedInput = layerInputObserver.getCanvasItemForWholeInput() {
-                                    log("InspectorLayerMultifieldInputView: will jump to canvas for \(layerInput)")
-                                    graph.jumpToCanvasItem(id: canvasNodeForPackedInput.id,
-                                                           document: document)
-                                } else {
-                                    log("InspectorLayerMultifieldInputView: will open flyout for \(layerInput)")
-                                    dispatch(FlyoutToggled(
-                                        flyoutInput: layerInput,
-                                        flyoutNodeId: self.node.id,
-                                        fieldToFocus: .textInput(fieldObserver.id)))
-                                }
-                            }
-                    }
-                }
-            } // else
-        }
-    }
-    
-    
-    @MainActor
-    var fieldWidth: CGFloat {
-        // TODO: get this from activeValue.getPadding.isDefined ?
-        if layerInputObserver.port == .padding || layerInputObserver.port == .layerPadding || layerInputObserver.port == .layerMargin {
-            return PADDING_FIELD_WDITH
-        } else {
-            // is this accurate for a spacing-field in the inspector?
-            // ah but spacing is a dropdown
-            return INSPECTOR_MULTIFIELD_INDIVIDUAL_FIELD_WIDTH
-        }
-    }
-}
 
 
 struct LayerInspectorGridInputView: View {
@@ -475,7 +346,7 @@ struct LayerInspectorGridInputView: View {
 }
 
 // 3D Transform, 3D Size etc.
-struct LayerInspectorThreeFieldInputView: View {
+struct LayerInspector3DTransformInputView: View {
     
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
@@ -507,9 +378,13 @@ struct LayerInspectorThreeFieldInputView: View {
     func observerViews(_ fieldObservers: [InputNodeRowViewModel.FieldType]) -> some View {
         
         ForEach(fieldObservers) { fieldObserver  in
+            
+            
+            // NEED AN ABSTRACTION VIEW FOR THIS LABEL + READ-ONLY VIEW
             HStack {
                 
-                // NEED AN ABSTRACTION VIEW FOR THIS LABEL + READ-ONLY VIEW
+                
+                
                 LabelDisplayView(label: fieldObserver.fieldLabel,
                                  isLeftAligned: true,
                                  fontColor: STITCH_FONT_GRAY_COLOR,
@@ -616,7 +491,7 @@ struct LayerInspectorOutputPortView: View {
 //        let canvasItemId: CanvasItemId? = graph.getCanvasItem(outputId: coordinate)?.id
         
         LayerInspectorPortView(layerInputObserver: nil,
-                               layerInspectorRowId: .layerOutput(rowViewModel.id.portId),
+                               layerInspectorRowId: .layerOutput(portId),
                                coordinate: coordinate,
                                graph: graph,
                                graphUI: graphUI,
@@ -817,4 +692,5 @@ extension StitchDocumentViewModel {
         }
     }
 }
+
 
