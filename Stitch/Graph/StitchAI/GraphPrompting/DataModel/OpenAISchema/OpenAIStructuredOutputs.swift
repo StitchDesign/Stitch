@@ -129,8 +129,7 @@ struct OpenAISchemaEnum: Encodable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(OpenAISchemaType.string, forKey: .type)
         try container.encode(self.values, forKey: .enumType)
-        try container.encode(self.description, forKey: .description)
-        try container.encode(false, forKey: .additionalProperties)
+        try container.encode(self.description, forKey: .description) 
     }
 }
 
