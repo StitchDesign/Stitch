@@ -92,14 +92,6 @@ struct CanvasEdgesViewModifier: ViewModifier {
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     
-    @MainActor
-    func edgeDrawingView(inputs: [InputNodeRowViewModel],
-                         graph: GraphState) -> some View {
-        EdgeDrawingView(graph: graph,
-                        edgeDrawingObserver: graph.edgeDrawingObserver,
-                        inputsAtThisTraversalLevel: inputs)
-    }
-    
     func body(content: Content) -> some View {
         // Including "possible" inputs enables edge animation
         let candidateInputs: [InputNodeRowViewModel] = graph.edgeEditingState?.possibleEdges.compactMap {
@@ -155,14 +147,15 @@ struct CanvasEdgesViewModifier: ViewModifier {
                 
                 CandidateEdgesView(graph: graph)
             }
-//            .overlay {
-//                edgeDrawingView(inputs: allInputs,
-//                                graph: self.graph)
-//                
+            .overlay {
+                EdgeDrawingView(graph: graph,
+                                edgeDrawingObserver: graph.edgeDrawingObserver)
+                
+                // TODO: come back to labels
 //                EdgeInputLabelsView(inputs: allInputs,
 //                                    document: document,
 //                                    graph: graph)
-//                
+                
 //                // TODO: does PortPreviewPopoverView render too many times when open?
 //                // TODO: more elegant way to do this? Generic types giving Swift compiler trouble
 //                if let openPortPreview = document.openPortPreview {
@@ -171,6 +164,6 @@ struct CanvasEdgesViewModifier: ViewModifier {
 //                        allOutputs: allOutputs,
 //                        openPortPreview: openPortPreview)
 //                }
-//            }
+            }
     }
 }

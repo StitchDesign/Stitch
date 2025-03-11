@@ -30,9 +30,8 @@ struct ConnectedEdgeData: Equatable {
     
     @MainActor
     init?(downstreamRowObserver: InputNodeRowViewModel) {
-        let downstreamNode = downstreamRowObserver.nodeDelegate
-        
-        guard let upstreamRowObserver = downstreamRowObserver.rowDelegate?.upstreamOutputObserver?.nodeRowViewModel,
+        guard let downstreamNode = downstreamRowObserver.nodeDelegate,
+              let upstreamRowObserver = downstreamRowObserver.rowDelegate?.upstreamOutputObserver?.nodeRowViewModel,
               let inputData = EdgeAnchorDownstreamData(
                 from: downstreamRowObserver,
                 upstreamNodeId: upstreamRowObserver.canvasItemDelegate?.id),

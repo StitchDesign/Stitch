@@ -236,7 +236,7 @@ struct ConnectedEdgeView: View {
            let lastFrom = lastUpstreamObserver.anchorPoint,
            let lastTo = lastInputObserver.anchorPoint,
            let firstFromWithEdge = firstConnectedInputObserver.anchorPoint?.y,
-           let lastFromWithEdge = lastConnectedUpstreamObserver.anchorPoint?.y,
+           let lastFromWithEdge = lastConnectedUpstreamObserver?.anchorPoint?.y,
            let firstToWithEdge = firstConnectedInputObserver.anchorPoint?.y,
            let lastToWithEdge = lastConnectedInputObserver.anchorPoint?.y {
             let edge = PortEdgeUI(from: outputPortViewData,

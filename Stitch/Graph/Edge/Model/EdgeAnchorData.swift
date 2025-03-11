@@ -21,8 +21,9 @@ struct EdgeAnchorUpstreamData {
     let lastUpstreamObserver: OutputNodeRowViewModel
     
     // Edge-specific data used for calculating Y distance for edge views
-    let firstConnectedUpstreamObserver: OutputNodeRowViewModel
-    let lastConnectedUpstreamObserver: OutputNodeRowViewModel
+    // Optional to support edge dragging
+    let firstConnectedUpstreamObserver: OutputNodeRowViewModel?
+    let lastConnectedUpstreamObserver: OutputNodeRowViewModel?
     
     let totalOutputs: Int
 }
@@ -65,34 +66,13 @@ struct EdgeAnchorDownstreamData {
 
 extension EdgeAnchorUpstreamData {
     @MainActor
-    init?(from upstreamRowObserver: OutputNodeRowViewModel?,
-          connectedDownstreamNode: NodeDelegate?) {
-        guard let upstreamRowObserver = upstreamRowObserver,
-              let outputsCount = upstreamRowObserver.canvasItemDelegate?.outputViewModels.count,
+    init?(from upstreamRowObserver: OutputNodeRowViewModel,
+          connectedDownstreamNode: NodeViewModel) {
+        guard let outputsCount = upstreamRowObserver.canvasItemDelegate?.outputViewModels.count,
               let firstUpstreamObserver = upstreamRowObserver.canvasItemDelegate?.outputViewModels.first,
               let lastUpstreamObserver = upstreamRowObserver.canvasItemDelegate?.outputViewModels[safe: outputsCount - 1] else {
             return nil
         }
-        
-        guard let connectedDownstreamNode = connectedDownstreamNode else {
-            // Hits on edge drag when no eligible input found yet
-//            self.init(firstUpstreamObserver: firstUpstreamObserver,
-//                      lastUpstreamObserver: lastUpstreamObserver,
-//                      firstConnectedUpstreamObserver: nil,
-//                      lastConnectedUpstreamObserver: nil,
-//                      totalOutputs: outputsCount)
-            return nil
-        }
-        
-//        guard let connectedDownstreamNode = connectedDownstreamNode else {
-//            // Hits on edge drag when no eligible input found yet
-//            self.init(firstUpstreamObserver: firstUpstreamObserver,
-//                      lastUpstreamObserver: lastUpstreamObserver,
-//                      firstConnectedUpstreamObserver: nil,
-//                      lastConnectedUpstreamObserver: nil,
-//                      totalOutputs: outputsCount)
-//            return
-//        }
         
         let downstreamInputs = connectedDownstreamNode.getAllInputsObservers()
         
@@ -118,15 +98,9 @@ extension EdgeAnchorUpstreamData {
         }
         
         // Should have been at least one connection found
-        guard let firstConnectedUpstreamObserver = firstConnectedUpstreamObserver else {
-            // Can be hit right after edge disconnection
-//            self.init(firstUpstreamObserver: firstUpstreamObserver,
-//                      lastUpstreamObserver: lastUpstreamObserver,
-//                      firstConnectedUpstreamObserver: nil,
-//                      lastConnectedUpstreamObserver: nil,
-//                      totalOutputs: outputsCount)
-            return nil
-        }
+//        guard let firstConnectedUpstreamObserver = firstConnectedUpstreamObserver else {
+//            return nil
+//        }
               
         self.init(firstUpstreamObserver: firstUpstreamObserver,
                   lastUpstreamObserver: lastUpstreamObserver,
