@@ -39,8 +39,8 @@ struct NodesView: View {
     }
     
     var body: some View {
-        let currentNodePage = self.graph.visibleNodesViewModel
-            .getViewData(groupNodeFocused: document.groupNodeFocused?.groupNodeId) ?? .init(localPosition: graph.localPosition)
+//        let currentNodePage = self.graph.visibleNodesViewModel
+//            .getViewData(groupNodeFocused: document.groupNodeFocused?.groupNodeId) ?? .init(localPosition: graph.localPosition)
                 
         // CommentBox needs to be affected by graph offset and zoom
 //         but can live somewhere else?
@@ -91,11 +91,6 @@ struct CanvasEdgesViewModifier: ViewModifier {
     
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
-    
-    @MainActor
-    func connectedEdgesView() -> some View {
-        GraphConnectedEdgesView(graph: graph)
-    }
     
     @MainActor
     func edgeDrawingView(inputs: [InputNodeRowViewModel],
@@ -155,7 +150,10 @@ struct CanvasEdgesViewModifier: ViewModifier {
 //            }
             .background {
                 // Using background ensures edges z-index are always behind ndoes
-                connectedEdgesView() // + candidateInputs)
+//                connectedEdgesView() // + candidateInputs)
+                GraphConnectedEdgesView(graph: graph)
+                
+                CandidateEdgesView(graph: graph)
             }
 //            .overlay {
 //                edgeDrawingView(inputs: allInputs,

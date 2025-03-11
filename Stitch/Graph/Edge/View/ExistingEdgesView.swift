@@ -12,30 +12,30 @@ struct GraphConnectedEdgesView: View {
     @Bindable var graph: GraphState
 //    let allConnectedInputs: [InputNodeRowViewModel]
     
-    var animatingEdges: PossibleEdgeSet {
-        graph.edgeEditingState?.possibleEdges ?? .init()
-    }
-    
+//    var animatingEdges: PossibleEdgeSet {
+//        graph.edgeEditingState?.possibleEdges ?? .init()
+//    }
+//    
     var edgeAnimationEnabled: Bool {
         graph.edgeAnimationEnabled
     }
     
-    var shownPossibleEdgeIds: Set<PossibleEdgeId> {
-        graph.edgeEditingState?.shownIds ?? .init()
-    }
+//    var shownPossibleEdgeIds: Set<PossibleEdgeId> {
+//        graph.edgeEditingState?.shownIds ?? .init()
+//    }
     
-    @MainActor
-    func getPossibleEdgeUpstreamObserver(from input: InputNodeRowViewModel,
-                                         possibleEdge: PossibleEdge?) -> OutputNodeRowViewModel? {
-        guard let possibleEdge = possibleEdge,
-              let node = graph.getCanvasItem(possibleEdge.edge.from.canvasId),
-              let upstreamRowObserver = node.outputViewModels[safe: possibleEdge.edge.from.portId] else {
-            return nil
-        }
-
-        return upstreamRowObserver
-    }
-    
+//    @MainActor
+//    func getPossibleEdgeUpstreamObserver(from input: InputNodeRowViewModel,
+//                                         possibleEdge: PossibleEdge?) -> OutputNodeRowViewModel? {
+//        guard let possibleEdge = possibleEdge,
+//              let node = graph.getCanvasItem(possibleEdge.edge.from.canvasId),
+//              let upstreamRowObserver = node.outputViewModels[safe: possibleEdge.edge.from.portId] else {
+//            return nil
+//        }
+//
+//        return upstreamRowObserver
+//    }
+//    
     var body: some View {
         ForEach(graph.connectedEdges) { edgeData in
             // Bindable fixes issue where edges may not appear initially
@@ -51,6 +51,90 @@ struct GraphConnectedEdgesView: View {
                               edgeAnimationEnabled: edgeAnimationEnabled)
             
         }
+    }
+}
+
+struct CandidateEdgesView: View {
+    @Environment(\.appTheme) private var theme
+    @Environment(\.edgeStyle) private var edgeStyle
+    
+    @Bindable var graph: GraphState
+    
+    var animatingEdges: [PossibleEdge] {
+        guard let set = graph.edgeEditingState?.possibleEdges else {
+            return []
+        }
+        
+        return Array(set)
+    }
+    
+    var edgeAnimationEnabled: Bool {
+        graph.edgeAnimationEnabled
+    }
+    
+    var shownPossibleEdgeIds: Set<PossibleEdgeId> {
+        graph.edgeEditingState?.shownIds ?? .init()
+    }
+    
+//    var possibleEdges: [PossibleEdge] {
+//        animatingEdges.first(where: { $0.edge.to == inputObserver.portViewData })
+//    }
+    
+    @MainActor
+    func getPossibleEdgeUpstreamObserver(possibleEdge: PossibleEdge) -> OutputNodeRowViewModel? {
+        guard let node = graph.getCanvasItem(possibleEdge.edge.from.canvasId),
+              let upstreamRowObserver = node.outputViewModels[safe: possibleEdge.edge.from.portId] else {
+            return nil
+        }
+
+        return upstreamRowObserver
+    }
+    
+    @MainActor
+    func getPossibleEdgeDownstreamObserver(possibleEdge: PossibleEdge) -> InputNodeRowViewModel? {
+        guard let node = graph.getCanvasItem(possibleEdge.edge.to.canvasId),
+              let downstreamRowObserver = node.inputViewModels[safe: possibleEdge.edge.to.portId] else {
+            return nil
+        }
+
+        return downstreamRowObserver
+    }
+    
+    var body: some View {
+        // Place possible-edges above existing edges
+        Group {
+            ForEach(animatingEdges) { possibleEdge in
+                //            let possibleEdge = animatingEdges.first(where: { $0.edge.to == inputObserver.portViewData }) in
+                if let outputObserver = self
+                    .getPossibleEdgeUpstreamObserver(possibleEdge: possibleEdge),
+                   let inputObserver = self
+                    .getPossibleEdgeDownstreamObserver(possibleEdge: possibleEdge),
+                   let outputsCount = outputObserver.canvasItemDelegate?.outputViewModels.count {
+                    let pointTo = inputObserver.anchorPoint ?? .zero
+                    
+                    PossibleEdgeView(edgeStyle: edgeStyle,
+                                     possibleEdge: possibleEdge,
+                                     shownPossibleEdgeIds: shownPossibleEdgeIds,
+                                     from: outputObserver.anchorPoint ?? .zero,
+                                     to: pointTo,
+                                     totalOutputs: outputsCount,
+                                     // Note: an animated edit-mode edge use its output's color, rather than input's color, since the input will be gray until animation is completed
+                                     color: outputObserver.portColor.color(theme))
+                }
+            }
+        }
+//        .onChange(of: graph.edgeEditingState?.possibleEdges, initial: true) { _, newPossibleEdges in
+//            let candidateInputs: [InputNodeRowViewModel] = newPossibleEdges?.compactMap {
+//                let inputData = $0.edge.to
+//                
+//                guard let node = self.graph.getCanvasItem(inputData.canvasId),
+//                      let inputRow = node.inputViewModels[safe: inputData.portId] else {
+//                    return nil
+//                }
+//                
+//                return inputRow
+//            } ?? []
+//        }
     }
 }
 
@@ -113,7 +197,6 @@ extension ConnectedEdgeView {
 struct ConnectedEdgeView: View {
 
     @Environment(\.appTheme) private var theme
-    @Environment(\.edgeStyle) private var edgeStyle
     
     @Bindable var inputObserver: InputNodeRowViewModel
     @Bindable var upstreamObserver: OutputNodeRowViewModel

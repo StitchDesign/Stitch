@@ -22,7 +22,7 @@ struct PossibleEdge: Hashable {
     var isCommitted: Bool // = false
 }
 
-extension PossibleEdge {
+extension PossibleEdge: Identifiable {
     var id: InputPortViewData {
         edge.id
     }
