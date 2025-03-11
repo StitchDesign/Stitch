@@ -129,9 +129,9 @@ struct LayerCanvasInputView: View {
     
     var body: some View {
         // A layer canvas item, whether whole input (packed) or just a field (unpacked), will use the same LayerInputObserver
-        if
-           // Retrieve the port-observer for this canvas item
-           let rowObserver = node.getInputRowObserver(for: .keyPath(layerInputCoordinate.keyPath)),
+        
+        // Retrieve the port-observer for this canvas item
+        if let rowObserver = node.getInputRowObserver(for: .keyPath(layerInputCoordinate.keyPath)),
             // CanvasItem for a canvas layer input should only contain a single input row view model?
            let rowViewModel = self.canvasNode.inputViewModels.first {
                         
@@ -155,11 +155,10 @@ struct LayerCanvasInputView: View {
             }
             
         } else {
-            Text("no layer input coord")
+            EmptyView()
                 .onAppear {
-                    log("STOP")
+                    fatalErrorIfDebug()
                 }
-            
         }
         
     }

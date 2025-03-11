@@ -131,7 +131,7 @@ extension LayerInputObserver {
         let rowObserver = self._packedData.rowObserver
         
         return rowObserver
-            .label(useShortLabel: true,
+            .label(useShortLabel: usesShortLabel,
                    node: node,
                    coordinate: .input(rowObserver.id),
                    graph: graph)
@@ -363,7 +363,7 @@ extension LayerInputObserver {
     
     /// Helper only intended for use with ports that don't support unpacked mode.
     @MainActor
-    var rowObserver: InputNodeRowObserver {
+    var packedRowObserver: InputNodeRowObserver {
         return self._packedData.rowObserver
     }
     
@@ -371,7 +371,7 @@ extension LayerInputObserver {
     var fieldsRowLabel: String? {
         if self.port == .transform3D {
             if self.mode == .unpacked,
-               let fieldGroupLabel = self.rowObserver.id.keyPath?.getUnpackedPortType?.fieldGroupLabelForUnpacked3DTransformInput {
+               let fieldGroupLabel = self.packedRowObserver.id.keyPath?.getUnpackedPortType?.fieldGroupLabelForUnpacked3DTransformInput {
                 
                 return self.port.label() + " " + fieldGroupLabel
             } else {

@@ -47,84 +47,27 @@ struct CanvasLayerInputView: View {
     var body: some View {
         HStack {
             
-//            if layerInputObserver.port == .transform3D,
-//               layerInputObserver.mode == .unpacked {
-//                
-//                // here, we're not iterating through all the fieldGroupings -- we probably have just one?
-//                logInView("CanvasLayerInputView: port \(port)")
-//                logInView("CanvasLayerInputView: inputRowObserver.id \(inputRowObserver.id)")
-//                logInView("CanvasLayerInputView: inputRowViewModel.id \(inputRowViewModel.id)")
-//                logInView("CanvasLayerInputView: inputRowViewModel.id \(inputRowViewModel.id)")
-//                
-//                
-//                
-//                // some possibilities: packed or unpacked
-//                
-//                // if packed, show overall label but nothing else
-//                // if unpacked, show overall label + row label + individual field label
-//                LabelDisplayView(label: overallLabel,
-//                                 isLeftAligned: false,
-//                                 fontColor: STITCH_FONT_GRAY_COLOR,
-//                                 isSelectedInspectorRow: false)
-//                .border(.green)
-//                
-//                // The individual row or port that we have ... will be for an unpacked
-//                ForEach(inputRowViewModel.fieldValueTypes) { fieldGrouping in
-//                    
-//                    // When unpacked, groupLabel is nil here?
-//                    
-//                    Text("FieldGroup Label: \(fieldGrouping.groupLabel)")
-//                        .border(.yellow)
-//                    
-//                    if port == .transform3D,
-//                       layerInputObserver.mode == .unpacked,
-//                        let rowLabel = inputRowObserver.id.keyPath?.getUnpackedPortType?.fieldGroupLabelForUnpacked3DTransformInput {
-//                        Text("\(rowLabel)")
-//                            .border(.pink)
-//                    }
-//                    
-//                    // self.rowObserver.id.keyPath?.getUnpackedPortType?.fieldGroupLabelForUnpacked3DTransformInput
-//                    
-//                    ForEach(fieldGrouping.fieldObservers) { fieldObserver in
-//                        Text("FieldObserver Label: \(fieldObserver.fieldLabel)")
-//                            .border(.blue)
-//                    }
-//                }
-//                
-//            } else {
+            // The overall label
+            LabelDisplayView(label: overallLabel,
+                             isLeftAligned: false,
+                             fontColor: STITCH_FONT_GRAY_COLOR,
+                             isSelectedInspectorRow: false)
+            .border(.green)
+            
+            //
+            if layerInputObserver.port == .transform3D,
+               layerInputObserver.mode == .unpacked,
+               let rowLabel = inputRowObserver.id.keyPath?.getUnpackedPortType?.fieldGroupLabelForUnpacked3DTransformInput {
                 
-    //            if layerInputObserver.port.showsLabelForInspector {
-    //
-    //            }
-    //
-    //            if layerInputObserver.port != .transform3D,
-    //               layerInputObserver.port != .size3D {
-                    
-                // The overall label
-                    LabelDisplayView(label: overallLabel,
-                                     isLeftAligned: false,
-                                     fontColor: STITCH_FONT_GRAY_COLOR,
-                                     isSelectedInspectorRow: false)
-                    .border(.green)
-    //            }
-                
-//                Spacer()
-                
-                if layerInputObserver.port == .transform3D,
-                   layerInputObserver.mode == .unpacked,
-                    let rowLabel = inputRowObserver.id.keyPath?.getUnpackedPortType?.fieldGroupLabelForUnpacked3DTransformInput {
-                    
-                    LabelDisplayView(label: rowLabel,
-                                     isLeftAligned: false,
-                                     fontColor: STITCH_FONT_GRAY_COLOR,
-                                     isSelectedInspectorRow: false)
-                }
-                            
-                CanvasLayerInputFieldsView(fieldValueTypes: inputRowViewModel.fieldValueTypes,
-                                           layerInputObserver: layerInputObserver,
-                                           valueEntryView: valueEntryView)
-//            } // else
-       
+                LabelDisplayView(label: rowLabel,
+                                 isLeftAligned: false,
+                                 fontColor: STITCH_FONT_GRAY_COLOR,
+                                 isSelectedInspectorRow: false)
+            }
+            
+            CanvasLayerInputFieldsView(fieldValueTypes: inputRowViewModel.fieldValueTypes,
+                                       layerInputObserver: layerInputObserver,
+                                       valueEntryView: valueEntryView)
         }
     }
 }
