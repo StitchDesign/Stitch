@@ -29,15 +29,12 @@ struct NodeFieldsView<FieldType, ValueEntryView, FieldsView>: View where FieldTy
                 LabelDisplayView(label: fieldGroupLabel,
                                  isLeftAligned: false,
                                  fontColor: STITCH_FONT_GRAY_COLOR,
-                                 isSelectedInspectorRow: false)
-                .border(.cyan)
-                
+                                 isSelectedInspectorRow: false)                
                 Spacer()
             }
         }
         
         fieldsView()
-            .border(.white)
     }
 }
 

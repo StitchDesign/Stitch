@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-
 // used `NodeTypeView`
 // see `LayerNodeInputView`
 struct CanvasLayerInputView: View {
@@ -18,41 +17,39 @@ struct CanvasLayerInputView: View {
     let layerInputObserver: LayerInputObserver
     let inputRowObserver: InputNodeRowObserver
     let inputRowViewModel: InputNodeRowViewModel
-
-    var overallLabel: String {
-        layerInputObserver
-            .overallPortLabel(usesShortLabel: false,
-                              node: node,
-                              graph: graph)
-    }
+    let isNodeSelected: Bool
                 
     @ViewBuilder @MainActor
     func valueEntryView(portViewModel: InputFieldViewModel,
-                        isMultiField: Bool) -> CanvasLayerInputValueView {
-        CanvasLayerInputValueView(graph: graph,
-                                  graphUI: document,
-                                  viewModel: portViewModel,
-                                  canvasNode: canvasNode,
-                                  node: node,
-                                  layerInputObserver: layerInputObserver,
-                                  inputRowObserver: inputRowObserver,
-                                  inputRowViewModel: inputRowViewModel)
+                        isMultiField: Bool) -> InputValueEntry {
+        InputValueEntry(graph: graph,
+                        graphUI: document,
+                        viewModel: portViewModel,
+                        node: node,
+                        rowViewModel: inputRowViewModel,
+                        canvasItem: canvasNode,
+                        rowObserver: inputRowObserver,
+                        isCanvasItemSelected: isNodeSelected,
+                        hasIncomingEdge: inputRowObserver.upstreamOutputCoordinate.isDefined,
+                        forPropertySidebar: false,
+                        propertyIsAlreadyOnGraph: true,
+                        isFieldInMultifieldInput: isMultiField,
+                        isForFlyout: false,
+                        isSelectedInspectorRow: false, // Always false for canvas layer node
+                        useIndividualFieldLabel: true)
     }
-    
-    var port: LayerInputPort {
-        layerInputObserver.port
-    }
-    
     
     var body: some View {
         HStack {
-            LabelDisplayView(label: overallLabel,
+            LabelDisplayView(label: layerInputObserver.overallPortLabel(usesShortLabel: false,
+                                                                        node: node,
+                                                                        graph: graph),
                              isLeftAligned: false,
                              fontColor: STITCH_FONT_GRAY_COLOR,
                              isSelectedInspectorRow: false)
             
             // Unpacked 3D Transform fields on the canvas are a special case;
-            // they need
+            // e.g. they need "Position X" not just "X"
             if layerInputObserver.port == .transform3D,
                layerInputObserver.mode == .unpacked,
                let rowLabel = inputRowObserver.id.keyPath?.getUnpackedPortType?.fieldGroupLabelForUnpacked3DTransformInput {
@@ -63,130 +60,11 @@ struct CanvasLayerInputView: View {
                                  isSelectedInspectorRow: false)
             }
             
-            CanvasLayerInputFieldsView(fieldValueTypes: inputRowViewModel.fieldValueTypes,
-                                       layerInputObserver: layerInputObserver,
-                                       valueEntryView: valueEntryView)
+            LayerInputFieldsView(fieldValueTypes: inputRowViewModel.fieldValueTypes,
+                                 layerInputObserver: layerInputObserver,
+                                 forFlyout: false,
+                                 valueEntryView: valueEntryView)
         }
         .height(NODE_ROW_HEIGHT + 6)
-    }
-}
-
-struct CanvasLayerInputValueView: View {
-    
-    @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
-    
-    @Bindable var viewModel: InputFieldViewModel
-
-    let canvasNode: CanvasItemViewModel
-    let node: NodeViewModel
-    let layerInputObserver: LayerInputObserver
-    let inputRowObserver: InputNodeRowObserver
-    let inputRowViewModel: InputNodeRowViewModel
-    
-    
-    @State private var isButtonPressed = false
-    
-    // On the canvas, we always show overall label and individual field labels
-    var body: some View {
-        
-        LabelDisplayView(label: self.viewModel.fieldLabel,
-                         isLeftAligned: true,
-                         fontColor: STITCH_FONT_GRAY_COLOR,
-                         isSelectedInspectorRow: false)
-        .border(.brown)
-        
-        valueDisplay
-    }
-    
-    var hasIncomingEdge: Bool {
-        inputRowObserver.upstreamOutputCoordinate.isDefined
-    }
-    
-    @MainActor
-    var valueDisplay: some View {
-        InputFieldValueView(graph: graph,
-                            graphUI: graphUI,
-                            viewModel: viewModel,
-                            propertySidebar: graph.propertySidebar,
-                            node: node,
-                            rowViewModel: inputRowViewModel,
-                            canvasItem: canvasNode,
-                            rowObserver: inputRowObserver,
-                            
-                            // TODO: MARCH 10: remove and pack up these inspector-specific params?
-                            isCanvasItemSelected: false,
-                            forPropertySidebar: false,
-                            propertyIsAlreadyOnGraph: true, //false, // inspector only
-                            isFieldInMultifieldInput: true, // inspector only
-                            isForFlyout: false,
-                            isSelectedInspectorRow: false,
-                            
-                            // Only for pulse button and color orb;
-                            // Always false for inspector-rows
-                            hasIncomingEdge: hasIncomingEdge,
-                            isForLayerGroup: node.kind.getLayer == .group,
-                            // This is same as `hasIncomingEdge` ? a check on whether rowDelegate has a defined upstream output (coordinate vs observer should not matter?)
-                            isUpstreamValue: hasIncomingEdge,
-                            isButtonPressed: $isButtonPressed)
-        .font(STITCH_FONT)
-        // Monospacing prevents jittery node widths if values change on graphstep
-        .monospacedDigit()
-        .lineLimit(1)
-    }
-    
-}
-
-struct CanvasLayerInputFieldsView<ValueEntry>: View where ValueEntry: View {
-    typealias ValueEntryViewBuilder = (InputFieldViewModel, Bool) -> ValueEntry
-    
-    let fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>]
-    let layerInputObserver: LayerInputObserver
-    @ViewBuilder var valueEntryView: ValueEntryViewBuilder
-    
-    
-    var isMultifield: Bool {
-        layerInputObserver.usesMultifields || fieldValueTypes.count > 1
-    }
-    
-    var blockedFields: LayerPortTypeSet? {
-        layerInputObserver.blockedFields
-    }
-    
-    var body: some View {
-        ForEach(fieldValueTypes) { (fieldGrouping: FieldGroupTypeData<InputFieldViewModel>) in
-            
-            let multipleFieldsPerGroup = fieldGrouping.fieldObservers.count > 1
-            
-            //            // Note: "multifield" is more complicated for layer inputs, since `fieldObservers.count` is now inaccurate for an unpacked port
-            let _isMultifield = isMultifield || multipleFieldsPerGroup
-            
-            if !self.isAllFieldsBlockedOut(fieldGroupViewModel: fieldGrouping) {
-                
-                // `NodeFieldsView` displays fieldGrouping's label,
-                NodeFieldsView(fieldGroupViewModel: fieldGrouping,
-                               valueEntryView: valueEntryView) {
-                    
-                    HStack {
-                        ForEach(fieldGrouping.fieldObservers) { fieldViewModel in
-                            let isBlocked = self.blockedFields.map { fieldViewModel.isBlocked($0) } ?? false
-                            if !isBlocked {
-                                self.valueEntryView(fieldViewModel,
-                                                    _isMultifield)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    func isAllFieldsBlockedOut(fieldGroupViewModel: FieldGroupTypeData<InputFieldViewModel>) -> Bool {
-        if let blockedFields = blockedFields {
-            return fieldGroupViewModel.fieldObservers.allSatisfy {
-                $0.isBlocked(blockedFields)
-            }
-        }
-        return false
     }
 }

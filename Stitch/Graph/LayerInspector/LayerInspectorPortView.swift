@@ -171,7 +171,6 @@ struct InspectorLayerInputView: View {
                         
                         isForFlyout: forFlyout,
                         isSelectedInspectorRow: propertyRowIsSelected,
-                        fieldsRowLabel: layerInputObserver.fieldsRowLabel,
                         useIndividualFieldLabel: layerInputObserver.useIndividualFieldLabel(activeIndex: document.activeIndex))
     }
     
@@ -188,7 +187,7 @@ struct InspectorLayerInputView: View {
           
             // Vast majority of inputs, however, have a single row of fields.
             // TODO: this part of the UI is not clear; we allow the single row of fields to float up into the enclosing HStack, yet flyouts always vertically stack their fields
-            InspectorLayerInputFieldsView(fieldValueTypes: fieldValueTypes,
+            LayerInputFieldsView(fieldValueTypes: fieldValueTypes,
                                           layerInputObserver: layerInputObserver,
                                           forFlyout: forFlyout,
                                           valueEntryView: valueEntryView)
@@ -197,8 +196,8 @@ struct InspectorLayerInputView: View {
 }
 
 // fka `LayerInputFieldsView`
-// Used by InspectorLayerInputView and most flyouts
-struct InspectorLayerInputFieldsView<ValueEntry>: View where ValueEntry: View {
+// Used by InspectorLayerInputView, most flyouts and CanvasLayerInputView
+struct LayerInputFieldsView<ValueEntry>: View where ValueEntry: View {
     typealias ValueEntryViewBuilder = (InputFieldViewModel, Bool) -> ValueEntry
     
     let fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>]

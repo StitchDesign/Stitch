@@ -71,7 +71,7 @@ struct GenericFlyoutView: View {
     @ViewBuilder @MainActor
     var flyoutRows: some View {
         // Assumes: all flyouts (besides shadow-flyout) have a single row which contains multiple fields
-        InspectorLayerInputFieldsView(fieldValueTypes: fieldValueTypes,
+        LayerInputFieldsView(fieldValueTypes: fieldValueTypes,
                              layerInputObserver: layerInputObserver,
                              forFlyout: true) { inputFieldViewModel, isMultifield in
             GenericFlyoutRowView(
@@ -209,7 +209,6 @@ struct GenericFlyoutRowView: View {
                             isForFlyout: true,
                             // Always false for flyout row
                             isSelectedInspectorRow: propertyRowIsSelected,
-                            fieldsRowLabel: layerInputObserver.fieldsRowLabel,
                             useIndividualFieldLabel: layerInputObserver.useIndividualFieldLabel(activeIndex: graphUI.activeIndex))
         } // HStack
         .contentShape(Rectangle())

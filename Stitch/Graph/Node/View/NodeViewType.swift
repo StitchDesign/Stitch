@@ -40,7 +40,7 @@ struct NodeTypeView: View {
     var displayTitle: String {
         self.node.displayTitle
     }
-
+    
     var body: some View {
         NodeView(node: canvasNode,
                  stitch: node,
@@ -75,49 +75,51 @@ struct NodeTypeView: View {
                                  graphUI: document,
                                  isOutput: false,
                                  id: node.id)
-                    .padding(.trailing, NODE_BODY_SPACING)
+                .padding(.trailing, NODE_BODY_SPACING)
             } else if let layerNode: LayerNodeViewModel = self.node.layerNode,
                       let layerInputCoordinate: LayerInputCoordinate = self.canvasNode.id.layerInputCase {
-                LayerCanvasInputView(graph: graph,
-                                     document: document,
-                                     node: node,
-                                     canvasNode: canvasNode,
-                                     layerNode: layerNode,
-                                     layerInputCoordinate: layerInputCoordinate)
+                // Layer input or field
+                CanvasLayerInputViewWrapper(graph: graph,
+                                            document: document,
+                                            node: node,
+                                            canvasNode: canvasNode,
+                                            layerNode: layerNode,
+                                            layerInputCoordinate: layerInputCoordinate,
+                                            isNodeSelected: isSelected)
             }  else {
-                // fka `DefaultNodeInputView`
+                // Multiple inputs
                 DefaultNodeInputsView(graph: graph,
-                                             document: document,
-                                             node: node,
-                                             canvas: canvasNode,
-                                             isNodeSelected: isSelected)
+                                      document: document,
+                                      node: node,
+                                      canvas: canvasNode,
+                                      isNodeSelected: isSelected)
             }
         }
     }
-
+    
     @ViewBuilder @MainActor
     func outputsViews() -> some View {
         VStack(alignment: .trailing,
                spacing: SPACING_BETWEEN_NODE_ROWS) {
-
+            
             if self.node.patch == .wirelessBroadcaster {
                 WirelessPortView(graph: graph,
                                  graphUI: document,
                                  isOutput: true,
                                  id: node.id)
-                    .padding(.leading, NODE_BODY_SPACING)
+                .padding(.leading, NODE_BODY_SPACING)
             } else {
                 DefaultNodeOutputsView(graph: graph,
-                                     document: document,
-                                     node: node,
-                                     canvas: canvasNode,
-                                     isNodeSelected: isSelected)
+                                       document: document,
+                                       node: node,
+                                       canvas: canvasNode,
+                                       isNodeSelected: isSelected)
             }
         }
     }
 }
 
-struct LayerCanvasInputView: View {
+struct CanvasLayerInputViewWrapper: View {
     @Bindable var graph: GraphState
     @Bindable var document: StitchDocumentViewModel
     @Bindable var node: NodeViewModel
@@ -126,6 +128,7 @@ struct LayerCanvasInputView: View {
     // Should this be bindable or not?
     @Bindable var layerNode: LayerNodeViewModel
     let layerInputCoordinate: LayerInputCoordinate
+    let isNodeSelected: Bool
     
     var body: some View {
         // A layer canvas item, whether whole input (packed) or just a field (unpacked), will use the same LayerInputObserver
@@ -143,15 +146,14 @@ struct LayerCanvasInputView: View {
                                 rowObserver: rowObserver,
                                 rowViewModel: rowViewModel)
                 
-                CanvasLayerInputView(
-                    document: document,
-                    graph: graph,
-                    node: node,
-                    canvasNode: canvasNode,
-                    layerInputObserver: layerInputObserver,
-                    inputRowObserver: rowObserver,
-                    inputRowViewModel: rowViewModel
-                )
+                CanvasLayerInputView(document: document,
+                                     graph: graph,
+                                     node: node,
+                                     canvasNode: canvasNode,
+                                     layerInputObserver: layerInputObserver,
+                                     inputRowObserver: rowObserver,
+                                     inputRowViewModel: rowViewModel,
+                                     isNodeSelected: isNodeSelected)
             }
             
         } else {
@@ -188,11 +190,10 @@ struct DefaultNodeInputsView: View {
                         isCanvasItemSelected: isNodeSelected,
                         hasIncomingEdge: rowObserver.upstreamOutputCoordinate.isDefined,
                         forPropertySidebar: false,
-                        propertyIsAlreadyOnGraph: true,
+                        propertyIsAlreadyOnGraph: false, // Always false for patch and group node inputs
                         isFieldInMultifieldInput: isMultiField,
                         isForFlyout: false,
                         isSelectedInspectorRow: false,
-                        fieldsRowLabel: nil,
                         useIndividualFieldLabel: true)
     }
     

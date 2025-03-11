@@ -30,19 +30,14 @@ struct InputValueEntry: View {
     let isForFlyout: Bool
     let isSelectedInspectorRow: Bool
     
-    let fieldsRowLabel: String?
     let useIndividualFieldLabel: Bool
 
     // Used by button view to determine if some button has been pressed.
     // Saving this state outside the button context allows us to control renders.
     @State private var isButtonPressed = false
     
-    var individualFieldLabel: String {
-        self.viewModel.fieldLabel
-    }
-        
     var individualFieldLabelDisplay: LabelDisplayView {
-        LabelDisplayView(label: individualFieldLabel,
+        LabelDisplayView(label: self.viewModel.fieldLabel,
                          isLeftAligned: true,
                          fontColor: STITCH_FONT_GRAY_COLOR,
                          isSelectedInspectorRow: isSelectedInspectorRow)
@@ -64,15 +59,8 @@ struct InputValueEntry: View {
                             isFieldInMultifieldInput: isFieldInMultifieldInput,
                             isForFlyout: isForFlyout,
                             isSelectedInspectorRow: isSelectedInspectorRow,
-                            
-                            // Only for pulse button and color orb;
-                            // Always false for inspector-rows
-                            hasIncomingEdge: hasIncomingEdge,
-                            
+                            hasIncomingEdge: hasIncomingEdge, // Only for pulse button and color orb; always false for inspector rows
                             isForLayerGroup: node.kind.getLayer == .group,
-                            
-                            // This is same as `hasIncomingEdge` ? a check on whether rowDelegate has a defined upstream output (coordinate vs observer should not matter?)
-                            isUpstreamValue: hasIncomingEdge,
                             isButtonPressed: $isButtonPressed)
         .font(STITCH_FONT)
             // Monospacing prevents jittery node widths if values change on graphstep
@@ -81,30 +69,18 @@ struct InputValueEntry: View {
     }
     
     var showIndividualFieldLabel: Bool {
-        // always shows if flyout
-        (self.isFieldInMultifieldInput && self.useIndividualFieldLabel) || isForFlyout
+        // Show individual field labels
+        isForFlyout || (self.isFieldInMultifieldInput && self.useIndividualFieldLabel)
     }
     
     var body: some View {
         HStack(spacing: NODE_COMMON_SPACING) {
             
-            if !forPropertySidebar,
-               !isForFlyout,
-               let fieldGroupLabel = fieldsRowLabel {
-                LabelDisplayView(label: fieldGroupLabel,
-                                 isLeftAligned: true,
-                                 fontColor: STITCH_FONT_GRAY_COLOR,
-                                 isSelectedInspectorRow: isSelectedInspectorRow)
-                .border(.teal, width: 3)
-            }
-            
             if showIndividualFieldLabel {
                 individualFieldLabelDisplay
-                    .border(.brown)
             }
-             
-            if forPropertySidebar,
-               isForFlyout,
+
+            if isForFlyout,
                isFieldInMultifieldInput {
                 Spacer()
             }
@@ -155,7 +131,10 @@ struct InputFieldValueView: View {
     
     var hasIncomingEdge: Bool
     var isForLayerGroup: Bool
-    var isUpstreamValue: Bool
+    
+    var isUpstreamValue: Bool {
+        hasIncomingEdge
+    }
 
     @Binding var isButtonPressed: Bool
     
