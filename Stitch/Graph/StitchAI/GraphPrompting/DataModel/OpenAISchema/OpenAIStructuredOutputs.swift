@@ -145,11 +145,11 @@ struct OpenAIGeneric: Encodable {
         
         // If we have refs, use those
         if !refs.isEmpty {
-            try container.encode(refs[0], forKey: .items)
+            try container.encode(refs, forKey: .items)
         }
         // Otherwise use the first type
         else if !types.isEmpty {
-            try container.encode(types[0], forKey: .items)
+            try container.encode(types, forKey: .items)
         }
     }
 }
