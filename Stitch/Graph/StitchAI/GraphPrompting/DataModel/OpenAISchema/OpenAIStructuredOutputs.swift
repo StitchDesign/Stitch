@@ -103,10 +103,12 @@ extension OpenAISchema: Encodable {
 
 struct OpenAISchemaEnum: Encodable {
     var values: [String]
+    var description: String
     
     enum CodingKeys: String, CodingKey {
         case type
         case enumType = "enum"
+        case description
     }
     
     func encode(to encoder: Encoder) throws {
