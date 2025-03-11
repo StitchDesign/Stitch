@@ -164,7 +164,6 @@ struct LayerCanvasInputView: View {
     }
 }
 
-
 struct PatchOrGroupCanvasInputsView: View {
     
     @Bindable var graph: GraphState

@@ -321,24 +321,6 @@ struct LayerInputFieldsView<ValueEntry>: View where ValueEntry: View {
                             }
                     }
                     
-                    else if displaysNarrowMultifields {
-                        HStack {
-                            Spacer()
-                            NodePortConstrainedFieldsView(fieldGroupViewModel: fieldGroupViewModel,
-                                                         isMultiField: _isMultifield,
-                                                         valueEntryView: valueEntryView)
-                        }
-                        // TODO: `LayerInspectorPortView`'s `.listRowInsets` should maintain consistent padding between input-rows in the layer inspector, so why is additional padding needed?
-                        .padding(.vertical, INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET * 2)
-                    }
-                    
-                    // flyout fields generally are vertically stacked (`shadowOffset` is exception)
-//                    else if forFlyout {
-//                        VStack {
-//                            fields
-//                        }
-//                    }
-                    
                     // patch inputs and inspector fields are horizontally aligned
                     else {
                         HStack {
