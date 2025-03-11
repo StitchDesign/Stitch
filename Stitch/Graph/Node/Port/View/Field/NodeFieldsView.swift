@@ -43,7 +43,12 @@ struct NodeFieldsView<FieldType, ValueEntryView, FieldsView>: View where FieldTy
 }
 
 
-struct NodePortContrainedFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldViewModel, ValueEntryView: View {
+
+
+
+// TODO: really, this is for inspector display of 3 part (3d transform) or grid (4 part: margin, padding) port values
+// Can probably be made more abstract to hide packed vs unpacked
+struct NodePortConstrainedFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldViewModel, ValueEntryView: View {
     let fieldGroupViewModel: FieldGroupTypeData<FieldType>
     let isMultiField: Bool
     @ViewBuilder var valueEntryView: (FieldType, Bool) -> ValueEntryView

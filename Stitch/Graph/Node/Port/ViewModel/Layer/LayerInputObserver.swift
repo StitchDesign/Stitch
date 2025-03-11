@@ -111,7 +111,10 @@ extension LayerInputObserver {
     // Regardless of packed vs unpacked mode.
     @MainActor
     var usesMultifields: Bool {
-        //        log("LayerInputObserver: usesMultifields: for layer input \(self.port)")
+        log("LayerInputObserver: usesMultifields: for layer input \(self.port)")
+        if self.port == .size {
+            log("had size")
+        }
         switch self.mode {
         case .packed:
             return (self.fieldValueTypes.first?.fieldObservers.count ?? 0) > 1
@@ -133,7 +136,8 @@ extension LayerInputObserver {
                    coordinate: .input(rowObserver.id),
                    graph: graph)
     }
-        
+    
+    // Returns all fields, regardless of packed vs unpacked
     @MainActor
     var fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>] {
         let allFields = self.allInputData.flatMap { (portData: InputLayerNodeRowData) in
@@ -165,12 +169,12 @@ extension LayerInputObserver {
     
     @MainActor
     func getCanvasItemForWholeInput() -> CanvasItemViewModel? {
-        let canvasObsevers = self.getAllCanvasObservers()
-        if canvasObsevers.count > 1 {
+        let canvasObservers = self.getAllCanvasObservers()
+        if canvasObservers.count > 1 {
             fatalErrorIfDebug()
             return nil
         }
-        return canvasObsevers.first
+        return canvasObservers.first
     }
     
     @MainActor

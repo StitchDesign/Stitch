@@ -83,13 +83,22 @@ struct CommonEditingView: View {
     
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
+    
+    
+    // inspector only?
     let isFieldInMultifieldInput: Bool
+    
+    
     let isForFlyout: Bool
     let isForSpacingField: Bool
     let isSelectedInspectorRow: Bool
     let hasHeterogenousValues: Bool
     
+    
+    // also inspector-only ?
     let isFieldInMultifieldInspectorInputAndNotFlyout: Bool
+    
+    
     let fieldWidth: CGFloat
     
     var id: FieldCoordinate {
@@ -266,14 +275,8 @@ struct CommonEditingView: View {
     }
     
     var multifieldLayerInput: LayerInputPort? {
-        if isFieldInMultifieldInput,
-           forPropertySidebar,
-           !isForFlyout,
-           let layerInput = rowViewModel.layerInput {
-            return layerInput
-        }
         
-        return nil
+        isFieldInMultifieldInspectorInputAndNotFlyout ? rowViewModel.layerInput : nil
     }
     
     var fieldHighlight: some View {

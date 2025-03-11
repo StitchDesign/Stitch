@@ -19,6 +19,8 @@ struct CommonEditingViewWrapper: View {
     let fieldCoordinate: FieldCoordinate
     let isCanvasItemSelected: Bool
     let choices: [String]?
+    
+    // TODO: MARCH 10: actually only specifically for layer inspector!
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
     let hasHeterogenousValues: Bool

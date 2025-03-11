@@ -50,31 +50,31 @@ struct InputValueEntry: View {
 
     @MainActor
     var valueDisplay: some View {
-        InputValueView(graph: graph,
-                       graphUI: graphUI,
-                       viewModel: viewModel,
-                       propertySidebar: graph.propertySidebar,
-                       node: node,
-                       rowViewModel: rowViewModel,
-                       canvasItem: canvasItem,
-                       rowObserver: rowObserver,
-                       isCanvasItemSelected: isCanvasItemSelected,
-                       forPropertySidebar: forPropertySidebar,
-                       propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
-                       isFieldInMultifieldInput: isFieldInMultifieldInput,
-                       isForFlyout: isForFlyout,
-                       isSelectedInspectorRow: isSelectedInspectorRow,
-                       
-                       // Only for pulse button and color orb;
-                       // Always false for inspector-rows
-                       hasIncomingEdge: hasIncomingEdge,
-                       
-                       isForLayerGroup: node.kind.getLayer == .group,
-                       
-                       // This is same as `hasIncomingEdge` ? a check on whether rowDelegate has a defined upstream output (coordinate vs observer should not matter?)
-                       isUpstreamValue: hasIncomingEdge,
-                       isButtonPressed: $isButtonPressed)
-            .font(STITCH_FONT)
+        InputFieldValueView(graph: graph,
+                            graphUI: graphUI,
+                            viewModel: viewModel,
+                            propertySidebar: graph.propertySidebar,
+                            node: node,
+                            rowViewModel: rowViewModel,
+                            canvasItem: canvasItem,
+                            rowObserver: rowObserver,
+                            isCanvasItemSelected: isCanvasItemSelected,
+                            forPropertySidebar: forPropertySidebar,
+                            propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                            isFieldInMultifieldInput: isFieldInMultifieldInput,
+                            isForFlyout: isForFlyout,
+                            isSelectedInspectorRow: isSelectedInspectorRow,
+                            
+                            // Only for pulse button and color orb;
+                            // Always false for inspector-rows
+                            hasIncomingEdge: hasIncomingEdge,
+                            
+                            isForLayerGroup: node.kind.getLayer == .group,
+                            
+                            // This is same as `hasIncomingEdge` ? a check on whether rowDelegate has a defined upstream output (coordinate vs observer should not matter?)
+                            isUpstreamValue: hasIncomingEdge,
+                            isButtonPressed: $isButtonPressed)
+        .font(STITCH_FONT)
             // Monospacing prevents jittery node widths if values change on graphstep
             .monospacedDigit()
             .lineLimit(1)
@@ -95,10 +95,12 @@ struct InputValueEntry: View {
                                  isLeftAligned: true,
                                  fontColor: STITCH_FONT_GRAY_COLOR,
                                  isSelectedInspectorRow: isSelectedInspectorRow)
+                .border(.teal, width: 3)
             }
             
             if showIndividualFieldLabel {
                 individualFieldLabelDisplay
+                    .border(.brown)
             }
              
             if forPropertySidebar,
@@ -131,7 +133,8 @@ extension UnpackedPortType {
     }
 }
 
-struct InputValueView: View {
+// fka `InputValueView`
+struct InputFieldValueView: View {
     @Bindable var graph: GraphState
     @Bindable var graphUI: GraphUIState
     @Bindable var viewModel: InputFieldViewModel
@@ -140,6 +143,9 @@ struct InputValueView: View {
     let rowViewModel: InputNodeRowViewModel
     let canvasItem: CanvasItemViewModel?
     let rowObserver: InputNodeRowObserver
+    
+    // TODO: MARCH 10: actually only specifically for layer inspector!
+    
     let isCanvasItemSelected: Bool
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool

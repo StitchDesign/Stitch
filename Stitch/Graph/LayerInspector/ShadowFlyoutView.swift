@@ -102,7 +102,7 @@ struct ShadowFlyoutRowView: View {
                                     isHovered: isHovered)
             .offset(y: isShadowOffsetRow ? INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET : 0)
 
-            LayerNodeInputView(document: graphUI,
+            InspectorLayerInputView(document: graphUI,
                                graph: graph,
                                node: node,
                                layerInputObserver: layerInputObserver,

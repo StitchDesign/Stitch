@@ -68,12 +68,19 @@ struct LayerInspectorInputPortView: View {
                         if isShadowLayerInputRow {
                             ShadowInputInspectorRow(nodeId: node.id,
                                                     propertyIsSelected: propertyRowIsSelected)
+                        } else if layerInputObserver.usesMultifields {
+                            InspectorLayerMultifieldInputView(
+                                document: graphUI,
+                                graph: graph,
+                                node: node,
+                                layerInputObserver: layerInputObserver)
                         } else {
-                            LayerNodeInputView(document: graphUI,
-                                               graph: graph,
-                                               node: node,
-                                               layerInputObserver: layerInputObserver,
-                                               forFlyout: false)
+                            InspectorLayerInputView(
+                                document: graphUI,
+                                graph: graph,
+                                node: node,
+                                layerInputObserver: layerInputObserver,
+                                forFlyout: false)
                         }
                     }
             }
@@ -85,7 +92,9 @@ struct LayerInspectorInputPortView: View {
     }
 }
 
-struct LayerNodeInputView: View {
+
+// fka `LayerNodeInputView`
+struct InspectorLayerInputView: View {
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
@@ -99,6 +108,7 @@ struct LayerNodeInputView: View {
                               graph: graph)
     }
     
+    // Can we really assume that this is packed?
     var layerInputType: LayerInputType {
         LayerInputType.init(layerInput: layerInputObserver.port,
                             portType: .packed)
@@ -131,8 +141,9 @@ struct LayerNodeInputView: View {
         layerInputObserver._packedData
     }
     
+    //
     var fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>] {
-        layerInputData.inspectorRowViewModel.fieldValueTypes
+        self.layerInputObserver.fieldValueTypes
     }
     
     var propertyRowIsSelected: Bool {
@@ -142,6 +153,7 @@ struct LayerNodeInputView: View {
     @ViewBuilder @MainActor
     func valueEntryView(portViewModel: InputFieldViewModel,
                         isMultiField: Bool) -> InputValueEntry {
+        
         InputValueEntry(graph: graph,
                         graphUI: document,
                         viewModel: portViewModel,
@@ -152,8 +164,19 @@ struct LayerNodeInputView: View {
                         isCanvasItemSelected: false,
                         hasIncomingEdge: false,
                         forPropertySidebar: true,
+                        // TODO: MARCH 10: this is actually more like "is this field/input on the canvas already? if so, tapping CommonEditingView should NOT focus it"
+                        // How was this logic ever correct in the past? It's not by field?
+                        
+                        // invalid for unpacked multifiple fields on canvas
                         propertyIsAlreadyOnGraph: layerInputObserver.getCanvasItemForWholeInput().isDefined,
-                        isFieldInMultifieldInput: isMultiField,
+//                        propertyIsAlreadyOnGraph: !layerInputObserver.getAllCanvasObservers().isEmpty,
+                        
+                        
+                        // Flyout broken with unpacked layer inputs because this passed in param is not accurate for unpacked layer inputs
+                        // Shiuld instead look at layer input observer
+                        isFieldInMultifieldInput: layerInputObserver.usesMultifields, // isMultiField,
+                        
+                        
                         isForFlyout: forFlyout,
                         isSelectedInspectorRow: propertyRowIsSelected,
                         fieldsRowLabel: layerInputObserver.fieldsRowLabel,
@@ -179,6 +202,8 @@ struct LayerNodeInputView: View {
                 }
             }
             
+            // TODO: MARCH 10: consolidate with `NodePortConstraintedFieldsView` ?
+            
             /*
              When packed, `margin` has one row observer with four field models (which can be handled by NodeFieldsView)
              When unpacked, `margin` has four row observers with one field model each.
@@ -198,11 +223,14 @@ struct LayerNodeInputView: View {
                         fieldsListView([f0])
                         fieldsListView([f1])
                     }
+                    
                     HStack {
                         fieldsListView([f2])
                         fieldsListView([f3])
                     }
+                    
                 }
+                .padding(.vertical, INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET * 2)
             }
             
             // Vast majority of inputs, however, have a single row of fields.
@@ -273,7 +301,7 @@ struct LayerInputFieldsView<ValueEntry>: View where ValueEntry: View {
             let _isMultifield = isMultifield || multipleFieldsPerGroup
             
             // TODO: shadow field
-            let isShadowMultiFieldFlyout = forFlyout && _isMultifield && layerInput == .shadowOffset
+//            let isShadowMultiFieldFlyout = forFlyout && _isMultifield && layerInput == .shadowOffset
                         
             if !self.isAllFieldsBlockedOut(fieldGroupViewModel: fieldGroupViewModel) {
                 NodeFieldsView(
@@ -296,7 +324,7 @@ struct LayerInputFieldsView<ValueEntry>: View where ValueEntry: View {
                     else if displaysNarrowMultifields {
                         HStack {
                             Spacer()
-                            NodePortContrainedFieldsView(fieldGroupViewModel: fieldGroupViewModel,
+                            NodePortConstrainedFieldsView(fieldGroupViewModel: fieldGroupViewModel,
                                                          isMultiField: _isMultifield,
                                                          valueEntryView: valueEntryView)
                         }
@@ -336,6 +364,262 @@ struct LayerInputFieldsView<ValueEntry>: View where ValueEntry: View {
         }
         return false
     }
+}
+
+// Multifeld layer inputs (regardless packed vs unpacked) ALWAYS use read-only views that open flyouts when tapped
+// e.g. Size, Position, 3D Transform, Padding, Margin
+// Note: this is for inspector but NOT inspector's flyout
+// (Using this separate view lets us simplify CommonEditingView as well)
+struct InspectorLayerMultifieldInputView: View {
+    
+    @Bindable var document: StitchDocumentViewModel
+    @Bindable var graph: GraphState
+    @Bindable var node: NodeViewModel
+    let layerInputObserver: LayerInputObserver
+    
+    let forFlyout: Bool = false
+    
+    var label: String {
+        layerInputObserver
+            .overallPortLabel(usesShortLabel: true,
+                              node: node,
+                              graph: graph)
+    }
+    
+    // Can we really assume that this is packed?
+    var layerInputType: LayerInputType {
+        LayerInputType.init(layerInput: layerInputObserver.port,
+                            portType: .packed)
+    }
+    
+    var layerInspectorRowId: LayerInspectorRowId {
+        .layerInput(layerInputType)
+    }
+    
+    var layerInput: LayerInputPort {
+        self.layerInputObserver.port
+    }
+  
+    var willShowLabel: Bool {
+        if forFlyout {
+            return true
+        }
+        return layerInput.showsLabelForInspector
+    }
+    
+    var is3DTransform: Bool {
+        layerInput == .transform3D
+    }
+    
+    var layerInputData: InputLayerNodeRowData {
+        layerInputObserver._packedData
+    }
+    
+    var fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>] {
+        self.layerInputObserver.fieldValueTypes
+    }
+    
+    var propertyRowIsSelected: Bool {
+        graph.propertySidebar.selectedProperty == layerInspectorRowId
+    }
+    
+//    @ViewBuilder @MainActor
+//    func valueEntryView(portViewModel: InputFieldViewModel,
+//                        isMultiField: Bool) -> InputValueEntry {
+//        
+//        InputValueEntry(graph: graph,
+//                        graphUI: document,
+//                        viewModel: portViewModel,
+//                        node: node,
+//                        rowViewModel: layerInputData.inspectorRowViewModel,
+//                        canvasItem: nil,
+//                        rowObserver: layerInputData.rowObserver,
+//                        isCanvasItemSelected: false,
+//                        hasIncomingEdge: false,
+//                        forPropertySidebar: true,
+//                        // TODO: MARCH 10: this is actually more like "is this field/input on the canvas already? if so, tapping CommonEditingView should NOT focus it"
+//                        // How was this logic ever correct in the past? It's not by field?
+//                        
+//                        // invalid for unpacked multifiple fields on canvas
+//                        propertyIsAlreadyOnGraph: layerInputObserver.getCanvasItemForWholeInput().isDefined,
+//                        
+//                        // Flyout broken with unpacked layer inputs because this passed in param is not accurate for unpacked layer inputs
+//                        // Shiuld instead look at layer input observer
+//                        isFieldInMultifieldInput: true,
+//                        
+//                        isForFlyout: forFlyout,
+//                        isSelectedInspectorRow: propertyRowIsSelected,
+//                        fieldsRowLabel: layerInputObserver.fieldsRowLabel,
+//                        useIndividualFieldLabel: layerInputObserver.useIndividualFieldLabel(activeIndex: document.activeIndex))
+//    }
+    
+//    var fieldIndex: Int {
+//        viewModel.fieldIndex
+//    }
+//    
+//    @MainActor
+//    var hasHeterogenousValues: Bool {
+//        guard rowViewModel.id.graphItemType.isLayerInspector,
+//             let layerInputPort = rowViewModel.id.layerInputPort else {
+//            return false
+//        }
+//        
+//        return propertySidebar.heterogenousFieldsMap?
+//            .get(layerInputPort)?
+//            .contains(self.fieldIndex) ?? false
+//    }
+    
+    var body: some View {
+        HStack(alignment: .firstTextBaseline) {
+            
+            // OVERALL LABEL
+            
+//            if willShowLabel {
+                LabelDisplayView(label: label,
+                                 isLeftAligned: false,
+                                 fontColor: STITCH_FONT_GRAY_COLOR,
+                                 isSelectedInspectorRow: propertyRowIsSelected)
+//            }
+            
+            Spacer()
+            
+            logInView("InspectorLayerMultifieldInputView: self.layerInputObserver.port: \(self.layerInputObserver.port)")
+            logInView("InspectorLayerMultifieldInputView: self.fieldValueTypes count: \(self.fieldValueTypes)")
+            
+            ForEach(fieldValueTypes) { fieldGrouping in
+                
+                // Not needed?
+//                if let fieldGroupLabel = fieldGrouping.groupLabel {
+//                    HStack {
+//                        LabelDisplayView(label: fieldGroupLabel,
+//                                         isLeftAligned: false,
+//                                         fontColor: STITCH_FONT_GRAY_COLOR,
+//                                         isSelectedInspectorRow: false)
+//                        Spacer()
+//                    }
+//                }
+                
+                
+                ForEach(fieldGrouping.fieldObservers) { fieldObserver in
+                                            
+                    LabelDisplayView(label: fieldObserver.fieldLabel,
+                                     isLeftAligned: true,
+                                     fontColor: STITCH_FONT_GRAY_COLOR,
+                                     // TODO: MARCH 10: for font color when selected on iPad
+                                     isSelectedInspectorRow: false)
+                    .border(.yellow)
+                    
+                    CommonEditingViewReadOnly(
+                        inputField: fieldObserver,
+                        inputString: fieldObserver.fieldValue.stringValue,
+                        forPropertySidebar: true,
+                        isHovering: false, // Can never hover on a inspector's multifield
+                        choices: nil, // always nil for layer dropdown ?
+                        
+                        // field width is the most variable for read only views in inspector?
+                        fieldWidth: self.fieldWidth,
+                        
+                        // TODO: MARCH 10: easier way to tell if part of heterogenous layer multiselect
+                        fieldHasHeterogenousValues: false,
+                        
+                        // TODO: MARCH 10: for font color when selected on iPad
+                        isSelectedInspectorRow: false,
+                        
+                        isFieldInMultfieldInspectorInput: true) {
+                            
+                            // If entire packed input is already on canvas, don't do anything; rather, let the LayerInspectorPortView's onTap take over
+                            if layerInputObserver.mode == .packed,
+                               let canvasNodeForPackedInput = layerInputObserver.getCanvasItemForWholeInput() {
+                                log("InspectorLayerMultifieldInputView: will jump to canvas for \(layerInput)")
+                                graph.jumpToCanvasItem(id: canvasNodeForPackedInput.id,
+                                                       document: document)
+                            } else {
+                                log("InspectorLayerMultifieldInputView: will open flyout for \(layerInput)")
+                                dispatch(FlyoutToggled(
+                                    flyoutInput: layerInput,
+                                    flyoutNodeId: self.node.id,
+                                    fieldToFocus: .textInput(fieldObserver.id)))
+                            }
+                            
+                            
+                        }
+                        .border(.purple)
+                }
+                
+                // 3 fields (3D transform, 3D size)
+                
+                
+                // 4 fields (margin, padding)
+                
+            }
+                        
+//
+//            // If the input has multiple rows of fields (e.g. 3D Transform)
+//            // then vertically stack those.
+//            if is3DTransform {
+//                VStack {
+//                    fieldsListView(fieldValueTypes)
+//                }
+//            }
+//            
+//            // TODO: MARCH 10: consolidate with `NodePortConstraintedFieldsView` ?
+//            
+//            /*
+//             When packed, `margin` has one row observer with four field models (which can be handled by NodeFieldsView)
+//             When unpacked, `margin` has four row observers with one field model each.
+//             
+//             TODO: we need an API that abstracts away "packed vs unpacked" layer input's differing row observer and field model counts; "packed vs unpacked" is just for canvas items and should not affect layer inspector display
+//             */
+//            else if layerInput == .layerMargin || layerInput == .padding,
+//                    layerInputObserver.mode == .unpacked,
+//                    let f0 = fieldValueTypes[safeIndex: 0],
+//                    let f1 = fieldValueTypes[safeIndex: 1],
+//                    let f2 = fieldValueTypes[safeIndex: 2],
+//                    let f3 = fieldValueTypes[safeIndex: 3] {
+//                
+//                VStack {
+//                    HStack {
+//                        // Individual fields for PortValue.padding can never be blocked; only the input as a whole can be blocked
+//                        fieldsListView([f0])
+//                        fieldsListView([f1])
+//                    }
+//                    
+//                    HStack {
+//                        fieldsListView([f2])
+//                        fieldsListView([f3])
+//                    }
+//                    
+//                }
+//                .padding(.vertical, INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET * 2)
+//            }
+//            
+//            // Vast majority of inputs, however, have a single row of fields.
+//            // TODO: this part of the UI is not clear; we allow the single row of fields to float up into the enclosing HStack, yet flyouts always vertically stack their fields
+//            else {
+//                fieldsListView(fieldValueTypes)
+//            }
+        }
+    }
+    
+    
+    @MainActor
+    var fieldWidth: CGFloat {
+        // TODO: get this from activeValue.getPadding.isDefined ?
+        if layerInputObserver.port == .layerPadding || layerInputObserver.port == .layerMargin {
+            return PADDING_FIELD_WDITH
+        } else {
+            // is this accurate for a spacing-field in the inspector?
+            // ah but spacing is a dropdown
+            return INSPECTOR_MULTIFIELD_INDIVIDUAL_FIELD_WIDTH
+        }
+    }
+        
+//    func fieldsListView(_ fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>]) -> some View {
+//        LayerInputFieldsView(fieldValueTypes: fieldValueTypes,
+//                             layerInputObserver: layerInputObserver,
+//                             forFlyout: forFlyout,
+//                             valueEntryView: valueEntryView)
+//    }
 }
 
 struct LayerInspectorOutputPortView: View {

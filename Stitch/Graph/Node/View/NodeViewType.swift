@@ -76,12 +76,21 @@ struct NodeTypeView: View {
                                  isOutput: false,
                                  id: node.id)
                     .padding(.trailing, NODE_BODY_SPACING)
-            } else {
-                DefaultNodeInputView(graph: graph,
+            } else if let layerNode: LayerNodeViewModel = self.node.layerNode,
+                      let layerInputCoordinate: LayerInputCoordinate = self.canvasNode.id.layerInputCase {
+                LayerCanvasInputView(graph: graph,
                                      document: document,
                                      node: node,
-                                     canvas: canvasNode,
-                                     isNodeSelected: isSelected)
+                                     canvasNode: canvasNode,
+                                     layerNode: layerNode,
+                                     layerInputCoordinate: layerInputCoordinate)
+            }  else {
+                // fka `DefaultNodeInputView`
+                PatchOrGroupCanvasInputsView(graph: graph,
+                                             document: document,
+                                             node: node,
+                                             canvas: canvasNode,
+                                             isNodeSelected: isSelected)
             }
         }
     }
@@ -98,17 +107,66 @@ struct NodeTypeView: View {
                                  id: node.id)
                     .padding(.leading, NODE_BODY_SPACING)
             } else {
-                DefaultNodeOutputView(graph: graph,
-                                      document: document,
-                                      node: node,
-                                      canvas: canvasNode,
-                                      isNodeSelected: isSelected)
+                CanvasNodeOutputView(graph: graph,
+                                     document: document,
+                                     node: node,
+                                     canvas: canvasNode,
+                                     isNodeSelected: isSelected)
             }
         }
     }
 }
 
-struct DefaultNodeInputView: View {
+struct LayerCanvasInputView: View {
+    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
+    @Bindable var node: NodeViewModel
+    @Bindable var canvasNode: CanvasItemViewModel
+    
+    // Should this be bindable or not?
+    @Bindable var layerNode: LayerNodeViewModel
+    let layerInputCoordinate: LayerInputCoordinate
+    
+    var body: some View {
+        // A layer canvas item, whether whole input (packed) or just a field (unpacked), will use the same LayerInputObserver
+        if
+           // Retrieve the port-observer for this canvas item
+           let rowObserver = node.getInputRowObserver(for: .keyPath(layerInputCoordinate.keyPath)),
+            // CanvasItem for a canvas layer input should only contain a single input row view model?
+           let rowViewModel = self.canvasNode.inputViewModels.first {
+                        
+            let layerInputObserver: LayerInputObserver = layerNode.getLayerInputObserver(layerInputCoordinate.keyPath.layerInput)
+            
+            HStack {
+                NodeRowPortView(graph: graph,
+                                node: node,
+                                rowObserver: rowObserver,
+                                rowViewModel: rowViewModel)
+                
+                CanvasLayerInputView(
+                    document: document,
+                    graph: graph,
+                    node: node,
+                    canvasNode: canvasNode,
+                    layerInputObserver: layerInputObserver,
+                    inputRowObserver: rowObserver,
+                    inputRowViewModel: rowViewModel
+                )
+            }
+            
+        } else {
+            Text("no layer input coord")
+                .onAppear {
+                    log("STOP")
+                }
+            
+        }
+        
+    }
+}
+
+
+struct PatchOrGroupCanvasInputsView: View {
     
     @Bindable var graph: GraphState
     @Bindable var document: StitchDocumentViewModel
@@ -140,11 +198,11 @@ struct DefaultNodeInputView: View {
     }
     
     var body: some View {
-        DefaultNodeRowView(graph: graph,
-                           node: node,
-                           canvas: canvas,
-                           rowViewModels: canvas.inputViewModels,
-                           nodeIO: .input) { rowViewModel in
+        CanvasRowsView(graph: graph,
+                       node: node,
+                       canvas: canvas,
+                       rowViewModels: canvas.inputViewModels,
+                       nodeIO: .input) { rowViewModel in
             if let rowObserver = node.getInputRowObserverForUI(for: rowViewModel.id.portType, graph) {
                 
                 let isMultiField = (rowViewModel.fieldValueTypes.first?.fieldObservers.count ?? 0) > 1
@@ -156,11 +214,10 @@ struct DefaultNodeInputView: View {
                                     rowViewModel: rowViewModel)
                     
                     HStack(alignment: isMultiField ? .firstTextBaseline : .center) {
-                        LabelDisplayView(label: rowObserver
                         // Note: Label is based on row observer's node, which in the case of a group node will be for an underlying splitter patch node, not the group node itself
-                            .label(node: node,
-                                   coordinate: .input(rowObserver.id),
-                                   graph: graph),
+                        LabelDisplayView(label: rowObserver.label(node: node,
+                                                                  coordinate: .input(rowObserver.id),
+                                                                  graph: graph),
                                          isLeftAligned: false,
                                          fontColor: STITCH_FONT_GRAY_COLOR,
                                          isSelectedInspectorRow: false)
@@ -180,7 +237,8 @@ struct DefaultNodeInputView: View {
     }
 }
 
-struct DefaultNodeOutputView: View {
+// Common to ALL outputs, whether
+struct CanvasNodeOutputView: View {
     
     @Bindable var graph: GraphState
     @Bindable var document: StitchDocumentViewModel
@@ -218,11 +276,11 @@ struct DefaultNodeOutputView: View {
     }
     
     var body: some View {
-        DefaultNodeRowView(graph: graph,
-                           node: node,
-                           canvas: canvas,
-                           rowViewModels: canvas.outputViewModels,
-                           nodeIO: .output) { rowViewModel in
+        CanvasRowsView(graph: graph,
+                       node: node,
+                       canvas: canvas,
+                       rowViewModels: canvas.outputViewModels,
+                       nodeIO: .output) { rowViewModel in
             if let portId = rowViewModel.id.portType.portId,
                let rowObserver = node.getOutputRowObserverForUI(for: portId, graph) {
                 let isMultiField = (rowViewModel.fieldValueTypes.first?.fieldObservers.count ?? 0) > 1
@@ -271,8 +329,10 @@ struct DefaultNodeOutputView: View {
     }
 }
 
-struct DefaultNodeRowView<RowViewModel, RowView>: View where RowViewModel: NodeRowViewModel,
-                                                             RowView: View {
+// fka `DefaultNodeRowView`
+// Used by patch and group-node inputs (but not layer inputs) and ALL ouputs (patch, group, layer)
+struct CanvasRowsView<RowViewModel, RowView>: View where RowViewModel: NodeRowViewModel,
+                                                                     RowView: View {
 
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel

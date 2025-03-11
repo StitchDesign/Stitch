@@ -34,7 +34,7 @@ struct CommonEditingViewReadOnly: View {
     var displayString: String {
         self.fieldHasHeterogenousValues ? .HETEROGENOUS_VALUES : self.inputString
     }
-                
+    
     var hasPicker: Bool {
         choices.isDefined && !isFieldInMultfieldInspectorInput
     }

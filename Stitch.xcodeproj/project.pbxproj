@@ -475,6 +475,7 @@
 		EC35A511297622030014D14A /* JSONShapeCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC35A510297622030014D14A /* JSONShapeCommand.swift */; };
 		EC363D56294282FD0093C473 /* Triangle.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC363D55294282FD0093C473 /* Triangle.swift */; };
 		EC365A832D7F48E60015B8D7 /* ShadowInspectorRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC365A822D7F48E60015B8D7 /* ShadowInspectorRow.swift */; };
+		EC365A852D7F6ACA0015B8D7 /* CanvasLayerInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC365A842D7F6ACA0015B8D7 /* CanvasLayerInputView.swift */; };
 		EC388D332975FB5F00CFA7D1 /* JSONToShapeNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC388D322975FB5F00CFA7D1 /* JSONToShapeNode.swift */; };
 		EC3914BF29F35C0C00ED8D90 /* loopTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC3914BE29F35C0C00ED8D90 /* loopTests.swift */; };
 		EC39894027BDCA8400683EEE /* ValueImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC39893F27BDCA8400683EEE /* ValueImageView.swift */; };
@@ -1441,6 +1442,7 @@
 		EC35A510297622030014D14A /* JSONShapeCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONShapeCommand.swift; sourceTree = "<group>"; };
 		EC363D55294282FD0093C473 /* Triangle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Triangle.swift; sourceTree = "<group>"; };
 		EC365A822D7F48E60015B8D7 /* ShadowInspectorRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowInspectorRow.swift; sourceTree = "<group>"; };
+		EC365A842D7F6ACA0015B8D7 /* CanvasLayerInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasLayerInputView.swift; sourceTree = "<group>"; };
 		EC388D322975FB5F00CFA7D1 /* JSONToShapeNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONToShapeNode.swift; sourceTree = "<group>"; };
 		EC3914BE29F35C0C00ED8D90 /* loopTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = loopTests.swift; sourceTree = "<group>"; };
 		EC39893F27BDCA8400683EEE /* ValueImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValueImageView.swift; sourceTree = "<group>"; };
@@ -2655,6 +2657,7 @@
 				B5C53FAE2CED1FA70069612E /* NodeLayout.swift */,
 				EC91B56329AE7891006E823D /* NodesOnlyView.swift */,
 				B5EC61F82A5E2174002A639F /* NodeViewType.swift */,
+				EC365A842D7F6ACA0015B8D7 /* CanvasLayerInputView.swift */,
 				ECB88E1F2D0BAD7E0097CF4A /* StitchUIScrollView.swift */,
 				EC71FF1B2D13C469002C0BA3 /* StitchUIScrollHelpers.swift */,
 				ECDE943128089DF500005401 /* NodeView.swift */,
@@ -5205,6 +5208,7 @@
 				EC5C6C3A2C2DAE690023D0C0 /* LLMActionRecording.swift in Sources */,
 				E41685E128A3FA5800731889 /* PreviewModel3DLayer.swift in Sources */,
 				EC1D03BD2CFF86FA0094EE9F /* NativeScrollInteraction.swift in Sources */,
+				EC365A852D7F6ACA0015B8D7 /* CanvasLayerInputView.swift in Sources */,
 				ECB7C72028A56C3700252DE7 /* ClassicAnimationPoint3D.swift in Sources */,
 				EC8BA54526A62D14002E345C /* DeviceMotionNode.swift in Sources */,
 				EC65B25628653CAA00BC8FBF /* FileDropModifier.swift in Sources */,
