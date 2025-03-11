@@ -48,7 +48,7 @@
             { "type": "number", "additionalProperties": false },
             { "type": "string", "additionalProperties": false },
             { "type": "boolean", "additionalProperties": false },
-            { "type": "object", "additionalProperties": false }
+            { "type": "object", "properties": {}, "additionalProperties": false }
           ]
         },
         "port": {
@@ -280,13 +280,51 @@
         "description": "The actions taken to create a graph",
         "type": "array",
         "items": {
-          "anyOf": [
-            { "$ref": "#/$defs/AddNodeAction" },
-            { "$ref": "#/$defs/ConnectNodesAction" },
-            { "$ref": "#/$defs/ChangeNodeTypeAction" },
-            { "$ref": "#/$defs/SetInputAction" },
-            { "$ref": "#/$defs/AddLayerInputAction" }
-          ]
+          "type": "object",
+          "properties": {
+            "step_type": {
+              "type": "string",
+              "enum": [
+                "add_node",
+                "connect_nodes",
+                "change_node_type",
+                "set_input",
+                "add_layer_input"
+              ]
+            },
+            "node_id": { "type": "string" },
+            "node_name": { "$ref": "#/$defs/NodeName" },
+            "node_type": { "$ref": "#/$defs/NodeType" },
+            "from_node_id": { "type": "string" },
+            "to_node_id": { "type": "string" },
+            "port": {
+              "anyOf": [
+                { "type": "integer" },
+                { "$ref": "#/$defs/LayerPorts" }
+              ]
+            },
+            "from_port": { "type": "integer" },
+            "value": {
+              "anyOf": [
+                { "type": "number" },
+                { "type": "string" },
+                { "type": "boolean" },
+                { "type": "object", "properties": {}, "additionalProperties": false }
+              ]
+            }
+          },
+          "required": [
+            "step_type",
+            "node_id",
+            "node_name",
+            "node_type",
+            "from_node_id",
+            "to_node_id",
+            "port",
+            "from_port",
+            "value"
+          ],
+          "additionalProperties": false
         }
       }
   },
