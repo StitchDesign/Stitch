@@ -132,7 +132,7 @@ extension StitchAIManager {
         // Configure request headers and parameters
         var urlRequest = URLRequest(url: openAIAPIURL)
         urlRequest.httpMethod = "POST"
-        urlRequest.timeoutInterval = config.timeoutInterval
+//        urlRequest.timeoutInterval = config.timeoutInterval
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
         urlRequest.setValue("Bearer \(self.secrets.openAIAPIKey)", forHTTPHeaderField: "Authorization")
         
