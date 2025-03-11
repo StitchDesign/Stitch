@@ -156,21 +156,19 @@ struct OpenAIGeneric: Encodable {
     enum CodingKeys: String, CodingKey {
         case type
         case items
-        case anyOf
     }
 
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        var arrayContainer = container.nestedUnkeyedContainer(forKey: .anyOf)
+        try container.encode(OpenAISchemaType.array, forKey: .type)
         
-        // Add types to array
-        for type in self.types {
-            try arrayContainer.encode(type)
+        // If we have refs, use those
+        if !refs.isEmpty {
+            try container.encode(refs[0], forKey: .items)
         }
-        
-        // Add refs to array
-        for ref in self.refs {
-            try arrayContainer.encode(ref)
+        // Otherwise use the first type
+        else if !types.isEmpty {
+            try container.encode(types[0], forKey: .items)
         }
     }
 }
