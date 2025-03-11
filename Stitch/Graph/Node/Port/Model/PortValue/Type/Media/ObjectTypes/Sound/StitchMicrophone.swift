@@ -17,8 +17,15 @@ final class StitchMic: NSObject, Sendable, StitchSoundPlayerDelegate {
     
     var engine = AudioEngine()
 
-    // Recorder and session are used for the mic patch node
-    @MainActor private var recorder: AVAudioRecorder?
+    // Use AudioKit's AmplitudeTap for volume monitoring
+    @MainActor private var ampTap: AmplitudeTap?
+    @MainActor private var currentVolume: Float = 0
+    @MainActor private var currentPeakVolume: Float = 0
+    
+    // For tracking peak volume
+    @MainActor private var peakHoldTime: Float = 0.5 // Hold peak for half a second
+    @MainActor private var lastPeakTime: TimeInterval = 0
+    @MainActor private var peakValue: Float = 0
 
     @MainActor
     init(isEnabled: Bool) async {
@@ -47,6 +54,12 @@ final class StitchMic: NSObject, Sendable, StitchSoundPlayerDelegate {
                     // Engine callers, play etc must be called after permissions logic runs
                     self?.engine.output = self?.engine.input
                     
+                    // Setup amplitude tap on the input node
+                    if let input = self?.engine.input {
+                        self?.ampTap = AmplitudeTap(input, callbackQueue: .main)
+                        self?.ampTap?.start()
+                    }
+                    
                     if isEnabled {
                         self?.play()
                     }
@@ -65,25 +78,22 @@ final class StitchMic: NSObject, Sendable, StitchSoundPlayerDelegate {
     }
 
     @MainActor
-    var url: URL? { self.recorder?.url }
+    var url: URL? { nil } // No recorder, so no URL
 
     @MainActor
     var isRunning: Bool {
-        self.recorder.isDefined
+        // Consider only engine status since we no longer use recorder
+        return self.ampTap != nil && self.engine.avEngine.isRunning
     }
 
     @MainActor
     func play() {
-        guard let recorder = recorder else {
-            if let newRecorder = Self.createAVAudioRecorder() {
-                self.recorder = newRecorder
-                newRecorder.startRecording()
-            }
-            return
+        // Just start the engine for the amplitude tap
+        if !engine.avEngine.isRunning {
+            try? engine.start()
         }
-        if !recorder.isRecording {
-            recorder.startRecording()
-        }
+        // Start the amplitude tap if not already running
+        self.ampTap?.start()
     }
 
     @MainActor
@@ -93,13 +103,41 @@ final class StitchMic: NSObject, Sendable, StitchSoundPlayerDelegate {
 
     @MainActor
     func stop() {
-        self.recorder?.stop()
-        self.recorder = nil
+        // Stop the amplitude tap
+        self.ampTap?.stop()
+        // Optionally stop the engine if needed
+        self.engine.stop()
     }
 
     @MainActor
     func retrieveVolumeData() -> (Float, Float) {
-        self.recorder?.retrieveVolumes() ?? (.zero, .zero)
+        // Only use amplitude tap for volume monitoring
+        if let ampTap = ampTap {
+            let average = ampTap.amplitude
+            
+            // Proper peak calculation with decay
+            let currentTime = Date().timeIntervalSince1970
+            
+            // If current amplitude is higher than our stored peak, update peak immediately
+            if average > peakValue {
+                peakValue = average
+                lastPeakTime = currentTime
+            }
+            // Otherwise, check if we should let the peak decay (if hold time has passed)
+            else if currentTime - lastPeakTime > Double(peakHoldTime) {
+                // Gradually decay the peak value rather than dropping it immediately
+                peakValue = max(average, peakValue * 0.95) // 5% decay per call
+            }
+            
+            // Store the values for access even when the tap hasn't updated
+            self.currentVolume = average
+            self.currentPeakVolume = peakValue
+            
+            return (average, peakValue)
+        } else {
+            // Return stored values or zeros if no tap exists
+            return (self.currentVolume, self.currentPeakVolume)
+        }
     }
 
     // Delay doesn't work with mic - tracked in #2362
@@ -112,6 +150,8 @@ final class StitchMic: NSObject, Sendable, StitchSoundPlayerDelegate {
 
         // TODO: assess what's necessary here
         self.engine.stop()
+        self.ampTap?.stop()  // Stop the tap before recreating engine
+        self.ampTap = nil   // Clear the tap reference
         self.engine.input?.removeAllInputs()
         self.engine.output?.reset()
         self.engine = AudioEngine()
@@ -121,25 +161,14 @@ final class StitchMic: NSObject, Sendable, StitchSoundPlayerDelegate {
                                        time: AUValue(value),
                                        feedback: 0,
                                        dryWetMix: 100)
+            
+            // Re-create amplitude tap on the new input node
+            self.ampTap = AmplitudeTap(input, callbackQueue: .main)
+            self.ampTap?.start()
+            
             if isEnabled {
                 try? self.engine.start()
             }
         }
-    }
-
-    // this url needs to be eg documents/project.stitchproject/tmp
-    @MainActor
-    private static func createAVAudioRecorder() -> AVAudioRecorder? {
-        let recordSettings =
-            [AVEncoderAudioQualityKey: AVAudioQuality.min.rawValue,
-             AVEncoderBitRateKey: 16,
-             AVNumberOfChannelsKey: 2,
-             AVSampleRateKey: 44100]
-
-        let tempUrl = StitchFileManager.createTempURL(fileExt: MIC_RECORDING_FILE_EXT)
-        
-        return try? AVAudioRecorder(
-            url: tempUrl,
-            settings: recordSettings)
     }
 }

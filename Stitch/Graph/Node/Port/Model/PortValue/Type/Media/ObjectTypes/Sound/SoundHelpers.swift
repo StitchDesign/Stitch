@@ -29,18 +29,6 @@ extension AVAudioRecorder {
         self.stop()
         return self.url
     }
-
-    // In decibels.
-    // For use when the recorder is ACTIVE and isMetering = enabled
-    func retrieveVolumes() -> (Float, Float) {
-        self.updateMeters()
-        // channel (0 vs 1) seems irrelevant?
-        let peak = self.peakPower(forChannel: 0)
-        let average = self.averagePower(forChannel: 0)
-
-        return (convertDecibelToAmplitude(average),
-                convertDecibelToAmplitude(peak))
-    }
 }
 
 extension AVAudioSession {
