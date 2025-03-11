@@ -28,7 +28,7 @@ struct StitchAIRequest: OpenAIRequestable {
         self.response_format = responseFormat
         self.messages = [
             .init(role: .system,
-                  content: systemPrompt),
+                  content: systemPrompt + "Make sure your response follows this schema: \(try structuredOutputs.encodeToPrintableString())"),
             .init(role: .user,
                   content: userPrompt)
         ]
