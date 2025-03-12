@@ -12,9 +12,6 @@ import StitchSchemaKit
 // what we provide to SwifUI Menu or SwiftUI .contextMenu
 
 struct NodeTagMenuButtonsView: View {
-    // Use state rather than computed variable due to perf cost
-    @State private var sortedUserTypeChoices = [UserVisibleType]()
-
     @Environment(StitchStore.self) private var store
     
     @Bindable var graph: GraphState
@@ -24,7 +21,6 @@ struct NodeTagMenuButtonsView: View {
     let canvasItemId: CanvasItemId // id for Node or LayerInputOnGraph
     
     var activeGroupId: GroupNodeType?
-    var nodeTypeChoices: [UserVisibleType] = []
     
     // Always false for Layer Nodes;
     // may be true for Patch Nodes.
@@ -112,6 +108,13 @@ struct NodeTagMenuButtonsView: View {
         return nil
     }
 
+    
+    var nodeTypeChoices: [UserVisibleType] {
+        guard let patch = self.node.patch else { return [] }
+        
+        return Patch.nodeTypeChoices.get(patch) ?? []
+    }
+    
     var body: some View {
         Group {
             if singleGroupNodeSelected {
@@ -149,11 +152,6 @@ struct NodeTagMenuButtonsView: View {
                     //                    createCommentBoxButton
                     //                }
                 }
-            }
-        }
-        .onAppear {
-            if let patch = node.patch {
-                self.sortedUserTypeChoices = patch.getSortedUserTypeChoices()
             }
         }
     }

@@ -404,9 +404,12 @@ extension Patch {
     /// Returns type choices in sorted order.
     /// **Note: this has potential perf cost if called too frequently in the view.**
     @MainActor
-    func getSortedUserTypeChoices() -> [UserVisibleType] {
-        Array(self.availableNodeTypes).sorted { n1, n2 in
-            n1.display < n2.display
-        }
+    static let nodeTypeChoices: [Patch: [NodeType]] = Self.allCases.reduce(into: [Patch : [NodeType]]()) { result, patch in
+        let sortedChoices = Array(patch.availableNodeTypes)
+            .sorted { n1, n2 in
+                n1.display < n2.display
+            }
+        
+        result.updateValue(sortedChoices, forKey: patch)
     }
 }
