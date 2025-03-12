@@ -44,11 +44,8 @@ func subarrayNode(id: NodeId,
 // if first input is a json object rather than an array,
 // this append will fail / should fail, per Origami
 @MainActor
-func subarrayEval(inputs: PortValuesList,
-                  outputs: PortValuesList) -> PortValuesList {
-
-    let op: Operation = { (values: PortValues) -> PortValue in
-        //        let json1 = values.first!.getJSON ?? emptyJSONArray
+func subarrayEval(node: PatchNode) -> EvalResult {
+    let opWithIndex: OpWithIndex<PortValue> = { (values: PortValues, index: Int) -> PortValue in
         let json1 = values.first?.getJSON ?? .emptyJSONArray
         let location = Int(values[safe: 1]?.getNumber ?? .zero)
         let length = Int(values[safe: 2]?.getNumber ?? .zero)
@@ -57,6 +54,7 @@ func subarrayEval(inputs: PortValuesList,
                                   length: length)
         return .init(result)
     }
-
-    return resultsMaker(inputs)(op)
+    
+    return .init(outputsValues: [loopedEval(inputsValues: node.inputs,
+                                            evalOp: opWithIndex)])
 }

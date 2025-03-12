@@ -441,7 +441,7 @@ func jsonSubarray(_ json: JSON,
                   location: Int,
                   length: Int) -> JSON {
 
-    guard let a = json.array else {
+    guard let array = json.array else {
         return .emptyJSONArray
     }
 
@@ -457,25 +457,33 @@ func jsonSubarray(_ json: JSON,
     //        let location = 9
     //        let length = 1
 
+    
     let asJson = { (sub: Array<JSON>.SubSequence) in
         JSON(rawValue: Array(sub)) ?? JSON.emptyJSONArray
     }
+    
+    let arrayCount = array.count
 
     // if location is greater than array count,
     // then just return last item:
-    if location > a.count {
-        return a.last.map { asJson([$0]) } ?? JSON.emptyJSONArray
+    if location > arrayCount {
+        return array.last.map { asJson([$0]) } ?? JSON.emptyJSONArray
     }
 
-    // location + length is greater than count,
+    // if location + length is greater than the array count,
     // just take from location to the end:
-    if ((location + length) > a.count)
-        // Another case:
-        || (location >= (location + length - 1)) {
-        return asJson(a[location..<a.endIndex])
+    if ((location + length) > arrayCount) {
+        return asJson(array[location..<array.endIndex])
     }
-
-    let sub = a[location...(location + length - 1)]
+    
+    if location == length {
+        return .emptyArray
+    }
+    
+    // location = 9
+    // 0 >= 0 + (1 - 1) ... this will be true
+    
+    let sub = array[location...(location + length - 1)]
     return asJson(sub)
 }
 

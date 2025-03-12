@@ -153,7 +153,8 @@ extension Patch {
         case .indexOf:
             return .node(outputsOnlyEval(indexOfEval))
         case .subarray:
-            return .node(outputsOnlyEval(subarrayEval))
+//            return .node(outputsOnlyEval(subarrayEval))
+            return .node(subarrayEval)
         case . valueAtPath:
             return .graphStep(valueAtPathEval)
         case .deviceMotion:

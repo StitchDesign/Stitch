@@ -13,6 +13,24 @@ import XCTest
 class JsonTests: XCTestCase {
 
     @MainActor
+    func testJSONSubarray() throws {
+        let array: JSON = parseJSON("[50, 51, 52, 53, 54, 55, 56, 57, 58, 59]")!
+        let location: Int = 0
+
+//        print("testJSONSubarray: result: \(jsonSubarray(array, location: location, length: 99))")
+//        print("testJSONSubarray: result: \(jsonSubarray(array, location: location, length: 3))")
+//        print("testJSONSubarray: result: \(jsonSubarray(array, location: location, length: 2))")
+//        print("testJSONSubarray: result: \(jsonSubarray(array, location: location, length: 1))")
+//        print("testJSONSubarray: result: \(jsonSubarray(array, location: location, length: 0))")
+        
+        XCTAssert(jsonSubarray(array, location: location, length: 99).array?.count == array.array?.count)
+        XCTAssert(jsonSubarray(array, location: location, length: 2).array?.count == 2)
+        XCTAssert(jsonSubarray(array, location: location, length: 1).array?.count == 1)
+        XCTAssert(jsonSubarray(array, location: location, length: 0).array?.count == 0)
+        
+    }
+    
+    @MainActor
     func testJSONFriendlyFormatEncoding() throws {
         let values = [
             PortValue.position(.zero),
