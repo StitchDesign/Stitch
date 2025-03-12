@@ -115,15 +115,15 @@ extension EdgeAnchorDownstreamData {
     @MainActor
     init?(from inputRowObserver: InputNodeRowViewModel,
           upstreamNodeId: CanvasItemId? = nil) {
-        guard let inputsCount = inputRowObserver.nodeDelegate?.inputsRowCount,
+        guard let inputsCount = inputRowObserver.canvasItemDelegate?.inputViewModels.count,
               let firstInputObserver = inputRowObserver.canvasItemDelegate?.inputViewModels.first,
               let lastInputObserver = inputRowObserver.canvasItemDelegate?.inputViewModels[safe: inputsCount - 1],
-              let node = inputRowObserver.nodeDelegate,
+              let canvas = inputRowObserver.canvasItemDelegate,
               let upstreamConnectedNodeId = upstreamNodeId ?? inputRowObserver.rowDelegate?.upstreamOutputObserver?.nodeRowViewModel?.canvasItemDelegate?.id else {
             return nil
         }
 
-        let allInputs = node.allInputViewModels
+        let allInputs = canvas.inputViewModels
         
         // Iterate through inputs at this node to find other connected edges from same upstream node id
         var firstConnectedInputObserver: InputNodeRowViewModel?
