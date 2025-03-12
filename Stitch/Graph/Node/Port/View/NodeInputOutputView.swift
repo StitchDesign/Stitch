@@ -14,33 +14,6 @@ import StitchSchemaKit
  Layer node input of Size = one node row observer becomes 1 single field
  */
 
-
-struct ShadowInputInspectorRow: View {
-    
-    @Environment(\.appTheme) var theme
-    
-    let nodeId: NodeId
-    let propertyIsSelected: Bool
-    
-    var body: some View {
-        HStack {
-            StitchTextView(string: "Shadow",
-                           fontColor: propertyIsSelected ? theme.fontColor : STITCH_FONT_GRAY_COLOR)
-            Spacer()
-        }
-        .overlay {
-            Color.white.opacity(0.001)
-                .onTapGesture {
-                    dispatch(FlyoutToggled(
-                        flyoutInput: SHADOW_FLYOUT_LAYER_INPUT_PROXY,
-                        flyoutNodeId: nodeId,
-                        // No particular field to focus
-                        fieldToFocus: nil))
-                }
-        }
-    }
-}
-
 struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel

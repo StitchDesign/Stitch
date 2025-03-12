@@ -24,25 +24,20 @@ struct InputValueEntry: View {
     let hasIncomingEdge: Bool
     
     // TODO: package these up into `InspectorData` ?
-    let forPropertySidebar: Bool
-    let propertyIsAlreadyOnGraph: Bool
+    let isForLayerInspector: Bool
+    let isPackedLayerInputAlreadyOnCanvas: Bool
     let isFieldInMultifieldInput: Bool
     let isForFlyout: Bool
     let isSelectedInspectorRow: Bool
     
-    let fieldsRowLabel: String?
     let useIndividualFieldLabel: Bool
 
     // Used by button view to determine if some button has been pressed.
     // Saving this state outside the button context allows us to control renders.
     @State private var isButtonPressed = false
     
-    var individualFieldLabel: String {
-        self.viewModel.fieldLabel
-    }
-        
     var individualFieldLabelDisplay: LabelDisplayView {
-        LabelDisplayView(label: individualFieldLabel,
+        LabelDisplayView(label: self.viewModel.fieldLabel,
                          isLeftAligned: true,
                          fontColor: STITCH_FONT_GRAY_COLOR,
                          isSelectedInspectorRow: isSelectedInspectorRow)
@@ -50,59 +45,42 @@ struct InputValueEntry: View {
 
     @MainActor
     var valueDisplay: some View {
-        InputValueView(graph: graph,
-                       graphUI: graphUI,
-                       viewModel: viewModel,
-                       propertySidebar: graph.propertySidebar,
-                       node: node,
-                       rowViewModel: rowViewModel,
-                       canvasItem: canvasItem,
-                       rowObserver: rowObserver,
-                       isCanvasItemSelected: isCanvasItemSelected,
-                       forPropertySidebar: forPropertySidebar,
-                       propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
-                       isFieldInMultifieldInput: isFieldInMultifieldInput,
-                       isForFlyout: isForFlyout,
-                       isSelectedInspectorRow: isSelectedInspectorRow,
-                       
-                       // Only for pulse button and color orb;
-                       // Always false for inspector-rows
-                       hasIncomingEdge: hasIncomingEdge,
-                       
-                       isForLayerGroup: node.kind.getLayer == .group,
-                       
-                       // This is same as `hasIncomingEdge` ? a check on whether rowDelegate has a defined upstream output (coordinate vs observer should not matter?)
-                       isUpstreamValue: hasIncomingEdge,
-                       isButtonPressed: $isButtonPressed)
-            .font(STITCH_FONT)
+        InputFieldValueView(graph: graph,
+                            graphUI: graphUI,
+                            viewModel: viewModel,
+                            propertySidebar: graph.propertySidebar,
+                            node: node,
+                            rowViewModel: rowViewModel,
+                            canvasItem: canvasItem,
+                            rowObserver: rowObserver,
+                            isCanvasItemSelected: isCanvasItemSelected,
+                            isForLayerInspector: isForLayerInspector,
+                            isPackedLayerInputAlreadyOnCanvas: isPackedLayerInputAlreadyOnCanvas,
+                            isFieldInMultifieldInput: isFieldInMultifieldInput,
+                            isForFlyout: isForFlyout,
+                            isSelectedInspectorRow: isSelectedInspectorRow,
+                            hasIncomingEdge: hasIncomingEdge, // Only for pulse button and color orb; always false for inspector rows
+                            isForLayerGroup: node.kind.getLayer == .group,
+                            isButtonPressed: $isButtonPressed)
+        .font(STITCH_FONT)
             // Monospacing prevents jittery node widths if values change on graphstep
             .monospacedDigit()
             .lineLimit(1)
     }
     
     var showIndividualFieldLabel: Bool {
-        // always shows if flyout
-        (self.isFieldInMultifieldInput && self.useIndividualFieldLabel) || isForFlyout
+        // Show individual field labels
+        isForFlyout || (self.isFieldInMultifieldInput && self.useIndividualFieldLabel)
     }
     
     var body: some View {
         HStack(spacing: NODE_COMMON_SPACING) {
             
-            if !forPropertySidebar,
-               !isForFlyout,
-               let fieldGroupLabel = fieldsRowLabel {
-                LabelDisplayView(label: fieldGroupLabel,
-                                 isLeftAligned: true,
-                                 fontColor: STITCH_FONT_GRAY_COLOR,
-                                 isSelectedInspectorRow: isSelectedInspectorRow)
-            }
-            
             if showIndividualFieldLabel {
                 individualFieldLabelDisplay
             }
-             
-            if forPropertySidebar,
-               isForFlyout,
+
+            if isForFlyout,
                isFieldInMultifieldInput {
                 Spacer()
             }
@@ -111,7 +89,7 @@ struct InputValueEntry: View {
         }
         .foregroundColor(VALUE_FIELD_BODY_COLOR)
         .height(NODE_ROW_HEIGHT + 6)
-        .allowsHitTesting(!(forPropertySidebar && propertyIsAlreadyOnGraph))
+        .allowsHitTesting(!(isForLayerInspector && isPackedLayerInputAlreadyOnCanvas))
     }
 
 }
@@ -131,7 +109,8 @@ extension UnpackedPortType {
     }
 }
 
-struct InputValueView: View {
+// fka `InputValueView`
+struct InputFieldValueView: View {
     @Bindable var graph: GraphState
     @Bindable var graphUI: GraphUIState
     @Bindable var viewModel: InputFieldViewModel
@@ -141,15 +120,18 @@ struct InputValueView: View {
     let canvasItem: CanvasItemViewModel?
     let rowObserver: InputNodeRowObserver
     let isCanvasItemSelected: Bool
-    let forPropertySidebar: Bool
-    let propertyIsAlreadyOnGraph: Bool
+    let isForLayerInspector: Bool
+    let isPackedLayerInputAlreadyOnCanvas: Bool
     let isFieldInMultifieldInput: Bool
     let isForFlyout: Bool
     let isSelectedInspectorRow: Bool
     
     var hasIncomingEdge: Bool
     var isForLayerGroup: Bool
-    var isUpstreamValue: Bool
+    
+    var isUpstreamValue: Bool {
+        hasIncomingEdge
+    }
 
     @Binding var isButtonPressed: Bool
     
@@ -178,6 +160,7 @@ struct InputValueView: View {
         self.node.kind
     }
 
+    // TODO: is `InputFieldValueView` ever used in the layer inspector now? ... vs flyout?
     @MainActor
     var hasHeterogenousValues: Bool {
         guard rowViewModel.id.graphItemType.isLayerInspector,
@@ -208,8 +191,8 @@ struct InputValueView: View {
                                          fieldCoordinate: fieldCoordinate,
                                          isCanvasItemSelected: isCanvasItemSelected,
                                          choices: nil,
-                                         forPropertySidebar: forPropertySidebar,
-                                         propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                                         isForLayerInspector: isForLayerInspector,
+                                         isPackedLayerInputAlreadyOnCanvas: isPackedLayerInputAlreadyOnCanvas,
                                          hasHeterogenousValues: hasHeterogenousValues,
                                          isFieldInMultifieldInput: isFieldInMultifieldInput,
                                          isForFlyout: isForFlyout,
@@ -227,9 +210,9 @@ struct InputValueView: View {
                                      fieldCoordinate: fieldCoordinate,
                                      isCanvasItemSelected: isCanvasItemSelected,
                                      choices: nil,
-                                     forPropertySidebar: forPropertySidebar,
+                                     isForLayerInspector: isForLayerInspector,
                                      hasHeterogenousValues: hasHeterogenousValues,
-                                     propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                                     isPackedLayerInputAlreadyOnCanvas: isPackedLayerInputAlreadyOnCanvas,
                                      isFieldInMultifieldInput: isFieldInMultifieldInput,
                                      isForFlyout: isForFlyout,
                                      isSelectedInspectorRow: isSelectedInspectorRow,
@@ -249,9 +232,9 @@ struct InputValueView: View {
                                                                                      layerInputPort: layerInputPort,
                                                                                      activeIndex: graphUI.activeIndex)
                                         .map(\.rawValue),
-                                     forPropertySidebar: forPropertySidebar,
+                                     isForLayerInspector: isForLayerInspector,
                                      hasHeterogenousValues: hasHeterogenousValues,
-                                     propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                                     isPackedLayerInputAlreadyOnCanvas: isPackedLayerInputAlreadyOnCanvas,
                                      isFieldInMultifieldInput: isFieldInMultifieldInput,
                                      isForFlyout: isForFlyout,
                                      isSelectedInspectorRow: isSelectedInspectorRow,
@@ -269,9 +252,9 @@ struct InputValueView: View {
                                      fieldCoordinate: fieldCoordinate,
                                      isCanvasItemSelected: isCanvasItemSelected,
                                      choices: StitchSpacing.choices,
-                                     forPropertySidebar: forPropertySidebar,
+                                     isForLayerInspector: isForLayerInspector,
                                      hasHeterogenousValues: hasHeterogenousValues,
-                                     propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                                     isPackedLayerInputAlreadyOnCanvas: isPackedLayerInputAlreadyOnCanvas,
                                      isFieldInMultifieldInput: isFieldInMultifieldInput,
                                      isForFlyout: isForFlyout,
                                      isSelectedInspectorRow: isSelectedInspectorRow,
@@ -442,8 +425,8 @@ struct InputValueView: View {
                 .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH,
                        height: NODE_ROW_HEIGHT,
                        // Note: why are these reversed? Because we scaled the view down?
-                       alignment: forPropertySidebar ? .leading : .trailing)
-                .offset(x: forPropertySidebar ? -4 : 4)
+                       alignment: isForLayerInspector ? .leading : .trailing)
+                .offset(x: isForLayerInspector ? -4 : 4)
                 
                 
             case .media(let media):
@@ -499,7 +482,7 @@ struct InputValueView: View {
                                    alignment: .leading,
                                    fontColor: STITCH_FONT_GRAY_COLOR,
                                    isSelectedInspectorRow: isSelectedInspectorRow,
-                                   forPropertySidebar: forPropertySidebar,
+                                   forPropertySidebar: isForLayerInspector,
                                    isFieldInMultifieldInput: isFieldInMultifieldInput)
             }
         // }

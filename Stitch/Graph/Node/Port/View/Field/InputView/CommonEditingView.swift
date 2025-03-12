@@ -81,15 +81,22 @@ struct CommonEditingView: View {
     var isAdjustmentBarInUse: Bool = false
     var isLargeString: Bool = false
     
-    let forPropertySidebar: Bool
-    let propertyIsAlreadyOnGraph: Bool
+    let isForLayerInspector: Bool
+    let isPackedLayerInputAlreadyOnCanvas: Bool
+    
+    // inspector only?
     let isFieldInMultifieldInput: Bool
+    
     let isForFlyout: Bool
     let isForSpacingField: Bool
     let isSelectedInspectorRow: Bool
     let hasHeterogenousValues: Bool
     
+    
+    // also inspector-only ?
     let isFieldInMultifieldInspectorInputAndNotFlyout: Bool
+    
+    
     let fieldWidth: CGFloat
     
     var id: FieldCoordinate {
@@ -104,16 +111,17 @@ struct CommonEditingView: View {
     @MainActor
     var showEditingView: Bool {
         // Can never focus the field of property row if that propery is already on the graph
-        if forPropertySidebar && propertyIsAlreadyOnGraph {
+        if isForLayerInspector && isPackedLayerInputAlreadyOnCanvas {
+            log("CommonEditingView: will not focus because already on graph; field index \(self.fieldIndex) of field coordinate \(id) on node \(nodeId)")
             return false
         }
         
         // Can never focus the field of a multifield input (must happen via flyout)
-        if forPropertySidebar && isFieldInMultifieldInspectorInputAndNotFlyout {
+        if isForLayerInspector && isFieldInMultifieldInspectorInputAndNotFlyout {
             return false
         }
                 
-        if forPropertySidebar {
+        if isForLayerInspector {
             return thisFieldIsFocused
         } else {
 //            return thisFieldIsFocused && isCanvasItemSelected && !isSelectionBoxInUse
@@ -266,14 +274,8 @@ struct CommonEditingView: View {
     }
     
     var multifieldLayerInput: LayerInputPort? {
-        if isFieldInMultifieldInput,
-           forPropertySidebar,
-           !isForFlyout,
-           let layerInput = rowViewModel.layerInput {
-            return layerInput
-        }
         
-        return nil
+        isFieldInMultifieldInspectorInputAndNotFlyout ? rowViewModel.layerInput : nil
     }
     
     var fieldHighlight: some View {
@@ -313,7 +315,7 @@ struct CommonEditingView: View {
         .modifier(InputViewBackground(
             show: true, // always show background for a focused input
             hasDropdown: self.hasPicker,
-            forPropertySidebar: forPropertySidebar,
+            forPropertySidebar: isForLayerInspector,
             isSelectedInspectorRow: isSelectedInspectorRow,
             width: fieldWidth))
     }
@@ -327,7 +329,7 @@ struct CommonEditingView: View {
         CommonEditingViewReadOnly(
             inputField: inputField,
             inputString: inputString,
-            forPropertySidebar: forPropertySidebar,
+            forPropertySidebar: isForLayerInspector,
             isHovering: isHovering,
             choices: choices,
             fieldWidth: fieldWidth,
@@ -346,8 +348,6 @@ struct CommonEditingView: View {
                     dispatch(ReduxFieldFocused(focusedField: .textInput(id)))
                 }
             })
-        
-        
     }
 
     // Currently only used when we focus or de-focus

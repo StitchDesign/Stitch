@@ -156,7 +156,7 @@ struct GenericFlyoutRowView: View {
     }
     
     @MainActor
-    var propertyRowIsSelected: Bool {
+    var isPropertyRowSelected: Bool {
         graph.propertySidebar.selectedProperty == layerInspectorRowId
     }
     
@@ -175,10 +175,6 @@ struct GenericFlyoutRowView: View {
     }
     
     var body: some View {
-        
-        //        logInView("GenericFlyoutRowView: layerInputType: \(layerInputType)")
-        //        logInView("GenericFlyoutRowView: viewModel.rowViewModelDelegate?.activeValue: \(viewModel.rowViewModelDelegate?.activeValue)")
-        //        logInView("GenericFlyoutRowView: viewModel.fieldValue: \(viewModel.fieldValue)")
         
         HStack {
             // For the layer inspector row button, use a
@@ -203,13 +199,12 @@ struct GenericFlyoutRowView: View {
                             rowObserver: rowObserver,
                             isCanvasItemSelected: false, // Always false
                             hasIncomingEdge: false,
-                            forPropertySidebar: true,
-                            propertyIsAlreadyOnGraph: canvasItemId.isDefined,
+                            isForLayerInspector: true,
+                            isPackedLayerInputAlreadyOnCanvas: canvasItemId.isDefined,
                             isFieldInMultifieldInput: isMultifield,
                             isForFlyout: true,
                             // Always false for flyout row
-                            isSelectedInspectorRow: propertyRowIsSelected,
-                            fieldsRowLabel: layerInputObserver.fieldsRowLabel,
+                            isSelectedInspectorRow: isPropertyRowSelected,
                             useIndividualFieldLabel: layerInputObserver.useIndividualFieldLabel(activeIndex: graphUI.activeIndex))
         } // HStack
         .contentShape(Rectangle())
@@ -348,7 +343,7 @@ struct LayerInputFieldAddedToGraph: StitchDocumentEvent {
            let layerMultiselectInput = multiselectInputs.first(where: { $0 == layerInput}) {
             
             layerMultiselectInput.multiselectObservers(graph).forEach { observer in
-                addLayerField(observer.rowObserver.id.nodeId)
+                addLayerField(observer.packedRowObserver.id.nodeId)
             }
         } else {
             addLayerField(nodeId)
