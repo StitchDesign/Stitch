@@ -9,62 +9,6 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-struct NodeTypeView: View {
-    // Use state rather than computed variable due to perf cost
-    @State private var sortedUserTypeChoices = [UserVisibleType]()
-    
-    @Bindable var document: StitchDocumentViewModel
-    @Bindable var graph: GraphState
-    @Bindable var node: NodeViewModel
-    @Bindable var canvasNode: CanvasItemViewModel
-    let atleastOneCommentBoxSelected: Bool
-    let activeIndex: ActiveIndex
-    let groupNodeFocused: GroupNodeType?
-    let isSelected: Bool
-
-    var boundsReaderDisabled: Bool = false
-    var usePositionHandler: Bool = true
-
-    // Only true for the fake-node that lives in ContentView
-    var updateMenuActiveSelectionBounds: Bool = false
-    
-    var userVisibleType: UserVisibleType? {
-        self.node.userVisibleType
-    }
-
-    var userTypeChoices: Set<UserVisibleType> {
-        self.node.patch?.availableNodeTypes ?? .init()
-    }
-
-    @MainActor
-    var displayTitle: String {
-        self.node.displayTitle
-    }
-    
-    var body: some View {
-        NodeView(node: canvasNode,
-                 stitch: node,
-                 document: document,
-                 graph: graph,
-                 nodeId: node.id,
-                 isSelected: isSelected,
-                 atleastOneCommentBoxSelected: atleastOneCommentBoxSelected,
-                 activeGroupId: groupNodeFocused,
-                 canAddInput: node.canAddInputs,
-                 canRemoveInput: node.canRemoveInputs,
-                 sortedUserTypeChoices: sortedUserTypeChoices,
-                 boundsReaderDisabled: boundsReaderDisabled,
-                 usePositionHandler: usePositionHandler,
-                 updateMenuActiveSelectionBounds: updateMenuActiveSelectionBounds)
-        .onChange(of: self.node.patch, initial: true) {
-            // Sorting is expensive so we control when this is calculated
-            if let patchNode = self.node.patchNode {
-                self.sortedUserTypeChoices = patchNode.getSortedUserTypeChoices()
-            }
-        }
-    }
-}
-
 struct CanvasLayerInputViewWrapper: View {
     @Bindable var graph: GraphState
     @Bindable var document: StitchDocumentViewModel

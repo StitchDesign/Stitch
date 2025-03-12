@@ -21,9 +21,6 @@ struct NodeView: View {
     let canAddInput: Bool
     let canRemoveInput: Bool
 
-    // Only for patch nodes
-    var sortedUserTypeChoices: [UserVisibleType] = []
-
     let boundsReaderDisabled: Bool
     let usePositionHandler: Bool
     let updateMenuActiveSelectionBounds: Bool
@@ -70,7 +67,6 @@ struct NodeView: View {
                                            node: stitch,
                                            canvasItemId: node.id,
                                            activeGroupId: activeGroupId,
-                                           nodeTypeChoices: sortedUserTypeChoices,
                                            canAddInput: canAddInput,
                                            canRemoveInput: canRemoveInput,
                                            atleastOneCommentBoxSelected: atleastOneCommentBoxSelected)
@@ -97,7 +93,6 @@ struct NodeView: View {
                                       document: document,
                                       stitch: stitch,
                                       activeGroupId: activeGroupId,
-                                      sortedUserTypeChoices: sortedUserTypeChoices,
                                       canAddInput: canAddInput,
                                       canRemoveInput: canRemoveInput,
                                       atleastOneCommentBoxSelected: atleastOneCommentBoxSelected)
@@ -325,7 +320,6 @@ struct CanvasItemTag: View {
     @Bindable var document: StitchDocumentViewModel
     @Bindable var stitch: NodeViewModel
     let activeGroupId: GroupNodeType?
-    var sortedUserTypeChoices: [UserVisibleType] = []
     let canAddInput: Bool
     let canRemoveInput: Bool
     let atleastOneCommentBoxSelected: Bool
@@ -336,7 +330,6 @@ struct CanvasItemTag: View {
                                node: stitch,
                                canvasItemId: node.id,
                                activeGroupId: activeGroupId,
-                               nodeTypeChoices: sortedUserTypeChoices,
                                canAddInput: canAddInput,
                                canRemoveInput: canRemoveInput,
                                atleastOneCommentBoxSelected: atleastOneCommentBoxSelected,

@@ -12,6 +12,8 @@ import StitchSchemaKit
 // what we provide to SwifUI Menu or SwiftUI .contextMenu
 
 struct NodeTagMenuButtonsView: View {
+    // Use state rather than computed variable due to perf cost
+    @State private var sortedUserTypeChoices = [UserVisibleType]()
 
     @Environment(StitchStore.self) private var store
     
@@ -111,40 +113,47 @@ struct NodeTagMenuButtonsView: View {
     }
 
     var body: some View {
-        if singleGroupNodeSelected {
-            Group {
-                deleteGroupButton
-                duplicateButton
-                visitGroupButton
-                ungroupGroupButton
-                
-                if let component = self.selectedComponet {
-                    componentLinkingButton(component: component)
+        Group {
+            if singleGroupNodeSelected {
+                Group {
+                    deleteGroupButton
+                    duplicateButton
+                    visitGroupButton
+                    ungroupGroupButton
+                    
+                    if let component = self.selectedComponet {
+                        componentLinkingButton(component: component)
+                    }
+                    
+                    //                if FeatureFlags.USE_COMMENT_BOX_FLAG {
+                    //                    createCommentBoxButton
+                    //                }
                 }
-                
-//                if FeatureFlags.USE_COMMENT_BOX_FLAG {
-//                    createCommentBoxButton
-//                }
-            }
-        } else if singleNonGroupNodeSelected {
-            Group {
-                buttonsForSingleNongroupNode
-//                if FeatureFlags.USE_COMMENT_BOX_FLAG {
-//                    createCommentBoxButton
-//                }
-            }
-        } else {
-            // multiple nodes selected
-            Group {
-                deleteButton
-                duplicateButton
-                createGroupButton
-                if FeatureFlags.USE_COMPONENTS {
-                    createComponentButton
+            } else if singleNonGroupNodeSelected {
+                Group {
+                    buttonsForSingleNongroupNode
+                    //                if FeatureFlags.USE_COMMENT_BOX_FLAG {
+                    //                    createCommentBoxButton
+                    //                }
                 }
-//                if FeatureFlags.USE_COMMENT_BOX_FLAG {
-//                    createCommentBoxButton
-//                }
+            } else {
+                // multiple nodes selected
+                Group {
+                    deleteButton
+                    duplicateButton
+                    createGroupButton
+                    if FeatureFlags.USE_COMPONENTS {
+                        createComponentButton
+                    }
+                    //                if FeatureFlags.USE_COMMENT_BOX_FLAG {
+                    //                    createCommentBoxButton
+                    //                }
+                }
+            }
+        }
+        .onAppear {
+            if let patch = node.patch {
+                self.sortedUserTypeChoices = patch.getSortedUserTypeChoices()
             }
         }
     }

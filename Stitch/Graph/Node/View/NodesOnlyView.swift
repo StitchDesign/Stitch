@@ -59,17 +59,20 @@ struct NodesOnlyView: View {
                 // Note: if/else seems better than opacity modifier, which introduces funkiness with edges (port preference values?) when going in and out of groups;
                 // (`.opacity(0)` means we still render the view, and thus anchor preferences?)
                 
-                if let node = graph.getNodeViewModel(canvasNode.id.nodeId) {
-                    NodeTypeView(
-                        document: document,
-                        graph: graph,
-                        node: node,
-                        canvasNode: canvasNode,
-                        atleastOneCommentBoxSelected: selection.selectedCommentBoxes.count >= 1,
-                        activeIndex: activeIndex,
-                        groupNodeFocused: document.groupNodeFocused,
-                        isSelected: graph.selection.selectedNodeIds.contains(canvasNode.id)
-                    )
+                if let node = graph.getNodeViewModel(canvasNode.id.nodeId) {                    
+                    NodeView(node: canvasNode,
+                             stitch: node,
+                             document: document,
+                             graph: graph,
+                             nodeId: node.id,
+                             isSelected: graph.selection.selectedNodeIds.contains(canvasNode.id),
+                             atleastOneCommentBoxSelected: selection.selectedCommentBoxes.count >= 1,
+                             activeGroupId: document.groupNodeFocused,
+                             canAddInput: node.canAddInputs,
+                             canRemoveInput: node.canRemoveInputs,
+                             boundsReaderDisabled: false,
+                             usePositionHandler: true,
+                             updateMenuActiveSelectionBounds: false)
                 }
             }
         }
