@@ -110,50 +110,6 @@ extension ConnectedEdgeView {
         self.zIndex = data.zIndex
         self.edgeAnimationEnabled = edgeAnimationEnabled
     }
-//    @MainActor
-//    init?(inputObserver: InputNodeRowViewModel,
-//          outputObserver: OutputNodeRowViewModel,
-//          edgeAnimationEnabled: Bool) {
-//        let downstreamNode = inputObserver.nodeDelegate
-//        
-//        guard let inputData = EdgeAnchorDownstreamData(
-//            from: inputObserver,
-//            upstreamNodeId: outputObserver.canvasItemDelegate?.id),
-//              let outputData = EdgeAnchorUpstreamData(
-//                from: outputObserver,
-//                connectedDownstreamNode: downstreamNode) else {
-//            return nil
-//        }
-//        
-//        self.inputData = inputData
-//        self.outputData = outputData
-//        self.upstreamObserver = outputObserver
-//        self.inputObserver = inputObserver
-//        self.edgeAnimationEnabled = edgeAnimationEnabled
-//    }
-    
-//    @MainActor
-//    init(inputObserver: InputNodeRowViewModel,
-//         outputObserver: OutputNodeRowViewModel?,
-//         possibleEdgeOutputObserver: OutputNodeRowViewModel?,
-//         possibleEdge: PossibleEdge?,
-//         edgeAnimationEnabled: Bool,
-//         shownPossibleEdgeIds: Set<PossibleEdgeId>) {
-//        let downstreamNode = inputObserver.nodeDelegate
-//        // Needs to have at least a connected output or a "possible" output
-//        let outputObserverForData = outputObserver ?? possibleEdgeOutputObserver
-//        self.inputData = .init(from: inputObserver,
-//                               upstreamNodeId: outputObserverForData?.canvasItemDelegate?.id)
-//        self.outputData = .init(from: outputObserverForData,
-//                                connectedDownstreamNode: downstreamNode)
-//        
-//        self.upstreamObserver = outputObserver
-//        self.inputObserver = inputObserver
-//        self.edgeAnimationEnabled = edgeAnimationEnabled
-//        self.possibleEdge = possibleEdge
-//        self.possibleEdgeOutputObserver = possibleEdgeOutputObserver
-//        self.shownPossibleEdgeIds = shownPossibleEdgeIds
-//    }
 }
 
 struct ConnectedEdgeView: View {
@@ -166,13 +122,6 @@ struct ConnectedEdgeView: View {
     let outputData: EdgeAnchorUpstreamData
     let edgeAnimationEnabled: Bool
     let zIndex: Double
-    
-    // Optional in event we only have possible edge
-//    let upstreamObserver: OutputNodeRowViewModel?
-    
-//    let possibleEdge: PossibleEdge?
-//    let possibleEdgeOutputObserver: OutputNodeRowViewModel?
-//    let shownPossibleEdgeIds: Set<PossibleEdgeId>
         
     var body: some View {
         let firstUpstreamObserver = inputData.firstInputObserver
@@ -183,11 +132,6 @@ struct ConnectedEdgeView: View {
         let lastUpstreamObserver = outputData.lastUpstreamObserver
         let totalOutputs = outputData.totalOutputs
         let lastConnectedUpstreamObserver = outputData.lastConnectedUpstreamObserver
-//        let pointTo = inputObserver.anchorPoint
-        
-//        let possibleEdge = possibleEdge
-//        let possibleEdgeOutputObserver = possibleEdgeOutputObserver
-//        let shownPossibleEdgeIds = shownPossibleEdgeIds
         
         if let inputPortViewData = inputObserver.portViewData,
            let outputPortViewData = upstreamObserver.portViewData,
@@ -229,19 +173,6 @@ struct ConnectedEdgeView: View {
         } else {
             Color.clear
         }
-            
-        // Place possible-edges above existing edges
-//        if let possibleEdge = possibleEdge,
-//           let possibleEdgeOutputObserver = possibleEdgeOutputObserver {
-//            PossibleEdgeView(edgeStyle: edgeStyle,
-//                             possibleEdge: possibleEdge,
-//                             shownPossibleEdgeIds: shownPossibleEdgeIds,
-//                             from: possibleEdgeOutputObserver.anchorPoint ?? .zero,
-//                             to: pointTo,
-//                             totalOutputs: totalOutputs,
-//                             // Note: an animated edit-mode edge use its output's color, rather than input's color, since the input will be gray until animation is completed
-//                             color: possibleEdgeOutputObserver.portColor.color(theme))
-//        }
     }
 }
 

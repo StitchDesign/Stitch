@@ -33,7 +33,6 @@ struct EdgeFromDraggedOutputView: View {
     // ie cursor position
     let outputDrag: OutputDragGesture
     let nearestEligibleInput: InputNodeRowViewModel?
-//    let eligibleInputCandidates: [InputNodeRowViewModel]
 
     var outputRowViewModel: OutputNodeRowViewModel {
         outputDrag.output
