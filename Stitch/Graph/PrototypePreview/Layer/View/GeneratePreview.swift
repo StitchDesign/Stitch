@@ -192,7 +192,7 @@ struct PreviewLayersView: View {
                                   realityContent: realityContent)
                 }
             }
-        }
+        }        
         .modifier(LayerGroupInteractableViewModifier(
             hasLayerInteraction: graph.hasInteraction(parentId),
             cornerRadius: parentCornerRadius))
