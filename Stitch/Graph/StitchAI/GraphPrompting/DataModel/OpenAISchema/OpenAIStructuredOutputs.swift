@@ -136,23 +136,34 @@ struct OpenAISchemaRef: Encodable {
 struct OpenAIGeneric: Encodable {
     var types: [OpenAISchema] = []
     var refs: [OpenAISchemaRef] = []
-    
+    var anyOf: [OpenAISchemaRef]? = nil
+
     enum CodingKeys: String, CodingKey {
         case type
         case items
+        case anyOf
     }
-    
+
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(OpenAISchemaType.array, forKey: .type)
-        
-        // If we have refs, use those
-        if !refs.isEmpty {
-            try container.encode(refs, forKey: .items)
+
+        // Encode the 'type' if 'anyOf' is not present
+        if anyOf == nil {
+            try container.encode(OpenAISchemaType.array, forKey: .type)
         }
-        // Otherwise use the first type
-        else if !types.isEmpty {
-            try container.encode(types, forKey: .items)
+
+        // Encode 'anyOf' if it's present
+        if let anyOfSchemas = anyOf {
+            try container.encode(anyOfSchemas, forKey: .anyOf)
+        } else {
+            // If 'refs' are present, encode them under 'items'
+            if !refs.isEmpty {
+                try container.encode(refs, forKey: .items)
+            }
+            // Otherwise, if 'types' are present, encode them under 'items'
+            else if !types.isEmpty {
+                try container.encode(types, forKey: .items)
+            }
         }
     }
 }
