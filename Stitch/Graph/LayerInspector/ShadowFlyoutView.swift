@@ -101,14 +101,12 @@ struct ShadowFlyoutRowView: View {
                                     canvasItemId: canvasItemId,
                                     isHovered: isHovered)
             .offset(y: isShadowOffsetRow ? INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET : 0)
-
-            LayerNodeInputView(document: graphUI,
-                               graph: graph,
-                               node: node,
-                               layerInputObserver: layerInputObserver,
-                               forFlyout: true)
-//                               propertyRowIsSelected: propertyRowIsSelected,
-//                               valueEntryView: valueEntryView)
+            
+            InspectorLayerInputView(document: graphUI,
+                                    graph: graph,
+                                    node: node,
+                                    layerInputObserver: layerInputObserver,
+                                    forFlyout: true)
         } // HStack
         
         .padding([.top, .bottom], INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET * 2)

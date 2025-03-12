@@ -111,13 +111,18 @@ extension LayerInputObserver {
     // Regardless of packed vs unpacked mode.
     @MainActor
     var usesMultifields: Bool {
-        //        log("LayerInputObserver: usesMultifields: for layer input \(self.port)")
         switch self.mode {
         case .packed:
             return (self.fieldValueTypes.first?.fieldObservers.count ?? 0) > 1
         case .unpacked:
             return self.fieldValueTypes.count > 1
         }
+    }
+    
+    // Currently, spacing
+    @MainActor
+    func usesGridMultifieldArrangement() -> Bool {
+        self._packedData.inspectorRowViewModel.activeValue.getPadding.isDefined
     }
     
     // The overall-label for the port, e.g. "Size" (not "W" or "H") for the size property
@@ -128,12 +133,13 @@ extension LayerInputObserver {
         let rowObserver = self._packedData.rowObserver
         
         return rowObserver
-            .label(useShortLabel: true,
+            .label(useShortLabel: usesShortLabel,
                    node: node,
                    coordinate: .input(rowObserver.id),
                    graph: graph)
     }
-        
+    
+    // Returns all fields, regardless of packed vs unpacked
     @MainActor
     var fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>] {
         let allFields = self.allInputData.flatMap { (portData: InputLayerNodeRowData) in
@@ -163,14 +169,15 @@ extension LayerInputObserver {
         }
     }
     
+    
     @MainActor
     func getCanvasItemForWholeInput() -> CanvasItemViewModel? {
-        let canvasObsevers = self.getAllCanvasObservers()
-        if canvasObsevers.count > 1 {
-            fatalErrorIfDebug()
+        // Only intended for packed layer input
+        if self.mode == .unpacked {
             return nil
+        } else {
+            return self.getAllCanvasObservers().first
         }
-        return canvasObsevers.first
     }
     
     @MainActor
@@ -359,7 +366,7 @@ extension LayerInputObserver {
     
     /// Helper only intended for use with ports that don't support unpacked mode.
     @MainActor
-    var rowObserver: InputNodeRowObserver {
+    var packedRowObserver: InputNodeRowObserver {
         return self._packedData.rowObserver
     }
     
@@ -367,7 +374,7 @@ extension LayerInputObserver {
     var fieldsRowLabel: String? {
         if self.port == .transform3D {
             if self.mode == .unpacked,
-               let fieldGroupLabel = self.rowObserver.id.keyPath?.getUnpackedPortType?.fieldGroupLabelForUnpacked3DTransformInput {
+               let fieldGroupLabel = self.packedRowObserver.id.keyPath?.getUnpackedPortType?.fieldGroupLabelForUnpacked3DTransformInput {
                 
                 return self.port.label() + " " + fieldGroupLabel
             } else {

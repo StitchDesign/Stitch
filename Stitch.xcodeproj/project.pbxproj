@@ -474,6 +474,10 @@
 		EC3420E22AF9C2EC00EBD896 /* CommentBoxHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC3420E12AF9C2EC00EBD896 /* CommentBoxHelpers.swift */; };
 		EC35A511297622030014D14A /* JSONShapeCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC35A510297622030014D14A /* JSONShapeCommand.swift */; };
 		EC363D56294282FD0093C473 /* Triangle.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC363D55294282FD0093C473 /* Triangle.swift */; };
+		EC365A832D7F48E60015B8D7 /* ShadowInspectorRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC365A822D7F48E60015B8D7 /* ShadowInspectorRow.swift */; };
+		EC365A852D7F6ACA0015B8D7 /* CanvasLayerInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC365A842D7F6ACA0015B8D7 /* CanvasLayerInputView.swift */; };
+		EC365A892D80E41E0015B8D7 /* LayerInspectorGridInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC365A882D80E41E0015B8D7 /* LayerInspectorGridInputView.swift */; };
+		EC365A8B2D80E4EE0015B8D7 /* LayerInspector3DTransformInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC365A8A2D80E4EE0015B8D7 /* LayerInspector3DTransformInputView.swift */; };
 		EC388D332975FB5F00CFA7D1 /* JSONToShapeNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC388D322975FB5F00CFA7D1 /* JSONToShapeNode.swift */; };
 		EC3914BF29F35C0C00ED8D90 /* loopTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC3914BE29F35C0C00ED8D90 /* loopTests.swift */; };
 		EC39894027BDCA8400683EEE /* ValueImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC39893F27BDCA8400683EEE /* ValueImageView.swift */; };
@@ -1439,6 +1443,10 @@
 		EC3420E12AF9C2EC00EBD896 /* CommentBoxHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentBoxHelpers.swift; sourceTree = "<group>"; };
 		EC35A510297622030014D14A /* JSONShapeCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONShapeCommand.swift; sourceTree = "<group>"; };
 		EC363D55294282FD0093C473 /* Triangle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Triangle.swift; sourceTree = "<group>"; };
+		EC365A822D7F48E60015B8D7 /* ShadowInspectorRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowInspectorRow.swift; sourceTree = "<group>"; };
+		EC365A842D7F6ACA0015B8D7 /* CanvasLayerInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasLayerInputView.swift; sourceTree = "<group>"; };
+		EC365A882D80E41E0015B8D7 /* LayerInspectorGridInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInspectorGridInputView.swift; sourceTree = "<group>"; };
+		EC365A8A2D80E4EE0015B8D7 /* LayerInspector3DTransformInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInspector3DTransformInputView.swift; sourceTree = "<group>"; };
 		EC388D322975FB5F00CFA7D1 /* JSONToShapeNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONToShapeNode.swift; sourceTree = "<group>"; };
 		EC3914BE29F35C0C00ED8D90 /* loopTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = loopTests.swift; sourceTree = "<group>"; };
 		EC39893F27BDCA8400683EEE /* ValueImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValueImageView.swift; sourceTree = "<group>"; };
@@ -2092,6 +2100,8 @@
 				ECE639212C489C6900FB8D5F /* FlyoutUtils.swift */,
 				ECE6391F2C489C4F00FB8D5F /* ShadowFlyoutView.swift */,
 				EC5F642C2C29E68500A9E52F /* LayerInspectorPortView.swift */,
+				EC365A882D80E41E0015B8D7 /* LayerInspectorGridInputView.swift */,
+				EC365A8A2D80E4EE0015B8D7 /* LayerInspector3DTransformInputView.swift */,
 				EC5F642E2C29E6A900A9E52F /* LayerInspectorState.swift */,
 				ECB8778B2C7D56D0004ACF60 /* LayerMultiselect.swift */,
 			);
@@ -2274,6 +2284,7 @@
 			children = (
 				B56FFB662C1967F600623CC7 /* Field */,
 				ECF387C8280B5C4C0075F0E5 /* NodeInputOutputView.swift */,
+				EC365A822D7F48E60015B8D7 /* ShadowInspectorRow.swift */,
 				EC53C0ED2D543A32002ECAEB /* LayerInspectorRowButton.swift */,
 				EC6B2E102D76272100804E38 /* PortValuesPreview */,
 				205BB3B025BA203D00F144A7 /* PortView.swift */,
@@ -2652,6 +2663,7 @@
 				B5C53FAE2CED1FA70069612E /* NodeLayout.swift */,
 				EC91B56329AE7891006E823D /* NodesOnlyView.swift */,
 				B5EC61F82A5E2174002A639F /* NodeViewType.swift */,
+				EC365A842D7F6ACA0015B8D7 /* CanvasLayerInputView.swift */,
 				ECB88E1F2D0BAD7E0097CF4A /* StitchUIScrollView.swift */,
 				EC71FF1B2D13C469002C0BA3 /* StitchUIScrollHelpers.swift */,
 				ECDE943128089DF500005401 /* NodeView.swift */,
@@ -4926,6 +4938,7 @@
 				EC6EDC3227FF93CF00843E62 /* SidebarSelectionState.swift in Sources */,
 				ECB54D70288638A200EB75D0 /* RepeatingAnimationNode.swift in Sources */,
 				ECDCE3502821BBB100D83EC3 /* LayerTextView.swift in Sources */,
+				EC365A8B2D80E4EE0015B8D7 /* LayerInspector3DTransformInputView.swift in Sources */,
 				ECA4FCC728EB4169006B4F23 /* NetworkRequestContentType.swift in Sources */,
 				EC7451B0294D2C4F00C7EB80 /* LocationManager.swift in Sources */,
 				EC2614512B897BFA00BEB066 /* Point3DUnpackNode.swift in Sources */,
@@ -5103,6 +5116,8 @@
 				ECDCE3582821EA9400D83EC3 /* FieldViewModelTypeUtils.swift in Sources */,
 				ECA92A30260A6A4700281B52 /* RandomNode.swift in Sources */,
 				EC55EB8E293682A9005EF38B /* Point4D.swift in Sources */,
+				EC365A892D80E41E0015B8D7 /* LayerInspectorGridInputView.swift in Sources */,
+				EC365A832D7F48E60015B8D7 /* ShadowInspectorRow.swift in Sources */,
 				EC9486A42AE2007800B51AB1 /* HoverGestureModifier.swift in Sources */,
 				ECC301AD2938096000C34F10 /* GetKeysNode.swift in Sources */,
 				ECCEB26E2963B10F007E35D1 /* CustomShape.swift in Sources */,
@@ -5201,6 +5216,7 @@
 				EC5C6C3A2C2DAE690023D0C0 /* LLMActionRecording.swift in Sources */,
 				E41685E128A3FA5800731889 /* PreviewModel3DLayer.swift in Sources */,
 				EC1D03BD2CFF86FA0094EE9F /* NativeScrollInteraction.swift in Sources */,
+				EC365A852D7F6ACA0015B8D7 /* CanvasLayerInputView.swift in Sources */,
 				ECB7C72028A56C3700252DE7 /* ClassicAnimationPoint3D.swift in Sources */,
 				EC8BA54526A62D14002E345C /* DeviceMotionNode.swift in Sources */,
 				EC65B25628653CAA00BC8FBF /* FileDropModifier.swift in Sources */,

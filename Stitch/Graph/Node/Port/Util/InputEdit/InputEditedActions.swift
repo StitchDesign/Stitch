@@ -100,7 +100,7 @@ extension InputNodeRowObserver {
             isFieldInsideLayerInspector: isFieldInsideLayerInspector) {
             
             layerMultiselectInput.multiselectObservers(graph).forEach { observer in
-                observer.rowObserver.inputEdited(graph: graph,
+                observer.packedRowObserver.inputEdited(graph: graph,
                                                  fieldValue: fieldValue,
                                                  fieldIndex: fieldIndex,
                                                  activeIndex: activeIndex,

@@ -19,8 +19,8 @@ struct CommonEditingViewWrapper: View {
     let fieldCoordinate: FieldCoordinate
     let isCanvasItemSelected: Bool
     let choices: [String]?
-    let forPropertySidebar: Bool
-    let propertyIsAlreadyOnGraph: Bool
+    let isForLayerInspector: Bool
+    let isPackedLayerInputAlreadyOnCanvas: Bool
     let hasHeterogenousValues: Bool
     let isFieldInMultifieldInput: Bool
     let isForFlyout: Bool
@@ -36,23 +36,12 @@ struct CommonEditingViewWrapper: View {
     }
     
     var isFieldInMultifieldInspectorInputAndNotFlyout: Bool {
-        isFieldInMultifieldInput && forPropertySidebar && !isForFlyout
+        isFieldInMultifieldInput && isForLayerInspector && !isForFlyout
     }
         
-    // There MUST be an inspector-row for this
-    // Can there be a better way to handle this?
-    // Maybe don't care whether it's inside the inspector or not?
-    @MainActor
-    var isPaddingFieldInsideInspector: Bool {
-        isFieldInMultifieldInspectorInputAndNotFlyout
-        && rowViewModel.activeValue.getPadding.isDefined
-    }
-    
     @MainActor
     var fieldWidth: CGFloat {
-        if isPaddingFieldInsideInspector {
-            return PADDING_FIELD_WDITH
-        } else if isForLayerDimensionField, !isFieldInMultifieldInspectorInputAndNotFlyout {
+        if isForLayerDimensionField, !isFieldInMultifieldInspectorInputAndNotFlyout {
             // Only use longer width when not a multifeld on the inspector row itself
           return LAYER_DIMENSION_FIELD_WIDTH
         } else if isForSpacingField {
@@ -60,10 +49,10 @@ struct CommonEditingViewWrapper: View {
         } else if nodeKind.getPatch == .soulver {
             return SOULVER_NODE_INPUT_OR_OUTPUT_WIDTH
         } else if isFieldInMultifieldInspectorInputAndNotFlyout {
-            // is this accurate for a spacing-field in the inspector?
-            // ah but spacing is a dropdown
+            // e.g. Position or Size inputs in the layer inspector (but not flyout)
             return INSPECTOR_MULTIFIELD_INDIVIDUAL_FIELD_WIDTH
         } else {
+            // default case
             return NODE_INPUT_OR_OUTPUT_WIDTH
         }
     }
@@ -80,8 +69,8 @@ struct CommonEditingViewWrapper: View {
                           isCanvasItemSelected: isCanvasItemSelected,
                           choices: choices,
                           isAdjustmentBarInUse: isButtonPressed,
-                          forPropertySidebar: forPropertySidebar,
-                          propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                          isForLayerInspector: isForLayerInspector,
+                          isPackedLayerInputAlreadyOnCanvas: isPackedLayerInputAlreadyOnCanvas,
                           isFieldInMultifieldInput: isFieldInMultifieldInput,
                           isForFlyout: isForFlyout,
                           isForSpacingField: isForSpacingField,

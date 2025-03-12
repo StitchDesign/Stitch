@@ -77,7 +77,7 @@ struct OpenFlyoutView: View, KeyboardReadable {
                                         graphUI: document)
                     } else if flyoutInput.usesColor {
                         ColorFlyoutView(graph: graph,
-                                        rowObserver: portObserver.rowObserver,
+                                        rowObserver: portObserver.packedRowObserver,
                                         layerInputObserver: portObserver,
                                         activeIndex: document.activeIndex)
                     }
