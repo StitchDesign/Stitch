@@ -10,7 +10,7 @@ import StitchSchemaKit
 
 // Must be a class for coordinate keypaths, which expect a reference type on the other end.
 @Observable
-final class LayerInputObserver {
+final class LayerInputObserver: Identifiable {
     // Not intended to be used as an API given both data payloads always exist
     // Variables here necessary to ensure keypaths logic works
 
