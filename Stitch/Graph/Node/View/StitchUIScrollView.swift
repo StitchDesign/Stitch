@@ -413,7 +413,8 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
         
         // Only check borders if we have cached size and position data for canvas items
         let canvasItemsInFrame = graph
-            .getCanvasItemsAtTraversalLevel(groupNodeFocused: document.groupNodeFocused?.groupNodeId).filter({ $0.isVisibleInFrame(graph.visibleCanvasIds) })
+            .getCanvasItemsAtTraversalLevel(groupNodeFocused: document.groupNodeFocused?.groupNodeId)
+            .filter({ $0.isVisibleInFrame(graph.visibleCanvasIds) })
         
         guard let westNode = graph.westernMostNodeForBorderCheck(canvasItemsInFrame,
                                                                  groupNodeFocused: document.groupNodeFocused?.groupNodeId),
@@ -520,13 +521,24 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
             let yDiff = scrollView.contentOffset.y - finalContentOffsetY
             log("StitchUIScrollView: scrollViewDidScroll: hit border: xDiff: \(xDiff)")
             log("StitchUIScrollView: scrollViewDidScroll: hit border: yDiff: \(yDiff)")
+            
+            if xDiff.magnitude > 800 {
+                log("StitchUIScrollView: scrollViewDidScroll: hit border: xDiff: LARGE MAGNITUDE")
+                fatalErrorIfDebug()
+            }
+            
+            if yDiff.magnitude > 800 {
+                log("StitchUIScrollView: scrollViewDidScroll: hit border: yDiff: LARGE MAGNITUDE")
+                fatalErrorIfDebug()
+            }
+            
             scrollView.setContentOffset(finalOffset, animated: false)
             dispatch(GraphScrollDataUpdated(
                 newOffset: finalOffset,
                 newZoom: scrollView.zoomScale
             ))
         } else {
-            log("StitchUIScrollView: scrollViewDidScroll: did not hit border")
+            // log("StitchUIScrollView: scrollViewDidScroll: did not hit border")
             // log("StitchUIScrollView: scrollViewDidScroll: did not hit border: scrollView.contentOffset.x: \(scrollView.contentOffset.x)")
             // log("StitchUIScrollView: scrollViewDidScroll: did not hit border: scrollView.contentOffset.y: \(scrollView.contentOffset.y)")
             Self.updateGraphScrollData(scrollView)
