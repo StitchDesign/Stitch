@@ -121,7 +121,6 @@ extension GraphState {
         }
         
         nodeViewModel.removeIncomingEdge(at: input.id,
-                                         activeIndex: activeIndex,
                                          graph: self)
         
         // Block or unblock certain layer inputs

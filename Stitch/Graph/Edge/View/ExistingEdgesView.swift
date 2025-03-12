@@ -15,15 +15,20 @@ struct GraphConnectedEdgesView: View {
         graph.edgeAnimationEnabled
     }
     
-    // Identifies if some edge data contains "possible" edges, used during keyboard shortcut11
+    // Identifies if some edge data contains "possible" edges, used during keyboard shortcut
     func isEdgeAnimating(_ edgeData: ConnectedEdgeData) -> Bool {
-        graph.edgeEditingState?.possibleEdges.first(where: {
-            $0.edge.to == edgeData.downstreamRowObserver.portViewData
-        }) != nil
+       let possibleEdge = graph.edgeEditingState?
+            .possibleEdges
+            .first(where: {
+                $0.edge.to == edgeData.downstreamRowObserver.portViewData
+                && graph.edgeEditingState?.animationInProgressIds.contains($0.id) ?? false
+            })
+        
+        return possibleEdge.isDefined
     }
     
     var body: some View {
-        ForEach(graph.connectedEdges) { edgeData in
+        ForEach(graph.connectedEdges) { (edgeData: ConnectedEdgeData) in
             // Filter out animated edges enables keyboard shortcut animation
             if !self.isEdgeAnimating(edgeData) {
                 ConnectedEdgeView(data: edgeData,
