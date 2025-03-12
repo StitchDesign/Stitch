@@ -25,8 +25,8 @@ indirect enum LayerType: Equatable, Hashable {
 
 /// Data type used for getting sorted data in views.
 indirect enum LayerData {
-    case nongroup(LayerViewModel, Bool)
-    case group(LayerViewModel, LayerDataList, Bool)
+    case nongroup(LayerNodeViewModel, LayerViewModel, Bool)
+    case group(LayerNodeViewModel, LayerViewModel, LayerDataList, Bool)
     case mask(masked: LayerDataList, masker: LayerDataList)
 }
 
@@ -138,16 +138,16 @@ extension LayerData: Identifiable {
         switch self {
         case .nongroup, .mask:
             return nil
-        case .group(_, let layerDataList, _):
+        case .group(_, _, let layerDataList, _):
             return layerDataList
         }
     }
 
     var isPinned: Bool {
         switch self {
-        case .nongroup(_, let isPinned):
+        case .nongroup(_, _, let isPinned):
             return isPinned
-        case .group(_, _, let isPinned):
+        case .group(_, _, _, let isPinned):
             return isPinned
         case .mask:
             return false
@@ -156,9 +156,9 @@ extension LayerData: Identifiable {
         
     var layer: LayerViewModel {
         switch self {
-        case .nongroup(let layer, _):
+        case .nongroup(_, let layer, _):
             return layer
-        case .group(let layer, _, _):
+        case .group(_, let layer, _, _):
             return layer
         case .mask(masked: let layerDataList, masker: _):
             // TODO: `layerDataList` should be NonEmpty; there's no way to gracefully fail here
@@ -169,13 +169,41 @@ extension LayerData: Identifiable {
     @MainActor
     var zIndex: CGFloat {
         switch self {
-        case .nongroup(let layer, _):
+        case .nongroup(_, let layer, _):
             return layer.zIndex.getNumber ?? .zero
-        case .group(let layer, _, _):
+        case .group(_, let layer, _, _):
             return layer.zIndex.getNumber ?? .zero
         case .mask(masked: let masked, masker: _):
             // TODO: is z-index for a LayerData really the first
             return masked.first?.layer.zIndex.getNumber ?? .zero
+        }
+    }
+}
+
+/// Provides equatable equivalent that supports main actor isolation.
+protocol MainActorEquatable {
+    @MainActor static func equals(_ lhs: Self, _ rhs: Self) -> Bool
+}
+
+extension LayerData: MainActorEquatable {
+    @MainActor
+    static func equals(_ lhs: LayerData, _ rhs: LayerData) -> Bool {
+        lhs.id == rhs.id &&
+        lhs.isPinned == rhs.isPinned &&
+        LayerDataList.equals(lhs.groupDataList ?? [], rhs.groupDataList ?? []) &&
+        lhs.zIndex == rhs.zIndex
+    }
+}
+
+extension Array where Element: MainActorEquatable {
+    @MainActor
+    static func equals(_ lhs: [Element], _ rhs: [Element]) -> Bool {
+        guard lhs.count == rhs.count else {
+            return false
+        }
+        
+        return zip(lhs, rhs).allSatisfy { lhsElement, rhsElement in
+            Element.equals(lhsElement, rhsElement)
         }
     }
 }
