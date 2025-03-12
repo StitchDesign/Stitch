@@ -55,65 +55,11 @@ struct NodeTypeView: View {
                  sortedUserTypeChoices: sortedUserTypeChoices,
                  boundsReaderDisabled: boundsReaderDisabled,
                  usePositionHandler: usePositionHandler,
-                 updateMenuActiveSelectionBounds: updateMenuActiveSelectionBounds,
-                 inputsViews: inputsViews,
-                 outputsViews: outputsViews)
+                 updateMenuActiveSelectionBounds: updateMenuActiveSelectionBounds)
         .onChange(of: self.node.patch, initial: true) {
             // Sorting is expensive so we control when this is calculated
             if let patchNode = self.node.patchNode {
                 self.sortedUserTypeChoices = patchNode.getSortedUserTypeChoices()
-            }
-        }
-    }
-    
-    @ViewBuilder @MainActor
-    func inputsViews() -> some View {
-        VStack(alignment: .leading,
-               spacing: SPACING_BETWEEN_NODE_ROWS) {
-            if self.node.patch == .wirelessReceiver {
-                WirelessPortView(graph: graph,
-                                 graphUI: document,
-                                 isOutput: false,
-                                 id: node.id)
-                .padding(.trailing, NODE_BODY_SPACING)
-            } else if let layerNode: LayerNodeViewModel = self.node.layerNode,
-                      let layerInputCoordinate: LayerInputCoordinate = self.canvasNode.id.layerInputCase {
-                // Layer input or field
-                CanvasLayerInputViewWrapper(graph: graph,
-                                            document: document,
-                                            node: node,
-                                            canvasNode: canvasNode,
-                                            layerNode: layerNode,
-                                            layerInputCoordinate: layerInputCoordinate,
-                                            isNodeSelected: isSelected)
-            }  else {
-                // Multiple inputs
-                DefaultNodeInputsView(graph: graph,
-                                      document: document,
-                                      node: node,
-                                      canvas: canvasNode,
-                                      isNodeSelected: isSelected)
-            }
-        }
-    }
-    
-    @ViewBuilder @MainActor
-    func outputsViews() -> some View {
-        VStack(alignment: .trailing,
-               spacing: SPACING_BETWEEN_NODE_ROWS) {
-            
-            if self.node.patch == .wirelessBroadcaster {
-                WirelessPortView(graph: graph,
-                                 graphUI: document,
-                                 isOutput: true,
-                                 id: node.id)
-                .padding(.leading, NODE_BODY_SPACING)
-            } else {
-                DefaultNodeOutputsView(graph: graph,
-                                       document: document,
-                                       node: node,
-                                       canvas: canvasNode,
-                                       isNodeSelected: isSelected)
             }
         }
     }
