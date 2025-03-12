@@ -213,32 +213,43 @@ struct LayerInputFieldsView<ValueEntry>: View where ValueEntry: View {
             let _isMultifield = isMultifield || multipleFieldsPerGroup
             
             if !self.isAllFieldsBlockedOut(fieldGroupViewModel: fieldGroupViewModel) {
-                NodeFieldsView(
-                    fieldGroupViewModel: fieldGroupViewModel,
-                    valueEntryView: valueEntryView) {
-                    // TODO: how to handle the multifield "shadow offset" input in the Shadow Flyout? For now, we stack those fields vertically
-                    if forFlyout {
-                            VStack {
-                                ForEach(fieldGroupViewModel.fieldObservers) { fieldViewModel in
-                                    let isBlocked = self.blockedFields.map { fieldViewModel.isBlocked($0) } ?? false
-                                    if !isBlocked {
-                                        self.valueEntryView(fieldViewModel,
-                                                            _isMultifield)
-                                    }
-                                }
-                            }
-                    } else {
-                        HStack {
-                            ForEach(fieldGroupViewModel.fieldObservers) { fieldViewModel in
-                                let isBlocked = self.blockedFields.map { fieldViewModel.isBlocked($0) } ?? false
-                                if !isBlocked {
-                                    self.valueEntryView(fieldViewModel,
-                                                        _isMultifield)
-                                }
-                            }
-                        }
+                // Only non-nil for 3D transform
+                // NOTE: this only shows up for PACKED 3D Transform; unpacked 3D Transform fields are treat as Number fields, which are not created with a `groupLabel`
+                // Alternatively we could create Number fieldGroups with their proper parent label if they are for an unpacked multifeld layer input?
+                if let fieldGroupLabel = fieldGroupViewModel.groupLabel {
+                    HStack {
+                        LabelDisplayView(label: fieldGroupLabel,
+                                         isLeftAligned: false,
+                                         fontColor: STITCH_FONT_GRAY_COLOR,
+                                         isSelectedInspectorRow: false)
+                        Spacer()
                     }
                 }
+                
+                // TODO: how to handle the multifield "shadow offset" input in the Shadow Flyout? For now, we stack those fields vertically
+                if forFlyout {
+                    VStack {
+                        fieldsView(fieldGroupViewModel: fieldGroupViewModel,
+                                   isMultifield: _isMultifield)
+                    }
+                } else {
+                    HStack {
+                        fieldsView(fieldGroupViewModel: fieldGroupViewModel,
+                                   isMultifield: _isMultifield)
+                    }
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    func fieldsView(fieldGroupViewModel: FieldGroupTypeData<InputFieldViewModel>,
+                    isMultifield: Bool) -> some View {
+        ForEach(fieldGroupViewModel.fieldObservers) { fieldViewModel in
+            let isBlocked = self.blockedFields.map { fieldViewModel.isBlocked($0) } ?? false
+            if !isBlocked {
+                self.valueEntryView(fieldViewModel,
+                                    isMultifield)
             }
         }
     }
@@ -347,13 +358,21 @@ struct LayerOutputFieldsView<ValueEntry>: View where ValueEntry: View {
     var body: some View {
         ForEach(fieldValueTypes) { (fieldGroupViewModel: FieldGroupTypeData<OutputFieldViewModel>) in
             let isMultifield = fieldGroupViewModel.fieldObservers.count > 1
-            NodeFieldsView(fieldGroupViewModel: fieldGroupViewModel,
-                           valueEntryView: self.valueEntryView) {
+            
+            if let fieldGroupLabel = fieldGroupViewModel.groupLabel {
                 HStack {
-                    ForEach(fieldGroupViewModel.fieldObservers) { fieldViewModel in
-                        self.valueEntryView(fieldViewModel,
-                                            isMultifield)
-                    }
+                    LabelDisplayView(label: fieldGroupLabel,
+                                     isLeftAligned: false,
+                                     fontColor: STITCH_FONT_GRAY_COLOR,
+                                     isSelectedInspectorRow: false)
+                    Spacer()
+                }
+            }
+            
+            HStack {
+                ForEach(fieldGroupViewModel.fieldObservers) { fieldViewModel in
+                    self.valueEntryView(fieldViewModel,
+                                        isMultifield)
                 }
             }
         }
