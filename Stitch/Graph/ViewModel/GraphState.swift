@@ -77,6 +77,8 @@ final class GraphState: Sendable {
     
     // Tracks IDs for rows that need to be updated for the view. Cached here for perf so we can throttle view updates.
     @MainActor var portsToUpdate: NodePortCacheSet = .init()
+    
+    @MainActor var visibleCanvasNodes: [CanvasItemViewModel] = .init()
 
     /// Subscribed by view to trigger graph view update based on data changes.
     @MainActor var graphUpdaterId: Int = .zero
@@ -234,6 +236,9 @@ extension GraphState {
         if self.groupPortLabels != newGroupLabels {
             self.groupPortLabels = newGroupLabels
         }
+        
+        // Update visible canvas items
+        self.visibleCanvasNodes = self.getCanvasItemsAtTraversalLevel(groupNodeFocused: document.groupNodeFocused?.groupNodeId)
         
         if !document.isDebugMode {
             self.updateOrderedPreviewLayers()
