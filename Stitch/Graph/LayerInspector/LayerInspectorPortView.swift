@@ -57,15 +57,17 @@ struct LayerInspectorInputPortView: View {
                         // So we handle them here, rather than in `fields` views used in flyouts and on canvas.
                         else if layerInputObserver.port == .transform3D {
                             LayerInspector3DTransformInputView(document: graphUI,
-                                                              graph: graph,
-                                                              node: node,
-                                                              layerInputObserver: layerInputObserver)
+                                                               graph: graph,
+                                                               nodeId: node.id,
+                                                               layerInputObserver: layerInputObserver,
+                                                               propertyRowIsSelected: propertyRowIsSelected)
                         } else if layerInputObserver.usesGridMultifieldArrangement() {
                             // Multifields in the inspector are always "read-only" and "tap to open flyout"
                             LayerInspectorGridInputView(document: graphUI,
                                                         graph: graph,
                                                         node: node,
-                                                        layerInputObserver: layerInputObserver)
+                                                        layerInputObserver: layerInputObserver,
+                                                        propertyRowIsSelected: propertyRowIsSelected)
                         } else {
                             // Handles both single- and multifield-inputs (arranges an input's multiple-fields in an HStack)
                             InspectorLayerInputView(
@@ -144,28 +146,44 @@ struct InspectorLayerInputView: View {
     var propertyRowIsSelected: Bool {
         graph.propertySidebar.selectedProperty == layerInspectorRowId
     }
-    
-    @ViewBuilder @MainActor
+        
+//    @ViewBuilder @MainActor
+    @MainActor
     func valueEntryView(portViewModel: InputFieldViewModel,
                         isMultiField: Bool) -> InputValueEntry {
         
-        InputValueEntry(graph: graph,
-                        graphUI: document,
-                        viewModel: portViewModel,
-                        node: node,
-                        rowViewModel: layerInputData.inspectorRowViewModel,
-                        canvasItem: nil,
-                        rowObserver: layerInputData.rowObserver,
-                        isCanvasItemSelected: false,
-                        hasIncomingEdge: false,
-                        forPropertySidebar: true,
-                        // Note: tricky; layerInputObserver.getCanvasItemForWholeInput should fail when layer is .unpacked,
-                        // but seems like our layerInputObserver is always .packed here!?
-                        propertyIsAlreadyOnGraph: layerInputObserver.getCanvasItemForWholeInput().isDefined,
-                        isFieldInMultifieldInput: layerInputObserver.usesMultifields,
-                        isForFlyout: forFlyout,
-                        isSelectedInspectorRow: propertyRowIsSelected,
-                        useIndividualFieldLabel: layerInputObserver.useIndividualFieldLabel(activeIndex: document.activeIndex))
+//        let propertyIsAlreadyOnGraph: Bool = layerInputObserver
+//            .getCanvasItem(for: portViewModel.fieldIndex)
+//            .isDefined
+//        
+//        log("InspectorLayerInputView: valueEntryView: propertyIsAlreadyOnGraph: \(propertyIsAlreadyOnGraph) for field index \(portViewModel.fieldIndex) of input field view model \(portViewModel.id)")
+        
+        return InputValueEntry(graph: graph,
+                               graphUI: document,
+                               viewModel: portViewModel,
+                               node: node,
+                               rowViewModel: layerInputData.inspectorRowViewModel,
+                               canvasItem: nil,
+                               rowObserver: layerInputData.rowObserver,
+                               isCanvasItemSelected: false,
+                               hasIncomingEdge: false,
+                               
+                               forPropertySidebar: true,
+                               
+                               // Note: tricky; layerInputObserver.getCanvasItemForWholeInput should fail when layer is .unpacked,
+                               // but seems like our layerInputObserver is always .packed here!?
+                               
+                               // How this is used in CommonEditingView is actually "is this field on the canvas
+                               
+                               // Means we can no longer open flyout?
+                               propertyIsAlreadyOnGraph: layerInputObserver.getCanvasItemForWholeInput().isDefined,
+//                                layerInputObserver.getCanvasItem(for: portViewModel.fieldIndex).isDefined,
+                                                              
+                               isFieldInMultifieldInput: layerInputObserver.usesMultifields,
+                               isForFlyout: forFlyout,
+                               
+                               isSelectedInspectorRow: propertyRowIsSelected,
+                               useIndividualFieldLabel: layerInputObserver.useIndividualFieldLabel(activeIndex: document.activeIndex))
     }
     
     var body: some View {

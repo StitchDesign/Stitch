@@ -52,9 +52,13 @@ struct CommonEditingViewWrapper: View {
     
     @MainActor
     var fieldWidth: CGFloat {
+        
+        // should be able to remove this, since inspector padding fields use their own read-only view
         if isPaddingFieldInsideInspector {
             return PADDING_FIELD_WDITH
-        } else if isForLayerDimensionField, !isFieldInMultifieldInspectorInputAndNotFlyout {
+        }
+        
+        else if isForLayerDimensionField, !isFieldInMultifieldInspectorInputAndNotFlyout {
             // Only use longer width when not a multifeld on the inspector row itself
           return LAYER_DIMENSION_FIELD_WIDTH
         } else if isForSpacingField {
@@ -62,10 +66,10 @@ struct CommonEditingViewWrapper: View {
         } else if nodeKind.getPatch == .soulver {
             return SOULVER_NODE_INPUT_OR_OUTPUT_WIDTH
         } else if isFieldInMultifieldInspectorInputAndNotFlyout {
-            // is this accurate for a spacing-field in the inspector?
-            // ah but spacing is a dropdown
+            // e.g. Position or Size inputs in the layer inspector (but not flyout)
             return INSPECTOR_MULTIFIELD_INDIVIDUAL_FIELD_WIDTH
         } else {
+            // default case
             return NODE_INPUT_OR_OUTPUT_WIDTH
         }
     }
@@ -82,8 +86,8 @@ struct CommonEditingViewWrapper: View {
                           isCanvasItemSelected: isCanvasItemSelected,
                           choices: choices,
                           isAdjustmentBarInUse: isButtonPressed,
-                          forPropertySidebar: forPropertySidebar,
-                          propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                          isForLayerInspector: forPropertySidebar,
+                          isPackedLayerInputAlreadyOnCanvas: propertyIsAlreadyOnGraph,
                           isFieldInMultifieldInput: isFieldInMultifieldInput,
                           isForFlyout: isForFlyout,
                           isForSpacingField: isForSpacingField,

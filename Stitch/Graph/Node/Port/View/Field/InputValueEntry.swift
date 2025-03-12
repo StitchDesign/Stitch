@@ -163,6 +163,7 @@ struct InputFieldValueView: View {
         self.node.kind
     }
 
+    // TODO: is `InputFieldValueView` ever used in the layer inspector now? ... vs flyout?
     @MainActor
     var hasHeterogenousValues: Bool {
         guard rowViewModel.id.graphItemType.isLayerInspector,

@@ -169,14 +169,15 @@ extension LayerInputObserver {
         }
     }
     
+    
     @MainActor
     func getCanvasItemForWholeInput() -> CanvasItemViewModel? {
-        let canvasObservers = self.getAllCanvasObservers()
-        if canvasObservers.count > 1 {
-            fatalErrorIfDebug()
+        // Only intended for packed layer input
+        if self.mode == .unpacked {
             return nil
+        } else {
+            return self.getAllCanvasObservers().first
         }
-        return canvasObservers.first
     }
     
     @MainActor

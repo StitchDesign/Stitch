@@ -12,8 +12,9 @@ struct LayerInspector3DTransformInputView: View {
     
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
-    @Bindable var node: NodeViewModel
+    let nodeId: NodeId
     let layerInputObserver: LayerInputObserver
+    let propertyRowIsSelected: Bool
     
     var body: some View {
         VStack {
@@ -24,7 +25,7 @@ struct LayerInspector3DTransformInputView: View {
                             LabelDisplayView(label: fieldGroupLabel,
                                              isLeftAligned: false,
                                              fontColor: STITCH_FONT_GRAY_COLOR,
-                                             isSelectedInspectorRow: false)
+                                             isSelectedInspectorRow: propertyRowIsSelected)
                             Spacer()
                         }
                     }
@@ -47,38 +48,15 @@ struct LayerInspector3DTransformInputView: View {
                                  isLeftAligned: true,
                                  fontColor: STITCH_FONT_GRAY_COLOR,
                                  // TODO: MARCH 10: for font color when selected on iPad
-                                 isSelectedInspectorRow: false)
+                                 isSelectedInspectorRow: propertyRowIsSelected)
                 
-                CommonEditingViewReadOnly(
-                    inputField: fieldObserver,
-                    inputString: fieldObserver.fieldValue.stringValue,
-                    forPropertySidebar: true,
-                    isHovering: false, // Can never hover on a inspector's multifield
-                    choices: nil, // always nil for layer dropdown ?
-                    fieldWidth: INSPECTOR_MULTIFIELD_INDIVIDUAL_FIELD_WIDTH,
-                    
-                    // TODO: MARCH 10: easier way to tell if part of heterogenous layer multiselect
-                    fieldHasHeterogenousValues: false,
-                    
-                    // TODO: MARCH 10: for font color when selected on iPad
-                    isSelectedInspectorRow: false,
-                    
-                    isFieldInMultfieldInspectorInput: true) {
-                        // If entire packed input is already on canvas, we should jump to that input on that canvas rather than open the flyout
-                        if layerInputObserver.mode == .packed,
-                           let canvasNodeForPackedInput = layerInputObserver.getCanvasItemForWholeInput() {
-                            log("LayerInspector3DTransformInputView: will jump to canvas for \(layerInputObserver.port)")
-                            graph.jumpToCanvasItem(id: canvasNodeForPackedInput.id,
-                                                   document: document)
-                        } else {
-                            log("LayerInspector3DTransformInputView: will open flyout for \(layerInputObserver.port)")
-                            dispatch(FlyoutToggled(
-                                flyoutInput: layerInputObserver.port,
-                                flyoutNodeId: self.node.id,
-                                fieldToFocus: .textInput(fieldObserver.id)))
-                        }
-                    }
+                LayerInspectorReadOnlyView(propertySidebar: graph.propertySidebar,
+                                           nodeId: nodeId,
+                                           layerInputObserver: layerInputObserver,
+                                           fieldObserver: fieldObserver,
+                                           propertyRowIsSelected: propertyRowIsSelected)
             }
         } // ForEach
     }
 }
+

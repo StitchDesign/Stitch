@@ -12,14 +12,10 @@ struct LayerInspectorGridInputView: View {
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
     let layerInputObserver: LayerInputObserver
-    
+    let propertyRowIsSelected: Bool
     
     var allFieldObservers: [InputNodeRowViewModel.FieldType] {
         layerInputObserver.fieldValueTypes.flatMap(\.fieldObservers)
-    }
-    
-    var overallLabel: String {
-        layerInputObserver.overallPortLabel(usesShortLabel: true, node: node, graph: graph)
     }
     
     var body: some View {
@@ -28,7 +24,9 @@ struct LayerInspectorGridInputView: View {
         HStack(alignment: .firstTextBaseline) {
             
             // Label
-            LabelDisplayView(label: overallLabel,
+            LabelDisplayView(label: layerInputObserver.overallPortLabel(usesShortLabel: true,
+                                                                        node: node,
+                                                                        graph: graph),
                              isLeftAligned: false,
                              fontColor: STITCH_FONT_GRAY_COLOR,
                              isSelectedInspectorRow: false)
@@ -59,10 +57,34 @@ struct LayerInspectorGridInputView: View {
         .padding(.vertical, INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET * 2)
     }
     
-    
     // Note: a layer's padding and margin inputs/fields can never be blocked; we can revisit this if that changes in the future
     func observerView(_ fieldObserver: InputNodeRowViewModel.FieldType) -> some View {
-        
+        LayerInspectorReadOnlyView(propertySidebar: graph.propertySidebar,
+                                   nodeId: node.id,
+                                   layerInputObserver: layerInputObserver,
+                                   fieldObserver: fieldObserver,
+                                   propertyRowIsSelected: propertyRowIsSelected)
+    }
+}
+
+
+// Only used by inspector's special multifield views
+struct LayerInspectorReadOnlyView: View {
+    @Bindable var propertySidebar: PropertySidebarObserver
+    let nodeId: NodeId
+    let layerInputObserver: LayerInputObserver
+    let fieldObserver: InputNodeRowViewModel.FieldType
+    let propertyRowIsSelected: Bool
+    
+    // TODO: is `InputFieldValueView` ever used in the layer inspector now? ... vs flyout?
+    @MainActor
+    var hasHeterogenousValues: Bool {
+        return propertySidebar.heterogenousFieldsMap?
+            .get(layerInputObserver.port)?
+            .contains(fieldObserver.fieldIndex) ?? false
+    }
+    
+    var body: some View {
         CommonEditingViewReadOnly(
             inputField: fieldObserver,
             inputString: fieldObserver.fieldValue.stringValue,
@@ -70,25 +92,19 @@ struct LayerInspectorGridInputView: View {
             isHovering: false, // Can never hover on a inspector's multifield
             choices: nil, // always nil for layer dropdown ?
             fieldWidth: INSPECTOR_MULTIFIELD_INDIVIDUAL_FIELD_WIDTH,
-            
-            // TODO: MARCH 10: easier way to tell if part of heterogenous layer multiselect
-            fieldHasHeterogenousValues: false,
-            
-            // TODO: MARCH 10: for font color when selected on iPad
-            isSelectedInspectorRow: false,
-            
+            fieldHasHeterogenousValues: hasHeterogenousValues,
+            isSelectedInspectorRow: propertyRowIsSelected,
             isFieldInMultfieldInspectorInput: true) {
                 // If entire packed input is already on canvas, we should jump to that input on that canvas rather than open the flyout
                 if layerInputObserver.mode == .packed,
                    let canvasNodeForPackedInput = layerInputObserver.getCanvasItemForWholeInput() {
                     log("LayerInspectorGridView: will jump to canvas for \(layerInputObserver.port)")
-                    graph.jumpToCanvasItem(id: canvasNodeForPackedInput.id,
-                                           document: document)
+                    dispatch(JumpToCanvasItem(id: canvasNodeForPackedInput.id))
                 } else {
                     log("LayerInspectorGridView: will open flyout for \(layerInputObserver.port)")
                     dispatch(FlyoutToggled(
                         flyoutInput: layerInputObserver.port,
-                        flyoutNodeId: self.node.id,
+                        flyoutNodeId: nodeId,
                         fieldToFocus: .textInput(fieldObserver.id)))
                 }
             }

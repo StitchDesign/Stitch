@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-// used `NodeTypeView`
 // see `LayerNodeInputView`
 struct CanvasLayerInputView: View {
     @Bindable var document: StitchDocumentViewModel
@@ -32,10 +31,10 @@ struct CanvasLayerInputView: View {
                         isCanvasItemSelected: isNodeSelected,
                         hasIncomingEdge: inputRowObserver.upstreamOutputCoordinate.isDefined,
                         forPropertySidebar: false,
-                        propertyIsAlreadyOnGraph: true,
+                        propertyIsAlreadyOnGraph: true, // Always true for canvas layer input
                         isFieldInMultifieldInput: isMultiField,
                         isForFlyout: false,
-                        isSelectedInspectorRow: false, // Always false for canvas layer node
+                        isSelectedInspectorRow: false, // Always false for canvas layer input
                         useIndividualFieldLabel: true)
     }
     
