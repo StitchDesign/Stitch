@@ -47,7 +47,6 @@ struct LayerInspector3DTransformInputView: View {
                 LabelDisplayView(label: fieldObserver.fieldLabel,
                                  isLeftAligned: true,
                                  fontColor: STITCH_FONT_GRAY_COLOR,
-                                 // TODO: MARCH 10: for font color when selected on iPad
                                  isSelectedInspectorRow: isPropertyRowSelected)
                 
                 LayerInspectorReadOnlyView(propertySidebar: graph.propertySidebar,

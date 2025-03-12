@@ -119,9 +119,6 @@ struct InputFieldValueView: View {
     let rowViewModel: InputNodeRowViewModel
     let canvasItem: CanvasItemViewModel?
     let rowObserver: InputNodeRowObserver
-    
-    // TODO: MARCH 10: actually only specifically for layer inspector!
-    
     let isCanvasItemSelected: Bool
     let isForLayerInspector: Bool
     let isPackedLayerInputAlreadyOnCanvas: Bool
