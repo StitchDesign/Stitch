@@ -204,15 +204,6 @@ extension PatchNodeViewModel {
                   splitterNode: nil,
                   delegate: delegate)
     }
-    
-    /// Returns type choices in sorted order.
-    /// **Note: this has potential perf cost if called too frequently in the view.**
-    @MainActor
-    func getSortedUserTypeChoices() -> [UserVisibleType] {
-        Array(self.patch.availableNodeTypes).sorted { n1, n2 in
-            n1.display < n2.display
-        }
-    }
 
     @MainActor
     var userTypeChoices: Set<UserVisibleType> {
@@ -406,5 +397,19 @@ final class SplitterNodeViewModel {
         guard let entity = entity else { return nil }
         
         self.entity = entity
+    }
+}
+
+extension Patch {
+    /// Returns type choices in sorted order.
+    /// **Note: this has potential perf cost if called too frequently in the view.**
+    @MainActor
+    static let nodeTypeChoices: [Patch: [NodeType]] = Self.allCases.reduce(into: [Patch : [NodeType]]()) { result, patch in
+        let sortedChoices = Array(patch.availableNodeTypes)
+            .sorted { n1, n2 in
+                n1.display < n2.display
+            }
+        
+        result.updateValue(sortedChoices, forKey: patch)
     }
 }

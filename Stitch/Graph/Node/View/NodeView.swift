@@ -9,7 +9,7 @@ import SwiftUI
 import UIKit
 import StitchSchemaKit
 
-struct NodeView<InputsViews: View, OutputsViews: View>: View {
+struct NodeView: View {
     @Bindable var node: CanvasItemViewModel
     @Bindable var stitch: NodeViewModel
     @Bindable var document: StitchDocumentViewModel
@@ -21,15 +21,9 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
     let canAddInput: Bool
     let canRemoveInput: Bool
 
-    // Only for patch nodes
-    var sortedUserTypeChoices: [UserVisibleType] = []
-
     let boundsReaderDisabled: Bool
     let usePositionHandler: Bool
-    let updateMenuActiveSelectionBounds: Bool    
-
-    @ViewBuilder var inputsViews: () -> InputsViews
-    @ViewBuilder var outputsViews: () -> OutputsViews
+    let updateMenuActiveSelectionBounds: Bool
 
     var zIndex: CGFloat {
         self.node.zIndex
@@ -73,7 +67,6 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
                                            node: stitch,
                                            canvasItemId: node.id,
                                            activeGroupId: activeGroupId,
-                                           nodeTypeChoices: sortedUserTypeChoices,
                                            canAddInput: canAddInput,
                                            canRemoveInput: canRemoveInput,
                                            atleastOneCommentBoxSelected: atleastOneCommentBoxSelected)
@@ -100,7 +93,6 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
                                       document: document,
                                       stitch: stitch,
                                       activeGroupId: activeGroupId,
-                                      sortedUserTypeChoices: sortedUserTypeChoices,
                                       canAddInput: canAddInput,
                                       canRemoveInput: canRemoveInput,
                                       atleastOneCommentBoxSelected: atleastOneCommentBoxSelected)
@@ -166,6 +158,58 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
             inputsViews()
             Spacer()
             outputsViews()
+        }
+    }
+    
+    @ViewBuilder @MainActor
+    func inputsViews() -> some View {
+        VStack(alignment: .leading,
+               spacing: SPACING_BETWEEN_NODE_ROWS) {
+            if self.stitch.patch == .wirelessReceiver {
+                WirelessPortView(graph: graph,
+                                 graphUI: document,
+                                 isOutput: false,
+                                 id: stitch.id)
+                .padding(.trailing, NODE_BODY_SPACING)
+            } else if let layerNode: LayerNodeViewModel = self.stitch.layerNode,
+                      let layerInputCoordinate: LayerInputCoordinate = self.node.id.layerInputCase {
+                // Layer input or field
+                CanvasLayerInputViewWrapper(graph: graph,
+                                            document: document,
+                                            node: stitch,
+                                            canvasNode: node,
+                                            layerNode: layerNode,
+                                            layerInputCoordinate: layerInputCoordinate,
+                                            isNodeSelected: isSelected)
+            }  else {
+                // Multiple inputs
+                DefaultNodeInputsView(graph: graph,
+                                      document: document,
+                                      node: stitch,
+                                      canvas: node,
+                                      isNodeSelected: isSelected)
+            }
+        }
+    }
+    
+    @ViewBuilder @MainActor
+    func outputsViews() -> some View {
+        VStack(alignment: .trailing,
+               spacing: SPACING_BETWEEN_NODE_ROWS) {
+            
+            if self.stitch.patch == .wirelessBroadcaster {
+                WirelessPortView(graph: graph,
+                                 graphUI: document,
+                                 isOutput: true,
+                                 id: stitch.id)
+                .padding(.leading, NODE_BODY_SPACING)
+            } else {
+                DefaultNodeOutputsView(graph: graph,
+                                       document: document,
+                                       node: stitch,
+                                       canvas: node,
+                                       isNodeSelected: isSelected)
+            }
         }
     }
 }
@@ -276,7 +320,6 @@ struct CanvasItemTag: View {
     @Bindable var document: StitchDocumentViewModel
     @Bindable var stitch: NodeViewModel
     let activeGroupId: GroupNodeType?
-    var sortedUserTypeChoices: [UserVisibleType] = []
     let canAddInput: Bool
     let canRemoveInput: Bool
     let atleastOneCommentBoxSelected: Bool
@@ -287,7 +330,6 @@ struct CanvasItemTag: View {
                                node: stitch,
                                canvasItemId: node.id,
                                activeGroupId: activeGroupId,
-                               nodeTypeChoices: sortedUserTypeChoices,
                                canAddInput: canAddInput,
                                canRemoveInput: canRemoveInput,
                                atleastOneCommentBoxSelected: atleastOneCommentBoxSelected,
