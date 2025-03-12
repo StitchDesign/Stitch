@@ -33,7 +33,7 @@ struct StitchAIStructuredOutputsSchema: OpenAISchemaCustomizable {
 struct StitchAIStructuredOutputsDefinitions: Encodable {
     // Step actions
     let AddNodeAction = StepStructuredOutputs(StepActionAddNode.self)
-//    let ConnectNodesAction = StepStructuredOutputs(StepActionConnectionAdded.self)
+    let ConnectNodesAction = StepStructuredOutputs(StepActionConnectionAdded.self)
     let ChangeValueTypeAction = StepStructuredOutputs(StepActionChangeValueType.self)
 //    let SetInputAction = StepStructuredOutputs(StepActionSetInput.self)
     
@@ -49,10 +49,10 @@ struct StitchAIStructuredOutputsDefinitions: Encodable {
         .filter { $0 != .none }
         .map { $0.asLLMStepNodeType }, description: "The type of value for the node"
     )
-//    
-//    let LayerPorts = OpenAISchemaEnum(values: LayerInputPort.allCases
-//        .map { $0.asLLMStepPort }, description: "The available ports for layer connections"
-//    )
+    
+    let LayerPorts = OpenAISchemaEnum(values: LayerInputPort.allCases
+        .map { $0.asLLMStepPort }, description: "The available ports for layer connections"
+    )
 }
 
 struct StitchAIStepsSchema: Encodable {
@@ -63,7 +63,7 @@ struct StitchAIStepsSchema: Encodable {
         items: OpenAIGeneric(
             anyOf: [
                 OpenAISchemaRef(ref: "AddNodeAction"),
-                // OpenAISchemaRef(ref: "ConnectNodesAction"),
+                 OpenAISchemaRef(ref: "ConnectNodesAction"),
                  OpenAISchemaRef(ref: "ChangeValueTypeAction"),
                 // OpenAISchemaRef(ref: "SetInputAction")
             ]
