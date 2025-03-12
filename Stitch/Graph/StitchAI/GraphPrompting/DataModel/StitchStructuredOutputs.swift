@@ -33,10 +33,10 @@ struct StitchAIStructuredOutputsSchema: OpenAISchemaCustomizable {
 struct StitchAIStructuredOutputsDefinitions: Encodable {
     // Step actions
     let AddNodeAction = StepStructuredOutputs(StepActionAddNode.self)
-    let ConnectNodesAction = StepStructuredOutputs(StepActionConnectionAdded.self)
+//    let ConnectNodesAction = StepStructuredOutputs(StepActionConnectionAdded.self)
 //    let ChangeValueTypeAction = StepStructuredOutputs(StepActionChangeValueType.self)
-    let SetInputAction = StepStructuredOutputs(StepActionSetInput.self)
- 
+//    let SetInputAction = StepStructuredOutputs(StepActionSetInput.self)
+    
     // Types
     let NodeID = OpenAISchema(type: .string,
                               additionalProperties: false,
@@ -44,28 +44,30 @@ struct StitchAIStructuredOutputsDefinitions: Encodable {
     
     let NodeName = OpenAISchemaEnum(values: NodeKind.getAiNodeDescriptions().map(\.nodeKind), description: "The type of node to be created")
     
-    let ValueType = OpenAISchemaEnum(values:
-                                        NodeType.allCases
-        .filter { $0 != .none }
-        .map { $0.asLLMStepNodeType }, description: "The type of value for the node"
-    )
-    
-    let LayerPorts = OpenAISchemaEnum(values: LayerInputPort.allCases
-        .map { $0.asLLMStepPort }, description: "The available ports for layer connections"
-    )
+//    let ValueType = OpenAISchemaEnum(values:
+//                                        NodeType.allCases
+//        .filter { $0 != .none }
+//        .map { $0.asLLMStepNodeType }, description: "The type of value for the node"
+//    )
+//    
+//    let LayerPorts = OpenAISchemaEnum(values: LayerInputPort.allCases
+//        .map { $0.asLLMStepPort }, description: "The available ports for layer connections"
+//    )
 }
 
 struct StitchAIStepsSchema: Encodable {
-    let steps = OpenAISchema(type: .array,
-                             additionalProperties: false,
-                             description: "The actions taken to create a graph",
-                             items: OpenAIGeneric(types: [],
-                                                refs: [
-                                                    OpenAISchemaRef(ref: "AddNodeAction"),
-                                                    OpenAISchemaRef(ref: "ConnectNodesAction"),
-                                                    OpenAISchemaRef(ref: "ChangeValueTypeAction"),
-                                                    OpenAISchemaRef(ref: "SetInputAction")
-                                                ])
+    let steps = OpenAISchema(
+        type: .array,
+        additionalProperties: false,
+        description: "The actions taken to create a graph",
+        items: OpenAIGeneric(
+            anyOf: [
+                OpenAISchemaRef(ref: "AddNodeAction"),
+                // OpenAISchemaRef(ref: "ConnectNodesAction"),
+                // OpenAISchemaRef(ref: "ChangeValueTypeAction"),
+                // OpenAISchemaRef(ref: "SetInputAction")
+            ]
+        )
     )
 }
 
