@@ -220,11 +220,3 @@ extension InputNodeRowObserver {
         connectedOutputObserver.containsDownstreamConnection = true
     }
 }
-
-// TODO: move
-extension Array where Element: NodeRowViewModel {
-    @MainActor
-    func first(_ id: NodeIOCoordinate) -> Element? {
-        self.first { $0.rowDelegate?.id == id }
-    }
-}

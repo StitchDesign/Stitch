@@ -22,18 +22,6 @@ protocol PatchNodeViewModelDelegate: NodeDelegate {
                                 newType: UserVisibleType)
 }
 
-// TODO: move
-final class SplitterNodeViewModel {
-    @MainActor var entity: SplitterNodeEntity
-    weak var groupCanvas: CanvasItemViewModel?
-    
-    @MainActor init?(entity: SplitterNodeEntity?) {
-        guard let entity = entity else { return nil }
-        
-        self.entity = entity
-    }
-}
-
 @Observable
 final class PatchNodeViewModel: Sendable {
     let id: NodeId
@@ -407,5 +395,16 @@ extension NodeViewModel {
     @MainActor
     var isWireless: Bool {
         patch == .wirelessBroadcaster || patch == .wirelessReceiver
+    }
+}
+
+final class SplitterNodeViewModel {
+    @MainActor var entity: SplitterNodeEntity
+    weak var groupCanvas: CanvasItemViewModel?
+    
+    @MainActor init?(entity: SplitterNodeEntity?) {
+        guard let entity = entity else { return nil }
+        
+        self.entity = entity
     }
 }

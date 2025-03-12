@@ -158,6 +158,7 @@
 		B5657D392C0B94A300287362 /* GraphMediaValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5657D382C0B94A300287362 /* GraphMediaValue.swift */; };
 		B569E58B2B06A8B100C7435B /* NodeInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = B569E58A2B06A8B100C7435B /* NodeInfo.swift */; };
 		B56EA8A62C409898003D39E2 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B56EA8A52C409898003D39E2 /* StitchEngine */; };
+		B56EC9F22D81524A00C4ACF3 /* ConnectedEdgeData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B56EC9F12D81524500C4ACF3 /* ConnectedEdgeData.swift */; };
 		B56F36252D3C1A2E0051C80E /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B56F36242D3C1A2E0051C80E /* StitchEngine */; };
 		B56FFB212C18B4F600623CC7 /* AnimationUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B56FFB202C18B4F600623CC7 /* AnimationUtils.swift */; };
 		B56FFB242C18B53C00623CC7 /* StitchHostingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B56FFB232C18B53C00623CC7 /* StitchHostingController.swift */; };
@@ -1139,6 +1140,7 @@
 		B5657D352C0983E300287362 /* MediaEvalOpObservable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaEvalOpObservable.swift; sourceTree = "<group>"; };
 		B5657D382C0B94A300287362 /* GraphMediaValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphMediaValue.swift; sourceTree = "<group>"; };
 		B569E58A2B06A8B100C7435B /* NodeInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeInfo.swift; sourceTree = "<group>"; };
+		B56EC9F12D81524500C4ACF3 /* ConnectedEdgeData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectedEdgeData.swift; sourceTree = "<group>"; };
 		B56FFB202C18B4F600623CC7 /* AnimationUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationUtils.swift; sourceTree = "<group>"; };
 		B56FFB232C18B53C00623CC7 /* StitchHostingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchHostingController.swift; sourceTree = "<group>"; };
 		B56FFB292C18B72500623CC7 /* MediaImportUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaImportUtils.swift; sourceTree = "<group>"; };
@@ -3321,6 +3323,7 @@
 		B56FFB5C2C19652F00623CC7 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				B56EC9F12D81524500C4ACF3 /* ConnectedEdgeData.swift */,
 				ECA92A5F260A6CDA00281B52 /* EdgeAnchorData.swift */,
 				EC16587C2B6AF03F00FE4AE6 /* EdgeEditingState.swift */,
 				EC1658812B6AFDDA00FE4AE6 /* EdgeEditingModeInputLabel.swift */,
@@ -5692,6 +5695,7 @@
 				EC804494294431C800DCFCF4 /* LayerEvalHelpers.swift in Sources */,
 				B56FFB422C18F7AB00623CC7 /* SafeAreaInsets.swift in Sources */,
 				ECA2E2B927F6210D00D31ECF /* SidebarListItemSelectionStatus.swift in Sources */,
+				B56EC9F22D81524A00C4ACF3 /* ConnectedEdgeData.swift in Sources */,
 				B549AD7229CFC30D002F3252 /* NodePositionUtils.swift in Sources */,
 				EC28D55B26B2142D00E1118E /* LayerGroups.swift in Sources */,
 				20308FAB25AD1721008CE3BE /* MiscUtils.swift in Sources */,

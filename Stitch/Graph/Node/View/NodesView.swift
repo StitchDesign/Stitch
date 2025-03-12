@@ -39,11 +39,6 @@ struct NodesView: View {
     }
     
     var body: some View {
-//        let currentNodePage = self.graph.visibleNodesViewModel
-//            .getViewData(groupNodeFocused: document.groupNodeFocused?.groupNodeId) ?? .init(localPosition: graph.localPosition)
-                
-        // CommentBox needs to be affected by graph offset and zoom
-//         but can live somewhere else?
         InfiniteCanvas(graph: graph,
                        existingCache: graph.visibleNodesViewModel.infiniteCanvasCache,
                        needsInfiniteCanvasCacheReset: graph.visibleNodesViewModel.needsInfiniteCanvasCacheReset) {
@@ -85,10 +80,6 @@ struct NodesView: View {
 }
 
 struct CanvasEdgesViewModifier: ViewModifier {
-//    @State private var allInputs: [InputNodeRowViewModel] = []
-//    @State private var allOutputs: [OutputNodeRowViewModel] = []
-//    @State private var connectedInputs: [InputNodeRowViewModel] = []
-    
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     
