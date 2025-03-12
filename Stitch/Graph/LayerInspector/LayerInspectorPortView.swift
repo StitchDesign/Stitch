@@ -168,7 +168,7 @@ struct InspectorLayerInputView: View {
                                isCanvasItemSelected: false,
                                hasIncomingEdge: false,
                                
-                               forPropertySidebar: true,
+                               isForLayerInspector: true,
                                
                                // Note: tricky; layerInputObserver.getCanvasItemForWholeInput should fail when layer is .unpacked,
                                // but seems like our layerInputObserver is always .packed here!?
@@ -176,7 +176,7 @@ struct InspectorLayerInputView: View {
                                // How this is used in CommonEditingView is actually "is this field on the canvas
                                
                                // Means we can no longer open flyout?
-                               propertyIsAlreadyOnGraph: layerInputObserver.getCanvasItemForWholeInput().isDefined,
+                               isPackedLayerInputAlreadyOnCanvas: layerInputObserver.getCanvasItemForWholeInput().isDefined,
 //                                layerInputObserver.getCanvasItem(for: portViewModel.fieldIndex).isDefined,
                                                               
                                isFieldInMultifieldInput: layerInputObserver.usesMultifields,

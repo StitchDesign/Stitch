@@ -203,8 +203,8 @@ struct GenericFlyoutRowView: View {
                             rowObserver: rowObserver,
                             isCanvasItemSelected: false, // Always false
                             hasIncomingEdge: false,
-                            forPropertySidebar: true,
-                            propertyIsAlreadyOnGraph: canvasItemId.isDefined,
+                            isForLayerInspector: true,
+                            isPackedLayerInputAlreadyOnCanvas: canvasItemId.isDefined,
                             isFieldInMultifieldInput: isMultifield,
                             isForFlyout: true,
                             // Always false for flyout row

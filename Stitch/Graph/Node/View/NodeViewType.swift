@@ -189,8 +189,8 @@ struct DefaultNodeInputsView: View {
                         rowObserver: rowObserver,
                         isCanvasItemSelected: isNodeSelected,
                         hasIncomingEdge: rowObserver.upstreamOutputCoordinate.isDefined,
-                        forPropertySidebar: false,
-                        propertyIsAlreadyOnGraph: false, // Always false for patch and group node inputs
+                        isForLayerInspector: false,
+                        isPackedLayerInputAlreadyOnCanvas: false, // Always false for patch and group node inputs
                         isFieldInMultifieldInput: isMultiField,
                         isForFlyout: false,
                         isSelectedInspectorRow: false,

@@ -34,28 +34,28 @@ struct OvalLayerNode: LayerNodeDefinition {
     static let inputDefinitions: LayerInputPortSet = .init([
         .color,
         .position,
-//        .rotationX,
-//        .rotationY,
-//        .rotationZ,
+        .rotationX,
+        .rotationY,
+        .rotationZ,
         .size,
-//        .opacity,
+        .opacity,
         .scale,
-//        .anchoring,
-//        .zIndex,
-//        .pivot,
-//        .masks,
-//        .shadowColor,
-//        .shadowOpacity,
-//        .shadowRadius,
-//        .shadowOffset
+        .anchoring,
+        .zIndex,
+        .pivot,
+        .masks,
+        .shadowColor,
+        .shadowOpacity,
+        .shadowRadius,
+        .shadowOffset
     ])
-//        .union(.layerEffects)
-//        .union(.strokeInputs)
-//        .union(.aspectRatio)
+        .union(.layerEffects)
+        .union(.strokeInputs)
+        .union(.aspectRatio)
         .union(.sizing)
-//        .union(.pinning)
-//        .union(.layerPaddingAndMargin)
-//        .union(.offsetInGroup)
+        .union(.pinning)
+        .union(.layerPaddingAndMargin)
+        .union(.offsetInGroup)
     
     
     static func content(document: StitchDocumentViewModel,

@@ -21,8 +21,8 @@ struct CommonEditingViewWrapper: View {
     let choices: [String]?
     
     // TODO: MARCH 10: actually only specifically for layer inspector!
-    let forPropertySidebar: Bool
-    let propertyIsAlreadyOnGraph: Bool
+    let isForLayerInspector: Bool
+    let isPackedLayerInputAlreadyOnCanvas: Bool
     let hasHeterogenousValues: Bool
     let isFieldInMultifieldInput: Bool
     let isForFlyout: Bool
@@ -38,27 +38,28 @@ struct CommonEditingViewWrapper: View {
     }
     
     var isFieldInMultifieldInspectorInputAndNotFlyout: Bool {
-        isFieldInMultifieldInput && forPropertySidebar && !isForFlyout
+        isFieldInMultifieldInput && isForLayerInspector && !isForFlyout
     }
         
-    // There MUST be an inspector-row for this
-    // Can there be a better way to handle this?
-    // Maybe don't care whether it's inside the inspector or not?
-    @MainActor
-    var isPaddingFieldInsideInspector: Bool {
-        isFieldInMultifieldInspectorInputAndNotFlyout
-        && rowViewModel.activeValue.getPadding.isDefined
-    }
+//    // There MUST be an inspector-row for this
+//    // Can there be a better way to handle this?
+//    // Maybe don't care whether it's inside the inspector or not?
+//    @MainActor
+//    var isPaddingFieldInsideInspector: Bool {
+//        isFieldInMultifieldInspectorInputAndNotFlyout
+//        && rowViewModel.activeValue.getPadding.isDefined
+//    }
     
     @MainActor
     var fieldWidth: CGFloat {
         
         // should be able to remove this, since inspector padding fields use their own read-only view
-        if isPaddingFieldInsideInspector {
-            return PADDING_FIELD_WDITH
-        }
-        
-        else if isForLayerDimensionField, !isFieldInMultifieldInspectorInputAndNotFlyout {
+//        if isPaddingFieldInsideInspector {
+//            return PADDING_FIELD_WDITH
+//        }
+//        
+//        else
+        if isForLayerDimensionField, !isFieldInMultifieldInspectorInputAndNotFlyout {
             // Only use longer width when not a multifeld on the inspector row itself
           return LAYER_DIMENSION_FIELD_WIDTH
         } else if isForSpacingField {
@@ -86,8 +87,8 @@ struct CommonEditingViewWrapper: View {
                           isCanvasItemSelected: isCanvasItemSelected,
                           choices: choices,
                           isAdjustmentBarInUse: isButtonPressed,
-                          isForLayerInspector: forPropertySidebar,
-                          isPackedLayerInputAlreadyOnCanvas: propertyIsAlreadyOnGraph,
+                          isForLayerInspector: isForLayerInspector,
+                          isPackedLayerInputAlreadyOnCanvas: isPackedLayerInputAlreadyOnCanvas,
                           isFieldInMultifieldInput: isFieldInMultifieldInput,
                           isForFlyout: isForFlyout,
                           isForSpacingField: isForSpacingField,

@@ -30,8 +30,8 @@ struct CanvasLayerInputView: View {
                         rowObserver: inputRowObserver,
                         isCanvasItemSelected: isNodeSelected,
                         hasIncomingEdge: inputRowObserver.upstreamOutputCoordinate.isDefined,
-                        forPropertySidebar: false,
-                        propertyIsAlreadyOnGraph: true, // Always true for canvas layer input
+                        isForLayerInspector: false,
+                        isPackedLayerInputAlreadyOnCanvas: true, // Always true for canvas layer input
                         isFieldInMultifieldInput: isMultiField,
                         isForFlyout: false,
                         isSelectedInspectorRow: false, // Always false for canvas layer input

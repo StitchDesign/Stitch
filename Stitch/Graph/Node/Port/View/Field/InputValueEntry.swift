@@ -24,8 +24,8 @@ struct InputValueEntry: View {
     let hasIncomingEdge: Bool
     
     // TODO: package these up into `InspectorData` ?
-    let forPropertySidebar: Bool
-    let propertyIsAlreadyOnGraph: Bool
+    let isForLayerInspector: Bool
+    let isPackedLayerInputAlreadyOnCanvas: Bool
     let isFieldInMultifieldInput: Bool
     let isForFlyout: Bool
     let isSelectedInspectorRow: Bool
@@ -54,8 +54,8 @@ struct InputValueEntry: View {
                             canvasItem: canvasItem,
                             rowObserver: rowObserver,
                             isCanvasItemSelected: isCanvasItemSelected,
-                            forPropertySidebar: forPropertySidebar,
-                            propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                            isForLayerInspector: isForLayerInspector,
+                            isPackedLayerInputAlreadyOnCanvas: isPackedLayerInputAlreadyOnCanvas,
                             isFieldInMultifieldInput: isFieldInMultifieldInput,
                             isForFlyout: isForFlyout,
                             isSelectedInspectorRow: isSelectedInspectorRow,
@@ -89,7 +89,7 @@ struct InputValueEntry: View {
         }
         .foregroundColor(VALUE_FIELD_BODY_COLOR)
         .height(NODE_ROW_HEIGHT + 6)
-        .allowsHitTesting(!(forPropertySidebar && propertyIsAlreadyOnGraph))
+        .allowsHitTesting(!(isForLayerInspector && isPackedLayerInputAlreadyOnCanvas))
     }
 
 }
@@ -123,8 +123,8 @@ struct InputFieldValueView: View {
     // TODO: MARCH 10: actually only specifically for layer inspector!
     
     let isCanvasItemSelected: Bool
-    let forPropertySidebar: Bool
-    let propertyIsAlreadyOnGraph: Bool
+    let isForLayerInspector: Bool
+    let isPackedLayerInputAlreadyOnCanvas: Bool
     let isFieldInMultifieldInput: Bool
     let isForFlyout: Bool
     let isSelectedInspectorRow: Bool
@@ -194,8 +194,8 @@ struct InputFieldValueView: View {
                                          fieldCoordinate: fieldCoordinate,
                                          isCanvasItemSelected: isCanvasItemSelected,
                                          choices: nil,
-                                         forPropertySidebar: forPropertySidebar,
-                                         propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                                         isForLayerInspector: isForLayerInspector,
+                                         isPackedLayerInputAlreadyOnCanvas: isPackedLayerInputAlreadyOnCanvas,
                                          hasHeterogenousValues: hasHeterogenousValues,
                                          isFieldInMultifieldInput: isFieldInMultifieldInput,
                                          isForFlyout: isForFlyout,
@@ -213,9 +213,9 @@ struct InputFieldValueView: View {
                                      fieldCoordinate: fieldCoordinate,
                                      isCanvasItemSelected: isCanvasItemSelected,
                                      choices: nil,
-                                     forPropertySidebar: forPropertySidebar,
+                                     isForLayerInspector: isForLayerInspector,
                                      hasHeterogenousValues: hasHeterogenousValues,
-                                     propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                                     isPackedLayerInputAlreadyOnCanvas: isPackedLayerInputAlreadyOnCanvas,
                                      isFieldInMultifieldInput: isFieldInMultifieldInput,
                                      isForFlyout: isForFlyout,
                                      isSelectedInspectorRow: isSelectedInspectorRow,
@@ -235,9 +235,9 @@ struct InputFieldValueView: View {
                                                                                      layerInputPort: layerInputPort,
                                                                                      activeIndex: graphUI.activeIndex)
                                         .map(\.rawValue),
-                                     forPropertySidebar: forPropertySidebar,
+                                     isForLayerInspector: isForLayerInspector,
                                      hasHeterogenousValues: hasHeterogenousValues,
-                                     propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                                     isPackedLayerInputAlreadyOnCanvas: isPackedLayerInputAlreadyOnCanvas,
                                      isFieldInMultifieldInput: isFieldInMultifieldInput,
                                      isForFlyout: isForFlyout,
                                      isSelectedInspectorRow: isSelectedInspectorRow,
@@ -255,9 +255,9 @@ struct InputFieldValueView: View {
                                      fieldCoordinate: fieldCoordinate,
                                      isCanvasItemSelected: isCanvasItemSelected,
                                      choices: StitchSpacing.choices,
-                                     forPropertySidebar: forPropertySidebar,
+                                     isForLayerInspector: isForLayerInspector,
                                      hasHeterogenousValues: hasHeterogenousValues,
-                                     propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                                     isPackedLayerInputAlreadyOnCanvas: isPackedLayerInputAlreadyOnCanvas,
                                      isFieldInMultifieldInput: isFieldInMultifieldInput,
                                      isForFlyout: isForFlyout,
                                      isSelectedInspectorRow: isSelectedInspectorRow,
@@ -428,8 +428,8 @@ struct InputFieldValueView: View {
                 .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH,
                        height: NODE_ROW_HEIGHT,
                        // Note: why are these reversed? Because we scaled the view down?
-                       alignment: forPropertySidebar ? .leading : .trailing)
-                .offset(x: forPropertySidebar ? -4 : 4)
+                       alignment: isForLayerInspector ? .leading : .trailing)
+                .offset(x: isForLayerInspector ? -4 : 4)
                 
                 
             case .media(let media):
@@ -485,7 +485,7 @@ struct InputFieldValueView: View {
                                    alignment: .leading,
                                    fontColor: STITCH_FONT_GRAY_COLOR,
                                    isSelectedInspectorRow: isSelectedInspectorRow,
-                                   forPropertySidebar: forPropertySidebar,
+                                   forPropertySidebar: isForLayerInspector,
                                    isFieldInMultifieldInput: isFieldInMultifieldInput)
             }
         // }
