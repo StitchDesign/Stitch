@@ -21,9 +21,9 @@ struct FieldValueNumberView: View {
     let fieldCoordinate: FieldCoordinate
     let isCanvasItemSelected: Bool
     let choices: [String]?
-    let forPropertySidebar: Bool
+    let isForLayerInspector: Bool
     let hasHeterogenousValues: Bool
-    let propertyIsAlreadyOnGraph: Bool
+    let isPackedLayerInputAlreadyOnCanvas: Bool
     let isFieldInMultifieldInput: Bool
     let isForFlyout: Bool
     let isSelectedInspectorRow: Bool
@@ -38,7 +38,7 @@ struct FieldValueNumberView: View {
     }
     
     var isFieldInMultifieldInputInInspector: Bool {
-        isFieldInMultifieldInput && forPropertySidebar && !isForFlyout
+        isFieldInMultifieldInput && isForLayerInspector && !isForFlyout
     }
     
     var body: some View {
@@ -70,8 +70,8 @@ struct FieldValueNumberView: View {
                                      fieldCoordinate: fieldCoordinate,
                                      isCanvasItemSelected: isCanvasItemSelected,
                                      choices: choices,
-                                     forPropertySidebar: forPropertySidebar,
-                                     propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                                     isForLayerInspector: isForLayerInspector,
+                                     isPackedLayerInputAlreadyOnCanvas: isPackedLayerInputAlreadyOnCanvas,
                                      hasHeterogenousValues: hasHeterogenousValues,
                                      isFieldInMultifieldInput: isFieldInMultifieldInput,
                                      isForFlyout: isForFlyout, 

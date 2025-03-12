@@ -9,6 +9,14 @@
 import SwiftUI
 import StitchSchemaKit
 
+struct JumpToCanvasItem: StitchDocumentEvent {
+    let id: CanvasItemId
+    
+    func handle(state: StitchDocumentViewModel) {
+        state.visibleGraph.jumpToCanvasItem(id: id, document: state)
+    }
+}
+
 extension GraphState {
     @MainActor
     func jumpToCanvasItem(id: CanvasItemId,

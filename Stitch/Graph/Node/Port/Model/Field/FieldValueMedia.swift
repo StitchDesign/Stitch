@@ -76,7 +76,7 @@ extension FieldValueMedia {
             
                 destinationInputs = multiselectInput.multiselectObservers(graph).map({ (observer: LayerInputObserver) in
                     InputCoordinate(portType: .keyPath(layerInput),
-                                    nodeId: observer.rowObserver.id.nodeId)
+                                    nodeId: observer.packedRowObserver.id.nodeId)
                 })
             }
             

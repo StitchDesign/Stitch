@@ -73,7 +73,7 @@ extension GraphState {
         if let multiselectInputs = self.propertySidebar.inputsCommonToSelectedLayers,
            let layerMultiselectInput = multiselectInputs.first(where: { $0 == layerInput}) {
             layerMultiselectInput.multiselectObservers(self).forEach { observer in
-                addLayerInput(observer.rowObserver.id.nodeId)
+                addLayerInput(observer.packedRowObserver.id.nodeId)
             }
         } else {
             addLayerInput(nodeId)
