@@ -10,46 +10,25 @@ import StitchSchemaKit
 
 struct GraphConnectedEdgesView: View {
     @Bindable var graph: GraphState
-//    let allConnectedInputs: [InputNodeRowViewModel]
-    
-//    var animatingEdges: PossibleEdgeSet {
-//        graph.edgeEditingState?.possibleEdges ?? .init()
-//    }
-//    
+
     var edgeAnimationEnabled: Bool {
         graph.edgeAnimationEnabled
     }
     
-//    var shownPossibleEdgeIds: Set<PossibleEdgeId> {
-//        graph.edgeEditingState?.shownIds ?? .init()
-//    }
+    // Filter out "possible" edges, enabling animation
+    func isEdgeAnimating(_ edgeData: ConnectedEdgeData) -> Bool {
+        graph.edgeEditingState?.possibleEdges.first(where: {
+            $0.edge.to == edgeData.downstreamRowObserver.portViewData
+        }) == nil
+    }
     
-//    @MainActor
-//    func getPossibleEdgeUpstreamObserver(from input: InputNodeRowViewModel,
-//                                         possibleEdge: PossibleEdge?) -> OutputNodeRowViewModel? {
-//        guard let possibleEdge = possibleEdge,
-//              let node = graph.getCanvasItem(possibleEdge.edge.from.canvasId),
-//              let upstreamRowObserver = node.outputViewModels[safe: possibleEdge.edge.from.portId] else {
-//            return nil
-//        }
-//
-//        return upstreamRowObserver
-//    }
-//    
     var body: some View {
         ForEach(graph.connectedEdges) { edgeData in
-            // Bindable fixes issue where edges may not appear initially
-//            @Bindable var inputObserver = inputObserver
-            
-//            let possibleEdge = animatingEdges.first(where: { $0.edge.to == inputObserver.portViewData })
-            
-//            let possibleEdgeOutputObserver = self.getPossibleEdgeUpstreamObserver(
-//                from: inputObserver,
-//                possibleEdge: possibleEdge)
-            
-            ConnectedEdgeView(data: edgeData,
-                              edgeAnimationEnabled: edgeAnimationEnabled)
-            
+            // Filter out animated edges enables keyboard shortcut animation
+            if !self.isEdgeAnimating(edgeData) {
+                ConnectedEdgeView(data: edgeData,
+                                  edgeAnimationEnabled: edgeAnimationEnabled)
+            }
         }
     }
 }
@@ -76,10 +55,6 @@ struct CandidateEdgesView: View {
         graph.edgeEditingState?.shownIds ?? .init()
     }
     
-//    var possibleEdges: [PossibleEdge] {
-//        animatingEdges.first(where: { $0.edge.to == inputObserver.portViewData })
-//    }
-    
     @MainActor
     func getPossibleEdgeUpstreamObserver(possibleEdge: PossibleEdge) -> OutputNodeRowViewModel? {
         guard let node = graph.getCanvasItem(possibleEdge.edge.from.canvasId),
@@ -104,7 +79,6 @@ struct CandidateEdgesView: View {
         // Place possible-edges above existing edges
         Group {
             ForEach(animatingEdges) { possibleEdge in
-                //            let possibleEdge = animatingEdges.first(where: { $0.edge.to == inputObserver.portViewData }) in
                 if let outputObserver = self
                     .getPossibleEdgeUpstreamObserver(possibleEdge: possibleEdge),
                    let inputObserver = self
@@ -123,18 +97,6 @@ struct CandidateEdgesView: View {
                 }
             }
         }
-//        .onChange(of: graph.edgeEditingState?.possibleEdges, initial: true) { _, newPossibleEdges in
-//            let candidateInputs: [InputNodeRowViewModel] = newPossibleEdges?.compactMap {
-//                let inputData = $0.edge.to
-//                
-//                guard let node = self.graph.getCanvasItem(inputData.canvasId),
-//                      let inputRow = node.inputViewModels[safe: inputData.portId] else {
-//                    return nil
-//                }
-//                
-//                return inputRow
-//            } ?? []
-//        }
     }
 }
 
