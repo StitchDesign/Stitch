@@ -75,17 +75,20 @@ extension GraphState {
         
         // Which node is this cursor-drawn-edge extended from?
         // Never create an edge from an output to an input on the very same node.
-        cursorNodeId: CanvasItemId,
-        
-        // Since deleted nodes are not removed from prefDict,
-        // if we iterate through prefDict, we will potentially propose a deleted input.
-        // So instead we iterate through VisibleNodes' inputs (i.e. inputs at this traversal level).
-        eligibleInputCandidates: [InputNodeRowViewModel]) {
+        cursorNodeId: CanvasItemId) {
         
         var nearestInputs = [InputNodeRowViewModel]()
+            
+            let canvasItemsAtThisTraversalLevel = self
+                .getCanvasItemsAtTraversalLevel(groupNodeFocused: documentDelegate?.groupNodeFocused?.groupNodeId)
+            
+            let eligibleInputs = canvasItemsAtThisTraversalLevel
+                .flatMap { canvasItem -> [InputNodeRowViewModel] in
+                    canvasItem.inputViewModels
+                }
         
         // Only look at pref-dict inputs' which are on this level
-        for inputViewModel in eligibleInputCandidates {
+        for inputViewModel in eligibleInputs {
             guard let inputCenter = inputViewModel.anchorPoint else {
                 continue
             }

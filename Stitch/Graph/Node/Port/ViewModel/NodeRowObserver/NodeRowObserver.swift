@@ -213,3 +213,10 @@ extension NodeRowObserver {
         }
     }
 }
+
+extension Array where Element: NodeRowViewModel {
+    @MainActor
+    func first(_ id: NodeIOCoordinate) -> Element? {
+        self.first { $0.rowDelegate?.id == id }
+    }
+}

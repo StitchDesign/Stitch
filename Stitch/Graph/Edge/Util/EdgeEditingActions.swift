@@ -208,6 +208,8 @@ struct PossibleEdgeDecommitmentCompleted: GraphEvent {
         
         state.removeEdgeAt(input: edge.to,
                            activeIndex: activeIndex)
+        
+        state.encodeProjectInBackground()
     }
 }
 

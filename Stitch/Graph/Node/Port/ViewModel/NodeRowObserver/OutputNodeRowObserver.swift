@@ -92,7 +92,7 @@ extension OutputNodeRowObserver {
             outputs.append(patchOutput)
             
             // Find row view models for group if applicable
-            if patchNode.splitterNode?.type == .output {
+            if patchNode.splitterNode?.entity.type == .output {
                 // Group id is the only other row view model's canvas's parent ID
                 if let groupNodeId = outputs.first?.canvasItemDelegate?.parentGroupNodeId,
                    let groupNode = self.nodeDelegate?.graphDelegate?.getNodeViewModel(groupNodeId)?.nodeType.groupNode {
