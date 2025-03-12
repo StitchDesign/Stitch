@@ -27,9 +27,8 @@ struct PortPreviewOpened: StitchDocumentEvent {
 }
 
 struct PortPreviewPopoverWrapperView: View {
-    let allInputs: [InputNodeRowViewModel]
-    let allOutputs: [OutputNodeRowViewModel]
     let openPortPreview: OpenedPortPreview
+    @Bindable var canvas: CanvasItemViewModel
     
     var body: some View {
         
@@ -37,9 +36,8 @@ struct PortPreviewPopoverWrapperView: View {
         switch openPortPreview.nodeIO {
         
         case .input:
-            if let rowViewModel = allInputs.first(where: {
-                $0.canvasItemDelegate?.id == openPortPreview.canvasItemId
-                && $0.rowDelegate?.id == openPortPreview.port
+            if let rowViewModel = canvas.inputViewModels.first(where: {
+                $0.rowDelegate?.id == openPortPreview.port
             }),
                let inputObserver = rowViewModel.rowDelegate,
                let anchor = rowViewModel.anchorPoint {
@@ -51,9 +49,8 @@ struct PortPreviewPopoverWrapperView: View {
             }
 
         case .output:
-            if let rowViewModel = allOutputs.first(where: {
-                $0.canvasItemDelegate?.id == openPortPreview.canvasItemId
-                && $0.rowDelegate?.id == openPortPreview.port
+            if let rowViewModel = canvas.outputViewModels.first(where: {
+                $0.rowDelegate?.id == openPortPreview.port
             }),
                let outputObserver = rowViewModel.rowDelegate,
                let anchor = rowViewModel.anchorPoint {

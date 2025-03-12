@@ -118,6 +118,9 @@ final class GraphState: Sendable {
     // Tracks labels for group ports for perf
     @MainActor var groupPortLabels = [Coordinate : String]()
     
+    // Visual edge data
+    @MainActor var connectedEdges = [ConnectedEdgeData]()
+    
     @MainActor var lastEncodedDocument: GraphEntity
     @MainActor weak var documentDelegate: StitchDocumentViewModel?
     @MainActor weak var documentEncoderDelegate: (any DocumentEncodable)?
@@ -218,6 +221,13 @@ extension GraphState {
         
         // Update connected port data
         self.visibleNodesViewModel.updateAllNodeViewData()
+        
+        // Update edges after everything else
+        let newEdges = self.getVisualEdgeData(groupNodeFocused: self.documentDelegate?.groupNodeFocused?.groupNodeId)
+        
+        if self.connectedEdges != newEdges {
+            self.connectedEdges = newEdges
+        }
         
         // Update labels for group nodes
         let newGroupLabels = self.getGroupPortLabels()
@@ -322,6 +332,29 @@ extension GraphState {
         
         // Updates node visibility data
         self.visibleNodesViewModel.resetCache()
+    }
+    
+    @MainActor
+    func getVisualEdgeData(groupNodeFocused: NodeId?) -> [ConnectedEdgeData] {
+        let canvasItemsAtThisTraversalLevel = self
+            .getCanvasItemsAtTraversalLevel(groupNodeFocused: groupNodeFocused)
+        
+        let newInputs = canvasItemsAtThisTraversalLevel
+            .flatMap { canvasItem -> [InputNodeRowViewModel] in
+                canvasItem.inputViewModels
+            }
+        
+        
+        let connectedInputs = newInputs.filter { input in
+            guard input.nodeDelegate?.patchNodeViewModel?.patch != .wirelessReceiver else {
+                return false
+            }
+            return input.rowDelegate?.containsUpstreamConnection ?? false
+        }
+        
+        return connectedInputs.compactMap { connection in
+            ConnectedEdgeData(downstreamRowObserver: connection)
+        }
     }
 }
 
@@ -575,11 +608,11 @@ extension GraphState {
             
             let title = node.displayTitle
             
-            if splitterNode.type == .input {
+            if splitterNode.entity.type == .input {
                 result.updateValue(title, forKey: .input(patchNode.inputsObservers.first!.id))
             }
             
-            else if splitterNode.type == .output {
+            else if splitterNode.entity.type == .output {
                 result.updateValue(title, forKey: .output(patchNode.outputsObservers.first!.id))
             }
         }
