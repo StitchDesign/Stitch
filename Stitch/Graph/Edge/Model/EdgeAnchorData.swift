@@ -74,14 +74,15 @@ extension EdgeAnchorUpstreamData {
             return nil
         }
         
-        let downstreamInputs = connectedDownstreamNode.getAllInputsObservers()
+        let downstreamInputs = connectedDownstreamNode.allInputRowViewModels
         
         // Find top and bottom-most edges from upstream node connecting to this node
         var firstConnectedUpstreamObserver: OutputNodeRowViewModel?
         var lastConnectedUpstreamObserver: OutputNodeRowViewModel?
-        downstreamInputs.forEach{ downstreamInput in
+        downstreamInputs.forEach { downstreamInput in
             // Do nothing if no connection from this input
-            guard let upstreamToThisInput = downstreamInput.upstreamOutputObserver?.allRowViewModels.first(where: { $0.id.isNode }) else {
+            guard let upstreamToThisInput = downstreamInput.rowDelegate?.upstreamOutputObserver?.nodeRowViewModel
+                else {
                 return
             }
             

@@ -146,7 +146,7 @@ extension InputNodeRowObserver {
             inputs.append(patchInput)
             
             // Find row view models for group if applicable
-            if patchNode.splitterNode?.type == .input {
+            if patchNode.splitterNode?.entity.type == .input {
                 // Group id is the only other row view model's canvas's parent ID
                 if let groupNodeId = inputs.first?.canvasItemDelegate?.parentGroupNodeId,
                    let groupNode = self.nodeDelegate?.graphDelegate?.getNodeViewModel(groupNodeId)?.nodeType.groupNode {
@@ -218,5 +218,13 @@ extension InputNodeRowObserver {
         // Report to output observer that there's an edge (for port colors)
         // We set this to false on default above
         connectedOutputObserver.containsDownstreamConnection = true
+    }
+}
+
+// TODO: move
+extension Array where Element: NodeRowViewModel {
+    @MainActor
+    func first(_ id: NodeIOCoordinate) -> Element? {
+        self.first { $0.rowDelegate?.id == id }
     }
 }

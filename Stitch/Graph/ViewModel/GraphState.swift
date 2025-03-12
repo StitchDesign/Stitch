@@ -662,11 +662,11 @@ extension GraphState {
             
             let title = node.displayTitle
             
-            if splitterNode.type == .input {
+            if splitterNode.entity.type == .input {
                 result.updateValue(title, forKey: .input(patchNode.inputsObservers.first!.id))
             }
             
-            else if splitterNode.type == .output {
+            else if splitterNode.entity.type == .output {
                 result.updateValue(title, forKey: .output(patchNode.outputsObservers.first!.id))
             }
         }
