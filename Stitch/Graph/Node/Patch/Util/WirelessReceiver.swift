@@ -38,7 +38,6 @@ struct SetBroadcastForWirelessReceiver: StitchDocumentEvent {
             // Note 2: removeAnyEdges already recalculates the graph from the `to` node of the removed edge.
 
             receiverNodeInputObserver.removeUpstreamConnection(
-                activeIndex: state.activeIndex,
                 isVisible: receiverNode.isVisibleInFrame(graphState.visibleCanvasIds, graphState.selectedSidebarLayers))
             
             graphState.scheduleForNextGraphStep(receiverNodeId)

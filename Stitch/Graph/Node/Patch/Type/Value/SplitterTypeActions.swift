@@ -66,13 +66,11 @@ extension GraphState {
             // we need to remove some edges.
             if currentType == .output {
                 self.removeConnections(from: outputPort,
-                                       isNodeVisible: splitterNode.isVisibleInFrame(self.visibleCanvasIds, self.selectedSidebarLayers),
-                                       activeIndex: activeIndex)
+                                       isNodeVisible: splitterNode.isVisibleInFrame(self.visibleCanvasIds, self.selectedSidebarLayers))
             } else if currentType == .input {
                 if let inputObserver = splitterNode.getInputRowObserver(for: .portIndex(0)) {
                     inputObserver
-                        .removeUpstreamConnection(activeIndex: activeIndex,
-                                                  isVisible: splitterNode.isVisibleInFrame(self.visibleCanvasIds, self.selectedSidebarLayers))
+                        .removeUpstreamConnection(isVisible: splitterNode.isVisibleInFrame(self.visibleCanvasIds, self.selectedSidebarLayers))
                 }
             }
 
@@ -81,8 +79,7 @@ extension GraphState {
             // then need to remove outgoing edges.
             if currentType == .output {
                 self.removeConnections(from: outputPort,
-                                       isNodeVisible: splitterNode.isVisibleInFrame(self.visibleCanvasIds, self.selectedSidebarLayers),
-                                       activeIndex: activeIndex)
+                                       isNodeVisible: splitterNode.isVisibleInFrame(self.visibleCanvasIds, self.selectedSidebarLayers))
             }
 
         case .output:
@@ -91,8 +88,7 @@ extension GraphState {
             if currentType == .input {
                 if let inputObserver = splitterNode.getInputRowObserver(for: .portIndex(0)) {
                     inputObserver
-                        .removeUpstreamConnection(activeIndex: activeIndex,
-                                                  isVisible: splitterNode.isVisibleInFrame(self.visibleCanvasIds, self.selectedSidebarLayers))
+                        .removeUpstreamConnection(isVisible: splitterNode.isVisibleInFrame(self.visibleCanvasIds, self.selectedSidebarLayers))
                 }
             }
         }

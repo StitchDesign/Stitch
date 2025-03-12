@@ -206,8 +206,7 @@ struct PossibleEdgeDecommitmentCompleted: GraphEvent {
         state.edgeEditingState?.animationInProgressIds.remove(possibleEdgeId)
         state.edgeEditingState?.shownIds.remove(possibleEdgeId)
         
-        state.removeEdgeAt(input: edge.to,
-                           activeIndex: activeIndex)
+        state.removeEdgeAt(input: edge.to)
         
         state.encodeProjectInBackground()
     }
@@ -358,6 +357,10 @@ extension StitchDocumentViewModel {
             // Immediately add the possible-edge-id to animationInProgressIds
             graph.edgeEditingState?.animationInProgressIds.insert(thisPossibleEdge.id)
             
+            // Immediately remove the existing edge
+            // TODO: why does this still leave the existing edge looking like it's still existing?
+            // graph.removeEdgeAt(input: edge.to)
+            
             // Animate the withdrawal
             withAnimation(.linear(duration: .POSSIBLE_EDGE_ANIMATION_DURATION)) {
                 log("removal animation started")
@@ -411,7 +414,6 @@ extension StitchDocumentViewModel {
             }
         } // else
         
-        return self.visibleGraph.removeEdgeAt(input: edge.to,
-                                              activeIndex: self.activeIndex)
+        return self.visibleGraph.removeEdgeAt(input: edge.to)
     }
 }
