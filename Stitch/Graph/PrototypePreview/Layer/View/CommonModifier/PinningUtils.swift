@@ -32,7 +32,7 @@ typealias PinMap = [LayerNodeId?: LayerIdSet]
 /// at which point we need to pin views at the group context of C.
 typealias RootPinMap = [LayerNodeId?: LayerPinData]
 
-struct LayerPinData {
+struct LayerPinData: Equatable {
     let id: LayerNodeId?
     var pins: [Self]?
 }

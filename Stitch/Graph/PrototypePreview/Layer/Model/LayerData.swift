@@ -179,3 +179,31 @@ extension LayerData: Identifiable {
         }
     }
 }
+
+/// Provides equatable equivalent that supports main actor isolation.
+protocol MainActorEquatable {
+    @MainActor static func equals(_ lhs: Self, _ rhs: Self) -> Bool
+}
+
+extension LayerData: MainActorEquatable {
+    @MainActor
+    static func equals(_ lhs: LayerData, _ rhs: LayerData) -> Bool {
+        lhs.id == rhs.id &&
+        lhs.isPinned == rhs.isPinned &&
+        LayerDataList.equals(lhs.groupDataList ?? [], rhs.groupDataList ?? []) &&
+        lhs.zIndex == rhs.zIndex
+    }
+}
+
+extension Array where Element: MainActorEquatable {
+    @MainActor
+    static func equals(_ lhs: [Element], _ rhs: [Element]) -> Bool {
+        guard lhs.count == rhs.count else {
+            return false
+        }
+        
+        return zip(lhs, rhs).allSatisfy { lhsElement, rhsElement in
+            Element.equals(lhsElement, rhsElement)
+        }
+    }
+}
