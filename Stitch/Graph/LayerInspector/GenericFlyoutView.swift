@@ -156,7 +156,7 @@ struct GenericFlyoutRowView: View {
     }
     
     @MainActor
-    var propertyRowIsSelected: Bool {
+    var isPropertyRowSelected: Bool {
         graph.propertySidebar.selectedProperty == layerInspectorRowId
     }
     
@@ -175,10 +175,6 @@ struct GenericFlyoutRowView: View {
     }
     
     var body: some View {
-        
-        //        logInView("GenericFlyoutRowView: layerInputType: \(layerInputType)")
-        //        logInView("GenericFlyoutRowView: viewModel.rowViewModelDelegate?.activeValue: \(viewModel.rowViewModelDelegate?.activeValue)")
-        //        logInView("GenericFlyoutRowView: viewModel.fieldValue: \(viewModel.fieldValue)")
         
         HStack {
             // For the layer inspector row button, use a
@@ -208,7 +204,7 @@ struct GenericFlyoutRowView: View {
                             isFieldInMultifieldInput: isMultifield,
                             isForFlyout: true,
                             // Always false for flyout row
-                            isSelectedInspectorRow: propertyRowIsSelected,
+                            isSelectedInspectorRow: isPropertyRowSelected,
                             useIndividualFieldLabel: layerInputObserver.useIndividualFieldLabel(activeIndex: graphUI.activeIndex))
         } // HStack
         .contentShape(Rectangle())

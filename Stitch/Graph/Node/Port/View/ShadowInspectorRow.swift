@@ -12,12 +12,12 @@ struct ShadowInputInspectorRow: View {
     @Environment(\.appTheme) var theme
     
     let nodeId: NodeId
-    let propertyIsSelected: Bool
+    let isPropertyRowSelected: Bool
     
     var body: some View {
         HStack {
             StitchTextView(string: "Shadow",
-                           fontColor: propertyIsSelected ? theme.fontColor : STITCH_FONT_GRAY_COLOR)
+                           fontColor: isPropertyRowSelected ? theme.fontColor : STITCH_FONT_GRAY_COLOR)
             Spacer()
         }
         .overlay {

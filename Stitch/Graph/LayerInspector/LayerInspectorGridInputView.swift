@@ -12,7 +12,7 @@ struct LayerInspectorGridInputView: View {
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
     let layerInputObserver: LayerInputObserver
-    let propertyRowIsSelected: Bool
+    let isPropertyRowSelected: Bool
     
     var allFieldObservers: [InputNodeRowViewModel.FieldType] {
         layerInputObserver.fieldValueTypes.flatMap(\.fieldObservers)
@@ -63,7 +63,7 @@ struct LayerInspectorGridInputView: View {
                                    nodeId: node.id,
                                    layerInputObserver: layerInputObserver,
                                    fieldObserver: fieldObserver,
-                                   propertyRowIsSelected: propertyRowIsSelected)
+                                   isPropertyRowSelected: isPropertyRowSelected)
     }
 }
 
@@ -74,7 +74,7 @@ struct LayerInspectorReadOnlyView: View {
     let nodeId: NodeId
     let layerInputObserver: LayerInputObserver
     let fieldObserver: InputNodeRowViewModel.FieldType
-    let propertyRowIsSelected: Bool
+    let isPropertyRowSelected: Bool
     
     // TODO: is `InputFieldValueView` ever used in the layer inspector now? ... vs flyout?
     @MainActor
@@ -93,7 +93,7 @@ struct LayerInspectorReadOnlyView: View {
             choices: nil, // always nil for layer dropdown ?
             fieldWidth: INSPECTOR_MULTIFIELD_INDIVIDUAL_FIELD_WIDTH,
             fieldHasHeterogenousValues: hasHeterogenousValues,
-            isSelectedInspectorRow: propertyRowIsSelected,
+            isSelectedInspectorRow: isPropertyRowSelected,
             isFieldInMultfieldInspectorInput: true) {
                 // If entire packed input is already on canvas, we should jump to that input on that canvas rather than open the flyout
                 if layerInputObserver.mode == .packed,

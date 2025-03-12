@@ -46,11 +46,11 @@ struct LayerInspectorInputPortView: View {
                                coordinate: coordinate,
                                graph: graph,
                                graphUI: graphUI,
-                               canvasItemId: canvasItemId) { propertyRowIsSelected in
+                               canvasItemId: canvasItemId) { isPropertyRowSelected in
                     HStack {
                         if isShadowLayerInputRow {
                             ShadowInputInspectorRow(nodeId: node.id,
-                                                    propertyIsSelected: propertyRowIsSelected)
+                                                    isPropertyRowSelected: isPropertyRowSelected)
                         }
                         
                         // Note: 3D Transform and PortValue.padding are arranged in a "grid" in the inspector ONLY.
@@ -60,14 +60,14 @@ struct LayerInspectorInputPortView: View {
                                                                graph: graph,
                                                                nodeId: node.id,
                                                                layerInputObserver: layerInputObserver,
-                                                               propertyRowIsSelected: propertyRowIsSelected)
+                                                               isPropertyRowSelected: isPropertyRowSelected)
                         } else if layerInputObserver.usesGridMultifieldArrangement() {
                             // Multifields in the inspector are always "read-only" and "tap to open flyout"
                             LayerInspectorGridInputView(document: graphUI,
                                                         graph: graph,
                                                         node: node,
                                                         layerInputObserver: layerInputObserver,
-                                                        propertyRowIsSelected: propertyRowIsSelected)
+                                                        isPropertyRowSelected: isPropertyRowSelected)
                         } else {
                             // Handles both single- and multifield-inputs (arranges an input's multiple-fields in an HStack)
                             InspectorLayerInputView(
@@ -147,43 +147,24 @@ struct InspectorLayerInputView: View {
         graph.propertySidebar.selectedProperty == layerInspectorRowId
     }
         
-//    @ViewBuilder @MainActor
     @MainActor
-    func valueEntryView(portViewModel: InputFieldViewModel,
+    func valueEntryView(inputFieldViewModel: InputFieldViewModel,
                         isMultiField: Bool) -> InputValueEntry {
-        
-//        let propertyIsAlreadyOnGraph: Bool = layerInputObserver
-//            .getCanvasItem(for: portViewModel.fieldIndex)
-//            .isDefined
-//        
-//        log("InspectorLayerInputView: valueEntryView: propertyIsAlreadyOnGraph: \(propertyIsAlreadyOnGraph) for field index \(portViewModel.fieldIndex) of input field view model \(portViewModel.id)")
-        
-        return InputValueEntry(graph: graph,
-                               graphUI: document,
-                               viewModel: portViewModel,
-                               node: node,
-                               rowViewModel: layerInputData.inspectorRowViewModel,
-                               canvasItem: nil,
-                               rowObserver: layerInputData.rowObserver,
-                               isCanvasItemSelected: false,
-                               hasIncomingEdge: false,
-                               
-                               isForLayerInspector: true,
-                               
-                               // Note: tricky; layerInputObserver.getCanvasItemForWholeInput should fail when layer is .unpacked,
-                               // but seems like our layerInputObserver is always .packed here!?
-                               
-                               // How this is used in CommonEditingView is actually "is this field on the canvas
-                               
-                               // Means we can no longer open flyout?
-                               isPackedLayerInputAlreadyOnCanvas: layerInputObserver.getCanvasItemForWholeInput().isDefined,
-//                                layerInputObserver.getCanvasItem(for: portViewModel.fieldIndex).isDefined,
-                                                              
-                               isFieldInMultifieldInput: layerInputObserver.usesMultifields,
-                               isForFlyout: forFlyout,
-                               
-                               isSelectedInspectorRow: propertyRowIsSelected,
-                               useIndividualFieldLabel: layerInputObserver.useIndividualFieldLabel(activeIndex: document.activeIndex))
+        InputValueEntry(graph: graph,
+                        graphUI: document,
+                        viewModel: inputFieldViewModel,
+                        node: node,
+                        rowViewModel: layerInputData.inspectorRowViewModel,
+                        canvasItem: nil,
+                        rowObserver: layerInputData.rowObserver,
+                        isCanvasItemSelected: false,
+                        hasIncomingEdge: false,
+                        isForLayerInspector: true,
+                        isPackedLayerInputAlreadyOnCanvas: layerInputObserver.getCanvasItemForWholeInput().isDefined,
+                        isFieldInMultifieldInput: layerInputObserver.usesMultifields,
+                        isForFlyout: forFlyout,
+                        isSelectedInspectorRow: propertyRowIsSelected,
+                        useIndividualFieldLabel: layerInputObserver.useIndividualFieldLabel(activeIndex: document.activeIndex))
     }
     
     var body: some View {
@@ -196,11 +177,7 @@ struct InspectorLayerInputView: View {
                                  fontColor: STITCH_FONT_GRAY_COLOR,
                                  isSelectedInspectorRow: propertyRowIsSelected)
             }
-             
             Spacer()
-          
-            // Vast majority of inputs, however, have a single row of fields.
-            // TODO: this part of the UI is not clear; we allow the single row of fields to float up into the enclosing HStack, yet flyouts always vertically stack their fields
             LayerInputFieldsView(fieldValueTypes: fieldValueTypes,
                                  layerInputObserver: layerInputObserver,
                                  forFlyout: forFlyout,
