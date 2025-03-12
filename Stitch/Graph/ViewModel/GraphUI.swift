@@ -185,7 +185,10 @@ extension GraphState {
             self.graphMovement.graphIsDragged = false            
         }
 
-        self.selection = GraphUISelectionState()
+        if self.selection != GraphUISelectionState.zero {
+            self.selection = GraphUISelectionState()
+        }
+        
         self.resetSelectedCanvasItems()
         document.insertNodeMenuState.searchResults = InsertNodeMenuState.allSearchOptions
         
@@ -243,7 +246,8 @@ func adjustPositionToMultipleOf(_ position: CGPoint,
     return newCenter
 }
 
-struct GraphUISelectionState {
+struct GraphUISelectionState: Equatable {
+    static let zero = GraphUISelectionState()
 
     var selectedNodeIds = CanvasItemIdSet()
     var selectedCommentBoxes = CommentBoxIdSet()
@@ -312,7 +316,9 @@ extension GraphState {
     
     @MainActor
     func deselectAllCanvasItems() {
-        self.selection = GraphUISelectionState()
+        if self.selection != .zero {
+            self.selection = GraphUISelectionState()            
+        }
         self.resetSelectedCanvasItems()
     }
     
