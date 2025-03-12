@@ -377,8 +377,8 @@ extension GraphState {
         splitterNode.splitterType = splitterType
         
         // Slightly modify date for consistent port ordering
-        let lastModifiedDate = splitterNode.splitterNode?.lastModifiedDate ?? Date.now
-        splitterNode.splitterNode?.lastModifiedDate = lastModifiedDate
+        let lastModifiedDate = splitterNode.splitterNode?.entity.lastModifiedDate ?? Date.now
+        splitterNode.splitterNode?.entity.lastModifiedDate = lastModifiedDate
             .addingTimeInterval(Double(portId) * 0.01)
 
         self.visibleNodesViewModel.nodes.updateValue(newSplitterNode, forKey: newSplitterNode.id)

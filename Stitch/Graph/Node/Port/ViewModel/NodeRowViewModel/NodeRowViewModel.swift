@@ -80,9 +80,15 @@ extension NodeRowViewModel {
         
         switch Self.nodeIO {
         case .input:
-            self.anchorPoint = .init(x: offsetX, y: anchorY)
+            let newAnchorPoint = CGPoint(x: offsetX, y: anchorY)
+            if self.anchorPoint != newAnchorPoint {
+                self.anchorPoint = newAnchorPoint
+            }
         case .output:
-            self.anchorPoint = .init(x: offsetX + size.width, y: anchorY)
+            let newAnchorPoint = CGPoint(x: offsetX + size.width, y: anchorY)
+            if self.anchorPoint != newAnchorPoint {
+                self.anchorPoint = newAnchorPoint
+            }
         }
     }
     
@@ -110,7 +116,10 @@ extension NodeRowViewModel {
                                   initialValue: rowDelegate.getActiveValue(activeIndex: node.graphDelegate?.documentDelegate?.activeIndex ?? .init(.zero)))
         }
         
-        self.portViewData = self.getPortViewData()
+        let newPortViewData = self.getPortViewData()
+        if self.portViewData != newPortViewData {
+            self.portViewData = newPortViewData
+        }
     }
     
     /// Considerable perf cost from `ConnectedEdgeView`, so now a function.

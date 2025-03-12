@@ -39,11 +39,6 @@ struct NodesView: View {
     }
     
     var body: some View {
-        let currentNodePage = self.graph.visibleNodesViewModel
-            .getViewData(groupNodeFocused: document.groupNodeFocused?.groupNodeId) ?? .init(localPosition: graph.localPosition)
-                
-        // CommentBox needs to be affected by graph offset and zoom
-//         but can live somewhere else?
         InfiniteCanvas(graph: graph,
                        existingCache: graph.visibleNodesViewModel.infiniteCanvasCache,
                        needsInfiniteCanvasCacheReset: graph.visibleNodesViewModel.needsInfiniteCanvasCacheReset) {
@@ -85,81 +80,28 @@ struct NodesView: View {
 }
 
 struct CanvasEdgesViewModifier: ViewModifier {
-    @State private var allInputs: [InputNodeRowViewModel] = []
-    @State private var allOutputs: [OutputNodeRowViewModel] = []
-    @State private var connectedInputs: [InputNodeRowViewModel] = []
-    
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     
-    @MainActor
-    func connectedEdgesView(allConnectedInputs: [InputNodeRowViewModel]) -> some View {
-        GraphConnectedEdgesView(graph: graph,
-                                allConnectedInputs: allConnectedInputs)
-    }
-    
-    @MainActor
-    func edgeDrawingView(inputs: [InputNodeRowViewModel],
-                         graph: GraphState) -> some View {
-        EdgeDrawingView(graph: graph,
-                        edgeDrawingObserver: graph.edgeDrawingObserver,
-                        inputsAtThisTraversalLevel: inputs)
-    }
-    
     func body(content: Content) -> some View {
-        // Including "possible" inputs enables edge animation
-        let candidateInputs: [InputNodeRowViewModel] = graph.edgeEditingState?.possibleEdges.compactMap {
-            let inputData = $0.edge.to
-            
-            guard let node = self.graph.getCanvasItem(inputData.canvasId),
-                  let inputRow = node.inputViewModels[safe: inputData.portId] else {
-                return nil
-            }
-            
-            return inputRow
-        } ?? []
-        
-        return content
-        // Moves expensive computation here to reduce render cycles
-            .onChange(of: graph.graphUpdaterId, initial: true) {
-                // log("CanvasEdgesViewModifier: .onChange(of: self.graph.graphUpdaterId)")
-                let canvasItemsAtThisTraversalLevel = self.graph
-                    .getCanvasItemsAtTraversalLevel(groupNodeFocused: document.groupNodeFocused?.groupNodeId)
-                
-                self.allInputs = canvasItemsAtThisTraversalLevel
-                    .flatMap { canvasItem -> [InputNodeRowViewModel] in
-                        canvasItem.inputViewModels
-                    }
-                
-                self.connectedInputs = allInputs.filter { input in
-                    guard input.nodeDelegate?.patchNodeViewModel?.patch != .wirelessReceiver else {
-                        return false
-                    }
-                    return input.rowDelegate?.containsUpstreamConnection ?? false
-                }
-                
-                self.allOutputs = canvasItemsAtThisTraversalLevel
-                    .flatMap { $0.outputViewModels }
-            }
+        content
             .background {
                 // Using background ensures edges z-index are always behind ndoes
-                connectedEdgesView(allConnectedInputs: connectedInputs + candidateInputs)
+                GraphConnectedEdgesView(graph: graph)
+                CandidateEdgesView(graph: graph)
             }
             .overlay {
-                edgeDrawingView(inputs: allInputs,
-                                graph: self.graph)
+                EdgeDrawingView(graph: graph,
+                                edgeDrawingObserver: graph.edgeDrawingObserver)
                 
-                EdgeInputLabelsView(inputs: allInputs,
-                                    document: document,
+                EdgeInputLabelsView(document: document,
                                     graph: graph)
-                
-                // TODO: does PortPreviewPopoverView render too many times when open?
-                // TODO: more elegant way to do this? Generic types giving Swift compiler trouble
-                if let openPortPreview = document.openPortPreview {
+
+                if let openPortPreview = document.openPortPreview,
+                   let canvas = graph.getCanvasItem(openPortPreview.canvasItemId) {
                     PortPreviewPopoverWrapperView(
-                        allInputs: allInputs,
-                        allOutputs: allOutputs,
-                        openPortPreview: openPortPreview)
+                        openPortPreview: openPortPreview,
+                        canvas: canvas)
                 }
             }
     }

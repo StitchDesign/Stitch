@@ -146,7 +146,7 @@ extension InputNodeRowObserver {
             inputs.append(patchInput)
             
             // Find row view models for group if applicable
-            if patchNode.splitterNode?.type == .input {
+            if patchNode.splitterNode?.entity.type == .input {
                 // Group id is the only other row view model's canvas's parent ID
                 if let groupNodeId = inputs.first?.canvasItemDelegate?.parentGroupNodeId,
                    let groupNode = self.nodeDelegate?.graphDelegate?.getNodeViewModel(groupNodeId)?.nodeType.groupNode {

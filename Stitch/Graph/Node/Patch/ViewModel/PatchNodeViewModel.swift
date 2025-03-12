@@ -49,7 +49,7 @@ final class PatchNodeViewModel: Sendable {
     @MainActor var mathExpression: String?
     
     // Splitter types are for group input, output, or inline nodes
-    @MainActor var splitterNode: SplitterNodeEntity?
+    @MainActor var splitterNode: SplitterNodeViewModel?
     
     @MainActor weak var delegate: PatchNodeViewModelDelegate?
     
@@ -61,7 +61,7 @@ final class PatchNodeViewModel: Sendable {
         self.patch = schema.patch
         self.userVisibleType = schema.userVisibleType
         self.mathExpression = schema.mathExpression
-        self.splitterNode = schema.splitterNode
+        self.splitterNode = .init(entity: schema.splitterNode)
         
         // Create initial inputs and outputs using default data
         let rowDefinitions = NodeKind.patch(schema.patch)
@@ -121,8 +121,10 @@ extension PatchNodeViewModel: SchemaObserver {
                                          activeIndex: graph.documentDelegate?.activeIndex ?? .init(.zero))
             }
         }
-        if self.splitterNode != schema.splitterNode {
-            self.splitterNode = schema.splitterNode
+        if let splitterNodeViewModel = self.splitterNode,
+           let newSplitterNodeEntity = schema.splitterNode,
+           splitterNodeViewModel.entity != newSplitterNodeEntity {
+            splitterNodeViewModel.entity = newSplitterNodeEntity
         }
     }
 
@@ -132,7 +134,7 @@ extension PatchNodeViewModel: SchemaObserver {
                         inputs: self.inputsObservers.map { $0.createSchema() },
                         canvasEntity: self.canvasObserver.createSchema(),
                         userVisibleType: self.userVisibleType,
-                        splitterNode: self.splitterNode, 
+                        splitterNode: self.splitterNode?.entity,
                         mathExpression: self.mathExpression)
     }
     
@@ -150,6 +152,14 @@ extension PatchNodeViewModel {
         
         self.outputsObservers.forEach {
             $0.initializeDelegate(node)
+        }
+        
+        // Assign weak for group canvas if group splitter node
+        if let splitterNode = self.splitterNode,
+           splitterNode.entity.type.isGroupSplitter,
+           let groupNodeId = self.canvasObserver.parentGroupNodeId,
+           let groupCanvasItem = self.delegate?.graphDelegate?.getNodeViewModel(groupNodeId)?.nodeType.groupNode {
+            splitterNode.groupCanvas = groupCanvasItem
         }
         
         self.canvasObserver.initializeDelegate(node,
@@ -176,7 +186,7 @@ extension PatchNodeViewModel {
         self.init(from: entity)
         self.initializeDelegate(delegate)
         self.delegate = delegate
-        self.splitterNode = splitterNode
+        self.splitterNode = .init(entity: splitterNode)
     }
 
     @MainActor convenience init(id: NodeId,
@@ -218,7 +228,7 @@ extension PatchNodeViewModel {
     @MainActor
     var splitterType: SplitterType? {
         get {
-            self.splitterNode?.type
+            self.splitterNode?.entity.type
         }
         set(newValue) {
             guard let newValue = newValue else {
@@ -226,9 +236,9 @@ extension PatchNodeViewModel {
                 return
             }
 
-            self.splitterNode = SplitterNodeEntity(id: self.id,
-                                                   lastModifiedDate: .init(),
-                                                   type: newValue)
+            self.splitterNode?.entity = SplitterNodeEntity(id: self.id,
+                                                           lastModifiedDate: .init(),
+                                                           type: newValue)
         }
     }
     
@@ -385,5 +395,16 @@ extension NodeViewModel {
     @MainActor
     var isWireless: Bool {
         patch == .wirelessBroadcaster || patch == .wirelessReceiver
+    }
+}
+
+final class SplitterNodeViewModel {
+    @MainActor var entity: SplitterNodeEntity
+    weak var groupCanvas: CanvasItemViewModel?
+    
+    @MainActor init?(entity: SplitterNodeEntity?) {
+        guard let entity = entity else { return nil }
+        
+        self.entity = entity
     }
 }
