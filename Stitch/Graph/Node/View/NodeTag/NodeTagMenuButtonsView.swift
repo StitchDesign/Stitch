@@ -12,7 +12,6 @@ import StitchSchemaKit
 // what we provide to SwifUI Menu or SwiftUI .contextMenu
 
 struct NodeTagMenuButtonsView: View {
-
     @Environment(StitchStore.self) private var store
     
     @Bindable var graph: GraphState
@@ -22,7 +21,6 @@ struct NodeTagMenuButtonsView: View {
     let canvasItemId: CanvasItemId // id for Node or LayerInputOnGraph
     
     var activeGroupId: GroupNodeType?
-    var nodeTypeChoices: [UserVisibleType] = []
     
     // Always false for Layer Nodes;
     // may be true for Patch Nodes.
@@ -110,41 +108,50 @@ struct NodeTagMenuButtonsView: View {
         return nil
     }
 
+    
+    var nodeTypeChoices: [UserVisibleType] {
+        guard let patch = self.node.patch else { return [] }
+        
+        return Patch.nodeTypeChoices.get(patch) ?? []
+    }
+    
     var body: some View {
-        if singleGroupNodeSelected {
-            Group {
-                deleteGroupButton
-                duplicateButton
-                visitGroupButton
-                ungroupGroupButton
-                
-                if let component = self.selectedComponet {
-                    componentLinkingButton(component: component)
+        Group {
+            if singleGroupNodeSelected {
+                Group {
+                    deleteGroupButton
+                    duplicateButton
+                    visitGroupButton
+                    ungroupGroupButton
+                    
+                    if let component = self.selectedComponet {
+                        componentLinkingButton(component: component)
+                    }
+                    
+                    //                if FeatureFlags.USE_COMMENT_BOX_FLAG {
+                    //                    createCommentBoxButton
+                    //                }
                 }
-                
-//                if FeatureFlags.USE_COMMENT_BOX_FLAG {
-//                    createCommentBoxButton
-//                }
-            }
-        } else if singleNonGroupNodeSelected {
-            Group {
-                buttonsForSingleNongroupNode
-//                if FeatureFlags.USE_COMMENT_BOX_FLAG {
-//                    createCommentBoxButton
-//                }
-            }
-        } else {
-            // multiple nodes selected
-            Group {
-                deleteButton
-                duplicateButton
-                createGroupButton
-                if FeatureFlags.USE_COMPONENTS {
-                    createComponentButton
+            } else if singleNonGroupNodeSelected {
+                Group {
+                    buttonsForSingleNongroupNode
+                    //                if FeatureFlags.USE_COMMENT_BOX_FLAG {
+                    //                    createCommentBoxButton
+                    //                }
                 }
-//                if FeatureFlags.USE_COMMENT_BOX_FLAG {
-//                    createCommentBoxButton
-//                }
+            } else {
+                // multiple nodes selected
+                Group {
+                    deleteButton
+                    duplicateButton
+                    createGroupButton
+                    if FeatureFlags.USE_COMPONENTS {
+                        createComponentButton
+                    }
+                    //                if FeatureFlags.USE_COMMENT_BOX_FLAG {
+                    //                    createCommentBoxButton
+                    //                }
+                }
             }
         }
     }

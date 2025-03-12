@@ -9,10 +9,12 @@ import SwiftUI
 import StitchSchemaKit
 
 struct NodesOnlyView: View {
-    @State private var canvasNodes: [CanvasItemViewModel] = []
-    
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
+    
+    var canvasNodes: [CanvasItemViewModel] {
+        graph.visibleCanvasNodes
+    }
     
     var selection: GraphUISelectionState {
         graph.selection
@@ -24,21 +26,6 @@ struct NodesOnlyView: View {
     
     var focusedGroup: GroupNodeType? {
         document.groupNodeFocused
-    }
-    
-    func refreshCanvasNodes() {
-        // Calculate canvas nodes at efficient cadence
-        let canvasNodeIds = self.graph.visibleNodesViewModel.allViewModels.map(\.id)
-        
-        self.canvasNodes = canvasNodeIds
-            .compactMap { id in
-                guard let canvas = self.graph.getCanvasItem(id),
-                      canvas.parentGroupNodeId == self.focusedGroup?.groupNodeId else {
-                    return nil
-                }
-                
-                return canvas
-            }
     }
         
     var body: some View {
@@ -71,26 +58,28 @@ struct NodesOnlyView: View {
             ForEach(canvasNodes) { canvasNode in
                 // Note: if/else seems better than opacity modifier, which introduces funkiness with edges (port preference values?) when going in and out of groups;
                 // (`.opacity(0)` means we still render the view, and thus anchor preferences?)
-                NodeTypeView(
-                    document: document,
-                    graph: graph,
-                    node: canvasNode.nodeDelegate ?? .init(),
-                    canvasNode: canvasNode,
-                    atleastOneCommentBoxSelected: selection.selectedCommentBoxes.count >= 1,
-                    activeIndex: activeIndex,
-                    groupNodeFocused: document.groupNodeFocused,
-                    isSelected: graph.selection.selectedNodeIds.contains(canvasNode.id)
-                )
+                
+                if let node = graph.getNodeViewModel(canvasNode.id.nodeId) {                    
+                    NodeView(node: canvasNode,
+                             stitch: node,
+                             document: document,
+                             graph: graph,
+                             nodeId: node.id,
+                             isSelected: graph.selection.selectedNodeIds.contains(canvasNode.id),
+                             atleastOneCommentBoxSelected: selection.selectedCommentBoxes.count >= 1,
+                             activeGroupId: document.groupNodeFocused,
+                             canAddInput: node.canAddInputs,
+                             canRemoveInput: node.canRemoveInputs,
+                             boundsReaderDisabled: false,
+                             usePositionHandler: true,
+                             updateMenuActiveSelectionBounds: false)
+                }
             }
-        }
-        .onChange(of: self.graph.graphUpdaterId, initial: true) {
-            // log("NodesOnlyView: .onChange(of: self.graph.graphUpdaterId)")
-            self.refreshCanvasNodes()
         }
         .onChange(of: self.activeIndex) {
             // Update values when active index changes
-            canvasNodes.forEach { canvasNode in
-                canvasNode.nodeDelegate?.activeIndexChanged(activeIndex: self.activeIndex)
+            graph.nodes.values.forEach { node in
+                node.activeIndexChanged(activeIndex: self.activeIndex)
             }
         }
         .onChange(of: self.focusedGroup) {
