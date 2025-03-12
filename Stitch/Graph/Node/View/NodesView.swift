@@ -151,19 +151,17 @@ struct CanvasEdgesViewModifier: ViewModifier {
                 EdgeDrawingView(graph: graph,
                                 edgeDrawingObserver: graph.edgeDrawingObserver)
                 
-                // TODO: come back to labels
-//                EdgeInputLabelsView(inputs: allInputs,
-//                                    document: document,
-//                                    graph: graph)
+                EdgeInputLabelsView(document: document,
+                                    graph: graph)
                 
 //                // TODO: does PortPreviewPopoverView render too many times when open?
 //                // TODO: more elegant way to do this? Generic types giving Swift compiler trouble
-//                if let openPortPreview = document.openPortPreview {
-//                    PortPreviewPopoverWrapperView(
-//                        allInputs: allInputs,
-//                        allOutputs: allOutputs,
-//                        openPortPreview: openPortPreview)
-//                }
+                if let openPortPreview = document.openPortPreview,
+                   let canvas = graph.getCanvasItem(openPortPreview.canvasItemId) {
+                    PortPreviewPopoverWrapperView(
+                        openPortPreview: openPortPreview,
+                        canvas: canvas)
+                }
             }
     }
 }

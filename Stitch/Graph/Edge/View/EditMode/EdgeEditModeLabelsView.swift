@@ -9,7 +9,6 @@ import SwiftUI
 import StitchSchemaKit
 
 struct EdgeInputLabelsView: View {
-    let inputs: [InputNodeRowViewModel]
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
 
@@ -17,7 +16,8 @@ struct EdgeInputLabelsView: View {
         let showLabels = graph.edgeEditingState?.labelsShown ?? false
         
         if let nearbyCanvasItem: CanvasItemId = graph.edgeEditingState?.nearbyCanvasItem {
-            ForEach(inputs) { inputRowViewModel in
+            ForEach(graph.connectedEdges) { edgeData in
+                let inputRowViewModel = edgeData.downstreamRowObserver
                 
                 // Doesn't seem to be needed? Checking the canvasItemDelegate seems to work well
                 // visibleNodeId property checks for group splitter inputs
