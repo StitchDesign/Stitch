@@ -406,36 +406,26 @@ struct LayerDataView: View {
                 }
             }
             
-        case .nongroup(let layerViewModel, _):
-            if let node = document.graph.getLayerNode(id: layerViewModel.id.layerNodeId.id),
-               let layerNode = node.layerNode {
-                NonGroupPreviewLayersView(document: document,
-                                          layerNode: layerNode,
-                                          layerViewModel: layerViewModel,
-                                          isPinnedViewRendering: !isGhostView,
-                                          parentSize: parentSize,
-                                          parentDisablesPosition: parentDisablesPosition,
-                                          parentIsScrollableGrid: parentIsScrollableGrid,
-                                          realityContent: realityContent)
-            } else {
-                EmptyView()
-            }
+        case .nongroup(let layerNode, let layerViewModel, _):
+            NonGroupPreviewLayersView(document: document,
+                                      layerNode: layerNode,
+                                      layerViewModel: layerViewModel,
+                                      isPinnedViewRendering: !isGhostView,
+                                      parentSize: parentSize,
+                                      parentDisablesPosition: parentDisablesPosition,
+                                      parentIsScrollableGrid: parentIsScrollableGrid,
+                                      realityContent: realityContent)
                         
-        case .group(let layerViewModel, let childrenData, _):
-            if let node = document.graph.getLayerNode(id: layerViewModel.id.layerNodeId.id),
-               let layerNode = node.layerNode {
-                GroupPreviewLayersView(document: document,
-                                       layerNode: layerNode,
-                                       layerViewModel: layerViewModel,
-                                       childrenData: childrenData,
-                                       isPinnedViewRendering: !isGhostView,
-                                       parentSize: parentSize,
-                                       parentDisablesPosition: parentDisablesPosition,
-                                       parentIsScrollableGrid: parentIsScrollableGrid,
-                                       realityContent: realityContent)
-            } else {
-                EmptyView()
-            }
+        case .group(let layerNode, let layerViewModel, let childrenData, _):
+            GroupPreviewLayersView(document: document,
+                                   layerNode: layerNode,
+                                   layerViewModel: layerViewModel,
+                                   childrenData: childrenData,
+                                   isPinnedViewRendering: !isGhostView,
+                                   parentSize: parentSize,
+                                   parentDisablesPosition: parentDisablesPosition,
+                                   parentIsScrollableGrid: parentIsScrollableGrid,
+                                   realityContent: realityContent)
         } // switch
     }
 }
