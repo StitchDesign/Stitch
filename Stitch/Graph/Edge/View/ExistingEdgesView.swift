@@ -15,11 +15,11 @@ struct GraphConnectedEdgesView: View {
         graph.edgeAnimationEnabled
     }
     
-    // Filter out "possible" edges, enabling animation
+    // Identifies if some edge data contains "possible" edges, used during keyboard shortcut11
     func isEdgeAnimating(_ edgeData: ConnectedEdgeData) -> Bool {
         graph.edgeEditingState?.possibleEdges.first(where: {
             $0.edge.to == edgeData.downstreamRowObserver.portViewData
-        }) == nil
+        }) != nil
     }
     
     var body: some View {
