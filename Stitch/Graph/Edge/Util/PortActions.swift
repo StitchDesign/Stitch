@@ -15,8 +15,7 @@ extension InputNodeRowObserver {
     /// 2. Flattens values.
     /// 3. Returns side effects for media which needs to be cleared.
     @MainActor
-    func removeUpstreamConnection(activeIndex: ActiveIndex? = nil,
-                                  isVisible: Bool? = nil) {
+    func removeUpstreamConnection(isVisible: Bool? = nil) {
         let downstreamStitches = self.upstreamOutputObserver?.getConnectedDownstreamNodes()
             .map { $0.nodeDelegate?.id }
             .toSet
@@ -71,24 +70,20 @@ extension GraphState {
     // Note: this removes ANY incoming edge to the `edge.to` input; whereas in some use-cases e.g. group node creation, we had expected only to remove the specific passed-in edge if it existed.
     // Hence the rename from `edgeRemoved` to `removesEdgeAt`
     @MainActor
-    func removeEdgeAt(input: InputPortViewData,
-                      activeIndex: ActiveIndex) {
+    func removeEdgeAt(input: InputPortViewData) {
         if let inputCoordinate = self.getInputCoordinate(from: input) {
-            self.removeEdgeAt(input: inputCoordinate,
-                              activeIndex: activeIndex)
+            self.removeEdgeAt(input: inputCoordinate)
         }
     }
     
     @MainActor
-    func removeEdgeAt(input: InputCoordinate,
-                      activeIndex: ActiveIndex) {
+    func removeEdgeAt(input: InputCoordinate) {
         guard let downstreamNode = self.getNodeViewModel(input.nodeId) else {
             return
         }
 
         // Removes edge and checks for media to remove
         downstreamNode.removeIncomingEdge(at: input,
-                                          activeIndex: activeIndex,
                                           graph: self)
     }
 
@@ -154,11 +149,9 @@ extension NodeViewModel {
     // or when we add a new edge to an input that already has an edge
     @MainActor
     func removeIncomingEdge(at coordinate: NodeIOCoordinate,
-                            activeIndex: ActiveIndex,
                             graph: GraphState) {
         self.getInputRowObserver(for: coordinate.portType)?
-            .removeUpstreamConnection(activeIndex: activeIndex,
-                                      isVisible: self.isVisibleInFrame(graph.visibleCanvasIds, graph.selectedSidebarLayers))
+            .removeUpstreamConnection(isVisible: self.isVisibleInFrame(graph.visibleCanvasIds, graph.selectedSidebarLayers))
     }
 }
 

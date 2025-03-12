@@ -406,8 +406,7 @@ extension GraphState {
         // UPDATE EDGES
 
         // Remove the old edge FIRST; otherwise `edgeRemoved` will remove
-        self.removeEdgeAt(input: oldEdge.to,
-                          activeIndex: activeIndex)
+        self.removeEdgeAt(input: oldEdge.to)
 
         // Create edge from source patch node to new splitter node
 //        if willCreateNewInputConnection {

@@ -109,8 +109,7 @@ extension GraphState {
     /// Removes edges which root from some output coordinate.
     @MainActor
     func removeConnections(from outputCoordinate: NodeIOCoordinate,
-                           isNodeVisible: Bool,
-                           activeIndex: ActiveIndex) {
+                           isNodeVisible: Bool) {
         guard let connectedInputs = self.connections.get(outputCoordinate) else {
             return
         }
@@ -120,8 +119,7 @@ extension GraphState {
                 return
             }
             
-            inputObserver.removeUpstreamConnection(activeIndex: activeIndex,
-                                                   isVisible: isNodeVisible)
+            inputObserver.removeUpstreamConnection(isVisible: isNodeVisible)
         }
     }
 }

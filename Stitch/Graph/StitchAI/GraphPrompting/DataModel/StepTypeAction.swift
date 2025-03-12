@@ -291,7 +291,7 @@ struct StepActionConnectionAdded: StepActionable {
     }
     
     func removeAction(graph: GraphState) {
-        graph.removeEdgeAt(input: self.inputPort, activeIndex: .init(.zero))
+        graph.removeEdgeAt(input: self.inputPort)
     }
     
     func validate(createdNodes: inout [NodeId : PatchOrLayer]) throws {
