@@ -388,9 +388,6 @@ extension GraphState: GraphCalculatable {
     
     @MainActor
     func updateOrderedPreviewLayers() {
-        // Cannot use Equality check here since LayerData does not conform to Equatable;
-        // so instead we should be smart about only calling this when layer nodes actually change.
-        
         let flattenedPinMap = self.getFlattenedPinMap()
         let rootPinMap = self.getRootPinMap(pinMap: flattenedPinMap)
         
@@ -399,9 +396,15 @@ extension GraphState: GraphCalculatable {
             pinMap: rootPinMap,
             activeIndex: self.documentDelegate?.activeIndex ?? .init(.zero))
         
-        self.cachedOrderedPreviewLayers = previewLayers
-        self.flattenedPinMap = flattenedPinMap
-        self.pinMap = rootPinMap
+        if !LayerDataList.equals(self.cachedOrderedPreviewLayers, previewLayers) {
+            self.cachedOrderedPreviewLayers = previewLayers
+        }
+        if self.flattenedPinMap != flattenedPinMap {
+            self.flattenedPinMap = flattenedPinMap
+        }
+        if self.pinMap != rootPinMap {
+            self.pinMap = rootPinMap
+        }
     }
     
     @MainActor

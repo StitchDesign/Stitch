@@ -172,7 +172,8 @@ extension NodeRowObserver {
               let patch = self.nodeKind.getPatch,
               patch.isInteractionPatchNode,
               Self.nodeIOType == .input,
-              self.id.portId == 0 else { //, // the "assigned layer" input
+              self.id.portId == 0,
+              firstValueOld != firstValueNew else {
             return
         }
         
@@ -182,19 +183,23 @@ extension NodeRowObserver {
             if let oldLayerId = oldLayerId {
                 switch patch {
                 case .dragInteraction:
-                    graphDelegate.dragInteractionNodes.removeValue(forKey: oldLayerId)
+                    if graphDelegate.dragInteractionNodes.keys.contains(oldLayerId) {
+                        graphDelegate.dragInteractionNodes.removeValue(forKey: oldLayerId)
+                    }
                 case .pressInteraction:
-                    graphDelegate.pressInteractionNodes.removeValue(forKey: oldLayerId)
+                    if graphDelegate.pressInteractionNodes.keys.contains(oldLayerId) {
+                        graphDelegate.pressInteractionNodes.removeValue(forKey: oldLayerId)
+                    }
                 case .scrollInteraction:
-                    graphDelegate.scrollInteractionNodes.removeValue(forKey: oldLayerId)
+                    if graphDelegate.scrollInteractionNodes.keys.contains(oldLayerId) {
+                        graphDelegate.scrollInteractionNodes.removeValue(forKey: oldLayerId)
+                    }
                 default:
                     fatalErrorIfDebug()
                 }
             }
         }
         
-        // Remove old value from graph state
-        // Note: can be nil when first initializing the graph
         if let firstValueNew = firstValueNew,
             case let .assignedLayer(newLayerId) = firstValueNew {
             
@@ -204,15 +209,24 @@ extension NodeRowObserver {
                 case .dragInteraction:
                     var currentIds = graphDelegate.dragInteractionNodes.get(newLayerId) ?? NodeIdSet()
                     currentIds.insert(self.id.nodeId)
-                    graphDelegate.dragInteractionNodes.updateValue(currentIds, forKey: newLayerId)
+                    
+                    if graphDelegate.dragInteractionNodes.get(newLayerId) != currentIds {
+                        graphDelegate.dragInteractionNodes.updateValue(currentIds, forKey: newLayerId)
+                    }
                 case .pressInteraction:
                     var currentIds = graphDelegate.pressInteractionNodes.get(newLayerId) ?? NodeIdSet()
                     currentIds.insert(self.id.nodeId)
-                    graphDelegate.pressInteractionNodes.updateValue(currentIds, forKey: newLayerId)
+                    
+                    if graphDelegate.pressInteractionNodes.get(newLayerId) != currentIds {
+                        graphDelegate.pressInteractionNodes.updateValue(currentIds, forKey: newLayerId)
+                    }
                 case .scrollInteraction:
                     var currentIds = graphDelegate.scrollInteractionNodes.get(newLayerId) ?? NodeIdSet()
                     currentIds.insert(self.id.nodeId)
-                    graphDelegate.scrollInteractionNodes.updateValue(currentIds, forKey: newLayerId)
+                    
+                    if graphDelegate.scrollInteractionNodes.get(newLayerId) != currentIds {
+                        graphDelegate.scrollInteractionNodes.updateValue(currentIds, forKey: newLayerId)
+                    }
                 default:
                     fatalErrorIfDebug()
                 }

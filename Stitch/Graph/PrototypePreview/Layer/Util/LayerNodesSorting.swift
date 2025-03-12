@@ -174,20 +174,20 @@ extension GraphState {
             // we call `getLayerDataFromLayerType` recursively, and
         case .nongroup(let data, let isPinned): // LayerData
                         
-            guard let previewLayer: LayerViewModel = layerNodes
-                .get(data.id.layerNodeId.id)?
-                .layerNode?
+            guard let node = layerNodes.get(data.id.layerNodeId.id),
+                  let layerNode = node.layerNode,
+                  let previewLayer: LayerViewModel = layerNode
                     // these layer view models are ALREADY CREATED on the layer node
                 .previewLayerViewModels[safe: data.id.loopIndex] else {
                 return nil
             }
                         
-            return .nongroup(previewLayer, isPinned)
+            return .nongroup(layerNode, previewLayer, isPinned)
             
         case .group(let layerGroupData, let isPinned): // LayerGroupData
-            guard let previewLayer: LayerViewModel = layerNodes
-                .get(layerGroupData.id.layerNodeId.asNodeId)?
-                .layerNode?
+            guard let node = layerNodes.get(layerGroupData.id.layerNodeId.asNodeId),
+                  let layerNode = node.layerNode,
+                  let previewLayer: LayerViewModel = layerNode
                 .previewLayerViewModels[safe: layerGroupData.id.loopIndex] else {
                 
                 return nil
@@ -207,7 +207,8 @@ extension GraphState {
                 isInGroupOrientation: isInGroupOrientation,
                 activeIndex: activeIndex)
             
-            return .group(previewLayer,
+            return .group(layerNode,
+                          previewLayer,
                           childrenData,
                           isPinned)
         }
