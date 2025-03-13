@@ -113,11 +113,6 @@ extension NodeViewModel {
     }
     
     @MainActor
-    var kind: NodeKind {
-        self.nodeType.kind
-    }
-
-    @MainActor
     var currentBroadcastChoiceId: NodeId? {
         self.getInputRowObserver(0)?.currentBroadcastChoiceId
     }
