@@ -201,6 +201,7 @@ extension GraphState {
         
         self.documentDelegate = document
         self.documentEncoderDelegate = documentEncoderDelegate
+        let focusedGroupNode = self.documentDelegate?.groupNodeFocused?.groupNodeId
         
         self.layersSidebarViewModel.initializeDelegate(graph: self)
         
@@ -213,6 +214,30 @@ extension GraphState {
         }
         
         self.updateTopologicalData()
+
+        // Splitter data
+        var allGroupIds: [NodeId?] = self.nodes.values
+            .compactMap { node in
+                if node.kind.isGroup {
+                    return node.id
+                }
+                
+                return nil
+            }
+        
+        // add nil case
+        allGroupIds.append(nil)
+        
+        self.visibleNodesViewModel
+            .visibleSplitterInputRows = allGroupIds.reduce(into: .init()) { result, groupId in
+                let inputs = self.visibleNodesViewModel.getSplitterInputRowObservers(for: groupId)
+                result.updateValue(inputs, forKey: groupId)
+            }
+        self.visibleNodesViewModel
+            .visibleSplitterOutputRows = allGroupIds.reduce(into: .init()) { result, groupId in
+                let outputs = self.visibleNodesViewModel.getSplitterOutputRowObservers(for: groupId)
+                result.updateValue(outputs, forKey: groupId)
+            }
         
         self.visibleNodesViewModel
             .updateNodesPagingDict(components: self.components,
@@ -221,11 +246,12 @@ extension GraphState {
                                    graph: self,
                                    document: document)
         
+        
         // Update connected port data
         self.visibleNodesViewModel.updateAllNodeViewData()
         
         // Update edges after everything else
-        let newEdges = self.getVisualEdgeData(groupNodeFocused: document.groupNodeFocused?.groupNodeId)
+        let newEdges = self.getVisualEdgeData(groupNodeFocused: focusedGroupNode)
         
         if self.connectedEdges != newEdges {
             self.connectedEdges = newEdges
@@ -236,6 +262,7 @@ extension GraphState {
         if self.groupPortLabels != newGroupLabels {
             self.groupPortLabels = newGroupLabels
         }
+        
         
         // Update visible canvas items
         self.visibleCanvasNodes = self.getCanvasItemsAtTraversalLevel(groupNodeFocused: document.groupNodeFocused?.groupNodeId)
