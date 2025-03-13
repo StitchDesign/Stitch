@@ -17,6 +17,13 @@ extension LayerInputPortSet {
     @MainActor
     static let layerEffects: LayerInputPortSet = LayerInspectorSection.layerEffects.sectionData.toOrderedSet
     
+    // 3D layers support layer-effects but not regular SwiftUI shadows
+    @MainActor
+    static let layerEffectsWithoutShadow: LayerInputPortSet =  LayerInspectorSection.layerEffects
+        .sectionData
+        .filter { !LayerInspectorSection.shadow.toSet.contains($0) }
+        .toOrderedSet
+    
     @MainActor
     static let typography: LayerInputPortSet = LayerInspectorSection.typography.sectionData.toOrderedSet
     
