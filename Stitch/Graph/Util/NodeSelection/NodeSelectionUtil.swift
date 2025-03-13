@@ -207,8 +207,8 @@ extension StitchDocumentViewModel {
             }
         }
         
-        if self.graph.selection.selectedNodeIds != selectedNodes {
-            self.graph.selection.selectedNodeIds = selectedNodes
+        if self.graph.selection.selectedCanvasItems != selectedNodes {
+            self.graph.selection.selectedCanvasItems = selectedNodes
         }
         
         // Determine selected comment boxes
