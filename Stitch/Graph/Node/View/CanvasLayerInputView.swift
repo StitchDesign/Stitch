@@ -17,26 +17,6 @@ struct CanvasLayerInputView: View {
     let inputRowObserver: InputNodeRowObserver
     let inputRowViewModel: InputNodeRowViewModel
     let isNodeSelected: Bool
-                
-    @ViewBuilder @MainActor
-    func valueEntryView(portViewModel: InputFieldViewModel,
-                        isMultiField: Bool) -> InputValueEntry {
-        InputValueEntry(graph: graph,
-                        graphUI: document,
-                        viewModel: portViewModel,
-                        node: node,
-                        rowViewModel: inputRowViewModel,
-                        canvasItem: canvasNode,
-                        rowObserver: inputRowObserver,
-                        isCanvasItemSelected: isNodeSelected,
-                        hasIncomingEdge: inputRowObserver.upstreamOutputCoordinate.isDefined,
-                        isForLayerInspector: false,
-                        isPackedLayerInputAlreadyOnCanvas: true, // Always true for canvas layer input
-                        isFieldInMultifieldInput: isMultiField,
-                        isForFlyout: false,
-                        isSelectedInspectorRow: false, // Always false for canvas layer input
-                        useIndividualFieldLabel: true)
-    }
     
     var body: some View {
         HStack {
@@ -59,10 +39,15 @@ struct CanvasLayerInputView: View {
                                  isSelectedInspectorRow: false)
             }
             
-            LayerInputFieldsView(fieldValueTypes: inputRowViewModel.fieldValueTypes,
+            LayerInputFieldsView(layerInputFieldType: .canvas(canvasNode),
+                                 document: document,
+                                 graph: graph,
+                                 node: node,
+                                 rowObserver: inputRowObserver,
+                                 rowViewModel: inputRowViewModel,
+                                 fieldValueTypes: inputRowViewModel.fieldValueTypes,
                                  layerInputObserver: layerInputObserver,
-                                 forFlyout: false,
-                                 valueEntryView: valueEntryView)
+                                 isNodeSelected: isNodeSelected)
         }
         .modifier(CanvasPortHeightModifier())
     }
