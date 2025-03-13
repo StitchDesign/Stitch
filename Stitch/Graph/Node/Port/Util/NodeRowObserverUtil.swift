@@ -33,7 +33,7 @@ extension NodeRowViewModel {
         guard let graph = self.graphDelegate,
               let canvasId = self.canvasItemDelegate?.id else { return false }
         
-        return graph.graphUI.selection.selectedNodeIds.contains(canvasId)
+        return graph.graphUI.selection.selectedCanvasItems.contains(canvasId)
     }
     
     /// If this is row is for a splitter node in a group node, and the group node is selected, then consider this splitter selected as well.
@@ -45,25 +45,28 @@ extension NodeRowViewModel {
            let parentId = self.canvasItemDelegate?.parentGroupNodeId,
            let graph = self.graphDelegate,
            let parentCanvas = graph.getNodeViewModel(parentId)?.patchCanvasItem,
-           graph.graphUI.selection.selectedNodeIds.contains(parentCanvas.id) {
+           graph.graphUI.selection.selectedCanvasItems.contains(parentCanvas.id) {
             return true
         } else {
             return self.isCanvasItemSelected
         }
     }
     
+    // for a single input observer, we call this.
+    // 
     @MainActor
     var isConnectedToASelectedCanvasItem: Bool {
+        guard let graph = self.graphDelegate else {
+            return false
+        }
+        
         for connectedCanvasItemId in self.connectedCanvasItems {
-            guard let graph = self.graphDelegate,
-                  graph.graphUI.selection.selectedNodeIds.contains(connectedCanvasItemId) else {
+            guard graph.graphUI.selection.selectedCanvasItems.contains(connectedCanvasItemId) else {
                 continue
             }
-            
             // Found connected canvas item that is selected
             return true
         }
-        
         return false
     }
     

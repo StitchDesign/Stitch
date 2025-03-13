@@ -89,7 +89,7 @@ final class CanvasItemViewModel: Identifiable, StitchLayoutCachable, Sendable {
     // Moved state here for render cycle perf on port view for colors
     @MainActor
     func isSelected(_ graph: GraphState) -> Bool {
-        return graph.graphUI.selection.selectedNodeIds.contains(self.id)
+        return graph.graphUI.selection.selectedCanvasItems.contains(self.id)
     }
     
     // Reference back to the parent node entity
