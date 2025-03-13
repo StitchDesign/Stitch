@@ -76,6 +76,7 @@ struct OpenAISchema {
     var title: String? = nil
     var description: String? = nil
     var items: OpenAIGeneric? = nil
+    var properties: [String: OpenAISchema]? = nil
 }
 
 extension OpenAISchema: Encodable {
@@ -87,6 +88,7 @@ extension OpenAISchema: Encodable {
         case required
         case additionalProperties
         case items
+        case properties
     }
     
     func encode(to encoder: Encoder) throws {
@@ -98,6 +100,7 @@ extension OpenAISchema: Encodable {
         try container.encodeIfPresent(self.additionalProperties, forKey: .additionalProperties)
         try container.encodeIfPresent(self.items, forKey: .items)
         try container.encodeIfPresent(self.title, forKey: .title)
+        try container.encodeIfPresent(self.properties, forKey: .properties)
     }
 }
 
@@ -109,13 +112,15 @@ struct OpenAISchemaEnum: Encodable {
         case type
         case enumType = "enum"
         case description
+        case additionalProperties
     }
     
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(OpenAISchemaType.string, forKey: .type)
         try container.encode(self.values, forKey: .enumType)
-        try container.encode(self.description, forKey: .description) 
+        try container.encode(self.description, forKey: .description)
+        try container.encode(false, forKey: .additionalProperties)
     }
 }
 
@@ -142,6 +147,7 @@ struct OpenAIGeneric: Encodable {
         case type
         case items
         case anyOf
+        case additionalProperties
     }
 
     func encode(to encoder: Encoder) throws {
@@ -150,11 +156,13 @@ struct OpenAIGeneric: Encodable {
         // Encode the 'type' if 'anyOf' is not present
         if anyOf == nil {
             try container.encode(OpenAISchemaType.array, forKey: .type)
+            try container.encode(false, forKey: .additionalProperties)
         }
 
         // Encode 'anyOf' if it's present
         if let anyOfSchemas = anyOf {
             try container.encode(anyOfSchemas, forKey: .anyOf)
+            try container.encode(false, forKey: .additionalProperties)
         } else {
             // If 'refs' are present, encode them under 'items'
             if !refs.isEmpty {
