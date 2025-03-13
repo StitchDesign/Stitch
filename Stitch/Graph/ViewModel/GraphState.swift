@@ -225,7 +225,7 @@ extension GraphState {
         self.visibleNodesViewModel.updateAllNodeViewData()
         
         // Update edges after everything else
-        let newEdges = self.getVisualEdgeData(groupNodeFocused: self.documentDelegate?.groupNodeFocused?.groupNodeId)
+        let newEdges = self.getVisualEdgeData(groupNodeFocused: document.groupNodeFocused?.groupNodeId)
         
         if self.connectedEdges != newEdges {
             self.connectedEdges = newEdges
