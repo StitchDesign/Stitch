@@ -147,11 +147,11 @@ extension NodeRowViewModel {
                                                 unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                                                 unpackedPortIndex: unpackedPortIndex)
         
-//        let didFieldsChange = !zip(self.fieldValueTypes, fields).allSatisfy { $0 == $1 }
+        let didFieldsChange = !zip(self.fieldValueTypes, fields).allSatisfy { $0.id == $1.id }
         
-        self.fieldValueTypes = fields
-//        if self.fieldValueTypes.isEmpty || didFieldsChange {
-//        }
+        if self.fieldValueTypes.isEmpty || didFieldsChange {
+            self.fieldValueTypes = fields
+        }
     }
     
     @MainActor
