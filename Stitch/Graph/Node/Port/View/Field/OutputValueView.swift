@@ -120,7 +120,7 @@ struct OutputValueView: View {
     }
 
     var body: some View {
-            switch fieldValue {
+        switch fieldValue {
             case .bool(let bool):
                 BoolCheckboxView(rowObserver: nil,
                                  graph: graph,
@@ -178,7 +178,7 @@ struct OutputValueView: View {
                 
             default:
                 readOnlyView(self.fieldValue.stringValue)
-            }
+        }
     }
 
     @ViewBuilder func readOnlyView(_ displayName: String) -> some View {

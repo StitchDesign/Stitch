@@ -85,8 +85,7 @@ struct LayerInspectorView: View {
                     
                     // Move this filtering to an onChange, and store the `filteredInputs` locally
                     // Or should live at
-                    let filteredInputs: [LayerInputAndObserver] = sectionInputs.compactMap { sectionInput in
-                        
+                    let filteredInputs: [LayerInputObserver] = sectionInputs.compactMap { sectionInput in
                         let isSupported = layerInputObserverDict.get(sectionInput).isDefined
                         
                         guard isSupported,
@@ -94,15 +93,13 @@ struct LayerInspectorView: View {
                             return nil
                         }
                         
-                        return LayerInputAndObserver(
-                            layerInput: sectionInput,
-                            portObserver: observer)
+                        return observer
                     }
                     
                     if !filteredInputs.isEmpty {
                         LayerInspectorInputsSectionView(
                             section: section,
-                            layerInputs: .init(layerInputs: filteredInputs),
+                            layerInputs: filteredInputs,
                             graph: graph,
                             graphUI: graphUI,
                             node: node
@@ -173,52 +170,33 @@ struct LayerInspectorSectionToggled: GraphEvent {
     }
 }
 
-@Observable
-final class LayerInputAndObserver {
-    let layerInput: LayerInputPort
-    let portObserver: LayerInputObserver
-    
-    init(layerInput: LayerInputPort,
-         portObserver: LayerInputObserver) {
-        self.layerInput = layerInput
-        self.portObserver = portObserver
-    }
-}
-
-@Observable
-final class LayerInputsAndObservers {
-    let layerInputs: [LayerInputAndObserver]
-    
-    init(layerInputs: [LayerInputAndObserver]) {
-        self.layerInputs = layerInputs
-    }
-}
-
 struct LayerInspectorInputView: View {
     
     // `@Bindable var` (vs. `let`) seems to improve a strange issue where toggling scroll-enabled input on iPad would update the LayerInputObserver's blockedFields set but not re-render the view.
-    @Bindable var layerInput: LayerInputAndObserver
+    @Bindable var portObserver: LayerInputObserver
     @Bindable var graph: GraphState
     @Bindable var graphUI: GraphUIState
     let node: NodeViewModel
     
+    var layerInput: LayerInputPort {
+        self.portObserver.port
+    }
+    
     var body: some View {
-        let layerInputObserver: LayerInputObserver = layerInput.portObserver
+        let blockedFields = portObserver.blockedFields
         
-        let blockedFields = layerInputObserver.blockedFields
-        
-        let allFieldsBlockedOut = layerInputObserver
+        let allFieldsBlockedOut = portObserver
             .fieldValueTypes.first?
             .fieldObservers.allSatisfy({ $0.isBlocked(blockedFields)})
         ?? false
                 
         if !allFieldsBlockedOut {
-            LayerInspectorInputPortView(layerInputObserver: layerInputObserver,
+            LayerInspectorInputPortView(layerInputObserver: portObserver,
                                         graph: graph,
                                         graphUI: graphUI,
                                         node: node)
             .modifier(LayerPropertyRowOriginReader(graph: graph,
-                                                   layerInput: layerInput.layerInput))
+                                                   layerInput: layerInput))
         } else {
             EmptyView()
         }
@@ -244,7 +222,7 @@ struct LayerInspectorInputsSectionView: View {
     let section: LayerInspectorSection
     
     // This section's layer inputs, filtered to excluded any not supported by this specific layer.
-    @Bindable var layerInputs: LayerInputsAndObservers
+    let layerInputs: [LayerInputObserver]
     @Bindable var graph: GraphState
     @Bindable var graphUI: GraphUIState
     let node: NodeViewModel
@@ -254,8 +232,8 @@ struct LayerInspectorInputsSectionView: View {
       
     var body: some View {
         Section(isExpanded: $expanded) {
-            ForEach(layerInputs.layerInputs, id: \.layerInput) { (layerInput: LayerInputAndObserver) in
-                LayerInspectorInputView(layerInput: layerInput,
+            ForEach(layerInputs) { portObserver in
+                LayerInspectorInputView(portObserver: portObserver,
                                         graph: graph,
                                         graphUI: graphUI,
                                         node: node)
@@ -290,9 +268,9 @@ struct LayerInspectorInputsSectionView: View {
                     self.expanded.toggle()
                     dispatch(LayerInspectorSectionToggled(section: section))
                     
-                    layerInputs.layerInputs.forEach { layerInput in
+                    layerInputs.forEach { layerInput in
                         if case let .layerInput(x) = graph.propertySidebar.selectedProperty,
-                           x.layerInput == layerInput.layerInput {
+                           x.layerInput == layerInput.port {
                             graph.propertySidebar.selectedProperty = nil
                         }
                     }

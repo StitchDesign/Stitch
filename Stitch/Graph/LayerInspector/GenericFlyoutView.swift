@@ -71,18 +71,15 @@ struct GenericFlyoutView: View {
     @ViewBuilder @MainActor
     var flyoutRows: some View {
         // Assumes: all flyouts (besides shadow-flyout) have a single row which contains multiple fields
-        LayerInputFieldsView(fieldValueTypes: fieldValueTypes,
+        LayerInputFieldsView(layerInputFieldType: .flyout,
+                             document: graphUI,
+                             graph: graph,
+                             node: node,
+                             rowObserver: layerInputObserver.packedRowObserver,
+                             rowViewModel: rowViewModel,
+                             fieldValueTypes: fieldValueTypes,
                              layerInputObserver: layerInputObserver,
-                             forFlyout: true) { inputFieldViewModel, isMultifield in
-            GenericFlyoutRowView(
-                    graph: graph,
-                    graphUI: graphUI,
-                    viewModel: inputFieldViewModel,
-                    rowViewModel: rowViewModel,
-                    node: node,
-                    layerInputObserver: layerInputObserver,
-                    isMultifield: isMultifield)
-            }
+                             isNodeSelected: false)
     }
 }
 
