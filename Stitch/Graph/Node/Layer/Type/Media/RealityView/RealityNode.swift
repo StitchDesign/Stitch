@@ -25,16 +25,15 @@ struct RealityViewLayerNode: LayerNodeDefinition {
         .anchoring,
         .zIndex,
         .isCameraEnabled,
-        .isShadowsEnabled,
-        .shadowColor,
-        .shadowOpacity,
-        .shadowRadius,
-        .shadowOffset
+        .isShadowsEnabled
     ])
-        .union(.layerEffects)
+        .union(.layerEffectsWithoutShadow)
         .union(.strokeInputs)
         .union(.aspectRatio)
-        .union(.sizing).union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
+        .union(.sizing)
+        .union(.pinning)
+        .union(.layerPaddingAndMargin)
+        .union(.offsetInGroup)
 
         static func createEphemeralObserver() -> NodeEphemeralObservable? {
         MediaEvalOpObserver()

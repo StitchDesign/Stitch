@@ -30,9 +30,12 @@ struct SphereLayerNode: LayerNodeDefinition {
         .radius3D,
         .color
     ])
-        .union(.layerEffects)
+        .union(.layerEffectsWithoutShadow)
         .union(.aspectRatio)
-        .union(.sizing).union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
+        .union(.sizing)
+        .union(.pinning)
+        .union(.layerPaddingAndMargin)
+        .union(.offsetInGroup)
     
     static func content(document: StitchDocumentViewModel,
                         graph: GraphState,
