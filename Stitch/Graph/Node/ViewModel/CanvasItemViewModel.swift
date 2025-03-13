@@ -208,7 +208,7 @@ extension CanvasItemViewModel {
         }
         
         // Reset cache data--fixes scenarios like undo
-        self.viewCache?.needsUpdating = true
+//        self.viewCache?.needsUpdating = true
     }
 
     @MainActor
