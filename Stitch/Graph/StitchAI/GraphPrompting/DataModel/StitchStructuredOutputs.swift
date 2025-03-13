@@ -34,7 +34,7 @@ struct StitchAIStructuredOutputsDefinitions: Encodable {
     // Step actions
     let AddNodeAction = StepStructuredOutputs(StepActionAddNode.self)
     let ConnectNodesAction = StepStructuredOutputs(StepActionConnectionAdded.self)
-    let ChangeValueTypeAction = StepStructuredOutputs(StepActionChangeValueType.self)
+//    let ChangeValueTypeAction = StepStructuredOutputs(StepActionChangeValueType.self)
     let SetInputAction = StepStructuredOutputs(StepActionSetInput.self)
  
     // Types
@@ -81,7 +81,7 @@ struct StitchAIStepsSchema: Encodable {
             anyOf: [
                 OpenAISchemaRef(ref: "AddNodeAction"),
                 OpenAISchemaRef(ref: "ConnectNodesAction"),
-                OpenAISchemaRef(ref: "ChangeValueTypeAction"),
+//                OpenAISchemaRef(ref: "ChangeValueTypeAction"),
                 OpenAISchemaRef(ref: "SetInputAction")
             ]
         )
