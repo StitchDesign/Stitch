@@ -271,17 +271,19 @@ extension StitchAIManager {
                                               data: Data,
                                               currentAttempt: Int) async throws -> [Step] {
         
-        // Try to parse request
-        // log raw JSON response
+        // Log raw JSON response in a cleaner format
         let jsonResponse = String(data: data, encoding: .utf8) ?? "Invalid JSON format"
-        log("OpenAIRequestCompleted: Full JSON Response:")
+        log("\n🤖 OpenAI Response Raw JSON:")
         log("----------------------------------------")
         log(jsonResponse)
-        log("----------------------------------------")
-        log("OpenAIRequestCompleted: JSON RESPONSE: \(jsonResponse)")
+        log("----------------------------------------\n")
         
         do {
             let steps = try data.getOpenAISteps()
+            
+            // Log the parsed steps in a more readable format
+            log("✅ Successfully parsed into \(steps.count) steps:")
+            
             return steps
         } catch let error as StitchAIManagerError {
             log("StitchAIManager error parsing steps: \(error.description)")
