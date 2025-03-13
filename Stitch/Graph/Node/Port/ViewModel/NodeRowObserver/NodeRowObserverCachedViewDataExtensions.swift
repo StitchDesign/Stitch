@@ -13,27 +13,9 @@ import StitchSchemaKit
 extension NodeRowViewModel {   
    @MainActor
    func updateConnectedCanvasItems() {
-       self.connectedCanvasItems = self.getConnectedCanvasItems()
+       self.connectedCanvasItems = self.findConnectedCanvasItems()
        
        // Update port color data
        self.updatePortColor()
    }
-   
-   /// Nodes connected via edge.
-   @MainActor
-   private func getConnectedCanvasItems() -> Set<CanvasItemId> {
-       guard let canvasIds = self.rowDelegate?.nodeDelegate?
-        .getAllCanvasObservers()
-        .map({ canvasItem in
-            canvasItem.id
-        }).toSet else {
-           // Valid nil case for insert node menu
-           return .init()
-       }
-       
-       // Must get port UI data. Helpers below will get group or splitter data depending on focused group
-       let connectedCanvasIds = self.findConnectedCanvasItems()
-       return canvasIds.union(connectedCanvasIds)
-   }
 }
-
