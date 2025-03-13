@@ -249,7 +249,7 @@ func adjustPositionToMultipleOf(_ position: CGPoint,
 struct GraphUISelectionState: Equatable {
     static let zero = GraphUISelectionState()
 
-    var selectedNodeIds = CanvasItemIdSet()
+    var selectedCanvasItems = CanvasItemIdSet()
     var selectedCommentBoxes = CommentBoxIdSet()
 
     // TODO: turn selectedNodes into a list?
@@ -347,7 +347,7 @@ extension CanvasItemViewModel {
         // Prevent render cycles if already selected
         guard !self.isSelected(graph)  else { return }
         
-        graph.selection.selectedNodeIds.insert(self.id)
+        graph.selection.selectedCanvasItems.insert(self.id)
         
         // Unfocus sidebar
         if graph.layersSidebarViewModel.isSidebarFocused {
@@ -359,7 +359,7 @@ extension CanvasItemViewModel {
     func deselect(_ graph: GraphState) {
         // Prevent render cycles if already unselected
         guard self.isSelected(graph) else { return }
-        graph.selection.selectedNodeIds.remove(self.id)
+        graph.selection.selectedCanvasItems.remove(self.id)
     }
 }
 
