@@ -35,24 +35,41 @@ struct StitchAIStructuredOutputsDefinitions: Encodable {
     let AddNodeAction = StepStructuredOutputs(StepActionAddNode.self)
     let ConnectNodesAction = StepStructuredOutputs(StepActionConnectionAdded.self)
     let ChangeValueTypeAction = StepStructuredOutputs(StepActionChangeValueType.self)
-//    let SetInputAction = StepStructuredOutputs(StepActionSetInput.self)
-    
+    let SetInputAction = StepStructuredOutputs(StepActionSetInput.self)
+ 
     // Types
     let NodeID = OpenAISchema(type: .string,
                               additionalProperties: false,
                               description: "The unique identifier for the node (UUID)")
-    
+ 
     let NodeName = OpenAISchemaEnum(values: NodeKind.getAiNodeDescriptions().map(\.nodeKind), description: "The type of node to be created")
-    
-    let ValueType = OpenAISchemaEnum(values:
-                                        NodeType.allCases
+ 
+    let ValueType = OpenAISchemaEnum(values: NodeType.allCases
         .filter { $0 != .none }
-        .map { $0.asLLMStepNodeType }, description: "The type of value for the node"
-    )
-    
+        .map { $0.asLLMStepNodeType }, description: "The type of value for the node")
+ 
     let LayerPorts = OpenAISchemaEnum(values: LayerInputPort.allCases
-        .map { $0.asLLMStepPort }, description: "The available ports for layer connections"
-    )
+        .map { $0.asLLMStepPort }, description: "The available ports for layer connections")
+ 
+    // Schema definitions for value types
+    let NumberSchema = OpenAISchema(type: .number,
+                                   additionalProperties: false,
+                                   description: "A numeric value")
+ 
+    let StringSchema = OpenAISchema(type: .string,
+                                    additionalProperties: false,
+                                    description: "A text value")
+ 
+    let BooleanSchema = OpenAISchema(type: .boolean,
+                                     additionalProperties: false,
+                                     description: "A boolean value")
+ 
+    let ObjectSchema = OpenAISchema(type: .object,
+                                    required: [], additionalProperties: false,
+                                    description: "A JSON object value",
+                                    properties: [:]
+)
+
 }
 
 struct StitchAIStepsSchema: Encodable {
@@ -63,9 +80,9 @@ struct StitchAIStepsSchema: Encodable {
         items: OpenAIGeneric(
             anyOf: [
                 OpenAISchemaRef(ref: "AddNodeAction"),
-                 OpenAISchemaRef(ref: "ConnectNodesAction"),
-                 OpenAISchemaRef(ref: "ChangeValueTypeAction"),
-                // OpenAISchemaRef(ref: "SetInputAction")
+                OpenAISchemaRef(ref: "ConnectNodesAction"),
+                OpenAISchemaRef(ref: "ChangeValueTypeAction"),
+                OpenAISchemaRef(ref: "SetInputAction")
             ]
         )
     )

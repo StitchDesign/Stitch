@@ -405,13 +405,13 @@ struct StepActionSetInput: StepActionable {
     
     static func createStructuredOutputs() -> StitchAIStepSchema {
         .init(stepType: .setInput,
-              nodeId: OpenAISchema(type: .string),
+              nodeId: OpenAISchema(type: .string, additionalProperties: false),
               port: OpenAISchemaRef(ref: "LayerPorts"),
-              value: OpenAIGeneric(types: [
-                OpenAISchema(type: .number, additionalProperties: false),
-                OpenAISchema(type: .string, additionalProperties: false),
-                OpenAISchema(type: .boolean, additionalProperties: false),
-                OpenAISchema(type: .object, additionalProperties: false)
+              value: OpenAIGeneric(anyOf: [
+                OpenAISchemaRef(ref: "NumberSchema"),
+                OpenAISchemaRef(ref: "StringSchema"),
+                OpenAISchemaRef(ref: "BooleanSchema"),
+                OpenAISchemaRef(ref: "ObjectSchema")
               ]),
               valueType: OpenAISchemaRef(ref: "ValueType")
         )
