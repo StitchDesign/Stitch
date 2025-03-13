@@ -68,6 +68,19 @@ extension InputNodeRowObserver {
             node.removeIncomingEdge(at: self.id,
                                     graph: graph)
 
+            // TODO: better place for this?
+            
+            // Note: `graph.connectedEdges` is otherwise only called in `graph.initializeDelegate`,
+            // which is called in e.g. `updateGraphData`
+            // which is usually only called when some persistence-event occurs.
+            // An input edit alone, however, does not cause persistence; otherwise we would stutter as we type.
+
+            // graph.connectedEdges = graph.getVisualEdgeData(groupNodeFocused: graph.documentDelegate?.groupNodeFocused?.groupNodeId)
+            
+            // Note: need to do full update, since upstream output's port-color needs to change as well
+            graph.updateGraphData()
+            
+            
             self.setValuesInInput([newValue])
         }
         
