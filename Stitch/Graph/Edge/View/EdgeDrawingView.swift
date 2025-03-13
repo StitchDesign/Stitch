@@ -38,10 +38,13 @@ struct EdgeFromDraggedOutputView: View {
         outputDrag.output
     }
     
-    // Note: the rules for the color of an actively dragged edge are simple: highlighted-loop if a loop, else highlighted.
+    // Note: the rules for the color of an actively dragged edge are simple:
+    // gray if no eligible input, else highlighted-loop if a loop, else highlighted.
     @MainActor
     var color: PortColor {
-        if outputRowViewModel.rowDelegate?.hasLoopedValues ?? false {
+        if !nearestEligibleInput.isDefined {
+            return .noEdge
+        } else if (outputRowViewModel.rowDelegate?.hasLoopedValues ?? false) {
             return .highlightedLoopEdge
         } else {
             return .highlightedEdge
