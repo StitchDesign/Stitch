@@ -179,7 +179,7 @@ extension StitchAIManager {
         // Serialize and send request
         do {
             let encoder = JSONEncoder()
-            encoder.outputFormatting = [.prettyPrinted]
+            encoder.outputFormatting = [.withoutEscapingSlashes]
             let jsonData = try encoder.encode(payload)
             urlRequest.httpBody = jsonData
             
