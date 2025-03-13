@@ -289,7 +289,9 @@ struct NodeMoveEndedAction: StitchDocumentEvent {
         state.visibleGraph.encodeProjectInBackground()
         
         // Reset node positions cache
-        state.visibleGraph.visibleNodesViewModel.needsInfiniteCanvasCacheReset = true
+        if !state.visibleGraph.visibleNodesViewModel.needsInfiniteCanvasCacheReset {
+            state.visibleGraph.visibleNodesViewModel.needsInfiniteCanvasCacheReset = true
+        }
     }
 }
 
