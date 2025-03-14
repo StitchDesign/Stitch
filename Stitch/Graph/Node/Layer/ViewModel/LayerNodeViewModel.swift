@@ -176,7 +176,7 @@ final class LayerNodeViewModel {
     @MainActor
     var layerGroupId: NodeId? {
         guard let graph = self.nodeDelegate?.graphDelegate else {
-            log("LayerNodeViewModel: layerGroupId for layer \(self.id): no node or graph delegate?")
+            // log("LayerNodeViewModel: layerGroupId for layer \(self.id): no node or graph delegate?")
             return nil
         }
         

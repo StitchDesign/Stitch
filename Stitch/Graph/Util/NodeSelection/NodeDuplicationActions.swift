@@ -119,6 +119,7 @@ extension SidebarLayerData {
            // Return a new SidebarLayerData instance with the modified children
            return SidebarLayerData(id: id, children: modifiedChildren)
        }
+
 }
 
 // Wrapper function to handle the insertion at the top level, returning a modified array
@@ -137,6 +138,92 @@ func insertAfterID(data: [SidebarLayerData], newDataList: [SidebarLayerData], af
     }
     
     return modifiedData
+}
+
+// Wrapper function to handle the insertion at the top level, returning a modified array
+func insertBeforeID(data: [SidebarLayerData],
+                    newDataList: [SidebarLayerData],
+                    id: UUID) -> [SidebarLayerData] {
+
+    log("insertingBeforeID: newDataList: id: \(id)")
+    log("insertingBeforeID: existingData: ids: \(data.map(\.id))")
+    log("insertingBeforeID: newDataList: ids: \(newDataList.map(\.id))")
+    
+    var modifiedData = [SidebarLayerData]()
+    
+    data.enumerated().forEach {
+        let item = $0.element
+        let itemIndex = $0.offset
+        
+        if item.id == id {
+//            modifiedData.insert(item, at: itemIndex)
+//            modifiedData.append(item)
+//            modifiedData.append(contentsOf: newDataList)
+            
+            // You are rebuilding this list from scratch.
+            // So you saw, "we found the original item, now add back the original item, then
+            
+            // Put the new sidebar items BEFORE the original item
+            modifiedData = newDataList + [item] + modifiedData
+//            modifiedData.insert(contentsOf: newDataList, at: itemIndex)
+//            modifiedData.insert(item, at: itemIndex )
+            
+            log("insertingBeforeID: found item, modifiedData ids now: \(modifiedData.map(\.id))")
+        } else {
+            // Otherwise, apply insertion in the item's children recursively
+//            modifiedData.append(item.insertingAfterID(newDataList, afterID: id))
+//            modifiedData.append(item.insertingAfterID(newDataList, afterID: id))
+            
+//            modifiedData = [
+//                item.insertingBeforeID(newDataList, id: id)
+//            ]
+//            + modifiedData
+            modifiedData.append(item.insertingBeforeID(newDataList, id: id))
+            
+            log("insertingBeforeID: did not find item, modifiedData ids now: \(modifiedData.map(\.id))")
+        }
+    }
+    
+    return modifiedData
+}
+
+extension SidebarLayerData {
+    // Function to insert a list of new data structures after a specified `afterID`, returning a modified copy
+       func insertingBeforeID(_ newDataList: [SidebarLayerData],
+                              id: UUID) -> SidebarLayerData {
+           
+           log("insertingBeforeID for children: newDataList: id: \(id)")
+           log("insertingBeforeID for children: newDataList: ids: \(newDataList.map(\.id))")
+           // If there are no children, return the current structure as-is
+           guard let children = self.children else {
+               return self
+           }
+           
+           var modifiedChildren = [SidebarLayerData]()
+           
+           children.enumerated().forEach {
+               let child = $0.element
+               let childIndex = $0.offset
+               
+               if child.id == id {
+                   // insert BEFORE the child
+//                   modifiedChildren.insert(contentsOf: newDataList, at: childIndex)
+//                   modifiedChildren.insert(child, at: childIndex )
+                    modifiedChildren = newDataList + [child] + modifiedChildren
+               } else {
+                   modifiedChildren.append(child.insertingBeforeID(newDataList, id: id))
+//                   modifiedChildren.insert(child.insertingBeforeID(newDataList, id: id),
+//                                           at: childIndex)
+                   
+                   // Otherwise, continue recursively in the child's children
+//                   modifiedChildren.append(child.insertingAfterID(newDataList, afterID: id))
+//                   modifiedChildren = [child.insertingBeforeID(newDataList, id: id)] + modifiedChildren
+               }
+           }
+           
+           // Return a new SidebarLayerData instance with the modified children
+           return SidebarLayerData(id: id, children: modifiedChildren)
+       }
 }
 
 extension StitchDocumentViewModel {
@@ -313,11 +400,11 @@ extension GraphState {
         
         // TODO: how to handle the duplication-insertion of sidebar layers' during an option+drag gesture?
         // Why can't we just use the same logic as regular copy-paste/duplication, i.e. `insertAfterID` ?
-        if isOptionDragInSidebar {
-            log("GraphState: addComponentToGraph: had option drag in sidebar, will add duplicated layers to front")
-            graph.orderedSidebarLayers = newComponent.orderedSidebarLayers + graph.orderedSidebarLayers
-            return graph
-        }
+//        if isOptionDragInSidebar {
+//            log("GraphState: addComponentToGraph: had option drag in sidebar, will add duplicated layers to front")
+//            graph.orderedSidebarLayers = newComponent.orderedSidebarLayers + graph.orderedSidebarLayers
+//            return graph
+//        }
         
         guard let firstCopiedLayer = newComponent.graph.orderedSidebarLayers.first else {
             log("GraphState: addComponentToGraph: did not copy or duplicate any sidebar layers")
@@ -329,11 +416,23 @@ extension GraphState {
         if let originalLayerId: NodeId = nodeIdMap.first(where: { $0.value == firstCopiedLayer.id })?.key,
            graph.orderedSidebarLayers.getSidebarLayerDataIndex(originalLayerId).isDefined {
             
-            // Note: is this really correct for cases where we have a nested layer group in the sidebar? ... Should be, because nested?
-            graph.orderedSidebarLayers = insertAfterID(
-                data: graph.orderedSidebarLayers,
-                newDataList: newComponent.graph.orderedSidebarLayers,
-                afterID: originalLayerId)
+            if isOptionDragInSidebar {
+                graph.orderedSidebarLayers = insertBeforeID(
+                    data: graph.orderedSidebarLayers,
+                    newDataList: newComponent.graph.orderedSidebarLayers,
+                    id: originalLayerId)
+            } else {
+                // Note: is this really correct for cases where we have a nested layer group in the sidebar? ... Should be, because nested?
+                graph.orderedSidebarLayers = insertAfterID(
+                    data: graph.orderedSidebarLayers,
+                    newDataList: newComponent.graph.orderedSidebarLayers,
+                    afterID: originalLayerId)
+            }
+            
+            
+            
+            // ProjectSidebar
+//            self.items.updateSidebarIndices()
             
             return graph
         }
@@ -353,6 +452,8 @@ extension GraphState {
         // Reset edit mode selections + inspector focus and actively-selected
         self.sidebarSelectionState.resetEditModeSelections()
         // self.sidebarSelectionState.primary = .init()
+        
+        self.layersSidebarViewModel.items.updateSidebarIndices()
         
         // NOTE: we can either duplicate layers OR patch nodes; but NEVER both
         // Update selected nodes
