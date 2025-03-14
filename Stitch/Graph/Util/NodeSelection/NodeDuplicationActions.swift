@@ -156,7 +156,6 @@ func attemptToInsertBeforeId(originalLayers: [SidebarLayerData],
         // `insert at` = prepend
         modifiedLayers.insert(contentsOf: newLayers, at: indexOfOriginalLayer)
         log("attemptToInsertBeforeId: found originalLayerId: modifiedLayers are now \(modifiedLayers.map(\.id))")
-        
  
         return modifiedLayers
     }
@@ -190,118 +189,7 @@ func attemptToInsertBeforeId(originalLayers: [SidebarLayerData],
     
 }
 
-// Wrapper function to handle the insertion at the top level, returning a modified array
-func insertBeforeID(data: [SidebarLayerData],
-                    newDataList: [SidebarLayerData],
-                    id: UUID) -> [SidebarLayerData] {
 
-    log("insertingBeforeID: newDataList: id: \(id)")
-    log("insertingBeforeID: existingData: ids: \(data.map(\.id))")
-    log("insertingBeforeID: newDataList: ids: \(newDataList.map(\.id))")
-    
-    
-//    var newData = data
-//    
-//    // If this level has the original item, then just prepend here
-//    if let indexOfOriginalLayer = data.firstIndex(where: { $0.id == id }) {
-//        // `insert at` = prepend
-//        newData.insert(contentsOf: newDataList, at: indexOfOriginalLayer)
-//        return newData
-//    }
-//    
-//    else {
-//        insertBeforeID(data: <#T##[SidebarLayerData]#>, newDataList: <#T##[SidebarLayerData]#>, id: <#T##UUID#>)
-//        
-//        for item in data {
-//            if var children = item.children
-//        }
-//        
-//    }
-    
-    // Else recur on children
-//    else {
-//        insertBeforeID(data: data, newDataList: newDataList, id: id)
-//    }
-    
-    var modifiedData = [SidebarLayerData]()
-    
-    data.enumerated().forEach {
-        let item = $0.element
-        let itemIndex = $0.offset
-        
-        if item.id == id {
-//            modifiedData.insert(item, at: itemIndex)
-//            modifiedData.append(item)
-//            modifiedData.append(contentsOf: newDataList)
-            
-            // You are rebuilding this list from scratch.
-            // So you saw, "we found the original item, now add back the original item, then
-            
-            // Put the new sidebar items BEFORE the original item
-//            modifiedData = newDataList + [item] + modifiedData
-            modifiedData.insert(contentsOf: newDataList, at: itemIndex)
-            modifiedData.append(item)
-//            modifiedData.insert(item, at: itemIndex)
-            
-            log("insertingBeforeID: found item, modifiedData ids now: \(modifiedData.map(\.id))")
-        } else {
-            // Otherwise, apply insertion in the item's children recursively
-//            modifiedData.append(item.insertingAfterID(newDataList, afterID: id))
-//            modifiedData.append(item.insertingAfterID(newDataList, afterID: id))
-            
-//            modifiedData = [
-//                item.insertingBeforeID(newDataList, id: id)
-//            ]
-//            + modifiedData
-            modifiedData.append(item.insertingBeforeID(newDataList, id: id))
-            
-            log("insertingBeforeID: did not find item, modifiedData ids now: \(modifiedData.map(\.id))")
-        }
-    }
-    
-    return modifiedData
-}
-
-extension SidebarLayerData {
-    // Function to insert a list of new data structures after a specified `afterID`, returning a modified copy
-       func insertingBeforeID(_ newDataList: [SidebarLayerData],
-                              id: UUID) -> SidebarLayerData {
-           
-           log("insertingBeforeID for children: newDataList: id: \(id)")
-           log("insertingBeforeID for children: newDataList: ids: \(newDataList.map(\.id))")
-           // If there are no children, return the current structure as-is
-           guard let children = self.children else {
-               log("insertingBeforeID for children: NO CHILDREN")
-               return self
-           }
-           
-           var modifiedChildren = [SidebarLayerData]()
-           
-           children.enumerated().forEach {
-               let child = $0.element
-               let childIndex = $0.offset
-               
-               if child.id == id {
-                   // insert BEFORE the child
-//                   modifiedChildren.insert(contentsOf: newDataList, at: childIndex)
-//                   modifiedChildren.append(child)
-//                   modifiedChildren.insert(child, at: childIndex )
-                    modifiedChildren = newDataList + [child] + modifiedChildren
-               } else {
-                   modifiedChildren.append(child.insertingBeforeID(newDataList, id: id))
-//                   modifiedChildren.insert(child.insertingBeforeID(newDataList, id: id),
-//                                           at: childIndex)
-                   
-                   // Otherwise, continue recursively in the child's children
-//                   modifiedChildren.append(child.insertingAfterID(newDataList, afterID: id))
-//                   modifiedChildren = [child.insertingBeforeID(newDataList, id: id)] + modifiedChildren
-               }
-           }
-           
-           // Return a new SidebarLayerData instance with the modified children
-           return SidebarLayerData(id: id, children: modifiedChildren)
-       }
-}
 
 extension StitchDocumentViewModel {
     @MainActor
@@ -494,15 +382,30 @@ extension GraphState {
            graph.orderedSidebarLayers.getSidebarLayerDataIndex(originalLayerId).isDefined {
             
             if isOptionDragInSidebar {
-//                graph.orderedSidebarLayers = insertBeforeID(
-//                    data: graph.orderedSidebarLayers,
-//                    newDataList: newComponent.graph.orderedSidebarLayers,
-//                    id: originalLayerId)
+
+                let originalFlatIds = graph.orderedSidebarLayers
+                    .flatMap { $0.children.isDefined ? [$0] + $0.children! : [$0] }
+                    .map(\.id)
+                
+                log("updatedLayers: originalFlatIds: \(originalFlatIds)")
+                
+                let newFlatIds = newComponent.graph.orderedSidebarLayers
+                    .flatMap { $0.children.isDefined ? [$0] + $0.children! : [$0] }
+                    .map(\.id)
+                
+                log("updatedLayers: newFlatIds: \(newFlatIds)")
                 
                 if let updatedLayers = attemptToInsertBeforeId(
                     originalLayers: graph.orderedSidebarLayers,
                     newLayers: newComponent.graph.orderedSidebarLayers,
                     originalLayerId: originalLayerId) {
+                    
+                    let updatedFlatIds = updatedLayers
+                        .flatMap { $0.children.isDefined ? [$0] + $0.children! : [$0] }
+                        .map(\.id)
+                    
+                    log("updatedLayers: updatedFlatIds: \(updatedFlatIds)")
+                    
                     graph.orderedSidebarLayers = updatedLayers
                 } else {
                     log("no updated layers")
