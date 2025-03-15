@@ -56,6 +56,12 @@ final class StitchSystemViewModel: Sendable, Identifiable {
 }
 
 extension StitchSystemViewModel: DocumentEncodableDelegate {
+    func update(from schema: StitchSystem,
+                rootUrl: URL) {
+        // TODO: come back here
+        fatalError()
+    }
+    
     @MainActor func createSchema(from graph: GraphState?) -> StitchSystem {
         self.lastEncodedDocument
     }

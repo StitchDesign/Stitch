@@ -479,6 +479,24 @@ extension GraphState {
         self.layersSidebarViewModel.update(from: schema.orderedSidebarLayers)
     }
     
+    @MainActor func update(from schema: GraphEntity, rootUrl: URL) {
+        self.updateSynchronousProperties(from: schema)
+        
+        guard let document = self.documentEncoderDelegate else {
+            return
+        }
+        
+        if let decodedFiles = DocumentEncoder.getDecodedFiles(rootUrl: rootUrl) {
+            self.importedFilesDirectoryReceived(mediaFiles: decodedFiles.mediaFiles,
+                                                components: decodedFiles.components)
+        }
+        
+        self.syncNodes(with: schema.nodes)
+        
+        // Determines if graph data needs updating
+        self.refreshGraphUpdaterId()
+    }
+    
     @MainActor func updateAsync(from schema: GraphEntity) async {
         self.updateSynchronousProperties(from: schema)
         

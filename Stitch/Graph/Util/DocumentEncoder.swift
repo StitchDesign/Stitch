@@ -10,7 +10,7 @@ import StitchSchemaKit
 
 final actor DocumentEncoder: DocumentEncodable {
     let documentId: UUID
-    var saveLocation: EncoderDirectoryLocation
+    let saveLocation: EncoderDirectoryLocation
     
     @MainActor weak var delegate: StitchDocumentViewModel?
     

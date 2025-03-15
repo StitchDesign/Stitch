@@ -227,6 +227,16 @@ final class StitchDocumentViewModel: Sendable {
 }
 
 extension StitchDocumentViewModel: DocumentEncodableDelegate {
+    @MainActor
+    func update(from schema: StitchDocument, rootUrl: URL) {
+        // Sync preview window attributes
+        self.previewWindowSize = schema.previewWindowSize
+        self.previewSizeDevice = schema.previewSizeDevice
+        self.previewWindowBackgroundColor = schema.previewWindowBackgroundColor
+
+        self.graph.update(from: schema.graph, rootUrl: rootUrl)
+    }
+    
     @MainActor var lastEncodedDocument: StitchDocument {
         get {
             guard let document = self.projectLoader?.lastEncodedDocument else {
@@ -438,7 +448,7 @@ extension GraphState: GraphCalculatable {
     }
 }
 
-extension StitchDocumentViewModel {
+extension StitchDocumentViewModel {    
     @MainActor
     func updateAsync(from schema: StitchDocument) async {
         // Sync preview window attributes
