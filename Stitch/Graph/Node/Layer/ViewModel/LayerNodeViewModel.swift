@@ -176,12 +176,12 @@ final class LayerNodeViewModel {
     @MainActor
     var layerGroupId: NodeId? {
         guard let graph = self.nodeDelegate?.graphDelegate else {
-            log("LayerNodeViewModel: layerGroupId for layer \(self.id): no node or graph delegate?")
+            // log("LayerNodeViewModel: layerGroupId for layer \(self.id): no node or graph delegate?")
             return nil
         }
         
         guard let sidebarItem: SidebarItemGestureViewModel = graph.layersSidebarViewModel.items.get(self.id) else {
-            log("LayerNodeViewModel: layerGroupId for layer \(self.id): no sidebar item")
+            // log("LayerNodeViewModel: layerGroupId for layer \(self.id): no sidebar item")
             return nil
         }
         

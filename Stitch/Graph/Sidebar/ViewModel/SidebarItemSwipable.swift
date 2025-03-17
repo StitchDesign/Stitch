@@ -468,6 +468,7 @@ extension Array where Element: SidebarItemSwipable {
     
     @MainActor
     func updateSidebarIndices() {
+        // log("updateSidebarIndices called, had \(self.count) items") // HELPFUL DEBUG
         var currentRowIndex = 0
         return self.updateSidebarIndices(currentGroupIndex: 0,
                                          currentRowIndex: &currentRowIndex)
