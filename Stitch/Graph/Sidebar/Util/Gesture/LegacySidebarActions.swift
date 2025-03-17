@@ -93,11 +93,8 @@ extension ProjectSidebarObservable {
         if !self.isSidebarFocused {
             self.isSidebarFocused = true
         }
-        
-        // THIS IS NO LONGER TRUE ? AH, ACTUALLY SHOULD BE FINE?
-        // Because you're only dragging primarily-selected layers
-        
-        // TODO: debug and reintroduce option-duge drag in sidebar
+              
+        // We have an in-progress option dupe-drag and have already duplicated the layers
         if state.selectionState.optionDragInProgress {
             // If we're currently doing an option+drag, then item needs to just be the top
             log("SidebarListItemDragged: had option drag and have already duplicated the layers")
@@ -119,24 +116,21 @@ extension ProjectSidebarObservable {
             state.sidebarItemSelectedViaEditMode(draggedItem.id)
             state.selectionState.lastFocused = draggedItem.id
         }
-           
-        // TODO: debug and reintroduce option-duge drag in sidebar
+         
+        // We're just starting an option dupe-drag and need to duplicate the layers
         if graph.keypressState.isOptionPressed
             && !state.selectionState.haveDuplicated
             && !state.selectionState.optionDragInProgress {
             log("SidebarListItemDragged: option held during drag; will duplicate layers")
             
-            // duplicate the items
-            // NOTE: will this be okay even though secretly async?, seems to work fine with option+node drag;
-            // also, it aready updates the selected and focused sidebar layers etc.
-            
-            // But will the user's cursor still be on / under the original layer ?
-
+            let originalOptionDraggedLayer = item.id as? SidebarListItemId
+            log("SidebarListItemDragged: option held during drag; will duplicate layers: originalOptionDraggedLayer: \(originalOptionDraggedLayer)")
             
             state.selectionState.originalLayersPrimarilySelectedAtStartOfOptionDrag = selectionState.primary
-            
-            graph.sidebarSelectedItemsDuplicated(isOptionDrag: true,
-                                                 document: document)
+            graph.sidebarSelectedItemsDuplicated(
+                isOptionDrag: true,
+                originalOptionDraggedLayer: originalOptionDraggedLayer,
+                document: document)
             state.selectionState.haveDuplicated = true
             state.selectionState.optionDragInProgress = true
             
@@ -148,8 +142,7 @@ extension ProjectSidebarObservable {
         
         // do we need this `else if` ?
         if focusedLayers.count > 1 {
-            if let selectedItemIdWithSmallestIndex = self.findSetItemWithSmallestIndex(
-                from: state.selectionState.all),
+            if let selectedItemIdWithSmallestIndex = self.findSetItemWithSmallestIndex(from: state.selectionState.all),
                let selectedItemWithSmallestIndex = self.items.get(selectedItemIdWithSmallestIndex),
                draggedItem.id != selectedItemIdWithSmallestIndex {
                

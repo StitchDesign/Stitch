@@ -512,6 +512,7 @@ extension GraphState {
     @MainActor
     func copyAndPasteSelectedNodes(selectedNodeIds: NodeIdSet,
                                    isOptionDragInSidebar: Bool = false,
+                                   originalOptionDraggedLayer: SidebarListItemId? = nil,
                                    document: StitchDocumentViewModel) {
         let groupNodeFocused = document.groupNodeFocused
         
@@ -539,6 +540,7 @@ extension GraphState {
         let graph = self.addComponentToGraph(newComponent: newComponent,
                                              newNodes: newNodes,
                                              nodeIdMap: nodeIdMap,
+                                             originalOptionDraggedLayer: originalOptionDraggedLayer,
                                              isOptionDragInSidebar: isOptionDragInSidebar)
 
         self.updateSync(from: graph)

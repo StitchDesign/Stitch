@@ -359,79 +359,61 @@ extension GraphState {
     func addComponentToGraph<T>(newComponent: T,
                                 newNodes: [NodeEntity],
                                 nodeIdMap: NodeIdMap,
+                                originalOptionDraggedLayer: SidebarListItemId? = nil,
                                 isOptionDragInSidebar: Bool = false) -> GraphEntity where T: StitchComponentable {
         var graph: GraphEntity = self.createSchema()
         
         // Add new nodes
         graph.nodes += newNodes
-        
-        // TODO: how to handle the duplication-insertion of sidebar layers' during an option+drag gesture?
-        // Why can't we just use the same logic as regular copy-paste/duplication, i.e. `insertAfterID` ?
-//        if isOptionDragInSidebar {
-//            log("GraphState: addComponentToGraph: had option drag in sidebar, will add duplicated layers to front")
-//            graph.orderedSidebarLayers = newComponent.orderedSidebarLayers + graph.orderedSidebarLayers
-//            return graph
-//        }
-        
-        guard let firstCopiedLayer = newComponent.graph.orderedSidebarLayers.first else {
-            log("GraphState: addComponentToGraph: did not copy or duplicate any sidebar layers")
-            return graph
-        }
-        
-        // Are we pasting into the same project where the copied sidebar layers came from?
-        // If so, then we should insert the copied sidebar layers after that original sidebar layer.
-        if let originalLayerId: NodeId = nodeIdMap.first(where: { $0.value == firstCopiedLayer.id })?.key,
-           graph.orderedSidebarLayers.getSidebarLayerDataIndex(originalLayerId).isDefined {
+    
+        // Are we sidebar option dupe-dragging? If so, insert the duplicated layers immediately before the original option-dragged layer.
+        if isOptionDragInSidebar,
+           let originalOptionDraggedLayer = originalOptionDraggedLayer {
             
-            if isOptionDragInSidebar {
-
-                let originalFlatIds = graph.orderedSidebarLayers
-                    .flatMap { $0.children.isDefined ? [$0] + $0.children! : [$0] }
-                    .map(\.id)
-                
-                log("updatedLayers: originalFlatIds: \(originalFlatIds)")
-                
-                let newFlatIds = newComponent.graph.orderedSidebarLayers
-                    .flatMap { $0.children.isDefined ? [$0] + $0.children! : [$0] }
-                    .map(\.id)
-                
-                log("updatedLayers: newFlatIds: \(newFlatIds)")
-                
-                if let updatedLayers = attemptToInsertBeforeId(
-                    originalLayers: graph.orderedSidebarLayers,
-                    newLayers: newComponent.graph.orderedSidebarLayers,
-                    originalLayerId: originalLayerId) {
-                    
-                    let updatedFlatIds = updatedLayers
-                        .flatMap { $0.children.isDefined ? [$0] + $0.children! : [$0] }
-                        .map(\.id)
-                    
-                    log("updatedLayers: updatedFlatIds: \(updatedFlatIds)")
-                    
-                    graph.orderedSidebarLayers = updatedLayers
-                } else {
-                    log("no updated layers")
-                }
-                
-                
-            } else {
-                // Note: is this really correct for cases where we have a nested layer group in the sidebar? ... Should be, because nested?
-                graph.orderedSidebarLayers = insertAfterID(
-                    data: graph.orderedSidebarLayers,
-                    newDataList: newComponent.graph.orderedSidebarLayers,
-                    afterID: originalLayerId)
+            guard let originalOptionDraggedLayerIndex = graph.orderedSidebarLayers.getSidebarLayerDataIndex(originalOptionDraggedLayer) else {
+                fatalErrorIfDebug()
+                return graph
             }
+         
+            log("addComponentToGraph: addComponentToGraph: will attempt to insert before \(originalOptionDraggedLayer)")
             
+            if let updatedLayers = attemptToInsertBeforeId(
+                originalLayers: graph.orderedSidebarLayers,
+                newLayers: newComponent.graph.orderedSidebarLayers,
+                originalLayerId: originalOptionDraggedLayer) {
+                
+                let updatedFlatIds = updatedLayers
+                    .flatMap { $0.children.isDefined ? [$0] + $0.children! : [$0] }
+                    .map(\.id)
+                
+                log("addComponentToGraph: updatedLayers: updatedFlatIds: \(updatedFlatIds)")
+                
+                graph.orderedSidebarLayers = updatedLayers
+                return graph
+            } else {
+                log("addComponentToGraph: no updated layers")
+                return graph
+            }
+        } // if isOptionDragInSidebar
+        
+                // Are we not sidebar option dupe-dragging, but pasting into the same project anyway? (e.g. regular duplication via sidebar)
+        // If so, insert the duplicated layers after the top-most original sidebar layer.
+        else if let copiedLayer = newComponent.graph.orderedSidebarLayers.first,
+                let originalLayerId: NodeId = nodeIdMap.first(where: { $0.value == copiedLayer.id })?.key,
+                graph.orderedSidebarLayers.getSidebarLayerDataIndex(originalLayerId).isDefined {
             
-            
-            // ProjectSidebar
-//            self.items.updateSidebarIndices()
+            // log("addComponentToGraph: will insert after \(originalLayerId)")
+            graph.orderedSidebarLayers = insertAfterID(
+                data: graph.orderedSidebarLayers,
+                newDataList: newComponent.graph.orderedSidebarLayers,
+                afterID: originalLayerId)
             
             return graph
         }
         
         // Otherwise, we're pasting sidebar layers into a completely different project and so will just add to front.
         else {
+            // log("addComponentToGraph: will add to front")
             graph.orderedSidebarLayers = newComponent.orderedSidebarLayers + graph.orderedSidebarLayers
             return graph
         }
