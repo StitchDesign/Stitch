@@ -92,12 +92,19 @@ extension ProjectSidebarObservable {
     
     @MainActor
     func update(from encodedData: [Self.EncodedItemData]) {
-        log("ProjectSidebarObservable: update")
         self.sync(from: encodedData)
     }
     
     @MainActor
     func sync(from encodedData: [Self.EncodedItemData]) {
+        
+        // TODO: Can `GraphState.updateAsync` be responsible merely for retrieving files rather than also updating a potentially out-of-date version of graph state?
+        // https://github.com/StitchDesign/Stitch--Old/issues/7014
+        if self.selectionState.optionDragInProgress {
+            // log("ProjectSidebarObservable: sync from encodedData: have an option-drag in progress' exiting without sync")
+            return
+        }
+        
         // Only apply updates if there are changes to reduce render cycles
         let currentEncodedData = self.createdOrderedEncodedData()
         
