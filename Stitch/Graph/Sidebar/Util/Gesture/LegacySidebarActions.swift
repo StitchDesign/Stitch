@@ -73,7 +73,18 @@ extension ProjectSidebarObservable {
     func sidebarListItemDragged(item: Self.ItemViewModel,
                                 translation: CGSize) {
         
+        // log("sidebarListItemDragged: item.id \(item.id)")
+        
         let state = self
+        guard let graph = state.graphDelegate else {
+            // log("sidebarListItemDragged: NO GRAPH")
+            return
+        }
+        
+        guard let document = graph.documentDelegate else {
+            // log("sidebarListItemDragged: NO DOCUMENT")
+            return
+        }
         
         // The tracked dragged item may change if option + click
         var draggedItem = item
@@ -82,19 +93,19 @@ extension ProjectSidebarObservable {
         if !self.isSidebarFocused {
             self.isSidebarFocused = true
         }
-        
-        // TODO: debug and reintroduce option-duge drag in sidebar
-//        if state.selectionState.optionDragInProgress {
-//            // If we're currently doing an option+drag, then item needs to just be the top
-//            log("SidebarListItemDragged: had option drag and have already duplicated the layers")
-//            
-//            if let selectedItemIdWithSmallestIndex = self.findSetItemWithSmallestIndex(
-//                from: state.selectionState.primary),
-//               let selectedItemWithSmallestIndex = self.items.get(selectedItemIdWithSmallestIndex) {
-//                log("SidebarListItemDragged: had option drag, will use selectedItemWithSmallestIndex \(selectedItemWithSmallestIndex) as itemId")
-//                draggedItem = selectedItemWithSmallestIndex
-//            }
-//        }
+              
+        // We have an in-progress option dupe-drag and have already duplicated the layers
+        if state.selectionState.optionDragInProgress {
+            // If we're currently doing an option+drag, then item needs to just be the top
+            // log("SidebarListItemDragged: had option drag and have already duplicated the layers")
+            
+            if let selectedItemIdWithSmallestIndex = self.findSetItemWithSmallestIndex(
+                from: state.selectionState.primary),
+               let selectedItemWithSmallestIndex = self.items.get(selectedItemIdWithSmallestIndex) {
+                // log("SidebarListItemDragged: had option drag, will use selectedItemWithSmallestIndex \(selectedItemWithSmallestIndex.id) as itemId")
+                draggedItem = selectedItemWithSmallestIndex
+            }
+        }
         
         let focusedLayers = state.selectionState.primary
         
@@ -104,46 +115,42 @@ extension ProjectSidebarObservable {
             state.sidebarItemSelectedViaEditMode(draggedItem.id)
             state.selectionState.lastFocused = draggedItem.id
         }
-           
-        // TODO: debug and reintroduce option-duge drag in sidebar
-//        if graph.keypressState.isOptionPressed
-//            && !state.selectionState.haveDuplicated
-//            && !state.selectionState.optionDragInProgress {
-//            log("SidebarListItemDragged: option held during drag; will duplicate layers")
-//            
-//            // duplicate the items
-//            // NOTE: will this be okay even though secretly async?, seems to work fine with option+node drag;
-//            // also, it aready updates the selected and focused sidebar layers etc.
-//            
-//            // But will the user's cursor still be on / under the original layer ?
-//            state.graphDelegate?.sidebarSelectedItemsDuplicated(isOptionDrag: true)
-//            state.selectionState.haveDuplicated = true
-//            state.selectionState.optionDragInProgress = true
-//            
-//            return
-//        }
+         
+        // We're just starting an option dupe-drag and need to duplicate the layers
+        if graph.keypressState.isOptionPressed
+            && !state.selectionState.haveDuplicated
+            && !state.selectionState.optionDragInProgress {
+            // log("SidebarListItemDragged: option held during drag; will duplicate layers")
+            
+            let originalOptionDraggedLayer = item.id as? SidebarListItemId
+            // log("SidebarListItemDragged: option held during drag; will duplicate layers: originalOptionDraggedLayer: \(originalOptionDraggedLayer)")
+            
+            state.selectionState.originalLayersPrimarilySelectedAtStartOfOptionDrag = selectionState.primary
+            graph.sidebarSelectedItemsDuplicated(originalOptionDraggedLayer: originalOptionDraggedLayer,
+                                                 document: document)
+            state.selectionState.haveDuplicated = true
+            state.selectionState.optionDragInProgress = true
+            
+            return
+        }
         
         // If we have multiple layers already selected and are dragging one of these already-selected layers,
         // we create a "stack" (reorganization of selected layers) and treat the first layer in the stack as the user-dragged layer.
         
         // do we need this `else if` ?
         if focusedLayers.count > 1 {
-            if let selectedItemIdWithSmallestIndex = self.findSetItemWithSmallestIndex(
-                from: state.selectionState.all),
+            if let selectedItemIdWithSmallestIndex = self.findSetItemWithSmallestIndex(from: state.selectionState.all),
                let selectedItemWithSmallestIndex = self.items.get(selectedItemIdWithSmallestIndex),
                draggedItem.id != selectedItemIdWithSmallestIndex {
                
                // If we had mutiple layers focused, the "dragged item" should be the top item
                // (Note: we'll also move all the potentially-disparate/island'd layers into a single stack; so we may want to do this AFTER the items are all stacked? or we're just concerned about the dragged-item, not its index per se?)
                 draggedItem = selectedItemWithSmallestIndex
-               // log("SidebarListItemDragged item is now \(selectedItemWithSmallestIndex) ")
+                // log("SidebarListItemDragged item is now \(selectedItemWithSmallestIndex) ")
            }
         }
         
-        // log("SidebarListItemDragged: otherDragged \(otherSelections) ")
-
-        self.onSidebarListItemDragged(
-            translation)
+        self.onSidebarListItemDragged(translation)
     }
     
     @MainActor
@@ -181,7 +188,7 @@ extension ProjectSidebarObservable {
         }
         
         let originalItemIndex = firstDraggedItem.sidebarIndex
-        
+                
         // Set state for a new drag
         if isNewDrag {
             self.currentItemDragged = firstDraggedItem.id
@@ -212,9 +219,10 @@ extension ProjectSidebarObservable {
             movingDown: translation.height > 0,
             flattenedItems: filteredVisualList,
             maxRowIndex: visualList.count - 1) else {
-            log("onSidebarListItemDragged: no index found")
+            // log("onSidebarListItemDragged: no index found")
             return
         }
+        
         
         if originalItemIndex != calculatedIndex || isNewDrag {
             self.movedDraggedItems(draggedElement: firstDraggedItem,
@@ -243,16 +251,16 @@ extension ProjectSidebarObservable {
         let visualList = visualList
         let draggedItemIdSet = draggedItems.map(\.id).toSet
         
-        let draggedToElementResult = visualList.findClosestElement(draggedElement: draggedElement,
-                                                                   to: index,
-                                                                   numItemsDragged: draggedItemsPlusChildrenCount)
-        
+        let draggedToElementResult = visualList.findClosestElement(
+            draggedElement: draggedElement,
+            to: index,
+            numItemsDragged: draggedItemsPlusChildrenCount)
+                
         // We should have removed dragged elements from the visual list
         assertInDebug(!draggedItems.contains(where: { $0.id == draggedToElementResult.id }))
-
+        
         // Remove items from dragged set--these will be added later
         var reducedItemsList = self.items
-        
         reducedItemsList.remove(draggedItemIdSet)
         
         guard !draggedItems.isEmpty else { return }
@@ -269,7 +277,6 @@ extension ProjectSidebarObservable {
         assert(newFlattenedList.count == oldCount)
         assert(newFlattenedListIds.count == Set(newFlattenedListIds).count)
 #endif
-        
         self.items = newItemsList
         self.items.updateSidebarIndices()
         
@@ -298,6 +305,7 @@ extension ProjectSidebarObservable {
 
         state.selectionState.haveDuplicated = false
         state.selectionState.optionDragInProgress = false
+        state.selectionState.originalLayersPrimarilySelectedAtStartOfOptionDrag = .init()
     
         state.graphDelegate?.encodeProjectInBackground()
     }

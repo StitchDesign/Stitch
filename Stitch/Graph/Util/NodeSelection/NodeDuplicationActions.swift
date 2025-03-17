@@ -119,6 +119,7 @@ extension SidebarLayerData {
            // Return a new SidebarLayerData instance with the modified children
            return SidebarLayerData(id: id, children: modifiedChildren)
        }
+
 }
 
 // Wrapper function to handle the insertion at the top level, returning a modified array
@@ -138,6 +139,49 @@ func insertAfterID(data: [SidebarLayerData], newDataList: [SidebarLayerData], af
     
     return modifiedData
 }
+
+
+// returns nil when original layer id not found
+func attemptToInsertBeforeId(originalLayers: [SidebarLayerData],
+                             newLayers: [SidebarLayerData],
+                             originalLayerId: UUID) -> [SidebarLayerData]? {
+    
+    var modifiedLayers = originalLayers
+    
+    // If this level has the original item, then just prepend here
+    if let indexOfOriginalLayer = originalLayers.firstIndex(where: { $0.id == originalLayerId }) {
+        // `insert at` = prepend
+        modifiedLayers.insert(contentsOf: newLayers, at: indexOfOriginalLayer)
+        return modifiedLayers
+    }
+    
+    // Else, recur on each item's child-list.
+    // The first item to have the original layer id, we prepend the new layers into, and then return.
+    else {
+        for x in modifiedLayers.enumerated() {
+            let originalLayer = x.element
+            let index = x.offset
+            
+            if let children = originalLayer.children {
+                if let modifiedChildren = attemptToInsertBeforeId(
+                    originalLayers: children,
+                    newLayers: newLayers,
+                    originalLayerId: originalLayerId) {
+                    
+                    var originalLayer = originalLayer
+                    originalLayer.children = modifiedChildren
+                    modifiedLayers[index] = originalLayer
+                    return modifiedLayers
+                }
+            }
+        }
+    }
+    
+    // Could not find original layer id anywhere
+    return nil
+}
+
+
 
 extension StitchDocumentViewModel {
     @MainActor
@@ -233,10 +277,12 @@ extension GraphState {
         } else {
             fatalErrorIfDebug()
         }
-        
+
         await self.updateAsync(from: graph)
         
-        self.updateGraphAfterPaste(newNodes: newNodes)
+        self.updateGraphAfterPaste(newNodes: newNodes,
+                                   nodeIdMap: nodeIdMap,
+                                   isOptionDragInSidebar: false)
     }
     
     @MainActor
@@ -305,31 +351,37 @@ extension GraphState {
     func addComponentToGraph<T>(newComponent: T,
                                 newNodes: [NodeEntity],
                                 nodeIdMap: NodeIdMap,
-                                isOptionDragInSidebar: Bool = false) -> GraphEntity where T: StitchComponentable {
+                                originalOptionDraggedLayer: SidebarListItemId? = nil) -> GraphEntity where T: StitchComponentable {
         var graph: GraphEntity = self.createSchema()
         
         // Add new nodes
         graph.nodes += newNodes
-        
-        // TODO: how to handle the duplication-insertion of sidebar layers' during an option+drag gesture?
-        // Why can't we just use the same logic as regular copy-paste/duplication, i.e. `insertAfterID` ?
-        if isOptionDragInSidebar {
-            log("GraphState: addComponentToGraph: had option drag in sidebar, will add duplicated layers to front")
-            graph.orderedSidebarLayers = newComponent.orderedSidebarLayers + graph.orderedSidebarLayers
-            return graph
-        }
-        
-        guard let firstCopiedLayer = newComponent.graph.orderedSidebarLayers.first else {
-            log("GraphState: addComponentToGraph: did not copy or duplicate any sidebar layers")
-            return graph
-        }
-        
-        // Are we pasting into the same project where the copied sidebar layers came from?
-        // If so, then we should insert the copied sidebar layers after that original sidebar layer.
-        if let originalLayerId: NodeId = nodeIdMap.first(where: { $0.value == firstCopiedLayer.id })?.key,
-           graph.orderedSidebarLayers.getSidebarLayerDataIndex(originalLayerId).isDefined {
+    
+        // Are we sidebar option dupe-dragging? If so, insert the duplicated layers immediately before the original option-dragged layer.
+        if let originalOptionDraggedLayer = originalOptionDraggedLayer {
             
-            // Note: is this really correct for cases where we have a nested layer group in the sidebar? ... Should be, because nested?
+            // log("addComponentToGraph: addComponentToGraph: will attempt to insert before \(originalOptionDraggedLayer)")
+            
+            if let updatedLayers = attemptToInsertBeforeId(
+                originalLayers: graph.orderedSidebarLayers,
+                newLayers: newComponent.graph.orderedSidebarLayers,
+                originalLayerId: originalOptionDraggedLayer) {
+                
+                graph.orderedSidebarLayers = updatedLayers
+            } else {
+                fatalErrorIfDebug()
+            }
+            
+            return graph
+        }
+        
+                // Are we not sidebar option dupe-dragging, but pasting into the same project anyway? (e.g. regular duplication via sidebar)
+        // If so, insert the duplicated layers after the top-most original sidebar layer.
+        else if let copiedLayer = newComponent.graph.orderedSidebarLayers.first,
+                let originalLayerId: NodeId = nodeIdMap.first(where: { $0.value == copiedLayer.id })?.key,
+                graph.orderedSidebarLayers.getSidebarLayerDataIndex(originalLayerId).isDefined {
+            
+            // log("addComponentToGraph: will insert after \(originalLayerId)")
             graph.orderedSidebarLayers = insertAfterID(
                 data: graph.orderedSidebarLayers,
                 newDataList: newComponent.graph.orderedSidebarLayers,
@@ -340,19 +392,24 @@ extension GraphState {
         
         // Otherwise, we're pasting sidebar layers into a completely different project and so will just add to front.
         else {
+            // log("addComponentToGraph: will add to front")
             graph.orderedSidebarLayers = newComponent.orderedSidebarLayers + graph.orderedSidebarLayers
             return graph
         }
     }
     
     @MainActor
-    func updateGraphAfterPaste(newNodes: [NodeEntity]) {
+    func updateGraphAfterPaste(newNodes: [NodeEntity],
+                               nodeIdMap: NodeIdMap,
+                               isOptionDragInSidebar: Bool) {
         // Reset selected nodes
         self.resetSelectedCanvasItems()
 
         // Reset edit mode selections + inspector focus and actively-selected
         self.sidebarSelectionState.resetEditModeSelections()
         // self.sidebarSelectionState.primary = .init()
+        
+        self.layersSidebarViewModel.items.updateSidebarIndices()
         
         // NOTE: we can either duplicate layers OR patch nodes; but NEVER both
         // Update selected nodes
@@ -364,9 +421,26 @@ extension GraphState {
                     
                     // Actively-select the new layer node
                     let id = nodeEntity.id
-                    self.sidebarSelectionState.primary.insert(id)
-                                        
-                    self.layersSidebarViewModel.sidebarItemSelectedViaEditMode(id)
+                    
+                    // If option dupe-dragging in the sidebar, only select the copied layers that correspond to the originally-primarily-selected layers.
+                    // e.g. if we option dupe-dragged just a LayerGroup, primarily-select the LayerGroup and NOT all its children.
+                    if isOptionDragInSidebar {
+                        
+                        // Note: nodeIdMap is `key: oldNode,  value: newNode`, so must do a reverse dictionary look up.
+                        if let originalLayerNodeId = nodeIdMap.first(where: { $0.value == id })?.key,
+                        self.sidebarSelectionState.originalLayersPrimarilySelectedAtStartOfOptionDrag.contains(originalLayerNodeId) {
+                            
+                            self.sidebarSelectionState.primary.insert(id)
+                            self.layersSidebarViewModel.sidebarItemSelectedViaEditMode(id)
+                        }
+                    }
+                    
+                    // If not doing an sidebar option dupe-drag, just primarily-select the copied layer.
+                    else {
+                        self.sidebarSelectionState.primary.insert(id)
+                        self.layersSidebarViewModel.sidebarItemSelectedViaEditMode(id)
+                    }
+                    
                     
                     self.updateInspectorFocusedLayers()
                     
@@ -385,7 +459,7 @@ extension GraphState {
                             let portType: LayerInputKeyPathType = isPacked ? .packed : .unpacked(unpackedId ?? .port0)
                             let layerId = LayerInputType(layerInput: inputType,
                                                          portType: portType)
-                            if let canvas = inputData.canvasItem,
+                            if let _ = inputData.canvasItem,
                                let canvasItem = self.getCanvasItem(.layerInput(.init(node: nodeEntity.id,
                                                                                      keyPath: layerId))) {
                                 canvasItem.select(self)

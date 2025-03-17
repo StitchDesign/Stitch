@@ -129,7 +129,9 @@ extension GraphState {
             
             self.updateSync(from: graph)
             
-            self.updateGraphAfterPaste(newNodes: newNodes)
+            self.updateGraphAfterPaste(newNodes: newNodes,
+                                       nodeIdMap: nodeIdMap,
+                                       isOptionDragInSidebar: false)
             
             return
         }
