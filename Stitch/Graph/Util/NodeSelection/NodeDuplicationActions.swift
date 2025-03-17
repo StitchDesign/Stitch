@@ -285,10 +285,12 @@ extension GraphState {
         } else {
             fatalErrorIfDebug()
         }
-        
+        log("insertNewComponent async version")
         await self.updateAsync(from: graph)
         
-        self.updateGraphAfterPaste(newNodes: newNodes)
+        self.updateGraphAfterPaste(newNodes: newNodes,
+                                   nodeIdMap: nodeIdMap,
+                                   isOptionDragInSidebar: false)
     }
     
     @MainActor
@@ -436,7 +438,9 @@ extension GraphState {
     }
     
     @MainActor
-    func updateGraphAfterPaste(newNodes: [NodeEntity]) {
+    func updateGraphAfterPaste(newNodes: [NodeEntity],
+                               nodeIdMap: NodeIdMap,
+                               isOptionDragInSidebar: Bool) {
         // Reset selected nodes
         self.resetSelectedCanvasItems()
 
@@ -444,7 +448,10 @@ extension GraphState {
         self.sidebarSelectionState.resetEditModeSelections()
         // self.sidebarSelectionState.primary = .init()
         
+        log("GraphState: updateGraphAfterPaste: will updateSidebarIndices")
         self.layersSidebarViewModel.items.updateSidebarIndices()
+        
+        
         
         // NOTE: we can either duplicate layers OR patch nodes; but NEVER both
         // Update selected nodes
@@ -456,9 +463,26 @@ extension GraphState {
                     
                     // Actively-select the new layer node
                     let id = nodeEntity.id
-                    self.sidebarSelectionState.primary.insert(id)
-                                        
-                    self.layersSidebarViewModel.sidebarItemSelectedViaEditMode(id)
+                    
+                    // If option dupe-dragging in the sidebar, only select the copied layers that correspond to the originally-primarily-selected layers.
+                    // e.g. if we option dupe-dragged just a LayerGroup, primarily-select the LayerGroup and NOT all its children.
+                    if isOptionDragInSidebar {
+                        
+                        // Note: nodeIdMap is `key: oldNode,  value: newNode`, so must do a reverse dictionary look up.
+                        if let originalLayerNodeId = nodeIdMap.first { (key: NodeId, value: NodeId) in value == id }?.key,
+                        self.sidebarSelectionState.originalLayersPrimarilySelectedAtStartOfOptionDrag.contains(originalLayerNodeId) {
+                            
+                            self.sidebarSelectionState.primary.insert(id)
+                            self.layersSidebarViewModel.sidebarItemSelectedViaEditMode(id)
+                        }
+                    }
+                    
+                    // If not doing an sidebar option dupe-drag, just primarily-select the copied layer.
+                    else {
+                        self.sidebarSelectionState.primary.insert(id)
+                        self.layersSidebarViewModel.sidebarItemSelectedViaEditMode(id)
+                    }
+                    
                     
                     self.updateInspectorFocusedLayers()
                     

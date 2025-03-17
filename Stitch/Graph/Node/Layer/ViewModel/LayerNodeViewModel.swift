@@ -181,7 +181,7 @@ final class LayerNodeViewModel {
         }
         
         guard let sidebarItem: SidebarItemGestureViewModel = graph.layersSidebarViewModel.items.get(self.id) else {
-            log("LayerNodeViewModel: layerGroupId for layer \(self.id): no sidebar item")
+            // log("LayerNodeViewModel: layerGroupId for layer \(self.id): no sidebar item")
             return nil
         }
         

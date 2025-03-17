@@ -29,6 +29,8 @@ protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID 
     
     @MainActor var optionDragInProgress: Bool { get set }
     
+    @MainActor var originalLayersPrimarilySelectedAtStartOfOptionDrag: Set<ItemID> { get set }
+    
     @MainActor var primary: Set<ItemID> { get set }
     
     @MainActor var lastFocused: ItemID? { get set }
@@ -75,6 +77,7 @@ extension ProjectSidebarObservable {
         // Create new encodable data
         let encodedData: [Self.EncodedItemData] = encodedData ?? self.createdOrderedEncodedData()
         
+        log("persistSidebarChanges")
         // Refreshes view
         self.update(from: encodedData)
         
@@ -89,6 +92,7 @@ extension ProjectSidebarObservable {
     
     @MainActor
     func update(from encodedData: [Self.EncodedItemData]) {
+        log("ProjectSidebarObservable: update")
         self.sync(from: encodedData)
     }
     
@@ -101,9 +105,10 @@ extension ProjectSidebarObservable {
             let existingViewModels = self.items.reduce(into: [Self.ItemID : Self.ItemViewModel]()) { result, viewModel in
                 result.updateValue(viewModel, forKey: viewModel.id)
             }
-    
+            
             self.items = self.recursiveSync(elements: encodedData,
                                             existingViewModels: existingViewModels)
+            log("ProjectSidebarObservable: sync from encodedData: will updateSidebarIndices")
             self.items.updateSidebarIndices()
         }
     }
