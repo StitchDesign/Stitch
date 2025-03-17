@@ -527,6 +527,11 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
                 fatalErrorIfDebug()
             }
             
+            if xDiff < -700 {
+                log("StitchUIScrollView: scrollViewDidScroll: hit border: xDiff: LARGE MAGNITUDE")
+                fatalErrorIfDebug()
+            }
+            
             if yDiff.magnitude > 1000 {
                 log("StitchUIScrollView: scrollViewDidScroll: hit border: yDiff: LARGE MAGNITUDE")
                 fatalErrorIfDebug()

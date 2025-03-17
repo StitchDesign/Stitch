@@ -18,11 +18,11 @@ struct SidebarSelectedItemsDuplicated: StitchDocumentEvent {
 
 extension GraphState {
     @MainActor
-    func sidebarSelectedItemsDuplicated(isOptionDrag: Bool = false,
+    func sidebarSelectedItemsDuplicated(originalOptionDraggedLayer: SidebarListItemId? = nil,
                                         document: StitchDocumentViewModel) {
         let nodeIds = self.layersSidebarViewModel.selectionState.primary
         self.copyAndPasteSelectedNodes(selectedNodeIds: nodeIds,
-                                       isOptionDragInSidebar: isOptionDrag,
+                                       originalOptionDraggedLayer: originalOptionDraggedLayer,
                                        document: document)
         
         // Move nodes

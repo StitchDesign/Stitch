@@ -21,11 +21,15 @@ final class LayersSidebarViewModel: ProjectSidebarObservable, Sendable {
     @MainActor var highlightedSidebarLayers: NodeIdSet = .init()
     
     // Selection state
-    @MainActor var haveDuplicated: Bool = false
-    @MainActor var optionDragInProgress: Bool = false
     @MainActor var primary = Set<ItemID>()     // items selected because directly clicked
     @MainActor var lastFocused: ItemID?
     @MainActor var isSidebarFocused: Bool = false
+    
+    // Option-drag duplication of layers
+    @MainActor var haveDuplicated: Bool = false
+    @MainActor var optionDragInProgress: Bool = false
+    // populated when option-drag begins; wiped when option-drag ends
+    @MainActor var originalLayersPrimarilySelectedAtStartOfOptionDrag: Set<ItemID> = .init()
     
     @MainActor weak var graphDelegate: GraphState?
     

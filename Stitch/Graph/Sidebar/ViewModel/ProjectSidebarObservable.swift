@@ -29,6 +29,8 @@ protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID 
     
     @MainActor var optionDragInProgress: Bool { get set }
     
+    @MainActor var originalLayersPrimarilySelectedAtStartOfOptionDrag: Set<ItemID> { get set }
+    
     @MainActor var primary: Set<ItemID> { get set }
     
     @MainActor var lastFocused: ItemID? { get set }
@@ -75,6 +77,7 @@ extension ProjectSidebarObservable {
         // Create new encodable data
         let encodedData: [Self.EncodedItemData] = encodedData ?? self.createdOrderedEncodedData()
         
+        log("persistSidebarChanges")
         // Refreshes view
         self.update(from: encodedData)
         
@@ -94,6 +97,14 @@ extension ProjectSidebarObservable {
     
     @MainActor
     func sync(from encodedData: [Self.EncodedItemData]) {
+        
+        // TODO: Can `GraphState.updateAsync` be responsible merely for retrieving files rather than also updating a potentially out-of-date version of graph state?
+        // https://github.com/StitchDesign/Stitch--Old/issues/7014
+        if self.selectionState.optionDragInProgress {
+            // log("ProjectSidebarObservable: sync from encodedData: have an option-drag in progress' exiting without sync")
+            return
+        }
+        
         // Only apply updates if there are changes to reduce render cycles
         let currentEncodedData = self.createdOrderedEncodedData()
         
@@ -101,7 +112,7 @@ extension ProjectSidebarObservable {
             let existingViewModels = self.items.reduce(into: [Self.ItemID : Self.ItemViewModel]()) { result, viewModel in
                 result.updateValue(viewModel, forKey: viewModel.id)
             }
-    
+            
             self.items = self.recursiveSync(elements: encodedData,
                                             existingViewModels: existingViewModels)
             self.items.updateSidebarIndices()
