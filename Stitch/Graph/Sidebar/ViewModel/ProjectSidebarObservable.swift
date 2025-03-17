@@ -115,7 +115,6 @@ extension ProjectSidebarObservable {
             
             self.items = self.recursiveSync(elements: encodedData,
                                             existingViewModels: existingViewModels)
-            log("ProjectSidebarObservable: sync from encodedData: will updateSidebarIndices")
             self.items.updateSidebarIndices()
         }
     }

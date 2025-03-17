@@ -511,12 +511,11 @@ extension GraphState {
     /// Synchronous caller for node copying, used for Option + drag.
     @MainActor
     func copyAndPasteSelectedNodes(selectedNodeIds: NodeIdSet,
-                                   isOptionDragInSidebar: Bool = false,
                                    originalOptionDraggedLayer: SidebarListItemId? = nil,
                                    document: StitchDocumentViewModel) {
+                
         let groupNodeFocused = document.groupNodeFocused
         
-        log("copyAndPasteSelectedNodes: selectedNodeIds: \(selectedNodeIds)")
         // Copy nodes if no drag started yet
         let copiedComponentResult = self
             .createCopiedComponent(groupNodeFocused: groupNodeFocused,
@@ -526,11 +525,8 @@ extension GraphState {
         let (newComponent, nodeIdMap) = Self.updateCopiedNodes(
             component: copiedComponentResult.component,
             destinationGraphInfo: nil)
-                
-        log("copyAndPasteSelectedNodes: self.orderedSidebarLayers: \(self.orderedSidebarLayers)")
-        
+                        
         let copiedSidebarLayers = newComponent.orderedSidebarLayers
-        log("copyAndPasteSelectedNodes: copiedSidebarLayers: \(copiedSidebarLayers)")
         
         // Update top-level nodes to match current focused group
         let newNodes: [NodeEntity] = Self.createNewNodes(
@@ -540,14 +536,13 @@ extension GraphState {
         let graph = self.addComponentToGraph(newComponent: newComponent,
                                              newNodes: newNodes,
                                              nodeIdMap: nodeIdMap,
-                                             originalOptionDraggedLayer: originalOptionDraggedLayer,
-                                             isOptionDragInSidebar: isOptionDragInSidebar)
+                                             originalOptionDraggedLayer: originalOptionDraggedLayer)
 
         self.updateSync(from: graph)
         
         self.updateGraphAfterPaste(newNodes: newNodes,
                                    nodeIdMap: nodeIdMap,
-                                   isOptionDragInSidebar: isOptionDragInSidebar)
+                                   isOptionDragInSidebar: originalOptionDraggedLayer.isDefined)
     }
 
     @MainActor

@@ -73,16 +73,16 @@ extension ProjectSidebarObservable {
     func sidebarListItemDragged(item: Self.ItemViewModel,
                                 translation: CGSize) {
         
-        log("sidebarListItemDragged: item.id \(item.id)")
+        // log("sidebarListItemDragged: item.id \(item.id)")
         
         let state = self
         guard let graph = state.graphDelegate else {
-            log("sidebarListItemDragged: NO GRAPH")
+            // log("sidebarListItemDragged: NO GRAPH")
             return
         }
         
         guard let document = graph.documentDelegate else {
-            log("sidebarListItemDragged: NO DOCUMENT")
+            // log("sidebarListItemDragged: NO DOCUMENT")
             return
         }
         
@@ -97,13 +97,12 @@ extension ProjectSidebarObservable {
         // We have an in-progress option dupe-drag and have already duplicated the layers
         if state.selectionState.optionDragInProgress {
             // If we're currently doing an option+drag, then item needs to just be the top
-            log("SidebarListItemDragged: had option drag and have already duplicated the layers")
+            // log("SidebarListItemDragged: had option drag and have already duplicated the layers")
             
             if let selectedItemIdWithSmallestIndex = self.findSetItemWithSmallestIndex(
                 from: state.selectionState.primary),
                let selectedItemWithSmallestIndex = self.items.get(selectedItemIdWithSmallestIndex) {
-                log("SidebarListItemDragged: had option drag, will use selectedItemWithSmallestIndex \(selectedItemWithSmallestIndex.id) as itemId")
-                log("SidebarListItemDragged: had option drag, state.selectionState.primary was \(state.selectionState.primary)")
+                // log("SidebarListItemDragged: had option drag, will use selectedItemWithSmallestIndex \(selectedItemWithSmallestIndex.id) as itemId")
                 draggedItem = selectedItemWithSmallestIndex
             }
         }
@@ -121,16 +120,14 @@ extension ProjectSidebarObservable {
         if graph.keypressState.isOptionPressed
             && !state.selectionState.haveDuplicated
             && !state.selectionState.optionDragInProgress {
-            log("SidebarListItemDragged: option held during drag; will duplicate layers")
+            // log("SidebarListItemDragged: option held during drag; will duplicate layers")
             
             let originalOptionDraggedLayer = item.id as? SidebarListItemId
-            log("SidebarListItemDragged: option held during drag; will duplicate layers: originalOptionDraggedLayer: \(originalOptionDraggedLayer)")
+            // log("SidebarListItemDragged: option held during drag; will duplicate layers: originalOptionDraggedLayer: \(originalOptionDraggedLayer)")
             
             state.selectionState.originalLayersPrimarilySelectedAtStartOfOptionDrag = selectionState.primary
-            graph.sidebarSelectedItemsDuplicated(
-                isOptionDrag: true,
-                originalOptionDraggedLayer: originalOptionDraggedLayer,
-                document: document)
+            graph.sidebarSelectedItemsDuplicated(originalOptionDraggedLayer: originalOptionDraggedLayer,
+                                                 document: document)
             state.selectionState.haveDuplicated = true
             state.selectionState.optionDragInProgress = true
             
@@ -149,13 +146,10 @@ extension ProjectSidebarObservable {
                // If we had mutiple layers focused, the "dragged item" should be the top item
                // (Note: we'll also move all the potentially-disparate/island'd layers into a single stack; so we may want to do this AFTER the items are all stacked? or we're just concerned about the dragged-item, not its index per se?)
                 draggedItem = selectedItemWithSmallestIndex
-                log("SidebarListItemDragged item is now \(selectedItemWithSmallestIndex) ")
+                // log("SidebarListItemDragged item is now \(selectedItemWithSmallestIndex) ")
            }
         }
         
-        // log("SidebarListItemDragged: otherDragged \(otherSelections) ")
-
-        log("sidebarListItemDragged: self.onSidebarListItemDragged with translation \(translation)")
         self.onSidebarListItemDragged(translation)
     }
     
@@ -166,7 +160,6 @@ extension ProjectSidebarObservable {
         // Track old count before selections are made below
         // In-place removals mean we need to save this now
         let oldCount = visualList.count
-        log("onSidebarListItemDragged: oldCount \(oldCount)")
 
         let allSelections = self.selectionState
             .primary
@@ -177,7 +170,6 @@ extension ProjectSidebarObservable {
         }
         
         let allDraggedItemIds = allDraggedItems.map(\.id).toSet
-        log("onSidebarListItemDragged: allDraggedItemIds.count \(allDraggedItemIds.count)")
         
         // Includes visible children of dragged nodes (aka implicitly dragged)
         let allDraggedItemsPlusChildren = self.items.getSubset(from: allDraggedItemIds)
@@ -196,12 +188,9 @@ extension ProjectSidebarObservable {
         }
         
         let originalItemIndex = firstDraggedItem.sidebarIndex
-        
-        log("onSidebarListItemDragged: firstDraggedItem.id \(firstDraggedItem.id)")
-        
+                
         // Set state for a new drag
         if isNewDrag {
-            log("onSidebarListItemDragged: was new drag")
             self.currentItemDragged = firstDraggedItem.id
             // Set up previous drag position, which we'll increment off of
             allDraggedItemsPlusChildren.enumerated().forEach { index, item in
@@ -230,22 +219,18 @@ extension ProjectSidebarObservable {
             movingDown: translation.height > 0,
             flattenedItems: filteredVisualList,
             maxRowIndex: visualList.count - 1) else {
-            log("onSidebarListItemDragged: no index found")
+            // log("onSidebarListItemDragged: no index found")
             return
         }
         
-        log("onSidebarListItemDragged: calculatedIndex \(calculatedIndex)")
         
         if originalItemIndex != calculatedIndex || isNewDrag {
-            log("onSidebarListItemDragged: will move dragged items")
             self.movedDraggedItems(draggedElement: firstDraggedItem,
                                    draggedItems: allDraggedItems,
                                    visualList: filteredVisualList,
                                    to: calculatedIndex,
                                    draggedItemsPlusChildrenCount: allDraggedItemsPlusChildren.count,
                                    oldCount: oldCount)
-        } else {
-            log("onSidebarListItemDragged: will NOT move dragged items")
         }
     }
     
@@ -265,29 +250,18 @@ extension ProjectSidebarObservable {
                            oldCount: Int) {
         let visualList = visualList
         let draggedItemIdSet = draggedItems.map(\.id).toSet
-        log("movedDraggedItems: draggedItemIdSet: \(draggedItemIdSet)")
-        log("movedDraggedItems: visualList ids: \(visualList.map(\.id))")
         
         let draggedToElementResult = visualList.findClosestElement(
             draggedElement: draggedElement,
             to: index,
             numItemsDragged: draggedItemsPlusChildrenCount)
-        
-        log("movedDraggedItems: index: \(index)")
-        log("movedDraggedItems: draggedItemsPlusChildrenCount: \(draggedItemsPlusChildrenCount)")
-        
-        log("movedDraggedItems: draggedToElementResult: \(draggedToElementResult)")
-        log("movedDraggedItems: draggedToElementResult.id: \(draggedToElementResult.id)") // added
-        
+                
         // We should have removed dragged elements from the visual list
         assertInDebug(!draggedItems.contains(where: { $0.id == draggedToElementResult.id }))
         
         // Remove items from dragged set--these will be added later
         var reducedItemsList = self.items
-        log("movedDraggedItems: reducedItemsList.count: \(reducedItemsList.count)")
-        
         reducedItemsList.remove(draggedItemIdSet)
-        log("movedDraggedItems: reducedItemsList.count after removal: \(reducedItemsList.count)")
         
         guard !draggedItems.isEmpty else { return }
         
@@ -303,10 +277,8 @@ extension ProjectSidebarObservable {
         assert(newFlattenedList.count == oldCount)
         assert(newFlattenedListIds.count == Set(newFlattenedListIds).count)
 #endif
-        log("movedDraggedItems: newItemsList.count: \(newItemsList.count)")
         self.items = newItemsList
         self.items.updateSidebarIndices()
-        log("movedDraggedItems: self.items.count: \(self.items.count)")
         
         // TODO: should only be for layers sidebar
         self.graphDelegate?.updateOrderedPreviewLayers()

@@ -150,19 +150,13 @@ func attemptToInsertBeforeId(originalLayers: [SidebarLayerData],
     
     // If this level has the original item, then just prepend here
     if let indexOfOriginalLayer = originalLayers.firstIndex(where: { $0.id == originalLayerId }) {
-        log("attemptToInsertBeforeId: found originalLayerId \(originalLayerId) at index \(indexOfOriginalLayer)")
-        log("attemptToInsertBeforeId: found originalLayerId: modifiedLayers was \(modifiedLayers.map(\.id))")
-        
         // `insert at` = prepend
         modifiedLayers.insert(contentsOf: newLayers, at: indexOfOriginalLayer)
-        log("attemptToInsertBeforeId: found originalLayerId: modifiedLayers are now \(modifiedLayers.map(\.id))")
- 
         return modifiedLayers
     }
     
     // Else, recur on each item's child-list.
     // The first item to have the original layer id, we prepend the new layers into, and then return.
-    
     else {
         for x in modifiedLayers.enumerated() {
             let originalLayer = x.element
@@ -177,7 +171,6 @@ func attemptToInsertBeforeId(originalLayers: [SidebarLayerData],
                     var originalLayer = originalLayer
                     originalLayer.children = modifiedChildren
                     modifiedLayers[index] = originalLayer
-                    log("attemptToInsertBeforeId: found originalLayerId on child, modifiedLayers are now \(modifiedLayers.map(\.id))")
                     return modifiedLayers
                 }
             }
@@ -186,7 +179,6 @@ func attemptToInsertBeforeId(originalLayers: [SidebarLayerData],
     
     // Could not find original layer id anywhere
     return nil
-    
 }
 
 
@@ -285,7 +277,7 @@ extension GraphState {
         } else {
             fatalErrorIfDebug()
         }
-        log("insertNewComponent async version")
+
         await self.updateAsync(from: graph)
         
         self.updateGraphAfterPaste(newNodes: newNodes,
@@ -359,42 +351,29 @@ extension GraphState {
     func addComponentToGraph<T>(newComponent: T,
                                 newNodes: [NodeEntity],
                                 nodeIdMap: NodeIdMap,
-                                originalOptionDraggedLayer: SidebarListItemId? = nil,
-                                isOptionDragInSidebar: Bool = false) -> GraphEntity where T: StitchComponentable {
+                                originalOptionDraggedLayer: SidebarListItemId? = nil) -> GraphEntity where T: StitchComponentable {
         var graph: GraphEntity = self.createSchema()
         
         // Add new nodes
         graph.nodes += newNodes
     
         // Are we sidebar option dupe-dragging? If so, insert the duplicated layers immediately before the original option-dragged layer.
-        if isOptionDragInSidebar,
-           let originalOptionDraggedLayer = originalOptionDraggedLayer {
+        if let originalOptionDraggedLayer = originalOptionDraggedLayer {
             
-            guard let originalOptionDraggedLayerIndex = graph.orderedSidebarLayers.getSidebarLayerDataIndex(originalOptionDraggedLayer) else {
-                fatalErrorIfDebug()
-                return graph
-            }
-         
-            log("addComponentToGraph: addComponentToGraph: will attempt to insert before \(originalOptionDraggedLayer)")
+            // log("addComponentToGraph: addComponentToGraph: will attempt to insert before \(originalOptionDraggedLayer)")
             
             if let updatedLayers = attemptToInsertBeforeId(
                 originalLayers: graph.orderedSidebarLayers,
                 newLayers: newComponent.graph.orderedSidebarLayers,
                 originalLayerId: originalOptionDraggedLayer) {
                 
-                let updatedFlatIds = updatedLayers
-                    .flatMap { $0.children.isDefined ? [$0] + $0.children! : [$0] }
-                    .map(\.id)
-                
-                log("addComponentToGraph: updatedLayers: updatedFlatIds: \(updatedFlatIds)")
-                
                 graph.orderedSidebarLayers = updatedLayers
-                return graph
             } else {
-                log("addComponentToGraph: no updated layers")
-                return graph
+                fatalErrorIfDebug()
             }
-        } // if isOptionDragInSidebar
+            
+            return graph
+        }
         
                 // Are we not sidebar option dupe-dragging, but pasting into the same project anyway? (e.g. regular duplication via sidebar)
         // If so, insert the duplicated layers after the top-most original sidebar layer.
@@ -430,10 +409,7 @@ extension GraphState {
         self.sidebarSelectionState.resetEditModeSelections()
         // self.sidebarSelectionState.primary = .init()
         
-        log("GraphState: updateGraphAfterPaste: will updateSidebarIndices")
         self.layersSidebarViewModel.items.updateSidebarIndices()
-        
-        
         
         // NOTE: we can either duplicate layers OR patch nodes; but NEVER both
         // Update selected nodes
@@ -451,7 +427,7 @@ extension GraphState {
                     if isOptionDragInSidebar {
                         
                         // Note: nodeIdMap is `key: oldNode,  value: newNode`, so must do a reverse dictionary look up.
-                        if let originalLayerNodeId = nodeIdMap.first { (key: NodeId, value: NodeId) in value == id }?.key,
+                        if let originalLayerNodeId = nodeIdMap.first(where: { $0.value == id })?.key,
                         self.sidebarSelectionState.originalLayersPrimarilySelectedAtStartOfOptionDrag.contains(originalLayerNodeId) {
                             
                             self.sidebarSelectionState.primary.insert(id)
@@ -483,7 +459,7 @@ extension GraphState {
                             let portType: LayerInputKeyPathType = isPacked ? .packed : .unpacked(unpackedId ?? .port0)
                             let layerId = LayerInputType(layerInput: inputType,
                                                          portType: portType)
-                            if let canvas = inputData.canvasItem,
+                            if let _ = inputData.canvasItem,
                                let canvasItem = self.getCanvasItem(.layerInput(.init(node: nodeEntity.id,
                                                                                      keyPath: layerId))) {
                                 canvasItem.select(self)
