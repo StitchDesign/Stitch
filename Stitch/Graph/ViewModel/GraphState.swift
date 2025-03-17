@@ -482,10 +482,6 @@ extension GraphState {
     @MainActor func update(from schema: GraphEntity, rootUrl: URL) {
         self.updateSynchronousProperties(from: schema)
         
-        guard let document = self.documentEncoderDelegate else {
-            return
-        }
-        
         if let decodedFiles = DocumentEncoder.getDecodedFiles(rootUrl: rootUrl) {
             self.importedFilesDirectoryReceived(mediaFiles: decodedFiles.mediaFiles,
                                                 components: decodedFiles.components)
