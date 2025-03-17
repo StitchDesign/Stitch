@@ -408,27 +408,27 @@ extension GraphState {
         return graph
     }
     
-    @MainActor
-    func syncNodes(with entities: [NodeEntity]) async {
-        let currentEntities = self.createSchema().nodes
-        
-        guard currentEntities != entities else {
-            return
-        }
-        
-        let newDictionary = await self.visibleNodesViewModel.nodes
-            .sync(with: entities,
-                  updateCallback: { nodeViewModel, nodeSchema in
-            await nodeViewModel.update(from: nodeSchema,
-                                       components: self.components)
-        }) { nodeSchema in
-            await NodeViewModel(from: nodeSchema,
-                                components: self.components,
-                                parentGraphPath: self.saveLocation)
-        }
-        
-        self.syncNodes(nodesDict: newDictionary)
-    }
+//    @MainActor
+//    func syncNodes(with entities: [NodeEntity]) async {
+//        let currentEntities = self.createSchema().nodes
+//        
+//        guard currentEntities != entities else {
+//            return
+//        }
+//        
+//        let newDictionary = await self.visibleNodesViewModel.nodes
+//            .sync(with: entities,
+//                  updateCallback: { nodeViewModel, nodeSchema in
+//            await nodeViewModel.update(from: nodeSchema,
+//                                       components: self.components)
+//        }) { nodeSchema in
+//            await NodeViewModel(from: nodeSchema,
+//                                components: self.components,
+//                                parentGraphPath: self.saveLocation)
+//        }
+//        
+//        self.syncNodes(nodesDict: newDictionary)
+//    }
     
     @MainActor
     func syncNodes(with entities: [NodeEntity]) {
@@ -497,19 +497,19 @@ extension GraphState {
         self.refreshGraphUpdaterId()
     }
     
-    @MainActor func updateAsync(from schema: GraphEntity) async {
-        self.updateSynchronousProperties(from: schema)
-        
-        if let decodedFiles = await self.documentEncoderDelegate?.getDecodedFiles() {
-            self.importedFilesDirectoryReceived(mediaFiles: decodedFiles.mediaFiles,
-                                                components: decodedFiles.components)
-        }
-        
-        await self.syncNodes(with: schema.nodes)
-        
-        // Determines if graph data needs updating
-        self.refreshGraphUpdaterId()
-    }
+//    @MainActor func updateAsync(from schema: GraphEntity) async {
+//        self.updateSynchronousProperties(from: schema)
+//        
+//        if let decodedFiles = await self.documentEncoderDelegate?.getDecodedFiles() {
+//            self.importedFilesDirectoryReceived(mediaFiles: decodedFiles.mediaFiles,
+//                                                components: decodedFiles.components)
+//        }
+//        
+//        await self.syncNodes(with: schema.nodes)
+//        
+//        // Determines if graph data needs updating
+//        self.refreshGraphUpdaterId()
+//    }
      
     @MainActor
     func refreshGraphUpdaterId() {
@@ -522,20 +522,30 @@ extension GraphState {
         }
     }
     
-    // Used with copy-paste / duplication
-    @MainActor func updateSync(from schema: GraphEntity) {
-        self.updateSynchronousProperties(from: schema)
-        
-        Task { [weak self] in
-            // Async update data correctly
-            await self?.updateAsync(from: schema)
+    @MainActor
+    func update(from entity: GraphEntity) {
+        guard let rootUrl = self.documentEncoderDelegate?.rootUrl else {
+            return
         }
         
-        self.syncNodes(with: schema.nodes)
-        
-        // Determines if graph data needs updating
-        self.refreshGraphUpdaterId()
+        self.update(from: entity, rootUrl: rootUrl)
     }
+    
+    // Used with copy-paste / duplication
+//    @MainActor func updateSync(from schema: GraphEntity) {
+//        self.updateSynchronousProperties(from: schema)
+//        
+//        self.update(from: schema, rootUrl: <#T##URL#>)
+//        Task { [weak self] in
+//            // Async update data correctly
+//            await self?.updateAsync(from: schema)
+//        }
+//        
+//        self.syncNodes(with: schema.nodes)
+//        
+//        // Determines if graph data needs updating
+//        self.refreshGraphUpdaterId()
+//    }
     
     @MainActor func onPrototypeRestart() {
         self.nodes.values.forEach { $0.onPrototypeRestart() }

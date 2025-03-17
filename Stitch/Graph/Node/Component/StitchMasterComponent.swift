@@ -96,9 +96,8 @@ extension StitchMasterComponent: DocumentEncodableDelegate, Identifiable {
         }
         
         graphs.forEach { graph in
-            Task(priority: .high) { [weak graph] in
-                await graph?.updateAsync(from: schema.graph)
-            }
+            graph.update(from: schema.graph,
+                         rootUrl: schema.rootUrl)
         }
     }
     
@@ -122,25 +121,25 @@ extension StitchMasterComponent: DocumentEncodableDelegate, Identifiable {
         }
     }
     
-    @MainActor
-    func updateAsync(from schema: StitchComponent) async {
-        self.lastEncodedDocument = schema
-        
-        guard let document = self.parentGraph?.documentDelegate else {
-            return
-        }
-        
-        let componentId = self.id
-        
-        // Find all graph states using this component
-        for component in document.allComponents {
-            guard component.componentId == componentId else {
-                continue
-            }
-            
-            await component.graph.updateAsync(from: schema.graph)
-        }
-    }
+//    @MainActor
+//    func updateAsync(from schema: StitchComponent) async {
+//        self.lastEncodedDocument = schema
+//        
+//        guard let document = self.parentGraph?.documentDelegate else {
+//            return
+//        }
+//        
+//        let componentId = self.id
+//        
+//        // Find all graph states using this component
+//        for component in document.allComponents {
+//            guard component.componentId == componentId else {
+//                continue
+//            }
+//            
+//            await component.graph.updateAsync(from: schema.graph)
+//        }
+//    }
     
     @MainActor
     var storeDelegate: StoreDelegate? {
