@@ -13,7 +13,6 @@ import UIKit
 struct GraphScrollDataUpdated: StitchDocumentEvent {
     let newOffset: CGPoint
     let newZoom: CGFloat
-    // var shouldPersist: Bool = false // true just when e.g. we stopped decelerating
     
     func handle(state: StitchDocumentViewModel) {
         
