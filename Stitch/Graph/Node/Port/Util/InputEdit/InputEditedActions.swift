@@ -35,6 +35,25 @@ extension GraphState {
     }
 }
 
+extension LayerInputObserver {
+    
+    @MainActor
+    var nodeId: NodeId {
+        self.packedRowObserver.id.nodeId
+    }
+    
+    @MainActor
+    func getInputNodeRowObserver(for fieldIndex: Int, _ graph: GraphState) -> InputNodeRowObserver? {
+        
+        guard let layerNode = graph.getNode(self.nodeId)?.layerNode else {
+            return nil
+        }
+        
+        let layerInputType = self.layerInputType(fieldIndex: fieldIndex)
+        return layerNode[keyPath: layerInputType.layerNodeKeyPath].rowObserver
+    }
+}
+
 extension InputNodeRowObserver {
     @MainActor
     func inputEdited(graph: GraphState,
@@ -111,13 +130,15 @@ extension InputNodeRowObserver {
             layerInput: self.id.portType.keyPath?.layerInput,
             isFieldInsideLayerInspector: isFieldInsideLayerInspector) {
             
-            layerMultiselectInput.multiselectObservers(graph).forEach { observer in
-                observer.allInputData.forEach { (x: InputLayerNodeRowData) in
-                    x.rowObserver.inputEdited(graph: graph,
-                                              fieldValue: fieldValue,
-                                              fieldIndex: fieldIndex,
-                                              activeIndex: activeIndex,
-                                              isCommitting: isCommitting)
+            layerMultiselectInput.multiselectObservers(graph).forEach { (observer: LayerInputObserver) in
+                if let rowObserver = observer.getInputNodeRowObserver(for: fieldIndex, graph) {
+                    rowObserver.inputEdited(graph: graph,
+                                            fieldValue: fieldValue,
+                                            fieldIndex: fieldIndex,
+                                            activeIndex: activeIndex,
+                                            isCommitting: isCommitting)
+                    
+                    let newActiveValue = rowObserver.getActiveValue(activeIndex: graph.documentDelegate?.activeIndex ?? .init(0))
                 }
             }
         }
