@@ -257,7 +257,6 @@ extension GraphState {
 
 // Drag.onEnded
 struct NodeMoveEndedAction: StitchDocumentEvent {
-//    let id: NodeId // id of node or rectangle
     let id: CanvasItemId // id of node or rectangle
 
     func handle(state: StitchDocumentViewModel) {
