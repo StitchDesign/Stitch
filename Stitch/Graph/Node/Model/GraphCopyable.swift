@@ -525,9 +525,7 @@ extension GraphState {
         let (newComponent, nodeIdMap) = Self.updateCopiedNodes(
             component: copiedComponentResult.component,
             destinationGraphInfo: nil)
-                        
-        let copiedSidebarLayers = newComponent.orderedSidebarLayers
-        
+                                
         // Update top-level nodes to match current focused group
         let newNodes: [NodeEntity] = Self.createNewNodes(
             from: newComponent,

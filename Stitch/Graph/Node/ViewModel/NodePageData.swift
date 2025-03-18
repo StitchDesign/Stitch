@@ -16,12 +16,15 @@ final class NodePageData {
     // TODO: for root page data, should always be same as the persisted localPosition of GraphEntity; currently we only persist a single localPosition on the document entity
     var localPosition: CGPoint {
         didSet {
-            // log("NodePageData: didSet: localPosition: oldValue: \(oldValue)")
-            // log("NodePageData: didSet: localPosition: localPosition: \(localPosition)")
+            
             if localPosition.x.magnitude > WHOLE_GRAPH_LENGTH {
+                log("NodePageData: didSet: x magnitude too big: localPosition: oldValue: \(oldValue)")
+                log("NodePageData: didSet: x magnitude too big: localPosition: localPosition: \(localPosition)")
                 fatalErrorIfDebug()
             }
             if localPosition.y.magnitude > WHOLE_GRAPH_LENGTH {
+                log("NodePageData: didSet: y magnitude too big: localPosition: oldValue: \(oldValue)")
+                log("NodePageData: didSet: y magnitude too big: localPosition: localPosition: \(localPosition)")
                 fatalErrorIfDebug()
             }
         }
