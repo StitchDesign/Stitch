@@ -18,11 +18,27 @@ extension GraphState {
         
         guard let document = self.documentDelegate else { return }
         
-        let zoom = self.graphMovement.zoomData
+        /*
+         Note: `updateVisibleNodes` is called when the UIScrollView jumps to the graph's absolute-center upon project first open (`GraphScrollUpdated` dispatched from `scrollViewDidScroll` method).
+         However, at that point the canvas-cache has not yet been populated, so the `newVisibleNodes = .init()` was not being populated,
+         thus incorrectly negating "treat all nodes as visible upon graph eval at graph opening" effect we want at the
+         
+         TODO: how to distinguish between a canvas-cache that has *never* been populated, vs. one that is empty bea vs. one that is empty because there are no longer any nodes at that traversal level ?
+         
+         TODO: alternatively, could use a flag in `UIScrollView` such that `GraphScrollUpdated` does not trigger `updateVisibleNodes` when first jumping to graph center upon project open ?
+         */
+        if self.visibleNodesViewModel.infiniteCanvasCache.isEmpty
+//           // TODO: perf impact of constantly checking canvas-items-at-this-traversal-level ?
+//           , !self.canvasItemsAtTraversalLevel(document.groupNodeFocused).isEmpty
+        {
+            return
+        }
+        
+        let zoom = document.graphMovement.zoomData
         
         // How much that content is offset from the UIScrollView's top-left corner;
         // can never be negative.
-        let originOffset = self.graphMovement.localPosition
+        let originOffset = document.graphMovement.localPosition
         
         let scaledOffset = CGPoint(x: originOffset.x / zoom,
                                    y: originOffset.y / zoom)
@@ -42,7 +58,7 @@ extension GraphState {
             
             let id = cachedSubviewData.key
             let cachedBounds = cachedSubviewData.value
-          
+            
             let isVisibleInFrame = viewFrame.intersects(cachedBounds)
             
             if isVisibleInFrame {
@@ -52,7 +68,7 @@ extension GraphState {
                  If a GroupNode is "visible on screen" (i.e. within the user's viewport),
                  then we should consider its underlying input- and output-splitters visible as well,
                  for the purposes of UI field updates.
-                
+                 
                  Note: CanvasItemId.layerInput and CanvasItemId.layerOutput can never be a GroupNode,
                  but CanvasItemId.node could be a GroupNode.
                  */
@@ -61,14 +77,13 @@ extension GraphState {
                     newVisibleNodes.formUnion(self.visibleNodesViewModel.getSplitterOutputRowObserverIds(for: potentialGroupNodeId))
                 }
                 
-                // log("updateVisibleNodes: visible: \(id)")
             } else {
                 // log("updateVisibleNodes: NOT visible: \(id), cachedBounds: \(cachedBounds)")
             }
-        }
-                        
+        } // for cachedSubviewData
+        
         if self.visibleNodesViewModel.visibleCanvasIds != newVisibleNodes {
             self.visibleNodesViewModel.visibleCanvasIds = newVisibleNodes
         }
-    }    
+    }
 }
