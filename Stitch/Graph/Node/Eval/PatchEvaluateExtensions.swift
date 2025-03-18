@@ -206,7 +206,7 @@ extension Patch {
         case .length:
             return .node(arithmeticNodeTypeEval(lengthEval))
         case .min:
-            return .node(outputsOnlyEval(minEval))
+            return .node(arithmeticNodeTypeEval(minEval))
         case .power:
             return .node(mathNodeTypeEval(powerEval))
         case .equals:
