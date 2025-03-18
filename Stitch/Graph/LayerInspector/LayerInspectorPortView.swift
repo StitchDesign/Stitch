@@ -22,6 +22,7 @@ struct LayerInspectorInputPortView: View {
         
         let observerMode = layerInputObserver.observerMode
         
+        // TODO: is this really correct, to always treat the layer's input as packed ?
         let layerInputType = LayerInputType(layerInput: layerInputObserver.port,
                                             // Always `.packed` at the inspector-row level
                                             portType: .packed)
@@ -109,23 +110,13 @@ struct InspectorLayerInputView: View {
                               node: node,
                               graph: graph)
     }
-    
-    // Can we really assume that this is packed?
-    var layerInputType: LayerInputType {
-        LayerInputType.init(layerInput: layerInputObserver.port,
-                            portType: .packed)
-    }
-    
-    var layerInspectorRowId: LayerInspectorRowId {
-        .layerInput(layerInputType)
-    }
-
+        
     var layerInput: LayerInputPort {
         self.layerInputObserver.port
     }
     
     var isShadowLayerInputRow: Bool {
-        self.layerInputObserver.port == SHADOW_FLYOUT_LAYER_INPUT_PROXY
+        self.layerInput == SHADOW_FLYOUT_LAYER_INPUT_PROXY
     }
     
     var willShowLabel: Bool {
@@ -139,8 +130,10 @@ struct InspectorLayerInputView: View {
         self.layerInputObserver.fieldValueTypes
     }
     
-    var propertyRowIsSelected: Bool {
-        graph.propertySidebar.selectedProperty == layerInspectorRowId
+    // iPad-only?
+    var packedPropertyRowIsSelected: Bool {
+        graph.propertySidebar.selectedProperty == .layerInput(LayerInputType.init(layerInput: layerInputObserver.port,
+                                                                                  portType: .packed))
     }
     
     var body: some View {
@@ -151,7 +144,7 @@ struct InspectorLayerInputView: View {
                 LabelDisplayView(label: label,
                                  isLeftAligned: false,
                                  fontColor: STITCH_FONT_GRAY_COLOR,
-                                 isSelectedInspectorRow: propertyRowIsSelected)
+                                 isSelectedInspectorRow: packedPropertyRowIsSelected)
             }
             Spacer()
             LayerInputFieldsView(layerInputFieldType: forFlyout ? .flyout : .inspector,
