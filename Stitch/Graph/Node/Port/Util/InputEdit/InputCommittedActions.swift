@@ -74,8 +74,8 @@ extension GraphState {
         
             // Note: heterogenous values doesn't matter; only the multiselect does
             layerMultiselectInput.multiselectObservers(self).forEach { (observer: LayerInputObserver) in
-                observer.allInputData.forEach { (x: InputLayerNodeRowData) in
-                    self.inputEditCommitted(input: x.rowObserver,
+                if let rowObserver = observer.getInputNodeRowObserver(for: 0, self) {
+                    self.inputEditCommitted(input: rowObserver,
                                             value: value,
                                             activeIndex: activeIndex,
                                             wasAdjustmentBarSelection: wasAdjustmentBarSelection)

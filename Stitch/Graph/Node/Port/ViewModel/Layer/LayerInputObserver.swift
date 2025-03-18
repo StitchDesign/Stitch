@@ -325,10 +325,13 @@ extension LayerInputObserver {
     /// Called after the pack mode changes for some port.
     @MainActor 
     func wasPackModeToggled() {
+                
+        guard let graph = self.graphDelegate else {
+            fatalErrorIfDebug("wasPackModeToggled: did not have graph delegate")
+            return
+        }
         
-        let nodeId = self._packedData.rowObserver.id.nodeId
-        
-        guard let node = self.graphDelegate?.getNodeViewModel(nodeId),
+        guard let node = graph.getNodeViewModel(self.nodeId),
               let layerNode = node.layerNode else {
             fatalErrorIfDebug()
             return
@@ -357,17 +360,19 @@ extension LayerInputObserver {
                 $0.resetOnPackModeToggle()
             }
             
+            // NOTE: use `setValuesInInput` so that packed row observer's field observers are updated/synced as well
             // Update values to packed observer
-            self._packedData.rowObserver.updateValues(values)
+//            self._packedData.rowObserver.updateValues(values)
+            self._packedData.rowObserver.setValuesInInput(values)
         }
         
-        self.graphDelegate?.updateGraphData()
+        graph.updateGraphData()
     }
     
     /// Helper only intended for use with ports that don't support unpacked mode.
     @MainActor
     var packedRowObserver: InputNodeRowObserver {
-        return self._packedData.rowObserver
+        self._packedData.rowObserver
     }
     
     @MainActor
