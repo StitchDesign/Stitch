@@ -68,17 +68,18 @@ extension GraphState {
                                   isFieldInsideLayerInspector: Bool,
                                   wasAdjustmentBarSelection: Bool = false) {
         
-        if isFieldInsideLayerInspector,
-           let layerInput = input.id.keyPath?.layerInput,
-           let multiselectInputs = self.propertySidebar.inputsCommonToSelectedLayers,
-           let layerMultiselectInput = multiselectInputs.first(where: { $0 == layerInput}) {
+        if let layerMultiselectInput = self.getLayerMultiselectInput(
+            layerInput: input.id.keyPath?.layerInput,
+            isFieldInsideLayerInspector: isFieldInsideLayerInspector) {
         
             // Note: heterogenous values doesn't matter; only the multiselect does
-            layerMultiselectInput.multiselectObservers(self).forEach { observer in
-                self.inputEditCommitted(input: input,
-                                        value: value,
-                                        activeIndex: activeIndex,
-                                        wasAdjustmentBarSelection: wasAdjustmentBarSelection)
+            layerMultiselectInput.multiselectObservers(self).forEach { (observer: LayerInputObserver) in
+                observer.allInputData.forEach { (x: InputLayerNodeRowData) in
+                    self.inputEditCommitted(input: x.rowObserver,
+                                            value: value,
+                                            activeIndex: activeIndex,
+                                            wasAdjustmentBarSelection: wasAdjustmentBarSelection)
+                }
             }
         } 
         
@@ -100,8 +101,7 @@ extension GraphState {
         let nodeId = input.id.nodeId
         
         // TODO: debug: why was input.nodeDelegate `nil` for e.g. the padding layer-input but not the size layer-input, and only in the context of generating an LLM action?
-        guard // let nodeId = input.nodeDelegate?.id,
-              let nodeViewModel = self.getNodeViewModel(nodeId),
+        guard let nodeViewModel = self.getNodeViewModel(nodeId),
               var value = value else {
             log("GraphState.inputEditCommitted error: could not find node data.")
             return
