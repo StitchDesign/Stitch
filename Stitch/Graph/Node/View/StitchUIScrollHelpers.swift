@@ -45,6 +45,11 @@ struct GraphScrollDataUpdated: StitchDocumentEvent {
             nodePage.zoomData = newZoom
         }
         
+        // Scrolling, zooming ends any node duplication drag
+        // TODO: revisit when we support multi-gestures on iPad again
+        // Usually okay, but we can get stuck in dupe-drag mode if something goes wrong and a handleNodeMoveEnded action isn't fired
+        graph.dragDuplication = false
+        
         // Update which nodes are visible in frame
         graph.updateVisibleNodes()
     }
