@@ -35,6 +35,7 @@ func maxNode(id: NodeId,
         zIndex: zIndex,
         id: id,
         patchName: .max,
+        userVisibleType: .number,
         inputs: inputs,
         outputs: outputs)
 }

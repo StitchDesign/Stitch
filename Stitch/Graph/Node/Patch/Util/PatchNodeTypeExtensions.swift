@@ -102,7 +102,7 @@ extension Patch {
         //            return NumberUVT.value
 
         // ARITHMETIC
-        case .add, .length, .min:
+        case .add, .length, .min, .max, .mod:
             return ArithmeticUVT.value
 
         // Updated to exclude text/string types

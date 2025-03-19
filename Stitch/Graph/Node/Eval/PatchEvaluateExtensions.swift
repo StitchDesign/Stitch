@@ -168,9 +168,9 @@ extension Patch {
         case .clip:
             return .node(outputsOnlyEval(clipEval))
         case .max:
-            return .node(outputsOnlyEval(maxEval))
+            return .node(arithmeticNodeTypeEval(minEval))
         case .mod:
-            return .node(outputsOnlyEval(modEval))
+            return .node(arithmeticNodeTypeEval(minEval))
         case .round:
             return .node(outputsOnlyEval(roundEval))
         case .absoluteValue:
