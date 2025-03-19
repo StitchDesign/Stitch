@@ -23,7 +23,6 @@ func maxNode(id: NodeId,
                            (nil, n1Loop ?? [.number(n1)]),
                            (nil, n2Loop ?? [.number(n2)]))
     
-    // Calculate initial output using the same logic as MaxEvalOps.numberOperation
     let initialValues: [PortValue] = [.number(n1), .number(n2)]
     let maxValue = initialValues.compactMap { $0.getNumber }.max() ?? .zero
     
@@ -45,11 +44,9 @@ func maxNode(id: NodeId,
 func maxEval(inputs: PortValuesList,
              evalKind: ArithmeticNodeType) -> PortValuesList {
     
-    // Get input values for evaluation
     let values = inputs.flatMap { $0 }
     let result = resultsMaker(inputs)
     
-    // Check if any input is a string
     let hasStringInput = values.contains { portValue in
         if case .string(_) = portValue { return true }
         return false

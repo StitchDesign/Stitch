@@ -11,26 +11,23 @@ import StitchSchemaKit
 
 @MainActor
 func modNode(id: NodeId,
-            n1: Double = 1.0,
-            n2: Double = 0.0,
-            position: CGSize = .zero,
-            zIndex: Double = 0,
-            n1Loop: PortValues? = nil,
-            n2Loop: PortValues? = nil) -> PatchNode {
+             n1: Double = 1.0,
+             n2: Double = 0.0,
+             position: CGSize = .zero,
+             zIndex: Double = 0,
+             n1Loop: PortValues? = nil,
+             n2Loop: PortValues? = nil) -> PatchNode {
     
     let inputs = toInputs(id: id,
-                       values:
-                         (nil, n1Loop ?? [.number(n1)]),
-                         (nil, n2Loop ?? [.number(n2)]))
+                         values:
+                           (nil, n1Loop ?? [.number(n1)]),
+                           (nil, n2Loop ?? [.number(n2)]))
     
-    // Calculate initial output using the same logic as ModEvalOps.numberOperation
-    let initialValues: [PortValue] = [.number(n1), .number(n2)]
-    let modValue = mod(initialValues[0].getNumber ?? .zero,
-                      initialValues[1].getNumber ?? .zero)
+    let initialModValue = mod(n1, n2)
     
     let outputs = toOutputs(id: id,
-                         offset: inputs.count,
-                         values: (nil, [.number(modValue)]))
+                           offset: inputs.count,
+                           values: (nil, [.number(initialModValue)]))
 
     return PatchNode(
         position: position,
@@ -43,7 +40,6 @@ func modNode(id: NodeId,
 }
 
 
-// TODO: update to support position, size etc.?
 @MainActor
 func modEval(inputs: PortValuesList,
              evalKind: MathNodeTypeWithColor) -> PortValuesList {
@@ -79,7 +75,7 @@ struct ModEvalOps {
         let pos1 = positions[0]
         let pos2 = positions[1]
         return .position(CGPoint(x: mod(pos1.x, pos2.x),
-                              y: mod(pos1.y, pos2.y)))
+                               y: mod(pos1.y, pos2.y)))
     }
     
     static let sizeOperation: Operation = { (values: PortValues) -> PortValue in
@@ -124,4 +120,3 @@ func mod(_ n: Double, _ n2: Double) -> Double {
         ? 0
         : n.truncatingRemainder(dividingBy: n2).rounded(toPlaces: 3)
 }
-
