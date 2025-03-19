@@ -46,7 +46,7 @@ func modNode(id: NodeId,
 // TODO: update to support position, size etc.?
 @MainActor
 func modEval(inputs: PortValuesList,
-             evalKind: ArithmeticNodeType) -> PortValuesList {
+             evalKind: MathNodeTypeWithColor) -> PortValuesList {
     
     let result = resultsMaker(inputs)
     

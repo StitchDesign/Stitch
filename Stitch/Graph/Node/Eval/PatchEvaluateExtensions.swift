@@ -170,7 +170,7 @@ extension Patch {
         case .max:
             return .node(arithmeticNodeTypeEval(maxEval))
         case .mod:
-            return .node(arithmeticNodeTypeEval(modEval))
+            return .node(mathNodeTypeWithColorEval(modEval))
         case .round:
             return .node(outputsOnlyEval(roundEval))
         case .absoluteValue:
