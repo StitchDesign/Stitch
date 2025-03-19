@@ -65,50 +65,63 @@ func addPatchNode(nodeId: NodeId = NodeId(),
 //    }
 //}
 
+//@MainActor
+//func addEval(inputs: PortValuesList,
+//             evalKind: ArithmeticNodeType) -> PortValuesList {
 @MainActor
-func addEval(inputs: PortValuesList,
-             evalKind: ArithmeticNodeType) -> PortValuesList {
+func addEval(node: PatchNode,
+             graph: GraphState) -> EvalResult {
     
+    let inputs: PortValuesList = node.inputs
+                 
     let result = resultsMaker(inputs)
     
-    // Check if any input is a string or color
-    let hasStringInput = inputs.contains { portValues in
-        portValues.contains { portValue in
-            if case .string(_) = portValue {
-                return true
-            }
-            return false
-        }
+    if node.id.uuidString.contains("8FABCA") {
+        log("addEval: graphTime: \(graph.graphStepState.graphTime)")
+        log("addEval: inputs: \(inputs)")
     }
     
-    let hasColorInput = inputs.contains { portValues in
-        portValues.contains { portValue in
-            if case .color(_) = portValue {
-                return true
-            }
-            return false
-        }
-    }
+//    // Check if any input is a string or color
+//    let hasStringInput = inputs.contains { portValues in
+//        portValues.contains { portValue in
+//            if case .string(_) = portValue {
+//                return true
+//            }
+//            return false
+//        }
+//    }
+//    
+//    let hasColorInput = inputs.contains { portValues in
+//        portValues.contains { portValue in
+//            if case .color(_) = portValue {
+//                return true
+//            }
+//            return false
+//        }
+//    }
+//    
+//    if hasStringInput {
+//        return result(AddEvalOps.stringOperation)
+//    }
+//    
+//    if hasColorInput {
+//        return result(AddEvalOps.colorOperation)
+//    }
     
-    if hasStringInput {
-        return result(AddEvalOps.stringOperation)
-    }
-    
-    if hasColorInput {
-        return result(AddEvalOps.colorOperation)
-    }
-    
-    switch evalKind {
+//    switch evalKind {
+    switch node.userVisibleType! {
     case .number:
-        return result(AddEvalOps.numberOperation)
+        return .init(outputsValues: result(AddEvalOps.numberOperation))
     case .size:
-        return result(AddEvalOps.sizeOperation)
+        return .init(outputsValues: result(AddEvalOps.sizeOperation))
     case .position:
-        return result(AddEvalOps.positionOperation)
+        return .init(outputsValues: result(AddEvalOps.positionOperation))
     case .point3D:
-        return result(AddEvalOps.point3DOperation)
+        return .init(outputsValues: result(AddEvalOps.point3DOperation))
     case .color:
-        return result(AddEvalOps.colorOperation)
+        return .init(outputsValues: result(AddEvalOps.colorOperation))
+    default:
+        fatalError()
     }
 }
 

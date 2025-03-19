@@ -42,19 +42,34 @@ func clipNode(id: NodeId,
         outputs: outputs)
 }
 
+//@MainActor
+//func clipEval(inputs: PortValuesList,
+//              outputs: PortValuesList) -> PortValuesList {
 @MainActor
-func clipEval(inputs: PortValuesList,
-              outputs: PortValuesList) -> PortValuesList {
+func clipEval(node: PatchNode,
+              graph: GraphState) -> EvalResult {
 
+    
+    let graphTime = graph.graphStepState.graphTime
+    log("clipEval: graphTime: \(graphTime)")
+    let inputs: PortValuesList = node.inputs
+    
     let op: Operation = { (values: PortValues) -> PortValue in
-        let value = values.first!.getNumber!
-        let min = values[1].getNumber!
-        let max = values[2].getNumber!
-        return .number(getNumberBetween(value: value, min: min, max: max))
+        if let value = values.first?.getNumber,
+           let min = values[1].getNumber,
+           let max = values[2].getNumber {
+            log("clipEval: value: \(value)")
+            let result = getNumberBetween(value: value, min: min, max: max)
+            return .number(result)
+        } else {
+            fatalErrorIfDebug()
+            return .number(.zero)
+        }
     }
 
-    return resultsMaker(inputs)(op)
+    return .init(outputsValues: resultsMaker(inputs)(op))
 }
+
 
 func getNumberBetween(value: Double,
                       min: Double,

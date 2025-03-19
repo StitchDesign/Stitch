@@ -23,7 +23,8 @@ extension Patch {
         case .imageImport:
             return .node(imageImportEval)
         case .add:
-            return .node(arithmeticNodeTypeEval(addEval))
+//            return .node(arithmeticNodeTypeEval(addEval))
+            return .graph(addEval)
         case .convertPosition:
             return .graph(outputsOnlyGraphStateEval(convertPositionEval))
         case .multiply:
@@ -166,7 +167,8 @@ extension Patch {
         case .smoothValue:
             return .graphStep(smoothValueEval)
         case .clip:
-            return .node(outputsOnlyEval(clipEval))
+//            return .node(outputsOnlyEval(clipEval))
+            return .graph(clipEval)
         case .max:
             return .node(outputsOnlyEval(maxEval))
         case .mod:
