@@ -98,6 +98,7 @@ func dateAndTimeFormatterEval(inputs: PortValuesList,
             let date = Date(timeIntervalSince1970: time)
             let dateFormatter = DateFormatter()
 
+            dateFormatter.timeZone = TimeZone(identifier: "UTC")
             if let style = format.toDateFormatterStyle {
                 dateFormatter.dateStyle = style
                 dateFormatter.timeStyle = style
