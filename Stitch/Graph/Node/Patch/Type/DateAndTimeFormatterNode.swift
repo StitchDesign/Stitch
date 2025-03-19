@@ -36,13 +36,13 @@ extension DateAndTimeFormat: PortValueEnum {
         case .none:
             return "None"
         case .short:
-            return  "Short"
+            return  "Short Date (YYYY-MM-DD)"
         case .medium:
-            return  "Medium"
+            return  "Medium Date (Jan 1, 1970)"
         case .long:
-            return  "Long"
+            return  "Long Date (January 1, 1970)"
         case .full:
-            return  "Full"
+            return  "Full Date & Time (January 1, 1970 at 12:00 AM)"
         }
     }
 }
