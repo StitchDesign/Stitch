@@ -172,7 +172,7 @@ extension Patch {
         case .max:
             return nil
         case .mod:
-            return ModNode.self
+            return nil
         case .absoluteValue:
             return nil
         case .round:
