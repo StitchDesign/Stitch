@@ -118,7 +118,7 @@ extension Patch {
         case .max:
             node = maxNode(id: id, position: position, zIndex: zIndex)
         case .mod:
-            node = minNode(id: id, position: position, zIndex: zIndex)
+            node = modNode(id: id, position: position, zIndex: zIndex)
         case .absoluteValue:
             node = absoluteValueNode(id: id, position: position, zIndex: zIndex)
         case .round:
