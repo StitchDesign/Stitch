@@ -80,7 +80,7 @@ struct MinEvalOps {
     
     static let stringOperation: Operation = { (values: PortValues) -> PortValue in
         let strings = values.compactMap { $0.getString }
-        let minString = strings.min { $0.string < $1.string } ?? .additionIdentity
+        let minString = strings.min { $0.string.count < $1.string.count } ?? .additionIdentity
         return .string(minString)
     }
     
