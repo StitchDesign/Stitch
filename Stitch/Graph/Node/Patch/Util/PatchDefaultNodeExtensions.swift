@@ -117,6 +117,8 @@ extension Patch {
             node = clipNode(id: id, position: position, zIndex: zIndex)
         case .max:
             node = maxNode(id: id, position: position, zIndex: zIndex)
+        case .mod:
+            node = modNode(id: id, position: position, zIndex: zIndex)
         case .absoluteValue:
             node = absoluteValueNode(id: id, position: position, zIndex: zIndex)
         case .round:
