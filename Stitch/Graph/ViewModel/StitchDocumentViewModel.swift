@@ -153,16 +153,16 @@ final class StitchDocumentViewModel: Sendable {
         self.isDebugMode = isDebugMode
         
         // Handles Stitch AI if enabled
-#if STITCH_AI
+//#if STITCH_AI
         do {
             self.aiManager = try StitchAIManager()
         } catch {
             self.aiManager = nil
             log("StitchStore error: could not init secrets file with error: \(error)")
         }
-#else
-        self.aiManager = nil
-#endif
+//#else
+//        self.aiManager = nil
+//#endif
 
         self.lastEncodedDocument = schema
         
