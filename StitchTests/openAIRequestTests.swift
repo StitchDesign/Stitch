@@ -10,12 +10,12 @@ import StitchSchemaKit
 @testable import Stitch
 
 class OpenAIRequestTests: XCTestCase {
-#if STITCH_AI
+//#if STITCH_AI
     func testSecretsNotNil() {
         let secrets = try? Secrets()
         XCTAssertNotNil(secrets)
     }
-#endif
+//#endif
     
     /// Tests conversions to and from decoded state. StitchAI sometimes uses different types, this ensures types are compatible.
     func testStitchAICodables() {
