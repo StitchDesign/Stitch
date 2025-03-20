@@ -17,7 +17,7 @@ struct Secrets: Equatable {
     var sentryDSN: String
     
     init?() throws {
-        guard let path = Bundle.main.url(forResource: "secrets", withExtension: "json") else {
+        guard let path = Self.getPath() else {
             log("secrets.json file not found")
             return nil
         }
@@ -25,6 +25,10 @@ struct Secrets: Equatable {
         let data = try Data(contentsOf: path)
         let decoder = getStitchDecoder()
         self = try decoder.decode(Secrets.self, from: data)
+    }
+    
+    public static func getPath() -> URL? {
+        Bundle.main.url(forResource: "secrets", withExtension: "json")
     }
 }
 
