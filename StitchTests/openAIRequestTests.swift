@@ -11,8 +11,8 @@ import StitchSchemaKit
 
 class OpenAIRequestTests: XCTestCase {
 //#if STITCH_AI
-    func testSecretsNotNil() {
-        let secrets = try? Secrets()
+    func testSecretsNotNil() throws {
+        let secrets = try Secrets()
         XCTAssertNotNil(secrets)
     }
 //#endif
