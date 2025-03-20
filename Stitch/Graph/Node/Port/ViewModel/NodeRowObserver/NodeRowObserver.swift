@@ -102,12 +102,7 @@ extension NodeRowViewModel {
     @MainActor
     func activeValueChanged(oldRowType: NodeRowType,
                             newValue: PortValue) {
-        
-        guard let rowDelegate = self.rowDelegate else {
-            fatalErrorIfDebug()
-            return
-        }
-        
+    
         let nodeIO = Self.RowObserver.nodeIOType
 
         let newRowType = newValue.getNodeRowType(nodeIO: nodeIO,
@@ -127,8 +122,20 @@ extension NodeRowViewModel {
             return
         }
         
-        let newFieldsByGroup = newValue.createFieldValuesList(nodeIO: nodeIO,
-                                                              rowViewModel: self)
+        self.updateFields(newValue)
+    }
+    
+    @MainActor
+    func updateFields(_ newValue: PortValue) {
+        
+        let nodeIO = Self.RowObserver.nodeIOType
+        
+        guard let rowDelegate = self.rowDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        let newFieldsByGroup = newValue.createFieldValuesList(nodeIO: nodeIO, rowViewModel: self)
         
         // Assert equal array counts
         guard newFieldsByGroup.count == self.fieldValueTypes.count else {
@@ -145,9 +152,9 @@ extension NodeRowViewModel {
             
             // Force update if any media--inefficient but works
 //            let isMediaField = fieldObserverGroup.type == .asyncMedia
-            let willUpdateField = newFields.count != fieldObserversCount // || isMediaField
+            let willUpdateFieldsCount = newFields.count != fieldObserversCount // || isMediaField
             
-            if willUpdateField {
+            if willUpdateFieldsCount {
                 self.fieldValueTypes = self.createFieldValueTypes(
                     initialValue: newValue,
                     nodeIO: nodeIO,
@@ -163,9 +170,9 @@ extension NodeRowViewModel {
         
         if let node = self.nodeDelegate,
            let layerNode = node.layerNodeViewModel,
-           let layerInputForThisRow = rowDelegate.id.keyPath {
-            
-            layerNode.blockOrUnblockFields(newValue: newValue, 
+           // Better?: use: `self.id.portType.keyPath`
+           let layerInputForThisRow: LayerInputType = rowDelegate.id.keyPath {
+            layerNode.blockOrUnblockFields(newValue: newValue,
                                            layerInput: layerInputForThisRow.layerInput,
                                            activeIndex: self.graphDelegate?.documentDelegate?.activeIndex ?? .init(.zero))
         }
