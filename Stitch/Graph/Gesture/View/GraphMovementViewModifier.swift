@@ -51,6 +51,8 @@ extension GraphState {
         let viewFrame = CGRect.init(origin: scaledOffset,
                                     size: scaledSize)
                 
+        let originalVisibleNodes = self.visibleNodesViewModel.visibleCanvasIds
+        
         // Determine nodes to make visible--use cache in case nodes exited viewframe
         var newVisibleNodes = Set<CanvasItemId>()
         
@@ -77,13 +79,34 @@ extension GraphState {
                     newVisibleNodes.formUnion(self.visibleNodesViewModel.getSplitterOutputRowObserverIds(for: potentialGroupNodeId))
                 }
                 
-            } else {
-                // log("updateVisibleNodes: NOT visible: \(id), cachedBounds: \(cachedBounds)")
             }
+//            else {
+//                // log("updateVisibleNodes: NOT visible: \(id), cachedBounds: \(cachedBounds)")
+//            }
         } // for cachedSubviewData
         
-        if self.visibleNodesViewModel.visibleCanvasIds != newVisibleNodes {
+        if originalVisibleNodes != newVisibleNodes {
             self.visibleNodesViewModel.visibleCanvasIds = newVisibleNodes
+            
+            // Update the cached-UI-data (e.g. fieldObservers) of the canvas items that just became visible
+            let becameVisible = newVisibleNodes.subtracting(originalVisibleNodes)
+            let activeIndex = document.activeIndex
+            becameVisible.forEach { canvasItemId in
+                if let canvasItem = self.getCanvasItem(canvasItemId) {
+                    
+                    canvasItem.inputViewModels.forEach {
+                        if let value = $0.rowDelegate?.getActiveValue(activeIndex: activeIndex) {
+                            $0.updateFields(value)
+                        }
+                    }
+                    
+                    canvasItem.outputViewModels.forEach {
+                        if let value = $0.rowDelegate?.getActiveValue(activeIndex: activeIndex) {
+                            $0.updateFields(value)
+                        }
+                    }
+                }
+            }
         }
     }
 }
