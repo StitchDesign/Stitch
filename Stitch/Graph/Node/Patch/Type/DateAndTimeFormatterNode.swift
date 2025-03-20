@@ -89,13 +89,32 @@ func dateAndTimeFormatterEval(inputs: PortValuesList,
                               outputs: PortValuesList) -> PortValuesList {
 
     let op: Operation = { (values: PortValues) -> PortValue in
-
-        if let time = values.first!.getNumber,
+        
+        if let timeValue = values.first!.getNumber,
            let format = values[1].getDateAndTimeFormat,
            // TODO: actually use customFormat
            let _ = values[2].getString {
-
-            let date = Date(timeIntervalSince1970: time)
+            
+            // Only treat as time-only if value is greater than 0 and <= 24
+            if timeValue > 0 && timeValue <= 24 {
+                let hours = Int(timeValue)
+                let minutes = Int((timeValue.truncatingRemainder(dividingBy: 1)) * 60)
+                
+                let timeFormatter = DateFormatter()
+                timeFormatter.dateFormat = "h:mm a"
+                
+                // Create date components for just the time
+                var components = DateComponents()
+                components.hour = hours
+                components.minute = minutes
+                
+                if let date = Calendar.current.date(from: components) {
+                    return .string(.init(timeFormatter.string(from: date)))
+                }
+            }
+            
+            // Handle all other cases (including 0) with normal date/time
+            let date = Date(timeIntervalSince1970: timeValue)
             let dateFormatter = DateFormatter()
 
             dateFormatter.timeZone = TimeZone(identifier: "UTC")
