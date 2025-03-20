@@ -9,11 +9,19 @@ import XCTest
 import StitchSchemaKit
 @testable import Stitch
 
+import SwiftyJSON
+
 class OpenAIRequestTests: XCTestCase {
 //#if STITCH_AI
     func testSecretsNotNil() throws {
-        let secrets = try Secrets()
-        XCTAssertNotNil(secrets)
+        do {
+            let secrets = try Secrets()
+            XCTAssertNotNil(secrets)
+        } catch {
+            let path = Secrets.getPath()!
+            let contents = try! String(contentsOf: path, encoding: .utf8)
+            XCTFail("testSecretsNotNil failed with error: \(error)\njson: \(contents)")
+        }
     }
 //#endif
     
