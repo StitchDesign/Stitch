@@ -26,7 +26,7 @@ Part of the benifit of being all in on the Apple echosystem is that we get sever
 
 ## Community
 
-We're just starting our [Campsite](https://app.campsite.co/stitch/posts) to discuss progress and share prototypes. Join us, help us improve with ideas and code. 
+We're just starting our [Discord](https://discord.gg/B4EPfGjk) to discuss progress and share prototypes. Join us, help us improve with ideas and code. 
 
 ## Who We Are
 
