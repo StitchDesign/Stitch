@@ -72,15 +72,15 @@ func counterOpClosure(graphTime: TimeInterval) -> PulseOperationT {
 
     return { (values: PortValues) -> PulseOpResultT in
 
-        let incPulsed = values[0].getPulse!.shouldPulse(graphTime)
-        let decPulsed = values[1].getPulse!.shouldPulse(graphTime)
-        let jumpPulsed = values[2].getPulse!.shouldPulse(graphTime)
+        let incPulsed = values[0].getPulse?.shouldPulse(graphTime) ?? false
+        let decPulsed = values[1].getPulse?.shouldPulse(graphTime) ?? false
+        let jumpPulsed = values[2].getPulse?.shouldPulse(graphTime) ?? false
 
-        let jumpNumber = values[3].getNumber!
-        let maxNumber = values[4].getNumber!
+        let jumpNumber = values[3].getNumber ?? .zero
+        let maxNumber = values[4].getNumber ?? .zero
 
         // old output
-        let prevValue: Double = values[safe: 5]?.getNumber ?? 0.0
+        let prevValue: Double = values[safe: 5]?.getNumber ?? .zero
 
         //        log("counterOpClosure: graphTime: \(graphTime)")
         //        log("counterOpClosure: incPulse: \(incPulse)")
