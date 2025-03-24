@@ -62,6 +62,7 @@ extension InputNodeRowObserver {
                      fieldIndex: Int,
                      activeIndex: ActiveIndex,
                      isCommitting: Bool = true) {
+        
         guard let node = graph.getNodeViewModel(self.id.nodeId) else {
             fatalErrorIfDebug()
             return
@@ -101,6 +102,7 @@ extension InputNodeRowObserver {
             
             
             self.setValuesInInput([newValue])
+            self.immediatelyUpdateFieldObservers(activeIndex)
         }
         
         // If we edited a field on a layer-size input, we may need to block or unblock certain other fields.

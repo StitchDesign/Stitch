@@ -16,11 +16,12 @@ extension NodeRowObserver {
     /*
      Note: StitchEngine's `setValuesInInput` has already updated an InputRowObserver's `allLoopedValues` by the time `updateValues` is called, therefore `allLoopedValues` already reflects "new values", so we must rely on the explicitly passed-in `oldValues`
      TODO: separate `updateValues` functions for InputNodeRowObserver vs OutputNodeRowObserver, since `oldValues` only relevant for input updates' post-processing?
+     
+     TODO: be careful where we currently use `updateValues` but need to use `setValuesInInput` instead (for field observer updates).
      */
     @MainActor
     func updateValues(_ newValues: PortValues,
-                      oldValues: PortValues? = nil)
-    {
+                      oldValues: PortValues? = nil) {
         // Check if this port is for a packed layer input but the set mode is unpacked
         // Valid scenarios here--we use input row observer getters for all-up value getting
         if let layerId = self.id.keyPath,

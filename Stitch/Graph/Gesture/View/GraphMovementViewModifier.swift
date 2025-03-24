@@ -90,23 +90,35 @@ extension GraphState {
             
             // Update the cached-UI-data (e.g. fieldObservers) of the canvas items that just became visible
             let becameVisible = newVisibleNodes.subtracting(originalVisibleNodes)
-            let activeIndex = document.activeIndex
-            becameVisible.forEach { canvasItemId in
-                if let canvasItem = self.getCanvasItem(canvasItemId) {
-                    
-                    canvasItem.inputViewModels.forEach {
-                        if let value = $0.rowDelegate?.getActiveValue(activeIndex: activeIndex) {
-                            $0.updateFields(value)
-                        }
-                    }
-                    
-                    canvasItem.outputViewModels.forEach {
-                        if let value = $0.rowDelegate?.getActiveValue(activeIndex: activeIndex) {
-                            $0.updateFields(value)
-                        }
-                    }
+            for canvasItemId in becameVisible {
+                guard let canvasItem = self.getCanvasItem(canvasItemId) else {
+                    fatalErrorIfDebug()
+                    continue
                 }
+                canvasItem.updateFieldsUponBecomingVisible(document.activeIndex)
             }
+        }
+    }
+}
+
+extension CanvasItemViewModel {
+    @MainActor
+    func updateFieldsUponBecomingVisible(_ activeIndex: ActiveIndex) {
+        self.inputViewModels.updateAllFields(activeIndex)
+        self.outputViewModels.updateAllFields(activeIndex)
+    }
+}
+
+extension Array where Element: NodeRowViewModel {
+    @MainActor
+    func updateAllFields(_ activeIndex: ActiveIndex) {
+        for portViewModel in self {
+            guard let rowDelegate = portViewModel.rowDelegate else {
+                fatalErrorIfDebug()
+                continue
+            }
+            
+            portViewModel.updateFields(rowDelegate.getActiveValue(activeIndex: activeIndex))
         }
     }
 }
