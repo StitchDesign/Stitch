@@ -10,19 +10,8 @@ import StitchSchemaKit
 import SwiftUI
 import UIKit
 
-
 @MainActor
-func isPhoneDevice() -> Bool {
-    UIDevice.current.userInterfaceIdiom == .phone
-}
-
-func isMac() -> Bool {
-    #if targetEnvironment(macCatalyst)
-    return true
-    #else
-    return false
-    #endif
-}
+let isPhoneDevice = UIDevice.current.userInterfaceIdiom == .phone
 
 enum SampleApp: String, CaseIterable {
     case MusicPlayer = "Music Player"
