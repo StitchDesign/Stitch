@@ -57,30 +57,30 @@ extension InputNodeRowObserver: SchemaObserverIdentifiable {
                                    portData: .upstreamConnection(upstreamOutputObserver.id))
     }
     
-    // Set inputs to defaultValue
+    // Set connected inputs to defaultValue
     @MainActor
     func onPrototypeRestart() {
-        // test out first on just non-layer-node inputs
-        if self.upstreamOutputCoordinate.isDefined,
-           let patch = self.nodeKind.getPatch,
-           let portId = self.id.portId {
-            
-            let defaultInputs: NodeInputDefinitions = self.nodeKind
-                .rowDefinitions(for: self.userVisibleType)
-                .inputs
-            
-            if let defaultValues = getDefaultValueForPatchNodeInput(portId,
-                                                                    defaultInputs,
-                                                                    patch: patch) {
-                
-                // log("will reset patch node input \(self.id) to default value \(defaultValues)")
-                self.updateValues(defaultValues)
-            }
-            //                else {
-            //                    log("was not able to reset patch node input to default value")
-            //                }
-            
+        
+        guard self.upstreamOutputCoordinate.isDefined,
+              let patch = self.nodeKind.getPatch,
+              let portId = self.id.portId else {
+            return
         }
+        
+        let defaultInputs: NodeInputDefinitions = self.nodeKind
+            .rowDefinitions(for: self.userVisibleType)
+            .inputs
+        
+        guard let defaultValues = getDefaultValueForPatchNodeInput(portId,
+                                                                   defaultInputs,
+                                                                   patch: patch) else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        // NOTE: important to use `setValuesInInput` so that field observers are updated as well
+        self.setValuesInInput(defaultValues)
+        // self.updateValues(defaultValues)
     }
 }
 
