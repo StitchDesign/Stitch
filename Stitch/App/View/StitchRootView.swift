@@ -57,7 +57,7 @@ struct StitchRootView: View {
      }
     
     var body: some View {
-        Group {
+        ZStack {
             if Stitch.isPhoneDevice {
                 iPhoneBody
             } else {
@@ -65,7 +65,6 @@ struct StitchRootView: View {
 //#if targetEnvironment(macCatalyst)
                     .overlay(alignment: .center) {
                         
-
                         if let document = store.currentDocument {
 
 #if targetEnvironment(macCatalyst)
@@ -195,6 +194,7 @@ struct StitchRootView: View {
                 StitchNavStack(store: store)
                     .coordinateSpace(name: Self.STITCH_ROOT_VIEW_COORDINATE_SPACE)
             })
+        
         
         // NOT NEEDED ANYMORE ?
         

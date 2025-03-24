@@ -15,16 +15,19 @@ struct StitchNavStack: View {
         NavigationStack(path: $store.navPath) {
             ProjectsHomeViewWrapper()
                 .navigationDestination(for: ProjectLoader.self) { projectLoader in
-                    if let document = projectLoader.documentViewModel {
-                        StitchProjectView(store: store,
-                                          document: document,
-                                          alertState: store.alertState)
-                        .onDisappear {
-                            // Remove document from project loader
-                            // MARK: logic needs to be here as its the one place guaranteed to have the project
-                            projectLoader.documentViewModel = nil
+                    ZStack { // Attempt to keep view-identity the same
+                        if let document = projectLoader.documentViewModel {
+                            StitchProjectView(store: store,
+                                              document: document,
+                                              alertState: store.alertState)
+                            .onDisappear {
+                                // Remove document from project loader
+                                // MARK: logic needs to be here as its the one place guaranteed to have the project
+                                projectLoader.documentViewModel = nil
+                            }
                         }
                     }
+                    
                 }
                 .onChange(of: store.navPath.first) { _, currentProject in
                     let currentProjectId = currentProject?.id
@@ -55,9 +58,11 @@ struct StitchNavStack: View {
             //                .toolbarBackground(.visible, for: .navigationBar, .bottomBar, .tabBar)
             
         } // NavigationStack
+        
+        // Does this event fire when Toolbar freaks out?
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name(rawValue: "renewToolbar")),
                    perform: { notification in
-            log("StitchNavStack: received 'renewToolbar' notification, notification.name: \(notification.name)", .logToServer)
+            log("StitchNavStack: received 'renewToolbar' notification, name: \(notification.name), description: \(notification.description)", .logToServer)
         })
     }
 }
