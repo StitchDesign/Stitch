@@ -85,7 +85,7 @@ struct FullScreenPreviewViewWrapper: View {
                                       document: document.createSchema())
             StitchButton(changeScaleString, action: showProjectSettingsAction)
             StitchButton(appResetString, action: appResetAction)
-            StitchButton(isPhoneDevice() ? iPhoneExitString : exitString, action: closeGraphBtnAction)
+            StitchButton(Stitch.isPhoneDevice ? iPhoneExitString : exitString, action: closeGraphBtnAction)
             StitchButton(cancelString, role: .cancel) { }
                 .keyboardShortcut(.cancelAction)
         }
