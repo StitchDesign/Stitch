@@ -117,7 +117,7 @@ final class StitchFileManager: Sendable, MiddlewareService {
         // let _ = url.startAccessingSecurityScopedResource()
         
         // TODO: fix 'Undo Delete' on iPhone
-        let allowUndo = !permanently && !isPhoneDevice()
+        let allowUndo = !permanently && !isPhoneDevice
         
         if allowUndo {
             log("StitchFileManager.removeStitchProject: Will non-permanently delete StitchProject \(projectId)")

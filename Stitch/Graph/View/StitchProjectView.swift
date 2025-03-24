@@ -28,7 +28,12 @@ struct StitchProjectView: View {
     }
 
     var body: some View {
-        projectView()
+//        projectView()
+        ContentView(store: store,
+                    document: document,
+                    alertState: alertState,
+                    routerNamespace: routerNamespace)
+        
             #if !targetEnvironment(macCatalyst)
             // TODO: loses animation when exiting full screen mode
             // TODO: why, for iPad and iPhone, must be ignore the safe areas here, rather than further down in the hierarchy? ... perhaps connected with the hiding of the toolbar?
@@ -57,13 +62,13 @@ struct StitchProjectView: View {
             }
     }
 
-    @ViewBuilder @MainActor
-    func projectView() -> some View {
-        ContentView(store: store,
-                    document: document,
-                    alertState: alertState,
-                    routerNamespace: routerNamespace)
-    }
+//    @ViewBuilder @MainActor
+//    func projectView() -> some View {
+//        ContentView(store: store,
+//                    document: document,
+//                    alertState: alertState,
+//                    routerNamespace: routerNamespace)
+//    }
 }
 
 struct MaybeIgnoreSafeAreasModifier: ViewModifier {

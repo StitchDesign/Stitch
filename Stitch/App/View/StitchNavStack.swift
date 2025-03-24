@@ -10,7 +10,7 @@ import StitchSchemaKit
 
 struct StitchNavStack: View {
     @Bindable var store: StitchStore
-
+    
     var body: some View {
         NavigationStack(path: $store.navPath) {
             ProjectsHomeViewWrapper()
@@ -49,11 +49,16 @@ struct StitchNavStack: View {
                 }
             
             // TODO: change color of top navigation bar; .red only gives a slight tint (and just on homescreen)
-//                .toolbarBackground(Color(.lightModeWhiteDarkModeBlack),
-////                .toolbarBackground(.red,
-//                                   for: .navigationBar, .bottomBar, .tabBar)
-//                .toolbarBackground(.visible, for: .navigationBar, .bottomBar, .tabBar)
-        }
+            //                .toolbarBackground(Color(.lightModeWhiteDarkModeBlack),
+            ////                .toolbarBackground(.red,
+            //                                   for: .navigationBar, .bottomBar, .tabBar)
+            //                .toolbarBackground(.visible, for: .navigationBar, .bottomBar, .tabBar)
+            
+        } // NavigationStack
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name(rawValue: "renewToolbar")),
+                   perform: { notification in
+            log("StitchNavStack: received 'renewToolbar' notification, notification.name: \(notification.name)", .logToServer)
+        })
     }
 }
 

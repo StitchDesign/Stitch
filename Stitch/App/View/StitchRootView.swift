@@ -58,7 +58,7 @@ struct StitchRootView: View {
     
     var body: some View {
         Group {
-            if isPhoneDevice() {
+            if Stitch.isPhoneDevice {
                 iPhoneBody
             } else {
                 splitView
