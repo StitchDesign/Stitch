@@ -86,7 +86,8 @@ extension NodeRowObserver {
     func didInputsUpdate(newValues: PortValues,
                          oldValues: PortValues) {
         guard let node = self.nodeDelegate,
-              let graph = node.graphDelegate else {
+              let graph = node.graphDelegate,
+              let document = graph.documentDelegate else {
             return
         }
         
@@ -122,7 +123,7 @@ extension NodeRowObserver {
         if node.kind.usesCamera,
            let originalValue = oldValues.first,
            let coercedValue = coercedValues.first {
-            graph.documentDelegate?.cameraInputChange(
+            document.cameraInputChange(
                 input: self.id,
                 originalValue: originalValue,
                 coercedValue: coercedValue)
@@ -135,6 +136,6 @@ extension NodeRowObserver {
         }
         
         // Update view ports
-        self.nodeDelegate?.graphDelegate?.portsToUpdate.insert(NodePortType.input(self.id))
+        graph.portsToUpdate.insert(NodePortType.input(self.id))
     }
 }
