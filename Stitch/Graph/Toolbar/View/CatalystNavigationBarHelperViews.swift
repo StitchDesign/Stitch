@@ -263,7 +263,7 @@ struct GoUpOneTraversalLevel: StitchDocumentEvent {
         }
         
         // Set new active parent
-        state.groupNodeBreadcrumbs = state.groupNodeBreadcrumbs.dropLast()
+        state.groupNodeBreadcrumbs.removeLast()
 
         // Reset any active selections
         state.visibleGraph.resetAlertAndSelectionState(document: state)
