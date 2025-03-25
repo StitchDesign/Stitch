@@ -68,15 +68,18 @@ extension GraphState {
     func handleGroupNodeUncreated(_ uncreatedGroupNodeId: NodeId,
                                   groupNodeFocused: NodeId?) {
         let newGroupId = groupNodeFocused
+        
+        // Deselect
+        self.resetSelectedCanvasItems()
 
         // Update nodes to map to new group id
-        self.getCanvasItems().forEach { canvasItem in
-            if canvasItem.parentGroupNodeId == uncreatedGroupNodeId {
-                
+        self.getCanvasItems()
+            .filter { $0.parentGroupNodeId == uncreatedGroupNodeId }
+            .forEach { canvasItem in
                 // If this canvas item was a group-splitter-node,
                 // completely delete it.
                 if let nodeId = canvasItem.nodeDelegate?.id,
-                   let node = self.getNode(nodeId), // need the NodeViewModel specifically
+                   let node = self.getNode(nodeId),
                    node.splitterType?.isGroupSplitter ?? false {
                     // Recreate edges if splitter contains upstream and downstream edges
                     self.insertEdgesAfterGroupUncreated(for: node)
@@ -91,7 +94,8 @@ extension GraphState {
                 else {
                     canvasItem.parentGroupNodeId = newGroupId
                 }
-            }
+                
+                self.selectCanvasItem(canvasItem.id)
         }
 
         // Delete group node
