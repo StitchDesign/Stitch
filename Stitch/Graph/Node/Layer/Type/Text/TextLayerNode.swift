@@ -42,7 +42,6 @@ struct TextLayerNode: LayerNodeDefinition {
     static let layer = Layer.text
 
     static let inputDefinitions: LayerInputPortSet = .init([
-        .text,
         .color,
         .position,
         .rotationX,
@@ -62,7 +61,7 @@ struct TextLayerNode: LayerNodeDefinition {
     ])
     .union(.layerEffects)
     .union(.strokeInputs)
-    .union(.typography)
+    .union(.typographyWithoutPlaceholder)
     .union(.aspectRatio)
     .union(.sizing)
     .union(.pinning)
