@@ -241,7 +241,9 @@ extension StitchDocumentViewModel {
         graph.resetSelectedCanvasItems()
         
         // ... then select the GroupNode and its edges
-        newGroupNode.patchCanvasItem?.select(graph)
+        if let newGroupNodeId = newGroupNode.patchCanvasItem?.id {
+            graph.selectCanvasItem(newGroupNodeId)
+        }
 
         // Stop any active node dragging etc.
         self.graphMovement.stopNodeMovement()

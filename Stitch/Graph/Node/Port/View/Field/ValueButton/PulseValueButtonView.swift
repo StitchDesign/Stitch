@@ -35,11 +35,10 @@ struct PulseValueButtonView: View {
      which is not behavior that we want.
      */
     var body: some View {
-        // TODO: you made this a button, double check it works
         StitchButton {
             if let rowObserver = rowObserver {
                 graph.pulseValueButtonClicked(rowObserver,
-                                              canvasItem: canvasItem)
+                                              canvasItemId: canvasItem?.id)
             } else {
                 log("PulseValueButtonView error: output unexpectedly encountered for \(rowObserver?.id)")
             }
