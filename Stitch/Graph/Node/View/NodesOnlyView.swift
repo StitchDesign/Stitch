@@ -71,7 +71,6 @@ struct NodesOnlyView: View {
                              canAddInput: node.canAddInputs,
                              canRemoveInput: node.canRemoveInputs,
                              boundsReaderDisabled: false,
-                             usePositionHandler: true,
                              updateMenuActiveSelectionBounds: false)
                 }
             }
