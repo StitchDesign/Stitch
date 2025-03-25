@@ -83,9 +83,14 @@ extension NodeViewModel: NodeCalculatable {
         case .patch(let patchNodeViewModel):
             // NodeKind.evaluate is our legacy eval caller, cheeck for those first
             if let eval = patchNodeViewModel.patch.evaluate {
-                return eval.runEvaluation(
-                    node: self
-                )
+                let oldStyleResult = eval.runEvaluation(node: self)
+                
+                // Result of evaluation should NEVER be an empty list;
+                // can happen e.g. when we improperly migrate a node's nodeType
+                #if DEV_DEBUG
+                oldStyleResult.debugCrashIfAnyOutputLoopEmpty()
+                #endif
+                return oldStyleResult
             }
 
             // New-style eval which doesn't require filling out a switch statement
@@ -94,14 +99,22 @@ extension NodeViewModel: NodeCalculatable {
                 return nil
             }
             
-            return nodeType.evaluate(node: self)
+            let newStyleResult = nodeType.evaluate(node: self)
+            
+            #if DEV_DEBUG
+            newStyleResult?.debugCrashIfAnyOutputLoopEmpty()
+            #endif
+            
+            return newStyleResult
         
         case .layer(let layerNodeViewModel):
             // Only a handful of layer nodes have node evals
             if let eval = layerNodeViewModel.layer.evaluate {
-                return eval.runEvaluation(
-                    node: self
-                )
+                let result = eval.runEvaluation(node: self)
+                #if DEV_DEBUG
+                result.debugCrashIfAnyOutputLoopEmpty()
+                #endif
+                return result
             } else {
                 return nil
             }
@@ -128,5 +141,13 @@ extension NodeViewModel: NodeCalculatable {
     @MainActor
     var isGroupNode: Bool {
         self.kind == .group
+    }
+}
+
+extension EvalResult {
+    func debugCrashIfAnyOutputLoopEmpty() {
+        if self.outputsValues.first(where: { $0.isEmpty }).isDefined {
+            fatalErrorIfDebug()
+        }
     }
 }
