@@ -102,7 +102,7 @@ extension NodeViewModel: NodeCalculatable {
             let newStyleResult = nodeType.evaluate(node: self)
             
             #if DEV_DEBUG
-            newStyleResult.debugCrashIfAnyOutputLoopEmpty()
+            newStyleResult?.debugCrashIfAnyOutputLoopEmpty()
             #endif
             
             return newStyleResult
