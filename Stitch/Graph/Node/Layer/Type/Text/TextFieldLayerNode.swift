@@ -27,7 +27,6 @@ struct TextFieldLayerNode: LayerNodeDefinition {
     }
     
     static let inputDefinitions: LayerInputPortSet = .init([
-        .placeholderText,
         .color,
         .position,
         .rotationX,
@@ -38,11 +37,6 @@ struct TextFieldLayerNode: LayerNodeDefinition {
         .scale,
         .anchoring,
         .zIndex,
-        .fontSize,
-        .textAlignment,
-        .verticalAlignment,
-        .textDecoration,
-        .textFont,
         .pivot,
         .masks,
         .shadowColor,
@@ -57,6 +51,7 @@ struct TextFieldLayerNode: LayerNodeDefinition {
         .union(.pinning)
         .union(.layerPaddingAndMargin)
         .union(.offsetInGroup)
+        .union(.typographyWithoutText)
     
     static func content(document: StitchDocumentViewModel,
                         graph: GraphState,
