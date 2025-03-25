@@ -100,7 +100,7 @@ extension ProjectSidebarObservable {
                 
                 self.editModeSelectTappedItems(tappedItems: self.selectionState.primary)
                 
-                graph.deselectAllCanvasItems()
+                graph.resetSelectedCanvasItems()
                 
             } else {
                 // log("sidebarItemTapped: did not have itemsBetween")
@@ -116,7 +116,7 @@ extension ProjectSidebarObservable {
                     
                     self.editModeSelectTappedItems(tappedItems: self.selectionState.primary)
                     
-                    graph.deselectAllCanvasItems()
+                    graph.resetSelectedCanvasItems()
                 }
             }
         }
@@ -141,7 +141,7 @@ extension ProjectSidebarObservable {
                 self.selectionState.primary.insert(id)
                 self.sidebarItemSelectedViaEditMode(id)
                 self.selectionState.lastFocused = id
-                graph.deselectAllCanvasItems()
+                graph.resetSelectedCanvasItems()
             }
             
         } else {
@@ -153,7 +153,7 @@ extension ProjectSidebarObservable {
             self.selectionState.primary = .init([id])
             self.sidebarItemSelectedViaEditMode(id)
             self.selectionState.lastFocused = id
-            graph.deselectAllCanvasItems()
+            graph.resetSelectedCanvasItems()
         }
         
         graph.updateInspectorFocusedLayers()

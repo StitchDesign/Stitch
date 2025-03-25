@@ -61,7 +61,7 @@ extension LayersSidebarViewModel {
         self.selectionState.resetEditModeSelections()
         self.sidebarItemSelectedViaEditMode(newNode.id)
         self.selectionState.lastFocused = newNode.id
-        graph.deselectAllCanvasItems()
+        graph.resetSelectedCanvasItems()
         
         // NOTE: must do this AFTER children have been assigned to the new layer node; else we return preview window size
         

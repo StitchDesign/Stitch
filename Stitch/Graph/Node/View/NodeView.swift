@@ -396,7 +396,7 @@ struct NodeViewTapGestureModifier: ViewModifier {
         }
         
         // and select just the node
-        node.isTapped(document: document)
+        document.canvasItemTapped(node)
     }
     
     func onDoubleTap() {

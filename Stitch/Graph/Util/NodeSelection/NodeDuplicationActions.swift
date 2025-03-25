@@ -459,18 +459,19 @@ extension GraphState {
                             let portType: LayerInputKeyPathType = isPacked ? .packed : .unpacked(unpackedId ?? .port0)
                             let layerId = LayerInputType(layerInput: inputType,
                                                          portType: portType)
+                            // TODO: can we use `inputData.canvasItem` or not?
                             if let _ = inputData.canvasItem,
                                let canvasItem = self.getCanvasItem(.layerInput(.init(node: nodeEntity.id,
                                                                                      keyPath: layerId))) {
-                                canvasItem.select(self)
+                                self.selectCanvasItem(canvasItem.id)
                             }
                         }
                     }
                     
                 case .patch, .group, .component:
-                    let stitch = self.getNodeViewModel(nodeEntity.id)
-                    if let canvasItem = stitch?.patchCanvasItem {
-                        canvasItem.select(self)
+                    
+                    if let canvasItem = self.getNodeViewModel(nodeEntity.id)?.patchCanvasItem {
+                        self.selectCanvasItem(canvasItem.id)
                     }
                 }
         }
