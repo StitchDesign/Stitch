@@ -84,7 +84,11 @@ struct PortPreviewPopoverView<NodeRowObserverType: NodeRowObserver>: View {
         
         return Rectangle().fill(.clear)
             .frame(width: 30, height: 30)
+#if targetEnvironment(macCatalyst)
             .background(.ultraThickMaterial)
+        #else
+            .background(.thinMaterial)
+        #endif
             .rotationEffect(.degrees(45))
             .position(x: anchor.x + positionAdjustment,
                       y: anchor.y)

@@ -28,6 +28,7 @@ struct PortValuesPreviewView<NodeRowObserverType: NodeRowObserver>: View {
         
     let nodeIO: NodeIO
 
+    // TODO: do we really need `[PortPreviewData]`? Can we access some already existing data?
     var tableRows: [PortPreviewData] {
         
         let loopedValues: PortValues = rowObserver.allLoopedValues
@@ -85,17 +86,21 @@ struct PortValuesPreviewView<NodeRowObserverType: NodeRowObserver>: View {
             ForEach(tableRows, id: \.id) { (data: PortPreviewData) in
                 
                 HStack(alignment: .center) {
-                    StitchTextView(string: "\(data.loopIndex)", fontColor: STITCH_FONT_GRAY_COLOR)
+                    StitchTextView(string: "\(data.loopIndex)",
+                                   fontColor: STITCH_FONT_GRAY_COLOR)
                         .monospaced()
-                        .gridCellAnchor(UnitPoint(x: 0.5, y: 0)) // aligns middle, top
+                        // 34 = enough for 3 monospaced digits
+                        .frame(minWidth: 34, maxWidth: 48)
                     
                     ForEach(data.fields, id: \.0) { field in
                         let label = field.fieldLabel
                         HStack {
                             if !label.isEmpty {
-                                StitchTextView(string: "\(field.fieldLabel)",
-                                               truncationMode: .tail)
+                                StitchTextView(string: "\(label)",
+                                           truncationMode: .tail)
                                 .monospaced()
+                                // 24 = enough for 1 monospaced letter
+                                .frame(minWidth: 24)
                             }
                             
                             PortValuesPreviewValueView(fieldValue: field.fieldValue)
@@ -154,3 +159,8 @@ struct PortValuesPreviewValueView: View {
         }
     }
 }
+
+// TODO: easier way to build up a node / row observer with large loop
+//#Preview {
+//    PortValuesPreviewView(init(rowObserver: <#T##_#>, rowViewModel: <#T##_.RowViewModelType#>, nodeIO: <#T##NodeIO#>))
+//}
