@@ -123,7 +123,7 @@ extension GraphState {
         self.resetSelectedCanvasItems()
         
         visibleNodes.forEach {
-            $0.select(self)
+            self.selectCanvasItem($0.id)
         }
     }
 }

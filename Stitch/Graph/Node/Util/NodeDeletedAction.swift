@@ -45,9 +45,8 @@ struct SelectedGraphNodesDeleted: StitchDocumentEvent {
         let graph = state.visibleGraph
         
         if graph.getSelectedCanvasItems(groupNodeFocused: state.groupNodeFocused?.groupNodeId).isEmpty,
-           let canvasItemId = canvasItemId,
-           let canvasItem = graph.getCanvasItem(canvasItemId) {
-            canvasItem.select(graph)
+           let canvasItemId = canvasItemId {
+            graph.selectCanvasItem(canvasItemId)
         }
 
         graph.selectedGraphNodesDeleted(
