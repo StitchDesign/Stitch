@@ -27,6 +27,20 @@ extension LayerInputPortSet {
     @MainActor
     static let typography: LayerInputPortSet = LayerInspectorSection.typography.sectionData.toOrderedSet
     
+    // For Text layer
+    @MainActor
+    static let typographyWithoutPlaceholder: LayerInputPortSet = LayerInspectorSection.typography
+        .sectionData
+        .filter { $0 != .placeholderText }
+        .toOrderedSet
+    
+    // For TextField layer
+    @MainActor
+    static let typographyWithoutText: LayerInputPortSet = LayerInspectorSection.typography
+        .sectionData
+        .filter { $0 != .text }
+        .toOrderedSet
+    
     @MainActor
     static let aspectRatio: LayerInputPortSet = [
         .widthAxis,
