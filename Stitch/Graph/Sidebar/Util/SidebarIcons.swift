@@ -70,7 +70,7 @@ extension SidebarItemGestureViewModel {
         case .canvasSketch:
             return "scribble.variable"
         case .textField:
-            return "t.square"
+            return "character.cursor.ibeam"
         case .map:
             return "mappin.circle"
         case .progressIndicator:
