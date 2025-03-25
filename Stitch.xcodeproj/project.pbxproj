@@ -344,7 +344,6 @@
 		EC014FED2BED3A0100E6C51B /* NodeRowObserverUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC014FEC2BED3A0100E6C51B /* NodeRowObserverUtil.swift */; };
 		EC014FEF2BED4F7700E6C51B /* NodeRowObserverColorUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC014FEE2BED4F7700E6C51B /* NodeRowObserverColorUtil.swift */; };
 		EC035BF828A56E84005FA607 /* ClassicAnimationFormulae.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC035BF728A56E84005FA607 /* ClassicAnimationFormulae.swift */; };
-		EC0574E92D922A880082AF7B /* StitchEngineClosedSource in Resources */ = {isa = PBXBuildFile; fileRef = EC0574E72D922A880082AF7B /* StitchEngineClosedSource */; };
 		EC067CE82BAB6C2500F8EB82 /* ClassicAnimationPoint4D.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC067CE72BAB6C2500F8EB82 /* ClassicAnimationPoint4D.swift */; };
 		EC067CEA2BAB710E00F8EB82 /* ClassicAnimationOpSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC067CE92BAB710E00F8EB82 /* ClassicAnimationOpSize.swift */; };
 		EC067CEC2BAB7A9300F8EB82 /* MathExpressionNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC067CEB2BAB7A9300F8EB82 /* MathExpressionNode.swift */; };
@@ -1317,7 +1316,6 @@
 		EC014FEC2BED3A0100E6C51B /* NodeRowObserverUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeRowObserverUtil.swift; sourceTree = "<group>"; };
 		EC014FEE2BED4F7700E6C51B /* NodeRowObserverColorUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeRowObserverColorUtil.swift; sourceTree = "<group>"; };
 		EC035BF728A56E84005FA607 /* ClassicAnimationFormulae.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassicAnimationFormulae.swift; sourceTree = "<group>"; };
-		EC0574E72D922A880082AF7B /* StitchEngineClosedSource */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = StitchEngineClosedSource; sourceTree = "<group>"; };
 		EC067CE72BAB6C2500F8EB82 /* ClassicAnimationPoint4D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassicAnimationPoint4D.swift; sourceTree = "<group>"; };
 		EC067CE92BAB710E00F8EB82 /* ClassicAnimationOpSize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassicAnimationOpSize.swift; sourceTree = "<group>"; };
 		EC067CEB2BAB7A9300F8EB82 /* MathExpressionNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MathExpressionNode.swift; sourceTree = "<group>"; };
@@ -2014,7 +2012,6 @@
 			children = (
 				EC15E425260271C6006F2E08 /* Stitch.entitlements */,
 				200BD863254F66EE00692903 /* Info.plist */,
-				EC0574E82D922A880082AF7B /* StitchEngine-ACTUAL-CODE */,
 				B5617A7B2C175C3C00B53DAF /* App */,
 				ECB33C5926F12F5E0069885B /* Home */,
 				B56FFB522C195EA000623CC7 /* Graph */,
@@ -4009,14 +4006,6 @@
 			path = RealityView;
 			sourceTree = "<group>";
 		};
-		EC0574E82D922A880082AF7B /* StitchEngine-ACTUAL-CODE */ = {
-			isa = PBXGroup;
-			children = (
-				EC0574E72D922A880082AF7B /* StitchEngineClosedSource */,
-			);
-			path = "StitchEngine-ACTUAL-CODE";
-			sourceTree = "<group>";
-		};
 		EC15E4282602A08B006F2E08 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -4826,7 +4815,6 @@
 				20A71F902552434000553F7E /* connection_added.mp3 in Resources */,
 				B58E3FC92901AA2800700656 /* Music Player.stitch in Resources */,
 				B5F5FD432B37564500BBD9A2 /* WhatToTest.en-US.txt in Resources */,
-				EC0574E92D922A880082AF7B /* StitchEngineClosedSource in Resources */,
 				E42CFD462D4413F90034CCFF /* secrets.json in Resources */,
 				20A71F912552434000553F7E /* connection_removed.mp3 in Resources */,
 				B53E47812894918500A3D060 /* Microphone Recorder.stitch in Resources */,
