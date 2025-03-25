@@ -64,7 +64,7 @@ extension GraphState {
         
         self.selection = GraphUISelectionState()
         self.resetSelectedCanvasItems()
-        canvasItem.select(self)
+        self.selectCanvasItem(id)
         
         // Update focused group ONLY IF CHANGED (important to avoid didSet)
         if let canvasItemTraversalLevel = canvasItem.parentGroupNodeId,

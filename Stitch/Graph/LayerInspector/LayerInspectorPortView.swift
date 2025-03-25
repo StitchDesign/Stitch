@@ -329,7 +329,7 @@ struct LayerInspectorOutputPortView: View {
     let forFlyout: Bool
 
     var isCanvasItemSelected: Bool {
-        self.canvasItem?.isSelected(graph) ?? false
+        self.canvasItem.map { graph.isCanvasItemSelected($0.id) } ?? false
     }
     
     var propertyIsAlreadyOnGraph: Bool {

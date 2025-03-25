@@ -23,11 +23,11 @@ typealias FlashSet = Set<Coordinate>
 extension GraphState {    
     @MainActor
     func pulseValueButtonClicked(_ inputObserver: InputNodeRowObserver,
-                                 canvasItem: CanvasItemViewModel?) {
+                                 canvasItemId: CanvasItemId?) {
         
         // Select canvas if associated here
-        if let canvasItem = canvasItem { // inputPort.canvasItemDelegate {
-            self.selectSingleNode(canvasItem)
+        if let canvasItemId = canvasItemId {
+            self.selectSingleCanvasItem(canvasItemId)
         }
         
         inputObserver.updateValues([.pulse(self.graphStepState.graphTime)])

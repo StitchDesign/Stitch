@@ -185,7 +185,7 @@ extension StitchDocumentViewModel {
             self.visibleGraph.layersSidebarViewModel.resetEditModeSelections()
             self.visibleGraph.layersSidebarViewModel.sidebarItemSelectedViaEditMode(sidebarLayerData.id)
             self.visibleGraph.layersSidebarViewModel.selectionState.lastFocused = sidebarLayerData.id
-            self.visibleGraph.deselectAllCanvasItems()
+            self.visibleGraph.resetSelectedCanvasItems()
             
             return layerNode
 
