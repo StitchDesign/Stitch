@@ -56,6 +56,12 @@ func createOutputCallbackLoop(inputs: PortValuesList,
          adjustedInputs) = getMaxCountAndLengthenedArrays(inputs,
                                                           outputs)
 
+    #if DEV_DEBUG
+    assert(adjustedInputs.allSatisfy({ (inputLoop: [PortValue]) in
+        !inputLoop.isEmpty
+    }))
+    #endif
+    
     (0..<longestLoopLength).forEach { (index: Int) in
 
         // callArgs are the inputs we need to call the eval-fn;
@@ -77,6 +83,7 @@ func createOutputCallbackLoop(inputs: PortValuesList,
 
         // The operation produces a single result (PortValue) for that index position/slot.
 
+//        let callArgs = adjustedInputs.map { $0[index] }
         let callArgs = adjustedInputs.map { $0[index] }
         let x: PortValue = callback(callArgs)
         singleOutputLoop.append(x)

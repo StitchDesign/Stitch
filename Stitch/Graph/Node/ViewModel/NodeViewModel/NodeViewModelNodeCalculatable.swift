@@ -83,9 +83,7 @@ extension NodeViewModel: NodeCalculatable {
         case .patch(let patchNodeViewModel):
             // NodeKind.evaluate is our legacy eval caller, cheeck for those first
             if let eval = patchNodeViewModel.patch.evaluate {
-                return eval.runEvaluation(
-                    node: self
-                )
+                return eval.runEvaluation(node: self)
             }
 
             // New-style eval which doesn't require filling out a switch statement
@@ -99,9 +97,7 @@ extension NodeViewModel: NodeCalculatable {
         case .layer(let layerNodeViewModel):
             // Only a handful of layer nodes have node evals
             if let eval = layerNodeViewModel.layer.evaluate {
-                return eval.runEvaluation(
-                    node: self
-                )
+                return eval.runEvaluation(node: self)
             } else {
                 return nil
             }
