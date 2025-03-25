@@ -62,12 +62,14 @@ func modEval(inputs: PortValuesList,
 
 struct ModEvalOps {
     
-    @MainActor static let numberOperation: Operation = { (values: PortValues) -> PortValue in
+    @MainActor
+    static let numberOperation: Operation = { (values: PortValues) -> PortValue in
         let n = values[0].getNumber ?? .zero
         let n2 = values[1].getNumber ?? .zero
         return .number(mod(n, n2))
     }
     
+    @MainActor
     static let positionOperation: Operation = { (values: PortValues) -> PortValue in
         let positions = values.compactMap { $0.getPosition }
         guard positions.count >= 2 else { return .position(.zero) }
@@ -78,6 +80,7 @@ struct ModEvalOps {
                                y: mod(pos1.y, pos2.y)))
     }
     
+    @MainActor
     static let sizeOperation: Operation = { (values: PortValues) -> PortValue in
         let sizes = values.compactMap { $0.getSize?.asAlgebraicCGSize }
         guard sizes.count >= 2 else { return .size(.zero) }
@@ -88,6 +91,7 @@ struct ModEvalOps {
                           height: mod(size1.height, size2.height)).toLayerSize)
     }
     
+    @MainActor
     static let point3DOperation: Operation = { (values: PortValues) -> PortValue in
         let points = values.compactMap { $0.getPoint3D }
         guard points.count >= 2 else { return .point3D(.zero) }
@@ -99,6 +103,7 @@ struct ModEvalOps {
                                z: mod(point1.z, point2.z)))
     }
     
+    @MainActor
     static let colorOperation: Operation = { (values: PortValues) -> PortValue in
         let colors = values.compactMap { $0.getColor }
         guard colors.count >= 2 else { return .color(.clear) }
