@@ -66,10 +66,11 @@ extension GraphState {
         self.resetSelectedCanvasItems()
         canvasItem.select(self)
         
-        // Update focused group
-        if let newGroup = canvasItem.parentGroupNodeId {
+        // Update focused group ONLY IF CHANGED (important to avoid didSet)
+        if let canvasItemTraversalLevel = canvasItem.parentGroupNodeId,
+           document.groupNodeFocused?.groupNodeId != canvasItemTraversalLevel {
             // TODO: need panning logic for component
-            document.groupNodeBreadcrumbs.append(.groupNode(newGroup))
+            document.groupNodeBreadcrumbs.append(.groupNode(canvasItemTraversalLevel))
         }
     }
     
