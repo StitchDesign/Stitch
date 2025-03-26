@@ -18,54 +18,15 @@ struct CanvasItemPositionHandler: ViewModifier {
     
     @Bindable var node: CanvasItemViewModel
     
-    @MainActor
-    var isOptionPressed: Bool {
-        document.keypressState.isOptionPressed
-    }
-    
-    // ZIndex:
     let zIndex: ZIndex
-        
-    // When this node is the last selected node on graph,
-    // we raise it and its buttons
-    var _zIndex: ZIndex {
-        //        zIndex + (isLastSelected ? NODE_IS_LAST_SELECTED_ZINDEX_BOOST : 0)
-        zIndex
-    }
     
     func body(content: Content) -> some View {
         
         content
-            .zIndex(_zIndex)
+            .zIndex(zIndex)
             .canvasPosition(id: node.id,
                             position: node.position)
-        
-        // MARK: we used to support node touch-down gesture with a hack using long press but this had averse effects on pinch
-            .gesture(
-                DragGesture(
-                    // minimumDistance: 0, // messes up trackpad pinch
-                    // .global means we must consider zoom in `NodeMoved`
-                    coordinateSpace: .global)
-                
-                .onChanged { gesture in
-                    // log("NodePositionHandler: onChanged")
-                    if isOptionPressed,
-                       let nodeId = node.id.nodeCase {
-                        dispatch(NodeDuplicateDraggedAction(
-                            id: nodeId,
-                            translation: gesture.translation))
-                    } else {
-                        document.visibleGraph.canvasItemMoved(for: node,
-                                                              translation: gesture.translation,
-                                                              wasDrag: true,
-                                                              document: document)
-                    }
-                }
-                    .onEnded { _ in
-                        // log("NodePositionHandler: onEnded")
-                        dispatch(NodeMoveEndedAction(id: node.id))
-                    }
-            ) // .gesture
+            .gesture(CanvasItemDragHandler(canvasItemId: node.id))
     }
 }
 
@@ -77,5 +38,86 @@ extension View {
         self.modifier(CanvasItemPositionHandler(document: document,
                                                 node: node,
                                                 zIndex: zIndex))
+    }
+}
+
+/*
+ Our key-press listening logic sometimes does not detect when the Option key is let up.
+ 
+ Until we perfect our key-press listening logic, it is safer and more consistent to rely on UIKit for key-listeing on a gesture.
+ (Similar to what we do in sidebar click + shift.)
+ */
+struct CanvasItemDragHandler: UIGestureRecognizerRepresentable {
+    let canvasItemId: CanvasItemId
+    
+    func makeUIGestureRecognizer(context: Context) -> UIPanGestureRecognizer {
+        // log("CanvasItemDragHandler: makeUIGestureRecognizer")
+        let recognizer = UIPanGestureRecognizer()
+        recognizer.delegate = context.coordinator
+        return recognizer
+    }
+    
+    func handleUIGestureRecognizerAction(_ recognizer: UIPanGestureRecognizer,
+                                         context: Context) {
+        // log("CanvasItemDragHandler: handleUIGestureRecognizerAction")
+        switch recognizer.state {
+            
+        case .changed:
+            let translation = recognizer.translation(in: recognizer.view).toCGSize
+            
+            // log("CanvasItemDragHandler: handleUIGestureRecognizerAction: changed")
+            if self.optionHeld,
+               let nodeId = canvasItemId.nodeCase {
+                dispatch(NodeDuplicateDraggedAction(
+                    id: nodeId,
+                    translation: translation))
+            } else {
+                dispatch(CanvasItemMoved(canvasItemId: canvasItemId,
+                                         translation: translation,
+                                         wasDrag: true))
+            }
+            
+        case .ended, .cancelled, .failed:
+            // log("CanvasItemDragHandler: handleUIGestureRecognizerAction: ended, cancelled or failed")
+            dispatch(NodeMoveEndedAction(id: canvasItemId))
+            
+        default:
+            break
+            // log("CanvasItemDragHandler: handleUIGestureRecognizerAction: unhandled case")
+        }
+    }
+    
+    // Note: Coordinater required to use custom UIGestureRecognizerDelegate methods
+    func makeCoordinator(converter: CoordinateSpaceConverter) -> Coordinator {
+        Coordinator(converter: converter) { optionHeld in
+            self.optionHeld = optionHeld
+        }
+    }
+    
+    @State var optionHeld: Bool = false
+    
+    final class Coordinator: NSObject, UIGestureRecognizerDelegate {
+        let converter: CoordinateSpaceConverter
+        let onOptionHeld: (Bool) -> Void
+        
+        init(converter: CoordinateSpaceConverter,
+             onOptionHeld: @escaping (Bool) -> Void) {
+            self.converter = converter
+            self.onOptionHeld = onOptionHeld
+        }
+        
+        // Called at start of gesture
+        func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
+                               shouldReceive event: UIEvent) -> Bool {
+            if event.modifierFlags.contains(.alternate) {
+                log("CanvasItemDragHandler: OPTION DOWN")
+                self.onOptionHeld(true)
+            } else {
+                log("CanvasItemDragHandler: OPTION NOT DOWN")
+                self.onOptionHeld(false)
+            }
+            
+            return true
+        }
     }
 }
