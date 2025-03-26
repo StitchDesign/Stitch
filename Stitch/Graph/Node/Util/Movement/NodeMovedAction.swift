@@ -39,8 +39,16 @@ extension CanvasItemViewModel {
             self.zIndex = highestZIndex
         }
 
-        let translationSize = (translation / zoom) // required when using SwiftUI .global on nodes' DragGesture
-            - ((state.runningGraphTranslation ?? .zero) / zoom)
+        /*
+         
+         NOTE: `/ zoom` required when using SwiftUI .global on nodes' DragGesture
+                let translationSize = (translation / zoom)
+                    - ((state.runningGraphTranslation ?? .zero) / zoom)
+         
+         However, not required when using UIKit GestureRecognizer.
+         */
+        let translationSize = translation
+            - ((state.runningGraphTranslation ?? .zero))
             + (state.runningGraphTranslationBeforeNodeDragged ?? .zero)
             - state.accumulatedGraphTranslation
 
@@ -149,6 +157,24 @@ extension GraphState {
                                       wasDrag: true,
                                       document: document)
             }
+    }
+}
+
+struct CanvasItemMoved: StitchDocumentEvent {
+    let canvasItemId: CanvasItemId
+    let translation: CGSize
+    let wasDrag: Bool
+    
+    func handle(state: StitchDocumentViewModel) {
+        guard let canvasItem = state.visibleGraph.getCanvasItem(canvasItemId) else {
+            log("CanvasItemMoved: could not find canas item")
+            return
+        }
+        
+        state.visibleGraph.canvasItemMoved(for: canvasItem,
+                                           translation: translation,
+                                           wasDrag: wasDrag,
+                                           document: state)
     }
 }
 
