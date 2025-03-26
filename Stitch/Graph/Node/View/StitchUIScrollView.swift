@@ -412,19 +412,22 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
         }
         
         // Only check borders if we have cached size and position data for canvas items
-        let canvasItemsInFrame = graph
+        let canvasItems = graph
             .getCanvasItemsAtTraversalLevel(groupNodeFocused: document.groupNodeFocused?.groupNodeId)
-            .filter({ $0.isVisibleInFrame(graph.visibleCanvasIds) })
+
+            // NOTE: previously we only looked at canvas items within the view port, but this creates situations e.g. where an edge indicates some off-screen node farther to the east that we cannot naturally scroll to since some other on-screen node counts as the border.
         
-        guard let westNode = graph.westernMostNodeForBorderCheck(canvasItemsInFrame,
+            // .filter({ $0.isVisibleInFrame(graph.visibleCanvasIds) })
+        
+        guard let westNode = graph.westernMostNodeForBorderCheck(canvasItems,
                                                                  groupNodeFocused: document.groupNodeFocused?.groupNodeId),
-              let eastNode = graph.easternMostNodeForBorderCheck(canvasItemsInFrame,
+              let eastNode = graph.easternMostNodeForBorderCheck(canvasItems,
                                                                  groupNodeFocused: document.groupNodeFocused?.groupNodeId),
               let westBounds = cache.get(westNode.id),
               let eastBounds = cache.get(eastNode.id),
-              let northNode = graph.northernMostNodeForBorderCheck(canvasItemsInFrame,
+              let northNode = graph.northernMostNodeForBorderCheck(canvasItems,
                                                                    groupNodeFocused: document.groupNodeFocused?.groupNodeId),
-              let southNode = graph.southernMostNodeForBorderCheck(canvasItemsInFrame,
+              let southNode = graph.southernMostNodeForBorderCheck(canvasItems,
                                                                    groupNodeFocused: document.groupNodeFocused?.groupNodeId),
               let northBounds = cache.get(northNode.id),
               let southBounds = cache.get(southNode.id) else {
