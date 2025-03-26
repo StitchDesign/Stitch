@@ -38,7 +38,7 @@ struct SplitterPatchNode: PatchNodeDefinition {
     }
 
     static func createEphemeralObserver() -> NodeEphemeralObservable? {
-        ComputedNodeState()
+        MediaEvalOpObserver()
     }
 }
 
@@ -46,42 +46,31 @@ struct SplitterPatchNode: PatchNodeDefinition {
 func splitterEval(node: PatchNode,
                   graphStep: GraphStepState) -> EvalResult {
 
-    let inputsValues = node.inputs
-
-    // splitter must have node-type
-    if let nodeType = node.userVisibleType,
-       nodeType == .pulse {
-        //        log("splitterEval: had pulse node type")
-        let op = splitterPulseOpclosure(
-            graphTime: graphStep.graphTime)
-        return pulseEvalUpdate(inputsValues,
-                               [],
-                               op)
-    } else {
-        //        log("splitterEval: had other node type")
-        let eval = outputsOnlyEval(identityEvaluation)
-        let result = eval(node)
-        return ImpureEvalResult(outputsValues: result.outputsValues)
-    }
-
-}
-
-func splitterPulseOpclosure(graphTime: TimeInterval) -> PulseOperationT {
-
-    return { (values: PortValues) -> PulseOpResultT in
-
-        // splitter node only ever has one input
-        let value: PortValue = values[0]
-        let pulsed = (value.getPulse ?? .zero).shouldPulse(graphTime)
-
-        if pulsed {
-            //            log("splitterPulseOpclosure: returning pulse")
-            return PulseOpResultT(
-                //                value,
-                .pulse(graphTime)) // had a pulse, so return .pulse(graphTime) h
-        } else {
-            //            log("splitterPulseOpclosure: not returning pulse")
-            return PulseOpResultT(value)
+    node.loopedEval { (values, loopIndex) -> MediaEvalOpResult in
+        // splitter must have node-type
+        guard let nodeType = node.userVisibleType else {
+            fatalErrorIfDebug()
+            return MediaEvalOpResult(values: [.number(.zero)])
         }
+        
+        let value: PortValue = values[0]
+        let pulsed = (value.getPulse ?? .zero).shouldPulse(graphStep.graphTime)
+        if nodeType == .pulse {
+            if pulsed {
+                return MediaEvalOpResult(values: [.pulse(graphStep.graphTime)])
+            }
+            
+        }
+        
+        if nodeType == .media,
+            let media = node.getInputMedia(portIndex: 0,
+                                           loopIndex: loopIndex,
+                                           mediaId: nil) {
+            return MediaEvalOpResult(values: [value],
+                                     media: .init(computedMedia: media))
+        }
+        
+        return MediaEvalOpResult(values: [value])
     }
+    .createPureEvalResult(node: node)
 }
