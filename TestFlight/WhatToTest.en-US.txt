@@ -24,7 +24,6 @@ Improvements
  - Outputs start empty on graph reset or open, avoiding unintended carryovers
  - Projects open centered on the canvas
  - Preview window sizing is updated when importing new projects
- - Duplicate alerts appear for camera or reality layers
  - Zooming out is smoother near the max limit
  - Projects begin at their animation goal when opened
 
