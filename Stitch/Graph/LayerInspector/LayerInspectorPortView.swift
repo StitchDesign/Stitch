@@ -7,6 +7,7 @@
 
 import SwiftUI
 import StitchSchemaKit
+import OrderedCollections
 
 struct LayerInspectorInputPortView: View {
     @Bindable var layerInputObserver: LayerInputObserver
@@ -582,5 +583,67 @@ extension StitchDocumentViewModel {
             }
             #endif
         }
+    }
+}
+
+extension GraphState {
+    
+    // e.g. we're in [Root, Group 1]
+    // and tapped a 'layer input on canvas' which is at Group 5
+    // so we start from our current traversal level (Group 1)
+    // and get back [Group 2, Group 3, Group 4, Group 5],
+    // which we should added to the existing [Root, Group 1]
+    
+    /*
+     We are currently at Level 1 i.e. breadcrumbs like [Root, Level 1]
+     We want to jump to Level 5
+     So we start at Level 5 and work up, building a breadcrumb list,
+     like [Level 4, Level]
+     */
+    @MainActor
+    func getBreadcrumbs(startingPoint: GroupNodeType?, // excluded; our current traversal level
+                        // inclusive; non-nil so i.e. never root level
+                        destination: CanvasItemId) -> OrderedSet<GroupNodeType> {
+
+        getParent(destination,
+                  maxCeiling: startingPoint,
+                  acc: .init())
+    }
+    
+    // TODO: make this work with components as well? Cannot assume `GroupNodeType.groupNode(NodeId)` etc.
+    @MainActor
+    func getParent(_ forCanvasItem: CanvasItemId,
+                   maxCeiling: GroupNodeType?, // go no higher than this level
+                   acc: OrderedSet<GroupNodeType>) -> OrderedSet<GroupNodeType> {
+        
+        log("getParent: called forCanvasItem \(forCanvasItem), maxCeiling: \(maxCeiling), acc: \(acc)")
+        
+        guard let canvasItem = self.getCanvasItem(forCanvasItem) else {
+            fatalErrorIfDebug()
+            return acc
+        }
+        
+        guard let parentId = canvasItem.parentGroupNodeId else {
+            // hit root level, so just return acc
+            log("getParent: hit root level, so just return acc for forCanvasItem \(forCanvasItem), acc: \(acc)")
+            return acc
+        }
+        
+        // If we hit the ceiling, return what we already have
+        if maxCeiling == .groupNode(parentId) {
+            log("getParent: hit the ceiling: maxCeiling: \(maxCeiling), canvasItem.parentGroupNodeId: \(canvasItem.parentGroupNodeId), acc: \(acc)")
+            // should we actually add
+            return acc
+        }
+        
+        // Else: add parent to front and recur
+        var newAcc = OrderedSet<GroupNodeType>.init([.groupNode(parentId)])
+        newAcc.append(contentsOf: acc)
+        let newResult = getParent(.node(parentId),
+                                  maxCeiling: maxCeiling,
+                                  acc: newAcc)
+        log("getParent: newResult: \(newResult)")
+        
+        return newResult
     }
 }

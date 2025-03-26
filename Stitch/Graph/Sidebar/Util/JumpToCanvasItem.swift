@@ -49,10 +49,47 @@ extension GraphState {
     @MainActor
     func panGraphToNodeLocation(id: CanvasItemId,
                                 document: StitchDocumentViewModel) {
+        
+        log("panGraphToNodeLocation: called for id: \(id)")
+        
         guard let canvasItem = self.getCanvasItem(id) else {
             fatalErrorIfDebug("panGraphToNodeLocation: no canvasItem found")
             return
         }
+        
+        let currentTraversalLevel = document.groupNodeFocused?.groupNodeId
+        let canvasItemTraversalLevel = canvasItem.parentGroupNodeId
+        log("panGraphToNodeLocation: currentTraversalLevel: \(currentTraversalLevel)")
+        log("panGraphToNodeLocation: canvasItemTraversalLevel: \(canvasItemTraversalLevel)")
+        
+//        // If the canvas item is not at this traversal level (e.g. a layer input that is on the canvas but inside another group),
+//        // then we will need to focus that
+        guard canvasItemTraversalLevel == currentTraversalLevel else {
+            
+            // CAREFUL: you could actually end up jumping e.g. 5 levels down,
+            // and you would have the improper breadcrumbs...
+                        
+            let result = self.getBreadcrumbs(
+                startingPoint: currentTraversalLevel.map(GroupNodeType.groupNode),
+                destination: canvasItem.id
+            )
+            log("panGraphToNodeLocation: result: \(result)")
+            
+            // Update the breadcrumbs
+            document.groupNodeBreadcrumbs.append(contentsOf: result)
+            
+            // Allow us to enter the traversal level,
+            // and NodeViews to render and infiniteCanvasC
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                log("panGraphToNodeLocation: async")
+                self.panGraphToNodeLocation(id: id,
+                                            // will this be outdated?
+                                            document: document)
+            }
+            
+            return
+        }
+        
         
         guard let jumpPosition = self.getNodeGraphPanLocation(id: id,
                                                               document: document) else {
@@ -67,12 +104,16 @@ extension GraphState {
         self.selectCanvasItem(id)
         
         // Update focused group ONLY IF CHANGED (important to avoid didSet)
-        if let canvasItemTraversalLevel = canvasItem.parentGroupNodeId,
-           document.groupNodeFocused?.groupNodeId != canvasItemTraversalLevel {
+        if let canvasItemTraversalLevel = canvasItemTraversalLevel,
+           currentTraversalLevel != canvasItemTraversalLevel {
             // TODO: need panning logic for component
-            document.groupNodeBreadcrumbs.append(.groupNode(canvasItemTraversalLevel))
+            document
+                .groupNodeBreadcrumbs
+                .append(.groupNode(canvasItemTraversalLevel))
         }
     }
+    
+    
     
     // nil could not be be found
     @MainActor
