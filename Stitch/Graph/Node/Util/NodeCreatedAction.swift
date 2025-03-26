@@ -53,44 +53,13 @@ extension StitchDocumentViewModel {
         return center
     }
 
-    @MainActor
-    private func hasRealityNode() -> Bool {
-        return self.visibleGraph.visibleNodesViewModel.nodes.values.contains { node in
-            if case .layer(.realityView) = node.kind {
-                return true
-            }
-            return false
-        }
-    }
-    
-    @MainActor
-    private func hasCameraNode() -> Bool {
-        return self.visibleGraph.visibleNodesViewModel.nodes.values.contains { node in
-            if case .patch(.cameraFeed) = node.kind {
-                return true
-            }
-            return false
-        }
-    }
 
     // Used by InsertNodeMenu
     @MainActor
     func nodeCreated(choice: NodeKind,
                      nodeId: UUID? = nil,
                      center: CGPoint? = nil) -> NodeViewModel? {
-        // Check for reality and camera nodes
-        if case .layer(.realityView) = choice {
-            if hasCameraNode() || hasRealityNode(){
-                dispatch(ReceivedStitchFileError(error: .cameraBasedNodeExists))
-                return nil
-            }
-        } else if case .patch(.cameraFeed) = choice {
-            if hasRealityNode() || hasCameraNode() {
-                dispatch(ReceivedStitchFileError(error: .cameraBasedNodeExists))
-                return nil
-            }
-        }
-        
+
         let nodeCenter = center ?? self.newNodeCenterLocation
         
         guard let node = self.createNode(
@@ -216,7 +185,7 @@ extension StitchDocumentViewModel {
             self.visibleGraph.layersSidebarViewModel.resetEditModeSelections()
             self.visibleGraph.layersSidebarViewModel.sidebarItemSelectedViaEditMode(sidebarLayerData.id)
             self.visibleGraph.layersSidebarViewModel.selectionState.lastFocused = sidebarLayerData.id
-            self.visibleGraph.deselectAllCanvasItems()
+            self.visibleGraph.resetSelectedCanvasItems()
             
             return layerNode
 

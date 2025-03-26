@@ -36,13 +36,13 @@ extension DateAndTimeFormat: PortValueEnum {
         case .none:
             return "None"
         case .short:
-            return  "Short"
+            return  "Short Date (YYYY-MM-DD)"
         case .medium:
-            return  "Medium"
+            return  "Medium Date (Jan 1, 1970)"
         case .long:
-            return  "Long"
+            return  "Long Date (January 1, 1970)"
         case .full:
-            return  "Full"
+            return  "Full Date & Time (January 1, 1970 at 12:00 AM)"
         }
     }
 }
@@ -98,6 +98,7 @@ func dateAndTimeFormatterEval(inputs: PortValuesList,
             let date = Date(timeIntervalSince1970: time)
             let dateFormatter = DateFormatter()
 
+            dateFormatter.timeZone = TimeZone(identifier: "UTC")
             if let style = format.toDateFormatterStyle {
                 dateFormatter.dateStyle = style
                 dateFormatter.timeStyle = style

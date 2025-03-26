@@ -43,6 +43,32 @@ extension StitchDocumentViewModel: GraphStepManagerDelegate {
     }
 }
 
+// DEBUG HELPERS
+extension NodeViewModel {
+    @MainActor
+    func allInputFieldObserverValues() -> FieldValues {
+        self.allInputRowViewModels.allFieldObserverValues()
+    }
+    
+    @MainActor
+    func allOutputFieldObserverValues() -> FieldValues {
+        self.allOutputRowViewModels.allFieldObserverValues()
+    }
+}
+
+extension Array where Element: NodeRowViewModel {
+    @MainActor
+    func allFieldObserverValues() -> FieldValues {
+        self.flatMap {
+            $0.fieldValueTypes.flatMap {
+                $0.fieldObservers.map {
+                    $0.fieldValue
+                }
+            }
+        }
+    }
+}
+
 extension GraphState {
     @MainActor func calculateOnGraphStep() {
         var nodesToRunOnGraphStep = self.nodesToRunOnGraphStep

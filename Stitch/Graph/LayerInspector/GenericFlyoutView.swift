@@ -174,18 +174,22 @@ struct GenericFlyoutRowView: View {
     var body: some View {
         
         HStack {
-            // For the layer inspector row button, use a
-            LayerInspectorRowButton(graph: graph,
-                                    graphUI: graphUI,
-                                    layerInputObserver: layerInputObserver,
-                                    layerInspectorRowId: layerInspectorRowId,
-                                    // For layer inspector row button, provide a NodeIOCoordinate that assumes unpacked + field index
-                                    coordinate: InputCoordinate(portType: .keyPath(layerInputType),
-                                                                nodeId: node.id),
-                                    canvasItemId: canvasItemId,
-                                    isHovered: isHovered,
-                                    fieldIndex: fieldIndex)
-                        
+            
+            // Note: ShadowFlyoutRow has its own LayerInspectorRowButton, so don't use one again here
+            if !layerInputObserver.port.isShadowInput {
+                // For the layer inspector row button, use a
+                LayerInspectorRowButton(graph: graph,
+                                        graphUI: graphUI,
+                                        layerInputObserver: layerInputObserver,
+                                        layerInspectorRowId: layerInspectorRowId,
+                                        // For layer inspector row button, provide a NodeIOCoordinate that assumes unpacked + field index
+                                        coordinate: InputCoordinate(portType: .keyPath(layerInputType),
+                                                                    nodeId: node.id),
+                                        canvasItemId: canvasItemId,
+                                        isHovered: isHovered,
+                                        fieldIndex: fieldIndex)
+            }
+                                    
             InputValueEntry(graph: graph,
                             graphUI: graphUI,
                             viewModel: viewModel,

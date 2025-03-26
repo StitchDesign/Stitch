@@ -22,7 +22,6 @@ struct NodeView: View {
     let canRemoveInput: Bool
 
     let boundsReaderDisabled: Bool
-    let usePositionHandler: Bool
     let updateMenuActiveSelectionBounds: Bool
 
     var zIndex: CGFloat {
@@ -101,8 +100,7 @@ struct NodeView: View {
         }
         .canvasItemPositionHandler(document: document,
                                    node: node,
-                                   zIndex: zIndex,
-                                   usePositionHandler: usePositionHandler)
+                                   zIndex: zIndex)
     }
 
     @MainActor
@@ -398,7 +396,7 @@ struct NodeViewTapGestureModifier: ViewModifier {
         }
         
         // and select just the node
-        node.isTapped(document: document)
+        document.canvasItemTapped(node)
     }
     
     func onDoubleTap() {

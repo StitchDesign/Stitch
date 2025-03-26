@@ -170,9 +170,9 @@ extension Patch {
 //            return .node(outputsOnlyEval(clipEval))
             return .graph(clipEval)
         case .max:
-            return .node(outputsOnlyEval(maxEval))
+            return .node(arithmeticNodeTypeEval(maxEval))
         case .mod:
-            return .node(outputsOnlyEval(modEval))
+            return .node(mathNodeTypeWithColorEval(modEval))
         case .round:
             return .node(outputsOnlyEval(roundEval))
         case .absoluteValue:
@@ -208,7 +208,7 @@ extension Patch {
         case .length:
             return .node(arithmeticNodeTypeEval(lengthEval))
         case .min:
-            return .node(outputsOnlyEval(minEval))
+            return .node(arithmeticNodeTypeEval(minEval))
         case .power:
             return .node(mathNodeTypeEval(powerEval))
         case .equals:

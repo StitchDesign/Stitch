@@ -1,24 +1,45 @@
-Media Handling Improvements
-- Reduced memory consumption to improve support for graphs with potentially many media objects
-- Fixed issue where media may continue running even after project closure
-- Fixed issues where inputs and outputs may display out-of-date media information
-- Fixed issue where granting camera permissions causes a crash
-- Improved camera permissions UX to directly link to settings if camera is requested with disabled permissions
+New Features
+ - Hold Option to duplicate sidebar items during drag
+ - Copy layer nodes for easier reuse
+ - Added new color arithmetic operations: multiply, divide, add, subtract, length, and mod
+ - Expanded math patches to support loops and extra inputs
+ - Mac device info node support
+ - DeviceMotion node uses default outputs if no motion manager is found
+ - Updated zoom shortcuts (0.1 step) and mouse zoom (0.04 step), ignoring borders during zoom
+ - “Exit prototype” replaces “exit fullscreen” on iPhone
 
-3D + AR Fixes
-- Enhanced AR transform reliability
-- Fixed 3D geometry shapes appearing out of frame
-- Fixed 3D entity removal problems in Reality node
-- Improved dragging 3D entity layers in and out of reality views in sidebar
+Improvements
+ - Updated row view models so fields refresh when items become visible
+ - Layer multiselect editing is more consistent, especially when fields appear on the canvas
+ - No shadow input displayed for 3D layers in the inspector
+ - Disabled hit-testing on hidden preview windows
+ - Text layers default to “auto” sizing
+ - Improved UI fields updates on group hierarchy changes
+ - Port preview popovers close only when the graph is tapped
+ - Graph items now persist when cut
+ - Layer “ephemeral” states reset on graph reset
+ - Canvas paste positions adjust based on visibility
+ - Removed pinch gestures from the graph for smoother interaction
+ - Preview layers regenerate when orientation inputs change
+ - Outputs start empty on graph reset or open, avoiding unintended carryovers
+ - Projects open centered on the canvas
+ - Preview window sizing is updated when importing new projects
+ - Duplicate alerts appear for camera or reality layers
+ - Zooming out is smoother near the max limit
+ - Projects begin at their animation goal when opened
 
-Other Bug Fixes + Improvements
-- Improved graph responsiveness after closing the insert node menu
-- Improved group label color in layer inspector for better visibility
-- Updated UI pickers for layer alignment and text decoration
-- Fixed graph responsiveness issues with preview window offscreen
-- Improved labels for group nodes and their splitters
-- Improved reliability of graph panning to nodes
-- Reset double-tap location after alerts or similar states
-- Fixed Split Text patch to handle all loop values instead of just the last
-- Fixed JSON Array patch handling to prevent errors
-- Removed crashes when option-drag duplicating nodes
+Bug Fixes
+ - Fixed time zone handling in Time Formatter node
+ - Ensured patch connections never loop back to the same layer or patch
+ - Corrected JSON subarray ranges of length one
+ - Fixed camera mirroring on Catalyst builds
+ - Default camera orientation is now consistent
+ - Properly handled unpacked Margin and Padding in the Layer Inspector
+ - Microphone node now works as intended
+
+Performance
+ - Reduced redundant rendering from fields, nodes, layers, edges, and sidebars
+ - Lowered unneeded render cycles in project titles, ports, node titles, edges, and navigation
+ - Improved performance with StitchEngine media handling
+ - Decreased graph “jumpiness” by removing extra momentum code
+ - Simplified graph initialization for faster responsiveness

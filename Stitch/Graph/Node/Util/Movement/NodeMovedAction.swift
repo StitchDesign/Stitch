@@ -39,8 +39,16 @@ extension CanvasItemViewModel {
             self.zIndex = highestZIndex
         }
 
-        let translationSize = (translation / zoom) // required when using SwiftUI .global on nodes' DragGesture
-            - ((state.runningGraphTranslation ?? .zero) / zoom)
+        /*
+         
+         NOTE: `/ zoom` required when using SwiftUI .global on nodes' DragGesture
+                let translationSize = (translation / zoom)
+                    - ((state.runningGraphTranslation ?? .zero) / zoom)
+         
+         However, not required when using UIKit GestureRecognizer.
+         */
+        let translationSize = translation
+            - ((state.runningGraphTranslation ?? .zero))
             + (state.runningGraphTranslationBeforeNodeDragged ?? .zero)
             - state.accumulatedGraphTranslation
 
@@ -99,10 +107,10 @@ extension GraphState {
             }
             
             // If we drag a canvas item that is not yet selected, we'll select it and deselect all the others.
-            if !canvasItem.isSelected(state) {
+            if !state.isCanvasItemSelected(canvasItem.id) {
                 // log("NodeDuplicateDraggedAction: \(canvasItem.id) was NOT already selected")
                 // select the canvas item and de-select all the others
-                state.selectSingleCanvasItem(canvasItem)
+                state.selectSingleCanvasItem(canvasItem.id)
                 // add node's edges to highlighted edges; wipe old highlighted edges
                 state.selectedEdges = .init()
             }
@@ -149,6 +157,24 @@ extension GraphState {
                                       wasDrag: true,
                                       document: document)
             }
+    }
+}
+
+struct CanvasItemMoved: StitchDocumentEvent {
+    let canvasItemId: CanvasItemId
+    let translation: CGSize
+    let wasDrag: Bool
+    
+    func handle(state: StitchDocumentViewModel) {
+        guard let canvasItem = state.visibleGraph.getCanvasItem(canvasItemId) else {
+            log("CanvasItemMoved: could not find canas item")
+            return
+        }
+        
+        state.visibleGraph.canvasItemMoved(for: canvasItem,
+                                           translation: translation,
+                                           wasDrag: wasDrag,
+                                           document: state)
     }
 }
 
@@ -226,14 +252,13 @@ extension GraphState {
 
         // Dragging an unselected node selects that node
         // and de-selects all other nodes.
-        let alreadySelected = canvasItem.isSelected(self)
-
+        let alreadySelected = self.isCanvasItemSelected(canvasItem.id)
         if !alreadySelected {
             // update node's position
             self.updateCanvasItemOnDragged(canvasItem, translation: translation)
 
             // select the canvas item and de-select all the others
-            self.selectSingleCanvasItem(canvasItem)
+            self.selectSingleCanvasItem(canvasItem.id)
 
             // add node's edges to highlighted edges; wipe old highlighted edges
             self.selectedEdges = .init()

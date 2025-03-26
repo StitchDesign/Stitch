@@ -78,7 +78,7 @@ class FullScreenGestureCoordinator: NSObject, UIGestureRecognizerDelegate {
     }
 
     @objc func threeFingerDoubleTapInView(_ gestureRecognizer: UITapGestureRecognizer) {
-        if isPhoneDevice() {
+        if Stitch.isPhoneDevice {
             // iPhone never persists a project
             dispatch(CloseGraph())
         } else {

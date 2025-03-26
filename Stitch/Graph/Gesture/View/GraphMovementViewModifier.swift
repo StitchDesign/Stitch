@@ -51,6 +51,8 @@ extension GraphState {
         let viewFrame = CGRect.init(origin: scaledOffset,
                                     size: scaledSize)
                 
+        let originalVisibleNodes = self.visibleNodesViewModel.visibleCanvasIds
+        
         // Determine nodes to make visible--use cache in case nodes exited viewframe
         var newVisibleNodes = Set<CanvasItemId>()
         
@@ -77,13 +79,46 @@ extension GraphState {
                     newVisibleNodes.formUnion(self.visibleNodesViewModel.getSplitterOutputRowObserverIds(for: potentialGroupNodeId))
                 }
                 
-            } else {
-                // log("updateVisibleNodes: NOT visible: \(id), cachedBounds: \(cachedBounds)")
             }
+//            else {
+//                // log("updateVisibleNodes: NOT visible: \(id), cachedBounds: \(cachedBounds)")
+//            }
         } // for cachedSubviewData
         
-        if self.visibleNodesViewModel.visibleCanvasIds != newVisibleNodes {
+        if originalVisibleNodes != newVisibleNodes {
             self.visibleNodesViewModel.visibleCanvasIds = newVisibleNodes
+            
+            // Update the cached-UI-data (e.g. fieldObservers) of the canvas items that just became visible
+            let becameVisible = newVisibleNodes.subtracting(originalVisibleNodes)
+            for canvasItemId in becameVisible {
+                guard let canvasItem = self.getCanvasItem(canvasItemId) else {
+                    fatalErrorIfDebug()
+                    continue
+                }
+                canvasItem.updateFieldsUponBecomingVisible(document.activeIndex)
+            }
+        }
+    }
+}
+
+extension CanvasItemViewModel {
+    @MainActor
+    func updateFieldsUponBecomingVisible(_ activeIndex: ActiveIndex) {
+        self.inputViewModels.updateAllFields(activeIndex)
+        self.outputViewModels.updateAllFields(activeIndex)
+    }
+}
+
+extension Array where Element: NodeRowViewModel {
+    @MainActor
+    func updateAllFields(_ activeIndex: ActiveIndex) {
+        for portViewModel in self {
+            guard let rowDelegate = portViewModel.rowDelegate else {
+                fatalErrorIfDebug()
+                continue
+            }
+            
+            portViewModel.updateFields(rowDelegate.getActiveValue(activeIndex: activeIndex))
         }
     }
 }

@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 import StitchEngine
+import OrderedCollections
 
 let STITCH_PROJECT_DEFAULT_NAME = StitchDocument.defaultName
 
@@ -66,7 +67,7 @@ final class StitchDocumentViewModel: Sendable {
     @MainActor var adjustmentBarSessionId: UUID = .init()
     
     @MainActor
-    static let isPhoneDevice = Stitch.isPhoneDevice()
+    static let isPhoneDevice = Stitch.isPhoneDevice
     
     @MainActor var activeSpacebarClickDrag = false
 
@@ -90,9 +91,10 @@ final class StitchDocumentViewModel: Sendable {
     @MainActor var showsLayerInspector = false
     
     @MainActor var leftSidebarOpen = false
-    
+
+    // Note: important to use `OrderedSet` rather than just list, so that we never have duplicate traversal-levels, see: https://github.com/StitchDesign/Stitch--Old/issues/7038
     // Tracks group breadcrumbs when group nodes are visited
-    @MainActor var groupNodeBreadcrumbs: [GroupNodeType] = [] {
+    @MainActor var groupNodeBreadcrumbs: OrderedSet<GroupNodeType> = .init() {
         didSet {
             if let nodePageData = self.graph.visibleNodesViewModel.nodePageDataAtCurrentTraversalLevel(self.groupNodeFocused?.groupNodeId) {
 
@@ -153,16 +155,16 @@ final class StitchDocumentViewModel: Sendable {
         self.isDebugMode = isDebugMode
         
         // Handles Stitch AI if enabled
-#if STITCH_AI
+//#if STITCH_AI
         do {
             self.aiManager = try StitchAIManager()
         } catch {
             self.aiManager = nil
             log("StitchStore error: could not init secrets file with error: \(error)")
         }
-#else
-        self.aiManager = nil
-#endif
+//#else
+//        self.aiManager = nil
+//#endif
 
         self.lastEncodedDocument = schema
         

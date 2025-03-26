@@ -286,16 +286,6 @@ enum GraphDragState: Codable {
     case dragging
 }
 
-extension GraphState {
-        
-    @MainActor
-    func resetSelectedCanvasItems() {
-        self.getCanvasItems().forEach {
-            $0.deselect(self)
-        }
-    }
-}
-
 extension GraphUISelectionState {
     func resetSelectedCommentBoxes() -> Self {
         var state = self
@@ -308,62 +298,54 @@ extension GraphUISelectionState {
 // we thereby select.
 extension GraphState {
     
-    // Keep this helper around
     @MainActor
-    func selectSingleNode(_ node: CanvasItemViewModel) {
-        // ie expansionBox, isSelecting, selected-comments etc.
-        // get reset when we select a single node.
-        self.selection = GraphUISelectionState()
-        self.resetSelectedCanvasItems()
-        node.select(self)
-    }
-    
-    @MainActor
-    func deselectAllCanvasItems() {
-        if self.selection != .zero {
-            self.selection = GraphUISelectionState()            
-        }
-        self.resetSelectedCanvasItems()
-    }
-    
-    @MainActor
-    func selectSingleCanvasItem(_ canvasItem: CanvasItemViewModel) {
+    func selectSingleCanvasItem(_ canvasItemId: CanvasItemId) {
         // ie expansionBox, isSelecting, selected-comments etc.
         // get reset when we select a single canvasItem.
-        self.deselectAllCanvasItems()
-        canvasItem.select(self)
+        self.resetSelectedCanvasItems()
+        self.selectCanvasItem(canvasItemId)
     }
     
-    // TEST HELPER
     @MainActor
-    func addNodeToSelections(_ nodeId: CanvasItemId) {
-        guard let node = self.getCanvasItem(nodeId) else {
-            fatalErrorIfDebug()
-            return
+    func resetSelectedCanvasItems() {
+        if self.selection != .zero {
+            self.selection = GraphUISelectionState()
         }
-        node.select(self)
+        self.getCanvasItems().forEach {
+            self.deselectCanvasItem($0.id)
+        }
     }
-}
-
-extension CanvasItemViewModel {
+  
+    /*
+     Note: previously this logic was a method on `CanvasItemViewModel` that took a full `GraphState`.
+     
+     However, such a signature misleadingly implied that selection-status was stored on the canvas item itself, like canvas item's z-index.
+     We were also forced to retrieve the full canvas item view model in contexts where we only had, and only needed, the canvas item's id.
+     
+     This new signature `(GraphState, CanvasItemId) -> Void` makes clear that we're modifying (part of) GraphState and only need the canvas item id.
+     */
     @MainActor
-    func select(_ graph: GraphState) {
+    func selectCanvasItem(_ canvasItemId: CanvasItemId) {
         // Prevent render cycles if already selected
-        guard !self.isSelected(graph)  else { return }
-        
-        graph.selection.selectedCanvasItems.insert(self.id)
+        guard !self.isCanvasItemSelected(canvasItemId)  else { return }
+        self.selection.selectedCanvasItems.insert(canvasItemId)
         
         // Unfocus sidebar
-        if graph.layersSidebarViewModel.isSidebarFocused {
-            graph.layersSidebarViewModel.isSidebarFocused = false
+        if self.layersSidebarViewModel.isSidebarFocused {
+            self.layersSidebarViewModel.isSidebarFocused = false
         }
     }
     
+    // TODO: signature could be tighter, e.g. method on `SelectionState` rather than `GraphState`
     @MainActor
-    func deselect(_ graph: GraphState) {
-        // Prevent render cycles if already unselected
-        guard self.isSelected(graph) else { return }
-        graph.selection.selectedCanvasItems.remove(self.id)
+    func deselectCanvasItem(_ canvasItemId: CanvasItemId) {
+        guard self.isCanvasItemSelected(canvasItemId) else { return }
+        self.selection.selectedCanvasItems.remove(canvasItemId)
+    }
+    
+    @MainActor
+    func isCanvasItemSelected(_ canvasItemId: CanvasItemId) -> Bool {
+        self.selection.selectedCanvasItems.contains(canvasItemId)
     }
 }
 
@@ -401,7 +383,7 @@ extension GraphState {
             .flatMap { node in
                 node.getAllCanvasObservers()
                     .compactMap { canvas in
-                        guard canvas.isSelected(self) else {
+                        guard self.isCanvasItemSelected(canvas.id) else {
                             return nil
                         }
                         return canvas.id
@@ -415,7 +397,7 @@ extension GraphState {
     @MainActor
     func getSelectedCanvasItems(groupNodeFocused: NodeId?) -> CanvasItemViewModels {
         self.getCanvasItemsAtTraversalLevel(groupNodeFocused: groupNodeFocused)
-            .filter { $0.isSelected(self) }
+            .filter { self.isCanvasItemSelected($0.id) }
     }
     
     @MainActor

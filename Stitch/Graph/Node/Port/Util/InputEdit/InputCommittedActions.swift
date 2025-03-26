@@ -145,6 +145,7 @@ extension GraphState {
         
         // Only change the input if valued actually changed.
         input.setValuesInInput([value])
+        input.immediatelyUpdateFieldObservers(activeIndex)
         
         self.scheduleForNextGraphStep(nodeId)
     }
@@ -170,6 +171,13 @@ extension GraphState {
             }
         }
     }
-    
 }
 
+extension InputNodeRowObserver {
+    // Immediately update the field observers; do not wait until graph-step-based UI field updater runs.
+    // Useful when e.g. user enters input faster than our UI update FPS
+    @MainActor
+    func immediatelyUpdateFieldObservers(_ activeIndex: ActiveIndex) {
+        self.allRowViewModels.updateAllFields(activeIndex)
+    }
+}

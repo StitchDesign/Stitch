@@ -85,13 +85,7 @@ final class CanvasItemViewModel: Identifiable, StitchLayoutCachable, Sendable {
     
     // Cached subview sizes for performance gains in commit phase
     @MainActor var viewCache: NodeLayoutCache?
-    
-    // Moved state here for render cycle perf on port view for colors
-    @MainActor
-    func isSelected(_ graph: GraphState) -> Bool {
-        return graph.graphUI.selection.selectedCanvasItems.contains(self.id)
-    }
-    
+        
     // Reference back to the parent node entity
     @MainActor
     weak var nodeDelegate: NodeDelegate?

@@ -18,8 +18,9 @@ printf '{
     "SUPABASE_ANON_KEY": "%s",
     "SUPABASE_TABLE_NAME": "%s",
     "OPEN_AI_API_KEY": "%s",
-    "OPEN_AI_MODEL": "%s"
-}' "$SUPABASE_URL" "$SUPABASE_ANON_KEY" "$SUPABASE_TABLE_NAME" "$OPEN_AI_API_KEY" "$OPEN_AI_MODEL" > secrets.json
+    "OPEN_AI_MODEL": "%s",
+    "SENTRY_DSN": "%s"
+}' "$SUPABASE_URL" "$SUPABASE_ANON_KEY" "$SUPABASE_TABLE_NAME" "$OPEN_AI_API_KEY" "$OPEN_AI_MODEL" "$SENTRY_DSN" > secrets.json
 
 echo "Wrote secrets.json file to the root of the repository."
 
