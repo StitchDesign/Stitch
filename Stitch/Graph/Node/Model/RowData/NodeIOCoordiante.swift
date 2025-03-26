@@ -104,6 +104,15 @@ extension LayerInputPort {
         
         return false
     }
+    
+    var isShadowInput: Bool {
+        switch self {
+        case .shadowColor, .shadowOffset, .shadowRadius, .shadowOpacity:
+            return true
+        default:
+            return false
+        }
+    }
 }
 
 extension Layer {
