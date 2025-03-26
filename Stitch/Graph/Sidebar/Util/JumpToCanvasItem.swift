@@ -50,7 +50,7 @@ extension GraphState {
     func panGraphToNodeLocation(id: CanvasItemId,
                                 document: StitchDocumentViewModel) {
         
-        log("panGraphToNodeLocation: called for id: \(id)")
+        // log("panGraphToNodeLocation: called for id: \(id)")
         
         guard let canvasItem = self.getCanvasItem(id) else {
             fatalErrorIfDebug("panGraphToNodeLocation: no canvasItem found")
@@ -59,31 +59,34 @@ extension GraphState {
         
         let currentTraversalLevel = document.groupNodeFocused?.groupNodeId
         let canvasItemTraversalLevel = canvasItem.parentGroupNodeId
-        log("panGraphToNodeLocation: currentTraversalLevel: \(currentTraversalLevel)")
-        log("panGraphToNodeLocation: canvasItemTraversalLevel: \(canvasItemTraversalLevel)")
+        // log("panGraphToNodeLocation: currentTraversalLevel: \(currentTraversalLevel)")
+        // log("panGraphToNodeLocation: canvasItemTraversalLevel: \(canvasItemTraversalLevel)")
         
-//        // If the canvas item is not at this traversal level (e.g. a layer input that is on the canvas but inside another group),
-//        // then we will need to focus that
+        // If the canvas item is not at this traversal level (e.g. a layer input that is on the canvas but inside another group),
+        // then we have to find which traversal level to jump to, along with the proper breadcrumb path.
         guard canvasItemTraversalLevel == currentTraversalLevel else {
-            
-            // CAREFUL: you could actually end up jumping e.g. 5 levels down,
-            // and you would have the improper breadcrumbs...
-                        
             let result = self.getBreadcrumbs(
                 startingPoint: currentTraversalLevel.map(GroupNodeType.groupNode),
-                destination: canvasItem.id
-            )
-            log("panGraphToNodeLocation: result: \(result)")
+                destination: canvasItem.id)
             
-            // Update the breadcrumbs
-            document.groupNodeBreadcrumbs.append(contentsOf: result)
+            // log("panGraphToNodeLocation: result: \(result)")
+  
+            // if tapped canvas item has a shorter breadcrumb path than the current item, just replace the current breadcrumb path
+            if result.count <= document.groupNodeBreadcrumbs.count {
+                // log("panGraphToNodeLocation: replacing current breadcrumbs")
+                document.groupNodeBreadcrumbs = result
+            } else {
+                // log("panGraphToNodeLocation: appending to current breadcrumbs")
+                // Update the breadcrumbs
+                document.groupNodeBreadcrumbs.append(contentsOf: result)
+            }
             
             // Allow us to enter the traversal level,
-            // and NodeViews to render and infiniteCanvasC
+            // and NodeViews to render and populate the infiniteCanvasCache,
+            // then attempt to pan again
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                log("panGraphToNodeLocation: async")
+                // log("panGraphToNodeLocation: async")
                 self.panGraphToNodeLocation(id: id,
-                                            // will this be outdated?
                                             document: document)
             }
             
@@ -93,7 +96,7 @@ extension GraphState {
         
         guard let jumpPosition = self.getNodeGraphPanLocation(id: id,
                                                               document: document) else {
-            log("panGraphToNodeLocation: could not retrieve jump location")
+            // log("panGraphToNodeLocation: could not retrieve jump location")
             return
         }
         
