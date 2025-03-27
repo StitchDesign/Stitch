@@ -98,29 +98,12 @@ struct iPadGraphTopBarButtons: View {
 
         // TODO: why does `Group` but not `HStack` work here? Something to do with `Menu`?
         Group {
-            iPadNavBarButton(action: { dispatch(LLMRecordingToggled()) },
-                             iconName: .sfSymbol(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL))
-            .opacity(llmRecordingModeEnabled ? 1 : 0)
             
             // go up a traversal level
             iPadNavBarButton(action: { dispatch(GoUpOneTraversalLevel()) },
                              iconName: .sfSymbol(.GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME))
             .opacity(hasActiveGroupFocused ? 1 : 0)
             
-            // add node
-            iPadNavBarButton(action: INSERT_NODE_ACTION,
-                             iconName: .sfSymbol(.ADD_NODE_SF_SYMBOL_NAME))
-            
-            iPadNavBarButton(action: {
-                graph.findSomeCanvasItemOnGraph(document: document)
-            },
-                             iconName: .sfSymbol(.FIND_NODE_ON_GRAPH))
-
-            // TODO: implement
-            //            // new project
-            //            iPadNavBarButton(action: NEW_PROJECT_ACTION,
-            //                             iconName: .sfSymbol(.NEW_PROJECT_SF_SYMBOL_NAME))
-
             if !document.isDebugMode {
                 // toggle preview window
                 iPadNavBarButton(
@@ -145,7 +128,11 @@ struct iPadGraphTopBarButtons: View {
             //                             iconName: .sfSymbol(.SHARE_ICON_SF_SYMBOL_NAME))
 
             // the misc (...) button
-            iPadGraphTopBarMiscMenu()
+            iPadGraphTopBarMiscMenu(
+                document: document,
+                graph: graph,
+                llmRecordingModeActive: llmRecordingModeActive,
+                llmRecordingModeEnabled: llmRecordingModeEnabled)
             
             iPadNavBarButton(action: {
                 dispatch(LayerInspectorToggled())
@@ -155,9 +142,29 @@ struct iPadGraphTopBarButtons: View {
 }
 
 struct iPadGraphTopBarMiscMenu: View {
-
+    @Bindable var document: StitchDocumentViewModel
+    @Bindable var graph: GraphState
+    let llmRecordingModeActive: Bool
+    let llmRecordingModeEnabled: Bool
+    
     var body: some View {
         Menu {
+            
+            if llmRecordingModeEnabled {
+                iPadTopBarButton(action: { dispatch(LLMRecordingToggled()) },
+                                 iconName: .sfSymbol(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL),
+                                 label: "AI Generation/Correction")
+            }
+            
+//            // add node
+//            iPadTopBarButton(action: INSERT_NODE_ACTION,
+//                             iconName: .sfSymbol(.ADD_NODE_SF_SYMBOL_NAME),
+//                             label: "Insert Node")
+            
+            iPadTopBarButton(action: { graph.findSomeCanvasItemOnGraph(document: document) },
+                             iconName: .sfSymbol(.FIND_NODE_ON_GRAPH),
+                             label: "Find Node")
+            
             iPadTopBarButton(action: UNDO_ACTION,
                              iconName: UNDO_ICON_NAME,
                              label: UNDO_ICON_LABEL)
