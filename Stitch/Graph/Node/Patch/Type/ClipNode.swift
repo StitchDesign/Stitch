@@ -51,14 +51,14 @@ func clipEval(node: PatchNode,
 
     
     let graphTime = graph.graphStepState.graphTime
-    log("clipEval: graphTime: \(graphTime)")
+//    log("clipEval: graphTime: \(graphTime)")
     let inputs: PortValuesList = node.inputs
     
     let op: Operation = { (values: PortValues) -> PortValue in
         if let value = values.first?.getNumber,
            let min = values[1].getNumber,
            let max = values[2].getNumber {
-            log("clipEval: value: \(value)")
+//            log("clipEval: value: \(value)")
             let result = getNumberBetween(value: value, min: min, max: max)
             return .number(result)
         } else {

@@ -16,7 +16,8 @@ extension Patch {
         case
             // wireless nodes are just splitter nodes with covered up edges and invisible edges
             .wirelessReceiver, .wirelessBroadcaster:
-            return .node(outputsOnlyEval(identityEvaluation))
+//            return .node(outputsOnlyEval(identityEvaluation))
+            return .graph(wirelessEvaluation)
         case .splitter:
             // .impure(.impure because of pulse nodeType)
             return .graphStep(splitterEval)

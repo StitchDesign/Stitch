@@ -79,6 +79,9 @@ func addEval(node: PatchNode,
     if node.id.uuidString.contains("8FABCA") {
         log("addEval: graphTime: \(graph.graphStepState.graphTime)")
         log("addEval: inputs: \(inputs)")
+        
+        let newOutputs = result(AddEvalOps.numberOperation)
+        log("addEval: newOutputs: \(newOutputs)")
     }
     
 //    // Check if any input is a string or color

@@ -57,6 +57,10 @@ struct ReversePulseCoercion: GraphEvent {
     let pulsedOutput: OutputCoordinate
     
     func handle(state: GraphState) {
+        
+        log("ReversePulseCoercion: for output \(pulsedOutput)")
+        log("ReversePulseCoercion: graphTime: \(state.graphStepState.graphTime)")
+        
         // Cannot recalculate full node in some examples (like delay node)
         // so we just update downstream nodes
         guard let node = state.getNodeViewModel(pulsedOutput.nodeId),
