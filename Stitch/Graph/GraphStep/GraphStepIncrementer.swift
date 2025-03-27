@@ -14,13 +14,91 @@ extension StitchDocumentViewModel: GraphStepManagerDelegate {
     func graphStepIncremented(elapsedProjectTime: TimeInterval,
                               frameCount: Int,
                               currentEstimatedFPS: StitchFPS) {
-        // log("graphStepIncremented called")
+        log("graphStepIncremented called, new graphTime \(self.graphStepManager.graphTime)")
         
         self.graphStepManager.lastGraphTime = elapsedProjectTime
         self.graphStepManager.lastGraphAnimationTime = elapsedProjectTime
         self.graphStepManager.estimatedFPS = currentEstimatedFPS
         
+        // REVERSING PULSED OUTPUTS FROM LAST GRAPH STEP,
+        // BEFORE EVALUATING THE GRAPH ON THIS NEW GRAPH STEP
+        self.graph.pulsedOutputsOnThisGraphStep.forEach { (pulsedOutput: NodeIOCoordinate) in
+            log("graphStepIncremented: on pulsedOutput: \(pulsedOutput)")
+            
+            // Cannot recalculate full node in some examples (like delay node)
+            // so we just update downstream nodes
+            if let node = self.graph.getNode(pulsedOutput.nodeId),
+               let currentOutputs = node
+                .getOutputRowObserver(for: pulsedOutput.portType)?
+                .allLoopedValues  {
+                
+                // Reverse the values in the downstream inputs
+                let changedDownstreamInputIds = self.graph
+                    .updateDownstreamInputs(sourceNode: node,
+                                            flowValues: currentOutputs,
+                                            mediaList: nil,
+                                            // True, since we reversed the pulse effect?
+                                            upstreamOutputChanged: true,
+                                            outputCoordinate: pulsedOutput)
+                
+                let changedDownstreamNodeIds = Set(changedDownstreamInputIds.map(\.nodeId)).toSet
+                
+                log("graphStepIncremented: changedDownstreamNodeIds: \(changedDownstreamNodeIds) for output: \(pulsedOutput)")
+
+                // ... BUT, WE NEED TO ADD THESE TO RUN ON *THIS* GRAPH STEP, not the next.
+                // Actually, `self.graph.nodesToRunOnGraphStep` is just a union of 'ne
+                log("self.graph.nodesToRunOnGraphStep old: \(self.graph.nodesToRunOnGraphStep)")
+                self.graph.scheduleForNextGraphStep(changedDownstreamNodeIds)
+                log("self.graph.nodesToRunOnGraphStep new: \(self.graph.nodesToRunOnGraphStep)")
+//                self.graph.nodesToRunOnGraphStep = self.graph.nodesToRunOnGraphStep.union(changedDownstreamNodeIds)
+                
+            } // if let
+        }
+        
+        
+        // Finally, wipe pulsed-outputs
+        self.graph.pulsedOutputsOnThisGraphStep = .init()
+        
+        
+        // Evaluate the graph
         self.graph.calculateOnGraphStep()
+        
+        // THE PROBLEM HERE IS THAT YOU ARE FLOWING THE PULSE-OUTPUT DOWN AGAIN ON THE SAME GRAPH STEP,
+        // SO, THE DOWNSTREAM INPUTS WON'T CHANGE.
+        
+//        // During graph eval, we have been tracking which outputs pulsed.
+//        // After graph eval, but before the next graph step,
+//        // we "reverse" the pulsed outputs' coercion
+//        // and schedule changed downstream inputs to be run on next graph step.
+//        self.graph.pulsedOutputsOnThisGraphStep.forEach { (pulsedOutput: NodeIOCoordinate) in
+//            log("graphStepIncremented: on pulsedOutput: \(pulsedOutput)")
+//            
+//            // Cannot recalculate full node in some examples (like delay node)
+//            // so we just update downstream nodes
+//            if let node = self.graph.getNode(pulsedOutput.nodeId),
+//               let currentOutputs = node
+//                .getOutputRowObserver(for: pulsedOutput.portType)?
+//                .allLoopedValues  {
+//                
+//                // Reverse the values in the downstream inputs
+//                let changedDownstreamInputIds = self.graph
+//                    .updateDownstreamInputs(sourceNode: node,
+//                                            flowValues: currentOutputs,
+//                                            mediaList: nil,
+//                                            // True, since we reversed the pulse effect?
+//                                            upstreamOutputChanged: true,
+//                                            outputCoordinate: pulsedOutput)
+//                
+//                let changedDownstreamNodeIds = Set(changedDownstreamInputIds.map(\.nodeId)).toSet
+//                
+//                log("graphStepIncremented: changedDownstreamNodeIds: \(changedDownstreamNodeIds) for output: \(pulsedOutput)")
+//                
+//                self.graph.scheduleForNextGraphStep(changedDownstreamNodeIds)
+//            } // if let
+//        }
+//        
+//        // Finally, wipe pulsed-outputs
+//        self.graph.pulsedOutputsOnThisGraphStep = .init()
         
         // Update fields every 30 frames
         if !self.visibleGraph.portsToUpdate.isEmpty &&
@@ -72,6 +150,7 @@ extension Array where Element: NodeRowViewModel {
 extension GraphState {
     @MainActor func calculateOnGraphStep() {
         var nodesToRunOnGraphStep = self.nodesToRunOnGraphStep
+        log("calculateOnGraphStep: nodesToRunOnGraphStep: \(nodesToRunOnGraphStep)")
         
         let graphTime = self.graphStepManager.graphTime
         let components = self.nodes.values

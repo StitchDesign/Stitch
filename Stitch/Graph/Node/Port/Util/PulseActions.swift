@@ -63,34 +63,36 @@ struct ReversePulseCoercion: GraphEvent {
     let pulsedOutput: OutputCoordinate
     
     func handle(state: GraphState) {
-        
-        if pulsedOutput.nodeId.uuidString.contains("AA9C7B") {
-            log("ReversePulseCoercion: for output \(pulsedOutput)")
-            log("ReversePulseCoercion: graphTime: \(state.graphStepState.graphTime)")
-        }
-        
-        
-        // Cannot recalculate full node in some examples (like delay node)
-        // so we just update downstream nodes
-        guard let node = state.getNodeViewModel(pulsedOutput.nodeId),
-              let currentOutputs = node.getOutputRowObserver(for: pulsedOutput.portType)?.allLoopedValues else {
-//                  fatalErrorIfDebug("ReversePulseCoercion error: data not found.")
-                  return
-              }
-        
-        // Reverse the values in the downstream inputs
-        let changedDownstreamInputIds = state
-            .updateDownstreamInputs(sourceNode: node,
-                                    flowValues: currentOutputs,
-                                    mediaList: nil,
-                                    upstreamOutputChanged: true, // True, since we reversed the pulse effect?
-                                    outputCoordinate: pulsedOutput)
-        let changedDownstreamNodeIds = Set(changedDownstreamInputIds.map(\.nodeId)).toSet
-        
-        log("ReversePulseCoercion: changedDownstreamNodeIds: \(changedDownstreamNodeIds) for output: \(pulsedOutput)")
-        
-        // Run the downstream inputs' node evals
-        state.scheduleForNextGraphStep(changedDownstreamNodeIds)
+        log("ReversePulseCoercion: for output \(pulsedOutput) BUT DOING NOTHING")
+//        
+////        return
+//        
+//        if pulsedOutput.nodeId.uuidString.contains("AA9C7B") {
+//            log("ReversePulseCoercion: for output \(pulsedOutput)")
+//            log("ReversePulseCoercion: graphTime: \(state.graphStepState.graphTime)")
+//        }
+//        
+//        // Cannot recalculate full node in some examples (like delay node)
+//        // so we just update downstream nodes
+//        guard let node = state.getNodeViewModel(pulsedOutput.nodeId),
+//              let currentOutputs = node.getOutputRowObserver(for: pulsedOutput.portType)?.allLoopedValues else {
+//            //                  fatalErrorIfDebug("ReversePulseCoercion error: data not found.")
+//            return
+//        }
+//        
+//        // Reverse the values in the downstream inputs
+//        let changedDownstreamInputIds = state
+//            .updateDownstreamInputs(sourceNode: node,
+//                                    flowValues: currentOutputs,
+//                                    mediaList: nil,
+//                                    upstreamOutputChanged: true, // True, since we reversed the pulse effect?
+//                                    outputCoordinate: pulsedOutput)
+//        let changedDownstreamNodeIds = Set(changedDownstreamInputIds.map(\.nodeId)).toSet
+//        
+//        log("ReversePulseCoercion: changedDownstreamNodeIds: \(changedDownstreamNodeIds) for output: \(pulsedOutput)")
+//        
+//        // Run the downstream inputs' node evals
+//        state.scheduleForNextGraphStep(changedDownstreamNodeIds)
     } // handle
 }
 

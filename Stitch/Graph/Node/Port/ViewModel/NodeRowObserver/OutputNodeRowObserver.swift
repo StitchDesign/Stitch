@@ -51,15 +51,34 @@ final class OutputNodeRowObserver: NodeRowObserver {
         self.hasLoopedValues = values.hasLoop
     }
     
+    // TODO: this method should take `GraphTime` as a parameter; make it clear what is expected or not
     @MainActor
     func didValuesUpdate() {
-        let graphTime = self.nodeDelegate?.graphDelegate?.graphStepState.graphTime ?? .zero
+        
+        guard let graph = self.nodeDelegate?.graphDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        let graphTime = graph.graphStepState.graphTime
+        
+        // Output has pulsed if an index in its loop has pulsed
+        let someIndexPulsed = self.allLoopedValues
+            .first { $0.getPulse?.shouldPulse(graphTime) ?? false }
+            .isDefined
+        
+        if someIndexPulsed {
+            log("OutputNodeRowObserver: didValuesUpdate: had pulse for output \(self.id)")
+            log("OutputNodeRowObserver: didValuesUpdate: graph.pulsedOutputsOnThisGraphStep was: \(graph.pulsedOutputsOnThisGraphStep)")
+            graph.pulsedOutputsOnThisGraphStep.insert(self.id)
+            log("OutputNodeRowObserver: didValuesUpdate: graph.pulsedOutputsOnThisGraphStep is now: \(graph.pulsedOutputsOnThisGraphStep)")
+        }
         
         // Must also run pulse reversion effects
-        self.allLoopedValues
-            .getPulseReversionEffects(id: self.id,
-                                      graphTime: graphTime)
-            .processEffects()
+//        self.allLoopedValues
+//            .getPulseReversionEffects(id: self.id,
+//                                      graphTime: graphTime)
+//            .processEffects()
     }
     
     func updateOutputValues(_ values: [StitchSchemaKit.CurrentPortValue.PortValue]) {
