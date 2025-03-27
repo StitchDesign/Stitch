@@ -51,7 +51,7 @@ func splitterEval(node: PatchNode,
 
     if node.userVisibleType == .pulse || node.userVisibleType == .media {
         
-        // TODO: debug why this broke the Monthly Stays demo for non pulse
+        // TODO: debug why this broke the Monthly Stays demo: https://github.com/StitchDesign/Stitch--Old/issues/7049
         return node.loopedEval { (values, loopIndex) -> MediaEvalOpResult in
             // splitter must have node-type
             guard let nodeType = node.userVisibleType else {
