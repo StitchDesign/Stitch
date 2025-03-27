@@ -12,6 +12,12 @@ import StitchSchemaKit
 // How long we have the pulse's port-value coercion effect before reverting.
 // NOTE: converted later to milliseconds
 let PULSE_LENGTH: Int = 100
+//let PULSE_LENGTH: Int = 1
+//let PULSE_LENGTH: Int = 10
+//let PULSE_LENGTH: Int = 50
+// let PULSE_LENGTH: Int = 36
+
+
 
 // TODO: use Set<Coordinate>, instead of Dict<Coordinate: Bool> ?
 // coordinate because could be output or input
@@ -58,8 +64,11 @@ struct ReversePulseCoercion: GraphEvent {
     
     func handle(state: GraphState) {
         
-        log("ReversePulseCoercion: for output \(pulsedOutput)")
-        log("ReversePulseCoercion: graphTime: \(state.graphStepState.graphTime)")
+        if pulsedOutput.nodeId.uuidString.contains("AA9C7B") {
+            log("ReversePulseCoercion: for output \(pulsedOutput)")
+            log("ReversePulseCoercion: graphTime: \(state.graphStepState.graphTime)")
+        }
+        
         
         // Cannot recalculate full node in some examples (like delay node)
         // so we just update downstream nodes
@@ -77,6 +86,8 @@ struct ReversePulseCoercion: GraphEvent {
                                     upstreamOutputChanged: true, // True, since we reversed the pulse effect?
                                     outputCoordinate: pulsedOutput)
         let changedDownstreamNodeIds = Set(changedDownstreamInputIds.map(\.nodeId)).toSet
+        
+        log("ReversePulseCoercion: changedDownstreamNodeIds: \(changedDownstreamNodeIds) for output: \(pulsedOutput)")
         
         // Run the downstream inputs' node evals
         state.scheduleForNextGraphStep(changedDownstreamNodeIds)
