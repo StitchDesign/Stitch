@@ -46,31 +46,41 @@ struct SplitterPatchNode: PatchNodeDefinition {
 func splitterEval(node: PatchNode,
                   graphStep: GraphStepState) -> EvalResult {
 
-    node.loopedEval { (values, loopIndex) -> MediaEvalOpResult in
-        // splitter must have node-type
-        guard let nodeType = node.userVisibleType else {
-            fatalErrorIfDebug()
-            return MediaEvalOpResult(values: [.number(.zero)])
-        }
+    // a Splitter patch must have a node-type
+    assertInDebug(node.userVisibleType.isDefined)
+
+    if node.userVisibleType == .pulse || node.userVisibleType == .media {
         
-        let value: PortValue = values[0]
-        let pulsed = (value.getPulse ?? .zero).shouldPulse(graphStep.graphTime)
-        if nodeType == .pulse {
-            if pulsed {
-                return MediaEvalOpResult(values: [.pulse(graphStep.graphTime)])
+        // TODO: debug why this broke the Monthly Stays demo: https://github.com/StitchDesign/Stitch--Old/issues/7049
+        return node.loopedEval { (values, loopIndex) -> MediaEvalOpResult in
+            // splitter must have node-type
+            guard let nodeType = node.userVisibleType else {
+                fatalErrorIfDebug()
+                return MediaEvalOpResult(values: [.number(.zero)])
             }
             
+            let value: PortValue = values[0]
+            
+            let pulsed = (value.getPulse ?? .zero).shouldPulse(graphStep.graphTime)
+            if nodeType == .pulse {
+                if pulsed {
+                    return MediaEvalOpResult(values: [.pulse(graphStep.graphTime)])
+                }
+            }
+            
+            if nodeType == .media,
+               let media = node.getInputMedia(portIndex: 0,
+                                              loopIndex: loopIndex,
+                                              mediaId: nil) {
+                return MediaEvalOpResult(values: [value],
+                                         media: .init(computedMedia: media))
+            }
+            
+            return MediaEvalOpResult(values: [value])
         }
+        .createPureEvalResult(node: node)
         
-        if nodeType == .media,
-            let media = node.getInputMedia(portIndex: 0,
-                                           loopIndex: loopIndex,
-                                           mediaId: nil) {
-            return MediaEvalOpResult(values: [value],
-                                     media: .init(computedMedia: media))
-        }
-        
-        return MediaEvalOpResult(values: [value])
+    } else {
+        return .init(outputsValues: node.inputs)
     }
-    .createPureEvalResult(node: node)
 }
