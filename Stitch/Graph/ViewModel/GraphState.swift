@@ -79,9 +79,6 @@ final class GraphState: Sendable {
     @MainActor var portsToUpdate: NodePortCacheSet = .init()
     
     @MainActor var visibleCanvasNodes: [CanvasItemViewModel] = .init()
-
-    /// Subscribed by view to trigger graph view update based on data changes.
-    @MainActor var graphUpdaterId: Int = .zero
     
     // Set true / non-nil in methods or action handlers
     // Set false / nil in StitchUIScrollView
@@ -356,6 +353,25 @@ extension GraphState {
             parentGraph.updateGraphData()
         }
         
+        let focusedGroupNode = self.documentDelegate?.groupNodeFocused
+        
+        // Update position data in case focused group node changed
+        if let nodePageData = self.visibleNodesViewModel.nodePageDataAtCurrentTraversalLevel(focusedGroupNode?.groupNodeId) {
+            
+            if self.canvasPageOffsetChanged != nodePageData.localPosition {
+                self.canvasPageOffsetChanged = nodePageData.localPosition
+            }
+            
+            if self.canvasPageZoomScaleChanged != nodePageData.zoomData {
+                self.canvasPageZoomScaleChanged = nodePageData.zoomData
+            }
+        }
+        
+        // Set all nodes visible so that input/output fields' UI update if we enter a new traversal level
+//        self.graph.visibleNodesViewModel.setAllNodesVisible()
+        
+        self.updateVisibleNodes()
+        
         if let document = self.documentDelegate,
            let encoderDelegate = self.documentEncoderDelegate {
             self.initializeDelegate(document: document,
@@ -490,7 +506,7 @@ extension GraphState {
         self.syncNodes(with: schema.nodes)
         
         // Determines if graph data needs updating
-        self.refreshGraphUpdaterId()
+        self.documentDelegate?.refreshGraphUpdaterId()
     }
     
 //    @MainActor func updateAsync(from schema: GraphEntity) async {
@@ -506,17 +522,6 @@ extension GraphState {
 //        // Determines if graph data needs updating
 //        self.refreshGraphUpdaterId()
 //    }
-     
-    @MainActor
-    func refreshGraphUpdaterId() {
-        // log("refreshGraphUpdaterId called")
-        let newId = self.calculateGraphUpdaterId()
-        
-        if self.graphUpdaterId != newId {
-            // log("refreshGraphUpdaterId: newId: \(newId)")
-            self.graphUpdaterId = newId
-        }
-    }
     
     @MainActor
     func update(from entity: GraphEntity) {
@@ -594,65 +599,6 @@ extension GraphState {
             .flatMap { $0.getAllCanvasObservers() }
             .map { $0.zIndex }
         return zIndices.max() ?? 0
-    }
-
-    /// Creases a unique hash based on view data which if changes, requires graph data update.
-    @MainActor
-    func calculateGraphUpdaterId() -> Int {
-        guard let document = self.documentDelegate else {
-            return .zero
-        }
-        
-        var hasher = Hasher()
-        
-        let nodes = self.nodes
-        
-        let allInputsObservers = nodes.values
-            .flatMap { $0.getAllInputsObservers() }
-        
-        // Track overall node count
-        let nodeCount = nodes.keys.count
-        
-        // Track graph canvas items count
-        let canvasItems = self.getCanvasItemsAtTraversalLevel(groupNodeFocused: document.groupNodeFocused?.groupNodeId).count
-
-        // Tracks edge changes to reset cached data
-        let upstreamConnections = allInputsObservers
-        // Important: use compactMap, otherwise `nil` (i.e. non-existence connections) will be counted as a valid connection
-            .compactMap { $0.upstreamOutputCoordinate }
-        
-        // Tracks manual edits
-        let manualEdits: [PortValue] = allInputsObservers
-            .compactMap {
-                guard $0.upstreamOutputCoordinate == nil else {
-                    return nil
-                }
-                
-                return $0.getActiveValue(activeIndex: document.activeIndex)
-            }
-        
-        // Track group node ID, which fixes edges when traversing
-        let groupNodeIdFocused = document.groupNodeFocused
-        
-        // Stitch AI changes in case order changes
-        let aiActions = document.llmRecording.actions
-        
-        // Labels for splitter nodes
-        let splitterLabels = self.getGroupPortLabels()
-        
-        hasher.combine(nodeCount)
-        hasher.combine(canvasItems)
-        hasher.combine(upstreamConnections)
-        hasher.combine(manualEdits)
-        hasher.combine(groupNodeIdFocused)
-        hasher.combine(aiActions)
-        hasher.combine(splitterLabels)
-        
-        let newGraphUpdaterId = hasher.finalize()
-        // log("calculateGraphUpdaterId: newGraphUpdaterId: \(newGraphUpdaterId)")
-        return newGraphUpdaterId
-        
-        // return hasher.finalize()
     }
     
     @MainActor func getGroupPortLabels() -> [Coordinate : String] {
