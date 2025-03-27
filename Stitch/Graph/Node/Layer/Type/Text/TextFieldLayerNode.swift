@@ -117,8 +117,15 @@ func textFieldLayerEval(node: NodeViewModel) -> EvalResult {
     let evalOp: OpWithIndex<PortValue> = { _, loopIndex in
 
         // Note: on the initial evaluation of this layer node, we will not have yet have any `textFieldLayerViewModels`. That's fine; the node eval works fine afterward.
-        let textFieldValueAtIndex = textFieldLayerViewModels[safe: loopIndex]?.text.getString?.string ?? ""
-
+        
+        var outputText = textFieldLayerViewModels[safe: loopIndex]?.textFieldInput ?? ""
+        
+        if outputText.isEmpty {
+            outputText = ""
+        }
+        
+        let textFieldValueAtIndex = outputText
+        
         // log("textFieldLayerEval: values: \(values)")
         // log("textFieldLayerEval: loopIndex: \(loopIndex)")
         // log("textFieldLayerEval: textFieldValueAtIndex: \(textFieldValueAtIndex)")
