@@ -50,7 +50,7 @@ extension StitchDocumentViewModel: GraphStepManagerDelegate {
                 log("self.graph.nodesToRunOnGraphStep old: \(self.graph.nodesToRunOnGraphStep)")
                 self.graph.scheduleForNextGraphStep(changedDownstreamNodeIds)
                 log("self.graph.nodesToRunOnGraphStep new: \(self.graph.nodesToRunOnGraphStep)")
-//                self.graph.nodesToRunOnGraphStep = self.graph.nodesToRunOnGraphStep.union(changedDownstreamNodeIds)
+                // self.graph.nodesToRunOnGraphStep = self.graph.nodesToRunOnGraphStep.union(changedDownstreamNodeIds)
                 
             } // if let
         }

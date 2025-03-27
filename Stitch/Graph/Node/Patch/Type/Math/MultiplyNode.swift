@@ -32,10 +32,16 @@ func multiplyPatchNode(id: NodeId,
         outputs: outputs)
 }
 
+// node 502D3E
 @MainActor
 func multiplyEval(inputs: PortValuesList,
                   evalKind: MathNodeTypeWithColor) -> PortValuesList {
 
+    if let n = inputs.first?.first?.getNumber,
+       n == 1 {
+        log("multiplyEval: had 1 in first input")
+    }
+    
     let numberOperation: Operation = { (values: PortValues) -> PortValue in
         .number(values.reduce(.multiplicationIdentity) { (acc: Double, value: PortValue) -> Double in
             acc * (value.getNumber ?? .multiplicationIdentity)
