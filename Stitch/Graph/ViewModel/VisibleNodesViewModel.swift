@@ -275,8 +275,8 @@ extension VisibleNodesViewModel {
             }
             // sort new inputs/inputs by the date the splitter was created
             .sorted {
-                ($0.splitterNode?.entity.lastModifiedDate ?? Date.now) <
-                    ($1.splitterNode?.entity.lastModifiedDate ?? Date.now)
+                ($0.splitterNode?.lastModifiedDate ?? Date.now) <
+                    ($1.splitterNode?.lastModifiedDate ?? Date.now)
             }
 
         // get the first (and only) row observer for this splitter node
@@ -320,8 +320,8 @@ extension VisibleNodesViewModel {
             }
             // sort new inputs/outputs by the date the splitter was created
             .sorted {
-                ($0.splitterNode?.entity.lastModifiedDate ?? Date.now) <
-                    ($1.splitterNode?.entity.lastModifiedDate ?? Date.now)
+                ($0.splitterNode?.lastModifiedDate ?? Date.now) <
+                    ($1.splitterNode?.lastModifiedDate ?? Date.now)
             }
 
         // get the first (and only) row observer for this splitter node
