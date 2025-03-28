@@ -22,6 +22,9 @@ extension NodeRowObserver {
     @MainActor
     func updateValues(_ newValues: PortValues,
                       oldValues: PortValues? = nil) {
+        
+        // SPECIFIC TO AN INPUT
+        
         // Check if this port is for a packed layer input but the set mode is unpacked
         // Valid scenarios here--we use input row observer getters for all-up value getting
         if let layerId = self.id.keyPath,
@@ -149,9 +152,13 @@ extension NodeRowObserver {
     func postProcessing(oldValues: PortValues,
                         newValues: PortValues) {
 
+        // ONLY FOR INPUT
+        
         // Update cached interactions data in graph
         self.updateInteractionNodeData(oldValues: oldValues,
                                        newValues: newValues)
+        
+        // FOR INPUT AND OUPUT
         
         // Update visual color data
         self.allRowViewModels.forEach {
