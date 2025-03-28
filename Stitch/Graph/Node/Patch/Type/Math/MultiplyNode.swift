@@ -33,21 +33,45 @@ func multiplyPatchNode(id: NodeId,
 }
 
 // node 502D3E
-@MainActor
-func multiplyEval(inputs: PortValuesList,
-                  evalKind: MathNodeTypeWithColor) -> PortValuesList {
+//@MainActor
+//func multiplyEval(inputs: PortValuesList,
+//                  evalKind: MathNodeTypeWithColor) -> PortValuesList {
+//
 
-    if let n = inputs.first?.first?.getNumber,
-       n == 1 {
-        log("multiplyEval: had 1 in first input")
-    }
+@MainActor
+func multiplyEval(node: PatchNode,
+                  graph: GraphState) -> EvalResult {
+    let inputs: PortValuesList = node.inputs
+
+    
+//    // alternatively, try CRASHING here if we have number eval kind but first input is not a number
+//    if let n = inputs.first?.first?.getNumber,
+//       n == 1 {
+//        log("multiplyEval: had 1 in first input")
+//    }
     
     let numberOperation: Operation = { (values: PortValues) -> PortValue in
         .number(values.reduce(.multiplicationIdentity) { (acc: Double, value: PortValue) -> Double in
-            acc * (value.getNumber ?? .multiplicationIdentity)
+            if let n = value.getNumber {
+                return acc * n
+            } else {
+                log("multiplyEval: did not have number in value \(value)")
+                return acc * .multiplicationIdentity
+            }
+            
+//            acc * (value.getNumber ?? .multiplicationIdentity)
         })
     }
 
+    if node.id.uuidString.contains("502D3EBA") {
+        log("multiplyEval: for node \(node.id)")
+        log("multiplyEval: graphTime \(graph.graphStepState.graphTime)")
+        log("multiplyEval: inputs: \(inputs)")
+        let k = resultsMaker(inputs)(numberOperation)
+        log("multiplyEval: result: \(k)")
+    }
+    
+    
     let positionOperation: Operation = { (values: PortValues) -> PortValue in
         .position(values.reduce(.multiplicationIdentity) { (acc: CGPoint, value: PortValue) -> CGPoint in
             acc * (value.getPosition ?? .multiplicationIdentity)
@@ -93,16 +117,19 @@ func multiplyEval(inputs: PortValuesList,
 
     let result = resultsMaker(inputs)
 
-    switch evalKind {
+//    switch evalKind {
+    switch node.userVisibleType! {
     case .number:
-        return result(numberOperation)
+        return .init(outputsValues: result(numberOperation))
     case .position:
-        return result(positionOperation)
+        return .init(outputsValues: result(positionOperation))
     case .size:
-        return result(sizeOperation)
+        return .init(outputsValues: result(sizeOperation))
     case .point3D:
-        return result(point3DOperation)
+        return .init(outputsValues: result(point3DOperation))
     case .color:
-        return result(colorOperation)
+        return .init(outputsValues: result(colorOperation))
+    default:
+        fatalError()
     }
 }

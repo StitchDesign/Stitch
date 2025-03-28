@@ -1748,6 +1748,7 @@
 		ECBB853E25E9BA5500C1EE40 /* PreviewText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewText.swift; sourceTree = "<group>"; };
 		ECBB94722D60007A005311D5 /* HomescreenProjectSelectionState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomescreenProjectSelectionState.swift; sourceTree = "<group>"; };
 		ECBC95FA27613D9200508966 /* evalTests+2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "evalTests+2.swift"; sourceTree = "<group>"; };
+		ECBCCD182D9627A800A05207 /* StitchEngineClosedSource */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = StitchEngineClosedSource; path = "/Users/christianjclampitt/Local Documents/wissenschaft/StitchEngine-ACTUAL-CODE/StitchEngineClosedSource"; sourceTree = "<absolute>"; };
 		ECBD32FC2988A31E00C778BE /* ImpureEvaluation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImpureEvaluation.swift; sourceTree = "<group>"; };
 		ECBD32FE2988A36F00C778BE /* PureEvaluation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PureEvaluation.swift; sourceTree = "<group>"; };
 		ECC175862A43D6A30017815D /* StitchNodeNames.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StitchNodeNames.swift; sourceTree = "<group>"; };
@@ -2012,6 +2013,7 @@
 			children = (
 				EC15E425260271C6006F2E08 /* Stitch.entitlements */,
 				200BD863254F66EE00692903 /* Info.plist */,
+				ECBCCD182D9627A800A05207 /* StitchEngineClosedSource */,
 				B5617A7B2C175C3C00B53DAF /* App */,
 				ECB33C5926F12F5E0069885B /* Home */,
 				B56FFB522C195EA000623CC7 /* Graph */,
@@ -4788,7 +4790,6 @@
 				E463E7ED2C6FC7090008E318 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */,
 				E4A848A92D32FCFA0029AFDE /* XCRemoteSwiftPackageReference "supabase-swift" */,
 				E42AAE4A2D4844EE002D187D /* XCRemoteSwiftPackageReference "sentry-cocoa" */,
-				EC5743492D9237CC00F321EF /* XCRemoteSwiftPackageReference "StitchEngine" */,
 			);
 			productRefGroup = 200BD858254F66EB00692903 /* Products */;
 			projectDirPath = "";
@@ -6707,14 +6708,6 @@
 			requirement = {
 				kind = exactVersion;
 				version = 1.0.2;
-			};
-		};
-		EC5743492D9237CC00F321EF /* XCRemoteSwiftPackageReference "StitchEngine" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/StitchDesign/StitchEngine.git";
-			requirement = {
-				kind = revision;
-				revision = ae01d52c4b2fd696d3e26b723d64bf9f93ee1acf;
 			};
 		};
 		EC7784CD27053D9700B662DD /* XCRemoteSwiftPackageReference "ZIPFoundation" */ = {
