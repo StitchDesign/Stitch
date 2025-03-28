@@ -93,6 +93,8 @@ extension InputNodeRowObserver {
                 // Flatten values
                 let newFlattenedValues = self.allLoopedValues.flattenValues()
                 self.updateValues(newFlattenedValues)
+                // TODO: use input-specific method?
+                // self.setValuesInInput(newFlattenedValues)
                 
                 // Recalculate node once values update
                 self.nodeDelegate?.calculate()

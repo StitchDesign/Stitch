@@ -82,9 +82,21 @@ extension NodeRowViewModel {
 }
 
 extension NodeRowObserver {
+    // Implemented by NodeRowObserver,
+    // ONLY called by StitchEngine
     @MainActor
     func didInputsUpdate(newValues: PortValues,
                          oldValues: PortValues) {
+        
+        // If newValues empty, nothing to do
+        // Note: this only happens when graph is first opened and connected inputs receive empty outputs?
+        guard !newValues.isEmpty else {
+            //            #if DEV_DEBUG
+            //            fatalError()
+            //            #endif
+            return
+        }
+        
         guard let node = self.nodeDelegate,
               let graph = node.graphDelegate,
               let document = graph.documentDelegate else {
@@ -92,34 +104,14 @@ extension NodeRowObserver {
         }
         
         let graphTime = graph.graphStepState.graphTime
-        let canCopyInputValues = node.kind.canCopyInputValues(portId: self.id.portId,
-                                                              userVisibleType: node.userVisibleType)
         
-        guard !newValues.isEmpty else {
-            //            #if DEV_DEBUG
-            //            fatalError()
-            //            #endif
-            return
-        }
-
-        // Some values for some node inputs (like delay node) can directly be copied into the input and must bypass the type coercion logic
-        if canCopyInputValues {
-            self.updateValues(newValues)
-        } else {
-            if let firstOriginalValues = oldValues.first {
-                self.coerceUpdate(these: newValues,
-                                  to: firstOriginalValues,
-                                  oldValues: oldValues,
-                                  currentGraphTime: graphTime)
-            } else {
-                fatalErrorIfDebug()
-//                log("no old values for \(self.id)")
-            }
-        }
+        // ASSUMES VALUES HAVE EITHER ALREADY BEEN COERCED OR DIRECTLY-COPIED
+        self.updateValues(newValues)
 
         // If we changed a camera direction/orientation input on a camera-using node (Camera or RealityKit),
         // then we may need to update GraphState.cameraSettings, CameraFeedManager etc.
         let coercedValues = self.allLoopedValues
+        
         if node.kind.usesCamera,
            let originalValue = oldValues.first,
            let coercedValue = coercedValues.first {

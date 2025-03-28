@@ -221,3 +221,30 @@ extension NodeRowObserver {
                           oldValues: oldValues)
     }
 }
+
+extension InputNodeRowObserver {
+    
+    // used during graph eval
+    @MainActor
+    func coerce(theseValues: [PortValue],
+                toThisType: PortValue,
+                currentGraphTime: TimeInterval) -> [PortValue] {
+        
+        guard let node = self.nodeDelegate else {
+            fatalErrorIfDebug()
+            return theseValues
+        }
+        
+        let canCopyInputValues = node.kind.canCopyInputValues(
+            portId: self.id.portId,
+            userVisibleType: node.userVisibleType)
+        
+        if canCopyInputValues {
+            return theseValues
+        } else {
+            return theseValues.coerce(to: toThisType,
+                                      currentGraphTime: currentGraphTime)
+        }
+    }
+    
+}
