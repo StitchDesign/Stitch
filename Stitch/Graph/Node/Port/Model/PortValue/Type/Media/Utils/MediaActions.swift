@@ -330,7 +330,7 @@ extension GraphState {
             node.outputs.enumerated().forEach { index, values in
                 let downstreamInputs = graph.updateDownstreamInputs(
                     sourceNode: node,
-                    flowValues: values,
+                    upstreamOutputValues: values,
                     mediaList: [media],
                     upstreamOutputChanged: true, // Okay to treat a media change as always some output changing?
                     outputCoordinate: .init(portId: index, nodeId: node.id))
