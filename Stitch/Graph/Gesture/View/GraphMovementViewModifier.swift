@@ -92,7 +92,8 @@ extension GraphState {
             let becameVisible = newVisibleNodes.subtracting(originalVisibleNodes)
             for canvasItemId in becameVisible {
                 guard let canvasItem = self.getCanvasItem(canvasItemId) else {
-                    fatalErrorIfDebug()
+                    // Crashes in some valid examples
+//                    fatalErrorIfDebug()
                     continue
                 }
                 canvasItem.updateFieldsUponBecomingVisible(document.activeIndex)

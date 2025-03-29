@@ -282,7 +282,10 @@ struct DefaultNodeRowsView<RowViewModel, RowView>: View where RowViewModel: Node
                         .onChange(of: rowViewModel.fieldValueTypes.first?.type) {
                             // Resets node sizing data when either node or portvalue types change
                             canvas.resetViewSizingCache()
-                            graph.visibleNodesViewModel.needsInfiniteCanvasCacheReset = true
+                            
+                            if !graph.visibleNodesViewModel.needsInfiniteCanvasCacheReset {
+                                graph.visibleNodesViewModel.needsInfiniteCanvasCacheReset = true
+                            }
                         }
                 }
             }

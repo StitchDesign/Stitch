@@ -26,36 +26,41 @@ final class StitchSystemViewModel: Sendable, Identifiable {
         self.encoder.delegate = self
         self.storeDelegate = storeDelegate
 
-        Task { [weak self] in
-            await self?.refreshComponents()
-        }
+        self.refreshComponents()
     }
     
-    func refreshComponents() async {
-        if let decodedFiles = await self.encoder.getDecodedFiles() {
-            let newComponents = await self.components.sync(with: decodedFiles.components,
-                                                         updateCallback: { component, data in
+    @MainActor
+    func refreshComponents() {
+        if let decodedFiles = DocumentEncoder
+            .getDecodedFiles(rootUrl: self.encoder.rootUrl) {
+            let newComponents = self.components.sync(with: decodedFiles.components,
+                                                           updateCallback: { component, data in
                 var data = data
                 data.saveLocation = .systemComponent(self.id,
                                                      data.id)
-                await component.updateAsync(from: data)
+                component.update(from: data,
+                                 rootUrl: data.saveLocation.getRootDirectoryUrl())
             }) { data in
                 var data = data
                 data.saveLocation = .systemComponent(self.id,
                                                      data.id)
                 
-                return await StitchMasterComponent(componentData: data,
-                                                   parentGraph: nil)
+                return StitchMasterComponent(componentData: data,
+                                             parentGraph: nil)
             }
             
-            await MainActor.run { [weak self] in
-                self?.components = newComponents
-            }
+            self.components = newComponents
         }
     }
 }
 
 extension StitchSystemViewModel: DocumentEncodableDelegate {
+    func update(from schema: StitchSystem,
+                rootUrl: URL) {
+        // TODO: come back here
+        fatalError()
+    }
+    
     @MainActor func createSchema(from graph: GraphState?) -> StitchSystem {
         self.lastEncodedDocument
     }

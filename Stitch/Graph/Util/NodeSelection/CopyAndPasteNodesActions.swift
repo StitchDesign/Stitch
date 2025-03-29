@@ -84,19 +84,15 @@ struct SelectedGraphItemsPasted: StitchDocumentEvent {
             let componentData = try Data(contentsOf: pasteboardUrl.appendingVersionedSchemaPath())
             let newComponent = try getStitchDecoder().decode(StitchClipboardContent.self, from: componentData)
             let importedFiles = try ComponentEncoder.readAllImportedFiles(rootUrl: pasteboardUrl)
-            
-            Task(priority: .high) { [weak state] in
-                guard let state = state else { return }
-                
-                let graph = state.visibleGraph
-    
-                await graph.insertNewComponent(component: newComponent,
-                                               encoder: graph.documentEncoderDelegate,
-                                               copiedFiles: importedFiles,
-                                               isCopyPaste: true,
-                                               document: state)
-                state.encodeProjectInBackground()
-            }
+
+            let graph = state.visibleGraph
+
+            graph.insertNewComponent(component: newComponent,
+                                     encoder: graph.documentEncoderDelegate,
+                                     copiedFiles: importedFiles,
+                                     isCopyPaste: true,
+                                     document: state)
+            state.encodeProjectInBackground()
         } catch {
             log("SelectedGraphItemsPasted error: \(error)")
         }

@@ -33,18 +33,18 @@ struct CloseGraph: StitchStoreEvent {
 }
 
 extension GraphState: DocumentEncodableDelegate {
+    @MainActor
     func updateOnUndo(schema: GraphEntity) {
-        Task(priority: .high) { [weak self] in
-            await self?.updateAsync(from: schema)
-        }
+        self.update(from: schema)
     }
     
     func willEncodeProject(schema: GraphEntity) {
-        // Updates graph data when changed
-        self.refreshGraphUpdaterId()
         
         // Updates thumbnail
          if let document = self.documentDelegate {
+             // Updates graph data when changed
+             document.refreshGraphUpdaterId()
+             
              document.encodeProjectInBackground(willUpdateUndoHistory: false)
          }
     }

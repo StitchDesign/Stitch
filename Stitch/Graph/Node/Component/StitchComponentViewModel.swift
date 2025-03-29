@@ -206,7 +206,7 @@ extension StitchComponentViewModel {
     }
     
     @MainActor func update(from schema: ComponentEntity,
-                           components: [UUID : StitchMasterComponent]) async {
+                           components: [UUID : StitchMasterComponent]) {
         self.componentId = schema.componentId
         
         guard let masterComponent = components.get(self.componentId) else {
@@ -214,7 +214,7 @@ extension StitchComponentViewModel {
             return
         }
         
-        await self.graph.updateAsync(from: masterComponent.lastEncodedDocument.graph)
+        self.graph.update(from: masterComponent.lastEncodedDocument.graph)
         
         // Refresh after graph update
         self.canvas.update(from: schema.canvasEntity)

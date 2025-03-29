@@ -79,6 +79,9 @@ extension GraphState {
                 // log("panGraphToNodeLocation: appending to current breadcrumbs")
                 // Update the breadcrumbs
                 document.groupNodeBreadcrumbs.append(contentsOf: result)
+                
+                // Updates graph data
+                document.refreshGraphUpdaterId()
             }
             
             // Allow us to enter the traversal level,

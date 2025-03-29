@@ -88,9 +88,7 @@ struct DuplicateShortcutKeyPressed: StitchDocumentEvent {
     // Duplicates BOTH nodes AND comments
     @MainActor
     func handle(state: StitchDocumentViewModel) {
-        Task(priority: .high) { [weak state] in
-            await state?.duplicateShortcutKeyPressed()
-        }
+        state.duplicateShortcutKeyPressed()
     }
 }
 
@@ -185,7 +183,7 @@ func attemptToInsertBeforeId(originalLayers: [SidebarLayerData],
 
 extension StitchDocumentViewModel {
     @MainActor
-    func duplicateShortcutKeyPressed() async {
+    func duplicateShortcutKeyPressed() {
         guard !self.llmRecording.isRecording else {
             log("Duplication disabled during LLM Recording")
             return
@@ -201,7 +199,7 @@ extension StitchDocumentViewModel {
                 groupNodeFocused: self.graphUI.groupNodeFocused,
                 selectedNodeIds: self.visibleGraph.selectedCanvasItems.compactMap(\.nodeCase).toSet)
                 
-            await self.visibleGraph
+            self.visibleGraph
                 .insertNewComponent(copiedComponentResult,
                                     isCopyPaste: false,
                                     encoder: self.visibleGraph.documentEncoderDelegate,
@@ -217,12 +215,12 @@ extension GraphState {
     func insertNewComponent<T>(_ copiedComponentResult: StitchComponentCopiedResult<T>,
                                isCopyPaste: Bool,
                                encoder: (any DocumentEncodable)?,
-                               document: StitchDocumentViewModel) async where T: StitchComponentable {
-        await self.insertNewComponent(component: copiedComponentResult.component,
-                                      encoder: encoder,
-                                      copiedFiles: copiedComponentResult.copiedSubdirectoryFiles,
-                                      isCopyPaste: isCopyPaste,
-                                      document: document)
+                               document: StitchDocumentViewModel) where T: StitchComponentable {
+        self.insertNewComponent(component: copiedComponentResult.component,
+                                encoder: encoder,
+                                copiedFiles: copiedComponentResult.copiedSubdirectoryFiles,
+                                isCopyPaste: isCopyPaste,
+                                document: document)
     }
 
     @MainActor
@@ -230,7 +228,7 @@ extension GraphState {
                                encoder: (any DocumentEncodable)?,
                                copiedFiles: StitchDocumentDirectory,
                                isCopyPaste: Bool,
-                               document: StitchDocumentViewModel) async where T: StitchComponentable {
+                               document: StitchDocumentViewModel) where T: StitchComponentable {
         let (newComponent, nodeIdMap) = Self.updateCopiedNodes(
             component: component,
             destinationGraphInfo: isCopyPaste ?
@@ -246,7 +244,7 @@ extension GraphState {
         
         // Copy files before inserting component
         if let encoder = encoder {
-            await encoder.importComponentFiles(copiedFiles)
+            encoder.importComponentFiles(copiedFiles)
         }
         
         // Update top-level nodes to match current focused group
@@ -277,8 +275,8 @@ extension GraphState {
         } else {
             fatalErrorIfDebug()
         }
-
-        await self.updateAsync(from: graph)
+        
+        self.update(from: graph)
         
         self.updateGraphAfterPaste(newNodes: newNodes,
                                    nodeIdMap: nodeIdMap,
@@ -459,8 +457,7 @@ extension GraphState {
                             let portType: LayerInputKeyPathType = isPacked ? .packed : .unpacked(unpackedId ?? .port0)
                             let layerId = LayerInputType(layerInput: inputType,
                                                          portType: portType)
-                            // TODO: can we use `inputData.canvasItem` or not?
-                            if let _ = inputData.canvasItem,
+                            if inputData.canvasItem != nil,
                                let canvasItem = self.getCanvasItem(.layerInput(.init(node: nodeEntity.id,
                                                                                      keyPath: layerId))) {
                                 self.selectCanvasItem(canvasItem.id)

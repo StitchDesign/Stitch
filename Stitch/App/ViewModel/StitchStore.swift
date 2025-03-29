@@ -92,6 +92,8 @@ final class ClipboardEncoderDelegate: DocumentEncodableDelegate {
     
     func willEncodeProject(schema: StitchClipboardContent) {}
     
+    func update(from schema: StitchClipboardContent, rootUrl: URL) { }
+    
     func updateAsync(from schema: StitchClipboardContent) async { }
     
     var storeDelegate: StitchStore? {

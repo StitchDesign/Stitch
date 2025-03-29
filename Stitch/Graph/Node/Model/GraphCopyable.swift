@@ -513,7 +513,10 @@ extension GraphState {
     func copyAndPasteSelectedNodes(selectedNodeIds: NodeIdSet,
                                    originalOptionDraggedLayer: SidebarListItemId? = nil,
                                    document: StitchDocumentViewModel) {
-                
+        guard let rootUrl = document.documentEncoder?.rootUrl else {
+            return
+        }
+        
         let groupNodeFocused = document.groupNodeFocused
         
         // Copy nodes if no drag started yet
@@ -536,7 +539,7 @@ extension GraphState {
                                              nodeIdMap: nodeIdMap,
                                              originalOptionDraggedLayer: originalOptionDraggedLayer)
 
-        self.updateSync(from: graph)
+        self.update(from: graph, rootUrl: rootUrl)
         
         self.updateGraphAfterPaste(newNodes: newNodes,
                                    nodeIdMap: nodeIdMap,
@@ -563,34 +566,32 @@ extension GraphState {
 }
 
 extension DocumentEncodable {
-    func processGraphCopyAction(_ copiedComponentResult: StitchComponentCopiedResult<StitchClipboardContent>) async throws {
+    nonisolated func processGraphCopyAction(_ copiedComponentResult: StitchComponentCopiedResult<StitchClipboardContent>) async throws {
         // Create directories if it doesn't exist
         let rootUrl = copiedComponentResult.component.rootUrl
         let _ = try? StitchFileManager.createDirectories(at: rootUrl,
                                                          withIntermediate: true)
         
-        try await self.encodeNewComponent(copiedComponentResult)
+        try self.encodeNewComponent(copiedComponentResult)
         
         let pasteboard = UIPasteboard.general
         pasteboard.url = rootUrl.appendingVersionedSchemaPath()
     }
     
-    func encodeNewComponent<T>(_ result: StitchComponentCopiedResult<T>) async throws where T: StitchComponentable {
+    nonisolated func encodeNewComponent<T>(_ result: StitchComponentCopiedResult<T>) throws where T: StitchComponentable {
         result.component.createUnzippedFileWrapper()
         
         let _ = try T.encodeDocument(result.component)
 
         // Process imported media side effects
-        await self.importComponentFiles(result.copiedSubdirectoryFiles)
+        self.importComponentFiles(result.copiedSubdirectoryFiles)
     }
     
-    @MainActor
-    func importComponentFiles(_ files: StitchDocumentDirectory,
-                              graphMutation: (@Sendable @MainActor () -> ())? = nil) async {
+    nonisolated func importComponentFiles(_ files: StitchDocumentDirectory) {
         guard !files.isEmpty else {
             return
         }
         
-        let _ = await self.copyFiles(from: files)
+        let _ = self.copyFiles(from: files)
     }
 }

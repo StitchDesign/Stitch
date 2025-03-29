@@ -79,9 +79,6 @@ final class GraphState: Sendable {
     @MainActor var portsToUpdate: NodePortCacheSet = .init()
     
     @MainActor var visibleCanvasNodes: [CanvasItemViewModel] = .init()
-
-    /// Subscribed by view to trigger graph view update based on data changes.
-    @MainActor var graphUpdaterId: Int = .zero
     
     // Set true / non-nil in methods or action handlers
     // Set false / nil in StitchUIScrollView
@@ -201,6 +198,7 @@ extension GraphState {
         
         self.documentDelegate = document
         self.documentEncoderDelegate = documentEncoderDelegate
+        let focusedGroupNode = self.documentDelegate?.groupNodeFocused?.groupNodeId
         
         self.layersSidebarViewModel.initializeDelegate(graph: self)
         
@@ -213,6 +211,30 @@ extension GraphState {
         }
         
         self.updateTopologicalData()
+
+        // Splitter data
+        var allGroupIds: [NodeId?] = self.nodes.values
+            .compactMap { node in
+                if node.kind.isGroup {
+                    return node.id
+                }
+                
+                return nil
+            }
+        
+        // add nil case
+        allGroupIds.append(nil)
+        
+        self.visibleNodesViewModel
+            .visibleSplitterInputRows = allGroupIds.reduce(into: .init()) { result, groupId in
+                let inputs = self.visibleNodesViewModel.getSplitterInputRowObservers(for: groupId)
+                result.updateValue(inputs, forKey: groupId)
+            }
+        self.visibleNodesViewModel
+            .visibleSplitterOutputRows = allGroupIds.reduce(into: .init()) { result, groupId in
+                let outputs = self.visibleNodesViewModel.getSplitterOutputRowObservers(for: groupId)
+                result.updateValue(outputs, forKey: groupId)
+            }
         
         self.visibleNodesViewModel
             .updateNodesPagingDict(components: self.components,
@@ -221,11 +243,12 @@ extension GraphState {
                                    graph: self,
                                    document: document)
         
+        
         // Update connected port data
         self.visibleNodesViewModel.updateAllNodeViewData()
         
         // Update edges after everything else
-        let newEdges = self.getVisualEdgeData(groupNodeFocused: document.groupNodeFocused?.groupNodeId)
+        let newEdges = self.getVisualEdgeData(groupNodeFocused: focusedGroupNode)
         
         if self.connectedEdges != newEdges {
             self.connectedEdges = newEdges
@@ -236,6 +259,7 @@ extension GraphState {
         if self.groupPortLabels != newGroupLabels {
             self.groupPortLabels = newGroupLabels
         }
+        
         
         // Update visible canvas items
         self.visibleCanvasNodes = self.getCanvasItemsAtTraversalLevel(groupNodeFocused: document.groupNodeFocused?.groupNodeId)
@@ -329,6 +353,26 @@ extension GraphState {
             parentGraph.updateGraphData()
         }
         
+        let focusedGroupNode = self.documentDelegate?.groupNodeFocused
+        
+        // Update position data in case focused group node changed
+        if let nodePageData = self.visibleNodesViewModel.nodePageDataAtCurrentTraversalLevel(focusedGroupNode?.groupNodeId) {
+            
+            if self.canvasPageOffsetChanged != nodePageData.localPosition {
+                self.canvasPageOffsetChanged = nodePageData.localPosition
+            }
+            
+            if self.canvasPageZoomScaleChanged != nodePageData.zoomData {
+                self.canvasPageZoomScaleChanged = nodePageData.zoomData
+            }
+        }
+        
+        // Set all nodes visible so that input/output fields' UI update if we enter a new traversal level
+        // MARK: disabled for perf
+//        self.graph.visibleNodesViewModel.setAllNodesVisible()
+        
+        self.updateVisibleNodes()
+        
         if let document = self.documentDelegate,
            let encoderDelegate = self.documentEncoderDelegate {
             self.initializeDelegate(document: document,
@@ -382,28 +426,6 @@ extension GraphState {
     }
     
     @MainActor
-    func syncNodes(with entities: [NodeEntity]) async {
-        let currentEntities = self.createSchema().nodes
-        
-        guard currentEntities != entities else {
-            return
-        }
-        
-        let newDictionary = await self.visibleNodesViewModel.nodes
-            .sync(with: entities,
-                  updateCallback: { nodeViewModel, nodeSchema in
-            await nodeViewModel.update(from: nodeSchema,
-                                       components: self.components)
-        }) { nodeSchema in
-            await NodeViewModel(from: nodeSchema,
-                                components: self.components,
-                                parentGraphPath: self.saveLocation)
-        }
-        
-        self.syncNodes(nodesDict: newDictionary)
-    }
-    
-    @MainActor
     func syncNodes(with entities: [NodeEntity]) {
         let currentEntities = self.createSchema().nodes
         
@@ -452,44 +474,27 @@ extension GraphState {
         self.layersSidebarViewModel.update(from: schema.orderedSidebarLayers)
     }
     
-    @MainActor func updateAsync(from schema: GraphEntity) async {
+    @MainActor func update(from schema: GraphEntity, rootUrl: URL) {
         self.updateSynchronousProperties(from: schema)
         
-        if let decodedFiles = await self.documentEncoderDelegate?.getDecodedFiles() {
+        if let decodedFiles = DocumentEncoder.getDecodedFiles(rootUrl: rootUrl) {
             self.importedFilesDirectoryReceived(mediaFiles: decodedFiles.mediaFiles,
                                                 components: decodedFiles.components)
-        }
-        
-        await self.syncNodes(with: schema.nodes)
-        
-        // Determines if graph data needs updating
-        self.refreshGraphUpdaterId()
-    }
-     
-    @MainActor
-    func refreshGraphUpdaterId() {
-        // log("refreshGraphUpdaterId called")
-        let newId = self.calculateGraphUpdaterId()
-        
-        if self.graphUpdaterId != newId {
-            // log("refreshGraphUpdaterId: newId: \(newId)")
-            self.graphUpdaterId = newId
-        }
-    }
-    
-    // Used with copy-paste / duplication
-    @MainActor func updateSync(from schema: GraphEntity) {
-        self.updateSynchronousProperties(from: schema)
-        
-        Task { [weak self] in
-            // Async update data correctly
-            await self?.updateAsync(from: schema)
         }
         
         self.syncNodes(with: schema.nodes)
         
         // Determines if graph data needs updating
-        self.refreshGraphUpdaterId()
+        self.documentDelegate?.refreshGraphUpdaterId()
+    }
+    
+    @MainActor
+    func update(from entity: GraphEntity) {
+        guard let rootUrl = self.documentEncoderDelegate?.rootUrl else {
+            return
+        }
+        
+        self.update(from: entity, rootUrl: rootUrl)
     }
     
     @MainActor func onPrototypeRestart() {
@@ -544,65 +549,6 @@ extension GraphState {
             .map { $0.zIndex }
         return zIndices.max() ?? 0
     }
-
-    /// Creases a unique hash based on view data which if changes, requires graph data update.
-    @MainActor
-    func calculateGraphUpdaterId() -> Int {
-        guard let document = self.documentDelegate else {
-            return .zero
-        }
-        
-        var hasher = Hasher()
-        
-        let nodes = self.nodes
-        
-        let allInputsObservers = nodes.values
-            .flatMap { $0.getAllInputsObservers() }
-        
-        // Track overall node count
-        let nodeCount = nodes.keys.count
-        
-        // Track graph canvas items count
-        let canvasItems = self.getCanvasItemsAtTraversalLevel(groupNodeFocused: document.groupNodeFocused?.groupNodeId).count
-
-        // Tracks edge changes to reset cached data
-        let upstreamConnections = allInputsObservers
-        // Important: use compactMap, otherwise `nil` (i.e. non-existence connections) will be counted as a valid connection
-            .compactMap { $0.upstreamOutputCoordinate }
-        
-        // Tracks manual edits
-        let manualEdits: [PortValue] = allInputsObservers
-            .compactMap {
-                guard $0.upstreamOutputCoordinate == nil else {
-                    return nil
-                }
-                
-                return $0.getActiveValue(activeIndex: document.activeIndex)
-            }
-        
-        // Track group node ID, which fixes edges when traversing
-        let groupNodeIdFocused = document.groupNodeFocused
-        
-        // Stitch AI changes in case order changes
-        let aiActions = document.llmRecording.actions
-        
-        // Labels for splitter nodes
-        let splitterLabels = self.getGroupPortLabels()
-        
-        hasher.combine(nodeCount)
-        hasher.combine(canvasItems)
-        hasher.combine(upstreamConnections)
-        hasher.combine(manualEdits)
-        hasher.combine(groupNodeIdFocused)
-        hasher.combine(aiActions)
-        hasher.combine(splitterLabels)
-        
-        let newGraphUpdaterId = hasher.finalize()
-        // log("calculateGraphUpdaterId: newGraphUpdaterId: \(newGraphUpdaterId)")
-        return newGraphUpdaterId
-        
-        // return hasher.finalize()
-    }
     
     @MainActor func getGroupPortLabels() -> [Coordinate : String] {
         self.nodes.values.reduce(into: [Coordinate : String]()) { result, node in
@@ -613,11 +559,11 @@ extension GraphState {
             
             let title = node.displayTitle
             
-            if splitterNode.entity.type == .input {
+            if splitterNode.type == .input {
                 result.updateValue(title, forKey: .input(patchNode.inputsObservers.first!.id))
             }
             
-            else if splitterNode.entity.type == .output {
+            else if splitterNode.type == .output {
                 result.updateValue(title, forKey: .output(patchNode.outputsObservers.first!.id))
             }
         }

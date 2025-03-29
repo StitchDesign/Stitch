@@ -193,7 +193,7 @@ extension StitchDocumentViewModel {
         // Encode component files if specified
         if isComponent {
             // MARK: must create component before calling createGroupNode below
-            await self.createNewMasterComponent(selectedCanvasItems: selectedCanvasItems,
+            self.createNewMasterComponent(selectedCanvasItems: selectedCanvasItems,
                                                 componentId: newComponentId)
         }
         
@@ -257,7 +257,7 @@ extension StitchDocumentViewModel {
     /// Updates graph state with brand new component, not yet creating a node view model.
     @MainActor
     func createNewMasterComponent(selectedCanvasItems: [CanvasItemViewModel],
-                                  componentId: NodeId) async {
+                                  componentId: NodeId) {
         let selectedNodeIds = selectedCanvasItems.compactMap { $0.nodeDelegate?.id }.toSet
         let result = self.createNewStitchComponent(componentId: componentId,
                                                    groupNodeFocused: self.graphUI.groupNodeFocused,
@@ -273,7 +273,7 @@ extension StitchDocumentViewModel {
         
         // Copy to disk and publish
         do {
-            try await masterComponent.encoder
+            try masterComponent.encoder
                 .encodeNewComponent(result)
         } catch {
             fatalErrorIfDebug(error.localizedDescription)
@@ -379,8 +379,8 @@ extension GraphState {
         splitterNode.splitterType = splitterType
         
         // Slightly modify date for consistent port ordering
-        let lastModifiedDate = splitterNode.splitterNode?.entity.lastModifiedDate ?? Date.now
-        splitterNode.splitterNode?.entity.lastModifiedDate = lastModifiedDate
+        let lastModifiedDate = splitterNode.splitterNode?.lastModifiedDate ?? Date.now
+        splitterNode.splitterNode?.lastModifiedDate = lastModifiedDate
             .addingTimeInterval(Double(portId) * 0.01)
 
         self.visibleNodesViewModel.nodes.updateValue(newSplitterNode, forKey: newSplitterNode.id)

@@ -22,6 +22,9 @@ final class NodeViewModel: Sendable {
 
     let id: NodeEntity.ID
     
+    // constant for perf, since previous solution required observers
+    let kind: NodeKind
+    
     @MainActor
     var title: String {
         didSet(oldValue) {
@@ -67,6 +70,7 @@ final class NodeViewModel: Sendable {
         self.id = schema.id
         self.title = schema.title
         self.nodeType = nodeType
+        self.kind = nodeType.kind
         
         self._cachedDisplayTitle = self.getDisplayTitle()
     }
