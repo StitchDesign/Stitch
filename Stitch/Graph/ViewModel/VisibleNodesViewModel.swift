@@ -21,6 +21,10 @@ final class VisibleNodesViewModel: Sendable {
     
     @MainActor var visibleCanvasIds = CanvasItemIdSet()
     
+    // Caches visual splitter input/output by group node data for perf
+    @MainActor var visibleSplitterInputRows = [NodeId? : [InputNodeRowObserver]]()
+    @MainActor var visibleSplitterOutputRows = [NodeId? : [OutputNodeRowObserver]]()
+    
     // Signals to SwiftUI layout when new sizing data is needed;
     // tracked here to fix stutter that exists if we reset cache before
     // a dispatch updates it on subsequent call.
@@ -250,7 +254,8 @@ extension VisibleNodesViewModel {
 
     @MainActor
     func getSplitterInputRowObserverIds(for groupNodeId: NodeId?) -> CanvasItemIdSet {
-        self.getSplitterInputRowObservers(for: groupNodeId).reduce(into: CanvasItemIdSet()) { $0.insert(.node($1.id.nodeId)) }
+        self.visibleSplitterInputRows.get(groupNodeId)?
+            .reduce(into: CanvasItemIdSet()) { $0.insert(.node($1.id.nodeId)) } ?? .init()
     }
     
     /// Obtains input row observers directly from splitter patch nodes given its parent group node.
@@ -270,8 +275,8 @@ extension VisibleNodesViewModel {
             }
             // sort new inputs/inputs by the date the splitter was created
             .sorted {
-                ($0.splitterNode?.entity.lastModifiedDate ?? Date.now) <
-                    ($1.splitterNode?.entity.lastModifiedDate ?? Date.now)
+                ($0.splitterNode?.lastModifiedDate ?? Date.now) <
+                    ($1.splitterNode?.lastModifiedDate ?? Date.now)
             }
 
         // get the first (and only) row observer for this splitter node
@@ -294,7 +299,8 @@ extension VisibleNodesViewModel {
     
     @MainActor
     func getSplitterOutputRowObserverIds(for groupNodeId: NodeId?) -> CanvasItemIdSet {
-        self.getSplitterOutputRowObservers(for: groupNodeId).reduce(into: CanvasItemIdSet()) { $0.insert(.node($1.id.nodeId)) }
+        self.visibleSplitterOutputRows.get(groupNodeId)?
+            .reduce(into: CanvasItemIdSet()) { $0.insert(.node($1.id.nodeId)) } ?? .init()
     }
     
     /// Obtains output row observers directly from splitter patch nodes given its parent group node.
@@ -314,8 +320,8 @@ extension VisibleNodesViewModel {
             }
             // sort new inputs/outputs by the date the splitter was created
             .sorted {
-                ($0.splitterNode?.entity.lastModifiedDate ?? Date.now) <
-                    ($1.splitterNode?.entity.lastModifiedDate ?? Date.now)
+                ($0.splitterNode?.lastModifiedDate ?? Date.now) <
+                    ($1.splitterNode?.lastModifiedDate ?? Date.now)
             }
 
         // get the first (and only) row observer for this splitter node
@@ -373,13 +379,18 @@ extension VisibleNodesViewModel {
     
     @MainActor
     func setAllNodesVisible() {
-        self.visibleCanvasIds = self.allViewModels.map(\.id).toSet
+        let newIds = self.allViewModels.map(\.id).toSet
+        if self.visibleCanvasIds != newIds {
+            self.visibleCanvasIds = newIds
+        }
     }
     
     @MainActor
     /// Updates node visibility data.
     func resetCache() {
-        self.needsInfiniteCanvasCacheReset = true
+        if !self.needsInfiniteCanvasCacheReset {
+            self.needsInfiniteCanvasCacheReset = true
+        }
         self.setAllNodesVisible()
         
         // Fixes issues where new rows don't have port locations

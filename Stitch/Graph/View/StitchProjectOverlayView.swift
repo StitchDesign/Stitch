@@ -9,22 +9,18 @@ import SwiftUI
 import StitchSchemaKit
 
 struct StitchProjectOverlayView: View {
-    let document: StitchDocumentViewModel
+    @Bindable var document: StitchDocumentViewModel
     let store: StitchStore
     let showFullScreen: Bool
     let graphNamespace: Namespace.ID
     
-    var graphUI: GraphUIState {
-        self.document.graphUI
-    }
-    
     var showPreviewWindow: Bool {
-        graphUI.showPreviewWindow
+        document.showPreviewWindow
     }
     
     var body: some View {
         VStack {
-            if graphUI.groupNodeFocused?.component != nil {
+            if document.groupNodeFocused?.component != nil {
                 ComponentNavBarView(graph: document.visibleGraph,
                                     store: store)
             }
@@ -35,7 +31,7 @@ struct StitchProjectOverlayView: View {
                 if !showFullScreen {
                     FloatingWindowView(
                         document: document,
-                        deviceScreenSize: graphUI.frame.size,
+                        deviceScreenSize: document.frame.size,
                         showPreviewWindow: showPreviewWindow,
                         namespace: graphNamespace)
                 }

@@ -187,6 +187,13 @@ extension GraphState {
                 self.deleteCanvasItem($0)
             }
             
+        case .patch(let patch) where patch == .splitter:
+            // Resize group node given new fields
+            if let groupNodeId = node.patchCanvasItem?.parentGroupNodeId,
+               let groupCanvasNode = self.getNodeViewModel(groupNodeId)?.patchCanvasItem {
+                groupCanvasNode.resetViewSizingCache()
+            }
+            
         default:
             break
         }

@@ -31,15 +31,13 @@ extension StitchStore: DirectoryObserverDelegate {
                 return
             }
             
-            let newSystems = await self.systems.sync(with: response.systems,
+            let newSystems = self.systems.sync(with: response.systems,
                                                      updateCallback: { viewModel, data in
-                await MainActor.run { [weak viewModel] in
-                    viewModel?.lastEncodedDocument = data
-                }
-                await viewModel.refreshComponents()
+                viewModel.lastEncodedDocument = data
+                viewModel.refreshComponents()
             }) { data in
-                await StitchSystemViewModel(data: data,
-                                            storeDelegate: self)
+                StitchSystemViewModel(data: data,
+                                      storeDelegate: self)
             }
             
             await MainActor.run { [weak self] in

@@ -49,7 +49,7 @@ final class PatchNodeViewModel: Sendable {
     @MainActor var mathExpression: String?
     
     // Splitter types are for group input, output, or inline nodes
-    @MainActor var splitterNode: SplitterNodeViewModel?
+    @MainActor var splitterNode: SplitterNodeEntity?
     
     @MainActor weak var delegate: PatchNodeViewModelDelegate?
     
@@ -61,7 +61,7 @@ final class PatchNodeViewModel: Sendable {
         self.patch = schema.patch
         self.userVisibleType = schema.userVisibleType
         self.mathExpression = schema.mathExpression
-        self.splitterNode = .init(entity: schema.splitterNode)
+        self.splitterNode = schema.splitterNode
         
         // Create initial inputs and outputs using default data
         let rowDefinitions = NodeKind.patch(schema.patch)
@@ -121,10 +121,10 @@ extension PatchNodeViewModel: SchemaObserver {
                                          activeIndex: graph.documentDelegate?.activeIndex ?? .init(.zero))
             }
         }
-        if let splitterNodeViewModel = self.splitterNode,
+        if let oldSplitterNodeEntity = self.splitterNode,
            let newSplitterNodeEntity = schema.splitterNode,
-           splitterNodeViewModel.entity != newSplitterNodeEntity {
-            splitterNodeViewModel.entity = newSplitterNodeEntity
+           oldSplitterNodeEntity != newSplitterNodeEntity {
+            self.splitterNode = newSplitterNodeEntity
         }
     }
 
@@ -134,7 +134,7 @@ extension PatchNodeViewModel: SchemaObserver {
                         inputs: self.inputsObservers.map { $0.createSchema() },
                         canvasEntity: self.canvasObserver.createSchema(),
                         userVisibleType: self.userVisibleType,
-                        splitterNode: self.splitterNode?.entity,
+                        splitterNode: self.splitterNode,
                         mathExpression: self.mathExpression)
     }
     
@@ -155,12 +155,6 @@ extension PatchNodeViewModel {
         }
         
         // Assign weak for group canvas if group splitter node
-        if let splitterNode = self.splitterNode,
-           splitterNode.entity.type.isGroupSplitter,
-           let groupNodeId = self.canvasObserver.parentGroupNodeId,
-           let groupCanvasItem = self.delegate?.graphDelegate?.getNodeViewModel(groupNodeId)?.nodeType.groupNode {
-            splitterNode.groupCanvas = groupCanvasItem
-        }
         
         self.canvasObserver.initializeDelegate(node,
                                                unpackedPortParentFieldGroupType: nil,
@@ -186,7 +180,7 @@ extension PatchNodeViewModel {
         self.init(from: entity)
         self.initializeDelegate(delegate)
         self.delegate = delegate
-        self.splitterNode = .init(entity: splitterNode)
+        self.splitterNode = splitterNode
     }
 
     @MainActor convenience init(id: NodeId,
@@ -219,7 +213,7 @@ extension PatchNodeViewModel {
     @MainActor
     var splitterType: SplitterType? {
         get {
-            self.splitterNode?.entity.type
+            self.splitterNode?.type
         }
         set(newValue) {
             guard let newValue = newValue else {
@@ -227,7 +221,7 @@ extension PatchNodeViewModel {
                 return
             }
 
-            self.splitterNode?.entity = SplitterNodeEntity(id: self.id,
+            self.splitterNode = SplitterNodeEntity(id: self.id,
                                                            lastModifiedDate: .init(),
                                                            type: newValue)
         }
@@ -386,17 +380,6 @@ extension NodeViewModel {
     @MainActor
     var isWireless: Bool {
         patch == .wirelessBroadcaster || patch == .wirelessReceiver
-    }
-}
-
-final class SplitterNodeViewModel {
-    @MainActor var entity: SplitterNodeEntity
-    weak var groupCanvas: CanvasItemViewModel?
-    
-    @MainActor init?(entity: SplitterNodeEntity?) {
-        guard let entity = entity else { return nil }
-        
-        self.entity = entity
     }
 }
 

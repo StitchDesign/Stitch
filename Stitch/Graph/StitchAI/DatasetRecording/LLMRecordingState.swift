@@ -339,7 +339,7 @@ extension StitchDocumentViewModel {
         self.encodeProjectInBackground()
         
         // Force update view
-        graph.graphUpdaterId = .init()
+        self.graphUpdaterId = .init()
         
         // Validates that action data didn't change after derived actions is computed
         let newActions = self.llmRecording.actions

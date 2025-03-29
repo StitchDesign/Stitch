@@ -14,7 +14,7 @@ protocol DocumentEncodable: Actor where CodableDocument == DocumentDelegate.Coda
     
     var documentId: CodableDocument.ID { get }
     
-    var saveLocation: EncoderDirectoryLocation { get }
+    nonisolated var saveLocation: EncoderDirectoryLocation { get }
     
     @MainActor var delegate: DocumentDelegate? { get }
 }
@@ -26,7 +26,9 @@ protocol DocumentEncodableDelegate: Observable, AnyObject, Sendable {
     
     @MainActor func createSchema(from graph: GraphState?) -> CodableDocument
     
-    func updateAsync(from schema: CodableDocument) async
+//    func updateAsync(from schema: CodableDocument) async
+    
+    @MainActor func update(from schema: CodableDocument, rootUrl: URL)
     
     @MainActor func willEncodeProject(schema: CodableDocument)
     
@@ -61,6 +63,7 @@ extension DocumentEncodable {
                 graph.storeDelegate?.saveUndoHistory(from: delegate,
                                                      oldSchema: oldSchema,
                                                      newSchema: newSchema,
+                                                     rootUrl: self.rootUrl,
                                                      undoEffectsData: nil)
             }
         }
@@ -78,6 +81,7 @@ extension DocumentEncodable {
                 graph.storeDelegate?.saveUndoHistory(from: delegate,
                                                      oldSchema: oldSchema,
                                                      newSchema: newSchema,
+                                                     rootUrl: self.rootUrl,
                                                      undoEvents: undoEvents,
                                                      redoEvents: [])
             }
@@ -116,7 +120,7 @@ extension DocumentEncodable {
         }
     }
     
-    var rootUrl: URL {
+    nonisolated var rootUrl: URL {
         self.saveLocation.getRootDirectoryUrl()
     }
     

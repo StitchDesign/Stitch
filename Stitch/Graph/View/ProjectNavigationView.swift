@@ -30,7 +30,7 @@ struct ProjectNavigationView: View {
                 document.encodeProjectInBackground()
             })
         }
-        .onChange(of: document.visibleGraph.graphUpdaterId) {
+        .onChange(of: document.graphUpdaterId) {
             // log("ProjectNavigationView: .onChange(of: document.visibleGraph.graphUpdaterId)")
             document.visibleGraph.updateGraphData()
         }
