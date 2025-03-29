@@ -368,6 +368,7 @@ extension GraphState {
         }
         
         // Set all nodes visible so that input/output fields' UI update if we enter a new traversal level
+        // MARK: disabled for perf
 //        self.graph.visibleNodesViewModel.setAllNodesVisible()
         
         self.updateVisibleNodes()
@@ -423,28 +424,6 @@ extension GraphState {
                                 commentBoxes: commentBoxes)
         return graph
     }
-    
-//    @MainActor
-//    func syncNodes(with entities: [NodeEntity]) async {
-//        let currentEntities = self.createSchema().nodes
-//        
-//        guard currentEntities != entities else {
-//            return
-//        }
-//        
-//        let newDictionary = await self.visibleNodesViewModel.nodes
-//            .sync(with: entities,
-//                  updateCallback: { nodeViewModel, nodeSchema in
-//            await nodeViewModel.update(from: nodeSchema,
-//                                       components: self.components)
-//        }) { nodeSchema in
-//            await NodeViewModel(from: nodeSchema,
-//                                components: self.components,
-//                                parentGraphPath: self.saveLocation)
-//        }
-//        
-//        self.syncNodes(nodesDict: newDictionary)
-//    }
     
     @MainActor
     func syncNodes(with entities: [NodeEntity]) {
@@ -509,20 +488,6 @@ extension GraphState {
         self.documentDelegate?.refreshGraphUpdaterId()
     }
     
-//    @MainActor func updateAsync(from schema: GraphEntity) async {
-//        self.updateSynchronousProperties(from: schema)
-//        
-//        if let decodedFiles = await self.documentEncoderDelegate?.getDecodedFiles() {
-//            self.importedFilesDirectoryReceived(mediaFiles: decodedFiles.mediaFiles,
-//                                                components: decodedFiles.components)
-//        }
-//        
-//        await self.syncNodes(with: schema.nodes)
-//        
-//        // Determines if graph data needs updating
-//        self.refreshGraphUpdaterId()
-//    }
-    
     @MainActor
     func update(from entity: GraphEntity) {
         guard let rootUrl = self.documentEncoderDelegate?.rootUrl else {
@@ -531,22 +496,6 @@ extension GraphState {
         
         self.update(from: entity, rootUrl: rootUrl)
     }
-    
-    // Used with copy-paste / duplication
-//    @MainActor func updateSync(from schema: GraphEntity) {
-//        self.updateSynchronousProperties(from: schema)
-//        
-//        self.update(from: schema, rootUrl: <#T##URL#>)
-//        Task { [weak self] in
-//            // Async update data correctly
-//            await self?.updateAsync(from: schema)
-//        }
-//        
-//        self.syncNodes(with: schema.nodes)
-//        
-//        // Determines if graph data needs updating
-//        self.refreshGraphUpdaterId()
-//    }
     
     @MainActor func onPrototypeRestart() {
         self.nodes.values.forEach { $0.onPrototypeRestart() }
