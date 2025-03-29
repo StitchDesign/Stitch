@@ -28,18 +28,6 @@ extension View {
     }
 }
 
-struct NodeLayoutView<T: StitchLayoutCachable, Content: View>: View {
-    let observer: T
-    @ViewBuilder var content: () -> Content
-    
-    var body: some View {
-        NodeLayout(observer: observer,
-                   existingCache: observer.viewCache) {
-            content()
-        }
-    }
-}
-
 struct NodeLayout<T: StitchLayoutCachable>: Layout, Sendable {
     typealias Cache = ()
     

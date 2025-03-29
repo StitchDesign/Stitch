@@ -135,7 +135,7 @@ extension GraphState {
                                                  newNodes: newNodes,
                                                  nodeIdMap: nodeIdMap)
             
-            self.updateSync(from: graph)
+            self.update(from: graph)
             
             self.updateGraphAfterPaste(newNodes: newNodes,
                                        nodeIdMap: nodeIdMap,
@@ -289,7 +289,9 @@ struct NodeMoveEndedAction: StitchDocumentEvent {
         state.visibleGraph.encodeProjectInBackground()
         
         // Reset node positions cache
-        state.visibleGraph.visibleNodesViewModel.needsInfiniteCanvasCacheReset = true
+        if !state.visibleGraph.visibleNodesViewModel.needsInfiniteCanvasCacheReset {
+            state.visibleGraph.visibleNodesViewModel.needsInfiniteCanvasCacheReset = true
+        }
     }
 }
 

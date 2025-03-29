@@ -155,7 +155,7 @@ struct CanvasItemTitleWirelessReceiverMenuView: View {
         .onChange(of: self.choice, initial: true) {
             self.updateBroadcasterNode()
         }
-        .onChange(of: graph.graphUpdaterId) {
+        .onChange(of: document.graphUpdaterId) {
             self.updateBroadcasterNode()
         }
         // Check for new nodes

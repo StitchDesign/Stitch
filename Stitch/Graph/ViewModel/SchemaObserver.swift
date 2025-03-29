@@ -70,20 +70,6 @@ extension Dictionary where Value: Identifiable & AnyObject, Key == Value.ID {
             result.updateValue(observer, forKey: observer.id)
         }
     }
-    
-    @MainActor
-    func sync<DataElement>(with newEntities: [DataElement],
-                           updateCallback: @Sendable @escaping (Value, DataElement) async -> (),
-                           createCallback: @Sendable @escaping (DataElement) async -> Value) async -> Self where DataElement: Identifiable, Element: Sendable, DataElement.ID == Value.ID {
-        let newValues = await Array(self.values)
-            .sync(with: newEntities,
-                  updateCallback: updateCallback,
-                  createCallback: createCallback)
-        
-        return newValues.reduce(into: Self.init()) { result, observer in
-            result.updateValue(observer, forKey: observer.id)
-        }
-    }
 }
 
 extension Array where Element: Identifiable & AnyObject {

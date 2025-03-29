@@ -94,28 +94,7 @@ final class StitchDocumentViewModel: Sendable {
 
     // Note: important to use `OrderedSet` rather than just list, so that we never have duplicate traversal-levels, see: https://github.com/StitchDesign/Stitch--Old/issues/7038
     // Tracks group breadcrumbs when group nodes are visited
-    @MainActor var groupNodeBreadcrumbs: OrderedSet<GroupNodeType> = .init() {
-        didSet {
-            if let nodePageData = self.graph.visibleNodesViewModel.nodePageDataAtCurrentTraversalLevel(self.groupNodeFocused?.groupNodeId) {
-
-                self.graph.canvasPageOffsetChanged = nodePageData.localPosition
-                self.graph.canvasPageZoomScaleChanged = nodePageData.zoomData
-                
-                // Set all nodes visible so that input/output fields' UI update when we enter a new traversal level
-                self.graph.visibleNodesViewModel.setAllNodesVisible()
-                
-                // Note: refreshing graph-updater-id here in `didSet` seems preferable to `myView.onChange(groupNodeId)`;
-                // seems to remove race condition where groupNodeId change would not trigger the proper re-render.
-                self.graph.refreshGraphUpdaterId()
-                
-                // User will probably have moved the graph or done something else to trigger an `updateVisibleNodes` call; but we put this here just in case they don't.
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
-                    log("calling updateVisibleNodes after 1 second")
-                    self?.graph.updateVisibleNodes()
-                }
-            }
-        }
-    }
+    @MainActor var groupNodeBreadcrumbs: OrderedSet<GroupNodeType> = .init()
 
     @MainActor var showPreviewWindow = PREVIEW_SHOWN_DEFAULT_STATE
     
@@ -131,6 +110,9 @@ final class StitchDocumentViewModel: Sendable {
     @MainActor var lastMouseNodeMovement: TimeInterval?
     
     @MainActor var openPortPreview: OpenedPortPreview?
+    
+    /// Subscribed by view to trigger graph view update based on data changes.
+    @MainActor var graphUpdaterId: Int = .zero
     
     @MainActor weak var storeDelegate: StitchStore?
     @MainActor weak var projectLoader: ProjectLoader?
@@ -227,6 +209,16 @@ final class StitchDocumentViewModel: Sendable {
 }
 
 extension StitchDocumentViewModel: DocumentEncodableDelegate {
+    @MainActor
+    func update(from schema: StitchDocument, rootUrl: URL) {
+        // Sync preview window attributes
+        self.previewWindowSize = schema.previewWindowSize
+        self.previewSizeDevice = schema.previewSizeDevice
+        self.previewWindowBackgroundColor = schema.previewWindowBackgroundColor
+
+        self.graph.update(from: schema.graph, rootUrl: rootUrl)
+    }
+    
     @MainActor var lastEncodedDocument: StitchDocument {
         get {
             guard let document = self.projectLoader?.lastEncodedDocument else {
@@ -246,6 +238,74 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
             projectLoader.loadingDocument = .loaded(newValue,
                                                     self.projectLoader?.thumbnail)
         }
+    }
+    
+   @MainActor
+   func refreshGraphUpdaterId() {
+       // log("refreshGraphUpdaterId called")
+       let newId = self.calculateGraphUpdaterId()
+       
+       if self.graphUpdaterId != newId {
+           // log("refreshGraphUpdaterId: newId: \(newId)")
+           self.graphUpdaterId = newId
+       }
+   }
+    
+    /// Creases a unique hash based on view data which if changes, requires graph data update.
+    @MainActor
+    func calculateGraphUpdaterId() -> Int {
+        var hasher = Hasher()
+        
+        let graph = self.visibleGraph
+        
+        let nodes = graph.nodes
+        
+        let allInputsObservers = nodes.values
+            .flatMap { $0.getAllInputsObservers() }
+        
+        // Track overall node count
+        let nodeCount = nodes.keys.count
+        
+        // Track graph canvas items count
+        let canvasItems = graph.getCanvasItemsAtTraversalLevel(groupNodeFocused: self.groupNodeFocused?.groupNodeId).count
+
+        // Tracks edge changes to reset cached data
+        let upstreamConnections = allInputsObservers
+        // Important: use compactMap, otherwise `nil` (i.e. non-existence connections) will be counted as a valid connection
+            .compactMap { $0.upstreamOutputCoordinate }
+        
+        // Tracks manual edits
+        let manualEdits: [PortValue] = allInputsObservers
+            .compactMap {
+                guard $0.upstreamOutputCoordinate == nil else {
+                    return nil
+                }
+                
+                return $0.getActiveValue(activeIndex: self.activeIndex)
+            }
+        
+        // Track group node ID, which fixes edges when traversing
+        let groupNodeIdFocused = self.groupNodeFocused
+        
+        // Stitch AI changes in case order changes
+        let aiActions = self.llmRecording.actions
+        
+        // Labels for splitter nodes
+        let splitterLabels = graph.getGroupPortLabels()
+        
+        hasher.combine(nodeCount)
+        hasher.combine(canvasItems)
+        hasher.combine(upstreamConnections)
+        hasher.combine(manualEdits)
+        hasher.combine(groupNodeIdFocused)
+        hasher.combine(aiActions)
+        hasher.combine(splitterLabels)
+        
+        let newGraphUpdaterId = hasher.finalize()
+        // log("calculateGraphUpdaterId: newGraphUpdaterId: \(newGraphUpdaterId)")
+        return newGraphUpdaterId
+        
+        // return hasher.finalize()
     }
     
     func willEncodeProject(schema: StitchDocument) {
@@ -276,7 +336,7 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
         }
         
         // Updates graph data when changed
-        self.visibleGraph.refreshGraphUpdaterId()
+        self.refreshGraphUpdaterId()
     }
     
     func didEncodeProject(schema: StitchDocument) {
@@ -439,16 +499,6 @@ extension GraphState: GraphCalculatable {
 }
 
 extension StitchDocumentViewModel {
-    @MainActor
-    func updateAsync(from schema: StitchDocument) async {
-        // Sync preview window attributes
-        self.previewWindowSize = schema.previewWindowSize
-        self.previewSizeDevice = schema.previewSizeDevice
-        self.previewWindowBackgroundColor = schema.previewWindowBackgroundColor
-
-        await self.graph.updateAsync(from: schema.graph)
-    }
-    
     @MainActor func createSchema() -> StitchDocument {
         StitchDocument(graph: self.graph.createSchema(),
                        previewWindowSize: self.previewWindowSize,

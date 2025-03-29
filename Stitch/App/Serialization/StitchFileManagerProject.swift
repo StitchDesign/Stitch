@@ -10,8 +10,8 @@ import StitchSchemaKit
 
 /// Helpers focused on reading/writing with a specific project URL.
 extension DocumentEncodable {    
-    func getFolderUrl(for subfolder: StitchEncodableSubfolder,
-                      isTemp: Bool = false) -> URL {
+    nonisolated func getFolderUrl(for subfolder: StitchEncodableSubfolder,
+                                  isTemp: Bool = false) -> URL {
         if isTemp {
             return StitchFileManager.tempDocumentResources.appendingPathComponent(subfolder.rawValue)
         }
@@ -72,9 +72,9 @@ extension DocumentEncodable {
                      componentDirs: componentFilesDir)
     }
 
-    func copyToMediaDirectory(originalURL: URL,
-                              forRecentlyDeleted: Bool,
-                              customMediaKey: MediaKey? = nil) -> URLResult {
+    nonisolated func copyToMediaDirectory(originalURL: URL,
+                                          forRecentlyDeleted: Bool,
+                                          customMediaKey: MediaKey? = nil) -> URLResult {
         let importedFilesURL = self.getFolderUrl(for: .media, isTemp: forRecentlyDeleted)
         return Self.copyToMediaDirectory(originalURL: originalURL,
                                          importedFilesURL: importedFilesURL,
@@ -145,7 +145,7 @@ extension DocumentEncodable {
     }
     
     /// Copies files from another directory.
-    func copyFiles(from directory: StitchDocumentDirectory) async {
+    nonisolated func copyFiles(from directory: StitchDocumentDirectory) {
         // Copy selected media
         for mediaUrl in directory.importedMediaUrls {
             switch self.copyToMediaDirectory(originalURL: mediaUrl,
@@ -154,7 +154,7 @@ extension DocumentEncodable {
                 continue
             case .failure(let error):
                 log("SelectedGraphItemsPasted error: could not get imported media URL.")
-                await MainActor.run {
+                DispatchQueue.main.async {
                     dispatch(DisplayError(error: error))
                 }
             }

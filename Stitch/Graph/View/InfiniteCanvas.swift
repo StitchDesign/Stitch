@@ -86,7 +86,10 @@ struct InfiniteCanvas: Layout {
         
         DispatchQueue.main.async { [weak graph] in
             self.isUpdatingCache = false
-            graph?.visibleNodesViewModel.needsInfiniteCanvasCacheReset = false
+            
+            if graph?.visibleNodesViewModel.needsInfiniteCanvasCacheReset ?? false {
+                graph?.visibleNodesViewModel.needsInfiniteCanvasCacheReset = false
+            }
             graph?.visibleNodesViewModel.infiniteCanvasCache = cache
             
             // Update visible nodes (fixes init case)

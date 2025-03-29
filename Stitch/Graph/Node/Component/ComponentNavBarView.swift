@@ -100,6 +100,11 @@ extension StitchDocumentViewModel {
         let localComponentData = localComponent.lastEncodedDocument
         let oldComponentUrl = localComponentData.rootUrl
         
+        guard let documentUrl = self.documentEncoder?.rootUrl else {
+            fatalErrorIfDebug()
+            return
+        }
+        
         let newComponentData = try localComponentData.copyProject() { component in
             let newId = UUID()
             
@@ -132,7 +137,9 @@ extension StitchDocumentViewModel {
                 return
             }
             
-            await document.updateAsync(from: document.createSchema())
+            document.update(from: document.createSchema(),
+                            rootUrl: documentUrl)
+//            await document.updateAsync(from: document.createSchema())
             document.initializeDelegate(store: store)
             document.encodeProjectInBackground()
         }
@@ -187,10 +194,9 @@ struct ComponentVersionControlButtons: View {
             Button {
                 let linkedComponent = linkedComponent.lastEncodedDocument
                 
-                Task(priority: .high) { [weak componentGraph] in
-                    await componentGraph?.updateAsync(from: linkedComponent.graph)
-                    componentGraph?.encodeProjectInBackground()
-                }
+                componentGraph.update(from: linkedComponent.graph,
+                                      rootUrl: linkedComponent.rootUrl)
+                componentGraph.encodeProjectInBackground()
             } label: {
                 Text("Reset")
             }
