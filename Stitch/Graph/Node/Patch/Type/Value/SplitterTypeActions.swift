@@ -92,5 +92,11 @@ extension GraphState {
                 }
             }
         }
+        
+        // Resize group node given new fields
+        if let groupNodeId = splitterNode.patchCanvasItem?.parentGroupNodeId,
+           let groupCanvasNode = self.getNodeViewModel(groupNodeId)?.patchCanvasItem {
+            groupCanvasNode.resetViewSizingCache()
+        }
     }
 }
