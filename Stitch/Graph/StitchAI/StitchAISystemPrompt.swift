@@ -228,8 +228,129 @@ Below is a schema illustrating various value types and the types of values they 
 \(try StitchAISchemaMeta.createSchema().encodeToPrintableString())
 
 # Content Response Example
-Below is an example of a response payload Stitch AI should return:
-\(try ContentJSON.exampleData().encodeToPrintableString())
+Below is an example of a response payload Stitch AI should return for the prompt "multiply square root of 23 by 33":
+
+```
+[
+  {
+    "node_id" : "385D87C6-E7D8-42F4-A653-2D1062204A19",
+    "node_name" : "squareRoot || Patch",
+    "step_type" : "add_node"
+  },
+  {
+    "node_id" : "7BF7C10A-AD9A-414A-A3BB-FA7BEEEE93C4",
+    "node_name" : "multiply || Patch",
+    "step_type" : "add_node"
+  },
+  {
+    "step_type" : "connect_nodes",
+    "from_port" : 0,
+    "port" : 0,
+    "from_node_id" : "385D87C6-E7D8-42F4-A653-2D1062204A19",
+    "to_node_id" : "7BF7C10A-AD9A-414A-A3BB-FA7BEEEE93C4"
+  },
+  {
+    "value" : 23,
+    "step_type" : "set_input",
+    "port" : 0,
+    "node_id" : "385D87C6-E7D8-42F4-A653-2D1062204A19",
+    "value_type" : "number"
+  },
+  {
+    "step_type" : "set_input",
+    "value" : 33,
+    "port" : 1,
+    "node_id" : "7BF7C10A-AD9A-414A-A3BB-FA7BEEEE93C4",
+    "value_type" : "number"
+  }
+]
+```
+
+Below is an example of a response payload Stitch AI should return for the prompt "make a green, draggable oval":
+```
+[
+  {
+    "step_type" : "add_node",
+    "node_name" : "oval || Layer",
+    "node_id" : "649E1732-5389-429A-B21F-1F655328631F"
+  },
+  {
+    "step_type" : "add_node",
+    "node_name" : "dragInteraction || Patch",
+    "node_id" : "F838106A-AF1C-4865-A91B-3A8957B56B5C"
+  },
+  {
+    "from_port" : 0,
+    "port" : "Position",
+    "from_node_id" : "F838106A-AF1C-4865-A91B-3A8957B56B5C",
+    "to_node_id" : "649E1732-5389-429A-B21F-1F655328631F",
+    "step_type" : "connect_nodes"
+  },
+  {
+    "value" : "#28CD41FF",
+    "port" : "Color",
+    "node_id" : "649E1732-5389-429A-B21F-1F655328631F",
+    "step_type" : "set_input",
+    "value_type" : "color"
+  },
+  {
+    "value" : "649E1732-5389-429A-B21F-1F655328631F",
+    "port" : 0,
+    "node_id" : "F838106A-AF1C-4865-A91B-3A8957B56B5C",
+    "step_type" : "set_input",
+    "value_type" : "layer"
+  }
+]
+```
+
+Below is an example of a response payload Stitch AI should return for the prompt "make a purple rounded rect with a corner radius of 20 that I can drag around":
+```
+[
+  {
+    "node_name" : "dragInteraction || Patch",
+    "step_type" : "add_node",
+    "node_id" : "063FFA6A-6947-4698-A995-0F4AC93AF280"
+  },
+  {
+    "step_type" : "add_node",
+    "node_name" : "shape || Layer",
+    "node_id" : "13A75632-EAC4-4EF4-B4CB-9C51A5FDF92A"
+  },
+  {
+    "step_type" : "add_node",
+    "node_name" : "roundedRectangleShape || Patch",
+    "node_id" : "48F0895F-1EE3-4198-AA31-B180823D1555"
+  },
+  {
+    "from_port" : 0,
+    "from_node_id" : "063FFA6A-6947-4698-A995-0F4AC93AF280",
+    "to_node_id" : "13A75632-EAC4-4EF4-B4CB-9C51A5FDF92A",
+    "step_type" : "connect_nodes",
+    "port" : "Position"
+  },
+  {
+    "from_port" : 0,
+    "from_node_id" : "48F0895F-1EE3-4198-AA31-B180823D1555",
+    "to_node_id" : "13A75632-EAC4-4EF4-B4CB-9C51A5FDF92A",
+    "step_type" : "connect_nodes",
+    "port" : "Shape"
+  },
+  {
+    "node_id" : "48F0895F-1EE3-4198-AA31-B180823D1555",
+    "value_type" : "number",
+    "value" : 20,
+    "step_type" : "set_input",
+    "port" : 2
+  },
+  {
+    "step_type" : "set_input",
+    "value_type" : "layer",
+    "value" : "13A75632-EAC4-4EF4-B4CB-9C51A5FDF92A",
+    "node_id" : "063FFA6A-6947-4698-A995-0F4AC93AF280",
+    "port" : 0
+  }
+]
+```
 """
     }
 }
