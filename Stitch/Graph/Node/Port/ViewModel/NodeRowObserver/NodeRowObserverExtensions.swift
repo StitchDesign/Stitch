@@ -55,8 +55,13 @@ extension NodeRowObserver {
         }
         
         self.postProcessing(oldValues: oldValues, newValues: newValues)
+  
+        // TODO: better to only define `kickOffPulseReversalSideEffects` only on `OutputNodeRowObserver`, but what is the perf cost of type-casting at a high frequency?
+        //        if let output = self as? OutputNodeRowObserver {
+        //            output.didValuesUpdate()
+        //        }
         
-        self.didValuesUpdate()
+        self.kickOffPulseReversalSideEffects()
     }
     
     @MainActor
