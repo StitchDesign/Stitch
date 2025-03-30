@@ -33,7 +33,8 @@ extension NodeRowObserver {
             let layerInputPort = layerNode[keyPath: layerId.layerInput.layerNodeKeyPath]
             
             if let unpackedObserver = layerInputPort.unpackedObserver {
-                log("NodeRowObserver.updateValues: will update unpacked values")
+                // NOTE: NO MATTER WHAT STATE OF PACKED VS UNPACKED, OR UI SCENARIO (CANVAS VS INSPECTOR VS FLYOUT), I CAN'T GET A BREAKPOINT TO HIT INSIDE HERE?
+                log("NodeRowObserver.updateValues: will update unpacked values", .logToServer)
                 unpackedObserver.updateValues(from: newValues,
                                               layerNode: layerNode)
                 
@@ -53,15 +54,19 @@ extension NodeRowObserver {
         if hasLoop != self.hasLoopedValues {
             self.hasLoopedValues = hasLoop
         }
+                
+        // Input AND output
+        // Update visual color data
+        self.allRowViewModels.forEach {
+            $0.updatePortColor()
+        }
         
-        self.postProcessing(oldValues: oldValues, newValues: newValues)
-  
-        // TODO: better to only define `kickOffPulseReversalSideEffects` only on `OutputNodeRowObserver`, but what is the perf cost of type-casting at a high frequency?
-        //        if let output = self as? OutputNodeRowObserver {
-        //            output.didValuesUpdate()
-        //        }
-        
-        self.kickOffPulseReversalSideEffects()
+        switch Self.nodeIOType {
+        case .input:
+            self.inputPostProcessing(oldValues: oldValues, newValues: newValues)
+        case .output:
+            self.kickOffPulseReversalSideEffects()
+        }
     }
     
     @MainActor
@@ -152,101 +157,7 @@ extension NodeRowObserver {
     func getActiveValue(activeIndex: ActiveIndex) -> PortValue {
         self.allLoopedValues[safe: activeIndex.adjustedIndex(self.allLoopedValues.count)] ?? .none
     }
-    
-    @MainActor
-    func postProcessing(oldValues: PortValues,
-                        newValues: PortValues) {
-
-        // ONLY FOR INPUT
-        
-        // Update cached interactions data in graph
-        self.updateInteractionNodeData(oldValues: oldValues,
-                                       newValues: newValues)
-        
-        // FOR INPUT AND OUPUT
-        
-        // Update visual color data
-        self.allRowViewModels.forEach {
-            $0.updatePortColor()
-        }
-    }
-    
-    /// Updates layer selections for interaction patch nodes for perf.
-    @MainActor
-    func updateInteractionNodeData(oldValues: PortValues,
-                                   newValues: PortValues) {
-        
-        // Interaction nodes ignore loops of assigned layers and only use the first
-        // Note: may be nil when first initializing the graph
-        let firstValueOld = oldValues.first
-        let firstValueNew = newValues.first
-               
-        guard let graphDelegate = self.nodeDelegate?.graphDelegate,
-              let patch = self.nodeKind.getPatch,
-              patch.isInteractionPatchNode,
-              Self.nodeIOType == .input,
-              self.id.portId == 0,
-              firstValueOld != firstValueNew else {
-            return
-        }
-        
-        if let firstValueOld = firstValueOld,
-            case let .assignedLayer(oldLayerId) = firstValueOld {
-            // Note: `.assignedLayer(nil)` is for when the interaction patch has no assigned layer
-            if let oldLayerId = oldLayerId {
-                switch patch {
-                case .dragInteraction:
-                    if graphDelegate.dragInteractionNodes.keys.contains(oldLayerId) {
-                        graphDelegate.dragInteractionNodes.removeValue(forKey: oldLayerId)
-                    }
-                case .pressInteraction:
-                    if graphDelegate.pressInteractionNodes.keys.contains(oldLayerId) {
-                        graphDelegate.pressInteractionNodes.removeValue(forKey: oldLayerId)
-                    }
-                case .scrollInteraction:
-                    if graphDelegate.scrollInteractionNodes.keys.contains(oldLayerId) {
-                        graphDelegate.scrollInteractionNodes.removeValue(forKey: oldLayerId)
-                    }
-                default:
-                    fatalErrorIfDebug()
-                }
-            }
-        }
-        
-        if let firstValueNew = firstValueNew,
-            case let .assignedLayer(newLayerId) = firstValueNew {
             
-            // Note: `.assignedLayer(nil)` is for when the interaction patch has no assigned layer
-            if let newLayerId = newLayerId {
-                switch patch {
-                case .dragInteraction:
-                    var currentIds = graphDelegate.dragInteractionNodes.get(newLayerId) ?? NodeIdSet()
-                    currentIds.insert(self.id.nodeId)
-                    
-                    if graphDelegate.dragInteractionNodes.get(newLayerId) != currentIds {
-                        graphDelegate.dragInteractionNodes.updateValue(currentIds, forKey: newLayerId)
-                    }
-                case .pressInteraction:
-                    var currentIds = graphDelegate.pressInteractionNodes.get(newLayerId) ?? NodeIdSet()
-                    currentIds.insert(self.id.nodeId)
-                    
-                    if graphDelegate.pressInteractionNodes.get(newLayerId) != currentIds {
-                        graphDelegate.pressInteractionNodes.updateValue(currentIds, forKey: newLayerId)
-                    }
-                case .scrollInteraction:
-                    var currentIds = graphDelegate.scrollInteractionNodes.get(newLayerId) ?? NodeIdSet()
-                    currentIds.insert(self.id.nodeId)
-                    
-                    if graphDelegate.scrollInteractionNodes.get(newLayerId) != currentIds {
-                        graphDelegate.scrollInteractionNodes.updateValue(currentIds, forKey: newLayerId)
-                    }
-                default:
-                    fatalErrorIfDebug()
-                }
-            }
-        }
-    }
-    
     @MainActor
     func getComputedMediaObjects() -> [StitchMediaObject] {
         self.nodeDelegate?.ephemeralObservers?.compactMap {
@@ -306,36 +217,3 @@ extension NodeRowObserver {
     }
 }
 
-extension [InputNodeRowObserver] {
-    @MainActor
-    init(values: PortValuesList,
-         id: NodeId,
-         nodeIO: NodeIO,
-         nodeDelegate: NodeDelegate) {
-        self = values.enumerated().map { portId, values in
-            Element(values: values,
-                    id: NodeIOCoordinate(portId: portId, nodeId: id),
-                    upstreamOutputCoordinate: nil,
-                    nodeDelegate: nodeDelegate)
-        }
-    }
-}
-
-extension InputNodeRowObserver {
-    @MainActor
-    var currentBroadcastChoiceId: NodeId? {
-        guard self.nodeKind == .patch(.wirelessReceiver),
-              self.id.portId == 0,
-              Self.nodeIOType == .input else {
-            // log("NodeRowObserver: currentBroadcastChoice: did not have wireless node: returning nil")
-            return nil
-        }
-        
-        // the id of the connected wireless broadcast node
-        // TODO: why was there an `upstreamOutputCoordinate` but not a `upstreamOutputObserver` ?
-        //        let wirelessBroadcastId = self.upstreamOutputObserver?.id.nodeId
-        let wirelessBroadcastId = self.upstreamOutputCoordinate?.nodeId
-        // log("NodeRowObserver: currentBroadcastChoice: wirelessBroadcastId: \(wirelessBroadcastId)")
-        return wirelessBroadcastId
-    }
-}
