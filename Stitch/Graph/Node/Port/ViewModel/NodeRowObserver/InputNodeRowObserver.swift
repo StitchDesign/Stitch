@@ -63,8 +63,9 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
         self.hasLoopedValues = values.hasLoop
     }
     
+    // OUTPUT ONLY
     @MainActor
-    func didValuesUpdate() { }
+    func kickOffPulseReversalSideEffects() { }
     
     func updateOutputValues(_ values: [StitchSchemaKit.CurrentPortValue.PortValue]) {
         fatalErrorIfDebug("Should never be called for InputNodeRowObserver")

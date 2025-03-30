@@ -64,8 +64,9 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
          id: NodeIOCoordinate,
          upstreamOutputCoordinate: NodeIOCoordinate?)
     
+    // OUTPUT ONLY
     @MainActor
-    func didValuesUpdate()
+    func kickOffPulseReversalSideEffects()
 }
 
 extension NodeRowObserver {

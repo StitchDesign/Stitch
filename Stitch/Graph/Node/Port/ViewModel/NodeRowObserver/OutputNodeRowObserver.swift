@@ -51,8 +51,9 @@ final class OutputNodeRowObserver: NodeRowObserver {
         self.hasLoopedValues = values.hasLoop
     }
     
+    // fka `didValuesUpdate`; but only actually used for pulse reversion
     @MainActor
-    func didValuesUpdate() {
+    func kickOffPulseReversalSideEffects() {
         let graphTime = self.nodeDelegate?.graphDelegate?.graphStepState.graphTime ?? .zero
         
         // Must also run pulse reversion effects
