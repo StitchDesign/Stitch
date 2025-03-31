@@ -127,10 +127,6 @@ extension Patch {
             node = progressNode(id: id, position: position, zIndex: zIndex)
         case .reverseProgress:
             node = reverseProgressNode(id: id, position: position, zIndex: zIndex)
-        case .wirelessReceiver:
-            node = wirelessReceiverNode(id: id, position: position, zIndex: zIndex)
-        case .wirelessBroadcaster:
-            node = wirelessBroadcasterNode(id: id, position: position, zIndex: zIndex)
         case .rgba:
             node = rgbaNode(id: id, position: position, zIndex: zIndex)
         case .lessThanOrEqual:
