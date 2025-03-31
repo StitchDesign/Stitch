@@ -68,9 +68,9 @@ func addPatchNode(nodeId: NodeId = NodeId(),
 @MainActor
 func addEval(inputs: PortValuesList,
              evalKind: ArithmeticNodeType) -> PortValuesList {
-    
+                 
     let result = resultsMaker(inputs)
-    
+        
     // Check if any input is a string or color
     let hasStringInput = inputs.contains { portValues in
         portValues.contains { portValue in

@@ -24,6 +24,10 @@ final class GraphState: Sendable {
     // Updated when connections, new nodes etc change
     let topologicalData: GraphTopologicalData<NodeViewModel>
     
+    // Populated by `OutputNodeRowObserver.didValuesUpdate` during graph eval on GraphStep N,
+    // handled (and wiped) after graph eval has been completed on GraphStep N.
+    @MainActor var pulsedOutputs: Set<NodeIOCoordinate> = .init()
+    
     let saveLocation: [UUID]
     
     @MainActor var id = UUID()
