@@ -12,7 +12,10 @@ import StitchEngine
 
 @Observable
 final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
-    
+    func coerce(theseValues: [StitchSchemaKit.CurrentPortValue.PortValue], toThisType: StitchSchemaKit.CurrentPortValue.PortValue, currentGraphTime: TimeInterval) -> [StitchSchemaKit.CurrentPortValue.PortValue] {
+        fatalError()
+    }
+        
     static let nodeIOType: NodeIO = .input
 
     let id: NodeIOCoordinate

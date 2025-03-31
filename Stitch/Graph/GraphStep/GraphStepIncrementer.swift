@@ -35,7 +35,7 @@ extension StitchDocumentViewModel: GraphStepManagerDelegate {
                 // Reverse the values in the downstream inputs
                 let changedDownstreamInputIds = self.graph
                     .updateDownstreamInputs(sourceNode: node,
-                                            flowValues: currentOutputs,
+                                            upstreamOutputValues: currentOutputs,
                                             mediaList: nil,
                                             // True, since we reversed the pulse effect?
                                             upstreamOutputChanged: true,
@@ -83,7 +83,7 @@ extension StitchDocumentViewModel: GraphStepManagerDelegate {
 //                // Reverse the values in the downstream inputs
 //                let changedDownstreamInputIds = self.graph
 //                    .updateDownstreamInputs(sourceNode: node,
-//                                            flowValues: currentOutputs,
+//                                            upstreamOutputValues: currentOutputs,
 //                                            mediaList: nil,
 //                                            // True, since we reversed the pulse effect?
 //                                            upstreamOutputChanged: true,

@@ -374,6 +374,10 @@ extension StitchDocumentViewModel {
 }
 
 extension GraphState: GraphCalculatable {
+    var currentGraphTime: TimeInterval {
+        fatalError()
+    }
+    
     @MainActor
     func didPortsUpdate(ports: Set<StitchEngine.NodePortType<NodeViewModel>>) {
         // Update multi-selected layers in sidebar with possible heterogenous values
