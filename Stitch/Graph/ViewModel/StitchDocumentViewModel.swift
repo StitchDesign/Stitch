@@ -433,7 +433,7 @@ extension StitchDocumentViewModel {
     }
 }
 
-extension GraphState: GraphCalculatable {
+extension GraphState: GraphCalculatable {    
     @MainActor
     var currentGraphTime: TimeInterval {
         self.graphStepManager.graphTime

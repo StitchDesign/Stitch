@@ -52,7 +52,8 @@ struct CanvasItemTitleView: View {
                let rowObserver = node.inputsObservers.first {
                 CanvasItemTitleWirelessReceiverMenuView(graph: graph,
                                                         document: document,
-                                                        node: node, rowObserver: rowObserver,
+                                                        node: node,
+                                                        rowObserver: rowObserver,
                                                         nodeName: self.name)
             } else {
                 HStack {
@@ -132,6 +133,15 @@ struct CanvasItemTitleWirelessReceiverMenuView: View {
                             id: currentBroadcastChoiceNodeId)
     }
     
+    var nodeTitle: String {
+        let label = self.broadcasterNode?.displayTitle ?? nodeName
+#if DEV_DEBUG
+        return label + " " + node.id.debugFriendlyId
+#else
+        return label
+#endif
+    }
+    
     @ViewBuilder
     var body: some View {
         Menu {
@@ -141,7 +151,7 @@ struct CanvasItemTitleWirelessReceiverMenuView: View {
                                              nodeId: node.id,
                                              forNodeTitle: true)
         } label: {
-            StitchTextView(string: self.broadcasterNode?.displayTitle ?? nodeName)
+            StitchTextView(string: nodeTitle)
                 .height(NODE_TITLE_HEIGHT)
         }
         .buttonStyle(.plain)

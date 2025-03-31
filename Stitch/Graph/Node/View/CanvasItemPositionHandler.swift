@@ -21,7 +21,6 @@ struct CanvasItemPositionHandler: ViewModifier {
     let zIndex: ZIndex
     
     func body(content: Content) -> some View {
-        
         content
             .zIndex(zIndex)
             .canvasPosition(id: node.id,

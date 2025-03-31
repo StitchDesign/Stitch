@@ -35,9 +35,6 @@ final class OutputNodeRowObserver: NodeRowObserver {
     // Can't be computed for rendering purposes
     @MainActor var hasLoopedValues: Bool = false
     
-    // Always nil for outputs
-    let importedMediaObject: StitchMediaObject? = nil
-    
     @MainActor
     init(values: PortValues,
          id: NodeIOCoordinate,
@@ -50,24 +47,11 @@ final class OutputNodeRowObserver: NodeRowObserver {
         self.allLoopedValues = values
         self.hasLoopedValues = values.hasLoop
     }
-    
-    // fka `didValuesUpdate`; but only actually used for pulse reversion
-    @MainActor
-    func kickOffPulseReversalSideEffects() {
-        let graphTime = self.nodeDelegate?.graphDelegate?.graphStepState.graphTime ?? .zero
-        
-        // Must also run pulse reversion effects
-        self.allLoopedValues
-            .getPulseReversionEffects(id: self.id,
-                                      graphTime: graphTime)
-            .processEffects()
-    }
-    
-    func updateOutputValues(_ values: [StitchSchemaKit.CurrentPortValue.PortValue]) {
+
+    func updateOutputValues(_ values: [PortValue]) {
         self.updateValues(values)
     }
 }
-
 
 extension OutputNodeRowObserver {
     @MainActor

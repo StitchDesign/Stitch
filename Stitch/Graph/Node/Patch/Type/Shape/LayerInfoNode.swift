@@ -19,6 +19,7 @@
 import Foundation
 import StitchSchemaKit
 
+// For both LayerInfo and ConvertPosition
 struct AssignedLayerUpdated: GraphEvent {
     let changedLayerNode: LayerNodeId
     
@@ -60,6 +61,7 @@ extension Patch {
         }
     }
 }
+
 
 struct LayerInfoPatchNode: PatchNodeDefinition {
     static let patch = Patch.layerInfo

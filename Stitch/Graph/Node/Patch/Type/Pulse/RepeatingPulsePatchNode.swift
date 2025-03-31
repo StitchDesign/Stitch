@@ -40,7 +40,7 @@ struct RepeatingPulseNode: PatchNodeDefinition {
 func repeatingPulseEval(node: PatchNode,
                         graphState: GraphDelegate) -> ImpureEvalResult {
     let graphTime = graphState.graphStepState.graphTime
-    
+            
     return node.loopedEval { values, loopIndex in
         // to determine whether it's time to pulse or not,
         // will have to look at the existing outputs' indices' .pulse(lastAt)
@@ -49,10 +49,6 @@ func repeatingPulseEval(node: PatchNode,
         // Look at the *output's* index's `pulsedAt`;
         // we need to know if it's been long enough since last pulse.
         let pulseAt: TimeInterval = values[safe: 1]?.getPulse ?? .zero
-
-        //        log("repeatingPulseEval op: frequency: \(frequency)")
-        //        log("repeatingPulseEval op: pulseAt: \(pulseAt)")
-        //        log("repeatingPulseEval op: graphTime: \(graphTime)")
 
         let _shouldPulse = shouldPulse(currentTime: graphTime,
                                        lastTimePulsed: pulseAt,
@@ -65,5 +61,5 @@ func repeatingPulseEval(node: PatchNode,
             return ImpureEvalOpResult(outputs: [.pulse(pulseAt)])
         }
     }
-    .toImpureEvalResult()
+    .toImpureEvalResult()    
 }

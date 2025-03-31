@@ -55,17 +55,17 @@ extension NodeRowObserver {
             self.hasLoopedValues = hasLoop
         }
                 
-        // Input AND output
-        // Update visual color data
-        self.allRowViewModels.forEach {
-            $0.updatePortColor()
-        }
-        
         switch Self.nodeIOType {
         case .input:
             self.inputPostProcessing(oldValues: oldValues, newValues: newValues)
         case .output:
-            self.kickOffPulseReversalSideEffects()
+            self.outputPostProcessing()
+        }
+        
+        // Input AND output
+        // Update visual color data
+        self.allRowViewModels.forEach {
+            $0.updatePortColor()
         }
     }
     
