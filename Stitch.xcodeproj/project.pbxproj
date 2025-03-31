@@ -108,7 +108,6 @@
 		B54D0BB12957A9B300F3B2F9 /* LoadingStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = B54D0BB02957A9B300F3B2F9 /* LoadingStatus.swift */; };
 		B550C22F28D0404300F40B80 /* MiddlewareService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B550C22E28D0404300F40B80 /* MiddlewareService.swift */; };
 		B55185722826FE4100D81717 /* StitchFileTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55185712826FE4100D81717 /* StitchFileTests.swift */; };
-		B55500A42C1A76050081C3F1 /* PulseReversionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500A32C1A76050081C3F1 /* PulseReversionUtils.swift */; };
 		B55500A82C1A7A5E0081C3F1 /* NodeViewModelUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500A72C1A7A5E0081C3F1 /* NodeViewModelUtils.swift */; };
 		B55500AF2C1B778F0081C3F1 /* NodeIOCoordinateUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500AE2C1B778F0081C3F1 /* NodeIOCoordinateUtils.swift */; };
 		B55500B42C1B986C0081C3F1 /* FieldGroupType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500B32C1B986C0081C3F1 /* FieldGroupType.swift */; };
@@ -1093,7 +1092,6 @@
 		B54D0BB02957A9B300F3B2F9 /* LoadingStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingStatus.swift; sourceTree = "<group>"; };
 		B550C22E28D0404300F40B80 /* MiddlewareService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiddlewareService.swift; sourceTree = "<group>"; };
 		B55185712826FE4100D81717 /* StitchFileTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchFileTests.swift; sourceTree = "<group>"; };
-		B55500A32C1A76050081C3F1 /* PulseReversionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PulseReversionUtils.swift; sourceTree = "<group>"; };
 		B55500A72C1A7A5E0081C3F1 /* NodeViewModelUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeViewModelUtils.swift; sourceTree = "<group>"; };
 		B55500AE2C1B778F0081C3F1 /* NodeIOCoordinateUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeIOCoordinateUtils.swift; sourceTree = "<group>"; };
 		B55500B32C1B986C0081C3F1 /* FieldGroupType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldGroupType.swift; sourceTree = "<group>"; };
@@ -2195,14 +2193,6 @@
 			path = File;
 			sourceTree = "<group>";
 		};
-		B55500A22C1A75F00081C3F1 /* Pulse */ = {
-			isa = PBXGroup;
-			children = (
-				B55500A32C1A76050081C3F1 /* PulseReversionUtils.swift */,
-			);
-			path = Pulse;
-			sourceTree = "<group>";
-		};
 		B55500A52C1A78970081C3F1 /* Util */ = {
 			isa = PBXGroup;
 			children = (
@@ -2250,7 +2240,6 @@
 			children = (
 				B56FFB5F2C19667A00623CC7 /* Media */,
 				B56FFB342C18F05800623CC7 /* Animation */,
-				B55500A22C1A75F00081C3F1 /* Pulse */,
 				B59660992C1A4ABA00BE75D7 /* Colors */,
 				EC165ED629C8B73F0024ECDF /* Shapes */,
 				B56FFB332C18DCF000623CC7 /* JSON */,
@@ -5520,7 +5509,6 @@
 				ECA92A00260A694C00281B52 /* PressInteractionPatchNode.swift in Sources */,
 				ECF0B0EE28775FEA001D7CFC /* PulseNode.swift in Sources */,
 				ECA4D99927BED73C005CF4BC /* AdjustmentNumber.swift in Sources */,
-				B55500A42C1A76050081C3F1 /* PulseReversionUtils.swift in Sources */,
 				EC4379F32BA4FAF60077493E /* PortValueEnum.swift in Sources */,
 				B5EFD5B62D5E63F3006A68FB /* StitchAINodeDescriptions.swift in Sources */,
 				EC4F0F98280B657100AF4884 /* FontConstants.swift in Sources */,
