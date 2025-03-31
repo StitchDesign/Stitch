@@ -66,10 +66,6 @@ struct PreviewTextLayer: View {
 
         let alignment: Alignment? = getSwiftUIAlignment(textAlignment, verticalAlignment)
         
-        //        logInView("PreviewTextLayer: body: layerViewModel.id: \(layerViewModel.id)")
-        //        logInView("PreviewTextLayer: body: text: \(text)")
-        //        logInView("PreviewTextLayer: body: graphTime: \(graph.graphStepManager.graphTime)")
-        
         LayerTextView(value: text,
                       color: color,
                       alignment: alignment,

@@ -65,7 +65,7 @@ extension NodeRowObserver {
         case .input:
             self.inputPostProcessing(oldValues: oldValues, newValues: newValues)
         case .output:
-            self.kickOffPulseReversalSideEffects()
+            self.updatePulsedOutputsForThisGraphStep()
         }
     }
     

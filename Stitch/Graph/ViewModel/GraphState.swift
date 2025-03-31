@@ -26,7 +26,7 @@ final class GraphState: Sendable {
     
     // Populated by `OutputNodeRowObserver.didValuesUpdate` during graph eval on GraphStep N,
     // handled (and wiped) after graph eval has been completed on GraphStep N.
-    @MainActor var pulsedOutputsOnThisGraphStep: Set<NodeIOCoordinate> = .init()
+    @MainActor var pulsedOutputs: Set<NodeIOCoordinate> = .init()
     
     let saveLocation: [UUID]
     

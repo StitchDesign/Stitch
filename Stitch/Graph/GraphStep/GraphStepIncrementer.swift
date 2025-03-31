@@ -59,7 +59,7 @@ extension GraphState {
      */
     @MainActor
     func reversePulseCoercionsFromPreviousGraphStep() {
-        self.pulsedOutputsOnThisGraphStep.forEach { (pulsedOutput: NodeIOCoordinate) in
+        self.pulsedOutputs.forEach { (pulsedOutput: NodeIOCoordinate) in
             // Cannot recalculate full node in some examples (like delay node)
             // so we just update downstream nodes
             if let node = self.getNode(pulsedOutput.nodeId),
@@ -82,7 +82,7 @@ extension GraphState {
         }
         
         // Finally, wipe pulsed-outputs
-        self.pulsedOutputsOnThisGraphStep = .init()
+        self.pulsedOutputs = .init()
     }
 }
 

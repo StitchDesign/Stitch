@@ -32,45 +32,15 @@ func multiplyPatchNode(id: NodeId,
         outputs: outputs)
 }
 
-// node 502D3E
-//@MainActor
-//func multiplyEval(inputs: PortValuesList,
-//                  evalKind: MathNodeTypeWithColor) -> PortValuesList {
-//
-
 @MainActor
-func multiplyEval(node: PatchNode,
-                  graph: GraphState) -> EvalResult {
-    let inputs: PortValuesList = node.inputs
+func multiplyEval(inputs: PortValuesList,
+                  evalKind: MathNodeTypeWithColor) -> PortValuesList {
 
-    
-//    // alternatively, try CRASHING here if we have number eval kind but first input is not a number
-//    if let n = inputs.first?.first?.getNumber,
-//       n == 1 {
-//        log("multiplyEval: had 1 in first input")
-//    }
-    
     let numberOperation: Operation = { (values: PortValues) -> PortValue in
         .number(values.reduce(.multiplicationIdentity) { (acc: Double, value: PortValue) -> Double in
-            if let n = value.getNumber {
-                return acc * n
-            } else {
-                log("multiplyEval: did not have number in value \(value)")
-                return acc * .multiplicationIdentity
-            }
-            
-//            acc * (value.getNumber ?? .multiplicationIdentity)
+            acc * (value.getNumber ?? .multiplicationIdentity)
         })
     }
-
-    if node.id.uuidString.contains("502D3EBA") {
-        log("multiplyEval: for node \(node.id)")
-        log("multiplyEval: graphTime \(graph.graphStepState.graphTime)")
-        log("multiplyEval: inputs: \(inputs)")
-        let k = resultsMaker(inputs)(numberOperation)
-        log("multiplyEval: result: \(k)")
-    }
-    
     
     let positionOperation: Operation = { (values: PortValues) -> PortValue in
         .position(values.reduce(.multiplicationIdentity) { (acc: CGPoint, value: PortValue) -> CGPoint in
@@ -117,19 +87,16 @@ func multiplyEval(node: PatchNode,
 
     let result = resultsMaker(inputs)
 
-//    switch evalKind {
-    switch node.userVisibleType! {
+    switch evalKind {
     case .number:
-        return .init(outputsValues: result(numberOperation))
+        return result(numberOperation)
     case .position:
-        return .init(outputsValues: result(positionOperation))
+        return result(positionOperation)
     case .size:
-        return .init(outputsValues: result(sizeOperation))
+        return result(sizeOperation)
     case .point3D:
-        return .init(outputsValues: result(point3DOperation))
+        return result(point3DOperation)
     case .color:
-        return .init(outputsValues: result(colorOperation))
-    default:
-        fatalError()
+        return result(colorOperation)
     }
 }

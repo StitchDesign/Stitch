@@ -66,7 +66,7 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
     
     // OUTPUT ONLY
     @MainActor
-    func kickOffPulseReversalSideEffects()
+    func updatePulsedOutputsForThisGraphStep()
 }
 
 extension NodeRowObserver {

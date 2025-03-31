@@ -53,7 +53,7 @@ final class OutputNodeRowObserver: NodeRowObserver {
     
     // fka `didValuesUpdate`; but only actually used for pulse reversion
     @MainActor
-    func kickOffPulseReversalSideEffects() {
+    func updatePulsedOutputsForThisGraphStep() {
         
         guard let graph = self.nodeDelegate?.graphDelegate else {
             fatalErrorIfDebug()
@@ -62,22 +62,14 @@ final class OutputNodeRowObserver: NodeRowObserver {
         
         let graphTime = graph.graphStepState.graphTime
 
+        // TODO: should be by output-coordinate + loop-index, not just output-coordinate?
         let someIndexPulsed = self.allLoopedValues
             .first { $0.getPulse?.shouldPulse(graphTime) ?? false }
             .isDefined
         
         if someIndexPulsed {
-            log("OutputNodeRowObserver: didValuesUpdate: had pulse for output \(self.id)")
-            log("OutputNodeRowObserver: didValuesUpdate: graph.pulsedOutputsOnThisGraphStep was: \(graph.pulsedOutputsOnThisGraphStep)")
-            graph.pulsedOutputsOnThisGraphStep.insert(self.id)
-            log("OutputNodeRowObserver: didValuesUpdate: graph.pulsedOutputsOnThisGraphStep is now: \(graph.pulsedOutputsOnThisGraphStep)")
+            graph.pulsedOutputs.insert(self.id)
         }
-        
-        // Must also run pulse reversion effects
-//        self.allLoopedValues
-//            .getPulseReversionEffects(id: self.id,
-//                                      graphTime: graphTime)
-//            .processEffects()
     }
     
     func updateOutputValues(_ values: [StitchSchemaKit.CurrentPortValue.PortValue]) {

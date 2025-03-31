@@ -65,66 +65,50 @@ func addPatchNode(nodeId: NodeId = NodeId(),
 //    }
 //}
 
-//@MainActor
-//func addEval(inputs: PortValuesList,
-//             evalKind: ArithmeticNodeType) -> PortValuesList {
 @MainActor
-func addEval(node: PatchNode,
-             graph: GraphState) -> EvalResult {
-    
-    let inputs: PortValuesList = node.inputs
+func addEval(inputs: PortValuesList,
+             evalKind: ArithmeticNodeType) -> PortValuesList {
                  
     let result = resultsMaker(inputs)
-    
-    if node.id.uuidString.contains("8FABCA") {
-        log("addEval: graphTime: \(graph.graphStepState.graphTime)")
-        log("addEval: inputs: \(inputs)")
         
-        let newOutputs = result(AddEvalOps.numberOperation)
-        log("addEval: newOutputs: \(newOutputs)")
+    // Check if any input is a string or color
+    let hasStringInput = inputs.contains { portValues in
+        portValues.contains { portValue in
+            if case .string(_) = portValue {
+                return true
+            }
+            return false
+        }
     }
     
-//    // Check if any input is a string or color
-//    let hasStringInput = inputs.contains { portValues in
-//        portValues.contains { portValue in
-//            if case .string(_) = portValue {
-//                return true
-//            }
-//            return false
-//        }
-//    }
-//    
-//    let hasColorInput = inputs.contains { portValues in
-//        portValues.contains { portValue in
-//            if case .color(_) = portValue {
-//                return true
-//            }
-//            return false
-//        }
-//    }
-//    
-//    if hasStringInput {
-//        return result(AddEvalOps.stringOperation)
-//    }
-//    
-//    if hasColorInput {
-//        return result(AddEvalOps.colorOperation)
-//    }
+    let hasColorInput = inputs.contains { portValues in
+        portValues.contains { portValue in
+            if case .color(_) = portValue {
+                return true
+            }
+            return false
+        }
+    }
     
-//    switch evalKind {
-    switch node.userVisibleType! {
+    if hasStringInput {
+        return result(AddEvalOps.stringOperation)
+    }
+    
+    if hasColorInput {
+        return result(AddEvalOps.colorOperation)
+    }
+    
+    switch evalKind {
     case .number:
-        return .init(outputsValues: result(AddEvalOps.numberOperation))
+        return result(AddEvalOps.numberOperation)
     case .size:
-        return .init(outputsValues: result(AddEvalOps.sizeOperation))
+        return result(AddEvalOps.sizeOperation)
     case .position:
-        return .init(outputsValues: result(AddEvalOps.positionOperation))
+        return result(AddEvalOps.positionOperation)
     case .point3D:
-        return .init(outputsValues: result(AddEvalOps.point3DOperation))
+        return result(AddEvalOps.point3DOperation)
     case .color:
-        return .init(outputsValues: result(AddEvalOps.colorOperation))
-    default:
-        fatalError()
+        return result(AddEvalOps.colorOperation)
     }
 }
 

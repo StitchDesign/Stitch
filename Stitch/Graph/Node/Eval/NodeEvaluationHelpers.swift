@@ -20,22 +20,6 @@ func identityEvaluation(inputs: PortValuesList,
     inputs
 }
 
-@MainActor
-func wirelessEvaluation(node: PatchNode,
-                        graph: GraphState) -> EvalResult {
-    
-    if let assignedBroadcasterId = node.currentBroadcastChoiceId,
-       let assignedBroadcaster = graph.getNode(assignedBroadcasterId),
-       assignedBroadcaster.title.contains("Counter") {
-        log("Wireless Receiver subscribed to Counter: graph.graphStepState.graphTime: \(graph.graphStepState.graphTime)")
-        log("Wireless Receiver subscribed to Counter: inputs: \(node.inputs)")
-    }
-    
-    return .init(outputsValues: node.inputs)
-}
-
-
-
 // an evalution that only produces new outputs
 typealias OutputsOnlyPureEval = (PortValuesList, PortValuesList) -> PortValuesList
 

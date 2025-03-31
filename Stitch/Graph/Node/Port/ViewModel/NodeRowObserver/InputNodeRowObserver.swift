@@ -64,7 +64,7 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     
     // OUTPUT ONLY
     @MainActor
-    func kickOffPulseReversalSideEffects() { }
+    func updatePulsedOutputsForThisGraphStep() { }
     
     func updateOutputValues(_ values: [StitchSchemaKit.CurrentPortValue.PortValue]) {
         fatalErrorIfDebug("Should never be called for InputNodeRowObserver")

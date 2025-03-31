@@ -16,21 +16,18 @@ extension Patch {
         case
             // wireless nodes are just splitter nodes with covered up edges and invisible edges
             .wirelessReceiver, .wirelessBroadcaster:
-//            return .node(outputsOnlyEval(identityEvaluation))
-            return .graph(wirelessEvaluation)
+            return .node(outputsOnlyEval(identityEvaluation))
         case .splitter:
             // .impure(.impure because of pulse nodeType)
             return .graphStep(splitterEval)
         case .imageImport:
             return .node(imageImportEval)
         case .add:
-//            return .node(arithmeticNodeTypeEval(addEval))
-            return .graph(addEval)
+            return .node(arithmeticNodeTypeEval(addEval))
         case .convertPosition:
             return .graph(outputsOnlyGraphStateEval(convertPositionEval))
         case .multiply:
-//            return .node(mathNodeTypeWithColorEval(multiplyEval))
-            return .graph(multiplyEval)
+            return .node(mathNodeTypeWithColorEval(multiplyEval))
         case .divide:
             return .node(mathNodeTypeWithColorEval(divideEval))
         // Scroll interaction is a little different because scroll does animation stuff
