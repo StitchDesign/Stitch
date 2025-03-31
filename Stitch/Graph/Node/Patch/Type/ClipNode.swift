@@ -50,9 +50,7 @@ func clipEval(inputs: PortValuesList,
         if let value = values.first?.getNumber,
            let min = values[1].getNumber,
            let max = values[2].getNumber {
-//            log("clipEval: value: \(value)")
-            let result = getNumberBetween(value: value, min: min, max: max)
-            return .number(result)
+            return .number(getNumberBetween(value: value, min: min, max: max))
         } else {
             fatalErrorIfDebug()
             return .number(.zero)
