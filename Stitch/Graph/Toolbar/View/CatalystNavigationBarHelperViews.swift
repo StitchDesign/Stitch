@@ -305,10 +305,13 @@ struct CatalystNavBarButton: View, Identifiable {
 
         // Hides the little arrow on Catalyst
         .menuIndicator(.hidden)
+        .simultaneousGesture(TapGesture().onEnded({ _ in
+            action()
+        }))
 
         // SwiftUI Menu's `primaryAction` enables label taps but also changes the button's appearance, losing the hover-highlight effect etc.;
         // so we use UIKitOnTapModifier for proper callback.
-        .modifier(UIKitOnTapModifier(onTapCallback: action))
+//        .modifier(UIKitOnTapModifier(onTapCallback: action))
 
         // TODO: find ideal button size?
         // Note: *must* provide explicit frame
