@@ -30,6 +30,17 @@ extension DocumentEncodable {
             return nil
         }
     }
+    
+    /// Called when GraphState is initialized to build library data and then run first calc.
+    static func getDecodedFiles(rootUrl: URL) -> GraphDecodedFiles? {
+        do {
+            let importedFilesDir = try Self.readAllImportedFiles(rootUrl: rootUrl)
+            return GraphDecodedFiles(importedFilesDir: importedFilesDir)
+        } catch {
+            fatalErrorIfDebug("DocumentEncodable.getDecodedFiles error: \(error.localizedDescription)")
+            return nil
+        }
+    }
 }
 
 extension GraphDecodedFiles {

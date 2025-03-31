@@ -89,8 +89,8 @@ let PREVIEW_HIDE_ICON_NAME: IconName = .svgIcon("calm 1")
 let PREVIEW_SHOW_TOGGLE_ACTION = { dispatch(TogglePreviewWindow()) }
 
 let FILE_IMPORT_LABEL = "Import File"
-let FILE_IMPORT_ICON_NAME: IconName = .svgIcon("Doc")
-// let FILE_IMPORT_ICON_NAME: IconName = .sfSymbol("doc")
+//let FILE_IMPORT_ICON_NAME: IconName = .svgIcon("Doc")
+ let FILE_IMPORT_ICON_NAME: IconName = .sfSymbol("document")
 
 @MainActor
 let FILE_IMPORT_ACTION = { @MainActor in dispatch(ShowFileImportModal()) }
@@ -105,12 +105,12 @@ let RESTART_PROTOTYPE_ACTION = { dispatch(PrototypeRestartedAction()) }
 let PREVIEW_FULL_SCREEN_ACTION = { dispatch(ToggleFullScreenEvent()) }
 
 let UNDO_ICON_LABEL = "Undo"
-let UNDO_ICON_NAME: IconName = .svgIcon("Undo")
+let UNDO_ICON_NAME: IconName = .sfSymbol("arrow.uturn.backward.square") // .svgIcon("Undo")
 @MainActor
 let UNDO_ACTION = { @MainActor in dispatch(UndoEvent()) }
 
 let REDO_ICON_LABEL = "Redo"
-let REDO_ICON_NAME: IconName = .svgIcon("Redo")
+let REDO_ICON_NAME: IconName = .sfSymbol("arrow.uturn.forward.square") //.svgIcon("Redo")
 @MainActor
 let REDO_ACTION = { @MainActor in dispatch(RedoEvent()) }
 
@@ -126,7 +126,6 @@ let PROJECT_SETTINGS_ACTION = { @MainActor in dispatch(ShowProjectSettingsSheet(
 let SCREEN_TOUCH_ID = NSNumber(value: UITouch.TouchType.direct.rawValue)
 let TRACKPAD_TOUCH_ID = NSNumber(value: UITouch.TouchType.indirectPointer.rawValue)
 
-let GESTURE_VIEW_TAG = UUID().hashValue
 
 /* ----------------------------------------------------------------
  -- MARK: OTHER

@@ -64,8 +64,9 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
          id: NodeIOCoordinate,
          upstreamOutputCoordinate: NodeIOCoordinate?)
     
+    // OUTPUT ONLY
     @MainActor
-    func didValuesUpdate()
+    func kickOffPulseReversalSideEffects()
 }
 
 extension NodeRowObserver {
@@ -194,7 +195,18 @@ extension NodeRowObserver {
     @MainActor
     func initializeDelegate(_ node: NodeDelegate) {
         self.nodeDelegate = node
-        self.postProcessing(oldValues: [], newValues: values)
+        
+        if Self.nodeIOType == .input {
+            self.inputPostProcessing(oldValues: [], newValues: self.values)
+        }
+        
+        
+        
+        // Input AND output
+        // Update visual color data
+        self.allRowViewModels.forEach {
+            $0.updatePortColor()
+        }
     }
     
     @MainActor

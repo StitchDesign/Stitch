@@ -30,6 +30,7 @@ extension StitchStore {
     func saveUndoHistory<EncoderDelegate>(from encoderDelegate: EncoderDelegate,
                                           oldSchema: EncoderDelegate.CodableDocument,
                                           newSchema: EncoderDelegate.CodableDocument,
+                                          rootUrl: URL,
                                           undoEvents: Actions? = nil,
                                           redoEvents: Actions? = nil) where EncoderDelegate: DocumentEncodableDelegate {
         let undoCallback = { @Sendable @MainActor in
@@ -55,6 +56,7 @@ extension StitchStore {
         return self.saveUndoHistory(from: encoderDelegate,
                                     oldSchema: oldSchema,
                                     newSchema: newSchema,
+                                    rootUrl: rootUrl,
                                     undoEffectsData: .init(undoCallback: undoCallback,
                                                            redoCallback: redoCallback))
     }
@@ -62,28 +64,39 @@ extension StitchStore {
     func saveUndoHistory<EncoderDelegate>(from encoderDelegate: EncoderDelegate,
                                           oldSchema: EncoderDelegate.CodableDocument,
                                           newSchema: EncoderDelegate.CodableDocument,
+                                          rootUrl: URL,
                                           undoEffectsData: UndoEffectsData? = nil) where EncoderDelegate: DocumentEncodableDelegate {
         
         // Update undo
         self.undoManager.undoManager.registerUndo(withTarget: encoderDelegate) { [weak self] delegate in
-            Task(priority: .high) { @MainActor @Sendable [weak self, weak delegate] in
+            DispatchQueue.main.async { @Sendable [weak self, weak delegate] in
                 guard let delegate = delegate else { return }
                 
-                await delegate.updateAsync(from: oldSchema)
+                delegate.update(from: oldSchema,
+                                rootUrl: rootUrl)
                 
                 // Don't update undo history from this action
                 self?.encodeCurrentProject(willUpdateUndoHistory: false)
     
                 undoEffectsData?.undoCallback?()
     
-                // Hides adjustment bar, fixing issue where data becomes out of sync
-                self?.currentDocument?.graphUI.adjustmentBarSessionId = .init()
+                if let document = self?.currentDocument {
+                    // Hides adjustment bar, fixing issue where data becomes out of sync
+                    document.graphUI.adjustmentBarSessionId = .init()
+                    
+                    // Refresh nodes cache--fixes bugs caused by undo
+                    document.visibleGraph.getCanvasItemsAtTraversalLevel(groupNodeFocused: document.groupNodeFocused?.groupNodeId)
+                        .forEach { canvasNode in
+                            canvasNode.viewCache?.needsUpdating = true
+                        }
+                }
             }
             
             
             self?.saveUndoHistory(from: delegate,
                                   oldSchema: newSchema,
                                   newSchema: oldSchema,
+                                  rootUrl: rootUrl,
                                   undoEffectsData: undoEffectsData?.createRedoEffects())
         }
     }

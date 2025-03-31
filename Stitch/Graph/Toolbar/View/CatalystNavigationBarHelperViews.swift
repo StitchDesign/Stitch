@@ -270,6 +270,9 @@ struct GoUpOneTraversalLevel: StitchDocumentEvent {
 
         // Zoom-out animate to parent
         state.groupTraversedToChild = false
+        
+        // Updates graph data
+        state.refreshGraphUpdaterId()
     }
 }
 

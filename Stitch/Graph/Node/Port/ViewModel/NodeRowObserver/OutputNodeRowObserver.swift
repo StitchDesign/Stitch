@@ -51,9 +51,9 @@ final class OutputNodeRowObserver: NodeRowObserver {
         self.hasLoopedValues = values.hasLoop
     }
     
-    // TODO: this method should take `GraphTime` as a parameter; make it clear what is expected or not
+    // fka `didValuesUpdate`; but only actually used for pulse reversion
     @MainActor
-    func didValuesUpdate() {
+    func kickOffPulseReversalSideEffects() {
         
         guard let graph = self.nodeDelegate?.graphDelegate else {
             fatalErrorIfDebug()
@@ -61,8 +61,7 @@ final class OutputNodeRowObserver: NodeRowObserver {
         }
         
         let graphTime = graph.graphStepState.graphTime
-        
-        // Output has pulsed if an index in its loop has pulsed
+
         let someIndexPulsed = self.allLoopedValues
             .first { $0.getPulse?.shouldPulse(graphTime) ?? false }
             .isDefined
@@ -111,7 +110,7 @@ extension OutputNodeRowObserver {
             outputs.append(patchOutput)
             
             // Find row view models for group if applicable
-            if patchNode.splitterNode?.entity.type == .output {
+            if patchNode.splitterNode?.type == .output {
                 // Group id is the only other row view model's canvas's parent ID
                 if let groupNodeId = outputs.first?.canvasItemDelegate?.parentGroupNodeId,
                    let groupNode = self.nodeDelegate?.graphDelegate?.getNodeViewModel(groupNodeId)?.nodeType.groupNode {

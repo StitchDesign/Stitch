@@ -84,6 +84,9 @@ extension GraphState {
 
         // reset any active selections
         self.resetAlertAndSelectionState(document: document)
+        
+        // Updates graph data
+        document.refreshGraphUpdaterId()
     }
 }
 
