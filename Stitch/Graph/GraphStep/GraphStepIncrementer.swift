@@ -14,14 +14,17 @@ extension StitchDocumentViewModel: GraphStepManagerDelegate {
     func graphStepIncremented(elapsedProjectTime: TimeInterval,
                               frameCount: Int,
                               currentEstimatedFPS: StitchFPS) {
-        // log("graphStepIncremented called")
         
         self.graphStepManager.lastGraphTime = elapsedProjectTime
         self.graphStepManager.lastGraphAnimationTime = elapsedProjectTime
         self.graphStepManager.estimatedFPS = currentEstimatedFPS
         
-        self.graph.calculateOnGraphStep()
+        // Very important: reverse pulse coercions from last graph step
+        self.graph.reversePulseCoercionsFromPreviousGraphStep()
         
+        // Evaluate the graph
+        self.graph.calculateOnGraphStep()
+                
         // Update fields every 30 frames
         if !self.visibleGraph.portsToUpdate.isEmpty &&
             frameCount % Self.fieldsFrequency(from: self.graphMovement.zoomData) == 0 {
@@ -42,6 +45,47 @@ extension StitchDocumentViewModel: GraphStepManagerDelegate {
         return 4
     }
 }
+
+extension GraphState {
+    
+    /*
+     Reverse the previous graph step's pulsed outputs before evaluating the graph on this graph step.
+     
+     TODO: maybe inaccurate for cases where specific loop-indices pulse at different times?
+     e.g. LoopBuilder with inputs from RepeatingPulse nodes at different frequencies.
+     
+     TODO: inaccurate for cycles, since graph eval of a cycle is split across 2 different graph steps and so some nodes in the cycle may not receive the pulse if we wipe the pulse after only 1 graph step.
+     See https://github.com/StitchDesign/Stitch--Old/issues/7047
+     */
+    @MainActor
+    func reversePulseCoercionsFromPreviousGraphStep() {
+        self.pulsedOutputs.forEach { (pulsedOutput: NodeIOCoordinate) in
+            // Cannot recalculate full node in some examples (like delay node)
+            // so we just update downstream nodes
+            if let node = self.getNode(pulsedOutput.nodeId),
+               let currentOutputs = node
+                .getOutputRowObserver(for: pulsedOutput.portType)?
+                .allLoopedValues {
+                
+                // Reverse the values in the downstream inputs
+                let changedDownstreamInputIds = self
+                    .updateDownstreamInputs(sourceNode: node,
+                                            upstreamOutputValues: currentOutputs,
+                                            mediaList: nil,
+                                            // True, since we reversed the pulse effect?
+                                            upstreamOutputChanged: true,
+                                            outputCoordinate: pulsedOutput)
+                
+                let changedDownstreamNodeIds = Set(changedDownstreamInputIds.map(\.nodeId)).toSet
+                self.scheduleForNextGraphStep(changedDownstreamNodeIds)
+            } // if let
+        }
+        
+        // Finally, wipe pulsed-outputs
+        self.pulsedOutputs = .init()
+    }
+}
+
 
 // DEBUG HELPERS
 extension NodeViewModel {
@@ -72,6 +116,7 @@ extension Array where Element: NodeRowViewModel {
 extension GraphState {
     @MainActor func calculateOnGraphStep() {
         var nodesToRunOnGraphStep = self.nodesToRunOnGraphStep
+        // log("calculateOnGraphStep: nodesToRunOnGraphStep: \(nodesToRunOnGraphStep)")
         
         let graphTime = self.graphStepManager.graphTime
         let components = self.nodes.values

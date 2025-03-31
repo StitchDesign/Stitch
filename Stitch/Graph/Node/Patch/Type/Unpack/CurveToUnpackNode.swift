@@ -43,9 +43,7 @@ func curveToUnpackEval(inputs: PortValuesList,
                 .position(shapeCommand.getCurveTo?.asCGPoint ?? .zero)
             )
         } else {
-            #if DEV || DEV_DEBUG
-            fatalError()
-            #endif
+            fatalErrorIfDebug()
             let shapeCommand: ShapeCommand = .defaultFalseShapeCommand
             return (
                 .position(shapeCommand.getPoint?.asCGPoint ?? .zero),

@@ -45,16 +45,21 @@ func clipNode(id: NodeId,
 @MainActor
 func clipEval(inputs: PortValuesList,
               outputs: PortValuesList) -> PortValuesList {
-
+    
     let op: Operation = { (values: PortValues) -> PortValue in
-        let value = values.first!.getNumber!
-        let min = values[1].getNumber!
-        let max = values[2].getNumber!
-        return .number(getNumberBetween(value: value, min: min, max: max))
+        if let value = values.first?.getNumber,
+           let min = values[1].getNumber,
+           let max = values[2].getNumber {
+            return .number(getNumberBetween(value: value, min: min, max: max))
+        } else {
+            fatalErrorIfDebug()
+            return .number(.zero)
+        }
     }
 
     return resultsMaker(inputs)(op)
 }
+
 
 func getNumberBetween(value: Double,
                       min: Double,

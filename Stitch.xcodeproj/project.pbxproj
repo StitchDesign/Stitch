@@ -110,7 +110,6 @@
 		B54D0BB12957A9B300F3B2F9 /* LoadingStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = B54D0BB02957A9B300F3B2F9 /* LoadingStatus.swift */; };
 		B550C22F28D0404300F40B80 /* MiddlewareService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B550C22E28D0404300F40B80 /* MiddlewareService.swift */; };
 		B55185722826FE4100D81717 /* StitchFileTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55185712826FE4100D81717 /* StitchFileTests.swift */; };
-		B55500A42C1A76050081C3F1 /* PulseReversionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500A32C1A76050081C3F1 /* PulseReversionUtils.swift */; };
 		B55500A82C1A7A5E0081C3F1 /* NodeViewModelUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500A72C1A7A5E0081C3F1 /* NodeViewModelUtils.swift */; };
 		B55500AF2C1B778F0081C3F1 /* NodeIOCoordinateUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500AE2C1B778F0081C3F1 /* NodeIOCoordinateUtils.swift */; };
 		B55500B42C1B986C0081C3F1 /* FieldGroupType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500B32C1B986C0081C3F1 /* FieldGroupType.swift */; };
@@ -760,6 +759,7 @@
 		ECB5361F26DD7A9600C3BE97 /* StitchFolderUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB5361E26DD7A9600C3BE97 /* StitchFolderUtil.swift */; };
 		ECB54D70288638A200EB75D0 /* RepeatingAnimationNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB54D6F288638A200EB75D0 /* RepeatingAnimationNode.swift */; };
 		ECB5A8162657230600D46D3E /* SampleHoldNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB5A8152657230600D46D3E /* SampleHoldNode.swift */; };
+		ECB661602D9B175900E3C90C /* NodeRowObserverPostProcessing.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB6615F2D9B175900E3C90C /* NodeRowObserverPostProcessing.swift */; };
 		ECB6EE9F29314D51003D60C7 /* PatchNodeType.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB6EE9E29314D51003D60C7 /* PatchNodeType.swift */; };
 		ECB6EEA129317E50003D60C7 /* UserVisibleTypeSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB6EEA029317E50003D60C7 /* UserVisibleTypeSet.swift */; };
 		ECB7B5D12A72DD7600E2D30B /* NodeViewModelType.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB7B5D02A72DD7600E2D30B /* NodeViewModelType.swift */; };
@@ -1094,7 +1094,6 @@
 		B54D0BB02957A9B300F3B2F9 /* LoadingStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingStatus.swift; sourceTree = "<group>"; };
 		B550C22E28D0404300F40B80 /* MiddlewareService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiddlewareService.swift; sourceTree = "<group>"; };
 		B55185712826FE4100D81717 /* StitchFileTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchFileTests.swift; sourceTree = "<group>"; };
-		B55500A32C1A76050081C3F1 /* PulseReversionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PulseReversionUtils.swift; sourceTree = "<group>"; };
 		B55500A72C1A7A5E0081C3F1 /* NodeViewModelUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeViewModelUtils.swift; sourceTree = "<group>"; };
 		B55500AE2C1B778F0081C3F1 /* NodeIOCoordinateUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeIOCoordinateUtils.swift; sourceTree = "<group>"; };
 		B55500B32C1B986C0081C3F1 /* FieldGroupType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldGroupType.swift; sourceTree = "<group>"; };
@@ -1726,6 +1725,7 @@
 		ECB5361E26DD7A9600C3BE97 /* StitchFolderUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchFolderUtil.swift; sourceTree = "<group>"; };
 		ECB54D6F288638A200EB75D0 /* RepeatingAnimationNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepeatingAnimationNode.swift; sourceTree = "<group>"; };
 		ECB5A8152657230600D46D3E /* SampleHoldNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleHoldNode.swift; sourceTree = "<group>"; };
+		ECB6615F2D9B175900E3C90C /* NodeRowObserverPostProcessing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeRowObserverPostProcessing.swift; sourceTree = "<group>"; };
 		ECB6EE9E29314D51003D60C7 /* PatchNodeType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PatchNodeType.swift; sourceTree = "<group>"; };
 		ECB6EEA029317E50003D60C7 /* UserVisibleTypeSet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserVisibleTypeSet.swift; sourceTree = "<group>"; };
 		ECB7B5D02A72DD7600E2D30B /* NodeViewModelType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeViewModelType.swift; sourceTree = "<group>"; };
@@ -2197,14 +2197,6 @@
 			path = File;
 			sourceTree = "<group>";
 		};
-		B55500A22C1A75F00081C3F1 /* Pulse */ = {
-			isa = PBXGroup;
-			children = (
-				B55500A32C1A76050081C3F1 /* PulseReversionUtils.swift */,
-			);
-			path = Pulse;
-			sourceTree = "<group>";
-		};
 		B55500A52C1A78970081C3F1 /* Util */ = {
 			isa = PBXGroup;
 			children = (
@@ -2252,7 +2244,6 @@
 			children = (
 				B56FFB5F2C19667A00623CC7 /* Media */,
 				B56FFB342C18F05800623CC7 /* Animation */,
-				B55500A22C1A75F00081C3F1 /* Pulse */,
 				B59660992C1A4ABA00BE75D7 /* Colors */,
 				EC165ED629C8B73F0024ECDF /* Shapes */,
 				B56FFB332C18DCF000623CC7 /* JSON */,
@@ -4105,6 +4096,7 @@
 			children = (
 				B523698B29F9E5E800240395 /* NodeRowObserver.swift */,
 				EC8C1AA72D7798E70058D969 /* OutputNodeRowObserver.swift */,
+				ECB6615F2D9B175900E3C90C /* NodeRowObserverPostProcessing.swift */,
 				EC8C1AA52D7798B70058D969 /* InputNodeRowObserver.swift */,
 				EC3A6C482C20C2A400CCBACC /* NodeRowObserverExtensions.swift */,
 				EC3A6C4A2C20C4FD00CCBACC /* NodeRowObserverCachedViewDataExtensions.swift */,
@@ -5000,6 +4992,7 @@
 				B55500BB2C1B99810081C3F1 /* FieldViewModelType.swift in Sources */,
 				205E6DDA25AFCB16001C5C27 /* NodeTesting.swift in Sources */,
 				ECC2BCD32B9B734F00D5F942 /* SidebarItemGestureViewModel.swift in Sources */,
+				ECB661602D9B175900E3C90C /* NodeRowObserverPostProcessing.swift in Sources */,
 				E4085DC629BF899C0057AAAF /* ConvertPositionNode.swift in Sources */,
 				B5EC61F92A5E2174002A639F /* NodeViewType.swift in Sources */,
 				B548533729371E3900C43828 /* RealityView.swift in Sources */,
@@ -5523,7 +5516,6 @@
 				ECA92A00260A694C00281B52 /* PressInteractionPatchNode.swift in Sources */,
 				ECF0B0EE28775FEA001D7CFC /* PulseNode.swift in Sources */,
 				ECA4D99927BED73C005CF4BC /* AdjustmentNumber.swift in Sources */,
-				B55500A42C1A76050081C3F1 /* PulseReversionUtils.swift in Sources */,
 				EC4379F32BA4FAF60077493E /* PortValueEnum.swift in Sources */,
 				B5EFD5B62D5E63F3006A68FB /* StitchAINodeDescriptions.swift in Sources */,
 				EC4F0F98280B657100AF4884 /* FontConstants.swift in Sources */,
@@ -6627,14 +6619,6 @@
 				version = 0.4.0;
 			};
 		};
-		B501920A2C6D144D00A048ED /* XCRemoteSwiftPackageReference "StitchEngine" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/StitchDesign/StitchEngine.git";
-			requirement = {
-				kind = revision;
-				revision = 922d3e6ad379c0025205984fc7f5a013bfba61a1;
-			};
-		};
 		B50F41662C1EB4320082262F /* XCRemoteSwiftPackageReference "StitchViewKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/StitchDesign/StitchViewKit.git";
@@ -6762,7 +6746,6 @@
 		};
 		B501920B2C6D144D00A048ED /* StitchEngine */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = B501920A2C6D144D00A048ED /* XCRemoteSwiftPackageReference "StitchEngine" */;
 			productName = StitchEngine;
 		};
 		B50BC9E32D77881900311551 /* StitchEngine */ = {

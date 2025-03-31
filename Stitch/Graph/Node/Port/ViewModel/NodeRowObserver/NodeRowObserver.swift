@@ -53,9 +53,7 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
     
     @MainActor
     var hasLoopedValues: Bool { get set }
-    
-//    @MainActor var importedMediaObject: StitchMediaObject? { get }
-    
+        
     @MainActor
     var hasEdge: Bool { get }
     
@@ -63,10 +61,6 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
     init(values: PortValues,
          id: NodeIOCoordinate,
          upstreamOutputCoordinate: NodeIOCoordinate?)
-    
-    // OUTPUT ONLY
-    @MainActor
-    func kickOffPulseReversalSideEffects()
 }
 
 extension NodeRowObserver {
@@ -196,13 +190,13 @@ extension NodeRowObserver {
     func initializeDelegate(_ node: NodeDelegate) {
         self.nodeDelegate = node
         
-        if Self.nodeIOType == .input {
+        switch Self.nodeIOType {
+        case .input:
             self.inputPostProcessing(oldValues: [], newValues: self.values)
+        case .output:
+            self.outputPostProcessing()
         }
-        
-        
-        
-        // Input AND output
+    
         // Update visual color data
         self.allRowViewModels.forEach {
             $0.updatePortColor()
