@@ -82,7 +82,7 @@ struct FullScreenPreviewViewWrapper: View {
         .alert(actionSheetHeaderString,
                isPresented: showActionSheetBinding) {
             StitchDocumentShareButton(willPresentShareSheet: showActionSheetBinding,
-                                      document: document.createSchema())
+                                      document: document.lastEncodedDocument)
             StitchButton(changeScaleString, action: showProjectSettingsAction)
             StitchButton(appResetString, action: appResetAction)
             StitchButton(Stitch.isPhoneDevice ? iPhoneExitString : exitString, action: closeGraphBtnAction)
