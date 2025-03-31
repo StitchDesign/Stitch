@@ -189,8 +189,10 @@ struct CatalystTopBarGraphButtons: View {
             }
             
             // TODO: should be a toast only shows up when no nodes are on-screen?
-            CatalystNavBarButton(.FIND_NODE_ON_GRAPH) {
-                graph.findSomeCanvasItemOnGraph(document: document)
+            CatalystNavBarButton(.FIND_NODE_ON_GRAPH) { [weak graph, weak document] in
+                if let document = document {
+                    graph?.findSomeCanvasItemOnGraph(document: document)
+                }
             }
 
             // TODO: implement
@@ -292,7 +294,7 @@ struct CatalystNavBarButton: View, Identifiable {
             // 'Empty menu' so that nothing happens when we tap the Menu's label
             EmptyView()
         } label: {
-            Button(action: {}) {
+            Button(action: action) {
                 // TODO: any .resizable(), .fixedSize() etc. needed?
                 image
             }
@@ -306,7 +308,7 @@ struct CatalystNavBarButton: View, Identifiable {
 
         // SwiftUI Menu's `primaryAction` enables label taps but also changes the button's appearance, losing the hover-highlight effect etc.;
         // so we use UIKitOnTapModifier for proper callback.
-        .modifier(UIKitOnTapModifier(onTapCallback: action))
+//        .modifier(UIKitOnTapModifier(onTapCallback: action))
 
         // TODO: find ideal button size?
         // Note: *must* provide explicit frame
