@@ -116,7 +116,7 @@ extension Array where Element: NodeRowViewModel {
 extension GraphState {
     @MainActor func calculateOnGraphStep() {
         var nodesToRunOnGraphStep = self.nodesToRunOnGraphStep
-        log("calculateOnGraphStep: nodesToRunOnGraphStep: \(nodesToRunOnGraphStep)")
+        // log("calculateOnGraphStep: nodesToRunOnGraphStep: \(nodesToRunOnGraphStep)")
         
         let graphTime = self.graphStepManager.graphTime
         let components = self.nodes.values
