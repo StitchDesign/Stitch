@@ -161,7 +161,11 @@ struct iPadGraphTopBarMiscMenu: View {
 //                             iconName: .sfSymbol(.ADD_NODE_SF_SYMBOL_NAME),
 //                             label: "Insert Node")
             
-            iPadTopBarButton(action: { graph.findSomeCanvasItemOnGraph(document: document) },
+            iPadTopBarButton(action: { [weak graph, weak document] in
+                if let document = document {
+                    graph?.findSomeCanvasItemOnGraph(document: document)
+                }
+            },
                              iconName: .sfSymbol(.FIND_NODE_ON_GRAPH),
                              label: "Find Node")
             

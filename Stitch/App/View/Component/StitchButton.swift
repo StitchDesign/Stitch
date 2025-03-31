@@ -118,7 +118,7 @@ struct UIKitTappableWrapper<T: View>: UIViewControllerRepresentable {
     }
 }
 
-class UIKitTappableWrapperDelegate: NSObject, UIGestureRecognizerDelegate {
+final class UIKitTappableWrapperDelegate: NSObject, UIGestureRecognizerDelegate {
     var tapCallback: () -> Void
 
     init(tapCallback: @escaping () -> Void) {
