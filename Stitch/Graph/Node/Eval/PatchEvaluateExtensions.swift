@@ -15,11 +15,8 @@ extension Patch {
         switch self {
         case
             // wireless nodes are just splitter nodes with covered up edges and invisible edges
-            .wirelessReceiver, .wirelessBroadcaster:
-            return .node(outputsOnlyEval(identityEvaluation))
-        case .splitter:
-            // .impure(.impure because of pulse nodeType)
-            return .graphStep(splitterEval)
+                .wirelessReceiver, .wirelessBroadcaster, .splitter:
+            return .node(mediaAwareIdentityEvaluation)
         case .imageImport:
             return .node(imageImportEval)
         case .add:
@@ -318,7 +315,7 @@ extension Patch {
         case .transformUnpack:
             return .node(outputsOnlyEval(transformUnpackEval))
         case .closePath:
-            return .node(outputsOnlyEval(identityEvaluation))
+            return .node(mediaAwareIdentityEvaluation)
         case .moveToPack:
             return .node(outputsOnlyEval(moveToPackEval))
         case .lineToPack:

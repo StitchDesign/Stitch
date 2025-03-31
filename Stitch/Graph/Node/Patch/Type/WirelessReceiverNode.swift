@@ -9,26 +9,29 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-@MainActor
-func wirelessReceiverNode(id: NodeId,
-                          n: Double = 0,
-                          position: CGSize = .zero,
-                          zIndex: Double = 0.0) -> PatchNode {
+struct WirelessReceiverPatchNode: PatchNodeDefinition {
+    static let patch = Patch.wirelessReceiver
 
-    let inputs = toInputs(
-        id: id,
-        values: (nil, [.number(n)]))
+    static let defaultUserVisibleType: UserVisibleType? = .number
 
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values: (nil, [.number(n)]))
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.number(0)],
+                    label: ""
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: type ?? .number
+                )
+            ]
+        )
+    }
 
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .wirelessReceiver,
-        inputs: inputs,
-        outputs: outputs)
+    static func createEphemeralObserver() -> NodeEphemeralObservable? {
+        MediaEvalOpObserver()
+    }
 }
