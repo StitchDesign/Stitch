@@ -59,7 +59,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/StitchDesign/StitchEngine.git",
       "state" : {
-        "revision" : "8af9e12856d5e228c4b1ec6cbbbfdcc86984bdcf"
+        "revision" : "cafae6d51beada94ec88eab6afa6efde589f0597"
       }
     },
     {
