@@ -283,32 +283,20 @@ struct GoUpOneTraversalLevel: StitchDocumentEvent {
 struct CatalystNavBarButton: View, Identifiable {
 
     // let systemName: String  for `Image(systemName:)`
-    var image: Image
+    let image: Image
     let action: () -> Void
     var rotationZ: CGFloat = 0 // some icons stay the same but just get rotated
 
     var id: String
 
     var body: some View {
-        Menu {
-            // 'Empty menu' so that nothing happens when we tap the Menu's label
-            EmptyView()
-        } label: {
-            Button(action: action) {
-                // TODO: any .resizable(), .fixedSize() etc. needed?
-                image
-            }
+        Button(action: action) {
+            image
         }
+        .buttonStyle(.borderless)
         // rotation3DEffect must be applied here
         .rotation3DEffect(Angle(degrees: rotationZ),
                           axis: (x: 0, y: 0, z: rotationZ))
-
-        // Hides the little arrow on Catalyst
-        .menuIndicator(.hidden)
-
-        // SwiftUI Menu's `primaryAction` enables label taps but also changes the button's appearance, losing the hover-highlight effect etc.;
-        // so we use UIKitOnTapModifier for proper callback.
-//        .modifier(UIKitOnTapModifier(onTapCallback: action))
 
         // TODO: find ideal button size?
         // Note: *must* provide explicit frame
