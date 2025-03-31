@@ -166,8 +166,7 @@ extension Patch {
         case .smoothValue:
             return .graphStep(smoothValueEval)
         case .clip:
-//            return .node(outputsOnlyEval(clipEval))
-            return .graph(clipEval)
+            return .node(outputsOnlyEval(clipEval))
         case .max:
             return .node(arithmeticNodeTypeEval(maxEval))
         case .mod:

@@ -42,17 +42,9 @@ func clipNode(id: NodeId,
         outputs: outputs)
 }
 
-//@MainActor
-//func clipEval(inputs: PortValuesList,
-//              outputs: PortValuesList) -> PortValuesList {
 @MainActor
-func clipEval(node: PatchNode,
-              graph: GraphState) -> EvalResult {
-
-    
-    let graphTime = graph.graphStepState.graphTime
-//    log("clipEval: graphTime: \(graphTime)")
-    let inputs: PortValuesList = node.inputs
+func clipEval(inputs: PortValuesList,
+              outputs: PortValuesList) -> PortValuesList {
     
     let op: Operation = { (values: PortValues) -> PortValue in
         if let value = values.first?.getNumber,
@@ -67,7 +59,7 @@ func clipEval(node: PatchNode,
         }
     }
 
-    return .init(outputsValues: resultsMaker(inputs)(op))
+    return resultsMaker(inputs)(op)
 }
 
 
