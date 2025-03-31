@@ -49,7 +49,7 @@ extension StitchDocumentViewModel: GraphStepManagerDelegate {
 extension GraphState {
     
     /*
-     Reverse the previous graph step's pulsed outputs before evaliuting the graph on this graph step.
+     Reverse the previous graph step's pulsed outputs before evaluating the graph on this graph step.
      
      TODO: maybe inaccurate for cases where specific loop-indices pulse at different times?
      e.g. LoopBuilder with inputs from RepeatingPulse nodes at different frequencies.
