@@ -10,10 +10,6 @@ import StitchSchemaKit
 import SwiftUI
 import SwiftyJSON
 
-//        let min = 188.0 // not enough
-//        let min = 192.0 // too much ?
-let SPLITTER_NODE_MINIMUM_WIDTH: CGFloat = 190
-
 // Starts out as a number?
 struct SplitterPatchNode: PatchNodeDefinition {
     static let patch = Patch.splitter
@@ -43,14 +39,12 @@ struct SplitterPatchNode: PatchNodeDefinition {
 }
 
 @MainActor
-func splitterEval(node: PatchNode,
-                  graphStep: GraphStepState) -> EvalResult {
+func mediaAwareIdentityEvaluation(node: PatchNode) -> EvalResult {
 
     // a Splitter patch must have a node-type
     assertInDebug(node.userVisibleType.isDefined)
 
-    if node.userVisibleType == .pulse || node.userVisibleType == .media {
-        
+    if node.userVisibleType == .media {
         // TODO: debug why this broke the Monthly Stays demo: https://github.com/StitchDesign/Stitch--Old/issues/7049
         return node.loopedEval { (values, loopIndex) -> MediaEvalOpResult in
             // splitter must have node-type
@@ -60,14 +54,6 @@ func splitterEval(node: PatchNode,
             }
             
             let value: PortValue = values[0]
-            
-            let pulsed = (value.getPulse ?? .zero).shouldPulse(graphStep.graphTime)
-            if nodeType == .pulse {
-                if pulsed {
-                    return MediaEvalOpResult(values: [.pulse(graphStep.graphTime)])
-                }
-            }
-            
             if nodeType == .media,
                let media = node.getInputMedia(portIndex: 0,
                                               loopIndex: loopIndex,

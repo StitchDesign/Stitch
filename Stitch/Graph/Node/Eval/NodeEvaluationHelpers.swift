@@ -9,17 +9,6 @@ import Foundation
 import StitchSchemaKit
 import SwiftUI
 
-/* ----------------------------------------------------------------
- Evaluate: (Inputs, Outputs) -> Outputs
- - only for patches (layers do not have outputs)
- - usually one evaluate fn per (patch, nodeType) combo
- ---------------------------------------------------------------- */
-
-func identityEvaluation(inputs: PortValuesList,
-                        outputs: PortValuesList) -> PortValuesList {
-    inputs
-}
-
 // an evalution that only produces new outputs
 typealias OutputsOnlyPureEval = (PortValuesList, PortValuesList) -> PortValuesList
 
@@ -89,13 +78,4 @@ func outputsOnlyEval(_ eval: @escaping OutputsOnlyArithmeticPureEval,
 func singeOutputEvalResult(_ op: Operation,
                            _ inputs: PortValuesList) -> PortValuesList {
     resultsMaker(inputs)(op)
-}
-
-@MainActor
-func singeOutputEvalResult(_ op: Operation,
-                           input: PortValues,
-                           extensibleInputs: PortValuesList) -> PortValuesList {
-    [outputEvalHelper(input: input,
-                      extensibleInputs: extensibleInputs,
-                      operation: op)]
 }

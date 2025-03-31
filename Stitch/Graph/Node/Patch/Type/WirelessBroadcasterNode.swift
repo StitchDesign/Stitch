@@ -9,30 +9,33 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-@MainActor
-func wirelessBroadcasterNode(id: NodeId,
-                             n: Double = 0,
-                             position: CGSize = .zero,
-                             zIndex: Double = 0.0) -> PatchNode {
+struct WirelessBroadcasterPatchNode: PatchNodeDefinition {
+    static let patch = Patch.wirelessBroadcaster
 
-    let inputs = toInputs(
-        id: id,
-        values: (nil, [.number(n)]))
+    static let defaultUserVisibleType: UserVisibleType? = .number
 
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values: (nil, [.number(n)]))
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.number(0)],
+                    label: ""
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: type ?? .number
+                )
+            ]
+        )
+    }
 
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .wirelessBroadcaster,
-        userVisibleType: .number,
-        inputs: inputs,
-        outputs: outputs)
+    static func createEphemeralObserver() -> NodeEphemeralObservable? {
+        MediaEvalOpObserver()
+    }
 }
+
 
 extension GraphState {
     /// Returns id set of changed nodes.

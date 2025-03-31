@@ -182,9 +182,9 @@ extension Patch {
         case .reverseProgress:
             return nil
         case .wirelessBroadcaster:
-            return nil
+            return WirelessBroadcasterPatchNode.self
         case .wirelessReceiver:
-            return nil
+            return WirelessReceiverPatchNode.self
         case .rgba:
             return nil
         case .arcTan2:
