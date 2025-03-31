@@ -47,15 +47,15 @@ struct StitchProjectView: View {
             //                            })
             #endif
 
-            .modifier(ProjectToolbarViewModifier(document: document,
-                                                 graph: graphState,
-                                                 // In reality this won't be nil
-                                                 projectName: graphState.name,
-                                                 projectId: graphState.projectId,
-                                                 isFullScreen: $isFullScreen))
+//            .modifier(ProjectToolbarViewModifier(document: document,
+//                                                 graph: graphState,
+//                                                 // In reality this won't be nil
+//                                                 projectName: graphState.name,
+//                                                 projectId: graphState.projectId,
+//                                                 isFullScreen: $isFullScreen))
             .onDisappear {
                 // Create new thumbnail image
-                store.createThumbnail(from: document)
+//                store.createThumbnail(from: document)
                 
                 // TODO: listen to presses of the NavigationStack's back button instead?
                 dispatch(CloseGraph())

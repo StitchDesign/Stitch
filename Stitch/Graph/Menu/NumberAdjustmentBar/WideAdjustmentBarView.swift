@@ -164,17 +164,17 @@ struct WideAdjustmentBarView: View {
                         key: ViewOffsetKey.self,
                         value: -$0.frame(in: .named("scroll")).origin.y)
                 })
-                .onPreferenceChange(ViewOffsetKey.self) { newScrollOffset in
-                    // print("offset >> \(newScrollOffset)")
-                    
-                    Task { @MainActor in
-                        if newScrollOffset != 0,
-                           !isScrollingFromTap {
-                            // print("we've scrolled...")
-                            hasBeenScrolled = true
-                        }
-                    }
-                }
+//                .onPreferenceChange(ViewOffsetKey.self) { newScrollOffset in
+//                    // print("offset >> \(newScrollOffset)")
+//                    
+//                    Task { @MainActor in
+//                        if newScrollOffset != 0,
+//                           !isScrollingFromTap {
+//                            // print("we've scrolled...")
+//                            hasBeenScrolled = true
+//                        }
+//                    }
+//                }
                 .onChange(of: self.stepSize) { _, _ in
                     self.numberLineMiddle = self.currentlySelectedNumber
                 }

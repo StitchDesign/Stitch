@@ -19,6 +19,8 @@ extension StitchDocumentViewModel: GraphStepManagerDelegate {
         self.graphStepManager.lastGraphAnimationTime = elapsedProjectTime
         self.graphStepManager.estimatedFPS = currentEstimatedFPS
         
+        log("graphStepIncremented: document id \(self.id), frameCount: \(frameCount)")
+        
         // Very important: reverse pulse coercions from last graph step
         self.graph.reversePulseCoercionsFromPreviousGraphStep()
         

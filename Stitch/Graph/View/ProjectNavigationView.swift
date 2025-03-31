@@ -8,7 +8,6 @@
 import SwiftUI
 import StitchSchemaKit
 
-/// UI for interacting with a single project; iPad-only.
 struct ProjectNavigationView: View {
     @Bindable var document: StitchDocumentViewModel
     let routerNamespace: Namespace.ID

@@ -156,8 +156,8 @@ extension String {
 // TODO: update iPad graph view as well
 struct CatalystTopBarGraphButtons: View {
 
-    let document: StitchDocumentViewModel
-    let graph: GraphState
+//    let document: StitchDocumentViewModel
+//    let graph: GraphState
     let hasActiveGroupFocused: Bool
     let isFullscreen: Bool // = false
     let isPreviewWindowShown: Bool // = true
@@ -188,12 +188,12 @@ struct CatalystTopBarGraphButtons: View {
                 dispatch(ToggleInsertNodeMenu())
             }
             
-            // TODO: should be a toast only shows up when no nodes are on-screen?
-            CatalystNavBarButton(.FIND_NODE_ON_GRAPH) { [weak graph, weak document] in
-                if let document = document {
-                    graph?.findSomeCanvasItemOnGraph(document: document)
-                }
-            }
+//            // TODO: should be a toast only shows up when no nodes are on-screen?
+//            CatalystNavBarButton(.FIND_NODE_ON_GRAPH) { [weak graph, weak document] in
+//                if let document = document {
+//                    graph?.findSomeCanvasItemOnGraph(document: document)
+//                }
+//            }
 
             // TODO: implement
             //            CatalystNavBarButton(.NEW_PROJECT_SF_SYMBOL_NAME) {
@@ -204,19 +204,19 @@ struct CatalystTopBarGraphButtons: View {
 //            CatalystNavBarButton(.TOGGLE_PREVIEW_WINDOW_SF_SYMBOL_NAME,
 //                                 rotationZ: isPreviewWindowShown ? 0 : 180) {
             
-            if !document.isDebugMode {
-                CatalystNavBarButton(isPreviewWindowShown ? .HIDE_PREVIEW_WINDOW_SF_SYMBOL_NAME : .SHOW_PREVIEW_WINDOW_SF_SYMBOL_NAME) {
-                    dispatch(TogglePreviewWindow())
-                }
-                
-                CatalystNavBarButton(.RESTART_PROTOTYPE_SF_SYMBOL_NAME) {
-                    dispatch(PrototypeRestartedAction())
-                }
-                
-                CatalystNavBarButton(isFullscreen ? .SHRINK_FROM_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME : .EXPAND_TO_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME) {
-                    dispatch(ToggleFullScreenEvent())
-                }
-            }
+//            if !document.isDebugMode {
+//                CatalystNavBarButton(isPreviewWindowShown ? .HIDE_PREVIEW_WINDOW_SF_SYMBOL_NAME : .SHOW_PREVIEW_WINDOW_SF_SYMBOL_NAME) {
+//                    dispatch(TogglePreviewWindow())
+//                }
+//                
+//                CatalystNavBarButton(.RESTART_PROTOTYPE_SF_SYMBOL_NAME) {
+//                    dispatch(PrototypeRestartedAction())
+//                }
+//                
+//                CatalystNavBarButton(isFullscreen ? .SHRINK_FROM_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME : .EXPAND_TO_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME) {
+//                    dispatch(ToggleFullScreenEvent())
+//                }
+//            }
             
 
             CatalystNavBarButton(.SETTINGS_SF_SYMBOL_NAME) {

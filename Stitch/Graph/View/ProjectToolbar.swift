@@ -96,9 +96,9 @@ struct ProjectToolbarViewModifier: ViewModifier {
 
                 #else
                 // on Mac, show project title name
-                ToolbarItem(placement: .navigationBarLeading) {
-                    CatalystNavBarProjectTitleDisplayView(graph: graph)
-                }
+//                ToolbarItem(placement: .navigationBarLeading) {
+//                    CatalystNavBarProjectTitleDisplayView(graph: graph)
+//                }
 
                 // Catalyst and iPad have same button layout,
                 // but use slightly different buttons:
@@ -115,20 +115,20 @@ struct ProjectToolbarViewModifier: ViewModifier {
                  */
 
                 // Hack view to get proper placement
-                ToolbarItem(placement: .secondaryAction) {
-                    Text("")
-                }
+//                ToolbarItem(placement: .secondaryAction) {
+//                    Text("")
+//                }
 
-                ToolbarItemGroup(placement: .primaryAction) {
-                    CatalystTopBarGraphButtons(
-                        document: document,
-                        graph: graph,
-                        hasActiveGroupFocused: document.groupNodeFocused.isDefined,
-                        isFullscreen: document.isFullScreenMode,
-                        isPreviewWindowShown: document.showPreviewWindow,
-                        llmRecordingModeEnabled: self.llmRecordingMode,
-                        llmRecordingModeActive: document.llmRecording.isRecording)
-                }
+//                ToolbarItemGroup(placement: .primaryAction) {
+//                    CatalystTopBarGraphButtons(
+////                        document: document,
+////                        graph: graph,
+//                        hasActiveGroupFocused: document.groupNodeFocused.isDefined,
+//                        isFullscreen: document.isFullScreenMode,
+//                        isPreviewWindowShown: document.showPreviewWindow,
+//                        llmRecordingModeEnabled: self.llmRecordingMode,
+//                        llmRecordingModeActive: document.llmRecording.isRecording)
+//                }
                 #endif
 
             }
