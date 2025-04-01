@@ -236,19 +236,23 @@ struct CatalystTopBarGraphButtons: View {
     }
 }
 
-struct LayerInspectorToggled: StitchDocumentEvent {
-    func handle(state: StitchDocumentViewModel) {
+struct LayerInspectorToggled: StitchStoreEvent {
+    func handle(store: StitchStore) -> ReframeResponse<NoState> {
         
         withAnimation {
-            state.showsLayerInspector.toggle()
+            store.showsLayerInspector.toggle()
         }
         
-        let graph = state.visibleGraph
+        guard let graph = store.currentDocument?.visibleGraph else {
+            return .noChange
+        }
         
         // reset selected inspector-row when inspector panel toggled
         graph.propertySidebar.selectedProperty = nil
         
         graph.closeFlyout()
+        
+        return .noChange
     }
 }
 

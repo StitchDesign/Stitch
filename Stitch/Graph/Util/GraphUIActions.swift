@@ -131,22 +131,26 @@ struct TogglePreviewWindow: StitchDocumentEvent {
     }
 }
 
-struct ToggleSidebars: StitchDocumentEvent {
-    func handle(state: StitchDocumentViewModel) {
+struct ToggleSidebars: StitchStoreEvent {
+    func handle(store: StitchStore) -> ReframeResponse<NoState> {
+        guard let state = store.currentDocument else { return .noChange }
+        
         // Opens both if both are already closed;
         // else closes both.
-        let inspectorOpen = state.showsLayerInspector
+        let inspectorOpen = store.showsLayerInspector
         let layerSidebarOpen = state.leftSidebarOpen
         
         withAnimation {
             if !inspectorOpen && !layerSidebarOpen {
-                state.showsLayerInspector = true
+                store.showsLayerInspector = true
                 state.leftSidebarOpen = true
             } else {
-                state.showsLayerInspector = false
+                store.showsLayerInspector = false
                 state.leftSidebarOpen = false
             }
         }
+        
+        return .noChange
     }
 }
 
