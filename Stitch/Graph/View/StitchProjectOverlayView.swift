@@ -30,6 +30,7 @@ struct StitchProjectOverlayView: View {
                 // Floating preview kept outside NavigationSplitView for animation purposes
                 if !showFullScreen {
                     FloatingWindowView(
+                        store: store,
                         document: document,
                         deviceScreenSize: document.frame.size,
                         showPreviewWindow: showPreviewWindow,
