@@ -12,58 +12,20 @@ import StitchEngine
 // MARK: non-derived data: values, assigned interactions, label, upstream/downstream connection
 
 extension NodeRowObserver {
-    
-    /*
-     Note: StitchEngine's `setValuesInInput` has already updated an InputRowObserver's `allLoopedValues` by the time `updateValues` is called, therefore `allLoopedValues` already reflects "new values", so we must rely on the explicitly passed-in `oldValues`
-     TODO: separate `updateValues` functions for InputNodeRowObserver vs OutputNodeRowObserver, since `oldValues` only relevant for input updates' post-processing?
-     
-     TODO: be careful where we currently use `updateValues` but need to use `setValuesInInput` instead (for field observer updates).
-     */
+        
+    // Called by both `updateValuesInInput` and `updateValuesInOutput`;
+    // handles logic common to both
     @MainActor
-    func updateValues(_ newValues: PortValues,
-                      oldValues: PortValues? = nil) {
+    func setValuesInRowObserver(_ newValues: PortValues) {
         
-        // SPECIFIC TO AN INPUT
-        
-        // Check if this port is for a packed layer input but the set mode is unpacked
-        // Valid scenarios here--we use input row observer getters for all-up value getting
-        if let layerId = self.id.keyPath,
-           layerId.portType == .packed,
-           let layerNode = self.nodeDelegate?.layerNodeViewModel {
-            let layerInputPort = layerNode[keyPath: layerId.layerInput.layerNodeKeyPath]
-            
-            if let unpackedObserver = layerInputPort.unpackedObserver {
-                // NOTE: NO MATTER WHAT STATE OF PACKED VS UNPACKED, OR UI SCENARIO (CANVAS VS INSPECTOR VS FLYOUT), I CAN'T GET A BREAKPOINT TO HIT INSIDE HERE?
-                log("NodeRowObserver.updateValues: will update unpacked values", .logToServer)
-                unpackedObserver.updateValues(from: newValues,
-                                              layerNode: layerNode)
-                
-                // Exit so we don't update this packed row observer unnecessarily
-                return
-            }
-        }
-        
-        // Save these for `postProcessing`
-        let oldValues = oldValues ?? self.allLoopedValues
-                
-        // Always update the non-view data in the NodeRowObserver
         self.allLoopedValues = newValues
-                
+        
         // Always update "hasLoop", since offscreen node may have an onscreen edge.
         let hasLoop = newValues.hasLoop
         if hasLoop != self.hasLoopedValues {
             self.hasLoopedValues = hasLoop
         }
-                
-        switch Self.nodeIOType {
-        case .input:
-            self.inputPostProcessing(oldValues: oldValues, newValues: newValues)
-        case .output:
-            self.outputPostProcessing()
-        }
         
-        // Input AND output
-        // Update visual color data
         self.allRowViewModels.forEach {
             $0.updatePortColor()
         }
@@ -77,7 +39,6 @@ extension NodeRowObserver {
     /// Updates port view models when the backend port observer has been updated.
     /// Also invoked when nodes enter the viewframe incase they need to be udpated.
     @MainActor
-//    func updatePortViewModels(_ graph: GraphState) {
     func updatePortViewModels(_ graph: any GraphCalculatable) {
         
         // TODO: this actually works? We don't have to extend the GraphCalculatable protocol to have `visibleCanvasIds`, `selectedSidebarLayers`, `isFullScreenMode` and `groupNodeFocused`? ... Swift is tracking the concrete type?

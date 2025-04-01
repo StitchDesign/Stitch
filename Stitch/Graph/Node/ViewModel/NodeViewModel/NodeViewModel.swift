@@ -265,12 +265,12 @@ extension NodeViewModel {
         let outputsObservers = self.getAllOutputsObservers()
         
         if let newValuesList = newValuesList {
-            self.updateRowObservers(rowObservers: outputsObservers,
-                                    newIOValues: newValuesList)
+            updateRowObservers(rowObservers: outputsObservers,
+                               newIOValues: newValuesList)
         }
 
         zip(outputsObservers, newValuesList ?? self.outputs).forEach { rowObserver, values in
-            rowObserver.updateValues(values)
+            rowObserver.updateValuesInOutput(values)
         }
     }
 
@@ -381,24 +381,6 @@ extension NodeViewModel {
                 let outputData = layerNode.outputPorts[safe: portId]
                 return outputData?.inspectorRowViewModel
             }
-        }
-    }
-
-    @MainActor
-    private func updateRowObservers<RowObserver>(rowObservers: [RowObserver],
-                                                 newIOValues: PortValuesList) where RowObserver: NodeRowObserver {
-        
-        newIOValues.enumerated().forEach { portId, newValues in
-            guard let observer = rowObservers[safe: portId] else {
-#if DEV_DEBUG
-                log("NodeViewModel.initializeThrottlers error: no observer found, this shouldn't happen.")
-                log("NodeViewModel.initializeThrottlers: error: node.id: \(self.id)")
-                log("NodeViewModel.initializeThrottlers: error: portId: \(portId)")
-#endif
-                return
-            }
-            
-            observer.updateValues(newValues)
         }
     }
     
@@ -620,7 +602,7 @@ extension NodeViewModel {
             return
         }
 
-        self.getAllOutputsObservers()[safe: portId]?.updateValues(values)
+        self.getAllOutputsObservers()[safe: portId]?.updateValuesInOutput(values)
     }
     
     // don't worry about making the input a loop or not --
