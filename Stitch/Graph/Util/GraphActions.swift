@@ -20,6 +20,8 @@ struct CloseGraph: StitchStoreEvent {
         
         store.alertState = ProjectAlertState()
 
+        store.showsLayerInspector = false
+        
         // reset any project title edit;
         // the project-write-effect will update metadata for any in-progress title edit
         store.projectIdForTitleEdit = nil
