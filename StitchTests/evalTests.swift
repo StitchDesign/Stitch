@@ -37,7 +37,7 @@ class EvalTests: XCTestCase {
         }
         
         zip(inputs, node.inputsObservers).forEach { values, inputObserver in
-            inputObserver.updateValues(values)
+            inputObserver.updateValuesInInput(values)
         }
         
         let result = LoopSelectNode.evaluate(node: node)

@@ -130,7 +130,7 @@ final class StitchComponentViewModel: Sendable {
         let splitterOutputs = Self.getOutputSplitters(graph: graph)
         let outputsObservers = splitterOutputs.enumerated().map { index, splitterOutput in
             if let existingOutput = existingOutputsObservers[safe: index] {
-                existingOutput.updateValues(splitterOutput.values)
+                existingOutput.updateValuesInOutput(splitterOutput.values)
                 return existingOutput
             }
             
@@ -262,7 +262,7 @@ extension StitchComponentViewModel {
         
         // Update graph's inputs before calculating full graph
         zip(splitterInputs, self.inputsObservers).forEach { splitter, input in
-            splitter.updateValues(input.allLoopedValues)
+            splitter.updateValuesInInput(input.allLoopedValues)
         }
         
         self.graph.calculate(from: self.graph.allNodesToCalculate)
@@ -278,7 +278,7 @@ extension StitchComponentViewModel {
         
         // Update outputs here after graph calculation
         zip(splitterOutputs, self.outputsObservers).forEach { splitter, output in
-            output.updateValues(splitter.allLoopedValues)
+            output.updateValuesInOutput(splitter.allLoopedValues)
         }
         
         return .init(outputsValues: self.outputsObservers.map(\.allLoopedValues))

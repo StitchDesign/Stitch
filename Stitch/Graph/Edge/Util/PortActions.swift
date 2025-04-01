@@ -40,7 +40,7 @@ extension InputNodeRowObserver {
             }
 
             // Mutate video metadata to clear video state--this will update the view
-            self.updateValues([.asyncMedia(nil)])
+            self.updateValuesInInput([.asyncMedia(nil)])
         }
 
         // Remove audio from disconnected speaker nodes.
@@ -54,11 +54,11 @@ extension InputNodeRowObserver {
                     // Run effect to mute sound player
                     media?.mediaObject.updateVolume(to: .zero)
                 }
-            self.updateValues([.asyncMedia(nil)])
+            self.updateValuesInInput([.asyncMedia(nil)])
         } else {
             // Flatten values by default
             let flattenedValues = self.allLoopedValues.flattenValues()
-            self.updateValues(flattenedValues)
+            self.updateValuesInInput(flattenedValues)
         }
         
         // Removes connection--important to do this after media handling above
