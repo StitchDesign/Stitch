@@ -134,7 +134,7 @@ extension GraphState {
             id: .layerInput(.init(
                 node: nodeId,
                 keyPath: coordinate)),
-            position: position ?? document.newLayerPropertyLocation,
+            position: position ?? document.newCanvasItemInsertionLocation,
             zIndex: document.visibleGraph.highestZIndex + 1,
             // Put newly-created LIG into graph's current traversal level
             parentGroupNodeId: document.groupNodeFocused?.asNodeId,
@@ -206,7 +206,7 @@ extension GraphState {
         output.canvasObserver = CanvasItemViewModel(
             id: .layerOutput(.init(node: node.id,
                                    portId: portId)),
-            position: document.newLayerPropertyLocation,
+            position: document.newCanvasItemInsertionLocation,
             zIndex: self.highestZIndex + 1,
             // Put newly-created LIG into graph's current traversal level
             parentGroupNodeId: groupNodeFocused,
