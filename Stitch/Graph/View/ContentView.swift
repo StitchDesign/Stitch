@@ -105,7 +105,8 @@ struct ContentView: View, KeyboardReadable {
             if !GraphUIState.isPhoneDevice {
                 // Check if we're on iPhone, otherwise the project view will start to render on
                 // phone before showFullScreen is set
-                ProjectNavigationView(document: document,
+                ProjectNavigationView(store: store,
+                                      document: document,
                                       routerNamespace: routerNamespace)
                 .zIndex(showFullScreen.isTrue ? -99 : 0)
                 .overlay {

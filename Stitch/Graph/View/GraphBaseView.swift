@@ -19,6 +19,7 @@ struct GraphBaseView: View {
     
     @State private var spaceHeld = false
 
+    @Bindable var store: StitchStore
     @Bindable var document: StitchDocumentViewModel
     
     @MainActor
@@ -123,7 +124,7 @@ struct GraphBaseView: View {
             // IMPORTANT: applying .inspector outside of this ZStack causes displacement of graph contents when graph zoom != 1
             Circle().fill(Stitch.APP_BACKGROUND_COLOR.opacity(0.001))
                 .frame(width: 1, height: 1)
-                .inspector(isPresented: $document.showsLayerInspector) {
+                .inspector(isPresented: $store.showsLayerInspector) {
                     
                     LayerInspectorView(graph: graph,
                                        graphUI: document)
