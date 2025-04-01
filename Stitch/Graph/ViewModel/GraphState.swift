@@ -887,7 +887,7 @@ extension GraphState {
             }
             
             // If we can't find the old value at this loop index, assume the output changed
-            var outputsChanged: Bool = outputValuesToUpdate[safe: loopIndex].map { $0 != newOutputValue } ?? true
+            let outputsChanged: Bool = outputValuesToUpdate[safe: loopIndex].map { $0 != newOutputValue } ?? true
             
             // Insert new output value at correct loop index
             outputValuesToUpdate[loopIndex] = newOutputValue

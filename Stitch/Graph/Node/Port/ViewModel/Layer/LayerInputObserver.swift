@@ -204,7 +204,7 @@ extension LayerInputObserver {
     @MainActor
     func updatePortValues(_ values: PortValues) {
         // Updating the packed observer will always update unpacked observers if the mode is set as unpacked
-        self._packedData.rowObserver.updateValues(values)
+        self._packedData.rowObserver.updateValuesInInput(values)
     }
     
     /// All-up values for this port
@@ -348,7 +348,7 @@ extension LayerInputObserver {
             self._packedData.resetOnPackModeToggle()
             
             // Update values of new unpacked row observers
-            self._unpackedData.updateValues(from: values,
+            self._unpackedData.updateUnpackedObserverValues(from: values,
                                             layerNode: layerNode)
             
         case .packed:

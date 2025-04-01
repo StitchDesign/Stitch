@@ -19,7 +19,7 @@ extension GraphState {
             self.selectSingleCanvasItem(canvasItemId)
         }
         
-        inputObserver.updateValues([.pulse(self.graphStepState.graphTime)])
+        inputObserver.updateValuesInInput([.pulse(self.graphStepState.graphTime)])
         
         self.scheduleForNextGraphStep(inputObserver.id.nodeId)
     }

@@ -402,6 +402,6 @@ func createPatchNode(from importedMediaURL: URL,
     }
 
     // Import nodes always use first input
-    node.getInputRowObserver(0)?.updateValues([.asyncMedia(asyncMedia)])
+    node.getInputRowObserver(0)?.updateValuesInInput([.asyncMedia(asyncMedia)])
     return .success(node)
 }

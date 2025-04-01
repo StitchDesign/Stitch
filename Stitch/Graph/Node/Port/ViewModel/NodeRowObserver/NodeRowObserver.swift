@@ -190,6 +190,7 @@ extension NodeRowObserver {
     func initializeDelegate(_ node: NodeDelegate) {
         self.nodeDelegate = node
         
+        // TODO: why do we handle post-processing when we've assigned the nodeDelegate? ... is it just because post-processing requires a nodeDelegate?
         switch Self.nodeIOType {
         case .input:
             self.inputPostProcessing(oldValues: [], newValues: self.values)
