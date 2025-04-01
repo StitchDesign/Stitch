@@ -109,6 +109,7 @@ extension NodeViewModel {
             return observer
         }
         
+        log("loopedEval: node \(self.id): castedEphemeralObservers.count: \(castedEphemeralObservers.count)")
         self.ephemeralObservers = castedEphemeralObservers
         
         assertInDebug(longestLoopLength == castedEphemeralObservers.count)

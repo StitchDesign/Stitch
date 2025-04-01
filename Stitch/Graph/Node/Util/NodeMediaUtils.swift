@@ -42,13 +42,17 @@ struct MediaEvalOpResult: MediaEvalResultable {
 }
 
 extension MediaEvalOpResult: NodeEvalOpResult {
+    
+    // Not used?
     var valueResult: AsyncMediaOutputs { .byIndex(self.values) }
     
+    // Not used?
     @MainActor
     func prevOutputs(node: NodeViewModel) -> PortValues {
         self.values.prevOutputs(node: node)
     }
     
+    // Not used?
     static func getInputMediaValue(from inputs: PortValues) -> AsyncMediaValue? {
         inputs.first?.asyncMedia
     }
@@ -135,16 +139,6 @@ extension MediaEvalValuesListResult {
 extension NodeViewModel {
     @MainActor
     /// Gets the media object for some connected input.
-    func getInputMedia(coordinate: NodeIOCoordinate,
-                       loopIndex: Int,
-                       mediaId: UUID) -> StitchMediaObject? {
-        self.getMediaObserver(portType: coordinate.portType,
-                              loopIndex: loopIndex,
-                              mediaId: mediaId)?.inputMedia?.mediaObject
-    }
-    
-    @MainActor
-    /// Gets the media object for some connected input.
     func getInputMedia(portIndex: Int,
                        loopIndex: Int,
                        mediaId: UUID?) -> StitchMediaObject? {
@@ -163,16 +157,6 @@ extension NodeViewModel {
                               mediaId: mediaId)?.inputMedia
     }
     
-    @MainActor
-    /// Gets the media object for some connected input.
-    func getInputMediaValue(coordinate: NodeIOCoordinate,
-                            loopIndex: Int,
-                            mediaId: UUID) -> GraphMediaValue? {
-        self.getMediaObserver(portType: coordinate.portType,
-                              loopIndex: loopIndex,
-                              mediaId: mediaId)?.inputMedia
-    }
-
     @MainActor
     /// Gets the media object for some connected input.
     func getComputedMediaValue(loopIndex: Int,
@@ -211,18 +195,48 @@ extension NodeViewModel {
     @MainActor
     /// Gets the media object for some connected input.
     func getMediaObserver(loopIndex: Int,
-                          mediaId: UUID?) -> MediaViewModel? {        
+                          // Not even used?
+                          mediaId: UUID?) -> MediaViewModel? {
         // MARK: below functionality allows nodes like media import patch nodes to display media at the input even though computed ephemeral observers only hold media. For some nodes like loop builder this isn't ideal as it'll incorrectly display valid data at an empty input.
-        if self.kind == .patch(.loopBuilder) {
+//        if self.kind == .patch(.loopBuilder) {
+//            return nil
+//        }
+        
+        // Access the ephemeral state
+        // So media with loops is entirely broken?
+        // And probably the splitter etc. fix didn't work.
+        // So maybe have broken more recently, at least for regular media?
+        
+        guard let observers = self.ephemeralObservers else {
+            log("getMediaObserver: node \(self.id): no observers")
             return nil
         }
         
-        // Check if media eval op exists here if no connection
-        if let viewModel = (self.ephemeralObservers?[safe: loopIndex] as? MediaEvalOpViewable)?.mediaViewModel {            
-            return viewModel
+        log("getMediaObserver: node \(self.id): observers.count: \(observers.count)")
+        log("getMediaObserver: node \(self.id): loopIndex: \(loopIndex)")
+        
+        guard let observerAtIndex = observers[safe: loopIndex] else {
+            log("getMediaObserver: node \(self.id): no observer at index")
+            return nil
         }
         
-        return nil
+        // Should we be type-casting like this?
+        guard let mediaObserver = observerAtIndex as? MediaEvalOpViewable else {
+            log("getMediaObserver: node \(self.id): no media observer")
+            return nil
+        }
+        
+        let mvm = mediaObserver.mediaViewModel
+        log("getMediaObserver: node \(self.id): inputMedia: \(mvm.inputMedia)")
+        log("getMediaObserver: node \(self.id): computedMedia: \(mvm.computedMedia)")
+                
+        return mediaObserver.mediaViewModel
+                
+//        // Check if media eval op exists here if no connection
+//        if let viewModel = (self.ephemeralObservers?[safe: loopIndex] as? MediaEvalOpViewable)?.mediaViewModel {
+//            return viewModel
+//        }
+//        return nil
     }
 }
 

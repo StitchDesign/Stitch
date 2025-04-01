@@ -77,9 +77,14 @@ func loopBuilderEval(node: PatchNode,
         return valueForIndex
     }
     
-    return node.loopedEval(MediaEvalOpObserver.self,
-                           inputsValuesList: [flattenedInputs]) { (values, mediaObserver, index) -> MediaEvalOpResult in
+    let result = node.loopedEval(MediaEvalOpObserver.self,
+                                 inputsValuesList: [flattenedInputs]) { (values, mediaObserver, index) -> MediaEvalOpResult in
+//    return node.loopedEval(inputsValues: [flattenedInputs]) { (values, index) -> MediaEvalOpResult in
+//    return node.loopedEval { (values, index) -> MediaEvalOpResult in
+    
         assertInDebug(values.first != nil)
+        
+        log("loopBuilderEval: index: \(index)")
         
         // index of our loop
         let indexPortValue = PortValue.number(Double(index))
@@ -88,16 +93,17 @@ func loopBuilderEval(node: PatchNode,
         let value = values.first ?? .number(.zero)
         
         switch node.userVisibleType {
+        
         case .media:
             guard let inputMediaValue = values.first?.asyncMedia,
-                  // MARK: loop and port index are flipped
-                  let mediaObject = node.getInputMediaValue(portIndex: index,
-                                                            loopIndex: 0,
-                                                            mediaId: inputMediaValue.id) else {
+                  let mediaObject = node.getInputMediaValue(
+                    portIndex: index,
+                    loopIndex: index,
+                    mediaId: inputMediaValue.id) else {
+                
                 return .init(from: [indexPortValue,
                                     .asyncMedia(nil)])
             }
-            
             let asyncMedia = AsyncMediaValue(id: .init(),
                                              dataType: .computed,
                                              label: inputMediaValue.label)
@@ -105,58 +111,16 @@ func loopBuilderEval(node: PatchNode,
                                   .asyncMedia(asyncMedia)],
                          media: mediaObject)
             
+       
         default:
             return .init(from: [indexPortValue, value])
         }
     }
-                           .createPureEvalResult(node: node)
+                           
+    let k = result.createPureEvalResult(node: node)
+    log("loopBuilderEval: k.outputsValues: \(k.outputsValues)")
+    log("loopBuilderEval: k.mediaList: \(k.mediaList)")
+    
+    return k
+        
 }
-
-
-// MARK: eval implementation below creates unique media object copies, which may not be needed given a loop builder doesn't mutate media objects at all.
-
-//// LoopBuilder expects its inputs to be non-loops.
-//@MainActor
-//func loopBuilderEval(node: PatchNode,
-//                     graphStep: GraphStepState) -> ImpureEvalResult {
-//    
-//    let flattenedInputs: PortValues = node.inputs.map { values in
-//        // loopBuilder turns loops into a single falsey value
-//        let valueForIndex = values.count > 1 ? values.first!.defaultFalseValue : values.first!
-//        return valueForIndex
-//    }
-//
-//    guard node.userVisibleType == .media else {
-//        // Handles-non media scenarios purely
-//        let newOutputs: PortValuesList = [flattenedInputs.asLoopIndices,
-//                                          flattenedInputs]
-//        
-//        return .init(outputsValues: newOutputs)
-//    }
-//    
-//    // Handles creating unique media objects
-//    return node.loopedEval(MediaEvalOpObserver.self,
-//                           inputsValuesList: [flattenedInputs]) { (values, mediaObserver, index) -> MediaEvalOpResult in
-//        mediaObserver.asyncMediaEvalOp(loopIndex: index,
-//                                       values: values) { [weak mediaObserver] in
-//            let indexPortValue = PortValue.number(Double(index))
-//
-//            guard let inputMediaValue = values.first?.asyncMedia,
-//                  let mediaCopy = await mediaObserver?.getUniqueMedia(inputMediaValue: inputMediaValue,
-//                                                                      // loop and port index are flipped
-//                                                                      inputPortIndex: index,
-//                                                                      loopIndex: 0) else {
-//                return .init(from: [indexPortValue,
-//                                    .asyncMedia(nil)])
-//            }
-//            
-//            let asyncMedia = AsyncMediaValue(id: .init(),
-//                                             dataType: .computed,
-//                                             label: inputMediaValue.label)
-//            return .init(values: [indexPortValue,
-//                                  .asyncMedia(asyncMedia)],
-//                         media: mediaCopy)
-//        }
-//    }
-//                           .createPureEvalResult(node: node)
-//}
