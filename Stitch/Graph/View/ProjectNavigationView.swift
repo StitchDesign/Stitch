@@ -10,6 +10,7 @@ import StitchSchemaKit
 
 /// UI for interacting with a single project; iPad-only.
 struct ProjectNavigationView: View {
+    @Bindable var store: StitchStore
     @Bindable var document: StitchDocumentViewModel
     let routerNamespace: Namespace.ID
     @Namespace private var topButtonsNamespace
@@ -21,7 +22,8 @@ struct ProjectNavigationView: View {
     var body: some View {
         @Bindable var visibleGraph = document.visibleGraph
         
-        GraphBaseView(document: document)
+        GraphBaseView(store: store,
+                      document: document)
         .alert(item: $visibleGraph.migrationWarning) { warningMessage in
             Alert(title: Text("Document Migration Warning"),
                   message: Text(warningMessage.rawValue),

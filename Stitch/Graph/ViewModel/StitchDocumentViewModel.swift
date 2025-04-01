@@ -88,8 +88,6 @@ final class StitchDocumentViewModel: Sendable {
     // back to graph instead of projects list
     @MainActor var isFullScreenMode: Bool = false
     
-    @MainActor var showsLayerInspector = false
-    
     @MainActor var leftSidebarOpen = false
 
     // Note: important to use `OrderedSet` rather than just list, so that we never have duplicate traversal-levels, see: https://github.com/StitchDesign/Stitch--Old/issues/7038

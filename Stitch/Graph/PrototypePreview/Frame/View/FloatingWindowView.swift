@@ -28,6 +28,7 @@ extension CGSize {
 }
 
 struct FloatingWindowView: View {
+    @Bindable var store: StitchStore
     @Bindable var document: StitchDocumentViewModel
 
     // the screen size of the device that Stitch is running on (e.g. iPad screen or Catalyst window)
@@ -204,7 +205,7 @@ struct FloatingWindowView: View {
     
     var finalXOffset: CGFloat {
         
-        return document.showsLayerInspector ? Self.xOffset - LayerInspectorView.LAYER_INSPECTOR_WIDTH : Self.xOffset
+        return store.showsLayerInspector ? Self.xOffset - LayerInspectorView.LAYER_INSPECTOR_WIDTH : Self.xOffset
         
         //        if showPreviewWindow {
         //            // Original
@@ -224,7 +225,8 @@ struct FloatingWindowView_Previews: PreviewProvider {
     @Namespace static var namespace
 
     static var previews: some View {
-        FloatingWindowView(document: StitchDocumentViewModel.createEmpty(),
+        FloatingWindowView(store: .init(),
+                           document: StitchDocumentViewModel.createEmpty(),
                            deviceScreenSize: DEFAULT_LANDSCAPE_SIZE,
                            showPreviewWindow: true,
                            namespace: namespace)
