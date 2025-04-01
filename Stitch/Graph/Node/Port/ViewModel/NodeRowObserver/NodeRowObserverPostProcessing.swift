@@ -167,6 +167,11 @@ extension GraphState {
 extension NodeRowObserver {
     @MainActor
     func outputPostProcessing() {
+        guard let node = self.nodeDelegate,
+              let graph = node.graphDelegate else {
+            return
+        }
+        
         guard Self.nodeIOType == .output else {
             fatalErrorIfDebug()
             return
@@ -174,7 +179,8 @@ extension NodeRowObserver {
         
         self.updatePulsedOutputsForThisGraphStep()
         
-        // TODO: should we also update `graph.portsToUpdate` ?
+        // TODO: do we need to do this or not?
+        // graph.portsToUpdate.insert(.allOutputs(node.id))
     }
     
     // fka `didValuesUpdate`; but only actually used for pulse reversion
