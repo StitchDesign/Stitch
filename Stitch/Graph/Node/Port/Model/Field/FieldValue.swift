@@ -50,8 +50,8 @@ extension FieldValue {
             return self.stringValue
         case .dropdown(let x, _):
             return x
-        case .media: // TODO: retrieve actual filename?
-            return "media"
+        case .media(let x): // TODO: retrieve actual filename?
+            return x.name
         case .readOnly(let x):
             return x
         case .bool(let x):
