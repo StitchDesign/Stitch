@@ -48,12 +48,32 @@ final class OutputNodeRowObserver: NodeRowObserver {
         self.hasLoopedValues = values.hasLoop
     }
 
+    // Implements StitchEngine protocol
     func updateOutputValues(_ values: [PortValue]) {
-        self.updateValues(values)
+        self.updateValuesInOutput(values)
+    }
+}
+
+@MainActor
+func updateRowObservers(rowObservers: [OutputNodeRowObserver],
+                        newIOValues: PortValuesList) {
+    
+    newIOValues.enumerated().forEach { portId, newValues in
+        guard let observer = rowObservers[safe: portId] else {
+            log("Could not retrieve output observer for portId \(portId)")
+            return
+        }
+        observer.updateOutputValues(newValues)
     }
 }
 
 extension OutputNodeRowObserver {
+    @MainActor
+    func updateValuesInOutput(_ newValues: PortValues) {
+        self.setValuesInRowObserver(newValues)
+        self.outputPostProcessing()
+    }
+    
     @MainActor
     var hasEdge: Bool {
         self.containsDownstreamConnection

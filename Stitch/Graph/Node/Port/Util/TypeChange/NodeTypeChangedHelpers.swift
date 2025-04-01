@@ -22,7 +22,7 @@ extension NodeKind {
     }
 }
 
-extension NodeRowObserver {
+extension InputNodeRowObserver {
 
     // used only for type coercion
     @MainActor

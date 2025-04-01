@@ -62,7 +62,7 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
         self.hasLoopedValues = values.hasLoop
     }
         
-    func updateOutputValues(_ values: [StitchSchemaKit.CurrentPortValue.PortValue]) {
+    func updateOutputValues(_ values: [PortValue]) {
         fatalErrorIfDebug("Should never be called for InputNodeRowObserver")
     }
     
@@ -73,7 +73,50 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
 }
 
 extension InputNodeRowObserver {
+    
+    // Used in Stitch when updating an input's values
+    // Note: cannot be used in `StitchEngine` until SE no longer already updates `self.values = incomingValues`
+    @MainActor
+    func updateValuesInInput(_ incomingValues: PortValues,
+                             // TODO: remove once StitchEngine.setValuesInInput no longer already does `self.values = values`
+                             passedDownOldValues: PortValues? = nil) {
+        
+        /*
+         In some cases (e.g. graph initialization, schema deserialization?),
+         we set values in an input *before* node/graph delegates have been assigned to the input.
+         
+         In such cases, we assume the incoming value is the correct type and set them directly.
+         */
+        // TODO: Pass down NodeViewModel and `currentGraphTime` directly? Greater referential transparency and avoids confusion about where/when delegates have been set / not yet set.
+        guard let node = self.nodeDelegate,
+              let graph = node.graphDelegate else {
+            self.setValuesInRowObserver(incomingValues)
+            return
+        }
+
+        let oldValues = passedDownOldValues ?? self.values
+        
+        // Can an input's `oldValues` ever be empty?
+        guard let inputType: PortValue = oldValues.first ?? node.userVisibleType?.defaultPortValue else {
+            return
+        }
+        
+        // Coerce the incoming values to be the same type as the input's existing type;
+        // useful safeguard
+        let coercedValues = self.coerce(theseValues: incomingValues,
+                                        toThisType: inputType,
+                                        currentGraphTime: graph.currentGraphTime)
+        
+        // Set the coerced values in the input
+        self.setValuesInRowObserver(coercedValues)
+        
+        // Update other parts of graph state in response to input change
+        self.inputPostProcessing(oldValues: oldValues,
+                                 newValues: coercedValues)
+    }
+    
     // ONLY called by StitchEngine
+    // Note: technically, the values passed in here are already coerced by StitchEngine
     @MainActor
     func didInputsUpdate(newValues: PortValues,
                          oldValues: PortValues) {
@@ -84,10 +127,10 @@ extension InputNodeRowObserver {
             return
         }
                         
-        // ASSUMES `newValues: PortValues` HAVE EITHER ALREADY BEEN COERCED OR DIRECTLY-COPIED
-        self.updateValues(newValues)
-        
-        self.inputPostProcessing(oldValues: oldValues, newValues: newValues)
+        self.updateValuesInInput(newValues,
+                                 // Must still pass oldValues when called from StitchEngine,
+                                 // like this function is
+                                 passedDownOldValues: oldValues)
     }
     
     @MainActor
@@ -105,10 +148,8 @@ extension InputNodeRowObserver {
             if coordinateValueChanged {
                 // Flatten values
                 let newFlattenedValues = self.allLoopedValues.flattenValues()
-                self.updateValues(newFlattenedValues)
-                // TODO: use input-specific method?
-                // self.setValuesInInput(newFlattenedValues)
-                
+                self.updateValuesInInput(newFlattenedValues)
+
                 // Recalculate node once values update
                 self.nodeDelegate?.calculate()
             }

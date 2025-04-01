@@ -173,6 +173,8 @@ extension NodeRowObserver {
         }
         
         self.updatePulsedOutputsForThisGraphStep()
+        
+        // TODO: should we also update `graph.portsToUpdate` ?
     }
     
     // fka `didValuesUpdate`; but only actually used for pulse reversion

@@ -23,7 +23,7 @@ extension InputNodeRowObserver: SchemaObserverIdentifiable {
 
         // Update values if no upstream connection
         if let values = schema.portData.values {
-            self.updateValues(values)
+            self.updateValuesInInput(values)
         }
     }
 
@@ -42,7 +42,7 @@ extension InputNodeRowObserver: SchemaObserverIdentifiable {
             
         case .values(let values):
             let values = values.isEmpty ? [inputType.getDefaultValue(for: layer)] : values
-            self.updateValues(values)
+            self.updateValuesInInput(values)
         }
     }
 

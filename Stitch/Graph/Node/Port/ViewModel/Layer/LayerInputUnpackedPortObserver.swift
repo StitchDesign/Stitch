@@ -97,10 +97,11 @@ extension LayerInputUnpackedPortObserver {
         self.allPorts.map { $0.createSchema() }
     }
     
+    // fka `updateValues` but changed becuse XCode was incorrectly picking it up as a use of a `NodeRowObserver.updateValues`
     /// From packed values, unpacks them for unpack layer input scenario.
     @MainActor
-    func updateValues(from packedValues: PortValues,
-                      layerNode: LayerNodeViewModel) {
+    func updateUnpackedObserverValues(from packedValues: PortValues,
+                                      layerNode: LayerNodeViewModel) {
         let unpackedValues = packedValues.map { self.layerPort.unpackValues(from: $0) }
         
         guard let unpackedPortCount = unpackedValues.first??.count else {
@@ -131,7 +132,7 @@ extension LayerInputUnpackedPortObserver {
             let rowObserver = layerNode[keyPath: layerId.layerNodeKeyPath].rowObserver
             
             // Update row observer values per usual
-            rowObserver.updateValues(values)
+            rowObserver.updateValuesInInput(values)
         }
     }
 }
