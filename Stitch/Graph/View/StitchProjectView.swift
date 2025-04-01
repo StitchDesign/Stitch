@@ -53,6 +53,7 @@ struct StitchProjectView: View {
                 store.createThumbnail(from: document)
                 
                 // TODO: listen to presses of the NavigationStack's back button instead?
+                log("StitchProjectView: will close document \(document.id)")
                 dispatch(CloseGraph())
             }
     }

@@ -20,6 +20,7 @@ struct ProjectNavigationView: View {
 
     var body: some View {
         @Bindable var visibleGraph = document.visibleGraph
+        logInView("ProjectNavigationView: body: document.storeDelegate?.navPath.map url: \(document.storeDelegate?.navPath.map(\.url))")
         
         GraphBaseView(document: document)
         .alert(item: $visibleGraph.migrationWarning) { warningMessage in

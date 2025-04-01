@@ -27,6 +27,7 @@ struct GraphBaseView: View {
     }
 
     var body: some View {
+        logInView("GraphBaseView: body")
         // Our screen device measurements ignore the safe area,
         // so our touch-responsive interfaces must ignore them to.
 

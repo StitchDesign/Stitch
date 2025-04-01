@@ -14,7 +14,7 @@ extension StitchDocumentViewModel: GraphStepManagerDelegate {
     func graphStepIncremented(elapsedProjectTime: TimeInterval,
                               frameCount: Int,
                               currentEstimatedFPS: StitchFPS) {
-        // log("graphStepIncremented called")
+        log("graphStepIncremented: document \(self.id): frameCount: \(frameCount)")
         
         self.graphStepManager.lastGraphTime = elapsedProjectTime
         self.graphStepManager.lastGraphAnimationTime = elapsedProjectTime

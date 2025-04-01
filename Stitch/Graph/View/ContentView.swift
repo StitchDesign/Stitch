@@ -55,6 +55,7 @@ struct ContentView: View, KeyboardReadable {
     }
 
     var body: some View {
+        logInView("ContentView: body")
         ZStack {
             
             // probably the best location for listening to how iPad's on-screen keyboard reduces available height for node menu ?

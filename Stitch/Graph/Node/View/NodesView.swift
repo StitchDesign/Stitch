@@ -39,6 +39,8 @@ struct NodesView: View {
     }
     
     var body: some View {
+        logInView("NodesView: body")
+        
         let currentNodePage = self.graph.visibleNodesViewModel
             .getViewData(groupNodeFocused: document.groupNodeFocused?.groupNodeId) ?? .init(localPosition: graph.localPosition)
                 
