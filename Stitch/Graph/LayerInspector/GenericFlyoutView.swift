@@ -280,7 +280,7 @@ extension GraphState {
         }
                 
         var unpackSchema = unpackedPort.createSchema()
-        unpackSchema.canvasItem = .init(position: document.newLayerPropertyLocation,
+        unpackSchema.canvasItem = .init(position: document.newCanvasItemInsertionLocation,
                                         zIndex: self.highestZIndex + 1,
                                         parentGroupNodeId: groupNodeFocused)
         

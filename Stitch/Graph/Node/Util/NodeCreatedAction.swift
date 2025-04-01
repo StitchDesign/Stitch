@@ -34,50 +34,30 @@ extension StitchDocumentViewModel {
     
     /// Only for insert-node-menu creation of nodes; shortcut key creation of nodes uses `viewPortCenter`
     @MainActor
-    var newNodeCenterLocation: CGPoint {
+    var newCanvasItemInsertionLocation: CGPoint {
         if let doubleTapLocation = self.doubleTapLocation {
             log("newNodeCenterLocation: had doubleTapLocation: \(doubleTapLocation)")
             return adjustPositionToMultipleOf(doubleTapLocation)
         } else {
-            return self.viewPortCenter
+            var center = self.viewPortCenter
+            center.x -= self.adjustmentFromOpenLayerInspector
+            return center
         }
     }
     
     @MainActor
-    var newLayerPropertyLocation: CGPoint {
-        var center = self.viewPortCenter
-
-        // Slightly move off-center, since preview window can often partially cover up the just added property
-        center.x -= CGFloat(SQUARE_SIDE_LENGTH * 6)
-        
-        return center
-    }
-
-
-    // Used by InsertNodeMenu
-    @MainActor
-    func nodeCreated(choice: NodeKind,
-                     nodeId: UUID? = nil,
-                     center: CGPoint? = nil) -> NodeViewModel? {
-
-        let nodeCenter = center ?? self.newNodeCenterLocation
-        
-        guard let node = self.createNode(
-                graphTime: self.graphStepManager.graphStepState.graphTime,
-                newNodeId: nodeId ?? UUID(),
-                highestZIndex: self.visibleGraph.highestZIndex,
-                choice: choice,
-                center: nodeCenter) else {
-            log("nodeCreated: could not create node for \(choice)")
-            fatalErrorIfDebug()
-            return nil
+    private var adjustmentFromOpenLayerInspector: CGFloat {
+        guard self.storeDelegate?.showsLayerInspector ?? false else {
+            return 0
         }
-
-        self.nodeCreated(node: node)
-        return node
+        
+        let inspectorWidth = LayerInspectorView.LAYER_INSPECTOR_WIDTH
+        let scale = self.graphMovement.zoomData
+        
+        // TODO: why only half the inspector's width?
+        return inspectorWidth/2 * 1/scale
     }
-    
-    
+
     /// Current center of user's view onto the graph
     @MainActor
     var viewPortCenter: CGPoint {
@@ -108,8 +88,30 @@ extension StitchDocumentViewModel {
         
         return centerAdjustedForGrid
     }
-    
 
+    // Used by InsertNodeMenu
+    @MainActor
+    func nodeCreated(choice: NodeKind,
+                     nodeId: UUID? = nil,
+                     center: CGPoint? = nil) -> NodeViewModel? {
+
+        let nodeCenter = center ?? self.newCanvasItemInsertionLocation
+        
+        guard let node = self.createNode(
+                graphTime: self.graphStepManager.graphStepState.graphTime,
+                newNodeId: nodeId ?? UUID(),
+                highestZIndex: self.visibleGraph.highestZIndex,
+                choice: choice,
+                center: nodeCenter) else {
+            log("nodeCreated: could not create node for \(choice)")
+            fatalErrorIfDebug()
+            return nil
+        }
+
+        self.nodeCreated(node: node)
+        return node
+    }
+   
     @MainActor
     func nodeCreated(node: NodeViewModel) {
 
