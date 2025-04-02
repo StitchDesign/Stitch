@@ -327,7 +327,7 @@ extension GraphState {
     @MainActor
     func selectCanvasItem(_ canvasItemId: CanvasItemId) {
         // Prevent render cycles if already selected
-        guard !self.isCanvasItemSelected(canvasItemId)  else { return }
+        guard !self.isCanvasItemSelected(canvasItemId) else { return }
         self.selection.selectedCanvasItems.insert(canvasItemId)
         
         // Unfocus sidebar

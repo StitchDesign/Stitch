@@ -208,7 +208,7 @@ final class StitchDocumentViewModel: Sendable {
 
 extension StitchDocumentViewModel: DocumentEncodableDelegate {
     @MainActor
-    func update(from schema: StitchDocument, rootUrl: URL) {
+    func update(from schema: StitchDocument, rootUrl: URL?) {
         // Sync preview window attributes
         self.previewWindowSize = schema.previewWindowSize
         self.previewSizeDevice = schema.previewSizeDevice
@@ -527,12 +527,29 @@ extension StitchDocumentViewModel {
         self.restartPrototypeWindowIconRotationZ += 360
     }
     
+    // TODO: this still doesn't quite have the correct projectLoader/encoderDelegate needed for all uses in the app
+    @MainActor
+    static func createTestFriendlyDocument() async -> StitchDocumentViewModel {
+        let store = StitchStore()
+        await store.createNewProject(isProjectImport: false,
+                                     isPhoneDevice: false)
+        guard let projectLoader = store.navPath.first,
+              let documentViewModel = projectLoader.documentViewModel else {
+            fatalError()
+        }
+        return documentViewModel
+    }
+    
     @MainActor static func createEmpty() -> StitchDocumentViewModel {
-        .init(from: .init(),
-              graph: .init(),
-              isPhoneDevice: false,
-              projectLoader: .init(url: URL(fileURLWithPath: "")),
-              store: nil,
-              isDebugMode: false)
+        let store = StitchStore()
+        let doc = StitchDocument()
+        let loader = ProjectLoader(url: URL(fileURLWithPath: ""))
+        
+        return .init(from: doc,
+                     graph: .init(),
+                     isPhoneDevice: false,
+                     projectLoader: loader,
+                     store: store,
+                     isDebugMode: false)
     }
 }
