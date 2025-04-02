@@ -11,7 +11,7 @@ import StitchSchemaKit
 // TODO: handle more node types
 @MainActor
 func runningTotalNode(id: NodeId,
-                      position: CGSize = .zero,
+                      position: CGPoint = .zero,
                       zIndex: Double = 0) -> PatchNode {
 
     let inputs = toInputs(

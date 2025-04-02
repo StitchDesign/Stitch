@@ -12,7 +12,7 @@ import StitchSchemaKit
 @MainActor
 func loopStartNode(id: NodeId,
                    loopCount: Double = 3,
-                   position: CGSize = .zero,
+                   position: CGPoint = .zero,
                    zIndex: Double = 0) -> PatchNode {
 
     let indicesLoop: PortValues = (0..<Int(loopCount)).map { .number(Double($0))}

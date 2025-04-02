@@ -15,7 +15,7 @@ struct NodeCreatedEvent: StitchDocumentEvent {
     let choice: NodeKind
     
     func handle(state: StitchDocumentViewModel) {
-        guard let node = state.nodeCreated(choice: choice) else {
+        guard let node = state.nodeInserted(choice: choice) else {
             fatalErrorIfDebug()
             return
         }
@@ -26,7 +26,7 @@ struct NodeCreatedEvent: StitchDocumentEvent {
 extension GraphState {
     @MainActor
     func nodeCreated(choice: NodeKind) -> NodeViewModel? {
-        self.documentDelegate?.nodeCreated(choice: choice)
+        self.documentDelegate?.nodeInserted(choice: choice)
     }
 }
 
@@ -91,13 +91,13 @@ extension StitchDocumentViewModel {
 
     // Used by InsertNodeMenu
     @MainActor
-    func nodeCreated(choice: NodeKind,
-                     nodeId: UUID? = nil,
-                     center: CGPoint? = nil) -> NodeViewModel? {
+    func nodeInserted(choice: NodeKind,
+                      // For LLMStep Actions
+                      nodeId: UUID? = nil) -> NodeViewModel? {
 
-        let nodeCenter = center ?? self.newCanvasItemInsertionLocation
+        let nodeCenter = self.newCanvasItemInsertionLocation
         
-        guard let node = self.createNode(
+        guard let node = self.visibleGraph.createNode(
                 graphTime: self.graphStepManager.graphStepState.graphTime,
                 newNodeId: nodeId ?? UUID(),
                 highestZIndex: self.visibleGraph.highestZIndex,
@@ -108,12 +108,13 @@ extension StitchDocumentViewModel {
             return nil
         }
 
-        self.nodeCreated(node: node)
+        self.handleNewlyCreatedNode(node: node)
         return node
     }
    
+    // Used by insert-node-menu and sidebar-group-creation
     @MainActor
-    func nodeCreated(node: NodeViewModel) {
+    func handleNewlyCreatedNode(node: NodeViewModel) {
 
         // Note: DO NOT RESET THE ACTIVE NODE MENU SELECTION UNTIL ANIMATION HAS COMPLETED
         // Reset selection for insert node menu
@@ -140,7 +141,10 @@ extension StitchDocumentViewModel {
         // Reset nodes layout cache
         self.visibleGraph.visibleNodesViewModel.resetCache()
     }
-    
+}
+
+extension GraphState {
+
     @MainActor
     func createNode(graphTime: TimeInterval,
                     newNodeId: NodeId = NodeId(),
@@ -153,57 +157,62 @@ extension StitchDocumentViewModel {
         switch choice {
 
         case .group:
-            log("createNode: unexpectedly had Group node for NodeKind choice; exiting early")
-            fatalErrorIfDebug()
+            fatalErrorIfDebug("createNode: unexpectedly had Group node for NodeKind choice; exiting early")
             return nil
 
         // TODO: break this logic up into smaller, separate functions,
         // creating a layer node vs creating a patch node.
-        case let .layer(x):
-            // just add directly to end of layer nodes list (ordered-dict)
-            guard let layerNode = x.defaultNode(
-                    id: newNodeId,
-                    position: center.toCGSize,
-                    zIndex: highestZIndex + 1,
-                    graphDelegate: self.visibleGraph) else {
-                fatalErrorIfDebug()
-                return nil
-            }
+        case let .layer(layer):
+            return self.createLayerNode(layer: layer,
+                                        newNodeId: newNodeId,
+                                        center: center)
             
-            // Update sidebar data
-            var sidebarLayerData = SidebarLayerData(id: layerNode.id)
-            
-            // Creates group node data for reality node
-            if layerNode.isGroupLayer {
-                sidebarLayerData.children = []
-                sidebarLayerData.isExpandedInSidebar = true
-            }
-            
-            var newSidebarData = self.visibleGraph.layersSidebarViewModel.createdOrderedEncodedData()
-            newSidebarData.insert(sidebarLayerData, at: 0)
-            self.visibleGraph.layersSidebarViewModel.update(from: newSidebarData)
-            
-            // Focus this, and only this, layer node in inspector
-            self.visibleGraph.layersSidebarViewModel.resetEditModeSelections()
-            self.visibleGraph.layersSidebarViewModel.sidebarItemSelectedViaEditMode(sidebarLayerData.id)
-            self.visibleGraph.layersSidebarViewModel.selectionState.lastFocused = sidebarLayerData.id
-            self.visibleGraph.resetSelectedCanvasItems()
-            
-            return layerNode
-
-        case let .patch(x):
-
-            return x.defaultNode(
+        case let .patch(patch):
+            return patch.defaultNode(id: newNodeId,
+                                     position: center,
+                                     zIndex: highestZIndex + 1,
+                                     graphTime: graphTime,
+                                     graphDelegate: self)
+        }
+    }
+    
+    @MainActor
+    private func createLayerNode(layer: Layer,
+                                 newNodeId: NodeId,
+                                 center: CGPoint) -> NodeViewModel? {
+        // just add directly to end of layer nodes list (ordered-dict)
+        guard let layerNode = layer.defaultNode(
                 id: newNodeId,
                 position: center.toCGSize,
                 zIndex: highestZIndex + 1,
-                graphTime: graphTime,
-                graphDelegate: self.visibleGraph)
+                graphDelegate: self) else {
+            fatalErrorIfDebug()
+            return nil
         }
+        
+        // Update sidebar data
+        var sidebarLayerData = SidebarLayerData(id: layerNode.id)
+        
+        // Creates group node data for reality node
+        if layerNode.isGroupLayer {
+            sidebarLayerData.children = []
+            sidebarLayerData.isExpandedInSidebar = true
+        }
+        
+        var newSidebarData = self.layersSidebarViewModel.createdOrderedEncodedData()
+        newSidebarData.insert(sidebarLayerData, at: 0)
+        self.layersSidebarViewModel.update(from: newSidebarData)
+        
+        // Focus this, and only this, layer node in inspector
+        self.layersSidebarViewModel.resetEditModeSelections()
+        self.layersSidebarViewModel.sidebarItemSelectedViaEditMode(sidebarLayerData.id)
+        self.layersSidebarViewModel.selectionState.lastFocused = sidebarLayerData.id
+        self.resetSelectedCanvasItems()
+        
+        return layerNode
     }
-}
-
-extension GraphState {
+    
+    // TODO: what about e.g. duplicating a camera patch node? Duplication does not use `persistNewNode`
     @MainActor
     func persistNewNode(_ node: PatchNode) {
         var undoEvents = [Action]()

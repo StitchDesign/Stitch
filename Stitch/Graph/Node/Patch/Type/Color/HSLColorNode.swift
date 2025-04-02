@@ -18,7 +18,7 @@ func hslColorNode(id: NodeId,
                   hue: Double = hueDefault,
                   saturation: Double = saturationDefault,
                   lightness: Double = lightnessDefault,
-                  nodePosition: CGSize = .zero,
+                  nodePosition: CGPoint = .zero,
                   nodeZIndex: Double = 0) -> PatchNode {
 
     let inputs = toInputs(

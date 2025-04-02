@@ -13,7 +13,7 @@ import StitchSchemaKit
 func andNode(id: NodeId,
              n1: Bool = false,
              n2: Bool = false,
-             position: CGSize = .zero, zIndex: Double = 0) -> PatchNode {
+             position: CGPoint = .zero, zIndex: Double = 0) -> PatchNode {
     let inputs = toInputs(id: id,
                           values: (nil, [.bool(n1)]),
                           (nil, [.bool(n2)]))

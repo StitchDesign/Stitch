@@ -293,7 +293,7 @@ extension PatchNodeViewModel {
 extension NodeViewModel {
     @MainActor
     convenience init(id: NodeId,
-                     position: CGSize = .zero,
+                     position: CGPoint = .zero,
                      zIndex: Double = .zero,
                      customName: String?,
                      inputs: PortValuesList,
@@ -310,7 +310,7 @@ extension NodeViewModel {
                                 portData: .values(values))
         }
             
-        let canvasEntity = CanvasNodeEntity(position: position.toCGPoint,
+        let canvasEntity = CanvasNodeEntity(position: position,
                                             zIndex: zIndex,
                                             parentGroupNodeId: nil)
         
@@ -333,7 +333,7 @@ extension NodeViewModel {
     }
     
     @MainActor
-    convenience init(position: CGSize = .zero,
+    convenience init(position: CGPoint = .zero,
                      zIndex: Double = .zero,
                      id: NodeId,
                      patchName: Patch,

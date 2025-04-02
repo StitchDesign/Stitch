@@ -13,7 +13,7 @@ import StitchSchemaKit
 // No inputs (i.e. inputs are disabled)
 @MainActor
 func deviceTimeNode(id: NodeId,
-                    position: CGSize = .zero,
+                    position: CGPoint = .zero,
                     zIndex: Double = 0) -> PatchNode {
 
     let inputs = fakeInputs(id: id)

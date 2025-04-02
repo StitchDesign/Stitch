@@ -43,7 +43,7 @@ extension LayersSidebarViewModel {
         newNode.graphDelegate = graph // redundant?
                 
         // Add to state
-        state.nodeCreated(node: newNode)
+        state.handleNewlyCreatedNode(node: newNode)
             
         // Update sidebar state
         self.items.insertGroup(group: newGroupData,
