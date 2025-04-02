@@ -194,8 +194,10 @@ func layerInfoEval(node: PatchNode,
         enabledLoop.append( // Enabled (visibility hidden via sidebar or not)
             .bool(layerEnabled))
         
+        // Note: read the readFrame.origin instead of just .position input,
+        // so that position is correctly reported when layer is a child in a Grid, HStack or VStack.
         positionLoop.append( // Position
-            .position(layerViewModel.position.getPosition ?? .zero))
+            .position(layerViewModel.readFrame.origin))
         
         sizeLoop.append(  // Size: read from GeometryReader
             .size(.init(layerViewModel.readSize)))
