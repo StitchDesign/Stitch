@@ -17,7 +17,11 @@ struct LayerSizeReader: ViewModifier {
     /// Important to only report data from ghost view
     
     func getFrame(geometry: GeometryProxy) -> CGRect {
-        !isPinnedViewRendering ? geometry.frame(in: .named(PreviewContent.prototypeCoordinateSpace)) : .zero
+        if isPinnedViewRendering {
+            return .zero
+        } else {
+            return geometry.frame(in: .named(PreviewContent.prototypeCoordinateSpace))
+        }
     }
     
     func body(content: Content) -> some View {
