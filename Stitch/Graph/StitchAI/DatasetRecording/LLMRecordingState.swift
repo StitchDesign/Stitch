@@ -110,67 +110,16 @@ extension StitchDocumentViewModel {
                 throw error
             }
         }
-        
+                
         // Only adjust node positions if actions were valid and successfully applied
-        try self.positionAIGeneratedNodes()
+        positionAIGeneratedNodes(convertedActions: convertedActions,
+                                 nodes: self.visibleGraph.visibleNodesViewModel,
+                                 viewPortCenter: self.newCanvasItemInsertionLocation)
         
         // Write to disk ONLY IF WE WERE SUCCESSFUL
         self.encodeProjectInBackground()
     }
-    
-    
-    @MainActor
-    func positionAIGeneratedNodes() throws {
         
-        let convertedActions = try self.llmRecording.actions.convertSteps()
-        let (depthMap, hasCycle) = convertedActions.calculateAINodesAdjacency()
-        
-        guard let depthMap = depthMap,
-              !hasCycle else {
-            fatalErrorIfDebug("Did not have a cycle but was not able create depth-map")
-            return
-        }
-                        
-        let depthLevels = depthMap.values.sorted().toOrderedSet
-
-        let createdNodes = convertedActions.nodesCreatedByLLMActions()
-        
-        // Iterate by depth-level, so that nodes at same depth (e.g. 0) can be y-offset from each other
-//        depthLevels.enumerated().forEach {
-        depthLevels.forEach {
-            let depthLevel: Int = $0// .element
-//            let depthLevelIndex: Int = $0.offset
-
-            // TODO: just rewrite the adjacency logic to be a mapping of [Int: [UUID]] instead of [UUID: Int]
-            // Find all the created-nodes at this depth-level,
-            // and adjust their positions
-            let createdNodesAtThisLevel = createdNodes.compactMap {
-                if depthMap.get($0) == depthLevel {
-                    return self.graph.getNodeViewModel($0)
-                }
-                log("Could not get depth level for \($0.debugFriendlyId)")
-                return nil
-            }
-            
-            createdNodesAtThisLevel.enumerated().forEach { x in
-                let createdNode = x.element
-                let createdNodeIndexAtThisDepthLevel = x.offset
-                // log("positionAIGeneratedNodes: createdNode.id: \(createdNode.id)")
-                // log("positionAIGeneratedNodes: createdNodeIndexAtThisDepthLevel: \(createdNodeIndexAtThisDepthLevel)")
-                createdNode.getAllCanvasObservers().enumerated().forEach { canvasItemAndIndex in
-                    let newPosition =  CGPoint(
-                        x: self.viewPortCenter.x + (CGFloat(depthLevel) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER),
-                        y: self.viewPortCenter.y + (CGFloat(canvasItemAndIndex.offset) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER) + (CGFloat(createdNodeIndexAtThisDepthLevel) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER)
-                    )
-                    // log("positionAIGeneratedNodes: canvasItemAndIndex.element.id: \(canvasItemAndIndex.element.id)")
-                    // log("positionAIGeneratedNodes: newPosition: \(newPosition)")
-                    canvasItemAndIndex.element.position = newPosition
-                    canvasItemAndIndex.element.previousPosition = newPosition
-                }
-            }
-        }
-    }
-    
     @MainActor
     func deriveNewAIActions() -> [Step] {
         guard let oldGraphEntity = self.llmRecording.initialGraphState else {
@@ -346,6 +295,61 @@ extension StitchDocumentViewModel {
         try zip(oldActions, newActions).forEach { oldAction, newAction in
             if oldAction != newAction {
                 throw StitchAIManagerError.actionValidationError("Found unequal actions:\n\(try oldAction.convertToType())\n\(try newAction.convertToType())")
+            }
+        }
+    }
+}
+
+@MainActor
+func positionAIGeneratedNodes(convertedActions: [any StepActionable],
+                              nodes: VisibleNodesViewModel,
+                              viewPortCenter: CGPoint) {
+    
+    let (depthMap, hasCycle) = convertedActions.calculateAINodesAdjacency()
+    
+    guard let depthMap = depthMap,
+          !hasCycle else {
+        fatalErrorIfDebug("Did not have a cycle but was not able create depth-map")
+        return
+    }
+    
+    guard !depthMap.isEmpty else {
+        fatalErrorIfDebug("Depth-map should never be empty")
+        return
+    }
+                    
+    let depthLevels = depthMap.values.sorted().toOrderedSet
+
+    let createdNodes = convertedActions.nodesCreatedByLLMActions()
+    
+    // Iterate by depth-level, so that nodes at same depth (e.g. 0) can be y-offset from each other
+    depthLevels.forEach { depthLevel in
+
+        // TODO: just rewrite the adjacency logic to be a mapping of [Int: [UUID]] instead of [UUID: Int]
+        // Find all the created-nodes at this depth-level,
+        // and adjust their positions
+        let createdNodesAtThisLevel = createdNodes.compactMap {
+            if depthMap.get($0) == depthLevel {
+                return nodes.getViewModel($0)
+            }
+            log("positionAIGeneratedNodes: Could not get depth level for \($0.debugFriendlyId)")
+            return nil
+        }
+        
+        createdNodesAtThisLevel.enumerated().forEach { x in
+            let createdNode = x.element
+            let createdNodeIndexAtThisDepthLevel = x.offset
+            // log("positionAIGeneratedNodes: createdNode.id: \(createdNode.id)")
+            // log("positionAIGeneratedNodes: createdNodeIndexAtThisDepthLevel: \(createdNodeIndexAtThisDepthLevel)")
+            createdNode.getAllCanvasObservers().enumerated().forEach { canvasItemAndIndex in
+                let newPosition =  CGPoint(
+                    x: viewPortCenter.x + (CGFloat(depthLevel) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER),
+                    y: viewPortCenter.y + (CGFloat(canvasItemAndIndex.offset) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER) + (CGFloat(createdNodeIndexAtThisDepthLevel) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER)
+                )
+                // log("positionAIGeneratedNodes: canvasItemAndIndex.element.id: \(canvasItemAndIndex.element.id)")
+                // log("positionAIGeneratedNodes: newPosition: \(newPosition)")
+                canvasItemAndIndex.element.position = newPosition
+                canvasItemAndIndex.element.previousPosition = newPosition
             }
         }
     }
