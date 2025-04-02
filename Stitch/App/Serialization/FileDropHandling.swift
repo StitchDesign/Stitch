@@ -61,7 +61,7 @@ func handleOnDrop(providers: [NSItemProvider],
                         switch await store?.documentLoader.loadDocument(from: tempURL,
                                                                         isImport: true) {
                         case .loaded(let data, _):
-                            await store?.createNewProject(from: data, isProjectImport: true)
+                            await store?.createNewProjectSideEffect(from: data, isProjectImport: true)
                        default:
                             DispatchQueue.main.async {
                                 dispatch(DisplayError(error: .unsupportedProject))

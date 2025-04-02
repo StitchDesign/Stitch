@@ -40,10 +40,7 @@ struct SplitterPatchNode: PatchNodeDefinition {
 
 @MainActor
 func mediaAwareIdentityEvaluation(node: PatchNode) -> EvalResult {
-
-    // a Splitter patch must have a node-type
-    assertInDebug(node.userVisibleType.isDefined)
-
+    
     if node.userVisibleType == .media {
         // TODO: debug why this broke the Monthly Stays demo: https://github.com/StitchDesign/Stitch--Old/issues/7049
         return node.loopedEval { (values, loopIndex) -> MediaEvalOpResult in
