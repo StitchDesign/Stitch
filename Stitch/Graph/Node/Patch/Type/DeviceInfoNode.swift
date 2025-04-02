@@ -116,7 +116,7 @@ extension UIDeviceOrientation {
 
 @MainActor
 func deviceInfoNode(id: NodeId,
-                    position: CGSize = .zero,
+                    position: CGPoint = .zero,
                     zIndex: Double = 0) -> PatchNode {
 
     let inputs = fakeInputs(id: id)

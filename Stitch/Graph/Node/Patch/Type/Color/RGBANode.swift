@@ -21,7 +21,7 @@ func rgbaNode(id: NodeId,
               green: Double = greenDefault,
               blue: Double = blueDefault,
               alpha: Double = alphaDefault,
-              position: CGSize = .zero,
+              position: CGPoint = .zero,
               zIndex: Double = 0) -> PatchNode {
 
     let inputs = toInputs(

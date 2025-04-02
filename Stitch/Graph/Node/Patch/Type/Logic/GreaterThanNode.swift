@@ -14,7 +14,7 @@ import StitchSchemaKit
 @MainActor
 func greaterThanPatchNode(id: NodeId,
                           n: Double = 0,
-                          position: CGSize = .zero,
+                          position: CGPoint = .zero,
                           zIndex: Double = 0) -> PatchNode {
 
     let inputs = toInputs(

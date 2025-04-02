@@ -194,7 +194,7 @@ struct StepActionAddNode: StepActionable {
     static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .nodeName]
     
     func applyAction(graph: GraphState) throws {
-        guard let _ = graph.documentDelegate?.nodeCreated(choice: self.nodeName.asNodeKind,
+        guard let _ = graph.documentDelegate?.nodeInserted(choice: self.nodeName.asNodeKind,
                                                           nodeId: self.nodeId) else {
             throw StitchAIManagerError.actionValidationError("Could not create node \(self.nodeId.debugFriendlyId) \(self.nodeName)")
         }

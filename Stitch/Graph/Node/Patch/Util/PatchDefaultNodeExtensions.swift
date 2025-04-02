@@ -31,7 +31,7 @@ extension Patch {
     // so we decide both the default port values AND the default user-visible-type
     @MainActor
     func defaultNode(id: NodeId, // = NodeId(),
-                     position: CGSize,
+                     position: CGPoint,
                      zIndex: Double,
                      // TODO: separate 'first creation of node' from 'recreation of node via schema'
                      //                     firstCreation: Bool = true,
@@ -41,7 +41,7 @@ extension Patch {
         // Preferred newer method for node creation
         if let GraphNodeType = NodeKind.patch(self).graphNode {
             return GraphNodeType.createViewModel(id: id,
-                                                 position: position.toCGPoint,
+                                                 position: position,
                                                  zIndex: zIndex,
                                                  graphDelegate: graphDelegate)
         }

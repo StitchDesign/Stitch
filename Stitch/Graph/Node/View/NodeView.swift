@@ -213,56 +213,6 @@ struct NodeView: View {
     }
 }
 
-@MainActor
-func getFakeNode(choice: NodeKind,
-                 _ nodePosition: CGSize = .zero,
-                 _ zIndex: ZIndex = 1,
-                 customName: String? = nil) -> NodeViewModel? {
-
-    let document = StitchDocumentViewModel.createEmpty()
-    
-    if let node = document.nodeCreated(choice: choice) {
-                
-        if let customName = customName {
-            node.title = customName
-        }
-        
-        return node
-    }
-    
-    return nil
-}
-
-extension Patch {
-    
-    // TODO: this default-eval should probably be in `.defaultNode` ?
-    @MainActor
-    func getFakePatchNode(_ nodePosition: CGSize = .zero,
-                          _ zIndex: ZIndex = 1,
-                          customName: String? = nil) -> PatchNode? {
-        getFakeNode(choice: .patch(self), 
-                    nodePosition,
-                    zIndex,
-                    customName: customName)
-    }
-}
-
-extension Layer {
-    @MainActor
-    func getFakeLayerNode(_ nodePosition: CGSize = .zero,
-                          _ zIndex: ZIndex = 1,
-                          customName: String? = nil) -> LayerNode? {
-        getFakeNode(choice: .layer(self),
-                    nodePosition,
-                    zIndex,
-                    customName: customName)
-    }
-}
-
-//#Preview {
-//    FakeNodeView(node: getFakeNode(choice: .patch(.add))!)
-//}
-
 struct CanvasItemBodyDivider: View {
     var body: some View {
         Divider().height(1)

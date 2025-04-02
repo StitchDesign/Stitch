@@ -11,7 +11,7 @@ import StitchSchemaKit
 
 @MainActor
 func roundedRectangleShapeNode(id: NodeId,
-                               position: CGSize = .zero,
+                               position: CGPoint = .zero,
                                zIndex: Double = 0) -> PatchNode {
 
     let rect: RoundedRectangleData = CGRect.defaultRoundedRectangle

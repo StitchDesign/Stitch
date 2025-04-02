@@ -12,7 +12,7 @@ import StitchSchemaKit
 @MainActor
 func lessThanOrEqualPatchNode(id: NodeId,
                               n: Double = 200,
-                              position: CGSize = .zero,
+                              position: CGPoint = .zero,
                               zIndex: Double = 0) -> PatchNode {
 
     let inputs = toInputs(

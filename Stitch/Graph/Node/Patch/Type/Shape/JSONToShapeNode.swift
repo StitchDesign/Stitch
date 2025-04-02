@@ -18,7 +18,7 @@ extension JSON {
 
 @MainActor
 func jsonToShapeNode(id: NodeId,
-                     position: CGSize = .zero,
+                     position: CGPoint = .zero,
                      zIndex: Double = 0) -> PatchNode {
 
     let startingJson = StitchJSON.emptyJSONObject // JSON(parseJSON: sampleCurveToJSON)

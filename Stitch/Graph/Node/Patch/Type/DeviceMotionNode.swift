@@ -15,7 +15,7 @@ typealias StitchMotionManagersDict = [NodeId: CMMotionManager]
 
 @MainActor
 func deviceMotionNode(id: NodeId,
-                      position: CGSize = .zero,
+                      position: CGPoint = .zero,
                       zIndex: Double = 0) -> PatchNode {
 
     let inputs = fakeInputs(id: id)

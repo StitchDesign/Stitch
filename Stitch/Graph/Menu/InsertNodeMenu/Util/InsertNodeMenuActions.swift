@@ -89,7 +89,7 @@ struct AddNodeButtonPressed: StitchDocumentEvent {
         
         // Immediately create a LayerNode; do not animate.
         if nodeKind.isLayer {
-            guard let newNode = state.nodeCreated(choice: nodeKind) else {
+            guard let newNode = state.nodeInserted(choice: nodeKind) else {
                 return
             }
             state.nodeCreationCompleted(newNode.id)
@@ -97,7 +97,7 @@ struct AddNodeButtonPressed: StitchDocumentEvent {
         } else {
             // Create the real node, but hide it until animation has completed.
             // (Versus the "animated node" which is really just a NodeView created from activeSelection.)
-            guard let node = state.nodeCreated(choice: nodeKind) else {
+            guard let node = state.nodeInserted(choice: nodeKind) else {
                 return
             }
             

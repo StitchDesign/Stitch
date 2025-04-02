@@ -20,7 +20,7 @@ func soulve(_ s: String) -> String {
 @MainActor
 func soulverNode(id: NodeId,
                  n1: String = "",
-                 position: CGSize = .zero,
+                 position: CGPoint = .zero,
                  zIndex: Double = 0) -> PatchNode {
 
     let inputs = toInputs(

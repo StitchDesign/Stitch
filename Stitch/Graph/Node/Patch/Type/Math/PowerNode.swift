@@ -12,7 +12,7 @@ import StitchSchemaKit
 func powerNode(id: NodeId,
                n: Double = 1,
                n2: Double = 0,
-               position: CGSize = .zero,
+               position: CGPoint = .zero,
                zIndex: Double = 0) -> PatchNode {
 
     let inputs = toInputs(
