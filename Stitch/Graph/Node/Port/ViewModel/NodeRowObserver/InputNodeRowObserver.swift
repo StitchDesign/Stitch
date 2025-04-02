@@ -78,6 +78,8 @@ extension InputNodeRowObserver {
     // Note: cannot be used in `StitchEngine` until SE no longer already updates `self.values = incomingValues`
     @MainActor
     func updateValuesInInput(_ incomingValues: PortValues,
+                             // Always true excerpt for node-type-change
+                             shouldCoerceToExistingInputType: Bool = true,
                              // TODO: remove once StitchEngine.setValuesInInput no longer already does `self.values = values`
                              passedDownOldValues: PortValues? = nil) {
         
@@ -101,18 +103,19 @@ extension InputNodeRowObserver {
             return
         }
         
-        // Coerce the incoming values to be the same type as the input's existing type;
-        // useful safeguard
-        let coercedValues = self.coerce(theseValues: incomingValues,
-                                        toThisType: inputType,
-                                        currentGraphTime: graph.currentGraphTime)
+        var newValues = incomingValues
+        if shouldCoerceToExistingInputType {
+            newValues = self.coerce(theseValues: incomingValues,
+                                    toThisType: inputType,
+                                    currentGraphTime: graph.currentGraphTime)
+        }
         
         // Set the coerced values in the input
-        self.setValuesInRowObserver(coercedValues)
+        self.setValuesInRowObserver(newValues)
         
         // Update other parts of graph state in response to input change
         self.inputPostProcessing(oldValues: oldValues,
-                                 newValues: coercedValues)
+                                 newValues: newValues)
     }
     
     // ONLY called by StitchEngine
