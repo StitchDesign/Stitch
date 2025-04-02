@@ -65,13 +65,13 @@ extension InputNodeRowObserver {
         // If we had preserved values for this node type,
         // do we really need to coerce again?
         // They're already same type.
-        self.coerceUpdate(these: valuesToUse,
-                          to: newType.defaultPortValue,
-                          oldValues: values, // treat self.loopedValues as oldValues ?
-                          currentGraphTime: currentGraphTime)
         
-        // Update port views
-        self.nodeDelegate?.graphDelegate?.portsToUpdate.insert(NodePortType.input(self.id))
+        let valuesCoercedToNewType = valuesToUse.coerce(to: newType.defaultPortValue,
+                                                        currentGraphTime: currentGraphTime)
+        
+        self.updateValuesInInput(valuesCoercedToNewType,
+                                 // already coerced
+                                 shouldCoerceToExistingInputType: false)
     }
 }
 
