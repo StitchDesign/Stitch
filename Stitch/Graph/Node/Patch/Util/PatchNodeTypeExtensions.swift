@@ -20,7 +20,8 @@ extension UserVisibleType {
 
     var isSelectableAsNodeType: Bool {
         switch self {
-        case .none, .int, .shapeCommandType, .scrollMode, .scrollJumpStyle, .scrollDecelerationRate, .textVerticalAlignment, .textAlignment, .textTransform, .shapeCoordinates:
+        case .none, .int, .shapeCommandType, .scrollMode, .scrollJumpStyle, .scrollDecelerationRate, .textVerticalAlignment, .textAlignment, .textTransform, .shapeCoordinates,
+                .lightType, .mapType, .materialThickness, .mobileHapticStyle, .anchorEntity, .progressIndicatorStyle, .contentMode, .dateAndTimeFormat, .delayStyle, .plane, .deviceAppearance, .deviceOrientation, .vnImageCropOption, .strokeLineCap, .strokeLineJoin, .blendMode:
             return false
         default:
             return true
