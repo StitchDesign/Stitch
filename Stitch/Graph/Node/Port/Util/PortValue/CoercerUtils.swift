@@ -192,34 +192,6 @@ extension PortValues {
 }
 
 extension InputNodeRowObserver {
-    /*
-     Coerce the passed in PortValues to the type represented by `thisType: PortValue`.
-
-     There are two use cases:
-
-     1. Setting new values in an existing input:
-     `(values: [P], input: [T]) -> input: [T]`
-     e.g. ``
-
-     2. Changing an existing input’s type: e.g. `NodeRowObserver.changeInputType`
-     `(newType: P, input: [T]) -> input: [P]`
-
-     */
-    @MainActor
-    func coerceUpdate(these values: PortValues,
-                      to thisType: PortValue,
-                      oldValues: PortValues, // ALL old values
-                      // Additional data used for input coercion:
-                      currentGraphTime: TimeInterval) {
-
-        let newValues = values.coerce(to: thisType,
-                                      currentGraphTime: currentGraphTime)
-
-        self.updateValuesInInput(newValues)
-    }
-}
-
-extension InputNodeRowObserver {
     
     // Used by StitchEngine when checking whether
     // a downstream input value has changed.
