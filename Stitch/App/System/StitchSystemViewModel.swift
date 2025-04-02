@@ -56,7 +56,7 @@ final class StitchSystemViewModel: Sendable, Identifiable {
 
 extension StitchSystemViewModel: DocumentEncodableDelegate {
     func update(from schema: StitchSystem,
-                rootUrl: URL) {
+                rootUrl: URL?) {
         // TODO: come back here
         fatalError()
     }

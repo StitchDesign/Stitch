@@ -305,7 +305,7 @@ struct ProjectsHomeCommands: Commands {
                 if activeProject {
                     INSERT_NODE_ACTION()
                 } else {
-                    store.createNewProject(isProjectImport: false)
+                    store.createNewProjectSideEffect(isProjectImport: false)
                 }
             }
 

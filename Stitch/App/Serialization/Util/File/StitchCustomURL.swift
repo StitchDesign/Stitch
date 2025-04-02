@@ -89,7 +89,7 @@ func onCampsiteURLOpen(_ url: URL, store: StitchStore) async throws {
         }
             
         log("onCampsiteURLOpen: will open project from document")
-        await store.createNewProject(from: document, isProjectImport: true)
+        await store.createNewProjectSideEffect(from: document, isProjectImport: true)
     }
     
     return

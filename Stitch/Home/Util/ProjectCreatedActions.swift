@@ -10,9 +10,10 @@ import StitchSchemaKit
 
 // Creating a brand new project: empty state, no imported files
 extension StitchStore {
+    // fka `createNewProject`; but we need to indicate in some way, if not by type signature, that this is a side-effect
     @MainActor
-    func createNewProject(from document: StitchDocument = .init(),
-                          isProjectImport: Bool) {
+    func createNewProjectSideEffect(from document: StitchDocument = .init(),
+                                    isProjectImport: Bool) {
         let isPhoneDevice = GraphUIState.isPhoneDevice
         
         Task(priority: .high) { [weak self] in
