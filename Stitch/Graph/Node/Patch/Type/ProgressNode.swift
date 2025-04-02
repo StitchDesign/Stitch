@@ -14,7 +14,7 @@ func progressNode(id: NodeId,
                   n: Double = 50,
                   start: Double = 0,
                   end: Double = 100,
-                  position: CGSize = .zero,
+                  position: CGPoint = .zero,
                   zIndex: Double = 0) -> PatchNode {
 
     let inputs = toInputs(

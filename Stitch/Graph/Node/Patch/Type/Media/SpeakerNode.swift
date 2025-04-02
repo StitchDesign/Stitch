@@ -13,7 +13,7 @@ import AudioKit
 @MainActor
 func speakerNode(id: NodeId,
                  audio: AsyncMediaValue? = nil,
-                 position: CGSize = .zero,
+                 position: CGPoint = .zero,
                  zIndex: Double = 0) -> PatchNode {
     let inputs = toInputs(
         id: id,

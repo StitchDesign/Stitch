@@ -13,7 +13,7 @@ import SwiftyJSON
 @MainActor
 func subarrayNode(id: NodeId,
                   startingJson: StitchJSON = emptyStitchJSONArray,
-                  position: CGSize = .zero,
+                  position: CGPoint = .zero,
                   zIndex: Double = 0) -> PatchNode {
 
     let inputs = toInputs(

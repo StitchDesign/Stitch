@@ -13,7 +13,7 @@ import SwiftyJSON
 @MainActor
 func arrayCountNode(id: NodeId,
                     startingJson: StitchJSON = emptyStitchJSONObject,
-                    position: CGSize = .zero,
+                    position: CGPoint = .zero,
                     zIndex: Double = 0) -> PatchNode {
 
     let inputs = toInputs(

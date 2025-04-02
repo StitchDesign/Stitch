@@ -13,7 +13,7 @@ import Numerics
 @MainActor
 func cosineNode(id: NodeId,
                 n: Double = 0.0,
-                position: CGSize = .zero,
+                position: CGPoint = .zero,
                 zIndex: Double = 0,
                 nLoop: PortValues? = nil) -> PatchNode {
 

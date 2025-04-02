@@ -12,6 +12,32 @@ import StitchSchemaKit
 final class nodeTypeTests: XCTestCase {
 
     @MainActor
+    func testNodeTypeChange() async throws {
+        let document = await StitchDocumentViewModel.createTestFriendlyDocument()
+        let node = try XCTUnwrap(document.nodeInserted(choice: .patch(.add)))
+        
+        let numberInputs = node.inputsObservers.allSatisfy { (input: InputNodeRowObserver) in
+            input.allLoopedValues.allSatisfy { (value: PortValue) in
+                value.getNumber.isDefined
+            }
+        }
+                
+        XCTAssertTrue(numberInputs)
+                
+        let _ = document.graph.nodeTypeChanged(nodeId: node.id,
+                                               newNodeType: .size,
+                                               activeIndex: document.activeIndex)
+        
+        let sizeInputs = node.inputsObservers.allSatisfy { (input: InputNodeRowObserver) in
+            input.allLoopedValues.allSatisfy { (value: PortValue) in
+                value.getSize.isDefined
+            }
+        }
+                
+        XCTAssertTrue(sizeInputs)
+    }
+    
+    @MainActor
     func testPatchNodeUserVisibleType() throws {
 
         Patch.allCases.forEach { patch in

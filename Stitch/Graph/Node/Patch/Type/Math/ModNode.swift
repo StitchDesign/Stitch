@@ -13,7 +13,7 @@ import StitchSchemaKit
 func modNode(id: NodeId,
              n1: Double = 1.0,
              n2: Double = 0.0,
-             position: CGSize = .zero,
+             position: CGPoint = .zero,
              zIndex: Double = 0,
              n1Loop: PortValues? = nil,
              n2Loop: PortValues? = nil) -> PatchNode {

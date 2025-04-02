@@ -14,7 +14,7 @@ import SwiftyJSON
 func loopOverArrayNode(id: NodeId,
                        key: String = "",
                        startingJson: StitchJSON = emptyStitchJSONObject,
-                       position: CGSize = .zero,
+                       position: CGPoint = .zero,
                        zIndex: Double = 0) -> PatchNode {
 
     let inputs = toInputs(

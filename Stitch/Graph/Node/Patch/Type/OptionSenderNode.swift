@@ -16,7 +16,7 @@ let OPTION_SENDER_PATCH_NODE_OUTPUT_COUNT: Int = 3
 func optionSenderNode(id: NodeId,
                       n: Double? = nil,
                       n2: Double? = nil,
-                      position: CGSize = .zero,
+                      position: CGPoint = .zero,
                       zIndex: Double = 0) -> PatchNode {
 
     let inputs = toInputs(

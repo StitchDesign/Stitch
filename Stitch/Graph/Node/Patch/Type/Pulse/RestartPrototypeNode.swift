@@ -14,7 +14,7 @@ import StitchSchemaKit
 // it's evaluation will be the same as body of 'handleGraphReset'
 @MainActor
 func restartPrototypeNode(id: NodeId,
-                          position: CGSize = .zero,
+                          position: CGPoint = .zero,
                           zIndex: Double = 0) -> PatchNode {
 
     let inputs = toInputs(id: id, values: ("Restart", [pulseDefaultFalse])) // receives pulse

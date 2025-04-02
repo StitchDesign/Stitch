@@ -13,7 +13,7 @@ import StitchSchemaKit
 func multiplyPatchNode(id: NodeId,
                        n1: Double = 0,
                        n2: Double = 0,
-                       position: CGSize = .zero, zIndex: Double = 0) -> PatchNode {
+                       position: CGPoint = .zero, zIndex: Double = 0) -> PatchNode {
     let inputs = toInputs(id: id,
                           values: (nil, [.number(n1)]),
                           (nil, [.number(n2)]))

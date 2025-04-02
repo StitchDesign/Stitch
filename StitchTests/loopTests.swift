@@ -39,7 +39,7 @@ final class loopTests: XCTestCase {
          Old bug: JSONArray was adding its output to the list of inputs to turn into an array.
          Not caught by existing JSONArrayFromValues test because the bug came from `nodeViewModel.loopedEval` helper.
          */
-        if let node = StitchDocumentViewModel.createEmpty().nodeCreated(choice: .patch(.jsonArray)) {
+        if let node = StitchDocumentViewModel.createEmpty().nodeInserted(choice: .patch(.jsonArray)) {
             
             // How many inputs does the JSONArray node have?
             let inputCount = node.inputs.count

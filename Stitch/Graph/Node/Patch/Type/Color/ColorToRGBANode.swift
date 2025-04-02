@@ -14,7 +14,7 @@ func colorToRGBANode(id: NodeId,
                      hue: Double = hueDefault,
                      saturation: Double = saturationDefault,
                      lightness: Double = lightnessDefault,
-                     position: CGSize = .zero,
+                     position: CGPoint = .zero,
                      zIndex: Double = 0) -> PatchNode {
 
     let initialColor: Color = falseColor

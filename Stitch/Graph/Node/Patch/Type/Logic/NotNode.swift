@@ -12,7 +12,7 @@ import StitchSchemaKit
 @MainActor
 func notNode(id: NodeId,
              n1: Bool = false,
-             position: CGSize = .zero,
+             position: CGPoint = .zero,
              zIndex: Double = 0) -> PatchNode {
 
     let inputs = toInputs(id: id,
