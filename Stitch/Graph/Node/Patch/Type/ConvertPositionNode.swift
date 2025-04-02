@@ -12,7 +12,7 @@ import StitchSchemaKit
 @MainActor
 func convertPositionNode(nodeId: NodeId = NodeId(),
                          n1: Double = 0.0,
-                         position: CGSize = .zero,
+                         position: CGPoint = .zero,
                          zIndex: Double = 0,
                          interactionId: PortValue = interactionIdDefault) -> PatchNode {
     let inputs = toInputs(

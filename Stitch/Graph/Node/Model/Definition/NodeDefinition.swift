@@ -117,18 +117,6 @@ extension NodeDefinition {
                       parentGroupNodeId: parentGroupNodeId,
                       graphDelegate: graphDelegate)
     }
-
-//    @MainActor
-//    static func createFakeViewModel() -> NodeViewModel {
-//        Self.createViewModel(position: .zero,
-//                             zIndex: .zero,
-//                             activeIndex: .init(.zero))
-//    }
-//
-//    @MainActor
-//    static func createFakeNodeEntity() -> NodeEntity {
-//        Self.createFakeViewModel().createSchema()
-//    }
 }
 
 // fka `GraphNodeKind`

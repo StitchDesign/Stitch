@@ -13,7 +13,7 @@ import StitchSchemaKit
 func optionPickerPatchNode(id: NodeId,
                            n: Double? = 0,
                            n2: Double? = 1,
-                           nodePosition: CGSize = .zero,
+                           nodePosition: CGPoint = .zero,
                            nodeZIndex: Double = 0) -> PatchNode {
 
     // default

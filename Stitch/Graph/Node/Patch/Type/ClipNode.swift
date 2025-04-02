@@ -14,7 +14,7 @@ func clipNode(id: NodeId,
               n: Double = 0,
               min: Double = -5,
               max: Double = 5,
-              position: CGSize = .zero,
+              position: CGPoint = .zero,
               zIndex: Double = 0) -> PatchNode {
 
     let inputs = toInputs(

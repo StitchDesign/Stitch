@@ -11,7 +11,7 @@ import StitchSchemaKit
 // TODO: needs more node types ?
 @MainActor
 func loopDedupeNode(id: NodeId,
-                    position: CGSize = .zero,
+                    position: CGPoint = .zero,
                     zIndex: Double = 0) -> PatchNode {
 
     let inputs = toInputs(

@@ -55,7 +55,7 @@ extension String {
 // No inputs (ie inputs are disabled
 @MainActor
 func dateAndTimeFormatterNode(id: NodeId,
-                              position: CGSize = .zero,
+                              position: CGPoint = .zero,
                               zIndex: Double = 0) -> PatchNode {
 
     let inputs = toInputs(

@@ -400,35 +400,3 @@ extension VisibleNodesViewModel {
         }
     }
 }
-
-extension InsertNodeMenuState {
-    @MainActor
-    func fakeNode(_ nodePosition: CGPoint) -> NodeViewModel? {
-
-        // log("InsertNodeMenuState: fakeNode")
-
-        // Note: Technically, zIndex of animating-node doesn't matter, since it sits above GraphBaseView,
-        // and is removed when insert-animation finishes.
-        //        let zIndex: ZIndex = 99999999
-        let zIndex: ZIndex = 1
-
-        guard let activeSelection = self.activeSelection else {
-            // log("InsertNodeMenuState: fakeNode: no active selection")
-            return nil
-        }
-
-        switch activeSelection.data {
-
-        case .patch(let patch):
-            return patch.getFakePatchNode(nodePosition.toCGSize, zIndex)
-
-        case .layer(let layer):
-            return layer.getFakeLayerNode(nodePosition.toCGSize, zIndex)
-
-        default:
-            // TODO: implement components-choice
-            log("InsertNodeMenuState: had neither patch nor layer")
-            return nil
-        }
-    }
-}

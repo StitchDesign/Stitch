@@ -47,7 +47,7 @@ struct OptionSwitchPatchNode: PatchNodeDefinition {
 
 @MainActor
 func optionSwitchPatchNode(id: NodeId,
-                           position: CGSize = .zero,
+                           position: CGPoint = .zero,
                            zIndex: Double = 0) -> PatchNode {
 
     let inputs = toInputs(

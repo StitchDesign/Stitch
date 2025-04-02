@@ -16,7 +16,7 @@ func equalsPatchNode(id: NodeId,
                      n1: Double = 0,
                      n2: Double = 0,
                      threshold: Double = 0,
-                     position: CGSize = .zero,
+                     position: CGPoint = .zero,
                      zIndex: Double = 0) -> PatchNode {
 
     let inputs = toInputs(

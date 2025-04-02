@@ -14,7 +14,7 @@ import Numerics
 func arcTan2Node(id: NodeId,
                  y: Double = 0.0,
                  x: Double = 0.0,
-                 position: CGSize = .zero,
+                 position: CGPoint = .zero,
                  zIndex: Double = 0,
                  yLoop: PortValues? = nil,
                  xLoop: PortValues? = nil) -> PatchNode {
