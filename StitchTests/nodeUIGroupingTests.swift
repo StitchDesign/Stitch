@@ -23,14 +23,12 @@ extension XCTestCase {
 
 class GroupNodeTests: XCTestCase {
     
-    @MainActor
-    let mockEnvironment = StitchEnvironment()
-    
     /// Simple GroupNode with two Add nodes inside; no incoming/outgoing edges or splitters.
     @MainActor
-    func createSimpleGroupNode() async -> (StitchDocumentViewModel, NodeViewModel) {
-        let document = StitchDocumentViewModel.createEmpty()
+    static func createSimpleGroupNode() async -> (StitchDocumentViewModel, NodeViewModel) {
+        let document = await StitchDocumentViewModel.createTestFriendlyDocument()
         let graphState = document.graph
+
         graphState.documentDelegate = document
         
         // Create two Add nodes
@@ -75,38 +73,38 @@ class GroupNodeTests: XCTestCase {
     @MainActor
     func testSimpleGroupNodeCreation() async throws {
         // MARK: SIMPLE NODE UI GROUP -- TWO ADD NODES, NO INCOMING OR OUTGOING EDGES
-        let _ = await createSimpleGroupNode()        //        selectedGraphItemsDuplicated
+        let _ = await Self.createSimpleGroupNode()
     }
     
     @MainActor
     func testSimpleGroupNodeDuplication() async throws {
-        let (document, groupNode) = await createSimpleGroupNode()
-        let graphState = document.graph
+        let (document, groupNode) = await Self.createSimpleGroupNode()
+//        let graphState = document.graph
         let groupNodeId = groupNode.id
         
         guard let canvasItem = groupNode.patchCanvasItem else {
             XCTFail()
             fatalError()
         }
-        
-        graphState.selectCanvasItem(canvasItem.id)
+                
+        document.visibleGraph.selectCanvasItem(canvasItem.id)
         
         // Make sure only one node is selected
         // TODO: fix after changing "selecting group node = selecting its splitters as well"
-        XCTAssertEqual(graphState.selectedCanvasItems.count, 1)
-        XCTAssertEqual(graphState.selectedCanvasItems.first!, canvasItem.id)
+        XCTAssertEqual(document.visibleGraph.selectedCanvasItems.count, 1)
+        XCTAssertEqual(document.visibleGraph.selectedCanvasItems.first!, canvasItem.id)
+                
+        document.duplicateShortcutKeyPressed()
         
-        await document.duplicateShortcutKeyPressed()
+        XCTAssertEqual(document.visibleGraph.groupNodes.keys.count, 2)
         
-        XCTAssertEqual(graphState.groupNodes.keys.count, 2)
-        
-        guard let otherGroupNodeId = graphState.groupNodes.keys.first(where: { $0 != groupNodeId }) else {
+        guard let otherGroupNodeId = document.visibleGraph.groupNodes.keys.first(where: { $0 != groupNodeId }) else {
             XCTFail()
             return
         }
         
-        XCTAssertEqual(graphState.nodes.values.filter { $0.patchCanvasItem?.parentGroupNodeId == groupNodeId }.count, 2)
-        XCTAssertEqual(graphState.nodes.values.filter { $0.patchCanvasItem?.parentGroupNodeId == otherGroupNodeId }.count, 2)
+        XCTAssertEqual(document.visibleGraph.nodes.values.filter { $0.patchCanvasItem?.parentGroupNodeId == groupNodeId }.count, 2)
+        XCTAssertEqual(document.visibleGraph.nodes.values.filter { $0.patchCanvasItem?.parentGroupNodeId == otherGroupNodeId }.count, 2)
     }
 }
 

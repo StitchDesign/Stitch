@@ -25,10 +25,8 @@ protocol DocumentEncodableDelegate: Observable, AnyObject, Sendable {
     @MainActor var lastEncodedDocument: CodableDocument { get set }
     
     @MainActor func createSchema(from graph: GraphState?) -> CodableDocument
-    
-//    func updateAsync(from schema: CodableDocument) async
-    
-    @MainActor func update(from schema: CodableDocument, rootUrl: URL)
+        
+    @MainActor func update(from schema: CodableDocument, rootUrl: URL?)
     
     @MainActor func willEncodeProject(schema: CodableDocument)
     

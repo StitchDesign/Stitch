@@ -478,10 +478,17 @@ extension GraphState {
         self.layersSidebarViewModel.update(from: schema.orderedSidebarLayers)
     }
     
-    @MainActor func update(from schema: GraphEntity, rootUrl: URL) {
+    @MainActor func update(from schema: GraphEntity, rootUrl: URL?) {
         self.updateSynchronousProperties(from: schema)
         
-        if let decodedFiles = DocumentEncoder.getDecodedFiles(rootUrl: rootUrl) {
+        // If we're not in a test context (closest proxy = simulator),
+        // rootUrl should be non-nil.
+        // TODO: `rootUrl` is currently nil in a test context; can we find a smarter way to handle the projectLoader/documentEncoder ?
+        #if !targetEnvironment(simulator)
+        assertInDebug(rootUrl.isDefined)
+        #endif
+        if let rootUrl = rootUrl,
+           let decodedFiles = DocumentEncoder.getDecodedFiles(rootUrl: rootUrl) {
             self.importedFilesDirectoryReceived(mediaFiles: decodedFiles.mediaFiles,
                                                 components: decodedFiles.components)
         }
@@ -494,11 +501,9 @@ extension GraphState {
     
     @MainActor
     func update(from entity: GraphEntity) {
-        guard let rootUrl = self.documentEncoderDelegate?.rootUrl else {
-            return
-        }
-        
-        self.update(from: entity, rootUrl: rootUrl)
+        self.update(from: entity,
+                    // TODO: 'updating view models according to schema' should not require that we have a document encoder; in certain contexts (e.g. tests) we won't have a project loader
+                    rootUrl: self.documentEncoderDelegate?.rootUrl)
     }
     
     @MainActor func onPrototypeRestart() {
