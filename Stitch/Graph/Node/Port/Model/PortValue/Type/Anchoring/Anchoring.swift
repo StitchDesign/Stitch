@@ -153,8 +153,22 @@ func adjustPosition(size: CGSize, // child's size
         + (parentSize.height * anchor.y)
         - (size.height * (anchor.y - 0.5))
     
-    return .init(x: x, y: y)
     
+    
+    // subtract parentSize/2 since we now use .offset instead of .position modifier
+    let k = CGPoint(x: x - parentSize.width/2,
+                   y: y - parentSize.height/2)
+    
+    print("adjustPosition: size: \(size)")
+    print("adjustPosition: position: \(position)")
+    print("adjustPosition: anchor: \(anchor)")
+    print("adjustPosition: parentSize: \(parentSize)")
+    
+    print("adjustPosition: x: \(x)")
+    print("adjustPosition: y: \(y)")
+    print("adjustPosition: k: \(k)")
+    
+    return k
 }
 
 struct Anchoring_REPL_View: View {

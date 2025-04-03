@@ -90,7 +90,10 @@ struct PreviewGroupLayer: View {
     }
 
     var _size: CGSize {
-        size.asCGSize(parentSize)
+        let k = size.asCGSizeForLayer(parentSize: parentSize,
+                                      readSize: layerViewModel.readSize)
+        log("PreviewGroupLayer: _size: k")
+        return k
     }
 
     // TODO: what if only one dimension uses .hug ?
@@ -107,7 +110,8 @@ struct PreviewGroupLayer: View {
     }
     
     var pos: StitchPosition {
-        adjustPosition(
+        log("PreviewGroupLayer: pos")
+        return adjustPosition(
             //size: layerViewModel.readSize, // size.asCGSize(parentSize),
             size: size.asCGSizeForLayer(parentSize: parentSize,
                                         readSize: layerViewModel.readSize),
@@ -139,7 +143,10 @@ struct PreviewGroupLayer: View {
                 maxHeight: layerViewModel.getMaxHeight,
                 parentSize: parentSize,
                 sizingScenario: layerViewModel.getSizingScenario,
-                frameAlignment: anchoring.toAlignment))
+//                frameAlignment: anchoring.toAlignment
+                // Now, since child layers position themselves using .offset, all layer-groups need to use .center alignment
+                frameAlignment: .center
+            ))
 
             .background {
                 // TODO: Better way to handle slight gap between outside stroke and background edge when using corner radius? Outside stroke is actually an .overlay'd shape that is slightly larger than the stroked shape.

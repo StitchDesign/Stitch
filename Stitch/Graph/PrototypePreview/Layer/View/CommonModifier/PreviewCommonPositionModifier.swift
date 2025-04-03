@@ -87,7 +87,8 @@ struct PreviewCommonPositionModifier: ViewModifier {
                .offset(x: offset.width, y: offset.height)
         } else {
             content
-                .position(x: pos.x, y: pos.y)
+                .offset(x: pos.x, y: pos.y)
+                //.position(x: pos.x, y: pos.y)
         }
     }
 }

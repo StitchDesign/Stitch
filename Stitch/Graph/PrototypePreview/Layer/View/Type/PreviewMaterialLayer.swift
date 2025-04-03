@@ -137,9 +137,6 @@ struct PreviewMaterialLayer: View {
                 
             }
         }
-        
-        
-        
             .opacity(viewModel.opacity.getNumber ?? defaultOpacityNumber)
             .modifier(PreviewCommonModifier(
                 document: document,
