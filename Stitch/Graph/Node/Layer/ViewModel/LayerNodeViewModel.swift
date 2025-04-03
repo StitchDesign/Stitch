@@ -27,12 +27,7 @@ final class LayerNodeViewModel {
     // View models for layers in prototype window
     @MainActor var previewLayerViewModels: [LayerViewModel] = []
  
-    // Processes media
-    
-    // TODO: this won't work, we need to process a potential loop. Should always be at top level because
-    // 1. manual user edits happen here, and
-    // 2. computed media gets processed by hoseflow
-    
+    // Gets updated when upstream nodes pass down media
     @MainActor var mediaList = [GraphMediaValue?]()
     
     // Some layer nodes contain outputs
