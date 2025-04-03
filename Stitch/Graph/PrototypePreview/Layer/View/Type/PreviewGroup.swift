@@ -107,10 +107,12 @@ struct PreviewGroupLayer: View {
     }
     
     var pos: StitchPosition {
-        adjustPosition(
-            //size: layerViewModel.readSize, // size.asCGSize(parentSize),
-            size: size.asCGSizeForLayer(parentSize: parentSize,
-                                        readSize: layerViewModel.readSize),
+        log("pos called for PreviewGroupLayer")
+        return adjustPosition(
+//            size: layerViewModel.readSize, // size.asCGSize(parentSize),
+            size: size.asCGSize(parentSize),
+//            size: size.asCGSizeForLayer(parentSize: parentSize,
+//                                        readSize: layerViewModel.readSize),
             position: position,
             anchor: anchoring,
             parentSize: parentSize)
@@ -139,136 +141,93 @@ struct PreviewGroupLayer: View {
                 maxHeight: layerViewModel.getMaxHeight,
                 parentSize: parentSize,
                 sizingScenario: layerViewModel.getSizingScenario,
-                frameAlignment: anchoring.toAlignment))
-
-            .background {
-                // TODO: Better way to handle slight gap between outside stroke and background edge when using corner radius? Outside stroke is actually an .overlay'd shape that is slightly larger than the stroked shape.
-//                backgroundColor.cornerRadius(cornerRadius - (stroke.stroke == .outside ? stroke.width/2 : 0))
-//                backgroundColor.cornerRadius(strokeAdjustedCornerRadius)
-                RoundedRectangle(cornerRadius: strokeAdjustedCornerRadius).fill(backgroundColor)
-            }
-        
-        //            // DEBUG ONLY
-        //        #if DEV_DEBUG
-        //            .border(.red)
-        //        #endif
-        
-            .modifier(PreviewSidebarHighlightModifier(
-                viewModel: layerViewModel,
-                isPinnedViewRendering: isPinnedViewRendering,
-                nodeId: interactiveLayer.id.layerNodeId.asNodeId,
-                highlightedSidebarLayers: graph.layersSidebarViewModel.highlightedSidebarLayers,
-                scale: scale))
-                        
-        // .clipped modifier should come before the offset/position modifier,
-        // so that it's affected by the offset/position modifier
-            .modifier(ClippedModifier(isClipped: isClipped,
-                                      cornerRadius: strokeAdjustedCornerRadius))
-        
-        // Stroke needs to come AFTER the .clipped modifier, so that .outsideStroke is not cut off.
-            .modifier(ApplyStroke(viewModel: layerViewModel,
-                                  isPinnedViewRendering: isPinnedViewRendering,
-                                  stroke: stroke,
-                                  // Uses non-stroke adjusted corner radius, since .stitchStroke will handle the adjustment 
-                                  cornerRadius: cornerRadius))
-
-            // TODO: are these layer-effects working properly on layer group?
-            .modifier(PreviewLayerEffectsModifier(
-                blurRadius: blurRadius,
-                blendMode: blendMode,
-                brightness: brightness,
-                colorInvert: colorInvert,
-                contrast: contrast,
-                hueRotation: hueRotation,
-                saturation: saturation))
-        
-            .background {
-                /*
-                 Note 1:
-                 
-                 We apply shadow as background to a rectangle; else the Stack + each child receives the shadow (whereas we only want the Stack to have the shadow)
-                 
-                 Alternatively?: use `.compositingGroup -> .shadow` so that shadow is applied to Stack (parnet) but not children.
-                 CAREFUL: not sure what other effects `.compositingGroup` may have on child views
-                 
-                 
-                 Note 2:
-                 
-                 Even with `.compositingGroup`, a clear background will never have a shadow.
-                 
-                 Alternatively?: provide a 'dummy' background color so group can have a shadow even if group has a clear background? Unfortunately, .opacity(0.01) etc. also dims shadow.
-                 */
-                RoundedRectangle(cornerRadius: strokeAdjustedCornerRadius)
-                    .fill(backgroundColor)
-                // Shadow modifier needs to come AFTER .clipped, so shadow is not cut off.
-                    .modifier(PreviewShadowModifier(
-                        shadowColor: shadowColor,
-                        shadowOpacity: shadowOpacity,
-                        shadowRadius: shadowRadius,
-                        shadowOffset: shadowOffset))
-            }
-        
-        // moved here, so that .rotation affects .shadow
-            .modifier(PreviewLayerRotationModifier(
-                graph: graph,
-                viewModel: layerViewModel,
-                isPinnedViewRendering: isPinnedViewRendering,
-                rotationX: rotationX,
-                rotationY: rotationY,
-                rotationZ: rotationZ))
-        
-            .opacity(opacity) // opacity on group and all its contents
-        
-            .scaleEffect(CGFloat(scale),
-                         anchor: pivot.toPivot)
                 
-            .modifier(PreviewCommonPositionModifier(
-                graph: graph,
-                viewModel: layerViewModel,
-                isPinnedViewRendering: isPinnedViewRendering,
-                parentDisablesPosition: parentDisablesPosition,
-                parentIsScrollableGrid: parentIsScrollableGrid,
-                parentSize: parentSize,
-                pos: pos))
+                // careful -- for a ZStack where layers use .topLeft
+                
+                // a layer group's 
+                frameAlignment: .center //anchoring.toAlignment
+            ))
+//
+////            .bac
+//        //            // DEBUG ONLY
+//        //        #if DEV_DEBUG
+            .border(.red, width: 2)
+//        //        #endif
+//
+//            .frame(width: _parentSize.width, height: _parentSize.height)
+//            .border(.red, width: 2)
+            .offset(x: parentPos.x, y: parentPos.y)
+//
+//            .modifier(PreviewCommonPositionModifier(
+//                graph: graph,
+//                viewModel: layerViewModel,
+//                isPinnedViewRendering: isPinnedViewRendering,
+//                parentDisablesPosition: parentDisablesPosition,
+//                parentIsScrollableGrid: parentIsScrollableGrid,
+//                parentSize: parentSize,
+//                pos: pos))
         
-        // SwiftUI gestures must be applied after .position modifier
-            .modifier(PreviewWindowElementSwiftUIGestures(
-                document: document,
-                graph: graph,
-                interactiveLayer: interactiveLayer,
-                position: position,
-                pos: pos,
-                size: _size,
-                parentSize: parentSize,
-                minimumDragDistance: DEFAULT_MINIMUM_DRAG_DISTANCE))
     }
 
+    var _parentSize: CGSize {
+        CGSize(width: 200, height: 200)
+    }
+    var _childSize: CGSize {
+        CGSize(width: 100, height: 100)
+    }
+    var previewSize: CGSize {
+        document.previewWindowSize
+    }
+    
+    var parentPos: CGPoint {
+        adjustPosition(
+            size: _parentSize,
+            position: .zero,
+            anchor: .topLeft,
+            parentSize: previewSize)
+    }
+    
     @ViewBuilder
     private var groupLayer: some View {
 
-        NativeScrollGestureView(layerViewModel: layerViewModel,
-                                graph: graph,
-                                isClipped: isClipped,
-                                parentSize: parentSize) {
+        // THIS IS ALSO OKAY FOR POSITIONING OF THE CHILD
+        //
+       
+        
+        // parent
+        ZStack {
+            let childPos = adjustPosition(
+                size: _childSize,
+                position: .zero,
+                anchor: .topLeft,
+                parentSize: _parentSize)
             
-            PreviewLayersView(document: document,
-                              graph: graph,
-                              layers: layersInGroup,
-                              // This Group's size will be the `parentSize` for the `layersInGroup`
-                              parentSize: _size,
-                              parentId: interactiveLayer.id.layerNodeId,
-                              parentOrientation: orientation,
-                              parentSpacing: spacing,
-                              parentGroupAlignment: layerViewModel.layerGroupAlignment.getAnchoring,
-                              parentUsesScroll: layerViewModel.isScrollXEnabled || layerViewModel.isScrollYEnabled,
-                              parentCornerRadius: cornerRadius,
-                              // i.e. if this view (a LayerGroup) uses .hug, then its children will not use their own .position values.
-                              parentUsesHug: usesHug,
-                              noFixedSizeForLayerGroup: noFixedSizeForLayerGroup,
-                              parentGridData: gridData,
-                              isGhostView: !isPinnedViewRendering,
-                              realityContent: realityContent)
-            }
+            // child
+            Ellipse().fill(.cyan)
+                .frame(width: _childSize.width, height: _childSize.height)
+                .offset(x: childPos.x, y: childPos.y)
+        }
+//        .frame(width: _parentSize.width, height: _parentSize.height)
+//        .border(.red, width: 2)
+//        .offset(x: parentPos.x, y: parentPos.y)
+        
+//            PreviewLayersView(document: document,
+//                              graph: graph,
+//                              layers: layersInGroup,
+//                              // This Group's size will be the `parentSize` for the `layersInGroup`
+//                              parentSize: _size,
+//                              parentId: interactiveLayer.id.layerNodeId,
+//                              parentOrientation: orientation,
+//                              parentSpacing: spacing,
+//                              parentGroupAlignment: layerViewModel.layerGroupAlignment.getAnchoring,
+//                              parentUsesScroll: layerViewModel.isScrollXEnabled || layerViewModel.isScrollYEnabled,
+//                              parentCornerRadius: cornerRadius,
+//                              // i.e. if this view (a LayerGroup) uses .hug, then its children will not use their own .position values.
+//                              parentUsesHug: usesHug,
+//                              noFixedSizeForLayerGroup: noFixedSizeForLayerGroup,
+//                              parentGridData: gridData,
+//                              isGhostView: !isPinnedViewRendering,
+//                              realityContent: realityContent)
     }
 }
 

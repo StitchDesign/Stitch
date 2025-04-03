@@ -19,8 +19,44 @@ struct GeneratePreview: View {
         document.graph.cachedOrderedPreviewLayers
     }
     
+//    let previewSize = CGSize(width: 400, height: 400)
+    let parentSize = CGSize(width: 200, height: 200)
+    let childSize = CGSize(width: 100, height: 100)
+    
+    var previewSize: CGSize {
+        document.previewWindowSize
+    }
+    
     var body: some View {
         // Regular rendering of views in their proper place in the hierarchy
+        
+        // WORKS FINE
+        
+//        // this works fine
+//        let parentPos = adjustPosition(
+//            size: parentSize,
+//            position: .zero,
+//            anchor: .topLeft,
+//            parentSize: previewSize)
+//        
+//        // parent
+//        ZStack {
+//            let childPos = adjustPosition(
+//                size: childSize,
+//                position: .zero,
+//                anchor: .topLeft,
+//                parentSize: parentSize)
+//            
+//            // child
+//            Ellipse().fill(.cyan)
+//                .frame(width: childSize.width, height: childSize.height)
+//                .offset(x: childPos.x, y: childPos.y)
+//        }
+//        .frame(width: parentSize.width, height: parentSize.height)
+//        .border(.red, width: 2)
+//        .offset(x: parentPos.x, y: parentPos.y)
+        
+
         PreviewLayersView(document: document,
                           graph: document.graph,
                           layers: sortedLayerDataList,
@@ -36,31 +72,32 @@ struct GeneratePreview: View {
                           parentGridData: nil,
                           isGhostView: false,
                           realityContent: nil)
-        .background {
-            // Invisible views used for reporting pinning position data
-            PreviewLayersView(document: document,
-                              graph: document.graph,
-                              layers: sortedLayerDataList,
-                              parentSize: document.previewWindowSize,
-                              parentId: nil,
-                              parentOrientation: .none,
-                              parentSpacing: .zero,
-                              parentGroupAlignment: nil,
-                              parentUsesScroll: false,
-                              parentCornerRadius: 0,
-                              parentUsesHug: false,
-                              noFixedSizeForLayerGroup: false,
-                              parentGridData: nil,
-                              isGhostView: true,
-                              realityContent: nil)
-            .hidden()
-            .disabled(true)
-        }
+        
+//        .background {
+//            // Invisible views used for reporting pinning position data
+//            PreviewLayersView(document: document,
+//                              graph: document.graph,
+//                              layers: sortedLayerDataList,
+//                              parentSize: document.previewWindowSize,
+//                              parentId: nil,
+//                              parentOrientation: .none,
+//                              parentSpacing: .zero,
+//                              parentGroupAlignment: nil,
+//                              parentUsesScroll: false,
+//                              parentCornerRadius: 0,
+//                              parentUsesHug: false,
+//                              noFixedSizeForLayerGroup: false,
+//                              parentGridData: nil,
+//                              isGhostView: true,
+//                              realityContent: nil)
+//            .hidden()
+//            .disabled(true)
+//        }
         // Top-level coordinate space of preview window; for pinning
         .coordinateSpace(name: PREVIEW_WINDOW_COORDINATE_SPACE)
         
-        .modifier(HoverGestureModifier(document: document,
-                                       previewWindowSize: document.previewWindowSize))
+//        .modifier(HoverGestureModifier(document: document,
+//                                       previewWindowSize: document.previewWindowSize))
     }
 }
 
@@ -144,10 +181,10 @@ struct PreviewLayersView: View {
         // `spacing: .evenly` = one spacer before and after each element
         // `spacing: .between` = one spacer between elements
         
-        if spacing.isEvenly {
-            Spacer()
-        }
-        
+//        if spacing.isEvenly {
+//            Spacer()
+//        }
+//        
         // `LayerDataId` distinguishes between { layerViewModel, pinnedView } and { layerViewModel, ghostView }
         ForEach(presentedLayers) { layerData in
             
@@ -160,12 +197,12 @@ struct PreviewLayersView: View {
                           isGhostView: isGhostView,
                           realityContent: realityContent)
             
-            if spacing.isEvenly {
-                Spacer()
-            } else if spacing.isBetween,
-                      layerData.id != presentedLayers.last?.id {
-                Spacer()
-            }
+//            if spacing.isEvenly {
+//                Spacer()
+//            } else if spacing.isBetween,
+//                      layerData.id != presentedLayers.last?.id {
+//                Spacer()
+//            }
             
         } // ForEach
     }
@@ -175,29 +212,29 @@ struct PreviewLayersView: View {
             
             // If this group has no children and has set size (i.e. fill or static number or parent percent, but not hug or auto),
             // then provide a clear rectangle for hit area.
-            if layers.isEmpty, !noFixedSizeForLayerGroup {
-                Rectangle().fill(.clear)
-            }
+//            if layers.isEmpty, !noFixedSizeForLayerGroup {
+//                Rectangle().fill(.clear)
+//            }
             
-            ZStack {
+//            ZStack {
                 // Note: we previously wrapped the HStack / VStack layer group orientations in a scroll-disabled ScrollView so that the children would touch,
                 orientationFromParent
                 
-                ForEach(pinsInOrientationView) { layerData in
-                    LayerDataView(document: document,
-                                  graph: graph,
-                                  layerData: layerData,
-                                  parentSize: parentSize,
-                                  parentDisablesPosition: parentDisablesPosition,
-                                  parentIsScrollableGrid: parentIsScrollableGrid,
-                                  isGhostView: isGhostView,
-                                  realityContent: realityContent)
-                }
-            }
+//                ForEach(pinsInOrientationView) { layerData in
+//                    LayerDataView(document: document,
+//                                  graph: graph,
+//                                  layerData: layerData,
+//                                  parentSize: parentSize,
+//                                  parentDisablesPosition: parentDisablesPosition,
+//                                  parentIsScrollableGrid: parentIsScrollableGrid,
+//                                  isGhostView: isGhostView,
+//                                  realityContent: realityContent)
+//                }
+//            }
         }        
-        .modifier(LayerGroupInteractableViewModifier(
-            hasLayerInteraction: graph.hasInteraction(parentId),
-            cornerRadius: parentCornerRadius))
+//        .modifier(LayerGroupInteractableViewModifier(
+//            hasLayerInteraction: graph.hasInteraction(parentId),
+//            cornerRadius: parentCornerRadius))
     }
     
     @MainActor @ViewBuilder
@@ -210,71 +247,74 @@ struct PreviewLayersView: View {
                 layersAsViews(parentSpacing)
             }
         case .horizontal:
-            HStack(alignment: parentGroupAlignment?.toVerticalAlignment ?? .defaultVerticalAlignmentForLayerGroup,
-                   spacing: parentSpacing.asPointSpacing) {
-                layersAsViews(parentSpacing)
-            }
+            EmptyView()
+//            HStack(alignment: parentGroupAlignment?.toVerticalAlignment ?? .defaultVerticalAlignmentForLayerGroup,
+//                   spacing: parentSpacing.asPointSpacing) {
+//                layersAsViews(parentSpacing)
+//            }
         case .vertical:
-            VStack(alignment: parentGroupAlignment?.toHorizontalAlignment ?? .defaultHorizontalAlignmentForLayerGroup,
-                   spacing: parentSpacing.asPointSpacing) {
-                layersAsViews(parentSpacing)
-            }
+            EmptyView()
+//            VStack(alignment: parentGroupAlignment?.toHorizontalAlignment ?? .defaultHorizontalAlignmentForLayerGroup,
+//                   spacing: parentSpacing.asPointSpacing) {
+//                layersAsViews(parentSpacing)
+//            }
         case .grid:
-            gridView
+            EmptyView()
+//            gridView
         }
     }
     
     // TODO: support alignments with Grid?
     @MainActor @ViewBuilder
     var gridView: some View {
-        
-        if let parentGridData = parentGridData {
-            
-            // We *must* provide a "minimum cell space" for an .adaptive LazyVGrid.
-            // So we use the largest width.
-            // TODO: perf implications of iterating through e.g. 900 views?
-            let longestReadWidth = presentedLayers.max { d1, d2 in
-                d1.layer.readSize.width < d2.layer.readSize.width
-            }?.layer.readSize.width ?? .zero
-            
-            // logInView("gridView: longestReadWidth: \(longestReadWidth)")
-            
-            // Note: very important: `.adaptive(minimum: .zero)` causes SwiftUI to crash
-            // TODO: why `30`? What other number to use instead? `1` ? Does it matter?
-            let gridCellMinimumWidth = max(longestReadWidth, 30.0)
-                            
-            // logInView("gridView: gridCellMinimumWidth: \(gridCellMinimumWidth)")
-            
-            let adaptiveColumns: [GridItem] = [
-                // one adaptive GridItem with LazyVStack = lay all the items out in a single row that snakes like a Z
-                GridItem(
-                    // .adaptive = we don't specify number of columns
-                    // maximum = allow items to grow to this size; unspecified
-                    .adaptive(minimum: gridCellMinimumWidth),
-                    
-                    // In a LazyVGrid, horizontal spacing between columns.
-                    spacing: parentGridData.horizontalSpacingBetweenColumns.asPointSpacing,
-                    
-                    // Alignment of an item within the min/max allowed space.
-                    // Only relevant when grid cell is larger than child's own size.
-                    alignment: parentGridData.alignmentOfItemWithinGridCell)
-            ]
-            
-            LazyVGrid(columns: adaptiveColumns,
-                      // Only relevant LazyVGrid is wider than needed to accomodate all the columns.
-                      alignment: parentGridData.horizontalAlignmentOfGrid,
-                      
-                      // In a LazyVGrid, vertical spacing between rows:
-                      spacing: parentGridData.verticalSpacingBetweenRows.asPointSpacing) {
-                layersAsViews(parentSpacing)
-            }
-            
-        } else {
-            // Should never have .grid orientation without PreviewGridData
-            EmptyView().onAppear {
-                fatalErrorIfDebug()
-            }
-        }
+        EmptyView()
+//        if let parentGridData = parentGridData {
+//            
+//            // We *must* provide a "minimum cell space" for an .adaptive LazyVGrid.
+//            // So we use the largest width.
+//            // TODO: perf implications of iterating through e.g. 900 views?
+//            let longestReadWidth = presentedLayers.max { d1, d2 in
+//                d1.layer.readSize.width < d2.layer.readSize.width
+//            }?.layer.readSize.width ?? .zero
+//            
+//            // logInView("gridView: longestReadWidth: \(longestReadWidth)")
+//            
+//            // Note: very important: `.adaptive(minimum: .zero)` causes SwiftUI to crash
+//            // TODO: why `30`? What other number to use instead? `1` ? Does it matter?
+//            let gridCellMinimumWidth = max(longestReadWidth, 30.0)
+//                            
+//            // logInView("gridView: gridCellMinimumWidth: \(gridCellMinimumWidth)")
+//            
+//            let adaptiveColumns: [GridItem] = [
+//                // one adaptive GridItem with LazyVStack = lay all the items out in a single row that snakes like a Z
+//                GridItem(
+//                    // .adaptive = we don't specify number of columns
+//                    // maximum = allow items to grow to this size; unspecified
+//                    .adaptive(minimum: gridCellMinimumWidth),
+//                    
+//                    // In a LazyVGrid, horizontal spacing between columns.
+//                    spacing: parentGridData.horizontalSpacingBetweenColumns.asPointSpacing,
+//                    
+//                    // Alignment of an item within the min/max allowed space.
+//                    // Only relevant when grid cell is larger than child's own size.
+//                    alignment: parentGridData.alignmentOfItemWithinGridCell)
+//            ]
+//            
+//            LazyVGrid(columns: adaptiveColumns,
+//                      // Only relevant LazyVGrid is wider than needed to accomodate all the columns.
+//                      alignment: parentGridData.horizontalAlignmentOfGrid,
+//                      
+//                      // In a LazyVGrid, vertical spacing between rows:
+//                      spacing: parentGridData.verticalSpacingBetweenRows.asPointSpacing) {
+//                layersAsViews(parentSpacing)
+//            }
+//            
+//        } else {
+//            // Should never have .grid orientation without PreviewGridData
+//            EmptyView().onAppear {
+//                fatalErrorIfDebug()
+//            }
+//        }
     }
 }
 
@@ -375,42 +415,42 @@ struct LayerDataView: View {
             // For "more maskers than masked views, limit ourselves to masked (layer) view count"
         case .mask(masked: let maskedLayerDataList,
                    masker: let maskerLayerDataList):
-      
-            ForEach(maskedLayerDataList) { (maskedLayerData: LayerData) in
-                
-                if let maskedIndex = maskedLayerDataList.firstIndex(where: { $0.id == maskedLayerData.id }),
-                    maskedIndex < maskerLayerDataList.endIndex, // Is this check necessary?
-                    let maskerLayerData: LayerData = maskerLayerDataList.first(where: { $0.id.loopIndex == maskedLayerData.id.loopIndex }) {
-                    
-                    // Turn masked LayerData into a single view
-                    let masked: some View = LayerDataView(
-                        document: document,
-                        graph: graph,
-                        layerData: maskedLayerData,
-                        parentSize: parentSize,
-                        parentDisablesPosition: parentDisablesPosition,
-                        parentIsScrollableGrid: parentIsScrollableGrid,
-                        isGhostView: isGhostView,
-                        realityContent: realityContent)
-                    
-                    // Turn masker LayerData into a single view
-                    let masker: some View = LayerDataView(
-                        document: document,
-                        graph: graph,
-                        layerData: maskerLayerData,
-                        parentSize: parentSize,
-                        parentDisablesPosition: parentDisablesPosition,
-                        parentIsScrollableGrid: parentIsScrollableGrid,
-                        isGhostView: isGhostView,
-                        realityContent: realityContent)
-                    
-                    // Return
-                    masked.mask(masker)
-                } else {
-                    // logInView("LayerDataView: WILL NOT MASK")
-                    EmptyView()
-                }
-            }
+            EmptyView()
+//            ForEach(maskedLayerDataList) { (maskedLayerData: LayerData) in
+//                
+//                if let maskedIndex = maskedLayerDataList.firstIndex(where: { $0.id == maskedLayerData.id }),
+//                    maskedIndex < maskerLayerDataList.endIndex, // Is this check necessary?
+//                    let maskerLayerData: LayerData = maskerLayerDataList.first(where: { $0.id.loopIndex == maskedLayerData.id.loopIndex }) {
+//                    
+//                    // Turn masked LayerData into a single view
+//                    let masked: some View = LayerDataView(
+//                        document: document,
+//                        graph: graph,
+//                        layerData: maskedLayerData,
+//                        parentSize: parentSize,
+//                        parentDisablesPosition: parentDisablesPosition,
+//                        parentIsScrollableGrid: parentIsScrollableGrid,
+//                        isGhostView: isGhostView,
+//                        realityContent: realityContent)
+//                    
+//                    // Turn masker LayerData into a single view
+//                    let masker: some View = LayerDataView(
+//                        document: document,
+//                        graph: graph,
+//                        layerData: maskerLayerData,
+//                        parentSize: parentSize,
+//                        parentDisablesPosition: parentDisablesPosition,
+//                        parentIsScrollableGrid: parentIsScrollableGrid,
+//                        isGhostView: isGhostView,
+//                        realityContent: realityContent)
+//                    
+//                    // Return
+//                    masked.mask(masker)
+//                } else {
+//                    // logInView("LayerDataView: WILL NOT MASK")
+//                    EmptyView()
+//                }
+//            }
             
         case .nongroup(let layerNode, let layerViewModel, _):
             NonGroupPreviewLayersView(document: document,
@@ -454,24 +494,24 @@ struct NonGroupPreviewLayersView: View {
         isPinnedViewRendering ? self.layerViewModel.mediaPortValue : nil
     }
     
-    var mediaPort: LayerInputPort? {
-        switch self.layerNode.layer {
-        case .model3D:
-            return .model3D
-            
-        case .image:
-            return .image
-            
-        case .video:
-            return .video
-            
-        default:
-            return nil
-        }
-    }
+//    var mediaPort: LayerInputPort? {
+//        switch self.layerNode.layer {
+//        case .model3D:
+//            return .model3D
+//            
+//        case .image:
+//            return .image
+//            
+//        case .video:
+//            return .video
+//            
+//        default:
+//            return nil
+//        }
+//    }
     
     var body: some View {
-        if layerNode.hasSidebarVisibility {
+//        if layerNode.hasSidebarVisibility {
             PreviewLayerView(document: document,
                              graph: graph,
                              layerViewModel: layerViewModel,
@@ -481,34 +521,34 @@ struct NonGroupPreviewLayersView: View {
                              parentDisablesPosition: parentDisablesPosition,
                              parentIsScrollableGrid: parentIsScrollableGrid,
                              realityContent: realityContent)
-            .onChange(of: mediaValue, initial: true) {
-                guard let mediaPort = self.mediaPort else {
-                    assertInDebug(self.mediaValue == nil)
-                    return
-                }
-                
-                guard isPinnedViewRendering,
-                      // Ignore non-import scenarios
-                      layerNode.layer.containsMediaImport else {
-                    return
-                }
-                
-                // Check for nil case
-                guard let mediaValue = self.mediaValue else {
-                    LayerViewModel.resetMedia(self.layerViewModel.mediaObject)
-                    self.layerViewModel.mediaViewModel.inputMedia = nil
-                    return
-                }
-                
-                Task(priority: .high) { [weak layerViewModel] in
-                    await layerViewModel?.loadMedia(mediaValue: mediaValue,
-                                                    document: document,
-                                                    mediaRowObserver: layerViewModel?.mediaRowObserver)
-                }
-            }
-        } else {
-            EmptyView()
-        }
+//            .onChange(of: mediaValue, initial: true) {
+//                guard let mediaPort = self.mediaPort else {
+//                    assertInDebug(self.mediaValue == nil)
+//                    return
+//                }
+//                
+//                guard isPinnedViewRendering,
+//                      // Ignore non-import scenarios
+//                      layerNode.layer.containsMediaImport else {
+//                    return
+//                }
+//                
+//                // Check for nil case
+//                guard let mediaValue = self.mediaValue else {
+//                    LayerViewModel.resetMedia(self.layerViewModel.mediaObject)
+//                    self.layerViewModel.mediaViewModel.inputMedia = nil
+//                    return
+//                }
+//                
+//                Task(priority: .high) { [weak layerViewModel] in
+//                    await layerViewModel?.loadMedia(mediaValue: mediaValue,
+//                                                    document: document,
+//                                                    mediaRowObserver: layerViewModel?.mediaRowObserver)
+//                }
+//            }
+//        } else {
+//            EmptyView()
+//        }
     }
 }
 

@@ -56,91 +56,22 @@ struct PreviewShapeLayer: View {
         size.asCGSize(parentSize)
     }
     
-    // Used by outside-strokes on non-custom shapes
-    var pos: StitchPosition {
-        adjustPosition(
-            // TODO: use `layerViewModel.readSize` instead?
-            // size: layerNodeSize.scaleBy(scale),
-            size: size.asCGSizeForLayer(parentSize: parentSize,
-                                        readSize: layerViewModel.readSize),
-            position: position,
-            anchor: anchoring,
-            parentSize: parentSize)
-    }
     
     var body: some View {
         
-        let shape = builtShape(layerNodeSize: layerNodeSize)
+        let parentSize = CGSize(width: 200, height: 200)
+        let childSize = CGSize(width: 100, height: 100)
         
-        // After we've applied Shape- and InsettableShape-based SwiftUI modifiers,
-        // we apply the common modifiers:
-        if usesAbsoluteCoordinates {
-            shape
-                .opacity(opacity)
-                .modifier(PreviewSidebarHighlightModifier(
-                    viewModel: layerViewModel,
-                    isPinnedViewRendering: isPinnedViewRendering,
-                    nodeId: interactiveLayer.id.layerNodeId.asNodeId,
-                    highlightedSidebarLayers: graph.layersSidebarViewModel.highlightedSidebarLayers,
-                    scale: scale))
-            // order of .blur vs other modiifers doesn't matter?
-                .blur(radius: blurRadius)
-                .blendMode(blendMode.toBlendMode)
-            
-            // TODO: revisit this
-                .modifier(PreviewAbsoluteShapeLayerModifier(
-                    document: document,
-                    graph: graph,
-                    viewModel: layerViewModel,
-                    isPinnedViewRendering: isPinnedViewRendering,
-                    interactiveLayer: interactiveLayer,
-                    position: position,
-                    rotationX: rotationX,
-                    rotationY: rotationY,
-                    rotationZ: rotationZ,
-                    scale: scale,
-                    blurRadius: blurRadius,
-                    blendMode: blendMode,
-                    brightness: brightness,
-                    colorInvert: colorInvert,
-                    contrast: contrast,
-                    hueRotation: hueRotation,
-                    saturation: saturation,
-                    pivot: pivot,
-                    previewWindowSize: parentSize))
-        } else {
-            shape
-                .opacity(opacity)
-                .modifier(PreviewCommonModifier(
-                    document: document,
-                    graph: graph,
-                    layerViewModel: layerViewModel,
-                    isPinnedViewRendering: isPinnedViewRendering,
-                    interactiveLayer: interactiveLayer,
-                    position: position,
-                    rotationX: rotationX,
-                    rotationY: rotationY,
-                    rotationZ: rotationZ,
-                    size: size,
-                    scale: scale,
-                    anchoring: anchoring,
-                    blurRadius: blurRadius,
-                    blendMode: blendMode,
-                    brightness: brightness,
-                    colorInvert: colorInvert,
-                    contrast: contrast,
-                    hueRotation: hueRotation,
-                    saturation: saturation,
-                    pivot: pivot,
-                    shadowColor: shadowColor,
-                    shadowOpacity: shadowOpacity,
-                    shadowRadius: shadowRadius,
-                    shadowOffset: shadowOffset,
-                    isForShapeLayer: true,
-                    parentSize: parentSize,
-                    parentDisablesPosition: parentDisablesPosition,
-                    parentIsScrollableGrid: parentIsScrollableGrid))
-        }
+        let childPos = adjustPosition(
+            size: childSize,
+            position: .zero,
+            anchor: .topLeft,
+            parentSize: parentSize)
+        
+        Ellipse().fill(.green)
+            .frame(width: childSize.width, height: childSize.height)
+            .offset(x: childPos.x, y: childPos.y)
+        
     }
     
     @ViewBuilder

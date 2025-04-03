@@ -139,84 +139,86 @@ struct LayerSizeModifier: ViewModifier {
         // TODO: we can break a `.frame(width:height,alignment:)` modifier into into separate `.frame(width:alignment:)`, `.frame(height:alignment:)` modifiers and `alignment` will still work.
         
         
-        if isPinnedViewRendering && (viewModel.isPinned.getBool ?? false) {
-            // logInView("LayerSizeModifier: will use pinned size for layer \(viewModel.layer), pinnedSize: \(viewModel.pinnedSize)")
-              // If this is the "PinnedView" for View A,
-              // then View A's "GhostView" will already have read the appropriate size etc. for View A.
-              // So we can just use the layer view model's pinnedSize
-              content.frame(width: viewModel.pinnedSize?.width,
-                            height: viewModel.pinnedSize?.height,
-                            alignment: alignment)
-          }
+//        if isPinnedViewRendering && (viewModel.isPinned.getBool ?? false) {
+//            // logInView("LayerSizeModifier: will use pinned size for layer \(viewModel.layer), pinnedSize: \(viewModel.pinnedSize)")
+//              // If this is the "PinnedView" for View A,
+//              // then View A's "GhostView" will already have read the appropriate size etc. for View A.
+//              // So we can just use the layer view model's pinnedSize
+//              content.frame(width: viewModel.pinnedSize?.width,
+//                            height: viewModel.pinnedSize?.height,
+//                            alignment: alignment)
+//          }
         
         // Width is pt, but height is auto (so can use min/max height)
-        else if let width = width, !height.isDefined {
-            // logInView("LayerSizeModifier: defined width but not height")
-            
-            content
-            // Note: parent-percentage supports min/max along a dimension
-                .frame(minWidth: usesParentPercentForWidth ? minWidth : nil)
-            
-            // If we are using width = fill, then passed-in width will actually be parent-length,
-            // and we should supply `.frame(width = nil)` but `.frame(maxWidth = passed-in-width)`
-                .frame(maxWidth: finalMaxWidth, alignment: alignment)
-                .frame(width: usesFillForWidth ? nil : width,
-                       alignment: alignment)
-                
-                .frame(minHeight: minHeight,
-                       maxHeight: maxHeight,
-                       alignment: alignment)
-        }
-        
-        // Height is pt, but width is auto (so can use min/max width)
-        else if let height = height, !width.isDefined {
-            // logInView("LayerSizeModifier: defined height but not width")
-                
-            content
-                .frame(minHeight: usesParentPercentForHeight ? minHeight : nil, alignment: alignment)
-                .frame(maxHeight: finalMaxHeight, alignment: alignment)
-            
-                .frame(height: usesFillForHeight ? nil : height,
-                       alignment: alignment)
-            
-                .frame(minWidth: minWidth,
-                       maxWidth: finalMaxWidth,
-                       alignment: alignment)
-        }
-        
-        // Both height and width are pt (so no min/max size at all)
-        else if let width = width, let height = height {
-            // logInView("LayerSizeModifier: defined width and height")
-            content
-                .frame(minWidth: usesParentPercentForWidth ? minWidth : nil, alignment: alignment)
-                .frame(maxWidth: finalMaxWidth, alignment: alignment)
-            
-                .frame(width: usesFillForWidth ? nil : width,
-                       alignment: alignment)
-            
-                .frame(minHeight: usesParentPercentForHeight ? minHeight : nil, alignment: alignment)
-                .frame(maxHeight: finalMaxHeight, alignment: alignment)
-            
-                .frame(height: usesFillForHeight ? nil : height,
-                       alignment: alignment)
-        }
-        
-        // Both height and width are auto, so use min/max height and width
-        else if someMinMaxDefined {
-            // logInView("LayerSizeModifier: defined min-max")
-            content.frame(minWidth: minWidth,
-                          maxWidth: finalMaxWidth,
-                          minHeight: minHeight,
-                          maxHeight: finalMaxHeight,
-                          alignment: alignment)
-        } 
-        
-        // Default
-        else {
+//        else if let width = width, !height.isDefined {
+//            // logInView("LayerSizeModifier: defined width but not height")
+//            
+//            content
+//            // Note: parent-percentage supports min/max along a dimension
+//                .frame(minWidth: usesParentPercentForWidth ? minWidth : nil)
+//            
+//            // If we are using width = fill, then passed-in width will actually be parent-length,
+//            // and we should supply `.frame(width = nil)` but `.frame(maxWidth = passed-in-width)`
+//                .frame(maxWidth: finalMaxWidth, alignment: alignment)
+//                .frame(width: usesFillForWidth ? nil : width,
+//                       alignment: alignment)
+//                
+//                .frame(minHeight: minHeight,
+//                       maxHeight: maxHeight,
+//                       alignment: alignment)
+//        }
+//        
+//        // Height is pt, but width is auto (so can use min/max width)
+//        else if let height = height, !width.isDefined {
+//            // logInView("LayerSizeModifier: defined height but not width")
+//                
+//            content
+//                .frame(minHeight: usesParentPercentForHeight ? minHeight : nil, alignment: alignment)
+//                .frame(maxHeight: finalMaxHeight, alignment: alignment)
+//            
+//                .frame(height: usesFillForHeight ? nil : height,
+//                       alignment: alignment)
+//            
+//                .frame(minWidth: minWidth,
+//                       maxWidth: finalMaxWidth,
+//                       alignment: alignment)
+//        }
+//        
+//        // Both height and width are pt (so no min/max size at all)
+//        else if let width = width, let height = height {
+//            // logInView("LayerSizeModifier: defined width and height")
+//            content
+//                .frame(minWidth: usesParentPercentForWidth ? minWidth : nil, alignment: alignment)
+//                .frame(maxWidth: finalMaxWidth, alignment: alignment)
+//            
+//                .frame(width: usesFillForWidth ? nil : width,
+//                       alignment: alignment)
+//            
+//                .frame(minHeight: usesParentPercentForHeight ? minHeight : nil, alignment: alignment)
+//                .frame(maxHeight: finalMaxHeight, alignment: alignment)
+//            
+//                .frame(height: usesFillForHeight ? nil : height,
+//                       alignment: alignment)
+//        }
+//        
+//        // Both height and width are auto, so use min/max height and width
+//        else if someMinMaxDefined {
+//            // logInView("LayerSizeModifier: defined min-max")
+//            content.frame(minWidth: minWidth,
+//                          maxWidth: finalMaxWidth,
+//                          minHeight: minHeight,
+//                          maxHeight: finalMaxHeight,
+//                          alignment: alignment)
+//        } 
+//        
+//        // Default
+//        else {
             // logInView("LayerSizeModifier: default")
             content.frame(width: width,
                           height: height,
                           alignment: alignment)
-        }
+//        content.frame(width: width,
+//                      height: height)
+//        }
     }
 }

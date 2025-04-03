@@ -153,7 +153,23 @@ func adjustPosition(size: CGSize, // child's size
         + (parentSize.height * anchor.y)
         - (size.height * (anchor.y - 0.5))
     
-    return .init(x: x, y: y)
+//    return .init(x: x, y: y)
+    
+    
+    let k = CGPoint(x: x - parentSize.width/2,
+                 y: y - parentSize.height/2
+    )
+    
+    log("adjustPosition: size: \(size)")
+    log("adjustPosition: position: \(position)")
+    log("adjustPosition: anchor: \(anchor)")
+    log("adjustPosition: parentSize: \(parentSize)")
+    
+    log("adjustPosition: x: \(x)")
+    log("adjustPosition: y: \(y)")
+    log("adjustPosition: k: \(k)")
+    
+    return k
     
 }
 
