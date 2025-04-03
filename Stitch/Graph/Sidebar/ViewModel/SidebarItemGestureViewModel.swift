@@ -100,12 +100,11 @@ extension SidebarItemGestureViewModel {
     }
     
     @MainActor var name: String {
-        guard let node = self.graphDelegate?.getNodeViewModel(self.id) else {
-//            fatalErrorIfDebug()
-            return ""
-        }
-        
-        return node.getDisplayTitle()
+        self.graphDelegate?.getNodeViewModel(self.id)?.getDisplayTitle() ?? ""
+    }
+    
+    @MainActor var layerFullName: String {
+        self.graphDelegate?.getNode(self.id)?.kind.getDisplayTitle(customName: "") ?? ""
     }
     
     @MainActor var isVisible: Bool {
@@ -125,12 +124,15 @@ extension SidebarItemGestureViewModel {
             fatalErrorIfDebug()
             return
         }
-        
+            
         // Treat this is as a "layer inspector edit" ?
         node.nodeTitleEdited(titleEditType: .layerInspector(self.id),
                              edit: newString,
                              isCommitting: isCommitting,
                              graph: graph)
+        
+        // Recreate the layer drop down choices
+        graph.updateLayerDropdownChoiceCache()
     }
     
     @MainActor
