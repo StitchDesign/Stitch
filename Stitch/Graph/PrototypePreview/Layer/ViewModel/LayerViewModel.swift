@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 import RealityKit
 import StitchSchemaKit
+import StitchEngine
 
 extension PinToId {
     static let defaultPinToId = Self.root
@@ -486,13 +487,15 @@ extension LayerViewModel {
         guard let mediaValue = mediaValue,
               let mediaKey = mediaValue.mediaKey else {
             // Covers media scenarios, ensuring we set to nil while task makes copy
-            await MainActor.run {
-                Self.resetMedia(self.mediaObject)
+            await MainActor.run { [weak self] in
+                guard let viewModel = self else { return }
+                
+                Self.resetMedia(viewModel.mediaObject)
                 
                 // Only set media to nil if mediaValue is nil as well
                 // Fixes issue where camrea feed would stutter
                 if mediaValue == nil {
-                    self.mediaViewModel.inputMedia = nil
+                    viewModel.mediaViewModel.inputMedia = nil
                 }
             }
             return
@@ -506,10 +509,16 @@ extension LayerViewModel {
             return
         }
         
-        await MainActor.run {
-            self.mediaViewModel.inputMedia = .init(id: .init(),
-                                                   dataType: .source(mediaKey),
-                                                   mediaObject: newMediaObject)
+        await MainActor.run { [weak self] in
+            let mediaValue = GraphMediaValue(id: .init(),
+                                             dataType: .source(mediaKey),
+                                             mediaObject: newMediaObject)
+            
+            // Update parent layer node to override past upstream data
+            self?.nodeDelegate?.layerNode?.mediaList = [mediaValue]
+            
+            // Update media here at this preview layer
+            self?.mediaViewModel.inputMedia = mediaValue
         }
     }
     

@@ -32,7 +32,7 @@ extension NodeViewModel: NodeCalculatable {
     }
     
     @MainActor
-    func getMediaObservers() -> [MediaViewModel]? {
+    func getAllMediaObservers() -> [MediaViewModel]? {
         if let layerNode = self.layerNode {
             return layerNode.previewLayerViewModels.map { $0.mediaViewModel }
         }
@@ -42,6 +42,31 @@ extension NodeViewModel: NodeCalculatable {
         }
         
         return nil
+    }
+    
+    @MainActor
+    func getMediaObservers(port: NodeIOCoordinate) -> [MediaViewModel]? {
+        guard let allMediaObservers = self.getAllMediaObservers() else {
+            return nil
+        }
+            
+        switch self.kind {
+        case .patch(let patch) where patch == .loopBuilder:
+            // Edge case for loop builder which has ephemeral objects for each port, rather than a loop for one port
+            guard let portIndex = port.portId else {
+                fatalErrorIfDebug()
+                return nil
+            }
+            
+            guard let mediaByPort = allMediaObservers[safe: portIndex] else {
+                return nil
+            }
+            
+            return [mediaByPort]
+            
+        default:
+            return allMediaObservers
+        }
     }
     
     @MainActor
@@ -66,6 +91,57 @@ extension NodeViewModel: NodeCalculatable {
         case .component(let componentData):
             return componentData.canvas.inputViewModels.compactMap {
                 $0.rowDelegate?.allLoopedValues
+            }
+        }
+    }
+    
+    @MainActor func updateInputMedia(inputCoordinate: NodeIOCoordinate,
+                                     mediaList: [GraphMediaValue?]) {
+        switch self.nodeType {
+        case .patch(let patchNode) where patchNode.patch == .loopBuilder:
+            if let mediaObservers = self.getMediaObservers(port: inputCoordinate) {
+                for (media, mediaObserver) in zip(mediaList, mediaObservers) {
+                    if mediaObserver.inputMedia != media {
+                        mediaObserver.inputMedia = media
+                    }
+                }
+            }
+            
+        case .layer(let layerNode):
+            // Assigns media to top-level layer node. Logic at layer eval handles the business of assigning media to specific layer view models. Methods called here are populating downstream layer data before all upstream nodes to layers are finished calling.
+            layerNode.mediaList = mediaList
+            
+        default:
+            return
+        }
+    }
+    
+    /// Updates computed media ephemeral objects after eval completes.
+    @MainActor func updateMediaAfterEval(mediaList: [GraphMediaValue?]) {
+        guard let mediaObservers = self.getAllMediaObservers() else {
+            return
+        }
+
+        switch self.kind {
+        case .patch(let patch) where patch == .loopBuilder:
+            // Edge case: one observable for each port index, so we lengthen media list to match ports
+            let lengthenedMediaList = mediaList.lengthenArray(mediaObservers.count)
+            Self.zipMediaIntoObservers(mediaList: lengthenedMediaList,
+                                       mediaObservers: mediaObservers)
+            
+        default:
+            // Default case: loop of observables for one port index
+            Self.zipMediaIntoObservers(mediaList: mediaList,
+                                       mediaObservers: mediaObservers)
+        }
+    }
+    
+    @MainActor
+    private static func zipMediaIntoObservers(mediaList: [GraphMediaValue?],
+                                              mediaObservers: [MediaViewModel]) {
+        for (media, ephemeralObserver) in zip(mediaList, mediaObservers) {
+            if ephemeralObserver.computedMedia != media {
+                ephemeralObserver.computedMedia = media
             }
         }
     }
