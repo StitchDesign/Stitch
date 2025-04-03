@@ -496,6 +496,7 @@ struct NonGroupPreviewLayersView: View {
                 // Check for nil case
                 guard let mediaValue = self.mediaValue else {
                     LayerViewModel.resetMedia(self.layerViewModel.mediaObject)
+                    self.layerNode.mediaList = []
                     self.layerViewModel.mediaViewModel.inputMedia = nil
                     return
                 }

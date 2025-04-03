@@ -510,9 +510,15 @@ extension LayerViewModel {
         }
         
         await MainActor.run { [weak self] in
-            self?.mediaViewModel.inputMedia = .init(id: .init(),
-                                                    dataType: .source(mediaKey),
-                                                    mediaObject: newMediaObject)
+            let mediaValue = GraphMediaValue(id: .init(),
+                                             dataType: .source(mediaKey),
+                                             mediaObject: newMediaObject)
+            
+            // Update parent layer node to override past upstream data
+            self?.nodeDelegate?.layerNode?.mediaList = [mediaValue]
+            
+            // Update media here at this preview layer
+            self?.mediaViewModel.inputMedia = mediaValue
         }
     }
     
