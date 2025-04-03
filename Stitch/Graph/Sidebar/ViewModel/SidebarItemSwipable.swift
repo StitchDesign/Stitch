@@ -20,6 +20,8 @@ protocol SidebarItemSwipable: StitchNestedListElementObservable, Sendable, Ident
     
     @MainActor var name: String { get }
     
+    @MainActor var layerFullName: String { get }
+    
     @MainActor var swipeSetting: SidebarSwipeSetting { get set }
     
     @MainActor var previousSwipeX: CGFloat { get set }

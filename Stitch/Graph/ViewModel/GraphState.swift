@@ -454,7 +454,11 @@ extension GraphState {
     @MainActor
     func syncNodes(nodesDict: NodesViewModelDict) {
         self.visibleNodesViewModel.nodes = nodesDict
-        
+        self.updateLayerDropdownChoiceCache()
+    }
+    
+    @MainActor
+    func updateLayerDropdownChoiceCache() {
         // Cache layer node info for perf
         let newLayerCache = nodesDict.values.reduce(into: [NodeId : LayerDropdownChoice]()) { result, node in
             if node.kind.isLayer {
