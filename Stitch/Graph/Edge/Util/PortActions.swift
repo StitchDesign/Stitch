@@ -48,7 +48,7 @@ extension InputNodeRowObserver {
                 // Only look at this input if it is the media input
                 self.id.isMediaSelectorLocation,
                 let node = self.upstreamOutputObserver?.nodeDelegate {
-            node.getMediaObservers()?
+            node.getAllMediaObservers()?
                 .map(\.computedMedia)
                 .forEach { media in
                     // Run effect to mute sound player
