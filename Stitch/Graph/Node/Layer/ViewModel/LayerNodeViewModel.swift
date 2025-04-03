@@ -27,6 +27,9 @@ final class LayerNodeViewModel {
     // View models for layers in prototype window
     @MainActor var previewLayerViewModels: [LayerViewModel] = []
  
+    // Gets updated when upstream nodes pass down media
+    @MainActor var mediaList = [GraphMediaValue?]()
+    
     // Some layer nodes contain outputs
     @MainActor var outputPorts: [OutputLayerNodeRowData] = []
     
@@ -568,6 +571,9 @@ extension LayerNodeViewModel {
         let oldLongestLoopLength = self.previewLayerViewModels.count
         let newLongestLoopLength = self.nodeDelegate?.longestLoopLength ?? 1
         let loopIndices = newLongestLoopLength.loopIndices
+
+        // Keeps track of original media list for lengthening
+        let oldMediaValuesList = self.mediaList
         
         let loopLengthChanged = oldLongestLoopLength != newLongestLoopLength
         
@@ -575,6 +581,9 @@ extension LayerNodeViewModel {
         let lengthenedValuesList = newValuesList.map {
             $0.lengthenArray(newLongestLoopLength)
         }
+        
+        // Lengthen media
+        let lengthenedMediaObjects = oldMediaValuesList.lengthenArray(newLongestLoopLength)
 
         // Remove view models if loop count decreased
         if newLongestLoopLength < oldLongestLoopLength {
@@ -595,6 +604,11 @@ extension LayerNodeViewModel {
                                          changedPortId: portId)
             }
         }
+        
+        // Update media objects
+        zip(self.previewLayerViewModels, lengthenedMediaObjects).forEach { layerViewModel, mediaObject in
+            layerViewModel.mediaViewModel.inputMedia = mediaObject
+        }
 
         #if DEBUG
         // Make sure we have the correct number of preview view models given loop
@@ -603,11 +617,12 @@ extension LayerNodeViewModel {
         }
         #endif
         
-        // If the length of the loop in the layer node's input changed,
-        // we should evaluate the graph from the layer's associated interaction patch nodes.
-        // https://github.com/StitchDesign/Stitch--Old/issues/6923
+        // Loop changed conditions
         if loopLengthChanged,
            let graph = self.nodeDelegate?.graphDelegate {
+            // If the length of the loop in the layer node's input changed,
+            // we should evaluate the graph from the layer's associated interaction patch nodes.
+            // https://github.com/StitchDesign/Stitch--Old/issues/6923
             let interactionPatches: IdSet = graph.getInteractionPatchIds(for: .init(self.id))
             if !interactionPatches.isEmpty {
                 log("LayerNodeViewModel: didValuesUpdate: recalculating from interactionPatches: \(interactionPatches)")

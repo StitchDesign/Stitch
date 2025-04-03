@@ -77,7 +77,7 @@ func loopBuilderEval(node: PatchNode,
         return valueForIndex
     }
     
-    return node.loopedEval(MediaEvalOpObserver.self,
+    let result = node.loopedEval(MediaEvalOpObserver.self,
                            inputsValuesList: [flattenedInputs]) { (values, mediaObserver, index) -> MediaEvalOpResult in
         assertInDebug(values.first != nil)
         
@@ -90,10 +90,11 @@ func loopBuilderEval(node: PatchNode,
         switch node.userVisibleType {
         case .media:
             guard let inputMediaValue = values.first?.asyncMedia,
-                  // MARK: loop and port index are flipped
-                  let mediaObject = node.getInputMediaValue(portIndex: index,
-                                                            loopIndex: 0,
-                                                            mediaId: inputMediaValue.id) else {
+//                  // MARK: loop and port index are flipped
+//                  let mediaObject = node.getInputMediaValue(portIndex: 0,
+//                                                            loopIndex: index,
+//                                                            mediaId: inputMediaValue.id) else {
+                    let mediaObject = mediaObserver.inputMedia else {
                 return .init(from: [indexPortValue,
                                     .asyncMedia(nil)])
             }
@@ -110,6 +111,8 @@ func loopBuilderEval(node: PatchNode,
         }
     }
                            .createPureEvalResult(node: node)
+    
+    return result
 }
 
 
