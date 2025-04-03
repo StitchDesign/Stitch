@@ -129,10 +129,8 @@ struct SidebarListLabelEditView<ItemViewModel>: View where ItemViewModel: Sideba
     }
     
     var body: some View {
-        
         Group {
             if isFocused {
-                // logInView("SidebarListLabelEditView: editable field")
                 StitchTextEditingBindingField(currentEdit: self.$edit,
                                               fieldType: .sidebarLayerTitle(self.item.id.description),
                                               font: SIDEBAR_LIST_ITEM_FONT,
@@ -143,15 +141,22 @@ struct SidebarListLabelEditView<ItemViewModel>: View where ItemViewModel: Sideba
                                            graph: graph)
                 })
             } else {
-                // logInView("SidebarListLabelEditView: read only")
                 StitchTextView(string: edit + debugId,
                                font: SIDEBAR_LIST_ITEM_FONT,
                                fontColor: fontColor)
                 .padding(.top, 1)
             }
         }
-        .onChange(of: self.self.item.name, initial: true) {
-            self.edit = self.item.name
+         // Not just initialization but also e.g. whenever canvas item updates the layer node's title
+        .onChange(of: self.item.name, initial: true) { oldValue, newValue in
+            
+            // HACK: for edge case where item.name defaults to full layer name *during an active edit* (empty custom-title defaults to full layer name).
+            // TODO: debug why this doesn't happen with edit-fields on canvas item's title
+            if oldValue.count == 1, newValue == self.item.layerFullName {
+                self.edit = ""
+            } else {
+                self.edit = self.item.name
+            }
         }
         .onTapGesture(count: 2) {
             dispatch(ReduxFieldFocused(focusedField: .sidebarLayerTitle(self.item.id.description)))

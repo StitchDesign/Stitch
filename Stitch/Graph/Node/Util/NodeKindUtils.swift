@@ -212,7 +212,7 @@ extension NodeKind {
     }
     
     func getDisplayTitle(customName: String?) -> String {
-        // always prefer a custom name
+        // Always prefer a custom name
         if let customName = customName,
            customName != "" {
             return customName
