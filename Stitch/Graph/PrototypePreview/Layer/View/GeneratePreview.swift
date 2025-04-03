@@ -482,7 +482,7 @@ struct NonGroupPreviewLayersView: View {
                              parentIsScrollableGrid: parentIsScrollableGrid,
                              realityContent: realityContent)
             .onChange(of: mediaValue, initial: true) {
-                guard let mediaPort = self.mediaPort else {
+                guard self.mediaPort != nil else {
                     assertInDebug(self.mediaValue == nil)
                     return
                 }

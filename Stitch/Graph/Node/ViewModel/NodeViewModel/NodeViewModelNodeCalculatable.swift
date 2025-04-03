@@ -95,7 +95,28 @@ extension NodeViewModel: NodeCalculatable {
         }
     }
     
-    /// Updates media ephemeral objects after eval completes.
+    @MainActor func updateInputMedia(inputCoordinate: NodeIOCoordinate,
+                                     mediaList: [GraphMediaValue?]) {
+        switch self.nodeType {
+        case .patch(let patchNode) where patchNode.patch == .loopBuilder:
+            if let mediaObservers = self.getMediaObservers(port: inputCoordinate) {
+                for (media, mediaObserver) in zip(mediaList, mediaObservers) {
+                    if mediaObserver.inputMedia != media {
+                        mediaObserver.inputMedia = media
+                    }
+                }
+            }
+            
+        case .layer(let layerNode):
+            // Assigns media to top-level layer node. Logic at layer eval handles the business of assigning media to specific layer view models. Methods called here are populating downstream layer data before all upstream nodes to layers are finished calling.
+            layerNode.mediaList = mediaList
+            
+        default:
+            return
+        }
+    }
+    
+    /// Updates computed media ephemeral objects after eval completes.
     @MainActor func updateMediaAfterEval(mediaList: [GraphMediaValue?]) {
         guard let mediaObservers = self.getAllMediaObservers() else {
             return
