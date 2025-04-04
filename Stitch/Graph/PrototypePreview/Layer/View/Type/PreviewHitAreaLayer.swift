@@ -46,7 +46,6 @@ struct PreviewHitAreaLayer: View {
                 rotationX: .zero,
                 rotationY: .zero,
                 rotationZ: .zero,
-//                size: size.asCGSize(parentSize),
                 size: size,
                 scale: scale,
                 anchoring: anchoring,
