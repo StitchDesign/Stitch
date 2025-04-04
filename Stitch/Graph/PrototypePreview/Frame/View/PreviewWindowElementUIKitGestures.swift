@@ -86,14 +86,16 @@ struct PreviewWindowElementSwiftUIGestures: ViewModifier {
         
         // `TapGesture`s need to come AFTER `DragGesture`
             .simultaneousGesture(TapGesture(count: 2).onEnded({
-                if let pressIds = self.getPressInteractionIds() {
+                if let pressIds = self.getPressInteractionIds(),
+                   !pressIds.isEmpty {
                     // Set true here, then set false in press node eval
                     self.interactiveLayer.doubleTapped = true
                     graph.scheduleForNextGraphStep(pressIds)
                 }
             }))
             .simultaneousGesture(TapGesture(count: 1).onEnded {
-                if let pressIds = self.getPressInteractionIds() {
+                if let pressIds = self.getPressInteractionIds(),
+                   !pressIds.isEmpty {
                     // Set true here, then set false in press node eval
                     self.interactiveLayer.singleTapped = true
                     graph.scheduleForNextGraphStep(pressIds)
