@@ -47,10 +47,7 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
     
     @MainActor
     var nodeDelegate: NodeDelegate? { get set }
-    
-    @MainActor
-    var connectedNodes: NodeIdSet { get set }
-    
+        
     @MainActor
     var hasLoopedValues: Bool { get set }
         
