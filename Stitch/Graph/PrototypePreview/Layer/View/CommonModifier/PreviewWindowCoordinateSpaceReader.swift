@@ -9,8 +9,6 @@ import Foundation
 import StitchSchemaKit
 import SwiftUI
 
-let PREVIEW_WINDOW_COORDINATE_SPACE = "previewWindow"
-
 struct PreviewWindowCoordinateSpaceReader: ViewModifier {
     
     @Bindable var viewModel: LayerViewModel
@@ -29,15 +27,10 @@ struct PreviewWindowCoordinateSpaceReader: ViewModifier {
     /// Important to only report pin data from ghost view.
     func getFrame(geometry: GeometryProxy) -> CGRect {
         if isPinnedViewRendering {
-            log("PCSR: viewModel.id: \(viewModel.id): no frame")
             return .zero
         } else {
-//            let f = geometry.frame(in: .named(PREVIEW_WINDOW_COORDINATE_SPACE))
-            let f = geometry.frame(in: .named(PreviewContent.prototypeCoordinateSpace))
-            log("PCSR: viewModel.id: \(viewModel.id): frame \(f)")
-            return f
+            return geometry.frame(in: .named(PreviewContent.prototypeCoordinateSpace))
         }
-//        !isPinnedViewRendering ? geometry.frame(in: .named(PREVIEW_WINDOW_COORDINATE_SPACE)) : .zero
     }
     
     func body(content: Content) -> some View {
@@ -48,19 +41,14 @@ struct PreviewWindowCoordinateSpaceReader: ViewModifier {
                     // compare vs. LayerSizeReader which is the size of the view within the .local coordinate space.
                     Color.clear.onChange(of: self.getFrame(geometry: geometry),
                                          initial: !isPinnedViewRendering) { oldValue, newValue in
-                                                
-                        log("PCSR: viewModel.id: \(viewModel.id)")
-                        
-                        log("PCSR: key: \(key), oldValue.size: \(oldValue.size), oldValue.origin: \(oldValue.origin), oldValue.mid: \(oldValue.mid)")
-                        log("PCSR: key: \(key), newValue.size: \(newValue.size), newValue.origin: \(newValue.origin), newValue.mid: \(newValue.mid)")
-                                                
+   
                         //viewModel.previewWindowRect = newValue
                         
                         // If this layer *receives* a pin, populate its pin-receiver data fields:
                         if pinMap.get(viewModel.id.layerNodeId).isDefined,
                            // TODO: how or why can newValue
                            (!newValue.width.isNaN && !newValue.height.isNaN) {
-                            log("PCSR: had pinMap entry for viewModel.id.layerNodeId \(viewModel.id.layerNodeId), newValue.origin: \(newValue.origin)")
+                            // log("PreviewWindowCoordinateSpaceReader: had pinMap entry for viewModel.id.layerNodeId \(viewModel.id.layerNodeId), newValue.origin: \(newValue.origin)")
                                 viewModel.pinReceiverSize = newValue.size
                                 viewModel.pinReceiverOrigin = newValue.origin
                                 viewModel.pinReceiverCenter = newValue.mid
@@ -71,16 +59,14 @@ struct PreviewWindowCoordinateSpaceReader: ViewModifier {
                             // and is generated at top level,
                             // then we only update the "pinned center" (for rotation)
                             if isPinnedViewRendering {
-                                 log("PreviewWindowCoordinateSpaceReader: pinned and at top level")
+                                // log("PreviewWindowCoordinateSpaceReader: pinned and at top level")
                                 viewModel.pinnedCenter = newValue.mid
                             }
                             
                             // Else, if we're not at the top level,
                             // then we read the "pinned size"
                             else {
-                                 log("PreviewWindowCoordinateSpaceReader: pinned but not at top level: newValue.size: \(newValue.size)")
                                 if newValue.width.isNaN || newValue.height.isNaN {
-                                     log("Had NaN, will not set size")
                                     return
                                 }
                                 

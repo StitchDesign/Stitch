@@ -155,10 +155,24 @@ func adjustPosition(size: CGSize, // child's size
         - (size.height * (anchor.y - 0.5))
     
     var pos = CGPoint(x: x, y: y)
+    
+//    log("adjustPosition: size: \(size)")
+//    log("adjustPosition: position: \(position)")
+//    log("adjustPosition: anchor: \(anchor)")
+//    log("adjustPosition: parentSize: \(parentSize)")
+//    log("adjustPosition: isPinnedRendering: \(isPinnedRendering)")
+//    log("adjustPosition: x: \(x)")
+//    log("adjustPosition: y: \(y)")
+//    
+//    log("adjustPosition: pos was: \(pos)")
+    
     if !isPinnedRendering {
         pos.x -= parentSize.width/2
         pos.y -= parentSize.height/2
     }
+    
+//    log("adjustPosition: pos now: \(pos)")
+        
     return pos
     
 }

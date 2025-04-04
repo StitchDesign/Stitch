@@ -109,13 +109,10 @@ struct PreviewGroupLayer: View {
     }
     
     var pos: StitchPosition {
-        adjustPosition(
-            //size: layerViewModel.readSize, // size.asCGSize(parentSize),
-            size: size.asCGSizeForLayer(parentSize: parentSize,
-                                        readSize: layerViewModel.readSize),
-            position: position,
-            anchor: anchoring,
-            parentSize: parentSize)
+        adjustPosition(size: _size,
+                       position: position,
+                       anchor: anchoring,
+                       parentSize: parentSize)
     }
     
     var strokeAdjustedCornerRadius: CGFloat {
@@ -241,8 +238,10 @@ struct PreviewGroupLayer: View {
                 graph: graph,
                 interactiveLayer: interactiveLayer,
                 position: position,
-                pos: pos,
-                size: _size,
+//                pos: pos,
+                size: size,
+                readSize: layerViewModel.readSize,
+                anchoring: anchoring,
                 parentSize: parentSize,
                 minimumDragDistance: DEFAULT_MINIMUM_DRAG_DISTANCE))
     }
