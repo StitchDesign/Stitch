@@ -132,7 +132,8 @@ extension Anchoring { // : PortValueEnum {
 func adjustPosition(size: CGSize, // child's size
                     position: CGPoint, // child's position; UNSCALED
                     anchor: Anchoring, // child's anchor
-                    parentSize: CGSize) -> CGPoint {
+                    parentSize: CGSize,
+                    isPinnedRendering: Bool = false) -> CGPoint {
 
     let x = position.x
         + (parentSize.width * anchor.x)
@@ -153,7 +154,12 @@ func adjustPosition(size: CGSize, // child's size
         + (parentSize.height * anchor.y)
         - (size.height * (anchor.y - 0.5))
     
-    return .init(x: x, y: y)
+    var pos = CGPoint(x: x, y: y)
+    if !isPinnedRendering {
+        pos.x -= parentSize.width/2
+        pos.y -= parentSize.height/2
+    }
+    return pos
     
 }
 

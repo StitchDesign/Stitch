@@ -57,7 +57,7 @@ struct GeneratePreview: View {
             .disabled(true)
         }
         // Top-level coordinate space of preview window; for pinning
-        .coordinateSpace(name: PREVIEW_WINDOW_COORDINATE_SPACE)
+//        .coordinateSpace(name: PREVIEW_WINDOW_COORDINATE_SPACE)
         
         .modifier(HoverGestureModifier(document: document,
                                        previewWindowSize: document.previewWindowSize))

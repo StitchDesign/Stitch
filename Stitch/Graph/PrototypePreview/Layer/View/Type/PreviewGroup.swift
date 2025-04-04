@@ -90,7 +90,9 @@ struct PreviewGroupLayer: View {
     }
 
     var _size: CGSize {
-        size.asCGSize(parentSize)
+        // size.asCGSize(parentSize)
+        size.asCGSizeForLayer(parentSize: parentSize,
+                              readSize: layerViewModel.readSize)
     }
 
     // TODO: what if only one dimension uses .hug ?
@@ -139,7 +141,9 @@ struct PreviewGroupLayer: View {
                 maxHeight: layerViewModel.getMaxHeight,
                 parentSize: parentSize,
                 sizingScenario: layerViewModel.getSizingScenario,
-                frameAlignment: anchoring.toAlignment))
+                // non-`.center` alignments on `ZStack.frame` creates problems for children placed by .offset
+                frameAlignment: .center //anchoring.toAlignment
+            ))
 
             .background {
                 // TODO: Better way to handle slight gap between outside stroke and background edge when using corner radius? Outside stroke is actually an .overlay'd shape that is slightly larger than the stroked shape.
