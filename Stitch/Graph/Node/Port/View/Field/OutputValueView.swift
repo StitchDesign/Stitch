@@ -142,22 +142,16 @@ struct OutputValueView: View {
                 EmptyView() // Can't really happen
                 
             case .media(let media):
-                MediaFieldValueView(viewModel: viewModel,
-                                    rowViewModel: rowViewModel,
-                                    rowObserver: rowObserver,
-                                    node: node,
-                                    isUpstreamValue: false,     // only valid for inputs
-                                    media: media,
-                                    mediaName: media.name,
-                                    nodeKind: nodeKind,
-                                    isInput: false,
-                                    fieldIndex: fieldIndex,
-                                    isNodeSelected: isCanvasItemSelected,
-                                    isFieldInsideLayerInspector: false,
-                                    isSelectedInspectorRow: isSelectedInspectorRow,
-                                    isMultiselectInspectorInputWithHeterogenousValues: false,
-                                    graph: graph,
-                                    document: graphUI)
+            MediaFieldLabelView(viewModel: viewModel,
+                                inputType: viewModel.id.rowId.portType,
+                                node: node,
+                                graph: graph,
+                                document: graphUI,
+                                coordinate: rowObserver.id,
+                                isInput: false,
+                                fieldIndex: fieldIndex,
+                                isNodeSelected: isCanvasItemSelected,
+                                isMultiselectInspectorInputWithHeterogenousValues: false)
                 
             case .color(let color):
                 StitchColorPickerOrb(chosenColor: color,

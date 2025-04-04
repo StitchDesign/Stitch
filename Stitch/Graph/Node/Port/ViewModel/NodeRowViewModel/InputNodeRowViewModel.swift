@@ -18,7 +18,7 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     let id: NodeRowViewModelId
     @MainActor var viewCache: NodeLayoutCache?
     @MainActor var activeValue: PortValue = .number(.zero)
-    @MainActor var fieldValueTypes = FieldGroupTypeDataList<InputFieldViewModel>()
+    @MainActor var fieldValueTypes = FieldGroupTypeDataList()
     @MainActor var connectedCanvasItems: Set<CanvasItemId> = .init()
     @MainActor var anchorPoint: CGPoint?
     @MainActor var portColor: PortColor = .noEdge
