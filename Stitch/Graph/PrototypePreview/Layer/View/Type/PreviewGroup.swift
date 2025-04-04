@@ -90,7 +90,8 @@ struct PreviewGroupLayer: View {
     }
 
     var _size: CGSize {
-        size.asCGSize(parentSize)
+        size.asCGSizeForLayer(parentSize: parentSize,
+                              readSize: layerViewModel.readSize)
     }
 
     // TODO: what if only one dimension uses .hug ?
@@ -107,13 +108,10 @@ struct PreviewGroupLayer: View {
     }
     
     var pos: StitchPosition {
-        adjustPosition(
-            //size: layerViewModel.readSize, // size.asCGSize(parentSize),
-            size: size.asCGSizeForLayer(parentSize: parentSize,
-                                        readSize: layerViewModel.readSize),
-            position: position,
-            anchor: anchoring,
-            parentSize: parentSize)
+        adjustPosition(size: _size,
+                       position: position,
+                       anchor: anchoring,
+                       parentSize: parentSize)
     }
     
     var strokeAdjustedCornerRadius: CGFloat {
@@ -139,7 +137,15 @@ struct PreviewGroupLayer: View {
                 maxHeight: layerViewModel.getMaxHeight,
                 parentSize: parentSize,
                 sizingScenario: layerViewModel.getSizingScenario,
-                frameAlignment: anchoring.toAlignment))
+                // non-`.center` alignments on `ZStack.frame` creates problems for children placed by .offset
+                frameAlignment: .center //anchoring.toAlignment
+            ))
+        
+        // When using `.offset` instead of `.position` modifier to play layers in preview window,
+        // .contentShape must come *after* `.frame`
+            .modifier(LayerGroupInteractableViewModifier(
+                hasLayerInteraction: graph.hasInteraction(interactiveLayer.id.layerNodeId),
+                cornerRadius: cornerRadius))
 
             .background {
                 // TODO: Better way to handle slight gap between outside stroke and background edge when using corner radius? Outside stroke is actually an .overlay'd shape that is slightly larger than the stroked shape.
@@ -237,8 +243,9 @@ struct PreviewGroupLayer: View {
                 graph: graph,
                 interactiveLayer: interactiveLayer,
                 position: position,
-                pos: pos,
-                size: _size,
+                size: size,
+                readSize: layerViewModel.readSize,
+                anchoring: anchoring,
                 parentSize: parentSize,
                 minimumDragDistance: DEFAULT_MINIMUM_DRAG_DISTANCE))
     }

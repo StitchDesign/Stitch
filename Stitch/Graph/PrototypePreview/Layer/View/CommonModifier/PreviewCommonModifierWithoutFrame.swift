@@ -45,11 +45,6 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
     
     var isForShapeLayer: Bool = false
     
-    // TODO: can you just use the layerViewModel.readSize ?
-    var sizeForAnchoringAndGestures: CGSize {
-        size.asCGSize(parentSize)
-    }
-    
     // Assumes parentSize has already been scaled etc.
     let parentSize: CGSize
     let parentDisablesPosition: Bool
@@ -72,7 +67,6 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
             anchor: anchoring,
             parentSize: parentSize)
     }
-    
     
     func body(content: Content) -> some View {
 
@@ -139,8 +133,9 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
                 graph: graph,
                 interactiveLayer: interactiveLayer,
                 position: position,
-                pos: pos,
-                size: sizeForAnchoringAndGestures,
+                size: size,
+                readSize: layerViewModel.readSize,
+                anchoring: anchoring,
                 parentSize: parentSize,
                 minimumDragDistance: minimumDragDistance))
     }

@@ -95,6 +95,7 @@ struct PreviewShapeLayer: View {
                     isPinnedViewRendering: isPinnedViewRendering,
                     interactiveLayer: interactiveLayer,
                     position: position,
+                    anchoring: anchoring,
                     rotationX: rotationX,
                     rotationY: rotationY,
                     rotationZ: rotationZ,

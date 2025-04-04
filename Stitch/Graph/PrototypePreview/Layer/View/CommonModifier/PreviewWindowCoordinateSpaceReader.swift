@@ -9,8 +9,6 @@ import Foundation
 import StitchSchemaKit
 import SwiftUI
 
-let PREVIEW_WINDOW_COORDINATE_SPACE = "previewWindow"
-
 struct PreviewWindowCoordinateSpaceReader: ViewModifier {
     
     @Bindable var viewModel: LayerViewModel
@@ -28,7 +26,11 @@ struct PreviewWindowCoordinateSpaceReader: ViewModifier {
     
     /// Important to only report pin data from ghost view.
     func getFrame(geometry: GeometryProxy) -> CGRect {
-        !isPinnedViewRendering ? geometry.frame(in: .named(PREVIEW_WINDOW_COORDINATE_SPACE)) : .zero
+        if isPinnedViewRendering {
+            return .zero
+        } else {
+            return geometry.frame(in: .named(PreviewContent.prototypeCoordinateSpace))
+        }
     }
     
     func body(content: Content) -> some View {
@@ -39,17 +41,14 @@ struct PreviewWindowCoordinateSpaceReader: ViewModifier {
                     // compare vs. LayerSizeReader which is the size of the view within the .local coordinate space.
                     Color.clear.onChange(of: self.getFrame(geometry: geometry),
                                          initial: !isPinnedViewRendering) { oldValue, newValue in
-                        
-                        // log("PreviewWindowCoordinateSpaceReader: viewModel.layer: \(viewModel.layer)")
-                        
-                        // log("PreviewWindowCoordinateSpaceReader: key: \(key), size: \(newValue.size), origin: \(newValue.origin), mid: \(newValue.mid)")
-                                                
+   
                         //viewModel.previewWindowRect = newValue
                         
                         // If this layer *receives* a pin, populate its pin-receiver data fields:
                         if pinMap.get(viewModel.id.layerNodeId).isDefined,
                            // TODO: how or why can newValue
                            (!newValue.width.isNaN && !newValue.height.isNaN) {
+                            // log("PreviewWindowCoordinateSpaceReader: had pinMap entry for viewModel.id.layerNodeId \(viewModel.id.layerNodeId), newValue.origin: \(newValue.origin)")
                                 viewModel.pinReceiverSize = newValue.size
                                 viewModel.pinReceiverOrigin = newValue.origin
                                 viewModel.pinReceiverCenter = newValue.mid
@@ -67,9 +66,7 @@ struct PreviewWindowCoordinateSpaceReader: ViewModifier {
                             // Else, if we're not at the top level,
                             // then we read the "pinned size"
                             else {
-                                // log("PreviewWindowCoordinateSpaceReader: pinned but not at top level: newValue.size: \(newValue.size)")
                                 if newValue.width.isNaN || newValue.height.isNaN {
-                                    // log("Had NaN, will not set size")
                                     return
                                 }
                                 
