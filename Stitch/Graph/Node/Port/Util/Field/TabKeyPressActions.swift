@@ -327,7 +327,7 @@ func getTabEligibleFields(layerNode: LayerNodeViewModel,
              && !layerInput.usesFlyout
         }
     
-    // Turn each non-blocked field on a layeri input into a LayerInputEligibleField
+    // Turn each non-blocked field on a layer input into a LayerInputEligibleField
         .reduce(into: LayerInputEligibleFields(), { partialResult, layerInput in
             (layerNode.getLayerInspectorInputFields(layerInput)).forEach { field in
                 let blockedFields = layerNode.getLayerInputObserver(layerInput).blockedFields
