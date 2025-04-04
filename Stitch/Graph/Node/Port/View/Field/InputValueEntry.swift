@@ -430,9 +430,8 @@ struct InputFieldValueView: View {
                 
                 
             case .media(let media):
-                MediaFieldValueView(
+                MediaInputFieldValueView(
                     viewModel: viewModel,
-                    rowViewModel: rowViewModel,
                     rowObserver: rowObserver,
                     node: node,
                     isUpstreamValue: isUpstreamValue,
