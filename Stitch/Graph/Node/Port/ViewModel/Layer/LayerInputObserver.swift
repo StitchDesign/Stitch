@@ -141,7 +141,7 @@ extension LayerInputObserver {
     
     // Returns all fields, regardless of packed vs unpacked
     @MainActor
-    var fieldValueTypes: [FieldGroupTypeData] {
+    var fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>] {
         let allFields = self.allInputData.flatMap { (portData: InputLayerNodeRowData) in
             portData.inspectorRowViewModel.fieldValueTypes
         }

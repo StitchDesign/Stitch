@@ -51,7 +51,7 @@ struct GenericFlyoutView: View {
     var hasIncomingEdge: Bool = false
     let layerInput: LayerInputPort
     
-    var fieldValueTypes: [FieldGroupTypeData] {
+    var fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>] {
         layerInputObserver.fieldValueTypes
     }
         
