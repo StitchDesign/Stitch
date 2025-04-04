@@ -14,7 +14,7 @@ struct LayerInspectorGridInputView: View {
     let layerInputObserver: LayerInputObserver
     let isPropertyRowSelected: Bool
     
-    var allFieldObservers: [FieldViewModel] {
+    var allFieldObservers: [InputNodeRowViewModel.FieldType] {
         layerInputObserver.fieldValueTypes.flatMap(\.fieldObservers)
     }
     
@@ -58,7 +58,7 @@ struct LayerInspectorGridInputView: View {
     }
     
     // Note: a layer's padding and margin inputs/fields can never be blocked; we can revisit this if that changes in the future
-    func observerView(_ fieldObserver: FieldViewModel) -> some View {
+    func observerView(_ fieldObserver: InputNodeRowViewModel.FieldType) -> some View {
         LayerInspectorReadOnlyView(propertySidebar: graph.propertySidebar,
                                    nodeId: node.id,
                                    layerInputObserver: layerInputObserver,
@@ -73,7 +73,7 @@ struct LayerInspectorReadOnlyView: View {
     @Bindable var propertySidebar: PropertySidebarObserver
     let nodeId: NodeId
     let layerInputObserver: LayerInputObserver
-    let fieldObserver: FieldViewModel
+    let fieldObserver: InputNodeRowViewModel.FieldType
     let isPropertyRowSelected: Bool
     
     // TODO: is `InputFieldValueView` ever used in the layer inspector now? ... vs flyout?

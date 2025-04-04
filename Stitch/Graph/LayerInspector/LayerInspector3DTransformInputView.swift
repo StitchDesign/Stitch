@@ -39,7 +39,7 @@ struct LayerInspector3DTransformInputView: View {
     }
     
     // Note: 3D Transform inputs can never be "blocked"; revisit this if that changes; would just pass down
-    func observerViews(_ fieldObservers: [FieldViewModel]) -> some View {
+    func observerViews(_ fieldObservers: [InputNodeRowViewModel.FieldType]) -> some View {
         
         ForEach(fieldObservers) { fieldObserver  in
             
