@@ -90,7 +90,6 @@ struct PreviewGroupLayer: View {
     }
 
     var _size: CGSize {
-        // size.asCGSize(parentSize)
         size.asCGSizeForLayer(parentSize: parentSize,
                               readSize: layerViewModel.readSize)
     }
@@ -145,9 +144,6 @@ struct PreviewGroupLayer: View {
         // When using `.offset` instead of `.position` modifier to play layers in preview window,
         // .contentShape must come *after* `.frame`
             .modifier(LayerGroupInteractableViewModifier(
-//                hasLayerInteraction: graph.hasInteraction(parentId),
-//                cornerRadius: parentCornerRadius))
-//                hasLayerInteraction: graph.hasInteraction(layerViewModel.id),
                 hasLayerInteraction: graph.hasInteraction(interactiveLayer.id.layerNodeId),
                 cornerRadius: cornerRadius))
 

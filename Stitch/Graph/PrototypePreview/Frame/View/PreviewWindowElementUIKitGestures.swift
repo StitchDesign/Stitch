@@ -36,7 +36,7 @@ struct PreviewWindowElementSwiftUIGestures: ViewModifier {
             position: position,
             anchor: anchoring,
             parentSize: parentSize,
-            isPinnedRendering: true)
+            ignoreOffsetTransform: true)
     }
     
     @MainActor
@@ -57,12 +57,7 @@ struct PreviewWindowElementSwiftUIGestures: ViewModifier {
                 // Factor out anchoring (i.e. position + size/2 + anchoring)
                 let location = CGPoint(x: $0.location.x - posForGesture.x,
                                        y: $0.location.y - posForGesture.y)
-                
-//                log("PreviewWindowElementGestures: DragGesture: onChanged: id: \(interactiveLayer.id)")
-//                log("PreviewWindowElementGestures: DragGesture: onChanged: $0.location: \($0.location)")
-//                log("PreviewWindowElementGestures: DragGesture: onChanged: pos: \(pos)")
-//                log("PreviewWindowElementGestures: DragGesture: onChanged: location: \(location)")
-            
+                            
                 graph.layerDragged(interactiveLayer: interactiveLayer,
                                    location: location, // // PRESS NODE ONLY
                                    translation: $0.translation,

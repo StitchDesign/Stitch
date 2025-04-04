@@ -133,7 +133,7 @@ func adjustPosition(size: CGSize, // child's size
                     position: CGPoint, // child's position; UNSCALED
                     anchor: Anchoring, // child's anchor
                     parentSize: CGSize,
-                    isPinnedRendering: Bool = false) -> CGPoint {
+                    ignoreOffsetTransform: Bool = false) -> CGPoint {
 
     let x = position.x
         + (parentSize.width * anchor.x)
@@ -156,23 +156,11 @@ func adjustPosition(size: CGSize, // child's size
     
     var pos = CGPoint(x: x, y: y)
     
-//    log("adjustPosition: size: \(size)")
-//    log("adjustPosition: position: \(position)")
-//    log("adjustPosition: anchor: \(anchor)")
-//    log("adjustPosition: parentSize: \(parentSize)")
-//    log("adjustPosition: isPinnedRendering: \(isPinnedRendering)")
-//    log("adjustPosition: x: \(x)")
-//    log("adjustPosition: y: \(y)")
-//    
-//    log("adjustPosition: pos was: \(pos)")
-    
-    if !isPinnedRendering {
+    if !ignoreOffsetTransform {
         pos.x -= parentSize.width/2
         pos.y -= parentSize.height/2
     }
-    
-//    log("adjustPosition: pos now: \(pos)")
-        
+            
     return pos
     
 }
