@@ -220,6 +220,7 @@ extension NodeViewModel: NodeCalculatable {
     }
 }
 
+
 extension EvalResult {
     func debugCrashIfAnyOutputLoopEmpty() {
         if self.outputsValues.first(where: { $0.isEmpty }).isDefined {
