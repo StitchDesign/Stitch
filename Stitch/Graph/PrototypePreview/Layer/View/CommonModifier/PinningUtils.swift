@@ -355,11 +355,13 @@ extension PinToId {
 @MainActor
 func getPinnedViewPosition(pinnedLayerViewModel: LayerViewModel,
                            pinReceiverData: PinReceiverData) -> CGPoint {
-    
-    adjustPosition(size: pinnedLayerViewModel.pinnedSize ?? .zero,
-                   position: pinReceiverData.origin,
-                   anchor: pinnedLayerViewModel.pinAnchor.getAnchoring ?? .topLeft,
-                   parentSize: pinReceiverData.size)
+    log("getPinnedViewPosition: pinnedLayerViewModel.id: \(pinnedLayerViewModel.id)")
+    log("getPinnedViewPosition: pinReceiverData: \(pinReceiverData)")
+    return adjustPosition(size: pinnedLayerViewModel.pinnedSize ?? .zero,
+                          position: pinReceiverData.origin,
+                          anchor: pinnedLayerViewModel.pinAnchor.getAnchoring ?? .topLeft,
+                          parentSize: pinReceiverData.size,
+                          isPinnedViewRendering: true)
 }
 
 

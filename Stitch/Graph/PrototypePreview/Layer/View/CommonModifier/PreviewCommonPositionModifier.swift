@@ -39,7 +39,6 @@ struct PreviewCommonPositionModifier: ViewModifier {
     // Position already adjusted by anchoring
     
     // NOTE: for a pinned view, `pos` will be something adjusted to the pinReceiver's anchoring, size and position
-    
     var pos: StitchPosition
     
     var isPinnedView: Bool {
@@ -65,12 +64,18 @@ struct PreviewCommonPositionModifier: ViewModifier {
             // Input value of pin offset
             let pinOffset: CGSize = viewModel.pinOffset.getSize?.asCGSize ?? .zero
             
-             // logInView("PreviewCommonPositionModifier: pinPos: \(pinPos)")
-             // logInView("PreviewCommonPositionModifier: pinOffset: \(pinOffset)")
+            logInView("PreviewCommonPositionModifier: pinPos: \(pinPos)")
+            logInView("PreviewCommonPositionModifier: pinOffset: \(pinOffset)")
+            logInView("PreviewCommonPositionModifier: ghostViewPosition: \(ghostViewPosition)")
+            logInView("PreviewCommonPositionModifier: pinPositionOffset: \(pinPositionOffset)")
             
             positioningView(content)
                 .offset(x: pinPositionOffset.x, y: pinPositionOffset.y)
                 .offset(x: pinOffset.width, y: pinOffset.height)
+
+            // For a 100x100 oval pinned to a 200x200 black square, this puts the oval in the center,
+            //                .offset(x: 500, y: 500)
+//                .offset(x: 400, y: 400)
             
         } else {
             positioningView(content)
@@ -78,7 +83,7 @@ struct PreviewCommonPositionModifier: ViewModifier {
     }
     
     @ViewBuilder func positioningView(_ content: Content) -> some View {
-        // logInView("PreviewCommonPositionModifier: regular: \(viewModel.layer)")
+         logInView("PreviewCommonPositionModifier: regular: \(viewModel.layer)")
         if parentIsScrollableGrid {
             content
         } else if parentDisablesPosition {

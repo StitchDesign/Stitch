@@ -40,36 +40,40 @@ struct PreviewWindowCoordinateSpaceReader: ViewModifier {
                     Color.clear.onChange(of: self.getFrame(geometry: geometry),
                                          initial: !isPinnedViewRendering) { oldValue, newValue in
                         
-                        // log("PreviewWindowCoordinateSpaceReader: viewModel.layer: \(viewModel.layer)")
+                         log("PreviewWindowCoordinateSpaceReader: viewModel.id: \(viewModel.id)")
                         
-                        // log("PreviewWindowCoordinateSpaceReader: key: \(key), size: \(newValue.size), origin: \(newValue.origin), mid: \(newValue.mid)")
+                         log("PreviewWindowCoordinateSpaceReader: key: \(key), size: \(newValue.size), origin: \(newValue.origin), mid: \(newValue.mid)")
                                                 
                         //viewModel.previewWindowRect = newValue
                         
                         // If this layer *receives* a pin, populate its pin-receiver data fields:
-                        if pinMap.get(viewModel.id.layerNodeId).isDefined,
-                           // TODO: how or why can newValue
-                           (!newValue.width.isNaN && !newValue.height.isNaN) {
-                                viewModel.pinReceiverSize = newValue.size
-                                viewModel.pinReceiverOrigin = newValue.origin
-                                viewModel.pinReceiverCenter = newValue.mid
+                        if pinMap.get(viewModel.id.layerNodeId).isDefined {
+                            // TODO: how or why can newValue
+                            if (!newValue.width.isNaN && !newValue.height.isNaN) {
+                                log("PreviewWindowCoordinateSpaceReader: had pinMap entry for viewModel.id.layerNodeId \(viewModel.id.layerNodeId), newValue.origin: \(newValue.origin)")
+                                 viewModel.pinReceiverSize = newValue.size
+                                 viewModel.pinReceiverOrigin = newValue.origin
+                                 viewModel.pinReceiverCenter = newValue.mid
+                            } else {
+                                log("PreviewWindowCoordinateSpaceReader: had pinMap entry for viewModel.id.layerNodeId \(viewModel.id.layerNodeId), but size width or height was NaN")
                             }
+                        }
                         
                         if isPinned {
                             // If this view is for a pinned layer view model,
                             // and is generated at top level,
                             // then we only update the "pinned center" (for rotation)
                             if isPinnedViewRendering {
-                                // log("PreviewWindowCoordinateSpaceReader: pinned and at top level")
+                                 log("PreviewWindowCoordinateSpaceReader: pinned and at top level")
                                 viewModel.pinnedCenter = newValue.mid
                             }
                             
                             // Else, if we're not at the top level,
                             // then we read the "pinned size"
                             else {
-                                // log("PreviewWindowCoordinateSpaceReader: pinned but not at top level: newValue.size: \(newValue.size)")
+                                 log("PreviewWindowCoordinateSpaceReader: pinned but not at top level: newValue.size: \(newValue.size)")
                                 if newValue.width.isNaN || newValue.height.isNaN {
-                                    // log("Had NaN, will not set size")
+                                    log("Had NaN, will not set size")
                                     return
                                 }
                                 

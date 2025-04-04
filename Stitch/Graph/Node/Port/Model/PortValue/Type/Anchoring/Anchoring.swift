@@ -132,7 +132,8 @@ extension Anchoring { // : PortValueEnum {
 func adjustPosition(size: CGSize, // child's size
                     position: CGPoint, // child's position; UNSCALED
                     anchor: Anchoring, // child's anchor
-                    parentSize: CGSize) -> CGPoint {
+                    parentSize: CGSize,
+                    isPinnedViewRendering: Bool = false) -> CGPoint {
 
     let x = position.x
         + (parentSize.width * anchor.x)
@@ -154,21 +155,29 @@ func adjustPosition(size: CGSize, // child's size
         - (size.height * (anchor.y - 0.5))
     
     
-    
     // subtract parentSize/2 since we now use .offset instead of .position modifier
-    let k = CGPoint(x: x - parentSize.width/2,
-                   y: y - parentSize.height/2)
+//    var k1 = CGPoint(x: x - parentSize.width/2,
+//                     y: y - parentSize.height/2)
+    
+    var k1 = CGPoint(x: x, y: y)
+    
+//    if !isPinnedViewRendering {
+    if true {
+        k1.x -= parentSize.width/2
+        k1.y -= parentSize.height/2
+    }
     
     print("adjustPosition: size: \(size)")
     print("adjustPosition: position: \(position)")
     print("adjustPosition: anchor: \(anchor)")
     print("adjustPosition: parentSize: \(parentSize)")
+    print("adjustPosition: isPinnedViewRendering: \(isPinnedViewRendering)")
     
     print("adjustPosition: x: \(x)")
     print("adjustPosition: y: \(y)")
-    print("adjustPosition: k: \(k)")
+    print("adjustPosition: k: \(k1)")
     
-    return k
+    return k1
 }
 
 struct Anchoring_REPL_View: View {
