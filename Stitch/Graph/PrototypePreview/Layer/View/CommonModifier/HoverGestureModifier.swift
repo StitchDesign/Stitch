@@ -20,13 +20,14 @@ struct HoverGestureModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
+        // Previously we could rely on the .position of a child layer to expand the space on which .onContinuousHover operated; but now (April 2025) we use .offset, which does not expand the hit area; so we attach a .contentShape manually
+            .frame(width: previewWindowSize.width, height: previewWindowSize.height)
+            .contentShape(Rectangle())
             .onContinuousHover { phase in
                 switch phase {
 
                 case .active(let location):
-                    //                    #if DEV_DEBUG
-                    //                    log("Hover: active: location: \(location)")
-                    //                    #endif
+                    // log("Hover: active: location: \(location)")
 
                     let now: TimeInterval = Date.now.timeIntervalSince1970
 
@@ -64,7 +65,6 @@ struct HoverGestureModifier: ViewModifier {
                         let velocity = CGPoint(x: dampenedXVelocity,
                                                y: dampenedYVelocity)
 
-                        //                        #if DEV_DEBUG
                         //                        log("Hover: xDiff: \(xDiff)")
                         //                        log("Hover: yDiff: \(yDiff)")
                         //                        log("Hover: timeDiff: \(timeDiff)")
@@ -73,7 +73,6 @@ struct HoverGestureModifier: ViewModifier {
                         //                        log("Hover: dampenedXVelocity: \(dampenedXVelocity)")
                         //                        log("Hover: dampenedYVelocity: \(dampenedYVelocity)")
                         //                        log("Hover: active: location: \(location)")
-                        //                        #endif
                         document.layerHovered(location: location,
                                               velocity: velocity)
                     }
@@ -82,9 +81,7 @@ struct HoverGestureModifier: ViewModifier {
                     self.timeOfLastDragPosition = now
 
                 case .ended:
-                    //                    #if DEV_DEBUG
-                    //                    log("Hover: ended")
-                    //                    #endif
+                    // log("Hover: ended")
                     self.lastDragPosition = nil
                     self.timeOfLastDragPosition = nil
 
