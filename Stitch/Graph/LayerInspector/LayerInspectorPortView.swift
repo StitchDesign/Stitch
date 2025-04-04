@@ -127,7 +127,7 @@ struct InspectorLayerInputView: View {
         return layerInput.showsLabelForInspector
     }
     
-    var fieldValueTypes: [FieldGroupTypeData] {
+    var fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>] {
         self.layerInputObserver.fieldValueTypes
     }
     
@@ -176,7 +176,7 @@ struct LayerInputFieldsView: View {
     @Bindable var node: NodeViewModel
     @Bindable var rowObserver: InputNodeRowObserver
     @Bindable var rowViewModel: InputNodeRowViewModel
-    let fieldValueTypes: [FieldGroupTypeData]
+    let fieldValueTypes: [FieldGroupTypeData<InputNodeRowViewModel.FieldType>]
     let layerInputObserver: LayerInputObserver
     let isNodeSelected: Bool
         
@@ -258,7 +258,7 @@ struct LayerInputFieldsView: View {
     }
     
     var body: some View {
-        ForEach(fieldValueTypes) { (fieldGroupViewModel: FieldGroupTypeData) in
+        ForEach(fieldValueTypes) { (fieldGroupViewModel: FieldGroupTypeData<InputFieldViewModel>) in
             
             let multipleFieldsPerGroup = fieldGroupViewModel.fieldObservers.count > 1
             
@@ -291,12 +291,12 @@ struct LayerInputFieldsView: View {
                                    isMultifield: _isMultifield)
                     }
                 }
-            } // if ...
-        } // ForEach(fieldValueTypes) { ...
+            }
+        }
     }
     
     @ViewBuilder
-    func fieldsView(fieldGroupViewModel: FieldGroupTypeData,
+    func fieldsView(fieldGroupViewModel: FieldGroupTypeData<InputFieldViewModel>,
                     isMultifield: Bool) -> some View {
         ForEach(fieldGroupViewModel.fieldObservers) { fieldViewModel in
             let isBlocked = self.blockedFields.map { fieldViewModel.isBlocked($0) } ?? false
@@ -307,7 +307,7 @@ struct LayerInputFieldsView: View {
         }
     }
     
-    func isAllFieldsBlockedOut(fieldGroupViewModel: FieldGroupTypeData) -> Bool {
+    func isAllFieldsBlockedOut(fieldGroupViewModel: FieldGroupTypeData<InputFieldViewModel>) -> Bool {
         if let blockedFields = blockedFields {
             return fieldGroupViewModel.fieldObservers.allSatisfy {
                 $0.isBlocked(blockedFields)
@@ -405,11 +405,11 @@ struct LayerInspectorOutputPortView: View {
 struct LayerOutputFieldsView<ValueEntry>: View where ValueEntry: View {
     typealias ValueEntryViewBuilder = (OutputFieldViewModel, Bool) -> ValueEntry
     
-    let fieldValueTypes: [FieldGroupTypeData]
+    let fieldValueTypes: [FieldGroupTypeData<OutputNodeRowViewModel.FieldType>]
     @ViewBuilder var valueEntryView: ValueEntryViewBuilder
 
     var body: some View {
-        ForEach(fieldValueTypes) { (fieldGroupViewModel: FieldGroupTypeData) in
+        ForEach(fieldValueTypes) { (fieldGroupViewModel: FieldGroupTypeData<OutputFieldViewModel>) in
             let isMultifield = fieldGroupViewModel.fieldObservers.count > 1
             
             if let fieldGroupLabel = fieldGroupViewModel.groupLabel {

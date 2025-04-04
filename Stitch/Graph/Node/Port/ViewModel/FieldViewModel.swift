@@ -8,31 +8,28 @@
 import Foundation
 import StitchSchemaKit
 
-typealias InputFieldViewModel = FieldViewModel
-typealias OutputFieldViewModel = FieldViewModel
-
 typealias InputFieldViewModels = [InputFieldViewModel]
 typealias OutputFieldViewModels = [OutputFieldViewModel]
 
-@Observable
-final class FieldViewModel: StitchLayoutCachable, Observable, AnyObject, Identifiable {
+protocol FieldViewModel: StitchLayoutCachable, Observable, AnyObject, Identifiable where Self.ID == FieldCoordinate {
+    associatedtype NodeRowType: NodeRowViewModel
     
-    let id: FieldCoordinate
-    @MainActor var fieldValue: FieldValue
-    @MainActor var fieldIndex: Int
-    @MainActor var fieldLabel: String
-    @MainActor var viewCache: NodeLayoutCache?
+    @MainActor var fieldValue: FieldValue { get set }
+
+    // A port has 1 to many relationship with fields
+    @MainActor var fieldIndex: Int { get set }
+
+    // eg "X" vs "Y" vs "Z" for .point3D parent-value
+    // eg "X" vs "Y" for .position parent-value
+    @MainActor var fieldLabel: String { get set }
+    
+    @MainActor var rowViewModelDelegate: NodeRowType? { get set }
     
     @MainActor
     init(fieldValue: FieldValue,
          fieldIndex: Int,
          fieldLabel: String,
-         rowId: NodeRowViewModelId) {
-        self.id = FieldCoordinate(rowId: rowId, fieldIndex: fieldIndex)
-        self.fieldValue = fieldValue
-        self.fieldIndex = fieldIndex
-        self.fieldLabel = fieldLabel
-    }
+         rowViewModelDelegate: NodeRowType?)
 }
 
 extension FieldViewModel {
@@ -40,8 +37,14 @@ extension FieldViewModel {
     // a field index that ignores packed vs. unpacked mode
     // so e.g. a field view model for a height field of a size input will have a fieldLabelIndex of 1, not 0
     @MainActor
-    func fieldLabelIndex(_ portType: NodeIOPortType) -> Int {
-        switch portType {
+    var fieldLabelIndex: Int {
+        guard let rowViewModelDelegate = rowViewModelDelegate else {
+            fatalErrorIfDebug()
+            return fieldIndex
+        }
+
+        switch rowViewModelDelegate.id.portType {
+
         case .portIndex:
             // leverage patch node definition to get label
             return fieldIndex
@@ -62,8 +65,65 @@ extension FieldViewModel {
     }
 }
 
+@Observable
+final class InputFieldViewModel: FieldViewModel {
+    let id: FieldCoordinate
+    @MainActor var fieldValue: FieldValue
+    @MainActor var fieldIndex: Int
+    @MainActor var fieldLabel: String
+    @MainActor var viewCache: NodeLayoutCache?
 
-extension [FieldViewModel] {
+    @MainActor weak var rowViewModelDelegate: InputNodeRowViewModel?
+    
+    @MainActor
+    init(fieldValue: FieldValue,
+         fieldIndex: Int,
+         fieldLabel: String,
+         rowViewModelDelegate: InputNodeRowViewModel?) {
+        self.id = .init(rowId: rowViewModelDelegate?.id ?? .empty,
+                        fieldIndex: fieldIndex)
+        self.fieldValue = fieldValue
+        self.fieldIndex = fieldIndex
+        self.fieldLabel = fieldLabel
+        self.rowViewModelDelegate = rowViewModelDelegate
+    }
+}
+
+@Observable
+final class OutputFieldViewModel: FieldViewModel {
+    let id: FieldCoordinate
+    @MainActor var fieldValue: FieldValue
+    @MainActor var fieldIndex: Int
+    @MainActor var fieldLabel: String
+    @MainActor var viewCache: NodeLayoutCache?
+    
+    @MainActor weak var rowViewModelDelegate: OutputNodeRowViewModel?
+    
+    @MainActor
+    init(fieldValue: FieldValue,
+         fieldIndex: Int,
+         fieldLabel: String,
+         rowViewModelDelegate: OutputNodeRowViewModel?) {
+        self.id = .init(rowId: rowViewModelDelegate?.id ?? .empty,
+                        fieldIndex: fieldIndex)
+        self.fieldValue = fieldValue
+        self.fieldIndex = fieldIndex
+        self.fieldLabel = fieldLabel
+        self.rowViewModelDelegate = rowViewModelDelegate
+    }
+}
+
+extension FieldViewModel {
+    @MainActor
+    var rowDelegate: Self.NodeRowType.RowObserver? {
+        self.rowViewModelDelegate?.rowDelegate
+    }
+}
+
+
+// i.e. `createFieldObservers`
+extension Array where Element: FieldViewModel {
+    
     // Easier to find via XCode search
     @MainActor
     static func createFieldViewModels(fieldValues: FieldValues,
@@ -73,14 +133,13 @@ extension [FieldViewModel] {
                                       unpackedPortParentFieldGroupType: FieldGroupType?,
                                       unpackedPortIndex: Int?,
                                       startingFieldIndex: Int,
-                                      layerInput: LayerInputPort?,
-                                      rowId: NodeRowViewModelId) -> [FieldViewModel] {
+                                      rowViewModel: Element.NodeRowType?) -> Array<Element> {
         
         assertInDebug(!fieldValues.isEmpty)
         
-        // TODO: derive this at the UI level ?
         // If this is a field for an unpacked layer input, we must look at the unpacked's parent label-list
         let labels = (unpackedPortParentFieldGroupType ?? fieldGroupType).labels
+        let layerInput = rowViewModel?.rowDelegate?.id.layerInput?.layerInput
                 
         return fieldValues.enumerated().map { fieldIndex, fieldValue in
             
@@ -93,10 +152,10 @@ extension [FieldViewModel] {
             // Every field should have a label, even if just an empty string.
             assertInDebug(fieldLabel != nil)
             
-            return FieldViewModel(fieldValue: fieldValue,
-                                  fieldIndex: startingFieldIndex + index,
-                                  fieldLabel: fieldLabel ?? "",
-                                  rowId: rowId)
+            return Element(fieldValue: fieldValue,
+                           fieldIndex: startingFieldIndex + index,
+                           fieldLabel: fieldLabel ?? "",
+                           rowViewModelDelegate: rowViewModel)
         }
     }
     
