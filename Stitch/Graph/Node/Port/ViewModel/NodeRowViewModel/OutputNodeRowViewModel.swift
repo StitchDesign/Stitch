@@ -16,7 +16,7 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     let id: NodeRowViewModelId
     @MainActor var viewCache: NodeLayoutCache?
     @MainActor var activeValue: PortValue = .number(.zero)
-    @MainActor var fieldValueTypes = FieldGroupTypeDataList()
+    @MainActor var fieldValueTypes = FieldGroupTypeDataList<OutputFieldViewModel>()
     @MainActor var connectedCanvasItems: Set<CanvasItemId> = .init()
     @MainActor var anchorPoint: CGPoint?
     @MainActor var portColor: PortColor = .noEdge

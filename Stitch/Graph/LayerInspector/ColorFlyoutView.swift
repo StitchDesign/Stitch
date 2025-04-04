@@ -37,7 +37,8 @@ struct ColorFlyoutView: View {
     }
     
     var body: some View {
-        if let fieldObserver = layerInputObserver.fieldValueTypes.first?.fieldObservers.first {
+        if let fieldObserver = layerInputObserver.fieldValueTypes.first?.fieldObservers.first,
+           let rowId = fieldObserver.rowDelegate?.id {
             
             StitchCustomColorPickerView(
                 rowObserver: rowObserver,
