@@ -29,10 +29,9 @@ extension GraphState {
 }
 
 /// Picker view for all imported media nodes (Core ML, image, audio, video etc.).
-struct MediaFieldValueView<Field: FieldViewModel>: View {
-    let viewModel: Field
-    let rowViewModel: Field.NodeRowType
-    let rowObserver: Field.NodeRowType.RowObserver
+struct MediaInputFieldValueView: View {
+    let viewModel: FieldViewModel
+    let rowObserver: InputNodeRowObserver
     let node: NodeViewModel
     let isUpstreamValue: Bool
     let media: FieldValueMedia
@@ -65,25 +64,22 @@ struct MediaFieldValueView<Field: FieldViewModel>: View {
         // MARK: using StitchMediaObject is more dangerous than GraphMediaValue as it won't refresh when media is changed, causing media to be retained
         
         HStack {
-            if isInput && canUseMediaPicker,
-               let inputRowObserver = rowObserver as? InputNodeRowObserver {
-                MediaPickerValueEntry(rowObserver: inputRowObserver,
-                                      isUpstreamValue: isUpstreamValue,
-                                      mediaValue: media,
-                                      label: mediaName,
-                                      nodeKind: nodeKind,
-                                      isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                                      graph: graph,
-                                      isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues,
-                                      isSelectedInspectorRow: isSelectedInspectorRow,
-                                      activeIndex: document.activeIndex)
-                .onChange(of: mediaName, initial: true) {
-                    // log("media name in inner value view: \(mediaName)")
-                }
+            MediaPickerValueEntry(rowObserver: rowObserver,
+                                  isUpstreamValue: isUpstreamValue,
+                                  mediaValue: media,
+                                  label: mediaName,
+                                  nodeKind: nodeKind,
+                                  isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                                  graph: graph,
+                                  isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues,
+                                  isSelectedInspectorRow: isSelectedInspectorRow,
+                                  activeIndex: document.activeIndex)
+            .onChange(of: mediaName, initial: true) {
+                // log("media name in inner value view: \(mediaName)")
             }
             
             MediaFieldLabelView(viewModel: viewModel,
-                                rowViewModel: rowViewModel,
+                                inputType: viewModel.id.rowId.portType,
                                 node: node,
                                 graph: graph,
                                 document: document,
@@ -96,11 +92,12 @@ struct MediaFieldValueView<Field: FieldViewModel>: View {
     }
 }
 
-struct MediaFieldLabelView<Field: FieldViewModel>: View {
+// Used by both input and output
+struct MediaFieldLabelView: View {
     @State private var mediaObserver: MediaViewModel?
     
-    let viewModel: Field
-    let rowViewModel: Field.NodeRowType
+    let viewModel: FieldViewModel
+    let inputType: NodeIOPortType // patch portId or layer keyPath; but
     let node: NodeViewModel
     let graph: GraphState
     let document: StitchDocumentViewModel
@@ -112,7 +109,7 @@ struct MediaFieldLabelView<Field: FieldViewModel>: View {
     
     @MainActor
     func updateMediaObserver() {
-        self.mediaObserver = node.getMediaObserver(portType: rowViewModel.id.portType,
+        self.mediaObserver = node.getMediaObserver(portType: inputType,
                                                    
                                                    // TODO: loop support
                                                    loopIndex: 0,

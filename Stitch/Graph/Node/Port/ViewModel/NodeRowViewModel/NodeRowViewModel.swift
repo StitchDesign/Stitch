@@ -11,7 +11,6 @@ import StitchSchemaKit
 
 
 protocol NodeRowViewModel: StitchLayoutCachable, Observable, Identifiable {
-    associatedtype FieldType: FieldViewModel where FieldType.NodeRowType == Self
     associatedtype RowObserver: NodeRowObserver
     associatedtype PortViewType: PortViewData
     
@@ -22,7 +21,7 @@ protocol NodeRowViewModel: StitchLayoutCachable, Observable, Identifiable {
     @MainActor var activeValue: PortValue { get set }
     
     // Holds view models for fields
-    @MainActor var fieldValueTypes: [FieldGroupTypeData<FieldType>] { get set }
+    @MainActor var fieldValueTypes: [FieldGroupTypeData] { get set }
     
     @MainActor var connectedCanvasItems: Set<CanvasItemId> { get set }
     
