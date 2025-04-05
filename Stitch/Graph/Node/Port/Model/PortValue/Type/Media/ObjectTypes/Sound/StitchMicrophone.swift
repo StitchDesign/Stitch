@@ -28,7 +28,7 @@ final class StitchMic: NSObject, Sendable, StitchSoundPlayerDelegate {
     @MainActor private var peakValue: Float = 0
 
     @MainActor
-    init(isEnabled: Bool) async {
+    init(isEnabled: Bool) {
         self.session = AVAudioSession.sharedInstance()
     
         super.init()
@@ -49,31 +49,37 @@ final class StitchMic: NSObject, Sendable, StitchSoundPlayerDelegate {
             
             log("initializeAVAudioSession called")
             
-            if await AVAudioApplication.requestRecordPermission() {
-                await MainActor.run { [weak self] in
-                    // Engine callers, play etc must be called after permissions logic runs
-                    self?.engine.output = self?.engine.input
-                    
-                    // Setup amplitude tap on the input node
-                    if let input = self?.engine.input {
-                        self?.ampTap = AmplitudeTap(input, callbackQueue: .main)
-                        self?.ampTap?.start()
+            Task(priority: .high) { [weak self] in
+                if await AVAudioApplication.requestRecordPermission() {
+                    await MainActor.run { [weak self] in
+                        // Disable loading state
+//                        evalObserver?.currentLoadingMediaId = nil
+                        
+                        // Engine callers, play etc must be called after permissions logic runs
+                        self?.engine.output = self?.engine.input
+                        
+                        // Setup amplitude tap on the input node
+                        if let input = self?.engine.input {
+                            self?.ampTap = AmplitudeTap(input, callbackQueue: .main)
+                            self?.ampTap?.start()
+                        }
+                        
+                        if isEnabled {
+                            self?.play()
+                        }
                     }
+                } else {
+                    // Disable loading state
+//                    evalObserver?.currentLoadingMediaId = nil
                     
-                    if isEnabled {
-                        self?.play()
+                    // Prompt user to consider enabling mic permissions
+                    DispatchQueue.main.async {
+                        dispatch(ReceivedStitchFileError(error: .recordingPermissionsDisabled))
                     }
-                }
-            } else {
-                // Prompt user to consider enabling mic permissions
-                DispatchQueue.main.async {
-                    dispatch(ReceivedStitchFileError(error: .recordingPermissionsDisabled))
                 }
             }
         } catch {
-            DispatchQueue.main.async {
-                dispatch(ReceivedStitchFileError(error: .recordingPermissionsDisabled))
-            }
+            dispatch(ReceivedStitchFileError(error: .recordingPermissionsDisabled))
         }
     }
 

@@ -45,31 +45,16 @@ struct MicrophoneNode: PatchNodeDefinition {
 /// Creates mic and assigns to observer.
 @MainActor func createMic(isEnabled: Bool,
                           observer: MediaEvalOpObserver) {
-    guard observer.currentLoadingMediaId == nil else {
-        return
-    }
+//    guard observer.currentLoadingMediaId == nil else {
+//        return
+//    }
     
-    observer.currentLoadingMediaId = .init()
-    
-    Task(priority: .high) { [weak observer] in
-        guard let observer = observer else {
-            return
-        }
+//    observer.currentLoadingMediaId = .init()
 
-        let newMic = await StitchMic(isEnabled: isEnabled)
-        let newSoundPlayer = StitchSoundPlayer(delegate: newMic, willPlay: true)
-        
-        observer.currentLoadingMediaId = .init()
-        await MainActor.run { [weak observer, weak newSoundPlayer] in
-            guard let observer = observer,
-                  let newSoundPlayer = newSoundPlayer else {
-                return
-            }
-            
-            observer.computedMedia = .init(computedMedia: .mic(newSoundPlayer))
-            observer.currentLoadingMediaId = nil
-        }
-    }
+    let newMic = StitchMic(isEnabled: isEnabled)
+    let newSoundPlayer = StitchSoundPlayer(delegate: newMic, willPlay: true)
+    
+    observer.computedMedia = .init(computedMedia: .mic(newSoundPlayer))
 }
 
 // needs to be impure, in order to be able to update state as well;

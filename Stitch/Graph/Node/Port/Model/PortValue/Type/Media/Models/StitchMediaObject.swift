@@ -159,7 +159,7 @@ extension StitchMediaObject {
 
         case .mic(let mic):
             let isEnabled = mic.delegate.isRunning
-            let newMic = await StitchMic(isEnabled: isEnabled)
+            let newMic = StitchMic(isEnabled: isEnabled)
             let newSoundPlayer = StitchSoundPlayer(delegate: newMic, willPlay: isEnabled)
             copiedMediaObject = .mic(newSoundPlayer)
 
