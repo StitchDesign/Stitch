@@ -43,19 +43,19 @@ struct MicrophoneNode: PatchNodeDefinition {
 }
 
 /// Creates mic and assigns to observer.
-@MainActor func createMic(isEnabled: Bool,
-                          observer: MediaEvalOpObserver) {
-//    guard observer.currentLoadingMediaId == nil else {
-//        return
-//    }
-    
-//    observer.currentLoadingMediaId = .init()
-
-    let newMic = StitchMic(isEnabled: isEnabled)
-    let newSoundPlayer = StitchSoundPlayer(delegate: newMic, willPlay: true)
-    
-    observer.computedMedia = .init(computedMedia: .mic(newSoundPlayer))
-}
+//@MainActor func createMic(isEnabled: Bool,
+//                          observer: MediaEvalOpObserver) {
+////    guard observer.currentLoadingMediaId == nil else {
+////        return
+////    }
+//    
+////    observer.currentLoadingMediaId = .init()
+//
+//    let newMic = StitchMic(isEnabled: isEnabled)
+//    let newSoundPlayer = StitchSoundPlayer(delegate: newMic, willPlay: true)
+//    
+//    observer.computedMedia = .init(computedMedia: .mic(newSoundPlayer))
+//}
 
 // needs to be impure, in order to be able to update state as well;
 // we can create the AVAudioRecorder when we first add the node to the graph;
@@ -76,10 +76,13 @@ func microphoneEval(node: PatchNode) -> EvalResult {
            
         guard let currentMedia = mediaObserver.computedMedia,
               let mic = currentMedia.mediaObject.mic else {
-            createMic(isEnabled: isEnabled,
-                      observer: mediaObserver)
+            let newMic = StitchMic(isEnabled: isEnabled)
+            let newSoundPlayer = StitchSoundPlayer(delegate: newMic, willPlay: true)
             
-            return MediaEvalOpResult(from: node.defaultOutputs)
+            mediaObserver.computedMedia = .init(computedMedia: .mic(newSoundPlayer))
+            
+            return MediaEvalOpResult(values: node.defaultOutputs,
+                                     media: mediaObserver.computedMedia)
         }
         
         guard var previousVolume: Double = values[safe: 2]?.getNumber,
