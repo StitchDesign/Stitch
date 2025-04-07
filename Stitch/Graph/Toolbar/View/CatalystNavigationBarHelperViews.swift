@@ -169,7 +169,12 @@ struct CatalystTopBarGraphButtons: View {
 
         // `HStack` doesn't matter? These are all placed in a `ToolbarItemGroup` ...
         HStack {
-            
+                        
+            CatalystNavBarButton(.GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME) {
+                dispatch(GoUpOneTraversalLevel())
+            }
+            .opacity(hasActiveGroupFocused ? 1 : 0)
+        
 // #if DEBUG || DEV_DEBUG || STITCH_AI
             
             if llmRecordingModeEnabled {
@@ -179,12 +184,6 @@ struct CatalystTopBarGraphButtons: View {
             }
 // #endif
             
-            if hasActiveGroupFocused {
-                CatalystNavBarButton(.GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME) {
-                    dispatch(GoUpOneTraversalLevel())
-                }
-            }
-
             CatalystNavBarButton(.ADD_NODE_SF_SYMBOL_NAME) {
                 dispatch(ToggleInsertNodeMenu())
             }
