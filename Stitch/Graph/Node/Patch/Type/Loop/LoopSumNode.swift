@@ -40,7 +40,12 @@ func loopSumNode(id: NodeId,
 // ... and adding together a list of five bools is somehow "15", or some previously saved/used value?
 func loopSumEval(inputs: PortValuesList,
                  outputs: PortValuesList) -> PortValuesList {
-    let ns: [Double] = inputs.first!.map { $0.getNumber ?? .zero }
+    guard let input = inputs.first else {
+        fatalErrorIfDebug()
+        return inputs
+    }
+    
+    let ns: [Double] = input.map { $0.getNumber ?? .zero }
     return [
         [.number(ns.reduce(0.0, +))]
     ]

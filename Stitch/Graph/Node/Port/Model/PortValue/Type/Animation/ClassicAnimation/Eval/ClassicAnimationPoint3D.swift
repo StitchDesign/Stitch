@@ -55,11 +55,11 @@ func classicAnimationEvalOpPoint3D(values: PortValues,
     // Independent of 'single vs multiple' field etc.
     var animationState: ThreeFieldAnimationProgress = computedState.classicAnimationState?.asThreeFieldState ?? .init()
 
-    let shouldSetIntialX = !animationState.initialValuesX.isDefined || animationState.initialValuesX!.goal != toValue.x
+    let shouldSetIntialX = !animationState.initialValuesX.isDefined || animationState.initialValuesX?.goal != toValue.x
 
-    let shouldSetIntialY = !animationState.initialValuesY.isDefined || animationState.initialValuesY!.goal != toValue.y
+    let shouldSetIntialY = !animationState.initialValuesY.isDefined || animationState.initialValuesY?.goal != toValue.y
 
-    let shouldSetIntialZ = !animationState.initialValuesZ.isDefined || animationState.initialValuesZ!.goal != toValue.z
+    let shouldSetIntialZ = !animationState.initialValuesZ.isDefined || animationState.initialValuesZ?.goal != toValue.z
 
     // Initialize each field separately
     if shouldSetIntialX {

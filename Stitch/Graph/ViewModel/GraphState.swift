@@ -574,13 +574,15 @@ extension GraphState {
             }
             
             let title = node.displayTitle
-            
-            if splitterNode.type == .input {
-                result.updateValue(title, forKey: .input(patchNode.inputsObservers.first!.id))
+                        
+            if splitterNode.type == .input,
+               let input = patchNode.inputsObservers.first {
+                result.updateValue(title, forKey: .input(input.id))
             }
             
-            else if splitterNode.type == .output {
-                result.updateValue(title, forKey: .output(patchNode.outputsObservers.first!.id))
+            else if splitterNode.type == .output,
+                    let output = patchNode.outputObservers.first {
+                result.updateValue(title, forKey: .output(output.id))
             }
         }
     }

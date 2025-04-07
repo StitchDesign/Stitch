@@ -45,7 +45,7 @@ func arrayCountEval(inputs: PortValuesList,
                     outputs: PortValuesList) -> PortValuesList {
 
     let op: Operation = { (values: PortValues) -> PortValue in
-        let jsonArray = values.first!.getJSON!
+        let jsonArray = values.first?.getJSON ?? .emptyArray
         //        log("arrayCountEval: jsonArray: \(jsonArray)")
         //        log("arrayCountEval: jsonArray.count: \(jsonArray.count)")
         return .number(Double(jsonArray.count))

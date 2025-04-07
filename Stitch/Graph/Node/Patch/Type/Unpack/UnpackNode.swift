@@ -289,7 +289,7 @@ func unpackEval(inputs: PortValuesList,
     // TODO: switch to PackNodeType
     // If .size type, then returns two LayerDimension outputs.
     // Else two Number outputs.
-    switch inputs.first!.first {
+    switch inputs.first?.first {
     case .size:
         return resultsMaker2(inputs)(sizeUnpackOp)
     case .position:

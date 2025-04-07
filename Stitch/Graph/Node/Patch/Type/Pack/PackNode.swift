@@ -270,7 +270,7 @@ func packEval(inputs: PortValuesList,
 
     let result = resultsMaker(inputs)
 
-    let presumedNodeType = inputs.first!.first
+    let presumedNodeType = inputs.first?.first
     let inputCount = inputs.count
 
     // TODO: switch to PackNodeType; should switch on PackNodeType and not input count
