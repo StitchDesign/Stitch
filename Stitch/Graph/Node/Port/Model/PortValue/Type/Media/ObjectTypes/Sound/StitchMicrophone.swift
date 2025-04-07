@@ -11,11 +11,9 @@ import Foundation
 import StitchSchemaKit
 
 final class StitchMic: NSObject, Sendable, StitchSoundPlayerDelegate {
-    internal static let permissionsCategory = AVAudioSession.Category.playAndRecord
-    private let session: AVAudioSession
     let id = UUID()
     
-    var engine = AudioEngine()
+    @MainActor var engine = AudioEngine()
 
     // Use AudioKit's AmplitudeTap for volume monitoring
     @MainActor private var ampTap: AmplitudeTap?
@@ -29,8 +27,6 @@ final class StitchMic: NSObject, Sendable, StitchSoundPlayerDelegate {
 
     @MainActor
     init(isEnabled: Bool) {
-        self.session = AVAudioSession.sharedInstance()
-    
         super.init()
         
         // Initializer shouldn't call if not enabled
@@ -41,11 +37,7 @@ final class StitchMic: NSObject, Sendable, StitchSoundPlayerDelegate {
         
         do {
             // Important for these session calls to happen before async caller
-            try session.setCategory(Self.permissionsCategory,
-                                    mode: .default,
-                                    // MARK: necessary on iOS!
-                                    options: [.allowBluetooth])
-            try session.setActive(true)
+            try AVAudioSession.enableSpeakerAndMic()
             
             log("initializeAVAudioSession called")
             
