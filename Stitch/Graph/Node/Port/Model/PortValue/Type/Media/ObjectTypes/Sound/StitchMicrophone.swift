@@ -43,10 +43,7 @@ final class StitchMic: NSObject, Sendable, StitchSoundPlayerDelegate {
             
             Task(priority: .high) { [weak self] in
                 if await AVAudioApplication.requestRecordPermission() {
-                    await MainActor.run { [weak self] in
-                        // Disable loading state
-//                        evalObserver?.currentLoadingMediaId = nil
-                        
+                    await MainActor.run { [weak self] in                        
                         // Engine callers, play etc must be called after permissions logic runs
                         self?.engine.output = self?.engine.input
                         
@@ -60,10 +57,7 @@ final class StitchMic: NSObject, Sendable, StitchSoundPlayerDelegate {
                             self?.play()
                         }
                     }
-                } else {
-                    // Disable loading state
-//                    evalObserver?.currentLoadingMediaId = nil
-                    
+                } else {                    
                     // Prompt user to consider enabling mic permissions
                     DispatchQueue.main.async {
                         dispatch(ReceivedStitchFileError(error: .recordingPermissionsDisabled))

@@ -42,21 +42,6 @@ struct MicrophoneNode: PatchNodeDefinition {
     }
 }
 
-/// Creates mic and assigns to observer.
-//@MainActor func createMic(isEnabled: Bool,
-//                          observer: MediaEvalOpObserver) {
-////    guard observer.currentLoadingMediaId == nil else {
-////        return
-////    }
-//    
-////    observer.currentLoadingMediaId = .init()
-//
-//    let newMic = StitchMic(isEnabled: isEnabled)
-//    let newSoundPlayer = StitchSoundPlayer(delegate: newMic, willPlay: true)
-//    
-//    observer.computedMedia = .init(computedMedia: .mic(newSoundPlayer))
-//}
-
 // needs to be impure, in order to be able to update state as well;
 // we can create the AVAudioRecorder when we first add the node to the graph;
 // but if eg the microphone is turned off, then we'll need to dispatch a side effect to change the state as well
