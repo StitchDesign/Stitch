@@ -90,7 +90,7 @@ func dateAndTimeFormatterEval(inputs: PortValuesList,
 
     let op: Operation = { (values: PortValues) -> PortValue in
 
-        if let time = values.first!.getNumber,
+        if let time = values.first?.getNumber,
            let format = values[1].getDateAndTimeFormat,
            // TODO: actually use customFormat
            let _ = values[2].getString {

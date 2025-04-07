@@ -46,11 +46,11 @@ extension StitchPosition {
             return .zero
         }
 
-        if let x = values.first!.getNumber,
+        if let x = values.first?.getNumber,
            let y = values[1].getNumber {
             return StitchPosition(x: x,
                                   y: y)
-        } else if let x = values.first!.getLayerDimension,
+        } else if let x = values.first?.getLayerDimension,
                   let y = values[1].getLayerDimension {
             return StitchPosition(x: x.asNumber,
                                   y: y.asNumber)
@@ -69,10 +69,10 @@ extension LayerSize {
             return .zero
         }
 
-        if let x = values.first!.getNumber,
+        if let x = values.first?.getNumber,
            let y = values[1].getNumber {
             return LayerSize(width: x, height: y)
-        } else if let x = values.first!.getLayerDimension,
+        } else if let x = values.first?.getLayerDimension,
                   let y = values[1].getLayerDimension {
             return LayerSize(width: x, height: y)
         } else {

@@ -67,7 +67,7 @@ func subtractEval(inputs: PortValuesList,
 
     let sizeOperation: Operation = { (values: PortValues) -> PortValue in
 
-        let sizes: [CGSize] = values.map { $0.getSize!.asAlgebraicCGSize }
+        let sizes: [CGSize] = values.map { $0.getSize?.asAlgebraicCGSize ?? .additionIdentity }
 
         let head = sizes.first!
         let tail = sizes.tail
@@ -80,7 +80,7 @@ func subtractEval(inputs: PortValuesList,
 
     let point3DOperation: Operation = { (values: PortValues) -> PortValue in
 
-        let head = values.first!.getPoint3D!
+        let head = values.first?.getPoint3D ?? .zero
         let tail = values.tail
 
         return .point3D(tail.reduce(head) { (acc: Point3D, value: PortValue) -> Point3D in

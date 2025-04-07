@@ -50,7 +50,7 @@ func multiplyEval(inputs: PortValuesList,
 
     let sizeOperation: Operation = { (values: PortValues) -> PortValue in
 
-        let sizes: [CGSize] = values.map { $0.getSize!.asAlgebraicCGSize }
+        let sizes: [CGSize] = values.map { $0.getSize?.asAlgebraicCGSize ?? .multiplicationIdentity}
 
         let reduced = sizes.reduce(.multiplicationIdentity) { (acc: CGSize, value: CGSize) -> CGSize in
             acc * value

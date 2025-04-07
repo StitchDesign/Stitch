@@ -45,14 +45,14 @@ func squareRootEval(inputs: PortValuesList,
 
     let numberOp: Operation = { (values: PortValues) -> PortValue in
         //        log("squareRootEval: values: \(values)")
-        let n = values[0].getNumber!
+        let n = values[safe: 0]?.getNumber ?? .multiplicationIdentity
         let squareRoot: Double = sqrt(n)
         return .number(squareRoot)
     }
 
     let sizeOp: Operation = { (values: PortValues) -> PortValue in
         //        log("squareRootEval: values: \(values)")
-        let n = values[0].getSize!.asAlgebraicCGSize
+        let n = values[safe: 0]?.getSize?.asAlgebraicCGSize ?? .multiplicationIdentity
         return .size(.init(
                         width: sqrt(n.width),
                         height: sqrt(n.height)))
@@ -60,7 +60,7 @@ func squareRootEval(inputs: PortValuesList,
 
     let positionOp: Operation = { (values: PortValues) -> PortValue in
         //        log("squareRootEval: values: \(values)")
-        let n = values[0].getPosition!
+        let n = values[safe: 0]?.getPosition ?? .multiplicationIdentity
         return .position(.init(
                             x: sqrt(n.x),
                             y: sqrt(n.y)))
@@ -68,7 +68,7 @@ func squareRootEval(inputs: PortValuesList,
 
     let point3DOp: Operation = { (values: PortValues) -> PortValue in
         //        log("squareRootEval: values: \(values)")
-        let n = values[0].getPoint3D!
+        let n = values[safe: 0]?.getPoint3D ?? .multiplicationIdentity
         return .point3D(.init(
                             x: sqrt(n.x),
                             y: sqrt(n.y),

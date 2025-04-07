@@ -151,7 +151,7 @@ func delayEval(node: PatchNode) -> EvalResult {
             currentOutput = inputValue.defaultFalseValue
         }
         
-        let mediaId: UUID? = inputValue.asyncMedia != nil ? inputValue.asyncMedia!.id : nil
+        let mediaId: UUID? = inputValue.asyncMedia != nil ? inputValue.asyncMedia?.id : nil
         let mediaValue: GraphMediaValue? = mediaId != nil ? node.getInputMediaValue(portIndex: 0,
                                                                                     loopIndex: index,
                                                                                     mediaId: mediaId!) : nil

@@ -59,13 +59,13 @@ func classicAnimationEvalOpColor(values: PortValues,
 
     var animationState = computedState.classicAnimationState?.asFourFieldState ?? .init()
 
-    let shouldSetIntialRed = !animationState.initialValuesX.isDefined || animationState.initialValuesX!.goal != toValue.red
+    let shouldSetIntialRed = !animationState.initialValuesX.isDefined || animationState.initialValuesX?.goal != toValue.red
 
-    let shouldSetIntialGreen = !animationState.initialValuesY.isDefined || animationState.initialValuesY!.goal != toValue.green
+    let shouldSetIntialGreen = !animationState.initialValuesY.isDefined || animationState.initialValuesY?.goal != toValue.green
 
-    let shouldSetIntialBlue = !animationState.initialValuesZ.isDefined || animationState.initialValuesZ!.goal != toValue.blue
+    let shouldSetIntialBlue = !animationState.initialValuesZ.isDefined || animationState.initialValuesZ?.goal != toValue.blue
 
-    let shouldSetIntialAlpha = !animationState.initialValuesW.isDefined || animationState.initialValuesW!.goal != toValue.alpha
+    let shouldSetIntialAlpha = !animationState.initialValuesW.isDefined || animationState.initialValuesW?.goal != toValue.alpha
 
     // Initialize each field separately
     if shouldSetIntialRed {
