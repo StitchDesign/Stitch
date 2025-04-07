@@ -42,36 +42,6 @@ struct MicrophoneNode: PatchNodeDefinition {
     }
 }
 
-/// Creates mic and assigns to observer.
-@MainActor func createMic(isEnabled: Bool,
-                          observer: MediaEvalOpObserver) {
-    guard observer.currentLoadingMediaId == nil else {
-        return
-    }
-    
-    observer.currentLoadingMediaId = .init()
-    
-    Task(priority: .high) { [weak observer] in
-        guard let observer = observer else {
-            return
-        }
-
-        let newMic = await StitchMic(isEnabled: isEnabled)
-        let newSoundPlayer = StitchSoundPlayer(delegate: newMic, willPlay: true)
-        
-        observer.currentLoadingMediaId = .init()
-        await MainActor.run { [weak observer, weak newSoundPlayer] in
-            guard let observer = observer,
-                  let newSoundPlayer = newSoundPlayer else {
-                return
-            }
-            
-            observer.computedMedia = .init(computedMedia: .mic(newSoundPlayer))
-            observer.currentLoadingMediaId = nil
-        }
-    }
-}
-
 // needs to be impure, in order to be able to update state as well;
 // we can create the AVAudioRecorder when we first add the node to the graph;
 // but if eg the microphone is turned off, then we'll need to dispatch a side effect to change the state as well
@@ -91,10 +61,13 @@ func microphoneEval(node: PatchNode) -> EvalResult {
            
         guard let currentMedia = mediaObserver.computedMedia,
               let mic = currentMedia.mediaObject.mic else {
-            createMic(isEnabled: isEnabled,
-                      observer: mediaObserver)
+            let newMic = StitchMic(isEnabled: isEnabled)
+            let newSoundPlayer = StitchSoundPlayer(delegate: newMic, willPlay: true)
             
-            return MediaEvalOpResult(from: node.defaultOutputs)
+            mediaObserver.computedMedia = .init(computedMedia: .mic(newSoundPlayer))
+            
+            return MediaEvalOpResult(values: node.defaultOutputs,
+                                     media: mediaObserver.computedMedia)
         }
         
         guard var previousVolume: Double = values[safe: 2]?.getNumber,

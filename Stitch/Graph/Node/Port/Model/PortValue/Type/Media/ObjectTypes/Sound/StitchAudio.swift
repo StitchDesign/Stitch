@@ -141,6 +141,4 @@ protocol StitchSoundPlayerDelegate: AnyObject, Sendable {
     @MainActor var engine: AudioEngine { get }
     
     @MainActor var isRunning: Bool { get }
-    
-    static var permissionsCategory: AVAudioSession.Category { get }
 }

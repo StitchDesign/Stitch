@@ -32,9 +32,13 @@ extension AVAudioRecorder {
 }
 
 extension AVAudioSession {
-    static func enableSpeaker() throws {
+    /// Used by both sound and mic players.
+    /// **NOTE: very important to keep the permissions request consistent by always requesting for mic. Fixes crash where requesting "play and record" after "play" was already establisehd.**
+    static func enableSpeakerAndMic() throws {
         let session = AVAudioSession.sharedInstance()
-        try session.setCategory(.playback, mode: .default)
+        try session.setCategory(.playAndRecord, mode: .default,
+                                // MARK: necessary on iOS!
+                                options: [.allowBluetooth])
         try session.setActive(true)
     }
 }
