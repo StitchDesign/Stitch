@@ -581,7 +581,7 @@ extension GraphState {
             }
             
             else if splitterNode.type == .output,
-                    let output = patchNode.outputObservers.first {
+                    let output = patchNode.outputsObservers.first {
                 result.updateValue(title, forKey: .output(output.id))
             }
         }
