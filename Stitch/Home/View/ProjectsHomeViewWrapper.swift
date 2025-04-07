@@ -43,17 +43,15 @@ struct ProjectsHomeViewWrapper: View {
                             iconName: APP_SETTINGS_ICON_NAME)
                     } else {
 #if targetEnvironment(macCatalyst)
-                        
-                        // Supports proper color and hover effect on Catalyst homescreen button
-                        CatalystNavBarButton(.NEW_PROJECT_SF_SYMBOL_NAME) { [weak store] in
-                            store?.createNewProjectSideEffect(isProjectImport: false)
-                        }
+                        CatalystHomescreenNavBarButton(action: { [weak store] in
+                               store?.createNewProjectSideEffect(isProjectImport: false)
+                        },
+                                                       iconName: .sfSymbol(.NEW_PROJECT_SF_SYMBOL_NAME))
                         // Resolves issue where hover was still active after entering newly created project and then exiting
                         .id(UUID())
                         
-                        CatalystNavBarButton(.SETTINGS_SF_SYMBOL_NAME) {
-                            SHOW_APP_SETTINGS_ACTION()
-                        }
+                        CatalystHomescreenNavBarButton(action: SHOW_APP_SETTINGS_ACTION,
+                                                       iconName: .sfSymbol(.SETTINGS_SF_SYMBOL_NAME))
                         .id(UUID())
 #else
                         iPadNavBarButton(action: { [weak store] in
