@@ -17,25 +17,25 @@ import StitchSchemaKit
 
 struct EdgeAnchorUpstreamData {
     // Port-specific data
-    let firstUpstreamObserver: OutputNodeRowViewModel
-    let lastUpstreamObserver: OutputNodeRowViewModel
+    let firstUpstreamRowViewModel: OutputNodeRowViewModel
+    let lastUpstreamRowViewModel: OutputNodeRowViewModel
     
     // Edge-specific data used for calculating Y distance for edge views
     // Optional to support edge dragging
-    let firstConnectedUpstreamObserver: OutputNodeRowViewModel?
-    let lastConnectedUpstreamObserver: OutputNodeRowViewModel?
+    let firstConnectedUpstreamRowViewModel: OutputNodeRowViewModel?
+    let lastConnectedUpstreamRowViewModel: OutputNodeRowViewModel?
     
     let totalOutputs: Int
 }
 
 struct EdgeAnchorDownstreamData {
     // Port-specific data
-    let firstInputObserver: InputNodeRowViewModel
-    let lastInputObserver: InputNodeRowViewModel
+    let firstInputRowViewModel: InputNodeRowViewModel
+    let lastInputRowViewModel: InputNodeRowViewModel
     
     // Edge-specific data used for calculating Y distance for edge views
-    let firstConnectedInputObserver: InputNodeRowViewModel
-    let lastConectedInputObserver: InputNodeRowViewModel
+    let firstConnectedInputRowViewModel: InputNodeRowViewModel
+    let lastConectedInputRowViewModel: InputNodeRowViewModel
 }
 
 extension EdgeAnchorUpstreamData {
@@ -72,10 +72,10 @@ extension EdgeAnchorUpstreamData {
             }
         }
               
-        self.init(firstUpstreamObserver: firstUpstreamObserver,
-                  lastUpstreamObserver: lastUpstreamObserver,
-                  firstConnectedUpstreamObserver: firstConnectedUpstreamObserver,
-                  lastConnectedUpstreamObserver: lastConnectedUpstreamObserver ?? firstConnectedUpstreamObserver,
+        self.init(firstUpstreamRowViewModel: firstUpstreamObserver,
+                  lastUpstreamRowViewModel: lastUpstreamObserver,
+                  firstConnectedUpstreamRowViewModel: firstConnectedUpstreamObserver,
+                  lastConnectedUpstreamRowViewModel: lastConnectedUpstreamObserver ?? firstConnectedUpstreamObserver,
                   totalOutputs: outputsCount)
     }
 }
@@ -113,10 +113,10 @@ extension EdgeAnchorDownstreamData {
             return nil
         }
         
-        self.init(firstInputObserver: firstInputObserver,
-                  lastInputObserver: lastInputObserver,
-                  firstConnectedInputObserver: firstConnectedInputObserver,
-                  lastConectedInputObserver: lastConnectedInputObserver ?? firstConnectedInputObserver)
+        self.init(firstInputRowViewModel: firstInputObserver,
+                  lastInputRowViewModel: lastInputObserver,
+                  firstConnectedInputRowViewModel: firstConnectedInputObserver,
+                  lastConectedInputRowViewModel: lastConnectedInputObserver ?? firstConnectedInputObserver)
 
     }
 }
