@@ -18,7 +18,7 @@ enum LLMRecordingMode: Equatable {
     case augmentation
 }
 
-enum LLMRecordinModal: Equatable, Hashable {
+enum LLMRecordingModal: Equatable, Hashable {
     // No active modal
     case none
     
@@ -55,7 +55,7 @@ struct LLMRecordingState {
     
     var jsonEntryState = LLMJsonEntryState()
     
-    var modal: LLMRecordinModal = .none
+    var modal: LLMRecordingModal = .none
     
     // Tracks node positions, persisting across edits in case node is removed from validation failure
     var canvasItemPositions: [CanvasItemId : CGPoint] = .init()

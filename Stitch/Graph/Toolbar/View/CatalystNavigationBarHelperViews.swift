@@ -172,17 +172,18 @@ struct CatalystTopBarGraphButtons: View {
             
 // #if DEBUG || DEV_DEBUG || STITCH_AI
             
-            CatalystNavBarButton(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL) {
-                dispatch(LLMRecordingToggled())
+            if llmRecordingModeEnabled {
+                CatalystNavBarButton(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL) {
+                    dispatch(LLMRecordingToggled())
+                }
             }
-            .opacity(llmRecordingModeEnabled ? 1 : 0)
 // #endif
             
-            CatalystNavBarButton(.GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME) {
-                dispatch(GoUpOneTraversalLevel())
+            if hasActiveGroupFocused {
+                CatalystNavBarButton(.GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME) {
+                    dispatch(GoUpOneTraversalLevel())
+                }
             }
-            // Use .opacity so that spacing doesn't change
-            .opacity(hasActiveGroupFocused ? 1 : 0)
 
             CatalystNavBarButton(.ADD_NODE_SF_SYMBOL_NAME) {
                 dispatch(ToggleInsertNodeMenu())
