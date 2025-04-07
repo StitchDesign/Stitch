@@ -115,7 +115,8 @@ struct StitchTitleTextField: View {
         return label + " " + node.id.debugFriendlyId
 #else
         // Show debug-friendly id during debug mode, so user see which nodes are referred to
-        if document.llmRecording.mode == .augmentation {
+        if document.llmRecording.mode == .augmentation,
+           document.llmRecording.modal == .editBeforeSubmit {
             return label + " " + node.id.debugFriendlyId
         } else {
             return label
