@@ -36,11 +36,13 @@ func notEval(inputs: PortValuesList,
              outputs: PortValuesList) -> PortValuesList {
 
     let op: Operation = { (values: PortValues) -> PortValue in
-        if let a = values.first!.getBool {
-            return .bool(!a)
-        } else {
-            fatalError("orEval")
+        
+        guard let value = values.first?.getBool else {
+            fatalErrorIfDebug()
+            return .bool(false)
         }
+        
+        return .bool(!value)
     }
 
     return resultsMaker(inputs)(op)

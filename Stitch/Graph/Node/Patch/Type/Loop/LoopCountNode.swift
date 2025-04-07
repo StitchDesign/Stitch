@@ -37,5 +37,10 @@ func loopCountNode(id: NodeId,
 
 func loopCountEval(inputs: PortValuesList,
                    outputs: PortValuesList) -> PortValuesList {
-    [[.number(Double(inputs.first!.count))]]
+    guard let input = inputs.first else {
+        fatalErrorIfDebug()
+        return inputs
+    }
+    
+    return [[.number(Double(input.count))]]
 }
