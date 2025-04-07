@@ -253,17 +253,23 @@ extension GraphState {
         
         // Update edges after everything else
         let newEdges = self.getVisualEdgeData(groupNodeFocused: focusedGroupNode)
-        
-        if self.connectedEdges != newEdges {
+
+        // HOT FIX: when we reapply llm-actions, the old and new connected edges are equal per ConnectedEdge's == implementation,
+        // so we don't re-render GraphConnectedEdgesView even though the input row view model's port color changed.
+        // TODO: why is non-AI-augmentation mode okay here? This is the only place we change graph.connectedEdges, so `getVisualEdgeData` must be producing something different?
+        if document.llmRecording.mode == .augmentation {
             self.connectedEdges = newEdges
+        } else {
+            if self.connectedEdges != newEdges {
+                self.connectedEdges = newEdges
+            }
         }
-        
+
         // Update labels for group nodes
         let newGroupLabels = self.getGroupPortLabels()
         if self.groupPortLabels != newGroupLabels {
             self.groupPortLabels = newGroupLabels
         }
-        
         
         // Update visible canvas items
         self.visibleCanvasNodes = self.getCanvasItemsAtTraversalLevel(groupNodeFocused: document.groupNodeFocused?.groupNodeId)
@@ -370,11 +376,7 @@ extension GraphState {
                 self.canvasPageZoomScaleChanged = nodePageData.zoomData
             }
         }
-        
-        // Set all nodes visible so that input/output fields' UI update if we enter a new traversal level
-        // MARK: disabled for perf
-//        self.graph.visibleNodesViewModel.setAllNodesVisible()
-        
+                
         self.updateVisibleNodes()
         
         if let document = self.documentDelegate,
@@ -384,6 +386,7 @@ extension GraphState {
         }
         
         // Updates node visibility data
+        // Set all nodes visible so that input/output fields' UI update if we enter a new traversal level
         self.visibleNodesViewModel.resetCache()
     }
     

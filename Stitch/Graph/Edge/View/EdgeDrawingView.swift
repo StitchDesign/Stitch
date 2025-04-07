@@ -80,14 +80,14 @@ struct EdgeFromDraggedOutputView: View {
                          pointTo: pointTo,
                          color: self.color.color(theme),
                          isActivelyDragged: true, // always true for actively-dragged edge
-                         firstFrom: outputAnchorData.firstUpstreamObserver.anchorPoint ?? .zero,
-                         firstTo: inputAnchorData?.firstInputObserver.anchorPoint ?? .zero,
-                         lastFrom: outputAnchorData.lastUpstreamObserver.anchorPoint ?? .zero,
-                         lastTo: inputAnchorData?.lastInputObserver.anchorPoint ?? .zero,
-                         firstFromWithEdge: outputAnchorData.firstConnectedUpstreamObserver?.anchorPoint?.y,
-                         lastFromWithEdge: outputAnchorData.lastConnectedUpstreamObserver?.anchorPoint?.y,
-                         firstToWithEdge: inputAnchorData?.firstConnectedInputObserver.anchorPoint?.y,
-                         lastToWithEdge: inputAnchorData?.lastConectedInputObserver.anchorPoint?.y,
+                         firstFrom: outputAnchorData.firstUpstreamRowViewModel.anchorPoint ?? .zero,
+                         firstTo: inputAnchorData?.firstInputRowViewModel.anchorPoint ?? .zero,
+                         lastFrom: outputAnchorData.lastUpstreamRowViewModel.anchorPoint ?? .zero,
+                         lastTo: inputAnchorData?.lastInputRowViewModel.anchorPoint ?? .zero,
+                         firstFromWithEdge: outputAnchorData.firstConnectedUpstreamRowViewModel?.anchorPoint?.y,
+                         lastFromWithEdge: outputAnchorData.lastConnectedUpstreamRowViewModel?.anchorPoint?.y,
+                         firstToWithEdge: inputAnchorData?.firstConnectedInputRowViewModel.anchorPoint?.y,
+                         lastToWithEdge: inputAnchorData?.lastConectedInputRowViewModel.anchorPoint?.y,
                          totalOutputs: outputAnchorData.totalOutputs,
                          // we never animate the actively dragged edge
                          edgeAnimationEnabled: false)
