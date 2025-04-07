@@ -13,6 +13,16 @@ import OrderedCollections
 
 let STITCH_PROJECT_DEFAULT_NAME = StitchDocument.defaultName
 
+// Use a type-wrapper so we avoid mistakes where we think `.init()` creates a random id like a regular UUID
+// see https://github.com/StitchDesign/Stitch--Old/issues/7090
+struct GraphUpdaterId: Equatable, Hashable, Sendable, Codable {
+    let value: Int
+        
+    static func randomId() -> Self {
+        .init(value: .random(in: -999...999))
+    }
+}
+
 @Observable
 final class StitchDocumentViewModel: Sendable {
     let rootId: UUID
@@ -110,7 +120,7 @@ final class StitchDocumentViewModel: Sendable {
     @MainActor var openPortPreview: OpenedPortPreview?
     
     /// Subscribed by view to trigger graph view update based on data changes.
-    @MainActor var graphUpdaterId: Int = .zero
+    @MainActor var graphUpdaterId: GraphUpdaterId = .init(value: .zero)
     
     @MainActor weak var storeDelegate: StitchStore?
     @MainActor weak var projectLoader: ProjectLoader?
@@ -251,7 +261,7 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
     
     /// Creases a unique hash based on view data which if changes, requires graph data update.
     @MainActor
-    func calculateGraphUpdaterId() -> Int {
+    func calculateGraphUpdaterId() -> GraphUpdaterId {
         var hasher = Hasher()
         
         let graph = self.visibleGraph
@@ -301,9 +311,7 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
         
         let newGraphUpdaterId = hasher.finalize()
         // log("calculateGraphUpdaterId: newGraphUpdaterId: \(newGraphUpdaterId)")
-        return newGraphUpdaterId
-        
-        // return hasher.finalize()
+        return .init(value: newGraphUpdaterId)
     }
     
     func willEncodeProject(schema: StitchDocument) {

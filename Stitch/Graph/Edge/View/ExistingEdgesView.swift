@@ -108,8 +108,8 @@ struct CandidateEdgesView: View {
 extension ConnectedEdgeView {
     @MainActor init(data: ConnectedEdgeData,
                     edgeAnimationEnabled: Bool) {
-        self.inputObserver = data.downstreamRowObserver
-        self.upstreamObserver = data.upstreamRowObserver
+        self.inputRowViewModel = data.downstreamRowObserver
+        self.upstreamOutputRowViewModel = data.upstreamRowObserver
         self.inputData = data.inputData
         self.outputData = data.outputData
         self.zIndex = data.zIndex
@@ -121,27 +121,27 @@ struct ConnectedEdgeView: View {
 
     @Environment(\.appTheme) private var theme
     
-    @Bindable var inputObserver: InputNodeRowViewModel
-    @Bindable var upstreamObserver: OutputNodeRowViewModel
+    @Bindable var inputRowViewModel: InputNodeRowViewModel
+    @Bindable var upstreamOutputRowViewModel: OutputNodeRowViewModel
     let inputData: EdgeAnchorDownstreamData
     let outputData: EdgeAnchorUpstreamData
     let edgeAnimationEnabled: Bool
     let zIndex: Double
         
     var body: some View {
-        let firstUpstreamObserver = inputData.firstInputObserver
-        let firstInputObserver = inputData.firstInputObserver
-        let lastInputObserver = inputData.lastInputObserver
-        let firstConnectedInputObserver = inputData.firstConnectedInputObserver
-        let lastConnectedInputObserver = inputData.lastConectedInputObserver
-        let lastUpstreamObserver = outputData.lastUpstreamObserver
+        let firstUpstreamObserver = inputData.firstInputRowViewModel
+        let firstInputObserver = inputData.firstInputRowViewModel
+        let lastInputObserver = inputData.lastInputRowViewModel
+        let firstConnectedInputObserver = inputData.firstConnectedInputRowViewModel
+        let lastConnectedInputObserver = inputData.lastConectedInputRowViewModel
+        let lastUpstreamObserver = outputData.lastUpstreamRowViewModel
         let totalOutputs = outputData.totalOutputs
-        let lastConnectedUpstreamObserver = outputData.lastConnectedUpstreamObserver
+        let lastConnectedUpstreamObserver = outputData.lastConnectedUpstreamRowViewModel
         
-        if let inputPortViewData = inputObserver.portViewData,
-           let outputPortViewData = upstreamObserver.portViewData,
-           let pointTo = inputObserver.anchorPoint,
-           let pointFrom = upstreamObserver.anchorPoint,
+        if let inputPortViewData = inputRowViewModel.portViewData,
+           let outputPortViewData = upstreamOutputRowViewModel.portViewData,
+           let pointTo = inputRowViewModel.anchorPoint,
+           let pointFrom = upstreamOutputRowViewModel.anchorPoint,
            let firstFrom = firstUpstreamObserver.anchorPoint,
            let firstTo = firstInputObserver.anchorPoint,
            let lastFrom = lastUpstreamObserver.anchorPoint,
@@ -152,7 +152,7 @@ struct ConnectedEdgeView: View {
            let lastToWithEdge = lastConnectedInputObserver.anchorPoint?.y {
             let edge = PortEdgeUI(from: outputPortViewData,
                                   to: inputPortViewData)
-            let portColor: PortColor = inputObserver.portColor
+            let portColor: PortColor = inputRowViewModel.portColor
             let isSelectedEdge = (portColor == .highlightedEdge || portColor == .highlightedLoopEdge)
            
             let zIndexBoost = isSelectedEdge ? SELECTED_EDGE_Z_INDEX_BOOST : 0

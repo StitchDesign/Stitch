@@ -16,9 +16,16 @@ extension InputNodeRowObserver {
     /// 3. Returns side effects for media which needs to be cleared.
     @MainActor
     func removeUpstreamConnection(isVisible: Bool? = nil) {
-        let downstreamStitches = self.upstreamOutputObserver?.getConnectedDownstreamNodes()
+        
+        guard let upstreamOutputObserver = self.upstreamOutputObserver else {
+            log("InputNodeRowObserver: removeUpstreamConnection: could not find upstream output observer")
+            return
+        }
+        
+        let downstreamStitches = upstreamOutputObserver.getConnectedDownstreamNodes()
             .map { $0.nodeDelegate?.id }
             .toSet
+        
         let willUpstreamBeDisconnected = downstreamStitches == Set([self.id.nodeId])
 
         // Videos and audios need to be cleared from a now-disconnected node
@@ -47,8 +54,8 @@ extension InputNodeRowObserver {
         else if self.nodeKind.isSpeakerNode,
                 // Only look at this input if it is the media input
                 self.id.isMediaSelectorLocation,
-                let node = self.upstreamOutputObserver?.nodeDelegate {
-            node.getAllMediaObservers()?
+                let upstreamObserverNode = upstreamOutputObserver.nodeDelegate {
+            upstreamObserverNode.getAllMediaObservers()?
                 .map(\.computedMedia)
                 .forEach { media in
                     // Run effect to mute sound player
@@ -71,9 +78,12 @@ extension GraphState {
     // Hence the rename from `edgeRemoved` to `removesEdgeAt`
     @MainActor
     func removeEdgeAt(input: InputPortViewData) {
-        if let inputCoordinate = self.getInputCoordinate(from: input) {
-            self.removeEdgeAt(input: inputCoordinate)
+        guard let inputCoordinate = self.getInputCoordinate(from: input) else {
+            log("GraphState: removeEdgeAt: could not find input \(input.portId), \(input.canvasId)")
+            return
         }
+        
+        self.removeEdgeAt(input: inputCoordinate)
     }
     
     @MainActor
@@ -150,8 +160,12 @@ extension NodeViewModel {
     @MainActor
     func removeIncomingEdge(at coordinate: NodeIOCoordinate,
                             graph: GraphState) {
-        self.getInputRowObserver(for: coordinate.portType)?
-            .removeUpstreamConnection(isVisible: self.isVisibleInFrame(graph.visibleCanvasIds, graph.selectedSidebarLayers))
+        guard let inputObserver = self.getInputRowObserver(for: coordinate.portType) else {
+            log("NodeViewModel: removeIncomingEdge: could not find observer for input \(coordinate)")
+            return
+        }
+        
+        inputObserver.removeUpstreamConnection(isVisible: self.isVisibleInFrame(graph.visibleCanvasIds, graph.selectedSidebarLayers))
     }
 }
 
