@@ -169,21 +169,21 @@ struct CatalystTopBarGraphButtons: View {
 
         // `HStack` doesn't matter? These are all placed in a `ToolbarItemGroup` ...
         HStack {
-            
-// #if DEBUG || DEV_DEBUG || STITCH_AI
-            
-            CatalystNavBarButton(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL) {
-                dispatch(LLMRecordingToggled())
-            }
-            .opacity(llmRecordingModeEnabled ? 1 : 0)
-// #endif
-            
+                        
             CatalystNavBarButton(.GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME) {
                 dispatch(GoUpOneTraversalLevel())
             }
-            // Use .opacity so that spacing doesn't change
             .opacity(hasActiveGroupFocused ? 1 : 0)
-
+        
+// #if DEBUG || DEV_DEBUG || STITCH_AI
+            
+            if llmRecordingModeEnabled {
+                CatalystNavBarButton(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL) {
+                    dispatch(LLMRecordingToggled())
+                }
+            }
+// #endif
+            
             CatalystNavBarButton(.ADD_NODE_SF_SYMBOL_NAME) {
                 dispatch(ToggleInsertNodeMenu())
             }
