@@ -54,8 +54,7 @@ func loopOverArrayEval(inputs: PortValuesList,
 
     // loopOverArray expects its input to contain a SINGLE JSON value (a json array);
     // if we provide eg a loop of JSONS to its input, only the first JSON will be used.
-
-    let jsonArray = inputs.first!.first!.getJSON!
+    let jsonArray = inputs.first?.first?.getJSON ?? .emptyArray
     let (indicesLoop, valuesLoop) = JSONArrayToLoops(jsonArray)
 
     return [indicesLoop, valuesLoop]

@@ -38,7 +38,7 @@ func loopStartEval(inputs: PortValuesList,
     // Origami loopStart node turns an input loops into nil outputs.
     // We default to taking the first value from an input loop,
     // and using that as count.
-    if let number: Double = inputs.first!.first!.getNumber {
+    if let number: Double = inputs.first?.first?.getNumber {
 
         let nodeCount = Int(number)
 

@@ -71,8 +71,9 @@ func loopFilterEval(inputs: PortValuesList,
     //    log("loopFilterEval: result: \(result)")
 
     // If the result is empty, then we should return a default false result.
-    if result.isEmpty {
-        let emptyResult = [inputLoop.first!.defaultFalseValue]
+    if result.isEmpty,
+       let inputLoopFirst = inputLoop.first {
+        let emptyResult = [inputLoopFirst.defaultFalseValue]
         return [emptyResult, emptyResult.asLoopIndices]
     } else {
         return [result, result.asLoopIndices]

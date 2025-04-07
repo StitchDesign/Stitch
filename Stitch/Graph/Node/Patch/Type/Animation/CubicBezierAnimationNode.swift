@@ -87,16 +87,16 @@ func cubicBezierAnimationEvalOp(values: PortValues,
                                 computedState: ComputedNodeState,
                                 fps: StitchFPS) -> ImpureEvalOpResult {
 
-    let toValue: Double = values.first!.getNumber!
-    let duration: Double = values[1].getNumber!
+    let toValue: Double = values.first?.getNumber ?? .zero
+    let duration: Double = values[safe: 1]?.getNumber ?? .zero
 
-    let firstControlPointX = values[2].getNumber!
-    let firstControlPointY = values[3].getNumber!
+    let firstControlPointX = values[safe: 2]?.getNumber ?? .zero
+    let firstControlPointY = values[safe: 3]?.getNumber ?? .zero
     let firstControlPoint: CGPoint = .init(x: firstControlPointX,
                                            y: firstControlPointY)
 
-    let secondControlPointX = values[4].getNumber!
-    let secondControlPointY = values[5].getNumber!
+    let secondControlPointX = values[safe: 4]?.getNumber ?? .zero
+    let secondControlPointY = values[safe: 5]?.getNumber ?? .zero
     let secondControlPoint: CGPoint = .init(x: secondControlPointX,
                                             y: secondControlPointY)
 
@@ -132,11 +132,11 @@ func cubicBezierAnimationEvalOp(values: PortValues,
         fatalError()
     }
 
-    let shouldSetIntialX = !animationState.initialValuesX.isDefined || animationState.initialValuesX!.goal != toValue
+    let shouldSetIntialX = !animationState.initialValuesX.isDefined || animationState.initialValuesX?.goal != toValue
 
-    let shouldSetIntialY = !animationState.initialValuesY.isDefined || animationState.initialValuesY!.goal != toValue
+    let shouldSetIntialY = !animationState.initialValuesY.isDefined || animationState.initialValuesY?.goal != toValue
 
-    let shouldSetIntialZ = !animationState.initialValuesZ.isDefined || animationState.initialValuesZ!.goal != toValue
+    let shouldSetIntialZ = !animationState.initialValuesZ.isDefined || animationState.initialValuesZ?.goal != toValue
 
     // Initialize each field separately
     if shouldSetIntialX {

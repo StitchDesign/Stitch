@@ -132,7 +132,7 @@ func springAnimationPositionOp(values: PortValues, // ie inputs and outputs
     var newPosition = currentOutput
     
 
-    if  doubleAnimationState.valuesX.springValues!.toValue != toValueX {
+    if  doubleAnimationState.valuesX.springValues?.toValue != toValueX {
         
         // The new fromValue is our current output
         doubleAnimationState.valuesX.springValues?.fromValue = currentOutputX
@@ -144,7 +144,7 @@ func springAnimationPositionOp(values: PortValues, // ie inputs and outputs
         doubleAnimationState.valuesX.springValues?.stepTime = .zero
     }
     
-    if  doubleAnimationState.valuesY.springValues!.toValue != toValueY {
+    if  doubleAnimationState.valuesY.springValues?.toValue != toValueY {
         
         // The new fromValue is our current output
         doubleAnimationState.valuesY.springValues?.fromValue = currentOutputY
@@ -168,7 +168,7 @@ func springAnimationPositionOp(values: PortValues, // ie inputs and outputs
             return .init(outputs: [.position(newPosition)],
                          willRunAgain: false)
         }
-
+        
         let (progressX, newVelocity) = SpringHelpers.progress(
             spring: doubleAnimationState.valuesX.springValues!.spring,
             from: currentOutputX,
