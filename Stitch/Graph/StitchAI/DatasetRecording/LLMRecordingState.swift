@@ -118,6 +118,8 @@ extension StitchDocumentViewModel {
         
         // Write to disk ONLY IF WE WERE SUCCESSFUL
         self.encodeProjectInBackground()
+        
+        self.graphUpdaterId = .randomId() // NOT NEEDED, ACTUALLY?
     }
         
     @MainActor
@@ -288,7 +290,7 @@ extension StitchDocumentViewModel {
         self.encodeProjectInBackground()
         
         // Force update view
-        self.graphUpdaterId = .init()
+        self.graphUpdaterId = .randomId()
         
         // Validates that action data didn't change after derived actions is computed
         let newActions = self.llmRecording.actions
@@ -314,14 +316,15 @@ func positionAIGeneratedNodes(convertedActions: [any StepActionable],
     }
     
     guard !depthMap.isEmpty else {
-        fatalErrorIfDebug("Depth-map should never be empty")
+//        fatalErrorIfDebug("Depth-map should never be empty")
+        log("Depth-map should never be empty")
         return
     }
                     
     let depthLevels = depthMap.values.sorted().toOrderedSet
 
     let createdNodes = convertedActions.nodesCreatedByLLMActions()
-    
+        
     // Iterate by depth-level, so that nodes at same depth (e.g. 0) can be y-offset from each other
     depthLevels.forEach { depthLevel in
 
