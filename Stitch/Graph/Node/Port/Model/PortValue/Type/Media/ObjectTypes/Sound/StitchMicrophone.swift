@@ -11,11 +11,9 @@ import Foundation
 import StitchSchemaKit
 
 final class StitchMic: NSObject, Sendable, StitchSoundPlayerDelegate {
-    internal static let permissionsCategory = AVAudioSession.Category.playAndRecord
-    private let session: AVAudioSession
     let id = UUID()
     
-    var engine = AudioEngine()
+    @MainActor var engine = AudioEngine()
 
     // Use AudioKit's AmplitudeTap for volume monitoring
     @MainActor private var ampTap: AmplitudeTap?
@@ -28,9 +26,7 @@ final class StitchMic: NSObject, Sendable, StitchSoundPlayerDelegate {
     @MainActor private var peakValue: Float = 0
 
     @MainActor
-    init(isEnabled: Bool) async {
-        self.session = AVAudioSession.sharedInstance()
-    
+    init(isEnabled: Bool) {
         super.init()
         
         // Initializer shouldn't call if not enabled
@@ -41,39 +37,35 @@ final class StitchMic: NSObject, Sendable, StitchSoundPlayerDelegate {
         
         do {
             // Important for these session calls to happen before async caller
-            try session.setCategory(Self.permissionsCategory,
-                                    mode: .default,
-                                    // MARK: necessary on iOS!
-                                    options: [.allowBluetooth])
-            try session.setActive(true)
+            try AVAudioSession.enableSpeakerAndMic()
             
             log("initializeAVAudioSession called")
             
-            if await AVAudioApplication.requestRecordPermission() {
-                await MainActor.run { [weak self] in
-                    // Engine callers, play etc must be called after permissions logic runs
-                    self?.engine.output = self?.engine.input
-                    
-                    // Setup amplitude tap on the input node
-                    if let input = self?.engine.input {
-                        self?.ampTap = AmplitudeTap(input, callbackQueue: .main)
-                        self?.ampTap?.start()
+            Task(priority: .high) { [weak self] in
+                if await AVAudioApplication.requestRecordPermission() {
+                    await MainActor.run { [weak self] in                        
+                        // Engine callers, play etc must be called after permissions logic runs
+                        self?.engine.output = self?.engine.input
+                        
+                        // Setup amplitude tap on the input node
+                        if let input = self?.engine.input {
+                            self?.ampTap = AmplitudeTap(input, callbackQueue: .main)
+                            self?.ampTap?.start()
+                        }
+                        
+                        if isEnabled {
+                            self?.play()
+                        }
                     }
-                    
-                    if isEnabled {
-                        self?.play()
+                } else {                    
+                    // Prompt user to consider enabling mic permissions
+                    DispatchQueue.main.async {
+                        dispatch(ReceivedStitchFileError(error: .recordingPermissionsDisabled))
                     }
-                }
-            } else {
-                // Prompt user to consider enabling mic permissions
-                DispatchQueue.main.async {
-                    dispatch(ReceivedStitchFileError(error: .recordingPermissionsDisabled))
                 }
             }
         } catch {
-            DispatchQueue.main.async {
-                dispatch(ReceivedStitchFileError(error: .recordingPermissionsDisabled))
-            }
+            dispatch(ReceivedStitchFileError(error: .recordingPermissionsDisabled))
         }
     }
 
