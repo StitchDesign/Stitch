@@ -11,7 +11,6 @@ import StitchSchemaKit
 import AVFoundation
 
 final class StitchSoundFilePlayer: NSObject, StitchSoundPlayerDelegate {
-    static let permissionsCategory = AVAudioSession.Category.playback
     let id = UUID()
 
     @MainActor var engine = AudioEngine()
@@ -31,8 +30,10 @@ final class StitchSoundFilePlayer: NSObject, StitchSoundPlayerDelegate {
          willLoop: Bool = true,
          rate: AUValue? = nil,
          jumpTime: Double? = nil) {
+        
         // MARK: we had this in a Task object before but calling this async appeared to cause crashes
-        try? AVAudioSession.enableSpeaker()
+        // MARK: must enable the same permissions as mic, changing later causes crash
+        try? AVAudioSession.enableSpeakerAndMic()
 
         do {
             try player.load(url: url)
