@@ -88,6 +88,7 @@ extension OutputNodeRowObserver {
     @MainActor
     func onPrototypeRestart() {
         // Set outputs to be empty
-        self.allLoopedValues = []
+        // MARK: no longer seems necessary, removing for fixing flashing media on restart
+//        self.allLoopedValues = []
     }
 }

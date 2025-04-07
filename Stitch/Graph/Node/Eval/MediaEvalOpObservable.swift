@@ -74,7 +74,8 @@ final class ImageClassifierOpObserver: MediaEvalOpObservable {
 
 extension MediaEvalOpObserver {
     @MainActor func onPrototypeRestart() {
-        self.resetMedia()
+        // MARK: commenting out to fix flashing media, which seems to still reset properly
+//        self.resetMedia()
         
         // MARK: below functionality keeps objects in place, which would make restarts less jarring should be an issue again
 //        switch currentMedia?.mediaObject {
