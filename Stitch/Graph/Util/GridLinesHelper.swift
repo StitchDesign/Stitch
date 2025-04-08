@@ -13,8 +13,8 @@ import StitchSchemaKit
 // eg 0.4 or 0.5
 let GRID_SCALE_MINIMUM: CGFloat = 0.3
 
-let SQUARE_SIDE_LENGTH = 25 // previously: 50
-
+let SQUARE_SIDE_LENGTH: Int = 25 // previously: 50
+let SQUARE_SIDE_LENGTH_AS_CGFLOAT: CGFloat = .init(SQUARE_SIDE_LENGTH)
 /*
  Determine the new resting position of a moved node,
  based on how node's top and left sides should line up
