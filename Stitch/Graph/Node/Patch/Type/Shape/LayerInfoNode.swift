@@ -41,7 +41,7 @@ extension GraphState {
     // TODO: cache these?
     @MainActor
     func layerListeningPatchNodes(assignedTo id: LayerNodeId) -> IdSet {
-        self.patchNodes.reduce(into: .init(), { partialResult, kv in
+        self.nodes.reduce(into: .init(), { partialResult, kv in
             let node = kv.value
             if node.patch?.listensToAssignedLayer ?? false,
                node.getInteractionId() == id {
