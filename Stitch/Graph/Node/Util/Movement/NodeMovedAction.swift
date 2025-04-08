@@ -191,10 +191,10 @@ extension GraphState {
         // log("canvasItemMoved: original id: \(id)")
 
         // Edges should *never* animate when node is being dragged
-        self.graphUI.edgeAnimationEnabled = false
+        self.edgeAnimationEnabled = false
 
         // Dragging node exits edge-edit-mode
-        self.graphUI.edgeEditingState = nil
+        self.edgeEditingState = nil
 
         /*
          HACK:
@@ -415,7 +415,7 @@ extension GraphState {
 
         return self.buildCommentBoxes(visibleNodes: visibleNodes,
                                       visibleCommentBoxes: visibleCommentBoxes,
-                                      commentBoxBoundsDict: self.graphUI.commentBoxBoundsDict)
+                                      commentBoxBoundsDict: self.commentBoxBoundsDict)
 
     } // func
 

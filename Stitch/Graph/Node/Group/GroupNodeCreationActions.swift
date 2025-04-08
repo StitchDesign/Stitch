@@ -260,7 +260,7 @@ extension StitchDocumentViewModel {
                                   componentId: NodeId) {
         let selectedNodeIds = selectedCanvasItems.compactMap { $0.nodeDelegate?.id }.toSet
         let result = self.createNewStitchComponent(componentId: componentId,
-                                                   groupNodeFocused: self.graphUI.groupNodeFocused,
+                                                   groupNodeFocused: self.groupNodeFocused,
                                                    selectedNodeIds: selectedNodeIds)
  
         // Create new published component matching draft

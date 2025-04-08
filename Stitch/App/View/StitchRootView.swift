@@ -81,7 +81,7 @@ struct StitchRootView: View {
                                     VStack(alignment: .leading) {
                                         StitchTextView(string: "Edit Project Title")
                                         CatalystProjectTitleModalView(graph: document.visibleGraph,
-                                                                      graphUI: document)
+                                                                      document: document)
                                     }
                                     .padding()
                                     //                                .frame(width: 260, alignment: .leading)
@@ -98,8 +98,7 @@ struct StitchRootView: View {
                             } // if document
 #endif
                             if showMenu {
-                                InsertNodeMenuWrapper(document: document,
-                                                      graphUI: document)
+                                InsertNodeMenuWrapper(document: document)
                             }
                         } // if let document
                     } // .overlay
@@ -135,7 +134,7 @@ struct StitchRootView: View {
                 fn(false)
             }
         }
-        .onChange(of: self.store.currentDocument?.graphUI.leftSidebarOpen ?? false) { oldValue, newValue in
+        .onChange(of: self.store.currentDocument?.leftSidebarOpen ?? false) { oldValue, newValue in
 //            dispatch(LeftSidebarSet(open: true))
             if newValue {
                 self.columnVisibility = .doubleColumn

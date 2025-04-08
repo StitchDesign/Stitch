@@ -339,8 +339,8 @@ extension StitchAIManager {
 extension StitchDocumentViewModel {
     @MainActor func handleError(_ error: Error) {
         log("Error generating graph with StitchAI: \(error)", .logToServer)
-        self.graphUI.insertNodeMenuState.show = false
-        self.graphUI.insertNodeMenuState.isGeneratingAINode = false
+        self.insertNodeMenuState.show = false
+        self.insertNodeMenuState.isGeneratingAINode = false
     }
 }
 

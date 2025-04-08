@@ -370,7 +370,7 @@ extension StitchDocumentViewModel {
     /// Returns `GraphState` instance based on visited groups and components
     @MainActor var visibleGraph: GraphState {
         // Traverse in reverse order of view stack
-        for groupType in self.graphUI.groupNodeBreadcrumbs.reversed() {
+        for groupType in self.groupNodeBreadcrumbs.reversed() {
             switch groupType {
             case .groupNode:
                 continue

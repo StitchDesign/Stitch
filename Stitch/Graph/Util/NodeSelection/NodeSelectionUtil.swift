@@ -110,7 +110,7 @@ extension GraphState {
     // TODO: handle proper traversal level comments
     @MainActor
     func selectAllCommentsAtTraversalLevel() {
-        self.graphUI.selection.selectedCommentBoxes = self.commentBoxesDict.keys.toSet
+        self.selection.selectedCommentBoxes = self.commentBoxesDict.keys.toSet
     }
     
     @MainActor

@@ -31,9 +31,9 @@ extension StitchDocumentViewModel {
         let isMouseGestureEnd = !gestureLocation.isDefined || !velocity.isDefined
         
         if isMouseGestureEnd {
-            self.graphUI.lastMouseNodeMovement = nil
+            self.lastMouseNodeMovement = nil
         } else {
-            self.graphUI.lastMouseNodeMovement = graphTime
+            self.lastMouseNodeMovement = graphTime
         }
         
         for mouseNodeId in mouseNodeIds {

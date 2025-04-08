@@ -50,7 +50,7 @@ struct NodeTagMenuButtonsView: View {
 
     @MainActor
     var activeIndex: ActiveIndex {
-        self.graphUI.activeIndex
+        self.activeIndex
     }
 
     var nodeType: UserVisibleType? {

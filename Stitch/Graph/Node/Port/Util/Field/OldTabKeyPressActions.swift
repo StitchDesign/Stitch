@@ -16,7 +16,7 @@
 ////        if let newFocusedInput = nextFieldOrInput(state: self,
 ////                                                  focusedField: focusedInput) {
 ////            // log("tabPressed: newFocusedInput: \(newFocusedInput)")
-////            self.graphUI.reduxFocusedField = .textInput(newFocusedInput)
+////            self.reduxFocusedField = .textInput(newFocusedInput)
 ////        }
 ////    }
 ////    
@@ -25,7 +25,7 @@
 ////        if let newFocusedInput = previousFieldOrInput(state: self,
 ////                                                      focusedField: focusedInput) {
 ////            // log("shiftTabPressed: newFocusedInput: \(newFocusedInput)")
-////            self.graphUI.reduxFocusedField = .textInput(newFocusedInput)
+////            self.reduxFocusedField = .textInput(newFocusedInput)
 ////        }
 ////    }
 ////}

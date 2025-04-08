@@ -64,7 +64,7 @@ extension GraphState {
         
         if !dragInteractionIdSet.isEmpty {
             
-            self.graphUI.activeDragInteraction.activeDragInteractionNodes = self.graphUI.activeDragInteraction.activeDragInteractionNodes.union(dragInteractionIdSet)
+            self.activeDragInteraction.activeDragInteractionNodes = self.activeDragInteraction.activeDragInteractionNodes.union(dragInteractionIdSet)
             
             for dragInteractionId in dragInteractionIdSet {
                 if let node = self.getPatchNode(id: dragInteractionId),
