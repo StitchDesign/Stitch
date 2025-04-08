@@ -85,23 +85,32 @@ struct CanvasEdgesViewModifier: ViewModifier {
     
     func body(content: Content) -> some View {
         content
-            .background {
-                // Using background ensures edges z-index are always behind ndoes
+
+//            .background {
+//                // Using background ensures edges z-index are always behind nodes
+//                // GraphConnectedEdgesView(graph: graph)
+//                // CandidateEdgesView(graph: graph)
+//            }
+            .overlay {
+                // MARK: exploring what UX is like when edges sit on top of nodes
+                // TODO: this helps avoid the small gap between the port and the edge that we occasionally see; is there an alternative way to handle this?
                 GraphConnectedEdgesView(graph: graph)
                 CandidateEdgesView(graph: graph)
-            }
-            .overlay {
+                
                 EdgeDrawingView(graph: graph,
                                 edgeDrawingObserver: graph.edgeDrawingObserver)
+                    .zIndex(999999)
                 
                 EdgeInputLabelsView(document: document,
                                     graph: graph)
+                    .zIndex(9999999)
 
                 if let openPortPreview = document.openPortPreview,
                    let canvas = graph.getCanvasItem(openPortPreview.canvasItemId) {
                     PortPreviewPopoverWrapperView(
                         openPortPreview: openPortPreview,
                         canvas: canvas)
+                    .zIndex(99999999)
                 }
             }
     }
