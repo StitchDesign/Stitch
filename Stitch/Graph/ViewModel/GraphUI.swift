@@ -211,10 +211,6 @@ extension GraphState {
             self.layersSidebarViewModel.isSidebarFocused = false
         }
         
-        // Reset node option dupe-drag
-        // Usually okay, but we can get stuck in dupe-drag mode if something goes wrong and a handleNodeMoveEnded action isn't fired
-        self.dragDuplication = false
-        
         if document.openPortPreview != nil {
             document.openPortPreview = nil
         }

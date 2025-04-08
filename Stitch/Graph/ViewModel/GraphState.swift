@@ -93,9 +93,6 @@ final class GraphState: Sendable {
     @MainActor var canvasPageOffsetChanged: CGPoint? = nil
     @MainActor var canvasPageZoomScaleChanged: CGFloat? = nil
     
-    // Hackiness for handling option+drag "duplicate node and drag it"
-    @MainActor var dragDuplication: Bool = false
-    
     // Only for node cursor selection box done when shift held
     @MainActor var nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag: CanvasItemIdSet? = nil
     
