@@ -54,13 +54,11 @@ struct CustomShapeView: View {
     func baseView(_ color: Color) -> some View {
         Rectangle()
             .fill(color)
-            .frame(self.shape.baseFrame.size)
     }
 
     @ViewBuilder
     func filledView(maskShape: Path) -> some View {
         baseView(shapeLayerNodeColor)
-            .frame(self.shape.baseFrame.size)
             .mask(maskShape.fill(style: .init(eoFill: true)))
     }
 
@@ -68,7 +66,6 @@ struct CustomShapeView: View {
     func trimmedView(maskShape: Path,
                      strokeScale: CGFloat) -> some View {
         baseView(strokeData.color)
-            .frame(self.shape.baseFrame.size)
             .mask(maskShape
                     // stroke progress: 0 -> 1
                     .trimmedPath(from: strokeData.strokeStart,
@@ -99,6 +96,5 @@ struct CustomShapeInnerView<T: View, U: View>: View {
             }
         }
         .offset(x: xOffset, y: yOffset)
-        .scaleEffect(x: xScale, y: yScale)
     }
 }
