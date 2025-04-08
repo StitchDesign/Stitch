@@ -138,7 +138,7 @@ final class StitchARViewCaptureDelegate: NSObject, ARSessionDelegate, Sendable {
     let iPhone: Bool
     
     @MainActor override init() {
-        self.iPhone = GraphUIState.isPhoneDevice
+        self.iPhone = StitchDocumentViewModel.isPhoneDevice
         super.init()
         
         self.cameraActor.imageConverterDelegate = self

@@ -127,7 +127,7 @@ struct GraphBaseView: View {
                 .inspector(isPresented: $store.showsLayerInspector) {
                     
                     LayerInspectorView(graph: graph,
-                                       graphUI: document)
+                                       document: document)
                     
                     // TODO: setting an inspector width DOES move over the graph view content
                         .inspectorColumnWidth(LayerInspectorView.LAYER_INSPECTOR_WIDTH)
@@ -161,7 +161,7 @@ struct GraphHoverViewModifier: ViewModifier {
             .onHover(perform: { hovering in
                 
                 // log("GraphBaseView: onHover: hovering: \(hovering)")
-                // log("GraphBaseView: onHover: graphUI.keypressState.isSpacePressed: \(graphUI.keypressState.isSpacePressed)")
+                // log("GraphBaseView: onHover: document.keypressState.isSpacePressed: \(document.keypressState.isSpacePressed)")
                 // log("GraphBaseView: onHover: self.spaceHeld: \(self.spaceHeld)")
                 
                 if hovering, self.spaceHeld {

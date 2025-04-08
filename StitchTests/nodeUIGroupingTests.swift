@@ -131,7 +131,7 @@ class GroupNodeTests: XCTestCase {
 //
 //        let selection = GraphUISelectionState(selectedNodes: selectedNodes)
 //
-//        let uiState = GraphUIState(selection: selection)
+//        let uiState = StitchDocumentViewModel(selection: selection)
 //
 //        let graphState = GraphState(patchNodes: nodes)
 //
@@ -218,7 +218,7 @@ class GroupNodeTests: XCTestCase {
 //        ]
 //
 //        let selection = GraphUISelectionState(selectedNodes: selectedNodes)
-//        let uiState = GraphUIState(selection: selection)
+//        let uiState = StitchDocumentViewModel(selection: selection)
 //        let graphState = GraphState.getTestState(nodes, edges: edges)
 //
 //        let project = ProjectState(metadata: ProjectMetadata(name: devDefaultProjectName()),
@@ -413,7 +413,7 @@ class GroupNodeTests: XCTestCase {
 //        let selectedNodes = IdSet([selectedNodeId1, selectedNodeId2, wirelessReceiverId])
 //
 //        let selection = GraphUISelectionState(selectedNodes: selectedNodes)
-//        let uiState = GraphUIState(selection: selection)
+//        let uiState = StitchDocumentViewModel(selection: selection)
 //        let graphState = GraphState.getTestState(nodes, edges: edges)
 //
 //        let project = ProjectState(metadata: ProjectMetadata(name: devDefaultProjectName()),
@@ -614,7 +614,7 @@ class GroupNodeTests: XCTestCase {
 //                               layerNodes: layerNodes,
 //                               connections: connections)
 //
-//        let uiState = GraphUIState()
+//        let uiState = StitchDocumentViewModel()
 //
 //        var state = createTestGroupNode(
 //            graph: graph,
@@ -776,7 +776,7 @@ class GroupNodeTests: XCTestCase {
 //
 //        state.connections = state.connections.addEdge(.init(from: .fakeOutputCoordinate,
 //                                                            to: .init(portId: 0, nodeId: splitterNode.id)))
-//        let graphUI = GraphUIState(selection: .init(selectedNodes: ([splitterNode.id]),
+//        let graphUI = StitchDocumentViewModel(selection: .init(selectedNodes: ([splitterNode.id]),
 //                                                    lastSelectedNode: splitterNode.id))
 //        let projectState = ProjectState(metadata: .fakeProjectMetadata,
 //                                        graph: state,
@@ -892,7 +892,7 @@ class GroupNodeTests: XCTestCase {
 //        XCTAssertEqual(Array(state.graph.groupNodesState.keys), [createdGroupNodeId])
 //
 //        // Go into the first group
-//        state.graphUI = SetActiveGroupEvent(id: createdGroupNodeId).handle(state: state).state!.graphUI
+//        state = SetActiveGroupEvent(id: createdGroupNodeId).handle(state: state).state!.graphUI
 //
 //        // Create a second group inside the first group
 //        state = NodeTappedAction(id: TestIds._0).handle(state: state).state!
@@ -1032,11 +1032,11 @@ class GroupNodeTests: XCTestCase {
 //
 //        // Go inside first group G1 ...
 //        let firstGroupNodeId = state.graph.groupNodesState.first!.key
-//        state.graphUI = SetActiveGroupEvent(id: firstGroupNodeId)
+//        state = SetActiveGroupEvent(id: firstGroupNodeId)
 //            .handle(state: state).state!.graphUI
 //
 //        // ... and create a second group G2 from e.g. the multiply and divide nodes
-//        state.graphUI.selection.selectedNodes = .init(arrayLiteral: TestIds._3, TestIds._4)
+//        state.selection.selectedNodes = .init(arrayLiteral: TestIds._3, TestIds._4)
 //        state = GroupNodeCreatedEvent().handle(
 //            state: state,
 //            environment: mockEnvironment).state!
@@ -1066,7 +1066,7 @@ class GroupNodeTests: XCTestCase {
 ////                         selectedNodes: IdSet,
 ////                         environment: StitchEnvironment) -> ProjectState {
 ////    let selection = GraphUISelectionState(selectedNodes: selectedNodes)
-////    let graphUI = GraphUIState(selection: selection)
+////    let graphUI = StitchDocumentViewModel(selection: selection)
 ////    let project = ProjectState(metadata: ProjectMetadata(name: devDefaultProjectName()),
 ////                               graph: graph,
 ////                               graphUI: graphUI)

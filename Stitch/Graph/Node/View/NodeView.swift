@@ -166,7 +166,7 @@ struct NodeView: View {
                spacing: SPACING_BETWEEN_NODE_ROWS) {
             if self.stitch.patch == .wirelessReceiver {
                 WirelessPortView(graph: graph,
-                                 graphUI: document,
+                                 document: document,
                                  isOutput: false,
                                  id: stitch.id)
                 .padding(.trailing, NODE_BODY_SPACING)
@@ -198,7 +198,7 @@ struct NodeView: View {
             
             if self.stitch.patch == .wirelessBroadcaster {
                 WirelessPortView(graph: graph,
-                                 graphUI: document,
+                                 document: document,
                                  isOutput: true,
                                  id: stitch.id)
                 .padding(.leading, NODE_BODY_SPACING)

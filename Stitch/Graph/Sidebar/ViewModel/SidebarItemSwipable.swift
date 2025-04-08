@@ -57,7 +57,7 @@ protocol SidebarItemSwipable: StitchNestedListElementObservable, Sendable, Ident
     @MainActor
     func contextMenuInteraction(itemId: Self.ID,
                                 graph: GraphState,
-                                graphUI: GraphUIState) -> UIContextMenuConfiguration?
+                                document: StitchDocumentViewModel) -> UIContextMenuConfiguration?
     
     
     @MainActor

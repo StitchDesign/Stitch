@@ -90,7 +90,7 @@ extension NodeRowObserver {
             case .layerInspector:
                 
                 // TODO: why can't we the proper condition here? Why must we always return `true`? For perf, we only want to update inspector UI-fields if that inspector is open and this row observer's layer is actually focused; otherwise it's same as if we're updating an off-screen node
-                // let showsLayerInspector = graph.graphUI.showsLayerInspector
+                // let showsLayerInspector = graph.showsLayerInspector
                 // let layerFocused = graph.sidebarSelectionState.all.contains(rowViewModel.id.nodeId)
                 // return showsLayerInspector && layerFocused
                 return true

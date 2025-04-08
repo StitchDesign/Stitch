@@ -11,7 +11,7 @@ import StitchSchemaKit
 struct CommonEditingViewWrapper: View {
     
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var fieldViewModel: InputFieldViewModel
     @Bindable var rowObserver: InputNodeRowObserver
     let rowViewModel: InputNodeRowViewModel
@@ -62,7 +62,7 @@ struct CommonEditingViewWrapper: View {
         CommonEditingView(inputField: fieldViewModel,
                           inputString: stringValue,
                           graph: graph,
-                          graphUI: graphUI,
+                          document: document,
                           rowObserver: rowObserver,
                           rowViewModel: rowViewModel,
                           fieldIndex: fieldCoordinate.fieldIndex,

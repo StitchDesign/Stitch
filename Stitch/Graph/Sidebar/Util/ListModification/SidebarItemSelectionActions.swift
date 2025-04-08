@@ -16,7 +16,7 @@ extension ProjectSidebarObservable {
                            shiftHeld: Bool,
                            commandHeld: Bool,
                            graph: GraphState,
-                           graphUI: GraphUIState) {
+                           document: StitchDocumentViewModel) {
         // log("sidebarItemTapped: id: \(id)")
         // log("sidebarItemTapped: shiftHeld: \(shiftHeld)")
         

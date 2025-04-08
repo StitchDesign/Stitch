@@ -55,7 +55,7 @@ extension GraphState {
         
         if dragInteractionIdSet.contains(interactiveLayer.id.layerNodeId.asNodeId) {
             
-            self.graphUI.activeDragInteraction.activeDragInteractionNodes = self.graphUI.activeDragInteraction.activeDragInteractionNodes
+            self.activeDragInteraction.activeDragInteractionNodes = self.activeDragInteraction.activeDragInteractionNodes
                 .subtracting(dragInteractionIdSet)
         } // if let
         

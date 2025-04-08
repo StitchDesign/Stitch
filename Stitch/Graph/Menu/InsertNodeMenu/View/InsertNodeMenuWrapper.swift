@@ -13,10 +13,9 @@ struct InsertNodeMenuWrapper: View {
     static let shownMenuScale: CGFloat = 1
     
     @Bindable var document: StitchDocumentViewModel
-    @Bindable var graphUI: GraphUIState
     
     var menuHeight: CGFloat {
-        graphUI.nodeMenuHeight
+        document.nodeMenuHeight
     }
     
     var graphScale: CGFloat {
@@ -30,11 +29,11 @@ struct InsertNodeMenuWrapper: View {
     }
     
     var screenWidth: CGFloat {
-        graphUI.frame.width
+        document.frame.width
     }
     
     var screenHeight: CGFloat {
-        graphUI.frame.height
+        document.frame.height
     }
     
     private var graphMovement: GraphMovementObserver {
@@ -43,7 +42,7 @@ struct InsertNodeMenuWrapper: View {
     
     // GraphUI properties
     var insertNodeMenuState: InsertNodeMenuState {
-        graphUI.insertNodeMenuState
+        document.insertNodeMenuState
     }
     
     static let shownMenuCornerRadius: CGFloat = 16
@@ -51,7 +50,7 @@ struct InsertNodeMenuWrapper: View {
     
     // We show the modal background when menu is toggled but node-animation has not yet started
     var showModalBackground: Bool {
-        graphUI.insertNodeMenuState.show
+        document.insertNodeMenuState.show
     }
     
     var graphOffset: CGPoint {
@@ -89,11 +88,11 @@ struct InsertNodeMenuWrapper: View {
             }
             
             // Insert Node Menu view
-            if graphUI.insertNodeMenuState.show {
+            if document.insertNodeMenuState.show {
                 menuView
                     .shadow(radius: 4)
                     .shadow(radius: 8, x: 4, y: 2)
-                    .animation(.default, value: graphUI.insertNodeMenuState.show)
+                    .animation(.default, value: document.insertNodeMenuState.show)
             }
         }
     }

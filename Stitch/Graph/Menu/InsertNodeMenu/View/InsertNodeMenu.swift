@@ -65,7 +65,7 @@ struct InsertNodeMenuView: View {
                     searchResults: insertNodeMenuState.searchResults,
                     activeSelection: insertNodeMenuState.activeSelection,
                     footerRect: self.$footerRect,
-                    show: document.graphUI.insertNodeMenuState.show)
+                    show: document.insertNodeMenuState.show)
                     //                    .frame(width: 170, height: 300) // Figma
                     .frame(width: INSERT_NODE_MENU_SEARCH_RESULTS_WIDTH)
                 //                    .compositingGroup() // added
@@ -86,7 +86,7 @@ struct InsertNodeMenuView: View {
         // Add onDisappear to cancel any in-progress request
         .onDisappear {
             document.aiManager?.cancelCurrentRequest()
-            document.graphUI.insertNodeMenuState.isGeneratingAINode = false
+            document.insertNodeMenuState.isGeneratingAINode = false
         }
     }
     
@@ -101,14 +101,14 @@ struct InsertNodeMenuView: View {
             Spacer()
             StitchButton(action: {
                 if isAIMode {
-                    if let query = document.graphUI.insertNodeMenuState.searchQuery {
+                    if let query = document.insertNodeMenuState.searchQuery {
                         dispatch(GenerateAINode(prompt: query))
                     }
                 } else {
                     dispatch(AddNodeButtonPressed())
                 }
             }, label: {
-                let isLoading = document.graphUI.insertNodeMenuState.isGeneratingAINode
+                let isLoading = document.insertNodeMenuState.isGeneratingAINode
                 
                 HStack(spacing: 8) {
                     Text(isAIMode ? "Submit Prompt" : "Add Node")

@@ -14,7 +14,7 @@ extension StitchStore {
     @MainActor
     func createNewProjectSideEffect(from document: StitchDocument = .init(),
                                     isProjectImport: Bool) {
-        let isPhoneDevice = GraphUIState.isPhoneDevice
+        let isPhoneDevice = StitchDocumentViewModel.isPhoneDevice
         
         Task(priority: .high) { [weak self] in
             guard let store = self else { return }

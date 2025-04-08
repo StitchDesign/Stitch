@@ -11,7 +11,7 @@ import XCTest
 // class SchemaConversionTests: XCTestCase {
 //
 //    func testGraphSchemaBuilder(graphState: GraphState) {
-//        let graphSchema: GraphSchema = .from(graphState, GraphUIState())
+//        let graphSchema: GraphSchema = .from(graphState, StitchDocumentViewModel())
 //        let convertedGraphState: GraphState = .from(graphSchema)
 //
 //        // TODO: come up with a better way to test topological sort orders, since there can be multiple acceptable solutions.

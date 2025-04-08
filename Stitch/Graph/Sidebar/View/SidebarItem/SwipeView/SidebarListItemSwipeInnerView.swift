@@ -15,7 +15,7 @@ struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewMo
     @State private var sidebarWidth: Double = .zero
     
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var sidebarViewModel: SidebarViewModel
     @Bindable var itemViewModel: SidebarViewModel.ItemViewModel
     
@@ -38,7 +38,7 @@ struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewMo
             // Main row hides if swipe menu exceeds threshold
             if showMainItem {
                 SidebarListItemView(graph: graph,
-                                    graphUI: graphUI,
+                                    document: document,
                                     sidebarViewModel: sidebarViewModel,
                                     item: itemViewModel,
                                     swipeOffset: swipeX,

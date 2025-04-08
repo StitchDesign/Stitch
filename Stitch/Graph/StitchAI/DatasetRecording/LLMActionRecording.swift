@@ -25,7 +25,7 @@ struct LLMRecordingToggled: StitchDocumentEvent {
         } else {
             // If we're not already recording, and we're in AI Mode,
             // then start augmentation mode
-            let wasInAIMode = state.graphUI.insertNodeMenuState.isFromAIGeneration
+            let wasInAIMode = state.insertNodeMenuState.isFromAIGeneration
             if wasInAIMode {
                 state.startLLMAugmentationMode()
             } else {
@@ -60,7 +60,7 @@ extension StitchDocumentViewModel {
         log("🤖 💾 Verified Actions Content: \(currentActions.asJSONDisplay())")
         
         // Clear the AI generation flag AFTER we've secured the actions
-        self.graphUI.insertNodeMenuState.isFromAIGeneration = false
+        self.insertNodeMenuState.isFromAIGeneration = false
         log("🔄 🤖 AI Generation Mode Cleared - Actions Preserved for Correction 🤖 🔄")
         
         // Start recording
@@ -113,7 +113,7 @@ extension StitchDocumentViewModel {
                 print("📼 📝 Opening LLM Recording Prompt Modal 📝 📼")
                 self.llmRecording.promptState.showModal = true
                 self.llmRecording.hasShownModalInNormalMode = true
-                self.graphUI.reduxFocusedField = .llmRecordingModal
+                self.reduxFocusedField = .llmRecordingModal
             }
         }
     }
@@ -124,7 +124,7 @@ extension StitchDocumentViewModel {
         log("🎯 Current Mode for Upload: \(currentMode)")
         
         self.llmRecording.promptState.showModal = false
-        self.graphUI.reduxFocusedField = nil
+        self.reduxFocusedField = nil
         
         let actions = self.llmRecording.actions
         

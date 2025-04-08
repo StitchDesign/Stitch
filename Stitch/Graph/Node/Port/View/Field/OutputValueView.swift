@@ -11,7 +11,7 @@ import StitchSchemaKit
 struct OutputValueEntry: View {
 
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var viewModel: OutputFieldViewModel
 
     let rowViewModel: OutputNodeRowViewModel
@@ -42,7 +42,7 @@ struct OutputValueEntry: View {
 
     var valueDisplay: some View {
         OutputValueView(graph: graph,
-                        graphUI: graphUI,
+                        document: document,
                         viewModel: viewModel,
                         rowViewModel: rowViewModel,
                         rowObserver: rowObserver,
@@ -74,7 +74,7 @@ struct OutputValueEntry: View {
 
 struct OutputValueView: View {
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var viewModel: OutputFieldViewModel
     
     let rowViewModel: OutputNodeRowViewModel
@@ -124,7 +124,7 @@ struct OutputValueView: View {
             case .bool(let bool):
                 BoolCheckboxView(rowObserver: nil,
                                  graph: graph,
-                                 document: graphUI,
+                                 document: document,
                                  value: bool,
                                  isFieldInsideLayerInspector: false,
                                  isSelectedInspectorRow: isSelectedInspectorRow,
@@ -146,7 +146,7 @@ struct OutputValueView: View {
                                 inputType: viewModel.id.rowId.portType,
                                 node: node,
                                 graph: graph,
-                                document: graphUI,
+                                document: document,
                                 coordinate: rowObserver.id,
                                 isInput: false,
                                 fieldIndex: fieldIndex,

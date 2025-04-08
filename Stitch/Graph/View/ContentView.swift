@@ -102,7 +102,7 @@ struct ContentView: View, KeyboardReadable {
             } // if showFullScreen.isTrue
             
             // NEVER show graph-view on iPhone
-            if !GraphUIState.isPhoneDevice {
+            if !StitchDocumentViewModel.isPhoneDevice {
                 // Check if we're on iPhone, otherwise the project view will start to render on
                 // phone before showFullScreen is set
                 ProjectNavigationView(store: store,
@@ -137,7 +137,7 @@ struct ContentView: View, KeyboardReadable {
                                 previewSizeDevice: document.previewSizeDevice,
                                 previewWindowBackgroundColor: document.previewWindowBackgroundColor,
                                 graph: document.graph,
-                                graphUI: document) }
+                                document: document) }
         .modifier(FileImportView(fileImportState: alertState.fileImportModalState))
         .modifier(AnimateCompletionHandler(percentage: showFullScreen.value) {
             // only set this state to true when we're animating into full screen mode
@@ -169,44 +169,3 @@ struct ContentView: View, KeyboardReadable {
                        graph: document.visibleGraph)
     }
 }
-
-// struct ContentView_Previews: PreviewProvider {
-//
-//    @Namespace static var namespace
-//
-//    static var previews: some View {
-//        ContentView(metadata: .fakeProjectMetadata,
-//                    graphSchema: .init(),
-//                    graphUI: .init(),
-//                    decodingWarning: nil,
-//                    alertState: .init(),
-//                    routerNamespace: namespace,
-//                    syncStatus: .synced,
-//                    exportableProject: nil,
-//                    isShowingDrawer: true,
-//                    broadcastChoices: .init())
-//            //        .environment(\.graph)
-//            .environmentObject(GraphUIState())
-//            .environmentObject(VisibleNodesViewModel())
-//            .environmentObject(PrototypePreviewViewModel())
-//
-//        //        let project = ProjectState(name: "test")
-//        //
-//        //        ContentView(nodePositionObserverMap: .init(),
-//        //                    alertState: ProjectAlertState(),
-//        //                    routerNamespace: namespace,
-//        //                    syncStatus: .offline,
-//        //                    exportableProject: nil,
-//        //                    isShowingDrawer: false)
-//        //            .previewDevice(PreviewDevice(rawValue: "iPad Pro (11-inch) (3rd generation)"))
-//        //
-//        //        ContentView(state: project,
-//        //                    nodePositionObserverMap: .init(),
-//        //                    alertState: ProjectAlertState(),
-//        //                    routerNamespace: namespace,
-//        //                    syncStatus: .synced,
-//        //                    exportableProject: nil,
-//        //                    isShowingDrawer: false)
-//        //            .previewDevice(PreviewDevice(rawValue: "iPhone 13"))
-//    }
-// }

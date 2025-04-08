@@ -47,8 +47,8 @@ extension GraphState {
 
         self.selection.selectedCommentBoxes.insert(id)
 
-        let selectedBoxes = self.graphUI.selection.selectedCommentBoxes
-        self.graphUI.selection.selectedCommentBoxes = Set(selectedBoxes)
+        let selectedBoxes = self.selection.selectedCommentBoxes
+        self.selection.selectedCommentBoxes = Set(selectedBoxes)
 
         // log("CommentBoxPositionDragged: selectedBoxes: \(selectedBoxes)")
 
@@ -113,7 +113,7 @@ extension GraphState {
     func commentBoxPositionDragEnded() {
         // log("CommentBoxPositionDragEnded called")
 
-        for id in self.graphUI.selection.selectedCommentBoxes {
+        for id in self.selection.selectedCommentBoxes {
             if let box = self.commentBoxesDict.get(id) {
 
                 box.previousPosition = box.position
@@ -127,7 +127,7 @@ extension GraphState {
                 self.updateNodesAfterCommentBoxDragEnded(box)
 
                 // Remove the bounds-dict entry so that view will repopulate/refresh the bounds-dict for that
-                self.graphUI.commentBoxBoundsDict.removeValue(forKey: id)
+                self.commentBoxBoundsDict.removeValue(forKey: id)
 
             } else {
                 log("CommentBoxPositionDragEnded: could not retrieve comment box \(id)")
@@ -158,7 +158,7 @@ extension GraphState {
     @MainActor
     func commentBoxExpansionDragged(box: CommentBoxViewModel,
                                     value: DragGesture.Value) {
-        self.graphUI.selection.selectedCommentBoxes = Set([box.id])
+        self.selection.selectedCommentBoxes = Set([box.id])
 
         let zoom = self.graphMovement.zoomData
 
@@ -201,7 +201,7 @@ extension GraphState {
                                       newestBoxBounds: CommentBoxBounds,
                                       groupNodeFocused: NodeId?) {
         // ALWAYS update this comment box's bounds
-        self.graphUI.commentBoxBoundsDict.updateValue(
+        self.commentBoxBoundsDict.updateValue(
             newestBoxBounds,
             forKey: id)
 
@@ -233,7 +233,7 @@ extension GraphState {
         // log("UpdateCommentBoxBounds: bounds: \(bounds)")
 
         // Add this box's bounds to the bounds-dict
-        self.graphUI.commentBoxBoundsDict.updateValue(
+        self.commentBoxBoundsDict.updateValue(
             bounds,
             forKey: id)
 

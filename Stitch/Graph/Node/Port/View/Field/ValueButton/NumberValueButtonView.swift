@@ -30,7 +30,7 @@ typealias AdjustmentBarSessionId = UUID
 struct NumberValueButtonView: View {
     
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var document: StitchDocumentViewModel
     let value: Double
     let fieldCoordinate: FieldCoordinate
     let rowObserver: InputNodeRowObserver
@@ -48,7 +48,7 @@ struct NumberValueButtonView: View {
             .onTapGesture {
                 self.isPressed = true
             }
-            .onChange(of: graphUI.adjustmentBarSessionId) {
+            .onChange(of: document.adjustmentBarSessionId) {
                 // `AdjustmentBarSessionId` is changed just when
                 self.isPressed = false
             }
@@ -61,7 +61,7 @@ struct NumberValueButtonView: View {
                 isPressed: $isPressed,
                 fieldValueNumberType: fieldValueNumberType,
                 isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                activeIndex: graphUI.activeIndex))
+                activeIndex: document.activeIndex))
     }
 }
 

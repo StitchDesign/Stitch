@@ -109,7 +109,7 @@ struct ProjectsListItemView: View {
         
         store.handleProjectTapped(projectLoader: self.projectLoader,
                                   document: document,
-                                  isPhoneDevice: GraphUIState.isPhoneDevice,
+                                  isPhoneDevice: StitchDocumentViewModel.isPhoneDevice,
                                   isDebugMode: inDebug) {
             self.isLoadingForPresentation = false
         }

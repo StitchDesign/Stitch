@@ -22,7 +22,7 @@ extension GraphState {
                            groupNodeFocused: NodeId?) {
         var selectedNodes = self.selectedCanvasItems
 
-        // Alternatively?: always add this id to selectedNodes in GraphUIState, so that we start it selected.
+        // Alternatively?: always add this id to selectedNodes in StitchDocumentViewModel, so that we start it selected.
         if selectedNodes.isEmpty {
             selectedNodes = .init([nodeId])
         }
@@ -41,10 +41,10 @@ extension GraphState {
         self.commentBoxesDict.updateValue(box, forKey: box.id)
 
         // Bad?: be smarter about how you create this?
-        self.graphUI.commentBoxBoundsDict = .init()
+        self.commentBoxBoundsDict = .init()
 
         // Add the newly created comment box to "selected comment boxes"
-        self.graphUI.selection.selectedCommentBoxes.insert(box.id)
+        self.selection.selectedCommentBoxes.insert(box.id)
 
         self.encodeProjectInBackground()
     }
@@ -95,17 +95,17 @@ extension GraphState {
             originalBox: box)
 
         // deselect the original box and select the duplicated box
-        self.graphUI.selection.selectedCommentBoxes.remove(box.id)
-        self.graphUI.selection.selectedCommentBoxes.insert(newCommentBox.id)
+        self.selection.selectedCommentBoxes.remove(box.id)
+        self.selection.selectedCommentBoxes.insert(newCommentBox.id)
 
         self.encodeProjectInBackground()
     }
 
     @MainActor
     func deleteSelectedCommentBoxes() {
-        let selectedBoxes = self.graphUI.selection.selectedCommentBoxes
+        let selectedBoxes = self.selection.selectedCommentBoxes
         for selectedBoxId in selectedBoxes {
-            // delete a comment box = remove its definition from GraphSchema and its bounds from GraphUIState, but leave nodes alone
+            // delete a comment box = remove its definition from GraphSchema and its bounds from StitchDocumentViewModel, but leave nodes alone
             self.deleteCommentBox(selectedBoxId)
         }
     }
@@ -113,8 +113,8 @@ extension GraphState {
     @MainActor
     func deleteCommentBox(_ id: CommentBoxId) {
         self.commentBoxesDict.removeValue(forKey: id)
-        self.graphUI.commentBoxBoundsDict.removeValue(forKey: id)
-        self.graphUI.selection.selectedCommentBoxes.remove(id)
+        self.commentBoxBoundsDict.removeValue(forKey: id)
+        self.selection.selectedCommentBoxes.remove(id)
     }
 }
 
@@ -127,7 +127,7 @@ extension GraphState {
 //
 //    var graphSchema = graphSchema
 //
-//    for id in graphState.graphUI.selection.selectedCommentBoxes {
+//    for id in graphState.selection.selectedCommentBoxes {
 //        graphSchema = duplicateCommentBox(
 //            id,
 //            graphSchema: graphSchema,
@@ -135,7 +135,7 @@ extension GraphState {
 //    }
 //
 //    if duplicatingCommentsOnly {
-//        graphState.graphUI.selection = graphState.graphUI.selection.resetSelectedNodes()
+//        graphState.selection = graphState.selection.resetSelectedNodes()
 //    }
 //
 //    return graphSchema
