@@ -245,11 +245,8 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         
         if let canvasPageOffsetChanged = graph.canvasPageOffsetChanged,
            let canvasPageZoomScaleChanged = graph.canvasPageZoomScaleChanged {
-            log("StitchUIScrollView: canvasPageOffsetChanged: \(canvasPageOffsetChanged)")
-            log("StitchUIScrollView: canvasPageZoomScaleChanged: \(canvasPageZoomScaleChanged)")
-            
-            log("StitchUIScrollView: uiView.contentOffset WAS: \(uiView.contentOffset)")
-            log("StitchUIScrollView: uiView.zoomScale WAS: \(uiView.zoomScale)")
+            // log("StitchUIScrollView: canvasPageOffsetChanged: \(canvasPageOffsetChanged)")
+            // log("StitchUIScrollView: canvasPageZoomScaleChanged: \(canvasPageZoomScaleChanged)")
                         
             /*
              VERY IMPORTANT: when manually setting UIScrollView's zoomScale and contentOffset at the same time,
@@ -257,17 +254,11 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
              Otherwise `.setContentOffset` uses the OLD zoomScale and auto-adjusts the manual contentOffset we want to provide.
              */
             uiView.zoomScale = canvasPageZoomScaleChanged
-            
-//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                uiView.setContentOffset(canvasPageOffsetChanged, animated: false)
-//            }
-            
-//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                dispatch(GraphScrollDataUpdated(
-                    newOffset: uiView.contentOffset,
-                    newZoom: uiView.zoomScale
-                ))
-//            }
+            uiView.setContentOffset(canvasPageOffsetChanged, animated: false)
+            dispatch(GraphScrollDataUpdated(
+                newOffset: uiView.contentOffset,
+                newZoom: uiView.zoomScale
+            ))
                         
             context.coordinator.borderCheckingDisabled = true
             
