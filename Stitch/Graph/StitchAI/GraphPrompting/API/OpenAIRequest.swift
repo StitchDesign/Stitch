@@ -111,7 +111,7 @@ extension StitchAIManager {
                     state.llmRecording = .init()
                     
                     // Reset checks which would later break new recording mode
-                    state.graphUI.insertNodeMenuState = InsertNodeMenuState()
+                    state.insertNodeMenuState = InsertNodeMenuState()
                     
                     if let error = error as? StitchAIManagerError {
                         guard error.shouldDisplayModal else {
@@ -132,7 +132,7 @@ extension StitchAIManager {
             }
          
             await MainActor.run { [weak currentDocument] in
-                currentDocument?.graphUI.insertNodeMenuState.isGeneratingAINode = false
+                currentDocument?.insertNodeMenuState.isGeneratingAINode = false
             }
         }
     }
@@ -146,7 +146,7 @@ extension StitchAIManager {
         let prompt = request.prompt
         let systemPrompt = request.systemPrompt
         
-        guard let document = self.documentDelegate else {
+        guard let _ = self.documentDelegate else {
             throw StitchAIManagerError.documentNotFound(request)
         }
 //        document.llmRecording.recentOpenAIRequestCompleted = false

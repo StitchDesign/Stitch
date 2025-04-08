@@ -892,7 +892,7 @@ class GroupNodeTests: XCTestCase {
 //        XCTAssertEqual(Array(state.graph.groupNodesState.keys), [createdGroupNodeId])
 //
 //        // Go into the first group
-//        state.graphUI = SetActiveGroupEvent(id: createdGroupNodeId).handle(state: state).state!.graphUI
+//        state = SetActiveGroupEvent(id: createdGroupNodeId).handle(state: state).state!.graphUI
 //
 //        // Create a second group inside the first group
 //        state = NodeTappedAction(id: TestIds._0).handle(state: state).state!
@@ -1032,11 +1032,11 @@ class GroupNodeTests: XCTestCase {
 //
 //        // Go inside first group G1 ...
 //        let firstGroupNodeId = state.graph.groupNodesState.first!.key
-//        state.graphUI = SetActiveGroupEvent(id: firstGroupNodeId)
+//        state = SetActiveGroupEvent(id: firstGroupNodeId)
 //            .handle(state: state).state!.graphUI
 //
 //        // ... and create a second group G2 from e.g. the multiply and divide nodes
-//        state.graphUI.selection.selectedNodes = .init(arrayLiteral: TestIds._3, TestIds._4)
+//        state.selection.selectedNodes = .init(arrayLiteral: TestIds._3, TestIds._4)
 //        state = GroupNodeCreatedEvent().handle(
 //            state: state,
 //            environment: mockEnvironment).state!

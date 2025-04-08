@@ -136,7 +136,7 @@ extension GraphState {
             return
         }
 
-        //    log("handleGraphScrolled: state.graphUI.graphMovement.localPosition was: \(state.graphUI.graphMovement.localPosition)")
+        //    log("handleGraphScrolled: state.graphMovement.localPosition was: \(state.graphMovement.localPosition)")
 //
 //        //    log("handleGraphScrolled: translation was: \(translation)")
 //
@@ -144,7 +144,7 @@ extension GraphState {
 //        // regardless whether there is another active gesture.
 //        self.graphMovement.localPosition = self.localPreviousPosition + (translation.toCGPoint / self.graphMovement.zoomData)
 
-        //    log("handleGraphScrolled: state.graphUI.graphMovement.localPosition is now: \(state.graphUI.graphMovement.localPosition)")
+        //    log("handleGraphScrolled: state.graphMovement.localPosition is now: \(state.graphMovement.localPosition)")
 
 //        self.graphMovement.runningGraphTranslation = translation
 

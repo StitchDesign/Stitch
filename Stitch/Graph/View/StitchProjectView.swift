@@ -96,12 +96,3 @@ struct MaybeIgnoreSafeAreasModifier: ViewModifier {
     }
 }
 
-//#Preview("Project View") {
-//    let graphState = GraphState(id: .mockProjectId,
-//                                store: nil)
-//    graphState.libraryLoadingStatus = .loading
-//
-//    return StitchProjectView(graphState: graphState,
-//                             graphUI: graphState.graphUI,
-//                             alertState: .init())
-//}

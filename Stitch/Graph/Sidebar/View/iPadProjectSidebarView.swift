@@ -20,7 +20,7 @@ struct StitchSidebarView: View {
         if let document = store.currentDocument,
            let graph = store.currentDocument?.visibleGraph {
             ProjectSidebarView(graph: graph,
-                               graphUI: document,
+                               document: document,
                                syncStatus: syncStatus)
 
         } else {
@@ -31,13 +31,13 @@ struct StitchSidebarView: View {
 
 struct ProjectSidebarView: View {
     @Bindable var graph: GraphState
-    @Bindable var graphUI: StitchDocumentViewModel
+    @Bindable var document: StitchDocumentViewModel
     let syncStatus: iCloudSyncStatus
 
     var body: some View {
         VStack(alignment: .leading, spacing: .zero) {
             SidebarListView(graph: graph,
-                            graphUI: graphUI,
+                            document: document,
                             syncStatus: syncStatus)
             //#if !targetEnvironment(macCatalyst)
             //            .padding(.top)

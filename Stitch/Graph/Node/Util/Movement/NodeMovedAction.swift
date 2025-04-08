@@ -114,7 +114,7 @@ extension GraphState {
                 // add node's edges to highlighted edges; wipe old highlighted edges
                 state.selectedEdges = .init()
             }
-            state.graphUI.dragDuplication = true
+            state.dragDuplication = true
             
             // Copy nodes if no drag started yet
             let copiedComponentResult = self

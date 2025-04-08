@@ -53,7 +53,7 @@ struct GraphBackgroundTrackpadDragged: StitchDocumentEvent {
     
     func handle(state: StitchDocumentViewModel) {
         
-        if state.keypressState.isSpacePressed || state.graphUI.activeSpacebarClickDrag {
+        if state.keypressState.isSpacePressed || state.activeSpacebarClickDrag {
             log("GraphBackgroundTrackpadDragged: space held, or have active spacebar drag, so will exit early")
             
             return
@@ -117,7 +117,7 @@ extension StitchDocumentViewModel {
         // but we let go of the space key,
         // then we need to immediately do a `graph drag ended`
         if !spaceHeld && activeSpacebarDrag {
-            //            state.graphUI = handleGraphDragEnded(
+            //            state = handleGraphDragEnded(
             graph.graphDragEnded(
                 location: location,
                 velocity: velocity,

@@ -127,7 +127,7 @@ extension GraphState {
 //
 //    var graphSchema = graphSchema
 //
-//    for id in graphState.graphUI.selection.selectedCommentBoxes {
+//    for id in graphState.selection.selectedCommentBoxes {
 //        graphSchema = duplicateCommentBox(
 //            id,
 //            graphSchema: graphSchema,
@@ -135,7 +135,7 @@ extension GraphState {
 //    }
 //
 //    if duplicatingCommentsOnly {
-//        graphState.graphUI.selection = graphState.graphUI.selection.resetSelectedNodes()
+//        graphState.selection = graphState.selection.resetSelectedNodes()
 //    }
 //
 //    return graphSchema

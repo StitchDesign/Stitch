@@ -14,7 +14,7 @@ struct ProjectSettingsView: View {
     let previewSizeDevice: PreviewWindowDevice
     let previewWindowBackgroundColor: Color
     @Bindable var graph: GraphState
-    @Bindable var graphUI: StitchDocumentViewModel
+    @Bindable var document: StitchDocumentViewModel
 
     var body: some View {
 
@@ -89,7 +89,7 @@ struct ProjectSettingsView: View {
     }
     
     var reduxFocusedField: FocusedUserEditField? {
-        graphUI.reduxFocusedField
+        document.reduxFocusedField
     }
 
     var widthReduxFocused: Bool {

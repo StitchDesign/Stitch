@@ -30,10 +30,10 @@ struct SetDeviceScreenSize: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
         // Set frame of view
         // log("SetDeviceScreenSize: frame: \(frame)")
-        // log("SetDeviceScreenSize: state.graphUI.frame was: \(state.graphUI.frame)")
+        // log("SetDeviceScreenSize: state.frame was: \(state.frame)")
 
         state.frame = frame
-        // log("SetDeviceScreenSize: state.graphUI.frame is now: \(state.graphUI.frame)")
+        // log("SetDeviceScreenSize: state.frame is now: \(state.frame)")
     }
 }
 

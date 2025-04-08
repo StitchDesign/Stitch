@@ -51,9 +51,6 @@ extension StitchDocumentViewModel {
 }
 
 extension StitchDocumentViewModel {
-    var graphUI: Self {
-        self
-    }
     
     // If there's a group in focus
     @MainActor

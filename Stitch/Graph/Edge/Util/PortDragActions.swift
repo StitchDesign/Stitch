@@ -14,7 +14,7 @@ extension InputNodeRowViewModel {
                      graphState: GraphState) {
         
         let dragLocation = gesture.location
-        graphState.graphUI.edgeAnimationEnabled = true
+        graphState.edgeAnimationEnabled = true
 
         guard var existingDrawingGesture = graphState.edgeDrawingObserver.drawingGesture else {
             log("InputDragged: started")
@@ -60,7 +60,7 @@ extension InputNodeRowViewModel {
             graphState.edgeDrawingObserver.reset()
             
             DispatchQueue.main.async { [weak graphState] in
-                graphState?.graphUI.edgeAnimationEnabled = false
+                graphState?.edgeAnimationEnabled = false
             }
             
             return
@@ -94,9 +94,9 @@ extension OutputNodeRowViewModel {
                      graphState: GraphState) {
 
         // exit edge editing state
-        graphState.graphUI.edgeEditingState = nil
+        graphState.edgeEditingState = nil
 
-        graphState.graphUI.edgeAnimationEnabled = true
+        graphState.edgeAnimationEnabled = true
 
         //        log("OutputDragStarted: output: \(output)")
         //        log("OutputDragStarted: diffFromCenter: \(diffFromCenter)")
@@ -221,7 +221,7 @@ extension OutputNodeRowViewModel {
             graphState.edgeDrawingObserver.reset()
             
             DispatchQueue.main.async { [weak graphState] in
-                graphState?.graphUI.edgeAnimationEnabled = false
+                graphState?.edgeAnimationEnabled = false
             }
             
             return
@@ -280,7 +280,7 @@ struct ResetRecentlyDrawnEdge: GraphEvent {
 
 //struct DisableEdgeAnimation: GraphEvent {
 //    func handle(state: GraphState) {
-//        state.graphUI.edgeAnimationEnabled = false
+//        state.edgeAnimationEnabled = false
 //    }
 //}
 
