@@ -69,7 +69,7 @@ struct ARRaycastingNode: PatchNodeDefinition {
 func arRayCastingEval(node: PatchNode) -> EvalResult {
     let graphTime = node.graphDelegate?.graphStepState.graphTime ?? .zero
     let defaultOutputs = node.defaultOutputs
-    let arView = node.graphDelegate?.cameraFeed?.arView
+    let arView = node.graphDelegate?.documentDelegate?.cameraFeed?.arView
         
     // Must be accessed on main thread
     let centerPoint = arView?.arView.center ?? .zero

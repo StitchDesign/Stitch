@@ -117,7 +117,7 @@ extension ProjectSidebarObservable {
         }
          
         // We're just starting an option dupe-drag and need to duplicate the layers
-        if graph.keypressState.isOptionPressed
+        if document.keypressState.isOptionPressed
             && !state.selectionState.haveDuplicated
             && !state.selectionState.optionDragInProgress {
             // log("SidebarListItemDragged: option held during drag; will duplicate layers")

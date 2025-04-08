@@ -302,7 +302,7 @@ extension SidebarItemGestureViewModel {
             self.sidebarDelegate?.sidebarItemTapped(
                 id: itemId,
                 shiftHeld: isShiftDown,
-                commandHeld: graph.keypressState.isCommandPressed,
+                commandHeld: document.keypressState.isCommandPressed,
                 graph: graph,
                 document: document)
         }
