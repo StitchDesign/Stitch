@@ -237,13 +237,12 @@ extension GraphState {
                 result.updateValue(outputs, forKey: groupId)
             }
         
-        self.visibleNodesViewModel
-            .updateNodesPagingDict(components: self.components,
-                                   graphFrame: document.frame,
-                                   parentGraphPath: self.saveLocation,
-                                   graph: self,
-                                   document: document)
+        self.visibleNodesViewModel.updateNodesPagingDict(
+            documentZoomData: document.graphMovement.zoomData,
+            documentFrame: document.frame)
         
+        self.visibleNodesViewModel.updateNodeRowObserversUpstreamAndDownstreamReferences()
+        self.visibleNodesViewModel.syncRowViewModels(document: document)
         
         // Update connected port data
         self.visibleNodesViewModel.updateAllNodeViewData()

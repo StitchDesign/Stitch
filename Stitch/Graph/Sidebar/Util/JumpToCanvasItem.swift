@@ -96,9 +96,10 @@ extension GraphState {
             return
         }
         
-        
-        guard let jumpPosition = self.getNodeGraphPanLocation(id: id,
-                                                              document: document) else {
+        guard let jumpPosition = self.visibleNodesViewModel.getNodeGraphPanLocation(
+            id: id,
+            documentZoomData: document.graphMovement.zoomData,
+            documentFrame: document.frame) else {
             // log("panGraphToNodeLocation: could not retrieve jump location")
             return
         }
@@ -118,25 +119,26 @@ extension GraphState {
                 .append(.groupNode(canvasItemTraversalLevel))
         }
     }
-    
-    
-    
+}
+
+extension VisibleNodesViewModel {
     // nil could not be be found
     @MainActor
     func getNodeGraphPanLocation(id: CanvasItemId,
-                                 document: StitchDocumentViewModel) -> CGPoint? {
+                                 documentZoomData: CGFloat,
+                                 documentFrame: CGRect) -> CGPoint? {
                 
-        guard let cachedBounds = self.visibleNodesViewModel.infiniteCanvasCache.get(id) else {
+        guard let cachedBounds = self.infiniteCanvasCache.get(id) else {
             // Can be `nil` when called for a canvas item that has never yet been on-screen
             return nil
         }
         
-        let scale: CGFloat = document.graphMovement.zoomData
+        let scale: CGFloat = documentZoomData
         
         return CGPoint(
             // TODO: why do we have to SUBTRACT rather than add?
-            x: (cachedBounds.origin.x * scale) - document.frame.size.width/2,
-            y: (cachedBounds.origin.y * scale) - document.frame.size.height/2
+            x: (cachedBounds.origin.x * scale) - documentFrame.size.width/2,
+            y: (cachedBounds.origin.y * scale) - documentFrame.size.height/2
         )
     }
 }
