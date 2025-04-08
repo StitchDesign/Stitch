@@ -76,7 +76,7 @@ struct ProjectDeletedAndWillExitCurrentProject: StitchStoreEvent {
 }
 
 struct UndoDeleteProject: StitchStoreEvent {
-    let projectId: ProjectId
+    let projectId: GraphId
     
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
         store.undoDeleteProject(projectId: projectId)

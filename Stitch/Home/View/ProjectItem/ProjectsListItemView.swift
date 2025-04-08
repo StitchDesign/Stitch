@@ -134,7 +134,7 @@ struct ProjectsListItemView: View {
                 .onTapGesture {
 #if DEV_DEBUG
                     if store.homescreenProjectSelectionState.isSelecting {
-                        dispatch(ProjectTappedDuringHomescreenSelection(projectId: document.id))
+                        dispatch(ProjectTappedDuringHomescreenSelection(projectId: .init(document.id)))
                     } else {
                         self.openProject(document: document, inDebug: false)
                     }
@@ -146,7 +146,7 @@ struct ProjectsListItemView: View {
 #if DEV_DEBUG
                 .overlay {
                     
-                    if store.homescreenProjectSelectionState.selections.contains(document.id) {
+                    if store.homescreenProjectSelectionState.selections.contains(.init(document.id)) {
                         RoundedRectangle(cornerRadius: 8)
                             .fill(.clear)
                             .stroke(LinearGradient(colors: [.red, .indigo, .purple, .blue, .cyan, .green, .yellow, .orange],

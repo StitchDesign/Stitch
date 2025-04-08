@@ -43,7 +43,7 @@ import XCTest
 //                                   state: appState)
 // }
 
-// let MOCK_APP_STATE_PROJECT_SELECTED = AppState(currentProjectId: devDefaultProject().id)
+// let MOCK_APP_STATE_PROJECT_SELECTED = AppState(currentGraphId: devDefaultProject().id)
 
 // extension GraphState {
 //    static func getTestState(_ nodes: [any Node],

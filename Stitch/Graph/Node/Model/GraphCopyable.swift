@@ -399,7 +399,7 @@ extension StitchDocumentViewModel {
         self.visibleGraph.createComponent(componentId: componentId,
                                           groupNodeFocused: groupNodeFocused,
                                           selectedNodeIds: selectedNodeIds) { graph in
-            let newPath = GraphDocumentPath(docId: self.id,
+            let newPath = GraphDocumentPath(docId: self.id.value,
                                             componentId: componentId,
                                             componentsPath: self.visibleGraph.saveLocation)
             return StitchComponent(saveLocation: .localComponent(newPath),

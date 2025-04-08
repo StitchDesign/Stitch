@@ -34,7 +34,7 @@ final class ProjectAlertState: Sendable {
     @MainActor var showSampleAppsSheet = false
 
     // If a project was recently deleted, store the undo event here
-    @MainActor var deletedProjectId: ProjectId?
+    @MainActor var deletedGraphId: GraphId?
 
     // Alert state to confirm deleting ALL projects
     @MainActor var showDeleteAllProjectsConfirmation = false
