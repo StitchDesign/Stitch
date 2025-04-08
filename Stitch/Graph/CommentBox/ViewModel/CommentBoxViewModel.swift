@@ -8,11 +8,11 @@
 import StitchSchemaKit
 import SwiftUI
 
-typealias CommentBoxesDict = [UUID: CommentBoxViewModel]
+typealias CommentBoxesDict = [CommentBoxId: CommentBoxViewModel]
 
 @Observable
 final class CommentBoxViewModel {
-    var id: UUID = .init()
+    var id: CommentBoxId = .init()
     var groupId: NodeId?
     var title: String = "Comment"
     var color: Color
@@ -56,7 +56,7 @@ extension CommentBoxViewModel: SchemaObserver {
 
     @MainActor
     func update(from schema: CommentBoxData) {
-        self.id = schema.id
+        self.id = .init(schema.id)
         self.groupId = schema.groupId
         self.title = schema.title
         self.color = schema.color
@@ -68,7 +68,7 @@ extension CommentBoxViewModel: SchemaObserver {
 
     func createSchema() -> CommentBoxData {
         CommentBoxData(
-            id: self.id,
+            id: self.id.value,
             groupId: self.groupId,
             title: self.title,
             color: self.color,
@@ -106,8 +106,8 @@ struct CommentExpansionBox: Equatable, Hashable {
 extension CommentBoxesDict {
     mutating func sync(from commentBoxesData: [CommentBoxData]) {
         commentBoxesData.forEach { data in
-            if let existingViewModel = self.get(data.id) {
-
+            if let existingViewModel = self.get(.init(data.id)) {
+                fatalErrorIfDebugOnly("Not implemented?")
             }
         }
     }

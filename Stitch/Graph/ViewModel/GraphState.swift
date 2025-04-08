@@ -30,7 +30,7 @@ final class GraphState: Sendable {
     
     let saveLocation: [UUID]
     
-    @MainActor var id = UUID()
+    @MainActor var id = GraphId()
     @MainActor var name: String = STITCH_PROJECT_DEFAULT_NAME
     @MainActor var migrationWarning: StringIdentifiable?
     
@@ -135,7 +135,7 @@ final class GraphState: Sendable {
         self.visibleNodesViewModel = VisibleNodesViewModel(localPosition: localPosition)
         self.lastEncodedDocument = schema
         self.saveLocation = saveLocation
-        self.id = schema.id
+        self.id = .init(schema.id)
         self.name = schema.name
         self.layersSidebarViewModel = .init()
         self.topologicalData = .init()
@@ -417,7 +417,7 @@ extension GraphState {
             .map { $0.createSchema() }
         let commentBoxes = self.commentBoxesDict.values.map { $0.createSchema() }
         
-        let graph = GraphEntity(id: self.projectId,
+        let graph = GraphEntity(id: self.projectId.value,
                                 name: self.name,
                                 nodes: nodes,
                                 orderedSidebarLayers: self.layersSidebarViewModel.createdOrderedEncodedData(),
@@ -469,7 +469,7 @@ extension GraphState {
     
     @MainActor
     private func updateSynchronousProperties(from schema: GraphEntity) {
-        assertInDebug(self.id == schema.id)
+        assertInDebug(self.id.value == schema.id)
         
         if self.name != schema.name {
             self.name = schema.name

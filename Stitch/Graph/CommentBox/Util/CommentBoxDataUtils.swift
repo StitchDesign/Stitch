@@ -12,19 +12,15 @@ import StitchSchemaKit
 typealias CommentBoxIdSet = Set<CommentBoxId>
 typealias CommentBoxViewModels = [CommentBoxViewModel]
 
-// struct CommentBoxId: Equatable, Identifiable, Codable, Hashable {
-//    var id: UUID = .init()
-//
-//    static let fakeId: Self = .init()
-// }
-
-typealias CommentBoxId = UUID
-
-// struct CommentBoxId: Equatable, Identifiable, Codable, Hashable {
-//    var id: UUID = .init()
-//
-//    static let fakeId: Self = .init()
-// }
+struct CommentBoxId: Hashable, Codable, Equatable, Identifiable {
+    var id: UUID { self.value }
+    
+    let value: UUID
+    
+    init(_ value: UUID = UUID()) {
+        self.value = value
+    }
+}
 
 extension CommentBoxId {
     static let fakeId: Self = .init()

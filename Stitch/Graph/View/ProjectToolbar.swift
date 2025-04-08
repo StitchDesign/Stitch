@@ -20,7 +20,7 @@ struct ProjectToolbarViewModifier: ViewModifier {
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     let projectName: String
-    let projectId: ProjectId
+    let projectId: GraphId
     @Binding var isFullScreen: Bool
     
     @AppStorage(LLM_RECORDING_MODE_KEY_NAME) private var llmRecordingMode: Bool = false

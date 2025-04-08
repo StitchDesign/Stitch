@@ -14,7 +14,7 @@ struct ComponentNavBarView: View {
     @Bindable var store: StitchStore
     
     var componentId: UUID {
-        self.graph.id
+        self.graph.id.value
     }
     
     func getLocalComponent() -> StitchMasterComponent? {
@@ -111,7 +111,7 @@ extension StitchDocumentViewModel {
             // Set new ID in save location, which determines URLs
             let _saveLocation = component.saveLocation.localComponentPath
             assertInDebug(_saveLocation != nil)
-            var saveLocation = _saveLocation ?? GraphDocumentPath(docId: self.id,
+            var saveLocation = _saveLocation ?? GraphDocumentPath(docId: self.id.value,
                                                                   componentId: newId,
                                                                   componentsPath: [])
             
@@ -153,7 +153,7 @@ extension StitchDocumentViewModel {
         self.allComponents.forEach { componentNode in
             if componentNode.componentId == from {
                 componentNode.componentId = to
-                componentNode.graph.id = to
+                componentNode.graph.id = .init(to)
             }
         }
     }

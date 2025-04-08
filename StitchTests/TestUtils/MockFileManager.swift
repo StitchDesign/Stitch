@@ -27,7 +27,7 @@ class MockFileManager: FileManager {
     }
 
     func removeStitchMedia(at URL: URL,
-                           currentProjectId: ProjectId,
+                           currentGraphId: GraphId,
                            permanently: Bool = false) async -> StitchFileVoidResult {
         self._storage.removeValue(forKey: MediaKey(URL))
         return .success

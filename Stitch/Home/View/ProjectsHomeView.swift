@@ -38,10 +38,10 @@ struct ProjectsHomeView: View {
 
     @MainActor
     private func undoToastTapped() {
-        guard let deletedProjectId = self.alertState.deletedProjectId else {
+        guard let deletedGraphId = self.alertState.deletedGraphId else {
             return
         }
-        store.undoDeleteProject(projectId: deletedProjectId)
+        store.undoDeleteProject(projectId: deletedGraphId)
     }
 
     var body: some View {
@@ -97,8 +97,8 @@ struct ProjectsHomeView: View {
         .modifier(SampleAppsSheet(showSampleAppsSheet: alertState.showSampleAppsSheet,
                                   namespace: namespace))
         // Shows undo delete toast when GraphUI state has recenetly deleted project ID
-        // Should onExpireAction only fire an action if alertState.deletedProjectId still defined ?
-        .toast(willShow: alertState.deletedProjectId.isDefined,
+        // Should onExpireAction only fire an action if alertState.deletedGraphId still defined ?
+        .toast(willShow: alertState.deletedGraphId.isDefined,
                messageLeft: "File Deleted",
                messageRight: "Undo",
                onTapAction: self.undoToastTapped,
@@ -114,8 +114,8 @@ struct ProjectsHomeView: View {
     }
 }
 
-extension ProjectId {
-    static let mockProjectId = ProjectId()
+extension GraphId {
+    static let mockGraphId = GraphId()
 }
 
 // struct ProjectsList_Previews: PreviewProvider {
@@ -123,14 +123,14 @@ extension ProjectId {
 //     @Namespace static var mockNamespace
 
 //     static let projectsDict: ProjectsDict = [
-//         .mockProjectId: .loaded(ProjectSchema(
+//         .mockGraphId: .loaded(ProjectSchema(
 //                                     metadata: ProjectMetadata(name: "Test"),
 //                                     schema: GraphSchema()))
 //     ]
 
 //     static let projectsState = StitchProjects(
 //         projectsDict: projectsDict,
-//         sortedProjectIds: [.mockProjectId])
+//         sortedGraphIds: [.mockGraphId])
 
 //     static var previews: some View {
 //         projectsHomeView

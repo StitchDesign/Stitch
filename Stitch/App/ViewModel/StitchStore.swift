@@ -46,7 +46,7 @@ final class StitchStore: Sendable {
     @MainActor var showsLayerInspector = false
     
     // Tracks ID of project which has a title that's currently getting modified
-    @MainActor var projectIdForTitleEdit: ProjectId?
+    @MainActor var projectIdForTitleEdit: GraphId?
     
     let environment: StitchEnvironment
     
@@ -121,11 +121,11 @@ extension StitchStore: GlobalDispatchDelegate {
 extension StitchStore {
     @MainActor
     var isCurrentProjectSelected: Bool {
-        self.currentProjectId.isDefined
+        self.currentGraphId.isDefined
     }
 
     @MainActor
-    var currentProjectId: ProjectId? {
+    var currentGraphId: GraphId? {
         currentDocument?.projectId
     }
 

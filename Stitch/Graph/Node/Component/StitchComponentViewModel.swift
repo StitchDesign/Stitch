@@ -316,7 +316,8 @@ extension GraphState {
         assertInDebug(!self.saveLocation.isEmpty)
         
         guard let parentGraph = self.parentGraph,
-              let node = parentGraph.nodes.get(self.id),
+              // TODO: is this accurate? we're using a GraphState.id to retrieve a node in the parentGraph?
+              let node = parentGraph.nodes.get(self.id.value),
               let componentNode = node.componentNode else {
             fatalErrorIfDebug()
                   return

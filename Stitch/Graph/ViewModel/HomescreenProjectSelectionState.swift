@@ -11,7 +11,7 @@ import StitchSchemaKit
 
 struct HomescreenProjectSelectionState: Equatable, Codable, Hashable {
     var isSelecting = false
-    var selections: Set<ProjectId> = .init()
+    var selections: Set<GraphId> = .init()
 }
 
 struct HomescreenProjectSelectionToggled: StitchStoreEvent {
@@ -29,7 +29,7 @@ struct HomescreenProjectSelectionToggled: StitchStoreEvent {
 }
 
 struct ProjectTappedDuringHomescreenSelection:  StitchStoreEvent {
-    let projectId: ProjectId
+    let projectId: GraphId
     
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
         withAnimation(.linear(duration: 0.2)) {
@@ -46,8 +46,8 @@ struct ProjectTappedDuringHomescreenSelection:  StitchStoreEvent {
 struct DeleteHomescreenSelectedProjects: StitchStoreEvent {
     
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
-        store.homescreenProjectSelectionState.selections.forEach { (selectedProject: ProjectId) in
-            if let project = store.allProjectUrls.first(where: { $0.loadedDocument?.0.id == selectedProject }),
+        store.homescreenProjectSelectionState.selections.forEach { (selectedProject: GraphId) in
+            if let project = store.allProjectUrls.first(where: { $0.loadedDocument?.0.id == selectedProject.value }),
                let (loadedDocument, _) = project.loadedDocument {
                 
                 store.deleteProject(document: loadedDocument)
