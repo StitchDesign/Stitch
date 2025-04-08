@@ -86,7 +86,6 @@ struct CanvasEdgesViewModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
 
-        // MARK: placing ecisting edg
 //            .background {
 //                // Using background ensures edges z-index are always behind nodes
 //                // GraphConnectedEdgesView(graph: graph)
