@@ -13,7 +13,7 @@ import StitchSchemaKit
 // ALL SAME PATTERN: (PatchNode, T) -> PatchNode
 typealias PureNode = (PatchNode) -> EvalResult
 typealias PureGraphStepEval = (PatchNode, GraphStepState) -> EvalResult
-typealias PureGraphEval = (PatchNode, GraphDelegate) -> EvalResult
+typealias PureGraphEval = (PatchNode, GraphState) -> EvalResult
 
 enum PureEvals {
     case node(PureNode)

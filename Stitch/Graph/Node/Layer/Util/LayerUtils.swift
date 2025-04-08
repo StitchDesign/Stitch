@@ -116,7 +116,7 @@ extension Layer {
                      position: CGSize,
                      zIndex: Double,
                      firstCreation: Bool = true,
-                     graphDelegate: GraphDelegate?) -> NodeViewModel? {
+                     graphDelegate: GraphState?) -> NodeViewModel? {
 
         let node = self.layerGraphNode.createViewModel(
             id: id,

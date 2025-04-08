@@ -102,7 +102,7 @@ final class DragInteractionNodeState: NodeEphemeralObservable {
  */
 @MainActor
 func dragInteractionEval(node: PatchNode,
-                         graphState: GraphDelegate) -> ImpureEvalResult {
+                         graphState: GraphState) -> ImpureEvalResult {
 
     return node.loopedEval(DragInteractionNodeState.self,
                            graphState: graphState) { values, dragState, interactiveLayer, loopIndex in

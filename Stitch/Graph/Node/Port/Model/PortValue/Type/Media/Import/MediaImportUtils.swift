@@ -9,7 +9,7 @@ import Foundation
 import StitchSchemaKit
 import SwiftUI
 
-extension GraphDelegate {
+extension GraphState {
     @MainActor
     func createMediaObject(mediaKey: MediaKey,
                            url: URL?) async -> StitchFileResult<StitchMediaObject?> {

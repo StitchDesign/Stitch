@@ -91,7 +91,7 @@ extension LayerNodeViewModel {
 // Methods for Layer Multiselect
 extension LayerInputPort {
     @MainActor
-    func multiselectObservers(_ graph: GraphDelegate) -> [LayerInputObserver] {
+    func multiselectObservers(_ graph: GraphState) -> [LayerInputObserver] {
                 
         let selectedLayers = graph.sidebarSelectionState.primary
         
@@ -108,7 +108,7 @@ extension LayerInputPort {
 
     // TODO: this is not accurate when comparing media; see e.g. `MediaFieldValueView`
     @MainActor
-    func fieldsInMultiselectInputWithHeterogenousValues(_ graph: GraphDelegate) -> Set<Int> {
+    func fieldsInMultiselectInputWithHeterogenousValues(_ graph: GraphState) -> Set<Int> {
         
         // field index -> values in that field
         var fieldIndexToFieldValues = [Int: [FieldValue]]()

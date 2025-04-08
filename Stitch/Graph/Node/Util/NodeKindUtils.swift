@@ -167,7 +167,7 @@ extension NodeKind {
     @MainActor
     func createDefaultNode(id: NodeId,
                            activeIndex: ActiveIndex,
-                           graphDelegate: GraphDelegate?) -> NodeViewModel? {
+                           graphDelegate: GraphState?) -> NodeViewModel? {
         switch self {
         case .patch(let patch):
             return patch.defaultNode(id: id,
