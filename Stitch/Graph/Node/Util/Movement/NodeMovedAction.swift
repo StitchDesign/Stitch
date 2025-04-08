@@ -76,105 +76,54 @@ extension CanvasItemViewModel {
     }
 }
 
-// ie we dragged the node while holding `Option` key
-// TODO: this seems to only duplicate a single node?
-// TODO: we can only dupe-drag nodes and comment boxes, NOT layer-inputs-on-graph
-// What if we have multiple nodes on the graph selected and we hold `Option` + drag?
-struct NodeDuplicateDraggedAction: StitchDocumentEvent {
-    let id: NodeId
-    let translation: CGSize
-    
-    func handle(state: StitchDocumentViewModel) {
-        state.visibleGraph.nodeDuplicateDragged(id: id,
-                                                translation: translation,
-                                                document: state)
-    }
-}
-
 extension GraphState {
+    /// Duplicates a node on option + drag before dragging affected canvas items.
     @MainActor
     func nodeDuplicateDragged(id: NodeId,
-                              translation: CGSize,
                               document: StitchDocumentViewModel) {
         let state = self
         
-        guard state.dragDuplication else {
-            
-            // Might need to adjust the currently selected nodes, if e.g. we're option-dragging a node that wasn't previously selected
-            guard let canvasItem = state.getCanvasItem(.node(id)) else {
-                // log("NodeDuplicateDraggedAction: could not find canvas item for id \(id)")
-                return
-            }
-            
-            // If we drag a canvas item that is not yet selected, we'll select it and deselect all the others.
-            if !state.isCanvasItemSelected(canvasItem.id) {
-                // log("NodeDuplicateDraggedAction: \(canvasItem.id) was NOT already selected")
-                // select the canvas item and de-select all the others
-                state.selectSingleCanvasItem(canvasItem.id)
-                // add node's edges to highlighted edges; wipe old highlighted edges
-                state.selectedEdges = .init()
-            }
-            state.dragDuplication = true
-            
-            // Copy nodes if no drag started yet
-            let copiedComponentResult = self
-                .createCopiedComponent(groupNodeFocused: document.groupNodeFocused,
-                                       selectedNodeIds: state.selectedCanvasItems.compactMap(\.nodeCase).toSet)
-            
-            let (newComponent, nodeIdMap) = Self.updateCopiedNodes(
-                component: copiedComponentResult.component,
-                destinationGraphInfo: nil)
-            
-            // Update top-level nodes to match current focused group
-            let newNodes: [NodeEntity] = Self.createNewNodes(
-                from: newComponent,
-                focusedGroupNode: document.groupNodeFocused?.groupNodeId)
-            
-            // this actually adds the new components' nodes to the state
-            let graph = self.addComponentToGraph(newComponent: newComponent,
-                                                 newNodes: newNodes,
-                                                 nodeIdMap: nodeIdMap)
-            
-            self.update(from: graph)
-            
-            self.updateGraphAfterPaste(newNodes: newNodes,
-                                       nodeIdMap: nodeIdMap,
-                                       isOptionDragInSidebar: false)
-            
-            return
-        }
-            
-        
-        // log("NodeDuplicateDraggedAction: state.selectedNodeIds at end: \(state.selectedNodeIds)")
-        
-        // Drag all selected nodes if dragging already started
-        state.selectedCanvasItems
-            .compactMap { state.getCanvasItem($0) }
-            .forEach { draggedNode in
-                // log("NodeDuplicateDraggedAction: already had dragged node id, so will do normal node drag for id \(draggedNode.id)")
-                state.canvasItemMoved(for: draggedNode,
-                                      translation: translation,
-                                      wasDrag: true,
-                                      document: document)
-            }
-    }
-}
-
-struct CanvasItemMoved: StitchDocumentEvent {
-    let canvasItemId: CanvasItemId
-    let translation: CGSize
-    let wasDrag: Bool
-    
-    func handle(state: StitchDocumentViewModel) {
-        guard let canvasItem = state.visibleGraph.getCanvasItem(canvasItemId) else {
-            log("CanvasItemMoved: could not find canas item")
+        // Might need to adjust the currently selected nodes, if e.g. we're option-dragging a node that wasn't previously selected
+        guard let canvasItem = state.getCanvasItem(.node(id)) else {
+            // log("NodeDuplicateDraggedAction: could not find canvas item for id \(id)")
             return
         }
         
-        state.visibleGraph.canvasItemMoved(for: canvasItem,
-                                           translation: translation,
-                                           wasDrag: wasDrag,
-                                           document: state)
+        // If we drag a canvas item that is not yet selected, we'll select it and deselect all the others.
+        if !state.isCanvasItemSelected(canvasItem.id) {
+            // log("NodeDuplicateDraggedAction: \(canvasItem.id) was NOT already selected")
+            // select the canvas item and de-select all the others
+            state.selectSingleCanvasItem(canvasItem.id)
+            // add node's edges to highlighted edges; wipe old highlighted edges
+            state.selectedEdges = .init()
+        }
+        
+        // Copy nodes if no drag started yet
+        let copiedComponentResult = self
+            .createCopiedComponent(groupNodeFocused: document.groupNodeFocused,
+                                   selectedNodeIds: state.selectedCanvasItems.compactMap(\.nodeCase).toSet)
+        
+        let (newComponent, nodeIdMap) = Self.updateCopiedNodes(
+            component: copiedComponentResult.component,
+            destinationGraphInfo: nil)
+        
+        // Update top-level nodes to match current focused group
+        let newNodes: [NodeEntity] = Self.createNewNodes(
+            from: newComponent,
+            focusedGroupNode: document.groupNodeFocused?.groupNodeId)
+        
+        // this actually adds the new components' nodes to the state
+        let graph = self.addComponentToGraph(newComponent: newComponent,
+                                             newNodes: newNodes,
+                                             nodeIdMap: nodeIdMap)
+        
+        self.update(from: graph)
+        
+        self.updateGraphAfterPaste(newNodes: newNodes,
+                                   nodeIdMap: nodeIdMap,
+                                   isOptionDragInSidebar: false)
+        
+        return
     }
 }
 
@@ -182,8 +131,7 @@ struct CanvasItemMoved: StitchDocumentEvent {
 extension GraphState {
     @MainActor
     // fka `nodeMoved`
-    func canvasItemMoved(for canvasItem: CanvasItemViewModel,
-                         translation: CGSize,
+    func canvasItemMoved(translation: CGSize,
                          // drag vs long-press
                          wasDrag: Bool,
                          document: StitchDocumentViewModel) {
@@ -213,30 +161,8 @@ extension GraphState {
             return
         }
 
-        // Exit if another (non-duplicated) node is being dragged
-        // Note: do this check AFTER we've set our 'currently dragged id' to be the option-duplicated node's id.
-        // TODO: duplicate-node-drag should also update the `draggedNode` in GraphState ?
-        // Overall, node duplication logic needs to be thought through with multigestures in mind.
-        if let draggedCanvasItem = self.graphMovement.draggedCanvasItem,
-           draggedCanvasItem != canvasItem.id {
-            log("canvasItemMoved: some other node is already dragged: \(draggedCanvasItem)")
-            return
-        }
-
-        // Updating for dual-drag; must set before
-
-        self.graphMovement.draggedCanvasItem = canvasItem.id
         self.graphMovement.lastCanvasItemTranslation = translation
 
-        // If we don't have an active first gesture,
-        // and graph isn't already dragging,
-        // then set node-drag as active first gesture
-        if self.graphMovement.firstActive == .none {
-            if !self.graphMovement.graphIsDragged {
-                // log("canvasItemMoved: will set .node as active first gesture")
-                self.graphMovement.firstActive = .node
-            }
-        }
         if self.graphMovement.firstActive == .graph {
 
             if !self.graphMovement.runningGraphTranslationBeforeNodeDragged.isDefined {
@@ -247,31 +173,11 @@ extension GraphState {
             }
         }
 
-        // first, determine which nodes are selected;
-        // then update positions and selected nodes
-
-        // Dragging an unselected node selects that node
-        // and de-selects all other nodes.
-        let alreadySelected = self.isCanvasItemSelected(canvasItem.id)
-        if !alreadySelected {
-            // update node's position
-            self.updateCanvasItemOnDragged(canvasItem, translation: translation)
-
-            // select the canvas item and de-select all the others
-            self.selectSingleCanvasItem(canvasItem.id)
-
-            // add node's edges to highlighted edges; wipe old highlighted edges
-            self.selectedEdges = .init()
-        }
-
-        // If we're dragging a node that's already selected,
-        // then just update positions of all selected nodes.
-        else {
-            self.getSelectedCanvasItems(groupNodeFocused: document.groupNodeFocused?.groupNodeId)
-            // need to sort by z index to retain order
-                .sorted { $0.zIndex < $1.zIndex }
-                .forEach { self.updateCanvasItemOnDragged($0, translation: translation) }
-        }
+        // update positions of all selected nodes.
+        self.getSelectedCanvasItems(groupNodeFocused: document.groupNodeFocused?.groupNodeId)
+        // need to sort by z index to retain order
+            .sorted { $0.zIndex < $1.zIndex }
+            .forEach { self.updateCanvasItemOnDragged($0, translation: translation) }
 
         // end any edge-drawing
         self.edgeDrawingObserver.reset()
@@ -349,9 +255,6 @@ extension StitchDocumentViewModel {
         
         graph.nodeIsMoving = false
         graph.outputDragStartedCount = 0
-        
-        // reset
-        graph.dragDuplication = false
         
         // Rebuild comment boxes
         graph.rebuildCommentBoxes(currentTraversalLevel: groupNodeFocused)
