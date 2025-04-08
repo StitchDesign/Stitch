@@ -41,7 +41,7 @@ struct LayerInspectorView: View {
 #endif
     
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var document: StitchDocumentViewModel
 
     @State var safeAreaInsets: EdgeInsets = .init()
             
@@ -101,7 +101,7 @@ struct LayerInspectorView: View {
                             section: section,
                             layerInputs: filteredInputs,
                             graph: graph,
-                            graphUI: graphUI,
+                            document: document,
                             node: node
                         )
                     }
@@ -114,7 +114,7 @@ struct LayerInspectorView: View {
                 LayerInspectorOutputsSectionView(
                     outputs: layerOutputs,
                     graph: graph,
-                    graphUI: graphUI,
+                    document: document,
                     node: node)
                 .padding(.horizontal)
                 #if targetEnvironment(macCatalyst)
@@ -175,7 +175,7 @@ struct LayerInspectorInputView: View {
     // `@Bindable var` (vs. `let`) seems to improve a strange issue where toggling scroll-enabled input on iPad would update the LayerInputObserver's blockedFields set but not re-render the view.
     @Bindable var portObserver: LayerInputObserver
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var document: StitchDocumentViewModel
     let node: NodeViewModel
     
     var layerInput: LayerInputPort {
@@ -193,7 +193,7 @@ struct LayerInspectorInputView: View {
         if !allFieldsBlockedOut {
             LayerInspectorInputPortView(layerInputObserver: portObserver,
                                         graph: graph,
-                                        graphUI: graphUI,
+                                        document: document,
                                         node: node)
             .modifier(LayerPropertyRowOriginReader(graph: graph,
                                                    layerInput: layerInput))
@@ -224,7 +224,7 @@ struct LayerInspectorInputsSectionView: View {
     // This section's layer inputs, filtered to excluded any not supported by this specific layer.
     let layerInputs: [LayerInputObserver]
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var document: StitchDocumentViewModel
     let node: NodeViewModel
     
     @State private var expanded = true
@@ -235,7 +235,7 @@ struct LayerInspectorInputsSectionView: View {
             ForEach(layerInputs) { portObserver in
                 LayerInspectorInputView(portObserver: portObserver,
                                         graph: graph,
-                                        graphUI: graphUI,
+                                        document: document,
                                         node: node)
             }
             .transition(.slideInAndOut(edge: .top))
@@ -284,7 +284,7 @@ struct LayerInspectorOutputsSectionView: View {
     
     var outputs: [OutputLayerNodeRowData] // layerNode.outputPorts
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var node: NodeViewModel
     
     var body: some View {
@@ -300,7 +300,7 @@ struct LayerInspectorOutputsSectionView: View {
                             rowViewModel: output.inspectorRowViewModel,
                             rowObserver: output.rowObserver,
                             graph: graph,
-                            graphUI: graphUI,
+                            document: document,
                             canvasItem: output.canvasObserver,
                             forFlyout: false)
                     } else {

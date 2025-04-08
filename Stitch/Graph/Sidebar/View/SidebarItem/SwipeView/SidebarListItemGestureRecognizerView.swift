@@ -166,7 +166,7 @@ final class SidebarListGestureRecognizer<SidebarViewModel: ProjectSidebarObserva
         guard let sidebarViewModel = self.sidebarViewModel,
               let gestureViewModel = self.gestureViewModel,
               let graph = self.sidebarViewModel?.graphDelegate,
-              let doucment = graph.documentDelegate else { return }
+              let document = graph.documentDelegate else { return }
         
         if sidebarViewModel.isEditing || gestureViewModel.swipeSetting == .open {
             return
@@ -176,7 +176,7 @@ final class SidebarListGestureRecognizer<SidebarViewModel: ProjectSidebarObserva
                                                  shiftHeld: self.shiftHeldDown,
                                                  commandHeld: self.commandHeldDown,
                                                  graph: graph,
-                                                 graphUI: doucment)
+                                                 document: document)
     }
     
     // finger on screen
@@ -278,7 +278,7 @@ final class SidebarListGestureRecognizer<SidebarViewModel: ProjectSidebarObserva
         return self.gestureViewModel?
             .contextMenuInteraction(itemId: self.itemId,
                                     graph: graph,
-                                    graphUI: document)
+                                    document: document)
     }
 }
 
@@ -286,7 +286,7 @@ extension SidebarItemGestureViewModel {
     @MainActor
     func contextMenuInteraction(itemId: SidebarListItemId,
                                 graph: GraphState,
-                                graphUI: GraphUIState) -> UIContextMenuConfiguration? {
+                                document: StitchDocumentViewModel) -> UIContextMenuConfiguration? {
         // log("UIContextMenuInteractionDelegate: contextMenuInteraction")
         
         guard let sidebarViewModel = self.sidebarDelegate else { return nil }
@@ -304,7 +304,7 @@ extension SidebarItemGestureViewModel {
                 shiftHeld: isShiftDown,
                 commandHeld: graph.keypressState.isCommandPressed,
                 graph: graph,
-                graphUI: graphUI)
+                document: document)
         }
         
         return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak graph] _ in

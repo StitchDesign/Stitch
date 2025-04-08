@@ -98,7 +98,7 @@ struct TextFieldLayerNode: LayerNodeDefinition {
             parentSize: parentSize,
             parentDisablesPosition: parentDisablesPosition,
             parentIsScrollableGrid: parentIsScrollableGrid,
-            focusedTextFieldLayer: document.graphUI.reduxFocusedField?.getTextFieldLayerInputEdit)
+            focusedTextFieldLayer: document.reduxFocusedField?.getTextFieldLayerInputEdit)
     }
 }
 

@@ -38,7 +38,7 @@ struct OpenFlyoutView: View, KeyboardReadable {
             let topPadding = graph.propertySidebar.safeAreaTopPadding
               
             // // Apaprently don't need to worry about bottom safe areas of UIKitWrapper ?
-            // let bottomPadding = graphUI.propertySidebar.safeAreaBottomPadding
+            // let bottomPadding = propertySidebar.safeAreaBottomPadding
             
             // Place top edge of flyout at top of graph;
             // We subtract half the screen height because we use .offset modifier
@@ -74,7 +74,7 @@ struct OpenFlyoutView: View, KeyboardReadable {
                        ShadowFlyoutView(node: node,
                                         layerNode: layerNode,
                                         graph: graph,
-                                        graphUI: document)
+                                        document: document)
                     } else if flyoutInput.usesColor {
                         ColorFlyoutView(graph: graph,
                                         rowObserver: portObserver.packedRowObserver,
@@ -86,7 +86,7 @@ struct OpenFlyoutView: View, KeyboardReadable {
                         // The Flyout takes the whole input,
                         // and displays each field
                         GenericFlyoutView(graph: graph,
-                                          graphUI: document,
+                                          document: document,
                                           // packed data ok for for view purposes
                                           rowViewModel: portObserver._packedData.inspectorRowViewModel,
                                           node: node,

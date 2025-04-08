@@ -10,12 +10,7 @@ import StitchSchemaKit
 
 struct CanvasItemPositionHandler: ViewModifier {
     @Bindable var document: StitchDocumentViewModel
-    
-    @MainActor
-    private var graphUI: GraphUIState {
-        self.document.graphUI
-    }
-    
+        
     @Bindable var node: CanvasItemViewModel
     
     let zIndex: ZIndex

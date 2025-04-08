@@ -67,7 +67,7 @@ struct CommonEditingView: View {
     let inputString: String
     
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var rowObserver: InputNodeRowObserver
     let rowViewModel: InputNodeRowViewModel
     
@@ -131,7 +131,7 @@ struct CommonEditingView: View {
     
     @MainActor
     var thisFieldIsFocused: Bool {
-        switch graphUI.reduxFocusedField {
+        switch document.reduxFocusedField {
         case .textInput(let focusedFieldCoordinate):
             let k = focusedFieldCoordinate == id
             // log("CommonEditingView: thisFieldIsFocused: k: \(k) for \(fieldCoordinate)")
@@ -375,7 +375,7 @@ struct CommonEditingView: View {
         self.graph.inputEditedFromUI(
             fieldValue: .string(.init(newEdit)),
             fieldIndex: fieldIndex,
-            activeIndex: graphUI.activeIndex,
+            activeIndex: document.activeIndex,
             rowObserver: rowObserver,
             isFieldInsideLayerInspector: self.isFieldInsideLayerInspector,
             isCommitting: isCommitting)

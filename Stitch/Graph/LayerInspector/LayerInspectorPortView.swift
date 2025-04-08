@@ -12,7 +12,7 @@ import OrderedCollections
 struct LayerInspectorInputPortView: View {
     @Bindable var layerInputObserver: LayerInputObserver
     @Bindable var graph: GraphState
-    @Bindable var graphUI: StitchDocumentViewModel
+    @Bindable var document: StitchDocumentViewModel
     let node: NodeViewModel
             
     var isShadowLayerInputRow: Bool {
@@ -47,7 +47,7 @@ struct LayerInspectorInputPortView: View {
                                layerInspectorRowId: layerInspectorRowId,
                                coordinate: coordinate,
                                graph: graph,
-                               graphUI: graphUI,
+                               document: document,
                                canvasItemId: canvasItemId) { isPropertyRowSelected in
                     HStack {
                         if isShadowLayerInputRow {
@@ -58,14 +58,14 @@ struct LayerInspectorInputPortView: View {
                         // Note: 3D Transform and PortValue.padding are arranged in a "grid" in the inspector ONLY.
                         // So we handle them here, rather than in `fields` views used in flyouts and on canvas.
                         else if layerInputObserver.port == .transform3D {
-                            LayerInspector3DTransformInputView(document: graphUI,
+                            LayerInspector3DTransformInputView(document: document,
                                                                graph: graph,
                                                                nodeId: node.id,
                                                                layerInputObserver: layerInputObserver,
                                                                isPropertyRowSelected: isPropertyRowSelected)
                         } else if layerInputObserver.usesGridMultifieldArrangement() {
                             // Multifields in the inspector are always "read-only" and "tap to open flyout"
-                            LayerInspectorGridInputView(document: graphUI,
+                            LayerInspectorGridInputView(document: document,
                                                         graph: graph,
                                                         node: node,
                                                         layerInputObserver: layerInputObserver,
@@ -73,7 +73,7 @@ struct LayerInspectorInputPortView: View {
                         } else {
                             // Handles both single- and multifield-inputs (arranges an input's multiple-fields in an HStack)
                             InspectorLayerInputView(
-                                document: graphUI,
+                                document: document,
                                 graph: graph,
                                 node: node,
                                 layerInputObserver: layerInputObserver,
@@ -211,7 +211,7 @@ struct LayerInputFieldsView: View {
             
             // InspectorLayerInputView
             InputValueEntry(graph: graph,
-                            graphUI: document,
+                            document: document,
                             viewModel: portViewModel,
                             node: node,
                             rowViewModel: layerInputData.inspectorRowViewModel,
@@ -229,7 +229,7 @@ struct LayerInputFieldsView: View {
         case .canvas(let canvasNode):
             // CanvasLayerInputView
             InputValueEntry(graph: graph,
-                            graphUI: document,
+                            document: document,
                             viewModel: portViewModel,
                             node: node,
                             rowViewModel: rowViewModel,
@@ -248,7 +248,7 @@ struct LayerInputFieldsView: View {
             // GenericFlyoutView
             GenericFlyoutRowView(
                 graph: graph,
-                graphUI: document,
+                document: document,
                 viewModel: portViewModel,
                 rowViewModel: rowViewModel,
                 node: node,
@@ -324,7 +324,7 @@ struct LayerInspectorOutputPortView: View {
     @Bindable var rowViewModel: OutputNodeRowViewModel
     @Bindable var rowObserver: OutputNodeRowObserver
     @Bindable var graph: GraphState
-    @Bindable var graphUI: StitchDocumentViewModel
+    @Bindable var document: StitchDocumentViewModel
     
     let canvasItem: CanvasItemViewModel?
     let forFlyout: Bool
@@ -353,7 +353,7 @@ struct LayerInspectorOutputPortView: View {
     func valueEntryView(portViewModel: OutputFieldViewModel,
                         isMultiField: Bool) -> OutputValueEntry {
         OutputValueEntry(graph: graph,
-                         graphUI: graphUI,
+                         document: document,
                          viewModel: portViewModel,
                          rowViewModel: rowViewModel,
                          rowObserver: rowObserver,
@@ -379,7 +379,7 @@ struct LayerInspectorOutputPortView: View {
                                layerInspectorRowId: .layerOutput(portId),
                                coordinate: coordinate,
                                graph: graph,
-                               graphUI: graphUI,
+                               document: document,
                                canvasItemId: canvasItem?.id) { propertyRowIsSelected in
             HStack(alignment: .firstTextBaseline) {
                 // Property sidebar always shows labels on left side, never right
@@ -450,7 +450,7 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
     
     let coordinate: NodeIOCoordinate
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var document: StitchDocumentViewModel
     
     // non-nil = this row is present on canvas
     // NOTE: apparently, the destruction of a weak var reference does NOT trigger a SwiftUI view update; so, avoid using delegates in the UI body.
@@ -487,7 +487,7 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
         HStack(alignment: hstackAlignment) {
             
             LayerInspectorRowButton(graph: graph,
-                                    graphUI: graphUI,
+                                    document: document,
                                     layerInputObserver: layerInputObserver,
                                     layerInspectorRowId: layerInspectorRowId,
                                     coordinate: coordinate,
@@ -515,7 +515,7 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
         })
         .contentShape(Rectangle())
         .modifier(LayerInspectorPortViewTapModifier(graph: graph,
-                                                    graphUI: graphUI,
+                                                    document: document,
                                                     isAutoLayoutRow: layerInputObserver?.port == .orientation,
                                                     layerInspectorRowId: layerInspectorRowId,
                                                     canvasItemId: canvasItemId))
@@ -526,7 +526,7 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
 struct LayerInspectorPortViewTapModifier: ViewModifier {
     
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var document: StitchDocumentViewModel
     let isAutoLayoutRow: Bool
     let layerInspectorRowId: LayerInspectorRowId
     let canvasItemId: CanvasItemId?
@@ -547,7 +547,7 @@ struct LayerInspectorPortViewTapModifier: ViewModifier {
         } else {
             content.gesture(TapGesture().onEnded({ _ in
                 log("LayerInspectorPortView tapped")
-                graphUI.onLayerPortRowTapped(
+                document.onLayerPortRowTapped(
                     layerInspectorRowId: layerInspectorRowId,
                     canvasItemId: canvasItemId,
                     graph: graph)

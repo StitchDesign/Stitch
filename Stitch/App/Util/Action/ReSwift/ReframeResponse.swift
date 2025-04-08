@@ -8,7 +8,6 @@
 import Foundation
 
 typealias AppResponse = ReframeResponse<AppState>
-typealias GraphUIResponse = ReframeResponse<GraphUIState>
 typealias GraphResponse = ReframeResponse<NoState>
 typealias MiddlewareManagerResponse = ReframeResponse<EmptyState>
 

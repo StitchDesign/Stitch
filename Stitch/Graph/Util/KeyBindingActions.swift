@@ -20,14 +20,14 @@ struct ArrowPressedWhileInputTextFieldFocused: StitchDocumentEvent {
     
     func handle(state: StitchDocumentViewModel) {
         
-        guard state.graphUI.reduxFocusedField?.getTextInputEdit.isDefined ?? false else {
+        guard state.reduxFocusedField?.getTextInputEdit.isDefined ?? false else {
             fatalErrorIfDebug("ArrowKeyPressedWhileInputTextFieldFocused: no text field focused")
             // Should never happen
             return
         }
                 
         // View then responds to this
-        state.graphUI.reduxFocusedFieldChangedByArrowKey = wasUpArrow ? .upArrow : .downArrow
+        state.reduxFocusedFieldChangedByArrowKey = wasUpArrow ? .upArrow : .downArrow
     }
 }
 
@@ -39,16 +39,16 @@ struct ArrowKeyPressed: StitchDocumentEvent {
         log("ArrowKeyPressed: \(arrowKey) called.")
 
         // Update selected option for insert node menu
-        if let activeNodeSelection = Self.willNavigateActiveNodeSelection(state.graphUI) {
-            let insertNodeMenuState = state.graphUI.insertNodeMenuState
+        if let activeNodeSelection = Self.willNavigateActiveNodeSelection(state) {
+            let insertNodeMenuState = state.insertNodeMenuState
 
             switch arrowKey {
             case .up:
-                state.graphUI.insertNodeMenuState.activeSelection =
+                state.insertNodeMenuState.activeSelection =
                     Self.nodeMenuSelectionArrowUp(activeSelection: activeNodeSelection,
                                                   queryResults: insertNodeMenuState.searchResults)
             case .down:
-                state.graphUI.insertNodeMenuState.activeSelection =
+                state.insertNodeMenuState.activeSelection =
                     Self.nodeMenuSelectionArrowDown(activeSelection: activeNodeSelection,
                                                     queryResults: insertNodeMenuState.searchResults)
             default:
@@ -62,8 +62,8 @@ struct ArrowKeyPressed: StitchDocumentEvent {
     }
 
     @MainActor
-    private static func willNavigateActiveNodeSelection(_ graphUI: GraphUIState) -> InsertNodeMenuOptionData? {
-        let insertNodeMenuState = graphUI.insertNodeMenuState
+    private static func willNavigateActiveNodeSelection(_ document: StitchDocumentViewModel) -> InsertNodeMenuOptionData? {
+        let insertNodeMenuState = document.insertNodeMenuState
 
         guard insertNodeMenuState.show else {
             return nil

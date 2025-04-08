@@ -19,7 +19,7 @@ extension ProjectSidebarObservable {
     @MainActor
     func resetEditModeSelections() {
         // DO NOT 'focus the sidebar' here; resetting primary selections is NOT the same thing as tapping or dragging a layer
-//        self.graphDelegate?.graphUI.isSidebarFocused = true
+//        self.graphDelegate?.isSidebarFocused = true
         
         if !self.primary.isEmpty {
             self.primary = .init()            

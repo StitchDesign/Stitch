@@ -37,7 +37,7 @@ struct StitchCustomColorPickerView: View {
             colorGrid
                 .padding()
         }
-        // TODO: try to get `ViewThatFits` to work? Need to specify axis etc.? Or figure out why `GraphUIState.isPortraitMode` is not accurate on iPhone? (Maybe because on iPhone we don't render the ContentView that is responsible for reading screen size and updating GraphUIState`?)
+        // TODO: try to get `ViewThatFits` to work? Need to specify axis etc.? Or figure out why `StitchDocumentViewModel.isPortraitMode` is not accurate on iPhone? (Maybe because on iPhone we don't render the ContentView that is responsible for reading screen size and updating StitchDocumentViewModel`?)
         .scaleEffect(isForIPhone ? 0.7 : 1)
         .onAppear {
             //            log("StitchColorPickerView: onAppear: hexEdit was: \(self.hexEdit)")

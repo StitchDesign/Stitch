@@ -82,7 +82,7 @@ extension StitchStore {
     
                 if let document = self?.currentDocument {
                     // Hides adjustment bar, fixing issue where data becomes out of sync
-                    document.graphUI.adjustmentBarSessionId = .init()
+                    document.adjustmentBarSessionId = .init()
                     
                     // Refresh nodes cache--fixes bugs caused by undo
                     document.visibleGraph.getCanvasItemsAtTraversalLevel(groupNodeFocused: document.groupNodeFocused?.groupNodeId)

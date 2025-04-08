@@ -118,7 +118,7 @@ extension StitchDocumentViewModel {
 
         // Note: DO NOT RESET THE ACTIVE NODE MENU SELECTION UNTIL ANIMATION HAS COMPLETED
         // Reset selection for insert node menu
-        // self.graphUI.insertNodeMenuState.activeSelection = InsertNodeMenuState.allSearchOptions.first
+        // self.insertNodeMenuState.activeSelection = InsertNodeMenuState.allSearchOptions.first
 
         node.getAllCanvasObservers().forEach {
             $0.parentGroupNodeId = self.groupNodeFocused?.groupNodeId
@@ -134,7 +134,7 @@ extension StitchDocumentViewModel {
         // TODO: where else would we need to reset this?
 
         // Do this once the node-insert animation has finished
-        //    self.graphUI.doubleTapLocation = nil
+        //    self.doubleTapLocation = nil
 
         self.graphMovement.draggedCanvasItem = nil
         

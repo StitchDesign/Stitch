@@ -12,7 +12,7 @@ import StitchSchemaKit
 struct InputValueEntry: View {
 
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var document: StitchDocumentViewModel
     
     @Bindable var viewModel: InputFieldViewModel
     let node: NodeViewModel
@@ -46,7 +46,7 @@ struct InputValueEntry: View {
     @MainActor
     var valueDisplay: some View {
         InputFieldValueView(graph: graph,
-                            graphUI: graphUI,
+                            document: document,
                             viewModel: viewModel,
                             propertySidebar: graph.propertySidebar,
                             node: node,
@@ -112,7 +112,7 @@ extension UnpackedPortType {
 // fka `InputValueView`
 struct InputFieldValueView: View {
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var viewModel: InputFieldViewModel
     @Bindable var propertySidebar: PropertySidebarObserver
     let node: NodeViewModel
@@ -183,7 +183,7 @@ struct InputFieldValueView: View {
             switch fieldValue {
             case .string:
                 CommonEditingViewWrapper(graph: graph,
-                                         graphUI: graphUI,
+                                         document: document,
                                          fieldViewModel: viewModel,
                                          rowObserver: rowObserver,
                                          rowViewModel: rowViewModel,
@@ -201,7 +201,7 @@ struct InputFieldValueView: View {
                 
             case .number:
                 FieldValueNumberView(graph: graph,
-                                     graphUI: graphUI,
+                                     document: document,
                                      rowObserver: rowObserver,
                                      rowViewModel: rowViewModel,
                                      fieldViewModel: viewModel,
@@ -220,7 +220,7 @@ struct InputFieldValueView: View {
                 
             case .layerDimension(let layerDimensionField):
                 FieldValueNumberView(graph: graph,
-                                     graphUI: graphUI,
+                                     document: document,
                                      rowObserver: rowObserver,
                                      rowViewModel: rowViewModel,
                                      fieldViewModel: viewModel,
@@ -230,7 +230,7 @@ struct InputFieldValueView: View {
                                      isCanvasItemSelected: isCanvasItemSelected,
                                      choices: graph.getFilteredLayerDimensionChoices(node: node,
                                                                                      layerInputPort: layerInputPort,
-                                                                                     activeIndex: graphUI.activeIndex)
+                                                                                     activeIndex: document.activeIndex)
                                         .map(\.rawValue),
                                      isForLayerInspector: isForLayerInspector,
                                      hasHeterogenousValues: hasHeterogenousValues,
@@ -243,7 +243,7 @@ struct InputFieldValueView: View {
                 
             case .spacing:
                 FieldValueNumberView(graph: graph,
-                                     graphUI: graphUI,
+                                     document: document,
                                      rowObserver: rowObserver,
                                      rowViewModel: rowViewModel,
                                      fieldViewModel: viewModel,
@@ -264,7 +264,7 @@ struct InputFieldValueView: View {
             case .bool(let bool):
                 BoolCheckboxView(rowObserver: rowObserver,
                                  graph: graph,
-                                 document: graphUI,
+                                 document: document,
                                  value: bool,
                                  isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                  isSelectedInspectorRow: isSelectedInspectorRow,
@@ -278,7 +278,7 @@ struct InputFieldValueView: View {
                                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                    isSelectedInspectorRow: isSelectedInspectorRow,
                                    hasHeterogenousValues: hasHeterogenousValues,
-                                   activeIndex: graphUI.activeIndex)
+                                   activeIndex: document.activeIndex)
                 
             case .textFontDropdown(let stitchFont):
                 StitchFontDropdown(rowObserver: rowObserver,
@@ -287,7 +287,7 @@ struct InputFieldValueView: View {
                                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                    propertyIsSelected: isSelectedInspectorRow,
                                    hasHeterogenousValues: hasHeterogenousValues,
-                                   activeIndex: graphUI.activeIndex)
+                                   activeIndex: document.activeIndex)
                 // need enough width for font design + font weight name
                 .frame(minWidth: TEXT_FONT_DROPDOWN_WIDTH,
                        alignment: .leading)
@@ -307,14 +307,14 @@ struct InputFieldValueView: View {
                                               isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                               isForPinTo: false),
                     hasHeterogenousValues: hasHeterogenousValues,
-                    activeIndex: graphUI.activeIndex)
+                    activeIndex: document.activeIndex)
                 
             case .anchorEntity(let anchorEntityId):
                 AnchorEntitiesDropdownView(rowObserver: rowObserver,
                                            graph: graph,
                                            value: .anchorEntity(anchorEntityId),
                                            isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                                           activeIndex: graphUI.activeIndex)
+                                           activeIndex: document.activeIndex)
             
             case .layerGroupOrientationDropdown(let x):
                 LayerGroupOrientationDropDownChoiceView(
@@ -323,7 +323,7 @@ struct InputFieldValueView: View {
                     value: x,
                     isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                     hasHeterogenousValues: hasHeterogenousValues,
-                    activeIndex: graphUI.activeIndex)
+                    activeIndex: document.activeIndex)
                 
             case .layerGroupAlignment(let x):
 
@@ -333,7 +333,7 @@ struct InputFieldValueView: View {
                 if nodeKind.getLayer == .group,
                    let layerNode = node.layerNodeViewModel,
                    let orientation = layerNode.orientationPort
-                    .getActiveValue(activeIndex: graphUI.activeIndex)
+                    .getActiveValue(activeIndex: document.activeIndex)
                     .getOrientation {
                     switch orientation {
                     case .vertical:
@@ -344,13 +344,13 @@ struct InputFieldValueView: View {
                             value: x,
                             isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                             hasHeterogenousValues: hasHeterogenousValues,
-                            activeIndex: graphUI.activeIndex)
+                            activeIndex: document.activeIndex)
                     case .horizontal:
                         // logInView("InputValueView: vertical")
                         LayerGroupVerticalAlignmentPickerFieldValueView(
                             rowObserver: rowObserver,
                             graph: graph,
-                            activeIndex: graphUI.activeIndex,
+                            activeIndex: document.activeIndex,
                             value: x,
                             isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                             hasHeterogenousValues: hasHeterogenousValues)
@@ -373,7 +373,7 @@ struct InputFieldValueView: View {
                     choices: LayerTextAlignment.choices,
                     isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                     hasHeterogenousValues: hasHeterogenousValues,
-                    activeIndex: graphUI.activeIndex)
+                    activeIndex: document.activeIndex)
                 
             case .textVerticalAlignmentPicker(let x):
                 SpecialPickerFieldValueView(
@@ -384,7 +384,7 @@ struct InputFieldValueView: View {
                     choices: LayerTextVerticalAlignment.choices,
                     isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                     hasHeterogenousValues: hasHeterogenousValues,
-                    activeIndex: graphUI.activeIndex)
+                    activeIndex: document.activeIndex)
             
             case .textDecoration(let x):
                 SpecialPickerFieldValueView(
@@ -395,7 +395,7 @@ struct InputFieldValueView: View {
                     choices: LayerTextDecoration.choices,
                     isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                     hasHeterogenousValues: hasHeterogenousValues,
-                    activeIndex: graphUI.activeIndex)
+                    activeIndex: document.activeIndex)
                 
             case .pinTo(let pinToId):
                 LayerNamesDropDownChoiceView(
@@ -412,12 +412,12 @@ struct InputFieldValueView: View {
                                               isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                               isForPinTo: true),
                     hasHeterogenousValues: hasHeterogenousValues,
-                    activeIndex: graphUI.activeIndex)
+                    activeIndex: document.activeIndex)
                 
             case .anchorPopover(let anchor):
                 AnchorPopoverView(rowObserver: rowObserver,
                                   graph: graph,
-                                  document: graphUI,
+                                  document: document,
                                   selection: anchor,
                                   isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                   isSelectedInspectorRow: isSelectedInspectorRow,
@@ -445,7 +445,7 @@ struct InputFieldValueView: View {
                     isSelectedInspectorRow: isSelectedInspectorRow,
                     isMultiselectInspectorInputWithHeterogenousValues: hasHeterogenousValues,
                     graph: graph,
-                    document: graphUI)
+                    document: document)
                 
             case .color(let color):
                 ColorOrbValueButtonView(fieldViewModel: viewModel,
@@ -456,7 +456,7 @@ struct InputFieldValueView: View {
                                         hasIncomingEdge: hasIncomingEdge,
                                         graph: graph,
                                         isMultiselectInspectorInputWithHeterogenousValues: hasHeterogenousValues,
-                                        activeIndex: graphUI.activeIndex)
+                                        activeIndex: document.activeIndex)
                 
             case .pulse(let pulseTime):
                 PulseValueButtonView(graph: graph,
@@ -471,7 +471,7 @@ struct InputFieldValueView: View {
                               rowObserver: rowObserver,
                               json: isButtonPressed ? json : nil,
                               isSelectedInspectorRow: isSelectedInspectorRow,
-                              activeIndex: graphUI.activeIndex,
+                              activeIndex: document.activeIndex,
                               isPressed: $isButtonPressed)
                 
             // TODO: is this relevant for multiselect?

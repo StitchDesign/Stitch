@@ -110,7 +110,7 @@ extension GraphState {
     // TODO: handle proper traversal level comments
     @MainActor
     func selectAllCommentsAtTraversalLevel() {
-        self.graphUI.selection.selectedCommentBoxes = self.commentBoxesDict.keys.toSet
+        self.selection.selectedCommentBoxes = self.commentBoxesDict.keys.toSet
     }
     
     @MainActor
@@ -216,16 +216,16 @@ extension StitchDocumentViewModel {
 //      // TODO: only look at boxes on this traversal level
         // TODO: update comment boxes to use `CanvasItemViewModel`
 //        for box in graphState.commentBoxesDict.toValuesArray {
-//            if let boxBounds = graphState.graphUI.commentBoxBoundsDict.get(box.id) {
+//            if let boxBounds = graphState.commentBoxBoundsDict.get(box.id) {
 //
 //                // node cursor box only selects a comment box if we touch the comment box's title area
 //                //                let doesIntersectSelectionBox = nodeCursorSelectionBox.intersects(boxBounds)
 //                let doesIntersectSelectionBox = cursorSelectionBox.intersects(boxBounds.titleBounds)
 //
 //                if doesIntersectSelectionBox {
-//                    graphState.graphUI.selection.selectedCommentBoxes.insert(box.id)
+//                    graphState.selection.selectedCommentBoxes.insert(box.id)
 //                } else {
-//                    graphState.graphUI.selection.selectedCommentBoxes.remove(box.id)
+//                    graphState.selection.selectedCommentBoxes.remove(box.id)
 //                }
 //
 //            } else {

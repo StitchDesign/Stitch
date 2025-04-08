@@ -38,10 +38,6 @@ struct NodeTagMenuButtonsView: View {
         loopIndices ?? self.node.getLoopIndices()
     }
     
-    var graphUI: StitchDocumentViewModel {
-        self.document
-    }
-
     @MainActor
     var moreThanOneNodeSelected: Bool {
         graph.getSelectedCanvasItems(groupNodeFocused: document.groupNodeFocused?.groupNodeId)
@@ -50,7 +46,7 @@ struct NodeTagMenuButtonsView: View {
 
     @MainActor
     var activeIndex: ActiveIndex {
-        self.graphUI.activeIndex
+        document.activeIndex
     }
 
     var nodeType: UserVisibleType? {

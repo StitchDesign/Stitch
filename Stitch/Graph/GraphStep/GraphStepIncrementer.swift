@@ -163,7 +163,7 @@ extension GraphState {
              Usually we can return `nil` if there were no must run nodes
              or if we didn't need to recalculate the graph;
              but if we modified the Catalyst keypress stream,
-             then we need to pass on that GraphUIState change,
+             then we need to pass on that StitchDocumentViewModel change,
              *even if there are no keyboard nodes on the graph*.
              */
             return

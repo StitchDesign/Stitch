@@ -90,7 +90,7 @@ extension GraphState {
         }
         
         
-//        var box = self.graphUI.selection.expansionBox ?? .init(origin: gestureStartLocation, size: .zero)
+//        var box = self.selection.expansionBox ?? .init(origin: gestureStartLocation, size: .zero)
 
 //        let size = CGSize(width: gestureLocation.x - gestureStartLocation.x,
 //                          height: gestureLocation.y - gestureStartLocation.y)
@@ -127,7 +127,7 @@ extension GraphState {
         }
 
         // End dragging if some event (i.e. graph tap) happened
-        guard self.graphUI.selection.graphDragState == .dragging else {
+        guard self.selection.graphDragState == .dragging else {
             log("handleGraphScrolled: ended due to cancelled dragging from other event.")
             self.graphDragEnded(location: nil,
                                 velocity: .zero,
@@ -136,7 +136,7 @@ extension GraphState {
             return
         }
 
-        //    log("handleGraphScrolled: state.graphUI.graphMovement.localPosition was: \(state.graphUI.graphMovement.localPosition)")
+        //    log("handleGraphScrolled: state.graphMovement.localPosition was: \(state.graphMovement.localPosition)")
 //
 //        //    log("handleGraphScrolled: translation was: \(translation)")
 //
@@ -144,7 +144,7 @@ extension GraphState {
 //        // regardless whether there is another active gesture.
 //        self.graphMovement.localPosition = self.localPreviousPosition + (translation.toCGPoint / self.graphMovement.zoomData)
 
-        //    log("handleGraphScrolled: state.graphUI.graphMovement.localPosition is now: \(state.graphUI.graphMovement.localPosition)")
+        //    log("handleGraphScrolled: state.graphMovement.localPosition is now: \(state.graphMovement.localPosition)")
 
 //        self.graphMovement.runningGraphTranslation = translation
 
@@ -233,7 +233,7 @@ extension StitchDocumentViewModel {
 //        
 //        let rootLevelGraphOffset = _rootLevelGraphOffset ?? ABSOLUTE_GRAPH_CENTER
 //        
-//        let graphOffset = self.graphUI.groupNodeFocused.isDefined ? rootLevelGraphOffset : self.localPosition
+//        let graphOffset = self.groupNodeFocused.isDefined ? rootLevelGraphOffset : self.localPosition
 //        
 //        // log("GraphState.localPositionToPersists: rootLevelGraphOffset: \(rootLevelGraphOffset)")
 //        // log("GraphState.localPositionToPersists: graphOffset: \(graphOffset)")
