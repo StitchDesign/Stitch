@@ -145,8 +145,8 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         // TODO: either continue to start graph at center, or persist BOTH zoom and offset (persisting offset but not zoom makes it easy to reopen the graph with no nodes visible, especially if we had been highly zoomed out)
         // let newOffset =  self.document.localPosition
         log("StitchUIScrollView: USING GRAPH'S ABSOLUTE CENTER, NOT PERSISTED LOCAL POSITION")
-        let newOffset =  CGPoint(x: WHOLE_GRAPH_LENGTH/2,
-                                 y: WHOLE_GRAPH_LENGTH/2)
+        let newOffset = CGPoint(x: WHOLE_GRAPH_LENGTH/2,
+                                y: WHOLE_GRAPH_LENGTH/2)
         
         scrollView.setContentOffset(newOffset, animated: false)
         
@@ -245,8 +245,11 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
         
         if let canvasPageOffsetChanged = graph.canvasPageOffsetChanged,
            let canvasPageZoomScaleChanged = graph.canvasPageZoomScaleChanged {
-             log("StitchUIScrollView: canvasPageOffsetChanged: \(canvasPageOffsetChanged)")
-             log("StitchUIScrollView: canvasPageZoomScaleChanged: \(canvasPageZoomScaleChanged)")
+            log("StitchUIScrollView: canvasPageOffsetChanged: \(canvasPageOffsetChanged)")
+            log("StitchUIScrollView: canvasPageZoomScaleChanged: \(canvasPageZoomScaleChanged)")
+            
+            log("StitchUIScrollView: uiView.contentOffset WAS: \(uiView.contentOffset)")
+            log("StitchUIScrollView: uiView.zoomScale WAS: \(uiView.zoomScale)")
                         
             /*
              VERY IMPORTANT: when manually setting UIScrollView's zoomScale and contentOffset at the same time,
@@ -254,13 +257,18 @@ struct StitchUIScrollView<Content: View>: UIViewRepresentable {
              Otherwise `.setContentOffset` uses the OLD zoomScale and auto-adjusts the manual contentOffset we want to provide.
              */
             uiView.zoomScale = canvasPageZoomScaleChanged
-            uiView.setContentOffset(canvasPageOffsetChanged, animated: false)
- 
-            dispatch(GraphScrollDataUpdated(
-                newOffset: uiView.contentOffset,
-                newZoom: uiView.zoomScale
-            ))
             
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                uiView.setContentOffset(canvasPageOffsetChanged, animated: false)
+//            }
+            
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                dispatch(GraphScrollDataUpdated(
+                    newOffset: uiView.contentOffset,
+                    newZoom: uiView.zoomScale
+                ))
+//            }
+                        
             context.coordinator.borderCheckingDisabled = true
             
             graph.canvasPageOffsetChanged = nil
@@ -525,20 +533,21 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
             log("StitchUIScrollView: scrollViewDidScroll: hit border: xDiff: \(xDiff)")
             log("StitchUIScrollView: scrollViewDidScroll: hit border: yDiff: \(yDiff)")
             
-            if xDiff.magnitude > 1000 {
-                log("StitchUIScrollView: scrollViewDidScroll: hit border: xDiff: LARGE MAGNITUDE")
-                fatalErrorIfDebug()
-            }
-            
-            if xDiff < -700 {
-                log("StitchUIScrollView: scrollViewDidScroll: hit border: xDiff: LARGE MAGNITUDE")
-                fatalErrorIfDebug()
-            }
-            
-            if yDiff.magnitude > 1000 {
-                log("StitchUIScrollView: scrollViewDidScroll: hit border: yDiff: LARGE MAGNITUDE")
-                fatalErrorIfDebug()
-            }
+            // HELPFUL FOR CATCHING GRAPH JUMPS, BUT NOT WHEN MOVING BETWEEN TRAVERSAL LEVELS
+//            if xDiff.magnitude > 1000 {
+//                log("StitchUIScrollView: scrollViewDidScroll: hit border: xDiff: LARGE MAGNITUDE")
+//                fatalErrorIfDebugOnly()
+//            }
+//            
+//            if xDiff < -700 {
+//                log("StitchUIScrollView: scrollViewDidScroll: hit border: xDiff: LARGE MAGNITUDE")
+//                fatalErrorIfDebugOnly()
+//            }
+//            
+//            if yDiff.magnitude > 1000 {
+//                log("StitchUIScrollView: scrollViewDidScroll: hit border: yDiff: LARGE MAGNITUDE")
+//                fatalErrorIfDebugOnly()
+//            }
             
             scrollView.setContentOffset(finalOffset, animated: false)
             dispatch(GraphScrollDataUpdated(

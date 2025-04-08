@@ -28,6 +28,16 @@ func fatalErrorIfDebug(_ message: String = "") {
 #endif
 }
 
+// Crash helpers intended only for local developer use
+func fatalErrorIfDebugOnly(_ message: String = "") {
+#if DEBUG || DEV_DEBUG
+    fatalError(message)
+#else
+    log(message)
+#endif
+}
+
+
 func assertInDebug(_ conditional: Bool) {
 #if DEBUG || DEV_DEBUG || STITCH_AI
     assert(conditional)
