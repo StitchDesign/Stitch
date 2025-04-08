@@ -47,6 +47,10 @@ func convertPositionEval(node: PatchNode,
 
     let defaultOpResult = PortValue.position(.zero)
     
+    guard let previewWindowSize = graphState.documentDelegate?.previewWindowSize else {
+        return [[defaultOpResult]]
+    }
+    
     let op: OpWithIndex<PortValue> = { (values: PortValues, loopIndex: Int) -> PortValue in
         // log("convertPositionEval: op: values: \(values)")
         
@@ -69,9 +73,9 @@ func convertPositionEval(node: PatchNode,
          */
         let fromLayerId: LayerNodeId? = values[safe: 0]?.getInteractionId
         let toLayerId: LayerNodeId? = values[safe: 3]?.getInteractionId
-        
+                
         let previewWindowRect = CGRect(origin: .zero,
-                                       size: graphState.previewWindowSize)
+                                       size: previewWindowSize)
         
         let fromLayerViewModel: LayerViewModel? = fromLayerId.flatMap(layerViewModelAtIndex)
         let fromRect: CGRect = fromLayerViewModel?.readFrame ?? previewWindowRect

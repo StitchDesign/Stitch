@@ -29,9 +29,12 @@ struct KeyboardNode: PatchNodeDefinition {
 @MainActor
 func keyboardEval(node: PatchNode,
                   graph: GraphState) -> EvalResult {
+
+    // We should always have a document delegate
+    assertInDebug(graph.documentDelegate.isDefined)
     
     let graphTime = graph.graphStepState.graphTime
-    let keypressState = graph.keypressState
+    let keypressState = graph.documentDelegate?.keypressState ?? .init()
 
     return node.loopedEval { values, _ in
         let character = values.first?.getString?.string ?? ""

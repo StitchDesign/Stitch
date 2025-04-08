@@ -243,11 +243,11 @@ extension PinMap {
 
 // MARK: POSITIONING
 
-extension GraphState {
-    @MainActor var rootPinReceiverData: PinReceiverData {
+extension PinReceiverData {
+    static func rootPinReceiverData(_ previewWindowSize: CGSize) -> PinReceiverData {
         PinReceiverData(
             // anchoring
-            size: self.previewWindowSize,
+            size: previewWindowSize,
 
             origin: .zero, // should be okay, since preview window is root of PreviewWindowCoordinate space anyway?
             
@@ -257,20 +257,30 @@ extension GraphState {
             rotationY: .zero,
             rotationZ: .zero)
     }
+}
+
+extension GraphState {
     
     @MainActor func getPinReceiverData(for pinnedLayerViewModel: LayerViewModel) -> PinReceiverData? {
+        
+        guard let document = self.documentDelegate else {
+            fatalErrorIfDebug()
+            return nil
+        }
+        
+        let rootPinReceiverData: PinReceiverData = .rootPinReceiverData(document.previewWindowSize)
         
         //    log("getPinReceiverData: pinned layer \(pinnedLayerViewModel.layer) had pinTo of \(pinnedLayerViewModel.pinTo)")
         
         guard let pinnedTo: PinToId = pinnedLayerViewModel.pinTo.getPinToId else {
             log("getPinReceiverData: no pinnedTo for layer \(pinnedLayerViewModel.layer)")
-            return self.rootPinReceiverData
+            return rootPinReceiverData
         }
         
         switch pinnedTo {
             
         case .root:
-            return self.rootPinReceiverData
+            return rootPinReceiverData
             
             // Note: PinTo = Parent is perhaps redundant vs layer's Anchoring, which is always relative to parent
             // Worst case we can just remove this enum case in the next migration; Root still represents a genuinely new scenario
@@ -280,7 +290,7 @@ extension GraphState {
                 return self.getPinReceiverData(pinReceiverId: parent.asLayerNodeId,
                                                for: pinnedLayerViewModel)
             } else {
-                return self.rootPinReceiverData
+                return rootPinReceiverData
             }
             
         case .layer(let x):
@@ -292,10 +302,15 @@ extension GraphState {
     @MainActor func getPinReceiverData(pinReceiverId: LayerNodeId,
                                        for pinnedLayerViewModel: LayerViewModel) -> PinReceiverData? {
         
+        guard let document = self.documentDelegate else {
+            fatalErrorIfDebug()
+            return nil
+        }
+        
         guard let rootPinReceiverId = self.pinMap.findRootPinReceiver(from: pinReceiverId),
               let pinReceiver = self.layerNodes.get(rootPinReceiverId.id) else {
             log("getPinReceiverData: no pinReceiver for layer \(pinnedLayerViewModel.layer)")
-            return self.rootPinReceiverData
+            return .rootPinReceiverData(document.previewWindowSize)
         }
         
         // TODO: suppose View A (pinned) has a loop of 5, but View B (pin-receiver) has a loop of only 2; which pin-receiver view model should we return?
