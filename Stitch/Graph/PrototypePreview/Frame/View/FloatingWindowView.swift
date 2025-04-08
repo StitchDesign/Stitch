@@ -47,7 +47,7 @@ struct FloatingWindowView: View {
         previewWindowSizing.dimensions
     }
 
-    var projectId: ProjectId {
+    var projectId: GraphId {
         document.projectId
     }
 
