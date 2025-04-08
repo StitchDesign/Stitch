@@ -30,7 +30,7 @@ struct StitchNavStack: View {
                     
                 }
                 .onChange(of: store.navPath.first) { _, currentProject in
-                    let currentProjectId = currentProject?.id
+                    let currentGraphId = currentProject?.id
                     
                     // Rest undo if project closed
                     if !store.isCurrentProjectSelected {
@@ -40,7 +40,7 @@ struct StitchNavStack: View {
                     // Remove references to other StitchDocuments to release them from memory
                     // Logic here needed for drag-and-drop import with existing document open
                     store.allProjectUrls.forEach { projectLoader in
-                        if projectLoader.id != currentProjectId &&
+                        if projectLoader.id != currentGraphId &&
                             projectLoader.documentViewModel != nil {
                             // In case references are stored here (but probably not)
                             projectLoader.lastEncodedDocument = nil

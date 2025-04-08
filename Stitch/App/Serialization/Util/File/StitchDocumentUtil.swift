@@ -49,7 +49,7 @@ extension StitchDocument: StitchDocumentEncodable, StitchDocumentMigratable {
         Self.getRootUrl(from: self.id)
     }
     
-    public var id: ProjectId {
+    public var id: UUID {
         get {
             self.graph.id
         }

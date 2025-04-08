@@ -262,7 +262,7 @@ extension GraphState {
             // Update save location for components
             let components = decodedFiles.components.map { component in
                 var component = component
-                component.saveLocation = .localComponent(.init(docId: document.id,
+                component.saveLocation = .localComponent(.init(docId: document.id.value,
                                                                componentId: component.id,
                                                                componentsPath: self.saveLocation))
                 return component

@@ -228,8 +228,9 @@ extension GraphState {
             }
         }
 
+        // TODO: come back here; we're not passing in the proper box.id
         // Update comment box data
-        self.deleteCommentBox(id)
+        // self.deleteCommentBox(id)
         
         // Delete media from file manager if it's the "source" media and unused elsewhere
         node.inputs.findImportedMediaKeys().forEach { mediaKey in

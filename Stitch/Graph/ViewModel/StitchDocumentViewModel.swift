@@ -25,7 +25,9 @@ struct GraphUpdaterId: Equatable, Hashable, Sendable, Codable {
 
 @Observable
 final class StitchDocumentViewModel: Sendable {
-    let rootId: UUID
+    // TODO: what kind of id is this? Per data flow, it's from StitchDocumentViewModel.id which is from document.graphId i.e. it's the id for the document's root
+    let rootId: UUID // Previously was just `UUID`, taken from StitchDocument.id which was from
+    
     let isDebugMode: Bool
     let graph: GraphState
     let graphStepManager = GraphStepManager()
@@ -353,12 +355,12 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
 
 extension StitchDocumentViewModel {
     @MainActor
-    var id: UUID {
+    var id: GraphId {
         self.graph.id
     }
     
     @MainActor
-    var projectId: UUID {
+    var projectId: GraphId {
         self.id
     }
     

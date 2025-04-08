@@ -22,10 +22,10 @@ extension GraphState {
         // TODO: pass this down from the gesture handler
         if document.keypressState.isCommandPressed {
             if self.selection
-                .selectedCommentBoxes.contains(id) {
-                self.selection.selectedCommentBoxes.remove(id)
+                .selectedCommentBoxes.contains(box.id) {
+                self.selection.selectedCommentBoxes.remove(box.id)
             } else {
-                self.selection.selectedCommentBoxes.insert(id)
+                self.selection.selectedCommentBoxes.insert(box.id)
             }
         }
 
@@ -33,7 +33,7 @@ extension GraphState {
         else {
             // reset selection state; select only this comment box
             self.selection = .init()
-            self.selection.selectedCommentBoxes = Set([id])
+            self.selection.selectedCommentBoxes = Set([box.id])
         }
 
         box.zIndex = self.highestZIndex + 1
@@ -209,14 +209,14 @@ extension GraphState {
         // ALWAYS update this comment box's bounds
         self.commentBoxBoundsDict.updateValue(
             newestBoxBounds,
-            forKey: id)
+            forKey: box.id)
 
         // RE-DETERMINE WHICH NODES FALL WITHIN THIS COMMENT BOX
         // Assumes this comment box's bounds were recently updated
         self.rebuildCommentBoxes(currentTraversalLevel: groupNodeFocused)
 
-        guard let box = self.commentBoxesDict.get(id) else {
-            log("CommentBoxExpansionDragEnded: could not retrieve comment box \(id)")
+        guard let box = self.commentBoxesDict.get(box.id) else {
+            log("CommentBoxExpansionDragEnded: could not retrieve comment box \(box.id)")
             return
         }
 
@@ -241,7 +241,7 @@ extension GraphState {
         // Add this box's bounds to the bounds-dict
         self.commentBoxBoundsDict.updateValue(
             bounds,
-            forKey: id)
+            forKey: box.id)
 
         // Then redetermine which nodes fall into the boxes
         // TODO: only redetermine for this single box, not all boxes?

@@ -36,16 +36,16 @@ extension StitchStore {
         case .success:
             log("StitchStore: deleteProject: success")
             // If undo is called, re-import the project from recently deleted
-            let undoEvents: [Action] = [UndoDeleteProject(projectId: projectId) ]
+            let undoEvents: [Action] = [UndoDeleteProject(projectId: .init(projectId)) ]
             let redoEvents: [Action] = [ProjectDeleted(document: document)]
 
             // Displays toast UI on projects screen
             
             // TODO: fix 'Undo Delete' on iPhone
             if !Stitch.isPhoneDevice {
-                self.alertState.deletedProjectId = projectId
+                self.alertState.deletedGraphId = .init(projectId)
             }
-            // self.alertState.deletedProjectId = projectId
+            // self.alertState.deletedGraphId = projectId
 
             self.saveProjectDeletionUndoHistory(undoActions: undoEvents,
                                                 redoActions: redoEvents)
@@ -59,13 +59,13 @@ extension StitchStore {
     /// Clears undo button toast UI on projects screen.
     @MainActor
     func projectDeleteToastExpired() {
-        self.alertState.deletedProjectId = nil
+        self.alertState.deletedGraphId = nil
     }
 }
 
 extension StitchStore {
     @MainActor
-    func undoDeleteProject(projectId: ProjectId) {
+    func undoDeleteProject(projectId: GraphId) {
         // Find URL from recently deleted
         let deletedProjectURL = StitchFileManager.recentlyDeletedURL
             .appendingStitchProjectDataPath("\(projectId)")
@@ -84,7 +84,7 @@ extension StitchStore {
 
             await MainActor.run { [weak self] in
                 // Remove toast on projects screen
-                self?.alertState.deletedProjectId = nil
+                self?.alertState.deletedGraphId = nil
             }
         }
     }
