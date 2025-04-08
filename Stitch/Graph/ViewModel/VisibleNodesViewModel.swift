@@ -103,42 +103,31 @@ extension VisibleNodesViewModel {
 
     /// Returns all view data to be used by nodes in groups.
     @MainActor
-    func updateNodesPagingDict(components: [UUID: StitchMasterComponent],
-                               graphFrame: CGRect,
-                               parentGraphPath: [UUID],
-                               graph: GraphState,
-                               document: StitchDocumentViewModel) {
+    func updateNodesPagingDict(documentZoomData: CGFloat,
+                               documentFrame: CGRect) {
 
-        // Remove any groups in the node paging dict that no longer exist in GraphSchema:
+        // TODO: old comment indicated that we removed no-longer-existing group nodes;
         let existingGroupPages = self.nodesByPage.compactMap(\.key.getGroupNodePage).toSet
-        let incomingGroupIds = self.nodes.values
+        
+        let newGroupNodeIds = self.nodes.values
             .flatMap { $0.getAllCanvasObservers() }
             .compactMap { $0.parentGroupNodeId }
-            .toSet
+            .toSet // unqiue parents
+            .filter { !existingGroupPages.contains($0) } // only new parents
 
         // Add position and zoom for new traversal levels
-        for incomingGroupId in incomingGroupIds where !existingGroupPages.contains(incomingGroupId) {
+        newGroupNodeIds.forEach { newGroupNodeId in
             
-            let westernMostNode: CanvasItemViewModel? = GraphState.westernMostNode(
-                incomingGroupId,
-                // Canvas items at this new group's traversal level
-                canvasItems: self.getCanvasItemsAtTraversalLevel(at: incomingGroupId))
-            
-            var startOffset: CGPoint = ABSOLUTE_GRAPH_CENTER
-            
-            // Note: `getNodeGraphPanLocation` relies on cached-bounds data, which we will not have for ANY of the canvas items in a graph-traversal-level that we have never yet visited.
-            // So we currently never hit this condition for new pages.
-            // TODO: how to enter a group-node for the first time with a guaranteed node on screen? ... start with a nil localPosition in the pageData?
-            if let westernMostNode = westernMostNode,
-               let jumpLocation = graph.getNodeGraphPanLocation(id: westernMostNode.id,
-                                                                document: document) {
-                startOffset = jumpLocation
-            }
-            
-            self.nodesByPage.updateValue(NodePageData(localPosition: startOffset),
-                                         forKey: .group(incomingGroupId))
+            // When a graph session begins,
+            // traversal-levels start in absolute center of graph, like the root level.
+            self.nodesByPage.updateValue(NodePageData(localPosition: ABSOLUTE_GRAPH_CENTER),
+                                         forKey: .group(newGroupNodeId))
         }
-
+    }
+    
+    // traditionally called in `updateNodesPagingDict` after updating `nodesByPage` dict
+    @MainActor
+    func updateNodeRowObserversUpstreamAndDownstreamReferences() {
         // Toggle output downstream connections to false, will correct later
         self.nodes.values.forEach { node in
             node.getAllOutputsObservers().forEach {
@@ -150,7 +139,11 @@ extension VisibleNodesViewModel {
         self.nodes.values.forEach { node in
             self.buildUpstreamReferences(nodeViewModel: node)
         }
-        
+    }
+    
+    // traditionally called in `updateNodesPagingDict`, after `updateNodeRowObserversUpstreamAndDownstreamReferences`
+    @MainActor
+    func syncRowViewModels(document: StitchDocumentViewModel) {
         // Sync port view models for applicable nodes
         self.nodes.values.forEach { node in
             switch node.nodeType {
@@ -202,7 +195,7 @@ extension VisibleNodesViewModel {
             }
         }
     }
-
+    
     @MainActor
     func buildUpstreamReferences(nodeViewModel: NodeViewModel) {
         // Layers use keypaths
