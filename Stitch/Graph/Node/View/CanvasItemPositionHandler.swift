@@ -10,7 +10,7 @@ import StitchSchemaKit
 
 struct CanvasItemPositionHandler: ViewModifier {
     @Bindable var document: StitchDocumentViewModel
-        
+    @Bindable var graph: GraphState
     @Bindable var node: CanvasItemViewModel
     
     let zIndex: ZIndex
@@ -20,16 +20,17 @@ struct CanvasItemPositionHandler: ViewModifier {
             .zIndex(zIndex)
             .canvasPosition(id: node.id,
                             position: node.position)
-            .gesture(CanvasItemDragHandler(canvasItemId: node.id))
+            .gesture(CanvasItemDragHandler(graph: graph,
+                                           canvasItemId: node.id))
     }
 }
 
 extension View {
     /// Handles node position, drag gestures, and option+select for duplicating node.
-    func canvasItemPositionHandler(document: StitchDocumentViewModel,
+    func canvasItemPositionHandler(graph: GraphState,
                                    node: CanvasItemViewModel,
                                    zIndex: ZIndex) -> some View {
-        self.modifier(CanvasItemPositionHandler(document: document,
+        self.modifier(CanvasItemPositionHandler(graph: graph,
                                                 node: node,
                                                 zIndex: zIndex))
     }
@@ -42,6 +43,7 @@ extension View {
  (Similar to what we do in sidebar click + shift.)
  */
 struct CanvasItemDragHandler: UIGestureRecognizerRepresentable {
+    let graph: GraphState
     let canvasItemId: CanvasItemId
     
     func makeUIGestureRecognizer(context: Context) -> UIPanGestureRecognizer {
@@ -53,23 +55,46 @@ struct CanvasItemDragHandler: UIGestureRecognizerRepresentable {
     
     func handleUIGestureRecognizerAction(_ recognizer: UIPanGestureRecognizer,
                                          context: Context) {
+        let translation = recognizer.translation(in: recognizer.view).toCGSize
+
         // log("CanvasItemDragHandler: handleUIGestureRecognizerAction")
         switch recognizer.state {
+        case .began:
+            // If we don't have an active first gesture,
+            // and graph isn't already dragging,
+            // then set node-drag as active first gesture
+            if graph.graphMovement.firstActive == .none {
+                if !graph.graphMovement.graphIsDragged {
+                    // log("canvasItemMoved: will set .node as active first gesture")
+                    graph.graphMovement.firstActive = .node
+                }
+            }
             
-        case .changed:
-            let translation = recognizer.translation(in: recognizer.view).toCGSize
-            
-            // log("CanvasItemDragHandler: handleUIGestureRecognizerAction: changed")
             if self.optionHeld,
                let nodeId = canvasItemId.nodeCase {
-                dispatch(NodeDuplicateDraggedAction(
-                    id: nodeId,
-                    translation: translation))
+                dispatch(NodeDuplicateDraggedAction(id: nodeId))
             } else {
-                dispatch(CanvasItemMoved(canvasItemId: canvasItemId,
-                                         translation: translation,
-                                         wasDrag: true))
+                guard let canvasItem = graph.getCanvasItem(canvasItemId) else {
+                    log("CanvasItemMoved: could not find canas item")
+                    return
+                }
+                
+                
+                graph.graphMovement.draggedCanvasItem = canvasItemId
+                
+                // update node's position
+                graph.updateCanvasItemOnDragged(canvasItem, translation: translation)
+
+                // select the canvas item and de-select all the others
+                graph.selectSingleCanvasItem(canvasItem.id)
+
+                // add node's edges to highlighted edges; wipe old highlighted edges
+                graph.selectedEdges = .init()
             }
+            
+        case .changed:
+            dispatch(CanvasItemMoved(translation: translation,
+                                     wasDrag: true))
             
         case .ended, .cancelled, .failed:
             // log("CanvasItemDragHandler: handleUIGestureRecognizerAction: ended, cancelled or failed")
