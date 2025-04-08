@@ -74,10 +74,15 @@ struct CanvasItemDragHandler: UIGestureRecognizerRepresentable {
                 }
             }
             
+            // Handles option + drag scenario
             if self.optionHeld,
                let nodeId = canvasItemId.nodeCase {
-                dispatch(NodeDuplicateDraggedAction(id: nodeId))
-            } else {
+                graph.nodeDuplicateDragged(id: nodeId,
+                                           document: document)
+            }
+            
+            // Default dragging scenario
+            else {
                 guard let canvasItem = graph.getCanvasItem(canvasItemId) else {
                     log("CanvasItemMoved: could not find canas item")
                     return

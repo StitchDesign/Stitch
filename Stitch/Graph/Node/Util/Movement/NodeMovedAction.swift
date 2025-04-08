@@ -76,71 +76,54 @@ extension CanvasItemViewModel {
     }
 }
 
-// ie we dragged the node while holding `Option` key
-// TODO: this seems to only duplicate a single node?
-// TODO: we can only dupe-drag nodes and comment boxes, NOT layer-inputs-on-graph
-// What if we have multiple nodes on the graph selected and we hold `Option` + drag?
-struct NodeDuplicateDraggedAction: StitchDocumentEvent {
-    let id: NodeId
-    
-    func handle(state: StitchDocumentViewModel) {
-        state.visibleGraph.nodeDuplicateDragged(id: id,
-                                                document: state)
-    }
-}
-
 extension GraphState {
-    /// Duplicates a node before dragging affected canvas items.
+    /// Duplicates a node on option + drag before dragging affected canvas items.
     @MainActor
     func nodeDuplicateDragged(id: NodeId,
                               document: StitchDocumentViewModel) {
         let state = self
         
-        guard state.dragDuplication else {
-            
-            // Might need to adjust the currently selected nodes, if e.g. we're option-dragging a node that wasn't previously selected
-            guard let canvasItem = state.getCanvasItem(.node(id)) else {
-                // log("NodeDuplicateDraggedAction: could not find canvas item for id \(id)")
-                return
-            }
-            
-            // If we drag a canvas item that is not yet selected, we'll select it and deselect all the others.
-            if !state.isCanvasItemSelected(canvasItem.id) {
-                // log("NodeDuplicateDraggedAction: \(canvasItem.id) was NOT already selected")
-                // select the canvas item and de-select all the others
-                state.selectSingleCanvasItem(canvasItem.id)
-                // add node's edges to highlighted edges; wipe old highlighted edges
-                state.selectedEdges = .init()
-            }
-            state.dragDuplication = true
-            
-            // Copy nodes if no drag started yet
-            let copiedComponentResult = self
-                .createCopiedComponent(groupNodeFocused: document.groupNodeFocused,
-                                       selectedNodeIds: state.selectedCanvasItems.compactMap(\.nodeCase).toSet)
-            
-            let (newComponent, nodeIdMap) = Self.updateCopiedNodes(
-                component: copiedComponentResult.component,
-                destinationGraphInfo: nil)
-            
-            // Update top-level nodes to match current focused group
-            let newNodes: [NodeEntity] = Self.createNewNodes(
-                from: newComponent,
-                focusedGroupNode: document.groupNodeFocused?.groupNodeId)
-            
-            // this actually adds the new components' nodes to the state
-            let graph = self.addComponentToGraph(newComponent: newComponent,
-                                                 newNodes: newNodes,
-                                                 nodeIdMap: nodeIdMap)
-            
-            self.update(from: graph)
-            
-            self.updateGraphAfterPaste(newNodes: newNodes,
-                                       nodeIdMap: nodeIdMap,
-                                       isOptionDragInSidebar: false)
-            
+        // Might need to adjust the currently selected nodes, if e.g. we're option-dragging a node that wasn't previously selected
+        guard let canvasItem = state.getCanvasItem(.node(id)) else {
+            // log("NodeDuplicateDraggedAction: could not find canvas item for id \(id)")
             return
         }
+        
+        // If we drag a canvas item that is not yet selected, we'll select it and deselect all the others.
+        if !state.isCanvasItemSelected(canvasItem.id) {
+            // log("NodeDuplicateDraggedAction: \(canvasItem.id) was NOT already selected")
+            // select the canvas item and de-select all the others
+            state.selectSingleCanvasItem(canvasItem.id)
+            // add node's edges to highlighted edges; wipe old highlighted edges
+            state.selectedEdges = .init()
+        }
+        
+        // Copy nodes if no drag started yet
+        let copiedComponentResult = self
+            .createCopiedComponent(groupNodeFocused: document.groupNodeFocused,
+                                   selectedNodeIds: state.selectedCanvasItems.compactMap(\.nodeCase).toSet)
+        
+        let (newComponent, nodeIdMap) = Self.updateCopiedNodes(
+            component: copiedComponentResult.component,
+            destinationGraphInfo: nil)
+        
+        // Update top-level nodes to match current focused group
+        let newNodes: [NodeEntity] = Self.createNewNodes(
+            from: newComponent,
+            focusedGroupNode: document.groupNodeFocused?.groupNodeId)
+        
+        // this actually adds the new components' nodes to the state
+        let graph = self.addComponentToGraph(newComponent: newComponent,
+                                             newNodes: newNodes,
+                                             nodeIdMap: nodeIdMap)
+        
+        self.update(from: graph)
+        
+        self.updateGraphAfterPaste(newNodes: newNodes,
+                                   nodeIdMap: nodeIdMap,
+                                   isOptionDragInSidebar: false)
+        
+        return
     }
 }
 
@@ -272,9 +255,6 @@ extension StitchDocumentViewModel {
         
         graph.nodeIsMoving = false
         graph.outputDragStartedCount = 0
-        
-        // reset
-        graph.dragDuplication = false
         
         // Rebuild comment boxes
         graph.rebuildCommentBoxes(currentTraversalLevel: groupNodeFocused)
