@@ -42,7 +42,7 @@ struct KeyModifierPressBegan: StitchDocumentEvent {
          // log("KeyModifierPressBegan: tabPressed: \(tabPressed)")
          // log("KeyModifierPressBegan: shiftTabPressed: \(shiftTabPressed)")
         
-        let focusedField = state.graphUI.reduxFocusedField
+        let focusedField = state.reduxFocusedField
         
         // When we tab, we change the edge editing state's nearbyNode, labelsShown, and possible and shown edges
         // but hovered output and nodest-to-the-east stays the same
@@ -173,19 +173,19 @@ struct KeyCharacterPressEnded: StitchDocumentEvent {
         
         // log("KEY: KeyCharacterPressEnded: char: \(char)")
         
-        if state.graphUI.reduxFocusedField.isDefined {
+        if state.reduxFocusedField.isDefined {
             // log("KEY: KeyCharacterPressBegan: ignoring key press for char \(char) since some field is focused")
             return
         }
         
-        // log("KEY: KeyCharacterPressEnded: graphState.graphUI.keypressState.isSpacePressed was: \(graphState.graphUI.keypressState.isSpacePressed)")
+        // log("KEY: KeyCharacterPressEnded: graphState.keypressState.isSpacePressed was: \(graphState.keypressState.isSpacePressed)")
 
         // NOTE: Always let key presses end, even if insert-node-menu or project settings modal is open
 
         // remove the key to the pressed-characters
         state.keypressState.characters.remove(char)
 
-        // log("KEY: KeyCharacterPressEnded: graphState.graphUI.keypressState.isSpacePressed is now: \(graphState.graphUI.keypressState.isSpacePressed)")
+        // log("KEY: KeyCharacterPressEnded: graphState.keypressState.isSpacePressed is now: \(graphState.keypressState.isSpacePressed)")
 
         // recalculate all the keyboard nodes on the graph
         state.calculateAllKeyboardNodes()

@@ -39,7 +39,7 @@ struct GenericFlyoutView: View {
     @State var height: CGFloat? = nil
     
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var document: StitchDocumentViewModel
     
     let rowViewModel: InputNodeRowViewModel
     let node: NodeViewModel
@@ -72,7 +72,7 @@ struct GenericFlyoutView: View {
     var flyoutRows: some View {
         // Assumes: all flyouts (besides shadow-flyout) have a single row which contains multiple fields
         LayerInputFieldsView(layerInputFieldType: .flyout,
-                             document: graphUI,
+                             document: document,
                              graph: graph,
                              node: node,
                              rowObserver: layerInputObserver.packedRowObserver,
@@ -123,7 +123,7 @@ extension LayerInputObserver {
 struct GenericFlyoutRowView: View {
     
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var document: StitchDocumentViewModel
     let viewModel: InputFieldViewModel
         
     let rowViewModel: InputNodeRowViewModel
@@ -179,7 +179,7 @@ struct GenericFlyoutRowView: View {
             if !layerInputObserver.port.isShadowInput {
                 // For the layer inspector row button, use a
                 LayerInspectorRowButton(graph: graph,
-                                        graphUI: graphUI,
+                                        document: document,
                                         layerInputObserver: layerInputObserver,
                                         layerInspectorRowId: layerInspectorRowId,
                                         // For layer inspector row button, provide a NodeIOCoordinate that assumes unpacked + field index
@@ -191,7 +191,7 @@ struct GenericFlyoutRowView: View {
             }
                                     
             InputValueEntry(graph: graph,
-                            graphUI: graphUI,
+                            document: document,
                             viewModel: viewModel,
                             node: node,
                             rowViewModel: rowViewModel,
@@ -206,14 +206,14 @@ struct GenericFlyoutRowView: View {
                             isForFlyout: true,
                             // Always false for flyout row
                             isSelectedInspectorRow: isPropertyRowSelected,
-                            useIndividualFieldLabel: layerInputObserver.useIndividualFieldLabel(activeIndex: graphUI.activeIndex))
+                            useIndividualFieldLabel: layerInputObserver.useIndividualFieldLabel(activeIndex: document.activeIndex))
         } // HStack
         .contentShape(Rectangle())
         .onHover(perform: { hovering in
             self.isHovered = hovering
         })
         .onTapGesture {
-            graphUI.onLayerPortRowTapped(
+            document.onLayerPortRowTapped(
                 layerInspectorRowId: layerInspectorRowId,
                 canvasItemId: canvasItemId,
                 graph: graph)

@@ -196,7 +196,7 @@ extension StitchDocumentViewModel {
             self.visibleGraph.encodeProjectInBackground()
         } else {
             let copiedComponentResult = self.visibleGraph.createCopiedComponent(
-                groupNodeFocused: self.graphUI.groupNodeFocused,
+                groupNodeFocused: self.groupNodeFocused,
                 selectedNodeIds: self.visibleGraph.selectedCanvasItems.compactMap(\.nodeCase).toSet)
                 
             self.visibleGraph

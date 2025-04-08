@@ -67,7 +67,7 @@ extension GraphState {
         }
             
         // reset node-ui highlight/selection state
-        self.graphUI.selection = GraphUISelectionState()
+        self.selection = GraphUISelectionState()
 
         // reset selected edges;
         // NOTE: it's safe to completely reset these, since we only select edges for selected nodes,

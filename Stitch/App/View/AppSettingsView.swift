@@ -163,7 +163,7 @@ struct AppSettingsView: View {
             edgeStylePicker
             defaultPreviewWindowDevicePicker
 // #if DEBUG || DEV_DEBUG || STITCH_AI
-            if !GraphUIState.isPhoneDevice {
+            if !StitchDocumentViewModel.isPhoneDevice {
                 llmRecordingModePicker
             }
 // #endif

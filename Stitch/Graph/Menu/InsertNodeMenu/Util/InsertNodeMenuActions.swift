@@ -113,7 +113,7 @@ struct AddNodeButtonPressed: StitchDocumentEvent {
     
                 // TODO: animation disabled for now
 //                // log("ActiveSelectionSizeReadingCompleted: withAnimation")
-//                state.graphUI.insertNodeMenuState.menuAnimatingToNode = true
+//                state.insertNodeMenuState.menuAnimatingToNode = true
 //                
 //                // TODO: get rid of this manual dispatch of the completed-animation action
 //                // TODO: why are the 0.3 extra seconds required?

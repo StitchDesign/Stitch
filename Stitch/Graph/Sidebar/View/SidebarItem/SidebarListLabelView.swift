@@ -12,7 +12,7 @@ struct SidebarListItemLeftLabelView<SidebarViewModel>: View where SidebarViewMod
     @State private var isBeingEditedAnimated = false
     
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var sidebarViewModel: SidebarViewModel
     @Bindable var itemViewModel: SidebarViewModel.ItemViewModel
     let fontColor: Color
@@ -75,7 +75,7 @@ struct SidebarListItemLeftLabelView<SidebarViewModel>: View where SidebarViewMod
                 SidebarListLabelEditView(item: self.itemViewModel,
                                          fontColor: fontColor,
                                          graph: graph,
-                                         graphUI: graphUI)
+                                         document: document)
                 .truncationMode(.tail)
 #if targetEnvironment(macCatalyst)
                 .padding(.trailing, 44)
@@ -86,7 +86,7 @@ struct SidebarListItemLeftLabelView<SidebarViewModel>: View where SidebarViewMod
                 SidebarListLabelEditView(item: self.itemViewModel,
                                          fontColor: fontColor,
                                          graph: graph,
-                                         graphUI: graphUI)
+                                         document: document)
             }
         }
         .lineLimit(1)
@@ -102,13 +102,13 @@ struct SidebarListLabelEditView<ItemViewModel>: View where ItemViewModel: Sideba
     let fontColor: Color
     
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var document: StitchDocumentViewModel
         
     @State var edit: String = ""
         
     @MainActor
     var isFocused: Bool {
-        switch graphUI.reduxFocusedField {
+        switch document.reduxFocusedField {
         case .sidebarLayerTitle(let idString):
             let k = item.id.description == idString
             // log("SidebarListLabelEditView: isFocused: \(k) for \(id)")

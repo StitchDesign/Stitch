@@ -83,7 +83,7 @@ extension StitchAIManager {
         }
         
         // Set the flag to indicate a request is in progress
-        currentDocument.graphUI.insertNodeMenuState.isGeneratingAINode = true
+        currentDocument.insertNodeMenuState.isGeneratingAINode = true
         
         // Track initial graph state
         currentDocument.llmRecording.initialGraphState = currentDocument.visibleGraph.createSchema()
@@ -111,7 +111,7 @@ extension StitchAIManager {
                     state.llmRecording = .init()
                     
                     // Reset checks which would later break new recording mode
-                    state.graphUI.insertNodeMenuState = InsertNodeMenuState()
+                    state.insertNodeMenuState = InsertNodeMenuState()
                     
                     if let error = error as? StitchAIManagerError {
                         guard error.shouldDisplayModal else {
@@ -132,7 +132,7 @@ extension StitchAIManager {
             }
          
             await MainActor.run { [weak currentDocument] in
-                currentDocument?.graphUI.insertNodeMenuState.isGeneratingAINode = false
+                currentDocument?.insertNodeMenuState.isGeneratingAINode = false
             }
         }
     }
@@ -146,7 +146,7 @@ extension StitchAIManager {
         let prompt = request.prompt
         let systemPrompt = request.systemPrompt
         
-        guard let document = self.documentDelegate else {
+        guard let _ = self.documentDelegate else {
             throw StitchAIManagerError.documentNotFound(request)
         }
 //        document.llmRecording.recentOpenAIRequestCompleted = false
@@ -320,9 +320,9 @@ extension StitchAIManager {
         // If we successfully parsed the JSON and LLMStepActions,
         // we should close the insert-node-menu,
         // since we're not doing any retries.
-        document.graphUI.reduxFocusedField = nil
-        document.graphUI.insertNodeMenuState.show = false
-        document.graphUI.insertNodeMenuState.isGeneratingAINode = false
+        document.reduxFocusedField = nil
+        document.insertNodeMenuState.show = false
+        document.insertNodeMenuState.isGeneratingAINode = false
 
         log(" Storing Original AI Generated Actions ")
         document.llmRecording.promptState.prompt = originalPrompt
@@ -339,8 +339,8 @@ extension StitchAIManager {
 extension StitchDocumentViewModel {
     @MainActor func handleError(_ error: Error) {
         log("Error generating graph with StitchAI: \(error)", .logToServer)
-        self.graphUI.insertNodeMenuState.show = false
-        self.graphUI.insertNodeMenuState.isGeneratingAINode = false
+        self.insertNodeMenuState.show = false
+        self.insertNodeMenuState.isGeneratingAINode = false
     }
 }
 

@@ -28,7 +28,7 @@ struct ProjectToolbarViewModifier: ViewModifier {
     // Note: Do NOT hide toolbar in Catalyst full screen mode
     @MainActor
     var hideToolbar: Bool {
-        GraphUIState.isPhoneDevice || (!isCatalyst && document.isFullScreenMode)
+        StitchDocumentViewModel.isPhoneDevice || (!isCatalyst && document.isFullScreenMode)
     }
 
     func body(content: Content) -> some View {

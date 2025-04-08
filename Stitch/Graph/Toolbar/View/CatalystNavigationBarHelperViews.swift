@@ -31,7 +31,7 @@ struct CatalystProjectTitleModalClosed: StitchDocumentEvent {
 struct CatalystProjectTitleModalView: View {
     
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var document: StitchDocumentViewModel
     @FocusState var focus: Bool
     
     var body: some View {
@@ -44,14 +44,14 @@ struct CatalystProjectTitleModalView: View {
                 // log("CatalystProjectTitleModalView: onAppear")
                 self.focus = true
             }
-            .onChange(of: self.graphUI.reduxFocusedField == .projectTitle, initial: true) { oldValue, newValue in
-                // log("CatalystProjectTitleModalView: .onChange(of: self.graphUI.reduxFocusedField): oldValue: \(oldValue)")
-                // log("CatalystProjectTitleModalView: .onChange(of: self.graphUI.reduxFocusedField): newValue: \(newValue)")
+            .onChange(of: self.document.reduxFocusedField == .projectTitle, initial: true) { oldValue, newValue in
+                // log("CatalystProjectTitleModalView: .onChange(of: self.document.reduxFocusedField): oldValue: \(oldValue)")
+                // log("CatalystProjectTitleModalView: .onChange(of: self.document.reduxFocusedField): newValue: \(newValue)")
                 if !newValue {
-                    // log("CatalystProjectTitleModalView: .onChange(of: self.graphUI.reduxFocusedField): will set focus false")
+                    // log("CatalystProjectTitleModalView: .onChange(of: self.document.reduxFocusedField): will set focus false")
                     self.focus = false
                 } else {
-                    // log("CatalystProjectTitleModalView: .onChange(of: self.graphUI.reduxFocusedField): will set focus true")
+                    // log("CatalystProjectTitleModalView: .onChange(of: self.document.reduxFocusedField): will set focus true")
                     self.focus = true
                 }
             }

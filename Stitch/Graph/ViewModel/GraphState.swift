@@ -158,10 +158,7 @@ final class GraphState: Sendable {
 }
 
 extension GraphState {
-    var graphUI: Self {
-        self
-    }
-    
+
     @MainActor
     var orderedSidebarLayers: [SidebarItemGestureViewModel] {
         self.layersSidebarViewModel.items

@@ -71,7 +71,7 @@ struct DefaultNodeInputsView: View {
                         portViewModel: InputFieldViewModel,
                         isMultiField: Bool) -> InputValueEntry {
         InputValueEntry(graph: graph,
-                        graphUI: document,
+                        document: document,
                         viewModel: portViewModel,
                         node: node,
                         rowViewModel: rowViewModel,
@@ -180,7 +180,7 @@ struct DefaultNodeOutputsView: View {
                         ForEach(rowViewModel.fieldValueTypes) { fieldGroupViewModel in
                             ForEach(fieldGroupViewModel.fieldObservers) { fieldViewModel in
                                 OutputValueEntry(graph: graph,
-                                                 graphUI: document,
+                                                 document: document,
                                                  viewModel: fieldViewModel,
                                                  rowViewModel: rowViewModel,
                                                  rowObserver: rowObserver,

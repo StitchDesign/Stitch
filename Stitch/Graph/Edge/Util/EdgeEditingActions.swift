@@ -388,7 +388,7 @@ extension StitchDocumentViewModel {
         else {
             // log("keyCharPressedDuringEdgeEditingMode: will add edge")
             
-            // immediately update the graphUIState's edge editing state to include the shown edge
+            // immediately update the StitchDocumentViewModel's edge editing state to include the shown edge
             graph.edgeEditingState?.shownIds.insert(thisPossibleEdge.id)
             graph.edgeEditingState?.animationInProgressIds.insert(thisPossibleEdge.id)
             

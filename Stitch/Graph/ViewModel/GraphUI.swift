@@ -34,8 +34,6 @@ enum FocusedFieldChangedByArrowKey: Equatable, Hashable {
          downArrow // decrement
 }
 
-typealias GraphUIState = StitchDocumentViewModel
-
 extension StitchDocumentViewModel {
     @MainActor
     func adjustedDoubleTapLocation(_ localPosition: CGPoint) -> CGPoint? {
@@ -53,9 +51,6 @@ extension StitchDocumentViewModel {
 }
 
 extension StitchDocumentViewModel {
-    var graphUI: Self {
-        self
-    }
     
     // If there's a group in focus
     @MainActor

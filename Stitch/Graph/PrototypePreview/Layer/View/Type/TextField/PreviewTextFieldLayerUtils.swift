@@ -58,7 +58,7 @@ extension StitchDocumentViewModel {
     @MainActor
     func reduxFieldFocused(focusedField: FocusedUserEditField) {
         log("reduxFieldFocused: focusedField: \(focusedField)")
-        log("reduxFieldFocused: self.graphUI.reduxFocusedField was: \(self.reduxFocusedField)")
+        log("reduxFieldFocused: self.reduxFocusedField was: \(self.reduxFocusedField)")
         let graph = self.visibleGraph
         
         if self.reduxFocusedField != focusedField {

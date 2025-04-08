@@ -22,7 +22,7 @@ struct PortPreviewOpened: StitchDocumentEvent {
     
     func handle(state: StitchDocumentViewModel) {
         // Access via document to avoid weak reference
-        state.graphUI.openPortPreview = .init(port: port, nodeIO: nodeIO, canvasItemId: canvasItemId)
+        state.openPortPreview = .init(port: port, nodeIO: nodeIO, canvasItemId: canvasItemId)
     }
 }
 

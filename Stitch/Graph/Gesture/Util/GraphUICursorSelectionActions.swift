@@ -53,7 +53,7 @@ struct GraphBackgroundTrackpadDragged: StitchDocumentEvent {
     
     func handle(state: StitchDocumentViewModel) {
         
-        if state.keypressState.isSpacePressed || state.graphUI.activeSpacebarClickDrag {
+        if state.keypressState.isSpacePressed || state.activeSpacebarClickDrag {
             log("GraphBackgroundTrackpadDragged: space held, or have active spacebar drag, so will exit early")
             
             return
@@ -80,7 +80,7 @@ extension StitchDocumentViewModel {
                                        numberOfTouches: Int,
                                        gestureState: UIGestureRecognizer.State,
                                        shiftHeld: Bool) {
-        self.graphUI.activeSpacebarClickDrag = false
+        self.activeSpacebarClickDrag = false
         
         self.clickDragAsNodeSelection(translation: translation,
                                       location: location,
@@ -100,7 +100,7 @@ extension StitchDocumentViewModel {
         
         let graph = self.visibleGraph
         let spaceHeld = self.keypressState.isSpacePressed
-        let activeSpacebarDrag = self.graphUI.activeSpacebarClickDrag
+        let activeSpacebarDrag = self.activeSpacebarClickDrag
         
         // log("TrackpadClickDragEvent: spaceHeld: \(spaceHeld)")
         // log("TrackpadClickDragEvent: activeSpacebarDrag: \(activeSpacebarDrag)")
@@ -117,7 +117,7 @@ extension StitchDocumentViewModel {
         // but we let go of the space key,
         // then we need to immediately do a `graph drag ended`
         if !spaceHeld && activeSpacebarDrag {
-            //            state.graphUI = handleGraphDragEnded(
+            //            state = handleGraphDragEnded(
             graph.graphDragEnded(
                 location: location,
                 velocity: velocity,
@@ -218,7 +218,7 @@ extension GraphState {
     @MainActor
     func handleTrackpadDragStarted(location: CGPoint) {
         
-        // log("handleTrackpadDragStarted: self.graphUI.selection.isFingerOnScreenSelection was: \(self.graphUI.selection.isFingerOnScreenSelection)")
+        // log("handleTrackpadDragStarted: self.selection.isFingerOnScreenSelection was: \(self.selection.isFingerOnScreenSelection)")
         
         self.selection.dragStartLocation = location
         self.selection.dragCurrentLocation = location
@@ -231,7 +231,7 @@ extension GraphState {
 
         self.selectedEdges = .init()
         
-        // log("handleTrackpadDragStarted: self.graphUI.selection.isFingerOnScreenSelection is now: \(self.graphUI.selection.isFingerOnScreenSelection)")
+        // log("handleTrackpadDragStarted: self.selection.isFingerOnScreenSelection is now: \(self.selection.isFingerOnScreenSelection)")
     }
 
     @MainActor

@@ -19,7 +19,7 @@ struct ShadowFlyoutView: View {
     @Bindable var node: NodeViewModel
     @Bindable var layerNode: LayerNodeViewModel
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var document: StitchDocumentViewModel
     
     var body: some View {
         
@@ -42,7 +42,7 @@ struct ShadowFlyoutView: View {
                                     shadowInput: shadowInput,
                                     layerInputObserver: layerNode[keyPath: shadowInput.layerNodeKeyPath],
                                     graph: graph,
-                                    graphUI: graphUI)
+                                    document: document)
             } // ForEach
         }
     }
@@ -56,7 +56,7 @@ struct ShadowFlyoutRowView: View {
     let layerInputObserver: LayerInputObserver
     
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var document: StitchDocumentViewModel
     
     @State var isHovered = false
     
@@ -94,7 +94,7 @@ struct ShadowFlyoutRowView: View {
     var body: some View {
         HStack(alignment: hstackAlignment) {
             LayerInspectorRowButton(graph: graph,
-                                    graphUI: graphUI,
+                                    document: document,
                                     layerInputObserver: layerInputObserver,
                                     layerInspectorRowId: layerInspectorRowId,
                                     coordinate: coordinate,
@@ -102,7 +102,7 @@ struct ShadowFlyoutRowView: View {
                                     isHovered: isHovered)
             .offset(y: isShadowOffsetRow ? INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET : 0)
             
-            InspectorLayerInputView(document: graphUI,
+            InspectorLayerInputView(document: document,
                                     graph: graph,
                                     node: node,
                                     layerInputObserver: layerInputObserver,
@@ -120,7 +120,7 @@ struct ShadowFlyoutRowView: View {
             self.isHovered = hovering
         })
         .onTapGesture {
-            graphUI.onLayerPortRowTapped(
+            document.onLayerPortRowTapped(
                 layerInspectorRowId: layerInspectorRowId,
                 canvasItemId: canvasItemId,
                 graph: graph)
