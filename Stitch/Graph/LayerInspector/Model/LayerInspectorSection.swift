@@ -13,6 +13,7 @@ enum LayerInspectorSection: String, CaseIterable, Identifiable {
     case geometry3D = "3D Geometry"
     case realityTransformation = "3D Transformation"
     case gestures3D = "3D Gestures"
+    case shape = "Shape"
     case sizing = "Sizing"
     case positioning = "Positioning"
     case common = "Common"
@@ -54,6 +55,13 @@ extension LayerInspectorSection {
                 .offsetInGroup
             ]
         
+        case .shape:
+            return [
+                // Shape layer node
+                .shape,
+                .coordinateSystem
+            ]
+            
         case .common:
             return [
                 
@@ -75,10 +83,6 @@ extension LayerInspectorSection {
                 .sfSymbol,
                 
                 .color, // Text color vs Rectangle color
-                
-                // Shape layer node
-                .shape,
-                .coordinateSystem,
                 
         //        .init(.shadow, layer.supportsShadowInputs ? Self.shadow : []),
                 
