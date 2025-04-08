@@ -38,11 +38,11 @@ func outputsOnlyEval(_ eval: @escaping OutputsAndNodeTypePureEval) -> PureNode {
 }
 
 
-typealias OutputsOnlyGraphStateEval = (PatchNode, GraphDelegate) -> PortValuesList
+typealias OutputsOnlyGraphStateEval = (PatchNode, GraphState) -> PortValuesList
 
 func outputsOnlyGraphStateEval(_ eval: @escaping OutputsOnlyGraphStateEval) -> PureGraphEval {
 
-    return { (node: PatchNode, graphState: GraphDelegate) -> EvalResult in
+    return { (node: PatchNode, graphState: GraphState) -> EvalResult in
         let newOutputValues: PortValuesList = eval(node, graphState)
 
         // update the outputs

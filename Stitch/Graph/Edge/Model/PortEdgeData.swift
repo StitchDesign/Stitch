@@ -42,7 +42,7 @@ extension NodeIOCoordinate {
     // OutputCoordinate -> CanvasItemId = keypath not allowed; and port id could be either patch node id or
     // output on node = Ca
     @MainActor
-    func outputCoordinateAsCanvasItemId(_ graph: GraphDelegate) -> CanvasItemId {
+    func outputCoordinateAsCanvasItemId(_ graph: GraphState) -> CanvasItemId {
      
         // PortType.keyPath can NEVER be used with an output. We MUST use a port-id for outputs.
         guard let portId = self.portId else {

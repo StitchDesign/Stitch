@@ -85,7 +85,7 @@ struct CameraFeedPatchNode: PatchNodeDefinition {
 
 @MainActor
 func createCameraFeedManager(document: StitchDocumentViewModel,
-                             graph: GraphDelegate,
+                             graph: GraphState,
                              nodeId: NodeId) {
     let _node = graph.getNodeViewModel(nodeId)
     
@@ -104,7 +104,7 @@ func createCameraFeedManager(document: StitchDocumentViewModel,
 /// Used by the camera feed and raycast nodes.
 @MainActor
 func cameraManagerEval(node: PatchNode,
-                       graph: GraphDelegate,
+                       graph: GraphState,
                        document: StitchDocumentViewModel,
                        cameraEnabledInputIndex: Int,
                        mediaOp: @escaping AsyncSingletonMediaEvalOp) -> EvalResult {
@@ -142,7 +142,7 @@ func cameraManagerEval(node: PatchNode,
 
 @MainActor
 func cameraFeedEval(node: PatchNode,
-                    graph: GraphDelegate) -> ImpureEvalResult {
+                    graph: GraphState) -> ImpureEvalResult {
     guard let document = graph.documentDelegate else {
         fatalErrorIfDebug()
         return .noChange(node)

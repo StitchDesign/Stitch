@@ -28,7 +28,7 @@ struct KeyboardNode: PatchNodeDefinition {
 // returns (new outputs, updated key-press-state)
 @MainActor
 func keyboardEval(node: PatchNode,
-                  graph: GraphDelegate) -> EvalResult {
+                  graph: GraphState) -> EvalResult {
     
     let graphTime = graph.graphStepState.graphTime
     let keypressState = graph.keypressState

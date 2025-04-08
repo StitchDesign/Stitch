@@ -11,10 +11,10 @@ import StitchEngine
 
 // MARK: -- Extension methods that need some love
 
-// TODO: we can't have a NodeRowObserver without also having a GraphDelegate (i.e. GraphState); can we pass down GraphDelegate to avoid the Optional unwrapping?
+// TODO: we can't have a NodeRowObserver without also having a GraphState (i.e. GraphState); can we pass down GraphState to avoid the Optional unwrapping?
 extension NodeRowViewModel {
     @MainActor
-    var graphDelegate: GraphDelegate? {
+    var graphDelegate: GraphState? {
         self.nodeDelegate?.graphDelegate
     }
     

@@ -35,7 +35,7 @@
 //
 //// differs with FieldCoordinate's `input` vs `rowId`, but that shouldn't matter
 ////@MainActor
-////func _nextFieldOrInput(state: GraphDelegate,
+////func _nextFieldOrInput(state: GraphState,
 ////                      focusedField: FieldCoordinate) -> FieldCoordinate? {
 ////
 ////    let currentInputCoordinate = focusedField.input
@@ -187,7 +187,7 @@
 //}
 //
 //@MainActor
-//func _previousFieldOrInput(state: GraphDelegate,
+//func _previousFieldOrInput(state: GraphState,
 //                          focusedField: FieldCoordinate) -> FieldCoordinate? {
 //    
 //    let currentFieldIndex = focusedField.fieldIndex

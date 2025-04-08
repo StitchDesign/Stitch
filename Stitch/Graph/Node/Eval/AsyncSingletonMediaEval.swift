@@ -10,14 +10,14 @@ import StitchSchemaKit
 import StitchEngine
 
 typealias MediaManagerSingletonKeyPath = ReferenceWritableKeyPath<StitchDocumentViewModel, LoadingStatus<StitchSingletonMediaObject>?>
-typealias SingletonMediaCreation = @Sendable (StitchDocumentViewModel, GraphDelegate, NodeId) async -> ()
+typealias SingletonMediaCreation = @Sendable (StitchDocumentViewModel, GraphState, NodeId) async -> ()
 typealias AsyncSingletonMediaEvalOp = (PortValues, StitchSingletonMediaObject, Int) -> MediaEvalOpResult
 
 actor SingletonMediaNodeCoordinator: NodeEphemeralObservable, MediaEvalOpViewable {
     let mediaViewModel: MediaViewModel
     
     @MainActor
-    func createSingletonMedia(graph: GraphDelegate,
+    func createSingletonMedia(graph: GraphState,
                               nodeId: NodeId,
                               mediaCreation: @escaping SingletonMediaCreation) async {
         guard let document = graph.documentDelegate else { return }
@@ -39,7 +39,7 @@ extension SingletonMediaNodeCoordinator {
 /// Used for nodes like location and camera.
 @MainActor
 func asyncSingletonMediaEval(node: PatchNode,
-                             graph: GraphDelegate,
+                             graph: GraphState,
                              mediaCreation: @escaping SingletonMediaCreation,
                              mediaManagerKeyPath: MediaManagerSingletonKeyPath,
                              mediaOp: @escaping AsyncSingletonMediaEvalOp) -> [MediaEvalOpResult] {

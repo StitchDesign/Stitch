@@ -15,7 +15,7 @@ extension NodeViewModel {
                                         position: CGPoint = .zero,
                                         zIndex: CGFloat = .zero,
                                         parentGroupNodeId: GroupNodeId? = nil,
-                                        graphDelegate: GraphDelegate?) {
+                                        graphDelegate: GraphState?) {
         let kind = T.graphKind.kind
         let userVisibleType = kind.graphNode?.graphKind.patch?.defaultUserVisibleType
         

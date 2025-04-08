@@ -83,7 +83,7 @@ extension VisibleNodesViewModel {
         self.nodes.get(id)
     }
     
-    // Provide an API more consistent with GraphState, GraphDelegate
+    // Provide an API more consistent with GraphState, GraphState
     @MainActor
     func getNode(_ id: NodeId) -> NodeViewModel? {
         self.getViewModel(id)

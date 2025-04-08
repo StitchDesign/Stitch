@@ -10,7 +10,7 @@ import SwiftUI
 import StitchSchemaKit
 
 
-extension GraphDelegate {
+extension GraphState {
     // TODO: cache these for perf
     @MainActor
     var nonEditModeSelectedLayerInLayerSidebar: NodeId? {

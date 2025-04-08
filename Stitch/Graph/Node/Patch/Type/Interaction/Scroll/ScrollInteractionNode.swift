@@ -141,7 +141,7 @@ struct ScrollInteractionNode: PatchNodeDefinition {
 
 @MainActor
 func scrollInteractionEval(node: NodeViewModel,
-                           graphState: GraphDelegate) -> ImpureEvalResult {
+                           graphState: GraphState) -> ImpureEvalResult {
     
     node.loopedEval(ScrollInteractionState.self,
                     graphState: graphState) { values, scrollState, interactiveLayer, _ in
