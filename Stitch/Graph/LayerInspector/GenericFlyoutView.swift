@@ -39,7 +39,7 @@ struct GenericFlyoutView: View {
     @State var height: CGFloat? = nil
     
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var graphUI: StitchDocumentViewModel
     
     let rowViewModel: InputNodeRowViewModel
     let node: NodeViewModel
@@ -123,7 +123,7 @@ extension LayerInputObserver {
 struct GenericFlyoutRowView: View {
     
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var graphUI: StitchDocumentViewModel
     let viewModel: InputFieldViewModel
         
     let rowViewModel: InputNodeRowViewModel

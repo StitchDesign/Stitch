@@ -8,7 +8,7 @@
 import Foundation
 
 typealias AppResponse = ReframeResponse<AppState>
-typealias GraphUIResponse = ReframeResponse<GraphUIState>
+typealias GraphUIResponse = ReframeResponse<StitchDocumentViewModel>
 typealias GraphResponse = ReframeResponse<NoState>
 typealias MiddlewareManagerResponse = ReframeResponse<EmptyState>
 

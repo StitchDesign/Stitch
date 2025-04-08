@@ -11,7 +11,7 @@ import StitchSchemaKit
 struct OutputValueEntry: View {
 
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var graphUI: StitchDocumentViewModel
     @Bindable var viewModel: OutputFieldViewModel
 
     let rowViewModel: OutputNodeRowViewModel
@@ -74,7 +74,7 @@ struct OutputValueEntry: View {
 
 struct OutputValueView: View {
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var graphUI: StitchDocumentViewModel
     @Bindable var viewModel: OutputFieldViewModel
     
     let rowViewModel: OutputNodeRowViewModel

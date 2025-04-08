@@ -27,7 +27,7 @@ struct SidebarListView: View {
     @State private var currentTab = ProjectSidebarTab.layers.rawValue
     
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var graphUI: StitchDocumentViewModel
     let syncStatus: iCloudSyncStatus
     
     var body: some View {
@@ -67,7 +67,7 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
     @State private var isBeingEditedAnimated = false
     
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var graphUI: StitchDocumentViewModel
     @Bindable var sidebarViewModel: SidebarObservable
     let tab: ProjectSidebarTab
     let syncStatus: iCloudSyncStatus

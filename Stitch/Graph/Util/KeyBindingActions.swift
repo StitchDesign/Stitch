@@ -62,7 +62,7 @@ struct ArrowKeyPressed: StitchDocumentEvent {
     }
 
     @MainActor
-    private static func willNavigateActiveNodeSelection(_ graphUI: GraphUIState) -> InsertNodeMenuOptionData? {
+    private static func willNavigateActiveNodeSelection(_ graphUI: StitchDocumentViewModel) -> InsertNodeMenuOptionData? {
         let insertNodeMenuState = graphUI.insertNodeMenuState
 
         guard insertNodeMenuState.show else {

@@ -14,7 +14,7 @@ struct ProjectSettingsView: View {
     let previewSizeDevice: PreviewWindowDevice
     let previewWindowBackgroundColor: Color
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var graphUI: StitchDocumentViewModel
 
     var body: some View {
 

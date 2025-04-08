@@ -11,7 +11,7 @@ import StitchSchemaKit
 struct WirelessPortView: View {
 
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var graphUI: StitchDocumentViewModel
     let isOutput: Bool
     let id: NodeId
 

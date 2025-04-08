@@ -13,7 +13,7 @@ struct InsertNodeMenuWrapper: View {
     static let shownMenuScale: CGFloat = 1
     
     @Bindable var document: StitchDocumentViewModel
-    @Bindable var graphUI: GraphUIState
+    @Bindable var graphUI: StitchDocumentViewModel
     
     var menuHeight: CGFloat {
         graphUI.nodeMenuHeight

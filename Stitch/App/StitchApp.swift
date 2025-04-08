@@ -51,7 +51,7 @@ struct StitchApp: App {
         //        #endif
         .commands {
             StitchCommands(store: store,
-                           activeReduxFocusedField: store.currentDocument?.graphUI.reduxFocusedField)
+                           activeReduxFocusedField: store.currentDocument?.reduxFocusedField)
           
         }
     }

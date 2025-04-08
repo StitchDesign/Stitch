@@ -83,7 +83,7 @@ extension StitchAIManager {
         }
         
         // Set the flag to indicate a request is in progress
-        currentDocument.graphUI.insertNodeMenuState.isGeneratingAINode = true
+        currentDocument.insertNodeMenuState.isGeneratingAINode = true
         
         // Track initial graph state
         currentDocument.llmRecording.initialGraphState = currentDocument.visibleGraph.createSchema()
@@ -320,9 +320,9 @@ extension StitchAIManager {
         // If we successfully parsed the JSON and LLMStepActions,
         // we should close the insert-node-menu,
         // since we're not doing any retries.
-        document.graphUI.reduxFocusedField = nil
-        document.graphUI.insertNodeMenuState.show = false
-        document.graphUI.insertNodeMenuState.isGeneratingAINode = false
+        document.reduxFocusedField = nil
+        document.insertNodeMenuState.show = false
+        document.insertNodeMenuState.isGeneratingAINode = false
 
         log(" Storing Original AI Generated Actions ")
         document.llmRecording.promptState.prompt = originalPrompt

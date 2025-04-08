@@ -439,8 +439,8 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
         
         let scale = scrollView.zoomScale
         
-        let screenWidth = document.graphUI.frame.width
-        let screenHeight = document.graphUI.frame.height
+        let screenWidth = document.frame.width
+        let screenHeight = document.frame.height
         
         let westernMostNodeCachedBoundsOriginX: CGFloat = westBounds.origin.x
         let easternMostNodeCachedBoundsOriginX: CGFloat = eastBounds.origin.x
@@ -617,13 +617,13 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
         switch gesture.state {
         case .began:
             initialContentOffset = scrollView.contentOffset
-            document.graphUI.activeSpacebarClickDrag = true
+            document.activeSpacebarClickDrag = true
             
         case .changed:
-            document.graphUI.activeSpacebarClickDrag = true
+            document.activeSpacebarClickDrag = true
             
-            let screenHeight = document.graphUI.frame.height
-            let screenWidth = document.graphUI.frame.width
+            let screenHeight = document.frame.height
+            let screenWidth = document.frame.width
             
             // UIScrollView's contentOffset can never be negative
             let minOffset: CGFloat = 0
@@ -668,7 +668,7 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
             
         case .ended, .cancelled, .failed:
             log("StitchUIScrollView: handlePan: ended, canceled or failed")
-            document.graphUI.activeSpacebarClickDrag = false
+            document.activeSpacebarClickDrag = false
             scrollView.setContentOffset(scrollView.contentOffset,
                                         animated: false)
             Self.updateGraphScrollData(scrollView)

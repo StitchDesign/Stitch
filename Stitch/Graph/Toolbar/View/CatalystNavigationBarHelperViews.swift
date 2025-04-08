@@ -31,7 +31,7 @@ struct CatalystProjectTitleModalClosed: StitchDocumentEvent {
 struct CatalystProjectTitleModalView: View {
     
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var graphUI: StitchDocumentViewModel
     @FocusState var focus: Bool
     
     var body: some View {

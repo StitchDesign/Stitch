@@ -20,7 +20,7 @@ struct StitchSidebarView: View {
         if let document = store.currentDocument,
            let graph = store.currentDocument?.visibleGraph {
             ProjectSidebarView(graph: graph,
-                               graphUI: document.graphUI,
+                               graphUI: document,
                                syncStatus: syncStatus)
 
         } else {
@@ -31,7 +31,7 @@ struct StitchSidebarView: View {
 
 struct ProjectSidebarView: View {
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var graphUI: StitchDocumentViewModel
     let syncStatus: iCloudSyncStatus
 
     var body: some View {

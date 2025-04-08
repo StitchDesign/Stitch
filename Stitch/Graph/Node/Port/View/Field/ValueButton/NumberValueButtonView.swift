@@ -30,7 +30,7 @@ typealias AdjustmentBarSessionId = UUID
 struct NumberValueButtonView: View {
     
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var graphUI: StitchDocumentViewModel
     let value: Double
     let fieldCoordinate: FieldCoordinate
     let rowObserver: InputNodeRowObserver

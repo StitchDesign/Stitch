@@ -12,7 +12,7 @@ import StitchSchemaKit
 struct InputValueEntry: View {
 
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var graphUI: StitchDocumentViewModel
     
     @Bindable var viewModel: InputFieldViewModel
     let node: NodeViewModel
@@ -112,7 +112,7 @@ extension UnpackedPortType {
 // fka `InputValueView`
 struct InputFieldValueView: View {
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var graphUI: StitchDocumentViewModel
     @Bindable var viewModel: InputFieldViewModel
     @Bindable var propertySidebar: PropertySidebarObserver
     let node: NodeViewModel

@@ -19,7 +19,7 @@ struct ShadowFlyoutView: View {
     @Bindable var node: NodeViewModel
     @Bindable var layerNode: LayerNodeViewModel
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var graphUI: StitchDocumentViewModel
     
     var body: some View {
         
@@ -56,7 +56,7 @@ struct ShadowFlyoutRowView: View {
     let layerInputObserver: LayerInputObserver
     
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var graphUI: StitchDocumentViewModel
     
     @State var isHovered = false
     

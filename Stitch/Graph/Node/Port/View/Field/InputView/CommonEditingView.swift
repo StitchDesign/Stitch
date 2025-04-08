@@ -67,7 +67,7 @@ struct CommonEditingView: View {
     let inputString: String
     
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var graphUI: StitchDocumentViewModel
     @Bindable var rowObserver: InputNodeRowObserver
     let rowViewModel: InputNodeRowViewModel
     

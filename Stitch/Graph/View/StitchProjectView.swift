@@ -77,7 +77,7 @@ struct MaybeIgnoreSafeAreasModifier: ViewModifier {
     func body(content: Content) -> some View {
         // logInView("MaybeIgnoreSafeAreasModifier: body: hideAllSafeAreas: \(hideAllSafeAreas)")
 
-        if GraphUIState.isPhoneDevice {
+        if StitchDocumentViewModel.isPhoneDevice {
             // logInView("MaybeIgnoreSafeAreasModifier: on phone, ALWAYS ignore safe areas")
             return content.ignoresSafeArea(.all)
                 .eraseToAnyView()

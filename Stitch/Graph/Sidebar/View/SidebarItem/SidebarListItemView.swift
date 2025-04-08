@@ -15,7 +15,7 @@ struct SidebarListItemView<SidebarViewModel>: View where SidebarViewModel: Proje
     @Environment(\.appTheme) private var theme
     
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var graphUI: StitchDocumentViewModel
     @Bindable var sidebarViewModel: SidebarViewModel
     @Bindable var item: SidebarViewModel.ItemViewModel
     let swipeOffset: CGFloat

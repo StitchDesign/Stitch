@@ -59,7 +59,7 @@ struct FullScreenPreviewViewWrapper: View {
 
         let closeGraphBtnAction = { @MainActor in
             // Only close graph if user is on iPhone
-            GraphUIState.isPhoneDevice ? dispatch(CloseGraph()) : dispatch(ToggleFullScreenEvent())
+            StitchDocumentViewModel.isPhoneDevice ? dispatch(CloseGraph()) : dispatch(ToggleFullScreenEvent())
         }
 
         let appResetAction = { @MainActor in

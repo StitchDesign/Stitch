@@ -102,7 +102,7 @@ struct ContentView: View, KeyboardReadable {
             } // if showFullScreen.isTrue
             
             // NEVER show graph-view on iPhone
-            if !GraphUIState.isPhoneDevice {
+            if !StitchDocumentViewModel.isPhoneDevice {
                 // Check if we're on iPhone, otherwise the project view will start to render on
                 // phone before showFullScreen is set
                 ProjectNavigationView(store: store,
@@ -186,7 +186,7 @@ struct ContentView: View, KeyboardReadable {
 //                    isShowingDrawer: true,
 //                    broadcastChoices: .init())
 //            //        .environment(\.graph)
-//            .environmentObject(GraphUIState())
+//            .environmentObject(StitchDocumentViewModel())
 //            .environmentObject(VisibleNodesViewModel())
 //            .environmentObject(PrototypePreviewViewModel())
 //

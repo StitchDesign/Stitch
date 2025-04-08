@@ -12,7 +12,7 @@ struct SidebarListItemLeftLabelView<SidebarViewModel>: View where SidebarViewMod
     @State private var isBeingEditedAnimated = false
     
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var graphUI: StitchDocumentViewModel
     @Bindable var sidebarViewModel: SidebarViewModel
     @Bindable var itemViewModel: SidebarViewModel.ItemViewModel
     let fontColor: Color
@@ -102,7 +102,7 @@ struct SidebarListLabelEditView<ItemViewModel>: View where ItemViewModel: Sideba
     let fontColor: Color
     
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var graphUI: StitchDocumentViewModel
         
     @State var edit: String = ""
         

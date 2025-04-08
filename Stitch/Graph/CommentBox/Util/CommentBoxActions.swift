@@ -22,7 +22,7 @@ extension GraphState {
                            groupNodeFocused: NodeId?) {
         var selectedNodes = self.selectedCanvasItems
 
-        // Alternatively?: always add this id to selectedNodes in GraphUIState, so that we start it selected.
+        // Alternatively?: always add this id to selectedNodes in StitchDocumentViewModel, so that we start it selected.
         if selectedNodes.isEmpty {
             selectedNodes = .init([nodeId])
         }
@@ -105,7 +105,7 @@ extension GraphState {
     func deleteSelectedCommentBoxes() {
         let selectedBoxes = self.graphUI.selection.selectedCommentBoxes
         for selectedBoxId in selectedBoxes {
-            // delete a comment box = remove its definition from GraphSchema and its bounds from GraphUIState, but leave nodes alone
+            // delete a comment box = remove its definition from GraphSchema and its bounds from StitchDocumentViewModel, but leave nodes alone
             self.deleteCommentBox(selectedBoxId)
         }
     }

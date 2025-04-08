@@ -60,7 +60,7 @@ struct PreviewContent: View {
     @State var shouldRenderPreview = true
     
     var inputTextFieldFocused: Bool {
-        document.graphUI.reduxFocusedField?.inputTextFieldWithNumberIsFocused(document.graph) ?? false
+        document.reduxFocusedField?.inputTextFieldWithNumberIsFocused(document.graph) ?? false
     }
     
     var body: some View {

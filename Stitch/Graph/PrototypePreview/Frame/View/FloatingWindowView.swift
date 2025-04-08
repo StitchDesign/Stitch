@@ -209,7 +209,7 @@ struct FloatingWindowView: View {
         
         //        if showPreviewWindow {
         //            // Original
-        //            return document.graphUI.showsLayerInspector ? Self.xOffset - LayerInspectorView.LAYER_INSPECTOR_WIDTH : Self.xOffset
+        //            return document.showsLayerInspector ? Self.xOffset - LayerInspectorView.LAYER_INSPECTOR_WIDTH : Self.xOffset
         //        } else {
         //            log("self.previewWindowSizing.dimensions.width.magnitude: \(self.previewWindowSizing.dimensions.width.magnitude)")
         //            // TODO: Why divide by 2?

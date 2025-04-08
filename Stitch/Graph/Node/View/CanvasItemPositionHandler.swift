@@ -12,8 +12,8 @@ struct CanvasItemPositionHandler: ViewModifier {
     @Bindable var document: StitchDocumentViewModel
     
     @MainActor
-    private var graphUI: GraphUIState {
-        self.document.graphUI
+    private var graphUI: StitchDocumentViewModel {
+        self.document
     }
     
     @Bindable var node: CanvasItemViewModel

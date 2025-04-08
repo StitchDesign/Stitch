@@ -45,7 +45,7 @@ struct StitchRootView: View {
     }
     
     // "Is NavigationSplitView's sidebar open or not?"
-    // Handled manually by user; but synced with GraphUIState.leftSide
+    // Handled manually by user; but synced with StitchDocumentViewModel.leftSide
     @State var columnVisibility: NavigationSplitViewVisibility = .detailOnly
             
     var showMenu: Bool {
@@ -53,7 +53,7 @@ struct StitchRootView: View {
              return false
          }
 
-         return document.graphUI.insertNodeMenuState.show
+         return document.insertNodeMenuState.show
      }
     
     var body: some View {
@@ -68,7 +68,7 @@ struct StitchRootView: View {
                         if let document = store.currentDocument {
 
 #if targetEnvironment(macCatalyst)
-                            if document.graphUI.showCatalystProjectTitleModal {
+                            if document.showCatalystProjectTitleModal {
                                 logInView("will show modal view at top level")
                                 ZStack {
                                     
@@ -81,7 +81,7 @@ struct StitchRootView: View {
                                     VStack(alignment: .leading) {
                                         StitchTextView(string: "Edit Project Title")
                                         CatalystProjectTitleModalView(graph: document.visibleGraph,
-                                                                      graphUI: document.graphUI)
+                                                                      graphUI: document)
                                     }
                                     .padding()
                                     //                                .frame(width: 260, alignment: .leading)
@@ -95,11 +95,11 @@ struct StitchRootView: View {
                                     
                                     
                                 }
-                            } // if document.graphUI
+                            } // if document
 #endif
                             if showMenu {
                                 InsertNodeMenuWrapper(document: document,
-                                                      graphUI: document.graphUI)
+                                                      graphUI: document)
                             }
                         } // if let document
                     } // .overlay

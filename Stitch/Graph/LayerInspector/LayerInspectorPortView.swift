@@ -450,7 +450,7 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
     
     let coordinate: NodeIOCoordinate
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var graphUI: StitchDocumentViewModel
     
     // non-nil = this row is present on canvas
     // NOTE: apparently, the destruction of a weak var reference does NOT trigger a SwiftUI view update; so, avoid using delegates in the UI body.
@@ -526,7 +526,7 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
 struct LayerInspectorPortViewTapModifier: ViewModifier {
     
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var graphUI: StitchDocumentViewModel
     let isAutoLayoutRow: Bool
     let layerInspectorRowId: LayerInspectorRowId
     let canvasItemId: CanvasItemId?

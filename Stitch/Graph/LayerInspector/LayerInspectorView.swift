@@ -41,7 +41,7 @@ struct LayerInspectorView: View {
 #endif
     
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var graphUI: StitchDocumentViewModel
 
     @State var safeAreaInsets: EdgeInsets = .init()
             
@@ -175,7 +175,7 @@ struct LayerInspectorInputView: View {
     // `@Bindable var` (vs. `let`) seems to improve a strange issue where toggling scroll-enabled input on iPad would update the LayerInputObserver's blockedFields set but not re-render the view.
     @Bindable var portObserver: LayerInputObserver
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var graphUI: StitchDocumentViewModel
     let node: NodeViewModel
     
     var layerInput: LayerInputPort {
@@ -224,7 +224,7 @@ struct LayerInspectorInputsSectionView: View {
     // This section's layer inputs, filtered to excluded any not supported by this specific layer.
     let layerInputs: [LayerInputObserver]
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var graphUI: StitchDocumentViewModel
     let node: NodeViewModel
     
     @State private var expanded = true
@@ -284,7 +284,7 @@ struct LayerInspectorOutputsSectionView: View {
     
     var outputs: [OutputLayerNodeRowData] // layerNode.outputPorts
     @Bindable var graph: GraphState
-    @Bindable var graphUI: GraphUIState
+    @Bindable var graphUI: StitchDocumentViewModel
     @Bindable var node: NodeViewModel
     
     var body: some View {

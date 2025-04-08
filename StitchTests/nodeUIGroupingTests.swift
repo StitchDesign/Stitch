@@ -131,7 +131,7 @@ class GroupNodeTests: XCTestCase {
 //
 //        let selection = GraphUISelectionState(selectedNodes: selectedNodes)
 //
-//        let uiState = GraphUIState(selection: selection)
+//        let uiState = StitchDocumentViewModel(selection: selection)
 //
 //        let graphState = GraphState(patchNodes: nodes)
 //
@@ -218,7 +218,7 @@ class GroupNodeTests: XCTestCase {
 //        ]
 //
 //        let selection = GraphUISelectionState(selectedNodes: selectedNodes)
-//        let uiState = GraphUIState(selection: selection)
+//        let uiState = StitchDocumentViewModel(selection: selection)
 //        let graphState = GraphState.getTestState(nodes, edges: edges)
 //
 //        let project = ProjectState(metadata: ProjectMetadata(name: devDefaultProjectName()),
@@ -413,7 +413,7 @@ class GroupNodeTests: XCTestCase {
 //        let selectedNodes = IdSet([selectedNodeId1, selectedNodeId2, wirelessReceiverId])
 //
 //        let selection = GraphUISelectionState(selectedNodes: selectedNodes)
-//        let uiState = GraphUIState(selection: selection)
+//        let uiState = StitchDocumentViewModel(selection: selection)
 //        let graphState = GraphState.getTestState(nodes, edges: edges)
 //
 //        let project = ProjectState(metadata: ProjectMetadata(name: devDefaultProjectName()),
@@ -614,7 +614,7 @@ class GroupNodeTests: XCTestCase {
 //                               layerNodes: layerNodes,
 //                               connections: connections)
 //
-//        let uiState = GraphUIState()
+//        let uiState = StitchDocumentViewModel()
 //
 //        var state = createTestGroupNode(
 //            graph: graph,
@@ -776,7 +776,7 @@ class GroupNodeTests: XCTestCase {
 //
 //        state.connections = state.connections.addEdge(.init(from: .fakeOutputCoordinate,
 //                                                            to: .init(portId: 0, nodeId: splitterNode.id)))
-//        let graphUI = GraphUIState(selection: .init(selectedNodes: ([splitterNode.id]),
+//        let graphUI = StitchDocumentViewModel(selection: .init(selectedNodes: ([splitterNode.id]),
 //                                                    lastSelectedNode: splitterNode.id))
 //        let projectState = ProjectState(metadata: .fakeProjectMetadata,
 //                                        graph: state,
@@ -1066,7 +1066,7 @@ class GroupNodeTests: XCTestCase {
 ////                         selectedNodes: IdSet,
 ////                         environment: StitchEnvironment) -> ProjectState {
 ////    let selection = GraphUISelectionState(selectedNodes: selectedNodes)
-////    let graphUI = GraphUIState(selection: selection)
+////    let graphUI = StitchDocumentViewModel(selection: selection)
 ////    let project = ProjectState(metadata: ProjectMetadata(name: devDefaultProjectName()),
 ////                               graph: graph,
 ////                               graphUI: graphUI)

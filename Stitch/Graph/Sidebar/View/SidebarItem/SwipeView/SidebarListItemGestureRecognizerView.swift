@@ -286,7 +286,7 @@ extension SidebarItemGestureViewModel {
     @MainActor
     func contextMenuInteraction(itemId: SidebarListItemId,
                                 graph: GraphState,
-                                graphUI: GraphUIState) -> UIContextMenuConfiguration? {
+                                graphUI: StitchDocumentViewModel) -> UIContextMenuConfiguration? {
         // log("UIContextMenuInteractionDelegate: contextMenuInteraction")
         
         guard let sidebarViewModel = self.sidebarDelegate else { return nil }
