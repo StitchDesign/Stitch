@@ -83,7 +83,6 @@ struct CanvasItemDragHandler: UIGestureRecognizerRepresentable {
                     return
                 }
                 
-                
                 graph.graphMovement.draggedCanvasItem = canvasItemId
                 
                 // Dragging an unselected node selects that node

@@ -90,6 +90,7 @@ struct NodeDuplicateDraggedAction: StitchDocumentEvent {
 }
 
 extension GraphState {
+    /// Duplicates a node before dragging affected canvas items.
     @MainActor
     func nodeDuplicateDragged(id: NodeId,
                               document: StitchDocumentViewModel) {
@@ -140,35 +141,6 @@ extension GraphState {
             
             return
         }
-        
-        // TODO: necessary????
-        // Changed the dragged node to be the newly created node
-//        self.graphMovement.draggedCanvasItem =
-            
-        
-        // log("NodeDuplicateDraggedAction: state.selectedNodeIds at end: \(state.selectedNodeIds)")
-        
-        // Drag all selected nodes if dragging already started
-//        state.selectedCanvasItems
-//            .compactMap { state.getCanvasItem($0) }
-//            .forEach { draggedNode in
-//                // log("NodeDuplicateDraggedAction: already had dragged node id, so will do normal node drag for id \(draggedNode.id)")
-//                state.canvasItemMoved(for: draggedNode,
-//                                      translation: translation,
-//                                      wasDrag: true,
-//                                      document: document)
-//            }
-    }
-}
-
-struct CanvasItemMoved: StitchDocumentEvent {
-    let translation: CGSize
-    let wasDrag: Bool
-    
-    func handle(state: StitchDocumentViewModel) {
-        state.visibleGraph.canvasItemMoved(translation: translation,
-                                           wasDrag: wasDrag,
-                                           document: state)
     }
 }
 
@@ -206,31 +178,8 @@ extension GraphState {
             return
         }
 
-        // Exit if another (non-duplicated) node is being dragged
-        // Note: do this check AFTER we've set our 'currently dragged id' to be the option-duplicated node's id.
-        
-        
-        // Overall, node duplication logic needs to be thought through with multigestures in mind.
-//        if let draggedCanvasItem = self.graphMovement.draggedCanvasItem,
-//           draggedCanvasItem != canvasItem.id {
-//            log("canvasItemMoved: some other node is already dragged: \(draggedCanvasItem)")
-//            return
-//        }
-
-        // Updating for dual-drag; must set before
-
-//        self.graphMovement.draggedCanvasItem = canvasItem.id
         self.graphMovement.lastCanvasItemTranslation = translation
 
-//        // If we don't have an active first gesture,
-//        // and graph isn't already dragging,
-//        // then set node-drag as active first gesture
-//        if self.graphMovement.firstActive == .none {
-//            if !self.graphMovement.graphIsDragged {
-//                // log("canvasItemMoved: will set .node as active first gesture")
-//                self.graphMovement.firstActive = .node
-//            }
-//        }
         if self.graphMovement.firstActive == .graph {
 
             if !self.graphMovement.runningGraphTranslationBeforeNodeDragged.isDefined {
@@ -241,31 +190,11 @@ extension GraphState {
             }
         }
 
-        // first, determine which nodes are selected;
-        // then update positions and selected nodes
-
-        // Dragging an unselected node selects that node
-        // and de-selects all other nodes.
-//        let alreadySelected = self.isCanvasItemSelected(canvasItem.id)
-//        if !alreadySelected {
-//            // update node's position
-//            self.updateCanvasItemOnDragged(canvasItem, translation: translation)
-//
-//            // select the canvas item and de-select all the others
-//            self.selectSingleCanvasItem(canvasItem.id)
-//
-//            // add node's edges to highlighted edges; wipe old highlighted edges
-//            self.selectedEdges = .init()
-//        }
-
-        // If we're dragging a node that's already selected,
-        // then just update positions of all selected nodes.
-//        else {
-            self.getSelectedCanvasItems(groupNodeFocused: document.groupNodeFocused?.groupNodeId)
-            // need to sort by z index to retain order
-                .sorted { $0.zIndex < $1.zIndex }
-                .forEach { self.updateCanvasItemOnDragged($0, translation: translation) }
-//        }
+        // update positions of all selected nodes.
+        self.getSelectedCanvasItems(groupNodeFocused: document.groupNodeFocused?.groupNodeId)
+        // need to sort by z index to retain order
+            .sorted { $0.zIndex < $1.zIndex }
+            .forEach { self.updateCanvasItemOnDragged($0, translation: translation) }
 
         // end any edge-drawing
         self.edgeDrawingObserver.reset()
