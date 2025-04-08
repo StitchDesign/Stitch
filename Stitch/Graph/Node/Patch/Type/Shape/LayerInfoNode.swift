@@ -159,7 +159,7 @@ struct LayerInfoNodeEvalHelpers {
 
 @MainActor
 func layerInfoEval(node: PatchNode,
-                    state: GraphDelegate) -> EvalResult {
+                    state: GraphState) -> EvalResult {
     
     // Like other 'interaction nodes', we ignore loops and look only at the inputs' first values.
     // This is because the assigned layer's node may hve a loop of its own, and we cannot have a loop of loops.

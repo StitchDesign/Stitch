@@ -109,7 +109,7 @@ extension NodeDefinition {
                                 position: CGPoint,
                                 zIndex: CGFloat,
                                 parentGroupNodeId: GroupNodeId? = nil,
-                                graphDelegate: GraphDelegate?) -> NodeViewModel {
+                                graphDelegate: GraphState?) -> NodeViewModel {
         NodeViewModel(from: Self.self,
                       id: id,
                       position: position,

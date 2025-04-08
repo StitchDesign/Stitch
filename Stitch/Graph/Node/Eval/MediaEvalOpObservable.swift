@@ -360,7 +360,7 @@ actor MediaEvalOpCoordinator {
     static func createMediaValue(from mediaKey: MediaKey,
                                  isComputedCopy: Bool, // true if intended for node's output
                                  mediaId: UUID,
-                                 graphDelegate: GraphDelegate) async -> GraphMediaValue? {
+                                 graphDelegate: GraphState) async -> GraphMediaValue? {
         guard let url = graphDelegate.getMediaUrl(forKey: mediaKey) else {
             return nil
         }

@@ -41,7 +41,7 @@ func convertPositionNode(nodeId: NodeId = NodeId(),
 // Preferably, retrieve the layer view model at that loop-index?
 @MainActor
 func convertPositionEval(node: PatchNode,
-                         graphState: GraphDelegate) -> PortValuesList {
+                         graphState: GraphState) -> PortValuesList {
 
     // log("convertPositionEval: node.sortedInputsValues: \(node.inputs)")
 

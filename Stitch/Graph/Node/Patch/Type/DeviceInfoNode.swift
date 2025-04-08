@@ -158,7 +158,7 @@ func deviceInfoNode(id: NodeId,
 // we're just READING FROM the state
 @MainActor
 func deviceInfoEval(node: PatchNode,
-                    state: GraphDelegate) -> EvalResult {
+                    state: GraphState) -> EvalResult {
 
     //    log("deviceInfoEval called")
 

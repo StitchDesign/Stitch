@@ -80,7 +80,7 @@ actor PressInteractionActor {
                   newTapTime: Double,
                   pressNode: NodeViewModel,
                   evalObserver: PressInteractionNodeObserver,
-                  graph: GraphDelegate,
+                  graph: GraphState,
                   loopIndex: Int,
                   createNewValues: @escaping @MainActor (TimeInterval) -> PortValues) async throws {
         let delayInNanoseconds = delayValue * Double(nanoSecondsInSecond)
@@ -104,7 +104,7 @@ actor PressInteractionActor {
 // Need to update to be more like scroll animation eval
 @MainActor
 func pressInteractionEval(node: NodeViewModel,
-                          graph: GraphDelegate) -> ImpureEvalResult {
+                          graph: GraphState) -> ImpureEvalResult {
     node.loopedEval(PressInteractionNodeObserver.self,
                     graphState: graph) { values, evalObserver, interactiveLayer, loopIndex in
         pressInteractionOp(
@@ -124,7 +124,7 @@ func pressInteractionOp(pressNode: NodeViewModel,
                         evalObserver: PressInteractionNodeObserver,
                         loopIndex: Int,
                         interactiveLayer: InteractiveLayer,
-                        graph: GraphDelegate) -> ImpureEvalOpResult {
+                        graph: GraphState) -> ImpureEvalOpResult {
         
     let isEnabled = values[safe: 1]?.getBool ?? false
     

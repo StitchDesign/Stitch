@@ -53,7 +53,7 @@ final class NodeViewModel: Sendable {
 
     // aka reference to a limited subset of GraphState properties
     @MainActor
-    weak var graphDelegate: GraphDelegate?
+    weak var graphDelegate: GraphState?
 
     /// Called when initializing delegate
     @MainActor
@@ -90,7 +90,7 @@ final class NodeViewModel: Sendable {
     
     @MainActor
     convenience init(from schema: NodeEntity,
-                     graphDelegate: GraphDelegate,
+                     graphDelegate: GraphState,
                      document: StitchDocumentViewModel) async {
         await self.init(from: schema,
                         components: graphDelegate.components,
@@ -138,7 +138,7 @@ extension NodeViewModel {
     }
     
     @MainActor
-    func initializeDelegate(graph: GraphDelegate,
+    func initializeDelegate(graph: GraphState,
                             document: StitchDocumentViewModel) {
         self.graphDelegate = graph
         self.nodeType.initializeDelegate(self,

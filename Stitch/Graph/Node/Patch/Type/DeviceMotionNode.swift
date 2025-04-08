@@ -60,7 +60,7 @@ extension CMRotationRate {
 // we simply read the motion manager's data
 @MainActor
 func deviceMotionEval(node: PatchNode,
-                      state: GraphDelegate) -> EvalResult {
+                      state: GraphState) -> EvalResult {
 
     //    log("deviceMotionEval called")
 
@@ -83,7 +83,7 @@ func deviceMotionEval(node: PatchNode,
     if let existingMotionManager = state.motionManagers.get(node.id) {
         motionManager = existingMotionManager
     } else {
-        // TODO: `createDeviceMotionNode` adds a motion manager to `StitchDocumentViewModel.visibleGraph`; is the passed-in `state: GraphDelegate` here the `StitchDocumentViewModel.visibleGraph`?
+        // TODO: `createDeviceMotionNode` adds a motion manager to `StitchDocumentViewModel.visibleGraph`; is the passed-in `state: GraphState` here the `StitchDocumentViewModel.visibleGraph`?
         
         // If motion manager does not yet exist, create it
         let newMotionManager = createActiveCMMotionManager()
