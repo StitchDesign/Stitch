@@ -32,7 +32,7 @@ extension NodeViewModel {
     /// Looped eval helper used for interaction patch nodes.
     @MainActor
     func loopedEval<EvalOpResult: NodeEvalOpResult, EphemeralObserver>(_ ephemeralObserverType: EphemeralObserver.Type,
-                                                                       graphState: GraphDelegate,
+                                                                       graphState: GraphState,
                                                                        evalOp: @escaping NodeEphemeralInteractiveOp<EvalOpResult, EphemeralObserver>) -> [EvalOpResult] {
         let inputsValues = self.inputs
         let loopCount = getLongestLoopLength(inputsValues)
@@ -60,7 +60,7 @@ extension NodeViewModel {
     
     // TODO: clean up this code, combine some of the logic into common functions
     @MainActor
-    func loopedEval<EvalOpResult: NodeEvalOpResult>(graphState: GraphDelegate,
+    func loopedEval<EvalOpResult: NodeEvalOpResult>(graphState: GraphState,
                                                     // The layer node whose layer view models we will look at;
                                                     // can be assigned-layer (interaction patch node) or layer itself (e.g. group layer scrolling)
                                                     layerNodeId: NodeId,

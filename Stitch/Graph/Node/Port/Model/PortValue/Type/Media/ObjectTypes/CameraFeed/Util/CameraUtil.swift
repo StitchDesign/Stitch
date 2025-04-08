@@ -91,7 +91,7 @@ extension StitchDocumentViewModel {
     /// Update GraphSchema.CameraSettings and MediaManager after a Camera Feed Node's camera-orientation input received a new orientation value.
     @MainActor
     func cameraOrientationUpdated(input: InputCoordinate,
-                                  graph: GraphDelegate,
+                                  graph: GraphState,
                                   cameraOrientation: StitchCameraOrientation) {
         
         guard cameraOrientation != self.cameraSettings.orientation else {
@@ -116,7 +116,7 @@ extension StitchDocumentViewModel {
     
     @MainActor
     func refreshCamera(for nodeKind: NodeKind,
-                       graph: GraphDelegate,
+                       graph: GraphState,
                        newNode: NodeId? = nil) {
         // Update camera in media manager
         self.createCamera(for: nodeKind,
@@ -126,7 +126,7 @@ extension StitchDocumentViewModel {
 
     @MainActor
     func createCamera(for nodeKind: NodeKind,
-                      graph: GraphDelegate,
+                      graph: GraphState,
                       newNode: NodeId? = nil) {
         if let newNode = newNode {
             graph.enabledCameraNodeIds.insert(newNode)
@@ -156,7 +156,7 @@ extension StitchDocumentViewModel {
 
     @MainActor
     func cameraDirectionUpdated(input: InputCoordinate,
-                                graph: GraphDelegate,
+                                graph: GraphState,
                                 cameraDirection: CameraDirection) {
         guard cameraDirection != self.cameraSettings.direction else {
             log("CameraDirectionUpdated: already using cameraDirection \(cameraDirection); will exit early")

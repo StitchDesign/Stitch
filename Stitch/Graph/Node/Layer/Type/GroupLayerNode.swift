@@ -175,7 +175,7 @@ extension LayerSize {
  */
 @MainActor
 func nativeScrollInteractionEval(node: LayerNode,
-                                 state: GraphDelegate) -> EvalResult {
+                                 state: GraphState) -> EvalResult {
     
     // log("nativeScrollInteractionEval: called")
     let defaultOutputs: PortValuesList =  [[.position(.zero)]]

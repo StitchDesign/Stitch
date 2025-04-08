@@ -38,7 +38,7 @@ struct RepeatingPulseNode: PatchNodeDefinition {
 // NOTE: Cannot receive manual pulses because has no pulse inputs
 @MainActor
 func repeatingPulseEval(node: PatchNode,
-                        graphState: GraphDelegate) -> ImpureEvalResult {
+                        graphState: GraphState) -> ImpureEvalResult {
     let graphTime = graphState.graphStepState.graphTime
             
     return node.loopedEval { values, loopIndex in

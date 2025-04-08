@@ -36,7 +36,7 @@ extension Patch {
                      // TODO: separate 'first creation of node' from 'recreation of node via schema'
                      //                     firstCreation: Bool = true,
                      graphTime: TimeInterval = .zero,
-                     graphDelegate: GraphDelegate?) -> NodeViewModel? {
+                     graphDelegate: GraphState?) -> NodeViewModel? {
 
         // Preferred newer method for node creation
         if let GraphNodeType = NodeKind.patch(self).graphNode {

@@ -44,7 +44,7 @@ struct SampleRangeNode: PatchNodeDefinition {
 
 @MainActor
 func sampleRangeEval(node: PatchNode,
-                     graphState: GraphDelegate) -> ImpureEvalResult {
+                     graphState: GraphState) -> ImpureEvalResult {
     // MARK: Currently disabled
     return .init(outputsValues: node.defaultOutputsList)
     

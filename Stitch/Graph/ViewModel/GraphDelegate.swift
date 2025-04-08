@@ -1,5 +1,5 @@
 //
-//  GraphDelegate.swift
+//  GraphState.swift
 //  Stitch
 //
 //  Created by Christian J Clampitt on 5/9/24.
@@ -9,8 +9,6 @@ import Foundation
 import StitchSchemaKit
 import StitchEngine
 
-typealias GraphDelegate = GraphState
-
 extension GraphState {
     @MainActor
     func children(of parent: NodeId) -> NodeViewModels {
@@ -18,9 +16,7 @@ extension GraphState {
             layerNode.layerNode?.layerGroupId == parent
         }
     }
-}
-
-extension GraphDelegate {
+    
     @MainActor
     var projectId: UUID { self.id }
     
@@ -46,7 +42,7 @@ extension GraphDelegate {
         self.documentDelegate?.graphMovement ?? .init()
     }
     
-    @MainActor var isGeneratingProjectThumbnail:  Bool {
+    @MainActor var isGeneratingProjectThumbnail: Bool {
         self.documentDelegate?.isGeneratingProjectThumbnail ?? false
     }
     
