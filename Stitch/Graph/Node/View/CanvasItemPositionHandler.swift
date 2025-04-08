@@ -82,14 +82,19 @@ struct CanvasItemDragHandler: UIGestureRecognizerRepresentable {
                 
                 graph.graphMovement.draggedCanvasItem = canvasItemId
                 
-                // update node's position
-                graph.updateCanvasItemOnDragged(canvasItem, translation: translation)
-
-                // select the canvas item and de-select all the others
-                graph.selectSingleCanvasItem(canvasItem.id)
-
-                // add node's edges to highlighted edges; wipe old highlighted edges
-                graph.selectedEdges = .init()
+                // Dragging an unselected node selects that node
+                // and de-selects all other nodes.
+                let alreadySelected = graph.isCanvasItemSelected(canvasItem.id)
+                if !alreadySelected {
+                    // update node's position
+                    graph.updateCanvasItemOnDragged(canvasItem, translation: translation)
+                    
+                    // select the canvas item and de-select all the others
+                    graph.selectSingleCanvasItem(canvasItem.id)
+                    
+                    // add node's edges to highlighted edges; wipe old highlighted edges
+                    graph.selectedEdges = .init()
+                }
             }
             
         case .changed:
