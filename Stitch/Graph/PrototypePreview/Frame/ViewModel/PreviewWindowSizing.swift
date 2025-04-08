@@ -19,7 +19,10 @@ final class PreviewWindowSizing: Sendable {
     @MainActor var userDeviceSize: CGSize = DEFAULT_LANDSCAPE_SIZE
     
     /// From user's manual drag of preview window handle. Reset when project clsoed.
-    @MainActor var activeAdjustedTranslation: CGSize = .zero
+//    @MainActor var activeAdjustedTranslation: CGSize = .zero
+    
+    @MainActor var activeAdjustedTranslation: CGSize = .init(width: 70.237, height: 152.0)
+    
     @MainActor var accumulatedAdjustedTranslation: CGSize = .zero
     
     init() { }
