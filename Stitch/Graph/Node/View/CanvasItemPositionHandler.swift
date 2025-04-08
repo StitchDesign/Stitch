@@ -20,17 +20,20 @@ struct CanvasItemPositionHandler: ViewModifier {
             .zIndex(zIndex)
             .canvasPosition(id: node.id,
                             position: node.position)
-            .gesture(CanvasItemDragHandler(graph: graph,
+            .gesture(CanvasItemDragHandler(document: document,
+                                           graph: graph,
                                            canvasItemId: node.id))
     }
 }
 
 extension View {
     /// Handles node position, drag gestures, and option+select for duplicating node.
-    func canvasItemPositionHandler(graph: GraphState,
+    func canvasItemPositionHandler(document: StitchDocumentViewModel,
+                                   graph: GraphState,
                                    node: CanvasItemViewModel,
                                    zIndex: ZIndex) -> some View {
-        self.modifier(CanvasItemPositionHandler(graph: graph,
+        self.modifier(CanvasItemPositionHandler(document: document,
+                                                graph: graph,
                                                 node: node,
                                                 zIndex: zIndex))
     }
@@ -43,6 +46,7 @@ extension View {
  (Similar to what we do in sidebar click + shift.)
  */
 struct CanvasItemDragHandler: UIGestureRecognizerRepresentable {
+    let document: StitchDocumentViewModel
     let graph: GraphState
     let canvasItemId: CanvasItemId
     
@@ -97,9 +101,13 @@ struct CanvasItemDragHandler: UIGestureRecognizerRepresentable {
                 }
             }
             
+            graph.canvasItemMoved(translation: translation,
+                                  wasDrag: true,
+                                  document: document)
         case .changed:
-            dispatch(CanvasItemMoved(translation: translation,
-                                     wasDrag: true))
+            graph.canvasItemMoved(translation: translation,
+                                  wasDrag: true,
+                                  document: document)
             
         case .ended, .cancelled, .failed:
             // log("CanvasItemDragHandler: handleUIGestureRecognizerAction: ended, cancelled or failed")

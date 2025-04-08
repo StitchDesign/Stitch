@@ -99,9 +99,10 @@ struct NodeView: View {
                     }
                 }
         }
-        .canvasItemPositionHandler(graph: graph,
-                                   node: node,
-                                   zIndex: zIndex)
+                   .canvasItemPositionHandler(document: document,
+                                              graph: graph,
+                                              node: node,
+                                              zIndex: zIndex)
     }
 
     @MainActor
