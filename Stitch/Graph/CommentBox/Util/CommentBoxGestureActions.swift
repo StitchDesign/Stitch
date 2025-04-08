@@ -12,9 +12,15 @@ import StitchSchemaKit
 extension GraphState {
     @MainActor
     func commentBoxTapped(box: CommentBoxViewModel) {
+        
+        guard let document = self.documentDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        
         // If CMD held:
         // TODO: pass this down from the gesture handler
-        if self.keypressState.isCommandPressed {
+        if document.keypressState.isCommandPressed {
             if self.selection
                 .selectedCommentBoxes.contains(id) {
                 self.selection.selectedCommentBoxes.remove(id)

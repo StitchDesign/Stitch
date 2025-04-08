@@ -26,6 +26,11 @@ extension GraphState {
                       childSize: CGSize,
                       childPosition: CGPoint) {
                 
+        guard let previewWindowSize = self.documentDelegate?.previewWindowSize else {
+            fatalErrorIfDebug("layerDragEnded: Must have preview window size")
+            return
+        }
+        
         // log("layerDragged CALLED")
         
         var nodesToRecalculate = NodeIdSet()
@@ -46,7 +51,7 @@ extension GraphState {
                                                         gestureLocation: location,
                                                         velocity: velocity.toCGPoint,
                                                         leftClick: true,
-                                                        previewWindowSize: self.previewWindowSize,
+                                                        previewWindowSize: previewWindowSize,
                                                         graphTime: self.graphStepState.graphTime)
         
         nodesToRecalculate = nodesToRecalculate.union(mouseNodeIds)

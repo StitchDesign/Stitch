@@ -25,6 +25,11 @@ extension GraphState {
         // log("layerDragEnded: interactiveLayer.id: \(interactiveLayer.id)")
          // log("layerDragEnded CALLED")
 
+        guard let previewWindowSize = self.documentDelegate?.previewWindowSize else {
+            fatalErrorIfDebug("layerDragEnded: Must have preview window size")
+            return
+        }
+        
         var nodesToRecalculate = NodeIdSet()
         
         let pressInteractionIdSet: IdSet = self.getPressInteractionIds(for: interactiveLayer.id.layerNodeId)
@@ -41,7 +46,7 @@ extension GraphState {
                                       gestureLocation: nil,
                                       velocity: nil,
                                       leftClick: false,
-                                      previewWindowSize: self.previewWindowSize,
+                                      previewWindowSize: previewWindowSize,
                                       graphTime: self.graphStepState.graphTime)
         
         nodesToRecalculate = nodesToRecalculate.union(mouseNodeIds)
