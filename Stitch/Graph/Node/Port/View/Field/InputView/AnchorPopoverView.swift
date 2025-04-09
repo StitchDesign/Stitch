@@ -20,11 +20,11 @@ let ANCHOR_OPTION_SPACING: CGFloat = 18
 
 let ANCHOR_POPOVER_PADDING = ANCHOR_OPTION_SPACING
 
-struct AnchorPopoverView: View {
+struct AnchorPopoverView<RowObserver: NodeRowObserver>: View {
     
     @Environment(\.appTheme) var theme
     
-    let rowObserver: InputNodeRowObserver
+    let rowObserver: RowObserver
     let graph: GraphState
     let document: StitchDocumentViewModel
     let selection: Anchoring
@@ -54,12 +54,14 @@ struct AnchorPopoverView: View {
         Button {
             // log("AnchorPopoverView: selected \(option.rawValue)")
 
-            graph.pickerOptionSelected(
-                rowObserver: rowObserver,
-                choice: .anchoring(option),
-                activeIndex: document.activeIndex,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                isPersistence: true)
+            if let rowObserver = rowObserver as? InputNodeRowObserver {
+                graph.pickerOptionSelected(
+                    rowObserver: rowObserver,
+                    choice: .anchoring(option),
+                    activeIndex: document.activeIndex,
+                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                    isPersistence: true)                
+            }
 
         } label: {
             Image(systemName: (!self.hasHeterogenousValues && option == selection) ? ANCHOR_SELECTION_OPTION_ICON : ANCHOR_OPTION_ICON)
