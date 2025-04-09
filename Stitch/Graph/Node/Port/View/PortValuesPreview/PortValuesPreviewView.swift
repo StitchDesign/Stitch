@@ -27,6 +27,7 @@ struct PortValuesPreviewView<NodeRowObserverType: NodeRowObserver>: View {
     @Bindable var rowViewModel: NodeRowObserverType.RowViewModelType
         
     let nodeIO: NodeIO
+    let activeIndex: ActiveIndex
 
     // TODO: do we really need `[PortPreviewData]`? Can we access some already existing data?
     var tableRows: [PortPreviewData] {
@@ -80,12 +81,18 @@ struct PortValuesPreviewView<NodeRowObserverType: NodeRowObserver>: View {
     
     @State var hoveredIndex: Int? = nil
     
+    var activeIndexForThisObserver: Int {
+        self.activeIndex.adjustedIndex(self.rowObserver.allLoopedValues.count)
+    }
+    
     var valueGrid: some View {
         VStack(alignment: .leading) {
             
             ForEach(tableRows, id: \.id) { (data: PortPreviewData) in
                 
                 HStack(alignment: .center) {
+                    
+                    // Loop index
                     StitchTextView(string: "\(data.loopIndex)",
                                    fontColor: STITCH_FONT_GRAY_COLOR)
                         .monospaced()
@@ -108,12 +115,17 @@ struct PortValuesPreviewView<NodeRowObserverType: NodeRowObserver>: View {
                     } // ForEach(date.fields)
                     
                 } // HStack
-                .padding(4)
+                .padding([.top, .bottom], 4)
                 .background {
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(self.hoveredIndex == data.loopIndex ? theme.fontColor : .clear)
+                    if self.hoveredIndex == data.loopIndex {
+                        RoundedRectangle(cornerRadius: 8).fill(theme.fontColor)
+                    } else if self.activeIndexForThisObserver == data.loopIndex {
+                        RoundedRectangle(cornerRadius: 8).fill(.gray)
+                    }
                 }
-                
+                .onTapGesture {
+                    dispatch(ClosePortPreview())
+                }
                 .onHover { hovering in
                     if hovering {
 //                        log("hovered data.loopIndex \(data.loopIndex)")
@@ -125,6 +137,12 @@ struct PortValuesPreviewView<NodeRowObserverType: NodeRowObserver>: View {
                 .padding(.top, 2)
             } // ForEach
         }
+    }
+}
+
+struct ClosePortPreview: StitchDocumentEvent {
+    func handle(state: StitchDocumentViewModel) {
+        state.openPortPreview = nil
     }
 }
 
@@ -155,12 +173,8 @@ struct PortValuesPreviewValueView: View {
                            lineLimit: 1,
                            truncationMode: .tail)
                 .monospaced()
-                .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH, alignment: .leading) // necessary to prevent overflow scenarios
+                .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH,
+                       alignment: .leading) // necessary to prevent overflow scenarios
         }
     }
 }
-
-// TODO: easier way to build up a node / row observer with large loop
-//#Preview {
-//    PortValuesPreviewView(init(rowObserver: <#T##_#>, rowViewModel: <#T##_.RowViewModelType#>, nodeIO: <#T##NodeIO#>))
-//}

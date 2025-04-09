@@ -101,6 +101,7 @@ struct CanvasEdgesViewModifier: ViewModifier {
                    let canvas = graph.getCanvasItem(openPortPreview.canvasItemId) {
                     PortPreviewPopoverWrapperView(
                         openPortPreview: openPortPreview,
+                        activeIndex: document.activeIndex,
                         canvas: canvas)
                 }
             }
