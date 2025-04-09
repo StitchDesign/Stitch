@@ -149,7 +149,7 @@ struct SidebarListLabelEditView<ItemViewModel>: View where ItemViewModel: Sideba
                                fontColor: fontColor)
                 .padding(.top, 1)
                 .padding(2)
-            }       
+            }
         }
          // Not just initialization but also e.g. whenever canvas item updates the layer node's title
         .onChange(of: self.item.name, initial: true) { oldValue, newValue in
@@ -162,14 +162,11 @@ struct SidebarListLabelEditView<ItemViewModel>: View where ItemViewModel: Sideba
                 self.edit = self.item.name
             }
         }
-        .simultaneousGesture(TapGesture(count: 2)
-            .onEnded({ _ in
-                // log("sidebar item double tapped: \(self.item.id.description)")
-                // Focus the redux field
-                dispatch(ReduxFieldFocused(focusedField: .sidebarLayerTitle(self.item.id.description)))
-                
-            })
-        )
+        .onTapGesture(count: 2) {
+            // log("sidebar item double tapped: \(self.item.id.description)")
+            // Focus the redux field
+            dispatch(ReduxFieldFocused(focusedField: .sidebarLayerTitle(self.item.id.description)))
+        }
     }
     
 }
