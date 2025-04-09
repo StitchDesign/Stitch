@@ -94,17 +94,16 @@ struct StitchTitleTextField: View {
                     }
                 
             } else {
-                StitchTextView(string: readOnlyLabel,
-                               font: font)
-                    .frame(height: NODE_TITLE_HEIGHT,
-                           alignment: .leading)
-                   //  .border(.blue)
+                StitchTextView(string: readOnlyLabel, font: font)
+                    .frame(height: NODE_TITLE_HEIGHT, alignment: .leading)
                 // Manually focus this field when user taps.
                 // Better as global redux-state than local view-state: only one field in entire app can be focused at a time.
-                .onTapGesture {
-                    // log("NodeTitleTextField tapped")
-                    document.reduxFieldFocused(focusedField: .nodeTitle(titleEditType))
-                }
+                    .gesture(
+                        TapGesture(count: 2).onEnded({ _ in
+                            log("NodeTitleTextField double-tapped")
+                            document.reduxFieldFocused(focusedField: .nodeTitle(titleEditType))
+                        })
+                    )
             }
         }
         .frame(minWidth: 20)
