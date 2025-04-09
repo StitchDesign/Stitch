@@ -46,7 +46,7 @@ struct CommonEditingViewReadOnly: View {
         StitchTextView(string: displayString,
                        font: STITCH_FONT,
                        fontColor: isSelectedInspectorRow ? theme.fontColor : STITCH_FONT_GRAY_COLOR)
-        .modifier(InputViewBackground(
+        .modifier(InputFieldBackground(
             show: self.isHovering || self.forPropertySidebar,
             hasDropdown: self.hasPicker,
             forPropertySidebar: forPropertySidebar,
