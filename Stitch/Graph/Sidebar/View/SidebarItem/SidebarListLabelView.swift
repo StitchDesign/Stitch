@@ -32,10 +32,7 @@ struct SidebarListItemLeftLabelView<SidebarViewModel>: View where SidebarViewMod
             SidebarListItemChevronView(sidebarViewModel: sidebarViewModel,
                                        item: itemViewModel,
                                        fontColor: fontColor)
-//                                           isHidden: isHidden)
             .opacity(itemViewModel.isGroup ? 1 : 0)
-                // .border(.green)
-//            }
   
             Image(systemName: itemViewModel.sidebarLeftSideIcon)
                 .scaledToFit()
@@ -140,11 +137,18 @@ struct SidebarListLabelEditView<ItemViewModel>: View where ItemViewModel: Sideba
                                            isCommitting: isCommitting,
                                            graph: graph)
                 })
+                .padding(2)
+                .background {
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(Color.COMMON_EDITING_VIEW_READ_ONLY_BACKGROUND_COLOR)
+                }
+                .contentShape(Rectangle()) // Not needed?
             } else {
                 StitchTextView(string: edit + debugId,
                                font: SIDEBAR_LIST_ITEM_FONT,
                                fontColor: fontColor)
                 .padding(.top, 1)
+                .padding(2)
             }
         }
          // Not just initialization but also e.g. whenever canvas item updates the layer node's title
@@ -159,6 +163,8 @@ struct SidebarListLabelEditView<ItemViewModel>: View where ItemViewModel: Sideba
             }
         }
         .onTapGesture(count: 2) {
+            // log("sidebar item double tapped: \(self.item.id.description)")
+            // Focus the redux field
             dispatch(ReduxFieldFocused(focusedField: .sidebarLayerTitle(self.item.id.description)))
         }
     }
