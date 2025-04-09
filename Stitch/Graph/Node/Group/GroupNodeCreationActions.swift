@@ -165,6 +165,7 @@ extension StitchDocumentViewModel {
      * 2. Creates input and output group nodes.
      * 3. Removes old edges and connections and updates them to new group nodes.
      */
+    // TODO: can we separate `creating a group node` vs `creating a component`? Group node is 'UI-only' so doesn't need to be async?
     @MainActor
     func createGroup(isComponent: Bool) async {
         guard !self.llmRecording.isRecording else {
@@ -177,7 +178,7 @@ extension StitchDocumentViewModel {
         let newComponentId = UUID()
         let selectedCanvasItems = self.visibleGraph.getSelectedCanvasItems(groupNodeFocused: self.groupNodeFocused?.groupNodeId)
         let edges = self.visibleGraph.createEdges()
-        let center = self.viewPortCenter
+        let center = self.newCanvasItemInsertionLocation
 
         // Every selected node must belong to this traversal level.
         let nodesAtThisLevel = self.visibleGraph
@@ -194,7 +195,7 @@ extension StitchDocumentViewModel {
         if isComponent {
             // MARK: must create component before calling createGroupNode below
             self.createNewMasterComponent(selectedCanvasItems: selectedCanvasItems,
-                                                componentId: newComponentId)
+                                          componentId: newComponentId)
         }
         
         // Create the actual GroupNode itself
