@@ -312,7 +312,7 @@ struct CommonEditingView: View {
 #if targetEnvironment(macCatalyst)
         .offset(y: -0.5) // slight adjustment required
 #endif
-        .modifier(InputViewBackground(
+        .modifier(InputFieldBackground(
             show: true, // always show background for a focused input
             hasDropdown: self.hasPicker,
             forPropertySidebar: isForLayerInspector,
@@ -383,7 +383,7 @@ struct CommonEditingView: View {
 }
 
 // TODO: per Elliot, this is actually a perf-expensive view?
-struct InputViewBackground: ViewModifier {
+struct InputFieldBackground: ViewModifier {
     
     @Environment(\.appTheme) var theme
     
@@ -431,5 +431,3 @@ struct InputViewBackground: ViewModifier {
             .contentShape(Rectangle())
     }
 }
-
-
