@@ -185,6 +185,16 @@ struct OutputValueView: View {
             .offset(x: -4)
             .disabled(true)
             
+        case .layerDropdown(let layerNodeId):
+            // Cannot use default readOnly logic due to logic needed to fetch selected node
+            if let layerNodeId = layerNodeId,
+               let name = self.graph.getNodeViewModel(layerNodeId.asNodeId)?
+                .getDisplayTitle() {
+                readOnlyView(name)
+            } else {
+                readOnlyView("None")
+            }
+            
         default:
             readOnlyView(self.fieldValue.stringValue)
         }
