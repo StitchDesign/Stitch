@@ -19,13 +19,16 @@ extension ProjectSidebarObservable {
                            document: StitchDocumentViewModel) {
         // log("sidebarItemTapped: id: \(id)")
         // log("sidebarItemTapped: shiftHeld: \(shiftHeld)")
-        
+            
         let originalSelections = self.selectionState.primary
         
         // Set sidebar to be focused:
         if !self.isSidebarFocused {
             self.isSidebarFocused = true            
         }
+        
+        // Wipe redux field
+        document.reduxFocusedField = nil
         
         // log("sidebarItemTapped: originalSelections: \(originalSelections)")
         
