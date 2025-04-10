@@ -197,7 +197,7 @@ extension Layer {
         !self.hasMultiKeyPath(at: portId)
     }
     
-    var supportedMediaType: SupportedMediaFormat {
+    var supportedMediaType: SupportedMediaFormat? {
         switch self {
         case .video:
             return .video
@@ -206,7 +206,7 @@ extension Layer {
         case .model3D:
             return .model3D
         default:
-            return .unknown
+            return nil
         }
     }
     

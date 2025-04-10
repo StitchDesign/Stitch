@@ -15,18 +15,24 @@ extension URL {
         MediaKey(self)
     }
 
-    func getMediaType() -> SupportedMediaFormat {
+    func getMediaType() -> SupportedMediaFormat? {
         SupportedMediaFormat.findType(by: self.pathExtension)
     }
 
-    func supports(mediaFormat: SupportedMediaFormat) -> Bool {
-        self.getMediaType() == mediaFormat
+    func supports(mediaFormat: NodeMediaSupport) -> Bool {
+        switch mediaFormat {
+        case .single(let supportedMediaFormat):
+            return self.getMediaType() == supportedMediaFormat
+            
+        case .all:
+            return true
+        }
     }
 
     func trimMedia(startTime: TimeInterval,
                    endTime: TimeInterval) async -> MediaObjectResult {
 
-        guard let mediaType = self.getMediaType().avMediaType else {
+        guard let mediaType = self.getMediaType()?.avMediaType else {
             return .failure(.mediaFileUnsupported(self.pathExtension))
         }
 

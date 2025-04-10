@@ -9,16 +9,25 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+enum NodeMediaSupport {
+    // almost all media nodes
+    case single(SupportedMediaFormat)
+    
+    // just loop builder, which supports all types
+    case all
+}
+
 extension NodeKind {
 
-    var mediaType: SupportedMediaFormat {
+    var mediaType: NodeMediaSupport? {
         switch self {
         case .patch(let patch):
             return patch.supportedMediaType
         case .layer(let layer):
-            return layer.supportedMediaType
+            guard let type = layer.supportedMediaType else { return nil }
+            return .single(type)
         case .group:
-            return .unknown
+            return nil
         }
     }
 
@@ -197,17 +206,6 @@ extension NodeKind {
             }
         default:
             return valuesList.longestLoopLength
-        }
-    }
-    
-    var supportedMediaType: SupportedMediaFormat? {
-        switch self {
-        case .patch(let patch):
-            return patch.supportedMediaType
-        case .layer(let layer):
-            return layer.supportedMediaType
-        default:
-            return nil
         }
     }
     
