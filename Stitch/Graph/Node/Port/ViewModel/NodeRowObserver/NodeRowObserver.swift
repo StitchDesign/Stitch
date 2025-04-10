@@ -46,7 +46,7 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
     @MainActor var allRowViewModels: [RowViewModelType] { get }
     
     @MainActor
-    var nodeDelegate: NodeDelegate? { get set }
+    var nodeDelegate: NodeViewModel? { get set }
         
     @MainActor
     var hasLoopedValues: Bool { get set }
@@ -177,7 +177,7 @@ extension NodeRowObserver {
     init(values: PortValues,
          id: NodeIOCoordinate,
          upstreamOutputCoordinate: NodeIOCoordinate?,
-         nodeDelegate: NodeDelegate) {
+         nodeDelegate: NodeViewModel) {
         self.init(values: values,
                   id: id,
                   upstreamOutputCoordinate: upstreamOutputCoordinate)
@@ -185,7 +185,7 @@ extension NodeRowObserver {
     }
     
     @MainActor
-    func initializeDelegate(_ node: NodeDelegate) {
+    func initializeDelegate(_ node: NodeViewModel) {
         self.nodeDelegate = node
                 
         // TODO: why do we handle post-processing when we've assigned the nodeDelegate? ... is it just because post-processing requires a nodeDelegate?

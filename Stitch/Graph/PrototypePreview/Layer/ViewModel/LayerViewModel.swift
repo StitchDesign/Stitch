@@ -70,7 +70,7 @@ final class LayerViewModel: Sendable {
     let layer: Layer
     let interactiveLayer: InteractiveLayer
     
-    @MainActor weak var nodeDelegate: NodeDelegate?
+    @MainActor weak var nodeDelegate: NodeViewModel?
     
     // PINNING: "View A is pinned to View B"
 
@@ -301,7 +301,7 @@ final class LayerViewModel: Sendable {
          layer: Layer,
          zIndex: PortValue = defaultNumber,
          position: PortValue = .position(.zero),
-         nodeDelegate: NodeDelegate?) {
+         nodeDelegate: NodeViewModel?) {
         
         self.id = id
         self.layer = layer
@@ -447,7 +447,7 @@ final class LayerViewModel: Sendable {
     convenience init(layerId: LayerNodeId,
                      loopIndex: Int,
                      layer: Layer,
-                     nodeDelegate: NodeDelegate?) {
+                     nodeDelegate: NodeViewModel?) {
         let id = PreviewCoordinate(layerNodeId: layerId, loopIndex: loopIndex)
         self.init(id: id,
                   layer: layer,
