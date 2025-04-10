@@ -151,8 +151,6 @@ extension NodeRowViewModel {
             nodeIO: nodeIO,
             rowViewModel: rowViewModel)
         
-        
-//        let layerInput: LayerInputPort? = rowViewModel.rowDelegate?.id.layerInput?.layerInput
         let rowId: NodeRowViewModelId = rowViewModel.id
         
         // All PortValue types except ShapeCommand use a single grouping of fields

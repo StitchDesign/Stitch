@@ -59,7 +59,7 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
         // TODO: perf implications updating every port's color when selectedEdges or edgeDrawingObserver changes?
         
         // Update port color on selected edges change
-            .onChange(of: graph.selectedEdges) { _, newValue in
+            .onChange(of: graph.selectedEdges) {
                 dispatch(MaybeUpdatePortColor(rowId: self.rowViewModel.id,
                                               nodeIO: NodeRowViewModelType.nodeIO))
             }
