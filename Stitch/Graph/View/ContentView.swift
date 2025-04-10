@@ -119,6 +119,9 @@ struct ContentView: View, KeyboardReadable {
                 .overlay {
                     flyout
                 }
+                .overlay {
+                    catalystProjectTitleEditView
+                }
                 
                 // NOTE: APPARENTLY NOT NEEDED ANYMORE?
 //                // Note: we want the floating preview window to 'ignore safe areas' (e.g. the keyboard rising up should not affect preview window's size or position):
@@ -167,5 +170,35 @@ struct ContentView: View, KeyboardReadable {
     var flyout: some View {
         OpenFlyoutView(document: document,
                        graph: document.visibleGraph)
+    }
+    
+    @ViewBuilder
+    var catalystProjectTitleEditView: some View {
+#if targetEnvironment(macCatalyst)
+        if document.showCatalystProjectTitleModal {
+            VStack(alignment: .leading) {
+                StitchTextView(string: "Edit Project Title")
+                CatalystProjectTitleModalView(graph: document.visibleGraph,
+                                              document: document)
+            }
+            .padding()
+            .frame(width: 360, alignment: .leading)
+            .background(
+                Color(uiColor: .systemGray5)
+                // NOTE: strangely we need `[.all, .keyboard]` on BOTH the background color AND the StitchHostingControllerView
+                    .ignoresSafeArea([.all, .keyboard])
+                    .cornerRadius(4)
+            )
+            .position(
+                x: 180 // half width of edit view itself, so its left-edge sits at screen's left-edge
+                + 16 // padding
+                // + 330 // traffic lifts, sidebar button
+                + 158
+                + (document.leftSidebarOpen ? (-SIDEBAR_WIDTH/2 + 38) : 0)
+                
+                , y: 52)
+                
+        } // if document
+#endif
     }
 }
