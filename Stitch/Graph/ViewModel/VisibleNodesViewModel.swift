@@ -173,6 +173,11 @@ extension VisibleNodesViewModel {
                 
                 assertInDebug(node.kind == .group)
                 
+                // Oh, interesting -- each 'row' on a group node is a different underlying row observer (for an underlying input-splitter or output-splitter;
+                // yet you want to pass in a single input row observer and a single output observer,
+                // which won't work.
+                // Init'ing the delegate on a group node =
+                // do we not need to do this, since we've already synced row view models?
                 canvasGroup.initializeDelegate(node,
                                                unpackedPortParentFieldGroupType: nil,
                                                unpackedPortIndex: nil)

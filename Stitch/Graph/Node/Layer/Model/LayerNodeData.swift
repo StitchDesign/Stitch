@@ -132,17 +132,31 @@ final class OutputLayerNodeRowData: LayerNodeRowData, Identifiable {
                                            canvasItemDelegate: nil)
     }
     
+    // initialization of inspector row view model needs active index and row obseerver
     @MainActor
     func initializeDelegate(_ node: NodeDelegate) {
         self.rowObserver.initializeDelegate(node)
+        
+        let rowDelegate = self.rowObserver
+        guard let document = self.rowObserver.nodeDelegate?.graphDelegate?.documentDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        
         self.canvasObserver?.initializeDelegate(node,
-                                                // Not relevant
+                                                // Not relevant for output
                                                 unpackedPortParentFieldGroupType: nil,
                                                 unpackedPortIndex: nil)
-        self.inspectorRowViewModel.initializeDelegate(node,
-                                                      // Not relevant
-                                                      unpackedPortParentFieldGroupType: nil,
-                                                      unpackedPortIndex: nil)
+                
+       
+        
+        self.inspectorRowViewModel.initializeDelegate(
+            node, // for setting NodeDelegate on NodeRowViewModel
+            initialValue: rowDelegate.getActiveValue(activeIndex: document.activeIndex),
+            // Not relevant for output
+            unpackedPortParentFieldGroupType: nil,
+            unpackedPortIndex: nil,
+            layerInput: nil)
     }
 }
 
@@ -155,9 +169,19 @@ extension LayerNodeRowData {
         self.canvasObserver?.initializeDelegate(node,
                                                 unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                                                 unpackedPortIndex: unpackedPortIndex)
-        self.inspectorRowViewModel.initializeDelegate(node,
-                                                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                                      unpackedPortIndex: unpackedPortIndex)
+        
+        let rowDelegate = self.rowObserver
+        guard let document = self.rowObserver.nodeDelegate?.graphDelegate?.documentDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        self.inspectorRowViewModel.initializeDelegate(
+            node,
+            initialValue: rowDelegate.getActiveValue(activeIndex: document.activeIndex),
+            unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+            unpackedPortIndex: unpackedPortIndex,
+            layerInput: rowDelegate.id.layerInput?.layerInput)
     }
     
     @MainActor

@@ -190,21 +190,43 @@ extension CanvasItemViewModel {
 }
 
 extension CanvasItemViewModel {
+    
+    // When initializing row view models for a canvas item,
+    // we should have the underlying row observer available
     @MainActor
     func initializeDelegate(_ node: NodeDelegate,
+                            inputRowObserver: InputNodeRowObserver?,
+                            outputRowObserver: OutputNodeRowObserver?,
                             unpackedPortParentFieldGroupType: FieldGroupType?,
                             unpackedPortIndex: Int?) {
         self.nodeDelegate = node
-        self.inputViewModels.forEach {
-            $0.initializeDelegate(node,
-                                  unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                  unpackedPortIndex: unpackedPortIndex)
+
+        guard let activeIndex = node.graphDelegate?.documentDelegate?.activeIndex else {
+            fatalErrorIfDebug()
+            return
         }
         
-        self.outputViewModels.forEach {
-            $0.initializeDelegate(node,
-                                  unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                  unpackedPortIndex: unpackedPortIndex)
+        if let inputRowObserver = inputRowObserver {
+            self.inputViewModels.forEach {
+                $0.initializeDelegate(
+                    node,
+                    initialValue: inputRowObserver.getActiveValue(activeIndex: activeIndex),
+                    unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                    unpackedPortIndex: unpackedPortIndex,
+                    layerInput: inputRowObserver.id.layerInput?.layerInput)
+            }
+        }
+        
+        if let outputRowObserver = outputRowObserver {
+            self.outputViewModels.forEach {
+                $0.initializeDelegate(
+                    node,
+                    initialValue: outputRowObserver.getActiveValue(activeIndex: activeIndex),
+                    // Not relevant for output row view models
+                    unpackedPortParentFieldGroupType: nil,
+                    unpackedPortIndex: nil,
+                    layerInput: nil)
+            }
         }
         
         // Reset cache data--fixes scenarios like undo

@@ -99,20 +99,19 @@ extension NodeRowViewModel {
      
     @MainActor
     func initializeDelegate(_ node: NodeDelegate,
+                            initialValue: PortValue,
                             unpackedPortParentFieldGroupType: FieldGroupType?,
-                            unpackedPortIndex: Int?) {
-        guard let rowDelegate = self.rowDelegate else {
-            fatalErrorIfDebug()
-            return
-        }
+                            unpackedPortIndex: Int?,
+                            layerInput: LayerInputPort?) {
         
         self.nodeDelegate = node
         
         if self.fieldValueTypes.isEmpty {
-            self.initializeValues(rowDelegate: rowDelegate,
-                                  unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                  unpackedPortIndex: unpackedPortIndex,
-                                  initialValue: rowDelegate.getActiveValue(activeIndex: node.graphDelegate?.documentDelegate?.activeIndex ?? .init(.zero)))
+            self.initializeValues(
+                unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                unpackedPortIndex: unpackedPortIndex,
+                initialValue: initialValue,
+                rowObserverLayerInput: layerInput)
         }
         
         let newPortViewData = self.getPortViewData()
@@ -133,18 +132,20 @@ extension NodeRowViewModel {
     }
     
     @MainActor
-    func initializeValues(rowDelegate: Self.RowObserver,
-                          unpackedPortParentFieldGroupType: FieldGroupType?,
+    func initializeValues(unpackedPortParentFieldGroupType: FieldGroupType?,
                           unpackedPortIndex: Int?,
-                          initialValue: PortValue) {
+                          initialValue: PortValue,
+                          rowObserverLayerInput: LayerInputPort?) {
         if initialValue != self.activeValue {
             self.activeValue = initialValue
         }
         
-        let fields = self.createFieldValueTypes(initialValue: initialValue,
-                                                nodeIO: Self.nodeIO,
-                                                unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                                unpackedPortIndex: unpackedPortIndex)
+        let fields = self.createFieldValueTypes(
+            initialValue: initialValue,
+            nodeIO: Self.nodeIO,
+            unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+            unpackedPortIndex: unpackedPortIndex,
+            layerInput: rowObserverLayerInput)
         
         let didFieldsChange = !zip(self.fieldValueTypes, fields).allSatisfy { $0.id == $1.id }
         
