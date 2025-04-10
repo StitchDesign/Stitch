@@ -44,26 +44,10 @@ extension InputNodeRowViewModel {
     
     @MainActor
     func portDragEnded(graphState: GraphState) {
-//        let disableEdgeAnimationEffect: Effect = createDelayedEffect(
-//            delayInNanoseconds: TimeHelpers.ThreeTenthsOfASecondInNanoseconds,
-//            action: DisableEdgeAnimation())
-
-        
         guard let drawingGesture = graphState.edgeDrawingObserver.drawingGesture,
               let sourceNodeId = drawingGesture.output.computationNode?.id,
               let nearestEligibleInput = graphState.edgeDrawingObserver.nearestEligibleInput else {
             log("InputDragEnded: drag ended, but could not create new edge")
-            
-            // TODO: why wasn't this necessary in the original Edge Perf PR?
-            if let outputRowViewModel = graphState.edgeDrawingObserver.drawingGesture?.output,
-               let outputObserver = graphState.getOutputRowObserver(outputRowViewModel.nodeIOCoordinate) {
-                outputRowViewModel.updatePortColor(
-                    hasEdge: outputObserver.hasEdge,
-                    hasLoop: outputObserver.hasLoopedValues,
-                    selectedEdges: graphState.selectedEdges,
-                    drawingObserver: graphState.edgeDrawingObserver)
-            }
-            
             graphState.edgeDrawingObserver.reset()
             
             DispatchQueue.main.async { [weak graphState] in
