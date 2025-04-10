@@ -115,6 +115,10 @@ extension NodeRowViewModel {
                                   initialValue: rowDelegate.getActiveValue(activeIndex: node.graphDelegate?.documentDelegate?.activeIndex ?? .init(.zero)))
         }
         
+        self.updatePortViewData()
+    }
+    
+    @MainActor func updatePortViewData() {
         let newPortViewData = self.getPortViewData()
         if self.portViewData != newPortViewData {
             self.portViewData = newPortViewData
