@@ -61,13 +61,16 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
         // Update port color on selected edges change
         // Note: Should this ALSO update upstream and downstream ports? If not, why not?
             .onChange(of: graph.selectedEdges) {
-                self.rowViewModel.updatePortColor()
+                dispatch(MaybeUpdatePortColor(rowId: self.rowViewModel.id,
+                                              nodeIO: NodeRowViewModelType.nodeIO))
             }
             .onChange(of: self.graph.edgeDrawingObserver.drawingGesture.isDefined) { oldValue, newValue in
-                self.rowViewModel.updatePortColor()
+                dispatch(MaybeUpdatePortColor(rowId: self.rowViewModel.id,
+                                              nodeIO: NodeRowViewModelType.nodeIO))
             }
             .onChange(of: self.graph.edgeDrawingObserver.nearestEligibleInput.isDefined) { oldValue, newValue in
-                self.rowViewModel.updatePortColor()
+                dispatch(MaybeUpdatePortColor(rowId: self.rowViewModel.id,
+                                              nodeIO: NodeRowViewModelType.nodeIO))
             }
         // ^^ should also update port color eligible
     }
@@ -84,6 +87,38 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
         isDraggingFromThisOutput ? DrawnEdge.animationDuration : .zero
     }
 }
+
+/*
+ Whenever graph's selectedEdges or drawing gesture (or drawing gesture's nearest eligible input) changes,
+ we need to update the port color on the row view model for this port-entry view.
+
+ When updating that color, we will still need to know whether we have an edge and/or a loop, facts which are provided by the row observer.
+ Previously we were accessing this via row view model's row observer delegate, which in any case if used in the view would have caused an additional render cycle.
+ 
+ Note: trying an action because:
+ - we can look up the row observer in state, to avoid a delegate-access which triggers a render-cycle
+ - passing the node row observer to the PortEntryView was giving me complaints about generics
+ */
+struct MaybeUpdatePortColor: GraphEvent {
+    let rowId: NodeRowViewModelId
+    let nodeIO: NodeIO
+    
+    func handle(state: GraphState) {
+        switch nodeIO {
+        case .input:
+            if let input = state.getInputRowObserver(rowId.asNodeIOCoordinate) {
+                input.updateConnectedCanvasItems(selectedEdges: state.selectedEdges,
+                                                 drawingObserver: state.edgeDrawingObserver)
+            }
+        case .output:
+            if let output = state.getOutputRowObserver(rowId.asNodeIOCoordinate) {
+                output.updateConnectedCanvasItems(selectedEdges: state.selectedEdges,
+                                                  drawingObserver: state.edgeDrawingObserver)
+            }
+        }
+    }
+}
+
 
 extension Color {
     static let HITBOX_COLOR = Color.white.opacity(0.001)
@@ -117,7 +152,7 @@ struct PortEntryExtendedHitBox<RowViewModel: NodeRowViewModel>: View {
                         .onEnded { _ in
                             //                    log("PortEntry: onEnded")
                             rowViewModel.isDragging = false
-                            rowViewModel.portDragEnded(graphState: graphState)
+                            rowViewModel.portDragEnded(graph: graphState)
                         }
             )
     }

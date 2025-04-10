@@ -10,8 +10,8 @@ import UIKit
 import StitchSchemaKit
 
 struct NodeView: View {
-    @Bindable var node: CanvasItemViewModel
-    @Bindable var stitch: NodeViewModel
+    @Bindable var canvasItem: CanvasItemViewModel
+    @Bindable var node: NodeViewModel
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     let nodeId: NodeId
@@ -25,47 +25,47 @@ struct NodeView: View {
     let updateMenuActiveSelectionBounds: Bool
 
     var zIndex: CGFloat {
-        self.node.zIndex
+        self.canvasItem.zIndex
     }
 
     @MainActor
     var displayTitle: String {
-        self.stitch.displayTitle
+        self.node.displayTitle
     }
 
     var nodeUIColor: NodeUIColor {
-        self.stitch.color
+        self.node.color
     }
 
     var userVisibleType: UserVisibleType? {
-        self.stitch.userVisibleType
+        self.node.userVisibleType
     }
     
     var isLayerNode: Bool {
-        self.stitch.kind.isLayer
+        self.node.kind.isLayer
     }
 
     var body: some View {
-        NodeLayout(observer: node,
-                   existingCache: node.viewCache) {
+        NodeLayout(observer: canvasItem,
+                   existingCache: canvasItem.viewCache) {
             nodeBody
-                .opacity(node.viewCache.isDefined ? 1 : 0)
+                .opacity(canvasItem.viewCache.isDefined ? 1 : 0)
             .onAppear {
-                self.node.updateVisibilityStatus(with: true, graph: graph)
+                self.canvasItem.updateVisibilityStatus(with: true, graph: graph)
             }
             .onDisappear {
-                self.node.updateVisibilityStatus(with: false, graph: graph)
+                self.canvasItem.updateVisibilityStatus(with: false, graph: graph)
             }
             .onChange(of: self.isSelected) {
-                self.stitch.updatePortColorDataUponNodeSelection()
+                dispatch(UpdatePortColorUponNodeSelected(nodeId: nodeId))
             }
 #if targetEnvironment(macCatalyst)
             // Catalyst right-click to open node tag menu
                 .contextMenu {
                     NodeTagMenuButtonsView(graph: graph,
                                            document: document,
-                                           node: stitch,
-                                           canvasItemId: node.id,
+                                           node: node,
+                                           canvasItemId: canvasItem.id,
                                            activeGroupId: activeGroupId,
                                            canAddInput: canAddInput,
                                            canRemoveInput: canRemoveInput,
@@ -75,8 +75,8 @@ struct NodeView: View {
                 .modifier(
                     NodeViewTapGestureModifier(graph: graph,
                                                document: document,
-                                               stitch: stitch,
-                                               node: node)
+                                               stitch: node,
+                                               node: canvasItem)
                 )
             
             /*
@@ -88,10 +88,10 @@ struct NodeView: View {
              */
                 .overlay(alignment: .topTrailing) {
                     if isSelected {
-                        CanvasItemTag(node: node,
+                        CanvasItemTag(node: canvasItem,
                                       graph: graph,
                                       document: document,
-                                      stitch: stitch,
+                                      stitch: node,
                                       activeGroupId: activeGroupId,
                                       canAddInput: canAddInput,
                                       canRemoveInput: canRemoveInput,
@@ -101,7 +101,7 @@ struct NodeView: View {
         }
                    .canvasItemPositionHandler(document: document,
                                               graph: graph,
-                                              node: node,
+                                              node: canvasItem,
                                               zIndex: zIndex)
     }
 
@@ -115,12 +115,12 @@ struct NodeView: View {
             nodeBodyKind
                 .modifier(CanvasItemBodyPadding())
         }
-        .onChange(of: self.node.sizeByLocalBounds) {
+        .onChange(of: self.canvasItem.sizeByLocalBounds) {
             // also a useful hack for updating node layout after type changes
-            self.node.updatePortLocations()
+            self.canvasItem.updatePortLocations()
         }
         .overlay {
-            let isLayerInvisible = !(stitch.layerNode?.hasSidebarVisibility ?? true)
+            let isLayerInvisible = !(node.layerNode?.hasSidebarVisibility ?? true)
             Color.black.opacity(isLayerInvisible ? 0.3 : 0)
                 .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
                 .allowsHitTesting(!isLayerInvisible)
@@ -128,7 +128,7 @@ struct NodeView: View {
         .overlay {
             if document.llmRecording.mode == .augmentation &&
                 document.llmRecording.modal == .editBeforeSubmit {
-                let isAICreated = document.llmRecording.actions.containsNewNode(from: stitch.id)
+                let isAICreated = document.llmRecording.actions.containsNewNode(from: node.id)
                 Color.blue.opacity(isAICreated ? 0.2 : 0)
                     .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
                     .allowsHitTesting(!isAICreated)
@@ -144,8 +144,8 @@ struct NodeView: View {
         HStack {
             CanvasItemTitleView(document: document,
                                 graph: graph,
-                                node: stitch,
-                                canvasItem: node,
+                                node: node,
+                                canvasItem: canvasItem,
                                 isCanvasItemSelected: isSelected)
             .modifier(CanvasItemTitlePadding())
             
@@ -165,17 +165,17 @@ struct NodeView: View {
     func inputsViews() -> some View {
         VStack(alignment: .leading,
                spacing: SPACING_BETWEEN_NODE_ROWS) {
-            if self.stitch.patch == .wirelessReceiver {
+            if self.node.patch == .wirelessReceiver {
                 WirelessPortView(isOutput: false,
-                                 id: stitch.id)
+                                 id: node.id)
                 .padding(.trailing, NODE_BODY_SPACING)
-            } else if let layerNode: LayerNodeViewModel = self.stitch.layerNode,
-                      let layerInputCoordinate: LayerInputCoordinate = self.node.id.layerInputCase {
+            } else if let layerNode: LayerNodeViewModel = self.node.layerNode,
+                      let layerInputCoordinate: LayerInputCoordinate = self.canvasItem.id.layerInputCase {
                 // Layer input or field
                 CanvasLayerInputViewWrapper(graph: graph,
                                             document: document,
-                                            node: stitch,
-                                            canvasNode: node,
+                                            node: node,
+                                            canvasNode: canvasItem,
                                             layerNode: layerNode,
                                             layerInputCoordinate: layerInputCoordinate,
                                             isNodeSelected: isSelected)
@@ -183,8 +183,8 @@ struct NodeView: View {
                 // Multiple inputs
                 DefaultNodeInputsView(graph: graph,
                                       document: document,
-                                      node: stitch,
-                                      canvas: node,
+                                      node: node,
+                                      canvas: canvasItem,
                                       isNodeSelected: isSelected)
             }
         }
@@ -195,15 +195,15 @@ struct NodeView: View {
         VStack(alignment: .trailing,
                spacing: SPACING_BETWEEN_NODE_ROWS) {
             
-            if self.stitch.patch == .wirelessBroadcaster {
+            if self.node.patch == .wirelessBroadcaster {
                 WirelessPortView(isOutput: true,
-                                 id: stitch.id)
+                                 id: node.id)
                 .padding(.leading, NODE_BODY_SPACING)
             } else {
                 DefaultNodeOutputsView(graph: graph,
                                        document: document,
-                                       node: stitch,
-                                       canvas: node,
+                                       node: node,
+                                       canvas: canvasItem,
                                        isNodeSelected: isSelected)
             }
         }

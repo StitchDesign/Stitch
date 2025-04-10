@@ -367,10 +367,12 @@ extension VisibleNodesViewModel {
 
     /// Updates cached data inside row observers.
     @MainActor
-    func updateAllNodeViewData() {        
+    func updateAllNodesObserversConnectedCanvasItems(selectedEdges: Set<PortEdgeUI>,
+                                                     drawingObserver: EdgeDrawingObserver) {
         // Connected nodes data relies on port view data so we call this later
         self.nodes.values.forEach { node in
-            node.updateAllConnectedNodes()
+            node.updateObserversConnectedCanvasItems(selectedEdges: selectedEdges,
+                                                     drawingObserver: drawingObserver)
         }
     }
     

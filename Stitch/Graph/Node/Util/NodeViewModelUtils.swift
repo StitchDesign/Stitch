@@ -164,9 +164,16 @@ extension NodeViewModel {
     }
     
     @MainActor
-    func updateAllConnectedNodes() {
-        self.allInputViewModels.forEach { $0.updateConnectedCanvasItems() }
-        self.allOutputViewModels.forEach { $0.updateConnectedCanvasItems() }
+    func updateObserversConnectedCanvasItems(selectedEdges: Set<PortEdgeUI>,
+                                             drawingObserver: EdgeDrawingObserver) {
+        self.inputsObservers.forEach {
+            $0.updateConnectedCanvasItems(selectedEdges: selectedEdges,
+                                          drawingObserver: drawingObserver)
+        }
+        self.outputsObservers.forEach {
+            $0.updateConnectedCanvasItems(selectedEdges: selectedEdges,
+                                          drawingObserver: drawingObserver)
+        }
     }
     
     // MARK: heavy perf cost due to human readable strings.**

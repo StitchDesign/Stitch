@@ -26,8 +26,15 @@ extension NodeRowObserver {
             self.hasLoopedValues = hasLoop
         }
         
+        guard let graph = self.nodeDelegate?.graphDelegate else {
+            return
+        }
+        
         self.allRowViewModels.forEach {
-            $0.updatePortColor()
+            $0.updatePortColor(hasEdge: self.hasEdge,
+                               hasLoop: self.hasLoopedValues,
+                               selectedEdges: graph.selectedEdges,
+                               drawingObserver: graph.edgeDrawingObserver)
         }
     }
     

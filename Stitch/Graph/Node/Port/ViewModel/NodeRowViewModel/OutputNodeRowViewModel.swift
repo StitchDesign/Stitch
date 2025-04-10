@@ -10,6 +10,7 @@ import Foundation
 
 @Observable
 final class OutputNodeRowViewModel: NodeRowViewModel {
+    
     typealias PortViewType = OutputPortViewData
     static let nodeIO: NodeIO = .output
     
@@ -38,11 +39,8 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
 
 extension OutputNodeRowViewModel {
     @MainActor
-    func findConnectedCanvasItems() -> CanvasItemIdSet {
-        guard let downstreamCanvases = self.rowDelegate?.getConnectedDownstreamNodes() else {
-            return .init()
-        }
-            
+    func findConnectedCanvasItems(rowObserver: OutputNodeRowObserver) -> CanvasItemIdSet {
+        let downstreamCanvases = rowObserver.getConnectedDownstreamNodes()
         let downstreamCanvasIds = downstreamCanvases.map { $0.id }
         return Set(downstreamCanvasIds)
     }
@@ -52,35 +50,35 @@ extension OutputNodeRowViewModel {
     /// 1. "Do we have a loop?" (blue vs theme-color) and
     /// 2. "Do we have an eligible input?" (highlight vs non-highlighted)
     @MainActor
-    func calculatePortColor() -> PortColor {
-        if let drawingObserver = self.graphDelegate?.edgeDrawingObserver,
-           let drawnEdge = drawingObserver.drawingGesture,
-           drawnEdge.output.id == self.id {
-            return PortColor(
-                isSelected: drawingObserver.nearestEligibleInput.isDefined,
-//                hasEdge: hasEdge,
-                hasEdge: drawingObserver.nearestEligibleInput.isDefined,
-                hasLoop: hasLoop)
-        }
+    func calculatePortColor(hasEdge: Bool,
+                            hasLoop: Bool,
+                            selectedEdges: Set<PortEdgeUI>,
+                            drawingObserver: EdgeDrawingObserver) -> PortColor {
         
+        if let drawnEdge = drawingObserver.drawingGesture,
+           drawnEdge.output.id == self.id {
+            let hasEligibleInput = drawingObserver.nearestEligibleInput.isDefined
+            return PortColor(isSelected: hasEligibleInput,
+                             hasEdge: hasEligibleInput,
+                             hasLoop: hasLoop)
+        }
         
         // Otherwise, common port color logic applies:
         else {
             let isSelected = self.isCanvasItemSelected ||
                 self.isConnectedToASelectedCanvasItem ||
-            self.hasSelectedEdge()
+            self.hasSelectedEdge(selectedEdges: selectedEdges)
             return PortColor(isSelected: isSelected,
                              hasEdge: hasEdge,
                              hasLoop: hasLoop)
         }
     }
     
-    @MainActor func hasSelectedEdge() -> Bool {
-        guard let portViewData = portViewData,
-              let graphDelegate = graphDelegate else {
+    @MainActor
+    func hasSelectedEdge(selectedEdges: Set<PortEdgeUI>) -> Bool {
+        guard let portViewData = self.portViewData else {
             return false
         }
-        
-        return graphDelegate.selectedEdges.contains { $0.from == portViewData }
+        return selectedEdges.contains { $0.from == portViewData }
     }
 }

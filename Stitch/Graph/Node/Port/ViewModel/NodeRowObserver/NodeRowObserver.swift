@@ -187,7 +187,7 @@ extension NodeRowObserver {
     @MainActor
     func initializeDelegate(_ node: NodeDelegate) {
         self.nodeDelegate = node
-        
+                
         // TODO: why do we handle post-processing when we've assigned the nodeDelegate? ... is it just because post-processing requires a nodeDelegate?
         switch Self.nodeIOType {
         case .input:
@@ -195,10 +195,18 @@ extension NodeRowObserver {
         case .output:
             self.outputPostProcessing()
         }
-    
+        
+        // TODO: pass in GraphState? We ought to already have it when doing anything with a row observer
+        guard let graph = node.graphDelegate else {
+            return
+        }
+            
         // Update visual color data
         self.allRowViewModels.forEach {
-            $0.updatePortColor()
+            $0.updatePortColor(hasEdge: self.hasEdge,
+                               hasLoop: self.hasLoopedValues,
+                               selectedEdges: graph.selectedEdges,
+                               drawingObserver: graph.edgeDrawingObserver)
         }
     }
     
@@ -223,12 +231,5 @@ extension NodeRowObserver {
             // is currently visible in selected group
             $0.graphDelegate?.documentDelegate?.groupNodeFocused?.groupNodeId == $0.canvasItemDelegate?.parentGroupNodeId
         }
-    }
-}
-
-extension Array where Element: NodeRowViewModel {
-    @MainActor
-    func first(_ id: NodeIOCoordinate) -> Element? {
-        self.first { $0.rowDelegate?.id == id }
     }
 }

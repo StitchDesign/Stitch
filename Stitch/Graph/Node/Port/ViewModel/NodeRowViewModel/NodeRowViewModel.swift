@@ -41,15 +41,21 @@ protocol NodeRowViewModel: StitchLayoutCachable, Observable, Identifiable {
     
     static var nodeIO: NodeIO { get }
     
-    @MainActor func calculatePortColor() -> PortColor
-    
     @MainActor func portDragged(gesture: DragGesture.Value, graphState: GraphState)
     
-    @MainActor func portDragEnded(graphState: GraphState)
-    
-    @MainActor func hasSelectedEdge() -> Bool
-    
-    @MainActor func findConnectedCanvasItems() -> CanvasItemIdSet
+    @MainActor func portDragEnded(graph: GraphState)
+        
+    // Responsible for:
+    // (1) updating an input's upstream output
+    // (2) updating an output's downstream inputs
+    // (3) updating an input/output's port color
+//    @MainActor func findConnectedCanvasItems(rowObserver: Self.RowObserver) -> CanvasItemIdSet
+        
+    @MainActor func calculatePortColor(hasEdge: Bool,
+                                       hasLoop: Bool,
+                                       selectedEdges: Set<PortEdgeUI>,
+                                       // output only
+                                       drawingObserver: EdgeDrawingObserver) -> PortColor
     
     @MainActor
     init(id: NodeRowViewModelId,
@@ -188,19 +194,15 @@ extension NodeRowViewModel {
     }
     
     @MainActor
-    func updatePortColor() {
-        let newColor = self.calculatePortColor()
+    func updatePortColor(hasEdge: Bool,
+                         hasLoop: Bool,
+                         selectedEdges: Set<PortEdgeUI>,
+                         drawingObserver: EdgeDrawingObserver) {
+        let newColor = self.calculatePortColor(hasEdge: hasEdge,
+                                               hasLoop: hasLoop,
+                                               selectedEdges: selectedEdges,
+                                               drawingObserver: drawingObserver)
         self.setPortColorIfChanged(newColor)
-    }
-    
-    @MainActor
-    var hasEdge: Bool {
-        rowDelegate?.hasEdge ?? false
-    }
-    
-    @MainActor
-    var hasLoop: Bool {
-        rowDelegate?.hasLoopedValues ?? false
     }
 }
 
