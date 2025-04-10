@@ -170,6 +170,7 @@ func deviceInfoEval(node: PatchNode,
     let deviceType = UIDevice().type // UIDevice.current.model
 
     let safeAreaInsets = state.documentDelegate?.safeAreaInsets ?? .init()
+    let zoomData = state.documentDelegate?.graphMovement.zoomData ?? 1.0
     
     //    #if DEV_DEBUG
     //    log("deviceInfoEval: deviceSize: \(deviceSize)")
@@ -185,7 +186,7 @@ func deviceInfoEval(node: PatchNode,
 
     let outputs: PortValuesList = [
         [.size(deviceSize.toLayerSize)],
-        [.number(state.graphMovement.zoomData)],
+        [.number(zoomData)],
         [.deviceOrientation(orientation.toStitchDeviceOrientation)],
         [.string(.init(deviceType.rawValue))],
         [.string(.init(state.documentDelegate?.colorScheme.description ?? ""))],

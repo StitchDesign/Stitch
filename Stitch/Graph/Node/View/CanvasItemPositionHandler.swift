@@ -61,16 +61,21 @@ struct CanvasItemDragHandler: UIGestureRecognizerRepresentable {
                                          context: Context) {
         let translation = recognizer.translation(in: recognizer.view).toCGSize
 
+        guard let graphMovement = graph.documentDelegate?.graphMovement else {
+            fatalErrorIfDebug()
+            return
+        }
+        
         // log("CanvasItemDragHandler: handleUIGestureRecognizerAction")
         switch recognizer.state {
         case .began:
             // If we don't have an active first gesture,
             // and graph isn't already dragging,
             // then set node-drag as active first gesture
-            if graph.graphMovement.firstActive == .none {
-                if !graph.graphMovement.graphIsDragged {
+            if graphMovement.firstActive == .none {
+                if !graphMovement.graphIsDragged {
                     // log("canvasItemMoved: will set .node as active first gesture")
-                    graph.graphMovement.firstActive = .node
+                    graphMovement.firstActive = .node
                 }
             }
             
@@ -88,7 +93,7 @@ struct CanvasItemDragHandler: UIGestureRecognizerRepresentable {
                     return
                 }
                 
-                graph.graphMovement.draggedCanvasItem = canvasItemId
+                graphMovement.draggedCanvasItem = canvasItemId
                 
                 // Dragging an unselected node selects that node
                 // and de-selects all other nodes.

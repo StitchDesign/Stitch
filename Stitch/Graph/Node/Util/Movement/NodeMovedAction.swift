@@ -15,10 +15,14 @@ extension GraphState {
     @MainActor
     func updateCanvasItemOnDragged(_ canvasItem: CanvasItemViewModel,
                                    translation: CGSize) {
+        guard let graphMovement = self.documentDelegate?.graphMovement else {
+            fatalErrorIfDebug()
+            return
+        }
+        
         canvasItem.updateCanvasItemOnDragged(translation: translation,
                                              highestZIndex: self.highestZIndex + 1,
-                                             zoom: self.graphMovement.zoomData,
-                                             state: self.graphMovement)
+                                             state: graphMovement)
     }
 }
 
@@ -30,8 +34,10 @@ extension CanvasItemViewModel {
     @MainActor
     func updateCanvasItemOnDragged(translation: CGSize,
                                    highestZIndex: ZIndex?,
-                                   zoom: CGFloat,
                                    state: GraphMovementObserver) {
+        
+        // let zoom = state.zoomData
+        
         // log("updateCanvasItemOnDragged self.position was: \(self.position)")
         // Set z-index once on node movement
         if !self.isMoving,
@@ -161,15 +167,20 @@ extension GraphState {
             return
         }
 
-        self.graphMovement.lastCanvasItemTranslation = translation
+        guard let graphMovement = self.documentDelegate?.graphMovement else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        graphMovement.lastCanvasItemTranslation = translation
 
-        if self.graphMovement.firstActive == .graph {
+        if graphMovement.firstActive == .graph {
 
-            if !self.graphMovement.runningGraphTranslationBeforeNodeDragged.isDefined {
-                log("canvasItemMoved: setting runningGraphTranslationBeforeNodeDragged to be self.graphMovement.runningGraphTranslation: \(self.graphMovement.runningGraphTranslation)")
-                self.graphMovement
+            if !graphMovement.runningGraphTranslationBeforeNodeDragged.isDefined {
+                log("canvasItemMoved: setting runningGraphTranslationBeforeNodeDragged to be graphMovement.runningGraphTranslation: \(graphMovement.runningGraphTranslation)")
+                graphMovement
                     .runningGraphTranslationBeforeNodeDragged = (
-                        self.graphMovement.runningGraphTranslation ?? .zero) / self.graphMovement.zoomData
+                        graphMovement.runningGraphTranslation ?? .zero) / graphMovement.zoomData
             }
         }
 

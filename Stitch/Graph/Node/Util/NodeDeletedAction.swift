@@ -62,6 +62,11 @@ extension GraphState {
     @MainActor
     func selectedGraphNodesDeleted(selectedNodes: CanvasItemIdSet) {
 
+        guard let graphMovement = self.documentDelegate?.graphMovement else {
+            fatalErrorIfDebug()
+            return
+        }
+        
         selectedNodes.forEach { canvasItemId in
             self.deleteCanvasItem(canvasItemId)
         }
@@ -74,7 +79,7 @@ extension GraphState {
         // and so deleting the selected nodes means de-selecting those associated edges)
         self.selectedEdges = .init()
 
-        self.graphMovement.draggedCanvasItem = nil
+        graphMovement.draggedCanvasItem = nil
         
         self.updateGraphData()
     }

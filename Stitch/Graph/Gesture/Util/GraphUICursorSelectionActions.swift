@@ -33,12 +33,17 @@ struct GraphBackgroundLongPressEnded: GraphEvent {
     
     @MainActor
     func handle(state: GraphState) {
+        guard let graphMovement = state.documentDelegate?.graphMovement else {
+            fatalErrorIfDebug()
+            return
+        }
+        
         log("GraphBackgroundLongPressEnded called")
         state.selection.dragStartLocation = nil
         state.selection.dragCurrentLocation = nil
         state.selection.expansionBox = nil
         state.selection.isSelecting = false
-        state.graphMovement.localPreviousPosition = state.graphMovement.localPosition
+        graphMovement.localPreviousPosition = graphMovement.localPosition
     }
 }
 

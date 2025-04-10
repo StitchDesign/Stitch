@@ -127,11 +127,11 @@ extension GraphState {
                               store: StitchStore) {
         guard let document = store.currentDocument else { return }
         
-        var droppedLocation = nodeLocation
-        let localPosition = self.localPosition
-        let graphScale = self.graphMovement.zoomData
-
-        let originalNodeLocation = nodeLocation.toCGSize
+        let droppedLocation = nodeLocation
+        //        let localPosition = self.localPosition
+        //        let graphScale = document.graphMovement.zoomData
+        //
+        //        let originalNodeLocation = nodeLocation.toCGSize
 
         // Add media key to computed node state
         self.mediaLibrary.updateValue(newURL, forKey: newURL.mediaKey)
