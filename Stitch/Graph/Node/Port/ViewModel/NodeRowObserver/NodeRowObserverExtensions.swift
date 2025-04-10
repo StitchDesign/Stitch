@@ -67,7 +67,10 @@ extension NodeRowObserver {
             groupNodeFocused: document.groupNodeFocused?.groupNodeId)
         
         visibleRowViewModels.forEach { rowViewModel in
-            rowViewModel.didPortValuesUpdate(values: self.allLoopedValues)
+            rowViewModel.didPortValuesUpdate(
+                values: self.allLoopedValues,
+                layerFocusedInPropertyInspector: graph.layerFocusedInPropertyInspector,
+                activeIndex: document.activeIndex)
         }
     }
     

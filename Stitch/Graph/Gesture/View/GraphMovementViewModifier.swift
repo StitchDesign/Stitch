@@ -112,7 +112,7 @@ extension GraphState {
         }
         
         canvasItem.outputViewModels.forEach {
-            if let observer = self.getInputRowObserver($0.nodeIOCoordinate) {
+            if let observer = self.getOutputRowObserver($0.nodeIOCoordinate) {
                 $0.updateFields(observer.getActiveValue(activeIndex: activeIndex))
             }
         }

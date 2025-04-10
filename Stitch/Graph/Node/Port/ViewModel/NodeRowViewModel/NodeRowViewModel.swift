@@ -160,17 +160,15 @@ extension NodeRowViewModel {
     }
     
     @MainActor
-    func didPortValuesUpdate(values: PortValues) {
-        guard let rowDelegate = self.rowDelegate else {
-            return
-        }
+    func didPortValuesUpdate(values: PortValues,
+                             layerFocusedInPropertyInspector: NodeId?,
+                             activeIndex: ActiveIndex) {
+                
+        let isLayerFocusedInPropertySidebar = layerFocusedInPropertyInspector == self.id.nodeId
         
-        let activeIndex = rowDelegate.nodeDelegate?.graphDelegate?.documentDelegate?.activeIndex ?? .init(.zero)
-        let isLayerFocusedInPropertySidebar = rowDelegate.nodeDelegate?.graphDelegate?.layerFocusedInPropertyInspector == rowDelegate.id.nodeId
-        
-        let oldViewValue = self.activeValue // the old cached
+        let oldViewValue = self.activeValue // the old cached value
         let newViewValue = PortValue.getActiveValue(allLoopedValues: values,
-                                                          activeIndex: activeIndex)
+                                                    activeIndex: activeIndex)
         let didViewValueChange = oldViewValue != newViewValue
         
         /*

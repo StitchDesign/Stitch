@@ -118,16 +118,12 @@ extension NodeRowViewModel {
         self.updateFields(newValue)
     }
     
+    // TODO: this needs to take a little more data (layer input's row observer, document's active index, graph state for retrieving layer groups), since update ui-fields' values may require blocking or unblocking other fields
     @MainActor
     func updateFields(_ newValue: PortValue) {
         
         let nodeIO = Self.RowObserver.nodeIOType
-        
-        guard let rowDelegate = self.rowDelegate else {
-            fatalErrorIfDebug()
-            return
-        }
-        
+                
         let newFieldsByGroup = newValue.createFieldValuesList(nodeIO: nodeIO, rowViewModel: self)
         
         // Assert equal array counts
@@ -162,13 +158,16 @@ extension NodeRowViewModel {
             fieldObserverGroup.updateFieldValues(fieldValues: newFields)
         } // zip
         
-        if let node = self.nodeDelegate,
-           let layerNode = node.layerNodeViewModel,
-           // Better?: use: `self.id.portType.keyPath`
-           let layerInputForThisRow: LayerInputType = rowDelegate.id.keyPath {
-            layerNode.blockOrUnblockFields(newValue: newValue,
-                                           layerInput: layerInputForThisRow.layerInput,
-                                           activeIndex: self.graphDelegate?.documentDelegate?.activeIndex ?? .init(.zero))
+        // Whenever we update ui-fields' values, we need to potentially block or unblock the same/other fields.
+        // TODO: blocking or unblocking fields is only for a layer node; but requires reading from graph state etc.
+        if let layerInputForThisRow: LayerInputType = self.rowDelegate?.id.keyPath,
+           let node = self.nodeDelegate,
+           let document = node.graphDelegate?.documentDelegate,
+           let layerNode = node.layerNodeViewModel {
+            layerNode.blockOrUnblockFields(
+                newValue: newValue,
+                layerInput: layerInputForThisRow.layerInput,
+                activeIndex: document.activeIndex)
         }
     }
 }
