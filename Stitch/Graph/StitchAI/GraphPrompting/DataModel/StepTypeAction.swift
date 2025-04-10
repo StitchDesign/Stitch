@@ -154,7 +154,7 @@ protocol StepActionable: Hashable, Codable {
     var toStep: Step { get }
     
     @MainActor
-    func applyAction(graph: GraphState) throws
+    func applyAction(document: StitchDocumentViewModel) throws
     
     @MainActor
     func removeAction(graph: GraphState)
@@ -193,9 +193,10 @@ struct StepActionAddNode: StepActionable {
     
     static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .nodeName]
     
-    func applyAction(graph: GraphState) throws {
-        guard let _ = graph.documentDelegate?.nodeInserted(choice: self.nodeName.asNodeKind,
-                                                          nodeId: self.nodeId) else {
+    @MainActor
+    func applyAction(document: StitchDocumentViewModel) throws {
+        guard let _ = document.nodeInserted(choice: self.nodeName.asNodeKind,
+                                            nodeId: self.nodeId) else {
             throw StitchAIManagerError.actionValidationError("Could not create node \(self.nodeId.debugFriendlyId) \(self.nodeName)")
         }
     }
@@ -263,16 +264,17 @@ struct StepActionConnectionAdded: StepActionable {
         .init(portType: self.port, nodeId: self.toNodeId)
     }
     
-    func applyAction(graph: GraphState) throws {
+    @MainActor
+    func applyAction(document: StitchDocumentViewModel) throws {
         let edge: PortEdgeData = PortEdgeData(
             from: .init(portType: .portIndex(self.fromPort), nodeId: self.fromNodeId),
             to: self.inputPort)
         
-        let _ = graph.edgeAdded(edge: edge)
+        let _ = document.visibleGraph.edgeAdded(edge: edge)
         
         // Create canvas node if destination is layer
-        if let fromNodeLocation = graph.getNodeViewModel(self.fromNodeId)?.patchCanvasItem?.position,
-           let destinationNode = graph.getNodeViewModel(self.toNodeId),
+        if let fromNodeLocation = document.visibleGraph.getNodeViewModel(self.fromNodeId)?.patchCanvasItem?.position,
+           let destinationNode = document.visibleGraph.getNodeViewModel(self.toNodeId),
            let layerNode = destinationNode.layerNode {
             guard let keyPath = self.port.keyPath else {
                 // fatalErrorIfDebug()
@@ -283,10 +285,10 @@ struct StepActionConnectionAdded: StepActionable {
             position.x += 200
             
             let inputData = layerNode[keyPath: keyPath.layerNodeKeyPath]
-            graph.layerInputAddedToGraph(node: destinationNode,
-                                         input: inputData,
-                                         coordinate: keyPath,
-                                         position: position)
+            document.visibleGraph.layerInputAddedToGraph(node: destinationNode,
+                                                         input: inputData,
+                                                         coordinate: keyPath,
+                                                         position: position)
         }
     }
     
@@ -347,11 +349,12 @@ struct StepActionChangeValueType: StepActionable {
     
     static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .valueType]
     
-    func applyAction(graph: GraphState) throws {
+    @MainActor
+    func applyAction(document: StitchDocumentViewModel) throws {
         // NodeType etc. for this patch was already validated in `[StepTypeAction].areValidLLMSteps`
-        let _ = graph.nodeTypeChanged(nodeId: self.nodeId,
-                                      newNodeType: self.valueType,
-                                      activeIndex: graph.documentDelegate?.activeIndex ?? .init(.zero))
+        let _ = document.visibleGraph.nodeTypeChanged(nodeId: self.nodeId,
+                                                      newNodeType: self.valueType,
+                                                      activeIndex: document.activeIndex)
     }
     
     func removeAction(graph: GraphState) {
@@ -420,7 +423,9 @@ struct StepActionSetInput: StepActionable {
     
     static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .port, .value, .valueType]
     
-    func applyAction(graph: GraphState) throws {
+    @MainActor
+    func applyAction(document: StitchDocumentViewModel) throws {
+        let graph = document.visibleGraph
         let inputCoordinate = InputCoordinate(portType: self.port,
                                               nodeId: self.nodeId)
         guard let input = graph.getInputObserver(coordinate: inputCoordinate) else {

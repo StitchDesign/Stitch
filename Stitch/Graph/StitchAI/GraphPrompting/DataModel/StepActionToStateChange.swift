@@ -32,7 +32,7 @@ extension StitchDocumentViewModel {
         // Set true whenever we are
         self.llmRecording.isApplyingActions = true
                         
-        try action.applyAction(graph: self.visibleGraph)
+        try action.applyAction(document: self)
         self.llmRecording.isApplyingActions = false
     }
 }
