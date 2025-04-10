@@ -20,6 +20,12 @@ extension GraphState {
     @MainActor
     func commentBoxCreated(nodeId: CanvasItemId,
                            groupNodeFocused: NodeId?) {
+        
+        guard let graphMovement = self.documentDelegate?.graphMovement else {
+            fatalErrorIfDebug()
+            return
+        }
+        
         var selectedNodes = self.selectedCanvasItems
 
         // Alternatively?: always add this id to selectedNodes in StitchDocumentViewModel, so that we start it selected.
@@ -35,7 +41,7 @@ extension GraphState {
 
         let box = CommentBoxViewModel(
             zIndex: self.highestZIndex + 1,
-            scale: self.graphMovement.zoomData,
+            scale: graphMovement.zoomData,
             nodes: visibleSelectedNodes)
 
         self.commentBoxesDict.updateValue(box, forKey: box.id)

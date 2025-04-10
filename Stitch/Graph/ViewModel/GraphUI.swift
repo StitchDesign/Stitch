@@ -170,14 +170,19 @@ extension GraphState {
         }
         #endif
 
+        guard let graphMovement = self.documentDelegate?.graphMovement else {
+            fatalErrorIfDebug()
+            return
+        }
+        
         self.selectedEdges = .init()
 
         // if we tap the graph, we're no longer dragging either nodes or graph
         // TODO: should we also reset graphMovement.firstActive etc.? Otherwise we can get in an improper state?
-        self.graphMovement.draggedCanvasItem = nil
+        graphMovement.draggedCanvasItem = nil
         
-        if self.graphMovement.graphIsDragged {
-            self.graphMovement.graphIsDragged = false            
+        if graphMovement.graphIsDragged {
+            graphMovement.graphIsDragged = false
         }
 
         if self.selection != GraphUISelectionState.zero {
