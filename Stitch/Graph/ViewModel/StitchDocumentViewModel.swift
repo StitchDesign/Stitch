@@ -402,7 +402,8 @@ extension StitchDocumentViewModel {
                                    willUpdateUndoHistory: Bool = true) {
         guard let store = self.storeDelegate,
               let documentEncoder = self.documentEncoder else {
-            fatalErrorIfDebug()
+            log("encodeProjectInBackground: missing store and/or decoder delegates")
+            // fatalErrorIfDebug()
             return
         }
         
