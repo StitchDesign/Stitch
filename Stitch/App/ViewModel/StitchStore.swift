@@ -21,7 +21,6 @@ final class StitchStore: Sendable {
     @MainActor var allProjectUrls = [ProjectLoader]()
     let documentLoader = DocumentLoader()
     let clipboardEncoder = ClipboardEncoder()
-    let clipboardDelegate = ClipboardEncoderDelegate()
     
     @MainActor var alertState: ProjectAlertState
     
@@ -62,7 +61,6 @@ final class StitchStore: Sendable {
         
         self.environment.dirObserver.delegate = self
         self.environment.store = self
-        self.clipboardEncoder.delegate = self.clipboardDelegate
     }
 }
 
