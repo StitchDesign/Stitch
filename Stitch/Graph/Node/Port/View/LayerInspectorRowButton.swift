@@ -85,8 +85,7 @@ struct LayerInspectorRowButton: View {
             
             // If we're already on the canvas, jump to that canvas item
             if let canvasItemId = canvasItemId {
-                graph.jumpToCanvasItem(id: canvasItemId,
-                                       document: document)
+                dispatch(JumpToCanvasItem(id: canvasItemId))
             }
             
             // Else we're adding an input (whole or field) or an output to the canvas
