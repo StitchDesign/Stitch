@@ -61,7 +61,7 @@ struct NodesOnlyView: View {
                 
                 if let node = graph.getNodeViewModel(canvasNode.id.nodeId) {                    
                     NodeView(node: canvasNode,
-                             node: node,
+                             stitch: node,
                              document: document,
                              graph: graph,
                              nodeId: node.id,
