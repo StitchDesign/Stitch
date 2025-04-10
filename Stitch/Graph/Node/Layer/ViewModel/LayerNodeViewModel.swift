@@ -167,7 +167,7 @@ final class LayerNodeViewModel {
     var height3DPort: LayerInputObserver
     var isMetallicPort: LayerInputObserver
     
-    @MainActor weak var nodeDelegate: NodeDelegate?
+    @MainActor weak var nodeDelegate: NodeViewModel?
 
     // Sidebar visibility setting
     @MainActor var hasSidebarVisibility = true {
@@ -489,7 +489,7 @@ extension LayerNodeViewModel: SchemaObserver {
 
 extension LayerNodeViewModel {
     @MainActor
-    func initializeDelegate(_ node: NodeDelegate) {
+    func initializeDelegate(_ node: NodeViewModel) {
         self.nodeDelegate = node
         
         // Reset known input canvas items
@@ -681,7 +681,7 @@ extension Layer {
     func createPreviewLayerViewModel(id: PreviewCoordinate,
                                      layer: Layer,
                                      lengthenedValuesList: PortValuesList,
-                                     nodeDelegate: NodeDelegate?) -> LayerViewModel {
+                                     nodeDelegate: NodeViewModel?) -> LayerViewModel {
         let viewModel = LayerViewModel(id: id,
                                        layer: layer,
                                        nodeDelegate: nodeDelegate)

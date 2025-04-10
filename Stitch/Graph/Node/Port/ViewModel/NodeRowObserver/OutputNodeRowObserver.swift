@@ -22,7 +22,7 @@ final class OutputNodeRowObserver: NodeRowObserver {
     @MainActor var allLoopedValues: PortValues = .init()
     
     // NodeRowObserver holds a reference to its parent, the Node
-    @MainActor weak var nodeDelegate: NodeDelegate?
+    @MainActor weak var nodeDelegate: NodeViewModel?
     
     // MARK: "derived data", cached for UI perf
     

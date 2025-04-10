@@ -16,7 +16,7 @@ protocol MediaEvalOpViewable: NodeEphemeralObservable, Sendable {
 }
 
 protocol MediaEvalOpObservable: NodeEphemeralObservable, MediaEvalOpViewable, Sendable {
-    @MainActor var nodeDelegate: NodeDelegate? { get set }
+    @MainActor var nodeDelegate: NodeViewModel? { get set }
     
     @MainActor var currentLoadingMediaId: UUID? { get set }
     
@@ -36,7 +36,7 @@ final class MediaReferenceObserver: MediaEvalOpViewable {
 final class MediaEvalOpObserver: MediaEvalOpObservable {
     let mediaViewModel: MediaViewModel
     var currentLoadingMediaId: UUID?
-    weak var nodeDelegate: NodeDelegate?
+    weak var nodeDelegate: NodeViewModel?
     internal let mediaActor = MediaEvalOpCoordinator()
     
     @MainActor init() {
@@ -47,7 +47,7 @@ final class MediaEvalOpObserver: MediaEvalOpObservable {
 final class VisionOpObserver: MediaEvalOpObservable {
     let mediaViewModel: MediaViewModel
     var currentLoadingMediaId: UUID?
-    weak var nodeDelegate: NodeDelegate?
+    weak var nodeDelegate: NodeViewModel?
     internal let mediaActor = MediaEvalOpCoordinator()
     let coreMlActor = VisionOpActor()
         
@@ -61,7 +61,7 @@ final class VisionOpObserver: MediaEvalOpObservable {
 final class ImageClassifierOpObserver: MediaEvalOpObservable {
     let mediaViewModel: MediaViewModel
     var currentLoadingMediaId: UUID?
-    weak var nodeDelegate: NodeDelegate?
+    weak var nodeDelegate: NodeViewModel?
     internal let mediaActor = MediaEvalOpCoordinator()
     let coreMlActor = ImageClassifierActor()
     
@@ -265,7 +265,7 @@ extension MediaEvalOpObservable {
     /// Async callback to prevent data races for media object changes.
     @MainActor func asyncMediaEvalOp<MediaEvalResult>(loopIndex: Int,
                                                       values: [MediaEvalResult.ValueType],
-                                                      node: NodeDelegate?,
+                                                      node: NodeViewModel?,
                                                       callback: @Sendable @escaping () async -> MediaEvalResult) -> MediaEvalResult where MediaEvalResult: MediaEvalResultable {
         guard let nodeDelegate = node else {
             fatalErrorIfDebug()
@@ -291,7 +291,7 @@ extension MediaEvalOpObservable {
     /// Async callback to prevent data races for media object changes.
     @MainActor func asyncMediaEvalOp(loopIndex: Int,
                                      values: PortValues,
-                                     node: NodeDelegate?,
+                                     node: NodeViewModel?,
                                      callback: @Sendable @escaping () async -> PortValues) -> PortValues {
         guard let nodeDelegate = node else {
             fatalErrorIfDebug()
@@ -313,7 +313,7 @@ extension MediaEvalOpObservable {
     }
     
     /// Async callback to prevent data races for media object changes.
-    @MainActor func asyncMediaEvalOpList(node: NodeDelegate?,
+    @MainActor func asyncMediaEvalOpList(node: NodeViewModel?,
                                          callback: @Sendable @escaping () async -> PortValuesList) -> PortValuesList {
         guard let nodeDelegate = node else {
             fatalErrorIfDebug()
@@ -337,7 +337,7 @@ extension MediaEvalOpObservable {
 extension PortValues {
     /// Gets outputs from  a list of inputs + outputs, defaulting to default outputs if no outputs passed in list.
     @MainActor
-    func prevOutputs(node: NodeDelegate) -> PortValues {
+    func prevOutputs(node: NodeViewModel) -> PortValues {
         self.prevOutputs(nodeKind: node.kind) ?? node.defaultOutputs
     }
     
@@ -393,7 +393,7 @@ actor MediaEvalOpCoordinator {
     
     /// Async callback to prevent data races for media object changes.
     func asyncMediaEvalOp(loopIndex: Int,
-                          node: NodeDelegate,
+                          node: NodeViewModel,
                           callback: @Sendable @escaping () async -> PortValues) async {
         let newOutputs = await callback()
         await node.graphDelegate?
@@ -414,7 +414,7 @@ actor MediaEvalOpCoordinator {
     }
     
     /// Async callback to prevent data races for media object changes.
-    func asyncMediaEvalOpList(node: NodeDelegate,
+    func asyncMediaEvalOpList(node: NodeViewModel,
                               callback: @Sendable @escaping () async -> PortValuesList) async {
         let newOutputs = await callback()
         await node.graphDelegate?

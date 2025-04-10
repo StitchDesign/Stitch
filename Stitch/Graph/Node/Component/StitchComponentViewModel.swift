@@ -19,14 +19,14 @@ final class StitchComponentViewModel: Sendable {
     let canvas: CanvasItemViewModel
     let graph: GraphState
     
-    @MainActor weak var nodeDelegate: NodeDelegate?
+    @MainActor weak var nodeDelegate: NodeViewModel?
     @MainActor weak var componentDelegate: StitchMasterComponent?
     
     @MainActor
     init(nodeId: UUID,
          componentEntity: ComponentEntity,
          graph: GraphState,
-         nodeDelegate: NodeDelegate? = nil,
+         nodeDelegate: NodeViewModel? = nil,
          componentDelegate: StitchMasterComponent? = nil) {
         self.componentId = componentEntity.componentId
         self.graph = graph
@@ -171,7 +171,7 @@ extension StitchComponentViewModel {
     }
     
     @MainActor
-    func initializeDelegate(node: NodeDelegate,
+    func initializeDelegate(node: NodeViewModel,
                             components: [UUID: StitchMasterComponent],
                             document: StitchDocumentViewModel) {
         self.nodeDelegate = node

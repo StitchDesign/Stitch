@@ -1,5 +1,5 @@
 //
-//  NodeDelegate.swift
+//  NodeViewModel.swift
 //  Stitch
 //
 //  Created by Christian J Clampitt on 5/9/24.
@@ -8,9 +8,8 @@
 import Foundation
 import StitchSchemaKit
 
-typealias NodeDelegate = NodeViewModel
 
-extension NodeDelegate {
+extension NodeViewModel {
     @MainActor
     var defaultOutputs: PortValues {
         guard let values = self.kind.graphNode?.rowDefinitions(for: self.userVisibleType).outputs

@@ -33,7 +33,7 @@ protocol NodeRowViewModel: StitchLayoutCachable, Observable, Identifiable {
     
     @MainActor var isDragging: Bool { get set }
     
-    @MainActor var nodeDelegate: NodeDelegate? { get set }
+    @MainActor var nodeDelegate: NodeViewModel? { get set }
     
     @MainActor var rowDelegate: RowObserver? { get set }
     
@@ -95,12 +95,12 @@ extension NodeRowViewModel {
     
     /// Ignores group nodes to ensure computation logic still works.
     @MainActor
-    var computationNode: NodeDelegate? {
+    var computationNode: NodeViewModel? {
         self.rowDelegate?.nodeDelegate
     }
      
     @MainActor
-    func initializeDelegate(_ node: NodeDelegate,
+    func initializeDelegate(_ node: NodeViewModel,
                             initialValue: PortValue,
                             unpackedPortParentFieldGroupType: FieldGroupType?,
                             unpackedPortIndex: Int?,

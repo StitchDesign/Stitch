@@ -46,7 +46,7 @@ final class ARAnchorObserver: MediaEvalOpObservable {
     
     let mediaActor = MediaEvalOpCoordinator()
 
-    @MainActor weak var nodeDelegate: NodeDelegate?
+    @MainActor weak var nodeDelegate: NodeViewModel?
     
     @MainActor init() {
         self.mediaViewModel = .init()
