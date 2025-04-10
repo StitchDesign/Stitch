@@ -84,8 +84,7 @@ struct TopBarImageButton: View {
 
 struct iPadGraphTopBarButtons: View {
 
-    @Bindable var document: StitchDocumentViewModel
-    @Bindable var graph: GraphState
+    let isDebugMode: Bool
     let hasActiveGroupFocused: Bool
     let isFullscreen: Bool // = false
     let isPreviewWindowShown: Bool // = true
@@ -104,7 +103,7 @@ struct iPadGraphTopBarButtons: View {
                              iconName: .sfSymbol(.GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME))
             .opacity(hasActiveGroupFocused ? 1 : 0)
             
-            if !document.isDebugMode {
+            if !isDebugMode {
                 // toggle preview window
                 iPadNavBarButton(
                     action: PREVIEW_SHOW_TOGGLE_ACTION,
@@ -129,8 +128,6 @@ struct iPadGraphTopBarButtons: View {
 
             // the misc (...) button
             iPadGraphTopBarMiscMenu(
-                document: document,
-                graph: graph,
                 llmRecordingModeActive: llmRecordingModeActive,
                 llmRecordingModeEnabled: llmRecordingModeEnabled)
             
@@ -142,8 +139,6 @@ struct iPadGraphTopBarButtons: View {
 }
 
 struct iPadGraphTopBarMiscMenu: View {
-    @Bindable var document: StitchDocumentViewModel
-    @Bindable var graph: GraphState
     let llmRecordingModeActive: Bool
     let llmRecordingModeEnabled: Bool
     
@@ -161,11 +156,7 @@ struct iPadGraphTopBarMiscMenu: View {
 //                             iconName: .sfSymbol(.ADD_NODE_SF_SYMBOL_NAME),
 //                             label: "Insert Node")
             
-            iPadTopBarButton(action: { [weak graph, weak document] in
-                if let document = document {
-                    graph?.findSomeCanvasItemOnGraph(document: document)
-                }
-            },
+            iPadTopBarButton(action: { dispatch(FindSomeCanvasItemOnGraph())},
                              iconName: .sfSymbol(.FIND_NODE_ON_GRAPH),
                              label: "Find Node")
             

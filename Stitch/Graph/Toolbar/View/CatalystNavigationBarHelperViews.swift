@@ -156,8 +156,7 @@ extension String {
 // TODO: update iPad graph view as well
 struct CatalystTopBarGraphButtons: View {
 
-    let document: StitchDocumentViewModel
-    let graph: GraphState
+    let isDebugMode: Bool
     let hasActiveGroupFocused: Bool
     let isFullscreen: Bool // = false
     let isPreviewWindowShown: Bool // = true
@@ -189,10 +188,8 @@ struct CatalystTopBarGraphButtons: View {
             }
             
             // TODO: should be a toast only shows up when no nodes are on-screen?
-            CatalystNavBarButton(.FIND_NODE_ON_GRAPH) { [weak graph, weak document] in
-                if let document = document {
-                    graph?.findSomeCanvasItemOnGraph(document: document)
-                }
+            CatalystNavBarButton(.FIND_NODE_ON_GRAPH) {
+                dispatch(FindSomeCanvasItemOnGraph())
             }
 
             // TODO: implement
@@ -204,7 +201,7 @@ struct CatalystTopBarGraphButtons: View {
 //            CatalystNavBarButton(.TOGGLE_PREVIEW_WINDOW_SF_SYMBOL_NAME,
 //                                 rotationZ: isPreviewWindowShown ? 0 : 180) {
             
-            if !document.isDebugMode {
+            if !isDebugMode {
                 CatalystNavBarButton(isPreviewWindowShown ? .HIDE_PREVIEW_WINDOW_SF_SYMBOL_NAME : .SHOW_PREVIEW_WINDOW_SF_SYMBOL_NAME) {
                     dispatch(TogglePreviewWindow())
                 }
