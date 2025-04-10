@@ -125,11 +125,15 @@ extension StitchDocumentViewModel {
         }
         self.visibleGraph.visibleNodesViewModel.nodes.updateValue(node, forKey: node.id)
         
+        // TODO: if we calculate the graph BEFORE we "initialize the delegate", would graph eval "fail"?
         node.initializeDelegate(graph: self.visibleGraph,
                                 document: self)
         
         self.visibleGraph.calculateFullGraph()
-
+        
+        // Reset nodes layout cache
+        self.visibleGraph.visibleNodesViewModel.resetCache()
+        
         // Reset doubleTapLocation
         // TODO: where else would we need to reset this?
 
@@ -137,9 +141,6 @@ extension StitchDocumentViewModel {
         //    self.doubleTapLocation = nil
 
         self.graphMovement.draggedCanvasItem = nil
-        
-        // Reset nodes layout cache
-        self.visibleGraph.visibleNodesViewModel.resetCache()
     }
 }
 

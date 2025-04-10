@@ -15,16 +15,7 @@ extension Patch {
         self.defaultNode(id: .init(),
                          position: .zero,
                          zIndex: .zero,
-                         graphDelegate: nil)?.userVisibleType
-    }
-
-    @MainActor
-    var defaultOutputs: PortValuesList {
-        self.defaultNode(id: .init(),
-                         position: .zero,
-                         zIndex: .zero,
-                         graphDelegate: nil)?
-            .outputs ?? []
+                         graphDelegate: .createEmpty())?.userVisibleType
     }
 
     // called when we first place the patch on the graph
@@ -36,7 +27,7 @@ extension Patch {
                      // TODO: separate 'first creation of node' from 'recreation of node via schema'
                      //                     firstCreation: Bool = true,
                      graphTime: TimeInterval = .zero,
-                     graphDelegate: GraphState?) -> NodeViewModel? {
+                     graphDelegate: GraphState) -> NodeViewModel? {
 
         // Preferred newer method for node creation
         if let GraphNodeType = NodeKind.patch(self).graphNode {
@@ -237,10 +228,9 @@ extension Patch {
         //                                      // graphNodes is only for GroupNodes
         //                                      graphNodes: .empty)
         //        }
-        
-        if let graph = graphDelegate,
-           let document = graphDelegate?.documentDelegate {
-            node.initializeDelegate(graph: graph,
+                
+        if let document = graphDelegate.documentDelegate {
+            node.initializeDelegate(graph: graphDelegate,
                                     document: document)
         }
 
