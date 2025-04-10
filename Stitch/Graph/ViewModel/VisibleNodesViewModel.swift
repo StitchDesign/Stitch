@@ -159,6 +159,7 @@ extension VisibleNodesViewModel {
                 // Create port view models for group nodes once row observers have been established
                 let inputRowObservers = self.getSplitterInputRowObservers(for: node.id)
                 let outputRowObservers = self.getSplitterOutputRowObservers(for: node.id)
+                // Note: What is `syncRowViewModels` vs `NodeRowViewModel.initialize`?
                 canvasGroup.syncRowViewModels(inputRowObservers: inputRowObservers,
                                               outputRowObservers: outputRowObservers,
                                               // Not relevant
@@ -173,15 +174,13 @@ extension VisibleNodesViewModel {
                 
                 assertInDebug(node.kind == .group)
                 
-                // Oh, interesting -- each 'row' on a group node is a different underlying row observer (for an underlying input-splitter or output-splitter;
-                // yet you want to pass in a single input row observer and a single output observer,
-                // which won't work.
-                // Init'ing the delegate on a group node =
-                // do we not need to do this, since we've already synced row view models?
+                // Note: A Group Node's inputs and outputs are actually underlying input-splitters and output-splitters.
+                // TODO: shouldn't the row view models already have been initialized when we initialized patch nodes?
                 canvasGroup.initializeDelegate(node,
+                                               // Layer inputs can never be inputs for group nodes
                                                unpackedPortParentFieldGroupType: nil,
                                                unpackedPortIndex: nil)
-                
+                                
             case .component(let componentViewModel):
                 // Similar logic to patch nodes, where we have inputs/outputs observers stored directly in component
                 componentViewModel.canvas.syncRowViewModels(inputRowObservers: componentViewModel.inputsObservers,

@@ -114,6 +114,10 @@ extension NodeRowViewModel {
                 rowObserverLayerInput: layerInput)
         }
         
+        self.updatePortViewData()
+    }
+    
+    @MainActor func updatePortViewData() {
         let newPortViewData = self.getPortViewData()
         if self.portViewData != newPortViewData {
             self.portViewData = newPortViewData
