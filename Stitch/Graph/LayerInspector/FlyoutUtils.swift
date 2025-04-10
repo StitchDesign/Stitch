@@ -100,6 +100,7 @@ struct LeftSidebarSet: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
         // Reset flyout
         state.visibleGraph.closeFlyout()
+        state.showCatalystProjectTitleModal = false
         
         state.leftSidebarOpen = open
     }
