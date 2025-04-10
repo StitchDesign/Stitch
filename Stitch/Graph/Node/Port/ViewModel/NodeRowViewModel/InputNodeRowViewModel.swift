@@ -56,7 +56,6 @@ extension InputNodeRowViewModel {
         return Set([upstreamId])
     }
     
-    // TODO: this function also needs graph's selected edges
     @MainActor
     func calculatePortColor(hasEdge: Bool,
                             hasLoop: Bool,
