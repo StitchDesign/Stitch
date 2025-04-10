@@ -358,12 +358,7 @@ extension StitchDocumentViewModel {
     var id: GraphId {
         self.graph.id
     }
-    
-    @MainActor
-    var projectId: GraphId {
-        self.id
-    }
-    
+        
     @MainActor
     var projectName: String {
         self.graph.name
@@ -407,9 +402,16 @@ extension StitchDocumentViewModel {
     @MainActor
     func encodeProjectInBackground(temporaryURL: URL? = nil,
                                    willUpdateUndoHistory: Bool = true) {
-        self.documentEncoder?.encodeProjectInBackground(from: self.graph,
-                                                        temporaryUrl: temporaryURL,
-                                                        willUpdateUndoHistory: willUpdateUndoHistory)
+        guard let store = self.storeDelegate,
+              let documentEncoder = self.documentEncoder else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        documentEncoder.encodeProjectInBackground(from: self.graph,
+                                                  temporaryUrl: temporaryURL,
+                                                  willUpdateUndoHistory: willUpdateUndoHistory,
+                                                  store: store)
     }
     
     /// Determines if camera is in use by looking at main graph + all component graphs to determine if any camera
@@ -524,7 +526,7 @@ extension StitchDocumentViewModel {
                        cameraSettings: self.cameraSettings)
     }
     
-    @MainActor func createSchema(from graph: GraphState?) -> StitchDocument {
+    @MainActor func createSchema(from graph: GraphState) -> StitchDocument {
         self.createSchema()
     }
     

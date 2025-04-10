@@ -61,7 +61,7 @@ extension StitchSystemViewModel: DocumentEncodableDelegate {
         fatalError()
     }
     
-    @MainActor func createSchema(from graph: GraphState?) -> StitchSystem {
+    @MainActor func createSchema(from graph: GraphState) -> StitchSystem {
         self.lastEncodedDocument
     }
     

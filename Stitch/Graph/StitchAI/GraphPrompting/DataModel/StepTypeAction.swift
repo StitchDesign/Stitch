@@ -285,10 +285,10 @@ struct StepActionConnectionAdded: StepActionable {
             position.x += 200
             
             let inputData = layerNode[keyPath: keyPath.layerNodeKeyPath]
-            document.visibleGraph.layerInputAddedToGraph(node: destinationNode,
-                                                         input: inputData,
-                                                         coordinate: keyPath,
-                                                         position: position)
+            document.layerInputAddedToGraph(node: destinationNode,
+                                            input: inputData,
+                                            coordinate: keyPath,
+                                            position: position)
         }
     }
     

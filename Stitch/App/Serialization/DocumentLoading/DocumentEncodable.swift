@@ -24,7 +24,7 @@ protocol DocumentEncodableDelegate: Observable, AnyObject, Sendable {
     
     @MainActor var lastEncodedDocument: CodableDocument { get set }
     
-    @MainActor func createSchema(from graph: GraphState?) -> CodableDocument
+    @MainActor func createSchema(from graph: GraphState) -> CodableDocument
         
     @MainActor func update(from schema: CodableDocument, rootUrl: URL?)
     
@@ -49,17 +49,15 @@ extension DocumentEncodable {
         }
     }
     
-    // these first two look really similar,
-    @MainActor func encodeProjectInBackground(from graph: GraphState?,
+    // TODO: can we collapse these into a single function call?
+    @MainActor func encodeProjectInBackground(from graph: GraphState,
                                               temporaryUrl: URL? = nil,
-                                              willUpdateUndoHistory: Bool = true) {
+                                              willUpdateUndoHistory: Bool = true,
+                                              store: StitchStore) {
         self.encodeProjectInBackground(from: graph,
                                        temporaryUrl: temporaryUrl,
                                        willUpdateUndoHistory: willUpdateUndoHistory) { delegate, oldSchema, newSchema in
-            
-            if willUpdateUndoHistory,
-               let graph = graph,
-               let store = graph.storeDelegate {
+            if willUpdateUndoHistory {
                 store.saveUndoHistory(from: delegate,
                                       oldSchema: oldSchema,
                                       newSchema: newSchema,
@@ -69,16 +67,15 @@ extension DocumentEncodable {
         }
     }
     
-    @MainActor func encodeProjectInBackground(from graph: GraphState?,
+    @MainActor func encodeProjectInBackground(from graph: GraphState,
                                               undoEvents: [Action],
                                               temporaryUrl: URL? = nil,
-                                              willUpdateUndoHistory: Bool = true) {
+                                              willUpdateUndoHistory: Bool = true,
+                                              store: StitchStore) {
         self.encodeProjectInBackground(from: graph,
                                        temporaryUrl: temporaryUrl,
                                        willUpdateUndoHistory: willUpdateUndoHistory) { delegate, oldSchema, newSchema in
-            if willUpdateUndoHistory,
-               let graph = graph,
-               let store = graph.storeDelegate {
+            if willUpdateUndoHistory {
                 store.saveUndoHistory(from: delegate,
                                       oldSchema: oldSchema,
                                       newSchema: newSchema,
@@ -89,7 +86,7 @@ extension DocumentEncodable {
         }
     }
     
-    @MainActor func encodeProjectInBackground(from graph: GraphState?,
+    @MainActor func encodeProjectInBackground(from graph: GraphState,
                                               temporaryUrl: URL? = nil,
                                               willUpdateUndoHistory: Bool = true,
                                               saveUndoHistory: @escaping (DocumentDelegate, CodableDocument, CodableDocument) -> ()) {
