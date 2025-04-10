@@ -10,8 +10,6 @@ import StitchSchemaKit
 
 struct WirelessPortView: View {
 
-    @Bindable var graph: GraphState
-    @Bindable var document: StitchDocumentViewModel
     let isOutput: Bool
     let id: NodeId
 
@@ -25,8 +23,7 @@ struct WirelessPortView: View {
             .offset(x: isOutput ? -12 : 12)
             .onTapGesture {
                 if !isOutput {
-                    graph.jumpToAssignedBroadcaster(wirelessReceiverNodeId: id,
-                                                    document: document)
+                    dispatch(JumpToWirelessBroadcaster(wirelessReceiverNodeId: id))
                 }
             }
         #if targetEnvironment(macCatalyst)

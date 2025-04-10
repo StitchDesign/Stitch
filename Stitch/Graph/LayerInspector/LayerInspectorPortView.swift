@@ -563,8 +563,7 @@ extension StitchDocumentViewModel {
                               graph: GraphState) {
         // Defined canvas item id = we're already on the canvas
         if let canvasItemId = canvasItemId {
-            graph.jumpToCanvasItem(id: canvasItemId,
-                                   document: self)
+            dispatch(JumpToCanvasItem(id: canvasItemId))
         }
         
         // Else select/de-select the property
