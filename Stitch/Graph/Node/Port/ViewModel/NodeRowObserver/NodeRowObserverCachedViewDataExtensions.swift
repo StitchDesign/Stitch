@@ -16,12 +16,14 @@ extension InputNodeRowObserver {
     @MainActor
     func updateConnectedCanvasItems(selectedEdges: Set<PortEdgeUI>,
                                     drawingObserver: EdgeDrawingObserver) {
-        self.allRowViewModels.forEach { row in
-            row.connectedCanvasItems = row.findConnectedCanvasItems(rowObserver: self)
-            row.updatePortColor(hasEdge: self.hasEdge,
-                                hasLoop: self.hasLoopedValues,
-                                selectedEdges: selectedEdges,
-                                drawingObserver: drawingObserver)
+        self.allRowViewModels.forEach { rowViewModel in
+            // `Connected canvas items` are used by calculatePortColor to determine whether a port is 'selected' or not
+            // Perhaps redundant, given that we now carefully control when we updatePortColor ?
+            rowViewModel.connectedCanvasItems = rowViewModel.findConnectedCanvasItems(rowObserver: self)
+            rowViewModel.updatePortColor(hasEdge: self.hasEdge,
+                                         hasLoop: self.hasLoopedValues,
+                                         selectedEdges: selectedEdges,
+                                         drawingObserver: drawingObserver)
         }
     }
 }
@@ -30,13 +32,12 @@ extension OutputNodeRowObserver {
     @MainActor
     func updateConnectedCanvasItems(selectedEdges: Set<PortEdgeUI>,
                                     drawingObserver: EdgeDrawingObserver) {
-        self.allRowViewModels.forEach { row in
-            row.connectedCanvasItems = row.findConnectedCanvasItems(rowObserver: self)
-            row.updatePortColor(hasEdge: self.hasEdge,
-                                hasLoop: self.hasLoopedValues,
-                                selectedEdges: selectedEdges,
-                                drawingObserver: drawingObserver)
+        self.allRowViewModels.forEach { rowViewModel in
+            rowViewModel.connectedCanvasItems = rowViewModel.findConnectedCanvasItems(rowObserver: self)
+            rowViewModel.updatePortColor(hasEdge: self.hasEdge,
+                                         hasLoop: self.hasLoopedValues,
+                                         selectedEdges: selectedEdges,
+                                         drawingObserver: drawingObserver)
         }
     }
 }
-
