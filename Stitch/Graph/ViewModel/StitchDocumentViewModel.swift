@@ -133,7 +133,7 @@ final class StitchDocumentViewModel: Sendable {
          graph: GraphState,
          isPhoneDevice: Bool,
          projectLoader: ProjectLoader,
-         store: StitchStore?,
+         store: StitchStore,
          isDebugMode: Bool) {
         self.rootId = schema.id
         self.documentEncoder = projectLoader.encoder
@@ -160,10 +160,8 @@ final class StitchDocumentViewModel: Sendable {
 
         self.lastEncodedDocument = schema
         
-        if let store = store {
-            self.initializeDelegate(store: store,
-                                    isInitialization: true)
-        }
+        self.initializeDelegate(store: store,
+                                isInitialization: true)
     }
     
     @MainActor
@@ -200,7 +198,7 @@ final class StitchDocumentViewModel: Sendable {
     convenience init?(from schema: StitchDocument,
                       isPhoneDevice: Bool,
                       projectLoader: ProjectLoader,
-                      store: StitchStore?,
+                      store: StitchStore,
                       isDebugMode: Bool) async {
         let documentEncoder = DocumentEncoder(document: schema)
 
