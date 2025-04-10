@@ -556,7 +556,7 @@ extension GraphState {
 
         Task { [weak self] in
             guard let store = self?.storeDelegate else { return }
-            
+
             // Delete all existing items in clipboard
             try? await store.clipboardEncoder.removeContents()
             
@@ -565,7 +565,7 @@ extension GraphState {
     }
 }
 
-extension DocumentEncodable {
+extension ClipboardEncoder {
     nonisolated func processGraphCopyAction(_ copiedComponentResult: StitchComponentCopiedResult<StitchClipboardContent>) async throws {
         // Create directories if it doesn't exist
         let rootUrl = copiedComponentResult.component.rootUrl
@@ -577,7 +577,9 @@ extension DocumentEncodable {
         let pasteboard = UIPasteboard.general
         pasteboard.url = rootUrl.appendingVersionedSchemaPath()
     }
-    
+}
+
+extension DocumentEncodable {
     nonisolated func encodeNewComponent<T>(_ result: StitchComponentCopiedResult<T>) throws where T: StitchComponentable {
         result.component.createUnzippedFileWrapper()
         
