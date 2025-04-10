@@ -104,6 +104,7 @@ extension NodeRowViewModel {
                             unpackedPortIndex: Int?,
                             layerInput: LayerInputPort?) {
         
+        // Why must we set the delegate
         self.nodeDelegate = node
         
         if self.fieldValueTypes.isEmpty {

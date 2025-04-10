@@ -195,10 +195,10 @@ extension CanvasItemViewModel {
     // we should have the underlying row observer available
     @MainActor
     func initializeDelegate(_ node: NodeDelegate,
-                            inputRowObserver: InputNodeRowObserver?,
-                            outputRowObserver: OutputNodeRowObserver?,
+                            // Note: a single canvas item can have MULTIPLE input/output row obserservers
                             unpackedPortParentFieldGroupType: FieldGroupType?,
                             unpackedPortIndex: Int?) {
+        
         self.nodeDelegate = node
 
         guard let activeIndex = node.graphDelegate?.documentDelegate?.activeIndex else {
@@ -206,22 +206,23 @@ extension CanvasItemViewModel {
             return
         }
         
-        if let inputRowObserver = inputRowObserver {
-            self.inputViewModels.forEach {
+        self.inputViewModels.forEach {
+            // Note: assumes the row view model as already have its underling row observer delegate assigned
+            if let rowObserver = $0.rowDelegate {
                 $0.initializeDelegate(
                     node,
-                    initialValue: inputRowObserver.getActiveValue(activeIndex: activeIndex),
+                    initialValue: rowObserver.getActiveValue(activeIndex: activeIndex),
                     unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                     unpackedPortIndex: unpackedPortIndex,
-                    layerInput: inputRowObserver.id.layerInput?.layerInput)
+                    layerInput: rowObserver.id.layerInput?.layerInput)
             }
         }
         
-        if let outputRowObserver = outputRowObserver {
-            self.outputViewModels.forEach {
+        self.outputViewModels.forEach {
+            if let rowObserver = $0.rowDelegate {
                 $0.initializeDelegate(
                     node,
-                    initialValue: outputRowObserver.getActiveValue(activeIndex: activeIndex),
+                    initialValue: rowObserver.getActiveValue(activeIndex: activeIndex),
                     // Not relevant for output row view models
                     unpackedPortParentFieldGroupType: nil,
                     unpackedPortIndex: nil,

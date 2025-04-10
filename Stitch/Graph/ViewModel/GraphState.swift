@@ -532,6 +532,11 @@ extension GraphState {
     }
     
     @MainActor
+    func getOutputRowObserver(_ id: NodeIOCoordinate) -> OutputNodeRowObserver? {
+        self.getNodeViewModel(id.nodeId)?.getOutputRowObserver(for: id.portType)
+    }
+    
+    @MainActor
     var graphStepManager: GraphStepManager {
         guard let document = self.documentDelegate else {
 //            fatalErrorIfDebug()
@@ -676,7 +681,7 @@ extension GraphState {
         self.visibleNodesViewModel.getViewModel(coordinate.nodeId)?
             .getInputRowObserver(for: coordinate.portType)
     }
-    
+        
     @MainActor func getOutputObserver(coordinate: OutputPortViewData) -> OutputNodeRowObserver? {
         self.getCanvasItem(coordinate.canvasId)?
             .outputViewModels[safe: coordinate.portId]?
