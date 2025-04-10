@@ -133,7 +133,7 @@ final class StitchDocumentViewModel: Sendable {
          graph: GraphState,
          isPhoneDevice: Bool,
          projectLoader: ProjectLoader,
-         store: StoreDelegate?,
+         store: StitchStore?,
          isDebugMode: Bool) {
         self.rootId = schema.id
         self.documentEncoder = projectLoader.encoder
@@ -167,7 +167,7 @@ final class StitchDocumentViewModel: Sendable {
     }
     
     @MainActor
-    func initializeDelegate(store: StoreDelegate,
+    func initializeDelegate(store: StitchStore,
                             isInitialization: Bool = false) {
         self.documentEncoder?.delegate = self
         self.graphStepManager.delegate = self
@@ -200,7 +200,7 @@ final class StitchDocumentViewModel: Sendable {
     convenience init?(from schema: StitchDocument,
                       isPhoneDevice: Bool,
                       projectLoader: ProjectLoader,
-                      store: StoreDelegate?,
+                      store: StitchStore?,
                       isDebugMode: Bool) async {
         let documentEncoder = DocumentEncoder(document: schema)
 
@@ -358,12 +358,7 @@ extension StitchDocumentViewModel {
     var id: GraphId {
         self.graph.id
     }
-    
-    @MainActor
-    var projectId: GraphId {
-        self.id
-    }
-    
+        
     @MainActor
     var projectName: String {
         self.graph.name
@@ -407,9 +402,16 @@ extension StitchDocumentViewModel {
     @MainActor
     func encodeProjectInBackground(temporaryURL: URL? = nil,
                                    willUpdateUndoHistory: Bool = true) {
-        self.documentEncoder?.encodeProjectInBackground(from: self.graph,
-                                                        temporaryUrl: temporaryURL,
-                                                        willUpdateUndoHistory: willUpdateUndoHistory)
+        guard let store = self.storeDelegate,
+              let documentEncoder = self.documentEncoder else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        documentEncoder.encodeProjectInBackground(from: self.graph,
+                                                  temporaryUrl: temporaryURL,
+                                                  willUpdateUndoHistory: willUpdateUndoHistory,
+                                                  store: store)
     }
     
     /// Determines if camera is in use by looking at main graph + all component graphs to determine if any camera
@@ -463,13 +465,18 @@ extension GraphState: GraphCalculatable {
     
     @MainActor
     func updateOrderedPreviewLayers() {
+        guard let activeIndex = self.documentDelegate?.activeIndex else {
+            fatalErrorIfDebug()
+            return
+        }
+        
         let flattenedPinMap = self.getFlattenedPinMap()
         let rootPinMap = self.getRootPinMap(pinMap: flattenedPinMap)
         
         let previewLayers: LayerDataList = self.recursivePreviewLayers(
             sidebarLayersGlobal: self.layersSidebarViewModel.createdOrderedEncodedData(),
             pinMap: rootPinMap,
-            activeIndex: self.documentDelegate?.activeIndex ?? .init(.zero))
+            activeIndex: activeIndex)
         
         if !LayerDataList.equals(self.cachedOrderedPreviewLayers, previewLayers) {
             self.cachedOrderedPreviewLayers = previewLayers
@@ -519,7 +526,7 @@ extension StitchDocumentViewModel {
                        cameraSettings: self.cameraSettings)
     }
     
-    @MainActor func createSchema(from graph: GraphState?) -> StitchDocument {
+    @MainActor func createSchema(from graph: GraphState) -> StitchDocument {
         self.createSchema()
     }
     

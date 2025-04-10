@@ -248,6 +248,13 @@ extension ProjectSidebarObservable {
                            to index: SidebarIndex,
                            draggedItemsPlusChildrenCount: Int,
                            oldCount: Int) {
+        guard let graph = self.graphDelegate,
+              let activeIndex = graph.documentDelegate?.activeIndex else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        
         let visualList = visualList
         let draggedItemIdSet = draggedItems.map(\.id).toSet
         
@@ -279,19 +286,20 @@ extension ProjectSidebarObservable {
 #endif
         self.items = newItemsList
         self.items.updateSidebarIndices()
-        
+                
         // TODO: should only be for layers sidebar
-        self.graphDelegate?.updateOrderedPreviewLayers()
+        graph.updateOrderedPreviewLayers()
     }
 }
 
 extension ProjectSidebarObservable {
     @MainActor
     func sidebarListItemDragEnded() {
-    
-//        log("sidebarListItemDragEnded called")
-
-        let state = self
+            
+        guard let graph = self.graphDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
         
         self.items.flattenedItems.forEach {
             $0.dragPosition = nil
@@ -301,12 +309,12 @@ extension ProjectSidebarObservable {
         self.currentItemDragged = nil
 
         // reset the current dragging item
-        state.currentItemDragged = nil
+        self.currentItemDragged = nil
 
-        state.selectionState.haveDuplicated = false
-        state.selectionState.optionDragInProgress = false
-        state.selectionState.originalLayersPrimarilySelectedAtStartOfOptionDrag = .init()
+        self.selectionState.haveDuplicated = false
+        self.selectionState.optionDragInProgress = false
+        self.selectionState.originalLayersPrimarilySelectedAtStartOfOptionDrag = .init()
     
-        state.graphDelegate?.encodeProjectInBackground()
+        graph.encodeProjectInBackground()
     }
 }
