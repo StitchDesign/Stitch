@@ -16,7 +16,7 @@ import SwiftUI
 typealias PatchNode = NodeViewModel
 typealias NodeViewModels = [NodeViewModel]
 
-protocol PatchNodeViewModelDelegate: NodeDelegate {
+protocol PatchNodeViewModelDelegate: NodeViewModel {
     @MainActor
     func userVisibleTypeChanged(oldType: UserVisibleType,
                                 newType: UserVisibleType)
@@ -239,7 +239,7 @@ extension PatchNodeViewModel {
     
     @MainActor
     func updateMathExpressionNodeInputs(newExpression: String,
-                                        node: NodeDelegate) {
+                                        node: NodeViewModel) {
         // Always set math-expr on node for its eval and (default) title
         if self.mathExpression != newExpression {
             self.mathExpression = newExpression            

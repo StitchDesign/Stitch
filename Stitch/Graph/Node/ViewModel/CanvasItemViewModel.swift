@@ -88,7 +88,7 @@ final class CanvasItemViewModel: Identifiable, StitchLayoutCachable, Sendable {
         
     // Reference back to the parent node entity
     @MainActor
-    weak var nodeDelegate: NodeDelegate?
+    weak var nodeDelegate: NodeViewModel?
     
     @MainActor
     init(id: CanvasItemId,
@@ -99,7 +99,7 @@ final class CanvasItemViewModel: Identifiable, StitchLayoutCachable, Sendable {
          outputRowObservers: [OutputNodeRowObserver],
          unpackedPortParentFieldGroupType: FieldGroupType?,
          unpackedPortIndex: Int?,
-         nodeDelegate: NodeDelegate? = nil) {
+         nodeDelegate: NodeViewModel? = nil) {
         self.id = id
         self.position = position
         self.previousPosition = position
@@ -192,7 +192,7 @@ extension CanvasItemViewModel {
 extension CanvasItemViewModel {
     
     @MainActor
-    func initializeDelegate(_ node: NodeDelegate,
+    func initializeDelegate(_ node: NodeViewModel,
                             unpackedPortParentFieldGroupType: FieldGroupType?,
                             unpackedPortIndex: Int?) {
         

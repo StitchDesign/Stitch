@@ -281,7 +281,7 @@ extension LayerInputObserver {
     }
      
     @MainActor
-    func initializeDelegate(_ node: NodeDelegate,
+    func initializeDelegate(_ node: NodeViewModel,
                             layer: Layer) {
                 
         self._packedData.initializeDelegate(node,

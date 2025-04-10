@@ -556,7 +556,7 @@ extension GraphState {
     }
     
     @MainActor
-    func getBroadcasterNodesAtThisTraversalLevel(document: StitchDocumentViewModel) -> [NodeDelegate] {
+    func getBroadcasterNodesAtThisTraversalLevel(document: StitchDocumentViewModel) -> [NodeViewModel] {
         self.visibleNodesViewModel.getNodesAtThisTraversalLevel(at: document.groupNodeFocused?.groupNodeId)
             .compactMap { node in
                 guard node.kind == .patch(.wirelessBroadcaster) else {
@@ -823,7 +823,7 @@ extension GraphState {
     }
     
     @MainActor
-    func getNodesAtThisTraversalLevel(groupNodeFocused: NodeId?) -> [NodeDelegate] {
+    func getNodesAtThisTraversalLevel(groupNodeFocused: NodeId?) -> [NodeViewModel] {
         self.visibleNodesViewModel
             .getNodesAtThisTraversalLevel(at: groupNodeFocused)
     }
