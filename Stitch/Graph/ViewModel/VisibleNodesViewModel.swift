@@ -143,7 +143,7 @@ extension VisibleNodesViewModel {
     
     // traditionally called in `updateNodesPagingDict`, after `updateNodeRowObserversUpstreamAndDownstreamReferences`
     @MainActor
-    func syncRowViewModels(document: StitchDocumentViewModel) {
+    func syncRowViewModels(activeIndex: ActiveIndex) {
         // Sync port view models for applicable nodes
         self.nodes.values.forEach { node in
             switch node.nodeType {
@@ -192,9 +192,9 @@ extension VisibleNodesViewModel {
                 // Special case: we must re-initialize the group orientation input, since its first initialization happens before we have constructed the layer view models that can tell us all the parent's children
                 if layerNode.layer == .group {
                     layerNode.blockOrUnblockFields(
-                        newValue: layerNode.orientationPort.getActiveValue(activeIndex: document.activeIndex),
+                        newValue: layerNode.orientationPort.getActiveValue(activeIndex: activeIndex),
                         layerInput: .orientation,
-                        activeIndex: document.activeIndex)
+                        activeIndex: activeIndex)
                 }
             }
         }
@@ -364,18 +364,7 @@ extension VisibleNodesViewModel {
             $0.value.kind == .group
         }
     }
-
-    /// Updates port colors and port colors' cached data (connected-canvas-items)
-    @MainActor
-    func updateAllNodesObserversPortColorsAndDependencies(selectedEdges: Set<PortEdgeUI>,
-                                                          drawingObserver: EdgeDrawingObserver) {
-        // Connected nodes data relies on port view data so we call this later
-        self.nodes.values.forEach { node in
-            node.updateObserversPortColorsAndDependencies(selectedEdges: selectedEdges,
-                                                     drawingObserver: drawingObserver)
-        }
-    }
-    
+   
     @MainActor
     func setAllNodesVisible() {
         let newIds = self.allViewModels.map(\.id).toSet

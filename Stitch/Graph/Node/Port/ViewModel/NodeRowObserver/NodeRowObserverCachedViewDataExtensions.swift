@@ -10,62 +10,71 @@ import StitchSchemaKit
 
 // MARK: derived/cached data: PortViewData, ActiveValue, PortColor
 
-// TODO: make these two `updateConnectedNodes` methods into a single method on NodeRowObserver ?
-// Note that finding connected nodes for an input vs output is a little different?
+/*
+ Iterates through this row observer's row view models, updating each row view model's:
+ - cache of connectedCanvasItems
+ -
+ */
 extension InputNodeRowObserver {
+    
     @MainActor
-    func updatePortColorAndDepencies(selectedEdges: Set<PortEdgeUI>,
-                                     drawingObserver: EdgeDrawingObserver) {
+    func refreshConnectedCanvasItemsCache() {
         self.allRowViewModels.forEach {
-            // `Connected canvas items` are used by calculatePortColor to determine whether a port is 'selected' or not
-            // Perhaps redundant, given that we now carefully control when we updatePortColor ?
             $0.connectedCanvasItems = $0.findConnectedCanvasItems(rowObserver: self)
+        }
+    }
+    
+    @MainActor
+    func updatePortColorAndUpstreamOutputPortColor(selectedEdges: Set<PortEdgeUI>,
+                                                   drawingObserver: EdgeDrawingObserver) {
+        self.allRowViewModels.forEach {
             $0.updatePortColor(hasEdge: self.hasEdge,
                                hasLoop: self.hasLoopedValues,
                                selectedEdges: selectedEdges,
                                drawingObserver: drawingObserver)
         }
         
-        // Update this input's upstream output's port color
-        if let output = self.upstreamOutputObserver {
-            output.updatePortColorAndDepencies(selectedEdges: selectedEdges,
-                                              drawingObserver: drawingObserver)
+        // Note: previously this was only done when node-tapped
+        // Update this input's upstream-output's port color
+        self.upstreamOutputObserver?.updateRowViewModelsPortColor(selectedEdges: selectedEdges,
+                                                                  drawingObserver: drawingObserver)
+    }
+}
+
+extension NodeRowObserver {
+    @MainActor
+    func updateRowViewModelsPortColor(selectedEdges: Set<PortEdgeUI>,
+                                      drawingObserver: EdgeDrawingObserver) {
+        self.allRowViewModels.forEach {
+            $0.updatePortColor(hasEdge: self.hasEdge,
+                               hasLoop: self.hasLoopedValues,
+                               selectedEdges: selectedEdges,
+                               drawingObserver: drawingObserver)
         }
-        
     }
 }
 
 extension OutputNodeRowObserver {
+    
     @MainActor
-    func updatePortColorAndDepencies(selectedEdges: Set<PortEdgeUI>,
-                                     drawingObserver: EdgeDrawingObserver) {
-        
+    func refreshConnectedCanvasItemsCache() {
         self.allRowViewModels.forEach {
             $0.connectedCanvasItems = $0.findConnectedCanvasItems(rowObserver: self)
-            $0.updatePortColor(hasEdge: self.hasEdge,
-                               hasLoop: self.hasLoopedValues,
-                               selectedEdges: selectedEdges,
-                               drawingObserver: drawingObserver)
         }
+    }
+    
+    @MainActor
+    func updatePortColorAndDownstreamInputsPortColors(selectedEdges: Set<PortEdgeUI>,
+                                                      drawingObserver: EdgeDrawingObserver) {
+        self.updateRowViewModelsPortColor(selectedEdges: selectedEdges,
+                                          drawingObserver: drawingObserver)
         
+        // Note: previously this was only done when node-tapped
         // Update this output's downstream inputs' port colors
-        // TODO: this triggers infinite recursion, since InputRowObserver also calls OutputRowObserver.updateConnectedCanvasItems
-//        self.getDownstreamInputsObservers().forEach { (inputObserver: InputNodeRowObserver) in
-//            inputObserver.updateConnectedCanvasItems(selectedEdges: selectedEdges,
-//                                                     drawingObserver: drawingObserver)
-//        }
-
-        // TODO: the input observer is connected to this output observer, so why can't I use outputObserver.hasEdge etc.? Why must I retrieve the downstream input's observer? Does this indicate something is out of sync?
-        self.getConnectedDownstreamNodes().forEach { (canvas: CanvasItemViewModel) in
-            canvas.inputViewModels.forEach { (inputRowViewModel: InputNodeRowViewModel) in
-                if let inputObserver = inputRowViewModel.rowDelegate {
-                    inputRowViewModel.updatePortColor(hasEdge: inputObserver.hasEdge,
-                                                      hasLoop: inputObserver.hasLoopedValues,
-                                                      selectedEdges: selectedEdges,
-                                                      drawingObserver: drawingObserver)
-                }
-            }
+        self.getDownstreamInputsObservers().forEach { (inputObserver: InputNodeRowObserver) in
+            // TODO: the input observer is connected to this output observer, so why can't I use outputObserver.hasEdge etc.? Why must I retrieve the downstream input's observer? Does this indicate something is out of sync?
+            inputObserver.updateRowViewModelsPortColor(selectedEdges: selectedEdges,
+                                                       drawingObserver: drawingObserver)
         }
-        
     }
 }

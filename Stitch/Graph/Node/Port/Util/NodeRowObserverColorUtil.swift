@@ -46,7 +46,7 @@ struct UpdatePortColorUponNodeSelected: GraphEvent {
     let nodeId: NodeId
     
     func handle(state: GraphState) {
-        state.getNode(nodeId)?.updateObserversPortColorsAndDependencies(
+        state.getNode(nodeId)?.updateObserversPortColorsAndConnectedItemsPortColors(
             selectedEdges: state.selectedEdges,
             drawingObserver: state.edgeDrawingObserver)
     }

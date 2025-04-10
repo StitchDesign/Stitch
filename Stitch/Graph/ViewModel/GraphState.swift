@@ -239,12 +239,18 @@ extension GraphState {
             documentFrame: document.frame)
         
         self.visibleNodesViewModel.updateNodeRowObserversUpstreamAndDownstreamReferences()
-        self.visibleNodesViewModel.syncRowViewModels(document: document)
+        self.visibleNodesViewModel.syncRowViewModels(activeIndex: document.activeIndex)
         
-        // Update connected port data
-        self.visibleNodesViewModel.updateAllNodesObserversPortColorsAndDependencies(
-            selectedEdges: self.selectedEdges,
-            drawingObserver: self.edgeDrawingObserver)
+        /// Updates port colors and port colors' cached data (connected-canvas-items)
+        self.visibleNodesViewModel.nodes.values.forEach { node in
+            // Update cache first:
+            node.updateObserversConnectedItemsCache()
+            // Then calculate port colors:
+            node.updateObserversPortColorsAndConnectedItemsPortColors(
+                selectedEdges: self.selectedEdges,
+                drawingObserver: self.edgeDrawingObserver)
+        }
+        
         
         // Update edges after everything else
         let newEdges = self.getVisualEdgeData(groupNodeFocused: focusedGroupNode)

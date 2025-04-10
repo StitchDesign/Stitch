@@ -57,6 +57,9 @@ struct NodeView: View {
                 self.canvasItem.updateVisibilityStatus(with: false, graph: graph)
             }
             .onChange(of: self.isSelected) {
+            // // TODO: if I rely on e.g. graph.selectedEdges in this closure, would that force a render-cycle vs dispatching the action?
+            // node.updateObserversPortColorsAndConnectedCanvasItemsCache(selectedEdges: graph.selectedEdges, drawingObserver: graph.edgeDrawingObserver)
+                
                 dispatch(UpdatePortColorUponNodeSelected(nodeId: nodeId))
             }
 #if targetEnvironment(macCatalyst)

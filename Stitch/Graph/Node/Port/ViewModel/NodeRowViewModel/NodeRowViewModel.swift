@@ -45,11 +45,7 @@ protocol NodeRowViewModel: StitchLayoutCachable, Observable, Identifiable {
     
     @MainActor func portDragEnded(graph: GraphState)
         
-    // Responsible for:
-    // (1) updating an input's upstream output
-    // (2) updating an output's downstream inputs
-    // (3) updating an input/output's port color
-//    @MainActor func findConnectedCanvasItems(rowObserver: Self.RowObserver) -> CanvasItemIdSet
+    @MainActor func findConnectedCanvasItems(rowObserver: Self.RowObserver) -> CanvasItemIdSet
         
     @MainActor func calculatePortColor(hasEdge: Bool,
                                        hasLoop: Bool,

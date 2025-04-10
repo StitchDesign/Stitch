@@ -88,10 +88,10 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
 
 /*
  Whenever graph's selectedEdges or drawing gesture (or drawing gesture's nearest eligible input) changes,
- we need to update the port color on the row view model for this port-entry view.
+ we may need to update the port color on the row view model for this port-entry view.
 
  When updating that color, we will still need to know whether we have an edge and/or a loop, facts which are provided by the row observer.
- Previously we were accessing this via row view model's row observer delegate, which in any case if used in the view would have caused an additional render cycle.
+ Previously we were accessing this via row view model's row observer delegate, which in any case caused an additional render cycle.
  
  Note: trying an action because:
  - we can look up the row observer in state, to avoid a delegate-access which triggers a render-cycle
@@ -104,15 +104,13 @@ struct MaybeUpdatePortColor: GraphEvent {
     func handle(state: GraphState) {
         switch nodeIO {
         case .input:
-            if let input = state.getInputRowObserver(rowId.asNodeIOCoordinate) {
-                input.updatePortColorAndDepencies(selectedEdges: state.selectedEdges,
-                                                  drawingObserver: state.edgeDrawingObserver)
-            }
+            state.getInputRowObserver(rowId.asNodeIOCoordinate)?
+                .updatePortColorAndUpstreamOutputPortColor(selectedEdges: state.selectedEdges,
+                                                           drawingObserver: state.edgeDrawingObserver)
         case .output:
-            if let output = state.getOutputRowObserver(rowId.asNodeIOCoordinate) {
-                output.updatePortColorAndDepencies(selectedEdges: state.selectedEdges,
-                                                   drawingObserver: state.edgeDrawingObserver)
-            }
+            state.getOutputRowObserver(rowId.asNodeIOCoordinate)?
+                .updatePortColorAndDownstreamInputsPortColors(selectedEdges: state.selectedEdges,
+                                                              drawingObserver: state.edgeDrawingObserver)
         }
     }
 }
