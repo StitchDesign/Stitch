@@ -159,6 +159,7 @@ extension VisibleNodesViewModel {
                 // Create port view models for group nodes once row observers have been established
                 let inputRowObservers = self.getSplitterInputRowObservers(for: node.id)
                 let outputRowObservers = self.getSplitterOutputRowObservers(for: node.id)
+                // Note: What is `syncRowViewModels` vs `NodeRowViewModel.initialize`?
                 canvasGroup.syncRowViewModels(inputRowObservers: inputRowObservers,
                                               outputRowObservers: outputRowObservers,
                                               // Not relevant
@@ -172,10 +173,29 @@ extension VisibleNodesViewModel {
                 }
                 
                 assertInDebug(node.kind == .group)
+
+                // Note: A Group Node's inputs and outputs are actually underlying input-splitters and output-splitters.
+                // TODO: shouldn't the row view models already have been initialized when we initialized patch nodes?
+                canvasGroup.inputViewModels.forEach {
+                    // Must set the node delegate on each input; some other code somewhere else depends on it
+                    $0.nodeDelegate = node
+                    // Note: assumes the row view model as already have its underling row observer delegate assigned
+                    $0.initializeDelegate(node,
+                                          // Layer inputs can never be inputs for group nodes
+                                          unpackedPortParentFieldGroupType: nil,
+                                          unpackedPortIndex: nil)
+                    $0.updatePortViewData()
+                }
                 
-                canvasGroup.initializeDelegate(node,
-                                               unpackedPortParentFieldGroupType: nil,
-                                               unpackedPortIndex: nil)
+                canvasGroup.outputViewModels.forEach {
+                    $0.nodeDelegate = node
+                    $0.initializeDelegate(node,
+                                          // Layer inputs can never be inputs for group nodes
+                                          unpackedPortParentFieldGroupType: nil,
+                                          unpackedPortIndex: nil)
+                    $0.updatePortViewData()
+                }
+                
                 
             case .component(let componentViewModel):
                 // Similar logic to patch nodes, where we have inputs/outputs observers stored directly in component
