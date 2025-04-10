@@ -52,12 +52,6 @@ extension GraphState {
         }
     }
     
-    // TODO: use a specific GraphId
     @MainActor
     var projectId: GraphId { self.id }
-                
-    // TODO: remove
-    @MainActor var graphMovement: GraphMovementObserver {
-        self.documentDelegate?.graphMovement ?? .init()
-    }
 }

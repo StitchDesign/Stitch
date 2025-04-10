@@ -23,6 +23,11 @@ extension GraphState {
                        groupNodeFocused: NodeId?) {
         // log("outputHovered fired")
         
+        guard let graphMovement = self.documentDelegate?.graphMovement else {
+            fatalErrorIfDebug()
+            return
+        }
+        
         if self.edgeDrawingObserver.drawingGesture != nil {
             // log("OutputHovered called during edge drawing gesture; exiting")
             self.edgeAnimationEnabled = false
@@ -30,7 +35,7 @@ extension GraphState {
             return
         }
         
-        if self.graphMovement.canvasItemIsDragged || self.nodeIsMoving {
+        if graphMovement.canvasItemIsDragged || self.nodeIsMoving {
             // log("OutputHovered called during node drag; exiting")
             self.edgeAnimationEnabled = false
             self.edgeEditingState = nil
