@@ -63,7 +63,6 @@ final class StitchStore: Sendable {
         self.environment.dirObserver.delegate = self
         self.environment.store = self
         self.clipboardEncoder.delegate = self.clipboardDelegate
-        self.clipboardDelegate.store = self
     }
 }
 
@@ -82,7 +81,6 @@ extension StitchStore {
 
 final class ClipboardEncoderDelegate: DocumentEncodableDelegate {
     var lastEncodedDocument: StitchClipboardContent
-    @MainActor weak var store: StitchStore?
     
     init() {
         self.lastEncodedDocument = .init()
@@ -97,10 +95,6 @@ final class ClipboardEncoderDelegate: DocumentEncodableDelegate {
     func update(from schema: StitchClipboardContent, rootUrl: URL?) { }
     
     func updateAsync(from schema: StitchClipboardContent) async { }
-    
-    var storeDelegate: StitchStore? {
-        self.store
-    }
 }
 
 extension StitchStore {
