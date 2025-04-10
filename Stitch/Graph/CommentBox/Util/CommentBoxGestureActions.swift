@@ -45,8 +45,13 @@ extension GraphState {
     func commentBoxPositionDragged(id: CommentBoxId,
                                    value: DragGesture.Value) {
 
+        guard let graphMovement = self.documentDelegate?.graphMovement else {
+            fatalErrorIfDebug()
+            return
+        }
+        
         // log("CommentBoxPositionDragged called")
-        let zoom: CGFloat = self.graphMovement.zoomData
+        let zoom: CGFloat = graphMovement.zoomData
 
         // log("CommentBoxPositionDragged: value.translation: \(value.translation)")
         // log("CommentBoxPositionDragged: value.translation / zoom: \(value.translation / zoom)")
@@ -166,7 +171,7 @@ extension GraphState {
                                     value: DragGesture.Value) {
         self.selection.selectedCommentBoxes = Set([box.id])
 
-        let zoom = self.graphMovement.zoomData
+        // let zoom = self.graphMovement.zoomData
 
         // STEP 1: UPDATE THE COMMENT BOX ITSELF
         box.expansionBox.startPoint = box.position
