@@ -143,7 +143,7 @@ extension VisibleNodesViewModel {
     
     // traditionally called in `updateNodesPagingDict`, after `updateNodeRowObserversUpstreamAndDownstreamReferences`
     @MainActor
-    func syncRowViewModels(document: StitchDocumentViewModel) {
+    func syncRowViewModels(activeIndex: ActiveIndex) {
         // Sync port view models for applicable nodes
         self.nodes.values.forEach { node in
             switch node.nodeType {
@@ -173,30 +173,14 @@ extension VisibleNodesViewModel {
                 }
                 
                 assertInDebug(node.kind == .group)
-
+                
                 // Note: A Group Node's inputs and outputs are actually underlying input-splitters and output-splitters.
                 // TODO: shouldn't the row view models already have been initialized when we initialized patch nodes?
-                canvasGroup.inputViewModels.forEach {
-                    // Must set the node delegate on each input; some other code somewhere else depends on it
-                    $0.nodeDelegate = node
-                    // Note: assumes the row view model as already have its underling row observer delegate assigned
-                    $0.initializeDelegate(node,
-                                          // Layer inputs can never be inputs for group nodes
-                                          unpackedPortParentFieldGroupType: nil,
-                                          unpackedPortIndex: nil)
-                    $0.updatePortViewData()
-                }
-                
-                canvasGroup.outputViewModels.forEach {
-                    $0.nodeDelegate = node
-                    $0.initializeDelegate(node,
-                                          // Layer inputs can never be inputs for group nodes
-                                          unpackedPortParentFieldGroupType: nil,
-                                          unpackedPortIndex: nil)
-                    $0.updatePortViewData()
-                }
-                
-                
+                canvasGroup.initializeDelegate(node,
+                                               // Layer inputs can never be inputs for group nodes
+                                               unpackedPortParentFieldGroupType: nil,
+                                               unpackedPortIndex: nil)
+                                
             case .component(let componentViewModel):
                 // Similar logic to patch nodes, where we have inputs/outputs observers stored directly in component
                 componentViewModel.canvas.syncRowViewModels(inputRowObservers: componentViewModel.inputsObservers,
@@ -208,9 +192,9 @@ extension VisibleNodesViewModel {
                 // Special case: we must re-initialize the group orientation input, since its first initialization happens before we have constructed the layer view models that can tell us all the parent's children
                 if layerNode.layer == .group {
                     layerNode.blockOrUnblockFields(
-                        newValue: layerNode.orientationPort.getActiveValue(activeIndex: document.activeIndex),
+                        newValue: layerNode.orientationPort.getActiveValue(activeIndex: activeIndex),
                         layerInput: .orientation,
-                        activeIndex: document.activeIndex)
+                        activeIndex: activeIndex)
                 }
             }
         }
@@ -380,16 +364,7 @@ extension VisibleNodesViewModel {
             $0.value.kind == .group
         }
     }
-
-    /// Updates cached data inside row observers.
-    @MainActor
-    func updateAllNodeViewData() {        
-        // Connected nodes data relies on port view data so we call this later
-        self.nodes.values.forEach { node in
-            node.updateAllConnectedNodes()
-        }
-    }
-    
+   
     @MainActor
     func setAllNodesVisible() {
         let newIds = self.allViewModels.map(\.id).toSet

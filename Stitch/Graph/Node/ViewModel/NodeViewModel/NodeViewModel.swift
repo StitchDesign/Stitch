@@ -614,6 +614,12 @@ extension NodeViewModel {
             return
         }
         
+        
+        guard let document = self.graphDelegate?.documentDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        
         // assumes new input has no label, etc.
         log("inputAdded called")
         let allInputsObservers = self.getAllInputsObservers()
@@ -634,21 +640,27 @@ extension NodeViewModel {
                                                     id: newInputCoordinate,
                                                     upstreamOutputCoordinate: nil)
         
-        let newInputViewModel = InputNodeRowViewModel(id: .init(graphItemType: .node(patchNode.canvasObserver.id),
-                                                                nodeId: newInputCoordinate.nodeId,
-                                                                portId: allInputsObservers.count),
-                                                      rowDelegate: newInputObserver,
-                                                      canvasItemDelegate: patchNode.canvasObserver)
+        let newRowId = NodeRowViewModelId(graphItemType: .node(patchNode.canvasObserver.id),
+                                          nodeId: newInputCoordinate.nodeId,
+                                          portId: allInputsObservers.count)
+        
+        let newInputViewModel = InputNodeRowViewModel(
+            id: newRowId,
+            rowDelegate: newInputObserver,
+            canvasItemDelegate: patchNode.canvasObserver)
         
         patchNode.inputsObservers.append(newInputObserver)
         patchNode.canvasObserver.inputViewModels.append(newInputViewModel)
         
         // Assign delegates once view models are assigned to node
         newInputObserver.initializeDelegate(self)
-        newInputViewModel.initializeDelegate(self,
-                                             // Only relevant for layer nodes, which cannot have an input added or removed
-                                             unpackedPortParentFieldGroupType: nil,
-                                             unpackedPortIndex: nil)
+        newInputViewModel.initializeDelegate(
+            self,
+            initialValue: newInputObserver.getActiveValue(activeIndex: document.activeIndex),
+            // Only relevant for layer nodes, which cannot have an input added or removed
+            unpackedPortParentFieldGroupType: nil,
+            unpackedPortIndex: nil,
+            layerInput: nil)
     }
 
     @MainActor
