@@ -76,9 +76,6 @@ struct MediaInputFieldValueView: View {
                                   isSelectedInspectorRow: isSelectedInspectorRow,
                                   activeIndex: document.activeIndex,
                                   mediaType: mediaType)
-            .onChange(of: mediaName, initial: true) {
-                // log("media name in inner value view: \(mediaName)")
-            }
             
             MediaFieldLabelView(viewModel: viewModel,
                                 inputType: viewModel.id.rowId.portType,
