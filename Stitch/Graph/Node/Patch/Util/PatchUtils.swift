@@ -408,20 +408,22 @@ extension Patch {
         }
     }
 
-    var supportedMediaType: SupportedMediaFormat {
+    var supportedMediaType: NodeMediaSupport? {
         switch self {
         case .imageImport:
-            return .image
+            return .single(.image)
         case .videoImport:
-            return .video
+            return .single(.video)
         case .soundImport:
-            return .audio
+            return .single(.audio)
         case .coreMLClassify:
-            return .coreML
+            return .single(.coreML)
         case .coreMLDetection:
-            return .coreML
+            return .single(.coreML)
+        case .loopBuilder:
+            return .all
         default:
-            return .unknown
+            return nil
         }
     }
     

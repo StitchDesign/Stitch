@@ -23,7 +23,7 @@ struct MediaPickerButtons: View {
     @Environment(\.appTheme) var theme
     
     let rowObserver: InputNodeRowObserver
-    let mediaType: SupportedMediaFormat
+    let mediaType: NodeMediaSupport
     let choices: [FieldValueMedia]
     let isFieldInsideLayerInspector: Bool
     let graph: GraphState

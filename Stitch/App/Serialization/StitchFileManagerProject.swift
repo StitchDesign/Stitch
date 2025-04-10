@@ -110,12 +110,16 @@ extension DocumentEncodable {
 
     static func createMediaFileURL(from mediaKey: MediaKey,
                                    importedFilesURL: URL) -> URLResult {
+        guard let mediaType = mediaKey.getMediaType() else {
+            return .failure(.mediaFileUnsupported(mediaKey.fileExtension))
+        }
+        
         // Create ImportedFiles url if it doesn't exist
         let _ = try? StitchFileManager.createDirectories(at: importedFilesURL,
                                                          withIntermediate: true)
 
         let uniqueName = createUniqueFilename(filename: mediaKey.filename,
-                                              mediaType: mediaKey.getMediaType(),
+                                              mediaType: mediaType,
                                               mediaDirectory: importedFilesURL)
 
         let newURL = importedFilesURL
