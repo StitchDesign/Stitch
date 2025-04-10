@@ -64,47 +64,12 @@ struct StitchRootView: View {
                 splitView
 //#if targetEnvironment(macCatalyst)
                     .overlay(alignment: .center) {
-                        
-                        if let document = store.currentDocument {
-
-#if targetEnvironment(macCatalyst)
-                            if document.showCatalystProjectTitleModal {
-                                logInView("will show modal view at top level")
-                                ZStack {
-                                    
-                                    MODAL_BACKGROUND_COLOR
-                                        .ignoresSafeArea([.all, .keyboard])
-                                        .onTapGesture {
-                                            dispatch(CatalystProjectTitleModalClosed())
-                                        }
-                                    
-                                    VStack(alignment: .leading) {
-                                        StitchTextView(string: "Edit Project Title")
-                                        CatalystProjectTitleModalView(graph: document.visibleGraph,
-                                                                      document: document)
-                                    }
-                                    .padding()
-                                    //                                .frame(width: 260, alignment: .leading)
-                                    .frame(width: 360, alignment: .leading)
-                                    .background(
-                                        Color(uiColor: .systemGray5)
-                                        // NOTE: strangely we need `[.all, .keyboard]` on BOTH the background color AND the StitchHostingControllerView
-                                            .ignoresSafeArea([.all, .keyboard])
-                                            .cornerRadius(4)
-                                    )
-                                    
-                                    
-                                }
-                            } // if document
-#endif
-                            if showMenu {
-                                InsertNodeMenuWrapper(document: document)
-                            }
+                        if let document = store.currentDocument, showMenu {
+                            InsertNodeMenuWrapper(document: document)
                         } // if let document
                     } // .overlay
             }
         }    
-//        .coordinateSpace(name: Self.STITCH_ROOT_VIEW_COORDINATE_SPACE)
         .modifier(StitchRootModifier())
         .onAppear {
             // TODO: move this to the start of StitchStore instead?
