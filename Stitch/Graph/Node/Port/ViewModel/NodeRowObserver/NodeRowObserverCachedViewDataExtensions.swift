@@ -14,30 +14,58 @@ import StitchSchemaKit
 // Note that finding connected nodes for an input vs output is a little different?
 extension InputNodeRowObserver {
     @MainActor
-    func updateConnectedCanvasItems(selectedEdges: Set<PortEdgeUI>,
-                                    drawingObserver: EdgeDrawingObserver) {
-        self.allRowViewModels.forEach { rowViewModel in
+    func updatePortColorAndDepencies(selectedEdges: Set<PortEdgeUI>,
+                                     drawingObserver: EdgeDrawingObserver) {
+        self.allRowViewModels.forEach {
             // `Connected canvas items` are used by calculatePortColor to determine whether a port is 'selected' or not
             // Perhaps redundant, given that we now carefully control when we updatePortColor ?
-            rowViewModel.connectedCanvasItems = rowViewModel.findConnectedCanvasItems(rowObserver: self)
-            rowViewModel.updatePortColor(hasEdge: self.hasEdge,
-                                         hasLoop: self.hasLoopedValues,
-                                         selectedEdges: selectedEdges,
-                                         drawingObserver: drawingObserver)
+            $0.connectedCanvasItems = $0.findConnectedCanvasItems(rowObserver: self)
+            $0.updatePortColor(hasEdge: self.hasEdge,
+                               hasLoop: self.hasLoopedValues,
+                               selectedEdges: selectedEdges,
+                               drawingObserver: drawingObserver)
         }
+        
+        // Update this input's upstream output's port color
+        if let output = self.upstreamOutputObserver {
+            output.updatePortColorAndDepencies(selectedEdges: selectedEdges,
+                                              drawingObserver: drawingObserver)
+        }
+        
     }
 }
 
 extension OutputNodeRowObserver {
     @MainActor
-    func updateConnectedCanvasItems(selectedEdges: Set<PortEdgeUI>,
-                                    drawingObserver: EdgeDrawingObserver) {
-        self.allRowViewModels.forEach { rowViewModel in
-            rowViewModel.connectedCanvasItems = rowViewModel.findConnectedCanvasItems(rowObserver: self)
-            rowViewModel.updatePortColor(hasEdge: self.hasEdge,
-                                         hasLoop: self.hasLoopedValues,
-                                         selectedEdges: selectedEdges,
-                                         drawingObserver: drawingObserver)
+    func updatePortColorAndDepencies(selectedEdges: Set<PortEdgeUI>,
+                                     drawingObserver: EdgeDrawingObserver) {
+        
+        self.allRowViewModels.forEach {
+            $0.connectedCanvasItems = $0.findConnectedCanvasItems(rowObserver: self)
+            $0.updatePortColor(hasEdge: self.hasEdge,
+                               hasLoop: self.hasLoopedValues,
+                               selectedEdges: selectedEdges,
+                               drawingObserver: drawingObserver)
         }
+        
+        // Update this output's downstream inputs' port colors
+        // TODO: this triggers infinite recursion, since InputRowObserver also calls OutputRowObserver.updateConnectedCanvasItems
+//        self.getDownstreamInputsObservers().forEach { (inputObserver: InputNodeRowObserver) in
+//            inputObserver.updateConnectedCanvasItems(selectedEdges: selectedEdges,
+//                                                     drawingObserver: drawingObserver)
+//        }
+
+        // TODO: the input observer is connected to this output observer, so why can't I use outputObserver.hasEdge etc.? Why must I retrieve the downstream input's observer? Does this indicate something is out of sync?
+        self.getConnectedDownstreamNodes().forEach { (canvas: CanvasItemViewModel) in
+            canvas.inputViewModels.forEach { (inputRowViewModel: InputNodeRowViewModel) in
+                if let inputObserver = inputRowViewModel.rowDelegate {
+                    inputRowViewModel.updatePortColor(hasEdge: inputObserver.hasEdge,
+                                                      hasLoop: inputObserver.hasLoopedValues,
+                                                      selectedEdges: selectedEdges,
+                                                      drawingObserver: drawingObserver)
+                }
+            }
+        }
+        
     }
 }

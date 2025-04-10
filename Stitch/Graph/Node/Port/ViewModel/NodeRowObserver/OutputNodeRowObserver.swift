@@ -146,8 +146,7 @@ extension OutputNodeRowObserver {
     @MainActor
     func getConnectedDownstreamNodes() -> [CanvasItemViewModel] {
         guard let graph = self.nodeDelegate?.graphDelegate,
-              let downstreamConnections: Set<NodeIOCoordinate> = graph.connections
-            .get(self.id) else {
+              let downstreamConnections: Set<NodeIOCoordinate> = graph.connections.get(self.id) else {
             return .init()
         }
         
@@ -173,5 +172,15 @@ extension OutputNodeRowObserver {
         }
         
         return connectedDownstreamNodes + downstreamGroupNodes
+    }
+    
+    @MainActor func getDownstreamInputsObservers() -> [InputNodeRowObserver] {
+        guard let graph = self.nodeDelegate?.graphDelegate else {
+            fatalErrorIfDebug() // should have had graph state
+            return .init()
+        }
+        return graph.connections.get(self.id)?
+            .compactMap { graph.getInputRowObserver($0) }
+        ?? .init()
     }
 }

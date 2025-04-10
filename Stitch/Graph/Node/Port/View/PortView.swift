@@ -59,18 +59,9 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
         // TODO: perf implications updating every port's color when selectedEdges or edgeDrawingObserver changes?
         
         // Update port color on selected edges change
-        // Note: Should this ALSO update upstream and downstream ports? If not, why not?
             .onChange(of: graph.selectedEdges) { _, newValue in
-//                rowViewModel.updatePortColorFromUI()
-                if let observer = self.rowViewModel.rowDelegate {
-                    self.rowViewModel.updatePortColor(hasEdge: observer.hasEdge,
-                                                      hasLoop: observer.hasLoopedValues,
-                                                      selectedEdges: newValue,
-                                                      drawingObserver: graph.edgeDrawingObserver)
-                }
-//                
-//                dispatch(MaybeUpdatePortColor(rowId: self.rowViewModel.id,
-//                                              nodeIO: NodeRowViewModelType.nodeIO))
+                dispatch(MaybeUpdatePortColor(rowId: self.rowViewModel.id,
+                                              nodeIO: NodeRowViewModelType.nodeIO))
             }
             .onChange(of: self.graph.edgeDrawingObserver.drawingGesture.isDefined) { oldValue, newValue in
                 dispatch(MaybeUpdatePortColor(rowId: self.rowViewModel.id,
@@ -80,7 +71,6 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
                 dispatch(MaybeUpdatePortColor(rowId: self.rowViewModel.id,
                                               nodeIO: NodeRowViewModelType.nodeIO))
             }
-        // ^^ should also update port color eligible
     }
     
     @MainActor
@@ -93,19 +83,6 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
     @MainActor
     var animationTime: Double {
         isDraggingFromThisOutput ? DrawnEdge.animationDuration : .zero
-    }
-}
-
-extension NodeRowViewModel {
-    @MainActor
-    func updatePortColorFromUI() {
-        if let observer = self.rowDelegate,
-           let graph = observer.nodeDelegate?.graphDelegate {
-            self.updatePortColor(hasEdge: observer.hasEdge,
-                                 hasLoop: observer.hasLoopedValues,
-                                 selectedEdges: graph.selectedEdges,
-                                 drawingObserver: graph.edgeDrawingObserver)
-        }
     }
 }
 
@@ -128,13 +105,13 @@ struct MaybeUpdatePortColor: GraphEvent {
         switch nodeIO {
         case .input:
             if let input = state.getInputRowObserver(rowId.asNodeIOCoordinate) {
-                input.updateConnectedCanvasItems(selectedEdges: state.selectedEdges,
-                                                 drawingObserver: state.edgeDrawingObserver)
+                input.updatePortColorAndDepencies(selectedEdges: state.selectedEdges,
+                                                  drawingObserver: state.edgeDrawingObserver)
             }
         case .output:
             if let output = state.getOutputRowObserver(rowId.asNodeIOCoordinate) {
-                output.updateConnectedCanvasItems(selectedEdges: state.selectedEdges,
-                                                  drawingObserver: state.edgeDrawingObserver)
+                output.updatePortColorAndDepencies(selectedEdges: state.selectedEdges,
+                                                   drawingObserver: state.edgeDrawingObserver)
             }
         }
     }

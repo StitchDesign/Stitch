@@ -164,14 +164,14 @@ extension NodeViewModel {
     }
     
     @MainActor
-    func updateObserversConnectedCanvasItems(selectedEdges: Set<PortEdgeUI>,
-                                             drawingObserver: EdgeDrawingObserver) {
+    func updateObserversPortColorsAndDependencies(selectedEdges: Set<PortEdgeUI>,
+                                                  drawingObserver: EdgeDrawingObserver) {
         self.inputsObservers.forEach {
-            $0.updateConnectedCanvasItems(selectedEdges: selectedEdges,
+            $0.updatePortColorAndDepencies(selectedEdges: selectedEdges,
                                           drawingObserver: drawingObserver)
         }
         self.outputsObservers.forEach {
-            $0.updateConnectedCanvasItems(selectedEdges: selectedEdges,
+            $0.updatePortColorAndDepencies(selectedEdges: selectedEdges,
                                           drawingObserver: drawingObserver)
         }
     }

@@ -242,7 +242,7 @@ extension GraphState {
         self.visibleNodesViewModel.syncRowViewModels(document: document)
         
         // Update connected port data
-        self.visibleNodesViewModel.updateAllNodesObserversConnectedCanvasItems(
+        self.visibleNodesViewModel.updateAllNodesObserversPortColorsAndDependencies(
             selectedEdges: self.selectedEdges,
             drawingObserver: self.edgeDrawingObserver)
         

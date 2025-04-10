@@ -365,13 +365,13 @@ extension VisibleNodesViewModel {
         }
     }
 
-    /// Updates cached data inside row observers.
+    /// Updates port colors and port colors' cached data (connected-canvas-items)
     @MainActor
-    func updateAllNodesObserversConnectedCanvasItems(selectedEdges: Set<PortEdgeUI>,
-                                                     drawingObserver: EdgeDrawingObserver) {
+    func updateAllNodesObserversPortColorsAndDependencies(selectedEdges: Set<PortEdgeUI>,
+                                                          drawingObserver: EdgeDrawingObserver) {
         // Connected nodes data relies on port view data so we call this later
         self.nodes.values.forEach { node in
-            node.updateObserversConnectedCanvasItems(selectedEdges: selectedEdges,
+            node.updateObserversPortColorsAndDependencies(selectedEdges: selectedEdges,
                                                      drawingObserver: drawingObserver)
         }
     }

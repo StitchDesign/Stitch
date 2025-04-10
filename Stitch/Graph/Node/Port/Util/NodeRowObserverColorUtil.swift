@@ -46,35 +46,8 @@ struct UpdatePortColorUponNodeSelected: GraphEvent {
     let nodeId: NodeId
     
     func handle(state: GraphState) {
-        guard let node = state.getNode(nodeId) else {
-            return
-        }
-        
-        let selectedEdges = state.selectedEdges
-        let drawingObserver = state.edgeDrawingObserver
-        
-        // TODO: should `updateObserversConnectedCanvasItems` also update the port color of connected (upstream output, downstream inputs) ? 
-        node.updateObserversConnectedCanvasItems(
+        state.getNode(nodeId)?.updateObserversPortColorsAndDependencies(
             selectedEdges: state.selectedEdges,
             drawingObserver: state.edgeDrawingObserver)
-                        
-        // update each output's downstream inputs
-        node.outputsObservers.forEach { output in
-            state.connections
-                .get(output.id)?
-                .compactMap { state.getInputRowObserver($0) }
-                .forEach {
-                    $0.updateConnectedCanvasItems(selectedEdges: selectedEdges,
-                                                  drawingObserver: drawingObserver)
-                }
-        }
-        
-        // update each input's upstream output
-        node.inputsObservers.forEach { input in
-            if let output = input.upstreamOutputObserver {
-                output.updateConnectedCanvasItems(selectedEdges: selectedEdges,
-                                                  drawingObserver: drawingObserver)
-            }
-        }
     }
 }
