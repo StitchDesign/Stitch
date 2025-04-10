@@ -420,7 +420,7 @@ extension Patch {
             return .single(.coreML)
         case .coreMLDetection:
             return .single(.coreML)
-        case .loopBuilder:
+        case .loopBuilder, .splitter:
             return .all
         default:
             return nil
