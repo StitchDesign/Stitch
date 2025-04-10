@@ -43,31 +43,31 @@ extension InputNodeRowViewModel {
     }
     
     @MainActor
-    func portDragEnded(graph: GraphState) {
+    func portDragEnded(graphState: GraphState) {
 //        let disableEdgeAnimationEffect: Effect = createDelayedEffect(
 //            delayInNanoseconds: TimeHelpers.ThreeTenthsOfASecondInNanoseconds,
 //            action: DisableEdgeAnimation())
 
         
-        guard let drawingGesture = graph.edgeDrawingObserver.drawingGesture,
+        guard let drawingGesture = graphState.edgeDrawingObserver.drawingGesture,
               let sourceNodeId = drawingGesture.output.computationNode?.id,
-              let nearestEligibleInput = graph.edgeDrawingObserver.nearestEligibleInput else {
+              let nearestEligibleInput = graphState.edgeDrawingObserver.nearestEligibleInput else {
             log("InputDragEnded: drag ended, but could not create new edge")
             
             // TODO: why wasn't this necessary in the original Edge Perf PR?
-            if let outputRowViewModel = graph.edgeDrawingObserver.drawingGesture?.output,
-               let outputObserver = graph.getOutputRowObserver(outputRowViewModel.nodeIOCoordinate) {
+            if let outputRowViewModel = graphState.edgeDrawingObserver.drawingGesture?.output,
+               let outputObserver = graphState.getOutputRowObserver(outputRowViewModel.nodeIOCoordinate) {
                 outputRowViewModel.updatePortColor(
                     hasEdge: outputObserver.hasEdge,
                     hasLoop: outputObserver.hasLoopedValues,
-                    selectedEdges: graph.selectedEdges,
-                    drawingObserver: graph.edgeDrawingObserver)
+                    selectedEdges: graphState.selectedEdges,
+                    drawingObserver: graphState.edgeDrawingObserver)
             }
             
-            graph.edgeDrawingObserver.reset()
+            graphState.edgeDrawingObserver.reset()
             
-            DispatchQueue.main.async { [weak graph] in
-                graph?.edgeAnimationEnabled = false
+            DispatchQueue.main.async { [weak graphState] in
+                graphState?.edgeAnimationEnabled = false
             }
             
             return
@@ -76,14 +76,14 @@ extension InputNodeRowViewModel {
         let to = nearestEligibleInput.portViewData
         let from = drawingGesture.output.portViewData
         
-        graph.edgeDrawingObserver.reset()
+        graphState.edgeDrawingObserver.reset()
 
-        graph.createEdgeFromEligibleInput(
+        graphState.createEdgeFromEligibleInput(
             from: from,
             to: to,
             sourceNodeId: sourceNodeId)
                 
-        graph.encodeProjectInBackground()
+        graphState.encodeProjectInBackground()
     }
     
     // While dragging cursor from an output/input,
@@ -211,37 +211,37 @@ extension OutputNodeRowViewModel {
         return diffFromCenter
     }
     
-    @MainActor func portDragEnded(graph: GraphState) {
+    @MainActor func portDragEnded(graphState: GraphState) {
         //        let disableEdgeAnimationEffect: Effect = createDelayedEffect(
         //            delayInNanoseconds: TimeHelpers.ThreeTenthsOfASecondInNanoseconds,
         //            action: DisableEdgeAnimation())
         
         // reset the count
-        graph.outputDragStartedCount = 0
+        graphState.outputDragStartedCount = 0
         
-        guard let from = graph.edgeDrawingObserver.drawingGesture?.output,
-              let to = graph.edgeDrawingObserver.nearestEligibleInput,
+        guard let from = graphState.edgeDrawingObserver.drawingGesture?.output,
+              let to = graphState.edgeDrawingObserver.nearestEligibleInput,
               // Get node delegate from row in case edge drag is for group,
               // we want the splitter node delegate not the group node delegate
               let sourceNodeId = from.computationNode?.id else {
             log("OutputDragEnded: No active output drag or eligible input ...")
-            graph.edgeDrawingObserver.reset()
+            graphState.edgeDrawingObserver.reset()
             
-            DispatchQueue.main.async { [weak graph] in
-                graph?.edgeAnimationEnabled = false
+            DispatchQueue.main.async { [weak graphState] in
+                graphState?.edgeAnimationEnabled = false
             }
             
             return
         }
         
-        graph.edgeDrawingObserver.reset()
+        graphState.edgeDrawingObserver.reset()
         
-        graph.createEdgeFromEligibleInput(
+        graphState.createEdgeFromEligibleInput(
             from: from.portViewData,
             to: to.portViewData,
             sourceNodeId: sourceNodeId)
         
-        graph.encodeProjectInBackground()
+        graphState.encodeProjectInBackground()
     }
 }
 

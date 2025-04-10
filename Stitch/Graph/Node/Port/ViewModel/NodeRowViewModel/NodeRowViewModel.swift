@@ -43,7 +43,7 @@ protocol NodeRowViewModel: StitchLayoutCachable, Observable, Identifiable {
     
     @MainActor func portDragged(gesture: DragGesture.Value, graphState: GraphState)
     
-    @MainActor func portDragEnded(graph: GraphState)
+    @MainActor func portDragEnded(graphState: GraphState)
         
     @MainActor func findConnectedCanvasItems(rowObserver: Self.RowObserver) -> CanvasItemIdSet
         

@@ -148,7 +148,7 @@ struct PortEntryExtendedHitBox<RowViewModel: NodeRowViewModel>: View {
                         .onEnded { _ in
                             //                    log("PortEntry: onEnded")
                             rowViewModel.isDragging = false
-                            rowViewModel.portDragEnded(graph: graphState)
+                            rowViewModel.portDragEnded(graphState: graphState)
                         }
             )
     }
