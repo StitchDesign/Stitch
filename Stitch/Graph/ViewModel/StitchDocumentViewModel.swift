@@ -133,7 +133,7 @@ final class StitchDocumentViewModel: Sendable {
          graph: GraphState,
          isPhoneDevice: Bool,
          projectLoader: ProjectLoader,
-         store: StoreDelegate?,
+         store: StitchStore?,
          isDebugMode: Bool) {
         self.rootId = schema.id
         self.documentEncoder = projectLoader.encoder
@@ -167,7 +167,7 @@ final class StitchDocumentViewModel: Sendable {
     }
     
     @MainActor
-    func initializeDelegate(store: StoreDelegate,
+    func initializeDelegate(store: StitchStore,
                             isInitialization: Bool = false) {
         self.documentEncoder?.delegate = self
         self.graphStepManager.delegate = self
@@ -200,7 +200,7 @@ final class StitchDocumentViewModel: Sendable {
     convenience init?(from schema: StitchDocument,
                       isPhoneDevice: Bool,
                       projectLoader: ProjectLoader,
-                      store: StoreDelegate?,
+                      store: StitchStore?,
                       isDebugMode: Bool) async {
         let documentEncoder = DocumentEncoder(document: schema)
 
@@ -463,13 +463,18 @@ extension GraphState: GraphCalculatable {
     
     @MainActor
     func updateOrderedPreviewLayers() {
+        guard let activeIndex = self.documentDelegate?.activeIndex else {
+            fatalErrorIfDebug()
+            return
+        }
+        
         let flattenedPinMap = self.getFlattenedPinMap()
         let rootPinMap = self.getRootPinMap(pinMap: flattenedPinMap)
         
         let previewLayers: LayerDataList = self.recursivePreviewLayers(
             sidebarLayersGlobal: self.layersSidebarViewModel.createdOrderedEncodedData(),
             pinMap: rootPinMap,
-            activeIndex: self.documentDelegate?.activeIndex ?? .init(.zero))
+            activeIndex: activeIndex)
         
         if !LayerDataList.equals(self.cachedOrderedPreviewLayers, previewLayers) {
             self.cachedOrderedPreviewLayers = previewLayers

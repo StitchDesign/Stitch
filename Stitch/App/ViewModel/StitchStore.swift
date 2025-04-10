@@ -9,7 +9,6 @@ import AudioKit
 import SwiftUI
 import StitchSchemaKit
 
-typealias StoreDelegate = StitchStore
 
 @Observable
 final class StitchStore: Sendable {

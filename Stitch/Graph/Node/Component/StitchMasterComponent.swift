@@ -122,7 +122,7 @@ extension StitchMasterComponent: DocumentEncodableDelegate, Identifiable {
     }
     
     @MainActor
-    var storeDelegate: StoreDelegate? {
+    var storeDelegate: StitchStore? {
         self.parentGraph?.storeDelegate
     }
     

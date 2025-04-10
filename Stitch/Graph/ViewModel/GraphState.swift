@@ -279,7 +279,7 @@ extension GraphState {
     }
     
     @MainActor
-    var storeDelegate: StoreDelegate? {
+    var storeDelegate: StitchStore? {
         self.documentDelegate?.storeDelegate
     }
     
