@@ -191,11 +191,8 @@ extension CanvasItemViewModel {
 
 extension CanvasItemViewModel {
     
-    // When initializing row view models for a canvas item,
-    // we should have the underlying row observer available
     @MainActor
     func initializeDelegate(_ node: NodeDelegate,
-                            // Note: a single canvas item can have MULTIPLE input/output row obserservers
                             unpackedPortParentFieldGroupType: FieldGroupType?,
                             unpackedPortIndex: Int?) {
         

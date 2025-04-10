@@ -60,7 +60,7 @@ struct NodesOnlyView: View {
                 // (`.opacity(0)` means we still render the view, and thus anchor preferences?)
                 
                 if let node = graph.getNodeViewModel(canvasNode.id.nodeId) {                    
-                    NodeView(canvasItem: canvasNode,
+                    NodeView(node: canvasNode,
                              node: node,
                              document: document,
                              graph: graph,

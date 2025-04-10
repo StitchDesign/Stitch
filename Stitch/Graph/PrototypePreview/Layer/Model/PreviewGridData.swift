@@ -330,7 +330,7 @@ extension LayerNodeViewModel {
         
         // log("sizingScenarioUpdated: scenario: \(scenario)")
         
-        let node = self
+        let stitch = self
                 
         // NOTE: does this work with loops? What is the relationship between a loop of fields
         
@@ -340,40 +340,40 @@ extension LayerNodeViewModel {
             // TODO: unblock e.g. min/max width when width set to grow/hug (will be a different action / scenario?)
                         
             // if sizing scenario is auto, unblock the width and height fields:
-            node.unblockSizeInput()
+            stitch.unblockSizeInput()
             
             // ... and block the min and max width and height (until width and height are set to grow or hug)
             // TODO: check whether each dimenion's field != point; if so, unblock that dimension's min/max fields
 //            stitch.blockMinAndMaxSizeInputs()
-            node.updateMinMaxWidthFieldsBlockingPerWidth(activeIndex: activeIndex)
-            node.updateMinMaxHeightFieldsBlockingPerHeight(activeIndex: activeIndex)
+            stitch.updateMinMaxWidthFieldsBlockingPerWidth(activeIndex: activeIndex)
+            stitch.updateMinMaxHeightFieldsBlockingPerHeight(activeIndex: activeIndex)
                                     
             // ... and block the aspect ratio inputs:
-            node.blockAspectRatio()
+            stitch.blockAspectRatio()
             
         case .constrainHeight:
             // if height is constrained, block-out the height inputs (height, min height, max height):
-            node.blockHeightFields()
+            stitch.blockHeightFields()
                         
             // ... and unblock the width field:
             // TODO: also unblock min/max width fields if width field != point
-            node.unblockWidthField()
-            node.updateMinMaxWidthFieldsBlockingPerWidth(activeIndex: activeIndex)
+            stitch.unblockWidthField()
+            stitch.updateMinMaxWidthFieldsBlockingPerWidth(activeIndex: activeIndex)
             
             // ... and unblock the aspect ratio inputs:
-            node.unblockAspectRatio()
+            stitch.unblockAspectRatio()
             
         case .constrainWidth:
             // if width is constrained, block-out the width inputs (width, min width, max width):
-            node.blockWidthFields()
+            stitch.blockWidthFields()
             
             // ... and unblock the height fields:
             // TODO: also unblock min/max height fields if height field != point
-            node.unblockHeightField()
-            node.updateMinMaxHeightFieldsBlockingPerHeight(activeIndex: activeIndex)
+            stitch.unblockHeightField()
+            stitch.updateMinMaxHeightFieldsBlockingPerHeight(activeIndex: activeIndex)
             
             // ... and unblock the aspect ratio inputs:
-            node.unblockAspectRatio()
+            stitch.unblockAspectRatio()
         }
     }
     
