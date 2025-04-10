@@ -166,7 +166,10 @@ final class SidebarListGestureRecognizer<SidebarViewModel: ProjectSidebarObserva
         guard let sidebarViewModel = self.sidebarViewModel,
               let gestureViewModel = self.gestureViewModel,
               let graph = self.sidebarViewModel?.graphDelegate,
-              let document = graph.documentDelegate else { return }
+              let document = graph.documentDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
         
         if sidebarViewModel.isEditing || gestureViewModel.swipeSetting == .open {
             return
@@ -273,6 +276,7 @@ final class SidebarListGestureRecognizer<SidebarViewModel: ProjectSidebarObserva
                                 configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
         guard let graph = self.graph,
               let document = graph.documentDelegate else {
+            fatalErrorIfDebug()
             return nil
         }
         return self.gestureViewModel?

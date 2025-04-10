@@ -32,8 +32,8 @@ class GroupNodeTests: XCTestCase {
         graphState.documentDelegate = document
         
         // Create two Add nodes
-        guard let node1 = graphState.nodeCreated(choice: .patch(.add)),
-              let node2 = graphState.nodeCreated(choice: .patch(.add)),
+        guard let node1 = document.nodeInserted(choice: .patch(.add)),
+              let node2 = document.nodeInserted(choice: .patch(.add)),
               let canvasNode1 = node1.patchCanvasItem,
               let canvasNode2 = node2.patchCanvasItem else {
 //            XCTAbortTest()

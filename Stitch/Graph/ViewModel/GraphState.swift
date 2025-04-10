@@ -279,7 +279,7 @@ extension GraphState {
     }
     
     @MainActor
-    var storeDelegate: StoreDelegate? {
+    var storeDelegate: StitchStore? {
         self.documentDelegate?.storeDelegate
     }
     
@@ -412,7 +412,12 @@ extension GraphState {
         self.layersSidebarViewModel.selectionState
     }
     
-    @MainActor func createSchema() -> GraphEntity {
+    @MainActor func createSchema(from graph: GraphState) -> GraphEntity {
+        self.createSchema()
+    }
+    
+    @MainActor
+    func createSchema() -> GraphEntity {
         let nodes = self.visibleNodesViewModel.nodes.values
             .map { $0.createSchema() }
         let commentBoxes = self.commentBoxesDict.values.map { $0.createSchema() }
@@ -583,9 +588,16 @@ extension GraphState {
     @MainActor
     func encodeProjectInBackground(temporaryURL: URL? = nil,
                                    willUpdateUndoHistory: Bool = true) {
-        self.documentEncoderDelegate?.encodeProjectInBackground(from: self,
-                                                                temporaryUrl: temporaryURL,
-                                                                willUpdateUndoHistory: willUpdateUndoHistory)
+        guard let store = self.storeDelegate,
+              let documentEncoder = self.documentEncoderDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        documentEncoder.encodeProjectInBackground(from: self,
+                                                  temporaryUrl: temporaryURL,
+                                                  willUpdateUndoHistory: willUpdateUndoHistory,
+                                                  store: store)
         
         // If debug mode, make sure fields are updated as we aren't using calculate
         // to update them
@@ -599,10 +611,17 @@ extension GraphState {
     func encodeProjectInBackground(temporaryURL: URL? = nil,
                                    undoEvents: [Action],
                                    willUpdateUndoHistory: Bool = true) {
-        self.documentEncoderDelegate?.encodeProjectInBackground(from: self,
-                                                                undoEvents: undoEvents,
-                                                                temporaryUrl: temporaryURL,
-                                                                willUpdateUndoHistory: willUpdateUndoHistory)
+        guard let store = self.storeDelegate,
+              let documentEncoder = self.documentEncoderDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        documentEncoder.encodeProjectInBackground(from: self,
+                                                  undoEvents: undoEvents,
+                                                  temporaryUrl: temporaryURL,
+                                                  willUpdateUndoHistory: willUpdateUndoHistory,
+                                                  store: store)
     }
     
     @MainActor
