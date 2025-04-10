@@ -114,5 +114,3 @@ func loopBuilderEval(node: PatchNode,
     
     return result
 }
-
-

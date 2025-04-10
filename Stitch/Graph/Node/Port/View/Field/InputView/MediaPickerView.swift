@@ -43,6 +43,7 @@ struct MediaInputFieldValueView: View {
     let isFieldInsideLayerInspector: Bool
     let isSelectedInspectorRow: Bool
     let isMultiselectInspectorInputWithHeterogenousValues: Bool
+    let mediaType: NodeMediaSupport
     
     @Bindable var graph: GraphState
     let document: StitchDocumentViewModel
@@ -73,10 +74,8 @@ struct MediaInputFieldValueView: View {
                                   graph: graph,
                                   isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues,
                                   isSelectedInspectorRow: isSelectedInspectorRow,
-                                  activeIndex: document.activeIndex)
-            .onChange(of: mediaName, initial: true) {
-                // log("media name in inner value view: \(mediaName)")
-            }
+                                  activeIndex: document.activeIndex,
+                                  mediaType: mediaType)
             
             MediaFieldLabelView(viewModel: viewModel,
                                 inputType: viewModel.id.rowId.portType,

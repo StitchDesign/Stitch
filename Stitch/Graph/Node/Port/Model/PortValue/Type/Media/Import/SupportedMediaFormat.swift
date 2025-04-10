@@ -16,7 +16,6 @@ enum SupportedMediaFormat: String, Codable, Equatable, CaseIterable {
     case audio
     case coreML
     case model3D
-    case unknown
 }
 
 extension SupportedMediaFormat {
@@ -36,7 +35,7 @@ extension SupportedMediaFormat {
         }
     }
 
-    static func findType(by pathExtension: String) -> Self {
+    static func findType(by pathExtension: String) -> Self? {
         let pathExtension = pathExtension.uppercased()
 
         if isImageFile(pathExtension: pathExtension) {
@@ -55,10 +54,10 @@ extension SupportedMediaFormat {
             return .model3D
         }
 
-        return .unknown
+        return nil
     }
 
-    var nodeKind: NodeKind? {
+    var nodeKind: NodeKind {
         switch self {
         case .image:
             return .patch(.imageImport)
@@ -70,8 +69,6 @@ extension SupportedMediaFormat {
             return .patch(.coreMLClassify)
         case .model3D:
             return .layer(.model3D)
-        case .unknown:
-            return nil
         }
     }
 }

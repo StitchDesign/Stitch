@@ -55,7 +55,7 @@ extension FieldValueMedia {
 
     @MainActor
     func handleSelection(rowObserver: InputNodeRowObserver,
-                         mediaType: SupportedMediaFormat,
+                         mediaType: NodeMediaSupport,
                          isFieldInsideLayerInspector: Bool,
                          activeIndex: ActiveIndex,
                          graph: GraphState) {

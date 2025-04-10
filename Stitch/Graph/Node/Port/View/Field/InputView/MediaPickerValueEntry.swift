@@ -22,10 +22,7 @@ struct MediaPickerValueEntry: View {
     let isMultiselectInspectorInputWithHeterogenousValues: Bool
     let isSelectedInspectorRow: Bool
     let activeIndex: ActiveIndex
-    
-    var mediaType: SupportedMediaFormat {
-        nodeKind.mediaType
-    }
+    let mediaType: NodeMediaSupport
     
     var body: some View {
         let defaultOptions = DefaultMediaOption
