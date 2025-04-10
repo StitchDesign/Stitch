@@ -60,9 +60,17 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
         
         // Update port color on selected edges change
         // Note: Should this ALSO update upstream and downstream ports? If not, why not?
-            .onChange(of: graph.selectedEdges) {
-                dispatch(MaybeUpdatePortColor(rowId: self.rowViewModel.id,
-                                              nodeIO: NodeRowViewModelType.nodeIO))
+            .onChange(of: graph.selectedEdges) { _, newValue in
+//                rowViewModel.updatePortColorFromUI()
+                if let observer = self.rowViewModel.rowDelegate {
+                    self.rowViewModel.updatePortColor(hasEdge: observer.hasEdge,
+                                                      hasLoop: observer.hasLoopedValues,
+                                                      selectedEdges: newValue,
+                                                      drawingObserver: graph.edgeDrawingObserver)
+                }
+//                
+//                dispatch(MaybeUpdatePortColor(rowId: self.rowViewModel.id,
+//                                              nodeIO: NodeRowViewModelType.nodeIO))
             }
             .onChange(of: self.graph.edgeDrawingObserver.drawingGesture.isDefined) { oldValue, newValue in
                 dispatch(MaybeUpdatePortColor(rowId: self.rowViewModel.id,
@@ -85,6 +93,19 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
     @MainActor
     var animationTime: Double {
         isDraggingFromThisOutput ? DrawnEdge.animationDuration : .zero
+    }
+}
+
+extension NodeRowViewModel {
+    @MainActor
+    func updatePortColorFromUI() {
+        if let observer = self.rowDelegate,
+           let graph = observer.nodeDelegate?.graphDelegate {
+            self.updatePortColor(hasEdge: observer.hasEdge,
+                                 hasLoop: observer.hasLoopedValues,
+                                 selectedEdges: graph.selectedEdges,
+                                 drawingObserver: graph.edgeDrawingObserver)
+        }
     }
 }
 

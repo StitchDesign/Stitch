@@ -33,7 +33,7 @@ extension OutputNodeRowObserver {
         self.allRowViewModels.forEach { row in
             row.connectedCanvasItems = row.findConnectedCanvasItems(rowObserver: self)
             row.updatePortColor(hasEdge: self.hasEdge,
-                                 hasLoop: self.hasLoopedValues,
+                                hasLoop: self.hasLoopedValues,
                                 selectedEdges: selectedEdges,
                                 drawingObserver: drawingObserver)
         }
