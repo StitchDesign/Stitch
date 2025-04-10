@@ -100,9 +100,8 @@ extension InputNodeRowObserver {
             // Note: need to do full update, since upstream output's port-color needs to change as well
             graph.updateGraphData()
             
-            
             self.setValuesInInput([newValue])
-            self.immediatelyUpdateFieldObservers(activeIndex)
+            self.immediatelyUpdateFieldObserversAfterInputEdit(newValue)
         }
         
         // If we edited a field on a layer-size input, we may need to block or unblock certain other fields.

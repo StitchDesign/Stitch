@@ -46,8 +46,8 @@ final class InputNodeRowViewModel: NodeRowViewModel {
 
 extension InputNodeRowViewModel {
     @MainActor
-    func findConnectedCanvasItems() -> CanvasItemIdSet {
-        guard let upstreamOutputObserver = self.rowDelegate?.upstreamOutputObserver,
+    func findConnectedCanvasItems(rowObserver: InputNodeRowObserver) -> CanvasItemIdSet {
+        guard let upstreamOutputObserver = rowObserver.upstreamOutputObserver,
               let upstreamNodeRowViewModel = upstreamOutputObserver.nodeRowViewModel,
               let upstreamId = upstreamNodeRowViewModel.canvasItemDelegate?.id else {
             return .init()
@@ -57,25 +57,27 @@ extension InputNodeRowViewModel {
     }
     
     @MainActor
-    func calculatePortColor() -> PortColor {
-        let isEdgeSelected = self.hasSelectedEdge()
+    func calculatePortColor(hasEdge: Bool,
+                            hasLoop: Bool,
+                            selectedEdges: Set<PortEdgeUI>,
+                            // not actually used
+                            drawingObserver: EdgeDrawingObserver) -> PortColor {
+        let isEdgeSelected = self.hasSelectedEdge(selectedEdges: selectedEdges)
         
         // Note: inputs always ignore actively-drawn or animated (edge-edit-mode) edges etc.
         let isSelected = self.isCanvasItemSelected ||
             self.isConnectedToASelectedCanvasItem ||
             isEdgeSelected
-        return .init(isSelected: isSelected,
-                     hasEdge: hasEdge,
-                     hasLoop: hasLoop)
+        return PortColor(isSelected: isSelected,
+                         hasEdge: hasEdge,
+                         hasLoop: hasLoop)
     }
     
     @MainActor
-    func hasSelectedEdge() -> Bool {
-        guard let portViewData = portViewData,
-              let graphDelegate = graphDelegate else {
+    func hasSelectedEdge(selectedEdges: Set<PortEdgeUI>) -> Bool {
+        guard let portViewData = self.portViewData else {
             return false
         }
-        
-        return graphDelegate.selectedEdges.contains { $0.to == portViewData }
+        return selectedEdges.contains { $0.to == portViewData }
     }
 }

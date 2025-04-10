@@ -110,23 +110,20 @@ extension NodeRowViewModel {
                 nodeIO: nodeIO,
                 // Node Row Type change is only when a patch node changes its node type; can't happen for layer nodes
                 unpackedPortParentFieldGroupType: nil,
-                unpackedPortIndex: nil)
+                unpackedPortIndex: nil,
+                layerInput: nil)
             return
         }
         
         self.updateFields(newValue)
     }
     
+    // TODO: this needs to take a little more data (layer input's row observer, document's active index, graph state for retrieving layer groups), since update ui-fields' values may require blocking or unblocking other fields
     @MainActor
     func updateFields(_ newValue: PortValue) {
         
         let nodeIO = Self.RowObserver.nodeIOType
-        
-        guard let rowDelegate = self.rowDelegate else {
-            fatalErrorIfDebug()
-            return
-        }
-        
+                
         let newFieldsByGroup = newValue.createFieldValuesList(nodeIO: nodeIO, rowViewModel: self)
         
         // Assert equal array counts
@@ -153,20 +150,24 @@ extension NodeRowViewModel {
                     // Note: this is only for a patch node whose node-type has changed (?); does not happen with layer nodes, a layer input being packed or unpacked is irrelevant here etc.
                     // Not relevant?
                     unpackedPortParentFieldGroupType: nil,
-                    unpackedPortIndex:  nil)
+                    unpackedPortIndex:  nil,
+                    layerInput: nil)
                 return
             }
             
             fieldObserverGroup.updateFieldValues(fieldValues: newFields)
         } // zip
         
-        if let node = self.nodeDelegate,
-           let layerNode = node.layerNodeViewModel,
-           // Better?: use: `self.id.portType.keyPath`
-           let layerInputForThisRow: LayerInputType = rowDelegate.id.keyPath {
-            layerNode.blockOrUnblockFields(newValue: newValue,
-                                           layerInput: layerInputForThisRow.layerInput,
-                                           activeIndex: self.graphDelegate?.documentDelegate?.activeIndex ?? .init(.zero))
+        // Whenever we update ui-fields' values, we need to potentially block or unblock the same/other fields.
+        // TODO: blocking or unblocking fields is only for a layer node; but requires reading from graph state etc.
+        if let layerInputForThisRow: LayerInputType = self.rowDelegate?.id.keyPath,
+           let node = self.nodeDelegate,
+           let document = node.graphDelegate?.documentDelegate,
+           let layerNode = node.layerNodeViewModel {
+            layerNode.blockOrUnblockFields(
+                newValue: newValue,
+                layerInput: layerInputForThisRow.layerInput,
+                activeIndex: document.activeIndex)
         }
     }
 }
@@ -186,7 +187,7 @@ extension NodeRowObserver {
     @MainActor
     func initializeDelegate(_ node: NodeDelegate) {
         self.nodeDelegate = node
-        
+                
         // TODO: why do we handle post-processing when we've assigned the nodeDelegate? ... is it just because post-processing requires a nodeDelegate?
         switch Self.nodeIOType {
         case .input:
@@ -194,10 +195,18 @@ extension NodeRowObserver {
         case .output:
             self.outputPostProcessing()
         }
-    
+        
+        // TODO: pass in GraphState? We ought to already have it when doing anything with a row observer
+        guard let graph = node.graphDelegate else {
+            return
+        }
+            
         // Update visual color data
         self.allRowViewModels.forEach {
-            $0.updatePortColor()
+            $0.updatePortColor(hasEdge: self.hasEdge,
+                               hasLoop: self.hasLoopedValues,
+                               selectedEdges: graph.selectedEdges,
+                               drawingObserver: graph.edgeDrawingObserver)
         }
     }
     
@@ -222,12 +231,5 @@ extension NodeRowObserver {
             // is currently visible in selected group
             $0.graphDelegate?.documentDelegate?.groupNodeFocused?.groupNodeId == $0.canvasItemDelegate?.parentGroupNodeId
         }
-    }
-}
-
-extension Array where Element: NodeRowViewModel {
-    @MainActor
-    func first(_ id: NodeIOCoordinate) -> Element? {
-        self.first { $0.rowDelegate?.id == id }
     }
 }

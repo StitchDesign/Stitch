@@ -41,15 +41,17 @@ protocol NodeRowViewModel: StitchLayoutCachable, Observable, Identifiable {
     
     static var nodeIO: NodeIO { get }
     
-    @MainActor func calculatePortColor() -> PortColor
-    
     @MainActor func portDragged(gesture: DragGesture.Value, graphState: GraphState)
     
     @MainActor func portDragEnded(graphState: GraphState)
-    
-    @MainActor func hasSelectedEdge() -> Bool
-    
-    @MainActor func findConnectedCanvasItems() -> CanvasItemIdSet
+        
+    @MainActor func findConnectedCanvasItems(rowObserver: Self.RowObserver) -> CanvasItemIdSet
+        
+    @MainActor func calculatePortColor(hasEdge: Bool,
+                                       hasLoop: Bool,
+                                       selectedEdges: Set<PortEdgeUI>,
+                                       // output only
+                                       drawingObserver: EdgeDrawingObserver) -> PortColor
     
     @MainActor
     init(id: NodeRowViewModelId,
@@ -99,20 +101,20 @@ extension NodeRowViewModel {
      
     @MainActor
     func initializeDelegate(_ node: NodeDelegate,
+                            initialValue: PortValue,
                             unpackedPortParentFieldGroupType: FieldGroupType?,
-                            unpackedPortIndex: Int?) {
-        guard let rowDelegate = self.rowDelegate else {
-            fatalErrorIfDebug()
-            return
-        }
+                            unpackedPortIndex: Int?,
+                            layerInput: LayerInputPort?) {
         
+        // Why must we set the delegate
         self.nodeDelegate = node
         
         if self.fieldValueTypes.isEmpty {
-            self.initializeValues(rowDelegate: rowDelegate,
-                                  unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                  unpackedPortIndex: unpackedPortIndex,
-                                  initialValue: rowDelegate.getActiveValue(activeIndex: node.graphDelegate?.documentDelegate?.activeIndex ?? .init(.zero)))
+            self.initializeValues(
+                unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                unpackedPortIndex: unpackedPortIndex,
+                initialValue: initialValue,
+                rowObserverLayerInput: layerInput)
         }
         
         self.updatePortViewData()
@@ -137,18 +139,20 @@ extension NodeRowViewModel {
     }
     
     @MainActor
-    func initializeValues(rowDelegate: Self.RowObserver,
-                          unpackedPortParentFieldGroupType: FieldGroupType?,
+    func initializeValues(unpackedPortParentFieldGroupType: FieldGroupType?,
                           unpackedPortIndex: Int?,
-                          initialValue: PortValue) {
+                          initialValue: PortValue,
+                          rowObserverLayerInput: LayerInputPort?) {
         if initialValue != self.activeValue {
             self.activeValue = initialValue
         }
         
-        let fields = self.createFieldValueTypes(initialValue: initialValue,
-                                                nodeIO: Self.nodeIO,
-                                                unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                                unpackedPortIndex: unpackedPortIndex)
+        let fields = self.createFieldValueTypes(
+            initialValue: initialValue,
+            nodeIO: Self.nodeIO,
+            unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+            unpackedPortIndex: unpackedPortIndex,
+            layerInput: rowObserverLayerInput)
         
         let didFieldsChange = !zip(self.fieldValueTypes, fields).allSatisfy { $0.id == $1.id }
         
@@ -158,17 +162,15 @@ extension NodeRowViewModel {
     }
     
     @MainActor
-    func didPortValuesUpdate(values: PortValues) {
-        guard let rowDelegate = self.rowDelegate else {
-            return
-        }
+    func didPortValuesUpdate(values: PortValues,
+                             layerFocusedInPropertyInspector: NodeId?,
+                             activeIndex: ActiveIndex) {
+                
+        let isLayerFocusedInPropertySidebar = layerFocusedInPropertyInspector == self.id.nodeId
         
-        let activeIndex = rowDelegate.nodeDelegate?.graphDelegate?.documentDelegate?.activeIndex ?? .init(.zero)
-        let isLayerFocusedInPropertySidebar = rowDelegate.nodeDelegate?.graphDelegate?.layerFocusedInPropertyInspector == rowDelegate.id.nodeId
-        
-        let oldViewValue = self.activeValue // the old cached
+        let oldViewValue = self.activeValue // the old cached value
         let newViewValue = PortValue.getActiveValue(allLoopedValues: values,
-                                                          activeIndex: activeIndex)
+                                                    activeIndex: activeIndex)
         let didViewValueChange = oldViewValue != newViewValue
         
         /*
@@ -188,19 +190,15 @@ extension NodeRowViewModel {
     }
     
     @MainActor
-    func updatePortColor() {
-        let newColor = self.calculatePortColor()
+    func updatePortColor(hasEdge: Bool,
+                         hasLoop: Bool,
+                         selectedEdges: Set<PortEdgeUI>,
+                         drawingObserver: EdgeDrawingObserver) {
+        let newColor = self.calculatePortColor(hasEdge: hasEdge,
+                                               hasLoop: hasLoop,
+                                               selectedEdges: selectedEdges,
+                                               drawingObserver: drawingObserver)
         self.setPortColorIfChanged(newColor)
-    }
-    
-    @MainActor
-    var hasEdge: Bool {
-        rowDelegate?.hasEdge ?? false
-    }
-    
-    @MainActor
-    var hasLoop: Bool {
-        rowDelegate?.hasLoopedValues ?? false
     }
 }
 

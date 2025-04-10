@@ -28,7 +28,6 @@ struct StitchProjectView: View {
     }
 
     var body: some View {
-//        projectView()
         ContentView(store: store,
                     document: document,
                     alertState: alertState,
@@ -61,14 +60,6 @@ struct StitchProjectView: View {
                 dispatch(CloseGraph())
             }
     }
-
-//    @ViewBuilder @MainActor
-//    func projectView() -> some View {
-//        ContentView(store: store,
-//                    document: document,
-//                    alertState: alertState,
-//                    routerNamespace: routerNamespace)
-//    }
 }
 
 struct MaybeIgnoreSafeAreasModifier: ViewModifier {

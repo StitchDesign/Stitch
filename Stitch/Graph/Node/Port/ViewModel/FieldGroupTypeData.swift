@@ -143,15 +143,14 @@ extension NodeRowViewModel {
     func getFieldValueTypes(value: PortValue,
                             nodeIO: NodeIO,
                             unpackedPortParentFieldGroupType: FieldGroupType?,
-                            unpackedPortIndex: Int?) -> [FieldGroupTypeData] {
+                            unpackedPortIndex: Int?,
+                            layerInput: LayerInputPort?) -> [FieldGroupTypeData] {
         
         let rowViewModel = self
         let fieldValuesList: [FieldValues] = value.createFieldValuesList(
             nodeIO: nodeIO,
             rowViewModel: rowViewModel)
         
-        
-        let layerInput: LayerInputPort? = rowViewModel.rowDelegate?.id.layerInput?.layerInput
         let rowId: NodeRowViewModelId = rowViewModel.id
         
         // All PortValue types except ShapeCommand use a single grouping of fields
@@ -483,11 +482,13 @@ extension NodeRowViewModel {
     func createFieldValueTypes(initialValue: PortValue,
                                nodeIO: NodeIO,
                                unpackedPortParentFieldGroupType: FieldGroupType?,
-                               unpackedPortIndex: Int?) -> [FieldGroupTypeData] {
+                               unpackedPortIndex: Int?,
+                               layerInput: LayerInputPort?) -> [FieldGroupTypeData] {
         self.getFieldValueTypes(
             value: initialValue,
             nodeIO: nodeIO,
             unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-            unpackedPortIndex: unpackedPortIndex)
+            unpackedPortIndex: unpackedPortIndex,
+            layerInput: layerInput)
     }
 }

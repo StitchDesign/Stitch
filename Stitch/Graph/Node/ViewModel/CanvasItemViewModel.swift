@@ -190,21 +190,41 @@ extension CanvasItemViewModel {
 }
 
 extension CanvasItemViewModel {
+    
     @MainActor
     func initializeDelegate(_ node: NodeDelegate,
                             unpackedPortParentFieldGroupType: FieldGroupType?,
                             unpackedPortIndex: Int?) {
+        
         self.nodeDelegate = node
+
+        guard let activeIndex = node.graphDelegate?.documentDelegate?.activeIndex else {
+            fatalErrorIfDebug()
+            return
+        }
+        
         self.inputViewModels.forEach {
-            $0.initializeDelegate(node,
-                                  unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                  unpackedPortIndex: unpackedPortIndex)
+            // Note: assumes the row view model as already have its underling row observer delegate assigned
+            if let rowObserver = $0.rowDelegate {
+                $0.initializeDelegate(
+                    node,
+                    initialValue: rowObserver.getActiveValue(activeIndex: activeIndex),
+                    unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                    unpackedPortIndex: unpackedPortIndex,
+                    layerInput: rowObserver.id.layerInput?.layerInput)
+            }
         }
         
         self.outputViewModels.forEach {
-            $0.initializeDelegate(node,
-                                  unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                  unpackedPortIndex: unpackedPortIndex)
+            if let rowObserver = $0.rowDelegate {
+                $0.initializeDelegate(
+                    node,
+                    initialValue: rowObserver.getActiveValue(activeIndex: activeIndex),
+                    // Not relevant for output row view models
+                    unpackedPortParentFieldGroupType: nil,
+                    unpackedPortIndex: nil,
+                    layerInput: nil)
+            }
         }
         
         // Reset cache data--fixes scenarios like undo

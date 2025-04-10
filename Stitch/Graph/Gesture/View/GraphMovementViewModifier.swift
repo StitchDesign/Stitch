@@ -91,35 +91,37 @@ extension GraphState {
             // Update the cached-UI-data (e.g. fieldObservers) of the canvas items that just became visible
             let becameVisible = newVisibleNodes.subtracting(originalVisibleNodes)
             for canvasItemId in becameVisible {
-                guard let canvasItem = self.getCanvasItem(canvasItemId) else {
-                    // Crashes in some valid examples
+                self.updateCanvasItemFields(canvasItemId,
+                                            activeIndex: document.activeIndex)
+            }
+        }
+    }
+    
+    @MainActor
+    func updateCanvasItemFields(_ canvasItemId: CanvasItemId, activeIndex: ActiveIndex) {
+        guard let canvasItem = self.getCanvasItem(canvasItemId) else {
+            // Crashes in some valid examples
 //                    fatalErrorIfDebug()
-                    continue
-                }
-                canvasItem.updateFieldsUponBecomingVisible(document.activeIndex)
+            return
+        }
+        
+        canvasItem.inputViewModels.forEach {
+            if let observer = self.getInputRowObserver($0.nodeIOCoordinate) {
+                $0.updateFields(observer.getActiveValue(activeIndex: activeIndex))
             }
         }
+        
+        canvasItem.outputViewModels.forEach {
+            if let observer = self.getOutputRowObserver($0.nodeIOCoordinate) {
+                $0.updateFields(observer.getActiveValue(activeIndex: activeIndex))
+            }
+        }
+        
     }
 }
 
-extension CanvasItemViewModel {
-    @MainActor
-    func updateFieldsUponBecomingVisible(_ activeIndex: ActiveIndex) {
-        self.inputViewModels.updateAllFields(activeIndex)
-        self.outputViewModels.updateAllFields(activeIndex)
-    }
-}
-
-extension Array where Element: NodeRowViewModel {
-    @MainActor
-    func updateAllFields(_ activeIndex: ActiveIndex) {
-        for portViewModel in self {
-            guard let rowDelegate = portViewModel.rowDelegate else {
-                fatalErrorIfDebug()
-                continue
-            }
-            
-            portViewModel.updateFields(rowDelegate.getActiveValue(activeIndex: activeIndex))
-        }
+extension NodeRowViewModel {
+    var nodeIOCoordinate: NodeIOCoordinate {
+        self.id.asNodeIOCoordinate
     }
 }

@@ -42,66 +42,12 @@ extension NodeRowViewModel {
     }
 }
 
-extension NodeDelegate {
-    /*
-     When a node is selected or deselected, for each of its inputs/outptus we must re-derive the color for:
-     
-     1. the input/output itself
-     2. if input: the upstream output, if there is one
-     3. if output: the downstream inputs, if there are any
-     
-     ASSUMES NODE VIEW MODEL'S `isSelected` HAS BEEN UPDATED.
-     */
-    @MainActor
-    func updatePortColorDataUponNodeSelection() {
-        Stitch.updatePortColorDataUponNodeSelection(
-            inputs: self.allInputRowViewModels,
-            outputs: self.allOutputRowViewModels)
-    }
-}
-
-@MainActor
-func updatePortColorDataUponNodeSelection(inputs: [InputNodeRowViewModel],
-                                          outputs: [OutputNodeRowViewModel]) {
-    inputs.forEach { input in
-        input.updateColorOfInputAndUpstreamOutput()
-    }
+struct UpdatePortColorUponNodeSelected: GraphEvent {
+    let nodeId: NodeId
     
-    outputs.forEach { output in
-        output.updateColorOfOutputAndDownstreamInputs()
-    }
-}
-
-extension InputNodeRowViewModel {
-    @MainActor
-    func updateColorOfInputAndUpstreamOutput() {
-        
-        self.updatePortColor()
-        
-        // Update upstream-output
-        if let output = self.rowDelegate?.upstreamOutputObserver {
-            output.allRowViewModels.forEach {
-                $0.updatePortColor()
-            }
-        }
-    }
-}
-
-extension OutputNodeRowViewModel {
-    @MainActor
-    func updateColorOfOutputAndDownstreamInputs() {
-        self.updatePortColor()
-        
-        // Update downstream-inputs
-        if let rowDelegate = self.rowDelegate,
-           let graphDelegate = rowDelegate.nodeDelegate?.graphDelegate {
-            graphDelegate.connections
-                .get(rowDelegate.id)?
-                .compactMap { graphDelegate.getInputObserver(coordinate: $0) }
-                .flatMap { $0.allRowViewModels }
-                .forEach { downstreamInput in
-                    downstreamInput.updatePortColor()
-                }
-        }
+    func handle(state: GraphState) {
+        state.getNode(nodeId)?.updateObserversPortColorsAndConnectedItemsPortColors(
+            selectedEdges: state.selectedEdges,
+            drawingObserver: state.edgeDrawingObserver)
     }
 }
