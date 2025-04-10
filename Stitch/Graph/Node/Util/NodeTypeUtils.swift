@@ -16,6 +16,15 @@ import StitchSchemaKit
 typealias NodeType = UserVisibleType
 
 extension UserVisibleType {
+    // TODO: handle special case with .string as "String" vs "Text"
+    var displayForNodeMenu: String {
+        if self == .string {
+            return "Text"
+        } else {
+            return self.display
+        }
+    }
+    
     var display: String {
         switch self {
         case .string:
