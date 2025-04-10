@@ -167,7 +167,7 @@ extension NodeKind {
     @MainActor
     func createDefaultNode(id: NodeId,
                            activeIndex: ActiveIndex,
-                           graphDelegate: GraphState?) -> NodeViewModel? {
+                           graphDelegate: GraphState) -> NodeViewModel? {
         switch self {
         case .patch(let patch):
             return patch.defaultNode(id: id,
@@ -178,7 +178,7 @@ extension NodeKind {
             return layer.defaultNode(id: id,
                                      position: .zero,
                                      zIndex: .zero,
-                                     graphDelegate: nil)
+                                     graphDelegate: graphDelegate)
         case .group:
             // Not intended here
             fatalError()
