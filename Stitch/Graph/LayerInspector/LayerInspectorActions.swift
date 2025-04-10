@@ -140,10 +140,9 @@ extension StitchDocumentViewModel {
             unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
             unpackedPortIndex: unpackedPortIndex)
         
-        input.canvasObserver?.initializeDelegate(
-            node,
-            unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-            unpackedPortIndex: unpackedPortIndex)
+        input.canvasObserver?.initializeDelegate(node,
+                                                 unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                                                 unpackedPortIndex: unpackedPortIndex)
         
         // Subscribe inspector row ui data to the row data's canvas item
         input.inspectorRowViewModel.canvasItemDelegate = input.canvasObserver
