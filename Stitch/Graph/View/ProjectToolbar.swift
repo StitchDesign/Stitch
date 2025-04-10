@@ -84,8 +84,7 @@ struct ProjectToolbarViewModifier: ViewModifier {
                 // .secondaryAction = center
                 ToolbarItemGroup(placement: .primaryAction) {
                     iPadGraphTopBarButtons(
-                        document: document,
-                        graph: graph,
+                        isDebugMode: document.isDebugMode,
                         hasActiveGroupFocused: document.groupNodeFocused.isDefined,
                         isFullscreen: document.isFullScreenMode,
                         isPreviewWindowShown: document.showPreviewWindow,
@@ -121,8 +120,7 @@ struct ProjectToolbarViewModifier: ViewModifier {
 
                 ToolbarItemGroup(placement: .primaryAction) {
                     CatalystTopBarGraphButtons(
-                        document: document,
-                        graph: graph,
+                        isDebugMode: document.isDebugMode,
                         hasActiveGroupFocused: document.groupNodeFocused.isDefined,
                         isFullscreen: document.isFullScreenMode,
                         isPreviewWindowShown: document.showPreviewWindow,

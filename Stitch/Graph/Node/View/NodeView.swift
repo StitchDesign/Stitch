@@ -166,9 +166,7 @@ struct NodeView: View {
         VStack(alignment: .leading,
                spacing: SPACING_BETWEEN_NODE_ROWS) {
             if self.stitch.patch == .wirelessReceiver {
-                WirelessPortView(graph: graph,
-                                 document: document,
-                                 isOutput: false,
+                WirelessPortView(isOutput: false,
                                  id: stitch.id)
                 .padding(.trailing, NODE_BODY_SPACING)
             } else if let layerNode: LayerNodeViewModel = self.stitch.layerNode,
@@ -198,9 +196,7 @@ struct NodeView: View {
                spacing: SPACING_BETWEEN_NODE_ROWS) {
             
             if self.stitch.patch == .wirelessBroadcaster {
-                WirelessPortView(graph: graph,
-                                 document: document,
-                                 isOutput: true,
+                WirelessPortView(isOutput: true,
                                  id: stitch.id)
                 .padding(.leading, NODE_BODY_SPACING)
             } else {
