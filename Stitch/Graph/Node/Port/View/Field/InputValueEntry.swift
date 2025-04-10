@@ -430,22 +430,30 @@ struct InputFieldValueView: View {
                 
                 
             case .media(let media):
-                MediaInputFieldValueView(
-                    viewModel: viewModel,
-                    rowObserver: rowObserver,
-                    node: node,
-                    isUpstreamValue: isUpstreamValue,
-                    media: media,
-                    mediaName: media.name,
-                    nodeKind: nodeKind,
-                    isInput: true,
-                    fieldIndex: fieldIndex,
-                    isNodeSelected: isCanvasItemSelected,
-                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                    isSelectedInspectorRow: isSelectedInspectorRow,
-                    isMultiselectInspectorInputWithHeterogenousValues: hasHeterogenousValues,
-                    graph: graph,
-                    document: document)
+                if let mediaType = self.nodeKind.mediaType {
+                    MediaInputFieldValueView(
+                        viewModel: viewModel,
+                        rowObserver: rowObserver,
+                        node: node,
+                        isUpstreamValue: isUpstreamValue,
+                        media: media,
+                        mediaName: media.name,
+                        nodeKind: nodeKind,
+                        isInput: true,
+                        fieldIndex: fieldIndex,
+                        isNodeSelected: isCanvasItemSelected,
+                        isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                        isSelectedInspectorRow: isSelectedInspectorRow,
+                        isMultiselectInspectorInputWithHeterogenousValues: hasHeterogenousValues,
+                        mediaType: mediaType,
+                        graph: graph,
+                        document: document)
+                } else {
+                    Color.clear
+                        .onAppear {
+                            fatalErrorIfDebug()
+                        }
+                }
                 
             case .color(let color):
                 ColorOrbValueButtonView(fieldViewModel: viewModel,

@@ -31,23 +31,17 @@ struct FileImportView: ViewModifier {
                     return
                 }
                 
-                Task.detached { [weak store] in
-                        guard let store = store else {
-                            return
-                        }
-                        
-                        // If a node import payload is set then we're supposed to set the media to an existing node
-                        if let nodeImportPayload = fileImportState.nodeImportPayload {
-                            //                logInView("FileImportView: existing node: nodeImportPayload: \(nodeImportPayload)")
-                            await store.mediaFilesImportedToExistingNode(selectedFiles: urls,
-                                                                         nodeImportPayload: nodeImportPayload)
-                        } else {
-                            //                logInView("FileImportView: new node: urls: \(urls)")
-                            await store.mediaFilesImportedToNewNode(selectedFiles: urls,
-                                                                    centerPostion: center)
-                        }
-                    }
+                // If a node import payload is set then we're supposed to set the media to an existing node
+                if let nodeImportPayload = fileImportState.nodeImportPayload {
+                    //                logInView("FileImportView: existing node: nodeImportPayload: \(nodeImportPayload)")
+                    store.mediaFilesImportedToExistingNode(selectedFiles: urls,
+                                                           nodeImportPayload: nodeImportPayload)
+                } else {
+                    //                logInView("FileImportView: new node: urls: \(urls)")
+                    store.mediaFilesImportedToNewNode(selectedFiles: urls,
+                                                      centerPostion: center)
                 }
+            }
             )
     }
 }

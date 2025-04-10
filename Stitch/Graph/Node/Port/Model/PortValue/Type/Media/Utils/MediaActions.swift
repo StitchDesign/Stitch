@@ -19,7 +19,7 @@ extension StitchStore {
     /// Source: https://www.hackingwithswift.com/forums/swiftui/looking-for-help-how-to-select-and-open-an-existing-data-file-with-a-document-browser/3953
     @MainActor
     func mediaFilesImportedToNewNode(selectedFiles: [URL],
-                                     centerPostion: CGPoint) async {
+                                     centerPostion: CGPoint) {
         // Toggle alert state
         self.alertState.fileImportModalState = .notImporting
 
@@ -34,18 +34,18 @@ extension StitchStore {
 
         for fileURL in selectedFiles {
             // Show error if media type is unknown
-            if fileURL.getMediaType() == .unknown {
+            if fileURL.getMediaType() == nil {
                 self.alertState.stitchFileError = .mediaFileUnsupported(fileURL.pathExtension)
             }
 
-            await graphState.documentEncoderDelegate?
+            graphState.documentEncoderDelegate?
                 .importFileToNewNode(fileURL: fileURL, droppedLocation: droppedLocation)
         }
     }
 
     @MainActor
     func mediaFilesImportedToExistingNode(selectedFiles: [URL],
-                                          nodeImportPayload: NodeMediaImportPayload) async {
+                                          nodeImportPayload: NodeMediaImportPayload) {
         //        log("MediaFilesImportedToExistingNode called: selectedFiles: \(selectedFiles)")
         //        log("MediaFilesImportedToExistingNode called: nodeImportPayload: \(nodeImportPayload)")
         //        log("MediaFilesImportedToExistingNode called: nodeImportPayload.mediaFormat: \(nodeImportPayload.mediaFormat)")
@@ -67,7 +67,7 @@ extension StitchStore {
                 return
             }
 
-            await graphState.documentEncoderDelegate?
+            graphState.documentEncoderDelegate?
                 .importFileToExistingNode(fileURL: fileURL, nodeImportPayload: nodeImportPayload)
         }
     }
@@ -75,27 +75,26 @@ extension StitchStore {
 
 /// Called when a media import from the top bar file picker or drag-and-drop event happens.
 extension DocumentEncodable {
-    func importFileToNewNode(fileURL: URL, droppedLocation: CGPoint) async {
+    @MainActor
+    func importFileToNewNode(fileURL: URL, droppedLocation: CGPoint) {
         let copyResult = self.copyToMediaDirectory(
             originalURL: fileURL,
             forRecentlyDeleted: false)
         
-        await MainActor.run {
-            switch copyResult {
-            case .success(let newURL):
-                dispatch(MediaCopiedToNewNode(url: newURL, location: droppedLocation))
-                
-            case .failure(let error):
-                dispatch(DisplayError(error: error))
-            }
+        switch copyResult {
+        case .success(let newURL):
+            dispatch(MediaCopiedToNewNode(url: newURL, location: droppedLocation))
+            
+        case .failure(let error):
+            dispatch(DisplayError(error: error))
         }
     }
     
     /// Called when media is imported from a patch node's file picker.
     @MainActor
-    func importFileToExistingNode(fileURL: URL, nodeImportPayload: NodeMediaImportPayload) async {
-        let copyResult = await self.copyToMediaDirectory(originalURL: fileURL,
-                                                         forRecentlyDeleted: false)
+    func importFileToExistingNode(fileURL: URL, nodeImportPayload: NodeMediaImportPayload) {
+        let copyResult = self.copyToMediaDirectory(originalURL: fileURL,
+                                                   forRecentlyDeleted: false)
         switch copyResult {
         case .success(let newURL):
             dispatch(MediaCopiedToExistingNode(url: newURL,
@@ -125,8 +124,16 @@ extension GraphState {
     func mediaCopiedToNewNode(newURL: URL,
                               nodeLocation: CGPoint,
                               store: StitchStore) {
-        guard let document = store.currentDocument else { return }
+        guard let document = store.currentDocument else {
+            return
+        }
         
+        // Ensure media is supported
+        guard let mediaType = newURL.getMediaType() else {
+            store.alertState.stitchFileError = .mediaFileUnsupported(newURL.pathExtension)
+            return
+        }
+
         let droppedLocation = nodeLocation
         //        let localPosition = self.localPosition
         //        let graphScale = document.graphMovement.zoomData
@@ -144,7 +151,6 @@ extension GraphState {
 //            graphScale: graphScale,
 //            deviceScreen: self.frame)
 
-        let mediaType = newURL.getMediaType()
 
         // Create the node if no destination input specified
         let newNodeId = NodeId()
@@ -350,7 +356,7 @@ extension GraphState {
     
     @MainActor
     func mediaPickerChanged(selectedValue: PortValue,
-                            mediaType: SupportedMediaFormat,
+                            mediaType: NodeMediaSupport,
                             rowObserver: InputNodeRowObserver,
                             activeIndex: ActiveIndex,
                             isFieldInsideLayerInspector: Bool) {
@@ -393,10 +399,10 @@ func createPatchNode(from importedMediaURL: URL,
         dataType: .source(importedMediaURL.mediaKey),
         label: importedMediaURL.filename)
 
-    guard let node = mediaType.nodeKind?.graphNode?.createViewModel(id: nodeId,
-                                                                    position: position.toCGPoint,
-                                                                    zIndex: zIndex,
-                                                                    graphDelegate: graphDelegate) else {
+    guard let node = mediaType.nodeKind.graphNode?.createViewModel(id: nodeId,
+                                                                   position: position.toCGPoint,
+                                                                   zIndex: zIndex,
+                                                                   graphDelegate: graphDelegate) else {
         log("createPatchNode: unknown file encountered with extension \(importedMediaURL.pathExtension)")
         return .failure(.mediaFileUnsupported(importedMediaURL.pathExtension))
     }
