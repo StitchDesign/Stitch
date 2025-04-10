@@ -17,7 +17,8 @@ extension ProjectSidebarObservable {
     func sidebarGroupUncreated() {
         let primarilySelectedGroups = self.selectionState.primary
         
-        guard let group = primarilySelectedGroups.first,
+        guard let graph = self.graphDelegate,
+              let group = primarilySelectedGroups.first,
               let item = self.items.get(group) else {
             // Expected group here
             fatalErrorIfDebug()
@@ -36,7 +37,7 @@ extension ProjectSidebarObservable {
         self.sidebarGroupUncreatedViaEditMode(groupId: group,
                                               children: children.map(\.id))
 
-        self.graphDelegate?.encodeProjectInBackground()
+        graph.encodeProjectInBackground()
     }
 }
 

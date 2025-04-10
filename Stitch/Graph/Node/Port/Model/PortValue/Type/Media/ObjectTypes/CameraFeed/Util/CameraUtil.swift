@@ -10,12 +10,16 @@ import AVFoundation
 import StitchSchemaKit
 
 /// Updates UI for all camera nodes to reflect declined camera permissions.
-struct CameraPermissionDeclined: GraphEvent {
-    func handle(state: GraphState) {
-        state.updateAllCameras(with: .bool(false),
+struct CameraPermissionDeclined: StitchStoreEvent {
+    func handle(store: StitchStore) -> ReframeResponse<NoState> {
+        guard let graph = store.currentDocument?.graph else {
+            fatalErrorIfDebug()
+            return .noChange
+        }
+        graph.updateAllCameras(with: .bool(false),
                                at: CameraFeedNodeInputLocations.cameraEnabled)
-        
-        state.storeDelegate?.alertState.showCameraPermissionsAlert = true
+        store.alertState.showCameraPermissionsAlert = true
+        return .noChange
     }
 }
 

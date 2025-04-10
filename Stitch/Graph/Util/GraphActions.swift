@@ -50,11 +50,7 @@ extension GraphState: DocumentEncodableDelegate {
              document.encodeProjectInBackground(willUpdateUndoHistory: false)
          }
     }
-    
-    func createSchema(from graph: GraphState?) -> GraphEntity {
-        self.createSchema()
-    }
-    
+        
     @MainActor
     func syncMediaFiles(_ mediaFiles: [URL]) {
         // Add default media and imported URLs

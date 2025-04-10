@@ -9,7 +9,6 @@ import AudioKit
 import SwiftUI
 import StitchSchemaKit
 
-typealias StoreDelegate = StitchStore
 
 @Observable
 final class StitchStore: Sendable {
@@ -89,7 +88,7 @@ final class ClipboardEncoderDelegate: DocumentEncodableDelegate {
         self.lastEncodedDocument = .init()
     }
     
-    func createSchema(from graph: GraphState?) -> StitchClipboardContent {
+    func createSchema(from graph: GraphState) -> StitchClipboardContent {
         fatalError()
     }
     
@@ -126,7 +125,7 @@ extension StitchStore {
 
     @MainActor
     var currentGraphId: GraphId? {
-        currentDocument?.projectId
+        currentDocument?.id
     }
 
     @MainActor

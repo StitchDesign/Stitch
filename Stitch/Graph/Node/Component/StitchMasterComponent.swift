@@ -47,12 +47,8 @@ extension StitchMasterComponent {
         return nil
     }
     
-    @MainActor func createSchema(from graph: GraphState?) -> StitchComponent {
-        guard let graph = graph?.createSchema() else {
-            fatalErrorIfDebug()
-            return .init()
-        }
-        
+    @MainActor func createSchema(from graph: GraphState) -> StitchComponent {
+        let graph = graph.createSchema()
         var component = self.lastEncodedDocument
         component.graph = graph
         return component
@@ -122,7 +118,7 @@ extension StitchMasterComponent: DocumentEncodableDelegate, Identifiable {
     }
     
     @MainActor
-    var storeDelegate: StoreDelegate? {
+    var storeDelegate: StitchStore? {
         self.parentGraph?.storeDelegate
     }
     

@@ -23,13 +23,6 @@ struct NodeCreatedEvent: StitchDocumentEvent {
     }
 }
 
-extension GraphState {
-    @MainActor
-    func nodeCreated(choice: NodeKind) -> NodeViewModel? {
-        self.documentDelegate?.nodeInserted(choice: choice)
-    }
-}
-
 extension StitchDocumentViewModel {
     
     /// Only for insert-node-menu creation of nodes; shortcut key creation of nodes uses `viewPortCenter`

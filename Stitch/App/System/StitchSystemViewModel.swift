@@ -14,10 +14,10 @@ final class StitchSystemViewModel: Sendable, Identifiable {
     @MainActor var components: [UUID: StitchMasterComponent] = [:]
     let encoder: StitchSystemEncoder
     
-    @MainActor weak var storeDelegate: StoreDelegate?
+    @MainActor weak var storeDelegate: StitchStore?
 
     @MainActor init(data: StitchSystem,
-                    storeDelegate: StoreDelegate?) {
+                    storeDelegate: StitchStore?) {
         self.id = data.id
         self.lastEncodedDocument = data
         self.encoder = .init(system: data,
@@ -61,7 +61,7 @@ extension StitchSystemViewModel: DocumentEncodableDelegate {
         fatalError()
     }
     
-    @MainActor func createSchema(from graph: GraphState?) -> StitchSystem {
+    @MainActor func createSchema(from graph: GraphState) -> StitchSystem {
         self.lastEncodedDocument
     }
     

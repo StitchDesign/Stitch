@@ -48,7 +48,7 @@ struct FloatingWindowView: View {
     }
 
     var projectId: GraphId {
-        document.projectId
+        document.id
     }
 
     // the size of the device represented by the preview window
