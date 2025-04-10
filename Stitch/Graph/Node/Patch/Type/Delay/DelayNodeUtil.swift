@@ -21,7 +21,7 @@ extension NodeTimerEphemeralObserver {
     /// Assigns the value to the output of a delay node after the delay timer has fired.
     @MainActor
     func assignDelayedValueAction(timerId: UUID,
-                                  node: NodeDelegate,
+                                  node: NodeViewModel,
                                   value: PortValue,
                                   media: GraphMediaValue?,
                                   loopIndex: Int,

@@ -75,7 +75,7 @@ final class InputLayerNodeRowData: LayerNodeRowData, Identifiable {
     @MainActor
     init(rowObserver: InputNodeRowObserver,
          canvasObserver: CanvasItemViewModel? = nil,
-         nodeDelegate: NodeDelegate? = nil) {
+         nodeDelegate: NodeViewModel? = nil) {
         let keyPath = rowObserver.id.keyPath
         assertInDebug(keyPath.isDefined)
         
@@ -134,7 +134,7 @@ final class OutputLayerNodeRowData: LayerNodeRowData, Identifiable {
     
     // initialization of inspector row view model needs active index and row obseerver
     @MainActor
-    func initializeDelegate(_ node: NodeDelegate) {
+    func initializeDelegate(_ node: NodeViewModel) {
         self.rowObserver.initializeDelegate(node)
         
         let rowDelegate = self.rowObserver
@@ -151,7 +151,7 @@ final class OutputLayerNodeRowData: LayerNodeRowData, Identifiable {
        
         
         self.inspectorRowViewModel.initializeDelegate(
-            node, // for setting NodeDelegate on NodeRowViewModel
+            node, // for setting NodeViewModel on NodeRowViewModel
             initialValue: rowDelegate.getActiveValue(activeIndex: document.activeIndex),
             // Not relevant for output
             unpackedPortParentFieldGroupType: nil,
@@ -162,7 +162,7 @@ final class OutputLayerNodeRowData: LayerNodeRowData, Identifiable {
 
 extension LayerNodeRowData {
     @MainActor
-    func initializeDelegate(_ node: NodeDelegate,
+    func initializeDelegate(_ node: NodeViewModel,
                             unpackedPortParentFieldGroupType: FieldGroupType?,
                             unpackedPortIndex: Int?) {
         self.rowObserver.initializeDelegate(node)

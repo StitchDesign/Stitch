@@ -35,7 +35,7 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     }
     
     // NodeRowObserver holds a reference to its parent, the Node
-    @MainActor weak var nodeDelegate: NodeDelegate?
+    @MainActor weak var nodeDelegate: NodeViewModel?
 
     // MARK: "derived data", cached for UI perf
     
@@ -302,7 +302,7 @@ extension [InputNodeRowObserver] {
     init(values: PortValuesList,
          id: NodeId,
          nodeIO: NodeIO,
-         nodeDelegate: NodeDelegate) {
+         nodeDelegate: NodeViewModel) {
         self = values.enumerated().map { portId, values in
             Element(values: values,
                     id: NodeIOCoordinate(portId: portId, nodeId: id),

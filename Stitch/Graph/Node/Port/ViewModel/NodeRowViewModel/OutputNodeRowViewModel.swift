@@ -23,7 +23,7 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     @MainActor var portColor: PortColor = .noEdge
     @MainActor var isDragging = false
     @MainActor var portViewData: PortViewType?
-    @MainActor weak var nodeDelegate: NodeDelegate?
+    @MainActor weak var nodeDelegate: NodeViewModel?
     @MainActor weak var rowDelegate: OutputNodeRowObserver?
     @MainActor weak var canvasItemDelegate: CanvasItemViewModel?
     

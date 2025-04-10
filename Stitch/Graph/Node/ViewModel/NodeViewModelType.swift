@@ -78,7 +78,7 @@ extension NodeViewModelType {
     }
     
     @MainActor
-    func initializeDelegate(_ node: NodeDelegate,
+    func initializeDelegate(_ node: NodeViewModel,
                             components: [UUID: StitchMasterComponent],
                             document: StitchDocumentViewModel) {
         switch self {

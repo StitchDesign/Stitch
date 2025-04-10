@@ -220,7 +220,7 @@ extension VisibleNodesViewModel {
     }
 
     @MainActor
-    func getNodesAtThisTraversalLevel(at focusedGroup: NodeId?) -> [NodeDelegate] {
+    func getNodesAtThisTraversalLevel(at focusedGroup: NodeId?) -> [NodeViewModel] {
         self.getCanvasItemsAtTraversalLevel(at: focusedGroup)
             .filter { $0.parentGroupNodeId ==  focusedGroup }
             .compactMap { $0.nodeDelegate }
