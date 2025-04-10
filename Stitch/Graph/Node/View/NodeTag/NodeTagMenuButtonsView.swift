@@ -283,7 +283,7 @@ struct NodeTagMenuButtonsView: View {
 
         return Picker("Change Node Type", selection: binding) {
             ForEach(nodeTypeChoices, id: \.self) { choice in
-                StitchTextView(string: choice.display)
+                StitchTextView(string: choice.displayForNodeMenu)
 
                 // Alternatively, we can use our own icon:
                 //                Label {
