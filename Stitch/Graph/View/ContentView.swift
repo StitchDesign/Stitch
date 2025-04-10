@@ -176,11 +176,11 @@ struct ContentView: View, KeyboardReadable {
     var catalystProjectTitleEditView: some View {
 #if targetEnvironment(macCatalyst)
         if document.showCatalystProjectTitleModal {
-            VStack(alignment: .leading) {
-                StitchTextView(string: "Edit Project Title")
+//            VStack(alignment: .leading) {
+//                StitchTextView(string: "Edit Project Title")
                 CatalystProjectTitleModalView(graph: document.visibleGraph,
                                               document: document)
-            }
+//            }
             .padding()
             .frame(width: 360, alignment: .leading)
             .background(
@@ -196,7 +196,8 @@ struct ContentView: View, KeyboardReadable {
                 + 158
                 + (document.leftSidebarOpen ? (-SIDEBAR_WIDTH/2 + 38) : 0)
                 
-                , y: 52)
+//                , y: 52)
+                , y: 36)
                 
         } // if document
 #endif
