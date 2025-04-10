@@ -40,8 +40,9 @@ final class nodeTypeTests: XCTestCase {
     @MainActor
     func testPatchNodeUserVisibleType() throws {
 
+        let graph = GraphState()
         Patch.allCases.forEach { patch in
-            let node = patch.createDefaultTestNode()
+            let node = patch.createDefaultTestNode(graph: graph)
 
             // If the patch has non-empty lists of available node types,
             // ... but the created node has no node type,

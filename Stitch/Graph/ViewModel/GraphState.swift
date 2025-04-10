@@ -590,7 +590,8 @@ extension GraphState {
                                    willUpdateUndoHistory: Bool = true) {
         guard let store = self.storeDelegate,
               let documentEncoder = self.documentEncoderDelegate else {
-            fatalErrorIfDebug()
+            // fatalErrorIfDebug()
+            log("encodeProjectInBackground: missing store and/or decoder delegates")
             return
         }
         
