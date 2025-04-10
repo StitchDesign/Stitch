@@ -175,6 +175,7 @@ extension VisibleNodesViewModel {
                 assertInDebug(node.kind == .group)
 
                 // Note: A Group Node's inputs and outputs are actually underlying input-splitters and output-splitters.
+                // TODO: shouldn't the row view models already have been initialized when we initialized patch nodes?
                 canvasGroup.inputViewModels.forEach {
                     // Must set the node delegate on each input; some other code somewhere else depends on it
                     $0.nodeDelegate = node
