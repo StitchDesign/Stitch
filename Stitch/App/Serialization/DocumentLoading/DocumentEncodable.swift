@@ -49,6 +49,7 @@ extension DocumentEncodable {
         }
     }
     
+    // these first two look really similar,
     @MainActor func encodeProjectInBackground(from graph: GraphState?,
                                               temporaryUrl: URL? = nil,
                                               willUpdateUndoHistory: Bool = true) {
@@ -57,12 +58,13 @@ extension DocumentEncodable {
                                        willUpdateUndoHistory: willUpdateUndoHistory) { delegate, oldSchema, newSchema in
             
             if willUpdateUndoHistory,
-               let graph = graph {
-                graph.storeDelegate?.saveUndoHistory(from: delegate,
-                                                     oldSchema: oldSchema,
-                                                     newSchema: newSchema,
-                                                     rootUrl: self.rootUrl,
-                                                     undoEffectsData: nil)
+               let graph = graph,
+               let store = graph.storeDelegate {
+                store.saveUndoHistory(from: delegate,
+                                      oldSchema: oldSchema,
+                                      newSchema: newSchema,
+                                      rootUrl: self.rootUrl,
+                                      undoEffectsData: nil)
             }
         }
     }
@@ -75,13 +77,14 @@ extension DocumentEncodable {
                                        temporaryUrl: temporaryUrl,
                                        willUpdateUndoHistory: willUpdateUndoHistory) { delegate, oldSchema, newSchema in
             if willUpdateUndoHistory,
-                let graph = graph {
-                graph.storeDelegate?.saveUndoHistory(from: delegate,
-                                                     oldSchema: oldSchema,
-                                                     newSchema: newSchema,
-                                                     rootUrl: self.rootUrl,
-                                                     undoEvents: undoEvents,
-                                                     redoEvents: [])
+               let graph = graph,
+               let store = graph.storeDelegate {
+                store.saveUndoHistory(from: delegate,
+                                      oldSchema: oldSchema,
+                                      newSchema: newSchema,
+                                      rootUrl: self.rootUrl,
+                                      undoEvents: undoEvents,
+                                      redoEvents: [])
             }
         }
     }
