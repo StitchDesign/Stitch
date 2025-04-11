@@ -173,7 +173,7 @@ final class StitchDocumentViewModel: Sendable {
         self.storeDelegate = store
         
         guard let documentEncoder = self.documentEncoder else {
-//            fatalErrorIfDebug()
+            // fatalErrorIfDebug()
             return
         }
         
@@ -190,7 +190,7 @@ final class StitchDocumentViewModel: Sendable {
         if isInitialization {
             // Need all nodes to render initially
             let visibleGraph = self.visibleGraph
-            visibleGraph.visibleNodesViewModel.setAllNodesVisible()
+            visibleGraph.visibleNodesViewModel.setAllCanvasItemsVisible()
         }
     }
     
@@ -547,12 +547,21 @@ extension StitchDocumentViewModel {
     @MainActor
     static func createTestFriendlyDocument() async -> StitchDocumentViewModel {
         let store = StitchStore()
+        
         await store.createNewProject(isProjectImport: false,
                                      isPhoneDevice: false)
+        
         guard let projectLoader = store.navPath.first,
               let documentViewModel = projectLoader.documentViewModel else {
             fatalError()
         }
+        
+        documentViewModel.documentEncoder = projectLoader.encoder!
+        documentViewModel.graph.documentEncoderDelegate = documentViewModel.documentEncoder
+        
+        assert(documentViewModel.documentEncoder.isDefined)
+        assert(documentViewModel.graph.documentEncoderDelegate.isDefined)
+        
         return documentViewModel
     }
     

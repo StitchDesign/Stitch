@@ -46,7 +46,7 @@ struct GraphScrollDataUpdated: StitchDocumentEvent {
         }
         
         // Update which nodes are visible in frame
-        graph.updateVisibleNodes()
+        state.updateVisibleCanvasItems()
     }
     
 }

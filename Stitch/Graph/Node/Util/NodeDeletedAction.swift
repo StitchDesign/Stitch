@@ -81,7 +81,12 @@ extension GraphState {
 
         graphMovement.draggedCanvasItem = nil
         
-        self.updateGraphData()
+         // TODO: APRIL 11: should not be necessary anymore? since causes a persistence change
+        guard let document = self.documentDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        self.updateGraphData(document)
     }
     
     // Varies by node vs LayerInputOnGraph vs comment box

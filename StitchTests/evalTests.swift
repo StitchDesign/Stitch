@@ -13,26 +13,26 @@ import XCTest
 // TESTS FOR NODES' EVAL METHODS
 
 class EvalTests: XCTestCase {
-    @MainActor var document = StitchDocumentViewModel.createEmpty()
+    @MainActor var store = StitchStore()
     
-    @MainActor var graphState: GraphState {
-        self.document.graph
-    }
-    
+    // Cannot be async, so cannot be used to create a document
     @MainActor
     override func setUp() {
-        self.document = StitchDocumentViewModel.createEmpty()
-        self.document.graphStepManager.delegate = self.document
-        self.document.graph.documentDelegate = self.document
+        self.store = StitchStore() // wipe the store
     }
     
     @MainActor
     func loopSelectEval(inputs: PortValuesList,
-                        outputs: PortValuesList) -> PortValuesList {
+                        outputs: PortValuesList) async -> PortValuesList {
+        
+        let document = await StitchDocumentViewModel.createTestFriendlyDocument()
+        let graphState = document.visibleGraph
+        
+        
         guard let node = Patch.loopSelect.defaultNode(id: .init(),
                                                       position: .zero,
                                                       zIndex: .zero,
-                                                      graphDelegate: self.graphState) else {
+                                                      graphDelegate: graphState) else {
             fatalError()
         }
         
@@ -51,7 +51,10 @@ class EvalTests: XCTestCase {
 
     /// Runs all evals to make sure nodes can initialize.
     @MainActor
-    func testRunAllEvals() throws {
+    func testRunAllEvals() async throws {
+        let document = await StitchDocumentViewModel.createTestFriendlyDocument()
+        let graphState = document.visibleGraph
+        
         graphState.graphStepManager.graphTimeCurrent = 4
         graphState.graphStepManager.graphFrameCount = 4 * 120
 
@@ -384,35 +387,6 @@ class EvalTests: XCTestCase {
         XCTAssertEqual(result, expectedOutputs)
     }
 
-    //    func testSizePatchNodeTypeChanges() throws {
-    //
-    //        let node = packPatchNode(id: .fakeNodeId)
-    //
-    //        // Change to position nodeType:
-    //        // var typeChangedNode =
-    //        node.packNodeTypeChange(
-    //            schema: node.schema,
-    //            newType: .position,
-    //            prevInputsValues: node.inputs)
-    //
-    //        XCTAssert(node.userVisibleType! == .position)
-    //        XCTAssert(node.inputLabels[0] == "X")
-    //        XCTAssert(node.inputLabels[1] == "Y")
-    //
-    //        // Change back to size nodeType:
-    //        // typeChangedNode =
-    //        node.packNodeTypeChange(
-    //            schema: node.schema,
-    //            newType: .size,
-    //            prevInputsValues: node.inputs)
-    //
-    //        XCTAssert(node
-    //                    .userVisibleType! == .size)
-    //        XCTAssert(node.inputLabels[0] == "W")
-    //        XCTAssert(node.inputLabels[1] == "H")
-    //
-    //    }
-
     @MainActor
     func testSizeEvalArrayWithSizeNodeType() throws {
 
@@ -603,7 +577,7 @@ class EvalTests: XCTestCase {
             .number(1.0)
         ]
         
-        var node: PatchNode = addPatchNode(
+        let node: PatchNode = addPatchNode(
             nodeId: .fakeNodeId,
             n1Loop: n1,
             n2Loop: n2)
@@ -638,155 +612,6 @@ class EvalTests: XCTestCase {
         XCTAssertEqual(result, [expectedOutput])
     }
 
-    // MARK: this test fails but runtime works fine
-//    @MainActor
-//    func testPreservedValueNodeTypeChanges() throws {
-//
-//        let node: NodeViewModel = SplitterPatchNode.createViewModel()
-//
-//        // Set the splitter node's input value to be 30.0, as the test expects.
-//        node.getAllInputsObservers().first?.allLoopedValues = [.number(30.0)]
-//
-//        // convert: Number -> Bool
-//        // node =
-//        node.updateNodeTypeAndInputs(
-//            newType: .bool,
-//            currentGraphTime: fakeGraphTime,
-//            activeIndex: .init(.zero))
-//        let newBoolInputs = node.inputs
-//
-//        let boolResult: PortValues = newBoolInputs.first!
-//        let expectedBoolOutput: PortValues = [.bool(true)]
-//
-//        XCTAssertEqual(boolResult, expectedBoolOutput)
-//
-//        // convert back: Bool -> Number
-//        // The originally 30 should have been saved.
-//        // node =
-//        node.updateNodeTypeAndInputs(
-//            newType: .number,
-//            currentGraphTime: fakeGraphTime,
-//            activeIndex: .init(.zero))
-//        let newNumberInputs = node.inputs
-//
-//        let numberResult: PortValues = newNumberInputs.first!
-//        let expectedNumberOutput: PortValues = [.number(30.0)]
-//
-//        XCTAssertEqual(numberResult, expectedNumberOutput)
-//    }
-
-    //    func testRepeatingPulseEval() throws {
-    //
-    //        let graphTime: TimeInterval = 2
-    //
-    //        // receives a loop of frequencies
-    //        let input: PortValues = [.number(2), .number(3)]
-    //
-    //        // Neither index has pulsed...
-    //        let startingOutput: PortValues = [
-    //            .pulse(.zero), .pulse(.zero)
-    //        ]
-    //
-    //        // But since index 0 is supposed to pulse "every 2 seconds",
-    //        // (vs index 1's "every 3 seconds")
-    //        // and we're currenty on graphTime = 2 seconds,
-    //        // index 0 should pulse and index 1 should NOT pulse.
-    //        let expectedOutput: PortValues = [
-    //            .pulse(graphTime), .pulse(.zero)
-    //        ]
-    //
-    //        // first index's .pulse(pulseAt) should be == graphTime
-    //        let result: PortValuesList = repeatingPulseEval(
-    //            inputs: [input],
-    //            outputs: [startingOutput],
-    //            graphTime: graphTime)
-    //
-    //        XCTAssertEqual(result.first!, expectedOutput)
-    //    }
-
-    //    func testCounterEvalIncrease() throws {
-    //
-    //        let graphTime: TimeInterval = 2
-    //
-    //        // set this up as if it has received a loop of pulses
-    //        let input: PortValues = [
-    //            .pulse(graphTime), // should pulse
-    //            .pulse(graphTime + 1) // should not pulse
-    //        ]
-    //
-    //        let startOutput: PortValues = [.number(0), .number(1)]
-    //        let expectedOutput: PortValues = [.number(1), .number(1)]
-    //
-    //        let result: PortValuesList = counterEval(
-    //            inputs: [input],  // first input is Increment
-    //            outputs: [startOutput],
-    //            graphTime: graphTime)
-    //
-    //        XCTAssertEqual(result.first!, expectedOutput)
-    //    }
-    //
-    //    func testCounterEvalDecrease() throws {
-    //
-    //        let graphTime: TimeInterval = 2
-    //
-    //        // set this up as if it has received a loop of pulses
-    //        let input: PortValues = [
-    //            .pulse(graphTime), // should pulse
-    //            .pulse(graphTime + 1) // should not pulse
-    //        ]
-    //
-    //        let startOutput: PortValues = [.number(1), .number(1)]
-    //        let expectedOutput: PortValues = [.number(0), .number(1)]
-    //
-    //        let result: PortValuesList = counterEval(
-    //            inputs: [[], input],  // second input is Decrement
-    //            outputs: [startOutput],
-    //            graphTime: graphTime)
-    //
-    //        XCTAssertEqual(result.first!, expectedOutput)
-    //    }
-
-    // MARK: needs to be updated
-    //    func testPulseOnChangeEval() throws {
-    //
-    //        let state = GraphState(graphStep: GraphStep(graphTime: .zero))
-    //
-    //            let node = pulseOnChangeNode(id: 0)
-    //
-    //            let updatedNode = pulseOnChangeEval(node: node, state: state)
-    //
-    //            updatedNode.pulseOnChangePreviousValues
-    //
-    //            let graphTime: TimeInterval = 2
-    //
-    //            // set this up as if it has received a loop of pulses
-    //            let input: PortValues = [
-    //                .pulse(graphTime), // should pulse
-    //                .pulse(graphTime + 1) // should not pulse
-    //            ]
-    //
-    //            let startOutput: PortValues = [.number(1), .number(1)]
-    //            let expectedOutput: PortValues = [.number(0), .number(1)]
-    //
-    //            let result: PortValuesList = pulseOnChangeEval(
-    //                inputs: [[], input],  // second input is Decrement
-    //                outputs: [startOutput],
-    //                graphTime: graphTime)
-    //
-    //            XCTAssertEqual(result.first!, expectedOutput)
-    //        }
-
-    // TODO: Needs actual assert!
-    //    func testSpringAnimationEval() throws {
-    //
-    //        let state = GraphStepState(graphStep: GraphStep(graphTime: 2))
-    //
-    //        let node = springAnimationNode(id: 0, nLoop: [.number(50), .number(100)])
-    //
-    //        let result: ImpureEvalResult = springAnimationEval(node: node, state: state)
-    //
-    //        log("testSpringAnimationEval: result.node.springAnimationStates: \(result.node.springAnimationStates)")
-    //    }
 
     @MainActor
     func testOptionPickerColor() throws {
@@ -827,7 +652,7 @@ class EvalTests: XCTestCase {
 
     // single value selection
     @MainActor
-    func testLoopSelectEvalSingleSelection() throws {
+    func testLoopSelectEvalSingleSelection() async throws {
 
         // "input"
         let input1: PortValues = [.string(.init("apple")), .string(.init("carrot")), .string(.init("orange"))]
@@ -841,7 +666,7 @@ class EvalTests: XCTestCase {
         // "output index"
         let expectedOutput2: PortValues = [.number(0)]
 
-        let result: PortValuesList = loopSelectEval(
+        let result: PortValuesList = await loopSelectEval(
             inputs: [input1, input2],
             outputs: [] // none, starting out
         )
@@ -851,7 +676,7 @@ class EvalTests: XCTestCase {
     }
 
     @MainActor
-    func testLoopSelectEvalNegativeSingleSelection() throws {
+    func testLoopSelectEvalNegativeSingleSelection() async throws {
 
         let apple = "apple"
         let carrot = "carrot"
@@ -868,78 +693,78 @@ class EvalTests: XCTestCase {
         let input2: PortValues = [.number(-1)]
 
         let getResult = { (index: Int) -> PortValuesList in
-            self.loopSelectEval(inputs: [input1,
+            await self.loopSelectEval(inputs: [input1,
                                          [.number(Double(index))]],
                                 outputs: [])
         }
 
         // POSITIVE INDICES
-        let _result0 = getResult(0)
+        let _result0 = await getResult(0)
         XCTAssertEqual(_result0.first!, [.string(.init(apple))])
         XCTAssertEqual(_result0[1], [.number(0)])
 
-        let _result1 = getResult(1)
+        let _result1 = await getResult(1)
         XCTAssertEqual(_result1.first!, [.string(.init(carrot))])
         XCTAssertEqual(_result1[1], [.number(0)])
 
-        let _result2 = getResult(2)
+        let _result2 = await getResult(2)
         XCTAssertEqual(_result2.first!, [.string(.init(orange))])
         XCTAssertEqual(_result2[1], [.number(0)])
 
-        let _result3 = getResult(3)
+        let _result3 = await getResult(3)
         XCTAssertEqual(_result3.first!, [.string(.init(apple))])
         XCTAssertEqual(_result3[1], [.number(0)])
 
-        let _result4 = getResult(4)
+        let _result4 = await getResult(4)
         XCTAssertEqual(_result4.first!, [.string(.init(carrot))])
         XCTAssertEqual(_result4[1], [.number(0)])
 
-        let _result5 = getResult(5)
+        let _result5 = await getResult(5)
         XCTAssertEqual(_result5.first!, [.string(.init(orange))])
         XCTAssertEqual(_result5[1], [.number(0)])
 
-        let _result6 = getResult(6)
+        let _result6 = await getResult(6)
         XCTAssertEqual(_result6.first!, [.string(.init(apple))])
         XCTAssertEqual(_result6[1], [.number(0)])
 
-        let _result7 = getResult(7)
+        let _result7 = await getResult(7)
         XCTAssertEqual(_result7.first!, [.string(.init(carrot))])
         XCTAssertEqual(_result7[1], [.number(0)])
 
         // NEGATIVE INDICES
 
         // index = -1 currently giving us "apple", whereas we expect "orange"
-        let result1 = getResult(-1)
+        let result1 = await getResult(-1)
         XCTAssertEqual(result1.first!, [.string(.init(orange))])
         XCTAssertEqual(result1[1], [.number(0)])
 
         // index = -2
-        let result2 = getResult(-2)
+        let result2 = await getResult(-2)
         XCTAssertEqual(result2.first!, [.string(.init(carrot))])
         XCTAssertEqual(result2[1], [.number(0)])
 
         // index = -3
-        let result3 = getResult(-3)
+        let result3 = await getResult(-3)
         XCTAssertEqual(result3.first!, [.string(.init(apple))])
         XCTAssertEqual(result3[1], [.number(0)])
 
         // index = -4
-        let result4 = getResult(-4)
+        let result4 = await getResult(-4)
         XCTAssertEqual(result4.first!, [.string(.init(orange))])
         XCTAssertEqual(result4[1], [.number(0)])
 
         // index = -5
-        let result5 = getResult(-5)
+        let result5 = await getResult(-5)
         XCTAssertEqual(result5.first!, [.string(.init(carrot))])
         XCTAssertEqual(result5[1], [.number(0)])
 
         // index = -6
-        let result6 = getResult(-6)
+        let result6 = await getResult(-6)
         XCTAssertEqual(result6.first!, [.string(.init(apple))])
         XCTAssertEqual(result6[1], [.number(0)])
 
         // index = -4
-        let result7 = getResult(-7)
+        let result7 = await getResult(-7)
         XCTAssertEqual(result7.first!, [.string(.init(orange))])
         XCTAssertEqual(result7[1], [.number(0)])
 
@@ -949,7 +774,7 @@ class EvalTests: XCTestCase {
 
     // see for details: https://origami.design/documentation/patches/builtin.loop.selectReorder.html
     @MainActor
-    func testLoopSelectEvalMultiSelection() throws {
+    func testLoopSelectEvalMultiSelection() async throws {
 
         // "input"
         let input1: PortValues = [.string(.init("apple")), .string(.init("carrot")), .string(.init("orange"))]
@@ -963,7 +788,7 @@ class EvalTests: XCTestCase {
         // "output index"
         let expectedOutput2: PortValues = [.number(0), .number(1), .number(2)]
 
-        let result: PortValuesList = loopSelectEval(
+        let result: PortValuesList = await loopSelectEval(
             inputs: [input1, input2],
             outputs: [] // none, starting out
         )
@@ -973,7 +798,7 @@ class EvalTests: XCTestCase {
     }
 
     @MainActor
-    func testLoopSelectEvalMultiSelectionUnequalLength() throws {
+    func testLoopSelectEvalMultiSelectionUnequalLength() async throws {
 
         // "input"
         let input1: PortValues = [.string(.init("apple")), .string(.init("carrot")), .string(.init("orange"))]
@@ -987,7 +812,7 @@ class EvalTests: XCTestCase {
         // "output index"
         let expectedOutput2: PortValues = [.number(0), .number(1)]
 
-        let result: PortValuesList = loopSelectEval(
+        let result: PortValuesList = await loopSelectEval(
             inputs: [input1, input2],
             outputs: [] // none, starting out
         )

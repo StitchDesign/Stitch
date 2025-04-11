@@ -23,17 +23,40 @@ extension XCTestCase {
 
 class GroupNodeTests: XCTestCase {
     
+    // TODO: does this need to be wiped/refreshed before each new test?
+    // Note: the Store must be long-lived, 
+    @MainActor
+    var store = StitchStore()
+    
     /// Simple GroupNode with two Add nodes inside; no incoming/outgoing edges or splitters.
     @MainActor
-    static func createSimpleGroupNode() async -> (StitchDocumentViewModel, NodeViewModel) {
-        let document = await StitchDocumentViewModel.createTestFriendlyDocument()
-        let graphState = document.graph
+    func createSimpleGroupNode() async -> (StitchDocumentViewModel, NodeViewModel) {
+                
+        await store.createNewProject(isProjectImport: false,
+                                     isPhoneDevice: false)
+        
+        guard let projectLoader = store.navPath.first,
+              let documentViewModel = projectLoader.documentViewModel else {
+            fatalError()
+        }
+        
+        documentViewModel.documentEncoder = projectLoader.encoder!
+        documentViewModel.graph.documentEncoderDelegate = documentViewModel.documentEncoder
+        
+        assert(documentViewModel.documentEncoder.isDefined)
+        assert(documentViewModel.graph.documentEncoderDelegate.isDefined)
+        
+//        return documentViewModel
+        
+        
+//        let document = await StitchDocumentViewModel.createTestFriendlyDocument()
+        let graphState = documentViewModel.graph
 
-        graphState.documentDelegate = document
+        graphState.documentDelegate = documentViewModel
         
         // Create two Add nodes
-        guard let node1 = document.nodeInserted(choice: .patch(.add)),
-              let node2 = document.nodeInserted(choice: .patch(.add)),
+        guard let node1 = documentViewModel.nodeInserted(choice: .patch(.add)),
+              let node2 = documentViewModel.nodeInserted(choice: .patch(.add)),
               let canvasNode1 = node1.patchCanvasItem,
               let canvasNode2 = node2.patchCanvasItem else {
 //            XCTAbortTest()
@@ -49,7 +72,7 @@ class GroupNodeTests: XCTestCase {
         graphState.selectCanvasItem(canvasNode2.id)
             
         // Create the group
-        let _ = await document.createGroup(isComponent: false)
+        let _ = await documentViewModel.createGroup(isComponent: false)
         
         XCTAssertEqual(graphState.groupNodes.keys.count, 1)
         
@@ -67,18 +90,18 @@ class GroupNodeTests: XCTestCase {
         // There should only be two nodes in the group; no splitters etc.
         XCTAssertEqual(nodesInGroup.count, 2)
         
-        return (document, groupNode)
+        return (documentViewModel, groupNode)
     }
     
     @MainActor
     func testSimpleGroupNodeCreation() async throws {
         // MARK: SIMPLE NODE UI GROUP -- TWO ADD NODES, NO INCOMING OR OUTGOING EDGES
-        let _ = await Self.createSimpleGroupNode()
+        let _ = await self.createSimpleGroupNode()
     }
     
     @MainActor
     func testSimpleGroupNodeDuplication() async throws {
-        let (document, groupNode) = await Self.createSimpleGroupNode()
+        let (document, groupNode) = await self.createSimpleGroupNode()
 //        let graphState = document.graph
         let groupNodeId = groupNode.id
         

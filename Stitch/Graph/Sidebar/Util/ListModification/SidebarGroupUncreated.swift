@@ -57,6 +57,11 @@ extension LayersSidebarViewModel {
         graph.deleteNode(id: groupId, willDeleteLayerGroupChildren: false)
 
         // update legacy sidebar data
-        graph.updateGraphData()
+        // TODO: APRIL 11: should not be necessary anymore? since causes a persistence change
+        guard let document = graph.documentDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        graph.updateGraphData(document)
     }
 }
