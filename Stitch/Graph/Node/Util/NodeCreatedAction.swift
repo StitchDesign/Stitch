@@ -125,7 +125,7 @@ extension StitchDocumentViewModel {
         self.visibleGraph.calculateFullGraph()
         
         // Reset nodes layout cache
-        self.visibleGraph.visibleNodesViewModel.resetCache()
+        self.visibleGraph.visibleNodesViewModel.resetVisibleCanvasItemsCache()
         
         // Reset doubleTapLocation
         // TODO: where else would we need to reset this?

@@ -98,7 +98,13 @@ extension InputNodeRowObserver {
             // graph.connectedEdges = graph.getVisualEdgeData(groupNodeFocused: graph.documentDelegate?.groupNodeFocused?.groupNodeId)
             
             // Note: need to do full update, since upstream output's port-color needs to change as well
-            graph.updateGraphData()
+            // TODO: APRIL 11: do we really need to do this?!
+            guard let document = graph.documentDelegate else {
+                fatalErrorIfDebug()
+                return
+            }
+            graph.updateGraphData(document)
+             
             
             self.setValuesInInput([newValue])
             self.immediatelyUpdateFieldObserversAfterInputEdit(newValue)

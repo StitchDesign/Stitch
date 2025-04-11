@@ -108,7 +108,7 @@ extension GraphState {
         // Reset graph cache to get new nodes to appear
         // Dispatch needed for fix
         DispatchQueue.main.async { [weak self] in
-            self?.visibleNodesViewModel.resetCache()
+            self?.visibleNodesViewModel.resetVisibleCanvasItemsCache()
         }
     }
 }

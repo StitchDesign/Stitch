@@ -9,14 +9,16 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
     
-extension GraphState {
-    /// Accomplishes the following tasks:
-    /// 1. Determines which nodes are visible.
-    /// 2. Determines which nodes are selected from the selection box, if applicable.
+extension StitchDocumentViewModel {
+    
+    // fka `GraphState.updateVisibleNodes`
     @MainActor
-    func updateVisibleNodes() {
+    func updateVisibleCanvasItems() {
         
-        guard let document = self.documentDelegate else { return }
+        let document = self
+        
+        // Really only makes sense to do on the visible graph
+        let graph = document.visibleGraph
         
         /*
          Note: `updateVisibleNodes` is called when the UIScrollView jumps to the graph's absolute-center upon project first open (`GraphScrollUpdated` dispatched from `scrollViewDidScroll` method).
@@ -27,23 +29,48 @@ extension GraphState {
          
          TODO: alternatively, could use a flag in `UIScrollView` such that `GraphScrollUpdated` does not trigger `updateVisibleNodes` when first jumping to graph center upon project open ?
          */
-        if self.visibleNodesViewModel.infiniteCanvasCache.isEmpty
+        if self.graph.visibleNodesViewModel.infiniteCanvasCache.isEmpty
 //           // TODO: perf impact of constantly checking canvas-items-at-this-traversal-level ?
 //           , !self.canvasItemsAtTraversalLevel(document.groupNodeFocused).isEmpty
         {
             return
         }
         
-        let zoom = document.graphMovement.zoomData
+        let originalVisibleCanvasItems = graph.visibleNodesViewModel.visibleCanvasIds
+        
+        // Determine nodes to make visible--use cache in case nodes exited viewframe
+        var newVisibleCanvasItems = self.determineVisibleCanvasItems(
+            zoom: document.graphMovement.zoomData,
+            localPosition: document.graphMovement.localPosition,
+            frame: document.frame,
+            cache: graph.visibleNodesViewModel.infiniteCanvasCache)
+        
+        if originalVisibleCanvasItems != newVisibleCanvasItems {
+            graph.visibleNodesViewModel.visibleCanvasIds = newVisibleCanvasItems
+            
+            // Update the cached-UI-data (e.g. fieldObservers) of the canvas items that just became visible
+            let becameVisible = newVisibleCanvasItems.subtracting(originalVisibleCanvasItems)
+            for canvasItemId in becameVisible {
+                graph.updateCanvasItemFields(canvasItemId: canvasItemId,
+                                             activeIndex: document.activeIndex)
+            }
+        }
+    }
+    
+    @MainActor
+    private func determineVisibleCanvasItems(zoom: CGFloat,
+                                             localPosition: CGPoint,
+                                             frame: CGRect,
+                                             cache: InfiniteCanvas.Cache) -> CanvasItemIdSet {
         
         // How much that content is offset from the UIScrollView's top-left corner;
         // can never be negative.
-        let originOffset = document.graphMovement.localPosition
+        let originOffset = localPosition
         
         let scaledOffset = CGPoint(x: originOffset.x / zoom,
                                    y: originOffset.y / zoom)
 
-        let viewPortSize = document.frame.size
+        let viewPortSize = frame.size
                 
         let scaledSize = CGSize(width: viewPortSize.width * 1/zoom,
                                 height: viewPortSize.height * 1/zoom)
@@ -51,12 +78,12 @@ extension GraphState {
         let viewFrame = CGRect.init(origin: scaledOffset,
                                     size: scaledSize)
                 
-        let originalVisibleNodes = self.visibleNodesViewModel.visibleCanvasIds
+//        let originalVisibleNodes = graph.visibleNodesViewModel.visibleCanvasIds
         
         // Determine nodes to make visible--use cache in case nodes exited viewframe
         var newVisibleNodes = Set<CanvasItemId>()
         
-        for cachedSubviewData in self.visibleNodesViewModel.infiniteCanvasCache {
+        for cachedSubviewData in cache {
             
             let id = cachedSubviewData.key
             let cachedBounds = cachedSubviewData.value
@@ -75,48 +102,16 @@ extension GraphState {
                  but CanvasItemId.node could be a GroupNode.
                  */
                 if let potentialGroupNodeId = id.nodeCase {
-                    newVisibleNodes.formUnion(self.visibleNodesViewModel.getSplitterInputRowObserverIds(for: potentialGroupNodeId))
-                    newVisibleNodes.formUnion(self.visibleNodesViewModel.getSplitterOutputRowObserverIds(for: potentialGroupNodeId))
+                    newVisibleNodes.formUnion(graph.visibleNodesViewModel.getSplitterInputRowObserverIds(for: potentialGroupNodeId))
+                    newVisibleNodes.formUnion(graph.visibleNodesViewModel.getSplitterOutputRowObserverIds(for: potentialGroupNodeId))
                 }
-                
             }
 //            else {
 //                // log("updateVisibleNodes: NOT visible: \(id), cachedBounds: \(cachedBounds)")
 //            }
         } // for cachedSubviewData
         
-        if originalVisibleNodes != newVisibleNodes {
-            self.visibleNodesViewModel.visibleCanvasIds = newVisibleNodes
-            
-            // Update the cached-UI-data (e.g. fieldObservers) of the canvas items that just became visible
-            let becameVisible = newVisibleNodes.subtracting(originalVisibleNodes)
-            for canvasItemId in becameVisible {
-                self.updateCanvasItemFields(canvasItemId,
-                                            activeIndex: document.activeIndex)
-            }
-        }
-    }
-    
-    @MainActor
-    func updateCanvasItemFields(_ canvasItemId: CanvasItemId, activeIndex: ActiveIndex) {
-        guard let canvasItem = self.getCanvasItem(canvasItemId) else {
-            // Crashes in some valid examples
-//                    fatalErrorIfDebug()
-            return
-        }
-        
-        canvasItem.inputViewModels.forEach {
-            if let observer = self.getInputRowObserver($0.nodeIOCoordinate) {
-                $0.updateFields(observer.getActiveValue(activeIndex: activeIndex))
-            }
-        }
-        
-        canvasItem.outputViewModels.forEach {
-            if let observer = self.getOutputRowObserver($0.nodeIOCoordinate) {
-                $0.updateFields(observer.getActiveValue(activeIndex: activeIndex))
-            }
-        }
-        
+        return newVisibleNodes
     }
 }
 
