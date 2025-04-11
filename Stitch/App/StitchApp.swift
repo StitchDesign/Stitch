@@ -30,6 +30,8 @@ struct StitchApp: App {
                         }
                         
                         options.dsn = secrets.sentryDSN
+                        options.enableMetricKit = true
+                        options.enableMetricKitRawPayload = true
                         options.debug = false
                     }
                 }
