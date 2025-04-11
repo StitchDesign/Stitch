@@ -366,7 +366,7 @@ extension VisibleNodesViewModel {
     }
    
     @MainActor
-    func setAllNodesVisible() {
+    func setAllCanvasItemsVisible() {
         let newIds = self.allViewModels.map(\.id).toSet
         if self.visibleCanvasIds != newIds {
             self.visibleCanvasIds = newIds
@@ -375,11 +375,11 @@ extension VisibleNodesViewModel {
     
     @MainActor
     /// Updates node visibility data.
-    func resetCache() {
+    func resetVisibleCanvasItemsCache() {
         if !self.needsInfiniteCanvasCacheReset {
             self.needsInfiniteCanvasCacheReset = true
         }
-        self.setAllNodesVisible()
+        self.setAllCanvasItemsVisible()
         
         // Fixes issues where new rows don't have port locations
         for node in self.nodes.values {

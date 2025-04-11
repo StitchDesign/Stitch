@@ -250,7 +250,7 @@ extension StitchDocumentViewModel {
         self.graphMovement.stopNodeMovement()
 
         // Recalculate graph
-        self.graph.updateGraphData()
+        self.graph.updateGraphData(self)
         
         self.visibleGraph.encodeProjectInBackground()
     }

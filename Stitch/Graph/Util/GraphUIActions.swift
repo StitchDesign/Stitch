@@ -120,7 +120,7 @@ struct ToggleFullScreenEvent: StitchDocumentEvent {
             state.visibleGraph.visibleNodesViewModel.visibleCanvasIds = .init()
         }  else {
             // Mark all nodes as visible, will correct later
-            state.visibleGraph.visibleNodesViewModel.setAllNodesVisible()
+            state.visibleGraph.visibleNodesViewModel.setAllCanvasItemsVisible()
         }
     }
 }
