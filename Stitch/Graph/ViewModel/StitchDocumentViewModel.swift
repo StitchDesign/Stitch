@@ -556,7 +556,7 @@ extension StitchDocumentViewModel {
             fatalError()
         }
         
-        documentViewModel.documentEncoder = projectLoader.encoder
+        documentViewModel.documentEncoder = projectLoader.encoder!
         documentViewModel.graph.documentEncoderDelegate = documentViewModel.documentEncoder
         
         assert(documentViewModel.documentEncoder.isDefined)
