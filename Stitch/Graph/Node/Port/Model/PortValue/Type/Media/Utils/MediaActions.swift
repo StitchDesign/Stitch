@@ -205,11 +205,14 @@ extension GraphState {
                 return
             }
 
-            existingNode.inputs.findImportedMediaKeys().forEach { mediaKey in
-                // If existing node already contains imported media, then we need to delete the old media
-                if mediaLibrary.get(mediaKey) != newURL {
-                    self.checkToDeleteMedia(mediaKey, from: existingNode.id)
-                }
+            // If existing node already contains imported media, then we need to delete the old media
+            // EXCEPT if it's a loop builder node which can hold multiple media
+            if existingNode.kind != .patch(.loopBuilder) {
+                existingNode.inputs.findImportedMediaKeys().forEach { mediaKey in
+                    if mediaLibrary.get(mediaKey) != newURL {
+                        self.checkToDeleteMedia(mediaKey, from: existingNode.id)
+                    }
+                }                
             }
 
             let newMedia = AsyncMediaValue(mediaKey: mediaKey)
