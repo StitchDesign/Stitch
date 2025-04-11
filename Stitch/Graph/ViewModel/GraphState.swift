@@ -196,7 +196,6 @@ extension GraphState {
         
         self.documentDelegate = document
         self.documentEncoderDelegate = documentEncoderDelegate
-        let focusedGroupNode = self.documentDelegate?.groupNodeFocused?.groupNodeId
         
         self.layersSidebarViewModel.initializeDelegate(graph: self)
         
@@ -253,7 +252,7 @@ extension GraphState {
         
         
         // Update edges after everything else
-        let newEdges = self.getVisualEdgeData(groupNodeFocused: focusedGroupNode)
+        let newEdges = self.getVisualEdgeData(groupNodeFocused: document.groupNodeFocused?.groupNodeId)
 
         // HOT FIX: when we reapply llm-actions, the old and new connected edges are equal per ConnectedEdge's == implementation,
         // so we don't re-render GraphConnectedEdgesView even though the input row view model's port color changed.
@@ -359,6 +358,7 @@ extension GraphState {
     func updateGraphData(_ document: StitchDocumentViewModel) {
         // TODO: What's the difference between a document's documentEncoder and a graph's documentEncoderDelegate?
         guard let documentEncoder = self.documentEncoderDelegate else {
+            // TODO: `createTestFriendlyDocument` sets an encoder on both document and graph, but by the time the test runs it gets wiped some how? For now we use
             fatalErrorIfDebug()
             return
         }
