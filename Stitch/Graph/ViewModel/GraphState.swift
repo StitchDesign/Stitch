@@ -355,19 +355,31 @@ extension GraphState {
         self.documentDelegate?.allComponents.first { $0.id == nodeId }?.graph ?? nil
     }
     
+    @MainActor
+    func updateGraphData(_ document: StitchDocumentViewModel) {
+        // TODO: What's the difference between a document's documentEncoder and a graph's documentEncoderDelegate?
+        guard let documentEncoder = self.documentEncoderDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        self._updateGraphData(document, documentEncoder: documentEncoder)
+    }
+    
     /// Syncs visible nodes and topological data when persistence actions take place.
     @MainActor
-    func updateGraphData() {
+    private func _updateGraphData(_ document: StitchDocumentViewModel,
+                                  documentEncoder: any DocumentEncodable) {
         // Update parent graphs first if this graph is a component
         // Order here needed so parent components know if there are input/output changes
         if let parentGraph = self.parentGraph {
-            parentGraph.updateGraphData()
+            // Note: parent and child graphs always belong to same document
+            parentGraph._updateGraphData(document,
+                                         documentEncoder: documentEncoder)
         }
-        
-        let focusedGroupNode = self.documentDelegate?.groupNodeFocused
-        
+                
         // Update position data in case focused group node changed
-        if let nodePageData = self.visibleNodesViewModel.nodePageDataAtCurrentTraversalLevel(focusedGroupNode?.groupNodeId) {
+        if let nodePageData = self.visibleNodesViewModel.nodePageDataAtThisTraversalLevel(document.groupNodeFocused?.groupNodeId) {
             
             if self.canvasPageOffsetChanged != nodePageData.localPosition {
                 self.canvasPageOffsetChanged = nodePageData.localPosition
@@ -378,19 +390,18 @@ extension GraphState {
             }
         }
                 
-        self.updateVisibleNodes()
+        // TODO: really, this only makes sense to do for the current visible-graph; how do we know we aren't calling `updateGraphData` from within a nested graph (non-visible) component?
+        document.updateVisibleCanvasItems()
         
-        if let document = self.documentDelegate,
-           let encoderDelegate = self.documentEncoderDelegate {
-            self.initializeDelegate(document: document,
-                                    documentEncoderDelegate: encoderDelegate)
-        }
+        self.initializeDelegate(document: document,
+                                documentEncoderDelegate: documentEncoder)
         
+        // TODO: `document.updateVisibleCanvasItems()` updates the cache of "which canvas items are visible in the view port?", so why do we then immediately reset that cache down here? Do we need it for the portLocation updates?
         // Updates node visibility data
         // Set all nodes visible so that input/output fields' UI update if we enter a new traversal level
-        self.visibleNodesViewModel.resetCache()
+        self.visibleNodesViewModel.resetVisibleCanvasItemsCache()
     }
-    
+        
     @MainActor
     func getVisualEdgeData(groupNodeFocused: NodeId?) -> [ConnectedEdgeData] {
         let canvasItemsAtThisTraversalLevel = self

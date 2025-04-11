@@ -326,7 +326,8 @@ extension LayerInputObserver {
     @MainActor 
     func wasPackModeToggled() {
                 
-        guard let graph = self.graphDelegate else {
+        guard let graph = self.graphDelegate,
+              let document = graph.documentDelegate else {
             fatalErrorIfDebug("wasPackModeToggled: did not have graph delegate")
             return
         }
@@ -366,7 +367,8 @@ extension LayerInputObserver {
             self._packedData.rowObserver.setValuesInInput(values)
         }
         
-        graph.updateGraphData()
+        // TODO: why do we need to do this? Is it updating the UI?
+        graph.updateGraphData(document)
     }
     
     /// Helper only intended for use with ports that don't support unpacked mode.

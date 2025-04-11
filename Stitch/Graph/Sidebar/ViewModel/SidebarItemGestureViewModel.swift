@@ -137,7 +137,7 @@ extension SidebarItemGestureViewModel {
     
     @MainActor
     func didDeleteItem() {
-        self.graphDelegate?.sidebarItemDeleted(itemId: self.id)
+        self.graphDelegate?.documentDelegate?.sidebarItemDeleted(itemId: self.id)
     }
     
     @MainActor
@@ -190,6 +190,6 @@ extension SidebarItemGestureViewModel {
     
     @MainActor
     func sidebarItemDeleted(itemId: SidebarListItemId) {
-        self.graphDelegate?.sidebarItemDeleted(itemId: itemId)
+        self.graphDelegate?.documentDelegate?.sidebarItemDeleted(itemId: itemId)
     }
 }

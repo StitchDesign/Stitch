@@ -93,7 +93,7 @@ struct InfiniteCanvas: Layout {
             graph?.visibleNodesViewModel.infiniteCanvasCache = cache
             
             // Update visible nodes (fixes init case)
-            graph?.updateVisibleNodes()
+            graph?.documentDelegate?.updateVisibleCanvasItems()
         }
         
         return cache

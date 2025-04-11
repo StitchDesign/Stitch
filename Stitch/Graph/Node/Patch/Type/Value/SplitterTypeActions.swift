@@ -39,7 +39,7 @@ struct SplitterTypeChanged: StitchDocumentEvent {
             activeIndex: state.activeIndex)
         
         // Forces group port view models to update
-        graph.updateGraphData()
+        graph.updateGraphData(state)
 
         // Recalculate the graph, since we may have flattened an input on a splitter node and so that output should be flat as well (happens via node eval).
         graph.calculateFullGraph()
