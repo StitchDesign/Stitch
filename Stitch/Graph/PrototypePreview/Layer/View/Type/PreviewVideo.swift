@@ -67,7 +67,7 @@ struct PreviewVideoLayer: View {
                          volume: volume)
             
         // .frame is set VideoDisplayView
-        .modifier(PreviewCommonModifierWithoutFrame(
+        .modifier(PreviewCommonModifier(
             document: document,
             graph: graph,
             layerViewModel: layerViewModel,

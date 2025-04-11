@@ -126,7 +126,9 @@ struct ImageDisplayView: View {
     // TODO: separate out this PortView thumbnail-display case; there everything should be much simpler, since we always have a static size and always .fit the image with preserverd aspect ratio
     var fitStyle: VisualMediaFitStyle? // nil when used by PortView to display thumbnail
     
-    var isClipped: Bool
+    let isClipped: Bool
+    
+    let sizingScenario: SizingScenario
 
     var body: some View {
         let image = imageView // set aspectRatio, frame dimensions etc.
@@ -149,7 +151,8 @@ struct ImageDisplayView: View {
         switch imageDisplaySize.scenario {
 
         case .autoDimensions:
-            if let fitStyle = fitStyle {
+            if let fitStyle = fitStyle,
+               sizingScenario == .auto {
                 return view
                     .aspectRatio(contentMode: fitStyle.asContentMode)
                 // Use the explicit `imageDisplaySize`, since that was used for positioning and already correctly reflects the resource's size
@@ -227,7 +230,8 @@ struct NilImageView: View {
                          imageDisplaySize: INLINE_IMAGE_DISPLAY_SIZE,
                          opacity: IMAGE_INLINE_DISPLAY_OPACITY,
                          fitStyle: .fit,
-                         isClipped: IMAGE_INLINE_DISPLAY_CLIPPED)
+                         isClipped: IMAGE_INLINE_DISPLAY_CLIPPED,
+                         sizingScenario: .auto)
     }
 }
 
@@ -266,6 +270,7 @@ struct PreviewImageLayer: View {
     let parentIsScrollableGrid: Bool
     
     let isClipped: Bool
+    let sizingScenario: SizingScenario
 
     var imageDisplaySize: ImageDisplaySize {
         // actual calculated size at which we're displaying the image
@@ -292,14 +297,15 @@ struct PreviewImageLayer: View {
                          imageDisplaySize: imageDisplaySize,
                          opacity: opacity,
                          fitStyle: fitStyle,
-                         isClipped: isClipped)
+                         isClipped: isClipped,
+                         sizingScenario: sizingScenario)
         .modifier(LayerSizeReader(viewModel: layerViewModel,
                                  isPinnedViewRendering: isPinnedViewRendering))
         .modifier(PreviewWindowCoordinateSpaceReader(
             viewModel: layerViewModel,
             isPinnedViewRendering: isPinnedViewRendering,
             pinMap: graph.pinMap))
-        .modifier(PreviewCommonModifierWithoutFrame(
+        .modifier(PreviewCommonModifier(
             document: document,
             graph: graph,
             layerViewModel: layerViewModel,

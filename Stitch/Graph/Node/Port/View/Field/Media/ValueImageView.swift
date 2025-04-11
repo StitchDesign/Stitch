@@ -34,7 +34,8 @@ struct ValueImageView: View {
             imageDisplaySize: INLINE_IMAGE_DISPLAY_SIZE,
             opacity: IMAGE_INLINE_DISPLAY_OPACITY,
             fitStyle: .fit,
-            isClipped: IMAGE_INLINE_DISPLAY_CLIPPED)
+            isClipped: IMAGE_INLINE_DISPLAY_CLIPPED,
+            sizingScenario: .auto)
             // white background for parts of display area not covered
             // due to image's aspect ratio.
             .background(.white)

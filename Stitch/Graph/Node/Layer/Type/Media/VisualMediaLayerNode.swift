@@ -103,7 +103,8 @@ struct ImageLayerView: View {
             parentSize: parentSize,
             parentDisablesPosition: parentDisablesPosition,
             parentIsScrollableGrid: parentIsScrollableGrid,
-            isClipped: viewModel.isClipped.getBool ?? false)
+            isClipped: viewModel.isClipped.getBool ?? false,
+            sizingScenario: viewModel.getSizingScenario)
     }
 }
 

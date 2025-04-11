@@ -56,7 +56,8 @@ struct VideoDisplayView: View {
                         resourceSize: image.size),
                     opacity: opacity,
                     fitStyle: fitStyle,
-                    isClipped: isClipped)
+                    isClipped: isClipped,
+                    sizingScenario: layerViewModel.getSizingScenario)
             } else {
                 ScrubbedVideoView(videoPlayer: videoPlayer,
                                   fitStyle: fitStyle,
