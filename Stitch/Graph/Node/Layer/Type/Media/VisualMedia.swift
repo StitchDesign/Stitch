@@ -29,12 +29,11 @@ struct ImageLayerNode: LayerNodeDefinition {
         .shadowColor,
         .shadowOpacity,
         .shadowRadius,
-        .shadowOffset
+        .shadowOffset,
+        .size
     ])
         .union(.layerEffects)
         .union(.strokeInputs)
-        .union(.aspectRatio)
-        .union(.sizing)
         .union(.pinning)
         .union(.layerPaddingAndMargin)
         .union(.offsetInGroup)
