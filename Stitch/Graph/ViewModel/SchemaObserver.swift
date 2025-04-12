@@ -20,7 +20,7 @@ protocol SchemaObserver: AnyObject, Identifiable {
     func createSchema() -> CodableSchema
     
     @MainActor
-    func onPrototypeRestart()
+    func onPrototypeRestart(document: StitchDocumentViewModel)
 }
 
 protocol SchemaObserverIdentifiable: SchemaObserver where CodableSchema: CodableIdentifiable,
@@ -135,7 +135,7 @@ extension Array where Element: Identifiable & AnyObject {
 
 extension Array where Element: SchemaObserver {
     @MainActor
-    func onPrototypeRestart() {
-        self.forEach { $0.onPrototypeRestart() }
+    func onPrototypeRestart(document: StitchDocumentViewModel) {
+        self.forEach { $0.onPrototypeRestart(document: document) }
     }
 }

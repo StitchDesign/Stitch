@@ -65,7 +65,7 @@ final class DelayOneEvalObserver: NodeEphemeralObservable {
 }
 
 extension DelayOneEvalObserver {
-    func onPrototypeRestart() {
+    func onPrototypeRestart(document: StitchDocumentViewModel) {
         self.nextOutput = DelayOneNode.defaultUserVisibleType.defaultPortValue
     }
 }

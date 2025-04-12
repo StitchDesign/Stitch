@@ -9,13 +9,23 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+extension NodeViewModel {
+    @MainActor
+    func getComputedMediaObjects() -> [StitchMediaObject] {
+        self.ephemeralObservers?.compactMap {
+            ($0 as? MediaEvalOpObservable)?.computedMedia?.mediaObject
+        } ?? []
+    }
+}
+
 extension InputNodeRowObserver {
     /// Removes edges to some observer and conducts the following steps;
     /// 1. Removes connection by deleting reference to upstream output observer.
     /// 2. Flattens values.
     /// 3. Returns side effects for media which needs to be cleared.
     @MainActor
-    func removeUpstreamConnection(isVisible: Bool? = nil) {
+    func removeUpstreamConnection(isVisible: Bool? = nil,
+                                  node: NodeViewModel) {
         
         guard let upstreamOutputObserver = self.upstreamOutputObserver else {
             log("InputNodeRowObserver: removeUpstreamConnection: could not find upstream output observer")
@@ -34,12 +44,12 @@ extension InputNodeRowObserver {
 
         // Remove videos for disconnected visual media layers.
         // Check if the input coordinate of the removed edge came from an image or video layer.
-        if self.nodeKind.isVisualMediaLayerNode,
+        if node.kind.isVisualMediaLayerNode,
            // Only look at this input if it is the media input
            self.id.isMediaSelectorLocation {
             if willUpstreamBeDisconnected,
                let upstreamOutputObserver = self.upstreamOutputObserver {
-                upstreamOutputObserver.getComputedMediaObjects().forEach {
+                node.getComputedMediaObjects().forEach {
                     if let video = $0.video {
                         video.muteSound()
                     }
@@ -51,7 +61,7 @@ extension InputNodeRowObserver {
         }
 
         // Remove audio from disconnected speaker nodes.
-        else if self.nodeKind.isSpeakerNode,
+        else if node.kind.isSpeakerNode,
                 // Only look at this input if it is the media input
                 self.id.isMediaSelectorLocation,
                 let upstreamObserverNode = upstreamOutputObserver.nodeDelegate {
@@ -123,8 +133,11 @@ extension GraphState {
         }
 
         // Runs logic to disconnect existing media conntected by edge
-        if downstreamInputObserver.upstreamOutputCoordinate != nil {
-            downstreamInputObserver.removeUpstreamConnection()
+        if downstreamInputObserver.upstreamOutputCoordinate != nil,
+           // TODO: just reuse the `downstreamNode`?
+           let downstreamInputObserverNode = self.getNode(downstreamInputObserver.id.nodeId) {
+            downstreamInputObserver.removeUpstreamConnection(
+                node: downstreamInputObserverNode)
         }
         
         // Sets edge
@@ -160,12 +173,16 @@ extension NodeViewModel {
     @MainActor
     func removeIncomingEdge(at coordinate: NodeIOCoordinate,
                             graph: GraphState) {
-        guard let inputObserver = self.getInputRowObserver(for: coordinate.portType) else {
+        guard let inputObserver = self.getInputRowObserver(for: coordinate.portType),
+              let node = graph.getNode(coordinate.nodeId) else {
             log("NodeViewModel: removeIncomingEdge: could not find observer for input \(coordinate)")
             return
         }
         
-        inputObserver.removeUpstreamConnection(isVisible: self.isVisibleInFrame(graph.visibleCanvasIds, graph.selectedSidebarLayers))
+        inputObserver.removeUpstreamConnection(
+            isVisible: self.isVisibleInFrame(graph.visibleCanvasIds,
+                                             graph.selectedSidebarLayers),
+            node: node)
     }
 }
 

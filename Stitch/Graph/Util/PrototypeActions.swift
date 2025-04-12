@@ -9,13 +9,9 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-struct PrototypeRestartedAction: GraphEvent {
-    func handle(state: GraphState) {
+struct PrototypeRestartedAction: StitchDocumentEvent {
+    func handle(state: StitchDocumentViewModel) {
         log("PrototypeRestartedAction called")
-        if let documentDelegate = state.documentDelegate {
-            documentDelegate.onPrototypeRestart()
-        } else {
-            fatalErrorIfDebug()
-        }
+        state.onPrototypeRestart(document: state)
     }
 }

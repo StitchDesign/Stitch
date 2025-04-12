@@ -54,7 +54,7 @@ extension StitchMasterComponent {
         return component
     }
     
-    func onPrototypeRestart() { }
+    func onPrototypeRestart(document: StitchDocumentViewModel) { }
     
     @MainActor func initializeDelegate(parentGraph: GraphState) {
         self.parentGraph = parentGraph

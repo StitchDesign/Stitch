@@ -70,7 +70,8 @@ extension GraphState {
             } else if currentType == .input {
                 if let inputObserver = splitterNode.getInputRowObserver(for: .portIndex(0)) {
                     inputObserver
-                        .removeUpstreamConnection(isVisible: splitterNode.isVisibleInFrame(self.visibleCanvasIds, self.selectedSidebarLayers))
+                        .removeUpstreamConnection(isVisible: splitterNode.isVisibleInFrame(self.visibleCanvasIds, self.selectedSidebarLayers),
+                                                  node: splitterNode)
                 }
             }
 
@@ -88,7 +89,8 @@ extension GraphState {
             if currentType == .input {
                 if let inputObserver = splitterNode.getInputRowObserver(for: .portIndex(0)) {
                     inputObserver
-                        .removeUpstreamConnection(isVisible: splitterNode.isVisibleInFrame(self.visibleCanvasIds, self.selectedSidebarLayers))
+                        .removeUpstreamConnection(isVisible: splitterNode.isVisibleInFrame(self.visibleCanvasIds, self.selectedSidebarLayers),
+                                                  node: splitterNode)
                 }
             }
         }

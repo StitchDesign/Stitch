@@ -42,7 +42,7 @@ final class MouseNodeState: NodeEphemeralObservable {
     var position: CGPoint = .zero
     var velocity: CGPoint = .zero
     
-    func onPrototypeRestart() {
+    func onPrototypeRestart(document: StitchDocumentViewModel) {
         self.isDown = false
         self.position = .zero
         self.velocity = .zero

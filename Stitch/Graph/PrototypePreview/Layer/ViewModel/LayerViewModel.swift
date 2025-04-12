@@ -523,9 +523,9 @@ extension LayerViewModel {
     }
     
     @MainActor
-    func onPrototypeRestart() {
+    func onPrototypeRestart(document: StitchDocumentViewModel) {
         // Rest interaction state values
-        self.interactiveLayer.onPrototypeRestart()
+        self.interactiveLayer.onPrototypeRestart(document: document)
         
         if let model3D = self.mediaObject?.model3DEntity,
            let transform = model3D.transform {

@@ -92,12 +92,6 @@ extension NodeRowViewModel {
             }
         }
     }
-    
-    /// Ignores group nodes to ensure computation logic still works.
-    @MainActor
-    var computationNode: NodeViewModel? {
-        self.rowDelegate?.nodeDelegate
-    }
      
     @MainActor
     func initializeDelegate(_ node: NodeViewModel,

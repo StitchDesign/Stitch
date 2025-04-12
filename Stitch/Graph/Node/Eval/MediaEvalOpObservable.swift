@@ -30,7 +30,7 @@ final class MediaReferenceObserver: MediaEvalOpViewable {
         self.mediaViewModel = .init()
     }
     
-    func onPrototypeRestart() { }
+    func onPrototypeRestart(document: StitchDocumentViewModel) { }
 }
 
 final class MediaEvalOpObserver: MediaEvalOpObservable {
@@ -55,7 +55,7 @@ final class VisionOpObserver: MediaEvalOpObservable {
         self.mediaViewModel = .init()
     }
 
-    func onPrototypeRestart() { }
+    func onPrototypeRestart(document: StitchDocumentViewModel) { }
 }
 
 final class ImageClassifierOpObserver: MediaEvalOpObservable {
@@ -69,11 +69,11 @@ final class ImageClassifierOpObserver: MediaEvalOpObservable {
         self.mediaViewModel = .init()
     }
     
-    func onPrototypeRestart() { }
+    func onPrototypeRestart(document: StitchDocumentViewModel) { }
 }
 
 extension MediaEvalOpObserver {
-    @MainActor func onPrototypeRestart() {
+    @MainActor func onPrototypeRestart(document: StitchDocumentViewModel) {
         // MARK: commenting out to fix flashing media, which seems to still reset properly
 //        self.resetMedia()
         
