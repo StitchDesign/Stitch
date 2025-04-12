@@ -44,7 +44,7 @@ extension NodeInfo {
                             outputs: NodeKind.patch(patch).rowDefinitions(for: node.userVisibleType).outputs,
                             //                            supportedTypes: supportedTypes,
                             nodeDescription: patch.nodeDescription,
-                            supportsNewInputs: patch.inputCountChanged.isDefined)
+                            supportsNewInputs: patch.inputCountChanged(graph: graph).isDefined)
         }
 
         let layerNodeInfo = Layer.allCases.map { layer in

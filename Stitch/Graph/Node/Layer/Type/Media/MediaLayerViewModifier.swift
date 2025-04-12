@@ -35,9 +35,11 @@ final actor MediaLayerImportCoordinator {
             
             // Update all row view models
             await MainActor.run {
-                mediaRowObserver?.allRowViewModels.forEach {
-                    $0.activeValueChanged(oldRowType: .asyncMedia,
-                                          newValue: newPortValue)
+                if let graph = mediaRowObserver?.nodeDelegate?.graphDelegate {
+                    mediaRowObserver?.allRowViewModels(graph: graph).forEach {
+                        $0.activeValueChanged(oldRowType: .asyncMedia,
+                                              newValue: newPortValue)
+                    }
                 }
             }
         }

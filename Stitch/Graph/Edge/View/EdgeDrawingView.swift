@@ -56,18 +56,19 @@ struct EdgeFromDraggedOutputView: View {
     }
     
     @MainActor
-    var inputAnchorData: EdgeAnchorDownstreamData? {
+    func inputAnchorData(graph: GraphReader) -> EdgeAnchorDownstreamData? {
         guard let nearestEligibleInput = nearestEligibleInput else {
             return nil
         }
-        return EdgeAnchorDownstreamData(from: nearestEligibleInput)
+        return EdgeAnchorDownstreamData(from: nearestEligibleInput, graph: graph)
     }
     
     var body: some View {
         Group {
             if let downstreamNode = outputDrag.output.nodeDelegate,
                 let outputAnchorData = EdgeAnchorUpstreamData(from: outputRowViewModel,
-                                                              connectedDownstreamNode: downstreamNode),
+                                                              connectedDownstreamNode: downstreamNode,
+                                                              graph: graph),
                let outputPortViewData = outputRowViewModel.portViewData,
                let outputNodeId = outputRowViewModel.canvasItemDelegate?.id,
                let pointFrom = outputRowViewModel.anchorPoint {
@@ -81,13 +82,13 @@ struct EdgeFromDraggedOutputView: View {
                          color: self.color.color(theme),
                          isActivelyDragged: true, // always true for actively-dragged edge
                          firstFrom: outputAnchorData.firstUpstreamRowViewModel.anchorPoint ?? .zero,
-                         firstTo: inputAnchorData?.firstInputRowViewModel.anchorPoint ?? .zero,
+                         firstTo: inputAnchorData(graph: graph)?.firstInputRowViewModel.anchorPoint ?? .zero,
                          lastFrom: outputAnchorData.lastUpstreamRowViewModel.anchorPoint ?? .zero,
-                         lastTo: inputAnchorData?.lastInputRowViewModel.anchorPoint ?? .zero,
+                         lastTo: inputAnchorData(graph: graph)?.lastInputRowViewModel.anchorPoint ?? .zero,
                          firstFromWithEdge: outputAnchorData.firstConnectedUpstreamRowViewModel?.anchorPoint?.y,
                          lastFromWithEdge: outputAnchorData.lastConnectedUpstreamRowViewModel?.anchorPoint?.y,
-                         firstToWithEdge: inputAnchorData?.firstConnectedInputRowViewModel.anchorPoint?.y,
-                         lastToWithEdge: inputAnchorData?.lastConectedInputRowViewModel.anchorPoint?.y,
+                         firstToWithEdge: inputAnchorData(graph: graph)?.firstConnectedInputRowViewModel.anchorPoint?.y,
+                         lastToWithEdge: inputAnchorData(graph: graph)?.lastConectedInputRowViewModel.anchorPoint?.y,
                          totalOutputs: outputAnchorData.totalOutputs,
                          // we never animate the actively dragged edge
                          edgeAnimationEnabled: false)

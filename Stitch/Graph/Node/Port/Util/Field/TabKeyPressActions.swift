@@ -23,7 +23,8 @@ extension StitchDocumentViewModel {
         
         let newFocusedField = node.nextInput(focusedField,
                                              layerInput: layerInputOnCanvas,
-                                             propertySidebarState: self.visibleGraph.propertySidebar)
+                                             propertySidebarState: self.visibleGraph.propertySidebar,
+                                             graph: self.visibleGraph)
 
         log("tabPressed: newFocusedField: \(newFocusedField)")
         self.reduxFocusedField = .textInput(newFocusedField)
@@ -38,7 +39,8 @@ extension StitchDocumentViewModel {
         
         let newFocusedField = node.previousInput(focusedField,
                                                  layerInputOnCanvas: layerInputOnCanvas,
-                                                 propertySidebarState: self.visibleGraph.propertySidebar)
+                                                 propertySidebarState: self.visibleGraph.propertySidebar,
+                                                 graph: self.visibleGraph)
         
         log("shiftTabPressed: newFocusedField: \(newFocusedField)")
         self.reduxFocusedField = .textInput(newFocusedField)
@@ -116,7 +118,8 @@ extension NodeViewModel {
     func nextInput(_ currentFocusedField: FieldCoordinate,
                    // non-nil = we're tabbing through this layer input on the canvas
                    layerInput: LayerInputPort? = nil,
-                   propertySidebarState: PropertySidebarObserver) -> FieldCoordinate {
+                   propertySidebarState: PropertySidebarObserver,
+                   graph: GraphReader) -> FieldCoordinate {
         
         let currentInputCoordinate: NodeRowViewModelId = currentFocusedField.rowId
         let isLayerInspector = layerInput != nil
@@ -125,7 +128,7 @@ extension NodeViewModel {
             
         case .portIndex(let portId):
                         
-            let eligibleFields: PortIdEligibleFields = self.allInputRowViewModels.portIdEligibleFields(isLayerInputInspector: isLayerInspector)
+            let eligibleFields: PortIdEligibleFields = self.allInputRowViewModels(graph: graph).portIdEligibleFields(isLayerInputInspector: isLayerInspector)
             
             guard let currentEligibleField = eligibleFields.first(where: {
                 $0 == .init(portId: portId,
@@ -347,7 +350,8 @@ extension NodeViewModel {
     func previousInput(_ currentFocusedField: FieldCoordinate,
                        // non-nil = we're tabbing through this layer input on the canvas
                        layerInputOnCanvas: LayerInputPort? = nil,
-                       propertySidebarState: PropertySidebarObserver) -> FieldCoordinate {
+                       propertySidebarState: PropertySidebarObserver,
+                       graph: GraphReader) -> FieldCoordinate {
         
         let currentInputCoordinate = currentFocusedField.rowId
         let isLayerInputInspector = layerInputOnCanvas != nil
@@ -355,7 +359,8 @@ extension NodeViewModel {
         switch currentInputCoordinate.portType {
         
         case .portIndex(let portId):
-            let eligibleFields: PortIdEligibleFields = self.allNodeInputRowViewModels.portIdEligibleFields(isLayerInputInspector: isLayerInputInspector)
+            let eligibleFields: PortIdEligibleFields = self.allNodeInputRowViewModels(graph: graph)
+                .portIdEligibleFields(isLayerInputInspector: isLayerInputInspector)
               
             guard let currentEligibleField = eligibleFields.first(where: {
                 // eligible fields are equatable

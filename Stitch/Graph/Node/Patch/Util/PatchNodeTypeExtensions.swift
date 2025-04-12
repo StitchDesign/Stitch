@@ -32,20 +32,20 @@ extension UserVisibleType {
 extension NodeViewModel {
     /// Certain patch nodes can have varying input counts (i.e. "add" node).
     @MainActor
-    var canInputCountsChange: Bool {
-        self.kind.getPatch?.inputCountChanged.isDefined ?? false
+    func canInputCountsChange(graph: GraphReader) -> Bool {
+        self.kind.getPatch?.inputCountChanged(graph: graph).isDefined ?? false
     }
     
     @MainActor
-    var canAddInputs: Bool {
-        self.kind.getPatch?.inputCountChanged.isDefined ?? false
+    func canAddInputs(graph: GraphReader) -> Bool {
+        self.kind.getPatch?.inputCountChanged(graph: graph).isDefined ?? false
     }
     
     @MainActor
-    var canRemoveInputs: Bool {
+    func canRemoveInputs(graph: GraphReader) -> Bool {
         if let patch = self.kind.getPatch,
         let minimumInputs = patch.minimumInputs {
-            return patch.inputCountChanged.isDefined && (self.inputsRowCount > minimumInputs)
+            return patch.inputCountChanged(graph: graph).isDefined && (self.inputsRowCount > minimumInputs)
         }
         
         // Always false for LayerNodes and GroupNodes
@@ -80,12 +80,12 @@ extension Patch {
     }
     
     @MainActor
-    var inputCountChanged: InputsChangedHandler? {
+    func inputCountChanged(graph: GraphReader) -> InputsChangedHandler? {
         guard let minimumInputCount = self.minimumInputs else {
             return nil
         }
         
-        return minimumInputsChangedHandler(minimumInputs: minimumInputCount)
+        return minimumInputsChangedHandler(minimumInputs: minimumInputCount, graph: graph)
     }
 
     var availableNodeTypes: Set<UserVisibleType> {
@@ -144,12 +144,12 @@ extension Patch {
 typealias InputsChangedHandler = (NodeViewModel, Bool) -> ()
 
 @MainActor
-func minimumInputsChangedHandler(minimumInputs: Int) -> InputsChangedHandler {
+func minimumInputsChangedHandler(minimumInputs: Int, graph: GraphReader) -> InputsChangedHandler {
     { (node: NodeViewModel, added: Bool) in
         if added {
             node.inputAdded()
         } else {
-            node.inputRemoved(minimumInputs: minimumInputs)
+            node.inputRemoved(minimumInputs: minimumInputs, graph: graph)
         }
     }
 }

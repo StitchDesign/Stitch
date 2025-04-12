@@ -98,21 +98,21 @@ extension NodeViewModel {
     
     
     @MainActor
-    var allInputRowViewModels: [InputNodeRowViewModel] {
+    func allInputRowViewModels(graph: GraphReader) -> [InputNodeRowViewModel] {
         self.getAllInputsObservers()
-            .flatMap { $0.allRowViewModels }
+            .flatMap { $0.allRowViewModels(graph: graph) }
     }
     
     @MainActor
-    var allNodeInputRowViewModels: [InputNodeRowViewModel] {
-        self.allInputRowViewModels
+    func allNodeInputRowViewModels(graph: GraphReader) -> [InputNodeRowViewModel] {
+        self.allInputRowViewModels(graph: graph)
             .filter { $0.id.isNode }
     }
     
     @MainActor
-    var allOutputRowViewModels: [OutputNodeRowViewModel] {
+    func allOutputRowViewModels(graph: GraphReader) -> [OutputNodeRowViewModel] {
         self.getAllOutputsObservers()
-            .flatMap { $0.allRowViewModels }
+            .flatMap { $0.allRowViewModels(graph: graph) }
     }
     
     @MainActor var patchNodeViewModel: PatchNodeViewModel? {

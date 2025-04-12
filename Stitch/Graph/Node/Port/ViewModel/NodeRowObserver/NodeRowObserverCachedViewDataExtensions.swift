@@ -18,16 +18,17 @@ import StitchSchemaKit
 extension InputNodeRowObserver {
     
     @MainActor
-    func refreshConnectedCanvasItemsCache() {
-        self.allRowViewModels.forEach {
-            $0.connectedCanvasItems = $0.findConnectedCanvasItems(rowObserver: self)
+    func refreshConnectedCanvasItemsCache(graph: GraphReader) {
+        self.allRowViewModels(graph: graph).forEach {
+            $0.connectedCanvasItems = $0.findConnectedCanvasItems(rowObserver: self, graph: graph)
         }
     }
     
     @MainActor
     func updatePortColorAndUpstreamOutputPortColor(selectedEdges: Set<PortEdgeUI>,
-                                                   drawingObserver: EdgeDrawingObserver) {
-        self.allRowViewModels.forEach {
+                                                   drawingObserver: EdgeDrawingObserver,
+                                                   graph: GraphReader) {
+        self.allRowViewModels(graph: graph).forEach {
             $0.updatePortColor(hasEdge: self.hasEdge,
                                hasLoop: self.hasLoopedValues,
                                selectedEdges: selectedEdges,
@@ -37,15 +38,17 @@ extension InputNodeRowObserver {
         // Note: previously this was only done when node-tapped
         // Update this input's upstream-output's port color
         self.upstreamOutputObserver?.updateRowViewModelsPortColor(selectedEdges: selectedEdges,
-                                                                  drawingObserver: drawingObserver)
+                                                                  drawingObserver: drawingObserver,
+                                                                  graph: graph)
     }
 }
 
 extension NodeRowObserver {
     @MainActor
     func updateRowViewModelsPortColor(selectedEdges: Set<PortEdgeUI>,
-                                      drawingObserver: EdgeDrawingObserver) {
-        self.allRowViewModels.forEach {
+                                      drawingObserver: EdgeDrawingObserver,
+                                      graph: GraphReader) {
+        self.allRowViewModels(graph: graph).forEach {
             $0.updatePortColor(hasEdge: self.hasEdge,
                                hasLoop: self.hasLoopedValues,
                                selectedEdges: selectedEdges,
@@ -57,24 +60,27 @@ extension NodeRowObserver {
 extension OutputNodeRowObserver {
     
     @MainActor
-    func refreshConnectedCanvasItemsCache() {
-        self.allRowViewModels.forEach {
-            $0.connectedCanvasItems = $0.findConnectedCanvasItems(rowObserver: self)
+    func refreshConnectedCanvasItemsCache(graph: GraphReader) {
+        self.allRowViewModels(graph: graph).forEach {
+            $0.connectedCanvasItems = $0.findConnectedCanvasItems(rowObserver: self, graph: graph)
         }
     }
     
     @MainActor
     func updatePortColorAndDownstreamInputsPortColors(selectedEdges: Set<PortEdgeUI>,
-                                                      drawingObserver: EdgeDrawingObserver) {
+                                                      drawingObserver: EdgeDrawingObserver,
+                                                      graph: GraphReader) {
         self.updateRowViewModelsPortColor(selectedEdges: selectedEdges,
-                                          drawingObserver: drawingObserver)
+                                          drawingObserver: drawingObserver,
+                                          graph: graph)
         
         // Note: previously this was only done when node-tapped
         // Update this output's downstream inputs' port colors
         self.getDownstreamInputsObservers().forEach { (inputObserver: InputNodeRowObserver) in
             // TODO: the input observer is connected to this output observer, so why can't I use outputObserver.hasEdge etc.? Why must I retrieve the downstream input's observer? Does this indicate something is out of sync?
             inputObserver.updateRowViewModelsPortColor(selectedEdges: selectedEdges,
-                                                       drawingObserver: drawingObserver)
+                                                       drawingObserver: drawingObserver,
+                                                       graph: graph)
         }
     }
 }

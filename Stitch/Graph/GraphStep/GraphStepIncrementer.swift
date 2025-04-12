@@ -90,13 +90,13 @@ extension GraphState {
 // DEBUG HELPERS
 extension NodeViewModel {
     @MainActor
-    func allInputFieldObserverValues() -> FieldValues {
-        self.allInputRowViewModels.allFieldObserverValues()
+    func allInputFieldObserverValues(graph: GraphReader) -> FieldValues {
+        self.allInputRowViewModels(graph: graph).allFieldObserverValues()
     }
     
     @MainActor
-    func allOutputFieldObserverValues() -> FieldValues {
-        self.allOutputRowViewModels.allFieldObserverValues()
+    func allOutputFieldObserverValues(graph: GraphReader) -> FieldValues {
+        self.allOutputRowViewModels(graph: graph).allFieldObserverValues()
     }
 }
 

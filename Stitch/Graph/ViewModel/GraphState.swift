@@ -244,11 +244,12 @@ extension GraphState {
         /// Updates port colors and port colors' cached data (connected-canvas-items)
         self.visibleNodesViewModel.nodes.values.forEach { node in
             // Update cache first:
-            node.updateObserversConnectedItemsCache()
+            node.updateObserversConnectedItemsCache(graph: self)
             // Then calculate port colors:
             node.updateObserversPortColorsAndConnectedItemsPortColors(
                 selectedEdges: self.selectedEdges,
-                drawingObserver: self.edgeDrawingObserver)
+                drawingObserver: self.edgeDrawingObserver,
+                graph: self)
         }
         
         
@@ -422,7 +423,7 @@ extension GraphState {
         }
         
         return connectedInputs.compactMap { connection in
-            ConnectedEdgeData(downstreamRowObserver: connection)
+            ConnectedEdgeData(downstreamRowObserver: connection, graph: self)
         }
     }
 }

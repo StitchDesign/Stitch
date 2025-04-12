@@ -106,11 +106,13 @@ struct MaybeUpdatePortColor: GraphEvent {
         case .input:
             state.getInputRowObserver(rowId.asNodeIOCoordinate)?
                 .updatePortColorAndUpstreamOutputPortColor(selectedEdges: state.selectedEdges,
-                                                           drawingObserver: state.edgeDrawingObserver)
+                                                           drawingObserver: state.edgeDrawingObserver,
+                                                           graph: state)
         case .output:
             state.getOutputRowObserver(rowId.asNodeIOCoordinate)?
                 .updatePortColorAndDownstreamInputsPortColors(selectedEdges: state.selectedEdges,
-                                                              drawingObserver: state.edgeDrawingObserver)
+                                                              drawingObserver: state.edgeDrawingObserver,
+                                                              graph: state)
         }
     }
 }

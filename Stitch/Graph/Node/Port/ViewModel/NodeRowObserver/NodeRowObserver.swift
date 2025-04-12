@@ -43,7 +43,8 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
     
     static var nodeIOType: NodeIO { get }
     
-    @MainActor var allRowViewModels: [RowViewModelType] { get }
+//    @MainActor var allRowViewModels: [RowViewModelType] { get }
+    @MainActor func allRowViewModels(graph: GraphReader) -> [RowViewModelType] // { get }
             
     @MainActor var nodeDelegate: NodeViewModel? { get set }
     
@@ -186,7 +187,7 @@ extension NodeRowObserver {
         }
                     
         // Update visual color data
-        self.allRowViewModels.forEach {
+        self.allRowViewModels(graph: graph).forEach {
             $0.updatePortColor(hasEdge: self.hasEdge,
                                hasLoop: self.hasLoopedValues,
                                selectedEdges: graph.selectedEdges,
@@ -208,12 +209,12 @@ extension NodeRowObserver {
     /// Multiple row view models could exist in the event of a group splitter, where a view model exists for both the splitter
     /// and the parent canvas group. We pick the view model that is currently visible (aka inside the currently focused group).
     @MainActor
-    var nodeRowViewModel: RowViewModelType? {
-        self.allRowViewModels.first {
+    func nodeRowViewModel(graph: GraphReader) -> RowViewModelType? {
+        self.allRowViewModels(graph: graph).first {
             // is for node (rather than layer inspector)
             $0.id.isNode &&
             // is currently visible in selected group
-            $0.graphDelegate?.documentDelegate?.groupNodeFocused?.groupNodeId == $0.canvasItemDelegate?.parentGroupNodeId
+            graph.groupNodeFocused?.groupNodeId == $0.canvasItemDelegate?.parentGroupNodeId
         }
     }
 }

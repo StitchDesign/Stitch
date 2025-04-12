@@ -98,7 +98,8 @@ extension InputNodeRowObserver {
         guard let node = graph.getNode(self.id.nodeId) else {
             self.setValuesInRowObserver(incomingValues,
                                         selectedEdges: .init(),
-                                        drawingObserver: .init())
+                                        drawingObserver: .init(),
+                                        graph: graph)
             return
         }
 
@@ -119,7 +120,8 @@ extension InputNodeRowObserver {
         // Set the coerced values in the input
         self.setValuesInRowObserver(newValues,
                                     selectedEdges: graph.selectedEdges,
-                                    drawingObserver: graph.edgeDrawingObserver)
+                                    drawingObserver: graph.edgeDrawingObserver,
+                                    graph: graph)
         
         // Update other parts of graph state in response to input change
         self.inputPostProcessing(oldValues: oldValues,
@@ -200,9 +202,9 @@ extension InputNodeRowObserver {
         self.upstreamOutputCoordinate.isDefined
     }
     
-    @MainActor var allRowViewModels: [InputNodeRowViewModel] {
-        guard let node = self.nodeDelegate,
-              let graph = node.graphDelegate else {
+    @MainActor func allRowViewModels(graph: GraphReader) -> [InputNodeRowViewModel] {
+        
+        guard let node = graph.getNode(self.id.nodeId) else {
             return []
         }
         
@@ -227,7 +229,7 @@ extension InputNodeRowObserver {
             if patchNode.splitterNode?.type == .input {
                 // Group id is the only other row view model's canvas's parent ID
                 if let groupNodeId = inputs.first?.canvasItemDelegate?.parentGroupNodeId,
-                   let groupNode = graph.getNodeViewModel(groupNodeId)?.nodeType.groupNode {
+                   let groupNode = graph.getNode(groupNodeId)?.nodeType.groupNode {
                     inputs += groupNode.inputViewModels.filter {
                         $0.rowDelegate?.id == self.id
                     }

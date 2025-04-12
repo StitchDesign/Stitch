@@ -544,13 +544,13 @@ extension NodeViewModel: Identifiable { }
 
 extension NodeViewModel {
     @MainActor
-    func activeIndexChanged(activeIndex: ActiveIndex) {
+    func activeIndexChanged(activeIndex: ActiveIndex, graph: GraphReader) {
         self.getAllInputsObservers().forEach { observer in
             let oldValue = observer.getActiveValue(activeIndex: activeIndex)
             let newValue = PortValue
                 .getActiveValue(allLoopedValues: observer.allLoopedValues,
                                 activeIndex: activeIndex)
-            observer.allRowViewModels.forEach {
+            observer.allRowViewModels(graph: graph).forEach {
                 $0.activeValueChanged(oldValue: oldValue,
                                       newValue: newValue)
             }
@@ -561,7 +561,7 @@ extension NodeViewModel {
             let newValue = PortValue
                 .getActiveValue(allLoopedValues: observer.allLoopedValues,
                                 activeIndex: activeIndex)
-            observer.allRowViewModels.forEach {
+            observer.allRowViewModels(graph: graph).forEach {
                 $0.activeValueChanged(oldValue: oldValue, newValue: newValue)
             }
         }
@@ -667,7 +667,7 @@ extension NodeViewModel {
     }
 
     @MainActor
-    func inputRemoved(minimumInputs: Int) {
+    func inputRemoved(minimumInputs: Int, graph: GraphReader) {
         guard let patchNode = self.patchNode else {
             fatalErrorIfDebug()
             return
@@ -684,7 +684,7 @@ extension NodeViewModel {
             patchNode.inputsObservers = patchNode.inputsObservers.dropLast()
             
             // Remove input view models--fixes behavior for input edit mode
-            let inputViewModels = removedInputObserver.allRowViewModels
+            let inputViewModels = removedInputObserver.allRowViewModels(graph: graph)
             for input in inputViewModels {
                 if let canvas = input.canvasItemDelegate {
                     canvas.inputViewModels = canvas.inputViewModels.filter {

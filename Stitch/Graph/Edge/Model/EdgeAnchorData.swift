@@ -41,21 +41,22 @@ struct EdgeAnchorDownstreamData {
 extension EdgeAnchorUpstreamData {
     @MainActor
     init?(from upstreamRowObserver: OutputNodeRowViewModel,
-          connectedDownstreamNode: NodeViewModel) {
+          connectedDownstreamNode: NodeViewModel,
+          graph: GraphReader) {
         guard let outputsCount = upstreamRowObserver.canvasItemDelegate?.outputViewModels.count,
               let firstUpstreamObserver = upstreamRowObserver.canvasItemDelegate?.outputViewModels.first,
               let lastUpstreamObserver = upstreamRowObserver.canvasItemDelegate?.outputViewModels[safe: outputsCount - 1] else {
             return nil
         }
         
-        let downstreamInputs = connectedDownstreamNode.allInputRowViewModels
+        let downstreamInputs = connectedDownstreamNode.allInputRowViewModels(graph: graph)
         
         // Find top and bottom-most edges from upstream node connecting to this node
         var firstConnectedUpstreamObserver: OutputNodeRowViewModel?
         var lastConnectedUpstreamObserver: OutputNodeRowViewModel?
         downstreamInputs.forEach { downstreamInput in
             // Do nothing if no connection from this input
-            guard let upstreamToThisInput = downstreamInput.rowDelegate?.upstreamOutputObserver?.nodeRowViewModel
+            guard let upstreamToThisInput = downstreamInput.rowDelegate?.upstreamOutputObserver?.nodeRowViewModel(graph: graph)
                 else {
                 return
             }
@@ -83,12 +84,13 @@ extension EdgeAnchorUpstreamData {
 extension EdgeAnchorDownstreamData {
     @MainActor
     init?(from inputRowObserver: InputNodeRowViewModel,
-          upstreamNodeId: CanvasItemId? = nil) {
+          upstreamNodeId: CanvasItemId? = nil,
+          graph: GraphReader) {
         guard let inputsCount = inputRowObserver.canvasItemDelegate?.inputViewModels.count,
               let firstInputObserver = inputRowObserver.canvasItemDelegate?.inputViewModels.first,
               let lastInputObserver = inputRowObserver.canvasItemDelegate?.inputViewModels[safe: inputsCount - 1],
               let canvas = inputRowObserver.canvasItemDelegate,
-              let upstreamConnectedNodeId = upstreamNodeId ?? inputRowObserver.rowDelegate?.upstreamOutputObserver?.nodeRowViewModel?.canvasItemDelegate?.id else {
+              let upstreamConnectedNodeId = upstreamNodeId ?? inputRowObserver.rowDelegate?.upstreamOutputObserver?.nodeRowViewModel(graph: graph)?.canvasItemDelegate?.id else {
             return nil
         }
 
@@ -98,7 +100,7 @@ extension EdgeAnchorDownstreamData {
         var firstConnectedInputObserver: InputNodeRowViewModel?
         var lastConnectedInputObserver: InputNodeRowViewModel?
         allInputs.forEach { input in
-            let upstreamCanvasId = input.rowDelegate?.upstreamOutputObserver?.nodeRowViewModel?.canvasItemDelegate?.id
+            let upstreamCanvasId = input.rowDelegate?.upstreamOutputObserver?.nodeRowViewModel(graph: graph)?.canvasItemDelegate?.id
             if upstreamCanvasId == upstreamConnectedNodeId {
                 guard firstConnectedInputObserver != nil else {
                     firstConnectedInputObserver = input

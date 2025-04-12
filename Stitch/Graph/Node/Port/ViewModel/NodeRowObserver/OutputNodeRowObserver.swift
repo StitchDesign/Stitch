@@ -77,7 +77,8 @@ extension OutputNodeRowObserver {
     func updateValuesInOutput(_ newValues: PortValues, graph: GraphState) {
         self.setValuesInRowObserver(newValues,
                                     selectedEdges: graph.selectedEdges,
-                                    drawingObserver: graph.edgeDrawingObserver)
+                                    drawingObserver: graph.edgeDrawingObserver,
+                                    graph: graph)
         self.outputPostProcessing(graph)
     }
     
@@ -86,11 +87,11 @@ extension OutputNodeRowObserver {
         self.containsDownstreamConnection
     }
     
-    @MainActor var allRowViewModels: [OutputNodeRowViewModel] {
-        guard let node = self.nodeDelegate else {
+    @MainActor func allRowViewModels(graph: GraphReader) -> [OutputNodeRowViewModel] {
+        guard let node = graph.getNode(self.id.nodeId) else {
             return []
         }
-        
+    
         var outputs = [OutputNodeRowViewModel]()
         
         switch node.nodeType {
@@ -107,7 +108,7 @@ extension OutputNodeRowObserver {
             if patchNode.splitterNode?.type == .output {
                 // Group id is the only other row view model's canvas's parent ID
                 if let groupNodeId = outputs.first?.canvasItemDelegate?.parentGroupNodeId,
-                   let groupNode = self.nodeDelegate?.graphDelegate?.getNodeViewModel(groupNodeId)?.nodeType.groupNode {
+                   let groupNode = graph.getNode(groupNodeId)?.nodeType.groupNode {
                     outputs += groupNode.outputViewModels.filter {
                         $0.rowDelegate?.id == self.id
                     }

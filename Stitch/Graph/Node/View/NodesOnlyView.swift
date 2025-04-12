@@ -68,8 +68,8 @@ struct NodesOnlyView: View {
                              isSelected: graph.selection.selectedCanvasItems.contains(canvasNode.id),
                              atleastOneCommentBoxSelected: selection.selectedCommentBoxes.count >= 1,
                              activeGroupId: document.groupNodeFocused,
-                             canAddInput: node.canAddInputs,
-                             canRemoveInput: node.canRemoveInputs,
+                             canAddInput: node.canAddInputs(graph: graph),
+                             canRemoveInput: node.canRemoveInputs(graph: graph),
                              boundsReaderDisabled: false,
                              updateMenuActiveSelectionBounds: false)
                 }
@@ -78,7 +78,7 @@ struct NodesOnlyView: View {
         .onChange(of: self.activeIndex) {
             // Update values when active index changes
             graph.nodes.values.forEach { node in
-                node.activeIndexChanged(activeIndex: self.activeIndex)
+                node.activeIndexChanged(activeIndex: self.activeIndex, graph: graph)
             }
         }
         // Also do this on `initial: true` ?

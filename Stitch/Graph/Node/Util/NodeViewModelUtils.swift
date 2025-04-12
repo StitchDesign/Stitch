@@ -179,21 +179,24 @@ extension NodeViewModel {
     }
     
     @MainActor func updateObserversPortColorsAndConnectedItemsPortColors(selectedEdges: Set<PortEdgeUI>,
-                                                                                 drawingObserver: EdgeDrawingObserver) {
+                                                                         drawingObserver: EdgeDrawingObserver,
+                                                                         graph: GraphReader) {
         self.inputsObservers.forEach {
             $0.updatePortColorAndUpstreamOutputPortColor(selectedEdges: selectedEdges,
-                                                         drawingObserver: drawingObserver)
+                                                         drawingObserver: drawingObserver,
+                                                         graph: graph)
         }
         self.outputsObservers.forEach {
             $0.updatePortColorAndDownstreamInputsPortColors(selectedEdges: selectedEdges,
-                                                            drawingObserver: drawingObserver)
+                                                            drawingObserver: drawingObserver,
+                                                            graph: graph)
         }
     }
     
     // important for determining port color; see `calculatePortColor`
-    @MainActor func updateObserversConnectedItemsCache() {
-        self.inputsObservers.forEach { $0.refreshConnectedCanvasItemsCache() }
-        self.outputsObservers.forEach { $0.refreshConnectedCanvasItemsCache() }
+    @MainActor func updateObserversConnectedItemsCache(graph: GraphReader) {
+        self.inputsObservers.forEach { $0.refreshConnectedCanvasItemsCache(graph: graph) }
+        self.outputsObservers.forEach { $0.refreshConnectedCanvasItemsCache(graph: graph) }
     }
     
     // MARK: heavy perf cost due to human readable strings.**

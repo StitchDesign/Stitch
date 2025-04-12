@@ -24,7 +24,7 @@ extension InputNodeRowViewModel {
         guard var existingDrawingGesture = graphState.edgeDrawingObserver.drawingGesture else {
             log("InputDragged: started")
             
-            guard let upstreamObserver = self.rowDelegate?.upstreamOutputObserver?.nodeRowViewModel else {
+            guard let upstreamObserver = self.rowDelegate?.upstreamOutputObserver?.nodeRowViewModel(graph: graphState) else {
 //                fatalErrorIfDebug()
                 return
             }

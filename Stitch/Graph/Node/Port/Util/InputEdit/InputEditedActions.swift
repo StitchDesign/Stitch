@@ -68,7 +68,7 @@ extension InputNodeRowObserver {
             return
         }
     
-        graph.confirmInputIsVisibleInFrame(self)
+        graph.confirmInputIsVisibleInFrame(self, graph: graph)
         
         let parentPortValue = self.getActiveValue(activeIndex: activeIndex)
 
@@ -107,7 +107,7 @@ extension InputNodeRowObserver {
              
             
             self.setValuesInInput([newValue])
-            self.immediatelyUpdateFieldObserversAfterInputEdit(newValue)
+            self.immediatelyUpdateFieldObserversAfterInputEdit(newValue, graph: graph)
         }
         
         // If we edited a field on a layer-size input, we may need to block or unblock certain other fields.

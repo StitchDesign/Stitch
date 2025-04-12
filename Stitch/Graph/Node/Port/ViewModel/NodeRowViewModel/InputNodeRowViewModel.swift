@@ -46,9 +46,9 @@ final class InputNodeRowViewModel: NodeRowViewModel {
 
 extension InputNodeRowViewModel {
     @MainActor
-    func findConnectedCanvasItems(rowObserver: InputNodeRowObserver) -> CanvasItemIdSet {
+    func findConnectedCanvasItems(rowObserver: InputNodeRowObserver, graph: GraphReader) -> CanvasItemIdSet {
         guard let upstreamOutputObserver = rowObserver.upstreamOutputObserver,
-              let upstreamNodeRowViewModel = upstreamOutputObserver.nodeRowViewModel,
+              let upstreamNodeRowViewModel = upstreamOutputObserver.nodeRowViewModel(graph: graph),
               let upstreamId = upstreamNodeRowViewModel.canvasItemDelegate?.id else {
             return .init()
         }

@@ -17,7 +17,7 @@ struct InputAddedAction: GraphEventWithResponse {
         log("InputAddedAction handle called")
 
         if let node = state.getNodeViewModel(nodeId),
-           let inputChanger = node.kind.getPatch?.inputCountChanged {
+           let inputChanger = node.kind.getPatch?.inputCountChanged(graph: state) {
 
             // (node: node, added?: true)
             inputChanger(node, true)
@@ -39,7 +39,7 @@ struct InputRemovedAction: GraphEventWithResponse {
         log("InputRemovedAction handle called")
 
         if let node = state.getNodeViewModel(nodeId),
-           let inputChanger = node.kind.getPatch?.inputCountChanged,
+           let inputChanger = node.kind.getPatch?.inputCountChanged(graph: state),
            // It's always the last input that is removed.
            let lastObserver = node.getAllInputsObservers().last {
 

@@ -98,6 +98,8 @@ extension GraphState {
                             activeIndex: ActiveIndex,
                             wasAdjustmentBarSelection: Bool = false) {
         
+        let graph = self
+        
         let nodeId = input.id.nodeId
         
         // TODO: debug: why was input.nodeDelegate `nil` for e.g. the padding layer-input but not the size layer-input, and only in the context of generating an LLM action?
@@ -107,7 +109,7 @@ extension GraphState {
             return
         }
         
-        self.confirmInputIsVisibleInFrame(input)
+        self.confirmInputIsVisibleInFrame(input, graph: graph)
                 
         // if we had a value, and the value was different than the existing value,
         // THEN we detach the edge.
@@ -145,14 +147,14 @@ extension GraphState {
         
         // Only change the input if valued actually changed.
         input.setValuesInInput([value])
-        input.immediatelyUpdateFieldObserversAfterInputEdit(value)
+        input.immediatelyUpdateFieldObserversAfterInputEdit(value, graph: graph)
         
         self.scheduleForNextGraphStep(nodeId)
     }
     
     @MainActor
-    func confirmInputIsVisibleInFrame(_ input: InputNodeRowObserver) {
-        input.allRowViewModels.forEach { rowViewModel in
+    func confirmInputIsVisibleInFrame(_ input: InputNodeRowObserver, graph: GraphReader) {
+        input.allRowViewModels(graph: graph).forEach { rowViewModel in
             // If we're editing a field on the canvas (pacth, or layer-input-on-canvas),
             // that field must be 'visible in frame.'
             // If the field is not visible, log this to Sentry and manually set the canvas item visible.
@@ -177,7 +179,7 @@ extension InputNodeRowObserver {
     // Immediately update the field observers; do not wait until graph-step-based UI field updater runs.
     // Useful when e.g. user enters input faster than our UI update FPS
     @MainActor
-    func immediatelyUpdateFieldObserversAfterInputEdit(_ value: PortValue) {
-        self.allRowViewModels.forEach { $0.updateFields(value) }
+    func immediatelyUpdateFieldObserversAfterInputEdit(_ value: PortValue, graph: GraphReader) {
+        self.allRowViewModels(graph: graph).forEach { $0.updateFields(value) }
     }
 }

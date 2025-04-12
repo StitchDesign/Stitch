@@ -10,7 +10,6 @@ import Foundation
 
 @Observable
 final class OutputNodeRowViewModel: NodeRowViewModel {
-    
     typealias PortViewType = OutputPortViewData
     static let nodeIO: NodeIO = .output
     
@@ -39,7 +38,7 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
 
 extension OutputNodeRowViewModel {
     @MainActor
-    func findConnectedCanvasItems(rowObserver: OutputNodeRowObserver) -> CanvasItemIdSet {
+    func findConnectedCanvasItems(rowObserver: OutputNodeRowObserver, graph: GraphReader) -> CanvasItemIdSet {
         let downstreamCanvases = rowObserver.getConnectedDownstreamNodes()
         let downstreamCanvasIds = downstreamCanvases.map { $0.id }
         return Set(downstreamCanvasIds)

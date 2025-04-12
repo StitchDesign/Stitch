@@ -22,15 +22,17 @@ struct ConnectedEdgeData: Equatable {
     let zIndex: Double
     
     @MainActor
-    init?(downstreamRowObserver: InputNodeRowViewModel) {
+    init?(downstreamRowObserver: InputNodeRowViewModel,
+          graph: GraphReader) {
         guard let downstreamNode = downstreamRowObserver.nodeDelegate,
-              let upstreamRowObserver = downstreamRowObserver.rowDelegate?.upstreamOutputObserver?.nodeRowViewModel,
+              let upstreamRowObserver = downstreamRowObserver.rowDelegate?.upstreamOutputObserver?.nodeRowViewModel(graph: graph),
               let inputData = EdgeAnchorDownstreamData(
                 from: downstreamRowObserver,
-                upstreamNodeId: upstreamRowObserver.canvasItemDelegate?.id),
+                upstreamNodeId: upstreamRowObserver.canvasItemDelegate?.id,
+                graph: graph),
               let outputData = EdgeAnchorUpstreamData(
                 from: upstreamRowObserver,
-                connectedDownstreamNode: downstreamNode) else {
+                connectedDownstreamNode: downstreamNode, graph: graph) else {
             return nil
         }
         

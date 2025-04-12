@@ -14,9 +14,21 @@ protocol GraphReader {
     @MainActor func getCanvasItem(_ id: CanvasItemId) -> CanvasItemViewModel?
     @MainActor func getInputRowObserver(_ id: InputCoordinate) -> InputNodeRowObserver?
     @MainActor func getOutputRowObserver(_ id: OutputCoordinate) -> OutputNodeRowObserver?
+    
+    // TODO: replace with
+    @MainActor var groupNodeFocused: GroupNodeType? { get }
+    
+    @MainActor var selectedEdges: Set<PortEdgeUI> { get }
+    @MainActor var edgeDrawingObserver: EdgeDrawingObserver { get }
+    
+    @MainActor var currentGraphTime: TimeInterval { get }
 }
 
-extension GraphState: GraphReader { }
+extension GraphState: GraphReader {
+    @MainActor var groupNodeFocused: GroupNodeType? {
+        self.documentDelegate?.groupNodeFocused
+    }
+}
 
 extension GraphReader {
     @MainActor

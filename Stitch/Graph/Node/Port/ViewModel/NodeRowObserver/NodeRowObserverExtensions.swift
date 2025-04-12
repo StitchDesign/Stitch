@@ -18,7 +18,8 @@ extension NodeRowObserver {
     @MainActor
     func setValuesInRowObserver(_ newValues: PortValues,
                                 selectedEdges: Set<PortEdgeUI>,
-                                drawingObserver: EdgeDrawingObserver) {
+                                drawingObserver: EdgeDrawingObserver,
+                                graph: GraphReader) {
         
         self.allLoopedValues = newValues
         
@@ -28,7 +29,7 @@ extension NodeRowObserver {
             self.hasLoopedValues = hasLoop
         }
         
-        self.allRowViewModels.forEach {
+        self.allRowViewModels(graph: graph).forEach {
             $0.updatePortColor(hasEdge: self.hasEdge,
                                hasLoop: self.hasLoopedValues,
                                selectedEdges: selectedEdges,
@@ -64,7 +65,8 @@ extension NodeRowObserver {
         let visibleRowViewModels = self.getVisibleRowViewModels(
             visibleCanvasIds: graph.visibleCanvasIds,
             isFullScreenMode: document.isFullScreenMode,
-            groupNodeFocused: document.groupNodeFocused?.groupNodeId)
+            groupNodeFocused: document.groupNodeFocused?.groupNodeId,
+            graph: graph)
         
         visibleRowViewModels.forEach { rowViewModel in
             rowViewModel.didPortValuesUpdate(
@@ -78,14 +80,15 @@ extension NodeRowObserver {
     @MainActor
     func getVisibleRowViewModels(visibleCanvasIds: CanvasItemIdSet,
                                  isFullScreenMode: Bool,
-                                 groupNodeFocused: NodeId?) -> [Self.RowViewModelType] {
+                                 groupNodeFocused: NodeId?,
+                                 graph: GraphReader) -> [Self.RowViewModelType] {
         // Make sure we're not in full screen mode
 //        guard !graph.isFullScreenMode else {
         guard !isFullScreenMode else {
             return []
         }
         
-        return self.allRowViewModels.filter { rowViewModel in
+        return self.allRowViewModels(graph: graph).filter { rowViewModel in
             
             switch rowViewModel.id.graphItemType {
                 
