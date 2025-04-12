@@ -134,13 +134,9 @@ final class OutputLayerNodeRowData: LayerNodeRowData, Identifiable {
     
     // initialization of inspector row view model needs active index and row obseerver
     @MainActor
-    func initializeDelegate(_ node: NodeViewModel) {
-        guard let graph = self.rowObserver.nodeDelegate?.graphDelegate,
-                let document = graph.documentDelegate else {
-            fatalErrorIfDebug()
-            return
-        }
-        
+    func initializeDelegate(_ node: NodeViewModel,
+                            graph: GraphState,
+                            document: StitchDocumentViewModel) {
         self.rowObserver.initializeDelegate(node, graph: graph)
         let rowDelegate = self.rowObserver
         
