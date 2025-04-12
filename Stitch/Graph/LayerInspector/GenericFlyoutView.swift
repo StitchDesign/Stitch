@@ -300,9 +300,7 @@ extension GraphState {
         unpackedPort.update(from: unpackSchema,
                             layerInputType: unpackedPort.id,
                             layerNode: layerNode,
-                            nodeId: nodeId,
-                            unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                            unpackedPortIndex: fieldIndex)
+                            nodeId: nodeId)
         
         unpackedPort.canvasObserver?.initializeDelegate(
             node,
@@ -311,7 +309,7 @@ extension GraphState {
         
         let newPackMode = portObserver.mode
         if previousPackMode != newPackMode {
-            portObserver.wasPackModeToggled()
+            portObserver.wasPackModeToggled(document: document)
         }
         
         self.resetLayerInputsCache(layerNode: layerNode)

@@ -144,9 +144,9 @@ extension NodeRowViewModel {
         
         // Whenever we update ui-fields' values, we need to potentially block or unblock the same/other fields.
         // TODO: blocking or unblocking fields is only for a layer node; but requires reading from graph state etc.
-        if let layerInputForThisRow: LayerInputType = self.rowDelegate?.id.keyPath,
-           let node = self.nodeDelegate,
+        if let node = self.nodeDelegate,
            let document = node.graphDelegate?.documentDelegate,
+           let layerInputForThisRow = document.graph.getInputRowObserver(self.nodeIOCoordinate)?.id.keyPath,
            let layerNode = node.layerNodeViewModel {
             layerNode.blockOrUnblockFields(
                 newValue: newValue,
