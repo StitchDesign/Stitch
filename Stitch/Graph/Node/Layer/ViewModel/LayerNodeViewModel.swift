@@ -480,9 +480,9 @@ extension LayerNodeViewModel: SchemaObserver {
         return schema
     }
     
-    func onPrototypeRestart() {
+    func onPrototypeRestart(document: StitchDocumentViewModel) {
         self.previewLayerViewModels.forEach {
-            $0.onPrototypeRestart()
+            $0.onPrototypeRestart(document: document)
         }
     }
 }

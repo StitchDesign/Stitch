@@ -59,20 +59,16 @@ extension InputNodeRowObserver: SchemaObserverIdentifiable {
     
     // Set connected inputs to defaultValue
     @MainActor
-    func onPrototypeRestart() {
-        
+    func onPrototypeRestart(document: StitchDocumentViewModel) {
+                
         guard self.upstreamOutputCoordinate.isDefined,
-              let patch = self.nodeKind.getPatch,
+              let node = document.visibleGraph.getNode(self.id.nodeId),
+              let patch = node.kind.getPatch,
               let portId = self.id.portId else {
             return
         }
-        
-        guard let node = self.nodeDelegate else {
-            fatalErrorIfDebug()
-            return
-        }
-        
-        let defaultInputs: NodeInputDefinitions = self.nodeKind
+                
+        let defaultInputs: NodeInputDefinitions = node.kind
             .rowDefinitions(for: node.userVisibleType)
             .inputs
         
@@ -91,7 +87,7 @@ extension InputNodeRowObserver: SchemaObserverIdentifiable {
 
 extension OutputNodeRowObserver {
     @MainActor
-    func onPrototypeRestart() {
+    func onPrototypeRestart(document: StitchDocumentViewModel) {
         // Set outputs to be empty
         // MARK: no longer seems necessary, removing for fixing flashing media on restart
 //        self.allLoopedValues = []

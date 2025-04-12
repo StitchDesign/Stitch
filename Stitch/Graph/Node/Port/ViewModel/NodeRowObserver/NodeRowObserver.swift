@@ -44,10 +44,7 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
     static var nodeIOType: NodeIO { get }
     
     @MainActor var allRowViewModels: [RowViewModelType] { get }
-    
-    @MainActor
-    var nodeDelegate: NodeViewModel? { get set }
-        
+            
     @MainActor
     var hasLoopedValues: Bool { get set }
         
@@ -58,19 +55,6 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
     init(values: PortValues,
          id: NodeIOCoordinate,
          upstreamOutputCoordinate: NodeIOCoordinate?)
-}
-
-extension NodeRowObserver {
-    @MainActor
-    var nodeKind: NodeKind {
-        guard let nodeKind = self.nodeDelegate?.kind else {
-            // Gets called on layer deletion, commenting out fatal error
-//            fatalErrorIfDebug()
-            return .patch(.splitter)
-        }
-        
-        return nodeKind
-    }
 }
 
 extension NodeRowViewModel {
@@ -187,7 +171,6 @@ extension NodeRowObserver {
     
     @MainActor
     func initializeDelegate(_ node: NodeViewModel, graph: GraphState) {
-        self.nodeDelegate = node
                 
         // TODO: why do we handle post-processing when we've assigned the nodeDelegate? ... is it just because post-processing requires a nodeDelegate?
         switch Self.nodeIOType {

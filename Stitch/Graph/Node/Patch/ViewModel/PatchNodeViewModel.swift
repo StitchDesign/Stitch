@@ -138,7 +138,7 @@ extension PatchNodeViewModel: SchemaObserver {
                         mathExpression: self.mathExpression)
     }
     
-    func onPrototypeRestart() { }
+    func onPrototypeRestart(document: StitchDocumentViewModel) { }
 }
 
 extension PatchNodeViewModel {

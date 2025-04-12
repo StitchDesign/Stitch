@@ -33,7 +33,7 @@ actor SingletonMediaNodeCoordinator: NodeEphemeralObservable, MediaEvalOpViewabl
 }
 
 extension SingletonMediaNodeCoordinator {
-    nonisolated func onPrototypeRestart() { }
+    nonisolated func onPrototypeRestart(document: StitchDocumentViewModel) { }
 }
 
 /// Used for nodes like location and camera.

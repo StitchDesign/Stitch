@@ -85,7 +85,7 @@ final class DragInteractionNodeState: NodeEphemeralObservable {
     // Updates whenever drag ends so a new drag increments from here, fixing issue where values could constantly increment
     var prevPositionStart: CGPoint = .zero
     
-    func onPrototypeRestart() {
+    func onPrototypeRestart(document: StitchDocumentViewModel) {
         self.momentum = .init()
         self.reset = .init()
         self.wasDragging = false
