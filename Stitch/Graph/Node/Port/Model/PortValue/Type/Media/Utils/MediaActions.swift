@@ -323,7 +323,7 @@ extension GraphState {
             
             // portValuesList is the full outputs etc.;
             // set new outputs in node
-            node.updateOutputsObservers(newValuesList: portValuesList)
+            node.updateOutputsObservers(newValuesList: portValuesList, graph: graph)
             
             // We just manually set new outputs on the media node.
             // Now we need to flow those new outputs to any downstream nodes,

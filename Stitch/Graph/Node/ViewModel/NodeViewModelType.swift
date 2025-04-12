@@ -81,16 +81,17 @@ extension NodeViewModelType {
     func initializeDelegate(_ node: NodeViewModel,
                             components: [UUID: StitchMasterComponent],
                             document: StitchDocumentViewModel) {
+        let graph = document.graph
+        
         switch self {
         case .patch(let patchNodeViewModel):
             guard let patchDelegate = node as? PatchNodeViewModelDelegate else {
                 fatalErrorIfDebug()
                 return
             }
-            
-            patchNodeViewModel.initializeDelegate(patchDelegate)
+            patchNodeViewModel.initializeDelegate(patchDelegate, graph: graph)
         case .layer(let layerNodeViewModel):
-            layerNodeViewModel.initializeDelegate(node)
+            layerNodeViewModel.initializeDelegate(node, graph: graph, document: document)
         case .group(let canvasItemViewModel):
             canvasItemViewModel.initializeDelegate(node,
                                                    // Not relevant

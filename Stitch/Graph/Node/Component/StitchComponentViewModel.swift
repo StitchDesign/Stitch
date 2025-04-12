@@ -130,7 +130,7 @@ final class StitchComponentViewModel: Sendable {
         let splitterOutputs = Self.getOutputSplitters(graph: graph)
         let outputsObservers = splitterOutputs.enumerated().map { index, splitterOutput in
             if let existingOutput = existingOutputsObservers[safe: index] {
-                existingOutput.updateValuesInOutput(splitterOutput.values)
+                existingOutput.updateValuesInOutput(splitterOutput.values, graph: graph)
                 return existingOutput
             }
             
@@ -189,8 +189,8 @@ extension StitchComponentViewModel {
                                       documentEncoderDelegate: masterComponent.encoder)
         
         // Updates inputs and outputs
-        self.inputsObservers.forEach { $0.initializeDelegate(node) }
-        self.outputsObservers.forEach { $0.initializeDelegate(node) }
+        self.inputsObservers.forEach { $0.initializeDelegate(node, graph: self.graph) }
+        self.outputsObservers.forEach { $0.initializeDelegate(node, graph: self.graph) }
         
         // Refresh port data
         self.refreshPorts()
@@ -278,7 +278,7 @@ extension StitchComponentViewModel {
         
         // Update outputs here after graph calculation
         zip(splitterOutputs, self.outputsObservers).forEach { splitter, output in
-            output.updateValuesInOutput(splitter.allLoopedValues)
+            output.updateValuesInOutput(splitter.allLoopedValues, graph: self.graph)
         }
         
         return .init(outputsValues: self.outputsObservers.map(\.allLoopedValues))

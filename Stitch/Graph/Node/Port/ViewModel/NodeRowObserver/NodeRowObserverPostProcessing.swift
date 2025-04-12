@@ -18,15 +18,16 @@ extension NodeRowObserver {
     // TODO: define exclusively on `InputNodeRowObserver`
     @MainActor
     func inputPostProcessing(oldValues: PortValues,
-                             newValues: PortValues) {
+                             newValues: PortValues,
+                             // Can this graph ever be other than than visible graph?
+                             graph: GraphState) {
         
         guard Self.nodeIOType == .input else {
             fatalErrorIfDebug() // called incorrectly
             return
         }
         
-        guard let node = self.nodeDelegate,
-              let graph = node.graphDelegate,
+        guard let node = graph.getNode(self.id.nodeId),
               let document = graph.documentDelegate else {
             return
         }
@@ -45,7 +46,8 @@ extension NodeRowObserver {
         }
         
         // Potentially update interactiojn data
-        self.updateInteractionCaches(
+        graph.updateInteractionCaches(
+            self,
             oldValues: oldValues,
             newValues: newValues)
         
@@ -59,23 +61,13 @@ extension NodeRowObserver {
         // Update view ports
         graph.portsToUpdate.insert(NodePortType.input(self.id))
     }
-
-    
-    // When an interaction patch node's first input changes,
-    // we may need to update our interactions caches on GraphState.
-    // fka `NodeRowObserver.updateInteractionNodeData`
-    @MainActor
-    private func updateInteractionCaches(oldValues: PortValues,
-                                 newValues: PortValues) {
-        self.nodeDelegate?
-            .graphDelegate?
-            .updateInteractionCaches(self,
-                                     oldValues: oldValues,
-                                     newValues: newValues)
-    }
 }
 
 extension GraphState {
+
+    // When an interaction patch node's first input changes,
+    // we may need to update our interactions caches on GraphState.
+    // fka `NodeRowObserver.updateInteractionNodeData`
     
     // Better as a method on GraphState, since only the interaction-cachese on GraphState are actually being mutated
     // TODO: some way to read T without the possibility of modifying it?
@@ -166,18 +158,13 @@ extension GraphState {
 
 extension NodeRowObserver {
     @MainActor
-    func outputPostProcessing() {
-        guard let node = self.nodeDelegate,
-              let graph = node.graphDelegate else {
-            return
-        }
-        
+    func outputPostProcessing(_ graph: GraphState) {        
         guard Self.nodeIOType == .output else {
             fatalErrorIfDebug()
             return
         }
         
-        self.updatePulsedOutputsForThisGraphStep()
+        self.updatePulsedOutputsForThisGraphStep(graph)
         
         // TODO: do we need to do this or not?
         // graph.portsToUpdate.insert(.allOutputs(node.id))
@@ -185,12 +172,7 @@ extension NodeRowObserver {
     
     // fka `didValuesUpdate`; but only actually used for pulse reversion
     @MainActor
-    private func updatePulsedOutputsForThisGraphStep() {
-        
-        guard let graph = self.nodeDelegate?.graphDelegate else {
-            fatalErrorIfDebug()
-            return
-        }
+    private func updatePulsedOutputsForThisGraphStep(_ graph: GraphState) {
         
         // TODO: should be by output-coordinate + loop-index, not just output-coordinate?
         if self.allLoopedValues.didSomeLoopIndexPulse(graph.graphStepState.graphTime) {

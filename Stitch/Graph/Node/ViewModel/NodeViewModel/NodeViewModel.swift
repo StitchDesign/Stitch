@@ -261,7 +261,7 @@ extension NodeViewModel {
     }
     
     @MainActor
-    func updateOutputsObservers(newValuesList: PortValuesList? = nil) {
+    func updateOutputsObservers(newValuesList: PortValuesList? = nil, graph: GraphState) {
         let outputsObservers = self.getAllOutputsObservers()
         
         if let newValuesList = newValuesList {
@@ -270,7 +270,7 @@ extension NodeViewModel {
         }
 
         zip(outputsObservers, newValuesList ?? self.outputs).forEach { rowObserver, values in
-            rowObserver.updateValuesInOutput(values)
+            rowObserver.updateValuesInOutput(values, graph: graph)
         }
     }
 
@@ -602,7 +602,12 @@ extension NodeViewModel {
             return
         }
 
-        self.getAllOutputsObservers()[safe: portId]?.updateValuesInOutput(values)
+        guard let graph = self.graphDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        self.getAllOutputsObservers()[safe: portId]?.updateValuesInOutput(values, graph: graph)
     }
     
     // don't worry about making the input a loop or not --
@@ -615,7 +620,8 @@ extension NodeViewModel {
         }
         
         
-        guard let document = self.graphDelegate?.documentDelegate else {
+        guard let graph = self.graphDelegate,
+              let document = graph.documentDelegate else {
             fatalErrorIfDebug()
             return
         }
@@ -653,7 +659,7 @@ extension NodeViewModel {
         patchNode.canvasObserver.inputViewModels.append(newInputViewModel)
         
         // Assign delegates once view models are assigned to node
-        newInputObserver.initializeDelegate(self)
+        newInputObserver.initializeDelegate(self, graph: graph)
         newInputViewModel.initializeDelegate(
             self,
             initialValue: newInputObserver.getActiveValue(activeIndex: document.activeIndex),

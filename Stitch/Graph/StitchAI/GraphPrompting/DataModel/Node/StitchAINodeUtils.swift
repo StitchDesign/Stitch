@@ -85,9 +85,8 @@ extension StitchAINodeSectionDescription {
                 
                 // Calculate node to get outputs values
                 if let evalResult = defaultNode.evaluate() {
-                    defaultNode.updateOutputsObservers(newValuesList: evalResult.outputsValues)
+                    defaultNode.updateOutputsObservers(newValuesList: evalResult.outputsValues, graph: graph)
                 }
-                
                 
                 let outputs: [StitchAIPortValueDescription] = defaultNode.outputsObservers.map { outputObserver in
                     StitchAIPortValueDescription(label: outputObserver
