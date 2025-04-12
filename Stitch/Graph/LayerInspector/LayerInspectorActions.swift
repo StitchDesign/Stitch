@@ -136,9 +136,7 @@ extension StitchDocumentViewModel {
             // Put newly-created LIG into graph's current traversal level
             parentGroupNodeId: self.groupNodeFocused?.asNodeId,
             inputRowObservers: [input.rowObserver],
-            outputRowObservers: [],
-            unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-            unpackedPortIndex: unpackedPortIndex)
+            outputRowObservers: [])
         
         input.canvasObserver?.initializeDelegate(node,
                                                  unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
@@ -209,9 +207,7 @@ extension GraphState {
             // Put newly-created LIG into graph's current traversal level
             parentGroupNodeId: groupNodeFocused,
             inputRowObservers: [],
-            outputRowObservers: [output.rowObserver],
-            unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-            unpackedPortIndex: unpackedPortIndex)
+            outputRowObservers: [output.rowObserver])
         
         output.canvasObserver?.initializeDelegate(node,
                                                   unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,

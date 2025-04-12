@@ -219,13 +219,18 @@ extension CanvasItemViewModel {
     /// Syncing logic as influced from `SchemaObserverIdentifiable`.
     @MainActor
     func syncRowViewModels<RowViewModel>(with newEntities: [RowViewModel.RowObserver],
-                                         keyPath: ReferenceWritableKeyPath<CanvasItemViewModel, [RowViewModel]>,
-                                         unpackedPortParentFieldGroupType: FieldGroupType?,
-                                         unpackedPortIndex: Int?) where RowViewModel: NodeRowViewModel {
+                                         keyPath: ReferenceWritableKeyPath<CanvasItemViewModel, [RowViewModel]>
+//                                         , graph: GraphReader
+    ) where RowViewModel: NodeRowViewModel {
         
         let canvas = self
         let incomingIds = newEntities.map { $0.id }.toSet
-        let currentIds = self[keyPath: keyPath].compactMap { $0.rowDelegate?.id }.toSet
+        let currentIds = self[keyPath: keyPath].compactMap {
+//            x.
+            $0.rowDelegate?.id
+//            graph.get
+        }.toSet
+        
         let entitiesToRemove = currentIds.subtracting(incomingIds)
 
         let currentEntitiesMap = self[keyPath: keyPath].reduce(into: [:]) { result, currentEntity in

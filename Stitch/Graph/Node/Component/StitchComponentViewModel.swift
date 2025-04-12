@@ -44,9 +44,7 @@ final class StitchComponentViewModel: Sendable {
         self.canvas = .init(from: componentEntity.canvasEntity,
                             id: .node(nodeId),
                             inputRowObservers: inputsObservers,
-                            outputRowObservers: outputsObservers,
-                            unpackedPortParentFieldGroupType: nil,
-                            unpackedPortIndex: nil)
+                            outputRowObservers: outputsObservers)
             
         self.inputsObservers = inputsObservers
         self.outputsObservers = outputsObservers
@@ -59,9 +57,7 @@ final class StitchComponentViewModel: Sendable {
         self.inputsObservers = self.refreshInputs(schemaInputs: schemaInputs)
         self.outputsObservers = self.refreshOutputs()
         self.canvas.syncRowViewModels(inputRowObservers: inputsObservers,
-                                      outputRowObservers: outputsObservers,
-                                      unpackedPortParentFieldGroupType: nil,
-                                      unpackedPortIndex: nil)
+                                      outputRowObservers: outputsObservers)
     }
     
     @MainActor
@@ -227,9 +223,7 @@ extension StitchComponentViewModel {
         self.inputsObservers = self.refreshInputs(schemaInputs: schemaInputs)
         self.outputsObservers = self.refreshOutputs()
         self.canvas.syncRowViewModels(inputRowObservers: self.inputsObservers,
-                                      outputRowObservers: self.outputsObservers,
-                                      unpackedPortParentFieldGroupType: nil,
-                                      unpackedPortIndex: nil)
+                                      outputRowObservers: self.outputsObservers)
     }
     
     @MainActor

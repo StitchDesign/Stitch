@@ -221,9 +221,7 @@ extension InputLayerNodeRowData {
     func update(from schema: LayerInputDataEntity,
                 layerInputType: LayerInputType,
                 layerNode: LayerNodeViewModel,
-                nodeId: NodeId,
-                unpackedPortParentFieldGroupType: FieldGroupType?,
-                unpackedPortIndex: Int?) {
+                nodeId: NodeId) {
         assertInDebug(self.rowObserver.id.nodeId == nodeId)
                     
         if let canvas = schema.canvasItem {
@@ -238,9 +236,7 @@ extension InputLayerNodeRowData {
                 self.canvasObserver = .init(from: canvas,
                                             id: canvasId,
                                             inputRowObservers: [self.rowObserver],
-                                            outputRowObservers: [],
-                                            unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                            unpackedPortIndex: unpackedPortIndex)
+                                            outputRowObservers: [])
 
                 // NOTE: DO NOT SET A CANVAS ITEM DELEGATE ON AN INSPECTOR ROW VIEW MODEL
 //                self.inspectorRowViewModel.canvasItemDelegate = self.canvasObserver
@@ -289,10 +285,7 @@ extension LayerInputObserver {
                                         layerInputType: .init(layerInput: layerInputType,
                                                               portType: .packed),
                                         layerNode: layerNode,
-                                        nodeId: nodeId,
-                                        // Not relevant
-                                        unpackedPortParentFieldGroupType: nil,
-                                        unpackedPortIndex: nil)
+                                        nodeId: nodeId)
         
         
         // Update unpacked data
@@ -317,9 +310,7 @@ extension LayerInputObserver {
                                         layerInputType: .init(layerInput: layerInputType,
                                                               portType: .unpacked(unpackedPortType)),
                                         layerNode: layerNode,
-                                        nodeId: nodeId,
-                                        unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                        unpackedPortIndex: portId)
+                                        nodeId: nodeId)
             }
         }
         

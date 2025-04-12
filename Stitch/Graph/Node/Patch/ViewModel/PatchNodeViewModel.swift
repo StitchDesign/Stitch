@@ -79,9 +79,7 @@ final class PatchNodeViewModel: Sendable {
         self.canvasObserver = .init(from: schema.canvasEntity,
                                     id: .node(schema.id),
                                     inputRowObservers: inputsObservers,
-                                    outputRowObservers: outputsObservers,
-                                    unpackedPortParentFieldGroupType: nil,
-                                    unpackedPortIndex: nil)
+                                    outputRowObservers: outputsObservers)
         
         self.inputsObservers = inputsObservers
         self.outputsObservers = outputsObservers
@@ -286,10 +284,7 @@ extension PatchNodeViewModel {
         // Update input row view models in canvas
         self.canvasObserver
             .syncRowViewModels(with: self._inputsObservers,
-                               keyPath: \.inputViewModels,
-                               // Not relevant
-                               unpackedPortParentFieldGroupType: nil,
-                               unpackedPortIndex: nil)
+                               keyPath: \.inputViewModels)
     }
 }
 

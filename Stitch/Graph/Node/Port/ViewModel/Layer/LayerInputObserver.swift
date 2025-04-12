@@ -330,13 +330,9 @@ extension LayerInputObserver {
     
     /// Called after the pack mode changes for some port.
     @MainActor 
-    func wasPackModeToggled() {
+    func wasPackModeToggled(document: StitchDocumentViewModel) {
                 
-        guard let graph = self.graphDelegate,
-              let document = graph.documentDelegate else {
-            fatalErrorIfDebug("wasPackModeToggled: did not have graph delegate")
-            return
-        }
+        let graph = document.visibleGraph
         
         guard let node = graph.getNodeViewModel(self.nodeId),
               let layerNode = node.layerNode else {
