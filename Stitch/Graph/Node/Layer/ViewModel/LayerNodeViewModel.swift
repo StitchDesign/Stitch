@@ -489,7 +489,9 @@ extension LayerNodeViewModel: SchemaObserver {
 
 extension LayerNodeViewModel {
     @MainActor
-    func initializeDelegate(_ node: NodeViewModel) {
+    func initializeDelegate(_ node: NodeViewModel,
+                            graph: GraphState,
+                            document: StitchDocumentViewModel) {
         self.nodeDelegate = node
         
         // Reset known input canvas items
@@ -497,7 +499,7 @@ extension LayerNodeViewModel {
         
         // Set up outputs
         self.outputPorts.forEach {
-            $0.initializeDelegate(node)
+            $0.initializeDelegate(node, graph: graph, document: document)
         }
         
         self.resetInputCanvasItemsCache()
@@ -505,7 +507,9 @@ extension LayerNodeViewModel {
     
     @MainActor
     func resetInputCanvasItemsCache() {
-        guard let node = self.nodeDelegate else {
+        guard let node = self.nodeDelegate,
+              let graph = node.graphDelegate,
+              let activeIndex = graph.documentDelegate?.activeIndex else {
             fatalErrorIfDebug()
             return
         }
@@ -519,10 +523,10 @@ extension LayerNodeViewModel {
             self._inputCanvasIds = self._inputCanvasIds.union(inputCanvasItems)
             
             layerInput.initializeDelegate(node,
-                                          layer: self.layer)
+                                          layer: self.layer,
+                                          activeIndex: activeIndex,
+                                          graph: graph)
         }
-        
-        let activeIndex = node.graphDelegate?.documentDelegate?.activeIndex ?? .init(.zero)
         
         // Set blocked fields after all fields have been initialized
         self.forEachInput { layerInput in
