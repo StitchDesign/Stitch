@@ -88,7 +88,7 @@ extension NodeViewModelType {
                 return
             }
             
-            patchNodeViewModel.initializeDelegate(patchDelegate)
+            patchNodeViewModel.initializeDelegate(patchDelegate, graph: document.graph)
         case .layer(let layerNodeViewModel):
             layerNodeViewModel.initializeDelegate(node)
         case .group(let canvasItemViewModel):

@@ -505,7 +505,9 @@ extension LayerNodeViewModel {
     
     @MainActor
     func resetInputCanvasItemsCache() {
-        guard let node = self.nodeDelegate else {
+        guard let node = self.nodeDelegate,
+              let graph = node.graphDelegate,
+              let activeIndex = graph.documentDelegate?.activeIndex else {
             fatalErrorIfDebug()
             return
         }
@@ -519,10 +521,10 @@ extension LayerNodeViewModel {
             self._inputCanvasIds = self._inputCanvasIds.union(inputCanvasItems)
             
             layerInput.initializeDelegate(node,
-                                          layer: self.layer)
+                                          layer: self.layer,
+                                          activeIndex: activeIndex,
+                                          graph: graph)
         }
-        
-        let activeIndex = node.graphDelegate?.documentDelegate?.activeIndex ?? .init(.zero)
         
         // Set blocked fields after all fields have been initialized
         self.forEachInput { layerInput in

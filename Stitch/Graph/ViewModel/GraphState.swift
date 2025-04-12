@@ -964,7 +964,7 @@ extension GraphState {
             nodeIdsToRecalculate = nodeIdsToRecalculate.union(changedNodeIds)
         } // (portId, newOutputValue) in portValues.enumerated()
      
-        node.updateOutputsObservers(newValuesList: outputsToUpdate)
+        node.updateOutputsObservers(newValuesList: outputsToUpdate, graph: self)
         
         // Recalculate graph
         self.scheduleForNextGraphStep(nodeIdsToRecalculate)

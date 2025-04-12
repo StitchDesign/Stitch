@@ -143,15 +143,15 @@ extension PatchNodeViewModel: SchemaObserver {
 
 extension PatchNodeViewModel {
     @MainActor
-    func initializeDelegate(_ node: PatchNodeViewModelDelegate) {
+    func initializeDelegate(_ node: PatchNodeViewModelDelegate, graph: GraphState) {
         self.delegate = node
         
         self.inputsObservers.forEach {
-            $0.initializeDelegate(node)
+            $0.initializeDelegate(node, graph: graph)
         }
         
         self.outputsObservers.forEach {
-            $0.initializeDelegate(node)
+            $0.initializeDelegate(node, graph: graph)
         }
         
         // Assign weak for group canvas if group splitter node
@@ -163,13 +163,14 @@ extension PatchNodeViewModel {
     
     // Other inits better for public accesss
     @MainActor private convenience init(id: NodeId,
-                             patch: Patch,
-                             inputs: [NodePortInputEntity],
-                             canvasEntity: CanvasNodeEntity,
-                             userVisibleType: UserVisibleType? = nil,
-                             mathExpression: String?,
-                             splitterNode: SplitterNodeEntity?,
-                             delegate: PatchNodeViewModelDelegate) {
+                                        patch: Patch,
+                                        inputs: [NodePortInputEntity],
+                                        canvasEntity: CanvasNodeEntity,
+                                        userVisibleType: UserVisibleType? = nil,
+                                        mathExpression: String?,
+                                        splitterNode: SplitterNodeEntity?,
+                                        delegate: PatchNodeViewModelDelegate,
+                                        graph: GraphState) {
         let entity = PatchNodeEntity(id: id,
                                      patch: patch,
                                      inputs: inputs,
@@ -178,17 +179,18 @@ extension PatchNodeViewModel {
                                      splitterNode: splitterNode,
                                      mathExpression: mathExpression)
         self.init(from: entity)
-        self.initializeDelegate(delegate)
+        self.initializeDelegate(delegate, graph: graph)
         self.delegate = delegate
         self.splitterNode = splitterNode
     }
 
     @MainActor convenience init(id: NodeId,
-                     patch: Patch,
-                     inputs: [NodePortInputEntity],
-                     canvasEntity: CanvasNodeEntity,
-                     userVisibleType: UserVisibleType? = nil,
-                     delegate: PatchNodeViewModelDelegate) {
+                                patch: Patch,
+                                inputs: [NodePortInputEntity],
+                                canvasEntity: CanvasNodeEntity,
+                                userVisibleType: UserVisibleType? = nil,
+                                delegate: PatchNodeViewModelDelegate,
+                                graph: GraphState) {
         self.init(id: id,
                   patch: patch,
                   inputs: inputs,
@@ -196,7 +198,8 @@ extension PatchNodeViewModel {
                   userVisibleType: userVisibleType,
                   mathExpression: nil,
                   splitterNode: nil,
-                  delegate: delegate)
+                  delegate: delegate,
+                  graph: graph)
     }
 
     @MainActor

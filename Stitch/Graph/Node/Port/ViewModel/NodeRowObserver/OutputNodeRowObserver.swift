@@ -50,7 +50,11 @@ final class OutputNodeRowObserver: NodeRowObserver {
 
     // Implements StitchEngine protocol
     func updateOutputValues(_ values: [PortValue]) {
-        self.updateValuesInOutput(values)
+        guard let graph = self.nodeDelegate?.graphDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        self.updateValuesInOutput(values, graph: graph)
     }
 }
 
@@ -63,15 +67,18 @@ func updateRowObservers(rowObservers: [OutputNodeRowObserver],
             log("Could not retrieve output observer for portId \(portId)")
             return
         }
+        
         observer.updateOutputValues(newValues)
     }
 }
 
 extension OutputNodeRowObserver {
     @MainActor
-    func updateValuesInOutput(_ newValues: PortValues) {
-        self.setValuesInRowObserver(newValues)
-        self.outputPostProcessing()
+    func updateValuesInOutput(_ newValues: PortValues, graph: GraphState) {
+        self.setValuesInRowObserver(newValues,
+                                    selectedEdges: graph.selectedEdges,
+                                    drawingObserver: graph.edgeDrawingObserver)
+        self.outputPostProcessing(graph)
     }
     
     @MainActor
