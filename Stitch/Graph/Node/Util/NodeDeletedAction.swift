@@ -115,7 +115,11 @@ extension GraphState {
             // Check if packed mode changed
             let newPackMode = inputPort.mode
             if prevPackMode != newPackMode {
-                inputPort.wasPackModeToggled()
+                guard let document = self.documentDelegate else {
+                    fatalErrorIfDebug()
+                    return
+                }
+                inputPort.wasPackModeToggled(document: document)
             }
             
         case .layerOutput(let x):

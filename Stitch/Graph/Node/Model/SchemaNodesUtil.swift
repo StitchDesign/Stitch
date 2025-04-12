@@ -141,10 +141,7 @@ extension NodeRowDefinitions {
                     id: .layerOutput(.init(node: nodeId,
                                                   portId: portId)),
                     inputRowObservers: [],
-                    outputRowObservers: [observer],
-                    // Irrelevant for output
-                    unpackedPortParentFieldGroupType: nil,
-                    unpackedPortIndex: nil)
+                    outputRowObservers: [observer])
             }
             
             let outputData = OutputLayerNodeRowData(rowObserver: observer,

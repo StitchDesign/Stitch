@@ -97,8 +97,6 @@ final class CanvasItemViewModel: Identifiable, StitchLayoutCachable, Sendable {
          parentGroupNodeId: NodeId?,
          inputRowObservers: [InputNodeRowObserver],
          outputRowObservers: [OutputNodeRowObserver],
-         unpackedPortParentFieldGroupType: FieldGroupType?,
-         unpackedPortIndex: Int?,
          nodeDelegate: NodeViewModel? = nil) {
         self.id = id
         self.position = position
@@ -109,45 +107,33 @@ final class CanvasItemViewModel: Identifiable, StitchLayoutCachable, Sendable {
         
         // Instantiate input and output row view models
         self.syncRowViewModels(inputRowObservers: inputRowObservers,
-                               outputRowObservers: outputRowObservers,
-                               unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                               unpackedPortIndex: unpackedPortIndex)
+                               outputRowObservers: outputRowObservers)
     }
 }
 
 extension CanvasItemViewModel {
     @MainActor
     func syncRowViewModels(inputRowObservers: [InputNodeRowObserver],
-                           outputRowObservers: [OutputNodeRowObserver],
-                           unpackedPortParentFieldGroupType: FieldGroupType?,
-                           unpackedPortIndex: Int?) {
+                           outputRowObservers: [OutputNodeRowObserver]) {
         
         self.syncRowViewModels(with: inputRowObservers,
-                               keyPath: \.inputViewModels,
-                               unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                               unpackedPortIndex: unpackedPortIndex)
+                               keyPath: \.inputViewModels)
         
         self.syncRowViewModels(with: outputRowObservers,
-                               keyPath: \.outputViewModels,
-                               unpackedPortParentFieldGroupType: nil,
-                               unpackedPortIndex: nil)
+                               keyPath: \.outputViewModels)
     }
     
     @MainActor
     convenience init(from canvasEntity: CanvasNodeEntity,
                      id: CanvasItemId,
                      inputRowObservers: [InputNodeRowObserver],
-                     outputRowObservers: [OutputNodeRowObserver],
-                     unpackedPortParentFieldGroupType: FieldGroupType?,
-                     unpackedPortIndex: Int?) {
+                     outputRowObservers: [OutputNodeRowObserver]) {
         self.init(id: id,
                   position: canvasEntity.position,
                   zIndex: canvasEntity.zIndex,
                   parentGroupNodeId: canvasEntity.parentGroupNodeId,
                   inputRowObservers: inputRowObservers,
-                  outputRowObservers: outputRowObservers,
-                  unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                  unpackedPortIndex: unpackedPortIndex)
+                  outputRowObservers: outputRowObservers)
     }
     
     @MainActor
