@@ -173,7 +173,8 @@ extension NodeViewModel {
                 currentGraphTime: currentGraphTime,
                 computedState: self.computedStates?[safe: index],
                 activeIndex: activeIndex,
-                isVisible: self.isVisibleInFrame(graph.visibleCanvasIds, graph.selectedSidebarLayers))
+                isVisible: self.isVisibleInFrame(graph.visibleCanvasIds, graph.selectedSidebarLayers),
+                graph: graph)
         }
     }
     

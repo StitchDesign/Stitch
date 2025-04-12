@@ -27,6 +27,10 @@ extension InputNodeRowObserver {
     func removeUpstreamConnection(isVisible: Bool? = nil,
                                   node: NodeViewModel) {
         
+        guard let graph = node.graphDelegate else {
+            return 
+        }
+        
         guard let upstreamOutputObserver = self.upstreamOutputObserver else {
             log("InputNodeRowObserver: removeUpstreamConnection: could not find upstream output observer")
             return
@@ -57,7 +61,7 @@ extension InputNodeRowObserver {
             }
 
             // Mutate video metadata to clear video state--this will update the view
-            self.updateValuesInInput([.asyncMedia(nil)])
+            self.updateValuesInInput([.asyncMedia(nil)], graph: graph)
         }
 
         // Remove audio from disconnected speaker nodes.
@@ -71,11 +75,11 @@ extension InputNodeRowObserver {
                     // Run effect to mute sound player
                     media?.mediaObject.updateVolume(to: .zero)
                 }
-            self.updateValuesInInput([.asyncMedia(nil)])
+            self.updateValuesInInput([.asyncMedia(nil)], graph: graph)
         } else {
             // Flatten values by default
             let flattenedValues = self.allLoopedValues.flattenValues()
-            self.updateValuesInInput(flattenedValues)
+            self.updateValuesInInput(flattenedValues, graph: graph)
         }
         
         // Removes connection--important to do this after media handling above

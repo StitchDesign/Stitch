@@ -202,9 +202,9 @@ extension LayerInputObserver {
     // TODO: why is this _packed only ?
     /// Updates all-up values, handling scenarios like unpacked if applicable.
     @MainActor
-    func updatePortValues(_ values: PortValues) {
+    func updatePortValues(_ values: PortValues, graph: GraphState) {
         // Updating the packed observer will always update unpacked observers if the mode is set as unpacked
-        self._packedData.rowObserver.updateValuesInInput(values)
+        self._packedData.rowObserver.updateValuesInInput(values, graph: graph)
     }
     
     /// All-up values for this port
@@ -251,13 +251,7 @@ extension LayerInputObserver {
             return self._unpackedData.getParentPortValuesList()
         }
     }
-    
-    @MainActor
-    var graphDelegate: GraphState? {
-        // Hacky solution, just get row observer delegate from packed data
-        self._packedData.rowObserver.nodeDelegate?.graphDelegate
-    }
-    
+        
     @MainActor
     func getActiveValue(activeIndex: ActiveIndex) -> PortValue {
         let values = self.values
@@ -352,7 +346,8 @@ extension LayerInputObserver {
             
             // Update values of new unpacked row observers
             self._unpackedData.updateUnpackedObserverValues(from: values,
-                                            layerNode: layerNode)
+                                                            layerNode: layerNode,
+                                                            graph: graph)
             
         case .packed:
             // Get values from previous unpacked mode

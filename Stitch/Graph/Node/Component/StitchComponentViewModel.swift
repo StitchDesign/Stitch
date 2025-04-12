@@ -256,7 +256,7 @@ extension StitchComponentViewModel {
         
         // Update graph's inputs before calculating full graph
         zip(splitterInputs, self.inputsObservers).forEach { splitter, input in
-            splitter.updateValuesInInput(input.allLoopedValues)
+            splitter.updateValuesInInput(input.allLoopedValues, graph: self.graph)
         }
         
         self.graph.calculate(from: self.graph.allNodesToCalculate)

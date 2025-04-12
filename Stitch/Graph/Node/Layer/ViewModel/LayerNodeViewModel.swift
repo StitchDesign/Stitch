@@ -366,6 +366,7 @@ final class LayerNodeViewModel {
         
         // Call update once everything above is in place
         for inputType in graphNode.inputDefinitions {
+//            self.nodeDelegate?.graphDelegate
             self.initializePortSchema(layerSchema: schema,
                                       layerInputPort: inputType)
         }

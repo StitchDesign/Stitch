@@ -10,6 +10,7 @@ import Foundation
 // Protocol for functions that only need to retrieve certain objects from GraphState
 
 protocol GraphReader {
+    @MainActor func getNode(_ id: NodeId) -> NodeViewModel?
     @MainActor func getCanvasItem(_ id: CanvasItemId) -> CanvasItemViewModel?
     @MainActor func getInputRowObserver(_ id: InputCoordinate) -> InputNodeRowObserver?
     @MainActor func getOutputRowObserver(_ id: OutputCoordinate) -> OutputNodeRowObserver?

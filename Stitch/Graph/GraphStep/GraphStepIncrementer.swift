@@ -213,7 +213,7 @@ extension NodeViewModel {
         if containsModelChange {
             let newValues = layerNode.previewLayerViewModels
                 .map { $0.transform3D }
-            layerNode.transform3DPort.updatePortValues(newValues)
+            layerNode.transform3DPort.updatePortValues(newValues, graph: graph)
             layerNode.transform3DPort.updateAllRowObserversPortViewModels(graph)
         }
     }

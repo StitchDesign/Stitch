@@ -376,7 +376,7 @@ extension GraphState {
     func mediaPickerNoneChanged(rowObserver: InputNodeRowObserver,
                                 activeIndex: ActiveIndex,
                                 isFieldInsideLayerInspector: Bool) {
-            let emptyPortValue = PortValue.asyncMedia(nil)
+        let emptyPortValue = PortValue.asyncMedia(nil)
         self.handleInputEditCommitted(input: rowObserver,
                                       value: emptyPortValue,
                                       activeIndex: activeIndex,
@@ -410,7 +410,10 @@ func createPatchNode(from importedMediaURL: URL,
         return .failure(.mediaFileUnsupported(importedMediaURL.pathExtension))
     }
 
-    // Import nodes always use first input
-    node.getInputRowObserver(0)?.updateValuesInInput([.asyncMedia(asyncMedia)])
+    if let graph = graphDelegate {
+        // Import nodes always use first input
+        node.getInputRowObserver(0)?.updateValuesInInput([.asyncMedia(asyncMedia)], graph: graph)
+    }
+
     return .success(node)
 }

@@ -31,7 +31,8 @@ extension InputNodeRowObserver {
                          currentGraphTime: TimeInterval,
                          computedState: ComputedNodeState?,
                          activeIndex: ActiveIndex,
-                         isVisible: Bool) {
+                         isVisible: Bool,
+                         graph: GraphState) {
 
         if let portId = self.id.portId,
            nodeKind.rowIsTypeStatic(nodeType: newType, portId: portId) {
@@ -70,6 +71,7 @@ extension InputNodeRowObserver {
                                                         currentGraphTime: currentGraphTime)
         
         self.updateValuesInInput(valuesCoercedToNewType,
+                                 graph: graph,
                                  // already coerced
                                  shouldCoerceToExistingInputType: false)
     }

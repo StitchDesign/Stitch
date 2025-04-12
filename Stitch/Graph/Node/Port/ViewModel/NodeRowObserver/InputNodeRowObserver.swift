@@ -31,7 +31,10 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     /// Tracks upstream output row observer for some input. Cached for perf.
     @MainActor
     var upstreamOutputObserver: OutputNodeRowObserver? {
-        self.getUpstreamOutputObserver()
+        guard let graph = self.nodeDelegate?.graphDelegate else {
+            return nil // should be crash here?
+        }
+        return self.getUpstreamOutputObserver(graph: graph)
     }
     
     // NodeRowObserver holds a reference to its parent, the Node
@@ -78,6 +81,7 @@ extension InputNodeRowObserver {
     // Note: cannot be used in `StitchEngine` until SE no longer already updates `self.values = incomingValues`
     @MainActor
     func updateValuesInInput(_ incomingValues: PortValues,
+                             graph: GraphState,
                              // Always true excerpt for node-type-change
                              shouldCoerceToExistingInputType: Bool = true,
                              // TODO: remove once StitchEngine.setValuesInInput no longer already does `self.values = values`
@@ -91,8 +95,7 @@ extension InputNodeRowObserver {
          */
         // TODO: Pass down NodeViewModel and `currentGraphTime` directly? Greater referential transparency and avoids confusion about where/when delegates have been set / not yet set.
                 
-        guard let node = self.nodeDelegate,
-              let graph = node.graphDelegate else {
+        guard let node = graph.getNode(self.id.nodeId) else {
             self.setValuesInRowObserver(incomingValues,
                                         selectedEdges: .init(),
                                         drawingObserver: .init())
@@ -135,8 +138,13 @@ extension InputNodeRowObserver {
         guard !newValues.isEmpty else {
             return
         }
+        
+        guard let graph = self.nodeDelegate?.graphDelegate else {
+            return
+        }
                         
         self.updateValuesInInput(newValues,
+                                 graph: graph,
                                  // Must still pass oldValues when called from StitchEngine,
                                  // like this function is
                                  passedDownOldValues: oldValues)
@@ -157,7 +165,11 @@ extension InputNodeRowObserver {
             if coordinateValueChanged {
                 // Flatten values
                 let newFlattenedValues = self.allLoopedValues.flattenValues()
-                self.updateValuesInInput(newFlattenedValues)
+                guard let graph = self.nodeDelegate?.graphDelegate else {
+                    fatalErrorIfDebug()
+                    return
+                }
+                self.updateValuesInInput(newFlattenedValues, graph: graph)
 
                 // Recalculate node once values update
                 self.nodeDelegate?.calculate()
@@ -172,14 +184,14 @@ extension InputNodeRowObserver {
     
     // Because `private`, needs to be declared in same file(?) as method that uses it
     @MainActor
-    private func getUpstreamOutputObserver() -> OutputNodeRowObserver? {
+    private func getUpstreamOutputObserver(graph: GraphReader) -> OutputNodeRowObserver? {
         guard let upstreamCoordinate = self.upstreamOutputCoordinate,
               let upstreamPortId = upstreamCoordinate.portId else {
             return nil
         }
 
         // Set current upstream observer
-        return self.nodeDelegate?.graphDelegate?.getNodeViewModel(upstreamCoordinate.nodeId)?
+        return graph.getNode(upstreamCoordinate.nodeId)?
             .getOutputRowObserver(for: upstreamPortId)
     }
     
@@ -189,7 +201,8 @@ extension InputNodeRowObserver {
     }
     
     @MainActor var allRowViewModels: [InputNodeRowViewModel] {
-        guard let node = self.nodeDelegate else {
+        guard let node = self.nodeDelegate,
+              let graph = node.graphDelegate else {
             return []
         }
         
@@ -214,7 +227,7 @@ extension InputNodeRowObserver {
             if patchNode.splitterNode?.type == .input {
                 // Group id is the only other row view model's canvas's parent ID
                 if let groupNodeId = inputs.first?.canvasItemDelegate?.parentGroupNodeId,
-                   let groupNode = self.nodeDelegate?.graphDelegate?.getNodeViewModel(groupNodeId)?.nodeType.groupNode {
+                   let groupNode = graph.getNodeViewModel(groupNodeId)?.nodeType.groupNode {
                     inputs += groupNode.inputViewModels.filter {
                         $0.rowDelegate?.id == self.id
                     }

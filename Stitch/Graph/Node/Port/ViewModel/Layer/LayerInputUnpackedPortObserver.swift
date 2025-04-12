@@ -101,7 +101,8 @@ extension LayerInputUnpackedPortObserver {
     /// From packed values, unpacks them for unpack layer input scenario.
     @MainActor
     func updateUnpackedObserverValues(from packedValues: PortValues,
-                                      layerNode: LayerNodeViewModel) {
+                                      layerNode: LayerNodeViewModel,
+                                      graph: GraphState) {
         let unpackedValues = packedValues.map { self.layerPort.unpackValues(from: $0) }
         
         guard let unpackedPortCount = unpackedValues.first??.count else {
@@ -132,7 +133,7 @@ extension LayerInputUnpackedPortObserver {
             let rowObserver = layerNode[keyPath: layerId.layerNodeKeyPath].rowObserver
             
             // Update row observer values per usual
-            rowObserver.updateValuesInInput(values)
+            rowObserver.updateValuesInInput(values, graph: graph)
         }
     }
 }

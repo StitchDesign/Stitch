@@ -79,7 +79,7 @@ extension LayersSidebarViewModel {
         let assumedLayerGroupSize: LayerSize = .init(width: .fill, height: .fill)
         
         // Update layer group's size input
-        newNode.layerNode?.sizePort.updatePortValues([.size(assumedLayerGroupSize)])
+        newNode.layerNode?.sizePort.updatePortValues([.size(assumedLayerGroupSize)], graph: graph)
                 
         graph.persistNewNode(newNode)
     }

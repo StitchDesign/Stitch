@@ -206,13 +206,15 @@ extension LayerNodeViewModel {
     /// Second step for layer port initialization after all initial identifier data is set.
     @MainActor
     func initializePortSchema(layerSchema: LayerNodeEntity,
-                              layerInputPort: LayerInputPort) {
+                              layerInputPort: LayerInputPort,
+                              graph: GraphState) {
         let layerData = self[keyPath: layerInputPort.layerNodeKeyPath]
         
         layerData.update(from: layerSchema[keyPath: layerInputPort.schemaPortKeyPath],
                          layerInputType: layerInputPort,
                          layerNode: self,
-                         nodeId: self.id)
+                         nodeId: self.id,
+                         graph: graph)
     }
 }
 
@@ -274,7 +276,8 @@ extension LayerInputObserver {
     func update(from schema: LayerInputEntity,
                 layerInputType: LayerInputPort,
                 layerNode: LayerNodeViewModel,
-                nodeId: NodeId) {        
+                nodeId: NodeId,
+                graph: GraphState) {
         let portObserver = layerNode[keyPath: layerInputType.layerNodeKeyPath]
         let unpackedObservers = portObserver._unpackedData.allPorts
 
@@ -321,7 +324,8 @@ extension LayerInputObserver {
             packedObserver.rowObserver.update(from: schema.packedData.inputPort,
                                               layer: self.layer,
                                               inputType: .init(layerInput: layerInputType,
-                                                               portType: .packed))
+                                                               portType: .packed),
+                                              graph: graph)
             
         case .unpacked:
             zip(unpackedObservers, schema.unpackedData).enumerated().forEach { portId, data in
@@ -336,7 +340,8 @@ extension LayerInputObserver {
                 unpackedObserver.rowObserver.update(from: unpackedSchema.inputPort,
                                                     layer: self.layer,
                                                     inputType: .init(layerInput: layerInputType,
-                                                                     portType: .unpacked(unpackedPortType)))
+                                                                     portType: .unpacked(unpackedPortType)),
+                                                    graph: graph)
             }
         }
     }
