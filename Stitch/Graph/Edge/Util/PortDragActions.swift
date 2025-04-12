@@ -16,6 +16,11 @@ extension InputNodeRowViewModel {
         let dragLocation = gesture.location
         graphState.edgeAnimationEnabled = true
 
+        guard let node = graphState.getNode(self.id.nodeId) else {
+            fatalErrorIfDebug()
+            return
+        }
+        
         guard var existingDrawingGesture = graphState.edgeDrawingObserver.drawingGesture else {
             log("InputDragged: started")
             
@@ -30,7 +35,7 @@ extension InputNodeRowViewModel {
                                                                               dragLocation: dragLocation,
                                                                               startingDiffFromCenter: .zero)
 
-            self.rowDelegate?.removeUpstreamConnection()
+            self.rowDelegate?.removeUpstreamConnection(node: node)
             self.nodeDelegate?.calculate()
             graphState.encodeProjectInBackground()
             
