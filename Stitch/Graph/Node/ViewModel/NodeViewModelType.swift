@@ -32,10 +32,7 @@ extension NodeViewModelType {
                                 id: .node(nodeId),
                                 // Initialize as empty since splitter row observers might not have yet been created
                                 inputRowObservers: [],
-                                outputRowObservers: [],
-                                // Irrelevant
-                                unpackedPortParentFieldGroupType: nil,
-                                unpackedPortIndex: nil))
+                                outputRowObservers: []))
         case .component(let component):
             self = .component(.init(nodeId: nodeId,
                                     componentEntity: component,

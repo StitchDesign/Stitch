@@ -436,15 +436,13 @@ extension LayerNodeViewModel: SchemaObserver {
                         from: canvasEntity,
                         id: .layerOutput(coordinate),
                         inputRowObservers: [],
-                        outputRowObservers: [outputData.rowObserver],
+                        outputRowObservers: [outputData.rowObserver])
+                    
+                    outputData.canvasObserver?.initializeDelegate(
+                        node,
                         // Not relevant
                         unpackedPortParentFieldGroupType: nil,
                         unpackedPortIndex: nil)
-                    
-                    outputData.canvasObserver?.initializeDelegate(node,
-                                                                  // Not relevant
-                                                                  unpackedPortParentFieldGroupType: nil,
-                                                                  unpackedPortIndex: nil)
                 }
                 return
             }
