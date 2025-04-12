@@ -364,11 +364,17 @@ final class LayerNodeViewModel {
             }
         }
         
+        guard let graph = self.nodeDelegate?.graphDelegate else {
+            // fatalErrorIfDebug()
+            return
+        }
+        
         // Call update once everything above is in place
         for inputType in graphNode.inputDefinitions {
 //            self.nodeDelegate?.graphDelegate
             self.initializePortSchema(layerSchema: schema,
-                                      layerInputPort: inputType)
+                                      layerInputPort: inputType,
+                                      graph: graph)
         }
     }
 }
@@ -392,13 +398,19 @@ extension LayerNodeViewModel: SchemaObserver {
 //            self.layerGroupId = schema.layerGroupId
 //        }
         
+        guard let graph = self.nodeDelegate?.graphDelegate else {
+            // fatalErrorIfDebug()
+            return
+        }
+        
         // Process input data
         self.layer.layerGraphNode.inputDefinitions.forEach {
             self[keyPath: $0.layerNodeKeyPath]
                 .update(from: schema[keyPath: $0.schemaPortKeyPath],
                         layerInputType: $0,
                         layerNode: self,
-                        nodeId: schema.id)
+                        nodeId: schema.id,
+                        graph: graph)
         }
         
         // Process output canvases
