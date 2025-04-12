@@ -116,7 +116,7 @@ extension GraphState {
 
         connectedInputs.forEach { inputs in
             guard let inputObserver = self.getInputObserver(coordinate: inputs),
-            let inputObserverNode = self.getNode(inputObserver.id.nodeId) else {
+                  let inputObserverNode = self.getNode(inputObserver.id.nodeId) else {
                 return
             }
             

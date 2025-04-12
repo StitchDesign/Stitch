@@ -284,23 +284,6 @@ extension InputNodeRowObserver {
         // We set this to false on default above
         connectedOutputObserver.containsDownstreamConnection = true
     }
-    
-    @MainActor
-    var currentBroadcastChoiceId: NodeId? {
-        guard self.nodeKind == .patch(.wirelessReceiver),
-              self.id.portId == 0,
-              Self.nodeIOType == .input else {
-            // log("NodeRowObserver: currentBroadcastChoice: did not have wireless node: returning nil")
-            return nil
-        }
-        
-        // the id of the connected wireless broadcast node
-        // TODO: why was there an `upstreamOutputCoordinate` but not a `upstreamOutputObserver` ?
-        //        let wirelessBroadcastId = self.upstreamOutputObserver?.id.nodeId
-        let wirelessBroadcastId = self.upstreamOutputCoordinate?.nodeId
-        // log("NodeRowObserver: currentBroadcastChoice: wirelessBroadcastId: \(wirelessBroadcastId)")
-        return wirelessBroadcastId
-    }
 }
 
 extension [InputNodeRowObserver] {

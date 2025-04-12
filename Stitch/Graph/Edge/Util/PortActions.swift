@@ -61,7 +61,7 @@ extension InputNodeRowObserver {
         }
 
         // Remove audio from disconnected speaker nodes.
-        else if self.nodeKind.isSpeakerNode,
+        else if node.kind.isSpeakerNode,
                 // Only look at this input if it is the media input
                 self.id.isMediaSelectorLocation,
                 let upstreamObserverNode = upstreamOutputObserver.nodeDelegate {

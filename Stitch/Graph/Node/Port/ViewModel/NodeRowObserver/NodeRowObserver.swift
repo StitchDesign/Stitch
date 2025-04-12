@@ -60,19 +60,6 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
          upstreamOutputCoordinate: NodeIOCoordinate?)
 }
 
-extension NodeRowObserver {
-    @MainActor
-    var nodeKind: NodeKind {
-        guard let nodeKind = self.nodeDelegate?.kind else {
-            // Gets called on layer deletion, commenting out fatal error
-//            fatalErrorIfDebug()
-            return .patch(.splitter)
-        }
-        
-        return nodeKind
-    }
-}
-
 extension NodeRowViewModel {
     var isLayerInspector: Bool {
         self.id.graphItemType.isLayerInspector
