@@ -54,7 +54,7 @@ final class ARAnchorObserver: MediaEvalOpObservable {
 }
 
 extension ARAnchorObserver {
-    func onPrototypeRestart() { }
+    func onPrototypeRestart(document: StitchDocumentViewModel) { }
 }
 
 @MainActor

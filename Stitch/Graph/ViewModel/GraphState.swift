@@ -531,8 +531,8 @@ extension GraphState {
                     rootUrl: self.documentEncoderDelegate?.rootUrl)
     }
     
-    @MainActor func onPrototypeRestart() {
-        self.nodes.values.forEach { $0.onPrototypeRestart() }
+    @MainActor func onPrototypeRestart(document: StitchDocumentViewModel) {
+        self.nodes.values.forEach { $0.onPrototypeRestart(document: document) }
         self.initializeGraphComputation()
     }
     

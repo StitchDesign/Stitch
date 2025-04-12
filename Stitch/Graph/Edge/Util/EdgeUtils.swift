@@ -115,11 +115,13 @@ extension GraphState {
         }
 
         connectedInputs.forEach { inputs in
-            guard let inputObserver = self.getInputObserver(coordinate: inputs) else {
+            guard let inputObserver = self.getInputObserver(coordinate: inputs),
+                  let inputObserverNode = self.getNode(inputObserver.id.nodeId) else {
                 return
             }
             
-            inputObserver.removeUpstreamConnection(isVisible: isNodeVisible)
+            inputObserver.removeUpstreamConnection(isVisible: isNodeVisible,
+                                                   node: inputObserverNode)
         }
     }
 }

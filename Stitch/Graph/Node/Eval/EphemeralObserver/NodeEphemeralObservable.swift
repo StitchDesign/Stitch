@@ -21,7 +21,7 @@ protocol NodeEphemeralObservable: AnyObject {
                          newType: UserVisibleType,
                          kind: NodeKind)
     
-    @MainActor func onPrototypeRestart()
+    @MainActor func onPrototypeRestart(document: StitchDocumentViewModel)
 }
 
 extension NodeEphemeralObservable {
@@ -57,7 +57,7 @@ final class ComputedNodeState: NodeEphemeralObservable {
 }
 
 extension ComputedNodeState {
-    func onPrototypeRestart() {
+    func onPrototypeRestart(document: StitchDocumentViewModel) {
         self.previousValue = nil
         self.preservedValues = .init()
         self.stopwatchIsRunning = false

@@ -122,13 +122,6 @@ extension NodeRowObserver {
         self.allLoopedValues[safe: activeIndex.adjustedIndex(self.allLoopedValues.count)] ?? .none
     }
             
-    @MainActor
-    func getComputedMediaObjects() -> [StitchMediaObject] {
-        self.nodeDelegate?.ephemeralObservers?.compactMap {
-            ($0 as? MediaEvalOpObservable)?.computedMedia?.mediaObject
-        } ?? []
-    }
-    
     // MARK: change args here if working
     @MainActor
     func label(useShortLabel: Bool = false,

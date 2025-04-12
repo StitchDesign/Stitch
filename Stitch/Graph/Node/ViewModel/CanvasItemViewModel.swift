@@ -186,7 +186,7 @@ extension CanvasItemViewModel {
         }
     }
     
-    func onPrototypeRestart() { }
+    func onPrototypeRestart(document: StitchDocumentViewModel) { }
 }
 
 extension CanvasItemViewModel {

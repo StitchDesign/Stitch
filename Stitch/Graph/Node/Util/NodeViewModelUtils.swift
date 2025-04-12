@@ -114,7 +114,21 @@ extension NodeViewModel {
     
     @MainActor
     var currentBroadcastChoiceId: NodeId? {
-        self.getInputRowObserver(0)?.currentBroadcastChoiceId
+        
+        guard self.kind == .patch(.wirelessReceiver) else {
+            return nil
+        }
+              
+        guard let firstInput = self.getInputRowObserver(0) else {
+            fatalErrorIfDebug()
+            return nil
+        }
+    
+        // the id of the connected wireless broadcast node
+        // TODO: why was there an `upstreamOutputCoordinate` but not a `upstreamOutputObserver` ?
+        let wirelessBroadcastId = firstInput.upstreamOutputCoordinate?.nodeId
+        // log("NodeRowObserver: currentBroadcastChoice: wirelessBroadcastId: \(wirelessBroadcastId)")
+        return wirelessBroadcastId
     }
 
     @MainActor

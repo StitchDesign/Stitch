@@ -46,10 +46,13 @@ extension NodeRowObserver {
         }
         
         // Potentially update interactiojn data
-        graph.updateInteractionCaches(
-            self,
-            oldValues: oldValues,
-            newValues: newValues)
+        if let patch = node.kind.getPatch,
+           patch.isInteractionPatchNode {
+            graph.updateInteractionCaches(self,
+                                          oldValues: oldValues,
+                                          newValues: newValues,
+                                          patch: patch)
+        }
         
         // Potentially update assigned layers
         if node.kind.isLayer,
@@ -74,15 +77,15 @@ extension GraphState {
     @MainActor
     func updateInteractionCaches<T: NodeRowObserver>(_ input: T,
                                                      oldValues: PortValues,
-                                                     newValues: PortValues) {
+                                                     newValues: PortValues,
+                                                     patch: Patch) {
         
         guard T.nodeIOType == .input else {
             fatalErrorIfDebug() // called incorrectly
             return
         }
                         
-        guard let patch = input.nodeKind.getPatch,
-              patch.isInteractionPatchNode,
+        guard patch.isInteractionPatchNode,
               input.id.portId == 0 else {
             return
         }

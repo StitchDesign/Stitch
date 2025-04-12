@@ -79,7 +79,7 @@ extension CommentBoxViewModel: SchemaObserver {
         )
     }
     
-    func onPrototypeRestart() { }
+    func onPrototypeRestart(document: StitchDocumentViewModel) { }
 }
 
 // TODO: move to view

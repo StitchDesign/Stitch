@@ -529,10 +529,10 @@ extension StitchDocumentViewModel {
         self.createSchema()
     }
     
-    @MainActor func onPrototypeRestart() {
+    @MainActor func onPrototypeRestart(document: StitchDocumentViewModel) {
         self.graphStepManager.resetGraphStepState()
         
-        self.graph.onPrototypeRestart()
+        self.graph.onPrototypeRestart(document: document)
         
         // Defocus the preview window's TextField layer
         if self.reduxFocusedField?.getTextFieldLayerInputEdit.isDefined ?? false {

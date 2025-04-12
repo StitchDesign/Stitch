@@ -70,7 +70,7 @@ final class NodeTimerEphemeralObserver: MediaEvalOpViewable {
 }
 
 extension NodeTimerEphemeralObserver {
-    @MainActor func onPrototypeRestart() {
+    @MainActor func onPrototypeRestart(document: StitchDocumentViewModel) {
         self.runningTimers = .init()
         self.prevDelayInputValue = nil
     }
