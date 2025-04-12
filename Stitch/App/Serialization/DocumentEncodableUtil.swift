@@ -20,6 +20,7 @@ extension DocumentEncodable {
         }
     }
 
+    @MainActor
     /// Called when GraphState is initialized to build library data and then run first calc.
     func getDecodedFiles() -> GraphDecodedFiles? {
         do {

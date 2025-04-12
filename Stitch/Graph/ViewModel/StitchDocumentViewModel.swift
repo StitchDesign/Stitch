@@ -199,13 +199,13 @@ final class StitchDocumentViewModel: Sendable {
                       isPhoneDevice: Bool,
                       projectLoader: ProjectLoader,
                       store: StitchStore,
-                      isDebugMode: Bool) async {
+                      isDebugMode: Bool) {
         let documentEncoder = DocumentEncoder(document: schema)
-
-        let graph = await GraphState(from: schema.graph,
-                                     localPosition: ABSOLUTE_GRAPH_CENTER, // schema.localPosition,
-                                     saveLocation: [],
-                                     encoder: documentEncoder)
+        
+        let graph = GraphState(from: schema.graph,
+                               localPosition: ABSOLUTE_GRAPH_CENTER, // schema.localPosition,
+                               saveLocation: [],
+                               encoder: documentEncoder)
                 
         self.init(from: schema,
                   graph: graph,
@@ -545,23 +545,18 @@ extension StitchDocumentViewModel {
     
     // TODO: this still doesn't quite have the correct projectLoader/encoderDelegate needed for all uses in the app
     @MainActor
-    static func createTestFriendlyDocument() async -> StitchDocumentViewModel {
+    static func createTestFriendlyDocument() -> StitchDocumentViewModel {
         let store = StitchStore()
         
-        await store.createNewProject(isProjectImport: false,
-                                     isPhoneDevice: false)
-        
-        guard let projectLoader = store.navPath.first,
-              let documentViewModel = projectLoader.documentViewModel else {
+        guard let (_, documentViewModel) = try? createNewProjectWithoutDocumentLoaderUpdate(
+            isProjectImport: false,
+            isPhoneDevice: false,
+            store: store) else {
             fatalError()
         }
-        
-        documentViewModel.documentEncoder = projectLoader.encoder!
-        documentViewModel.graph.documentEncoderDelegate = documentViewModel.documentEncoder
-        
-        assert(documentViewModel.documentEncoder.isDefined)
-        assert(documentViewModel.graph.documentEncoderDelegate.isDefined)
-        
+
+        assert(store.navPath.first?.loadedDocument?.0.id == documentViewModel.id.value)
+      
         return documentViewModel
     }
     

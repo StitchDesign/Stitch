@@ -23,7 +23,7 @@ extension StitchStore {
                                          isPhoneDevice: isPhoneDevice)
         }
     }
-    
+        
     func createNewProject(from document: StitchDocument = .init(),
                           isProjectImport: Bool,
                           isPhoneDevice: Bool) async {
