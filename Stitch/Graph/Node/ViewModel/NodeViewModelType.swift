@@ -49,7 +49,7 @@ extension NodeViewModelType {
     init(from nodeType: NodeTypeEntity,
          nodeId: NodeId,
          components: [UUID: StitchMasterComponent],
-         parentGraphPath: [UUID]) async {
+         parentGraphPath: [UUID])  {
         switch nodeType {
         case .patch, .layer, .group:
             self = .init(from: nodeType,
@@ -67,7 +67,7 @@ extension NodeViewModelType {
                 return
             }
             
-            let component = await StitchComponentViewModel(
+            let component = StitchComponentViewModel(
                 nodeId: nodeId,
                 componentEntity: componentEntity,
                 encodedComponent: masterComponent.lastEncodedDocument,

@@ -36,12 +36,12 @@ final class loopTests: XCTestCase {
     }
     
     @MainActor
-    func testJSONArray() async throws {
+    func testJSONArray() throws {
         /*
          Old bug: JSONArray was adding its output to the list of inputs to turn into an array.
          Not caught by existing JSONArrayFromValues test because the bug came from `nodeViewModel.loopedEval` helper.
          */
-        let document = await StitchDocumentViewModel.createTestFriendlyDocument()
+        let document = StitchDocumentViewModel.createTestFriendlyDocument()
         if let node = document.nodeInserted(choice: .patch(.jsonArray)) {
             
             // How many inputs does the JSONArray node have?

@@ -165,8 +165,9 @@ extension GraphState {
     convenience init(from schema: GraphEntity,
                      localPosition: CGPoint,
                      saveLocation: [UUID],
-                     encoder: (any DocumentEncodable)) async {
-        guard let decodedFiles = await encoder.getDecodedFiles() else {
+                     encoder: (any DocumentEncodable)) {
+//        guard let decodedFiles = await encoder.getDecodedFiles() else {
+        guard let decodedFiles = encoder.getDecodedFiles() else {
             fatalErrorIfDebug()
             self.init()
             return
@@ -176,7 +177,7 @@ extension GraphState {
         
         var nodes = NodesViewModelDict()
         for nodeEntity in schema.nodes {
-            let newNode = await NodeViewModel(from: nodeEntity,
+            let newNode = NodeViewModel(from: nodeEntity,
                                               components: components,
                                               parentGraphPath: saveLocation)
             nodes.updateValue(newNode, forKey: newNode.id)

@@ -79,8 +79,8 @@ final class NodeViewModel: Sendable {
     @MainActor
     convenience init(from schema: NodeEntity,
                      components: [UUID : StitchMasterComponent],
-                     parentGraphPath: [UUID]) async {
-        let nodeType = await NodeViewModelType(from: schema.nodeTypeEntity,
+                     parentGraphPath: [UUID]) {
+        let nodeType = NodeViewModelType(from: schema.nodeTypeEntity,
                                                nodeId: schema.id,
                                                components: components,
                                                parentGraphPath: parentGraphPath)
