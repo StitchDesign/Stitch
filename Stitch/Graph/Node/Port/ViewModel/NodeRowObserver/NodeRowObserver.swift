@@ -44,10 +44,7 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
     static var nodeIOType: NodeIO { get }
     
     @MainActor var allRowViewModels: [RowViewModelType] { get }
-    
-    @MainActor
-    var nodeDelegate: NodeViewModel? { get set }
-        
+            
     @MainActor
     var hasLoopedValues: Bool { get set }
         
@@ -174,7 +171,6 @@ extension NodeRowObserver {
     
     @MainActor
     func initializeDelegate(_ node: NodeViewModel, graph: GraphState) {
-        self.nodeDelegate = node
                 
         // TODO: why do we handle post-processing when we've assigned the nodeDelegate? ... is it just because post-processing requires a nodeDelegate?
         switch Self.nodeIOType {
