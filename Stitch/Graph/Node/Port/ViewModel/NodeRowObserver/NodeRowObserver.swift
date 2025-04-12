@@ -177,30 +177,28 @@ extension NodeRowObserver {
     init(values: PortValues,
          id: NodeIOCoordinate,
          upstreamOutputCoordinate: NodeIOCoordinate?,
-         nodeDelegate: NodeViewModel) {
+         nodeDelegate: NodeViewModel,
+         graph: GraphState) {
         self.init(values: values,
                   id: id,
                   upstreamOutputCoordinate: upstreamOutputCoordinate)
-        self.initializeDelegate(nodeDelegate)
+        self.initializeDelegate(nodeDelegate, graph: graph)
     }
     
     @MainActor
-    func initializeDelegate(_ node: NodeViewModel) {
+    func initializeDelegate(_ node: NodeViewModel, graph: GraphState) {
         self.nodeDelegate = node
                 
         // TODO: why do we handle post-processing when we've assigned the nodeDelegate? ... is it just because post-processing requires a nodeDelegate?
         switch Self.nodeIOType {
         case .input:
-            self.inputPostProcessing(oldValues: [], newValues: self.values)
+            self.inputPostProcessing(oldValues: [],
+                                     newValues: self.values,
+                                     graph: graph)
         case .output:
-            self.outputPostProcessing()
+            self.outputPostProcessing(graph)
         }
-        
-        // TODO: pass in GraphState? We ought to already have it when doing anything with a row observer
-        guard let graph = node.graphDelegate else {
-            return
-        }
-            
+                    
         // Update visual color data
         self.allRowViewModels.forEach {
             $0.updatePortColor(hasEdge: self.hasEdge,

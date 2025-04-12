@@ -282,12 +282,16 @@ extension LayerInputObserver {
      
     @MainActor
     func initializeDelegate(_ node: NodeViewModel,
-                            layer: Layer) {
+                            layer: Layer,
+                            activeIndex: ActiveIndex,
+                            graph: GraphState) {
                 
         self._packedData.initializeDelegate(node,
                                             // Not relevant for packed data
                                             unpackedPortParentFieldGroupType: nil,
-                                            unpackedPortIndex: nil)
+                                            unpackedPortIndex: nil,
+                                            activeIndex: activeIndex,
+                                            graph: graph)
                 
         let layerInput: LayerInputPort = self.port
                 
@@ -303,7 +307,9 @@ extension LayerInputObserver {
         self._unpackedData.allPorts.enumerated().forEach { fieldIndex, port in
             port.initializeDelegate(node,
                                     unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                    unpackedPortIndex: fieldIndex)
+                                    unpackedPortIndex: fieldIndex,
+                                    activeIndex: activeIndex,
+                                    graph: graph)
         }
     }
     

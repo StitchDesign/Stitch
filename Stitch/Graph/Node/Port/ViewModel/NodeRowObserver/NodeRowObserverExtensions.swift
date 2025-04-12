@@ -16,7 +16,9 @@ extension NodeRowObserver {
     // Called by both `updateValuesInInput` and `updateValuesInOutput`;
     // handles logic common to both
     @MainActor
-    func setValuesInRowObserver(_ newValues: PortValues) {
+    func setValuesInRowObserver(_ newValues: PortValues,
+                                selectedEdges: Set<PortEdgeUI>,
+                                drawingObserver: EdgeDrawingObserver) {
         
         self.allLoopedValues = newValues
         
@@ -26,21 +28,12 @@ extension NodeRowObserver {
             self.hasLoopedValues = hasLoop
         }
         
-        guard let graph = self.nodeDelegate?.graphDelegate else {
-            return
-        }
-        
         self.allRowViewModels.forEach {
             $0.updatePortColor(hasEdge: self.hasEdge,
                                hasLoop: self.hasLoopedValues,
-                               selectedEdges: graph.selectedEdges,
-                               drawingObserver: graph.edgeDrawingObserver)
+                               selectedEdges: selectedEdges,
+                               drawingObserver: drawingObserver)
         }
-    }
-    
-    @MainActor
-    var userVisibleType: UserVisibleType? {
-        self.nodeDelegate?.userVisibleType
     }
     
     /// Updates port view models when the backend port observer has been updated.
@@ -55,7 +48,7 @@ extension NodeRowObserver {
             return
         }
         
-        guard let node: NodeViewModel = self.nodeDelegate else {
+        guard let node: NodeViewModel = graph.getNode(self.id.nodeId) else {
             // Should this be a fatalError?
 //            fatalErrorIfDebug("updatePortViewModels: no node delegate")
             log("updatePortViewModels: no node delegate")
@@ -141,7 +134,7 @@ extension NodeRowObserver {
     func label(useShortLabel: Bool = false,
                node: NodeViewModel,
                coordinate: Coordinate,
-               graph: GraphState) -> String {     
+               graph: GraphState) -> String {
         /*
          Two scenarios re: a Group Node and its splitters:
          
@@ -173,7 +166,7 @@ extension NodeRowObserver {
                 return String(variableChar)
             }
             
-            let rowDefinitions = node.kind.graphNode?.rowDefinitions(for: userVisibleType) ?? node.kind.rowDefinitions(for: userVisibleType)
+            let rowDefinitions = node.kind.graphNode?.rowDefinitions(for: node.userVisibleType) ?? node.kind.rowDefinitions(for: node.userVisibleType)
             
             // Note: when an input is added (e.g. adding an input to an Add node),
             // the newly-added input will not be found in the rowDefinitions,

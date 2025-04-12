@@ -90,9 +90,12 @@ extension InputNodeRowObserver {
          In such cases, we assume the incoming value is the correct type and set them directly.
          */
         // TODO: Pass down NodeViewModel and `currentGraphTime` directly? Greater referential transparency and avoids confusion about where/when delegates have been set / not yet set.
+                
         guard let node = self.nodeDelegate,
               let graph = node.graphDelegate else {
-            self.setValuesInRowObserver(incomingValues)
+            self.setValuesInRowObserver(incomingValues,
+                                        selectedEdges: .init(),
+                                        drawingObserver: .init())
             return
         }
 
@@ -111,11 +114,14 @@ extension InputNodeRowObserver {
         }
         
         // Set the coerced values in the input
-        self.setValuesInRowObserver(newValues)
+        self.setValuesInRowObserver(newValues,
+                                    selectedEdges: graph.selectedEdges,
+                                    drawingObserver: graph.edgeDrawingObserver)
         
         // Update other parts of graph state in response to input change
         self.inputPostProcessing(oldValues: oldValues,
-                                 newValues: newValues)
+                                 newValues: newValues,
+                                 graph: graph)
     }
     
     // ONLY called by StitchEngine
@@ -302,12 +308,14 @@ extension [InputNodeRowObserver] {
     init(values: PortValuesList,
          id: NodeId,
          nodeIO: NodeIO,
-         nodeDelegate: NodeViewModel) {
+         nodeDelegate: NodeViewModel,
+         graph: GraphState) {
         self = values.enumerated().map { portId, values in
             Element(values: values,
                     id: NodeIOCoordinate(portId: portId, nodeId: id),
                     upstreamOutputCoordinate: nil,
-                    nodeDelegate: nodeDelegate)
+                    nodeDelegate: nodeDelegate,
+                    graph: graph)
         }
     }
 }
