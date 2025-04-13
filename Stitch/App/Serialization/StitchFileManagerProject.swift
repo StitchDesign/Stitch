@@ -55,7 +55,6 @@ extension DocumentEncodable {
         return mainResources + tempResources
     }
     
-    @MainActor
     func readAllImportedFiles() throws -> StitchDocumentDirectory {
         try Self.readAllImportedFiles(rootUrl: self.rootUrl)
     }
