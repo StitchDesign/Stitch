@@ -172,7 +172,7 @@ extension GraphState {
             return
         }
         
-        let components =  decodedFiles.components.createComponentsDict(parentGraph: nil)
+        let components = decodedFiles.components.createComponentsDict(parentGraph: nil)
         
         var nodes = NodesViewModelDict()
         for nodeEntity in schema.nodes {
