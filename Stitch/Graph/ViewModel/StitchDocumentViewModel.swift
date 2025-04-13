@@ -131,7 +131,6 @@ final class StitchDocumentViewModel: Sendable {
     @MainActor
     init(from schema: StitchDocument,
          graph: GraphState,
-         isPhoneDevice: Bool,
          projectLoader: ProjectLoader,
          store: StitchStore,
          isDebugMode: Bool) {
@@ -196,7 +195,6 @@ final class StitchDocumentViewModel: Sendable {
     
     @MainActor
     convenience init?(from schema: StitchDocument,
-                      isPhoneDevice: Bool,
                       projectLoader: ProjectLoader,
                       store: StitchStore,
                       isDebugMode: Bool) async {
@@ -209,7 +207,6 @@ final class StitchDocumentViewModel: Sendable {
                 
         self.init(from: schema,
                   graph: graph,
-                  isPhoneDevice: isPhoneDevice,
                   projectLoader: projectLoader,
                   store: store,
                   isDebugMode: isDebugMode)
@@ -545,20 +542,11 @@ extension StitchDocumentViewModel {
     
     // TODO: this still doesn't quite have the correct projectLoader/encoderDelegate needed for all uses in the app
     @MainActor
-    static func createTestFriendlyDocument() async -> StitchDocumentViewModel {
-        let store = StitchStore()
-        
-        await store.createNewProject(isProjectImport: false,
-                                     isPhoneDevice: false)
-        
-        guard let projectLoader = store.navPath.first,
-              let documentViewModel = projectLoader.documentViewModel else {
-            fatalError()
-        }
-        
-        documentViewModel.documentEncoder = projectLoader.encoder!
-        documentViewModel.graph.documentEncoderDelegate = documentViewModel.documentEncoder
-        
+    static func createTestFriendlyDocument(_ store: StitchStore) -> StitchDocumentViewModel {
+//        let store = StitchStore()
+        let (projectLoader, documentViewModel) = try! createNewEmptyProject(store: store)
+        store.navPath = [projectLoader]
+                
         assert(documentViewModel.documentEncoder.isDefined)
         assert(documentViewModel.graph.documentEncoderDelegate.isDefined)
         
@@ -572,7 +560,6 @@ extension StitchDocumentViewModel {
         
         return .init(from: doc,
                      graph: .init(),
-                     isPhoneDevice: false,
                      projectLoader: loader,
                      store: store,
                      isDebugMode: false)

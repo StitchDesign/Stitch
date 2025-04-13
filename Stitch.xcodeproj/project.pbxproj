@@ -566,6 +566,7 @@
 		EC5A2DE3263202FC00D8DEE5 /* VisualMediaLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5A2DE2263202FC00D8DEE5 /* VisualMediaLayerNode.swift */; };
 		EC5BC3DF2D681331000DF722 /* JSONCoercionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5BC3DE2D681331000DF722 /* JSONCoercionUtils.swift */; };
 		EC5C6C3A2C2DAE690023D0C0 /* LLMActionRecording.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5C6C392C2DAE690023D0C0 /* LLMActionRecording.swift */; };
+		EC5D34342DAB770E00B093C3 /* SynchronousDocumentViewModelInitializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5D34332DAB770E00B093C3 /* SynchronousDocumentViewModelInitializer.swift */; };
 		EC5E3A1828188DF5001E156F /* ProjectDestructiveActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5E3A1728188DF5001E156F /* ProjectDestructiveActions.swift */; };
 		EC5E6C872B717F0800B4CACC /* AnimatableCircuitLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5E6C862B717F0800B4CACC /* AnimatableCircuitLine.swift */; };
 		EC5E6C892B71839600B4CACC /* AnimatableForwardCircuitLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5E6C882B71839600B4CACC /* AnimatableForwardCircuitLine.swift */; };
@@ -1535,6 +1536,7 @@
 		EC5A2DE2263202FC00D8DEE5 /* VisualMediaLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualMediaLayerNode.swift; sourceTree = "<group>"; };
 		EC5BC3DE2D681331000DF722 /* JSONCoercionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONCoercionUtils.swift; sourceTree = "<group>"; };
 		EC5C6C392C2DAE690023D0C0 /* LLMActionRecording.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMActionRecording.swift; sourceTree = "<group>"; };
+		EC5D34332DAB770E00B093C3 /* SynchronousDocumentViewModelInitializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SynchronousDocumentViewModelInitializer.swift; sourceTree = "<group>"; };
 		EC5E3A1728188DF5001E156F /* ProjectDestructiveActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectDestructiveActions.swift; sourceTree = "<group>"; };
 		EC5E6C862B717F0800B4CACC /* AnimatableCircuitLine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatableCircuitLine.swift; sourceTree = "<group>"; };
 		EC5E6C882B71839600B4CACC /* AnimatableForwardCircuitLine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatableForwardCircuitLine.swift; sourceTree = "<group>"; };
@@ -3075,6 +3077,7 @@
 				8B0A6B14271E7978002D6BD9 /* DirectoryObserver.swift */,
 				B51523B92B8C2F79000042CF /* ProjectLoader.swift */,
 				B51523BB2B8C2FB1000042CF /* DocumentLoader.swift */,
+				EC5D34332DAB770E00B093C3 /* SynchronousDocumentViewModelInitializer.swift */,
 				B539C2E92B92BF3D00C6CEC3 /* DocumentEncodable.swift */,
 				B5E0DDF728DA88090080BE71 /* StitchFileManager.swift */,
 			);
@@ -5144,6 +5147,7 @@
 				ECB9A8652AEB48A2006E65EE /* StitchColorPickerView.swift in Sources */,
 				B55500EF2C1BADB20081C3F1 /* PreviewCommonMisc.swift in Sources */,
 				ECF93A322697462B000AA85A /* ScrubbedVideoView.swift in Sources */,
+				EC5D34342DAB770E00B093C3 /* SynchronousDocumentViewModelInitializer.swift in Sources */,
 				EC4D95A126B4908600AD5AB4 /* PrototypeActions.swift in Sources */,
 				EC15CDE12C49D68A007CE763 /* StitchSpacingUtils.swift in Sources */,
 				E40B2F502CB86D21005F5479 /* StitchAIEvents.swift in Sources */,
