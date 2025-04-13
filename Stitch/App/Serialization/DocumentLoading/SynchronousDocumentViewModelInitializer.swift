@@ -8,7 +8,7 @@
 import Foundation
 
 /*
- Primarily intended for test contexts, but could be used in main app.
+ Primarily intended for test contexts, but could be used in main app if connected properly with DocumentLoader ?
  
  TODO: Why didn't we have a sync initializer already?: https://github.com/StitchDesign/Stitch--Old/issues/7134
  */
@@ -35,11 +35,9 @@ func createNewEmptyProject(store: StitchStore) throws -> (ProjectLoader, StitchD
     
     let document: StitchDocumentViewModel = .init(from: documentSchema,
                                                   graph: graph,
-                                                  isPhoneDevice: false, // parameter no longer used
                                                   projectLoader: projectLoader,
                                                   store: store,
                                                   isDebugMode: false)
-    
 
     // TODO: why do we need to set the previewWindow on the document?
     let previewDevice = UserDefaults.standard.string(forKey: DEFAULT_PREVIEW_WINDOW_DEVICE_KEY_NAME)

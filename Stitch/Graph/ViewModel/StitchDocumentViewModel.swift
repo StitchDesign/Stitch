@@ -131,7 +131,6 @@ final class StitchDocumentViewModel: Sendable {
     @MainActor
     init(from schema: StitchDocument,
          graph: GraphState,
-         isPhoneDevice: Bool,
          projectLoader: ProjectLoader,
          store: StitchStore,
          isDebugMode: Bool) {
@@ -196,7 +195,6 @@ final class StitchDocumentViewModel: Sendable {
     
     @MainActor
     convenience init?(from schema: StitchDocument,
-                      isPhoneDevice: Bool,
                       projectLoader: ProjectLoader,
                       store: StitchStore,
                       isDebugMode: Bool) async {
@@ -209,7 +207,6 @@ final class StitchDocumentViewModel: Sendable {
                 
         self.init(from: schema,
                   graph: graph,
-                  isPhoneDevice: isPhoneDevice,
                   projectLoader: projectLoader,
                   store: store,
                   isDebugMode: isDebugMode)
@@ -563,7 +560,6 @@ extension StitchDocumentViewModel {
         
         return .init(from: doc,
                      graph: .init(),
-                     isPhoneDevice: false,
                      projectLoader: loader,
                      store: store,
                      isDebugMode: false)

@@ -147,7 +147,6 @@ extension DocumentLoader {
     @MainActor
     func createNewProject(from document: StitchDocument = .init(),
                           isProjectImport: Bool,
-                          isPhoneDevice: Bool,
                           store: StitchStore) async throws {
         let projectLoader = try await self.installDocument(document: document)
         
@@ -156,7 +155,6 @@ extension DocumentLoader {
         
         let documentViewModel = await StitchDocumentViewModel(
             from: document,
-            isPhoneDevice: isPhoneDevice,
             projectLoader: projectLoader,
             store: store,
             isDebugMode: false
