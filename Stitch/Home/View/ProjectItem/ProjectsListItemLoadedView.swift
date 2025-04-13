@@ -98,7 +98,6 @@ extension StitchStore {
     @MainActor
     func handleProjectTapped(projectLoader: ProjectLoader,
                              document: StitchDocument,
-                             isPhoneDevice: Bool,
                              isDebugMode: Bool,
                              loadedCallback: @MainActor @Sendable @escaping () -> ()) {
         Task { [weak projectLoader] in
@@ -106,7 +105,6 @@ extension StitchStore {
             
             let documentViewModel = await StitchDocumentViewModel(
                 from: document,
-                isPhoneDevice: isPhoneDevice,
                 projectLoader: projectLoader,
                 store: self,
                 isDebugMode: isDebugMode

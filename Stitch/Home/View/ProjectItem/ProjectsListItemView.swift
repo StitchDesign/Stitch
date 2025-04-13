@@ -109,7 +109,6 @@ struct ProjectsListItemView: View {
         
         store.handleProjectTapped(projectLoader: self.projectLoader,
                                   document: document,
-                                  isPhoneDevice: StitchDocumentViewModel.isPhoneDevice,
                                   isDebugMode: inDebug) {
             self.isLoadingForPresentation = false
         }

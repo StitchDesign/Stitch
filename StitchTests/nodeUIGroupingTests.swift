@@ -32,27 +32,9 @@ class GroupNodeTests: XCTestCase {
     @MainActor
     func createSimpleGroupNode() async -> (StitchDocumentViewModel, NodeViewModel) {
                 
-        await store.createNewProject(isProjectImport: false,
-                                     isPhoneDevice: false)
+        let documentViewModel = StitchDocumentViewModel.createTestFriendlyDocument(store)
         
-        guard let projectLoader = store.navPath.first,
-              let documentViewModel = projectLoader.documentViewModel else {
-            fatalError()
-        }
-        
-        documentViewModel.documentEncoder = projectLoader.encoder!
-        documentViewModel.graph.documentEncoderDelegate = documentViewModel.documentEncoder
-        
-        assert(documentViewModel.documentEncoder.isDefined)
-        assert(documentViewModel.graph.documentEncoderDelegate.isDefined)
-        
-//        return documentViewModel
-        
-        
-//        let document = await StitchDocumentViewModel.createTestFriendlyDocument()
         let graphState = documentViewModel.graph
-
-        graphState.documentDelegate = documentViewModel
         
         // Create two Add nodes
         guard let node1 = documentViewModel.nodeInserted(choice: .patch(.add)),

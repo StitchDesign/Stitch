@@ -14,24 +14,20 @@ extension StitchStore {
     @MainActor
     func createNewProjectSideEffect(from document: StitchDocument = .init(),
                                     isProjectImport: Bool) {
-        let isPhoneDevice = StitchDocumentViewModel.isPhoneDevice
-        
+
         Task(priority: .high) { [weak self] in
             guard let store = self else { return }
             await store.createNewProject(from: document,
-                                         isProjectImport: isProjectImport,
-                                         isPhoneDevice: isPhoneDevice)
+                                         isProjectImport: isProjectImport)
         }
     }
     
     func createNewProject(from document: StitchDocument = .init(),
-                          isProjectImport: Bool,
-                          isPhoneDevice: Bool) async {
+                          isProjectImport: Bool) async {
         do {
             try await self.documentLoader.createNewProject(
                 from: document,
                 isProjectImport: isProjectImport,
-                isPhoneDevice: isPhoneDevice,
                 store: self)
         } catch {
             log("StitchStore.createNewProject error: \(error.localizedDescription)")
