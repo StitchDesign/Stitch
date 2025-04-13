@@ -91,10 +91,10 @@ final class NodeViewModel: Sendable {
     @MainActor
     convenience init(from schema: NodeEntity,
                      graphDelegate: GraphState,
-                     document: StitchDocumentViewModel) {
-        self.init(from: schema,
-                  components: graphDelegate.components,
-                  parentGraphPath: graphDelegate.saveLocation)
+                     document: StitchDocumentViewModel) async {
+        await self.init(from: schema,
+                        components: graphDelegate.components,
+                        parentGraphPath: graphDelegate.saveLocation)
         self.initializeDelegate(graph: graphDelegate,
                                 document: document)
     }
