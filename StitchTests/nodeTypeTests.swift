@@ -11,9 +11,11 @@ import StitchSchemaKit
 
 final class nodeTypeTests: XCTestCase {
 
+    @MainActor var store = StitchStore()
+    
     @MainActor
-    func testNodeTypeChange() async throws {
-        let document = await StitchDocumentViewModel.createTestFriendlyDocument()
+    func testNodeTypeChange() throws {
+        let document = StitchDocumentViewModel.createTestFriendlyDocument(store)
         let node = try XCTUnwrap(document.nodeInserted(choice: .patch(.add)))
         
         let numberInputs = node.inputsObservers.allSatisfy { (input: InputNodeRowObserver) in

@@ -545,20 +545,11 @@ extension StitchDocumentViewModel {
     
     // TODO: this still doesn't quite have the correct projectLoader/encoderDelegate needed for all uses in the app
     @MainActor
-    static func createTestFriendlyDocument() async -> StitchDocumentViewModel {
-        let store = StitchStore()
-        
-        await store.createNewProject(isProjectImport: false,
-                                     isPhoneDevice: false)
-        
-        guard let projectLoader = store.navPath.first,
-              let documentViewModel = projectLoader.documentViewModel else {
-            fatalError()
-        }
-        
-        documentViewModel.documentEncoder = projectLoader.encoder!
-        documentViewModel.graph.documentEncoderDelegate = documentViewModel.documentEncoder
-        
+    static func createTestFriendlyDocument(_ store: StitchStore) -> StitchDocumentViewModel {
+//        let store = StitchStore()
+        let (projectLoader, documentViewModel) = try! createNewEmptyProject(store: store)
+        store.navPath = [projectLoader]
+                
         assert(documentViewModel.documentEncoder.isDefined)
         assert(documentViewModel.graph.documentEncoderDelegate.isDefined)
         

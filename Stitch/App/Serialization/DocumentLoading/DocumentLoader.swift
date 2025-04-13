@@ -174,11 +174,10 @@ extension DocumentLoader {
             documentViewModel.previewWindowSize = document.previewWindowSize
         } else {
             // Get latest preview window size
-            guard let previewDevice = PreviewWindowDevice(rawValue: UserDefaults.standard.string(forKey: DEFAULT_PREVIEW_WINDOW_DEVICE_KEY_NAME) ??
-                                                          PreviewWindowDevice.defaultPreviewWindowDevice.rawValue) else {
-                fatalErrorIfDebug()
-                return
-            }
+            let previewDevice = UserDefaults.standard.string(forKey: DEFAULT_PREVIEW_WINDOW_DEVICE_KEY_NAME)
+                .flatMap { PreviewWindowDevice(rawValue: $0) }
+            ?? PreviewWindowDevice.defaultPreviewWindowDevice
+            
             documentViewModel.previewSizeDevice = previewDevice
             documentViewModel.previewWindowSize = previewDevice.previewWindowDimensions
         }
