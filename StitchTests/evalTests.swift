@@ -15,6 +15,7 @@ import XCTest
 class EvalTests: XCTestCase {
     @MainActor var store = StitchStore()
     
+    // Cannot be async, so cannot be used to create a document
     @MainActor
     override func setUp() {
         self.store = StitchStore() // wipe the store
@@ -22,9 +23,9 @@ class EvalTests: XCTestCase {
     
     @MainActor
     func loopSelectEval(inputs: PortValuesList,
-                        outputs: PortValuesList) -> PortValuesList {
+                        outputs: PortValuesList) async -> PortValuesList {
         
-        let document = StitchDocumentViewModel.createTestFriendlyDocument()
+        let document = await StitchDocumentViewModel.createTestFriendlyDocument()
         let graphState = document.visibleGraph
         
         
@@ -50,8 +51,8 @@ class EvalTests: XCTestCase {
 
     /// Runs all evals to make sure nodes can initialize.
     @MainActor
-    func testRunAllEvals() throws {
-        let document = StitchDocumentViewModel.createTestFriendlyDocument()
+    func testRunAllEvals() async throws {
+        let document = await StitchDocumentViewModel.createTestFriendlyDocument()
         let graphState = document.visibleGraph
         
         graphState.graphStepManager.graphTimeCurrent = 4
@@ -651,7 +652,7 @@ class EvalTests: XCTestCase {
 
     // single value selection
     @MainActor
-    func testLoopSelectEvalSingleSelection() throws {
+    func testLoopSelectEvalSingleSelection() async throws {
 
         // "input"
         let input1: PortValues = [.string(.init("apple")), .string(.init("carrot")), .string(.init("orange"))]
@@ -665,7 +666,7 @@ class EvalTests: XCTestCase {
         // "output index"
         let expectedOutput2: PortValues = [.number(0)]
 
-        let result: PortValuesList = loopSelectEval(
+        let result: PortValuesList = await loopSelectEval(
             inputs: [input1, input2],
             outputs: [] // none, starting out
         )
@@ -675,7 +676,7 @@ class EvalTests: XCTestCase {
     }
 
     @MainActor
-    func testLoopSelectEvalNegativeSingleSelection() throws {
+    func testLoopSelectEvalNegativeSingleSelection() async throws {
 
         let apple = "apple"
         let carrot = "carrot"
@@ -692,78 +693,78 @@ class EvalTests: XCTestCase {
         let input2: PortValues = [.number(-1)]
 
         let getResult = { (index: Int) -> PortValuesList in
-            self.loopSelectEval(inputs: [input1,
+            await self.loopSelectEval(inputs: [input1,
                                          [.number(Double(index))]],
                                 outputs: [])
         }
 
         // POSITIVE INDICES
-        let _result0 = getResult(0)
+        let _result0 = await getResult(0)
         XCTAssertEqual(_result0.first!, [.string(.init(apple))])
         XCTAssertEqual(_result0[1], [.number(0)])
 
-        let _result1 = getResult(1)
+        let _result1 = await getResult(1)
         XCTAssertEqual(_result1.first!, [.string(.init(carrot))])
         XCTAssertEqual(_result1[1], [.number(0)])
 
-        let _result2 = getResult(2)
+        let _result2 = await getResult(2)
         XCTAssertEqual(_result2.first!, [.string(.init(orange))])
         XCTAssertEqual(_result2[1], [.number(0)])
 
-        let _result3 = getResult(3)
+        let _result3 = await getResult(3)
         XCTAssertEqual(_result3.first!, [.string(.init(apple))])
         XCTAssertEqual(_result3[1], [.number(0)])
 
-        let _result4 = getResult(4)
+        let _result4 = await getResult(4)
         XCTAssertEqual(_result4.first!, [.string(.init(carrot))])
         XCTAssertEqual(_result4[1], [.number(0)])
 
-        let _result5 = getResult(5)
+        let _result5 = await getResult(5)
         XCTAssertEqual(_result5.first!, [.string(.init(orange))])
         XCTAssertEqual(_result5[1], [.number(0)])
 
-        let _result6 = getResult(6)
+        let _result6 = await getResult(6)
         XCTAssertEqual(_result6.first!, [.string(.init(apple))])
         XCTAssertEqual(_result6[1], [.number(0)])
 
-        let _result7 = getResult(7)
+        let _result7 = await getResult(7)
         XCTAssertEqual(_result7.first!, [.string(.init(carrot))])
         XCTAssertEqual(_result7[1], [.number(0)])
 
         // NEGATIVE INDICES
 
         // index = -1 currently giving us "apple", whereas we expect "orange"
-        let result1 = getResult(-1)
+        let result1 = await getResult(-1)
         XCTAssertEqual(result1.first!, [.string(.init(orange))])
         XCTAssertEqual(result1[1], [.number(0)])
 
         // index = -2
-        let result2 = getResult(-2)
+        let result2 = await getResult(-2)
         XCTAssertEqual(result2.first!, [.string(.init(carrot))])
         XCTAssertEqual(result2[1], [.number(0)])
 
         // index = -3
-        let result3 = getResult(-3)
+        let result3 = await getResult(-3)
         XCTAssertEqual(result3.first!, [.string(.init(apple))])
         XCTAssertEqual(result3[1], [.number(0)])
 
         // index = -4
-        let result4 = getResult(-4)
+        let result4 = await getResult(-4)
         XCTAssertEqual(result4.first!, [.string(.init(orange))])
         XCTAssertEqual(result4[1], [.number(0)])
 
         // index = -5
-        let result5 = getResult(-5)
+        let result5 = await getResult(-5)
         XCTAssertEqual(result5.first!, [.string(.init(carrot))])
         XCTAssertEqual(result5[1], [.number(0)])
 
         // index = -6
-        let result6 = getResult(-6)
+        let result6 = await getResult(-6)
         XCTAssertEqual(result6.first!, [.string(.init(apple))])
         XCTAssertEqual(result6[1], [.number(0)])
 
         // index = -4
-        let result7 = getResult(-7)
+        let result7 = await getResult(-7)
         XCTAssertEqual(result7.first!, [.string(.init(orange))])
         XCTAssertEqual(result7[1], [.number(0)])
 
@@ -773,7 +774,7 @@ class EvalTests: XCTestCase {
 
     // see for details: https://origami.design/documentation/patches/builtin.loop.selectReorder.html
     @MainActor
-    func testLoopSelectEvalMultiSelection() throws {
+    func testLoopSelectEvalMultiSelection() async throws {
 
         // "input"
         let input1: PortValues = [.string(.init("apple")), .string(.init("carrot")), .string(.init("orange"))]
@@ -787,7 +788,7 @@ class EvalTests: XCTestCase {
         // "output index"
         let expectedOutput2: PortValues = [.number(0), .number(1), .number(2)]
 
-        let result: PortValuesList = loopSelectEval(
+        let result: PortValuesList = await loopSelectEval(
             inputs: [input1, input2],
             outputs: [] // none, starting out
         )
@@ -797,7 +798,7 @@ class EvalTests: XCTestCase {
     }
 
     @MainActor
-    func testLoopSelectEvalMultiSelectionUnequalLength() throws {
+    func testLoopSelectEvalMultiSelectionUnequalLength() async throws {
 
         // "input"
         let input1: PortValues = [.string(.init("apple")), .string(.init("carrot")), .string(.init("orange"))]
@@ -811,7 +812,7 @@ class EvalTests: XCTestCase {
         // "output index"
         let expectedOutput2: PortValues = [.number(0), .number(1)]
 
-        let result: PortValuesList = loopSelectEval(
+        let result: PortValuesList = await loopSelectEval(
             inputs: [input1, input2],
             outputs: [] // none, starting out
         )
