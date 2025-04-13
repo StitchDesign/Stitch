@@ -149,68 +149,61 @@ extension DocumentLoader {
                           isProjectImport: Bool,
                           isPhoneDevice: Bool,
                           store: StitchStore) async throws {
+        let projectLoader = try await self.installDocument(document: document)
         
-        if let (projectLoader, documentViewModel) = try createNewProjectWithoutDocumentLoaderUpdate(
-            isProjectImport: isProjectImport,
+        await self.updateStorage(with: projectLoader,
+                                 url: document.rootUrl)
+        
+        let documentViewModel = await StitchDocumentViewModel(
+            from: document,
             isPhoneDevice: isPhoneDevice,
-            store: store) {
-            
-            // Note: `async` because it uses a different Actor.
-            // `DocumentLoader` lives on StitchStore, but passing
-            // the ProjectLoader class in an action risks a retain cycle?
-            await self.updateStorage(with: projectLoader,
-                                     url: document.rootUrl)
+            projectLoader: projectLoader,
+            store: store,
+            isDebugMode: false
+        )
+        
+        documentViewModel?.didDocumentChange = true // creates fresh thumbnail
+        
+        // TODO: why and how can this fail? Should we have a `fatalErrorIfDebug here?
+        guard let documentViewModel = documentViewModel else { return }
+        
+        projectLoader.loadingDocument = .loaded(document, nil)
+        
+        if isProjectImport {
+            documentViewModel.previewSizeDevice = document.previewSizeDevice
+            documentViewModel.previewWindowSize = document.previewWindowSize
+        } else {
+            // Get latest preview window size
+            guard let previewDevice = PreviewWindowDevice(rawValue: UserDefaults.standard.string(forKey: DEFAULT_PREVIEW_WINDOW_DEVICE_KEY_NAME) ??
+                                                          PreviewWindowDevice.defaultPreviewWindowDevice.rawValue) else {
+                fatalErrorIfDebug()
+                return
+            }
+            documentViewModel.previewSizeDevice = previewDevice
+            documentViewModel.previewWindowSize = previewDevice.previewWindowDimensions
         }
+        
+        projectLoader.documentViewModel = documentViewModel
+        store.navPath = [projectLoader]
     }
-}
 
-@MainActor
-func createNewProjectWithoutDocumentLoaderUpdate(from document: StitchDocument = .init(),
-                                                 isProjectImport: Bool,
-                                                 isPhoneDevice: Bool,
-                                                 store: StitchStore) throws -> (ProjectLoader, StitchDocumentViewModel)? {
-    
-    let projectLoader = ProjectLoader(url: document.rootUrl)
-    try document.installDocument()
-    projectLoader.encoder = .init(document: document)
-    projectLoader.loadingDocument = .loaded(document, nil)
-            
-    let documentViewModel = StitchDocumentViewModel(
-        from: document,
-        isPhoneDevice: isPhoneDevice,
-        projectLoader: projectLoader,
-        store: store,
-        isDebugMode: false
-    )
-    
-    documentViewModel?.didDocumentChange = true // creates fresh thumbnail
-    
-    // TODO: why and how can this fail? Should we have a `fatalErrorIfDebug here?
-    guard let documentViewModel = documentViewModel else {
-        log("DocumentLoader.createNewProject: did not have a document view model")
-        return nil
-    }
-            
-    if isProjectImport {
-        documentViewModel.previewSizeDevice = document.previewSizeDevice
-        documentViewModel.previewWindowSize = document.previewWindowSize
-    } else {
-        // Get latest preview window size
-        guard let previewDevice = PreviewWindowDevice(rawValue: UserDefaults.standard.string(forKey: DEFAULT_PREVIEW_WINDOW_DEVICE_KEY_NAME) ??
-                                                      PreviewWindowDevice.defaultPreviewWindowDevice.rawValue) else {
-            fatalErrorIfDebug()
-            return nil
+    func installDocument(document: StitchDocument) async throws -> ProjectLoader {
+        let rootUrl = document.rootUrl
+        let projectLoader = await ProjectLoader(url: rootUrl)
+        
+        try document.installDocument()
+        
+        await MainActor.run { [weak projectLoader] in
+            projectLoader?.encoder = .init(document: document)
+            projectLoader?.loadingDocument = .loaded(document, nil)
         }
-        documentViewModel.previewSizeDevice = previewDevice
-        documentViewModel.previewWindowSize = previewDevice.previewWindowDimensions
+
+        self.storage.updateValue(projectLoader,
+                                 forKey: rootUrl)
+        return projectLoader
     }
     
-    projectLoader.documentViewModel = documentViewModel
-    store.navPath = [projectLoader]
-    
-    return (projectLoader, documentViewModel)
 }
-
 
 extension StitchDocumentEncodable {
     func installDocument() throws {        
