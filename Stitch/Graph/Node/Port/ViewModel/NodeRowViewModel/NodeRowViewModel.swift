@@ -16,42 +16,36 @@ protocol NodeRowViewModel: StitchLayoutCachable, Observable, Identifiable {
     
     var id: NodeRowViewModelId { get }
     
-    // View-specific value that only updates when visible
-    // separate propety for perf reasons:
-    @MainActor var activeValue: PortValue { get set }
-    
-    // Holds view models for fields
-    @MainActor var fieldValueTypes: [FieldGroupTypeData] { get set }
-    
-    @MainActor var connectedCanvasItems: Set<CanvasItemId> { get set }
-    
-    @MainActor var anchorPoint: CGPoint? { get set }
-    
-    @MainActor var portColor: PortColor { get set }
-    
-    @MainActor var portViewData: PortViewType? { get set }
-    
-    @MainActor var isDragging: Bool { get set }
-    
-    @MainActor var nodeDelegate: NodeViewModel? { get set }
-    
-    @MainActor var rowDelegate: RowObserver? { get set }
-    
-    @MainActor var canvasItemDelegate: CanvasItemViewModel? { get set }
-    
     static var nodeIO: NodeIO { get }
     
-    @MainActor func portDragged(gesture: DragGesture.Value, graphState: GraphState)
+    // MARK: cached ui-data derived from underlying row observer
     
+    @MainActor var activeValue: PortValue { get set }
+    @MainActor var fieldValueTypes: [FieldGroupTypeData] { get set } // fields
+    @MainActor var connectedCanvasItems: Set<CanvasItemId> { get set }
+    
+    
+    // MARK: data specific to a draggable port on the canvas; not derived from underlying row observer and not applicable to row view models in the inspector
+    
+    @MainActor var anchorPoint: CGPoint? { get set }
+    @MainActor var portColor: PortColor { get set }
+    @MainActor var portViewData: PortViewType? { get set }
+    @MainActor var isDragging: Bool { get set }
+    @MainActor func portDragged(gesture: DragGesture.Value, graphState: GraphState)
     @MainActor func portDragEnded(graphState: GraphState)
-        
     @MainActor func findConnectedCanvasItems(rowObserver: Self.RowObserver) -> CanvasItemIdSet
-        
     @MainActor func calculatePortColor(hasEdge: Bool,
                                        hasLoop: Bool,
                                        selectedEdges: Set<PortEdgeUI>,
                                        // output only
                                        drawingObserver: EdgeDrawingObserver) -> PortColor
+
+    
+    // MARK: delegates, weak references to parents
+    
+    @MainActor var nodeDelegate: NodeViewModel? { get set }
+    @MainActor var rowDelegate: RowObserver? { get set }
+    @MainActor var canvasItemDelegate: CanvasItemViewModel? { get set }
     
     @MainActor
     init(id: NodeRowViewModelId,

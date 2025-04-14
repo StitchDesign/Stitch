@@ -10,19 +10,32 @@ import Foundation
 
 @Observable
 final class OutputNodeRowViewModel: NodeRowViewModel {
-    
     typealias PortViewType = OutputPortViewData
-    static let nodeIO: NodeIO = .output
     
+    static let nodeIO: NodeIO = .output
+
     let id: NodeRowViewModelId
+    
     @MainActor var viewCache: NodeLayoutCache?
+    
+    
+    // MARK: cached ui-data derived from underlying row observer
+    
     @MainActor var activeValue: PortValue
     @MainActor var fieldValueTypes = FieldGroupTypeDataList()
     @MainActor var connectedCanvasItems: Set<CanvasItemId> = .init()
+    
+    
+    // MARK: data specific to a draggable port on the canvas; not derived from underlying row observer and not applicable to row view models in the inspector
+    
     @MainActor var anchorPoint: CGPoint?
     @MainActor var portColor: PortColor = .noEdge
     @MainActor var isDragging = false
     @MainActor var portViewData: PortViewType?
+    
+    
+    // MARK: delegates, weak references to parents
+    
     @MainActor weak var nodeDelegate: NodeViewModel?
     @MainActor weak var rowDelegate: OutputNodeRowObserver?
     @MainActor weak var canvasItemDelegate: CanvasItemViewModel?

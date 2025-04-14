@@ -16,14 +16,26 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     static let nodeIO: NodeIO = .input
     
     let id: NodeRowViewModelId
+    
     @MainActor var viewCache: NodeLayoutCache?
-    @MainActor var activeValue: PortValue // = .number(.zero)
+    
+    // MARK: cached ui-data derived from underlying row observer
+    
+    @MainActor var activeValue: PortValue
     @MainActor var fieldValueTypes = FieldGroupTypeDataList()
     @MainActor var connectedCanvasItems: Set<CanvasItemId> = .init()
+    
+    
+    // MARK: data specific to a draggable port on the canvas; not derived from underlying row observer and not applicable to row view models in the inspector
+    
     @MainActor var anchorPoint: CGPoint?
     @MainActor var portColor: PortColor = .noEdge
     @MainActor var isDragging = false
     @MainActor var portViewData: PortViewType?
+    
+    
+    // MARK: delegates, weak references to parents
+    
     @MainActor weak var nodeDelegate: NodeViewModel?
     @MainActor weak var rowDelegate: InputNodeRowObserver?
     
