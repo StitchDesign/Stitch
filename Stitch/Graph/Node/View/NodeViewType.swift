@@ -95,7 +95,7 @@ struct DefaultNodeInputsView: View {
                        nodeIO: .input) { rowViewModel in
             if let rowObserver = node.getInputRowObserverForUI(for: rowViewModel.id.portType, graph) {
                 
-                let isMultiField = (rowViewModel.fieldValueTypes.first?.fieldObservers.count ?? 0) > 1
+                let isMultiField = (rowViewModel.cachedFieldValueGroups.first?.fieldObservers.count ?? 0) > 1
                 
                 HStack(alignment: .center) {
                     NodeRowPortView(graph: graph,
@@ -112,7 +112,7 @@ struct DefaultNodeInputsView: View {
                                          fontColor: STITCH_FONT_GRAY_COLOR,
                                          isSelectedInspectorRow: false)
                         
-                        ForEach(rowViewModel.fieldValueTypes) { fieldGroupViewModel in
+                        ForEach(rowViewModel.cachedFieldValueGroups) { fieldGroupViewModel in
                             ForEach(fieldGroupViewModel.fieldObservers) { fieldViewModel in
                                 self.valueEntryView(rowObserver: rowObserver,
                                                     rowViewModel: rowViewModel,
@@ -173,11 +173,11 @@ struct DefaultNodeOutputsView: View {
                        nodeIO: .output) { rowViewModel in
             if let portId = rowViewModel.id.portType.portId,
                let rowObserver = node.getOutputRowObserverForUI(for: portId, graph) {
-                let isMultiField = (rowViewModel.fieldValueTypes.first?.fieldObservers.count ?? 0) > 1
+                let isMultiField = (rowViewModel.cachedFieldValueGroups.first?.fieldObservers.count ?? 0) > 1
                 
                 HStack {
                     if showOutputFields {
-                        ForEach(rowViewModel.fieldValueTypes) { fieldGroupViewModel in
+                        ForEach(rowViewModel.cachedFieldValueGroups) { fieldGroupViewModel in
                             ForEach(fieldGroupViewModel.fieldObservers) { fieldViewModel in
                                 OutputValueEntry(graph: graph,
                                                  document: document,
@@ -279,7 +279,7 @@ struct DefaultNodeRowsView<RowViewModel, RowView>: View where RowViewModel: Node
                     self.rowView(rowViewModel)
                     // fixes issue where ports could have inconsistent height with no label
                         .modifier(CanvasPortHeightModifier())
-                        .onChange(of: rowViewModel.fieldValueTypes.first?.type) {
+                        .onChange(of: rowViewModel.cachedFieldValueGroups.first?.type) {
                             // Resets node sizing data when either node or portvalue types change
                             canvas.resetViewSizingCache()
                             

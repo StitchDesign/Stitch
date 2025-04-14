@@ -26,7 +26,7 @@ extension NodeRowViewModel {
     }
 }
 
-extension FieldGroupTypeData {
+extension FieldGroup {
     var layerInput: LayerInputPort? {
         self.id.rowId.portType.keyPath?.layerInput
     }
@@ -119,7 +119,7 @@ extension LayerInputPort {
             observer
                 ._packedData // TODO: do not assume packed
                 .inspectorRowViewModel // Only interested in inspector view models
-                .fieldValueTypes.first? // .first = ignore the shape command case
+                .cachedFieldValueGroups.first? // .first = ignore the shape command case
             
             // "Does every multi-selected layer have the same value at this input-field?"
             // (Note: NOT "Does every field in this input have same value?")

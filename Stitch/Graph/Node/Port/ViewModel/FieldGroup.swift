@@ -9,9 +9,9 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-typealias FieldGroupTypeDataList = [FieldGroupTypeData]
+typealias FieldGroupList = [FieldGroup]
 
-struct FieldGroupTypeData: Identifiable {
+struct FieldGroup: Identifiable {
     let id: FieldCoordinate
     let type: FieldGroupType
     // Only used for ShapeCommand cases? e.g. `.curveTo` has "PointTo", "CurveFrom" etc. 'groups of fields'
@@ -144,7 +144,7 @@ extension NodeRowViewModel {
                             nodeIO: NodeIO,
                             unpackedPortParentFieldGroupType: FieldGroupType?,
                             unpackedPortIndex: Int?,
-                            layerInput: LayerInputPort?) -> [FieldGroupTypeData] {
+                            layerInput: LayerInputPort?) -> [FieldGroup] {
         
         let rowViewModel = self
         let fieldValuesList: [FieldValues] = value.createFieldValuesList(
@@ -483,7 +483,7 @@ extension NodeRowViewModel {
                                nodeIO: NodeIO,
                                unpackedPortParentFieldGroupType: FieldGroupType?,
                                unpackedPortIndex: Int?,
-                               layerInput: LayerInputPort?) -> [FieldGroupTypeData] {
+                               layerInput: LayerInputPort?) -> [FieldGroup] {
         self.getFieldValueTypes(
             value: initialValue,
             nodeIO: nodeIO,

@@ -116,7 +116,7 @@
 		B55500B62C1B98B00081C3F1 /* SingleDropdownKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500B52C1B98B00081C3F1 /* SingleDropdownKind.swift */; };
 		B55500BB2C1B99810081C3F1 /* FieldViewModelType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500BA2C1B99810081C3F1 /* FieldViewModelType.swift */; };
 		B55500BD2C1B9A1B0081C3F1 /* JSONReplViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500BC2C1B9A1B0081C3F1 /* JSONReplViews.swift */; };
-		B55500C02C1B9D890081C3F1 /* FieldGroupTypeData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500BF2C1B9D890081C3F1 /* FieldGroupTypeData.swift */; };
+		B55500C02C1B9D890081C3F1 /* FieldGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500BF2C1B9D890081C3F1 /* FieldGroup.swift */; };
 		B55500C22C1B9DF30081C3F1 /* FieldValueUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500C12C1B9DF30081C3F1 /* FieldValueUtils.swift */; };
 		B55500C42C1B9E300081C3F1 /* FieldViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500C32C1B9E300081C3F1 /* FieldViewModel.swift */; };
 		B55500C62C1B9F9D0081C3F1 /* FieldValueMedia.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500C52C1B9F9D0081C3F1 /* FieldValueMedia.swift */; };
@@ -1103,7 +1103,7 @@
 		B55500B52C1B98B00081C3F1 /* SingleDropdownKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleDropdownKind.swift; sourceTree = "<group>"; };
 		B55500BA2C1B99810081C3F1 /* FieldViewModelType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldViewModelType.swift; sourceTree = "<group>"; };
 		B55500BC2C1B9A1B0081C3F1 /* JSONReplViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONReplViews.swift; sourceTree = "<group>"; };
-		B55500BF2C1B9D890081C3F1 /* FieldGroupTypeData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldGroupTypeData.swift; sourceTree = "<group>"; };
+		B55500BF2C1B9D890081C3F1 /* FieldGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldGroup.swift; sourceTree = "<group>"; };
 		B55500C12C1B9DF30081C3F1 /* FieldValueUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldValueUtils.swift; sourceTree = "<group>"; };
 		B55500C32C1B9E300081C3F1 /* FieldViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldViewModel.swift; sourceTree = "<group>"; };
 		B55500C52C1B9F9D0081C3F1 /* FieldValueMedia.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldValueMedia.swift; sourceTree = "<group>"; };
@@ -2322,7 +2322,7 @@
 				B50192072C6D100000A048ED /* Layer */,
 				EC8C1AA92D7799890058D969 /* NodeRowViewModel */,
 				EC3A6C452C20C23200CCBACC /* NodeRowObserver */,
-				B55500BF2C1B9D890081C3F1 /* FieldGroupTypeData.swift */,
+				B55500BF2C1B9D890081C3F1 /* FieldGroup.swift */,
 				B55500C32C1B9E300081C3F1 /* FieldViewModel.swift */,
 				B5CA9D2D2A77503B00B4E431 /* NumberFormatterObserver.swift */,
 			);
@@ -4971,7 +4971,7 @@
 				EC1A357A2C25CE8100E5A6D8 /* LayerInspectorActions.swift in Sources */,
 				ECF387C9280B5C4C0075F0E5 /* NodeInputOutputView.swift in Sources */,
 				ECE35EF227CEE9AE00CB8F5C /* InputCommittedActions.swift in Sources */,
-				B55500C02C1B9D890081C3F1 /* FieldGroupTypeData.swift in Sources */,
+				B55500C02C1B9D890081C3F1 /* FieldGroup.swift in Sources */,
 				EC0DE03E2973A57D0026A39C /* PreviewElementTrackpadPanView.swift in Sources */,
 				ECB8778C2C7D56D0004ACF60 /* LayerMultiselect.swift in Sources */,
 				EC8891A52C82388D002390F8 /* CommonEditingViewReadOnly.swift in Sources */,
