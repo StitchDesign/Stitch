@@ -120,7 +120,7 @@ struct NodeView: View {
         }
         .onChange(of: self.node.sizeByLocalBounds) {
             // also a useful hack for updating node layout after type changes
-            self.node.updatePortLocations()
+            self.node.updateAnchorPoints()
         }
         .overlay {
             let isLayerInvisible = !(stitch.layerNode?.hasSidebarVisibility ?? true)

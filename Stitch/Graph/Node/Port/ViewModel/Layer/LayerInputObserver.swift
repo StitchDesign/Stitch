@@ -122,7 +122,7 @@ extension LayerInputObserver {
     // Currently, spacing
     @MainActor
     func usesGridMultifieldArrangement() -> Bool {
-        self._packedData.inspectorRowViewModel.activeValue.getPadding.isDefined
+        self._packedData.inspectorRowViewModel.cachedActiveValue.getPadding.isDefined
     }
     
     // The overall-label for the port, e.g. "Size" (not "W" or "H") for the size property
@@ -141,9 +141,9 @@ extension LayerInputObserver {
     
     // Returns all fields, regardless of packed vs unpacked
     @MainActor
-    var fieldValueTypes: [FieldGroupTypeData] {
+    var fieldValueTypes: [FieldGroup] {
         let allFields = self.allInputData.flatMap { (portData: InputLayerNodeRowData) in
-            portData.inspectorRowViewModel.fieldValueTypes
+            portData.inspectorRowViewModel.cachedFieldValueGroups
         }
         
         switch self.mode {
@@ -156,7 +156,7 @@ extension LayerInputObserver {
             
             // Groupings are gone in unpacked mode so we just need the fields
             let flattenedFields = allFields.flatMap { $0.fieldObservers }
-            let fieldGroupsFromPacked = self._packedData.inspectorRowViewModel.fieldValueTypes
+            let fieldGroupsFromPacked = self._packedData.inspectorRowViewModel.cachedFieldValueGroups
             
             // Create nested array for label groupings (used for 3D model)
             return groupings.enumerated().map { fieldGroupIndex, labelData in
