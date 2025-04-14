@@ -22,7 +22,7 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     // MARK: cached ui-data derived from underlying row observer
     
     @MainActor var cachedActiveValue: PortValue
-    @MainActor var cachedFieldValueTypes = FieldGroupTypeDataList()
+    @MainActor var cachedFieldValueGroups = FieldGroupList()
     @MainActor var connectedCanvasItems: Set<CanvasItemId> = .init()
     
     
