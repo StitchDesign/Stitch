@@ -67,7 +67,7 @@ enum FocusedUserEditField: Equatable, Hashable {
         let nodeId = rowId.nodeId
         
         if let rowViewModel = graph.getInputRowViewModel(for: rowId, nodeId: nodeId),
-           let fieldObserver = rowViewModel.fieldValueTypes.first?.fieldObservers[safeIndex: focusedField.fieldIndex] {
+           let fieldObserver = rowViewModel.cachedFieldValueGroups.first?.fieldObservers[safeIndex: focusedField.fieldIndex] {
             return fieldObserver.fieldValue.isNumberForArrowKeyIncrementAndDecrement
         }
         return false

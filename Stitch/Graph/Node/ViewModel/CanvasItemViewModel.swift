@@ -168,19 +168,44 @@ extension CanvasItemViewModel {
         
         // Hack to fix issues where undo/redo sometimes doesn't refresh edges.
         // Not perfect as it leads to a bit of a stutter when it works.
+        self.updateAnchorPoints()
+    }
+    
+    /// Updates location of anchor points.
+    // fka `updatePortLocations`
+    // Note: only a canvas item's row view models can have anchor points, so it's better to define this update function on the canvas item rather than the row view model per se
+    @MainActor
+    func updateAnchorPoints() {
+        
+        guard let canvasSize = self.sizeByLocalBounds else {
+            // Nothing to do if no size for canvas item yet
+            return
+        }
+        
+        let fn = { (nodeIO: NodeIO, portId: Int) -> CGPoint in
+            getNewAnchorPoint(canvasPosition: self.position,
+                              canvasSize: canvasSize,
+                              hasLargeCanvasTitle: self.nodeDelegate?.hasLargeCanvasTitleSpace ?? false,
+                              nodeIO: nodeIO,
+                              portId: portId)
+        }
+        
         self.inputViewModels.forEach {
-            $0.updateAnchorPoint()
+            let newAnchorPoint = fn(.input, $0.id.portId)
+            if newAnchorPoint != $0.anchorPoint {
+                $0.anchorPoint = newAnchorPoint
+            }
         }
         
         self.outputViewModels.forEach {
-            $0.updateAnchorPoint()
+            let newAnchorPoint = fn(.output, $0.id.portId)
+            if newAnchorPoint != $0.anchorPoint {
+                $0.anchorPoint = newAnchorPoint
+            }
         }
     }
     
     func onPrototypeRestart(document: StitchDocumentViewModel) { }
-}
-
-extension CanvasItemViewModel {
     
     @MainActor
     func initializeDelegate(_ node: NodeViewModel,
@@ -258,7 +283,7 @@ extension CanvasItemViewModel {
     @MainActor
     func updateVisibilityStatus(with newValue: Bool, graph: GraphState) {
         if newValue {
-            self.updatePortLocations()
+            self.updateAnchorPoints()
             self.nodeDelegate?.updatePortViewModels(graph)
         }
         
@@ -284,16 +309,6 @@ extension CanvasItemViewModel {
         self.previousPosition = self.position
     }
     
-    /// Updates location of anchor points.
-    @MainActor
-    func updatePortLocations() {
-        self.inputViewModels.forEach {
-            $0.updateAnchorPoint()
-        }
-        self.outputViewModels.forEach {
-            $0.updateAnchorPoint()
-        }
-    }
     
     @MainActor
     func resetViewSizingCache() {

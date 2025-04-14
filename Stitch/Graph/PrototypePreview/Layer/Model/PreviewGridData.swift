@@ -52,7 +52,7 @@ extension LayerNodeViewModel {
         let port = self[keyPath: key.layerNodeKeyPath]
         
         return port.allInputData.flatMap { inputData in
-            inputData.inspectorRowViewModel.fieldValueTypes.flatMap {
+            inputData.inspectorRowViewModel.cachedFieldValueGroups.flatMap {
                 $0.fieldObservers
             }
         }

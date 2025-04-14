@@ -104,7 +104,7 @@ extension Array where Element: NodeRowViewModel {
     @MainActor
     func allFieldObserverValues() -> FieldValues {
         self.flatMap {
-            $0.fieldValueTypes.flatMap {
+            $0.cachedFieldValueGroups.flatMap {
                 $0.fieldObservers.map {
                     $0.fieldValue
                 }

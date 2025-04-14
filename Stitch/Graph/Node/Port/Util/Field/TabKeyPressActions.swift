@@ -67,16 +67,16 @@ extension Array where Element: InputNodeRowViewModel {
                 let portId = item.offset
                 
                 // We are only interested in inputs that use text-fields
-                guard input.activeValue.inputUsesTextField(
+                guard input.cachedActiveValue.inputUsesTextField(
                         layerInputPort: input.id.layerInputPort,
                         isLayerInputInspector: isLayerInputInspector) else {
                     return []
                 }
                 
                 // Note: PortValue.ShapeCommand is an interesting case where we have multiple field-groupings; the first field-grouping is just the dropdown, and then second is for the actual x-y fields
-                guard let fields = (input.activeValue.shapeCommand.isDefined
-                                    ?  input.fieldValueTypes[safe: 1]?.fieldObservers
-                                    : input.fieldValueTypes.first?.fieldObservers) else {
+                guard let fields = (input.cachedActiveValue.shapeCommand.isDefined
+                                    ?  input.cachedFieldValueGroups[safe: 1]?.fieldObservers
+                                    : input.cachedFieldValueGroups.first?.fieldObservers) else {
                     return []
                 }
 
@@ -455,6 +455,6 @@ extension NodeRowViewModel {
         // but this is [[field]] ?
         // is that because at one point we thought an input could have multiple rows?
         // Yeah, seems so.
-        (self.fieldValueTypes.first?.fieldObservers.count ?? 1) - 1
+        (self.cachedFieldValueGroups.first?.fieldObservers.count ?? 1) - 1
     }
 }
