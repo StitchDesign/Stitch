@@ -460,11 +460,7 @@ extension GraphState: GraphCalculatable {
     
     
     @MainActor
-    func updateOrderedPreviewLayers() {
-        guard let activeIndex = self.documentDelegate?.activeIndex else {
-            fatalErrorIfDebug()
-            return
-        }
+    func updateOrderedPreviewLayers(activeIndex: ActiveIndex) {
         
         let flattenedPinMap = self.getFlattenedPinMap()
         let rootPinMap = self.getRootPinMap(pinMap: flattenedPinMap)

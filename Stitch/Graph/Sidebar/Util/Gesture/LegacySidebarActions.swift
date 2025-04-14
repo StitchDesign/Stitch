@@ -254,7 +254,6 @@ extension ProjectSidebarObservable {
             return
         }
         
-        
         let visualList = visualList
         let draggedItemIdSet = draggedItems.map(\.id).toSet
         
@@ -288,7 +287,7 @@ extension ProjectSidebarObservable {
         self.items.updateSidebarIndices()
                 
         // TODO: should only be for layers sidebar
-        graph.updateOrderedPreviewLayers()
+        graph.updateOrderedPreviewLayers(activeIndex: activeIndex)
     }
 }
 
