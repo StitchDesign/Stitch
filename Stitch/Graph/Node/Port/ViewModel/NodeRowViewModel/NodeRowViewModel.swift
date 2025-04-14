@@ -54,40 +54,35 @@ protocol NodeRowViewModel: StitchLayoutCachable, Observable, Identifiable {
          canvasItemDelegate: CanvasItemViewModel?)
 }
 
-extension NodeRowViewModel {
-    @MainActor
-    func updateAnchorPoint() {
-        guard let canvas = self.canvasItemDelegate,
-              let node = canvas.nodeDelegate,
-              let size = canvas.sizeByLocalBounds else {
-            return
-        }
-        
-        let ioAdjustment: CGFloat = 10
-        let standardHeightAdjustment: CGFloat = 69
-        let ioConstraint: CGFloat = Self.nodeIO == .input ? ioAdjustment : -ioAdjustment
-        let titleHeightOffset: CGFloat = node.hasLargeCanvasTitleSpace ? 23 : 0
-        
-        // Offsets needed because node position uses its center location
-        let offsetX: CGFloat = canvas.position.x + ioConstraint - size.width / 2
-        let offsetY: CGFloat = canvas.position.y - size.height / 2 + standardHeightAdjustment + titleHeightOffset
-        
-        let anchorY = offsetY + CGFloat(self.id.portId) * 28
-        
-        switch Self.nodeIO {
-        case .input:
-            let newAnchorPoint = CGPoint(x: offsetX, y: anchorY)
-            if self.anchorPoint != newAnchorPoint {
-                self.anchorPoint = newAnchorPoint
-            }
-        case .output:
-            let newAnchorPoint = CGPoint(x: offsetX + size.width, y: anchorY)
-            if self.anchorPoint != newAnchorPoint {
-                self.anchorPoint = newAnchorPoint
-            }
-        }
+
+@MainActor
+func getNewAnchorPoint(canvasPosition: CGPoint,
+                       canvasSize: CGSize,
+                       hasLargeCanvasTitle: Bool,
+                       nodeIO: NodeIO,
+                       portId: Int) -> CGPoint {
+    
+    let ioAdjustment: CGFloat = 10
+    let standardHeightAdjustment: CGFloat = 69
+    let ioConstraint: CGFloat = nodeIO == .input ? ioAdjustment : -ioAdjustment
+    let titleHeightOffset: CGFloat = hasLargeCanvasTitle ? 23 : 0
+    
+    // Offsets needed because node position uses its center location
+    let offsetX: CGFloat = canvasPosition.x + ioConstraint - canvasSize.width / 2
+    let offsetY: CGFloat = canvasPosition.y - canvasSize.height / 2 + standardHeightAdjustment + titleHeightOffset
+    
+    let anchorY = offsetY + CGFloat(portId) * 28
+    
+    switch nodeIO {
+    case .input:
+        return CGPoint(x: offsetX, y: anchorY)
+    case .output:
+        return CGPoint(x: offsetX + canvasSize.width, y: anchorY)
     }
-     
+}
+
+extension NodeRowViewModel {
+
     @MainActor
     func initializeDelegate(_ node: NodeViewModel,
                             initialValue: PortValue,
