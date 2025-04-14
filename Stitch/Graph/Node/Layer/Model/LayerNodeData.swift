@@ -74,6 +74,7 @@ final class InputLayerNodeRowData: LayerNodeRowData, Identifiable {
     
     @MainActor
     init(rowObserver: InputNodeRowObserver,
+         activeIndex: ActiveIndex,
          canvasObserver: CanvasItemViewModel? = nil,
          nodeDelegate: NodeViewModel? = nil) {
         let keyPath = rowObserver.id.keyPath
@@ -96,6 +97,7 @@ final class InputLayerNodeRowData: LayerNodeRowData, Identifiable {
                                                      nodeId: rowObserver.id.nodeId,
                                                      // Why portId=0 ?
                                                      portId: 0),
+                                           initialValue: rowObserver.getActiveValue(activeIndex: activeIndex),
                                            rowDelegate: rowObserver,
                                            // specifically not a row view model for canvas
                                            canvasItemDelegate: nil)
@@ -111,6 +113,7 @@ final class OutputLayerNodeRowData: LayerNodeRowData, Identifiable {
     
     @MainActor
     init(rowObserver: OutputNodeRowObserver,
+         activeIndex: ActiveIndex,
          canvasObserver: CanvasItemViewModel? = nil) {
         self.id = rowObserver.id
         self.rowObserver = rowObserver
@@ -127,6 +130,7 @@ final class OutputLayerNodeRowData: LayerNodeRowData, Identifiable {
         self.inspectorRowViewModel = .init(id: .init(graphItemType: itemType,
                                                      nodeId: rowObserver.id.nodeId,
                                                      portId: 0),
+                                           initialValue: rowObserver.getActiveValue(activeIndex: activeIndex),
                                            rowDelegate: rowObserver,
                                            // specifically not a row view model for canvas
                                            canvasItemDelegate: nil)

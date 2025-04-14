@@ -121,11 +121,13 @@ extension NodeViewModelType {
     
     @MainActor
     func update(from schema: NodeTypeEntity,
-                components: [UUID: StitchMasterComponent]) async {
+                components: [UUID: StitchMasterComponent],
+                activeIndex: ActiveIndex) async {
         switch (self, schema) {
         case (.component(let componentViewModel), .component(let component)):
             await componentViewModel.update(from: component,
-                                            components: components)
+                                            components: components,
+                                            activeIndex: activeIndex)
         default:
             self.update(from: schema)
         }
