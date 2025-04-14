@@ -55,6 +55,7 @@ protocol NodeRowViewModel: StitchLayoutCachable, Observable, Identifiable {
     
     @MainActor
     init(id: NodeRowViewModelId,
+         initialValue: PortValue,
          rowDelegate: RowObserver?,
          canvasItemDelegate: CanvasItemViewModel?)
 }
@@ -219,9 +220,8 @@ extension CanvasItemViewModel {
     /// Syncing logic as influced from `SchemaObserverIdentifiable`.
     @MainActor
     func syncRowViewModels<RowViewModel>(with newEntities: [RowViewModel.RowObserver],
-                                         keyPath: ReferenceWritableKeyPath<CanvasItemViewModel, [RowViewModel]>
-//                                         , graph: GraphReader
-    ) where RowViewModel: NodeRowViewModel {
+                                         keyPath: ReferenceWritableKeyPath<CanvasItemViewModel, [RowViewModel]>,
+                                         activeIndex: ActiveIndex) where RowViewModel: NodeRowViewModel {
         
         let canvas = self
         let incomingIds = newEntities.map { $0.id }.toSet
@@ -260,6 +260,7 @@ extension CanvasItemViewModel {
                                                    portId: portIndex)
                     
                     let rowViewModel = RowViewModel(id: rowId,
+                                                    initialValue: newEntity.getActiveValue(activeIndex: activeIndex),
                                                     rowDelegate: newEntity,
                                                     canvasItemDelegate: canvas)
                     

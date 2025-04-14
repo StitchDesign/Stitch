@@ -121,6 +121,7 @@ extension NodeRowDefinitions {
     // Used when initializing layer's outputs upon Graph Open. We start with `allLoopedValues = []` just as we do in Graph Reset.
     @MainActor
     func createEmptyOutputLayerPorts(schema: LayerNodeEntity,
+                                     activeIndex: ActiveIndex,
                                      // Pass in values directly from eval
                                      valuesList: PortValuesList) -> [OutputLayerNodeRowData] {
         let nodeId = schema.id
@@ -145,6 +146,7 @@ extension NodeRowDefinitions {
             }
             
             let outputData = OutputLayerNodeRowData(rowObserver: observer,
+                                                    activeIndex: activeIndex,
                                                     canvasObserver: canvasObserver)
             
             outputData.inspectorRowViewModel.canvasItemDelegate = outputData.canvasObserver

@@ -51,13 +51,15 @@ final class StitchComponentViewModel: Sendable {
     }
     
     @MainActor
-    func refreshPorts(schemaInputs: [NodeConnectionType]? = nil) {
+    func refreshPorts(schemaInputs: [NodeConnectionType]? = nil,
+                      activeIndex: ActiveIndex) {
         let schemaInputs = schemaInputs ?? self.createSchema().inputs
         
         self.inputsObservers = self.refreshInputs(schemaInputs: schemaInputs)
         self.outputsObservers = self.refreshOutputs()
         self.canvas.syncRowViewModels(inputRowObservers: inputsObservers,
-                                      outputRowObservers: outputsObservers)
+                                      outputRowObservers: outputsObservers,
+                                      activeIndex: activeIndex)
     }
     
     @MainActor
@@ -189,7 +191,7 @@ extension StitchComponentViewModel {
         self.outputsObservers.forEach { $0.initializeDelegate(node, graph: self.graph) }
         
         // Refresh port data
-        self.refreshPorts()
+        self.refreshPorts(activeIndex: document.activeIndex)
     }
     
     @MainActor func createSchema() -> ComponentEntity {
@@ -202,7 +204,8 @@ extension StitchComponentViewModel {
     }
     
     @MainActor func update(from schema: ComponentEntity,
-                           components: [UUID : StitchMasterComponent]) {
+                           components: [UUID : StitchMasterComponent],
+                           activeIndex: ActiveIndex) {
         self.componentId = schema.componentId
         
         guard let masterComponent = components.get(self.componentId) else {
@@ -214,16 +217,19 @@ extension StitchComponentViewModel {
         
         // Refresh after graph update
         self.canvas.update(from: schema.canvasEntity)
-        self.refreshPorts(schemaInputs: schema.inputs)
+        self.refreshPorts(schemaInputs: schema.inputs,
+                          activeIndex: activeIndex)
     }
     
-    @MainActor func syncPorts(schemaInputs: [NodeConnectionType]? = nil) {
+    @MainActor func syncPorts(schemaInputs: [NodeConnectionType]? = nil,
+                              activeIndex: ActiveIndex) {
         let schemaInputs = schemaInputs ?? self.createSchema().inputs
         
         self.inputsObservers = self.refreshInputs(schemaInputs: schemaInputs)
         self.outputsObservers = self.refreshOutputs()
         self.canvas.syncRowViewModels(inputRowObservers: self.inputsObservers,
-                                      outputRowObservers: self.outputsObservers)
+                                      outputRowObservers: self.outputsObservers,
+                                      activeIndex: activeIndex)
     }
     
     @MainActor

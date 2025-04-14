@@ -494,9 +494,11 @@ extension NodeViewModel {
     // MARK: main actor needed to prevent view updates from background thread
     @MainActor
     func update(from schema: NodeEntity,
-                components: [UUID : StitchMasterComponent]) async {
+                components: [UUID : StitchMasterComponent],
+                activeIndex: ActiveIndex) async {
         await self.nodeType.update(from: schema.nodeTypeEntity,
-                                   components: components)
+                                   components: components,
+                                   activeIndex: activeIndex)
         
         self.updateTitle(newTitle: schema.title)
     }
@@ -649,6 +651,7 @@ extension NodeViewModel {
         
         let newInputViewModel = InputNodeRowViewModel(
             id: newRowId,
+            initialValue: newInputObserver.getActiveValue(activeIndex: document.activeIndex),
             rowDelegate: newInputObserver,
             canvasItemDelegate: patchNode.canvasObserver)
         
