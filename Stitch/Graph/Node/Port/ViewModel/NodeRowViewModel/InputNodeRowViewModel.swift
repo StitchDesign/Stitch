@@ -30,9 +30,6 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     // TODO: input node row view model for an inspector should NEVER have canvasItemDelegate
     @MainActor weak var canvasItemDelegate: CanvasItemViewModel? // also nil when the layer input is not on the canvas
     
-    // TODO: temporary property for old-style layer nodes
-    @MainActor var layerPortId: Int?
-    
     @MainActor
     init(id: NodeRowViewModelId,
          rowDelegate: InputNodeRowObserver?,
