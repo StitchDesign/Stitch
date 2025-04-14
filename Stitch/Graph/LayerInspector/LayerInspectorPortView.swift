@@ -389,7 +389,7 @@ struct LayerInspectorOutputPortView: View {
                                  isSelectedInspectorRow: propertyRowIsSelected)
                 Spacer()
                 
-                LayerOutputFieldsView(fieldValueTypes: rowViewModel.fieldValueTypes,
+                LayerOutputFieldsView(fieldValueTypes: rowViewModel.cachedFieldValueTypes,
                                       valueEntryView: valueEntryView)
             } // HStack
         }

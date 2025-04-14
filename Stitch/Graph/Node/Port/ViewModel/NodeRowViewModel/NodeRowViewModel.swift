@@ -21,7 +21,7 @@ protocol NodeRowViewModel: StitchLayoutCachable, Observable, Identifiable {
     // MARK: cached ui-data derived from underlying row observer
     
     @MainActor var cachedActiveValue: PortValue { get set }
-    @MainActor var fieldValueTypes: [FieldGroupTypeData] { get set } // fields
+    @MainActor var cachedFieldValueTypes: [FieldGroupTypeData] { get set } // fields
     @MainActor var connectedCanvasItems: Set<CanvasItemId> { get set }
     
     
@@ -93,7 +93,7 @@ extension NodeRowViewModel {
         // Why must we set the delegate
         self.nodeDelegate = node
         
-        if self.fieldValueTypes.isEmpty {
+        if self.cachedFieldValueTypes.isEmpty {
             self.initializeValues(
                 unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                 unpackedPortIndex: unpackedPortIndex,
@@ -138,10 +138,10 @@ extension NodeRowViewModel {
             unpackedPortIndex: unpackedPortIndex,
             layerInput: rowObserverLayerInput)
         
-        let didFieldsChange = !zip(self.fieldValueTypes, fields).allSatisfy { $0.id == $1.id }
+        let didFieldsChange = !zip(self.cachedFieldValueTypes, fields).allSatisfy { $0.id == $1.id }
         
-        if self.fieldValueTypes.isEmpty || didFieldsChange {
-            self.fieldValueTypes = fields
+        if self.cachedFieldValueTypes.isEmpty || didFieldsChange {
+            self.cachedFieldValueTypes = fields
         }
     }
     
