@@ -107,20 +107,25 @@ final class CanvasItemViewModel: Identifiable, StitchLayoutCachable, Sendable {
         
         // Instantiate input and output row view models
         self.syncRowViewModels(inputRowObservers: inputRowObservers,
-                               outputRowObservers: outputRowObservers)
+                               outputRowObservers: outputRowObservers,
+                               // Assume .zero when initially creating the row view model value?
+                               activeIndex: .defaultActiveIndex)
     }
 }
 
 extension CanvasItemViewModel {
     @MainActor
     func syncRowViewModels(inputRowObservers: [InputNodeRowObserver],
-                           outputRowObservers: [OutputNodeRowObserver]) {
+                           outputRowObservers: [OutputNodeRowObserver],
+                           activeIndex: ActiveIndex) {
         
         self.syncRowViewModels(with: inputRowObservers,
-                               keyPath: \.inputViewModels)
+                               keyPath: \.inputViewModels,
+                               activeIndex: activeIndex)
         
         self.syncRowViewModels(with: outputRowObservers,
-                               keyPath: \.outputViewModels)
+                               keyPath: \.outputViewModels,
+                               activeIndex: activeIndex)
     }
     
     @MainActor
@@ -301,12 +306,13 @@ extension InputLayerNodeRowData {
     static func empty(_ layerInputType: LayerInputType,
                       nodeId: UUID,
                       layer: Layer) -> Self {
-        // Take the data from the schema!! 
+        // Take the data from the schema!!
         let rowObserver = InputNodeRowObserver(values: [layerInputType.getDefaultValue(for: layer)],
                                                id: .init(portType: .keyPath(layerInputType),
                                                          nodeId: nodeId),
                                                upstreamOutputCoordinate: nil)
         return .init(rowObserver: rowObserver,
+                     activeIndex: .defaultActiveIndex, // b/c empty i.e. fake
                      canvasObserver: nil)
     }
 }

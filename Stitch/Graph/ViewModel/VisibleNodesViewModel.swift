@@ -150,7 +150,8 @@ extension VisibleNodesViewModel {
             case .patch(let patchNode):
                 // Syncs ports if nodes had inputs added/removed
                 patchNode.canvasObserver.syncRowViewModels(inputRowObservers: patchNode.inputsObservers,
-                                                           outputRowObservers: patchNode.outputsObservers)
+                                                           outputRowObservers: patchNode.outputsObservers,
+                                                           activeIndex: activeIndex)
                 
             case .group(let canvasGroup):
                 // Create port view models for group nodes once row observers have been established
@@ -158,7 +159,8 @@ extension VisibleNodesViewModel {
                 let outputRowObservers = self.getSplitterOutputRowObservers(for: node.id)
                 // Note: What is `syncRowViewModels` vs `NodeRowViewModel.initialize`?
                 canvasGroup.syncRowViewModels(inputRowObservers: inputRowObservers,
-                                              outputRowObservers: outputRowObservers)
+                                              outputRowObservers: outputRowObservers,
+                                              activeIndex: activeIndex)
                 
                 // Initializes view models for canvas
                 guard let node = canvasGroup.nodeDelegate else {
@@ -178,7 +180,8 @@ extension VisibleNodesViewModel {
             case .component(let componentViewModel):
                 // Similar logic to patch nodes, where we have inputs/outputs observers stored directly in component
                 componentViewModel.canvas.syncRowViewModels(inputRowObservers: componentViewModel.inputsObservers,
-                                                            outputRowObservers: componentViewModel.outputsObservers)
+                                                            outputRowObservers: componentViewModel.outputsObservers,
+                                                            activeIndex: activeIndex)
 
             case .layer(let layerNode):
                 // Special case: we must re-initialize the group orientation input, since its first initialization happens before we have constructed the layer view models that can tell us all the parent's children

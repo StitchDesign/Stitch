@@ -10,14 +10,14 @@ import StitchSchemaKit
 import OrderedCollections
 
 
-struct MathExpressionFormulaEdited: GraphEvent {
+struct MathExpressionFormulaEdited: StitchDocumentEvent {
     let id: NodeId // pass the reference instead?
     let newExpression: String
     
-    func handle(state: GraphState) {
+    func handle(state: StitchDocumentViewModel) {
         
         // Can fail when e.g. used in node view; that's okay.
-        guard let node = state.getNodeViewModel(id) else {
+        guard let node = state.visibleGraph.getNode(id) else {
             log("MathExpressionFormulaEdited: no math expression defined for node \(id)")
             return
         }
@@ -25,7 +25,8 @@ struct MathExpressionFormulaEdited: GraphEvent {
         assertInDebug(node.kind.getPatch == .mathExpression)
         
         node.patchNode?.updateMathExpressionNodeInputs(newExpression: newExpression, 
-                                                       node: node)
+                                                       node: node,
+                                                       activeIndex: state.activeIndex)
         node.calculate()
     }
 }

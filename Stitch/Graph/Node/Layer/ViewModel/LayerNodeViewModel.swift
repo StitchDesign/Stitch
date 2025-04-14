@@ -211,7 +211,8 @@ final class LayerNodeViewModel {
         
         self.outputPorts = rowDefinitions
             .createEmptyOutputLayerPorts(schema: schema,
-                                    valuesList: rowDefinitions.outputs.defaultList)
+                                         activeIndex: .defaultActiveIndex,
+                                         valuesList: rowDefinitions.outputs.defaultList)
         
         self.positionPort = .init(from: schema, port: .position)
         self.sizePort = .init(from: schema, port: .size)
