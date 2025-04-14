@@ -240,7 +240,8 @@ extension PatchNodeViewModel {
     
     @MainActor
     func updateMathExpressionNodeInputs(newExpression: String,
-                                        node: NodeViewModel) {
+                                        node: NodeViewModel,
+                                        activeIndex: ActiveIndex) {
         // Always set math-expr on node for its eval and (default) title
         if self.mathExpression != newExpression {
             self.mathExpression = newExpression            
@@ -284,7 +285,8 @@ extension PatchNodeViewModel {
         // Update input row view models in canvas
         self.canvasObserver
             .syncRowViewModels(with: self._inputsObservers,
-                               keyPath: \.inputViewModels)
+                               keyPath: \.inputViewModels,
+                               activeIndex: activeIndex)
     }
 }
 

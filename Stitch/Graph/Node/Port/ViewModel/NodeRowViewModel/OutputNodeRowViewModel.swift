@@ -16,7 +16,7 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     
     let id: NodeRowViewModelId
     @MainActor var viewCache: NodeLayoutCache?
-    @MainActor var activeValue: PortValue = .number(.zero)
+    @MainActor var activeValue: PortValue
     @MainActor var fieldValueTypes = FieldGroupTypeDataList()
     @MainActor var connectedCanvasItems: Set<CanvasItemId> = .init()
     @MainActor var anchorPoint: CGPoint?
@@ -28,9 +28,11 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     @MainActor weak var canvasItemDelegate: CanvasItemViewModel?
     
     init(id: NodeRowViewModelId,
+         initialValue: PortValue,
          rowDelegate: OutputNodeRowObserver?,
          canvasItemDelegate: CanvasItemViewModel?) {
         self.id = id
+        self.activeValue = initialValue
         self.nodeDelegate = nodeDelegate
         self.rowDelegate = rowDelegate
         self.canvasItemDelegate = canvasItemDelegate
