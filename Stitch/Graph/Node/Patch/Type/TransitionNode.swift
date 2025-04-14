@@ -97,6 +97,20 @@ func transition(_ n: Double,
     return (n - 1) * slope + end
 }
 
+func transition(_ n: Double,
+                start: LayerDimension = .number(50),
+                end: LayerDimension = .number(100)) -> LayerDimension {
+    guard let startNumber = start.getNumber,
+          let endNumber = end.getNumber else {
+        return n < 0.5 ? start : end
+    }
+    
+    let result = transition(n,
+                            start: startNumber,
+                            end: endNumber)
+    return .number(result)
+}
+
 // Examples from Origami demo:
 
 // transition(0) // 50
@@ -171,12 +185,12 @@ struct TransitionEvalOps {
         }
 
         let width = transition(progress,
-                               start: start.width.asNumber,
-                               end: end.width.asNumber)
+                               start: start.width,
+                               end: end.width)
 
         let height = transition(progress,
-                                start: start.height.asNumber,
-                                end: end.height.asNumber)
+                                start: start.height,
+                                end: end.height)
 
         return .size(LayerSize(width: width,
                                height: height))
