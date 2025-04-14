@@ -20,11 +20,13 @@ struct OpenAIResponse: Codable {
     var model: String            // Name of the OpenAI model used
     var choices: [Choice]        // Array of response alternatives (usually contains one choice)
     var usage: Usage             // Token usage statistics for the request
-    var systemFingerprint: String // System identification string
+    var systemFingerprint: String? // System identification string
+    var serviceTier: String
     
     enum CodingKeys: String, CodingKey {
         case id, object, created, model, choices, usage
         case systemFingerprint = "system_fingerprint"
+        case serviceTier = "service_tier"
     }
 }
 
@@ -89,6 +91,7 @@ struct MessageStruct: Codable {
     var role: String            // Role of the message (e.g., "assistant", "user")
     var content: String         // Actual content of the message
     var refusal: String?       // Optional refusal message if content was denied
+    var annotations: [String]?  // Optional annotations
     
     /// Attempts to parse the message content into structured JSON
     /// - Throws: DecodingError if content cannot be parsed
