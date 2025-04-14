@@ -21,7 +21,7 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     
     // MARK: cached ui-data derived from underlying row observer
     
-    @MainActor var activeValue: PortValue
+    @MainActor var cachedActiveValue: PortValue
     @MainActor var fieldValueTypes = FieldGroupTypeDataList()
     @MainActor var connectedCanvasItems: Set<CanvasItemId> = .init()
     
@@ -45,7 +45,7 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
          rowDelegate: OutputNodeRowObserver?,
          canvasItemDelegate: CanvasItemViewModel?) {
         self.id = id
-        self.activeValue = initialValue
+        self.cachedActiveValue = initialValue
         self.nodeDelegate = nodeDelegate
         self.rowDelegate = rowDelegate
         self.canvasItemDelegate = canvasItemDelegate

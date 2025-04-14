@@ -122,7 +122,7 @@ extension LayerInputObserver {
     // Currently, spacing
     @MainActor
     func usesGridMultifieldArrangement() -> Bool {
-        self._packedData.inspectorRowViewModel.activeValue.getPadding.isDefined
+        self._packedData.inspectorRowViewModel.cachedActiveValue.getPadding.isDefined
     }
     
     // The overall-label for the port, e.g. "Size" (not "W" or "H") for the size property

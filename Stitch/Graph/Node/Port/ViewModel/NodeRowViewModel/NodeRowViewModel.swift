@@ -20,7 +20,7 @@ protocol NodeRowViewModel: StitchLayoutCachable, Observable, Identifiable {
     
     // MARK: cached ui-data derived from underlying row observer
     
-    @MainActor var activeValue: PortValue { get set }
+    @MainActor var cachedActiveValue: PortValue { get set }
     @MainActor var fieldValueTypes: [FieldGroupTypeData] { get set } // fields
     @MainActor var connectedCanvasItems: Set<CanvasItemId> { get set }
     
@@ -127,8 +127,8 @@ extension NodeRowViewModel {
                           unpackedPortIndex: Int?,
                           initialValue: PortValue,
                           rowObserverLayerInput: LayerInputPort?) {
-        if initialValue != self.activeValue {
-            self.activeValue = initialValue
+        if initialValue != self.cachedActiveValue {
+            self.cachedActiveValue = initialValue
         }
         
         let fields = self.createFieldValueTypes(
@@ -152,7 +152,7 @@ extension NodeRowViewModel {
                 
         let isLayerFocusedInPropertySidebar = layerFocusedInPropertyInspector == self.id.nodeId
         
-        let oldViewValue = self.activeValue // the old cached value
+        let oldViewValue = self.cachedActiveValue // the old cached value
         let newViewValue = PortValue.getActiveValue(allLoopedValues: values,
                                                     activeIndex: activeIndex)
         let didViewValueChange = oldViewValue != newViewValue
@@ -166,7 +166,7 @@ extension NodeRowViewModel {
         let shouldUpdate = didViewValueChange || isLayerFocusedInPropertySidebar
 
         if shouldUpdate {
-            self.activeValue = newViewValue
+            self.cachedActiveValue = newViewValue
 
             self.activeValueChanged(oldValue: oldViewValue,
                                     newValue: newViewValue)

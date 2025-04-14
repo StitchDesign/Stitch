@@ -67,14 +67,14 @@ extension Array where Element: InputNodeRowViewModel {
                 let portId = item.offset
                 
                 // We are only interested in inputs that use text-fields
-                guard input.activeValue.inputUsesTextField(
+                guard input.cachedActiveValue.inputUsesTextField(
                         layerInputPort: input.id.layerInputPort,
                         isLayerInputInspector: isLayerInputInspector) else {
                     return []
                 }
                 
                 // Note: PortValue.ShapeCommand is an interesting case where we have multiple field-groupings; the first field-grouping is just the dropdown, and then second is for the actual x-y fields
-                guard let fields = (input.activeValue.shapeCommand.isDefined
+                guard let fields = (input.cachedActiveValue.shapeCommand.isDefined
                                     ?  input.fieldValueTypes[safe: 1]?.fieldObservers
                                     : input.fieldValueTypes.first?.fieldObservers) else {
                     return []
