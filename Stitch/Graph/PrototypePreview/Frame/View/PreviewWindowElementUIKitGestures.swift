@@ -42,8 +42,10 @@ struct PreviewWindowElementSwiftUIGestures: ViewModifier {
                     height: $0.predictedEndLocation.y - $0.location.y)
                 
                 // Factor out anchoring (i.e. position + size/2 + anchoring)
-                let location = CGPoint(x: $0.location.x - pos.x,
-                                       y: $0.location.y - pos.y)
+                let location = CGPoint(
+                    x: $0.location.x - pos.x - sizeForAnchoringAndGestures.width/2,
+                    y: $0.location.y - pos.y - sizeForAnchoringAndGestures.height/2
+                )
                             
                 graph.layerDragged(interactiveLayer: interactiveLayer,
                                    location: location, // // PRESS NODE ONLY
