@@ -12,10 +12,10 @@ struct PreviewWindowElementSwiftUIGestures: ViewModifier {
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     let interactiveLayer: InteractiveLayer
-    let position: CGPoint
+    
+    let pos: CGPoint
+    
     let size: LayerSize
-    let readSize: CGSize
-    let anchoring: Anchoring
     let parentSize: CGSize
         
     // e.g. ~5 for Switch; 0 for all other layers
@@ -25,20 +25,7 @@ struct PreviewWindowElementSwiftUIGestures: ViewModifier {
     var sizeForAnchoringAndGestures: CGSize {
         size.asCGSize(parentSize)
     }
-    
-    // Note: `position` for gesture needs to ignore the .offset transformation,
-    // i.e. do NOT subtract parentSize/2 from the position
-    var posForGesture: StitchPosition {
-        adjustPosition(
-            // SEE NOTE IN `asCGSizeForLayer`
-            size: size.asCGSizeForLayer(parentSize: parentSize,
-                                        readSize: readSize),
-            position: position,
-            anchor: anchoring,
-            parentSize: parentSize,
-            ignoreOffsetTransform: true)
-    }
-    
+        
     @MainActor
     func getPressInteractionIds() -> NodeIdSet? {
         graph.getPressInteractionIds(for: interactiveLayer.id.layerNodeId)
@@ -55,16 +42,15 @@ struct PreviewWindowElementSwiftUIGestures: ViewModifier {
                     height: $0.predictedEndLocation.y - $0.location.y)
                 
                 // Factor out anchoring (i.e. position + size/2 + anchoring)
-                let location = CGPoint(x: $0.location.x - posForGesture.x,
-                                       y: $0.location.y - posForGesture.y)
+                let location = CGPoint(x: $0.location.x - pos.x,
+                                       y: $0.location.y - pos.y)
                             
                 graph.layerDragged(interactiveLayer: interactiveLayer,
                                    location: location, // // PRESS NODE ONLY
                                    translation: $0.translation,
                                    velocity: velocity,
                                    parentSize: parentSize,
-                                   childSize: sizeForAnchoringAndGestures,
-                                   childPosition: position)
+                                   childSize: sizeForAnchoringAndGestures)
             }
             .onEnded {  _ in
                 // log("PreviewWindowElementGestures: DragGesture: id: \(interactiveLayer.id) onEnded")

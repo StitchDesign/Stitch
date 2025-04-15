@@ -39,10 +39,10 @@ struct PreviewGroupLayer: View {
     let interactiveLayer: InteractiveLayer
     
     let position: CGPoint
-    let size: LayerSize
+    let size: LayerSize // The LayerGroup's size input
 
     // Assumes parentSize has already been scaled, etc.
-    let parentSize: CGSize
+    let parentSize: CGSize // The size of the LayerGroup's own parent
     let parentDisablesPosition: Bool
     let parentIsScrollableGrid: Bool
 
@@ -89,6 +89,8 @@ struct PreviewGroupLayer: View {
         #endif
     }
 
+    // The LayerGroup's size input turned to a CGSize,
+    // so we can use it as a 'parent size' for the LayerGroup's children.
     var _size: CGSize {
         size.asCGSizeForLayer(parentSize: parentSize,
                               readSize: layerViewModel.readSize)
@@ -242,10 +244,8 @@ struct PreviewGroupLayer: View {
                 document: document,
                 graph: graph,
                 interactiveLayer: interactiveLayer,
-                position: position,
+                pos: pos,
                 size: size,
-                readSize: layerViewModel.readSize,
-                anchoring: anchoring,
                 parentSize: parentSize,
                 minimumDragDistance: DEFAULT_MINIMUM_DRAG_DISTANCE))
     }
