@@ -19,7 +19,6 @@ struct PreviewAbsoluteShapeLayerModifier: ViewModifier {
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
     let position: CGPoint // offset
-    let anchoring: Anchoring
     let rotationX: CGFloat
     let rotationY: CGFloat
     let rotationZ: CGFloat
@@ -91,13 +90,9 @@ struct PreviewAbsoluteShapeLayerModifier: ViewModifier {
                 document: document,
                 graph: graph,
                 interactiveLayer: interactiveLayer,
-                position: position,
+                pos: position,
                 // TODO: For handling Press interaction location with Custom Shape layer that uses absolute-coordinate space, what needs to change?
-                // Normally we subtract the anchoring-adjusted position (i.e. `pos`), but that assumes using a .position, not .offset, modifier
-//                pos: position, // TOOD: anchoring and size
-                size: previewWindowSize.toLayerSize,
-                readSize: viewModel.readSize,
-                anchoring: anchoring,
+                size: size.toLayerSize,
                 parentSize: parentSize,
                 minimumDragDistance: DEFAULT_MINIMUM_DRAG_DISTANCE))
     }

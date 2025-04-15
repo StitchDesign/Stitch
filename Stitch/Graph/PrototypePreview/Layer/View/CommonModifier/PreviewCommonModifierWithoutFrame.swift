@@ -132,10 +132,8 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
                 document: document,
                 graph: graph,
                 interactiveLayer: interactiveLayer,
-                position: position,
+                pos: pos,
                 size: size,
-                readSize: layerViewModel.readSize,
-                anchoring: anchoring,
                 parentSize: parentSize,
                 minimumDragDistance: minimumDragDistance))
     }
