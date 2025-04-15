@@ -360,7 +360,6 @@
 		EC0B8A812953C5FE00AA01B6 /* OvalPatchNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0B8A802953C5FE00AA01B6 /* OvalPatchNode.swift */; };
 		EC0B8A832953C63A00AA01B6 /* CirclePatchNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0B8A822953C63A00AA01B6 /* CirclePatchNode.swift */; };
 		EC0CDC322C9E25B400678661 /* SidebarListItemSelectionHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0CDC312C9E25B400678661 /* SidebarListItemSelectionHelpers.swift */; };
-		EC0DE03E2973A57D0026A39C /* PreviewElementTrackpadPanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0DE03D2973A57D0026A39C /* PreviewElementTrackpadPanView.swift */; };
 		EC0E1AFE2D4B2288004AAA37 /* LLMValueParsingUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0E1AFD2D4B2288004AAA37 /* LLMValueParsingUtils.swift */; };
 		EC0E392D29F9C6100076FE4B /* JSONSampleData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0E392C29F9C6100076FE4B /* JSONSampleData.swift */; };
 		EC0E656426F3E7D1000E8997 /* ReframeEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0E656326F3E7D1000E8997 /* ReframeEvent.swift */; };
@@ -1334,7 +1333,6 @@
 		EC0B8A802953C5FE00AA01B6 /* OvalPatchNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OvalPatchNode.swift; sourceTree = "<group>"; };
 		EC0B8A822953C63A00AA01B6 /* CirclePatchNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CirclePatchNode.swift; sourceTree = "<group>"; };
 		EC0CDC312C9E25B400678661 /* SidebarListItemSelectionHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListItemSelectionHelpers.swift; sourceTree = "<group>"; };
-		EC0DE03D2973A57D0026A39C /* PreviewElementTrackpadPanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewElementTrackpadPanView.swift; sourceTree = "<group>"; };
 		EC0E1AFD2D4B2288004AAA37 /* LLMValueParsingUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMValueParsingUtils.swift; sourceTree = "<group>"; };
 		EC0E392C29F9C6100076FE4B /* JSONSampleData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONSampleData.swift; sourceTree = "<group>"; };
 		EC0E656326F3E7D1000E8997 /* ReframeEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReframeEvent.swift; sourceTree = "<group>"; };
@@ -2367,7 +2365,6 @@
 				ECDBD8AA27A1D21C00F8DC91 /* FullScreenGestureRecognizerView.swift */,
 				B5D689BA2758203B0086C297 /* PreviewWindowElementUIKitGestures.swift */,
 				ECF28ECB2CFFAD41000CB94A /* NativeScrollGestureView.swift */,
-				EC0DE03D2973A57D0026A39C /* PreviewElementTrackpadPanView.swift */,
 				B5B20BAF279925EC008A2B5A /* FullScreenPreviewViewWrapper.swift */,
 				B586D16627FE80B300E56106 /* PreviewContent.swift */,
 			);
@@ -4972,7 +4969,6 @@
 				ECF387C9280B5C4C0075F0E5 /* NodeInputOutputView.swift in Sources */,
 				ECE35EF227CEE9AE00CB8F5C /* InputCommittedActions.swift in Sources */,
 				B55500C02C1B9D890081C3F1 /* FieldGroup.swift in Sources */,
-				EC0DE03E2973A57D0026A39C /* PreviewElementTrackpadPanView.swift in Sources */,
 				ECB8778C2C7D56D0004ACF60 /* LayerMultiselect.swift in Sources */,
 				EC8891A52C82388D002390F8 /* CommonEditingViewReadOnly.swift in Sources */,
 				EC991F6B2937D55600AE0A45 /* ArrayJoinNode.swift in Sources */,
