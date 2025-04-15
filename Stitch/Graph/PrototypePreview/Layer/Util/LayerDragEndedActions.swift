@@ -21,14 +21,12 @@ extension GraphState {
     @MainActor
     func layerDragEnded(interactiveLayer: InteractiveLayer,
                         parentSize: CGSize,
-                        childSize: CGSize) {
+                        childSize: CGSize,
+                        document: StitchDocumentViewModel) {
         // log("layerDragEnded: interactiveLayer.id: \(interactiveLayer.id)")
          // log("layerDragEnded CALLED")
 
-        guard let previewWindowSize = self.documentDelegate?.previewWindowSize else {
-            fatalErrorIfDebug("layerDragEnded: Must have preview window size")
-            return
-        }
+        let previewWindowSize = document.previewWindowSize
         
         var nodesToRecalculate = NodeIdSet()
         
@@ -41,7 +39,7 @@ extension GraphState {
         // Nodes to recalculate initialize with mouse nodes
         let mouseNodeIds: NodeIdSet = self.mouseNodes
 
-        self.documentDelegate?
+        document
             .updateMouseNodesPosition(mouseNodeIds: mouseNodeIds,
                                       gestureLocation: nil,
                                       velocity: nil,
