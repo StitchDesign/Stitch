@@ -56,14 +56,23 @@ struct PreviewWindowElementSwiftUIGestures: ViewModifier {
             }
             .onEnded {  _ in
                 // log("PreviewWindowElementGestures: DragGesture: id: \(interactiveLayer.id) onEnded")
-                graph.layerDragEnded(interactiveLayer: interactiveLayer,
-                                     parentSize: parentSize,
-                                     childSize: sizeForAnchoringAndGestures)
+                self.dragEnded()
             }
+    }
+    
+    func dragEnded() {
+        graph.layerDragEnded(interactiveLayer: interactiveLayer,
+                             parentSize: parentSize,
+                             childSize: sizeForAnchoringAndGestures,
+                             document: document)
     }
     
     func body(content: Content) -> some View {
         return content
+            .onDisappear {
+                // Fixes race condition where gesture state gets stuck if triggering group orientation views, causing views to tear down befor dragEnded can be called
+                self.dragEnded()
+            }
         // SwiftUI gestures need to come AFTER UIKit gestures
             .simultaneousGesture(self.dragGesture)
         

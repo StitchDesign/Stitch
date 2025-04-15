@@ -138,4 +138,3 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
                 minimumDragDistance: minimumDragDistance))
     }
 }
-
