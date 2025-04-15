@@ -102,7 +102,8 @@ extension Patch {
         case .coreMLDetection:
             return .node(coreMLDetectionEval)
         case .not:
-            return .node(outputsOnlyEval(notEval))
+//            return .node(outputsOnlyEval(notEval))
+            return .graph(notEval)
         case .transition:
             return .node(outputsOnlyEval(transitionEval))
         case .scrollInteraction:

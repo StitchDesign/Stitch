@@ -22,6 +22,8 @@ extension StitchDocumentViewModel: GraphStepManagerDelegate {
         // Very important: reverse pulse coercions from last graph step
         self.graph.reversePulseCoercionsFromPreviousGraphStep()
         
+        log("graphStepIncremented: visibleGraph.currentGraphTime: \(self.visibleGraph.currentGraphTime)")
+        
         // Evaluate the graph
         self.graph.calculateOnGraphStep()
                 

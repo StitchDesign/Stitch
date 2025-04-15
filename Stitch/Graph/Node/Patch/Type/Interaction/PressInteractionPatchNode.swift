@@ -105,7 +105,13 @@ actor PressInteractionActor {
 @MainActor
 func pressInteractionEval(node: NodeViewModel,
                           graph: GraphState) -> ImpureEvalResult {
-    node.loopedEval(PressInteractionNodeObserver.self,
+    
+    log("pressInteractionEval, node \(node.id)")
+    log("graph time: \(graph.currentGraphTime)")
+    log("inputs: \(node.inputs)")
+    log("outputs: \(node.outputs)")
+    
+    return node.loopedEval(PressInteractionNodeObserver.self,
                     graphState: graph) { values, evalObserver, interactiveLayer, loopIndex in
         pressInteractionOp(
             pressNode: node,

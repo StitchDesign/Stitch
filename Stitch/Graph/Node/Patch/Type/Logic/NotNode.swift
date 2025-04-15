@@ -31,10 +31,18 @@ func notNode(id: NodeId,
         outputs: outputs)
 }
 
+//@MainActor
+//func notEval(inputs: PortValuesList,
+//             outputs: PortValuesList) -> PortValuesList {
 @MainActor
-func notEval(inputs: PortValuesList,
-             outputs: PortValuesList) -> PortValuesList {
+func notEval(node: PatchNode,
+             graph: GraphState) -> EvalResult {
 
+    let inputs = node.inputs 
+    log("notEval, node \(node.id)")
+    log("graph time: \(graph.currentGraphTime)")
+    log("inputs: \(inputs)")
+    
     let op: Operation = { (values: PortValues) -> PortValue in
         
         guard let value = values.first?.getBool else {
@@ -45,5 +53,5 @@ func notEval(inputs: PortValuesList,
         return .bool(!value)
     }
 
-    return resultsMaker(inputs)(op)
+    return .init(outputsValues: resultsMaker(inputs)(op))
 }
