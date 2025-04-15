@@ -9,71 +9,99 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+let OptionPickerDefaultNodeType = UserVisibleType.number
+
 @MainActor
 func optionPickerPatchNode(id: NodeId,
-                           n: Double? = 0,
-                           n2: Double? = 1,
+                           n: Double = 0,
+                           n2: Double = 1,
                            nodePosition: CGPoint = .zero,
                            nodeZIndex: Double = 0) -> PatchNode {
-
-    // default
-    var opt1: PortValue = colorDefaultFalse
-    var opt2: PortValue = colorDefaultTrue
-    var userVisibleType: UserVisibleType = .color
-
-    if let x = n,
-       let x2 = n2 {
-        opt1 = .number(x)
-        opt2 = .number(x2)
-        userVisibleType = .number
-    }
 
     let inputs = toInputs(
         id: id,
         values:
-            ("Option", [numberDefaultFalse]),
-        //        (nil, [colorDefaultFalse]),
-        //        (nil, [colorDefaultTrue]))
-        (nil, [opt1]),
-        (nil, [opt2]))
+            ("Option", [.number(0)]),
+        (nil, [.number(n)]),
+        (nil, [.number(n2)]))
 
     let outputs = toOutputs(
         id: id,
         offset: inputs.count,
-        values: (nil, [opt1]))
+        values: (nil, [.number(n)]))
 
     return PatchNode(
         position: nodePosition,
         zIndex: nodeZIndex,
         id: id,
         patchName: .optionPicker,
-        //        userVisibleType: .color,
-        userVisibleType: userVisibleType,
+        userVisibleType: OptionPickerDefaultNodeType,
         inputs: inputs,
         outputs: outputs)
 }
 
 @MainActor
-func optionPickerEval(inputs: PortValuesList,
-                      outputs: PortValuesList) -> PortValuesList {
+func optionPickerEval(node: PatchNode) -> EvalResult {
 
-    let op: Operation = { (values: PortValues) -> PortValue in
-        guard let defaultFakeValue = values.first?.defaultFalseValue else {
-            fatalErrorIfDebug()
-            return colorDefaultFalse
+    let inputs = node.inputs
+        
+    guard let nodeType = node.userVisibleType else {
+        fatalErrorIfDebug()
+        return EvalResult(outputsValues: [[OptionPickerDefaultNodeType.defaultPortValue]])
+    }
+    
+    let defaultFakeValue: PortValue = nodeType.defaultPortValue
+    
+    guard let firstInput = inputs.first else {
+        fatalErrorIfDebug()
+        return .init(outputsValues: [[defaultFakeValue]])
+    }
+        
+    // If selection input has a loop, output will always be a loop
+    if firstInput.hasLoop {
+        let op: Operation = { (values: PortValues) -> PortValue in
+            guard let defaultFakeValue = values.first?.defaultFalseValue else {
+                fatalErrorIfDebug()
+                return colorDefaultFalse
+            }
+            
+            let selection: Int = Int(values.first?.getNumber ?? 0.0)
+
+                        
+            // If selection was negative, grab the first option
+            if selection < 0 {
+                return values[safe: 1] ?? defaultFakeValue
+            }
+            
+            // If selection is greater than the total options, grab the last option
+            else if selection + 1 >= values.count {
+                return values.last ?? defaultFakeValue
+            } else {
+                // + 1 because want to skip the first item in values
+                return values[safe: selection + 1] ?? defaultFakeValue
+            }
         }
         
-        let selection: Int = Int(values.first?.getNumber ?? 0.0)
-
-        // + 1 because want to skip the first item in values
+        return .init(outputsValues: resultsMaker(inputs)(op))
+        
+    }
+    
+    // If selection input is NOT a loop, the output will only be a loop if the selected-option-input contains a loop
+    else {
+        let selection: Int = Int(firstInput.first?.getNumber ?? 0.0)
+        let inputsToPickFrom = PortValuesList(inputs.dropFirst())
+        
+        let fn = { (newOutput: PortValues?) in
+            EvalResult(outputsValues: [newOutput ?? [defaultFakeValue]] )
+        }
+        
         if selection < 0 {
-            return values[safe: 1] ?? defaultFakeValue
-        } else if selection + 1 >= values.count {
-            return values.last ?? defaultFakeValue
+            return fn(inputsToPickFrom[safe: 0])
+        } else if selection >= inputsToPickFrom.count {
+            return fn(inputsToPickFrom.last)
         } else {
-            return values[safe: selection + 1] ?? defaultFakeValue
+            // + 1 because want to skip the first item in values
+            return fn(inputsToPickFrom[safe: selection])
         }
     }
-
-    return resultsMaker(inputs)(op)
 }

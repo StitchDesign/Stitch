@@ -56,7 +56,7 @@ extension Patch {
         case .hslColor:
             return .node(outputsOnlyEval(hslColorEval))
         case .optionPicker:
-            return .node(outputsOnlyEval(optionPickerEval))
+            return .node(optionPickerEval)
         case .pack:
             return .node(outputsOnlyEval(packEval))
         case .unpack:
