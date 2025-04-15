@@ -58,7 +58,8 @@ struct PreviewWindowElementSwiftUIGestures: ViewModifier {
                 // log("PreviewWindowElementGestures: DragGesture: id: \(interactiveLayer.id) onEnded")
                 graph.layerDragEnded(interactiveLayer: interactiveLayer,
                                      parentSize: parentSize,
-                                     childSize: sizeForAnchoringAndGestures)
+                                     childSize: sizeForAnchoringAndGestures,
+                                     document: document)
             }
     }
     
