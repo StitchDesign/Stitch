@@ -22,7 +22,7 @@ func recursivePreviewLayers(layerNodes: LayerNodesDict,
     let isRoot = sidebarLayersAtHierarchy == nil
     let sidebarLayersAtHierarchy = sidebarLayersAtHierarchy ?? sidebarLayersGlobal
     let pinnedLayerIds = pinMap.allPinnedLayerIds.map { $0.id }
-    var layerTypesAtThisLevel = LayerTypeSet()
+    var layerTypesAtThisLevel = LayerTypeOrderedSet()
     var handled = LayerIdSet()
     
     // Filter out pinned views for visible layers, they'll be re-inserted in handleRawSidebarLayer
@@ -221,7 +221,7 @@ func getLayerDataFromLayerType(_ layerType: LayerType,
 func getLayerTypesFromSidebarLayerData(_ layerData: SidebarLayerData,
                                        sidebarIndex: Int,
                                        layerNodes: LayerNodesDict,
-                                       isPinnedView: Bool) -> LayerTypeSet {
+                                       isPinnedView: Bool) -> LayerTypeOrderedSet {
     
     guard let layerNode = layerNodes.get(layerData.id) else {
         // Can happen when we e.g. ungroup a layer
@@ -230,7 +230,7 @@ func getLayerTypesFromSidebarLayerData(_ layerData: SidebarLayerData,
     }
     
     if let children = layerData.children {
-        let layerTypes: LayerTypeSet = layerNode.previewLayerViewModels
+        let layerTypes: LayerTypeOrderedSet = layerNode.previewLayerViewModels
             .map { layerViewModel in
                     .group(data: .init(id: layerViewModel.id,
                                        zIndex: layerViewModel.zIndex.getNumber ?? .zero,
@@ -246,7 +246,7 @@ func getLayerTypesFromSidebarLayerData(_ layerData: SidebarLayerData,
     
     // Non-group case
     else {
-        let layerTypes: LayerTypeSet = layerNode.previewLayerViewModels
+        let layerTypes: LayerTypeOrderedSet = layerNode.previewLayerViewModels
             .reversed() // Reverse loop's layer view models, for default "ZStack" case
             .map { layerViewModel in
                     .nongroup(data: .init(id: layerViewModel.id,
@@ -266,13 +266,13 @@ func getLayerTypesFromSidebarLayerData(_ layerData: SidebarLayerData,
 @MainActor
 func handleRawSidebarLayer(sidebarIndex: Int,
                            layerData: SidebarLayerData,
-                           layerTypesAtThisLevel: LayerTypeSet, // i.e. acc
+                           layerTypesAtThisLevel: LayerTypeOrderedSet, // i.e. acc
                            handled: LayerIdSet, // i.e. acc2
                            sidebarLayersAtHierarchy: SidebarLayerList, // raw sidebar layers
                            sidebarLayersGlobal: SidebarLayerList, // all sidebar layers, needed for pinning
                            layerNodes: LayerNodesDict,
                            activeIndex: ActiveIndex,
-                           pinMap: RootPinMap) -> (LayerTypeSet,
+                           pinMap: RootPinMap) -> (LayerTypeOrderedSet,
                                                // layers used as masks
                                                // TODO: not needed anymore?
                                                LayerIdSet) {
@@ -425,7 +425,7 @@ func handleRawSidebarLayer(sidebarIndex: Int,
 func getLayerTypesForPinnedViews(pinnedData: LayerPinData, // views pinned to this layer
                                  sidebarLayers: SidebarLayerList,
                                  layerNodes: LayerNodesDict,
-                                 layerTypesAtThisLevel: LayerTypeSet) -> LayerTypeSet {
+                                 layerTypesAtThisLevel: LayerTypeOrderedSet) -> LayerTypeOrderedSet {
     
     var layerTypesAtThisLevel = layerTypesAtThisLevel
     
