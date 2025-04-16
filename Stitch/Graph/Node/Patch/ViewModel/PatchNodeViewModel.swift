@@ -134,7 +134,7 @@ extension PatchNodeViewModel: SchemaObserver {
 
 extension PatchNodeViewModel {
     @MainActor
-    func initializeDelegate(_ node: PatchNodeViewModelDelegate, graph: GraphState) {
+    func initializeDelegate(_ node: NodeViewModel, graph: GraphState) {
         self.delegate = node
         
         self.inputsObservers.forEach {
@@ -160,7 +160,7 @@ extension PatchNodeViewModel {
                                         userVisibleType: UserVisibleType? = nil,
                                         mathExpression: String?,
                                         splitterNode: SplitterNodeEntity?,
-                                        delegate: PatchNodeViewModelDelegate,
+                                        delegate: NodeViewModel,
                                         graph: GraphState) {
         let entity = PatchNodeEntity(id: id,
                                      patch: patch,
@@ -180,7 +180,7 @@ extension PatchNodeViewModel {
                                 inputs: [NodePortInputEntity],
                                 canvasEntity: CanvasNodeEntity,
                                 userVisibleType: UserVisibleType? = nil,
-                                delegate: PatchNodeViewModelDelegate,
+                                delegate: NodeViewModel,
                                 graph: GraphState) {
         self.init(id: id,
                   patch: patch,
