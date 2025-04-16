@@ -142,7 +142,7 @@ extension SidebarItemGestureViewModel {
     
     @MainActor
     func didToggleVisibility() {
-        dispatch(SidebarItemHiddenStatusToggled(clickedId: self.id))
+        dispatch(SelectedLayersVisiblityUpdated(selectedLayers: .init([self.id])))
     }
     
     @MainActor
