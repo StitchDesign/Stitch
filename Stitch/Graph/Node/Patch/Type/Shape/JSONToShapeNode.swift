@@ -61,7 +61,7 @@ func jsonToShapeEval(inputs: PortValuesList,
         if let jsonInput: JSON = values[0].getJSON,
 
            // TODO: reintroduce proper use of coordinate-space
-           let coordinateSpace: StitchPosition = values[1].getPosition {
+           let _: StitchPosition = values[1].getPosition {
 
             if let commands = jsonInput.parseAsPathCommands()?.asJSONShapeCommands {
                 return (
