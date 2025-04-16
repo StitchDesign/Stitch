@@ -206,17 +206,17 @@ struct WideAdjustmentBarView: View {
                 } // .onAppear
 
                 // an item's onTap handler sets `manuallyClickedNumber` non-nil
-                .onChange(of: manuallyClickedNumber) { (newManuallyClicked: AdjustmentNumber?) in
-                    // log("WideAdjustmentBarView: onChange of manuallyClickedNumber: newManuallyClicked: \(newManuallyClicked)")
+                .onChange(of: manuallyClickedNumber) { oldValue, newValue in
+                    // log("WideAdjustmentBarView: onChange of manuallyClickedNumber: newValue: \(newValue)")
 
-                    guard let newManuallyClicked = newManuallyClicked else {
+                    guard let newValue = newValue else {
                         // log("onChange of manuallyClickedNumber: early exit")
                         return
                     }
 
                     isScrollingFromTap = true
                     withAnimation {
-                        proxy.scrollTo(newManuallyClicked.id, anchor: .center)
+                        proxy.scrollTo(newValue.id, anchor: .center)
                     }
 
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {

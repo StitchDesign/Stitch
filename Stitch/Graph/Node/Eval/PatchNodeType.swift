@@ -193,10 +193,7 @@ enum AnimationNodeType: PatchNodeTypeSet, CaseIterable {
         default:
             // better than crashing, just default to some sensible type?
             log("AnimationNodeType: unsupported nodeType: \(nodeType)")
-            #if DEV || DEV_DEBUG
-            fatalError()
-            #endif
-
+            fatalErrorIfDebug()
             return .number
         }
     }

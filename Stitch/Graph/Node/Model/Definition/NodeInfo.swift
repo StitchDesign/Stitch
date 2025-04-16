@@ -30,14 +30,14 @@ extension NodeInfo {
                                          position: .zero,
                                          zIndex: .zero,
                                          graphDelegate: graph)!
-            var supportedTypes = Set<UserVisibleType>()
-            switch patch {
-            // These nodes have phased out `availableNodeTypes` for auto detetcing in coercion
-            case .greaterOrEqual, .lessThanOrEqual, .equals, .greaterThan, .lessThan:
-                supportedTypes = .init([.bool, .number, .string, .layerDimension])
-            default:
-                supportedTypes = patch.availableNodeTypes
-            }
+            //            var supportedTypes = Set<UserVisibleType>()
+            //            switch patch {
+            //            // These nodes have phased out `availableNodeTypes` for auto detetcing in coercion
+            //            case .greaterOrEqual, .lessThanOrEqual, .equals, .greaterThan, .lessThan:
+            //                supportedTypes = .init([.bool, .number, .string, .layerDimension])
+            //            default:
+            //                supportedTypes = patch.availableNodeTypes
+            //            }
 
             return NodeInfo(name: node.displayTitle,
                             inputs: NodeKind.patch(patch).rowDefinitions(for: node.userVisibleType).inputs,
