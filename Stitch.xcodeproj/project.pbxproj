@@ -592,6 +592,8 @@
 		EC650BD926864DF200C4CCC9 /* SoundImportNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC650BD826864DF200C4CCC9 /* SoundImportNode.swift */; };
 		EC650BDB2686702800C4CCC9 /* SpeakerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC650BDA2686702800C4CCC9 /* SpeakerNode.swift */; };
 		EC65B25628653CAA00BC8FBF /* FileDropModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65B25528653CAA00BC8FBF /* FileDropModifier.swift */; };
+		EC6859092DB06F78004BF315 /* GraphCalculatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6859082DB06F78004BF315 /* GraphCalculatable.swift */; };
+		EC68590B2DB078B7004BF315 /* ArrayUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC68590A2DB078B7004BF315 /* ArrayUtils.swift */; };
 		EC68A6FC288B311A00689F92 /* SplitterTypeActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC68A6FB288B311A00689F92 /* SplitterTypeActions.swift */; };
 		EC68A6FE288B314A00689F92 /* GroupNodeCreationActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC68A6FD288B314A00689F92 /* GroupNodeCreationActions.swift */; };
 		EC68A700288B31A000689F92 /* GroupNodeDestructionActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC68A6FF288B31A000689F92 /* GroupNodeDestructionActions.swift */; };
@@ -1561,6 +1563,8 @@
 		EC650BD826864DF200C4CCC9 /* SoundImportNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundImportNode.swift; sourceTree = "<group>"; };
 		EC650BDA2686702800C4CCC9 /* SpeakerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakerNode.swift; sourceTree = "<group>"; };
 		EC65B25528653CAA00BC8FBF /* FileDropModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileDropModifier.swift; sourceTree = "<group>"; };
+		EC6859082DB06F78004BF315 /* GraphCalculatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphCalculatable.swift; sourceTree = "<group>"; };
+		EC68590A2DB078B7004BF315 /* ArrayUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrayUtils.swift; sourceTree = "<group>"; };
 		EC68A6FB288B311A00689F92 /* SplitterTypeActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitterTypeActions.swift; sourceTree = "<group>"; };
 		EC68A6FD288B314A00689F92 /* GroupNodeCreationActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupNodeCreationActions.swift; sourceTree = "<group>"; };
 		EC68A6FF288B31A000689F92 /* GroupNodeDestructionActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupNodeDestructionActions.swift; sourceTree = "<group>"; };
@@ -3272,6 +3276,7 @@
 				B57F3A7F2946CE4700DFC0AE /* VisibleNodesViewModel.swift */,
 				B57967512B5F2BF8007F5F24 /* SchemaObserver.swift */,
 				B58B5E0D2C9909C700AC519A /* StitchDocumentViewModel.swift */,
+				EC6859082DB06F78004BF315 /* GraphCalculatable.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -3548,6 +3553,7 @@
 				EC41FFC22943A74E00BF8671 /* CGPointUtils.swift */,
 				B56FFB372C18F12600623CC7 /* CGRectUtils.swift */,
 				EC1E7A6C287CFA9600144D05 /* StringUtils.swift */,
+				EC68590A2DB078B7004BF315 /* ArrayUtils.swift */,
 				20521CA62558B3BE00270E72 /* MiscUtils.swift */,
 				EC08D5542898873C00FEE846 /* MathUtils.swift */,
 				EC609DBB293530B700BF60A5 /* CollectionExtensionUtils.swift */,
@@ -5246,6 +5252,7 @@
 				EC8605BA269E1A2B007B8ED3 /* ArrayAppendNode.swift in Sources */,
 				EC40812D2C014EF70047989F /* StitchDocumentURLUtils.swift in Sources */,
 				B50F41712C1F52C00082262F /* LayerInspectorView.swift in Sources */,
+				EC68590B2DB078B7004BF315 /* ArrayUtils.swift in Sources */,
 				B5CB68342CC9A06500DFC660 /* ProjectSidebarObservable.swift in Sources */,
 				ECA92A20260A6A1400281B52 /* CounterNode.swift in Sources */,
 				EC650BD926864DF200C4CCC9 /* SoundImportNode.swift in Sources */,
@@ -5646,6 +5653,7 @@
 				B55500E72C1BACA30081C3F1 /* PreviewCommonPositionModifier.swift in Sources */,
 				ECF07B7626EA99780021F56B /* ShareView.swift in Sources */,
 				EC81A3C528936BAA00BE53D8 /* WideAdjustmentBarView.swift in Sources */,
+				EC6859092DB06F78004BF315 /* GraphCalculatable.swift in Sources */,
 				EC9486A02AE191A900B51AB1 /* MouseInteractionNode.swift in Sources */,
 				ECE35EEE27CEE93700CB8F5C /* PickerActions.swift in Sources */,
 				B561B44B2923465D00DE4A0D /* iPadProjectSidebarView.swift in Sources */,
