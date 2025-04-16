@@ -479,12 +479,13 @@ extension GraphState: GraphCalculatable {
                 item.isHidden(graph: self) ? nil: item.createSchema()
             }
                 
+        // TODO: can `recursivePreviewLayers` return a LayerTypeList, which we cache instead of a LayerDataList? If the LayerTypeList changes, we produce a new LayerDataList (which is consumed by GeneratePreview)
         let previewLayers: LayerDataList = recursivePreviewLayers(
             layerNodes: layerNodes,
             sidebarLayersGlobal: nonHiddenSidebarLayers,
             pinMap: rootPinMap,
             activeIndex: activeIndex)
-        
+                
         if !LayerDataList.equals(self.cachedOrderedPreviewLayers, previewLayers) {
             self.cachedOrderedPreviewLayers = previewLayers
         }
