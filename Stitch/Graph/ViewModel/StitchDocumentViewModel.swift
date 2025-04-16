@@ -466,11 +466,20 @@ extension GraphState: GraphCalculatable {
             return
         }
         
-        let flattenedPinMap = self.getFlattenedPinMap()
-        let rootPinMap = self.getRootPinMap(pinMap: flattenedPinMap)
+        // TODO: needs to take layer nodes explicitly
+        let flattenedPinMap = Stitch.getFlattenedPinMap(
+            visibleLayerNodes: self.layerNodes(),
+            graph: self)
+        
+        let rootPinMap = getRootPinMap(pinMap: flattenedPinMap)
+        
+        let nonHiddenSidebarLayers = self.layersSidebarViewModel.items
+            .compactMap { item in
+                item.isHidden(graph: self) ? item.createSchema() : nil
+            }
         
         let previewLayers: LayerDataList = self.recursivePreviewLayers(
-            sidebarLayersGlobal: self.layersSidebarViewModel.createdOrderedEncodedData(),
+            sidebarLayersGlobal: nonHiddenSidebarLayers,
             pinMap: rootPinMap,
             activeIndex: activeIndex)
         

@@ -26,7 +26,7 @@ protocol SidebarItemSwipable: StitchNestedListElementObservable, Sendable, Ident
     
     @MainActor var previousSwipeX: CGFloat { get set }
     
-    @MainActor var isVisible: Bool { get }
+    @MainActor func isVisible(graph: GraphReader) -> Bool
     
     @MainActor var sidebarIndex: SidebarIndex { get set }
     
@@ -38,11 +38,11 @@ protocol SidebarItemSwipable: StitchNestedListElementObservable, Sendable, Ident
     
     @MainActor var sidebarDelegate: SidebarViewModel? { get set }
     
-    @MainActor var isHidden: Bool { get }
+    @MainActor func isHidden(graph: GraphReader) -> Bool
     
     @MainActor var sidebarLeftSideIcon: String { get }
     
-    @MainActor var isMasking: Bool { get }
+    @MainActor func isMasking(graph: GraphReader) -> Bool
     
     @MainActor var isHovered: Bool { get set }
     

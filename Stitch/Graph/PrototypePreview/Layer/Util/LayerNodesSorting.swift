@@ -42,7 +42,7 @@ extension GraphState {
                     handled: handled,
                     sidebarLayersAtHierarchy: filteredSidebarLayersAtHierarchy,
                     sidebarLayersGlobal: sidebarLayersGlobal,
-                    layerNodes: self.layerNodes,
+                    layerNodes: self.layerNodesDict(),
                     activeIndex: activeIndex,
                     pinMap: pinMap)
             
@@ -57,7 +57,7 @@ extension GraphState {
             let layerTypesFromRootPinnedViews = getLayerTypesForPinnedViews(
                 pinnedData: pinnedData,
                 sidebarLayers: sidebarLayersGlobal,
-                layerNodes: self.layerNodes,
+                layerNodes: self.layerNodesDict(),
                 layerTypesAtThisLevel: layerTypesAtThisLevel)
             
             layerTypesAtThisLevel = layerTypesAtThisLevel.union(layerTypesFromRootPinnedViews)
@@ -78,11 +78,12 @@ extension GraphState {
         }
         
         let sortedLayerDataList: LayerDataList = sortedLayerTypes.compactMap { (layerType: LayerType) -> LayerData? in
-            self.getLayerDataFromLayerType(layerType,
-                                           pinMap: pinMap,
-                                           sidebarLayersGlobal: sidebarLayersGlobal,
-                                           layerNodes: self.layerNodes,
-                                           activeIndex: activeIndex)
+            self.getLayerDataFromLayerType(
+                layerType,
+                pinMap: pinMap,
+                sidebarLayersGlobal: sidebarLayersGlobal,
+                layerNodes: self.layerNodesDict(),
+                activeIndex: activeIndex)
         }
         
         return sortedLayerDataList
@@ -135,7 +136,7 @@ extension GraphState {
     func getLayerDataFromLayerType(_ layerType: LayerType,
                                    pinMap: RootPinMap,
                                    sidebarLayersGlobal: SidebarLayerList,
-                                   layerNodes: NodesViewModelDict,
+                                   layerNodes: LayerNodesDict,
                                    activeIndex: ActiveIndex) -> LayerData? {
         
         switch layerType {
@@ -174,8 +175,7 @@ extension GraphState {
             // we call `getLayerDataFromLayerType` recursively, and
         case .nongroup(let data, let isPinned): // LayerData
                         
-            guard let node = layerNodes.get(data.id.layerNodeId.id),
-                  let layerNode = node.layerNode,
+            guard let layerNode = layerNodes.get(data.id.layerNodeId.id),
                   let previewLayer: LayerViewModel = layerNode
                     // these layer view models are ALREADY CREATED on the layer node
                 .previewLayerViewModels[safe: data.id.loopIndex] else {
@@ -185,10 +185,8 @@ extension GraphState {
             return .nongroup(layerNode, previewLayer, isPinned)
             
         case .group(let layerGroupData, let isPinned): // LayerGroupData
-            guard let node = layerNodes.get(layerGroupData.id.layerNodeId.asNodeId),
-                  let layerNode = node.layerNode,
-                  let previewLayer: LayerViewModel = layerNode
-                .previewLayerViewModels[safe: layerGroupData.id.loopIndex] else {
+            guard let layerNode = layerNodes.get(layerGroupData.id.layerNodeId.asNodeId),
+                  let previewLayer: LayerViewModel = layerNode.previewLayerViewModels[safe: layerGroupData.id.loopIndex] else {
                 
                 return nil
             }
@@ -220,10 +218,10 @@ extension GraphState {
 @MainActor
 func getLayerTypesFromSidebarLayerData(_ layerData: SidebarLayerData,
                                        sidebarIndex: Int,
-                                       layerNodes: NodesViewModelDict,
+                                       layerNodes: LayerNodesDict,
                                        isPinnedView: Bool) -> LayerTypeSet {
     
-    guard let layerNode = layerNodes.get(layerData.id)?.layerNode else {
+    guard let layerNode = layerNodes.get(layerData.id) else {
         // Can happen when we e.g. ungroup a layer
         // fatalErrorIfDebug("Could not find layer node for sidebar layer \(layerData.id)")
         return .init()
@@ -270,7 +268,7 @@ func handleRawSidebarLayer(sidebarIndex: Int,
                            handled: LayerIdSet, // i.e. acc2
                            sidebarLayersAtHierarchy: SidebarLayerList, // raw sidebar layers
                            sidebarLayersGlobal: SidebarLayerList, // all sidebar layers, needed for pinning
-                           layerNodes: NodesViewModelDict,
+                           layerNodes: LayerNodesDict,
                            activeIndex: ActiveIndex,
                            pinMap: RootPinMap) -> (LayerTypeSet,
                                                // layers used as masks
@@ -302,7 +300,7 @@ func handleRawSidebarLayer(sidebarIndex: Int,
      */
     let hasMask = maskerLayerData
         .flatMap {
-            layerNodes.get($0.id)?.layerNode?.masksPort
+            layerNodes.get($0.id)?.masksPort
                 .getActiveValue(activeIndex: activeIndex)
                 .getBool
         }
@@ -424,7 +422,7 @@ func handleRawSidebarLayer(sidebarIndex: Int,
 @MainActor
 func getLayerTypesForPinnedViews(pinnedData: LayerPinData, // views pinned to this layer
                                  sidebarLayers: SidebarLayerList,
-                                 layerNodes: NodesViewModelDict,
+                                 layerNodes: LayerNodesDict,
                                  layerTypesAtThisLevel: LayerTypeSet) -> LayerTypeSet {
     
     var layerTypesAtThisLevel = layerTypesAtThisLevel

@@ -11,13 +11,14 @@ import StitchSchemaKit
 
 struct SidebarListItemSwipeMenu<Item>: View where Item: SidebarItemSwipable {
     @Bindable var gestureViewModel: Item
+    @Bindable var graph: GraphState
     let swipeOffset: CGFloat
     
     var showNonDefaultOptions: Bool { swipeOffset < DEFAULT_ACTION_THRESHOLD }
 
     @MainActor
     var visStatusIconName: String {
-        gestureViewModel.isVisible ? SIDEBAR_VISIBILITY_STATUS_VISIBLE_ICON : SIDEBAR_VISIBILITY_STATUS_HIDDEN_ICON
+        gestureViewModel.isVisible(graph: graph) ? SIDEBAR_VISIBILITY_STATUS_VISIBLE_ICON : SIDEBAR_VISIBILITY_STATUS_HIDDEN_ICON
     }
     
     var body: some View {
