@@ -372,7 +372,7 @@ func positionAIGeneratedNodes(depthMap: DepthMap,
                     staggerSize = canvasSize
                 }
                 
-                let staggerPadding: CGFloat = 60.0
+                let staggerPadding: CGFloat = 32
                 
                 let newPosition = CGPoint(
                     x: viewPortCenter.x + (CGFloat(depthLevel) * staggerSize.width + staggerPadding),
