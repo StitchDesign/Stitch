@@ -29,7 +29,7 @@ struct AppThemeChangedEvent: AppEvent {
         UIApplication
             .shared
             .setAlternateIconName(newTheme.appIconName) { (maybeError: Error?) in
-                log("AppThemeChangedEvent: when changing app icon to \(newTheme.appIconName), encountered error: \(maybeError)")
+                log("AppThemeChangedEvent: when changing app icon to \(newTheme.appIconName), encountered error: \(String(describing: maybeError))")
             }
 
         return .stateOnly(state)

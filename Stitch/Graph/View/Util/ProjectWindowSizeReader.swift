@@ -113,9 +113,7 @@ struct ProjectWindowSizeReader: View {
                         // TODO: test on iPad Mini etc.
                         // TODO: why were we getting 299 vs 300 vs ... ?
                         //                        if heightDiff.magnitude > 300 {
-                        
-                        let heightDiffMag = heightDiff.magnitude
-                        
+                                                
                         if heightDiff.magnitude > 295 {
                              // log("ProjectWindowSizeReader: onChange of: geometry.size: setting to min height")
                             //menuHeight = INSERT_NODE_MENU_MIN_HEIGHT
@@ -141,23 +139,23 @@ struct ProjectWindowSizeReader: View {
                 }
             // TODO: why does this logic live here? we're changing some ephemeral parts of preview-window data (size etc.) in a reader that's mostly about user-device-screen changes (e.g. keyboard, rotation) ?
                 // i.e. when user changes preview window size via settings menu
-                .onChange(of: previewWindowSize) { (newWindowSize: CGSize) in
+                .onChange(of: previewWindowSize) { oldValue, newValue in
                     
-                    self.previewWindowSizing.previewWindowDeviceSize = newWindowSize
+                    self.previewWindowSizing.previewWindowDeviceSize = newValue
                     
                     // Reset accumulated drag
                     self.previewWindowSizing.accumulatedAdjustedTranslation = .zero
                     self.previewWindowSizing.activeAdjustedTranslation = .zero
                 }
             
-                .onChange(of: isFullScreen) { isFullScreenUpdate in
+                .onChange(of: isFullScreen) { oldValue, newValue in
 
                     showFullScreenAnimateCompleted = false
                     withAnimation(.stitchAnimation) {
-                        if isFullScreenUpdate {
+                        if newValue {
                             self.previewWindowSizing.userDeviceSize = geometry.size
                         }
-                        showFullScreenObserver.update(isFullScreenUpdate)
+                        showFullScreenObserver.update(newValue)
                     }
                 }
         }

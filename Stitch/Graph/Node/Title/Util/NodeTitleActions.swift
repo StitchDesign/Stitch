@@ -16,7 +16,7 @@ extension NodeViewModel {
                          isCommitting: Bool,
                          graph: GraphState) {
         switch titleEditType {
-        case .canvas(let id):
+        case .canvas:
             self.title = edit
             
             // Check for component
@@ -30,7 +30,7 @@ extension NodeViewModel {
             // Resize node
             self.patchCanvasItem?.resetViewSizingCache()
             
-        case .layerInspector(let id):
+        case .layerInspector:
             self.title = edit
         }
         
