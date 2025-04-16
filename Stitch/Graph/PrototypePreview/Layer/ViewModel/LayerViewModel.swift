@@ -604,7 +604,7 @@ extension LayerViewModel {
             if oldValue != value {
                 self.updatePreviewLayerInput(value, inputType: inputType)
                 
-                if inputType.shouldResetGraphPreviews {
+                if inputType.shouldResortPreviewLayersIfChanged {
                     self.nodeDelegate?.graphDelegate?.shouldResortPreviewLayers = true
                 }
             }

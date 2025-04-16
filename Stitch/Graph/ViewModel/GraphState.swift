@@ -659,10 +659,6 @@ extension GraphState {
         self.visibleNodesViewModel.patchNodes
     }
     
-    @MainActor
-    var layerNodes: NodesViewModelDict {
-        self.visibleNodesViewModel.layerNodes
-    }
     
     @MainActor
     var groupNodes: NodesViewModelDict {

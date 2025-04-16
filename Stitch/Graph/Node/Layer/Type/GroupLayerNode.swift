@@ -174,7 +174,7 @@ extension LayerSize {
  ?? When ScrollView.onScrollGeometry fires, we update the LayerViewModel's InteractiveLayer, then call the nativeScrollInteractionEval.
  */
 @MainActor
-func nativeScrollInteractionEval(node: LayerNode,
+func nativeScrollInteractionEval(node: NodeViewModel,
                                  state: GraphState) -> EvalResult {
     
     // log("nativeScrollInteractionEval: called")

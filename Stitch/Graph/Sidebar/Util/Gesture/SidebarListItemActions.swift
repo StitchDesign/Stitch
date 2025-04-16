@@ -20,28 +20,23 @@ import StitchSchemaKit
  - un-hides item's secondarily-hidden descendants
  (DOES NOT un-hide primarily-hidden descendants)
  */
-struct SidebarItemHiddenStatusToggled: GraphEventWithResponse {
-
-    let clickedId: NodeId
-
-    @MainActor
-    func handle(state: GraphState) -> GraphResponse {
-        state.layerHiddenStatusToggled(clickedId)
-        return .persistenceResponse
-    }
-}
-
 struct SelectedLayersVisiblityUpdated: GraphEventWithResponse {
 
     let selectedLayers: NodeIdSet
-    let newVisibilityStatus: Bool
+    var newVisibilityStatus: Bool? = nil // nil = toggled
     
     @MainActor
     func handle(state: GraphState) -> GraphResponse {
+        
         for selectedLayer in selectedLayers {
             state.layerHiddenStatusToggled(selectedLayer,
                                            newVisibilityStatus: newVisibilityStatus)
         }
+        
+        // TODO: why do we have to immediately update the preview layers? Why isn't setting `state.shouldResortPreviewLayers = true` enough?
+        state.shouldResortPreviewLayers = true
+        state.updateOrderedPreviewLayers()
+        
         return .persistenceResponse
     }
 }
@@ -53,7 +48,7 @@ extension GraphState {
                                   newVisibilityStatus: Bool? = nil) {
 
         guard let layerNode = self.getLayerNode(id: clickedId)?.layerNode else {
-            log("SidebarItemHiddenStatusToggled: could not find layer node for clickedId \(clickedId.id)")
+            log("layerHiddenStatusToggled: could not find layer node for clickedId \(clickedId.id)")
             fatalErrorIfDebug() // Is this bad?
             return
         }
@@ -71,5 +66,9 @@ extension GraphState {
         for id in descendants {
             self.getLayerNode(id: id.id)?.layerNode?.hasSidebarVisibility = isShown
         }
+        
+        // TODO: introduce an `Enabled` input on layer node and update `LayerInputPort.shouldResortPreviewLayersIfChanged`
+        // See `LayerInputPort.shouldResortPreviewLayersIfChanged` for which inputs' changes require resorting
+        self.shouldResortPreviewLayers = true
     }
 }

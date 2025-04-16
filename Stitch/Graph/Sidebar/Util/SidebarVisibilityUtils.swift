@@ -18,12 +18,10 @@ let SIDEBAR_VISIBILITY_STATUS_PRIMARY_HIDDEN_COLOR: Color = EDIT_MODE_HAMBURGER_
 let SIDEBAR_VISIBILITY_STATUS_SECONDARY_HIDDEN_COLOR: Color = Color(uiColor: .darkGray)
 let SIDEBAR_VISIBILITY_STATUS_VISIBLE_COLOR: Color = .white
 
-extension GraphState {
+extension GraphReader {
     @MainActor
     func getVisibilityStatus(for layerNodeId: NodeId) -> SidebarVisibilityStatus {
-        guard let layerNode = self
-            .getLayerNode(id: layerNodeId)?
-            .layerNode else {
+        guard let layerNode = self.getLayerNode(layerNodeId) else {
             return .visible
         }
         
@@ -38,20 +36,20 @@ extension GraphState {
 
         return .visible
     }
-
+    
     @MainActor
     func isUpstreamNodeInvisible(for layerNode: LayerNodeViewModel) -> Bool {
-        guard let groupId = layerNode.layerGroupId,
-              let layerGroup = self.nodes.get(groupId)?.layerNode else {
+        guard let layerGroupId = layerNode.layerGroupId,
+              let layerGroupNode = self.getLayerNode(layerGroupId) else {
             return false
         }
 
         // Recursion breaks if upstream node set to invisible
-        if !layerGroup.hasSidebarVisibility {
+        if !layerGroupNode.hasSidebarVisibility {
             return true
         }
 
         // Keep checking upstream
-        return isUpstreamNodeInvisible(for: layerGroup)
+        return self.isUpstreamNodeInvisible(for: layerGroupNode)
     }
 }
