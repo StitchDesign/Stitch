@@ -177,7 +177,7 @@ extension GraphState {
         if graphMovement.firstActive == .graph {
 
             if !graphMovement.runningGraphTranslationBeforeNodeDragged.isDefined {
-                log("canvasItemMoved: setting runningGraphTranslationBeforeNodeDragged to be graphMovement.runningGraphTranslation: \(graphMovement.runningGraphTranslation)")
+                log("canvasItemMoved: setting runningGraphTranslationBeforeNodeDragged to be graphMovement.runningGraphTranslation: \(String(describing: graphMovement.runningGraphTranslation))")
                 graphMovement
                     .runningGraphTranslationBeforeNodeDragged = (
                         graphMovement.runningGraphTranslation ?? .zero) / graphMovement.zoomData

@@ -193,7 +193,7 @@ extension GraphState {
             return nil
         }
         
-        guard let firstSelectedLayer = self.sidebarSelectionState.primary.first else {
+        guard let _ = self.sidebarSelectionState.primary.first else {
             log("multipleSidebarLayersSelected: did not have any selected sidebar layers?")
             return nil
         }

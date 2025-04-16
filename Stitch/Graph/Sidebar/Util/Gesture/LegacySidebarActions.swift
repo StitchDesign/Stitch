@@ -248,12 +248,10 @@ extension ProjectSidebarObservable {
                            to index: SidebarIndex,
                            draggedItemsPlusChildrenCount: Int,
                            oldCount: Int) {
-        guard let graph = self.graphDelegate,
-              let activeIndex = graph.documentDelegate?.activeIndex else {
+        guard let graph = self.graphDelegate else {
             fatalErrorIfDebug()
             return
         }
-        
         
         let visualList = visualList
         let draggedItemIdSet = draggedItems.map(\.id).toSet

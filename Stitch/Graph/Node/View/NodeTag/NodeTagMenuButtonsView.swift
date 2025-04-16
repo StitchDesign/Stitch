@@ -369,7 +369,7 @@ struct NodeTagMenuButtonsView: View {
     @MainActor
     func componentLinkingButton(component: StitchMasterComponent) -> some View {
         // Check if button is already linked
-        if let linkedSystem = self.store.systems.findSystem(forComponent: component.id) {
+        if let _ = self.store.systems.findSystem(forComponent: component.id) {
             return nodeTagMenuButton(label: "Unlink Component") {
                 do {
                     try self.document.unlinkComponent(localComponent: component)

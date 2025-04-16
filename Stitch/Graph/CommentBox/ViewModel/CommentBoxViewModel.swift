@@ -106,7 +106,7 @@ struct CommentExpansionBox: Equatable, Hashable {
 extension CommentBoxesDict {
     mutating func sync(from commentBoxesData: [CommentBoxData]) {
         commentBoxesData.forEach { data in
-            if let existingViewModel = self.get(.init(data.id)) {
+            if let _ = self.get(.init(data.id)) {
                 fatalErrorIfDebugOnly("Not implemented?")
             }
         }

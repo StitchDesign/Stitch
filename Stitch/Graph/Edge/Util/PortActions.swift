@@ -48,7 +48,7 @@ extension InputNodeRowObserver {
            // Only look at this input if it is the media input
            self.id.isMediaSelectorLocation {
             if willUpstreamBeDisconnected,
-               let upstreamOutputObserver = self.upstreamOutputObserver {
+               let _ = self.upstreamOutputObserver {
                 node.getComputedMediaObjects().forEach {
                     if let video = $0.video {
                         video.muteSound()
