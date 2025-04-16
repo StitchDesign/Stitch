@@ -110,12 +110,17 @@ extension StitchDocumentViewModel {
                 throw error
             }
         }
-                
-        // Only adjust node positions if actions were valid and successfully applied
-        positionAIGeneratedNodes(convertedActions: convertedActions,
-                                 nodes: self.visibleGraph.visibleNodesViewModel,
-                                 viewPortCenter: self.newCanvasItemInsertionLocation)
         
+        // Only adjust node positions if actions were valid and successfully applied
+        // Note: position AI-generated nodes after a short delay, so that view has time to read canvas items' sizes
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            let (depthMap, _) = convertedActions.calculateAINodesAdjacency()
+            let createdNodes = convertedActions.nodesCreatedByLLMActions()
+            if let depthMap = depthMap {
+                dispatch(UpdateAIGeneratedNodesPositions(depthMap: depthMap, createdNodes: createdNodes))
+            }
+        }
+                
         // Write to disk ONLY IF WE WERE SUCCESSFUL
         self.encodeProjectInBackground()
         
@@ -302,28 +307,41 @@ extension StitchDocumentViewModel {
     }
 }
 
+struct UpdateAIGeneratedNodesPositions: StitchDocumentEvent {
+    
+    let depthMap: DepthMap
+    let createdNodes: NodeIdSet
+    
+    func handle(state: StitchDocumentViewModel) {
+        
+        let graph = state.visibleGraph
+        
+        graph.visibleNodesViewModel.setAllCanvasItemsVisible()
+        
+        positionAIGeneratedNodes(
+            depthMap: depthMap,
+            createdNodes: createdNodes,
+            graph: graph,
+            viewPortCenter: state.newCanvasItemInsertionLocation)
+        
+        state.updateVisibleCanvasItems()
+        
+        state.encodeProjectInBackground()
+    }
+}
+
 @MainActor
-func positionAIGeneratedNodes(convertedActions: [any StepActionable],
-                              nodes: VisibleNodesViewModel,
+func positionAIGeneratedNodes(depthMap: DepthMap,
+                              createdNodes: NodeIdSet,
+                              graph: GraphReader,
                               viewPortCenter: CGPoint) {
     
-    let (depthMap, hasCycle) = convertedActions.calculateAINodesAdjacency()
-    
-    guard let depthMap = depthMap,
-          !hasCycle else {
-        fatalErrorIfDebug("Did not have a cycle but was not able create depth-map")
-        return
-    }
-    
     guard !depthMap.isEmpty else {
-//        fatalErrorIfDebug("Depth-map should never be empty")
-        log("Depth-map should never be empty")
+        log("Depth-map was empty")
         return
     }
                     
     let depthLevels = depthMap.values.sorted().toOrderedSet
-
-    let createdNodes = convertedActions.nodesCreatedByLLMActions()
         
     // Iterate by depth-level, so that nodes at same depth (e.g. 0) can be y-offset from each other
     depthLevels.forEach { depthLevel in
@@ -333,7 +351,7 @@ func positionAIGeneratedNodes(convertedActions: [any StepActionable],
         // and adjust their positions
         let createdNodesAtThisLevel = createdNodes.compactMap {
             if depthMap.get($0) == depthLevel {
-                return nodes.getViewModel($0)
+                return graph.getNode($0)
             }
             log("positionAIGeneratedNodes: Could not get depth level for \($0.debugFriendlyId)")
             return nil
@@ -345,8 +363,10 @@ func positionAIGeneratedNodes(convertedActions: [any StepActionable],
             // log("positionAIGeneratedNodes: createdNode.id: \(createdNode.id)")
             // log("positionAIGeneratedNodes: createdNodeIndexAtThisDepthLevel: \(createdNodeIndexAtThisDepthLevel)")
             createdNode.getAllCanvasObservers().enumerated().forEach { canvasItemAndIndex in
-                let newPosition =  CGPoint(
-                    x: viewPortCenter.x + (CGFloat(depthLevel) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER),
+                let canvasItemWidth = (canvasItemAndIndex.element.sizeByLocalBounds?.width ?? CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER) + 12
+                
+                let newPosition = CGPoint(
+                    x: viewPortCenter.x + (CGFloat(depthLevel) * canvasItemWidth),
                     y: viewPortCenter.y + (CGFloat(canvasItemAndIndex.offset) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER) + (CGFloat(createdNodeIndexAtThisDepthLevel) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER)
                 )
                 // log("positionAIGeneratedNodes: canvasItemAndIndex.element.id: \(canvasItemAndIndex.element.id)")

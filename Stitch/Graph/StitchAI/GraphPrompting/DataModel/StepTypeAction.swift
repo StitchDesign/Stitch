@@ -110,7 +110,7 @@ extension Array where Element == any StepActionable {
         }
     }
     
-    func calculateAINodesAdjacency() -> (depthMap: [UUID: Int]?,
+    func calculateAINodesAdjacency() -> (depthMap: DepthMap?,
                                          hasCycle: Bool) {
         let adjacency = AdjacencyCalculator()
         self.forEach {
@@ -137,6 +137,7 @@ extension Array where Element == any StepActionable {
     }
 }
 
+typealias DepthMap = [UUID: Int]
 
 
 // "Which properties from `Step` are actually needed by StepType = .addNode ?"
