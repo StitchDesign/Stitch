@@ -95,8 +95,8 @@ extension GraphState {
 
          var parentId: NodeId?
          selections.forEach { layerId in
-             if let layerNode = self.getLayerNode(id: layerId),
-                let parent = layerNode.layerNode?.layerGroupId {
+             if let layerNode = self.getLayerNode(layerId),
+                let parent = layerNode.layerGroupId {
                  parentId = parent
              }
          }

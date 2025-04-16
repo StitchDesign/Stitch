@@ -164,7 +164,7 @@ struct DrawingViewDragEnded: ProjectEnvironmentEvent {
 
         // log("DrawingViewDragEnded called: id: \(id)")
 
-        guard let layerNodeViewModel = graphState.getLayerNode(id: id.layerNodeId.id)?.layerNode,
+        guard let layerNodeViewModel = graphState.getLayerNode(id.layerNodeId.id),
               let layerViewModelAtIndex = layerNodeViewModel.previewLayerViewModels[safe: id.loopIndex] else {
             log("DrawingViewDragEnded: could not find layer node view model for \(id.layerNodeId) or layer view model for loop-index \(id.loopIndex)")
             return .noChange
@@ -196,7 +196,7 @@ struct DrawingViewDragged: ProjectEnvironmentEvent {
 
         //        log("DrawingViewDragged called: id: \(id)")
 
-        guard let layerNodeViewModel = graphState.getLayerNode(id: id.layerNodeId.id)?.layerNode,
+        guard let layerNodeViewModel = graphState.getLayerNode(id.layerNodeId.id),
               let layerViewModelAtIndex = layerNodeViewModel.previewLayerViewModels[safe: id.loopIndex] else {
             log("DrawingViewDragged: could not find layer node view model for \(id.layerNodeId) or layer view model for loop-index \(id.loopIndex)")
             return .noChange
