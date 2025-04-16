@@ -10,12 +10,40 @@ import Foundation
 // Protocol for functions that only need to retrieve certain objects from GraphState
 
 protocol GraphReader {
+    @MainActor func getNode(_ id: NodeId) -> NodeViewModel?
+    @MainActor func getLayerNode(_ id: NodeId) -> LayerNodeViewModel?
+    
     @MainActor func getCanvasItem(_ id: CanvasItemId) -> CanvasItemViewModel?
+    
     @MainActor func getInputRowObserver(_ id: InputCoordinate) -> InputNodeRowObserver?
+    
     @MainActor func getOutputRowObserver(_ id: OutputCoordinate) -> OutputNodeRowObserver?
+    
+    @MainActor func layerNodes() -> LayerNodes
+    
+    @MainActor func layerNodesDict() -> LayerNodesDict
 }
 
-extension GraphState: GraphReader { }
+extension GraphState: GraphReader {
+    func getLayerNode(_ id: NodeId) -> LayerNodeViewModel? {
+        self.getNode(id)?.layerNodeViewModel
+    }
+    
+    @MainActor
+    func layerNodes() -> LayerNodes {
+        self.nodes.values.compactMap(\.layerNode)
+    }
+    
+    @MainActor
+    func layerNodesDict() -> LayerNodesDict {
+        self.nodes.reduce(into: LayerNodesDict()) { partialResult, kv in
+            if let layerNode = kv.value.layerNode {
+                partialResult.updateValue(layerNode,
+                                          forKey: kv.key)
+            }
+        }
+    }
+}
 
 extension GraphReader {
     @MainActor

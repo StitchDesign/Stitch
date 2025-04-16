@@ -11,8 +11,9 @@ import SwiftUI
 import StitchSchemaKit
 import StitchEngine
 
-typealias LayerNode = NodeViewModel
+typealias LayerNode = LayerNodeViewModel
 typealias LayerNodes = [LayerNode]
+typealias LayerNodesDict = [NodeId: LayerNode]
 
 // primary = hidden via direct click from user
 // secondary = hidden because was a child of a group that was primary-hidden

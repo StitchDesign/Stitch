@@ -353,7 +353,8 @@ extension SidebarItemGestureViewModel {
                let isVisible = graph.getLayerNode(id: layerNodeId)?.layerNode?.hasSidebarVisibility {
                 
                 buttons.append(UIAction(title: isVisible ? "Hide Layer" : "Unhide Layer", image: nil) { action in
-                    dispatch(SidebarItemHiddenStatusToggled(clickedId: layerNodeId))
+                    // dispatch(SidebarItemHiddenStatusToggled(clickedId: layerNodeId))
+                    dispatch(SelectedLayersVisiblityUpdated(selectedLayers: .init([layerNodeId])))
                 })
             }
             

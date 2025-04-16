@@ -29,8 +29,8 @@ struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewMo
         self.sidebarViewModel.isEditing
     }
     
-    var isHidden: Bool {
-        self.itemViewModel.isHidden
+    func isHidden(graph: GraphReader) -> Bool {
+        self.itemViewModel.isHidden(graph: graph)
     }
     
     var body: some View {
@@ -79,6 +79,7 @@ struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewMo
 #if !targetEnvironment(macCatalyst)
             SidebarListItemSwipeMenu(
                 gestureViewModel: itemViewModel,
+                graph: graph,
                 swipeOffset: swipeX)
 #endif
         }
@@ -162,12 +163,16 @@ struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewMo
 //
 //#endif
 
-        if isBeingEdited || isHidden {
+        if isBeingEdited || self._isHidden {
             return self.getColor()
         } else {
             // i.e. if we are not in edit mode, do NOT show secondarily-selected layers (i.e. children of a primarily-selected parent) as gray
             return SIDE_BAR_OPTIONS_TITLE_FONT_COLOR
         }
+    }
+    
+    var _isHidden: Bool {
+        self.isHidden(graph: graph)
     }
     
     // a secondarily- or hidden primarily-selected color has half the strength
@@ -177,7 +182,7 @@ struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewMo
         // the difference whether the circle gets filled or not
         case .primary, .none:
             // return .white
-            return SIDE_BAR_OPTIONS_TITLE_FONT_COLOR.opacity(isHidden ? 0.5 : 1)
+            return SIDE_BAR_OPTIONS_TITLE_FONT_COLOR.opacity(self._isHidden ? 0.5 : 1)
         case .secondary:
             return SIDE_BAR_OPTIONS_TITLE_FONT_COLOR.opacity(0.5)
         }

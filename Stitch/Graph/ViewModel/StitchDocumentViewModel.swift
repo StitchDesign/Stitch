@@ -458,7 +458,6 @@ extension GraphState: GraphCalculatable {
         }
     }
     
-    
     @MainActor
     func updateOrderedPreviewLayers() {
         guard let activeIndex = self.documentDelegate?.activeIndex else {
@@ -466,11 +465,23 @@ extension GraphState: GraphCalculatable {
             return
         }
         
-        let flattenedPinMap = self.getFlattenedPinMap()
-        let rootPinMap = self.getRootPinMap(pinMap: flattenedPinMap)
+        let layerNodes: LayerNodesDict = self.layerNodesDict()
         
-        let previewLayers: LayerDataList = self.recursivePreviewLayers(
-            sidebarLayersGlobal: self.layersSidebarViewModel.createdOrderedEncodedData(),
+        // TODO: needs to take layer nodes explicitly
+        let flattenedPinMap = getFlattenedPinMap(
+            layerNodes: layerNodes,
+            graph: self)
+        
+        let rootPinMap = getRootPinMap(pinMap: flattenedPinMap)
+        
+        let nonHiddenSidebarLayers = self.layersSidebarViewModel.items
+            .compactMap { item in
+                item.isHidden(graph: self) ? nil: item.createSchema()
+            }
+                
+        let previewLayers: LayerDataList = recursivePreviewLayers(
+            layerNodes: layerNodes,
+            sidebarLayersGlobal: nonHiddenSidebarLayers,
             pinMap: rootPinMap,
             activeIndex: activeIndex)
         

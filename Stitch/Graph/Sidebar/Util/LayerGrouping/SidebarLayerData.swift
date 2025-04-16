@@ -35,16 +35,9 @@ extension GraphState {
     func createSidebarLayerType(layerNode: LayerNodeViewModel) -> SidebarLayerData {
         if layerNode.layer == .group {
             // Find all nodes with this group
-            let childrenLayerNodes = self.layerNodes.values
-                .filter { $0.layerNode?.layerGroupId == layerNode.id }
-                .compactMap { node -> SidebarLayerData? in
-                    guard let layerNode = node.layerNode else {
-                        #if DEBUG
-                        fatalError()
-                        #endif
-                        return nil
-                    }
-
+            let childrenLayerNodes = self.layerNodes()
+                .filter { $0.layerGroupId == layerNode.id }
+                .compactMap { layerNode -> SidebarLayerData? in
                     // Recursively build sidebar items for childen
                     return self.createSidebarLayerType(layerNode: layerNode)
                 }

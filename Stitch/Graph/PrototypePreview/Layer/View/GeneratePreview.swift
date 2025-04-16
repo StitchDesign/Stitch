@@ -465,7 +465,8 @@ struct NonGroupPreviewLayersView: View {
     }
     
     var body: some View {
-        if layerNode.hasSidebarVisibility {
+    // Note: We now filter by visibility when creating ordered preview layers
+//        if layerNode.hasSidebarVisibility {
             PreviewLayerView(document: document,
                              graph: graph,
                              layerViewModel: layerViewModel,
@@ -501,9 +502,9 @@ struct NonGroupPreviewLayersView: View {
                                                     mediaRowObserver: layerViewModel?.mediaRowObserver)
                 }
             }
-        } else {
-            EmptyView()
-        }
+//        } else {
+//            EmptyView()
+//        }
     }
 }
 
@@ -520,7 +521,8 @@ struct GroupPreviewLayersView: View {
     let realityContent: LayerRealityCameraContent?
     
     var body: some View {
-        if layerNode.hasSidebarVisibility {
+        // Note: We now filter by visibility when creating ordered preview layers
+//        if layerNode.hasSidebarVisibility {
             switch layerNode.layer {
             case .group:
                 GroupLayerNode.content(document: document,
@@ -551,8 +553,8 @@ struct GroupPreviewLayersView: View {
                     }
             }
             
-        } else {
-            EmptyView()
-        }
+//        } else {
+//            EmptyView()
+//        }
     }
 }

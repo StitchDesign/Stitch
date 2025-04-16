@@ -89,7 +89,7 @@ extension ProjectSidebarObservable {
             item.createSchema()
         }
     }
-    
+        
     @MainActor
     func update(from encodedData: [Self.EncodedItemData]) {
         self.sync(from: encodedData)
