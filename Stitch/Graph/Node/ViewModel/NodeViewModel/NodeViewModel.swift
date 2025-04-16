@@ -101,7 +101,7 @@ final class NodeViewModel: Sendable {
 }
 
 
-extension NodeViewModel: PatchNodeViewModelDelegate {
+extension NodeViewModel: NodeViewModel {
     func userVisibleTypeChanged(oldType: UserVisibleType,
                                 newType: UserVisibleType) {
         self.ephemeralObservers?.forEach {

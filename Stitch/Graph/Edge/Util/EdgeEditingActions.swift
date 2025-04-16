@@ -223,7 +223,7 @@ extension GraphState {
     func getNodesToTheEastFromClosestToFarthest(eastOf originOutputNodeId: CanvasItemId,
                                                 groupNodeFocused: NodeId?) -> EligibleEasternNodes? {
         
-        guard let originOutputNode = self.getCanvasItem(originOutputNodeId) {
+        guard let originOutputNode = self.getCanvasItem(originOutputNodeId) else {
             log("getNodesToTheEastFromClosestToFarthest: node not found: \(originOutputNodeId)")
             return nil
         }
