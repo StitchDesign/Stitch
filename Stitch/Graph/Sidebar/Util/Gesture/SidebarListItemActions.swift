@@ -47,7 +47,7 @@ extension GraphState {
                                   // If provided, then we are explicitly setting true/false (for multiple layers) as opposed to just toggling an individual layer
                                   newVisibilityStatus: Bool? = nil) {
 
-        guard let layerNode = self.getLayerNode(id: clickedId)?.layerNode else {
+        guard let layerNode = self.getLayerNode(clickedId) else {
             log("layerHiddenStatusToggled: could not find layer node for clickedId \(clickedId.id)")
             fatalErrorIfDebug() // Is this bad?
             return
@@ -64,7 +64,7 @@ extension GraphState {
         let isShown = layerNode.hasSidebarVisibility
         
         for id in descendants {
-            self.getLayerNode(id: id.id)?.layerNode?.hasSidebarVisibility = isShown
+            self.getLayerNode(id.id)?.hasSidebarVisibility = isShown
         }
         
         // TODO: introduce an `Enabled` input on layer node and update `LayerInputPort.shouldResortPreviewLayersIfChanged`

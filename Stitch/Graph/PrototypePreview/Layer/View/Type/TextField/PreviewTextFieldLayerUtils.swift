@@ -103,7 +103,7 @@ struct TextFieldInputEdited: ProjectEnvironmentEvent {
 
         // log("TextFieldInputEdited called: id: \(id)")
 
-        guard let layerNodeViewModel = graphState.getLayerNode(id: id.layerNodeId.id)?.layerNode,
+        guard let layerNodeViewModel = graphState.getLayerNode(id.layerNodeId.id),
               let layerViewModelAtIndex = layerNodeViewModel.previewLayerViewModels[safe: id.loopIndex] else {
             log("TextFieldInputEdited: could not find layer node view model for \(id.layerNodeId) or layer view model for loop-index \(id.loopIndex)")
             return .noChange
