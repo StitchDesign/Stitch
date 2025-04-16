@@ -27,8 +27,8 @@ extension SidebarItemGestureViewModel {
 //        }
 //
         let atleastOneIndexMasks = self.graphDelegate?
-            .getLayerNode(id: self.id)?
-            .layerNode?.masksPort.allLoopedValues
+            .getLayerNode(self.id)?
+            .masksPort.allLoopedValues
             .contains(where: { $0.getBool ?? false })
         ?? false
         
