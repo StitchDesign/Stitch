@@ -475,7 +475,7 @@ extension GraphState: GraphCalculatable {
         
         let nonHiddenSidebarLayers = self.layersSidebarViewModel.items
             .compactMap { item in
-                item.isHidden(graph: self) ? item.createSchema() : nil
+                item.isHidden(graph: self) ? nil: item.createSchema()
             }
         
         let previewLayers: LayerDataList = self.recursivePreviewLayers(
