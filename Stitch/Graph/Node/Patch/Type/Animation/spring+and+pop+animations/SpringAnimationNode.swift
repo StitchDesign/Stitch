@@ -52,33 +52,49 @@ struct SpringAnimationNode: PatchNodeDefinition {
     }
 
     static func createEphemeralObserver() -> NodeEphemeralObservable? {
-        // If we have existing inputs, then we're deserializing,
-        // and should base internal state and starting outputs on those inputs.
-        let state: SpringAnimationState = .defaultFromNodeType(Self._defaultUserVisibleType)
-        return ComputedNodeState(springAnimationState: state)
+        SpringAnimationState()
     }
 }
 
 @MainActor
 func springAnimationEval(node: PatchNode,
-                         graphStepState: GraphStepState) -> ImpureEvalResult {
+                         graphStepState: GraphStepState) -> EvalResult {
     
-    node.loopedEval(ComputedNodeState.self) { values, computedState, _ in
+    let outputIndex = 4
+    var willRunAgain = false
+    
+    var evalResult = node.loopedEval(SpringAnimationState.self) { values, computedState, _ in
         switch node.userVisibleType {
         case .number:
-            springAnimationNumberOp(
-                values: values,
-                computedState: computedState,
-                graphTime: graphStepState.graphTime,
-                isPopAnimation: false)
-        case .position:
-            springAnimationPositionOp(
-                values: values,
-                computedState: computedState,
-                graphTime: graphStepState.graphTime,
-                isPopAnimation: false)
+            let result = springAnimationOp(toValue: values.first?.getNumber ?? .zero,
+                                           values: values,
+                                           currentOutputValue: values[safe: outputIndex]?.getNumber ?? .zero,
+                                           state: computedState.springStates.first,
+                                           graphTime: graphStepState.graphTime,
+                                           isPopAnimation: false)
+            switch result.resultType {
+            case .complete:
+                computedState.springStates = []
+            case .inProgress(let springValueState):
+                computedState.springStates = [springValueState]
+                
+                // Updates graph to run this node again on next graph step
+                willRunAgain = true
+            }
+            
+            return [.number(result.result)]
+
+//        case .position:
+//            springAnimationPositionOp(
+//                values: values,
+//                computedState: computedState,
+//                graphTime: graphStepState.graphTime,
+//                isPopAnimation: false)
         default:
             fatalError()
         }
     }
+    
+    evalResult.runAgain = willRunAgain
+    return evalResult
 }

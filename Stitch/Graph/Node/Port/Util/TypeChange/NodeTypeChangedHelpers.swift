@@ -80,21 +80,21 @@ extension ComputedNodeState {
         self.classicAnimationState = self.classicAnimationState?.reset(by: newType)
     }
 
-    func resetSpringAnimationStates(newType: UserVisibleType) {
-        guard var springAnimationState = self.springAnimationState else {
-            return
-        }
-
-        springAnimationState = springAnimationState.reset(by: newType)
-        self.springAnimationState = springAnimationState
-    }
+//    func resetSpringAnimationStates(newType: UserVisibleType) {
+//        guard var springAnimationState = self.springAnimationState else {
+//            return
+//        }
+//
+//        springAnimationState = springAnimationState.reset(by: newType)
+//        self.springAnimationState = springAnimationState
+//    }
 }
 
-extension SpringAnimationState {
-    func reset(by nodeType: UserVisibleType) -> Self {
-        SpringAnimationState.defaultFromNodeType(nodeType)
-    }
-}
+//extension SpringAnimationState {
+//    func reset(by nodeType: UserVisibleType) -> Self {
+//        SpringAnimationState.defaultFromNodeType(nodeType)
+//    }
+//}
 
 extension ClassicAnimationState {
     func reset(by nodeType: UserVisibleType) -> Self {
@@ -102,21 +102,21 @@ extension ClassicAnimationState {
     }
 }
 
-extension SpringAnimationState {
-    static func defaultFromNodeType(_ nodeType: UserVisibleType) -> Self {
-        switch nodeType {
-        // eg from Position to Number
-        case .number:
-            return .one(.init())
-        // eg from Number to Position
-        case .position:
-            return .two(.init())
-            
-        // Currently, only .number and .position are supported
-        default:
-            // Crash if we don't recognize the nodeType
-            fatalErrorIfDebug()
-            return .two(.init())
-        }
-    }
-}
+//extension SpringAnimationState {
+//    static func defaultFromNodeType(_ nodeType: UserVisibleType) -> Self {
+//        switch nodeType {
+//        // eg from Position to Number
+//        case .number:
+//            return .one(.init())
+//        // eg from Number to Position
+//        case .position:
+//            return .two(.init())
+//            
+//        // Currently, only .number and .position are supported
+//        default:
+//            // Crash if we don't recognize the nodeType
+//            fatalErrorIfDebug()
+//            return .two(.init())
+//        }
+//    }
+//}

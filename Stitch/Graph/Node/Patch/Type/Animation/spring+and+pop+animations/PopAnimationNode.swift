@@ -46,33 +46,32 @@ struct PopAnimationNode: PatchNodeDefinition {
     }
 
     static func createEphemeralObserver() -> NodeEphemeralObservable? {
-        // If we have existing inputs, then we're deserializing,
-        // and should base internal state and starting outputs on those inputs.
-        let state: SpringAnimationState = .defaultFromNodeType(Self._defaultUserVisibleType)
-        return ComputedNodeState(springAnimationState: state)
+        SpringAnimationState()
     }
 }
 
 @MainActor
 func popAnimationEval(node: PatchNode,
                       graphStepState: GraphStepState) -> ImpureEvalResult {
+    fatalError()
     
-    node.loopedEval(ComputedNodeState.self) { values, computedState, _ in
-        switch node.userVisibleType! {
-        case .number:
-            return springAnimationNumberOp(
-                    values: values,
-                    computedState: computedState,
-                    graphTime: graphStepState.graphTime,
-                    isPopAnimation: true)
-        case .position:
-            return springAnimationPositionOp(
-                    values: values,
-                    computedState: computedState,
-                    graphTime: graphStepState.graphTime,
-                    isPopAnimation: true)
-        default:
-            fatalError()
-        }
-    }
+//
+//    node.loopedEval(ComputedNodeState.self) { values, computedState, _ in
+//        switch node.userVisibleType! {
+//        case .number:
+//            return springAnimationNumberOp(
+//                    values: values,
+//                    computedState: computedState,
+//                    graphTime: graphStepState.graphTime,
+//                    isPopAnimation: true)
+//        case .position:
+//            return springAnimationPositionOp(
+//                    values: values,
+//                    computedState: computedState,
+//                    graphTime: graphStepState.graphTime,
+//                    isPopAnimation: true)
+//        default:
+//            fatalError()
+//        }
+//    }
 }
