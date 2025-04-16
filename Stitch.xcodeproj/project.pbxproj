@@ -809,6 +809,7 @@
 		ECC301B129380CB900C34F10 /* SubarrayNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC301B029380CB900C34F10 /* SubarrayNode.swift */; };
 		ECC301B329380EBB00C34F10 /* ValueAtPathNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC301B229380EBB00C34F10 /* ValueAtPathNode.swift */; };
 		ECC30E122C234E8800F0F54C /* CanvasItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC30E112C234E8800F0F54C /* CanvasItemViewModel.swift */; };
+		ECC427402DB027BE00AF938C /* LayerType.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC4273F2DB027BE00AF938C /* LayerType.swift */; };
 		ECC506E7267BB2CA00A2D015 /* VideoImportNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC506E6267BB2CA00A2D015 /* VideoImportNode.swift */; };
 		ECC506E9267BB7C700A2D015 /* PreviewVideo.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC506E8267BB7C700A2D015 /* PreviewVideo.swift */; };
 		ECC506EB267BBA1900A2D015 /* VideoLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC506EA267BBA1900A2D015 /* VideoLayerNode.swift */; };
@@ -1776,6 +1777,7 @@
 		ECC301B029380CB900C34F10 /* SubarrayNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubarrayNode.swift; sourceTree = "<group>"; };
 		ECC301B229380EBB00C34F10 /* ValueAtPathNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValueAtPathNode.swift; sourceTree = "<group>"; };
 		ECC30E112C234E8800F0F54C /* CanvasItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasItemViewModel.swift; sourceTree = "<group>"; };
+		ECC4273F2DB027BE00AF938C /* LayerType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerType.swift; sourceTree = "<group>"; };
 		ECC506E6267BB2CA00A2D015 /* VideoImportNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoImportNode.swift; sourceTree = "<group>"; };
 		ECC506E8267BB7C700A2D015 /* PreviewVideo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewVideo.swift; sourceTree = "<group>"; };
 		ECC506EA267BBA1900A2D015 /* VideoLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoLayerNode.swift; sourceTree = "<group>"; };
@@ -3586,6 +3588,7 @@
 			isa = PBXGroup;
 			children = (
 				B5A6D0402A148FBD00434ED2 /* LayerData.swift */,
+				ECC4273F2DB027BE00AF938C /* LayerType.swift */,
 				20747C5825CB0B0500570787 /* PreviewLayerType.swift */,
 				B55500D82C1BA9470081C3F1 /* PreviewShapeLayerKind.swift */,
 				EC5F51E32BFFBB3300D3DAD7 /* PreviewGridData.swift */,
@@ -5065,6 +5068,7 @@
 				EC9AB64128DFE6B5002810BC /* AnchoringTest.swift in Sources */,
 				B5E0DDF828DA88090080BE71 /* StitchFileManager.swift in Sources */,
 				EC49149929358DE200D74344 /* ColorToHexNode.swift in Sources */,
+				ECC427402DB027BE00AF938C /* LayerType.swift in Sources */,
 				B555FB3D2D56C51200E1D349 /* StitchAICodableTypes.swift in Sources */,
 				EC6AAE6B2B52337F00D07E3C /* IconName.swift in Sources */,
 				ECA5C2212C5ABEFC000B0DF2 /* OldTabKeyPressActions.swift in Sources */,
