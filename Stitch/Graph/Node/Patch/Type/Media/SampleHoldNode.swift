@@ -96,10 +96,11 @@ func sampleAndHoldEval(node: NodeViewModel,
     
     let inputsValues = node.inputs
     
-    log("sampleAndHoldEval, node \(node.id)")
-    log("graph time: \(graphStep.graphTime)")
-    log("inputsValues: \(inputsValues)")
-    
+    if node.id.description.contains("E4CF4FC5-736D-498F-8ECD-29B7217E5782") {
+        log("sampleAndHoldEval, node \(node.id): graph time: \(graphStep.graphTime)")
+        log("sampleAndHoldEval, node \(node.id): inputsValues: \(inputsValues)")
+    }
+
     let outputsValues: PortValuesList = node.outputs
     let graphTime: TimeInterval = graphStep.graphTime
     let nodeType = node.userVisibleType ?? .media

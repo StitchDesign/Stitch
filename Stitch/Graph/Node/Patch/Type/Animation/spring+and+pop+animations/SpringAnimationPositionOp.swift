@@ -61,7 +61,7 @@ func springAnimationPositionOp(values: PortValues, // ie inputs and outputs
         )
     }
     
-    // All spring-like animations need friction and tension,
+    // All spring-like animations need friction and tension,g x
     // but how we determine these from node's inputs
     // varies by pop animation node's inputs vs. spring's:
     var mass: Double

@@ -23,4 +23,3 @@ extension InteractiveLayer {
         self.lastTappedLocation = .zero
     }
 }
-
