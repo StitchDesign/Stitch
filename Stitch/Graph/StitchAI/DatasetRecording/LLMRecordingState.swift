@@ -363,7 +363,7 @@ func positionAIGeneratedNodes(depthMap: DepthMap,
             // log("positionAIGeneratedNodes: createdNode.id: \(createdNode.id)")
             // log("positionAIGeneratedNodes: createdNodeIndexAtThisDepthLevel: \(createdNodeIndexAtThisDepthLevel)")
             createdNode.getAllCanvasObservers().enumerated().forEach { canvasItemAndIndex in
-                let canvasItemWidth = (canvasItemAndIndex.element.sizeByLocalBounds?.width ?? CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER) + 12
+                let canvasItemWidth = (canvasItemAndIndex.element.sizeByLocalBounds?.width ?? CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER) + 58
                 
                 let newPosition = CGPoint(
                     x: viewPortCenter.x + (CGFloat(depthLevel) * canvasItemWidth),
