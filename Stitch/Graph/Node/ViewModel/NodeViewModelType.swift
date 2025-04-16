@@ -82,11 +82,7 @@ extension NodeViewModelType {
         
         switch self {
         case .patch(let patchNodeViewModel):
-            guard let patchDelegate = node as? PatchNodeViewModelDelegate else {
-                fatalErrorIfDebug()
-                return
-            }
-            patchNodeViewModel.initializeDelegate(patchDelegate, graph: graph)
+            patchNodeViewModel.initializeDelegate(node, graph: graph)
         case .layer(let layerNodeViewModel):
             layerNodeViewModel.initializeDelegate(node, graph: graph, document: document)
         case .group(let canvasItemViewModel):

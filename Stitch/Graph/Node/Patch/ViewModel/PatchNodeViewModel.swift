@@ -12,15 +12,8 @@ import CoreData
 import RealityKit
 import SwiftUI
 
-// Legacy
 typealias PatchNode = NodeViewModel
 typealias NodeViewModels = [NodeViewModel]
-
-protocol PatchNodeViewModelDelegate: NodeViewModel {
-    @MainActor
-    func userVisibleTypeChanged(oldType: UserVisibleType,
-                                newType: UserVisibleType)
-}
 
 @Observable
 final class PatchNodeViewModel: Sendable {
@@ -51,7 +44,7 @@ final class PatchNodeViewModel: Sendable {
     // Splitter types are for group input, output, or inline nodes
     @MainActor var splitterNode: SplitterNodeEntity?
     
-    @MainActor weak var delegate: PatchNodeViewModelDelegate?
+    @MainActor weak var delegate: NodeViewModel?
     
     @MainActor
     init(from schema: PatchNodeEntity) {

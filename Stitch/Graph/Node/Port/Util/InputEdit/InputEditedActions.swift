@@ -145,7 +145,7 @@ extension InputNodeRowObserver {
                                             activeIndex: activeIndex,
                                             isCommitting: isCommitting)
                     
-                    let newActiveValue = rowObserver.getActiveValue(activeIndex: graph.documentDelegate?.activeIndex ?? .init(0))
+                    let _ = rowObserver.getActiveValue(activeIndex: activeIndex)
                 }
             }
         }

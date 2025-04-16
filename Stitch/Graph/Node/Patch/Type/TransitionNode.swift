@@ -55,7 +55,7 @@ func transitionEval(inputs: PortValuesList,
                     nodeType: NodeType?) -> PortValuesList {
 
     guard let nodeType: AnimationNodeType = nodeType.map(AnimationNodeType.fromNodeType) else {
-        log("transitionEval: had invalide node type: \(nodeType)")
+        // log("transitionEval: had invalide node type: \(nodeType)")
         fatalErrorIfDebug()
         return [[.number(.zero)]]
     }

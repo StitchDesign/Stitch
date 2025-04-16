@@ -275,7 +275,7 @@ extension PortValue {
                 switch x {
                 case .number(let k):
                     return .init(x: k, y: k)
-                case .string(let k):
+                case .string:
                     if let dimension = Stitch.toNumber(x.string) {
                         return .init(x: dimension, y: dimension)
                     }
@@ -339,7 +339,7 @@ extension PortValue {
                 switch x {
                 case .number(let k):
                     return .fromSingleNumber(k)
-                case .string(let k):
+                case .string:
                     if let dimension = Stitch.toNumber(x.string) {
                         return .fromSingleNumber(dimension)
                     }
@@ -398,7 +398,7 @@ extension PortValue {
                 switch x {
                 case .number(let k):
                     return .fromSingleNumber(k)
-                case .string(let k):
+                case .string:
                     if let dimension = Stitch.toNumber(x.string) {
                         return .fromSingleNumber(dimension)
                     }
@@ -467,7 +467,7 @@ extension PortValue {
                 switch x {
                 case .number(let k):
                     return .fromSingleNumber(k)
-                case .string(let k):
+                case .string:
                     if let dimension = Stitch.toNumber(x.string) {
                         return .fromSingleNumber(dimension)
                     }
@@ -557,7 +557,7 @@ extension PortValue {
                 switch x {
                 case .number(let k):
                     return .fromSingleNumber(k)
-                case .string(let k):
+                case .string:
                     if let dimension = Stitch.toNumber(x.string) {
                         return .fromSingleNumber(dimension)
                     }

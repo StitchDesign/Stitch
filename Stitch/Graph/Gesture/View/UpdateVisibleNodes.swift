@@ -39,7 +39,7 @@ extension StitchDocumentViewModel {
         let originalVisibleCanvasItems = graph.visibleNodesViewModel.visibleCanvasIds
         
         // Determine nodes to make visible--use cache in case nodes exited viewframe
-        var newVisibleCanvasItems = self.determineVisibleCanvasItems(
+        let newVisibleCanvasItems = self.determineVisibleCanvasItems(
             zoom: document.graphMovement.zoomData,
             localPosition: document.graphMovement.localPosition,
             frame: document.frame,

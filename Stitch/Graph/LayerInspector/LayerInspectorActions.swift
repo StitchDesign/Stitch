@@ -191,10 +191,6 @@ extension GraphState {
                                  groupNodeFocused: NodeId?,
                                  insertionLocation: CGPoint) {
         
-        guard let document = self.documentDelegate else {
-            fatalErrorIfDebug()
-            return
-        }
         // Not relevant for output
         let unpackedPortParentFieldGroupType: FieldGroupType? = nil
         let unpackedPortIndex: Int? = nil

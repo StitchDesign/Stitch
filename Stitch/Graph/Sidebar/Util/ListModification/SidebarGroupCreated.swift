@@ -101,7 +101,7 @@ extension GraphState {
              }
          }
 
-         log("layerGroupForSelections: parentId: \(parentId)")
+         // log("layerGroupForSelections: parentId: \(parentId)")
 
          return parentId
      }
