@@ -363,11 +363,20 @@ func positionAIGeneratedNodes(depthMap: DepthMap,
             // log("positionAIGeneratedNodes: createdNode.id: \(createdNode.id)")
             // log("positionAIGeneratedNodes: createdNodeIndexAtThisDepthLevel: \(createdNodeIndexAtThisDepthLevel)")
             createdNode.getAllCanvasObservers().enumerated().forEach { canvasItemAndIndex in
-                let canvasItemWidth = (canvasItemAndIndex.element.sizeByLocalBounds?.width ?? CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER) + 58
+                
+                // default stagger size
+                var staggerSize = CGSize(width: CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER,
+                                         height: CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER)
+                
+                if let canvasSize = canvasItemAndIndex.element.sizeByLocalBounds {
+                    staggerSize = canvasSize
+                }
+                
+                let staggerPadding: CGFloat = 60.0
                 
                 let newPosition = CGPoint(
-                    x: viewPortCenter.x + (CGFloat(depthLevel) * canvasItemWidth),
-                    y: viewPortCenter.y + (CGFloat(canvasItemAndIndex.offset) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER) + (CGFloat(createdNodeIndexAtThisDepthLevel) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER)
+                    x: viewPortCenter.x + (CGFloat(depthLevel) * staggerSize.width + staggerPadding),
+                    y: viewPortCenter.y + (CGFloat(canvasItemAndIndex.offset) * staggerSize.height + staggerPadding) + (CGFloat(createdNodeIndexAtThisDepthLevel) * staggerSize.height)
                 )
                 // log("positionAIGeneratedNodes: canvasItemAndIndex.element.id: \(canvasItemAndIndex.element.id)")
                 // log("positionAIGeneratedNodes: newPosition: \(newPosition)")
