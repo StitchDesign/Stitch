@@ -11,10 +11,10 @@ import Foundation
 // MARK: RECEIVING A LIST OF LLM-STEP-ACTIONS (i.e. `Step`) AND TURNING EACH ACTION INTO A STATE CHANGE
 
 //let CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER = 400.0
-let CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER = 600.0 // needed for especially wide nodes
+let CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER: CGFloat = 600.0 // needed for especially wide nodes
 
 //let CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER = 100.0
-let CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER = 300.0 // needed for when nodes are at same topo depth level
+let CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER: CGFloat = 300.0 // needed for when nodes are at same topo depth level
 
 
 extension StitchDocumentViewModel {
