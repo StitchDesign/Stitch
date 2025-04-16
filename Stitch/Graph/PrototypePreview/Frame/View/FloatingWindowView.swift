@@ -65,8 +65,10 @@ struct FloatingWindowView: View {
             // Start the handle-circle at top-right corner ...
             // ... then manually move down and left by the scaled preview window's dimensions
             .background(alignment: .topTrailing) {
-                floatingWindowHandle
-                    .offset(x: -Self.xOffset)
+                if showPreviewWindow {
+                    floatingWindowHandle
+                        .offset(x: -Self.xOffset)
+                }
             } // .background
             .offset(x: self.finalXOffset)
         
