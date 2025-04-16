@@ -18,7 +18,7 @@ struct LayerGroupIdChanged: GraphEvent {
     func handle(state: GraphState) {
         
         // If this layer node now has a layer group parent, block the position and unblock
-        guard let layerNode = state.getLayerNode(id: layerNodeId.id)?.layerNode else {
+        guard let layerNode = state.getLayerNode(layerNodeId.id) else {
             log("LayerGroupIdChanged: could not find layer node for node \(layerNodeId)")
             return
         }
@@ -26,7 +26,7 @@ struct LayerGroupIdChanged: GraphEvent {
         // Use offset rather than position inputs if parent uses non-ZStack orientation.
         // NOTE: complication: the parent's layout-orientation could vary by loop-index, but blocking/unblocking fields and the inspector-view are currently unaware of loop-index.
         if let parentId = layerNode.layerGroupId,
-           let parentLayerNodeViewModel = state.getLayerNode(id: parentId)?.layerNode,
+           let parentLayerNodeViewModel = state.getLayerNode(parentId),
            let parentLayerViewModel = parentLayerNodeViewModel.previewLayerViewModels[safe: activeIndex.adjustedIndex(parentLayerNodeViewModel.previewLayerViewModels.count)] ?? parentLayerNodeViewModel.previewLayerViewModels.first,
            parentLayerViewModel.orientation.getOrientation != StitchOrientation.none {
             

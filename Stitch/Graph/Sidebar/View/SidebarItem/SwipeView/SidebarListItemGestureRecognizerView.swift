@@ -350,7 +350,7 @@ extension SidebarItemGestureViewModel {
             
             if onlyOneSelected,
                let layerNodeId = selections.primary.first,
-               let isVisible = graph.getLayerNode(id: layerNodeId)?.layerNode?.hasSidebarVisibility {
+               let isVisible = graph.getLayerNode(layerNodeId)?.hasSidebarVisibility {
                 
                 buttons.append(UIAction(title: isVisible ? "Hide Layer" : "Unhide Layer", image: nil) { action in
                     // dispatch(SidebarItemHiddenStatusToggled(clickedId: layerNodeId))
@@ -359,17 +359,27 @@ extension SidebarItemGestureViewModel {
             }
             
             if activeSelections.count > 1 {
-                buttons.append(UIAction(title: "Hide Layers", image: nil) { action in
-                    dispatch(SelectedLayersVisiblityUpdated(selectedLayers: selections.primary,
-                                                            newVisibilityStatus: false))
-                })
                 
-                buttons.append(UIAction(title: "Unhide Layers", image: nil) { action in
-                    dispatch(SelectedLayersVisiblityUpdated(selectedLayers: selections.primary,
-                                                            newVisibilityStatus: true))
-                })
+                let activelySelectedLayerNodes = activeSelections.compactMap { graph.getLayerNode($0) }
+                
+                // If all selections already hidden, do not show option to hide them
+                let allSelectionsHidden = activelySelectedLayerNodes.allSatisfy { !$0.hasSidebarVisibility }
+                if !allSelectionsHidden {
+                    buttons.append(UIAction(title: "Hide Layers", image: nil) { action in
+                        dispatch(SelectedLayersVisiblityUpdated(selectedLayers: selections.primary,
+                                                                newVisibilityStatus: false))
+                    })
+                }
+                
+                // If all selections already shown, do not show option to "unhide" them
+                let allSelectionsShown = activelySelectedLayerNodes.allSatisfy { $0.hasSidebarVisibility }
+                if !allSelectionsShown {
+                    buttons.append(UIAction(title: "Unhide Layers", image: nil) { action in
+                        dispatch(SelectedLayersVisiblityUpdated(selectedLayers: selections.primary,
+                                                                newVisibilityStatus: true))
+                    })
+                }
             }
-            
             
             return UIMenu(title: "", children: buttons)
         }

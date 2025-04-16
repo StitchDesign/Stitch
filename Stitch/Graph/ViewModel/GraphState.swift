@@ -823,12 +823,7 @@ extension GraphState {
             return [component.canvas]
         }
     }
-    
-    @MainActor
-    func getLayerNode(id: NodeId) -> NodeViewModel? {
-        self.getNodeViewModel(id)
-    }
-    
+        
     @MainActor
     func getNodesAtThisTraversalLevel(groupNodeFocused: NodeId?) -> [NodeViewModel] {
         self.visibleNodesViewModel
