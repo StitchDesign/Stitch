@@ -113,7 +113,7 @@ extension StitchDocumentViewModel {
         
         // Only adjust node positions if actions were valid and successfully applied
         // Note: position AI-generated nodes after a short delay, so that view has time to read canvas items' sizes
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             let (depthMap, _) = convertedActions.calculateAINodesAdjacency()
             let createdNodes = convertedActions.nodesCreatedByLLMActions()
             if let depthMap = depthMap {
@@ -368,11 +368,14 @@ func positionAIGeneratedNodes(depthMap: DepthMap,
                 var staggerSize = CGSize(width: CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER,
                                          height: CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER)
                 
+                log("staggerSize: \(staggerSize)")
+                
                 if let canvasSize = canvasItemAndIndex.element.sizeByLocalBounds {
+                    log("canvasSize: \(canvasSize)")
                     staggerSize = canvasSize
                 }
                 
-                let staggerPadding: CGFloat = 32
+                let staggerPadding: CGFloat = 60
                 
                 let newPosition = CGPoint(
                     x: viewPortCenter.x + (CGFloat(depthLevel) * staggerSize.width + staggerPadding),
