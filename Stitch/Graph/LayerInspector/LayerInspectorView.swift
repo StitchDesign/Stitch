@@ -342,18 +342,10 @@ extension GraphState {
             return nil
         }
 
-        var inspectorFocusedLayers = self.layersSidebarViewModel.selectionState.primary
+        let inspectorFocusedLayers = self.layersSidebarViewModel.selectionState.primary
         
         // log("getLayerInspectorData: inspectorFocusedLayers: \(inspectorFocusedLayers)")
-        
-        #if DEV_DEBUG
-        // For debug
-        if inspectorFocusedLayers.isEmpty,
-           let layer = self.layerNodes.keys.first {
-            inspectorFocusedLayers = .init([layer])
-        }
-        #endif
-        
+                
         // multiselect
         if inspectorFocusedLayers.count > 1 {
             guard let firstLayerId = inspectorFocusedLayers.first,

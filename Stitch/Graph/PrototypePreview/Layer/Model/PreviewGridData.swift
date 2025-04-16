@@ -181,8 +181,8 @@ extension LayerNodeViewModel {
             self.blockLayerGroupAlignmentInput()
             
             children.forEach {
-                $0.layerNode?.blockOffsetInput()
-                $0.layerNode?.unblockPositionInput()
+                $0.blockOffsetInput()
+                $0.unblockPositionInput()
             }
             
         case .horizontal, .vertical:
@@ -193,8 +193,8 @@ extension LayerNodeViewModel {
             self.unblockLayerGroupAlignmentInput()
             
             children.forEach {
-                $0.layerNode?.unblockOffsetInput()
-                $0.layerNode?.blockPositionInput()
+                $0.unblockOffsetInput()
+                $0.blockPositionInput()
             }
             
         case .grid:
@@ -205,12 +205,12 @@ extension LayerNodeViewModel {
             children.forEach {
                 if self.scrollEnabled() {
                     // grid + scroll = block the offset input on children
-                    $0.layerNode?.blockOffsetInput()
+                    $0.blockOffsetInput()
                 } else {
-                    $0.layerNode?.unblockOffsetInput()
+                    $0.unblockOffsetInput()
                 }
                 
-                $0.layerNode?.blockPositionInput()
+                $0.blockPositionInput()
             }
         }
     }
@@ -597,9 +597,9 @@ extension LayerNodeViewModel {
             children.forEach {
                 if self.usesGrid() {
                     // grid + scroll = block the offset input on children
-                    $0.layerNode?.blockOffsetInput()
+                    $0.blockOffsetInput()
                 } else {
-                    $0.layerNode?.unblockOffsetInput()
+                    $0.unblockOffsetInput()
                 }
             }
             
@@ -612,7 +612,7 @@ extension LayerNodeViewModel {
                                 isBlocked: true)
             
             children.forEach {
-                $0.layerNode?.unblockOffsetInput()
+                $0.unblockOffsetInput()
             }
         }
         
@@ -637,9 +637,9 @@ extension LayerNodeViewModel {
             children.forEach {
                 if self.usesGrid() {
                     // grid + scroll = block the offset input on children
-                    $0.layerNode?.blockOffsetInput()
+                    $0.blockOffsetInput()
                 } else {
-                    $0.layerNode?.unblockOffsetInput()
+                    $0.unblockOffsetInput()
                 }
             }
             
@@ -652,7 +652,7 @@ extension LayerNodeViewModel {
                                 isBlocked: true)
             
             children.forEach {
-                $0.layerNode?.unblockOffsetInput()
+                $0.unblockOffsetInput()
             }
         }
         

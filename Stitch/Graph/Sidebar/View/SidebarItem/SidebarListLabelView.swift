@@ -23,7 +23,7 @@ struct SidebarListItemLeftLabelView<SidebarViewModel>: View where SidebarViewMod
     
     @MainActor
     var masks: Bool {
-        self.itemViewModel.isMasking
+        self.itemViewModel.isMasking(graph: self.graph)
     }
     
     var body: some View {

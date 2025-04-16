@@ -141,76 +141,73 @@ extension [LayerPinData] {
     }
 }
 
-extension GraphState {
-    // Note: PinMap is only for views with a PinToId that corresponds to some layer node; so e.g. `PinToId.root` needs to be handled separately
-    @MainActor
-    func getFlattenedPinMap() -> PinMap {
-        // Iterate through all layer nodes, checking each layer node's pinTo input loop; turn that loop into entries in the PinMap
-        self.nodes.values.reduce(into: PinMap()) { pinMap, node in
-            guard let layerNode = node.layerNode else {
-                return
-            }
-            
-            let nodeId = node.id
-            
-            // Iterate th
-            layerNode.previewLayerViewModels.forEach({ (viewModel: LayerViewModel) in
-                // have to check whether the viewModel is actually pinned as well
-                if (viewModel.isPinned.getBool ?? false),
-                   var pinToId = viewModel.pinTo.getPinToId {
-                    
-                    // `PinToId.root` case does not have a corresponding layer node,
-                    //
-                    let pinReceivingLayer = pinToId.asLayerNodeId(viewModel.id.layerNodeId, from: self)
-                    
-                    if pinReceivingLayer == nil && pinToId != .root {
-                        // log("getPinMap: had nil pin-receiving-layer but PinToId was not 'root'; will default to 'root'")
-                        // e.g. The layer referred to by `pinReceivingLayer` was deleted
-                        pinToId = .root
-                    }
-                    
-                    let pinnedLayer = nodeId.asLayerNodeId
-                    
-                    // log("getPinMap: pinMap was: \(pinMap)")
-                    // log("getPinMap: \(pinnedLayer) layer view model is pinned to layer \(pinnedLayer)")
-                    
-                    var current = pinMap.get(pinReceivingLayer) ?? .init()
-                    // log("getPinMap: current was: \(current)")
-                    
-                    current.insert(pinnedLayer)
-                    // log("getPinMap: current is now: \(current)")
-                    
-                    pinMap.updateValue(current, forKey: pinReceivingLayer)
-                    // log("getPinMap: pinMap is now: \(pinMap)")
-                    
-                }
-            })
-        } // self.layerNodes.forEach
-    }
-    
-    func getRootPinMap(pinMap: PinMap) -> RootPinMap {
-        // 1. Identify root pairs
-        // 2. For each pin via root, check list for chains
-        // 3. Assert keys count == root pairs count from 1
+// TODO: should the passed-in `layerNodes` only be non-hidden layer nodes?
+@MainActor
+func getFlattenedPinMap(layerNodes: LayerNodesDict,
+                        graph: GraphReader) -> PinMap {
+    // Iterate through all layer nodes, checking each layer node's pinTo input loop; turn that loop into entries in the PinMap
+    layerNodes.values.reduce(into: PinMap()) { pinMap, node in
         
-        let allValues = pinMap.values.flatMap { $0 }
-        let rootNodes = pinMap.keys
-            .filter { key in
-                guard let key = key else {
-                    // nil = root, which counts
-                    return true
+        let nodeId = node.id
+        
+        // Iterate th
+        node.previewLayerViewModels.forEach({ (viewModel: LayerViewModel) in
+            // have to check whether the viewModel is actually pinned as well
+            if (viewModel.isPinned.getBool ?? false),
+               var pinToId = viewModel.pinTo.getPinToId {
+                
+                // `PinToId.root` case does not have a corresponding layer node,
+                //
+                let pinReceivingLayer = pinToId.asLayerNodeId(viewModel.id.layerNodeId,
+                                                              from: graph)
+                
+                if pinReceivingLayer == nil && pinToId != .root {
+                    // log("getPinMap: had nil pin-receiving-layer but PinToId was not 'root'; will default to 'root'")
+                    // e.g. The layer referred to by `pinReceivingLayer` was deleted
+                    pinToId = .root
                 }
                 
-                return !allValues.contains(key)
+                let pinnedLayer = nodeId.asLayerNodeId
+                
+                // log("getPinMap: pinMap was: \(pinMap)")
+                // log("getPinMap: \(pinnedLayer) layer view model is pinned to layer \(pinnedLayer)")
+                
+                var current = pinMap.get(pinReceivingLayer) ?? .init()
+                // log("getPinMap: current was: \(current)")
+                
+                current.insert(pinnedLayer)
+                // log("getPinMap: current is now: \(current)")
+                
+                pinMap.updateValue(current, forKey: pinReceivingLayer)
+                // log("getPinMap: pinMap is now: \(pinMap)")
+                
             }
-        
-        let rootPinMap = rootNodes.reduce(into: RootPinMap()) { result, rootNode in
-            let pinData = pinMap.getRecursiveData(from: rootNode)
-            result.updateValue(pinData, forKey: rootNode)
+        })
+    } // self.layerNodes.forEach
+}
+
+func getRootPinMap(pinMap: PinMap) -> RootPinMap {
+    // 1. Identify root pairs
+    // 2. For each pin via root, check list for chains
+    // 3. Assert keys count == root pairs count from 1
+    
+    let allValues = pinMap.values.flatMap { $0 }
+    let rootNodes = pinMap.keys
+        .filter { key in
+            guard let key = key else {
+                // nil = root, which counts
+                return true
+            }
+            
+            return !allValues.contains(key)
         }
-        
-        return rootPinMap
+    
+    let rootPinMap = rootNodes.reduce(into: RootPinMap()) { result, rootNode in
+        let pinData = pinMap.getRecursiveData(from: rootNode)
+        result.updateValue(pinData, forKey: rootNode)
     }
+    
+    return rootPinMap
 }
 
 extension PinMap {
@@ -308,7 +305,7 @@ extension GraphState {
         }
         
         guard let rootPinReceiverId = self.pinMap.findRootPinReceiver(from: pinReceiverId),
-              let pinReceiver = self.layerNodes.get(rootPinReceiverId.id) else {
+              let pinReceiver = self.nodes.get(rootPinReceiverId.id) else {
             log("getPinReceiverData: no pinReceiver for layer \(pinnedLayerViewModel.layer)")
             return .rootPinReceiverData(document.previewWindowSize)
         }
@@ -350,19 +347,19 @@ extension PinToId {
     // nil: either pinToId = root or  pinToId could not be found
     @MainActor
     func asLayerNodeId(_ pinnedViewId: LayerNodeId,
-                       from graph: GraphState) -> LayerNodeId? {
+                       from graph: GraphReader) -> LayerNodeId? {
         switch self {
         case .root:
             return nil // root has no associated layer node id
         case .layer(let x):
             // Confirm that the layer exists; else return `nil`
-            guard (graph.getNodeViewModel(x.asNodeId)?.layerNode.isDefined ?? false) else {
+            guard (graph.getNode(x.asNodeId)?.layerNode.isDefined ?? false) else {
                 log("PinToId.asLayerNodeId: did not have layer node for pinToId.layer \(x)")
                 return nil
             }
             return x
         case .parent:
-            return graph.getNodeViewModel(pinnedViewId.asNodeId)?.layerNode?.layerGroupId?.asLayerNodeId
+            return graph.getNode(pinnedViewId.asNodeId)?.layerNode?.layerGroupId?.asLayerNodeId
         }
     }
 }

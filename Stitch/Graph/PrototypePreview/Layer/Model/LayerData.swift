@@ -15,29 +15,24 @@ typealias LayerDataList = [LayerData]
 
 /// Data type used for getting sorted data.
 indirect enum LayerType: Equatable, Hashable {
-    case nongroup(LayerNonGroupData, Bool)
-    case group(LayerGroupData, Bool)
+    case nongroup(data: LayerTypeNonGroupData, isPinned: Bool)
+    
+    case group(data: LayerTypeGroupData, isPinned: Bool)
     
     // TODO: theoretically could just use `[LayerType]` but need to update recursion logic
     // TODO: should be also NonEmpty, i.e. guaranteed to have at least one masked view and one masker view
-    case mask(masked: LayerTypeSet, masker: LayerTypeSet)
+    case mask(masked: LayerTypeSet,
+              masker: LayerTypeSet)
 }
 
-/// Data type used for getting sorted data in views.
-indirect enum LayerData {
-    case nongroup(LayerNodeViewModel, LayerViewModel, Bool)
-    case group(LayerNodeViewModel, LayerViewModel, LayerDataList, Bool)
-    case mask(masked: LayerDataList, masker: LayerDataList)
-}
-
-struct LayerNonGroupData: Equatable, Hashable {
+struct LayerTypeNonGroupData: Equatable, Hashable {
     let id: PreviewCoordinate
     let zIndex: CGFloat
     let sidebarIndex: Int
     let layer: Layer // debug
 }
 
-struct LayerGroupData: Equatable, Hashable {
+struct LayerTypeGroupData: Equatable, Hashable {
     let id: PreviewCoordinate
     let zIndex: CGFloat
     let sidebarIndex: Int
@@ -129,6 +124,22 @@ extension LayerType {
     }
 }
 
+/// Data type used for getting sorted data in views.
+indirect enum LayerData {
+    case nongroup(layerNode: LayerNodeViewModel,
+                  layerViewModel: LayerViewModel,
+                  isPinned: Bool)
+
+    case group(layerNode: LayerNodeViewModel,
+               layerViewModel: LayerViewModel,
+               children: LayerDataList,
+               isPinned: Bool)
+
+    case mask(masked: LayerDataList,
+              masker: LayerDataList)
+}
+
+
 extension LayerData: Identifiable {
     var id: PreviewCoordinate {
         self.layer.id
@@ -153,7 +164,7 @@ extension LayerData: Identifiable {
             return false
         }
     }
-        
+    
     var layer: LayerViewModel {
         switch self {
         case .nongroup(_, let layer, _):
@@ -185,13 +196,56 @@ protocol MainActorEquatable {
     @MainActor static func equals(_ lhs: Self, _ rhs: Self) -> Bool
 }
 
+// TODO: Can we separate "cached preview layers changed" from the data we need to g x
+
+// Note: we define a custom == on LayerData because
 extension LayerData: MainActorEquatable {
     @MainActor
     static func equals(_ lhs: LayerData, _ rhs: LayerData) -> Bool {
         lhs.id == rhs.id &&
         lhs.isPinned == rhs.isPinned &&
+        lhs.zIndex == rhs.zIndex &&
+
+        // Did the children change?
         LayerDataList.equals(lhs.groupDataList ?? [], rhs.groupDataList ?? []) &&
-        lhs.zIndex == rhs.zIndex
+        
+        // Important to check if the case changed
+        // (e.g. we hid a masker layer, so a previously masked layer now became .nonGroup or .group instead of .mask)
+        LayerData.areSameCase(lhs: lhs, rhs: rhs)
+    }
+}
+
+extension LayerData {
+    static func areSameCase(lhs: Self, rhs: Self) -> Bool {
+        switch lhs {
+        case .nongroup:
+            return rhs.isNonGroupCase
+        case .group:
+            return rhs.isGroupCase
+        case .mask:
+            return rhs.isMaskCase
+        }
+    }
+ 
+    var isNonGroupCase: Bool {
+        switch self {
+        case .nongroup: return true
+        default: return false
+        }
+    }
+    
+    var isGroupCase: Bool {
+        switch self {
+        case .group: return true
+        default: return false
+        }
+    }
+    
+    var isMaskCase: Bool {
+        switch self {
+        case .mask: return true
+        default: return false
+        }
     }
 }
 

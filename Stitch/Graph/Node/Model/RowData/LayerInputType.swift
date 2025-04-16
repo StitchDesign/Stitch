@@ -1686,7 +1686,8 @@ extension LayerInputPort {
         }
     }
 
-    var shouldResetGraphPreviews: Bool {
+    // fka `shouldResetGraphPreviews`
+    var shouldResortPreviewLayersIfChanged: Bool {
         switch self {
         case .zIndex, .masks, .isPinned, .pinTo, .orientation:
             return true
