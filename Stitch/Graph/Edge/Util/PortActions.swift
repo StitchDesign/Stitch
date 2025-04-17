@@ -87,7 +87,7 @@ extension GraphState {
     // Note: this removes ANY incoming edge to the `edge.to` input; whereas in some use-cases e.g. group node creation, we had expected only to remove the specific passed-in edge if it existed.
     // Hence the rename from `edgeRemoved` to `removesEdgeAt`
     @MainActor
-    func removeEdgeAt(input: InputPortViewData) {
+    func removeEdgeAt(input: InputPortIdAddress) {
         guard let inputCoordinate = self.getInputCoordinate(from: input) else {
             log("GraphState: removeEdgeAt: could not find input \(input.portId), \(input.canvasId)")
             return

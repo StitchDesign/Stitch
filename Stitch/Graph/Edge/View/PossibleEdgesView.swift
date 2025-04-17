@@ -97,7 +97,7 @@ extension Shape {
 // `Curve` and `Straight` edge styles are simpler than `Circuit`
 struct PossibleEdgeSimpleView: View {
     let possibleEdge: PossibleEdge
-    let shownPossibleEdgeIds: Set<InputPortViewData>
+    let shownPossibleEdgeIds: Set<InputPortIdAddress>
     let from: CGPoint
     let to: CGPoint
     let color: Color

@@ -249,8 +249,8 @@ struct EligibleInputReset: ProjectEnvironmentEvent {
 
 extension GraphState {
     @MainActor
-    func createEdgeFromEligibleInput(from: OutputPortViewData?,
-                                     to: InputPortViewData?,
+    func createEdgeFromEligibleInput(from: OutputPortIdAddress?,
+                                     to: InputPortIdAddress?,
                                      sourceNodeId: NodeId) {
         // Create visual edge if connecting two nodes
         if let from = from,

@@ -9,10 +9,10 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-
 protocol NodeRowViewModel: StitchLayoutCachable, Observable, Identifiable {
     associatedtype RowObserver: NodeRowObserver
-    associatedtype PortViewType: PortViewData
+    // fka `PortViewType`
+    associatedtype PortAddressType: PortIdAddress
     
     var id: NodeRowViewModelId { get }
     
@@ -29,7 +29,7 @@ protocol NodeRowViewModel: StitchLayoutCachable, Observable, Identifiable {
     
     @MainActor var anchorPoint: CGPoint? { get set }
     @MainActor var portColor: PortColor { get set }
-    @MainActor var portViewData: PortViewType? { get set }
+    @MainActor var portViewData: PortAddressType? { get set }
     @MainActor var isDragging: Bool { get set }
     @MainActor func portDragged(gesture: DragGesture.Value, graphState: GraphState)
     @MainActor func portDragEnded(graphState: GraphState)
@@ -113,7 +113,7 @@ extension NodeRowViewModel {
     
     /// Considerable perf cost from `ConnectedEdgeView`, so now a function.
     @MainActor
-    func getPortViewData() -> PortViewType? {
+    func getPortViewData() -> PortAddressType? {
         guard let canvasId = self.canvasItemDelegate?.id else {
             return nil
         }
