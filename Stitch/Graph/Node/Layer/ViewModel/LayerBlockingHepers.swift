@@ -68,6 +68,7 @@ extension LayerInputObserver {
         }
         let blockFullInput: () -> Void = block(input.asFullInput)
         
+        // Exception: e.g. for sizingScenario = constrainWidth, we block size input's width ("first field") but not its height ("second field")
         let blockFirstField = block(input.asFirstField)
         let blockSecondField = block(input.asSecondField)
         
