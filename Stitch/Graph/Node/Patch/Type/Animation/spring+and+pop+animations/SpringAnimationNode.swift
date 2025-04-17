@@ -61,9 +61,8 @@ func springAnimationEval(node: PatchNode,
                          graphStepState: GraphStepState) -> EvalResult {
     
     let outputIndex = 4
-    var willRunAgain = false
     
-    var evalResult = node.loopedEval(SpringAnimationState.self) { values, computedState, _ in
+    return node.loopedEval(SpringAnimationState.self) { values, computedState, _ in
         switch node.userVisibleType {
         case .number:
             let result = springAnimationOp(toValue: values.first?.getNumber ?? .zero,
@@ -72,17 +71,19 @@ func springAnimationEval(node: PatchNode,
                                            state: computedState.springStates.first,
                                            graphTime: graphStepState.graphTime,
                                            isPopAnimation: false)
+            
             switch result.resultType {
             case .complete:
                 computedState.springStates = []
+                return NodeEvalOpResult(from: [.number(result.result)])
+                
             case .inProgress(let springValueState):
                 computedState.springStates = [springValueState]
                 
-                // Updates graph to run this node again on next graph step
-                willRunAgain = true
+                return NodeEvalOpResult(values: [.number(result.result)],
+                                        // Updates graph to run this node again on next graph step
+                                        willRunAgain: true)
             }
-            
-            return [.number(result.result)]
 
 //        case .position:
 //            springAnimationPositionOp(
@@ -94,7 +95,4 @@ func springAnimationEval(node: PatchNode,
             fatalError()
         }
     }
-    
-    evalResult.runAgain = willRunAgain
-    return evalResult
 }
