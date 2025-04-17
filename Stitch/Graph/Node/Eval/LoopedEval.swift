@@ -9,9 +9,9 @@ import Foundation
 import StitchSchemaKit
 
 typealias OpWithIndex<T> = (PortValues, Int) -> T
-typealias NodeEphemeralObservableOp<T, EphemeralObserver> = (PortValues, EphemeralObserver, Int) -> T where EphemeralObserver: NodeEphemeralObservable
+typealias NodeEphemeralObservableOp<OpResult, EphemeralObserver> = (PortValues, EphemeralObserver, Int) -> OpResult where OpResult: NodeEvalOpResultable, EphemeralObserver: NodeEphemeralObservable
 
-typealias NodeEphemeralObservableListOp<OpResult, EphemeralObserver> = (PortValuesList, EphemeralObserver) -> OpResult where OpResult: NodeEvalOpResult, EphemeralObserver: NodeEphemeralObservable
+typealias NodeEphemeralObservableListOp<OpResult, EphemeralObserver> = (PortValuesList, EphemeralObserver) -> OpResult where OpResult: NodeEvalOpResultable, EphemeralObserver: NodeEphemeralObservable
 
 typealias NodeEphemeralInteractiveOp<T, EphemeralObserver> = (PortValues, EphemeralObserver, InteractiveLayer, Int) -> T where EphemeralObserver: NodeEphemeralObservable
 
@@ -20,7 +20,7 @@ typealias NodeInteractiveOp<T> = (PortValues, InteractiveLayer, Int) -> T
 typealias NodeLayerViewModelInteractiveOp<T> = (LayerViewModel, InteractiveLayer, Int) -> T
 
 /// Allows for generic results while ensure there's some way to get default output values.
-protocol NodeEvalOpResult {
+protocol NodeEvalOpResultable {
     init(from values: PortValues)
     
     @MainActor
@@ -28,12 +28,45 @@ protocol NodeEvalOpResult {
                                  node: NodeViewModel) -> EvalResult
 }
 
+/// Default node eval op scenario. Can be leveraged by animation nodes to use run-again functionality.
+struct NodeEvalOpResult {
+    let values: PortValues
+    var willRunAgain = false
+}
+
+extension NodeEvalOpResult: NodeEvalOpResultable {
+    init(from values: PortValues) {
+        self.values = values
+    }
+
+    static func createEvalResult(from results: [NodeEvalOpResult],
+                                 node: NodeViewModel) -> EvalResult {
+        let _willRunAgain = results.contains { $0.willRunAgain }
+        return .init(outputsValues: results.map(\.values),
+                     runAgain: _willRunAgain)
+    }
+}
+
 extension NodeViewModel {
     /// Looped eval helper used for interaction patch nodes.
     @MainActor
-    func loopedEval<EvalOpResult: NodeEvalOpResult, EphemeralObserver>(_ ephemeralObserverType: EphemeralObserver.Type,
-                                                                       graphState: GraphState,
-                                                                       evalOp: @escaping NodeEphemeralInteractiveOp<EvalOpResult, EphemeralObserver>) -> [EvalOpResult] {
+    func loopedEval<EvalOpResult: NodeEvalOpResultable, EphemeralObserver>(_ ephemeralObserverType: EphemeralObserver.Type,
+                                                                           graphState: GraphState,
+                                                                           evalOp: @escaping NodeEphemeralInteractiveOp<EvalOpResult, EphemeralObserver>) -> EvalResult {
+        let results = self.getLoopedEvalResults(ephemeralObserverType,
+                                                graphState: graphState,
+                                                evalOp: evalOp)
+        
+        return EvalOpResult.createEvalResult(from: results,
+                                             node: self)
+    }
+    
+    /// Looped eval helper used for interaction patch nodes.
+    @MainActor
+    func getLoopedEvalResults<EvalOpResult: NodeEvalOpResultable,
+                              EphemeralObserver>(_ ephemeralObserverType: EphemeralObserver.Type,
+                                                 graphState: GraphState,
+                                                 evalOp: @escaping NodeEphemeralInteractiveOp<EvalOpResult, EphemeralObserver>) -> [EvalOpResult] {
         let inputsValues = self.inputs
         let loopCount = getLongestLoopLength(inputsValues)
 
@@ -48,7 +81,7 @@ extension NodeViewModel {
         let lengthenedPreviewLayers = adjustArrayLength(loop: layerNode.previewLayerViewModels,
                                                         length: max(loopCount, layerNode.previewLayerViewModels.count))
         
-        return self.loopedEval(ephemeralObserverType,
+        return self.getLoopedEvalResults(ephemeralObserverType,
                                minLoopCount: layerNode.previewLayerViewModels.count) { values, ephemeralObserver, loopIndex in
             guard let interactiveLayer = lengthenedPreviewLayers[safe: loopIndex]?.interactiveLayer else {
                 log("loopedEval: could not find interactive layer for loopIndex \(loopIndex) in lengthenedPreviewLayers \(lengthenedPreviewLayers)")
@@ -58,9 +91,22 @@ extension NodeViewModel {
         }
     }
     
-    // TODO: clean up this code, combine some of the logic into common functions
     @MainActor
-    func loopedEval<EvalOpResult: NodeEvalOpResult>(graphState: GraphState,
+    func loopedEval<EvalOpResult: NodeEvalOpResultable>(graphState: GraphState,
+                                                    // The layer node whose layer view models we will look at;
+                                                    // can be assigned-layer (interaction patch node) or layer itself (e.g. group layer scrolling)
+                                                    layerNodeId: NodeId,
+                                                                  evalOp: @escaping NodeLayerViewModelInteractiveOp<EvalOpResult>) -> EvalResult {
+        let results = self.getLoopedEvalResults(graphState: graphState,
+                                                layerNodeId: layerNodeId,
+                                                evalOp: evalOp)
+        
+        return EvalOpResult.createEvalResult(from: results,
+                                             node: self)
+    }
+    
+    @MainActor
+    func getLoopedEvalResults<EvalOpResult: NodeEvalOpResultable>(graphState: GraphState,
                                                     // The layer node whose layer view models we will look at;
                                                     // can be assigned-layer (interaction patch node) or layer itself (e.g. group layer scrolling)
                                                     layerNodeId: NodeId,
@@ -77,7 +123,7 @@ extension NodeViewModel {
         let lengthenedPreviewLayers = adjustArrayLength(loop: layerNode.previewLayerViewModels,
                                                         length: max(loopCount, layerNode.previewLayerViewModels.count))
         
-        return self.loopedEval(minLoopCount: layerNode.previewLayerViewModels.count) { values, loopIndex in
+        return self.getLoopedEvalResults(minLoopCount: layerNode.previewLayerViewModels.count) { values, loopIndex in
             guard let layerViewModel = lengthenedPreviewLayers[safe: loopIndex] else {
                 return .init(from: self.defaultOutputs)
             }
@@ -86,10 +132,26 @@ extension NodeViewModel {
     }
     
     @MainActor
-    func loopedEval<EvalOpResult: NodeEvalOpResult, EphemeralObserver>(_ ephemeralObserverType: EphemeralObserver.Type,
-                                                                       inputsValuesList: PortValuesList? = nil,
-                                                                       minLoopCount: Int = 0,
-                                                                       evalOp: @escaping NodeEphemeralObservableOp<EvalOpResult, EphemeralObserver>) -> [EvalOpResult] {
+    func loopedEval<EvalOpResult: NodeEvalOpResultable,
+                              EphemeralObserver>(_ ephemeralObserverType: EphemeralObserver.Type,
+                                                 inputsValuesList: PortValuesList? = nil,
+                                                 minLoopCount: Int = 0,
+                                                 evalOp: @escaping NodeEphemeralObservableOp<EvalOpResult, EphemeralObserver>) -> EvalResult {
+        let results = self.getLoopedEvalResults(ephemeralObserverType,
+                                                inputsValuesList: inputsValuesList,
+                                                minLoopCount: minLoopCount,
+                                                evalOp: evalOp)
+        
+        return EvalOpResult.createEvalResult(from: results,
+                                             node: self)
+    }
+    
+    @MainActor
+    func getLoopedEvalResults<EvalOpResult: NodeEvalOpResultable,
+                              EphemeralObserver>(_ ephemeralObserverType: EphemeralObserver.Type,
+                                                 inputsValuesList: PortValuesList? = nil,
+                                                 minLoopCount: Int = 0,
+                                                 evalOp: @escaping NodeEphemeralObservableOp<EvalOpResult, EphemeralObserver>) -> [EvalOpResult] {
         let inputsValues = inputsValuesList ?? self.inputs
         let longestLoopLength = max(getLongestLoopLength(inputsValues), minLoopCount)
         
@@ -113,38 +175,56 @@ extension NodeViewModel {
         
         assertInDebug(longestLoopLength == castedEphemeralObservers.count)
         
-        return self.loopedEval(inputsValues: inputsValues,
-                               minLoopCount: minLoopCount) { values, loopIndex in
+        return self.getLoopedEvalResults(inputsValues: inputsValues,
+                                         minLoopCount: minLoopCount) { values, loopIndex in
             let ephemeralObserver = castedEphemeralObservers[loopIndex]
             return evalOp(values, ephemeralObserver, loopIndex)
         }
     }
-    
+
     @MainActor
     /// Looped eval for PortValues returning an EvalFlowResult.
-    func loopedEval<T: NodeEphemeralObservable>(_ ephemeralObserverType: T.Type,
-                                                evalOp: @escaping NodeEphemeralObservableOp<PortValues, T>) -> EvalResult {
-        self.loopedEval(T.self) { values, ephemeralObserver, loopIndex in
-            evalOp(values, ephemeralObserver, loopIndex)
+    func loopedEval<Result: NodeEvalOpResultable>(evalOp: @escaping OpWithIndex<Result>) -> EvalResult {
+        let results = self.getLoopedEvalResults { values, loopIndex in
+            evalOp(values, loopIndex)
         }
-        .createPureEvalResult()
+        
+        return Result.createEvalResult(from: results,
+                                       node: self)
     }
     
     @MainActor
     /// Looped eval for PortValues returning an EvalFlowResult.
-    func loopedEval<T: NodeEphemeralObservable>(_ ephemeralObserverType: T.Type,
-                                                evalOp: @escaping NodeEphemeralObservableOp<MediaEvalOpResult, T>) -> EvalResult {
-        self.loopedEval(T.self) { values, ephemeralObserver, loopIndex in
+    func loopedEval<Result: NodeEvalOpResultable,
+                    Observer: NodeEphemeralObservable>(_ ephemeralObserverType: Observer.Type,
+                                                evalOp: @escaping NodeEphemeralObservableOp<Result, Observer>) -> EvalResult {
+        let results = self.getLoopedEvalResults(Observer.self) { values, ephemeralObserver, loopIndex in
             evalOp(values, ephemeralObserver, loopIndex)
         }
-        .createPureEvalResult(node: self)
+        
+        return Result.createEvalResult(from: results,
+                                       node: self)
     }
     
     @MainActor
-    func loopedEval<EvalOpResult: NodeEvalOpResult>(inputsValues: PortValuesList? = nil,
-                                                    minLoopCount: Int = 0,
-                                                    shouldAddOutputs: Bool = true,
-                                                    evalOp: @escaping OpWithIndex<EvalOpResult>) -> [EvalOpResult] {
+    func loopedEval<EvalOpResult: NodeEvalOpResultable>(inputsValues: PortValuesList? = nil,
+                                                        minLoopCount: Int = 0,
+                                                        shouldAddOutputs: Bool = true,
+                                                        evalOp: @escaping OpWithIndex<EvalOpResult>) -> EvalResult {
+        let results = self.getLoopedEvalResults(inputsValues: inputsValues,
+                                                minLoopCount: minLoopCount,
+                                                shouldAddOutputs: shouldAddOutputs,
+                                                evalOp: evalOp)
+        
+        return EvalOpResult.createEvalResult(from: results,
+                                             node: self)
+    }
+    
+    @MainActor
+    func getLoopedEvalResults<EvalOpResult: NodeEvalOpResultable>(inputsValues: PortValuesList? = nil,
+                                                                minLoopCount: Int = 0,
+                                                                shouldAddOutputs: Bool = true,
+                                                                evalOp: @escaping OpWithIndex<EvalOpResult>) -> [EvalOpResult] {
         let inputsValues = inputsValues ?? self.inputs
         let outputsValues = self.outputs
         

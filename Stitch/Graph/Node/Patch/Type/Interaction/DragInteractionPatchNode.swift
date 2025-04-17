@@ -104,8 +104,8 @@ final class DragInteractionNodeState: NodeEphemeralObservable {
 func dragInteractionEval(node: PatchNode,
                          graphState: GraphState) -> ImpureEvalResult {
 
-    return node.loopedEval(DragInteractionNodeState.self,
-                           graphState: graphState) { values, dragState, interactiveLayer, loopIndex in
+    node.loopedEval(DragInteractionNodeState.self,
+                    graphState: graphState) { values, dragState, interactiveLayer, loopIndex in
         dragInteractionEvalOp(
             values: values,
             loopIndex: loopIndex,
@@ -114,7 +114,6 @@ func dragInteractionEval(node: PatchNode,
             graphTime: graphState.graphStepState.graphTime,
             fps: graphState.graphStepState.estimatedFPS)
     }
-                           .toImpureEvalResult()
 }
 
 // We should pulse whenever the time in the input and the time on the graph are the same,

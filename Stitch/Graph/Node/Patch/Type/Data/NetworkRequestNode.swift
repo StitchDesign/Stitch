@@ -138,7 +138,6 @@ func networkRequestEval(node: PatchNode,
         result.values[0] = .bool(true)
         return result
     }
-    .createPureEvalResult(node: node)
 }
 
 func networkRequestOp(type: UserVisibleType,

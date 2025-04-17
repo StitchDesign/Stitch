@@ -195,10 +195,7 @@ func nativeScrollInteractionEval(node: NodeViewModel,
             parentSize: interactiveLayer.parentSize,
             currentGraphTime: state.graphStepState.graphTime,
             currentGraphFrameCount: state.graphStepState.graphFrameCount)
-        
-    }
-    .toImpureEvalResult()
-    
+    }    
 }
 
 @MainActor

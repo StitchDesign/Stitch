@@ -43,7 +43,7 @@ func mediaAwareIdentityEvaluation(node: PatchNode) -> EvalResult {
     
     if node.userVisibleType == .media {
         // TODO: debug why this broke the Monthly Stays demo: https://github.com/StitchDesign/Stitch--Old/issues/7049
-        return node.loopedEval { (values, loopIndex) -> MediaEvalOpResult in
+        return node.getLoopedEvalResults { (values, loopIndex) -> MediaEvalOpResult in
             // splitter must have node-type
             guard let nodeType = node.userVisibleType else {
                 fatalErrorIfDebug()

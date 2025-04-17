@@ -143,8 +143,8 @@ struct ScrollInteractionNode: PatchNodeDefinition {
 func scrollInteractionEval(node: NodeViewModel,
                            graphState: GraphState) -> ImpureEvalResult {
     
-    node.loopedEval(ScrollInteractionState.self,
-                    graphState: graphState) { values, scrollState, interactiveLayer, _ in
+    node.getLoopedEvalResults(ScrollInteractionState.self,
+                              graphState: graphState) { values, scrollState, interactiveLayer, _ in
         let directionLockingEnabled = values[safeIndex: ScrollNodeInputLocations.directionLocking]?
                    .getBool ?? false
         let xScrollMode: ScrollMode = values[safeIndex: ScrollNodeInputLocations.xScrollMode]?.getScrollMode ?? .disabled

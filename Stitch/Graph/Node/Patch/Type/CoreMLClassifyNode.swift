@@ -67,11 +67,11 @@ extension CoreMLClassifyNode {
 func coreMLClassifyEval(node: PatchNode) -> EvalResult {
     let defaultOutputs = node.defaultOutputs
     
-    return node.loopedEval(ImageClassifierOpObserver.self) { values, mediaObserver, loopIndex in
+    return node.loopedEval(ImageClassifierOpObserver.self) { (values, mediaObserver, loopIndex) -> MediaEvalOpResult in
         mediaObserver.mediaEvalOpCoordinator(inputPortIndex: 0,
                                              values: values,
                                              loopIndex: loopIndex,
-                                             defaultOutputs: defaultOutputs) { media in
+                                             defaultOutputs: defaultOutputs) { media -> PortValues in
             guard let image = node.getInputMedia(portIndex: 1,
                                                  loopIndex: loopIndex,
                                                  mediaId: media.id)?.image else {

@@ -39,7 +39,6 @@ func keyboardEval(node: PatchNode,
         let character = values.first?.getString?.string ?? ""
         // log("keyboardEval: op: character: \(character)")
         // log("keyboardEval: op: keypressState.characters: \(keypressState.characters)")
-        return [.bool(keypressState.characters.contains(character))]
+        return PortValues([.bool(keypressState.characters.contains(character))])
     }
-    .createPureEvalResult()
 }

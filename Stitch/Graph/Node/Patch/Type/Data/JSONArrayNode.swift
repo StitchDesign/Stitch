@@ -33,7 +33,6 @@ func jsonArrayEval(node: NodeViewModel) -> EvalResult {
     node.loopedEval(shouldAddOutputs: false) { values, index in
         let j = JSON.jsonArrayFromValues(values)
         // log("jsonArrayEval: j: \(j)")
-        return [.json(.init(j))]
+        return PortValues([.json(.init(j))])
     }
-    .createPureEvalResult()
 }
