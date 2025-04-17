@@ -147,30 +147,20 @@ func springAnimationOp(toValue: Double,
         
         // Reset animation progress: step-time and velocity
         springValues.stepTime = .zero
-        // springValues.currentVelocity = .zero // maybe doesn't need to be reset?
-        
-        // Put updated springValues back in animationState
-//        singleAnimationState.values.springValues = springValues
-//        computedState.springAnimationState = .one(singleAnimationState)
-        
-        // Note: retargeting requires resetting "runtime so far" and velocity, but otherwise animation step can continue on as expected. DO NOT return early.
-        //        return .init(outputs: [.number(position)],
-        //                     willRunAgain: true)
-        
     }
-        
-    // TODO: the node's inputs (spring node = mass, damping, stiffness; pop node = bounciness, speed) should be saved on animation state, and parameters are only considered to have changed when the node's current inputs do not match what was saved in animation state
-    let massChanged = Int(springValues.spring.mass) != Int(mass)
-    let dampingChanged = Int(springValues.spring.damping) != Int(damping)
-    let stiffnessChanged = Int(springValues.spring.stiffness) != Int(stiffness)
+
+    let newSpring = Spring(mass: mass,
+                           stiffness: stiffness,
+                           damping: damping)
+
+    // Diff checking needs to be off Spring object since values change there
+    let massChanged = Int(springValues.spring.mass) != Int(newSpring.mass)
+    let dampingChanged = Int(springValues.spring.damping) != Int(newSpring.damping)
+    let stiffnessChanged = Int(springValues.spring.stiffness) != Int(newSpring.stiffness)
     let parametersChanged = massChanged || dampingChanged || stiffnessChanged
                            
     if parametersChanged {
         // log("springAnimationNumberOp: parameters changed")
-        
-        let newSpring = Spring(mass: mass,
-                               stiffness: stiffness,
-                               damping: damping)
         
         springValues.spring = newSpring
         
