@@ -653,6 +653,7 @@
 		EC89F7E127602C0700C4447A /* ExpansionBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC89F7E027602C0700C4447A /* ExpansionBox.swift */; };
 		EC8A48ED2710EB2F001BB4FC /* GraphStepState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8A48EC2710EB2F001BB4FC /* GraphStepState.swift */; };
 		EC8A48F22710EC39001BB4FC /* NodeTypeChangedActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8A48F12710EC39001BB4FC /* NodeTypeChangedActions.swift */; };
+		EC8AEED82DB1B5EA00A1F6B6 /* LayerNodeReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8AEED72DB1B5EA00A1F6B6 /* LayerNodeReader.swift */; };
 		EC8BA54526A62D14002E345C /* DeviceMotionNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8BA54426A62D14002E345C /* DeviceMotionNode.swift */; };
 		EC8BA54726A6383F002E345C /* SmoothValueNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8BA54626A6383F002E345C /* SmoothValueNode.swift */; };
 		EC8BA54926A6388B002E345C /* VelocityNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8BA54826A6388B002E345C /* VelocityNode.swift */; };
@@ -760,6 +761,7 @@
 		ECB373A028136B4E007AC702 /* KeyboardHeightReadable.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB3739F28136B4E007AC702 /* KeyboardHeightReadable.swift */; };
 		ECB46CD62DB14D80006EFB93 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = ECB46CD52DB14D80006EFB93 /* StitchEngine */; };
 		ECB46CD92DB15E9F006EFB93 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = ECB46CD82DB15E9F006EFB93 /* StitchEngine */; };
+		ECB46CDB2DB171B5006EFB93 /* LayerInputFieldBlocking.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB46CDA2DB171B5006EFB93 /* LayerInputFieldBlocking.swift */; };
 		ECB5361F26DD7A9600C3BE97 /* StitchFolderUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB5361E26DD7A9600C3BE97 /* StitchFolderUtil.swift */; };
 		ECB54D70288638A200EB75D0 /* RepeatingAnimationNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB54D6F288638A200EB75D0 /* RepeatingAnimationNode.swift */; };
 		ECB5A8162657230600D46D3E /* SampleHoldNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB5A8152657230600D46D3E /* SampleHoldNode.swift */; };
@@ -1625,6 +1627,7 @@
 		EC89F7E027602C0700C4447A /* ExpansionBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpansionBox.swift; sourceTree = "<group>"; };
 		EC8A48EC2710EB2F001BB4FC /* GraphStepState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphStepState.swift; sourceTree = "<group>"; };
 		EC8A48F12710EC39001BB4FC /* NodeTypeChangedActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeTypeChangedActions.swift; sourceTree = "<group>"; };
+		EC8AEED72DB1B5EA00A1F6B6 /* LayerNodeReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerNodeReader.swift; sourceTree = "<group>"; };
 		EC8BA54426A62D14002E345C /* DeviceMotionNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceMotionNode.swift; sourceTree = "<group>"; };
 		EC8BA54626A6383F002E345C /* SmoothValueNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmoothValueNode.swift; sourceTree = "<group>"; };
 		EC8BA54826A6388B002E345C /* VelocityNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VelocityNode.swift; sourceTree = "<group>"; };
@@ -1729,6 +1732,7 @@
 		ECB1B7B726FB9E67006D9C95 /* MediaKeyUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaKeyUtils.swift; sourceTree = "<group>"; };
 		ECB33C6126F15A1C0069885B /* ProjectsUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectsUtils.swift; sourceTree = "<group>"; };
 		ECB3739F28136B4E007AC702 /* KeyboardHeightReadable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardHeightReadable.swift; sourceTree = "<group>"; };
+		ECB46CDA2DB171B5006EFB93 /* LayerInputFieldBlocking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInputFieldBlocking.swift; sourceTree = "<group>"; };
 		ECB5361E26DD7A9600C3BE97 /* StitchFolderUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchFolderUtil.swift; sourceTree = "<group>"; };
 		ECB54D6F288638A200EB75D0 /* RepeatingAnimationNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepeatingAnimationNode.swift; sourceTree = "<group>"; };
 		ECB5A8152657230600D46D3E /* SampleHoldNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleHoldNode.swift; sourceTree = "<group>"; };
@@ -3758,6 +3762,8 @@
 			isa = PBXGroup;
 			children = (
 				EC733DC32639E24C00DD4EC1 /* LayerNodeViewModel.swift */,
+				EC8AEED72DB1B5EA00A1F6B6 /* LayerNodeReader.swift */,
+				ECB46CDA2DB171B5006EFB93 /* LayerInputFieldBlocking.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -5307,6 +5313,7 @@
 				EC3A6C4B2C20C4FD00CCBACC /* NodeRowObserverCachedViewDataExtensions.swift in Sources */,
 				EC0FD2DE2B50D4A700CCEAB5 /* CatalystNavigationBarHelperViews.swift in Sources */,
 				EC5BC3DF2D681331000DF722 /* JSONCoercionUtils.swift in Sources */,
+				ECB46CDB2DB171B5006EFB93 /* LayerInputFieldBlocking.swift in Sources */,
 				EC560E15293A944100350046 /* LoopReverseNode.swift in Sources */,
 				B57F3A802946CE4700DFC0AE /* VisibleNodesViewModel.swift in Sources */,
 				B55501072C1BCAD60081C3F1 /* SidebarListItemActions.swift in Sources */,
@@ -5703,6 +5710,7 @@
 				ECC301AB293808BF00C34F10 /* ArraySortNode.swift in Sources */,
 				B58723BB2B27894700EAB0E5 /* StitchDocumentUtil.swift in Sources */,
 				ECA929F4260A690400281B52 /* RepeatingPulsePatchNode.swift in Sources */,
+				EC8AEED82DB1B5EA00A1F6B6 /* LayerNodeReader.swift in Sources */,
 				B58E3FCB290357E500700656 /* ToastView.swift in Sources */,
 				EC7451B2294D2C6200C7EB80 /* LocationData.swift in Sources */,
 				EC804494294431C800DCFCF4 /* LayerEvalHelpers.swift in Sources */,

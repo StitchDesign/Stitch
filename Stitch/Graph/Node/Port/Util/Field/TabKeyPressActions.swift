@@ -342,6 +342,19 @@ func getTabEligibleFields(layerNode: LayerNodeViewModel,
     return eligibleFields
 }
 
+extension LayerNodeViewModel {
+    @MainActor
+    func getLayerInspectorInputFields(_ key: LayerInputPort) -> InputFieldViewModels {
+        let port = self[keyPath: key.layerNodeKeyPath]
+        
+        return port.allInputData.flatMap { inputData in
+            inputData.inspectorRowViewModel.cachedFieldValueGroups.flatMap {
+                $0.fieldObservers
+            }
+        }
+    }
+}
+
 extension NodeViewModel {
     @MainActor
     func previousInput(_ currentFocusedField: FieldCoordinate,

@@ -238,7 +238,7 @@ extension GraphState {
             documentFrame: document.frame)
         
         self.visibleNodesViewModel.updateNodeRowObserversUpstreamAndDownstreamReferences()
-        self.visibleNodesViewModel.syncRowViewModels(activeIndex: document.activeIndex)
+        self.visibleNodesViewModel.syncRowViewModels(activeIndex: document.activeIndex, graph: self)
         
         /// Updates port colors and port colors' cached data (connected-canvas-items)
         self.visibleNodesViewModel.nodes.values.forEach { node in

@@ -101,7 +101,7 @@ extension GraphState {
         let nodeId = input.id.nodeId
         
         // TODO: debug: why was input.nodeDelegate `nil` for e.g. the padding layer-input but not the size layer-input, and only in the context of generating an LLM action?
-        guard let nodeViewModel = self.getNodeViewModel(nodeId),
+        guard let node = self.getNode(nodeId),
               var value = value else {
             log("GraphState.inputEditCommitted error: could not find node data.")
             return
@@ -120,15 +120,11 @@ extension GraphState {
             return
         }
         
-        nodeViewModel.removeIncomingEdge(at: input.id,
-                                         graph: self)
+        node.removeIncomingEdge(at: input.id, graph: self)
         
         // Block or unblock certain layer inputs
-        if let layerInputType: LayerInputType = input.id.keyPath,
-           let layerNode: LayerNodeViewModel = nodeViewModel.layerNode {
-            layerNode.blockOrUnblockFields(newValue: value,
-                                           layerInput: layerInputType.layerInput,
-                                           activeIndex: activeIndex)
+        if let layerNode = node.layerNode {
+            layerNode.refreshBlockedInputs(graph: self, activeIndex: activeIndex)
         }
         
         let newCommandType = value.shapeCommandType
