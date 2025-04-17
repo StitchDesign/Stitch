@@ -61,38 +61,63 @@ func springAnimationEval(node: PatchNode,
                          graphStepState: GraphStepState) -> EvalResult {
     
     let outputIndex = 4
+    let isPopAnimation = false
     
-    return node.loopedEval(SpringAnimationState.self) { values, computedState, _ in
-        switch node.userVisibleType {
-        case .number:
-            let result = springAnimationOp(toValue: values.first?.getNumber ?? .zero,
-                                           values: values,
-                                           currentOutputValue: values[safe: outputIndex]?.getNumber ?? .zero,
-                                           state: computedState.springStates.first,
-                                           graphTime: graphStepState.graphTime,
-                                           isPopAnimation: false)
-            
-            switch result.resultType {
-            case .complete:
-                computedState.springStates = []
-                return NodeEvalOpResult(from: [.number(result.result)])
-                
-            case .inProgress(let springValueState):
-                computedState.springStates = [springValueState]
-                
-                return NodeEvalOpResult(values: [.number(result.result)],
-                                        // Updates graph to run this node again on next graph step
-                                        willRunAgain: true)
-            }
-
-//        case .position:
-//            springAnimationPositionOp(
-//                values: values,
-//                computedState: computedState,
-//                graphTime: graphStepState.graphTime,
-//                isPopAnimation: false)
-        default:
-            fatalError()
+    assertInDebug(node.userVisibleType != nil)
+    let nodeType = node.userVisibleType ?? .number
+    
+    return node.loopedEval(SpringAnimationState.self) { values, animationObserver, _ -> NodeEvalOpResult in
+        
+        // If node type changed, exit and reset spring state
+        guard values.first?.toNodeType == values[safe: outputIndex]?.toNodeType else {
+            animationObserver.reset()
+            return .init(values: [values.first ?? nodeType.defaultPortValue])
         }
+        
+        var willRunAgain = false
+        let currentSpringStates = animationObserver.springStates
+
+        // Number type is the only type that doesn't unpack
+        let toValues = (values.first ?? .number(.zero)).unpackValues() ??
+            [.number(values.first?.getNumber ?? .zero)]
+        let currentOutputs = values[safe: outputIndex]?.unpackValues() ??
+            [.number(values[safe: outputIndex]?.getNumber ?? .zero)]
+        
+        // Reset spring states in class before eval
+        animationObserver.springStates = []
+        
+        // Returns unpacked numbers to later be packed into PortValues
+        let outputResults: PortValues = zip(toValues, currentOutputs)
+            .enumerated().map { index, springValues in
+//                let (toValue, currentOutputValue) = springValues
+                let toValue = springValues.0
+                let currentOutputValue = springValues.1
+                
+                let result = springAnimationOp(toValue: toValue.getNumber ?? .zero,
+                                               values: values,
+                                               currentOutputValue: currentOutputValue.getNumber ?? .zero,
+                                               state: currentSpringStates[safe: index] ?? nil,
+                                               graphTime: graphStepState.graphTime,
+                                               isPopAnimation: isPopAnimation)
+                
+                switch result.resultType {
+                case .complete:
+                    // Nil spring state indicates complete
+                    animationObserver.springStates.append(nil)
+                    return PortValue.number(result.result)
+                    
+                case .inProgress(let springValueState):
+                    // mark node as needing another eval run
+                    willRunAgain = true
+                    
+                    animationObserver.springStates.append(springValueState)
+                    return PortValue.number(result.result)
+                }
+            }
+        
+        let packedOutput = outputResults.packValues(type: nodeType) ?? outputResults.first ?? .number(.zero)
+        
+        return NodeEvalOpResult(values: [packedOutput],
+                                willRunAgain: willRunAgain)
     }
 }

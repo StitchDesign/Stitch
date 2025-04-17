@@ -11,7 +11,7 @@ import StitchSchemaKit
 
 final class SpringAnimationState: NodeEphemeralObservable {
     // nil = not initialized; animation not running
-    var springStates: [SpringValueState] = []
+    var springStates: [SpringValueState?] = []
 
     func onPrototypeRestart(document: StitchDocumentViewModel) {
         self.reset()
