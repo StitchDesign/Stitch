@@ -133,19 +133,16 @@ struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewMo
     var fontColor: Color {
         let selection = self.selectionStatus
 
-//#if DEV_DEBUG
-//        if itemViewModel.isHidden {
-//            return .purple
-//        }
-//#endif
-
         // Any 'focused' (doesn't have to be 'actively selected') layer uses white text
         if !self.isBeingEdited && itemViewModel.isSelected(sidebar: self.sidebarViewModel) {
-//#if DEV_DEBUG
-//            return .red
-//#else
-            return .white
-//#endif
+            
+            if self._isHidden {
+                return .white.opacity(0.5)
+            } else {
+                return .white
+            }
+            
+            
         }
 
 //#if DEV_DEBUG
