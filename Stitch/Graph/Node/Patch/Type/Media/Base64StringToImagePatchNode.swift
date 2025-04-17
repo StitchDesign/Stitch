@@ -52,7 +52,7 @@ struct Base64StringToImageNode: PatchNodeDefinition {
 
 @MainActor
 func base64StringToImageEval(node: PatchNode) -> EvalResult {
-    node.loopedEval(MediaEvalOpObserver.self) { values, mediaObserver, loopIndex in
+    node.loopedEval(MediaEvalOpObserver.self) { values, mediaObserver, loopIndex -> MediaEvalOpResult in
         let inputBase64String: String = values.first?.getString?.string ?? ""
         let prevOutputs = values.prevOutputs(node: node)
 

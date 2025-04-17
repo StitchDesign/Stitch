@@ -48,7 +48,6 @@ func velocityEval(node: PatchNode) -> EvalResult {
         
         // Save next previous value
         computedState.previousValue = .number(valueAtCurrentFrame)
-        return [.number(newValue)]
+        return [PortValue.number(newValue)]
     } // ?? [[numberDefaultFalse]]
-    .createPureEvalResult()
 }

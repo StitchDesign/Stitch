@@ -115,7 +115,6 @@ func pressInteractionEval(node: NodeViewModel,
             interactiveLayer: interactiveLayer,
             graph: graph)
     }
-    .toImpureEvalResult()
 }
 
 @MainActor

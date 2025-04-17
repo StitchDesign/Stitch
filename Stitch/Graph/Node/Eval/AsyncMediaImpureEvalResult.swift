@@ -17,7 +17,7 @@ enum AsyncMediaOutputs {
     case all(PortValuesList)
 }
 
-extension AsyncMediaOutputs: NodeEvalOpResult {
+extension AsyncMediaOutputs: NodeEvalOpResultable {
     static func createEvalResult(from results: [AsyncMediaOutputs],
                                  node: NodeViewModel) -> EvalResult {
         results.toImpureEvalResult()

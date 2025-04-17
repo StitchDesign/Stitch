@@ -41,7 +41,7 @@ struct MediaEvalOpResult: MediaEvalResultable {
     var media: GraphMediaValue?
 }
 
-extension MediaEvalOpResult: NodeEvalOpResult {
+extension MediaEvalOpResult: NodeEvalOpResultable {
     var valueResult: AsyncMediaOutputs { .byIndex(self.values) }
     
     @MainActor
@@ -73,7 +73,7 @@ extension MediaEvalOpResult: NodeEvalOpResult {
 }
 
 /// Used by Core ML Detection node.
-struct MediaEvalValuesListResult: NodeEvalOpResult, MediaEvalResultable {
+struct MediaEvalValuesListResult: NodeEvalOpResultable, MediaEvalResultable {
     var valuesList: PortValuesList
     var media: GraphMediaValue?
 }

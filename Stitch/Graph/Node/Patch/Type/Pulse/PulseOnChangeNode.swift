@@ -78,5 +78,4 @@ func pulseOnChangeEval(node: PatchNode,
                                computedState: computedState,
                                graphTime: state.graphTime)
     }
-    .toImpureEvalResult() //defaultOutputs: [[numberDefaultFalse]])
 }

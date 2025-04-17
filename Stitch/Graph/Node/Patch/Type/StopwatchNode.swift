@@ -119,5 +119,4 @@ func stopwatchEval(node: PatchNode,
                            graphTime: graphStep.graphTime,
                            computedState: computedState)
     } // ?? [numberDefaultFalse]
-    .createPureEvalResult()
 }

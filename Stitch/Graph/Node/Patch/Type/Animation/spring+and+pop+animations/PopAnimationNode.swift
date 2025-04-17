@@ -75,5 +75,4 @@ func popAnimationEval(node: PatchNode,
             fatalError()
         }
     }
-    .toImpureEvalResult()
 }

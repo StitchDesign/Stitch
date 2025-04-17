@@ -64,7 +64,6 @@ func repeatingAnimationEval(node: PatchNode,
             graphFrameCount: graphStep.graphFrameCount,
             fps: graphStep.estimatedFPS)
     }//defaultOutputs: [[defaultNumber]])
-    .toImpureEvalResult()
 }
 
 func repeatingAnimationEvalOpNumber(values: PortValues,
