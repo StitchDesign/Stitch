@@ -73,7 +73,6 @@ func cubicBezierAnimationEval(node: PatchNode,
             computedState: computedState,
             fps: state.estimatedFPS)
     }
-    .toImpureEvalResult()//defaultOutputs: [[defaultNumber], [defaultNumber]])
 }
 
 /*

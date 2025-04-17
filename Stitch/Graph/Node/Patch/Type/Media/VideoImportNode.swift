@@ -115,15 +115,14 @@ extension VideoImportNode {
 func videoImportEval(node: PatchNode) -> EvalResult {
     let defaultOutputs = node.defaultOutputs
     
-    return node.loopedEval(MediaEvalOpObserver.self) { values, asyncObserver, loopIndex in
+    return node.loopedEval(MediaEvalOpObserver.self) { values, asyncObserver, loopIndex -> MediaEvalOpResult in
         asyncObserver.mediaEvalOpCoordinator(inputPortIndex: 0,
                                              values: values,
                                              loopIndex: loopIndex,
-                                             defaultOutputs: defaultOutputs) { media in
+                                             defaultOutputs: defaultOutputs) { media -> PortValues in
             VideoImportNode.videoImportEvalOp(media: media,
                                               values: values,
                                               defaultOutputs: defaultOutputs)
         }
     }
-    .createPureEvalResult(node: node)
 }

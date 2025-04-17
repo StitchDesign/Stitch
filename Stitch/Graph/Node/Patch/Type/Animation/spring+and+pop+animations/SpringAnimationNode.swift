@@ -81,6 +81,4 @@ func springAnimationEval(node: PatchNode,
             fatalError()
         }
     }
-    .toImpureEvalResult()
 }
-

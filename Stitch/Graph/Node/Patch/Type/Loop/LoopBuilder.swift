@@ -77,8 +77,8 @@ func loopBuilderEval(node: PatchNode,
         return valueForIndex
     }
     
-    let result = node.loopedEval(MediaEvalOpObserver.self,
-                           inputsValuesList: [flattenedInputs]) { (values, mediaObserver, index) -> MediaEvalOpResult in
+    let result = node.getLoopedEvalResults(MediaEvalOpObserver.self,
+                                           inputsValuesList: [flattenedInputs]) { (values, mediaObserver, index) -> MediaEvalOpResult in
         assertInDebug(values.first != nil)
         
         // index of our loop
