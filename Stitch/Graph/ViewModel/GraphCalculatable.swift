@@ -61,12 +61,9 @@ extension GraphState: GraphCalculatable {
             pinMap: rootPinMap,
             activeIndex: activeIndex)
                 
-        let layersChanged = !LayerDataList.equals(self.cachedOrderedPreviewLayers, previewLayers)
-        log("updateOrderedPreviewLayers: layersChanged: \(layersChanged)")
-        
-//        if !LayerDataList.equals(self.cachedOrderedPreviewLayers, previewLayers) {
+        if !LayerDataList.equals(self.cachedOrderedPreviewLayers, previewLayers) {
             self.cachedOrderedPreviewLayers = previewLayers
-//        }
+        }
         if self.flattenedPinMap != flattenedPinMap {
             self.flattenedPinMap = flattenedPinMap
         }
