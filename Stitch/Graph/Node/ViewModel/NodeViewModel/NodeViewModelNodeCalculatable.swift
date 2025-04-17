@@ -204,6 +204,7 @@ extension NodeViewModel: NodeCalculatable {
         }
     }
     
+    // Called by StitchEngine as paart of NodeCalculatable
     @MainActor
     func inputsWillUpdate(values: PortValuesList) {
         // update cache for longest loop length
