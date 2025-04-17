@@ -8,6 +8,32 @@
 import Foundation
 import StitchSchemaKit
 
+extension LayerNodeViewModel {
+    @MainActor
+    func getLayerInputObserver(_ layerInput: LayerInputPort) -> LayerInputObserver {
+        self[keyPath: layerInput.layerNodeKeyPath]
+    }
+}
+
+extension LayerInputPort {
+    
+    var asFullInput: LayerInputType {
+        .init(layerInput: self,
+              portType: .packed)
+    }
+    
+    var asFirstField: LayerInputType {
+        .init(layerInput: self,
+              portType: .unpacked(.port0))
+    }
+    
+    // Note: we currently don't block any fields in inputs with 3 or more fields
+    var asSecondField: LayerInputType {
+        .init(layerInput: self,
+              portType: .unpacked(.port1))
+    }
+}
+
 // Must be a class for coordinate keypaths, which expect a reference type on the other end.
 @Observable
 final class LayerInputObserver: Identifiable {

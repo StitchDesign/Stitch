@@ -143,7 +143,7 @@ extension VisibleNodesViewModel {
     
     // traditionally called in `updateNodesPagingDict`, after `updateNodeRowObserversUpstreamAndDownstreamReferences`
     @MainActor
-    func syncRowViewModels(activeIndex: ActiveIndex) {
+    func syncRowViewModels(activeIndex: ActiveIndex, graph: GraphReader) {
         // Sync port view models for applicable nodes
         self.nodes.values.forEach { node in
             switch node.nodeType {
@@ -184,13 +184,9 @@ extension VisibleNodesViewModel {
                                                             activeIndex: activeIndex)
 
             case .layer(let layerNode):
-                // Special case: we must re-initialize the group orientation input, since its first initialization happens before we have constructed the layer view models that can tell us all the parent's children
-                if layerNode.layer == .group {
-                    layerNode.blockOrUnblockFields(
-                        newValue: layerNode.orientationPort.getActiveValue(activeIndex: activeIndex),
-                        layerInput: .orientation,
-                        activeIndex: activeIndex)
-                }
+                // We must refresh all the blocked layer inputs
+                layerNode.refreshBlockedInputs(graph: graph,
+                                               activeIndex: activeIndex)
             }
         }
     }

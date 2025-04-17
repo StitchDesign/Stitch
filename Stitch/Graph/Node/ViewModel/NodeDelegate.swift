@@ -133,4 +133,14 @@ extension NodeViewModel {
             return nil
         }
     }
+    
+    @MainActor
+    var layerNodeReader: LayerNodeReader? {
+        switch self.nodeType {
+        case .layer(let layerNode):
+            return layerNode
+        default:
+            return nil
+        }
+    }
 }

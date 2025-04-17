@@ -110,15 +110,6 @@ extension InputNodeRowObserver {
             self.immediatelyUpdateFieldObserversAfterInputEdit(newValue)
         }
         
-        // If we edited a field on a layer-size input, we may need to block or unblock certain other fields.
-        if let newSize = newValue.getSize,
-           // Only look at size (not min/max size) changes
-           self.id.keyPath?.layerInput == .size,
-           let layerNode = node.layerNode {
-            
-            layerNode.layerSizeUpdated(newValue: newSize)
-        }
-
         node.scheduleForNextGraphStep()
     }
     
