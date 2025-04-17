@@ -75,8 +75,6 @@ extension ComputedNodeState {
         switch kind {
         case .patch(.classicAnimation):
             self.resetClassicAnimationStates(newType: newType)
-        case .patch(.popAnimation), .patch(.springAnimation):
-            self.resetSpringAnimationStates(newType: newType)
         default:
             return
         }

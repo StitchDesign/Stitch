@@ -954,7 +954,6 @@
 		ECFA5D48287DEE510037CD59 /* PortColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECFA5D47287DEE510037CD59 /* PortColor.swift */; };
 		ECFA5D4A287DEE580037CD59 /* PulseColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECFA5D49287DEE580037CD59 /* PulseColor.swift */; };
 		ECFAB3D62BB75ED8007B569A /* SpringAnimationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECFAB3D52BB75ED8007B569A /* SpringAnimationState.swift */; };
-		ECFAB3D92BB75F7C007B569A /* SpringAnimationPositionOp.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECFAB3D82BB75F7C007B569A /* SpringAnimationPositionOp.swift */; };
 		ECFAB3DB2BB75F8D007B569A /* SpringAnimationNumberOp.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECFAB3DA2BB75F8D007B569A /* SpringAnimationNumberOp.swift */; };
 		ECFC872F2936CE09004A065A /* StopwatchNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECFC872E2936CE09004A065A /* StopwatchNode.swift */; };
 		ECFC87312936ECBD004A065A /* OptionSenderNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECFC87302936ECBD004A065A /* OptionSenderNode.swift */; };
@@ -1923,7 +1922,6 @@
 		ECFA5D47287DEE510037CD59 /* PortColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortColor.swift; sourceTree = "<group>"; };
 		ECFA5D49287DEE580037CD59 /* PulseColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PulseColor.swift; sourceTree = "<group>"; };
 		ECFAB3D52BB75ED8007B569A /* SpringAnimationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpringAnimationState.swift; sourceTree = "<group>"; };
-		ECFAB3D82BB75F7C007B569A /* SpringAnimationPositionOp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpringAnimationPositionOp.swift; sourceTree = "<group>"; };
 		ECFAB3DA2BB75F8D007B569A /* SpringAnimationNumberOp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpringAnimationNumberOp.swift; sourceTree = "<group>"; };
 		ECFC872E2936CE09004A065A /* StopwatchNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StopwatchNode.swift; sourceTree = "<group>"; };
 		ECFC87302936ECBD004A065A /* OptionSenderNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionSenderNode.swift; sourceTree = "<group>"; };
@@ -4651,7 +4649,6 @@
 			isa = PBXGroup;
 			children = (
 				EC1DE58F260AB0DD009497CF /* SpringAnimationNode.swift */,
-				ECFAB3D82BB75F7C007B569A /* SpringAnimationPositionOp.swift */,
 				ECFAB3DA2BB75F8D007B569A /* SpringAnimationNumberOp.swift */,
 				EC135E132BBC460E003AB96F /* SpringHelpers.swift */,
 				ECFAB3D52BB75ED8007B569A /* SpringAnimationState.swift */,
@@ -5204,7 +5201,6 @@
 				EC1374EE2B61B9C80039B108 /* InsertNodeMenuSizeReadingData.swift in Sources */,
 				EC4281182B76A4F300767AAF /* ReframeResponse.swift in Sources */,
 				EC4A7213274C5A460026B233 /* WirelessReceiver.swift in Sources */,
-				ECFAB3D92BB75F7C007B569A /* SpringAnimationPositionOp.swift in Sources */,
 				EC165EDE29C8BA890024ECDF /* JSONCustomShape.swift in Sources */,
 				ECF28ECC2CFFAD41000CB94A /* NativeScrollGestureView.swift in Sources */,
 				B59660A42C1A526B00BE75D7 /* LayerViewModel.swift in Sources */,

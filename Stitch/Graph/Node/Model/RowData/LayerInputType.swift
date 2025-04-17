@@ -26,7 +26,7 @@ extension LayerInputType {
             return defaultPackedValue
                     
         case .unpacked(let unpackedType):
-            guard let unpackedValues = self.layerInput.unpackValues(from: defaultPackedValue) else {
+            guard let unpackedValues = defaultPackedValue.unpackValues() else {
                 return .none
             }
             
@@ -1240,7 +1240,7 @@ extension LayerInputPort {
         case .contentMode:
             return \.contentModePort
         case .minSize:
-            return \.minSizePort 
+            return \.minSizePort
         case .maxSize:
             return \.maxSizePort
         case .spacing:
@@ -1317,18 +1317,49 @@ extension LayerInputPort {
             return .none
         }
         
+        let defaultPackedValue: PortValue = self.getDefaultValue(for: layer)
+        
+        return values.packValues(unpackedPortCount: unpackedPortCount,
+                                 type: defaultPackedValue.toNodeType)
+    }
+}
+
+extension PortValues {
+    /// Converts port data from an unpacked state into a packed state.
+    /// This function is specifically used by layers.
+    func packValues(unpackedPortCount: Int,
+                    type: NodeType) -> PortValue {
+        let values = self
+        
         // Incoming values must match or exceed expected unpacked port count
         assertInDebug(unpackedPortCount <= values.count)
+                
+        guard let result = values.pack(type: type) else {
+            fatalErrorIfDebug()
+            return .position(.zero)
+        }
         
-        let defaultPackedValue: PortValue = self.getDefaultValue(for: layer)
-
-        return values.pack(defaultPackedValue)
+        return result
     }
     
+    func packValues(type: NodeType) -> PortValue? {
+        let values = self
+        let unpackedPortCount = self.count
+        
+        // Incoming values must match or exceed expected unpacked port count
+        assertInDebug(unpackedPortCount <= values.count)
+                
+        return values.pack(type: type)
+    }
+}
+
+extension PortValue {
     /// Converts port data from unpacked state to packed state.
     /// Optional because not all ports support this.
     /// See also `PortValue.pack: PortValues -> PortValue?`
-    func unpackValues(from value: PortValue) -> PortValues? {
+    func unpackValues() -> PortValues? {
+        let value = self
+        
         // Unpacking logic should probably be by the passed-in PortValue, rather than the layer-input-type, since most
                 
         // Can we reuse some logic from `PortValue -> FieldViewModels` ?
@@ -1698,7 +1729,7 @@ extension LayerInputPort {
     
     func unpackedPortCount(layer: Layer) -> Int? {
         let fakeValue = self.getDefaultValue(for: layer)
-        let fakeUnpackedValues = self.unpackValues(from: fakeValue)
+        let fakeUnpackedValues = fakeValue.unpackValues()
         return fakeUnpackedValues?.count
     }
     

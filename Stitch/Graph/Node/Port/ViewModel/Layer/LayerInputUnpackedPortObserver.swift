@@ -102,7 +102,7 @@ extension LayerInputUnpackedPortObserver {
     @MainActor
     func updateUnpackedObserverValues(from packedValues: PortValues,
                                       layerNode: LayerNodeViewModel) {
-        let unpackedValues = packedValues.map { self.layerPort.unpackValues(from: $0) }
+        let unpackedValues = packedValues.map { $0.unpackValues() }
         
         guard let unpackedPortCount = unpackedValues.first??.count else {
             fatalErrorIfDebug()
