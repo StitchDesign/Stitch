@@ -25,15 +25,17 @@ final class OutputNodeRowObserver: NodeRowObserver {
     @MainActor weak var nodeDelegate: NodeViewModel?
     
     // MARK: "derived data", cached for UI perf
-    
-    // Tracks upstream/downstream nodes--cached for perf
-    @MainActor var connectedNodes: NodeIdSet = .init()
-    
+        
     // Only for outputs, designed for port edge color usage
     @MainActor var containsDownstreamConnection = false
     
     // Can't be computed for rendering purposes
     @MainActor var hasLoopedValues: Bool = false
+    
+    @MainActor
+    var hasEdge: Bool {
+        self.containsDownstreamConnection
+    }
     
     @MainActor
     init(values: PortValues,
@@ -81,19 +83,15 @@ extension OutputNodeRowObserver {
         self.outputPostProcessing(graph)
     }
     
-    @MainActor
-    var hasEdge: Bool {
-        self.containsDownstreamConnection
-    }
-    
+ 
     @MainActor var allRowViewModels: [OutputNodeRowViewModel] {
-        guard let node = self.nodeDelegate else {
+        guard let node = self.nodeDelegate,
+              let graph = node.graphDelegate else {
             return []
         }
-        
-        var outputs = [OutputNodeRowViewModel]()
-        
+                
         switch node.nodeType {
+            
         case .patch(let patchNode):
             guard let portId = self.id.portId,
                   let patchOutput = patchNode.canvasObserver.outputViewModels[safe: portId] else {
@@ -101,18 +99,19 @@ extension OutputNodeRowObserver {
                 return []
             }
             
-            outputs.append(patchOutput)
+            var outputs = [patchOutput]
             
             // Find row view models for group if applicable
             if patchNode.splitterNode?.type == .output {
                 // Group id is the only other row view model's canvas's parent ID
                 if let groupNodeId = outputs.first?.canvasItemDelegate?.parentGroupNodeId,
-                   let groupNode = self.nodeDelegate?.graphDelegate?.getNodeViewModel(groupNodeId)?.nodeType.groupNode {
+                   let groupNode: CanvasItemViewModel = graph.getNode(groupNodeId)?.nodeType.groupNode {
                     outputs += groupNode.outputViewModels.filter {
                         $0.rowDelegate?.id == self.id
                     }
                 }
             }
+            return outputs
             
         case .layer(let layerNode):
             guard let portId = id.portId,
@@ -120,12 +119,11 @@ extension OutputNodeRowObserver {
                 fatalErrorIfDebug()
                 return []
             }
-            
-            outputs.append(port.inspectorRowViewModel)
-            
+            var outputs = [port.inspectorRowViewModel]
             if let canvasOutput = port.canvasObserver?.outputViewModels.first {
                 outputs.append(canvasOutput)
             }
+            return outputs
             
         case .group(let canvas):
             guard let portId = self.id.portId,
@@ -133,8 +131,7 @@ extension OutputNodeRowObserver {
                 fatalErrorIfDebug()
                 return []
             }
-            
-            outputs.append(groupOutput)
+            return [groupOutput]
             
         case .component(let component):
             let canvas = component.canvas
@@ -144,10 +141,8 @@ extension OutputNodeRowObserver {
                 return []
             }
             
-            outputs.append(groupOutput)
+            return [groupOutput]
         }
-
-        return outputs
     }
     
     @MainActor

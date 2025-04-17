@@ -7,11 +7,10 @@
 
 import Foundation
 
-
 // UI data
 @Observable
 final class InputNodeRowViewModel: NodeRowViewModel {
-    typealias PortViewType = InputPortViewData
+    typealias PortViewType = InputPortIdAddress
     
     static let nodeIO: NodeIO = .input
     

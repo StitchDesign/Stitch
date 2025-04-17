@@ -19,7 +19,7 @@ struct OutputHoveredLongEnough: GraphEvent {
 extension GraphState {
 
     @MainActor
-    func outputHovered(outputCoordinate: OutputPortViewData,
+    func outputHovered(outputCoordinate: OutputPortIdAddress,
                        groupNodeFocused: NodeId?) {
         // log("outputHovered fired")
         
@@ -82,7 +82,7 @@ extension GraphState {
     
     @MainActor
     func getShownAndPossibleEdges(nearbyNode: CanvasItemViewModel,
-                                  outputCoordinate: OutputPortViewData,
+                                  outputCoordinate: OutputPortIdAddress,
                                   groupNodeFocused: NodeId?) -> (shownEdges: Set<PossibleEdgeId>,
                                             possibleEdges: PossibleEdgeSet) {
         var alreadyShownEdges = Set<PossibleEdgeId>()
@@ -138,12 +138,12 @@ extension CanvasItemViewModel {
     // or the input-splitter coords for a group node.
     @MainActor
     func edgeFriendlyInputCoordinates(from nodes: VisibleNodesViewModel,
-                                      focusedGroupId: NodeId?) -> [InputPortViewData] {
+                                      focusedGroupId: NodeId?) -> [InputPortIdAddress] {
         
         // this looks at ALL nodes' inputs -- need to look only at
         
         nodes.getCanvasItemsAtTraversalLevel(at: focusedGroupId)
-            .flatMap { canvasItem -> [InputPortViewData] in
+            .flatMap { canvasItem -> [InputPortIdAddress] in
                 
                 guard let nodeId = self.nodeDelegate?.id,
                       let canvasItemNodeId = canvasItem.nodeDelegate?.id,
@@ -154,7 +154,7 @@ extension CanvasItemViewModel {
                 
                 let inputsCount = canvasItem.inputViewModels.count
                 return (0..<inputsCount).map {
-                    InputPortViewData(portId: $0, canvasId: canvasItem.id)
+                    InputPortIdAddress(portId: $0, canvasId: canvasItem.id)
                 }
             }
     }
@@ -323,7 +323,7 @@ extension StitchDocumentViewModel {
         let labelAsPortId = labelPresssed.toPortId // i.e. port index
         // log("keyCharPressedDuringEdgeEditingMode: labelAsPortId: \(labelAsPortId)")
         
-        let destinationInput = InputPortViewData(portId: labelAsPortId, canvasId: nearbyNode.id)
+        let destinationInput = InputPortIdAddress(portId: labelAsPortId, canvasId: nearbyNode.id)
         
         //    let destinationInput = nearbyNode.groupNode?.splitterInputs[safe: labelAsPortId]?.rowObserver?.id ?? .init(portId: labelAsPortId, nodeId: nearbyNode.id)
         

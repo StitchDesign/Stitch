@@ -31,19 +31,24 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     /// Tracks upstream output row observer for some input. Cached for perf.
     @MainActor
     var upstreamOutputObserver: OutputNodeRowObserver? {
-        self.getUpstreamOutputObserver()
+        guard let graph = self.nodeDelegate?.graphDelegate else {
+            return nil
+        }
+        return self.getUpstreamOutputObserver(graph: graph)
     }
     
     // NodeRowObserver holds a reference to its parent, the Node
     @MainActor weak var nodeDelegate: NodeViewModel?
 
     // MARK: "derived data", cached for UI perf
-    
-    // Tracks upstream/downstream nodes--cached for perf
-    @MainActor var connectedNodes: NodeIdSet = .init()
-    
+        
     // Can't be computed for rendering purposes
     @MainActor var hasLoopedValues: Bool = false
+    
+    @MainActor
+    var hasEdge: Bool {
+        self.upstreamOutputCoordinate.isDefined
+    }
     
     @MainActor
     convenience init(from schema: NodePortInputEntity) {
@@ -172,30 +177,24 @@ extension InputNodeRowObserver {
     
     // Because `private`, needs to be declared in same file(?) as method that uses it
     @MainActor
-    private func getUpstreamOutputObserver() -> OutputNodeRowObserver? {
+    private func getUpstreamOutputObserver(graph: GraphReader) -> OutputNodeRowObserver? {
         guard let upstreamCoordinate = self.upstreamOutputCoordinate,
               let upstreamPortId = upstreamCoordinate.portId else {
             return nil
         }
 
         // Set current upstream observer
-        return self.nodeDelegate?.graphDelegate?.getNodeViewModel(upstreamCoordinate.nodeId)?
-            .getOutputRowObserver(for: upstreamPortId)
+        return graph.getNode(upstreamCoordinate.nodeId)?.getOutputRowObserver(for: upstreamPortId)
     }
-    
-    @MainActor
-    var hasEdge: Bool {
-        self.upstreamOutputCoordinate.isDefined
-    }
-    
+        
     @MainActor var allRowViewModels: [InputNodeRowViewModel] {
-        guard let node = self.nodeDelegate else {
+        guard let node = self.nodeDelegate,
+              let graph = node.graphDelegate else {
             return []
         }
-        
-        var inputs = [InputNodeRowViewModel]()
-        
+                
         switch node.nodeType {
+            
         case .patch(let patchNode):
             guard let portId = self.id.portId,
                   let patchInput = patchNode.canvasObserver.inputViewModels[safe: portId] else {
@@ -208,31 +207,31 @@ extension InputNodeRowObserver {
                 return []
             }
             
-            inputs.append(patchInput)
+            var inputs = [patchInput]
             
             // Find row view models for group if applicable
             if patchNode.splitterNode?.type == .input {
                 // Group id is the only other row view model's canvas's parent ID
                 if let groupNodeId = inputs.first?.canvasItemDelegate?.parentGroupNodeId,
-                   let groupNode = self.nodeDelegate?.graphDelegate?.getNodeViewModel(groupNodeId)?.nodeType.groupNode {
+                   let groupNode: CanvasItemViewModel = graph.getNode(groupNodeId)?.nodeType.groupNode {
                     inputs += groupNode.inputViewModels.filter {
                         $0.rowDelegate?.id == self.id
                     }
                 }
             }
+            return inputs
             
         case .layer(let layerNode):
             guard let keyPath = id.keyPath else {
                 fatalErrorIfDebug()
                 return []
             }
-            
-            let port = layerNode[keyPath: keyPath.layerNodeKeyPath]
-            inputs.append(port.inspectorRowViewModel)
-            
-            if let canvasInput = port.canvasObserver?.inputViewModels.first {
+            let layerInputRowData: InputLayerNodeRowData = layerNode[keyPath: keyPath.layerNodeKeyPath]
+            var inputs = [layerInputRowData.inspectorRowViewModel]
+            if let canvasInput = layerInputRowData.canvasObserver?.inputViewModels.first {
                 inputs.append(canvasInput)
             }
+            return inputs
             
         case .group(let canvas):
             guard let portId = self.id.portId,
@@ -240,8 +239,7 @@ extension InputNodeRowObserver {
                 fatalErrorIfDebug()
                 return []
             }
-            
-            inputs.append(groupInput)
+            return [groupInput]
             
         case .component(let component):
             let canvas = component.canvas
@@ -250,11 +248,8 @@ extension InputNodeRowObserver {
                 fatalErrorIfDebug()
                 return []
             }
-            
-            inputs.append(groupInput)
+            return [groupInput]
         }
-
-        return inputs
     }
     
     @MainActor
@@ -268,17 +263,17 @@ extension InputNodeRowObserver {
             return
         }
 
-        // Check for connected row observer rather than just setting ID--makes for
-        // a more robust check in ensuring the connection actually exists
-        assertInDebug(
-            connectedOutputObserver.id.portId.flatMap { portId in
-                self.nodeDelegate?
-                    .graphDelegate?
-                // Note: we have to retrieve the node for the upstream output
-                    .getNode(connectedOutputObserver.id.nodeId)?
-                    .getOutputRowObserver(for: portId)
-            }.isDefined
-        )
+        //        // Check for connected row observer rather than just setting ID--makes for
+        //        // a more robust check in ensuring the connection actually exists
+        //        assertInDebug(
+        //            connectedOutputObserver.id.portId.flatMap { portId in
+        //                self.nodeDelegate?
+        //                    .graphDelegate?
+        //                // Note: we have to retrieve the node for the upstream output
+        //                    .getNode(connectedOutputObserver.id.nodeId)?
+        //                    .getOutputRowObserver(for: portId)
+        //            }.isDefined
+        //        )
         
         // Report to output observer that there's an edge (for port colors)
         // We set this to false on default above

@@ -9,10 +9,9 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-
 protocol NodeRowViewModel: StitchLayoutCachable, Observable, Identifiable {
     associatedtype RowObserver: NodeRowObserver
-    associatedtype PortViewType: PortViewData
+    associatedtype PortViewType: PortIdAddress
     
     var id: NodeRowViewModelId { get }
     

@@ -8,22 +8,22 @@
 import Foundation
 import StitchSchemaKit
 
-// TODO: rename to `PortIdAddress`, since this is really a port-id-based way of representing an input's or output's address
-protocol PortViewData: Hashable {
+// fka `PortViewData`
+/// A port-id-based way of representing an input's or output's address
+protocol PortIdAddress: Hashable {
     var portId: Int { get set }
     var canvasId: CanvasItemId { get set }
     
     init(portId: Int, canvasId: CanvasItemId)
 }
 
-// TODO: rename to `InputPortIdAddress`
-struct InputPortViewData: PortViewData {
+struct InputPortIdAddress: PortIdAddress {
     var portId: Int
     var canvasId: CanvasItemId
 }
 
 // TODO: rename to `OutputPortIdAddress`
-struct OutputPortViewData: PortViewData {
+struct OutputPortIdAddress: PortIdAddress {
     var portId: Int
     var canvasId: CanvasItemId
 }
