@@ -94,7 +94,6 @@ struct LoopSelectNode: PatchNodeDefinition {
                                           outputLoopIndex: loopIndex,
                                           node: node)
         }
-                               .createPureEvalResult(node: node)
     }
     
     @MainActor

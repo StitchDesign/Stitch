@@ -169,5 +169,4 @@ func classicAnimationEval(node: PatchNode,
                 fps: fps)
         }
     }
-    .toImpureEvalResult()
 }

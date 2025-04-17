@@ -132,7 +132,7 @@ func soundImportEval(node: PatchNode) -> EvalResult {
     let graphTime = node.graphDelegate?.graphStepState.graphTime ?? .zero
     let defaultOutputs = node.defaultOutputs
 
-    let results: [MediaEvalOpResult] = node.loopedEval(MediaEvalOpObserver.self) { values, mediaObserver, loopIndex in
+    let results: [MediaEvalOpResult] = node.getLoopedEvalResults(MediaEvalOpObserver.self) { values, mediaObserver, loopIndex in
         
         mediaObserver.mediaEvalOpCoordinator(inputPortIndex: 0,
                                              values: values,

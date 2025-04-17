@@ -47,7 +47,7 @@ func setValueForKeyNode(id: NodeId,
 
 @MainActor
 func setValueForKeyEval(node: NodeViewModel) -> EvalResult {
-    node.loopedEval { values, _ in
+    node.loopedEval { (values, _) -> PortValues in
         let jsonObject = values.first?.getJSON ?? .emptyJSONObject
         let key = values[safe: 1]?.getString?.string ?? ""
         
@@ -64,5 +64,4 @@ func setValueForKeyEval(node: NodeViewModel) -> EvalResult {
         let j = jsonObject.setValueForKey(key, value)
         return [.json(j.toStitchJSON)]
     }
-    .createPureEvalResult()
 }
