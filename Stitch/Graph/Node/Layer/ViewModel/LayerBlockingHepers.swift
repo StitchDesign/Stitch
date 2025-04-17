@@ -61,8 +61,16 @@ extension LayerInputObserver {
         let input: LayerInputPort = self.port
         
         // Usually when blocking an input, we block ALL of its fields at once.
-        // Exceptions: e.g. sizingScenario = constrainWidth, we block the size input's width but not height
-        let fullInput: LayerInputKeyPathType = input.asFullInput.portType
+        let block = { (inputOrField: LayerInputType) -> () -> Void in
+            return {
+                self.blockedFields.insert(inputOrField.portType)
+            }
+        }
+        let blockFullInput: () -> Void = block(input.asFullInput)
+        
+        let blockFirstField = block(input.asFirstField)
+        let blockSecondField = block(input.asSecondField)
+        
 
         let isPinned = context.isPinned
         
@@ -76,6 +84,13 @@ extension LayerInputObserver {
         
         let scrollEnabled = context.scrollXEnabled || context.scrollYEnabled
         
+        let hasStaticWidth = context.hasStaticWidth
+        let hasStaticHeight = context.hasStaticHeight
+        
+        let widthIsConstrained: Bool = context.sizingScenario == .constrainWidth
+        let heightIsConstrained: Bool = context.sizingScenario == .constrainHeight
+        
+                
         // Note: most layer inputs cannot be blocked
         switch input {
         
@@ -84,40 +99,86 @@ extension LayerInputObserver {
             // Blocked when layer is pinned or has a non-ZStack parent
             if isPinned || hasNonZStackParent {
                 // The position input is always blocked *as a whole*
-                self.blockedFields.insert(fullInput)
+                blockFullInput()
+            }
+            
+        case .anchoring:
+            if isPinned {
+                blockFullInput()
             }
         
         // Offset-in-group is only for HStack/VStack/Grid
         case .offsetInGroup:
             // Blocked if the layer either has no parent, or has a z-stack parent, or has a scrollable grid parent
             if !hasParent || hasZStackParent || (hasGridParent && scrollEnabled) {
-                self.blockedFields.insert(fullInput)
+                blockFullInput()
             }
             
         // Only for layers in HStack/VStack (and NOT Grid?)
         case .spacing:
-            if !hasParent || hasZStackParent || hasGridParent  { // Other conditions when spacing is blocked?
-                self.blockedFields.insert(fullInput)
+            if !hasParent || hasZStackParent || hasGridParent  {
+                blockFullInput()
             }
         
         // Grid-specific inputs; only for children of a grid
         case .spacingBetweenGridRows, .spacingBetweenGridColumns, .itemAlignmentWithinGridCell:
             if !hasGridParent {
-                self.blockedFields.insert(fullInput)
+                blockFullInput()
             }
             
-            
-        // For
+        // For layers in HStack/VStack
         case .layerGroupAlignment:
             if !hasParent || hasZStackParent || hasGridParent {
-                self.blockedFields.insert(fullInput)
+                blockFullInput()
+            }
+        
+        case .size:
+            // constrained-width blocks the width field
+            if widthIsConstrained {
+                blockFirstField()
+            }
+            // constrained-height blocks the height field
+            if heightIsConstrained {
+                blockSecondField()
+            }
+        
+        case .minSize:
+            if hasStaticWidth || widthIsConstrained {
+                blockFirstField()
+            }
+            if hasStaticHeight || heightIsConstrained {
+                blockSecondField()
+            }
+            
+        case .maxSize:
+            if hasStaticWidth || widthIsConstrained {
+                blockFirstField()
+            }
+            if hasStaticHeight || heightIsConstrained {
+                blockSecondField()
+            }
+        
+        // aspect ratio inputs, only for constrained height/width
+        case .widthAxis, .heightAxis, .contentMode:
+            if context.sizingScenario == .auto {
+                blockFullInput()
             }
           
+        case .scrollJumpToX, .scrollJumpToXStyle, .scrollJumpToXLocation:
+            if !context.scrollXEnabled {
+                blockFullInput()
+            }
+            
+        case .scrollJumpToY, .scrollJumpToYStyle, .scrollJumpToYLocation:
+            if !context.scrollYEnabled {
+                blockFullInput()
+            }
+            
         // Pinning inputs: blocked if pinning is not enabled
         // Note: `isPinned` itself is NEVER blocked
         case .pinTo, .pinAnchor, .pinOffset:
             if !isPinned {
-                self.blockedFields.insert(fullInput)
+                blockFullInput()
             }
             
         // Note: VAST MAJORITY of inputs can NEVER be "blocked" whether in part or whole
@@ -144,10 +205,19 @@ extension LayerInputObserver {
 // TODO: should be by index?
 struct BlockingContext: Equatable, Codable, Hashable {
     let isPinned: Bool // Is this layer pinned?
+
+    let hasAutoSizingScenario: Bool
+    let hasStaticWidth: Bool
+    let hasStaticHeight: Bool
+    
     let parentGroupOrientation: StitchOrientation? // nil = this layer is not part of a group
     let scrollXEnabled: Bool
     let scrollYEnabled: Bool
+
+    
+    
     let sizingScenario: SizingScenario
+    
     let sizeIsStatic: Bool // (LayerDimension) -> Bool
     let usesGrid: Bool // not needed ?
 }

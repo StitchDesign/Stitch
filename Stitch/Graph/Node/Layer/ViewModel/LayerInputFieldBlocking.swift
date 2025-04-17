@@ -74,7 +74,6 @@ extension NodeViewModel {
     }
 }
 
-
 extension LayerInputPort {
     
     var asFullInput: LayerInputType {
