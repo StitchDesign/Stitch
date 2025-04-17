@@ -53,31 +53,3 @@ struct SpringValueState {
     // animation stops when currentVelocity is less than some epsilon
     var currentVelocity: Double = .zero
 }
-
-// single field animation
-// e.g. Number
-//struct OneFieldSpringAnimation: Equatable, Hashable {
-//    var values = SpringAnimationValues()
-//}
-//
-//// e.g. Position
-//struct TwoFieldSpringAnimation: Equatable, Hashable {
-//    var valuesX = SpringAnimationValues()
-//    var valuesY = SpringAnimationValues()
-//}
-
-//enum SpringAnimationState: Equatable, Hashable {
-//    case one(OneFieldSpringAnimation),
-//         two(TwoFieldSpringAnimation)
-//
-//    // is this the proper way to reset a spring animation's progress?
-//    var resetSpringAnimation: SpringAnimationState {
-//        switch self {
-//        case .one:
-//            return .one(.init())
-//        case .two:
-//            return .two(.init())
-//        }
-//    }
-//}
-

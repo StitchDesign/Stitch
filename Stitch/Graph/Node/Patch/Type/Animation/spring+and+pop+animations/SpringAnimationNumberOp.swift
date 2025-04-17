@@ -30,14 +30,6 @@ func springAnimationOp(toValue: Double,
     //    log("springAnimationNumberOp: eval called")
     //    log("springAnimationNumberOp: isPopAnimation: \(isPopAnimation)")
     
-    // the goal number
-//    let toValue: Double = values.first?.getNumber ?? .zero
-    
-    
-    // Pop node has 3 inputs, so the current output will be the 4th value, i.e. index = 3
-    // Spring node has 4 inputs, so current output will be 5th value, i.e. index = 4
-//    let currentOutputIndex = isPopAnimation ? 3 : 4
-    
     // i.e. current output
     let position: Double = graphTime.graphJustStarted ? toValue : currentOutputValue
     
@@ -95,11 +87,6 @@ func springAnimationOp(toValue: Double,
         //        log("springAnimationNumberOp: roundedToValue: \(roundedToValue)")
         //        log("springAnimationNumberOp: toValue: \(toValue)")
         
-        // wipe animation values
-        // MARK: removing animation state change here
-//        animationState.springValues = nil
-//        computedState.springAnimationState = .one(singleAnimationState)
-        
         return .init(result: toValue,
                      resultType: .complete)
     }
@@ -121,8 +108,6 @@ func springAnimationOp(toValue: Double,
             // to the goal (toValue)
             fromValue: position,
             toValue: toValue)
-        
-//        computedState.springAnimationState = .one(singleAnimationState)
         
         // Exit from eval, but indicate that node should run again
         // TODO: this will exit before we've run the animation at stepTime=0; is that okay? stepTime=0 always returns the `fromValue`?
@@ -172,10 +157,6 @@ func springAnimationOp(toValue: Double,
         springValues.stepTime = .zero
         springValues.currentVelocity = .zero
         
-        // Put updated springValues back in animationState
-//        singleAnimationState.values.springValues = springValues
-//        computedState.springAnimationState = .one(singleAnimationState)
-        
         // Note: current output does not automatically change just because mass, stiffness or damping changed;
         // we'll need to run
         return .init(result: position,
@@ -203,8 +184,6 @@ func springAnimationOp(toValue: Double,
                 
     // Set new velocity
     springValues.currentVelocity = newVelocity
-//    singleAnimationState.values.springValues = springValues
-//    computedState.springAnimationState = .one(singleAnimationState)
     
     // log("springAnimationNumber: newPosition: \(newPosition)")
     
