@@ -572,8 +572,13 @@ extension LayerNodeViewModel {
     @MainActor
     func didValuesUpdate(newValuesList: PortValuesList) {
 
+        guard let node = self.nodeDelegate,
+              let graph = node.graphDelegate else {
+            return
+        }
+        
         let oldLongestLoopLength = self.previewLayerViewModels.count
-        let newLongestLoopLength = self.nodeDelegate?.longestLoopLength ?? 1
+        let newLongestLoopLength = node.longestLoopLength
         let loopIndices = newLongestLoopLength.loopIndices
 
         // Keeps track of original media list for lengthening
@@ -594,7 +599,7 @@ extension LayerNodeViewModel {
             self.previewLayerViewModels = Array(self.previewLayerViewModels[0..<newLongestLoopLength])
             
             // Re-sort preview layers when looping changes
-            self.nodeDelegate?.graphDelegate?.shouldResortPreviewLayers = true
+            graph.shouldResortPreviewLayers = true
         }
 
         // Get preview layer view model given values loop index
@@ -605,7 +610,9 @@ extension LayerNodeViewModel {
                 self.updatePreviewLayers(lengthenedValuesList: lengthenedValuesList,
                                          id: id,
                                          loopIndex: loopIndex,
-                                         changedPortId: portId)
+                                         changedPortId: portId,
+                                         node: node,
+                                         graph: graph)
             }
         }
         
@@ -622,8 +629,7 @@ extension LayerNodeViewModel {
         #endif
         
         // Loop changed conditions
-        if loopLengthChanged,
-           let graph = self.nodeDelegate?.graphDelegate {
+        if loopLengthChanged {
             // If the length of the loop in the layer node's input changed,
             // we should evaluate the graph from the layer's associated interaction patch nodes.
             // https://github.com/StitchDesign/Stitch--Old/issues/6923
@@ -643,7 +649,9 @@ extension LayerNodeViewModel {
     func updatePreviewLayers(lengthenedValuesList: PortValuesList,
                              id: NodeId,
                              loopIndex: Int,
-                             changedPortId: Int) {
+                             changedPortId: Int,
+                             node: NodeViewModel,
+                             graph: GraphSetter) {
         let previewCoordinate = PreviewCoordinate(layerNodeId: id.asLayerNodeId,
                                                   loopIndex: loopIndex)
         // Always true except for inputs like Reality node's first input which accepts multiple anchors
@@ -663,18 +671,21 @@ extension LayerNodeViewModel {
                     .createPreviewLayerViewModel(id: previewCoordinate,
                                                  layer: self.layer,
                                                  lengthenedValuesList: lengthenedValuesList,
-                                                 nodeDelegate: self.nodeDelegate)
+                                                 node: node,
+                                                 graph: graph)
                 self.previewLayerViewModels.append(newPreviewLayer)
                 
                 // Re-sort preview layers when looping changes
-                self.nodeDelegate?.graphDelegate?.shouldResortPreviewLayers = true
+                var graph = graph
+                graph.shouldResortPreviewLayers = true
             }
             return
         }
 
         if shouldUpdatePreviewLayers {
             previewViewModel.update(with: lengthenedValuesList,
-                                    changedPortId: changedPortId)
+                                    changedPortId: changedPortId,
+                                    graph: graph)
         }
     }
 }
@@ -685,13 +696,15 @@ extension Layer {
     func createPreviewLayerViewModel(id: PreviewCoordinate,
                                      layer: Layer,
                                      lengthenedValuesList: PortValuesList,
-                                     nodeDelegate: NodeViewModel?) -> LayerViewModel {
+                                     node: NodeViewModel,
+                                     graph: GraphSetter) -> LayerViewModel {
         let viewModel = LayerViewModel(id: id,
                                        layer: layer,
-                                       nodeDelegate: nodeDelegate)
+                                       nodeDelegate: node)
 
         // Plug in values
-        viewModel.updateAllValues(with: lengthenedValuesList)
+        viewModel.updateAllValues(with: lengthenedValuesList,
+                                  graph: graph)
 
         return viewModel
     }

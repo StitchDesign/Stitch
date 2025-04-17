@@ -111,7 +111,7 @@ func classicAnimationEval(node: PatchNode,
         
         // We must have a userVisibleType on a classic animation node
         guard let evalType: AnimationNodeType = node.userVisibleType.map(AnimationNodeType.fromNodeType) else {
-            log("classicAnimationEval: had invalid node type: \(node.userVisibleType)")
+            log("classicAnimationEval: had invalid node type: \(String(describing: node.userVisibleType))")
             fatalErrorIfDebug() // we were assigned some false or bad type
             return ImpureEvalOpResult(outputs: [.number(.zero)])
         }
