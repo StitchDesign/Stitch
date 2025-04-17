@@ -12,9 +12,17 @@ import StitchEngine
 
 @Observable
 final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
-    static let nodeIOType: NodeIO = .input
+    typealias RowID = NodeIOCoordinate
+    
+    typealias PortData = <#type#>
+    
 
-    let id: NodeIOCoordinate
+    typealias IdCoordinate = InputCoordinate
+    
+    static let nodeIOType: NodeIO = .input
+    
+
+    let id: IdCoordinate
     
     // Data-side for values
     @MainActor

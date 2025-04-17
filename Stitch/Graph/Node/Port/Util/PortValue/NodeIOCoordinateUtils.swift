@@ -13,8 +13,19 @@ typealias InputCoordinates = [InputCoordinate]
 
 // a coordinate is a port's id: the port id + the node id
 // TODO: cleanup typealiases
-typealias InputCoordinate = NodeIOCoordinate
+//typealias InputCoordinate = NodeIOCoordinate
 typealias OutputCoordinate = NodeIOCoordinate
+
+struct InputCoordinate: Equatable, Codable, Hashable {
+    // port-index (patch) or key path (layer)
+    let portType: NodeIOPortType
+    let nodeId: NodeId
+}
+
+struct _OutputCoordinate: Equatable, Codable, Hashable {
+    let portIndex: Int // patch and layer inputs always use port-index
+    let nodeId: NodeId
+}
 
 extension InputCoordinate {
     // Could this input be a media picker?

@@ -35,8 +35,10 @@ extension PortValue: Sendable { }
 
 protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRowCalculatable {
     associatedtype RowViewModelType: NodeRowViewModel
+    associatedtype IdCoordinate
     
-    var id: NodeIOCoordinate { get }
+//    var id: NodeIOCoordinate { get }
+    var id: IdCoordinate { get }
     
     // Data-side for values
     @MainActor var allLoopedValues: PortValues { get set }
