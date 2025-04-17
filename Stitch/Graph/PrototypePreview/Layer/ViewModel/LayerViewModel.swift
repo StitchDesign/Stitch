@@ -510,7 +510,8 @@ extension LayerViewModel {
     
     @MainActor
     func updatePreviewLayer(from lengthenedValuesList: PortValuesList,
-                            changedPortId: Int) {
+                            changedPortId: Int,
+                            graph: GraphSetter) {
         guard let inputType = self.layer.layerGraphNode
             .inputDefinitions[safe: changedPortId] else {
             fatalErrorIfDebug()
@@ -519,14 +520,16 @@ extension LayerViewModel {
         
         self.updatePreviewLayer(lengthenedValuesList: lengthenedValuesList,
                                 portId: changedPortId,
-                                inputType: inputType)
+                                inputType: inputType,
+                                graph: graph)
     }
     
     /// Update preview layer from layer node.
     @MainActor
     private func updatePreviewLayer(lengthenedValuesList: PortValuesList,
                                     portId: Int,
-                                    inputType: LayerInputPort) {
+                                    inputType: LayerInputPort,
+                                    graph: GraphSetter) {
         let loopIndex = self.id.loopIndex
         let inputSupportsLoopedValues = inputType.supportsLoopedTypes
         
@@ -550,7 +553,8 @@ extension LayerViewModel {
                 self.updatePreviewLayerInput(value, inputType: inputType)
                 
                 if inputType.shouldResortPreviewLayersIfChanged {
-                    self.nodeDelegate?.graphDelegate?.shouldResortPreviewLayers = true
+                    var graph = graph
+                    graph.shouldResortPreviewLayers = true
                 }
             }
         }
@@ -576,19 +580,23 @@ extension LayerViewModel {
     }
     
     @MainActor
-    func updateAllValues(with lengthenedValuesList: PortValuesList) {
+    func updateAllValues(with lengthenedValuesList: PortValuesList,
+                         graph: GraphSetter) {
         let portIds = lengthenedValuesList.indices
         portIds.forEach {
             let portId = $0
             self.update(with: lengthenedValuesList,
-                        changedPortId: portId)
+                        changedPortId: portId,
+                        graph: graph)
         }
     }
 
     @MainActor
     func update(with lengthenedValuesList: PortValuesList,
-                changedPortId: Int) {
+                changedPortId: Int,
+                graph: GraphSetter) {
         self.updatePreviewLayer(from: lengthenedValuesList,
-                                changedPortId: changedPortId)
+                                changedPortId: changedPortId,
+                                graph: graph)
     }
 }

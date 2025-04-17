@@ -37,7 +37,7 @@ extension NodeTimerEphemeralObserver {
         
         // Note: some nodes do not have node-types; in that case, current node type and original node type will always both be `nil`.
         guard node.userVisibleType == originalNodeType else {
-            log("AssignDelayedValueAction: node types no longer match; current type is \(node.userVisibleType) but original type was \(originalNodeType)")
+            log("AssignDelayedValueAction: node types no longer match; current type is \(String(describing: node.userVisibleType)) but original type was \(String(describing: originalNodeType))")
             return
         }
         
