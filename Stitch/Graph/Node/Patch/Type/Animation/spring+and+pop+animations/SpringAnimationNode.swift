@@ -89,8 +89,10 @@ func springAnimationEval(node: PatchNode,
         // Returns unpacked numbers to later be packed into PortValues
         let outputResults: PortValues = zip(toValues, currentOutputs)
             .enumerated().map { index, springValues in
-                guard let toValue = springValues.0.getNumber else {
+                // Start with unpacking layer dimension first in case of position
+                guard let toValue = springValues.0.getLayerDimension?.getNumber else {
                     // Return whatever our input is to support non-number layer dimensions
+                    animationObserver.springStates.append(nil)
                     return springValues.0
                 }
                 
@@ -98,7 +100,7 @@ func springAnimationEval(node: PatchNode,
                 
                 let result = springAnimationOp(toValue: toValue,
                                                values: values,
-                                               currentOutputValue: currentOutputValue.getNumber ?? .zero,
+                                               currentOutputValue: currentOutputValue.getLayerDimension?.getNumber ?? .zero,
                                                state: currentSpringStates[safe: index] ?? nil,
                                                graphTime: graphStepState.graphTime,
                                                isPopAnimation: isPopAnimation)
