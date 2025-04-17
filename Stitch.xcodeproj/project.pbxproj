@@ -121,7 +121,7 @@
 		B55500C42C1B9E300081C3F1 /* FieldViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500C32C1B9E300081C3F1 /* FieldViewModel.swift */; };
 		B55500C62C1B9F9D0081C3F1 /* FieldValueMedia.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500C52C1B9F9D0081C3F1 /* FieldValueMedia.swift */; };
 		B55500C82C1B9FCF0081C3F1 /* LayerDimensionField.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500C72C1B9FCF0081C3F1 /* LayerDimensionField.swift */; };
-		B55500CA2C1BA37D0081C3F1 /* PortViewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500C92C1BA37D0081C3F1 /* PortViewData.swift */; };
+		B55500CA2C1BA37D0081C3F1 /* PortIdAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500C92C1BA37D0081C3F1 /* PortIdAddress.swift */; };
 		B55500CC2C1BA3F60081C3F1 /* PortEdgeUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500CB2C1BA3F60081C3F1 /* PortEdgeUI.swift */; };
 		B55500D32C1BA6810081C3F1 /* PreviewWindowSizing.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500D22C1BA6810081C3F1 /* PreviewWindowSizing.swift */; };
 		B55500D92C1BA9470081C3F1 /* PreviewShapeLayerKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500D82C1BA9470081C3F1 /* PreviewShapeLayerKind.swift */; };
@@ -1110,7 +1110,7 @@
 		B55500C32C1B9E300081C3F1 /* FieldViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldViewModel.swift; sourceTree = "<group>"; };
 		B55500C52C1B9F9D0081C3F1 /* FieldValueMedia.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldValueMedia.swift; sourceTree = "<group>"; };
 		B55500C72C1B9FCF0081C3F1 /* LayerDimensionField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerDimensionField.swift; sourceTree = "<group>"; };
-		B55500C92C1BA37D0081C3F1 /* PortViewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortViewData.swift; sourceTree = "<group>"; };
+		B55500C92C1BA37D0081C3F1 /* PortIdAddress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortIdAddress.swift; sourceTree = "<group>"; };
 		B55500CB2C1BA3F60081C3F1 /* PortEdgeUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortEdgeUI.swift; sourceTree = "<group>"; };
 		B55500D22C1BA6810081C3F1 /* PreviewWindowSizing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewWindowSizing.swift; sourceTree = "<group>"; };
 		B55500D82C1BA9470081C3F1 /* PreviewShapeLayerKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewShapeLayerKind.swift; sourceTree = "<group>"; };
@@ -3333,7 +3333,7 @@
 				EC16587C2B6AF03F00FE4AE6 /* EdgeEditingState.swift */,
 				EC1658812B6AFDDA00FE4AE6 /* EdgeEditingModeInputLabel.swift */,
 				ECFA5D47287DEE510037CD59 /* PortColor.swift */,
-				B55500C92C1BA37D0081C3F1 /* PortViewData.swift */,
+				B55500C92C1BA37D0081C3F1 /* PortIdAddress.swift */,
 				203D56B925B0DA7C00EF7AC2 /* PortEdgeData.swift */,
 				B55500CB2C1BA3F60081C3F1 /* PortEdgeUI.swift */,
 				EC8967012B4E1D3B0066879B /* EdgeStyle.swift */,
@@ -5414,7 +5414,7 @@
 				EC9C6F9B298C45EE00E05523 /* NodeTagMenuButtonsView.swift in Sources */,
 				ECCFB3662C35E09400E94D60 /* LengthDimension.swift in Sources */,
 				ECDE943428089FCE00005401 /* NodesView.swift in Sources */,
-				B55500CA2C1BA37D0081C3F1 /* PortViewData.swift in Sources */,
+				B55500CA2C1BA37D0081C3F1 /* PortIdAddress.swift in Sources */,
 				ECC2BCEB2B9B867E00D5F942 /* SidebarListActionHelpers.swift in Sources */,
 				ECA92A58260A6C1D00281B52 /* Coordinate.swift in Sources */,
 				B5CF644A294B8B6200EF83DB /* NodeTitleTextField.swift in Sources */,

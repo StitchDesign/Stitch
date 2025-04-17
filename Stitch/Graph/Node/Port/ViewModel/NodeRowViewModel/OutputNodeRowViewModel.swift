@@ -10,7 +10,7 @@ import Foundation
 
 @Observable
 final class OutputNodeRowViewModel: NodeRowViewModel {
-    typealias PortViewType = OutputPortViewData
+    typealias PortAddressType = OutputPortIdAddress
     
     static let nodeIO: NodeIO = .output
 
@@ -31,13 +31,20 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     @MainActor var anchorPoint: CGPoint?
     @MainActor var portColor: PortColor = .noEdge
     @MainActor var isDragging = false
-    @MainActor var portViewData: PortViewType?
+    @MainActor var portViewData: PortAddressType?
     
     
     // MARK: delegates, weak references to parents
     
     @MainActor weak var nodeDelegate: NodeViewModel?
     @MainActor weak var rowDelegate: OutputNodeRowObserver?
+    
+    /*
+     // Can an inspector output-row ever have a canvas item delegate ? Or would a "layer output on the graph" be represented as a non-nil canvas item reference on the `OutputLayerNodeRowData` ?
+     // i.e. is this `canvasItemDelegate` only for
+     
+     
+     */
     @MainActor weak var canvasItemDelegate: CanvasItemViewModel?
     
     init(id: NodeRowViewModelId,

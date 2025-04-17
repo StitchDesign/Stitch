@@ -47,9 +47,11 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
             
     @MainActor var nodeDelegate: NodeViewModel? { get set }
     
+    // Just for updating port color; cached
     @MainActor
     var hasLoopedValues: Bool { get set }
-        
+    
+    // Just for updating port color; derived from input's or output's connection
     @MainActor
     var hasEdge: Bool { get }
     
