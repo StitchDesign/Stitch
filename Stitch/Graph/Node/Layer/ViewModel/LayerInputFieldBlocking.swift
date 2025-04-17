@@ -411,10 +411,7 @@ extension LayerNodeViewModel {
     
     @MainActor
     func updateMinMaxWidthFieldsBlockingPerWidth(activeIndex: ActiveIndex) {
-        
         // Check the input itself (the value at the active-index), not the field view model.
-        
-        
         guard let widthIsNumber = self.getLayerInputObserver(.size).getActiveValue(activeIndex: activeIndex).getSize?.width.isNumber else {
             fatalErrorIfDebug("updateMinMaxWidthFieldsBlockingPerWidth: no field?")
             return
@@ -429,7 +426,6 @@ extension LayerNodeViewModel {
     
     @MainActor
     func updateMinMaxHeightFieldsBlockingPerHeight(activeIndex: ActiveIndex) {
-
         // Check the input itself (the value at the active-index), not the field view model.
         guard let heightIsNumber = self.getLayerInputObserver(.size).getActiveValue(activeIndex: activeIndex).getSize?.height.isNumber else {
             fatalErrorIfDebug("updateMinMaxHeightFieldsBlockingPerHeight: no field?")
@@ -529,21 +525,21 @@ extension LayerNodeViewModel {
     @MainActor
     func isPinnedUpdated(newValue: Bool) {
         
-        let stitch = self
+        let node = self
         
         if newValue {
             // Unblock all pin-related inputs
-            stitch.unblockPinInputs()
+            node.unblockPinInputs()
             
             // Block position and anchoring
-            stitch.blockPositionAndAnchoringInputs()
+            node.blockPositionAndAnchoringInputs()
             
         } else {
             // Block all pin-related inputs
-            stitch.blockPinInputs()
+            node.blockPinInputs()
             
             // Unblock position and anchoring
-            stitch.unblockPositionAndAnchoringInputs()
+            node.unblockPositionAndAnchoringInputs()
         }
     }
     
