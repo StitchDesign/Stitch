@@ -528,12 +528,30 @@ extension LayerNodeViewModel {
                                           graph: graph)
         }
         
+        self.refreshAllBlockedLayerInputs(graph: graph)
+        
         // Set blocked fields after all fields have been initialized
+//        self.forEachInput { layerInput in
+//            
+//            updateLayerNodeBlockedFields(layerNode: self,
+//                                         layerInput: layerInput.port,
+//                                         graph: graph,
+//                                         activeIndex: activeIndex)
+//            
+////            self.blockOrUnblockFields(
+////                newValue: layerInput.getActiveValue(activeIndex: activeIndex),
+////                layerInput: layerInput.port,
+////                activeIndex: activeIndex)
+//        }
+    }
+    
+    @MainActor
+    func refreshAllBlockedLayerInputs(graph: GraphReader) {
         self.forEachInput { layerInput in
-            self.blockOrUnblockFields(
-                newValue: layerInput.getActiveValue(activeIndex: activeIndex),
-                layerInput: layerInput.port,
-                activeIndex: activeIndex)
+            updateLayerNodeBlockedFields(layerNode: self,
+                                         layerInput: layerInput.port,
+                                         graph: graph,
+                                         activeIndex: activeIndex)
         }
     }
     

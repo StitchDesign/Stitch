@@ -7,6 +7,9 @@
 
 import Foundation
 
+func curry<A, B, C>(_ function: @escaping (A, B) -> C) -> (A) -> (B) -> C {
+    return { a in { b in function(a, b) } }
+}
 
 /// Data needed to determine whether a given input should be blocked (either the entire input or just some field)
 struct LayerInputBlockingContext: Equatable, Codable, Hashable {
@@ -31,7 +34,45 @@ struct LayerInputBlockingContext: Equatable, Codable, Hashable {
     var hasStaticHeight: Bool {
         self.size.height.isNumber
     }
+
+    @MainActor
+    static func create(from graph: GraphReader,
+                       activeIndex: ActiveIndex,
+                       // TODO: Should be by index, not active-index? So need preview model, not layer node model
+                       layerNode: LayerNodeReader) -> Self? {
+                
+        let getValue = { (node: LayerNodeReader, port: LayerInputPort) -> PortValue in
+            node.getLayerInputObserver(port).getActiveValue(activeIndex: activeIndex)
+        }
+                
+        let parentId = layerNode.layerGroupId
+        
+        let parentOrientation: StitchOrientation? = parentId
+            .map { graph.getLayerNodeReader($0) }?
+            .map { getValue($0, .orientation) }?
+            .getOrientation
+
+        // TODO: perf-wise, is it better to avoid currying in high-intensity call sites? Could use the less concise `getActiveValueAt` method instead
+        let fn = curry(getValue)(layerNode)
+        
+        guard let isPinned = fn(.isPinned).getBool,
+              let scrollXEnabled = fn(.scrollXEnabled).getBool,
+              let scrollYEnabled = fn(.scrollYEnabled).getBool,
+              let size = fn(.size).getSize,
+              let sizingScenario = fn(.sizingScenario).getSizingScenario else {
+            fatalErrorIfDebug()
+            return nil
+        }
+    
+        return .init(isPinned: isPinned,
+                     parentGroupOrientation: parentId.isDefined ? parentOrientation : nil,
+                     scrollXEnabled: scrollXEnabled,
+                     scrollYEnabled: scrollYEnabled,
+                     size: size,
+                     sizingScenario: sizingScenario)
+    }
 }
+
 
 extension LayerInputObserver {
     // For this `self: LayerInputPort` (i.e. layer input),
@@ -46,18 +87,18 @@ extension LayerInputObserver {
         // Wipe the existing blocked fields
         self.blockedFields = .init()
         
-        
         let input: LayerInputPort = self.port
         
-        // Usually when blocking an input, we block ALL of its fields at once.
         let block = { (inputOrField: LayerInputType) -> () -> Void in
             return {
                 self.blockedFields.insert(inputOrField.portType)
             }
         }
+        
+        // Usually when blocking an input, we block ALL of its fields at once...
         let blockFullInput: () -> Void = block(input.asFullInput)
         
-        // Exception: e.g. for sizingScenario = constrainWidth, we block size input's width ("first field") but not its height ("second field")
+        // ... Exception: e.g. for sizingScenario = constrainWidth, we block size input's width ("first field") but not its height ("second field")
         let blockFirstField = block(input.asFirstField)
         let blockSecondField = block(input.asSecondField)
         
