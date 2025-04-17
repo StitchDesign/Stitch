@@ -653,6 +653,7 @@
 		EC89F7E127602C0700C4447A /* ExpansionBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC89F7E027602C0700C4447A /* ExpansionBox.swift */; };
 		EC8A48ED2710EB2F001BB4FC /* GraphStepState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8A48EC2710EB2F001BB4FC /* GraphStepState.swift */; };
 		EC8A48F22710EC39001BB4FC /* NodeTypeChangedActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8A48F12710EC39001BB4FC /* NodeTypeChangedActions.swift */; };
+		EC8AEED82DB1B5EA00A1F6B6 /* LayerNodeReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8AEED72DB1B5EA00A1F6B6 /* LayerNodeReader.swift */; };
 		EC8BA54526A62D14002E345C /* DeviceMotionNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8BA54426A62D14002E345C /* DeviceMotionNode.swift */; };
 		EC8BA54726A6383F002E345C /* SmoothValueNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8BA54626A6383F002E345C /* SmoothValueNode.swift */; };
 		EC8BA54926A6388B002E345C /* VelocityNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8BA54826A6388B002E345C /* VelocityNode.swift */; };
@@ -1628,6 +1629,7 @@
 		EC89F7E027602C0700C4447A /* ExpansionBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpansionBox.swift; sourceTree = "<group>"; };
 		EC8A48EC2710EB2F001BB4FC /* GraphStepState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphStepState.swift; sourceTree = "<group>"; };
 		EC8A48F12710EC39001BB4FC /* NodeTypeChangedActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeTypeChangedActions.swift; sourceTree = "<group>"; };
+		EC8AEED72DB1B5EA00A1F6B6 /* LayerNodeReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerNodeReader.swift; sourceTree = "<group>"; };
 		EC8BA54426A62D14002E345C /* DeviceMotionNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceMotionNode.swift; sourceTree = "<group>"; };
 		EC8BA54626A6383F002E345C /* SmoothValueNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmoothValueNode.swift; sourceTree = "<group>"; };
 		EC8BA54826A6388B002E345C /* VelocityNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VelocityNode.swift; sourceTree = "<group>"; };
@@ -3764,6 +3766,7 @@
 			isa = PBXGroup;
 			children = (
 				EC733DC32639E24C00DD4EC1 /* LayerNodeViewModel.swift */,
+				EC8AEED72DB1B5EA00A1F6B6 /* LayerNodeReader.swift */,
 				ECB46CDA2DB171B5006EFB93 /* LayerInputFieldBlocking.swift */,
 				ECB46CDC2DB1733A006EFB93 /* LayerBlockingHepers.swift */,
 			);
@@ -5715,6 +5718,7 @@
 				ECC301AB293808BF00C34F10 /* ArraySortNode.swift in Sources */,
 				B58723BB2B27894700EAB0E5 /* StitchDocumentUtil.swift in Sources */,
 				ECA929F4260A690400281B52 /* RepeatingPulsePatchNode.swift in Sources */,
+				EC8AEED82DB1B5EA00A1F6B6 /* LayerNodeReader.swift in Sources */,
 				B58E3FCB290357E500700656 /* ToastView.swift in Sources */,
 				EC7451B2294D2C6200C7EB80 /* LocationData.swift in Sources */,
 				EC804494294431C800DCFCF4 /* LayerEvalHelpers.swift in Sources */,

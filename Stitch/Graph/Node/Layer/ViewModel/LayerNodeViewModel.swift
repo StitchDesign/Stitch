@@ -528,7 +528,7 @@ extension LayerNodeViewModel {
                                           graph: graph)
         }
         
-        self.refreshAllBlockedLayerInputs(graph: graph)
+        self.refreshAllBlockedLayerInputs(graph: graph, activeIndex: activeIndex)
         
         // Set blocked fields after all fields have been initialized
 //        self.forEachInput { layerInput in
@@ -546,7 +546,7 @@ extension LayerNodeViewModel {
     }
     
     @MainActor
-    func refreshAllBlockedLayerInputs(graph: GraphReader) {
+    func refreshAllBlockedLayerInputs(graph: GraphReader, activeIndex: ActiveIndex) {
         self.forEachInput { layerInput in
             updateLayerNodeBlockedFields(layerNode: self,
                                          layerInput: layerInput.port,

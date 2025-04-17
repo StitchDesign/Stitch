@@ -196,13 +196,6 @@ func updateLayerNodeBlockedFields(layerNode: LayerNodeReader,
     layerInputObserver.maybeBlockFields(context: blockContext)
 }
 
-protocol LayerNodeReader {
-    func getLayerInputObserver(_ layerInput: LayerInputPort) -> LayerInputObserver
-    var layerGroupId: NodeId? { get }
-}
-
-extension LayerNodeViewModel: LayerNodeReader { }
-
 
 extension NodeRowObserver {
     @MainActor
