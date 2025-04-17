@@ -13,7 +13,7 @@ import StitchSchemaKit
 /*
  Iterates through this row observer's row view models, updating each row view model's:
  - cache of connectedCanvasItems
- -
+ - port color
  */
 extension InputNodeRowObserver {
     

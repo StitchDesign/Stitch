@@ -10,7 +10,7 @@ import Foundation
 // UI data
 @Observable
 final class InputNodeRowViewModel: NodeRowViewModel {
-    typealias PortViewType = InputPortIdAddress
+    typealias PortAddressType = InputPortIdAddress
     
     static let nodeIO: NodeIO = .input
     
@@ -30,7 +30,7 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     @MainActor var anchorPoint: CGPoint?
     @MainActor var portColor: PortColor = .noEdge
     @MainActor var isDragging = false
-    @MainActor var portViewData: PortViewType?
+    @MainActor var portViewData: PortAddressType?
     
     
     // MARK: delegates, weak references to parents
@@ -57,7 +57,9 @@ final class InputNodeRowViewModel: NodeRowViewModel {
 extension InputNodeRowViewModel {
     @MainActor
     func findConnectedCanvasItems(rowObserver: InputNodeRowObserver) -> CanvasItemIdSet {
+        // Does this input row observer has an upstream connection?
         guard let upstreamOutputObserver = rowObserver.upstreamOutputObserver,
+              // If so, find that row view model
               let upstreamNodeRowViewModel = upstreamOutputObserver.nodeRowViewModel,
               let upstreamId = upstreamNodeRowViewModel.canvasItemDelegate?.id else {
             return .init()
