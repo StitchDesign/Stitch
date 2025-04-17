@@ -57,12 +57,19 @@ struct SpringAnimationNode: PatchNodeDefinition {
 }
 
 @MainActor
-func springAnimationEval(node: PatchNode,
+func springAnimationEval(node: NodeViewModel,
                          graphStepState: GraphStepState) -> EvalResult {
-    
-    let outputIndex = 4
-    let isPopAnimation = false
-    
+    springAnimationEval(node: node,
+                        graphTime: graphStepState.graphTime,
+                        outputIndex: 4,
+                        isPopAnimation: false)
+}
+
+@MainActor
+func springAnimationEval(node: NodeViewModel,
+                         graphTime: TimeInterval,
+                         outputIndex: Int,
+                         isPopAnimation: Bool) -> EvalResult {
     assertInDebug(node.userVisibleType != nil)
     let nodeType = node.userVisibleType ?? .number
     
@@ -102,7 +109,7 @@ func springAnimationEval(node: PatchNode,
                                                values: values,
                                                currentOutputValue: currentOutputValue.getLayerDimension?.getNumber ?? .zero,
                                                state: currentSpringStates[safe: index] ?? nil,
-                                               graphTime: graphStepState.graphTime,
+                                               graphTime: graphTime,
                                                isPopAnimation: isPopAnimation)
                 
                 switch result.resultType {

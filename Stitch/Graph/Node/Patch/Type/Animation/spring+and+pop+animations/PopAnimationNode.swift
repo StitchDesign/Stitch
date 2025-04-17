@@ -53,25 +53,8 @@ struct PopAnimationNode: PatchNodeDefinition {
 @MainActor
 func popAnimationEval(node: PatchNode,
                       graphStepState: GraphStepState) -> ImpureEvalResult {
-    fatalError()
-    
-//
-//    node.loopedEval(ComputedNodeState.self) { values, computedState, _ in
-//        switch node.userVisibleType! {
-//        case .number:
-//            return springAnimationNumberOp(
-//                    values: values,
-//                    computedState: computedState,
-//                    graphTime: graphStepState.graphTime,
-//                    isPopAnimation: true)
-//        case .position:
-//            return springAnimationPositionOp(
-//                    values: values,
-//                    computedState: computedState,
-//                    graphTime: graphStepState.graphTime,
-//                    isPopAnimation: true)
-//        default:
-//            fatalError()
-//        }
-//    }
+    springAnimationEval(node: node,
+                        graphTime: graphStepState.graphTime,
+                        outputIndex: 3,
+                        isPopAnimation: true)
 }
